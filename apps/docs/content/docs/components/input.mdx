@@ -163,4 +163,6 @@ focus-visible:ring-ring/50` becomes `outline-hidden` plus `focus:border-ring/70`
 - **FRM-4** — `disabled:pointer-events-none` is dropped, so a disabled input stays hoverable and a
   Tooltip can explain it. Base UI's Input has no `focusableWhenDisabled`, so the native `disabled`
   attribute stays: this is the pointer half of FRM-4 only.
+- **API-26** — NO HUNK: Base UI's `Input` is `Field.Control`, so inside a `Field` it already takes
+  its label, the rendered description and error ids, and `aria-invalid` from the Field.
 - **DOC-2** — `cn` is imported from `@vegastack/design`.

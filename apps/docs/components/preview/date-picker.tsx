@@ -12,6 +12,12 @@ import {
   type DatePreset,
   type DateRange,
 } from "@/components/ui/date-picker";
+import {
+  Field,
+  FieldDescription,
+  FieldError,
+  FieldLabel,
+} from "@/components/ui/field";
 
 /**
  * These pages are STATICALLY EXPORTED, so the trigger label is formatted once on the build host
@@ -253,6 +259,32 @@ function DatePickerFormattingDemo(): ReactNode {
           </div>
         </div>
       ))}
+    </Wrapper>
+  );
+}
+
+/**
+ * DS-47: inside a `Field` the trigger is labelled by `FieldLabel`, described by the rendered
+ * description and error, and marked invalid from the Field — no ids to wire.
+ */
+export function datePickerInsideField(): ReactNode {
+  const [due, setDue] = useState<Date | undefined>();
+  return (
+    <Wrapper className="grid gap-4 sm:grid-cols-2">
+      <Field>
+        <FieldLabel>Due date</FieldLabel>
+        <DatePicker
+          value={SELECTED}
+          onValueChange={() => {}}
+          locale={DOCS_LOCALE}
+        />
+        <FieldDescription>When the task is due.</FieldDescription>
+      </Field>
+      <Field data-invalid>
+        <FieldLabel>Follow-up</FieldLabel>
+        <DatePicker value={due} onValueChange={setDue} locale={DOCS_LOCALE} />
+        <FieldError>Pick a follow-up date.</FieldError>
+      </Field>
     </Wrapper>
   );
 }

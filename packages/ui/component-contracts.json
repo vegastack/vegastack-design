@@ -7348,6 +7348,7 @@
         "@vegastack/button"
       ],
       "npmDependencies": [
+        "@base-ui/react@^1.6.0",
         "react-day-picker@^10",
         "lucide-react@^1.47.0",
         "@vegastack/design@^0.7.4",
@@ -9306,6 +9307,7 @@
       "docsSlug": "/docs/components/field",
       "registryDependencies": ["@vegastack/label", "@vegastack/separator"],
       "npmDependencies": [
+        "@base-ui/react@^1.6.0",
         "class-variance-authority@^0.7.1",
         "lucide-react@^1.47.0",
         "@vegastack/design@^0.7.4",
@@ -9359,6 +9361,10 @@
         "Field": {
           "attributes": [
             {
+              "name": "data-invalid",
+              "values": []
+            },
+            {
               "name": "data-orientation",
               "values": []
             },
@@ -9391,7 +9397,7 @@
           "attributes": [
             {
               "name": "data-slot",
-              "values": ["field-label"]
+              "values": ["field-title"]
             }
           ],
           "cssVariables": []
@@ -15474,9 +15480,14 @@
         }
       ],
       "variants": {
-        "status": "not-applicable-or-inherited",
-        "dimensions": [],
-        "rationale": "Upstream ships no variant dimension for this component."
+        "status": "observed",
+        "dimensions": [
+          {
+            "name": "variant",
+            "values": ["outline", "ghost"],
+            "evidence": "packages/ui/registry/ui/select.tsx: SelectTrigger variant prop (API-24)"
+          }
+        ]
       },
       "sizes": {
         "status": "observed",
@@ -15535,6 +15546,7 @@
       "docsSlug": "/docs/components/select",
       "registryDependencies": [],
       "npmDependencies": [
+        "class-variance-authority@^0.7.1",
         "@base-ui/react@^1.6.0",
         "lucide-react@^1.47.0",
         "@vegastack/design@^0.7.4",
@@ -15578,6 +15590,10 @@
             {
               "name": "data-slot",
               "values": ["select-trigger"]
+            },
+            {
+              "name": "data-variant",
+              "values": []
             }
           ],
           "cssVariables": []
@@ -19396,6 +19412,7 @@
       "docsSlug": "/docs/components/textarea",
       "registryDependencies": [],
       "npmDependencies": [
+        "@base-ui/react@^1.6.0",
         "@vegastack/design@^0.7.4",
         "@vegastack/design-tokens@^0.7.1"
       ],

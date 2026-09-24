@@ -76,10 +76,21 @@ in display units:
 ### Units and states
 
 A percent format, the unit suffix, `hideControls`, `disabled`, and the invalid border tint. Wrap the
-field in a [`Field`](/docs/components/field) to pair the tint with a message and the invalid shake.
+field in a [`Field`](/docs/components/field) to pair the tint with a message.
 
 <ComponentPreview
   name="numberFieldVariants"
+  file="components/preview/number-field.tsx"
+/>
+
+### Inside a Field
+
+Inside a [`Field`](/docs/components/field) the inner `<input>` — never the group — takes the label,
+the rendered description and error ids, and `aria-invalid`. Outside one, `aria-describedby`,
+`aria-labelledby` and `id` also land on the input.
+
+<ComponentPreview
+  name="numberFieldInsideField"
   file="components/preview/number-field.tsx"
 />
 

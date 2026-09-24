@@ -4,7 +4,8 @@ import { render } from "vitest-browser-react";
 import { userEvent } from "vitest/browser";
 import { expect, test, vi } from "vitest";
 import { expectNoA11yViolations } from "../../test/a11y";
-import { Field, FieldLabel } from "./field";
+import { fieldWiringTests } from "../../test/field-wiring";
+import { Field, FieldDescription, FieldError, FieldLabel } from "./field";
 import { PasswordInput } from "./password-input";
 
 test("toggles between password and text with a named, pressed-state button", async () => {
@@ -54,4 +55,52 @@ test("disabled disables both the input and the toggle", async () => {
   await expect
     .element(screen.getByRole("button", { name: "Show password" }))
     .toHaveAttribute("aria-disabled", "true");
+});
+
+/* DS-47 — no code of its own: the inner input is `InputGroupInput` → `Input` → Base UI Field.Control */
+
+test("DS-47: inside a Field the password input is labelled, described and invalid", async () => {
+  const screen = await render(
+    <Field data-invalid>
+      <FieldLabel>Password</FieldLabel>
+      <PasswordInput />
+      <FieldDescription>At least 8 characters.</FieldDescription>
+      <FieldError>Too short.</FieldError>
+    </Field>,
+  );
+  const input = screen.getByLabelText("Password", { exact: true });
+  await expect.element(input).toHaveAttribute("type", "password");
+  await expect.element(input).toHaveAttribute("aria-invalid", "true");
+  await expect
+    .element(input)
+    .toHaveAccessibleDescription(/At least 8 characters/);
+  await expect.element(input).toHaveAccessibleDescription(/Too short/);
+});
+
+test("no a11y violations — inside a Field, valid", async () => {
+  const screen = await render(
+    <Field>
+      <FieldLabel>Password</FieldLabel>
+      <PasswordInput />
+      <FieldDescription>At least 8 characters.</FieldDescription>
+    </Field>,
+  );
+  await expectNoA11yViolations(screen.container);
+});
+
+test("no a11y violations — inside a Field, invalid", async () => {
+  const screen = await render(
+    <Field data-invalid>
+      <FieldLabel>Password</FieldLabel>
+      <PasswordInput />
+      <FieldError>Too short.</FieldError>
+    </Field>,
+  );
+  await expectNoA11yViolations(screen.container);
+});
+
+fieldWiringTests({
+  name: "PasswordInput",
+  render: (props) => <PasswordInput {...props} />,
+  find: (screen, name) => screen.getByLabelText(name, { exact: true }),
 });

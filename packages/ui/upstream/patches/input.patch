@@ -1,5 +1,5 @@
 # component: input
-# decisions: DOC-1, DOC-2, FOC-1, FOC-3, FOC-5, FOC-6, FOC-8, FRM-4
+# decisions: API-26, DOC-1, DOC-2, FOC-1, FOC-3, FOC-5, FOC-6, FOC-8, FRM-4
 # hunks:
 #   FOC-1, FOC-3, FOC-6, FOC-8: `outline-none focus-visible:border-ring focus-visible:ring-3
 #     focus-visible:ring-ring/50` becomes `outline-hidden` plus `focus:border-ring/70` — the
@@ -11,6 +11,9 @@
 #   FRM-4: `disabled:pointer-events-none` is dropped, so a disabled input stays hoverable and a
 #     Tooltip can explain it. Base UI's Input has no `focusableWhenDisabled`, so the native
 #     `disabled` attribute stays — the pointer half of FRM-4 only.
+#   API-26: NO HUNK — the engine already implements it. Base UI's `Input` is `Field.Control`, so
+#     inside a `Field` it reads the label, description and error ids and `aria-invalid` with no
+#     code; `input.test.tsx` pins it.
 #   cn: `import { cn } from "cn"` becomes `@vegastack/design` — our npm layer owns `cn` (DOC-2).
 #   formatting: the repository formatter (prettier defaults: semicolons, trailing commas)
 #               reflows the file, and `registry-stamp.mjs` writes the provenance header the

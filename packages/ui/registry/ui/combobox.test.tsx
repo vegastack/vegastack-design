@@ -3,6 +3,7 @@ import { render } from "vitest-browser-react";
 import { userEvent } from "vitest/browser";
 import { expect, test } from "vitest";
 import { expectNoA11yViolations } from "../../test/a11y";
+import { fieldWiringTests } from "../../test/field-wiring";
 import {
   Combobox,
   ComboboxChip,
@@ -20,7 +21,7 @@ import {
   ComboboxValue,
 } from "./combobox";
 import { Button } from "./button";
-import { Field, FieldError, FieldLabel } from "./field";
+import { Field, FieldDescription, FieldError, FieldLabel } from "./field";
 
 const frameworks = ["Next.js", "SvelteKit", "Nuxt.js", "Remix", "Astro"];
 
@@ -537,4 +538,83 @@ test("no a11y violations — multiple", async () => {
     </Combobox>,
   );
   await expectNoA11yViolations(screen.container);
+});
+
+/* API-26 — no hunk: Base UI's Combobox input reads the Field context itself */
+
+function FieldFramework() {
+  return (
+    <Combobox items={frameworks}>
+      <ComboboxInput placeholder="Select a framework" />
+      <ComboboxContent>
+        <ComboboxEmpty>No items found.</ComboboxEmpty>
+        <ComboboxList>
+          {(item: string) => (
+            <ComboboxItem key={item} value={item}>
+              {item}
+            </ComboboxItem>
+          )}
+        </ComboboxList>
+      </ComboboxContent>
+    </Combobox>
+  );
+}
+
+test("API-26 (engine): inside a Field the input is labelled, described and invalid", async () => {
+  const screen = await render(
+    <Field data-invalid>
+      <FieldLabel>Framework</FieldLabel>
+      <FieldFramework />
+      <FieldDescription>The one you deploy.</FieldDescription>
+      <FieldError>Choose a framework to continue.</FieldError>
+    </Field>,
+  );
+  const input = screen.getByRole("combobox", { name: "Framework" });
+  await expect.element(input).toHaveAttribute("aria-invalid", "true");
+  await expect.element(input).toHaveAccessibleDescription(/The one you deploy/);
+  await expect
+    .element(input)
+    .toHaveAccessibleDescription(/Choose a framework to continue/);
+});
+
+test("no a11y violations — automatic Field wiring, valid", async () => {
+  const screen = await render(
+    <Field>
+      <FieldLabel>Framework</FieldLabel>
+      <FieldFramework />
+      <FieldDescription>The one you deploy.</FieldDescription>
+    </Field>,
+  );
+  await expectNoA11yViolations(screen.container);
+});
+
+test("no a11y violations — automatic Field wiring, invalid", async () => {
+  const screen = await render(
+    <Field data-invalid>
+      <FieldLabel>Framework</FieldLabel>
+      <FieldFramework />
+      <FieldError>Choose a framework to continue.</FieldError>
+    </Field>,
+  );
+  await expectNoA11yViolations(screen.container);
+});
+
+fieldWiringTests({
+  name: "ComboboxInput",
+  render: (props) => (
+    <Combobox items={frameworks}>
+      <ComboboxInput placeholder="Select a framework" {...props} />
+      <ComboboxContent>
+        <ComboboxEmpty>No items found.</ComboboxEmpty>
+        <ComboboxList>
+          {(item: string) => (
+            <ComboboxItem key={item} value={item}>
+              {item}
+            </ComboboxItem>
+          )}
+        </ComboboxList>
+      </ComboboxContent>
+    </Combobox>
+  ),
+  find: (screen, name) => screen.getByRole("combobox", { name }),
 });

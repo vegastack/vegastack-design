@@ -3,6 +3,7 @@ import { render } from "vitest-browser-react";
 import { userEvent } from "vitest/browser";
 import { expect, test } from "vitest";
 import { expectNoA11yViolations } from "../../test/a11y";
+import { fieldWiringTests } from "../../test/field-wiring";
 import { Input } from "./input";
 import { Field, FieldDescription, FieldError, FieldLabel } from "./field";
 
@@ -158,4 +159,51 @@ test("no a11y violations — filled", async () => {
     </Field>,
   );
   await expectNoA11yViolations(screen.container);
+});
+
+/* API-26 — no hunk: Base UI's Input IS `Field.Control`, so it reads the Field with no code */
+
+test("API-26 (engine): inside a Field the input is labelled, described and invalid", async () => {
+  const screen = await render(
+    <Field data-invalid>
+      <FieldLabel>Email</FieldLabel>
+      <Input type="email" />
+      <FieldDescription>We never share it.</FieldDescription>
+      <FieldError>Enter a valid email.</FieldError>
+    </Field>,
+  );
+  const input = screen.getByRole("textbox", { name: "Email" });
+  await expect.element(input).toHaveAttribute("aria-invalid", "true");
+  await expect.element(input).toHaveAccessibleDescription(/We never share it/);
+  await expect
+    .element(input)
+    .toHaveAccessibleDescription(/Enter a valid email/);
+});
+
+test("no a11y violations — automatic Field wiring, valid", async () => {
+  const screen = await render(
+    <Field>
+      <FieldLabel>Email</FieldLabel>
+      <Input type="email" />
+      <FieldDescription>We never share it.</FieldDescription>
+    </Field>,
+  );
+  await expectNoA11yViolations(screen.container);
+});
+
+test("no a11y violations — automatic Field wiring, invalid", async () => {
+  const screen = await render(
+    <Field data-invalid>
+      <FieldLabel>Email</FieldLabel>
+      <Input type="email" />
+      <FieldError>Enter a valid email.</FieldError>
+    </Field>,
+  );
+  await expectNoA11yViolations(screen.container);
+});
+
+fieldWiringTests({
+  name: "Input",
+  render: (props) => <Input {...props} />,
+  find: (screen, name) => screen.getByRole("textbox", { name }),
 });

@@ -3,6 +3,7 @@ import { render } from "vitest-browser-react";
 import { userEvent } from "vitest/browser";
 import { expect, test } from "vitest";
 import { expectNoA11yViolations } from "../../test/a11y";
+import { fieldWiringTests } from "../../test/field-wiring";
 import {
   Select,
   SelectContent,
@@ -13,7 +14,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "./select";
-import { Field, FieldError, FieldLabel } from "./field";
+import { Field, FieldDescription, FieldError, FieldLabel } from "./field";
 // The scroll arrows only mount while the popup overflows, which needs compiled CSS this lane does
 // not have. Their INT-1 exemption is asserted against the source instead.
 import selectSource from "./select.tsx?raw";
@@ -362,4 +363,128 @@ test("no a11y violations — disabled", async () => {
     </Field>,
   );
   await expectNoA11yViolations(screen.container);
+});
+
+/* API-26 — no hunk: Base UI's Select reads the Field context itself */
+
+function FieldFruit({ variant }: { variant?: "outline" | "ghost" }) {
+  return (
+    <Select items={items}>
+      <SelectTrigger variant={variant}>
+        <SelectValue placeholder="Select a fruit" />
+      </SelectTrigger>
+      <SelectContent>
+        <SelectGroup>
+          {items.map((item) => (
+            <SelectItem key={item.label} value={item.value}>
+              {item.label}
+            </SelectItem>
+          ))}
+        </SelectGroup>
+      </SelectContent>
+    </Select>
+  );
+}
+
+test("API-26 (engine): inside a Field the trigger is labelled, described and invalid", async () => {
+  const screen = await render(
+    <Field data-invalid>
+      <FieldLabel>Fruit</FieldLabel>
+      <FieldFruit />
+      <FieldDescription>Pick one.</FieldDescription>
+      <FieldError>Please select a fruit.</FieldError>
+    </Field>,
+  );
+  const trigger = screen.getByRole("combobox", { name: "Fruit" });
+  await expect.element(trigger).toHaveAttribute("aria-invalid", "true");
+  await expect.element(trigger).toHaveAccessibleDescription(/Pick one/);
+  await expect
+    .element(trigger)
+    .toHaveAccessibleDescription(/Please select a fruit/);
+});
+
+test("no a11y violations — automatic Field wiring, valid", async () => {
+  const screen = await render(
+    <Field>
+      <FieldLabel>Fruit</FieldLabel>
+      <FieldFruit />
+      <FieldDescription>Pick one.</FieldDescription>
+    </Field>,
+  );
+  await expectNoA11yViolations(screen.container);
+});
+
+test("no a11y violations — automatic Field wiring, invalid", async () => {
+  const screen = await render(
+    <Field data-invalid>
+      <FieldLabel>Fruit</FieldLabel>
+      <FieldFruit />
+      <FieldError>Please select a fruit.</FieldError>
+    </Field>,
+  );
+  await expectNoA11yViolations(screen.container);
+});
+
+/* API-24 — the default trigger is `w-full`; `variant="ghost"` is the inline, content-width tier */
+
+test("API-24: the trigger reflects its variant, outline by default", async () => {
+  const screen = await render(
+    <>
+      <Fruit />
+      <Fruit
+        triggerProps={{ variant: "ghost", "aria-label": "Inline fruit" }}
+      />
+    </>,
+  );
+  const outline = screen.getByRole("combobox", { name: "Fruit" }).element();
+  const ghost = screen
+    .getByRole("combobox", { name: "Inline fruit" })
+    .element();
+  expect(outline.getAttribute("data-variant")).toBe("outline");
+  expect(ghost.getAttribute("data-variant")).toBe("ghost");
+});
+
+// API-24's geometry — the default trigger filling its parent, ghost sizing to content, a consumer
+// width winning on either variant, the ghost border on hover, focus and open, and the trigger
+// keeping content width inside upstream's ButtonGroup — needs compiled CSS, so it is measured in
+// `test/geometry.browser.test.tsx` (`select-trigger-width`), not asserted as class strings here.
+
+test("no a11y violations — ghost at rest", async () => {
+  const screen = await render(<Fruit triggerProps={{ variant: "ghost" }} />);
+  await expectNoA11yViolations(screen.container);
+});
+
+test("no a11y violations — ghost open", async () => {
+  const screen = await render(<Fruit triggerProps={{ variant: "ghost" }} />);
+  await userEvent.click(screen.getByRole("combobox", { name: "Fruit" }));
+  await expectNoA11yViolations(document.body);
+});
+
+test("no a11y violations — ghost invalid", async () => {
+  const screen = await render(
+    <Field data-invalid>
+      <FieldLabel>Fruit</FieldLabel>
+      <FieldFruit variant="ghost" />
+      <FieldError>Please select a fruit.</FieldError>
+    </Field>,
+  );
+  await expect
+    .element(screen.getByRole("combobox", { name: "Fruit" }))
+    .toHaveAttribute("aria-invalid", "true");
+  await expectNoA11yViolations(screen.container);
+});
+
+fieldWiringTests({
+  name: "SelectTrigger",
+  render: (props) => (
+    <Select items={items}>
+      <SelectTrigger {...props}>
+        <SelectValue placeholder="Select a fruit" />
+      </SelectTrigger>
+      <SelectContent>
+        <SelectItem value="apple">Apple</SelectItem>
+      </SelectContent>
+    </Select>
+  ),
+  find: (screen, name) => screen.getByRole("combobox", { name }),
 });

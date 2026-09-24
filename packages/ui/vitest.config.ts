@@ -58,6 +58,7 @@ export default defineConfig({
       "@shadcn/react/message-scroller",
       "@shadcn/react/questionnaire",
       "@base-ui/react/input",
+      "@base-ui/react/field",
       // The engines Batches 3-5 adopted. Same rationale as everything else here: discovered
       // mid-run, Vite re-optimizes, reloads the page and splits React module identity.
       // `sonner` was the third; it left with the component on 2026-09-22 (OVL-10).

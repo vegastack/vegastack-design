@@ -271,6 +271,8 @@ Upstream's file plus `packages/ui/upstream/patches/combobox.patch`. Every hunk:
 - **BRD-1** — `ComboboxContent` draws a real 1px `border border-border` instead of upstream's
   `ring-1 ring-foreground/10` box-shadow outline. A border survives forced colours and matches
   [Elevation](/docs/foundations/elevation); nothing else about the surface moves.
+- **API-26** — NO HUNK: Base UI's `Combobox.Input` reads the `Field` context itself, so inside a
+  `Field` it takes its label, the rendered description and error ids, and `aria-invalid`.
 - **DOC-2** — `cn` is imported from `@vegastack/design`.
 - **DOC-1** — prettier reflow plus the `registry-stamp.mjs` provenance header the three-copy model
   needs; no decision of its own.

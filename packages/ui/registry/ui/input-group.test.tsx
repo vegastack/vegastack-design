@@ -3,6 +3,7 @@ import { render } from "vitest-browser-react";
 import { userEvent } from "vitest/browser";
 import { expect, test } from "vitest";
 import { expectNoA11yViolations } from "../../test/a11y";
+import { fieldWiringTests } from "../../test/field-wiring";
 import {
   InputGroup,
   InputGroupAddon,
@@ -11,6 +12,7 @@ import {
   InputGroupText,
   InputGroupTextarea,
 } from "./input-group";
+import { Field, FieldDescription, FieldError, FieldLabel } from "./field";
 import { Kbd } from "./kbd";
 import { Spinner } from "./spinner";
 
@@ -309,4 +311,88 @@ test("no a11y violations — textarea", async () => {
     </InputGroup>,
   );
   await expectNoA11yViolations(screen.container);
+});
+
+/* API-26 — no hunk: InputGroupInput is our Input (Base UI Field.Control) and InputGroupTextarea is
+   our Textarea (Field.Control since API-26), so both read the Field through the controls they wrap */
+
+test("API-26: inside a Field the group input is labelled, described and invalid", async () => {
+  const screen = await render(
+    <Field data-invalid>
+      <FieldLabel>Website</FieldLabel>
+      <InputGroup>
+        <InputGroupAddon>
+          <InputGroupText>https://</InputGroupText>
+        </InputGroupAddon>
+        <InputGroupInput />
+      </InputGroup>
+      <FieldDescription>Your public site.</FieldDescription>
+      <FieldError>Enter a domain.</FieldError>
+    </Field>,
+  );
+  const input = screen.getByRole("textbox", { name: "Website" });
+  await expect.element(input).toHaveAttribute("aria-invalid", "true");
+  await expect.element(input).toHaveAccessibleDescription(/Your public site/);
+  await expect.element(input).toHaveAccessibleDescription(/Enter a domain/);
+});
+
+test("API-26: inside a Field the group textarea is labelled, described and invalid", async () => {
+  const screen = await render(
+    <Field data-invalid>
+      <FieldLabel>Message</FieldLabel>
+      <InputGroup>
+        <InputGroupTextarea />
+      </InputGroup>
+      <FieldError>Too long.</FieldError>
+    </Field>,
+  );
+  const box = screen.getByRole("textbox", { name: "Message" });
+  await expect.element(box).toHaveAttribute("aria-invalid", "true");
+  await expect.element(box).toHaveAccessibleDescription(/Too long/);
+});
+
+test("no a11y violations — inside a Field, valid", async () => {
+  const screen = await render(
+    <Field>
+      <FieldLabel>Website</FieldLabel>
+      <InputGroup>
+        <InputGroupInput />
+      </InputGroup>
+      <FieldDescription>Your public site.</FieldDescription>
+    </Field>,
+  );
+  await expectNoA11yViolations(screen.container);
+});
+
+test("no a11y violations — inside a Field, invalid", async () => {
+  const screen = await render(
+    <Field data-invalid>
+      <FieldLabel>Website</FieldLabel>
+      <InputGroup>
+        <InputGroupInput />
+      </InputGroup>
+      <FieldError>Enter a domain.</FieldError>
+    </Field>,
+  );
+  await expectNoA11yViolations(screen.container);
+});
+
+fieldWiringTests({
+  name: "InputGroupInput",
+  render: (props) => (
+    <InputGroup>
+      <InputGroupInput {...props} />
+    </InputGroup>
+  ),
+  find: (screen, name) => screen.getByRole("textbox", { name }),
+});
+
+fieldWiringTests({
+  name: "InputGroupTextarea",
+  render: (props) => (
+    <InputGroup>
+      <InputGroupTextarea {...props} />
+    </InputGroup>
+  ),
+  find: (screen, name) => screen.getByRole("textbox", { name }),
 });

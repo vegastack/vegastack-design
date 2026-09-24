@@ -116,6 +116,18 @@ properties, so a right-to-left document mirrors the whole control.
 
 <ComponentPreview name="selectSizes" file="components/preview/select.tsx" />
 
+### Inline trigger
+
+The default trigger fills its parent, like every form control. For a Select that sits inline — in a
+table row, a list item or a toolbar — use `variant="ghost"`: it sizes to its content, has no border
+at rest, and shows the border on hover, on focus and while the popup is open. Pair it with
+`size="sm"` in dense rows, and give it an accessible name.
+
+<ComponentPreview
+  name="selectInlineTrigger"
+  file="components/preview/select.tsx"
+/>
+
 ### States
 
 The trigger's rest, invalid and disabled chrome, closed.
@@ -148,7 +160,8 @@ props of their own — each accepts everything the Base UI part accepts.
   the positioner inside the portal (OVL-13) — a dark or scoped surface survives the portal.
 - Items carry the hand cursor from the one global rule in `base.css` (INT-1); upstream's local
   `cursor-default` is removed.
-- Give the trigger an accessible name — an `aria-label`, or a `FieldLabel`.
+- Give the trigger an accessible name — a `FieldLabel` in the same `Field` (wired automatically), or
+  an `aria-label` for an inline `ghost` trigger.
 
 <StatesTested name="select" />
 
@@ -179,4 +192,11 @@ focus-visible:ring-3 focus-visible:ring-ring/50` becomes `focus:border-ring/70`:
 - **BRD-1** — `SelectContent` draws a real 1px `border border-border` instead of upstream's
   `ring-1 ring-foreground/10` box-shadow outline. A border survives forced colours and matches
   [Elevation](/docs/foundations/elevation); nothing else about the surface moves.
+- **API-24** — `SelectTrigger` takes `variant="outline" | "ghost"` (reflected as `data-variant`).
+  The default trigger is `w-full`, where upstream's is `w-fit`, so a Select takes its width from its
+  parent like every other form control; `ghost` keeps `w-fit`, hides its border at rest and shows
+  it on hover, focus and open.
+- **API-26** — NO HUNK for the wiring: Base UI's `Select` reads the `Field` context itself, so
+  inside a `Field` the trigger takes its label, the rendered description and error ids, and
+  `aria-invalid`.
 - **DOC-2** — `cn` is imported from `@vegastack/design`.

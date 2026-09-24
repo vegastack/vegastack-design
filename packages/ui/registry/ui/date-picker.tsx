@@ -1,4 +1,4 @@
-// @vegastack date-picker@0.17.1 sha256-HwL0dW3K38wv8YB4k8mh92eI42HBTrdVQcPabItfdbI=
+// @vegastack date-picker@0.17.1 sha256-Z99wH0o94f33Rgqy1NVJOS8Xwi4sX6CFvpS9JOvupLA=
 
 "use client";
 
@@ -11,6 +11,7 @@ import {
   type Matcher,
 } from "react-day-picker";
 import { Calendar as CalendarIcon } from "lucide-react";
+import { Field as FieldPrimitive } from "@base-ui/react/field";
 import { cn } from "@vegastack/design";
 import { Button } from "@/components/ui/button";
 import { Calendar, CalendarDayButton } from "@/components/ui/calendar";
@@ -388,31 +389,38 @@ export function DatePicker({
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger
+      {/* DS-47: the trigger renders through Base UI `Field.Control`, so inside a `Field` it takes
+          its label, description and error ids and `aria-invalid` from the Field. The explicit
+          props below still win (`id`) or come first (`aria-describedby`). */}
+      <FieldPrimitive.Control
+        id={id}
+        disabled={disabled}
+        aria-describedby={ariaDescribedBy}
+        aria-invalid={ariaInvalid}
         render={
-          <Button
-            variant="outline"
-            disabled={disabled}
-            data-slot="date-picker-trigger"
-            data-empty={value ? undefined : ""}
-            aria-label={ariaLabel}
-            id={id}
-            aria-describedby={ariaDescribedBy}
-            aria-invalid={ariaInvalid}
-            className={cn(
-              // `w-full` like upstream's Input, Select trigger and Combobox trigger — a form
-              // control takes its width from its parent. A fixed-width trigger overflowed a 320px
-              // content area and was the only fixed-width control in the system (audit B8-03).
-              "w-full justify-start gap-2 font-normal data-[empty]:text-muted-foreground",
-              className,
-            )}
-          >
-            <CalendarIcon
-              className="size-4 text-muted-foreground"
-              aria-hidden
-            />
-            {value ? formatDate(value, formatOptions, locale) : placeholder}
-          </Button>
+          <PopoverTrigger
+            render={
+              <Button
+                variant="outline"
+                data-slot="date-picker-trigger"
+                data-empty={value ? undefined : ""}
+                aria-label={ariaLabel}
+                className={cn(
+                  // `w-full` like upstream's Input, Select trigger and Combobox trigger — a form
+                  // control takes its width from its parent. A fixed-width trigger overflowed a 320px
+                  // content area and was the only fixed-width control in the system (audit B8-03).
+                  "w-full justify-start gap-2 font-normal data-[empty]:text-muted-foreground",
+                  className,
+                )}
+              >
+                <CalendarIcon
+                  className="size-4 text-muted-foreground"
+                  aria-hidden
+                />
+                {value ? formatDate(value, formatOptions, locale) : placeholder}
+              </Button>
+            }
+          />
         }
       />
       <PopoverContent
@@ -619,29 +627,36 @@ export function DateRangePicker({
 
   return (
     <Popover open={open} onOpenChange={handleOpenChange}>
-      <PopoverTrigger
+      {/* DS-47: the trigger renders through Base UI `Field.Control`, so inside a `Field` it takes
+          its label, description and error ids and `aria-invalid` from the Field. The explicit
+          props below still win (`id`) or come first (`aria-describedby`). */}
+      <FieldPrimitive.Control
+        id={id}
+        disabled={disabled}
+        aria-describedby={ariaDescribedBy}
+        aria-invalid={ariaInvalid}
         render={
-          <Button
-            variant="outline"
-            disabled={disabled}
-            data-slot="date-range-picker-trigger"
-            data-empty={value?.from ? undefined : ""}
-            aria-label={ariaLabel}
-            id={id}
-            aria-describedby={ariaDescribedBy}
-            aria-invalid={ariaInvalid}
-            className={cn(
-              // `w-full` — see the single DatePicker's note above (audit B8-03).
-              "w-full justify-start gap-2 font-normal data-[empty]:text-muted-foreground",
-              className,
-            )}
-          >
-            <CalendarIcon
-              className="size-4 text-muted-foreground"
-              aria-hidden
-            />
-            {label}
-          </Button>
+          <PopoverTrigger
+            render={
+              <Button
+                variant="outline"
+                data-slot="date-range-picker-trigger"
+                data-empty={value?.from ? undefined : ""}
+                aria-label={ariaLabel}
+                className={cn(
+                  // `w-full` — see the single DatePicker's note above (audit B8-03).
+                  "w-full justify-start gap-2 font-normal data-[empty]:text-muted-foreground",
+                  className,
+                )}
+              >
+                <CalendarIcon
+                  className="size-4 text-muted-foreground"
+                  aria-hidden
+                />
+                {label}
+              </Button>
+            }
+          />
         }
       />
       <PopoverContent

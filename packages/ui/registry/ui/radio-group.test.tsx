@@ -2,6 +2,7 @@ import * as React from "react";
 import { render } from "vitest-browser-react";
 import { expect, test } from "vitest";
 import { expectNoA11yViolations } from "../../test/a11y";
+import { fieldWiringTests } from "../../test/field-wiring";
 import { RadioGroup, RadioGroupItem } from "./radio-group";
 import {
   Field,
@@ -252,4 +253,16 @@ test("no a11y violations — disabled", async () => {
     </RadioGroup>,
   );
   await expectNoA11yViolations(screen.container);
+});
+
+fieldWiringTests({
+  name: "RadioGroup",
+  render: (props) => (
+    <RadioGroup defaultValue="a" {...props}>
+      <RadioGroupItem value="a" aria-label="Option A" />
+      <RadioGroupItem value="b" aria-label="Option B" />
+    </RadioGroup>
+  ),
+  find: (screen, name) => screen.getByRole("radiogroup", { name }),
+  idCheck: "control",
 });

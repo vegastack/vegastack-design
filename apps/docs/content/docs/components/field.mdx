@@ -142,12 +142,30 @@ Every gap and inset is logical, so a right-to-left form mirrors without any per-
 
 ### Validation and Errors
 
-Put `data-invalid` on the `Field` to switch the whole block into its error state, and `aria-invalid`
-on the control for assistive tech. `FieldError` takes children, or an `errors` array it de-duplicates
-into a list.
+Put `data-invalid` on the `Field` to switch the whole block into its error state; the control inside
+it is marked `aria-invalid` for you. `FieldError` takes children, or an `errors` array it
+de-duplicates into a list.
 
 <ComponentPreview
   name="fieldValidationAndErrors"
+  file="components/preview/field.tsx"
+/>
+
+### Automatic wiring
+
+Inside a `Field`, the control needs no ids and no `aria-*` props. `Field` renders Base UI's Field
+underneath, so the control is labelled by `FieldLabel`, described by the `FieldDescription` and
+`FieldError` that are rendered right now, and marked `aria-invalid` when the `Field` carries
+`data-invalid`. An explicit `id` or `htmlFor` still wins, and an explicit `aria-describedby` keeps
+its ids first, with the Field's rendered message ids after it. While the Field is invalid its
+control is `aria-invalid`, whatever the control's own prop says. A `Slider` takes its label and
+messages on its thumb from the Field; its own `id` and `aria-describedby` stay on the slider root,
+as Base UI's Slider places them. A control outside a `Field` gets no
+Field wiring. Put one control in each `Field`: a second control inside the same `Field` would take
+the same label and messages.
+
+<ComponentPreview
+  name="fieldAutomaticWiring"
   file="components/preview/field.tsx"
 />
 
@@ -178,8 +196,9 @@ Try every orientation with a description, an error message and the disabled stat
 
 - `FieldSet` and `FieldLegend` render a real `<fieldset>`/`<legend>`, so a screen reader announces
   the group's name before every control inside it.
-- `Field` is a `role="group"`, so a control nested in one inherits the labelling from `FieldLabel`
-  and `FieldLegend` together.
+- `Field` is a `role="group"` on Base UI's Field, so the control inside it is labelled by
+  `FieldLabel`, described by the rendered `FieldDescription` and `FieldError`, and marked
+  `aria-invalid` from the Field's `data-invalid` — with no ids to keep in sync (API-26).
 - `FieldError` is `role="alert"` and carries a leading icon, so an error is never signalled by
   colour alone (A11Y-8), and its ink is the `destructive` family's `-text` role, which clears AA on
   the page (A11Y-13).
@@ -197,7 +216,7 @@ Try every orientation with a description, an error message and the disabled stat
 ## Do / Don't
 
 <DoDont
-  do="Bind every FieldLabel to its control with htmlFor, and put the error inside the same Field."
+  do="Put one control, its label, its description and its error inside one Field, and let it wire them."
   dont="Use a Field's description to carry the error — FieldError is role=alert and the description is not."
 />
 
@@ -214,4 +233,9 @@ Upstream's file plus `packages/ui/upstream/patches/field.patch`. Every hunk:
   signalled by colour alone, and its ink becomes `text-destructive-text`, the `destructive`
   family's text role. Upstream's `text-destructive` is the fill, which measures under AA as ink.
   `Field`'s own `data-[invalid=true]:text-destructive` moves to the same role.
+- **API-26** — `Field`, `FieldLabel`, `FieldDescription` and `FieldError` render Base UI's
+  `Field.Root`, `Field.Label`, `Field.Description` and `Field.Error` inside a `Field`, and
+  `data-invalid` also sets Base UI's `invalid`, so the control reads its label, description ids and
+  invalid state from the Field. Outside a `Field` each part renders upstream's plain element.
+  `FieldTitle` takes its own `field-title` slot, so the Base UI label is the one `field-label`.
 - **DOC-2** — `cn` is imported from `@vegastack/design`.

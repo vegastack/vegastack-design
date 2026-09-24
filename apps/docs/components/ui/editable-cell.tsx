@@ -1,4 +1,4 @@
-// @vegastack editable-cell@0.17.1 sha256-mCO7BxMv/sHrnrmMX350lU9zBgy6+9xMCYFbnHvmrkc=
+// @vegastack editable-cell@0.17.1 sha256-pQtxgl9QKPtpj9eJJUsFt954OK9kKgV5HaD6XXoRlxg=
 
 "use client";
 
@@ -444,7 +444,7 @@ export function EditableCell({
           size="sm"
           aria-label={label}
           tabIndex={managed ? -1 : undefined}
-          className="min-w-0"
+          className="w-fit min-w-0"
         >
           <SelectValue placeholder={editor.placeholder} />
         </SelectTrigger>

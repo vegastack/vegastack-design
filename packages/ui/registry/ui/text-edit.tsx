@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.17.1 sha256-qnerFQlVTBk8+DHxpYjTDjFKxlVq4XcolAUpJislwdk=
+// @vegastack text-edit@0.17.1 sha256-R8wGXprUHdJhEiBZv0sGj4qz0eQGck7wx7LwtcPMtMA=
 
 "use client";
 
@@ -10,6 +10,7 @@ import {
   type Editor,
 } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
+import { Field as FieldPrimitive } from "@base-ui/react/field";
 import {
   Bold,
   Italic,
@@ -273,6 +274,43 @@ function FormattingToolbar({ editor }: { editor: Editor }) {
   );
 }
 
+/** The ARIA wiring an enclosing `Field` resolved for the editor (see `FieldControlBridge`). */
+interface FieldAria {
+  id?: string;
+  "aria-labelledby"?: string;
+  "aria-describedby"?: string;
+  "aria-invalid"?: React.AriaAttributes["aria-invalid"];
+}
+
+/**
+ * DS-47: renders nothing, and reports the props Base UI's `Field.Control` resolved — the control
+ * id, the label id, the rendered description and error ids, `aria-invalid` — so `TextEdit` can put
+ * them on the contenteditable Tiptap creates, which cannot itself BE the control element.
+ */
+function FieldControlBridge({
+  control,
+  onResolve,
+}: {
+  control: FieldAria;
+  onResolve: (aria: FieldAria) => void;
+}) {
+  const {
+    id,
+    "aria-labelledby": labelledBy,
+    "aria-describedby": describedBy,
+    "aria-invalid": invalid,
+  } = control;
+  React.useLayoutEffect(() => {
+    onResolve({
+      id,
+      "aria-labelledby": labelledBy,
+      "aria-describedby": describedBy,
+      "aria-invalid": invalid,
+    });
+  }, [id, labelledBy, describedBy, invalid, onResolve]);
+  return null;
+}
+
 /** Props accepted by `TextEdit`. */
 export interface TextEditProps {
   /**
@@ -455,20 +493,36 @@ export function TextEdit({
   // The keydown handler closes over the editor before it's assigned; route
   // through a ref so it always reads the live instance to serialize HTML.
   const editorRef = React.useRef<Editor | null>(null);
-  const ariaInvalidAttribute = toAriaInvalidAttribute(ariaInvalid);
+  // DS-47: what the enclosing `Field` resolved (see `FieldControlBridge`). Until it reports, and
+  // outside a `Field`, the explicit props stand alone.
+  const [field, setField] = React.useState<FieldAria>({});
+  const resolvedId = field.id ?? id;
+  const resolvedLabelledBy = field["aria-labelledby"] ?? ariaLabelledBy;
+  const resolvedDescribedBy = field["aria-describedby"] ?? ariaDescribedBy;
+  const ariaInvalidAttribute = toAriaInvalidAttribute(
+    field["aria-invalid"] ?? ariaInvalid,
+  );
   const invalid = ariaInvalidAttribute !== undefined;
   const editorAttributes = React.useMemo(
     () => ({
       class: editorClassName,
-      ...(id ? { id } : {}),
+      ...(resolvedId ? { id: resolvedId } : {}),
       ...(ariaLabel ? { "aria-label": ariaLabel } : {}),
-      ...(ariaLabelledBy ? { "aria-labelledby": ariaLabelledBy } : {}),
+      ...(resolvedLabelledBy ? { "aria-labelledby": resolvedLabelledBy } : {}),
       ...(ariaInvalidAttribute ? { "aria-invalid": ariaInvalidAttribute } : {}),
-      ...(ariaDescribedBy ? { "aria-describedby": ariaDescribedBy } : {}),
+      ...(resolvedDescribedBy
+        ? { "aria-describedby": resolvedDescribedBy }
+        : {}),
       role: "textbox",
       "aria-multiline": "true",
     }),
-    [ariaDescribedBy, ariaInvalidAttribute, ariaLabel, ariaLabelledBy, id],
+    [
+      resolvedDescribedBy,
+      ariaInvalidAttribute,
+      ariaLabel,
+      resolvedLabelledBy,
+      resolvedId,
+    ],
   );
 
   const editor = useEditor({
@@ -618,6 +672,19 @@ export function TextEdit({
         className,
       )}
     >
+      {/* DS-47: the editor's `Field.Control`. It renders nothing; the bridge hands the ids Base
+          UI resolved to the contenteditable. An explicit `id`/`aria-labelledby` wins and an
+          explicit `aria-describedby` keeps its ids first; only DEFINED props are passed, because
+          Base UI's merge lets an `undefined` erase the label id. */}
+      <FieldPrimitive.Control
+        id={id}
+        {...(ariaLabelledBy ? { "aria-labelledby": ariaLabelledBy } : {})}
+        {...(ariaDescribedBy ? { "aria-describedby": ariaDescribedBy } : {})}
+        {...(ariaInvalid !== undefined ? { "aria-invalid": ariaInvalid } : {})}
+        render={(control) => (
+          <FieldControlBridge control={control} onResolve={setField} />
+        )}
+      />
       {editable && editor ? <FormattingToolbar editor={editor} /> : null}
       <div
         data-slot="text-edit-content"

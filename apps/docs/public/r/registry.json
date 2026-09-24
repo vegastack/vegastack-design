@@ -1091,7 +1091,7 @@
         "whenToUse": "Paging a DataList (or any host-paged list): the range, rows-per-page, and page controls in its footer slot, with page state owned by the host.",
         "whenNotToUse": "Infinite or keyboard-continuous loading (DataGrid's loadMore), or bare page links with no page-size choice (Pagination).",
         "version": "0.17.1",
-        "integrity": "sha256-gUkoF8k+Y6ZBu3iZ64OZbTWNgzti8AHiLQkJBuVFg6E="
+        "integrity": "sha256-CY09NFTpB/jJUe+bXymQUYLTC8D4uU111NwlyxUesyQ="
       }
     },
     {
@@ -1137,6 +1137,7 @@
         "form"
       ],
       "dependencies": [
+        "@base-ui/react@^1.6.0",
         "react-day-picker@^10",
         "lucide-react@^1.47.0",
         "@vegastack/design@^0.7.4",
@@ -1158,7 +1159,7 @@
         "whenToUse": "Selecting a single date or a range (with optional Today/Last-7-days presets) from a popover.",
         "whenNotToUse": "Free-form/partial dates (masked Input) or inline-only calendars (use Calendar directly).",
         "version": "0.17.1",
-        "integrity": "sha256-HwL0dW3K38wv8YB4k8mh92eI42HBTrdVQcPabItfdbI="
+        "integrity": "sha256-Z99wH0o94f33Rgqy1NVJOS8Xwi4sX6CFvpS9JOvupLA="
       }
     },
     {
@@ -1364,7 +1365,7 @@
         "whenToUse": "Any optimistic inline edit of a single value — grid cells (focusMode=managed), record-page property lists, settings rows — where the write is async and can fail.",
         "whenNotToUse": "Debounced save-as-you-type on a standing form field (AutoSaveInput), or whole forms (Field).",
         "version": "0.17.1",
-        "integrity": "sha256-mCO7BxMv/sHrnrmMX350lU9zBgy6+9xMCYFbnHvmrkc="
+        "integrity": "sha256-pQtxgl9QKPtpj9eJJUsFt954OK9kKgV5HaD6XXoRlxg="
       }
     },
     {
@@ -1466,6 +1467,7 @@
         "form"
       ],
       "dependencies": [
+        "@base-ui/react@^1.6.0",
         "class-variance-authority@^0.7.1",
         "lucide-react@^1.47.0",
         "@vegastack/design@^0.7.4",
@@ -1483,10 +1485,10 @@
         }
       ],
       "meta": {
-        "whenToUse": "Wrap any form control to give it a label, description, and accessible error/success message with auto-wired ARIA.",
+        "whenToUse": "Wrap any form control to give it a label, description and error message: inside a Field the control gets its label, aria-describedby ids and aria-invalid from Base UI Field with no ids to wire.",
         "whenNotToUse": "A bare control with its own label already wired — Field is for the label+message+a11y scaffold.",
         "version": "0.17.1",
-        "integrity": "sha256-lE1857jzNmMUcJGGsrs10hmKpNZXc2g0yZd4eYe80Os="
+        "integrity": "sha256-hI90jM8K2ugJzeG1OPgJYIIh1GmO5Fenql+ZbgV4wwQ="
       }
     },
     {
@@ -15187,7 +15189,7 @@
         "whenToUse": "Any numeric value — quantities, limits, percentages, money (format={{ style: 'currency', currency }}) — where parsing, locale formatting, and stepping should be correct by construction.",
         "whenNotToUse": "Free-text that merely contains digits (phone numbers, postal codes, ids) — formatting/stepping semantics would fight the value; use Input.",
         "version": "0.17.1",
-        "integrity": "sha256-Wew2mjW96bHEldNN3OJfYcJjVwELWLSQ51PbiR6/H+Y="
+        "integrity": "sha256-FgLIwmA7p5JJsNSAP3Jp9DsG9P978csWY/Jtni7VnFM="
       }
     },
     {
@@ -15600,7 +15602,7 @@
         "whenToUse": "Any secret the user types — sign-in, sign-up, or a change-password form — where they may need to reveal what they typed.",
         "whenNotToUse": "A one-time code (use InputOTP) or a non-secret text field.",
         "version": "0.17.1",
-        "integrity": "sha256-lh+8dprQJ0AD0suTmmkcNExtnjWPf7W8ZqKjfxjFGzg="
+        "integrity": "sha256-5NsTJ8Qw9pLJAu5V+ntnJCvCAnb4Ue3yPc3NB7TDldI="
       }
     },
     {
@@ -15642,6 +15644,7 @@
         "form"
       ],
       "dependencies": [
+        "class-variance-authority@^0.7.1",
         "@base-ui/react@^1.6.0",
         "lucide-react@^1.47.0",
         "@vegastack/design@^0.7.4",
@@ -15656,10 +15659,10 @@
         }
       ],
       "meta": {
-        "whenToUse": "Choosing from a short fixed, known set — statuses, sort orders, units — including grouped options; pass multiple for a multi-value select.",
+        "whenToUse": "Choosing from a short fixed, known set — statuses, sort orders, units — including grouped options; pass multiple for a multi-value select. The default trigger fills its parent; use variant=\"ghost\" (with size=\"sm\") for an inline trigger in table rows, list items and toolbars.",
         "whenNotToUse": "Boolean on/off (Switch), few inline options (radios), a list long enough to need a search field (SearchableSelect), or free-text/async search (Combobox).",
         "version": "0.17.1",
-        "integrity": "sha256-8E3kx8WDRI/XWFjY95mMmJ52zvoxXXNw7TCo++KAHno="
+        "integrity": "sha256-yEWkAtdoH0C1qtT+7aU1wfBS7AGQuj4EXx7iXhmIK5k="
       }
     },
     {
@@ -16251,7 +16254,7 @@
         "whenToUse": "Short-to-medium rich text — comments, descriptions, release notes — via controlled HTML.",
         "whenNotToUse": "Plain single-line input (Input) or collaborative real-time docs (deferred text-edit-collab).",
         "version": "0.17.1",
-        "integrity": "sha256-qnerFQlVTBk8+DHxpYjTDjFKxlVq4XcolAUpJislwdk="
+        "integrity": "sha256-R8wGXprUHdJhEiBZv0sGj4qz0eQGck7wx7LwtcPMtMA="
       }
     },
     {
@@ -16263,6 +16266,7 @@
         "form"
       ],
       "dependencies": [
+        "@base-ui/react@^1.6.0",
         "@vegastack/design@^0.7.4",
         "@vegastack/design-tokens@^0.7.1"
       ],
@@ -16278,7 +16282,7 @@
         "whenToUse": "Multi-line free text — descriptions, comments, messages, notes.",
         "whenNotToUse": "Single-line entry (input), rich text (editor), or fixed options (select).",
         "version": "0.17.1",
-        "integrity": "sha256-hrhee7H2q7WSSO4SyHVOXlj8l2UIu0dHRQ+0NMNTszM="
+        "integrity": "sha256-4P2i0Gb0F2fowGTYjkRZwx9r64rTljd9N7u4uD24dvM="
       }
     },
     {

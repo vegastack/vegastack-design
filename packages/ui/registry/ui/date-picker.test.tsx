@@ -6,8 +6,9 @@ import { page, userEvent } from "vitest/browser";
 import geometryCss from "../../test/geometry.css?inline";
 import * as React from "react";
 import { expectNoA11yViolations } from "../../test/a11y";
+import { fieldWiringTests } from "../../test/field-wiring";
 import { DatePicker, DateRangePicker, type DateRange } from "./date-picker";
-import { Field, FieldDescription, FieldLabel } from "./field";
+import { Field, FieldDescription, FieldError, FieldLabel } from "./field";
 
 // A fixed month so the grid is deterministic regardless of the run date. `DatePicker` derives the
 // visible month from `value`, so seeding `value` to a June 2026 date pins the calendar on June 2026.
@@ -429,6 +430,70 @@ test("DateRangePicker binds to a FieldLabel the same way", async () => {
   await expect.element(trigger).not.toHaveAttribute("aria-invalid");
 });
 
+test("DS-47: inside a Field the trigger is labelled, described and invalid with no props", async () => {
+  const screen = await render(
+    <Field data-invalid>
+      <FieldLabel>Due date</FieldLabel>
+      <DatePicker />
+      <FieldDescription>When the task is due.</FieldDescription>
+      <FieldError>Pick a date.</FieldError>
+    </Field>,
+  );
+  const trigger = screen.getByRole("button", { name: "Due date" });
+  await expect.element(trigger).toHaveAttribute("aria-invalid", "true");
+  await expect
+    .element(trigger)
+    .toHaveAccessibleDescription(/When the task is due/);
+  await expect.element(trigger).toHaveAccessibleDescription(/Pick a date/);
+  // The trigger still opens the calendar.
+  (trigger.element() as HTMLButtonElement).click();
+  await expect
+    .poll(() => document.querySelector('[data-slot="calendar"]'))
+    .not.toBeNull();
+});
+
+test("DS-47: DateRangePicker reads the Field the same way", async () => {
+  const screen = await render(
+    <Field data-invalid>
+      <FieldLabel>Reporting window</FieldLabel>
+      <DateRangePicker />
+      <FieldError>Pick a window.</FieldError>
+    </Field>,
+  );
+  const trigger = screen.getByRole("button", { name: "Reporting window" });
+  await expect.element(trigger).toHaveAttribute("aria-invalid", "true");
+  await expect.element(trigger).toHaveAccessibleDescription(/Pick a window/);
+});
+
+test("DS-47: disabled still reaches the trigger through Field.Control", async () => {
+  const screen = await render(<DatePicker aria-label="Due" disabled />);
+  await expect
+    .element(screen.getByRole("button", { name: "Due" }))
+    .toHaveAttribute("aria-disabled", "true");
+});
+
+test("no a11y violations — inside a Field, valid", async () => {
+  const screen = await render(
+    <Field>
+      <FieldLabel>Due date</FieldLabel>
+      <DatePicker />
+      <FieldDescription>When the task is due.</FieldDescription>
+    </Field>,
+  );
+  await expectNoA11yViolations(screen.container);
+});
+
+test("no a11y violations — inside a Field, invalid", async () => {
+  const screen = await render(
+    <Field data-invalid>
+      <FieldLabel>Due date</FieldLabel>
+      <DatePicker />
+      <FieldError>Pick a date.</FieldError>
+    </Field>,
+  );
+  await expectNoA11yViolations(screen.container);
+});
+
 test("no a11y violations — disabled", async () => {
   const screen = await render(<DatePicker aria-label="Event date" disabled />);
   await expectNoA11yViolations(screen.container);
@@ -512,4 +577,16 @@ test("below sm the rail stacks above the calendar and divides only between them"
   const style = getComputedStyle(rail);
   expect(style.borderBottomWidth).toBe("1px");
   expect(style.borderRightWidth).toBe("0px");
+});
+
+fieldWiringTests({
+  name: "DatePicker",
+  render: (props) => <DatePicker {...props} />,
+  find: (screen, name) => screen.getByRole("button", { name }),
+});
+
+fieldWiringTests({
+  name: "DateRangePicker",
+  render: (props) => <DateRangePicker {...props} />,
+  find: (screen, name) => screen.getByRole("button", { name }),
 });

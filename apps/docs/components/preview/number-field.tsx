@@ -5,6 +5,12 @@ import { Wrapper } from "./wrapper";
 // Copied INTO apps/docs via `shadcn add @vegastack/number-field` (dogfoods the registry) → auto-scanned.
 import { NumberField } from "@/components/ui/number-field";
 import {
+  Field,
+  FieldDescription,
+  FieldError,
+  FieldLabel,
+} from "@/components/ui/field";
+import {
   Select,
   SelectContent,
   SelectItem,
@@ -57,7 +63,7 @@ export function numberFieldMoney(): ReactNode {
               <SelectTrigger
                 size="sm"
                 aria-label="Currency"
-                className="border-none bg-transparent shadow-none dark:bg-transparent"
+                className="w-fit border-none bg-transparent shadow-none dark:bg-transparent"
               >
                 <SelectValue />
               </SelectTrigger>
@@ -96,6 +102,31 @@ export function numberFieldVariants(): ReactNode {
             field in a Field to get the shake and the message alongside it. */}
         <NumberField aria-label="Over limit" defaultValue={999} aria-invalid />
       </div>
+    </Wrapper>
+  );
+}
+
+/**
+ * DS-47 and DS-67: inside a `Field` the inner `<input>` — not the group — takes the label, the
+ * rendered description and error ids, and `aria-invalid`.
+ */
+export function numberFieldInsideField(): ReactNode {
+  return (
+    <Wrapper className="grid gap-4 sm:grid-cols-2">
+      <Field>
+        <FieldLabel>Quantity</FieldLabel>
+        <NumberField defaultValue={2} min={0} max={99} />
+        <FieldDescription>Whole units, up to 99.</FieldDescription>
+      </Field>
+      <Field data-invalid>
+        <FieldLabel>Discount</FieldLabel>
+        <NumberField
+          defaultValue={1.2}
+          format={{ style: "percent" }}
+          step={0.01}
+        />
+        <FieldError>A discount is at most 100%.</FieldError>
+      </Field>
     </Wrapper>
   );
 }

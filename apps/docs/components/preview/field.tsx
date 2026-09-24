@@ -203,7 +203,7 @@ export function fieldSelect(): ReactNode {
       <Field className="mx-auto w-full max-w-xs">
         <FieldLabel>Department</FieldLabel>
         <Select items={departments}>
-          <SelectTrigger aria-label="Department">
+          <SelectTrigger>
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -540,6 +540,30 @@ export function fieldValidationAndErrors(): ReactNode {
               { message: "Must contain a number." },
             ]}
           />
+        </Field>
+      </FieldGroup>
+    </Wrapper>
+  );
+}
+
+/**
+ * API-26: no ids, no `htmlFor`, no `aria-*` — `Field` wires the label, the description, the error
+ * and the invalid state onto the control, and only while each is rendered.
+ */
+export function fieldAutomaticWiring(): ReactNode {
+  return (
+    <Wrapper className="items-stretch">
+      <FieldGroup className="mx-auto w-full max-w-sm">
+        <Field>
+          <FieldLabel>Company name</FieldLabel>
+          <Input placeholder="Acme Inc." />
+          <FieldDescription>Shown on invoices.</FieldDescription>
+        </Field>
+        <Field data-invalid>
+          <FieldLabel>Notes</FieldLabel>
+          <Textarea defaultValue="Ship before the end of the quarter, and" />
+          <FieldDescription>Up to 40 characters.</FieldDescription>
+          <FieldError>Notes are too long.</FieldError>
         </Field>
       </FieldGroup>
     </Wrapper>

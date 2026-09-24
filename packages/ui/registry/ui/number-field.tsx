@@ -1,4 +1,4 @@
-// @vegastack number-field@0.17.1 sha256-Wew2mjW96bHEldNN3OJfYcJjVwELWLSQ51PbiR6/H+Y=
+// @vegastack number-field@0.17.1 sha256-FgLIwmA7p5JJsNSAP3Jp9DsG9P978csWY/Jtni7VnFM=
 
 "use client";
 
@@ -61,12 +61,27 @@ export interface NumberFieldProps extends Omit<
    */
   "aria-label"?: string;
   /**
-   * Marks the value invalid. It lands on the inner `<input>` as well as the group, because
-   * upstream's `InputGroup` paints its invalid hairline from a descendant selector.
+   * Marks the value invalid. It lands on the inner `<input>` — never the group — and upstream's
+   * `InputGroup` paints its invalid hairline from that descendant.
 
    * @default undefined
    */
   "aria-invalid"?: React.AriaAttributes["aria-invalid"];
+  /**
+   * Ids of the elements that describe the value — an error or a hint. They land on the inner
+   * `<input>`, which is what a screen reader announces, never on the group. Inside a `Field` the
+   * rendered `FieldDescription`/`FieldError` ids are added for you.
+
+   * @default undefined
+   */
+  "aria-describedby"?: string;
+  /**
+   * Ids of the elements that name the value. Lands on the inner `<input>`, like `aria-label`.
+   * `id` (inherited from Base UI's root) already targets the input.
+
+   * @default undefined
+   */
+  "aria-labelledby"?: string;
   /**
    * Placeholder for the empty input.
 
@@ -156,6 +171,9 @@ const stepperSlotClasses =
 export function NumberField({
   "aria-label": ariaLabel,
   "aria-invalid": ariaInvalid,
+  "aria-describedby": ariaDescribedBy,
+  "aria-labelledby": ariaLabelledBy,
+  id,
   placeholder,
   prefix,
   suffix,
@@ -171,14 +189,14 @@ export function NumberField({
       // `data-field-group` is what lets `base.css` paint the forced-colours focus outline (FOC-7)
       // on the GROUP rather than on the inner input, whose own outline the group would clip.
       data-field-group=""
-      // `aria-invalid` is mirrored onto the INPUT below as well as kept here, because upstream's
-      // InputGroup paints its invalid hairline through `:has([data-slot][aria-invalid=true])` — a
-      // DESCENDANT selector, which the root can never satisfy for itself. The 2026-09-09 defect
-      // this repeats was the same shape against the old hand-rolled chrome, and
-      // `control-paint.browser.test.tsx` measures it against a plain invalid `Input`.
-      aria-invalid={ariaInvalid}
+      // DS-67: no ARIA on the group. `aria-invalid` lives on the INPUT below, the element a
+      // screen reader announces, and that is also what paints the group: upstream's InputGroup
+      // draws its invalid hairline through `:has([data-slot][aria-invalid=true])`, a DESCENDANT
+      // selector the input satisfies. `control-paint.browser.test.tsx` measures it against a
+      // plain invalid `Input`.
       render={<InputGroup />}
       className={cn("overflow-hidden", className)}
+      id={id}
       {...rootProps}
     >
       {hideControls ? null : (
@@ -206,9 +224,18 @@ export function NumberField({
         // No `data-slot` of its own: the inner control keeps upstream's
         // `data-slot="input-group-control"`, which is the hook `InputGroup` selects on for BOTH
         // its focus border and its invalid hairline. Renaming it would silently unpaint the box.
-        render={<InputGroupInput />}
+        // `InputGroupInput` is upstream's Input, itself a Base UI `Field.Control`, so inside a
+        // `Field` it registers a control id of its own. Handing it the explicit `id` too keeps the
+        // two registrations agreeing, so `FieldLabel` points at the id the caller chose.
+        // Only a DEFINED id — an explicit `undefined` would override the id Base UI hands the
+        // input, and the steppers' `aria-controls` would point at nothing.
+        render={<InputGroupInput {...(id ? { id } : {})} />}
         ref={inputRef}
         aria-label={ariaLabel}
+        // Only DEFINED props: Base UI's merge lets an explicit `undefined` erase the label and
+        // message ids an enclosing `Field` resolved for the input.
+        {...(ariaLabelledBy ? { "aria-labelledby": ariaLabelledBy } : {})}
+        {...(ariaDescribedBy ? { "aria-describedby": ariaDescribedBy } : {})}
         aria-invalid={ariaInvalid}
         placeholder={placeholder}
         // TYP-10 (ours) — tabular figures. This control formats its value through

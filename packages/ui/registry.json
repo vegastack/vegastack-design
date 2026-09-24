@@ -990,6 +990,7 @@
       "description": "Pick a single date or a date range from a calendar popover — token-styled, keyboard-navigable, with optional quick presets.",
       "categories": ["form"],
       "dependencies": [
+        "@base-ui/react@^1.6.0",
         "react-day-picker@^10",
         "lucide-react@^1.47.0",
         "@vegastack/design@^0.7.4",
@@ -1280,6 +1281,7 @@
       "description": "The form-field scaffold — label, description, error, legend, separator and choice-card layouts in vertical, horizontal or responsive orientation.",
       "categories": ["form"],
       "dependencies": [
+        "@base-ui/react@^1.6.0",
         "class-variance-authority@^0.7.1",
         "lucide-react@^1.47.0",
         "@vegastack/design@^0.7.4",
@@ -1294,7 +1296,7 @@
         }
       ],
       "meta": {
-        "whenToUse": "Wrap any form control to give it a label, description, and accessible error/success message with auto-wired ARIA.",
+        "whenToUse": "Wrap any form control to give it a label, description and error message: inside a Field the control gets its label, aria-describedby ids and aria-invalid from Base UI Field with no ids to wire.",
         "whenNotToUse": "A bare control with its own label already wired — Field is for the label+message+a11y scaffold.",
         "version": "0.17.1"
       }
@@ -12517,6 +12519,7 @@
       "description": "A dropdown for choosing one option — trigger with value and chevron, grouped scrollable popup, item-aligned positioning, and full keyboard navigation.",
       "categories": ["form"],
       "dependencies": [
+        "class-variance-authority@^0.7.1",
         "@base-ui/react@^1.6.0",
         "lucide-react@^1.47.0",
         "@vegastack/design@^0.7.4",
@@ -12531,7 +12534,7 @@
         }
       ],
       "meta": {
-        "whenToUse": "Choosing from a short fixed, known set — statuses, sort orders, units — including grouped options; pass multiple for a multi-value select.",
+        "whenToUse": "Choosing from a short fixed, known set — statuses, sort orders, units — including grouped options; pass multiple for a multi-value select. The default trigger fills its parent; use variant=\"ghost\" (with size=\"sm\") for an inline trigger in table rows, list items and toolbars.",
         "whenNotToUse": "Boolean on/off (Switch), few inline options (radios), a list long enough to need a search field (SearchableSelect), or free-text/async search (Combobox).",
         "version": "0.17.1"
       }
@@ -13066,6 +13069,7 @@
       "description": "A styled native textarea for multi-line text — auto-sizing to its content, invalid and disabled chrome, and the text-entry focus border tint (FOC-3).",
       "categories": ["form"],
       "dependencies": [
+        "@base-ui/react@^1.6.0",
         "@vegastack/design@^0.7.4",
         "@vegastack/design-tokens@^0.7.1"
       ],

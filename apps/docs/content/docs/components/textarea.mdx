@@ -27,7 +27,8 @@ import { Textarea } from "@/components/ui/textarea";
 
 ### Field
 
-Use `Field`, `FieldLabel` and `FieldDescription` to give the textarea a label and helper text.
+Use `Field`, `FieldLabel` and `FieldDescription` to give the textarea a label and helper text. Inside
+a `Field` the textarea is labelled and described with no ids to wire (API-26).
 
 <ComponentPreview name="textareaField" file="components/preview/textarea.tsx" />
 
@@ -42,7 +43,8 @@ Use `disabled`, and add `data-disabled` to the `Field` so the label dims with it
 
 ### Invalid
 
-Use `aria-invalid`, and add `data-invalid` to the `Field`. The tint is scoped to `not-focus:`
+Add `data-invalid` to the `Field`, and the textarea inside it is marked `aria-invalid` for you (or
+pass `aria-invalid` on a standalone textarea). The tint is scoped to `not-focus:`
 (FOC-5), so a focused textarea shows its focus cue rather than the error colour.
 
 <ComponentPreview
@@ -95,7 +97,7 @@ Try the starting height with the disabled and invalid states, then copy the gene
   a 2px `Highlight` outline on `textarea:focus` instead (FOC-7).
 - `field-sizing: content` grows the box with the text, so nothing is hidden behind a scrollbar at
   small sizes.
-- Give it a label: `FieldLabel` bound with `htmlFor`, or an `aria-label`.
+- Give it a label: a `FieldLabel` in the same `Field` (wired automatically), or an `aria-label`.
 
 <StatesTested name="textarea" />
 
@@ -116,4 +118,7 @@ focus-visible:ring-ring/50` becomes `outline-hidden` plus `focus:border-ring/70`
   fallback has something to repaint.
 - **FOC-5** — the invalid tint becomes `not-focus:aria-invalid:border-destructive` (and its dark
   counterpart), so focus outranks it; the `aria-invalid` halo rings are removed with the rest.
+- **API-26** — the `<textarea>` renders through Base UI `Field.Control`, so inside a `Field` it takes
+  its label, the rendered description and error ids, and `aria-invalid` with no props, like `Input`.
+  The file gains `"use client"`, because `Field.Control` is hook-backed.
 - **DOC-2** — `cn` is imported from `@vegastack/design`.

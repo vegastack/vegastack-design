@@ -1,4 +1,4 @@
-// @vegastack password-input@0.17.1 sha256-lh+8dprQJ0AD0suTmmkcNExtnjWPf7W8ZqKjfxjFGzg=
+// @vegastack password-input@0.17.1 sha256-5NsTJ8Qw9pLJAu5V+ntnJCvCAnb4Ue3yPc3NB7TDldI=
 
 "use client";
 
@@ -33,9 +33,10 @@ export interface PasswordInputProps extends Omit<
  *
  * @example
  * ```tsx
+ * // Inside a Field the input is labelled, described and marked invalid for you.
  * <Field>
- *   <FieldLabel htmlFor="password">Password</FieldLabel>
- *   <PasswordInput id="password" name="password" autoComplete="current-password" />
+ *   <FieldLabel>Password</FieldLabel>
+ *   <PasswordInput name="password" autoComplete="current-password" />
  * </Field>
  * ```
  */
