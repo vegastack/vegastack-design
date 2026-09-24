@@ -1,4 +1,4 @@
-// @vegastack editable-cell@0.18.0 sha256-1vD8HrS2fBRi4BH6C5ozr/BbJ8D5exXqNx2AnPZ4fyY=
+// @vegastack editable-cell@0.18.0 sha256-NKUYYlaoZMFceJkjL95Yjg9U6ZIugcyTM467fZrnspU=
 
 "use client";
 
@@ -140,6 +140,15 @@ export interface EditableCellProps {
    * @default false
    */
   readOnly?: boolean;
+  /**
+   * What display mode shows for a non-empty value — for a value that is an id (`"u_7"`), the
+   * label a person reads (`"Asha Rao"`), or any rich node (an avatar and a name). Used by every
+   * editor type while displaying; editing still works on the raw `value`, and an empty value
+   * keeps the placeholder.
+
+   * @default undefined
+   */
+  renderValue?: (value: string) => React.ReactNode;
   /** Extra classes merged onto the cell root.
    * @default undefined
    */
@@ -176,6 +185,8 @@ interface InlineTextEditorProps {
   readOnly?: boolean;
   /** Tab-stop override for the display element; `managed` hosts pass `-1`. */
   tabIndex?: number;
+  /** What to show for a non-empty value instead of the value text (the cell's `renderValue`). */
+  display?: React.ReactNode;
 }
 
 /**
@@ -197,6 +208,7 @@ function InlineTextEditor({
   disabled = false,
   readOnly = false,
   tabIndex = 0,
+  display,
 }: InlineTextEditorProps) {
   // `readOnly` folds into the hook's `disabled` because both mean the same thing to the machine:
   // an edit may not be entered, and one in flight reverts. They differ only in chrome.
@@ -282,7 +294,7 @@ function InlineTextEditor({
           !hasDisplayValue && "text-muted-foreground",
         )}
       >
-        {hasDisplayValue ? value : displayFallback}
+        {hasDisplayValue ? (display ?? value) : displayFallback}
       </span>
     </span>
   );
@@ -334,6 +346,7 @@ export function EditableCell({
   label,
   disabled = false,
   readOnly = false,
+  renderValue,
   className,
   ref,
 }: EditableCellProps) {
@@ -446,7 +459,14 @@ export function EditableCell({
           tabIndex={managed ? -1 : undefined}
           className="w-fit min-w-0"
         >
-          <SelectValue placeholder={editor.placeholder} />
+          <SelectValue placeholder={editor.placeholder}>
+            {renderValue
+              ? (selected: unknown) =>
+                  typeof selected === "string" && selected
+                    ? renderValue(selected)
+                    : null
+              : undefined}
+          </SelectValue>
         </SelectTrigger>
         <SelectContent>
           {editor.options.map((option) => (
@@ -492,6 +512,9 @@ export function EditableCell({
         tabIndex={managed ? -1 : 0}
         disabled={disabled}
         readOnly={readOnly}
+        display={
+          renderValue && displayValue ? renderValue(displayValue) : undefined
+        }
       />
     );
   }

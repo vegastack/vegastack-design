@@ -514,3 +514,100 @@ test("committing back to the persisted value DURING a slow save supersedes it (n
   d2.resolve();
   await expect.poll(() => root.getAttribute("data-status")).toBe("saved");
 });
+
+/* DS-18 — renderValue shows what a person reads, not the stored id */
+
+test("DS-18: renderValue shows the label, not the id", async () => {
+  const screen = await render(
+    <EditableCell
+      value="u_7"
+      onCommit={() => {}}
+      editor={{ type: "custom", render: () => null }}
+      renderValue={(id) => (id === "u_7" ? "Asha Rao" : id)}
+    />,
+  );
+  await expect.element(screen.getByText("Asha Rao")).toBeInTheDocument();
+  expect(screen.container.textContent).not.toContain("u_7");
+});
+
+test("DS-18: an empty value keeps the placeholder, not renderValue", async () => {
+  const renderValue = vi.fn((id: string) => `Person ${id}`);
+  const screen = await render(
+    <EditableCell
+      value=""
+      onCommit={() => {}}
+      editor={{ type: "text", placeholder: "Unassigned" }}
+      renderValue={renderValue}
+    />,
+  );
+  await expect.element(screen.getByText("Unassigned")).toBeInTheDocument();
+  expect(renderValue).not.toHaveBeenCalled();
+});
+
+test("DS-18: a text cell still edits the raw value and commits it", async () => {
+  const onCommit = vi.fn();
+  const screen = await render(
+    <EditableCell
+      value="acme"
+      onCommit={onCommit}
+      label="Customer"
+      renderValue={(value) => value.toUpperCase()}
+    />,
+  );
+  await screen.getByText("ACME").click();
+  const input = screen.getByRole("textbox", { name: "Customer" });
+  await expect.element(input).toHaveValue("acme");
+  await userEvent.fill(input, "globex");
+  await userEvent.keyboard("{Enter}");
+  expect(onCommit).toHaveBeenCalledWith("globex");
+});
+
+test("DS-18: Escape reverts to the rendered display", async () => {
+  const screen = await render(
+    <EditableCell
+      value="acme"
+      onCommit={() => {}}
+      label="Customer"
+      renderValue={(value) => value.toUpperCase()}
+    />,
+  );
+  await screen.getByText("ACME").click();
+  await userEvent.fill(
+    screen.getByRole("textbox", { name: "Customer" }),
+    "draft",
+  );
+  await userEvent.keyboard("{Escape}");
+  await expect.element(screen.getByText("ACME")).toBeInTheDocument();
+});
+
+test("DS-18: a select cell renders its trigger value through renderValue", async () => {
+  const screen = await render(
+    <EditableCell
+      value="won"
+      onCommit={() => {}}
+      label="Stage"
+      editor={{
+        type: "select",
+        options: [
+          { value: "won", label: "Closed won" },
+          { value: "lost", label: "Closed lost" },
+        ],
+      }}
+      renderValue={(value) => `Stage: ${value}`}
+    />,
+  );
+  await expect.element(screen.getByText("Stage: won")).toBeInTheDocument();
+});
+
+test("no a11y violations — renderValue display", async () => {
+  const screen = await render(
+    <EditableCell
+      value="u_7"
+      label="Owner"
+      onCommit={() => {}}
+      editor={{ type: "custom", render: () => null }}
+      renderValue={() => "Asha Rao"}
+    />,
+  );
+  await expectNoA11yViolations(screen.container);
+});
