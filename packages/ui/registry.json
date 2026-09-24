@@ -896,7 +896,8 @@
         "@vegastack/editable-cell",
         "@vegastack/load-more",
         "@vegastack/table",
-        "@vegastack/use-announcer"
+        "@vegastack/use-announcer",
+        "@vegastack/truncated-text"
       ],
       "files": [
         {
@@ -924,7 +925,8 @@
       "registryDependencies": [
         "@vegastack/data-table-parts",
         "@vegastack/load-more",
-        "@vegastack/table"
+        "@vegastack/table",
+        "@vegastack/truncated-text"
       ],
       "files": [
         {

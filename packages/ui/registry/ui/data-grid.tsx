@@ -1,4 +1,4 @@
-// @vegastack data-grid@0.18.0 sha256-pJliRaBiwqZfGn60w8B+PpNhaf0B7AHtMdwsSAr/crg=
+// @vegastack data-grid@0.18.0 sha256-xpr6NTRLKp9ha5vz1tmqg2h45l7WOHauKlxGY0LprEw=
 
 "use client";
 
@@ -55,6 +55,7 @@ import {
   type LoadMoreState,
 } from "@/components/ui/load-more";
 import { useAnnouncer } from "@/components/ui/use-announcer";
+import { TruncationFocusProvider } from "@/components/ui/truncated-text";
 import {
   Table,
   TableBody,
@@ -1065,166 +1066,171 @@ export function DataGrid<T>({
             "max-h-[calc(var(--data-grid-max-height))] overflow-y-auto",
         )}
       >
-        <Table
-          role="grid"
-          aria-label={ariaLabel}
-          aria-describedby={
-            [
-              hiddenColumns.length > 0 ? hiddenHintId : null,
-              sortSummary != null ? sortHintId : null,
-            ]
-              .filter(Boolean)
-              .join(" ") || undefined
-          }
-          aria-rowcount={loadMore?.hasMore ? -1 : ariaRowTotal}
-          aria-colcount={ariaColTotal}
-          aria-busy={loading || undefined}
-          data-grid-id={gridId}
-          onKeyDown={handleGridKeyDown}
-        >
-          <TableHeader
-            className={cn(
-              maxHeight != null && "sticky top-0 z-10 bg-background",
-            )}
+        {/* DS-68: the grid owns roving focus, so truncated text and RelativeTime in its cells are
+            not extra tab stops. */}
+        <TruncationFocusProvider focusable={false}>
+          <Table
+            role="grid"
+            aria-label={ariaLabel}
+            aria-describedby={
+              [
+                hiddenColumns.length > 0 ? hiddenHintId : null,
+                sortSummary != null ? sortHintId : null,
+              ]
+                .filter(Boolean)
+                .join(" ") || undefined
+            }
+            aria-rowcount={loadMore?.hasMore ? -1 : ariaRowTotal}
+            aria-colcount={ariaColTotal}
+            aria-busy={loading || undefined}
+            data-grid-id={gridId}
+            onKeyDown={handleGridKeyDown}
           >
-            {headerRow}
-          </TableHeader>
-
-          {loading ? (
-            <TableBody>
-              <SkeletonRows
-                columns={visibleColumns}
-                selectable={selectable}
-                slot="data-grid-skeleton-row"
-              />
-            </TableBody>
-          ) : flatVisibleRows.length === 0 &&
-            sections.every((s) => s.rows.length === 0) ? (
-            <TableBody>
-              <EmptyRow colSpan={colSpan} slot="data-grid-empty-row">
-                {emptyState}
-              </EmptyRow>
-            </TableBody>
-          ) : canVirtualize ? (
-            // Spacer-row windowing: rows stay REAL table rows, so cell widths
-            // keep tracking the header's column grid and measured heights can
-            // vary — an absolutely-positioned flex <tr> would do neither.
-            <TableBody>
-              {virtualItems.length > 0 && virtualItems[0]!.start > 0 ? (
-                <tr
-                  aria-hidden="true"
-                  data-slot="data-grid-virtual-pad"
-                  style={
-                    {
-                      ["--data-grid-virtual-pad"]: String(
-                        virtualItems[0]!.start,
-                      ),
-                    } as React.CSSProperties
-                  }
-                  className="h-[calc(var(--data-grid-virtual-pad)*1px)]"
-                />
-              ) : null}
-              {virtualItems.map((virtualRow) =>
-                renderRow(
-                  flatVisibleRows[virtualRow.index]!,
-                  virtualRow.index,
-                  {
-                    ref: rowVirtualizer.measureElement,
-                    "data-index": virtualRow.index,
-                  },
-                ),
+            <TableHeader
+              className={cn(
+                maxHeight != null && "sticky top-0 z-10 bg-background",
               )}
-              {virtualItems.length > 0 &&
-              totalSize > virtualItems[virtualItems.length - 1]!.end ? (
-                <tr
-                  aria-hidden="true"
-                  data-slot="data-grid-virtual-pad"
-                  style={
-                    {
-                      ["--data-grid-virtual-pad"]: String(
-                        totalSize - virtualItems[virtualItems.length - 1]!.end,
-                      ),
-                    } as React.CSSProperties
-                  }
-                  className="h-[calc(var(--data-grid-virtual-pad)*1px)]"
+            >
+              {headerRow}
+            </TableHeader>
+
+            {loading ? (
+              <TableBody>
+                <SkeletonRows
+                  columns={visibleColumns}
+                  selectable={selectable}
+                  slot="data-grid-skeleton-row"
                 />
-              ) : null}
-            </TableBody>
-          ) : (
-            sections.map((section) => {
-              const collapsed =
-                section.id !== null && groups[section.id] === "collapsed";
-              // Row indexes are continuous across sections for aria-rowindex.
-              const startIndex = flatVisibleRows.findIndex(
-                (row) => row === section.rows[0],
-              );
-              return (
-                <TableBody
-                  key={section.id ?? "__all"}
-                  data-slot="data-grid-section"
-                  data-group={section.id ?? undefined}
-                  data-collapsed={collapsed ? "" : undefined}
-                >
-                  {section.id !== null ? (
-                    <TableRow
-                      data-slot="data-grid-group-row"
-                      aria-rowindex={ariaGroupRowIndex.get(section.id)}
-                      className="bg-muted hover:bg-muted active:bg-muted"
-                    >
-                      <TableCell colSpan={colSpan} className="py-1">
-                        <Button
-                          variant="ghost"
-                          size="xs"
-                          data-slot="data-grid-group-toggle"
-                          aria-expanded={!collapsed}
-                          onClick={() =>
-                            commitGroups({
-                              ...groups,
-                              [section.id!]: collapsed
-                                ? "expanded"
-                                : "collapsed",
-                            })
-                          }
-                          // `aria-expanded` on upstream's ghost Button means "this control's
-                          // POPUP is open", and it paints `bg-muted text-foreground` to say so.
-                          // Here it means "this SECTION is expanded", which is the resting state
-                          // of every group — so the two neutralisers below keep the resting
-                          // header quiet and leave hover and press to the variant. Measured:
-                          // without them an expanded group header wears a permanent 245/245/245
-                          // chip and full-strength ink.
-                          className={cn(
-                            "-mx-2 min-w-0 justify-start font-normal text-muted-foreground",
-                            "aria-expanded:bg-transparent aria-expanded:text-muted-foreground",
-                            "[&_svg:not([class*='size-'])]:size-3",
-                          )}
-                        >
-                          {collapsed ? (
-                            <ChevronRight className="rtl:rotate-180" />
-                          ) : (
-                            <ChevronDown />
-                          )}
-                          <span className="min-w-0 truncate">
-                            {section.label}
-                          </span>
-                          <span>({section.rows.length})</span>
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  ) : null}
-                  {collapsed
-                    ? null
-                    : section.rows.map((tanRow) =>
-                        renderRow(
-                          tanRow,
-                          startIndex +
-                            section.rows.findIndex((r) => r === tanRow),
+              </TableBody>
+            ) : flatVisibleRows.length === 0 &&
+              sections.every((s) => s.rows.length === 0) ? (
+              <TableBody>
+                <EmptyRow colSpan={colSpan} slot="data-grid-empty-row">
+                  {emptyState}
+                </EmptyRow>
+              </TableBody>
+            ) : canVirtualize ? (
+              // Spacer-row windowing: rows stay REAL table rows, so cell widths
+              // keep tracking the header's column grid and measured heights can
+              // vary — an absolutely-positioned flex <tr> would do neither.
+              <TableBody>
+                {virtualItems.length > 0 && virtualItems[0]!.start > 0 ? (
+                  <tr
+                    aria-hidden="true"
+                    data-slot="data-grid-virtual-pad"
+                    style={
+                      {
+                        ["--data-grid-virtual-pad"]: String(
+                          virtualItems[0]!.start,
                         ),
-                      )}
-                </TableBody>
-              );
-            })
-          )}
-        </Table>
+                      } as React.CSSProperties
+                    }
+                    className="h-[calc(var(--data-grid-virtual-pad)*1px)]"
+                  />
+                ) : null}
+                {virtualItems.map((virtualRow) =>
+                  renderRow(
+                    flatVisibleRows[virtualRow.index]!,
+                    virtualRow.index,
+                    {
+                      ref: rowVirtualizer.measureElement,
+                      "data-index": virtualRow.index,
+                    },
+                  ),
+                )}
+                {virtualItems.length > 0 &&
+                totalSize > virtualItems[virtualItems.length - 1]!.end ? (
+                  <tr
+                    aria-hidden="true"
+                    data-slot="data-grid-virtual-pad"
+                    style={
+                      {
+                        ["--data-grid-virtual-pad"]: String(
+                          totalSize -
+                            virtualItems[virtualItems.length - 1]!.end,
+                        ),
+                      } as React.CSSProperties
+                    }
+                    className="h-[calc(var(--data-grid-virtual-pad)*1px)]"
+                  />
+                ) : null}
+              </TableBody>
+            ) : (
+              sections.map((section) => {
+                const collapsed =
+                  section.id !== null && groups[section.id] === "collapsed";
+                // Row indexes are continuous across sections for aria-rowindex.
+                const startIndex = flatVisibleRows.findIndex(
+                  (row) => row === section.rows[0],
+                );
+                return (
+                  <TableBody
+                    key={section.id ?? "__all"}
+                    data-slot="data-grid-section"
+                    data-group={section.id ?? undefined}
+                    data-collapsed={collapsed ? "" : undefined}
+                  >
+                    {section.id !== null ? (
+                      <TableRow
+                        data-slot="data-grid-group-row"
+                        aria-rowindex={ariaGroupRowIndex.get(section.id)}
+                        className="bg-muted hover:bg-muted active:bg-muted"
+                      >
+                        <TableCell colSpan={colSpan} className="py-1">
+                          <Button
+                            variant="ghost"
+                            size="xs"
+                            data-slot="data-grid-group-toggle"
+                            aria-expanded={!collapsed}
+                            onClick={() =>
+                              commitGroups({
+                                ...groups,
+                                [section.id!]: collapsed
+                                  ? "expanded"
+                                  : "collapsed",
+                              })
+                            }
+                            // `aria-expanded` on upstream's ghost Button means "this control's
+                            // POPUP is open", and it paints `bg-muted text-foreground` to say so.
+                            // Here it means "this SECTION is expanded", which is the resting state
+                            // of every group — so the two neutralisers below keep the resting
+                            // header quiet and leave hover and press to the variant. Measured:
+                            // without them an expanded group header wears a permanent 245/245/245
+                            // chip and full-strength ink.
+                            className={cn(
+                              "-mx-2 min-w-0 justify-start font-normal text-muted-foreground",
+                              "aria-expanded:bg-transparent aria-expanded:text-muted-foreground",
+                              "[&_svg:not([class*='size-'])]:size-3",
+                            )}
+                          >
+                            {collapsed ? (
+                              <ChevronRight className="rtl:rotate-180" />
+                            ) : (
+                              <ChevronDown />
+                            )}
+                            <span className="min-w-0 truncate">
+                              {section.label}
+                            </span>
+                            <span>({section.rows.length})</span>
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ) : null}
+                    {collapsed
+                      ? null
+                      : section.rows.map((tanRow) =>
+                          renderRow(
+                            tanRow,
+                            startIndex +
+                              section.rows.findIndex((r) => r === tanRow),
+                          ),
+                        )}
+                  </TableBody>
+                );
+              })
+            )}
+          </Table>
+        </TruncationFocusProvider>
       </div>
 
       {loadMore ? <LoadMore {...loadMore} /> : null}

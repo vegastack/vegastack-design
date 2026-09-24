@@ -1083,3 +1083,23 @@ test("DS-01: a mono column's header is sans; its body cells are mono", async () 
   const cell = screen.getByRole("gridcell", { name: "300" }).element();
   expect(cell.className).toContain("font-mono");
 });
+
+test("DS-68: a timestamp in a grid cell is not a tab stop", async () => {
+  const { RelativeTime } = await import("./relative-time");
+  const NOW = Date.UTC(2026, 8, 24, 12);
+  await render(
+    <DataGrid
+      aria-label="Deals"
+      columns={columns({
+        render: (d: Deal) => (
+          <RelativeTime date={NOW - d.amount * 60_000} now={NOW} />
+        ),
+      })}
+      data={DEALS}
+      getRowId={(d) => d.id}
+    />,
+  );
+  const times = document.querySelectorAll("time");
+  expect(times.length).toBe(3);
+  for (const time of times) expect(time.getAttribute("tabindex")).toBeNull();
+});

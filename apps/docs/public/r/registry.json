@@ -1029,7 +1029,8 @@
         "@vegastack/editable-cell",
         "@vegastack/load-more",
         "@vegastack/table",
-        "@vegastack/use-announcer"
+        "@vegastack/use-announcer",
+        "@vegastack/truncated-text"
       ],
       "files": [
         {
@@ -1042,7 +1043,7 @@
         "whenToUse": "Record tables that need grouping, inline cell editing, multi-key sort, column management, or 10k+ rows via virtualization — the CRM pipeline-table tier.",
         "whenNotToUse": "Simple presentational record lists — DataList is lighter and still the right default; kanban views (Board).",
         "version": "0.18.0",
-        "integrity": "sha256-pJliRaBiwqZfGn60w8B+PpNhaf0B7AHtMdwsSAr/crg="
+        "integrity": "sha256-xpr6NTRLKp9ha5vz1tmqg2h45l7WOHauKlxGY0LprEw="
       }
     },
     {
@@ -1060,7 +1061,8 @@
       "registryDependencies": [
         "@vegastack/data-table-parts",
         "@vegastack/load-more",
-        "@vegastack/table"
+        "@vegastack/table",
+        "@vegastack/truncated-text"
       ],
       "files": [
         {
@@ -1073,7 +1075,7 @@
         "whenToUse": "A list of records as a table with typed columns, selection, click-to-sort, loading/empty states, and keyset paging through loadMore.",
         "whenNotToUse": "A board/kanban view (Board), full-parity grids with grouping/editing/virtualization (DataGrid), or a simple static table (Table).",
         "version": "0.18.0",
-        "integrity": "sha256-x9ocAGf+0RMSdo1tFcU5K2cIA5KX/eSUEUzOH5uL/40="
+        "integrity": "sha256-YFXwPjizKXmZpeA9nP/UhI91Bdp8cNsbQ4Vg12h7M6Y="
       }
     },
     {
@@ -16584,7 +16586,7 @@
         "whenToUse": "Long values in constrained layouts — table cells, nav labels, IDs/paths.",
         "whenNotToUse": "Essential action text or content that must be fully visible.",
         "version": "0.18.0",
-        "integrity": "sha256-2UzqZzdC+rfZ1YHLvuLsAR0F0HpgXS1tl2DWttAnDOY="
+        "integrity": "sha256-fbKFUUpvoloxDxg/EQcLEOMVDgzrVMq6MlX5CD7h6Vs="
       }
     },
     {

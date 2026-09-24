@@ -6524,7 +6524,8 @@
         "@vegastack/editable-cell",
         "@vegastack/load-more",
         "@vegastack/table",
-        "@vegastack/use-announcer"
+        "@vegastack/use-announcer",
+        "@vegastack/truncated-text"
       ],
       "npmDependencies": [
         "@tanstack/react-table@^9.2.4",
@@ -6755,7 +6756,8 @@
       "registryDependencies": [
         "@vegastack/data-table-parts",
         "@vegastack/load-more",
-        "@vegastack/table"
+        "@vegastack/table",
+        "@vegastack/truncated-text"
       ],
       "npmDependencies": [
         "@vegastack/design@^0.7.4",
@@ -20852,7 +20854,7 @@
           "attributes": [
             {
               "name": "data-slot",
-              "values": ["icon-text", "icon-text-sm font-medium"]
+              "values": ["icon-text", "icon-text-label"]
             }
           ],
           "cssVariables": []

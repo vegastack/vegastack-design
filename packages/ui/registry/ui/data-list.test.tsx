@@ -1602,3 +1602,46 @@ test("no a11y violations — mono column, loading and empty", async () => {
   );
   await expectNoA11yViolations(empty.container);
 });
+
+/* DS-68 — clipped text and timestamps in a list are not tab stops */
+
+test("DS-68: Tab from a row link skips the timestamp to the next row's link", async () => {
+  const { RelativeTime } = await import("./relative-time");
+  interface Item {
+    id: string;
+    title: string;
+    at: number;
+  }
+  const NOW = Date.UTC(2026, 8, 24, 12);
+  const screen = await render(
+    <DataList<Item>
+      columns={[
+        {
+          key: "title",
+          header: "Title",
+          render: (r) => <a href={`#${r.id}`}>{r.title}</a>,
+        },
+        {
+          key: "at",
+          header: "Updated",
+          render: (r) => <RelativeTime date={r.at} now={NOW} />,
+        },
+      ]}
+      data={[
+        { id: "1", title: "Row 1", at: NOW - 3_600_000 },
+        { id: "2", title: "Row 2", at: NOW - 7_200_000 },
+      ]}
+      getRowId={(r) => r.id}
+    />,
+  );
+  (
+    screen.getByRole("link", { name: "Row 1" }).element() as HTMLElement
+  ).focus();
+  await userEvent.tab();
+  await expect
+    .element(screen.getByRole("link", { name: "Row 2" }))
+    .toHaveFocus();
+  for (const time of screen.container.querySelectorAll("time")) {
+    expect(time.getAttribute("tabindex")).toBeNull();
+  }
+});

@@ -1,4 +1,4 @@
-// @vegastack truncated-text@0.18.0 sha256-2UzqZzdC+rfZ1YHLvuLsAR0F0HpgXS1tl2DWttAnDOY=
+// @vegastack truncated-text@0.18.0 sha256-fbKFUUpvoloxDxg/EQcLEOMVDgzrVMq6MlX5CD7h6Vs=
 
 "use client";
 
@@ -448,7 +448,7 @@ export function IconText({
       </span>
       <span
         ref={setNode as React.Ref<never>}
-        data-slot="icon-text-sm font-medium"
+        data-slot="icon-text-label"
         className={cn(
           "min-w-0",
           expanded ? "break-words whitespace-normal" : "truncate",
@@ -491,7 +491,7 @@ export interface TableCellTextProps {
    */
   lines?: number;
   /**
-   * Render in the monospace family at a smaller size — for IDs, paths, and other
+   * Render in the monospace family at the cell size (`text-sm`) — for IDs, paths, and other
    * fixed-width values.
    * @default false
    */
@@ -538,7 +538,8 @@ export function TableCellText({
       data-slot="table-cell-text"
       className={cn(
         width && "max-w-[var(--cell-w)]",
-        mono && "font-mono text-xs",
+        // DS-74: the mono face at the cell's own size — `text-sm`, not a step down.
+        mono && "font-mono text-sm",
         className,
       )}
       style={
