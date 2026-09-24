@@ -4,9 +4,10 @@
 
 import * as React from "react";
 import { EllipsisVertical } from "lucide-react";
+import { mergeProps } from "@base-ui/react/merge-props";
+import { useRender } from "@base-ui/react/use-render";
 import { cn } from "@vegastack/design";
 import { dragItemClasses } from "@/lib/drag-item";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -28,6 +29,7 @@ import {
   EmptyTitle,
 } from "@/components/ui/empty";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Skeleton } from "@/components/ui/skeleton";
 import { TruncationFocusProvider } from "@/components/ui/truncated-text";
 import { useIsMobile } from "@/components/ui/use-mobile";
 import {
@@ -82,8 +84,26 @@ export interface BoardColumn<T> {
    * @default the `title` when it is a string
    */
   label?: string;
-  /** Cards in display order (controlled). */
+  /** Cards in display order (controlled) — the loaded cards of a paged lane. */
   items: readonly T[];
+  /**
+   * The lane's total, when it holds more than it has loaded. Shown as the
+   * lane's muted count and spoken in its name ("Open, 14 tasks").
+   * @default items.length
+   */
+  count?: number;
+  /**
+   * The lane is fetching: skeleton cards show below any loaded cards (in
+   * place of the empty state) and the lane is `aria-busy`.
+   * @default false
+   */
+  loading?: boolean;
+  /**
+   * What an empty lane shows, replacing the default "No cards" drop target.
+   * Pass an `Empty className="border"` to keep the drop-zone look.
+   * @default undefined
+   */
+  emptyState?: React.ReactNode;
   /**
    * Whether cards can be dropped into (or moved to) this column. A parked
    * lane sets `false` — it still renders, but is never a target.
@@ -98,12 +118,20 @@ export interface BoardColumn<T> {
    */
   lockedReason?: string;
   /**
-   * Render collapsed to a narrow strip (terminal columns). Activating the
+   * Start collapsed to a narrow strip (terminal columns). Activating the
    * strip expands the column read-only: cards show but do not drag, and it is
    * not a drop target.
    * @default false
    */
+  defaultCollapsed?: boolean;
+  /**
+   * Alias of `defaultCollapsed`, kept for existing boards.
+   * @deprecated Use `defaultCollapsed`.
+   * @default false
+   */
   collapsed?: boolean;
+  // Pending 00b (LoadMore, RowActionsMenu): `loadMore?: LoadMoreState` renders `LoadMore` in the lane
+  // footer, after the card list and before the lane's end.
 }
 
 /** Props accepted by `Board`. */
@@ -131,7 +159,28 @@ export interface BoardProps<T> {
    */
   getItemLabel?: (item: T) => string;
   /**
-   * Activate a card (open its record). Cards render as real buttons.
+   * The lane's count in words, for the lane's accessible name ("Open, 14
+   * tasks"). Name the host's noun here.
+   * @default (n) => n === 1 ? "1 card" : `${n} cards`
+   */
+  countLabel?: (n: number) => string;
+  /**
+   * Make a card a real link. A card with an href renders as an `<a>` (or
+   * `itemLinkRender`): a click, Enter, and every modifier click are the
+   * browser's own, and `onCardActivate` is not called for it. Space still
+   * lifts it into move mode. Keep card content free of links and buttons.
+   * @default undefined
+   */
+  getItemHref?: (item: T) => string | undefined;
+  /**
+   * The element a card link renders — a router link such as `<Link />`. It
+   * receives the `href`, the board's props and the card content.
+   * @default <a />
+   */
+  itemLinkRender?: React.ReactElement;
+  /**
+   * Activate a card (open its record). Cards without an href render as real
+   * buttons; a card with one is a link and never calls this.
 
    * @default undefined
    */
@@ -196,6 +245,37 @@ function cardCount(n: number): string {
   return `${n} ${n === 1 ? "card" : "cards"}`;
 }
 
+/** Props for the internal card surface. */
+interface BoardCardSurfaceProps extends React.HTMLAttributes<HTMLElement> {
+  href?: string;
+  linkRender?: React.ReactElement;
+  ref?: React.Ref<HTMLElement>;
+}
+
+/**
+ * The card surface: a `role="button"` div, or — with an `href` — a link
+ * rendered through `linkRender` (default `<a />`). The link is not natively
+ * draggable, so a pointer drag starts from the card, not from the URL.
+ */
+function BoardCardSurface({
+  href,
+  linkRender,
+  ref,
+  ...props
+}: BoardCardSurfaceProps) {
+  return useRender({
+    defaultTagName: "div",
+    render: href ? (linkRender ?? <a />) : undefined,
+    ref,
+    props: mergeProps<"div">(
+      href
+        ? ({ href, draggable: false } as React.ComponentProps<"div">)
+        : { role: "button" },
+      props,
+    ),
+  });
+}
+
 /**
  * `Board` — kanban columns over `use-drag-reorder`: pointer drag with
  * closest-edge indicators, the keyboard move mode on each card's handle-free
@@ -220,6 +300,9 @@ export function Board<T>({
   renderCard,
   onMove,
   getItemLabel,
+  countLabel = cardCount,
+  getItemHref,
+  itemLinkRender,
   onCardActivate,
   columnWidth = "18rem",
   columnMaxHeight = "calc(100dvh - 16rem)",
@@ -235,10 +318,15 @@ export function Board<T>({
   >(new Set());
   const [openMenuCard, setOpenMenuCard] = React.useState<string | null>(null);
 
+  const declaredCollapsed = (column: BoardColumn<T>) =>
+    column.defaultCollapsed ?? column.collapsed ?? false;
   const isCollapsed = (column: BoardColumn<T>) =>
-    (column.collapsed ?? false) && !expandedOverrides.has(column.id);
+    declaredCollapsed(column) && !expandedOverrides.has(column.id);
   /** Columns declared collapsed stay read-only even while expanded to view. */
-  const isReadOnly = (column: BoardColumn<T>) => column.collapsed ?? false;
+  const isReadOnly = (column: BoardColumn<T>) => declaredCollapsed(column);
+  /** "Open, 14 tasks" — the lane's accessible name, from its total. */
+  const laneName = (column: BoardColumn<T>) =>
+    `${laneLabel(column)}, ${countLabel(column.count ?? column.items.length)}`;
 
   const lists = React.useMemo(() => {
     const record: Record<string, string[]> = {};
@@ -274,21 +362,21 @@ export function Board<T>({
     const entry = itemsById.get(id);
     return entry && getItemLabel ? getItemLabel(entry.item) : "card";
   };
-  const laneName = (container: string) => {
+  const laneLabelById = (container: string) => {
     const column = columnsById.get(container);
     return column ? laneLabel(column) : container;
   };
   // Every announcement names the card and the lane, never a column id.
   const announcements: DragReorderAnnouncements = {
     lifted: ({ id, position, count, container }) =>
-      `Move mode on. ${upperFirst(cardLabel(id))}, ${position} of ${count} in ${laneName(container)}. Use the arrow keys to move, Escape to finish`,
+      `Move mode on. ${upperFirst(cardLabel(id))}, ${position} of ${count} in ${laneLabelById(container)}. Use the arrow keys to move, Escape to finish`,
     moved: ({ id, from, to, count }) =>
       from.container === to.container
         ? `Moved ${cardLabel(id)} to position ${to.index + 1} of ${count}`
-        : `Moved ${cardLabel(id)} to ${laneName(to.container)}, position ${to.index + 1} of ${count}`,
+        : `Moved ${cardLabel(id)} to ${laneLabelById(to.container)}, position ${to.index + 1} of ${count}`,
     ended: () => "Move mode off",
     rejected: ({ id, from }) =>
-      `Move rejected — ${cardLabel(id)} stays in ${laneName(from.container)}`,
+      `Move rejected — ${cardLabel(id)} stays in ${laneLabelById(from.container)}`,
   };
 
   const reorder = useDragReorder({
@@ -438,14 +526,23 @@ export function Board<T>({
                 // PAGE's scroll width (measured; the 320px reflow contract catches it).
                 className="relative h-auto min-h-48 w-10 shrink-0 flex-col items-center gap-2 rounded-lg bg-card px-1 py-3"
               >
-                <Badge variant="secondary">{column.items.length}</Badge>
                 <span
+                  aria-hidden="true"
+                  data-slot="board-column-count"
+                  className="text-xs text-muted-foreground tabular-nums"
+                >
+                  {column.count ?? column.items.length}
+                </span>
+                <span
+                  aria-hidden="true"
                   data-slot="board-column-collapsed-title"
                   className="min-h-0 flex-1 [writing-mode:vertical-rl] text-xs font-medium text-muted-foreground"
                 >
                   {column.title}
                 </span>
-                <span className="sr-only">Expand column, read-only</span>
+                <span className="sr-only">
+                  {`${laneName(column)}. Expand column, read-only`}
+                </span>
               </Button>
             );
           }
@@ -453,6 +550,9 @@ export function Board<T>({
             <Card
               key={column.id}
               size="sm"
+              role="region"
+              aria-label={laneName(column)}
+              aria-busy={column.loading ? true : undefined}
               data-slot="board-column"
               data-column={column.id}
               data-read-only={readOnly ? "" : undefined}
@@ -477,7 +577,12 @@ export function Board<T>({
                   className="flex min-w-0 items-center gap-2 text-xs font-medium text-muted-foreground"
                 >
                   <span className="min-w-0 truncate">{column.title}</span>
-                  <Badge variant="secondary">{column.items.length}</Badge>
+                  <span
+                    data-slot="board-column-count"
+                    className="font-normal text-muted-foreground tabular-nums"
+                  >
+                    {column.count ?? column.items.length}
+                  </span>
                 </CardTitle>
                 {renderColumnAction ? (
                   <CardAction>{renderColumnAction(column)}</CardAction>
@@ -495,26 +600,37 @@ export function Board<T>({
                     className="flex min-h-16 flex-col gap-2 p-1"
                   >
                     {column.items.length === 0 ? (
-                      <Empty className="border" data-slot="board-column-empty">
-                        <EmptyHeader>
-                          <EmptyTitle>No cards</EmptyTitle>
-                          {column.droppable === false ? (
-                            <EmptyDescription>
-                              {column.lockedReason ?? "Not a drop target"}
-                            </EmptyDescription>
-                          ) : !pointerDisabled && !readOnly ? (
-                            // Only promise a drag where one can start: not
-                            // under `dragDisabled`, below 768px, or read-only.
-                            <EmptyDescription>
-                              Drag a card here
-                            </EmptyDescription>
-                          ) : null}
-                        </EmptyHeader>
-                      </Empty>
+                      // A loading lane is not empty yet: its skeletons stand in.
+                      column.loading ? null : column.emptyState !==
+                        undefined ? (
+                        column.emptyState
+                      ) : (
+                        <Empty
+                          className="border"
+                          data-slot="board-column-empty"
+                        >
+                          <EmptyHeader>
+                            <EmptyTitle>No cards</EmptyTitle>
+                            {column.droppable === false ? (
+                              <EmptyDescription>
+                                {column.lockedReason ?? "Not a drop target"}
+                              </EmptyDescription>
+                            ) : !pointerDisabled && !readOnly ? (
+                              // Only promise a drag where one can start: not
+                              // under `dragDisabled`, below 768px, or read-only.
+                              <EmptyDescription>
+                                Drag a card here
+                              </EmptyDescription>
+                            ) : null}
+                          </EmptyHeader>
+                        </Empty>
+                      )
                     ) : (
                       <div
                         role="list"
-                        aria-label={`${laneLabel(column)}, ${cardCount(column.items.length)}`}
+                        // The lane (region) carries the total; the list is
+                        // named by the lane alone and counts its own items.
+                        aria-label={laneLabel(column)}
                         className="flex flex-col gap-2"
                       >
                         {column.items.map((item, index) => {
@@ -524,6 +640,8 @@ export function Board<T>({
                             column.id,
                             id,
                           );
+                          const href = getItemHref?.(item);
+                          const canDrag = !pointerDisabled && !readOnly;
                           return (
                             <div
                               key={id}
@@ -537,8 +655,9 @@ export function Board<T>({
                               // The ONE drag-item recipe, shared with SortableList.
                               className={dragItemClasses}
                             >
-                              <div
-                                role="button"
+                              <BoardCardSurface
+                                href={href}
+                                linkRender={itemLinkRender}
                                 tabIndex={rovingTarget === id ? 0 : -1}
                                 ref={(node: HTMLElement | null) => {
                                   if (node) cardRefs.current.set(id, node);
@@ -550,16 +669,22 @@ export function Board<T>({
                                   )(node);
                                 }}
                                 data-slot="board-card-surface"
-                                aria-pressed={handleProps["aria-pressed"]}
+                                // A link has no pressed state; move mode is
+                                // announced either way.
+                                aria-pressed={
+                                  href ? undefined : handleProps["aria-pressed"]
+                                }
                                 onFocus={() => setActiveCard(id)}
                                 onBlur={handleProps.onBlur}
                                 onKeyDown={(event) => {
                                   // Enter ACTIVATES (Space lifts) — the hook
                                   // treats both as lift, so Enter never reaches it.
+                                  // On a link Enter is the browser's own.
                                   if (
                                     event.key === "Enter" &&
                                     reorder.activeId !== id
                                   ) {
+                                    if (href) return;
                                     event.preventDefault();
                                     onCardActivate?.(item);
                                     return;
@@ -568,7 +693,14 @@ export function Board<T>({
                                   if (!event.defaultPrevented)
                                     handleCardKeyDown(event, column, index, id);
                                 }}
-                                onClick={() => onCardActivate?.(item)}
+                                // A link's click (and every modifier click)
+                                // is the browser's: never prevented, never
+                                // routed through onCardActivate.
+                                onClick={
+                                  href
+                                    ? undefined
+                                    : () => onCardActivate?.(item)
+                                }
                                 className={cn(
                                   "flex w-full min-w-0 flex-col gap-1 rounded-md border border-border bg-card p-3 text-start text-sm",
                                   "hover:bg-accent",
@@ -578,9 +710,12 @@ export function Board<T>({
                                   // the 768px breakpoint where the menu is the only path).
                                   // Previously every card claimed a drag a tablet could not
                                   // begin (audit B8-06).
-                                  !pointerDisabled && !readOnly
+                                  // A link keeps the browser's own cursor.
+                                  canDrag
                                     ? "cursor-grab"
-                                    : "cursor-default",
+                                    : href
+                                      ? undefined
+                                      : "cursor-default",
                                 )}
                               >
                                 {/* One tab stop per card: truncated text in the
@@ -588,7 +723,7 @@ export function Board<T>({
                                 <TruncationFocusProvider focusable={false}>
                                   {renderCard(item, column)}
                                 </TruncationFocusProvider>
-                              </div>
+                              </BoardCardSurface>
                               {readOnly ? null : (
                                 <DropdownMenu
                                   open={openMenuCard === id}
@@ -620,6 +755,10 @@ export function Board<T>({
                                     }
                                   />
                                   <DropdownMenuContent align="end">
+                                    {/* Pending 00b (LoadMore, RowActionsMenu): `getItemActions(item)`
+                                        (RowAction[]) render first here, then a
+                                        separator, then the Move items — one ⋯
+                                        menu per card. */}
                                     {/* Within-column ordering — on touch the
                                         menu is the ONLY ordering path, so it
                                         must be lossless on its own. */}
@@ -707,6 +846,25 @@ export function Board<T>({
                         })}
                       </div>
                     )}
+                    {column.loading ? (
+                      <div
+                        aria-hidden="true"
+                        data-slot="board-column-skeleton"
+                        className="flex flex-col gap-2"
+                      >
+                        {[0, 1, 2].map((key) => (
+                          <div
+                            key={key}
+                            className="flex flex-col gap-2 rounded-md border border-border bg-card p-3"
+                          >
+                            <Skeleton className="h-4 w-3/4" />
+                            <Skeleton className="h-3 w-1/3" />
+                          </div>
+                        ))}
+                      </div>
+                    ) : null}
+                    {/* Pending 00b (LoadMore, RowActionsMenu): `column.loadMore` renders `LoadMore` here,
+                        the lane footer, inside the lane's scroll. */}
                   </div>
                 </ScrollArea>
               </CardContent>

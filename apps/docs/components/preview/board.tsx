@@ -6,6 +6,12 @@ import { Wrapper } from "./wrapper";
 import { Board, type BoardColumn } from "@/components/ui/board";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
+import {
+  Empty,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyTitle,
+} from "@/components/ui/empty";
 
 interface Deal {
   id: string;
@@ -28,7 +34,7 @@ const INITIAL: BoardColumn<Deal>[] = [
     title: "Proposal",
     items: [{ id: "d3", name: "Initech pilot", amount: "$9,800", owner: "AL" }],
   },
-  { id: "won", title: "Won", items: [], collapsed: false },
+  { id: "won", title: "Won", items: [] },
   {
     id: "lost",
     title: "Lost",
@@ -37,7 +43,7 @@ const INITIAL: BoardColumn<Deal>[] = [
     ],
     droppable: false,
     lockedReason: "Lost deals move by automation",
-    collapsed: true,
+    defaultCollapsed: true,
   },
 ];
 
@@ -201,6 +207,117 @@ export function boardLabels(): ReactNode {
         columns={columns}
         getItemId={(task) => task.id}
         getItemLabel={(task) => task.name}
+        renderCard={(task) => (
+          <>
+            <span className="min-w-0 truncate font-medium">{task.name}</span>
+            <span className="text-xs text-muted-foreground tabular-nums">
+              {task.amount}
+            </span>
+          </>
+        )}
+        onMove={({ id, to }) =>
+          setColumns((prev) => applyMove(prev, id, to.container, to.index))
+        }
+      />
+    </Wrapper>
+  );
+}
+
+/**
+ * Lane states. `count` is the lane's total when it has loaded only some cards — the muted count
+ * and the lane's name ("Open, 14 tasks", through `countLabel`) use it. `loading` shows skeleton
+ * cards and marks the lane `aria-busy`; `emptyState` replaces the default "No cards" drop target;
+ * `defaultCollapsed` starts a terminal lane as a strip that expands read-only.
+ */
+export function boardLaneStates(): ReactNode {
+  const [columns, setColumns] = useState<BoardColumn<Deal>[]>([
+    {
+      id: "open",
+      title: "Open",
+      count: 14,
+      items: [
+        { id: "s1", name: "Token audit", amount: "2d", owner: "PS" },
+        { id: "s2", name: "Menu copy pass", amount: "1d", owner: "MK" },
+      ],
+    },
+    { id: "review", title: "In review", items: [], loading: true },
+    {
+      id: "blocked",
+      title: "Blocked",
+      items: [],
+      emptyState: (
+        <Empty className="border">
+          <EmptyHeader>
+            <EmptyTitle>Nothing blocked</EmptyTitle>
+            <EmptyDescription>
+              Move a task here when it waits on someone
+            </EmptyDescription>
+          </EmptyHeader>
+        </Empty>
+      ),
+    },
+    {
+      id: "done",
+      title: "Done",
+      count: 128,
+      items: [{ id: "s3", name: "Invoice export", amount: "3d", owner: "AL" }],
+      defaultCollapsed: true,
+    },
+  ]);
+  return (
+    <Wrapper className="block">
+      <Board<Deal>
+        aria-label="Sprint tasks"
+        columns={columns}
+        countLabel={(n) => `${n} ${n === 1 ? "task" : "tasks"}`}
+        getItemId={(task) => task.id}
+        getItemLabel={(task) => task.name}
+        renderCard={(task) => (
+          <>
+            <span className="min-w-0 truncate font-medium">{task.name}</span>
+            <span className="text-xs text-muted-foreground tabular-nums">
+              {task.amount}
+            </span>
+          </>
+        )}
+        onMove={({ id, to }) =>
+          setColumns((prev) => applyMove(prev, id, to.container, to.index))
+        }
+      />
+    </Wrapper>
+  );
+}
+
+/**
+ * Cards as links. `getItemHref` makes each card a real link: a click follows it, and a
+ * Cmd/Ctrl/Shift or middle click opens it the way the browser always does. Space still lifts the
+ * card into move mode, and its Move menu stays a separate control beside the link. Pass
+ * `itemLinkRender={<Link />}` to render your router's link.
+ */
+export function boardLinks(): ReactNode {
+  const [columns, setColumns] = useState<BoardColumn<Deal>[]>([
+    {
+      id: "todo",
+      title: "To do",
+      items: [
+        { id: "k1", name: "Token audit", amount: "2d", owner: "PS" },
+        { id: "k2", name: "Menu copy pass", amount: "1d", owner: "MK" },
+      ],
+    },
+    {
+      id: "doing",
+      title: "Doing",
+      items: [{ id: "k3", name: "Invoice export", amount: "3d", owner: "AL" }],
+    },
+  ]);
+  return (
+    <Wrapper className="block">
+      <Board<Deal>
+        aria-label="Linked tasks"
+        columns={columns}
+        getItemId={(task) => task.id}
+        getItemLabel={(task) => task.name}
+        getItemHref={(task) => `?task=${task.id}`}
         renderCard={(task) => (
           <>
             <span className="min-w-0 truncate font-medium">{task.name}</span>

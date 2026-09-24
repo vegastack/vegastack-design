@@ -192,7 +192,11 @@ test("board: the collapsed column strip names count, title and action", async ()
   );
   await expect
     .element(
-      page.getByRole("button", { name: "1 Won Expand column, read-only" }),
+      // The lane's name and total lead (DS-51); the visible count and
+      // vertical title are aria-hidden so neither is read twice.
+      page.getByRole("button", {
+        name: "Won, 1 card. Expand column, read-only",
+      }),
     )
     .toBeInTheDocument();
 });
