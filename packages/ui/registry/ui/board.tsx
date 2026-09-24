@@ -1,4 +1,4 @@
-// @vegastack board@0.19.0 sha256-kFhb6vX77HWRdHdFgoBPesE/gD/Lj6lV1rg3zOPvz7Q=
+// @vegastack board@0.19.0 sha256-OWAZlhjyGdeImGDjWmHFUIFX4Koode8BaFRRgVwjWqY=
 
 "use client";
 
@@ -20,8 +20,14 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  RowActionMenuItems,
+  type RowAction,
+} from "@/components/ui/data-table-parts";
+import { LoadMore, type LoadMoreState } from "@/components/ui/load-more";
 import {
   Empty,
   EmptyDescription,
@@ -134,8 +140,12 @@ export interface BoardColumn<T> {
    * @default false
    */
   collapsed?: boolean;
-  // Pending 00b (LoadMore, RowActionsMenu): `loadMore?: LoadMoreState` renders `LoadMore` in the lane
-  // footer, after the card list and before the lane's end.
+  /**
+   * Keyset paging for this lane: the shared `LoadMore` footer after the lane's cards, inside
+   * its scroll.
+   * @default undefined
+   */
+  loadMore?: LoadMoreState;
 }
 
 /** Props accepted by `Board`. */
@@ -162,6 +172,12 @@ export interface BoardProps<T> {
    * @default undefined
    */
   getItemLabel?: (item: T) => string;
+  /**
+   * A card's own actions (open, edit, archive), listed first in its ⋯ menu, above a separator
+   * and the Move items — one menu per card.
+   * @default undefined
+   */
+  getItemActions?: (item: T) => RowAction[];
   /**
    * The lane's count in words, for the lane's accessible name ("Open, 14
    * tasks"). Name the host's noun here.
@@ -304,6 +320,7 @@ export function Board<T>({
   renderCard,
   onMove,
   getItemLabel,
+  getItemActions,
   countLabel = cardCount,
   getItemHref,
   itemLinkRender,
@@ -639,6 +656,7 @@ export function Board<T>({
                       >
                         {column.items.map((item, index) => {
                           const id = getItemId(item);
+                          const itemActions = getItemActions?.(item) ?? [];
                           const itemProps = reorder.getItemProps(column.id, id);
                           const handleProps = reorder.getHandleProps(
                             column.id,
@@ -742,8 +760,10 @@ export function Board<T>({
                                         size="icon-xs"
                                         aria-label={
                                           getItemLabel
-                                            ? `Move ${getItemLabel(item)}`
-                                            : "Move card"
+                                            ? `${itemActions.length > 0 ? "Actions for" : "Move"} ${getItemLabel(item)}`
+                                            : itemActions.length > 0
+                                              ? "Card actions"
+                                              : "Move card"
                                         }
                                         // The roving model's promise is ONE
                                         // card-layer tab stop per board — a
@@ -759,10 +779,14 @@ export function Board<T>({
                                     }
                                   />
                                   <DropdownMenuContent align="end">
-                                    {/* Pending 00b (LoadMore, RowActionsMenu): `getItemActions(item)`
-                                        (RowAction[]) render first here, then a
-                                        separator, then the Move items — one ⋯
-                                        menu per card. */}
+                                    {itemActions.length > 0 ? (
+                                      <>
+                                        <RowActionMenuItems
+                                          actions={itemActions}
+                                        />
+                                        <DropdownMenuSeparator />
+                                      </>
+                                    ) : null}
                                     {/* Within-column ordering — on touch the
                                         menu is the ONLY ordering path, so it
                                         must be lossless on its own. */}
@@ -867,8 +891,9 @@ export function Board<T>({
                         ))}
                       </div>
                     ) : null}
-                    {/* Pending 00b (LoadMore, RowActionsMenu): `column.loadMore` renders `LoadMore` here,
-                        the lane footer, inside the lane's scroll. */}
+                    {column.loadMore ? (
+                      <LoadMore {...column.loadMore} className="pt-1" />
+                    ) : null}
                   </div>
                 </ScrollArea>
               </CardContent>

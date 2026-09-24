@@ -1,4 +1,4 @@
-// @vegastack data-list@0.19.0 sha256-XgZb6BsqQQDTstvJlGEvhALEb+dKjPj6tGFVF17b/oE=
+// @vegastack data-list@0.19.0 sha256-saLDlQLwyZ5KKr1yaqDnYpWO2cbsVFNHaWKBw/h2C6k=
 
 "use client";
 
@@ -24,17 +24,21 @@ import {
   SelectAllHead,
   SelectionCell,
   SkeletonRows,
+  RowActionsMenu,
+  SectionRow,
   SortableHead,
   useContainerWidth,
   useControlledState,
   useRowSelection,
   type DataTableColumnLayout,
+  type GroupState,
   type DataTableColumnMobile,
   type SortDirection,
+  type RowAction,
 } from "@/components/ui/data-table-parts";
 import { TruncationFocusProvider } from "@/components/ui/truncated-text";
 
-export type { DataTableColumnMobile, SortDirection };
+export type { DataTableColumnMobile, RowAction, SortDirection };
 
 /** The active sort — which column and which direction. */
 export interface SortState {
@@ -230,7 +234,111 @@ export interface DataListProps<T> extends Omit<
    * @default undefined
    */
   loadMore?: DataListLoadMoreProps;
+  /**
+   * Split the rows into collapsible sections, in this order, under the one header. Each
+   * non-empty section is its own `<tbody>` headed by a `SectionRow`; empty sections are
+   * omitted. Needs `getRowSection`.
+   * @default undefined
+   */
+  sections?: DataListSection[];
+  /**
+   * The section id a row belongs to. Rows whose id is not in `sections` follow the listed
+   * sections, without a header.
+   * @default undefined
+   */
+  getRowSection?: (row: T) => string;
+  /**
+   * Controlled collapsed/expanded state per section id. Pair with `onGroupStateChange`.
+   * @default undefined
+   */
+  groupState?: GroupState;
+  /**
+   * Initial collapsed/expanded state per section id, when uncontrolled. Sections are
+   * expanded unless listed as `"collapsed"`.
+   * @default {}
+   */
+  defaultGroupState?: GroupState;
+  /**
+   * Called with the next state when a section is collapsed or expanded.
+   * @default undefined
+   */
+  onGroupStateChange?: (state: GroupState) => void;
+  /**
+   * A section's count as a screen reader hears it.
+   * @default (n) => `${n} rows`
+   */
+  sectionCountLabel?: (count: number) => string;
 }
+
+/** Options accepted by `rowActionsColumn`. */
+export interface RowActionsColumnOptions<T> {
+  /** The row's name, for the menu trigger ("Actions for {label}"). */
+  getRowLabel: (row: T) => string;
+  /** The row's actions, in menu order. An empty list renders no menu. */
+  actions: (row: T) => RowAction[];
+  /**
+   * The column key.
+   * @default "actions"
+   */
+  key?: string;
+  /**
+   * The column's header, read by assistive tech only.
+   * @default "Actions"
+   */
+  headerLabel?: string;
+  /**
+   * The trigger's accessible name, from the row's label.
+   * @default (label) => `Actions for ${label}`
+   */
+  actionsLabel?: (label: string) => string;
+}
+
+/**
+ * A trailing row-actions column for `DataList`: one `RowActionsMenu` per row, end-aligned,
+ * always visible on narrow widths, and marked `interactive` so it never activates the row.
+ *
+ * @example
+ * columns={[...columns, rowActionsColumn({ getRowLabel: (p) => p.name, actions: (p) => [...] })]}
+ */
+export function rowActionsColumn<T>({
+  getRowLabel,
+  actions,
+  key = "actions",
+  headerLabel = "Actions",
+  actionsLabel,
+}: RowActionsColumnOptions<T>): DataListColumn<T> {
+  return {
+    key,
+    header: <span className="sr-only">{headerLabel}</span>,
+    align: "end",
+    minWidth: 48,
+    mobile: "visible",
+    interactive: true,
+    render: (row) => (
+      <RowActionsMenu
+        label={getRowLabel(row)}
+        actions={actions(row)}
+        actionsLabel={actionsLabel}
+      />
+    ),
+  };
+}
+
+/** One section of a sectioned `DataList`. */
+export interface DataListSection {
+  /** Matches what `getRowSection` returns for the section's rows. */
+  id: string;
+  /** The section header's text. */
+  label: React.ReactNode;
+  /**
+   * The count shown in the header. Defaults to the rows loaded into the section; pass the
+   * server's total when more exist than are loaded.
+   * @default the loaded row count
+   */
+  count?: number;
+}
+
+const EMPTY_GROUP_STATE: GroupState = {};
 
 /** The `loadMore` prop: the paging state plus the footer's own labels. */
 export type DataListLoadMoreProps = Omit<LoadMoreProps, "className" | "ref">;
@@ -369,6 +477,12 @@ export function DataList<T>({
   toolbar,
   footer,
   loadMore,
+  sections,
+  getRowSection,
+  groupState,
+  defaultGroupState,
+  onGroupStateChange,
+  sectionCountLabel,
   className,
   "aria-busy": ariaBusy,
   "aria-describedby": ariaDescribedBy,
@@ -544,6 +658,146 @@ export function DataList<T>({
       </div>
     ) : null;
 
+  const renderRow = (row: T, index: number) => {
+    const id = rowIds[index]!;
+    const isSelected = selected.has(id);
+    const clickable = !!onRowClick;
+    // Inject the accessible row-activation button into the first cell —
+    // but never when that first column is `interactive` (it already
+    // renders its own focusable control, so wrapping would nest one
+    // interactive element inside another).
+    const injectRowButton =
+      clickable && visibleColumns[0]?.interactive !== true;
+    return (
+      <TableRow
+        key={id}
+        data-slot="data-list-row"
+        data-selected={isSelected ? "" : undefined}
+        data-clickable={clickable ? "" : undefined}
+        onClick={clickable ? (e) => handleRowClick(e, row, index) : undefined}
+        className={cn(
+          clickable && "cursor-pointer",
+          // A checked row keeps a persistent half-`muted` wash through hover and press
+          // (SP-06), light enough that a `secondary` Badge in it stays visible — see
+          // `SELECTED_ROW_CLASS`. The checkbox is the authoritative selection cue.
+          isSelected && SELECTED_ROW_CLASS,
+        )}
+      >
+        {selectable && (
+          <SelectionCell
+            checked={isSelected}
+            onToggle={() => toggleRow(id)}
+            label={`Select row ${index + 1}`}
+          />
+        )}
+        {visibleColumns.map((col, colIdx) => {
+          const content = renderCell(col, row, index, id, isSelected);
+          // First cell + activatable + not an interactive column → wrap
+          // the content in a real <button>. It lives INSIDE the <td>, so
+          // the cell keeps its `role="cell"` and the row its `role="row"`;
+          // this is the focusable, Enter/Space-activatable control for
+          // keyboard / AT users. The `data-list-row-action` button is
+          // matched by INTERACTIVE_SELECTOR, so the row's mouse onClick
+          // guard skips it — no double-activation.
+          const isActionCell = injectRowButton && colIdx === 0;
+          return (
+            <TableCell
+              key={col.key}
+              className={cn(
+                columnCellClass(col),
+                col.className,
+                col.cellClassName?.(row, index),
+              )}
+            >
+              {isActionCell ? (
+                <button
+                  type="button"
+                  data-slot="data-list-row-action"
+                  onClick={() => onRowClick?.(row, index)}
+                  className="-mx-1 -my-0.5 inline-flex max-w-full appearance-none items-center rounded-sm bg-transparent px-1 py-0.5 text-start text-inherit"
+                >
+                  {content}
+                </button>
+              ) : (
+                content
+              )}
+              {colIdx === 0 && mergedColumns.length > 0 ? (
+                // Overflow columns stack under the primary value. Each keeps its header as
+                // an sr-only prefix: a value lifted out of its column loses the header a
+                // screen reader would otherwise announce with it.
+                // `mt-1`, not `mt-0.5`: the injected row-action button is 24px tall inside a
+                // 20px line box (`-my-0.5`), so it overhangs the line by 2px. Stacking the
+                // merged block any closer would cover the bottom of its pointer target.
+                <span
+                  data-slot="data-list-merged"
+                  className="mt-1 flex min-w-0 flex-col gap-0.5 text-xs text-muted-foreground"
+                >
+                  {mergedColumns.map((merged) => (
+                    // Each value wraps and wears its own column's face, whatever the
+                    // primary cell's `nowrap`/mono posture is (`mergedValueClass`).
+                    <span
+                      key={merged.key}
+                      data-sorted={
+                        activeSort?.key === merged.key
+                          ? activeSort.direction
+                          : undefined
+                      }
+                      className={mergedValueClass(merged)}
+                    >
+                      {typeof merged.header === "string" ? (
+                        <span className="sr-only">{merged.header}: </span>
+                      ) : null}
+                      {renderCell(merged, row, index, id, isSelected)}
+                    </span>
+                  ))}
+                </span>
+              ) : null}
+            </TableCell>
+          );
+        })}
+      </TableRow>
+    );
+  };
+
+  // Sections: one <tbody> per non-empty section, in the order the host lists them; rows whose
+  // section is not listed follow in a headerless body so nothing silently disappears.
+  const [groups, commitGroups] = useControlledState<GroupState>(
+    groupState,
+    defaultGroupState ?? EMPTY_GROUP_STATE,
+    onGroupStateChange,
+  );
+  const sectionGroups = React.useMemo(() => {
+    if (!sections || !getRowSection) return null;
+    const byId = new Map<string, number[]>();
+    data.forEach((row, index) => {
+      const key = getRowSection(row);
+      const list = byId.get(key);
+      if (list) list.push(index);
+      else byId.set(key, [index]);
+    });
+    const out: {
+      id: string;
+      label: React.ReactNode | null;
+      count?: number;
+      indexes: number[];
+    }[] = [];
+    for (const section of sections) {
+      const indexes = byId.get(section.id);
+      byId.delete(section.id);
+      if (!indexes || indexes.length === 0) continue;
+      out.push({
+        id: section.id,
+        label: section.label,
+        count: section.count ?? indexes.length,
+        indexes,
+      });
+    }
+    const rest = [...byId.values()].flat().sort((a, b) => a - b);
+    if (rest.length > 0)
+      out.push({ id: "__unsectioned", label: null, indexes: rest });
+    return out;
+  }, [data, getRowSection, sections]);
+
   const table = (
     // DS-68: a list owns its keyboard model — a row link or a row click, not one tab stop per
     // clipped value or timestamp — so truncated text and RelativeTime in the cells are not tab
@@ -584,125 +838,58 @@ export function DataList<T>({
           </TableRow>
         </TableHeader>
 
-        <TableBody>
-          {loading ? (
+        {loading ? (
+          <TableBody>
             <SkeletonRows
               columns={visibleColumns}
               rows={loadingRows}
               selectable={selectable}
               slot="data-list-skeleton-row"
             />
-          ) : data.length === 0 ? (
+          </TableBody>
+        ) : data.length === 0 ? (
+          <TableBody>
             <EmptyRow colSpan={colSpan} slot="data-list-empty-row">
               {emptyState}
             </EmptyRow>
-          ) : (
-            data.map((row, index) => {
-              const id = rowIds[index]!;
-              const isSelected = selected.has(id);
-              const clickable = !!onRowClick;
-              // Inject the accessible row-activation button into the first cell —
-              // but never when that first column is `interactive` (it already
-              // renders its own focusable control, so wrapping would nest one
-              // interactive element inside another).
-              const injectRowButton =
-                clickable && visibleColumns[0]?.interactive !== true;
-              return (
-                <TableRow
-                  key={id}
-                  data-slot="data-list-row"
-                  data-selected={isSelected ? "" : undefined}
-                  data-clickable={clickable ? "" : undefined}
-                  onClick={
-                    clickable ? (e) => handleRowClick(e, row, index) : undefined
-                  }
-                  className={cn(
-                    clickable && "cursor-pointer",
-                    // A checked row keeps a persistent half-`muted` wash through hover and press
-                    // (SP-06), light enough that a `secondary` Badge in it stays visible — see
-                    // `SELECTED_ROW_CLASS`. The checkbox is the authoritative selection cue.
-                    isSelected && SELECTED_ROW_CLASS,
-                  )}
-                >
-                  {selectable && (
-                    <SelectionCell
-                      checked={isSelected}
-                      onToggle={() => toggleRow(id)}
-                      label={`Select row ${index + 1}`}
-                    />
-                  )}
-                  {visibleColumns.map((col, colIdx) => {
-                    const content = renderCell(col, row, index, id, isSelected);
-                    // First cell + activatable + not an interactive column → wrap
-                    // the content in a real <button>. It lives INSIDE the <td>, so
-                    // the cell keeps its `role="cell"` and the row its `role="row"`;
-                    // this is the focusable, Enter/Space-activatable control for
-                    // keyboard / AT users. The `data-list-row-action` button is
-                    // matched by INTERACTIVE_SELECTOR, so the row's mouse onClick
-                    // guard skips it — no double-activation.
-                    const isActionCell = injectRowButton && colIdx === 0;
-                    return (
-                      <TableCell
-                        key={col.key}
-                        className={cn(
-                          columnCellClass(col),
-                          col.className,
-                          col.cellClassName?.(row, index),
-                        )}
-                      >
-                        {isActionCell ? (
-                          <button
-                            type="button"
-                            data-slot="data-list-row-action"
-                            onClick={() => onRowClick?.(row, index)}
-                            className="-mx-1 -my-0.5 inline-flex max-w-full appearance-none items-center rounded-sm bg-transparent px-1 py-0.5 text-start text-inherit"
-                          >
-                            {content}
-                          </button>
-                        ) : (
-                          content
-                        )}
-                        {colIdx === 0 && mergedColumns.length > 0 ? (
-                          // Overflow columns stack under the primary value. Each keeps its header as
-                          // an sr-only prefix: a value lifted out of its column loses the header a
-                          // screen reader would otherwise announce with it.
-                          // `mt-1`, not `mt-0.5`: the injected row-action button is 24px tall inside a
-                          // 20px line box (`-my-0.5`), so it overhangs the line by 2px. Stacking the
-                          // merged block any closer would cover the bottom of its pointer target.
-                          <span
-                            data-slot="data-list-merged"
-                            className="mt-1 flex min-w-0 flex-col gap-0.5 text-xs text-muted-foreground"
-                          >
-                            {mergedColumns.map((merged) => (
-                              // Each value wraps and wears its own column's face, whatever the
-                              // primary cell's `nowrap`/mono posture is (`mergedValueClass`).
-                              <span
-                                key={merged.key}
-                                data-sorted={
-                                  activeSort?.key === merged.key
-                                    ? activeSort.direction
-                                    : undefined
-                                }
-                                className={mergedValueClass(merged)}
-                              >
-                                {typeof merged.header === "string" ? (
-                                  <span className="sr-only">
-                                    {merged.header}:{" "}
-                                  </span>
-                                ) : null}
-                                {renderCell(merged, row, index, id, isSelected)}
-                              </span>
-                            ))}
-                          </span>
-                        ) : null}
-                      </TableCell>
-                    );
-                  })}
-                </TableRow>
-              );
-            })
-          )}
-        </TableBody>
+          </TableBody>
+        ) : sectionGroups ? (
+          sectionGroups.map((group) => {
+            const expanded = groups[group.id] !== "collapsed";
+            return (
+              <TableBody
+                key={group.id}
+                data-slot="data-list-section"
+                data-section={group.id}
+                data-collapsed={expanded ? undefined : ""}
+              >
+                {group.label != null ? (
+                  <SectionRow
+                    id={group.id}
+                    label={group.label}
+                    count={group.count}
+                    colSpan={colSpan}
+                    expanded={expanded}
+                    onExpandedChange={(next) =>
+                      commitGroups({
+                        ...groups,
+                        [group.id]: next ? "expanded" : "collapsed",
+                      })
+                    }
+                    countLabel={sectionCountLabel}
+                  />
+                ) : null}
+                {expanded
+                  ? group.indexes.map((index) => renderRow(data[index]!, index))
+                  : null}
+              </TableBody>
+            );
+          })
+        ) : (
+          <TableBody>
+            {data.map((row, index) => renderRow(row, index))}
+          </TableBody>
+        )}
       </Table>
       {statusLines}
     </TruncationFocusProvider>

@@ -7,6 +7,7 @@ import { Wrapper } from "./wrapper";
 import { Search } from "lucide-react";
 import {
   DataList,
+  rowActionsColumn,
   type DataListColumn,
   type SortState,
 } from "@/components/ui/data-list";
@@ -364,6 +365,53 @@ export function dataListLoadMore(): ReactNode {
             }, 600);
           },
         }}
+      />
+    </Wrapper>
+  );
+}
+
+export function dataListRowActions(): ReactNode {
+  return (
+    <Wrapper className="block">
+      <DataList
+        columns={[
+          ...columns,
+          rowActionsColumn<Person>({
+            getRowLabel: (p) => p.name,
+            actions: (p) => [
+              { label: "Edit", onSelect: () => {} },
+              { label: "Open profile", render: <a href={`#${p.id}`} /> },
+              {
+                label: "Remove",
+                destructive: true,
+                disabled: p.status === "active",
+                disabledReason: "Active members can't be removed",
+                onSelect: () => {},
+              },
+            ],
+          }),
+        ]}
+        data={people.slice(0, 4)}
+        getRowId={(p) => p.id}
+      />
+    </Wrapper>
+  );
+}
+
+export function dataListSections(): ReactNode {
+  return (
+    <Wrapper className="block">
+      <DataList
+        columns={columns}
+        data={people}
+        getRowId={(p) => p.id}
+        sections={[
+          { id: "active", label: "Active" },
+          { id: "invited", label: "Invited" },
+          { id: "suspended", label: "Suspended" },
+        ]}
+        getRowSection={(p) => p.status}
+        defaultGroupState={{ suspended: "collapsed" }}
       />
     </Wrapper>
   );

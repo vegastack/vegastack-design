@@ -855,3 +855,52 @@ test("itemLinkRender swaps the link element and keeps href and the board's props
   await expect.element(link).toHaveAttribute("data-slot", "board-card-surface");
   await expect.element(link).toHaveAttribute("tabindex", "0");
 });
+
+test("a lane's loadMore renders the shared LoadMore footer (DS-30)", async () => {
+  const onLoadMore = vi.fn();
+  const columns = makeColumns();
+  columns[0] = { ...columns[0]!, loadMore: { hasMore: true, onLoadMore } };
+  const screen = await render(
+    <Board
+      columns={columns}
+      getItemId={(d) => d.id}
+      getItemLabel={(d) => d.name}
+      renderCard={(d) => d.name}
+      onMove={() => {}}
+    />,
+  );
+  const lane = screen.container.querySelector(
+    '[data-slot="board-column"][data-column="lead"]',
+  )!;
+  expect(lane.querySelector('[data-slot="load-more"]')).not.toBeNull();
+  await screen.getByRole("button", { name: "Load more" }).click();
+  expect(onLoadMore).toHaveBeenCalledOnce();
+  await expectNoA11yViolations(screen.container);
+});
+
+test("getItemActions render first in the card menu, then the Move items (DS-32)", async () => {
+  const onOpen = vi.fn();
+  const screen = await render(
+    <Board
+      columns={makeColumns()}
+      getItemId={(d) => d.id}
+      getItemLabel={(d) => d.name}
+      renderCard={(d) => d.name}
+      onMove={() => {}}
+      getItemActions={(d) => [{ label: `Open ${d.name}`, onSelect: onOpen }]}
+    />,
+  );
+  await userEvent.keyboard("{Tab}");
+  const trigger = screen.getByRole("button", { name: "Actions for Acme" });
+  (trigger.element() as HTMLElement).click();
+  await expect
+    .poll(() => document.querySelectorAll('[role="menuitem"]').length)
+    .toBeGreaterThan(1);
+  const items = [...document.querySelectorAll('[role="menuitem"]')].map((n) =>
+    n.textContent?.trim(),
+  );
+  expect(items[0]).toBe("Open Acme");
+  expect(items).toContain("Move down");
+  await screen.getByRole("menuitem", { name: "Open Acme" }).click();
+  expect(onOpen).toHaveBeenCalledOnce();
+});

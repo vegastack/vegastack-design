@@ -233,6 +233,38 @@ the table reports `aria-rowcount="-1"`, because the total is unknown.
 />
 ```
 
+### Row actions
+
+`rowActionsColumn({ getRowLabel, actions })` adds a trailing column with one ⋯ menu per row, named
+for the row (_Actions for Ada Lovelace_). It is end-aligned, stays visible on narrow widths, and is
+`interactive`, so opening the menu never activates the row. Each `RowAction` runs `onSelect`, or
+renders as a real link through `render={<a href="…" />}`; `destructive` paints it in the destructive
+ink; `disabled` keeps it in the menu — still reachable by the arrow keys — and `disabledReason` is
+read as its description. A row with exactly one action that has an `icon` gets an icon button with a
+tooltip instead of a menu. The column header is _Actions_ for assistive tech only.
+
+<ComponentPreview
+  name="dataListRowActions"
+  file="components/preview/data-list.tsx"
+/>
+
+`RowActionsMenu` (and `RowActionMenuItems`, for a host that owns its own menu) are exported from
+`data-table-parts`; Board cards and SortableList rows use the same parts.
+
+### Sections
+
+`sections` plus `getRowSection` split the rows into collapsible sections under the one header, in
+the order you list them: each non-empty section is its own `<tbody>` headed by a `SectionRow` — a
+`th scope="rowgroup"` with a disclosure button and the row count in muted tabular numerals (a
+section's `count` wins, for a server total). Empty sections are omitted, rows in no listed section
+follow without a header, and select-all covers every loaded row. The collapsed state is
+`groupState` / `defaultGroupState` / `onGroupStateChange`, the same `GroupState` DataGrid's groups use.
+
+<ComponentPreview
+  name="dataListSections"
+  file="components/preview/data-list.tsx"
+/>
+
 ### Fitting the width
 
 `DataList` never forces a horizontal scroll. It measures its container and fits the columns into

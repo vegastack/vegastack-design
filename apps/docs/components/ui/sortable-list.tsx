@@ -1,4 +1,4 @@
-// @vegastack sortable-list@0.19.0 sha256-19HUfRxZWUtiObb/b1ZWq/BxU2ws3lpNyr5X8A1rwOM=
+// @vegastack sortable-list@0.19.0 sha256-YTtCAaazWe19u9VtyAA7ExqDbvljV6Yxz1R7FOxSCf4=
 
 "use client";
 
@@ -24,8 +24,13 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  RowActionMenuItems,
+  type RowAction,
+} from "@/components/ui/data-table-parts";
 import {
   useDragReorder,
   type DragReorderMove,
@@ -109,6 +114,12 @@ export interface SortableListProps<
    */
   renderActions?: (item: T) => React.ReactNode;
   /**
+   * A row's own actions (rename, delete), listed first in its ⋯ menu, above a separator and
+   * the Move items — one menu per row. On a locked row they stay available.
+   * @default undefined
+   */
+  menuItems?: (item: T) => RowAction[];
+  /**
    * Accessible name of a row's menu trigger, from the row's label.
    * @default (label) => `Actions for ${label}`
    */
@@ -184,6 +195,7 @@ export function SortableList<T extends SortableListItem = SortableListItem>({
   onReorder,
   renderItem,
   renderActions,
+  menuItems,
   actionsLabel = defaultActionsLabel,
   lockedReason,
   layout = "list",
@@ -236,6 +248,7 @@ export function SortableList<T extends SortableListItem = SortableListItem>({
           const label = item.label ?? item.id;
           const locked = !disabled && item.disabled === true;
           const actions = renderActions?.(item);
+          const rowMenuItems = menuItems?.(item) ?? [];
           const move = (to: number) => () =>
             reorder.requestMove({
               id: item.id,
@@ -317,6 +330,12 @@ export function SortableList<T extends SortableListItem = SortableListItem>({
                         }
                       />
                       <DropdownMenuContent align="end">
+                        {rowMenuItems.length > 0 ? (
+                          <>
+                            <RowActionMenuItems actions={rowMenuItems} />
+                            <DropdownMenuSeparator />
+                          </>
+                        ) : null}
                         <DropdownMenuItem
                           {...moveItemProps(index === 0)}
                           onClick={move(index - 1)}

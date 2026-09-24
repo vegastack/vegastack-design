@@ -1103,3 +1103,25 @@ test("DS-68: a timestamp in a grid cell is not a tab stop", async () => {
   expect(times.length).toBe(3);
   for (const time of times) expect(time.getAttribute("tabindex")).toBeNull();
 });
+
+test("a group row shows its count as the shared muted count (DS-34)", async () => {
+  const screen = await render(
+    <DataGrid
+      aria-label="Deals"
+      columns={[
+        { key: "name", header: "Name", minWidth: 10 },
+        { key: "stage", header: "Stage", minWidth: 10, group: true },
+      ]}
+      data={DEALS}
+      getRowId={(d) => d.id}
+    />,
+  );
+  const counts = [
+    ...screen.container.querySelectorAll('[data-slot="section-row-count"]'),
+  ].map((n) => n.textContent);
+  expect(counts.sort()).toEqual(["1", "2"]);
+  expect(screen.container.textContent).not.toContain("(2)");
+  await expect
+    .element(screen.getByRole("button", { name: "Open, 2 rows" }))
+    .toBeInTheDocument();
+});

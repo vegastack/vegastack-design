@@ -351,9 +351,11 @@
       "registryDependencies": [
         "@vegastack/button",
         "@vegastack/card",
+        "@vegastack/data-table-parts",
         "@vegastack/drag-item",
         "@vegastack/dropdown-menu",
         "@vegastack/empty",
+        "@vegastack/load-more",
         "@vegastack/scroll-area",
         "@vegastack/skeleton",
         "@vegastack/truncated-text",
@@ -936,7 +938,7 @@
         }
       ],
       "meta": {
-        "whenToUse": "A list of records as a table with typed columns, selection, click-to-sort, loading/empty states, and keyset paging through loadMore.",
+        "whenToUse": "A list of records as a table with typed columns, selection, click-to-sort, loading/empty states, keyset paging through loadMore, collapsible sections and a row-actions column.",
         "whenNotToUse": "A board/kanban view (Board), full-parity grids with grouping/editing/virtualization (DataGrid), or a simple static table (Table).",
         "version": "0.19.0"
       }
@@ -1009,9 +1011,12 @@
       "registryDependencies": [
         "@vegastack/button",
         "@vegastack/checkbox",
+        "@vegastack/dropdown-menu",
         "@vegastack/empty",
+        "@vegastack/item",
         "@vegastack/skeleton",
-        "@vegastack/table"
+        "@vegastack/table",
+        "@vegastack/tooltip"
       ],
       "files": [
         {
@@ -12827,6 +12832,7 @@
       ],
       "registryDependencies": [
         "@vegastack/button",
+        "@vegastack/data-table-parts",
         "@vegastack/drag-item",
         "@vegastack/dropdown-menu",
         "@vegastack/item",

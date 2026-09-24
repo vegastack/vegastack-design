@@ -407,9 +407,11 @@
       "registryDependencies": [
         "@vegastack/button",
         "@vegastack/card",
+        "@vegastack/data-table-parts",
         "@vegastack/drag-item",
         "@vegastack/dropdown-menu",
         "@vegastack/empty",
+        "@vegastack/load-more",
         "@vegastack/scroll-area",
         "@vegastack/skeleton",
         "@vegastack/truncated-text",
@@ -427,7 +429,7 @@
         "whenToUse": "Cross-column card movement — pipelines, kanban, staged workflows — where the host owns ordering and the move can be refused by a server gate; lanes may be partially loaded (count shows the total) and cards may be links to their records.",
         "whenNotToUse": "Single-list reordering (sortable-list), tabular data (data-list/data-grid), or static column layouts with no movement (plain Cards in a flex row).",
         "version": "0.19.0",
-        "integrity": "sha256-kFhb6vX77HWRdHdFgoBPesE/gD/Lj6lV1rg3zOPvz7Q="
+        "integrity": "sha256-OWAZlhjyGdeImGDjWmHFUIFX4Koode8BaFRRgVwjWqY="
       }
     },
     {
@@ -1043,7 +1045,7 @@
         "whenToUse": "Record tables that need grouping, inline cell editing, multi-key sort, column management, or 10k+ rows via virtualization — the CRM pipeline-table tier.",
         "whenNotToUse": "Simple presentational record lists — DataList is lighter and still the right default; kanban views (Board).",
         "version": "0.19.0",
-        "integrity": "sha256-nw9/3efeNnVnNhOQO16kZf5LTOTgSe8kdeztt6cAMOA="
+        "integrity": "sha256-6ExFSrRcAORZEO1X0WyIDlKaL96n0n85pn1kh/ujOTI="
       }
     },
     {
@@ -1072,10 +1074,10 @@
         }
       ],
       "meta": {
-        "whenToUse": "A list of records as a table with typed columns, selection, click-to-sort, loading/empty states, and keyset paging through loadMore.",
+        "whenToUse": "A list of records as a table with typed columns, selection, click-to-sort, loading/empty states, keyset paging through loadMore, collapsible sections and a row-actions column.",
         "whenNotToUse": "A board/kanban view (Board), full-parity grids with grouping/editing/virtualization (DataGrid), or a simple static table (Table).",
         "version": "0.19.0",
-        "integrity": "sha256-XgZb6BsqQQDTstvJlGEvhALEb+dKjPj6tGFVF17b/oE="
+        "integrity": "sha256-saLDlQLwyZ5KKr1yaqDnYpWO2cbsVFNHaWKBw/h2C6k="
       }
     },
     {
@@ -1156,9 +1158,12 @@
       "registryDependencies": [
         "@vegastack/button",
         "@vegastack/checkbox",
+        "@vegastack/dropdown-menu",
         "@vegastack/empty",
+        "@vegastack/item",
         "@vegastack/skeleton",
-        "@vegastack/table"
+        "@vegastack/table",
+        "@vegastack/tooltip"
       ],
       "files": [
         {
@@ -1171,7 +1176,7 @@
         "whenToUse": "Installed automatically with DataList or DataGrid; import it directly when building a bespoke table that should share their sort header, selection cells and column rules.",
         "whenNotToUse": "A plain presentational table (Table alone), or as a table component in its own right — these are parts, not a renderer.",
         "version": "0.19.0",
-        "integrity": "sha256-xw8NYqg6tGuQzMWC4i7Zaa8V00xvUvbsH9q2GdwXwFU="
+        "integrity": "sha256-G2p4cS1cC3zpTcqWZnWZ4B4AJvqe+MEDJ4MvI7EkDsg="
       }
     },
     {
@@ -15989,6 +15994,7 @@
       ],
       "registryDependencies": [
         "@vegastack/button",
+        "@vegastack/data-table-parts",
         "@vegastack/drag-item",
         "@vegastack/dropdown-menu",
         "@vegastack/item",
@@ -16005,7 +16011,7 @@
         "whenToUse": "User-orderable single lists and tile grids — settings sections, pipeline stages, attribute values with locked built-ins, editable rows with inline actions, ordered product photos — where the host persists (and may refuse) the order.",
         "whenNotToUse": "Cross-container card movement (board), selectable data tables (DataList — never mix selection with reordering), or read-only lists (ItemGroup).",
         "version": "0.19.0",
-        "integrity": "sha256-19HUfRxZWUtiObb/b1ZWq/BxU2ws3lpNyr5X8A1rwOM="
+        "integrity": "sha256-YTtCAaazWe19u9VtyAA7ExqDbvljV6Yxz1R7FOxSCf4="
       }
     },
     {

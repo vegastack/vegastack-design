@@ -333,3 +333,56 @@ export function boardLinks(): ReactNode {
     </Wrapper>
   );
 }
+
+export function boardPagedLanes(): ReactNode {
+  const [columns, setColumns] = useState<BoardColumn<Deal>[]>(() =>
+    INITIAL.slice(0, 2).map((column) =>
+      column.id === "qualified"
+        ? { ...column, items: column.items.slice(0, 1) }
+        : column,
+    ),
+  );
+  const [loading, setLoading] = useState(false);
+  const qualified = INITIAL[0]!.items;
+  return (
+    <Wrapper className="block">
+      <Board<Deal>
+        aria-label="Deals with paged lanes and card actions"
+        columns={columns.map((column) =>
+          column.id === "qualified"
+            ? {
+                ...column,
+                loadMore: {
+                  hasMore: column.items.length < qualified.length,
+                  loading,
+                  onLoadMore: () => {
+                    setLoading(true);
+                    setTimeout(() => {
+                      setColumns((prev) =>
+                        prev.map((c) =>
+                          c.id === "qualified" ? { ...c, items: qualified } : c,
+                        ),
+                      );
+                      setLoading(false);
+                    }, 600);
+                  },
+                },
+              }
+            : column,
+        )}
+        getItemId={(deal) => deal.id}
+        getItemLabel={(deal) => deal.name}
+        getItemActions={(deal) => [
+          { label: "Open deal", render: <a href={`#${deal.id}`} /> },
+          { label: "Archive", destructive: true, onSelect: () => {} },
+        ]}
+        renderCard={(deal) => (
+          <span className="min-w-0 truncate font-medium">{deal.name}</span>
+        )}
+        onMove={({ id, to }) =>
+          setColumns((prev) => applyMove(prev, id, to.container, to.index))
+        }
+      />
+    </Wrapper>
+  );
+}

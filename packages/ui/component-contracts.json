@@ -2779,9 +2779,11 @@
       "registryDependencies": [
         "@vegastack/button",
         "@vegastack/card",
+        "@vegastack/data-table-parts",
         "@vegastack/drag-item",
         "@vegastack/dropdown-menu",
         "@vegastack/empty",
+        "@vegastack/load-more",
         "@vegastack/scroll-area",
         "@vegastack/skeleton",
         "@vegastack/truncated-text",
@@ -6594,7 +6596,6 @@
                 "data-grid-cell",
                 "data-grid-footer",
                 "data-grid-group-row",
-                "data-grid-group-toggle",
                 "data-grid-head",
                 "data-grid-hidden-hint",
                 "data-grid-merged",
@@ -6672,8 +6673,35 @@
           }
         },
         {
+          "name": "DataListSection",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/data-list.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
           "name": "DataTableColumnMobile",
           "kind": "type",
+          "source": "packages/ui/registry/ui/data-list.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "RowAction",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/data-list.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "RowActionsColumnOptions",
+          "kind": "interface",
           "source": "packages/ui/registry/ui/data-list.tsx",
           "ref": {
             "status": "not-applicable",
@@ -6696,6 +6724,15 @@
           "ref": {
             "status": "not-applicable",
             "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "rowActionsColumn",
+          "kind": "function",
+          "source": "packages/ui/registry/ui/data-list.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A pure function; it renders nothing and takes no ref."
           }
         }
       ],
@@ -6738,7 +6775,10 @@
             "loading",
             "open",
             "read-only",
-            "selected"
+            "selected",
+            "sectioned",
+            "collapsed-section",
+            "row-actions"
           ],
           "evidence": "Observed from branches, state attributes, and inline source contract."
         },
@@ -6805,6 +6845,14 @@
               "values": [""]
             },
             {
+              "name": "data-collapsed",
+              "values": [""]
+            },
+            {
+              "name": "data-section",
+              "values": []
+            },
+            {
               "name": "data-selected",
               "values": [""]
             },
@@ -6819,6 +6867,7 @@
                 "data-list-root",
                 "data-list-row",
                 "data-list-row-action",
+                "data-list-section",
                 "data-list-sort-hint",
                 "data-list-status",
                 "data-list-toolbar"
@@ -7128,24 +7177,6 @@
       "sourceFiles": ["packages/ui/registry/ui/data-table-parts.tsx"],
       "publicSymbols": [
         {
-          "name": "alignClass",
-          "kind": "function",
-          "source": "packages/ui/registry/ui/data-table-parts.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "This exported helper is not a rendered component root."
-          }
-        },
-        {
-          "name": "columnCellClass",
-          "kind": "function",
-          "source": "packages/ui/registry/ui/data-table-parts.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "This exported helper is not a rendered component root."
-          }
-        },
-        {
           "name": "ColumnRevelation",
           "kind": "interface",
           "source": "packages/ui/registry/ui/data-table-parts.tsx",
@@ -7155,12 +7186,12 @@
           }
         },
         {
-          "name": "cycleSort",
-          "kind": "function",
+          "name": "DEFAULT_COLUMN_MIN_WIDTH",
+          "kind": "component-constant",
           "source": "packages/ui/registry/ui/data-table-parts.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "This exported helper is not a rendered component root."
+            "rationale": "component-constant symbols do not expose a rendered DOM instance or ref contract."
           }
         },
         {
@@ -7191,15 +7222,6 @@
           }
         },
         {
-          "name": "DEFAULT_COLUMN_MIN_WIDTH",
-          "kind": "component-constant",
-          "source": "packages/ui/registry/ui/data-table-parts.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "component-constant symbols do not expose a rendered DOM instance or ref contract."
-          }
-        },
-        {
           "name": "EmptyRow",
           "kind": "component",
           "source": "packages/ui/registry/ui/data-table-parts.tsx",
@@ -7216,6 +7238,253 @@
           "ref": {
             "status": "not-applicable",
             "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "GroupState",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/data-table-parts.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "RowAction",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/data-table-parts.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "RowActionMenuItems",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/data-table-parts.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Renders a composed part and takes no ref."
+          }
+        },
+        {
+          "name": "RowActionsMenu",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/data-table-parts.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Renders a composed part and takes no ref."
+          }
+        },
+        {
+          "name": "RowActionsMenuProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/data-table-parts.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "SELECTED_ROW_CLASS",
+          "kind": "component-constant",
+          "source": "packages/ui/registry/ui/data-table-parts.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "component-constant symbols do not expose a rendered DOM instance or ref contract."
+          }
+        },
+        {
+          "name": "SELECTION_COLUMN_WIDTH",
+          "kind": "component-constant",
+          "source": "packages/ui/registry/ui/data-table-parts.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "component-constant symbols do not expose a rendered DOM instance or ref contract."
+          }
+        },
+        {
+          "name": "SectionRow",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/data-table-parts.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Renders a composed part and takes no ref."
+          }
+        },
+        {
+          "name": "SectionRowProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/data-table-parts.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "SectionToggle",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/data-table-parts.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Renders a composed part and takes no ref."
+          }
+        },
+        {
+          "name": "SectionToggleProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/data-table-parts.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "SelectAllHead",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/data-table-parts.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "TableHead",
+            "rationale": "Source forwards the ref to this JSX/Base UI render target."
+          }
+        },
+        {
+          "name": "SelectAllHeadProps",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/data-table-parts.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "SelectionCell",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/data-table-parts.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "TableCell",
+            "rationale": "Source forwards the ref to this JSX/Base UI render target."
+          }
+        },
+        {
+          "name": "SelectionCellProps",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/data-table-parts.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "SkeletonRows",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/data-table-parts.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Renders a fragment of rows, not a single root."
+          }
+        },
+        {
+          "name": "SkeletonRowsProps",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/data-table-parts.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "SortDirection",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/data-table-parts.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "SortHeaderButton",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/data-table-parts.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "Button",
+            "rationale": "Source forwards the ref to this JSX/Base UI render target."
+          }
+        },
+        {
+          "name": "SortHeaderButtonProps",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/data-table-parts.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "SortableHead",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/data-table-parts.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "TableHead",
+            "rationale": "Source forwards the ref to this JSX/Base UI render target."
+          }
+        },
+        {
+          "name": "SortableHeadProps",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/data-table-parts.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "UseRowSelectionOptions",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/data-table-parts.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "UseRowSelectionResult",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/data-table-parts.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "alignClass",
+          "kind": "function",
+          "source": "packages/ui/registry/ui/data-table-parts.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "This exported helper is not a rendered component root."
+          }
+        },
+        {
+          "name": "columnCellClass",
+          "kind": "function",
+          "source": "packages/ui/registry/ui/data-table-parts.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "This exported helper is not a rendered component root."
+          }
+        },
+        {
+          "name": "cycleSort",
+          "kind": "function",
+          "source": "packages/ui/registry/ui/data-table-parts.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "This exported helper is not a rendered component root."
           }
         },
         {
@@ -7264,127 +7533,6 @@
           }
         },
         {
-          "name": "SelectAllHead",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/data-table-parts.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "TableHead",
-            "rationale": "Source forwards the ref to this JSX/Base UI render target."
-          }
-        },
-        {
-          "name": "SelectAllHeadProps",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/data-table-parts.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "SELECTED_ROW_CLASS",
-          "kind": "component-constant",
-          "source": "packages/ui/registry/ui/data-table-parts.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "component-constant symbols do not expose a rendered DOM instance or ref contract."
-          }
-        },
-        {
-          "name": "SELECTION_COLUMN_WIDTH",
-          "kind": "component-constant",
-          "source": "packages/ui/registry/ui/data-table-parts.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "component-constant symbols do not expose a rendered DOM instance or ref contract."
-          }
-        },
-        {
-          "name": "SelectionCell",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/data-table-parts.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "TableCell",
-            "rationale": "Source forwards the ref to this JSX/Base UI render target."
-          }
-        },
-        {
-          "name": "SelectionCellProps",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/data-table-parts.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "SkeletonRows",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/data-table-parts.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Renders a fragment of rows, not a single root."
-          }
-        },
-        {
-          "name": "SkeletonRowsProps",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/data-table-parts.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "SortableHead",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/data-table-parts.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "TableHead",
-            "rationale": "Source forwards the ref to this JSX/Base UI render target."
-          }
-        },
-        {
-          "name": "SortableHeadProps",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/data-table-parts.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "SortDirection",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/data-table-parts.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "SortHeaderButton",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/data-table-parts.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "Button",
-            "rationale": "Source forwards the ref to this JSX/Base UI render target."
-          }
-        },
-        {
-          "name": "SortHeaderButtonProps",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/data-table-parts.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
           "name": "useContainerWidth",
           "kind": "hook",
           "source": "packages/ui/registry/ui/data-table-parts.tsx",
@@ -7409,24 +7557,6 @@
           "ref": {
             "status": "not-applicable",
             "rationale": "This exported helper is not a rendered component root."
-          }
-        },
-        {
-          "name": "UseRowSelectionOptions",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/data-table-parts.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "UseRowSelectionResult",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/data-table-parts.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         }
       ],
@@ -7495,9 +7625,12 @@
       "registryDependencies": [
         "@vegastack/button",
         "@vegastack/checkbox",
+        "@vegastack/dropdown-menu",
         "@vegastack/empty",
+        "@vegastack/item",
         "@vegastack/skeleton",
-        "@vegastack/table"
+        "@vegastack/table",
+        "@vegastack/tooltip"
       ],
       "npmDependencies": [
         "lucide-react@^1.47.0",
@@ -7568,6 +7701,37 @@
             {
               "name": "data-slot",
               "values": []
+            }
+          ],
+          "cssVariables": []
+        },
+        "RowActionsMenu": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["row-action", "row-actions-trigger"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "SectionToggle": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["section-row-count", "section-toggle"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "SectionRow": {
+          "attributes": [
+            {
+              "name": "data-section",
+              "values": []
+            },
+            {
+              "name": "data-slot",
+              "values": ["section-row"]
             }
           ],
           "cssVariables": []
@@ -17410,6 +17574,7 @@
       "docsSlug": "/docs/components/sortable-list",
       "registryDependencies": [
         "@vegastack/button",
+        "@vegastack/data-table-parts",
         "@vegastack/drag-item",
         "@vegastack/dropdown-menu",
         "@vegastack/item",
