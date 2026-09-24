@@ -200,4 +200,7 @@ Upstream's file plus `packages/ui/upstream/patches/input-group.patch`. Every hun
   shows its focus cue rather than the error colour; the `has-aria-invalid` halo rings go with it.
 - **FOC-6** — `InputGroupInput` and `InputGroupTextarea` drop `ring-0 focus-visible:ring-0
 aria-invalid:ring-0`, which existed only to cancel the ring `Input` and `Textarea` no longer have.
+- **API-26** — NO HUNK: `InputGroupInput` renders `Input` and `InputGroupTextarea` renders
+  `Textarea`, both Base UI `Field.Control`s, so inside a `Field` they take their label, description
+  and error ids and `aria-invalid` from it.
 - **DOC-2** — `cn` is imported from `@vegastack/design`.

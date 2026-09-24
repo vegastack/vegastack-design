@@ -13067,6 +13067,7 @@
       "description": "A styled native textarea for multi-line text — auto-sizing to its content, invalid and disabled chrome, and the text-entry focus border tint (FOC-3).",
       "categories": ["form"],
       "dependencies": [
+        "@base-ui/react@^1.6.0",
         "@vegastack/design@^0.7.4",
         "@vegastack/design-tokens@^0.7.1"
       ],

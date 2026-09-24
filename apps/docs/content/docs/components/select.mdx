@@ -179,4 +179,7 @@ focus-visible:ring-3 focus-visible:ring-ring/50` becomes `focus:border-ring/70`:
 - **BRD-1** — `SelectContent` draws a real 1px `border border-border` instead of upstream's
   `ring-1 ring-foreground/10` box-shadow outline. A border survives forced colours and matches
   [Elevation](/docs/foundations/elevation); nothing else about the surface moves.
+- **API-26** — NO HUNK for the wiring: Base UI's `Select` reads the `Field` context itself, so
+  inside a `Field` the trigger takes its label, the rendered description and error ids, and
+  `aria-invalid`.
 - **DOC-2** — `cn` is imported from `@vegastack/design`.

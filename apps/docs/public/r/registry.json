@@ -16264,6 +16264,7 @@
         "form"
       ],
       "dependencies": [
+        "@base-ui/react@^1.6.0",
         "@vegastack/design@^0.7.4",
         "@vegastack/design-tokens@^0.7.1"
       ],
@@ -16279,7 +16280,7 @@
         "whenToUse": "Multi-line free text — descriptions, comments, messages, notes.",
         "whenNotToUse": "Single-line entry (input), rich text (editor), or fixed options (select).",
         "version": "0.17.1",
-        "integrity": "sha256-hrhee7H2q7WSSO4SyHVOXlj8l2UIu0dHRQ+0NMNTszM="
+        "integrity": "sha256-4P2i0Gb0F2fowGTYjkRZwx9r64rTljd9N7u4uD24dvM="
       }
     },
     {

@@ -13,7 +13,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "./select";
-import { Field, FieldError, FieldLabel } from "./field";
+import { Field, FieldDescription, FieldError, FieldLabel } from "./field";
 // The scroll arrows only mount while the popup overflows, which needs compiled CSS this lane does
 // not have. Their INT-1 exemption is asserted against the source instead.
 import selectSource from "./select.tsx?raw";
@@ -359,6 +359,66 @@ test("no a11y violations — disabled", async () => {
     <Field data-disabled>
       <FieldLabel>Fruit</FieldLabel>
       <Fruit disabled />
+    </Field>,
+  );
+  await expectNoA11yViolations(screen.container);
+});
+
+/* API-26 — no hunk: Base UI's Select reads the Field context itself */
+
+function FieldFruit() {
+  return (
+    <Select items={items}>
+      <SelectTrigger>
+        <SelectValue placeholder="Select a fruit" />
+      </SelectTrigger>
+      <SelectContent>
+        <SelectGroup>
+          {items.map((item) => (
+            <SelectItem key={item.label} value={item.value}>
+              {item.label}
+            </SelectItem>
+          ))}
+        </SelectGroup>
+      </SelectContent>
+    </Select>
+  );
+}
+
+test("API-26 (engine): inside a Field the trigger is labelled, described and invalid", async () => {
+  const screen = await render(
+    <Field data-invalid>
+      <FieldLabel>Fruit</FieldLabel>
+      <FieldFruit />
+      <FieldDescription>Pick one.</FieldDescription>
+      <FieldError>Please select a fruit.</FieldError>
+    </Field>,
+  );
+  const trigger = screen.getByRole("combobox", { name: "Fruit" });
+  await expect.element(trigger).toHaveAttribute("aria-invalid", "true");
+  await expect.element(trigger).toHaveAccessibleDescription(/Pick one/);
+  await expect
+    .element(trigger)
+    .toHaveAccessibleDescription(/Please select a fruit/);
+});
+
+test("no a11y violations — automatic Field wiring, valid", async () => {
+  const screen = await render(
+    <Field>
+      <FieldLabel>Fruit</FieldLabel>
+      <FieldFruit />
+      <FieldDescription>Pick one.</FieldDescription>
+    </Field>,
+  );
+  await expectNoA11yViolations(screen.container);
+});
+
+test("no a11y violations — automatic Field wiring, invalid", async () => {
+  const screen = await render(
+    <Field data-invalid>
+      <FieldLabel>Fruit</FieldLabel>
+      <FieldFruit />
+      <FieldError>Please select a fruit.</FieldError>
     </Field>,
   );
   await expectNoA11yViolations(screen.container);

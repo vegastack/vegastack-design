@@ -1,5 +1,5 @@
 # component: select
-# decisions: BRD-1, DOC-1, DOC-2, FOC-1, FOC-3, FOC-4, FOC-5, FOC-6, FRM-4, INT-1, OVL-13
+# decisions: API-26, BRD-1, DOC-1, DOC-2, FOC-1, FOC-3, FOC-4, FOC-5, FOC-6, FRM-4, INT-1, OVL-13
 # hunks:
 #   FOC-1, FOC-3, FOC-4, FOC-6: the trigger's `outline-none focus-visible:border-ring
 #     focus-visible:ring-3 focus-visible:ring-ring/50` becomes `focus:border-ring/70` — the border
@@ -19,6 +19,9 @@
 #   BRD-1: `SelectContent` draws a real 1px `border border-border` instead of upstream's
 #     `ring-1 ring-foreground/10` box-shadow outline (MK reversed BRD-1 to ours, 23-09-2026). A
 #     border survives forced colours and matches `foundations/elevation`; nothing else moves.
+#   API-26: NO HUNK for the Field wiring — Base UI's `Select.Root` and `Select.Trigger` read the
+#     `Field` context themselves (label, description and error ids, `aria-invalid`);
+#     `select.test.tsx` pins it.
 #   cn: `import { cn } from "cn"` becomes `@vegastack/design` — our npm layer owns `cn` (DOC-2).
 #   formatting: the repository formatter (prettier defaults: semicolons, trailing commas)
 #               reflows the file, and `registry-stamp.mjs` writes the provenance header the
