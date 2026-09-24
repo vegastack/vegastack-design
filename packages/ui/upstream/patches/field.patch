@@ -19,13 +19,15 @@
 #     `aria-describedby` ids of what is rendered, and `aria-invalid` with no props. Upstream also
 #     places these parts outside a `Field` (a FieldSet description, a choice-card label, a
 #     standalone error), where Base UI's parts would throw, so a `FieldScope` context picks the
-#     Base UI part inside a `Field` and upstream's plain element everywhere else.
+#     Base UI part inside a `Field` and upstream's plain element everywhere else. `FieldTitle`
+#     takes its own `data-slot="field-title"`, so the Base UI label is the one `field-label`
+#     in a Field (plan Task 1, audit D1 B13).
 #   cn: `import { cn } from "cn"` becomes `@vegastack/design` — our npm layer owns `cn` (DOC-2).
 #   formatting: the repository formatter (prettier defaults: semicolons, trailing commas)
 #               reflows the file, and `registry-stamp.mjs` writes the provenance header the
 #               three-copy model needs (DOC-1); those hunks carry no decision of their own.
 diff --git a/field.tsx b/field.tsx
-index 8bb6199..eb3296f 100644
+index 8bb6199..40736c8 100644
 --- a/field.tsx
 +++ b/field.tsx
 @@ -1,11 +1,27 @@
@@ -148,7 +150,7 @@ index 8bb6199..eb3296f 100644
  }
  
  function FieldContent({ className, ...props }: React.ComponentProps<"div">) {
-@@ -91,28 +116,29 @@ function FieldContent({ className, ...props }: React.ComponentProps<"div">) {
+@@ -91,56 +116,58 @@ function FieldContent({ className, ...props }: React.ComponentProps<"div">) {
        data-slot="field-content"
        className={cn(
          "group/field-content flex flex-1 flex-col gap-0.5 leading-snug",
@@ -184,8 +186,10 @@ index 8bb6199..eb3296f 100644
  }
  
  function FieldTitle({ className, ...props }: React.ComponentProps<"div">) {
-@@ -121,26 +147,27 @@ function FieldTitle({ className, ...props }: React.ComponentProps<"div">) {
-       data-slot="field-label"
+   return (
+     <div
+-      data-slot="field-label"
++      data-slot="field-title"
        className={cn(
          "flex w-fit items-center gap-2 text-sm font-medium group-data-[disabled=true]/field:opacity-50",
 -        className

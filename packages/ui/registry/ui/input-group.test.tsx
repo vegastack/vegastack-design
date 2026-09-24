@@ -3,6 +3,7 @@ import { render } from "vitest-browser-react";
 import { userEvent } from "vitest/browser";
 import { expect, test } from "vitest";
 import { expectNoA11yViolations } from "../../test/a11y";
+import { fieldWiringTests } from "../../test/field-wiring";
 import {
   InputGroup,
   InputGroupAddon,
@@ -374,4 +375,24 @@ test("no a11y violations — inside a Field, invalid", async () => {
     </Field>,
   );
   await expectNoA11yViolations(screen.container);
+});
+
+fieldWiringTests({
+  name: "InputGroupInput",
+  render: (props) => (
+    <InputGroup>
+      <InputGroupInput {...props} />
+    </InputGroup>
+  ),
+  find: (screen, name) => screen.getByRole("textbox", { name }),
+});
+
+fieldWiringTests({
+  name: "InputGroupTextarea",
+  render: (props) => (
+    <InputGroup>
+      <InputGroupTextarea {...props} />
+    </InputGroup>
+  ),
+  find: (screen, name) => screen.getByRole("textbox", { name }),
 });

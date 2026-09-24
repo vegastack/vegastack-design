@@ -6,6 +6,7 @@ import { page, userEvent } from "vitest/browser";
 import geometryCss from "../../test/geometry.css?inline";
 import * as React from "react";
 import { expectNoA11yViolations } from "../../test/a11y";
+import { fieldWiringTests } from "../../test/field-wiring";
 import { DatePicker, DateRangePicker, type DateRange } from "./date-picker";
 import { Field, FieldDescription, FieldError, FieldLabel } from "./field";
 
@@ -576,4 +577,16 @@ test("below sm the rail stacks above the calendar and divides only between them"
   const style = getComputedStyle(rail);
   expect(style.borderBottomWidth).toBe("1px");
   expect(style.borderRightWidth).toBe("0px");
+});
+
+fieldWiringTests({
+  name: "DatePicker",
+  render: (props) => <DatePicker {...props} />,
+  find: (screen, name) => screen.getByRole("button", { name }),
+});
+
+fieldWiringTests({
+  name: "DateRangePicker",
+  render: (props) => <DateRangePicker {...props} />,
+  find: (screen, name) => screen.getByRole("button", { name }),
 });

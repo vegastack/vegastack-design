@@ -3,6 +3,7 @@ import { render } from "vitest-browser-react";
 import { userEvent } from "vitest/browser";
 import { expect, test } from "vitest";
 import { expectNoA11yViolations } from "../../test/a11y";
+import { fieldWiringTests } from "../../test/field-wiring";
 import {
   Combobox,
   ComboboxChip,
@@ -596,4 +597,24 @@ test("no a11y violations — automatic Field wiring, invalid", async () => {
     </Field>,
   );
   await expectNoA11yViolations(screen.container);
+});
+
+fieldWiringTests({
+  name: "ComboboxInput",
+  render: (props) => (
+    <Combobox items={frameworks}>
+      <ComboboxInput placeholder="Select a framework" {...props} />
+      <ComboboxContent>
+        <ComboboxEmpty>No items found.</ComboboxEmpty>
+        <ComboboxList>
+          {(item: string) => (
+            <ComboboxItem key={item} value={item}>
+              {item}
+            </ComboboxItem>
+          )}
+        </ComboboxList>
+      </ComboboxContent>
+    </Combobox>
+  ),
+  find: (screen, name) => screen.getByRole("combobox", { name }),
 });

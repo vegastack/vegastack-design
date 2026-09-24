@@ -534,3 +534,38 @@ test("no a11y violations — automatic wiring, invalid", async () => {
   );
   await expectNoA11yViolations(screen.container);
 });
+
+test("API-26: FieldTitle has its own slot, so the Base UI label is the only field-label", async () => {
+  const screen = await render(
+    <FieldLabel htmlFor="title-k8s">
+      <Field orientation="horizontal">
+        <FieldContent>
+          <FieldTitle>Kubernetes</FieldTitle>
+          <FieldDescription>Run GPU workloads.</FieldDescription>
+        </FieldContent>
+        <Checkbox id="title-k8s" />
+      </Field>
+    </FieldLabel>,
+  );
+  const title = screen.getByText("Kubernetes").element();
+  expect(title.getAttribute("data-slot")).toBe("field-title");
+  expect(
+    screen.container.querySelectorAll('[data-slot="field-label"]'),
+  ).toHaveLength(1);
+});
+
+test("API-26: Base UI's own validation does not mark a control invalid without data-invalid", async () => {
+  const screen = await render(
+    <form onSubmit={(event) => event.preventDefault()}>
+      <Field>
+        <FieldLabel>Required name</FieldLabel>
+        <Input required />
+      </Field>
+    </form>,
+  );
+  const input = screen.getByRole("textbox", { name: "Required name" });
+  await userEvent.click(input);
+  await userEvent.keyboard("{Enter}");
+  (input.element() as HTMLInputElement).blur();
+  await expect.element(input).not.toHaveAttribute("aria-invalid");
+});

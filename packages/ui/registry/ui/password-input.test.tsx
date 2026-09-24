@@ -4,6 +4,7 @@ import { render } from "vitest-browser-react";
 import { userEvent } from "vitest/browser";
 import { expect, test, vi } from "vitest";
 import { expectNoA11yViolations } from "../../test/a11y";
+import { fieldWiringTests } from "../../test/field-wiring";
 import { Field, FieldDescription, FieldError, FieldLabel } from "./field";
 import { PasswordInput } from "./password-input";
 
@@ -96,4 +97,10 @@ test("no a11y violations — inside a Field, invalid", async () => {
     </Field>,
   );
   await expectNoA11yViolations(screen.container);
+});
+
+fieldWiringTests({
+  name: "PasswordInput",
+  render: (props) => <PasswordInput {...props} />,
+  find: (screen, name) => screen.getByLabelText(name, { exact: true }),
 });

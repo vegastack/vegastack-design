@@ -1365,7 +1365,7 @@
         "whenToUse": "Any optimistic inline edit of a single value — grid cells (focusMode=managed), record-page property lists, settings rows — where the write is async and can fail.",
         "whenNotToUse": "Debounced save-as-you-type on a standing form field (AutoSaveInput), or whole forms (Field).",
         "version": "0.17.1",
-        "integrity": "sha256-mCO7BxMv/sHrnrmMX350lU9zBgy6+9xMCYFbnHvmrkc="
+        "integrity": "sha256-pQtxgl9QKPtpj9eJJUsFt954OK9kKgV5HaD6XXoRlxg="
       }
     },
     {
@@ -1488,7 +1488,7 @@
         "whenToUse": "Wrap any form control to give it a label, description and error message: inside a Field the control gets its label, aria-describedby ids and aria-invalid from Base UI Field with no ids to wire.",
         "whenNotToUse": "A bare control with its own label already wired — Field is for the label+message+a11y scaffold.",
         "version": "0.17.1",
-        "integrity": "sha256-UUmXZ1BmkojWEFLU1ng14DjY4oV+K4TkrJs1hacg1YI="
+        "integrity": "sha256-hI90jM8K2ugJzeG1OPgJYIIh1GmO5Fenql+ZbgV4wwQ="
       }
     },
     {
@@ -15189,7 +15189,7 @@
         "whenToUse": "Any numeric value — quantities, limits, percentages, money (format={{ style: 'currency', currency }}) — where parsing, locale formatting, and stepping should be correct by construction.",
         "whenNotToUse": "Free-text that merely contains digits (phone numbers, postal codes, ids) — formatting/stepping semantics would fight the value; use Input.",
         "version": "0.17.1",
-        "integrity": "sha256-DQujEBsWrQwZHb/Y/AmAL2itR0i3WZMEZ80o2yoZtCg="
+        "integrity": "sha256-FgLIwmA7p5JJsNSAP3Jp9DsG9P978csWY/Jtni7VnFM="
       }
     },
     {
@@ -15644,6 +15644,7 @@
         "form"
       ],
       "dependencies": [
+        "class-variance-authority@^0.7.1",
         "@base-ui/react@^1.6.0",
         "lucide-react@^1.47.0",
         "@vegastack/design@^0.7.4",
@@ -15661,7 +15662,7 @@
         "whenToUse": "Choosing from a short fixed, known set — statuses, sort orders, units — including grouped options; pass multiple for a multi-value select. The default trigger fills its parent; use variant=\"ghost\" (with size=\"sm\") for an inline trigger in table rows, list items and toolbars.",
         "whenNotToUse": "Boolean on/off (Switch), few inline options (radios), a list long enough to need a search field (SearchableSelect), or free-text/async search (Combobox).",
         "version": "0.17.1",
-        "integrity": "sha256-ZRrAZP+9g1NcYPvNrJvB4Rwj0WjlDtK6KeDRCfXNzvY="
+        "integrity": "sha256-AUk24QV7To8S1mSiPYj26cUP6/Usq7BsKE9x5EIH72E="
       }
     },
     {
@@ -16253,7 +16254,7 @@
         "whenToUse": "Short-to-medium rich text — comments, descriptions, release notes — via controlled HTML.",
         "whenNotToUse": "Plain single-line input (Input) or collaborative real-time docs (deferred text-edit-collab).",
         "version": "0.17.1",
-        "integrity": "sha256-VAPESwLpG1fUlxb+nFCos/viBekEVwPlFLzLUX1wkno="
+        "integrity": "sha256-R8wGXprUHdJhEiBZv0sGj4qz0eQGck7wx7LwtcPMtMA="
       }
     },
     {

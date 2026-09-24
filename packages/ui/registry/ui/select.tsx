@@ -1,14 +1,32 @@
-// @vegastack select@0.17.1 sha256-ZRrAZP+9g1NcYPvNrJvB4Rwj0WjlDtK6KeDRCfXNzvY=
+// @vegastack select@0.17.1 sha256-AUk24QV7To8S1mSiPYj26cUP6/Usq7BsKE9x5EIH72E=
 
 "use client";
 
 import * as React from "react";
 import { Select as SelectPrimitive } from "@base-ui/react/select";
+import { cva } from "class-variance-authority";
 import { cn } from "@vegastack/design";
 import { useInternalThemeScope } from "@vegastack/design/theme-scope";
 import { ChevronDownIcon, CheckIcon, ChevronUpIcon } from "lucide-react";
 
 const Select = SelectPrimitive.Root;
+
+// API-24: the default (outline) trigger takes its width from its parent like every form control;
+// `ghost` is the inline tier — content width, no border at rest, the border on hover, on focus
+// and while the popup is open. A variant, so a consumer width or border class still wins.
+const selectTriggerVariants = cva(
+  "flex items-center justify-between gap-1.5 rounded-lg border border-input bg-transparent py-2 pe-2 ps-2.5 text-sm whitespace-nowrap transition-colors select-none focus:border-ring/70 disabled:cursor-not-allowed disabled:opacity-50 not-focus:aria-invalid:border-destructive data-placeholder:text-muted-foreground data-[size=default]:h-8 data-[size=sm]:h-7 data-[size=sm]:rounded-[min(var(--radius-md),10px)] *:data-[slot=select-value]:line-clamp-1 *:data-[slot=select-value]:flex *:data-[slot=select-value]:items-center *:data-[slot=select-value]:gap-1.5 dark:bg-input/30 dark:hover:bg-input/50 dark:not-focus:aria-invalid:border-destructive/50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+  {
+    variants: {
+      variant: {
+        outline: "w-full",
+        ghost:
+          "w-fit border-transparent hover:border-input data-popup-open:border-input dark:bg-transparent dark:hover:bg-input/50",
+      },
+    },
+    defaultVariants: { variant: "outline" },
+  },
+);
 
 function SelectGroup({ className, ...props }: SelectPrimitive.Group.Props) {
   return (
@@ -46,8 +64,13 @@ function SelectTrigger({
       data-size={size}
       data-variant={variant}
       className={cn(
-        "flex w-full items-center justify-between gap-1.5 rounded-lg border border-input bg-transparent py-2 pe-2 ps-2.5 text-sm whitespace-nowrap transition-colors select-none focus:border-ring/70 disabled:cursor-not-allowed disabled:opacity-50 not-focus:aria-invalid:border-destructive data-placeholder:text-muted-foreground data-[size=default]:h-8 data-[size=sm]:h-7 data-[size=sm]:rounded-[min(var(--radius-md),10px)] *:data-[slot=select-value]:line-clamp-1 *:data-[slot=select-value]:flex *:data-[slot=select-value]:items-center *:data-[slot=select-value]:gap-1.5 dark:bg-input/30 dark:hover:bg-input/50 dark:not-focus:aria-invalid:border-destructive/50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
-        "data-[variant=ghost]:w-fit data-[variant=ghost]:border-transparent data-[variant=ghost]:hover:border-input data-[variant=ghost]:focus:border-ring/70 data-[variant=ghost]:data-popup-open:border-input",
+        selectTriggerVariants({ variant }),
+        // API-24: upstream's ButtonGroup sizes an unsized trigger to its content
+        // (`[&>[data-slot=select-trigger]:not([class*='w-'])]:w-fit`), which a `w-full` default
+        // would defeat — so an outline trigger with no width of its own yields inside a group.
+        variant === "outline" &&
+          !(typeof className === "string" && /(^|[\s:])w-/.test(className)) &&
+          "in-data-[slot=button-group]:w-fit",
         className,
       )}
       {...props}

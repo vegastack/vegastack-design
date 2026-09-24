@@ -1,4 +1,4 @@
-// @vegastack field@0.17.1 sha256-UUmXZ1BmkojWEFLU1ng14DjY4oV+K4TkrJs1hacg1YI=
+// @vegastack field@0.17.1 sha256-hI90jM8K2ugJzeG1OPgJYIIh1GmO5Fenql+ZbgV4wwQ=
 
 "use client";
 
@@ -146,7 +146,7 @@ function FieldLabel({
 function FieldTitle({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
-      data-slot="field-label"
+      data-slot="field-title"
       className={cn(
         "flex w-fit items-center gap-2 text-sm font-medium group-data-[disabled=true]/field:opacity-50",
         className,

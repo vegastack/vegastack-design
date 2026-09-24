@@ -1,7 +1,7 @@
 import "./geometry.css"; // compiled Tailwind + @vegastack token theme (Vite via @tailwindcss/vite)
 import * as React from "react";
 import { render } from "vitest-browser-react";
-import { page } from "vitest/browser";
+import { page, userEvent } from "vitest/browser";
 import {
   afterEach,
   beforeAll,
@@ -28,6 +28,8 @@ import { ToolCallChip } from "../registry/ui/tool-call-chip";
 import { DataGrid, type DataGridColumn } from "../registry/ui/data-grid";
 import { DataList, type DataListColumn } from "../registry/ui/data-list";
 import { DataListPager } from "../registry/ui/data-list-pager";
+import { ButtonGroup } from "../registry/ui/button-group";
+import { Input } from "../registry/ui/input";
 import { InputGroup, InputGroupInput } from "../registry/ui/input-group";
 import {
   Select,
@@ -2570,9 +2572,63 @@ test("select-trigger-width: the default trigger fills its parent; ghost sizes to
   await expect.poll(() => borderAlpha(ghost)).toBe(false);
   ghost.blur();
   await expect.poll(() => borderAlpha(ghost)).toBe(true);
+  // Hover: the border comes back under the pointer.
+  await userEvent.hover(ghost);
+  await expect.poll(() => borderAlpha(ghost)).toBe(false);
+  await userEvent.unhover(ghost);
+  await expect.poll(() => borderAlpha(ghost)).toBe(true);
   // Open: the border stays while the popup is up.
   ghost.click();
   await expect.poll(() => ghost.hasAttribute("data-popup-open")).toBe(true);
   // `transition-colors` animates the border in, so poll for its settled value.
   await expect.poll(() => borderAlpha(ghost)).toBe(false);
+});
+
+test("select-trigger-width: a consumer width wins on either variant", async () => {
+  const screen = await render(
+    <div style={{ width: "320px" }}>
+      {(["outline", "ghost"] as const).map((variant) => (
+        <Select key={variant} items={[{ label: "Apple", value: "apple" }]}>
+          <SelectTrigger
+            data-testid={variant}
+            variant={variant}
+            className="w-40"
+          >
+            <SelectValue />
+          </SelectTrigger>
+        </Select>
+      ))}
+    </div>,
+  );
+  for (const variant of ["outline", "ghost"]) {
+    const trigger = screen.getByTestId(variant).element() as HTMLElement;
+    expect(trigger.getBoundingClientRect().width).toBe(160);
+  }
+});
+
+test("select-trigger-width: inside upstream's ButtonGroup the trigger keeps content width", async () => {
+  const screen = await render(
+    <div style={{ width: "360px" }}>
+      <ButtonGroup>
+        <Select
+          items={[{ label: "US Dollar", value: "usd" }]}
+          defaultValue="usd"
+        >
+          <SelectTrigger aria-label="Currency" data-testid="currency">
+            <SelectValue />
+          </SelectTrigger>
+        </Select>
+        <Input aria-label="Amount" placeholder="10.00" />
+      </ButtonGroup>
+    </div>,
+  );
+  const trigger = screen.getByTestId("currency").element() as HTMLElement;
+  const amount = screen.getByRole("textbox", { name: "Amount" }).element();
+  // The amount input is the group's flexible member; the trigger must not squeeze it below a
+  // usable target (the regression was a 21px sliver beside a full-width trigger).
+  expect(amount.getBoundingClientRect().width).toBeGreaterThanOrEqual(24);
+  // Content width: "US Dollar" plus its chevron is far narrower than the flexible amount field.
+  expect(trigger.getBoundingClientRect().width).toBeLessThan(
+    amount.getBoundingClientRect().width,
+  );
 });

@@ -9361,6 +9361,10 @@
         "Field": {
           "attributes": [
             {
+              "name": "data-invalid",
+              "values": []
+            },
+            {
               "name": "data-orientation",
               "values": []
             },
@@ -9393,7 +9397,7 @@
           "attributes": [
             {
               "name": "data-slot",
-              "values": ["field-label"]
+              "values": ["field-title"]
             }
           ],
           "cssVariables": []
@@ -15542,6 +15546,7 @@
       "docsSlug": "/docs/components/select",
       "registryDependencies": [],
       "npmDependencies": [
+        "class-variance-authority@^0.7.1",
         "@base-ui/react@^1.6.0",
         "lucide-react@^1.47.0",
         "@vegastack/design@^0.7.4",
@@ -15583,12 +15588,12 @@
               "values": []
             },
             {
-              "name": "data-variant",
-              "values": ["outline", "ghost"]
-            },
-            {
               "name": "data-slot",
               "values": ["select-trigger"]
+            },
+            {
+              "name": "data-variant",
+              "values": []
             }
           ],
           "cssVariables": []

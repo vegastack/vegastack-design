@@ -2,6 +2,7 @@ import * as React from "react";
 import { render } from "vitest-browser-react";
 import { expect, test } from "vitest";
 import { expectNoA11yViolations } from "../../test/a11y";
+import { fieldWiringTests } from "../../test/field-wiring";
 import { Checkbox } from "./checkbox";
 import {
   Field,
@@ -222,4 +223,10 @@ test("no a11y violations — disabled", async () => {
     </Field>,
   );
   await expectNoA11yViolations(screen.container);
+});
+
+fieldWiringTests({
+  name: "Checkbox",
+  render: (props) => <Checkbox {...props} />,
+  find: (screen, name) => screen.getByRole("checkbox", { name }),
 });

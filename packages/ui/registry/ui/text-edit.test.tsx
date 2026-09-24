@@ -3,6 +3,7 @@ import { render } from "vitest-browser-react";
 import { userEvent } from "vitest/browser";
 import { expect, test, vi } from "vitest";
 import { expectNoA11yViolations } from "../../test/a11y";
+import { fieldWiringTests } from "../../test/field-wiring";
 import { TextEdit } from "./text-edit";
 import { Field, FieldDescription, FieldError, FieldLabel } from "./field";
 
@@ -469,4 +470,10 @@ test("no a11y violations — inside a Field, invalid", async () => {
     .element(screen.getByRole("textbox", { name: "Summary" }))
     .toBeInTheDocument();
   await expectNoA11yViolations(screen.container);
+});
+
+fieldWiringTests({
+  name: "TextEdit",
+  render: (props) => <TextEdit {...props} />,
+  find: (screen, name) => screen.getByRole("textbox", { name }),
 });

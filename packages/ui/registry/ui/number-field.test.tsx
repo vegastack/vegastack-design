@@ -3,6 +3,7 @@ import { render } from "vitest-browser-react";
 import { userEvent } from "vitest/browser";
 import { expect, test, vi } from "vitest";
 import { expectNoA11yViolations } from "../../test/a11y";
+import { fieldWiringTests } from "../../test/field-wiring";
 import { NumberField } from "./number-field";
 import { Field, FieldDescription, FieldError, FieldLabel } from "./field";
 
@@ -226,6 +227,14 @@ test("DS-67: aria-describedby lands on the input, not the group", async () => {
   expect(group.hasAttribute("aria-describedby")).toBe(false);
 });
 
+test("DS-67: aria-invalid lands on the input and not on the group", async () => {
+  const screen = await render(<NumberField aria-label="Qty" aria-invalid />);
+  const input = screen.getByRole("textbox", { name: "Qty" });
+  await expect.element(input).toHaveAttribute("aria-invalid", "true");
+  const group = screen.container.querySelector('[data-slot="number-field"]')!;
+  expect(group.hasAttribute("aria-invalid")).toBe(false);
+});
+
 test("DS-67: aria-labelledby and id land on the input", async () => {
   const screen = await render(
     <>
@@ -275,4 +284,10 @@ test("no a11y violations — inside a Field, invalid", async () => {
     </Field>,
   );
   await expectNoA11yViolations(screen.container);
+});
+
+fieldWiringTests({
+  name: "NumberField",
+  render: (props) => <NumberField {...props} />,
+  find: (screen, name) => screen.getByRole("textbox", { name }),
 });

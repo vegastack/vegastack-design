@@ -3,6 +3,7 @@ import { render } from "vitest-browser-react";
 import { userEvent } from "vitest/browser";
 import { expect, test } from "vitest";
 import { expectNoA11yViolations } from "../../test/a11y";
+import { fieldWiringTests } from "../../test/field-wiring";
 import {
   Select,
   SelectContent,
@@ -443,37 +444,10 @@ test("API-24: the trigger reflects its variant, outline by default", async () =>
   expect(ghost.getAttribute("data-variant")).toBe("ghost");
 });
 
-test("API-24: the default trigger fills its parent and ghost sizes to content", async () => {
-  const screen = await render(<Fruit />);
-  const classes = screen
-    .getByRole("combobox", { name: "Fruit" })
-    .element().className;
-  expect(classes).toContain("w-full");
-  expect(classes).not.toMatch(/(^|\s)w-fit(\s|$)/);
-  expect(classes).toContain("data-[variant=ghost]:w-fit");
-});
-
-test("API-24: ghost hides its border at rest and shows it on hover, focus and open", async () => {
-  const screen = await render(<Fruit triggerProps={{ variant: "ghost" }} />);
-  const classes = screen
-    .getByRole("combobox", { name: "Fruit" })
-    .element().className;
-  expect(classes).toContain("data-[variant=ghost]:border-transparent");
-  expect(classes).toContain("data-[variant=ghost]:hover:border-input");
-  expect(classes).toContain("data-[variant=ghost]:focus:border-ring/70");
-  expect(classes).toContain(
-    "data-[variant=ghost]:data-popup-open:border-input",
-  );
-});
-
-test("API-24: a className width still wins over the default", async () => {
-  const screen = await render(<Fruit triggerProps={{ className: "w-40" }} />);
-  const classes = screen
-    .getByRole("combobox", { name: "Fruit" })
-    .element().className;
-  expect(classes).toContain("w-40");
-  expect(classes).not.toMatch(/(^|\s)w-full(\s|$)/);
-});
+// API-24's geometry — the default trigger filling its parent, ghost sizing to content, a consumer
+// width winning on either variant, the ghost border on hover, focus and open, and the trigger
+// keeping content width inside upstream's ButtonGroup — needs compiled CSS, so it is measured in
+// `test/geometry.browser.test.tsx` (`select-trigger-width`), not asserted as class strings here.
 
 test("no a11y violations — ghost at rest", async () => {
   const screen = await render(<Fruit triggerProps={{ variant: "ghost" }} />);
@@ -498,4 +472,19 @@ test("no a11y violations — ghost invalid", async () => {
     .element(screen.getByRole("combobox", { name: "Fruit" }))
     .toHaveAttribute("aria-invalid", "true");
   await expectNoA11yViolations(screen.container);
+});
+
+fieldWiringTests({
+  name: "SelectTrigger",
+  render: (props) => (
+    <Select items={items}>
+      <SelectTrigger {...props}>
+        <SelectValue placeholder="Select a fruit" />
+      </SelectTrigger>
+      <SelectContent>
+        <SelectItem value="apple">Apple</SelectItem>
+      </SelectContent>
+    </Select>
+  ),
+  find: (screen, name) => screen.getByRole("combobox", { name }),
 });

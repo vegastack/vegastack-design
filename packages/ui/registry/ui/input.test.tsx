@@ -3,6 +3,7 @@ import { render } from "vitest-browser-react";
 import { userEvent } from "vitest/browser";
 import { expect, test } from "vitest";
 import { expectNoA11yViolations } from "../../test/a11y";
+import { fieldWiringTests } from "../../test/field-wiring";
 import { Input } from "./input";
 import { Field, FieldDescription, FieldError, FieldLabel } from "./field";
 
@@ -199,4 +200,10 @@ test("no a11y violations — automatic Field wiring, invalid", async () => {
     </Field>,
   );
   await expectNoA11yViolations(screen.container);
+});
+
+fieldWiringTests({
+  name: "Input",
+  render: (props) => <Input {...props} />,
+  find: (screen, name) => screen.getByRole("textbox", { name }),
 });

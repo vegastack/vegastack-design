@@ -3,6 +3,7 @@ import { render } from "vitest-browser-react";
 import { userEvent } from "vitest/browser";
 import { expect, test } from "vitest";
 import { expectNoA11yViolations } from "../../test/a11y";
+import { fieldWiringTests } from "../../test/field-wiring";
 import { Slider } from "./slider";
 import { Label } from "./label";
 
@@ -212,4 +213,12 @@ test("no a11y violations — disabled", async () => {
     <Slider defaultValue={[50]} disabled aria-label="Value" />,
   );
   await expectNoA11yViolations(screen.container);
+});
+
+fieldWiringTests({
+  name: "Slider",
+  render: (props) => <Slider defaultValue={[50]} {...props} />,
+  find: (screen, name) => screen.getByRole("slider", { name }),
+  supportsId: false,
+  forwardsDescribedBy: false,
 });

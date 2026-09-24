@@ -8,7 +8,8 @@
 #     counterpart), so focus outranks it; the `aria-invalid` halo rings go with the rest.
 #   API-26: the `<textarea>` renders through Base UI `Field.Control` (`render={<textarea />}`),
 #     so inside a `Field` it takes the label, the rendered description and error ids, and
-#     `aria-invalid` from the Field, like Base UI's own Input; outside a `Field` nothing is wired.
+#     `aria-invalid` from the Field, like Base UI's own Input; outside a `Field` nothing is wired
+#     (it still carries a generated `id`, exactly as Base UI's Input does).
 #     `Field.Control` is hook-backed, so the file gains `"use client"` (API-16's lowest leaf).
 #   cn: `import { cn } from "cn"` becomes `@vegastack/design` — our npm layer owns `cn` (DOC-2).
 #   formatting: the repository formatter (prettier defaults: semicolons, trailing commas)
