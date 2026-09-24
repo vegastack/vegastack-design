@@ -3063,3 +3063,26 @@ changed for any of these test repairs.
 - **Sweep.** `has_changesets` has no other consumer — two `if:` conditions and one `outputs:` line in
   `release.yml`, all renamed, with `verify-workflow-security.mjs` and its negative harness updated to
   pin the new expressions (35/35 mutations still rejected).
+
+## 2026-09-25 — tests ordered to dodge a pollution that was an un-awaited `unmount()`
+
+- **Symptom.** New DS-32/DS-34 tests in `data-table-parts.test.tsx` failed (element never found,
+  15 s click timeouts) unless they ran first in the file; the author moved them to the top with the
+  comment "later tests leave React roots that swallow a fresh render".
+- **Root cause.** `vitest-browser-react`'s `unmount()` is async (it runs inside `act`). Two tests
+  called `screen.unmount()` without `await`, so the unmount's `act` overlapped the next render's
+  `act` and left the renderer's act bookkeeping wrong for every later test in the file. Nine files
+  had the same un-awaited call.
+- **Systemic fix.** Every `unmount()` of a `render()` result is awaited; the ordering comment is gone.
+  The class to recognise: **an async cleanup called without `await` in a browser test pollutes the
+  tests after it, and the tell is a test that passes only when moved earlier.**
+
+## 2026-09-25 — a cold Vite cache failed 40 of 45 TextEdit tests
+
+- **Symptom.** On a fresh worktree `text-edit.test.tsx` failed with "Invalid hook call" on every
+  test; a second run passed.
+- **Root cause.** `@tiptap/markdown` (#206) and four Base UI entry points were missing from
+  `packages/ui/vitest.config.ts`'s `optimizeDeps.include`, so Vite discovered them mid-run, reloaded
+  the page and split React. The config's own comment says a new engine belongs in that list "on the
+  day it is added".
+- **Fix.** The five entries are listed; a cold run is green.

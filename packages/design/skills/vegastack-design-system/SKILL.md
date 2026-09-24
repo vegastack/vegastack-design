@@ -68,8 +68,8 @@ link` (upstream's set, verbatim). `destructive` is a soft tint, not a solid red 
   suggestions or multi-select chips.
 - **One view-switch rule.** A form value is a **`radio-group`**. An immediate view or scope switch
   over the same content (Mine | Team, All | Unread, Grid | List) is a single-select
-  **`toggle-group`** that always keeps one item pressed — ignore the empty value in
-  `onValueChange` — with `spacing={0}` for 2–5 options inline. Swapping in-page regions is
+  **`toggle-group`** that always keeps one item pressed — `deselectable={false}` — with
+  `spacing={0}` for 2–5 options inline (`wrap` when they can outgrow the row). Swapping in-page regions is
   **`tabs`**; moving between URLs is navigation — links, not `tabs` (a route-tabs recipe is
   not shipped yet).
 - **Empty is tiered** — nothing yet, no matches ("Clear filters"), couldn't load (`role="alert"`,
@@ -95,33 +95,37 @@ info`, each an ink on the `card` surface with a required icon; **`announcement-b
 
 A component's name undersells it. Before composing something by hand, check this list:
 
-| Component                                              | What it already does                                                                                                                                                    |
-| ------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `Command`                                              | Renders inline as well as in `CommandDialog`. An item's check mark is `data-checked` — visual only, so it is not a form value.                                          |
-| `Combobox`                                             | `multiple` with `ComboboxChips`; `filter={null}` hands filtering to your server.                                                                                        |
-| `SearchableSelect`                                     | The Select-shaped search picker, with `clearable`. Single-select today.                                                                                                 |
-| `Item`                                                 | A link tile with `render={<a />}`; `ItemGroup` gives a set of items list semantics.                                                                                     |
-| `DialogContent`                                        | `size`: `sm · default · lg · xl`. Never a width class.                                                                                                                  |
-| `DataList`                                             | Per-column `mobile` (`merge` · `visible` · `hidden`) and `minWidth`. `DataGrid` adds editing, multi-key sort and a column picker; `Table` is static markup.             |
-| `FilterBar` / `FilterBuilder`                          | `FilterBar` is a flat chip row with search; `FilterBuilder` (the `filter-bar-managed` item) edits a nested and/or tree over your field vocabulary. Both are controlled. |
-| `Stat`                                                 | `StatDelta` for change, `StatEmpty` for nothing to report.                                                                                                              |
-| `PropertyList` · `DataList` · `SettingsRow`            | A record's facts · many records · one setting with its control.                                                                                                         |
-| `ActionBar`                                            | The docked bar for bulk selection ("5 selected"), unsaved changes and batch progress.                                                                                   |
-| `TruncatedText` · `IconText` · `TableCellText`         | Overflow detection, hover and keyboard reveal, and tap-to-toggle on touch.                                                                                              |
-| `RelativeTime`                                         | `mode="ago"` ("3 minutes ago") or `mode="day"` ("Yesterday").                                                                                                           |
-| `EditableCell` · `AutoSaveInput` · `useInlineEdit`     | Click-to-edit in a table · a field that saves as you type, with its status · the hook `EditableCell` is built on.                                                       |
-| `AttachmentGroup` · `Dropzone` · `useFileDrop`         | A file list with per-file state · a drop target · the drop and paste engine.                                                                                            |
-| `PageHeader`                                           | Title, description, `breadcrumb`, a back link (`backHref`) and `actions`.                                                                                               |
-| `MultiStepForm` · `Stepper` · `Questionnaire` · `Tabs` | A form in steps · progress display (`navigable` on request) · one question at a time · peer regions.                                                                    |
-| `NativeSelect`                                         | The platform `<select>`, so a touch device opens its own picker.                                                                                                        |
-| `Board`                                                | A column's `lockedReason` explains why it cannot take a card.                                                                                                           |
-| `AudioPlayer`                                          | `mediaRef` to drive playback, a transcript button and a waveform.                                                                                                       |
-| `Tabs`                                                 | `TabsList variant="line"` and `Tabs orientation="vertical"`.                                                                                                            |
-| `MessageScroller`                                      | `defaultScrollPosition` (`start` · `end` · `last-anchor`), `scrollToMessage` from `useMessageScroller()`, and `useMessageScrollerVisibility()`.                         |
+| Component                                              | What it already does                                                                                                                                                                                                                                                               |
+| ------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Command`                                              | Renders inline as well as in `CommandDialog`. An item's check mark is `data-checked` — visual only, so it is not a form value.                                                                                                                                                     |
+| `Combobox`                                             | `multiple` with `ComboboxChips`; `filter={null}` hands filtering to your server.                                                                                                                                                                                                   |
+| `SearchableSelect`                                     | The Select-shaped search picker, with `clearable`. `multiple` for several values; `remote` plus `useAsyncSearch` hands search and paging to your server.                                                                                                                           |
+| `Item`                                                 | A link tile with `render={<a />}`; `ItemGroup` gives a set of items list semantics.                                                                                                                                                                                                |
+| `DialogContent` · `SheetContent`                       | `size`: `sm · default · lg · xl` (a side sheet). Never a width class.                                                                                                                                                                                                              |
+| `DataList`                                             | Per-column `mobile` (`merge` · `visible` · `hidden`) and `minWidth`. `DataGrid` adds editing, multi-key sort and a column picker; `Table` is static markup.                                                                                                                        |
+| `DataList` paging and rows                             | `loadMore` for keyset paging, `getRowHref` for rows that are links, `sections` + `getRowSection` for collapsible groups, and `rowActionsColumn` for a per-row menu.                                                                                                                |
+| `LoadMore` · `useAsyncSearch`                          | The Load more footer of a keyset list (keeps its width while loading, "Try again", an end caption) · the server-search engine: debounce, dropped stale responses, cursor paging.                                                                                                   |
+| `SortableList`                                         | `layout="grid"` reorders tiles as well as rows.                                                                                                                                                                                                                                    |
+| `FilterBar` / `FilterBuilder`                          | `FilterBar` is a flat chip row with search, and `FilterBarFacet` is a "Status: Open" facet on `SearchableSelect` (single or `multiple`, local or `remote`); `FilterBuilder` (the `filter-bar-managed` item) edits a nested and/or tree over your field vocabulary. All controlled. |
+| `Stat`                                                 | `StatDelta` for change, `StatEmpty` for nothing to report.                                                                                                                                                                                                                         |
+| `PropertyList` · `DataList` · `SettingsRow`            | A record's facts · many records · one setting with its control.                                                                                                                                                                                                                    |
+| `ActionBar`                                            | The docked bar for bulk selection ("5 selected"), unsaved changes and batch progress.                                                                                                                                                                                              |
+| `TruncatedText` · `IconText` · `TableCellText`         | Overflow detection, hover and keyboard reveal, and tap-to-toggle on touch.                                                                                                                                                                                                         |
+| `RelativeTime`                                         | `mode="ago"` ("3 minutes ago") or `mode="day"` ("Yesterday").                                                                                                                                                                                                                      |
+| `EditableCell` · `AutoSaveInput` · `useInlineEdit`     | Click-to-edit in a table · a field that saves as you type, with its status · the hook `EditableCell` is built on.                                                                                                                                                                  |
+| `AttachmentGroup` · `Dropzone` · `useFileDrop`         | A file list with per-file state · a drop target · the drop and paste engine.                                                                                                                                                                                                       |
+| `PageHeader`                                           | Title, description, `breadcrumb`, a back link (`backHref`) and `actions`.                                                                                                                                                                                                          |
+| `MultiStepForm` · `Stepper` · `Questionnaire` · `Tabs` | A form in steps · progress display (`navigable` on request) · one question at a time · peer regions.                                                                                                                                                                               |
+| `NativeSelect`                                         | The platform `<select>`, so a touch device opens its own picker.                                                                                                                                                                                                                   |
+| `Board`                                                | A column's `lockedReason` explains why it cannot take a card.                                                                                                                                                                                                                      |
+| `AudioPlayer`                                          | `mediaRef` to drive playback, a transcript button and a waveform; `docked` pins it to the bottom of a scroll column, `onOpenChange` adds its close button, and `actionsRef` seeks it.                                                                                              |
+| `Tabs`                                                 | `TabsList variant="line"` and `Tabs orientation="vertical"`.                                                                                                                                                                                                                       |
+| `MessageScroller`                                      | `defaultScrollPosition` (`start` · `end` · `last-anchor`), `scrollToMessage` from `useMessageScroller()`, and `useMessageScrollerVisibility()`.                                                                                                                                    |
 
 ### Which component for X
 
-- **A page** → `AppShell` › `AppShellContent` › `PageHeader` › `FilterBar` › `DataList` (or
+- **A page** → `AppShell` › `AppShellContent` › `AppShellPage` (`size`: `narrow` for forms and
+  settings, `default`, `full`) › `PageHeader` › `FilterBar` › `DataList` (or
   `DataGrid`) › the `Empty` tier that fits. The spacing between them is the page-rhythm recipe
   (<https://design.vegastack.com/docs/foundations/spacing#page-rhythm>).
 - **A record's details** → `PropertyList`, in `Card` sections titled with an `h2` in `CardTitle`.
@@ -132,6 +136,30 @@ A component's name undersells it. Before composing something by hand, check this
 - **A confirmation that interrupts** → `AlertDialog`; a form or detail in an overlay → `Dialog` or
   `Sheet`.
 - **Feedback after an action** → `toast.add({ title })`.
+- **A recording's text beside its player** → `Transcript` (follows `currentTime`, seeks through
+  `onSeek`, searches) with a `docked` `AudioPlayer` at the bottom of the column.
+- **A list that pages by cursor** → `DataList` `loadMore` (or `LoadMore` under your own list), with
+  `useAsyncSearch` when the search runs on the server.
+
+### Starter blocks
+
+A block is a page you copy once and then own (`shadcn add @vegastack/<name>`). Start from the
+closest one rather than composing the page from nothing:
+
+- **`app-shell-01`** — the shell: landmarks, skip link, a rail with search, inbox count and a user
+  menu.
+- **`list-page-01`** — one kind of record: search, a facet, Mine | Team, table or tile grid, Load
+  more and three empty tiers.
+- **`board-01`** — lanes of cards under a `FilterBar`, with a paged backlog.
+- **`settings-01`** — one settings page: grouped `SettingsRow` sections and a save bar.
+- **`settings-02`** — the settings hub: grids of linked tiles, grouped by area.
+- **`review-split-01`** — a record reviewed beside a sticky transcript and a docked player; tabs
+  when narrow.
+- **`notifications-01`** — the inbox sheet: All | Unread, Today and Earlier, Load older.
+- **`command-search-01`** — the ⌘K search palette: scopes, recents, grouped results and every
+  state.
+- **`status-pages-01`** — the 404, 403 and error pages.
+- **`login-01`** — a sign-in page.
 
 ## Tokens
 

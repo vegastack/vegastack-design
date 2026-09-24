@@ -837,3 +837,38 @@ what the four pending minors produce from `@vegastack/ui@0.11.3`; component coun
 
 **No prior-round finding was re-raised.** The typography round's seven and the toast round's set all
 remain fixed.
+
+## 2026-09-25 — consolidated review of the facelift design-system work (Regent #136–#140)
+
+**Scope:** everything the facelift landed on `main` between `1f11fbcfc^` and `1f8da357d` (PRs #194
+… #223), against the #136–#140 briefs and plans. Five focused passes — spec compliance, repo
+standards, accessibility, design-system consistency, security/robustness — plus the known inputs the
+per-issue hand-backs deferred to this round. **Reviewer: Claude subagents, not Codex**: the
+project-level instruction in force for the reviewing session forbade dispatching Codex for review,
+so every pass ran as a fresh-context Claude subagent and every finding was re-verified by the
+implementing session (reading the line, or executing it) before it was acted on.
+
+**Verdict:** needs-attention at review time (3 high, the rest medium and low). Every high and
+medium is fixed in the patch PR `fix/facelift-consolidated-review` or recorded below as a decision;
+the lows are fixed or listed with a reason. `pnpm verify` and `pnpm verify:distribution` green on the
+fix branch.
+
+**Highs:** (1) FilterBuilder never shipped DS-41/42's searchable field picker and SearchableSelect
+option editors, while the hand-back and changelog said it had — built. (2) The Stat page never
+rendered the "Linked stat tiles" preview the changelog announced — added. (3) command-search-01's
+scope chips and "Try again" sat inside cmdk's root, which takes Enter for the highlighted result —
+Enter on a chip opened a result; both now keep their own keys.
+
+**Decisions recorded rather than changed** (see `operator-review.md`): DatePicker label click opens
+the calendar (matches Select); A11Y-20/LAY-13/A11Y-17 amendments kept; ToggleGroup wrapped-row ends
+keep their observer; `xl` side sheets reach 64rem only from 1366px; `tabsTriggerVariants` stays
+exempt from the squeeze census; DataList `RowLink` keeps `cloneElement` + `mergeProps`;
+FilterBarFacet gets no `defaultValue` reset target and stays `outline`.
+
+**Not done, with reasons:** DS-62's vertical-tabs phone fallback and route-tabs `NativeSelect` jump
+(new recipes with previews and geometry cases — a follow-up, not a patch); a facet inside the "Add
+filter" menu (a combobox inside a menu); AudioPlayer close with no connected opener has no generic
+place to put focus; the D1 B5–B8/B10–B22 low-severity list the #137/#138 briefs cite was never
+written down anywhere, so there is nothing to work from.
+
+**No prior-round finding was re-raised.**

@@ -2984,3 +2984,28 @@ React's first client render equals what is on screen and hydration logs no misma
 (`sidebar.test.tsx` checks both the pre-hydration width and the silent hydration). The row text in
 `decisions.md` was amended to match. Consumers pass `collapsible` to the script, and it must equal
 the `Sidebar`'s.
+
+## 2026-09-25 — consolidated facelift review: judgment calls
+
+- **DatePicker label click opens the calendar — kept.** Measured: a `FieldLabel` click on a Base UI
+  `Select` opens its listbox too, so the picker behaves like the system's other button-triggered
+  pickers, and #188 pins it. Options were: suppress the activation (diverges from Select), or keep.
+- **A11Y-20 widened to ToggleGroup, LAY-13's D4 mechanism, A11Y-17's comma — kept, flagged for MK.**
+  Each was made under MK's delegated approval, is recorded on its row, is tested, and fixes a real
+  defect; none changes a row's resolution. MK may reverse any of them.
+- **ToggleGroup wrapped-row ends keep the observer.** CSS has no selector for "first/last item of a
+  visual row"; the alternative is dropping joined ends when a group wraps, which changes API-23.
+- **`xl` side sheet — kept, documented.** A side sheet is three quarters of the viewport under its
+  cap (upstream's `w-3/4`), so `xl` reaches 64rem from a 1366px viewport and is 960px at 1280px; a
+  quarter of the page always shows beside it.
+- **`tabsTriggerVariants` squeeze exemption — kept.** It styles page-level route-tab links; a tab
+  inside a table is a `TabsTrigger`, which the squeeze already keeps by role.
+- **DataList `RowLink` keeps `cloneElement` + `mergeProps`.** `useRender` lets the render element's
+  props win, and `rowLinkRender` is one template shared by every row (`<Link href="" />`), so the
+  row's `href` must win over it. Pinned by a test.
+- **FilterBarFacet: no `defaultValue` reset, outline only.** A controlled host owns the reset (its
+  "Clear filters"); an uncontrolled facet already starts from `defaultValue`. Its height now matches
+  the bar (`h-8`).
+- **CommandLoading's default copy is "Searching…"** (the brief's text); VOI-1 is unchanged.
+- **Data-slot renames in a patch.** `notification-bell-dot`, `row-action`, `row-actions-trigger` broke
+  the slot canon and shipped one release ago; renamed with a migration line rather than carried.
