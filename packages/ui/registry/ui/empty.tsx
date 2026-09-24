@@ -1,4 +1,4 @@
-// @vegastack empty@0.17.1 sha256-NqGWL/bbst3Zc+QD+Z1FFUKixNBkcAtPwW6vn3UiU/I=
+// @vegastack empty@0.18.0 sha256-Ql4uE8Fp7fx9XNLH5nPDa/cuSP4NuplaE0hcLREUm8o=
 
 import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@vegastack/design";
