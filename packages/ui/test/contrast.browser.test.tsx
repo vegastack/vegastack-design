@@ -3,7 +3,7 @@ import * as React from "react";
 import { render } from "vitest-browser-react";
 import { userEvent } from "vitest/browser";
 import axe from "axe-core";
-import { afterEach, expect, test } from "vitest";
+import { afterEach, expect, test, vi } from "vitest";
 import { Badge } from "../registry/ui/badge";
 import { DataGrid } from "../registry/ui/data-grid";
 import { DataList } from "../registry/ui/data-list";
@@ -43,6 +43,13 @@ import {
 } from "../registry/ui/attachment";
 import Login01Page from "../registry/blocks/login-01/page";
 import { LoginForm } from "../registry/blocks/login-01/components/login-form";
+import AppShell01Page from "../registry/blocks/app-shell-01/page";
+import Board01Page from "../registry/blocks/board-01/page";
+import Settings02Page from "../registry/blocks/settings-02/page";
+import { ErrorPage } from "../registry/blocks/status-pages-01/components/error-page";
+import { ForbiddenPage } from "../registry/blocks/status-pages-01/components/forbidden-page";
+import { NotFoundPage } from "../registry/blocks/status-pages-01/components/not-found-page";
+import ReviewSplit01Page from "../registry/blocks/review-split-01/page";
 
 /**
  * Rendered color-contrast a11y gate (Codex R3 HIGH-2/HIGH-3). Unlike the per-component unit a11y
@@ -957,5 +964,142 @@ for (const theme of ["light", "dark"] as const) {
       violations,
       `login-01 alert color-contrast failures (${theme}):\n  ${violations.join("\n  ")}`,
     ).toEqual([]);
+  });
+}
+
+// ── The #140 block set (DS-53, DS-58, DS-60, DS-80; decision D6) ─────────────────────────────────
+// Each block's unit test runs unstyled and skips `color-contrast` (test/a11y.ts); these are the
+// compiled compensating cases, in both themes, plus the container-query geometry the unit lane
+// cannot see: settings-02's tile grid (one column in a phone-width region, three in a wide one) and
+// review-split-01's two panes (side by side when its own container is wide, one column when narrow).
+function themed(theme: "light" | "dark", width: number, node: React.ReactNode) {
+  return (
+    <div
+      className={`${theme === "dark" ? "dark " : ""}bg-background text-foreground`}
+      style={{ width }}
+    >
+      {node}
+    </div>
+  );
+}
+
+function columnsOf(elements: Element[]): number {
+  return new Set(
+    elements.map((el) => Math.round(el.getBoundingClientRect().left)),
+  ).size;
+}
+
+for (const theme of ["light", "dark"] as const) {
+  test(`settings-02 passes WCAG AA and lays tiles out by its container — ${theme} theme`, async () => {
+    const screen = await render(themed(theme, 1440, <Settings02Page />));
+    const tiles = () => [
+      ...document.querySelectorAll(
+        '[aria-label="Workspace"] [data-slot="item"]',
+      ),
+    ];
+    await expect.poll(() => columnsOf(tiles())).toBe(3);
+    const violations = await contrastViolations(screen.container);
+    (screen.container.firstElementChild as HTMLElement).style.width = "390px";
+    await expect.poll(() => columnsOf(tiles())).toBe(1);
+    expect(
+      violations,
+      `settings-02 color-contrast failures (${theme}):\n  ${violations.join("\n  ")}`,
+    ).toEqual([]);
+  });
+
+  test(`status-pages-01 passes WCAG AA on every page — ${theme} theme`, async () => {
+    const failures: string[] = [];
+    for (const [name, node] of [
+      ["404", <NotFoundPage key="404" />],
+      ["403", <ForbiddenPage key="403" />],
+      ["error", <ErrorPage key="error" digest="3f9a1c07" onRetry={() => {}} />],
+    ] as const) {
+      const screen = await render(themed(theme, 800, node));
+      const root = document.querySelector<HTMLElement>('[data-slot="empty"]')!;
+      await expect
+        .poll(() => Number.parseFloat(getComputedStyle(root).minHeight))
+        .toBeGreaterThan(0);
+      const violations = await contrastViolations(screen.container);
+      if (violations.length) failures.push(`${name}: ${violations.join("; ")}`);
+      await screen.unmount();
+    }
+    expect(
+      failures,
+      `status-pages-01 color-contrast failures (${theme}):\n  ${failures.join("\n  ")}`,
+    ).toEqual([]);
+  });
+
+  test(`review-split-01 passes WCAG AA and switches layout with its mode — ${theme} theme`, async () => {
+    const screen = await render(themed(theme, 1200, <ReviewSplit01Page />));
+    const panel = (id: string) =>
+      document.querySelector<HTMLElement>(`[data-panel="${id}"]`)!;
+    await expect
+      .poll(() =>
+        document
+          .querySelector('[data-slot="review-split"]')
+          ?.getAttribute("data-mode"),
+      )
+      .toBe("wide");
+    // Wide: the transcript pane sits beside the summary.
+    await expect
+      .poll(() => panel("transcript").getBoundingClientRect().left)
+      .toBeGreaterThan(panel("summary").getBoundingClientRect().right - 1);
+    const wide = await contrastViolations(screen.container);
+
+    (screen.container.firstElementChild as HTMLElement).style.width = "600px";
+    await expect
+      .poll(() => document.querySelector('[role="tablist"]'))
+      .not.toBeNull();
+    // Narrow: one column, so the visible panel spans the block's width.
+    const block = document.querySelector<HTMLElement>(
+      '[data-slot="review-split"]',
+    )!;
+    expect(Math.round(panel("summary").getBoundingClientRect().width)).toBe(
+      Math.round(block.getBoundingClientRect().width),
+    );
+    const narrow = await contrastViolations(screen.container);
+    expect(
+      [...wide.map((v) => `wide: ${v}`), ...narrow.map((v) => `narrow: ${v}`)],
+      `review-split-01 color-contrast failures (${theme})`,
+    ).toEqual([]);
+  });
+
+  test(`app-shell-01 and board-01 pass WCAG AA — ${theme} theme`, async () => {
+    // Desktop, so the rail mounts in place instead of as a closed sheet (see app-shell-01.test.tsx).
+    const spy = vi
+      .spyOn(window, "matchMedia")
+      .mockImplementation((query: string) => ({
+        matches: false,
+        media: query,
+        onchange: null,
+        addEventListener: () => {},
+        removeEventListener: () => {},
+        addListener: () => {},
+        removeListener: () => {},
+        dispatchEvent: () => false,
+      }));
+    const failures: string[] = [];
+    const shell = await render(themed(theme, 1280, <AppShell01Page />));
+    await expect
+      .element(shell.getByRole("heading", { level: 1, name: "Overview" }))
+      .toBeInTheDocument();
+    for (const v of await contrastViolations(shell.container))
+      failures.push(`app-shell-01: ${v}`);
+    await shell.unmount();
+
+    const board = await render(themed(theme, 1280, <Board01Page />));
+    for (const v of await contrastViolations(board.container))
+      failures.push(`board-01: ${v}`);
+    await userEvent.type(
+      board.getByRole("searchbox", { name: "Search tasks" }),
+      "zebra",
+    );
+    await expect
+      .element(board.getByRole("heading", { name: "No matches" }))
+      .toBeInTheDocument();
+    for (const v of await contrastViolations(board.container))
+      failures.push(`board-01 no matches: ${v}`);
+    spy.mockRestore();
+    expect(failures, `block color-contrast failures (${theme})`).toEqual([]);
   });
 }

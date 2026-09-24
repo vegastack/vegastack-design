@@ -1,0 +1,75 @@
+---
+title: status-pages-01
+description: The 404, 403 and error pages — an Empty whose title is the page's h1, one way out, and the error's reference to copy.
+audience: public
+registry: status-pages-01
+preview: statusPages01Demo
+---
+
+## What it is
+
+The 404, 403 and error pages — an Empty whose title is the page's h1, one way out, and the error's reference to copy. It is a **block**: you pull it once with `shadcn add`, and then you own it —
+nothing re-pulls it and no integrity hash tracks your edits, unlike the components it composes.
+
+The page file renders the standalone 404. The three pages live in `components/`, so each boundary file imports the one it needs.
+
+## Install
+
+```npm
+npx shadcn@latest add @vegastack/status-pages-01
+```
+
+<RegistryInstallCallout />
+
+This installs the block's own files plus the components it composes: `button`, `copy-button`, `empty`.
+
+## Preview
+
+<ComponentPreview name="statusPages01Demo" />
+
+## Where each page goes
+
+| Boundary file             | Renders                                                          |
+| ------------------------- | ---------------------------------------------------------------- |
+| `app/not-found.tsx`       | `<NotFoundPage standalone />`                                    |
+| `app/(app)/not-found.tsx` | `<NotFoundPage />`                                               |
+| `app/forbidden.tsx`       | `<ForbiddenPage standalone />`                                   |
+| `app/(app)/forbidden.tsx` | `<ForbiddenPage />`                                              |
+| `app/global-error.tsx`    | `<ErrorPage standalone digest={error.digest} onRetry={reset} />` |
+| `app/(app)/error.tsx`     | `<ErrorPage digest={error.digest} onRetry={reset} />`            |
+
+Inside the shell a page takes `min-h-[60svh]`; with `standalone` it fills the viewport (`min-h-svh`).
+
+## Copy
+
+| Page  | Title (`h1`)                       | Body                                                                   | Actions                |
+| ----- | ---------------------------------- | ---------------------------------------------------------------------- | ---------------------- |
+| 404   | Page not found                     | This page doesn’t exist, or you don’t have access to it.               | Go to Home             |
+| 403   | You don’t have access to this page | Ask your admin if you need it.                                         | Go to Home             |
+| Error | This page didn’t load              | Try again. If it keeps happening, send your admin the reference below. | Try again · Go to Home |
+
+The error title says what failed; a bare "Something went wrong" tells the reader nothing. The 404
+copy doesn't confirm that the page exists, because a page the reader can't see answers 404 too.
+
+## The reference
+
+When the error has a digest, the page shows `Reference: <digest>` with a `CopyButton` ("Copy
+reference"), so the reader can send it to whoever reads your logs. Without a digest the footnote is
+left out and the body asks the reader to describe what they were doing instead. The error icon wears
+`text-destructive-text`; the 404 and 403 icons are neutral, because neither is a failure.
+
+## Files
+
+| File                                            | Registry type        | Target                                              |
+| ----------------------------------------------- | -------------------- | --------------------------------------------------- |
+| `status-pages-01/components/error-page.tsx`     | `registry:component` | `app/status-pages-01/components/error-page.tsx`     |
+| `status-pages-01/components/forbidden-page.tsx` | `registry:component` | `app/status-pages-01/components/forbidden-page.tsx` |
+| `status-pages-01/components/not-found-page.tsx` | `registry:component` | `app/status-pages-01/components/not-found-page.tsx` |
+| `status-pages-01/page.tsx`                      | `registry:page`      | `app/status-pages-01/page.tsx`                      |
+
+## Do / Don't
+
+<DoDont
+  do="Put the right page in each boundary file, pass the error's digest, and keep each page to one way out plus Try again."
+  dont="Show a bare “Something went wrong”, a stack trace, or a raw status code as the title."
+/>

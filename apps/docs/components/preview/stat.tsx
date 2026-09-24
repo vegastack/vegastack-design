@@ -1,7 +1,10 @@
 "use client";
 
-import type { ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import { Wrapper } from "./wrapper";
+import { Button } from "@/components/ui/button";
+import { Item, ItemContent } from "@/components/ui/item";
+import { Skeleton } from "@/components/ui/skeleton";
 // Copied INTO apps/docs via `shadcn add @vegastack/stat` (dogfoods the registry) → auto-scanned.
 import {
   Stat,
@@ -50,6 +53,60 @@ export function statTiles(): ReactNode {
         <StatValue>62</StatValue>
         <StatDelta>No change</StatDelta>
       </Stat>
+    </Wrapper>
+  );
+}
+
+const LINKED_TILES = [
+  { label: "Overdue tasks", value: 3, href: "#tasks-overdue" },
+  { label: "Due this week", value: 12, href: "#tasks-this-week" },
+  { label: "Meetings to review", value: 0, href: "#meetings-review" },
+  { label: "Products missing photos", value: 1284, href: "#products-photos" },
+];
+
+/**
+ * Linked stat tiles (DS-59): each count is a whole-tile link to the list it counts. The name reads
+ * label first — "Overdue tasks 3" — because it follows DOM order. Loading keeps each tile's box.
+ */
+export function statLinkedTiles(): ReactNode {
+  return <StatLinkedTilesDemo />;
+}
+
+function StatLinkedTilesDemo(): ReactNode {
+  const [loading, setLoading] = useState(false);
+  return (
+    <Wrapper className="flex-col items-stretch gap-4">
+      <div className="@container w-full">
+        <div className="grid grid-cols-2 gap-3 @3xl:grid-cols-4">
+          {LINKED_TILES.map((tile) => (
+            <Item
+              key={tile.label}
+              variant="outline"
+              render={<a href={tile.href} />}
+            >
+              <ItemContent>
+                <Stat size="lg">
+                  <StatLabel>{tile.label}</StatLabel>
+                  {loading ? (
+                    <Skeleton className="h-8 w-16" />
+                  ) : (
+                    <StatValue>{tile.value.toLocaleString("en-US")}</StatValue>
+                  )}
+                </Stat>
+              </ItemContent>
+            </Item>
+          ))}
+        </div>
+      </div>
+      <Button
+        variant="outline"
+        size="sm"
+        className="self-start"
+        aria-pressed={loading}
+        onClick={() => setLoading((value) => !value)}
+      >
+        Show loading
+      </Button>
     </Wrapper>
   );
 }

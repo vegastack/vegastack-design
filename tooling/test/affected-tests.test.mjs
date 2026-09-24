@@ -55,6 +55,8 @@ describe("affected component closure", () => {
       "code-block",
       "copy-button",
       "markdown-view",
+      // status-pages-01's error page copies its reference with CopyButton (DS-60).
+      "status-pages-01",
       "terminal",
     ]);
     expect(result.affectedItems).not.toContain("provider");
@@ -77,6 +79,8 @@ describe("affected component closure", () => {
     ]);
     expect(result.seedItems).toEqual(["code-block", "provider"]);
     expect(result.affectedItems).toEqual([
+      // app-shell-01's user menu reads the theme through the provider (DS-80).
+      "app-shell-01",
       "code-block",
       "markdown-view",
       "provider",

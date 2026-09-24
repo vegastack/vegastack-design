@@ -1,8 +1,9 @@
 /**
- * `app-shell-01.test.tsx` — the block's browser contract: it renders, it shows its own content,
- * and the whole composed page is axe-clean. A block is a copy-once composition, so what is worth
- * pinning is that the composition still mounts and still passes the accessibility floor — the
- * behaviour of each part it composes is owned by that part's own suite.
+ * `app-shell-01.test.tsx` — the block's browser contract: the landmark trio, a skip link and one
+ * `h1`; the current page marked `aria-current="page"`; the Inbox count inside its row's name; the
+ * Search row named "Search" with its shortcut on `aria-keyshortcuts`; the count tiles as links;
+ * the workspace switcher a real menu trigger; no `href="#"`; and axe-clean. Compiled contrast is
+ * proven in `test/contrast.browser.test.tsx` (D6).
  */
 
 import { render } from "vitest-browser-react";
@@ -31,19 +32,46 @@ beforeEach(() => {
   }));
 });
 
-test("app-shell-01 renders its composition", async () => {
+test("app-shell-01 has landmarks, a skip link and one h1", async () => {
   const screen = await render(<AppShell01Page />);
   await expect
-    .element(screen.getByText("Your content").first())
+    .element(screen.getByRole("heading", { level: 1, name: "Overview" }))
     .toBeInTheDocument();
+  expect(document.querySelectorAll("h1")).toHaveLength(1);
+  expect(document.querySelector("nav")).not.toBeNull();
+  expect(document.querySelector("main")).not.toBeNull();
+  expect(
+    document.querySelector(
+      'a[href="#main"], a[data-slot="app-shell-skip-link"]',
+    ),
+  ).not.toBeNull();
+  const current = [...document.querySelectorAll('a[aria-current="page"]')];
+  expect(current.map((a) => a.textContent?.trim())).toEqual(["Overview"]);
+  expect(document.querySelector('a[href="#"]')).toBeNull();
 });
 
-test("app-shell-01 is axe-clean", async () => {
+test("app-shell-01 rows carry their count and shortcut in the right place", async () => {
   const screen = await render(<AppShell01Page />);
   await expect
-    .element(screen.getByText("Your content").first())
+    .element(screen.getByRole("link", { name: "Inbox 3 unread" }))
     .toBeInTheDocument();
-  // Unstyled: the fast browser suite mounts without the compiled token theme, so axe's contrast
-  // maths would read unresolved custom properties (see test/a11y.ts).
+  await expect
+    .element(screen.getByRole("button", { name: "Search", exact: true }))
+    .toHaveAttribute("aria-keyshortcuts", "Meta+K Control+K");
+  await expect
+    .element(screen.getByRole("link", { name: "Overdue tasks 3" }))
+    .toHaveAttribute("href", "/tasks?due=overdue");
+  await expect
+    .element(screen.getByRole("button", { name: "Workspace: Acme" }))
+    .toHaveAttribute("aria-haspopup", "menu");
+  await expectNoA11yViolations(document.body, ["color-contrast"]);
+});
+
+test("app-shell-01 opens the Search palette", async () => {
+  const screen = await render(<AppShell01Page />);
+  await screen.getByRole("button", { name: "Search", exact: true }).click();
+  await expect
+    .element(screen.getByRole("dialog", { name: "Search" }))
+    .toBeInTheDocument();
   await expectNoA11yViolations(document.body, ["color-contrast"]);
 });

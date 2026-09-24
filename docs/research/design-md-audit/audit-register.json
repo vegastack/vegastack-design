@@ -2,13 +2,13 @@
   "schemaVersion": 1,
   "kind": "vegastack-zero-gap-audit-register",
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "1a8b61c4b18fbf7fe8ce234b9ce7aca6890a416f04aa89a42955f795f50c2ca0",
+  "contractSha256": "229027f52b1eab43c55131b86ec1cef634e056410a8970573b50c984de69ec46",
   "expectedCounts": {
-    "totalRegistryItems": 666,
+    "totalRegistryItems": 669,
     "components": 114,
     "animatedIcons": 467,
     "hooks": 11,
-    "blocks": 4,
+    "blocks": 7,
     "libs": 2,
     "chartBlocks": 68
   },
@@ -6564,6 +6564,19 @@
       "contractStatus": "reconciled"
     },
     {
+      "name": "review-split-01",
+      "inventoryClass": "block",
+      "wave": "Block",
+      "family": "starter-block",
+      "sourceFiles": [
+        "packages/ui/registry/blocks/review-split-01/components/review-split.tsx",
+        "packages/ui/registry/blocks/review-split-01/components/sample-meeting.ts",
+        "packages/ui/registry/blocks/review-split-01/page.tsx"
+      ],
+      "docsSlug": "/docs/blocks/review-split-01",
+      "contractStatus": "reconciled"
+    },
+    {
       "name": "settings-01",
       "inventoryClass": "block",
       "wave": "Block",
@@ -6572,6 +6585,31 @@
         "packages/ui/registry/blocks/settings-01/page.tsx"
       ],
       "docsSlug": "/docs/blocks/settings-01",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "settings-02",
+      "inventoryClass": "block",
+      "wave": "Block",
+      "family": "starter-block",
+      "sourceFiles": [
+        "packages/ui/registry/blocks/settings-02/page.tsx"
+      ],
+      "docsSlug": "/docs/blocks/settings-02",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "status-pages-01",
+      "inventoryClass": "block",
+      "wave": "Block",
+      "family": "starter-block",
+      "sourceFiles": [
+        "packages/ui/registry/blocks/status-pages-01/components/error-page.tsx",
+        "packages/ui/registry/blocks/status-pages-01/components/forbidden-page.tsx",
+        "packages/ui/registry/blocks/status-pages-01/components/not-found-page.tsx",
+        "packages/ui/registry/blocks/status-pages-01/page.tsx"
+      ],
+      "docsSlug": "/docs/blocks/status-pages-01",
       "contractStatus": "reconciled"
     },
     {

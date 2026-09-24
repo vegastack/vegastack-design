@@ -215,7 +215,7 @@ export function emptyInputGroup(): ReactNode {
     <Wrapper>
       <Empty className="max-w-md">
         <EmptyHeader>
-          <EmptyTitle>404 - Not Found</EmptyTitle>
+          <EmptyTitle>Page not found</EmptyTitle>
           <EmptyDescription>
             The page you&apos;re looking for doesn&apos;t exist. Try searching
             for what you need below.

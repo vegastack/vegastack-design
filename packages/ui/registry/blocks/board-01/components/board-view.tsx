@@ -1,25 +1,31 @@
-// @vegastack board-01@0.19.0 sha256-Dt7euxIWjLiiYexlS8+Xu9BJ/rk08BdjYiH0cjDYwcU=
+// @vegastack board-01@0.19.0 sha256-6IMWbSfUZA+HdORBJjtYl6QJk2qta2tSB04L/rbK6dI=
 
 "use client";
 
 import * as React from "react";
-import { LayoutGrid, Rows3, Search } from "lucide-react";
+import { SearchX, User } from "lucide-react";
 
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Board, type BoardColumn } from "@/components/ui/board";
+import { Button } from "@/components/ui/button";
 import {
-  InputGroup,
-  InputGroupAddon,
-  InputGroupInput,
-} from "@/components/ui/input-group";
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuLabel,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+  Empty,
+  EmptyContent,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "@/components/ui/empty";
+import { FilterBar, type FilterBarFilter } from "@/components/ui/filter-bar";
 
 interface Task {
   id: string;
@@ -84,7 +90,11 @@ const INITIAL: BoardColumn<Task>[] = [
   },
 ];
 
-const ASSIGNEES = ["MK", "PS", "AL"];
+const ASSIGNEES = [
+  { initials: "MK", name: "Manoj Kumar" },
+  { initials: "PS", name: "Priya Shah" },
+  { initials: "AL", name: "Ana Lopez" },
+];
 
 function applyMove(
   previous: BoardColumn<Task>[],
@@ -106,11 +116,13 @@ function applyMove(
 }
 
 /**
- * The board and its toolbar: a filter field, an assignee select and a view switch over `Board`.
+ * The board and its filters: a `FilterBar` (search plus an Assignee facet) over `Board`, whose lanes
+ * are named with their count ("In progress, 2 tasks") and whose cards are links to each task. When
+ * the filters match nothing the board gives way to a "No matches" state with "Clear filters".
  *
- * The filter narrows what each column SHOWS; a move always lands in the full column, which is why
- * `onMove` updates `columns` rather than the filtered view. Replace `INITIAL` with your own data
- * and `onMove` with the call that persists it.
+ * The filters narrow what each lane SHOWS; a move always lands in the full lane, which is why
+ * `onMove` updates `columns` rather than the filtered view. Replace `INITIAL` with your own data,
+ * each card's href with your task route, and `onMove` with the call that persists it.
  *
  * @example
  * <BoardView />
@@ -118,90 +130,131 @@ function applyMove(
 export function BoardView() {
   const [columns, setColumns] = React.useState(INITIAL);
   const [query, setQuery] = React.useState("");
-  const [assignee, setAssignee] = React.useState("all");
+  const [assignee, setAssignee] = React.useState<string | null>(null);
 
-  // Filtering narrows what each column SHOWS; the move still lands in the full column, which is
-  // why `onMove` works against `columns` rather than the filtered view.
+  const filtering = query.trim() !== "" || assignee !== null;
   const visible = React.useMemo(
     () =>
       columns.map((column) => ({
         ...column,
+        emptyState: filtering ? "No matching tasks" : "No tasks",
         items: column.items.filter(
           (task) =>
-            (assignee === "all" || task.assignee === assignee) &&
+            (assignee === null || task.assignee === assignee) &&
             task.title.toLowerCase().includes(query.trim().toLowerCase()),
         ),
       })),
-    [columns, query, assignee],
+    [columns, query, assignee, filtering],
   );
+  const noMatches =
+    filtering && visible.every((column) => column.items.length === 0);
+
+  const filters: FilterBarFilter[] = assignee
+    ? [
+        {
+          id: "assignee",
+          label: "Assignee",
+          value: ASSIGNEES.find((a) => a.initials === assignee)?.name,
+          icon: <User />,
+          onRemove: () => setAssignee(null),
+        },
+      ]
+    : [];
+
+  function clearFilters() {
+    setQuery("");
+    setAssignee(null);
+  }
 
   return (
-    <div className="flex min-w-0 flex-col gap-4">
-      <div className="flex flex-wrap items-center gap-2">
-        <InputGroup className="w-full sm:w-64">
-          <InputGroupAddon>
-            <Search />
-          </InputGroupAddon>
-          <InputGroupInput
-            aria-label="Filter tasks"
-            placeholder="Filter tasks"
-            value={query}
-            onChange={(event) => setQuery(event.target.value)}
-          />
-        </InputGroup>
-        <Select
-          value={assignee}
-          onValueChange={(value) => {
-            if (value) setAssignee(value);
-          }}
-        >
-          <SelectTrigger className="w-40" aria-label="Filter by assignee">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">Everyone</SelectItem>
-            {ASSIGNEES.map((initials) => (
-              <SelectItem key={initials} value={initials}>
-                {initials}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        <ToggleGroup
-          variant="outline"
-          defaultValue={["board"]}
-          className="ms-auto"
-        >
-          <ToggleGroupItem value="board" aria-label="Board view">
-            <LayoutGrid />
-          </ToggleGroupItem>
-          <ToggleGroupItem value="list" aria-label="List view">
-            <Rows3 />
-          </ToggleGroupItem>
-        </ToggleGroup>
-      </div>
-      <Board<Task>
-        aria-label="Tasks"
-        columns={visible}
-        getItemId={(task) => task.id}
-        columnMaxHeight="28rem"
-        renderCard={(task) => (
-          <>
-            <span className="min-w-0 truncate font-medium">{task.title}</span>
-            <span className="flex items-center gap-2 text-xs text-muted-foreground">
-              <Avatar size="sm">
-                <AvatarFallback>{task.assignee}</AvatarFallback>
-              </Avatar>
-              {task.estimate}
-            </span>
-          </>
-        )}
-        onMove={({ id, to }) =>
-          setColumns((previous) =>
-            applyMove(previous, id, to.container, to.index),
-          )
+    <div className="flex min-h-0 min-w-0 flex-1 flex-col gap-4">
+      <FilterBar
+        aria-label="Task filters"
+        search={{
+          value: query,
+          onValueChange: setQuery,
+          placeholder: "Search tasks",
+        }}
+        filters={filters}
+        addFilterMenu={
+          <DropdownMenu>
+            <DropdownMenuTrigger
+              render={<Button variant="outline" size="sm" />}
+            >
+              <User />
+              Assignee
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start">
+              <DropdownMenuGroup>
+                <DropdownMenuLabel>Assignee</DropdownMenuLabel>
+                <DropdownMenuRadioGroup
+                  value={assignee ?? ""}
+                  onValueChange={(value) => setAssignee(value || null)}
+                >
+                  {ASSIGNEES.map((person) => (
+                    <DropdownMenuRadioItem
+                      key={person.initials}
+                      value={person.initials}
+                    >
+                      {person.name}
+                    </DropdownMenuRadioItem>
+                  ))}
+                </DropdownMenuRadioGroup>
+              </DropdownMenuGroup>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        }
+        trailing={
+          filtering ? (
+            <Button variant="ghost" size="sm" onClick={clearFilters}>
+              Clear filters
+            </Button>
+          ) : null
         }
       />
+      {noMatches ? (
+        <Empty className="border border-dashed">
+          <EmptyHeader>
+            <EmptyMedia variant="icon">
+              <SearchX aria-hidden />
+            </EmptyMedia>
+            <EmptyTitle render={<h2 />}>No matches</EmptyTitle>
+            <EmptyDescription>
+              No task matches these filters. Clear them to see the whole board.
+            </EmptyDescription>
+          </EmptyHeader>
+          <EmptyContent>
+            <Button variant="outline" onClick={clearFilters}>
+              Clear filters
+            </Button>
+          </EmptyContent>
+        </Empty>
+      ) : (
+        <Board<Task>
+          aria-label="Tasks"
+          columns={visible}
+          getItemId={(task) => task.id}
+          getItemLabel={(task) => task.title}
+          getItemHref={(task) => `/tasks/${task.id}`}
+          countLabel={(n) => (n === 1 ? "1 task" : `${n} tasks`)}
+          renderCard={(task) => (
+            <>
+              <span className="min-w-0 truncate font-medium">{task.title}</span>
+              <span className="flex items-center gap-2 text-xs text-muted-foreground">
+                <Avatar size="sm">
+                  <AvatarFallback>{task.assignee}</AvatarFallback>
+                </Avatar>
+                <span className="tabular-nums">{task.estimate}</span>
+              </span>
+            </>
+          )}
+          onMove={({ id, to }) =>
+            setColumns((previous) =>
+              applyMove(previous, id, to.container, to.index),
+            )
+          }
+        />
+      )}
     </div>
   );
 }
