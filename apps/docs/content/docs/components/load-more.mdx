@@ -1,0 +1,103 @@
+---
+title: Load More
+description: The shared Load more footer for keyset lists — load the next batch, retry a failed one, and optionally say the list has ended.
+audience: public
+registry: load-more
+status: stable
+since: 0.18.0
+a11y: named button, busy state, alert on failure, focus kept
+preview: loadMore
+---
+
+## Install
+
+<InstallSteps name="load-more" />
+
+## Usage
+
+```tsx
+import { LoadMore } from "@/components/ui/load-more";
+
+<LoadMore
+  hasMore={nextCursor != null}
+  loading={isFetchingNextPage}
+  error={fetchError ? "Couldn't load more tasks." : undefined}
+  onLoadMore={fetchNextPage}
+/>;
+```
+
+`LoadMore` is the footer of a **keyset** list — one fetched by cursor, with no total and no page
+numbers. It says only what the reader can do next: load the next batch, or retry the batch that
+failed. It is controlled and owns no data: the host holds `hasMore`, `loading` and `error`, and
+`onLoadMore` fetches the next batch (a retry is the same call).
+
+`DataList` and `DataGrid` render it for you through their `loadMore` prop, and `LoadMoreState` — the
+four paging fields on their own — is the shape those props, board lanes and `useAsyncSearch` pass
+around. Reach for the component directly only for a list that is not a `DataList` or `DataGrid`.
+
+<ComponentPreview name="loadMore" file="components/preview/load-more.tsx" />
+
+## Examples
+
+### States
+
+- **Idle** — an outline button, _Load more_.
+- **Loading** — the same button with a spinner. It keeps its width and its name, reports
+  `aria-busy`, and ignores further presses.
+- **Error** — the message above a _Try again_ button, which calls `onLoadMore` again. Rows already
+  loaded stay where they are.
+- **Done** — nothing, unless the host passes `endLabel`: a list that simply stops needs no caption.
+
+<ComponentPreview
+  name="loadMoreStates"
+  file="components/preview/load-more.tsx"
+/>
+
+### Labels
+
+`label` and `retryLabel` rename the two buttons, for a more specific verb or another language.
+
+```tsx
+<LoadMore
+  hasMore={hasMore}
+  onLoadMore={fetchNextPage}
+  label="Show more meetings"
+  retryLabel="Retry"
+  endLabel="That's every meeting"
+/>
+```
+
+## API Reference
+
+<ApiTable
+  path="../../packages/ui/registry/ui/load-more.tsx"
+  name="LoadMoreProps"
+/>
+
+`LoadMoreState` is exported too: `hasMore`, `onLoadMore`, `loading` and `error`, the props a list or
+a data hook passes through as one value.
+
+## Accessibility
+
+- The control is a real button named by its visible label. While loading it stays focusable and
+  reports `aria-busy="true"`; the label keeps its box at opacity 0, so the name survives.
+- The button swaps its label and busy state in place rather than remounting, so keyboard focus stays
+  on it while the new rows are appended above.
+- A failed fetch renders its message as `role="alert"`: it appears because of something the reader
+  just did.
+- `DataList` and `DataGrid` set `aria-rowcount="-1"` on the table while `hasMore` is true, because
+  the total is unknown.
+
+| Key                                 | Action                                         |
+| ----------------------------------- | ---------------------------------------------- |
+| <kbd>Tab</kbd>                      | Move to the button.                            |
+| <kbd>Enter</kbd> / <kbd>Space</kbd> | Load the next batch, or retry after a failure. |
+
+<StatesTested name="load-more" />
+
+## Do / Don't
+
+<DoDont
+  do="Keep the rows already loaded when a batch fails, and let Try again fetch the same batch."
+  dont="Show a total or page numbers on a keyset list — use DataListPager when the total is known."
+/>

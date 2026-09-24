@@ -92,6 +92,7 @@ export * from "./emoji-picker";
 export * from "./data-grid";
 export * from "./data-list";
 export * from "./data-list-pager";
+export * from "./load-more";
 export * from "./text-edit";
 export * from "./marker";
 export * from "./message";

@@ -887,6 +887,7 @@
         "@vegastack/data-table-parts",
         "@vegastack/dropdown-menu",
         "@vegastack/editable-cell",
+        "@vegastack/load-more",
         "@vegastack/table",
         "@vegastack/use-announcer"
       ],
@@ -915,6 +916,7 @@
       ],
       "registryDependencies": [
         "@vegastack/data-table-parts",
+        "@vegastack/load-more",
         "@vegastack/table"
       ],
       "files": [
@@ -925,7 +927,7 @@
         }
       ],
       "meta": {
-        "whenToUse": "A list of records as a table with typed columns, selection, click-to-sort, and loading/empty states.",
+        "whenToUse": "A list of records as a table with typed columns, selection, click-to-sort, loading/empty states, and keyset paging through loadMore.",
         "whenNotToUse": "A board/kanban view (Board), full-parity grids with grouping/editing/virtualization (DataGrid), or a simple static table (Table).",
         "version": "0.18.0"
       }
@@ -955,7 +957,31 @@
       ],
       "meta": {
         "whenToUse": "Paging a DataList (or any host-paged list): the range, rows-per-page, and page controls in its footer slot, with page state owned by the host.",
-        "whenNotToUse": "Infinite or keyboard-continuous loading (DataGrid's loadMore), or bare page links with no page-size choice (Pagination).",
+        "whenNotToUse": "Keyset or cursor paging with no total (LoadMore, or DataList's and DataGrid's loadMore), or bare page links with no page-size choice (Pagination).",
+        "version": "0.18.0"
+      }
+    },
+    {
+      "name": "load-more",
+      "type": "registry:ui",
+      "title": "Load More",
+      "description": "The shared Load more footer for keyset lists — an outline button that keeps its width while loading, an error line with Try again, and an optional end caption.",
+      "categories": ["data"],
+      "dependencies": [
+        "@vegastack/design@^0.7.4",
+        "@vegastack/design-tokens@^0.7.1"
+      ],
+      "registryDependencies": ["@vegastack/button"],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/load-more.tsx",
+          "type": "registry:ui",
+          "target": "@ui/load-more.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "The footer of a keyset (cursor) list — DataList's or DataGrid's loadMore, a board lane, a feed: load the next batch, retry a failed one, optionally say the list has ended.",
+        "whenNotToUse": "Numbered pages with a known total (DataListPager); loading on scroll with no button.",
         "version": "0.18.0"
       }
     },

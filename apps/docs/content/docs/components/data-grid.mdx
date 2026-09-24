@@ -104,7 +104,10 @@ restores grid navigation; a rejected commit reverts and announces.
 ### Keyboard-continuous load-more
 
 <kbd>↓</kbd> past the last row fetches the next page — paging never breaks the
-keyboard flow.
+keyboard flow. The footer below the grid is the shared
+[`LoadMore`](/docs/components/load-more): an outline _Load more_ button, _Try
+again_ after a failed fetch (`loadMore.error`), and nothing once `hasMore` is
+false unless you pass `loadMore.endLabel`.
 
 <ComponentPreview
   name="dataGridLoadMore"

@@ -1,4 +1,4 @@
-// @vegastack data-grid@0.18.0 sha256-w5W4X9TRJolZwrZPWRK0qlzVD6NrKdC1n7ZN2KFfXtg=
+// @vegastack data-grid@0.18.0 sha256-pJliRaBiwqZfGn60w8B+PpNhaf0B7AHtMdwsSAr/crg=
 
 "use client";
 
@@ -49,6 +49,11 @@ import {
   type EditableCellEditor,
 } from "@/components/ui/editable-cell";
 import type { AutoSaveStatus } from "@/components/ui/auto-save-input";
+import {
+  LoadMore,
+  type LoadMoreProps,
+  type LoadMoreState,
+} from "@/components/ui/load-more";
 import { useAnnouncer } from "@/components/ui/use-announcer";
 import {
   Table,
@@ -197,19 +202,15 @@ export interface DataGridColumn<T> extends DataTableColumnLayout {
   group?: boolean;
 }
 
-/** Keyboard-continuous load-more contract for the last row boundary. */
-export interface DataGridLoadMore {
-  /** More rows exist beyond the current `data`. */
-  hasMore: boolean;
-  /** Fetch the next page — also fired by ArrowDown past the last row. */
-  onLoadMore: () => void;
-  /**
-   * A fetch is in flight (renders the loading affordance and debounces the
-   * keyboard trigger).
-   * @default false
-   */
-  loading?: boolean;
-}
+/**
+ * Keyboard-continuous load-more contract for the last row boundary.
+ * @deprecated Use `LoadMoreState` from `load-more` — the same shape, shared by
+ * DataList, board lanes and `useAsyncSearch`.
+ */
+export type DataGridLoadMore = LoadMoreState;
+
+/** The `loadMore` prop: the paging state plus the footer's own labels. */
+export type DataGridLoadMoreProps = Omit<LoadMoreProps, "className" | "ref">;
 
 /** Props accepted by `DataGrid`. */
 export interface DataGridProps<T> {
@@ -306,10 +307,13 @@ export interface DataGridProps<T> {
    * @default undefined
    */
   onSelectionChange?: (selectedIds: Set<string>) => void;
-  /** Keyboard-continuous load-more at the last row.
+  /**
+   * Keyset paging: the shared `LoadMore` footer below the grid, plus a
+   * keyboard-continuous trigger when ArrowDown moves past the last row.
+   * `endLabel` is shown once `hasMore` is false (nothing by default).
    * @default undefined
    */
-  loadMore?: DataGridLoadMore;
+  loadMore?: DataGridLoadMoreProps;
   /**
    * Window the rows with TanStack Virtual (needs a fixed-height viewport via
    * `maxHeight`). Ignored while a `group` column exists.
@@ -1223,24 +1227,7 @@ export function DataGrid<T>({
         </Table>
       </div>
 
-      {loadMore ? (
-        <div data-slot="data-grid-load-more" className="flex justify-center">
-          {loadMore.hasMore ? (
-            <Button
-              variant="ghost"
-              size="sm"
-              loading={loadMore.loading}
-              onClick={loadMore.onLoadMore}
-            >
-              Load more
-            </Button>
-          ) : (
-            <span className="text-xs text-muted-foreground">
-              All rows loaded
-            </span>
-          )}
-        </div>
-      ) : null}
+      {loadMore ? <LoadMore {...loadMore} /> : null}
       {footer != null ? <div data-slot="data-grid-footer">{footer}</div> : null}
       <Announcer />
     </div>

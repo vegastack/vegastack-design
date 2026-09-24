@@ -1457,3 +1457,103 @@ test("a callback ref still receives the table, and the loading skeleton follows 
   )!;
   expect(skeletonRow.querySelectorAll("td")).toHaveLength(2);
 });
+
+test("loadMore renders the shared LoadMore footer above the footer slot (DS-31)", async () => {
+  const onLoadMore = vi.fn();
+  const screen = await render(
+    <DataList
+      columns={columns}
+      data={data}
+      getRowId={(r) => r.id}
+      loadMore={{ hasMore: true, onLoadMore }}
+      footer={<p data-testid="host-footer">3 people</p>}
+    />,
+  );
+  const loadMore = screen.container.querySelector('[data-slot="load-more"]');
+  expect(loadMore).not.toBeNull();
+  const footer = screen.container.querySelector(
+    '[data-slot="data-list-footer"]',
+  );
+  // LoadMore sits between the table and the host footer.
+  expect(
+    loadMore!.compareDocumentPosition(footer!) &
+      Node.DOCUMENT_POSITION_FOLLOWING,
+  ).toBeTruthy();
+  await screen.getByRole("button", { name: "Load more" }).click();
+  expect(onLoadMore).toHaveBeenCalledOnce();
+  await expectNoA11yViolations(screen.container);
+});
+
+test("aria-rowcount is -1 while more rows exist, unset once complete (DS-31)", async () => {
+  const props = {
+    columns,
+    data,
+    getRowId: (r: Row) => r.id,
+  };
+  const screen = await render(
+    <DataList {...props} loadMore={{ hasMore: true, onLoadMore: () => {} }} />,
+  );
+  await expect
+    .element(screen.getByRole("table"))
+    .toHaveAttribute("aria-rowcount", "-1");
+  await screen.rerender(
+    <DataList {...props} loadMore={{ hasMore: false, onLoadMore: () => {} }} />,
+  );
+  await expect
+    .element(screen.getByRole("table"))
+    .not.toHaveAttribute("aria-rowcount");
+  expect(screen.container.querySelector('[data-slot="load-more"]')).toBeNull();
+  await screen.rerender(<DataList {...props} />);
+  await expect
+    .element(screen.getByRole("table"))
+    .not.toHaveAttribute("aria-rowcount");
+});
+
+test("loadMore loading, error and done states (DS-31)", async () => {
+  const onLoadMore = vi.fn();
+  const props = {
+    columns,
+    data,
+    getRowId: (r: Row) => r.id,
+  };
+  const screen = await render(
+    <DataList
+      {...props}
+      loadMore={{ hasMore: true, loading: true, onLoadMore }}
+    />,
+  );
+  await expect
+    .element(screen.getByRole("button", { name: "Load more" }))
+    .toHaveAttribute("aria-busy", "true");
+  // A next-page fetch keeps the loaded rows; it is not the skeleton state.
+  await expect.element(screen.getByText("Ada")).toBeInTheDocument();
+  await expectNoA11yViolations(screen.container);
+
+  await screen.rerender(
+    <DataList
+      {...props}
+      loadMore={{
+        hasMore: true,
+        onLoadMore,
+        error: "Couldn't load more people.",
+      }}
+    />,
+  );
+  await expect
+    .element(screen.getByRole("alert"))
+    .toHaveTextContent("Couldn't load more people.");
+  await screen.getByRole("button", { name: "Try again" }).click();
+  expect(onLoadMore).toHaveBeenCalledOnce();
+  await expectNoA11yViolations(screen.container);
+
+  await screen.rerender(
+    <DataList
+      {...props}
+      loadMore={{ hasMore: false, onLoadMore, endLabel: "End of list" }}
+    />,
+  );
+  expect(
+    screen.container.querySelector('[data-slot="load-more"]')?.textContent,
+  ).toBe("End of list");
+  await expectNoA11yViolations(screen.container);
+});

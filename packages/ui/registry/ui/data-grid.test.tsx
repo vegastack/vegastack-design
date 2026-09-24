@@ -993,3 +993,75 @@ test("the roving cell's focus ring is pulled inside the scroll viewport", async 
   ) as HTMLElement;
   expect(cell.className).toContain("focus-visible:-outline-offset-2");
 });
+
+test("the load-more footer is the shared LoadMore (DS-30)", async () => {
+  const onLoadMore = vi.fn();
+  const screen = await render(
+    <DataGrid
+      aria-label="Deals"
+      columns={columns()}
+      data={DEALS}
+      getRowId={(d) => d.id}
+      loadMore={{ hasMore: true, onLoadMore }}
+    />,
+  );
+  const footer = screen.container.querySelector('[data-slot="load-more"]');
+  expect(footer).not.toBeNull();
+  await screen.getByRole("button", { name: "Load more" }).click();
+  expect(onLoadMore).toHaveBeenCalledOnce();
+  expect(
+    screen.container.querySelector("table")?.getAttribute("aria-rowcount"),
+  ).toBe("-1");
+
+  await screen.rerender(
+    <DataGrid
+      aria-label="Deals"
+      columns={columns()}
+      data={DEALS}
+      getRowId={(d) => d.id}
+      loadMore={{ hasMore: false, onLoadMore }}
+    />,
+  );
+  expect(screen.container.querySelector('[data-slot="load-more"]')).toBeNull();
+  expect(screen.container.textContent).not.toContain("All rows loaded");
+
+  await screen.rerender(
+    <DataGrid
+      aria-label="Deals"
+      columns={columns()}
+      data={DEALS}
+      getRowId={(d) => d.id}
+      loadMore={{ hasMore: false, onLoadMore, endLabel: "End of list" }}
+    />,
+  );
+  expect(
+    screen.container.querySelector('[data-slot="load-more"]')?.textContent,
+  ).toBe("End of list");
+  await expectNoA11yViolations(screen.container);
+});
+
+test("a failed load keeps the rows and offers Try again (DS-30)", async () => {
+  const onLoadMore = vi.fn();
+  const screen = await render(
+    <DataGrid
+      aria-label="Deals"
+      columns={columns()}
+      data={DEALS}
+      getRowId={(d) => d.id}
+      loadMore={{
+        hasMore: true,
+        onLoadMore,
+        error: "Couldn't load more deals.",
+      }}
+    />,
+  );
+  await expect
+    .element(screen.getByRole("alert"))
+    .toHaveTextContent("Couldn't load more deals.");
+  await screen.getByRole("button", { name: "Try again" }).click();
+  expect(onLoadMore).toHaveBeenCalledOnce();
+  expect(
+    screen.container.querySelectorAll('[data-slot="data-grid-row"]').length,
+  ).toBeGreaterThan(0);
+  await expectNoA11yViolations(screen.container);
+});
