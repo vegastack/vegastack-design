@@ -240,6 +240,11 @@ test("a refused move does not happen, and says why beside the control", async ()
   // The flow stayed put, the step is marked, and the reason is tied to the button it blocks.
   expect(screen.container.textContent).toContain("A body");
   expect(stepState(screen.container, "A")).toBe("error");
+  // …and it is still the current step: failing validation never drops the marker.
+  const failed = slots(screen.container, "stepper-step").find((li) =>
+    li.textContent?.includes("A"),
+  )!;
+  expect(failed.getAttribute("aria-current")).toBe("step");
   expect(next(screen.container).getAttribute("aria-describedby")).toBe(
     refusal.id,
   );

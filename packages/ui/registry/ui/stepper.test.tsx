@@ -261,6 +261,33 @@ test("an error step behind the current one does not claim to be passed", async (
   ).toBeUndefined();
 });
 
+test("a current step in error keeps aria-current and its error state", async () => {
+  const screen = await render(
+    <Stepper
+      aria-label="Import"
+      collapse={false}
+      showCount
+      navigable
+      onStepSelect={() => {}}
+      steps={[
+        { id: "a", label: "Done", state: "complete" },
+        { id: "b", label: "Here", state: "error", current: true },
+        { id: "c", label: "Next", state: "upcoming" },
+      ]}
+    />,
+  );
+  const steps = slots(screen.container, "stepper-step");
+  expect(steps[1]!.getAttribute("aria-current")).toBe("step");
+  expect(steps[1]!.dataset.state).toBe("error");
+  expect(steps[0]!.getAttribute("aria-current")).toBeNull();
+  // The current step is not a button to itself, even in navigable mode.
+  expect(steps[1]!.querySelector("button")).toBeNull();
+  expect(slot(screen.container, "stepper-count")?.textContent).toBe(
+    "Step 2 of 3",
+  );
+  await expectNoA11yViolations(screen.container);
+});
+
 /* ----------------------------------------------------------------- orientation */
 
 test("orientation auto stays horizontal below the threshold", async () => {
