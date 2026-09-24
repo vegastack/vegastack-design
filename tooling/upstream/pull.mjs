@@ -74,9 +74,9 @@ const LOCK = join(CACHE, "app.lock");
 
 /**
  * The Base UI blocks staged for comparison. A literal list: the registry serves no block index.
- * The style ships 30; DS-78 (2026-09-24) removed the 28 non-conforming demo blocks from this
- * system (the dashboard, login 02-05, signup 01-05, sidebar 01-16 and third preview compositions), so
- * a pull no longer stages them. `login-01` stays because it is still ours to compare against, and
+ * The style ships 30; DS-78 (2026-09-24) removed 27 of them from this system (the dashboard,
+ * login 02-05, signup 01-05, sidebar 01-16 and third preview compositions) along with our own
+ * onboarding block, so a pull no longer stages them. `login-01` stays because it is still ours to compare against, and
  * `preview`/`preview-02` stay as the style's own showcase pages, staged for comparison only.
  */
 const BLOCKS = ["login-01", "preview", "preview-02"];

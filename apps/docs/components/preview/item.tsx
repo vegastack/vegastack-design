@@ -500,7 +500,11 @@ export function itemChecklist(): ReactNode {
   return (
     <Wrapper className="flex-col items-stretch">
       <div className="mx-auto flex w-full max-w-sm flex-col gap-4">
-        <Progress value={done} max={CHECKLIST.length}>
+        <Progress
+          value={done}
+          max={CHECKLIST.length}
+          getAriaValueText={() => `${done} of ${CHECKLIST.length} steps done`}
+        >
           <ProgressLabel>Getting started</ProgressLabel>
           <ProgressValue>
             {() => `${done} of ${CHECKLIST.length}`}
@@ -508,13 +512,9 @@ export function itemChecklist(): ReactNode {
         </Progress>
         <ItemGroup>
           {CHECKLIST.map((step) => (
-            <Item key={step.id} size="sm" role="listitem">
+            <Item key={step.id} size="sm">
               <ItemMedia>
-                <StatusIcon
-                  status={step.done ? "done" : "todo"}
-                  size="sm"
-                  label={step.done ? "Done" : "To do"}
-                />
+                <StatusIcon status={step.done ? "done" : "todo"} size="sm" />
               </ItemMedia>
               <ItemContent>
                 <ItemTitle

@@ -125,7 +125,7 @@ const RUNTIME_VARIABLES = new Set([
 // exactly the case the exemption was written for. It is still a FILE list, not a pattern: a
 // `--color-*` typo anywhere else in the system still fails.
 const CHART_SERIES_FILES =
-  /(?:^|\/)chart\.tsx$|\/preview\/chart\.tsx$|\/preview\/charts-[a-z]+\.tsx$|\/registry\/blocks\/[^/]+\/(?:components\/)?chart-[a-z0-9-]+\.tsx$/;
+  /(?:^|\/)chart\.tsx$|\/preview\/chart\.tsx$|\/preview\/charts-[a-z]+\.tsx$|\/registry\/blocks\/[^/]+\/chart-[a-z0-9-]+\.tsx$/;
 const CHART_SERIES = /^--color-[a-z][a-z0-9-]*$/;
 
 /** Custom properties the built token contract declares. */

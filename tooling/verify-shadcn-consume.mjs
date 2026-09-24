@@ -111,7 +111,7 @@ const REAL_CRITICAL_GRAPHS = [
 // Required external dependency/engine families. The actual roots are selected from the built
 // registry with a deterministic greedy set-cover over TRANSITIVE registry graphs. This prevents a
 // hand-maintained representative list from silently dropping Motion, message-scroller, date-picker,
-// Markdown, resizable, Recharts, or the dashboard block when dependency ownership changes.
+// Markdown, resizable, Recharts, or a block page when dependency ownership changes.
 const REQUIRED_EXTERNAL_FAMILIES = {
   motion: (dependencies, name) =>
     dependencies.some(
