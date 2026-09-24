@@ -446,7 +446,7 @@ Every PR carries the four artefacts per item (source, `<name>.test.tsx` with `ex
     ```
     plus: Next calls `(id, { replace: false })`, hash mode unchanged, axe → FAIL → implement → `pnpm check:component multi-step-form` PASS → commit `feat(multi-step-form): tell route hosts to push or replace (DS-76)`
 
-- [ ] **Task 16: doctrine lines for 00d's next doctrine PR**
+- [x] **Task 16: doctrine lines for 00d's next doctrine PR**
   - Files — Modify (in 00d's doctrine branch, not here): `skills/public/vegastack-design-system/SKILL.md` ("Names hide abilities": SearchableSelect `multiple`/`remote`, DataList `loadMore`/`getRowHref`/`sections`, SortableList `layout="grid"`, LoadMore, useAsyncSearch), `AGENTS.md` (the `tiptap` renderer entry names `@tiptap/markdown`, if D2 = yes), `design.md` (only if a line goes stale)
   - Interfaces — Consumes: the merged PRs 1–5 · Produces: doctrine that names only shipped abilities
   - Steps: after each PR merges, add its lines to the doctrine branch → verify: `node tooling/skill-lint.mjs`; `node tooling/sync-package-skills.mjs --check`; `pnpm design:sync:check`; `grep` each named prop in its source → commit `docs: roster lines for lists, filters and forms`

@@ -790,14 +790,17 @@ glow and is accepted; the structural self-test observes both halves.
 
 ### 2. Cursor and touch
 
-`INT-1 · INT-7 · INT-9`
+`INT-1 · INT-7 · INT-9 · INT-11`
 
 A global `cursor: pointer` on every control, delivered by upstream's own `--pointer` flag plus a
 wider selector list (INT-1) — which also means upstream's explicit `cursor-default` on menu, select
 and command rows is patched out. `touch-action: manipulation` and no tap-highlight colour, so there
 is no 300ms delay and no grey flash on mobile (INT-7). The grab cursor appears only where a pointer
 drag can actually start — never under `readOnly`, `dragDisabled`, or below the breakpoint where the
-"Move to…" menu is the only path (INT-9).
+"Move to…" menu is the only path (INT-9). A global shortcut ignores an editable target (input,
+textarea, select, contenteditable) and an event already `defaultPrevented`, and can be switched off:
+the sidebar's Mod+B reads `isEditableTarget` from `use-platform` and takes `keyboardShortcut`
+(default `"b"`, `false` disables it) (INT-11).
 
 Note what is **not** here, because it used to be: there is no disabled-cursor rule (INT-2 is
 shadcn), no press translate of our own (INT-3 is shadcn — upstream's own `translate-y-px` ships),
@@ -806,7 +809,8 @@ and **no mandatory pressed step** (INT-4 is shadcn). A hover with no `active:` r
 ### 3. Accessibility beyond upstream
 
 `A11Y-1 · A11Y-2 · A11Y-3 · A11Y-4 · A11Y-5 · A11Y-6 · A11Y-7 · A11Y-8 · A11Y-9 · A11Y-11 ·
-A11Y-12 · A11Y-13 · A11Y-16 · FRM-4`
+A11Y-12 · A11Y-13 · A11Y-16 · A11Y-17 · A11Y-18 · A11Y-19 · A11Y-20 · A11Y-22 · A11Y-23 · FRM-4 ·
+FRM-15`
 
 - **A11Y-1** — WCAG 2.2 AA for every gated foreground/background pair in both themes, as a
   fail-closed gate (`tooling/contrast-check.mjs`, with its own `--self-test`).
@@ -831,6 +835,8 @@ A11Y-12 · A11Y-13 · A11Y-16 · FRM-4`
   `data-list.test.tsx` rather than hidden. Open, and recorded on the `ours.json` entry.
 - **A11Y-7** — a role that requires a parent is licensed by a **context**, never by a default.
   `Item` takes `listitem` only inside `ItemGroup`; cmdk's empty palette takes its roles the same way.
+  An `Item` that renders a link or a button inside `ItemGroup` moves `listitem` to a wrapper
+  (`data-slot="item-listitem"`), so the control keeps its own role.
 - **A11Y-8** — never signal by colour alone: an alert always carries an icon, a field error a leading
   glyph.
 - **A11Y-9** — what is hidden from assistive technology must not be reachable by keyboard. Native
@@ -859,9 +865,25 @@ A11Y-12 · A11Y-13 · A11Y-16 · FRM-4`
   does not — Base UI's Slider keeps the real `<input type=range>` visually hidden, so `role="slider"`
   is anonymous in every composition; Combobox's toggle, clear and chip-remove are icon-only buttons —
   the patch supplies it.
+- **A11Y-17** — a sidebar count is part of its control's name: `SidebarMenuButton` takes
+  `badge`/`badgeLabel`, the name reads "{label} {badgeLabel}" through a comma-free `sr-only` suffix
+  (in the collapsed tooltip too), and the visual `SidebarMenuBadge` is `aria-hidden`. The A11Y-5
+  separator is not used here, because accname would read "{label} , {badgeLabel}".
+- **A11Y-18** — an active nav link carries `aria-current="page"`: `SidebarMenuButton` sets it when
+  `isActive` and it renders a link; a button never gets it.
+- **A11Y-19** — Checkbox's mixed state has its own glyph: a minus replaces the check.
+- **A11Y-20** — `orientation` reaches the Base UI root on Tabs and ToggleGroup, so
+  `aria-orientation` and the arrow keys follow a vertical list.
+- **A11Y-22** — ScrollArea exposes `viewportRef`, a ref to the focusable viewport, for programmatic
+  scrolling.
+- **A11Y-23** — pagination links render as `<a className={buttonVariants()}>` and keep the link
+  role; `aria-current="page"` marks the current page.
 - **FRM-4** — a disabled control renders `aria-disabled` and **keeps its pointer events**, so a
   tooltip can explain why it is unavailable. Upstream's `disabled:pointer-events-none` is patched out
   wherever it appears.
+- **FRM-15** — disabled styles key on `data-disabled` where the Base UI root is not a native control
+  (Checkbox and RadioGroupItem render a `<span>`), so a disabled checkbox or radio dims outside a
+  `Field` too.
 
 ### 4. Tokens and semantics we add
 
@@ -892,8 +914,10 @@ token — that is COL-20 being enforced, not broken.
 
 ### 5. Our own recipes and behaviours
 
-`MOT-5 · MOT-6 · MOT-7 · MOT-13 · TYP-13 · BRD-1 · LAY-9 · LAY-10 · LAY-11 · LAY-12 · FRM-9 · FRM-10 ·
-FRM-12 · FRM-13 · OVL-10 · OVL-11 · OVL-13 · OVL-14 · OVL-15 · OVL-16 · API-5 · API-9 · API-17`
+`MOT-5 · MOT-6 · MOT-7 · MOT-13 · TYP-13 · BRD-1 · LAY-9 · LAY-10 · LAY-11 · LAY-12 · LAY-13 · LAY-14 ·
+LAY-15 · LAY-16 · FRM-9 · FRM-10 · FRM-12 · FRM-13 · OVL-10 · OVL-11 · OVL-13 · OVL-14 · OVL-15 ·
+OVL-16 · OVL-17 · API-5 · API-9 · API-17 · API-18 · API-19 · API-20 · API-21 · API-22 · API-23 ·
+API-24 · API-26 · API-27 · API-28 · VOI-1`
 
 - **Motion.** The global reduced-motion reset in `base.css` is the one sanctioned `!important`, and a
   `motion-reduce:` restatement of it is a violation (MOT-5). Keyed-presence utilities
@@ -909,14 +933,21 @@ FRM-12 · FRM-13 · OVL-10 · OVL-11 · OVL-13 · OVL-14 · OVL-15 · OVL-16 · 
   upstream's `ring-1 ring-foreground/10` box-shadow outline; the floating sidebar draws
   `border border-sidebar-border` (MK, 23-09-2026). Avatar's `ring-2 ring-background` is a stacking
   gap, not an outline, and stays. `design-lint`'s `no-surface-ring` keeps the ring from returning.
-- **Layout** (LAY-9…LAY-12) — container queries first, then viewport breakpoints, then
+- **Layout** (LAY-9…LAY-16) — container queries first, then viewport breakpoints, then
   `useMediaQuery` last, and a JS branch must declare its `serverFallback`; safe-area insets on
   edge-pinned surfaces, `dvh` over `vh`, `svh` only for the sidebar; truncation is `min-w-0` on the
   flex child with `truncate` on an inner span, never both on one element; `AppShell` owns the landmark
   trio, the skip link and the content container. **The `<nav>` landmark lives inside the rail**:
   upstream's `Sidebar` is divs by design and renders two different trees, so there is no single
-  element a role can ride through both.
-- **Forms** (FRM-9…FRM-13) — `Field` wires its control through Base UI Field: the label, the
+  element a role can ride through both. The collapsed state survives a static first paint:
+  `SidebarStateScript` in `<head>` reads the cookie, marks `<html>` with `data-sidebar-state` and
+  gives the desktop panel its collapsed `data-state` before hydration, and `useSidebarCookieOpen`
+  reads and writes the cookie for a controlled provider (LAY-13). A line tab list scrolls inside
+  itself, with edge fades and the active trigger kept in view — `TabsList overflow="scroll"`, the
+  default for `variant="line"` (LAY-14). `AlertAction` takes its own top-aligned grid column and
+  drops below the text under `@md`, so it never overlaps the title (LAY-15). Skeleton widths cycle by
+  index, never `Math.random()`, so server and client markup agree (LAY-16).
+- **Forms** (FRM-9…FRM-13, API-26) — `Field` wires its control through Base UI Field (API-26): the label, the
   description and error ids, and `aria-invalid` from the Field's `data-invalid`, on every control
   including the composite ones (Select, Combobox, RadioGroup, NumberField, DatePicker, TextEdit). Pass
   ids only to override; an explicit `aria-*` prop merges with the Field's. The invalid shake is the field's, not the control's, and fires only on a
@@ -928,35 +959,53 @@ FRM-12 · FRM-13 · OVL-10 · OVL-11 · OVL-13 · OVL-14 · OVL-15 · OVL-16 · 
   steppers are full-height flanking buttons, measured against real CSS at ≥24px inside a 32px group
   (FRM-13). Reusable clearable search fields compose `InputGroup` through `SearchInput`: the native
   search-cancel paint is suppressed, a token-colored 24px clear button owns the action, and generic
-  `Input` keeps its single-input DOM and behavior contract.
-- **Overlays** (OVL-10, OVL-11, OVL-13, OVL-14, OVL-15, OVL-16) — Toast is the one notification engine;
-  `sonner` is retired (OVL-10). Toast adds a logical `position` prop, the anchored
+  `Input` keeps its single-input DOM and behavior contract. A Select trigger is `w-full` by default
+  and takes `variant="ghost"` for an inline row (API-24).
+- **Overlays** (OVL-10, OVL-11, OVL-13…OVL-17) — Toast is the one notification engine;
+  `sonner` is retired (OVL-10), and it keeps one store: the provider passes the module manager and
+  `Toaster` reuses a provider above it, so `toast()` and `useToastManager()` feed one queue (OVL-17). Toast adds a logical `position` prop, the anchored
   `ToastPositioner`/`ToastArrow` parts, and a `z-60` viewport band — the one surface above the single
   `z-50` overlay band, so a toast fired over a Dialog is not behind its scrim (OVL-15). A portaled
   tooltip or dropdown accepts a `container`, so chrome over a fullscreen surface portals into it
   (OVL-14). `DialogContent` takes a `size` prop — `sm`, `default` (upstream's `sm:max-w-sm`), `lg`,
-  `xl` — reflected as `data-size`, the axis `AlertDialogContent` already carries (OVL-16). A panel's search is a sticky header row with no nested bordered
+  `xl` — reflected as `data-size`, the axis `AlertDialogContent` already carries; `CommandDialog`
+  and a side `SheetContent` take the same scale (OVL-16). A panel's search is a sticky header row with no nested bordered
   input, and it has exactly one owner, the `panel-search` shared-internal item (OVL-11). Every portal
   re-applies the theme scope so a popup opened from inside a scoped subtree paints in that scope
   (OVL-13); `verify-portal-theme-scope` discovers every Base UI portal host and requires its owner to
   attach the scope, so an added, missing or unscoped portal fails.
-- **API** (API-5, API-9, API-17) — `loading` holds a committing control's box and sets `aria-busy`
+- **API** (API-5, API-9, API-17…API-24, API-27, API-28) — `loading` holds a committing control's box and sets `aria-busy`
   (API-5; audited per component, and a tab does not commit anything, so it has none). Chip/Tag is one
   primitive with a real 24px remove control (API-9). `intent` is the name for a hue-only axis on a
   component that is **ours**; never `color` or `status` (API-17). A component reset onto upstream does
   **not** get an `intent` axis — it takes upstream's flat `variant` list, and our status families
-  surface as extra `variant` values in upstream's own `destructive` shape.
+  surface as extra `variant` values in upstream's own `destructive` shape. Parts added to upstream
+  components: Command's `CommandLoading` and a `CommandFooter` outside the listbox (API-18); a
+  two-line option or menu row composes `ItemTitle` + `ItemDescription`, and the row links the
+  description as its accessible description (API-19); `ItemGroupLabel`, a heading (default `h3`)
+  that names the `ItemGroup` after it (API-20); `SheetBody` and `DialogBody` scroll between a fixed
+  header and footer, `SheetAction` is an end seat in `SheetHeader`, and `closeLabel` renames the
+  close control (API-21); `CardTitle` and `EmptyTitle` take `render`, so the heading level is set on
+  the part (API-22); ToggleGroup's `deselectable` (default `true`) and `wrap` (API-23); Combobox's
+  `ComboboxStatus`, Base UI's own polite region, kept mounted beside the list (API-27); and
+  Attachment's `AttachmentGroup layout="scroll" | "grid"`, `AttachmentProgress` with
+  `aria-valuetext` "{n}%", `muted`, and nested-image styling (API-28).
+- **Voice** (VOI-1) — upstream's default English copy is rewritten to sentence case with the ellipsis
+  character, and every built-in string is an overridable `<action>Label` prop. § Voice & content has
+  the rules.
 
 ### 6. Engineering conventions
 
-`API-15 · API-16 · DOC-1 · DOC-2 · DOC-7 · DOC-9`
+`API-15 · API-16 · API-25 · DOC-1 · DOC-2 · DOC-7 · DOC-9`
 
 Flat exports, React 19 ref-as-prop (never `React.forwardRef`), CVA plus `cn()`, `data-slot` on every
 part, and Base UI's `render` prop never `Omit`ed from a single-polymorphic-root component (API-15).
 `'use client'` at the lowest interactive leaf only — a runtime claim, enforced by
 `tooling/verify-rsc-safety.mjs` under the `react-server` condition, which is why the client-only
 theme-scope plumbing lives at the `@vegastack/design/theme-scope` subpath and is never re-exported
-from the root (API-16). Three synced copies per component with `meta.integrity` and a Sigstore-signed
+from the root (API-16). Variant unions and class recipes are exported from upstream components too
+(`BadgeVariant`, `tabsTriggerVariants`), so a consumer types a status map from the system's own
+recipe (API-25). Three synced copies per component with `meta.integrity` and a Sigstore-signed
 manifest (DOC-1); hybrid distribution — public npm for the runtime and tokens, a private registry for
 components, model "own it" with no `Vega*` prefix (DOC-2). The engine list is closed, and everything
 upstream itself depends on was pre-approved with it; anything else is a new MK decision (DOC-7).
@@ -992,8 +1041,9 @@ line when its file is next touched, never in a drive-by rename.
 **Known deviations in components we own**, each fixed when its file is next touched: `md` on
 `Stat`, `StatusIcon` and `Chip` (add `default`, keep `md` as an alias); `SettingsSection`'s `titleAs`
 and `TruncatedText`'s `as` (→ `render`); `dismissable` on `AnnouncementBanner` (→ `dismissible`);
-`ActionBar`'s `pending` (→ `loading`); `MultiStepForm`'s `Back`, `Next`, `Skip`, `Exit` and `Actions`
-parts, which export no `…Props` type; `DataList`'s "Loading rows" status (→ "Loading rows…");
+`ActionBar`'s `pending` (→ `loading`); `MultiStepForm`'s `Back`, `Next`, `Skip` and `Exit` parts,
+which export no `…Props` type; `AppShellPage`'s `size` (`narrow · default · full`, a page measure off
+the size ladder); `DataList`'s "Loading rows" status (→ "Loading rows…");
 `PanelSearch`'s look differing from `SearchableSelect`'s in-popup search; and per-component
 async-write status (→ one shared shape).
 
@@ -1153,7 +1203,9 @@ Rules that survive the reset, because they are ours and not upstream's:
 
 ## Voice & content
 
-Copy is part of the design — precise, no filler.
+Copy is part of the design — precise, no filler. The built-in strings follow the same rules:
+upstream's Title Case defaults ("Toggle Sidebar") and three-dot ellipses are rewritten, and each one
+is an overridable `<action>Label` prop (VOI-1).
 
 - **Case:** sentence case for everything (buttons, headings, labels, body, toasts). Enforced
   by `design-lint`'s `uppercase-transform` since 2026-09-22 — the rule bans the CSS
