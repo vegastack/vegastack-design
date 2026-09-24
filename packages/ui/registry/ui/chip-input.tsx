@@ -1,4 +1,4 @@
-// @vegastack chip-input@0.18.0 sha256-dBfHWIuXjYaqeYIHSbdpvrTPcWYLFYx1GbPv7nIGriw=
+// @vegastack chip-input@0.18.0 sha256-ocSqxYLqCQqm0Xv731k18kbNJp9Ya+ReycJBO9kMOMI=
 
 "use client";
 
@@ -94,10 +94,28 @@ export interface ChipInputProps {
    * @default undefined
    */
   placeholder?: string;
-  /** Accessible name for the inner input. The control must never be unnamed.
+  /** Accessible name for the inner input. Inside a `Field` the `FieldLabel` names it; standalone,
+   * the control must never be unnamed.
    * @default undefined
    */
   "aria-label"?: string;
+  /**
+   * Submits every chip with a surrounding `<form>` under this name — one value per chip, the way
+   * a multi-select posts.
+   * @default undefined
+   */
+  name?: string;
+  /**
+   * The most chips the field accepts. At the cap, further entries are not added and the reason is
+   * announced.
+   * @default undefined
+   */
+  max?: number;
+  /**
+   * The copy announced when an entry is refused at `max`.
+   * @default (max) => `Up to ${max} entries`
+   */
+  maxLabel?: (max: number) => string;
   /**
    * Disables the field and every chip's remove button.
    * @default false
@@ -122,6 +140,7 @@ export interface ChipInputProps {
 }
 
 const defaultNormalize = (raw: string) => raw.trim();
+const defaultMaxLabel = (max: number) => `Up to ${max} entries`;
 const DEFAULT_SPLIT = /[,\n]/;
 
 /**
@@ -152,6 +171,9 @@ export function ChipInput({
   allowDuplicates = false,
   placeholder,
   "aria-label": ariaLabel,
+  name,
+  max,
+  maxLabel = defaultMaxLabel,
   disabled = false,
   className,
   ref,
@@ -202,11 +224,16 @@ export function ChipInput({
       let added = 0;
       let invalid = 0;
       let duplicates = 0;
+      let overMax = 0;
       for (const raw of raws) {
         const chip = normalize(raw);
         if (chip.length === 0) continue;
         if (!allowDuplicates && next.includes(chip)) {
           duplicates += 1;
+          continue;
+        }
+        if (max !== undefined && next.length >= max) {
+          overMax += 1;
           continue;
         }
         next.push(chip);
@@ -234,13 +261,17 @@ export function ChipInput({
             ? "1 duplicate skipped"
             : `${duplicates} duplicates skipped`,
         );
+      if (overMax > 0 && max !== undefined) parts.push(maxLabel(max));
       if (parts.length > 0) setAnnouncement(parts.join(" · "));
+      // A refused entry at the cap stays in the input, so nothing typed is lost.
       return added > 0 || duplicates > 0;
     },
     [
       chips,
       normalize,
       allowDuplicates,
+      max,
+      maxLabel,
       isInvalidChip,
       commitValue,
       setAnnouncement,
@@ -331,6 +362,17 @@ export function ChipInput({
           addEntries(parts);
         }}
       />
+      {/* DS-21: the form value — one hidden input per chip under `name`. */}
+      {name
+        ? chips.map((chip, index) => (
+            <input
+              key={`${chip}-${index}`}
+              type="hidden"
+              name={name}
+              value={chip}
+            />
+          ))
+        : null}
       {/* Static description target — separate from the live region so the
           field's description never carries stale transient announcements. */}
       <span id={describeId} className="sr-only">

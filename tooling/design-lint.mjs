@@ -471,6 +471,14 @@ const RAW_INTERACTIVE_EXEMPTIONS = new Map([
       rationale: "Textarea is the tokenized native textarea adapter",
     },
   ],
+  [
+    "registry/ui/chip-input.tsx",
+    {
+      counts: { input: 1 },
+      rationale:
+        "a type=hidden form-value bridge, one per chip, so a native <form> posts every chip under `name` (DS-21) — not interactive, and no VegaStack control carries a form value without a visible box",
+    },
+  ],
   // Batch 8 of the shadcn reset (2026-09-18) — upstream's two interactive chart blocks. The
   // control is a full-bleed CARD-HEADER CELL: a border-divided column that fills the header, two
   // stacked text lines inside it (a muted series label over a 30px figure), selected by
