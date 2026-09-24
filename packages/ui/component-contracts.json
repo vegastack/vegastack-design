@@ -10240,6 +10240,15 @@
           }
         },
         {
+          "name": "FilterBuilderLabels",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/filter-bar-managed.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
           "name": "FilterBuilderProps",
           "kind": "interface",
           "source": "packages/ui/registry/ui/filter-bar-managed.tsx",
@@ -10283,6 +10292,69 @@
             "status": "not-applicable",
             "rationale": "Type-only exports do not render or accept runtime refs."
           }
+        },
+        {
+          "name": "NumberRangeEditor",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/filter-bar-managed.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A value editor; it renders a composed control and takes no ref."
+          }
+        },
+        {
+          "name": "NumberValueEditor",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/filter-bar-managed.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A value editor; it renders a composed control and takes no ref."
+          }
+        },
+        {
+          "name": "OptionValueEditor",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/filter-bar-managed.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A value editor; it renders a composed control and takes no ref."
+          }
+        },
+        {
+          "name": "OptionsValueEditor",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/filter-bar-managed.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A value editor; it renders a composed control and takes no ref."
+          }
+        },
+        {
+          "name": "TextValueEditor",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/filter-bar-managed.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A value editor; it renders a composed control and takes no ref."
+          }
+        },
+        {
+          "name": "describeFilter",
+          "kind": "function",
+          "source": "packages/ui/registry/ui/filter-bar-managed.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A pure function; it renders nothing and takes no ref."
+          }
+        },
+        {
+          "name": "formatRange",
+          "kind": "function",
+          "source": "packages/ui/registry/ui/filter-bar-managed.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A pure function; it renders nothing and takes no ref."
+          }
         }
       ],
       "variants": {
@@ -10306,7 +10378,10 @@
             "condition-cap",
             "invalid-condition",
             "disabled",
-            "read-only-summary"
+            "read-only-summary",
+            "flat-rules",
+            "sentence-summary",
+            "row-error"
           ],
           "evidence": "Controlled tree editing with immutable path updates; caps disable the add affordances with aria-describedby reasons; missing values flag data-invalid; readOnly collapses to removable FilterChips."
         },
@@ -10338,8 +10413,9 @@
       "docsSlug": "/docs/components/filter-bar-managed",
       "registryDependencies": [
         "@vegastack/button",
-        "@vegastack/input",
         "@vegastack/filter-bar",
+        "@vegastack/input",
+        "@vegastack/number-field",
         "@vegastack/select"
       ],
       "npmDependencies": [
@@ -10358,6 +10434,15 @@
       },
       "previewModule": "filter-bar-managed",
       "dataAttributes": {
+        "NumberRangeEditor": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["filter-range-editor", "filter-range-editor-error"]
+            }
+          ],
+          "cssVariables": []
+        },
         "FilterBuilder": {
           "attributes": [
             {
@@ -10388,7 +10473,8 @@
                 "filter-builder-cap-reason",
                 "filter-builder-condition",
                 "filter-builder-condition-error",
-                "filter-builder-group"
+                "filter-builder-group",
+                "filter-builder-sentence"
               ]
             }
           ],
