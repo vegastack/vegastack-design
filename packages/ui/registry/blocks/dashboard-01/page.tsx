@@ -1,4 +1,4 @@
-// @vegastack dashboard-01@0.16.0 sha256-cRgfN5iLD3Mnbprm8qe8sm8gHr7pEgPtcCIteJwuGio=
+// @vegastack dashboard-01@0.16.1 sha256-J4cJQfr+qKiKxKOzqZyQGasT2/5jhWPHdhGecW5kGP0=
 
 import { AppSidebar } from "./components/app-sidebar";
 import { ChartAreaInteractive } from "./components/chart-area-interactive";

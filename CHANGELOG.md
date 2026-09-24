@@ -9,6 +9,19 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.16.1] — September 24, 2026
+
+<!-- assembled from 1 changeset: 23589b23684b -->
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.16.0 → 0.16.1.
+
+### 🐛 Fixed
+
+- `stepper` and `multi-step-form` keep the current-step marker (`aria-current="step"`, the step count and focus-follow) when the current step fails validation. `StepperStep` gains an optional `current` flag that marks the step current alongside an `error` or `warning` state; `MultiStepForm` sets it, so a refused step now reads as both current and in error.
+  [`cefa8f5`](https://github.com/VegaStack/vegastack-design/commit/cefa8f5)
+
 ## [0.16.0] — September 24, 2026
 
 <!-- assembled from 1 changeset: ec29b0112b73 -->
