@@ -874,7 +874,7 @@
         "whenToUse": "Choosing from a large or dynamic set that benefits from typing to narrow it down — searchable pickers, tag/label multi-select, async-loaded results.",
         "whenNotToUse": "A small, fixed set with no need to search (Select), boolean on/off (Switch), or a few always-visible options (radios/checkboxes).",
         "version": "0.18.0",
-        "integrity": "sha256-oDTyM1Yj13VQBIl8shyYNmGRMQtloTkfJpz81NGiqdA="
+        "integrity": "sha256-rUhj5QtoqyG7RNn736aWU6JpO1S/nxHHyy+J/OqZlBA="
       }
     },
     {

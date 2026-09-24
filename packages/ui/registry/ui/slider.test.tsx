@@ -221,4 +221,6 @@ fieldWiringTests({
   find: (screen, name) => screen.getByRole("slider", { name }),
   supportsId: false,
   forwardsDescribedBy: false,
+  // Base UI names the slider's role="group" root and its thumb's range input.
+  labelledCount: 2,
 });
