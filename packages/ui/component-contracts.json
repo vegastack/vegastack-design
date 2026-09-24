@@ -18366,6 +18366,15 @@
           }
         },
         {
+          "name": "MultiStepFormStepChangeDetails",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/multi-step-form.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
           "name": "MultiStepFormStepProps",
           "kind": "interface",
           "source": "packages/ui/registry/ui/multi-step-form.tsx",

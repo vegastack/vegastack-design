@@ -449,7 +449,7 @@ test("a step the flow will not admit is reported back, not silently ignored", as
   // Otherwise the host keeps believing the flow is on `review` and the disagreement only
   // surfaces later as an inexplicable jump.
   await vi.waitFor(() => {
-    expect(onStepChange).toHaveBeenCalledWith("account");
+    expect(onStepChange).toHaveBeenCalledWith("account", { replace: true });
   });
   expect(onStepChange).toHaveBeenCalledOnce();
 });
@@ -460,7 +460,7 @@ test("a controlled host that ignores the correction is not spun", async () => {
     <Wizard step="review" onStepChange={onStepChange} />,
   );
   await vi.waitFor(() => {
-    expect(onStepChange).toHaveBeenCalledWith("account");
+    expect(onStepChange).toHaveBeenCalledWith("account", { replace: true });
   });
   // The prop still says `review`; the report must not fire again on every render.
   await screen.rerender(<Wizard step="review" onStepChange={onStepChange} />);
@@ -487,7 +487,7 @@ test("jumping moves the flow, and a sealed step is never a target", async () => 
   );
   const triggers = slots(screen.container, "stepper-trigger");
   await userEvent.click(triggers[triggers.length - 1]!);
-  expect(onStepChange).toHaveBeenCalledWith("review");
+  expect(onStepChange).toHaveBeenCalledWith("review", { replace: false });
   expect(screen.container.textContent).toContain("Review body");
 });
 
@@ -848,4 +848,48 @@ test("a part rendered outside the root fails loudly rather than silently", async
   expect(screen.container.textContent).toContain(
     "MultiStepFormActions must be rendered inside <MultiStepForm>",
   );
+});
+
+/* ------------------------------------------------------- DS-76: push or replace */
+
+test("an unreachable controlled step is clamped and reported with replace (DS-76)", async () => {
+  const onStepChange = vi.fn();
+  await render(<Wizard step="review" onStepChange={onStepChange} />);
+  await vi.waitFor(() => {
+    expect(onStepChange).toHaveBeenCalledWith("account", { replace: true });
+  });
+});
+
+test("Next and Back report a push (replace: false) (DS-76)", async () => {
+  const onStepChange = vi.fn();
+  const screen = await render(
+    <Wizard
+      steps={BASIC.map((s) => ({ ...s, satisfied: true }))}
+      onStepChange={onStepChange}
+    />,
+  );
+  await userEvent.click(screen.getByRole("button", { name: /next|continue/i }));
+  await vi.waitFor(() => {
+    expect(onStepChange).toHaveBeenLastCalledWith("billing", {
+      replace: false,
+    });
+  });
+  await userEvent.click(screen.getByRole("button", { name: /back/i }));
+  await vi.waitFor(() => {
+    expect(onStepChange).toHaveBeenLastCalledWith("account", {
+      replace: false,
+    });
+  });
+});
+
+test("a one-argument handler keeps working (DS-76)", async () => {
+  const seen: string[] = [];
+  const screen = await render(
+    <Wizard
+      steps={BASIC.map((s) => ({ ...s, satisfied: true }))}
+      onStepChange={(id: string) => seen.push(id)}
+    />,
+  );
+  await userEvent.click(screen.getByRole("button", { name: /next|continue/i }));
+  await vi.waitFor(() => expect(seen.at(-1)).toBe("billing"));
 });

@@ -160,6 +160,33 @@ component can fake.
 </MultiStepForm>
 ```
 
+### Steps in the route
+
+A host that keeps the step in its route (`/products/new/pricing`) owns it: pass `step` from the
+route and navigate in `onStepChange`. The second argument says how: `replace` is `false` for Next,
+Back and a jump from the rail — push a history entry — and `true` when the form corrected the step
+itself, such as a pasted link to a step whose prerequisites are not met yet, which it clamps to the
+furthest reachable step. Replacing keeps Back from returning to a step the form refused.
+
+```tsx
+const router = useRouter();
+
+<MultiStepForm
+  steps={steps}
+  step={params.step}
+  onStepChange={(id, { replace }) =>
+    replace
+      ? router.replace(`/products/new/${id}`)
+      : router.push(`/products/new/${id}`)
+  }
+>
+  …
+</MultiStepForm>;
+```
+
+Use the controlled `step` alone for a route-driven form; `urlSync` (the `#step=` hash) and
+`persistKey` are for hosts that do not own the address.
+
 ## API Reference
 
 <ApiTable

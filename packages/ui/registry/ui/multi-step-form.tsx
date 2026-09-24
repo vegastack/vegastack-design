@@ -1,4 +1,4 @@
-// @vegastack multi-step-form@0.18.0 sha256-6PU6T5qikbQIylAOW3f9RIyJdL7XN24Ax2VbG72Z+p4=
+// @vegastack multi-step-form@0.18.0 sha256-/p0WbTNFCIviDTO+YsFaUF3Mgh/G0Rs8BRJ+LRFo9sU=
 
 "use client";
 
@@ -281,6 +281,12 @@ function writeStored(key: string, value: string): void {
   }
 }
 
+/** The second argument of `onStepChange`. */
+export interface MultiStepFormStepChangeDetails {
+  /** Replace the current history entry instead of pushing one (a correction, not a move). */
+  replace: boolean;
+}
+
 /** Props accepted by `MultiStepForm`. */
 export interface MultiStepFormProps extends Omit<
   React.ComponentPropsWithRef<"div">,
@@ -300,10 +306,14 @@ export interface MultiStepFormProps extends Omit<
    */
   defaultStep?: string;
   /**
-   * Fired whenever the current step changes, however it changed.
+   * Fired whenever the current step changes, however it changed. `details.replace` tells a
+   * route-driven host whether to push a history entry or replace the current one: it is `false`
+   * for Next, Back and a jump from the rail, and `true` when the form corrected the step itself
+   * (a requested step it will not admit, clamped to the furthest reachable one) or followed the
+   * address bar's hash. A one-argument handler keeps working.
    * @default undefined
    */
-  onStepChange?: (id: string) => void;
+  onStepChange?: (id: string, details: MultiStepFormStepChangeDetails) => void;
   /**
    * Fired when the last step's guard passes — the flow is finished.
    * @default undefined
@@ -530,9 +540,9 @@ export function MultiStepForm({
   const isLast = currentIndex === visible.length - 1;
 
   const setCurrent = React.useCallback(
-    (id: string) => {
+    (id: string, replace = false) => {
       if (controlledStep === undefined) setUncontrolledStep(id);
-      onStepChange?.(id);
+      onStepChange?.(id, { replace });
     },
     [controlledStep, onStepChange],
   );
@@ -550,7 +560,7 @@ export function MultiStepForm({
     }
     if (reported.current === resolved) return;
     reported.current = resolved;
-    setCurrent(resolved);
+    setCurrent(resolved, true);
   }, [current?.id, requested, setCurrent]);
 
   /* ---------------------------------------------------------------- resume */
@@ -596,7 +606,8 @@ export function MultiStepForm({
     if (!urlSync) return;
     const onHashChange = () => {
       const fromHash = readHash();
-      if (fromHash) setCurrent(fromHash);
+      // The address bar already moved; the host records nothing new.
+      if (fromHash) setCurrent(fromHash, true);
     };
     window.addEventListener("hashchange", onHashChange);
     return () => window.removeEventListener("hashchange", onHashChange);
