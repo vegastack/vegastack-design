@@ -265,4 +265,9 @@ fieldWiringTests({
   ),
   find: (screen, name) => screen.getByRole("radiogroup", { name }),
   idCheck: "control",
+  // A RadioGroup placed directly in a labelled Field hands the Field's label to every radio item
+  // too (Base UI's labelable context reaches the items). Upstream's own pattern gives each item
+  // its own Field and FieldLabel, where the nearest Field names each item correctly. The
+  // group-in-a-Field case is a follow-up, not this check.
+  labelledCount: null,
 });

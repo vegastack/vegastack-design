@@ -618,3 +618,48 @@ fieldWiringTests({
   ),
   find: (screen, name) => screen.getByRole("combobox", { name }),
 });
+
+test("API-26: inside a Field the suggestions toggle keeps its own name", async () => {
+  const screen = await render(
+    <Field>
+      <FieldLabel>Customer</FieldLabel>
+      <FieldFramework />
+    </Field>,
+  );
+  await expect
+    .element(screen.getByRole("button", { name: "Show suggestions" }))
+    .toBeInTheDocument();
+  expect(
+    screen.getByLabelText("Customer", { exact: true }).elements(),
+  ).toHaveLength(1);
+  const toggle = screen.container.querySelector(
+    '[data-slot="input-group-button"]',
+  )!;
+  expect(toggle.hasAttribute("aria-labelledby")).toBe(false);
+});
+
+test("API-26: with a clear control, still one element named by the Field", async () => {
+  const screen = await render(
+    <Field>
+      <FieldLabel>Customer</FieldLabel>
+      <Combobox items={frameworks} defaultValue="Remix">
+        <ComboboxInput showClear />
+        <ComboboxContent>
+          <ComboboxList>
+            {(item: string) => (
+              <ComboboxItem key={item} value={item}>
+                {item}
+              </ComboboxItem>
+            )}
+          </ComboboxList>
+        </ComboboxContent>
+      </Combobox>
+    </Field>,
+  );
+  expect(
+    screen.getByLabelText("Customer", { exact: true }).elements(),
+  ).toHaveLength(1);
+  await expect
+    .element(screen.getByRole("button", { name: "Clear selection" }))
+    .toBeInTheDocument();
+});

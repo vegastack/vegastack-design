@@ -1,4 +1,4 @@
-// @vegastack combobox@0.18.0 sha256-oDTyM1Yj13VQBIl8shyYNmGRMQtloTkfJpz81NGiqdA=
+// @vegastack combobox@0.18.0 sha256-rUhj5QtoqyG7RNn736aWU6JpO1S/nxHHyy+J/OqZlBA=
 
 "use client";
 
@@ -82,6 +82,14 @@ function ComboboxInput({
             variant="ghost"
             render={<ComboboxTrigger />}
             aria-label="Show suggestions"
+            /*
+             * API-26: inside a `Field`, Base UI hands the Field label's id to `Combobox.Trigger`
+             * as `aria-labelledby`, which outranks `aria-label` — so this secondary toggle took
+             * the field's name and a second element answered to it. The input is the one control
+             * the Field names; the toggle keeps its own name. An explicit `undefined` wins Base
+             * UI's prop merge.
+             */
+            aria-labelledby={undefined}
             data-slot="input-group-button"
             className="group-has-data-[slot=combobox-clear]/input-group:hidden data-pressed:bg-transparent"
             disabled={disabled}

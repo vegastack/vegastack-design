@@ -42,6 +42,7 @@ export function fieldWiringTests({
   supportsId = true,
   forwardsDescribedBy = true,
   idCheck = "label-for",
+  labelledCount = 1,
 }: {
   /** Shown in the test titles. */
   name: string;
@@ -62,6 +63,12 @@ export function fieldWiringTests({
    * `aria-labelledby`, so its id is checked on the group itself.
    */
   idCheck?: "label-for" | "control";
+  /**
+   * How many accessibility-exposed elements the Field's label names. One for every control but
+   * the Slider, where Base UI names both the `role="group"` root and its thumb's range input.
+   * `null` skips the check (see the RadioGroup suite for why).
+   */
+  labelledCount?: number | null;
 }) {
   function Wired({
     invalid,
@@ -94,6 +101,23 @@ export function fieldWiringTests({
     await expect.element(control).toHaveAccessibleDescription(/Helper text/);
     await expect.element(control).toHaveAccessibleDescription(/Error text/);
   });
+
+  test.runIf(labelledCount !== null)(
+    `API-26 (${name}): only the control answers to the Field's label`,
+    async () => {
+      const screen = await render(<Wired invalid={false} />);
+      await expect.element(find(screen, "Wired control")).toBeInTheDocument();
+      // A secondary control (a toggle, a clear, a stepper) keeps its own name: a second element
+      // named by the Field would be a second "Wired control" to a screen reader, and breaks a
+      // consumer's `getByLabel`. Base UI's aria-hidden native inputs (Checkbox, Switch) are
+      // not exposed to assistive technology and are not counted.
+      const named = screen
+        .getByLabelText("Wired control", { exact: true })
+        .elements()
+        .filter((element) => !element.closest('[aria-hidden="true"]'));
+      expect(named).toHaveLength(labelledCount!);
+    },
+  );
 
   test(`API-26 (${name}): message ids are described only while rendered, and aria-invalid follows data-invalid`, async () => {
     const screen = await render(<Wired invalid />);
