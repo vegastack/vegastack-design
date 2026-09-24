@@ -19760,7 +19760,8 @@
             "error",
             "invalid",
             "pressed",
-            "read-only"
+            "read-only",
+            "markdown"
           ],
           "evidence": "Observed from branches, state attributes, and inline source contract."
         },
@@ -19811,6 +19812,7 @@
         "@base-ui/react@^1.6.0",
         "@tiptap/react@^3",
         "@tiptap/starter-kit@^3",
+        "@tiptap/markdown@^3",
         "@tiptap/pm@^3",
         "lucide-react@^1.47.0",
         "@vegastack/design@^0.7.4",
@@ -19829,6 +19831,10 @@
       "dataAttributes": {
         "TextEdit": {
           "attributes": [
+            {
+              "name": "data-disabled",
+              "values": [""]
+            },
             {
               "name": "data-editable",
               "values": [""]

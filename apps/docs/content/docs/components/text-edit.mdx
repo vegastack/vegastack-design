@@ -97,11 +97,26 @@ types here and what the app renders from markdown are one typography.
 
 ### Editing patterns
 
-An empty editor with a placeholder, and a read-only editor (toolbar hidden) for rendering stored
-content.
+An empty editor with a placeholder, a `readOnly` editor (no toolbar, `aria-readonly`) for rendering
+stored content, and a `disabled` one (no toolbar, dimmed, `aria-disabled`). `editable={false}` still
+works and means `readOnly`.
 
 <ComponentPreview
   name="textEditStates"
+  file="components/preview/text-edit.tsx"
+/>
+
+### Markdown
+
+`format="markdown"` makes `value`, `defaultValue`, `onValueChange` and `onSubmit` carry Markdown
+instead of HTML, through Tiptap's own `@tiptap/markdown` extension: headings, bold, italic,
+strikethrough, links, bullet and ordered lists, blockquotes and code round-trip unchanged. Loading a
+document never fires `onValueChange`; only an edit does. Store what the editor emits and render it
+elsewhere with [`MarkdownView`](/docs/components/markdown-view). The format is read once, when the
+editor is created.
+
+<ComponentPreview
+  name="textEditMarkdown"
   file="components/preview/text-edit.tsx"
 />
 
