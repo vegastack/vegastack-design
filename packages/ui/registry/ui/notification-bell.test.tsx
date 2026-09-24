@@ -243,8 +243,8 @@ test("NotificationDot is a decorative primary dot by default", async () => {
   expect(dot.textContent).toBe("");
 });
 
-test('NotificationDot tone="destructive" is the destructive fill', async () => {
-  const screen = await render(<NotificationDot tone="destructive" />);
+test('NotificationDot intent="destructive" is the destructive fill', async () => {
+  const screen = await render(<NotificationDot intent="destructive" />);
   const dot = screen.container.querySelector<HTMLElement>(
     '[data-slot="notification-bell-dot"]',
   )!;
@@ -292,7 +292,7 @@ test("no a11y violations — dot mode and a standalone dot", async () => {
     <div>
       <NotificationBell count={4} dot />
       <p>
-        Design review <NotificationDot tone="destructive" />
+        Design review <NotificationDot intent="destructive" />
       </p>
     </div>,
   );

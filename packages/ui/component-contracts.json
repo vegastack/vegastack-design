@@ -13089,9 +13089,9 @@
         "status": "observed",
         "dimensions": [
           {
-            "name": "tone",
+            "name": "intent",
             "values": ["default", "destructive"],
-            "evidence": "packages/ui/registry/ui/notification-bell.tsx: NotificationDotProps tone union (default | destructive); default is bg-primary, destructive is bg-destructive"
+            "evidence": "packages/ui/registry/ui/notification-bell.tsx: NotificationDotProps intent union (API-17) (default | destructive); default is bg-primary, destructive is bg-destructive"
           }
         ]
       },
@@ -13113,7 +13113,12 @@
         },
         "visual": {
           "status": "observed",
-          "values": ["default", "error", "dot-default", "dot-destructive"],
+          "values": [
+            "default",
+            "error",
+            "dot-intent-default",
+            "dot-intent-destructive"
+          ],
           "evidence": "Observed from token classes, state selectors, or visual branches."
         }
       },

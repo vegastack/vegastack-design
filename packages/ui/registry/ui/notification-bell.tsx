@@ -1,4 +1,4 @@
-// @vegastack notification-bell@0.18.0 sha256-6PjdTpCg4koMxGIRxxZ+pklkQ6hqzjoeQHPvZnQ0O+w=
+// @vegastack notification-bell@0.18.0 sha256-QslbQWckqI+dTXOj228ZwGXnmYPQ8nxiAUReR1Puh5A=
 
 "use client";
 
@@ -82,7 +82,7 @@ export interface NotificationDotProps extends Omit<
    * nav item; `destructive` is for something that needs attention.
    * @default "default"
    */
-  tone?: "default" | "destructive";
+  intent?: "default" | "destructive";
   /**
    * Classes merged onto the dot.
    * @default undefined
@@ -105,7 +105,7 @@ export interface NotificationDotProps extends Omit<
  * </ItemTitle>
  */
 export function NotificationDot({
-  tone = "default",
+  intent = "default",
   className,
   ...props
 }: NotificationDotProps) {
@@ -115,7 +115,7 @@ export function NotificationDot({
       aria-hidden="true"
       className={cn(
         "inline-block size-2 shrink-0 rounded-full",
-        tone === "destructive" ? "bg-destructive" : "bg-primary",
+        intent === "destructive" ? "bg-destructive" : "bg-primary",
         className,
       )}
       {...props}
@@ -207,7 +207,7 @@ export function NotificationBell({
         dot ? (
           // Dot mode is the shared `NotificationDot` — solid, never a tint, because it carries no
           // text (the 3:1 non-text floor applies, and a tinted 8px dot is invisible). The count
-          // pill below is a tint because it carries a number (A11Y-13). The dot's default tone is
+          // pill below is a tint because it carries a number (A11Y-13). The dot's default intent is
           // the primary ink (DS-56); an unread marker is not an error.
           <NotificationDot
             className={cn(

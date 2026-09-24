@@ -94,7 +94,7 @@ export function notificationBellDot(): ReactNode {
             </span>
             {thread.unread ? (
               <NotificationDot
-                tone={thread.attention ? "destructive" : "default"}
+                intent={thread.attention ? "destructive" : "default"}
               />
             ) : null}
           </li>
