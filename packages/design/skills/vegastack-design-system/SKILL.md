@@ -212,11 +212,12 @@ contract.
 
 ## Composition patterns
 
-- **Forms are composed, not configured** — `Field` is layout and copy: `FieldLabel` bound with
-  `htmlFor`, the control, then `FieldDescription` and `FieldError` as CHILDREN. There is no `label`,
-  `description` or `error` prop, and no context that reaches into the control. State is written where
-  it belongs: `aria-invalid` on the control (for assistive tech), `data-invalid` / `data-disabled` on
-  the `Field` (for the block's styling). `FieldError` is `role="alert"`, carries a leading icon so an
+- **Forms are composed, not configured** — `Field` is layout and copy: `FieldLabel`, the control,
+  then `FieldDescription` and `FieldError` as CHILDREN. There is no `label`, `description` or `error`
+  prop. `Field` wires the control through Base UI Field — the label's `for`, the description and
+  error ids in `aria-describedby`, and `aria-invalid` from the Field's `data-invalid` — so pass ids
+  only to override; an explicit `aria-*` prop on the control merges with the Field's, it does not
+  replace it. Write `data-invalid` / `data-disabled` on the `Field`, not by hand on the control. `FieldError` is `role="alert"`, carries a leading icon so an
   error is never colour alone, and takes either children or an `errors` array it de-duplicates.
   react-hook-form's `register` wires straight to the control; there is no `Controller` indirection.
 - **A set of related checkboxes is a `FieldSet` + `FieldLegend` + one `Field` per option** — that is

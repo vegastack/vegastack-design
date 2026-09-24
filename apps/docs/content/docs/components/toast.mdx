@@ -71,6 +71,20 @@ const id = toast.add({
 
 <ComponentPreview name="toastAction" file="components/preview/toast.tsx" />
 
+One action, one toast. When the same action repeats while its toast is still up — a second "Task
+done" before the first times out — rewrite the live toast with `toast.update(id, …)` instead of
+stacking another; every `toast.add` in the app lands in the one queue, so a stack of copies is what
+the user would see.
+
+```tsx
+const id = toast.add({
+  title: "Task done",
+  actionProps: { children: "Undo", onClick: () => undo(taskId) },
+});
+// The same action again while it is showing:
+toast.update(id, { title: "2 tasks done" });
+```
+
 ### Promise
 
 `toast.promise` drives one toast through loading, success and error rather than firing three. Each
