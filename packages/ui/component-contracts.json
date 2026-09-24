@@ -25739,7 +25739,7 @@
       "name": "login-01",
       "registryType": "registry:block",
       "title": "Login 01",
-      "summary": "A simple login form.",
+      "summary": "A sign-in page: email and password with a field error each, a forgot-password link, and an alert after a rejected sign-in.",
       "family": "auth-block",
       "wave": "Block",
       "sourceFiles": [
@@ -25748,12 +25748,30 @@
       ],
       "publicSymbols": [
         {
+          "name": "LoginCredentials",
+          "kind": "interface",
+          "source": "packages/ui/registry/blocks/login-01/components/login-form.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
           "name": "LoginForm",
           "kind": "component",
           "source": "packages/ui/registry/blocks/login-01/components/login-form.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "A block part is a composition, not an API: LoginForm forwards no ref of its own, and its internals are not part of any published surface."
+            "rationale": "A block part is a composition, not an API: LoginForm forwards no ref of its own; its inputs' refs are internal, used to focus the first invalid field."
+          }
+        },
+        {
+          "name": "LoginFormProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/blocks/login-01/components/login-form.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -25779,8 +25797,8 @@
       "states": {
         "behavior": {
           "status": "observed",
-          "values": ["default"],
-          "evidence": "Observed from the block's own branches and the state its parts carry."
+          "values": ["default", "invalid", "loading", "error"],
+          "evidence": "packages/ui/registry/blocks/login-01/login-01.test.tsx — rest, a FieldError per empty or malformed field with focus on the first, the submit's in-place loading, and the form-level alert after a rejected sign-in."
         },
         "accessibility": {
           "status": "covered",
@@ -25789,8 +25807,15 @@
         },
         "visual": {
           "status": "observed",
-          "values": ["default", "hover", "focus"],
-          "evidence": "Observed from the token classes the composition carries."
+          "values": [
+            "default",
+            "hover",
+            "focus",
+            "invalid",
+            "loading",
+            "error"
+          ],
+          "evidence": "Observed from the token classes the composition carries; the invalid and error inks are measured on compiled CSS in both themes by packages/ui/test/contrast.browser.test.tsx."
         }
       },
       "responsive": {
@@ -25809,14 +25834,17 @@
       "engines": [],
       "docsSlug": "/docs/blocks/login-01",
       "registryDependencies": [
+        "@vegastack/alert",
         "@vegastack/button",
         "@vegastack/card",
         "@vegastack/field",
-        "@vegastack/input"
+        "@vegastack/input",
+        "@vegastack/password-input"
       ],
       "npmDependencies": [
         "@vegastack/design@^0.7.5",
-        "@vegastack/design-tokens@^0.7.1"
+        "@vegastack/design-tokens@^0.7.1",
+        "lucide-react@^1.47.0"
       ],
       "testFiles": ["packages/ui/registry/blocks/login-01/login-01.test.tsx"],
       "coverage": {

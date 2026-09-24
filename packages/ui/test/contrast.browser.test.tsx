@@ -41,6 +41,8 @@ import {
   AttachmentMedia,
   AttachmentTitle,
 } from "../registry/ui/attachment";
+import Login01Page from "../registry/blocks/login-01/page";
+import { LoginForm } from "../registry/blocks/login-01/components/login-form";
 
 /**
  * Rendered color-contrast a11y gate (Codex R3 HIGH-2/HIGH-3). Unlike the per-component unit a11y
@@ -875,4 +877,85 @@ for (const theme of ["light", "dark"] as const) {
       expect(ratio).toBeGreaterThanOrEqual(4.5);
     });
   }
+}
+
+// login-01 (DS-79, decision D6). A block's unit test runs unstyled and so skips `color-contrast`
+// (test/a11y.ts); this is its compiled compensating case, in both themes and in each state that
+// changes ink: rest, the invalid fields (`text-destructive-text` FieldErrors and invalid borders),
+// and the rejected sign-in's destructive `Alert` on the card. `contrast.css` scans
+// `../registry/blocks/**` so a block's own utilities compile here. Measured 2026-09-24, every
+// utility login-01 wears is also worn by some `registry/ui` component, so that `@source` adds no rule
+// for it yet; it is there for the next block that does not. The page-root min-height probe is a
+// compiled-CSS sentinel, so the audit never runs over an unstyled page. The loading probe measures,
+// on compiled CSS, that the submit button keeps its width while it signs in (the unit lane cannot: without CSS the spinner
+// overlay is not absolutely positioned).
+for (const theme of ["light", "dark"] as const) {
+  test(`login-01 color-contrast passes WCAG AA in every state — ${theme} theme`, async () => {
+    const screen = await render(
+      <div
+        className={`${theme === "dark" ? "dark " : ""}bg-background text-foreground`}
+      >
+        <Login01Page />
+      </div>,
+    );
+    // The block page's own root: wrapper div › page root.
+    const root = screen.container.firstElementChild!
+      .firstElementChild as HTMLElement;
+    await expect
+      .poll(() => Number.parseFloat(getComputedStyle(root).minHeight))
+      .toBeGreaterThan(0);
+    const failures: string[] = [];
+    const audit = async (state: string) => {
+      const violations = await contrastViolations(screen.container);
+      if (violations.length)
+        failures.push(`${state}: ${violations.join("; ")}`);
+    };
+    await audit("rest");
+
+    await screen.getByRole("button", { name: "Sign in" }).click();
+    await expect
+      .element(screen.getByLabelText("Email"))
+      .toHaveAttribute("aria-invalid", "true");
+    await audit("invalid");
+    expect(
+      failures,
+      `login-01 color-contrast failures (${theme}):\n  ${failures.join("\n  ")}`,
+    ).toEqual([]);
+  });
+
+  test(`login-01 rejected sign-in alert passes WCAG AA and the submit keeps its width — ${theme} theme`, async () => {
+    let reject: (error: Error) => void = () => {};
+    const screen = await render(
+      <div
+        className={`${theme === "dark" ? "dark " : ""}bg-background p-6 text-foreground`}
+      >
+        <LoginForm
+          signIn={() =>
+            new Promise<void>((_, fail) => {
+              reject = fail;
+            })
+          }
+        />
+      </div>,
+    );
+    const submit = screen.getByRole("button", { name: "Sign in" });
+    const restWidth = submit.element().getBoundingClientRect().width;
+    await screen.getByLabelText("Email").fill("ada@example.com");
+    await screen.getByLabelText("Password").fill("correct horse");
+    await submit.click();
+    await expect.element(submit).toHaveAttribute("aria-busy", "true");
+    expect(submit.element().getBoundingClientRect().width).toBe(restWidth);
+
+    reject(
+      new Error(
+        "The email or password is incorrect. Check both and try again.",
+      ),
+    );
+    await expect.element(screen.getByRole("alert")).toBeInTheDocument();
+    const violations = await contrastViolations(screen.container);
+    expect(
+      violations,
+      `login-01 alert color-contrast failures (${theme}):\n  ${violations.join("\n  ")}`,
+    ).toEqual([]);
+  });
 }
