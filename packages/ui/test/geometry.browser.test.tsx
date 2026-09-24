@@ -236,6 +236,7 @@ const DYNAMIC_DOM: Record<string, string> = {
   textEditStates: ".tiptap[contenteditable]",
   textEditInvalid: ".tiptap[contenteditable]",
   textEditSubmit: ".tiptap[contenteditable]",
+  textEditMarkdown: ".tiptap[contenteditable]",
   textEditHeights: ".tiptap[contenteditable]",
   textEditInsideField: ".tiptap[contenteditable]",
 };

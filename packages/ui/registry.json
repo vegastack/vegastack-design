@@ -13110,6 +13110,7 @@
         "@base-ui/react@^1.6.0",
         "@tiptap/react@^3",
         "@tiptap/starter-kit@^3",
+        "@tiptap/markdown@^3",
         "@tiptap/pm@^3",
         "lucide-react@^1.47.0",
         "@vegastack/design@^0.7.4",
@@ -13124,7 +13125,7 @@
         }
       ],
       "meta": {
-        "whenToUse": "Short-to-medium rich text — comments, descriptions, release notes — via controlled HTML.",
+        "whenToUse": "Short-to-medium rich text — comments, descriptions, release notes — stored as HTML or Markdown (format=\"markdown\"), editable, read-only or disabled.",
         "whenNotToUse": "Plain single-line input (Input) or collaborative real-time docs (deferred text-edit-collab).",
         "version": "0.18.0"
       }

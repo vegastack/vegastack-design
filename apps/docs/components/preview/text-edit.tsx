@@ -52,10 +52,34 @@ export function textEditStates(): ReactNode {
         aria-label="Empty editor"
       />
       <TextEdit
-        editable={false}
+        readOnly
         value="<h2>Read-only</h2><ul><li>Renders rich text without a toolbar.</li><li>Useful for previews and comments.</li></ul>"
         aria-label="Read-only editor"
       />
+      <TextEdit
+        disabled
+        value="<p>Disabled: no toolbar, dimmed, and announced as unavailable.</p>"
+        aria-label="Disabled editor"
+      />
+    </Wrapper>
+  );
+}
+
+export function textEditMarkdown(): ReactNode {
+  const [markdown, setMarkdown] = useState(
+    "## Release notes\n\n- **Faster** search\n- A new [changelog](https://design.vegastack.com/docs/changelog)",
+  );
+  return (
+    <Wrapper className="flex-col items-stretch">
+      <TextEdit
+        format="markdown"
+        value={markdown}
+        onValueChange={setMarkdown}
+        aria-label="Release notes"
+      />
+      <pre className="min-w-0 overflow-x-auto rounded-md bg-muted p-3 font-mono text-xs break-all whitespace-pre-wrap">
+        {markdown}
+      </pre>
     </Wrapper>
   );
 }

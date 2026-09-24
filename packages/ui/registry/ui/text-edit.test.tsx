@@ -477,3 +477,126 @@ fieldWiringTests({
   render: (props) => <TextEdit {...props} />,
   find: (screen, name) => screen.getByRole("textbox", { name }),
 });
+
+// ---- DS-48: Markdown format, readOnly, disabled ---------------------------------------------
+
+const markdownFixtures: [string, string][] = [
+  ["a paragraph", "Plain words in a paragraph."],
+  ["two paragraphs", "First paragraph.\n\nSecond paragraph."],
+  ["a heading", "## Summary\n\nBody text."],
+  ["bold and italic", "Some **bold** and *italic* text."],
+  ["a bullet list", "- Apples\n- Pears\n- Plums"],
+  ["an ordered list", "1. One\n2. Two\n3. Three"],
+  ["a link", "See [the spec](https://example.com/spec) for details."],
+];
+
+test.each(markdownFixtures)(
+  "Markdown: %s loads without an update and round-trips unchanged after an edit",
+  async (_name, md) => {
+    const onValueChange = vi.fn();
+    const screen = await render(
+      <TextEdit
+        format="markdown"
+        defaultValue={md}
+        onValueChange={onValueChange}
+        aria-label="Summary"
+      />,
+    );
+    const box = screen.getByRole("textbox", { name: "Summary" });
+    await expect.element(box).toBeInTheDocument();
+    expect(onValueChange).not.toHaveBeenCalled();
+    await box.click();
+    await userEvent.keyboard("{Control>}{End}{/Control}x");
+    await userEvent.keyboard("{Backspace}");
+    await vi.waitFor(() => {
+      expect(onValueChange).toHaveBeenCalled();
+      expect(onValueChange.mock.calls.at(-1)?.[0]).toBe(md);
+    });
+  },
+);
+
+test("Markdown: the document renders as rich text, not as source", async () => {
+  const screen = await render(
+    <TextEdit
+      format="markdown"
+      defaultValue={"## Summary\n\nSome **bold** text."}
+      aria-label="Summary"
+    />,
+  );
+  const box = screen.getByRole("textbox", { name: "Summary" }).element();
+  await vi.waitFor(() => {
+    expect(box.querySelector("h2")?.textContent).toBe("Summary");
+    expect(box.querySelector("strong")?.textContent).toBe("bold");
+  });
+  expect(box.textContent).not.toContain("**");
+});
+
+test("Markdown: typing emits Markdown via onValueChange", async () => {
+  const onValueChange = vi.fn();
+  const screen = await render(
+    <TextEdit
+      format="markdown"
+      defaultValue="Hello"
+      onValueChange={onValueChange}
+      aria-label="Summary"
+    />,
+  );
+  const box = screen.getByRole("textbox", { name: "Summary" });
+  await box.click();
+  await userEvent.keyboard("{Control>}{End}{/Control} there");
+  await vi.waitFor(() => {
+    expect(onValueChange.mock.calls.at(-1)?.[0]).toBe("Hello there");
+  });
+});
+
+test("Markdown: a controlled value is applied as Markdown", async () => {
+  const screen = await render(
+    <TextEdit format="markdown" value="First" aria-label="Summary" />,
+  );
+  await screen.rerender(
+    <TextEdit format="markdown" value="*Second*" aria-label="Summary" />,
+  );
+  const box = screen.getByRole("textbox", { name: "Summary" }).element();
+  await vi.waitFor(() => {
+    expect(box.querySelector("em")?.textContent).toBe("Second");
+  });
+});
+
+test("readOnly hides the toolbar and marks the surface read-only", async () => {
+  const screen = await render(
+    <TextEdit defaultValue="<p>Fixed</p>" readOnly aria-label="Body" />,
+  );
+  const box = screen.getByRole("textbox", { name: "Body" });
+  await expect.element(box).toHaveAttribute("contenteditable", "false");
+  await expect.element(box).toHaveAttribute("aria-readonly", "true");
+  expect(screen.container.querySelector('[role="toolbar"]')).toBeNull();
+  await expectNoA11yViolations(screen.container);
+});
+
+test("disabled hides the toolbar and marks the editor disabled", async () => {
+  const screen = await render(
+    <TextEdit defaultValue="<p>Locked</p>" disabled aria-label="Body" />,
+  );
+  const box = screen.getByRole("textbox", { name: "Body" });
+  await expect.element(box).toHaveAttribute("contenteditable", "false");
+  await expect.element(box).toHaveAttribute("aria-disabled", "true");
+  const root = screen.container.querySelector('[data-slot="text-edit"]');
+  expect(root).toHaveAttribute("data-disabled", "");
+  expect(root).not.toHaveAttribute("data-editable");
+  expect(screen.container.querySelector('[role="toolbar"]')).toBeNull();
+  await expectNoA11yViolations(screen.container);
+});
+
+test("no a11y violations — Markdown, editable", async () => {
+  const screen = await render(
+    <TextEdit
+      format="markdown"
+      defaultValue={"## Notes\n\n- One\n- Two"}
+      aria-label="Notes"
+    />,
+  );
+  await expect
+    .element(screen.getByRole("textbox", { name: "Notes" }))
+    .toBeInTheDocument();
+  await expectNoA11yViolations(screen.container);
+});

@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.18.0 sha256-o7UO7tKVxH46aRP8FHLVi7wgYaNAtpy5L00Wpss/T4Q=
+// @vegastack text-edit@0.18.0 sha256-6i1JqtBmAl2cahJ/moO5+HLL1ee+GO2FgU83UBZZ2lU=
 
 "use client";
 
@@ -10,6 +10,7 @@ import {
   type Editor,
 } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
+import { Markdown } from "@tiptap/markdown";
 import { Field as FieldPrimitive } from "@base-ui/react/field";
 import {
   Bold,
@@ -314,7 +315,14 @@ function FieldControlBridge({
 /** Props accepted by `TextEdit`. */
 export interface TextEditProps {
   /**
-   * Controlled HTML value. When provided, the editor is synced to this string
+   * What `value`, `defaultValue` and `onValueChange` carry: HTML, or Markdown
+   * (CommonMark + GFM strikethrough, through `@tiptap/markdown`). Fixed for the
+   * editor's life — it is read when the editor is created.
+   * @default "html"
+   */
+  format?: "html" | "markdown";
+  /**
+   * Controlled value (HTML, or Markdown with `format="markdown"`). When provided, the editor is synced to this string
    * whenever it changes externally (and the editor isn't focused). Pair with
    * `onValueChange` to drive it from React state.
 
@@ -328,11 +336,12 @@ export interface TextEditProps {
    */
   defaultValue?: string;
   /**
-   * Called with the serialized HTML whenever the document changes.
+   * Called with the serialized document (HTML, or Markdown with
+   * `format="markdown"`) whenever it changes.
 
    * @default undefined
    */
-  onValueChange?: (html: string) => void;
+  onValueChange?: (value: string) => void;
   /**
    * Placeholder shown (overlaid) while the document is empty.
 
@@ -340,8 +349,20 @@ export interface TextEditProps {
    */
   placeholder?: string;
   /**
-   * Whether the content is editable. When `false`, renders read-only rich text
-   * and disables the toolbar.
+   * Render the document without letting it be edited: no toolbar, and the
+   * surface reports `aria-readonly`. It stays readable and selectable.
+   * @default false
+   */
+  readOnly?: boolean;
+  /**
+   * Disable the editor: no toolbar, the surface reports `aria-disabled`, and the
+   * root carries `data-disabled` and dims.
+   * @default false
+   */
+  disabled?: boolean;
+  /**
+   * Whether the content is editable.
+   * @deprecated Use `readOnly` (or `disabled`). `editable={false}` is `readOnly`.
    * @default true
    */
   editable?: boolean;
@@ -353,7 +374,7 @@ export interface TextEditProps {
 
    * @default undefined
    */
-  onSubmit?: (html: string) => void;
+  onSubmit?: (value: string) => void;
   /**
    * Minimum height of the editable content area. A number is treated as `px`;
    * a string is used verbatim (e.g. `'8rem'`). Fed from this runtime value into
@@ -462,11 +483,14 @@ export interface TextEditProps {
  * <TextEdit onValueChange={setHtml} onSubmit={save} minHeight={120} maxHeight={320} />
  */
 export function TextEdit({
+  format = "html",
   value,
   defaultValue = "",
   onValueChange,
   placeholder,
-  editable = true,
+  readOnly = false,
+  disabled = false,
+  editable: editableProp = true,
   onSubmit,
   minHeight,
   maxHeight,
@@ -478,6 +502,16 @@ export function TextEdit({
   className,
   ref,
 }: TextEditProps) {
+  const editable = editableProp && !readOnly && !disabled;
+  // The serialization the host asked for, fixed when the editor is created (the extension set
+  // and the parser are chosen once), so a later `format` change cannot half-apply.
+  const [markdown] = React.useState(format === "markdown");
+  const serialize = React.useCallback(
+    // Trailing blank lines carry nothing in Markdown; the serializer leaves two after a list.
+    (ed: Editor) => (markdown ? ed.getMarkdown().trimEnd() : ed.getHTML()),
+    [markdown],
+  );
+
   const onValueChangeRef = React.useRef(onValueChange);
   React.useEffect(() => {
     onValueChangeRef.current = onValueChange;
@@ -515,8 +549,12 @@ export function TextEdit({
         : {}),
       role: "textbox",
       "aria-multiline": "true",
+      ...(disabled ? { "aria-disabled": "true" } : {}),
+      ...(!disabled && !editable ? { "aria-readonly": "true" } : {}),
     }),
     [
+      disabled,
+      editable,
       resolvedDescribedBy,
       ariaInvalidAttribute,
       ariaLabel,
@@ -526,8 +564,9 @@ export function TextEdit({
   );
 
   const editor = useEditor({
-    extensions: [StarterKit],
+    extensions: markdown ? [StarterKit, Markdown] : [StarterKit],
     content: value ?? defaultValue,
+    ...(markdown ? { contentType: "markdown" as const } : {}),
     editable,
     // Avoid SSR hydration mismatch — the contenteditable mounts on the client.
     immediatelyRender: false,
@@ -542,14 +581,16 @@ export function TextEdit({
           onSubmitRef.current
         ) {
           event.preventDefault();
-          onSubmitRef.current(editorRef.current?.getHTML() ?? "");
+          onSubmitRef.current(
+            editorRef.current ? serialize(editorRef.current) : "",
+          );
           return true;
         }
         return false;
       },
     },
     onUpdate: ({ editor: ed }) => {
-      onValueChangeRef.current?.(ed.getHTML());
+      onValueChangeRef.current?.(serialize(ed));
     },
   });
 
@@ -583,10 +624,16 @@ export function TextEdit({
   // The `emitUpdate: false` guard is what breaks the setContent → onUpdate →
   // onValueChange → value sync loop; we still bail when content already matches so identical
   // values never touch the document/selection.
-  const applyValue = React.useCallback((ed: Editor, html: string) => {
-    if (ed.getHTML() === html) return;
-    ed.commands.setContent(html, { emitUpdate: false });
-  }, []);
+  const applyValue = React.useCallback(
+    (ed: Editor, next: string) => {
+      if (serialize(ed) === next) return;
+      ed.commands.setContent(next, {
+        emitUpdate: false,
+        ...(markdown ? { contentType: "markdown" as const } : {}),
+      });
+    },
+    [markdown, serialize],
+  );
 
   // Sync a controlled `value` in when it changes externally. While the user is
   // actively editing we must NOT replace the document (it would clobber their
@@ -660,6 +707,7 @@ export function TextEdit({
       ref={ref}
       data-slot="text-edit"
       data-editable={editable ? "" : undefined}
+      data-disabled={disabled ? "" : undefined}
       data-invalid={invalid ? "" : undefined}
       className={cn(
         "relative overflow-hidden rounded-lg border border-input bg-background",
@@ -669,6 +717,7 @@ export function TextEdit({
         // container border is the editor's whole focus affordance and the invalid tint must
         // stand down while it holds focus rather than win the cascade.
         "not-focus-within:has-aria-invalid:border-destructive/70",
+        disabled && "opacity-50",
         className,
       )}
     >
