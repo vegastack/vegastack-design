@@ -234,6 +234,7 @@ export function filterBarManagedConditionRules(): ReactNode {
         value={tree}
         onValueChange={setTree}
         allowGroups={false}
+        fieldPicker="searchable"
         prefix="Required when"
         labels={{ addCondition: "Add rule", remove: (l) => `Remove ${l} rule` }}
         conditionError={(c) =>

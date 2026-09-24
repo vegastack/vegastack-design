@@ -1,4 +1,4 @@
-// @vegastack command-search-01@0.20.0 sha256-wlflkcS11d3GdasYSIv7MdSu8gd1YkSlV2AfhGS51zs=
+// @vegastack command-search-01@0.20.0 sha256-k/Xrfebo6yZjziWcV7qtXBPSBQIUau8g35qUXXwhXiA=
 
 /**
  * A stand-in for the host's search API: an in-memory index, a short delay, and the abort signal
@@ -45,11 +45,39 @@ export const INDEX: SearchResult[] = [
     href: "/products/p7",
   },
   {
+    id: "f3",
+    type: "family",
+    title: "Skyline pendant family",
+    description: "Family · Lighting · 8 products",
+    href: "/families/f3",
+  },
+  {
+    id: "a14",
+    type: "accessory",
+    title: "Skyline ceiling canopy",
+    description: "Accessory · Used by 3 products",
+    href: "/accessories/a14",
+  },
+  {
     id: "c1",
     type: "customer",
     title: "Skyline Hotels",
     description: "Customer · Austin · 6 projects",
     href: "/customers/c1",
+  },
+  {
+    id: "pr5",
+    type: "project",
+    title: "Skyline Austin lobby refit",
+    description: "Project · Skyline Hotels · in progress",
+    href: "/projects/pr5",
+  },
+  {
+    id: "at2",
+    type: "attribute",
+    title: "Colour temperature",
+    description: "Attribute · Lighting · used by 42 products",
+    href: "/attributes/at2",
   },
   {
     id: "pg-settings",
@@ -64,7 +92,11 @@ const SCOPE_TYPES: Record<string, SearchResult["type"] | undefined> = {
   meetings: "meeting",
   tasks: "task",
   products: "product",
+  families: "family",
+  accessories: "accessory",
   customers: "customer",
+  projects: "project",
+  attributes: "attribute",
   pages: "page",
 };
 

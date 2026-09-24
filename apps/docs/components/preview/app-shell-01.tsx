@@ -14,8 +14,13 @@ import AppShell01Page from "../../../../packages/ui/registry/blocks/app-shell-01
 import { Wrapper } from "./wrapper";
 
 export function appShell01Demo(): ReactNode {
+  // `contain: paint` makes the frame the fixed-positioning containing block, so the desktop rail
+  // renders inside the preview instead of against the viewport (as app-shell's previews do).
   return (
-    <Wrapper className="block h-136 overflow-hidden p-0">
+    <Wrapper
+      className="block h-136 overflow-hidden p-0"
+      style={{ contain: "paint" }}
+    >
       <AppShell01Page />
     </Wrapper>
   );

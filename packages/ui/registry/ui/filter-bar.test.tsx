@@ -11,6 +11,7 @@ import {
   FilterBar,
   FilterBarFacet,
   FilterChip,
+  type FilterBarFilter,
   type FilterBarProps,
 } from "./filter-bar";
 
@@ -618,12 +619,12 @@ test("a facet toggles values, pins the selected ones and can be removed (DS-35)"
   await expect
     .element(screen.getByRole("option", { name: "Open" }))
     .toHaveAttribute("aria-selected", "true");
+  // Toggling does not move rows under the pointer; the split is re-taken on the next open.
+  expect(
+    [...document.querySelectorAll('[role="option"]')].map((o) => o.textContent),
+  ).toEqual(options);
   await userEvent.keyboard("{Escape}");
-  (
-    screen
-      .getByRole("button", { name: "Remove Status filter" })
-      .element() as HTMLElement
-  ).click();
+  await screen.getByRole("button", { name: "Remove Status filter" }).click();
   expect(onRemove).toHaveBeenCalledOnce();
   await expectNoA11yViolations(screen.container);
 });
@@ -674,4 +675,94 @@ test("a chip without an editor stays non-interactive (DS-36)", async () => {
   expect(
     screen.container.querySelector('[data-slot="filter-chip-trigger"]'),
   ).toBeNull();
+});
+
+test("facets sit after a leading search and before the chips (DS-35)", async () => {
+  const screen = await render(
+    <FilterBar
+      searchPlacement="start"
+      search={{ value: "", onValueChange: () => {}, "aria-label": "Search" }}
+      facets={
+        <FilterBarFacet<Status>
+          label="Owner"
+          items={STATUSES}
+          value={null}
+          onValueChange={() => {}}
+          itemToKey={(s) => s.id}
+          itemToStringLabel={(s) => s.name}
+          searchLabel="Search owners"
+        />
+      }
+      filters={[
+        { id: "status", label: "Status", value: "Open", onRemove: () => {} },
+      ]}
+    />,
+  );
+  const bar = screen.container.querySelector('[data-slot="filter-bar"]')!;
+  expect([...bar.children].map((el) => el.getAttribute("data-slot"))).toEqual([
+    "filter-bar-search",
+    "filter-bar-facet",
+    "filter-chip",
+  ]);
+});
+
+test("a leading item outside the selection keeps the pinned group first (DS-35)", async () => {
+  const screen = await render(
+    <FilterBarFacet<Status, true>
+      label="Status"
+      multiple
+      pinSelected
+      leadingItems={[STATUSES[0]!]}
+      items={STATUSES}
+      value={[STATUSES[2]!]}
+      onValueChange={() => {}}
+      itemToKey={(s) => s.id}
+      itemToStringLabel={(s) => s.name}
+      searchLabel="Search statuses"
+    />,
+  );
+  await screen.getByRole("combobox").click();
+  await expect
+    .poll(() =>
+      [...document.querySelectorAll('[role="group"][aria-labelledby]')].map(
+        (g) =>
+          document.getElementById(g.getAttribute("aria-labelledby")!)
+            ?.textContent,
+      ),
+    )
+    .toEqual(["Selected", "More"]);
+});
+
+test("an add option with an editor opens it on the new chip (DS-36)", async () => {
+  function Host() {
+    const [filters, setFilters] = React.useState<FilterBarFilter[]>([]);
+    return (
+      <FilterBar
+        filters={filters}
+        addFilters={[
+          { id: "status", label: "Status", editor: <p>Status editor</p> },
+        ]}
+        onAddFilter={(id) =>
+          setFilters([
+            {
+              id,
+              label: "Status",
+              value: "Any",
+              onRemove: () => setFilters([]),
+            },
+          ])
+        }
+      />
+    );
+  }
+  const screen = await render(<Host />);
+  await screen.getByRole("button", { name: "Add filter" }).click();
+  await screen.getByRole("menuitem", { name: "Status" }).click();
+  await expect.element(screen.getByText("Status editor")).toBeVisible();
+  const trigger = screen.getByRole("button", { name: "Status: Any" });
+  await expect.element(trigger).toHaveAttribute("aria-expanded", "true");
+  await userEvent.keyboard("{Escape}");
+  await expect
+    .element(screen.getByText("Status editor"))
+    .not.toBeInTheDocument();
 });

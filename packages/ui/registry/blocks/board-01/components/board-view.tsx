@@ -1,4 +1,4 @@
-// @vegastack board-01@0.20.0 sha256-4O5aNBrfTE6Qnvb016PJKT+eC/f0UaNe9BCRYyISpM8=
+// @vegastack board-01@0.20.0 sha256-oAG6sEq9WmCEkSXrUHwTlPf0gbi5hWVTB9NIwDGz0DA=
 
 "use client";
 
@@ -155,6 +155,7 @@ export function BoardView() {
   const [assignee, setAssignee] = React.useState<string | null>(null);
   const [backlogMore, setBacklogMore] = React.useState(BACKLOG_NEXT_PAGE);
   const [loadingMore, setLoadingMore] = React.useState(false);
+  const searchRef = React.useRef<HTMLInputElement>(null);
 
   // Stand-in for a paged fetch: append the Backlog's next page after a short wait.
   function loadMoreBacklog() {
@@ -234,23 +235,25 @@ export function BoardView() {
   function clearFilters() {
     setQuery("");
     setAssignee(null);
+    // The button that called this unmounts; keep focus in the filters.
+    searchRef.current?.focus();
   }
 
   return (
-    <div className="flex min-h-0 min-w-0 flex-1 flex-col gap-4">
+    <div className="flex min-h-0 min-w-0 flex-1 flex-col gap-3">
       <FilterBar
         aria-label="Task filters"
         search={{
           value: query,
           onValueChange: setQuery,
-          placeholder: "Search tasks",
+          placeholder: "Search tasks…",
+          "aria-label": "Search tasks",
         }}
+        searchInputProps={{ ref: searchRef }}
         filters={filters}
         addFilterMenu={
           <DropdownMenu>
-            <DropdownMenuTrigger
-              render={<Button variant="outline" size="sm" />}
-            >
+            <DropdownMenuTrigger render={<Button variant="outline" />}>
               <User />
               Assignee
             </DropdownMenuTrigger>
@@ -276,7 +279,7 @@ export function BoardView() {
         }
         trailing={
           filtering ? (
-            <Button variant="ghost" size="sm" onClick={clearFilters}>
+            <Button variant="ghost" onClick={clearFilters}>
               Clear filters
             </Button>
           ) : null

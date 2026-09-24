@@ -24,8 +24,8 @@ import {
 } from "@/components/ui/select";
 
 /*
- * Upstream's own examples. `PaginationLink` builds its own `<a>` inside a `Button` with
- * `nativeButton={false}`, so anchor props — `href`, `onClick` — go straight on `PaginationLink`.
+ * Upstream's own examples. `PaginationLink` renders a plain `<a>` styled with `buttonVariants`, so
+ * anchor props — `href`, `onClick` — go straight on `PaginationLink`.
  * Every href below is `#`: these fixtures are mounted by the geometry lane and must not navigate.
  */
 

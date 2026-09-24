@@ -40,7 +40,9 @@
 #     outside the listbox. cmdk renders its loading slot as a `progressbar` with no value and
 #     `aria-hidden` text, written AFTER spreading props, so the part corrects the node in a layout
 #     effect (as `CommandList` does): `role="status"`, no `aria-value*`/`aria-label`, and the text
-#     exposed — a polite status whose text is spoken (A11Y-3). Default text "Loading…" (VOI-1).
+#     exposed — a polite status whose text is spoken (A11Y-3). Default text "Searching…" (VOI-1; the palette is always a search).
+#     Given a `progress` value the slot stays cmdk's labelled `progressbar`, so the value is
+#     still exposed; switching mode remounts the node.
 #   API-19: `CommandItem` provides `ItemDescriptionContext` (from `item`) and points
 #     `aria-describedby` at the `ItemDescription` inside it, so a two-line option's second line is
 #     its accessible description. A caller's own `aria-describedby` wins.
@@ -51,7 +53,7 @@
 #   formatting: prettier reflow plus the `registry-stamp.mjs` provenance header (DOC-1); no
 #               decision of their own.
 diff --git a/command.tsx b/command.tsx
-index 5cb64c9..234f948 100644
+index 5cb64c9..ac30cc4 100644
 --- a/command.tsx
 +++ b/command.tsx
 @@ -1,8 +1,8 @@
@@ -261,7 +263,7 @@ index 5cb64c9..234f948 100644
    ...props
  }: React.ComponentProps<typeof CommandPrimitive.Empty>) {
    return (
-@@ -114,8 +185,83 @@ function CommandEmpty({
+@@ -114,8 +185,91 @@ function CommandEmpty({
        data-slot="command-empty"
        className={cn("py-6 text-center text-sm", className)}
        {...props}
@@ -275,19 +277,23 @@ index 5cb64c9..234f948 100644
 +}
 +
 +/**
-+ * API-18 — cmdk's loading slot. cmdk renders it as an unnamed-value `progressbar` whose visible
-+ * text is `aria-hidden`, so a screen reader hears nothing of it; this part turns it into a polite
-+ * `status` whose text is the announcement (A11Y-3). Render it OUTSIDE `CommandList` (above it)
-+ * or while the list has no results: a status inside a listbox with options is an
++ * API-18 — cmdk's loading slot. cmdk renders it as a `progressbar` whose visible text is
++ * `aria-hidden`; with no `progress` value that bar has nothing to report, so a screen reader hears
++ * nothing of it. Without `progress` this part turns it into a polite `status` whose text is the
++ * announcement (A11Y-3); with `progress` (0–100) it stays cmdk's labelled `progressbar`, so the
++ * value still reaches assistive technology. Render it OUTSIDE `CommandList` (above it) or while
++ * the list has no results: a status inside a listbox with options is an
 + * `aria-required-children` violation.
 + */
 +function CommandLoading({
 +  className,
 +  children,
-+  label = "Loading…",
++  label = "Searching…",
++  progress,
 +  ref,
 +  ...props
 +}: React.ComponentProps<typeof CommandPrimitive.Loading>) {
++  const determinate = progress !== undefined;
 +  const nodeRef = React.useRef<HTMLDivElement | null>(null);
 +  const setRef = React.useMemo(
 +    () => mergeRefs<HTMLDivElement>(nodeRef, ref),
@@ -298,7 +304,7 @@ index 5cb64c9..234f948 100644
 +  // node. No dependency array, as in `CommandList`: every render has to reassert it.
 +  React.useLayoutEffect(() => {
 +    const node = nodeRef.current;
-+    if (!node) return;
++    if (!node || determinate) return;
 +    node.setAttribute("role", "status");
 +    for (const name of [
 +      "aria-valuenow",
@@ -313,9 +319,13 @@ index 5cb64c9..234f948 100644
 +
 +  return (
 +    <CommandPrimitive.Loading
++      // The status rewrite is on the node, so switching between the two modes remounts it
++      // rather than leaving one mode's ARIA on the other's element.
++      key={determinate ? "progress" : "status"}
 +      data-slot="command-loading"
 +      ref={setRef}
 +      label={label}
++      progress={progress}
 +      className={cn(
 +        "flex items-center justify-center gap-2 py-6 text-sm text-muted-foreground",
 +        className,
@@ -346,7 +356,7 @@ index 5cb64c9..234f948 100644
  }
  
  function CommandGroup({
-@@ -127,11 +273,11 @@ function CommandGroup({
+@@ -127,11 +281,11 @@ function CommandGroup({
        data-slot="command-group"
        className={cn(
          "overflow-hidden p-1 text-foreground **:[[cmdk-group-heading]]:px-2 **:[[cmdk-group-heading]]:py-1.5 **:[[cmdk-group-heading]]:text-xs **:[[cmdk-group-heading]]:font-medium **:[[cmdk-group-heading]]:text-muted-foreground",
@@ -360,7 +370,7 @@ index 5cb64c9..234f948 100644
  }
  
  function CommandSeparator({
-@@ -144,7 +290,7 @@ function CommandSeparator({
+@@ -144,7 +298,7 @@ function CommandSeparator({
        className={cn("-mx-1 h-px bg-border", className)}
        {...props}
      />
@@ -369,12 +379,12 @@ index 5cb64c9..234f948 100644
  }
  
  function CommandItem({
-@@ -152,19 +298,25 @@ function CommandItem({
+@@ -152,19 +306,25 @@ function CommandItem({
    children,
    ...props
  }: React.ComponentProps<typeof CommandPrimitive.Item>) {
 +  // API-19: a two-line row links its `ItemDescription` as the option's description.
-+  const description = useItemDescriptionId();
++  const description = useItemDescriptionId(props["aria-describedby"]);
 +
    return (
      <CommandPrimitive.Item
@@ -399,7 +409,7 @@ index 5cb64c9..234f948 100644
  }
  
  function CommandShortcut({
-@@ -176,11 +328,11 @@ function CommandShortcut({
+@@ -176,11 +336,11 @@ function CommandShortcut({
        data-slot="command-shortcut"
        className={cn(
          "ms-auto text-xs tracking-widest text-muted-foreground group-data-selected/command-item:text-foreground",
@@ -413,7 +423,7 @@ index 5cb64c9..234f948 100644
  }
  
  export {
-@@ -189,8 +341,10 @@ export {
+@@ -189,8 +349,10 @@ export {
    CommandInput,
    CommandList,
    CommandEmpty,

@@ -1,4 +1,4 @@
-// @vegastack data-table-parts@0.20.0 sha256-n8/tR06Q92qap+rBNo4FEDptaXvQW6jrbASVLmDhW0Q=
+// @vegastack data-table-parts@0.20.0 sha256-NfqXBCX4mzTS5lz++Fe85DGmA0AZKZKr+MevqYT1F54=
 
 "use client";
 
@@ -940,6 +940,8 @@ export interface RowAction {
 /**
  * `RowActionMenuItems` — a `RowAction[]` as dropdown menu items, for a host that already owns
  * a menu (Board's card menu, SortableList's row menu) and merges its own items after them.
+ * `onAction` runs before each action's `onSelect` — the host's hook to keep focus in the list
+ * when the action removes the row.
  *
  * @example
  * <DropdownMenuContent>
@@ -948,7 +950,13 @@ export interface RowAction {
  *   {moveItems}
  * </DropdownMenuContent>
  */
-export function RowActionMenuItems({ actions }: { actions: RowAction[] }) {
+export function RowActionMenuItems({
+  actions,
+  onAction,
+}: {
+  actions: RowAction[];
+  onAction?: () => void;
+}) {
   return (
     <>
       {actions.map((action) => (
@@ -957,7 +965,14 @@ export function RowActionMenuItems({ actions }: { actions: RowAction[] }) {
           variant={action.destructive ? "destructive" : "default"}
           disabled={action.disabled}
           render={action.render}
-          onClick={action.disabled ? undefined : action.onSelect}
+          onClick={
+            action.disabled || !action.onSelect
+              ? undefined
+              : () => {
+                  onAction?.();
+                  action.onSelect?.();
+                }
+          }
         >
           {action.icon}
           {action.disabled && action.disabledReason ? (
@@ -987,7 +1002,8 @@ export interface RowActionsMenuProps {
   actionsLabel?: (label: string) => string;
 }
 
-const defaultActionsLabel = (label: string) => `Actions for ${label}`;
+/** The default name of a row's ⋯ trigger — shared by DataList, SortableList and Board. */
+export const defaultActionsLabel = (label: string) => `Actions for ${label}`;
 
 /**
  * `RowActionsMenu` — one ⋯ menu per row, named for the row ("Actions for Aria"). A row with a
@@ -1007,35 +1023,42 @@ export function RowActionsMenu({
   actions,
   actionsLabel = defaultActionsLabel,
 }: RowActionsMenuProps) {
+  const reasonId = React.useId();
   if (actions.length === 0) return null;
   const only = actions.length === 1 ? actions[0]! : null;
   if (only && only.icon != null) {
     const name = `${only.label} ${label}`;
+    // A tooltip is not a description: a disabled icon action says why through a hidden element.
+    const reason = only.disabled ? only.disabledReason : undefined;
     return (
-      <Tooltip>
-        <TooltipTrigger
-          render={
-            <Button
-              variant="ghost"
-              size="icon-sm"
-              data-slot="row-action"
-              aria-label={name}
-              disabled={only.disabled}
-              render={only.render}
-              nativeButton={only.render == null}
-              onClick={only.disabled ? undefined : only.onSelect}
-              className={cn(only.destructive && "text-destructive-text")}
-            >
-              {only.icon}
-            </Button>
-          }
-        />
-        <TooltipContent>
-          {only.disabled && only.disabledReason
-            ? only.disabledReason
-            : only.label}
-        </TooltipContent>
-      </Tooltip>
+      <>
+        {reason ? (
+          <span id={reasonId} hidden>
+            {reason}
+          </span>
+        ) : null}
+        <Tooltip>
+          <TooltipTrigger
+            render={
+              <Button
+                variant="ghost"
+                size="icon-sm"
+                data-slot="row-actions-menu-action"
+                aria-label={name}
+                aria-describedby={reason ? reasonId : undefined}
+                disabled={only.disabled}
+                render={only.render}
+                nativeButton={only.render == null}
+                onClick={only.disabled ? undefined : only.onSelect}
+                className={cn(only.destructive && "text-destructive-text")}
+              >
+                {only.icon}
+              </Button>
+            }
+          />
+          <TooltipContent>{reason ?? only.label}</TooltipContent>
+        </Tooltip>
+      </>
     );
   }
   return (
@@ -1045,7 +1068,7 @@ export function RowActionsMenu({
           <Button
             variant="ghost"
             size="icon-sm"
-            data-slot="row-actions-trigger"
+            data-slot="row-actions-menu-trigger"
             aria-label={actionsLabel(label)}
           >
             <EllipsisVertical />
@@ -1110,13 +1133,14 @@ export function SectionToggle({
       // the resting state of every section — so the two neutralisers keep the resting header
       // quiet and leave hover and press to the variant.
       className={cn(
-        "-mx-2 min-w-0 justify-start font-normal text-muted-foreground",
+        // design.md "Headings": a table section row is a group label.
+        "-mx-2 min-w-0 justify-start text-xs font-medium text-muted-foreground",
         "aria-expanded:bg-transparent aria-expanded:text-muted-foreground",
         "[&_svg:not([class*='size-'])]:size-3",
       )}
     >
       {expanded ? <ChevronDown /> : <ChevronRight className="rtl:rotate-180" />}
-      <span className="min-w-0 truncate text-foreground">{label}</span>
+      <span className="min-w-0 truncate">{label}</span>
       {count != null ? (
         <>
           <span

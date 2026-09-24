@@ -332,6 +332,33 @@ export function exportedPreviewFixtures(path, { cwd = ROOT } = {}) {
   return sorted(names);
 }
 
+/**
+ * The registry sources a module imports statically — `@/components/ui/<name>` (the docs alias) or a
+ * relative `registry/{ui,lib}/<name>` path — by file name. AST-only, like the export extraction.
+ */
+export function registryImports(path, { cwd = ROOT } = {}) {
+  const absolute = resolve(cwd, path);
+  if (!existsSync(absolute)) return new Set();
+  const file = ts.createSourceFile(
+    path,
+    readFileSync(absolute, "utf8"),
+    ts.ScriptTarget.Latest,
+    true,
+    ts.ScriptKind.TSX,
+  );
+  const names = new Set();
+  for (const statement of file.statements) {
+    if (!ts.isImportDeclaration(statement)) continue;
+    const specifier = statement.moduleSpecifier;
+    if (!ts.isStringLiteralLike(specifier)) continue;
+    const match =
+      /^@\/components\/ui\/([a-z0-9-]+)$/.exec(specifier.text) ??
+      /(?:^|\/)registry\/(?:ui|lib)\/([a-z0-9-]+)$/.exec(specifier.text);
+    if (match) names.add(match[1]);
+  }
+  return names;
+}
+
 export function validateAffectedPolicy(contracts, { cwd = ROOT } = {}) {
   const errors = [];
   const policy = contracts?.affectedTestPolicy;
@@ -372,24 +399,7 @@ export function validateAffectedPolicy(contracts, { cwd = ROOT } = {}) {
       existsSync(join(cwd, entry.file))
     ) {
       const source = readFileSync(join(cwd, entry.file), "utf8");
-      const file = ts.createSourceFile(
-        entry.file,
-        source,
-        ts.ScriptTarget.Latest,
-        true,
-        ts.ScriptKind.TSX,
-      );
-      const importedOwners = new Set();
-      for (const statement of file.statements) {
-        if (!ts.isImportDeclaration(statement)) continue;
-        const specifier = statement.moduleSpecifier;
-        if (!ts.isStringLiteralLike(specifier)) continue;
-        const match =
-          /^@\/components\/ui\/([a-z0-9-]+)$/.exec(specifier.text) ??
-          /(?:^|\/)registry\/(?:ui|lib)\/([a-z0-9-]+)$/.exec(specifier.text);
-        if (match) importedOwners.add(match[1]);
-      }
-      for (const owner of importedOwners)
+      for (const owner of registryImports(entry.file, { cwd }))
         if (!(entry.owners ?? []).includes(owner))
           errors.push(
             `${entry.file}: imported registry owner ${owner} is undeclared`,
@@ -772,6 +782,24 @@ export function createAffectedPlan({
   for (const owner of new Set([...affectedItems, ...previewOwners])) {
     const record = currentRecords.get(owner) ?? oldRecords.get(owner);
     if (record?.previewModule) previewModules.add(record.previewModule);
+  }
+  // A preview also composes components its owner does not depend on (button-group's preview puts a
+  // Select in the group), so a changed component selects every preview module that imports it —
+  // registry edges alone would leave that composition untested.
+  const affectedSet = new Set(affectedItems);
+  for (const [path, owner] of indexes.previews) {
+    const record = currentRecords.get(owner);
+    if (!record?.previewModule || previewModules.has(record.previewModule))
+      continue;
+    for (const name of registryImports(path, { cwd }))
+      if (
+        affectedSet.has(
+          indexes.source.get(`packages/ui/registry/ui/${name}.tsx`) ?? name,
+        )
+      ) {
+        previewModules.add(record.previewModule);
+        break;
+      }
   }
   // A fixture the geometry suite declares UNSWEPT is never requested. The suite rejects an unswept
   // request by name — correctly, because an author asking for one is asking for an assertion that

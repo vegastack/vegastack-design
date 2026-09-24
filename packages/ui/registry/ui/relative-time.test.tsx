@@ -449,3 +449,22 @@ test("no a11y violations — day mode with time zone, capitalized, with time", a
   );
   await expectNoA11yViolations(screen.container);
 });
+
+test("DS-11: a dateStyle formatOptions renders another year and withTime without throwing", async () => {
+  const screen = await render(
+    <RelativeTime
+      mode="day"
+      withTime
+      date={new Date(Date.UTC(2025, 8, 2, 12))}
+      now={ZONE_NOW}
+      timeZone="UTC"
+      locale="en-US"
+      formatOptions={{ dateStyle: "medium" }}
+      title={false}
+      data-testid="styled"
+    />,
+  );
+  await expect
+    .element(screen.getByTestId("styled"))
+    .toHaveTextContent("Sep 2, 2025, 12:00 PM");
+});

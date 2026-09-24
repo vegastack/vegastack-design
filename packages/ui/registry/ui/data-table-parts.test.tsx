@@ -38,7 +38,6 @@ const columns: DataTableColumnLayout[] = [
 
 /* ------------------------------------------------------------------ column rules */
 
-// DS-32/DS-34 parts first: later tests in this file leave React roots that swallow a fresh render.
 test("SectionRow is a rowgroup header with a disclosure and a muted count (DS-34)", async () => {
   const onExpandedChange = vi.fn();
   const screen = await render(
@@ -107,7 +106,13 @@ test("a disabled action stays reachable by arrow keys and does nothing (DS-32)",
     />,
   );
   await screen.getByRole("button", { name: "Actions for Aria" }).click();
-  await userEvent.keyboard("{ArrowDown}{ArrowDown}");
+  // One key per settled focus: a second key sent while the first still moves focus into the
+  // popup is dropped (macOS Chromium measured it).
+  await userEvent.keyboard("{ArrowDown}");
+  await expect
+    .element(screen.getByRole("menuitem", { name: "Edit" }))
+    .toHaveFocus();
+  await userEvent.keyboard("{ArrowDown}");
   const item = screen.getByRole("menuitem", { name: /Delete/ });
   await expect.element(item).toHaveFocus();
   await expect.element(item).toHaveAttribute("aria-disabled", "true");
@@ -153,6 +158,26 @@ test("a single icon action is an icon button with a tooltip, not a menu (DS-32)"
   expect(onDelete).toHaveBeenCalledOnce();
   expect(document.querySelector('[role="menu"]')).toBeNull();
   await expectNoA11yViolations(screen.container);
+});
+
+test("a disabled single icon action is described by its reason (DS-32)", async () => {
+  const screen = await render(
+    <RowActionsMenu
+      label="Aria"
+      actions={[
+        {
+          label: "Delete",
+          icon: <svg aria-hidden="true" />,
+          disabled: true,
+          disabledReason: "In use by 3 products",
+          onSelect: () => {},
+        },
+      ]}
+    />,
+  );
+  await expect
+    .element(screen.getByRole("button", { name: "Delete Aria" }))
+    .toHaveAccessibleDescription("In use by 3 products");
 });
 
 test("alignClass maps the three alignments and defaults to start", () => {
@@ -679,7 +704,7 @@ test("EmptyRow spans the table and accepts a custom state", async () => {
   const cell = screen.container.querySelector("td") as HTMLTableCellElement;
   expect(cell.colSpan).toBe(4);
   expect(cell.textContent).toContain("No data");
-  screen.unmount();
+  await screen.unmount();
 
   const custom = await render(
     <Table>
@@ -709,7 +734,7 @@ test("the loading and empty states have no accessibility violations", async () =
     </Table>,
   );
   await expectNoA11yViolations(loading.container);
-  loading.unmount();
+  await loading.unmount();
 
   const empty = await render(
     <Table aria-label="Records">

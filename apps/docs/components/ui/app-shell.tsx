@@ -1,4 +1,4 @@
-// @vegastack app-shell@0.20.0 sha256-BkfO/Cjyt+fxGMGeKpNDM1yrxaYOtc6WW6lmm+O3FSg=
+// @vegastack app-shell@0.20.0 sha256-FWD57TRKowOoPU1FbDIXkNVjGekVIMq7q9wsz5gCCz8=
 
 "use client";
 
@@ -52,6 +52,12 @@ export interface AppShellProps extends React.ComponentProps<"div"> {
    * @default undefined
    */
   onOpenChange?: (open: boolean) => void;
+  /**
+   * The key that toggles the sidebar with ⌘/Ctrl, or `false` to turn the shortcut off —
+   * forwarded to `SidebarProvider`.
+   * @default "b"
+   */
+  keyboardShortcut?: string | false;
   /**
    * Accessible label for the skip-to-content link — the first focusable element in the shell,
    * always present in the DOM (`sr-only` until focused).
@@ -123,6 +129,7 @@ export function AppShell({
   defaultOpen,
   open,
   onOpenChange,
+  keyboardShortcut,
   skipLinkLabel = "Skip to content",
   contentId,
   className,
@@ -136,6 +143,7 @@ export function AppShell({
       defaultOpen={defaultOpen}
       open={open}
       onOpenChange={onOpenChange}
+      keyboardShortcut={keyboardShortcut}
       data-slot="app-shell"
       className={className}
       {...props}

@@ -1,4 +1,4 @@
-// @vegastack notifications-01@0.20.0 sha256-fw6O+ommjZA3lJCQh87O4M82iQquYdCmv4SwtdlzuHE=
+// @vegastack notifications-01@0.20.0 sha256-ggAYt4BVKbvljS2Ke8Tp8XFbECkAeHrZoNGZkzr8dkQ=
 
 "use client";
 
@@ -8,6 +8,7 @@ import { BellOff, TriangleAlert } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Empty,
+  EmptyContent,
   EmptyDescription,
   EmptyHeader,
   EmptyMedia,
@@ -21,7 +22,7 @@ import {
   ItemGroupLabel,
   ItemTitle,
 } from "@/components/ui/item";
-import { LoadMore } from "@/components/ui/load-more";
+import { LoadMore, type LoadMoreState } from "@/components/ui/load-more";
 import { NotificationDot } from "@/components/ui/notification-bell";
 import { RelativeTime } from "@/components/ui/relative-time";
 import {
@@ -47,10 +48,15 @@ export interface InboxSheetProps {
   /** The loaded notifications, newest first. */
   notifications: InboxNotification[];
   /**
-   * Where the first load stands.
-   * @default "ready"
+   * The first load is in flight.
+   * @default false
    */
-  status?: "loading" | "error" | "ready";
+  loading?: boolean;
+  /**
+   * The first load failed: why, shown under "Couldn’t load notifications" with "Try again".
+   * @default undefined
+   */
+  error?: React.ReactNode;
   /**
    * Called by "Try again" after a failed load.
    * @default undefined
@@ -62,7 +68,7 @@ export interface InboxSheetProps {
    * Paging for older notifications; omit when there are none.
    * @default undefined
    */
-  loadOlder?: { hasMore: boolean; loading?: boolean; onLoadMore: () => void };
+  loadMore?: LoadMoreState;
   /**
    * The start of "Today", in ms since the epoch.
    * @default the start of the current day
@@ -110,10 +116,11 @@ export function InboxSheet({
   open,
   onOpenChange,
   notifications,
-  status = "ready",
+  loading = false,
+  error,
   onRetry,
   onMarkAllRead,
-  loadOlder,
+  loadMore,
   todayStart,
 }: InboxSheetProps) {
   const [show, setShow] = React.useState<"all" | "unread">("all");
@@ -139,17 +146,19 @@ export function InboxSheet({
     },
   ];
 
+  const ready = !loading && error == null;
+
   let body: React.ReactNode;
-  if (status === "loading") {
+  if (loading) {
     body = (
       <div aria-busy="true" className="flex flex-col gap-3 py-2">
-        <span className="sr-only">Loading notifications</span>
+        <span className="sr-only">Loading notifications…</span>
         {Array.from({ length: 4 }, (_, i) => (
           <Skeleton key={i} className="h-12 rounded-md" />
         ))}
       </div>
     );
-  } else if (status === "error") {
+  } else if (error != null) {
     body = (
       <Empty role="alert">
         <EmptyHeader>
@@ -157,13 +166,13 @@ export function InboxSheet({
             <TriangleAlert aria-hidden className="text-destructive-text" />
           </EmptyMedia>
           <EmptyTitle render={<h3 />}>Couldn’t load notifications</EmptyTitle>
-          <EmptyDescription>
-            Check your connection, then try again.
-          </EmptyDescription>
+          <EmptyDescription>{error}</EmptyDescription>
         </EmptyHeader>
-        <Button variant="outline" onClick={onRetry}>
-          Try again
-        </Button>
+        <EmptyContent>
+          <Button variant="outline" onClick={onRetry}>
+            Try again
+          </Button>
+        </EmptyContent>
       </Empty>
     );
   } else if (visible.length === 0) {
@@ -199,8 +208,8 @@ export function InboxSheet({
             </div>
           ) : null,
         )}
-        {loadOlder && show === "all" ? (
-          <LoadMore label="Load older" {...loadOlder} />
+        {loadMore && show === "all" ? (
+          <LoadMore label="Load older" {...loadMore} />
         ) : null}
       </div>
     );
@@ -215,7 +224,7 @@ export function InboxSheet({
             <Button
               variant="ghost"
               size="sm"
-              disabled={unreadCount === 0 || status !== "ready"}
+              disabled={unreadCount === 0 || !ready}
               onClick={() => {
                 onMarkAllRead();
                 announce("Marked all read");

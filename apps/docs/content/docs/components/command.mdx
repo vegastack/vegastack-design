@@ -138,7 +138,7 @@ results is not a wide letterbox.
 When results come from a server, turn cmdk's filter off with `shouldFilter={false}`, feed the
 query to your fetch through `CommandInput`'s `value`/`onValueChange`, and render `CommandLoading`
 while a request is in flight. It is a polite `role="status"` whose text is spoken (default
-"Loading…"); render it above `CommandList`, or only while the list is empty — a status inside a
+"Searching…"); pass `progress` (0–100) and it stays a labelled `progressbar` instead. Render it above `CommandList`, or only while the list is empty — a status inside a
 listbox that holds options is not a valid listbox child.
 
 <ComponentPreview

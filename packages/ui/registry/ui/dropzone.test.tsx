@@ -503,7 +503,7 @@ test("the guard is ref-counted page-wide: a default instance cannot silently re-
   document.body.dispatchEvent(whileMounted);
   expect(whileMounted.defaultPrevented).toBe(true);
   // Unmounting the LAST protecting instance disarms the guard entirely.
-  screen.unmount();
+  await screen.unmount();
   const afterUnmount = new DragEvent("dragover", {
     bubbles: true,
     cancelable: true,

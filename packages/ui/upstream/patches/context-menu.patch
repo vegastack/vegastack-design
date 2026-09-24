@@ -26,7 +26,7 @@
 #   formatting: prettier reflow plus the `registry-stamp.mjs` provenance header (DOC-1); no
 #               decision of their own.
 diff --git a/context-menu.tsx b/context-menu.tsx
-index 38eb2fb..e3eb90b 100644
+index 38eb2fb..da26382 100644
 --- a/context-menu.tsx
 +++ b/context-menu.tsx
 @@ -1,18 +1,31 @@
@@ -150,7 +150,7 @@ index 38eb2fb..e3eb90b 100644
 +  inset?: boolean;
 +  variant?: "default" | "destructive";
  }) {
-+  const description = useItemDescriptionId();
++  const description = useItemDescriptionId(props["aria-describedby"]);
    return (
 -    <ContextMenuPrimitive.Item
 -      data-slot="context-menu-item"
@@ -230,7 +230,7 @@ index 38eb2fb..e3eb90b 100644
 -  inset?: boolean
 +  inset?: boolean;
  }) {
-+  const description = useItemDescriptionId();
++  const description = useItemDescriptionId(props["aria-describedby"]);
    return (
 -    <ContextMenuPrimitive.CheckboxItem
 -      data-slot="context-menu-checkbox-item"
@@ -291,7 +291,7 @@ index 38eb2fb..e3eb90b 100644
 -  inset?: boolean
 +  inset?: boolean;
  }) {
-+  const description = useItemDescriptionId();
++  const description = useItemDescriptionId(props["aria-describedby"]);
    return (
 -    <ContextMenuPrimitive.RadioItem
 -      data-slot="context-menu-radio-item"

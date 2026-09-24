@@ -74,9 +74,9 @@ test("layout and mode switch together at the boundary, and panels keep their sta
   expect(panels()).toHaveLength(3);
   expect([...panels()].filter((p) => !p.hidden)).toHaveLength(1);
   await expect
-    .element(screen.getByRole("tab", { name: "Action items (4)" }))
+    .element(screen.getByRole("tab", { name: "Action items 2 open" }))
     .toBeInTheDocument();
-  await screen.getByRole("tab", { name: "Action items (4)" }).click();
+  await screen.getByRole("tab", { name: "Action items 2 open" }).click();
   await expect
     .element(
       screen.getByRole("checkbox", {
@@ -120,4 +120,12 @@ test("the docked player is a named region at the end of the column", async () =>
     .element(screen.getByRole("region", { name: "Meeting recording" }))
     .toBeInTheDocument();
   expect(document.querySelector('[role="toolbar"]')).toBeNull();
+  // The player's sticky containing block is the whole left column, not a wrapper of its own height.
+  const player = document.querySelector('[data-slot="audio-player"]')!;
+  expect(player.parentElement?.getAttribute("data-slot")).toBe(
+    "review-split-column",
+  );
+  expect(
+    player.parentElement?.querySelector('[data-panel="actions"]'),
+  ).not.toBeNull();
 });

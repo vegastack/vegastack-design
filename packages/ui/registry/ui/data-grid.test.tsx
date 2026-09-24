@@ -1022,7 +1022,10 @@ test("the load-more footer is the shared LoadMore (DS-30)", async () => {
       loadMore={{ hasMore: false, onLoadMore }}
     />,
   );
-  expect(screen.container.querySelector('[data-slot="load-more"]')).toBeNull();
+  // No end caption was asked for; the footer only holds the focus the button had, and says why.
+  expect(
+    screen.container.querySelector('[data-slot="load-more"]')?.textContent,
+  ).toBe("End of list");
   expect(screen.container.textContent).not.toContain("All rows loaded");
 
   await screen.rerender(

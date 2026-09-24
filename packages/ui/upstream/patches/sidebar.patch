@@ -75,10 +75,10 @@
 #               reflows the file, and `registry-stamp.mjs` writes the provenance header the
 #               three-copy model needs (DOC-1); those hunks carry no decision of their own.
 diff --git a/sidebar.tsx b/sidebar.tsx
-index cbcc413..d9d5c0c 100644
+index cbcc413..67787a9 100644
 --- a/sidebar.tsx
 +++ b/sidebar.tsx
-@@ -1,117 +1,203 @@
+@@ -1,117 +1,207 @@
 -"use client"
 -
 -import * as React from "react"
@@ -165,30 +165,34 @@ index cbcc413..d9d5c0c 100644
 +  document.cookie = `${name}=${open}; path=/; max-age=${SIDEBAR_COOKIE_MAX_AGE}; SameSite=Lax`;
 +}
 +
++/** A JSON string literal that cannot close the inline `<script>` it is written into. */
++function scriptLiteral(value: string) {
++  return JSON.stringify(value).replace(/</g, "\\u003c");
++}
++
 +/**
 + * A static or cached shell cannot read the `sidebar_state` cookie on the server, so it renders
 + * the panel expanded. Put this script in `<head>`: before first paint it reads the cookie, marks
 + * `<html>` with `data-sidebar-state`, and gives the desktop panel the `data-state` and
 + * `data-collapsible` the sidebar's own recipes read, so a collapsed panel paints collapsed.
 + * `collapsible` must match the `Sidebar`'s. The provider and `useSidebarCookieOpen` start from
-+ * that mark, so hydration agrees with the screen.
++ * that mark, so hydration agrees with the screen. Under a nonce-based Content Security Policy,
++ * pass the request's `nonce`.
 + */
-+/** A JSON string literal that cannot close the inline `<script>` it is written into. */
-+function scriptLiteral(value: string) {
-+  return JSON.stringify(value).replace(/</g, "\\u003c");
-+}
-+
 +function SidebarStateScript({
 +  cookieName = SIDEBAR_COOKIE_NAME,
 +  collapsible = "offcanvas",
++  nonce,
 +}: {
 +  cookieName?: string;
 +  collapsible?: "offcanvas" | "icon" | "none";
++  nonce?: string;
 +}) {
 +  const source = `(function(n,m){try{if(document.cookie.split(/;\\s*/).indexOf(n+"=false")<0)return;var r=document.documentElement;r.setAttribute("${SIDEBAR_STATE_ATTRIBUTE}","collapsed");if(m==="none")return;var f=function(){var e=document.querySelector('[data-slot="sidebar"][data-state]');if(!e)return false;e.setAttribute("data-state","collapsed");e.setAttribute("data-collapsible",m);return true};if(f())return;var o=new MutationObserver(function(){if(f())o.disconnect()});o.observe(r,{childList:true,subtree:true});document.addEventListener("DOMContentLoaded",function(){o.disconnect()},{once:true})}catch(e){}})(${scriptLiteral(cookieName)},${scriptLiteral(collapsible)})`;
 +  return (
 +    <script
 +      data-slot="sidebar-state-script"
++      nonce={nonce}
 +      dangerouslySetInnerHTML={{ __html: source }}
 +    />
 +  );
@@ -343,7 +347,7 @@ index cbcc413..d9d5c0c 100644
  
    const contextValue = React.useMemo<SidebarContextProps>(
      () => ({
-@@ -123,8 +209,8 @@ function SidebarProvider({
+@@ -123,8 +213,8 @@ function SidebarProvider({
        setOpenMobile,
        toggleSidebar,
      }),
@@ -354,7 +358,7 @@ index cbcc413..d9d5c0c 100644
  
    return (
      <SidebarContext.Provider value={contextValue}>
-@@ -139,14 +225,14 @@ function SidebarProvider({
+@@ -139,14 +229,14 @@ function SidebarProvider({
          }
          className={cn(
            "group/sidebar-wrapper flex min-h-svh w-full has-data-[variant=inset]:bg-sidebar",
@@ -371,7 +375,7 @@ index cbcc413..d9d5c0c 100644
  }
  
  function Sidebar({
-@@ -158,11 +244,11 @@ function Sidebar({
+@@ -158,11 +248,11 @@ function Sidebar({
    dir,
    ...props
  }: React.ComponentProps<"div"> & {
@@ -387,7 +391,7 @@ index cbcc413..d9d5c0c 100644
  
    if (collapsible === "none") {
      return (
-@@ -170,13 +256,13 @@ function Sidebar({
+@@ -170,13 +260,13 @@ function Sidebar({
          data-slot="sidebar"
          className={cn(
            "flex h-full w-(--sidebar-width) flex-col bg-sidebar text-sidebar-foreground",
@@ -403,7 +407,7 @@ index cbcc413..d9d5c0c 100644
    }
  
    if (isMobile) {
-@@ -187,7 +273,7 @@ function Sidebar({
+@@ -187,7 +277,7 @@ function Sidebar({
            data-sidebar="sidebar"
            data-slot="sidebar"
            data-mobile="true"
@@ -412,7 +416,7 @@ index cbcc413..d9d5c0c 100644
            style={
              {
                "--sidebar-width": SIDEBAR_WIDTH_MOBILE,
-@@ -202,7 +288,7 @@ function Sidebar({
+@@ -202,7 +292,7 @@ function Sidebar({
            <div className="flex h-full w-full flex-col">{children}</div>
          </SheetContent>
        </Sheet>
@@ -421,7 +425,7 @@ index cbcc413..d9d5c0c 100644
    }
  
    return (
-@@ -223,7 +309,7 @@ function Sidebar({
+@@ -223,7 +313,7 @@ function Sidebar({
            "group-data-[side=right]:rotate-180",
            variant === "floating" || variant === "inset"
              ? "group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)+(--spacing(4)))]"
@@ -430,7 +434,7 @@ index cbcc413..d9d5c0c 100644
          )}
        />
        <div
-@@ -235,28 +321,31 @@ function Sidebar({
+@@ -235,28 +325,31 @@ function Sidebar({
            variant === "floating" || variant === "inset"
              ? "p-2 group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)+(--spacing(4))+2px)]"
              : "group-data-[collapsible=icon]:w-(--sidebar-width-icon) group-data-[side=left]:border-e group-data-[side=right]:border-s",
@@ -467,7 +471,7 @@ index cbcc413..d9d5c0c 100644
  
    return (
      <Button
-@@ -266,28 +355,34 @@ function SidebarTrigger({
+@@ -266,28 +359,34 @@ function SidebarTrigger({
        size="icon-sm"
        className={cn(className)}
        onClick={(event) => {
@@ -510,7 +514,7 @@ index cbcc413..d9d5c0c 100644
        className={cn(
          "absolute inset-y-0 z-20 hidden w-4 transition-all ease-linear group-data-[side=left]:-right-4 group-data-[side=right]:left-0 after:absolute after:inset-y-0 after:start-1/2 after:w-[2px] hover:after:bg-sidebar-border sm:flex ltr:-translate-x-1/2 rtl:-translate-x-1/2",
          "in-data-[side=left]:cursor-w-resize rtl:in-data-[side=left]:cursor-e-resize in-data-[side=right]:cursor-e-resize rtl:in-data-[side=right]:cursor-w-resize",
-@@ -295,11 +390,11 @@ function SidebarRail({ className, ...props }: React.ComponentProps<"button">) {
+@@ -295,11 +394,11 @@ function SidebarRail({ className, ...props }: React.ComponentProps<"button">) {
          "group-data-[collapsible=offcanvas]:translate-x-0 rtl:group-data-[collapsible=offcanvas]:-translate-x-0 group-data-[collapsible=offcanvas]:after:start-full hover:group-data-[collapsible=offcanvas]:bg-sidebar",
          "[[data-side=left][data-collapsible=offcanvas]_&]:-end-2",
          "[[data-side=right][data-collapsible=offcanvas]_&]:-start-2",
@@ -524,7 +528,7 @@ index cbcc413..d9d5c0c 100644
  }
  
  function SidebarInset({ className, ...props }: React.ComponentProps<"main">) {
-@@ -308,11 +403,11 @@ function SidebarInset({ className, ...props }: React.ComponentProps<"main">) {
+@@ -308,11 +407,11 @@ function SidebarInset({ className, ...props }: React.ComponentProps<"main">) {
        data-slot="sidebar-inset"
        className={cn(
          "relative flex w-full flex-1 flex-col bg-background md:peer-data-[variant=inset]:m-2 md:peer-data-[variant=inset]:ms-0 md:peer-data-[variant=inset]:rounded-xl md:peer-data-[variant=inset]:shadow-sm md:peer-data-[variant=inset]:peer-data-[state=collapsed]:ms-2",
@@ -538,7 +542,7 @@ index cbcc413..d9d5c0c 100644
  }
  
  function SidebarInput({
-@@ -326,7 +421,7 @@ function SidebarInput({
+@@ -326,7 +425,7 @@ function SidebarInput({
        className={cn("h-8 w-full bg-background shadow-none", className)}
        {...props}
      />
@@ -547,7 +551,7 @@ index cbcc413..d9d5c0c 100644
  }
  
  function SidebarHeader({ className, ...props }: React.ComponentProps<"div">) {
-@@ -337,7 +432,7 @@ function SidebarHeader({ className, ...props }: React.ComponentProps<"div">) {
+@@ -337,7 +436,7 @@ function SidebarHeader({ className, ...props }: React.ComponentProps<"div">) {
        className={cn("flex flex-col gap-2 p-2", className)}
        {...props}
      />
@@ -556,7 +560,7 @@ index cbcc413..d9d5c0c 100644
  }
  
  function SidebarFooter({ className, ...props }: React.ComponentProps<"div">) {
-@@ -348,7 +443,7 @@ function SidebarFooter({ className, ...props }: React.ComponentProps<"div">) {
+@@ -348,7 +447,7 @@ function SidebarFooter({ className, ...props }: React.ComponentProps<"div">) {
        className={cn("flex flex-col gap-2 p-2", className)}
        {...props}
      />
@@ -565,7 +569,7 @@ index cbcc413..d9d5c0c 100644
  }
  
  function SidebarSeparator({
-@@ -362,7 +457,7 @@ function SidebarSeparator({
+@@ -362,7 +461,7 @@ function SidebarSeparator({
        className={cn("mx-2 w-auto bg-sidebar-border", className)}
        {...props}
      />
@@ -574,7 +578,7 @@ index cbcc413..d9d5c0c 100644
  }
  
  function SidebarContent({ className, ...props }: React.ComponentProps<"div">) {
-@@ -372,11 +467,11 @@ function SidebarContent({ className, ...props }: React.ComponentProps<"div">) {
+@@ -372,11 +471,11 @@ function SidebarContent({ className, ...props }: React.ComponentProps<"div">) {
        data-sidebar="content"
        className={cn(
          "no-scrollbar flex min-h-0 flex-1 flex-col gap-0 overflow-auto group-data-[collapsible=icon]:overflow-hidden",
@@ -588,7 +592,7 @@ index cbcc413..d9d5c0c 100644
  }
  
  function SidebarGroup({ className, ...props }: React.ComponentProps<"div">) {
-@@ -387,7 +482,7 @@ function SidebarGroup({ className, ...props }: React.ComponentProps<"div">) {
+@@ -387,7 +486,7 @@ function SidebarGroup({ className, ...props }: React.ComponentProps<"div">) {
        className={cn("relative flex w-full min-w-0 flex-col p-2", className)}
        {...props}
      />
@@ -597,7 +601,7 @@ index cbcc413..d9d5c0c 100644
  }
  
  function SidebarGroupLabel({
-@@ -400,18 +495,18 @@ function SidebarGroupLabel({
+@@ -400,18 +499,18 @@ function SidebarGroupLabel({
      props: mergeProps<"div">(
        {
          className: cn(
@@ -620,7 +624,7 @@ index cbcc413..d9d5c0c 100644
  }
  
  function SidebarGroupAction({
-@@ -424,18 +519,18 @@ function SidebarGroupAction({
+@@ -424,18 +523,18 @@ function SidebarGroupAction({
      props: mergeProps<"button">(
        {
          className: cn(
@@ -643,7 +647,7 @@ index cbcc413..d9d5c0c 100644
  }
  
  function SidebarGroupContent({
-@@ -449,7 +544,7 @@ function SidebarGroupContent({
+@@ -449,7 +548,7 @@ function SidebarGroupContent({
        className={cn("w-full text-sm", className)}
        {...props}
      />
@@ -652,7 +656,7 @@ index cbcc413..d9d5c0c 100644
  }
  
  function SidebarMenu({ className, ...props }: React.ComponentProps<"ul">) {
-@@ -460,7 +555,7 @@ function SidebarMenu({ className, ...props }: React.ComponentProps<"ul">) {
+@@ -460,7 +559,7 @@ function SidebarMenu({ className, ...props }: React.ComponentProps<"ul">) {
        className={cn("flex w-full min-w-0 flex-col gap-0", className)}
        {...props}
      />
@@ -661,7 +665,7 @@ index cbcc413..d9d5c0c 100644
  }
  
  function SidebarMenuItem({ className, ...props }: React.ComponentProps<"li">) {
-@@ -471,11 +566,11 @@ function SidebarMenuItem({ className, ...props }: React.ComponentProps<"li">) {
+@@ -471,11 +570,11 @@ function SidebarMenuItem({ className, ...props }: React.ComponentProps<"li">) {
        className={cn("group/menu-item relative", className)}
        {...props}
      />
@@ -675,7 +679,7 @@ index cbcc413..d9d5c0c 100644
    {
      variants: {
        variant: {
-@@ -493,8 +588,8 @@ const sidebarMenuButtonVariants = cva(
+@@ -493,8 +592,8 @@ const sidebarMenuButtonVariants = cva(
        variant: "default",
        size: "default",
      },
@@ -686,7 +690,7 @@ index cbcc413..d9d5c0c 100644
  
  function SidebarMenuButton({
    render,
-@@ -502,21 +597,45 @@ function SidebarMenuButton({
+@@ -502,21 +601,45 @@ function SidebarMenuButton({
    variant = "default",
    size = "default",
    tooltip,
@@ -737,7 +741,7 @@ index cbcc413..d9d5c0c 100644
      ),
      render: !tooltip ? render : <TooltipTrigger render={render} />,
      state: {
-@@ -525,29 +644,59 @@ function SidebarMenuButton({
+@@ -525,29 +648,59 @@ function SidebarMenuButton({
        size,
        active: isActive,
      },
@@ -810,7 +814,7 @@ index cbcc413..d9d5c0c 100644
  }
  
  function SidebarMenuAction({
-@@ -557,27 +706,27 @@ function SidebarMenuAction({
+@@ -557,27 +710,27 @@ function SidebarMenuAction({
    ...props
  }: useRender.ComponentProps<"button"> &
    React.ComponentProps<"button"> & {
@@ -843,7 +847,7 @@ index cbcc413..d9d5c0c 100644
  }
  
  function SidebarMenuBadge({
-@@ -588,26 +737,32 @@ function SidebarMenuBadge({
+@@ -588,26 +741,32 @@ function SidebarMenuBadge({
      <div
        data-slot="sidebar-menu-badge"
        data-sidebar="menu-badge"
@@ -883,7 +887,7 @@ index cbcc413..d9d5c0c 100644
  
    return (
      <div
-@@ -632,7 +787,7 @@ function SidebarMenuSkeleton({
+@@ -632,7 +791,7 @@ function SidebarMenuSkeleton({
          }
        />
      </div>
@@ -892,7 +896,7 @@ index cbcc413..d9d5c0c 100644
  }
  
  function SidebarMenuSub({ className, ...props }: React.ComponentProps<"ul">) {
-@@ -642,11 +797,11 @@ function SidebarMenuSub({ className, ...props }: React.ComponentProps<"ul">) {
+@@ -642,11 +801,11 @@ function SidebarMenuSub({ className, ...props }: React.ComponentProps<"ul">) {
        data-sidebar="menu-sub"
        className={cn(
          "mx-3.5 flex min-w-0 translate-x-px rtl:-translate-x-px flex-col gap-1 border-s border-sidebar-border px-2.5 py-0.5 group-data-[collapsible=icon]:hidden",
@@ -906,7 +910,7 @@ index cbcc413..d9d5c0c 100644
  }
  
  function SidebarMenuSubItem({
-@@ -660,7 +815,7 @@ function SidebarMenuSubItem({
+@@ -660,7 +819,7 @@ function SidebarMenuSubItem({
        className={cn("group/menu-sub-item relative", className)}
        {...props}
      />
@@ -915,7 +919,7 @@ index cbcc413..d9d5c0c 100644
  }
  
  function SidebarMenuSubButton({
-@@ -671,19 +826,19 @@ function SidebarMenuSubButton({
+@@ -671,19 +830,19 @@ function SidebarMenuSubButton({
    ...props
  }: useRender.ComponentProps<"a"> &
    React.ComponentProps<"a"> & {
@@ -940,7 +944,7 @@ index cbcc413..d9d5c0c 100644
      ),
      render,
      state: {
-@@ -692,7 +847,7 @@ function SidebarMenuSubButton({
+@@ -692,7 +851,7 @@ function SidebarMenuSubButton({
        size,
        active: isActive,
      },
@@ -949,7 +953,7 @@ index cbcc413..d9d5c0c 100644
  }
  
  export {
-@@ -718,6 +873,8 @@ export {
+@@ -718,6 +877,8 @@ export {
    SidebarProvider,
    SidebarRail,
    SidebarSeparator,

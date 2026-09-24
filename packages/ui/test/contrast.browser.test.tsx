@@ -45,6 +45,7 @@ import Login01Page from "../registry/blocks/login-01/page";
 import { LoginForm } from "../registry/blocks/login-01/components/login-form";
 import AppShell01Page from "../registry/blocks/app-shell-01/page";
 import Board01Page from "../registry/blocks/board-01/page";
+import Settings01Page from "../registry/blocks/settings-01/page";
 import Settings02Page from "../registry/blocks/settings-02/page";
 import { ErrorPage } from "../registry/blocks/status-pages-01/components/error-page";
 import { ForbiddenPage } from "../registry/blocks/status-pages-01/components/forbidden-page";
@@ -1012,6 +1013,39 @@ for (const theme of ["light", "dark"] as const) {
     ).toEqual([]);
   });
 
+  // settings-01's unit suite runs unstyled and skips `color-contrast`; this is its compiled pass:
+  // the page at rest, with the save bar docked after a change, and the delete confirmation.
+  test(`settings-01 passes WCAG AA at rest, dirty, and confirming — ${theme} theme`, async () => {
+    // The confirmation portals out of the themed wrapper, so the root carries the theme too.
+    if (theme === "dark") document.documentElement.classList.add("dark");
+    const screen = await render(themed(theme, 1200, <Settings01Page />));
+    await expect
+      .element(screen.getByRole("heading", { level: 1, name: "Settings" }))
+      .toBeInTheDocument();
+    const rest = await contrastViolations(screen.container);
+
+    await userEvent.fill(
+      screen.getByRole("textbox", { name: "Workspace name" }),
+      "Acme Robotics",
+    );
+    await settledOverlay('[data-slot="action-bar"][data-active="true"]');
+    const dirty = await contrastViolations(screen.container);
+
+    await userEvent.click(
+      screen.getByRole("button", { name: "Delete workspace" }),
+    );
+    await settledOverlay('[data-slot="alert-dialog-content"]');
+    const confirming = await contrastViolations(document.body);
+    expect(
+      [
+        ...rest.map((v) => `rest: ${v}`),
+        ...dirty.map((v) => `dirty: ${v}`),
+        ...confirming.map((v) => `confirming: ${v}`),
+      ],
+      `settings-01 color-contrast failures (${theme})`,
+    ).toEqual([]);
+  });
+
   test(`status-pages-01 passes WCAG AA on every page — ${theme} theme`, async () => {
     const failures: string[] = [];
     for (const [name, node] of [
@@ -1067,6 +1101,40 @@ for (const theme of ["light", "dark"] as const) {
       [...wide.map((v) => `wide: ${v}`), ...narrow.map((v) => `narrow: ${v}`)],
       `review-split-01 color-contrast failures (${theme})`,
     ).toEqual([]);
+  });
+
+  test(`review-split-01's docked player sticks to the scrollport's bottom while the column scrolls — ${theme} theme`, async () => {
+    // A short scrollport, so the left column (summary + actions + player) is taller than the view.
+    await render(
+      <div style={{ height: 320, overflow: "auto" }} data-testid="scroller">
+        {themed(theme, 1200, <ReviewSplit01Page />)}
+      </div>,
+    );
+    await expect
+      .poll(() =>
+        document
+          .querySelector('[data-slot="review-split"]')
+          ?.getAttribute("data-mode"),
+      )
+      .toBe("wide");
+    const scroller = document.querySelector<HTMLElement>(
+      '[data-testid="scroller"]',
+    )!;
+    const column = document.querySelector<HTMLElement>(
+      '[data-slot="review-split-column"]',
+    )!;
+    const player = document.querySelector<HTMLElement>(
+      '[data-slot="audio-player"]',
+    )!;
+    expect(column.getBoundingClientRect().bottom).toBeGreaterThan(
+      scroller.getBoundingClientRect().bottom,
+    );
+    for (const top of [0, 120]) {
+      scroller.scrollTop = top;
+      await expect
+        .poll(() => player.getBoundingClientRect().bottom)
+        .toBeLessThanOrEqual(scroller.getBoundingClientRect().bottom + 1);
+    }
   });
 
   test(`app-shell-01 and board-01 pass WCAG AA — ${theme} theme`, async () => {

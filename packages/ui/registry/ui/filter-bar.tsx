@@ -1,4 +1,4 @@
-// @vegastack filter-bar@0.20.0 sha256-h6mh2Ubf1RQ2nFEi10gmSRjqY/zjat4Ighq4pC2vK6I=
+// @vegastack filter-bar@0.20.0 sha256-fPFa0Yc8JigmBJpyNY3kK7GbTHC8CG2odmTgzlxDPIY=
 
 "use client";
 
@@ -84,6 +84,13 @@ export interface FilterBarAddOption {
   icon?: React.ReactNode;
   /** Disables the option and removes it from keyboard navigation. @default false */
   disabled?: boolean;
+  /**
+   * The new filter's editor. Choosing the option opens it in a popover on the new chip — the
+   * filter the host adds with the same `id` — and it stays that chip's editor unless the filter
+   * brings its own.
+   * @default undefined
+   */
+  editor?: React.ReactNode;
 }
 
 /** Controlled search/query input config for the {@link FilterBar}. */
@@ -134,10 +141,16 @@ export interface FilterBarProps extends Omit<
    */
   onEditorOpenChange?: (id: string, open: boolean) => void;
   /**
-   * The active filters, rendered as removable chips at the start of the bar.
+   * The active filters, rendered as removable chips after the facets.
    * @default []
    */
   filters?: FilterBarFilter[];
+  /**
+   * Always-visible {@link FilterBarFacet}s ("Status: Any"), rendered after a leading search and
+   * before the chips. A facet lives in the bar, not inside the "Add filter" menu.
+   * @default undefined
+   */
+  facets?: React.ReactNode;
   /**
    * Declarative "Add filter" menu options. The bar builds a {@link DropdownMenu}
    * from these and calls {@link FilterBarProps.onAddFilter} with the chosen
@@ -236,6 +249,11 @@ export interface FilterChipProps extends Omit<
    * @default undefined
    */
   onEditorOpenChange?: (open: boolean) => void;
+  /**
+   * Open the editor when the chip mounts — a filter just added from "Add filter".
+   * @default false
+   */
+  defaultEditorOpen?: boolean;
 }
 
 /** The chip's "Label: value" text, shared by the plain chip and its editor trigger. */
@@ -283,6 +301,7 @@ export function FilterChip({
   active = true,
   editor,
   onEditorOpenChange,
+  defaultEditorOpen = false,
   ...props
 }: FilterChipProps) {
   const computedRemoveLabel =
@@ -306,7 +325,10 @@ export function FilterChip({
         <span className="shrink-0 text-muted-foreground">{icon}</span>
       ) : null}
       {editor != null ? (
-        <Popover onOpenChange={(open) => onEditorOpenChange?.(open)}>
+        <Popover
+          defaultOpen={defaultEditorOpen}
+          onOpenChange={(open) => onEditorOpenChange?.(open)}
+        >
           <PopoverTrigger
             data-slot="filter-chip-trigger"
             className="-my-0.5 -ms-1 inline-flex min-w-0 items-center rounded-sm px-1 py-0.5 text-start hover:bg-foreground/5"
@@ -329,8 +351,8 @@ export function FilterChip({
  * ----------------------------------------------------------------------------------------------*/
 
 /**
- * `FilterBar` — a horizontal row of active filter {@link FilterChip}s (each
- * removable), an "Add filter" {@link DropdownMenu}, and an optional controlled
+ * `FilterBar` — a horizontal row of always-visible {@link FilterBarFacet}s (`facets`),
+ * active filter {@link FilterChip}s (each removable), an "Add filter" {@link DropdownMenu}, and an optional controlled
  * search {@link Input}. Composes the VegaStack {@link Button}, {@link DropdownMenu},
  * and {@link Input}.
  *
@@ -341,11 +363,12 @@ export function FilterChip({
  *
  * @example
  * <FilterBar
+ *   facets={<FilterBarFacet label="Owner" items={owners} value={owner} onValueChange={setOwner} itemToKey={(o) => o.id} itemToStringLabel={(o) => o.name} searchLabel="Search owners" />}
  *   filters={[{ id: 'status', label: 'Status', value: 'In Progress', onRemove: removeStatus }]}
  *   addFilters={[{ id: 'priority', label: 'Priority', icon: <Flag /> }]}
  *   onAddFilter={(id) => openFilter(id)}
  *   search={{ value: query, onValueChange: setQuery }}
- *   trailing={<Button variant="ghost" size="sm" onClick={clearAll}>Clear all</Button>}
+ *   trailing={<Button variant="ghost" onClick={clearAll}>Clear all</Button>}
  * />
  */
 export function FilterBar({
@@ -353,6 +376,7 @@ export function FilterBar({
   "aria-label": ariaLabel,
   "aria-labelledby": ariaLabelledBy,
   filters = [],
+  facets,
   addFilters,
   onAddFilter,
   addFilterMenu,
@@ -367,6 +391,13 @@ export function FilterBar({
 }: FilterBarProps) {
   const hasDeclarativeMenu =
     addFilterMenu == null && addFilters != null && addFilters.length > 0;
+  // An option with an `editor` opens it on the chip the host adds for it: the id is held until
+  // that chip mounts (with its editor open), then dropped.
+  const [editOnMount, setEditOnMount] = React.useState<string | null>(null);
+  React.useEffect(() => {
+    if (editOnMount != null && filters.some((f) => f.id === editOnMount))
+      setEditOnMount(null);
+  }, [editOnMount, filters]);
 
   // Optional controlled search/query input — first, or pushed to the trailing edge.
   const searchStart = searchPlacement === "start";
@@ -403,6 +434,8 @@ export function FilterBar({
     >
       {searchStart ? searchField : null}
 
+      {facets}
+
       {filters.map((filter) => (
         <FilterChip
           key={filter.id}
@@ -412,7 +445,11 @@ export function FilterBar({
           icon={filter.icon}
           active={filter.active}
           onRemove={filter.onRemove}
-          editor={filter.editor}
+          editor={
+            filter.editor ??
+            addFilters?.find((option) => option.id === filter.id)?.editor
+          }
+          defaultEditorOpen={filter.id === editOnMount}
           onEditorOpenChange={
             onEditorOpenChange
               ? (open) => onEditorOpenChange(filter.id, open)
@@ -442,7 +479,10 @@ export function FilterBar({
                 <DropdownMenuItem
                   key={option.id}
                   disabled={option.disabled}
-                  onClick={() => onAddFilter?.(option.id)}
+                  onClick={() => {
+                    if (option.editor != null) setEditOnMount(option.id);
+                    onAddFilter?.(option.id);
+                  }}
                 >
                   {option.icon}
                   {option.label}
@@ -473,21 +513,8 @@ export function FilterBar({
  * FilterBarFacet
  * ----------------------------------------------------------------------------------------------*/
 
-/** Props accepted by `FilterBarFacet`. */
-export type FilterBarFacetProps<
-  Item,
-  Multiple extends boolean | undefined = false,
-> = Omit<
-  SearchableSelectProps<Item, Multiple>,
-  | "renderItem"
-  | "renderValue"
-  | "renderTriggerValue"
-  | "placeholder"
-  | "variant"
-  | "size"
-  | "aria-label"
-  | "groupBy"
-> & {
+/** `FilterBarFacet`'s own props, on top of the `SearchableSelect` props it passes through. */
+export interface FilterBarFacetOwnProps<Item> {
   /** The facet's name — the trigger reads "{label}: {value}". */
   label: string;
   /**
@@ -506,22 +533,55 @@ export type FilterBarFacetProps<
    */
   onRemove?: () => void;
   /**
+   * Accessible name of the remove control.
+   * @default `Remove ${label} filter`
+   */
+  removeLabel?: string;
+  /**
    * List the selected options first, under "Selected", above the rest under "More".
    * @default false
    */
   pinSelected?: boolean;
   /**
+   * The heading of the pinned group.
+   * @default "Selected"
+   */
+  selectedGroupLabel?: string;
+  /**
+   * The heading of the group under the pinned one.
+   * @default "More"
+   */
+  moreGroupLabel?: string;
+  /**
    * What an empty facet reads.
    * @default "Any"
    */
   anyLabel?: string;
-};
+}
+
+/** Props accepted by `FilterBarFacet`: `SearchableSelect`'s, minus the trigger face it owns. */
+export type FilterBarFacetProps<
+  Item,
+  Multiple extends boolean | undefined = false,
+> = Omit<
+  SearchableSelectProps<Item, Multiple>,
+  | "renderItem"
+  | "renderValue"
+  | "renderTriggerValue"
+  | "placeholder"
+  | "variant"
+  | "size"
+  | "aria-label"
+  | "groupBy"
+  | "groupOrder"
+> &
+  FilterBarFacetOwnProps<Item>;
 
 /**
  * `FilterBarFacet` — a "Label: value" facet on `SearchableSelect`: "Status: Any", "Status:
  * Open", "Status: Open, In progress", "Status: 3 selected". Single or `multiple`, local or
  * server-searched (`remote` + `useAsyncSearch`), optionally pinned and removable. Put it in a
- * `FilterBar`'s `leading` slot or anywhere in a toolbar.
+ * `FilterBar`'s `facets` slot, or anywhere in a toolbar; it takes the bar's height.
  *
  * @example
  * <FilterBarFacet
@@ -543,18 +603,25 @@ export function FilterBarFacet<
   renderItem,
   removable = false,
   onRemove,
+  removeLabel = `Remove ${label} filter`,
   pinSelected = false,
+  selectedGroupLabel = "Selected",
+  moreGroupLabel = "More",
   anyLabel = "Any",
   countLabel = (n) => `${n} selected`,
   ...select
 }: FilterBarFacetProps<Item, Multiple>) {
-  const { itemToStringLabel, itemToKey } = select;
+  const { itemToStringLabel, itemToKey, onOpenChange } = select;
   const current = select.value as Item | Item[] | null | undefined;
   const selectedKeys = new Set(
     (Array.isArray(current) ? current : current ? [current] : []).map(
       itemToKey,
     ),
   );
+  // The pinned split is taken when the list opens, so toggling a row does not move it between
+  // "Selected" and "More" under the pointer; the next open re-pins.
+  const [pinnedKeys, setPinnedKeys] = React.useState(selectedKeys);
+  const pinned = (item: Item) => pinnedKeys.has(itemToKey(item));
   const text = (list: Item[]) =>
     `${label}: ${
       list.length === 0
@@ -570,16 +637,21 @@ export function FilterBarFacet<
     >
       <SearchableSelect<Item, Multiple>
         {...select}
+        onOpenChange={(open) => {
+          if (open) setPinnedKeys(selectedKeys);
+          onOpenChange?.(open);
+        }}
         items={
           pinSelected
             ? [
-                ...select.items.filter((i) => selectedKeys.has(itemToKey(i))),
-                ...select.items.filter((i) => !selectedKeys.has(itemToKey(i))),
+                ...select.items.filter(pinned),
+                ...select.items.filter((i) => !pinned(i)),
               ]
             : select.items
         }
         variant="outline"
-        size="sm"
+        // The FilterBar row's one height tier: the search, the chips and "Add filter" are h-8.
+        size="default"
         countLabel={countLabel}
         placeholder={`${label}: ${anyLabel}`}
         renderItem={renderItem ?? itemToStringLabel}
@@ -587,9 +659,11 @@ export function FilterBarFacet<
         groupBy={
           pinSelected
             ? (item: Item) =>
-                selectedKeys.has(itemToKey(item)) ? "Selected" : "More"
+                pinned(item) ? selectedGroupLabel : moreGroupLabel
             : undefined
         }
+        // A leading item outside the selection must not put "More" above "Selected".
+        groupOrder={pinSelected ? [selectedGroupLabel] : undefined}
         containerClassName="w-fit"
         className="w-auto max-w-64"
         contentClassName="min-w-56"
@@ -599,7 +673,7 @@ export function FilterBarFacet<
         <Button
           variant="ghost"
           size="icon-xs"
-          aria-label={`Remove ${label} filter`}
+          aria-label={removeLabel}
           data-slot="filter-bar-facet-remove"
           onClick={onRemove}
         >

@@ -272,6 +272,11 @@ for (const [how, act] of [
       v.dispatchEvent(new WheelEvent("wheel", { deltaY: 120, bubbles: true })),
   ],
   [
+    "scrollbar",
+    (v: HTMLElement) =>
+      v.dispatchEvent(new PointerEvent("pointerdown", { bubbles: true })),
+  ],
+  [
     "touch",
     (v: HTMLElement) =>
       v.dispatchEvent(new Event("touchmove", { bubbles: true })),
@@ -466,10 +471,37 @@ test("search moves the list and pauses follow so the match stays put", async () 
   await expect.poll(() => inView(screen.container, "s23")).toBe(true);
 });
 
+test("segments that add matches keep the reader's position and say nothing", async () => {
+  const screen = await render(<Harness search segments={long.slice(0, 30)} />);
+  await userEvent.type(
+    screen.getByRole("searchbox", { name: "Search transcript" }),
+    "regional",
+  );
+  await userEvent.keyboard("{Enter}{Enter}");
+  await expect.poll(announcerText).toBe("3 of 5");
+  await screen.rerender(<Harness search segments={long} />);
+  await expect
+    .element(screen.getByText("3 of 6", { exact: true }))
+    .toBeInTheDocument();
+  expect(announcerText()).toBe("3 of 5");
+});
+
 test("a controlled query renders its marks without the search field", async () => {
   const screen = await render(<Harness query="travel" />);
   expect(screen.container.querySelectorAll("mark")).toHaveLength(1);
   expect(screen.container.querySelector("mark")?.textContent).toBe("travel");
+});
+
+test("a match after a character whose lower case is longer is highlighted exactly", async () => {
+  const screen = await render(
+    <Harness
+      query="meeting"
+      segments={[
+        { id: "t", start: 0, speaker: "ana", text: "İstanbul meeting notes" },
+      ]}
+    />,
+  );
+  expect(screen.container.querySelector("mark")?.textContent).toBe("meeting");
 });
 
 test("match labels are overridable", async () => {

@@ -1,4 +1,4 @@
-// @vegastack provider@0.20.0 sha256-97ZKnc16w/GpYXoCPf74HrTvKcekjeCedQccBeqarZ0=
+// @vegastack provider@0.20.0 sha256-7oVE6Njdtq+QUo5UGETcx+Z5pC7PhtgGtOcKqfmnULw=
 
 "use client";
 
@@ -78,6 +78,14 @@ export function VegaStackProvider({
 }: VegaStackProviderProps) {
   const toasterNode =
     toaster === true ? <Toaster /> : toaster === false ? null : toaster;
+  // A custom `<Toaster limit timeout />` renders into this provider's store, so its queue settings
+  // are this provider's.
+  const { limit, timeout } = React.isValidElement<{
+    limit?: number;
+    timeout?: number;
+  }>(toaster)
+    ? toaster.props
+    : {};
   return (
     <NextThemesProvider
       attribute="class"
@@ -93,7 +101,7 @@ export function VegaStackProvider({
         >
           {/* OVL-17: the provider carries the module `toast` manager, so `toast()` and
               `useToastManager()` feed one store, and the bundled `Toaster` renders into it. */}
-          <ToastProvider toastManager={toast}>
+          <ToastProvider toastManager={toast} limit={limit} timeout={timeout}>
             {children}
             {toasterNode}
           </ToastProvider>
@@ -105,15 +113,17 @@ export function VegaStackProvider({
 
 /**
  * `useVegaStackTheme` — thin wrapper over next-themes' `useTheme()`. Returns the
- * resolved theme plus a `setTheme` setter (`'light' | 'dark' | 'system'`). Use it
- * to build a theme toggle anywhere below `VegaStackProvider`.
+ * resolved theme plus a `setTheme` setter (`'light' | 'dark' | 'system'`). The theme choice
+ * lives in the user menu as a radio group, not as a toggle button on the page (DS-26).
  *
  * @example
  * ```tsx
- * const { resolvedTheme, setTheme } = useVegaStackTheme();
- * <Button onClick={() => setTheme(resolvedTheme === 'dark' ? 'light' : 'dark')}>
- *   Toggle theme
- * </Button>
+ * const { theme, setTheme } = useVegaStackTheme();
+ * <DropdownMenuRadioGroup value={theme} onValueChange={setTheme}>
+ *   <DropdownMenuRadioItem value="light">Light</DropdownMenuRadioItem>
+ *   <DropdownMenuRadioItem value="dark">Dark</DropdownMenuRadioItem>
+ *   <DropdownMenuRadioItem value="system">System</DropdownMenuRadioItem>
+ * </DropdownMenuRadioGroup>
  * ```
  */
 export function useVegaStackTheme() {

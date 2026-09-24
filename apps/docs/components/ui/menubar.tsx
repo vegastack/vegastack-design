@@ -1,4 +1,4 @@
-// @vegastack menubar@0.20.0 sha256-x47ylVxVlPn4NRPHItpQexTKZEp8xOZRxEdLda/D3Ac=
+// @vegastack menubar@0.20.0 sha256-ZuE0DGpdsYcFYYSrKmwMsM6U1BZWOpyZ4RdTrW0QQ3w=
 
 "use client";
 
@@ -125,7 +125,7 @@ function MenubarCheckboxItem({
 }: MenuPrimitive.CheckboxItem.Props & {
   inset?: boolean;
 }) {
-  const description = useItemDescriptionId();
+  const description = useItemDescriptionId(props["aria-describedby"]);
   return (
     <ItemDescriptionContext.Provider value={description.register}>
       <MenuPrimitive.CheckboxItem
@@ -164,7 +164,7 @@ function MenubarRadioItem({
 }: MenuPrimitive.RadioItem.Props & {
   inset?: boolean;
 }) {
-  const description = useItemDescriptionId();
+  const description = useItemDescriptionId(props["aria-describedby"]);
   return (
     <ItemDescriptionContext.Provider value={description.register}>
       <MenuPrimitive.RadioItem

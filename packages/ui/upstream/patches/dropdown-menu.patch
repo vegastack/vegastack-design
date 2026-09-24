@@ -35,7 +35,7 @@
 #   formatting: prettier reflow plus the `registry-stamp.mjs` provenance header (DOC-1); no
 #               decision of their own.
 diff --git a/dropdown-menu.tsx b/dropdown-menu.tsx
-index 13d14a6..092bde8 100644
+index 13d14a6..50f2db7 100644
 --- a/dropdown-menu.tsx
 +++ b/dropdown-menu.tsx
 @@ -1,20 +1,35 @@
@@ -162,7 +162,7 @@ index 13d14a6..092bde8 100644
 +  inset?: boolean;
 +  variant?: "default" | "destructive";
  }) {
-+  const description = useItemDescriptionId();
++  const description = useItemDescriptionId(props["aria-describedby"]);
    return (
 -    <MenuPrimitive.Item
 -      data-slot="dropdown-menu-item"
@@ -251,7 +251,7 @@ index 13d14a6..092bde8 100644
 -  inset?: boolean
 +  inset?: boolean;
  }) {
-+  const description = useItemDescriptionId();
++  const description = useItemDescriptionId(props["aria-describedby"]);
    return (
 -    <MenuPrimitive.CheckboxItem
 -      data-slot="dropdown-menu-checkbox-item"
@@ -317,7 +317,7 @@ index 13d14a6..092bde8 100644
 -  inset?: boolean
 +  inset?: boolean;
  }) {
-+  const description = useItemDescriptionId();
++  const description = useItemDescriptionId(props["aria-describedby"]);
    return (
 -    <MenuPrimitive.RadioItem
 -      data-slot="dropdown-menu-radio-item"

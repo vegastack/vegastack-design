@@ -91,10 +91,10 @@
 #   formatting: prettier reflow plus the `registry-stamp.mjs` provenance header (DOC-1); no
 #               decision of their own.
 diff --git a/toast.tsx b/toast.tsx
-index 325d01b..8c66287 100644
+index 325d01b..f09fe52 100644
 --- a/toast.tsx
 +++ b/toast.tsx
-@@ -1,60 +1,245 @@
+@@ -1,60 +1,247 @@
 -"use client"
 +"use client";
  
@@ -241,15 +241,17 @@ index 325d01b..8c66287 100644
 +  render?: (toast: ToastPrimitive.Root.ToastObject) => React.ReactNode;
 +};
 +
-+// OVL-17: whether a `ToastProvider` is already mounted above. `Toaster` reuses it rather than
-+// mounting a second provider, so `toast()` and `useToastManager()` write to the one store the
-+// viewport renders.
-+const ToastProviderScope = React.createContext(false);
++// OVL-17: the manager of the `ToastProvider` mounted above, if any. A `Toaster` given the same
++// manager reuses that provider rather than mounting a second one, so `toast()` and
++// `useToastManager()` write to the one store the viewport renders.
++const ToastProviderScope = React.createContext<
++  ToastPrimitive.Provider.Props["toastManager"] | null
++>(null);
 +
 +function ToastProvider({ children, ...props }: ToastPrimitive.Provider.Props) {
 +  return (
 +    <ToastPrimitive.Provider {...props}>
-+      <ToastProviderScope.Provider value>
++      <ToastProviderScope.Provider value={props.toastManager ?? null}>
 +        {children}
 +      </ToastProviderScope.Provider>
 +    </ToastPrimitive.Provider>
@@ -377,7 +379,7 @@ index 325d01b..8c66287 100644
  }
  
  function ToastContent({ className, ...props }: ToastPrimitive.Content.Props) {
-@@ -63,11 +248,11 @@ function ToastContent({ className, ...props }: ToastPrimitive.Content.Props) {
+@@ -63,11 +250,11 @@ function ToastContent({ className, ...props }: ToastPrimitive.Content.Props) {
        data-slot="toast-content"
        className={cn(
          "flex h-full items-center gap-3 overflow-hidden p-4 transition-opacity duration-250 ease-[cubic-bezier(0.22,1,0.36,1)] data-behind:opacity-0 data-expanded:opacity-100",
@@ -391,7 +393,7 @@ index 325d01b..8c66287 100644
  }
  
  function ToastTitle({ className, ...props }: ToastPrimitive.Title.Props) {
-@@ -77,7 +262,7 @@ function ToastTitle({ className, ...props }: ToastPrimitive.Title.Props) {
+@@ -77,7 +264,7 @@ function ToastTitle({ className, ...props }: ToastPrimitive.Title.Props) {
        className={cn("text-sm font-medium", className)}
        {...props}
      />
@@ -400,7 +402,7 @@ index 325d01b..8c66287 100644
  }
  
  function ToastDescription({
-@@ -87,10 +272,16 @@ function ToastDescription({
+@@ -87,10 +274,16 @@ function ToastDescription({
    return (
      <ToastPrimitive.Description
        data-slot="toast-description"
@@ -419,7 +421,7 @@ index 325d01b..8c66287 100644
  }
  
  function ToastAction({
-@@ -98,14 +289,18 @@ function ToastAction({
+@@ -98,14 +291,18 @@ function ToastAction({
    render = <Button variant="outline" size="sm" />,
    ...props
  }: ToastPrimitive.Action.Props) {
@@ -439,7 +441,7 @@ index 325d01b..8c66287 100644
  }
  
  function ToastClose({
-@@ -114,59 +309,55 @@ function ToastClose({
+@@ -114,59 +311,55 @@ function ToastClose({
    render = <Button variant="ghost" size="icon-sm" />,
    ...props
  }: ToastPrimitive.Close.Props) {
@@ -515,7 +517,7 @@ index 325d01b..8c66287 100644
    }
  
    return (
-@@ -176,59 +367,117 @@ function ToastIcon({ type }: { type: string | undefined }) {
+@@ -176,59 +369,117 @@ function ToastIcon({ type }: { type: string | undefined }) {
      >
        {icon}
      </span>
@@ -602,7 +604,7 @@ index 325d01b..8c66287 100644
 +  const swipe: ToastPrimitive.Root.Props["swipeDirection"] =
 +    swipeDirection ??
 +    (anchor === "top" ? ["up", "left", "right"] : ["down", "left", "right"]);
-+  const insideProvider = React.useContext(ToastProviderScope);
++  const providerManager = React.useContext(ToastProviderScope);
 +
 +  const viewport = (
 +    <ToastPortal>
@@ -611,10 +613,10 @@ index 325d01b..8c66287 100644
 +      </ToastViewport>
 +    </ToastPortal>
 +  );
-+  // OVL-17: under an existing provider (VegaStackProvider mounts one with the module `toast`
-+  // manager) the Toaster renders only its viewport, into that provider's one store. A Toaster
-+  // given its own manager still brings its own provider.
-+  if (insideProvider && toastManager === toast) {
++  // OVL-17: under a provider on the same manager (VegaStackProvider mounts one with the module
++  // `toast` manager) the Toaster renders only its viewport, into that provider's one store, and
++  // the provider's `limit`/`timeout` apply. A Toaster on another manager brings its own provider.
++  if (providerManager === toastManager) {
 +    return (
 +      <>
 +        {children}

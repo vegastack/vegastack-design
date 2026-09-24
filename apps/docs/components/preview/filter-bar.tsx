@@ -90,7 +90,7 @@ export function filterBar(): ReactNode {
         onAddFilter={add}
         trailing={
           filters.length > 0 ? (
-            <Button variant="ghost" size="sm" onClick={() => setFilters([])}>
+            <Button variant="ghost" onClick={() => setFilters([])}>
               Clear all
             </Button>
           ) : undefined
@@ -347,40 +347,46 @@ export function filterBarFacets(): ReactNode {
   const [owner, setOwner] = useState<{ id: string; name: string } | null>(null);
   return (
     <Wrapper className="justify-start">
-      <div className="flex flex-wrap items-center gap-1.5">
-        <FilterBarFacet<{ id: string; name: string }, true>
-          label="Status"
-          multiple
-          pinSelected
-          items={STATUS_OPTIONS}
-          value={status}
-          onValueChange={setStatus}
-          itemToKey={(s) => s.id}
-          itemToStringLabel={(s) => s.name}
-          isItemEqualToValue={(a, b) => a.id === b.id}
-          searchLabel="Search statuses"
-        />
-        <FilterBarFacet
-          label="Owner"
-          removable
-          onRemove={() => setOwner(null)}
-          items={[
-            { id: "ada", name: "Ada Lovelace" },
-            { id: "grace", name: "Grace Hopper" },
-          ]}
-          value={owner}
-          onValueChange={setOwner}
-          itemToKey={(o) => o.id}
-          itemToStringLabel={(o) => o.name}
-          isItemEqualToValue={(a, b) => a.id === b.id}
-          searchLabel="Search people"
-        />
-      </div>
+      <FilterBar
+        aria-label="Task filters"
+        facets={
+          <>
+            <FilterBarFacet<{ id: string; name: string }, true>
+              label="Status"
+              multiple
+              pinSelected
+              items={STATUS_OPTIONS}
+              value={status}
+              onValueChange={setStatus}
+              itemToKey={(s) => s.id}
+              itemToStringLabel={(s) => s.name}
+              isItemEqualToValue={(a, b) => a.id === b.id}
+              searchLabel="Search statuses"
+            />
+            <FilterBarFacet
+              label="Owner"
+              removable
+              onRemove={() => setOwner(null)}
+              items={[
+                { id: "ada", name: "Ada Lovelace" },
+                { id: "grace", name: "Grace Hopper" },
+              ]}
+              value={owner}
+              onValueChange={setOwner}
+              itemToKey={(o) => o.id}
+              itemToStringLabel={(o) => o.name}
+              isItemEqualToValue={(a, b) => a.id === b.id}
+              searchLabel="Search people"
+            />
+          </>
+        }
+      />
     </Wrapper>
   );
 }
 
 export function filterBarEditing(): ReactNode {
+  const [active, setActive] = useState(true);
   const [range, setRange] = useState<{
     min: number | null;
     max: number | null;
@@ -396,35 +402,46 @@ export function filterBarEditing(): ReactNode {
         : range.max != null
           ? `≤ ${range.max} W`
           : "Any";
+  // The same editor edits the chip and opens on it when "Wattage" is added back.
+  const editor = (
+    <div className="flex items-center gap-2 p-1">
+      <NumberField
+        aria-label="Minimum"
+        className="w-24"
+        value={range.min}
+        onValueChange={(min) => setRange((r) => ({ ...r, min }))}
+      />
+      <span aria-hidden="true">–</span>
+      <NumberField
+        aria-label="Maximum"
+        className="w-24"
+        value={range.max}
+        onValueChange={(max) => setRange((r) => ({ ...r, max }))}
+      />
+    </div>
+  );
   return (
     <Wrapper className="justify-start">
       <FilterBar
         aria-label="Product filters"
-        filters={[
-          {
-            id: "wattage",
-            label: "Wattage",
-            value: text,
-            onRemove: () => setRange({ min: null, max: null }),
-            editor: (
-              <div className="flex items-center gap-2 p-1">
-                <NumberField
-                  aria-label="Minimum"
-                  className="w-24"
-                  value={range.min}
-                  onValueChange={(min) => setRange((r) => ({ ...r, min }))}
-                />
-                <span aria-hidden="true">–</span>
-                <NumberField
-                  aria-label="Maximum"
-                  className="w-24"
-                  value={range.max}
-                  onValueChange={(max) => setRange((r) => ({ ...r, max }))}
-                />
-              </div>
-            ),
-          },
-        ]}
+        filters={
+          active
+            ? [
+                {
+                  id: "wattage",
+                  label: "Wattage",
+                  value: text,
+                  onRemove: () => {
+                    setActive(false);
+                    setRange({ min: null, max: null });
+                  },
+                  editor,
+                },
+              ]
+            : []
+        }
+        addFilters={active ? [] : [{ id: "wattage", label: "Wattage", editor }]}
+        onAddFilter={() => setActive(true)}
       />
     </Wrapper>
   );

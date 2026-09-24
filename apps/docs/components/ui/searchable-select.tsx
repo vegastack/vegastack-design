@@ -1,4 +1,4 @@
-// @vegastack searchable-select@0.20.0 sha256-UJhzq/Shh4KTEHe3RfbcYQRvSXkDrXsYW39u9Jgi8d0=
+// @vegastack searchable-select@0.20.0 sha256-pHXVgD0f+LiUBZRT4fMzufID3lwEWX5v9Nid4HEcvrg=
 
 "use client";
 
@@ -17,6 +17,7 @@ import {
   ComboboxGroup,
   ComboboxLabel,
   ComboboxCollection,
+  ComboboxStatus,
 } from "@/components/ui/combobox";
 import { Button } from "@/components/ui/button";
 import { ItemContent, ItemDescription, ItemTitle } from "@/components/ui/item";
@@ -128,6 +129,12 @@ export interface SearchableSelectProps<
    */
   groupBy?: (item: Item) => string;
   /**
+   * Headings listed first, in this order, ahead of the first-seen order of the rest — so a
+   * pinned group stays on top even when a leading item belongs to another group.
+   * @default undefined
+   */
+  groupOrder?: readonly string[];
+  /**
    * What is announced while `loading`.
    * @default "Searching…"
    */
@@ -236,6 +243,17 @@ export interface SearchableSelectProps<
    * @default undefined
    */
   "aria-label"?: string;
+  /**
+   * Marks the trigger invalid — for a control whose error lives outside a `Field` (inside a
+   * `Field` the trigger reads its invalid state from the Field).
+   * @default undefined
+   */
+  "aria-invalid"?: boolean;
+  /**
+   * Ids of the elements that describe the trigger — an error message outside a `Field`.
+   * @default undefined
+   */
+  "aria-describedby"?: string;
   /** Additional classes merged onto the trigger button.
    * @default undefined
    */
@@ -305,6 +323,7 @@ export function SearchableSelect<
   loadMore,
   leadingItems,
   groupBy,
+  groupOrder,
   loadingLabel = "Searching…",
   retryLabel = "Try again",
   countLabel = (n) => `${n} selected`,
@@ -330,6 +349,8 @@ export function SearchableSelect<
   open,
   onOpenChange,
   "aria-label": ariaLabel,
+  "aria-invalid": ariaInvalid,
+  "aria-describedby": ariaDescribedBy,
   className,
   containerClassName,
   "data-slot": slot = "searchable-select",
@@ -372,8 +393,12 @@ export function SearchableSelect<
       }
       byGroup.get(g)!.push(item);
     }
-    return order.map((g) => ({ value: g, items: byGroup.get(g)! }));
-  }, [allItems, groupBy]);
+    const first = (groupOrder ?? []).filter((g) => byGroup.has(g));
+    return [...first, ...order.filter((g) => !first.includes(g))].map((g) => ({
+      value: g,
+      items: byGroup.get(g)!,
+    }));
+  }, [allItems, groupBy, groupOrder]);
   const filter = React.useMemo(() => {
     if (remote) return null;
     if (leadingKeys.size === 0) return undefined;
@@ -407,13 +432,18 @@ export function SearchableSelect<
   };
   const showFooter = error != null || (loadMore?.hasMore ?? false);
   // DS-22: the trigger is named by its label. Inside a `Field`, Base UI's Combobox gives the
-  // trigger `aria-labelledby` (and the description ids and `aria-invalid`), so no fallback name
-  // may be forced on it; only an unlabelled trigger falls back to the value, then the placeholder.
+  // trigger `aria-labelledby` (and the description ids and `aria-invalid`), and a `<label for>`
+  // names it natively; an `aria-label` would override either, so only a trigger with neither
+  // falls back to the value, then the placeholder.
   const [trigger, setTrigger] = React.useState<HTMLButtonElement | null>(null);
   const triggerRef = React.useMemo(() => mergeRefs(setTrigger, ref), [ref]);
   const [labelled, setLabelled] = React.useState(false);
   React.useLayoutEffect(() => {
-    setLabelled(Boolean(trigger?.getAttribute("aria-labelledby")));
+    setLabelled(
+      Boolean(
+        trigger?.getAttribute("aria-labelledby") || trigger?.labels?.length,
+      ),
+    );
   });
   const triggerLabel =
     ariaLabel ??
@@ -466,6 +496,8 @@ export function SearchableSelect<
           ref={triggerRef}
           disabled={disabled}
           aria-label={triggerLabel}
+          aria-invalid={ariaInvalid || undefined}
+          aria-describedby={ariaDescribedBy}
           // The styling hook for "nothing selected yet", so a wrapper can tint the trigger from
           // the outside without reaching through to the value span.
           data-placeholder={hasValue ? undefined : ""}
@@ -496,16 +528,22 @@ export function SearchableSelect<
                   : [];
               if (renderTriggerValue)
                 return (
-                  <span className="truncate">{renderTriggerValue(list)}</span>
+                  <span className="min-w-0 truncate">
+                    {renderTriggerValue(list)}
+                  </span>
                 );
               if (list.length === 0)
                 return (
-                  <span className="truncate text-muted-foreground">
+                  <span className="min-w-0 truncate text-muted-foreground">
                     {placeholder}
                   </span>
                 );
-              if (!isMultiple) return face(list[0]!);
-              return <span className="truncate">{valueText(list)}</span>;
+              // A flex child only truncates with `min-w-0` (LAY-11).
+              return (
+                <span className="min-w-0 truncate">
+                  {isMultiple ? valueText(list) : face(list[0]!)}
+                </span>
+              );
             }}
           </ComboboxValue>
         </BaseCombobox.Trigger>
@@ -518,11 +556,16 @@ export function SearchableSelect<
             aria-label={searchLabel}
             placeholder={searchPlaceholder}
           />
-          {/* Base UI's own polite status region: mounted for the panel's life, only its text
-              changes, and a sibling of the list (never inside the listbox). */}
-          <BaseCombobox.Status data-slot={`${slot}-status`} className="sr-only">
+          {/* The polite status region (API-27): mounted for the panel's life, only its text
+              changes, and a sibling of the list (never inside the listbox). It is visible while
+              a search has no rows to show yet, so the panel is never blank, like Command's
+              loading row. */}
+          <ComboboxStatus
+            data-slot={`${slot}-status`}
+            visible={loading && allItems.length === 0}
+          >
             {loading ? loadingLabel : null}
-          </BaseCombobox.Status>
+          </ComboboxStatus>
           <ComboboxEmpty>{loading ? null : emptyMessage}</ComboboxEmpty>
           <ComboboxList className="p-1">
             {grouped

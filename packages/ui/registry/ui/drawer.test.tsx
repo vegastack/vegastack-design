@@ -407,7 +407,7 @@ test("one open state drives a Drawer or a Dialog at a breakpoint (Responsive)", 
   const narrow = await render(<Responsive isDesktop={false} />);
   await expect.poll(popup).not.toBeNull();
   expect(bySlot("dialog-content")).toBeNull();
-  narrow.unmount();
+  await narrow.unmount();
   await expect.poll(popup).toBeNull();
 
   await render(<Responsive isDesktop />);

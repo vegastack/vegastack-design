@@ -79,12 +79,23 @@ an automated check can synthesise. It is presentation only: a real drag always w
 
 Dropzone only acquires files; the host owns the queue. This example hands each accepted file to an
 `uploadFile(file, { onProgress, signal })` call — a stub here, `fetch` or `XMLHttpRequest` in an app
-— and renders the queue as `Attachment` tiles in an `AttachmentGroup layout="grid"`. An upload in
-flight shows `AttachmentProgress` and a **Cancel upload** action that aborts its signal; a failed
-one offers **Retry upload** and **Discard file**. Refused files join the queue as error tiles whose
-description says why ("… is larger than 25 MB.", "… isn't a supported file type."), and a polite
-status line announces each upload that finishes or fails. The **Attach as** `Select` in a `Field`
-tags the next batch.
+— and renders the queue as `Attachment` tiles in an `AttachmentGroup layout="grid"`. **One file**
+and **Several files** switch `multiple`: with one, a new file replaces the last.
+
+- **In flight** — `AttachmentProgress` and a **Cancel upload** action that aborts the signal and
+  drops the file, so a cancelled single upload returns the surface to idle.
+- **Failed** — **Retry upload** and **Discard file**. A refused file joins the queue as an error
+  tile whose description says why ("… is larger than 25 MB.", "… isn't a supported file type."),
+  with Discard only, since there is nothing to retry.
+- **Details** — every file that is not yet saved gets a `FieldSet`, legend the file name, with a
+  **Name** `Input` (the file name without its extension) and a **Category** `Select`, each in a
+  `Field`. An empty name blocks the save with a `FieldError`.
+- **Uploaded but not saved** — the save that attaches the uploads to the record is a second call.
+  When it fails, a destructive `Alert` says how many files are uploaded but not saved, and the
+  button becomes **Retry save**, which saves again without uploading again.
+
+A polite status line announces each upload that finishes or fails, each cancel and discard, and the
+save.
 
 <ComponentPreview
   name="dropzoneUploadQueue"

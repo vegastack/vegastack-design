@@ -227,6 +227,26 @@ test("OVL-17: a host Toaster below the provider reuses it — still one viewport
   await drainToasts();
 });
 
+test("OVL-17: a custom toaster element's limit reaches the provider's queue", async () => {
+  await render(
+    <VegaStackProvider toaster={<Toaster limit={1} />}>
+      {null}
+    </VegaStackProvider>,
+  );
+  toast.add({ title: "First", timeout: 0 });
+  toast.add({ title: "Second", timeout: 0 });
+  await waitForToast("Second");
+  // Base UI keeps the toasts over the limit mounted but marks them `data-limited`.
+  await expect
+    .poll(
+      () =>
+        document.querySelectorAll('[data-slot="toast"]:not([data-limited])')
+          .length,
+    )
+    .toBe(1);
+  await drainToasts();
+});
+
 test("no a11y violations — provider with a toast from the hook", async () => {
   function Fire() {
     const manager = useToastManager();

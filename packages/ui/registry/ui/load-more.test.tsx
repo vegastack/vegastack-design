@@ -114,6 +114,14 @@ test("focus stays on the button while rows append", async () => {
   await expect.element(screen.getByText("Row 6")).toBeInTheDocument();
   await expect.element(button).not.toHaveAttribute("aria-busy");
   expect(document.activeElement).toBe(button.element());
+  // The last batch removes the button; the footer keeps focus rather than dropping it to the page.
+  await userEvent.keyboard("{Enter}");
+  await expect.element(screen.getByText("Row 9")).toBeInTheDocument();
+  await expect
+    .poll(() => document.activeElement?.getAttribute("data-slot"))
+    .toBe("load-more");
+  // The focused footer says why the button went: a focus target is never empty.
+  expect(document.activeElement?.textContent).toBe("End of list");
 });
 
 test("forwards ref and className to the root", async () => {

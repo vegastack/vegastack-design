@@ -64,6 +64,11 @@ current line" brings it back.
 Each timestamp is a button named "Play from 0:15" that calls `onSeek` with the segment's start.
 Here it moves a local clock, so clicking a line makes it the current one.
 
+Rows opt out of `MessageScrollerItem`'s `content-visibility: auto`, so every row is laid out at
+mount. A skipped row reports an estimated height, and a follow or search jump measured against that
+estimate lands past its line once the real rows render; laying them all out costs once, and a
+`currentTime` tick still re-renders at most two rows.
+
 <ComponentPreview name="transcript" file="components/preview/transcript.tsx" />
 
 ### With audio

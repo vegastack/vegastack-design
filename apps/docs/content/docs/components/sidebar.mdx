@@ -569,18 +569,24 @@ reserve. When the panel collapses to icons, the `tooltip` carries the count too.
 ### Action row with shortcut
 
 A row that opens a palette shows its shortcut with `Kbd`. Mark the keys `aria-hidden` and put the
-chord on the button with `aria-keyshortcuts`, so the name stays "Search". A row with a secondary
-action keeps it in `SidebarMenuAction`, a separate control.
+chord on the button with `aria-keyshortcuts`, so the name stays "Search". Build the modifier with
+`formatShortcutKey` from `use-platform`, so it reads ⌘ on a Mac and Ctrl everywhere else. A row with
+a secondary action keeps it in `SidebarMenuAction`, a separate control.
 
 ```tsx
-<SidebarMenuButton variant="outline" aria-keyshortcuts="Meta+K Control+K">
-  <Search />
-  <span>Search</span>
-  <KbdGroup aria-hidden="true" className="ms-auto">
-    <Kbd>⌘</Kbd>
-    <Kbd>K</Kbd>
-  </KbdGroup>
-</SidebarMenuButton>
+function SearchRow() {
+  const { os } = usePlatform();
+  return (
+    <SidebarMenuButton variant="outline" aria-keyshortcuts="Meta+K Control+K">
+      <Search />
+      <span>Search</span>
+      <KbdGroup aria-hidden="true" className="ms-auto">
+        <Kbd>{formatShortcutKey("mod", os)}</Kbd>
+        <Kbd>K</Kbd>
+      </KbdGroup>
+    </SidebarMenuButton>
+  );
+}
 ```
 
 <ComponentPreview
@@ -590,22 +596,25 @@ action keeps it in `SidebarMenuAction`, a separate control.
 
 ### Collapsible group
 
-A menu row can open a submenu. Render the row as a `CollapsibleTrigger`, which gives it
+A menu row can open a submenu. Render the `Collapsible` as the `SidebarMenuItem`, so the menu's
+`ul` keeps only `li` children, render the row as a `CollapsibleTrigger`, which gives it
 `aria-expanded`, and put the `SidebarMenuSub` in `CollapsibleContent`. Mark the current sub-page
 with `isActive` and `aria-current="page"` on its link.
 
 ```tsx
-<Collapsible defaultOpen className="group/collapsible">
-  <SidebarMenuItem>
-    <SidebarMenuButton render={<CollapsibleTrigger />}>
-      <SquareTerminal />
-      <span>Playground</span>
-      <ChevronRight className="ms-auto group-data-open/collapsible:rotate-90" />
-    </SidebarMenuButton>
-    <CollapsibleContent>
-      <SidebarMenuSub>{/* SidebarMenuSubItem rows */}</SidebarMenuSub>
-    </CollapsibleContent>
-  </SidebarMenuItem>
+<Collapsible
+  defaultOpen
+  className="group/collapsible"
+  render={<SidebarMenuItem />}
+>
+  <SidebarMenuButton render={<CollapsibleTrigger />}>
+    <SquareTerminal />
+    <span>Playground</span>
+    <ChevronRight className="ms-auto group-data-open/collapsible:rotate-90" />
+  </SidebarMenuButton>
+  <CollapsibleContent>
+    <SidebarMenuSub>{/* SidebarMenuSubItem rows */}</SidebarMenuSub>
+  </CollapsibleContent>
 </Collapsible>
 ```
 
@@ -617,24 +626,32 @@ with `isActive` and `aria-current="page"` on its link.
 ### Unavailable item
 
 An item the user cannot open yet stays in the list with `aria-disabled="true"`. The row keeps its
-pointer events (FRM-4), so a `Tooltip` can say why, and `aria-describedby` gives a screen reader the
-same reason.
+pointer events (FRM-4), so a `Tooltip` can say why, and `aria-describedby` points at a visually
+hidden copy of the same reason for a screen reader. A short `badge` marks the state at a glance;
+`badgeLabel` gives it words, so the row is named "Agents Coming soon" rather than "Agents TBD".
 
 ```tsx
-<Tooltip>
-  <TooltipTrigger
-    render={
-      <SidebarMenuButton
-        aria-disabled="true"
-        aria-describedby="agents-reason"
-      />
-    }
-  >
-    <Bot />
-    <span>Agents</span>
-  </TooltipTrigger>
-  <TooltipContent side="right">Available on the Team plan</TooltipContent>
-</Tooltip>
+<SidebarMenuItem>
+  <Tooltip>
+    <TooltipTrigger
+      render={
+        <SidebarMenuButton
+          aria-disabled="true"
+          aria-describedby="agents-reason"
+          badge="TBD"
+          badgeLabel="Coming soon"
+        />
+      }
+    >
+      <Bot />
+      <span>Agents</span>
+    </TooltipTrigger>
+    <TooltipContent side="right">Available on the Team plan</TooltipContent>
+  </Tooltip>
+  <span id="agents-reason" className="sr-only">
+    Available on the Team plan
+  </span>
+</SidebarMenuItem>
 ```
 
 <ComponentPreview
@@ -669,8 +686,9 @@ renders the panel expanded and a collapsed sidebar would jump on hydration. Put
 `SidebarStateScript` in the root layout's `<head>`: before first paint it reads the cookie, marks
 `<html>` with `data-sidebar-state="collapsed"`, and gives the desktop panel the `data-state` and
 `data-collapsible` its own recipes already read, so it paints collapsed. Pass it the same
-`collapsible` as your `Sidebar`. The provider starts from that mark, so hydration agrees with the
-screen and React warns about nothing.
+`collapsible` as your `Sidebar`, and the request's `nonce` under a nonce-based Content Security
+Policy. The provider starts from that mark, so hydration agrees with the screen and React warns
+about nothing.
 
 For a controlled provider, `useSidebarCookieOpen` returns `[open, setOpen]`: it starts from the
 same mark, reads the cookie after hydration when there is no mark, and its setter writes the cookie

@@ -2,7 +2,9 @@
  * `settings-01.test.tsx` — the block's browser contract: it renders, it shows its own content,
  * and the whole composed page is axe-clean. A block is a copy-once composition, so what is worth
  * pinning is that the composition still mounts and still passes the accessibility floor — the
- * behaviour of each part it composes is owned by that part's own suite.
+ * behaviour of each part it composes is owned by that part's own suite. This lane is unstyled, so
+ * every axe call skips `color-contrast`; the compiled contrast pass (at rest, dirty, confirming, both
+ * themes) is `test/contrast.browser.test.tsx`.
  */
 
 import { render } from "vitest-browser-react";

@@ -1,4 +1,4 @@
-// @vegastack board@0.20.0 sha256-+Q6koZebd0ztn1AHEJYVzKTKf67t1vlrKA7cx/Dwb5s=
+// @vegastack board@0.20.0 sha256-KIAv7A2mPKBVOSQVZSLglpAWEfdoImrpA6r5JINMb1E=
 
 "use client";
 
@@ -24,10 +24,11 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
+  defaultActionsLabel,
   RowActionMenuItems,
   type RowAction,
 } from "@/components/ui/data-table-parts";
-import { LoadMore, type LoadMoreState } from "@/components/ui/load-more";
+import { LoadMore, type LoadMoreProps } from "@/components/ui/load-more";
 import {
   Empty,
   EmptyDescription,
@@ -142,10 +143,10 @@ export interface BoardColumn<T> {
   collapsed?: boolean;
   /**
    * Keyset paging for this lane: the shared `LoadMore` footer after the lane's cards, inside
-   * its scroll.
+   * its scroll. Takes the footer's labels too, like DataList's `loadMore`.
    * @default undefined
    */
-  loadMore?: LoadMoreState;
+  loadMore?: Omit<LoadMoreProps, "className" | "ref">;
 }
 
 /** Props accepted by `Board`. */
@@ -178,6 +179,11 @@ export interface BoardProps<T> {
    * @default undefined
    */
   getItemActions?: (item: T) => RowAction[];
+  /**
+   * Accessible name of a card's ⋯ trigger when the card has actions, from its `getItemLabel`.
+   * @default (label) => `Actions for ${label}`
+   */
+  actionsLabel?: (label: string) => string;
   /**
    * The lane's count in words, for the lane's accessible name ("Open, 14
    * tasks"). Name the host's noun here.
@@ -321,6 +327,7 @@ export function Board<T>({
   onMove,
   getItemLabel,
   getItemActions,
+  actionsLabel = defaultActionsLabel,
   countLabel = cardCount,
   getItemHref,
   itemLinkRender,
@@ -423,6 +430,31 @@ export function Board<T>({
   // ---- roving focus across the ragged card grid ----------------------------
   const [activeCard, setActiveCard] = React.useState<string | null>(null);
   const cardRefs = React.useRef(new Map<string, HTMLElement>());
+  // One stable ref callback per card and lane: an inline arrow would detach and re-attach the card
+  // on every Board render, and each re-attach rebuilds its drag registration (DS-70).
+  const cardRefCallbacks = React.useRef(
+    new Map<string, (node: HTMLElement | null) => void>(),
+  );
+  const cardRef = (
+    container: string,
+    id: string,
+    handleRef: (node: HTMLElement | null) => void,
+  ) => {
+    const key = `${container}:${id}`;
+    let callback = cardRefCallbacks.current.get(key);
+    if (!callback) {
+      callback = (node) => {
+        if (node) cardRefs.current.set(id, node);
+        else {
+          cardRefs.current.delete(id);
+          cardRefCallbacks.current.delete(key);
+        }
+        handleRef(node);
+      };
+      cardRefCallbacks.current.set(key, callback);
+    }
+    return callback;
+  };
   const visibleColumns = columns.filter((column) => !isCollapsed(column));
   const firstCardId = visibleColumns.flatMap((column) =>
     column.items.map(getItemId),
@@ -681,15 +713,13 @@ export function Board<T>({
                                 href={href}
                                 linkRender={itemLinkRender}
                                 tabIndex={rovingTarget === id ? 0 : -1}
-                                ref={(node: HTMLElement | null) => {
-                                  if (node) cardRefs.current.set(id, node);
-                                  else cardRefs.current.delete(id);
-                                  (
-                                    handleProps.ref as (
-                                      el: HTMLElement | null,
-                                    ) => void
-                                  )(node);
-                                }}
+                                ref={cardRef(
+                                  column.id,
+                                  id,
+                                  handleProps.ref as (
+                                    el: HTMLElement | null,
+                                  ) => void,
+                                )}
                                 data-slot="board-card-surface"
                                 // A link has no pressed state; move mode is
                                 // announced either way.
@@ -746,7 +776,9 @@ export function Board<T>({
                                   {renderCard(item, column)}
                                 </TruncationFocusProvider>
                               </BoardCardSurface>
-                              {readOnly ? null : (
+                              {/* A read-only lane (collapsed or terminal) keeps the card's own
+                                  actions; only the Move items go. */}
+                              {readOnly && itemActions.length === 0 ? null : (
                                 <DropdownMenu
                                   open={openMenuCard === id}
                                   onOpenChange={(open) =>
@@ -760,7 +792,9 @@ export function Board<T>({
                                         size="icon-xs"
                                         aria-label={
                                           getItemLabel
-                                            ? `${itemActions.length > 0 ? "Actions for" : "Move"} ${getItemLabel(item)}`
+                                            ? itemActions.length > 0
+                                              ? actionsLabel(getItemLabel(item))
+                                              : `Move ${getItemLabel(item)}`
                                             : itemActions.length > 0
                                               ? "Card actions"
                                               : "Move card"
@@ -783,88 +817,101 @@ export function Board<T>({
                                       <>
                                         <RowActionMenuItems
                                           actions={itemActions}
+                                          onAction={() =>
+                                            reorder.keepFocusAfter(
+                                              column.id,
+                                              id,
+                                            )
+                                          }
                                         />
-                                        <DropdownMenuSeparator />
+                                        {readOnly ? null : (
+                                          <DropdownMenuSeparator />
+                                        )}
                                       </>
                                     ) : null}
-                                    {/* Within-column ordering — on touch the
+                                    {readOnly ? null : (
+                                      <>
+                                        {/* Within-column ordering — on touch the
                                         menu is the ONLY ordering path, so it
                                         must be lossless on its own. */}
-                                    {[
-                                      {
-                                        label: "Move up",
-                                        index: index - 1,
-                                        enabled: index > 0,
-                                      },
-                                      {
-                                        label: "Move down",
-                                        index: index + 1,
-                                        enabled:
-                                          index < column.items.length - 1,
-                                      },
-                                      {
-                                        label: "Move to top",
-                                        index: 0,
-                                        enabled: index > 0,
-                                      },
-                                      {
-                                        label: "Move to bottom",
-                                        index: column.items.length - 1,
-                                        enabled:
-                                          index < column.items.length - 1,
-                                      },
-                                    ].map((step) => (
-                                      <DropdownMenuItem
-                                        key={step.label}
-                                        disabled={!step.enabled}
-                                        onClick={() =>
-                                          reorder.requestMove({
-                                            id,
-                                            from: {
-                                              container: column.id,
-                                              index,
-                                            },
-                                            to: {
-                                              container: column.id,
-                                              index: step.index,
-                                            },
-                                          })
-                                        }
-                                      >
-                                        {step.label}
-                                      </DropdownMenuItem>
-                                    ))}
-                                    {moveTargetsFor(id, column).map(
-                                      ({ column: target, locked }) => (
-                                        <DropdownMenuItem
-                                          key={target.id}
-                                          disabled={locked}
-                                          onClick={() =>
-                                            reorder.requestMove({
-                                              id,
-                                              from: {
-                                                container: column.id,
-                                                index,
-                                              },
-                                              to: {
-                                                container: target.id,
-                                                index: target.items.length,
-                                              },
-                                            })
-                                          }
-                                        >
-                                          <span className="flex min-w-0 flex-col">
-                                            <span className="truncate">
-                                              Move to {laneLabel(target)}
-                                            </span>
-                                            {locked && target.lockedReason ? (
-                                              <span className="text-xs text-muted-foreground">
-                                                {target.lockedReason}
+                                        {[
+                                          {
+                                            label: "Move up",
+                                            index: index - 1,
+                                            enabled: index > 0,
+                                          },
+                                          {
+                                            label: "Move down",
+                                            index: index + 1,
+                                            enabled:
+                                              index < column.items.length - 1,
+                                          },
+                                          {
+                                            label: "Move to top",
+                                            index: 0,
+                                            enabled: index > 0,
+                                          },
+                                          {
+                                            label: "Move to bottom",
+                                            index: column.items.length - 1,
+                                            enabled:
+                                              index < column.items.length - 1,
+                                          },
+                                        ].map((step) => (
+                                          <DropdownMenuItem
+                                            key={step.label}
+                                            disabled={!step.enabled}
+                                            onClick={() =>
+                                              reorder.requestMove({
+                                                id,
+                                                from: {
+                                                  container: column.id,
+                                                  index,
+                                                },
+                                                to: {
+                                                  container: column.id,
+                                                  index: step.index,
+                                                },
+                                              })
+                                            }
+                                          >
+                                            {step.label}
+                                          </DropdownMenuItem>
+                                        ))}
+                                        {moveTargetsFor(id, column).map(
+                                          ({ column: target, locked }) => (
+                                            <DropdownMenuItem
+                                              key={target.id}
+                                              disabled={locked}
+                                              onClick={() =>
+                                                reorder.requestMove({
+                                                  id,
+                                                  from: {
+                                                    container: column.id,
+                                                    index,
+                                                  },
+                                                  to: {
+                                                    container: target.id,
+                                                    index: target.items.length,
+                                                  },
+                                                })
+                                              }
+                                            >
+                                              <span className="flex min-w-0 flex-col">
+                                                <span className="truncate">
+                                                  Move to {laneLabel(target)}
+                                                </span>
+                                                {locked &&
+                                                target.lockedReason ? (
+                                                  <span className="text-xs text-muted-foreground">
+                                                    {target.lockedReason}
+                                                  </span>
+                                                ) : null}
                                               </span>
-                                            ) : null}
-                                          </span>
-                                        </DropdownMenuItem>
-                                      ),
+                                            </DropdownMenuItem>
+                                          ),
+                                        )}
+                                      </>
                                     )}
                                   </DropdownMenuContent>
                                 </DropdownMenu>

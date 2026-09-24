@@ -1,4 +1,4 @@
-// @vegastack notifications-01@0.20.0 sha256-fw6O+ommjZA3lJCQh87O4M82iQquYdCmv4SwtdlzuHE=
+// @vegastack notifications-01@0.20.0 sha256-ggAYt4BVKbvljS2Ke8Tp8XFbECkAeHrZoNGZkzr8dkQ=
 
 "use client";
 
@@ -123,7 +123,7 @@ export default function Page() {
         onMarkAllRead={() =>
           setItems((current) => current.map((n) => ({ ...n, unread: false })))
         }
-        loadOlder={
+        loadMore={
           olderLoaded
             ? undefined
             : { hasMore: true, loading: loadingOlder, onLoadMore: loadOlder }

@@ -1,13 +1,18 @@
-// @vegastack command-search-01@0.20.0 sha256-wlflkcS11d3GdasYSIv7MdSu8gd1YkSlV2AfhGS51zs=
+// @vegastack command-search-01@0.20.0 sha256-k/Xrfebo6yZjziWcV7qtXBPSBQIUau8g35qUXXwhXiA=
 
 "use client";
 
 import * as React from "react";
+import { TIMINGS } from "@vegastack/design";
 import {
   Box,
   CalendarDays,
   FileText,
+  FolderKanban,
+  Layers,
   ListChecks,
+  Puzzle,
+  SlidersHorizontal,
   TriangleAlert,
   UsersRound,
 } from "lucide-react";
@@ -27,12 +32,26 @@ import {
 import { ItemContent, ItemDescription, ItemTitle } from "@/components/ui/item";
 import { Kbd, KbdGroup } from "@/components/ui/kbd";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
-import { formatShortcut, usePlatform } from "@/components/ui/use-platform";
+import { useAnnouncer } from "@/components/ui/use-announcer";
+import {
+  formatShortcut,
+  formatShortcutKey,
+  usePlatform,
+} from "@/components/ui/use-platform";
 
 /** One search result. */
 export interface SearchResult {
   id: string;
-  type: "meeting" | "task" | "product" | "customer" | "page";
+  type:
+    | "meeting"
+    | "task"
+    | "product"
+    | "family"
+    | "accessory"
+    | "customer"
+    | "project"
+    | "attribute"
+    | "page";
   title: string;
   /** One line of context, e.g. "Meeting · Skyline · 3 Sep". */
   description: string;
@@ -52,7 +71,11 @@ export const SCOPES = [
   { value: "meetings", label: "Meetings" },
   { value: "tasks", label: "Tasks" },
   { value: "products", label: "Products" },
+  { value: "families", label: "Families" },
+  { value: "accessories", label: "Accessories" },
   { value: "customers", label: "Customers" },
+  { value: "projects", label: "Projects" },
+  { value: "attributes", label: "Attributes" },
   { value: "pages", label: "Pages" },
 ] as const;
 
@@ -60,7 +83,11 @@ const GROUPS: { type: SearchResult["type"]; heading: string }[] = [
   { type: "meeting", heading: "Meetings" },
   { type: "task", heading: "Tasks" },
   { type: "product", heading: "Products" },
+  { type: "family", heading: "Families" },
+  { type: "accessory", heading: "Accessories" },
   { type: "customer", heading: "Customers" },
+  { type: "project", heading: "Projects" },
+  { type: "attribute", heading: "Attributes" },
   { type: "page", heading: "Pages" },
 ];
 
@@ -68,9 +95,40 @@ const ICONS: Record<SearchResult["type"], React.ElementType> = {
   meeting: CalendarDays,
   task: ListChecks,
   product: Box,
+  family: Layers,
+  accessory: Puzzle,
   customer: UsersRound,
+  project: FolderKanban,
+  attribute: SlidersHorizontal,
   page: FileText,
 };
+
+/**
+ * The settled count, spoken once per answer. `Command`'s own result announcer counts cmdk's items,
+ * which with `shouldFilter={false}` is 0 while the host call is in flight, so it would say
+ * "0 results" on every keystroke; the block silences it and speaks the answer itself.
+ */
+function resultsLabel(count: number): string {
+  if (count === 0) return "No results";
+  return count === 1 ? "1 result" : `${count} results`;
+}
+const silentResultsLabel = () => "";
+
+/** Only http(s) and same-origin relative links are followed; `javascript:` and the rest are not. */
+function isSafeHref(href: string): boolean {
+  try {
+    const { protocol } = new URL(href, window.location.href);
+    return protocol === "http:" || protocol === "https:";
+  } catch {
+    return false;
+  }
+}
+
+/** Keeps the keys cmdk's root claims (Enter selects, Home/End move) on a control inside it. */
+function keepKeys(event: React.KeyboardEvent) {
+  if (event.key === "Enter" || event.key === "Home" || event.key === "End")
+    event.stopPropagation();
+}
 
 /** Props for {@link CommandSearch}. */
 export interface CommandSearchProps {
@@ -121,8 +179,9 @@ function ResultItem({
  * The search palette: a `CommandDialog` that asks the host's `search(query, scope, signal)` and
  * shows the answer grouped by type. Scope chips sit after the input as their own Tab stop, and
  * Alt+← / Alt+→ switches scope without leaving the input; changing scope re-asks and keeps the
- * query. An empty query shows recents. ↵ opens the selected result, ⌘↵ / Ctrl+↵ opens it in a new
- * tab, and the footer's hints are built with `formatShortcut`.
+ * query. An empty query shows recents; typing waits `TIMINGS.searchDebounceMs` before asking. ↵
+ * opens the selected result, ⌘↵ / Ctrl+↵ opens it in a new tab, and only http(s) links are followed.
+ * The footer's hints are built with `formatShortcut`.
  *
  * @example
  * <CommandSearch search={(q, scope, signal) => api.search(q, scope, { signal })} recents={recent} />
@@ -135,6 +194,7 @@ export function CommandSearch({
   defaultOpen = false,
 }: CommandSearchProps) {
   const { os } = usePlatform();
+  const { announce, Announcer } = useAnnouncer();
   const [uncontrolledOpen, setUncontrolledOpen] = React.useState(defaultOpen);
   const open = openProp ?? uncontrolledOpen;
   const setOpen = (next: boolean) => {
@@ -150,6 +210,12 @@ export function CommandSearch({
   const [selected, setSelected] = React.useState("");
   const [attempt, setAttempt] = React.useState(0);
 
+  // The latest search call, so an inline arrow never re-asks.
+  const searchRef = React.useRef(search);
+  React.useLayoutEffect(() => {
+    searchRef.current = search;
+  });
+
   React.useEffect(() => {
     const q = query.trim();
     if (!q) {
@@ -159,23 +225,30 @@ export function CommandSearch({
     }
     const controller = new AbortController();
     setStatus("loading");
-    search(q, scope, controller.signal).then(
-      (next) => {
-        if (controller.signal.aborted) return;
-        setResults(next);
-        setStatus("ready");
-      },
-      () => {
-        if (!controller.signal.aborted) setStatus("error");
-      },
-    );
-    return () => controller.abort();
-  }, [query, scope, search, attempt]);
+    const timer = setTimeout(() => {
+      searchRef.current(q, scope, controller.signal).then(
+        (next) => {
+          if (controller.signal.aborted) return;
+          setResults(next);
+          setStatus("ready");
+          announce(resultsLabel(next.length));
+        },
+        () => {
+          if (!controller.signal.aborted) setStatus("error");
+        },
+      );
+    }, TIMINGS.searchDebounceMs);
+    return () => {
+      clearTimeout(timer);
+      controller.abort();
+    };
+  }, [announce, query, scope, attempt]);
 
   const shown = query.trim() ? results : recents;
   const byId = new Map(shown.map((r) => [r.id, r]));
 
   function openResult(result: SearchResult, newTab = false) {
+    if (!isSafeHref(result.href)) return;
     if (newTab) {
       window.open(result.href, "_blank", "noopener");
       return;
@@ -193,7 +266,10 @@ export function CommandSearch({
       const index = SCOPES.findIndex((s) => s.value === scope);
       const step = event.key === "ArrowRight" ? 1 : -1;
       const next = SCOPES[(index + step + SCOPES.length) % SCOPES.length];
-      if (next) setScope(next.value);
+      if (next) {
+        setScope(next.value);
+        announce(`Searching ${next.label}`);
+      }
     }
   }
 
@@ -214,10 +290,11 @@ export function CommandSearch({
       onOpenChange={setOpen}
       size="lg"
       title="Search"
-      description="Search meetings, tasks, products, customers and pages"
+      description="Search meetings, tasks, products, families, accessories, customers, projects, attributes and pages"
     >
       <Command
         shouldFilter={false}
+        resultsLabel={silentResultsLabel}
         value={selected}
         onValueChange={setSelected}
         onKeyDown={onCommandKeyDown}
@@ -227,8 +304,10 @@ export function CommandSearch({
           value={query}
           onValueChange={setQuery}
           onKeyDown={onInputKeyDown}
+          aria-keyshortcuts="Alt+ArrowLeft Alt+ArrowRight"
         />
-        <div className="px-2 pt-2">
+        <Announcer />
+        <div className="px-2 pt-2" onKeyDown={keepKeys}>
           <ToggleGroup
             size="sm"
             variant="outline"
@@ -253,12 +332,13 @@ export function CommandSearch({
             <div
               role="alert"
               className="flex items-center justify-center gap-2 py-6 text-sm"
+              onKeyDown={keepKeys}
             >
               <TriangleAlert
                 aria-hidden
                 className="size-4 text-destructive-text"
               />
-              <span>Couldn’t search.</span>
+              <span className="text-destructive-text">Couldn’t search</span>
               <Button
                 variant="outline"
                 size="sm"
@@ -291,7 +371,7 @@ export function CommandSearch({
         </CommandList>
         <CommandFooter className="hidden sm:flex" aria-hidden>
           <KbdGroup>
-            <Kbd>↵</Kbd> Open
+            <Kbd>{formatShortcutKey("enter", os)}</Kbd> Open
           </KbdGroup>
           <KbdGroup>
             <Kbd>{formatShortcut(["mod", "enter"], os)}</Kbd> New tab

@@ -536,7 +536,13 @@ test("D3: arrow keys reach disabled item, checkbox and radio rows, and Enter doe
   await userEvent.click(screen.getByText("File"));
   await expect.element(screen.getByText("Edit")).toBeInTheDocument();
 
-  await userEvent.keyboard("{ArrowDown}{ArrowDown}");
+  // One key per settled focus: a second key sent while the first is still moving focus into the
+  // popup is dropped (macOS Chromium measured it every run).
+  await userEvent.keyboard("{ArrowDown}");
+  await expect
+    .element(screen.getByRole("menuitem", { name: "Edit" }))
+    .toHaveFocus();
+  await userEvent.keyboard("{ArrowDown}");
   const item = screen.getByRole("menuitem", { name: /Download data sheet/ });
   await expect.element(item).toHaveFocus();
   await expect.element(item).toHaveAccessibleDescription("No specs yet");

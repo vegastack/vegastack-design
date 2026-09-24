@@ -1,4 +1,4 @@
-// @vegastack command@0.20.0 sha256-QHo2yR+/JX8TxbVkr1ZIzV/CjIYjRnW77PSUKCLklgM=
+// @vegastack command@0.20.0 sha256-C1UvJCW6XdDhSuT3yQt/EWSng3x+8Elf2+akSZQXyHQ=
 
 "use client";
 
@@ -197,19 +197,23 @@ function CommandEmpty({
 }
 
 /**
- * API-18 — cmdk's loading slot. cmdk renders it as an unnamed-value `progressbar` whose visible
- * text is `aria-hidden`, so a screen reader hears nothing of it; this part turns it into a polite
- * `status` whose text is the announcement (A11Y-3). Render it OUTSIDE `CommandList` (above it)
- * or while the list has no results: a status inside a listbox with options is an
+ * API-18 — cmdk's loading slot. cmdk renders it as a `progressbar` whose visible text is
+ * `aria-hidden`; with no `progress` value that bar has nothing to report, so a screen reader hears
+ * nothing of it. Without `progress` this part turns it into a polite `status` whose text is the
+ * announcement (A11Y-3); with `progress` (0–100) it stays cmdk's labelled `progressbar`, so the
+ * value still reaches assistive technology. Render it OUTSIDE `CommandList` (above it) or while
+ * the list has no results: a status inside a listbox with options is an
  * `aria-required-children` violation.
  */
 function CommandLoading({
   className,
   children,
-  label = "Loading…",
+  label = "Searching…",
+  progress,
   ref,
   ...props
 }: React.ComponentProps<typeof CommandPrimitive.Loading>) {
+  const determinate = progress !== undefined;
   const nodeRef = React.useRef<HTMLDivElement | null>(null);
   const setRef = React.useMemo(
     () => mergeRefs<HTMLDivElement>(nodeRef, ref),
@@ -220,7 +224,7 @@ function CommandLoading({
   // node. No dependency array, as in `CommandList`: every render has to reassert it.
   React.useLayoutEffect(() => {
     const node = nodeRef.current;
-    if (!node) return;
+    if (!node || determinate) return;
     node.setAttribute("role", "status");
     for (const name of [
       "aria-valuenow",
@@ -235,9 +239,13 @@ function CommandLoading({
 
   return (
     <CommandPrimitive.Loading
+      // The status rewrite is on the node, so switching between the two modes remounts it
+      // rather than leaving one mode's ARIA on the other's element.
+      key={determinate ? "progress" : "status"}
       data-slot="command-loading"
       ref={setRef}
       label={label}
+      progress={progress}
       className={cn(
         "flex items-center justify-center gap-2 py-6 text-sm text-muted-foreground",
         className,
@@ -301,7 +309,7 @@ function CommandItem({
   ...props
 }: React.ComponentProps<typeof CommandPrimitive.Item>) {
   // API-19: a two-line row links its `ItemDescription` as the option's description.
-  const description = useItemDescriptionId();
+  const description = useItemDescriptionId(props["aria-describedby"]);
 
   return (
     <CommandPrimitive.Item

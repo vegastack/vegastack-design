@@ -207,6 +207,20 @@ test("DS-22: inside an invalid Field the trigger is described and invalid", asyn
   await expect.element(trigger).toHaveAccessibleDescription(/Pick a project/);
 });
 
+test("DS-22: a <label for> names the trigger; no fallback aria-label overrides it", async () => {
+  const screen = await render(
+    <>
+      <label htmlFor="project">Project</label>
+      <Picker id="project" value={PROJECTS[0]} onValueChange={() => {}} />
+    </>,
+  );
+  const trigger = screen.getByRole("combobox", { name: "Project" });
+  await expect.element(trigger).toBeInTheDocument();
+  await expect
+    .poll(() => trigger.element().hasAttribute("aria-label"))
+    .toBe(false);
+});
+
 test("DS-22: standalone with no label it still falls back to the value, then the placeholder", async () => {
   const screen = await render(<Picker value={PROJECTS[2]} />);
   await expect
@@ -326,6 +340,15 @@ test("remote mode never filters locally and announces loading once (DS-38)", asy
   expect(status.closest('[role="listbox"]')).toBeNull();
 });
 
+test("a search with no rows yet shows its loading line (DS-38)", async () => {
+  const screen = await render(<Picker remote loading items={[]} />);
+  await screen.getByRole("combobox").click();
+  // Shown, not screen-reader-only (this lane compiles no CSS, so assert the switch itself).
+  await expect
+    .element(screen.getByRole("status").filter({ hasText: "Searching…" }))
+    .toHaveAttribute("data-visible");
+});
+
 test("an error shows in the panel and Try again retries (DS-38)", async () => {
   const onRetry = vi.fn();
   const screen = await render(
@@ -335,9 +358,7 @@ test("an error shows in the panel and Try again retries (DS-38)", async () => {
   await expect
     .element(screen.getByRole("alert"))
     .toHaveTextContent("Couldn't load projects.");
-  (
-    screen.getByRole("button", { name: "Try again" }).element() as HTMLElement
-  ).click();
+  await screen.getByRole("button", { name: "Try again" }).click();
   expect(onRetry).toHaveBeenCalledOnce();
 });
 
@@ -347,9 +368,7 @@ test("loadMore renders the shared footer in the panel (DS-38)", async () => {
     <Picker remote loadMore={{ hasMore: true, onLoadMore }} />,
   );
   await screen.getByRole("combobox").click();
-  (
-    screen.getByRole("button", { name: "Load more" }).element() as HTMLElement
-  ).click();
+  await screen.getByRole("button", { name: "Load more" }).click();
   expect(onLoadMore).toHaveBeenCalledOnce();
 });
 

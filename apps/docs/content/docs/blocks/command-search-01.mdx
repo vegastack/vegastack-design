@@ -30,8 +30,8 @@ This installs the block's own files plus the components it composes: `app-shell`
 ## Anatomy
 
 - `CommandDialog size="lg"` › `Command shouldFilter={false}` — the host's search does the matching.
-- `CommandInput` "Search…", then the scope chips — All · Meetings · Tasks · Products · Customers ·
-  Pages — as a `ToggleGroup wrap deselectable={false}`. The chips are their own Tab stop after the
+- `CommandInput` "Search…", then the scope chips — All · Meetings · Tasks · Products · Families ·
+  Accessories · Customers · Projects · Attributes · Pages — as a `ToggleGroup wrap deselectable={false}`. The chips are their own Tab stop after the
   input; Alt+← and Alt+→ switch scope without leaving it.
 - `CommandList`: "Recent" while the query is empty; `CommandLoading` while a search runs; one
   `CommandGroup` per type, each row an `ItemTitle` over an `ItemDescription` ("Meeting · Skyline
@@ -42,7 +42,10 @@ This installs the block's own files plus the components it composes: `app-shell`
 ## Searching
 
 Each keystroke or scope change calls `search(query, scope, signal)` and aborts the one before, so a
-slow answer never overwrites a newer one. Changing scope keeps the query.
+slow answer never overwrites a newer one. Changing scope keeps the query. When an answer settles,
+the palette says its count once in a polite live region — "5 results", "1 result" or "No results".
+`Command`'s own result announcer is silenced (`resultsLabel` returns an empty string), because with
+`shouldFilter={false}` it counts the zero rows on screen while a search is in flight.
 
 ## Opening a result
 

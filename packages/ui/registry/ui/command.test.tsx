@@ -521,9 +521,10 @@ test("API-19: a two-line option exposes its description", async () => {
       </CommandList>
     </Command>,
   );
-  await expect
-    .element(screen.getByRole("option", { name: /Depot review/ }))
-    .toHaveAccessibleDescription("Meeting · 3 Sep");
+  const option = screen.getByRole("option", { name: /Depot review/ });
+  await expect.element(option).toHaveAccessibleDescription("Meeting · 3 Sep");
+  // Read once: the description is not repeated inside the name.
+  await expect.element(option).toHaveAccessibleName("Depot review");
 });
 
 test("API-19: a caller's own aria-describedby wins over the linked description", async () => {
@@ -538,9 +539,10 @@ test("API-19: a caller's own aria-describedby wins over the linked description",
       </CommandList>
     </Command>,
   );
-  await expect
-    .element(screen.getByRole("option", { name: /Depot review/ }))
-    .toHaveAccessibleDescription("Own description");
+  const option = screen.getByRole("option", { name: /Depot review/ });
+  await expect.element(option).toHaveAccessibleDescription("Own description");
+  // Nothing links the second line, so it stays in the name rather than going unread.
+  await expect.element(option).toHaveAccessibleName(/Meeting · 3 Sep/);
 });
 
 test("API-19: a one-line option has no description", async () => {
@@ -624,9 +626,21 @@ test("API-18: CommandLoading is a polite status whose text is spoken", async () 
   expect(loading.hasAttribute("aria-valuenow")).toBe(false);
   expect(loading.hasAttribute("aria-label")).toBe(false);
   // The default copy is VOI-1's, and it is exposed rather than hidden behind cmdk's aria-hidden.
-  expect(loading.textContent).toBe("Loading…");
+  expect(loading.textContent).toBe("Searching…");
   expect(loading.querySelector('[aria-hidden="true"]')).toBeNull();
   expect(screen.container.querySelector('[role="progressbar"]')).toBeNull();
+});
+
+test("API-18: CommandLoading with a progress value stays a labelled progressbar", async () => {
+  const screen = await render(
+    <Command shouldFilter={false}>
+      <CommandInput aria-label="Search meetings" />
+      <CommandLoading progress={40} label="Indexing meetings" />
+      <CommandList />
+    </Command>,
+  );
+  const bar = screen.getByRole("progressbar", { name: "Indexing meetings" });
+  await expect.element(bar).toHaveAttribute("aria-valuenow", "40");
 });
 
 test("API-18: CommandFooter sits outside the listbox", async () => {

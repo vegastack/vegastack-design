@@ -503,6 +503,26 @@ receive from `onSortChange`, so they are documented as hand-written tables:
 `SortDirection` is `"asc" | "desc"`. `onSortChange` receives `SortState | null` — `null` means the sort
 was cleared (the third click on a header).
 
+### Row actions
+
+`rowActionsColumn(options)` returns the trailing actions column; `RowActionsMenu` is the ⋯ menu it
+renders, and `RowAction` is one entry of either.
+
+<ApiTable
+  path="../../packages/ui/registry/ui/data-list.tsx"
+  name="RowActionsColumnOptions"
+/>
+
+<ApiTable
+  path="../../packages/ui/registry/ui/data-table-parts.tsx"
+  name="RowActionsMenuProps"
+/>
+
+<ApiTable
+  path="../../packages/ui/registry/ui/data-table-parts.tsx"
+  name="RowAction"
+/>
+
 ## Accessibility
 
 - Renders a real semantic `<table>` with `<thead>`/`<tbody>` and `<th>` header cells, so screen readers

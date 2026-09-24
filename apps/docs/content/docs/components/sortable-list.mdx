@@ -60,9 +60,11 @@ the row menu.
 
 ### With row actions
 
-`menuItems(item)` returns the row's own `RowAction`s — rename, delete — listed first in its ⋯ menu,
-above a separator and the Move items: one menu per row, named `Actions for {label}`. A disabled
-action stays reachable and reads its `disabledReason`. They stay available on a locked row.
+`getItemActions(item)` returns the row's own `RowAction`s — rename, delete — listed first in its ⋯
+menu, above a separator and the Move items: one menu per row, named `Actions for {label}` (Board's
+cards take the same accessor). A disabled action stays reachable and reads its `disabledReason`.
+They stay available on a locked row, and an action that removes its row leaves focus on the row
+that took its place. `menuItems` is the deprecated name of the same accessor.
 
 <ComponentPreview
   name="sortableListRowActions"

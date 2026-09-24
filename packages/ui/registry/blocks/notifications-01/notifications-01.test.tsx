@@ -69,7 +69,7 @@ test("the error and loading states render and are axe-clean", async () => {
       open
       onOpenChange={() => {}}
       notifications={NOTIFICATIONS}
-      status="error"
+      error="Check your connection, then try again."
       onRetry={() => {}}
       onMarkAllRead={() => {}}
     />,
@@ -85,12 +85,12 @@ test("the error and loading states render and are axe-clean", async () => {
       open
       onOpenChange={() => {}}
       notifications={[]}
-      status="loading"
+      loading
       onMarkAllRead={() => {}}
     />,
   );
   await expect
-    .element(loading.getByText("Loading notifications"))
+    .element(loading.getByText("Loading notifications…"))
     .toBeInTheDocument();
   await expectNoA11yViolations(document.body, ["color-contrast"]);
 });

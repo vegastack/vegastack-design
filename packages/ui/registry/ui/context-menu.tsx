@@ -1,4 +1,4 @@
-// @vegastack context-menu@0.20.0 sha256-+bQXaUh7CZCdXptgORQj1iIZlRtntUhNpmN70mVRsvc=
+// @vegastack context-menu@0.20.0 sha256-TGAVBeyl2QTEpBIRLjA3gomSdk4UqA9c0XTWdb3sL38=
 
 "use client";
 
@@ -114,7 +114,7 @@ function ContextMenuItem({
   inset?: boolean;
   variant?: "default" | "destructive";
 }) {
-  const description = useItemDescriptionId();
+  const description = useItemDescriptionId(props["aria-describedby"]);
   return (
     <ItemDescriptionContext.Provider value={description.register}>
       <ContextMenuPrimitive.Item
@@ -184,7 +184,7 @@ function ContextMenuCheckboxItem({
 }: ContextMenuPrimitive.CheckboxItem.Props & {
   inset?: boolean;
 }) {
-  const description = useItemDescriptionId();
+  const description = useItemDescriptionId(props["aria-describedby"]);
   return (
     <ItemDescriptionContext.Provider value={description.register}>
       <ContextMenuPrimitive.CheckboxItem
@@ -228,7 +228,7 @@ function ContextMenuRadioItem({
 }: ContextMenuPrimitive.RadioItem.Props & {
   inset?: boolean;
 }) {
-  const description = useItemDescriptionId();
+  const description = useItemDescriptionId(props["aria-describedby"]);
   return (
     <ItemDescriptionContext.Provider value={description.register}>
       <ContextMenuPrimitive.RadioItem

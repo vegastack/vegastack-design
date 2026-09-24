@@ -44,9 +44,21 @@ describe("affected component closure", () => {
       "packages/ui/registry/ui/code-block.test.tsx",
       "packages/ui/registry/ui/markdown-view.test.tsx",
     ]);
-    expect(result.previewModules).toEqual(["code-block", "markdown-view"]);
+    // bubble's preview renders a CodeBlock, so its fixtures run although bubble does not depend on it.
+    expect(result.previewModules).toEqual([
+      "bubble",
+      "code-block",
+      "markdown-view",
+    ]);
     expect(result.geometryFixtures).toContain("codeBlock");
     expect(result.geometryFixtures).toContain("markdownView");
+  });
+
+  it("selects a preview that composes a changed component its owner does not depend on", () => {
+    const result = plan(change("packages/ui/registry/ui/select.tsx"));
+    expect(result.affectedItems).not.toContain("button-group");
+    expect(result.previewModules).toContain("button-group");
+    expect(result.geometryFixtures).toContain("buttonGroupSelect");
   });
 
   it("expands a shared primitive without selecting unrelated components", () => {

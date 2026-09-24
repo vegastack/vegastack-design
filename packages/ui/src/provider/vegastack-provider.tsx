@@ -52,6 +52,14 @@ export function VegaStackProvider({
 }: VegaStackProviderProps) {
   const toasterNode =
     toaster === true ? <Toaster /> : toaster === false ? null : toaster;
+  // A custom `<Toaster limit timeout />` renders into this provider's store, so its queue settings
+  // are this provider's.
+  const { limit, timeout } = React.isValidElement<{
+    limit?: number;
+    timeout?: number;
+  }>(toaster)
+    ? toaster.props
+    : {};
   return (
     <NextThemesProvider
       attribute="class"
@@ -67,7 +75,7 @@ export function VegaStackProvider({
         >
           {/* OVL-17: the provider carries the module `toast` manager, so `toast()` and
               `useToastManager()` feed one store, and the bundled `Toaster` renders into it. */}
-          <ToastProvider toastManager={toast}>
+          <ToastProvider toastManager={toast} limit={limit} timeout={timeout}>
             {children}
             {toasterNode}
           </ToastProvider>

@@ -746,6 +746,19 @@ test("retry re-resolves a lazy source", async () => {
   await vi.waitFor(() => expect(src).toHaveBeenCalledTimes(2));
 });
 
+test("a lazy src that rejects shows the player's own error line (DS-77)", async () => {
+  const screen = await render(
+    <AudioPlayer src={() => Promise.reject(new Error("gone"))} label="Clip" />,
+  );
+  within(
+    compactLayout(screen.container),
+    'button[aria-label="Play Clip"]',
+  ).click();
+  await expect
+    .element(screen.getByRole("alert"))
+    .toHaveTextContent("Couldn’t load the recording");
+});
+
 test("actionsRef seeks a loaded player at once and plays and pauses it", async () => {
   const actions = React.createRef<AudioPlayerActions>();
   const mediaRef = React.createRef<HTMLAudioElement>();

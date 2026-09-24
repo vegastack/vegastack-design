@@ -245,6 +245,7 @@
       "registryDependencies": [
         "@vegastack/button",
         "@vegastack/media-player-controls",
+        "@vegastack/spinner",
         "@vegastack/use-announcer"
       ],
       "files": [
@@ -1398,6 +1399,7 @@
         "@vegastack/filter-bar",
         "@vegastack/input",
         "@vegastack/number-field",
+        "@vegastack/searchable-select",
         "@vegastack/select"
       ],
       "files": [
@@ -13048,7 +13050,7 @@
       "name": "tabs",
       "type": "registry:ui",
       "title": "Tabs",
-      "description": "Layered content sections — line or pill variants, optional icons and count badges, horizontal or vertical, full keyboard navigation.",
+      "description": "Layered content sections — line or pill variants, optional icons and counts, horizontal or vertical, full keyboard navigation.",
       "categories": ["navigation"],
       "dependencies": [
         "@base-ui/react@^1.6.0",
@@ -13065,7 +13067,7 @@
         }
       ],
       "meta": {
-        "whenToUse": "Organize related content into peer sections the user switches between in place; count badges surface pending items. A line list scrolls sideways inside itself when the tabs outnumber the width; orientation=\"vertical\" suits a stable column of settings sections. For tabs that are separate pages, draw a nav of links from tabsListVariants and tabsTriggerVariants with aria-current=\"page\" (route tabs).",
+        "whenToUse": "Organize related content into peer sections the user switches between in place; a count after a trigger's label is an aria-hidden tabular number plus an sr-only suffix, so it reads as part of the tab's name. A line list scrolls sideways inside itself when the tabs outnumber the width; orientation=\"vertical\" suits a stable column of settings sections. For tabs that are separate pages, draw a nav of links from tabsListVariants and tabsTriggerVariants with aria-current=\"page\" (route tabs).",
         "whenNotToUse": "Sequential multi-step flows (stepper), single-select form input (radio/select), sections that must be visible at once, or page-level navigation rendered as a tablist — route tabs are links, not tabs.",
         "version": "0.20.0"
       }
@@ -15671,6 +15673,7 @@
       "categories": ["search", "navigation"],
       "dependencies": [
         "lucide-react@^1.47.0",
+        "@vegastack/design@^0.7.6",
         "@vegastack/design-tokens@^0.7.1"
       ],
       "registryDependencies": [
@@ -15681,6 +15684,7 @@
         "@vegastack/kbd",
         "@vegastack/page-header",
         "@vegastack/toggle-group",
+        "@vegastack/use-announcer",
         "@vegastack/use-platform"
       ],
       "files": [

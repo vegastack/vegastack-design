@@ -97,8 +97,21 @@ reading direction without a second rule.
 
 ### With counts
 
-A count goes inside the trigger, after the label, so it is part of the tab's accessible name — a
-screen reader hears "Open 12", not "Open" and a stray number.
+A count goes inside the trigger, after the label, so it is part of the tab's accessible name. Show
+the number in a muted `tabular-nums` span marked `aria-hidden`, and follow it with an `sr-only`
+suffix that says what it counts, so a screen reader hears "Open 12 tasks" rather than "Open12" or a
+bare number. Leave the suffix without a leading comma: the trigger lays its children out in a row,
+so a separate span is already read as its own word.
+
+```tsx
+<TabsTrigger value="open">
+  Open
+  <span aria-hidden className="text-muted-foreground tabular-nums">
+    12
+  </span>
+  <span className="sr-only">12 tasks</span>
+</TabsTrigger>
+```
 
 <ComponentPreview name="tabsCounts" file="components/preview/tabs.tsx" />
 

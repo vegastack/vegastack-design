@@ -1,4 +1,4 @@
-// @vegastack app-shell-01@0.20.0 sha256-5UFrTzAh3W7J1V220tifYlr555558C/SJu8YGhq7OWI=
+// @vegastack app-shell-01@0.20.0 sha256-khj95IlllG3FiO07tAft+PhlhZjCFBzL9e4/0+2d8Bw=
 
 import { Plus } from "lucide-react";
 
@@ -73,7 +73,7 @@ export default function Page() {
               title="Overview"
               description="What needs you today across Acme."
               actions={
-                <Button size="sm">
+                <Button>
                   <Plus />
                   New agent
                 </Button>

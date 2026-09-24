@@ -1,4 +1,4 @@
-// @vegastack settings-02@0.20.0 sha256-FuqNm2dFanm6nqc6cNkDYeVWbDa92j7mLpHtbvax4wo=
+// @vegastack settings-02@0.20.0 sha256-oOv6SChMva1F2eIQMhNXQiyzXhgJNaF/aAPcUEwnmPA=
 
 import { ChevronRight } from "lucide-react";
 
@@ -109,7 +109,9 @@ function SettingsTileItem({ tile }: { tile: SettingsTile }) {
   const content = (
     <ItemContent>
       <ItemTitle id={titleId}>{tile.title}</ItemTitle>
-      <ItemDescription id={factId}>{tile.fact}</ItemDescription>
+      <ItemDescription id={factId} className="tabular-nums">
+        {tile.fact}
+      </ItemDescription>
     </ItemContent>
   );
 

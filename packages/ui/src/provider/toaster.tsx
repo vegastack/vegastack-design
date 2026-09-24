@@ -135,15 +135,17 @@ type ToastCustomData = {
   render?: (toast: ToastPrimitive.Root.ToastObject) => React.ReactNode;
 };
 
-// OVL-17: whether a `ToastProvider` is already mounted above. `Toaster` reuses it rather than
-// mounting a second provider, so `toast()` and `useToastManager()` write to the one store the
-// viewport renders.
-const ToastProviderScope = React.createContext(false);
+// OVL-17: the manager of the `ToastProvider` mounted above, if any. A `Toaster` given the same
+// manager reuses that provider rather than mounting a second one, so `toast()` and
+// `useToastManager()` write to the one store the viewport renders.
+const ToastProviderScope = React.createContext<
+  ToastPrimitive.Provider.Props["toastManager"] | null
+>(null);
 
 function ToastProvider({ children, ...props }: ToastPrimitive.Provider.Props) {
   return (
     <ToastPrimitive.Provider {...props}>
-      <ToastProviderScope.Provider value>
+      <ToastProviderScope.Provider value={props.toastManager ?? null}>
         {children}
       </ToastProviderScope.Provider>
     </ToastPrimitive.Provider>
@@ -432,7 +434,7 @@ function Toaster({
   const swipe: ToastPrimitive.Root.Props["swipeDirection"] =
     swipeDirection ??
     (anchor === "top" ? ["up", "left", "right"] : ["down", "left", "right"]);
-  const insideProvider = React.useContext(ToastProviderScope);
+  const providerManager = React.useContext(ToastProviderScope);
 
   const viewport = (
     <ToastPortal>
@@ -441,10 +443,10 @@ function Toaster({
       </ToastViewport>
     </ToastPortal>
   );
-  // OVL-17: under an existing provider (VegaStackProvider mounts one with the module `toast`
-  // manager) the Toaster renders only its viewport, into that provider's one store. A Toaster
-  // given its own manager still brings its own provider.
-  if (insideProvider && toastManager === toast) {
+  // OVL-17: under a provider on the same manager (VegaStackProvider mounts one with the module
+  // `toast` manager) the Toaster renders only its viewport, into that provider's one store, and
+  // the provider's `limit`/`timeout` apply. A Toaster on another manager brings its own provider.
+  if (providerManager === toastManager) {
     return (
       <>
         {children}

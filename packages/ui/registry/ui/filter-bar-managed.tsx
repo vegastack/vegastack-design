@@ -1,4 +1,4 @@
-// @vegastack filter-bar-managed@0.20.0 sha256-rlWPkHFBG4bzTsnuCief/NoDUxvu0EyVZTq4ps7DZAk=
+// @vegastack filter-bar-managed@0.20.0 sha256-j8Ajft9ecwm1IEEkY6ou3cbNQ0X+rNEnR1fmadYObjk=
 
 "use client";
 
@@ -9,6 +9,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { NumberField } from "@/components/ui/number-field";
 import { FilterChip } from "@/components/ui/filter-bar";
+import {
+  SearchableSelect,
+  type SearchableSelectProps,
+} from "@/components/ui/searchable-select";
 import {
   Select,
   SelectContent,
@@ -194,6 +198,22 @@ export interface FilterBuilderProps<V = unknown> {
    */
   labels?: Partial<FilterBuilderLabels>;
   /**
+   * The condition row's field picker: a `Select`, or a `SearchableSelect` for a long vocabulary.
+   * @default "select"
+   */
+  fieldPicker?: "select" | "searchable";
+  /**
+   * Props for the `searchable` field picker — e.g. `remote` with `useAsyncSearch` to search the
+   * fields on the server. Every field it offers must also be in `vocabulary`.
+   * @default undefined
+   */
+  fieldPickerProps?: Partial<
+    Omit<
+      SearchableSelectProps<FilterField<V>>,
+      "value" | "onValueChange" | "multiple" | "id" | "aria-label"
+    >
+  >;
+  /**
    * A row's own validation message, shown under the row and read as its value editor's
    * description. Runs on every render; return `undefined` for a valid row.
    * @default undefined
@@ -325,6 +345,8 @@ export interface FilterBuilderLabels {
   valueRequired: string;
   /** The field picker's accessible name. */
   field: string;
+  /** The searchable field picker's search field name. */
+  searchFields: string;
   /** The operator picker's accessible name. */
   operator: string;
   /** A condition's remove button, from its field label. */
@@ -338,6 +360,7 @@ const DEFAULT_LABELS: FilterBuilderLabels = {
   empty: "No filters",
   valueRequired: "Value required",
   field: "Field",
+  searchFields: "Search fields",
   operator: "Operator",
   remove: (label) => `Remove ${label} condition`,
 };
@@ -531,8 +554,42 @@ export function NumberRangeEditor<V>({
   );
 }
 
+/** What `OptionValueEditor` and `OptionsValueEditor` take: the editor contract plus their words. */
+export interface OptionValueEditorProps<
+  V = unknown,
+> extends FilterValueEditorProps<V> {
+  /**
+   * Shown while nothing is chosen.
+   * @default "Choose…"
+   */
+  placeholder?: string;
+  /**
+   * Accessible name of the search field in a searchable list (more than seven options, or
+   * several values).
+   * @default "Search options"
+   */
+  searchLabel?: string;
+}
+
+type FilterOption = { value: string; label: string };
+
+/** Above this many options, one-option picking gets a search field. */
+const SEARCHABLE_OPTIONS = 7;
+
+/** The `SearchableSelect` face both option editors share: an inline `sm` trigger. */
+const optionPicker = {
+  itemToKey: (o: FilterOption) => o.value,
+  itemToStringLabel: (o: FilterOption) => o.label,
+  renderItem: (o: FilterOption) => o.label,
+  size: "sm",
+  containerClassName: "w-fit",
+  className: "w-auto min-w-32",
+  contentClassName: "min-w-48",
+} as const;
+
 /**
- * One option from the field's `options`, on `Select`.
+ * One option from the field's `options`: a `Select` up to seven options, a `SearchableSelect`
+ * above seven.
  *
  * @example
  * editors={{ option: OptionValueEditor }}
@@ -546,8 +603,26 @@ export function OptionValueEditor<V>({
   id,
   "aria-invalid": ariaInvalid,
   "aria-describedby": ariaDescribedBy,
-}: FilterValueEditorProps<V>) {
+  placeholder = "Choose…",
+  searchLabel = "Search options",
+}: OptionValueEditorProps<V>) {
   const options = field.options ?? [];
+  if (options.length > SEARCHABLE_OPTIONS)
+    return (
+      <SearchableSelect<FilterOption>
+        {...optionPicker}
+        items={options}
+        value={options.find((o) => o.value === value) ?? null}
+        onValueChange={(next) => onValueChange(next?.value as V | undefined)}
+        id={id}
+        aria-label={ariaLabel}
+        aria-invalid={ariaInvalid}
+        aria-describedby={ariaDescribedBy}
+        disabled={disabled}
+        placeholder={placeholder}
+        searchLabel={searchLabel}
+      />
+    );
   return (
     <Select
       items={Object.fromEntries(options.map((o) => [o.value, o.label]))}
@@ -565,7 +640,7 @@ export function OptionValueEditor<V>({
         aria-describedby={ariaDescribedBy}
         className="w-fit min-w-32"
       >
-        <SelectValue placeholder="Choose…" />
+        <SelectValue placeholder={placeholder} />
       </SelectTrigger>
       <SelectContent>
         {options.map((o) => (
@@ -580,7 +655,8 @@ export function OptionValueEditor<V>({
 
 /**
  * Several options from the field's `options` (a `list` operator — "is any of"), on a
- * multiple `Select`. Commits the chosen values in option order, or `undefined` when none.
+ * `SearchableSelect multiple`. Commits the chosen values in option order, or `undefined` when
+ * none.
  *
  * @example
  * editors={{ options: OptionsValueEditor }}
@@ -594,51 +670,33 @@ export function OptionsValueEditor<V>({
   id,
   "aria-invalid": ariaInvalid,
   "aria-describedby": ariaDescribedBy,
-}: FilterValueEditorProps<V>) {
+  placeholder = "Choose…",
+  searchLabel = "Search options",
+}: OptionValueEditorProps<V>) {
   const options = field.options ?? [];
   const selected = Array.isArray(value) ? (value as string[]) : [];
-  const labelOf = (v: string) => options.find((o) => o.value === v)?.label ?? v;
   return (
-    <Select
+    <SearchableSelect<FilterOption, true>
+      {...optionPicker}
       multiple
-      items={Object.fromEntries(options.map((o) => [o.value, o.label]))}
-      value={selected}
-      onValueChange={(next: string[]) => {
+      items={options}
+      value={options.filter((o) => selected.includes(o.value))}
+      onValueChange={(next) => {
         const ordered = options
-          .map((o) => o.value)
-          .filter((v) => next.includes(v));
+          .filter((o) => next.includes(o))
+          .map((o) => o.value);
         onValueChange(
           (ordered.length > 0 ? ordered : undefined) as V | undefined,
         );
       }}
+      id={id}
+      aria-label={ariaLabel}
+      aria-invalid={ariaInvalid}
+      aria-describedby={ariaDescribedBy}
       disabled={disabled}
-    >
-      <SelectTrigger
-        id={id}
-        size="sm"
-        aria-label={ariaLabel}
-        aria-invalid={ariaInvalid || undefined}
-        aria-describedby={ariaDescribedBy}
-        className="w-fit min-w-32"
-      >
-        <SelectValue placeholder="Choose…">
-          {(current: string[]) =>
-            current.length === 0
-              ? null
-              : current.length > 2
-                ? `${current.length} selected`
-                : current.map(labelOf).join(", ")
-          }
-        </SelectValue>
-      </SelectTrigger>
-      <SelectContent>
-        {options.map((o) => (
-          <SelectItem key={o.value} value={o.value}>
-            {o.label}
-          </SelectItem>
-        ))}
-      </SelectContent>
-    </Select>
+      placeholder={placeholder}
+      searchLabel={searchLabel}
+    />
   );
 }
 
@@ -676,6 +734,8 @@ export function FilterBuilder<V = unknown>({
   allowGroups = true,
   prefix,
   labels: labelsProp,
+  fieldPicker = "select",
+  fieldPickerProps,
   conditionError,
   summary = "chips",
   maxConditions = 25,
@@ -946,6 +1006,23 @@ export function FilterBuilder<V = unknown>({
                 return { ...g, children };
               }),
             );
+          const changeField = (nextKey: string | undefined) => {
+            const nextField = nextKey ? fieldByKey.get(nextKey) : undefined;
+            if (!nextField) return;
+            // Changing field resets operator (and value when the editor
+            // type changes — a date value in a text field is garbage).
+            patchCondition({
+              field: nextField.key,
+              operator: nextField.operators[0]?.value ?? "",
+              value: nextField.type === field.type ? child.value : undefined,
+            });
+          };
+          // A row error (`conditionError`) is about the row, not only its value — and with a
+          // no-value operator there is no editor to carry it — so the field picker reads it.
+          const rowErrorProps =
+            rowError !== undefined
+              ? { "aria-invalid": true, "aria-describedby": errorId }
+              : {};
 
           return (
             <div
@@ -954,41 +1031,53 @@ export function FilterBuilder<V = unknown>({
               data-invalid={invalid ? "" : undefined}
               className="flex min-w-0 flex-wrap items-center gap-2"
             >
-              <Select
-                items={Object.fromEntries(
-                  vocabulary.map((f) => [f.key, f.label]),
-                )}
-                value={child.field}
-                onValueChange={(nextKey) => {
-                  const nextField = fieldByKey.get(String(nextKey));
-                  if (!nextField) return;
-                  // Changing field resets operator (and value when the editor
-                  // type changes — a date value in a text field is garbage).
-                  patchCondition({
-                    field: nextField.key,
-                    operator: nextField.operators[0]?.value ?? "",
-                    value:
-                      nextField.type === field.type ? child.value : undefined,
-                  });
-                }}
-                disabled={disabled}
-              >
-                <SelectTrigger
-                  id={rowId(childPath)}
+              {fieldPicker === "searchable" ? (
+                <SearchableSelect<FilterField<V>>
+                  items={vocabulary}
+                  itemToKey={(f) => f.key}
+                  itemToStringLabel={(f) => f.label}
+                  renderItem={(f) => f.label}
+                  searchLabel={labels.searchFields}
                   size="sm"
+                  containerClassName="w-fit"
+                  className="w-auto"
+                  contentClassName="min-w-48"
+                  {...fieldPickerProps}
+                  value={field}
+                  isItemEqualToValue={(a, b) => a.key === b.key}
+                  onValueChange={(next) => changeField(next?.key)}
+                  id={rowId(childPath)}
                   aria-label={labels.field}
-                  className="w-fit"
+                  {...rowErrorProps}
+                  disabled={disabled}
+                />
+              ) : (
+                <Select
+                  items={Object.fromEntries(
+                    vocabulary.map((f) => [f.key, f.label]),
+                  )}
+                  value={child.field}
+                  onValueChange={(nextKey) => changeField(String(nextKey))}
+                  disabled={disabled}
                 >
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {vocabulary.map((f) => (
-                    <SelectItem key={f.key} value={f.key}>
-                      {f.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+                  <SelectTrigger
+                    id={rowId(childPath)}
+                    size="sm"
+                    aria-label={labels.field}
+                    {...rowErrorProps}
+                    className="w-fit"
+                  >
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {vocabulary.map((f) => (
+                      <SelectItem key={f.key} value={f.key}>
+                        {f.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
               <Select
                 items={Object.fromEntries(
                   field.operators.map((op) => [op.value, op.label]),
