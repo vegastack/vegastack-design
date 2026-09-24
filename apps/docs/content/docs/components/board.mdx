@@ -69,6 +69,44 @@ inside a shorter shell passes its own CSS length instead of inheriting that view
 
 <ComponentPreview name="boardLanes" file="components/preview/board.tsx" />
 
+### Lane and card labels
+
+Every lane and card has a plain-text name, because the board speaks them: the lane's card list is
+named "To do, 2 cards", the Move menu says "Move to Blocked", each card's menu control is
+"Move Token audit", and every move announces the card and the lane ("Moved Token audit to Blocked,
+position 1 of 1"). A string `title` names its lane on its own. A lane whose `title` is a node — a
+`Badge`, an icon beside text — passes `label`; without one the board falls back to the column `id`
+and warns in development. `getItemLabel` names the cards; without it the control is "Move card".
+
+"Drag a card here" appears in an empty lane only where a pointer drag can start — not under
+`dragDisabled`, not below 768px, not in a read-only lane. Card content sits under
+`TruncationFocusProvider focusable={false}`, so a `TruncatedText` inside a card never adds a second
+tab stop.
+
+<ComponentPreview name="boardLabels" file="components/preview/board.tsx" />
+
+### Lane states
+
+A lane that has loaded only some of its cards passes its total as `count`: the lane shows it as a
+muted number and its name says it ("Open, 14 tasks" — `countLabel` supplies the host's noun, and
+defaults to "cards"). `loading` shows skeleton cards below any loaded ones and marks the lane
+`aria-busy`. `emptyState` replaces the default "No cards" drop target; pass an
+`Empty className="border"` to keep the drop-zone look. `defaultCollapsed` starts a terminal lane as
+a strip that expands read-only (`collapsed` is its older alias). The board keeps scrolling sideways.
+
+<ComponentPreview name="boardLaneStates" file="components/preview/board.tsx" />
+
+### Cards as links
+
+`getItemHref` makes a card a real link, rendered as `<a>` or as the element you pass in
+`itemLinkRender` (your router's `<Link />`). A click follows it, and a Cmd, Ctrl, Shift or middle
+click opens it wherever the browser would — the board never intercepts it, and `onCardActivate`
+is for button cards only. Enter follows the link; Space still lifts the card into move mode. The
+Move menu is a separate control beside the link, never inside it, so keep links and buttons out of
+the card content too.
+
+<ComponentPreview name="boardLinks" file="components/preview/board.tsx" />
+
 ## API Reference
 
 <ApiTable path="../../packages/ui/registry/ui/board.tsx" name="BoardProps" />
@@ -92,15 +130,18 @@ inside a shorter shell passes its own CSS length instead of inheriting that view
 - A dragged card gains **no shadow** — flat by doctrine; lift reads as the
   dimmed origin plus the drop-indicator line. Empty columns are real drop
   targets, rendered as `Empty className="border"` for the dashed drop-zone look.
-- Every move and every rejection announces through a polite live region.
+- Each lane is a region named by its label and total ("Open, 14 tasks"); a loading lane is
+  `aria-busy`. A card with an href is a link, not a button, and nothing interactive nests inside it.
+- Every move and every rejection announces through a polite live region, naming the card
+  (`getItemLabel`) and the lane (`label`, or a string `title`).
 
-| Key                                                 | Action                                |
-| --------------------------------------------------- | ------------------------------------- |
-| <kbd>↑</kbd>/<kbd>↓</kbd>/<kbd>←</kbd>/<kbd>→</kbd> | Browse cards (roving focus).          |
-| <kbd>Space</kbd>                                    | Toggle move mode on the focused card. |
-| <kbd>Enter</kbd>                                    | Activate the focused card.            |
-| <kbd>M</kbd>                                        | Open the focused card's Move menu.    |
-| <kbd>Escape</kbd>                                   | End move mode.                        |
+| Key                                                 | Action                                         |
+| --------------------------------------------------- | ---------------------------------------------- |
+| <kbd>↑</kbd>/<kbd>↓</kbd>/<kbd>←</kbd>/<kbd>→</kbd> | Browse cards (roving focus).                   |
+| <kbd>Space</kbd>                                    | Toggle move mode on the focused card.          |
+| <kbd>Enter</kbd>                                    | Activate the focused card, or follow its link. |
+| <kbd>M</kbd>                                        | Open the focused card's Move menu.             |
+| <kbd>Escape</kbd>                                   | End move mode.                                 |
 
 <StatesTested name="board" />
 
@@ -109,4 +150,9 @@ inside a shorter shell passes its own CSS length instead of inheriting that view
 <DoDont
   do="Keep onMove the single move command and refuse bad moves by rejecting its promise — every input path gets the shimmer and announced snap-back."
   dont="Give a dragged card a drop shadow to 'lift' it — the browser's drag preview is a flat snapshot taken before the class lands, so the shadow paints on the card left behind and not on the one moving."
+/>
+
+<DoDont
+  do="Pass getItemHref when a card opens a record at its own URL, so Cmd-click and middle click open it in a new tab."
+  dont="Put a link or button inside renderCard's content — the card is already a control, and a nested one is unreachable by keyboard and confusing to a screen reader."
 />

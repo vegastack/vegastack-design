@@ -126,7 +126,7 @@ starts with `icon-` is a component and never an icon.
 
 - **`app-shell`** — The shared dashboard layout — a skip-linked sidebar + header + scrollable main region, composing Sidebar/SidebarTrigger into one reusable, hash-tracked shell.
 - **`aspect-ratio`** — Constrains its children to a given width-to-height ratio.
-- **`board`** — Kanban columns over use-drag-reorder — content/chrome split (host renders card content only), pointer drag, keyboard move mode + roving focus, lossless per-card Move menu with lock reasons, server-refusable moves, collapsed lanes, Empty-bordered drop targets.
+- **`board`** — Kanban columns over use-drag-reorder — content/chrome split (host renders card content only), pointer drag, keyboard move mode + roving focus, lossless per-card Move menu with lock reasons, server-refusable moves, named lanes with a muted total count, loading and custom empty lanes, collapsed lanes, cards as real links, Empty-bordered drop targets.
 - **`direction`** — Base UI's DirectionProvider and useDirection — the text-direction context components read.
 - **`resizable`** — Accessible resizable panel groups and layouts with keyboard support — horizontal or vertical, nestable, with an optional visible grip.
 - **`scroll-area`** — Augments native scroll functionality for custom, cross-browser styling — a viewport, an auto-hiding scrollbar, and a corner.

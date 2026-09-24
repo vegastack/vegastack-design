@@ -2542,7 +2542,7 @@
       "name": "board",
       "registryType": "registry:ui",
       "title": "Board",
-      "summary": "Kanban columns over use-drag-reorder — content/chrome split (host renders card content only), pointer drag, keyboard move mode + roving focus, lossless per-card Move menu with lock reasons, server-refusable moves, collapsed lanes, Empty-bordered drop targets.",
+      "summary": "Kanban columns over use-drag-reorder — content/chrome split (host renders card content only), pointer drag, keyboard move mode + roving focus, lossless per-card Move menu with lock reasons, server-refusable moves, named lanes with a muted total count, loading and custom empty lanes, collapsed lanes, cards as real links, Empty-bordered drop targets.",
       "status": "stable",
       "since": "0.4.0",
       "family": "layout",
@@ -2601,9 +2601,11 @@
             "collapsed",
             "read-only",
             "empty-column",
-            "drag-disabled-mobile"
+            "drag-disabled-mobile",
+            "loading",
+            "link-card"
           ],
-          "evidence": "use-drag-reorder drives drags/move mode/async contract; droppable:false lanes carry lock reasons into the menu; collapsed strips expand read-only; pointer drags disable below 768px while keyboard and menu survive."
+          "evidence": "use-drag-reorder drives drags/move mode/async contract; droppable:false lanes carry lock reasons into the menu; collapsed strips expand read-only; pointer drags disable below 768px while keyboard and menu survive. A lane with loading shows skeleton cards and is aria-busy; count shows the lane total over its loaded cards; emptyState replaces the default drop target; getItemHref renders a card as a real link (itemLinkRender swaps the element) whose clicks, modifier clicks and Enter are the browser own, while Space still lifts it."
         },
         "accessibility": {
           "status": "observed",
@@ -2613,7 +2615,7 @@
             "status-announcement",
             "semantic-html"
           ],
-          "evidence": "Roving focus across the ragged card grid (RTL-aware ←/→ for browsing AND move mode); Space move mode with focus restored across cross-column remounts, Enter activate, M opens the named Move menu — within-column up/down/top/bottom plus cross-column targets with visible lock reasons; a populated column wraps its cards in role=list (an empty column renders the Empty affordance instead); polite move/rejection announcements."
+          "evidence": "Roving focus across the ragged card grid (RTL-aware ←/→ for browsing AND move mode); Space move mode with focus restored across cross-column remounts, Enter activate, M opens the named Move menu — within-column up/down/top/bottom plus cross-column targets with visible lock reasons; a populated column wraps its cards in role=list named \"{label}, {n} cards\" (an empty column renders the Empty affordance instead); lanes are named by label (or a string title) and cards by getItemLabel in the Move menu, the card control and the polite move/rejection announcements; card content sits under TruncationFocusProvider focusable={false}. Each lane is role=region named \"{label}, {countLabel(count)}\"; a link card has no nested interactive control (the Move menu trigger is its sibling)."
         },
         "visual": {
           "status": "observed",
@@ -2624,7 +2626,8 @@
             "drop-over",
             "pending",
             "collapsed",
-            "empty"
+            "empty",
+            "loading"
           ],
           "evidence": "Flat dragged cards (dim, never a shadow — doctrine); 2px primary drop-indicator; column border tint while a drag is over; pending shimmer (sanctioned loader animation, reduced-motion aware); Empty bordered drop-zone look."
         }
@@ -2649,17 +2652,19 @@
       "engines": [],
       "docsSlug": "/docs/components/board",
       "registryDependencies": [
-        "@vegastack/badge",
         "@vegastack/button",
         "@vegastack/card",
         "@vegastack/drag-item",
         "@vegastack/dropdown-menu",
         "@vegastack/empty",
         "@vegastack/scroll-area",
+        "@vegastack/skeleton",
+        "@vegastack/truncated-text",
         "@vegastack/use-drag-reorder",
         "@vegastack/use-mobile"
       ],
       "npmDependencies": [
+        "@base-ui/react@^1.6.0",
         "lucide-react@^1.47.0",
         "@vegastack/design@^0.7.4",
         "@vegastack/design-tokens@^0.7.1"
@@ -2715,7 +2720,9 @@
                 "board-column-body",
                 "board-column-collapsed",
                 "board-column-collapsed-title",
+                "board-column-count",
                 "board-column-empty",
+                "board-column-skeleton",
                 "board-column-title",
                 "board-scroller"
               ]
