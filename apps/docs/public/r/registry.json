@@ -19150,20 +19150,23 @@
       "name": "login-01",
       "type": "registry:block",
       "title": "Login 01",
-      "description": "A simple login form.",
+      "description": "A sign-in page: email and password with a field error each, a forgot-password link, and an alert after a rejected sign-in.",
       "categories": [
         "authentication",
         "login"
       ],
       "dependencies": [
         "@vegastack/design@^0.7.5",
-        "@vegastack/design-tokens@^0.7.1"
+        "@vegastack/design-tokens@^0.7.1",
+        "lucide-react@^1.47.0"
       ],
       "registryDependencies": [
+        "@vegastack/alert",
         "@vegastack/button",
         "@vegastack/card",
         "@vegastack/field",
-        "@vegastack/input"
+        "@vegastack/input",
+        "@vegastack/password-input"
       ],
       "files": [
         {
@@ -19178,10 +19181,10 @@
         }
       ],
       "meta": {
-        "whenToUse": "Starting from upstream's Login 01 composition — copy it once and own it.",
-        "whenNotToUse": "You want a tracked component to import in many places — install the components it composes instead.",
+        "whenToUse": "Sign-in page for an app — copy it once, then wire signIn to your auth provider.",
+        "whenNotToUse": "Sign-up or password reset — reuse this card frame with their own fields (see the block's docs page); a tracked component to import in many places — install the components it composes instead.",
         "version": "0.19.0",
-        "integrity": "sha256-IKKfQGIsIRWGSOLX+Whshbs7nB+p5N6a8NMJSMeBaxE="
+        "integrity": "sha256-zvMZwGxIcgJzWj9GjsPMqYiOIrwXOZ4u+d3vAxMsSCk="
       }
     },
     {

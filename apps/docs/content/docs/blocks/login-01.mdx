@@ -1,6 +1,6 @@
 ---
 title: login-01
-description: A simple login form. Composed from button, card, field, input.
+description: A sign-in page with a field error per field, a forgot-password link, and an alert after a rejected sign-in.
 audience: public
 registry: login-01
 preview: login01Demo
@@ -8,8 +8,9 @@ preview: login01Demo
 
 ## What it is
 
-A simple login form. It is a **block**: you pull it once with `shadcn add`, and then you own it —
-nothing re-pulls it and no integrity hash tracks your edits, unlike the components it composes.
+A sign-in page for an app: one card, centred in the small viewport height, titled with the page's
+only `h1`. It is a **block**: you pull it once with `shadcn add`, and then you own it — nothing
+re-pulls it and no integrity hash tracks your edits, unlike the components it composes.
 
 ## Install
 
@@ -19,11 +20,74 @@ npx shadcn@latest add @vegastack/login-01
 
 <RegistryInstallCallout />
 
-This installs the block's own files plus the components it composes: `button`, `card`, `field`, `input`.
+This installs the block's own files plus the components it composes: `alert`, `button`, `card`,
+`field`, `input`, `password-input`.
 
 ## Preview
 
 <ComponentPreview name="login01Demo" />
+
+The preview's stand-in `signIn` rejects every attempt after a short wait, so you can see the
+rejected state: fill both fields and press **Sign in**.
+
+## Wire it to your auth
+
+`LoginForm` takes one `signIn` function. Resolve when the session is set; throw an `Error` whose
+message says what happened and what to do, and the form shows that message in its alert.
+
+```tsx
+<LoginForm
+  signIn={async ({ email, password }) => {
+    const res = await fetch("/api/sign-in", {
+      method: "POST",
+      body: JSON.stringify({ email, password }),
+    });
+    if (!res.ok)
+      throw new Error(
+        "The email or password is incorrect. Check both and try again.",
+      );
+  }}
+/>
+```
+
+What the form does for you:
+
+- **Field problems stay on the field.** An empty or malformed field gets its own `FieldError`,
+  `aria-invalid`, and focus moves to the first one. No request is made, and no form-level alert
+  appears.
+- **A rejected sign-in gets one alert.** The destructive `Alert` is rendered only after a failed
+  submit, so nothing is announced before the user has tried.
+- **The submit button loads in place.** `Button loading` keeps its width and its accessible name,
+  "Sign in", while `signIn` runs.
+- **Autofill works.** Email is `autoComplete="email"` and the password is
+  `autoComplete="current-password"` inside `PasswordInput`, whose toggle shows and hides it.
+- **Links go somewhere real.** "Forgot password?" is an `<a href="/forgot-password">` and "Sign up"
+  an `<a href="/sign-up">`; change them with `forgotPasswordHref` and `signUpHref`.
+
+## Sign up
+
+Sign-up is the same frame with different fields — copy `login-form.tsx` to `signup-form.tsx` and
+change what sits inside the `Card`:
+
+- Title the card "Create an account" (still the page's one `h1`) and the button "Create account".
+- Add a Name field (`autoComplete="name"`) above Email.
+- Use `autoComplete="new-password"` on the `PasswordInput`, so password managers offer to generate
+  one, and put the password rule in a `FieldDescription` under it rather than only in the error.
+- Swap the footer line for "Already have an account? Sign in", linking to your sign-in route.
+
+A duplicate email is a field problem: show it as the Email field's `FieldError`, not in the alert.
+
+## Forgot password
+
+Password reset is the same frame with one field:
+
+- Title the card "Reset your password" and describe what happens next: "Enter your email and we’ll
+  send you a link to reset your password."
+- Keep only the Email field (`autoComplete="email"`) and a submit button, "Send reset link".
+- After a successful submit, replace the form with a confirmation in the same card — "Check your
+  email" — that names the address. Say the same thing whether or not the address has an account,
+  so the page does not reveal who is registered.
+- Footer: "Remembered it? Sign in", linking back to your sign-in route.
 
 ## Files
 
@@ -35,6 +99,6 @@ This installs the block's own files plus the components it composes: `button`, `
 ## Do / Don't
 
 <DoDont
-  do="Pull it once, then edit it freely — replace the sample data, the links and the copy with your own."
-  dont="Treat it as an update-tracked component, or re-pull it and expect your edits to survive."
+  do="Pull it once, then wire signIn to your auth provider and point the links at your own routes."
+  dont="Put a field's problem in the form-level alert, or render the alert before the first failed submit."
 />
