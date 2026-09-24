@@ -18116,6 +18116,15 @@
           }
         },
         {
+          "name": "MultiStepFormActionsProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/multi-step-form.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
           "name": "MultiStepFormBack",
           "kind": "component",
           "source": "packages/ui/registry/ui/multi-step-form.tsx",
@@ -18266,7 +18275,8 @@
             "branching",
             "restored",
             "complete",
-            "dirty"
+            "dirty",
+            "stuck"
           ],
           "evidence": "Guards run before every move and may be async, holding the step in `loading` with a busy action and never advancing optimistically; a refusal keeps the flow in place; `lock` seals prior steps against Back, jumps and a forged hash; `when` removes a step from the rail, count and sequence; `persistKey` restores position and passed steps; the last step submits. `dirty` raises a confirmation before MultiStepFormExit leaves and attaches the browser's own beforeunload warning, both removed the moment it clears."
         },
@@ -18288,7 +18298,8 @@
             "error",
             "warning",
             "skipped",
-            "disabled"
+            "disabled",
+            "stuck"
           ],
           "evidence": "Step states are projected onto Stepper's vocabulary; the hard refusal is an Alert on the destructive variant, the soft gate a warning-text line."
         }
@@ -18449,6 +18460,14 @@
                 "multi-step-form-finish",
                 "multi-step-form-refusal"
               ]
+            },
+            {
+              "name": "data-sticky",
+              "values": []
+            },
+            {
+              "name": "data-stuck",
+              "values": [""]
             },
             {
               "name": "data-tone",

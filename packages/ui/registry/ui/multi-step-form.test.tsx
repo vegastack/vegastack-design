@@ -851,3 +851,48 @@ test("a part rendered outside the root fails loudly rather than silently", async
     "MultiStepFormActions must be rendered inside <MultiStepForm>",
   );
 });
+
+/* DS-23 — sticky actions (the pinned geometry is measured with compiled CSS in
+   test/geometry.browser.test.tsx: "multi-step-form-sticky") */
+
+test("DS-23: sticky reflects on the actions and keeps the refusal above the row", async () => {
+  const screen = await render(
+    <MultiStepForm steps={BASIC}>
+      <MultiStepFormNav aria-label="Signup" />
+      {BASIC.map((s) => (
+        <MultiStepFormStep key={s.id} id={s.id}>
+          <p>{s.label} body</p>
+        </MultiStepFormStep>
+      ))}
+      <MultiStepFormActions sticky="narrow" />
+    </MultiStepForm>,
+  );
+  const actions = slot(screen.container, "multi-step-form-actions")!;
+  expect(actions.getAttribute("data-sticky")).toBe("narrow");
+  expect(actions.hasAttribute("data-stuck")).toBe(false);
+  const row = slot(actions, "multi-step-form-action-row")!;
+  // Focus order is unchanged: the row is still the last thing in the actions, after any refusal.
+  expect(actions.lastElementChild).toBe(row);
+});
+
+test("DS-23: without sticky the actions carry no sticky state", async () => {
+  const screen = await render(<Wizard />);
+  const actions = slot(screen.container, "multi-step-form-actions")!;
+  expect(actions.hasAttribute("data-sticky")).toBe(false);
+  expect(actions.hasAttribute("data-stuck")).toBe(false);
+});
+
+test("no a11y violations — sticky actions", async () => {
+  const screen = await render(
+    <MultiStepForm steps={BASIC}>
+      <MultiStepFormNav aria-label="Signup" />
+      {BASIC.map((s) => (
+        <MultiStepFormStep key={s.id} id={s.id}>
+          <p>{s.label} body</p>
+        </MultiStepFormStep>
+      ))}
+      <MultiStepFormActions sticky />
+    </MultiStepForm>,
+  );
+  await expectNoA11yViolations(screen.container);
+});

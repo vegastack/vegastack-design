@@ -379,3 +379,36 @@ export function multiStepFormDialog(): ReactNode {
     </Wrapper>
   );
 }
+
+/**
+ * DS-23: `sticky` keeps the refusal and the action row in reach while a long step scrolls under
+ * them. This frame scrolls on its own so the row pins inside it; `sticky="narrow"` would pin only
+ * below the form's `@md` rung.
+ */
+export function multiStepFormSticky(): ReactNode {
+  const steps: MultiStepFormStepSpec[] = [
+    { id: "details", label: "Details" },
+    { id: "review", label: "Review" },
+  ];
+  return (
+    <Wrapper className="block">
+      <div className="mx-auto h-96 w-full max-w-2xl overflow-y-auto rounded-lg border p-4">
+        <MultiStepForm steps={steps}>
+          <MultiStepFormNav aria-label="Product" />
+          {steps.map((step) => (
+            <MultiStepFormStep key={step.id} id={step.id}>
+              <div className="flex flex-col gap-3">
+                {Array.from({ length: 12 }, (_, index) => (
+                  <p key={index} className="text-sm text-muted-foreground">
+                    {step.label} — paragraph {index + 1} of a long step.
+                  </p>
+                ))}
+              </div>
+            </MultiStepFormStep>
+          ))}
+          <MultiStepFormActions sticky />
+        </MultiStepForm>
+      </div>
+    </Wrapper>
+  );
+}

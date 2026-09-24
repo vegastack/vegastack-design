@@ -34,6 +34,11 @@ import { DataListPager } from "../registry/ui/data-list-pager";
 import { ButtonGroup } from "../registry/ui/button-group";
 import { Input } from "../registry/ui/input";
 import { AppShellPage } from "../registry/ui/app-shell";
+import {
+  MultiStepForm,
+  MultiStepFormActions,
+  MultiStepFormStep,
+} from "../registry/ui/multi-step-form";
 import { InputGroup, InputGroupInput } from "../registry/ui/input-group";
 import { SortableList } from "../registry/ui/sortable-list";
 import {
@@ -3555,4 +3560,59 @@ test("app-shell-page-320: size full fills a bounded height", async () => {
   )!;
   expect(full.getBoundingClientRect().height).toBe(500);
   expect(getComputedStyle(full).maxWidth).toBe("none");
+});
+
+/**
+ * multi-step-form-sticky (DS-23): on a long step the sticky actions stay in view at the bottom of
+ * the scroll area and report `data-stuck`; scrolled to the end they rest in the flow again.
+ * `"narrow"` pins only below the form's `@md` container rung.
+ */
+function LongStep({ sticky }: { sticky: boolean | "narrow" }) {
+  return (
+    <div data-testid="scroller" style={{ height: "700px", overflowY: "auto" }}>
+      <MultiStepForm steps={[{ id: "one", label: "One" }]}>
+        <MultiStepFormStep id="one">
+          <div style={{ height: "1600px" }}>A very long step</div>
+        </MultiStepFormStep>
+        <MultiStepFormActions sticky={sticky} />
+      </MultiStepForm>
+    </div>
+  );
+}
+
+test("multi-step-form-sticky: sticky actions stay in view on a long step", async () => {
+  const screen = await render(<LongStep sticky />);
+  const scroller = screen.getByTestId("scroller").element() as HTMLElement;
+  const actions = screen.container.querySelector<HTMLElement>(
+    '[data-slot="multi-step-form-actions"]',
+  )!;
+  expect(getComputedStyle(actions).position).toBe("sticky");
+  expect(actions.getBoundingClientRect().bottom).toBeLessThanOrEqual(
+    scroller.getBoundingClientRect().bottom + 0.5,
+  );
+  await expect.poll(() => actions.hasAttribute("data-stuck")).toBe(true);
+  scroller.scrollTop = scroller.scrollHeight;
+  await expect.poll(() => actions.hasAttribute("data-stuck")).toBe(false);
+});
+
+test('multi-step-form-sticky: "narrow" pins at 320px and rests in the flow on a wide form', async () => {
+  const narrow = await render(<LongStep sticky="narrow" />);
+  const narrowActions = narrow.container.querySelector<HTMLElement>(
+    '[data-slot="multi-step-form-actions"]',
+  )!;
+  expect(getComputedStyle(narrowActions).position).toBe("sticky");
+  await narrow.unmount();
+
+  await page.viewport(1280, 900);
+  try {
+    const wide = await render(<LongStep sticky="narrow" />);
+    const wideActions = wide.container.querySelector<HTMLElement>(
+      '[data-slot="multi-step-form-actions"]',
+    )!;
+    expect(getComputedStyle(wideActions).position).toBe("static");
+    expect(wideActions.hasAttribute("data-stuck")).toBe(false);
+    await wide.unmount();
+  } finally {
+    await page.viewport(320, 812);
+  }
 });
