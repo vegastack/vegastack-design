@@ -1,4 +1,4 @@
-// @vegastack code-block@0.21.1 sha256-bnEIQOBrt3lOwo/wsP7DwqkqIDt1QuSpiqdlYNyKIjY=
+// @vegastack code-block@0.21.2 sha256-Mp1GtbWGWL0mc+BX5mjugJCHoVZKNHabmvLbiL+j6EY=
 
 import * as React from "react";
 import { CopyButton } from "@/components/ui/copy-button";

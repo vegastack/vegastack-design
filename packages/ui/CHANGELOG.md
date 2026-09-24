@@ -1,5 +1,11 @@
 # @vegastack/ui
 
+## 0.21.2
+
+### Patch Changes
+
+- [#229](https://github.com/vegastack/vegastack-design/pull/229) [`638d754`](https://github.com/vegastack/vegastack-design/commit/638d75416ba35a345ee92bd0971a3a1aa98830a3) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🐛 `useAsyncSearch` aborts the in-flight request as soon as the query changes, so a slow response for the previous text can no longer fill the list while the new query waits out its debounce.
+
 ## 0.21.1
 
 ### Patch Changes
