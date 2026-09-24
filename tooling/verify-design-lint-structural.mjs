@@ -460,7 +460,7 @@ export function Anonymous() {
   // The POSITIVE half of the same rule, added in Batch 8 (2026-09-18). Upstream's blocks put the
   // name on the Button's OWN children — `<Button size="icon"><Icon /><span className="sr-only">Go
   // to next page</span></Button>` — and the rule read only the Button's attributes and its render
-  // host, so it reported four correctly-named `dashboard-01` controls as anonymous. A false
+  // host, so it reported four correctly-named controls in upstream's dashboard block as anonymous. A false
   // positive teaches an author to reach for the exemption list, so this fixture pins the accepted
   // spelling; the anonymous case above still fails, which is what keeps the pair honest.
   writeFileSync(

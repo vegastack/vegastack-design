@@ -128,6 +128,14 @@ media, content and actions columns without any extra work.
 
 <ComponentPreview name="itemRtl" file="components/preview/item.tsx" />
 
+### Checklist
+
+A getting-started checklist is a composition, not a component: a `Progress` over an `ItemGroup` of
+`Item size="sm"` rows, each led by a `StatusIcon` that names its state. The host owns which steps
+are done.
+
+<ComponentPreview name="itemChecklist" file="components/preview/item.tsx" />
+
 ## API Reference
 
 <ApiTable path="lib/api-props.ts" name="ItemProps" />

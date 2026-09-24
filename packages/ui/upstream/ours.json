@@ -90,7 +90,7 @@
       "disposition": "keep",
       "family": "data",
       "source": "extras.md",
-      "rationale": "CORRECTED from RETIRE to KEEP by MK on 2026-09-18, executed in Batch 7b. The consumer story extras.md named (shadcn's data-table guide + dashboard-01) is right for a consumer, but the module is 375 lines that BOTH `data-grid` and `data-list` — both keepers — import the same ten symbols from, so retiring it would either duplicate them into two files (the drift the module's own header says it exists to stop) or need a different disposition. It stays ONE shared module. It is off the consumer-facing components nav, the way `geo-data` and `drag-item` are handled: installed as a dependency of the two components that need it, documented where they are documented, not offered as something to pick from a list."
+      "rationale": "CORRECTED from RETIRE to KEEP by MK on 2026-09-18, executed in Batch 7b. The consumer story extras.md named (shadcn's data-table guide + its dashboard block) is right for a consumer, but the module is 375 lines that BOTH `data-grid` and `data-list` — both keepers — import the same ten symbols from, so retiring it would either duplicate them into two files (the drift the module's own header says it exists to stop) or need a different disposition. It stays ONE shared module. It is off the consumer-facing components nav, the way `geo-data` and `drag-item` are handled: installed as a dependency of the two components that need it, documented where they are documented, not offered as something to pick from a list."
     },
     "date-picker": {
       "disposition": "keep",

@@ -176,9 +176,9 @@ for (const f of readdirSync(dir).filter(
       // CREATES the copy-in when missing (a renamed or brand-new registry item) — the copy-in is
       // generated output, so absence is never meaningful.
       // ONLY `@placeholder/` targets are docs copy-ins. Plain-path targets (registry:page /
-      // registry:file, e.g. a block's `app/dashboard/page.tsx`) address the CONSUMER app's file
+      // registry:file, e.g. a block's `app/<name>/page.tsx`) address the CONSUMER app's file
       // tree — installing them into the docs app would create real routes there (caught: the
-      // dashboard-01 block briefly shipped a broken /dashboard route into the showcase).
+      // upstream dashboard block briefly shipped a broken /dashboard route into the showcase).
       if (file.target && file.target.startsWith("@")) {
         const copyPath = resolveDocsCopyPath(file.target);
         const sourceContent = readFileSync(

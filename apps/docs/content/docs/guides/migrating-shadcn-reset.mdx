@@ -750,21 +750,23 @@ a hint that you have both in the tree.
 **What did not survive:** the radial ring, the squircle and the segmented dash bar — three visual
 shapes, no behaviour.
 
-### 8.9 `OnboardingChecklist` → the `onboarding-01` block
+### 8.9 `OnboardingChecklist` → a composition
 
 There is no drop-in replacement, and that is the disposition: a getting-started checklist is a screen
-you copy once and then edit. `pnpm dlx shadcn@latest add @vegastack/onboarding-01` and own it.
+you compose and own. The `onboarding-01` block that briefly carried a copy was removed with the other
+demo blocks (DS-78); the [Item page's Checklist example](/docs/components/item#checklist) is the
+recipe now.
 
-| `OnboardingChecklist`                      | In the block                                                       |
-| ------------------------------------------ | ------------------------------------------------------------------ |
-| `title`, `done`, `total`                   | literals in the copied page; `done` is derived from the step array |
-| `collapsed` / `defaultCollapsed`           | `React.useState` in the copied component, if you want it           |
-| `onCollapsedChange`                        | the same state setter                                              |
-| `collapseLabel` / `expandLabel`            | the strings in the copied markup                                   |
-| the determinate bar                        | `Progress`, composed directly                                      |
-| `OnboardingChecklistItem` (`icon`, `done`) | a `<button>` row in the copied component                           |
+| `OnboardingChecklist`                      | In the composition                                     |
+| ------------------------------------------ | ------------------------------------------------------ |
+| `title`, `done`, `total`                   | `ProgressLabel` and `ProgressValue`; `done` is derived |
+| `collapsed` / `defaultCollapsed`           | `React.useState` in your component, if you want it     |
+| `onCollapsedChange`                        | the same state setter                                  |
+| `collapseLabel` / `expandLabel`            | the strings in your markup                             |
+| the determinate bar                        | `Progress`, composed directly                          |
+| `OnboardingChecklistItem` (`icon`, `done`) | an `Item size="sm"` row led by a `StatusIcon`          |
 
-**Two accessibility properties to keep when you edit the copy**, both of which the component
+**Two accessibility properties to keep if you add a collapse control**, both of which the component
 asserted: the collapsed pill carries visible text (title plus "n/N"), so it must **not** take an
 `aria-label` — that would replace the accessible name and break SC 2.5.3 Label in Name; append the
 action as `sr-only` text instead. The expanded card's collapse toggle is icon-only, so there
@@ -1093,7 +1095,9 @@ internal shared row installed as a dependency rather than picked from a list. On
 `sonner`, was retired again in 0.12.0 — do not reach for it; `toast` is the notification engine.
 
 **Blocks.** The registry now serves a hundred of them — upstream's Base UI blocks, 68 chart blocks,
-and four of ours (`app-shell-01`, `board-01`, `settings-01`, `onboarding-01`). A block is copy-once:
+and four of ours (`app-shell-01`, `board-01`, `settings-01`, `onboarding-01`). DS-78 later removed
+the upstream demo blocks and `onboarding-01`, keeping `login-01`, the chart blocks and the rest of
+ours. A block is copy-once:
 install it, own it, and it is never updated under you.
 
 ## 12. Proving a project is clean

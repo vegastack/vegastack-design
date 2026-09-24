@@ -23,7 +23,7 @@ writes:
   `CheckboxGroup` → `FieldSet` + `Checkbox` ·
   `FieldInline` → `EditableCell` · `Segmented` → a joined `ToggleGroup` · `SplitButton` → a
   `ButtonGroup` composition · `ProgressIndicator` → `Progress` + `Spinner` · `OnboardingChecklist` →
-  the `onboarding-01` block. The ten marketing components were deleted outright.
+  an `ItemGroup` of `Item` rows under a `Progress`. The ten marketing components were deleted outright.
 - **Gone from the token layer:** the surface ladder (`surface-1/2/3`), every `--alpha-*` and
   `--opacity-*`, `--size-*`, `--icon-*`, `--z-*`, `--shadow-overlay`, and the role type scale
   (`text-h1`, `text-label`, `text-code`, `text-mono-label`, `text-display-*`).

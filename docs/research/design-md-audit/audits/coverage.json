@@ -1,17 +1,17 @@
 {
   "schemaVersion": 1,
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "dc2617d6b99c0571a873332f94f4f19f918727aa721e3f68b9ceddbf382270cb",
+  "contractSha256": "f71d69c9574de51d4c68b053fbd070a92d50f02f9182d5306b44323e0268d3f2",
   "inventory": {
-    "expected": 692,
-    "actual": 692,
-    "unique": 692
+    "expected": 664,
+    "actual": 664,
+    "unique": 664
   },
   "classes": {
     "components": 112,
     "animatedIcons": 467,
     "hooks": 11,
-    "blocks": 32,
+    "blocks": 4,
     "chartBlocks": 68,
     "libs": 2
   },
@@ -195,7 +195,7 @@
     },
     "Block": {
       "expected": 1,
-      "actual": 100,
+      "actual": 72,
       "members": [
         "app-shell-01",
         "board-01",
@@ -267,36 +267,8 @@
         "chart-tooltip-label-custom",
         "chart-tooltip-label-formatter",
         "chart-tooltip-label-none",
-        "dashboard-01",
         "login-01",
-        "login-02",
-        "login-03",
-        "login-04",
-        "login-05",
-        "onboarding-01",
-        "preview-03",
-        "settings-01",
-        "sidebar-01",
-        "sidebar-02",
-        "sidebar-03",
-        "sidebar-04",
-        "sidebar-05",
-        "sidebar-06",
-        "sidebar-07",
-        "sidebar-08",
-        "sidebar-09",
-        "sidebar-10",
-        "sidebar-11",
-        "sidebar-12",
-        "sidebar-13",
-        "sidebar-14",
-        "sidebar-15",
-        "sidebar-16",
-        "signup-01",
-        "signup-02",
-        "signup-03",
-        "signup-04",
-        "signup-05"
+        "settings-01"
       ]
     },
     "Animated icons": {
@@ -774,6 +746,6 @@
     }
   },
   "componentRoutes": 110,
-  "blockRoutes": 39,
+  "blockRoutes": 11,
   "modeledExemptions": 3
 }

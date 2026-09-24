@@ -72,19 +72,14 @@ const STAGED = join(CACHE, "staged");
 const FLAGS = ["-t", "next", "-b", BASE, "-p", PRESET, "--pointer", "--rtl"];
 const LOCK = join(CACHE, "app.lock");
 
-/** The 30 Base UI blocks the style ships. A literal list: the registry serves no block index. */
-const BLOCKS = [
-  "dashboard-01",
-  ...[1, 2, 3, 4, 5].map((n) => `login-0${n}`),
-  ...[1, 2, 3, 4, 5].map((n) => `signup-0${n}`),
-  ...Array.from(
-    { length: 16 },
-    (_, i) => `sidebar-${String(i + 1).padStart(2, "0")}`,
-  ),
-  "preview",
-  "preview-02",
-  "preview-03",
-];
+/**
+ * The Base UI blocks staged for comparison. A literal list: the registry serves no block index.
+ * The style ships 30; DS-78 (2026-09-24) removed 27 of them from this system (the dashboard,
+ * login 02-05, signup 01-05, sidebar 01-16 and third preview composition) along with our own
+ * onboarding block, so a pull no longer stages them. `login-01` stays because it is still ours to compare against, and
+ * `preview`/`preview-02` stay as the style's own showcase pages, staged for comparison only.
+ */
+const BLOCKS = ["login-01", "preview", "preview-02"];
 
 /**
  * The 68 chart blocks. They exist only under `new-york-v4` (verified: every name below is 200 there
@@ -397,8 +392,8 @@ async function stage() {
   const ported = await stageBlocks();
   await stageDocs(components);
 
-  // AFTER the blocks: adding a block installs its runtime dependencies (@dnd-kit, @tanstack/react-table,
-  // react-qr-code, zod), so a package.json snapshotted before them is not what a second pull into a
+  // AFTER the blocks: adding a block installs its runtime dependencies (whatever the
+  // staged blocks declare), so a package.json snapshotted before them is not what a second pull into a
   // reused app produces. Staged last, it is the dependency set of "init + every component + every block".
   write(join(STAGED, "package.json"), readFileSync(join(APP, "package.json")));
 

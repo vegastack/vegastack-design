@@ -117,15 +117,15 @@ const RUNTIME_VARIABLES = new Set([
 // gate useless for the case it exists to catch. Only the chart component and the fixtures that
 // demonstrate it may name a series colour.
 // Batch 8 of the shadcn reset (2026-09-18) widened the file list and narrowed it at the same
-// time. `dashboard-chart.tsx` LEFT it: upstream's `dashboard-01` replaced our pre-reset block and
+// time. `dashboard-chart.tsx` LEFT it: upstream's dashboard block replaced our pre-reset block and
 // that file no longer exists, and an exemption that can no longer be reached is one that should
-// not exist. What joined it is the 68 ported chart blocks (`registry/blocks/chart-*/chart-*.tsx`,
-// plus the one `dashboard-01` composes) and the seven family preview modules — every one of them
+// not exist. What joined it is the 68 ported chart blocks (`registry/blocks/chart-*/chart-*.tsx`)
+// and the seven family preview modules — every one of them
 // a `ChartContainer` composition whose series keys are its own inline sample data, which is
 // exactly the case the exemption was written for. It is still a FILE list, not a pattern: a
 // `--color-*` typo anywhere else in the system still fails.
 const CHART_SERIES_FILES =
-  /(?:^|\/)chart\.tsx$|\/preview\/chart\.tsx$|\/preview\/charts-[a-z]+\.tsx$|\/registry\/blocks\/[^/]+\/(?:components\/)?chart-[a-z0-9-]+\.tsx$|\/registry\/blocks\/dashboard-01\/components\/data-table\.tsx$/;
+  /(?:^|\/)chart\.tsx$|\/preview\/chart\.tsx$|\/preview\/charts-[a-z]+\.tsx$|\/registry\/blocks\/[^/]+\/chart-[a-z0-9-]+\.tsx$/;
 const CHART_SERIES = /^--color-[a-z][a-z0-9-]*$/;
 
 /** Custom properties the built token contract declares. */
@@ -187,9 +187,9 @@ function referencedTokens(rawSource) {
  * The problems in one file, given the contract.
  *
  * `siblings` is the set a BLOCK's other files declare. Batch 8 of the shadcn reset (2026-09-18)
- * added it: a block is installed as ONE unit, so when `dashboard-01/page.tsx` sets
- * `--header-height` on the wrapper and `dashboard-01/components/site-header.tsx` reads it, the
- * variable is declared — just not in the reading file. Scoped to the block's own directory, so it
+ * added it: a block is installed as ONE unit, so when a block's `page.tsx` sets a custom property
+ * (upstream's dashboard block set `--header-height`) on the wrapper and one of its
+ * `components/*.tsx` reads it, the variable is declared — just not in the reading file. Scoped to the block's own directory, so it
  * can never let a component read a variable some unrelated file happens to declare.
  */
 function fileProblems(relative, source, contract, siblings = new Set()) {

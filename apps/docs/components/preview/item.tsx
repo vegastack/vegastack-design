@@ -29,6 +29,12 @@ import { Button } from "@/components/ui/button";
 import { Field, FieldDescription, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import {
+  Progress,
+  ProgressLabel,
+  ProgressValue,
+} from "@/components/ui/progress";
+import { StatusIcon } from "@/components/ui/status-icon";
+import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuGroup,
@@ -477,6 +483,49 @@ export function itemLink(): ReactNode {
             <ExternalLinkIcon className="size-4" />
           </ItemActions>
         </Item>
+      </div>
+    </Wrapper>
+  );
+}
+
+const CHECKLIST = [
+  { id: "profile", title: "Complete your profile", done: true },
+  { id: "invite", title: "Invite your team", done: true },
+  { id: "connect", title: "Connect your calendar", done: false },
+  { id: "report", title: "Create your first report", done: false },
+];
+
+export function itemChecklist(): ReactNode {
+  const done = CHECKLIST.filter((step) => step.done).length;
+  return (
+    <Wrapper className="flex-col items-stretch">
+      <div className="mx-auto flex w-full max-w-sm flex-col gap-4">
+        <Progress
+          value={done}
+          max={CHECKLIST.length}
+          getAriaValueText={() => `${done} of ${CHECKLIST.length} steps done`}
+        >
+          <ProgressLabel>Getting started</ProgressLabel>
+          <ProgressValue>
+            {() => `${done} of ${CHECKLIST.length}`}
+          </ProgressValue>
+        </Progress>
+        <ItemGroup>
+          {CHECKLIST.map((step) => (
+            <Item key={step.id} size="sm">
+              <ItemMedia>
+                <StatusIcon status={step.done ? "done" : "todo"} size="sm" />
+              </ItemMedia>
+              <ItemContent>
+                <ItemTitle
+                  className={step.done ? "text-muted-foreground" : undefined}
+                >
+                  {step.title}
+                </ItemTitle>
+              </ItemContent>
+            </Item>
+          ))}
+        </ItemGroup>
       </div>
     </Wrapper>
   );
