@@ -108,6 +108,32 @@ It is opt-in and off by default: wizard answers are frequently personal, and a
 design system does not get to decide that for you. Never point it at payment
 details.
 
+## Full-page flow
+
+A create or edit flow that deserves its own page puts the step in the **route**:
+`/products/new/details`, `/products/new/pricing`, `/products/new/review`. The page owns
+`step` (read from the route segment) and passes `onStepChange(id, { replace })` to its router —
+`replace` is `true` when the form corrects the step itself (clamping a requested step it won't
+admit to the furthest reachable one) and `false` for Next, Back and a jump from the rail, so the
+browser's Back retraces what the person did.
+Hash `urlSync` is the alternative for a host without routes; don't use both.
+
+- `AppShellPage` › `PageHeader` with `backRender` (the list the flow came from) › the form in a
+  `grid md:grid-cols-[14rem_1fr]`: `MultiStepFormNav orientation="vertical"` in the narrow
+  column, the steps in the wide one.
+- `navigable="auto"` lets the person jump to a step they have already reached, and `dirty` makes
+  Exit ask before discarding.
+- `MultiStepFormActions sticky="narrow"` keeps Exit, Save draft, Back and Next in reach on a
+  phone, and leaves them in the flow on a wide screen.
+- The Review step shows one `PropertyList` per step, each with a **Change** link to that step's
+  route, and a checklist of what's missing — a `Check` or `X` in `-text` ink plus the words
+  "done" or "missing", never colour alone.
+
+<ComponentPreview
+  name="multiStepFormFullPage"
+  file="components/preview/multi-step-form.tsx"
+/>
+
 ## Inside a dialog, and leaving one
 
 `layout="panel"` is the shape for a `Dialog`, `Sheet` or `Drawer`: the nav and the action

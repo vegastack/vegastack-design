@@ -50,6 +50,11 @@ import { ErrorPage } from "../registry/blocks/status-pages-01/components/error-p
 import { ForbiddenPage } from "../registry/blocks/status-pages-01/components/forbidden-page";
 import { NotFoundPage } from "../registry/blocks/status-pages-01/components/not-found-page";
 import ReviewSplit01Page from "../registry/blocks/review-split-01/page";
+import ListPage01Page from "../registry/blocks/list-page-01/page";
+import { InboxSheet } from "../registry/blocks/notifications-01/components/inbox-sheet";
+import { NOTIFICATIONS } from "../registry/blocks/notifications-01/components/sample-notifications";
+import { CommandSearch } from "../registry/blocks/command-search-01/components/command-search";
+import { INDEX } from "../registry/blocks/command-search-01/components/sample-search";
 
 /**
  * Rendered color-contrast a11y gate (Codex R3 HIGH-2/HIGH-3). Unlike the per-component unit a11y
@@ -1101,5 +1106,67 @@ for (const theme of ["light", "dark"] as const) {
       failures.push(`board-01 no matches: ${v}`);
     spy.mockRestore();
     expect(failures, `block color-contrast failures (${theme})`).toEqual([]);
+  });
+}
+
+// ── #140 PR B blocks (DS-52, DS-56, DS-57; decision D6) ─────────────────────────────────────────
+// Compiled contrast for the list page in both views, and for the Inbox sheet and the search
+// palette, which portal to <body> — so the dark theme goes on <html> (see the afterEach above).
+async function settledOverlay(selector: string) {
+  await expect.poll(() => document.querySelector(selector)).not.toBeNull();
+  const node = document.querySelector<HTMLElement>(selector)!;
+  await expect
+    .poll(() => Number(getComputedStyle(node).opacity), { timeout: 3000 })
+    .toBeGreaterThanOrEqual(0.99);
+}
+
+for (const theme of ["light", "dark"] as const) {
+  test(`list-page-01 passes WCAG AA in both views — ${theme} theme`, async () => {
+    const screen = await render(themed(theme, 1200, <ListPage01Page />));
+    await expect
+      .element(screen.getByText("Skyline Hotels"))
+      .toBeInTheDocument();
+    const list = await contrastViolations(screen.container);
+    await screen.getByRole("button", { name: "Grid", exact: true }).click();
+    await expect
+      .poll(() => document.querySelectorAll('a[data-slot="item"]').length)
+      .toBeGreaterThan(0);
+    const grid = await contrastViolations(screen.container);
+    expect(
+      [...list.map((v) => `list: ${v}`), ...grid.map((v) => `grid: ${v}`)],
+      `list-page-01 color-contrast failures (${theme})`,
+    ).toEqual([]);
+  });
+
+  test(`notifications-01 and command-search-01 overlays pass WCAG AA — ${theme} theme`, async () => {
+    if (theme === "dark") document.documentElement.classList.add("dark");
+    const inbox = await render(
+      <InboxSheet
+        open
+        onOpenChange={() => {}}
+        notifications={NOTIFICATIONS}
+        onMarkAllRead={() => {}}
+      />,
+    );
+    await settledOverlay('[data-slot="sheet-content"]');
+    const sheet = await contrastViolations(document.body);
+    await inbox.unmount();
+
+    const palette = await render(
+      <CommandSearch search={async () => INDEX} defaultOpen />,
+    );
+    await userEvent.type(palette.getByRole("combobox"), "sky");
+    await expect
+      .element(palette.getByRole("option").first())
+      .toBeInTheDocument();
+    await settledOverlay('[data-slot="dialog-content"]');
+    const search = await contrastViolations(document.body);
+    expect(
+      [
+        ...sheet.map((v) => `inbox: ${v}`),
+        ...search.map((v) => `search: ${v}`),
+      ],
+      `overlay color-contrast failures (${theme})`,
+    ).toEqual([]);
   });
 }

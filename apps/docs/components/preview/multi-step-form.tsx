@@ -26,6 +26,16 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { AppShellPage } from "@/components/ui/app-shell";
+import { PageHeader } from "@/components/ui/page-header";
+import {
+  Item,
+  ItemContent,
+  ItemGroup,
+  ItemMedia,
+  ItemTitle,
+} from "@/components/ui/item";
+import { Check, X } from "lucide-react";
 import {
   PropertyList,
   PropertyRow,
@@ -409,6 +419,168 @@ export function multiStepFormSticky(): ReactNode {
           <MultiStepFormActions sticky />
         </MultiStepForm>
       </div>
+    </Wrapper>
+  );
+}
+
+const FULL_PAGE_STEPS: MultiStepFormStepSpec[] = [
+  { id: "details", label: "Details", description: "Name and code" },
+  { id: "pricing", label: "Pricing", description: "List price" },
+  { id: "review", label: "Review", description: "Check and create" },
+];
+
+/**
+ * The full-page flow (DS-55): the step lives in the route, so the page owns `step` and passes
+ * `onStepChange(id, { replace })` to its router. A route stand-in plays the router here, and shows
+ * the last navigation it received.
+ */
+function MultiStepFormFullPageDemo(): ReactNode {
+  const [route, setRoute] = useState("details");
+  const [lastNavigation, setLastNavigation] = useState("none yet");
+  const [name, setName] = useState("Skyline pendant");
+  const [code, setCode] = useState("");
+  const [price, setPrice] = useState("240");
+
+  // What `router.push` / `router.replace` would do: move to the step's own URL.
+  function navigate(id: string, { replace }: { replace: boolean }) {
+    setRoute(id);
+    setLastNavigation(`${replace ? "replace" : "push"} /products/new/${id}`);
+  }
+
+  const checks = [
+    { label: "Product name", done: name.trim() !== "" },
+    { label: "Product code", done: code.trim() !== "" },
+    { label: "List price", done: Number(price) > 0 },
+  ];
+
+  const changeLink = (id: string) => (
+    <a
+      href={`/products/new/${id}`}
+      className="text-sm font-medium underline-offset-4 hover:underline"
+      onClick={(event) => {
+        event.preventDefault();
+        navigate(id, { replace: false });
+      }}
+    >
+      Change
+    </a>
+  );
+
+  return (
+    <AppShellPage size="default" className="px-0 py-0 md:px-0 md:py-0">
+      <PageHeader
+        title="New product"
+        backRender={<a href="/products" />}
+        backLabel="Back to Products"
+        description={`Route: /products/new/${route} · last navigation: ${lastNavigation}`}
+      />
+      <MultiStepForm
+        steps={FULL_PAGE_STEPS}
+        step={route}
+        onStepChange={navigate}
+        navigable="auto"
+        dirty={name !== "Skyline pendant" || code !== "" || price !== "240"}
+        layout="flow"
+        onExit={() => setLastNavigation("push /products")}
+        className="grid gap-6 md:grid-cols-[14rem_1fr]"
+      >
+        <MultiStepFormNav aria-label="New product" orientation="vertical" />
+        <div className="flex min-w-0 flex-col gap-6">
+          <MultiStepFormStep id="details">
+            <Field>
+              <FieldLabel>Product name</FieldLabel>
+              <Input value={name} onChange={(e) => setName(e.target.value)} />
+            </Field>
+            <Field>
+              <FieldLabel>Product code</FieldLabel>
+              <Input value={code} onChange={(e) => setCode(e.target.value)} />
+              <FieldDescription>The code on the price list.</FieldDescription>
+            </Field>
+          </MultiStepFormStep>
+          <MultiStepFormStep id="pricing">
+            <Field>
+              <FieldLabel>List price (USD)</FieldLabel>
+              <Input
+                inputMode="decimal"
+                value={price}
+                onChange={(e) => setPrice(e.target.value)}
+              />
+            </Field>
+          </MultiStepFormStep>
+          <MultiStepFormStep id="review">
+            <div className="flex flex-col gap-4">
+              <div className="flex items-center justify-between gap-2">
+                <h3 className="font-heading text-base font-medium">Details</h3>
+                {changeLink("details")}
+              </div>
+              <PropertyList>
+                <PropertyRow>
+                  <PropertyLabel>Name</PropertyLabel>
+                  <PropertyValue>{name || "—"}</PropertyValue>
+                </PropertyRow>
+                <PropertyRow>
+                  <PropertyLabel>Code</PropertyLabel>
+                  <PropertyValue>{code || "—"}</PropertyValue>
+                </PropertyRow>
+              </PropertyList>
+              <div className="flex items-center justify-between gap-2">
+                <h3 className="font-heading text-base font-medium">Pricing</h3>
+                {changeLink("pricing")}
+              </div>
+              <PropertyList>
+                <PropertyRow>
+                  <PropertyLabel>List price</PropertyLabel>
+                  <PropertyValue className="tabular-nums">
+                    {price ? `$${price}` : "—"}
+                  </PropertyValue>
+                </PropertyRow>
+              </PropertyList>
+              <ItemGroup aria-label="Before you create" className="gap-1">
+                {checks.map((check) => (
+                  <Item key={check.label} size="sm">
+                    <ItemMedia>
+                      {check.done ? (
+                        <Check aria-hidden className="text-success-text" />
+                      ) : (
+                        <X aria-hidden className="text-destructive-text" />
+                      )}
+                    </ItemMedia>
+                    <ItemContent>
+                      <ItemTitle>
+                        {check.label}
+                        <span className="sr-only">
+                          {check.done ? ", done" : ", missing"}
+                        </span>
+                      </ItemTitle>
+                    </ItemContent>
+                  </Item>
+                ))}
+              </ItemGroup>
+            </div>
+          </MultiStepFormStep>
+          <MultiStepFormActions sticky="narrow">
+            <MultiStepFormExit>Exit</MultiStepFormExit>
+            <Button
+              variant="outline"
+              onClick={() => setLastNavigation("saved a draft")}
+            >
+              Save draft
+            </Button>
+            <div className="ms-auto flex gap-2">
+              <MultiStepFormBack />
+              <MultiStepFormNext />
+            </div>
+          </MultiStepFormActions>
+        </div>
+      </MultiStepForm>
+    </AppShellPage>
+  );
+}
+
+export function multiStepFormFullPage(): ReactNode {
+  return (
+    <Wrapper className="block">
+      <MultiStepFormFullPageDemo />
     </Wrapper>
   );
 }
