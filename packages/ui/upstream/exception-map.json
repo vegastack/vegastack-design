@@ -192,6 +192,7 @@
       "field",
       "input",
       "input-group",
+      "radio-group",
       "select",
       "textarea"
     ],

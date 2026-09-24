@@ -9479,7 +9479,7 @@
           }
         },
         {
-          "name": "FieldLabel",
+          "name": "FieldContent",
           "kind": "component",
           "source": "packages/ui/registry/ui/field.tsx",
           "ref": {
@@ -9519,6 +9519,16 @@
           }
         },
         {
+          "name": "FieldLabel",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/field.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
+          }
+        },
+        {
           "name": "FieldLegend",
           "kind": "component",
           "source": "packages/ui/registry/ui/field.tsx",
@@ -9549,7 +9559,7 @@
           }
         },
         {
-          "name": "FieldContent",
+          "name": "FieldTitle",
           "kind": "component",
           "source": "packages/ui/registry/ui/field.tsx",
           "ref": {
@@ -9559,13 +9569,12 @@
           }
         },
         {
-          "name": "FieldTitle",
-          "kind": "component",
+          "name": "useFieldScope",
+          "kind": "hook",
           "source": "packages/ui/registry/ui/field.tsx",
           "ref": {
-            "status": "observed",
-            "target": "element",
-            "rationale": "Upstream forwards the ref to its own render target."
+            "status": "not-applicable",
+            "rationale": "Hooks do not render or accept runtime refs."
           }
         }
       ],
@@ -15098,7 +15107,7 @@
       },
       "engines": [],
       "docsSlug": "/docs/components/radio-group",
-      "registryDependencies": [],
+      "registryDependencies": ["@vegastack/field"],
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
         "@vegastack/design@^0.7.4",

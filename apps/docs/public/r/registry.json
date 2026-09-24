@@ -1533,7 +1533,7 @@
         "whenToUse": "Wrap any form control to give it a label, description and error message: inside a Field the control gets its label, aria-describedby ids and aria-invalid from Base UI Field with no ids to wire.",
         "whenNotToUse": "A bare control with its own label already wired — Field is for the label+message+a11y scaffold.",
         "version": "0.18.0",
-        "integrity": "sha256-4PpqgQ7Mjgbw+MrvKA2eyuIL95RyU7akqPK/Sx68aXE="
+        "integrity": "sha256-koQA9sul998A7W+KR2/vxNs72EVDaGGXdRkgTOh2ZEE="
       }
     },
     {
@@ -15494,7 +15494,9 @@
         "@vegastack/design@^0.7.4",
         "@vegastack/design-tokens@^0.7.1"
       ],
-      "registryDependencies": [],
+      "registryDependencies": [
+        "@vegastack/field"
+      ],
       "files": [
         {
           "path": "packages/ui/registry/ui/radio-group.tsx",
@@ -15506,7 +15508,7 @@
         "whenToUse": "A form value from 2–5 mutually-exclusive choices, all visible at once.",
         "whenNotToUse": "An immediate view or scope switch over the same content (ToggleGroup), many options (Select), or non-exclusive multi-select (Checkboxes).",
         "version": "0.18.0",
-        "integrity": "sha256-rG8Y8d4fmsMU95l1rxV3YxPDZvsMk1oLbkWB8LaTRZ4="
+        "integrity": "sha256-shdvHUh+NKaXpA/qp9gkqqyg0yxaWUy3pLsYWI4sFBs="
       }
     },
     {

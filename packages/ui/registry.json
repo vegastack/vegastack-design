@@ -12393,7 +12393,7 @@
         "@vegastack/design@^0.7.4",
         "@vegastack/design-tokens@^0.7.1"
       ],
-      "registryDependencies": [],
+      "registryDependencies": ["@vegastack/field"],
       "files": [
         {
           "path": "packages/ui/registry/ui/radio-group.tsx",

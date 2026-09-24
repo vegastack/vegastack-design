@@ -1,8 +1,8 @@
-// @vegastack field@0.18.0 sha256-4PpqgQ7Mjgbw+MrvKA2eyuIL95RyU7akqPK/Sx68aXE=
+// @vegastack field@0.18.0 sha256-koQA9sul998A7W+KR2/vxNs72EVDaGGXdRkgTOh2ZEE=
 
 "use client";
 
-import { createContext, useContext, useMemo } from "react";
+import { createContext, useContext, useMemo, useState } from "react";
 import { cva, type VariantProps } from "class-variance-authority";
 import { Field as FieldPrimitive } from "@base-ui/react/field";
 import { cn } from "@vegastack/design";
@@ -15,7 +15,19 @@ import { Separator } from "@/components/ui/separator";
 // parts outside one (a FieldDescription in a FieldSet, a FieldLabel wrapping a choice-card Field, a
 // standalone FieldError). Each part renders its Base UI part only inside a `Field`, and upstream's
 // plain element everywhere else.
-const FieldScope = createContext(false);
+const FieldScope = createContext<object | false>(false);
+
+/**
+ * The enclosing `Field`'s identity, or `false` outside one. A composite control reads it to tell
+ * its own `Field` from the one around a part of it — `RadioGroup` names only the group from its
+ * Field, while an item inside its own nested `Field` still takes that Field's label (API-26).
+ *
+ * @example
+ * const field = useFieldScope();
+ */
+function useFieldScope(): object | false {
+  return useContext(FieldScope);
+}
 
 function FieldPartLabel(props: React.ComponentProps<typeof Label>) {
   return <FieldPrimitive.Label render={<Label />} {...props} />;
@@ -97,6 +109,8 @@ function Field({
   VariantProps<typeof fieldVariants> & {
     "data-invalid"?: boolean | "true" | "false";
   }) {
+  // A stable identity per Field, so `useFieldScope` can tell one Field from another.
+  const [scope] = useState(() => ({}));
   return (
     <FieldPrimitive.Root
       role="group"
@@ -107,7 +121,7 @@ function Field({
       className={cn(fieldVariants({ orientation }), className)}
       {...props}
     >
-      <FieldScope.Provider value>{children}</FieldScope.Provider>
+      <FieldScope.Provider value={scope}>{children}</FieldScope.Provider>
     </FieldPrimitive.Root>
   );
 }
@@ -269,4 +283,5 @@ export {
   FieldSet,
   FieldContent,
   FieldTitle,
+  useFieldScope,
 };
