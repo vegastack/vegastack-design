@@ -1065,3 +1065,21 @@ test("a failed load keeps the rows and offers Try again (DS-30)", async () => {
   ).toBeGreaterThan(0);
   await expectNoA11yViolations(screen.container);
 });
+
+test("DS-01: a mono column's header is sans; its body cells are mono", async () => {
+  const screen = await render(
+    <DataGrid
+      aria-label="Deals"
+      columns={columns({ mono: true })}
+      data={DEALS}
+      getRowId={(d) => d.id}
+    />,
+  );
+  const header = [...document.querySelectorAll('[role="columnheader"]')].find(
+    (el) => el.textContent?.includes("Amount"),
+  )!;
+  expect(header.className).not.toContain("font-mono");
+  expect(header.className).toContain("tabular-nums");
+  const cell = screen.getByRole("gridcell", { name: "300" }).element();
+  expect(cell.className).toContain("font-mono");
+});

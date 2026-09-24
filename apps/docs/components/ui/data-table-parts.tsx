@@ -1,4 +1,4 @@
-// @vegastack data-table-parts@0.18.0 sha256-zionZcs9W/E1VTeMztgKSGRp/Zpweo++kn4hhG8P+b8=
+// @vegastack data-table-parts@0.18.0 sha256-OdOqt3gT2dS8N+O5AuytnLVmV+oXuakSpVtByvL46kM=
 
 "use client";
 
@@ -56,8 +56,10 @@ export interface DataTableColumnLayout {
    */
   align?: "start" | "center" | "end";
   /**
-   * Render this column's values in the mono numeral face (`font-mono text-sm` +
-   * `tabular-nums`), so figures line up down the column.
+   * Render this column's BODY cells in the mono face (`font-mono text-sm` + `tabular-nums`) — for
+   * codes and identifiers (SKUs, ticket ids, hashes). Numbers are not codes: a count, an amount
+   * or a date column uses `align: "end"` and the regular face with `tabular-nums`. The header
+   * cell stays in the sans face either way.
    * @default false
    */
   mono?: boolean;
@@ -576,6 +578,22 @@ export interface SortableHeadProps extends Omit<
 }
 
 /**
+ * The class contract for one column's HEADER cell (DS-01): the same alignment, wrap posture and
+ * squeeze behaviour as its body cells, but always in the sans face — a header is a label, not a
+ * value. A `mono` column's header keeps `tabular-nums` only, so a numeric header's digits (a year,
+ * a unit count) still align with the column.
+ *
+ * @example
+ * <TableHead className={headerCellClass(column)}>{column.header}</TableHead>
+ */
+export function headerCellClass(column: DataTableColumnLayout): string {
+  return cn(
+    columnCellClass({ ...column, mono: false }),
+    column.mono && "tabular-nums",
+  );
+}
+
+/**
  * `SortableHead` — one header cell, with the sort affordance and the ARIA the
  * sort state owes assistive technology (`aria-sort`, plus the `data-sortable` /
  * `data-sorted` hooks consumers style against).
@@ -610,7 +628,7 @@ export function SortableHead({
           : undefined
       }
       className={cn(
-        columnCellClass(column),
+        headerCellClass(column),
         // The sort control carries the cell's inline padding so its box stays
         // inside the cell: 2px here + the button's 1px border and 5px padding
         // put the label 8px in — on its values' edge, like a plain header.

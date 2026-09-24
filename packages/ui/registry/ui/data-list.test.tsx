@@ -1557,3 +1557,48 @@ test("loadMore loading, error and done states (DS-31)", async () => {
   ).toBe("End of list");
   await expectNoA11yViolations(screen.container);
 });
+
+/* DS-01 — a mono column's header is a label in the sans face; only its body cells are mono */
+
+test("DS-01: a mono column's header is sans; its body cell is mono", async () => {
+  interface Sku {
+    id: string;
+    sku: string;
+  }
+  const screen = await render(
+    <DataList<Sku>
+      columns={[
+        { key: "sku", header: "SKU", mono: true, sortable: true },
+        { key: "id", header: "Id" },
+      ]}
+      data={[{ id: "a", sku: "A-1" }]}
+      getRowId={(r) => r.id}
+    />,
+  );
+  const header = [...screen.container.querySelectorAll("th")].find((el) =>
+    el.textContent?.startsWith("SKU"),
+  )!;
+  expect(header.className).not.toContain("font-mono");
+  expect(header.className).toContain("tabular-nums");
+  const cell = screen.getByRole("cell", { name: "A-1" }).element();
+  expect(cell.className).toContain("font-mono");
+});
+
+test("no a11y violations — mono column, loading and empty", async () => {
+  interface Sku {
+    id: string;
+    sku: string;
+  }
+  const cols: DataListColumn<Sku>[] = [
+    { key: "sku", header: "SKU", mono: true },
+  ];
+  const loading = await render(
+    <DataList<Sku> columns={cols} data={[]} loading getRowId={(r) => r.id} />,
+  );
+  await expectNoA11yViolations(loading.container);
+  await loading.unmount();
+  const empty = await render(
+    <DataList<Sku> columns={cols} data={[]} getRowId={(r) => r.id} />,
+  );
+  await expectNoA11yViolations(empty.container);
+});
