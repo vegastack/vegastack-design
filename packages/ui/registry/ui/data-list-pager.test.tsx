@@ -54,7 +54,7 @@ test("renders the range summary, the rows-per-page chooser and the page controls
     .element(screen.getByRole("combobox", { name: "Rows per page" }))
     .toBeInTheDocument();
   await expect
-    .element(screen.getByRole("navigation", { name: "pagination" }))
+    .element(screen.getByRole("navigation", { name: "Pagination" }))
     .toHaveAttribute("data-slot", "data-list-pager-nav");
   for (const page of [1, 2, 3])
     await expect
@@ -76,7 +76,7 @@ test("an empty list reads 0 of 0 and offers no page controls", async () => {
   const screen = await render(<Pager total={0} />);
   expect(range(screen.container)).toBe("0 of 0");
   expect(
-    screen.getByRole("navigation", { name: "pagination" }).query(),
+    screen.getByRole("navigation", { name: "Pagination" }).query(),
   ).toBeNull();
 });
 
@@ -141,7 +141,7 @@ test("previous stays focusable but inert on the first page (aria-disabled, point
   expect(onPageChange).not.toHaveBeenCalled();
   await expect
     .element(first.getByRole("button", { name: "Go to next page" }))
-    .not.toHaveAttribute("aria-disabled");
+    .not.toHaveAttribute("aria-disabled", "true");
 });
 
 test("next is inert on the last page", async () => {
@@ -168,7 +168,7 @@ test("Enter on a focused page control requests that page", async () => {
 test("the page controls are hidden when everything fits on one page; the chooser stays", async () => {
   const screen = await render(<Pager total={10} />);
   expect(
-    screen.getByRole("navigation", { name: "pagination" }).query(),
+    screen.getByRole("navigation", { name: "Pagination" }).query(),
   ).toBeNull();
   expect(range(screen.container)).toBe("1–10 of 10");
   await expect
@@ -190,7 +190,9 @@ test("a long run of pages collapses into a window with ellipses", async () => {
     )
     .toBe("full");
   const labels = Array.from(
-    screen.container.querySelectorAll('[data-slot="pagination-link"]'),
+    screen.container.querySelectorAll(
+      '[data-slot="data-list-pager-previous"], [data-slot="data-list-pager-page"], [data-slot="data-list-pager-next"]',
+    ),
   )
     .map((a) => a.getAttribute("aria-label"))
     .filter((label) => label?.startsWith("Go to page"));
@@ -217,7 +219,9 @@ test("a narrow container goes compact: no neighbours, icon-only ends (containmen
   )!;
   await expect.poll(() => root.getAttribute("data-layout")).toBe("compact");
   const labels = Array.from(
-    root.querySelectorAll('[data-slot="pagination-link"]'),
+    root.querySelectorAll(
+      '[data-slot="data-list-pager-previous"], [data-slot="data-list-pager-page"], [data-slot="data-list-pager-next"]',
+    ),
   )
     .map((a) => a.getAttribute("aria-label"))
     .filter((label) => label?.startsWith("Go to page"));
@@ -245,9 +249,11 @@ test('below 240px the page list goes minimal: icon ends around "Page N of M"', a
   await expect.poll(() => root.getAttribute("data-layout")).toBe("minimal");
   // No numbered page links at all — only the two named ends and the position.
   expect(
-    Array.from(root.querySelectorAll('[data-slot="pagination-link"]')).map(
-      (a) => a.getAttribute("aria-label"),
-    ),
+    Array.from(
+      root.querySelectorAll(
+        '[data-slot="data-list-pager-previous"], [data-slot="data-list-pager-page"], [data-slot="data-list-pager-next"]',
+      ),
+    ).map((a) => a.getAttribute("aria-label")),
   ).toEqual(["Go to previous page", "Go to next page"]);
   expect(
     root.querySelector('[data-slot="data-list-pager-position"]')?.textContent,
@@ -289,7 +295,7 @@ test.each([
   expect(range(screen.container)).toBe("0 of 0");
   expect(screen.container.textContent).not.toContain("NaN");
   expect(
-    screen.getByRole("navigation", { name: "pagination" }).query(),
+    screen.getByRole("navigation", { name: "Pagination" }).query(),
   ).toBeNull();
 });
 
@@ -488,4 +494,52 @@ test("no a11y violations — chooser open", async () => {
   );
   await expect.element(screen.getByRole("listbox")).toBeInTheDocument();
   await expectNoA11yViolations(document.body);
+});
+
+/* DS-27 — a fixed page size · DS-71 — page controls are buttons */
+
+test("DS-27: without onPageSizeChange there is no rows-per-page chooser", async () => {
+  const screen = await render(
+    <DataListPager
+      page={1}
+      pageSize={15}
+      total={100}
+      onPageChange={() => {}}
+    />,
+  );
+  expect(
+    screen.container.querySelector('[data-slot="data-list-pager-size"]'),
+  ).toBeNull();
+  expect(screen.container.textContent).toContain("1–15 of 100");
+});
+
+test("DS-71: the page controls are buttons with aria-current on the current page, never links", async () => {
+  const screen = await render(
+    <div style={{ width: 640 }}>
+      <DataListPager
+        page={2}
+        pageSize={15}
+        total={100}
+        onPageChange={() => {}}
+        onPageSizeChange={() => {}}
+      />
+    </div>,
+  );
+  await expect
+    .element(screen.getByRole("button", { name: "Go to page 2" }))
+    .toHaveAttribute("aria-current", "page");
+  expect(screen.container.querySelectorAll("a")).toHaveLength(0);
+  expect(screen.container.querySelectorAll('[role="link"]')).toHaveLength(0);
+});
+
+test("no a11y violations — fixed page size", async () => {
+  const screen = await render(
+    <DataListPager
+      page={3}
+      pageSize={15}
+      total={100}
+      onPageChange={() => {}}
+    />,
+  );
+  await expectNoA11yViolations(screen.container);
 });

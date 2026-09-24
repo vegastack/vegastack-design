@@ -1091,6 +1091,7 @@
         "@vegastack/design-tokens@^0.7.1"
       ],
       "registryDependencies": [
+        "@vegastack/button",
         "@vegastack/data-table-parts",
         "@vegastack/pagination",
         "@vegastack/select",
@@ -1104,10 +1105,10 @@
         }
       ],
       "meta": {
-        "whenToUse": "Paging a DataList (or any host-paged list): the range, rows-per-page, and page controls in its footer slot, with page state owned by the host.",
+        "whenToUse": "Paging a DataList (or any host-paged list) in place: the range, an optional rows-per-page chooser (omit onPageSizeChange for a fixed size), and page buttons in its footer slot, with page state owned by the host.",
         "whenNotToUse": "Keyset or cursor paging with no total (LoadMore, or DataList's and DataGrid's loadMore), or bare page links with no page-size choice (Pagination).",
         "version": "0.18.0",
-        "integrity": "sha256-v7U5XWiqGWt2bLTEFYLM303CoKo67jyuO2nGKLTmQXU="
+        "integrity": "sha256-fO5y3uUoD2JqTbVML6l0HSrvO/8DiO2RO+DvGG0CdJ4="
       }
     },
     {
@@ -15335,10 +15336,10 @@
         }
       ],
       "meta": {
-        "whenToUse": "Navigate paged content — a long list/table split across numbered pages.",
+        "whenToUse": "Navigate paged content with real URLs — a long list/table split across numbered pages; every page control is a link.",
         "whenNotToUse": "Infinite scroll / 'load more' feeds, or tab-style switching.",
         "version": "0.18.0",
-        "integrity": "sha256-ZJA4+msJu2jCeQlZqALPLFLKf3RIeWXi+yPuUuo6tzo="
+        "integrity": "sha256-XW2jCdjzINCqwJ7UnbQPfBT5BjRoCoUpaZuW5rK/th4="
       }
     },
     {

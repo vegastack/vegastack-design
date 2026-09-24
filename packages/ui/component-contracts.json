@@ -6920,6 +6920,7 @@
       "engines": [],
       "docsSlug": "/docs/components/data-list-pager",
       "registryDependencies": [
+        "@vegastack/button",
         "@vegastack/data-table-parts",
         "@vegastack/pagination",
         "@vegastack/select",
@@ -6943,6 +6944,10 @@
         "DataListPager": {
           "attributes": [
             {
+              "name": "data-active",
+              "values": []
+            },
+            {
               "name": "data-layout",
               "values": []
             },
@@ -6955,7 +6960,10 @@
               "values": [
                 "data-list-pager",
                 "data-list-pager-nav",
+                "data-list-pager-next",
+                "data-list-pager-page",
                 "data-list-pager-position",
+                "data-list-pager-previous",
                 "data-list-pager-range",
                 "data-list-pager-size"
               ]

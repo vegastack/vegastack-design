@@ -167,19 +167,21 @@ Move the page-link size across the shared control scale, then copy the generated
 
 ## Accessibility
 
-- `Pagination` is a `nav` with `role="navigation"` and `aria-label="pagination"`, so assistive
-  technology can jump to the pager as a landmark and name it apart from the page's other navigation.
+- `Pagination` is a `nav` with `role="navigation"` named "Pagination" (`label` renames it), so
+  assistive technology can jump to the pager as a landmark and name it apart from the page's other
+  navigation.
 - The active page carries `aria-current="page"`, which is what announces "current" rather than the
   `outline` fill doing it with colour alone.
-- Every control is an `<a href>` rendered through `Button` with `nativeButton={false}`, so Base UI
-  gives it `role="button"` and `tabindex="0"`: it announces as a button, activates on both
-  <kbd>Enter</kbd> and <kbd>Space</kbd>, and still navigates and opens in a new
-  tab like the anchor it is. That is upstream's behaviour, shipped unchanged.
+- Every control is a real `<a href>` wearing the `Button` recipe, so it announces as a **link**,
+  activates on <kbd>Enter</kbd>, and navigates and opens in a new tab like the anchor it is (A11Y-23).
+  Upstream rendered it through `Button` with `nativeButton={false}`, which stamped `role="button"`
+  on a link. For a pager whose controls change state instead of navigating, use buttons —
+  `DataListPager` does.
 - `PaginationPrevious` and `PaginationNext` keep `aria-label="Go to previous page"` and
   `aria-label="Go to next page"`, so they stay named at the breakpoint where their visible label is
   hidden.
-- `PaginationEllipsis` is `aria-hidden` decoration carrying an `sr-only` "More pages"; it is not a
-  control and is not in the tab order.
+- `PaginationEllipsis` is `aria-hidden` decoration carrying an `sr-only` "More pages"
+  (`morePagesLabel` renames it); it is not a control and is not in the tab order.
 - Every control is a `Button` — `size="icon"` (32px) for a page number, `size="default"` for the
   previous/next pair — so the WCAG 2.2 target floor is met by the control's own box, with no
   invisible hit area needed (A11Y-2).
@@ -199,7 +201,12 @@ Move the page-link size across the shared control scale, then copy the generated
 
 Upstream's file plus `packages/ui/upstream/patches/pagination.patch`. Every hunk:
 
-- **No styling hunk.** `PaginationLink` renders through `Button`, which already carries this
+- **A11Y-23** — `PaginationLink` renders a real `<a>` wearing `buttonVariants({ variant, size })`
+  instead of `Button nativeButton={false} render={<a/>}`, so a pagination link keeps the link role
+  (upstream's version announced a button); `aria-current="page"` stays.
+- **VOI-1** — upstream's lower-case `aria-label="pagination"` becomes "Pagination", overridable with
+  `label`, and the ellipsis's "More pages" is overridable with `morePagesLabel`.
+- **No styling hunk.** `PaginationLink` wears the `Button` recipe, which already carries this
   system's focus, cursor and disabled behaviour, so pagination inherits FOC-1, FOC-5, FOC-6 and
   FRM-4 rather than restating them. **A11Y-2 — audited, no hunk:** every control is a `Button` at
   `size="icon"` (32px) or `size="default"`, and `PaginationEllipsis` is `aria-hidden` and not a

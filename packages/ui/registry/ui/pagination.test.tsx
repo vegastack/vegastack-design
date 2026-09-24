@@ -48,7 +48,7 @@ test("renders the pagination landmark and its list (Usage)", async () => {
   const screen = await render(<Pager />);
   const nav = screen.container.querySelector("nav") as HTMLElement;
   expect(nav.getAttribute("role")).toBe("navigation");
-  expect(nav.getAttribute("aria-label")).toBe("pagination");
+  expect(nav.getAttribute("aria-label")).toBe("Pagination");
   expect(nav.getAttribute("data-slot")).toBe("pagination");
   const list = screen.container.querySelector("ul") as HTMLElement;
   expect(list.getAttribute("data-slot")).toBe("pagination-content");
@@ -71,10 +71,10 @@ test("every exported part renders and carries its data-slot (Usage)", async () =
   }
   // Previous and Next are `PaginationLink`s, distinguished by their accessible names.
   await expect
-    .element(screen.getByRole("button", { name: "Go to previous page" }))
+    .element(screen.getByRole("link", { name: "Go to previous page" }))
     .toBeInTheDocument();
   await expect
-    .element(screen.getByRole("button", { name: "Go to next page" }))
+    .element(screen.getByRole("link", { name: "Go to next page" }))
     .toBeInTheDocument();
 });
 
@@ -113,7 +113,7 @@ test("PaginationLink builds its own anchor and takes anchor props (Composition)"
   ) as HTMLAnchorElement;
   expect(link.tagName).toBe("A");
   expect(link.getAttribute("href")).toBe("#page-4");
-  // `nativeButton={false}`: the anchor IS the button, not a button wrapping one.
+  // A11Y-23: a real anchor wearing the button recipe — never a button, never role=button.
   expect(link.querySelector("button")).toBeNull();
   expect(link.closest("button")).toBeNull();
   await userEvent.click(link);
@@ -190,10 +190,10 @@ test("previous and next keep their names when the label is hidden (Icons Only)",
     </Pagination>,
   );
   const previous = screen
-    .getByRole("button", { name: "Go to previous page" })
+    .getByRole("link", { name: "Go to previous page" })
     .element() as HTMLElement;
   const next = screen
-    .getByRole("button", { name: "Go to next page" })
+    .getByRole("link", { name: "Go to next page" })
     .element() as HTMLElement;
   // The visible word is behind a breakpoint; the aria-label is not. That is why the icons-only
   // form at narrow widths still has two named controls.
@@ -231,7 +231,7 @@ test("the text prop replaces the built-in labels (RTL, Changelog)", async () => 
   // The accessible name is NOT the visible text: it stays the English aria-label the component
   // sets, which is why a localised bar must also localise `aria-label` if it wants both.
   await expect
-    .element(screen.getByRole("button", { name: "Go to previous page" }))
+    .element(screen.getByRole("link", { name: "Go to previous page" }))
     .toBeInTheDocument();
 });
 
@@ -265,10 +265,10 @@ test("a numbered link forwards onClick, which is how a Next.js link is wired (Ne
     );
   }
   const screen = await render(<RouterPager />);
-  await userEvent.click(screen.getByRole("button", { name: "3" }));
+  await userEvent.click(screen.getByRole("link", { name: "3" }));
   expect(navigated).toEqual(["#page-3"]);
   await expect
-    .element(screen.getByRole("button", { name: "3" }))
+    .element(screen.getByRole("link", { name: "3" }))
     .toHaveAttribute("aria-current", "page");
 });
 
@@ -286,9 +286,7 @@ test("RTL: the bar reads right to left and the chevrons follow it (RTL)", async 
   expect(getComputedStyle(list).direction).toBe("rtl");
   // Mirrored by the cascade, not by a second icon.
   for (const name of ["Go to previous page", "Go to next page"]) {
-    const control = screen
-      .getByRole("button", { name })
-      .element() as HTMLElement;
+    const control = screen.getByRole("link", { name }).element() as HTMLElement;
     const icon = control.querySelector("svg") as SVGElement;
     expect(icon.getAttribute("class")).toContain("rtl:rotate-180");
   }
@@ -410,4 +408,40 @@ test("no a11y violations — RTL", async () => {
     </DirectionProvider>,
   );
   await expectNoA11yViolations(screen.container);
+});
+
+/* A11Y-23 — links stay links · VOI-1 — sentence-case, overridable copy */
+
+test("A11Y-23: pagination links keep the link role and the current page", async () => {
+  const screen = await render(<Pager />);
+  await expect
+    .element(screen.getByRole("link", { name: "2" }))
+    .toHaveAttribute("aria-current", "page");
+  for (const link of screen.container.querySelectorAll(
+    '[data-slot="pagination-link"]',
+  )) {
+    expect(link.getAttribute("role")).toBeNull();
+    expect(link.tagName).toBe("A");
+  }
+  expect(screen.container.querySelectorAll('[role="button"]')).toHaveLength(0);
+});
+
+test("VOI-1: the landmark is named 'Pagination' by default and takes a label", async () => {
+  const screen = await render(<Pager label="Results pages" />);
+  await expect
+    .element(screen.getByRole("navigation", { name: "Results pages" }))
+    .toBeInTheDocument();
+  const plain = await render(<Pager />);
+  await expect
+    .element(plain.getByRole("navigation", { name: "Pagination" }))
+    .toBeInTheDocument();
+});
+
+test("VOI-1: the ellipsis copy is overridable", async () => {
+  const screen = await render(
+    <PaginationEllipsis morePagesLabel="Weitere Seiten" />,
+  );
+  expect(screen.container.textContent).toContain("Weitere Seiten");
+  const plain = await render(<PaginationEllipsis />);
+  expect(plain.container.textContent).toContain("More pages");
 });
