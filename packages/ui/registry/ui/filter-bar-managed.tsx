@@ -1,10 +1,10 @@
-// @vegastack filter-bar-managed@0.18.0 sha256-QxgnyS83IfizDGxmRS3FLoSxaAUHRKccGrwwfrLA9tE=
+// @vegastack filter-bar-managed@0.18.0 sha256-sWCvxBMooSj1LFcmiJ/jWhUhY9l1hF45s/0q2egaLKQ=
 
 "use client";
 
 import * as React from "react";
 import { Plus, X } from "lucide-react";
-import { cn } from "@vegastack/design";
+import { cn, mergeRefs } from "@vegastack/design";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { FilterChip } from "@/components/ui/filter-bar";
@@ -65,10 +65,27 @@ export interface FilterOperator {
   label: string;
   /**
    * Whether the operator takes a comparison value. `false` hides the value
-   * editor and exempts the condition from the missing-value check.
+   * editor and exempts the condition from the missing-value check — the same as
+   * `valueShape: "none"`.
    * @default true
    */
   requiresValue?: boolean;
+  /**
+   * The shape of the value the operator compares against: `none` (no value — "is empty"),
+   * `scalar` (one value — "is"), `list` (several — "is any of") or `range` (two bounds —
+   * "between"). Switching to an operator of a different shape clears the value, so a scalar
+   * never survives into a list operator. Defaults from `requiresValue`.
+   * @default "scalar"
+   */
+  valueShape?: "none" | "scalar" | "list" | "range";
+}
+
+/** The value shape an operator declares, falling back to `requiresValue`. */
+function valueShapeOf(
+  operator: FilterOperator | undefined,
+): NonNullable<FilterOperator["valueShape"]> {
+  if (operator?.valueShape) return operator.valueShape;
+  return operator?.requiresValue === false ? "none" : "scalar";
 }
 
 /** One field the host's grammar exposes. */
@@ -143,7 +160,7 @@ export interface FilterBuilderProps<V = unknown> {
   /**
    * Maximum group nesting depth (the root group is depth 1). The add-group
    * affordance disables at the cap and the reason renders as visible text
-   * beside it.
+   * beside it. `1` means a flat list: no add-group control and no reason at all.
    * @default 3
    */
   maxDepth?: number;
@@ -289,6 +306,24 @@ export function FilterBuilder<V = unknown>({
   ref,
 }: FilterBuilderProps<V>) {
   const idBase = React.useId();
+  // DS-28: "Value required" shows only once the value control was touched (blurred) or the
+  // enclosing form was submitted — a freshly added row is not an error yet.
+  const rootRef = React.useRef<HTMLDivElement>(null);
+  const [touched, setTouched] = React.useState<ReadonlySet<string>>(
+    () => new Set(),
+  );
+  const [submitted, setSubmitted] = React.useState(false);
+  const markTouched = React.useCallback((key: string) => {
+    setTouched((prev) => (prev.has(key) ? prev : new Set(prev).add(key)));
+  }, []);
+  React.useEffect(() => {
+    const form = rootRef.current?.closest("form");
+    if (!form) return;
+    const onSubmit = () => setSubmitted(true);
+    form.addEventListener("submit", onSubmit, true);
+    return () => form.removeEventListener("submit", onSubmit, true);
+  }, []);
+  const mergedRef = React.useMemo(() => mergeRefs(rootRef, ref), [ref]);
   // After a removal, focus the element with this id once the tree re-renders.
   // Armed for exactly one commit: if the controlled host rejects the change
   // (no re-render follows), the id expires instead of yanking focus on some
@@ -386,6 +421,8 @@ export function FilterBuilder<V = unknown>({
   ): React.ReactNode => {
     const depth = path.length + 1;
     const atDepthCap = depth >= maxDepth;
+    // A flat builder (`maxDepth={1}`) has no groups to add, so it shows no control and no reason.
+    const allowsGroups = maxDepth > 1;
     const conditionIndexes = group.children
       .map((child, index) => (child.type === "condition" ? index : -1))
       .filter((index) => index !== -1);
@@ -403,6 +440,12 @@ export function FilterBuilder<V = unknown>({
             rowId([...path, next > index ? next - 1 : next])
           : addId(path),
       );
+      // Paths shift after a removal, so the touched marks of this group's rows would point at
+      // the wrong rows; drop them.
+      setTouched((prev) => {
+        const prefix = `${path.join("-")}-`;
+        return new Set([...prev].filter((key) => !key.startsWith(prefix)));
+      });
       onValueChange(
         updateGroup(value, path, (g) => ({
           ...g,
@@ -478,10 +521,14 @@ export function FilterBuilder<V = unknown>({
           const operator = field.operators.find(
             (op) => op.value === child.operator,
           );
-          const needsValue = operator?.requiresValue !== false;
+          const needsValue = valueShapeOf(operator) !== "none";
+          const touchKey = `${childPath.join("-")}-`;
           const missingValue =
             needsValue &&
-            (child.value === undefined || child.value === ("" as unknown));
+            (touched.has(touchKey) || submitted) &&
+            (child.value === undefined ||
+              child.value === ("" as unknown) ||
+              (Array.isArray(child.value) && child.value.length === 0));
           const Editor = editors?.[field.type] ?? TextValueEditor<V>;
           const editorId = `${rowId(childPath)}-value`;
           const errorId = `${rowId(childPath)}-error`;
@@ -550,12 +597,13 @@ export function FilterBuilder<V = unknown>({
                   );
                   patchCondition({
                     operator: String(next),
-                    // An operator that takes no value must not leave a stale
-                    // one in the tree for the host to serialise.
+                    // A value of another shape is garbage for the new operator — a scalar
+                    // under "is any of", a list under "is" — and an operator that takes no
+                    // value must not leave a stale one in the tree for the host to serialise.
                     value:
-                      nextOperator?.requiresValue === false
-                        ? undefined
-                        : child.value,
+                      valueShapeOf(nextOperator) === valueShapeOf(operator)
+                        ? child.value
+                        : undefined,
                   });
                 }}
                 disabled={disabled}
@@ -576,7 +624,10 @@ export function FilterBuilder<V = unknown>({
                 </SelectContent>
               </Select>
               {needsValue ? (
-                <span className="min-w-0 flex-1 basis-40">
+                <span
+                  className="min-w-0 flex-1 basis-40"
+                  onBlur={() => markTouched(touchKey)}
+                >
                   <Editor
                     field={field}
                     operator={child.operator}
@@ -637,38 +688,46 @@ export function FilterBuilder<V = unknown>({
           >
             <Plus /> Add condition
           </Button>
-          <Button
-            variant="ghost"
-            size="sm"
-            disabled={disabled || atDepthCap}
-            onClick={() =>
-              onValueChange(
-                updateGroup(value, path, (g) => ({
-                  ...g,
-                  children: [
-                    ...g.children,
-                    { type: "group", op: "and", children: [] },
-                  ],
-                })),
-              )
-            }
-          >
-            <Plus /> Add group
-          </Button>
-          {/* Cap reasons render as VISIBLE text — a natively-disabled button
-              leaves the tab order, so aria-describedby on it is unreachable. */}
+          {allowsGroups ? (
+            <Button
+              variant="ghost"
+              size="sm"
+              data-slot="filter-builder-add-group"
+              // FRM-4: `Button` keeps a disabled control focusable (`aria-disabled`, pointer
+              // events alive), so the reason beside it stays reachable in the tab order.
+              disabled={disabled || atDepthCap}
+              onClick={() =>
+                onValueChange(
+                  updateGroup(value, path, (g) => ({
+                    ...g,
+                    children: [
+                      ...g.children,
+                      { type: "group", op: "and", children: [] },
+                    ],
+                  })),
+                )
+              }
+            >
+              <Plus /> Add group
+            </Button>
+          ) : null}
+          {/* Cap reasons render as VISIBLE text beside the affordance, readable by everyone. */}
           {atConditionCap ? (
             <span
               data-slot="filter-builder-cap-reason"
               className="text-xs text-muted-foreground"
             >
-              A filter can hold {maxConditions} conditions at most
+              {maxConditions === 1
+                ? "A filter can hold 1 condition at most"
+                : `A filter can hold ${maxConditions} conditions at most`}
             </span>
-          ) : atDepthCap && depth >= maxDepth ? (
+          ) : allowsGroups && atDepthCap ? (
             <span
               data-slot="filter-builder-cap-reason"
               className="text-xs text-muted-foreground"
             >
+              {/* Only reached with `maxDepth` ≥ 2 — a flat builder shows no reason — so the
+                  count is always plural. */}
               Groups can nest {maxDepth} levels deep at most
             </span>
           ) : null}
@@ -679,7 +738,7 @@ export function FilterBuilder<V = unknown>({
 
   return (
     <div
-      ref={ref}
+      ref={mergedRef}
       data-slot="filter-builder"
       className={cn("flex min-w-0 flex-col gap-2", className)}
     >

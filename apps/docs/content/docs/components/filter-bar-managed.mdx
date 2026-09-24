@@ -75,7 +75,33 @@ inert.
   file="components/preview/filter-bar-managed.tsx"
 />
 
+### One level
+
+`maxDepth={1}` is a flat list of conditions: there is no add-group control, and no reason to
+explain one.
+
+<ComponentPreview
+  name="filterBarManagedOneLevel"
+  file="components/preview/filter-bar-managed.tsx"
+/>
+
+### Operators and value shapes
+
+Give each operator a `valueShape` — `none`, `scalar`, `list` or `range`. Switching between two
+operators of the same shape keeps the value; switching to another shape clears it, so a single
+value never survives into "is any of". `requiresValue: false` is shorthand for `none`. A missing
+value shows "Value required" only after its control was left, or when the enclosing form is
+submitted — never on a row that was just added.
+
+<ComponentPreview
+  name="filterBarManagedValueShapes"
+  file="components/preview/filter-bar-managed.tsx"
+/>
+
 ### Depth and condition caps
+
+At a cap the add affordance stays focusable with `aria-disabled` (FRM-4), and the reason renders as
+visible text beside it.
 
 <ComponentPreview
   name="filterBarManagedCaps"

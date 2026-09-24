@@ -1600,7 +1600,7 @@
         "whenToUse": "Structured, saveable filters with nesting — build an and/or tree over a host-supplied field grammar with per-type value editors and caps.",
         "whenNotToUse": "A presentational chip row over host-owned filter state (filter-bar), or free-text search (Input in a toolbar).",
         "version": "0.18.0",
-        "integrity": "sha256-QxgnyS83IfizDGxmRS3FLoSxaAUHRKccGrwwfrLA9tE="
+        "integrity": "sha256-sWCvxBMooSj1LFcmiJ/jWhUhY9l1hF45s/0q2egaLKQ="
       }
     },
     {

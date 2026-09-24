@@ -138,7 +138,16 @@ test("an operator with requiresValue: false hides the value editor and is never 
   expect(conditionRows()[0]!.hasAttribute("data-invalid")).toBe(false);
 });
 
-test("a value-requiring condition without a value is marked invalid with visible text", async () => {
+/** Blur the value editor of the first condition — "touching" it, as a user tabbing past does. */
+function touchFirstValue() {
+  const editor = document.querySelector<HTMLElement>(
+    '[data-slot="filter-builder-condition"] [aria-label$=" value"]',
+  )!;
+  editor.focus();
+  editor.blur();
+}
+
+test("DS-28: a value-requiring condition without a value is marked invalid with visible text once touched", async () => {
   await render(
     <Controlled
       initial={{
@@ -149,8 +158,118 @@ test("a value-requiring condition without a value is marked invalid with visible
     />,
   );
   const row = conditionRows()[0]!;
-  expect(row.hasAttribute("data-invalid")).toBe(true);
+  // Untouched: a freshly added row is not an error yet.
+  expect(row.hasAttribute("data-invalid")).toBe(false);
+  expect(row.textContent).not.toContain("Value required");
+  touchFirstValue();
+  await expect.poll(() => row.hasAttribute("data-invalid")).toBe(true);
   expect(row.textContent).toContain("Value required");
+});
+
+test("DS-28: submitting the enclosing form shows every missing value", async () => {
+  await render(
+    <form onSubmit={(event) => event.preventDefault()}>
+      <Controlled
+        initial={{
+          type: "group",
+          op: "and",
+          children: [{ type: "condition", field: "stage", operator: "is" }],
+        }}
+      />
+      <button type="submit">Apply</button>
+    </form>,
+  );
+  const row = conditionRows()[0]!;
+  expect(row.hasAttribute("data-invalid")).toBe(false);
+  (
+    document.querySelector('button[type="submit"]') as HTMLButtonElement
+  ).click();
+  await expect.poll(() => row.hasAttribute("data-invalid")).toBe(true);
+});
+
+test("DS-28: maxDepth 1 renders no group control and no reason", async () => {
+  const screen = await render(<Controlled initial={EMPTY} maxDepth={1} />);
+  expect(
+    screen.container.querySelector('[data-slot="filter-builder-add-group"]'),
+  ).toBeNull();
+  expect(
+    screen.container.querySelector('[data-slot="filter-builder-cap-reason"]'),
+  ).toBeNull();
+  await expect
+    .element(screen.getByRole("button", { name: "Add condition" }))
+    .toBeInTheDocument();
+});
+
+test("DS-28: a disabled add-group stays focusable with aria-disabled", async () => {
+  const screen = await render(
+    <Controlled
+      initial={{
+        type: "group",
+        op: "and",
+        children: [{ type: "group", op: "and", children: [] }],
+      }}
+      maxDepth={2}
+    />,
+  );
+  const nested = screen
+    .getByRole("button", { name: "Add group" })
+    .nth(0)
+    .element() as HTMLButtonElement;
+  expect(nested.getAttribute("aria-disabled")).toBe("true");
+  expect(nested.disabled).toBe(false);
+  nested.focus();
+  expect(document.activeElement).toBe(nested);
+});
+
+test('DS-28: switching "is" → "is any of" clears a scalar; a same-shape switch keeps it', async () => {
+  const LIST_VOCABULARY: FilterField<string | string[]>[] = [
+    {
+      key: "stage",
+      label: "Stage",
+      type: "text",
+      operators: [
+        { value: "is", label: "is" },
+        { value: "is-not", label: "is not" },
+        { value: "in", label: "is any of", valueShape: "list" },
+      ],
+    },
+  ];
+  const onChange = vi.fn();
+  function ListControlled() {
+    const [tree, setTree] = React.useState<
+      Extract<FilterNode<string | string[]>, { type: "group" }>
+    >({
+      type: "group",
+      op: "and",
+      children: [
+        { type: "condition", field: "stage", operator: "is", value: "won" },
+      ],
+    });
+    return (
+      <FilterBuilder<string | string[]>
+        vocabulary={LIST_VOCABULARY}
+        editors={{ text: () => <span aria-label="Stage value" /> }}
+        value={tree}
+        onValueChange={(next) => {
+          setTree(next);
+          onChange(next);
+        }}
+      />
+    );
+  }
+  const screen = await render(<ListControlled />);
+  await screen.getByRole("combobox", { name: "Operator" }).click();
+  await screen.getByRole("option", { name: "is not" }).click();
+  expect(onChange.mock.lastCall?.[0].children[0]).toMatchObject({
+    operator: "is-not",
+    value: "won",
+  });
+  await screen.getByRole("combobox", { name: "Operator" }).click();
+  await screen.getByRole("option", { name: "is any of" }).click();
+  expect(onChange.mock.lastCall?.[0].children[0]).toMatchObject({
+    operator: "in",
+  });
+  expect(onChange.mock.lastCall?.[0].children[0].value).toBeUndefined();
 });
 
 test("nested groups render as nested fieldsets and can flip and/or", async () => {
@@ -373,6 +492,10 @@ test("no a11y violations — builder with nesting, invalid row, and summary", as
       />
     </div>,
   );
+  touchFirstValue();
+  await expect
+    .poll(() => conditionRows()[0]!.hasAttribute("data-invalid"))
+    .toBe(true);
   await expectNoA11yViolations(screen.container);
 });
 
@@ -451,7 +574,7 @@ test("cap reasons render as VISIBLE text (a disabled button leaves the tab order
   const reason = document.querySelector(
     '[data-slot="filter-builder-cap-reason"]',
   );
-  expect(reason?.textContent).toContain("1 conditions at most");
+  expect(reason?.textContent).toBe("A filter can hold 1 condition at most");
 });
 
 test("the missing-value error is wired to the editor via aria", async () => {
@@ -467,7 +590,9 @@ test("the missing-value error is wired to the editor via aria", async () => {
   const editor = document.querySelector(
     '[aria-label="Stage value"]',
   ) as HTMLElement;
-  expect(editor.getAttribute("aria-invalid")).toBe("true");
+  expect(editor.getAttribute("aria-invalid")).toBeNull();
+  touchFirstValue();
+  await expect.poll(() => editor.getAttribute("aria-invalid")).toBe("true");
   const describedBy = editor.getAttribute("aria-describedby")!;
   expect(document.getElementById(describedBy)?.textContent).toBe(
     "Value required",
