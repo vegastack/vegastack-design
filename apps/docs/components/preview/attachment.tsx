@@ -24,6 +24,7 @@ import {
   AttachmentDescription,
   AttachmentGroup,
   AttachmentMedia,
+  AttachmentProgress,
   AttachmentTitle,
   AttachmentTrigger,
 } from "@/components/ui/attachment";
@@ -521,6 +522,57 @@ export function attachmentAccessibility(): ReactNode {
               </Attachment>
             );
           })}
+        </AttachmentGroup>
+      </div>
+    </Wrapper>
+  );
+}
+
+/**
+ * Ours (API-28): a record's files as a grid of tiles. `layout="grid"` wraps the tiles into equal
+ * columns instead of the scrolling row, `AttachmentProgress` gives an upload a determinate bar, and
+ * `muted` dims a file the record no longer uses while its description says why.
+ */
+export function attachmentRecordFiles(): ReactNode {
+  return (
+    <Wrapper>
+      <div className="w-full max-w-xl">
+        <AttachmentGroup layout="grid" role="group" aria-label="Product files">
+          {IMAGES.slice(0, 2).map((image) => (
+            <Attachment key={image.name} orientation="vertical">
+              <AttachmentMedia variant="image">
+                <img src={image.src} alt={image.alt} />
+              </AttachmentMedia>
+              <AttachmentContent>
+                <AttachmentTitle>{image.name}</AttachmentTitle>
+                <AttachmentDescription>{image.meta}</AttachmentDescription>
+              </AttachmentContent>
+            </Attachment>
+          ))}
+          <Attachment state="uploading" orientation="vertical">
+            <AttachmentMedia>
+              <FileTextIcon />
+            </AttachmentMedia>
+            <AttachmentContent>
+              <AttachmentTitle>ip-rating-cert.pdf</AttachmentTitle>
+              <AttachmentDescription>1.1 MB of 2.4 MB</AttachmentDescription>
+            </AttachmentContent>
+            <AttachmentProgress
+              value={46}
+              aria-label="Uploading ip-rating-cert.pdf"
+            />
+          </Attachment>
+          <Attachment muted orientation="vertical">
+            <AttachmentMedia>
+              <FileTextIcon />
+            </AttachmentMedia>
+            <AttachmentContent>
+              <AttachmentTitle>2024-datasheet.pdf</AttachmentTitle>
+              <AttachmentDescription>
+                Replaced by the 2026 sheet
+              </AttachmentDescription>
+            </AttachmentContent>
+          </Attachment>
         </AttachmentGroup>
       </div>
     </Wrapper>

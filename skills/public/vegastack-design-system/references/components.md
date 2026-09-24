@@ -151,7 +151,7 @@ starts with `icon-` is a component and never an icon.
 
 ## Communication
 
-- **`attachment`** — A file chip / thumbnail card for chat and message-compose surfaces — media slot, name + meta, idle/uploading/processing/error/done states, an actions row and a full-bleed trigger.
+- **`attachment`** — A file chip / thumbnail card for chat, record-file and upload-queue surfaces — media slot, name + meta, idle/uploading/processing/error/done states, determinate progress, a muted tile, an actions row, a full-bleed trigger, and a scrolling or grid group.
 - **`bubble`** — A chat speech bubble - 7 token-driven variants (incl. brand-tinted), start/end alignment, interactive content, and a floating reactions chip.
 - **`marker`** — An inline conversation marker - status lines, system notes, and labelled dividers. 3 variants, Base UI render-polymorphic.
 - **`message`** — Layout primitives for a conversation row - avatar anchoring, content column, header/footer slots, start/end alignment. Server-safe.

@@ -1646,7 +1646,7 @@
       "name": "attachment",
       "registryType": "registry:ui",
       "title": "Attachment",
-      "summary": "A file chip / thumbnail card for chat and message-compose surfaces — media slot, name + meta, idle/uploading/processing/error/done states, an actions row and a full-bleed trigger.",
+      "summary": "A file chip / thumbnail card for chat, record-file and upload-queue surfaces — media slot, name + meta, idle/uploading/processing/error/done states, determinate progress, a muted tile, an actions row, a full-bleed trigger, and a scrolling or grid group.",
       "status": "stable",
       "since": "0.1.0",
       "family": "communication",
@@ -1724,6 +1724,16 @@
           }
         },
         {
+          "name": "AttachmentProgress",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/attachment.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
+          }
+        },
+        {
           "name": "AttachmentTitle",
           "kind": "component",
           "source": "packages/ui/registry/ui/attachment.tsx",
@@ -1766,6 +1776,11 @@
             "name": "media variant",
             "values": ["icon", "image"],
             "evidence": "packages/ui/registry/ui/attachment.tsx: CVA"
+          },
+          {
+            "name": "group layout",
+            "values": ["grid", "scroll"],
+            "evidence": "packages/ui/registry/ui/attachment.tsx: prop union"
           }
         ]
       },
@@ -1787,7 +1802,9 @@
             "complete",
             "disabled",
             "error",
+            "muted",
             "open",
+            "progress",
             "uploading"
           ],
           "evidence": "Observed from branches, state attributes, and inline source contract."
@@ -1829,7 +1846,7 @@
       },
       "engines": [],
       "docsSlug": "/docs/components/attachment",
-      "registryDependencies": ["@vegastack/button"],
+      "registryDependencies": ["@vegastack/button", "@vegastack/progress"],
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
         "class-variance-authority@^0.7.1",
@@ -1849,6 +1866,10 @@
       "dataAttributes": {
         "Attachment": {
           "attributes": [
+            {
+              "name": "data-muted",
+              "values": []
+            },
             {
               "name": "data-orientation",
               "values": []
@@ -1908,6 +1929,15 @@
           ],
           "cssVariables": []
         },
+        "AttachmentProgress": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["attachment-progress"]
+            }
+          ],
+          "cssVariables": []
+        },
         "AttachmentActions": {
           "attributes": [
             {
@@ -1928,6 +1958,10 @@
         },
         "AttachmentGroup": {
           "attributes": [
+            {
+              "name": "data-layout",
+              "values": []
+            },
             {
               "name": "data-slot",
               "values": ["attachment-group"]

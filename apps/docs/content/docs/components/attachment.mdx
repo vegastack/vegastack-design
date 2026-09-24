@@ -157,6 +157,22 @@ the actions, so the actions stay clickable.
   file="components/preview/attachment.tsx"
 />
 
+### Record files grid
+
+A record's files — a product's datasheets and photos, say — read better as a grid than as a
+scrolling row. Set `layout="grid"` on `AttachmentGroup` to wrap the tiles into equal columns that
+reflow down to one or two at a phone width. `AttachmentProgress` gives an upload a determinate bar
+that announces its percentage, and `muted` dims the media of a file the record no longer uses —
+say why in `AttachmentDescription`, so the state is never carried by opacity alone.
+
+For the full upload flow — acquiring files, per-file progress, cancel, retry and discard — see the
+[Upload queue](/docs/components/dropzone#upload-queue) example on Dropzone.
+
+<ComponentPreview
+  name="attachmentRecordFiles"
+  file="components/preview/attachment.tsx"
+/>
+
 ## Playground
 
 Step through the lifecycle states, sizes, orientations and media treatments, then copy the
@@ -196,6 +212,14 @@ An action button. Renders a [`Button`](/docs/components/button) at `size="icon-x
 `variant="ghost"`, and accepts every prop that `Button` accepts.
 
 <ApiTable path="lib/api-props.ts" name="AttachmentActionProps" />
+
+### AttachmentProgress
+
+A determinate or indeterminate upload bar composed from [`Progress`](/docs/components/progress)'s
+track and indicator. It takes its own row in the tile and is named "Upload progress" unless you
+pass an `aria-label`.
+
+<ApiTable path="lib/api-props.ts" name="AttachmentProgressProps" />
 
 ### AttachmentTrigger
 
@@ -267,6 +291,12 @@ Upstream's file plus `packages/ui/upstream/patches/attachment.patch`. Every hunk
   calls `React.useRef` internally; under the `react-server` condition that hook is `undefined`, so a
   server component rendering it throws on import. The boundary goes at the lowest interactive leaf,
   and this file is it.
+- **API-28** — Attachment's scope widens from chat to file and media tiles on any surface.
+  `AttachmentGroup` takes `layout="scroll" | "grid"` (upstream's row stays the default), a new
+  `AttachmentProgress` part composes `Progress`'s track and indicator and announces
+  `aria-valuetext="{n}%"`, `Attachment` takes `muted` (`data-muted`, media at `opacity-50`), and
+  image media styles a nested `<img>` with `[&_img]` in place of `*:[img]`, so the system `Image`
+  and its fallback fill the slot.
 - **DOC-2** — `import { cn } from "cn"` becomes `@vegastack/design`; our npm layer owns `cn`.
 - **DOC-1** — prettier reflow plus the `registry-stamp.mjs` provenance header the three-copy model
   needs; no decision of its own.

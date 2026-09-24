@@ -1,14 +1,16 @@
-// @vegastack attachment@0.18.0 sha256-CkLHp0eEK1AD5Upwh3D7k1Z75e5Kzk9tcDPTRgYcJTE=
+// @vegastack attachment@0.18.0 sha256-f2JQXs2qqsOY0gre3qDWxff6Qyz+AdMQbaKtsTy1ejc=
 
 "use client";
 
 import * as React from "react";
 import { mergeProps } from "@base-ui/react/merge-props";
+import { Progress as ProgressPrimitive } from "@base-ui/react/progress";
 import { useRender } from "@base-ui/react/use-render";
 import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@vegastack/design";
 
 import { Button } from "@/components/ui/button";
+import { ProgressIndicator, ProgressTrack } from "@/components/ui/progress";
 
 const attachmentVariants = cva(
   // FOC-1 / FOC-6: upstream carries `focus-within:ring-1 focus-within:ring-ring/50` here — the
@@ -37,10 +39,12 @@ function Attachment({
   state = "done",
   size = "default",
   orientation = "horizontal",
+  muted = false,
   ...props
 }: React.ComponentProps<"div"> &
   VariantProps<typeof attachmentVariants> & {
     state?: "idle" | "uploading" | "processing" | "error" | "done";
+    muted?: boolean;
   }) {
   return (
     <div
@@ -48,7 +52,12 @@ function Attachment({
       data-state={state}
       data-size={size}
       data-orientation={orientation}
-      className={cn(attachmentVariants({ size, orientation }), className)}
+      data-muted={muted || undefined}
+      className={cn(
+        attachmentVariants({ size, orientation }),
+        "data-muted:[&_[data-slot=attachment-media]]:opacity-50",
+        className,
+      )}
       {...props}
     />
   );
@@ -61,7 +70,7 @@ const attachmentMediaVariants = cva(
       variant: {
         icon: "",
         image:
-          "opacity-60 group-data-[state=done]/attachment:opacity-100 group-data-[state=idle]/attachment:opacity-100 *:[img]:aspect-square *:[img]:w-full *:[img]:object-cover",
+          "opacity-60 group-data-[state=done]/attachment:opacity-100 group-data-[state=idle]/attachment:opacity-100 [&_[data-slot=image]]:size-full [&_img]:aspect-square [&_img]:w-full [&_img]:object-cover",
       },
     },
     defaultVariants: {
@@ -140,6 +149,44 @@ function AttachmentDescription({
   );
 }
 
+function AttachmentProgress({
+  value,
+  max = 100,
+  className,
+  "aria-label": ariaLabel = "Upload progress",
+  ...props
+}: Omit<
+  ProgressPrimitive.Root.Props,
+  "value" | "max" | "children" | "getAriaValueText"
+> & {
+  value: number | null;
+  max?: number;
+}) {
+  return (
+    <ProgressPrimitive.Root
+      data-slot="attachment-progress"
+      value={value}
+      max={max}
+      aria-label={ariaLabel}
+      getAriaValueText={
+        value === null
+          ? undefined
+          : (_formatted, current) =>
+              `${Math.round(((current ?? 0) / max) * 100)}%`
+      }
+      className={cn(
+        "w-full basis-full group-data-[orientation=vertical]/attachment:px-1",
+        className,
+      )}
+      {...props}
+    >
+      <ProgressTrack>
+        <ProgressIndicator />
+      </ProgressTrack>
+    </ProgressPrimitive.Root>
+  );
+}
+
 function AttachmentActions({
   className,
   ...props
@@ -199,12 +246,19 @@ function AttachmentTrigger({
   });
 }
 
-function AttachmentGroup({ className, ...props }: React.ComponentProps<"div">) {
+function AttachmentGroup({
+  className,
+  layout = "scroll",
+  ...props
+}: React.ComponentProps<"div"> & { layout?: "scroll" | "grid" }) {
   return (
     <div
       data-slot="attachment-group"
+      data-layout={layout}
       className={cn(
-        "flex min-w-0 scroll-fade-x snap-x snap-mandatory scroll-px-1 scrollbar-none gap-3 overflow-x-auto overscroll-x-contain py-1 *:data-[slot=attachment]:flex-none *:data-[slot=attachment]:snap-start",
+        layout === "grid"
+          ? "grid min-w-0 grid-cols-[repeat(auto-fill,minmax(--spacing(32),1fr))] gap-3 py-1 *:data-[slot=attachment]:w-full *:data-[slot=attachment]:min-w-0"
+          : "flex min-w-0 scroll-fade-x snap-x snap-mandatory scroll-px-1 scrollbar-none gap-3 overflow-x-auto overscroll-x-contain py-1 *:data-[slot=attachment]:flex-none *:data-[slot=attachment]:snap-start",
         className,
       )}
       {...props}
@@ -219,6 +273,7 @@ export {
   AttachmentContent,
   AttachmentTitle,
   AttachmentDescription,
+  AttachmentProgress,
   AttachmentActions,
   AttachmentAction,
   AttachmentTrigger,
