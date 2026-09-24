@@ -8,7 +8,7 @@ Parenthesised references in the rows (`DM:`, `IDX:`, `BC:`, `SH:`, `TH:`, `R/…
 
 **This file is the authority; `packages/ui/upstream/decisions.json` is its machine copy.** Regenerate the copy with `node tooling/upstream/verify-parity.mjs --sync-decisions` after any row changes. A new row is a new MK decision: take the next free number in its family, and never reuse a burned one (`A11Y-14` and `A11Y-15` are permanently unused: both were assigned without a decision during the reset and reverted).
 
-Counts: **204 rows** — **108 shadcn**, **96 ours**. 168 rows were decided on 2026-09-17/18. MK added thirty-six since:
+Counts: **205 rows** — **108 shadcn**, **97 ours**. 168 rows were decided on 2026-09-17/18. MK added thirty-seven since:
 
 - 2026-09-18: **A11Y-13** (during Batch 2, resolving the conflict Batch 1 recorded), **A11Y-16** (accessible names on upstream controls that ship without one) and **OVL-14** (the fullscreen portal container Batch 4 lost).
 - 2026-09-21: **TYP-14**, explicitly ratified.
