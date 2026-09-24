@@ -36,6 +36,8 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
           ref: ${{ inputs.expected_sha }}
+      - name: Trust the checkout inside the container
+        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
       - name: Require the exact public release commit
         env:
           EXPECTED_SHA: ${{ inputs.expected_sha }}
@@ -47,8 +49,6 @@ jobs:
             echo "::error title=Untrusted deploy commit::$EXPECTED_SHA is not in main history"
             exit 1
           }
-      - name: Trust the checkout inside the container
-        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
       - name: Enable corepack
         run: corepack enable
       - run: pnpm install --frozen-lockfile --store-dir /pnpm-store
