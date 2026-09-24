@@ -29,6 +29,7 @@ import { DataGrid, type DataGridColumn } from "../registry/ui/data-grid";
 import { DataList, type DataListColumn } from "../registry/ui/data-list";
 import { DataListPager } from "../registry/ui/data-list-pager";
 import { InputGroup, InputGroupInput } from "../registry/ui/input-group";
+import { SortableList } from "../registry/ui/sortable-list";
 import contracts from "../component-contracts.json";
 import {
   dynamicMountCount,
@@ -2630,3 +2631,79 @@ test("audioPlayerDocked: the dock sits on its column's bottom edge, clear of the
     await page.viewport(320, 812);
   }
 });
+
+/**
+ * SortableList's grid (DS-43) on real CSS: the auto-fill tracks (at least `--spacing(28)` = 112px)
+ * give two tiles a row at 320px and ten at 1280px without overflowing, the overlaid handle sits in
+ * the tile's top-start corner with nothing painted over it, and a horizontal drop edge draws the
+ * `drag-item` hairline as a 2px line in the gap beside the tile.
+ */
+for (const width of [320, 1280] as const) {
+  test(`SortableList grid at ${width}px: tiles fill tracks, the handle is on top, left/right hairlines`, async () => {
+    const tiles = Array.from({ length: 12 }, (_, i) => ({
+      id: `t${i}`,
+      label: `Tile ${i + 1}`,
+    }));
+    const screen = await render(
+      <div style={{ width: `${width}px` }}>
+        <SortableList
+          aria-label="Tiles"
+          layout="grid"
+          items={tiles}
+          renderItem={(item) => (
+            // Inline: this file's own class strings are not in the compiled sources.
+            <span style={{ display: "block", aspectRatio: "1", width: "100%" }}>
+              <span className="sr-only">{item.label}</span>
+            </span>
+          )}
+          onReorder={() => {}}
+        />
+      </div>,
+    );
+    const group = screen.container.querySelector<HTMLElement>(
+      '[data-slot="item-group"]',
+    )!;
+    const items = Array.from(
+      group.querySelectorAll<HTMLElement>('[data-slot="sortable-list-item"]'),
+    );
+    const firstTop = items[0]!.getBoundingClientRect().top;
+    const perRow = items.filter(
+      (el) => Math.abs(el.getBoundingClientRect().top - firstTop) < 1,
+    ).length;
+    // As many tracks as fit, and the tiles actually wrap at that count.
+    const tracks =
+      getComputedStyle(group).gridTemplateColumns.split(" ").length;
+    expect(perRow).toBe(tracks);
+    expect(perRow).toBeGreaterThanOrEqual(width === 320 ? 2 : 8);
+    const box = group.getBoundingClientRect();
+    for (const el of items) {
+      const r = el.getBoundingClientRect();
+      expect(r.width).toBeGreaterThanOrEqual(112);
+      expect(r.right).toBeLessThanOrEqual(box.right + 0.5);
+    }
+    const tile = items[0]!;
+    const handle = tile.querySelector<HTMLElement>(
+      '[data-slot="sortable-list-handle"]',
+    )!;
+    const t = tile.getBoundingClientRect();
+    const h = handle.getBoundingClientRect();
+    expect(h.left - t.left).toBeLessThan(8);
+    expect(h.top - t.top).toBeLessThan(8);
+    expect(
+      handle.contains(
+        document.elementFromPoint(h.left + h.width / 2, h.top + h.height / 2),
+      ),
+    ).toBe(true);
+    for (const edge of ["left", "right"] as const) {
+      tile.setAttribute("data-drop-edge", edge);
+      const line = getComputedStyle(tile, "::before");
+      expect(line.position).toBe("absolute");
+      expect(line.width).toBe("2px");
+      expect(line.getPropertyValue(edge)).toBe("-4px");
+      // `inset-y-0` spans the tile's padding box: the full height inside its border.
+      expect(parseFloat(line.height)).toBeCloseTo(tile.clientHeight, 0);
+      expect(tile.clientHeight).toBeGreaterThan(100);
+    }
+    tile.removeAttribute("data-drop-edge");
+  });
+}

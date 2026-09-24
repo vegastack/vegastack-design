@@ -17612,7 +17612,7 @@
       "name": "sortable-list",
       "registryType": "registry:ui",
       "title": "Sortable List",
-      "summary": "Reorderable rows on ItemGroup/Item via use-drag-reorder — pointer drag with drop indicators, keyboard move mode, a lossless Move menu, and server-refusable moves. Controlled; the host owns the order.",
+      "summary": "Reorderable rows or tiles on ItemGroup/Item via use-drag-reorder — pointer drag with drop indicators, keyboard move mode, a lossless row menu, locked rows, inline actions, a grid layout, and server-refusable moves. Controlled; the host owns the order.",
       "status": "stable",
       "since": "0.4.0",
       "family": "data",
@@ -17668,9 +17668,11 @@
             "pending",
             "rejected",
             "disabled",
-            "item-disabled"
+            "item-disabled",
+            "locked",
+            "grid"
           ],
-          "evidence": "use-drag-reorder drives pointer drags, keyboard move mode, and the async pending/rejected contract; disabled removes handles and menus; per-item disabled excludes single rows."
+          "evidence": "use-drag-reorder drives pointer drags, keyboard move mode, and the async pending/rejected contract; disabled removes handles and menus; a locked (per-item disabled) row keeps a handle-sized spacer and its row menu with the Move items disabled, while other rows move past it; layout=\"grid\" runs the hook on a horizontal axis with measured row-aware ↑/↓."
         },
         "accessibility": {
           "status": "observed",
@@ -17680,18 +17682,26 @@
             "status-announcement",
             "semantic-html"
           ],
-          "evidence": "ItemGroup list semantics; per-row named handles and Move menus (the lossless path); Space/arrows/Escape move mode; polite per-step announcements and rejection announcements."
+          "evidence": "ItemGroup list semantics; per-row named handles and \"Actions for {label}\" menus (the lossless path); Space/arrows/Escape move mode; locked rows' disabled Move items carry lockedReason as their accessible description; polite per-step announcements and rejection announcements."
         },
         "visual": {
           "status": "observed",
-          "values": ["default", "dragging", "drop-edge", "pending", "disabled"],
-          "evidence": "2px primary drop-indicator hairline on the closest edge; lifted rows dim (flat — no shadow, per doctrine); pending rows shimmer with the sanctioned loader animation, static under reduced motion."
+          "values": [
+            "default",
+            "dragging",
+            "drop-edge",
+            "pending",
+            "disabled",
+            "locked",
+            "grid"
+          ],
+          "evidence": "2px primary drop-indicator hairline on the closest edge (top/bottom in a list, left/right in a grid); lifted rows dim (flat — no shadow, per doctrine); pending rows shimmer with the sanctioned loader animation, static under reduced motion; locked rows keep a handle-sized spacer; grid tiles overlay the handle and actions on their top corners."
         }
       },
       "responsive": {
         "status": "modeled",
         "risks": ["text-truncation-and-flex-shrink"],
-        "rationale": "Rows are Item parts with min-w-0 content; handles and menus are fixed-size controls."
+        "rationale": "Rows are Item parts with min-w-0 content; handles and menus are fixed-size controls; the grid is auto-fill tracks at least --spacing(28) wide, so the column count follows the container."
       },
       "motion": {
         "status": "observed",
@@ -17753,8 +17763,22 @@
               "values": []
             },
             {
+              "name": "data-layout",
+              "values": []
+            },
+            {
+              "name": "data-locked",
+              "values": [""]
+            },
+            {
               "name": "data-slot",
-              "values": ["sortable-list", "sortable-list-item"]
+              "values": [
+                "sortable-list",
+                "sortable-list-actions",
+                "sortable-list-handle",
+                "sortable-list-handle-spacer",
+                "sortable-list-item"
+              ]
             }
           ],
           "cssVariables": []
@@ -24468,7 +24492,7 @@
         "accessibility": {
           "status": "observed",
           "values": ["keyboard", "status-announcement"],
-          "evidence": "Space/Enter toggles move mode, arrows commit steps, Escape/blur end it; sequence-keyed polite live region with overridable lifted/moved/ended/rejected builders; requestMove powers the mandatory menu equivalents."
+          "evidence": "Space/Enter toggles move mode, arrows commit steps, Escape/blur end it; with axis horizontal and columns set (a number, or \"auto\" measured from where items wrap), ↑/↓ move one row within the container; sequence-keyed polite live region with overridable lifted/moved/ended/rejected builders; requestMove powers the mandatory menu equivalents."
         },
         "visual": {
           "status": "not-applicable",
@@ -25666,7 +25690,7 @@
       "name": "drag-item",
       "registryType": "registry:lib",
       "title": "Drag Item",
-      "summary": "The one visual recipe for a use-drag-reorder item — drop-edge hairlines, the lift dim, and the pending shimmer — shared by Board and SortableList instead of copied into each.",
+      "summary": "The one visual recipe for a use-drag-reorder item — drop-edge hairlines on all four edges, the lift dim, and the pending shimmer — shared by Board and SortableList instead of copied into each.",
       "family": "lib",
       "wave": "Libs",
       "sourceFiles": ["packages/ui/registry/lib/drag-item.ts"],
@@ -25718,10 +25742,12 @@
           "values": [
             "drop-edge-top",
             "drop-edge-bottom",
+            "drop-edge-left",
+            "drop-edge-right",
             "dragging",
             "drag-pending"
           ],
-          "evidence": "The four data-attribute selectors the string spells: the two ::before drop hairlines, the lift dim, and the pending pulse with its motion-reduce escape."
+          "evidence": "The six data-attribute selectors the string spells: the four ::before drop hairlines (horizontal lines above/below for a vertical axis, vertical lines left/right for a horizontal one), the lift dim, and the pending pulse."
         }
       },
       "responsive": {
@@ -25730,7 +25756,10 @@
         "rationale": "No DOM of its own; consumers own layout."
       },
       "npmDependencies": [],
-      "testFiles": ["packages/ui/registry/ui/sortable-list.test.tsx"],
+      "testFiles": [
+        "packages/ui/registry/lib/drag-item.test.ts",
+        "packages/ui/registry/ui/sortable-list.test.tsx"
+      ],
       "coverage": {
         "source": "required",
         "test": "required",

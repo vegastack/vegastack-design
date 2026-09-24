@@ -1,8 +1,9 @@
-// @vegastack sortable-list@0.18.0 sha256-LIUNcm1zLsHA17ig+8EEACqSJNNNBQhL13pJNjgKDvM=
+// @vegastack sortable-list@0.18.0 sha256-FBYYn0epA/9QiAv+xlVkKLvG9gBU5VRew816G0tqHBg=
 
 "use client";
 
 import * as React from "react";
+import { cn } from "@vegastack/design";
 import {
   ArrowDown,
   ArrowDownToLine,
@@ -13,7 +14,12 @@ import {
 } from "lucide-react";
 import { dragItemClasses } from "@/lib/drag-item";
 import { Button } from "@/components/ui/button";
-import { Item, ItemContent, ItemGroup } from "@/components/ui/item";
+import {
+  Item,
+  ItemActions,
+  ItemContent,
+  ItemGroup,
+} from "@/components/ui/item";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -40,6 +46,18 @@ reorder must be reachable through Move up / Move down / Move to top / Move to bo
 ("Move to position N…" was considered and dropped: a per-position submenu is unusable
 past a handful of items, and top/bottom + stepping covers the same reachability.)
 
+A LOCKED row (`item.disabled`) is still a row of the list, not a hole in it: its handle
+becomes a same-size spacer so the column of handles stays aligned, its row menu STAYS
+with the Move items disabled (and described by `lockedReason` when the host gives
+one), and `renderActions` still renders. Other rows move past it freely — a lock pins
+the row's own identity, not the positions around it.
+
+`layout="grid"` wraps the same list into auto-fill tiles (image galleries, ordered
+media): the handle and the actions overlay the tile's top corners (`z-10`, so positioned tile
+content such as `Image` cannot paint over them), the hook runs on a
+horizontal axis so drops read left/right of a tile, and ↑/↓ in move mode step a whole
+measured row.
+
 Deliberately NOT done here:
 - No selection. Reordering and multi-select on one surface produce ambiguous drag
   intent — the constraint the reference implementation documents. Compose `DataList`
@@ -55,33 +73,63 @@ export interface SortableListItem {
   /** Stable id — the identity `onReorder` moves. */
   id: string;
   /**
-   * Accessible name for the row's handle and menu ("Reorder {label}"). Falls
-   * back to the id.
-
+   * Accessible name for the row's handle and menu ("Reorder {label}",
+   * "Actions for {label}"). Falls back to the id.
    * @default undefined
    */
   label?: string;
   /**
-   * Exclude this row from reordering (its handle and menu disable).
+   * Lock this row in place: its handle becomes a same-size spacer and its Move
+   * items disable (described by `lockedReason`), while its row menu and
+   * `renderActions` stay. Other rows can still move past it.
    * @default false
    */
   disabled?: boolean;
 }
 
 /** Props accepted by `SortableList`. */
-export interface SortableListProps {
+export interface SortableListProps<
+  T extends SortableListItem = SortableListItem,
+> {
   /** Rows in display order — controlled; the host re-orders on `onReorder`. */
-  items: readonly SortableListItem[];
+  items: readonly T[];
   /**
    * Apply a requested move. Return a promise for server-gated ordering — the
    * moved row shows the pending shimmer and a rejection announces + snaps back
    * (the host never applied it).
    */
   onReorder: (move: DragReorderMove) => void | Promise<void>;
-  /** Render a row's content (everything except the handle and menu). */
-  renderItem: (item: SortableListItem) => React.ReactNode;
+  /** Render a row's content (everything except the handle and actions). */
+  renderItem: (item: T) => React.ReactNode;
   /**
-   * Disable all reordering (rows render without handles or menus).
+   * Inline actions rendered before the row menu — a rename button, a
+   * visibility toggle. Rendered on locked rows too, and on every row when the
+   * whole list is `disabled`.
+   * @default undefined
+   */
+  renderActions?: (item: T) => React.ReactNode;
+  /**
+   * Accessible name of a row's menu trigger, from the row's label.
+   * @default (label) => `Actions for ${label}`
+   */
+  actionsLabel?: (label: string) => string;
+  /**
+   * Why locked rows cannot move — the accessible description of a locked
+   * row's disabled Move items ("Built-in values can't move").
+   * @default undefined
+   */
+  lockedReason?: string;
+  /**
+   * `list` stacks rows. `grid` wraps them into auto-fill tiles (at least
+   * `--spacing(28)` wide) with the handle and actions overlaid on the tile's
+   * top corners; drops read left/right of a tile, and ↑/↓ in move mode step a
+   * whole row.
+   * @default "list"
+   */
+  layout?: "list" | "grid";
+  /**
+   * Disable all reordering (rows render without handles or menus;
+   * `renderActions` still renders).
    * @default false
    */
   disabled?: boolean;
@@ -104,13 +152,16 @@ export interface SortableListProps {
 
 const CONTAINER = "list";
 
+const defaultActionsLabel = (label: string) => `Actions for ${label}`;
+
 /**
  * `SortableList` — reorderable rows on `ItemGroup`/`Item`, driven by
  * `use-drag-reorder`: pointer/touch drag with closest-edge drop indicators,
  * the keyboard move mode (Space on the handle, arrows, Escape), a polite
  * announcement per step, and the required menu equivalent (Move up / down /
  * to top / to bottom). Controlled: the host owns the order and may refuse a
- * move by rejecting the `onReorder` promise.
+ * move by rejecting the `onReorder` promise. Locked rows keep their place and
+ * their menu; `layout="grid"` wraps the rows into tiles.
  *
  * @example
  * const [stages, setStages] = React.useState(initialStages);
@@ -118,6 +169,7 @@ const CONTAINER = "list";
  *   aria-label="Pipeline stages"
  *   items={stages}
  *   renderItem={(stage) => <span>{stage.label}</span>}
+ *   lockedReason="Closed stages stay last"
  *   onReorder={({ id, to }) =>
  *     setStages((prev) => {
  *       const next = prev.filter((s) => s.id !== id);
@@ -127,143 +179,184 @@ const CONTAINER = "list";
  *   }
  * />
  */
-export function SortableList({
+export function SortableList<T extends SortableListItem = SortableListItem>({
   items,
   onReorder,
   renderItem,
+  renderActions,
+  actionsLabel = defaultActionsLabel,
+  lockedReason,
+  layout = "list",
   disabled = false,
   "aria-label": ariaLabel = "Sortable list",
   className,
   ref,
-}: SortableListProps) {
+}: SortableListProps<T>) {
   const ids = React.useMemo(() => items.map((item) => item.id), [items]);
   const byId = React.useMemo(
     () => new Map(items.map((item) => [item.id, item])),
     [items],
   );
+  const grid = layout === "grid";
   const reorder = useDragReorder({
     lists: { [CONTAINER]: ids },
     onReorder,
-    axis: "vertical",
+    axis: grid ? "horizontal" : "vertical",
+    columns: grid ? "auto" : undefined,
     disabled: disabled ? true : (id) => byId.get(id)?.disabled ?? false,
   });
+  const reasonId = React.useId();
+  const describeLocked =
+    !disabled && lockedReason !== undefined && items.some((i) => i.disabled);
 
   const containerProps = reorder.getContainerProps(CONTAINER);
+  const last = items.length - 1;
 
   return (
-    <div ref={ref} data-slot="sortable-list" className={className}>
+    <div
+      ref={ref}
+      data-slot="sortable-list"
+      data-layout={layout}
+      className={className}
+    >
       <ItemGroup
         aria-label={ariaLabel}
         ref={containerProps.ref}
         data-drop-container={containerProps["data-drop-container"]}
         data-drop-over={containerProps["data-drop-over"]}
-        className="flex flex-col gap-1"
+        className={
+          grid
+            ? "grid grid-cols-[repeat(auto-fill,minmax(--spacing(28),1fr))] gap-2"
+            : "flex flex-col gap-1"
+        }
       >
         {items.map((item, index) => {
           const itemProps = reorder.getItemProps(CONTAINER, item.id);
           const handleProps = reorder.getHandleProps(CONTAINER, item.id);
           const label = item.label ?? item.id;
-          const rowDisabled = disabled || item.disabled;
+          const locked = !disabled && item.disabled === true;
+          const actions = renderActions?.(item);
+          const move = (to: number) => () =>
+            reorder.requestMove({
+              id: item.id,
+              from: { container: CONTAINER, index },
+              to: { container: CONTAINER, index: to },
+            });
+          // A locked row's Move items are all disabled, and say why.
+          const moveItemProps = (edge: boolean) => ({
+            disabled: locked || edge,
+            "aria-describedby": locked && describeLocked ? reasonId : undefined,
+          });
           return (
             <Item
               key={item.id}
               size="sm"
+              variant={grid ? "outline" : "default"}
               ref={itemProps.ref as React.Ref<HTMLDivElement>}
               data-drag-item={itemProps["data-drag-item"]}
               data-dragging={itemProps["data-dragging"]}
               data-drop-edge={itemProps["data-drop-edge"]}
               data-drag-pending={itemProps["data-drag-pending"]}
+              data-locked={locked ? "" : undefined}
               data-slot="sortable-list-item"
               // The ONE drag-item recipe, shared with Board.
-              className={dragItemClasses}
+              className={cn(
+                dragItemClasses,
+                grid && "flex-col flex-nowrap items-stretch gap-1 p-1",
+              )}
             >
-              {rowDisabled ? null : (
+              {disabled ? null : locked ? (
+                // Same footprint as the handle, so locked and movable rows align.
+                <span
+                  aria-hidden="true"
+                  data-slot="sortable-list-handle-spacer"
+                  className={cn(
+                    "size-7 shrink-0",
+                    grid && "absolute start-1 top-1 z-10",
+                  )}
+                />
+              ) : (
                 <Button
-                  variant="ghost"
+                  variant={grid ? "secondary" : "ghost"}
                   size="icon-sm"
                   aria-label={`Reorder ${label}`}
+                  data-slot="sortable-list-handle"
                   ref={handleProps.ref as React.Ref<HTMLButtonElement>}
                   onKeyDown={handleProps.onKeyDown}
                   onBlur={handleProps.onBlur}
                   aria-pressed={handleProps["aria-pressed"]}
-                  className="cursor-grab touch-none"
+                  className={cn(
+                    "cursor-grab touch-none",
+                    grid && "absolute start-1 top-1 z-10",
+                  )}
                 >
                   <GripVertical />
                 </Button>
               )}
-              <ItemContent>{renderItem(item)}</ItemContent>
-              {rowDisabled ? null : (
-                <DropdownMenu>
-                  <DropdownMenuTrigger
-                    render={
-                      <Button
-                        variant="ghost"
-                        size="icon-sm"
-                        aria-label={`Move ${label}`}
-                      >
-                        <EllipsisVertical />
-                      </Button>
-                    }
-                  />
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuItem
-                      disabled={index === 0}
-                      onClick={() =>
-                        reorder.requestMove({
-                          id: item.id,
-                          from: { container: CONTAINER, index },
-                          to: { container: CONTAINER, index: index - 1 },
-                        })
-                      }
-                    >
-                      <ArrowUp /> Move up
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                      disabled={index === items.length - 1}
-                      onClick={() =>
-                        reorder.requestMove({
-                          id: item.id,
-                          from: { container: CONTAINER, index },
-                          to: { container: CONTAINER, index: index + 1 },
-                        })
-                      }
-                    >
-                      <ArrowDown /> Move down
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                      disabled={index === 0}
-                      onClick={() =>
-                        reorder.requestMove({
-                          id: item.id,
-                          from: { container: CONTAINER, index },
-                          to: { container: CONTAINER, index: 0 },
-                        })
-                      }
-                    >
-                      <ArrowUpToLine /> Move to top
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                      disabled={index === items.length - 1}
-                      onClick={() =>
-                        reorder.requestMove({
-                          id: item.id,
-                          from: { container: CONTAINER, index },
-                          to: {
-                            container: CONTAINER,
-                            index: items.length - 1,
-                          },
-                        })
-                      }
-                    >
-                      <ArrowDownToLine /> Move to bottom
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
+              {/* In a tile column, Item's `flex-1` basis of 0% collapses the content to nothing. */}
+              <ItemContent className={grid ? "flex-none" : undefined}>
+                {renderItem(item)}
+              </ItemContent>
+              {actions == null && disabled ? null : (
+                <ItemActions
+                  data-slot="sortable-list-actions"
+                  className={cn("gap-1", grid && "absolute end-1 top-1 z-10")}
+                >
+                  {actions}
+                  {disabled ? null : (
+                    <DropdownMenu>
+                      <DropdownMenuTrigger
+                        render={
+                          <Button
+                            variant={grid ? "secondary" : "ghost"}
+                            size="icon-sm"
+                            aria-label={actionsLabel(label)}
+                          >
+                            <EllipsisVertical />
+                          </Button>
+                        }
+                      />
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem
+                          {...moveItemProps(index === 0)}
+                          onClick={move(index - 1)}
+                        >
+                          <ArrowUp /> Move up
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          {...moveItemProps(index === last)}
+                          onClick={move(index + 1)}
+                        >
+                          <ArrowDown /> Move down
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          {...moveItemProps(index === 0)}
+                          onClick={move(0)}
+                        >
+                          <ArrowUpToLine /> Move to top
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          {...moveItemProps(index === last)}
+                          onClick={move(last)}
+                        >
+                          <ArrowDownToLine /> Move to bottom
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  )}
+                </ItemActions>
               )}
             </Item>
           );
         })}
       </ItemGroup>
+      {describeLocked ? (
+        // Referenced by `aria-describedby`, so it needs no rendering of its own; kept OUT of the
+        // menu items, where it would join their accessible NAME instead.
+        <span id={reasonId} hidden>
+          {lockedReason}
+        </span>
+      ) : null}
       <reorder.Announcer />
     </div>
   );

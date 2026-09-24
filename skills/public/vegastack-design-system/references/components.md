@@ -84,7 +84,7 @@ starts with `icon-` is a component and never an icon.
 - **`filter-bar-managed`** — The controlled nested and/or filter builder — host-injected field grammar (vocabulary + per-type value editors), depth and condition caps, focus-managed removal, and a removable FilterChip summary.
 - **`load-more`** — The shared Load more footer for keyset lists — an outline button that keeps its width while loading, an error line with Try again, and an optional end caption.
 - **`property-list`** — Record-facts rows: an icon+label column beside a value column, as an accessible definition list.
-- **`sortable-list`** — Reorderable rows on ItemGroup/Item via use-drag-reorder — pointer drag with drop indicators, keyboard move mode, a lossless Move menu, and server-refusable moves. Controlled; the host owns the order.
+- **`sortable-list`** — Reorderable rows or tiles on ItemGroup/Item via use-drag-reorder — pointer drag with drop indicators, keyboard move mode, a lossless row menu, locked rows, inline actions, a grid layout, and server-refusable moves. Controlled; the host owns the order.
 
 ## Overlay
 

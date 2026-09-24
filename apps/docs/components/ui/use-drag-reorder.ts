@@ -1,4 +1,4 @@
-// @vegastack use-drag-reorder@0.18.0 sha256-sKdbrWVc7aMztH5xXN1aWpDEWd/n7qZueNYE787kiiY=
+// @vegastack use-drag-reorder@0.18.0 sha256-KnIYoVJ8Dzpl6a+NMu11cBX4ms9AZWYFXPXHPepgCn0=
 
 "use client";
 
@@ -116,6 +116,18 @@ export interface UseDragReorderOptions {
    */
   axis?: "vertical" | "horizontal";
   /**
+   * Row-aware vertical moves for a horizontal axis that WRAPS into a grid. With
+   * `axis: "horizontal"`, ←/→ step one item in reading order and — when this is
+   * set — ↑/↓ move the item one ROW (±`columns` places) within its container,
+   * landing at the end when the row below is short. A number fixes the count;
+   * `"auto"` measures it at key time from where the container's items wrap, so
+   * a responsive `auto-fill` grid stays right at every width. Ignored on a
+   * vertical axis. Without it, ↑/↓ on a horizontal axis move across
+   * containers, as before.
+   * @default undefined
+   */
+  columns?: number | "auto";
+  /**
    * Disable all dragging and keyboard moves — statically, or per item.
    * @default false
    */
@@ -232,6 +244,7 @@ export function useDragReorder({
   lists,
   onReorder,
   axis = "vertical",
+  columns,
   disabled = false,
   pointerDisabled = false,
   canDropInContainer,
@@ -386,6 +399,9 @@ export function useDragReorder({
 
   const cleanups = React.useRef(new Map<string, () => void>());
   const handleElements = React.useRef(new Map<string, HTMLElement>());
+  // Item elements by `${container}:${id}` — read only to measure a wrapped
+  // grid's column count (`columns: "auto"`).
+  const itemElements = React.useRef(new Map<string, HTMLElement>());
   // Ref-callback identity MUST be stable per (container, id): React re-runs a
   // changed callback ref on every render (null → cleanup → re-attach), which
   // would tear down the ACTIVE draggable mid-drag the moment drop-edge state
@@ -401,7 +417,11 @@ export function useDragReorder({
       const key = `item:${container}:${id}`;
       cleanups.current.get(key)?.();
       cleanups.current.delete(key);
-      if (!element) return;
+      if (!element) {
+        itemElements.current.delete(`${container}:${id}`);
+        return;
+      }
+      itemElements.current.set(`${container}:${id}`, element);
       const allowedEdges: Edge[] =
         axisRef.current === "vertical" ? ["top", "bottom"] : ["left", "right"];
       const cleanup = combine(
@@ -547,6 +567,30 @@ export function useDragReorder({
     [announce],
   );
 
+  /**
+   * Items per row in `container`: the fixed `columns`, or — for `"auto"` — how
+   * many leading items share the first item's row (their top edges agree
+   * within a pixel). Falls back to 1 when nothing is measurable.
+   */
+  const columnsIn = React.useCallback(
+    (container: string): number => {
+      if (typeof columns === "number") return Math.max(1, Math.floor(columns));
+      const ids = listsRef.current[container] ?? [];
+      let firstTop: number | null = null;
+      let count = 0;
+      for (const itemId of ids) {
+        const element = itemElements.current.get(`${container}:${itemId}`);
+        if (!element) break;
+        const top = element.getBoundingClientRect().top;
+        if (firstTop === null) firstTop = top;
+        else if (Math.abs(top - firstTop) > 1) break;
+        count += 1;
+      }
+      return Math.max(1, count);
+    },
+    [columns],
+  );
+
   const handleKeyDown = React.useCallback(
     (container: string, id: string, event: React.KeyboardEvent) => {
       if (isDisabled(id)) return;
@@ -594,6 +638,35 @@ export function useDragReorder({
       const acrossPrev = flip(axis === "vertical" ? "ArrowLeft" : "ArrowUp");
       const acrossNext = flip(axis === "vertical" ? "ArrowRight" : "ArrowDown");
       const containers = Object.keys(listsRef.current);
+      // A wrapped horizontal list (a grid): ↑/↓ move one ROW within the
+      // container. Clamp into a short last row, but never "move" within the
+      // row the item already sits on — that is ←/→'s job.
+      if (
+        axis === "horizontal" &&
+        columns !== undefined &&
+        (event.key === "ArrowUp" || event.key === "ArrowDown")
+      ) {
+        event.preventDefault();
+        const perRow = columnsIn(from.container);
+        const count = listsRef.current[from.container]?.length ?? 0;
+        const target = Math.max(
+          0,
+          Math.min(
+            from.index + (event.key === "ArrowUp" ? -perRow : perRow),
+            count - 1,
+          ),
+        );
+        if (Math.floor(target / perRow) === Math.floor(from.index / perRow))
+          return;
+        keyboardMoveSeq.current += 1;
+        commitMove({
+          id,
+          from,
+          to: { container: from.container, index: target },
+          input: "keyboard",
+        });
+        return;
+      }
       if (event.key === withinPrev || event.key === withinNext) {
         event.preventDefault();
         const delta = event.key === withinPrev ? -1 : 1;
@@ -626,7 +699,16 @@ export function useDragReorder({
         });
       }
     },
-    [activeId, axis, announce, commitMove, endMoveMode, isDisabled],
+    [
+      activeId,
+      axis,
+      columns,
+      columnsIn,
+      announce,
+      commitMove,
+      endMoveMode,
+      isDisabled,
+    ],
   );
 
   // A cross-container keyboard move REMOUNTS the item under its new parent;
