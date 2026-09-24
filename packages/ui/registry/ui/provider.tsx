@@ -1,4 +1,4 @@
-// @vegastack provider@0.18.0 sha256-AxFJ3ACHetq16SNnc9KB0L5El4FCU0hs3MaQwjjyYK0=
+// @vegastack provider@0.18.0 sha256-n0uKAf0k3sUa8h8jkMo2CPfcURGCKlXJkVswtpDuJSw=
 
 "use client";
 
@@ -12,7 +12,7 @@ import * as React from "react";
 import { TIMINGS } from "@vegastack/design";
 import { ThemeProvider as NextThemesProvider, useTheme } from "next-themes";
 import { DirectionProvider } from "@base-ui/react/direction-provider";
-import { ToastProvider, Toaster } from "@/components/ui/toast";
+import { ToastProvider, Toaster, toast } from "@/components/ui/toast";
 import { TooltipProvider } from "@/components/ui/tooltip";
 
 /** Props accepted by `VegaStackProvider`. */
@@ -43,9 +43,10 @@ export interface VegaStackProviderProps extends Omit<
  * The host `<html>` needs `suppressHydrationWarning` (next-themes mutates it
  * on the client before hydration).
  *
- * `ToastProvider` always mounts — it is the context the imperative `toast()`
- * writes into, and mounting it unconditionally means a host that renders its
- * own `<Toaster />` still shares one toast queue. The `toaster` prop suppresses
+ * `ToastProvider` always mounts with the module `toast` manager — so the
+ * imperative `toast()` and `useToastManager()` write into one store — and a
+ * host that renders its own `<Toaster />` below it reuses it, so there is still
+ * one toast queue and one viewport. The `toaster` prop suppresses
  * (`false`) or replaces only the VISIBLE viewport, which is the part that must
  * not be mounted twice.
  *
@@ -90,7 +91,9 @@ export function VegaStackProvider({
           delay={TIMINGS.tooltipOpenDelayMs}
           closeDelay={TIMINGS.tooltipCloseDelayMs}
         >
-          <ToastProvider>
+          {/* OVL-17: the provider carries the module `toast` manager, so `toast()` and
+              `useToastManager()` feed one store, and the bundled `Toaster` renders into it. */}
+          <ToastProvider toastManager={toast}>
             {children}
             {toasterNode}
           </ToastProvider>

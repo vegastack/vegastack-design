@@ -154,7 +154,8 @@ and `children` — plus `position` (the six logical corners above, default `bott
 `useToastManager()` returns the live `toasts` array plus the same `add` / `close` / `update` /
 `promise` methods, for building your own list — that is how the Anchored example above composes
 `ToastPositioner` around each toast. To fire a toast you need no hook: the module-scope `toast`
-works anywhere, including outside React.
+works anywhere, including outside React. Under `VegaStackProvider` the hook and `toast()` share one
+queue — the provider carries the module manager, and the `Toaster` renders into it (OVL-17).
 
 ## Accessibility
 
@@ -240,6 +241,11 @@ focus-visible:ring-[3px] focus-visible:ring-ring/50` halo goes; dropping `outlin
   [`Spinner`](/docs/components/spinner), this icon and
   [`StatusIcon`](/docs/components/status-icon)'s `progress` are the same object spinning.
   `animate-spin` and `aria-hidden` are upstream's.
+- **OVL-17** — one toast store. `ToastProvider` marks its subtree, and a `Toaster` on the module
+  `toast` manager renders only its viewport under an existing provider instead of mounting a second
+  one. Under `VegaStackProvider`, which mounts `ToastProvider toastManager={toast}`, `toast()` and
+  `useToastManager()` feed the same queue and there is one viewport. A `Toaster` given its own
+  manager still brings its own provider.
 - **DOC-2** — `cn` is imported from `@vegastack/design`; our npm layer owns `cn`.
 - **DOC-1** — prettier reflow plus the `registry-stamp.mjs` provenance header; no decision of their
   own.
