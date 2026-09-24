@@ -9964,7 +9964,14 @@
       "states": {
         "behavior": {
           "status": "observed",
-          "values": ["default", "active", "disabled", "empty", "selected"],
+          "values": [
+            "default",
+            "active",
+            "disabled",
+            "empty",
+            "selected",
+            "search-start"
+          ],
           "evidence": "Observed from branches, state attributes, and inline source contract."
         },
         "accessibility": {
@@ -15935,7 +15942,9 @@
             "empty",
             "disabled",
             "readonly",
-            "invalid"
+            "invalid",
+            "debounced",
+            "committed"
           ],
           "evidence": "packages/ui/registry/ui/search-input.tsx + packages/ui/registry/ui/search-input.test.tsx"
         },

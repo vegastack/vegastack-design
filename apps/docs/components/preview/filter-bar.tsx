@@ -130,6 +130,43 @@ export function filterBarSearch(): ReactNode {
   );
 }
 
+export function filterBarSearchFirst(): ReactNode {
+  const [query, setQuery] = useState("");
+  const [committed, setCommitted] = useState("");
+  const [filters, setFilters] = useState<FilterBarFilter[]>([
+    {
+      id: "label",
+      label: "Label",
+      value: "bug",
+      icon: <Tag />,
+      onRemove: () =>
+        setFilters((prev) => prev.filter((f) => f.id !== "label")),
+    },
+  ]);
+
+  return (
+    <Wrapper className="flex-col items-stretch">
+      <FilterBar
+        aria-label="Task filters"
+        className="max-w-2xl"
+        searchPlacement="start"
+        filters={filters}
+        addFilters={ADD_OPTIONS}
+        onAddFilter={() => {}}
+        search={{
+          value: query,
+          onValueChange: setQuery,
+          onValueCommitted: setCommitted,
+          placeholder: "Search tasks…",
+        }}
+      />
+      <p className="text-sm text-muted-foreground">
+        Searching for: {committed === "" ? "everything" : `“${committed}”`}
+      </p>
+    </Wrapper>
+  );
+}
+
 export function filterBarEmpty(): ReactNode {
   return (
     <Wrapper className="justify-start">

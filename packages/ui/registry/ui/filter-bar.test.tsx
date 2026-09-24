@@ -333,7 +333,8 @@ test("active chip keeps the muted label / emphasized value hierarchy", async () 
   );
   const label = screen.getByText("Status").element() as HTMLElement;
   expect(label.className).toContain("text-muted-foreground");
-  const icon = label.previousElementSibling as HTMLElement;
+  const icon = screen.container.querySelector('[data-slot="filter-chip"] svg')!
+    .parentElement as HTMLElement;
   expect(icon.className).toContain("text-muted-foreground");
   const value = screen.getByText("In Progress").element() as HTMLElement;
   expect(value.className).not.toContain("text-muted-foreground");
@@ -467,3 +468,78 @@ test.each([160, 200, 254, 288, 320])(
     }
   },
 );
+
+test("a chip reads label: value, with the colon (DS-36)", async () => {
+  const screen = await render(
+    <FilterBar
+      filters={[
+        {
+          id: "status",
+          label: "Status",
+          value: "In Progress",
+          onRemove: () => {},
+        },
+        { id: "archived", label: "Archived", onRemove: () => {} },
+      ]}
+    />,
+  );
+  const chips = screen.container.querySelectorAll('[data-slot="filter-chip"]');
+  expect(chips[0]!.textContent).toContain("Status: In Progress");
+  // A presence chip has no value, so no colon.
+  expect(chips[1]!.textContent).not.toContain(":");
+  await expectNoA11yViolations(screen.container);
+});
+
+test("searchPlacement start puts the search first, without the end push (DS-37)", async () => {
+  const screen = await render(
+    <FilterBar
+      searchPlacement="start"
+      filters={[{ id: "status", label: "Status", onRemove: () => {} }]}
+      search={{ value: "", onValueChange: () => {} }}
+      trailing={<button type="button">Clear all</button>}
+    />,
+  );
+  const bar = screen.container.querySelector('[data-slot="filter-bar"]')!;
+  const first = bar.firstElementChild as HTMLElement;
+  expect(first.getAttribute("data-slot")).toBe("filter-bar-search");
+  expect(first.className.split(/\s+/)).not.toContain("ms-auto");
+  const trailing = bar.querySelector(
+    '[data-slot="filter-bar-trailing"]',
+  ) as HTMLElement;
+  expect(trailing.className.split(/\s+/)).toContain("ms-auto");
+  await expectNoA11yViolations(screen.container);
+});
+
+test("search.onValueCommitted receives the settled query (DS-37)", async () => {
+  vi.useFakeTimers();
+  try {
+    const committed = vi.fn();
+    function Host() {
+      const [value, setValue] = React.useState("");
+      return (
+        <FilterBar
+          filters={[]}
+          search={{
+            value,
+            onValueChange: setValue,
+            onValueCommitted: committed,
+            debounceMs: 200,
+          }}
+        />
+      );
+    }
+    const screen = await render(<Host />);
+    await screen.getByRole("searchbox", { name: "Search" }).fill("acme");
+    expect(committed).not.toHaveBeenCalled();
+    await vi.advanceTimersByTimeAsync(200);
+    expect(committed).toHaveBeenCalledWith("acme");
+  } finally {
+    vi.useRealTimers();
+  }
+});
+
+test("FilterBar takes no children (D5)", () => {
+  const accept = (_props: FilterBarProps) => {};
+  // @ts-expect-error children were silently dropped; the type now says so.
+  accept({ children: "ignored" });
+});

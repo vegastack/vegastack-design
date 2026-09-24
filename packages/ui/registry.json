@@ -1370,7 +1370,7 @@
         }
       ],
       "meta": {
-        "whenToUse": "Filter toolbars for lists/tables — active filters as removable chips + an Add-filter menu + optional search.",
+        "whenToUse": "Filter toolbars for lists/tables — active filters as removable 'Label: value' chips + an Add-filter menu + optional search, at the end or first.",
         "whenNotToUse": "A single search box (Input), value selection (Select), or unrelated row actions.",
         "version": "0.19.0"
       }
@@ -12589,7 +12589,7 @@
         }
       ],
       "meta": {
-        "whenToUse": "A reusable search field that needs a consistent token-colored clear action across browsers.",
+        "whenToUse": "A reusable search field with a consistent token-colored clear action, and a settled (debounced, Enter-flushed) value for sending the query.",
         "whenNotToUse": "A general text field without search semantics, or a command palette with result navigation.",
         "version": "0.19.0"
       }

@@ -42,6 +42,17 @@ fields expose no clear action; invalid styling comes from the shared InputGroup 
   file="components/preview/search-input.tsx"
 />
 
+### Settled value
+
+`onValueChange` fires on every keystroke, so the field stays instant. `onValueCommitted` fires with
+the **settled** value: after `debounceMs` of quiet (default `TIMINGS.searchDebounceMs`, 300 ms), and
+at once on <kbd>Enter</kbd> and on clear. Send the query from it, so one word is one request.
+
+<ComponentPreview
+  name="searchInputSettled"
+  file="components/preview/search-input.tsx"
+/>
+
 ### Native form semantics
 
 Names, labels, descriptions, submission, and reset stay on the inner native search input. In

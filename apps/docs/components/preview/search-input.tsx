@@ -47,6 +47,32 @@ export function searchInputStates(): ReactNode {
   );
 }
 
+export function searchInputSettled(): ReactNode {
+  const [value, setValue] = useState("");
+  const [sent, setSent] = useState<string[]>([]);
+
+  return (
+    <Wrapper className="flex-col items-stretch">
+      <SearchInput
+        className="max-w-sm"
+        value={value}
+        onValueChange={setValue}
+        onValueCommitted={(query) =>
+          setSent((previous) => [query, ...previous].slice(0, 3))
+        }
+        aria-label="Search customers"
+        placeholder="Search customers…"
+      />
+      <p className="text-sm text-muted-foreground">
+        Requests sent:{" "}
+        {sent.length === 0
+          ? "none yet"
+          : sent.map((query) => `“${query}”`).join(", ")}
+      </p>
+    </Wrapper>
+  );
+}
+
 export function searchInputForm(): ReactNode {
   const [submitted, setSubmitted] = useState("");
 
