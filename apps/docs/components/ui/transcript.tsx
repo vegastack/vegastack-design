@@ -1,4 +1,4 @@
-// @vegastack transcript@0.20.0 sha256-pLKz1pPJOh8+UGBnqRIEIp/r8GAY1MRHwd0eePr0oKs=
+// @vegastack transcript@0.20.0 sha256-VCwDSsrbMx+/sMB7BtWjvdZB6/qv1PQt1h8ZG20PTG0=
 
 "use client";
 
@@ -758,7 +758,10 @@ export function TranscriptList({ className }: TranscriptListProps) {
         data-slot="transcript-list"
         data-state={loading ? "loading" : "empty"}
         aria-busy={loading || undefined}
-        className={cn("flex min-h-0 flex-1 flex-col", className)}
+        className={cn(
+          "flex min-h-0 flex-1 flex-col overflow-hidden",
+          className,
+        )}
       >
         {loading ? (
           <div className="flex flex-col gap-4 p-3">

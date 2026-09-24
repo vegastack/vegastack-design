@@ -1,4 +1,4 @@
-// @vegastack date-picker@0.20.0 sha256-jc6jFoaXAoKFqVjly/JHdX/HEBizRXpcADT8QlzMv7c=
+// @vegastack date-picker@0.20.0 sha256-Z9hoPqtc/9dAAzla7Rx1OPx5J6xyXIkaOII8Mg1xq7c=
 
 "use client";
 
@@ -489,10 +489,13 @@ export function DatePicker({
                   className="size-4 text-muted-foreground"
                   aria-hidden
                 />
-                {value
-                  ? (renderValue?.(value) ??
-                    formatDate(value, formatOptions, locale))
-                  : placeholder}
+                {/* A flex child only truncates with `min-w-0` (LAY-11). */}
+                <span className="min-w-0 truncate">
+                  {value
+                    ? (renderValue?.(value) ??
+                      formatDate(value, formatOptions, locale))
+                    : placeholder}
+                </span>
               </Button>
             }
           />
@@ -758,7 +761,7 @@ export function DateRangePicker({
                   className="size-4 text-muted-foreground"
                   aria-hidden
                 />
-                {label}
+                <span className="min-w-0 truncate">{label}</span>
               </Button>
             }
           />

@@ -1,4 +1,4 @@
-// @vegastack sortable-list@0.20.0 sha256-vOs/MYNfz/W49fGc4SRh3EXO68VQY7cpvC9mK859H6A=
+// @vegastack sortable-list@0.20.0 sha256-2Qf5BoOq1FsXcuuDMPJU3fGVwDTIqi5ETG0CPClUy+s=
 
 "use client";
 
@@ -283,7 +283,10 @@ export function SortableList<T extends SortableListItem = SortableListItem>({
               // The ONE drag-item recipe, shared with Board.
               className={cn(
                 dragItemClasses,
-                grid && "flex-col flex-nowrap items-stretch gap-1 p-1",
+                // A row never wraps its menu under the handle; its content truncates instead.
+                grid
+                  ? "flex-col flex-nowrap items-stretch gap-1 p-1"
+                  : "flex-nowrap",
               )}
             >
               {disabled ? null : locked ? (
@@ -315,7 +318,7 @@ export function SortableList<T extends SortableListItem = SortableListItem>({
                 </Button>
               )}
               {/* In a tile column, Item's `flex-1` basis of 0% collapses the content to nothing. */}
-              <ItemContent className={grid ? "flex-none" : undefined}>
+              <ItemContent className={grid ? "flex-none" : "min-w-0"}>
                 {renderItem(item)}
               </ItemContent>
               {actions == null && disabled ? null : (

@@ -1,4 +1,4 @@
-// @vegastack searchable-select@0.20.0 sha256-ddgXHGt+5fyTPDDMhYFDdcblW2gTWWsjwlT2c+pehGc=
+// @vegastack searchable-select@0.20.0 sha256-pHXVgD0f+LiUBZRT4fMzufID3lwEWX5v9Nid4HEcvrg=
 
 "use client";
 
@@ -528,16 +528,22 @@ export function SearchableSelect<
                   : [];
               if (renderTriggerValue)
                 return (
-                  <span className="truncate">{renderTriggerValue(list)}</span>
+                  <span className="min-w-0 truncate">
+                    {renderTriggerValue(list)}
+                  </span>
                 );
               if (list.length === 0)
                 return (
-                  <span className="truncate text-muted-foreground">
+                  <span className="min-w-0 truncate text-muted-foreground">
                     {placeholder}
                   </span>
                 );
-              if (!isMultiple) return face(list[0]!);
-              return <span className="truncate">{valueText(list)}</span>;
+              // A flex child only truncates with `min-w-0` (LAY-11).
+              return (
+                <span className="min-w-0 truncate">
+                  {isMultiple ? valueText(list) : face(list[0]!)}
+                </span>
+              );
             }}
           </ComboboxValue>
         </BaseCombobox.Trigger>
