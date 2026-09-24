@@ -572,7 +572,14 @@ test("D3: arrow keys reach a disabled item and Enter does nothing", async () => 
       </DropdownMenuContent>
     </DropdownMenu>,
   );
-  await userEvent.keyboard("{ArrowDown}{ArrowDown}");
+  // One key per settled focus: a key sent before focus has moved into the popup is dropped
+  // (macOS Chromium measured it).
+  await expect.element(screen.getByRole("menu")).toHaveFocus();
+  await userEvent.keyboard("{ArrowDown}");
+  await expect
+    .element(screen.getByRole("menuitem", { name: "Edit" }))
+    .toHaveFocus();
+  await userEvent.keyboard("{ArrowDown}");
   const item = screen.getByRole("menuitem", { name: /Download data sheet/ });
   await expect.element(item).toHaveFocus();
   await expect.element(item).toHaveAccessibleDescription("No specs yet");

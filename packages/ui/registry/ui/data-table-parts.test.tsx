@@ -106,7 +106,13 @@ test("a disabled action stays reachable by arrow keys and does nothing (DS-32)",
     />,
   );
   await screen.getByRole("button", { name: "Actions for Aria" }).click();
-  await userEvent.keyboard("{ArrowDown}{ArrowDown}");
+  // One key per settled focus: a second key sent while the first still moves focus into the
+  // popup is dropped (macOS Chromium measured it).
+  await userEvent.keyboard("{ArrowDown}");
+  await expect
+    .element(screen.getByRole("menuitem", { name: "Edit" }))
+    .toHaveFocus();
+  await userEvent.keyboard("{ArrowDown}");
   const item = screen.getByRole("menuitem", { name: /Delete/ });
   await expect.element(item).toHaveFocus();
   await expect.element(item).toHaveAttribute("aria-disabled", "true");
