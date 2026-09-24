@@ -4,7 +4,12 @@ import { userEvent } from "vitest/browser";
 import { expect, test, vi } from "vitest";
 import { expectNoA11yViolations } from "../../test/a11y";
 import { TooltipProvider } from "./tooltip";
-import { IconText, TableCellText, TruncatedText } from "./truncated-text";
+import {
+  IconText,
+  TableCellText,
+  TruncatedText,
+  TruncationFocusProvider,
+} from "./truncated-text";
 
 /**
  * The open tooltip popup, by slot.
@@ -88,9 +93,7 @@ test("IconText renders icon, label, and trailing slot in one row", async () => {
   await expect.element(screen.getByTestId("icon")).toBeInTheDocument();
   await expect.element(screen.getByTestId("trailing")).toBeInTheDocument();
   const label = screen.getByText("Project Alpha");
-  await expect
-    .element(label)
-    .toHaveAttribute("data-slot", "icon-text-sm font-medium");
+  await expect.element(label).toHaveAttribute("data-slot", "icon-text-label");
   await expect.element(label).toHaveClass("truncate");
 });
 
@@ -139,7 +142,7 @@ test("TableCellText mono applies the monospace utilities", async () => {
   );
   const el = screen.getByText("ws_01HXYZ");
   await expect.element(el).toHaveClass("font-mono");
-  await expect.element(el).toHaveClass("text-xs");
+  await expect.element(el).toHaveClass("text-sm");
 });
 
 test("TableCellText clamps to multiple lines when requested", async () => {
@@ -227,7 +230,7 @@ test("overflowing IconText row is keyboard-focusable (tabIndex 0)", async () => 
   const screen = await render(
     <TooltipProvider>
       {/* The measured node is the internal label span — style it via a real stylesheet. */}
-      <style>{`[data-slot="icon-text-sm font-medium"] { display: block; overflow: hidden; white-space: nowrap; max-width: 48px; }`}</style>
+      <style>{`[data-slot="icon-text-label"] { display: block; overflow: hidden; white-space: nowrap; max-width: 48px; }`}</style>
       <IconText icon={<span>•</span>} text={long} />
     </TooltipProvider>,
   );
@@ -252,7 +255,7 @@ test("the IconText hit area appears exactly when the row becomes a control", asy
     "An extremely long label that will overflow the constrained row width";
   const screen = await render(
     <TooltipProvider>
-      <style>{`[data-slot="icon-text-sm font-medium"] { display: block; overflow: hidden; white-space: nowrap; max-width: 48px; }`}</style>
+      <style>{`[data-slot="icon-text-label"] { display: block; overflow: hidden; white-space: nowrap; max-width: 48px; }`}</style>
       <IconText icon={<span>•</span>} text={long} />
       <IconText icon={<span>•</span>} text="short" />
     </TooltipProvider>,
@@ -404,7 +407,7 @@ test("on a no-hover device, overflowing IconText row becomes a tap-to-toggle dis
       "An extremely long label that will overflow the constrained row width";
     const screen = await render(
       <TooltipProvider>
-        <style>{`[data-slot="icon-text-sm font-medium"] { display: block; overflow: hidden; white-space: nowrap; max-width: 48px; }`}</style>
+        <style>{`[data-slot="icon-text-label"] { display: block; overflow: hidden; white-space: nowrap; max-width: 48px; }`}</style>
         <IconText icon={<span>•</span>} text={long} />
       </TooltipProvider>,
     );
@@ -416,7 +419,40 @@ test("on a no-hover device, overflowing IconText row becomes a tap-to-toggle dis
     row().dispatchEvent(new MouseEvent("click", { bubbles: true }));
     await expect.poll(() => row().getAttribute("aria-expanded")).toBe("true");
     const label = () =>
-      screen.container.querySelector('[data-slot="icon-text-sm font-medium"]')!;
+      screen.container.querySelector('[data-slot="icon-text-label"]')!;
     await expect.poll(() => label().className).not.toContain("truncate");
   });
+});
+
+test("DS-68: IconText names its parts icon-text and icon-text-label", async () => {
+  const screen = await render(<IconText icon={<span>•</span>} text="Label" />);
+  expect(
+    screen.container.querySelector('[data-slot="icon-text"]'),
+  ).not.toBeNull();
+  expect(
+    screen.container.querySelector('[data-slot="icon-text-label"]')
+      ?.textContent,
+  ).toBe("Label");
+});
+
+test("DS-74: TableCellText mono keeps the cell size (text-sm), not a step down", async () => {
+  const screen = await render(<TableCellText text="sp_123" mono />);
+  const cell = screen.container.querySelector('[data-slot="table-cell-text"]')!;
+  expect(cell.className).toContain("font-mono");
+  expect(cell.className).toContain("text-sm");
+  expect(cell.className).not.toContain("text-xs");
+});
+
+test("DS-68: under TruncationFocusProvider focusable={false} a clipped value is not a tab stop", async () => {
+  const screen = await render(
+    <TruncationFocusProvider focusable={false}>
+      <div style={{ width: 40 }}>
+        <TruncatedText>
+          A value long enough to clip in forty pixels
+        </TruncatedText>
+      </div>
+    </TruncationFocusProvider>,
+  );
+  const text = screen.container.querySelector('[data-slot="truncated-text"]')!;
+  expect(text.getAttribute("tabindex")).not.toBe("0");
 });

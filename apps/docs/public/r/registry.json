@@ -1029,7 +1029,8 @@
         "@vegastack/editable-cell",
         "@vegastack/load-more",
         "@vegastack/table",
-        "@vegastack/use-announcer"
+        "@vegastack/use-announcer",
+        "@vegastack/truncated-text"
       ],
       "files": [
         {
@@ -1042,7 +1043,7 @@
         "whenToUse": "Record tables that need grouping, inline cell editing, multi-key sort, column management, or 10k+ rows via virtualization — the CRM pipeline-table tier.",
         "whenNotToUse": "Simple presentational record lists — DataList is lighter and still the right default; kanban views (Board).",
         "version": "0.18.0",
-        "integrity": "sha256-pJliRaBiwqZfGn60w8B+PpNhaf0B7AHtMdwsSAr/crg="
+        "integrity": "sha256-xpr6NTRLKp9ha5vz1tmqg2h45l7WOHauKlxGY0LprEw="
       }
     },
     {
@@ -1060,7 +1061,8 @@
       "registryDependencies": [
         "@vegastack/data-table-parts",
         "@vegastack/load-more",
-        "@vegastack/table"
+        "@vegastack/table",
+        "@vegastack/truncated-text"
       ],
       "files": [
         {
@@ -1073,7 +1075,7 @@
         "whenToUse": "A list of records as a table with typed columns, selection, click-to-sort, loading/empty states, and keyset paging through loadMore.",
         "whenNotToUse": "A board/kanban view (Board), full-parity grids with grouping/editing/virtualization (DataGrid), or a simple static table (Table).",
         "version": "0.18.0",
-        "integrity": "sha256-x9ocAGf+0RMSdo1tFcU5K2cIA5KX/eSUEUzOH5uL/40="
+        "integrity": "sha256-YFXwPjizKXmZpeA9nP/UhI91Bdp8cNsbQ4Vg12h7M6Y="
       }
     },
     {
@@ -1089,6 +1091,7 @@
         "@vegastack/design-tokens@^0.7.1"
       ],
       "registryDependencies": [
+        "@vegastack/button",
         "@vegastack/data-table-parts",
         "@vegastack/pagination",
         "@vegastack/select",
@@ -1102,10 +1105,10 @@
         }
       ],
       "meta": {
-        "whenToUse": "Paging a DataList (or any host-paged list): the range, rows-per-page, and page controls in its footer slot, with page state owned by the host.",
+        "whenToUse": "Paging a DataList (or any host-paged list) in place: the range, an optional rows-per-page chooser (omit onPageSizeChange for a fixed size), and page buttons in its footer slot, with page state owned by the host.",
         "whenNotToUse": "Keyset or cursor paging with no total (LoadMore, or DataList's and DataGrid's loadMore), or bare page links with no page-size choice (Pagination).",
         "version": "0.18.0",
-        "integrity": "sha256-v7U5XWiqGWt2bLTEFYLM303CoKo67jyuO2nGKLTmQXU="
+        "integrity": "sha256-fO5y3uUoD2JqTbVML6l0HSrvO/8DiO2RO+DvGG0CdJ4="
       }
     },
     {
@@ -1168,7 +1171,7 @@
         "whenToUse": "Installed automatically with DataList or DataGrid; import it directly when building a bespoke table that should share their sort header, selection cells and column rules.",
         "whenNotToUse": "A plain presentational table (Table alone), or as a table component in its own right — these are parts, not a renderer.",
         "version": "0.18.0",
-        "integrity": "sha256-zionZcs9W/E1VTeMztgKSGRp/Zpweo++kn4hhG8P+b8="
+        "integrity": "sha256-OdOqt3gT2dS8N+O5AuytnLVmV+oXuakSpVtByvL46kM="
       }
     },
     {
@@ -15333,10 +15336,10 @@
         }
       ],
       "meta": {
-        "whenToUse": "Navigate paged content — a long list/table split across numbered pages.",
+        "whenToUse": "Navigate paged content with real URLs — a long list/table split across numbered pages; every page control is a link.",
         "whenNotToUse": "Infinite scroll / 'load more' feeds, or tab-style switching.",
         "version": "0.18.0",
-        "integrity": "sha256-ZJA4+msJu2jCeQlZqALPLFLKf3RIeWXi+yPuUuo6tzo="
+        "integrity": "sha256-XW2jCdjzINCqwJ7UnbQPfBT5BjRoCoUpaZuW5rK/th4="
       }
     },
     {
@@ -16403,7 +16406,7 @@
         "whenToUse": "Chronological records — activity feeds, audit trails, delivery logs — where entries need a visible temporal thread (rail + node) and rows compose Item/RelativeTime/Avatar.",
         "whenNotToUse": "Live bottom-pinned conversation feeds (MessageScroller), bounded processes with gating (Stepper), or plain lists with no temporal thread (ItemGroup).",
         "version": "0.18.0",
-        "integrity": "sha256-cuHJkqRLAKwf8Z7OXrI7Dr0vNNfcScbGi9baVOYQvV4="
+        "integrity": "sha256-At+1eeFh/2W/QSKHP3tXhf8nOA5+IejIWtaYz6n5MWc="
       }
     },
     {
@@ -16523,7 +16526,7 @@
         "whenToUse": "Tool invocations in an agent/chat transcript (searched, executed, created).",
         "whenNotToUse": "Status badges (Badge) or long-running task rows (Marker + Spinner).",
         "version": "0.18.0",
-        "integrity": "sha256-VldIk1q2XB+HQRtFC0hiXYRpeTjOWQ4TZqB5Q84NaqM="
+        "integrity": "sha256-aSXmOqOZVCdu1NAm8+UpKOJONlUzofA4SKR+AenmAI4="
       },
       "registryDependencies": [
         "@vegastack/badge"
@@ -16584,7 +16587,7 @@
         "whenToUse": "Long values in constrained layouts — table cells, nav labels, IDs/paths.",
         "whenNotToUse": "Essential action text or content that must be fully visible.",
         "version": "0.18.0",
-        "integrity": "sha256-2UzqZzdC+rfZ1YHLvuLsAR0F0HpgXS1tl2DWttAnDOY="
+        "integrity": "sha256-fbKFUUpvoloxDxg/EQcLEOMVDgzrVMq6MlX5CD7h6Vs="
       }
     },
     {
@@ -16664,7 +16667,7 @@
         "whenToUse": "Any reorder-by-drag surface — sortable lists, wrapped tile grids (`columns` for row-aware ↑/↓), board cards, a future bespoke drag surface — where pointer, keyboard move mode, announcements, and server-refusable drops must all work from one API.",
         "whenNotToUse": "File drag-in (use-file-drop), resizing panes (Resizable), or single-axis value dragging (Slider).",
         "version": "0.18.0",
-        "integrity": "sha256-KnIYoVJ8Dzpl6a+NMu11cBX4ms9AZWYFXPXHPepgCn0="
+        "integrity": "sha256-ucBOuQqw+4Jmf5ypfid5hna5TeK+IWAMcn3UMhfoVzA="
       }
     },
     {

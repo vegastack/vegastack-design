@@ -207,7 +207,7 @@
     ],
     "API-20": ["item"],
     "API-18": ["command"],
-    "VOI-1": ["command", "dialog", "sheet", "sidebar"],
+    "VOI-1": ["command", "dialog", "pagination", "sheet", "sidebar"],
     "API-21": ["dialog", "sheet"],
     "A11Y-20": ["tabs"],
     "LAY-14": ["tabs"],
@@ -223,7 +223,8 @@
     "LAY-16": ["sidebar"],
     "LAY-13": ["sidebar"],
     "LAY-15": ["alert"],
-    "OVL-17": ["toast"]
+    "OVL-17": ["toast"],
+    "A11Y-23": ["pagination"]
   },
   "advisory": {
     "A11Y-2": [

@@ -1557,3 +1557,91 @@ test("loadMore loading, error and done states (DS-31)", async () => {
   ).toBe("End of list");
   await expectNoA11yViolations(screen.container);
 });
+
+/* DS-01 — a mono column's header is a label in the sans face; only its body cells are mono */
+
+test("DS-01: a mono column's header is sans; its body cell is mono", async () => {
+  interface Sku {
+    id: string;
+    sku: string;
+  }
+  const screen = await render(
+    <DataList<Sku>
+      columns={[
+        { key: "sku", header: "SKU", mono: true, sortable: true },
+        { key: "id", header: "Id" },
+      ]}
+      data={[{ id: "a", sku: "A-1" }]}
+      getRowId={(r) => r.id}
+    />,
+  );
+  const header = [...screen.container.querySelectorAll("th")].find((el) =>
+    el.textContent?.startsWith("SKU"),
+  )!;
+  expect(header.className).not.toContain("font-mono");
+  expect(header.className).toContain("tabular-nums");
+  const cell = screen.getByRole("cell", { name: "A-1" }).element();
+  expect(cell.className).toContain("font-mono");
+});
+
+test("no a11y violations — mono column, loading and empty", async () => {
+  interface Sku {
+    id: string;
+    sku: string;
+  }
+  const cols: DataListColumn<Sku>[] = [
+    { key: "sku", header: "SKU", mono: true },
+  ];
+  const loading = await render(
+    <DataList<Sku> columns={cols} data={[]} loading getRowId={(r) => r.id} />,
+  );
+  await expectNoA11yViolations(loading.container);
+  await loading.unmount();
+  const empty = await render(
+    <DataList<Sku> columns={cols} data={[]} getRowId={(r) => r.id} />,
+  );
+  await expectNoA11yViolations(empty.container);
+});
+
+/* DS-68 — clipped text and timestamps in a list are not tab stops */
+
+test("DS-68: Tab from a row link skips the timestamp to the next row's link", async () => {
+  const { RelativeTime } = await import("./relative-time");
+  interface Item {
+    id: string;
+    title: string;
+    at: number;
+  }
+  const NOW = Date.UTC(2026, 8, 24, 12);
+  const screen = await render(
+    <DataList<Item>
+      columns={[
+        {
+          key: "title",
+          header: "Title",
+          render: (r) => <a href={`#${r.id}`}>{r.title}</a>,
+        },
+        {
+          key: "at",
+          header: "Updated",
+          render: (r) => <RelativeTime date={r.at} now={NOW} />,
+        },
+      ]}
+      data={[
+        { id: "1", title: "Row 1", at: NOW - 3_600_000 },
+        { id: "2", title: "Row 2", at: NOW - 7_200_000 },
+      ]}
+      getRowId={(r) => r.id}
+    />,
+  );
+  (
+    screen.getByRole("link", { name: "Row 1" }).element() as HTMLElement
+  ).focus();
+  await userEvent.tab();
+  await expect
+    .element(screen.getByRole("link", { name: "Row 2" }))
+    .toHaveFocus();
+  for (const time of screen.container.querySelectorAll("time")) {
+    expect(time.getAttribute("tabindex")).toBeNull();
+  }
+});

@@ -1,20 +1,24 @@
-// @vegastack pagination@0.18.0 sha256-ZJA4+msJu2jCeQlZqALPLFLKf3RIeWXi+yPuUuo6tzo=
+// @vegastack pagination@0.18.0 sha256-XW2jCdjzINCqwJ7UnbQPfBT5BjRoCoUpaZuW5rK/th4=
 
 import * as React from "react";
 import { cn } from "@vegastack/design";
 
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import {
   ChevronLeftIcon,
   ChevronRightIcon,
   MoreHorizontalIcon,
 } from "lucide-react";
 
-function Pagination({ className, ...props }: React.ComponentProps<"nav">) {
+function Pagination({
+  className,
+  label = "Pagination",
+  ...props
+}: React.ComponentProps<"nav"> & { label?: string }) {
   return (
     <nav
       role="navigation"
-      aria-label="pagination"
+      aria-label={label}
       data-slot="pagination"
       className={cn("mx-auto flex w-full justify-center", className)}
       {...props}
@@ -51,19 +55,15 @@ function PaginationLink({
   ...props
 }: PaginationLinkProps) {
   return (
-    <Button
-      variant={isActive ? "outline" : "ghost"}
-      size={size}
-      className={cn(className)}
-      nativeButton={false}
-      render={
-        <a
-          aria-current={isActive ? "page" : undefined}
-          data-slot="pagination-link"
-          data-active={isActive}
-          {...props}
-        />
-      }
+    <a
+      aria-current={isActive ? "page" : undefined}
+      data-slot="pagination-link"
+      data-active={isActive}
+      className={cn(
+        buttonVariants({ variant: isActive ? "outline" : "ghost", size }),
+        className,
+      )}
+      {...props}
     />
   );
 }
@@ -106,8 +106,9 @@ function PaginationNext({
 
 function PaginationEllipsis({
   className,
+  morePagesLabel = "More pages",
   ...props
-}: React.ComponentProps<"span">) {
+}: React.ComponentProps<"span"> & { morePagesLabel?: string }) {
   return (
     <span
       aria-hidden
@@ -119,7 +120,7 @@ function PaginationEllipsis({
       {...props}
     >
       <MoreHorizontalIcon />
-      <span className="sr-only">More pages</span>
+      <span className="sr-only">{morePagesLabel}</span>
     </span>
   );
 }

@@ -138,20 +138,21 @@ import { TableCellText } from '@/components/ui/truncated-text';
 </TableCell>;
 ```
 
-`mono` renders the value in the monospace family at a smaller size — for IDs,
+`mono` renders the value in the monospace family at the cell size (`text-sm`) — for IDs,
 paths, and other fixed-width values. Set `width` to match the column header so
 truncation engages within the column.
 
-### Focus inside a grid or list
+### Inside tables and link rows
 
 When text is clipped it becomes a Tooltip trigger and takes a tab stop, so keyboard users
 can read it. In a 50-row table that is 50 extra tab stops on top of `DataGrid`'s own roving
 cell focus — which is why `focusable` exists.
 
 It defaults to `true` standalone. A host that owns its own keyboard model flips the ambient
-default to `false` by wrapping its content in `TruncationFocusProvider` — that is the contract
-`DataList` and `DataGrid` adopt, since their roving cell focus already owns reachability. Any
-single cell can opt back in with `focusable`.
+default to `false` by wrapping its content in `TruncationFocusProvider`. `DataList` and
+`DataGrid` do exactly that around their tables, so a clipped value or a `RelativeTime` in a cell
+is not a tab stop — Tab goes from one row's link straight to the next. Any single cell can opt
+back in with `focusable`.
 
 Nothing is hidden either way — CSS truncation is invisible to a screen reader, which reads
 the full string regardless; the tooltip only ever served **sighted keyboard** users. Geist

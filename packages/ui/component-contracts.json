@@ -6524,7 +6524,8 @@
         "@vegastack/editable-cell",
         "@vegastack/load-more",
         "@vegastack/table",
-        "@vegastack/use-announcer"
+        "@vegastack/use-announcer",
+        "@vegastack/truncated-text"
       ],
       "npmDependencies": [
         "@tanstack/react-table@^9.2.4",
@@ -6755,7 +6756,8 @@
       "registryDependencies": [
         "@vegastack/data-table-parts",
         "@vegastack/load-more",
-        "@vegastack/table"
+        "@vegastack/table",
+        "@vegastack/truncated-text"
       ],
       "npmDependencies": [
         "@vegastack/design@^0.7.4",
@@ -6918,6 +6920,7 @@
       "engines": [],
       "docsSlug": "/docs/components/data-list-pager",
       "registryDependencies": [
+        "@vegastack/button",
         "@vegastack/data-table-parts",
         "@vegastack/pagination",
         "@vegastack/select",
@@ -6941,6 +6944,10 @@
         "DataListPager": {
           "attributes": [
             {
+              "name": "data-active",
+              "values": []
+            },
+            {
               "name": "data-layout",
               "values": []
             },
@@ -6953,7 +6960,10 @@
               "values": [
                 "data-list-pager",
                 "data-list-pager-nav",
+                "data-list-pager-next",
+                "data-list-pager-page",
                 "data-list-pager-position",
+                "data-list-pager-previous",
                 "data-list-pager-range",
                 "data-list-pager-size"
               ]
@@ -7182,6 +7192,15 @@
           "ref": {
             "status": "not-applicable",
             "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "headerCellClass",
+          "kind": "function",
+          "source": "packages/ui/registry/ui/data-table-parts.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "This exported helper is not a rendered component root."
           }
         },
         {
@@ -20843,7 +20862,7 @@
           "attributes": [
             {
               "name": "data-slot",
-              "values": ["icon-text", "icon-text-sm font-medium"]
+              "values": ["icon-text", "icon-text-label"]
             }
           ],
           "cssVariables": []

@@ -1,18 +1,16 @@
-// @vegastack data-list-pager@0.18.0 sha256-v7U5XWiqGWt2bLTEFYLM303CoKo67jyuO2nGKLTmQXU=
+// @vegastack data-list-pager@0.18.0 sha256-fO5y3uUoD2JqTbVML6l0HSrvO/8DiO2RO+DvGG0CdJ4=
 
 "use client";
 
 import * as React from "react";
 import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
 import { cn, mergeRefs } from "@vegastack/design";
+import { Button } from "@/components/ui/button";
 import {
   Pagination,
   PaginationContent,
   PaginationEllipsis,
   PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
 } from "@/components/ui/pagination";
 import {
   Select,
@@ -112,8 +110,10 @@ export interface DataListPagerProps extends Omit<
   /**
    * Called with the next page size when the rows-per-page choice changes. The
    * page is left alone — reset it in this handler if that is your policy.
+   * Omit it for a fixed page size: the rows-per-page chooser is not rendered.
+   * @default undefined
    */
-  onPageSizeChange: (pageSize: number) => void;
+  onPageSizeChange?: (pageSize: number) => void;
   /**
    * The rows-per-page choices. A valid `pageSize` that is not in the list is
    * added, so the chooser always shows the current value. Entries that are not
@@ -185,8 +185,11 @@ function positiveInteger(value: unknown): number | null {
  * The page controls are hidden when everything fits on one page; the range and
  * the rows-per-page chooser stay, so a reader can still widen the page.
  *
- * Previous and Next stay focusable at either end (`aria-disabled`, pointer
- * events alive), and a page change announces the new range politely. The page
+ * The page controls are buttons, not links — they change state, they do not
+ * navigate (DS-71); the current page carries `aria-current="page"`. Previous
+ * and Next stay focusable at either end (`aria-disabled`, pointer events
+ * alive), and a page change announces the new range politely. Without
+ * `onPageSizeChange` the pager shows no rows-per-page chooser. The page
  * list follows the pager's own width (`data-layout`): `full` from 480px,
  * `compact` from 240px (no neighbours, icon-only ends), and `minimal` below
  * that (icon-only ends around "Page N of M"). A page count too long for the
@@ -371,42 +374,44 @@ export function DataListPager({
         >
           {range}
         </p>
-        <div
-          data-slot="data-list-pager-size"
-          className="flex items-center gap-2"
-        >
-          <span
-            id={labelId}
-            className="text-sm whitespace-nowrap text-muted-foreground"
+        {onPageSizeChange ? (
+          <div
+            data-slot="data-list-pager-size"
+            className="flex items-center gap-2"
           >
-            {pageSizeLabel}
-          </span>
-          <Select
-            value={String(size)}
-            onValueChange={(value) => {
-              if (value != null) onPageSizeChange(Number(value));
-            }}
-          >
-            <SelectTrigger
-              size="sm"
-              aria-labelledby={labelId}
-              className="w-fit tabular-nums"
+            <span
+              id={labelId}
+              className="text-sm whitespace-nowrap text-muted-foreground"
             >
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {sizes.map((option) => (
-                <SelectItem
-                  key={option}
-                  value={String(option)}
-                  className="tabular-nums"
-                >
-                  {option}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
+              {pageSizeLabel}
+            </span>
+            <Select
+              value={String(size)}
+              onValueChange={(value) => {
+                if (value != null) onPageSizeChange(Number(value));
+              }}
+            >
+              <SelectTrigger
+                size="sm"
+                aria-labelledby={labelId}
+                className="w-fit tabular-nums"
+              >
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {sizes.map((option) => (
+                  <SelectItem
+                    key={option}
+                    value={String(option)}
+                    className="tabular-nums"
+                  >
+                    {option}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        ) : null}
       </div>
 
       {pages > 1 ? (
@@ -417,29 +422,30 @@ export function DataListPager({
           <PaginationContent className="min-w-0">
             <PaginationItem>
               {layout === "full" ? (
-                <PaginationPrevious
-                  aria-disabled={atStart || undefined}
-                  className="aria-disabled:opacity-50"
-                  onClick={(event) => {
-                    event.preventDefault();
-                    if (!atStart) onPageChange(current - 1);
-                  }}
-                />
-              ) : (
-                // Narrow: a 32px icon end, not upstream's `default`-size
-                // Previous with its text emptied, which stayed ~34px wide.
-                <PaginationLink
-                  size="icon"
+                <Button
+                  variant="ghost"
                   aria-label="Go to previous page"
-                  aria-disabled={atStart || undefined}
-                  className="aria-disabled:opacity-50"
-                  onClick={(event) => {
-                    event.preventDefault();
-                    if (!atStart) onPageChange(current - 1);
-                  }}
+                  data-slot="data-list-pager-previous"
+                  disabled={atStart}
+                  className="ps-1.5"
+                  onClick={() => onPageChange(current - 1)}
                 >
                   <ChevronLeftIcon className="rtl:rotate-180" />
-                </PaginationLink>
+                  <span className="hidden sm:block">Previous</span>
+                </Button>
+              ) : (
+                // Narrow: a 32px icon end, not a `default`-size Previous with
+                // its text emptied, which stayed ~34px wide.
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  aria-label="Go to previous page"
+                  data-slot="data-list-pager-previous"
+                  disabled={atStart}
+                  onClick={() => onPageChange(current - 1)}
+                >
+                  <ChevronLeftIcon className="rtl:rotate-180" />
+                </Button>
               )}
             </PaginationItem>
             {rung === "minimal" ? (
@@ -478,46 +484,50 @@ export function DataListPager({
                     </PaginationItem>
                   ) : (
                     <PaginationItem key={item}>
-                      <PaginationLink
-                        isActive={item === current}
+                      <Button
+                        variant={item === current ? "outline" : "ghost"}
+                        size="icon"
                         aria-label={`Go to page ${item}`}
+                        aria-current={item === current ? "page" : undefined}
+                        data-slot="data-list-pager-page"
+                        data-active={item === current}
                         // At least the 32px square, and wider for a number
                         // that needs it: a fixed slot spilled `10000`.
                         className="w-auto min-w-8 px-1.5 tabular-nums"
-                        onClick={(event) => {
-                          event.preventDefault();
+                        onClick={() => {
                           if (item !== current) onPageChange(item);
                         }}
                       >
                         {item}
-                      </PaginationLink>
+                      </Button>
                     </PaginationItem>
                   ),
               )
             )}
             <PaginationItem>
               {layout === "full" ? (
-                <PaginationNext
-                  aria-disabled={atEnd || undefined}
-                  className="aria-disabled:opacity-50"
-                  onClick={(event) => {
-                    event.preventDefault();
-                    if (!atEnd) onPageChange(current + 1);
-                  }}
-                />
+                <Button
+                  variant="ghost"
+                  aria-label="Go to next page"
+                  data-slot="data-list-pager-next"
+                  disabled={atEnd}
+                  className="pe-1.5"
+                  onClick={() => onPageChange(current + 1)}
+                >
+                  <span className="hidden sm:block">Next</span>
+                  <ChevronRightIcon className="rtl:rotate-180" />
+                </Button>
               ) : (
-                <PaginationLink
+                <Button
+                  variant="ghost"
                   size="icon"
                   aria-label="Go to next page"
-                  aria-disabled={atEnd || undefined}
-                  className="aria-disabled:opacity-50"
-                  onClick={(event) => {
-                    event.preventDefault();
-                    if (!atEnd) onPageChange(current + 1);
-                  }}
+                  data-slot="data-list-pager-next"
+                  disabled={atEnd}
+                  onClick={() => onPageChange(current + 1)}
                 >
                   <ChevronRightIcon className="rtl:rotate-180" />
-                </PaginationLink>
+                </Button>
               )}
             </PaginationItem>
           </PaginationContent>

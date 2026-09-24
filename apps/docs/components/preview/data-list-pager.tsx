@@ -97,3 +97,18 @@ export function dataListPagerSinglePage(): ReactNode {
     </Wrapper>
   );
 }
+
+/** DS-27: a fixed page size — no `onPageSizeChange`, so no rows-per-page chooser. */
+export function dataListPagerFixedSize(): ReactNode {
+  const [page, setPage] = React.useState(2);
+  return (
+    <Wrapper className="block">
+      <DataListPager
+        page={page}
+        pageSize={20}
+        total={87}
+        onPageChange={setPage}
+      />
+    </Wrapper>
+  );
+}

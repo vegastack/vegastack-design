@@ -421,8 +421,9 @@ unreadable when broken, so they opt back out automatically:
 - `align: "end"` — the numeric convention. Give a number column `className: "tabular-nums"` too,
   so its digits line up in the regular font.
 - `mono: true` — for codes and IDs only (an order reference, a ticket key): renders values in the
-  mono face (`font-mono text-sm tabular-nums`) and pins them to one line. A count, a date or an
-  amount is a number, not an identifier — use `align: "end"` with `tabular-nums` instead.
+  mono face (`font-mono text-sm tabular-nums`) and pins them to one line. `mono` styles body cells
+  only: the header is a label and stays in the sans face. A count, a date or an amount is a number,
+  not an identifier — use `align: "end"` with `tabular-nums` instead.
 
 `nowrap` overrides the inference in either direction: `nowrap: true` pins a prose column, and
 `nowrap: false` lets an end-aligned column wrap.

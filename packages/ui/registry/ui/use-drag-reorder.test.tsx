@@ -534,3 +534,66 @@ test("without columns, ↑/↓ on a horizontal single list stay no-ops", async (
   await userEvent.keyboard("{ArrowDown}");
   expect(onMove).not.toHaveBeenCalled();
 });
+
+/* DS-70 — a handle that mounts after its row still owns the drag */
+
+function LateHandleList({ onMove }: { onMove: (m: DragReorderMove) => void }) {
+  const [enabled, setEnabled] = React.useState(false);
+  const lists = { list: ["a", "b", "c"] };
+  const reorder = useDragReorder({ lists, onReorder: onMove });
+  return (
+    <div>
+      <button type="button" onClick={() => setEnabled(true)}>
+        Enable handles
+      </button>
+      <ul
+        style={{ minHeight: 40, minWidth: 160 }}
+        {...reorder.getContainerProps("list")}
+      >
+        {lists.list.map((id) => (
+          <li
+            key={id}
+            style={{ display: "flex", gap: 8, minHeight: 28 }}
+            {...reorder.getItemProps("list", id)}
+          >
+            <span data-testid={`body-${id}`} style={{ minWidth: 60 }}>
+              Row {id}
+            </span>
+            {enabled ? (
+              <button
+                type="button"
+                aria-label={`Move ${id}`}
+                {...reorder.getHandleProps("list", id)}
+              >
+                ⋮⋮
+              </button>
+            ) : null}
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+test("DS-70: a handle mounted after its row owns the drag; the row body does not", async () => {
+  const onMove = vi.fn();
+  const screen = await render(<LateHandleList onMove={onMove} />);
+  await screen.getByRole("button", { name: "Enable handles" }).click();
+  await expect
+    .element(screen.getByRole("button", { name: "Move a" }))
+    .toBeInTheDocument();
+  // Dragging from the row body — not the handle — must not move the row.
+  await dragBetween(
+    screen.getByTestId("body-a").element() as HTMLElement,
+    document.querySelector('[data-drag-item="c"]') as HTMLElement,
+  );
+  expect(onMove).not.toHaveBeenCalled();
+  // Dragging from the late handle does.
+  await dragBetween(
+    screen.getByRole("button", { name: "Move a" }).element() as HTMLElement,
+    document.querySelector('[data-drag-item="c"]') as HTMLElement,
+  );
+  expect(onMove).toHaveBeenCalledWith(
+    expect.objectContaining({ id: "a", input: "pointer" }),
+  );
+});

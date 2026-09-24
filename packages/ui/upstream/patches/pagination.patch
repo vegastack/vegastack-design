@@ -1,8 +1,14 @@
 # component: pagination
-# decisions: DOC-1, DOC-2
+# decisions: A11Y-23, DOC-1, DOC-2, VOI-1
 # hunks:
-#   NO STYLING HUNK. `PaginationLink` renders through `Button`, which already carries this
-#     system's focus, cursor and disabled behaviour (Batch 2), so pagination inherits FOC-1,
+#   A11Y-23: `PaginationLink` renders a real `<a>` wearing `buttonVariants({ variant, size })`
+#     instead of `Button nativeButton={false} render={<a/>}`, which stamped `role="button"` on a
+#     link. A pagination link navigates, so it keeps the link role; `aria-current="page"` stays.
+#     (A pager whose controls change state rather than navigate renders buttons — `DataListPager`.)
+#   VOI-1: upstream's lower-case `aria-label="pagination"` becomes "Pagination", overridable with
+#     `label`, and the ellipsis's "More pages" is overridable with `morePagesLabel`.
+#   Otherwise NO STYLING HUNK. `PaginationLink` wears the `Button` recipe, which already carries
+#     this system's focus, cursor and disabled behaviour (Batch 2), so pagination inherits FOC-1,
 #     FOC-5, FOC-6 and FRM-4 rather than restating them. A11Y-2: audited — every control is a
 #     `Button` at `size="icon"` (32px) or `size="default"`, and `PaginationEllipsis` is
 #     `aria-hidden` and not a control. `pagination.test.tsx` measures both.
@@ -11,10 +17,10 @@
 #               reflows the file, and `registry-stamp.mjs` writes the provenance header the
 #               three-copy model needs (DOC-1); those hunks carry no decision of their own.
 diff --git a/pagination.tsx b/pagination.tsx
-index 6fec19a..0514146 100644
+index 6fec19a..f0e537e 100644
 --- a/pagination.tsx
 +++ b/pagination.tsx
-@@ -1,8 +1,12 @@
+@@ -1,19 +1,27 @@
 -import * as React from "react"
 -import { cn } from "cn"
 +import * as React from "react";
@@ -22,16 +28,25 @@ index 6fec19a..0514146 100644
  
 -import { Button } from "@/components/ui/button"
 -import { ChevronLeftIcon, ChevronRightIcon, MoreHorizontalIcon } from "lucide-react"
-+import { Button } from "@/components/ui/button";
++import { Button, buttonVariants } from "@/components/ui/button";
 +import {
 +  ChevronLeftIcon,
 +  ChevronRightIcon,
 +  MoreHorizontalIcon,
 +} from "lucide-react";
  
- function Pagination({ className, ...props }: React.ComponentProps<"nav">) {
+-function Pagination({ className, ...props }: React.ComponentProps<"nav">) {
++function Pagination({
++  className,
++  label = "Pagination",
++  ...props
++}: React.ComponentProps<"nav"> & { label?: string }) {
    return (
-@@ -13,7 +17,7 @@ function Pagination({ className, ...props }: React.ComponentProps<"nav">) {
+     <nav
+       role="navigation"
+-      aria-label="pagination"
++      aria-label={label}
+       data-slot="pagination"
        className={cn("mx-auto flex w-full justify-center", className)}
        {...props}
      />
@@ -40,7 +55,7 @@ index 6fec19a..0514146 100644
  }
  
  function PaginationContent({
-@@ -26,17 +30,17 @@ function PaginationContent({
+@@ -26,17 +34,17 @@ function PaginationContent({
        className={cn("flex items-center gap-0.5", className)}
        {...props}
      />
@@ -62,9 +77,32 @@ index 6fec19a..0514146 100644
  
  function PaginationLink({
    className,
-@@ -59,7 +63,7 @@ function PaginationLink({
-         />
-       }
+@@ -45,21 +53,17 @@ function PaginationLink({
+   ...props
+ }: PaginationLinkProps) {
+   return (
+-    <Button
+-      variant={isActive ? "outline" : "ghost"}
+-      size={size}
+-      className={cn(className)}
+-      nativeButton={false}
+-      render={
+-        <a
+-          aria-current={isActive ? "page" : undefined}
+-          data-slot="pagination-link"
+-          data-active={isActive}
+-          {...props}
+-        />
+-      }
++    <a
++      aria-current={isActive ? "page" : undefined}
++      data-slot="pagination-link"
++      data-active={isActive}
++      className={cn(
++        buttonVariants({ variant: isActive ? "outline" : "ghost", size }),
++        className,
++      )}
++      {...props}
      />
 -  )
 +  );
@@ -80,7 +118,7 @@ index 6fec19a..0514146 100644
  }
  
  function PaginationNext({
-@@ -95,7 +99,7 @@ function PaginationNext({
+@@ -95,28 +99,28 @@ function PaginationNext({
        <span className="hidden sm:block">{text}</span>
        <ChevronRightIcon data-icon="inline-end" className="rtl:rotate-180" />
      </PaginationLink>
@@ -89,7 +127,14 @@ index 6fec19a..0514146 100644
  }
  
  function PaginationEllipsis({
-@@ -108,15 +112,14 @@ function PaginationEllipsis({
+   className,
++  morePagesLabel = "More pages",
+   ...props
+-}: React.ComponentProps<"span">) {
++}: React.ComponentProps<"span"> & { morePagesLabel?: string }) {
+   return (
+     <span
+       aria-hidden
        data-slot="pagination-ellipsis"
        className={cn(
          "flex size-8 items-center justify-center [&_svg:not([class*='size-'])]:size-4",
@@ -100,15 +145,16 @@ index 6fec19a..0514146 100644
      >
 -      <MoreHorizontalIcon
 -      />
+-      <span className="sr-only">More pages</span>
 +      <MoreHorizontalIcon />
-       <span className="sr-only">More pages</span>
++      <span className="sr-only">{morePagesLabel}</span>
      </span>
 -  )
 +  );
  }
  
  export {
-@@ -127,4 +130,4 @@ export {
+@@ -127,4 +131,4 @@ export {
    PaginationLink,
    PaginationNext,
    PaginationPrevious,

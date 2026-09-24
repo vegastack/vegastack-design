@@ -896,7 +896,8 @@
         "@vegastack/editable-cell",
         "@vegastack/load-more",
         "@vegastack/table",
-        "@vegastack/use-announcer"
+        "@vegastack/use-announcer",
+        "@vegastack/truncated-text"
       ],
       "files": [
         {
@@ -924,7 +925,8 @@
       "registryDependencies": [
         "@vegastack/data-table-parts",
         "@vegastack/load-more",
-        "@vegastack/table"
+        "@vegastack/table",
+        "@vegastack/truncated-text"
       ],
       "files": [
         {
@@ -950,6 +952,7 @@
         "@vegastack/design-tokens@^0.7.1"
       ],
       "registryDependencies": [
+        "@vegastack/button",
         "@vegastack/data-table-parts",
         "@vegastack/pagination",
         "@vegastack/select",
@@ -963,7 +966,7 @@
         }
       ],
       "meta": {
-        "whenToUse": "Paging a DataList (or any host-paged list): the range, rows-per-page, and page controls in its footer slot, with page state owned by the host.",
+        "whenToUse": "Paging a DataList (or any host-paged list) in place: the range, an optional rows-per-page chooser (omit onPageSizeChange for a fixed size), and page buttons in its footer slot, with page state owned by the host.",
         "whenNotToUse": "Keyset or cursor paging with no total (LoadMore, or DataList's and DataGrid's loadMore), or bare page links with no page-size choice (Pagination).",
         "version": "0.18.0"
       }
@@ -12255,7 +12258,7 @@
         }
       ],
       "meta": {
-        "whenToUse": "Navigate paged content — a long list/table split across numbered pages.",
+        "whenToUse": "Navigate paged content with real URLs — a long list/table split across numbered pages; every page control is a link.",
         "whenNotToUse": "Infinite scroll / 'load more' feeds, or tab-style switching.",
         "version": "0.18.0"
       }

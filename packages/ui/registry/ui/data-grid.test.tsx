@@ -1065,3 +1065,41 @@ test("a failed load keeps the rows and offers Try again (DS-30)", async () => {
   ).toBeGreaterThan(0);
   await expectNoA11yViolations(screen.container);
 });
+
+test("DS-01: a mono column's header is sans; its body cells are mono", async () => {
+  const screen = await render(
+    <DataGrid
+      aria-label="Deals"
+      columns={columns({ mono: true })}
+      data={DEALS}
+      getRowId={(d) => d.id}
+    />,
+  );
+  const header = [...document.querySelectorAll('[role="columnheader"]')].find(
+    (el) => el.textContent?.includes("Amount"),
+  )!;
+  expect(header.className).not.toContain("font-mono");
+  expect(header.className).toContain("tabular-nums");
+  const cell = screen.getByRole("gridcell", { name: "300" }).element();
+  expect(cell.className).toContain("font-mono");
+});
+
+test("DS-68: a timestamp in a grid cell is not a tab stop", async () => {
+  const { RelativeTime } = await import("./relative-time");
+  const NOW = Date.UTC(2026, 8, 24, 12);
+  await render(
+    <DataGrid
+      aria-label="Deals"
+      columns={columns({
+        render: (d: Deal) => (
+          <RelativeTime date={NOW - d.amount * 60_000} now={NOW} />
+        ),
+      })}
+      data={DEALS}
+      getRowId={(d) => d.id}
+    />,
+  );
+  const times = document.querySelectorAll("time");
+  expect(times.length).toBe(3);
+  for (const time of times) expect(time.getAttribute("tabindex")).toBeNull();
+});

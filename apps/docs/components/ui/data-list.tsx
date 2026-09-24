@@ -1,4 +1,4 @@
-// @vegastack data-list@0.18.0 sha256-x9ocAGf+0RMSdo1tFcU5K2cIA5KX/eSUEUzOH5uL/40=
+// @vegastack data-list@0.18.0 sha256-YFXwPjizKXmZpeA9nP/UhI91Bdp8cNsbQ4Vg12h7M6Y=
 
 "use client";
 
@@ -32,6 +32,7 @@ import {
   type DataTableColumnMobile,
   type SortDirection,
 } from "@/components/ui/data-table-parts";
+import { TruncationFocusProvider } from "@/components/ui/truncated-text";
 
 export type { DataTableColumnMobile, SortDirection };
 
@@ -329,7 +330,8 @@ function isFromInteractiveDescendant(
  *     { key: 'name', header: 'Name', sortable: true },
  *     { key: 'email', header: 'Email' },
  *     { key: 'amount', header: 'Amount', align: 'end', sortable: true,
- *       render: (r) => <span className="font-mono">{r.amount}</span> },
+ *       className: 'tabular-nums' },
+ *     { key: 'ref', header: 'Reference', mono: true },
  *   ]}
  *   data={sortRows(rows, sort)}
  *   getRowId={(r) => r.id}
@@ -348,7 +350,7 @@ function isFromInteractiveDescendant(
  *   getRowId={(r) => r.id}
  *   onRowClick={(row) => router.push(`/users/${row.id}`)}
  *   toolbar={<SearchInput value={q} onValueChange={setQ} />}
- *   footer={<Pagination page={page} onPageChange={setPage} />}
+ *   footer={<DataListPager page={page} pageSize={25} total={total} onPageChange={setPage} />}
  * />
  */
 export function DataList<T>({
@@ -543,7 +545,10 @@ export function DataList<T>({
     ) : null;
 
   const table = (
-    <>
+    // DS-68: a list owns its keyboard model — a row link or a row click, not one tab stop per
+    // clipped value or timestamp — so truncated text and RelativeTime in the cells are not tab
+    // stops. A cell can opt back in with its own `focusable`.
+    <TruncationFocusProvider focusable={false}>
       {loadingStatus}
       <Table
         ref={tableRef}
@@ -700,7 +705,7 @@ export function DataList<T>({
         </TableBody>
       </Table>
       {statusLines}
-    </>
+    </TruncationFocusProvider>
   );
 
   // ONE root in every configuration. The status lines (and the sr-only loading

@@ -127,6 +127,16 @@ both the visible label and the accessible name.
 />
 ```
 
+### Without page size
+
+Omit `onPageSizeChange` for a fixed page size: the pager shows the range and the page controls, and
+no rows-per-page chooser.
+
+<ComponentPreview
+  name="dataListPagerFixedSize"
+  file="components/preview/data-list-pager.tsx"
+/>
+
 ## API Reference
 
 <ApiTable
@@ -139,8 +149,9 @@ both the visible label and the accessible name.
 
 ## Accessibility
 
-- The page controls are upstream's `Pagination`: a `navigation` landmark named _pagination_, each
-  page link named _Go to page N_, and the current page marked `aria-current="page"`.
+- The page list is a `navigation` landmark named _Pagination_. Its controls are **buttons** — they
+  change the page in place rather than navigating — each page named _Go to page N_, with the current
+  page marked `aria-current="page"`.
 - Previous and Next stay in the tab order at either end. They carry `aria-disabled="true"` and do
   nothing when activated, rather than disappearing or dropping pointer events.
 - The rows-per-page `Select` is named by its visible label (`aria-labelledby`), so the name a screen
