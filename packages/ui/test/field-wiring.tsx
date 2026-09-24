@@ -29,8 +29,11 @@ type Screen = Awaited<ReturnType<typeof render>>;
  * and each control's suite calls this with a render function and a locator.
  *
  * Explicit props: an explicit `id` wins outright; an explicit `aria-describedby` keeps its ids
- * FIRST and the Field's rendered message ids follow, de-duplicated — Base UI's own merge, which
- * the engine controls carry with no hunk (ruling recorded on Regent #137).
+ * FIRST and the Field's rendered message ids follow, de-duplicated; and while the Field is
+ * invalid the control is `aria-invalid` whatever its own prop says — Base UI's own merge, which
+ * the engine controls carry with no hunk (ruling recorded on Regent #137). For a Slider and a
+ * RadioGroup the explicit props land on the root, so the aria-invalid case there checks only that
+ * the Field's state reaches the focusable element.
  */
 export function fieldWiringTests({
   name,
@@ -139,9 +142,16 @@ export function fieldWiringTests({
       // …and that element is the control, or the hidden native input that belongs to it.
       const target = document.getElementById("wired-explicit");
       expect(target).not.toBeNull();
+      // The label labels exactly that element (when it is a labelable element — TextEdit's
+      // contenteditable is not, and is named through `aria-labelledby` instead)…
+      if (target!.matches("button, input, select, textarea")) {
+        expect((label as HTMLLabelElement).control).toBe(target);
+      }
+      // …which is the control itself, or a native input inside the control's own wrapper.
       expect(
         target === control.element() ||
-          control.element().parentElement!.contains(target),
+          (target !== control.element().parentElement &&
+            control.element().parentElement!.contains(target)),
       ).toBe(true);
     }
     const description = screen.container.querySelector(
