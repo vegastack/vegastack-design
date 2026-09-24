@@ -49,28 +49,37 @@ export default function RootLayout({
 
 ## Examples
 
-### Theme toggle
+### Theme choice
 
 `useVegaStackTheme()` (exported from the same file) is a thin wrapper over
-next-themes' `useTheme()` — use it anywhere below the provider:
+next-themes' `useTheme()` — use it anywhere below the provider. Theme is a user preference, so it
+belongs in the user menu as a radio group bound to `theme`, not in a local toggle:
 
 ```tsx
 "use client";
 import { useVegaStackTheme } from "@/components/ui/provider";
-import { Button } from "@/components/ui/button";
+import {
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
+} from "@/components/ui/dropdown-menu";
 
-export function ThemeToggle() {
-  const { resolvedTheme, setTheme } = useVegaStackTheme();
+export function ThemeRadioItems() {
+  const { theme, setTheme } = useVegaStackTheme();
   return (
-    <Button
-      variant="ghost"
-      onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
+    <DropdownMenuRadioGroup
+      value={theme ?? "system"}
+      onValueChange={(value) => setTheme(value)}
     >
-      Toggle theme
-    </Button>
+      <DropdownMenuRadioItem value="light">Light</DropdownMenuRadioItem>
+      <DropdownMenuRadioItem value="dark">Dark</DropdownMenuRadioItem>
+      <DropdownMenuRadioItem value="system">System</DropdownMenuRadioItem>
+    </DropdownMenuRadioGroup>
   );
 }
 ```
+
+The whole user menu, with these items in a **Theme** submenu, is in
+[Provider setup](/docs/guides/provider-setup#theme-choice-in-the-user-menu).
 
 ### Tooltip coordination
 
@@ -128,6 +137,6 @@ full-page transition flash on theme switch, complementing the global
 ## Do / Don't
 
 <DoDont
-  do="Mount VegaStackProvider once at the app root and build your theme toggle on useVegaStackTheme."
+  do="Mount VegaStackProvider once at the app root, and offer theme as a Light / Dark / System radio group in the user menu, bound to useVegaStackTheme."
   dont="Nest providers or mount a second Toaster — toasts will double-render; pass toaster={false} instead."
 />

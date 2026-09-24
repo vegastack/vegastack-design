@@ -114,10 +114,10 @@ export function excluded() {
 /**
  * The decision register, machine-readable.
  *
- * The prose register (`docs/plans/2026-09-18-shadcn-reset/decisions.md`, 170 rows) is an untracked
- * planning document by MK's instruction, so a committed gate cannot read it. `decisions.json` is
- * its committed derivative and the authority the gates use; `parseDecisionsMarkdown` below
- * regenerates it when the plan file is present.
+ * The prose register (`docs/plans/2026-09-18-shadcn-reset/decisions.md`) is tracked in git and is
+ * the authority for each row's wording; `decisions.json` is its generated machine copy and what
+ * the gates read, so a gate never parses prose. `parseDecisionsMarkdown` below regenerates it
+ * (`verify-parity.mjs --sync-decisions`); never quote its row count from here.
  */
 export function decisions() {
   return readJson(join(UPSTREAM_DIR, "decisions.json")).decisions;

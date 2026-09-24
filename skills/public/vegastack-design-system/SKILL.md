@@ -58,25 +58,80 @@ link` (upstream's set, verbatim). `destructive` is a soft tint, not a solid red 
   control height — `Chip` (`sm`/`md`, the inline and control pill scales), `StatusIcon`, `Stat` and
   `Image`'s corner — and they say so on their own pages.
 - **Compose `app-shell`** for a sidebar + header + main layout — never hand-roll the landmark trio.
+- **Space a page with the page-rhythm recipe** — gutters `px-4 py-6` / `md:px-8 md:py-8`,
+  `gap-6` under `PageHeader`, `gap-8` between sections, `gap-3` from a section heading or a list
+  toolbar to its content, `--card-spacing` inside a card, and `FieldGroup`'s own gaps in a form
+  (<https://design.vegastack.com/docs/foundations/spacing#page-rhythm>).
 - **`select`** for a short fixed option set; **`searchable-select`** when the list is long enough to
   need a search field (it is the preset `country-select` and `region-select` are built from — reach
   for it before composing `combobox` by hand); **`combobox`** directly only for free text,
   suggestions or multi-select chips.
-- **`toggle-group`** with `spacing={0}` for 2–5 exclusive options inline; **`tabs`** when the
-  choice switches page regions.
+- **One view-switch rule.** A form value is a **`radio-group`**. An immediate view or scope switch
+  over the same content (Mine | Team, All | Unread, Grid | List) is a single-select
+  **`toggle-group`** that always keeps one item pressed — ignore the empty value in
+  `onValueChange` — with `spacing={0}` for 2–5 options inline. Swapping in-page regions is
+  **`tabs`**; moving between URLs is navigation — links, not `tabs` (a route-tabs recipe is
+  not shipped yet).
+- **Empty is tiered** — nothing yet, no matches ("Clear filters"), couldn't load (`role="alert"`,
+  "Try again"), blocked. Pick the tier from the empty-state foundation
+  (<https://design.vegastack.com/docs/foundations/empty-states>); never leave a region blank.
 - **`alert`** for an in-content notice — `variant` is `default · destructive · success · warning ·
 info`, each an ink on the `card` surface with a required icon; **`announcement-banner`** only for
   the full-width inverse strip at the very top of the page.
 - **`chip` is the ONE pill** — `hue` × `size` (`sm` inline · `md` control-scale) × `active`, with
-  `onRemove` giving a real 24×24 remove control. `Tag`, `FilterChip` and `ComboboxChip` are that
-  primitive composed through `render`; never hand-roll a pill with its own height, radius, or a
-  sub-24px `×`. A **`badge`** is the different job: status, never removable, never a selection.
+  `onRemove` giving a real 24×24 remove control. `Tag` and `FilterChip` wrap that primitive; `ComboboxChip` is Base UI's own chip and does not share its geometry
+  yet. Never hand-roll a pill with its own height, radius, or a sub-24px `×`. A **`badge`** is the different job: status, never removable, never a selection.
 - **`useAnnouncer` is the one live region** — destructure `announce` and `Announcer` from it and
   render ONE `Announcer` element per component, mounted for its life. It keeps the region observed from first paint
   and re-keys it per call, so repeating an identical string still announces. Do not hand-roll a
   `role="status"` node with a `{text, seq}` counter.
+- **Theme choice lives in the user menu** — a `DropdownMenuRadioGroup` of Light, Dark and System
+  bound to `theme` and `setTheme` from `useVegaStackTheme()`. There is no `theme-toggle` registry
+  item yet (a known gap); do not hand-roll a local toggle button.
 - **`code-block`** for static syntax-highlighted source; **`terminal`** for command sessions.
 - **`navigation-menu`** is top-level site navigation with panels, not a menu inside a page.
+
+### Names hide abilities
+
+A component's name undersells it. Before composing something by hand, check this list:
+
+| Component                                              | What it already does                                                                                                                                                    |
+| ------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Command`                                              | Renders inline as well as in `CommandDialog`. An item's check mark is `data-checked` — visual only, so it is not a form value.                                          |
+| `Combobox`                                             | `multiple` with `ComboboxChips`; `filter={null}` hands filtering to your server.                                                                                        |
+| `SearchableSelect`                                     | The Select-shaped search picker, with `clearable`. Single-select today.                                                                                                 |
+| `Item`                                                 | A link tile with `render={<a />}`; `ItemGroup` gives a set of items list semantics.                                                                                     |
+| `DialogContent`                                        | `size`: `sm · default · lg · xl`. Never a width class.                                                                                                                  |
+| `DataList`                                             | Per-column `mobile` (`merge` · `visible` · `hidden`) and `minWidth`. `DataGrid` adds editing, multi-key sort and a column picker; `Table` is static markup.             |
+| `FilterBar` / `FilterBuilder`                          | `FilterBar` is a flat chip row with search; `FilterBuilder` (the `filter-bar-managed` item) edits a nested and/or tree over your field vocabulary. Both are controlled. |
+| `Stat`                                                 | `StatDelta` for change, `StatEmpty` for nothing to report.                                                                                                              |
+| `PropertyList` · `DataList` · `SettingsRow`            | A record's facts · many records · one setting with its control.                                                                                                         |
+| `ActionBar`                                            | The docked bar for bulk selection ("5 selected"), unsaved changes and batch progress.                                                                                   |
+| `TruncatedText` · `IconText` · `TableCellText`         | Overflow detection, hover and keyboard reveal, and tap-to-toggle on touch.                                                                                              |
+| `RelativeTime`                                         | `mode="ago"` ("3 minutes ago") or `mode="day"` ("Yesterday").                                                                                                           |
+| `EditableCell` · `AutoSaveInput` · `useInlineEdit`     | Click-to-edit in a table · a field that saves as you type, with its status · the hook `EditableCell` is built on.                                                       |
+| `AttachmentGroup` · `Dropzone` · `useFileDrop`         | A file list with per-file state · a drop target · the drop and paste engine.                                                                                            |
+| `PageHeader`                                           | Title, description, `breadcrumb`, a back link (`backHref`) and `actions`.                                                                                               |
+| `MultiStepForm` · `Stepper` · `Questionnaire` · `Tabs` | A form in steps · progress display (`navigable` on request) · one question at a time · peer regions.                                                                    |
+| `NativeSelect`                                         | The platform `<select>`, so a touch device opens its own picker.                                                                                                        |
+| `Board`                                                | A column's `lockedReason` explains why it cannot take a card.                                                                                                           |
+| `AudioPlayer`                                          | `mediaRef` to drive playback, a transcript button and a waveform.                                                                                                       |
+| `Tabs`                                                 | `TabsList variant="line"` and `Tabs orientation="vertical"`.                                                                                                            |
+| `MessageScroller`                                      | `defaultScrollPosition` (`start` · `end` · `last-anchor`), `scrollToMessage` from `useMessageScroller()`, and `useMessageScrollerVisibility()`.                         |
+
+### Which component for X
+
+- **A page** → `AppShell` › `AppShellContent` › `PageHeader` › `FilterBar` › `DataList` (or
+  `DataGrid`) › the `Empty` tier that fits. The spacing between them is the page-rhythm recipe
+  (<https://design.vegastack.com/docs/foundations/spacing#page-rhythm>).
+- **A record's details** → `PropertyList`, in `Card` sections titled with an `h2` in `CardTitle`.
+- **Settings** → `SettingsSection` › `SettingsCard` › `SettingsRow`.
+- **A button that navigates** → `<Link className={buttonVariants()}>` (see Composition patterns).
+- **A status** → `Badge` with a status `variant`; an in-content notice → `Alert`.
+- **A metric** → `Stat`.
+- **A confirmation that interrupts** → `AlertDialog`; a form or detail in an overlay → `Dialog` or
+  `Sheet`.
+- **Feedback after an action** → `toast.add({ title })`.
 
 ## Tokens
 
@@ -174,12 +229,14 @@ contract.
   inside a portal + positioner. Theme, toast, tooltip, and direction providers all come from
   `<VegaStackProvider>`; your app root needs `isolation: isolate` or portaled popups can render under
   page chrome.
-- **Compound parts import flat** — `import { DialogTrigger, DialogContent }`. Sub-property access
-  (`<Dialog.Trigger>`) only works inside a `'use client'` file, because across the RSC boundary the
-  compound is a client-reference proxy and the sub-property is `undefined`.
-- **Polymorphism** uses Base UI's `render` prop, never Radix's `asChild`. When `render` swaps a
-  button-like component's element for a non-button (e.g. `Button render={<Link/>}`), also pass
-  `nativeButton={false}` — Base UI warns otherwise.
+- **Compound parts are flat exports** — `import { DialogTrigger, DialogContent }`. There is no
+  `Dialog.Trigger`: the parts are separate named exports, never sub-properties of the root.
+- **Polymorphism** uses Base UI's `render` prop, never Radix's `asChild`.
+- **A link that looks like a button is a link** — one recipe:
+  `<Link href="…" className={buttonVariants({ variant, size })}>`. Never
+  `Button render={<Link/>} nativeButton={false}`: Base UI sets `role="button"` on a non-native
+  element, so navigation announces as an action. `buttonVariants` comes from a module with no
+  `'use client'`, so a Server Component uses it directly.
 
 ## Do / Don't
 
@@ -192,6 +249,10 @@ contract.
 - Implement every applicable state: default, hover, focus, loading, empty, error, success, disabled.
 - Put `truncate` on an inner span, with `min-w-0` on the flex container.
 - Let the parent decide a form control's width — every control is `w-full`.
+- Set numbers — counts, dates, amounts, quantities — in the regular font with `tabular-nums`, and
+  right-align a numeric column. `font-mono` is for code and identifiers (`SYS-1042`) only.
+- Title a page with `PageHeader` (`font-heading text-2xl font-semibold`); a section heading is
+  `font-heading text-base font-medium`, a group label `text-xs font-medium text-muted-foreground`.
 - Reach for a plain Tailwind utility for size, radius, shadow, z-index, alpha, weight and motion:
   `h-8`, `size-4`, `rounded-xl`, `shadow-md`, `z-50`, `bg-foreground/10`, `opacity-50`,
   `font-semibold`, `transition-colors duration-100 ease-in-out` are all on-system now.
@@ -219,19 +280,19 @@ contract.
   silently renders as body text. `vegastack-design doctor` scans your source and lists every
   occurrence with `file:line`; run it after any upgrade or generated change.
 
-  | Retired                                                    | Write instead                                                                       |
-  | ---------------------------------------------------------- | ----------------------------------------------------------------------------------- |
-  | `text-h1` · `text-h2` · `text-h3` · `text-h4`              | `text-3xl` · `text-2xl` · `text-lg` + `font-semibold`; `text-base font-medium`      |
-  | `text-label` · `text-label-sm` · `text-strong`             | `text-sm font-medium` · `text-xs font-medium` · `text-sm font-semibold`             |
-  | `text-mono-label` · `text-code` · `text-code-sm`           | `text-xs font-medium` (a label is sans) · `font-mono text-sm` · `font-mono text-xs` |
-  | `text-display-{sm,md,lg,xl}`                               | `text-4xl` · `text-5xl` · `text-6xl` · `text-7xl`                                   |
-  | `bg-{destructive,success,warning,info}-subtle`             | `bg-destructive/10` (the family at `/10`), `-text` ink on it                        |
-  | `--alpha-*` · `--opacity-*`                                | the literal: `bg-foreground/10`, `opacity-50`                                       |
-  | `--z-*`                                                    | `z-10` (raised) · `z-50` (every overlay; DOM order decides)                         |
-  | `shadow-overlay` · `backdrop-blur-glass`                   | `shadow-md` (popover) / `shadow-lg` (modal) · delete it                             |
-  | `icon-button` · `segmented`                                | `Button size="icon"` + `aria-label` · joined `ToggleGroup`                          |
-  | `progress-indicator` · `field-inline` · `floating-surface` | `Progress` / `Spinner` · `EditableCell` · `Popover`                                 |
-  | `section-header` · `sonner`                                | your own heading markup · `toast` (`toast.add({ title })`)                          |
+  | Retired                                                    | Write instead                                                                                                           |
+  | ---------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
+  | `text-h1` · `text-h2` · `text-h3` · `text-h4`              | `PageHeader` (page) · `font-heading text-base font-medium` (section) · `text-lg font-semibold`; `text-base font-medium` |
+  | `text-label` · `text-label-sm` · `text-strong`             | `text-sm font-medium` · `text-xs font-medium` · `text-sm font-semibold`                                                 |
+  | `text-mono-label` · `text-code` · `text-code-sm`           | `text-xs font-medium` (a label is sans) · `font-mono text-sm` · `font-mono text-xs`                                     |
+  | `text-display-{sm,md,lg,xl}`                               | `text-4xl` · `text-5xl` · `text-6xl` · `text-7xl`                                                                       |
+  | `bg-{destructive,success,warning,info}-subtle`             | `bg-destructive/10` (the family at `/10`), `-text` ink on it                                                            |
+  | `--alpha-*` · `--opacity-*`                                | the literal: `bg-foreground/10`, `opacity-50`                                                                           |
+  | `--z-*`                                                    | `z-10` (raised) · `z-50` (every overlay; DOM order decides)                                                             |
+  | `shadow-overlay` · `backdrop-blur-glass`                   | `shadow-md` (popover, menu) · `shadow-lg` (sheet, submenu, toast) · none on a dialog · delete it                        |
+  | `icon-button` · `segmented`                                | `Button size="icon"` + `aria-label` · joined `ToggleGroup`                                                              |
+  | `progress-indicator` · `field-inline` · `floating-surface` | `Progress` / `Spinner` · `EditableCell` · `Popover`                                                                     |
+  | `section-header` · `sonner`                                | your own heading markup · `toast` (`toast.add({ title })`)                                                              |
 
 ## Reference
 

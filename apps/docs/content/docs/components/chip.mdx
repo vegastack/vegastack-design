@@ -23,7 +23,7 @@ import { Chip } from "@/components/ui/chip";
 </Chip>;
 ```
 
-`Chip` is the primitive behind `Tag`, `FilterChip`, `ChipInput`'s chips and `ComboboxChip`.
+`Chip` is the primitive behind `Tag`, `FilterChip` and `ChipInput`'s chips (`ComboboxChip` is not — see below).
 Reach for it directly when you need a labelled pill that none of those already is; reach for
 the named component when one of them fits, so the page keeps its vocabulary.
 
@@ -69,8 +69,8 @@ selection takes. It is ignored for a chromatic hue, whose tint already carries t
 
 ### Composing another engine's chip
 
-A chip whose behaviour belongs to another primitive keeps that primitive and wears this
-geometry through Base UI `render`. That is exactly how `ComboboxChip` works:
+A chip whose behaviour belongs to another primitive can keep that primitive and wear this
+geometry through Base UI `render`:
 
 ```tsx
 <Chip size="sm" active render={<Combobox.Chip />}>
@@ -78,6 +78,11 @@ geometry through Base UI `render`. That is exactly how `ComboboxChip` works:
   <ChipRemove aria-label="Remove Design" render={<Combobox.ChipRemove />} />
 </Chip>
 ```
+
+`ComboboxChip` does **not** do this today: it is upstream's file, which renders Base UI's own
+`Combobox.Chip` with its own classes, so a combobox chip does not share `Chip`'s geometry.
+Recomposing it on `Chip` is a known deviation, fixed when the file is next touched. `Tag` and
+`FilterChip` are the two parts that compose `Chip`.
 
 ### Chip vs Badge
 

@@ -4,7 +4,7 @@ description: Geist Sans + Geist Mono on Tailwind's stock sizes, with Geist's own
 audience: public
 ---
 
-The type system is **Geist** (sans UI and prose) and **Geist Mono** (code, data, tabular figures),
+The type system is **Geist** (sans UI and prose) and **Geist Mono** (code and identifiers),
 on **Tailwind's stock size scale**. Hierarchy comes from size, weight and colour, and the utilities
 mean exactly what they mean everywhere else: `text-sm` is 14px, `text-base` is 16px.
 
@@ -77,16 +77,22 @@ in this system, and the `uppercase` utility is rejected outright rather than res
 transform rewrites whatever it is handed, which is how a token name like `--text-lg` once rendered
 as `--TEXT-LG`. If a string is uppercase, write it uppercase in the string.
 
-**Mono is for code, not for texture.** Geist Mono carries code, token names, identifiers and
-tabular figures. A section label, a count or a sentence is language, so it is `font-sans` — a small
-mono label reads technical, which is exactly why it is easy to reach for and wrong for prose.
+**Mono is for code and identifiers, not for texture and not for numbers.** Geist Mono carries code,
+token names and identifiers — a reference like `SYS-1042` or `T-88`. A section label or a sentence
+is language, so it is `font-sans` — a small mono label reads technical, which is exactly why it is
+easy to reach for and wrong for prose.
+
+**Numbers are in the regular font with tabular digits.** Counts, dates, amounts and quantities are
+`font-sans tabular-nums`: every digit takes the same width, so figures line up down a column and a
+ticking value does not jitter, without the technical read of mono. Right-align a numeric column.
+Only an identifier that happens to contain digits stays mono.
 
 ## Weight and roles
 
 There are no named role tokens. `text-h1`…`text-h4`, `text-label`, `text-code`, `text-mono-label`
 and the `text-display-*` tier were utilities that baked size, line-height, weight and tracking
 together; they are replaced by the two or three stock utilities each one stood for — a section
-title is `text-base font-medium`, a control label is `text-sm font-medium`, inline code is
+title is `font-heading text-base font-medium`, a control label is `text-sm font-medium`, inline code is
 `font-mono text-sm`.
 
 The 400/500 weight ladder is gone with them: `font-semibold` and `font-bold` are ordinary
@@ -94,21 +100,27 @@ utilities again, and upstream uses `font-medium` for titles and `font-semibold` 
 earns it. What has not changed is the judgement — at most two weights in one view, and colour
 does the rest of the hierarchy work.
 
-| Role                | Utilities                                 |
-| ------------------- | ----------------------------------------- |
-| Page heading        | `text-3xl font-semibold`                  |
-| Section heading     | `text-2xl font-semibold`                  |
-| Card / dialog title | `text-base font-medium`                   |
-| Control label       | `text-sm font-medium`                     |
-| Compact label       | `text-xs font-medium`                     |
-| Body                | `text-sm` (product) · `text-base` (prose) |
-| Inline code         | `font-mono text-sm`                       |
-| Compact numerals    | `font-mono text-xs`                       |
+| Role                | Utilities                                                                    |
+| ------------------- | ---------------------------------------------------------------------------- |
+| Page heading        | `font-heading text-2xl font-semibold`, through `PageHeader`                  |
+| Section heading     | `font-heading text-base font-medium` (an `h2`)                               |
+| Card / dialog title | `font-heading text-base font-medium`                                         |
+| Group label         | `text-xs font-medium text-muted-foreground`                                  |
+| Control label       | `text-sm font-medium`                                                        |
+| Compact label       | `text-xs font-medium`                                                        |
+| Body                | `text-sm` (product) · `text-base` (prose)                                    |
+| Inline code         | `font-mono text-sm`                                                          |
+| Numbers             | `tabular-nums` in the regular font — counts, dates, amounts, quantities      |
+| Identifiers         | `font-mono` — references and keys such as `SYS-1042`, never a count or a sum |
+
+**One page heading.** A page's title goes through `PageHeader`, at `font-heading text-2xl font-semibold`;
+never hand-size an `h1`. Below it, a section is `font-heading text-base font-medium` and a group
+label inside a list or a menu is `text-xs font-medium text-muted-foreground`.
 
 ## Font tokens
 
 - `--font-family-sans` → Geist (UI + prose)
-- `--font-family-mono` → Geist Mono (numbers, code, currency)
+- `--font-family-mono` → Geist Mono (code and identifiers; numbers use `tabular-nums` in Geist)
 - `--font-family-serif` → **Newsreader** serif accent (display emphasis and pull-quotes only, never running text)
 - `--font-family-display` → Geist display tier (a split token so a display face can be retuned independently)
 
@@ -153,6 +165,6 @@ the runtime font tokens in your global stylesheet (with system fallbacks):
 </Callout>
 
 <DoDont
-  do="Use the stock steps and let the ramp supply tracking and leading — text-sm product body, text-base prose, text-sm font-medium labels, font-mono for code and numbers, sentence case throughout."
+  do="Use the stock steps and let the ramp supply tracking and leading — text-sm product body, text-base prose, text-sm font-medium labels, tabular-nums for numbers, font-mono for code and identifiers, sentence case throughout."
   dont="Write your own tracking-*, an arbitrary text-[13px], an uppercase transform, or mono for running prose."
 />

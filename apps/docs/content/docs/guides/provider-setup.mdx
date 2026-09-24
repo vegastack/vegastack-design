@@ -52,33 +52,77 @@ Full component reference: [Provider](/docs/components/provider).
    `<VegaStackProvider toaster={false}>` — or replace it:
    `toaster={<Toaster position="top-center" />}`.
 
-## Theme toggle (copy-paste)
+## Theme choice in the user menu
 
-```tsx title="components/theme-toggle.tsx"
+Theme is a preference, so it lives where the other preferences do — in the user menu — as a radio
+group of **Light**, **Dark** and **System**. There is no theme-toggle component to install and no
+local toggle file to copy: the menu is composed from `dropdown-menu` and `useVegaStackTheme()`.
+
+```tsx title="components/user-menu.tsx"
 "use client";
-import { Moon, Sun } from "lucide-react";
 import { useVegaStackTheme } from "@/components/ui/provider";
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuPortal,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
+  DropdownMenuSeparator,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
-export function ThemeToggle() {
-  const { resolvedTheme, setTheme } = useVegaStackTheme();
-  const isDark = resolvedTheme === "dark";
+export function UserMenu({ name }: { name: string }) {
+  const { theme, setTheme } = useVegaStackTheme();
   return (
-    <Button
-      variant="ghost"
-      size="icon"
-      aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
-      onClick={() => setTheme(isDark ? "light" : "dark")}
-    >
-      {isDark ? <Sun /> : <Moon />}
-    </Button>
+    <DropdownMenu>
+      <DropdownMenuTrigger render={<Button variant="ghost" />}>
+        {name}
+      </DropdownMenuTrigger>
+      <DropdownMenuContent className="w-48">
+        <DropdownMenuGroup>
+          <DropdownMenuLabel>{name}</DropdownMenuLabel>
+          <DropdownMenuItem>Profile</DropdownMenuItem>
+        </DropdownMenuGroup>
+        <DropdownMenuSeparator />
+        <DropdownMenuSub>
+          <DropdownMenuSubTrigger>Theme</DropdownMenuSubTrigger>
+          <DropdownMenuPortal>
+            <DropdownMenuSubContent>
+              <DropdownMenuRadioGroup
+                value={theme ?? "system"}
+                onValueChange={(value) => setTheme(value)}
+              >
+                <DropdownMenuRadioItem value="light">
+                  Light
+                </DropdownMenuRadioItem>
+                <DropdownMenuRadioItem value="dark">Dark</DropdownMenuRadioItem>
+                <DropdownMenuRadioItem value="system">
+                  System
+                </DropdownMenuRadioItem>
+              </DropdownMenuRadioGroup>
+            </DropdownMenuSubContent>
+          </DropdownMenuPortal>
+        </DropdownMenuSub>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem>Sign out</DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }
 ```
 
-`resolvedTheme` is `undefined` until mounted (SSR can't know the system theme) —
-the component above is hydration-safe as written; don't branch on it during
-render for anything layout-affecting.
+Bind the group to `theme` (the user's choice, including `"system"`), never to `resolvedTheme` (the
+theme actually painted): a user who picked **System** should see **System** checked. `theme` is
+`undefined` until the provider mounts, so the group falls back to `"system"` — the default — and
+nothing layout-affecting branches on it during render. A command palette can offer the same three
+choices as items that call `setTheme`.
 
 Theme choice persists in `localStorage` automatically and follows the OS setting
 until the user picks explicitly (`defaultTheme="system"`).
