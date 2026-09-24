@@ -5,6 +5,7 @@ import { expect, test, vi } from "vitest";
 import { expectNoA11yViolations } from "../../test/a11y";
 import { fieldWiringTests } from "../../test/field-wiring";
 import { TextEdit } from "./text-edit";
+import { Field as BaseField } from "@base-ui/react/field";
 import { Field, FieldDescription, FieldError, FieldLabel } from "./field";
 
 // Tiptap mounts a real ProseMirror contenteditable, so these tests require the
@@ -427,6 +428,18 @@ test("DS-47: inside a Field the editor is labelled, described and invalid", asyn
         ?.hasAttribute("data-invalid"),
     )
     .toBe(true);
+});
+
+test("DS-47: a disabled Base UI Field disables the editor", async () => {
+  const screen = await render(
+    <BaseField.Root disabled>
+      <TextEdit aria-label="Summary" />
+    </BaseField.Root>,
+  );
+  const box = screen.getByRole("textbox", { name: "Summary" });
+  await expect.element(box).toHaveAttribute("aria-disabled", "true");
+  await expect.element(box).toHaveAttribute("contenteditable", "false");
+  expect(screen.container.querySelector('[role="toolbar"]')).toBeNull();
 });
 
 test("DS-47: an explicit aria-labelledby wins over the FieldLabel", async () => {

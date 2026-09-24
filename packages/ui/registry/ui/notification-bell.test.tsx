@@ -55,7 +55,7 @@ test('caps the displayed count at "99+"', async () => {
 test("dot mode renders an empty indicator instead of the number", async () => {
   const screen = await render(<NotificationBell count={5} dot />);
   const badge = screen.container.querySelector(
-    '[data-slot="notification-bell-dot"]',
+    '[data-slot="notification-dot"]',
   );
   expect(badge).not.toBeNull();
   expect(badge?.textContent).toBe("");
@@ -103,7 +103,7 @@ test("no a11y violations", async () => {
 
 const badgeOf = (container: HTMLElement) =>
   container.querySelector(
-    '[data-slot="notification-bell-badge"], [data-slot="notification-bell-dot"]',
+    '[data-slot="notification-bell-badge"], [data-slot="notification-dot"]',
   );
 
 test("does not animate static unread state on initial mount", async () => {
@@ -233,7 +233,7 @@ test("forwards ref to the underlying Button element", async () => {
 test("NotificationDot is a decorative primary dot by default", async () => {
   const screen = await render(<NotificationDot className="ms-auto" />);
   const dot = screen.container.querySelector<HTMLElement>(
-    '[data-slot="notification-bell-dot"]',
+    '[data-slot="notification-dot"]',
   )!;
   expect(dot).not.toBeNull();
   expect(dot).toHaveAttribute("aria-hidden", "true");
@@ -246,7 +246,7 @@ test("NotificationDot is a decorative primary dot by default", async () => {
 test('NotificationDot intent="destructive" is the destructive fill', async () => {
   const screen = await render(<NotificationDot intent="destructive" />);
   const dot = screen.container.querySelector<HTMLElement>(
-    '[data-slot="notification-bell-dot"]',
+    '[data-slot="notification-dot"]',
   )!;
   expect(dot.classList.contains("bg-destructive")).toBe(true);
   expect(dot.classList.contains("bg-primary")).toBe(false);
@@ -255,7 +255,7 @@ test('NotificationDot intent="destructive" is the destructive fill', async () =>
 test("the bell's dot mode is the shared NotificationDot, primary by default", async () => {
   const screen = await render(<NotificationBell count={2} dot />);
   const dot = screen.container.querySelector<HTMLElement>(
-    '[data-slot="notification-bell"] [data-slot="notification-bell-dot"]',
+    '[data-slot="notification-bell"] [data-slot="notification-dot"]',
   )!;
   expect(dot).not.toBeNull();
   expect(dot.classList.contains("bg-primary")).toBe(true);

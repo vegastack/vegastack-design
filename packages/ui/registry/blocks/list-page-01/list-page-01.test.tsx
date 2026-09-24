@@ -50,6 +50,9 @@ test("each empty tier shows its copy", async () => {
   await expectNoA11yViolations(document.body, ["color-contrast"]);
   await screen.getByRole("button", { name: "Clear filters" }).first().click();
   await expect.element(screen.getByText("Skyline Hotels")).toBeInTheDocument();
+  await expect
+    .element(screen.getByRole("searchbox", { name: "Search customers" }))
+    .toHaveFocus();
   await screen.unmount();
 
   const empty = await render(<CustomerList customers={[]} />);
@@ -62,10 +65,14 @@ test("each empty tier shows its copy", async () => {
   await empty.unmount();
 
   const failed = await render(
-    <CustomerList customers={CUSTOMERS} status="error" onRetry={() => {}} />,
+    <CustomerList
+      customers={CUSTOMERS}
+      error="Check your connection, then try again."
+      onRetry={() => {}}
+    />,
   );
   await expect
-    .element(failed.getByRole("heading", { name: "Couldn’t load customers." }))
+    .element(failed.getByRole("heading", { name: "Couldn’t load customers" }))
     .toBeInTheDocument();
   await expect
     .element(failed.getByRole("button", { name: "Try again" }))

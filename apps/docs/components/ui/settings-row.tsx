@@ -1,4 +1,4 @@
-// @vegastack settings-row@0.20.0 sha256-T2EwIyYftZCpvwjbz+9m0xZkTUJGdnnP5CqPRzGG4rI=
+// @vegastack settings-row@0.20.0 sha256-qy5VpY6lsbPoAfb69ptIHnMwVe7skaeagtu645vlEL0=
 
 import * as React from "react";
 import { cn } from "@vegastack/design";
@@ -83,7 +83,7 @@ export function SettingsSection({
           {title != null && (
             <TitleTag
               data-slot="settings-section-title"
-              className="text-base font-medium text-foreground"
+              className="font-heading text-base font-medium text-foreground"
             >
               {title}
             </TitleTag>

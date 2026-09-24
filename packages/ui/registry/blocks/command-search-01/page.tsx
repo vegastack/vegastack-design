@@ -1,4 +1,4 @@
-// @vegastack command-search-01@0.20.0 sha256-wlflkcS11d3GdasYSIv7MdSu8gd1YkSlV2AfhGS51zs=
+// @vegastack command-search-01@0.20.0 sha256-mM+u57OXPCKfiKiFGRTRtW59K5t8G7j6HKV7Vd0hG74=
 
 "use client";
 
@@ -11,7 +11,11 @@ import { AppShellPage } from "@/components/ui/app-shell";
 import { Button } from "@/components/ui/button";
 import { Kbd } from "@/components/ui/kbd";
 import { PageHeader } from "@/components/ui/page-header";
-import { formatShortcut, usePlatform } from "@/components/ui/use-platform";
+import {
+  formatShortcut,
+  isEditableTarget,
+  usePlatform,
+} from "@/components/ui/use-platform";
 
 /**
  * `command-search-01` — the search palette on a page: a Search button (and ⌘K / Ctrl+K) opening
@@ -28,6 +32,7 @@ export default function Page() {
 
   React.useEffect(() => {
     function onKeyDown(event: KeyboardEvent) {
+      if (event.defaultPrevented || isEditableTarget(event)) return;
       if (event.key.toLowerCase() === "k" && (event.metaKey || event.ctrlKey)) {
         event.preventDefault();
         setOpen((current) => !current);

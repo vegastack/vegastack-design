@@ -106,6 +106,13 @@ export default defineConfig({
       "embla-carousel-react",
       "@tiptap/react",
       "@tiptap/starter-kit",
+      "@tiptap/markdown",
+      // Base UI entry points registry sources import that no list above named: each was discovered
+      // mid-run on a cold cache and reloaded the page (text-edit: 40/45 failed cold).
+      "@base-ui/react",
+      "@base-ui/react/merge-props",
+      "@base-ui/react/toast",
+      "@base-ui/react/toolbar",
       "@base-ui/react/direction-provider",
       // next-themes (the provider's `useTheme`) — pre-bundle so it shares the single
       // deduped React copy (otherwise `useContext`/`useId` resolve a second React and

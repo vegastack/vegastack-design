@@ -1,4 +1,4 @@
-// @vegastack item@0.20.0 sha256-4GSJ1iqYf7ge161wAPT2FZCsyXAtuFCQ3WEQdzZp+cM=
+// @vegastack item@0.20.0 sha256-RsKJaGW2uMvMraax3OHzC6o+1mr1u/BP3tLQX0nWoug=
 
 "use client";
 
@@ -220,25 +220,28 @@ function ItemTitle({ className, ...props }: React.ComponentProps<"div">) {
  * API-19 — a row that owns an accessible description (a command option, a menu item, a select
  * option) provides a register function here; an `ItemDescription` inside it reports its `id`,
  * and the row points `aria-describedby` at it, so the second line is read as a description
- * rather than appended to the row's name. Outside such a row the context is `null` and the
- * description renders exactly as upstream's.
+ * rather than appended to the row's name: the registered description is `aria-hidden`, which
+ * keeps it out of the name computed from the row's content while `aria-describedby` still reads
+ * it. Outside such a row the context is `null` and the description renders exactly as upstream's.
  */
 const ItemDescriptionContext = React.createContext<
   ((id: string | undefined) => void) | null
 >(null);
 
 /**
- * API-19 — the row half of `ItemDescriptionContext`. Provide `register` as the context value
- * and set `aria-describedby={id || undefined}` on the row; `id` is `""` until a description
- * registers.
+ * API-19 — the row half of `ItemDescriptionContext`. Pass the caller's own `aria-describedby`,
+ * provide `register` as the context value and set `aria-describedby={id || undefined}` on the
+ * row; `id` is `""` until a description registers. A caller's own `aria-describedby` wins, and
+ * `register` is then `null`, so the description stays in the row's name as upstream renders it
+ * rather than being hidden with nothing pointing at it.
  */
-function useItemDescriptionId(): {
+function useItemDescriptionId(own?: string): {
   id: string;
-  register: (id?: string) => void;
+  register: ((id?: string) => void) | null;
 } {
   const [id, setId] = React.useState("");
   const register = React.useCallback((next?: string) => setId(next ?? ""), []);
-  return { id, register };
+  return { id, register: own ? null : register };
 }
 
 function ItemDescription({
@@ -259,6 +262,7 @@ function ItemDescription({
   return (
     <p
       id={register ? id : idProp}
+      aria-hidden={register ? true : undefined}
       data-slot="item-description"
       className={cn(
         "line-clamp-2 text-start text-sm leading-normal font-normal text-muted-foreground group-data-[size=xs]/item:text-xs [&>a]:underline [&>a]:underline-offset-4 [&>a:hover]:text-primary",

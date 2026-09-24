@@ -590,22 +590,25 @@ action keeps it in `SidebarMenuAction`, a separate control.
 
 ### Collapsible group
 
-A menu row can open a submenu. Render the row as a `CollapsibleTrigger`, which gives it
+A menu row can open a submenu. Render the `Collapsible` as the `SidebarMenuItem`, so the menu's
+`ul` keeps only `li` children, render the row as a `CollapsibleTrigger`, which gives it
 `aria-expanded`, and put the `SidebarMenuSub` in `CollapsibleContent`. Mark the current sub-page
 with `isActive` and `aria-current="page"` on its link.
 
 ```tsx
-<Collapsible defaultOpen className="group/collapsible">
-  <SidebarMenuItem>
-    <SidebarMenuButton render={<CollapsibleTrigger />}>
-      <SquareTerminal />
-      <span>Playground</span>
-      <ChevronRight className="ms-auto group-data-open/collapsible:rotate-90" />
-    </SidebarMenuButton>
-    <CollapsibleContent>
-      <SidebarMenuSub>{/* SidebarMenuSubItem rows */}</SidebarMenuSub>
-    </CollapsibleContent>
-  </SidebarMenuItem>
+<Collapsible
+  defaultOpen
+  className="group/collapsible"
+  render={<SidebarMenuItem />}
+>
+  <SidebarMenuButton render={<CollapsibleTrigger />}>
+    <SquareTerminal />
+    <span>Playground</span>
+    <ChevronRight className="ms-auto group-data-open/collapsible:rotate-90" />
+  </SidebarMenuButton>
+  <CollapsibleContent>
+    <SidebarMenuSub>{/* SidebarMenuSubItem rows */}</SidebarMenuSub>
+  </CollapsibleContent>
 </Collapsible>
 ```
 
@@ -669,8 +672,9 @@ renders the panel expanded and a collapsed sidebar would jump on hydration. Put
 `SidebarStateScript` in the root layout's `<head>`: before first paint it reads the cookie, marks
 `<html>` with `data-sidebar-state="collapsed"`, and gives the desktop panel the `data-state` and
 `data-collapsible` its own recipes already read, so it paints collapsed. Pass it the same
-`collapsible` as your `Sidebar`. The provider starts from that mark, so hydration agrees with the
-screen and React warns about nothing.
+`collapsible` as your `Sidebar`, and the request's `nonce` under a nonce-based Content Security
+Policy. The provider starts from that mark, so hydration agrees with the screen and React warns
+about nothing.
 
 For a controlled provider, `useSidebarCookieOpen` returns `[open, setOpen]`: it starts from the
 same mark, reads the cookie after hydration when there is no mark, and its setter writes the cookie

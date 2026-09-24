@@ -1,9 +1,9 @@
-// @vegastack audio-player@0.20.0 sha256-5Vam9UQbnMcBB1QJbzZMzO7W2Ru/hFADboYXFKcgBzs=
+// @vegastack audio-player@0.20.0 sha256-KuiLbnLuriReT5iKhzWWuJfWPqHmwAMucyZK0khIsuU=
 
 "use client";
 
 import * as React from "react";
-import { LoaderIcon, XIcon } from "lucide-react";
+import { XIcon } from "lucide-react";
 import { cn, mergeRefs } from "@vegastack/design";
 import { Button } from "@/components/ui/button";
 import {
@@ -11,6 +11,7 @@ import {
   clampTime,
   type MediaPlayerControlsProps,
 } from "@/components/ui/media-player-controls";
+import { Spinner } from "@/components/ui/spinner";
 import { useAnnouncer } from "@/components/ui/use-announcer";
 
 // Audio's tappable speed control cycles these in order, starting at 1x:
@@ -607,7 +608,12 @@ export function AudioPlayer({
           data-slot="audio-player-status"
           className="flex min-w-0 items-center gap-2 text-xs text-muted-foreground"
         >
-          <LoaderIcon aria-hidden="true" className="size-3.5 animate-spin" />
+          <Spinner
+            className="size-3.5"
+            aria-hidden
+            role={undefined}
+            aria-label={undefined}
+          />
           <span className="truncate">{loadingLabel}</span>
         </div>
       ) : null}

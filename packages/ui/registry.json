@@ -245,6 +245,7 @@
       "registryDependencies": [
         "@vegastack/button",
         "@vegastack/media-player-controls",
+        "@vegastack/spinner",
         "@vegastack/use-announcer"
       ],
       "files": [
@@ -15671,6 +15672,7 @@
       "categories": ["search", "navigation"],
       "dependencies": [
         "lucide-react@^1.47.0",
+        "@vegastack/design@^0.7.6",
         "@vegastack/design-tokens@^0.7.1"
       ],
       "registryDependencies": [
@@ -15681,6 +15683,7 @@
         "@vegastack/kbd",
         "@vegastack/page-header",
         "@vegastack/toggle-group",
+        "@vegastack/use-announcer",
         "@vegastack/use-platform"
       ],
       "files": [

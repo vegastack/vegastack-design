@@ -379,7 +379,7 @@ test("plugins receive the engine instance and are torn down with it (Plugins)", 
   await userEvent.click(screen.getByRole("button", { name: "Next slide" }));
   await expect.poll(() => reported).toBe(1);
   // And Embla tears it down when the carousel unmounts.
-  screen.unmount();
+  await screen.unmount();
   await expect.poll(() => calls).toEqual(["init", "destroy"]);
 });
 

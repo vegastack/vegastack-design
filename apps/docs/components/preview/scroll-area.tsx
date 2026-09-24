@@ -5,6 +5,7 @@ import { Wrapper } from "./wrapper";
 // Copied INTO apps/docs via `shadcn add @vegastack/scroll-area` (dogfoods the registry) → auto-scanned.
 import { Button } from "@/components/ui/button";
 import { DirectionProvider } from "@/components/ui/direction";
+import { usePrefersReducedMotion } from "@/components/ui/use-media-query";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 
@@ -148,12 +149,14 @@ export function scrollAreaNamedRegion(): ReactNode {
 
 export function scrollAreaProgrammatic(): ReactNode {
   const viewportRef = useRef<HTMLDivElement>(null);
+  // An explicit `behavior` beats the reduced-motion CSS reset, so ask for smooth only when allowed.
+  const reducedMotion = usePrefersReducedMotion();
   const scrollTo = (edge: "top" | "bottom") => {
     const viewport = viewportRef.current;
     if (!viewport) return;
     viewport.scrollTo({
       top: edge === "top" ? 0 : viewport.scrollHeight,
-      behavior: "smooth",
+      behavior: reducedMotion ? "auto" : "smooth",
     });
   };
   return (

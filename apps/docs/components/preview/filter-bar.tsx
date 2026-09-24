@@ -90,7 +90,7 @@ export function filterBar(): ReactNode {
         onAddFilter={add}
         trailing={
           filters.length > 0 ? (
-            <Button variant="ghost" size="sm" onClick={() => setFilters([])}>
+            <Button variant="ghost" onClick={() => setFilters([])}>
               Clear all
             </Button>
           ) : undefined

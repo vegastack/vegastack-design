@@ -41,7 +41,7 @@
 #               reflows the file, and `registry-stamp.mjs` writes the provenance header the
 #               three-copy model needs (DOC-1); those hunks carry no decision of their own.
 diff --git a/select.tsx b/select.tsx
-index e8a22e1..7ccfaae 100644
+index e8a22e1..298ed2d 100644
 --- a/select.tsx
 +++ b/select.tsx
 @@ -1,11 +1,35 @@
@@ -192,7 +192,7 @@ index e8a22e1..7ccfaae 100644
    children,
    ...props
  }: SelectPrimitive.Item.Props) {
-+  const description = useItemDescriptionId();
++  const description = useItemDescriptionId(props["aria-describedby"]);
    return (
 -    <SelectPrimitive.Item
 -      data-slot="select-item"

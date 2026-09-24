@@ -1,4 +1,4 @@
-// @vegastack list-page-01@0.20.0 sha256-z7H8gARnB3A2N0djTr6+/gg+CgebMo6DPZZpdyE+o0A=
+// @vegastack list-page-01@0.20.0 sha256-h4+qzhMR/YTlRRWTIJpUksuxOtUlF0QiQH5NbRbvAvE=
 
 import { Plus } from "lucide-react";
 
@@ -25,7 +25,7 @@ export default function Page() {
         title="Customers"
         description="Everyone you sell to, with their projects and status."
         actions={
-          <a href="/customers/new" className={buttonVariants({ size: "sm" })}>
+          <a href="/customers/new" className={buttonVariants()}>
             <Plus />
             New customer
           </a>

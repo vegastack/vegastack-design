@@ -74,9 +74,9 @@ test("layout and mode switch together at the boundary, and panels keep their sta
   expect(panels()).toHaveLength(3);
   expect([...panels()].filter((p) => !p.hidden)).toHaveLength(1);
   await expect
-    .element(screen.getByRole("tab", { name: "Action items (4)" }))
+    .element(screen.getByRole("tab", { name: "Action items 2" }))
     .toBeInTheDocument();
-  await screen.getByRole("tab", { name: "Action items (4)" }).click();
+  await screen.getByRole("tab", { name: "Action items 2" }).click();
   await expect
     .element(
       screen.getByRole("checkbox", {

@@ -1,4 +1,4 @@
-// @vegastack dropdown-menu@0.20.0 sha256-Y7Z2poCC0B3k61dyk0QNn0YH2ReRxhBHY3dXlD3s+TI=
+// @vegastack dropdown-menu@0.20.0 sha256-I5ozJbcjk4GX9oVgcdkhLoxe7GB2Eymbg4czirFUpNA=
 
 "use client";
 
@@ -105,7 +105,7 @@ function DropdownMenuItem({
   inset?: boolean;
   variant?: "default" | "destructive";
 }) {
-  const description = useItemDescriptionId();
+  const description = useItemDescriptionId(props["aria-describedby"]);
   return (
     <ItemDescriptionContext.Provider value={description.register}>
       <MenuPrimitive.Item
@@ -184,7 +184,7 @@ function DropdownMenuCheckboxItem({
 }: MenuPrimitive.CheckboxItem.Props & {
   inset?: boolean;
 }) {
-  const description = useItemDescriptionId();
+  const description = useItemDescriptionId(props["aria-describedby"]);
   return (
     <ItemDescriptionContext.Provider value={description.register}>
       <MenuPrimitive.CheckboxItem
@@ -229,7 +229,7 @@ function DropdownMenuRadioItem({
 }: MenuPrimitive.RadioItem.Props & {
   inset?: boolean;
 }) {
-  const description = useItemDescriptionId();
+  const description = useItemDescriptionId(props["aria-describedby"]);
   return (
     <ItemDescriptionContext.Provider value={description.register}>
       <MenuPrimitive.RadioItem

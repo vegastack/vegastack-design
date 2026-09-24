@@ -1,4 +1,4 @@
-// @vegastack use-drag-reorder@0.20.0 sha256-HCfDYY5eBp83SaLCFSwEvSr4aSeOVgTN/cLwT093MQg=
+// @vegastack use-drag-reorder@0.20.0 sha256-KGQ9x6arjw+RqNukQdwc3gHLXaf8tyxl+ddSd5PEA5g=
 
 "use client";
 
@@ -185,6 +185,12 @@ export interface UseDragReorderReturn {
     onBlur: () => void;
     "aria-pressed": boolean;
   };
+  /**
+   * Call before running an item's own action (a row menu's "Delete", say). If the action
+   * removes the item and focus falls to the page, focus moves to the handle of the item that
+   * took its place (or the new last item) instead.
+   */
+  keepFocusAfter: (container: string, id: string) => void;
   /**
    * Register a container element as a drop target (needed so items can be
    * dropped into an EMPTY container).
@@ -714,6 +720,31 @@ export function useDragReorder({
     ],
   );
 
+  // An item action that removes its own item takes the focused menu with it. After the commit,
+  // focus the handle now at its place (or the new last one) — but only if focus fell to the page,
+  // and only for an item whose action asked for it, so a poll never steals focus.
+  const refocus = React.useRef<{
+    container: string;
+    id: string;
+    index: number;
+  } | null>(null);
+  React.useEffect(() => {
+    const target = refocus.current;
+    if (!target) return;
+    const ids = listsRef.current[target.container] ?? [];
+    if (ids.includes(target.id)) {
+      // Not removed: the menu hands focus back to its trigger as usual.
+      if (document.activeElement !== document.body) refocus.current = null;
+      return;
+    }
+    refocus.current = null;
+    const focused = document.activeElement;
+    if (focused instanceof HTMLElement && focused !== document.body) return;
+    const next = ids[Math.min(target.index, ids.length - 1)];
+    if (next !== undefined)
+      handleElements.current.get(`${target.container}:${next}`)?.focus();
+  });
+
   // A cross-container keyboard move REMOUNTS the item under its new parent;
   // React fires no blur for an unmounted node, so move mode survives — but
   // focus lands on <body> and the session dies. After every render while a
@@ -773,6 +804,13 @@ export function useDragReorder({
       onBlur: () => endMoveMode(id),
       "aria-pressed": activeId === id,
     }),
+    keepFocusAfter: (container, id) => {
+      refocus.current = {
+        container,
+        id,
+        index: listsRef.current[container]?.indexOf(id) ?? 0,
+      };
+    },
     getContainerProps: (container) => ({
       ref: registerContainer(container),
       "data-drop-container": container,

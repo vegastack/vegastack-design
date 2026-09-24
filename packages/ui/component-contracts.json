@@ -2164,6 +2164,7 @@
       "registryDependencies": [
         "@vegastack/button",
         "@vegastack/media-player-controls",
+        "@vegastack/spinner",
         "@vegastack/use-announcer"
       ],
       "npmDependencies": [
@@ -7489,6 +7490,15 @@
           }
         },
         {
+          "name": "defaultActionsLabel",
+          "kind": "component-constant",
+          "source": "packages/ui/registry/ui/data-table-parts.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "component-constant symbols do not expose a rendered DOM instance or ref contract."
+          }
+        },
+        {
           "name": "headerCellClass",
           "kind": "function",
           "source": "packages/ui/registry/ui/data-table-parts.tsx",
@@ -7710,7 +7720,7 @@
           "attributes": [
             {
               "name": "data-slot",
-              "values": ["row-action", "row-actions-trigger"]
+              "values": ["row-actions-menu-action", "row-actions-menu-trigger"]
             }
           ],
           "cssVariables": []
@@ -10076,6 +10086,15 @@
           "ref": {
             "status": "not-applicable",
             "rationale": "Renders a composed part and takes no ref."
+          }
+        },
+        {
+          "name": "FilterBarFacetOwnProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/filter-bar.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -13838,7 +13857,7 @@
           "attributes": [
             {
               "name": "data-slot",
-              "values": ["notification-bell-dot"]
+              "values": ["notification-dot"]
             }
           ],
           "cssVariables": []
@@ -26362,11 +26381,13 @@
         "@vegastack/kbd",
         "@vegastack/page-header",
         "@vegastack/toggle-group",
+        "@vegastack/use-announcer",
         "@vegastack/use-platform"
       ],
       "npmDependencies": [
         "lucide-react@^1.47.0",
-        "@vegastack/design-tokens@^0.7.1"
+        "@vegastack/design-tokens@^0.7.1",
+        "@vegastack/design@^0.7.6"
       ],
       "testFiles": [
         "packages/ui/registry/blocks/command-search-01/command-search-01.test.tsx"

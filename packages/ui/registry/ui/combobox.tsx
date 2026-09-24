@@ -1,4 +1,4 @@
-// @vegastack combobox@0.20.0 sha256-Wd+wUvHogs7VATSu1Qta6IZ8Tcux0MZtXCpYC7qjQ3k=
+// @vegastack combobox@0.20.0 sha256-ryI2xtazqycD3WQP+5+9tbdMmk6VdsV0h6ZG5xJIDLk=
 
 "use client";
 
@@ -178,7 +178,7 @@ function ComboboxItem({
   children,
   ...props
 }: ComboboxPrimitive.Item.Props) {
-  const description = useItemDescriptionId();
+  const description = useItemDescriptionId(props["aria-describedby"]);
   return (
     <ItemDescriptionContext.Provider value={description.register}>
       <ComboboxPrimitive.Item

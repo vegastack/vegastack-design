@@ -30,7 +30,7 @@ function Controlled({
     | "actionsLabel"
     | "layout"
     | "renderItem"
-    | "menuItems"
+    | "getItemActions"
   >
 >) {
   const [items, setItems] = React.useState<SortableListItem[]>(
@@ -69,11 +69,11 @@ function rowLabels(): string[] {
   );
 }
 
-test("menuItems render above the Move items in the one row menu (DS-43)", async () => {
+test("getItemActions render above the Move items in the one row menu (DS-43)", async () => {
   const onRename = vi.fn();
   const screen = await render(
     <Controlled
-      menuItems={(item) => [
+      getItemActions={(item) => [
         { label: `Rename ${item.label}`, onSelect: onRename },
         { label: "Delete", destructive: true },
       ]}
@@ -85,12 +85,39 @@ test("menuItems render above the Move items in the one row menu (DS-43)", async 
   );
   expect(items.slice(0, 2)).toEqual(["Rename Beta", "Delete"]);
   expect(items).toContain("Move up");
-  (
-    [...document.querySelectorAll('[role="menuitem"]')].find(
-      (n) => n.textContent?.trim() === "Rename Beta",
-    ) as HTMLElement
-  ).click();
+  await screen.getByRole("menuitem", { name: "Rename Beta" }).click();
   expect(onRename).toHaveBeenCalledOnce();
+});
+
+test("a row action that deletes its row keeps focus in the list (DS-43)", async () => {
+  function Host() {
+    const [items, setItems] = React.useState<SortableListItem[]>([
+      { id: "a", label: "Alpha" },
+      { id: "b", label: "Beta" },
+      { id: "c", label: "Gamma" },
+    ]);
+    return (
+      <SortableList
+        aria-label="Stages"
+        items={items}
+        renderItem={(item) => <span>{item.label}</span>}
+        getItemActions={(item) => [
+          {
+            label: "Delete",
+            onSelect: () =>
+              setItems((prev) => prev.filter((i) => i.id !== item.id)),
+          },
+        ]}
+        onReorder={() => {}}
+      />
+    );
+  }
+  const screen = await render(<Host />);
+  await screen.getByRole("button", { name: "Actions for Beta" }).click();
+  await screen.getByRole("menuitem", { name: "Delete" }).click();
+  await expect
+    .element(screen.getByRole("button", { name: "Reorder Gamma" }))
+    .toHaveFocus();
 });
 
 test("renders a labelled list of items with handles and menus", async () => {
@@ -494,7 +521,7 @@ test("no a11y violations — grid and locked", async () => {
     </>,
   );
   await expectNoA11yViolations(grid.container);
-  grid.unmount();
+  await grid.unmount();
   const locked = await render(
     <Controlled
       initial={["Unit", "Colour"]}

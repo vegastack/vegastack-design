@@ -892,7 +892,7 @@ test("getItemActions render first in the card menu, then the Move items (DS-32)"
   );
   await userEvent.keyboard("{Tab}");
   const trigger = screen.getByRole("button", { name: "Actions for Acme" });
-  (trigger.element() as HTMLElement).click();
+  await trigger.click();
   await expect
     .poll(() => document.querySelectorAll('[role="menuitem"]').length)
     .toBeGreaterThan(1);

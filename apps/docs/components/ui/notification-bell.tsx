@@ -1,4 +1,4 @@
-// @vegastack notification-bell@0.20.0 sha256-6VOCAbHxOoTR0f9nJ/qjjRw2tfoLc0kAOri9PkRSDEE=
+// @vegastack notification-bell@0.20.0 sha256-JdgA7hdSavJwuk/JEPq7MUAY67gPsGnnWAcuIQlMWbs=
 
 "use client";
 
@@ -111,7 +111,7 @@ export function NotificationDot({
 }: NotificationDotProps) {
   return (
     <span
-      data-slot="notification-bell-dot"
+      data-slot="notification-dot"
       aria-hidden="true"
       className={cn(
         "inline-block size-2 shrink-0 rounded-full",

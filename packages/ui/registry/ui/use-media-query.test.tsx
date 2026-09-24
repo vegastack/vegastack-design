@@ -115,7 +115,7 @@ test("subscribes once and detaches the listener on unmount", async () => {
       .toHaveTextContent("true");
     expect(listenerCount()).toBe(1);
 
-    screen.unmount();
+    await screen.unmount();
     expect(listenerCount()).toBe(0);
   });
 });

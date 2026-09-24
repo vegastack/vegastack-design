@@ -183,7 +183,7 @@ decision — requirements §12), and each has a composition path:
     filters={chips}
     trailing={
       active.length > 0 && (
-        <Button variant="ghost" size="sm" onClick={clearAll}>
+        <Button variant="ghost" onClick={clearAll}>
           Clear all
         </Button>
       )
@@ -238,6 +238,17 @@ The controlled `search` config passed to `FilterBar`.
 <ApiTable
   path="../../packages/ui/registry/ui/filter-bar.tsx"
   name="FilterBarSearch"
+/>
+
+### FilterBarFacet
+
+`FilterBarFacet` passes `SearchableSelect`'s props through (minus the trigger face it owns:
+`renderItem`, `renderValue`, `renderTriggerValue`, `placeholder`, `variant`, `size`, `aria-label`
+and `groupBy`) and adds its own:
+
+<ApiTable
+  path="../../packages/ui/registry/ui/filter-bar.tsx"
+  name="FilterBarFacetOwnProps"
 />
 
 ## Accessibility

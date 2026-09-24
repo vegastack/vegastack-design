@@ -1,4 +1,4 @@
-// @vegastack relative-time@0.20.0 sha256-bO1PRyDRlKFgbCCyCY5/YtnNvhPFFVS/n7QHp6BbC3M=
+// @vegastack relative-time@0.20.0 sha256-XSR4JVRxh4qMWFlaqjA7e6AIe3IPT5N9TWVBVndaUoA=
 
 "use client";
 
@@ -121,10 +121,19 @@ function formatDay(
     return withTime ? `${word}, ${time}` : word;
   }
   const sameYear = ty === ny;
+  // `dateStyle`/`timeStyle` cannot be combined with component fields (`Intl` throws), so a style
+  // keeps its own year and takes the time as `timeStyle`.
+  const styled = "dateStyle" in formatOptions || "timeStyle" in formatOptions;
   return new Intl.DateTimeFormat(locale, {
     ...formatOptions,
-    ...(sameYear || "year" in formatOptions ? {} : { year: "numeric" }),
-    ...(withTime ? { hour: "numeric", minute: "2-digit" } : {}),
+    ...(styled || sameYear || "year" in formatOptions
+      ? {}
+      : { year: "numeric" }),
+    ...(withTime
+      ? styled
+        ? { timeStyle: formatOptions.timeStyle ?? "short" }
+        : { hour: "numeric", minute: "2-digit" }
+      : {}),
     timeZone: timeZone ?? formatOptions.timeZone,
   }).format(target);
 }

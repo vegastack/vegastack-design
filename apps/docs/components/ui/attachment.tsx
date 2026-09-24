@@ -1,4 +1,4 @@
-// @vegastack attachment@0.20.0 sha256-lL1X7tXt0vvzf2k0bbxzO2vUYQXd2xxUtldHJ8A/BtI=
+// @vegastack attachment@0.20.0 sha256-Hix6IgJFI3KxNTtRQBw7IAwtD2cRKkUCHj+45RwrCXs=
 
 "use client";
 
@@ -169,10 +169,11 @@ function AttachmentProgress({
       max={max}
       aria-label={ariaLabel}
       getAriaValueText={
-        value === null
+        value === null || !Number.isFinite(value)
           ? undefined
-          : (_formatted, current) =>
-              `${Math.round(((current ?? 0) / max) * 100)}%`
+          : // Base UI hands over the raw value; the spoken percent is clamped like the bar.
+            (_formatted, current) =>
+              `${Math.round((Math.min(Math.max(current ?? 0, 0), max) / max) * 100)}%`
       }
       className={cn(
         "w-full basis-full group-data-[orientation=vertical]/attachment:px-1",

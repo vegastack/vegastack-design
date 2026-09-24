@@ -11,7 +11,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { DirectionProvider } from "@/components/ui/direction";
 import {
   Tabs,
@@ -261,11 +260,11 @@ export function tabsCounts(): ReactNode {
         <TabsList variant="line">
           <TabsTrigger value="open">
             Open
-            <Badge variant="secondary">12</Badge>
+            <span className="text-muted-foreground tabular-nums">12</span>
           </TabsTrigger>
           <TabsTrigger value="review">
             In review
-            <Badge variant="secondary">3</Badge>
+            <span className="text-muted-foreground tabular-nums">3</span>
           </TabsTrigger>
           <TabsTrigger value="closed">Closed</TabsTrigger>
         </TabsList>

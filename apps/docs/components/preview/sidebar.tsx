@@ -150,30 +150,32 @@ export function sidebar(): ReactNode {
             <SidebarGroup>
               <SidebarGroupLabel>Platform</SidebarGroupLabel>
               <SidebarMenu>
-                <Collapsible defaultOpen className="group/collapsible">
-                  <SidebarMenuItem>
-                    <CollapsibleTrigger
-                      render={<SidebarMenuButton tooltip="Playground" />}
-                    >
-                      <SquareTerminal />
-                      <span>Playground</span>
-                      <ChevronRight className="ms-auto group-data-open/collapsible:rotate-90" />
-                    </CollapsibleTrigger>
-                    <CollapsibleContent>
-                      <SidebarMenuSub>
-                        <SidebarMenuSubItem>
-                          <SidebarMenuSubButton render={<a href="#history" />}>
-                            <span>History</span>
-                          </SidebarMenuSubButton>
-                        </SidebarMenuSubItem>
-                        <SidebarMenuSubItem>
-                          <SidebarMenuSubButton render={<a href="#starred" />}>
-                            <span>Starred</span>
-                          </SidebarMenuSubButton>
-                        </SidebarMenuSubItem>
-                      </SidebarMenuSub>
-                    </CollapsibleContent>
-                  </SidebarMenuItem>
+                <Collapsible
+                  defaultOpen
+                  className="group/collapsible"
+                  render={<SidebarMenuItem />}
+                >
+                  <CollapsibleTrigger
+                    render={<SidebarMenuButton tooltip="Playground" />}
+                  >
+                    <SquareTerminal />
+                    <span>Playground</span>
+                    <ChevronRight className="ms-auto group-data-open/collapsible:rotate-90" />
+                  </CollapsibleTrigger>
+                  <CollapsibleContent>
+                    <SidebarMenuSub>
+                      <SidebarMenuSubItem>
+                        <SidebarMenuSubButton render={<a href="#history" />}>
+                          <span>History</span>
+                        </SidebarMenuSubButton>
+                      </SidebarMenuSubItem>
+                      <SidebarMenuSubItem>
+                        <SidebarMenuSubButton render={<a href="#starred" />}>
+                          <span>Starred</span>
+                        </SidebarMenuSubButton>
+                      </SidebarMenuSubItem>
+                    </SidebarMenuSub>
+                  </CollapsibleContent>
                 </Collapsible>
                 <SidebarMenuItem>
                   <SidebarMenuButton tooltip="Models">
@@ -1261,32 +1263,34 @@ export function sidebarCollapsibleGroup(): ReactNode {
             <SidebarGroup>
               <SidebarGroupLabel>Platform</SidebarGroupLabel>
               <SidebarMenu>
-                <Collapsible defaultOpen className="group/collapsible">
-                  <SidebarMenuItem>
-                    <SidebarMenuButton render={<CollapsibleTrigger />}>
-                      <SquareTerminal />
-                      <span>Playground</span>
-                      <ChevronRight className="ms-auto transition-transform group-data-open/collapsible:rotate-90 rtl:rotate-180" />
-                    </SidebarMenuButton>
-                    <CollapsibleContent>
-                      <SidebarMenuSub>
-                        <SidebarMenuSubItem>
-                          <SidebarMenuSubButton
-                            render={<a href="#history" />}
-                            isActive
-                            aria-current="page"
-                          >
-                            <span>History</span>
-                          </SidebarMenuSubButton>
-                        </SidebarMenuSubItem>
-                        <SidebarMenuSubItem>
-                          <SidebarMenuSubButton render={<a href="#starred" />}>
-                            <span>Starred</span>
-                          </SidebarMenuSubButton>
-                        </SidebarMenuSubItem>
-                      </SidebarMenuSub>
-                    </CollapsibleContent>
-                  </SidebarMenuItem>
+                <Collapsible
+                  defaultOpen
+                  className="group/collapsible"
+                  render={<SidebarMenuItem />}
+                >
+                  <SidebarMenuButton render={<CollapsibleTrigger />}>
+                    <SquareTerminal />
+                    <span>Playground</span>
+                    <ChevronRight className="ms-auto transition-transform group-data-open/collapsible:rotate-90 rtl:rotate-180" />
+                  </SidebarMenuButton>
+                  <CollapsibleContent>
+                    <SidebarMenuSub>
+                      <SidebarMenuSubItem>
+                        <SidebarMenuSubButton
+                          render={<a href="#history" />}
+                          isActive
+                          aria-current="page"
+                        >
+                          <span>History</span>
+                        </SidebarMenuSubButton>
+                      </SidebarMenuSubItem>
+                      <SidebarMenuSubItem>
+                        <SidebarMenuSubButton render={<a href="#starred" />}>
+                          <span>Starred</span>
+                        </SidebarMenuSubButton>
+                      </SidebarMenuSubItem>
+                    </SidebarMenuSub>
+                  </CollapsibleContent>
                 </Collapsible>
               </SidebarMenu>
             </SidebarGroup>

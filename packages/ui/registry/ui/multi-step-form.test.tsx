@@ -683,7 +683,7 @@ test("a clean flow leaves straight away — no confirmation nobody needs", async
   expect(
     document.querySelector('[data-slot="multi-step-form-exit-prompt"]'),
   ).toBeNull();
-  screen.unmount();
+  await screen.unmount();
 });
 
 // An AlertDialog is MODAL: while one is open Base UI marks the rest of the document inert,
@@ -713,7 +713,7 @@ test("a dirty flow asks first, and staying does not leave", async () => {
     ).toBeNull();
   });
   expect(onExit).not.toHaveBeenCalled();
-  screen.unmount();
+  await screen.unmount();
 });
 
 test("confirming the prompt leaves", async () => {
@@ -736,7 +736,7 @@ test("confirming the prompt leaves", async () => {
       document.querySelector('[data-slot="multi-step-form-exit-prompt"]'),
     ).toBeNull();
   });
-  screen.unmount();
+  await screen.unmount();
 });
 
 /** Ask the document what it would do, rather than spying on how it was wired. */
@@ -758,7 +758,7 @@ test("a clean flow lets a refresh through", async () => {
 test("a dirty flow warns about a refresh, and stops once it unmounts", async () => {
   const screen = await render(<WithExit dirty />);
   expect(refreshWouldWarn()).toBe(true);
-  screen.unmount();
+  await screen.unmount();
   // A refresh warning that outlives the flow is its own bug.
   expect(refreshWouldWarn()).toBe(false);
 });

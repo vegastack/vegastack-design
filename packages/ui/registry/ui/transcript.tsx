@@ -1,4 +1,4 @@
-// @vegastack transcript@0.20.0 sha256-FWMKrI50VnqnlUlpow/Py9So3nTqhHCgRriuYYZy10g=
+// @vegastack transcript@0.20.0 sha256-a8ifqEHb/mTebYbEexrE36I7d7cm0MBdN1BWcsxrQ2U=
 
 "use client";
 
@@ -226,17 +226,21 @@ function findActiveIndex(segments: TranscriptSegment[], time?: number) {
   return end !== undefined && time >= end ? -1 : found;
 }
 
-/** Every occurrence of `needle` in `text`, case-insensitively, as start offsets. */
+/**
+ * Every occurrence of `needle` in `text`, case-insensitively, as `[start, end)` ranges in `text`
+ * itself. Matched on the original string: lower-casing first can change its length ("İ" becomes
+ * two code units), which would shift every highlight after it.
+ */
 function occurrences(text: string, needle: string) {
-  const out: number[] = [];
-  if (!needle) return out;
-  const haystack = text.toLowerCase();
-  let at = haystack.indexOf(needle);
-  while (at !== -1) {
-    out.push(at);
-    at = haystack.indexOf(needle, at + needle.length);
-  }
-  return out;
+  if (!needle) return [];
+  const pattern = new RegExp(
+    needle.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"),
+    "giu",
+  );
+  return [...text.matchAll(pattern)].map((match) => ({
+    start: match.index,
+    end: match.index + match[0].length,
+  }));
 }
 
 type Match = { id: string; occurrence: number };
@@ -548,22 +552,22 @@ function Highlighted({
   if (found.length === 0) return text;
   const parts: React.ReactNode[] = [];
   let cursor = 0;
-  found.forEach((at, index) => {
-    if (at > cursor) parts.push(text.slice(cursor, at));
+  found.forEach(({ start, end }, index) => {
+    if (start > cursor) parts.push(text.slice(cursor, start));
     const isCurrent = index === current;
     parts.push(
       <mark
-        key={at}
+        key={start}
         data-current={isCurrent ? "true" : undefined}
         className={cn(
           "rounded-sm px-0.5 text-foreground",
           isCurrent ? "bg-primary text-primary-foreground" : "bg-primary/15",
         )}
       >
-        {text.slice(at, at + needle.length)}
+        {text.slice(start, end)}
       </mark>,
     );
-    cursor = at + needle.length;
+    cursor = end;
   });
   if (cursor < text.length) parts.push(text.slice(cursor));
   return parts;
@@ -853,13 +857,18 @@ export function TranscriptSearch({
     [matches, setFollowing, scrollToMessage, behavior],
   );
 
-  // A new query (or new segments) settles on its first match and says where the reader is.
+  // A new query (or a first match arriving for it) settles on its first match and says where the
+  // reader is. Later segments that only add matches (live captions) leave the position alone: the
+  // visible count updates, and nothing is announced, scrolled or paused under the reader.
   const labels = React.useRef({ matchLabel, noMatchesLabel });
   React.useLayoutEffect(() => {
     labels.current = { matchLabel, noMatchesLabel };
   });
+  const settled = React.useRef({ query: "", total: 0 });
   React.useEffect(() => {
-    if (!query) return;
+    const previous = settled.current;
+    settled.current = { query, total };
+    if (!query || (previous.query === query && previous.total > 0)) return;
     announce(
       total > 0
         ? labels.current.matchLabel(1, total)

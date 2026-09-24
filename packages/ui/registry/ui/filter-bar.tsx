@@ -1,4 +1,4 @@
-// @vegastack filter-bar@0.20.0 sha256-h6mh2Ubf1RQ2nFEi10gmSRjqY/zjat4Ighq4pC2vK6I=
+// @vegastack filter-bar@0.20.0 sha256-ufwrF6BkHgl3J5LOU59Y2ut5wjg7jbYP7sU4i2u1ldY=
 
 "use client";
 
@@ -345,7 +345,7 @@ export function FilterChip({
  *   addFilters={[{ id: 'priority', label: 'Priority', icon: <Flag /> }]}
  *   onAddFilter={(id) => openFilter(id)}
  *   search={{ value: query, onValueChange: setQuery }}
- *   trailing={<Button variant="ghost" size="sm" onClick={clearAll}>Clear all</Button>}
+ *   trailing={<Button variant="ghost" onClick={clearAll}>Clear all</Button>}
  * />
  */
 export function FilterBar({
@@ -473,21 +473,8 @@ export function FilterBar({
  * FilterBarFacet
  * ----------------------------------------------------------------------------------------------*/
 
-/** Props accepted by `FilterBarFacet`. */
-export type FilterBarFacetProps<
-  Item,
-  Multiple extends boolean | undefined = false,
-> = Omit<
-  SearchableSelectProps<Item, Multiple>,
-  | "renderItem"
-  | "renderValue"
-  | "renderTriggerValue"
-  | "placeholder"
-  | "variant"
-  | "size"
-  | "aria-label"
-  | "groupBy"
-> & {
+/** `FilterBarFacet`'s own props, on top of the `SearchableSelect` props it passes through. */
+export interface FilterBarFacetOwnProps<Item> {
   /** The facet's name — the trigger reads "{label}: {value}". */
   label: string;
   /**
@@ -506,22 +493,54 @@ export type FilterBarFacetProps<
    */
   onRemove?: () => void;
   /**
+   * Accessible name of the remove control.
+   * @default `Remove ${label} filter`
+   */
+  removeLabel?: string;
+  /**
    * List the selected options first, under "Selected", above the rest under "More".
    * @default false
    */
   pinSelected?: boolean;
   /**
+   * The heading of the pinned group.
+   * @default "Selected"
+   */
+  selectedGroupLabel?: string;
+  /**
+   * The heading of the group under the pinned one.
+   * @default "More"
+   */
+  moreGroupLabel?: string;
+  /**
    * What an empty facet reads.
    * @default "Any"
    */
   anyLabel?: string;
-};
+}
+
+/** Props accepted by `FilterBarFacet`: `SearchableSelect`'s, minus the trigger face it owns. */
+export type FilterBarFacetProps<
+  Item,
+  Multiple extends boolean | undefined = false,
+> = Omit<
+  SearchableSelectProps<Item, Multiple>,
+  | "renderItem"
+  | "renderValue"
+  | "renderTriggerValue"
+  | "placeholder"
+  | "variant"
+  | "size"
+  | "aria-label"
+  | "groupBy"
+> &
+  FilterBarFacetOwnProps<Item>;
 
 /**
  * `FilterBarFacet` — a "Label: value" facet on `SearchableSelect`: "Status: Any", "Status:
  * Open", "Status: Open, In progress", "Status: 3 selected". Single or `multiple`, local or
  * server-searched (`remote` + `useAsyncSearch`), optionally pinned and removable. Put it in a
- * `FilterBar`'s `leading` slot or anywhere in a toolbar.
+ * `FilterBar`'s `trailing` slot or anywhere in a toolbar; it takes the bar's height.
  *
  * @example
  * <FilterBarFacet
@@ -543,18 +562,25 @@ export function FilterBarFacet<
   renderItem,
   removable = false,
   onRemove,
+  removeLabel = `Remove ${label} filter`,
   pinSelected = false,
+  selectedGroupLabel = "Selected",
+  moreGroupLabel = "More",
   anyLabel = "Any",
   countLabel = (n) => `${n} selected`,
   ...select
 }: FilterBarFacetProps<Item, Multiple>) {
-  const { itemToStringLabel, itemToKey } = select;
+  const { itemToStringLabel, itemToKey, onOpenChange } = select;
   const current = select.value as Item | Item[] | null | undefined;
   const selectedKeys = new Set(
     (Array.isArray(current) ? current : current ? [current] : []).map(
       itemToKey,
     ),
   );
+  // The pinned split is taken when the list opens, so toggling a row does not move it between
+  // "Selected" and "More" under the pointer; the next open re-pins.
+  const [pinnedKeys, setPinnedKeys] = React.useState(selectedKeys);
+  const pinned = (item: Item) => pinnedKeys.has(itemToKey(item));
   const text = (list: Item[]) =>
     `${label}: ${
       list.length === 0
@@ -570,16 +596,21 @@ export function FilterBarFacet<
     >
       <SearchableSelect<Item, Multiple>
         {...select}
+        onOpenChange={(open) => {
+          if (open) setPinnedKeys(selectedKeys);
+          onOpenChange?.(open);
+        }}
         items={
           pinSelected
             ? [
-                ...select.items.filter((i) => selectedKeys.has(itemToKey(i))),
-                ...select.items.filter((i) => !selectedKeys.has(itemToKey(i))),
+                ...select.items.filter(pinned),
+                ...select.items.filter((i) => !pinned(i)),
               ]
             : select.items
         }
         variant="outline"
-        size="sm"
+        // The FilterBar row's one height tier: the search, the chips and "Add filter" are h-8.
+        size="default"
         countLabel={countLabel}
         placeholder={`${label}: ${anyLabel}`}
         renderItem={renderItem ?? itemToStringLabel}
@@ -587,7 +618,7 @@ export function FilterBarFacet<
         groupBy={
           pinSelected
             ? (item: Item) =>
-                selectedKeys.has(itemToKey(item)) ? "Selected" : "More"
+                pinned(item) ? selectedGroupLabel : moreGroupLabel
             : undefined
         }
         containerClassName="w-fit"
@@ -599,7 +630,7 @@ export function FilterBarFacet<
         <Button
           variant="ghost"
           size="icon-xs"
-          aria-label={`Remove ${label} filter`}
+          aria-label={removeLabel}
           data-slot="filter-bar-facet-remove"
           onClick={onRemove}
         >

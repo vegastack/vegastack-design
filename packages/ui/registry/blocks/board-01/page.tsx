@@ -1,4 +1,4 @@
-// @vegastack board-01@0.20.0 sha256-4O5aNBrfTE6Qnvb016PJKT+eC/f0UaNe9BCRYyISpM8=
+// @vegastack board-01@0.20.0 sha256-oAG6sEq9WmCEkSXrUHwTlPf0gbi5hWVTB9NIwDGz0DA=
 
 import { Plus } from "lucide-react";
 
@@ -25,7 +25,7 @@ export default function Page() {
         title="Tasks"
         description="Drag a card, or press Space on a focused card to move it with the keyboard."
         actions={
-          <Button size="sm">
+          <Button>
             <Plus />
             New task
           </Button>

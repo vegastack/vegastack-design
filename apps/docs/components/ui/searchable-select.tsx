@@ -1,4 +1,4 @@
-// @vegastack searchable-select@0.20.0 sha256-UJhzq/Shh4KTEHe3RfbcYQRvSXkDrXsYW39u9Jgi8d0=
+// @vegastack searchable-select@0.20.0 sha256-ozxlwLCOnaKkXC2OMXFNX7LCgKnzBrxkGor7cg/adHA=
 
 "use client";
 
@@ -17,6 +17,7 @@ import {
   ComboboxGroup,
   ComboboxLabel,
   ComboboxCollection,
+  ComboboxStatus,
 } from "@/components/ui/combobox";
 import { Button } from "@/components/ui/button";
 import { ItemContent, ItemDescription, ItemTitle } from "@/components/ui/item";
@@ -518,11 +519,16 @@ export function SearchableSelect<
             aria-label={searchLabel}
             placeholder={searchPlaceholder}
           />
-          {/* Base UI's own polite status region: mounted for the panel's life, only its text
-              changes, and a sibling of the list (never inside the listbox). */}
-          <BaseCombobox.Status data-slot={`${slot}-status`} className="sr-only">
+          {/* The polite status region (API-27): mounted for the panel's life, only its text
+              changes, and a sibling of the list (never inside the listbox). It is visible while
+              a search has no rows to show yet, so the panel is never blank, like Command's
+              loading row. */}
+          <ComboboxStatus
+            data-slot={`${slot}-status`}
+            visible={loading && allItems.length === 0}
+          >
             {loading ? loadingLabel : null}
-          </BaseCombobox.Status>
+          </ComboboxStatus>
           <ComboboxEmpty>{loading ? null : emptyMessage}</ComboboxEmpty>
           <ComboboxList className="p-1">
             {grouped

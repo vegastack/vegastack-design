@@ -34,7 +34,7 @@
 #   formatting: prettier reflow plus the `registry-stamp.mjs` provenance header (DOC-1); no
 #               decision of their own.
 diff --git a/menubar.tsx b/menubar.tsx
-index de8698e..1cfabb2 100644
+index de8698e..734cc87 100644
 --- a/menubar.tsx
 +++ b/menubar.tsx
 @@ -1,9 +1,9 @@
@@ -156,7 +156,7 @@ index de8698e..1cfabb2 100644
 -  inset?: boolean
 +  inset?: boolean;
  }) {
-+  const description = useItemDescriptionId();
++  const description = useItemDescriptionId(props["aria-describedby"]);
    return (
 -    <MenuPrimitive.CheckboxItem
 -      data-slot="menubar-checkbox-item"
@@ -215,7 +215,7 @@ index de8698e..1cfabb2 100644
 -  inset?: boolean
 +  inset?: boolean;
  }) {
-+  const description = useItemDescriptionId();
++  const description = useItemDescriptionId(props["aria-describedby"]);
    return (
 -    <MenuPrimitive.RadioItem
 -      data-slot="menubar-radio-item"

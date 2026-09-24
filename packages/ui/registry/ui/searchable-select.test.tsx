@@ -326,6 +326,15 @@ test("remote mode never filters locally and announces loading once (DS-38)", asy
   expect(status.closest('[role="listbox"]')).toBeNull();
 });
 
+test("a search with no rows yet shows its loading line (DS-38)", async () => {
+  const screen = await render(<Picker remote loading items={[]} />);
+  await screen.getByRole("combobox").click();
+  // Shown, not screen-reader-only (this lane compiles no CSS, so assert the switch itself).
+  await expect
+    .element(screen.getByRole("status").filter({ hasText: "Searching…" }))
+    .toHaveAttribute("data-visible");
+});
+
 test("an error shows in the panel and Try again retries (DS-38)", async () => {
   const onRetry = vi.fn();
   const screen = await render(
@@ -335,9 +344,7 @@ test("an error shows in the panel and Try again retries (DS-38)", async () => {
   await expect
     .element(screen.getByRole("alert"))
     .toHaveTextContent("Couldn't load projects.");
-  (
-    screen.getByRole("button", { name: "Try again" }).element() as HTMLElement
-  ).click();
+  await screen.getByRole("button", { name: "Try again" }).click();
   expect(onRetry).toHaveBeenCalledOnce();
 });
 
@@ -347,9 +354,7 @@ test("loadMore renders the shared footer in the panel (DS-38)", async () => {
     <Picker remote loadMore={{ hasMore: true, onLoadMore }} />,
   );
   await screen.getByRole("combobox").click();
-  (
-    screen.getByRole("button", { name: "Load more" }).element() as HTMLElement
-  ).click();
+  await screen.getByRole("button", { name: "Load more" }).click();
   expect(onLoadMore).toHaveBeenCalledOnce();
 });
 

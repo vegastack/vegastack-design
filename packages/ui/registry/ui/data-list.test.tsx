@@ -1898,9 +1898,10 @@ test("rowLinkRender renders a router link (DS-33)", async () => {
       data={data}
       getRowId={(r) => r.id}
       getRowHref={(r) => `/people/${r.id}`}
-      rowLinkRender={<RouterLink />}
+      rowLinkRender={<RouterLink href="" />}
     />,
   );
+  // The row's href wins over the shared template's placeholder.
   const link = screen.getByRole("link", { name: "Cole" });
   await expect.element(link).toHaveAttribute("data-router", "");
   await expect.element(link).toHaveAttribute("href", "/people/c");

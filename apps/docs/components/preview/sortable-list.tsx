@@ -40,7 +40,7 @@ export function sortableList(): ReactNode {
         <SortableList
           aria-label="Pipeline stages"
           items={items}
-          lockedReason="Closed stages stay last"
+          lockedReason="Closed stages can't be moved"
           renderItem={(item) => (
             <span className="flex min-w-0 items-center gap-2">
               <span className="truncate">{item.label}</span>
@@ -275,8 +275,8 @@ export function sortableListRowActions(): ReactNode {
         <SortableList
           aria-label="Pipeline stages with actions"
           items={items}
-          lockedReason="Closed stages stay last"
-          menuItems={(item) => [
+          lockedReason="Closed stages can't be moved"
+          getItemActions={(item) => [
             { label: "Rename", onSelect: () => {} },
             {
               label: "Delete",

@@ -63,4 +63,7 @@ test("board-01 shows No matches and clears its filters", async () => {
   await expect
     .element(screen.getByRole("region", { name: "Backlog, 6 tasks" }))
     .toBeInTheDocument();
+  await expect
+    .element(screen.getByRole("searchbox", { name: "Search tasks" }))
+    .toHaveFocus();
 });

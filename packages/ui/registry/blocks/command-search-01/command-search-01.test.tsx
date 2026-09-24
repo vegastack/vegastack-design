@@ -1,7 +1,9 @@
 /**
  * `command-search-01.test.tsx` — the block's browser contract: changing scope (chip or Alt+→)
  * re-asks with the same query; results are grouped options, "No results" and the error line with
- * "Try again" have their states; ⌘↵ / Ctrl+↵ opens the selection in a new tab; axe-clean.
+ * "Try again" have their states; ⌘↵ / Ctrl+↵ opens the selection in a new tab; Enter on a scope
+ * chip switches scope rather than opening a result; a `javascript:` href is never followed;
+ * axe-clean.
  */
 
 import { render } from "vitest-browser-react";
@@ -75,13 +77,57 @@ test("no results and a failed search have their own states", async () => {
   );
   await userEvent.type(failing.getByRole("combobox"), "sky");
   await expect
-    .element(failing.getByText("Couldn’t search."))
+    .element(failing.getByText("Couldn’t search"))
     .toBeInTheDocument();
   expect(
-    failing.getByText("Couldn’t search.").element().closest('[role="alert"]'),
+    failing.getByText("Couldn’t search").element().closest('[role="alert"]'),
   ).not.toBeNull();
   await expect
     .element(failing.getByRole("button", { name: "Try again" }))
     .toBeInTheDocument();
   await expectNoA11yViolations(document.body, ["color-contrast"]);
+});
+
+test("Enter on a scope chip switches scope and opens nothing", async () => {
+  const onOpenChange = vi.fn();
+  const search = vi.fn(async (): Promise<SearchResult[]> =>
+    skyline.map((r) => ({ ...r, href: `#${r.id}` })),
+  );
+  const screen = await render(
+    <CommandSearch search={search} defaultOpen onOpenChange={onOpenChange} />,
+  );
+  await userEvent.type(screen.getByRole("combobox"), "sky");
+  await expect
+    .element(screen.getByRole("option", { name: /Weekly sync with Skyline/ }))
+    .toBeInTheDocument();
+  (
+    screen.getByRole("button", { name: "Tasks" }).element() as HTMLElement
+  ).focus();
+  await userEvent.keyboard("{Enter}");
+  await expect
+    .poll(() => search.mock.lastCall?.slice(0, 2))
+    .toEqual(["sky", "tasks"]);
+  expect(onOpenChange).not.toHaveBeenCalled();
+});
+
+test("a javascript: href is not followed", async () => {
+  const onOpenChange = vi.fn();
+  const open = vi.spyOn(window, "open").mockImplementation(() => null);
+  const unsafe = { ...skyline[0]!, href: "javascript:void(0)" };
+  const screen = await render(
+    <CommandSearch
+      search={async () => [unsafe]}
+      defaultOpen
+      onOpenChange={onOpenChange}
+    />,
+  );
+  await userEvent.type(screen.getByRole("combobox"), "sky");
+  await expect
+    .element(screen.getByRole("option", { name: /Weekly sync with Skyline/ }))
+    .toBeInTheDocument();
+  await userEvent.keyboard("{Control>}{Enter}{/Control}");
+  await userEvent.keyboard("{Enter}");
+  expect(open).not.toHaveBeenCalled();
+  expect(onOpenChange).not.toHaveBeenCalled();
+  open.mockRestore();
 });

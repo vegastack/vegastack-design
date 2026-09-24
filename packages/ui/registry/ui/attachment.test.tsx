@@ -818,6 +818,13 @@ test("AttachmentProgress announces a percentage (API-28)", async () => {
   ).toBe(true);
 });
 
+test("API-28: AttachmentProgress speaks a clamped percent for an out-of-range value", async () => {
+  const screen = await render(<AttachmentProgress value={150} />);
+  await expect
+    .element(screen.getByRole("progressbar"))
+    .toHaveAttribute("aria-valuetext", "100%");
+});
+
 test("API-28: AttachmentProgress scales to max, takes its own row, and names itself from aria-label", async () => {
   const screen = await render(
     <Attachment state="uploading" className="w-80">

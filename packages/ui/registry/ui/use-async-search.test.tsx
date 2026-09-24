@@ -116,6 +116,21 @@ test("pages with the cursor through loadMore and appends", async () => {
   expect(out.current.loadMore.hasMore).toBe(false);
 });
 
+test("loadMore waits out a typed query's debounce instead of pairing it with the old cursor", async () => {
+  const load = vi.fn(async (_q: string, ctx: { cursor?: string | null }) =>
+    ctx.cursor == null
+      ? { items: ["a", "b"], nextCursor: "c2" }
+      : { items: ["c"], nextCursor: null },
+  );
+  const { out, element } = mount(load, { debounceMs: 50 });
+  await render(element);
+  await expect.poll(() => out.current.items).toEqual(["a", "b"]);
+  React.act(() => out.current.onSearchChange("ab"));
+  React.act(() => out.current.loadMore.onLoadMore());
+  await expect.poll(() => load.mock.calls.length).toBe(2);
+  expect(load.mock.calls[1]).toMatchObject(["ab", { cursor: null }]);
+});
+
 test("keeps the items on error and reload fetches again", async () => {
   let fail = false;
   const load = vi.fn(async (_q: string, ctx: { cursor?: string | null }) => {

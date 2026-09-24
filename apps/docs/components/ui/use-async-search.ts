@@ -1,4 +1,4 @@
-// @vegastack use-async-search@0.20.0 sha256-Mzn6gVmcnWPbUVhBZ7GNUraE6YvGkKBq0zhV9lWtYoM=
+// @vegastack use-async-search@0.20.0 sha256-xeIolyybbC+uKUp1J7c0VdUC3zKgxRbAOFPp34OwFso=
 
 "use client";
 
@@ -241,6 +241,9 @@ export function useAsyncSearch<T>(
   );
 
   const onLoadMore = React.useCallback(() => {
+    // A typed query is waiting out its debounce: the cursor and a failed request belong to the
+    // previous query, and the new query's first page is about to replace the list.
+    if (timerRef.current != null) return;
     const failed = failedRef.current;
     if (failed) {
       run(failed);

@@ -1,4 +1,4 @@
-# Decision register — 203 micro-decisions
+# Decision register — micro-decisions
 
 Every deliberate choice this repo made on top of or against shadcn, each checked against `base-nova`'s live source on 2026-09-17, with MK's decision recorded on 2026-09-17/18 and every later row added by MK on the date it names.
 

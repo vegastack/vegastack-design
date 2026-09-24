@@ -1,4 +1,4 @@
-// @vegastack sidebar@0.20.0 sha256-swspGUa9dZmB393kqibEPg43zKzrCSmgFaU00qgvhts=
+// @vegastack sidebar@0.20.0 sha256-K7Qs8bIiihs/GxTDd12hJXGf6X8b4+UNtUvgFx7Z4JY=
 
 "use client";
 
@@ -56,30 +56,34 @@ function writeSidebarCookie(name: string, open: boolean) {
   document.cookie = `${name}=${open}; path=/; max-age=${SIDEBAR_COOKIE_MAX_AGE}; SameSite=Lax`;
 }
 
+/** A JSON string literal that cannot close the inline `<script>` it is written into. */
+function scriptLiteral(value: string) {
+  return JSON.stringify(value).replace(/</g, "\\u003c");
+}
+
 /**
  * A static or cached shell cannot read the `sidebar_state` cookie on the server, so it renders
  * the panel expanded. Put this script in `<head>`: before first paint it reads the cookie, marks
  * `<html>` with `data-sidebar-state`, and gives the desktop panel the `data-state` and
  * `data-collapsible` the sidebar's own recipes read, so a collapsed panel paints collapsed.
  * `collapsible` must match the `Sidebar`'s. The provider and `useSidebarCookieOpen` start from
- * that mark, so hydration agrees with the screen.
+ * that mark, so hydration agrees with the screen. Under a nonce-based Content Security Policy,
+ * pass the request's `nonce`.
  */
-/** A JSON string literal that cannot close the inline `<script>` it is written into. */
-function scriptLiteral(value: string) {
-  return JSON.stringify(value).replace(/</g, "\\u003c");
-}
-
 function SidebarStateScript({
   cookieName = SIDEBAR_COOKIE_NAME,
   collapsible = "offcanvas",
+  nonce,
 }: {
   cookieName?: string;
   collapsible?: "offcanvas" | "icon" | "none";
+  nonce?: string;
 }) {
   const source = `(function(n,m){try{if(document.cookie.split(/;\\s*/).indexOf(n+"=false")<0)return;var r=document.documentElement;r.setAttribute("${SIDEBAR_STATE_ATTRIBUTE}","collapsed");if(m==="none")return;var f=function(){var e=document.querySelector('[data-slot="sidebar"][data-state]');if(!e)return false;e.setAttribute("data-state","collapsed");e.setAttribute("data-collapsible",m);return true};if(f())return;var o=new MutationObserver(function(){if(f())o.disconnect()});o.observe(r,{childList:true,subtree:true});document.addEventListener("DOMContentLoaded",function(){o.disconnect()},{once:true})}catch(e){}})(${scriptLiteral(cookieName)},${scriptLiteral(collapsible)})`;
   return (
     <script
       data-slot="sidebar-state-script"
+      nonce={nonce}
       dangerouslySetInnerHTML={{ __html: source }}
     />
   );

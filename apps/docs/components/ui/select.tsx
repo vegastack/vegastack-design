@@ -1,4 +1,4 @@
-// @vegastack select@0.20.0 sha256-IdO6l1t7yK9mg3nt57mxr2QHh3LWfHLSELexsxG+JIg=
+// @vegastack select@0.20.0 sha256-54UMzPckAenqpUl5dK71vlCSdcnUCaeQFB7iE1ACejE=
 
 "use client";
 
@@ -153,7 +153,7 @@ function SelectItem({
   children,
   ...props
 }: SelectPrimitive.Item.Props) {
-  const description = useItemDescriptionId();
+  const description = useItemDescriptionId(props["aria-describedby"]);
   return (
     <ItemDescriptionContext.Provider value={description.register}>
       <SelectPrimitive.Item

@@ -101,7 +101,7 @@ test("`paused` freezes the last measured value", async () => {
     <Probe width={400} height={60} content={SHORT} paused />,
   );
   await expect.element(screen.getByTestId("verdict")).toHaveTextContent("no");
-  screen.unmount();
+  await screen.unmount();
 
   const stillFalse = await render(
     <Probe width={60} height={40} content={LONG} paused />,

@@ -1,7 +1,9 @@
-// @vegastack load-more@0.20.0 sha256-gEp38MwZ5rmBf0YlfQdddbVjBLP7Q5PlK3D3Na9TLvA=
+// @vegastack load-more@0.20.0 sha256-TrujPc3xir5PxV5WLeOu1dEcMo4OOCvWSdASldhNrxM=
+
+"use client";
 
 import * as React from "react";
-import { cn } from "@vegastack/design";
+import { cn, mergeRefs } from "@vegastack/design";
 import { Button } from "@/components/ui/button";
 
 /* ---
@@ -22,8 +24,11 @@ Deliberately NOT done here:
   DataGrid adds its own ArrowDown-past-the-last-row trigger on top.
 - No "End of list" by default. A list that simply stops needs no caption;
   the host opts in with `endLabel`.
-- No hooks, so no `'use client'`: the button swaps its label and busy state
-  in place, which is what keeps focus on it while rows append.
+- The button swaps its label and busy state in place, which is what keeps
+  focus on it while rows append. When the last batch arrives the button goes
+  away, so a footer that held focus takes it (`tabIndex={-1}`) instead of
+  dropping it to the page: Tab continues after the list, Shift+Tab goes back
+  into it.
 --- */
 
 /** The keyset paging contract a list, a lane or a data hook passes around. */
@@ -99,15 +104,25 @@ export function LoadMore({
   className,
   ref,
 }: LoadMoreProps) {
+  const rootRef = React.useRef<HTMLDivElement | null>(null);
+  const setRef = React.useMemo(() => mergeRefs(rootRef, ref), [ref]);
+  const [heldFocus, setHeldFocus] = React.useState(false);
+  const keepFocus = !hasMore && heldFocus;
+  React.useEffect(() => {
+    if (keepFocus) rootRef.current?.focus();
+  }, [keepFocus]);
+
   if (!hasMore) {
-    if (endLabel == null) return null;
+    if (endLabel == null && !keepFocus) return null;
     return (
       <div
-        ref={ref}
+        ref={setRef}
         data-slot="load-more"
         data-state="done"
+        tabIndex={keepFocus ? -1 : undefined}
+        onBlur={() => setHeldFocus(false)}
         className={cn(
-          "flex justify-center text-xs text-muted-foreground",
+          "flex justify-center text-xs text-muted-foreground outline-none",
           className,
         )}
       >
@@ -119,9 +134,15 @@ export function LoadMore({
   const failed = error != null && error !== false && !loading;
   return (
     <div
-      ref={ref}
+      ref={setRef}
       data-slot="load-more"
       data-state={loading ? "loading" : failed ? "error" : "idle"}
+      onFocus={() => setHeldFocus(true)}
+      onBlur={(event) => {
+        // A press while the last batch lands unmounts the button with focus in it; that blur has
+        // no next target inside the page, so the hold survives it and the done footer takes focus.
+        if (event.relatedTarget) setHeldFocus(false);
+      }}
       className={cn("flex flex-col items-center gap-2", className)}
     >
       {failed ? (

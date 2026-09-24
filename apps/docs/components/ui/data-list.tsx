@@ -1,4 +1,4 @@
-// @vegastack data-list@0.20.0 sha256-sUyNmHv96bEaSkn+mnottIuikbXh+QWFQ1FwM/cw+LQ=
+// @vegastack data-list@0.20.0 sha256-gh1HQzfTOPg9sFpxrF9AbPWMIavWT19VHkrpZRMyULE=
 
 "use client";
 
@@ -387,7 +387,12 @@ function isFromInteractiveDescendant(
   return target.closest(INTERACTIVE_SELECTOR) != null;
 }
 
-/** The first cell's link: `<a>` or the host's router link, carrying the row's href. */
+/**
+ * The first cell's link: `<a>` or the host's router link, carrying the row's href. Not
+ * `useRender`: it lets the render element's own props win, and `rowLinkRender` is one template
+ * shared by every row (`<Link href="" />` satisfies a router's required `href`), so the row's
+ * href has to win over the template's instead.
+ */
 function RowLink({
   href,
   render,

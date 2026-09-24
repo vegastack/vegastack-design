@@ -1,4 +1,4 @@
-// @vegastack app-shell-01@0.20.0 sha256-5UFrTzAh3W7J1V220tifYlr555558C/SJu8YGhq7OWI=
+// @vegastack app-shell-01@0.20.0 sha256-khj95IlllG3FiO07tAft+PhlhZjCFBzL9e4/0+2d8Bw=
 
 "use client";
 
@@ -62,7 +62,11 @@ import {
   SidebarMenuSub,
   SidebarMenuSubItem,
 } from "@/components/ui/sidebar";
-import { formatShortcut, usePlatform } from "@/components/ui/use-platform";
+import {
+  formatShortcut,
+  isEditableTarget,
+  usePlatform,
+} from "@/components/ui/use-platform";
 
 interface Workspace {
   id: string;
@@ -125,6 +129,7 @@ export function AppSidebar() {
 
   React.useEffect(() => {
     function onKeyDown(event: KeyboardEvent) {
+      if (event.defaultPrevented || isEditableTarget(event)) return;
       if (event.key.toLowerCase() === "k" && (event.metaKey || event.ctrlKey)) {
         event.preventDefault();
         setSearchOpen((open) => !open);

@@ -1,4 +1,4 @@
-// @vegastack sortable-list@0.20.0 sha256-noIpoe0iS7jMxX3yXJT3lcUBrbNn9HKw2f0aeFonX1c=
+// @vegastack sortable-list@0.20.0 sha256-vOs/MYNfz/W49fGc4SRh3EXO68VQY7cpvC9mK859H6A=
 
 "use client";
 
@@ -28,6 +28,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
+  defaultActionsLabel,
   RowActionMenuItems,
   type RowAction,
 } from "@/components/ui/data-table-parts";
@@ -115,7 +116,13 @@ export interface SortableListProps<
   renderActions?: (item: T) => React.ReactNode;
   /**
    * A row's own actions (rename, delete), listed first in its ⋯ menu, above a separator and
-   * the Move items — one menu per row. On a locked row they stay available.
+   * the Move items — one menu per row, as Board's `getItemActions`. On a locked row they stay
+   * available.
+   * @default undefined
+   */
+  getItemActions?: (item: T) => RowAction[];
+  /**
+   * @deprecated Use `getItemActions`, the same accessor under the collection name.
    * @default undefined
    */
   menuItems?: (item: T) => RowAction[];
@@ -163,16 +170,16 @@ export interface SortableListProps<
 
 const CONTAINER = "list";
 
-const defaultActionsLabel = (label: string) => `Actions for ${label}`;
-
 /**
  * `SortableList` — reorderable rows on `ItemGroup`/`Item`, driven by
  * `use-drag-reorder`: pointer/touch drag with closest-edge drop indicators,
  * the keyboard move mode (Space on the handle, arrows, Escape), a polite
  * announcement per step, and the required menu equivalent (Move up / down /
  * to top / to bottom). Controlled: the host owns the order and may refuse a
- * move by rejecting the `onReorder` promise. Locked rows keep their place and
- * their menu; `layout="grid"` wraps the rows into tiles.
+ * move by rejecting the `onReorder` promise. A locked row cannot be moved itself
+ * and keeps its menu; other rows still move past it, so a host that needs a
+ * position held refuses that move in `onReorder`. `layout="grid"` wraps the rows
+ * into tiles.
  *
  * @example
  * const [stages, setStages] = React.useState(initialStages);
@@ -180,7 +187,7 @@ const defaultActionsLabel = (label: string) => `Actions for ${label}`;
  *   aria-label="Pipeline stages"
  *   items={stages}
  *   renderItem={(stage) => <span>{stage.label}</span>}
- *   lockedReason="Closed stages stay last"
+ *   lockedReason="Closed stages can't be moved"
  *   onReorder={({ id, to }) =>
  *     setStages((prev) => {
  *       const next = prev.filter((s) => s.id !== id);
@@ -195,6 +202,7 @@ export function SortableList<T extends SortableListItem = SortableListItem>({
   onReorder,
   renderItem,
   renderActions,
+  getItemActions,
   menuItems,
   actionsLabel = defaultActionsLabel,
   lockedReason,
@@ -248,7 +256,7 @@ export function SortableList<T extends SortableListItem = SortableListItem>({
           const label = item.label ?? item.id;
           const locked = !disabled && item.disabled === true;
           const actions = renderActions?.(item);
-          const rowMenuItems = menuItems?.(item) ?? [];
+          const rowMenuItems = (getItemActions ?? menuItems)?.(item) ?? [];
           const move = (to: number) => () =>
             reorder.requestMove({
               id: item.id,
@@ -332,7 +340,12 @@ export function SortableList<T extends SortableListItem = SortableListItem>({
                       <DropdownMenuContent align="end">
                         {rowMenuItems.length > 0 ? (
                           <>
-                            <RowActionMenuItems actions={rowMenuItems} />
+                            <RowActionMenuItems
+                              actions={rowMenuItems}
+                              onAction={() =>
+                                reorder.keepFocusAfter(CONTAINER, item.id)
+                              }
+                            />
                             <DropdownMenuSeparator />
                           </>
                         ) : null}

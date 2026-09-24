@@ -1,4 +1,4 @@
-// @vegastack review-split-01@0.20.0 sha256-9UqpUvjvm98Mir/PVAaMsEKHmbUJMEQvaYqMe2yvG9Q=
+// @vegastack review-split-01@0.20.0 sha256-dQKMqgF61Qjz+q7DW2kTU0ra+T6QF9ikjyn4zRMiySc=
 
 "use client";
 
@@ -137,7 +137,10 @@ export function ReviewSplit({
           <TabsList variant="line" aria-label="Meeting">
             <TabsTrigger value="summary">Summary</TabsTrigger>
             <TabsTrigger value="actions">
-              Action items ({actionItems.length})
+              Action items{" "}
+              <span className="text-muted-foreground tabular-nums">
+                {openCount}
+              </span>
             </TabsTrigger>
             <TabsTrigger value="transcript">Transcript</TabsTrigger>
           </TabsList>

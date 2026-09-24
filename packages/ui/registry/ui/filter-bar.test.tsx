@@ -618,12 +618,12 @@ test("a facet toggles values, pins the selected ones and can be removed (DS-35)"
   await expect
     .element(screen.getByRole("option", { name: "Open" }))
     .toHaveAttribute("aria-selected", "true");
+  // Toggling does not move rows under the pointer; the split is re-taken on the next open.
+  expect(
+    [...document.querySelectorAll('[role="option"]')].map((o) => o.textContent),
+  ).toEqual(options);
   await userEvent.keyboard("{Escape}");
-  (
-    screen
-      .getByRole("button", { name: "Remove Status filter" })
-      .element() as HTMLElement
-  ).click();
+  await screen.getByRole("button", { name: "Remove Status filter" }).click();
   expect(onRemove).toHaveBeenCalledOnce();
   await expectNoA11yViolations(screen.container);
 });

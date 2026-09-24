@@ -1,4 +1,4 @@
-// @vegastack list-page-01@0.20.0 sha256-z7H8gARnB3A2N0djTr6+/gg+CgebMo6DPZZpdyE+o0A=
+// @vegastack list-page-01@0.20.0 sha256-h4+qzhMR/YTlRRWTIJpUksuxOtUlF0QiQH5NbRbvAvE=
 
 "use client";
 
@@ -66,10 +66,15 @@ export interface CustomerListProps {
    */
   customers?: Customer[];
   /**
-   * Where the data stands: the first load, a failed load, or ready.
-   * @default "ready"
+   * The first load is in flight.
+   * @default false
    */
-  status?: "loading" | "error" | "ready";
+  loading?: boolean;
+  /**
+   * The first load failed: why, shown under "Couldn’t load customers" with "Try again".
+   * @default undefined
+   */
+  error?: React.ReactNode;
   /**
    * Called by "Try again" after a failed load.
    * @default undefined
@@ -91,11 +96,12 @@ const customerHref = (customer: Customer) => `/customers/${customer.id}`;
  * "Clear filters"), and a failed load (with "Try again").
  *
  * @example
- * <CustomerList customers={customers} status={isError ? "error" : "ready"} onRetry={refetch} />
+ * <CustomerList customers={customers} loading={isPending} error={error?.message} onRetry={refetch} />
  */
 export function CustomerList({
   customers = CUSTOMERS,
-  status = "ready",
+  loading = false,
+  error,
   onRetry,
   defaultView = "list",
 }: CustomerListProps) {
@@ -105,6 +111,7 @@ export function CustomerList({
   const [statusFilter, setStatusFilter] = React.useState<Status | null>(null);
   const [pages, setPages] = React.useState(1);
   const [loadingMore, setLoadingMore] = React.useState(false);
+  const searchRef = React.useRef<HTMLInputElement>(null);
 
   const inScope = customers.filter(
     (c) => scope === "team" || c.owner === CURRENT_USER,
@@ -125,6 +132,8 @@ export function CustomerList({
     setQuery("");
     setStatusFilter(null);
     setPages(1);
+    // The button that called this unmounts; keep focus in the filters.
+    searchRef.current?.focus();
   }
 
   // Stand-in for fetching the next page.
@@ -177,18 +186,18 @@ export function CustomerList({
     }),
   ];
 
+  const ready = !loading && error == null;
+
   let body: React.ReactNode;
-  if (status === "error") {
+  if (error != null) {
     body = (
       <Empty className="border border-dashed" role="alert">
         <EmptyHeader>
           <EmptyMedia variant="icon">
             <TriangleAlert aria-hidden className="text-destructive-text" />
           </EmptyMedia>
-          <EmptyTitle render={<h2 />}>Couldn’t load customers.</EmptyTitle>
-          <EmptyDescription>
-            Check your connection, then try again.
-          </EmptyDescription>
+          <EmptyTitle render={<h2 />}>Couldn’t load customers</EmptyTitle>
+          <EmptyDescription>{error}</EmptyDescription>
         </EmptyHeader>
         <EmptyContent>
           <Button variant="outline" onClick={onRetry}>
@@ -197,7 +206,7 @@ export function CustomerList({
         </EmptyContent>
       </Empty>
     );
-  } else if (status === "ready" && inScope.length === 0) {
+  } else if (ready && inScope.length === 0) {
     body = (
       <Empty className="border border-dashed">
         <EmptyHeader>
@@ -220,7 +229,7 @@ export function CustomerList({
         </EmptyContent>
       </Empty>
     );
-  } else if (status === "ready" && matching.length === 0) {
+  } else if (ready && matching.length === 0) {
     body = (
       <Empty className="border border-dashed">
         <EmptyHeader>
@@ -247,9 +256,9 @@ export function CustomerList({
         data={shown}
         getRowId={(c) => c.id}
         getRowHref={customerHref}
-        loading={status === "loading"}
+        loading={loading}
         loadMore={
-          status === "ready"
+          ready
             ? { hasMore, loading: loadingMore, onLoadMore: loadMore }
             : undefined
         }
@@ -258,12 +267,12 @@ export function CustomerList({
   } else {
     body = (
       <div className="@container flex flex-col gap-8">
-        {status === "loading" ? (
+        {loading ? (
           <div
             aria-busy="true"
             className="grid gap-3 @sm:grid-cols-2 @4xl:grid-cols-3"
           >
-            <span className="sr-only">Loading customers</span>
+            <span className="sr-only">Loading customers…</span>
             {Array.from({ length: 6 }, (_, i) => (
               <Skeleton key={i} className="h-16 rounded-lg" />
             ))}
@@ -311,7 +320,7 @@ export function CustomerList({
             );
           })
         )}
-        {status === "ready" ? (
+        {ready ? (
           <LoadMore
             hasMore={hasMore}
             loading={loadingMore}
@@ -323,7 +332,7 @@ export function CustomerList({
   }
 
   return (
-    <div className="flex min-w-0 flex-col gap-4">
+    <div className="flex min-w-0 flex-col gap-3">
       <FilterBar
         aria-label="Customer filters"
         searchPlacement="start"
@@ -333,8 +342,10 @@ export function CustomerList({
             setQuery(value);
             setPages(1);
           },
-          placeholder: "Search customers",
+          placeholder: "Search customers…",
+          "aria-label": "Search customers",
         }}
+        searchInputProps={{ ref: searchRef }}
         trailing={
           <div className="flex flex-wrap items-center gap-2">
             <FilterBarFacet<{ id: Status; name: Status }>
@@ -352,13 +363,12 @@ export function CustomerList({
               searchLabel="Search statuses"
             />
             {filtering ? (
-              <Button variant="ghost" size="sm" onClick={clearFilters}>
+              <Button variant="ghost" onClick={clearFilters}>
                 Clear filters
               </Button>
             ) : null}
             <ToggleGroup
               variant="outline"
-              size="sm"
               aria-label="Owner"
               deselectable={false}
               value={[scope]}
@@ -372,7 +382,6 @@ export function CustomerList({
             </ToggleGroup>
             <ToggleGroup
               variant="outline"
-              size="sm"
               aria-label="View"
               deselectable={false}
               value={[view]}

@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.20.0 sha256-xhrcc6icg/2I0LYzDZCvNMA2TlqZPjfVNA1TMnYWJ5k=
+// @vegastack text-edit@0.20.0 sha256-s3aeAbqKtmDGpspocuj87DX00/cuTKcSZtfl27JVSx0=
 
 "use client";
 
@@ -281,12 +281,14 @@ interface FieldAria {
   "aria-labelledby"?: string;
   "aria-describedby"?: string;
   "aria-invalid"?: React.AriaAttributes["aria-invalid"];
+  disabled?: boolean;
 }
 
 /**
  * DS-47: renders nothing, and reports the props Base UI's `Field.Control` resolved — the control
- * id, the label id, the rendered description and error ids, `aria-invalid` — so `TextEdit` can put
- * them on the contenteditable Tiptap creates, which cannot itself BE the control element.
+ * id, the label id, the rendered description and error ids, `aria-invalid`, and a disabled
+ * `Field` — so `TextEdit` can put them on the contenteditable Tiptap creates, which cannot itself
+ * BE the control element.
  */
 function FieldControlBridge({
   control,
@@ -300,6 +302,7 @@ function FieldControlBridge({
     "aria-labelledby": labelledBy,
     "aria-describedby": describedBy,
     "aria-invalid": invalid,
+    disabled,
   } = control;
   React.useLayoutEffect(() => {
     onResolve({
@@ -307,8 +310,9 @@ function FieldControlBridge({
       "aria-labelledby": labelledBy,
       "aria-describedby": describedBy,
       "aria-invalid": invalid,
+      disabled,
     });
-  }, [id, labelledBy, describedBy, invalid, onResolve]);
+  }, [id, labelledBy, describedBy, invalid, disabled, onResolve]);
   return null;
 }
 
@@ -489,7 +493,7 @@ export function TextEdit({
   onValueChange,
   placeholder,
   readOnly = false,
-  disabled = false,
+  disabled: disabledProp = false,
   editable: editableProp = true,
   onSubmit,
   minHeight,
@@ -502,6 +506,10 @@ export function TextEdit({
   className,
   ref,
 }: TextEditProps) {
+  // DS-47: what the enclosing `Field` resolved (see `FieldControlBridge`). Until it reports, and
+  // outside a `Field`, the explicit props stand alone.
+  const [field, setField] = React.useState<FieldAria>({});
+  const disabled = disabledProp || field.disabled === true;
   const editable = editableProp && !readOnly && !disabled;
   // The serialization the host asked for, fixed when the editor is created (the extension set
   // and the parser are chosen once), so a later `format` change cannot half-apply.
@@ -527,9 +535,6 @@ export function TextEdit({
   // The keydown handler closes over the editor before it's assigned; route
   // through a ref so it always reads the live instance to serialize HTML.
   const editorRef = React.useRef<Editor | null>(null);
-  // DS-47: what the enclosing `Field` resolved (see `FieldControlBridge`). Until it reports, and
-  // outside a `Field`, the explicit props stand alone.
-  const [field, setField] = React.useState<FieldAria>({});
   const resolvedId = field.id ?? id;
   const resolvedLabelledBy = field["aria-labelledby"] ?? ariaLabelledBy;
   const resolvedDescribedBy = field["aria-describedby"] ?? ariaDescribedBy;

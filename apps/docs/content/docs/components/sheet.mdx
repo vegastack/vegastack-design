@@ -100,7 +100,9 @@ from `left` in a right-to-left one. And hand `dir` to `SheetContent` — the pan
 `size="lg"` is the same cap on either overlay: `sm` (`max-w-xs`), `default` (`max-w-sm`, upstream's
 width), `lg` (`max-w-2xl`) and `xl` (`max-w-5xl`), from the `sm` breakpoint up. The value is
 published as `data-size`. Below `sm` a side sheet is full width whatever its size, and from `sm` up
-it is three quarters of the viewport under that cap. Top and bottom sheets ignore the axis.
+it is three quarters of the viewport under that cap, so a quarter of the page always shows beside
+it and `xl` reaches its full 64rem only from a 1366px viewport (960px at 1280px). Top and bottom
+sheets ignore the axis.
 
 <ComponentPreview name="sheetSizes" file="components/preview/sheet.tsx" />
 
