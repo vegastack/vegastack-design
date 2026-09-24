@@ -2613,7 +2613,7 @@
             "status-announcement",
             "semantic-html"
           ],
-          "evidence": "Roving focus across the ragged card grid (RTL-aware ←/→ for browsing AND move mode); Space move mode with focus restored across cross-column remounts, Enter activate, M opens the named Move menu — within-column up/down/top/bottom plus cross-column targets with visible lock reasons; a populated column wraps its cards in role=list (an empty column renders the Empty affordance instead); polite move/rejection announcements."
+          "evidence": "Roving focus across the ragged card grid (RTL-aware ←/→ for browsing AND move mode); Space move mode with focus restored across cross-column remounts, Enter activate, M opens the named Move menu — within-column up/down/top/bottom plus cross-column targets with visible lock reasons; a populated column wraps its cards in role=list named \"{label}, {n} cards\" (an empty column renders the Empty affordance instead); lanes are named by label (or a string title) and cards by getItemLabel in the Move menu, the card control and the polite move/rejection announcements; card content sits under TruncationFocusProvider focusable={false}."
         },
         "visual": {
           "status": "observed",
@@ -2656,6 +2656,7 @@
         "@vegastack/dropdown-menu",
         "@vegastack/empty",
         "@vegastack/scroll-area",
+        "@vegastack/truncated-text",
         "@vegastack/use-drag-reorder",
         "@vegastack/use-mobile"
       ],

@@ -69,6 +69,22 @@ inside a shorter shell passes its own CSS length instead of inheriting that view
 
 <ComponentPreview name="boardLanes" file="components/preview/board.tsx" />
 
+### Lane and card labels
+
+Every lane and card has a plain-text name, because the board speaks them: the lane's card list is
+named "To do, 2 cards", the Move menu says "Move to Blocked", each card's menu control is
+"Move Token audit", and every move announces the card and the lane ("Moved Token audit to Blocked,
+position 1 of 1"). A string `title` names its lane on its own. A lane whose `title` is a node — a
+`Badge`, an icon beside text — passes `label`; without one the board falls back to the column `id`
+and warns in development. `getItemLabel` names the cards; without it the control is "Move card".
+
+"Drag a card here" appears in an empty lane only where a pointer drag can start — not under
+`dragDisabled`, not below 768px, not in a read-only lane. Card content sits under
+`TruncationFocusProvider focusable={false}`, so a `TruncatedText` inside a card never adds a second
+tab stop.
+
+<ComponentPreview name="boardLabels" file="components/preview/board.tsx" />
+
 ## API Reference
 
 <ApiTable path="../../packages/ui/registry/ui/board.tsx" name="BoardProps" />
@@ -92,7 +108,8 @@ inside a shorter shell passes its own CSS length instead of inheriting that view
 - A dragged card gains **no shadow** — flat by doctrine; lift reads as the
   dimmed origin plus the drop-indicator line. Empty columns are real drop
   targets, rendered as `Empty className="border"` for the dashed drop-zone look.
-- Every move and every rejection announces through a polite live region.
+- Every move and every rejection announces through a polite live region, naming the card
+  (`getItemLabel`) and the lane (`label`, or a string `title`).
 
 | Key                                                 | Action                                |
 | --------------------------------------------------- | ------------------------------------- |

@@ -5,6 +5,7 @@ import { Wrapper } from "./wrapper";
 // Copied INTO apps/docs via `shadcn add @vegastack/board` (dogfoods the registry) → auto-scanned.
 import { Board, type BoardColumn } from "@/components/ui/board";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
 
 interface Deal {
   id: string;
@@ -65,6 +66,7 @@ export function board(): ReactNode {
         aria-label="Deals"
         columns={columns}
         getItemId={(deal) => deal.id}
+        getItemLabel={(deal) => deal.name}
         renderCard={(deal) => (
           <>
             <span className="min-w-0 truncate font-medium">{deal.name}</span>
@@ -158,6 +160,53 @@ export function boardLanes(): ReactNode {
           <>
             <span className="min-w-0 truncate font-medium">{deal.name}</span>
             <span className="text-xs text-muted-foreground">{deal.amount}</span>
+          </>
+        )}
+        onMove={({ id, to }) =>
+          setColumns((prev) => applyMove(prev, id, to.container, to.index))
+        }
+      />
+    </Wrapper>
+  );
+}
+
+/**
+ * Lane and card labels. A lane whose `title` is a node (here a `Badge`) passes a plain-text
+ * `label`, which names the lane's card list ("Blocked, 1 card"), its "Move to…" menu entry and
+ * every announcement. `getItemLabel` names each card's menu control ("Move Token audit") and the
+ * card in announcements.
+ */
+export function boardLabels(): ReactNode {
+  const [columns, setColumns] = useState<BoardColumn<Deal>[]>([
+    {
+      id: "todo",
+      title: "To do",
+      items: [
+        { id: "b1", name: "Token audit", amount: "2d", owner: "PS" },
+        { id: "b2", name: "Menu copy pass", amount: "1d", owner: "MK" },
+      ],
+    },
+    {
+      id: "blocked",
+      title: <Badge variant="destructive">Blocked</Badge>,
+      label: "Blocked",
+      items: [{ id: "b3", name: "Invoice export", amount: "3d", owner: "AL" }],
+    },
+    { id: "done", title: "Done", items: [] },
+  ]);
+  return (
+    <Wrapper className="block">
+      <Board<Deal>
+        aria-label="Sprint"
+        columns={columns}
+        getItemId={(task) => task.id}
+        getItemLabel={(task) => task.name}
+        renderCard={(task) => (
+          <>
+            <span className="min-w-0 truncate font-medium">{task.name}</span>
+            <span className="text-xs text-muted-foreground tabular-nums">
+              {task.amount}
+            </span>
           </>
         )}
         onMove={({ id, to }) =>

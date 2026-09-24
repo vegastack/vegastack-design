@@ -349,6 +349,7 @@
         "@vegastack/dropdown-menu",
         "@vegastack/empty",
         "@vegastack/scroll-area",
+        "@vegastack/truncated-text",
         "@vegastack/use-drag-reorder",
         "@vegastack/use-mobile"
       ],

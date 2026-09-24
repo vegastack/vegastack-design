@@ -1,9 +1,10 @@
 import * as React from "react";
 import { render } from "vitest-browser-react";
-import { userEvent } from "vitest/browser";
+import { page, userEvent } from "vitest/browser";
 import { expect, test, vi } from "vitest";
 import { expectNoA11yViolations } from "../../test/a11y";
 import { Board, type BoardColumn } from "./board";
+import { useTruncationFocusable } from "./truncated-text";
 
 interface Deal {
   id: string;
@@ -417,4 +418,189 @@ test("the drop-over highlight recolours the column Card's BORDER, the hairline C
   expect(column.classList.contains("border")).toBe(true);
   expect(column.classList.contains("border-border")).toBe(true);
   expect(column.className).not.toMatch(/(^|\s)ring-1(\s|$)|ring-foreground/);
+});
+
+// ---- DS-69: lanes, cards and announcements have names ----------------------
+
+interface Task {
+  id: string;
+  title: string;
+}
+
+const TASKS: BoardColumn<Task>[] = [
+  {
+    id: "todo",
+    title: "To do",
+    items: [
+      { id: "t1", title: "Write spec" },
+      { id: "t2", title: "Review copy" },
+    ],
+  },
+  {
+    id: "in_progress",
+    // A non-string title (a Badge, an icon) cannot name anything on its own.
+    title: (
+      <span>
+        <span aria-hidden="true">●</span> In progress
+      </span>
+    ),
+    label: "In progress",
+    items: [{ id: "t3", title: "Ship tokens" }],
+  },
+  { id: "done", title: "Done", items: [] },
+];
+
+function LabelledBoard({
+  columns = TASKS,
+  dragDisabled,
+  withLabels = true,
+}: {
+  columns?: BoardColumn<Task>[];
+  dragDisabled?: boolean;
+  withLabels?: boolean;
+}) {
+  const [state, setState] = React.useState(columns);
+  return (
+    <Board<Task>
+      aria-label="Tasks"
+      columns={state}
+      dragDisabled={dragDisabled}
+      getItemId={(task) => task.id}
+      getItemLabel={withLabels ? (task) => task.title : undefined}
+      renderCard={(task) => <span>{task.title}</span>}
+      onMove={(move) =>
+        setState((prev) => {
+          const moved = prev
+            .flatMap((c) => c.items)
+            .find((t) => t.id === move.id)!;
+          return prev.map((column) => {
+            const without = column.items.filter((t) => t.id !== move.id);
+            if (column.id !== move.to.container)
+              return { ...column, items: without };
+            const next = [...without];
+            next.splice(move.to.index, 0, moved);
+            return { ...column, items: next };
+          });
+        })
+      }
+    />
+  );
+}
+
+test("menu moves use the lane label and the card control uses the card label", async () => {
+  const screen = await render(<LabelledBoard />);
+  await screen.getByRole("button", { name: "Move Write spec" }).click();
+  await expect
+    .element(screen.getByRole("menuitem", { name: "Move to In progress" }))
+    .toBeInTheDocument();
+  // A string title still names its lane with no label.
+  await expect
+    .element(screen.getByRole("menuitem", { name: "Move to Done" }))
+    .toBeInTheDocument();
+});
+
+test("without getItemLabel the card control keeps its generic name", async () => {
+  const screen = await render(<LabelledBoard withLabels={false} />);
+  await expect
+    .element(screen.getByRole("button", { name: "Move card" }).first())
+    .toBeInTheDocument();
+});
+
+test("the lane list is named by its label and card count", async () => {
+  const screen = await render(<LabelledBoard />);
+  await expect
+    .element(screen.getByRole("list", { name: "To do, 2 cards" }))
+    .toBeInTheDocument();
+  await expect
+    .element(screen.getByRole("list", { name: "In progress, 1 card" }))
+    .toBeInTheDocument();
+});
+
+test("announcements are built from lane and card labels", async () => {
+  await render(<LabelledBoard />);
+  const surface = document.querySelector(
+    '[data-slot="board-card-surface"]',
+  ) as HTMLElement;
+  surface.focus();
+  await userEvent.keyboard(" ");
+  const live = () => document.querySelector('[role="status"]')!.textContent;
+  await expect
+    .poll(live)
+    .toContain("Move mode on. Write spec, 1 of 2 in To do");
+  await userEvent.keyboard("{ArrowRight}");
+  await expect
+    .poll(live)
+    // The count is the hook's (use-drag-reorder); the names are the board's.
+    .toContain("Moved Write spec to In progress, position 1");
+  await userEvent.keyboard("{ArrowDown}");
+  await expect.poll(live).toContain("Moved Write spec to position 2");
+});
+
+test("a non-string title with no label warns in development", async () => {
+  const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+  await render(
+    <LabelledBoard
+      columns={[
+        { id: "x", title: <span>Unnamed</span>, items: [] },
+        { id: "y", title: "Named", items: [] },
+      ]}
+    />,
+  );
+  await expect
+    .poll(() => warn.mock.calls.map((c) => String(c[0])))
+    .toEqual([expect.stringContaining('column "x"')]);
+  warn.mockRestore();
+});
+
+test("'Drag a card here' shows only when a pointer drag can start", async () => {
+  await page.viewport(1280, 900);
+  const screen = await render(<LabelledBoard />);
+  const done = () =>
+    document.querySelector('[data-column="done"]')!.textContent ?? "";
+  expect(done()).toContain("Drag a card here");
+  await screen.rerender(<LabelledBoard dragDisabled />);
+  expect(done()).toContain("No cards");
+  expect(done()).not.toContain("Drag a card here");
+});
+
+test("below 768px an empty lane does not promise a drag", async () => {
+  await page.viewport(390, 844);
+  try {
+    await render(<LabelledBoard />);
+    await expect
+      .poll(() => document.querySelector('[data-column="done"]')!.textContent)
+      .not.toContain("Drag a card here");
+  } finally {
+    await page.viewport(1280, 900);
+  }
+});
+
+test("cards turn the ambient truncation focus off (one tab stop per card)", async () => {
+  function Probe() {
+    return <span data-probe={String(useTruncationFocusable())} />;
+  }
+  await render(
+    <Board<Task>
+      aria-label="Tasks"
+      columns={TASKS}
+      getItemId={(task) => task.id}
+      renderCard={() => <Probe />}
+      onMove={() => {}}
+    />,
+  );
+  const probes = Array.from(document.querySelectorAll("[data-probe]"));
+  expect(probes.length).toBe(3);
+  expect(probes.every((p) => p.getAttribute("data-probe") === "false")).toBe(
+    true,
+  );
+});
+
+test("no a11y violations — labelled lanes and cards, menu open", async () => {
+  const screen = await render(<LabelledBoard />);
+  await expectNoA11yViolations(screen.container);
+  await screen.getByRole("button", { name: "Move Write spec" }).click();
+  await expect
+    .element(screen.getByRole("menuitem", { name: "Move to In progress" }))
+    .toBeInTheDocument();
+  await expectNoA11yViolations(document.body);
 });

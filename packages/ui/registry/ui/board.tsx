@@ -28,9 +28,11 @@ import {
   EmptyTitle,
 } from "@/components/ui/empty";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { TruncationFocusProvider } from "@/components/ui/truncated-text";
 import { useIsMobile } from "@/components/ui/use-mobile";
 import {
   useDragReorder,
+  type DragReorderAnnouncements,
   type DragReorderMove,
 } from "@/components/ui/use-drag-reorder";
 
@@ -72,6 +74,14 @@ export interface BoardColumn<T> {
   id: string;
   /** Column heading content. */
   title: React.ReactNode;
+  /**
+   * Plain-text lane name — used in the lane's accessible name, the "Move to…"
+   * menu and every announcement. Required when `title` is not a string (a
+   * `Badge`, an icon + text): the board cannot read a name out of a node, and
+   * warns in development when it has to fall back to the column `id`.
+   * @default the `title` when it is a string
+   */
+  label?: string;
   /** Cards in display order (controlled). */
   items: readonly T[];
   /**
@@ -113,6 +123,13 @@ export interface BoardProps<T> {
    * the snap-back (the host never applied it).
    */
   onMove: (move: DragReorderMove) => void | Promise<void>;
+  /**
+   * Plain-text card name — used in the card's menu control ("Move Write
+   * spec") and in move announcements. Without it the control is "Move card"
+   * and announcements say "card".
+   * @default undefined
+   */
+  getItemLabel?: (item: T) => string;
   /**
    * Activate a card (open its record). Cards render as real buttons.
 
@@ -163,6 +180,22 @@ export interface BoardProps<T> {
   ref?: React.Ref<HTMLDivElement>;
 }
 
+/** The plain-text name of a lane: its `label`, else a string `title`, else its `id`. */
+function laneLabel<T>(column: BoardColumn<T>): string {
+  if (column.label !== undefined) return column.label;
+  return typeof column.title === "string" ? column.title : column.id;
+}
+
+/** Sentence case for a label that opens an announcement. */
+function upperFirst(text: string): string {
+  return text.charAt(0).toUpperCase() + text.slice(1);
+}
+
+/** "1 card" / "4 cards" — the lane's count in words. */
+function cardCount(n: number): string {
+  return `${n} ${n === 1 ? "card" : "cards"}`;
+}
+
 /**
  * `Board` — kanban columns over `use-drag-reorder`: pointer drag with
  * closest-edge indicators, the keyboard move mode on each card's handle-free
@@ -186,6 +219,7 @@ export function Board<T>({
   getItemId,
   renderCard,
   onMove,
+  getItemLabel,
   onCardActivate,
   columnWidth = "18rem",
   columnMaxHeight = "calc(100dvh - 16rem)",
@@ -225,7 +259,40 @@ export function Board<T>({
   // cursor, so the grab affordance can never promise a drag the engine will refuse (audit B8-06).
   const pointerDisabled = dragDisabled || isMobile;
 
+  // A lane whose title is a node has no name to read unless the host gives one.
+  React.useEffect(() => {
+    if (process.env.NODE_ENV === "production") return;
+    for (const column of columns)
+      if (column.label === undefined && typeof column.title !== "string")
+        console.warn(
+          `Board: column "${column.id}" has a non-string title and no \`label\`; its accessible name falls back to the id.`,
+        );
+  }, [columns]);
+
+  const columnsById = new Map(columns.map((column) => [column.id, column]));
+  const cardLabel = (id: string) => {
+    const entry = itemsById.get(id);
+    return entry && getItemLabel ? getItemLabel(entry.item) : "card";
+  };
+  const laneName = (container: string) => {
+    const column = columnsById.get(container);
+    return column ? laneLabel(column) : container;
+  };
+  // Every announcement names the card and the lane, never a column id.
+  const announcements: DragReorderAnnouncements = {
+    lifted: ({ id, position, count, container }) =>
+      `Move mode on. ${upperFirst(cardLabel(id))}, ${position} of ${count} in ${laneName(container)}. Use the arrow keys to move, Escape to finish`,
+    moved: ({ id, from, to, count }) =>
+      from.container === to.container
+        ? `Moved ${cardLabel(id)} to position ${to.index + 1} of ${count}`
+        : `Moved ${cardLabel(id)} to ${laneName(to.container)}, position ${to.index + 1} of ${count}`,
+    ended: () => "Move mode off",
+    rejected: ({ id, from }) =>
+      `Move rejected — ${cardLabel(id)} stays in ${laneName(from.container)}`,
+  };
+
   const reorder = useDragReorder({
+    announcements,
     lists,
     onReorder: onMove,
     axis: "vertical",
@@ -431,21 +498,23 @@ export function Board<T>({
                       <Empty className="border" data-slot="board-column-empty">
                         <EmptyHeader>
                           <EmptyTitle>No cards</EmptyTitle>
-                          <EmptyDescription>
-                            {column.droppable === false
-                              ? (column.lockedReason ?? "Not a drop target")
-                              : "Drag a card here"}
-                          </EmptyDescription>
+                          {column.droppable === false ? (
+                            <EmptyDescription>
+                              {column.lockedReason ?? "Not a drop target"}
+                            </EmptyDescription>
+                          ) : !pointerDisabled && !readOnly ? (
+                            // Only promise a drag where one can start: not
+                            // under `dragDisabled`, below 768px, or read-only.
+                            <EmptyDescription>
+                              Drag a card here
+                            </EmptyDescription>
+                          ) : null}
                         </EmptyHeader>
                       </Empty>
                     ) : (
                       <div
                         role="list"
-                        aria-label={
-                          typeof column.title === "string"
-                            ? column.title
-                            : undefined
-                        }
+                        aria-label={`${laneLabel(column)}, ${cardCount(column.items.length)}`}
                         className="flex flex-col gap-2"
                       >
                         {column.items.map((item, index) => {
@@ -514,7 +583,11 @@ export function Board<T>({
                                     : "cursor-default",
                                 )}
                               >
-                                {renderCard(item, column)}
+                                {/* One tab stop per card: truncated text in the
+                                    content must not add its own. */}
+                                <TruncationFocusProvider focusable={false}>
+                                  {renderCard(item, column)}
+                                </TruncationFocusProvider>
                               </div>
                               {readOnly ? null : (
                                 <DropdownMenu
@@ -528,7 +601,11 @@ export function Board<T>({
                                       <Button
                                         variant="ghost"
                                         size="icon-xs"
-                                        aria-label="Move card"
+                                        aria-label={
+                                          getItemLabel
+                                            ? `Move ${getItemLabel(item)}`
+                                            : "Move card"
+                                        }
                                         // The roving model's promise is ONE
                                         // card-layer tab stop per board — a
                                         // tabbable identically-named trigger
@@ -611,10 +688,7 @@ export function Board<T>({
                                         >
                                           <span className="flex min-w-0 flex-col">
                                             <span className="truncate">
-                                              Move to{" "}
-                                              {typeof target.title === "string"
-                                                ? target.title
-                                                : target.id}
+                                              Move to {laneLabel(target)}
                                             </span>
                                             {locked && target.lockedReason ? (
                                               <span className="text-xs text-muted-foreground">
