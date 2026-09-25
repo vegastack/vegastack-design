@@ -8034,7 +8034,7 @@
       },
       "engines": [],
       "docsSlug": "/docs/components/view-toggle",
-      "registryDependencies": ["@vegastack/toggle-group"],
+      "registryDependencies": ["@vegastack/tabs"],
       "npmDependencies": [
         "@vegastack/design@^0.7.31",
         "@vegastack/design-tokens@^0.7.18",
@@ -21000,7 +21000,7 @@
       "name": "tabs",
       "registryType": "registry:ui",
       "title": "Tabs",
-      "summary": "Layered content sections — default (segmented) or line variants, compact size, optional leading icons and counts, horizontal or vertical, full keyboard navigation. Use Tabs for scope/views (My tasks | Team tasks); use an icon ToggleGroup for List/Board layout switches. The one component that keeps a focus ring.",
+      "summary": "Layered content sections — default (segmented) or line variants, compact size, optional leading icons and counts, horizontal or vertical, full keyboard navigation. Toolbar switches use default Tabs: scope (My tasks | Team tasks) and views, whose List/Board/Grid switch is ViewToggle (default Tabs with icons). The one component that keeps a focus ring.",
       "status": "stable",
       "since": "0.1.0",
       "family": "navigation",

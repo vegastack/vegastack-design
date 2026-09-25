@@ -22,7 +22,7 @@ import {
   FilterBarFacet,
 } from "@/components/ui/filter-bar";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import { ViewToggle } from "@/components/ui/view-toggle";
 
 <FilterBar
   aria-label="Task toolbar"
@@ -47,24 +47,12 @@ import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
     </Tabs>
   }
   view={
-    // Layout switches are an icon ToggleGroup.
-    <ToggleGroup
-      aria-label="View"
-      variant="outline"
-      spacing={0}
-      deselectable={false}
-      value={[view]}
-      onValueChange={([v]) => v && setView(v)}
-    >
-      <ToggleGroupItem value="list">
-        <List />
-        <span>List</span>
-      </ToggleGroupItem>
-      <ToggleGroupItem value="board">
-        <Kanban />
-        <span>Board</span>
-      </ToggleGroupItem>
-    </ToggleGroup>
+    // Layout switches are ViewToggle — the same default Tabs, icons kept, labels hidden on a phone.
+    <ViewToggle
+      value={view}
+      onValueChange={setView}
+      views={["list", "board"]}
+    />
   }
   facets={
     <>
@@ -113,7 +101,7 @@ and what "Clear" resets.
   search={{ value, onValueChange }} // row 1, first — a <SearchInput>, ~320px (full width on a phone)
   scope={/* Tabs size="sm" */} //      row 1, right of the Filters toggle
   actions={/* e.g. a Select Button */} // row 1, before the view
-  view={/* icon ToggleGroup */} //       row 1, furthest right
+  view={/* ViewToggle (default Tabs) */} // row 1, furthest right
   facets={/* FilterBarFacet, DateRangeFilter */} // row 2, the primary filters
   filters={[/* … */]} //                row 2, one removable <FilterChip> per applied filter
   addFilters={[/* … */]} //             row 2, the "More" <DropdownMenu> of secondary filters
@@ -374,5 +362,5 @@ and `groupBy`) and adds its own:
 
 <DoDont
   do="Keep three or four primary facets on the filter row with short sentence-case labels, and move the rest into More."
-  dont="Label an unset facet 'Any' or 'All statuses', use a line Tabs or a ToggleGroup for scope/views, or keep an option in More for a facet that is already showing."
+  dont="Label an unset facet 'Any' or 'All statuses', use a line Tabs or a ToggleGroup for a scope or view switch (toolbar switches use default Tabs), or keep an option in More for a facet that is already showing."
 />

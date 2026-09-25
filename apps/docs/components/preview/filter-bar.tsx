@@ -28,7 +28,8 @@ import {
   type FilterBarFilter,
 } from "@/components/ui/filter-bar";
 import { NumberField } from "@/components/ui/number-field";
-import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ViewToggle, type ListView } from "@/components/ui/view-toggle";
 
 const ADD_OPTIONS = [
   { id: "status", label: "Status", icon: <CircleDot /> },
@@ -69,7 +70,7 @@ const optionProps = {
 export function filterBar(): ReactNode {
   const [query, setQuery] = useState("");
   const [scope, setScope] = useState("mine");
-  const [view, setView] = useState("list");
+  const [view, setView] = useState<ListView>("list");
   const [status, setStatus] = useState<Option[]>([TOOLBAR_STATUSES[0]!]);
   const [due, setDue] = useState<Option | null>(null);
   const [assignee, setAssignee] = useState<Option | null>(null);
@@ -85,37 +86,20 @@ export function filterBar(): ReactNode {
           placeholder: "Search tasks",
         }}
         scope={
-          <ToggleGroup
-            aria-label="Scope"
-            variant="outline"
-            spacing={0}
-            deselectable={false}
-            value={[scope]}
-            onValueChange={([next]) => next && setScope(next)}
-          >
-            <ToggleGroupItem value="mine">My tasks</ToggleGroupItem>
-            <ToggleGroupItem value="created">Created by me</ToggleGroupItem>
-            <ToggleGroupItem value="team">Team</ToggleGroupItem>
-          </ToggleGroup>
+          <Tabs value={scope} onValueChange={(next) => setScope(String(next))}>
+            <TabsList size="sm" aria-label="Scope">
+              <TabsTrigger value="mine">My tasks</TabsTrigger>
+              <TabsTrigger value="created">Created by me</TabsTrigger>
+              <TabsTrigger value="team">Team</TabsTrigger>
+            </TabsList>
+          </Tabs>
         }
         view={
-          <ToggleGroup
-            aria-label="View"
-            variant="outline"
-            spacing={0}
-            deselectable={false}
-            value={[view]}
-            onValueChange={([next]) => next && setView(next)}
-          >
-            <ToggleGroupItem value="list">
-              <List aria-hidden />
-              <span>List</span>
-            </ToggleGroupItem>
-            <ToggleGroupItem value="board">
-              <Columns3 aria-hidden />
-              <span>Board</span>
-            </ToggleGroupItem>
-          </ToggleGroup>
+          <ViewToggle
+            value={view}
+            onValueChange={setView}
+            views={["list", "board"]}
+          />
         }
         facets={
           <>

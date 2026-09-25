@@ -1292,7 +1292,7 @@
         "lucide-react@^1.47.0"
       ],
       "registryDependencies": [
-        "@vegastack/toggle-group"
+        "@vegastack/tabs"
       ],
       "files": [
         {
@@ -1303,9 +1303,9 @@
       ],
       "meta": {
         "whenToUse": "Switching a list page between list, grid and board views — DataList mounts it for you with onViewChange.",
-        "whenNotToUse": "A scope switch such as Mine | Team (ToggleGroup or Tabs), or a form value (RadioGroup).",
+        "whenNotToUse": "A scope switch such as Mine | Team (default Tabs), or a form value (RadioGroup).",
         "version": "0.23.22",
-        "integrity": "sha256-6yWOp8LzGxMpLzOVOMxKdMO8YITp7fSfRSmwKsOlKkQ="
+        "integrity": "sha256-+2IQa+U+NAKrb5e/cHINynfjkxIZaL1SgvPzddnWKn4="
       }
     },
     {
@@ -1768,7 +1768,7 @@
         "whenToUse": "Filter toolbars for lists/tables — 'Label: value' chips that edit in place, facets on SearchableSelect, an Add-filter menu and a settled search, at the end or first.",
         "whenNotToUse": "A single search box (Input), value selection (Select), or unrelated row actions.",
         "version": "0.23.22",
-        "integrity": "sha256-qlR51+vui+GAA7jRx6fklDaRgsi3kBuD+ufeHyv2mPo="
+        "integrity": "sha256-GVZO5/j9Hyam0IOQls4dSzc+ySK4nm3xCALS7aLki0w="
       }
     },
     {
@@ -16679,7 +16679,7 @@
       "name": "tabs",
       "type": "registry:ui",
       "title": "Tabs",
-      "description": "Layered content sections — default (segmented) or line variants, compact size, optional leading icons and counts, horizontal or vertical, full keyboard navigation. Use Tabs for scope/views (My tasks | Team tasks); use an icon ToggleGroup for List/Board layout switches. The one component that keeps a focus ring.",
+      "description": "Layered content sections — default (segmented) or line variants, compact size, optional leading icons and counts, horizontal or vertical, full keyboard navigation. Toolbar switches use default Tabs: scope (My tasks | Team tasks) and views, whose List/Board/Grid switch is ViewToggle (default Tabs with icons). The one component that keeps a focus ring.",
       "categories": [
         "navigation"
       ],
@@ -16701,7 +16701,7 @@
         "whenToUse": "Organize related content into peer sections the user switches between in place; a count after a trigger's label is an aria-hidden tabular number plus an sr-only suffix, so it reads as part of the tab's name. A line list scrolls sideways inside itself when the tabs outnumber the width; orientation=\"vertical\" suits a stable column of settings sections. For tabs that are separate pages, draw a nav of links from tabsListVariants and tabsTriggerVariants with aria-current=\"page\" (route tabs).",
         "whenNotToUse": "Sequential multi-step flows (stepper), single-select form input (radio/select), sections that must be visible at once, or page-level navigation rendered as a tablist — route tabs are links, not tabs.",
         "version": "0.23.22",
-        "integrity": "sha256-W9QBm30YaFMZPmkiK2L2cH0E8xzgUfJIvRAgn1UVYg8="
+        "integrity": "sha256-VNL5DY9KyLOlSRPvbWD4nAJWenxKSUnXzTYJGP5afQA="
       }
     },
     {
