@@ -1,5 +1,14 @@
 # @vegastack/ui
 
+## 0.23.29
+
+### Patch Changes
+
+- [#304](https://github.com/vegastack/vegastack-design/pull/304) [`ffa5257`](https://github.com/vegastack/vegastack-design/commit/ffa5257f1da13a020e6f41bbdc5c19a365e42883) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🔧 Toast actions close their toast: clicking the action (e.g. "Undo") runs it and dismisses the toast; `data: { keepOpen: true }` opts out. Tooltips open after 250ms everywhere (`TIMINGS.tooltipOpenDelayMs`, was 300), and RelativeTime's date tooltips now use that shared delay instead of opening instantly.
+
+- Updated dependencies [[`ffa5257`](https://github.com/vegastack/vegastack-design/commit/ffa5257f1da13a020e6f41bbdc5c19a365e42883)]:
+  - @vegastack/design@0.7.38
+
 ## 0.23.28
 
 ### Patch Changes
