@@ -1238,6 +1238,7 @@ for (const theme of ["light", "dark"] as const) {
         onOpenChange={() => {}}
         notifications={NOTIFICATIONS}
         onMarkAllRead={() => {}}
+        onToggleRead={() => {}}
       />,
     );
     await settledOverlay('[data-slot="sheet-content"]');

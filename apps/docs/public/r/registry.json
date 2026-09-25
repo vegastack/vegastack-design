@@ -19529,7 +19529,7 @@
       "name": "notifications-01",
       "type": "registry:block",
       "title": "Notifications 01",
-      "description": "An Inbox sheet — rail row and bell triggers with the unread count in their names, All | Unread, Today and Earlier groups of linked rows, and Load older.",
+      "description": "An Inbox sheet on the Inbox component — rail row and bell triggers with the unread count, Mark all read and ⋯, All | Unread chips, day groups of linked rows with avatars, unread tint and action chips, and Load older.",
       "categories": [
         "notifications",
         "navigation"
@@ -19540,17 +19540,14 @@
       ],
       "registryDependencies": [
         "@vegastack/app-shell",
-        "@vegastack/button",
-        "@vegastack/empty",
-        "@vegastack/item",
+        "@vegastack/date-time",
+        "@vegastack/dropdown-menu",
+        "@vegastack/inbox",
         "@vegastack/load-more",
         "@vegastack/notification-bell",
         "@vegastack/page-header",
-        "@vegastack/relative-time",
         "@vegastack/sheet",
         "@vegastack/sidebar",
-        "@vegastack/skeleton",
-        "@vegastack/toggle-group",
         "@vegastack/use-announcer"
       ],
       "files": [
@@ -19574,7 +19571,7 @@
         "whenToUse": "Your app's notification inbox, opened from the shell — copy it once and wire the rows, Mark all read and paging to your API.",
         "whenNotToUse": "A single transient message — use a toast; an activity history on a record — use Timeline.",
         "version": "0.23.7",
-        "integrity": "sha256-ESgRrJ3AjkbXKqdm3bf+ygdKcb9uzkULeIRjM4wRfdc="
+        "integrity": "sha256-AaZg8Nhbsinm9+fGZIaTTsGrcEJuGTowynNhoHMncWY="
       }
     },
     {
@@ -19623,7 +19620,7 @@
         "whenToUse": "App-wide search behind ⌘K and the sidebar's Search row — copy it once and pass your search call.",
         "whenNotToUse": "Filtering one list in place — use FilterBar's search.",
         "version": "0.23.7",
-        "integrity": "sha256-0oXRtuWFBBQRKuhkkQP0aXhQWs5o+OnaOHRvi7lSeqs="
+        "integrity": "sha256-1kYI84fRyRbz3yIrxoWRwtrejUTQCgsB8rtwwKl1q6A="
       }
     }
   ]

@@ -1,4 +1,4 @@
-// @vegastack command-search-01@0.23.7 sha256-0oXRtuWFBBQRKuhkkQP0aXhQWs5o+OnaOHRvi7lSeqs=
+// @vegastack command-search-01@0.23.7 sha256-1kYI84fRyRbz3yIrxoWRwtrejUTQCgsB8rtwwKl1q6A=
 
 "use client";
 
@@ -22,6 +22,7 @@ import {
   Command,
   CommandDialog,
   CommandEmpty,
+  CommandFilters,
   CommandFooter,
   CommandGroup,
   CommandInput,
@@ -30,14 +31,8 @@ import {
   CommandLoading,
 } from "@/components/ui/command";
 import { ItemContent, ItemDescription, ItemTitle } from "@/components/ui/item";
-import { Kbd, KbdGroup } from "@/components/ui/kbd";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { useAnnouncer } from "@/components/ui/use-announcer";
-import {
-  formatShortcut,
-  formatShortcutKey,
-  usePlatform,
-} from "@/components/ui/use-platform";
 
 /** One search result. */
 export interface SearchResult {
@@ -181,7 +176,7 @@ function ResultItem({
  * Alt+← / Alt+→ switches scope without leaving the input; changing scope re-asks and keeps the
  * query. An empty query shows recents; typing waits `TIMINGS.searchDebounceMs` before asking. ↵
  * opens the selected result, ⌘↵ / Ctrl+↵ opens it in a new tab, and only http(s) links are followed.
- * The footer's hints are built with `formatShortcut`.
+ * The footer shows `CommandFooter`'s built-in key hints.
  *
  * @example
  * <CommandSearch search={(q, scope, signal) => api.search(q, scope, { signal })} recents={recent} />
@@ -193,7 +188,6 @@ export function CommandSearch({
   onOpenChange,
   defaultOpen = false,
 }: CommandSearchProps) {
-  const { os } = usePlatform();
   const { announce, Announcer } = useAnnouncer();
   const [uncontrolledOpen, setUncontrolledOpen] = React.useState(defaultOpen);
   const open = openProp ?? uncontrolledOpen;
@@ -288,7 +282,6 @@ export function CommandSearch({
     <CommandDialog
       open={open}
       onOpenChange={setOpen}
-      size="lg"
       title="Search"
       description="Search meetings, tasks, products, families, accessories, customers, projects, attributes and pages"
     >
@@ -307,7 +300,7 @@ export function CommandSearch({
           aria-keyshortcuts="Alt+ArrowLeft Alt+ArrowRight"
         />
         <Announcer />
-        <div className="px-2 pt-2" onKeyDown={keepKeys}>
+        <CommandFilters onKeyDown={keepKeys}>
           <ToggleGroup
             size="sm"
             variant="outline"
@@ -325,7 +318,7 @@ export function CommandSearch({
               </ToggleGroupItem>
             ))}
           </ToggleGroup>
-        </div>
+        </CommandFilters>
         <CommandList>
           {status === "loading" ? <CommandLoading label="Searching…" /> : null}
           {status === "error" ? (
@@ -369,17 +362,7 @@ export function CommandSearch({
               })
             : null}
         </CommandList>
-        <CommandFooter className="hidden sm:flex" aria-hidden>
-          <KbdGroup>
-            <Kbd>{formatShortcutKey("enter", os)}</Kbd> Open
-          </KbdGroup>
-          <KbdGroup>
-            <Kbd>{formatShortcut(["mod", "enter"], os)}</Kbd> New tab
-          </KbdGroup>
-          <KbdGroup>
-            <Kbd>Esc</Kbd> Close
-          </KbdGroup>
-        </CommandFooter>
+        <CommandFooter className="hidden sm:flex" aria-hidden />
       </Command>
     </CommandDialog>
   );

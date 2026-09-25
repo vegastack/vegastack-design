@@ -31,6 +31,24 @@ export function checkbox(): ReactNode {
   );
 }
 
+/** `shape="circle"` — a round check for marking a task done. */
+export function checkboxCircle(): ReactNode {
+  return (
+    <Wrapper>
+      <FieldGroup className="mx-auto w-56">
+        <Field orientation="horizontal">
+          <Checkbox id="task-circle-1" shape="circle" defaultChecked />
+          <FieldLabel htmlFor="task-circle-1">Send the quote</FieldLabel>
+        </Field>
+        <Field orientation="horizontal">
+          <Checkbox id="task-circle-2" shape="circle" />
+          <FieldLabel htmlFor="task-circle-2">Book the site visit</FieldLabel>
+        </Field>
+      </FieldGroup>
+    </Wrapper>
+  );
+}
+
 export function checkboxCheckedState(): ReactNode {
   const [checked, setChecked] = React.useState(false);
   return (

@@ -71,7 +71,12 @@ description one step dimmer. Give every one of them an icon, so the hue is never
 ### Action
 
 Use `AlertAction` to add a button or another action element to the alert. It is positioned on the
-trailing edge of the first row, and the root reserves the inline space for it.
+trailing edge of the first row, and the root reserves the inline space for it. Use a
+`Button size="xs" variant="outline"` — the Regent app's "Try again" on a failed refresh.
+
+When you move focus to an alert (after a failed submit, say), it shows no focus ring: it is a
+programmatic focus target, not a control, so give it `tabIndex={-1}` and keep the ring for the
+action button inside it.
 
 <ComponentPreview name="alertAction" file="components/preview/alert.tsx" />
 

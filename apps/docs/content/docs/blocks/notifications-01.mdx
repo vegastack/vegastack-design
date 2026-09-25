@@ -1,6 +1,6 @@
 ---
 title: notifications-01
-description: An Inbox sheet opened from the rail and the bell, with All | Unread, Today and Earlier groups of linked rows, and Load older.
+description: The Regent Inbox — a sheet on the Inbox component with Mark all read and ⋯, All | Unread chips, day groups, rich rows with action chips, and Load older.
 audience: public
 registry: notifications-01
 preview: notifications01Demo
@@ -8,7 +8,7 @@ preview: notifications01Demo
 
 ## What it is
 
-An Inbox sheet — rail row and bell triggers with the unread count in their names, All | Unread, Today and Earlier groups of linked rows, and Load older. It is a **block**: you pull it once with `shadcn add`, and then you own it —
+The Regent app's Inbox, as a block: rail row and bell triggers with the unread count in their names, opening a sheet that holds the [`Inbox`](/docs/components/inbox) panel — Mark all read and ⋯ in the header, All | Unread chips, day groups of linked rows, action chips, Load older and "You’re all caught up". It is a **block**: you pull it once with `shadcn add`, and then you own it —
 nothing re-pulls it and no integrity hash tracks your edits, unlike the components it composes.
 
 `InboxSheet` in `components/` is the sheet; the page wires it to two triggers and the sample notifications.
@@ -21,7 +21,7 @@ npx shadcn@latest add @vegastack/notifications-01
 
 <RegistryInstallCallout />
 
-This installs the block's own files plus the components it composes: `app-shell`, `button`, `empty`, `item`, `load-more`, `notification-bell`, `page-header`, `relative-time`, `sheet`, `sidebar`, `skeleton`, `toggle-group`, `use-announcer`.
+This installs the block's own files plus the components it composes: `app-shell`, `date-time`, `dropdown-menu`, `inbox`, `load-more`, `notification-bell`, `page-header`, `sheet`, `sidebar`, `use-announcer`.
 
 ## Preview
 
@@ -34,27 +34,33 @@ Both carry the unread count in their accessible names — `badge` + `badgeLabel`
 `countLabel` on the bell — so the visual count is decoration. When the sheet closes, focus returns
 to whichever trigger opened it.
 
-## The sheet
+## The panel
 
-- `SheetContent side="right" size="default"` › `SheetHeader` with `SheetTitle` "Inbox" and
-  `SheetAction` "Mark all read" › an All | Unread `ToggleGroup` (`deselectable={false}`) ›
-  `SheetBody`.
-- Rows are grouped under `ItemGroupLabel`s "Today" and "Earlier". Each row is one link — `Item
-size="sm"` rendered as an `<a>` — with a title, up to two lines of detail and a `RelativeTime`
-  that is not a tab stop of its own.
-- An unread row shows `NotificationDot` (the primary ink, because unread is not a failure), a
-  heavier title and an sr-only "Unread:".
-- "Mark all read" is announced once through `useAnnouncer`: "Marked all read".
-- `LoadMore label="Load older"` pages older notifications.
+- `SheetContent showCloseButton={false}` holds `Inbox`, whose `title` is the `SheetTitle` and whose
+  ✕ closes the sheet. In Regent the sheet docks beside the sidebar (`side="left"`, non-modal with
+  `showOverlay={false}` on desktop, full screen on a phone); the block uses a plain right sheet.
+- **Header** — `InboxMarkAllRead` (✓✓, shown while anything is unread) and `InboxMenuAction` (⋯)
+  for settings. "Mark all read" is announced once through `useAnnouncer`: "Marked all read".
+- **Filters** — `InboxFilters`: All | Unread chips, the unread count on Unread.
+- **Day groups** — `groupByDay` from `date-time` buckets rows into Today, Yesterday, This week,
+  Last week and Earlier, each an `InboxGroup` with a sticky label.
+- **Rows** — `InboxItem`: the actor's avatar, or an icon for system events (destructive for a
+  failure); an unread tint with an sr-only "Unread:"; a rich title with `InboxEmphasis` on the
+  actor and the record; one line of `meta`; a repeat count; the relative time, which gives way to
+  the read toggle and ⋯ on hover or focus. The whole row is one link.
+- **Action chips** — `actions` adds Approve / Reject chips; Approve shows its loading and
+  "Approved" done state.
+- **Footer** — `LoadMore label="Load older"` pages older rows and ends on "You’re all caught up".
 
 ## States
 
 | State          | Copy                                                             |
 | -------------- | ---------------------------------------------------------------- |
-| Loading        | skeleton rows, with "Loading notifications" for screen readers   |
+| Loading        | `InboxSkeleton` rows, "Loading inbox" for screen readers         |
 | Nothing at all | No notifications — Assignments and meeting updates show up here. |
 | Nothing unread | You’re all caught up                                             |
-| Failed load    | Couldn’t load notifications — Try again                          |
+| Failed load    | Couldn’t load your inbox — Try again                             |
+| End of list    | You’re all caught up                                             |
 
 ## Files
 
@@ -68,5 +74,5 @@ size="sm"` rendered as an `<a>` — with a title, up to two lines of detail and 
 
 <DoDont
   do="Put the count in each trigger’s name, and make every row one link to the thing it is about."
-  dont="Colour the unread dot red, or put buttons inside a row."
+  dont="Colour unread rows red, or nest a second link inside a row — use action chips and the ⋯ menu."
 />
