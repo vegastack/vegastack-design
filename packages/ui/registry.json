@@ -341,7 +341,7 @@
       "name": "board",
       "type": "registry:ui",
       "title": "Board",
-      "description": "Kanban columns over use-drag-reorder — content/chrome split (host renders card content only), pointer drag, keyboard move mode + roving focus, lossless per-card Move menu with lock reasons, server-refusable moves, named lanes with a muted total count, loading and custom empty lanes, collapsed lanes, cards as real links, Empty-bordered drop targets.",
+      "description": "Kanban lanes — full-height lanes that scroll their cards inside, sticky headers with a collapse menu, + Add at each lane's foot, Nothing here / Drop here empty zones, per-lane skeletons and load-on-scroll paging; live pointer and touch drag (lift, make room, settle, edge auto-scroll), a keyboard pick-up/move/drop model, a lossless per-card Move menu, optimistic moves with rollback and a toast, and one lane at a time on a phone.",
       "categories": ["layout"],
       "dependencies": [
         "@base-ui/react@^1.6.0",
@@ -351,16 +351,15 @@
       ],
       "registryDependencies": [
         "@vegastack/button",
-        "@vegastack/card",
         "@vegastack/data-table-parts",
-        "@vegastack/drag-item",
         "@vegastack/dropdown-menu",
-        "@vegastack/empty",
         "@vegastack/load-more",
-        "@vegastack/scroll-area",
         "@vegastack/skeleton",
+        "@vegastack/toast",
         "@vegastack/truncated-text",
+        "@vegastack/use-announcer",
         "@vegastack/use-drag-reorder",
+        "@vegastack/use-media-query",
         "@vegastack/use-mobile"
       ],
       "files": [
@@ -373,6 +372,36 @@
       "meta": {
         "whenToUse": "Cross-column card movement — pipelines, kanban, staged workflows — where the host owns ordering and the move can be refused by a server gate; lanes may be partially loaded (count shows the total) and cards may be links to their records.",
         "whenNotToUse": "Single-list reordering (sortable-list), tabular data (data-list/data-grid), or static column layouts with no movement (plain Cards in a flex row).",
+        "version": "0.23.11"
+      }
+    },
+    {
+      "name": "board-card",
+      "type": "registry:ui",
+      "title": "Board Card",
+      "description": "A work item as a board card — a round completion tick, a two-line title, a muted context line, and a bottom row with the due chip (destructive when overdue, warning when due today), the priority chip, a source icon and the assignee's avatar.",
+      "categories": ["data"],
+      "dependencies": [
+        "@vegastack/design@^0.7.20",
+        "@vegastack/design-tokens@^0.7.18",
+        "@base-ui/react@^1.6.0"
+      ],
+      "registryDependencies": [
+        "@vegastack/avatar",
+        "@vegastack/badge",
+        "@vegastack/checkbox",
+        "@vegastack/date-time"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/board-card.tsx",
+          "type": "registry:ui",
+          "target": "@ui/board-card.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "The content of a Board card (tasks, deals, tickets) — DataList's board view renders one per row — or a standalone work-item card.",
+        "whenNotToUse": "A record with an image (MediaCard), a long body (Card), or a table row (DataList).",
         "version": "0.23.11"
       }
     },
@@ -939,6 +968,7 @@
         "@vegastack/board",
         "@vegastack/filter-bar",
         "@vegastack/media-card",
+        "@vegastack/board-card",
         "@vegastack/skeleton",
         "@vegastack/thumbnail",
         "@vegastack/view-toggle",
@@ -13940,12 +13970,11 @@
       ],
       "registryDependencies": [
         "@vegastack/app-shell",
-        "@vegastack/avatar",
-        "@vegastack/board",
+        "@vegastack/board-card",
         "@vegastack/button",
+        "@vegastack/data-list",
         "@vegastack/data-table-parts",
         "@vegastack/dropdown-menu",
-        "@vegastack/empty",
         "@vegastack/filter-bar",
         "@vegastack/page-header"
       ],
@@ -15828,11 +15857,8 @@
         "@vegastack/data-list",
         "@vegastack/empty",
         "@vegastack/filter-bar",
-        "@vegastack/item",
-        "@vegastack/load-more",
         "@vegastack/page-header",
         "@vegastack/relative-time",
-        "@vegastack/skeleton",
         "@vegastack/toggle-group"
       ],
       "files": [

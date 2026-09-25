@@ -28,7 +28,7 @@ test("grid and list show the same records, and the view switch never empties", a
 
   const grid = screen.getByRole("button", { name: "Grid", exact: true });
   await grid.click();
-  const gridNames = names('a[data-slot="item"]');
+  const gridNames = names('a[data-slot="media-card-link"]');
   expect(new Set(gridNames)).toEqual(new Set(listNames));
   await grid.click();
   await expect.element(grid).toHaveAttribute("aria-pressed", "true");
@@ -44,9 +44,7 @@ test("Load more appends the next page", async () => {
 test("each empty tier shows its copy", async () => {
   const screen = await render(<ListPage01 />);
   await screen.getByRole("searchbox", { name: "Search customers" }).fill("zzz");
-  await expect
-    .element(screen.getByRole("heading", { name: "No matches" }))
-    .toBeInTheDocument();
+  await expect.element(screen.getByText("No matches")).toBeInTheDocument();
   await expectNoA11yViolations(document.body, ["color-contrast"]);
   await screen.getByRole("button", { name: "Clear filters" }).first().click();
   await expect.element(screen.getByText("Skyline Hotels")).toBeInTheDocument();

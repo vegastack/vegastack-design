@@ -1,4 +1,4 @@
-// @vegastack data-list@0.23.11 sha256-UaS0A7hba41VfO1ZCtvz6B5zJ5bUfAQzYRdNIwe4caY=
+// @vegastack data-list@0.23.11 sha256-D3+5wK6G9XDBIuR8qPkT5hFA1dNYt/JIW2IoMmBzPGo=
 
 "use client";
 
@@ -51,6 +51,7 @@ import { TruncationFocusProvider } from "@/components/ui/truncated-text";
 import { Board, type BoardColumn } from "@/components/ui/board";
 import { FilterBar } from "@/components/ui/filter-bar";
 import { MediaCard } from "@/components/ui/media-card";
+import { BoardCard, type BoardCardProps } from "@/components/ui/board-card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Thumbnail } from "@/components/ui/thumbnail";
 import { ViewToggle, type ListView } from "@/components/ui/view-toggle";
@@ -452,10 +453,11 @@ export interface DataListProps<T> extends Omit<
    */
   gridSize?: "default" | "lg";
   /**
-   * Render a row as a card, for the grid and board views. Defaults to a `MediaCard`: the first
-   * column is the title, the other columns join into its meta line, a `thumbnail` column is its
-   * image, `getRowHref` its link and `rowActions` its ⋯ menu. On a board it is the card's
-   * content only — the board owns the card surface and its link.
+   * Render a row as a card, for the grid and board views. The grid defaults to a `MediaCard`:
+   * the first column is the title, the other columns join into its meta line, a `thumbnail`
+   * column is its image, `getRowHref` its link and `rowActions` its ⋯ menu. The board defaults
+   * to a `BoardCard` (see `boardCard`). On a board it is the card's content only — the board
+   * owns the card surface, its link and its ⋯ menu.
    * @default undefined
    */
   renderCard?: (row: T, index: number) => React.ReactNode;
@@ -476,6 +478,43 @@ export interface DataListProps<T> extends Omit<
     toSection: string,
     move: DragReorderMove,
   ) => void | Promise<void>;
+  /**
+   * Board view: a row's `BoardCard` fields — `title`, `context`, `due`, `priority`, `assignee`,
+   * `done`/`onDoneChange`, `source`. Without it the card's title is the first column and its
+   * context line joins the other columns.
+   * @default undefined
+   */
+  boardCard?: (
+    row: T,
+  ) => Omit<BoardCardProps, "surface" | "href" | "linkRender">;
+  /**
+   * Board view: show "+ Add" at each lane's foot and call this with the lane's section id, so the
+   * host's create form opens with that status filled in.
+   * @default undefined
+   */
+  onAddToSection?: (sectionId: string) => void;
+  /**
+   * Board view: the add button's label ("Add task").
+   * @default "Add card"
+   */
+  addLabel?: string;
+  /**
+   * Board view: the collapsed lanes' section ids, controlled. Without it each section's
+   * `defaultCollapsed` seeds the board's own state.
+   * @default undefined
+   */
+  collapsedSections?: readonly string[];
+  /**
+   * Board view: called with the collapsed lanes' ids when the user collapses or expands one.
+   * @default undefined
+   */
+  onCollapsedSectionsChange?: (ids: string[]) => void;
+  /**
+   * Board view: the board's height — `"fill"` runs the lanes to the bottom of the viewport, with
+   * cards scrolling inside each lane; `"auto"` or a CSS length otherwise.
+   * @default "fill"
+   */
+  boardHeight?: "fill" | "auto" | (string & {});
 }
 
 /** The `noResults` state's copy and its "Clear filters" action. */
@@ -623,10 +662,30 @@ export interface DataListSection {
    */
   loadMore?: DataListLoadMoreProps;
   /**
-   * Board view: what an empty lane shows.
-   * @default a bordered "No items" Empty
+   * Board view: what an empty lane shows at rest (while dragging, it shows "Drop here").
+   * @default a dashed "Nothing here" zone
    */
   emptyState?: React.ReactNode;
+  /**
+   * Board view: start this lane collapsed to a slim strip. It expands read-only (a terminal lane).
+   * @default false
+   */
+  defaultCollapsed?: boolean;
+  /**
+   * Board view: whether cards can be moved into this lane.
+   * @default true
+   */
+  droppable?: boolean;
+  /**
+   * Board view: why this lane refuses cards — shown in the Move menu and the empty lane.
+   * @default undefined
+   */
+  lockedReason?: string;
+  /**
+   * Board view: show the "+ Add" button at this lane's foot (with `onAddToSection`).
+   * @default true
+   */
+  addable?: boolean;
 }
 
 const EMPTY_GROUP_STATE: GroupState = {};
@@ -824,6 +883,12 @@ export function DataList<T>({
   renderCard,
   thumbnailFallback,
   onMove,
+  boardCard,
+  onAddToSection,
+  addLabel,
+  collapsedSections,
+  onCollapsedSectionsChange,
+  boardHeight,
   className,
   "aria-busy": ariaBusy,
   "aria-describedby": ariaDescribedBy,
@@ -1459,6 +1524,16 @@ export function DataList<T>({
   const defaultCard = (row: T, index: number, onBoard: boolean) => {
     const first = columns[0];
     const id = rowIds[index]!;
+    if (onBoard)
+      return boardCard ? (
+        <BoardCard surface={false} {...boardCard(row)} />
+      ) : (
+        <BoardCard
+          surface={false}
+          title={first ? renderCell(first, row, index, id, false) : null}
+          context={cardMeta(row, index)}
+        />
+      );
     return (
       <MediaCard
         size={onBoard ? "default" : gridSize}
@@ -1570,9 +1645,9 @@ export function DataList<T>({
 
   const rowIndex = new Map<T, number>();
   data.forEach((row, index) => rowIndex.set(row, index));
-  const boardLanes: BoardColumn<T>[] = (
-    sections && getRowSection ? sections : [{ id: "__all", label: "All" }]
-  ).map((section) => ({
+  const laneSections: readonly DataListSection[] =
+    sections && getRowSection ? sections : [{ id: "__all", label: "All" }];
+  const boardLanes: BoardColumn<T>[] = laneSections.map((section) => ({
     id: section.id,
     title: section.label,
     label: typeof section.label === "string" ? section.label : undefined,
@@ -1583,6 +1658,10 @@ export function DataList<T>({
     loading: section.loading ?? loading,
     loadMore: section.loadMore,
     emptyState: section.emptyState,
+    defaultCollapsed: section.defaultCollapsed,
+    droppable: section.droppable,
+    lockedReason: section.lockedReason,
+    addable: section.addable,
   }));
   const renderBoard = () =>
     !loading && data.length === 0 && noResults ? (
@@ -1603,7 +1682,12 @@ export function DataList<T>({
             ? (row) => onRowClick(row, rowIndex.get(row) ?? 0)
             : undefined
         }
-        dragDisabled={!onMove}
+        readOnly={!onMove}
+        onAdd={onAddToSection}
+        addLabel={addLabel}
+        collapsedColumns={collapsedSections}
+        onCollapsedChange={onCollapsedSectionsChange}
+        height={boardHeight}
         onMove={(move) => {
           const index = rowIds.indexOf(move.id);
           if (index < 0 || !onMove) return;

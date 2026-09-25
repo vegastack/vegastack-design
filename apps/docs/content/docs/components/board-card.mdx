@@ -1,0 +1,127 @@
+---
+title: Board Card
+description: A work item as a board card — a round completion tick, a two-line title, a muted context line, and a bottom row with due, priority, source and assignee.
+audience: public
+registry: board-card
+status: stable
+since: 0.23.12
+a11y: named done tick, labelled source icon, avatar named by the assignee
+preview: boardCard
+---
+
+## Install
+
+<InstallSteps name="board-card" />
+
+## Usage
+
+```tsx
+import { BoardCard } from "@/components/ui/board-card";
+
+<Board
+  columns={lanes}
+  getItemId={(task) => task.id}
+  getItemLabel={(task) => task.title}
+  renderCard={(task) => (
+    <BoardCard
+      surface={false}
+      title={task.title}
+      context={`${task.project} · ${task.customer}`}
+      done={task.done}
+      onDoneChange={(done) => api.setDone(task.id, done)}
+      due={task.dueAt}
+      dateOptions={{ timeZone }}
+      priority={task.priority}
+      assignee={{ name: task.owner.name, image: task.owner.avatarUrl }}
+      source={task.meetingId ? <CalendarDays /> : undefined}
+      sourceLabel="From a meeting"
+    />
+  )}
+  onMove={move}
+/>;
+```
+
+`BoardCard` is the content of one card on a [`Board`](/docs/components/board) lane: a round
+completion tick at the top start, a title of up to two lines, one muted context line ("project ·
+customer"), and a bottom row with the due chip, the priority chip, a source icon and the
+assignee's avatar at the end. [`DataList`](/docs/components/data-list)'s board view renders one per
+row (its `boardCard` prop maps a row to these fields).
+
+On a `Board`, pass `surface={false}`: the board owns the card's border, hover tint, focus cue,
+drag and ⋯ menu. On its own, the card draws 12px padding, a subtle border and a hover tint.
+
+<ComponentPreview name="boardCard" file="components/preview/board-card.tsx" />
+
+## Examples
+
+### Due dates
+
+The due chip reads the system date helpers (`formatDueLabel`), so a card and a list row agree:
+destructive when overdue ("Overdue 2d"), warning when due today, quiet otherwise. Pass
+`dateOptions={{ timeZone }}` so the server and the browser agree on "today".
+
+<ComponentPreview
+  name="boardCardDue"
+  file="components/preview/board-card.tsx"
+/>
+
+### Priority
+
+Urgent is destructive and High is warning; Medium and Low are quiet outline chips.
+`priorityLabel` renames the chip.
+
+<ComponentPreview
+  name="boardCardPriority"
+  file="components/preview/board-card.tsx"
+/>
+
+### Done
+
+`done` fills the round tick and strikes the title; the due chip stops warning. `onDoneChange`
+makes the tick a control — without it the tick is read-only.
+
+<ComponentPreview
+  name="boardCardDone"
+  file="components/preview/board-card.tsx"
+/>
+
+### Minimal and linked
+
+Every slot but the title is optional. Standalone, `href` (with your router's `linkRender`) makes
+the title a link stretched over the card; on a `Board`, use the board's `getItemHref` instead.
+
+<ComponentPreview
+  name="boardCardMinimal"
+  file="components/preview/board-card.tsx"
+/>
+
+## API Reference
+
+<ApiTable
+  path="../../packages/ui/registry/ui/board-card.tsx"
+  name="BoardCardProps"
+/>
+
+## Accessibility
+
+- The done tick is a real checkbox named "Mark done" (`doneLabel`). On a `Board` it sits above
+  the card's activator, so it is clickable without opening or dragging the card.
+- The source icon is decorative; `sourceLabel` is read in its place.
+- The avatar is named by the assignee (its initials are hidden from screen readers).
+- There is no focus ring: the system's focus cue is the background tint (FOC-13).
+- The ⋯ slot shows on hover and on keyboard focus, and always on a touch screen.
+
+| Key              | Action                            |
+| ---------------- | --------------------------------- |
+| <kbd>Tab</kbd>   | Move to the tick, the link, the ⋯ |
+| <kbd>Space</kbd> | On the tick, toggle done          |
+| <kbd>Enter</kbd> | On the link, open the record      |
+
+<StatesTested name="board-card" />
+
+## Do / Don't
+
+<DoDont
+  do="Pass surface={false} inside a Board and let the board's getItemActions fill its ⋯ menu."
+  dont="Pass actions to a BoardCard on a Board — the card would show two ⋯ menus."
+/>

@@ -12,8 +12,8 @@
     "evidencePolicy": "Observed fields come from source, registry metadata, docs, and test topology. Unknown/not-applicable values are explicit; no inferred behavior is presented as verified."
   },
   "expectedCounts": {
-    "totalRegistryItems": 682,
-    "components": 121,
+    "totalRegistryItems": 683,
+    "components": 122,
     "animatedIcons": 467,
     "hooks": 13,
     "blocks": 10,
@@ -25,7 +25,7 @@
     "Forms/editing": 26,
     "Navigation/layout": 17,
     "Overlays": 14,
-    "Data display": 17,
+    "Data display": 18,
     "Content/marketing": 14,
     "Shared internals": 2,
     "AI/chat": 8,
@@ -123,6 +123,7 @@
       "drawer"
     ],
     "Data display": [
+      "board-card",
       "card",
       "carousel",
       "chart",
@@ -2762,7 +2763,7 @@
       "name": "board",
       "registryType": "registry:ui",
       "title": "Board",
-      "summary": "Kanban columns over use-drag-reorder — content/chrome split (host renders card content only), pointer drag, keyboard move mode + roving focus, lossless per-card Move menu with lock reasons, server-refusable moves, named lanes with a muted total count, loading and custom empty lanes, collapsed lanes, cards as real links, Empty-bordered drop targets.",
+      "summary": "Kanban lanes — full-height lanes that scroll their cards inside, sticky headers with a collapse menu, + Add at each lane's foot, Nothing here / Drop here empty zones, per-lane skeletons and load-on-scroll paging; live pointer and touch drag (lift, make room, settle, edge auto-scroll), a keyboard pick-up/move/drop model, a lossless per-card Move menu, optimistic moves with rollback and a toast, and one lane at a time on a phone.",
       "status": "stable",
       "since": "0.4.0",
       "family": "layout",
@@ -2821,11 +2822,14 @@
             "collapsed",
             "read-only",
             "empty-column",
-            "drag-disabled-mobile",
             "loading",
-            "link-card"
+            "link-card",
+            "optimistic",
+            "auto-load",
+            "add",
+            "phone-single-lane"
           ],
-          "evidence": "use-drag-reorder drives drags/move mode/async contract; droppable:false lanes carry lock reasons into the menu; collapsed strips expand read-only; pointer drags disable below 768px while keyboard and menu survive. A lane with loading shows skeleton cards and is aria-busy; count shows the lane total over its loaded cards; emptyState replaces the default drop target; getItemHref renders a card as a real link (itemLinkRender swaps the element) whose clicks, modifier clicks and Enter are the browser own, while Space still lifts it."
+          "evidence": "usePointerDrag drives a live drag (4px mouse threshold, 250ms touch long-press with vibrate, Escape cancels); the lifted card follows the pointer in a portal while a gap opens at the drop slot; lanes and the board edge-scroll; on a phone one lane shows at a time and a dwell at the screen edge turns the lane. Keyboard: Space picks up, arrows move a ghost position, Space drops, Escape restores. Moves are optimistic and a rejected onMove promise snaps back, announces and toasts. Lanes collapse from their header menu; declared-collapsed lanes expand read-only; readOnly turns every move off. loading shows skeleton cards; loadMore auto-loads through an IntersectionObserver sentinel with the LoadMore button as fallback; onAdd shows + Add at each lane's foot; empty lanes show Nothing here / Drop here; getItemHref renders a card activator as a real link."
         },
         "accessibility": {
           "status": "observed",
@@ -2835,21 +2839,23 @@
             "status-announcement",
             "semantic-html"
           ],
-          "evidence": "Roving focus across the ragged card grid (RTL-aware ←/→ for browsing AND move mode); Space move mode with focus restored across cross-column remounts, Enter activate, M opens the named Move menu — within-column up/down/top/bottom plus cross-column targets with visible lock reasons; a populated column wraps its cards in role=list named \"{label}, {n} cards\" (an empty column renders the Empty affordance instead); lanes are named by label (or a string title) and cards by getItemLabel in the Move menu, the card control and the polite move/rejection announcements; card content sits under TruncationFocusProvider focusable={false}. Each lane is role=region named \"{label}, {countLabel(count)}\"; a link card has no nested interactive control (the Move menu trigger is its sibling)."
+          "evidence": "Roving focus across the ragged card grid (RTL-aware); Space pick-up / arrow move / Space drop / Escape cancel with every step announced through useAnnouncer and focus kept on the card across lane changes; Enter activates, M opens the card menu — within-lane up/down/top/bottom plus cross-lane targets with visible lock reasons. Each lane is role=region named \"{label}, {countLabel(count)}\" and its cards a role=list; the card activator is a sibling of the content, so a BoardCard's done tick is never nested in it. No focus ring (FOC-13): the card takes the background tint."
         },
         "visual": {
           "status": "observed",
           "values": [
             "default",
-            "dragging",
-            "drop-edge",
+            "lifted",
+            "drop-gap",
             "drop-over",
             "pending",
             "collapsed",
             "empty",
-            "loading"
+            "drop-here",
+            "loading",
+            "edge-fade"
           ],
-          "evidence": "Flat dragged cards (dim, never a shadow — doctrine); 2px primary drop-indicator; column border tint while a drag is over; pending shimmer (sanctioned loader animation, reduced-motion aware); Empty bordered drop-zone look."
+          "evidence": "The lifted card gains a shadow and a slight tilt (none under reduced motion) and settles into a dashed gap; other cards slide to make room (FLIP via the Web Animations API); lanes tint while a drag is over; pending shimmer; dashed Nothing here / Drop here zones; edge fades on the hidden-scrollbar board scroller."
         }
       },
       "responsive": {
@@ -2859,30 +2865,29 @@
           "text-truncation-and-flex-shrink",
           "viewport-breakpoint"
         ],
-        "rationale": "Horizontal overflow-x board; per-column ScrollArea capped by a dvh calc; min-w-0 truncating card content; drag disabled below 768px via useIsMobile."
+        "rationale": "Full-height lanes fill the viewport below the board (height=fill) with cards scrolling inside each lane; 320px lanes grow on wide screens and scroll sideways with a hidden scrollbar; below 768px one full-width lane shows at a time with scroll snap and a lane strip."
       },
       "motion": {
         "status": "observed",
-        "mechanisms": ["css-state-transition"],
+        "mechanisms": ["css-state-transition", "web-animations"],
         "reducedMotion": {
           "status": "observed",
-          "rationale": "The pending shimmer is animate-pulse (the sanctioned loader exception) disabled under reduced motion; drag previews are native."
+          "rationale": "usePrefersReducedMotion skips the FLIP slides and the settle glide, and the tilt is motion-safe only; the pending shimmer is animate-pulse, stopped by the global reduced-motion rule."
         }
       },
       "engines": [],
       "docsSlug": "/docs/components/board",
       "registryDependencies": [
         "@vegastack/button",
-        "@vegastack/card",
         "@vegastack/data-table-parts",
-        "@vegastack/drag-item",
         "@vegastack/dropdown-menu",
-        "@vegastack/empty",
         "@vegastack/load-more",
-        "@vegastack/scroll-area",
         "@vegastack/skeleton",
+        "@vegastack/toast",
         "@vegastack/truncated-text",
+        "@vegastack/use-announcer",
         "@vegastack/use-drag-reorder",
+        "@vegastack/use-media-query",
         "@vegastack/use-mobile"
       ],
       "npmDependencies": [
@@ -2905,31 +2910,55 @@
         "Board": {
           "attributes": [
             {
+              "name": "data-active",
+              "values": [""]
+            },
+            {
+              "name": "data-board-card-id",
+              "values": []
+            },
+            {
+              "name": "data-board-lane",
+              "values": []
+            },
+            {
+              "name": "data-board-strip",
+              "values": [""]
+            },
+            {
               "name": "data-column",
               "values": []
             },
             {
-              "name": "data-drag-item",
-              "values": []
+              "name": "data-drag-pending",
+              "values": [""]
             },
             {
-              "name": "data-drag-pending",
-              "values": []
+              "name": "data-drag-surface",
+              "values": [""]
             },
             {
               "name": "data-dragging",
-              "values": []
-            },
-            {
-              "name": "data-drop-edge",
-              "values": []
+              "values": [""]
             },
             {
               "name": "data-drop-over",
+              "values": [""]
+            },
+            {
+              "name": "data-lane",
               "values": []
             },
             {
+              "name": "data-lifted",
+              "values": [""]
+            },
+            {
               "name": "data-read-only",
+              "values": [""]
+            },
+            {
+              "name": "data-settling",
               "values": [""]
             },
             {
@@ -2937,20 +2966,190 @@
               "values": [
                 "board",
                 "board-card",
+                "board-card-body",
+                "board-card-placeholder",
                 "board-card-surface",
                 "board-column",
+                "board-column-add",
                 "board-column-body",
                 "board-column-collapsed",
                 "board-column-collapsed-title",
                 "board-column-count",
                 "board-column-empty",
+                "board-column-header",
+                "board-column-menu",
                 "board-column-skeleton",
                 "board-column-title",
+                "board-drag-overlay",
+                "board-fade-end",
+                "board-fade-start",
+                "board-lane-tabs",
                 "board-scroller"
+              ]
+            },
+            {
+              "name": "data-visible",
+              "values": [""]
+            }
+          ],
+          "cssVariables": [
+            "--board-column-max-height",
+            "--board-column-width",
+            "--board-gap-height",
+            "--drag-w"
+          ]
+        }
+      }
+    },
+    {
+      "name": "board-card",
+      "registryType": "registry:ui",
+      "title": "Board Card",
+      "summary": "A work item as a board card — a round completion tick, a two-line title, a muted context line, and a bottom row with the due chip (destructive when overdue, warning when due today), the priority chip, a source icon and the assignee's avatar.",
+      "status": "stable",
+      "since": "0.23.12",
+      "family": "data",
+      "wave": "Data display",
+      "sourceFiles": ["packages/ui/registry/ui/board-card.tsx"],
+      "publicSymbols": [
+        {
+          "name": "BoardCard",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/board-card.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "div",
+            "rationale": "Spread onto the root div."
+          }
+        },
+        {
+          "name": "BoardCardProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/board-card.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "BoardCardAssignee",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/board-card.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "BoardCardPriority",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/board-card.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "No visual variant axis; the due and priority chips pick Badge variants from their values."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "One size: 12px padding, a two-line title."
+      },
+      "states": {
+        "behavior": {
+          "status": "covered",
+          "values": [
+            "done",
+            "overdue",
+            "due-today",
+            "priority",
+            "assignee",
+            "source",
+            "link",
+            "no-surface"
+          ],
+          "evidence": "packages/ui/registry/ui/board-card.tsx + packages/ui/registry/ui/board-card.test.tsx"
+        },
+        "accessibility": {
+          "status": "covered",
+          "values": ["labeled", "browser-accessibility-test"],
+          "evidence": "packages/ui/registry/ui/board-card.test.tsx"
+        },
+        "visual": {
+          "status": "observed",
+          "values": ["default", "hover", "done"],
+          "evidence": "packages/ui/registry/ui/board-card.tsx"
+        }
+      },
+      "responsive": {
+        "status": "modeled",
+        "risks": ["text-truncation-and-flex-shrink"],
+        "rationale": "The title clamps to two lines and the context line truncates; the bottom row keeps the avatar at its end."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned motion mechanism."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/board-card",
+      "registryDependencies": [
+        "@vegastack/avatar",
+        "@vegastack/badge",
+        "@vegastack/checkbox",
+        "@vegastack/date-time"
+      ],
+      "npmDependencies": [
+        "@vegastack/design@^0.7.20",
+        "@vegastack/design-tokens@^0.7.18",
+        "@base-ui/react@^1.6.0"
+      ],
+      "testFiles": ["packages/ui/registry/ui/board-card.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required"
+      },
+      "previewModule": "board-card",
+      "dataAttributes": {
+        "BoardCard": {
+          "attributes": [
+            {
+              "name": "data-done",
+              "values": [""]
+            },
+            {
+              "name": "data-priority",
+              "values": []
+            },
+            {
+              "name": "data-slot",
+              "values": [
+                "board-card-actions",
+                "board-card-assignee",
+                "board-card-content",
+                "board-card-context",
+                "board-card-done",
+                "board-card-due",
+                "board-card-footer",
+                "board-card-priority",
+                "board-card-source",
+                "board-card-title"
               ]
             }
           ],
-          "cssVariables": ["--board-column-max-height", "--board-column-width"]
+          "cssVariables": []
         }
       }
     },
@@ -7008,6 +7207,7 @@
       "docsSlug": "/docs/components/data-list",
       "registryDependencies": [
         "@vegastack/board",
+        "@vegastack/board-card",
         "@vegastack/button",
         "@vegastack/data-table-parts",
         "@vegastack/empty",
@@ -8294,6 +8494,15 @@
             {
               "name": "data-slot",
               "values": []
+            }
+          ],
+          "cssVariables": []
+        },
+        "RowActionMenuItems": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["row-action-submenu-trigger"]
             }
           ],
           "cssVariables": []
@@ -26926,6 +27135,51 @@
             "status": "not-applicable",
             "rationale": "Type-only exports do not render or accept runtime refs."
           }
+        },
+        {
+          "name": "edgeScroll",
+          "kind": "function",
+          "source": "packages/ui/registry/ui/use-drag-reorder.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A hook or function returns values; it renders nothing and takes no ref."
+          }
+        },
+        {
+          "name": "PointerDragPoint",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/use-drag-reorder.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "usePointerDrag",
+          "kind": "hook",
+          "source": "packages/ui/registry/ui/use-drag-reorder.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A hook or function returns values; it renders nothing and takes no ref."
+          }
+        },
+        {
+          "name": "UsePointerDragOptions",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/use-drag-reorder.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "UsePointerDragReturn",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/use-drag-reorder.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
         }
       ],
       "variants": {
@@ -27903,12 +28157,11 @@
       "docsSlug": "/docs/blocks/board-01",
       "registryDependencies": [
         "@vegastack/app-shell",
-        "@vegastack/avatar",
-        "@vegastack/board",
+        "@vegastack/board-card",
         "@vegastack/button",
+        "@vegastack/data-list",
         "@vegastack/data-table-parts",
         "@vegastack/dropdown-menu",
-        "@vegastack/empty",
         "@vegastack/filter-bar",
         "@vegastack/page-header"
       ],
@@ -28227,11 +28480,8 @@
         "@vegastack/data-list",
         "@vegastack/empty",
         "@vegastack/filter-bar",
-        "@vegastack/item",
-        "@vegastack/load-more",
         "@vegastack/page-header",
         "@vegastack/relative-time",
-        "@vegastack/skeleton",
         "@vegastack/toggle-group"
       ],
       "npmDependencies": [

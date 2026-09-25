@@ -62,6 +62,7 @@
     "direction",
     "aspect-ratio",
     "board",
+    "board-card",
     "card",
     "separator",
     "scroll-area",

@@ -40,6 +40,12 @@
       "family": "layout",
       "source": "extras.md"
     },
+    "board-card": {
+      "disposition": "keep",
+      "family": "data",
+      "source": "Operator brief 2026-09-25 (Board redesign) — approved by MK 2026-09-25",
+      "rationale": "Upstream ships no work-item card. Board lanes (DataList's board view, the Regent Tasks page) need one shared card with a done tick, due and priority chips and an assignee; it composes our avatar, badge, checkbox and date helpers and carries no patch."
+    },
     "chip": {
       "disposition": "keep",
       "family": "display",

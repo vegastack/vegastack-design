@@ -1,4 +1,4 @@
-// @vegastack data-table-parts@0.23.11 sha256-mfDRE9ttAtQkgJBItnnLBw/DIrQ29IWhQ4cO48syEwg=
+// @vegastack data-table-parts@0.23.11 sha256-6J6grkMKQ7Am4hJCiMZ2yQb3AEt9gsmejPgb10JG3EI=
 
 "use client";
 
@@ -20,6 +20,9 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { ItemContent, ItemDescription, ItemTitle } from "@/components/ui/item";
@@ -955,6 +958,12 @@ export interface RowActionItem {
    * @default false
    */
   separatorBefore?: boolean;
+  /**
+   * Nested actions: the item opens a submenu ("Change status ›", "Assign ›") listing these
+   * entries instead of running `onSelect`. Separators and further nesting work the same way.
+   * @default undefined
+   */
+  items?: RowAction[];
 }
 
 /** A divider between groups of row actions: `{ type: "separator" }`. */
@@ -1020,29 +1029,48 @@ export function RowActionMenuItems({
       {withSeparators(actions).map(({ action, separated }) => (
         <React.Fragment key={action.label}>
           {separated ? <DropdownMenuSeparator /> : null}
-          <DropdownMenuItem
-            variant={action.destructive ? "destructive" : "default"}
-            disabled={action.disabled}
-            render={action.render}
-            onClick={
-              action.disabled || !action.onSelect
-                ? undefined
-                : () => {
-                    onAction?.();
-                    action.onSelect?.();
-                  }
-            }
-          >
-            {action.icon}
-            {action.disabled && action.disabledReason ? (
-              <ItemContent>
-                <ItemTitle>{action.label}</ItemTitle>
-                <ItemDescription>{action.disabledReason}</ItemDescription>
-              </ItemContent>
-            ) : (
-              action.label
-            )}
-          </DropdownMenuItem>
+          {action.items && action.items.some(isRowActionItem) ? (
+            <DropdownMenuSub>
+              <DropdownMenuSubTrigger
+                data-slot="row-action-submenu-trigger"
+                disabled={action.disabled}
+                className={cn(action.destructive && "text-destructive-text")}
+              >
+                {action.icon}
+                {action.label}
+              </DropdownMenuSubTrigger>
+              <DropdownMenuSubContent>
+                <RowActionMenuItems
+                  actions={action.items}
+                  onAction={onAction}
+                />
+              </DropdownMenuSubContent>
+            </DropdownMenuSub>
+          ) : (
+            <DropdownMenuItem
+              variant={action.destructive ? "destructive" : "default"}
+              disabled={action.disabled}
+              render={action.render}
+              onClick={
+                action.disabled || !action.onSelect
+                  ? undefined
+                  : () => {
+                      onAction?.();
+                      action.onSelect?.();
+                    }
+              }
+            >
+              {action.icon}
+              {action.disabled && action.disabledReason ? (
+                <ItemContent>
+                  <ItemTitle>{action.label}</ItemTitle>
+                  <ItemDescription>{action.disabledReason}</ItemDescription>
+                </ItemContent>
+              ) : (
+                action.label
+              )}
+            </DropdownMenuItem>
+          )}
         </React.Fragment>
       ))}
     </>
@@ -1087,7 +1115,7 @@ export function RowActionsMenu({
   const items = actions.filter(isRowActionItem);
   if (items.length === 0) return null;
   const only = items.length === 1 ? items[0]! : null;
-  if (only && only.icon != null) {
+  if (only && only.icon != null && !only.items) {
     const name = `${only.label} ${label}`;
     // A tooltip is not a description: a disabled icon action says why through a hidden element.
     const reason = only.disabled ? only.disabledReason : undefined;

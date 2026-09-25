@@ -1,10 +1,11 @@
 "use client";
 
 import { type ReactNode, useState } from "react";
+import { CalendarDays } from "lucide-react";
 import { Wrapper } from "./wrapper";
 // Copied INTO apps/docs via `shadcn add @vegastack/board` (dogfoods the registry) → auto-scanned.
 import { Board, type BoardColumn } from "@/components/ui/board";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { BoardCard } from "@/components/ui/board-card";
 import { Badge } from "@/components/ui/badge";
 import {
   Empty,
@@ -47,6 +48,24 @@ const INITIAL: BoardColumn<Deal>[] = [
   },
 ];
 
+const OWNERS: Record<string, string> = {
+  PS: "Priya Shah",
+  MK: "Manoj Kumar",
+  AL: "Alex Lee",
+};
+
+/** A deal or task as the standard card content. */
+function dealCard(deal: Deal): ReactNode {
+  return (
+    <BoardCard
+      surface={false}
+      title={deal.name}
+      context={deal.amount}
+      assignee={OWNERS[deal.owner] ? { name: OWNERS[deal.owner]! } : undefined}
+    />
+  );
+}
+
 function applyMove(
   prev: BoardColumn<Deal>[],
   id: string,
@@ -69,21 +88,12 @@ export function board(): ReactNode {
   return (
     <Wrapper className="block">
       <Board<Deal>
+        height="26rem"
         aria-label="Deals"
         columns={columns}
         getItemId={(deal) => deal.id}
         getItemLabel={(deal) => deal.name}
-        renderCard={(deal) => (
-          <>
-            <span className="min-w-0 truncate font-medium">{deal.name}</span>
-            <span className="flex items-center gap-2 text-xs text-muted-foreground">
-              <Avatar size="sm">
-                <AvatarFallback>{deal.owner}</AvatarFallback>
-              </Avatar>
-              {deal.amount}
-            </span>
-          </>
-        )}
+        renderCard={dealCard}
         onMove={({ id, to }) =>
           setColumns((prev) => applyMove(prev, id, to.container, to.index))
         }
@@ -106,12 +116,11 @@ export function boardGated(): ReactNode {
   return (
     <Wrapper className="block">
       <Board<Deal>
+        height="26rem"
         aria-label="Gated pipeline (the server rejects every move)"
         columns={columns}
         getItemId={(deal) => deal.id}
-        renderCard={(deal) => (
-          <span className="min-w-0 truncate">{deal.name}</span>
-        )}
+        renderCard={dealCard}
         onMove={() =>
           new Promise<void>((_, reject) =>
             setTimeout(() => reject(new Error("stage gate")), 800),
@@ -158,16 +167,12 @@ export function boardLanes(): ReactNode {
   return (
     <Wrapper className="block">
       <Board<Deal>
+        height="auto"
         aria-label="Pipeline with a locked lane"
         columns={columns}
         columnMaxHeight="14rem"
         getItemId={(deal) => deal.id}
-        renderCard={(deal) => (
-          <>
-            <span className="min-w-0 truncate font-medium">{deal.name}</span>
-            <span className="text-xs text-muted-foreground">{deal.amount}</span>
-          </>
-        )}
+        renderCard={dealCard}
         onMove={({ id, to }) =>
           setColumns((prev) => applyMove(prev, id, to.container, to.index))
         }
@@ -203,18 +208,12 @@ export function boardLabels(): ReactNode {
   return (
     <Wrapper className="block">
       <Board<Deal>
+        height="26rem"
         aria-label="Sprint"
         columns={columns}
         getItemId={(task) => task.id}
         getItemLabel={(task) => task.name}
-        renderCard={(task) => (
-          <>
-            <span className="min-w-0 truncate font-medium">{task.name}</span>
-            <span className="text-xs text-muted-foreground tabular-nums">
-              {task.amount}
-            </span>
-          </>
-        )}
+        renderCard={dealCard}
         onMove={({ id, to }) =>
           setColumns((prev) => applyMove(prev, id, to.container, to.index))
         }
@@ -246,7 +245,7 @@ export function boardLaneStates(): ReactNode {
       title: "Blocked",
       items: [],
       emptyState: (
-        <Empty className="border">
+        <Empty className="border border-dashed">
           <EmptyHeader>
             <EmptyTitle>Nothing blocked</EmptyTitle>
             <EmptyDescription>
@@ -267,19 +266,13 @@ export function boardLaneStates(): ReactNode {
   return (
     <Wrapper className="block">
       <Board<Deal>
+        height="26rem"
         aria-label="Sprint tasks"
         columns={columns}
         countLabel={(n) => `${n} ${n === 1 ? "task" : "tasks"}`}
         getItemId={(task) => task.id}
         getItemLabel={(task) => task.name}
-        renderCard={(task) => (
-          <>
-            <span className="min-w-0 truncate font-medium">{task.name}</span>
-            <span className="text-xs text-muted-foreground tabular-nums">
-              {task.amount}
-            </span>
-          </>
-        )}
+        renderCard={dealCard}
         onMove={({ id, to }) =>
           setColumns((prev) => applyMove(prev, id, to.container, to.index))
         }
@@ -313,19 +306,13 @@ export function boardLinks(): ReactNode {
   return (
     <Wrapper className="block">
       <Board<Deal>
+        height="26rem"
         aria-label="Linked tasks"
         columns={columns}
         getItemId={(task) => task.id}
         getItemLabel={(task) => task.name}
         getItemHref={(task) => `?task=${task.id}`}
-        renderCard={(task) => (
-          <>
-            <span className="min-w-0 truncate font-medium">{task.name}</span>
-            <span className="text-xs text-muted-foreground tabular-nums">
-              {task.amount}
-            </span>
-          </>
-        )}
+        renderCard={dealCard}
         onMove={({ id, to }) =>
           setColumns((prev) => applyMove(prev, id, to.container, to.index))
         }
@@ -347,6 +334,7 @@ export function boardPagedLanes(): ReactNode {
   return (
     <Wrapper className="block">
       <Board<Deal>
+        height="26rem"
         aria-label="Deals with paged lanes and card actions"
         columns={columns.map((column) =>
           column.id === "qualified"
@@ -376,11 +364,205 @@ export function boardPagedLanes(): ReactNode {
           { label: "Open deal", render: <a href={`#${deal.id}`} /> },
           { label: "Archive", destructive: true, onSelect: () => {} },
         ]}
-        renderCard={(deal) => (
-          <span className="min-w-0 truncate font-medium">{deal.name}</span>
-        )}
+        renderCard={dealCard}
         onMove={({ id, to }) =>
           setColumns((prev) => applyMove(prev, id, to.container, to.index))
+        }
+      />
+    </Wrapper>
+  );
+}
+
+interface Task {
+  id: string;
+  title: string;
+  context: string;
+  due: number;
+  priority?: "urgent" | "high" | "medium" | "low";
+  owner: string;
+  meeting?: boolean;
+  done?: boolean;
+}
+
+const DAY = 86_400_000;
+const TASKS: BoardColumn<Task>[] = [
+  {
+    id: "todo",
+    title: "To do",
+    items: [
+      {
+        id: "t1",
+        title: "Send the revised lighting schedule",
+        context: "Harbour Tower · Acme Build",
+        due: -2,
+        priority: "urgent",
+        owner: "PS",
+        meeting: true,
+      },
+      {
+        id: "t2",
+        title: "Confirm the fixture count for level 3",
+        context: "Harbour Tower · Acme Build",
+        due: 0,
+        priority: "high",
+        owner: "MK",
+      },
+      {
+        id: "t3",
+        title: "Book the site visit",
+        context: "Riverside · Northwind",
+        due: 5,
+        owner: "AL",
+      },
+    ],
+  },
+  {
+    id: "doing",
+    title: "In progress",
+    items: [
+      {
+        id: "t4",
+        title: "Draft the quote for the lobby pendants",
+        context: "Riverside · Northwind",
+        due: 1,
+        priority: "medium",
+        owner: "PS",
+      },
+    ],
+  },
+  { id: "review", title: "In review", items: [] },
+  {
+    id: "done",
+    title: "Done",
+    items: [
+      {
+        id: "t5",
+        title: "Share the photometric report",
+        context: "Harbour Tower · Acme Build",
+        due: -4,
+        owner: "AL",
+        done: true,
+      },
+    ],
+  },
+];
+
+function taskCard(task: Task): ReactNode {
+  return (
+    <BoardCard
+      surface={false}
+      title={task.title}
+      context={task.context}
+      done={task.done ?? false}
+      due={new Date(Date.now() + task.due * DAY)}
+      priority={task.priority}
+      assignee={{ name: OWNERS[task.owner] ?? task.owner }}
+      source={task.meeting ? <CalendarDays /> : undefined}
+      sourceLabel={task.meeting ? "From a meeting" : undefined}
+    />
+  );
+}
+
+function moveTask(
+  prev: BoardColumn<Task>[],
+  id: string,
+  container: string,
+  index: number,
+): BoardColumn<Task>[] {
+  const moved = prev.flatMap((c) => c.items).find((t) => t.id === id);
+  if (!moved) return prev;
+  return prev.map((column) => {
+    const without = column.items.filter((t) => t.id !== id);
+    if (column.id !== container) return { ...column, items: without };
+    const next = [...without];
+    next.splice(index, 0, moved);
+    return { ...column, items: next };
+  });
+}
+
+/**
+ * The task board: BoardCard content, "+ Add task" at each lane's foot (the host pre-fills the
+ * lane's status), a lane collapsible from its header's ⋯ menu, and an empty lane that says
+ * "Nothing here" at rest and "Drop here" while a card is dragged.
+ */
+export function boardTasks(): ReactNode {
+  const [columns, setColumns] = useState(TASKS);
+  const [added, setAdded] = useState<string | null>(null);
+  return (
+    <Wrapper className="block">
+      <Board<Task>
+        height="30rem"
+        aria-label="Tasks"
+        columns={columns}
+        countLabel={(n) => `${n} ${n === 1 ? "task" : "tasks"}`}
+        getItemId={(task) => task.id}
+        getItemLabel={(task) => task.title}
+        getItemActions={() => [
+          { label: "Open", onSelect: () => {} },
+          {
+            label: "Change priority",
+            items: [
+              { label: "Urgent", onSelect: () => {} },
+              { label: "High", onSelect: () => {} },
+              { label: "Medium", onSelect: () => {} },
+              { label: "Low", onSelect: () => {} },
+            ],
+          },
+          { type: "separator" },
+          { label: "Cancel task", destructive: true, onSelect: () => {} },
+        ]}
+        renderCard={taskCard}
+        onAdd={(status) => setAdded(status)}
+        addLabel="Add task"
+        onMove={({ id, to }) =>
+          setColumns((prev) => moveTask(prev, id, to.container, to.index))
+        }
+      />
+      <p className="pt-2 text-xs text-muted-foreground" aria-live="polite">
+        {added ? `Create form opened with status "${added}"` : "\u00a0"}
+      </p>
+    </Wrapper>
+  );
+}
+
+/** Collapsed lanes: a lane collapsed from its header menu (controlled here) is a slim strip. */
+export function boardCollapsed(): ReactNode {
+  const [columns, setColumns] = useState(TASKS);
+  const [collapsed, setCollapsed] = useState<string[]>(["review"]);
+  return (
+    <Wrapper className="block">
+      <Board<Task>
+        height="26rem"
+        aria-label="Tasks with a collapsed lane"
+        columns={columns}
+        collapsedColumns={collapsed}
+        onCollapsedChange={setCollapsed}
+        getItemId={(task) => task.id}
+        getItemLabel={(task) => task.title}
+        renderCard={taskCard}
+        onMove={({ id, to }) =>
+          setColumns((prev) => moveTask(prev, id, to.container, to.index))
+        }
+      />
+    </Wrapper>
+  );
+}
+
+/** Full height: `height="fill"` (the default) runs the lanes to the bottom of the viewport. */
+export function boardFill(): ReactNode {
+  const [columns, setColumns] = useState(TASKS);
+  return (
+    <Wrapper className="block">
+      <Board<Task>
+        aria-label="Full-height tasks"
+        columns={columns}
+        getItemId={(task) => task.id}
+        getItemLabel={(task) => task.title}
+        renderCard={taskCard}
+        onAdd={() => {}}
+        addLabel="Add task"
+        onMove={({ id, to }) =>
+          setColumns((prev) => moveTask(prev, id, to.container, to.index))
         }
       />
     </Wrapper>

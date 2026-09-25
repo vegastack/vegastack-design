@@ -134,7 +134,7 @@ A component's name undersells it. Before composing something by hand, check this
 | `PageHeader`                                           | Title, description, `breadcrumb`, a back link (`backHref`) and `actions`.                                                                                                                                                                                                                                                                                                                        |
 | `MultiStepForm` · `Stepper` · `Questionnaire` · `Tabs` | A form in steps · progress display (`navigable` on request) · one question at a time · peer regions.                                                                                                                                                                                                                                                                                             |
 | `NativeSelect`                                         | The platform `<select>`, so a touch device opens its own picker.                                                                                                                                                                                                                                                                                                                                 |
-| `Board`                                                | A column's `lockedReason` explains why it cannot take a card; `itemLinkRender` is a template, the card's `href` wins.                                                                                                                                                                                                                                                                            |
+| `Board`                                                | `height` (`fill` · `auto` · a length), `onAdd` + `addLabel`, `collapsedColumns` + `onCollapsedChange`, `getColumnActions`, `readOnly`, `moveErrorToast`; a column's `lockedReason` explains why it cannot take a card; `itemLinkRender` is a template, the card's `href` wins.                                                                                                                   |
 | `AudioPlayer`                                          | `mediaRef` to drive playback, a transcript button and a waveform; `docked` pins it to the bottom of a scroll column, `variant="floating"` is the centred pill, `onOpenChange` adds its close button, `actionsRef` seeks it, and `onSourceExpired` renews an expired signed URL once. `AudioPlayerProvider` + `GlobalAudioPlayer` + `useGlobalPlayer()` keep one recording playing across routes. |
 | `Tabs`                                                 | `TabsList variant="line"` and `Tabs orientation="vertical"`; route tabs draw a `nav` from `tabsListVariants` and `tabsTriggerVariants`, which need no `data-orientation`. `useTabsSwipe` adds a touch swipe between controlled tabs.                                                                                                                                                             |
 | `MessageScroller`                                      | `defaultScrollPosition` (`start` · `end` · `last-anchor`), `scrollToMessage` from `useMessageScroller()`, and `useMessageScrollerVisibility()`.                                                                                                                                                                                                                                                  |
@@ -176,7 +176,17 @@ A component's name undersells it. Before composing something by hand, check this
   lanes with `onMove` and a per-section `loading` / `loadMore` / `emptyState`. Record images are a
   column `thumbnail` + `thumbnailFallback` (the app mark) — never a hand-rolled card grid, card or
   `<img>`. A count needing attention is `<Badge variant="warning"><TriangleAlert />n</Badge>`, and
-  groups in a ⋯ menu are split by `{ type: "separator" }` entries.
+  groups in a ⋯ menu are split by `{ type: "separator" }` entries; an action with `items` is a
+  submenu ("Change status ›", "Assign ›").
+- **A task or pipeline board** → `DataList view="board"` (or `Board` directly) with `BoardCard`
+  content: `boardCard={(row) => ({ title, context, due, priority, assignee, done, onDoneChange,
+source })}` — never a hand-rolled card. The board fills the viewport below the toolbar
+  (`boardHeight="fill"`, cards scroll inside lanes, no page scroll); `onAddToSection` adds "+ Add
+  {item}" per lane with the lane's status pre-filled; lanes collapse from their header ⋯
+  (`collapsedSections` to remember it). `onMove` is optimistic — return a promise and a rejection
+  snaps back with a toast, so never re-sort lanes yourself while it is pending. Drag, touch
+  long-press, keyboard (Space · arrows · Space · Esc), the Move menu and the phone's one-lane view
+  are built in; card actions go in `rowActions`/`getItemActions`, not on the `BoardCard`.
 - **A list that pages by cursor** → `DataList` `loadMore` (or `LoadMore` under your own list), with
   `useAsyncSearch` when the search runs on the server.
 
@@ -187,9 +197,11 @@ closest one rather than composing the page from nothing:
 
 - **`app-shell-01`** — the shell: landmarks, skip link, a rail with search, inbox count and a user
   menu.
-- **`list-page-01`** — one kind of record: search, a facet, Mine | Team, table or tile grid, Load
-  more and three empty tiers.
-- **`board-01`** — lanes of cards under a `FilterBar`, with a paged backlog.
+- **`list-page-01`** — one kind of record: a `DataList` with a `FilterBar` toolbar (search, facets,
+  Mine | Team scope, the list's own Grid | List toggle), grouped by industry, Load more and three
+  empty tiers.
+- **`board-01`** — a `DataList` board of `BoardCard`s under a `FilterBar`: a backlog that pages as it
+  scrolls, "+ Add task" per lane, a locked lane and a submenu in each card's ⋯.
 - **`settings-01`** — one settings page: grouped `SettingsRow` sections and a save bar.
 - **`settings-02`** — the settings hub: grids of linked tiles, grouped by area.
 - **`review-split-01`** — a record reviewed beside a sticky transcript and a docked player; tabs

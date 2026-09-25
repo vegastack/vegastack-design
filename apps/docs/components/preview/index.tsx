@@ -87,6 +87,7 @@ export * from "./shortcut-overlay";
 export * from "./filter-bar-managed";
 export * from "./sortable-list";
 export * from "./board";
+export * from "./board-card";
 export * from "./dropzone";
 export * from "./color-picker";
 export * from "./emoji-picker";

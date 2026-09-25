@@ -1,14 +1,14 @@
-// @vegastack board-01@0.23.11 sha256-VHGSyjropYk3sP3qFQJNwWlQYFOQaR9te1zXJi73Dec=
+// @vegastack board-01@0.23.11 sha256-GQlIjYdA2UvsZOGuZ/jiulzgerAuxtBxwmMP4oqC8h0=
 
 "use client";
 
 import * as React from "react";
-import { SearchX, User } from "lucide-react";
+import { User } from "lucide-react";
 
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Board, type BoardColumn } from "@/components/ui/board";
+import type { BoardCardPriority } from "@/components/ui/board-card";
 import type { RowAction } from "@/components/ui/data-table-parts";
 import { Button } from "@/components/ui/button";
+import { DataList, type DataListSection } from "@/components/ui/data-list";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -18,96 +18,112 @@ import {
   DropdownMenuRadioItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import {
-  Empty,
-  EmptyContent,
-  EmptyDescription,
-  EmptyHeader,
-  EmptyMedia,
-  EmptyTitle,
-} from "@/components/ui/empty";
 import { FilterBar, type FilterBarFilter } from "@/components/ui/filter-bar";
+
+type Status = "backlog" | "in-progress" | "review" | "shipped";
 
 interface Task {
   id: string;
   title: string;
+  project: string;
   assignee: string;
-  estimate: string;
+  status: Status;
+  /** Days from today; negative is overdue. */
+  due: number;
+  priority?: BoardCardPriority;
 }
 
-const INITIAL: BoardColumn<Task>[] = [
+const TASKS: Task[] = [
   {
-    id: "backlog",
-    title: "Backlog",
-    items: [
-      {
-        id: "t1",
-        title: "Audit onboarding copy",
-        assignee: "MK",
-        estimate: "2d",
-      },
-      {
-        id: "t2",
-        title: "Retry queue for webhooks",
-        assignee: "PS",
-        estimate: "3d",
-      },
-      { id: "t3", title: "Export billing CSV", assignee: "AL", estimate: "1d" },
-    ],
+    id: "t1",
+    title: "Audit onboarding copy",
+    project: "Growth",
+    assignee: "MK",
+    status: "backlog",
+    due: 4,
+    priority: "medium",
   },
   {
-    id: "in-progress",
-    title: "In progress",
-    items: [
-      { id: "t4", title: "Agent run timeline", assignee: "MK", estimate: "5d" },
-      {
-        id: "t5",
-        title: "Sidebar keyboard order",
-        assignee: "AL",
-        estimate: "1d",
-      },
-    ],
+    id: "t2",
+    title: "Retry queue for webhooks",
+    project: "Platform",
+    assignee: "PS",
+    status: "backlog",
+    due: 9,
+    priority: "high",
   },
   {
-    id: "review",
-    title: "In review",
-    items: [
-      {
-        id: "t6",
-        title: "Token contrast gate",
-        assignee: "PS",
-        estimate: "2d",
-      },
-    ],
+    id: "t3",
+    title: "Export billing CSV",
+    project: "Billing",
+    assignee: "AL",
+    status: "backlog",
+    due: 12,
   },
   {
-    id: "shipped",
-    title: "Shipped",
-    items: [
-      { id: "t7", title: "Workspace invites", assignee: "AL", estimate: "3d" },
-    ],
-    droppable: false,
-    lockedReason: "Shipped work moves by release automation",
+    id: "t4",
+    title: "Agent run timeline",
+    project: "Agents",
+    assignee: "MK",
+    status: "in-progress",
+    due: 0,
+    priority: "urgent",
+  },
+  {
+    id: "t5",
+    title: "Sidebar keyboard order",
+    project: "Design system",
+    assignee: "AL",
+    status: "in-progress",
+    due: -1,
+    priority: "high",
+  },
+  {
+    id: "t6",
+    title: "Token contrast gate",
+    project: "Design system",
+    assignee: "PS",
+    status: "review",
+    due: 2,
+  },
+  {
+    id: "t7",
+    title: "Workspace invites",
+    project: "Growth",
+    assignee: "AL",
+    status: "shipped",
+    due: -6,
   },
 ];
 
 /**
  * The Backlog's next page, as the server would return it. The lane shows its full count from the
- * start and loads these on "Load more"; replace with your paged fetch.
+ * start and loads these as its foot scrolls into view; replace with your paged fetch.
  */
 const BACKLOG_NEXT_PAGE: Task[] = [
   {
     id: "t8",
     title: "Rotate API signing keys",
+    project: "Platform",
     assignee: "PS",
-    estimate: "1d",
+    status: "backlog",
+    due: 7,
   },
-  { id: "t9", title: "Archive stale projects", assignee: "MK", estimate: "2d" },
+  {
+    id: "t9",
+    title: "Archive stale projects",
+    project: "Growth",
+    assignee: "MK",
+    status: "backlog",
+    due: 15,
+  },
   {
     id: "t10",
     title: "Invite flow copy review",
+    project: "Growth",
     assignee: "AL",
-    estimate: "1d",
+    status: "backlog",
+    due: 20,
   },
 ];
 
@@ -116,116 +132,115 @@ const ASSIGNEES = [
   { initials: "PS", name: "Priya Shah" },
   { initials: "AL", name: "Ana Lopez" },
 ];
+const nameOf = (initials: string) =>
+  ASSIGNEES.find((a) => a.initials === initials)?.name ?? initials;
 
-function applyMove(
-  previous: BoardColumn<Task>[],
-  id: string,
-  container: string,
-  index: number,
-): BoardColumn<Task>[] {
-  const moved = previous
-    .flatMap((column) => column.items)
-    .find((task) => task.id === id);
-  if (!moved) return previous;
-  return previous.map((column) => {
-    const without = column.items.filter((task) => task.id !== id);
-    if (column.id !== container) return { ...column, items: without };
-    const next = [...without];
-    next.splice(index, 0, moved);
-    return { ...column, items: next };
-  });
-}
+const DAY = 86_400_000;
 
 /**
- * The board and its filters: a `FilterBar` (search plus an Assignee facet) over `Board`, whose lanes
- * are named with their count ("In progress, 2 tasks"), whose cards are links to each task with
- * an Edit / Archive menu, and whose Backlog is paged with Load more. When
- * the filters match nothing the board gives way to a "No matches" state with "Clear filters".
+ * The board and its filters: one `DataList` in its board view, with a `FilterBar` toolbar (search
+ * plus an Assignee filter). Its sections are the lanes — named with their count ("In progress, 2
+ * tasks") — and each task is a `BoardCard`: its due chip, priority and assignee, a link to the task
+ * and an Open / Change status / Archive menu. The Backlog pages as it scrolls, each lane has
+ * "+ Add task" (the create form opens with that status), and Shipped refuses cards. When the
+ * filters match nothing the board gives way to "No matches" with "Clear filters".
  *
- * The filters narrow what each lane SHOWS; a move always lands in the full lane, which is why
- * `onMove` updates `columns` rather than the filtered view. Replace `INITIAL` with your own data,
- * each card's href with your task route, and `onMove` with the call that persists it.
+ * The filters narrow what each lane SHOWS; a move always lands in the full list, which is why
+ * `onMove` updates `tasks` rather than the filtered view. Replace `TASKS` with your own data, each
+ * href with your task route, `onMove` with the call that persists it, and `onAddToSection` with
+ * your create form.
  *
  * @example
  * <BoardView />
  */
 export function BoardView() {
-  const [columns, setColumns] = React.useState(INITIAL);
+  const [tasks, setTasks] = React.useState(TASKS);
   const [query, setQuery] = React.useState("");
   const [assignee, setAssignee] = React.useState<string | null>(null);
   const [backlogMore, setBacklogMore] = React.useState(BACKLOG_NEXT_PAGE);
   const [loadingMore, setLoadingMore] = React.useState(false);
+  const [adding, setAdding] = React.useState<string | null>(null);
   const searchRef = React.useRef<HTMLInputElement>(null);
 
   // Stand-in for a paged fetch: append the Backlog's next page after a short wait.
   function loadMoreBacklog() {
+    if (loadingMore) return;
     setLoadingMore(true);
     window.setTimeout(() => {
-      setColumns((previous) =>
-        previous.map((column) =>
-          column.id === "backlog"
-            ? { ...column, items: [...column.items, ...BACKLOG_NEXT_PAGE] }
-            : column,
-        ),
-      );
+      setTasks((previous) => [...previous, ...BACKLOG_NEXT_PAGE]);
       setBacklogMore([]);
       setLoadingMore(false);
     }, 600);
   }
 
+  const setStatus = (task: Task, status: Status) =>
+    setTasks((previous) =>
+      previous.map((t) => (t.id === task.id ? { ...t, status } : t)),
+    );
+
   function taskActions(task: Task): RowAction[] {
     return [
-      { label: "Edit", render: <a href={`/tasks/${task.id}/edit`} /> },
+      { label: "Open", render: <a href={`/tasks/${task.id}`} /> },
+      {
+        label: "Change status",
+        items: LANES.map((lane) => ({
+          label: String(lane.label),
+          disabled: lane.id === task.status,
+          onSelect: () => setStatus(task, lane.id as Status),
+        })),
+      },
+      { type: "separator" },
       {
         label: "Archive",
         destructive: true,
         onSelect: () =>
-          setColumns((previous) =>
-            previous.map((column) => ({
-              ...column,
-              items: column.items.filter((item) => item.id !== task.id),
-            })),
-          ),
+          setTasks((previous) => previous.filter((t) => t.id !== task.id)),
       },
     ];
   }
 
   const filtering = query.trim() !== "" || assignee !== null;
-  const visible = React.useMemo(
-    () =>
-      columns.map((column) => ({
-        ...column,
-        emptyState: filtering ? "No matching tasks" : "No tasks",
-        // A paged lane: its count is the server's total, and Load more fetches the rest. While
-        // filtering, the lane shows only what it has loaded, so the count is what is visible.
-        ...(column.id === "backlog" && !filtering && backlogMore.length > 0
-          ? {
-              count: column.items.length + backlogMore.length,
-              loadMore: {
-                hasMore: true,
-                loading: loadingMore,
-                onLoadMore: loadMoreBacklog,
-              },
-            }
-          : {}),
-        items: column.items.filter(
-          (task) =>
-            (assignee === null || task.assignee === assignee) &&
-            task.title.toLowerCase().includes(query.trim().toLowerCase()),
-        ),
-      })),
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- loadMoreBacklog only closes over setters
-    [columns, query, assignee, filtering, backlogMore, loadingMore],
+  const visible = tasks.filter(
+    (task) =>
+      (assignee === null || task.assignee === assignee) &&
+      task.title.toLowerCase().includes(query.trim().toLowerCase()),
   );
-  const noMatches =
-    filtering && visible.every((column) => column.items.length === 0);
+  const backlogLoaded = tasks.filter((t) => t.status === "backlog").length;
+
+  const LANES: DataListSection[] = [
+    {
+      id: "backlog",
+      label: "Backlog",
+      // A paged lane: its count is the server's total, and it loads the rest as it scrolls. While
+      // filtering, the lane shows only what it has loaded, so the count is what is visible.
+      ...(!filtering && backlogMore.length > 0
+        ? {
+            count: backlogLoaded + backlogMore.length,
+            loadMore: {
+              hasMore: true,
+              loading: loadingMore,
+              onLoadMore: loadMoreBacklog,
+            },
+          }
+        : {}),
+    },
+    { id: "in-progress", label: "In progress" },
+    { id: "review", label: "In review" },
+    {
+      id: "shipped",
+      label: "Shipped",
+      droppable: false,
+      lockedReason: "Shipped work moves by release automation",
+      addable: false,
+    },
+  ];
 
   const filters: FilterBarFilter[] = assignee
     ? [
         {
           id: "assignee",
           label: "Assignee",
-          value: ASSIGNEES.find((a) => a.initials === assignee)?.name,
+          value: nameOf(assignee),
           icon: <User />,
           onRemove: () => setAssignee(null),
         },
@@ -240,95 +255,82 @@ export function BoardView() {
   }
 
   return (
-    <div className="flex min-h-0 min-w-0 flex-1 flex-col gap-3">
-      <FilterBar
-        aria-label="Task filters"
-        search={{
-          value: query,
-          onValueChange: setQuery,
-          placeholder: "Search tasks…",
-          "aria-label": "Search tasks",
-        }}
-        searchInputProps={{ ref: searchRef }}
-        filters={filters}
-        addFilterMenu={
-          <DropdownMenu>
-            <DropdownMenuTrigger render={<Button variant="outline" />}>
-              <User />
-              Assignee
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="start">
-              <DropdownMenuGroup>
-                <DropdownMenuLabel>Assignee</DropdownMenuLabel>
-                <DropdownMenuRadioGroup
-                  value={assignee ?? ""}
-                  onValueChange={(value) => setAssignee(value || null)}
-                >
-                  {ASSIGNEES.map((person) => (
-                    <DropdownMenuRadioItem
-                      key={person.initials}
-                      value={person.initials}
-                    >
-                      {person.name}
-                    </DropdownMenuRadioItem>
-                  ))}
-                </DropdownMenuRadioGroup>
-              </DropdownMenuGroup>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        }
-        trailing={
-          filtering ? (
-            <Button variant="ghost" onClick={clearFilters}>
-              Clear filters
-            </Button>
-          ) : null
-        }
-      />
-      {noMatches ? (
-        <Empty className="border border-dashed">
-          <EmptyHeader>
-            <EmptyMedia variant="icon">
-              <SearchX aria-hidden />
-            </EmptyMedia>
-            <EmptyTitle render={<h2 />}>No matches</EmptyTitle>
-            <EmptyDescription>
-              No task matches these filters. Clear them to see the whole board.
-            </EmptyDescription>
-          </EmptyHeader>
-          <EmptyContent>
-            <Button variant="outline" onClick={clearFilters}>
-              Clear filters
-            </Button>
-          </EmptyContent>
-        </Empty>
-      ) : (
-        <Board<Task>
-          aria-label="Tasks"
-          columns={visible}
-          getItemId={(task) => task.id}
-          getItemLabel={(task) => task.title}
-          getItemHref={(task) => `/tasks/${task.id}`}
-          getItemActions={taskActions}
-          countLabel={(n) => (n === 1 ? "1 task" : `${n} tasks`)}
-          renderCard={(task) => (
-            <>
-              <span className="min-w-0 truncate font-medium">{task.title}</span>
-              <span className="flex items-center gap-2 text-xs text-muted-foreground">
-                <Avatar size="sm">
-                  <AvatarFallback>{task.assignee}</AvatarFallback>
-                </Avatar>
-                <span className="tabular-nums">{task.estimate}</span>
-              </span>
-            </>
-          )}
-          onMove={({ id, to }) =>
-            setColumns((previous) =>
-              applyMove(previous, id, to.container, to.index),
-            )
+    <DataList<Task>
+      aria-label="Tasks"
+      view="board"
+      columns={[{ key: "title", header: "Task", mobile: "visible" }]}
+      data={visible}
+      getRowId={(task) => task.id}
+      getRowLabel={(task) => task.title}
+      getRowHref={(task) => `/tasks/${task.id}`}
+      rowActions={taskActions}
+      sections={LANES}
+      getRowSection={(task) => task.status}
+      sectionCountLabel={(n) => (n === 1 ? "1 task" : `${n} tasks`)}
+      boardCard={(task) => ({
+        title: task.title,
+        context: task.project,
+        due: new Date(Date.now() + task.due * DAY),
+        priority: task.priority,
+        assignee: { name: nameOf(task.assignee) },
+      })}
+      onMove={(task, _from, to) => setStatus(task, to as Status)}
+      onAddToSection={setAdding}
+      addLabel="Add task"
+      noResults={filtering ? { onClear: clearFilters } : undefined}
+      footer={
+        adding ? (
+          <p className="text-sm text-muted-foreground" role="status">
+            New task in {LANES.find((lane) => lane.id === adding)?.label}
+          </p>
+        ) : null
+      }
+      toolbar={
+        <FilterBar
+          aria-label="Task filters"
+          search={{
+            value: query,
+            onValueChange: setQuery,
+            placeholder: "Search tasks…",
+            "aria-label": "Search tasks",
+          }}
+          searchInputProps={{ ref: searchRef }}
+          filters={filters}
+          addFilterMenu={
+            <DropdownMenu>
+              <DropdownMenuTrigger render={<Button variant="outline" />}>
+                <User />
+                Assignee
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start">
+                <DropdownMenuGroup>
+                  <DropdownMenuLabel>Assignee</DropdownMenuLabel>
+                  <DropdownMenuRadioGroup
+                    value={assignee ?? ""}
+                    onValueChange={(value) => setAssignee(value || null)}
+                  >
+                    {ASSIGNEES.map((person) => (
+                      <DropdownMenuRadioItem
+                        key={person.initials}
+                        value={person.initials}
+                      >
+                        {person.name}
+                      </DropdownMenuRadioItem>
+                    ))}
+                  </DropdownMenuRadioGroup>
+                </DropdownMenuGroup>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          }
+          trailing={
+            filtering ? (
+              <Button variant="ghost" onClick={clearFilters}>
+                Clear filters
+              </Button>
+            ) : null
           }
         />
-      )}
-    </div>
+      }
+    />
   );
 }

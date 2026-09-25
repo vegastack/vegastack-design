@@ -1,4 +1,4 @@
-// @vegastack use-drag-reorder@0.23.11 sha256-QtGjR1aozky5xWmGoMnLeSWw/8rtraCNiCOnce02vfI=
+// @vegastack use-drag-reorder@0.23.11 sha256-am2VVrRxfSfkVGy4CJRxJ/KV7wLmKdggxbp2THIP+os=
 
 "use client";
 
@@ -18,9 +18,10 @@ import { extractClosestEdge } from "@atlaskit/pragmatic-drag-and-drop-hitbox/clo
 import type { Edge } from "@atlaskit/pragmatic-drag-and-drop-hitbox/types";
 
 /* ---
-`use-drag-reorder` is the ONE file that imports the drag engine
-(`@atlaskit/pragmatic-drag-and-drop`, sanctioned D3) — `board` and `sortable-list`
-consume this hook, so an engine swap touches one module and its tests. Pragmatic owns the pointer/touch drag lifecycle and hit-testing
+`use-drag-reorder` is the ONE file that owns drag engines. `useDragReorder` wraps
+`@atlaskit/pragmatic-drag-and-drop` (sanctioned D3) for `sortable-list`; `usePointerDrag`
+(below) is the live pointer gesture `board` runs on. An engine swap touches one module and its
+tests. Pragmatic owns the pointer/touch drag lifecycle and hit-testing
 (per-element drop targets + closest-edge, which cannot mis-target narrow columns the
 way whole-surface collision detection can); everything the engine deliberately does
 not own is implemented here, because it must match this system's interaction voice:
@@ -44,8 +45,8 @@ Deliberately NOT done here:
 - No DOM, no styling, no drag preview chrome. Consumers style off the returned state
   (`draggingId`, `closestEdge`, `pending`) with `data-*` attributes.
 - No optimistic insertion. The host owns ordering; optimistic UI is host state.
-- No auto-scroll. Compose Pragmatic's autoScroller in the consumer if a surface
-  needs it.
+- No auto-scroll in `useDragReorder`. `edgeScroll` (below) is the helper `Board` calls each
+  frame of a live drag.
 --- */
 
 /** Where an item sits: its container id and index within it. */
@@ -831,4 +832,301 @@ export function useDragReorder({
     pending,
     requestMove,
   };
+}
+
+// ---------------------------------------------------------------------------------------------
+// Live pointer drag (ours) — the engine `Board` runs on.
+// ---------------------------------------------------------------------------------------------
+
+/* ---
+`usePointerDrag` is the second engine in this file, and the one `Board` uses. Pragmatic drives the
+browser's native drag, whose preview is a flat bitmap the page cannot move, tilt, shadow or settle,
+and whose touch support is whatever each browser's long-press happens to do. A board card needs a
+LIVE drag: the card lifts under the finger, the cards around it make room, and it settles into its
+slot. That takes pointer events, so this hook owns only the gesture — when a drag starts, where the
+pointer is each frame, when it ends — and hands geometry to the host, which owns hit-testing and
+rendering (it knows its lanes; the hook does not).
+
+- Mouse and pen: a drag starts after the pointer travels `threshold` px with the button held, so a
+  click stays a click.
+- Touch: a drag starts after a `longPressMs` hold (250ms) that moves less than 8px; any earlier
+  movement is a swipe and scrolls the page as usual. `navigator.vibrate` marks the lift where the
+  device supports it. While a touch drag is live, `touchmove` is cancelled so the page does not
+  scroll under the finger, and the long-press context menu is suppressed.
+- `onFrame` fires every animation frame while dragging — the host auto-scrolls and re-hit-tests
+  there, because a scrolling lane moves cards under a still pointer.
+- The click that ends a mouse drag is swallowed, so dropping a link card never follows the link.
+- Escape cancels.
+--- */
+
+/** A pointer position in viewport coordinates. */
+export interface PointerDragPoint {
+  x: number;
+  y: number;
+}
+
+/** Options for {@link usePointerDrag}. */
+export interface UsePointerDragOptions {
+  /**
+   * Refuse every drag.
+   * @default false
+   */
+  disabled?: boolean;
+  /**
+   * Hold time before a touch drag starts, in ms.
+   * @default 250
+   */
+  longPressMs?: number;
+  /**
+   * Distance a mouse or pen must travel before a drag starts, in px.
+   * @default 4
+   */
+  threshold?: number;
+  /**
+   * A drag is starting on `element` for item `id`. Return `false` to refuse it.
+   */
+  onStart: (
+    id: string,
+    element: HTMLElement,
+    point: PointerDragPoint,
+    pointerType: string,
+  ) => boolean | void;
+  /** Every animation frame while dragging, with the latest pointer position. */
+  onFrame: (point: PointerDragPoint) => void;
+  /** The pointer was released over `point`. */
+  onDrop: (point: PointerDragPoint) => void;
+  /** The drag was cancelled (Escape, or the browser took the pointer). */
+  onCancel: () => void;
+}
+
+/** What {@link usePointerDrag} returns. */
+export interface UsePointerDragReturn {
+  /** Props for a draggable element. Interactive descendants (buttons, links, checkboxes, inputs)
+   * never start a drag, except an element marked `data-drag-surface`. */
+  getSourceProps: (id: string) => {
+    onPointerDown: (event: React.PointerEvent<HTMLElement>) => void;
+    onContextMenu: (event: React.MouseEvent<HTMLElement>) => void;
+    onDragStart: (event: React.DragEvent<HTMLElement>) => void;
+  };
+  /** Whether a drag is live. */
+  dragging: boolean;
+}
+
+const INTERACTIVE_DESCENDANT =
+  'button, a, input, textarea, select, label, [role="checkbox"], [role="switch"], [role="menuitem"], [data-no-drag]';
+
+/**
+ * `usePointerDrag` — the live pointer drag gesture: threshold drags for mouse and pen, a 250ms
+ * long-press for touch, a per-frame callback for auto-scroll and hit-testing, and Escape to
+ * cancel. The host renders the lifted card and the gap; this hook only tracks the pointer.
+ *
+ * @example
+ * const drag = usePointerDrag({
+ *   onStart: (id, element, point) => lift(id, element, point),
+ *   onFrame: (point) => follow(point),
+ *   onDrop: (point) => settle(point),
+ *   onCancel: () => reset(),
+ * });
+ * // <div {...drag.getSourceProps(card.id)}>…</div>
+ */
+export function usePointerDrag({
+  disabled = false,
+  longPressMs = 250,
+  threshold = 4,
+  onStart,
+  onFrame,
+  onDrop,
+  onCancel,
+}: UsePointerDragOptions): UsePointerDragReturn {
+  const [dragging, setDragging] = React.useState(false);
+  const callbacks = React.useRef({ onStart, onFrame, onDrop, onCancel });
+  callbacks.current = { onStart, onFrame, onDrop, onCancel };
+  const session = React.useRef<{
+    id: string;
+    element: HTMLElement;
+    pointerId: number;
+    pointerType: string;
+    start: PointerDragPoint;
+    point: PointerDragPoint;
+    active: boolean;
+    timer: ReturnType<typeof setTimeout> | null;
+    frame: number | null;
+    teardown: () => void;
+  } | null>(null);
+
+  const end = React.useCallback((how: "drop" | "cancel" | "abort") => {
+    const current = session.current;
+    if (!current) return;
+    session.current = null;
+    if (current.timer) clearTimeout(current.timer);
+    if (current.frame !== null) cancelAnimationFrame(current.frame);
+    current.teardown();
+    if (!current.active) return;
+    setDragging(false);
+    if (how === "drop") {
+      callbacks.current.onDrop(current.point);
+      // The click that follows a mouse drag must not activate the card (or follow its link).
+      const swallow = (event: MouseEvent) => {
+        event.preventDefault();
+        event.stopPropagation();
+      };
+      window.addEventListener("click", swallow, { capture: true, once: true });
+      setTimeout(
+        () => window.removeEventListener("click", swallow, { capture: true }),
+        0,
+      );
+    } else {
+      callbacks.current.onCancel();
+    }
+  }, []);
+
+  React.useEffect(() => () => end("abort"), [end]);
+
+  const activate = React.useCallback(() => {
+    const current = session.current;
+    if (!current || current.active) return;
+    const accepted = callbacks.current.onStart(
+      current.id,
+      current.element,
+      current.point,
+      current.pointerType,
+    );
+    if (accepted === false) {
+      end("abort");
+      return;
+    }
+    current.active = true;
+    setDragging(true);
+    if (current.pointerType === "touch" && typeof navigator !== "undefined")
+      navigator.vibrate?.(10);
+    const tick = () => {
+      const live = session.current;
+      if (!live || !live.active) return;
+      callbacks.current.onFrame(live.point);
+      live.frame = requestAnimationFrame(tick);
+    };
+    current.frame = requestAnimationFrame(tick);
+  }, [end]);
+
+  const onPointerDown = React.useCallback(
+    (id: string, event: React.PointerEvent<HTMLElement>) => {
+      if (disabled || session.current) return;
+      if (event.pointerType === "mouse" && event.button !== 0) return;
+      const target = event.target as HTMLElement;
+      const interactive = target.closest<HTMLElement>(INTERACTIVE_DESCENDANT);
+      if (
+        interactive &&
+        event.currentTarget.contains(interactive) &&
+        !interactive.hasAttribute("data-drag-surface")
+      )
+        return;
+      const element = event.currentTarget;
+      const point = { x: event.clientX, y: event.clientY };
+      const pointerType = event.pointerType;
+      const onMove = (move: PointerEvent) => {
+        const current = session.current;
+        if (!current || move.pointerId !== current.pointerId) return;
+        current.point = { x: move.clientX, y: move.clientY };
+        if (current.active) return;
+        const distance = Math.hypot(
+          current.point.x - current.start.x,
+          current.point.y - current.start.y,
+        );
+        if (current.pointerType === "touch") {
+          // Moving before the hold completes is a swipe: let the page scroll.
+          if (distance > 8) end("abort");
+        } else if (distance >= threshold) {
+          activate();
+        }
+      };
+      const onUp = (up: PointerEvent) => {
+        if (session.current && up.pointerId === session.current.pointerId)
+          end("drop");
+      };
+      const onPointerCancel = (cancel: PointerEvent) => {
+        if (session.current && cancel.pointerId === session.current.pointerId)
+          end("cancel");
+      };
+      const onKey = (key: KeyboardEvent) => {
+        if (key.key === "Escape" && session.current?.active) {
+          key.preventDefault();
+          end("cancel");
+        }
+      };
+      // A live touch drag owns the finger: the page must not scroll under it.
+      const onTouchMove = (touch: TouchEvent) => {
+        if (session.current?.active) touch.preventDefault();
+      };
+      window.addEventListener("pointermove", onMove);
+      window.addEventListener("pointerup", onUp);
+      window.addEventListener("pointercancel", onPointerCancel);
+      window.addEventListener("keydown", onKey);
+      window.addEventListener("touchmove", onTouchMove, { passive: false });
+      session.current = {
+        id,
+        element,
+        pointerId: event.pointerId,
+        pointerType,
+        start: point,
+        point,
+        active: false,
+        timer:
+          pointerType === "touch" ? setTimeout(activate, longPressMs) : null,
+        frame: null,
+        teardown: () => {
+          window.removeEventListener("pointermove", onMove);
+          window.removeEventListener("pointerup", onUp);
+          window.removeEventListener("pointercancel", onPointerCancel);
+          window.removeEventListener("keydown", onKey);
+          window.removeEventListener("touchmove", onTouchMove);
+        },
+      };
+    },
+    [activate, disabled, end, longPressMs, threshold],
+  );
+
+  return {
+    getSourceProps: (id) => ({
+      onPointerDown: (event) => onPointerDown(id, event),
+      // The long-press menu (copy, open in new tab) would steal a touch drag.
+      onContextMenu: (event) => {
+        if (session.current) event.preventDefault();
+      },
+      // A link card must never start the browser's own drag.
+      onDragStart: (event) => event.preventDefault(),
+    }),
+    dragging,
+  };
+}
+
+/**
+ * Scroll `element` toward the pointer when it is within `edge` px of one of its edges on `axis`,
+ * faster the closer it is. Returns whether it scrolled.
+ */
+export function edgeScroll(
+  element: HTMLElement,
+  point: PointerDragPoint,
+  axis: "x" | "y",
+  edge = 48,
+  maxSpeed = 16,
+): boolean {
+  const rect = element.getBoundingClientRect();
+  const start = axis === "x" ? rect.left : rect.top;
+  const end = axis === "x" ? rect.right : rect.bottom;
+  const position = axis === "x" ? point.x : point.y;
+  const cross = axis === "x" ? point.y : point.x;
+  const crossStart = axis === "x" ? rect.top : rect.left;
+  const crossEnd = axis === "x" ? rect.bottom : rect.right;
+  if (cross < crossStart || cross > crossEnd) return false;
+  let delta = 0;
+  const ratio = (distance: number) => Math.min(1, distance / edge);
+  if (position < start + edge)
+    delta = -Math.ceil(ratio(start + edge - position) * maxSpeed);
+  else if (position > end - edge)
+    delta = Math.ceil(ratio(position - (end - edge)) * maxSpeed);
+  if (delta === 0) return false;
+  const before = axis === "x" ? element.scrollLeft : element.scrollTop;
+  if (axis === "x") element.scrollLeft += delta;
+  else element.scrollTop += delta;
+  return (axis === "x" ? element.scrollLeft : element.scrollTop) !== before;
 }
