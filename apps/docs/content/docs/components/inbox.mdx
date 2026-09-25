@@ -82,8 +82,9 @@ A person event leads with the actor's 28px avatar; a system event leads with its
 28px tile (`destructive` for a failure). Emphasise the actor and the record with `InboxEmphasis` so
 identical events name their record. `actions` adds up to three chips (the first can be `primary`),
 each with `loading` and `done` states. `count` marks a row standing for grouped repeats ("Raj
-assigned you 3 tasks"). Hover a row, or tab into it, to swap its time for Mark read / Mark unread and
-the ⋯ menu.
+assigned you 3 tasks"). Unread rows carry a soft tint and a medium-weight title. A fixed right column
+keeps the time on top; hover a row, or tab into it, to show Mark read / Mark unread and the ⋯ menu
+below it.
 
 <ComponentPreview name="inbox" file="components/preview/inbox.tsx" />
 
@@ -147,7 +148,7 @@ the ⋯ menu.
   through `linkRender`), and the chips and hover controls sit above it.
 - The hover controls are always in the tab order and show on `focus-within`; on touch screens they
   are always visible.
-- An unread row carries the dot and an sr-only "Unread:" before its title.
+- An unread row carries a soft tint and an sr-only "Unread:" before its title.
 - The header icon buttons are named by their tooltips.
 
 <StatesTested name="inbox" />

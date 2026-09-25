@@ -12204,7 +12204,6 @@
         "@vegastack/avatar",
         "@vegastack/button",
         "@vegastack/dropdown-menu",
-        "@vegastack/notification-bell",
         "@vegastack/relative-time",
         "@vegastack/skeleton",
         "@vegastack/tooltip"
