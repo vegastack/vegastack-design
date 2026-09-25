@@ -271,7 +271,7 @@ export function toastCustom(): ReactNode {
     const id = customToast.add({
       data: {
         render: () => (
-          <div className="flex w-full items-center gap-3">
+          <div className="flex w-full items-center gap-2.5">
             <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-primary text-sm font-medium text-primary-foreground">
               VS
             </span>
