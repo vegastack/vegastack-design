@@ -1,5 +1,14 @@
 # @vegastack/ui
 
+## 0.23.12
+
+### Patch Changes
+
+- [#262](https://github.com/vegastack/vegastack-design/pull/262) [`adce170`](https://github.com/vegastack/vegastack-design/commit/adce17090e8d8025c60e2051bf8fae7beb737821) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🔧 SearchableSelect (and so FilterBarFacet): a remote search that is `loading` with no rows yet shows five Skeleton rows the height of real options (two lines with `itemToSecondaryLabel`) instead of a blank panel; with rows already shown they stay and a small spinner marks the fetch.
+
+- Updated dependencies [[`adce170`](https://github.com/vegastack/vegastack-design/commit/adce17090e8d8025c60e2051bf8fae7beb737821)]:
+  - @vegastack/design@0.7.21
+
 ## 0.23.11
 
 ### Patch Changes

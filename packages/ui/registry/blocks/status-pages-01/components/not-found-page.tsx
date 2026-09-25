@@ -1,4 +1,4 @@
-// @vegastack status-pages-01@0.23.11 sha256-NV2Ih6TZC6f115NPNtvkBf7NKRcPhVKEVOZ97Kalsts=
+// @vegastack status-pages-01@0.23.12 sha256-Phv6Pxh5g/w9S3Q2atuZGi7JtckbHYeRlGxYliHALdA=
 
 import { SearchX } from "lucide-react";
 
