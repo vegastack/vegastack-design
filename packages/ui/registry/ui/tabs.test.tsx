@@ -270,7 +270,7 @@ test("the active indicator is positioned on logical edges, so it survives RTL (R
   const trigger = screen.container.querySelector('[data-slot="tabs-trigger"]')!;
   expect(trigger.className).toContain("group-data-vertical/tabs:after:-end-1");
   expect(trigger.className).toContain(
-    "group-data-horizontal/tabs:after:inset-x-0",
+    "group-not-data-vertical/tabs:after:inset-x-0",
   );
 });
 
@@ -570,6 +570,13 @@ test("LAY-14: a route list with no data-orientation still scrolls horizontally",
   expect(getComputedStyle(list).overflowX).toBe("auto");
   expect(list.clientWidth).toBeLessThanOrEqual(240);
   expect(list.scrollWidth).toBeGreaterThan(list.clientWidth);
+  // The active link's line indicator is sized with no orientation anywhere, and lifted 1px so
+  // the scroll box does not clip it.
+  const first = list.querySelector("a")!;
+  const indicator = getComputedStyle(first, "::after");
+  expect(indicator.height).toBe("2px");
+  expect(indicator.bottom).toBe("-4px");
+  expect(parseFloat(indicator.width)).toBeGreaterThan(0);
   // A vertical list keeps upstream's layout: no scroll box.
   list.setAttribute("data-orientation", "vertical");
   expect(getComputedStyle(list).overflowX).toBe("visible");

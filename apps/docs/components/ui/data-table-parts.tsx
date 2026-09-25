@@ -1,4 +1,4 @@
-// @vegastack data-table-parts@0.22.0 sha256-uMs+Hy4Rszp3MFCbuF7meab2SvbIXbPk0CHkrBMdNV0=
+// @vegastack data-table-parts@0.22.0 sha256-Ijj1LuwLUz+9N2RjRNsV2dX2HmVJX92IrxDZTxdtgmc=
 
 "use client";
 
@@ -321,14 +321,23 @@ export function revealColumns<C extends DataTableColumnLayout>(
       mergedColumns: [],
       hiddenColumns: [],
     };
-  let used = reservedWidth;
+  const needOf = (column: C) => column.minWidth ?? DEFAULT_COLUMN_MIN_WIDTH;
+  const alwaysShown = (column: C, index: number) =>
+    index === 0 || column.mobile === "visible";
+  // The first column and every `visible` column stay whatever the width, so their budgets are
+  // reserved BEFORE the walk: a trailing Status or ⋯ column must not be discovered only after an
+  // earlier merge column has already claimed its room (and left the row squeezed).
+  let used = columns.reduce(
+    (sum, column, index) =>
+      alwaysShown(column, index) ? sum + needOf(column) : sum,
+    reservedWidth,
+  );
   const shown: C[] = [];
   const overflow: C[] = [];
   let exhausted = false;
   for (const [index, column] of columns.entries()) {
-    const need = column.minWidth ?? DEFAULT_COLUMN_MIN_WIDTH;
-    if (index === 0 || column.mobile === "visible") {
-      used += need;
+    const need = needOf(column);
+    if (alwaysShown(column, index)) {
       shown.push(column);
     } else if (!exhausted && used + need <= containerWidth) {
       used += need;

@@ -190,6 +190,24 @@ test("DS-22: inside a Field the trigger is named by its label, not its value", a
     .toBe(false);
 });
 
+test("inside a Field the popup's search box keeps its own name, not the Field label", async () => {
+  const screen = await render(
+    <Field>
+      <FieldLabel>Project</FieldLabel>
+      <Picker />
+    </Field>,
+  );
+  await screen.getByRole("combobox", { name: "Project" }).click();
+  await expect
+    .poll(() => document.querySelector('[data-slot="combobox-content"] input'))
+    .not.toBeNull();
+  const search = document.querySelector<HTMLInputElement>(
+    '[data-slot="combobox-content"] input',
+  )!;
+  expect(search.hasAttribute("aria-labelledby")).toBe(false);
+  expect(search.getAttribute("aria-label")).toMatch(/^Search/);
+});
+
 test("DS-22: inside an invalid Field the trigger is described and invalid", async () => {
   const screen = await render(
     <Field data-invalid>

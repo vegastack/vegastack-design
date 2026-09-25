@@ -155,10 +155,11 @@ selection changes, and the keyboard's roving stop scrolls in as it moves. The pi
 When each tab is its own page, the tabs are navigation, not a tablist: render a named `nav` of links
 and mark the current one with `aria-current="page"`. The two recipes, `tabsListVariants` and
 `tabsTriggerVariants` (API-25), draw it exactly like the line tabs beside it. The trigger recipe
-paints `data-active`, and reads the list's `data-variant` and the `group/tabs` ancestor's
-`data-orientation`, so set those. The list itself needs no orientation: a list that carries none
-scrolls as a horizontal one (`overflow: "scroll"` — `max-w-full`, `overflow-x-auto`), and only
-`data-orientation="vertical"` turns the scroll box off.
+paints `data-active` and reads the list's `data-variant`, so set that and give the `nav` the
+`group/tabs` class. Neither needs an orientation: with none, the list scrolls as a horizontal one
+(`overflow: "scroll"` — `max-w-full`, `overflow-x-auto`) and the active link draws the horizontal
+line indicator. Only `data-orientation="vertical"` — on the `nav` and the list — switches both to
+the vertical layout.
 
 ```tsx
 import Link from "next/link";
@@ -172,11 +173,7 @@ function ProjectTabs({
 }) {
   const pathname = usePathname();
   return (
-    <nav
-      aria-label="Project"
-      data-orientation="horizontal"
-      className="group/tabs"
-    >
+    <nav aria-label="Project" className="group/tabs">
       <div
         data-variant="line"
         className={tabsListVariants({ variant: "line", overflow: "scroll" })}

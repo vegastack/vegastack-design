@@ -1,4 +1,4 @@
-// @vegastack searchable-select@0.22.0 sha256-sSKT6uH7KsMfDBfludxDisHk5JAuzOzhe8MCpJpWwCA=
+// @vegastack searchable-select@0.22.0 sha256-yjct5dWgpl9oc75VNIA7sOZSqIwcWJmcU6E6AnUaVck=
 
 "use client";
 
@@ -177,8 +177,13 @@ export interface SearchableSelectProps<
    * @default 'Search…'
    */
   searchPlaceholder?: string;
-  /** Accessible name for the in-panel search field (it has no visible label). */
-  searchLabel: string;
+  /**
+   * Accessible name for the in-panel search field (it has no visible label) — "Search people",
+   * never the field's own label, which names the trigger. Inside a `Field` this name is kept
+   * over the Field label.
+   * @default "Search"
+   */
+  searchLabel?: string;
   /** Shown inside the panel when the query matches nothing.
    * @default 'No results found.'
    */
@@ -335,7 +340,7 @@ export function SearchableSelect<
   renderValue,
   placeholder = "Select an option",
   searchPlaceholder = "Search…",
-  searchLabel,
+  searchLabel = "Search",
   emptyMessage = "No results found.",
   clearable = false,
   clearLabel = "Clear selection",
@@ -554,6 +559,11 @@ export function SearchableSelect<
           <ComboboxInput
             showTrigger={false}
             aria-label={searchLabel}
+            // Inside a `Field`, Base UI hands the Field label's id to the combobox input as
+            // `aria-labelledby`, which outranks `aria-label`: the search box answered to the
+            // trigger's name ("Assignee"). The trigger is the control the Field names; an
+            // explicit `undefined` wins Base UI's prop merge (API-26's recipe on the toggle).
+            aria-labelledby={undefined}
             placeholder={searchPlaceholder}
           />
           {/* The polite status region (API-27): mounted for the panel's life, only its text
