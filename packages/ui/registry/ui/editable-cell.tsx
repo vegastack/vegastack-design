@@ -1,4 +1,4 @@
-// @vegastack editable-cell@0.23.21 sha256-5RFX5KLn3Poi2OGUiey2UpnKQQM3vjU57KFZefxOwgs=
+// @vegastack editable-cell@0.23.21 sha256-Z0+PW2rkE+80TTsh7q+gcC5Ls6j7itgqL1VGic8DVVg=
 
 "use client";
 
@@ -274,7 +274,7 @@ interface InlineTextEditorProps {
 /**
  * The shared box. Display and editor are the SAME element with the same padding and line box, so
  * entering or leaving edit moves nothing. The tint is the only affordance: hover and keyboard
- * focus show it, editing does not.
+ * focus (FOC-13) show it, editing does not. No focus ring or outline.
  */
 const boxClasses = "rounded-lg px-2.5 py-1.5";
 
@@ -404,10 +404,9 @@ function InlineTextEditor({
         fill ? "flex w-full" : "inline-flex align-top",
         // `flush`: the box starts one padding-width before its slot, so the text starts on it.
         flush && "-ms-2.5 max-w-[calc(100%+0.625rem)]",
-        // The tint is the affordance, on hover and on keyboard focus alike (the focus outline stays).
-        interactive &&
-          !disabled &&
-          "cursor-text hover:bg-accent focus-visible:bg-accent",
+        // The tint is the only affordance: hover here, keyboard focus from base.css FOC-13 (the
+        // system's focus tint). No focus ring or outline.
+        interactive && !disabled && "cursor-text hover:bg-accent",
         // FRM-4: no `pointer-events-none` for disabled. A disabled cell stays hoverable so a
         // Tooltip can explain why it cannot be edited; the hook already no-ops `start()`.
         "aria-disabled:opacity-50",

@@ -453,7 +453,7 @@ test("ref forwards to the root", async () => {
   expect(ref.current?.dataset.slot).toBe("editable-cell");
 });
 
-test("focus: the display element receives the keyboard focus outline (no outline-none without affordance)", async () => {
+test("focus: keyboard focus shows the FOC-13 tint, never a ring or outline", async () => {
   const screen = await render(
     <EditableCell value="Acme" label="Account name" onCommit={() => {}} />,
   );
@@ -462,8 +462,13 @@ test("focus: the display element receives the keyboard focus outline (no outline
     .element() as HTMLElement;
   display.focus();
   expect(document.activeElement).toBe(display);
-  // The component must not strip the centralized focus outline.
-  expect(display.className).not.toContain("outline-none");
+  // No ring or outline of its own (only Tabs keep one) ...
+  expect(display.className).not.toMatch(/(^|\s|:)(outline|ring)(-|\s|$)/);
+  // ... and nothing that opts it out of base.css FOC-13, whose tint covers any focused
+  // non-text-entry element: a `role="button"` span that is not a tab.
+  expect(display.tagName).toBe("SPAN");
+  expect(display.getAttribute("role")).toBe("button");
+  expect(display.className).not.toMatch(/focus-visible:bg-(none|transparent)/);
 });
 
 test("no a11y violations — display, edit, saving, error states", async () => {
