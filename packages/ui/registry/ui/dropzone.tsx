@@ -1,4 +1,4 @@
-// @vegastack dropzone@0.23.11 sha256-RueNdZaHYQXqFa1Ao9aruVXR1MHiJu6RXP7oLff8b1Y=
+// @vegastack dropzone@0.23.12 sha256-u0kAPBVQzNlCcNSvxHbVmWG5WRnItXHE3L2CjLrzUB4=
 
 "use client";
 
