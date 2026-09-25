@@ -1,4 +1,4 @@
-// @vegastack command@0.23.15 sha256-56wU+eMBI3EE1qa+ApuqPZgCekyIIZwe6VJzJUxif8o=
+// @vegastack command@0.23.15 sha256-UVFdszDHuZkQscMli36gdG8fziUdnfb4yk5q6HvJDjo=
 
 "use client";
 
@@ -381,7 +381,7 @@ function CommandItem({
       data-slot="command-item"
       aria-describedby={description.id || undefined}
       className={cn(
-        "group/command-item relative flex items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-hidden select-none in-data-[slot=dialog-content]:rounded-lg! data-[disabled=true]:pointer-events-none data-[disabled=true]:opacity-50 data-selected:bg-muted data-selected:text-foreground [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 [&_svg:not([class*='text-'])]:text-muted-foreground data-selected:**:[svg]:text-foreground",
+        "group/command-item relative flex items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-hidden select-none in-data-[slot=dialog-content]:rounded-lg! data-[disabled=true]:pointer-events-none data-[disabled=true]:opacity-50 data-selected:bg-muted data-selected:text-foreground [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 [&_svg:not([class*='text-']):not([data-icon-tone])]:text-muted-foreground data-selected:**:[svg:not([data-icon-tone])]:text-foreground",
         className,
       )}
       {...props}

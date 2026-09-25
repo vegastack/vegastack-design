@@ -7818,6 +7818,10 @@
         "PriorityIcon": {
           "attributes": [
             {
+              "name": "data-icon-tone",
+              "values": [""]
+            },
+            {
               "name": "data-priority",
               "values": []
             },
@@ -19858,6 +19862,10 @@
       "dataAttributes": {
         "StatusIcon": {
           "attributes": [
+            {
+              "name": "data-icon-tone",
+              "values": [""]
+            },
             {
               "name": "data-size",
               "values": []
