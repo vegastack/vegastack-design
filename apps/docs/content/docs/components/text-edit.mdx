@@ -1,6 +1,6 @@
 ---
 title: Text Edit
-description: A Tiptap-based rich-text editor with a compact, token-styled toolbar and markdown-ish input — controlled HTML in, HTML out.
+description: A Tiptap markdown editor in the shared prose typography — toolbar levels, bubble menu, link popover, task lists, tables and a borderless ghost variant.
 audience: public
 registry: text-edit
 status: stable
@@ -52,12 +52,12 @@ affordance, and `minHeight`/`maxHeight` sizing. Heavier, app-coupled capabilitie
 **out of this core** (each needs app infrastructure or ships as a separate composed extension),
 mirroring the system's presentational / app-coupled rule:
 
-| Capability                                                           | Why it's out of the base                                         | Where it lives                            |
-| -------------------------------------------------------------------- | ---------------------------------------------------------------- | ----------------------------------------- |
-| Image upload / paste-to-upload                                       | Needs app storage (R2/CDN)                                       | App resolves URLs (same split as `Image`) |
-| @mentions                                                            | Needs the app's user/entity data                                 | App-supplied data source + query          |
-| Markdown import/export, emoji, task lists, code-block language menus | Composed Tiptap extensions                                       | Future composed addons                    |
-| Real-time collaboration (multi-cursor, awareness, Yjs CRDT)          | Needs `@tiptap/extension-collaboration` + `yjs` + a sync backend | Separate `text-edit-collab` component     |
+| Capability                                                  | Why it's out of the base                                         | Where it lives                            |
+| ----------------------------------------------------------- | ---------------------------------------------------------------- | ----------------------------------------- |
+| Image upload / paste-to-upload                              | Needs app storage (R2/CDN)                                       | App resolves URLs (same split as `Image`) |
+| @mentions                                                   | Needs the app's user/entity data                                 | App-supplied data source + query          |
+| Emoji, code-block language menus                            | Composed Tiptap extensions                                       | Future composed addons                    |
+| Real-time collaboration (multi-cursor, awareness, Yjs CRDT) | Needs `@tiptap/extension-collaboration` + `yjs` + a sync backend | Separate `text-edit-collab` component     |
 
 This base ships no `@tiptap/extension-collaboration` and no `yjs` dependency — it is a self-contained
 single-user editor. For richer needs, compose the relevant extension on top or use the dedicated
@@ -68,6 +68,20 @@ recipe from `@vegastack/design`, the same string `MarkdownView` puts on its root
 types here and what the app renders from markdown are one typography.
 
 ## Examples
+
+### Toolbar levels, bubble menu and in-place editing
+
+`toolbar="minimal" | "standard" | "full"` (or an array of `TextEditAction`s) sets both the buttons
+and the schema; `bubbleMenu` (default on) floats heading, bold, italic, code and link over a
+selection; `variant="ghost"` edits in place with no border and no pixel shift from `MarkdownView`;
+`onSave` / `onCancel` add Save and Cancel to the toolbar and bind <kbd>Cmd/Ctrl</kbd>+<kbd>Enter</kbd>
+and <kbd>Esc</kbd>; `autosave` saves after an idle gap. Every level, the bubble menu, the shortcuts,
+the input rules and a view/edit parity example are on the [Markdown guide](/docs/guides/markdown).
+
+<ComponentPreview
+  name="markdownToolbarStandard"
+  file="components/preview/text-edit.tsx"
+/>
 
 ### Anatomy
 
@@ -146,8 +160,8 @@ without an `id` or `aria-labelledby`. An explicit `aria-labelledby` still wins.
 
 ### Submit on Cmd/Ctrl+Enter
 
-Set `onSubmit` to get a keyboard submit affordance — pressing <kbd>Cmd/Ctrl</kbd>+<kbd>Enter</kbd>
-fires it with the current HTML. It's presentational only: the **host** decides what submitting means
+Set `onSave` (formerly `onSubmit`, still accepted) to get a keyboard submit affordance — pressing <kbd>Cmd/Ctrl</kbd>+<kbd>Enter</kbd>
+fires it with the current value. It's presentational only: the **host** decides what submitting means
 (save, send, …), and plain <kbd>Enter</kbd> still inserts a newline. Omit `onSubmit` to disable it.
 
 <ComponentPreview
@@ -200,6 +214,8 @@ fires it with the current HTML. It's presentational only: the **host** decides w
 | <kbd>Cmd/Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>Z</kbd> | Redo.                                                                                                                                     |
 | <kbd>Enter</kbd>                                      | New paragraph (or new list item inside a list).                                                                                           |
 | <kbd>Cmd/Ctrl</kbd> + <kbd>Enter</kbd>                | Fire `onSubmit` with the current HTML (when set). The host decides what submitting means; plain <kbd>Enter</kbd> still inserts a newline. |
+| <kbd>Esc</kbd>                                        | Fire `onCancel` (when set).                                                                                                               |
+| <kbd>Cmd/Ctrl</kbd> + <kbd>K</kbd>                    | Open the link popover (add, edit or remove the link).                                                                                     |
 | <kbd>Tab</kbd>                                        | Move focus out of the editor to the next control.                                                                                         |
 | <kbd>←</kbd> / <kbd>→</kbd> _(in the toolbar)_        | Move between formatting controls; focus wraps at either end.                                                                              |
 | <kbd>Shift</kbd> + <kbd>Tab</kbd> _(in the toolbar)_  | Leave the toolbar in one press, rather than stepping back through every button.                                                           |

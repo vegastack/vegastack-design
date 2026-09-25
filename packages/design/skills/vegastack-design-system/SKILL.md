@@ -281,6 +281,13 @@ descendant rules (`[&_h1]:…`), which means an element-level class on a child *
 by setting a class on the rendered element. Under the page's own headings, `MarkdownView headingOffset={n}` moves every
 heading down `n` levels (capped at h6) so the outline never skips back up.
 
+**Markdown is read with `MarkdownView` and edited with `TextEdit format="markdown"`** — never a
+textarea, a local prose class, or a hand-rolled editor. For in-place editing, swap the view for
+`<TextEdit format="markdown" variant="ghost" onSave onCancel />`: ghost is borderless with no inset,
+so the text does not move, and Save/Cancel sit at the toolbar's end (⌘/Ctrl+Enter saves, Esc
+cancels). Pick `toolbar="minimal"` for comments, `"standard"` (default) for notes and summaries,
+`"full"` for documents; the schema follows the toolbar. Keep `variant="outline"` inside forms.
+
 `muted`, `accent` and `secondary` share one value in this base, and all three are kept: name the one
 whose ROLE you mean, so a consumer can retune one without moving the others.
 

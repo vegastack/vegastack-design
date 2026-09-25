@@ -9,13 +9,29 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.23.22] — September 25, 2026
+
+<!-- assembled from 2 changesets: 4397ec272864 -->
+
+### 🔧 Changed components
+
+- `EditableCell` keyboard focus shows only the system focus tint (FOC-13), the same as hover: no focus ring or outline. The 0.7.30 changelog entry now describes the shared box correctly (the text sizes the box and the field is laid over it).
+  [`f2d4304`](https://github.com/VegaStack/vegastack-design/commit/f2d4304)
+- SettingsSection takes `actions`, right-aligned on the title's row. Row ⋯ menus (RowActionsMenu) are at least 192px and as wide as their longest item, so labels never wrap, and a disabled item's `disabledReason` is a tooltip on the item (still its accessible description) instead of a wrapped second line.
+  [`fae1529`](https://github.com/VegaStack/vegastack-design/commit/fae1529)
+
+### 📦 npm
+
+- **`@vegastack/design`** → **`0.7.31`** (was `0.7.30`).
+- The design-system registry (`@vegastack/ui`) bumps 0.23.21 → 0.23.22.
+
 ## [0.23.21] — September 25, 2026
 
 <!-- assembled from 1 changeset: 934715e345e1 -->
 
 ### 🔧 Changed components
 
-- Inline edit rework. `EditableCell`'s edit mode now looks like its view: no border, ring or background, and the field inherits font, size, weight, line height, tracking and colour, so only the caret and the selection show it is editing. The display and the field share one box (the text sizes a grid cell the field is laid over), so the field grows with its content, wraps when the value wraps and nothing shifts entering or leaving edit. New props: `onSave` (the promise API; `onCommit` still works), `variant` (`inline` · `cell` fills a table cell and lets clicks beside the text reach the row link · `heading` keeps the title's size and weight and wraps), `multiline` (⌘/Ctrl+Enter saves), `required` + `requiredMessage`, `onNavigate` (Enter or Tab saves and moves on), `tooltip` and `saveErrorToast`. Saves are optimistic, the trailing spinner shows only after 300ms, and a failure rolls back, is announced and raises a toast with Retry. Read mode is a button labelled `Edit {label}`; F2 starts editing. `useInlineEdit` gains `multiline` and ignores keys during IME composition.
+- Inline edit rework. `EditableCell`'s edit mode now looks like its view: no border, ring or background, and the field inherits font, size, weight, line height, tracking and colour, so only the caret and the selection show it is editing. The display and the field share one box (the text sizes the box and the field is laid over it), so the field grows with its content, wraps when the value wraps and nothing shifts entering or leaving edit. New props: `onSave` (the promise API; `onCommit` still works), `variant` (`inline` · `cell` fills a table cell and lets clicks beside the text reach the row link · `heading` keeps the title's size and weight and wraps), `multiline` (⌘/Ctrl+Enter saves), `required` + `requiredMessage`, `onNavigate` (Enter or Tab saves and moves on), `tooltip` and `saveErrorToast`. Saves are optimistic, the trailing spinner shows only after 300ms, and a failure rolls back, is announced and raises a toast with Retry. Read mode is a button labelled `Edit {label}`; F2 starts editing. `useInlineEdit` gains `multiline` and ignores keys during IME composition.
   [`50f37dd`](https://github.com/VegaStack/vegastack-design/commit/50f37dd)
 
 ### 📦 npm
