@@ -970,7 +970,7 @@ export function MultiStepFormNav({
             ref={focusTargetRef as React.Ref<HTMLParagraphElement>}
             tabIndex={-1}
             data-slot="multi-step-form-heading"
-            className="text-base font-medium"
+            className="text-base font-medium outline-none"
           >
             {current?.label}
           </p>
@@ -995,7 +995,7 @@ export function MultiStepFormNav({
           ref={focusTargetRef as React.Ref<HTMLOListElement>}
           tabIndex={-1}
           aria-label={ariaLabel}
-          className="flex list-none flex-col gap-1"
+          className="flex list-none flex-col gap-1 outline-none"
         >
           {steps.map((spec, index) => {
             const railStep = stepperSteps[index]!;

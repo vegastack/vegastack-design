@@ -362,7 +362,7 @@ export function AppShellContent({
       data-slot="app-shell-content"
       data-variant={variant}
       className={cn(
-        "@container/app-shell-content relative flex min-h-0 min-w-0 flex-1 flex-col overflow-y-auto bg-background",
+        "@container/app-shell-content relative flex min-h-0 outline-none min-w-0 flex-1 flex-col overflow-y-auto bg-background",
         variant === "inset" && "md:m-2 md:ms-0 md:rounded-xl md:shadow-sm",
         className,
       )}

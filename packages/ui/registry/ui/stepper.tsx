@@ -474,7 +474,7 @@ export function Stepper({
           ref={summaryRef}
           tabIndex={-1}
           data-slot="stepper-summary"
-          className={cn("flex flex-col gap-2", collapseAt.summary)}
+          className={cn("flex flex-col gap-2 outline-none", collapseAt.summary)}
         >
           <Progress
             value={Math.round((completed / Math.max(steps.length, 1)) * 100)}
