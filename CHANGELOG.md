@@ -9,6 +9,20 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.23.6] — September 25, 2026
+
+<!-- assembled from 1 changeset: 5d2a4e2568f5 -->
+
+### 🔧 Changed components
+
+- **Leading icons are muted and follow their row** — menu, select, combobox, command, sidebar, navigation-menu, toggle, ghost/outline button, breadcrumb and item-media icons rest at `text-muted-foreground` and go full colour on hover, focus, highlight, selection, active, open and pressed. Destructive rows keep `text-destructive`.
+  [`164e490`](https://github.com/VegaStack/vegastack-design/commit/164e490)
+
+### 📦 npm
+
+- **`@vegastack/design`** → **`0.7.15`** (was `0.7.14`).
+- The design-system registry (`@vegastack/ui`) bumps 0.23.5 → 0.23.6.
+
 ## [0.23.5] — September 25, 2026
 
 <!-- assembled from 2 changesets: b5df7c9ea658 -->

@@ -1,4 +1,4 @@
-// @vegastack aspect-ratio@0.23.5 sha256-yWMuPvUImUsj+/r8wr/b5+MrN4pN9hFMjb/2Lky0Qbw=
+// @vegastack aspect-ratio@0.23.6 sha256-FSh6aUDChAbsTWJan9J4nIc/+S0iASAKGKdJKVUVOPE=
 
 import { cn } from "@vegastack/design";
 
