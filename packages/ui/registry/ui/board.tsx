@@ -1,4 +1,4 @@
-// @vegastack board@0.23.14 sha256-OAytuFU0xEwyGLDfHvyTST6fg0nCc+PbvcHrxTnrBwE=
+// @vegastack board@0.23.14 sha256-PCPEmbOxg1tFo3EBDvSi9Y6woJ8wvgq4K5MyXJ54YTA=
 
 "use client";
 
@@ -1325,7 +1325,7 @@ export function Board<T>({
           onClick={() => setCollapsed(column.id, false)}
           // `relative`: the sr-only child is absolutely positioned and must not resolve against
           // the page, where its static x would widen the page's scroll area.
-          className="relative h-full min-h-48 w-10 shrink-0 flex-col items-center justify-start gap-2 rounded-xl bg-muted/60 px-1 py-3 hover:bg-muted data-drop-over:bg-accent"
+          className="relative h-full min-h-48 w-10 shrink-0 flex-col max-md:snap-start items-center justify-start gap-2 rounded-xl bg-muted/60 px-1 py-3 hover:bg-muted data-drop-over:bg-accent"
         >
           <span
             aria-hidden="true"

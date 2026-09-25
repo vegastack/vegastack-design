@@ -279,6 +279,7 @@ const REGISTRY_SOURCES = Object.fromEntries(
  */
 const ICON_ONLY_HELPERS: Record<string, string> = {
   statusIconVariants: "sizes a status glyph; it renders no text",
+  priorityIconVariants: "sizes a priority flag; it renders no text",
 };
 /** Exported recipes for page chrome that never renders inside a data cell. */
 const PAGE_CHROME_HELPERS: Record<string, string> = {

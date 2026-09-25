@@ -36,6 +36,8 @@ test("grid and list show the same records, and the view switch never empties", a
 });
 
 test("Load more appends the next page", async () => {
+  // The list remembers the view per session; the first test left it on Grid.
+  sessionStorage.clear();
   const screen = await render(<ListPage01 />);
   await screen.getByRole("button", { name: "Load more" }).click();
   await expect.poll(() => document.querySelectorAll("tbody a").length).toBe(16);

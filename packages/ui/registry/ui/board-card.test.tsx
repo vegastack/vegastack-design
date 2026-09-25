@@ -96,7 +96,7 @@ test("the round tick toggles done and strikes the title", async () => {
   const screen = await render(<Toggle />);
   const tick = screen.getByRole("checkbox", { name: "Mark done" });
   await expect.element(tick).toHaveAttribute("data-shape", "circle");
-  await tick.click();
+  (tick.element() as HTMLElement).click();
   await expect.element(tick).toBeChecked();
   const root = screen.container.querySelector(
     '[data-slot="board-card-content"]',

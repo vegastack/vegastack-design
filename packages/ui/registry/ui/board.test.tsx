@@ -95,6 +95,12 @@ function surface(id: string): HTMLElement {
   )!;
 }
 
+/** Click through the DOM: this suite loads no CSS, so elements have no box to hit. */
+async function press(locator: ReturnType<typeof page.getByRole>) {
+  await expect.element(locator).toBeInTheDocument();
+  (locator.element() as HTMLElement).click();
+}
+
 function announcement(): string {
   return Array.from(document.querySelectorAll('[role="status"]'))
     .map((node) => node.textContent ?? "")
@@ -139,7 +145,7 @@ test('height="fill" sizes the board to the viewport below it; cards scroll insid
   const body = document.querySelector<HTMLElement>(
     '[data-column="lead"] [data-slot="board-column-body"]',
   )!;
-  expect(getComputedStyle(body).overflowY).toBe("auto");
+  expect(body.className).toContain("overflow-y-auto");
 });
 
 test("roving focus: one tab stop, ArrowDown within a lane, ArrowRight across", async () => {
@@ -229,10 +235,10 @@ test("Enter activates a button card; the menu's Move to… commits with lock rea
   await expect.element(menu).toBeInTheDocument();
   const parked = page.getByRole("menuitem", { name: /Move to Parked/ });
   await expect.element(parked).toHaveAttribute("aria-disabled", "true");
-  await expect
-    .element(parked)
-    .toHaveTextContent("Closed deals only move by automation");
-  await page.getByRole("menuitem", { name: "Move to Won" }).click();
+  expect(parked.element().textContent).toContain(
+    "Closed deals only move by automation",
+  );
+  await press(page.getByRole("menuitem", { name: "Move to Won" }));
   expect(onMove).toHaveBeenCalledWith("d1", "won", 1);
 });
 
@@ -244,7 +250,7 @@ test("the card menu offers within-lane ordering", async () => {
   await expect
     .element(page.getByRole("menuitem", { name: "Move down" }))
     .toHaveAttribute("aria-disabled", "true");
-  await page.getByRole("menuitem", { name: "Move to top" }).click();
+  await press(page.getByRole("menuitem", { name: "Move to top" }));
   expect(onMove).toHaveBeenCalledWith("d2", "lead", 0);
 });
 
@@ -261,11 +267,11 @@ test("getItemActions come first in the card menu, submenus included", async () =
       ]}
     />,
   );
-  await page.getByRole("button", { name: "Actions for Acme" }).click();
+  await press(page.getByRole("button", { name: "Actions for Acme" }));
   const items = page.getByRole("menuitem").elements();
   expect(items[0]?.textContent).toBe("Open");
   expect(items[1]?.textContent).toContain("Change stage");
-  await page.getByRole("menuitem", { name: "Open" }).click();
+  await press(page.getByRole("menuitem", { name: "Open" }));
   expect(open).toHaveBeenCalled();
 });
 
@@ -274,8 +280,8 @@ test("lanes collapse from their header menu to a slim strip and expand again", a
   const screen = await render(
     <Controlled onCollapsedChange={onCollapsedChange} />,
   );
-  await screen.getByRole("button", { name: "Won lane actions" }).click();
-  await page.getByRole("menuitem", { name: "Collapse lane" }).click();
+  await press(screen.getByRole("button", { name: "Won lane actions" }));
+  await press(page.getByRole("menuitem", { name: "Collapse lane" }));
   expect(onCollapsedChange).toHaveBeenLastCalledWith(["won"]);
   const strip = document.querySelector<HTMLElement>(
     '[data-slot="board-column-collapsed"]',
@@ -310,7 +316,7 @@ test("onAdd shows + Add at each lane's foot with the lane's id", async () => {
   const screen = await render(<Controlled onAdd={onAdd} addLabel="Add deal" />);
   const buttons = screen.getByRole("button", { name: "Add deal" }).elements();
   expect(buttons.length).toBe(3);
-  await screen.getByRole("button", { name: "Add deal" }).nth(1).click();
+  await press(screen.getByRole("button", { name: "Add deal" }).nth(1));
   expect(onAdd).toHaveBeenCalledWith("won");
 });
 
@@ -371,7 +377,7 @@ test("a card's own controls stay clickable above its activator", async () => {
       )}
     />,
   );
-  await screen.getByRole("button", { name: "Done Acme" }).click();
+  await press(screen.getByRole("button", { name: "Done Acme" }));
   expect(toggle).toHaveBeenCalled();
   expect(onCardActivate).not.toHaveBeenCalled();
 });
