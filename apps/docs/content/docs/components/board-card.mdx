@@ -1,11 +1,11 @@
 ---
 title: Board Card
-description: A work item as a board card — a done tick, a two-line title, a context line, and due, priority, source and assignee chips.
+description: A work item as a board card — a done tick or status circle, a two-line title, a context line, and assignee, due and priority chips.
 audience: public
 registry: board-card
 status: stable
 since: 0.23.16
-a11y: named done tick, labelled source, named avatar
+a11y: named done tick, named avatar
 preview: boardCard
 ---
 
@@ -33,8 +33,6 @@ import { BoardCard } from "@/components/ui/board-card";
       dateOptions={{ timeZone }}
       priority={task.priority}
       assignee={{ name: task.owner.name, image: task.owner.avatarUrl }}
-      source={task.meetingId ? <CalendarDays /> : undefined}
-      sourceLabel="From a meeting"
     />
   )}
   onMove={move}
@@ -42,13 +40,15 @@ import { BoardCard } from "@/components/ui/board-card";
 ```
 
 `BoardCard` is the content of one card on a [`Board`](/docs/components/board) lane: a round
-completion tick at the top start, a title of up to two lines, one muted context line ("project ·
-customer"), and a bottom row with the due chip, the priority chip, a source icon and the
-assignee's avatar at the end. [`DataList`](/docs/components/data-list)'s board view renders one per
+completion tick (or your status circle, through `status`) in a fixed leading column, then — all
+in one text column beside it — a title of up to two lines, one muted context line ("project ·
+customer"), and a bottom row with the assignee's avatar first, then the due chip, then the
+priority chip. [`DataList`](/docs/components/data-list)'s board view renders one per
 row (its `boardCard` prop maps a row to these fields).
 
 On a `Board`, pass `surface={false}`: the board owns the card's border, hover tint, focus cue,
-drag and ⋯ menu. On its own, the card draws 12px padding, a subtle border and a hover tint.
+drag and ⋯ menu. Every card ⋯ — the board's, a standalone card's `actions`, a
+[`MediaCard`](/docs/components/media-card)'s — sits top-aligned with the title's first line. On its own, the card draws 12px padding, a subtle border and a hover tint.
 
 <ComponentPreview name="boardCard" file="components/preview/board-card.tsx" />
 
@@ -85,6 +85,26 @@ makes the tick a control — without it the tick is read-only.
   file="components/preview/board-card.tsx"
 />
 
+### Status circle
+
+`status` puts your status control in the tick's place — the same Status menu your list rows use
+(a `StatusIcon` trigger: click opens the menu with O/P/B/D/C, Alt-click marks it done). It sits
+above the card's activator on a `Board`, so a click edits the status without opening the card.
+
+```tsx
+<BoardCard
+  surface={false}
+  title={task.title}
+  done={task.status === "done"}
+  status={
+    <TaskStatusMenu
+      status={task.status}
+      onChange={(to) => setStatus(task, to)}
+    />
+  }
+/>
+```
+
 ### Minimal and linked
 
 Every slot but the title is optional. Standalone, `href` (with your router's `linkRender`) makes
@@ -106,7 +126,7 @@ the title a link stretched over the card; on a `Board`, use the board's `getItem
 
 - The done tick is a real checkbox named "Mark done" (`doneLabel`). On a `Board` it sits above
   the card's activator, so it is clickable without opening or dragging the card.
-- The source icon is decorative; `sourceLabel` is read in its place.
+- A `status` control brings its own name (for example "Status: Open — change status of …").
 - The avatar is named by the assignee (its initials are hidden from screen readers).
 - There is no focus ring: the system's focus cue is the background tint (FOC-13).
 - The ⋯ slot shows on hover and on keyboard focus, and always on a touch screen.

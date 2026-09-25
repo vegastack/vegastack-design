@@ -1,4 +1,4 @@
-// @vegastack media-card@0.23.21 sha256-Olrc6HqS7ppGtNdANk1Yl/zZUqNOjE44YKIZwmRyCF4=
+// @vegastack media-card@0.23.21 sha256-Qw5nIIbMkUp2pEzIy4QqYeGt4VaQZ3v4XC9iiDFlBvg=
 
 "use client";
 
@@ -195,7 +195,8 @@ export function MediaCard({
         {actions != null ? (
           <div
             data-slot="media-card-actions"
-            className="relative z-10 shrink-0 opacity-0 transition-opacity group-hover/media-card:opacity-100 focus-within:opacity-100 has-data-popup-open:opacity-100 pointer-coarse:opacity-100"
+            // Top-aligned: the ⋯ centres on the title's first line, never on the whole text block.
+            className="relative z-10 -mt-1.5 shrink-0 self-start opacity-0 transition-opacity group-hover/media-card:opacity-100 focus-within:opacity-100 has-data-popup-open:opacity-100 pointer-coarse:opacity-100"
           >
             {actions}
           </div>

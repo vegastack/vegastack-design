@@ -1,4 +1,4 @@
-// @vegastack board-card@0.23.21 sha256-0ygD24Ul0o5cgkiC/vghiD424sDlSi8PgTskIZTUp/U=
+// @vegastack board-card@0.23.21 sha256-Z3R8eDtNioJ42fuL30cfaxk2aGkcwIC/rEdfwBCm+xQ=
 
 "use client";
 
@@ -17,8 +17,9 @@ import { Checkbox } from "@/components/ui/checkbox";
 
 /* ---
 `BoardCard` is the content of one card on a `Board` lane (a task, a deal, a ticket): a round
-completion tick, a two-line title, a muted context line, and a bottom row of due date, priority,
-source and assignee. It is the default card of `DataList`'s board view and is also usable on its
+completion tick (or the host's status circle), a two-line title, a muted context line, and a bottom
+row of assignee, due date and priority. The tick or status sits in a fixed leading column; the
+title, the context and the bottom row all share the text column beside it. It is the default card of `DataList`'s board view and is also usable on its
 own (a card grid, a "my tasks" rail).
 
 On a `Board` the board owns the surface — the border, the hover tint, the focus cue, the drag, the
@@ -70,6 +71,13 @@ export interface BoardCardProps extends Omit<
    */
   onDoneChange?: (done: boolean) => void;
   /**
+   * A status control in place of the tick — the host's Status menu (a `StatusIcon` trigger that
+   * opens the status menu on click and marks done on Alt-click), the same control its list rows
+   * use. It takes the leading column; `done` still strikes the title.
+   * @default undefined
+   */
+  status?: React.ReactNode;
+  /**
    * The tick's accessible name.
    * @default "Mark done"
    */
@@ -97,20 +105,10 @@ export interface BoardCardProps extends Omit<
    */
   priorityLabel?: string;
   /**
-   * Who the card is assigned to — an avatar at the bottom row's end.
+   * Who the card is assigned to — an avatar leading the bottom row.
    * @default undefined
    */
   assignee?: BoardCardAssignee | null;
-  /**
-   * A small icon for where the card came from (a meeting, an email). Pair it with `sourceLabel`.
-   * @default undefined
-   */
-  source?: React.ReactNode;
-  /**
-   * The source icon's accessible name ("From a meeting").
-   * @default undefined
-   */
-  sourceLabel?: string;
   /**
    * The ⋯ slot at the top end — a `RowActionsMenu`. It shows on hover and on focus, and always on
    * a touch screen. On a `Board`, leave it empty: the board's own card menu takes this place.
@@ -163,8 +161,8 @@ function dueVariant(due: DateInput, options?: DateTimeOptions) {
 
 /**
  * `BoardCard` — a work item as a board card: a round completion tick, a two-line title, a muted
- * context line, and a bottom row with the due chip, the priority chip, the source icon and the
- * assignee's avatar. The default card of `DataList`'s board view; pass `surface={false}` inside a
+ * context line, and a bottom row with the assignee's avatar, the due chip and the priority chip.
+ * A `status` control replaces the tick. The default card of `DataList`'s board view; pass `surface={false}` inside a
  * `Board`, which owns the surface.
  *
  * @example
@@ -177,8 +175,6 @@ function dueVariant(due: DateInput, options?: DateTimeOptions) {
  *   due={task.dueAt}
  *   priority={task.priority}
  *   assignee={{ name: task.owner.name, image: task.owner.avatarUrl }}
- *   source={<CalendarIcon />}
- *   sourceLabel="From a meeting"
  * />
  */
 export function BoardCard({
@@ -186,14 +182,13 @@ export function BoardCard({
   context,
   done,
   onDoneChange,
+  status,
   doneLabel = "Mark done",
   due,
   dateOptions,
   priority,
   priorityLabel,
   assignee,
-  source,
-  sourceLabel,
   actions,
   href,
   linkRender,
@@ -201,11 +196,12 @@ export function BoardCard({
   className,
   ...props
 }: BoardCardProps) {
-  const hasTick = done !== undefined || onDoneChange !== undefined;
+  const hasTick =
+    status == null && (done !== undefined || onDoneChange !== undefined);
+  const hasLead = status != null || hasTick;
   const dueLabel =
     due != null && due !== "" ? formatDueLabel(due, dateOptions) : null;
-  const hasFooter =
-    (dueLabel && dueLabel.label) || priority || source != null || assignee;
+  const hasFooter = (dueLabel && dueLabel.label) || priority || assignee;
 
   const titleText = href
     ? React.cloneElement(
@@ -232,102 +228,104 @@ export function BoardCard({
       )}
       {...props}
     >
-      <div className="flex min-w-0 items-start gap-2">
-        {hasTick ? (
-          <Checkbox
-            shape="circle"
-            data-slot="board-card-done"
-            aria-label={doneLabel}
-            checked={done ?? false}
-            readOnly={onDoneChange === undefined}
-            onCheckedChange={(checked) => onDoneChange?.(checked === true)}
-            className="relative z-10 mt-0.5"
-          />
-        ) : null}
-        <div className="flex min-w-0 flex-1 flex-col gap-0.5">
-          <span
-            data-slot="board-card-title"
+      <div
+        className={cn(
+          "grid min-w-0 items-start gap-x-2 gap-y-2",
+          hasLead ? "grid-cols-[auto_minmax(0,1fr)]" : "grid-cols-1",
+        )}
+      >
+        {hasLead ? (
+          <div
+            data-slot="board-card-lead"
             className={cn(
-              "line-clamp-2 text-sm font-medium break-words",
-              done && "text-muted-foreground line-through",
+              "relative z-10 flex min-h-5 items-center",
+              hasFooter && "row-span-2 self-start",
             )}
           >
-            {titleText}
-          </span>
-          {context != null ? (
+            {status != null ? (
+              status
+            ) : (
+              <Checkbox
+                shape="circle"
+                data-slot="board-card-done"
+                aria-label={doneLabel}
+                checked={done ?? false}
+                readOnly={onDoneChange === undefined}
+                onCheckedChange={(checked) => onDoneChange?.(checked === true)}
+              />
+            )}
+          </div>
+        ) : null}
+        <div className="flex min-w-0 items-start gap-2">
+          <div className="flex min-w-0 flex-1 flex-col gap-0.5">
             <span
-              data-slot="board-card-context"
-              className="min-w-0 truncate text-xs text-muted-foreground"
+              data-slot="board-card-title"
+              className={cn(
+                "line-clamp-2 text-sm leading-5 font-medium break-words",
+                done && "text-muted-foreground",
+              )}
             >
-              {context}
+              {/* The strike sits on an inline box so line-clamp never clips it. */}
+              <span className={cn(done && "line-through")}>{titleText}</span>
             </span>
+            {context != null ? (
+              <span
+                data-slot="board-card-context"
+                className="min-w-0 truncate text-xs text-muted-foreground"
+              >
+                {context}
+              </span>
+            ) : null}
+          </div>
+          {actions != null ? (
+            <div
+              data-slot="board-card-actions"
+              className="relative z-10 -me-1 -mt-1.5 shrink-0 self-start opacity-0 transition-opacity group-hover/board-card:opacity-100 focus-within:opacity-100 has-data-popup-open:opacity-100 pointer-coarse:opacity-100"
+            >
+              {actions}
+            </div>
           ) : null}
         </div>
-        {actions != null ? (
+        {hasFooter ? (
           <div
-            data-slot="board-card-actions"
-            className="relative z-10 -me-1 -mt-1 shrink-0 opacity-0 transition-opacity group-hover/board-card:opacity-100 focus-within:opacity-100 has-data-popup-open:opacity-100 pointer-coarse:opacity-100"
+            data-slot="board-card-footer"
+            className="flex min-w-0 flex-wrap items-center gap-1.5"
           >
-            {actions}
+            {assignee ? (
+              <Avatar data-slot="board-card-assignee" size="sm">
+                {assignee.image ? (
+                  <AvatarImage src={assignee.image} alt={assignee.name} />
+                ) : null}
+                <AvatarFallback>
+                  <span aria-hidden="true">{initials(assignee.name)}</span>
+                  <span className="sr-only">{assignee.name}</span>
+                </AvatarFallback>
+              </Avatar>
+            ) : null}
+            {dueLabel && dueLabel.label ? (
+              <Badge
+                data-slot="board-card-due"
+                variant={
+                  done ? "outline" : dueVariant(due as DateInput, dateOptions)
+                }
+                className="tabular-nums"
+              >
+                {dueLabel.label}
+              </Badge>
+            ) : null}
+            {priority ? (
+              <Badge
+                data-slot="board-card-priority"
+                data-priority={priority}
+                variant={PRIORITY_VARIANT[priority]}
+              >
+                {priorityLabel ??
+                  priority.charAt(0).toUpperCase() + priority.slice(1)}
+              </Badge>
+            ) : null}
           </div>
         ) : null}
       </div>
-      {hasFooter ? (
-        <div
-          data-slot="board-card-footer"
-          className="flex min-w-0 items-center gap-1.5"
-        >
-          {dueLabel && dueLabel.label ? (
-            <Badge
-              data-slot="board-card-due"
-              variant={
-                done ? "outline" : dueVariant(due as DateInput, dateOptions)
-              }
-              className="tabular-nums"
-            >
-              {dueLabel.label}
-            </Badge>
-          ) : null}
-          {priority ? (
-            <Badge
-              data-slot="board-card-priority"
-              data-priority={priority}
-              variant={PRIORITY_VARIANT[priority]}
-            >
-              {priorityLabel ??
-                priority.charAt(0).toUpperCase() + priority.slice(1)}
-            </Badge>
-          ) : null}
-          {source != null ? (
-            <span
-              data-slot="board-card-source"
-              className="flex shrink-0 items-center text-muted-foreground [&_svg]:size-3.5"
-            >
-              <span aria-hidden="true" className="flex items-center">
-                {source}
-              </span>
-              {sourceLabel ? (
-                <span className="sr-only">{sourceLabel}</span>
-              ) : null}
-            </span>
-          ) : null}
-          {assignee ? (
-            <Avatar
-              data-slot="board-card-assignee"
-              size="sm"
-              className="ms-auto"
-            >
-              {assignee.image ? (
-                <AvatarImage src={assignee.image} alt={assignee.name} />
-              ) : null}
-              <AvatarFallback>
-                <span aria-hidden="true">{initials(assignee.name)}</span>
-                <span className="sr-only">{assignee.name}</span>
-              </AvatarFallback>
-            </Avatar>
-          ) : null}
-        </div>
-      ) : null}
     </div>
   );
 }

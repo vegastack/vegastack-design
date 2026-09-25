@@ -1,7 +1,6 @@
 "use client";
 
 import { type ReactNode, useState } from "react";
-import { CalendarDays, Mail } from "lucide-react";
 import { Wrapper } from "./wrapper";
 import { BoardCard } from "@/components/ui/board-card";
 import {
@@ -31,8 +30,6 @@ export function boardCard(): ReactNode {
         due={at(2)}
         priority="high"
         assignee={{ name: "Priya Shah" }}
-        source={<CalendarDays />}
-        sourceLabel="From a meeting"
         actions={
           <RowActionsMenu
             label="Send the revised lighting schedule"
@@ -79,8 +76,6 @@ export function boardCardDone(): ReactNode {
         onDoneChange={setDone}
         due={at(-1)}
         assignee={{ name: "Alex Lee" }}
-        source={<Mail />}
-        sourceLabel="From an email"
       />
     </Wrapper>
   );

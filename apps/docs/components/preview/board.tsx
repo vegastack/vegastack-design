@@ -1,7 +1,6 @@
 "use client";
 
 import { type ReactNode, useState } from "react";
-import { CalendarDays } from "lucide-react";
 import { Wrapper } from "./wrapper";
 // Copied INTO apps/docs via `shadcn add @vegastack/board` (dogfoods the registry) → auto-scanned.
 import { Board, type BoardColumn } from "@/components/ui/board";
@@ -284,7 +283,7 @@ export function boardLaneStates(): ReactNode {
 /**
  * Cards as links. `getItemHref` makes each card a real link: a click follows it, and a
  * Cmd/Ctrl/Shift or middle click opens it the way the browser always does. Space still lifts the
- * card into move mode, and its Move menu stays a separate control beside the link. Pass
+ * card into move mode, and its ⋯ menu stays a separate control beside the link. Pass
  * `itemLinkRender={<Link />}` to render your router's link.
  */
 export function boardLinks(): ReactNode {
@@ -457,8 +456,6 @@ function taskCard(task: Task): ReactNode {
       due={new Date(Date.now() + task.due * DAY)}
       priority={task.priority}
       assignee={{ name: OWNERS[task.owner] ?? task.owner }}
-      source={task.meeting ? <CalendarDays /> : undefined}
-      sourceLabel={task.meeting ? "From a meeting" : undefined}
     />
   );
 }

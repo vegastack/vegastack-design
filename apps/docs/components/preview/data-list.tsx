@@ -4,7 +4,7 @@ import * as React from "react";
 import type { ReactNode } from "react";
 import { Wrapper } from "./wrapper";
 // Copied INTO apps/docs via `shadcn add @vegastack/data-list` (dogfoods the registry) → auto-scanned.
-import { CalendarDays, Lamp, Search, TriangleAlert } from "lucide-react";
+import { Lamp, Search, TriangleAlert } from "lucide-react";
 import {
   DataList,
   rowActionsColumn,
@@ -1090,8 +1090,6 @@ export function dataListBoardCards(): ReactNode {
           due: new Date(Date.now() + t.due * DAY),
           priority: t.priority,
           assignee: { name: t.owner },
-          source: t.meeting ? <CalendarDays /> : undefined,
-          sourceLabel: t.meeting ? "From a meeting" : undefined,
         })}
         rowActions={() => [
           { label: "Open", onSelect: () => {} },

@@ -1,4 +1,4 @@
-// @vegastack board@0.23.21 sha256-0iA/LHrLVYw852XFQ96QsZYj3EGNalPqgA6Kq98r7kg=
+// @vegastack board@0.23.21 sha256-zIaqcXXfnN3WKZT4CZFh52ZIV5pUT3uUwn2xcz+NkXM=
 
 "use client";
 
@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import {
   defaultActionsLabel,
+  pickShortcut,
   RowActionMenuItems,
   type RowAction,
 } from "@/components/ui/data-table-parts";
@@ -39,7 +40,7 @@ import {
 declare const process: { env: { NODE_ENV?: string } };
 
 /* ---
-`Board` owns the lanes, the drag and move model, the keyboard and menu equivalents, and the
+`Board` owns the lanes, the drag and move model, the keyboard equivalent, and the
 optimistic/rollback affordances — the host renders card CONTENT only (a `BoardCard`, usually) and
 owns the move command. The component owns all chrome: lane shells, sticky headers, counts, the
 collapse strip, empty drop zones, skeletons, paging, the add button, the lifted card and the gap.
@@ -59,7 +60,7 @@ transition and the tilt — the card still follows the pointer.
 
 Keyboard. Space picks the focused card up, the arrows move it (↑/↓ within the lane, ←/→ across),
 Space drops it and Escape puts it back — nothing is committed until the drop, and every step is
-announced. `M` opens the card's menu, whose Move items are the lossless single-action path.
+announced. `M` opens the card's ⋯ menu (its own actions — the menu lists no Move items).
 
 Moves are optimistic: the card lands at once, `onMove` runs, and when its promise rejects the card
 snaps back, the rejection is announced and an error toast says so (the app mounts `Toaster`).
@@ -77,8 +78,8 @@ export interface BoardColumn<T> {
   /** Column heading content. */
   title: React.ReactNode;
   /**
-   * Plain-text lane name — used in the lane's accessible name, the "Move to…"
-   * menu and every announcement. Required when `title` is not a string (a
+   * Plain-text lane name — used in the lane's accessible name and every
+   * announcement. Required when `title` is not a string (a
    * `Badge`, an icon + text): the board cannot read a name out of a node, and
    * warns in development when it has to fall back to the column `id`.
    * @default the `title` when it is a string
@@ -168,8 +169,8 @@ export interface BoardProps<T> {
    */
   getItemLabel?: (item: T) => string;
   /**
-   * A card's own actions (open, edit, archive), listed first in its ⋯ menu, above a separator
-   * and the Move items — one menu per card.
+   * A card's own actions (open, edit, archive), listed in its ⋯ menu — one menu per card.
+   * A card with no actions shows no ⋯.
    * @default undefined
    */
   getItemActions?: (item: T) => RowAction[];
@@ -275,7 +276,7 @@ export interface BoardProps<T> {
    */
   dragDisabled?: boolean;
   /**
-   * Turn off every move — drag, keyboard and the Move menu items. Cards still open and keep their
+   * Turn off every move — drag and keyboard. Cards still open and keep their
    * own actions.
    * @default false
    */
@@ -431,8 +432,7 @@ function LaneAutoLoad({
  * with a collapse menu, "+ Add" at each lane's foot, empty "Nothing here" / "Drop here" zones,
  * per-lane skeletons and load-on-scroll paging. Cards drag live (a mouse drag, or a 250ms touch
  * long-press) with lift, make-room and settle motion and edge auto-scroll; Space, the arrows,
- * Space and Escape move them from the keyboard; every card's ⋯ menu lists its actions and every
- * move. Moves are optimistic and roll back with a toast when `onMove` rejects. On a phone it
+ * Space and Escape move them from the keyboard; every card's ⋯ menu lists its actions. Moves are optimistic and roll back with a toast when `onMove` rejects. On a phone it
  * shows one lane at a time with a lane strip. The host renders card content and owns the move.
  *
  * @example
@@ -1095,11 +1095,6 @@ export function Board<T>({
     });
   };
 
-  const moveTargetsFor = (from: BoardColumn<T>) =>
-    columns
-      .filter((column) => column.id !== from.id)
-      .map((column) => ({ column, locked: !canReceive(column) }));
-
   const laneBodyRef = (id: string) => (node: HTMLElement | null) => {
     if (node) laneBodies.current.set(id, node);
     else laneBodies.current.delete(id);
@@ -1135,16 +1130,10 @@ export function Board<T>({
     const itemActions = getItemActions?.(item) ?? [];
     const href = getItemHref?.(item);
     const canDrag = !dragDisabled && !readOnly;
-    const hasMenu = !(readOnly && itemActions.length === 0);
+    const hasMenu = itemActions.length > 0;
     const isLifted = lifted?.id === id;
     const label = getItemLabel?.(item);
-    const menuLabel = label
-      ? itemActions.length > 0
-        ? actionsLabel(label)
-        : `Move ${label}`
-      : itemActions.length > 0
-        ? "Card actions"
-        : "Move card";
+    const menuLabel = label ? actionsLabel(label) : "Card actions";
     return (
       <div
         key={id}
@@ -1232,75 +1221,12 @@ export function Board<T>({
                 </Button>
               }
             />
-            <DropdownMenuContent align="end">
-              {itemActions.length > 0 ? (
-                <>
-                  <RowActionMenuItems actions={itemActions} />
-                  {readOnly ? null : <DropdownMenuSeparator />}
-                </>
-              ) : null}
-              {readOnly ? null : (
-                <>
-                  {/* Within-lane ordering — the menu is a lossless path on its own. */}
-                  {[
-                    { label: "Move up", index: index - 1, enabled: index > 0 },
-                    {
-                      label: "Move down",
-                      index: index + 1,
-                      enabled: index < laneIds.length - 1,
-                    },
-                    { label: "Move to top", index: 0, enabled: index > 0 },
-                    {
-                      label: "Move to bottom",
-                      index: laneIds.length - 1,
-                      enabled: index < laneIds.length - 1,
-                    },
-                  ].map((step) => (
-                    <DropdownMenuItem
-                      key={step.label}
-                      disabled={!step.enabled}
-                      onClick={() =>
-                        commitMove({
-                          id,
-                          from: { container: column.id, index },
-                          to: { container: column.id, index: step.index },
-                          input: "menu",
-                        })
-                      }
-                    >
-                      {step.label}
-                    </DropdownMenuItem>
-                  ))}
-                  {moveTargetsFor(column).map(({ column: target, locked }) => (
-                    <DropdownMenuItem
-                      key={target.id}
-                      disabled={locked}
-                      onClick={() =>
-                        commitMove({
-                          id,
-                          from: { container: column.id, index },
-                          to: {
-                            container: target.id,
-                            index: (lists[target.id] ?? []).length,
-                          },
-                          input: "menu",
-                        })
-                      }
-                    >
-                      <span className="flex min-w-0 flex-col">
-                        <span className="truncate">
-                          Move to {laneLabel(target)}
-                        </span>
-                        {locked && target.lockedReason ? (
-                          <span className="text-xs text-muted-foreground">
-                            {target.lockedReason}
-                          </span>
-                        ) : null}
-                      </span>
-                    </DropdownMenuItem>
-                  ))}
-                </>
-              )}
+            <DropdownMenuContent
+              align="end"
+              className="w-auto min-w-48"
+              onKeyDown={pickShortcut}
+            >
+              <RowActionMenuItems actions={itemActions} />
             </DropdownMenuContent>
           </DropdownMenu>
         )}

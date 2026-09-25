@@ -105,16 +105,13 @@ test("the round tick toggles done and strikes the title", async () => {
   await expectNoA11yViolations(screen.container);
 });
 
-test("the source icon is named and the ⋯ slot reveals on hover, focus and touch", async () => {
+test("the ⋯ slot reveals on hover, focus and touch", async () => {
   const screen = await render(
     <BoardCard
       title="Follow up"
-      source={<span data-testid="icon" />}
-      sourceLabel="From a meeting"
       actions={<button type="button">More</button>}
     />,
   );
-  await expect.element(screen.getByText("From a meeting")).toBeInTheDocument();
   const actions = screen.container.querySelector<HTMLElement>(
     '[data-slot="board-card-actions"]',
   )!;

@@ -1,4 +1,4 @@
-// @vegastack searchable-select@0.23.21 sha256-Ld9peC6sA6rUVhEfE3bjKO9ycElTqjOuqdZmf6n8j0k=
+// @vegastack searchable-select@0.23.21 sha256-/0LY5Yy9CceyXycBkbNLBAmTVJJjAfh+djwnbh4URMY=
 
 "use client";
 
@@ -583,7 +583,12 @@ export function SearchableSelect<
         </BaseCombobox.Trigger>
         <ComboboxContent
           align="start"
-          className={cn("w-(--anchor-width) p-0", contentClassName)}
+          className={cn(
+            "w-(--anchor-width) p-0",
+            // A person list (name over email) gets room so neither line truncates.
+            itemToSecondaryLabel && "min-w-72",
+            contentClassName,
+          )}
         >
           <ComboboxInput
             showTrigger={false}
@@ -718,9 +723,12 @@ export interface PersonOptionProps {
 }
 
 /**
- * `PersonOption` — the standard person row for a picker: the name, then a smaller muted email.
- * `SearchableSelect` and `FilterBarFacet` draw it for you from `itemToSecondaryLabel`; use it
- * directly inside a custom `renderItem`.
+ * `PersonOption` — the standard person row wherever people are listed (pickers, menus, submenus
+ * such as "Assign ›"): an avatar, then the name on the first line and a smaller muted email on
+ * the second — stacked, never inline. `SearchableSelect` and `FilterBarFacet` draw it for you
+ * from `itemToSecondaryLabel`; use it directly inside a custom `renderItem` or a
+ * `DropdownMenuItem`. Give the popup that lists people at least `min-w-72` (a `RowActionItem`
+ * `submenu` and a `SearchableSelect` with `itemToSecondaryLabel` do this themselves).
  *
  * @example
  * <PersonOption name="Arjun Mehta" email="arjun@acme.com" />

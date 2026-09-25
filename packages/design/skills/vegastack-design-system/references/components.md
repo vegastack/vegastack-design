@@ -137,7 +137,7 @@ starts with `icon-` is a component and never an icon.
 
 - **`app-shell`** — The shared dashboard layout — a skip-linked sidebar + header + scrollable main region, composing Sidebar/SidebarTrigger into one reusable, hash-tracked shell.
 - **`aspect-ratio`** — Constrains its children to a given width-to-height ratio.
-- **`board`** — Kanban lanes — full-height lanes that scroll their cards inside, sticky headers with a collapse menu, + Add at each lane's foot, Nothing here / Drop here empty zones, per-lane skeletons and load-on-scroll paging; live pointer and touch drag (lift, make room, settle, edge auto-scroll), a keyboard pick-up/move/drop model, a lossless per-card Move menu, optimistic moves with rollback and a toast, and one lane at a time on a phone.
+- **`board`** — Kanban lanes — full-height lanes that scroll their cards inside, sticky headers with a collapse menu, + Add at each lane's foot, Nothing here / Drop here empty zones, per-lane skeletons and load-on-scroll paging; live pointer and touch drag (lift, make room, settle, edge auto-scroll), a keyboard pick-up/move/drop model, a per-card ⋯ menu of the card's own actions, optimistic moves with rollback and a toast, and one lane at a time on a phone.
 - **`direction`** — Base UI's DirectionProvider and useDirection — the text-direction context components read.
 - **`record-layout`** — A record page's main column beside a sticky right rail of cards, with an ⓘ Details sheet in its place on small screens.
 - **`resizable`** — Accessible resizable panel groups and layouts with keyboard support — horizontal or vertical, nestable, with an optional visible grip.

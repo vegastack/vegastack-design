@@ -1,4 +1,4 @@
-// @vegastack data-table-parts@0.23.21 sha256-ZhwJ0G64lkA7HTroRf4HVMU/u3caf7RIeItPibnfS+o=
+// @vegastack data-table-parts@0.23.21 sha256-FIo55UWL17VgtnxBq+CyPzZOzZ6l0u0DwreqXnZoJY4=
 
 "use client";
 
@@ -6,6 +6,7 @@ import * as React from "react";
 import {
   ArrowDown,
   ArrowUp,
+  Check,
   ChevronDown,
   ChevronRight,
   ChevronsUpDown,
@@ -20,6 +21,7 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
+  DropdownMenuShortcut,
   DropdownMenuSub,
   DropdownMenuSubContent,
   DropdownMenuSubTrigger,
@@ -954,6 +956,18 @@ export interface RowActionItem {
    */
   icon?: React.ReactNode;
   /**
+   * Tick the item as the current choice (the current status in "Change status ›"). A ticked item
+   * still runs `onSelect`.
+   * @default undefined
+   */
+  checked?: boolean;
+  /**
+   * A one-key shortcut shown at the item's end. Pressing the key while its menu is open picks it
+   * (the Status menu's O/P/B/D/C).
+   * @default undefined
+   */
+  shortcut?: string;
+  /**
    * Draw a separator above this item — to set a destructive action apart from the rest.
    * @default false
    */
@@ -1011,6 +1025,28 @@ function withSeparators(actions: RowAction[]) {
 }
 
 /**
+ * A menu's one-key shortcuts: pressing an item's `shortcut` clicks that item (which also closes
+ * the menu), ahead of the menu's typeahead.
+ */
+export function pickShortcut(event: React.KeyboardEvent<HTMLElement>) {
+  if (event.metaKey || event.ctrlKey || event.altKey || event.key.length !== 1)
+    return;
+  const item = Array.from(
+    event.currentTarget.querySelectorAll<HTMLElement>(
+      "[data-row-action-shortcut]",
+    ),
+  ).find(
+    (node) =>
+      node.dataset.rowActionShortcut === event.key.toUpperCase() &&
+      !node.hasAttribute("data-disabled"),
+  );
+  if (!item) return;
+  event.preventDefault();
+  event.stopPropagation();
+  item.click();
+}
+
+/**
  * `RowActionMenuItems` — a `RowAction[]` as dropdown menu items, for a host that already owns
  * a menu (Board's card menu, SortableList's row menu) and merges its own items after them.
  * `onAction` runs before each action's `onSelect` — the host's hook to keep focus in the list
@@ -1046,7 +1082,11 @@ export function RowActionMenuItems({
                 {action.icon}
                 {action.label}
               </DropdownMenuSubTrigger>
-              <DropdownMenuSubContent>
+              <DropdownMenuSubContent
+                // A person list (the `submenu` slot) gets room for a name over an email.
+                className={action.submenu ? "min-w-72" : "min-w-48"}
+                onKeyDown={pickShortcut}
+              >
                 <RowActionMenuItems
                   actions={action.items ?? []}
                   onAction={onAction}
@@ -1058,6 +1098,7 @@ export function RowActionMenuItems({
             <DropdownMenuItem
               variant={action.destructive ? "destructive" : "default"}
               disabled={action.disabled}
+              data-row-action-shortcut={action.shortcut?.toUpperCase()}
               render={action.render}
               onClick={
                 action.disabled || !action.onSelect
@@ -1077,6 +1118,19 @@ export function RowActionMenuItems({
               ) : (
                 action.label
               )}
+              {action.checked ? (
+                <span className="sr-only">(current)</span>
+              ) : null}
+              {action.checked ? (
+                <Check
+                  data-slot="row-action-check"
+                  aria-hidden="true"
+                  className={cn(!action.shortcut && "ms-auto")}
+                />
+              ) : null}
+              {action.shortcut ? (
+                <DropdownMenuShortcut>{action.shortcut}</DropdownMenuShortcut>
+              ) : null}
             </DropdownMenuItem>
           )}
         </React.Fragment>
@@ -1172,7 +1226,11 @@ export function RowActionsMenu({
           </Button>
         }
       />
-      <DropdownMenuContent align="end">
+      <DropdownMenuContent
+        align="end"
+        className="w-auto min-w-48"
+        onKeyDown={pickShortcut}
+      >
         <RowActionMenuItems actions={actions} />
       </DropdownMenuContent>
     </DropdownMenu>
