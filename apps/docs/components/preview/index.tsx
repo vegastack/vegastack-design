@@ -51,6 +51,7 @@ export * from "./menubar";
 export * from "./pagination";
 export * from "./scroll-area";
 export * from "./table";
+export * from "./priority-icon";
 export * from "./status-icon";
 export * from "./truncated-text";
 export * from "./copy-button";

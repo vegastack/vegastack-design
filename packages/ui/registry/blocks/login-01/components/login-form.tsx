@@ -1,4 +1,4 @@
-// @vegastack login-01@0.23.12 sha256-h46w9HBAQWSnALYhc6b5hsv7jGd/pdctYScSY46ldJs=
+// @vegastack login-01@0.23.13 sha256-7neboTOUa40gU8uhq+cEIE7btba/myFxERf7EwvWkeE=
 
 "use client";
 
@@ -192,7 +192,7 @@ export function LoginForm({
               <Button type="submit" loading={loading}>
                 Sign in
               </Button>
-              <FieldDescription className="text-center">
+              <FieldDescription variant="footnote">
                 Don’t have an account? <a href={signUpHref}>Sign up</a>
               </FieldDescription>
             </Field>

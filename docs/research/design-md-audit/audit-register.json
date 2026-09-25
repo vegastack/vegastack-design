@@ -2,10 +2,10 @@
   "schemaVersion": 1,
   "kind": "vegastack-zero-gap-audit-register",
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "8fb2e1e88b3647504cee3ea5e5800f20ebfc173c803e5c99b7c3f08f15190b0a",
+  "contractSha256": "07e5aadb20070ff33b205e75ebce345cdb826ae968a8aca64c921be0cfddb96d",
   "expectedCounts": {
-    "totalRegistryItems": 683,
-    "components": 122,
+    "totalRegistryItems": 684,
+    "components": 123,
     "animatedIcons": 467,
     "hooks": 13,
     "blocks": 10,
@@ -440,6 +440,17 @@
         "packages/ui/registry/ui/media-card.tsx"
       ],
       "docsSlug": "/docs/components/media-card",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "priority-icon",
+      "inventoryClass": "component",
+      "wave": "Core controls",
+      "family": "data-display",
+      "sourceFiles": [
+        "packages/ui/registry/ui/priority-icon.tsx"
+      ],
+      "docsSlug": "/docs/components/priority-icon",
       "contractStatus": "reconciled"
     },
     {

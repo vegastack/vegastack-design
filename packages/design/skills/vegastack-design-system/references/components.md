@@ -70,8 +70,9 @@ starts with `icon-` is a component and never an icon.
 - **`item`** — A composable row for list and feed content — media, title, description, actions — with a highlighted flash for a just-changed row.
 - **`kbd`** — A keyboard-key chip, and a group that lays several of them out inline.
 - **`markdown-view`** — Render a markdown string to safe, token-styled HTML — headings, lists, code, blockquotes, links, GFM tables — XSS-safe, no raw HTML.
+- **`priority-icon`** — A flag marking priority — urgent, high, medium, low, none — each in a semantic color with filled, outline or dashed fill.
 - **`relative-time`** — One Intl-based dates & times module — formatRelative, formatDuration, formatDate, formatDateTime, formatDateRange, formatTimeOfDay, formatDueLabel, groupByDay, time-zone cookie + provider — and the RelativeTime, DateTime, Duration and DueLabel components with absolute-time tooltips.
-- **`status-icon`** — A small status indicator icon — todo, in progress, blocked, done — each mapping to a lucide icon and semantic color.
+- **`status-icon`** — A small status indicator icon — todo, in progress, blocked, done, cancelled — each mapping to a lucide icon and semantic color.
 - **`table`** — A responsive table component — caption, header, body, footer, row, head and cell parts over semantic table markup.
 - **`timeline`** — Rail geometry for chronological records — a continuous connector with a node per entry. Rows compose Item parts; separators render through Marker; entries carry content-visibility render skipping.
 - **`truncated-text`** — Truncate text to one line or N lines with an ellipsis, revealing the full text in a tooltip only when it overflows — with per-region control over the tab stop.

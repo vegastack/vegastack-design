@@ -1,5 +1,13 @@
 # @vegastack/design
 
+## 0.7.22
+
+### Patch Changes
+
+- [#265](https://github.com/vegastack/vegastack-design/pull/265) [`e42fe8c`](https://github.com/vegastack/vegastack-design/commit/e42fe8c5b956fb46fd3cbe36da5070de2405a667) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🔧 Inbox: infinite scroll — `onLoadMore` / `hasMore` / `loadingMore` (and `loadMoreError`, `endLabel`) page through an IntersectionObserver sentinel, show three skeleton rows while a page loads (no spinner), a ghost "Try again" after a failure and "You’re all caught up" at the end (15 rows a page). Day-group labels drop their dividers and stick within the scroll area with 16px above (not on the first group) and 6px below; rows keep a 1px divider between them only. Titles are regular weight — foreground when unread, muted once read — with the actor and record in medium. The row ⋯ menu sizes to its content (224–320px). notifications-01 uses the new API in place of LoadMore, names its row item "Mute this type" (tooltip "Stop notifications like this") and demonstrates the loading, error and end states.
+
+- [#264](https://github.com/vegastack/vegastack-design/pull/264) [`248dd90`](https://github.com/vegastack/vegastack-design/commit/248dd90189ced5f313c316460ee377c16fe68b2e) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🔧 StatusIcon gains `cancelled` (CircleX, muted) and a static `progress` (CircleDashed; `animated` keeps the spinning Loader), `blocked` becomes CircleSlash in the warning ink and `done` a filled CircleCheck; new `PriorityIcon` (urgent / high / medium / low / none flags in semantic colours); docs recipes for a Status menu and Priority menu (DropdownMenu + icons + shortcuts O/P/B/D/C and 1/2/3/4/0, Alt-click for quick Done) and icons leading Select/Combobox options.
+
 ## 0.7.21
 
 ### Patch Changes

@@ -1,4 +1,4 @@
-// @vegastack notifications-01@0.23.12 sha256-jKnaAXn94qvzV7eZ+ij5GQsQbfNgNQiMafjSaxua0kw=
+// @vegastack notifications-01@0.23.13 sha256-zTTawKlNaXbVT8WM0a8hsT/5S+GFR8X4iS66lY7zB1Q=
 
 "use client";
 
@@ -20,8 +20,12 @@ import {
   type InboxFilter,
   type InboxItemAction,
 } from "@/components/ui/inbox";
-import { LoadMore, type LoadMoreState } from "@/components/ui/load-more";
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { useAnnouncer } from "@/components/ui/use-announcer";
 import { groupByDay } from "@/lib/date-time";
 
@@ -55,10 +59,25 @@ export interface InboxSheetProps {
   /** Flip one notification between read and unread. */
   onToggleRead: (id: string) => void;
   /**
-   * Paging for older notifications; `hasMore: false` shows "You’re all caught up".
+   * Infinite scroll: loads the next page (15 rows) as the list nears its end.
    * @default undefined
    */
-  loadMore?: LoadMoreState;
+  onLoadMore?: () => void;
+  /**
+   * Older notifications exist; `false` ends the list on "You’re all caught up".
+   * @default false
+   */
+  hasMore?: boolean;
+  /**
+   * A page is loading (three skeleton rows).
+   * @default false
+   */
+  loadingMore?: boolean;
+  /**
+   * The last page failed (a ghost "Try again").
+   * @default false
+   */
+  loadMoreError?: boolean;
   /**
    * The moment "Today" is measured from, in ms since the epoch.
    * @default now
@@ -106,7 +125,14 @@ function Row({
       href={n.href}
       onToggleRead={onToggleRead}
       menu={
-        <DropdownMenuItem>Turn off notifications like this</DropdownMenuItem>
+        <Tooltip>
+          <TooltipTrigger
+            render={<DropdownMenuItem>Mute this type</DropdownMenuItem>}
+          />
+          <TooltipContent side="left">
+            Stop notifications like this
+          </TooltipContent>
+        </Tooltip>
       }
       actions={
         n.decision
@@ -133,8 +159,9 @@ function Row({
  * The Inbox: a side `Sheet` holding the `Inbox` panel — "Mark all read" and a ⋯ menu in the
  * header, All | Unread chips with the unread count, rows grouped by day (Today, Yesterday, This
  * week, Last week, Earlier), each row one link with an avatar or icon, an unread tint, a rich
- * title, the time over its read toggle and ⋯, and optional action chips. "Load older" pages and
- * ends on "You’re all caught up". Loading, a failed load and both empty cases have their own
+ * title, the time over its read toggle and ⋯, and optional action chips. The list pages 15 rows
+ * at a time as it scrolls (skeleton rows while loading, "Try again" on failure) and ends on
+ * "You’re all caught up". Loading, a failed load and both empty cases have their own
  * states, and "Marked all read" is announced once.
  *
  * @example
@@ -150,7 +177,10 @@ export function InboxSheet({
   onRetry,
   onMarkAllRead,
   onToggleRead,
-  loadMore,
+  onLoadMore,
+  hasMore = false,
+  loadingMore = false,
+  loadMoreError = false,
   now,
 }: InboxSheetProps) {
   const [view, setView] = React.useState<InboxFilter>("all");
@@ -196,16 +226,6 @@ export function InboxSheet({
             ))}
           </InboxGroup>
         ))}
-        {loadMore ? (
-          <div className="px-4 py-3">
-            <LoadMore
-              label="Load older"
-              endLabel="You’re all caught up"
-              retryLabel="Try again"
-              {...loadMore}
-            />
-          </div>
-        ) : null}
       </>
     );
   }
@@ -219,6 +239,14 @@ export function InboxSheet({
         className="gap-0 p-0"
       >
         <Inbox
+          onLoadMore={
+            visible.length > 0 && !loading && error == null
+              ? onLoadMore
+              : undefined
+          }
+          hasMore={hasMore}
+          loadingMore={loadingMore}
+          loadMoreError={loadMoreError}
           title={<SheetTitle render={<span />}>Inbox</SheetTitle>}
           onClose={() => onOpenChange(false)}
           actions={

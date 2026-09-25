@@ -1,4 +1,4 @@
-// @vegastack geo-data@0.23.12 sha256-UivHOIR3fh3iG1XJAZcpSMEuOIsyFfyvWjNIKTB+Vv4=
+// @vegastack geo-data@0.23.13 sha256-t6TG4SewQg4qbKDxqbgzixe/UmUQU8xR0M3fHjJl1Uo=
 
 /**
  * geo-data — the geography datasets behind `CountrySelect` and `RegionSelect`, installed ONCE as

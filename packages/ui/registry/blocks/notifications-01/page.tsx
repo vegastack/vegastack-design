@@ -1,4 +1,4 @@
-// @vegastack notifications-01@0.23.12 sha256-jKnaAXn94qvzV7eZ+ij5GQsQbfNgNQiMafjSaxua0kw=
+// @vegastack notifications-01@0.23.13 sha256-zTTawKlNaXbVT8WM0a8hsT/5S+GFR8X4iS66lY7zB1Q=
 
 "use client";
 
@@ -35,8 +35,8 @@ const unreadLabel = (n: number) => `${n} unread`;
  * `notifications-01` — the Inbox: an "Inbox" row in the rail (desktop) and a bell in the header
  * (phone), both carrying the unread count in their names, opening one `InboxSheet`.
  *
- * Replace the sample notifications with your API, and "Mark all read" and "Load older" with its
- * calls. The app this mirrors docks the sheet beside the sidebar (`side="left"`, non-modal on
+ * Replace the sample notifications with your API, and "Mark all read" and the infinite-scroll
+ * `loadOlder` (15 rows a page) with its calls. The app this mirrors docks the sheet beside the sidebar (`side="left"`, non-modal on
  * desktop, full screen on a phone). In an app with more pages, the triggers live in your shell layout.
  *
  * @example
@@ -48,15 +48,25 @@ export default function Page() {
   const [items, setItems] = React.useState(NOTIFICATIONS);
   const [olderLoaded, setOlderLoaded] = React.useState(false);
   const [loadingOlder, setLoadingOlder] = React.useState(false);
+  const [olderFailed, setOlderFailed] = React.useState(false);
+  const attempts = React.useRef(0);
   const unread = items.filter((n) => n.unread).length;
 
+  // Infinite scroll: the first page fails once to show "Try again"; the retry loads the last page
+  // and the list ends on "You’re all caught up". Page your API 15 rows at a time.
   function loadOlder() {
     setLoadingOlder(true);
+    setOlderFailed(false);
     window.setTimeout(() => {
-      setItems((current) => [...current, ...OLDER_NOTIFICATIONS]);
-      setOlderLoaded(true);
+      attempts.current += 1;
+      if (attempts.current === 1) {
+        setOlderFailed(true);
+      } else {
+        setItems((current) => [...current, ...OLDER_NOTIFICATIONS]);
+        setOlderLoaded(true);
+      }
       setLoadingOlder(false);
-    }, 500);
+    }, 700);
   }
 
   return (
@@ -128,11 +138,10 @@ export default function Page() {
             current.map((n) => (n.id === id ? { ...n, unread: !n.unread } : n)),
           )
         }
-        loadMore={{
-          hasMore: !olderLoaded,
-          loading: loadingOlder,
-          onLoadMore: loadOlder,
-        }}
+        onLoadMore={loadOlder}
+        hasMore={!olderLoaded}
+        loadingMore={loadingOlder}
+        loadMoreError={olderFailed}
       />
     </AppShell>
   );

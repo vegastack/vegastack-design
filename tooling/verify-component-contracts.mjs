@@ -572,7 +572,7 @@ assert(
 );
 
 const expectedWaves = {
-  "Core controls": 23,
+  "Core controls": 24,
   "Forms/editing": 26,
   "Navigation/layout": 17,
   Overlays: 14,
@@ -615,6 +615,7 @@ const expectedComponentWaveMembers = {
     "kbd",
     "label",
     "notification-bell",
+    "priority-icon",
     "progress",
     "radio-group",
     "relative-time",

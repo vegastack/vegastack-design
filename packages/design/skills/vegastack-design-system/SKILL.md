@@ -187,6 +187,12 @@ source })}` — never a hand-rolled card. The board fills the viewport below the
   snaps back with a toast, so never re-sort lanes yourself while it is pending. Drag, touch
   long-press, keyboard (Space · arrows · Space · Esc), the Move menu and the phone's one-lane view
   are built in; card actions go in `rowActions`/`getItemActions`, not on the `BoardCard`.
+- **A task's status or priority** → `StatusIcon` (todo, progress — static unless `animated`,
+  blocked, done, cancelled) and `PriorityIcon` (urgent, high, medium, low, none flags). To change
+  them, use the Status menu / Priority menu recipes on their docs pages — a ghost icon-button
+  trigger over `DropdownMenu` items with the icon leading and a `DropdownMenuShortcut` (O/P/B/D/C,
+  1/2/3/4/0), ⌥/Alt-click on the circle for quick Done with an Undo toast — and the same icons
+  leading `Select`/`Combobox` options and filter options. No local badges or picker components.
 - **A list that pages by cursor** → `DataList` `loadMore` (or `LoadMore` under your own list), with
   `useAsyncSearch` when the search runs on the server.
 

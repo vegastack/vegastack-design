@@ -58,7 +58,8 @@ export function inbox(): ReactNode {
             unreadCount={unreadCount}
           />
         }
-        footer="You’re all caught up"
+        onLoadMore={() => {}}
+        hasMore={false}
       >
         <InboxGroup label="Today">
           <InboxItem
@@ -74,7 +75,7 @@ export function inbox(): ReactNode {
             time={NOW - 2 * MIN}
             href="#"
             onToggleRead={toggle("a")}
-            menu={<DropdownMenuItem>Mute this project</DropdownMenuItem>}
+            menu={<DropdownMenuItem>Mute this type</DropdownMenuItem>}
             actions={[
               {
                 label: "Approve",
@@ -135,6 +136,50 @@ export function inbox(): ReactNode {
             time={NOW - 50 * 60 * MIN}
             href="#"
             onToggleRead={() => {}}
+          />
+        </InboxGroup>
+      </Inbox>
+    </Frame>
+  );
+}
+
+/** The next page is loading: three skeleton rows under the list. */
+export function inboxLoadingMore(): ReactNode {
+  return (
+    <Frame>
+      <Inbox onLoadMore={() => {}} hasMore loadingMore>
+        <InboxGroup label="Today">
+          <InboxItem
+            unread
+            avatar={{ name: "Asha Kumar" }}
+            title={
+              <>
+                <InboxEmphasis>Asha</InboxEmphasis> assigned you{" "}
+                <InboxEmphasis>Send Skyline delivery schedule</InboxEmphasis>
+              </>
+            }
+            meta="Skyline Tower B · Project"
+            time={NOW - 2 * MIN}
+            href="#"
+          />
+        </InboxGroup>
+      </Inbox>
+    </Frame>
+  );
+}
+
+/** The next page failed: a ghost Try again. */
+export function inboxLoadMoreError(): ReactNode {
+  return (
+    <Frame>
+      <Inbox onLoadMore={() => {}} hasMore loadMoreError>
+        <InboxGroup label="Yesterday">
+          <InboxItem
+            icon={<Package />}
+            title="Price list export finished"
+            meta="1,284 products"
+            time={NOW - 26 * 60 * MIN}
+            href="#"
           />
         </InboxGroup>
       </Inbox>

@@ -1,14 +1,14 @@
 {
   "schemaVersion": 1,
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "8fb2e1e88b3647504cee3ea5e5800f20ebfc173c803e5c99b7c3f08f15190b0a",
+  "contractSha256": "07e5aadb20070ff33b205e75ebce345cdb826ae968a8aca64c921be0cfddb96d",
   "inventory": {
-    "expected": 683,
-    "actual": 683,
-    "unique": 683
+    "expected": 684,
+    "actual": 684,
+    "unique": 684
   },
   "classes": {
-    "components": 122,
+    "components": 123,
     "animatedIcons": 467,
     "hooks": 13,
     "blocks": 10,
@@ -17,8 +17,8 @@
   },
   "waves": {
     "Core controls": {
-      "expected": 23,
-      "actual": 23,
+      "expected": 24,
+      "actual": 24,
       "members": [
         "animated-number",
         "avatar",
@@ -31,6 +31,7 @@
         "kbd",
         "label",
         "notification-bell",
+        "priority-icon",
         "progress",
         "radio-group",
         "relative-time",
@@ -763,7 +764,7 @@
       ]
     }
   },
-  "componentRoutes": 120,
+  "componentRoutes": 121,
   "blockRoutes": 17,
   "modeledExemptions": 3
 }

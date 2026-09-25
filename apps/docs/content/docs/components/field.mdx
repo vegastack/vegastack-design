@@ -151,6 +151,21 @@ de-duplicates into a list.
   file="components/preview/field.tsx"
 />
 
+### Footnote
+
+`variant="footnote"` renders a centred 12px muted line with a small gap above. Use it for the
+footer line under a form's submit button, such as the auth blocks' "Don’t have an account?" or
+"Access is managed by your administrator."
+
+```tsx
+<Field>
+  <Button type="submit">Sign in</Button>
+  <FieldDescription variant="footnote">
+    Access is managed by your administrator.
+  </FieldDescription>
+</Field>
+```
+
 ### Automatic wiring
 
 Inside a `Field`, the control needs no ids and no `aria-*` props. `Field` renders Base UI's Field
