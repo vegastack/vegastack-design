@@ -1,6 +1,6 @@
 ---
 title: Text Edit
-description: A Tiptap markdown editor in the shared prose typography — toolbar levels, bubble menu, link popover, task lists, tables and a borderless ghost variant.
+description: A Notion-style Tiptap markdown editor in body typography — toolbar levels, bubble menu, link popover and an onCommit contract.
 audience: public
 registry: text-edit
 status: stable
@@ -73,9 +73,9 @@ types here and what the app renders from markdown are one typography.
 
 `toolbar="minimal" | "standard" | "full"` (or an array of `TextEditAction`s) sets both the buttons
 and the schema; `bubbleMenu` (default on) floats heading, bold, italic, code and link over a
-selection; `variant="ghost"` edits in place with no border and no pixel shift from `MarkdownView`;
-`onSave` / `onCancel` add Save and Cancel to the toolbar and bind <kbd>Cmd/Ctrl</kbd>+<kbd>Enter</kbd>
-and <kbd>Esc</kbd>; `autosave` saves after an idle gap. Every level, the bubble menu, the shortcuts,
+selection. The editor is always borderless and transparent, with no view mode: leaving it calls
+`onCommit` when the text changed, <kbd>Esc</kbd> reverts (`onRevert`), and `autosave` commits after
+an idle gap. The toolbar is a compact row under the text, shown while the editor has focus. Every level, the bubble menu, the shortcuts,
 the input rules and a view/edit parity example are on the [Markdown guide](/docs/guides/markdown).
 
 <ComponentPreview
@@ -88,23 +88,22 @@ the input rules and a view/edit parity example are on the [Markdown guide](/docs
 `TextEdit` is a single self-contained component, but it composes three layered pieces internally:
 
 ```tsx
+// data-slot="text-edit" — transparent root, no border, no ring
 <TextEdit>
-  {" "}
-  {/* data-slot="text-edit" — bordered container, focus-within border tint (no ring) */}
-  <Toolbar />{" "}
-  {/* data-slot="text-edit-toolbar" — role="toolbar", Toggle buttons */}
-  <EditorContent />{" "}
-  {/* Tiptap contenteditable, role="textbox" aria-multiline */}
+  // Tiptap contenteditable, role="textbox" aria-multiline
+  <EditorContent />
+  // data-slot="text-edit-toolbar" — role="toolbar", shown while focused
+  <Toolbar />
 </TextEdit>
 ```
 
-- **Container** (`data-slot="text-edit"`) — the bordered surface. Re-colors its border with the
-  `ring` token on `:focus-within` and to destructive when it wraps an `aria-invalid` control (also
-  setting `data-invalid`). Carries `data-editable` when editable.
-- **Toolbar** (`data-slot="text-edit-toolbar"`, `role="toolbar"`) — a row of `Toggle` buttons
-  (bold, italic, strike, heading, bullet list, ordered list, blockquote, inline code). Each button's
-  pressed state is derived from `editor.isActive(...)` via Tiptap's `useEditorState`, so it stays in
-  sync with the caret. Hidden when `editable={false}`.
+- **Root** (`data-slot="text-edit"`) — transparent and borderless: it takes the surface it sits on.
+  Carries `data-editable`, `data-focused` while editing and `data-invalid` when it wraps an
+  `aria-invalid` control. Clicking its blank space focuses the end of the document.
+- **Toolbar** (`data-slot="text-edit-toolbar"`, `role="toolbar"`) — a compact row of `Toggle`
+  buttons under the text, rendered only while the editor has focus. Each button's pressed state is
+  derived from `editor.isActive(...)` via Tiptap's `useEditorState`, so it stays in sync with the
+  caret. Never shown when `editable={false}`.
 - **Editor surface** (`role="textbox"`, `aria-multiline`) — the Tiptap/ProseMirror contenteditable.
   Prose is styled entirely with semantic tokens (headings, lists, code, blockquote), so it tracks the
   active theme with no `@tailwindcss/typography` dependency.
@@ -137,8 +136,7 @@ editor is created.
 ### Invalid
 
 Pass `aria-invalid` to mark the editor invalid: it forwards to the contenteditable textbox and the
-container border turns destructive (`not-focus-within:has-aria-invalid:border-destructive/70`, plus
-`data-invalid`).
+root carries `data-invalid`. The editor draws no border, so the error text is the visible cue.
 Connect the error text with `aria-describedby` so it is announced with the region. `aria-invalid`
 also accepts `"grammar"` and `"spelling"`.
 
@@ -160,7 +158,7 @@ without an `id` or `aria-labelledby`. An explicit `aria-labelledby` still wins.
 
 ### Submit on Cmd/Ctrl+Enter
 
-Set `onSave` (formerly `onSubmit`, still accepted) to get a keyboard submit affordance — pressing <kbd>Cmd/Ctrl</kbd>+<kbd>Enter</kbd>
+Set `onSubmit` to get a keyboard submit affordance — pressing <kbd>Cmd/Ctrl</kbd>+<kbd>Enter</kbd>
 fires it with the current value. It's presentational only: the **host** decides what submitting means
 (save, send, …), and plain <kbd>Enter</kbd> still inserts a newline. Omit `onSubmit` to disable it.
 
@@ -172,7 +170,7 @@ fires it with the current value. It's presentational only: the **host** decides 
 ### Sized content area
 
 `minHeight` sets a starting height and `maxHeight` caps it — content past the cap scrolls
-(`overflow-y-auto`) while the toolbar stays pinned. A number is treated as `px`; a string (e.g.
+(`overflow-y-auto`). A number is treated as `px`; a string (e.g.
 `'8rem'`) is used verbatim. Both are fed to the `--te-min-h` / `--te-max-h` CSS variables.
 
 <ComponentPreview
@@ -197,28 +195,25 @@ fires it with the current value. It's presentational only: the **host** decides 
   **one tab stop** and the arrow keys move between controls (wrapping at the ends) across the three
   `Toolbar.Group` clusters. Each button is an icon-only `Toggle` with an `aria-label` and
   `aria-pressed` reflecting the active mark or node.
-- Editing keymaps come from Tiptap `StarterKit` — see the table below. Focus re-colors the container
-  border with the `ring` token (`focus-within:border-ring/70`); never styled with `outline: none`.
-- An invalid control (`aria-invalid`) re-colors the container border to destructive
-  (`not-focus-within:has-aria-invalid:border-destructive/70`) and sets `data-invalid` for
-  downstream styling. **Focus outranks invalid**: while anything inside the editor holds focus the
-  container carries the `ring` tint instead, and the destructive tint returns on blur — the
-  contenteditable has no outline, so the container border is its only focus cue.
+- Editing keymaps come from Tiptap `StarterKit` — see the table below. Focus is shown by the caret
+  and the formatting row appearing under the text, Notion-style; there is no ring or border.
+- An invalid control (`aria-invalid`) sets `data-invalid` on the root for downstream styling; pair
+  it with visible error text through `aria-describedby`.
 - `editable={false}` removes the toolbar and marks the surface read-only.
 
-| Key                                                   | Action                                                                                                                                    |
-| ----------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
-| <kbd>Cmd/Ctrl</kbd> + <kbd>B</kbd>                    | Toggle **bold**.                                                                                                                          |
-| <kbd>Cmd/Ctrl</kbd> + <kbd>I</kbd>                    | Toggle _italic_.                                                                                                                          |
-| <kbd>Cmd/Ctrl</kbd> + <kbd>Z</kbd>                    | Undo.                                                                                                                                     |
-| <kbd>Cmd/Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>Z</kbd> | Redo.                                                                                                                                     |
-| <kbd>Enter</kbd>                                      | New paragraph (or new list item inside a list).                                                                                           |
-| <kbd>Cmd/Ctrl</kbd> + <kbd>Enter</kbd>                | Fire `onSubmit` with the current HTML (when set). The host decides what submitting means; plain <kbd>Enter</kbd> still inserts a newline. |
-| <kbd>Esc</kbd>                                        | Fire `onCancel` (when set).                                                                                                               |
-| <kbd>Cmd/Ctrl</kbd> + <kbd>K</kbd>                    | Open the link popover (add, edit or remove the link).                                                                                     |
-| <kbd>Tab</kbd>                                        | Move focus out of the editor to the next control.                                                                                         |
-| <kbd>←</kbd> / <kbd>→</kbd> _(in the toolbar)_        | Move between formatting controls; focus wraps at either end.                                                                              |
-| <kbd>Shift</kbd> + <kbd>Tab</kbd> _(in the toolbar)_  | Leave the toolbar in one press, rather than stepping back through every button.                                                           |
+| Key                                                   | Action                                                                                                                        |
+| ----------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
+| <kbd>Cmd/Ctrl</kbd> + <kbd>B</kbd>                    | Toggle **bold**.                                                                                                              |
+| <kbd>Cmd/Ctrl</kbd> + <kbd>I</kbd>                    | Toggle _italic_.                                                                                                              |
+| <kbd>Cmd/Ctrl</kbd> + <kbd>Z</kbd>                    | Undo.                                                                                                                         |
+| <kbd>Cmd/Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>Z</kbd> | Redo.                                                                                                                         |
+| <kbd>Enter</kbd>                                      | New paragraph (or new list item inside a list).                                                                               |
+| <kbd>Cmd/Ctrl</kbd> + <kbd>Enter</kbd>                | Fire `onSubmit` with the current value (when set); otherwise commit and blur. Plain <kbd>Enter</kbd> still inserts a newline. |
+| <kbd>Esc</kbd>                                        | Revert to the value focus found, blur, and fire `onRevert`.                                                                   |
+| <kbd>Cmd/Ctrl</kbd> + <kbd>K</kbd>                    | Open the link popover (add, edit or remove the link).                                                                         |
+| <kbd>Tab</kbd>                                        | Move focus out of the editor to the next control.                                                                             |
+| <kbd>←</kbd> / <kbd>→</kbd> _(in the toolbar)_        | Move between formatting controls; focus wraps at either end.                                                                  |
+| <kbd>Shift</kbd> + <kbd>Tab</kbd> _(in the toolbar)_  | Leave the toolbar in one press, rather than stepping back through every button.                                               |
 
 <StatesTested name="text-edit" />
 

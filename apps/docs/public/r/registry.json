@@ -280,7 +280,7 @@
         "whenToUse": "Discussion on a record's page (a task, a meeting): comments oldest first with the composer at the end.",
         "whenNotToUse": "An activity feed or notifications — use Inbox.",
         "version": "0.23.30",
-        "integrity": "sha256-dn+hpQx40n3HJLFhT7EK1z6EoyTuJ4OGCzR2/PVMeH8="
+        "integrity": "sha256-IYc4X27NZBFWv5Pqabp0kHYqrHBJoMXy+SEi0bLzn8M="
       }
     },
     {
@@ -15214,7 +15214,7 @@
         "whenToUse": "Display user/system-authored markdown — descriptions, comments, activity — as safe token-styled prose.",
         "whenNotToUse": "Editing markdown (use an editor), or when the source needs embedded raw HTML.",
         "version": "0.23.30",
-        "integrity": "sha256-8phcVSaDeBbLBbkMtWJCDzKE8zUtf0Se+EbiJhGLFMo="
+        "integrity": "sha256-RsBgDRqv4K74iQ5HmpaaHc9CWCH41Xl2pF8fGWaY/EY="
       }
     },
     {
@@ -16869,7 +16869,7 @@
         "whenToUse": "Comments, notes, summaries and documents stored as Markdown (format=\"markdown\") or HTML; in-place editing of a MarkdownView with variant=\"ghost\".",
         "whenNotToUse": "Plain single-line input (Input) or collaborative real-time docs (deferred text-edit-collab).",
         "version": "0.23.30",
-        "integrity": "sha256-9fxWB9kh66QR5R7X7Fe0FG5IYUo7rK4jTYAAf7ot0Aw="
+        "integrity": "sha256-WkaRoYAM3wIvmFMENNa+b/Wbav7a5APpHvOVLXjbT+E="
       }
     },
     {

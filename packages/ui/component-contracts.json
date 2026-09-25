@@ -21704,6 +21704,10 @@
               "values": [""]
             },
             {
+              "name": "data-focused",
+              "values": [""]
+            },
+            {
               "name": "data-invalid",
               "values": [""]
             },
@@ -21712,14 +21716,9 @@
               "values": [
                 "text-edit",
                 "text-edit-bubble-menu",
-                "text-edit-commit",
                 "text-edit-content",
                 "text-edit-toolbar"
               ]
-            },
-            {
-              "name": "data-variant",
-              "values": []
             }
           ],
           "cssVariables": []

@@ -1,4 +1,4 @@
-// @vegastack comments@0.23.30 sha256-dn+hpQx40n3HJLFhT7EK1z6EoyTuJ4OGCzR2/PVMeH8=
+// @vegastack comments@0.23.30 sha256-IYc4X27NZBFWv5Pqabp0kHYqrHBJoMXy+SEi0bLzn8M=
 
 "use client";
 
@@ -244,12 +244,11 @@ export function CommentItem({
           {comment.deleted ? null : editing ? (
             <TextEdit
               format="markdown"
-              variant="ghost"
               toolbar="minimal"
               defaultValue={comment.body}
               aria-label="Edit comment"
-              onSave={save}
-              onCancel={() => {
+              onCommit={save}
+              onRevert={() => {
                 setError(null);
                 setEditing(false);
               }}
@@ -322,7 +321,7 @@ export interface CommentComposerProps {
 
 /**
  * `CommentComposer` — the viewer's avatar beside a minimal Markdown editor (bold, italic, link,
- * bullet list) whose toolbar ends in the "Comment" button; Cmd/Ctrl+Enter posts too.
+ * bullet list) with the "Comment" button under it; Cmd/Ctrl+Enter posts too.
  *
  * @example
  * <CommentComposer author={me} onSubmit={(body) => postComment(taskId, body)} />
@@ -341,6 +340,7 @@ export function CommentComposer({
   const [generation, setGeneration] = React.useState(0);
   const [pending, setPending] = React.useState(false);
   const [errorState, setErrorState] = React.useState<string | null>(null);
+  const [body, setBody] = React.useState("");
   const posting = postingProp ?? pending;
   const error = errorProp !== undefined ? errorProp : errorState;
 
@@ -351,6 +351,7 @@ export function CommentComposer({
     try {
       await onSubmit(body);
       setGeneration((g) => g + 1);
+      setBody("");
       onValueChange?.("");
     } catch (e) {
       setErrorState(errorMessage(e, "Couldn't post the comment."));
@@ -372,14 +373,26 @@ export function CommentComposer({
           toolbar="minimal"
           placeholder={placeholder}
           aria-label="Comment"
-          onValueChange={onValueChange}
-          onSave={submit}
-          saveLabel={submitLabel}
+          onValueChange={(next) => {
+            setBody(next);
+            onValueChange?.(next);
+          }}
+          onSubmit={submit}
           saving={posting}
           disabled={disabled}
           minHeight={72}
           aria-invalid={error ? true : undefined}
         />
+        <div className="flex justify-end">
+          <Button
+            size="sm"
+            loading={posting}
+            disabled={disabled || !body.trim()}
+            onClick={() => void submit(body)}
+          >
+            {submitLabel}
+          </Button>
+        </div>
         {error ? (
           <p role="alert" className="text-xs text-destructive">
             {error}

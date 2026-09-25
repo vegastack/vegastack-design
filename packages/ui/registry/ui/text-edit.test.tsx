@@ -30,6 +30,8 @@ test("exposes the text-edit slot and is editable by default", async () => {
 
 test("renders the formatting toolbar with all command buttons", async () => {
   const screen = await render(<TextEdit aria-label="Body" />);
+  // Notion-style: the row appears only while the editor has focus.
+  await screen.getByRole("textbox", { name: "Body" }).click();
   await expect
     .element(screen.getByRole("toolbar", { name: "Formatting" }))
     .toBeInTheDocument();
@@ -54,12 +56,13 @@ test("renders the formatting toolbar with all command buttons", async () => {
 test("toolbar keyboard: one tab stop in, arrows move across groups, Shift+Tab leaves", async () => {
   const screen = await render(
     <div>
-      <button type="button">before</button>
       <TextEdit aria-label="Body" />
     </div>,
   );
+  // The row sits under the text and exists while the editor has focus; Tab from the text enters it.
+  await screen.getByRole("textbox", { name: "Body" }).click();
   const before = screen
-    .getByRole("button", { name: "before" })
+    .getByRole("textbox", { name: "Body" })
     .element() as HTMLElement;
   const heading = screen.getByRole("button", { name: "Heading" }).element();
   const subheading = screen
@@ -74,7 +77,6 @@ test("toolbar keyboard: one tab stop in, arrows move across groups, Shift+Tab le
   for (const control of [subheading, bold, italic])
     expect(control.getAttribute("tabindex")).toBe("-1");
 
-  before.focus();
   await userEvent.tab();
   expect(document.activeElement).toBe(heading);
 
@@ -97,8 +99,8 @@ test("the editor surface and MarkdownView wear the same prose recipe", async () 
     .element() as HTMLElement;
   // The shared recipe is the single source of the typography — if TextEdit ever grows its own
   // `[&_…]` rules again, this is what notices (audit B4-09).
-  expect(editable.className).toContain("[&_h1]:text-3xl [&_h1]:font-semibold");
-  expect(editable.className).toContain("[&_p]:leading-relaxed");
+  expect(editable.className).toContain("[&_h1]:text-lg [&_h1]:font-semibold");
+  expect(editable.className).toContain("[&_p]:my-2");
   expect(editable.className).toContain("[&_code]:font-mono");
 });
 

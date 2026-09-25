@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.23.30 sha256-9fxWB9kh66QR5R7X7Fe0FG5IYUo7rK4jTYAAf7ot0Aw=
+// @vegastack text-edit@0.23.30 sha256-WkaRoYAM3wIvmFMENNa+b/Wbav7a5APpHvOVLXjbT+E=
 
 "use client";
 
@@ -42,7 +42,7 @@ import {
   Table as TableIcon,
   Undo2,
 } from "lucide-react";
-import { cn, proseClassName } from "@vegastack/design";
+import { cn, mergeRefs, proseClassName } from "@vegastack/design";
 import { useInternalThemeScope } from "@vegastack/design/theme-scope";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -340,7 +340,7 @@ function CodeBlockView({ node }: ReactNodeViewProps) {
       as="figure"
       data-slot="code-block"
       data-language={language}
-      className="my-3 w-full min-w-0 max-w-full overflow-hidden rounded-lg border border-border bg-muted text-foreground"
+      className="my-2 w-full min-w-0 max-w-full overflow-hidden rounded-lg border border-border bg-muted text-foreground"
     >
       <figcaption
         data-slot="code-block-header"
@@ -445,15 +445,15 @@ function looksLikeMarkdown(text: string) {
  * The editor surface (ProseMirror's `.tiptap` root) wears the shared `prose` recipe — the SAME
  * string `MarkdownView` puts on its root — so edited and rendered markdown are one typography.
  * What is added here only resets ProseMirror so edit mode lays out like view mode: no focus
- * outline (the container or nothing draws focus), the placeholder as a zero-height pseudo-element
+ * outline and no padding (the editor is Notion-style — nothing draws focus), the placeholder as a zero-height pseudo-element
  * (no reflow on the first keystroke), the table scroll box `MarkdownView` wraps tables in, and the
  * selected-node and selected-cell washes.
  */
 const editorBaseClassName = cn(
   proseClassName,
-  "tiptap min-w-0 outline-none",
+  "tiptap min-h-6 min-w-0 outline-none",
   "[&_p.is-editor-empty:first-child]:before:pointer-events-none [&_p.is-editor-empty:first-child]:before:float-start [&_p.is-editor-empty:first-child]:before:h-0 [&_p.is-editor-empty:first-child]:before:text-muted-foreground [&_p.is-editor-empty:first-child]:before:content-[attr(data-placeholder)]",
-  "[&_.tableWrapper]:my-3 [&_.tableWrapper]:w-full [&_.tableWrapper]:overflow-x-auto [&_.selectedCell]:bg-accent",
+  "[&_.tableWrapper]:my-2 [&_.tableWrapper]:w-full [&_.tableWrapper]:overflow-x-auto [&_.selectedCell]:bg-accent",
   "[&_.ProseMirror-selectednode]:rounded-sm [&_.ProseMirror-selectednode]:bg-accent",
 );
 
@@ -790,39 +790,50 @@ export interface TextEditProps {
    */
   bubbleMenu?: boolean;
   /**
-   * `outline` is the bordered form control; `ghost` is borderless in-place editing — no border,
-   * ground or ring and no content inset, so the text sits exactly where the `MarkdownView` it
-   * replaces sat, with only the toolbar above.
-   * @default "outline"
-   */
-  variant?: "outline" | "ghost";
-  /**
-   * Called with the serialized document on Cmd/Ctrl+Enter, from the toolbar's Save button, and by
-   * autosave. When `onSave` or `onCancel` is set, Cancel and Save buttons sit at the toolbar's end.
+   * Called with the serialized document when an edit is committed: focus leaves the editor (and
+   * its toolbar, bubble menu and link popover) with a document that differs from the one it had
+   * when focus arrived, or `autosave` fires. There is no Save button — leaving is saving.
    * @default undefined
    */
-  onSave?: (value: string) => void;
+  onCommit?: (value: string) => void;
   /**
-   * Called on Escape and from the toolbar's Cancel button.
+   * Called after Escape reverts the document to what it was when focus arrived and blurs the
+   * editor. Nothing is committed.
    * @default undefined
    */
-  onCancel?: () => void;
+  onRevert?: () => void;
   /**
-   * Call `onSave` after this many milliseconds without typing (`true` is 1000ms). Off by default.
+   * Also call `onCommit` after this many milliseconds without typing (`true` is 1000ms).
    * @default false
    */
   autosave?: boolean | number;
   /**
-   * Disable the Save button and mark the editor busy while the host persists.
+   * Mark the editor busy (`aria-busy`) while the host persists a commit.
    * @default false
    */
   saving?: boolean;
-  /** Label of the toolbar's Save button.
-   * @default "Save"
+  /**
+   * @deprecated The editor has one look — transparent, borderless, on the surrounding surface.
+   * Accepted and ignored.
+   * @default undefined
+   */
+  variant?: "outline" | "ghost";
+  /**
+   * @deprecated Use `onCommit`. Called exactly like it.
+   * @default undefined
+   */
+  onSave?: (value: string) => void;
+  /**
+   * @deprecated Use `onRevert`. Called exactly like it.
+   * @default undefined
+   */
+  onCancel?: () => void;
+  /** @deprecated There is no Save button. Accepted and ignored.
+   * @default undefined
    */
   saveLabel?: string;
-  /** Label of the toolbar's Cancel button.
-   * @default "Cancel"
+  /** @deprecated There is no Cancel button. Accepted and ignored.
+   * @default undefined
    */
   cancelLabel?: string;
   /**
@@ -843,14 +854,14 @@ export interface TextEditProps {
    */
   editable?: boolean;
   /**
-   * Fired on Cmd/Ctrl+Enter with the serialized document.
-   * @deprecated Use `onSave`.
+   * Fired on Cmd/Ctrl+Enter with the serialized document (send a comment, create the record).
+   * Without it, Cmd/Ctrl+Enter commits and blurs.
    * @default undefined
    */
   onSubmit?: (value: string) => void;
   /**
    * Minimum height of the editable content area (a number is `px`).
-   * @default a built-in minimum for `outline`, none for `ghost`
+   * @default undefined
    */
   minHeight?: number | string;
   /**
@@ -889,21 +900,21 @@ export interface TextEditProps {
 }
 
 /**
- * `TextEdit` — a Tiptap v3 markdown-first rich-text editor that edits in the same typography
- * `MarkdownView` renders (the shared `prose` recipe), with toolbar levels, a selection bubble menu,
- * a link popover, markdown input rules and paste, and a Save/Cancel keyboard contract.
+ * `TextEdit` — a Tiptap v3 markdown-first rich-text editor, Notion-style: no border, no ground,
+ * no focus ring and no separate view mode. The surface wears the shared `prose` recipe — the same
+ * string `MarkdownView` renders with — so an idle editor looks exactly like rendered markdown; click
+ * anywhere and type.
  *
+ * - **Commit** — leaving the editor calls `onCommit(value)` when the document changed; Escape
+ *   reverts to the value focus arrived with and calls `onRevert`; Cmd/Ctrl+Enter calls `onSubmit`
+ *   (or commits and blurs).
  * - **Toolbar** — `toolbar="minimal" | "standard" | "full"` or an action array; the schema follows
- *   it. A sticky, quiet Base UI `Toolbar` (one tab stop, arrow keys) of icon toggles whose tooltips
- *   carry the shortcut.
+ *   it. A compact, quiet row of icon toggles shown under the text only while the editor has focus.
  * - **Markdown** — input rules (`# `, `- `, `1. `, `[ ] `, `> `, ```` ``` ````, `---`, `**`, `_`),
  *   markdown paste, and lossless round-trip through `@tiptap/markdown` with `format="markdown"`.
- * - **Keys** — Cmd/Ctrl+Enter saves, Escape cancels, Cmd/Ctrl+K edits the link.
- * - **Ghost** — `variant="ghost"` edits in place with no pixel shift from `MarkdownView`.
  *
  * @example
- * <TextEdit format="markdown" variant="ghost" value={md} onValueChange={setMd}
- *   onSave={save} onCancel={cancel} />
+ * <TextEdit format="markdown" defaultValue={md} onCommit={save} aria-label="Description" />
  */
 export function TextEdit({
   format = "html",
@@ -913,13 +924,12 @@ export function TextEdit({
   placeholder,
   toolbar = "standard",
   bubbleMenu = true,
-  variant = "outline",
+  onCommit: onCommitProp,
+  onRevert: onRevertProp,
   onSave,
   onCancel,
   autosave = false,
   saving = false,
-  saveLabel = "Save",
-  cancelLabel = "Cancel",
   readOnly = false,
   disabled: disabledProp = false,
   editable: editableProp = true,
@@ -956,10 +966,17 @@ export function TextEdit({
     [markdown],
   );
 
-  const callbacks = React.useRef({ onValueChange, onSave, onCancel, onSubmit });
+  const onCommit = onCommitProp ?? onSave;
+  const onRevert = onRevertProp ?? onCancel;
+  const callbacks = React.useRef({
+    onValueChange,
+    onCommit,
+    onRevert,
+    onSubmit,
+  });
   React.useEffect(() => {
-    callbacks.current = { onValueChange, onSave, onCancel, onSubmit };
-  }, [onValueChange, onSave, onCancel, onSubmit]);
+    callbacks.current = { onValueChange, onCommit, onRevert, onSubmit };
+  }, [onValueChange, onCommit, onRevert, onSubmit]);
 
   const [linkOpen, setLinkOpen] = React.useState(false);
   const [bubbleLinkOpen, setBubbleLinkOpen] = React.useState(false);
@@ -978,10 +995,9 @@ export function TextEdit({
     field["aria-invalid"] ?? ariaInvalid,
   );
   const invalid = ariaInvalidAttribute !== undefined;
-  const ghost = variant === "ghost";
   const editorAttributes = React.useMemo(
     () => ({
-      class: cn(editorBaseClassName, ghost ? "p-0" : "min-h-24 px-3 py-2.5"),
+      class: editorBaseClassName,
       ...(resolvedId ? { id: resolvedId } : {}),
       ...(ariaLabel ? { "aria-label": ariaLabel } : {}),
       ...(resolvedLabelledBy ? { "aria-labelledby": resolvedLabelledBy } : {}),
@@ -996,7 +1012,6 @@ export function TextEdit({
       ...(!disabled && !editable ? { "aria-readonly": "true" } : {}),
     }),
     [
-      ghost,
       saving,
       disabled,
       editable,
@@ -1008,13 +1023,31 @@ export function TextEdit({
     ],
   );
 
-  const save = React.useCallback(() => {
+  // The document as focus found it: a commit compares against it, Escape restores it.
+  const baselineRef = React.useRef<string | null>(null);
+  const commit = React.useCallback(() => {
     const ed = editorRef.current;
-    const handler = callbacks.current.onSave ?? callbacks.current.onSubmit;
-    if (!ed || !handler) return false;
-    handler(serialize(ed));
-    return true;
+    if (!ed || baselineRef.current === null) return;
+    const next = serialize(ed);
+    if (next === baselineRef.current) return;
+    baselineRef.current = next;
+    callbacks.current.onCommit?.(next);
   }, [serialize]);
+  const revert = React.useCallback(() => {
+    const ed = editorRef.current;
+    if (!ed || baselineRef.current === null) return;
+    const previous = baselineRef.current;
+    if (serialize(ed) !== previous) {
+      ed.commands.setContent(previous, {
+        emitUpdate: false,
+        ...(markdown ? { contentType: "markdown" as const } : {}),
+      });
+      callbacks.current.onValueChange?.(previous);
+    }
+    baselineRef.current = null;
+    ed.commands.blur();
+    callbacks.current.onRevert?.();
+  }, [markdown, serialize]);
 
   const editor = useEditor({
     extensions: buildExtensions(allowed, placeholder),
@@ -1027,13 +1060,16 @@ export function TextEdit({
       handleKeyDown: (_view, event) => {
         const mod = event.metaKey || event.ctrlKey;
         if (event.key === "Enter" && mod) {
-          if (!save()) return false;
           event.preventDefault();
+          const ed = editorRef.current;
+          if (ed && callbacks.current.onSubmit)
+            callbacks.current.onSubmit(serialize(ed));
+          else ed?.commands.blur();
           return true;
         }
-        if (event.key === "Escape" && callbacks.current.onCancel) {
+        if (event.key === "Escape") {
           event.preventDefault();
-          callbacks.current.onCancel();
+          revert();
           return true;
         }
         if (mod && event.key.toLowerCase() === "k" && allowed.has("link")) {
@@ -1081,7 +1117,7 @@ export function TextEdit({
     if (editor && editor.isEditable !== editable) editor.setEditable(editable);
   }, [editor, editable]);
 
-  // Autosave: `onSave` after an idle gap. Off unless `autosave` is set.
+  // Autosave: `onCommit` after an idle gap. Off unless `autosave` is set.
   React.useEffect(() => {
     if (!editor || !autosave) return;
     const delay = autosave === true ? 1000 : autosave;
@@ -1089,7 +1125,7 @@ export function TextEdit({
     const schedule = () => {
       clearTimeout(timer);
       timer = setTimeout(() => {
-        callbacks.current.onSave?.(serialize(editor));
+        commit();
       }, delay);
     };
     editor.on("update", schedule);
@@ -1097,7 +1133,7 @@ export function TextEdit({
       clearTimeout(timer);
       editor.off("update", schedule);
     };
-  }, [editor, autosave, serialize]);
+  }, [editor, autosave, commit]);
 
   const pendingValueRef = React.useRef<string | undefined>(undefined);
   const applyValue = React.useCallback(
@@ -1135,6 +1171,52 @@ export function TextEdit({
     };
   }, [editor, applyValue]);
 
+  // Focus: the editor, its toolbar, the bubble menu and the link popovers are one editing session.
+  // Arriving records the baseline; leaving all of them commits and hides the toolbar.
+  const rootRef = React.useRef<HTMLDivElement | null>(null);
+  const [focused, setFocused] = React.useState(false);
+  const isInside = React.useCallback((node: EventTarget | null) => {
+    if (!(node instanceof Element)) return false;
+    return (
+      Boolean(rootRef.current?.contains(node)) ||
+      Boolean(
+        node.closest(
+          "[data-slot=text-edit-bubble-menu],[data-slot=text-edit-link]",
+        ),
+      )
+    );
+  }, []);
+  const enter = React.useCallback(() => {
+    const ed = editorRef.current;
+    if (!ed || !ed.isEditable) return;
+    if (baselineRef.current === null) baselineRef.current = serialize(ed);
+    setFocused(true);
+  }, [serialize]);
+  const leave = React.useCallback(() => {
+    commit();
+    baselineRef.current = null;
+    setFocused(false);
+  }, [commit]);
+
+  React.useEffect(() => {
+    if (!editor) return;
+    editor.on("focus", enter);
+    return () => {
+      editor.off("focus", enter);
+    };
+  }, [editor, enter]);
+
+  // A link popover closed by a click elsewhere takes focus with it; commit if it did not return.
+  React.useEffect(() => {
+    if (linkOpen || bubbleLinkOpen || baselineRef.current === null) return;
+    const timer = setTimeout(() => {
+      if (!isInside(document.activeElement)) leave();
+    });
+    return () => clearTimeout(timer);
+  }, [linkOpen, bubbleLinkOpen, isInside, leave]);
+
+  const setRootRef = React.useMemo(() => mergeRefs(rootRef, ref), [ref]);
+
   const themeScope = useInternalThemeScope();
   const minCss = toCssLength(minHeight);
   const maxCss = toCssLength(maxHeight);
@@ -1145,25 +1227,29 @@ export function TextEdit({
           ...(maxCss != null && { ["--te-max-h"]: maxCss }),
         } as React.CSSProperties)
       : undefined;
-  const hasCommit = Boolean(onSave || onCancel);
-  const showToolbar = editable && !!editor && (actions.length > 0 || hasCommit);
+  const showToolbar = editable && !!editor && focused && actions.length > 0;
 
   return (
     <div
-      ref={ref}
+      ref={setRootRef}
       data-slot="text-edit"
-      data-variant={variant}
       data-editable={editable ? "" : undefined}
       data-disabled={disabled ? "" : undefined}
       data-invalid={invalid ? "" : undefined}
+      data-focused={focused ? "" : undefined}
+      onBlur={(event) => {
+        if (
+          baselineRef.current === null ||
+          linkOpen ||
+          bubbleLinkOpen ||
+          isInside(event.relatedTarget)
+        )
+          return;
+        leave();
+      }}
       className={cn(
-        "relative min-w-0",
-        !ghost && [
-          "rounded-lg border border-input bg-background",
-          "focus-within:border-ring/70",
-          // Focus outranks invalid (#100): the container border is the whole focus affordance.
-          "not-focus-within:has-aria-invalid:border-destructive/70",
-        ],
+        "relative min-w-0 bg-transparent",
+        editable && "cursor-text",
         disabled && "opacity-50",
         className,
       )}
@@ -1177,69 +1263,6 @@ export function TextEdit({
           <FieldControlBridge control={control} onResolve={setField} />
         )}
       />
-      {showToolbar ? (
-        <Toolbar.Root
-          data-slot="text-edit-toolbar"
-          aria-label="Formatting"
-          className={cn(
-            "sticky top-0 z-10 flex flex-wrap items-center gap-0.5 bg-background",
-            ghost
-              ? "mb-2 py-1"
-              : "rounded-t-lg border-b border-border px-1.5 py-1",
-          )}
-        >
-          <ActionRow
-            editor={editor}
-            actions={actions}
-            linkOpen={linkOpen}
-            onLinkOpenChange={setLinkOpen}
-          />
-          {hasCommit ? (
-            <div
-              data-slot="text-edit-commit"
-              className="ms-auto flex items-center gap-1.5"
-            >
-              {onCancel ? (
-                <Tooltip>
-                  <TooltipTrigger
-                    render={
-                      <Toolbar.Button
-                        render={
-                          <Button size="sm" variant="ghost" onClick={onCancel}>
-                            {cancelLabel}
-                          </Button>
-                        }
-                      />
-                    }
-                  />
-                  <TooltipContent>
-                    <ShortcutHint label={cancelLabel} keys={["Esc"]} />
-                  </TooltipContent>
-                </Tooltip>
-              ) : null}
-              {onSave ? (
-                <Tooltip>
-                  <TooltipTrigger
-                    render={
-                      <Toolbar.Button
-                        disabled={saving}
-                        render={
-                          <Button size="sm" onClick={() => save()}>
-                            {saveLabel}
-                          </Button>
-                        }
-                      />
-                    }
-                  />
-                  <TooltipContent>
-                    <ShortcutHint label={saveLabel} keys={["Mod", "↵"]} />
-                  </TooltipContent>
-                </Tooltip>
-              ) : null}
-            </div>
-          ) : null}
-        </Toolbar.Root>
-      ) : null}
       {editable && editor && bubbleMenu && bubbleActions.length > 0 ? (
         <BubbleMenu
           editor={editor}
@@ -1268,13 +1291,15 @@ export function TextEdit({
       ) : null}
       <div
         data-slot="text-edit-content"
+        // Clicking the blank space around short content still starts editing, Notion-style.
+        onMouseDown={(event) => {
+          if (!editor || !editable || event.target !== event.currentTarget)
+            return;
+          event.preventDefault();
+          editor.commands.focus("end");
+        }}
         className={cn(
           "relative",
-          // Ghost focus cue without a pixel shift: a hairline that is transparent at rest sits in
-          // an outset (negative margin, padding one pixel short), so the text box stays exactly
-          // where view mode puts it and only the hairline appears while the editor holds focus.
-          ghost &&
-            "-mx-2 -my-1.5 rounded-md border border-transparent px-[calc(--spacing(2)-1px)] py-[calc(--spacing(1.5)-1px)] focus-within:border-border",
           minCss != null && "min-h-[var(--te-min-h)]",
           maxCss != null && "max-h-[var(--te-max-h)] overflow-y-auto",
         )}
@@ -1282,6 +1307,20 @@ export function TextEdit({
       >
         <EditorContent editor={editor} />
       </div>
+      {showToolbar ? (
+        <Toolbar.Root
+          data-slot="text-edit-toolbar"
+          aria-label="Formatting"
+          className="mt-1 flex flex-wrap items-center gap-0.5 text-muted-foreground"
+        >
+          <ActionRow
+            editor={editor}
+            actions={actions}
+            linkOpen={linkOpen}
+            onLinkOpenChange={setLinkOpen}
+          />
+        </Toolbar.Root>
+      ) : null}
     </div>
   );
 }

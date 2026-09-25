@@ -8,31 +8,33 @@ Markdown in VegaStack has two surfaces and one typography. [`MarkdownView`](/doc
 renders a markdown string; [`TextEdit`](/docs/components/text-edit) with `format="markdown"` edits
 one. Both wear the shared `prose` recipe from `@vegastack/design` (`proseClassName`), and `TextEdit`
 resets ProseMirror's defaults, so a document sits at the same position whether it is being read or
-edited. Store the string `TextEdit` emits; render it with `MarkdownView`.
+edited. The recipe is the app's body text — `text-sm`, the body family and `foreground` ink for
+paragraphs, lists, list markers, marks and quotes, headings on the app's type scale — so neither
+surface has a separate "prose" look. Only inline code and code blocks are mono.
+
+`TextEdit` is Notion-style: no border, no ground, no focus ring and no view mode. It rests looking
+exactly like `MarkdownView`; click anywhere and type. Leaving the editor calls `onCommit` with the
+new markdown when it changed; <kbd>Esc</kbd> reverts.
 
 ```tsx
 import { MarkdownView } from "@/components/ui/markdown-view";
 import { TextEdit } from "@/components/ui/text-edit";
 
-{
-  editing ? (
-    <TextEdit
-      format="markdown"
-      variant="ghost"
-      defaultValue={summary}
-      onSave={save}
-      onCancel={() => setEditing(false)}
-      aria-label="Summary"
-    />
-  ) : (
-    <MarkdownView>{summary}</MarkdownView>
-  );
-}
+// Editable: the editor is the view.
+<TextEdit
+  format="markdown"
+  defaultValue={summary}
+  onCommit={save}
+  aria-label="Summary"
+/>;
+
+// Read-only elsewhere:
+<MarkdownView>{summary}</MarkdownView>;
 ```
 
 ## Every element, view and edit
 
-The same document rendered by `MarkdownView` and edited by a ghost `TextEdit` with the `full`
+The same document rendered by `MarkdownView` and edited by a `TextEdit` with the `full`
 toolbar, stacked. Headings h1–h6, paragraphs, **bold**, _italic_, ~~strike~~, inline code, fenced
 code blocks, links, bullet, ordered and task lists (nested), blockquotes, rules, tables, images and
 hard breaks. Edit the lower copy: the upper one follows.
@@ -113,9 +115,19 @@ selection links it without the popover.
 
 ## In-place editing
 
-`variant="ghost"` drops the border, ground, ring and content inset, so the editor's text lands
-exactly where the `MarkdownView` it replaces was, with only the sticky toolbar above. Setting
-`onSave` or `onCancel` puts Cancel and Save buttons at the toolbar's end.
+There is no mode to switch. The editor is transparent and borderless, so it takes the surface it
+sits on and its text lands exactly where `MarkdownView` would put it. Focus shows the compact
+formatting row under the text; there are no Save or Cancel buttons.
+
+| Event                           | Result                                                                   |
+| ------------------------------- | ------------------------------------------------------------------------ |
+| Focus leaves the editor         | `onCommit(value)` — only when the document differs from when focus came. |
+| <kbd>Esc</kbd>                  | Revert to the document focus found, blur, then `onRevert()`.             |
+| <kbd>Mod</kbd> <kbd>Enter</kbd> | `onSubmit(value)` when set; otherwise commit and blur.                   |
+| `autosave` idle gap             | `onCommit(value)` without leaving.                                       |
+
+`onSave`, `onCancel`, `saveLabel`, `cancelLabel` and `variant` are deprecated: `onSave` and
+`onCancel` alias `onCommit` and `onRevert`, the rest are ignored.
 
 <ComponentPreview
   name="markdownInPlace"
@@ -124,7 +136,7 @@ exactly where the `MarkdownView` it replaces was, with only the sticky toolbar a
 
 ### Autosave
 
-`autosave` calls `onSave` after an idle gap (`true` is 1000ms, or pass milliseconds). It is off by
+`autosave` also calls `onCommit` after an idle gap (`true` is 1000ms, or pass milliseconds). It is off by
 default.
 
 <ComponentPreview
@@ -137,21 +149,21 @@ default.
 Toolbar tooltips show each shortcut. `Mod` is <kbd>⌘</kbd> on Apple platforms and <kbd>Ctrl</kbd>
 elsewhere.
 
-| Keys                                                                       | Action                       |
-| -------------------------------------------------------------------------- | ---------------------------- |
-| <kbd>Mod</kbd> <kbd>B</kbd>                                                | Bold                         |
-| <kbd>Mod</kbd> <kbd>I</kbd>                                                | Italic                       |
-| <kbd>Mod</kbd> <kbd>K</kbd>                                                | Add or edit the link         |
-| <kbd>Mod</kbd> <kbd>E</kbd>                                                | Inline code                  |
-| <kbd>Mod</kbd> <kbd>Shift</kbd> <kbd>S</kbd>                               | Strikethrough                |
-| <kbd>Mod</kbd> <kbd>Alt</kbd> <kbd>2</kbd> / <kbd>3</kbd>                  | Heading 2 / 3                |
-| <kbd>Mod</kbd> <kbd>Shift</kbd> <kbd>7</kbd> / <kbd>8</kbd> / <kbd>9</kbd> | Ordered / bullet / task list |
-| <kbd>Mod</kbd> <kbd>Shift</kbd> <kbd>B</kbd>                               | Blockquote                   |
-| <kbd>Mod</kbd> <kbd>Alt</kbd> <kbd>C</kbd>                                 | Code block                   |
-| <kbd>Mod</kbd> <kbd>Z</kbd> / <kbd>Mod</kbd> <kbd>Shift</kbd> <kbd>Z</kbd> | Undo / redo                  |
-| <kbd>Mod</kbd> <kbd>Enter</kbd>                                            | Save (`onSave`)              |
-| <kbd>Esc</kbd>                                                             | Cancel (`onCancel`)          |
-| <kbd>Tab</kbd> / <kbd>Shift</kbd> <kbd>Tab</kbd>                           | Indent / outdent a list item |
+| Keys                                                                       | Action                        |
+| -------------------------------------------------------------------------- | ----------------------------- |
+| <kbd>Mod</kbd> <kbd>B</kbd>                                                | Bold                          |
+| <kbd>Mod</kbd> <kbd>I</kbd>                                                | Italic                        |
+| <kbd>Mod</kbd> <kbd>K</kbd>                                                | Add or edit the link          |
+| <kbd>Mod</kbd> <kbd>E</kbd>                                                | Inline code                   |
+| <kbd>Mod</kbd> <kbd>Shift</kbd> <kbd>S</kbd>                               | Strikethrough                 |
+| <kbd>Mod</kbd> <kbd>Alt</kbd> <kbd>2</kbd> / <kbd>3</kbd>                  | Heading 2 / 3                 |
+| <kbd>Mod</kbd> <kbd>Shift</kbd> <kbd>7</kbd> / <kbd>8</kbd> / <kbd>9</kbd> | Ordered / bullet / task list  |
+| <kbd>Mod</kbd> <kbd>Shift</kbd> <kbd>B</kbd>                               | Blockquote                    |
+| <kbd>Mod</kbd> <kbd>Alt</kbd> <kbd>C</kbd>                                 | Code block                    |
+| <kbd>Mod</kbd> <kbd>Z</kbd> / <kbd>Mod</kbd> <kbd>Shift</kbd> <kbd>Z</kbd> | Undo / redo                   |
+| <kbd>Mod</kbd> <kbd>Enter</kbd>                                            | Submit (`onSubmit`) or commit |
+| <kbd>Esc</kbd>                                                             | Revert (`onRevert`)           |
+| <kbd>Tab</kbd> / <kbd>Shift</kbd> <kbd>Tab</kbd>                           | Indent / outdent a list item  |
 
 ## Input rules
 
