@@ -9,6 +9,23 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.23.35] — September 26, 2026
+
+<!-- assembled from 2 changesets: 21be5b239abc -->
+
+### 🔧 Changed components
+
+- Every empty list, grid, table and board lane renders the design-system `Empty` with an icon: an Inbox icon and "Nothing here" by default. Change the copy with the new `empty` prop (`{ icon, title, description, action }`) on DataList, on a DataList section and on a Board column; `emptyState` still replaces it outright, and the new `DataListEmptyState` is the same state outside a DataList. `NoResultsEmpty` takes an `icon`. Board lanes keep their `columnWidth` however many lanes are collapsed, instead of stretching into the space a collapsed lane frees. `base.css` renders text-entry controls at 16px or more on touch pointers so iOS Safari never zooms into a focused field; the install docs and consume guide add the viewport's `maximumScale: 1`.
+  [`3c3b145`](https://github.com/VegaStack/vegastack-design/commit/3c3b145)
+- TextEdit's markdown output is clean: blank lines typed with Enter no longer serialize as `&nbsp;` between extra blank lines — empty paragraphs collapse, so paragraphs are separated by one blank line and the output reloads to itself. Blank lines inside fenced code are kept. Input no longer exports `inputVariants` (nothing used it, and its fixed heights broke the data-table squeeze census).
+  [`aeb7442`](https://github.com/VegaStack/vegastack-design/commit/aeb7442)
+
+### 📦 npm
+
+- **`@vegastack/design`** → **`0.7.43`** (was `0.7.42`).
+- **`@vegastack/design-tokens`** → **`0.7.43`** (was `0.7.33`).
+- The design-system registry (`@vegastack/ui`) bumps 0.23.34 → 0.23.35.
+
 ## [0.23.34] — September 26, 2026
 
 <!-- assembled from 1 changeset: 45e9080ad827 -->

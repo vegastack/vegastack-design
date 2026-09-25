@@ -1,5 +1,14 @@
 # @vegastack/design
 
+## 0.7.43
+
+### Patch Changes
+
+- [#325](https://github.com/vegastack/vegastack-design/pull/325) [`3c3b145`](https://github.com/vegastack/vegastack-design/commit/3c3b1458b1bad6062d15fb2b3dc578c1d271fb05) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🔧 Every empty list, grid, table and board lane renders the design-system `Empty` with an icon: an Inbox icon and "Nothing here" by default. Change the copy with the new `empty` prop (`{ icon, title, description, action }`) on DataList, on a DataList section and on a Board column; `emptyState` still replaces it outright, and the new `DataListEmptyState` is the same state outside a DataList. `NoResultsEmpty` takes an `icon`. Board lanes keep their `columnWidth` however many lanes are collapsed, instead of stretching into the space a collapsed lane frees. `base.css` renders text-entry controls at 16px or more on touch pointers so iOS Safari never zooms into a focused field; the install docs and consume guide add the viewport's `maximumScale: 1`.
+
+- Updated dependencies [[`3c3b145`](https://github.com/vegastack/vegastack-design/commit/3c3b1458b1bad6062d15fb2b3dc578c1d271fb05)]:
+  - @vegastack/design-tokens@0.7.43
+
 ## 0.7.42
 
 ### Patch Changes

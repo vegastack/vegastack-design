@@ -1,5 +1,17 @@
 # @vegastack/ui
 
+## 0.23.35
+
+### Patch Changes
+
+- [#325](https://github.com/vegastack/vegastack-design/pull/325) [`3c3b145`](https://github.com/vegastack/vegastack-design/commit/3c3b1458b1bad6062d15fb2b3dc578c1d271fb05) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🔧 Every empty list, grid, table and board lane renders the design-system `Empty` with an icon: an Inbox icon and "Nothing here" by default. Change the copy with the new `empty` prop (`{ icon, title, description, action }`) on DataList, on a DataList section and on a Board column; `emptyState` still replaces it outright, and the new `DataListEmptyState` is the same state outside a DataList. `NoResultsEmpty` takes an `icon`. Board lanes keep their `columnWidth` however many lanes are collapsed, instead of stretching into the space a collapsed lane frees. `base.css` renders text-entry controls at 16px or more on touch pointers so iOS Safari never zooms into a focused field; the install docs and consume guide add the viewport's `maximumScale: 1`.
+
+- [#326](https://github.com/vegastack/vegastack-design/pull/326) [`aeb7442`](https://github.com/vegastack/vegastack-design/commit/aeb7442e885751af210e6a536a8054fed987fc55) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🔧 TextEdit's markdown output is clean: blank lines typed with Enter no longer serialize as `&nbsp;` between extra blank lines — empty paragraphs collapse, so paragraphs are separated by one blank line and the output reloads to itself. Blank lines inside fenced code are kept. Input no longer exports `inputVariants` (nothing used it, and its fixed heights broke the data-table squeeze census).
+
+- Updated dependencies [[`3c3b145`](https://github.com/vegastack/vegastack-design/commit/3c3b1458b1bad6062d15fb2b3dc578c1d271fb05)]:
+  - @vegastack/design@0.7.43
+  - @vegastack/design-tokens@0.7.43
+
 ## 0.23.34
 
 ### Patch Changes
