@@ -1,4 +1,4 @@
-// @vegastack search-input@0.22.0 sha256-EIuA9+TUk6z1NC3UdqSm/d3jrStf/s92Ru95O4PYSbQ=
+// @vegastack search-input@0.23.0 sha256-TxRD3hiH+K665ybc+egwHRowH/xjWf1pcqLtAM3o+9s=
 
 "use client";
 

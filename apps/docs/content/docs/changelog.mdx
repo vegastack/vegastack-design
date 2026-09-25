@@ -10,6 +10,18 @@ npm package versions are listed per entry. This page is generated from the repo'
 
 {/* CHANGELOG:START — generated from /CHANGELOG.md by tooling/sync-changelog.mjs. DO NOT EDIT. */}
 
+## [0.23.0] — September 25, 2026
+
+### 🔧 Changed components
+
+- **Last facelift gaps** — `DataList` (and `DataGrid`) reserve the first column and every `mobile: "visible"` column before fitting the rest, so a trailing Status or actions column no longer leaves a narrow table squeezed while an earlier column that should fold stays. `tabsListVariants` and `tabsTriggerVariants` draw horizontal tabs — the list height and the line indicator — whenever the `group/tabs` ancestor is not vertical, so route tabs need no `data-orientation` at all, and a scrolling route list keeps its indicator inside the scroll box. `SearchableSelect`'s in-panel search keeps its own name inside a `Field` instead of taking the Field label, and `searchLabel` is now optional (default "Search"). [docs](/docs/components/data-list) ·
+  [`ac4341c`](https://github.com/VegaStack/vegastack-design/commit/ac4341c)
+
+### 📦 npm
+
+- **`@vegastack/design`** → **`0.7.9`** (was `0.7.8`).
+- The design-system registry (`@vegastack/ui`) bumps 0.22.0 → 0.23.0.
+
 ## [0.22.0] — September 25, 2026
 
 ### 🔧 Changed components
