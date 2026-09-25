@@ -1,4 +1,4 @@
-// @vegastack record-layout@0.23.16 sha256-Cf2xVzNFim3BHgoYz7dRnWy1WQAGYdPDjJ9iOhXYWV8=
+// @vegastack record-layout@0.23.17 sha256-WUmEJC5qQMABoMgYigi22C830YBf8S6T7okjWx253fE=
 
 import * as React from "react";
 import { Info } from "lucide-react";
