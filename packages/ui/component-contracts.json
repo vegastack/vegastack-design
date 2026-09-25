@@ -28379,7 +28379,7 @@
       "name": "notifications-01",
       "registryType": "registry:block",
       "title": "Notifications 01",
-      "summary": "An Inbox sheet on the Inbox component — rail row and bell triggers with the unread count, Mark all read and ⋯, All | Unread chips, day groups of linked rows with avatars, unread tint and action chips, and Load older.",
+      "summary": "An Inbox sheet on the Inbox component — rail row and bell triggers with the unread count, Mark all read and ⋯, All | Unread chips, day groups of linked rows with avatars, unread tint and action chips, and infinite scroll.",
       "family": "starter-block",
       "wave": "Block",
       "sourceFiles": [
@@ -28508,11 +28508,11 @@
         "@vegastack/date-time",
         "@vegastack/dropdown-menu",
         "@vegastack/inbox",
-        "@vegastack/load-more",
         "@vegastack/notification-bell",
         "@vegastack/page-header",
         "@vegastack/sheet",
         "@vegastack/sidebar",
+        "@vegastack/tooltip",
         "@vegastack/use-announcer"
       ],
       "npmDependencies": [
