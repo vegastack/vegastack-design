@@ -137,7 +137,7 @@ function SheetContent({
             render={
               <Button
                 variant="ghost"
-                className="absolute top-3 end-3"
+                className="absolute top-3 end-3 active:not-aria-[haspopup]:translate-y-0"
                 size="icon-sm"
               />
             }

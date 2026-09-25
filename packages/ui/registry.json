@@ -12267,7 +12267,8 @@
         "@vegastack/skeleton",
         "@vegastack/media-player-controls",
         "@vegastack/use-media-query",
-        "@vegastack/input"
+        "@vegastack/input",
+        "@vegastack/editable-cell"
       ],
       "files": [
         {

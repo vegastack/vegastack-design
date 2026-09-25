@@ -167,7 +167,7 @@ A component's name undersells it. Before composing something by hand, check this
   edge: give it `data-slot="sheet-cancel"` and `SheetFooter` pushes it left with `me-auto`.
 - **Feedback after an action** → `toast.add({ title })`.
 - **A recording's text beside its player** → `Transcript` (follows `currentTime`, seeks through
-  `onSeek`, searches; `TranscriptSpeakers` + `onSpeakerRename` for speaker chips) with a `docked`
+  `onSeek`, searches; `onSpeakerRename` makes each turn's speaker name inline-editable) with a `docked`
   `AudioPlayer` at the bottom of the column — or, when playback must survive navigation, one
   `AudioPlayerProvider` in the app shell, `GlobalAudioPlayer` at the end of the main column and
   `useGlobalPlayer().open(track, { at })` / `useGlobalPlayerTime()` on the page.
@@ -374,7 +374,7 @@ contract.
 **Don't**
 
 - Hardcode a hex, a px value, or a raw Tailwind palette class (`bg-neutral-900`, `text-red-500`).
-- Add a focus ring, outline or glow. No focus rings anywhere except Tabs: `base.css` paints a subtle
+- Add a focus ring, outline or glow. No focus rings anywhere, Tabs included: `base.css` paints a subtle
   background tint on `:focus-visible` and text entry tints its border instead; `ring-3`,
   `ring-ring/50`, `focus-visible:ring-*` and `focus-visible:outline-*` are rejected by lint.
 - Leave a neutral hover on a button inside a tinted container — a status `Alert` already gives its

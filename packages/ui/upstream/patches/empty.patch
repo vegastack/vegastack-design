@@ -20,7 +20,7 @@
 #   formatting: the repository formatter (prettier defaults: semicolons, trailing commas)
 #               reflows the file; those hunks carry no decision of their own.
 diff --git a/empty.tsx b/empty.tsx
-index e11ce34..6faddee 100644
+index e11ce34..c8c113a 100644
 --- a/empty.tsx
 +++ b/empty.tsx
 @@ -1,17 +1,42 @@
@@ -56,7 +56,7 @@ index e11ce34..6faddee 100644
 +        // composition brings its own `EmptyMedia`.
 +        "has-[[data-slot=empty-icon]:not([data-default])]:[&>[data-default]]:hidden",
 +        // The compact size for a small inline empty — "No tasks yet" inside a card.
-+        "data-[size=sm]:gap-2 data-[size=sm]:p-4 data-[size=sm]:[&_[data-slot=empty-icon]]:mb-0",
++        "data-[size=sm]:gap-2 data-[size=sm]:p-4 data-[size=sm]:[&_[data-slot=empty-icon]]:mb-0 data-[size=sm]:[&_[data-slot=empty-icon][data-variant=icon]]:size-8 data-[size=sm]:[&_[data-slot=empty-icon][data-variant=icon]_svg]:size-4",
 +        className,
        )}
        {...props}
@@ -81,7 +81,16 @@ index e11ce34..6faddee 100644
  }
  
  const emptyMediaVariants = cva(
-@@ -36,8 +61,8 @@ const emptyMediaVariants = cva(
+@@ -30,14 +55,16 @@ const emptyMediaVariants = cva(
+     variants: {
+       variant: {
+         default: "bg-transparent",
+-        icon: "flex size-8 shrink-0 items-center justify-center rounded-lg bg-muted text-foreground [&_svg:not([class*='size-'])]:size-4",
++        // A 40px tile with a 20px icon; the tile sizes ANY icon passed in, so a consumer's own
++        // `size-*` on the svg cannot shrink it (the compact `sm` Empty takes 32px / 16px).
++        icon: "flex size-10 shrink-0 items-center justify-center rounded-lg bg-muted text-foreground [&_svg]:size-5",
+       },
+     },
      defaultVariants: {
        variant: "default",
      },
@@ -92,7 +101,7 @@ index e11ce34..6faddee 100644
  
  function EmptyMedia({
    className,
-@@ -51,20 +76,27 @@ function EmptyMedia({
+@@ -51,20 +78,27 @@ function EmptyMedia({
        className={cn(emptyMediaVariants({ variant, className }))}
        {...props}
      />
@@ -132,7 +141,7 @@ index e11ce34..6faddee 100644
  }
  
  function EmptyDescription({ className, ...props }: React.ComponentProps<"p">) {
-@@ -73,11 +105,11 @@ function EmptyDescription({ className, ...props }: React.ComponentProps<"p">) {
+@@ -73,11 +107,11 @@ function EmptyDescription({ className, ...props }: React.ComponentProps<"p">) {
        data-slot="empty-description"
        className={cn(
          "text-sm/relaxed text-muted-foreground [&>a]:underline [&>a]:underline-offset-4 [&>a:hover]:text-primary",
@@ -146,7 +155,7 @@ index e11ce34..6faddee 100644
  }
  
  function EmptyContent({ className, ...props }: React.ComponentProps<"div">) {
-@@ -86,11 +118,11 @@ function EmptyContent({ className, ...props }: React.ComponentProps<"div">) {
+@@ -86,11 +120,11 @@ function EmptyContent({ className, ...props }: React.ComponentProps<"div">) {
        data-slot="empty-content"
        className={cn(
          "flex w-full max-w-sm min-w-0 flex-col items-center gap-2.5 text-sm text-balance",
@@ -160,7 +169,7 @@ index e11ce34..6faddee 100644
  }
  
  export {
-@@ -100,4 +132,4 @@ export {
+@@ -100,4 +134,4 @@ export {
    EmptyDescription,
    EmptyContent,
    EmptyMedia,

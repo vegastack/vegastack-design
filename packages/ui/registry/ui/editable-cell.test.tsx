@@ -462,7 +462,7 @@ test("focus: keyboard focus shows the FOC-13 tint, never a ring or outline", asy
     .element() as HTMLElement;
   display.focus();
   expect(document.activeElement).toBe(display);
-  // No ring or outline of its own (only Tabs keep one) ...
+  // No ring or outline of its own (nothing draws one) ...
   expect(display.className).not.toMatch(/(^|\s|:)(outline|ring)(-|\s|$)/);
   // ... and nothing that opts it out of base.css FOC-13, whose tint covers any focused
   // non-text-entry element: a `role="button"` span that is not a tab.

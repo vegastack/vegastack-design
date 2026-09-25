@@ -105,10 +105,9 @@ vocabulary: `skills/internal/component/references/tokens.md`. Rule by rule:
   same composites). Each extension is flagged for MK rather than decided silently, and everything
   that MEASURES at or over the floor — Attachment's error ICON on its tint, at 3.973:1 against the
   3:1 non-text floor — stays upstream verbatim.
-- **No focus rings except Tabs** (FOC-13, MK 2026-09-25) — `base.css` owns the one focus cue: a
+- **No focus rings anywhere, Tabs included** (FOC-13, MK 2026-09-25) — `base.css` owns the one focus cue: a
   subtle `accent`/50 background tint on every focusable element, a border tint on text entry
-  (`focus:border-ring/70`, FOC-3), and the 2px `ring` outline on `[role=tab]`/`[role=tabpanel]`
-  only; forced colours restore the outline. `design-lint`'s `no-focus-ring-glow` rejects `ring-3`,
+  (`focus:border-ring/70`, FOC-3); tab triggers and panels take the same tint; forced colours restore the outline. `design-lint`'s `no-focus-ring-glow` rejects `ring-3`,
   `ring-[3px]`, `ring-ring/NN`, `focus-visible:ring-*`, `focus-visible:outline-*`,
   `aria-invalid:ring-*` and `shadow-[0_0_0_…]` anywhere in `packages/ui/registry/**`.
 - **Size, radius, shadow, z-index, alpha, opacity are plain Tailwind** — `h-8`, `size-4`,
