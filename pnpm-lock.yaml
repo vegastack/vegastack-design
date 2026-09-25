@@ -259,7 +259,7 @@ importers:
   packages/design:
     dependencies:
       '@vegastack/design-tokens':
-        specifier: ^0.7.1
+        specifier: ^0.7.18
         version: link:../design-tokens
       clsx:
         specifier: ^2.1.1

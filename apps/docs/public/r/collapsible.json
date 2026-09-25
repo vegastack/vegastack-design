@@ -5,13 +5,13 @@
   "description": "A single toggleable open/close region with an animated height, built on Base UI Collapsible.",
   "dependencies": [
     "@base-ui/react@^1.6.0",
-    "@vegastack/design-tokens@^0.7.1"
+    "@vegastack/design-tokens@^0.7.18"
   ],
   "registryDependencies": [],
   "files": [
     {
       "path": "packages/ui/registry/ui/collapsible.tsx",
-      "content": "// @vegastack collapsible@0.23.8 sha256-T+OYXMcMEEcPbRF/4yIOFJgDWJRBUg8Sxqomr2pe0Ok=\n\n\"use client\";\n\nimport { Collapsible as CollapsiblePrimitive } from \"@base-ui/react/collapsible\";\n\nfunction Collapsible({ ...props }: CollapsiblePrimitive.Root.Props) {\n  return <CollapsiblePrimitive.Root data-slot=\"collapsible\" {...props} />;\n}\n\nfunction CollapsibleTrigger({ ...props }: CollapsiblePrimitive.Trigger.Props) {\n  return (\n    <CollapsiblePrimitive.Trigger data-slot=\"collapsible-trigger\" {...props} />\n  );\n}\n\nfunction CollapsibleContent({ ...props }: CollapsiblePrimitive.Panel.Props) {\n  return (\n    <CollapsiblePrimitive.Panel data-slot=\"collapsible-content\" {...props} />\n  );\n}\n\nexport { Collapsible, CollapsibleTrigger, CollapsibleContent };\n",
+      "content": "// @vegastack collapsible@0.23.9 sha256-q5sliZX2DJLQvV0q23mwhPRmorXlegZGo+fPfC5/ZSA=\n\n\"use client\";\n\nimport { Collapsible as CollapsiblePrimitive } from \"@base-ui/react/collapsible\";\n\nfunction Collapsible({ ...props }: CollapsiblePrimitive.Root.Props) {\n  return <CollapsiblePrimitive.Root data-slot=\"collapsible\" {...props} />;\n}\n\nfunction CollapsibleTrigger({ ...props }: CollapsiblePrimitive.Trigger.Props) {\n  return (\n    <CollapsiblePrimitive.Trigger data-slot=\"collapsible-trigger\" {...props} />\n  );\n}\n\nfunction CollapsibleContent({ ...props }: CollapsiblePrimitive.Panel.Props) {\n  return (\n    <CollapsiblePrimitive.Panel data-slot=\"collapsible-content\" {...props} />\n  );\n}\n\nexport { Collapsible, CollapsibleTrigger, CollapsibleContent };\n",
       "type": "registry:ui",
       "target": "@ui/collapsible.tsx"
     }
@@ -19,8 +19,8 @@
   "meta": {
     "whenToUse": "A single show/hide region — extra detail, an optional form section, 'read more'.",
     "whenNotToUse": "Several coordinated sections where one opens at a time — use Accordion.",
-    "version": "0.23.8",
-    "integrity": "sha256-T+OYXMcMEEcPbRF/4yIOFJgDWJRBUg8Sxqomr2pe0Ok="
+    "version": "0.23.9",
+    "integrity": "sha256-q5sliZX2DJLQvV0q23mwhPRmorXlegZGo+fPfC5/ZSA="
   },
   "categories": [
     "data-display"

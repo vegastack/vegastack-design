@@ -1,5 +1,15 @@
 # @vegastack/ui
 
+## 0.23.9
+
+### Patch Changes
+
+- [#255](https://github.com/vegastack/vegastack-design/pull/255) [`283057d`](https://github.com/vegastack/vegastack-design/commit/283057db0d97a549f5194a46054e6b4830b89f61) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🔧 List toolbars, tables and focus: FilterBar puts search (~320px) left and a Filters (n) toggle, scope Tabs and the view switch right, with compact rounded-md filter chips (tinted when set, a fixed 24px ×, "Status: 2") on a toggled row 12px below that scrolls sideways on a phone (the bottom sheet is gone); new DateRangeFilter with presets; SearchableSelect ticks async options and gains a person option (name plus muted email, both searched); DataList adds sortable columns with an indicator, `compare`/`sortFirst`/`sortMode`, a standard `rowActions` ⋯ column (32px, always last), un-underlined row links, and `noResults`; Empty always renders an icon; TabsList gains `size="sm"`; buttons inside a status Alert hover in the family's own tint; Dialog and Sheet open onto the first field, never the ×; and no focus rings anywhere except Tabs — keyboard focus is a subtle background tint (a border tint on text entry).
+
+- Updated dependencies [[`283057d`](https://github.com/vegastack/vegastack-design/commit/283057db0d97a549f5194a46054e6b4830b89f61)]:
+  - @vegastack/design@0.7.18
+  - @vegastack/design-tokens@0.7.18
+
 ## 0.23.8
 
 ### Patch Changes
