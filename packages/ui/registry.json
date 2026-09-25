@@ -192,7 +192,11 @@
         "@vegastack/design-tokens@^0.7.18",
         "lucide-react@^1.47.0"
       ],
-      "registryDependencies": ["@vegastack/button", "@vegastack/sheet"],
+      "registryDependencies": [
+        "@vegastack/button",
+        "@vegastack/sheet",
+        "@vegastack/skeleton"
+      ],
       "files": [
         {
           "path": "packages/ui/registry/ui/record-layout.tsx",
@@ -12313,7 +12317,7 @@
         "@vegastack/design@^0.7.31",
         "@vegastack/design-tokens@^0.7.18"
       ],
-      "registryDependencies": ["@vegastack/button"],
+      "registryDependencies": ["@vegastack/button", "@vegastack/popover"],
       "files": [
         {
           "path": "packages/ui/registry/ui/record-chip.tsx",

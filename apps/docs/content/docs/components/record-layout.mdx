@@ -82,6 +82,29 @@ const actions = <MeetingActions … />;
 </RecordLayout>;
 ```
 
+### Tabs, counts and loading
+
+`RecordTabsRow` puts the `TabsList` and the tab's icon actions (`RecordTabsActions`: Copy, Edit) on one row at the main column's width. The rail follows the layout's own width (a container query at 1024px), not the viewport; `useRecordLayoutWide()` gives the same answer to script, for mounting rail content once. `RecordLayoutPanels` holds the main column's `TabsContent` panels under the tab row (spread
+`useTabsSwipe()` onto it), `RecordTabCount` puts a muted count in a `TabsTrigger`, and
+`RecordLayoutMainSkeleton` stands in for the main column while the record loads.
+
+```tsx
+<Tabs value={tab} onValueChange={setTab}>
+  <RecordTabsRow>
+    <TabsList>
+      <TabsTrigger value="summary">Summary</TabsTrigger>
+      <TabsTrigger value="actions">
+        Actions <RecordTabCount count={3} label="to review" />
+      </TabsTrigger>
+    </TabsList>
+    <RecordTabsActions>{/* Copy, Edit */}</RecordTabsActions>
+  </RecordTabsRow>
+  <RecordLayoutPanels {...swipe}>
+    <TabsContent value="summary">…</TabsContent>
+  </RecordLayoutPanels>
+</Tabs>
+```
+
 ## API Reference
 
 <ApiTable

@@ -1,10 +1,11 @@
-// @vegastack record-chip@0.23.22 sha256-LuJYfXVUr8XlzlXxY9qxjc+4TLQGiTfz7OhjgXewQOI=
+// @vegastack record-chip@0.23.22 sha256-dDFhjrxId61ggpDnuONEJm3X5d6ZysPaXqp6appH9o0=
 
 import * as React from "react";
 import { ArrowUpRight, ChevronDown } from "lucide-react";
 import { cn } from "@vegastack/design";
 
 import { Button } from "@/components/ui/button";
+import { PopoverContent } from "@/components/ui/popover";
 
 /** Props accepted by `RecordChip`. */
 export interface RecordChipProps extends Omit<
@@ -199,5 +200,41 @@ export function RecordChip({
         </>
       ) : null}
     </SplitChip>
+  );
+}
+
+/** Props for `RecordChipMenu`: `PopoverContent`'s own, plus how wide it is. */
+export type RecordChipMenuProps = React.ComponentProps<
+  typeof PopoverContent
+> & {
+  /**
+   * `list` — a 288px panel for a searchable `Command` list (room for a name and an email).
+   * `fit` — as wide as its content, e.g. a `Calendar`.
+   * @default "list"
+   */
+  width?: "list" | "fit";
+};
+
+/**
+ * `RecordChipMenu` — the popover a RecordChip (or any pill) opens: start-aligned, no inner padding,
+ * so a `Command` list or a `Calendar` sits flush.
+ *
+ * @example
+ * <Popover><PopoverTrigger render={<RecordChip … />} /><RecordChipMenu><Command>…</Command></RecordChipMenu></Popover>
+ */
+export function RecordChipMenu({
+  width = "list",
+  align = "start",
+  className,
+  ...props
+}: RecordChipMenuProps) {
+  return (
+    <PopoverContent
+      data-slot="record-chip-menu"
+      data-width={width}
+      align={align}
+      className={cn(width === "fit" ? "w-auto p-0" : "w-72 p-0", className)}
+      {...props}
+    />
   );
 }

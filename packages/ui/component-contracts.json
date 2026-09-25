@@ -24156,6 +24156,24 @@
             "status": "not-applicable",
             "rationale": "A class string, not a component."
           }
+        },
+        {
+          "name": "RecordChipMenu",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/record-chip.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Delegates to PopoverContent."
+          }
+        },
+        {
+          "name": "RecordChipMenuProps",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/record-chip.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
         }
       ],
       "variants": {
@@ -24200,7 +24218,7 @@
       },
       "engines": [],
       "docsSlug": "/docs/components/record-chip",
-      "registryDependencies": ["@vegastack/button"],
+      "registryDependencies": ["@vegastack/button", "@vegastack/popover"],
       "npmDependencies": [
         "lucide-react@^1.47.0",
         "@vegastack/design@^0.7.31",
@@ -24253,6 +24271,19 @@
             {
               "name": "data-slot",
               "values": ["record-chip", "record-chip-trigger"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "RecordChipMenu": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["record-chip-menu"]
+            },
+            {
+              "name": "data-width",
+              "values": []
             }
           ],
           "cssVariables": []
@@ -24457,6 +24488,90 @@
             "status": "not-applicable",
             "rationale": "Type-only exports do not render or accept runtime refs."
           }
+        },
+        {
+          "name": "RecordLayoutPanels",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/record-layout.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "div",
+            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/record-layout.tsx."
+          }
+        },
+        {
+          "name": "RecordLayoutPanelsProps",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/record-layout.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "RecordTabCount",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/record-layout.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Two spans; takes no ref."
+          }
+        },
+        {
+          "name": "RecordTabCountProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/record-layout.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "RecordLayoutMainSkeleton",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/record-layout.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A loading placeholder; takes no ref."
+          }
+        },
+        {
+          "name": "RecordTabsRow",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/record-layout.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "div",
+            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/record-layout.tsx."
+          }
+        },
+        {
+          "name": "RecordTabsActions",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/record-layout.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "div",
+            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/record-layout.tsx."
+          }
+        },
+        {
+          "name": "RecordTabsRowProps",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/record-layout.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "useRecordLayoutWide",
+          "kind": "hook",
+          "source": "packages/ui/registry/ui/record-layout.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A hook; returns a callback ref."
+          }
         }
       ],
       "variants": {
@@ -24501,7 +24616,11 @@
       },
       "engines": [],
       "docsSlug": "/docs/components/record-layout",
-      "registryDependencies": ["@vegastack/button", "@vegastack/sheet"],
+      "registryDependencies": [
+        "@vegastack/button",
+        "@vegastack/sheet",
+        "@vegastack/skeleton"
+      ],
       "npmDependencies": [
         "@vegastack/design@^0.7.31",
         "@vegastack/design-tokens@^0.7.18",
@@ -24541,6 +24660,51 @@
             {
               "name": "data-slot",
               "values": ["record-layout-rail"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "RecordLayoutPanels": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["record-layout-panels"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "RecordTabCount": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["record-tab-count"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "RecordLayoutMainSkeleton": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["record-layout-main-skeleton"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "RecordTabsRow": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["record-tabs-row"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "RecordTabsActions": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["record-tabs-actions"]
             }
           ],
           "cssVariables": []
