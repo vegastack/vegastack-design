@@ -17582,7 +17582,7 @@
         "whenToUse": "A task or issue page — title, description, comments and a properties rail; compose the same components in your app.",
         "whenNotToUse": "A meeting or media record with tabs — use RecordLayout with Tabs.",
         "version": "0.23.31",
-        "integrity": "sha256-pfDx6M9OCsdZe1L+1mf+pO/eY/ggJotlfqDxlSBVObc="
+        "integrity": "sha256-npE0tJ9JrZILdhXb1UsO0kSK8RPnpkWxEXLMNAz7Ab4="
       }
     },
     {

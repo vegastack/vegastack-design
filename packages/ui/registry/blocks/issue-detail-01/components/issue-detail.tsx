@@ -1,4 +1,4 @@
-// @vegastack issue-detail-01@0.23.31 sha256-pfDx6M9OCsdZe1L+1mf+pO/eY/ggJotlfqDxlSBVObc=
+// @vegastack issue-detail-01@0.23.31 sha256-npE0tJ9JrZILdhXb1UsO0kSK8RPnpkWxEXLMNAz7Ab4=
 
 "use client";
 
@@ -122,6 +122,9 @@ function Properties({ due }: { due: number }) {
 /**
  * `IssueDetail` — the issue page's client half: title and status, description, comments, and the
  * Properties rail. Replace the sample state with your data and persistence.
+ *
+ * @example
+ * <IssueDetail />
  */
 export function IssueDetail() {
   const [now] = React.useState(() => Date.now());
