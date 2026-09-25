@@ -418,6 +418,14 @@ function namedByHost(button, sf) {
 // `resizableNested` exclusion).
 const RAW_INTERACTIVE_EXEMPTIONS = new Map([
   [
+    "registry/ui/editable-cell.tsx",
+    {
+      counts: { input: 1, textarea: 1 },
+      rationale:
+        "the chrome-less inline field laid over its own text: edit must look like view (no border, ring, padding or background), which Input and Textarea exist to add",
+    },
+  ],
+  [
     "registry/ui/dropzone.tsx",
     {
       counts: { input: 1 },
