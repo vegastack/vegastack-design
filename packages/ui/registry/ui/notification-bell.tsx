@@ -1,4 +1,4 @@
-// @vegastack notification-bell@0.23.18 sha256-ypmQsNvcz8n0eQebGok/eJHUwqDnwjm7YKnnck+6G8c=
+// @vegastack notification-bell@0.23.18 sha256-QpUjOHsnOebrXq01Lcy3B3KMA9zca7+GDF+FhPg31mQ=
 
 "use client";
 
@@ -207,7 +207,7 @@ export function NotificationBell({
         dot ? (
           // Dot mode is the shared `NotificationDot` — solid, never a tint, because it carries no
           // text (the 3:1 non-text floor applies, and a tinted 8px dot is invisible). The count
-          // pill below is a tint because it carries a number (A11Y-13). The dot's default intent is
+          // pill below is solid too. The dot's default intent is
           // the primary ink (DS-56); an unread marker is not an error.
           <NotificationDot
             className={cn(
@@ -217,8 +217,10 @@ export function NotificationBell({
             onAnimationEnd={badgePop.onAnimationEnd}
           />
         ) : (
-          // Count mode COMPOSES <Badge> (register P2-06) — one badge implementation. It reads as
-          // the family's tint rather than the dot's solid fill; see the note on the dot above.
+          // Count mode COMPOSES <Badge> (register P2-06) — one badge implementation, overridden to
+          // a SOLID destructive fill: an unread count must read at a glance on any chrome, and the
+          // tint washed out at 16px. `text-destructive-foreground` keeps the number legible in
+          // light and dark.
           // No `key` here: replaying by REMOUNT was the other half of B7-03, and a remount is
           // exactly what a class toggle must not depend on.
           // Anchored by its INLINE-START edge, so single digits stay aligned while wider counts
@@ -230,7 +232,7 @@ export function NotificationBell({
             aria-hidden
             variant="destructive"
             className={cn(
-              "pointer-events-none absolute -top-1 start-full h-4 min-w-4 -translate-x-3 px-1 py-0 tabular-nums rtl:translate-x-3",
+              "pointer-events-none absolute -top-1 start-full h-4 min-w-4 bg-destructive text-destructive-foreground dark:bg-destructive -translate-x-3 px-1 py-0 tabular-nums rtl:translate-x-3",
               badgePop.className,
             )}
             onAnimationEnd={badgePop.onAnimationEnd}

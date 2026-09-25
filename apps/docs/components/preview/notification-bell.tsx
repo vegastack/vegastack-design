@@ -20,10 +20,11 @@ export function notificationBell(): ReactNode {
 export function notificationBellCounts(): ReactNode {
   return (
     <Wrapper>
-      <NotificationBell count={0} />
-      <NotificationBell count={5} />
+      <NotificationBell count={3} />
       <NotificationBell count={42} />
-      <NotificationBell count={250} />
+      <NotificationBell count={99} />
+      {/* 150 caps to "99+"; the accessible name reads "Notifications, 99+ unread". */}
+      <NotificationBell count={150} />
       <NotificationBell count={8} dot />
     </Wrapper>
   );
