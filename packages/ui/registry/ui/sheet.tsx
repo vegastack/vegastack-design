@@ -1,4 +1,4 @@
-// @vegastack sheet@0.23.1 sha256-EKutjRRJFxKMo6j9Z4pz8uHoYJ3IVK9wSIG2bmN+9Hs=
+// @vegastack sheet@0.23.1 sha256-TQjbHIdbtxCawIIQFfY4wOwqnCXThVYc70Uiz/YKKSg=
 
 "use client";
 
@@ -152,7 +152,10 @@ function SheetFooter({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
       data-slot="sheet-footer"
-      className={cn("mt-auto flex flex-col gap-2 p-4", className)}
+      className={cn(
+        "mt-auto flex flex-wrap items-center justify-end gap-2 p-4 *:data-[slot=sheet-cancel]:me-auto",
+        className,
+      )}
       {...props}
     />
   );

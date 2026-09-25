@@ -63,7 +63,7 @@ export function dialog(): ReactNode {
               </Field>
             </FieldGroup>
             <DialogFooter>
-              <DialogClose render={<Button variant="outline" />}>
+              <DialogClose render={<Button variant="secondary" />}>
                 Cancel
               </DialogClose>
               <Button type="submit">Save changes</Button>
@@ -91,7 +91,7 @@ export function dialogComposition(): ReactNode {
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
-            <DialogClose render={<Button variant="outline" />}>
+            <DialogClose render={<Button variant="secondary" />}>
               Cancel
             </DialogClose>
             <Button>Continue</Button>
@@ -182,7 +182,7 @@ export function dialogStickyFooter(): ReactNode {
             ))}
           </div>
           <DialogFooter>
-            <DialogClose render={<Button variant="outline" />}>
+            <DialogClose render={<Button variant="secondary" />}>
               Close
             </DialogClose>
           </DialogFooter>
@@ -237,7 +237,7 @@ export function dialogSizes(): ReactNode {
                 </DialogDescription>
               </DialogHeader>
               <DialogFooter>
-                <DialogClose render={<Button variant="outline" />}>
+                <DialogClose render={<Button variant="secondary" />}>
                   Close
                 </DialogClose>
               </DialogFooter>
@@ -267,7 +267,7 @@ export function dialogRtl(): ReactNode {
                 </DialogDescription>
               </DialogHeader>
               <DialogFooter>
-                <DialogClose render={<Button variant="outline" />}>
+                <DialogClose render={<Button variant="secondary" />}>
                   Cancel
                 </DialogClose>
                 <Button type="submit">Save changes</Button>
@@ -291,7 +291,7 @@ export function dialogRtl(): ReactNode {
                 </DialogDescription>
               </DialogHeader>
               <DialogFooter>
-                <DialogClose render={<Button variant="outline" />}>
+                <DialogClose render={<Button variant="secondary" />}>
                   إلغاء
                 </DialogClose>
                 <Button type="submit">حفظ التغييرات</Button>

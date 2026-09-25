@@ -1612,7 +1612,9 @@ export function questionnaireDialog(): ReactNode {
             </QuestionnaireItem>
 
             <DialogFooter>
-              <DialogClose render={<Button type="button" variant="outline" />}>
+              <DialogClose
+                render={<Button type="button" variant="secondary" />}
+              >
                 Cancel
               </DialogClose>
               <QuestionnaireActions>

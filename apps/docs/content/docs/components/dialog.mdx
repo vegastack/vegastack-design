@@ -1,6 +1,6 @@
 ---
 title: Dialog
-description: A modal overlay — a backdrop, a centred popup, an optional corner close button and a footer band that stays put while the body scrolls.
+description: A modal overlay — a backdrop, a centred popup, an optional corner close button and a plain, right-aligned footer that stays put while the body scrolls.
 audience: public
 registry: dialog
 status: stable
@@ -80,7 +80,7 @@ that control — here a footer button — while keeping the close behaviour.
 ### No Close Button
 
 `showCloseButton={false}` on `DialogContent` removes the corner close control. `DialogFooter` has
-its own `showCloseButton`, off by default, which appends an outline **Close** button to the band —
+its own `showCloseButton`, off by default, which appends a secondary **Close** button to the footer —
 so a dialog without the corner control still offers a visible way out.
 
 <ComponentPreview
@@ -90,8 +90,9 @@ so a dialog without the corner control still offers a visible way out.
 
 ### Sticky Footer
 
-`DialogFooter` is a `bg-muted/50` band pulled to the popup's edges with negative margins, so it
-reads as part of the frame rather than as content. Put the scroll container between the header and
+`DialogFooter` is as plain as the header — no background, no divider, the popup's own padding —
+with its actions right-aligned and secondary actions (Cancel, Back) on `variant="secondary"`
+(OVL-18). Put the scroll container between the header and
 the footer and the actions stay visible while the body scrolls.
 
 <ComponentPreview
@@ -133,7 +134,7 @@ reaches it.
 
 `DialogBody` is the scroller for long content (`min-h-0 flex-1 overflow-y-auto`, with `-mx-4 px-4`
 so focus outlines are not clipped at the popup's padding). A popup that holds one becomes a flex
-column capped 1rem inside the viewport, so the header and the footer band stay in view while the
+column capped 1rem inside the viewport, so the header and the footer stay in view while the
 body scrolls. A dialog without a `DialogBody` keeps upstream's growing grid.
 
 <ComponentPreview
@@ -157,7 +158,7 @@ renders closed; open it from the trigger.
 <ApiTable path="lib/api-props.ts" name="DialogFooterProps" />
 
 `closeLabel` (default `"Close"`) names the built-in close control on both `DialogContent` (the
-corner button) and `DialogFooter` (its opt-in outline button).
+corner button) and `DialogFooter` (its opt-in secondary button).
 
 `DialogTrigger`, `DialogClose`, `DialogPortal`, `DialogOverlay`, `DialogHeader`, `DialogBody`,
 `DialogTitle` and `DialogDescription` add no props of their own — each accepts everything its Base UI part or its
@@ -211,7 +212,10 @@ Upstream's file plus `packages/ui/upstream/patches/dialog.patch`. Every hunk:
   and reflects it as `data-size`, the axis `AlertDialogContent` already carries. `default` keeps
   upstream's `sm:max-w-sm` unconditionally; `sm`, `lg` and `xl` step it to `max-w-xs`, `max-w-2xl`
   and `max-w-5xl` through `data-[size=…]`. Approved by MK 23-09-2026 for a consumer gap.
-- **API-21** — `DialogBody` scrolls between the header and the footer band; a popup holding one
+- **OVL-18** — `DialogFooter` drops upstream's `-mx-4 -mb-4 rounded-b-xl border-t bg-muted/50 p-4`
+  band: it is as plain as the header, right-aligned from `sm` and stacked below it. Its opt-in close
+  is `variant="secondary"`. MK, 2026-09-25.
+- **API-21** — `DialogBody` scrolls between the header and the footer; a popup holding one
   becomes a flex column capped at `max-h-[calc(100%-2rem)]`, and a dialog without one is
   untouched. `closeLabel` renames the corner close control and the footer's opt-in close.
 - **VOI-1** — both built-in close strings are the overridable `closeLabel`, default "Close".

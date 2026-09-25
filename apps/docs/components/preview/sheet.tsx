@@ -55,8 +55,10 @@ export function sheet(): ReactNode {
             </Field>
           </FieldGroup>
           <SheetFooter>
+            <SheetClose render={<Button variant="secondary" />}>
+              Close
+            </SheetClose>
             <Button type="submit">Save changes</Button>
-            <SheetClose render={<Button variant="outline" />}>Close</SheetClose>
           </SheetFooter>
         </SheetContent>
       </Sheet>
@@ -75,7 +77,7 @@ export function sheetComposition(): ReactNode {
             <SheetDescription>This action cannot be undone.</SheetDescription>
           </SheetHeader>
           <SheetFooter>
-            <SheetClose render={<Button variant="outline" />}>
+            <SheetClose render={<Button variant="secondary" />}>
               Cancel
             </SheetClose>
           </SheetFooter>
@@ -114,10 +116,10 @@ export function sheetSide(): ReactNode {
               ))}
             </div>
             <SheetFooter>
-              <Button type="submit">Save changes</Button>
-              <SheetClose render={<Button variant="outline" />}>
+              <SheetClose render={<Button variant="secondary" />}>
                 Cancel
               </SheetClose>
+              <Button type="submit">Save changes</Button>
             </SheetFooter>
           </SheetContent>
         </Sheet>
@@ -142,7 +144,9 @@ export function sheetNoCloseButton(): ReactNode {
             </SheetDescription>
           </SheetHeader>
           <SheetFooter>
-            <SheetClose render={<Button variant="outline" />}>Close</SheetClose>
+            <SheetClose render={<Button variant="secondary" />}>
+              Close
+            </SheetClose>
           </SheetFooter>
         </SheetContent>
       </Sheet>
@@ -174,10 +178,10 @@ export function sheetRtl(): ReactNode {
                 </Field>
               </FieldGroup>
               <SheetFooter>
-                <Button type="submit">Save changes</Button>
-                <SheetClose render={<Button variant="outline" />}>
+                <SheetClose render={<Button variant="secondary" />}>
                   Close
                 </SheetClose>
+                <Button type="submit">Save changes</Button>
               </SheetFooter>
             </SheetContent>
           </Sheet>
@@ -203,10 +207,10 @@ export function sheetRtl(): ReactNode {
                 </Field>
               </FieldGroup>
               <SheetFooter>
-                <Button type="submit">حفظ التغييرات</Button>
-                <SheetClose render={<Button variant="outline" />}>
+                <SheetClose render={<Button variant="secondary" />}>
                   إغلاق
                 </SheetClose>
+                <Button type="submit">حفظ التغييرات</Button>
               </SheetFooter>
             </SheetContent>
           </Sheet>
@@ -234,7 +238,7 @@ export function sheetSizes(): ReactNode {
                 </SheetDescription>
               </SheetHeader>
               <SheetFooter>
-                <SheetClose render={<Button variant="outline" />}>
+                <SheetClose render={<Button variant="secondary" />}>
                   Close
                 </SheetClose>
               </SheetFooter>
@@ -273,10 +277,10 @@ export function sheetScrollingBody(): ReactNode {
             </FieldGroup>
           </SheetBody>
           <SheetFooter>
-            <Button type="submit">Save changes</Button>
-            <SheetClose render={<Button variant="outline" />}>
+            <SheetClose render={<Button variant="secondary" />}>
               Cancel
             </SheetClose>
+            <Button type="submit">Save changes</Button>
           </SheetFooter>
         </SheetContent>
       </Sheet>

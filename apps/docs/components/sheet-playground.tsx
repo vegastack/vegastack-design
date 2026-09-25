@@ -58,7 +58,7 @@ const sheetPlaygroundConfig: PlaygroundConfig<SheetPlaygroundKey> = {
           </SheetDescription>
         </SheetHeader>
         <SheetFooter>
-          <SheetClose render={<Button variant="outline">Cancel</Button>} />
+          <SheetClose render={<Button variant="secondary">Cancel</Button>} />
           <Button>Save changes</Button>
         </SheetFooter>
       </SheetContent>
@@ -80,7 +80,7 @@ const sheetPlaygroundConfig: PlaygroundConfig<SheetPlaygroundKey> = {
       "      <SheetDescription>Make changes to your profile here.</SheetDescription>",
       "    </SheetHeader>",
       "    <SheetFooter>",
-      '      <SheetClose render={<Button variant="outline">Cancel</Button>} />',
+      '      <SheetClose render={<Button variant="secondary">Cancel</Button>} />',
       "      <Button>Save changes</Button>",
       "    </SheetFooter>",
       "  </SheetContent>",

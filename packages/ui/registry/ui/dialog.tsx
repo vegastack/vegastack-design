@@ -1,4 +1,4 @@
-// @vegastack dialog@0.23.1 sha256-eROJxsxJOzcwvfVirA/Pv5Ykw6mMOx8Xz12Zsz7lk7M=
+// @vegastack dialog@0.23.1 sha256-gfOJY1ouplCawMBvmz/NcffknkM8Ys965P3fkqhr9kI=
 
 "use client";
 
@@ -143,14 +143,14 @@ function DialogFooter({
     <div
       data-slot="dialog-footer"
       className={cn(
-        "-mx-4 -mb-4 flex flex-col-reverse gap-2 rounded-b-xl border-t bg-muted/50 p-4 sm:flex-row sm:justify-end",
+        "flex flex-col-reverse gap-2 sm:flex-row sm:justify-end",
         className,
       )}
       {...props}
     >
       {children}
       {showCloseButton && (
-        <DialogPrimitive.Close render={<Button variant="outline" />}>
+        <DialogPrimitive.Close render={<Button variant="secondary" />}>
           {closeLabel}
         </DialogPrimitive.Close>
       )}

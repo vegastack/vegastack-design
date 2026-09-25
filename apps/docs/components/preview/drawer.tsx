@@ -125,7 +125,7 @@ function DrawerDemo(): ReactNode {
             <Button onClick={() => setOpen(false)}>
               Confirm Delivery Time
             </Button>
-            <DrawerClose render={<Button variant="outline" />}>
+            <DrawerClose render={<Button variant="secondary" />}>
               Cancel
             </DrawerClose>
           </DrawerFooter>
@@ -152,7 +152,7 @@ export function drawerComposition(): ReactNode {
           </div>
           <DrawerFooter>
             <Button>Submit</Button>
-            <DrawerClose render={<Button variant="outline" />}>
+            <DrawerClose render={<Button variant="secondary" />}>
               Cancel
             </DrawerClose>
           </DrawerFooter>
@@ -371,19 +371,19 @@ function DrawerNested(): ReactNode {
                         <div className="rounded-lg bg-muted group-data-[swipe-axis=x]/drawer-popup:size-full group-data-[swipe-axis=y]/drawer-popup:aspect-video group-data-[swipe-axis=y]/drawer-popup:w-full" />
                       </div>
                       <DrawerFooter>
-                        <DrawerClose render={<Button variant="outline" />}>
+                        <DrawerClose render={<Button variant="secondary" />}>
                           Close
                         </DrawerClose>
                       </DrawerFooter>
                     </DrawerContent>
                   </Drawer>
-                  <DrawerClose render={<Button variant="outline" />}>
+                  <DrawerClose render={<Button variant="secondary" />}>
                     Close
                   </DrawerClose>
                 </DrawerFooter>
               </DrawerContent>
             </Drawer>
-            <DrawerClose render={<Button variant="outline" />}>
+            <DrawerClose render={<Button variant="secondary" />}>
               Close
             </DrawerClose>
           </DrawerFooter>

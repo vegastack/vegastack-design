@@ -85,7 +85,7 @@ AlertDialog
 ### Basic
 
 A title, a description, and the cancel/continue pair. `AlertDialogCancel` is a `Button` with the
-`outline` variant that also closes the dialog; `AlertDialogAction` is a plain `Button`, so the
+`secondary` variant that also closes the dialog; `AlertDialogAction` is a plain `Button`, so the
 caller decides what it does and whether it closes.
 
 <ComponentPreview
@@ -196,6 +196,10 @@ Upstream's file plus `packages/ui/upstream/patches/alert-dialog.patch`. Every hu
 - **BRD-1** — `AlertDialogContent` draws a real 1px `border border-border` instead of upstream's
   `ring-1 ring-foreground/10` box-shadow outline. A border survives forced colours and matches
   [Elevation](/docs/foundations/elevation); nothing else about the surface moves.
+- **OVL-18** — `AlertDialogFooter` drops upstream's `-mx-4 -mb-4 rounded-b-xl border-t bg-muted/50
+p-4` band, so it is as plain as the header; the actions stay right-aligned from `sm` (two equal
+  columns at `size="sm"`). `AlertDialogCancel` defaults to `variant="secondary"`, not `outline`.
+  MK, 2026-09-25.
 - **DOC-2** — `import { cn } from "cn"` becomes `@vegastack/design`; our npm layer owns `cn`.
 - **DOC-1** — prettier reflow plus the `registry-stamp.mjs` provenance header; no decision of their
   own.

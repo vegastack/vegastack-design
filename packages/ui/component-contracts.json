@@ -8014,7 +8014,7 @@
       "name": "dialog",
       "registryType": "registry:ui",
       "title": "Dialog",
-      "summary": "A modal overlay — a backdrop, a centred popup, an optional close button and a sticky footer band.",
+      "summary": "A modal overlay — a backdrop, a centred popup, an optional close button and a plain, right-aligned footer.",
       "status": "stable",
       "since": "0.1.0",
       "family": "overlay",

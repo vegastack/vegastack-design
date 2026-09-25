@@ -1,4 +1,4 @@
-// @vegastack multi-step-form@0.23.1 sha256-lhQgiDfvw2UkbxDyApRq/FENKL1Jk1v2JFxLNe+q11M=
+// @vegastack multi-step-form@0.23.1 sha256-Megmj6azlOGEjANBczEaPGYphb6IrJjjUCRkaGMx1v8=
 
 "use client";
 
@@ -1126,7 +1126,7 @@ export function MultiStepFormBack({
   const sealed = !isFirst && currentIndex - 1 <= sealedIndex;
   return (
     <Button
-      variant="outline"
+      variant="secondary"
       data-slot="multi-step-form-back"
       data-sealed={sealed ? "" : undefined}
       disabled={!canGoBack}
@@ -1186,7 +1186,7 @@ export function MultiStepFormSkip({
   if (!current?.optional || isLast) return null;
   return (
     <Button
-      variant="ghost"
+      variant="secondary"
       data-slot="multi-step-form-skip"
       disabled={pending}
       onClick={skip}
@@ -1215,7 +1215,7 @@ export function MultiStepFormExit({
   const { requestExit, dirty } = useMultiStepFormContext("MultiStepFormExit");
   return (
     <Button
-      variant="ghost"
+      variant="secondary"
       data-slot="multi-step-form-exit"
       data-dirty={dirty ? "" : undefined}
       onClick={requestExit}
@@ -1381,7 +1381,7 @@ export function MultiStepFormActions({
       ) : null}
       <div
         data-slot="multi-step-form-action-row"
-        className="flex min-w-0 items-center justify-between gap-2 border-t border-border pt-4"
+        className="flex min-w-0 flex-wrap items-center justify-end gap-2"
       >
         {children ?? (
           <>

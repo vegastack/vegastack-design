@@ -71,11 +71,11 @@ export function stepperDriven(): ReactNode {
     <Wrapper className="block">
       <div className="mx-auto flex w-full max-w-2xl flex-col gap-6">
         <Stepper aria-label="Import" steps={stepsFor(current)} />
-        {/* These buttons are the HOST's, not the Stepper's — start and end of the row, the
-            same places MultiStepForm puts them. */}
-        <div className="flex items-center justify-between gap-2 border-t border-border pt-4">
+        {/* These buttons are the HOST's, not the Stepper's — right-aligned with no divider, Back
+            on the secondary variant, the same row MultiStepForm draws. */}
+        <div className="flex items-center justify-end gap-2">
           <Button
-            variant="outline"
+            variant="secondary"
             disabled={atStart}
             onClick={() => setCurrent((c) => Math.max(0, c - 1))}
           >

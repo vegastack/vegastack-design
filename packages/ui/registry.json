@@ -1067,7 +1067,7 @@
       "name": "dialog",
       "type": "registry:ui",
       "title": "Dialog",
-      "description": "A modal overlay — backdrop, centred popup, sticky footer band and an optional close button.",
+      "description": "A modal overlay — backdrop, centred popup, a plain right-aligned footer and an optional close button.",
       "categories": ["overlay"],
       "dependencies": [
         "@base-ui/react@^1.6.0",
