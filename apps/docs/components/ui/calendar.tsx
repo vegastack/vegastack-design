@@ -1,4 +1,4 @@
-// @vegastack calendar@0.23.18 sha256-JalziRay6dXm0Kz1mpNG+86FENXFsnCdKIXWjX9IdyA=
+// @vegastack calendar@0.23.19 sha256-ODFT7EvvwJTlCTpq7P+IrGvwx1fIuNSMKcjcAxVjByc=
 
 "use client";
 
