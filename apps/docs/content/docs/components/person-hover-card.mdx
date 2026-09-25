@@ -1,6 +1,6 @@
 ---
 title: Person Hover Card
-description: Stacked avatars with a hover card per person — a compact card with a 32px avatar, with the name and muted email beside it — and the rest behind "+N".
+description: Overlapping 24px avatars with a compact hover card per person (a 32px avatar, the name and a muted email) and a "+N" count; the stack lists everyone.
 audience: public
 registry: person-hover-card
 status: stable
@@ -21,11 +21,12 @@ import { AvatarStack } from "@/components/ui/person-hover-card";
 <AvatarStack people={participants} label="Participants" />;
 ```
 
-`AvatarStack` stacks up to `max` (5) avatars in an [Avatar](/docs/components/avatar) group; the
-rest go behind a "+N" that opens them as rows. Hovering or focusing an avatar — tapping it on touch
-— opens its `PersonHoverCard`: a compact card with a 32px avatar and, stacked beside it, the name and a smaller muted email (always shown when known). Someone without
-an account (a free-text participant such as "Northwind FM leads") has no email: their avatar shows
-initials and the card just the name.
+`AvatarStack` stacks up to `max` (5) 24px avatars — overlapping, each ringed in the background
+colour — with the rest counted in a "+N". Hovering an avatar previews that person: a compact 240px
+card with a 32px avatar and, beside it, the name over a smaller muted email (always shown when
+known). The stack is one button: click, tap or <kbd>Enter</kbd> lists everyone in the same format.
+Someone without an account (a free-text participant such as "Northwind FM leads") has no email:
+their avatar shows initials and the card just the name.
 
 <ComponentPreview
   name="personHoverCard"
@@ -50,7 +51,7 @@ the person.
 
 ### The card
 
-`PersonCard` is the card's body (`layout="card"`) and the "+N" list's row (`layout="row"`).
+`PersonCard` is the card's body (`layout="card"`) and a compact list row (`layout="row"`).
 
 <ComponentPreview
   name="personHoverCardCard"
@@ -89,16 +90,16 @@ the person.
 
 ## Accessibility
 
-- The stack is a `group` named by `label`; each avatar is a button named by the person, and "+N"
-  is named "N more".
-- The hover card opens on hover and on keyboard focus, and a tap toggles it on touch; it closes on
-  <kbd>Esc</kbd> and when focus leaves.
+- The stack is one button named "{label}: {names}"; it opens the full list, so keyboard and touch
+  users reach every person without the hover previews.
+- `PersonHoverCard` on its own is a round button named by the person; its card opens on hover and
+  on keyboard focus, a tap toggles it, and <kbd>Esc</kbd> closes it.
 
-| Key                                 | Action                            |
-| ----------------------------------- | --------------------------------- |
-| <kbd>Tab</kbd>                      | Move between people and "+N"      |
-| <kbd>Enter</kbd> / <kbd>Space</kbd> | Open a person's card, or the rest |
-| <kbd>Esc</kbd>                      | Close the card or the list        |
+| Key                                 | Action                                  |
+| ----------------------------------- | --------------------------------------- |
+| <kbd>Tab</kbd>                      | Move to the stack                       |
+| <kbd>Enter</kbd> / <kbd>Space</kbd> | List everyone (or open a person's card) |
+| <kbd>Esc</kbd>                      | Close the list or the card              |
 
 <StatesTested name="person-hover-card" />
 

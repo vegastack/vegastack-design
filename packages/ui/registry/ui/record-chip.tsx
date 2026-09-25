@@ -1,4 +1,4 @@
-// @vegastack record-chip@0.23.19 sha256-uD+gV+ts+Hq1LYVz22CcCHuHrQ+hvGfngRaDliNrfhA=
+// @vegastack record-chip@0.23.19 sha256-V30C0ihdaFViD0Bw81HULFbmKiU66FMD1HTv/49d9rI=
 
 import * as React from "react";
 import { ArrowUpRight, ChevronDown } from "lucide-react";
@@ -22,7 +22,8 @@ export interface RecordChipProps extends Omit<
    */
   value?: React.ReactNode;
   /**
-   * Shown when there is no `value`, e.g. "Add customer".
+   * Shown when there is no `value`, e.g. "Add customer". `null` shows the icon alone (no text, no
+   * ▾) — an unset pill in a dense row; name the button with `aria-label`.
    * @default "Select"
    */
   placeholder?: React.ReactNode;
@@ -83,9 +84,14 @@ export function SplitChip({ className, ...props }: SplitChipProps) {
   );
 }
 
-/** Classes of a SplitChip's main (text) segment: 24px tall, rounded-full, muted when open. */
+/**
+ * Classes of a SplitChip's main (text) segment: 24px tall, rounded-full, muted when open. Before a
+ * separator its end padding drops to 5px, so the chevron sits as far from the divider as the icon
+ * segment's glyph does on the other side (2px margin + 5px of the 24px circle's inset). It never
+ * nudges on press.
+ */
 export const splitChipButtonClassName =
-  "h-6 min-w-0 shrink justify-start gap-1.5 rounded-full px-2 text-xs text-inherit aria-expanded:bg-muted [&_svg:not([class*='size-'])]:size-3.5";
+  "h-6 min-w-0 shrink justify-start gap-1.5 rounded-full px-2 text-xs text-inherit aria-expanded:bg-muted [&_svg:not([class*='size-'])]:size-3.5 active:not-aria-[haspopup]:translate-y-0 [&:has(+[data-slot=split-chip-separator])]:pe-1.25";
 
 /** Classes of a SplitChip's icon segment: a 24px circle (the 24px hit area). */
 export const splitChipIconActionClassName =
@@ -172,10 +178,14 @@ export function RecordChip({
             {icon}
           </span>
         ) : null}
-        <span className="min-w-0 truncate">
-          {hasValue ? value : placeholder}
-        </span>
-        <ChevronDown aria-hidden className="text-muted-foreground" />
+        {hasValue || placeholder !== null ? (
+          <>
+            <span className="min-w-0 truncate">
+              {hasValue ? value : placeholder}
+            </span>
+            <ChevronDown aria-hidden className="text-muted-foreground" />
+          </>
+        ) : null}
       </SplitChipButton>
       {showLink ? (
         <>

@@ -1,4 +1,4 @@
-// @vegastack filter-bar@0.23.19 sha256-Zvb5gOd/ezs2LSkQMBfF5YEUvD8ygq8HWIttbgaQ1aw=
+// @vegastack filter-bar@0.23.19 sha256-FIYLy7RN2xGuuAk56gnxCkFyxEdx0YzH0AZ6MJkX05E=
 
 "use client";
 
@@ -1004,7 +1004,7 @@ export function FilterBarFacet<
             size="icon-xs"
             aria-label={clearLabel}
             data-slot="filter-bar-facet-clear"
-            className="absolute end-0.5 top-1/2 size-6 -translate-y-1/2 rounded-sm text-muted-foreground hover:bg-foreground/10 hover:text-foreground"
+            className="absolute inset-y-0 end-0.5 my-auto size-6 rounded-sm text-muted-foreground hover:bg-foreground/10 hover:text-foreground active:not-aria-[haspopup]:translate-y-0"
             onClick={clear}
           >
             <X aria-hidden className="size-3.5" />
@@ -1024,6 +1024,7 @@ export function FilterBarFacet<
           size="icon-xs"
           aria-label={removeLabel}
           data-slot="filter-bar-facet-remove"
+          className="active:not-aria-[haspopup]:translate-y-0"
           onClick={onRemove}
         >
           <X aria-hidden />
@@ -1319,7 +1320,7 @@ export function DateRangeFilter({
           aria-label={clearLabel}
           disabled={disabled}
           data-slot="date-range-filter-clear"
-          className="absolute end-0.5 top-1/2 size-6 -translate-y-1/2 rounded-sm text-muted-foreground hover:bg-foreground/10 hover:text-foreground"
+          className="absolute inset-y-0 end-0.5 my-auto size-6 rounded-sm text-muted-foreground hover:bg-foreground/10 hover:text-foreground active:not-aria-[haspopup]:translate-y-0"
           onClick={() => {
             triggerRef.current?.focus();
             onValueChange(null);

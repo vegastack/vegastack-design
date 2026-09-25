@@ -1,4 +1,4 @@
-// @vegastack search-input@0.23.19 sha256-CbKfzxXZZd8n+43EKFWb02hq6Pt508w/fZgrkNOQgXs=
+// @vegastack search-input@0.23.19 sha256-A2EiPWIVe3JEFnZM8ILSzxx9PMyrbfM15U77eB28CpM=
 
 "use client";
 
@@ -194,6 +194,7 @@ function SearchInput({
           <InputGroupButton
             data-slot="search-input-clear"
             size="icon-xs"
+            className="active:not-aria-[haspopup]:translate-y-0"
             aria-label={clearLabel}
             onClick={clear}
           >

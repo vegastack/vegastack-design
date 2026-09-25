@@ -1,4 +1,4 @@
-// @vegastack chip@0.23.19 sha256-WTYJNPD9M8LXhO2eLd0mw0ldIpYrvhmqGhyMl4qvZC4=
+// @vegastack chip@0.23.19 sha256-DVmO5TMwYC3sxOENtz0QUuwJdmw9OZl8MScJxITDkDg=
 
 "use client";
 
@@ -234,7 +234,10 @@ export function ChipRemove({
       variant="ghost"
       size="icon-xs"
       data-slot={dataSlot ?? "chip-remove"}
-      className={cn("rounded-full shrink-0", className)}
+      className={cn(
+        "rounded-full shrink-0 active:not-aria-[haspopup]:translate-y-0",
+        className,
+      )}
       {...props}
     >
       {children ?? <X className="size-3" aria-hidden />}
