@@ -1,5 +1,16 @@
 # @vegastack/ui
 
+## 0.23.15
+
+### Patch Changes
+
+- [#273](https://github.com/vegastack/vegastack-design/pull/273) [`12ba8d9`](https://github.com/vegastack/vegastack-design/commit/12ba8d9373c59dd01c08065617f0cd0500e6c150) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🔧 RecordChip: the picker and the ↗ link now sit inside one shared `p-0.5` inset, both 24px tall and rounded-full, so their hover and open backgrounds keep the same gap from the pill's border on every side (the pill grows from 28px to 30px). The shell is exported as `SplitChip` with `SplitChipButton`, `SplitChipSeparator` and `splitChipIconActionClassName` for any main-action-plus-icon-action pill; documented under Record Chip.
+
+- [#272](https://github.com/vegastack/vegastack-design/pull/272) [`6ae4f3a`](https://github.com/vegastack/vegastack-design/commit/6ae4f3a758f6594b0eec7b4cb9fa4ff1ada5a128) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🔧 RecordLayout: a record page's main column beside a sticky 320px right rail of cards (from `lg` up, scrolling on its own), with `RecordDetailsSheet` — a ghost ⓘ button that opens the details in a Sheet from the right — in its place on small screens.
+
+- Updated dependencies [[`12ba8d9`](https://github.com/vegastack/vegastack-design/commit/12ba8d9373c59dd01c08065617f0cd0500e6c150), [`6ae4f3a`](https://github.com/vegastack/vegastack-design/commit/6ae4f3a758f6594b0eec7b4cb9fa4ff1ada5a128)]:
+  - @vegastack/design@0.7.24
+
 ## 0.23.14
 
 ### Patch Changes

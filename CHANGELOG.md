@@ -9,6 +9,22 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.23.15] — September 25, 2026
+
+<!-- assembled from 2 changesets: 51aa50b18da6 -->
+
+### 🔧 Changed components
+
+- RecordChip: the picker and the ↗ link now sit inside one shared `p-0.5` inset, both 24px tall and rounded-full, so their hover and open backgrounds keep the same gap from the pill's border on every side (the pill grows from 28px to 30px). The shell is exported as `SplitChip` with `SplitChipButton`, `SplitChipSeparator` and `splitChipIconActionClassName` for any main-action-plus-icon-action pill; documented under Record Chip.
+  [`12ba8d9`](https://github.com/VegaStack/vegastack-design/commit/12ba8d9)
+- RecordLayout: a record page's main column beside a sticky 320px right rail of cards (from `lg` up, scrolling on its own), with `RecordDetailsSheet` — a ghost ⓘ button that opens the details in a Sheet from the right — in its place on small screens.
+  [`6ae4f3a`](https://github.com/VegaStack/vegastack-design/commit/6ae4f3a)
+
+### 📦 npm
+
+- **`@vegastack/design`** → **`0.7.24`** (was `0.7.23`).
+- The design-system registry (`@vegastack/ui`) bumps 0.23.14 → 0.23.15.
+
 ## [0.23.14] — September 25, 2026
 
 <!-- assembled from 1 changeset: 5a901ca1198b -->
