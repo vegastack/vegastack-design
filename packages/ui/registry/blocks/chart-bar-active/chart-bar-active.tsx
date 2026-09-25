@@ -1,4 +1,4 @@
-// @vegastack chart-bar-active@0.23.15 sha256-tTTxQSCNkgFJKZKNSYWpufkQlykT85ysSqvbBLHNFGg=
+// @vegastack chart-bar-active@0.23.16 sha256-EjzryCPPp8TOlF8metSCeynZmxPVFQPsto/XuWa6sag=
 
 "use client";
 

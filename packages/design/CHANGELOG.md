@@ -1,5 +1,11 @@
 # @vegastack/design
 
+## 0.7.25
+
+### Patch Changes
+
+- [#274](https://github.com/vegastack/vegastack-design/pull/274) [`8d8eb5b`](https://github.com/vegastack/vegastack-design/commit/8d8eb5b64b70fd8cd90cbb3cec37c33570d530a0) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🔧 StatusIcon and PriorityIcon keep their semantic colour on hover, focus and highlight inside dropdown, context-menu, menubar, select, combobox, command, sidebar, navigation-menu, toggle, button and item rows: both icons carry `data-icon-tone`, and the rows' muted-icon default and state recolours skip it. Add `data-icon-tone` to any other semantic-coloured icon to get the same behaviour.
+
 ## 0.7.24
 
 ### Patch Changes
