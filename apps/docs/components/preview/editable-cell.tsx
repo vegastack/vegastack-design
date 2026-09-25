@@ -150,7 +150,7 @@ export function editableCellHeading(): ReactNode {
   return (
     <Wrapper className="block">
       <div className="mx-auto flex w-full max-w-md flex-col gap-1">
-        <h2 className="text-2xl font-semibold tracking-tight">
+        <h2 className="text-2xl font-semibold">
           <EditableCell
             variant="heading"
             flush
