@@ -15272,7 +15272,6 @@
         "@vegastack/avatar",
         "@vegastack/button",
         "@vegastack/dropdown-menu",
-        "@vegastack/notification-bell",
         "@vegastack/relative-time",
         "@vegastack/skeleton",
         "@vegastack/tooltip"
@@ -15288,7 +15287,7 @@
         "whenToUse": "The notifications panel: a feed of person and system events the user reads, acts on and marks read. Put it in a Sheet, Popover or docked panel.",
         "whenNotToUse": "Toasts for transient confirmations, an activity log on a record (Timeline), or a bare unread count (NotificationBell).",
         "version": "0.23.6",
-        "integrity": "sha256-9BNsRIcDELcEq157Syb6hPbGFqS11uaUlZWIm/f5PE4="
+        "integrity": "sha256-0+h5ryt25ynhveXtEWRiXWdMDIwDrzrfnrurLBwrGuk="
       }
     },
     {

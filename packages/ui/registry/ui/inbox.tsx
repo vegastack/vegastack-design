@@ -1,4 +1,4 @@
-// @vegastack inbox@0.23.6 sha256-9BNsRIcDELcEq157Syb6hPbGFqS11uaUlZWIm/f5PE4=
+// @vegastack inbox@0.23.6 sha256-0+h5ryt25ynhveXtEWRiXWdMDIwDrzrfnrurLBwrGuk=
 
 "use client";
 
@@ -21,7 +21,6 @@ import {
   DropdownMenuContent,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { NotificationDot } from "@/components/ui/notification-bell";
 import { RelativeTime } from "@/components/ui/relative-time";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
@@ -413,7 +412,7 @@ export interface InboxItemProps extends Omit<
   /** The sentence: plain text, or a template with {@link InboxEmphasis} for the actor and record. */
   title: React.ReactNode;
   /**
-   * Unread: the dot, a tint, a semibold title and an sr-only "Unread".
+   * Unread: a soft full-bleed tint, a medium-weight title and an sr-only "Unread".
    * @default false
    */
   unread?: boolean;
@@ -485,9 +484,10 @@ function initials(name: string) {
 }
 
 /**
- * One notification row: full-bleed, 16px sides and 12px vertical padding, the unread dot, a 28px
- * avatar or muted icon tile, the title, a muted meta line and optional action chips. On hover or
- * keyboard focus the time swaps for Mark read / Mark unread and the ⋯ menu.
+ * One notification row: full-bleed, 16px sides and 12px vertical padding, a 28px avatar or muted
+ * icon tile, the title, a muted meta line and optional action chips. Unread rows get a soft tint.
+ * A fixed 64px right column holds the time, with Mark read / Mark unread and the ⋯ menu below it,
+ * shown on hover or keyboard focus.
  *
  * @example
  * <InboxItem unread avatar={{ name: "Asha Kumar" }} title="Asha assigned you a task" href="/tasks/41" onToggleRead={toggle} />
@@ -543,14 +543,11 @@ export function InboxItem({
       data-slot="inbox-item"
       data-unread={unread || undefined}
       className={cn(
-        "group/inbox-item relative flex gap-3 px-4 py-3 transition-colors hover:bg-muted/60 data-unread:bg-primary/[0.04] data-unread:hover:bg-muted/60",
+        "group/inbox-item relative flex gap-3 px-4 py-3 transition-colors hover:bg-muted/60 data-unread:bg-accent/40 data-unread:hover:bg-accent/60",
         className,
       )}
       {...props}
     >
-      <span className="absolute start-1.5 top-[1.375rem]">
-        {unread ? <NotificationDot /> : null}
-      </span>
       <div className="shrink-0 pt-0.5" aria-hidden>
         {avatar ? (
           <Avatar className="size-7">
@@ -571,76 +568,14 @@ export function InboxItem({
         ) : null}
       </div>
       <div className="flex min-w-0 flex-1 flex-col gap-0.5">
-        <div className="flex items-start gap-2">
-          <p
-            className={cn(
-              "min-w-0 flex-1 text-sm leading-5 text-foreground [&_strong]:font-semibold",
-              unread ? "font-semibold" : "font-medium",
-            )}
-          >
-            {titleContent}
-          </p>
-          <div className="relative flex h-5 shrink-0 items-center overflow-visible">
-            {time !== undefined ? (
-              <RelativeTime
-                date={time}
-                unitStyle="narrow"
-                focusable={false}
-                className={cn(
-                  "text-xs whitespace-nowrap text-muted-foreground",
-                  hasControls &&
-                    "pointer-fine:group-focus-within/inbox-item:opacity-0 pointer-fine:group-hover/inbox-item:opacity-0 pointer-fine:group-has-data-popup-open/inbox-item:opacity-0",
-                )}
-              />
-            ) : null}
-            {hasControls ? (
-              <div
-                className={cn(
-                  "relative z-10 flex items-center gap-0.5 pointer-fine:absolute pointer-fine:end-0 pointer-fine:opacity-0 pointer-fine:group-focus-within/inbox-item:opacity-100 pointer-fine:group-hover/inbox-item:opacity-100 pointer-fine:group-has-data-popup-open/inbox-item:opacity-100",
-                  "-me-1 bg-transparent",
-                )}
-              >
-                {onToggleRead ? (
-                  <Tooltip>
-                    <TooltipTrigger
-                      render={
-                        <Button
-                          variant="ghost"
-                          size="icon-sm"
-                          aria-label={unread ? "Mark read" : "Mark unread"}
-                          onClick={onToggleRead}
-                        >
-                          {unread ? <MailOpen /> : <Mail />}
-                        </Button>
-                      }
-                    />
-                    <TooltipContent>
-                      {unread ? "Mark read" : "Mark unread"}
-                    </TooltipContent>
-                  </Tooltip>
-                ) : null}
-                {menu ? (
-                  <DropdownMenu>
-                    <DropdownMenuTrigger
-                      render={
-                        <Button
-                          variant="ghost"
-                          size="icon-sm"
-                          aria-label="More actions"
-                        >
-                          <MoreHorizontal />
-                        </Button>
-                      }
-                    />
-                    <DropdownMenuContent align="end">
-                      {menu}
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                ) : null}
-              </div>
-            ) : null}
-          </div>
-        </div>
+        <p
+          className={cn(
+            "text-sm leading-5 text-foreground [&_strong]:font-semibold",
+            unread ? "font-medium" : "font-normal",
+          )}
+        >
+          {titleContent}
+        </p>
         {meta ? (
           <p className="truncate text-xs leading-5 text-muted-foreground">
             {meta}
@@ -671,6 +606,55 @@ export function InboxItem({
                 )}
               </Button>
             ))}
+          </div>
+        ) : null}
+      </div>
+      <div className="flex w-16 shrink-0 flex-col items-end gap-1">
+        {time !== undefined ? (
+          <RelativeTime
+            date={time}
+            unitStyle="narrow"
+            focusable={false}
+            className="text-xs leading-5 whitespace-nowrap text-muted-foreground"
+          />
+        ) : null}
+        {hasControls ? (
+          <div className="relative z-10 -me-1 flex items-center gap-0.5 pointer-fine:opacity-0 pointer-fine:group-focus-within/inbox-item:opacity-100 pointer-fine:group-hover/inbox-item:opacity-100 pointer-fine:group-has-data-popup-open/inbox-item:opacity-100">
+            {onToggleRead ? (
+              <Tooltip>
+                <TooltipTrigger
+                  render={
+                    <Button
+                      variant="ghost"
+                      size="icon-sm"
+                      aria-label={unread ? "Mark read" : "Mark unread"}
+                      onClick={onToggleRead}
+                    >
+                      {unread ? <MailOpen /> : <Mail />}
+                    </Button>
+                  }
+                />
+                <TooltipContent>
+                  {unread ? "Mark read" : "Mark unread"}
+                </TooltipContent>
+              </Tooltip>
+            ) : null}
+            {menu ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger
+                  render={
+                    <Button
+                      variant="ghost"
+                      size="icon-sm"
+                      aria-label="More actions"
+                    >
+                      <MoreHorizontal />
+                    </Button>
+                  }
+                />
+                <DropdownMenuContent align="end">{menu}</DropdownMenuContent>
+              </DropdownMenu>
+            ) : null}
           </div>
         ) : null}
       </div>
