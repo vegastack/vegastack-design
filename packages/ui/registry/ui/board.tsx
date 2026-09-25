@@ -1,14 +1,12 @@
-// @vegastack board@0.23.14 sha256-BSuyeAKAWJZ61k8dQrdD7fd25YjrZMzYy/lFh6rABns=
+// @vegastack board@0.23.14 sha256-OAytuFU0xEwyGLDfHvyTST6fg0nCc+PbvcHrxTnrBwE=
 
 "use client";
 
 import * as React from "react";
-import { createPortal } from "react-dom";
 import { EllipsisVertical, Plus } from "lucide-react";
 import { mergeProps } from "@base-ui/react/merge-props";
 import { useRender } from "@base-ui/react/use-render";
 import { cn, mergeRefs } from "@vegastack/design";
-import { useInternalThemeScope } from "@vegastack/design/theme-scope";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -53,7 +51,7 @@ hidden scrollbar and edge fades. Below 768px it shows one lane at a time at full
 moves between lanes (scroll snap) and a lane strip above names each lane with its count.
 
 Drag. `usePointerDrag` (in `use-drag-reorder`) is the gesture: a 4px mouse drag or a 250ms touch
-long-press. The card lifts into a portal with a shadow and a slight tilt, a gap opens where it
+long-press. The card lifts (fixed to the viewport, not portalled) with a shadow and a slight tilt, a gap opens where it
 would land and the cards around it slide to make room (FLIP, Web Animations), and on release it
 settles into the gap before the move commits. Lanes and the board auto-scroll near their edges;
 on a phone, holding a card at the screen edge turns to the next lane. Reduced motion drops every
@@ -481,7 +479,6 @@ export function Board<T>({
 }: BoardProps<T>) {
   const isMobile = useIsMobile();
   const reducedMotion = usePrefersReducedMotion();
-  const themeScope = useInternalThemeScope();
   const { announce, Announcer } = useAnnouncer();
   const resolvedHeight = height ?? (columnMaxHeight ? "auto" : "fill");
   const fill = resolvedHeight !== "auto";
@@ -624,6 +621,8 @@ export function Board<T>({
     over: Position | null;
     width: number;
     height: number;
+    x: number;
+    y: number;
   } | null>(null);
   const dragRef = React.useRef(drag);
   dragRef.current = drag;
@@ -701,7 +700,15 @@ export function Board<T>({
         offsetX: point.x - rect.left,
         offsetY: point.y - rect.top,
       };
-      setDrag({ id, from, over: from, width: rect.width, height: rect.height });
+      setDrag({
+        id,
+        from,
+        over: from,
+        width: rect.width,
+        height: rect.height,
+        x: rect.left,
+        y: rect.top,
+      });
       announce(
         `Picked up ${cardLabel(id)} in ${laneLabelById(from.container)}. Release over a lane to drop it, or press Escape to cancel`,
       );
@@ -1026,22 +1033,16 @@ export function Board<T>({
 
   // ---- layout: fill the viewport, edge fades, the phone's lane strip ---------------------------
   const rootRef = React.useRef<HTMLDivElement>(null);
+  const [fillTop, setFillTop] = React.useState<number | null>(null);
   React.useLayoutEffect(() => {
     const root = rootRef.current;
-    if (!root) return;
-    if (resolvedHeight !== "fill") {
-      root.style.setProperty(
-        "--board-height",
-        resolvedHeight === "auto" ? "auto" : resolvedHeight,
-      );
-      return;
-    }
+    if (!root || resolvedHeight !== "fill") return;
     const measure = () => {
-      const top = root.getBoundingClientRect().top + window.scrollY;
-      root.style.setProperty(
-        "--board-height",
-        `max(20rem, calc(100dvh - ${Math.max(0, Math.round(top))}px - ${fillOffset}))`,
+      const top = Math.max(
+        0,
+        Math.round(root.getBoundingClientRect().top + window.scrollY),
       );
+      setFillTop((prev) => (prev === top ? prev : top));
     };
     measure();
     window.addEventListener("resize", measure);
@@ -1054,7 +1055,11 @@ export function Board<T>({
       window.removeEventListener("resize", measure);
       observer?.disconnect();
     };
-  }, [resolvedHeight, fillOffset]);
+  }, [resolvedHeight]);
+  const boardHeight =
+    resolvedHeight === "fill"
+      ? `max(20rem, calc(100dvh - ${fillTop ?? 0}px - ${fillOffset}))`
+      : resolvedHeight;
 
   const [fades, setFades] = React.useState({ start: false, end: false });
   const [activeLane, setActiveLane] = React.useState(0);
@@ -1538,6 +1543,7 @@ export function Board<T>({
           ["--board-column-max-height"]:
             columnMaxHeight ?? "calc(100dvh - 16rem)",
           ["--board-gap-height"]: `${drag?.height ?? 64}px`,
+          ["--board-height"]: boardHeight,
         } as React.CSSProperties
       }
       className={cn(
@@ -1598,43 +1604,44 @@ export function Board<T>({
         />
       </div>
       <Announcer />
-      {drag && dragItem && typeof document !== "undefined"
-        ? createPortal(
-            <div
-              ref={(node) => {
-                overlayRef.current = node;
-              }}
-              aria-hidden="true"
-              data-slot="board-drag-overlay"
-              data-settling={settling ? "" : undefined}
-              style={
-                {
-                  ["--drag-w"]: `${drag.width}px`,
-                } as React.CSSProperties
-              }
-              className={cn(
-                "pointer-events-none fixed start-0 top-0 z-50 w-(--drag-w) translate-x-(--drag-x) translate-y-(--drag-y) cursor-grabbing",
-                "data-settling:transition-[translate] data-settling:duration-200 data-settling:ease-out",
-                themeScope,
-              )}
-            >
-              <div
-                className={cn(
-                  cardClasses,
-                  "shadow-lg transition-transform duration-200 ease-out",
-                  settling ? "rotate-0" : "motion-safe:rotate-2",
-                )}
-              >
-                <div className="min-w-0 pe-6">
-                  <TruncationFocusProvider focusable={false}>
-                    {renderCard(dragItem.item, dragItem.column)}
-                  </TruncationFocusProvider>
-                </div>
-              </div>
-            </div>,
-            document.body,
-          )
-        : null}
+      {/* The lifted card: fixed to the viewport from inside the board (no portal), so it keeps
+          the board's theme scope and escapes the lanes' overflow clipping. */}
+      {drag && dragItem ? (
+        <div
+          ref={(node) => {
+            overlayRef.current = node;
+          }}
+          aria-hidden="true"
+          data-slot="board-drag-overlay"
+          data-settling={settling ? "" : undefined}
+          style={
+            {
+              ["--drag-w"]: `${drag.width}px`,
+              // The start position; each frame then writes the live one to the node.
+              ["--drag-x"]: `${drag.x}px`,
+              ["--drag-y"]: `${drag.y}px`,
+            } as React.CSSProperties
+          }
+          className={cn(
+            "pointer-events-none fixed start-0 top-0 z-50 w-(--drag-w) translate-x-(--drag-x) translate-y-(--drag-y) cursor-grabbing",
+            "data-settling:transition-[translate] data-settling:duration-200 data-settling:ease-out",
+          )}
+        >
+          <div
+            className={cn(
+              cardClasses,
+              "shadow-lg transition-transform duration-200 ease-out",
+              settling ? "rotate-0" : "motion-safe:rotate-2",
+            )}
+          >
+            <div className="min-w-0 pe-6">
+              <TruncationFocusProvider focusable={false}>
+                {renderCard(dragItem.item, dragItem.column)}
+              </TruncationFocusProvider>
+            </div>
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }

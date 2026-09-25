@@ -2997,7 +2997,10 @@
             "--board-column-max-height",
             "--board-column-width",
             "--board-gap-height",
-            "--drag-w"
+            "--board-height",
+            "--drag-w",
+            "--drag-x",
+            "--drag-y"
           ]
         }
       }
