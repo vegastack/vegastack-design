@@ -231,7 +231,7 @@ export function pageHeaderTabs(): ReactNode {
         actions={<Button>New task</Button>}
         tabs={
           <Tabs value={scope} onValueChange={(next) => setScope(String(next))}>
-            <TabsList size="sm" aria-label="Tasks to show">
+            <TabsList aria-label="Tasks to show">
               <TabsTrigger value="mine">My tasks</TabsTrigger>
               <TabsTrigger value="created">Created by me</TabsTrigger>
               <TabsTrigger value="team">Team</TabsTrigger>

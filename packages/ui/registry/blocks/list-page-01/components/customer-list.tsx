@@ -1,4 +1,4 @@
-// @vegastack list-page-01@0.23.32 sha256-a73Zqbjs1ERmtv6DRDOHrR+lY310Z381527fx8kW+aA=
+// @vegastack list-page-01@0.23.32 sha256-Bs/R9V2glWPp/DKE/nevBA5kzRDsXoC1sS5JoWWeICk=
 
 "use client";
 
@@ -22,7 +22,9 @@ import {
 } from "@/components/ui/empty";
 import { FilterBar, FilterBarFacet } from "@/components/ui/filter-bar";
 import { RelativeTime } from "@/components/ui/relative-time";
-import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import { PageHeader } from "@/components/ui/page-header";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ViewToggle } from "@/components/ui/view-toggle";
 
 import {
   CURRENT_USER,
@@ -80,13 +82,19 @@ export interface CustomerListProps {
    * @default false
    */
   readOnly?: boolean;
+  /**
+   * The page header's actions, e.g. the "New customer" link.
+   * @default undefined
+   */
+  actions?: React.ReactNode;
 }
 
 const customerHref = (customer: Customer) => `/customers/${customer.id}`;
 
 /**
- * The customer list: one `DataList` with a `FilterBar` toolbar (search first, Status and Industry
- * facets, a Mine | Team scope, and the list's own Grid | List view toggle in the bar's view slot).
+ * The customer list page: a `PageHeader` whose tab row holds the Mine | Team scope and, at its
+ * end, the Grid | List `ViewToggle`, over one `DataList` with a `FilterBar` toolbar (search first,
+ * Status and Industry facets).
  * Both views show the same records grouped by industry — a table, or a grid of `MediaCard` links —
  * paged with Load more. Three empty tiers: nothing yet, no matches (with "Clear filters"), and a
  * failed load (with "Try again").
@@ -101,6 +109,7 @@ export function CustomerList({
   onRetry,
   defaultView = "list",
   readOnly = false,
+  actions,
 }: CustomerListProps) {
   const [view, setView] = React.useState<View>(defaultView);
   const [scope, setScope] = React.useState<Scope>("team");
@@ -285,21 +294,6 @@ export function CustomerList({
           />
         </>
       }
-      scope={
-        <ToggleGroup
-          variant="outline"
-          aria-label="Owner"
-          deselectable={false}
-          value={[scope]}
-          onValueChange={(value) => {
-            if (value[0]) setScope(value[0] as Scope);
-            setPages(1);
-          }}
-        >
-          <ToggleGroupItem value="mine">Mine</ToggleGroupItem>
-          <ToggleGroupItem value="team">Team</ToggleGroupItem>
-        </ToggleGroup>
-      }
       trailing={
         filtering ? (
           <Button variant="ghost" onClick={clearFilters}>
@@ -311,36 +305,62 @@ export function CustomerList({
   );
 
   return (
-    <DataList<Customer>
-      aria-label="Customers"
-      toolbar={toolbar}
-      view={view}
-      onViewChange={(next) => setView(next as View)}
-      views={["grid", "list"]}
-      columns={columns}
-      data={error != null ? [] : shown}
-      getRowId={(c) => c.id}
-      getRowLabel={(c) => c.name}
-      getRowHref={customerHref}
-      rowActions={(c) => [
-        { label: "Edit", render: <a href={`${customerHref(c)}/edit`} /> },
-        { type: "separator" },
-        { label: "Archive", destructive: true, onSelect: () => {} },
-      ]}
-      sections={INDUSTRY_SECTIONS}
-      getRowSection={(c) => c.industry}
-      loading={loading}
-      emptyState={emptyState}
-      noResults={
-        ready && inScope.length > 0 && matching.length === 0
-          ? { onClear: clearFilters }
-          : undefined
-      }
-      loadMore={
-        ready && shown.length > 0
-          ? { hasMore, loading: loadingMore, onLoadMore: loadMore }
-          : undefined
-      }
-    />
+    <>
+      <PageHeader
+        title="Customers"
+        description="Everyone you sell to, with their projects and status."
+        actions={actions}
+        tabs={
+          <Tabs
+            value={scope}
+            onValueChange={(value) => {
+              setScope(value as Scope);
+              setPages(1);
+            }}
+          >
+            <TabsList aria-label="Owner">
+              <TabsTrigger value="mine">Mine</TabsTrigger>
+              <TabsTrigger value="team">Team</TabsTrigger>
+            </TabsList>
+          </Tabs>
+        }
+        view={
+          <ViewToggle
+            value={view}
+            onValueChange={setView}
+            views={["grid", "list"]}
+          />
+        }
+      />
+      <DataList<Customer>
+        aria-label="Customers"
+        toolbar={toolbar}
+        view={view}
+        columns={columns}
+        data={error != null ? [] : shown}
+        getRowId={(c) => c.id}
+        getRowLabel={(c) => c.name}
+        getRowHref={customerHref}
+        rowActions={(c) => [
+          { label: "Edit", render: <a href={`${customerHref(c)}/edit`} /> },
+          { type: "separator" },
+          { label: "Archive", destructive: true, onSelect: () => {} },
+        ]}
+        sections={INDUSTRY_SECTIONS}
+        getRowSection={(c) => c.industry}
+        loading={loading}
+        emptyState={emptyState}
+        noResults={
+          ready && inScope.length > 0 && matching.length === 0
+            ? { onClear: clearFilters }
+            : undefined
+        }
+        loadMore={
+          ready && shown.length > 0
+            ? { hasMore, loading: loadingMore, onLoadMore: loadMore }
+            : undefined
+        }
+      />
+    </>
   );
 }

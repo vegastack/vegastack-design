@@ -1,4 +1,4 @@
-// @vegastack page-header@0.23.32 sha256-fOj/C8VmneHBDGd9ftr+NxK6BjMCm3yHuaLmmoXuN4k=
+// @vegastack page-header@0.23.32 sha256-8gT/VuhD2L2IQc+8zszHXMI/dd3WgLmu4Cy+JJf5tvM=
 
 "use client";
 
@@ -134,6 +134,21 @@ export interface PageHeaderProps extends Omit<
    * @default undefined
    */
   favorite?: PageHeaderFavorite;
+  /**
+   * The page's view tabs, on their own row directly under the title — a default (pill) `Tabs`
+   * such as "My tasks | Created by me | Team" that switches whose records a list page shows.
+   * Tabs that change content in place belong here, above the list's toolbar, not inside it.
+
+   * @default undefined
+   */
+  tabs?: React.ReactNode;
+  /**
+   * How the page lays its records out — a `ViewToggle` ("List | Board"), pinned to the end of
+   * the `tabs` row (on its own row, end-aligned, when there are no `tabs`).
+
+   * @default undefined
+   */
+  view?: React.ReactNode;
 }
 
 /**
@@ -213,6 +228,15 @@ function FavoriteStar({
  * />
  *
  * @example
+ * // A list page: scope tabs under the title, the layout switch at the row's end
+ * <PageHeader
+ *   title="Tasks"
+ *   actions={<Button>New task</Button>}
+ *   tabs={<Tabs value={scope} onValueChange={setScope}><TabsList><TabsTrigger value="mine">My tasks</TabsTrigger><TabsTrigger value="team">Team</TabsTrigger></TabsList></Tabs>}
+ *   view={<ViewToggle value={view} onValueChange={setView} views={["list", "board"]} />}
+ * />
+ *
+ * @example
  * // With breadcrumb, back button, actions, and a favorite star
  * <PageHeader
  *   breadcrumb={<Breadcrumb>…</Breadcrumb>}
@@ -236,6 +260,8 @@ export function PageHeader({
   actions,
   secondaryMenu,
   favorite,
+  tabs,
+  view,
   className,
   children,
   ...props
@@ -343,6 +369,20 @@ export function PageHeader({
           </div>
         ) : null}
       </div>
+
+      {tabs != null || view != null ? (
+        <div
+          data-slot="page-header-tabs"
+          className="flex flex-wrap items-center gap-2"
+        >
+          {tabs}
+          {view != null ? (
+            <div data-slot="page-header-view" className="ms-auto">
+              {view}
+            </div>
+          ) : null}
+        </div>
+      ) : null}
 
       {children}
     </header>

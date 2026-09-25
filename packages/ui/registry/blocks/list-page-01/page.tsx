@@ -1,15 +1,14 @@
-// @vegastack list-page-01@0.23.32 sha256-a73Zqbjs1ERmtv6DRDOHrR+lY310Z381527fx8kW+aA=
+// @vegastack list-page-01@0.23.32 sha256-Bs/R9V2glWPp/DKE/nevBA5kzRDsXoC1sS5JoWWeICk=
 
 import { Plus } from "lucide-react";
 
 import { CustomerList } from "./components/customer-list";
 import { AppShellPage } from "@/components/ui/app-shell";
 import { buttonVariants } from "@/components/ui/button";
-import { PageHeader } from "@/components/ui/page-header";
 
 /**
- * `list-page-01` — the list page reference: a `PageHeader` h1 with its create link over
- * `CustomerList`, which filters, pages and switches between a table and a grid of the same records.
+ * `list-page-01` — the list page reference: `CustomerList` — a `PageHeader` h1 with its create link,
+ * the Mine | Team tabs and the Grid | List toggle under the title — over a list that filters, pages and switches between a table and a grid of the same records.
  *
  * Server-safe: the interactive half is the client leaf it imports. Replace the sample customers
  * with your API, and each href with your routes.
@@ -21,9 +20,7 @@ import { PageHeader } from "@/components/ui/page-header";
 export default function Page() {
   return (
     <AppShellPage>
-      <PageHeader
-        title="Customers"
-        description="Everyone you sell to, with their projects and status."
+      <CustomerList
         actions={
           <a href="/customers/new" className={buttonVariants()}>
             <Plus />
@@ -31,7 +28,6 @@ export default function Page() {
           </a>
         }
       />
-      <CustomerList />
     </AppShellPage>
   );
 }

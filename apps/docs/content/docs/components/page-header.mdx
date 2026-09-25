@@ -171,7 +171,7 @@ An unbroken token still breaks rather than pushing the page sideways.
 ### View tabs
 
 A list page's views — whose records it shows ("My tasks | Created by me | Team") — go in `tabs`, a
-default (pill) `Tabs` at `size="sm"`, on their own row directly under the title and above the
+default (pill) `Tabs` at its default size, on their own row directly under the title and above the
 list's toolbar. The layout switch (`ViewToggle`, "List | Board") goes in `view`, pinned to the end
 of that row. Both change the content in place, so the toolbar below keeps only search and filters.
 
@@ -186,7 +186,7 @@ of that row. Both change the content in place, so the toolbar below keeps only s
   actions={<Button>New task</Button>}
   tabs={
     <Tabs value={scope} onValueChange={setScope}>
-      <TabsList size="sm" aria-label="Tasks to show">
+      <TabsList aria-label="Tasks to show">
         <TabsTrigger value="mine">My tasks</TabsTrigger>
         <TabsTrigger value="team">Team</TabsTrigger>
       </TabsList>
