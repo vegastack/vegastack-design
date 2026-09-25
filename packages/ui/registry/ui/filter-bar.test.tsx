@@ -600,6 +600,11 @@ test("scope sits beside the search and view is pinned to the end", async () => {
 
 test("a narrow bar folds the filters into a sheet with Clear and Done", async () => {
   const onClear = vi.fn();
+  // The narrow layout is container-query CSS, so this test needs the compiled stylesheet.
+  const sheet = document.createElement("style");
+  sheet.textContent = geometryCss;
+  document.head.append(sheet);
+  onTestFinished(() => sheet.remove());
   const screen = await render(
     <div style={{ width: 360 }}>
       <FilterBar
