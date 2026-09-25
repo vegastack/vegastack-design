@@ -214,16 +214,15 @@ test("showCloseButton={false} drops it and the footer can opt into its own (No C
   await waitForClosed();
 });
 
-test("the footer is an edge-to-edge band, not content (Sticky Footer)", async () => {
+test("the footer is a plain row inside the content, not a band (Sticky Footer)", async () => {
   const screen = await render(<Subject />);
   await screen.getByRole("button", { name: "Open dialog" }).click();
   await expect.element(screen.getByRole("dialog")).toBeInTheDocument();
   const footer = bySlot("dialog-footer")!;
   expect(bySlot("dialog-content")!.contains(footer)).toBe(true);
-  expect(footer.className).toContain("bg-muted/50");
-  expect(footer.className).toContain("-mx-4");
-  expect(footer.className).toContain("-mb-4");
-  expect(footer.className).toContain("border-t");
+  expect(footer.className).not.toContain("bg-muted/50");
+  expect(footer.className).not.toContain("border-t");
+  expect(footer.className).toContain("sm:justify-end");
 });
 
 test("the popup does not scroll — the caller's element does (Scrollable Content)", async () => {

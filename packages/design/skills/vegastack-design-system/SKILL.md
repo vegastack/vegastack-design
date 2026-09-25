@@ -135,6 +135,12 @@ A component's name undersells it. Before composing something by hand, check this
 - **A metric** → `Stat`.
 - **A confirmation that interrupts** → `AlertDialog`; a form or detail in an overlay → `Dialog` or
   `Sheet`.
+- **An overlay's footer** (`DialogFooter`, `AlertDialogFooter`, `SheetFooter`, `DrawerFooter`,
+  `MultiStepFormActions`) is as plain as its header: no background, no top border, no extra padding
+  or negative margins. Actions are right-aligned, primary last; every secondary action (Cancel,
+  Keep editing, Back, Save draft) is `variant="secondary"`, never `outline` — `AlertDialogCancel`
+  and `DialogFooter showCloseButton` already default to it. A Sheet's Cancel may sit at the start
+  edge: give it `data-slot="sheet-cancel"` and `SheetFooter` pushes it left with `me-auto`.
 - **Feedback after an action** → `toast.add({ title })`.
 - **A recording's text beside its player** → `Transcript` (follows `currentTime`, seeks through
   `onSeek`, searches) with a `docked` `AudioPlayer` at the bottom of the column.

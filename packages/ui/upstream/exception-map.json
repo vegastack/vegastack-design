@@ -225,6 +225,7 @@
     "LAY-13": ["sidebar"],
     "LAY-15": ["alert"],
     "OVL-17": ["toast"],
+    "OVL-18": ["alert-dialog", "dialog", "sheet"],
     "A11Y-23": ["pagination"]
   },
   "advisory": {

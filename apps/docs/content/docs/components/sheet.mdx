@@ -50,7 +50,19 @@ import {
 
 A Sheet is Base UI's Dialog with edge-anchored positioning, so the tree is the Dialog tree.
 `SheetContent` is a flex column and `SheetFooter` carries `mt-auto`, which is what pins the footer
-to the bottom of the panel however little content sits above it.
+to the bottom of the panel however little content sits above it. The footer is as plain as the
+header and its actions are right-aligned at every width, primary last; secondary actions use
+`variant="secondary"`. To seat a Cancel at the start edge instead, give it
+`data-slot="sheet-cancel"` — `SheetFooter` pushes that child left with `me-auto` (OVL-18):
+
+```tsx
+<SheetFooter>
+  <SheetClose data-slot="sheet-cancel" render={<Button variant="secondary" />}>
+    Cancel
+  </SheetClose>
+  <Button>Save</Button>
+</SheetFooter>
+```
 
 ```text
 Sheet
@@ -187,6 +199,9 @@ Upstream's file plus `packages/ui/upstream/patches/sheet.patch`. Every hunk:
   width. Widened from Dialog by MK 2026-09-24.
 - **API-21** — `SheetBody` scrolls between the header and the footer; `SheetAction` is an end seat
   in `SheetHeader` that clears the close button; `closeLabel` renames the corner close control.
+- **OVL-18** — `SheetFooter` is a right-aligned wrapping row (`flex flex-wrap items-center
+justify-end`) at every width, not upstream's full-width `flex-col` stack; a direct child with
+  `data-slot="sheet-cancel"` takes `me-auto` to sit at the start edge. MK, 2026-09-25.
 - **VOI-1** — the corner close's built-in string is the overridable `closeLabel`, default "Close".
 - **DOC-2** — `import { cn } from "cn"` becomes `@vegastack/design`; our npm layer owns `cn`.
 - **DOC-1** — prettier reflow plus the `registry-stamp.mjs` provenance header; no decision of their

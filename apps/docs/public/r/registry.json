@@ -118,7 +118,7 @@
         "whenToUse": "A decision that must be made before anything else continues — deleting, discarding, signing out.",
         "whenNotToUse": "Anything dismissible by clicking away, or a form — use a Dialog.",
         "version": "0.23.1",
-        "integrity": "sha256-Q0veSBZ0CWgG5ta1zb8KTHkOlGizpead6EhYZq9JnQQ="
+        "integrity": "sha256-mOh6awdJpE06KtW6keTq0gxvRY3aUNLVr4nm77joRug="
       }
     },
     {
@@ -1218,7 +1218,7 @@
       "name": "dialog",
       "type": "registry:ui",
       "title": "Dialog",
-      "description": "A modal overlay — backdrop, centred popup, sticky footer band and an optional close button.",
+      "description": "A modal overlay — backdrop, centred popup, a plain right-aligned footer and an optional close button.",
       "categories": [
         "overlay"
       ],
@@ -1243,7 +1243,7 @@
         "whenToUse": "Modal interactions requiring full attention — confirmations, focused forms, destructive-action prompts. size sm/default/lg/xl steps the width; put long content in DialogBody so the header and footer stay in view.",
         "whenNotToUse": "Non-blocking feedback (Toast), inline contextual content (Popover/Tooltip), or a swipeable bottom panel (Drawer).",
         "version": "0.23.1",
-        "integrity": "sha256-eROJxsxJOzcwvfVirA/Pv5Ykw6mMOx8Xz12Zsz7lk7M="
+        "integrity": "sha256-gfOJY1ouplCawMBvmz/NcffknkM8Ys965P3fkqhr9kI="
       }
     },
     {
@@ -15856,7 +15856,7 @@
         "whenToUse": "Secondary content beside the page — filters, details, a settings panel, a long record form — that should not take the centre of the screen. Side sheets take size sm/default/lg/xl (Dialog's width scale); put long content in SheetBody so the footer stays on screen.",
         "whenNotToUse": "A decision (AlertDialog), a centred form (Dialog), or a touch-first panel with snap points (Drawer).",
         "version": "0.23.1",
-        "integrity": "sha256-EKutjRRJFxKMo6j9Z4pz8uHoYJ3IVK9wSIG2bmN+9Hs="
+        "integrity": "sha256-TQjbHIdbtxCawIIQFfY4wOwqnCXThVYc70Uiz/YKKSg="
       }
     },
     {
@@ -16168,7 +16168,7 @@
         "whenToUse": "A process a person drives across several screens — signup, checkout, an import wizard, a multi-section record editor — where steps can branch, an advance can be refused, and a committed step must not be walked back into.",
         "whenNotToUse": "Progress the system drives and a person only reads (Stepper alone), free navigation between peer views (Tabs), or one question at a time (Questionnaire).",
         "version": "0.23.1",
-        "integrity": "sha256-lhQgiDfvw2UkbxDyApRq/FENKL1Jk1v2JFxLNe+q11M="
+        "integrity": "sha256-Megmj6azlOGEjANBczEaPGYphb6IrJjjUCRkaGMx1v8="
       }
     },
     {

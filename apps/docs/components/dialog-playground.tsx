@@ -66,7 +66,7 @@ const dialogPlaygroundConfig: PlaygroundConfig<DialogPlaygroundKey> = {
           <DialogDescription>This action cannot be undone.</DialogDescription>
         </DialogHeader>
         <DialogFooter showCloseButton={Boolean(state.footerCloseButton)}>
-          <DialogClose render={<Button variant="outline">Cancel</Button>} />
+          <DialogClose render={<Button variant="secondary">Cancel</Button>} />
           <Button variant="destructive">Delete</Button>
         </DialogFooter>
       </DialogContent>
@@ -87,7 +87,7 @@ const dialogPlaygroundConfig: PlaygroundConfig<DialogPlaygroundKey> = {
       "      <DialogDescription>This action cannot be undone.</DialogDescription>",
       "    </DialogHeader>",
       `    <DialogFooter${footer}>`,
-      '      <DialogClose render={<Button variant="outline">Cancel</Button>} />',
+      '      <DialogClose render={<Button variant="secondary">Cancel</Button>} />',
       '      <Button variant="destructive">Delete</Button>',
       "    </DialogFooter>",
       "  </DialogContent>",

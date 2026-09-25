@@ -236,7 +236,7 @@ test("the destructive confirmation is a Button variant, not footer colour (Destr
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel variant="outline">Cancel</AlertDialogCancel>
+          <AlertDialogCancel>Cancel</AlertDialogCancel>
           <AlertDialogAction variant="destructive">Delete</AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
@@ -245,7 +245,7 @@ test("the destructive confirmation is a Button variant, not footer colour (Destr
   await screen.getByRole("button", { name: "Delete chat" }).click();
   await expect.element(screen.getByRole("alertdialog")).toBeInTheDocument();
   expect(bySlot("alert-dialog-action")!.className).toContain("bg-destructive/");
-  expect(bySlot("alert-dialog-cancel")!.className).toContain("border-border");
+  expect(bySlot("alert-dialog-cancel")!.className).toContain("bg-secondary");
   // The footer band itself stays neutral — the intent is carried by the action alone.
   expect(bySlot("alert-dialog-footer")!.className).not.toContain("destructive");
 });
@@ -254,8 +254,8 @@ test("the cancel control accepts every Button variant it is given (Destructive)"
   const screen = await render(<Subject />);
   await screen.getByRole("button", { name: "Show dialog" }).click();
   await expect.element(screen.getByRole("alertdialog")).toBeInTheDocument();
-  // Default: outline, so cancel is visually quieter than a default-variant action.
-  expect(bySlot("alert-dialog-cancel")!.className).toContain("border-border");
+  // Default: secondary, so cancel is visually quieter than a default-variant action.
+  expect(bySlot("alert-dialog-cancel")!.className).toContain("bg-secondary");
   expect(bySlot("alert-dialog-action")!.className).toContain("bg-primary");
 });
 

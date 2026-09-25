@@ -1,5 +1,5 @@
 # component: dialog
-# decisions: A11Y-9, API-21, BRD-1, DOC-1, DOC-2, OVL-13, OVL-16, VOI-1
+# decisions: A11Y-9, API-21, BRD-1, DOC-1, DOC-2, OVL-13, OVL-16, OVL-18, VOI-1
 # hunks:
 #   OVL-13: `DialogPortal` reads `useInternalThemeScope()` and wraps its children in a
 #     `display: contents` element carrying that class, so a nested theme scope survives the jump
@@ -25,12 +25,16 @@
 #     so a dialog without a body is untouched. `closeLabel` on `DialogContent` renames the corner
 #     close control and on `DialogFooter` its opt-in close button.
 #   VOI-1: both built-in close strings are the overridable `closeLabel` (default "Close").
+#   OVL-18 (MK 2026-09-25): `DialogFooter` is as plain as the header — no `-mx-4 -mb-4`, no
+#     `rounded-b-xl border-t bg-muted/50 p-4` band; it sits in the popup's own `p-4` with no divider.
+#     The stack below `sm` and `sm:justify-end` stay upstream's. The `showCloseButton` close is
+#     `variant="secondary"`, not `outline`: secondary actions in overlays are secondary.
 #   cn: `import { cn } from "cn"` becomes `@vegastack/design` — our npm layer owns `cn` (DOC-2).
 #   formatting: the repository formatter (prettier defaults: semicolons, trailing commas)
 #               reflows the file, and `registry-stamp.mjs` writes the provenance header the
 #               three-copy model needs (DOC-1); those hunks carry no decision of their own.
 diff --git a/dialog.tsx b/dialog.tsx
-index 0b42f3f..d5d9dd3 100644
+index 0b42f3f..0042a0b 100644
 --- a/dialog.tsx
 +++ b/dialog.tsx
 @@ -1,26 +1,41 @@
@@ -186,16 +190,18 @@ index 0b42f3f..d5d9dd3 100644
      <div
        data-slot="dialog-footer"
        className={cn(
-         "-mx-4 -mb-4 flex flex-col-reverse gap-2 rounded-b-xl border-t bg-muted/50 p-4 sm:flex-row sm:justify-end",
+-        "-mx-4 -mb-4 flex flex-col-reverse gap-2 rounded-b-xl border-t bg-muted/50 p-4 sm:flex-row sm:justify-end",
 -        className
++        "flex flex-col-reverse gap-2 sm:flex-row sm:justify-end",
 +        className,
        )}
        {...props}
      >
        {children}
        {showCloseButton && (
-         <DialogPrimitive.Close render={<Button variant="outline" />}>
+-        <DialogPrimitive.Close render={<Button variant="outline" />}>
 -          Close
++        <DialogPrimitive.Close render={<Button variant="secondary" />}>
 +          {closeLabel}
          </DialogPrimitive.Close>
        )}

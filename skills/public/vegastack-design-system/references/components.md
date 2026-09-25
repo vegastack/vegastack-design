@@ -90,7 +90,7 @@ starts with `icon-` is a component and never an icon.
 
 - **`alert-dialog`** — A modal that interrupts for a decision — an optional media slot, two sizes and an action/cancel footer.
 - **`context-menu`** — The same menu vocabulary opened by right-click, positioned at the pointer.
-- **`dialog`** — A modal overlay — a backdrop, a centred popup, an optional close button and a sticky footer band.
+- **`dialog`** — A modal overlay — a backdrop, a centred popup, an optional close button and a plain, right-aligned footer.
 - **`drawer`** — A swipeable panel with snap points — four directions, a swipe handle, nesting and a non-modal mode.
 - **`dropdown-menu`** — An anchored action menu — items, submenus, checkboxes, radio groups, shortcuts and a destructive variant.
 - **`hover-card`** — A preview surface that opens on hover or focus, with configurable delays and sides.

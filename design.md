@@ -685,7 +685,7 @@ recipes:
 
 # VegaStack design
 
-This system **is** shadcn `base-nova`, plus ninety-seven recorded exceptions. Every component we share with
+This system **is** shadcn `base-nova`, plus ninety-eight recorded exceptions. Every component we share with
 shadcn is upstream's own file with an approved patch applied; every difference traces to a decision
 ID; and three offline gates prove both claims on every pull request. That is the whole doctrine, and
 this document is deliberately thin because most of what used to be written here is now upstream's
@@ -756,12 +756,12 @@ Three offline gates carry that, in `pnpm upstream:check`, inside `pnpm lint`:
 All four scripts under `tooling/upstream/` carry a `--self-test` that observes them failing
 (`pnpm upstream:selftest`), because a gate nobody has seen fail is an assumption.
 
-## What we add — the ninety-seven exceptions
+## What we add — the ninety-eight exceptions
 
-`docs/plans/2026-09-18-shadcn-reset/decisions.md` is the register: 205 rows, 108 resolved as
-**shadcn** (upstream ships unchanged) and 97 as **ours**. `packages/ui/upstream/decisions.json` is
+`docs/plans/2026-09-18-shadcn-reset/decisions.md` is the register: 206 rows, 108 resolved as
+**shadcn** (upstream ships unchanged) and 98 as **ours**. `packages/ui/upstream/decisions.json` is
 its machine copy and the only thing a gate reads; `packages/ui/upstream/exception-map.json` records
-which shared component each exception is assigned to. Re-opening a row is MK's decision. The ninety-seven
+which shared component each exception is assigned to. Re-opening a row is MK's decision. The ninety-eight
 group into six themes.
 
 ### 1. Focus — one outline, and no glow anywhere
@@ -916,7 +916,7 @@ token — that is COL-20 being enforced, not broken.
 
 `MOT-5 · MOT-6 · MOT-7 · MOT-13 · TYP-13 · BRD-1 · LAY-9 · LAY-10 · LAY-11 · LAY-12 · LAY-13 · LAY-14 ·
 LAY-15 · LAY-16 · FRM-9 · FRM-10 · FRM-12 · FRM-13 · OVL-10 · OVL-11 · OVL-13 · OVL-14 · OVL-15 ·
-OVL-16 · OVL-17 · API-5 · API-9 · API-17 · API-18 · API-19 · API-20 · API-21 · API-22 · API-23 ·
+OVL-16 · OVL-17 · OVL-18 · API-5 · API-9 · API-17 · API-18 · API-19 · API-20 · API-21 · API-22 · API-23 ·
 API-24 · API-26 · API-27 · API-28 · VOI-1`
 
 - **Motion.** The global reduced-motion reset in `base.css` is the one sanctioned `!important`, and a
@@ -961,7 +961,7 @@ API-24 · API-26 · API-27 · API-28 · VOI-1`
   search-cancel paint is suppressed, a token-colored 24px clear button owns the action, and generic
   `Input` keeps its single-input DOM and behavior contract. A Select trigger is `w-full` by default
   and takes `variant="ghost"` for an inline row (API-24).
-- **Overlays** (OVL-10, OVL-11, OVL-13…OVL-17) — Toast is the one notification engine;
+- **Overlays** (OVL-10, OVL-11, OVL-13…OVL-18) — Toast is the one notification engine;
   `sonner` is retired (OVL-10), and it keeps one store: the provider passes the module manager and
   `Toaster` reuses a provider above it, so `toast()` and `useToastManager()` feed one queue (OVL-17). Toast adds a logical `position` prop, the anchored
   `ToastPositioner`/`ToastArrow` parts, and a `z-60` viewport band — the one surface above the single
@@ -969,7 +969,7 @@ API-24 · API-26 · API-27 · API-28 · VOI-1`
   tooltip or dropdown accepts a `container`, so chrome over a fullscreen surface portals into it
   (OVL-14). `DialogContent` takes a `size` prop — `sm`, `default` (upstream's `sm:max-w-sm`), `lg`,
   `xl` — reflected as `data-size`, the axis `AlertDialogContent` already carries; `CommandDialog`
-  and a side `SheetContent` take the same scale (OVL-16). A panel's search is a sticky header row with no nested bordered
+  and a side `SheetContent` take the same scale (OVL-16). Overlay footers are as plain as their headers — no muted band, no top border — with actions right-aligned and secondary actions (Cancel, Back, Keep editing) on `variant="secondary"`; a Sheet's Cancel may take the start edge with `data-slot="sheet-cancel"` (OVL-18). A panel's search is a sticky header row with no nested bordered
   input, and it has exactly one owner, the `panel-search` shared-internal item (OVL-11). Every portal
   re-applies the theme scope so a popup opened from inside a scoped subtree paints in that scope
   (OVL-13); `verify-portal-theme-scope` discovers every Base UI portal host and requires its owner to

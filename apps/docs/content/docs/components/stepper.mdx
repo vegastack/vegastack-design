@@ -68,8 +68,8 @@ not exist. A reason belongs next to the button it refuses.
 ### When the host drives it
 
 The buttons below belong to the page, not to `Stepper` — it renders none. They
-sit at the start and end of their row, which is where `MultiStepForm` puts them
-too. For anything more than a demo, use that component rather than wiring this
+sit right-aligned with no divider, Back on `variant="secondary"`, which is how
+`MultiStepForm` draws its action row too. For anything more than a demo, use that component rather than wiring this
 by hand.
 
 <ComponentPreview name="stepperDriven" file="components/preview/stepper.tsx" />

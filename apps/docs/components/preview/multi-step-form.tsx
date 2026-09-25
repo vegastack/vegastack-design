@@ -563,7 +563,7 @@ function MultiStepFormFullPageDemo(): ReactNode {
           <MultiStepFormActions sticky="narrow">
             <MultiStepFormExit>Exit</MultiStepFormExit>
             <Button
-              variant="outline"
+              variant="secondary"
               onClick={() => setLastNavigation("saved a draft")}
             >
               Save draft

@@ -1,4 +1,4 @@
-// @vegastack alert-dialog@0.23.1 sha256-Q0veSBZ0CWgG5ta1zb8KTHkOlGizpead6EhYZq9JnQQ=
+// @vegastack alert-dialog@0.23.1 sha256-mOh6awdJpE06KtW6keTq0gxvRY3aUNLVr4nm77joRug=
 
 "use client";
 
@@ -100,7 +100,7 @@ function AlertDialogFooter({
     <div
       data-slot="alert-dialog-footer"
       className={cn(
-        "-mx-4 -mb-4 flex flex-col-reverse gap-2 rounded-b-xl border-t bg-muted/50 p-4 group-data-[size=sm]/alert-dialog-content:grid group-data-[size=sm]/alert-dialog-content:grid-cols-2 sm:flex-row sm:justify-end",
+        "flex flex-col-reverse gap-2 group-data-[size=sm]/alert-dialog-content:grid group-data-[size=sm]/alert-dialog-content:grid-cols-2 sm:flex-row sm:justify-end",
         className,
       )}
       {...props}
@@ -171,7 +171,7 @@ function AlertDialogAction({
 
 function AlertDialogCancel({
   className,
-  variant = "outline",
+  variant = "secondary",
   size = "default",
   ...props
 }: AlertDialogPrimitive.Close.Props &
