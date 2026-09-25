@@ -408,7 +408,9 @@ function ToastList({
               <ToastAction
                 // The action is taken, so its toast goes; `data.keepOpen` opts out.
                 onClick={() => {
-                  if (!(toastItem.data as ToastCustomData | undefined)?.keepOpen)
+                  if (
+                    !(toastItem.data as ToastCustomData | undefined)?.keepOpen
+                  )
                     close(toastItem.id);
                 }}
               />
