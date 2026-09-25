@@ -432,9 +432,7 @@ const markdownFixtures: [string, string][] = [
   ["a divider", "Above\n\n---\n\nBelow"],
   ["a task list", "- [ ] Open\n- [x] Done"],
   ["nested lists", "- One\n  - Nested\n    1. Deeper"],
-  // Empty paragraphs (blank lines typed with Enter) survive: Tiptap writes them as `&nbsp;` and
-  // extra blank lines, and reads both back as the same empty paragraphs.
-  ["blank lines", "a\n\n\n\n&nbsp;\n\nb\n\n- x\n\n\n\nc"],
+  ["paragraphs around a list", "a\n\nb\n\n- x\n\nc"],
 ];
 
 test.each(markdownFixtures)(
@@ -700,4 +698,38 @@ test("bubble menu: a selection gets a link from the link input", async () => {
       "Read the [spec](https://example.com/spec)",
     ),
   );
+});
+
+test("Markdown: blank lines typed with Enter collapse — no &nbsp;, and the output reloads to itself", async () => {
+  const onValueChange = vi.fn();
+  const screen = await markdownEditor({ onValueChange });
+  await screen.getByRole("textbox", { name: "Notes" }).click();
+  await userEvent.keyboard("a{Enter}{Enter}{Enter}b{Enter}{Enter}");
+  await vi.waitFor(() =>
+    expect(onValueChange.mock.calls.at(-1)?.[0]).toBe("a\n\nb"),
+  );
+  const reload = vi.fn();
+  const again = await render(
+    <TextEdit
+      format="markdown"
+      defaultValue={"a\n\nb"}
+      onValueChange={reload}
+      aria-label="Again"
+    />,
+  );
+  const box = again.getByRole("textbox", { name: "Again" });
+  await userEvent.click(box.element().querySelectorAll("p")[1]!);
+  await userEvent.keyboard(`${END}x{Backspace}`);
+  await vi.waitFor(() => expect(reload.mock.calls.at(-1)?.[0]).toBe("a\n\nb"));
+});
+
+test("Markdown: blank lines inside a code block are kept", async () => {
+  const onValueChange = vi.fn();
+  const md = "```\none\n\n\ntwo\n```";
+  const screen = await markdownEditor({ defaultValue: md, onValueChange });
+  const box = screen.getByRole("textbox", { name: "Notes" });
+  const code = box.element().querySelectorAll("code");
+  await userEvent.click(code[code.length - 1]!);
+  await userEvent.keyboard(`${END}x{Backspace}`);
+  await vi.waitFor(() => expect(onValueChange.mock.calls.at(-1)?.[0]).toBe(md));
 });
