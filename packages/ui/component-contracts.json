@@ -10750,6 +10750,10 @@
             {
               "name": "data-slot",
               "values": ["field-description"]
+            },
+            {
+              "name": "data-variant",
+              "values": []
             }
           ],
           "cssVariables": []

@@ -1669,7 +1669,7 @@
         "whenToUse": "Wrap any form control to give it a label, description and error message: inside a Field the control gets its label, aria-describedby ids and aria-invalid from Base UI Field with no ids to wire.",
         "whenNotToUse": "A bare control with its own label already wired — Field is for the label+message+a11y scaffold.",
         "version": "0.23.13",
-        "integrity": "sha256-ITdcx2NhNWz3M8yBfHYSHwUOfuZJwIp7oc0NNjQNxHs="
+        "integrity": "sha256-EZ5NITaHN8QCC1NKcujmEzktx8Yomkolb6eifrWZAe0="
       }
     },
     {
@@ -19547,7 +19547,7 @@
         "whenToUse": "Sign-in page for an app — copy it once, then wire signIn to your auth provider.",
         "whenNotToUse": "Sign-up or password reset — reuse this card frame with their own fields (see the block's docs page); a tracked component to import in many places — install the components it composes instead.",
         "version": "0.23.13",
-        "integrity": "sha256-FjihWWVs+SbnX1dbNBGsPOj0gA4+AkEMdeVKteb5ujY="
+        "integrity": "sha256-7neboTOUa40gU8uhq+cEIE7btba/myFxERf7EwvWkeE="
       }
     },
     {

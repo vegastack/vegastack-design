@@ -28,7 +28,7 @@
 #               reflows the file, and `registry-stamp.mjs` writes the provenance header the
 #               three-copy model needs (DOC-1); those hunks carry no decision of their own.
 diff --git a/field.tsx b/field.tsx
-index 8bb6199..c535a93 100644
+index 8bb6199..4b94f27 100644
 --- a/field.tsx
 +++ b/field.tsx
 @@ -1,11 +1,39 @@
@@ -165,7 +165,7 @@ index 8bb6199..c535a93 100644
  }
  
  function FieldContent({ className, ...props }: React.ComponentProps<"div">) {
-@@ -91,56 +130,58 @@ function FieldContent({ className, ...props }: React.ComponentProps<"div">) {
+@@ -91,56 +130,67 @@ function FieldContent({ className, ...props }: React.ComponentProps<"div">) {
        data-slot="field-content"
        className={cn(
          "group/field-content flex flex-1 flex-col gap-0.5 leading-snug",
@@ -216,15 +216,25 @@ index 8bb6199..c535a93 100644
 +  );
  }
  
- function FieldDescription({ className, ...props }: React.ComponentProps<"p">) {
+-function FieldDescription({ className, ...props }: React.ComponentProps<"p">) {
++function FieldDescription({
++  className,
++  variant = "default",
++  ...props
++}: React.ComponentProps<"p"> & {
++  /** `footnote`: a centred 12px muted line with a small gap above, for form and auth-block footers. */
++  variant?: "default" | "footnote";
++}) {
 +  const Root = useContext(FieldScope) ? FieldPrimitive.Description : "p";
    return (
 -    <p
 +    <Root
        data-slot="field-description"
++      data-variant={variant}
        className={cn(
          "text-start text-sm leading-normal font-normal text-muted-foreground group-has-data-horizontal/field:text-balance [[data-variant=legend]+&]:-mt-1.5",
          "last:mt-0 nth-last-2:-mt-1",
++        variant === "footnote" && "mt-2 text-center text-xs last:mt-2",
          "[&>a]:underline [&>a]:underline-offset-4 [&>a:hover]:text-primary",
 -        className
 +        className,
@@ -236,7 +246,7 @@ index 8bb6199..c535a93 100644
  }
  
  function FieldSeparator({
-@@ -148,7 +189,7 @@ function FieldSeparator({
+@@ -148,7 +198,7 @@ function FieldSeparator({
    className,
    ...props
  }: React.ComponentProps<"div"> & {
@@ -245,7 +255,7 @@ index 8bb6199..c535a93 100644
  }) {
    return (
      <div
-@@ -156,7 +197,7 @@ function FieldSeparator({
+@@ -156,7 +206,7 @@ function FieldSeparator({
        data-content={!!children}
        className={cn(
          "relative -my-2 h-5 text-sm group-data-[variant=outline]/field-group:-mb-2",
@@ -254,7 +264,7 @@ index 8bb6199..c535a93 100644
        )}
        {...props}
      >
-@@ -170,7 +211,7 @@ function FieldSeparator({
+@@ -170,7 +220,7 @@ function FieldSeparator({
          </span>
        )}
      </div>
@@ -263,7 +273,7 @@ index 8bb6199..c535a93 100644
  }
  
  function FieldError({
-@@ -179,49 +220,54 @@ function FieldError({
+@@ -179,49 +229,54 @@ function FieldError({
    errors,
    ...props
  }: React.ComponentProps<"div"> & {
@@ -332,7 +342,7 @@ index 8bb6199..c535a93 100644
  }
  
  export {
-@@ -235,4 +281,5 @@ export {
+@@ -235,4 +290,5 @@ export {
    FieldSet,
    FieldContent,
    FieldTitle,
