@@ -38,7 +38,11 @@ test("the triggers carry the count, rows are links, and mark-all announces once"
   await row.click();
   const sheet = screen.getByRole("dialog", { name: "Inbox" });
   await expect
-    .element(sheet.getByRole("link", { name: /Raj Patel assigned you a task/ }))
+    .element(
+      sheet.getByRole("link", {
+        name: /Raj Patel assigned you Confirm the support hiring budget/,
+      }),
+    )
     .toHaveAttribute("href", "/tasks/t41");
   await expectNoA11yViolations(document.body, ["color-contrast"]);
 
@@ -56,7 +60,7 @@ test("the triggers carry the count, rows are links, and mark-all announces once"
     sheet.getByRole("button", { name: "Unread" }).element() as HTMLElement
   ).click();
   await expect
-    .element(sheet.getByRole("heading", { name: "You’re all caught up" }))
+    .element(sheet.getByText("You’re all caught up").first())
     .toBeInTheDocument();
 
   await userEvent.keyboard("{Escape}");
@@ -72,6 +76,7 @@ test("the error and loading states render and are axe-clean", async () => {
       error="Check your connection, then try again."
       onRetry={() => {}}
       onMarkAllRead={() => {}}
+      onToggleRead={() => {}}
     />,
   );
   await expect
@@ -87,10 +92,9 @@ test("the error and loading states render and are axe-clean", async () => {
       notifications={[]}
       loading
       onMarkAllRead={() => {}}
+      onToggleRead={() => {}}
     />,
   );
-  await expect
-    .element(loading.getByText("Loading notifications…"))
-    .toBeInTheDocument();
+  await expect.element(loading.getByText("Loading inbox")).toBeInTheDocument();
   await expectNoA11yViolations(document.body, ["color-contrast"]);
 });

@@ -1,4 +1,4 @@
-// @vegastack notifications-01@0.23.7 sha256-ESgRrJ3AjkbXKqdm3bf+ygdKcb9uzkULeIRjM4wRfdc=
+// @vegastack notifications-01@0.23.7 sha256-WM/eEae+8ztumq3f7aWYrGglBc4q8Ooxx6qpL2227Ek=
 
 "use client";
 
@@ -36,7 +36,8 @@ const unreadLabel = (n: number) => `${n} unread`;
  * (phone), both carrying the unread count in their names, opening one `InboxSheet`.
  *
  * Replace the sample notifications with your API, and "Mark all read" and "Load older" with its
- * calls. In an app with more pages, the triggers live in your shell layout.
+ * calls. The app this mirrors docks the sheet beside the sidebar (`side="left"`, non-modal on
+ * desktop, full screen on a phone). In an app with more pages, the triggers live in your shell layout.
  *
  * @example
  * // app/inbox-demo/page.tsx, straight after `shadcn add @vegastack/notifications-01`
@@ -48,7 +49,6 @@ export default function Page() {
   const [olderLoaded, setOlderLoaded] = React.useState(false);
   const [loadingOlder, setLoadingOlder] = React.useState(false);
   const unread = items.filter((n) => n.unread).length;
-  const todayStart = new Date(SAMPLE_NOW).setUTCHours(0, 0, 0, 0);
 
   function loadOlder() {
     setLoadingOlder(true);
@@ -119,15 +119,20 @@ export default function Page() {
         open={open}
         onOpenChange={setOpen}
         notifications={items}
-        todayStart={todayStart}
+        now={SAMPLE_NOW}
         onMarkAllRead={() =>
           setItems((current) => current.map((n) => ({ ...n, unread: false })))
         }
-        loadMore={
-          olderLoaded
-            ? undefined
-            : { hasMore: true, loading: loadingOlder, onLoadMore: loadOlder }
+        onToggleRead={(id) =>
+          setItems((current) =>
+            current.map((n) => (n.id === id ? { ...n, unread: !n.unread } : n)),
+          )
         }
+        loadMore={{
+          hasMore: !olderLoaded,
+          loading: loadingOlder,
+          onLoadMore: loadOlder,
+        }}
       />
     </AppShell>
   );

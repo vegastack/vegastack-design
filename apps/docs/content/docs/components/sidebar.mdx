@@ -230,7 +230,12 @@ search field.
 
 ### SidebarFooter
 
-`SidebarFooter` is the sticky bottom of the panel — the account row, settings, a sign-out.
+`SidebarFooter` is the sticky bottom of the panel — the account row, settings, a sign-out. The
+standard account menu (the one the Regent app ships) is in
+[app-shell-01](/docs/blocks/app-shell-01): the avatar row opens a menu with Profile and Settings, a
+**Theme** submenu (Light · Dark · System), Keyboard shortcuts and Sign out, every item with an icon.
+Leading icons in menu buttons are muted until their row is hovered, focused or active — the
+component does this, so add no colour classes (see [Icons](/docs/foundations/icons)).
 
 ```tsx
 <Sidebar>

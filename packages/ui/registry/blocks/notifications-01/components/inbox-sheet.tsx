@@ -1,41 +1,29 @@
-// @vegastack notifications-01@0.23.7 sha256-ESgRrJ3AjkbXKqdm3bf+ygdKcb9uzkULeIRjM4wRfdc=
+// @vegastack notifications-01@0.23.7 sha256-WM/eEae+8ztumq3f7aWYrGglBc4q8Ooxx6qpL2227Ek=
 
 "use client";
 
 import * as React from "react";
-import { BellOff, TriangleAlert } from "lucide-react";
+import { CheckSquare, Package, TriangleAlert, UsersRound } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
+import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import {
-  Empty,
-  EmptyContent,
-  EmptyDescription,
-  EmptyHeader,
-  EmptyMedia,
-  EmptyTitle,
-} from "@/components/ui/empty";
-import {
-  Item,
-  ItemContent,
-  ItemDescription,
-  ItemGroup,
-  ItemGroupLabel,
-  ItemTitle,
-} from "@/components/ui/item";
+  Inbox,
+  InboxEmphasis,
+  InboxEmpty,
+  InboxError,
+  InboxFilters,
+  InboxGroup,
+  InboxItem,
+  InboxMarkAllRead,
+  InboxMenuAction,
+  InboxSkeleton,
+  type InboxFilter,
+  type InboxItemAction,
+} from "@/components/ui/inbox";
 import { LoadMore, type LoadMoreState } from "@/components/ui/load-more";
-import { NotificationDot } from "@/components/ui/notification-bell";
-import { RelativeTime } from "@/components/ui/relative-time";
-import {
-  Sheet,
-  SheetAction,
-  SheetBody,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-} from "@/components/ui/sheet";
-import { Skeleton } from "@/components/ui/skeleton";
-import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 import { useAnnouncer } from "@/components/ui/use-announcer";
+import { groupByDay } from "@/lib/date-time";
 
 import type { InboxNotification } from "./sample-notifications";
 
@@ -53,7 +41,7 @@ export interface InboxSheetProps {
    */
   loading?: boolean;
   /**
-   * The first load failed: why, shown under "Couldn’t load notifications" with "Try again".
+   * The first load failed: why, shown under "Couldn’t load your inbox" with "Try again".
    * @default undefined
    */
   error?: React.ReactNode;
@@ -64,53 +52,94 @@ export interface InboxSheetProps {
   onRetry?: () => void;
   /** Mark every notification read. */
   onMarkAllRead: () => void;
+  /** Flip one notification between read and unread. */
+  onToggleRead: (id: string) => void;
   /**
-   * Paging for older notifications; omit when there are none.
+   * Paging for older notifications; `hasMore: false` shows "You’re all caught up".
    * @default undefined
    */
   loadMore?: LoadMoreState;
   /**
-   * The start of "Today", in ms since the epoch.
-   * @default the start of the current day
+   * The moment "Today" is measured from, in ms since the epoch.
+   * @default now
    */
-  todayStart?: number;
+  now?: number;
 }
 
-function Row({ notification }: { notification: InboxNotification }) {
+const ICONS = {
+  task: <CheckSquare />,
+  meeting: <UsersRound />,
+  failed: <TriangleAlert />,
+  export: <Package />,
+};
+
+function Row({
+  notification: n,
+  onToggleRead,
+}: {
+  notification: InboxNotification;
+  onToggleRead: () => void;
+}) {
+  const [decision, setDecision] =
+    React.useState<InboxItemAction["state"]>("idle");
+  const failed = n.kind === "failed";
+  const record = <InboxEmphasis>{n.record}</InboxEmphasis>;
+  const title = n.actor ? (
+    <>
+      <InboxEmphasis>{n.actor}</InboxEmphasis> {n.verb} {record}
+    </>
+  ) : (
+    <>
+      {n.verb} {record}
+    </>
+  );
   return (
-    <Item size="sm" render={<a href={notification.href} />}>
-      <ItemContent>
-        <ItemTitle
-          className={notification.unread ? "font-medium" : "font-normal"}
-        >
-          {notification.unread ? (
-            <>
-              <NotificationDot />
-              <span className="sr-only">Unread: </span>
-            </>
-          ) : null}
-          {notification.title}
-        </ItemTitle>
-        <ItemDescription className="line-clamp-2">
-          {notification.body}
-        </ItemDescription>
-      </ItemContent>
-      <RelativeTime
-        date={notification.at}
-        className="shrink-0 self-start text-xs text-muted-foreground"
-      />
-    </Item>
+    <InboxItem
+      unread={n.unread}
+      avatar={n.actor && !failed ? { name: n.actor } : undefined}
+      icon={ICONS[n.kind]}
+      destructive={failed}
+      title={title}
+      meta={n.meta}
+      time={n.at}
+      count={n.count}
+      href={n.href}
+      onToggleRead={onToggleRead}
+      menu={
+        <DropdownMenuItem>Turn off notifications like this</DropdownMenuItem>
+      }
+      actions={
+        n.decision
+          ? [
+              {
+                label: "Approve",
+                variant: "primary",
+                state: decision,
+                doneLabel: "Approved",
+                onClick: () => {
+                  setDecision("loading");
+                  window.setTimeout(() => setDecision("done"), 600);
+                },
+              },
+              { label: "Reject", onClick: () => {} },
+            ]
+          : undefined
+      }
+    />
   );
 }
 
 /**
- * The Inbox: a right-side `Sheet` with "Mark all read" in its header, an All | Unread switch, and
- * the notifications grouped under "Today" and "Earlier" as rows that are each one link. An unread
- * row carries the dot, a heavier title and an sr-only "Unread". Loading, a failed load and both
- * empty cases have their own states, and "Marked all read" is announced once.
+ * The Inbox: a side `Sheet` holding the `Inbox` panel — "Mark all read" and a ⋯ menu in the
+ * header, All | Unread chips with the unread count, rows grouped by day (Today, Yesterday, This
+ * week, Last week, Earlier), each row one link with an avatar or icon, an unread tint, a rich
+ * title, the time over its read toggle and ⋯, and optional action chips. "Load older" pages and
+ * ends on "You’re all caught up". Loading, a failed load and both empty cases have their own
+ * states, and "Marked all read" is announced once.
  *
  * @example
- * <InboxSheet open={open} onOpenChange={setOpen} notifications={items} onMarkAllRead={markAll} />
+ * <InboxSheet open={open} onOpenChange={setOpen} notifications={items}
+ *   onMarkAllRead={markAll} onToggleRead={toggle} />
  */
 export function InboxSheet({
   open,
@@ -120,136 +149,103 @@ export function InboxSheet({
   error,
   onRetry,
   onMarkAllRead,
+  onToggleRead,
   loadMore,
-  todayStart,
+  now,
 }: InboxSheetProps) {
-  const [show, setShow] = React.useState<"all" | "unread">("all");
+  const [view, setView] = React.useState<InboxFilter>("all");
   const { announce, Announcer } = useAnnouncer();
-  const dayStart = React.useMemo(() => {
-    if (todayStart !== undefined) return todayStart;
-    const d = new Date();
-    d.setHours(0, 0, 0, 0);
-    return d.getTime();
-  }, [todayStart]);
 
-  const unreadCount = notifications.filter((n) => n.unread).length;
+  const unread = notifications.filter((n) => n.unread).length;
   const visible =
-    show === "unread" ? notifications.filter((n) => n.unread) : notifications;
-  const groups = [
-    {
-      label: "Today",
-      items: visible.filter((n) => Date.parse(n.at) >= dayStart),
-    },
-    {
-      label: "Earlier",
-      items: visible.filter((n) => Date.parse(n.at) < dayStart),
-    },
-  ];
-
-  const ready = !loading && error == null;
+    view === "unread" ? notifications.filter((n) => n.unread) : notifications;
 
   let body: React.ReactNode;
   if (loading) {
-    body = (
-      <div aria-busy="true" className="flex flex-col gap-3 py-2">
-        <span className="sr-only">Loading notifications…</span>
-        {Array.from({ length: 4 }, (_, i) => (
-          <Skeleton key={i} className="h-12 rounded-md" />
-        ))}
-      </div>
-    );
+    body = <InboxSkeleton label="Loading inbox" />;
   } else if (error != null) {
     body = (
-      <Empty role="alert">
-        <EmptyHeader>
-          <EmptyMedia variant="icon">
-            <TriangleAlert aria-hidden className="text-destructive-text" />
-          </EmptyMedia>
-          <EmptyTitle render={<h3 />}>Couldn’t load notifications</EmptyTitle>
-          <EmptyDescription>{error}</EmptyDescription>
-        </EmptyHeader>
-        <EmptyContent>
-          <Button variant="outline" onClick={onRetry}>
-            Try again
-          </Button>
-        </EmptyContent>
-      </Empty>
+      <InboxError
+        title="Couldn’t load your inbox"
+        description={error}
+        onRetry={() => onRetry?.()}
+      />
     );
   } else if (visible.length === 0) {
-    body = (
-      <Empty>
-        <EmptyHeader>
-          <EmptyMedia variant="icon">
-            <BellOff aria-hidden />
-          </EmptyMedia>
-          <EmptyTitle render={<h3 />}>
-            {show === "unread" ? "You’re all caught up" : "No notifications"}
-          </EmptyTitle>
-          <EmptyDescription>
-            {show === "unread"
-              ? "New assignments and meeting updates show up here."
-              : "Assignments and meeting updates show up here."}
-          </EmptyDescription>
-        </EmptyHeader>
-      </Empty>
-    );
+    body =
+      view === "unread" ? (
+        <InboxEmpty title="You’re all caught up" />
+      ) : (
+        <InboxEmpty
+          title="No notifications"
+          description="Assignments and meeting updates show up here."
+        />
+      );
   } else {
+    const days = groupByDay(visible, (n) => n.at, { now });
     body = (
-      <div className="flex flex-col gap-4 pb-4">
-        {groups.map((group) =>
-          group.items.length ? (
-            <div key={group.label} className="flex flex-col gap-1">
-              <ItemGroupLabel>{group.label}</ItemGroupLabel>
-              <ItemGroup className="gap-1">
-                {group.items.map((n) => (
-                  <Row key={n.id} notification={n} />
-                ))}
-              </ItemGroup>
-            </div>
-          ) : null,
-        )}
-        {loadMore && show === "all" ? (
-          <LoadMore label="Load older" {...loadMore} />
+      <>
+        {days.map(({ key, label, items }) => (
+          <InboxGroup key={key} label={label}>
+            {items.map((n) => (
+              <Row
+                key={n.id}
+                notification={n}
+                onToggleRead={() => onToggleRead(n.id)}
+              />
+            ))}
+          </InboxGroup>
+        ))}
+        {loadMore ? (
+          <div className="px-4 py-3">
+            <LoadMore
+              label="Load older"
+              endLabel="You’re all caught up"
+              retryLabel="Try again"
+              {...loadMore}
+            />
+          </div>
         ) : null}
-      </div>
+      </>
     );
   }
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent side="right" size="default" closeLabel="Close inbox">
-        <SheetHeader>
-          <SheetTitle>Inbox</SheetTitle>
-          <SheetAction>
-            <Button
-              variant="ghost"
-              size="sm"
-              disabled={unreadCount === 0 || !ready}
-              onClick={() => {
-                onMarkAllRead();
-                announce("Marked all read");
-              }}
-            >
-              Mark all read
-            </Button>
-          </SheetAction>
-        </SheetHeader>
-        <div className="px-4">
-          <ToggleGroup
-            variant="outline"
-            size="sm"
-            aria-label="Show"
-            deselectable={false}
-            value={[show]}
-            onValueChange={(value) => {
-              if (value[0]) setShow(value[0] as "all" | "unread");
-            }}
-          >
-            <ToggleGroupItem value="all">All</ToggleGroupItem>
-            <ToggleGroupItem value="unread">Unread</ToggleGroupItem>
-          </ToggleGroup>
-        </div>
-        <SheetBody>{body}</SheetBody>
+      <SheetContent
+        side="right"
+        size="default"
+        showCloseButton={false}
+        className="gap-0 p-0"
+      >
+        <Inbox
+          title={<SheetTitle render={<span />}>Inbox</SheetTitle>}
+          onClose={() => onOpenChange(false)}
+          actions={
+            <>
+              {unread > 0 && !loading && error == null ? (
+                <InboxMarkAllRead
+                  onClick={() => {
+                    onMarkAllRead();
+                    announce("Marked all read");
+                  }}
+                />
+              ) : null}
+              <InboxMenuAction>
+                <DropdownMenuItem>Notification settings</DropdownMenuItem>
+              </InboxMenuAction>
+            </>
+          }
+          filters={
+            <InboxFilters
+              value={view}
+              onValueChange={setView}
+              unreadCount={unread}
+            />
+          }
+        >
+          {body}
+        </Inbox>
         <Announcer />
       </SheetContent>
     </Sheet>
