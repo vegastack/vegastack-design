@@ -208,7 +208,7 @@
         "whenToUse": "The root layout for a dashboard/console app — sidebar + header + main content, shared across every downstream VegaStack app; AppShellPage gives every page one container — gutters, rhythm and a narrow/default/full measure.",
         "whenNotToUse": "A marketing/docs page with no persistent nav rail, or an app that already owns an equivalent shell — compose Sidebar/PageHeader/Breadcrumb directly instead.",
         "version": "0.23.0",
-        "integrity": "sha256-bpw5RbCKrdJ6ROQtHezPkf+ZgSnUMY0lzxvTyk1Y+Cs="
+        "integrity": "sha256-e4y+hd2IikXM5TkU6lvouCuJ+M0eB4h+uAFQeId9NKY="
       }
     },
     {
@@ -15856,7 +15856,7 @@
         "whenToUse": "Secondary content beside the page — filters, details, a settings panel, a long record form — that should not take the centre of the screen. Side sheets take size sm/default/lg/xl (Dialog's width scale); put long content in SheetBody so the footer stays on screen.",
         "whenNotToUse": "A decision (AlertDialog), a centred form (Dialog), or a touch-first panel with snap points (Drawer).",
         "version": "0.23.0",
-        "integrity": "sha256-Vy/UYsH+Hq9eFPTFa2LWDgzYg1MW9q6eNGE97U5/ems="
+        "integrity": "sha256-1N4xC0Tnd755NU5HiK28Q6TPKcRGyGmSzWi68qk9W9k="
       }
     },
     {
@@ -16133,7 +16133,7 @@
         "whenToUse": "Any bounded linear process — onboarding, wizards, checkout, import flows — where progress, a failed or skipped step, and a step being checked must all be communicated.",
         "whenNotToUse": "Free navigation between peer views (Tabs), or the reason a flow cannot advance — that belongs beside the control it blocks, not in the rail.",
         "version": "0.23.0",
-        "integrity": "sha256-jAjwk4T6U7M3xR/NAeT5Ck2fJbFsg+vQGdtNTwh95Dw="
+        "integrity": "sha256-clIrlCr0yDfuj3Q2JdOjLfwYzQochkf/Zwq+L6DctV8="
       }
     },
     {
@@ -16168,7 +16168,7 @@
         "whenToUse": "A process a person drives across several screens — signup, checkout, an import wizard, a multi-section record editor — where steps can branch, an advance can be refused, and a committed step must not be walked back into.",
         "whenNotToUse": "Progress the system drives and a person only reads (Stepper alone), free navigation between peer views (Tabs), or one question at a time (Questionnaire).",
         "version": "0.23.0",
-        "integrity": "sha256-j5i2YoZLuRL26RsE+aS6D9SgE9LSqxPIha+bwIZs0R4="
+        "integrity": "sha256-8ydHnZTj2NCkNRoTl/Cn1bWrHGZdox/iNt4zmgcydso="
       }
     },
     {
