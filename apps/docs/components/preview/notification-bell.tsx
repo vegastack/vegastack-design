@@ -20,10 +20,11 @@ export function notificationBell(): ReactNode {
 export function notificationBellCounts(): ReactNode {
   return (
     <Wrapper>
-      <NotificationBell count={0} />
-      <NotificationBell count={5} />
+      <NotificationBell count={3} />
       <NotificationBell count={42} />
-      <NotificationBell count={250} />
+      <NotificationBell count={99} />
+      {/* 150 caps to "99+"; the accessible name reads "Notifications, 99+ unread". */}
+      <NotificationBell count={150} />
       <NotificationBell count={8} dot />
     </Wrapper>
   );
@@ -76,7 +77,7 @@ const THREADS = [
   { title: "Invoice 1042 failed to send", unread: true, attention: true },
 ];
 
-// The shared unread dot on list rows: primary for "unread", destructive for
+// The shared unread dot on list rows: info blue for "unread", destructive for
 // something that needs attention. The dot is decorative, so each row says
 // "unread" in its own text for screen readers.
 export function notificationBellDot(): ReactNode {

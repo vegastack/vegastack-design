@@ -1,4 +1,4 @@
-// @vegastack notification-bell@0.23.18 sha256-ypmQsNvcz8n0eQebGok/eJHUwqDnwjm7YKnnck+6G8c=
+// @vegastack notification-bell@0.23.18 sha256-OeR1v6DHQMkJ0Gpd6zwEVCEXdQ/zPvP6YLA3FYVx3zw=
 
 "use client";
 
@@ -78,7 +78,7 @@ export interface NotificationDotProps extends Omit<
   "children"
 > {
   /**
-   * The dot's fill. `default` is the primary ink, for "unread" on a row or a
+   * The dot's fill. `default` is the info blue, for "unread" on a row or a
    * nav item; `destructive` is for something that needs attention.
    * @default "default"
    */
@@ -115,7 +115,7 @@ export function NotificationDot({
       aria-hidden="true"
       className={cn(
         "inline-block size-2 shrink-0 rounded-full",
-        intent === "destructive" ? "bg-destructive" : "bg-primary",
+        intent === "destructive" ? "bg-destructive" : "bg-info",
         className,
       )}
       {...props}
@@ -207,30 +207,31 @@ export function NotificationBell({
         dot ? (
           // Dot mode is the shared `NotificationDot` — solid, never a tint, because it carries no
           // text (the 3:1 non-text floor applies, and a tinted 8px dot is invisible). The count
-          // pill below is a tint because it carries a number (A11Y-13). The dot's default intent is
-          // the primary ink (DS-56); an unread marker is not an error.
+          // pill below is solid too. The dot's default intent is
+          // the info blue (the Inbox unread blue); an unread marker is not an error.
           <NotificationDot
             className={cn(
-              "pointer-events-none absolute -top-0.5 -end-0.5",
+              "pointer-events-none absolute top-1 end-1 ring-2 ring-background",
               badgePop.className,
             )}
             onAnimationEnd={badgePop.onAnimationEnd}
           />
         ) : (
-          // Count mode COMPOSES <Badge> (register P2-06) — one badge implementation. It reads as
-          // the family's tint rather than the dot's solid fill; see the note on the dot above.
+          // Count mode COMPOSES <Badge> (register P2-06) — one badge implementation, overridden to
+          // a SOLID destructive fill: an unread count must read at a glance on any chrome, and the
+          // tint washed out at 16px. `text-destructive-foreground` keeps the number legible in
+          // light and dark.
           // No `key` here: replaying by REMOUNT was the other half of B7-03, and a remount is
           // exactly what a class toggle must not depend on.
-          // Anchored by its INLINE-START edge, so single digits stay aligned while wider counts
-          // grow outward past the bell in both LTR and RTL. `translate` is a separate property
-          // from the `scale` that
-          // motion-pop-in animates, so the pop never clobbers the anchor.
+          // Anchored at the top inline-end corner INSIDE the button box, so it never spills out in
+          // hover, pressed or focus states; wider counts grow inward over the icon, separated from
+          // it by a background-coloured ring.
           <Badge
             data-slot="notification-bell-badge"
             aria-hidden
             variant="destructive"
             className={cn(
-              "pointer-events-none absolute -top-1 start-full h-4 min-w-4 -translate-x-3 px-1 py-0 tabular-nums rtl:translate-x-3",
+              "pointer-events-none absolute top-0 end-0 h-4 min-w-4 bg-destructive px-1 py-0 text-destructive-foreground tabular-nums ring-2 ring-background dark:bg-destructive",
               badgePop.className,
             )}
             onAnimationEnd={badgePop.onAnimationEnd}
