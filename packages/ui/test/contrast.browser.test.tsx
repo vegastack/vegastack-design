@@ -1241,6 +1241,18 @@ for (const theme of ["light", "dark"] as const) {
       />,
     );
     await settledOverlay('[data-slot="sheet-content"]');
+    // A focus-opened tooltip fades in over the sheet; audit it at rest, not mid-fade.
+    await expect
+      .poll(
+        () =>
+          [
+            ...document.querySelectorAll<HTMLElement>(
+              '[data-slot="tooltip-content"]',
+            ),
+          ].every((t) => Number(getComputedStyle(t).opacity) >= 0.99),
+        { timeout: 3000 },
+      )
+      .toBe(true);
     const sheet = await contrastViolations(document.body);
     await inbox.unmount();
 

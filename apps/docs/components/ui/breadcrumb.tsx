@@ -1,4 +1,4 @@
-// @vegastack breadcrumb@0.23.5 sha256-y+iXFIWg8EPYlPyVA13geOsFxj1eL0kFtu+LbY0d6iA=
+// @vegastack breadcrumb@0.23.5 sha256-L0vUJ2IMhm6BW/I08i7GFP114YewzMCMs5xQCz/1atY=
 
 "use client";
 
@@ -58,7 +58,7 @@ function BreadcrumbLink({
           // block axis and NOT on the inline axis, so two adjacent crumbs never fight for a
           // pixel. Nothing moves and nothing paints.
           "relative after:absolute after:inset-x-0 after:-inset-y-1 after:content-['']",
-          "transition-colors hover:text-foreground",
+          "transition-colors hover:text-foreground [&_svg:not([class*='text-'])]:text-muted-foreground hover:**:[svg]:text-foreground",
           className,
         ),
       },
