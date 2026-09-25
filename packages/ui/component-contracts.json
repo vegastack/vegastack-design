@@ -15626,7 +15626,9 @@
                 "page-header-breadcrumb",
                 "page-header-description",
                 "page-header-meta",
-                "page-header-title"
+                "page-header-tabs",
+                "page-header-title",
+                "page-header-view"
               ]
             },
             {
@@ -30201,7 +30203,8 @@
         "@vegastack/filter-bar",
         "@vegastack/page-header",
         "@vegastack/relative-time",
-        "@vegastack/toggle-group"
+        "@vegastack/tabs",
+        "@vegastack/view-toggle"
       ],
       "npmDependencies": [
         "lucide-react@^1.47.0",

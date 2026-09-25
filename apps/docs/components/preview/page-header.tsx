@@ -21,6 +21,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ViewToggle } from "@/components/ui/view-toggle";
 import { Wrapper } from "./wrapper";
 
 export function pageHeader(): ReactNode {
@@ -215,6 +217,35 @@ export function pageHeaderFavoriteControlled(): ReactNode {
           favorite={{ defaultActive: true, disabled: true }}
         />
       </div>
+    </Wrapper>
+  );
+}
+
+export function pageHeaderTabs(): ReactNode {
+  const [scope, setScope] = useState("mine");
+  const [view, setView] = useState<"list" | "board">("list");
+  return (
+    <Wrapper className="block">
+      <PageHeader
+        title="Tasks"
+        actions={<Button>New task</Button>}
+        tabs={
+          <Tabs value={scope} onValueChange={(next) => setScope(String(next))}>
+            <TabsList aria-label="Tasks to show">
+              <TabsTrigger value="mine">My tasks</TabsTrigger>
+              <TabsTrigger value="created">Created by me</TabsTrigger>
+              <TabsTrigger value="team">Team</TabsTrigger>
+            </TabsList>
+          </Tabs>
+        }
+        view={
+          <ViewToggle
+            value={view}
+            onValueChange={setView}
+            views={["list", "board"]}
+          />
+        }
+      />
     </Wrapper>
   );
 }
