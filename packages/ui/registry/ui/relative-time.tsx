@@ -1,4 +1,4 @@
-// @vegastack relative-time@0.23.4 sha256-bc7GP/JQB1Q9OBZOwYrRx71j0MXd9EaaWAWjrXKtqx0=
+// @vegastack relative-time@0.23.2 sha256-NBnbhUceiByYRFss7xfeVW9c20z5dXpN6Q7CfMIND5E=
 
 "use client";
 
@@ -11,6 +11,61 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { useTruncationFocusable } from "@/components/ui/truncated-text";
+import {
+  TIME_ZONE_COOKIE_SCRIPT,
+  formatDate,
+  formatDateTime,
+  formatDueLabel,
+  formatDuration,
+  formatRelative,
+  formatTimeOfDay,
+  formatTooltip,
+  type DueTone,
+  type FormatDateOptions,
+  type FormatDateTimeOptions,
+  type FormatRelativeOptions,
+} from "@/lib/date-time";
+
+/** The viewer's IANA zone, provided once at the root. */
+const TimeZoneContext = React.createContext<string | undefined>(undefined);
+
+/**
+ * `TimeZoneProvider` — hand every date component (and `useTimeZone`) the viewer's zone. On the
+ * server, read it with `getTimeZone(cookies().get("tz")?.value, config.orgTimeZone)`.
+ */
+export function TimeZoneProvider({
+  timeZone,
+  children,
+}: {
+  timeZone: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <TimeZoneContext.Provider value={timeZone}>
+      {children}
+    </TimeZoneContext.Provider>
+  );
+}
+
+/** The zone from the nearest `TimeZoneProvider`, or `undefined` (the runtime's zone). */
+export function useTimeZone(): string | undefined {
+  return React.useContext(TimeZoneContext);
+}
+
+/**
+ * `TimeZoneScript` — a tiny inline script that writes the browser's zone to the `tz` cookie (and
+ * rewrites it when the tab becomes visible again), so server renders use the viewer's zone. Render
+ * once in the root layout's `<head>` or `<body>`.
+ */
+export function TimeZoneScript({ nonce }: { nonce?: string }) {
+  return (
+    <script
+      nonce={nonce}
+      suppressHydrationWarning
+      dangerouslySetInnerHTML={{ __html: TIME_ZONE_COOKIE_SCRIPT }}
+    />
+  );
+}
 
 /** Parse a `Date | string | number` input into a `Date`. */
 function toDate(date: Date | string | number): Date {
@@ -275,6 +330,13 @@ export interface RelativeTimeProps extends Omit<
    * @default undefined
    */
   focusable?: boolean;
+  /**
+   * The compact house format from `formatRelative` — `minimal` ("2m", "3h", "in 2d"), `suffix`
+   * ("2m ago") or `long` ("2 minutes ago"). Set it for new code; when unset, `mode` and
+   * `unitStyle` keep their `Intl.RelativeTimeFormat` output.
+   * @default undefined
+   */
+  format?: FormatRelativeOptions["style"];
 }
 
 /**
@@ -317,7 +379,8 @@ export function RelativeTime({
   title = true,
   tooltipDelay = 0,
   focusable,
-  timeZone,
+  timeZone: timeZoneProp,
+  format,
   formatOptions = DEFAULT_DAY_FORMAT,
   capitalize = false,
   withTime = false,
@@ -326,6 +389,8 @@ export function RelativeTime({
   ...props
 }: RelativeTimeProps) {
   const isFocusable = useTruncationFocusable(focusable);
+  const contextZone = useTimeZone();
+  const timeZone = timeZoneProp ?? contextZone;
   const target = React.useMemo(() => toDate(date), [date]);
   const targetMs = target.getTime();
   const localeKey = Array.isArray(locale) ? locale.join(",") : locale;
@@ -378,17 +443,19 @@ export function RelativeTime({
     ? ""
     : isPendingHydration
       ? formatAbsolute(target, locale, timeZone)
-      : mode === "day"
-        ? formatDay(
-            target,
-            nowDate,
-            locale,
-            rtf,
-            timeZone,
-            formatOptions,
-            withTime,
-          )
-        : formatAgo(targetMs - nowMs, rtf);
+      : format
+        ? formatRelative(target, { now: nowMs, style: format, timeZone })
+        : mode === "day"
+          ? formatDay(
+              target,
+              nowDate,
+              locale,
+              rtf,
+              timeZone,
+              formatOptions,
+              withTime,
+            )
+          : formatAgo(targetMs - nowMs, rtf);
   const display = capitalize ? capitalizeFirst(label, locale) : label;
 
   const isoString = isValid ? target.toISOString() : undefined;
@@ -425,13 +492,7 @@ export function RelativeTime({
   if (!hasTooltip) return timeEl;
 
   const tooltipLabel =
-    typeof title === "string"
-      ? title
-      : new Intl.DateTimeFormat(locale, {
-          dateStyle: "long",
-          timeStyle: "short",
-          timeZone,
-        }).format(target);
+    typeof title === "string" ? title : formatTooltip(target, { timeZone });
 
   return (
     <TooltipProvider delay={tooltipDelay}>
@@ -440,5 +501,204 @@ export function RelativeTime({
         <TooltipContent>{tooltipLabel}</TooltipContent>
       </Tooltip>
     </TooltipProvider>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// DateTime, Duration, DueLabel
+// ---------------------------------------------------------------------------
+
+/** Wrap a `<time>` in the absolute-time Tooltip when `title` asks for one. */
+function WithTooltip({
+  title,
+  label,
+  children,
+}: {
+  title: boolean | string;
+  label: string;
+  children: React.ReactElement;
+}) {
+  if (!title) return children;
+  return (
+    <TooltipProvider delay={0}>
+      <Tooltip>
+        <TooltipTrigger render={children} />
+        <TooltipContent>
+          {typeof title === "string" ? title : label}
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
+  );
+}
+
+/** Props accepted by `DateTime`. */
+export interface DateTimeProps extends Omit<
+  React.ComponentPropsWithRef<"time">,
+  "title" | "children"
+> {
+  /** The instant — `Date`, ISO string or epoch ms. */
+  date: Date | string | number;
+  /**
+   * - `date`: `formatDate` — "Today", "Mon", "Sep 25".
+   * - `datetime`: `formatDateTime` — "Sep 25 · 2:30 PM".
+   * - `time`: `formatTimeOfDay` — "2:30 PM".
+   * @default 'date'
+   */
+  variant?: "date" | "datetime" | "time";
+  /** Extra formatter options (`looseFuture`, `absolute`, `separator`, `withYear`…). */
+  options?: FormatDateOptions & FormatDateTimeOptions;
+  /** Tooltip with the absolute time ("Sep 25, 2026 · 2:30 PM IST"); a string sets your own. @default true */
+  title?: boolean | string;
+  /** IANA zone; defaults to the `TimeZoneProvider` zone. */
+  timeZone?: string;
+}
+
+/**
+ * `DateTime` — a calendar date or date-time in the house format, as a semantic `<time>`, with the
+ * absolute time in a hover Tooltip.
+ *
+ * @example
+ * <DateTime date={task.createdAt} />                   // "Sep 25"
+ * <DateTime date={log.at} variant="datetime" />        // "Today · 2:30 PM"
+ */
+export function DateTime({
+  date,
+  variant = "date",
+  options,
+  title = true,
+  timeZone: timeZoneProp,
+  className,
+  ...props
+}: DateTimeProps) {
+  const contextZone = useTimeZone();
+  const timeZone = timeZoneProp ?? contextZone;
+  const target = toDate(date);
+  const valid = !Number.isNaN(target.getTime());
+  const opts = { ...options, timeZone };
+  const label = !valid
+    ? ""
+    : variant === "time"
+      ? formatTimeOfDay(target, opts)
+      : variant === "datetime"
+        ? formatDateTime(target, opts)
+        : formatDate(target, opts);
+  const el = (
+    <time
+      data-slot="date-time"
+      data-variant={variant}
+      dateTime={valid ? target.toISOString() : undefined}
+      suppressHydrationWarning
+      tabIndex={title && valid ? 0 : undefined}
+      className={cn("tabular-nums", className)}
+      {...props}
+    >
+      {label}
+    </time>
+  );
+  return (
+    <WithTooltip
+      title={valid && title}
+      label={valid ? formatTooltip(target, { timeZone }) : ""}
+    >
+      {el}
+    </WithTooltip>
+  );
+}
+
+/** Props accepted by `Duration`. */
+export interface DurationProps extends Omit<
+  React.ComponentPropsWithRef<"time">,
+  "children"
+> {
+  /** The length, in `unit`s. */
+  value: number;
+  /** @default 'seconds' */
+  unit?: "seconds" | "milliseconds";
+  /** "1:15:04" instead of "1h 15m" — players and timers. */
+  clock?: boolean;
+}
+
+/**
+ * `Duration` — a length of time: "42s", "2m", "1h 15m", "2d 3h" (two units at most), or a clock
+ * ("1:15:04"). Renders `<time dateTime="PT…S">`.
+ */
+export function Duration({
+  value,
+  unit = "seconds",
+  clock = false,
+  className,
+  ...props
+}: DurationProps) {
+  const seconds = Math.round(unit === "milliseconds" ? value / 1000 : value);
+  return (
+    <time
+      data-slot="duration"
+      dateTime={Number.isFinite(seconds) ? `PT${seconds}S` : undefined}
+      className={cn("tabular-nums", className)}
+      {...props}
+    >
+      {formatDuration(value, { unit, clock })}
+    </time>
+  );
+}
+
+const DUE_TONE_CLASS: Record<DueTone, string> = {
+  overdue: "text-destructive-text",
+  soon: "text-warning-text",
+  normal: "",
+};
+
+/** Props accepted by `DueLabel`. */
+export interface DueLabelProps extends Omit<
+  React.ComponentPropsWithRef<"time">,
+  "title" | "children"
+> {
+  /** The due date. */
+  date: Date | string | number;
+  /** Tooltip with the absolute due time; a string sets your own. @default true */
+  title?: boolean | string;
+  /** Colour the label by tone (overdue red, soon amber). @default true */
+  toned?: boolean;
+  /** IANA zone; defaults to the `TimeZoneProvider` zone. */
+  timeZone?: string;
+}
+
+/**
+ * `DueLabel` — "Overdue 2d", "Due today", "Due tomorrow", "Due in 3d", "Due Sep 30", coloured by
+ * tone. The tone is on `data-tone` for your own styling; `formatDueLabel` returns it too.
+ */
+export function DueLabel({
+  date,
+  title = true,
+  toned = true,
+  timeZone: timeZoneProp,
+  className,
+  ...props
+}: DueLabelProps) {
+  const contextZone = useTimeZone();
+  const timeZone = timeZoneProp ?? contextZone;
+  const target = toDate(date);
+  const valid = !Number.isNaN(target.getTime());
+  const { label, tone } = formatDueLabel(target, { timeZone });
+  const el = (
+    <time
+      data-slot="due-label"
+      data-tone={tone}
+      dateTime={valid ? target.toISOString() : undefined}
+      suppressHydrationWarning
+      tabIndex={title && valid ? 0 : undefined}
+      className={cn("tabular-nums", toned && DUE_TONE_CLASS[tone], className)}
+      {...props}
+    >
+      {label}
+    </time>
+  );
+  return (
+    <WithTooltip
+      title={valid && title}
+      label={valid ? formatTooltip(target, { timeZone }) : ""}
+    >
+      {el}
+    </WithTooltip>
   );
 }

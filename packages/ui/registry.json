@@ -12458,8 +12458,8 @@
     {
       "name": "relative-time",
       "type": "registry:ui",
-      "title": "Relative Time",
-      "description": "Render a date as a human-relative string (\"2 hours ago\", \"yesterday\") with native Intl.RelativeTimeFormat — self-updating, with an absolute-date tooltip.",
+      "title": "Dates & Times",
+      "description": "One Intl-based dates & times module — formatRelative, formatDuration, formatDate, formatDateTime, formatDateRange, formatTimeOfDay, formatDueLabel, groupByDay, time-zone cookie + provider — and the RelativeTime, DateTime, Duration and DueLabel components with absolute-time tooltips.",
       "categories": ["data-display"],
       "dependencies": [
         "@vegastack/design@^0.7.13",
@@ -12474,12 +12474,17 @@
           "path": "packages/ui/registry/ui/relative-time.tsx",
           "type": "registry:ui",
           "target": "@ui/relative-time.tsx"
+        },
+        {
+          "path": "packages/ui/registry/lib/date-time.ts",
+          "type": "registry:lib",
+          "target": "@lib/date-time.ts"
         }
       ],
       "meta": {
-        "whenToUse": "A timestamp relative to now — comment/activity times (ago) or calendar-day grouping (day).",
-        "whenNotToUse": "A fixed absolute date that should never change — just format it once.",
-        "version": "0.23.4"
+        "whenToUse": "Any date, time, duration, due label or day grouping shown in UI — pick the function per the Dates & times page's where-to-use table.",
+        "whenNotToUse": "API/JSON output — keep ISO strings there.",
+        "version": "0.23.3"
       }
     },
     {
