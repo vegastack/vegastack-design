@@ -1,5 +1,11 @@
 # @vegastack/design
 
+## 0.7.26
+
+### Patch Changes
+
+- [#268](https://github.com/vegastack/vegastack-design/pull/268) [`3f83fa2`](https://github.com/vegastack/vegastack-design/commit/3f83fa2923080d8c21bcb9e73df29797d45a3446) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🔧 Board redesign and the new `BoardCard`. `Board` lanes now fill the viewport below the board (`height="fill"`, cards scroll inside each 320px lane, the page never scrolls), with sticky headers, a ⋯ menu that collapses a lane to a slim strip (`collapsible`, `collapsedColumns`, `onCollapsedChange`, `getColumnActions`), "+ Add" at each lane's foot (`onAdd`, `addLabel`, per-lane `addable`), dashed "Nothing here" / "Drop here" empty zones, per-lane skeletons and load-on-scroll paging with `LoadMore` as the fallback, a hidden-scrollbar board with edge fades, and one lane at a time with a lane strip on a phone. Dragging is live (`usePointerDrag` in `use-drag-reorder`): the card lifts with a shadow and tilt, other cards make room and it settles; touch picks up on a 250ms long-press; lanes and the board auto-scroll; the keyboard picks up with Space, moves with the arrows, drops with Space and cancels with Escape. Moves are optimistic and a rejected `onMove` snaps back with a toast (`moveErrorToast`); `readOnly` turns moves off. New `BoardCard`: a round done tick, a two-line title, a context line, due and priority chips and the assignee's avatar. `DataList`'s board view renders `BoardCard`s (`boardCard`) and passes `onAddToSection`, `addLabel`, `collapsedSections`, `onCollapsedSectionsChange` and `boardHeight` through, with section `defaultCollapsed`, `droppable`, `lockedReason` and `addable`. `RowAction` items take `items` for a submenu. The `list-page-01` and `board-01` blocks now use a `FilterBar` toolbar over `DataList` views.
+
 ## 0.7.25
 
 ### Patch Changes
