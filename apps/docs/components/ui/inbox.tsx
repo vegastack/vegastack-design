@@ -1,4 +1,4 @@
-// @vegastack inbox@0.23.4 sha256-QVH2wsrFVAjAoeH3RTnUs9g9TNlxZbM4DnkI3xm73dQ=
+// @vegastack inbox@0.23.4 sha256-VKiScL3eylS5ZlXH4/4hDcsoq4gAhSIkR4a4oxViqog=
 
 "use client";
 
@@ -521,8 +521,7 @@ export function InboxItem({
       ) : null}
     </>
   );
-  const linkClass =
-    "outline-none after:absolute after:inset-0 after:content-[''] focus-visible:after:ring-2 focus-visible:after:ring-ring focus-visible:after:ring-inset";
+  const linkClass = "after:absolute after:inset-0 after:content-['']";
 
   let titleContent: React.ReactNode = titleNode;
   if (href) {
