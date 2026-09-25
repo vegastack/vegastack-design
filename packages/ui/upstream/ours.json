@@ -149,6 +149,11 @@
       "family": "navigation",
       "source": "docs/plans/2026-09-22-stepper-rebuild-and-multi-step-form.md"
     },
+    "inbox": {
+      "disposition": "keep",
+      "family": "media",
+      "source": "extras.md"
+    },
     "notification-bell": {
       "disposition": "keep",
       "family": "media",
