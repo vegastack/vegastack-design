@@ -177,7 +177,7 @@
         "whenToUse": "One temporary message with one action (releases, promos, sync prompts).",
         "whenNotToUse": "Status feedback (Alert/Toast) or permanent notices (Alert strip).",
         "version": "0.23.19",
-        "integrity": "sha256-yApyYxz+Rkx1e2uBNr9TkXf7vsenVHOLRxr9zsdJSVg="
+        "integrity": "sha256-Rf+u5iDsS8SgQwA6NSH3M5w7jlzGIUnfrVmo59vNWkI="
       }
     },
     {
@@ -791,7 +791,7 @@
         "whenToUse": "A labelled, optionally removable pill — a record label, an applied filter, a selected value in a multi-select.",
         "whenNotToUse": "A status signal (Badge) or a clickable action (Button); a Chip's root is not interactive.",
         "version": "0.23.19",
-        "integrity": "sha256-WTYJNPD9M8LXhO2eLd0mw0ldIpYrvhmqGhyMl4qvZC4="
+        "integrity": "sha256-DVmO5TMwYC3sxOENtz0QUuwJdmw9OZl8MScJxITDkDg="
       }
     },
     {
@@ -1376,7 +1376,7 @@
         "whenToUse": "Selecting a single date or a range (with optional Today/Last-7-days presets) from a popover. size=\"sm\" + variant=\"ghost\" is the inline row tier; clearable adds a clear control that returns focus to the trigger.",
         "whenNotToUse": "Free-form/partial dates (masked Input) or inline-only calendars (use Calendar directly).",
         "version": "0.23.19",
-        "integrity": "sha256-1KANKO1ESUejtH0Yz4Ygyb+1PVdNGQkbGjYfidf8lFU="
+        "integrity": "sha256-1tX3QulC29YQGWBFhFSNLE1gi4mt4/a0sY9iFDFJ5EQ="
       }
     },
     {
@@ -1770,7 +1770,7 @@
         "whenToUse": "Filter toolbars for lists/tables — 'Label: value' chips that edit in place, facets on SearchableSelect, an Add-filter menu and a settled search, at the end or first.",
         "whenNotToUse": "A single search box (Input), value selection (Select), or unrelated row actions.",
         "version": "0.23.19",
-        "integrity": "sha256-Zvb5gOd/ezs2LSkQMBfF5YEUvD8ygq8HWIttbgaQ1aw="
+        "integrity": "sha256-FIYLy7RN2xGuuAk56gnxCkFyxEdx0YzH0AZ6MJkX05E="
       }
     },
     {
@@ -15416,7 +15416,7 @@
         "whenToUse": "Linking a record to another one in its header — a meeting's customer or project — with a picker and a jump to the linked record.",
         "whenNotToUse": "A free-form tag (Chip) or a form field with a label (Combobox, Select).",
         "version": "0.23.19",
-        "integrity": "sha256-uD+gV+ts+Hq1LYVz22CcCHuHrQ+hvGfngRaDliNrfhA="
+        "integrity": "sha256-V30C0ihdaFViD0Bw81HULFbmKiU66FMD1HTv/49d9rI="
       }
     },
     {
@@ -15836,7 +15836,7 @@
         "whenToUse": "Show the people on a record (participants, watchers, a team) as stacked avatars, each previewing the person on hover, focus or tap.",
         "whenNotToUse": "A picker of people (SearchableSelect) or a full member list (DataList).",
         "version": "0.23.19",
-        "integrity": "sha256-NmzKkjvEXz/qYiCt/Ev/prbHONJWMS5bP6MDQYqBfew="
+        "integrity": "sha256-Z8Cf1/LbVs4VRaeu8GmD8jiMqyaZhjIXitgfNjz4LEA="
       }
     },
     {
@@ -16087,7 +16087,7 @@
         "whenToUse": "A Select-shaped searchable picker: one or several values, option descriptions and disabled reasons, and server search with paging (remote + useAsyncSearch).",
         "whenNotToUse": "A short fixed option set (Select), free text with suggestions (Combobox directly), or multi-select (Combobox with chips).",
         "version": "0.23.19",
-        "integrity": "sha256-e7Un3VenPy+FJC0RWX6+m3uxml7pQZ3Y4yahGk5y3LI="
+        "integrity": "sha256-H9gwDY7jgzMv0YtMyMuVSeXrlX+hA1L6ifILM82t6ZA="
       }
     },
     {
@@ -16147,7 +16147,7 @@
         "whenToUse": "A reusable search field with a consistent token-colored clear action, and a settled (debounced, Enter-flushed) value for sending the query.",
         "whenNotToUse": "A general text field without search semantics, or a command palette with result navigation.",
         "version": "0.23.19",
-        "integrity": "sha256-CbKfzxXZZd8n+43EKFWb02hq6Pt508w/fZgrkNOQgXs="
+        "integrity": "sha256-A2EiPWIVe3JEFnZM8ILSzxx9PMyrbfM15U77eB28CpM="
       }
     },
     {

@@ -1,4 +1,4 @@
-// @vegastack person-hover-card@0.23.19 sha256-NmzKkjvEXz/qYiCt/Ev/prbHONJWMS5bP6MDQYqBfew=
+// @vegastack person-hover-card@0.23.19 sha256-Z8Cf1/LbVs4VRaeu8GmD8jiMqyaZhjIXitgfNjz4LEA=
 
 "use client";
 
@@ -8,6 +8,7 @@ import {
   Avatar,
   AvatarFallback,
   AvatarGroup,
+  AvatarGroupCount,
   AvatarImage,
 } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -104,9 +105,9 @@ export function PersonCard({
         size={layout === "card" ? "default" : "sm"}
       />
       <div className="flex min-w-0 flex-col">
-        <span className="truncate text-sm font-medium">{person.name}</span>
+        <span className="text-sm font-medium wrap-anywhere">{person.name}</span>
         {person.email ? (
-          <span className="truncate text-xs text-muted-foreground">
+          <span className="text-xs wrap-anywhere text-muted-foreground">
             {person.email}
           </span>
         ) : null}
@@ -175,11 +176,13 @@ export interface AvatarStackProps {
 }
 
 /**
- * `AvatarStack` — stacked avatars, each with its `PersonHoverCard`; past `max` a "+N" opens the
- * rest as `PersonCard` rows.
+ * `AvatarStack` — truly stacked 24px avatars (overlapping, a ring in the background colour) with
+ * "+N" past `max`. Hovering an avatar previews that person (`PersonCard`); the stack itself is one
+ * button — click, tap or Enter — that lists everyone as `PersonCard` rows. One control for the
+ * whole stack keeps a full 24px target without spreading the avatars apart.
  *
  * @example
- * <AvatarStack people={participants} />
+ * <AvatarStack people={participants} label="Participants" />
  */
 export function AvatarStack({
   people,
@@ -188,44 +191,47 @@ export function AvatarStack({
   className,
 }: AvatarStackProps) {
   const shown = people.slice(0, max);
-  const rest = people.slice(max);
+  const rest = people.length - shown.length;
   return (
-    <AvatarGroup
-      role="group"
-      aria-label={label}
-      data-slot="avatar-stack"
-      className={cn("items-center space-x-0", className)}
-    >
-      {shown.map((p, i) => (
-        <PersonHoverCard key={`${p.name}-${i}`} person={p}>
-          <PersonAvatar person={p} className="ring-2 ring-background" />
-        </PersonHoverCard>
-      ))}
-      {rest.length > 0 ? (
-        <Popover>
-          <PopoverTrigger
-            render={
-              <Button
-                variant="secondary"
-                size="icon-sm"
-                className="rounded-full text-xs"
-                aria-label={`${rest.length} more`}
-              />
-            }
-          >
-            +{rest.length}
-          </PopoverTrigger>
-          <PopoverContent align="start" className="w-60 p-2">
-            <ul className="flex flex-col gap-2">
-              {rest.map((p, i) => (
-                <li key={`${p.name}-${i}`}>
-                  <PersonCard person={p} layout="row" />
-                </li>
-              ))}
-            </ul>
-          </PopoverContent>
-        </Popover>
-      ) : null}
-    </AvatarGroup>
+    <Popover>
+      <PopoverTrigger
+        render={
+          <Button
+            variant="ghost"
+            data-slot="avatar-stack"
+            aria-label={`${label}: ${people.map((p) => p.name).join(", ")}`}
+            className={cn(
+              "h-auto rounded-full p-0.5 active:not-aria-[haspopup]:translate-y-0",
+              className,
+            )}
+          />
+        }
+      >
+        <AvatarGroup aria-hidden>
+          {shown.map((p, i) => (
+            <HoverCard key={`${p.name}-${i}`}>
+              <HoverCardTrigger
+                render={<span className="inline-flex rounded-full" />}
+              >
+                <PersonAvatar person={p} className="ring-2 ring-background" />
+              </HoverCardTrigger>
+              <HoverCardContent align="start" className="w-60 p-2">
+                <PersonCard person={p} />
+              </HoverCardContent>
+            </HoverCard>
+          ))}
+          {rest > 0 ? <AvatarGroupCount>+{rest}</AvatarGroupCount> : null}
+        </AvatarGroup>
+      </PopoverTrigger>
+      <PopoverContent align="start" className="w-60 p-2">
+        <ul aria-label={label} className="flex flex-col gap-2">
+          {people.map((p, i) => (
+            <li key={`${p.name}-${i}`}>
+              <PersonCard person={p} />
+            </li>
+          ))}
+        </ul>
+      </PopoverContent>
+    </Popover>
   );
 }

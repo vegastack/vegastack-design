@@ -4,7 +4,7 @@ import { expect, test } from "vitest";
 import { expectNoA11yViolations } from "../../test/a11y";
 import { AvatarStack } from "./person-hover-card";
 
-test("stacks people and lists the overflow behind +N", async () => {
+test("stacks people and lists everyone from the stack", async () => {
   const screen = await render(
     <AvatarStack
       label="Participants"
@@ -16,10 +16,7 @@ test("stacks people and lists the overflow behind +N", async () => {
       ]}
     />,
   );
-  await expect
-    .element(screen.getByRole("group", { name: "Participants" }))
-    .toBeVisible();
-  await screen.getByRole("button", { name: "1 more" }).click();
+  await screen.getByRole("button", { name: /^Participants:/ }).click();
   await expect.element(screen.getByText("Northwind FM leads")).toBeVisible();
   await expectNoA11yViolations(screen.container);
 });

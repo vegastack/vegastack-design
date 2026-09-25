@@ -1,4 +1,4 @@
-// @vegastack date-picker@0.23.19 sha256-1KANKO1ESUejtH0Yz4Ygyb+1PVdNGQkbGjYfidf8lFU=
+// @vegastack date-picker@0.23.19 sha256-1tX3QulC29YQGWBFhFSNLE1gi4mt4/a0sY9iFDFJ5EQ=
 
 "use client";
 
@@ -567,7 +567,9 @@ export function DatePicker({
           aria-label={clearLabel}
           disabled={disabled}
           data-slot="date-picker-clear"
-          className="absolute end-1.5 top-1/2 -translate-y-1/2"
+          // Centred with auto margins, not `-translate-y-1/2`: Button's press nudge sets `translate-y`
+          // and would replace the centring transform, dropping the × by half its height.
+          className="absolute inset-y-0 end-1.5 my-auto active:not-aria-[haspopup]:translate-y-0"
           onClick={() => {
             trigger?.focus();
             onValueChange?.(undefined);

@@ -1,4 +1,4 @@
-// @vegastack announcement-banner@0.23.19 sha256-yApyYxz+Rkx1e2uBNr9TkXf7vsenVHOLRxr9zsdJSVg=
+// @vegastack announcement-banner@0.23.19 sha256-Rf+u5iDsS8SgQwA6NSH3M5w7jlzGIUnfrVmo59vNWkI=
 
 "use client";
 
@@ -119,7 +119,7 @@ export function AnnouncementBanner({
           // inverse band that painted a light chip with near-black ink in light theme, i.e. the
           // page's own colours inside the strip. The hover and pressed steps are restated in the
           // band's own ink so it stays inside the flip.
-          className="text-current hover:bg-background/15 hover:text-current active:bg-background/25"
+          className="text-current hover:bg-background/15 hover:text-current active:bg-background/25 active:not-aria-[haspopup]:translate-y-0"
         >
           <X aria-hidden />
         </Button>
