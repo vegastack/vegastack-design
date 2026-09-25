@@ -9,6 +9,20 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.23.26] — September 26, 2026
+
+<!-- assembled from 1 changeset: 83547a976597 -->
+
+### 🔧 Changed components
+
+- `BoardCard`'s assignee avatar opens the person hover card on hover (`PersonCard`: name, email and status badge); `BoardCardAssignee` takes `email` and `badge` ("Inactive").
+  [`7fafdc5`](https://github.com/VegaStack/vegastack-design/commit/7fafdc5)
+
+### 📦 npm
+
+- **`@vegastack/design`** → **`0.7.35`** (was `0.7.34`).
+- The design-system registry (`@vegastack/ui`) bumps 0.23.25 → 0.23.26.
+
 ## [0.23.25] — September 25, 2026
 
 <!-- assembled from 2 changesets: 22595e55b49d -->
