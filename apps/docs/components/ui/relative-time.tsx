@@ -1,4 +1,4 @@
-// @vegastack relative-time@0.23.4 sha256-L9DmZwxNy2AOwLMVHH41rQ2uuJhe8YCr/xipzgetGgE=
+// @vegastack relative-time@0.23.4 sha256-TiRpI6Ru1kVVuGAtH7gPmLpz0/fFnL4YM0bWdzB61FM=
 
 "use client";
 
@@ -32,6 +32,9 @@ const TimeZoneContext = React.createContext<string | undefined>(undefined);
 /**
  * `TimeZoneProvider` — hand every date component (and `useTimeZone`) the viewer's zone. On the
  * server, read it with `getTimeZone(cookies().get("tz")?.value, config.orgTimeZone)`.
+ *
+ * @example
+ * <TimeZoneProvider timeZone={timeZone}>{children}</TimeZoneProvider>
  */
 export function TimeZoneProvider({
   timeZone,
@@ -56,6 +59,11 @@ export function useTimeZone(): string | undefined {
  * `TimeZoneScript` — a tiny inline script that writes the browser's zone to the `tz` cookie (and
  * rewrites it when the tab becomes visible again), so server renders use the viewer's zone. Render
  * once in the root layout's `<head>` or `<body>`.
+ *
+ * @example
+ * <head>
+ *   <TimeZoneScript />
+ * </head>
  */
 export function TimeZoneScript({ nonce }: { nonce?: string }) {
   return (
@@ -545,15 +553,22 @@ export interface DateTimeProps extends Omit<
    * @default 'date'
    */
   variant?: "date" | "datetime" | "time";
-  /** Extra formatter options (`looseFuture`, `absolute`, `separator`, `withYear`…). */
+  /**
+   * Extra formatter options (`looseFuture`, `absolute`, `separator`, `withYear`…).
+   * @default undefined
+   */
   options?: FormatDateOptions & FormatDateTimeOptions;
   /** Tooltip with the absolute time ("Sep 25, 2026 · 2:30 PM IST"); a string sets your own. @default true */
   title?: boolean | string;
-  /** IANA zone; defaults to the `TimeZoneProvider` zone. */
+  /**
+   * IANA zone; defaults to the `TimeZoneProvider` zone.
+   * @default undefined
+   */
   timeZone?: string;
   /**
    * Whether the tooltip trigger takes a tab stop. Defaults to `true` standalone and to a
    * `TruncationFocusProvider`'s setting (off inside DataList/DataGrid rows).
+   * @default undefined
    */
   focusable?: boolean;
 }
@@ -621,13 +636,19 @@ export interface DurationProps extends Omit<
   value: number;
   /** @default 'seconds' */
   unit?: "seconds" | "milliseconds";
-  /** "1:15:04" instead of "1h 15m" — players and timers. */
+  /**
+   * "1:15:04" instead of "1h 15m" — players and timers.
+   * @default false
+   */
   clock?: boolean;
 }
 
 /**
  * `Duration` — a length of time: "42s", "2m", "1h 15m", "2d 3h" (two units at most), or a clock
  * ("1:15:04"). Renders `<time dateTime="PT…S">`.
+ *
+ * @example
+ * <Duration value={meeting.durationSec} /> // "1h 15m"
  */
 export function Duration({
   value,
@@ -666,11 +687,15 @@ export interface DueLabelProps extends Omit<
   title?: boolean | string;
   /** Colour the label by tone (overdue red, soon amber). @default true */
   toned?: boolean;
-  /** IANA zone; defaults to the `TimeZoneProvider` zone. */
+  /**
+   * IANA zone; defaults to the `TimeZoneProvider` zone.
+   * @default undefined
+   */
   timeZone?: string;
   /**
    * Whether the tooltip trigger takes a tab stop. Defaults to `true` standalone and to a
    * `TruncationFocusProvider`'s setting (off inside DataList/DataGrid rows).
+   * @default undefined
    */
   focusable?: boolean;
 }
@@ -678,6 +703,9 @@ export interface DueLabelProps extends Omit<
 /**
  * `DueLabel` — "Overdue 2d", "Due today", "Due tomorrow", "Due in 3d", "Due Sep 30", coloured by
  * tone. The tone is on `data-tone` for your own styling; `formatDueLabel` returns it too.
+ *
+ * @example
+ * <DueLabel date={task.dueAt} /> // "Overdue 2d" in destructive ink
  */
 export function DueLabel({
   date,

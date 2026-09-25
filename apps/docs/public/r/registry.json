@@ -15614,7 +15614,7 @@
         "whenToUse": "Any date, time, duration, due label or day grouping shown in UI — pick the function per the Dates & times page's where-to-use table.",
         "whenNotToUse": "API/JSON output — keep ISO strings there.",
         "version": "0.23.3",
-        "integrity": "sha256-L9DmZwxNy2AOwLMVHH41rQ2uuJhe8YCr/xipzgetGgE="
+        "integrity": "sha256-TiRpI6Ru1kVVuGAtH7gPmLpz0/fFnL4YM0bWdzB61FM="
       }
     },
     {
