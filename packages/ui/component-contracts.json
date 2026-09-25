@@ -15781,8 +15781,8 @@
     {
       "name": "relative-time",
       "registryType": "registry:ui",
-      "title": "Relative Time",
-      "summary": "Render a date as a human-relative string (\"2 hours ago\", \"yesterday\") with native Intl.RelativeTimeFormat — self-updating, with an absolute-date tooltip.",
+      "title": "Dates & Times",
+      "summary": "One Intl-based dates & times module — formatRelative, formatDuration, formatDate, formatDateTime, formatDateRange, formatTimeOfDay, formatDueLabel, groupByDay, time-zone cookie + provider — and the RelativeTime, DateTime, Duration and DueLabel components with absolute-time tooltips.",
       "status": "stable",
       "since": "0.1.0",
       "family": "data-display",
