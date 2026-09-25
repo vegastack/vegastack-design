@@ -10,6 +10,25 @@ npm package versions are listed per entry. This page is generated from the repo'
 
 {/* CHANGELOG:START — generated from /CHANGELOG.md by tooling/sync-changelog.mjs. DO NOT EDIT. */}
 
+## [0.23.1] — September 25, 2026
+
+### 🔧 Changed components
+
+- **Checkbox takes `shape="circle"`** — a round check for marking a task or to-do done; `square` stays the default for selection and form fields.
+  [`499e2dd`](https://github.com/VegaStack/vegastack-design/commit/499e2dd)
+
+### 📦 npm
+
+- **`@vegastack/design`** → **`0.7.10`** (was `0.7.9`).
+- The design-system registry (`@vegastack/ui`) bumps 0.23.0 → 0.23.1.
+
+### 🐛 Fixed
+
+- **Alert has no focus ring** — an app can move focus to an error `Alert` so screen readers announce it; the alert no longer shows the focus ring, since it is not an interactive control. `SheetContent` takes `showOverlay={false}` to drop the backdrop for a non-modal panel docked beside the page.
+  [`c126f9f`](https://github.com/VegaStack/vegastack-design/commit/c126f9f)
+- **No focus ring on programmatic focus targets** — `AppShellContent`'s `<main>` (the skip-link and route-change focus target) no longer draws a focus outline, which showed as a line under the app header after navigation. The same applies to `SheetContent`'s popup, the `MultiStepForm` step heading and section list, and the `Stepper` summary; interactive controls keep their focus rings.
+  [`008bea6`](https://github.com/VegaStack/vegastack-design/commit/008bea6)
+
 ## [0.23.0] — September 25, 2026
 
 ### 🔧 Changed components
