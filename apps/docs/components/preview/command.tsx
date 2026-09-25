@@ -35,6 +35,7 @@ import {
   Command,
   CommandDialog,
   CommandEmpty,
+  CommandFilters,
   CommandFooter,
   CommandGroup,
   CommandInput,
@@ -46,6 +47,7 @@ import {
 } from "@/components/ui/command";
 import { ItemContent, ItemDescription, ItemTitle } from "@/components/ui/item";
 import { Kbd } from "@/components/ui/kbd";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { DirectionProvider } from "@/components/ui/direction";
 
 export function command(): ReactNode {
@@ -455,18 +457,37 @@ const MEETINGS = [
   { id: "m4", title: "Driver onboarding", meta: "Document · 27 Aug" },
 ] as const;
 
-/** OVL-16: a large palette — wider dialog, taller list. */
+/** OVL-16: the default wide palette — type chips under the search field and built-in key hints. */
 export function commandLargePalette(): ReactNode {
   const [open, setOpen] = React.useState(false);
+  const [scope, setScope] = React.useState("all");
 
   return (
     <Wrapper>
       <Button onClick={() => setOpen(true)} variant="outline" className="w-fit">
-        Open large palette
+        Open palette
       </Button>
-      <CommandDialog open={open} onOpenChange={setOpen} size="lg">
+      <CommandDialog open={open} onOpenChange={setOpen}>
         <Command>
           <CommandInput placeholder="Search meetings, documents and people…" />
+          <CommandFilters>
+            <ToggleGroup
+              size="sm"
+              variant="outline"
+              wrap
+              deselectable={false}
+              aria-label="Filter by type"
+              value={[scope]}
+              onValueChange={(value) => {
+                if (value[0]) setScope(value[0]);
+              }}
+            >
+              <ToggleGroupItem value="all">All</ToggleGroupItem>
+              <ToggleGroupItem value="meetings">Meetings</ToggleGroupItem>
+              <ToggleGroupItem value="documents">Documents</ToggleGroupItem>
+              <ToggleGroupItem value="people">People</ToggleGroupItem>
+            </ToggleGroup>
+          </CommandFilters>
           <CommandList>
             <CommandEmpty>No results found.</CommandEmpty>
             <CommandGroup heading="Recent">
@@ -480,6 +501,7 @@ export function commandLargePalette(): ReactNode {
               ))}
             </CommandGroup>
           </CommandList>
+          <CommandFooter />
         </Command>
       </CommandDialog>
     </Wrapper>

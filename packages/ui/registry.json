@@ -784,8 +784,11 @@
       "registryDependencies": [
         "@vegastack/dialog",
         "@vegastack/input-group",
+        "@vegastack/icon-search",
         "@vegastack/item",
-        "@vegastack/use-announcer"
+        "@vegastack/kbd",
+        "@vegastack/use-announcer",
+        "@vegastack/use-platform"
       ],
       "files": [
         {

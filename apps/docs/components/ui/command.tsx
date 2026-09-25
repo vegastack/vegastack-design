@@ -15,6 +15,12 @@ import {
 } from "@/components/ui/dialog";
 import { InputGroup, InputGroupAddon } from "@/components/ui/input-group";
 import { SearchIcon, CheckIcon } from "lucide-react";
+import {
+  SearchIcon as AnimatedSearchIcon,
+  type SearchIconHandle,
+} from "@/components/ui/icons/search";
+import { Kbd, KbdGroup } from "@/components/ui/kbd";
+import { usePlatform } from "@/components/ui/use-platform";
 
 import {
   ItemDescriptionContext,
@@ -67,6 +73,7 @@ function Command({
 }
 
 // OVL-16 (widened): the dialog's size reaches the list inside it, which grows taller with it.
+// The default is the wide palette (820px), not the Dialog's small default.
 type CommandDialogSize = "sm" | "default" | "lg" | "xl";
 const CommandDialogSizeContext = React.createContext<
   CommandDialogSize | undefined
@@ -96,7 +103,9 @@ function CommandDialog({
       </DialogHeader>
       <DialogContent
         className={cn(
-          "max-h-[calc(100dvh-var(--spacing)*8)] grid-rows-[minmax(0,1fr)_auto] overflow-hidden rounded-xl! p-0",
+          // A flex column with no gap: the list ends flush above the footer, with no empty
+          // grid row (and its gap) left under it.
+          "flex max-h-[calc(100dvh-var(--spacing)*8)] flex-col gap-0 overflow-hidden rounded-xl! p-0 data-[size=default]:sm:max-w-[51.25rem]",
           className,
         )}
         showCloseButton={showCloseButton}
@@ -135,6 +144,34 @@ function CommandInput({
       </InputGroup>
     </div>
   );
+}
+
+/**
+ * A row under the search field for type chips (a `ToggleGroup` with `wrap`) and any other
+ * controls — a Select, a DropdownMenu. Children wrap onto further lines.
+ */
+function CommandFilters({ className, ...props }: React.ComponentProps<"div">) {
+  return (
+    <div
+      data-slot="command-filters"
+      className={cn(
+        "flex flex-wrap items-center gap-1.5 px-1 pt-2 pb-1",
+        className,
+      )}
+      {...props}
+    />
+  );
+}
+
+/** The animated search glyph, replayed while the search is running. */
+function CommandSearchingIcon() {
+  const ref = React.useRef<SearchIconHandle>(null);
+  React.useEffect(() => {
+    ref.current?.startAnimation();
+    const id = window.setInterval(() => ref.current?.startAnimation(), 1200);
+    return () => window.clearInterval(id);
+  }, []);
+  return <AnimatedSearchIcon ref={ref} size={16} aria-hidden />;
 }
 
 function CommandList({
@@ -252,25 +289,53 @@ function CommandLoading({
       )}
       {...props}
     >
-      {children ?? label}
+      {children ?? (
+        <>
+          <CommandSearchingIcon />
+          {label}
+        </>
+      )}
     </CommandPrimitive.Loading>
   );
 }
 
+type CommandHint = { keys: React.ReactNode; label: React.ReactNode };
+
 /**
  * API-18 — a footer part (key hints, a result count, a link) that sits OUTSIDE the listbox, so
- * it is never announced as an option.
+ * it is never announced as an option. With no children it shows the built-in key hints
+ * (↵ Open · ⌘↵ New tab · Esc Close); pass `hints` to change them, or children to replace them.
+ * It sits flush with the palette's bottom edge — no padding below it.
  */
-function CommandFooter({ className, ...props }: React.ComponentProps<"div">) {
+function CommandFooter({
+  className,
+  children,
+  hints,
+  ...props
+}: React.ComponentProps<"div"> & { hints?: readonly CommandHint[] }) {
+  const { os } = usePlatform();
+  const shown = hints ?? [
+    { keys: "↵", label: "Open" },
+    { keys: os === "mac" ? "⌘↵" : "Ctrl ↵", label: "New tab" },
+    { keys: "Esc", label: "Close" },
+  ];
   return (
     <div
       data-slot="command-footer"
       className={cn(
-        "flex items-center gap-3 border-t px-3 py-2 text-xs text-muted-foreground",
+        "-mx-1 -mb-1 mt-1 flex items-center gap-3 border-t px-3 py-2 text-xs text-muted-foreground",
         className,
       )}
       {...props}
-    />
+    >
+      {children ??
+        shown.map((hint, i) => (
+          <KbdGroup key={i}>
+            <Kbd>{hint.keys}</Kbd>
+            {hint.label}
+          </KbdGroup>
+        ))}
+    </div>
   );
 }
 
@@ -345,6 +410,7 @@ function CommandShortcut({
   );
 }
 
+export type { CommandHint };
 export {
   Command,
   CommandDialog,
@@ -353,6 +419,7 @@ export {
   CommandEmpty,
   CommandLoading,
   CommandFooter,
+  CommandFilters,
   CommandGroup,
   CommandItem,
   CommandShortcut,
