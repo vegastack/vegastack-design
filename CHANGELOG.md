@@ -9,6 +9,20 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.23.28] — September 26, 2026
+
+<!-- assembled from 1 changeset: 0346a2574a8a -->
+
+### 🔧 Changed components
+
+- `Board` lanes are transparent, like list view: no lane fill, only the column spacing; cards keep their surface. Each lane header shows a collapse icon button (tooltip "Collapse lane") left of its ⋯ menu, the ⋯ menu drops its "Collapse lane" item and hides when a lane has no other actions, and a collapsed lane is a dashed strip with an expand icon (tooltip "Expand lane").
+  [`4781f95`](https://github.com/VegaStack/vegastack-design/commit/4781f95)
+
+### 📦 npm
+
+- **`@vegastack/design`** → **`0.7.37`** (was `0.7.36`).
+- The design-system registry (`@vegastack/ui`) bumps 0.23.27 → 0.23.28.
+
 ## [0.23.27] — September 26, 2026
 
 <!-- assembled from 1 changeset: 23b98dd79d07 -->
