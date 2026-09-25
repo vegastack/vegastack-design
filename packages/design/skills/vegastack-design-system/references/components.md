@@ -28,7 +28,7 @@ starts with `icon-` is a component and never an icon.
 - **`country-select`** — A searchable country picker returning the ISO 3166-1 alpha-2 code, with flag + name. A thin wrapper over SearchableSelect fed by the geo-data item.
 - **`date-picker`** — Pick a single date or a date range from a calendar popover — token-styled, keyboard-navigable, with optional quick presets.
 - **`dropzone`** — File acquisition surface — drop, click-to-browse, and paste — as a thin shell over use-file-drop; the surface is the named focusable control over a hidden picker-bridge input; data-dragging/data-drag-invalid styling flags.
-- **`editable-cell`** — Inline-editable value with an async commit lifecycle — optimistic display, saving/saved/error status, revert on a rejected write, and a typed text/select/custom editor registry.
+- **`editable-cell`** — Inline-editable value whose edit mode looks like view — same box, inherited type, no border — with optimistic saves, a delayed spinner, rollback plus a Retry toast on failure, required, multiline, table-cell and heading variants, and a typed text/select/custom editor registry.
 - **`emoji-picker`** — A popover with a searchable, category-grouped grid of emoji that returns the selected character via onValueChange (curated set, not full Unicode).
 - **`field`** — The form-field scaffold — label, description, error, legend, separator and choice-card layouts.
 - **`input`** — A styled Base UI input for every text-entry type, with the text-entry focus border tint (FOC-3).
