@@ -1,16 +1,45 @@
-// @vegastack audio-player@0.23.24 sha256-72KxkNOd7s62V5KeP5JPiRPe8y45/L0+b1it5/B5emU=
+// @vegastack audio-player@0.23.24 sha256-hKzaU5Q3wLMZJHDnleaR7tj3Qm82Q9+4NadXxB113nY=
 
 "use client";
 
 import * as React from "react";
-import { XIcon } from "lucide-react";
+import {
+  Pause,
+  Play,
+  RotateCcw,
+  RotateCw,
+  Volume1,
+  Volume2,
+  VolumeX,
+  XIcon,
+} from "lucide-react";
 import { cn, mergeRefs } from "@vegastack/design";
 import { Button } from "@/components/ui/button";
 import {
   MediaPlayerControls,
   clampTime,
+  formatDefaultTime,
+  getMediaDuration,
   type MediaPlayerControlsProps,
 } from "@/components/ui/media-player-controls";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Slider } from "@/components/ui/slider";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { Spinner } from "@/components/ui/spinner";
 import { useAnnouncer } from "@/components/ui/use-announcer";
 
@@ -232,7 +261,7 @@ export interface AudioPlayerProps extends Omit<
   /**
    * Presentation. `waveform` renders a decoded-audio waveform in place of the
    * seek slider (its keyboard and pointer semantics are preserved beneath the
-   * bars). `floating` is a one-line pill — title, transport, close — centred in
+   * bars). `floating` is a one-line pill — transport, seek, speed, volume, close; `title` is not shown — centred in
    * its container and sticky 16px above the bottom of its scroll column; below
    * the `sm` breakpoint it spans the full width on the bottom edge. A floating
    * player is a `region` named by `label`.
@@ -611,23 +640,15 @@ export function AudioPlayer({
           "data-[active=true]:motion-dock-in data-[active=true]:translate-y-0 data-[active=false]:motion-dock-out data-[active=false]:translate-y-[calc(100%+env(safe-area-inset-bottom))]",
         ],
         isFloating && [
-          "sticky bottom-4 z-20 mx-auto w-[calc(100%-2rem)] max-w-3xl flex-row flex-wrap items-center gap-x-2 gap-y-1 rounded-full border border-border bg-popover py-1 ps-4 pe-1.5 text-popover-foreground shadow-md",
+          "sticky bottom-4 z-20 mx-auto w-[calc(100%-2rem)] max-w-3xl flex-row flex-wrap items-center gap-x-2 gap-y-1 rounded-full border border-border bg-popover p-1.5 text-popover-foreground shadow-md",
           // Phone: full width on the bottom edge, clear of the safe-area inset.
-          "max-sm:bottom-0 max-sm:w-full max-sm:rounded-none max-sm:border-x-0 max-sm:border-b-0 max-sm:px-2 max-sm:pb-[calc(var(--spacing)*1+env(safe-area-inset-bottom))]",
+          "max-sm:bottom-0 max-sm:w-full max-sm:rounded-none max-sm:border-x-0 max-sm:border-b-0 max-sm:px-1 max-sm:pb-[calc(var(--spacing)*1+env(safe-area-inset-bottom))]",
           "data-[active=true]:motion-dock-in data-[active=true]:translate-y-0 data-[active=false]:motion-dock-out data-[active=false]:translate-y-[calc(100%+var(--spacing)*4+env(safe-area-inset-bottom))]",
         ],
         !docked && !isFloating && !isOpen && "hidden",
         className,
       )}
     >
-      {isFloating && title ? (
-        <div
-          data-slot="audio-player-title"
-          className="max-w-48 min-w-0 shrink truncate text-sm font-medium text-foreground max-sm:max-w-full max-sm:basis-full max-sm:px-2"
-        >
-          {title}
-        </div>
-      ) : null}
       {!isFloating && (title || description || showClose) ? (
         <div data-slot="audio-player-header" className="flex min-w-0 gap-2">
           <div className="flex min-w-0 flex-1 flex-col gap-1">
@@ -688,28 +709,36 @@ export function AudioPlayer({
         }}
       />
 
-      <MediaPlayerControls
-        mediaRef={controlsMediaRef}
-        label={label}
-        skipSeconds={skipSeconds}
-        playbackRates={playbackRates}
-        defaultPlaybackRate={defaultPlaybackRate}
-        formatTime={formatTime}
-        onPlayStateChange={onPlayStateChange}
-        onTimeChange={onTimeChange}
-        onPlaybackRateChange={onPlaybackRateChange}
-        onTranscriptClick={onTranscriptClick}
-        seekVariant={isWaveform ? "waveform" : "slider"}
-        waveformPeaks={waveformPeaks}
-        waveformFlatPeaks={WAVEFORM_FLAT_BARS}
-        className={
-          isFloating
-            ? "min-w-0 flex-1 rounded-none border-0 bg-transparent p-0"
-            : undefined
-        }
-      />
-
-      {isFloating ? closeButton : null}
+      {isFloating ? (
+        <FloatingTransport
+          mediaRef={internalMediaRef}
+          label={label}
+          skipSeconds={skipSeconds}
+          playbackRates={playbackRates}
+          defaultPlaybackRate={defaultPlaybackRate}
+          formatTime={formatTime}
+          onPlayStateChange={onPlayStateChange}
+          onTimeChange={onTimeChange}
+          onPlaybackRateChange={onPlaybackRateChange}
+          closeButton={closeButton}
+        />
+      ) : (
+        <MediaPlayerControls
+          mediaRef={controlsMediaRef}
+          label={label}
+          skipSeconds={skipSeconds}
+          playbackRates={playbackRates}
+          defaultPlaybackRate={defaultPlaybackRate}
+          formatTime={formatTime}
+          onPlayStateChange={onPlayStateChange}
+          onTimeChange={onTimeChange}
+          onPlaybackRateChange={onPlaybackRateChange}
+          onTranscriptClick={onTranscriptClick}
+          seekVariant={isWaveform ? "waveform" : "slider"}
+          waveformPeaks={waveformPeaks}
+          waveformFlatPeaks={WAVEFORM_FLAT_BARS}
+        />
+      )}
 
       {isLoading ? (
         <div
@@ -744,6 +773,412 @@ export function AudioPlayer({
       ) : null}
 
       <Announcer />
+    </div>
+  );
+}
+
+// ── Floating transport ───────────────────────────────────────────────────────
+// The floating pill's own one-line transport: skip back · play · skip forward ·
+// elapsed · seek · total · speed · volume. Every icon button is `size-8` ghost
+// with `size-4` glyphs; play is the `size-9` filled primary. Space plays or
+// pauses and ←/→ move 5s anywhere on the pill except a slider, which owns them.
+
+const FLOATING_ICON_BUTTON = "size-8 shrink-0 rounded-full [&_svg]:size-4";
+const FLOATING_KEY_SEEK = 5;
+
+function FloatingTip({
+  content,
+  children,
+}: {
+  content: string;
+  children: React.ReactElement;
+}) {
+  return (
+    <Tooltip>
+      <TooltipTrigger render={children} />
+      <TooltipContent>{content}</TooltipContent>
+    </Tooltip>
+  );
+}
+
+function useMediaState(
+  mediaRef: React.RefObject<HTMLAudioElement | null>,
+  {
+    onPlayStateChange,
+    onTimeChange,
+    onPlaybackRateChange,
+    defaultPlaybackRate,
+  }: Pick<
+    AudioPlayerProps,
+    | "onPlayStateChange"
+    | "onTimeChange"
+    | "onPlaybackRateChange"
+    | "defaultPlaybackRate"
+  >,
+) {
+  const [state, setState] = React.useState({
+    playing: false,
+    time: 0,
+    duration: 0,
+    buffered: 0,
+    rate: defaultPlaybackRate ?? 1,
+    volume: 1,
+    muted: false,
+  });
+  const callbacksRef = React.useRef({
+    onPlayStateChange,
+    onTimeChange,
+    onPlaybackRateChange,
+  });
+  React.useLayoutEffect(() => {
+    callbacksRef.current = {
+      onPlayStateChange,
+      onTimeChange,
+      onPlaybackRateChange,
+    };
+  });
+
+  React.useEffect(() => {
+    const media = mediaRef.current;
+    if (!media) return;
+    if (defaultPlaybackRate) media.playbackRate = defaultPlaybackRate;
+    const read = () => {
+      const duration = getMediaDuration(media);
+      const ranges = media.buffered;
+      const buffered = ranges.length > 0 ? ranges.end(ranges.length - 1) : 0;
+      setState({
+        playing: !media.paused,
+        time: media.currentTime,
+        duration,
+        buffered,
+        rate: media.playbackRate,
+        volume: media.volume,
+        muted: media.muted,
+      });
+    };
+    const onPlay = () => {
+      read();
+      callbacksRef.current.onPlayStateChange?.(!media.paused);
+    };
+    const onTime = () => {
+      read();
+      callbacksRef.current.onTimeChange?.(
+        media.currentTime,
+        getMediaDuration(media),
+      );
+    };
+    const onRate = () => {
+      read();
+      callbacksRef.current.onPlaybackRateChange?.(media.playbackRate);
+    };
+    const events: [string, () => void][] = [
+      ["play", onPlay],
+      ["pause", onPlay],
+      ["ended", onPlay],
+      ["timeupdate", onTime],
+      ["seeked", onTime],
+      ["ratechange", onRate],
+      ["durationchange", read],
+      ["loadedmetadata", read],
+      ["progress", read],
+      ["volumechange", read],
+    ];
+    for (const [name, fn] of events) media.addEventListener(name, fn);
+    read();
+    return () => {
+      for (const [name, fn] of events) media.removeEventListener(name, fn);
+    };
+  }, [mediaRef, defaultPlaybackRate]);
+
+  return state;
+}
+
+function FloatingSeek({
+  label,
+  time,
+  duration,
+  buffered,
+  formatTime,
+  onSeek,
+}: {
+  label: string;
+  time: number;
+  duration: number;
+  buffered: number;
+  formatTime: (seconds: number) => string;
+  onSeek: (seconds: number) => void;
+}) {
+  const [hover, setHover] = React.useState<{ x: number; at: number } | null>(
+    null,
+  );
+  const pct = (value: number) =>
+    duration > 0 ? `${Math.min(100, (value / duration) * 100)}%` : "0%";
+
+  return (
+    <div
+      data-slot="audio-player-seek"
+      className="group/seek relative flex h-8 min-w-0 flex-1 items-center"
+      onPointerMove={(event) => {
+        if (duration <= 0) return;
+        const box = event.currentTarget.getBoundingClientRect();
+        const x = Math.min(Math.max(event.clientX - box.left, 0), box.width);
+        setHover({ x, at: (x / box.width) * duration });
+      }}
+      onPointerLeave={() => setHover(null)}
+    >
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-x-0 top-1/2 h-1 -translate-y-1/2 overflow-hidden rounded-full bg-muted"
+      >
+        <div
+          data-slot="audio-player-buffered"
+          className="h-full bg-muted-foreground/25"
+          style={{ width: pct(buffered) }}
+        />
+      </div>
+      <Slider
+        value={[Math.min(time, duration)]}
+        min={0}
+        max={duration || 1}
+        step={0.1}
+        disabled={duration <= 0}
+        aria-label={`${label} seek`}
+        aria-valuetext={`${formatTime(time)} of ${formatTime(duration)}`}
+        onValueChange={(value) =>
+          onSeek(Array.isArray(value) ? (value[0] ?? 0) : (value as number))
+        }
+        className={cn(
+          "relative",
+          "[&_[data-slot=slider-track]]:bg-transparent [&_[data-slot=slider-range]]:bg-foreground",
+          "[&_[data-slot=slider-thumb]]:size-3 [&_[data-slot=slider-thumb]]:border-foreground [&_[data-slot=slider-thumb]]:bg-foreground",
+          "[&_[data-slot=slider-thumb]]:opacity-0 [&_[data-slot=slider-thumb]]:transition-opacity",
+          "group-hover/seek:[&_[data-slot=slider-thumb]]:opacity-100 focus-within:[&_[data-slot=slider-thumb]]:opacity-100 [&_[data-slot=slider-thumb][data-dragging]]:opacity-100",
+          "pointer-coarse:[&_[data-slot=slider-thumb]]:opacity-100",
+        )}
+      />
+      {hover ? (
+        <span
+          aria-hidden
+          data-slot="audio-player-seek-tooltip"
+          className="pointer-events-none absolute bottom-full mb-1 -translate-x-1/2 rounded-md bg-foreground px-1.5 py-0.5 text-xs font-medium tabular-nums text-background"
+          style={{ left: hover.x }}
+        >
+          {formatTime(hover.at)}
+        </span>
+      ) : null}
+    </div>
+  );
+}
+
+function FloatingTransport({
+  mediaRef,
+  label,
+  skipSeconds = 10,
+  playbackRates,
+  defaultPlaybackRate,
+  formatTime = formatDefaultTime,
+  onPlayStateChange,
+  onTimeChange,
+  onPlaybackRateChange,
+  closeButton,
+}: Pick<
+  AudioPlayerProps,
+  | "skipSeconds"
+  | "defaultPlaybackRate"
+  | "onPlayStateChange"
+  | "onTimeChange"
+  | "onPlaybackRateChange"
+> & {
+  mediaRef: React.RefObject<HTMLAudioElement | null>;
+  label: string;
+  playbackRates: readonly number[];
+  formatTime?: (seconds: number) => string;
+  closeButton: React.ReactNode;
+}) {
+  const media = useMediaState(mediaRef, {
+    onPlayStateChange,
+    onTimeChange,
+    onPlaybackRateChange,
+    defaultPlaybackRate,
+  });
+
+  const toggle = () => {
+    const el = mediaRef.current;
+    if (!el) return;
+    if (el.paused) void el.play().catch(() => {});
+    else el.pause();
+  };
+  const seekTo = (seconds: number) => {
+    const el = mediaRef.current;
+    if (el) el.currentTime = clampTime(el, seconds);
+  };
+  const skip = (delta: number) =>
+    seekTo((mediaRef.current?.currentTime ?? 0) + delta);
+  const sortedRates = [...playbackRates].sort((a, b) => a - b);
+  const volume = media.muted ? 0 : media.volume;
+
+  return (
+    <div
+      role="group"
+      aria-label={`${label} controls`}
+      data-slot="audio-player-transport"
+      className="flex min-w-0 flex-1 items-center gap-1 sm:gap-2"
+      onKeyDown={(event) => {
+        const target = event.target as HTMLElement;
+        const onSlider = target.closest("[data-slot=slider]") != null;
+        if (event.key === " " && !target.closest("button")) {
+          event.preventDefault();
+          toggle();
+        } else if (!onSlider && event.key === "ArrowLeft") {
+          event.preventDefault();
+          skip(-FLOATING_KEY_SEEK);
+        } else if (!onSlider && event.key === "ArrowRight") {
+          event.preventDefault();
+          skip(FLOATING_KEY_SEEK);
+        }
+      }}
+    >
+      <div className="flex shrink-0 items-center gap-0.5">
+        <FloatingTip content={`Back ${skipSeconds}s`}>
+          <Button
+            variant="ghost"
+            size="icon"
+            aria-label={`Back ${skipSeconds} seconds`}
+            className={FLOATING_ICON_BUTTON}
+            onClick={() => skip(-skipSeconds)}
+          >
+            <RotateCcw aria-hidden />
+          </Button>
+        </FloatingTip>
+        <FloatingTip content={media.playing ? "Pause" : "Play"}>
+          <Button
+            size="icon"
+            aria-label={media.playing ? `Pause ${label}` : `Play ${label}`}
+            className="size-9 shrink-0 rounded-full [&_svg]:size-4"
+            onClick={toggle}
+          >
+            {media.playing ? (
+              <Pause className="fill-current" aria-hidden />
+            ) : (
+              <Play className="fill-current" aria-hidden />
+            )}
+          </Button>
+        </FloatingTip>
+        <FloatingTip content={`Forward ${skipSeconds}s`}>
+          <Button
+            variant="ghost"
+            size="icon"
+            aria-label={`Forward ${skipSeconds} seconds`}
+            className={FLOATING_ICON_BUTTON}
+            onClick={() => skip(skipSeconds)}
+          >
+            <RotateCw aria-hidden />
+          </Button>
+        </FloatingTip>
+      </div>
+
+      <span className="shrink-0 text-xs tabular-nums text-muted-foreground">
+        {formatTime(media.time)}
+      </span>
+      <FloatingSeek
+        label={label}
+        time={media.time}
+        duration={media.duration}
+        buffered={media.buffered}
+        formatTime={formatTime}
+        onSeek={seekTo}
+      />
+      <span className="shrink-0 text-xs tabular-nums text-muted-foreground">
+        {formatTime(media.duration)}
+      </span>
+
+      <div className="flex shrink-0 items-center gap-0.5">
+        <DropdownMenu>
+          <FloatingTip content="Playback speed">
+            <DropdownMenuTrigger
+              render={
+                <Button
+                  variant="ghost"
+                  aria-label={`Playback speed, ${media.rate}x`}
+                  className="h-8 min-w-11 shrink-0 rounded-full px-2 text-xs font-medium tabular-nums"
+                />
+              }
+            >
+              {media.rate}x
+            </DropdownMenuTrigger>
+          </FloatingTip>
+          <DropdownMenuContent align="end" side="top" className="min-w-24">
+            <DropdownMenuRadioGroup
+              value={String(media.rate)}
+              onValueChange={(value) => {
+                const el = mediaRef.current;
+                if (el) el.playbackRate = Number(value);
+              }}
+            >
+              {sortedRates.map((rate) => (
+                <DropdownMenuRadioItem key={rate} value={String(rate)}>
+                  {rate}x
+                </DropdownMenuRadioItem>
+              ))}
+            </DropdownMenuRadioGroup>
+          </DropdownMenuContent>
+        </DropdownMenu>
+        <Popover>
+          <PopoverTrigger
+            openOnHover
+            render={
+              <Button
+                variant="ghost"
+                size="icon"
+                aria-label={`${label} volume`}
+                className={cn(FLOATING_ICON_BUTTON, "max-sm:hidden")}
+              />
+            }
+          >
+            {volume === 0 ? (
+              <VolumeX aria-hidden />
+            ) : volume < 0.5 ? (
+              <Volume1 aria-hidden />
+            ) : (
+              <Volume2 aria-hidden />
+            )}
+          </PopoverTrigger>
+          <PopoverContent
+            side="top"
+            className="flex w-40 items-center gap-2 p-2"
+          >
+            <Button
+              variant="ghost"
+              size="icon"
+              aria-label={media.muted ? `Unmute ${label}` : `Mute ${label}`}
+              className={FLOATING_ICON_BUTTON}
+              onClick={() => {
+                const el = mediaRef.current;
+                if (el) el.muted = !el.muted;
+              }}
+            >
+              {volume === 0 ? <VolumeX aria-hidden /> : <Volume2 aria-hidden />}
+            </Button>
+            <Slider
+              value={[Math.round(volume * 100)]}
+              min={0}
+              max={100}
+              step={1}
+              aria-label={`${label} volume level`}
+              onValueChange={(value) => {
+                const el = mediaRef.current;
+                if (!el) return;
+                const next =
+                  (Array.isArray(value) ? (value[0] ?? 0) : (value as number)) /
+                  100;
+                el.volume = next;
+                el.muted = next === 0;
+              }}
+            />
+          </PopoverContent>
+        </Popover>
+        {closeButton}
+      </div>
     </div>
   );
 }

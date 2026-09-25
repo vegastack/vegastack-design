@@ -250,7 +250,6 @@ export function audioPlayerFloating(): ReactNode {
           variant="floating"
           src={SAMPLE_AUDIO}
           label="Weekly sync recording"
-          title="Weekly sync"
           skipSeconds={10}
           onOpenChange={() => {}}
         />
