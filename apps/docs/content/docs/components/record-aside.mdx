@@ -1,0 +1,139 @@
+---
+title: Record Aside
+description: The cards of a record page's right rail — titled sections of inline properties, people, linked records and full-width action rows.
+audience: public
+registry: record-aside
+status: stable
+since: 0.23.19
+a11y: labelled regions, lists, tooltip-named icon actions
+preview: recordAside
+---
+
+## Install
+
+<InstallSteps name="record-aside" />
+
+## Usage
+
+```tsx
+import { PropertyList, PropertySection } from "@/components/ui/property-list";
+import {
+  ActionList,
+  ActionListItem,
+  RecordAsideAction,
+  RecordAsideCard,
+  RecordAsideSection,
+} from "@/components/ui/record-aside";
+
+<RecordAsideCard>
+  <RecordAsideSection title="Details">
+    <PropertyList variant="inline">…</PropertyList>
+    <PropertySection title="Participants">…</PropertySection>
+  </RecordAsideSection>
+</RecordAsideCard>;
+```
+
+Record Aside is the block a record page puts in its [`RecordLayoutRail`](/docs/components/record-layout)
+— and in the Details sheet that replaces the rail on small screens. A `RecordAsideCard` holds
+`RecordAsideSection`s; each has a small header — the title, a muted count, and an icon action with a
+tooltip (`RecordAsideAction`) or a small Button — above its content:
+
+- an inline [`PropertyList`](/docs/components/property-list) (a fixed label column, values
+  left-aligned at one x; quiet pickers; `PropertyEmpty` for "—"), with `PropertyPerson` for an
+  avatar value;
+- `PropertySection`s for values too big for a row: an [`AvatarStack`](/docs/components/person-hover-card)
+  of people (each with its hover card, the rest behind "+N"), linked-record chips stacked,
+  `PropertyClamp` for long text (three lines, then "Show more");
+- an `ActionList` of full-width rows that run to the card's edges like the Inbox's: a hover tint, no
+  underline; `ActionListChips` holds a row's small picker chips, and `ActionListEmpty` is the
+  compact one-line empty state.
+
+<ComponentPreview
+  name="recordAside"
+  file="components/preview/record-aside.tsx"
+/>
+
+## Anatomy
+
+<Anatomy name="record-aside" />
+
+## Examples
+
+### Actions
+
+The record's work under their own headers: the tasks, with a ↗ icon action (tooltip "View in all
+tasks"), then the AI's suggestions with "Create N tasks". Rows run to the card's edges.
+
+<ComponentPreview
+  name="recordAsideActions"
+  file="components/preview/record-aside.tsx"
+/>
+
+### Loading
+
+`PropertyListSkeleton` (icon, label and value bars on the same tracks), `PropertySectionSkeleton`
+(a title bar and chip bars), `ActionListSkeleton` (status circle, title and meta bars) and
+`RecordAsideSectionSkeleton` (the header bar) draw the rail's layout while the record loads.
+
+<ComponentPreview
+  name="recordAsideSkeleton"
+  file="components/preview/record-aside.tsx"
+/>
+
+### Empty sections
+
+A section with nothing in it keeps its header and says so in one muted line — no icon, no box.
+
+<ComponentPreview
+  name="recordAsideEmpty"
+  file="components/preview/record-aside.tsx"
+/>
+
+## API Reference
+
+### RecordAsideSection
+
+<ApiTable
+  path="../../packages/ui/registry/ui/record-aside.tsx"
+  name="RecordAsideSectionProps"
+/>
+
+### RecordAsideAction
+
+<ApiTable
+  path="../../packages/ui/registry/ui/record-aside.tsx"
+  name="RecordAsideActionProps"
+/>
+
+### PropertyClamp
+
+<ApiTable
+  path="../../packages/ui/registry/ui/record-aside.tsx"
+  name="PropertyClampProps"
+/>
+
+`RecordAsideCard`, `ActionList`, `ActionListItem` (Item's props, less `size` and `variant`),
+`ActionListChips`, `ActionListEmpty` and `PropertyPerson` take their element's native props; the
+skeletons take a row or chip count.
+
+## Accessibility
+
+- Each section is a region named by its title; an `ActionList` is a list of rows.
+- `RecordAsideAction` is an icon button named by its `label`, which is also its tooltip.
+- A row that opens something is a link or a button (`render`); controls inside it (a status menu,
+  a checkbox) stay separate tab stops beside it, not inside it.
+- "Show more" is a button that reports `aria-expanded`; skeletons are `aria-hidden`.
+
+| Key                                 | Action                               |
+| ----------------------------------- | ------------------------------------ |
+| <kbd>Tab</kbd>                      | Move between rows and their controls |
+| <kbd>Enter</kbd> / <kbd>Space</kbd> | Open a row, show more, show everyone |
+
+<StatesTested name="record-aside" />
+
+## Do / Don't
+
+<DoDont
+  do="Keep the facts first (Details), then the record's work (tasks, suggestions), each under its own section header."
+  dont="Underline rows on hover or give them their own borders — the tint is the hover, the card is the frame."
+/>

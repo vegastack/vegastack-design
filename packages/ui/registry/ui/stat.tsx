@@ -1,10 +1,11 @@
-// @vegastack stat@0.23.18 sha256-isXyOOSfD5EYhlgpGMOQsUz12KD9hEV246Co9uQuk5M=
+// @vegastack stat@0.23.18 sha256-iIp100JiQ15eArBLB7pG7XGmluk3s11Jc9n/oMPsjHY=
 
 "use client";
 
 import * as React from "react";
 import { cva } from "class-variance-authority";
 import { cn } from "@vegastack/design";
+import { Skeleton } from "@/components/ui/skeleton";
 
 /* ------------------------------------------------------------------------------------------------
  * Stat — a labelled value block (Wave 2c, from the app-teardown record-highlights pattern):
@@ -145,5 +146,28 @@ export function StatDelta({
       className={cn("text-xs font-medium", DELTA_CLASSES[intent], className)}
       {...props}
     />
+  );
+}
+
+/** Props for `StatSkeleton`. */
+export interface StatSkeletonProps {
+  /** The scale of the Stat it stands in for. @default "md" */
+  size?: "md" | "lg";
+  /** Classes for the block. @default undefined */
+  className?: string;
+}
+
+/** `StatSkeleton` — a Stat while it loads: a label bar over a value bar at the Stat's own scale. @example <StatSkeleton size="lg" /> */
+export function StatSkeleton({ size = "md", className }: StatSkeletonProps) {
+  return (
+    <div
+      aria-hidden
+      data-slot="stat-skeleton"
+      data-size={size}
+      className={cn("flex min-w-0 flex-col gap-1", className)}
+    >
+      <Skeleton className="h-3 w-16" />
+      <Skeleton className={size === "lg" ? "h-7 w-14" : "h-4 w-12"} />
+    </div>
   );
 }

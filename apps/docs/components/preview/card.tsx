@@ -116,6 +116,31 @@ export function cardSize(): ReactNode {
   );
 }
 
+export function cardVariant(): ReactNode {
+  return (
+    <Wrapper>
+      <div className="grid w-full max-w-lg gap-4 sm:grid-cols-2">
+        <Card size="sm">
+          <CardHeader>
+            <CardTitle>Default</CardTitle>
+            <CardDescription>
+              A raised surface with the card fill.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>Open deals: 12</CardContent>
+        </Card>
+        <Card size="sm" variant="outline">
+          <CardHeader>
+            <CardTitle>Outline</CardTitle>
+            <CardDescription>The border only, on the page.</CardDescription>
+          </CardHeader>
+          <CardContent>Open deals: 12</CardContent>
+        </Card>
+      </div>
+    </Wrapper>
+  );
+}
+
 export function cardSpacing(): ReactNode {
   return (
     <Wrapper className="flex-col items-stretch gap-4">

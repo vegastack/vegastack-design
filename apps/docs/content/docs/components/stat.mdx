@@ -69,6 +69,13 @@ While counts load, a `Skeleton` stands in for the value and the label keeps nami
 
 <ComponentPreview name="statLinkedTiles" file="components/preview/stat.tsx" />
 
+### Loading
+
+`StatSkeleton` is a Stat while it loads — a label bar over a value bar at the Stat's own `size` —
+for a whole band of tiles before any count arrives.
+
+<ComponentPreview name="statSkeleton" file="components/preview/stat.tsx" />
+
 ## API Reference
 
 ### Stat
@@ -83,6 +90,13 @@ elements.
 ### StatDelta
 
 <ApiTable path="../../packages/ui/registry/ui/stat.tsx" name="StatDeltaProps" />
+
+### StatSkeleton
+
+<ApiTable
+  path="../../packages/ui/registry/ui/stat.tsx"
+  name="StatSkeletonProps"
+/>
 
 ## Accessibility
 

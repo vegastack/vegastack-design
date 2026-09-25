@@ -8,7 +8,7 @@ import {
   List,
   ListFilterPlus,
   Tag,
-  User,
+  UserRound,
 } from "lucide-react";
 import { Wrapper } from "./wrapper";
 import { Button } from "@/components/ui/button";
@@ -33,7 +33,7 @@ import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 const ADD_OPTIONS = [
   { id: "status", label: "Status", icon: <CircleDot /> },
   { id: "priority", label: "Priority", icon: <Flag /> },
-  { id: "assignee", label: "Assignee", icon: <User /> },
+  { id: "assignee", label: "Assignee", icon: <UserRound /> },
   { id: "label", label: "Label", icon: <Tag /> },
 ];
 
@@ -262,7 +262,7 @@ const ADD_OPTIONS_WITH_DISABLED = [
   { id: "status", label: "Status", icon: <CircleDot /> },
   { id: "priority", label: "Priority", icon: <Flag /> },
   // Only available on a higher plan → disabled, skipped by arrow-key navigation.
-  { id: "assignee", label: "Assignee", icon: <User />, disabled: true },
+  { id: "assignee", label: "Assignee", icon: <UserRound />, disabled: true },
 ];
 
 /**

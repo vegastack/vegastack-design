@@ -12,8 +12,8 @@
     "evidencePolicy": "Observed fields come from source, registry metadata, docs, and test topology. Unknown/not-applicable values are explicit; no inferred behavior is presented as verified."
   },
   "expectedCounts": {
-    "totalRegistryItems": 685,
-    "components": 124,
+    "totalRegistryItems": 687,
+    "components": 126,
     "animatedIcons": 467,
     "hooks": 13,
     "blocks": 10,
@@ -25,7 +25,7 @@
     "Forms/editing": 26,
     "Navigation/layout": 18,
     "Overlays": 14,
-    "Data display": 18,
+    "Data display": 20,
     "Content/marketing": 14,
     "Shared internals": 2,
     "AI/chat": 8,
@@ -142,7 +142,9 @@
       "table",
       "thumbnail",
       "timeline",
-      "view-toggle"
+      "view-toggle",
+      "record-aside",
+      "person-hover-card"
     ],
     "Content/marketing": [
       "alert",
@@ -4150,6 +4152,10 @@
             {
               "name": "data-slot",
               "values": ["card"]
+            },
+            {
+              "name": "data-variant",
+              "values": []
             }
           ],
           "cssVariables": []
@@ -16623,6 +16629,25 @@
       "sourceFiles": ["packages/ui/registry/ui/property-list.tsx"],
       "publicSymbols": [
         {
+          "name": "PropertyEmpty",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/property-list.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "span",
+            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/property-list.tsx."
+          }
+        },
+        {
+          "name": "PropertyEmptyProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/property-list.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
           "name": "PropertyLabel",
           "kind": "component",
           "source": "packages/ui/registry/ui/property-list.tsx",
@@ -16653,7 +16678,7 @@
         },
         {
           "name": "PropertyListProps",
-          "kind": "type",
+          "kind": "interface",
           "source": "packages/ui/registry/ui/property-list.tsx",
           "ref": {
             "status": "not-applicable",
@@ -16673,6 +16698,25 @@
         {
           "name": "PropertyRowProps",
           "kind": "type",
+          "source": "packages/ui/registry/ui/property-list.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "PropertySection",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/property-list.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "section",
+            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/property-list.tsx."
+          }
+        },
+        {
+          "name": "PropertySectionProps",
+          "kind": "interface",
           "source": "packages/ui/registry/ui/property-list.tsx",
           "ref": {
             "status": "not-applicable",
@@ -16766,6 +16810,10 @@
             {
               "name": "data-slot",
               "values": ["property-list"]
+            },
+            {
+              "name": "data-variant",
+              "values": []
             }
           ],
           "cssVariables": []
@@ -16793,6 +16841,24 @@
             {
               "name": "data-slot",
               "values": ["property-value"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "PropertyEmpty": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["property-empty"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "PropertySection": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["property-section", "property-section-title"]
             }
           ],
           "cssVariables": []
@@ -19592,6 +19658,24 @@
           }
         },
         {
+          "name": "StatSkeleton",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/stat.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A loading placeholder; takes no ref."
+          }
+        },
+        {
+          "name": "StatSkeletonProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/stat.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
           "name": "StatValue",
           "kind": "component",
           "source": "packages/ui/registry/ui/stat.tsx",
@@ -19678,7 +19762,7 @@
       },
       "engines": [],
       "docsSlug": "/docs/components/stat",
-      "registryDependencies": [],
+      "registryDependencies": ["@vegastack/skeleton"],
       "npmDependencies": [
         "class-variance-authority@^0.7.1",
         "@vegastack/design@^0.7.27",
@@ -19744,6 +19828,19 @@
             {
               "name": "data-slot",
               "values": ["stat-delta"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "StatSkeleton": {
+          "attributes": [
+            {
+              "name": "data-size",
+              "values": []
+            },
+            {
+              "name": "data-slot",
+              "values": ["stat-skeleton"]
             }
           ],
           "cssVariables": []
@@ -24386,6 +24483,623 @@
             {
               "name": "data-slot",
               "values": ["record-layout-rail"]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
+    },
+    {
+      "name": "record-aside",
+      "registryType": "registry:ui",
+      "title": "Record Aside",
+      "summary": "The cards of a record page's right rail — titled sections of inline properties, people, linked records and full-width action rows.",
+      "status": "stable",
+      "since": "0.23.19",
+      "family": "data",
+      "wave": "Data display",
+      "sourceFiles": ["packages/ui/registry/ui/record-aside.tsx"],
+      "publicSymbols": [
+        {
+          "name": "RecordAsideCard",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/record-aside.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Delegates to Card; props (and ref) spread onto the card."
+          }
+        },
+        {
+          "name": "RecordAsideSection",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/record-aside.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "section",
+            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/record-aside.tsx."
+          }
+        },
+        {
+          "name": "RecordAsideAction",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/record-aside.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Renders a Tooltip trigger around a Button."
+          }
+        },
+        {
+          "name": "ActionList",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/record-aside.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Delegates to ItemGroup."
+          }
+        },
+        {
+          "name": "ActionListItem",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/record-aside.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Delegates to Item."
+          }
+        },
+        {
+          "name": "ActionListEmpty",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/record-aside.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "p",
+            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/record-aside.tsx."
+          }
+        },
+        {
+          "name": "PropertyPerson",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/record-aside.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "span",
+            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/record-aside.tsx."
+          }
+        },
+        {
+          "name": "PropertyClamp",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/record-aside.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Owns its measuring ref; takes none."
+          }
+        },
+        {
+          "name": "RecordAsideCardProps",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/record-aside.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "RecordAsideSectionProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/record-aside.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "RecordAsideActionProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/record-aside.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "ActionListProps",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/record-aside.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "ActionListItemProps",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/record-aside.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "ActionListEmptyProps",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/record-aside.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "PropertyPersonValue",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/record-aside.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "PropertyPersonProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/record-aside.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "PropertyClampProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/record-aside.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "ActionListChips",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/record-aside.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "div",
+            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/record-aside.tsx."
+          }
+        },
+        {
+          "name": "ActionListChipsProps",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/record-aside.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "PropertyListSkeleton",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/record-aside.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A loading placeholder; takes no ref."
+          }
+        },
+        {
+          "name": "PropertyListSkeletonProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/record-aside.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "PropertySectionSkeleton",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/record-aside.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A loading placeholder; takes no ref."
+          }
+        },
+        {
+          "name": "PropertySectionSkeletonProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/record-aside.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "ActionListSkeleton",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/record-aside.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A loading placeholder; takes no ref."
+          }
+        },
+        {
+          "name": "ActionListSkeletonProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/record-aside.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "RecordAsideSectionSkeleton",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/record-aside.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A loading placeholder; takes no ref."
+          }
+        },
+        {
+          "name": "RecordAsideSectionSkeletonProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/record-aside.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "Composes Card, Item and Button; no local axis."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "Composes Card, Item and Button; no local axis."
+      },
+      "states": {
+        "behavior": {
+          "status": "covered",
+          "values": ["clamp", "skeleton"],
+          "evidence": "packages/ui/registry/ui/record-aside.tsx + packages/ui/registry/ui/record-aside.test.tsx"
+        },
+        "accessibility": {
+          "status": "covered",
+          "values": ["labeled", "browser-accessibility-test"],
+          "evidence": "packages/ui/registry/ui/record-aside.test.tsx"
+        },
+        "visual": {
+          "status": "observed",
+          "values": ["default", "hover", "empty"],
+          "evidence": "packages/ui/registry/ui/record-aside.tsx"
+        }
+      },
+      "responsive": {
+        "status": "modeled",
+        "risks": ["responsive-or-container-layout"],
+        "rationale": "Sized by the rail or sheet it sits in; rows wrap their meta, values truncate."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned motion mechanism."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/record-aside",
+      "registryDependencies": [
+        "@vegastack/button",
+        "@vegastack/card",
+        "@vegastack/item",
+        "@vegastack/person-hover-card",
+        "@vegastack/skeleton",
+        "@vegastack/tooltip"
+      ],
+      "npmDependencies": [
+        "@vegastack/design@^0.7.23",
+        "@vegastack/design-tokens@^0.7.18",
+        "lucide-react@^1.47.0"
+      ],
+      "testFiles": ["packages/ui/registry/ui/record-aside.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required"
+      },
+      "previewModule": "record-aside",
+      "dataAttributes": {
+        "RecordAsideCard": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["record-aside-card"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "RecordAsideSection": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["record-aside-section", "record-aside-section-header"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "ActionList": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["action-list"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "ActionListItem": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["action-list-item"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "ActionListChips": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["action-list-chips"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "ActionListEmpty": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["action-list-empty"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "PropertyPerson": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["property-person"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "PropertyClamp": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["property-clamp"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "PropertyListSkeleton": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["property-list-skeleton"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "PropertySectionSkeleton": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["property-section-skeleton"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "ActionListSkeleton": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["action-list-skeleton"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "RecordAsideSectionSkeleton": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["record-aside-section-skeleton"]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
+    },
+    {
+      "name": "person-hover-card",
+      "registryType": "registry:ui",
+      "title": "Person Hover Card",
+      "summary": "Stacked avatars with a hover card per person — a compact card with a 32px avatar, with the name and muted email beside it — and the rest behind \"+N\".",
+      "status": "stable",
+      "since": "0.23.19",
+      "family": "data",
+      "wave": "Data display",
+      "sourceFiles": ["packages/ui/registry/ui/person-hover-card.tsx"],
+      "publicSymbols": [
+        {
+          "name": "AvatarStack",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/person-hover-card.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Renders an Avatar group; takes no ref."
+          }
+        },
+        {
+          "name": "PersonHoverCard",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/person-hover-card.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Renders a HoverCard and its trigger; takes no ref."
+          }
+        },
+        {
+          "name": "PersonCard",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/person-hover-card.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "div",
+            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/person-hover-card.tsx."
+          }
+        },
+        {
+          "name": "PersonAvatar",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/person-hover-card.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Renders an Avatar; takes no ref."
+          }
+        },
+        {
+          "name": "Person",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/person-hover-card.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "AvatarStackProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/person-hover-card.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "PersonHoverCardProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/person-hover-card.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "PersonCardProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/person-hover-card.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "PersonAvatarProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/person-hover-card.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "Composes Avatar, HoverCard and Popover; no local axis."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "Composes Avatar, HoverCard and Popover; no local axis."
+      },
+      "states": {
+        "behavior": {
+          "status": "covered",
+          "values": ["stack", "overflow", "hover-card"],
+          "evidence": "packages/ui/registry/ui/person-hover-card.tsx + packages/ui/registry/ui/person-hover-card.test.tsx"
+        },
+        "accessibility": {
+          "status": "covered",
+          "values": ["labeled", "browser-accessibility-test"],
+          "evidence": "packages/ui/registry/ui/person-hover-card.test.tsx"
+        },
+        "visual": {
+          "status": "observed",
+          "values": ["default", "open"],
+          "evidence": "packages/ui/registry/ui/person-hover-card.tsx"
+        }
+      },
+      "responsive": {
+        "status": "modeled",
+        "risks": ["responsive-or-container-layout"],
+        "rationale": "A fixed-size stack; the card and list cap their width and truncate."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned motion mechanism."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/person-hover-card",
+      "registryDependencies": [
+        "@vegastack/avatar",
+        "@vegastack/button",
+        "@vegastack/hover-card",
+        "@vegastack/popover"
+      ],
+      "npmDependencies": [
+        "@vegastack/design@^0.7.23",
+        "@vegastack/design-tokens@^0.7.18",
+        "lucide-react@^1.47.0"
+      ],
+      "testFiles": ["packages/ui/registry/ui/person-hover-card.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required"
+      },
+      "previewModule": "person-hover-card",
+      "dataAttributes": {
+        "PersonCard": {
+          "attributes": [
+            {
+              "name": "data-layout",
+              "values": []
+            },
+            {
+              "name": "data-slot",
+              "values": ["person-card"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "AvatarStack": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["avatar-stack"]
             }
           ],
           "cssVariables": []

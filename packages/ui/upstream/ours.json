@@ -410,6 +410,18 @@
       "family": "layout",
       "source": "Operator brief 2026-09-25 (meeting page right rail) — approved by MK 2026-09-25",
       "rationale": "Upstream ships no record-page frame. It is a fixed composition of upstream sheet and button with a sticky rail; no patch."
+    },
+    "record-aside": {
+      "disposition": "keep",
+      "family": "data",
+      "source": "Operator brief 2026-09-25 (record side panel redesign) — approved by MK 2026-09-25",
+      "rationale": "Upstream ships no record rail. A fixed composition of upstream card, item, avatar, button and tooltip; no patch."
+    },
+    "person-hover-card": {
+      "disposition": "keep",
+      "family": "data",
+      "source": "Operator brief 2026-09-25 (meeting participants) — approved by MK 2026-09-25",
+      "rationale": "Upstream ships no person preview. A fixed composition of upstream avatar (group), hover-card, popover and button; no patch."
     }
   }
 }

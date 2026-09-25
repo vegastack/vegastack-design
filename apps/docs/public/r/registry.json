@@ -672,7 +672,7 @@
         "whenToUse": "Group related content into a bordered surface — summaries, plan tiles, settings sections.",
         "whenNotToUse": "Single standalone values or page layout regions; never nest cards or add shadows.",
         "version": "0.23.18",
-        "integrity": "sha256-xl2Q8svQVUp8ZQC7q37FZk11T8vF+5+3WQy6AndDkf0="
+        "integrity": "sha256-qnYUjZM6eof+AfsHLa6aHGY9iY5pjaIkcEDXSglfpgQ="
       }
     },
     {
@@ -1770,7 +1770,7 @@
         "whenToUse": "Filter toolbars for lists/tables — 'Label: value' chips that edit in place, facets on SearchableSelect, an Add-filter menu and a settled search, at the end or first.",
         "whenNotToUse": "A single search box (Input), value selection (Select), or unrelated row actions.",
         "version": "0.23.18",
-        "integrity": "sha256-UiRoGI2qhPVmgbiJoabvVdSVnpzZQEW+15g2LnL2Od0="
+        "integrity": "sha256-1uGRwrivzp/9kYKCn2QW10EV5m6+xPbgvBHYIRSbHvw="
       }
     },
     {
@@ -15803,7 +15803,75 @@
         "whenToUse": "Heterogeneous key→value panes (record details, metadata sidebars).",
         "whenNotToUse": "Homogeneous collections (DataList/Table) or form editing (Field).",
         "version": "0.23.18",
-        "integrity": "sha256-3wo0f1F6xfX46KJiQbUgDCkkMN8iASwMXN87i3X3mQc="
+        "integrity": "sha256-b2xJ/Resf119k6kgErC0HgTmVTG4bJGGY94do+VQd78="
+      }
+    },
+    {
+      "name": "person-hover-card",
+      "type": "registry:ui",
+      "title": "Person Hover Card",
+      "description": "Stacked avatars with a hover card per person — a compact card with a 32px avatar, with the name and muted email beside it — and the rest behind \"+N\".",
+      "categories": [
+        "data"
+      ],
+      "dependencies": [
+        "@vegastack/design@^0.7.23",
+        "@vegastack/design-tokens@^0.7.18",
+        "lucide-react@^1.47.0"
+      ],
+      "registryDependencies": [
+        "@vegastack/avatar",
+        "@vegastack/button",
+        "@vegastack/hover-card",
+        "@vegastack/popover"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/person-hover-card.tsx",
+          "type": "registry:ui",
+          "target": "@ui/person-hover-card.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "Show the people on a record (participants, watchers, a team) as stacked avatars, each previewing the person on hover, focus or tap.",
+        "whenNotToUse": "A picker of people (SearchableSelect) or a full member list (DataList).",
+        "version": "0.23.14",
+        "integrity": "sha256-HPc4r9FTZkoGyWSv4K+VlpN5AVmSx1r+kCba+Tgn2Dc="
+      }
+    },
+    {
+      "name": "record-aside",
+      "type": "registry:ui",
+      "title": "Record Aside",
+      "description": "The cards of a record page's right rail — titled sections of inline properties, people, linked records and full-width action rows.",
+      "categories": [
+        "data"
+      ],
+      "dependencies": [
+        "@vegastack/design@^0.7.23",
+        "@vegastack/design-tokens@^0.7.18",
+        "lucide-react@^1.47.0"
+      ],
+      "registryDependencies": [
+        "@vegastack/button",
+        "@vegastack/card",
+        "@vegastack/item",
+        "@vegastack/person-hover-card",
+        "@vegastack/skeleton",
+        "@vegastack/tooltip"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/record-aside.tsx",
+          "type": "registry:ui",
+          "target": "@ui/record-aside.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "A record page's rail cards (and its Details sheet): a Details section of inline properties, people and linked records, then sections of full-width rows for the record's tasks and suggestions.",
+        "whenNotToUse": "A full list page (DataList) or a settings form (Field).",
+        "version": "0.23.14",
+        "integrity": "sha256-j9ciJHKTkl/hc5oL5dA0BBBcWsuk1tl4bBDFZny9rgw="
       }
     },
     {
@@ -16417,8 +16485,11 @@
         "whenToUse": "Record highlights and dashboard stat tiles where a value needs a quiet label.",
         "whenNotToUse": "Tabular data (Table/DataList) or live-updating counters (AnimatedNumber inside StatValue is fine).",
         "version": "0.23.18",
-        "integrity": "sha256-isXyOOSfD5EYhlgpGMOQsUz12KD9hEV246Co9uQuk5M="
-      }
+        "integrity": "sha256-iIp100JiQ15eArBLB7pG7XGmluk3s11Jc9n/oMPsjHY="
+      },
+      "registryDependencies": [
+        "@vegastack/skeleton"
+      ]
     },
     {
       "name": "priority-icon",
@@ -17404,7 +17475,7 @@
         "whenToUse": "A tasks or pipeline page laid out as lanes — copy it once and wire the filters, card links and moves to your data.",
         "whenNotToUse": "A list with many columns of data — use a DataList page instead.",
         "version": "0.23.18",
-        "integrity": "sha256-fQOT78jr8qwbTCbpVxp7mwKfV2oKCnE9URd53XUSEAE="
+        "integrity": "sha256-mMMaj0IPlHlfIbcCDY7Xsdf7FauRp/cpY8g85bI/HyA="
       }
     },
     {

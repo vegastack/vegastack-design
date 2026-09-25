@@ -171,6 +171,7 @@
     "OVL-16": ["command", "dialog", "sheet"],
     "API-27": ["combobox"],
     "API-28": ["attachment"],
+    "API-30": ["card"],
     "COL-23": ["toast"],
     "ICO-8": ["spinner", "toast"],
     "BRD-1": [
