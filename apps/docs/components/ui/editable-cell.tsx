@@ -1,4 +1,4 @@
-// @vegastack editable-cell@0.23.13 sha256-oQUHno64rbq8KXSjyJQuvUUbXVUEzUCm+2FcNUant1Q=
+// @vegastack editable-cell@0.23.14 sha256-YJbw9KDideLxXO4er0LZbAxwK0RILZzb2iWL+3U5ZfU=
 
 "use client";
 
