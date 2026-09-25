@@ -1,4 +1,4 @@
-// @vegastack settings-row@0.23.21 sha256-sFm/d20EWibsOERq8I2p2jz8d/ppmDtbIY7ejfnjP0A=
+// @vegastack settings-row@0.23.21 sha256-jLxT3+XU9PDmycqZLTSH5P9fZrMnTGNpOnBSXBZkWL8=
 
 import * as React from "react";
 import { cn } from "@vegastack/design";
@@ -42,11 +42,17 @@ export interface SettingsSectionProps extends Omit<
    * @default undefined
    */
   description?: React.ReactNode;
+  /**
+   * Section-level actions ("Sign out other devices", "New attribute") on the SAME row as the
+   * title, right-aligned. They wrap under the title only when the row runs out of room.
+   * @default undefined
+   */
+  actions?: React.ReactNode;
 }
 
 /**
- * `SettingsSection` — a titled group of settings. Renders an optional `title`
- * and `description` above its `children` (typically a `SettingsCard`).
+ * `SettingsSection` — a titled group of settings. Renders an optional `title`,
+ * `description` and right-aligned `actions` above its `children` (typically a `SettingsCard`).
  *
  * Pure presentational and server-safe — no hooks, no `'use client'`.
  *
@@ -64,6 +70,7 @@ export function SettingsSection({
   title,
   titleAs: TitleTag = "h3",
   description,
+  actions,
   children,
   ref,
   ...props
@@ -75,26 +82,36 @@ export function SettingsSection({
       className={cn("flex flex-col gap-4", className)}
       {...props}
     >
-      {(title != null || description != null) && (
+      {(title != null || description != null || actions != null) && (
         <div
           data-slot="settings-section-header"
-          className="flex flex-col gap-1"
+          className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2"
         >
-          {title != null && (
-            <TitleTag
-              data-slot="settings-section-title"
-              className="font-heading text-base font-medium text-foreground"
+          <div className="flex min-w-0 flex-col gap-1">
+            {title != null && (
+              <TitleTag
+                data-slot="settings-section-title"
+                className="font-heading text-base font-medium text-foreground"
+              >
+                {title}
+              </TitleTag>
+            )}
+            {description != null && (
+              <p
+                data-slot="settings-section-description"
+                className="text-xs leading-normal text-muted-foreground"
+              >
+                {description}
+              </p>
+            )}
+          </div>
+          {actions != null && (
+            <div
+              data-slot="settings-section-actions"
+              className="ms-auto flex shrink-0 items-center gap-2"
             >
-              {title}
-            </TitleTag>
-          )}
-          {description != null && (
-            <p
-              data-slot="settings-section-description"
-              className="text-xs leading-normal text-muted-foreground"
-            >
-              {description}
-            </p>
+              {actions}
+            </div>
           )}
         </div>
       )}
