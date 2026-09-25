@@ -900,8 +900,11 @@
       "registryDependencies": [
         "@vegastack/dialog",
         "@vegastack/input-group",
+        "@vegastack/icon-search",
         "@vegastack/item",
-        "@vegastack/use-announcer"
+        "@vegastack/kbd",
+        "@vegastack/use-announcer",
+        "@vegastack/use-platform"
       ],
       "files": [
         {
@@ -914,7 +917,7 @@
         "whenToUse": "A keyboard-first command palette — global ⌘K, action launchers, a filtered list of things to do or go to — including a large palette over server results, with a loading status, two-line results and a footer of key hints.",
         "whenNotToUse": "Picking a form value, and never a multi-select — Command's check mark is visual only (Select, SearchableSelect or Combobox) — or a small static action menu (DropdownMenu).",
         "version": "0.23.2",
-        "integrity": "sha256-kRb4LTsVpqpiegKzu0jHchbWSFVr4c3i+723iPliBcc="
+        "integrity": "sha256-TlVOlGQ7J5cC0tEG6dolaSEeAnADQopBFKp2Ye/QgoM="
       }
     },
     {

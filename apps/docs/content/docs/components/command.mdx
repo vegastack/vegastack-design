@@ -122,11 +122,16 @@ shortcut's `ms-auto` are logical properties, so the whole palette mirrors.
 
 <ComponentPreview name="commandRtl" file="components/preview/command.tsx" />
 
-### Large palette
+### Wide palette, filters and key hints
 
-`CommandDialog` takes the same `size` scale as `DialogContent` — `sm`, `default`, `lg` and `xl`.
-At `lg` and `xl` the list inside grows too, to `min(28rem, 60dvh)`, so a wide palette over many
-results is not a wide letterbox.
+`CommandDialog` defaults to a wide palette (820px). It also takes `DialogContent`'s `sm`, `lg`
+and `xl` sizes; at `lg` and `xl` the list grows to `min(28rem, 60dvh)`.
+
+`CommandFilters` is the row under the search field. Put type chips in it — a `ToggleGroup` with
+`wrap`, so the chips wrap tidily — and any other control, such as a Select. `CommandFooter` with
+no children shows the built-in key hints, ↵ Open · ⌘↵ New tab · Esc Close (Ctrl ↵ off Apple
+platforms), as `Kbd`s; pass `hints` to change them. The footer sits flush with the bottom edge
+and the list ends right above it.
 
 <ComponentPreview
   name="commandLargePalette"
@@ -137,8 +142,8 @@ results is not a wide letterbox.
 
 When results come from a server, turn cmdk's filter off with `shouldFilter={false}`, feed the
 query to your fetch through `CommandInput`'s `value`/`onValueChange`, and render `CommandLoading`
-while a request is in flight. It is a polite `role="status"` whose text is spoken (default
-"Searching…"); pass `progress` (0–100) and it stays a labelled `progressbar` instead. Render it above `CommandList`, or only while the list is empty — a status inside a
+while a request is in flight. It shows the animated search icon beside its text and is a polite
+`role="status"` whose text is spoken (default "Searching…"); pass `progress` (0–100) and it stays a labelled `progressbar` instead. Render it above `CommandList`, or only while the list is empty — a status inside a
 listbox that holds options is not a valid listbox child.
 
 <ComponentPreview
@@ -160,7 +165,8 @@ reader reads it after the option rather than as a second name.
 ### Footer hints
 
 `CommandFooter` is a row for key hints, a result count or a link. It sits outside `CommandList`,
-so it is never announced as an option.
+so it is never announced as an option. Children replace the built-in hints; `hints` (an array of
+`{ keys, label }`) changes them while keeping the `Kbd` layout.
 
 <ComponentPreview
   name="commandFooterHints"
@@ -177,7 +183,7 @@ so it is never announced as an option.
 
 <ApiTable path="lib/api-props.ts" name="CommandFooterProps" />
 
-`CommandInput`, `CommandList`, `CommandEmpty`, `CommandGroup`, `CommandItem`, `CommandSeparator` and
+`CommandFilters` accepts everything a `div` accepts. `CommandInput`, `CommandList`, `CommandEmpty`, `CommandGroup`, `CommandItem`, `CommandSeparator` and
 `CommandShortcut` add no props of their own — each accepts everything the cmdk part (or, for
 `CommandShortcut`, a `span`) accepts.
 
@@ -248,6 +254,9 @@ Upstream's file plus `packages/ui/upstream/patches/command.patch`. Every hunk:
   against `100dvh`, and gives the command region a shrinkable grid row. Short viewports keep the
   search row, scrolling results and an optional footer inside the visible browser area.
 - **OVL-16** — `CommandDialog` takes `DialogContent`'s `size` scale, and the list grows taller at
-  `lg` and `xl`.
+  `lg` and `xl`. Its `default` is the wide 820px palette, and the dialog is a gapless flex column,
+  so no empty row or padding sits below the footer.
+- **API-18 (filters, hints)** — `CommandFilters` (a wrapping row under the input), built-in `Kbd`
+  key hints in `CommandFooter`, and the animated search icon in `CommandLoading`.
 - **VOI-1** — the default title and description are "Command palette" and "Search for a
   command…", and `resultsLabel` overrides the announced result count.
