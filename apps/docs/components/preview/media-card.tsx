@@ -5,19 +5,18 @@ import { Lamp, TriangleAlert } from "lucide-react";
 import { Wrapper } from "./wrapper";
 import { Badge } from "@/components/ui/badge";
 import { MediaCard } from "@/components/ui/media-card";
-import { RowActionsMenu } from "@/components/ui/data-table-parts";
+import {
+  RowActionsMenu,
+  type RowAction,
+} from "@/components/ui/data-table-parts";
 
 const IMG =
   "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 9'><rect width='16' height='9' fill='%23d6d3d1'/><circle cx='8' cy='4.5' r='2.5' fill='%23a8a29e'/></svg>";
 
-const actions = [
+const actions: RowAction[] = [
   { label: "Copy link", onSelect: () => {} },
-  {
-    label: "Delete",
-    destructive: true,
-    separatorBefore: true,
-    onSelect: () => {},
-  },
+  { type: "separator" },
+  { label: "Delete", destructive: true, onSelect: () => {} },
 ];
 
 const pill = (

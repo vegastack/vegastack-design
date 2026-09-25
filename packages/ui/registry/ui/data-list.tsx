@@ -1,4 +1,4 @@
-// @vegastack data-list@0.23.9 sha256-M9Hv9pC+c54jLjMWmT41H2U7IuEZBNxbBIDuqF+kLxw=
+// @vegastack data-list@0.23.9 sha256-j5/gbJ7lXIz05iZjx6g2Dx57u3VfO9Rw0Bp88HB6g2o=
 
 "use client";
 
@@ -44,6 +44,8 @@ import {
   type DataTableColumnMobile,
   type SortDirection,
   type RowAction,
+  type RowActionItem,
+  type RowActionSeparator,
 } from "@/components/ui/data-table-parts";
 import { TruncationFocusProvider } from "@/components/ui/truncated-text";
 import { Board, type BoardColumn } from "@/components/ui/board";
@@ -54,7 +56,13 @@ import { Thumbnail } from "@/components/ui/thumbnail";
 import { ViewToggle, type ListView } from "@/components/ui/view-toggle";
 import type { DragReorderMove } from "@/components/ui/use-drag-reorder";
 
-export type { DataTableColumnMobile, RowAction, SortDirection };
+export type {
+  DataTableColumnMobile,
+  RowAction,
+  RowActionItem,
+  RowActionSeparator,
+  SortDirection,
+};
 
 /** How a `DataList` lays its rows out: a table, a card grid, or board lanes. */
 export type DataListView = ListView;

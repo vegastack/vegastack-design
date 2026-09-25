@@ -176,7 +176,7 @@ A component's name undersells it. Before composing something by hand, check this
   lanes with `onMove` and a per-section `loading` / `loadMore` / `emptyState`. Record images are a
   column `thumbnail` + `thumbnailFallback` (the app mark) — never a hand-rolled card grid, card or
   `<img>`. A count needing attention is `<Badge variant="warning"><TriangleAlert />n</Badge>`, and
-  a destructive ⋯ item takes `separatorBefore`.
+  groups in a ⋯ menu are split by `{ type: "separator" }` entries.
 - **A list that pages by cursor** → `DataList` `loadMore` (or `LoadMore` under your own list), with
   `useAsyncSearch` when the search runs on the server.
 

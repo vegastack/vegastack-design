@@ -1,4 +1,4 @@
-// @vegastack data-table-parts@0.23.9 sha256-F7mWX8S+tTUP2+iVkfhwqNRZNJG0XaUdXy4ixNEbVKQ=
+// @vegastack data-table-parts@0.23.9 sha256-uDwHOiX9kXtWLKo//wNMMGcJqcUs/1nvA3z7lT5SdUA=
 
 "use client";
 
@@ -909,8 +909,13 @@ export function EmptyRow({
   );
 }
 
-/** One entry of a row's actions menu. */
-export interface RowAction {
+/** One item of a row's actions menu. */
+export interface RowActionItem {
+  /**
+   * An item (the default). `{ type: "separator" }` is the other kind of entry.
+   * @default "item"
+   */
+  type?: "item";
   /** The item's text, and its accessible name. */
   label: string;
   /**
@@ -952,6 +957,44 @@ export interface RowAction {
   separatorBefore?: boolean;
 }
 
+/** A divider between groups of row actions: `{ type: "separator" }`. */
+export interface RowActionSeparator {
+  /** Marks the entry as a separator. */
+  type: "separator";
+}
+
+/**
+ * One entry of a row's actions menu — an item, or `{ type: "separator" }` between groups.
+ * Leading, trailing and doubled separators are dropped.
+ */
+export type RowAction = RowActionItem | RowActionSeparator;
+
+/** True for a real item (not a separator). */
+export function isRowActionItem(action: RowAction): action is RowActionItem {
+  return action.type !== "separator";
+}
+
+/**
+ * The entries as items, each marked when a separator (or `separatorBefore`) precedes it — with
+ * leading, trailing and doubled separators dropped.
+ */
+function withSeparators(actions: RowAction[]) {
+  const out: { action: RowActionItem; separated: boolean }[] = [];
+  let pending = false;
+  for (const action of actions) {
+    if (!isRowActionItem(action)) {
+      pending = true;
+      continue;
+    }
+    out.push({
+      action,
+      separated: out.length > 0 && (pending || !!action.separatorBefore),
+    });
+    pending = false;
+  }
+  return out;
+}
+
 /**
  * `RowActionMenuItems` — a `RowAction[]` as dropdown menu items, for a host that already owns
  * a menu (Board's card menu, SortableList's row menu) and merges its own items after them.
@@ -974,11 +1017,9 @@ export function RowActionMenuItems({
 }) {
   return (
     <>
-      {actions.map((action, index) => (
+      {withSeparators(actions).map(({ action, separated }) => (
         <React.Fragment key={action.label}>
-          {action.separatorBefore && index > 0 ? (
-            <DropdownMenuSeparator />
-          ) : null}
+          {separated ? <DropdownMenuSeparator /> : null}
           <DropdownMenuItem
             variant={action.destructive ? "destructive" : "default"}
             disabled={action.disabled}
@@ -1043,8 +1084,9 @@ export function RowActionsMenu({
   actionsLabel = defaultActionsLabel,
 }: RowActionsMenuProps) {
   const reasonId = React.useId();
-  if (actions.length === 0) return null;
-  const only = actions.length === 1 ? actions[0]! : null;
+  const items = actions.filter(isRowActionItem);
+  if (items.length === 0) return null;
+  const only = items.length === 1 ? items[0]! : null;
   if (only && only.icon != null) {
     const name = `${only.label} ${label}`;
     // A tooltip is not a description: a disabled icon action says why through a hidden element.

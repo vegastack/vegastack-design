@@ -298,7 +298,10 @@ for the row (_Actions for Ada Lovelace_). It is end-aligned, stays visible on na
 renders as a real link through `render={<a href="…" />}`; `destructive` paints it in the destructive
 ink; `disabled` keeps it in the menu — still reachable by the arrow keys — and `disabledReason` is
 read as its description. A row with exactly one action that has an `icon` gets an icon button with a
-tooltip instead of a menu. The column header is _Actions_ for assistive tech only.
+tooltip instead of a menu. The column header is _Actions_ for assistive tech only. Put
+`{ type: "separator" }` between groups — _Copy link · Share ─ Copy summary ─ Delete_ — and leading,
+trailing or doubled separators are dropped, so a conditional group can leave one behind safely. The
+same entries drive the grid card's ⋯ and the board card's ⋯.
 
 <ComponentPreview
   name="dataListRowActions"
@@ -721,8 +724,10 @@ renders, and `RowAction` is one entry of either.
 
 <ApiTable
   path="../../packages/ui/registry/ui/data-table-parts.tsx"
-  name="RowAction"
+  name="RowActionItem"
 />
+
+`RowAction` is a `RowActionItem` or `{ type: "separator" }`.
 
 ## Accessibility
 

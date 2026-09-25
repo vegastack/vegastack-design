@@ -11,6 +11,7 @@ import {
   type DataListColumn,
   type DataListSection,
   type DataListView,
+  type RowAction,
   type SortState,
 } from "@/components/ui/data-list";
 import { FilterBar } from "@/components/ui/filter-bar";
@@ -385,6 +386,7 @@ export function dataListRowActions(): ReactNode {
             actions: (p) => [
               { label: "Edit", onSelect: () => {} },
               { label: "Open profile", render: <a href={`#${p.id}`} /> },
+              { type: "separator" },
               {
                 label: "Remove",
                 destructive: true,
@@ -716,15 +718,11 @@ const COLUMNS: DataListColumn<Family>[] = [
   },
 ];
 
-const ACTIONS = () => [
+const ACTIONS = (): RowAction[] => [
   { label: "Copy link", onSelect: () => {} },
   { label: "Settings", onSelect: () => {} },
-  {
-    label: "Delete family",
-    destructive: true,
-    separatorBefore: true,
-    onSelect: () => {},
-  },
+  { type: "separator" },
+  { label: "Delete family", destructive: true, onSelect: () => {} },
 ];
 
 const common = {
