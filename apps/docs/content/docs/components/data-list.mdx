@@ -482,7 +482,7 @@ Offer it with `views={["list", "board"]}`.
 - **Moves.** `onMove(row, fromSection, toSection, move)` applies a drag, a keyboard move or a
   "Move to" between lanes. The card moves at once; return a promise to gate it on the server — a
   rejection snaps it back with a toast. Without `onMove` the board is read-only.
-- **Lanes.** `onAddToSection(sectionId)` adds "+ {addLabel}" at each lane's foot so the host's
+- **Lanes.** `onAddToSection(sectionId)` adds an "+ Add" button (its text is `addLabel`) at each lane's foot so the host's
   create form opens with that status filled in. Every lane collapses from its header's ⋯ menu
   (`collapsedSections` / `onCollapsedSectionsChange` control it); a section's `defaultCollapsed`
   starts it as a read-only strip, `droppable: false` and `lockedReason` refuse cards, and
