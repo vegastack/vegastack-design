@@ -156,7 +156,9 @@ When each tab is its own page, the tabs are navigation, not a tablist: render a 
 and mark the current one with `aria-current="page"`. The two recipes, `tabsListVariants` and
 `tabsTriggerVariants` (API-25), draw it exactly like the line tabs beside it. The trigger recipe
 paints `data-active`, and reads the list's `data-variant` and the `group/tabs` ancestor's
-`data-orientation`, so set all three:
+`data-orientation`, so set those. The list itself needs no orientation: a list that carries none
+scrolls as a horizontal one (`overflow: "scroll"` — `max-w-full`, `overflow-x-auto`), and only
+`data-orientation="vertical"` turns the scroll box off.
 
 ```tsx
 import Link from "next/link";
@@ -176,7 +178,6 @@ function ProjectTabs({
       className="group/tabs"
     >
       <div
-        data-orientation="horizontal"
         data-variant="line"
         className={tabsListVariants({ variant: "line", overflow: "scroll" })}
       >
@@ -310,7 +311,8 @@ Upstream's file plus `packages/ui/upstream/patches/tabs.patch`. Every hunk:
 - **LAY-14** — `TabsList` takes `overflow="scroll" | "visible"`, defaulting to `"scroll"` for
   `variant="line"`: a horizontal list scrolls inside itself with the `AttachmentGroup` edge fades,
   starts at the inline start, pulls the line indicator 1px up so the scroll box does not clip it, and
-  keeps the selected tab in view when the selection changes.
+  keeps the selected tab in view when the selection changes. The scroll box applies to every list
+  that is not vertical, so a route list with no `data-orientation` scrolls too.
 - **API-25** — the trigger's class string is the exported `tabsTriggerVariants` recipe, beside
   upstream's `tabsListVariants`, so route tabs can be drawn from the system's own classes.
 - **FOC-1, FOC-6** — the four `focus-visible:` classes (`border-ring`, `ring-[3px]`,

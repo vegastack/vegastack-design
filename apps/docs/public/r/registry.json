@@ -300,7 +300,7 @@
         "whenToUse": "A single audio asset that needs a compact, branded transport with rewind/forward, a tappable speed control, keyboard shortcuts, and a two-line mobile layout with an optional transcript control; `docked` pins a closable player to the bottom of a scroll column, a function `src` resolves a signed URL on first play, and `actionsRef` seeks it from a transcript or chapter list.",
         "whenNotToUse": "Playlists, queue management, waveform editing, audio recording, or a bar of bulk actions over a selection (ActionBar).",
         "version": "0.21.2",
-        "integrity": "sha256-TzSsyaxJJHFZ2HAS4jnY86rMZRTTuQTWDR16xLkzBIY="
+        "integrity": "sha256-WBMe0vFUwGXu3IplbIh+jf7IXR8BE6zskGLAyxKF9Bs="
       }
     },
     {
@@ -430,7 +430,7 @@
         "whenToUse": "Cross-column card movement — pipelines, kanban, staged workflows — where the host owns ordering and the move can be refused by a server gate; lanes may be partially loaded (count shows the total) and cards may be links to their records.",
         "whenNotToUse": "Single-list reordering (sortable-list), tabular data (data-list/data-grid), or static column layouts with no movement (plain Cards in a flex row).",
         "version": "0.21.2",
-        "integrity": "sha256-so5n+DLE9kLOpBYtNpgxzO+95bdttJkVMA+FCbgyBgE="
+        "integrity": "sha256-MJF8XDSPwERohnoem8dyf3jnV+P66yxkUED7saFcGMc="
       }
     },
     {
@@ -1078,7 +1078,7 @@
         "whenToUse": "A list of records as a table with typed columns, selection, click-to-sort, loading/empty states, keyset paging through loadMore, rows as links, collapsible sections and a row-actions column.",
         "whenNotToUse": "A board/kanban view (Board), full-parity grids with grouping/editing/virtualization (DataGrid), or a simple static table (Table).",
         "version": "0.21.2",
-        "integrity": "sha256-RFJxnffE1vh8m94b66o8sxh74lF3hObn8Hd2d5Is8YA="
+        "integrity": "sha256-6i5U6nWNzUA1l5TX1uXAxFV8Zry7XevGr2zbNwekJ9E="
       }
     },
     {
@@ -1419,7 +1419,7 @@
         "whenToUse": "Any optimistic inline edit of a single value — grid cells (focusMode=managed), record-page property lists, settings rows — where the write is async and can fail.",
         "whenNotToUse": "Debounced save-as-you-type on a standing form field (AutoSaveInput), or whole forms (Field).",
         "version": "0.21.2",
-        "integrity": "sha256-dNfMlHrPJ1ST92Zo5oT8/oUVK0ZUwbw/U2nIMNMhpuI="
+        "integrity": "sha256-0pd2AtWnunm2dNf2TMRGt+oQFEpfcn0ZhHf9lx+bt2c="
       }
     },
     {
@@ -14976,7 +14976,7 @@
         "whenToUse": "Display user/system-authored markdown — descriptions, comments, activity — as safe token-styled prose.",
         "whenNotToUse": "Editing markdown (use an editor), or when the source needs embedded raw HTML.",
         "version": "0.21.2",
-        "integrity": "sha256-QpvCsvvq7t4lTKx/qAy/bRtEVCLvyp0PP7mMvItFGLU="
+        "integrity": "sha256-GIRL+J8PGX9Qm6Z6/emeyy0L6QXGpSQe8V2ZXq/3r7A="
       }
     },
     {
@@ -16259,7 +16259,7 @@
         "whenToUse": "Organize related content into peer sections the user switches between in place; a count after a trigger's label is an aria-hidden tabular number plus an sr-only suffix, so it reads as part of the tab's name. A line list scrolls sideways inside itself when the tabs outnumber the width; orientation=\"vertical\" suits a stable column of settings sections. For tabs that are separate pages, draw a nav of links from tabsListVariants and tabsTriggerVariants with aria-current=\"page\" (route tabs).",
         "whenNotToUse": "Sequential multi-step flows (stepper), single-select form input (radio/select), sections that must be visible at once, or page-level navigation rendered as a tablist — route tabs are links, not tabs.",
         "version": "0.21.2",
-        "integrity": "sha256-i+Rwu23jm6fD4HuQVy92RQ0tsLftQF9oWPft5FQrVfw="
+        "integrity": "sha256-ROlowlrzNsZtKlUKIV6af6OQ0etBV3hKEO7gHzS21a8="
       }
     },
     {

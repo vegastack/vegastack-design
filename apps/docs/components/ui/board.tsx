@@ -1,4 +1,4 @@
-// @vegastack board@0.21.2 sha256-so5n+DLE9kLOpBYtNpgxzO+95bdttJkVMA+FCbgyBgE=
+// @vegastack board@0.21.2 sha256-MJF8XDSPwERohnoem8dyf3jnV+P66yxkUED7saFcGMc=
 
 "use client";
 
@@ -282,6 +282,11 @@ interface BoardCardSurfaceProps extends React.HTMLAttributes<HTMLElement> {
  * The card surface: a `role="button"` div, or — with an `href` — a link
  * rendered through `linkRender` (default `<a />`). The link is not natively
  * draggable, so a pointer drag starts from the card, not from the URL.
+ *
+ * `linkRender` is one template shared by every card (`<Link href="" />` satisfies a router's
+ * required `href`), so the card's own props — its `href` above all — win over the template's,
+ * exactly as `DataList`'s row link does. `useRender` with an element lets the element's props
+ * win, so the template is cloned under the card's props through a render function instead.
  */
 function BoardCardSurface({
   href,
@@ -289,9 +294,16 @@ function BoardCardSurface({
   ref,
   ...props
 }: BoardCardSurfaceProps) {
+  const template = href ? (linkRender ?? <a />) : undefined;
   return useRender({
     defaultTagName: "div",
-    render: href ? (linkRender ?? <a />) : undefined,
+    render: template
+      ? (renderProps) =>
+          React.cloneElement(
+            template,
+            mergeProps(template.props as object, renderProps) as object,
+          )
+      : undefined,
     ref,
     props: mergeProps<"div">(
       href

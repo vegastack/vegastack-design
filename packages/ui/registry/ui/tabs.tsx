@@ -1,4 +1,4 @@
-// @vegastack tabs@0.21.2 sha256-i+Rwu23jm6fD4HuQVy92RQ0tsLftQF9oWPft5FQrVfw=
+// @vegastack tabs@0.21.2 sha256-ROlowlrzNsZtKlUKIV6af6OQ0etBV3hKEO7gHzS21a8=
 
 "use client";
 
@@ -37,7 +37,7 @@ const tabsListVariants = cva(
       overflow: {
         visible: "",
         scroll:
-          "relative data-horizontal:max-w-full data-horizontal:min-w-0 data-horizontal:scroll-fade-x data-horizontal:justify-start data-horizontal:scrollbar-none data-horizontal:overflow-x-auto data-horizontal:overflow-y-hidden data-horizontal:overscroll-x-contain data-horizontal:[&>[data-slot=tabs-trigger]]:after:bottom-[-4px]",
+          "relative not-data-vertical:max-w-full not-data-vertical:min-w-0 not-data-vertical:scroll-fade-x not-data-vertical:justify-start not-data-vertical:scrollbar-none not-data-vertical:overflow-x-auto not-data-vertical:overflow-y-hidden not-data-vertical:overscroll-x-contain not-data-vertical:[&>[data-slot=tabs-trigger]]:after:bottom-[-4px]",
       },
     },
     defaultVariants: {

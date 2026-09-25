@@ -105,6 +105,10 @@ is for button cards only. Enter follows the link; Space still lifts the card int
 Move menu is a separate control beside the link, never inside it, so keep links and buttons out of
 the card content too.
 
+`itemLinkRender` is one template for every card, so the card's own props win over the template's:
+pass your router link as `<Link href="" />` to satisfy its required `href`, and each card still
+links to its own `getItemHref` — the same rule as `DataList`'s `rowLinkRender`.
+
 <ComponentPreview name="boardLinks" file="components/preview/board.tsx" />
 
 ### Paged lanes and card actions

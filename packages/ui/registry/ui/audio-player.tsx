@@ -1,4 +1,4 @@
-// @vegastack audio-player@0.21.2 sha256-TzSsyaxJJHFZ2HAS4jnY86rMZRTTuQTWDR16xLkzBIY=
+// @vegastack audio-player@0.21.2 sha256-WBMe0vFUwGXu3IplbIh+jf7IXR8BE6zskGLAyxKF9Bs=
 
 "use client";
 
@@ -297,6 +297,14 @@ export interface AudioPlayerProps extends Omit<
    */
   onRetry?: () => void;
   /**
+   * Renew an expired source. When the media fails to load after it had a URL — a signed URL
+   * that has expired — the player calls this once, loads the URL it resolves, and resumes at the
+   * same position (playing, if it was). A second failure, or a rejection, shows the error line;
+   * "Try again" and a new `src` re-arm it. Without it, a media error goes straight to the error.
+   * @default undefined
+   */
+  onSourceExpired?: () => Promise<string>;
+  /**
    * Imperative `seek` / `play` / `pause` for driving the player from outside.
    * @default undefined
    */
@@ -347,6 +355,7 @@ export function AudioPlayer({
   loadErrorLabel = "Couldn’t load the recording",
   retryLabel = "Try again",
   onRetry,
+  onSourceExpired,
   actionsRef,
   ref,
   ...props
@@ -371,7 +380,22 @@ export function AudioPlayer({
   const isLazy = typeof src === "function";
   const [resolvedUrl, setResolvedUrl] = React.useState<string>();
   const [resolving, setResolving] = React.useState(false);
-  const audioSrc = typeof src === "string" ? src : resolvedUrl;
+  const baseSrc = typeof src === "string" ? src : resolvedUrl;
+  // A URL `onSourceExpired` renewed stands in for the base one until the base changes. The
+  // renewal runs once per base URL; "Try again" re-arms it.
+  const [renewed, setRenewed] = React.useState<{
+    from: string | undefined;
+    url: string;
+  }>();
+  const audioSrc = renewed && renewed.from === baseSrc ? renewed.url : baseSrc;
+  const renewalArmedRef = React.useRef(true);
+  React.useEffect(() => {
+    renewalArmedRef.current = true;
+  }, [baseSrc]);
+  const onSourceExpiredRef = React.useRef(onSourceExpired);
+  React.useLayoutEffect(() => {
+    onSourceExpiredRef.current = onSourceExpired;
+  });
   const resolutionRef = React.useRef<Promise<void> | null>(null);
   const pendingPlaysRef = React.useRef<PendingPlay[]>([]);
 
@@ -526,6 +550,8 @@ export function AudioPlayer({
 
   const handleRetry = () => {
     setLoadFailed(false);
+    renewalArmedRef.current = true;
+    setRenewed(undefined);
     if (typeof srcRef.current === "function") {
       resolutionRef.current = null;
       setResolvedUrl(undefined);
@@ -602,7 +628,29 @@ export function AudioPlayer({
         aria-label={label}
         className="hidden"
         onError={(event) => {
-          if (event.currentTarget.getAttribute("src")) setLoadFailed(true);
+          const media = event.currentTarget;
+          if (!media.getAttribute("src")) return props.onError?.(event);
+          const renew = onSourceExpiredRef.current;
+          if (renew && renewalArmedRef.current) {
+            // An expired signed URL: renew it once and pick up where playback stopped. The
+            // queued seek lands on the new URL's `loadedmetadata`.
+            renewalArmedRef.current = false;
+            const from = baseSrc;
+            const resumeAt =
+              pendingSeekRef.current ??
+              (media.currentTime > 0 || !media.paused
+                ? { seconds: media.currentTime, play: !media.paused }
+                : null);
+            void renew().then(
+              (url) => {
+                pendingSeekRef.current = resumeAt;
+                setRenewed({ from, url });
+              },
+              () => setLoadFailed(true),
+            );
+            return;
+          }
+          setLoadFailed(true);
           props.onError?.(event);
         }}
       />

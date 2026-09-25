@@ -879,6 +879,21 @@ test("itemLinkRender swaps the link element and keeps href and the board's props
   await expect.element(link).toHaveAttribute("tabindex", "0");
 });
 
+test("the card's href wins over one on the itemLinkRender template, as on DataList's row link", async () => {
+  function RouterLink(props: React.ComponentPropsWithRef<"a">) {
+    return <a {...props} />;
+  }
+  const screen = await render(
+    laneBoard([{ id: "open", title: "Open", items: TWO_TASKS }], {
+      getItemHref: (t) => `/tasks/${t.id}`,
+      itemLinkRender: <RouterLink href="" />,
+    }),
+  );
+  await expect
+    .element(screen.getByRole("link", { name: "Write spec" }))
+    .toHaveAttribute("href", "/tasks/p1");
+});
+
 test("a lane's loadMore renders the shared LoadMore footer (DS-30)", async () => {
   const onLoadMore = vi.fn();
   const columns = makeColumns();

@@ -1,4 +1,4 @@
-// @vegastack editable-cell@0.21.2 sha256-dNfMlHrPJ1ST92Zo5oT8/oUVK0ZUwbw/U2nIMNMhpuI=
+// @vegastack editable-cell@0.21.2 sha256-0pd2AtWnunm2dNf2TMRGt+oQFEpfcn0ZhHf9lx+bt2c=
 
 "use client";
 
@@ -149,6 +149,19 @@ export interface EditableCellProps {
    * @default undefined
    */
   renderValue?: (value: string) => React.ReactNode;
+  /**
+   * Let a long value wrap onto more lines instead of ending in an ellipsis — a page title that
+   * must be read whole. The display grows taller; the editor is unchanged.
+   * @default false
+   */
+  wrap?: boolean;
+  /**
+   * Pull the display box back by its own inline-start padding, so the value's text lines up with
+   * the lines above and below it (a page title over its description). The hover wash and the
+   * editor's box extend into the gutter instead; the text does not move when the editor opens.
+   * @default false
+   */
+  flush?: boolean;
   /** Extra classes merged onto the cell root.
    * @default undefined
    */
@@ -187,6 +200,10 @@ interface InlineTextEditorProps {
   tabIndex?: number;
   /** What to show for a non-empty value instead of the value text (the cell's `renderValue`). */
   display?: React.ReactNode;
+  /** Wrap a long value instead of truncating it (the cell's `wrap`). */
+  wrap?: boolean;
+  /** Align the text with its surroundings by pulling the box into the gutter (the cell's `flush`). */
+  flush?: boolean;
 }
 
 /**
@@ -209,6 +226,8 @@ function InlineTextEditor({
   readOnly = false,
   tabIndex = 0,
   display,
+  wrap = false,
+  flush = false,
 }: InlineTextEditorProps) {
   // `readOnly` folds into the hook's `disabled` because both mean the same thing to the machine:
   // an edit may not be entered, and one in flight reverts. They differ only in chrome.
@@ -225,7 +244,8 @@ function InlineTextEditor({
   // A long value truncates to its container (a page title at 390px); when it is actually clipped,
   // the full value is offered as the display's `title` — and opening the editor shows all of it.
   const [textNode, setTextNode] = React.useState<HTMLSpanElement | null>(null);
-  const truncated = useOverflow(textNode, { deps: [value] }) && hasDisplayValue;
+  const overflowing = useOverflow(textNode, { deps: [value, wrap] });
+  const truncated = !wrap && overflowing && hasDisplayValue;
   // `readOnly` drops button semantics entirely; `disabled` keeps the role and the handlers (so the
   // control stays discoverable, and `useInlineEdit` guards it anyway) but is dimmed and untabbable.
   const isButton = !readOnly;
@@ -245,7 +265,12 @@ function InlineTextEditor({
         // page heading edits at the heading's size and weight. Below `md` the size never drops
         // under 1rem — upstream's `text-base`, which stops iOS zooming on focus — and `1lh` is the
         // PARENT's line height, so the editor box matches the display box at every size.
-        className="h-auto min-h-8 text-[length:max(1rem,1em)] leading-[1lh] md:text-[length:inherit]"
+        className={cn(
+          "h-auto min-h-8 text-[length:max(1rem,1em)] leading-[1lh] md:text-[length:inherit]",
+          // `flush`: the input's own padding (`px-2.5`, as the display's) moves into the gutter, so
+          // the caret starts where the display's text did.
+          flush && "-ms-2.5",
+        )}
       />
     );
   }
@@ -280,6 +305,9 @@ function InlineTextEditor({
         // height, tracking), so the same cell reads as body text in a table and as the title in a
         // page heading. At the 14px body default it is the same 14px text in the same 32px box.
         "inline-flex min-h-8 max-w-full min-w-0 items-center rounded-lg border border-transparent px-2.5 py-1",
+        // `flush`: the box starts one padding-width before its slot, so the text starts on it. A
+        // flex item shrinks to fit its margin box, so the negative margin never widens the row.
+        flush && "-ms-2.5 max-w-none",
         !disabled && !readOnly && "cursor-text hover:bg-accent",
         // FRM-4: no `pointer-events-none`. A disabled cell stays hoverable so a Tooltip can
         // explain why it cannot be edited; the hook already no-ops `start()` while disabled.
@@ -290,7 +318,10 @@ function InlineTextEditor({
         ref={setTextNode}
         data-slot="editable-cell-text"
         className={cn(
-          "min-w-0 truncate",
+          "min-w-0",
+          // `wrap`: the value breaks onto more lines (anywhere, if one word is wider than the
+          // slot) instead of ending in an ellipsis.
+          wrap ? "wrap-break-word whitespace-normal" : "truncate",
           !hasDisplayValue && "text-muted-foreground",
         )}
       >
@@ -347,6 +378,8 @@ export function EditableCell({
   disabled = false,
   readOnly = false,
   renderValue,
+  wrap = false,
+  flush = false,
   className,
   ref,
 }: EditableCellProps) {
@@ -515,6 +548,8 @@ export function EditableCell({
         display={
           renderValue && displayValue ? renderValue(displayValue) : undefined
         }
+        wrap={wrap}
+        flush={flush}
       />
     );
   }
@@ -525,6 +560,8 @@ export function EditableCell({
       data-slot="editable-cell"
       data-status={status}
       data-focus-mode={focusMode}
+      data-wrap={wrap ? "" : undefined}
+      data-flush={flush ? "" : undefined}
       // `max-w-full` caps the inline root at its container, so a long value inside a heading
       // (a block parent, where `min-w-0` alone shrinks nothing) truncates instead of overflowing.
       className={cn(

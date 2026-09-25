@@ -100,6 +100,24 @@ carries the full value as its `title` (and `data-truncated`), and opening the ed
 it. Truncation needs a width to truncate to: inside a flex row, give the heading's flex item
 `min-w-0`.
 
+A page title that must be read whole takes `wrap`: the value breaks onto as many lines as it needs
+instead of ending in an ellipsis, so it carries no `title`. `flush` lines the value's text up with
+the lines above and below it — the description under a page title — by pulling the display box
+into the gutter by its own padding; the hover wash and the editor use that gutter, and the text does
+not move when the editor opens. Both are off by default.
+
+```tsx
+<h1 className="text-2xl font-semibold">
+  <EditableCell
+    wrap
+    flush
+    label="Meeting title"
+    value={title}
+    onCommit={rename}
+  />
+</h1>
+```
+
 <ComponentPreview
   name="editableCellHeading"
   file="components/preview/editable-cell.tsx"

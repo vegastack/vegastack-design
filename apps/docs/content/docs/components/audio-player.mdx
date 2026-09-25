@@ -116,6 +116,19 @@ recording, remount the player with a new `key`.
 `error` renders an alert in the destructive ink with a "Try again" button (`retryLabel`). The retry
 reloads the source, resolves a lazy `src` again and calls `onRetry`, where you clear `error`.
 
+A signed URL can expire while the page is open. Pass `onSourceExpired` — an async function that
+returns a fresh URL — and a media error calls it once: the player loads the new URL and resumes at
+the same position, playing if it was. Only a second failure, or a rejection, shows the error line;
+"Try again" and a new `src` arm the renewal again.
+
+```tsx
+<AudioPlayer
+  label="Meeting recording"
+  src={mintAudioUrl}
+  onSourceExpired={mintAudioUrl}
+/>
+```
+
 <ComponentPreview
   name="audioPlayerStates"
   file="components/preview/audio-player.tsx"

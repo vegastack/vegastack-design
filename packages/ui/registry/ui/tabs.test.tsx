@@ -1,7 +1,10 @@
 import * as React from "react";
 import { render } from "vitest-browser-react";
 import { userEvent } from "vitest/browser";
-import { expect, test } from "vitest";
+import { expect, onTestFinished, test } from "vitest";
+// The compiled lane stylesheet as a STRING, mounted only by the route-list scroll test: the rest of
+// this file is structural and gives its scroll boxes inline.
+import geometryCss from "../../test/geometry.css?inline";
 import { expectNoA11yViolations } from "../../test/a11y";
 import {
   Tabs,
@@ -413,12 +416,12 @@ test('LAY-14: a line list defaults to overflow="scroll"; the pill track stays vi
     // track the scroll position, no scrollbar, no scroll chaining into the page.
     for (const utility of [
       "relative",
-      "data-horizontal:overflow-x-auto",
-      "data-horizontal:scroll-fade-x",
-      "data-horizontal:scrollbar-none",
-      "data-horizontal:overscroll-x-contain",
-      "data-horizontal:max-w-full",
-      "data-horizontal:justify-start",
+      "not-data-vertical:overflow-x-auto",
+      "not-data-vertical:scroll-fade-x",
+      "not-data-vertical:scrollbar-none",
+      "not-data-vertical:overscroll-x-contain",
+      "not-data-vertical:max-w-full",
+      "not-data-vertical:justify-start",
     ])
       expect(list.className.includes(utility), `${utility}`).toBe(scrolls);
   }
@@ -536,6 +539,40 @@ test("API-25: route tabs are links with aria-current and no tab roles", async ()
     expect(
       screen.getByRole("link", { name }).element().hasAttribute("aria-current"),
     ).toBe(false);
+});
+
+test("LAY-14: a route list with no data-orientation still scrolls horizontally", async () => {
+  // Route tabs are a plain `div` drawn from the recipe, with no Base UI list to write the
+  // orientation; the scroll box must not wait for the consumer to set it.
+  const sheet = document.createElement("style");
+  sheet.textContent = geometryCss;
+  document.head.append(sheet);
+  onTestFinished(() => sheet.remove());
+  const routes = Array.from({ length: 12 }, (_, i) => `Section ${i + 1}`);
+  const screen = await render(
+    <div style={{ width: 240 }}>
+      <nav aria-label="Sections" className="group/tabs">
+        <div
+          data-testid="route-list"
+          data-variant="line"
+          className={tabsListVariants({ variant: "line", overflow: "scroll" })}
+        >
+          {routes.map((route) => (
+            <a key={route} href="#" className={tabsTriggerVariants()}>
+              {route}
+            </a>
+          ))}
+        </div>
+      </nav>
+    </div>,
+  );
+  const list = screen.getByTestId("route-list").element() as HTMLElement;
+  expect(getComputedStyle(list).overflowX).toBe("auto");
+  expect(list.clientWidth).toBeLessThanOrEqual(240);
+  expect(list.scrollWidth).toBeGreaterThan(list.clientWidth);
+  // A vertical list keeps upstream's layout: no scroll box.
+  list.setAttribute("data-orientation", "vertical");
+  expect(getComputedStyle(list).overflowX).toBe("visible");
 });
 
 test("no a11y violations — rest", async () => {

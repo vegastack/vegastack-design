@@ -376,6 +376,62 @@ test("page-title use at 390px: a long value truncates to its container and offer
   await expect.element(input).toHaveValue(long);
 });
 
+test("wrap + flush: a page title wraps whole and its text lines up with the line below", async () => {
+  const sheet = document.createElement("style");
+  sheet.textContent = geometryCss;
+  document.head.append(sheet);
+  onTestFinished(() => sheet.remove());
+  const long =
+    "Quarterly planning review with the regional operations leadership team and finance partners";
+  const screen = await render(
+    <div style={{ width: 390 }}>
+      <h1 className="text-3xl font-semibold">
+        <EditableCell
+          value={long}
+          label="Meeting title"
+          onCommit={() => {}}
+          wrap
+          flush
+        />
+      </h1>
+      <p data-testid="below">Discovery · 45 min</p>
+    </div>,
+  );
+  const display = screen
+    .getByRole("button", { name: "Meeting title" })
+    .element() as HTMLElement;
+  const text = display.querySelector<HTMLElement>(
+    '[data-slot="editable-cell-text"]',
+  )!;
+  // Wrapped, not clipped: no ellipsis, no title, and more than one line tall.
+  expect(getComputedStyle(text).whiteSpace).toBe("normal");
+  expect(text.scrollWidth).toBeLessThanOrEqual(text.clientWidth);
+  expect(display.hasAttribute("title")).toBe(false);
+  expect(display.hasAttribute("data-truncated")).toBe(false);
+  const lineHeight = parseFloat(getComputedStyle(text).lineHeight);
+  expect(text.getBoundingClientRect().height).toBeGreaterThan(lineHeight * 1.5);
+  // Flush: the title's text starts where the line below starts (within the display's 1px
+  // transparent border, which the editor's border matches).
+  const below = screen.getByTestId("below").element() as HTMLElement;
+  expect(
+    Math.abs(
+      text.getBoundingClientRect().left - below.getBoundingClientRect().left,
+    ),
+  ).toBeLessThanOrEqual(1.5);
+  // The editor opens with its text in the same place.
+  await display.click();
+  const input = screen
+    .getByRole("textbox", { name: "Meeting title" })
+    .element() as HTMLInputElement;
+  const inputStart =
+    input.getBoundingClientRect().left +
+    parseFloat(getComputedStyle(input).paddingInlineStart) +
+    parseFloat(getComputedStyle(input).borderInlineStartWidth);
+  expect(
+    Math.abs(inputStart - below.getBoundingClientRect().left),
+  ).toBeLessThanOrEqual(1.5);
+});
+
 test("a value that fits carries no title", async () => {
   const screen = await render(
     <EditableCell value="Acme" label="Account name" onCommit={() => {}} />,

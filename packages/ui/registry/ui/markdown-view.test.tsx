@@ -20,6 +20,18 @@ test("renders a heading from markdown", async () => {
   await expect.element(heading).toBeInTheDocument();
 });
 
+test("headingOffset shifts every heading down, capped at h6", async () => {
+  const screen = await render(
+    <MarkdownView headingOffset={2}>
+      {"# One\n\n## Two\n\n#### Four\n\n##### Five"}
+    </MarkdownView>,
+  );
+  const levels = [
+    ...screen.container.querySelectorAll("h1, h2, h3, h4, h5, h6"),
+  ].map((h) => `${h.tagName.toLowerCase()} ${h.textContent}`);
+  expect(levels).toEqual(["h3 One", "h4 Two", "h6 Four", "h6 Five"]);
+});
+
 test("renders headings, links, code, and list elements", async () => {
   const md = [
     "## Section",

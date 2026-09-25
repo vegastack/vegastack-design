@@ -759,6 +759,38 @@ test("a lazy src that rejects shows the player's own error line (DS-77)", async 
     .toHaveTextContent("Couldn’t load the recording");
 });
 
+test("onSourceExpired renews an expired URL once and resumes where playback stopped", async () => {
+  let settle!: (url: string) => void;
+  const renew = vi.fn(
+    () => new Promise<string>((resolve) => (settle = resolve)),
+  );
+  const screen = await render(
+    <AudioPlayer src={SOURCE} label="Clip" onSourceExpired={renew} />,
+  );
+  const audio = screen.container.querySelector("audio")!;
+  setMediaState(audio, { currentTime: 30, paused: false });
+  audio.dispatchEvent(new Event("error"));
+  expect(renew).toHaveBeenCalledOnce();
+  // No error line while the renewal is in hand.
+  await new Promise((resolve) => setTimeout(resolve, 50));
+  expect(screen.container.querySelector('[role="alert"]')).toBeNull();
+  settle("/fresh.mp3");
+  await vi.waitFor(() => expect(audio.getAttribute("src")).toBe("/fresh.mp3"));
+
+  const play = vi.spyOn(audio, "play").mockResolvedValue();
+  setMediaState(audio, { currentTime: 0 });
+  audio.dispatchEvent(new Event("loadedmetadata"));
+  expect(audio.currentTime).toBe(30);
+  expect(play).toHaveBeenCalled();
+
+  // Once: a second failure is the error line, not another renewal.
+  audio.dispatchEvent(new Event("error"));
+  await expect
+    .element(screen.getByRole("alert"))
+    .toHaveTextContent("Couldn’t load the recording");
+  expect(renew).toHaveBeenCalledOnce();
+});
+
 test("actionsRef seeks a loaded player at once and plays and pauses it", async () => {
   const actions = React.createRef<AudioPlayerActions>();
   const mediaRef = React.createRef<HTMLAudioElement>();

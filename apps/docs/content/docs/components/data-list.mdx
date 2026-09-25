@@ -259,6 +259,20 @@ browser's own. A click anywhere else on the row follows the same link with its m
 cells (a checkbox, a menu) keep their own behaviour. A row without an href falls back to
 `onRowClick`. `getRowLabel(row)` names each selection checkbox ("Select Ada Lovelace").
 
+`rowProps(row, index)` passes `data-*` attributes and a class through to each row, and
+`highlighted` flashes a row — one the user just created — in the accent wash, marked
+`data-highlighted`. Clear it after a moment; the list's own `data-slot`, `data-selected` and
+`data-clickable` always win over a passed attribute.
+
+```tsx
+<DataList
+  columns={columns}
+  data={rows}
+  getRowId={(r) => r.id}
+  rowProps={(r) => ({ "data-id": r.id, highlighted: justAdded.has(r.id) })}
+/>
+```
+
 <ComponentPreview
   name="dataListRowLinks"
   file="components/preview/data-list.tsx"
@@ -307,6 +321,20 @@ value, which is why it is opt-in and why it reports itself — use it only when 
 recoverable elsewhere (a detail page, a drawer). The server render shows every column, because an
 unmeasured table has no evidence that anything overflows; on the client the split is corrected in a
 layout effect, before first paint.
+
+A merged value loses the header above it, and the screen-reader prefix does not help a sighted
+reader on a phone: a bare `4` under the name reads as nothing. Give the column `mergedRender` to
+say what the value is where it lands — it replaces `render` (and the prefix) only in the merged
+stack, so the wide table still shows `4` under its "To review" header:
+
+```tsx
+{
+  key: "toReview",
+  header: "To review",
+  align: "end",
+  mergedRender: (m) => `${m.toReview} to review`,
+}
+```
 
 <ComponentPreview
   name="dataListFitting"
@@ -428,6 +456,15 @@ grouping, inline editing, multi-key sort, column management, virtualization — 
 <ApiTable
   path="../../packages/ui/registry/ui/data-list.tsx"
   name="DataListProps"
+/>
+
+### Row props
+
+What `rowProps` returns for a row, alongside any `data-*` attribute.
+
+<ApiTable
+  path="../../packages/ui/registry/ui/data-list.tsx"
+  name="DataListRowProps"
 />
 
 ### Column
