@@ -1,4 +1,4 @@
-// @vegastack message-scroller@0.23.33 sha256-AOlOQDg0Xbs99KbfT4Fp1rQiLOnJGPgZsx21ltUNL9Y=
+// @vegastack message-scroller@0.23.34 sha256-lYsajde00LaXgsNkeNbcJIsY+Sxw6ykZy68mr+/tvnc=
 
 "use client";
 
