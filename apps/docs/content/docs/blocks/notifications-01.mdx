@@ -1,6 +1,6 @@
 ---
 title: notifications-01
-description: The Regent Inbox — a sheet on the Inbox component with Mark all read, a More menu, All | Unread chips, day groups, rich rows, action chips and Load older.
+description: The Regent Inbox — a sheet on the Inbox component with Mark all read, a More menu, All | Unread chips, day groups, rich rows, action chips and infinite scroll.
 audience: public
 registry: notifications-01
 preview: notifications01Demo
@@ -8,7 +8,7 @@ preview: notifications01Demo
 
 ## What it is
 
-The Regent app's Inbox, as a block: rail row and bell triggers with the unread count in their names, opening a sheet that holds the [`Inbox`](/docs/components/inbox) panel — Mark all read and ⋯ in the header, All | Unread chips, day groups of linked rows, action chips, Load older and "You’re all caught up". It is a **block**: you pull it once with `shadcn add`, and then you own it —
+The Regent app's Inbox, as a block: rail row and bell triggers with the unread count in their names, opening a sheet that holds the [`Inbox`](/docs/components/inbox) panel — Mark all read and ⋯ in the header, All | Unread chips, day groups of linked rows, action chips, infinite scroll and "You’re all caught up". It is a **block**: you pull it once with `shadcn add`, and then you own it —
 nothing re-pulls it and no integrity hash tracks your edits, unlike the components it composes.
 
 `InboxSheet` in `components/` is the sheet; the page wires it to two triggers and the sample notifications.
@@ -21,7 +21,7 @@ npx shadcn@latest add @vegastack/notifications-01
 
 <RegistryInstallCallout />
 
-This installs the block's own files plus the components it composes: `app-shell`, `date-time`, `dropdown-menu`, `inbox`, `load-more`, `notification-bell`, `page-header`, `sheet`, `sidebar`, `use-announcer`.
+This installs the block's own files plus the components it composes: `app-shell`, `date-time`, `dropdown-menu`, `inbox`, `notification-bell`, `page-header`, `sheet`, `sidebar`, `tooltip`, `use-announcer`.
 
 ## Preview
 
@@ -43,14 +43,19 @@ to whichever trigger opened it.
   for settings. "Mark all read" is announced once through `useAnnouncer`: "Marked all read".
 - **Filters** — `InboxFilters`: All | Unread chips, the unread count on Unread.
 - **Day groups** — `groupByDay` from `date-time` buckets rows into Today, Yesterday, This week,
-  Last week and Earlier, each an `InboxGroup` with a sticky label.
+  Last week and Earlier, each an `InboxGroup` whose label sticks within the scroll area — no
+  dividers around it, just space (16px above, 6px below); rows keep a 1px divider between them.
 - **Rows** — `InboxItem`: the actor's avatar, or an icon for system events (destructive for a
-  failure); an unread tint with an sr-only "Unread:"; a rich title with `InboxEmphasis` on the
+  failure); an unread tint with an sr-only "Unread:" (unread titles in the foreground colour, read ones
+  muted, the actor and record in medium); a rich title with `InboxEmphasis` on the
   actor and the record; one line of `meta`; a repeat count; the relative time, which gives way to
-  the read toggle and ⋯ on hover or focus. The whole row is one link.
+  the read toggle and ⋯ on hover or focus. The ⋯ menu holds **Mute this type**, with the tooltip
+  "Stop notifications like this". The whole row is one link.
 - **Action chips** — `actions` adds Approve / Reject chips; Approve shows its loading and
   "Approved" done state.
-- **Footer** — `LoadMore label="Load older"` pages older rows and ends on "You’re all caught up".
+- **Infinite scroll** — `onLoadMore` / `hasMore` / `loadingMore` on `Inbox` page older rows 15 at a
+  time as the list scrolls: three skeleton rows while a page loads, a ghost **Try again** after a
+  failure (the preview's first page fails once to show it), and "You’re all caught up" at the end.
 
 ## States
 
@@ -60,6 +65,8 @@ to whichever trigger opened it.
 | Nothing at all | No notifications — Assignments and meeting updates show up here. |
 | Nothing unread | You’re all caught up                                             |
 | Failed load    | Couldn’t load your inbox — Try again                             |
+| Loading more   | Three skeleton rows under the list                               |
+| Page failed    | Try again (ghost button)                                         |
 | End of list    | You’re all caught up                                             |
 
 ## Files
