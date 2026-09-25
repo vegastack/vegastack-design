@@ -9,6 +9,22 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.23.13] — September 25, 2026
+
+<!-- assembled from 2 changesets: 896730837e08 -->
+
+### 🔧 Changed components
+
+- Inbox: infinite scroll — `onLoadMore` / `hasMore` / `loadingMore` (and `loadMoreError`, `endLabel`) page through an IntersectionObserver sentinel, show three skeleton rows while a page loads (no spinner), a ghost "Try again" after a failure and "You’re all caught up" at the end (15 rows a page). Day-group labels drop their dividers and stick within the scroll area with 16px above (not on the first group) and 6px below; rows keep a 1px divider between them only. Titles are regular weight — foreground when unread, muted once read — with the actor and record in medium. The row ⋯ menu sizes to its content (224–320px). notifications-01 uses the new API in place of LoadMore, names its row item "Mute this type" (tooltip "Stop notifications like this") and demonstrates the loading, error and end states.
+  [`e42fe8c`](https://github.com/VegaStack/vegastack-design/commit/e42fe8c)
+- StatusIcon gains `cancelled` (CircleX, muted) and a static `progress` (CircleDashed; `animated` keeps the spinning Loader), `blocked` becomes CircleSlash in the warning ink and `done` a filled CircleCheck; new `PriorityIcon` (urgent / high / medium / low / none flags in semantic colours); docs recipes for a Status menu and Priority menu (DropdownMenu + icons + shortcuts O/P/B/D/C and 1/2/3/4/0, Alt-click for quick Done) and icons leading Select/Combobox options.
+  [`248dd90`](https://github.com/VegaStack/vegastack-design/commit/248dd90)
+
+### 📦 npm
+
+- **`@vegastack/design`** → **`0.7.22`** (was `0.7.21`).
+- The design-system registry (`@vegastack/ui`) bumps 0.23.12 → 0.23.13.
+
 ## [0.23.12] — September 25, 2026
 
 <!-- assembled from 1 changeset: f32e1841d584 -->
