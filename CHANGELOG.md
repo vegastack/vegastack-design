@@ -9,6 +9,20 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.23.18] — September 25, 2026
+
+<!-- assembled from 1 changeset: 1fa1e17b4b1f -->
+
+### 📦 npm
+
+- **`@vegastack/design`** → **`0.7.27`** (was `0.7.26`).
+- The design-system registry (`@vegastack/ui`) bumps 0.23.17 → 0.23.18.
+
+### 📚 Docs
+
+- Fix the docs build: an unescaped `addLabel` expression on the DataList page, and a ⓘ the OG font lacks in the RecordLayout description.
+  [`cccb347`](https://github.com/VegaStack/vegastack-design/commit/cccb347)
+
 ## [0.23.17] — September 25, 2026
 
 <!-- assembled from 1 changeset: fe88b2c6fae7 -->
