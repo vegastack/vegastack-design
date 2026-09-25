@@ -9,6 +9,22 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.23.25] — September 25, 2026
+
+<!-- assembled from 2 changesets: 22595e55b49d -->
+
+### 🔧 Changed components
+
+- AudioPlayer: the `floating` pill is redesigned — no visible title, back 10s · filled play · forward 10s, tabular times around a thin seek bar with a buffered shade, hover thumb and hover time, a speed menu and a volume popover, even `size-8` controls; Space plays or pauses and ←/→ move 5s. Full width and tighter on phones, with volume hidden.
+  [`4e40109`](https://github.com/VegaStack/vegastack-design/commit/4e40109)
+- Person status badge: `PersonOption` takes `badge`, and `Person` (for `PersonCard`, `PersonHoverCard` and `AvatarStack`) and `PropertyPerson` take `badge` — a status right after the name on the same line; a string such as "Inactive" renders as a small muted outline `Badge`. `SearchableSelect` and `FilterBarFacet` pass it to person options with `itemToBadge`. `PersonBadge` is exported for person cells that compose their own avatar, name and email.
+  [`98045ec`](https://github.com/VegaStack/vegastack-design/commit/98045ec)
+
+### 📦 npm
+
+- **`@vegastack/design`** → **`0.7.34`** (was `0.7.33`).
+- The design-system registry (`@vegastack/ui`) bumps 0.23.24 → 0.23.25.
+
 ## [0.23.24] — September 25, 2026
 
 <!-- assembled from 2 changesets: 9e4b41e7e7c0 -->
