@@ -697,7 +697,7 @@
         "whenToUse": "Toggle a single option on/off, accept terms, or drive a 'select all' parent with indeterminate.",
         "whenNotToUse": "Mutually-exclusive choices (RadioGroup); instant self-saving settings (Switch).",
         "version": "0.23.0",
-        "integrity": "sha256-Pl0E4vLcvZrrMBnVfH1amyF+qdrgIAuJUruxndlCFZs="
+        "integrity": "sha256-UeME1v/u36oJwSQ7mFUrEx29tYYfJkEzOzioEUhgw9Q="
       }
     },
     {
