@@ -1,5 +1,11 @@
 # @vegastack/design
 
+## 0.7.27
+
+### Patch Changes
+
+- [#280](https://github.com/vegastack/vegastack-design/pull/280) [`cccb347`](https://github.com/vegastack/vegastack-design/commit/cccb347a2f7394bd35956d0557f9b57f0b042a15) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 📚 Fix the docs build: an unescaped `addLabel` expression on the DataList page, and a ⓘ the OG font lacks in the RecordLayout description.
+
 ## 0.7.26
 
 ### Patch Changes
