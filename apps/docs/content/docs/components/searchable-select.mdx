@@ -139,8 +139,9 @@ an alias.
 ### Server search
 
 `remote` hands filtering to the server: the list shows `items` as given and never filters them
-locally. `onSearchChange` reports the typed query, `loading` announces "Searching…" through the
-panel's own status region while the rows already shown stay, `error` shows in the panel with a
+locally. `onSearchChange` reports the typed query, `loading` shows skeleton rows while there
+are none yet (two lines with `itemToSecondaryLabel`) and a small spinner while rows already shown
+stay, announcing "Searching…" through the panel's status region, `error` shows in the panel with a
 _Try again_ button (`onRetry`, or `loadMore.onLoadMore`), and `loadMore` adds the shared Load more
 footer under the rows. `useAsyncSearch` returns exactly these props — spread its result.
 `leadingItems` are listed first and never filtered out ("Me", "Unassigned"). A `value` that is not

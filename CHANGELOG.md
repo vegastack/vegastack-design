@@ -9,6 +9,20 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.23.12] — September 25, 2026
+
+<!-- assembled from 1 changeset: f32e1841d584 -->
+
+### 🔧 Changed components
+
+- SearchableSelect (and so FilterBarFacet): a remote search that is `loading` with no rows yet shows five Skeleton rows the height of real options (two lines with `itemToSecondaryLabel`) instead of a blank panel; with rows already shown they stay and a small spinner marks the fetch.
+  [`adce170`](https://github.com/VegaStack/vegastack-design/commit/adce170)
+
+### 📦 npm
+
+- **`@vegastack/design`** → **`0.7.21`** (was `0.7.20`).
+- The design-system registry (`@vegastack/ui`) bumps 0.23.11 → 0.23.12.
+
 ## [0.23.11] — September 25, 2026
 
 <!-- assembled from 1 changeset: a0f1a3f085cf -->
