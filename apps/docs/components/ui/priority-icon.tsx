@@ -1,4 +1,4 @@
-// @vegastack priority-icon@0.23.15 sha256-L6Ttj69aF8gSHriGHmDeviaOgUlZp7xflOwhjOviQMA=
+// @vegastack priority-icon@0.23.15 sha256-lmvGFvYHrVk9eiOlXlkzmd9vIsEimljKYdL/1mg14UE=
 
 import * as React from "react";
 import { cva, type VariantProps } from "class-variance-authority";
@@ -94,6 +94,7 @@ export function PriorityIcon({
     <Flag
       ref={ref}
       data-slot="priority-icon"
+      data-icon-tone=""
       data-priority={priority}
       data-size={size}
       className={cn(priorityIconVariants({ priority, size }), className)}

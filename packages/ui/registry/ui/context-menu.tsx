@@ -1,4 +1,4 @@
-// @vegastack context-menu@0.23.15 sha256-M/Dt2+tz6lFvdt98DD8je8EBfR4DfdsyzoCfaRe6jiw=
+// @vegastack context-menu@0.23.15 sha256-AJ4IUB7W+MWvGwki35Bp22PV/w3vDTWNeO6FFiRSRxg=
 
 "use client";
 
@@ -123,7 +123,7 @@ function ContextMenuItem({
         data-inset={inset}
         data-variant={variant}
         className={cn(
-          "group/context-menu-item relative flex items-center gap-1.5 rounded-md px-1.5 py-1 text-sm outline-hidden select-none focus:bg-accent focus:text-accent-foreground data-inset:ps-7 data-[variant=destructive]:text-destructive data-[variant=destructive]:focus:bg-destructive/10 data-[variant=destructive]:focus:text-destructive-text dark:data-[variant=destructive]:focus:bg-destructive/20 data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 focus:*:[svg]:text-accent-foreground data-[variant=destructive]:*:[svg]:text-destructive [&_svg:not([class*='text-'])]:text-muted-foreground focus:**:[svg]:text-accent-foreground data-open:**:[svg]:text-accent-foreground",
+          "group/context-menu-item relative flex items-center gap-1.5 rounded-md px-1.5 py-1 text-sm outline-hidden select-none focus:bg-accent focus:text-accent-foreground data-inset:ps-7 data-[variant=destructive]:text-destructive data-[variant=destructive]:focus:bg-destructive/10 data-[variant=destructive]:focus:text-destructive-text dark:data-[variant=destructive]:focus:bg-destructive/20 data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 focus:*:[svg:not([data-icon-tone])]:text-accent-foreground data-[variant=destructive]:*:[svg:not([data-icon-tone])]:text-destructive [&_svg:not([class*='text-']):not([data-icon-tone])]:text-muted-foreground focus:**:[svg:not([data-icon-tone])]:text-accent-foreground data-open:**:[svg:not([data-icon-tone])]:text-accent-foreground",
           className,
         )}
         {...props}
@@ -151,7 +151,7 @@ function ContextMenuSubTrigger({
       data-slot="context-menu-sub-trigger"
       data-inset={inset}
       className={cn(
-        "flex items-center gap-1.5 rounded-md px-1.5 py-1 text-sm outline-hidden select-none focus:bg-accent focus:text-accent-foreground data-inset:ps-7 data-open:bg-accent data-open:text-accent-foreground [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 [&_svg:not([class*='text-'])]:text-muted-foreground focus:**:[svg]:text-accent-foreground data-open:**:[svg]:text-accent-foreground",
+        "flex items-center gap-1.5 rounded-md px-1.5 py-1 text-sm outline-hidden select-none focus:bg-accent focus:text-accent-foreground data-inset:ps-7 data-open:bg-accent data-open:text-accent-foreground [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 [&_svg:not([class*='text-']):not([data-icon-tone])]:text-muted-foreground focus:**:[svg:not([data-icon-tone])]:text-accent-foreground data-open:**:[svg:not([data-icon-tone])]:text-accent-foreground",
         className,
       )}
       {...props}
@@ -192,7 +192,7 @@ function ContextMenuCheckboxItem({
         aria-describedby={description.id || undefined}
         data-inset={inset}
         className={cn(
-          "relative flex items-center gap-1.5 rounded-md py-1 pe-8 ps-1.5 text-sm outline-hidden select-none focus:bg-accent focus:text-accent-foreground data-inset:ps-7 data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 [&_svg:not([class*='text-'])]:text-muted-foreground focus:**:[svg]:text-accent-foreground data-open:**:[svg]:text-accent-foreground",
+          "relative flex items-center gap-1.5 rounded-md py-1 pe-8 ps-1.5 text-sm outline-hidden select-none focus:bg-accent focus:text-accent-foreground data-inset:ps-7 data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 [&_svg:not([class*='text-']):not([data-icon-tone])]:text-muted-foreground focus:**:[svg:not([data-icon-tone])]:text-accent-foreground data-open:**:[svg:not([data-icon-tone])]:text-accent-foreground",
           className,
         )}
         checked={checked}
@@ -236,7 +236,7 @@ function ContextMenuRadioItem({
         aria-describedby={description.id || undefined}
         data-inset={inset}
         className={cn(
-          "relative flex items-center gap-1.5 rounded-md py-1 pe-8 ps-1.5 text-sm outline-hidden select-none focus:bg-accent focus:text-accent-foreground data-inset:ps-7 data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 [&_svg:not([class*='text-'])]:text-muted-foreground focus:**:[svg]:text-accent-foreground data-open:**:[svg]:text-accent-foreground",
+          "relative flex items-center gap-1.5 rounded-md py-1 pe-8 ps-1.5 text-sm outline-hidden select-none focus:bg-accent focus:text-accent-foreground data-inset:ps-7 data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 [&_svg:not([class*='text-']):not([data-icon-tone])]:text-muted-foreground focus:**:[svg:not([data-icon-tone])]:text-accent-foreground data-open:**:[svg:not([data-icon-tone])]:text-accent-foreground",
           className,
         )}
         {...props}

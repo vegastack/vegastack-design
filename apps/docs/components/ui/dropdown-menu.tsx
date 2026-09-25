@@ -1,4 +1,4 @@
-// @vegastack dropdown-menu@0.23.15 sha256-Cvj+kD0xcYX29L0cxHr8KVu9Ysikk1KsBP09+KFb01Q=
+// @vegastack dropdown-menu@0.23.15 sha256-6DvyvyayYwlz2GC44fY+jBBXfHlQZDxam2Ty5nWJ4X4=
 
 "use client";
 
@@ -114,7 +114,7 @@ function DropdownMenuItem({
         data-inset={inset}
         data-variant={variant}
         className={cn(
-          "group/dropdown-menu-item relative flex items-center gap-1.5 rounded-md px-1.5 py-1 text-sm outline-hidden select-none focus:bg-accent focus:text-accent-foreground not-data-[variant=destructive]:focus:**:text-accent-foreground data-inset:ps-7 data-[variant=destructive]:text-destructive data-[variant=destructive]:focus:bg-destructive/10 data-[variant=destructive]:focus:text-destructive-text dark:data-[variant=destructive]:focus:bg-destructive/20 data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 data-[variant=destructive]:*:[svg]:text-destructive [&_svg:not([class*='text-'])]:text-muted-foreground focus:**:[svg]:text-accent-foreground data-open:**:[svg]:text-accent-foreground",
+          "group/dropdown-menu-item relative flex items-center gap-1.5 rounded-md px-1.5 py-1 text-sm outline-hidden select-none focus:bg-accent focus:text-accent-foreground not-data-[variant=destructive]:focus:**:[&:not([data-icon-tone],[data-icon-tone]_*)]:text-accent-foreground data-inset:ps-7 data-[variant=destructive]:text-destructive data-[variant=destructive]:focus:bg-destructive/10 data-[variant=destructive]:focus:text-destructive-text dark:data-[variant=destructive]:focus:bg-destructive/20 data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 data-[variant=destructive]:*:[svg:not([data-icon-tone])]:text-destructive [&_svg:not([class*='text-']):not([data-icon-tone])]:text-muted-foreground focus:**:[svg:not([data-icon-tone])]:text-accent-foreground data-open:**:[svg:not([data-icon-tone])]:text-accent-foreground",
           className,
         )}
         {...props}
@@ -140,7 +140,7 @@ function DropdownMenuSubTrigger({
       data-slot="dropdown-menu-sub-trigger"
       data-inset={inset}
       className={cn(
-        "flex items-center gap-1.5 rounded-md px-1.5 py-1 text-sm outline-hidden select-none focus:bg-accent focus:text-accent-foreground not-data-[variant=destructive]:focus:**:text-accent-foreground data-inset:ps-7 data-popup-open:bg-accent data-popup-open:text-accent-foreground data-open:bg-accent data-open:text-accent-foreground [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 [&_svg:not([class*='text-'])]:text-muted-foreground focus:**:[svg]:text-accent-foreground data-open:**:[svg]:text-accent-foreground",
+        "flex items-center gap-1.5 rounded-md px-1.5 py-1 text-sm outline-hidden select-none focus:bg-accent focus:text-accent-foreground not-data-[variant=destructive]:focus:**:[&:not([data-icon-tone],[data-icon-tone]_*)]:text-accent-foreground data-inset:ps-7 data-popup-open:bg-accent data-popup-open:text-accent-foreground data-open:bg-accent data-open:text-accent-foreground [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 [&_svg:not([class*='text-']):not([data-icon-tone])]:text-muted-foreground focus:**:[svg:not([data-icon-tone])]:text-accent-foreground data-open:**:[svg:not([data-icon-tone])]:text-accent-foreground",
         className,
       )}
       {...props}
@@ -192,7 +192,7 @@ function DropdownMenuCheckboxItem({
         aria-describedby={description.id || undefined}
         data-inset={inset}
         className={cn(
-          "relative flex items-center gap-1.5 rounded-md py-1 pe-8 ps-1.5 text-sm outline-hidden select-none focus:bg-accent focus:text-accent-foreground focus:**:text-accent-foreground data-inset:ps-7 data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 [&_svg:not([class*='text-'])]:text-muted-foreground focus:**:[svg]:text-accent-foreground data-open:**:[svg]:text-accent-foreground",
+          "relative flex items-center gap-1.5 rounded-md py-1 pe-8 ps-1.5 text-sm outline-hidden select-none focus:bg-accent focus:text-accent-foreground focus:**:[&:not([data-icon-tone],[data-icon-tone]_*)]:text-accent-foreground data-inset:ps-7 data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 [&_svg:not([class*='text-']):not([data-icon-tone])]:text-muted-foreground focus:**:[svg:not([data-icon-tone])]:text-accent-foreground data-open:**:[svg:not([data-icon-tone])]:text-accent-foreground",
           className,
         )}
         checked={checked}
@@ -237,7 +237,7 @@ function DropdownMenuRadioItem({
         aria-describedby={description.id || undefined}
         data-inset={inset}
         className={cn(
-          "relative flex items-center gap-1.5 rounded-md py-1 pe-8 ps-1.5 text-sm outline-hidden select-none focus:bg-accent focus:text-accent-foreground focus:**:text-accent-foreground data-inset:ps-7 data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 [&_svg:not([class*='text-'])]:text-muted-foreground focus:**:[svg]:text-accent-foreground data-open:**:[svg]:text-accent-foreground",
+          "relative flex items-center gap-1.5 rounded-md py-1 pe-8 ps-1.5 text-sm outline-hidden select-none focus:bg-accent focus:text-accent-foreground focus:**:[&:not([data-icon-tone],[data-icon-tone]_*)]:text-accent-foreground data-inset:ps-7 data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 [&_svg:not([class*='text-']):not([data-icon-tone])]:text-muted-foreground focus:**:[svg:not([data-icon-tone])]:text-accent-foreground data-open:**:[svg:not([data-icon-tone])]:text-accent-foreground",
           className,
         )}
         {...props}

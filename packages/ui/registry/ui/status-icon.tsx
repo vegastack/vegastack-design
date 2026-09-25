@@ -1,4 +1,4 @@
-// @vegastack status-icon@0.23.15 sha256-FmcOmcMpQNoVOS1ZLRoCdPRpFUjLonPnP31CB78+MUQ=
+// @vegastack status-icon@0.23.15 sha256-rI8WvyADCBB7SLmcDhtuaaQT2QDRCHR80PGgkMpHpZY=
 
 import * as React from "react";
 import { cva, type VariantProps } from "class-variance-authority";
@@ -140,6 +140,7 @@ export function StatusIcon({
     <Icon
       ref={ref}
       data-slot="status-icon"
+      data-icon-tone=""
       data-status={status}
       data-size={size}
       className={cn(

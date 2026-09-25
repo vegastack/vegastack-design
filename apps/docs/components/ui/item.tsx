@@ -1,4 +1,4 @@
-// @vegastack item@0.23.15 sha256-0e87u13mNpDIz8i0kWDFltI9GLyi42lIhOtddPFC5Fo=
+// @vegastack item@0.23.15 sha256-EdvwX/WFDQlNbOs873RRyFObTQqGt3QjrJGe72Rkwbw=
 
 "use client";
 
@@ -168,7 +168,7 @@ function Item({
 }
 
 const itemMediaVariants = cva(
-  "flex shrink-0 items-center justify-center gap-2 group-has-data-[slot=item-description]/item:translate-y-0.5 group-has-data-[slot=item-description]/item:self-start [&_svg]:pointer-events-none [&_svg:not([class*='text-'])]:text-muted-foreground",
+  "flex shrink-0 items-center justify-center gap-2 group-has-data-[slot=item-description]/item:translate-y-0.5 group-has-data-[slot=item-description]/item:self-start [&_svg]:pointer-events-none [&_svg:not([class*='text-']):not([data-icon-tone])]:text-muted-foreground",
   {
     variants: {
       variant: {

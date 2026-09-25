@@ -76,8 +76,16 @@ dropdown, context and menubar items, select and combobox items, command items, s
 buttons, navigation-menu links, toggle and toggle-group, ghost and outline buttons, breadcrumb
 links and item media — so do not add colour classes to leading icons. Destructive rows keep
 `text-destructive` and coloured alerts keep `text-current`; tabs, badges, chips, input groups,
-alerts and empty states are unchanged. A status icon that carries its own colour class keeps it at
-rest and follows the row's full colour on its states.
+alerts and empty states are unchanged.
+
+## Semantic icons keep their colour
+
+An icon whose colour carries meaning (StatusIcon, PriorityIcon, or any icon you tint with a
+semantic token) keeps that colour in every state: at rest and on hover, focus, highlight,
+selection, active, open and pressed. StatusIcon and PriorityIcon carry the marker
+`data-icon-tone` on their `<svg>`, and every muted default and state recolour above skips it
+(`[&_svg:not([data-icon-tone])]`). Put `data-icon-tone` on your own semantic-coloured icon to get
+the same behaviour; leave it off plain leading icons so they follow the row.
 
 <DoDont
   do="Use Icon / BrandIcon / AnimatedIcon. Keep icons currentColor so they theme automatically."

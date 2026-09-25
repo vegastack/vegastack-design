@@ -34,7 +34,7 @@
 #   formatting: the repository formatter (prettier defaults: semicolons, trailing commas)
 #               reflows the file; those hunks carry no decision of their own.
 diff --git a/item.tsx b/item.tsx
-index edb2ea3..f182e87 100644
+index edb2ea3..b32c0bf 100644
 --- a/item.tsx
 +++ b/item.tsx
 @@ -1,23 +1,68 @@
@@ -213,7 +213,7 @@ index edb2ea3..f182e87 100644
  
  const itemMediaVariants = cva(
 -  "flex shrink-0 items-center justify-center gap-2 group-has-data-[slot=item-description]/item:translate-y-0.5 group-has-data-[slot=item-description]/item:self-start [&_svg]:pointer-events-none",
-+  "flex shrink-0 items-center justify-center gap-2 group-has-data-[slot=item-description]/item:translate-y-0.5 group-has-data-[slot=item-description]/item:self-start [&_svg]:pointer-events-none [&_svg:not([class*='text-'])]:text-muted-foreground",
++  "flex shrink-0 items-center justify-center gap-2 group-has-data-[slot=item-description]/item:translate-y-0.5 group-has-data-[slot=item-description]/item:self-start [&_svg]:pointer-events-none [&_svg:not([class*='text-']):not([data-icon-tone])]:text-muted-foreground",
    {
      variants: {
        variant: {

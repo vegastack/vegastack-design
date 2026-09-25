@@ -1,4 +1,4 @@
-// @vegastack navigation-menu@0.23.15 sha256-W+zEfF2fxpm5myEmgthtzsPQC+ACWFbcSQ7xCqctCZA=
+// @vegastack navigation-menu@0.23.15 sha256-PPKNmp+a1I1BUJcCgaqHn9+6f18zUlVkrcb+bMVFjmM=
 
 "use client";
 
@@ -139,7 +139,7 @@ function NavigationMenuLink({
     <NavigationMenuPrimitive.Link
       data-slot="navigation-menu-link"
       className={cn(
-        "flex items-center gap-2 rounded-lg p-2 text-sm transition-all hover:bg-muted focus:bg-muted in-data-[slot=navigation-menu-content]:rounded-md data-active:bg-muted/50 data-active:hover:bg-muted data-active:focus:bg-muted [&_svg:not([class*='size-'])]:size-4 [&_svg:not([class*='text-'])]:text-muted-foreground hover:**:[svg]:text-foreground focus:**:[svg]:text-foreground data-active:**:[svg]:text-foreground",
+        "flex items-center gap-2 rounded-lg p-2 text-sm transition-all hover:bg-muted focus:bg-muted in-data-[slot=navigation-menu-content]:rounded-md data-active:bg-muted/50 data-active:hover:bg-muted data-active:focus:bg-muted [&_svg:not([class*='size-'])]:size-4 [&_svg:not([class*='text-']):not([data-icon-tone])]:text-muted-foreground hover:**:[svg:not([data-icon-tone])]:text-foreground focus:**:[svg:not([data-icon-tone])]:text-foreground data-active:**:[svg:not([data-icon-tone])]:text-foreground",
         className,
       )}
       {...props}
