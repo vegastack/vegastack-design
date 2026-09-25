@@ -1,4 +1,4 @@
-// @vegastack chart-tooltip-formatter@0.23.35 sha256-LFdMdOuww1a38TbLbhSXn1uSvvBzoHJUiRMHqeWZ1GU=
+// @vegastack chart-tooltip-formatter@0.23.36 sha256-ES1dPfBqrkr9R6qApCmfPCEdo8vSmZgU5WRrl539dw0=
 
 "use client";
 
