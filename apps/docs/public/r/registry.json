@@ -15929,7 +15929,7 @@
         "whenToUse": "Primary app navigation in a dashboard/console shell — collapsible rail with grouped items.",
         "whenNotToUse": "A few top-level links (horizontal nav) or transient small-viewport nav (Sheet).",
         "version": "0.23.2",
-        "integrity": "sha256-LX/Bp4C5zNVNoItbsxnAf2G9QMDWEKUOG1mXss9O/os="
+        "integrity": "sha256-qYSfxAoLvgXdBIkj/Hm0RgPAJ7gg+4jxapTe9h4Pu7k="
       }
     },
     {

@@ -1,4 +1,4 @@
-// @vegastack sidebar@0.23.2 sha256-LX/Bp4C5zNVNoItbsxnAf2G9QMDWEKUOG1mXss9O/os=
+// @vegastack sidebar@0.23.2 sha256-qYSfxAoLvgXdBIkj/Hm0RgPAJ7gg+4jxapTe9h4Pu7k=
 
 "use client";
 
@@ -528,7 +528,7 @@ function SidebarGroupAction({
     props: mergeProps<"button">(
       {
         className: cn(
-          "absolute top-3.5 end-3 flex aspect-square w-5 items-center justify-center rounded-md p-0 text-sidebar-foreground ring-sidebar-ring transition-transform group-data-[collapsible=icon]:hidden after:absolute after:-inset-2 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground [&>svg]:size-4 [&>svg]:shrink-0",
+          "absolute top-2 end-3 flex aspect-square w-5 items-center justify-center rounded-md p-0 text-sidebar-foreground ring-sidebar-ring transition-transform group-data-[collapsible=icon]:hidden after:absolute after:-inset-2 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground [&>svg]:size-4 [&>svg]:shrink-0",
           className,
         ),
       },
