@@ -244,6 +244,46 @@
       }
     },
     {
+      "name": "comments",
+      "type": "registry:ui",
+      "title": "Comments",
+      "description": "A record's comments: a list with a count, Load earlier, skeleton and empty states, comments with edit/delete/copy link, and a composer.",
+      "categories": [
+        "display"
+      ],
+      "dependencies": [
+        "@vegastack/design@^0.7.34",
+        "@vegastack/design-tokens@^0.7.33",
+        "lucide-react@^1.47.0"
+      ],
+      "registryDependencies": [
+        "@vegastack/alert-dialog",
+        "@vegastack/button",
+        "@vegastack/data-table-parts",
+        "@vegastack/empty",
+        "@vegastack/markdown-view",
+        "@vegastack/person-hover-card",
+        "@vegastack/relative-time",
+        "@vegastack/searchable-select",
+        "@vegastack/skeleton",
+        "@vegastack/text-edit",
+        "@vegastack/tooltip"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/comments.tsx",
+          "type": "registry:ui",
+          "target": "@ui/comments.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "Discussion on a record's page (a task, a meeting): comments oldest first with the composer at the end.",
+        "whenNotToUse": "An activity feed or notifications — use Inbox.",
+        "version": "0.23.25",
+        "integrity": "sha256-1bublsqRbqzOYhIJ9vf3JFn2RtMBBmMVZaFUGhgg1Zs="
+      }
+    },
+    {
       "name": "aspect-ratio",
       "type": "registry:ui",
       "title": "Aspect Ratio",

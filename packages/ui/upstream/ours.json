@@ -422,6 +422,12 @@
       "family": "data",
       "source": "Operator brief 2026-09-25 (meeting participants) — approved by MK 2026-09-25",
       "rationale": "Upstream ships no person preview. A fixed composition of upstream avatar (group), hover-card, popover and button; no patch."
+    },
+    "comments": {
+      "disposition": "keep",
+      "family": "display",
+      "source": "Operator brief 2026-09-26 (task page comments) — approved by MK 2026-09-26",
+      "rationale": "Upstream ships no comments set. It is a fixed composition of upstream avatar, alert-dialog, empty, skeleton and the text editor; no patch."
     }
   }
 }

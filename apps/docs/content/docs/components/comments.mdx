@@ -1,0 +1,142 @@
+---
+title: Comments
+description: A record's comments — a list with a count, Load earlier, skeleton and empty states, comments with edit, delete and copy link, and a composer.
+audience: public
+registry: comments
+status: stable
+since: 0.23.30
+a11y: labelled section, comment list, delete confirmation
+preview: comments
+---
+
+## Install
+
+<InstallSteps name="comments" />
+
+## Usage
+
+```tsx
+import {
+  CommentComposer,
+  CommentList,
+  type CommentData,
+} from "@/components/ui/comments";
+
+<CommentList
+  comments={comments}
+  count={total}
+  hasEarlier={!!cursor}
+  onLoadEarlier={loadEarlier}
+  highlightedId={hashCommentId}
+  onEdit={(id, body) => updateComment(id, body)}
+  onDelete={(id) => deleteComment(id)}
+  onCopyLink={(id) => copy(`${url}#comment-${id}`)}
+  composer={
+    <CommentComposer author={me} onSubmit={(body) => postComment(body)} />
+  }
+/>;
+```
+
+`CommentList` is a record's discussion: an `h2` "Comments" with the count, "Load earlier" when older
+comments exist, the comments oldest first, and the composer at the end. The parts take data and
+callbacks and keep only transient UI state. A callback that returns a promise drives the saving or
+posting state. If the promise rejects, its message appears under the editor. Bodies are Markdown,
+edited with `TextEdit` (minimal toolbar: bold, italic, link, bullet list) and rendered with
+`MarkdownView`.
+
+Each comment is anchored at `#comment-<id>`. Pass that id as `highlightedId` to tint it and scroll
+it into view. The ⋯ menu shows Copy link when `onCopyLink` is set, and Edit or Delete when the
+comment's `canEdit` or `canDelete` allows them. Delete asks for confirmation first.
+
+<ComponentPreview name="comments" file="components/preview/comments.tsx" />
+
+## Anatomy
+
+<Anatomy name="comments" />
+
+## Examples
+
+### Empty
+
+<ComponentPreview name="commentsEmpty" file="components/preview/comments.tsx" />
+
+### Loading
+
+<ComponentPreview
+  name="commentsLoading"
+  file="components/preview/comments.tsx"
+/>
+
+### Edited, deleted with replies
+
+A soft-deleted comment with replies stays as "Comment deleted" so the thread keeps its place. Hide
+one with no replies yourself. `replies` (or `renderReplies` on the list) indents one level of
+`CommentItem`s.
+
+<ComponentPreview
+  name="commentsThread"
+  file="components/preview/comments.tsx"
+/>
+
+### Editing and highlighted
+
+<ComponentPreview
+  name="commentsEditing"
+  file="components/preview/comments.tsx"
+/>
+
+### Posting and error
+
+`posting` and `error` are controlled overrides. Without them the composer follows `onSubmit`'s
+promise: it shows as busy while the promise is pending, clears on success and keeps the text on
+failure.
+
+<ComponentPreview
+  name="commentsComposerStates"
+  file="components/preview/comments.tsx"
+/>
+
+## API Reference
+
+<ApiTable
+  path="../../packages/ui/registry/ui/comments.tsx"
+  name="CommentListProps"
+/>
+
+<ApiTable
+  path="../../packages/ui/registry/ui/comments.tsx"
+  name="CommentItemProps"
+/>
+
+<ApiTable
+  path="../../packages/ui/registry/ui/comments.tsx"
+  name="CommentComposerProps"
+/>
+
+<ApiTable
+  path="../../packages/ui/registry/ui/comments.tsx"
+  name="CommentData"
+/>
+
+## Accessibility
+
+- The section is labelled by its heading. The comments are a list, and replies are a nested list
+  named "Replies".
+- Each comment's ⋯ trigger is named for its author ("Actions for comment by Asha Rao").
+- The relative time shows the exact time on hover or focus. "edited" does the same with the edit
+  time.
+- Errors are announced with `role="alert"`.
+
+| Key                               | Action                            |
+| --------------------------------- | --------------------------------- |
+| <kbd>Cmd</kbd> + <kbd>Enter</kbd> | Post the comment, or save an edit |
+| <kbd>Esc</kbd>                    | Cancel an edit                    |
+
+<StatesTested name="comments" />
+
+## Do / Don't
+
+<DoDont
+  do="Put the composer at the end of the list, and link notifications to #comment-<id>."
+  dont="Use comments for system activity (status changes, assignments) — keep those in an activity feed."
+/>
