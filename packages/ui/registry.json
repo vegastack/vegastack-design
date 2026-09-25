@@ -14175,6 +14175,48 @@
       }
     },
     {
+      "name": "issue-detail-01",
+      "type": "registry:block",
+      "title": "Issue Detail 01",
+      "description": "An issue page (Linear style) — status circle and a large title that edits in place, a Notion-style description, a separator, then comments; a Properties rail with a Details sheet on small screens.",
+      "categories": ["record", "comments"],
+      "dependencies": [
+        "lucide-react@^1.47.0",
+        "@vegastack/design-tokens@^0.7.33"
+      ],
+      "registryDependencies": [
+        "@vegastack/app-shell",
+        "@vegastack/comments",
+        "@vegastack/editable-cell",
+        "@vegastack/priority-icon",
+        "@vegastack/property-list",
+        "@vegastack/record-aside",
+        "@vegastack/record-chip",
+        "@vegastack/record-layout",
+        "@vegastack/relative-time",
+        "@vegastack/separator",
+        "@vegastack/status-icon",
+        "@vegastack/text-edit"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/registry/blocks/issue-detail-01/components/issue-detail.tsx",
+          "type": "registry:component",
+          "target": "app/issue-detail-01/components/issue-detail.tsx"
+        },
+        {
+          "path": "packages/ui/registry/blocks/issue-detail-01/page.tsx",
+          "type": "registry:page",
+          "target": "app/issue-detail-01/page.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "A task or issue page — title, description, comments and a properties rail; compose the same components in your app.",
+        "whenNotToUse": "A meeting or media record with tabs — use RecordLayout with Tabs.",
+        "version": "0.23.31"
+      }
+    },
+    {
       "name": "chart-area-axes",
       "type": "registry:block",
       "title": "Chart Area Axes",

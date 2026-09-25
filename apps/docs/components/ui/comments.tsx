@@ -1,9 +1,9 @@
-// @vegastack comments@0.23.31 sha256-VyS8p6KgGQwMcJoW4VyrZRaqZvoGcaV+XhIyLY4DrLg=
+// @vegastack comments@0.23.31 sha256-Kkh/fVvZXChp4k0b/Z1S3mG3l1HX9DW33FiQ+h9C+mg=
 
 "use client";
 
 import * as React from "react";
-import { MessageSquare } from "lucide-react";
+import { ArrowUp, ArrowUpDown, MessageSquare } from "lucide-react";
 import { cn } from "@vegastack/design";
 import {
   AlertDialog,
@@ -20,7 +20,12 @@ import {
   RowActionsMenu,
   type RowAction,
 } from "@/components/ui/data-table-parts";
-import { Empty, EmptyDescription, EmptyHeader } from "@/components/ui/empty";
+import {
+  Empty,
+  EmptyContent,
+  EmptyDescription,
+  EmptyHeader,
+} from "@/components/ui/empty";
 import { MarkdownView } from "@/components/ui/markdown-view";
 import { PersonAvatar, type Person } from "@/components/ui/person-hover-card";
 import { PersonBadge } from "@/components/ui/searchable-select";
@@ -37,11 +42,11 @@ import {
 } from "@/components/ui/tooltip";
 
 /* ------------------------------------------------------------------------------------------------
- * Comments — a record's discussion: `CommentList` (heading with a count, oldest first, "Load
- * earlier", skeleton and empty states), `CommentItem` (avatar, name, relative time with the exact
- * time on hover, "edited", a ⋯ menu with Copy link / Edit / Delete, in-place markdown editing,
- * a highlight when opened from a `#comment-<id>` link, and a replies slot) and `CommentComposer`
- * (the viewer's avatar and a minimal markdown editor; Cmd/Ctrl+Enter or "Comment" posts). The
+ * Comments — a record's discussion: `CommentList` (heading with a count and an Oldest / Newest
+ * first toggle, "Load earlier", skeleton and an empty state whose "Add a comment" reveals the
+ * composer), `CommentItem` (avatar, name, relative time, "edited", a ⋯ menu with Copy link / Edit
+ * / Delete, in-place editing in a compact box, a `#comment-<id>` highlight and a replies slot) and
+ * `CommentComposer` (a Linear-style soft box with a round send button; Cmd/Ctrl+Enter sends). The
  * parts hold only transient UI state — the host owns the data and persists through callbacks; a
  * callback that returns a promise drives the saving/posting state and, on rejection, the error.
  * ----------------------------------------------------------------------------------------------*/
@@ -128,6 +133,7 @@ export function CommentItem({
     onEditingChange?.(next);
   };
   const [saving, setSaving] = React.useState(false);
+  const [draft, setDraft] = React.useState(comment.body);
   const [error, setError] = React.useState<string | null>(null);
   const [confirmOpen, setConfirmOpen] = React.useState(false);
   const { author } = comment;
@@ -144,6 +150,11 @@ export function CommentItem({
     } finally {
       setSaving(false);
     }
+  };
+
+  const cancel = () => {
+    setError(null);
+    setEditing(false);
   };
 
   const remove = async () => {
@@ -163,7 +174,15 @@ export function CommentItem({
           ? [{ label: "Copy link", onSelect: () => onCopyLink(comment.id) }]
           : []),
         ...(onEdit && comment.canEdit
-          ? [{ label: "Edit", onSelect: () => setEditing(true) }]
+          ? [
+              {
+                label: "Edit",
+                onSelect: () => {
+                  setDraft(comment.body);
+                  setEditing(true);
+                },
+              },
+            ]
           : []),
         ...(onDelete && comment.canDelete
           ? [
@@ -245,17 +264,30 @@ export function CommentItem({
             ) : null}
           </div>
           {comment.deleted ? null : editing ? (
-            <TextEdit
-              format="markdown"
-              slashCommands={TEXT_EDIT_COMPACT_SLASH_COMMANDS}
+            <CommentBox
+              compact
+              autoFocus
+              label="Edit comment"
               defaultValue={comment.body}
-              aria-label="Edit comment"
-              onCommit={save}
-              onRevert={() => {
-                setError(null);
-                setEditing(false);
-              }}
-              saving={saving}
+              onValueChange={setDraft}
+              onSubmit={(value) => void save(value)}
+              onRevert={cancel}
+              busy={saving}
+              actions={
+                <>
+                  <Button variant="ghost" size="sm" onClick={cancel}>
+                    Cancel
+                  </Button>
+                  <Button
+                    size="sm"
+                    loading={saving}
+                    disabled={!draft.trim()}
+                    onClick={() => void save(draft)}
+                  >
+                    Save
+                  </Button>
+                </>
+              }
             />
           ) : (
             <MarkdownView className="text-sm">{comment.body}</MarkdownView>
@@ -297,22 +329,107 @@ export function CommentItem({
 }
 
 /* ------------------------------------------------------------------------------------------------
+ * CommentBox — the soft filled editor box the composer and in-place edit share
+ * ----------------------------------------------------------------------------------------------*/
+
+/** Focus the editable surface inside `root`, retrying for a few frames while the editor mounts. */
+function focusEditor(root: HTMLElement | null, tries = 10) {
+  const surface = root?.querySelector<HTMLElement>("[contenteditable=true]");
+  if (surface) surface.focus();
+  else if (root && tries > 0)
+    requestAnimationFrame(() => focusEditor(root, tries - 1));
+}
+
+interface CommentBoxProps {
+  defaultValue?: string;
+  placeholder?: string;
+  label: string;
+  onValueChange: (value: string) => void;
+  onSubmit: (value: string) => void;
+  onRevert?: () => void;
+  busy?: boolean;
+  disabled?: boolean;
+  invalid?: boolean;
+  autoFocus?: boolean;
+  compact?: boolean;
+  leading?: React.ReactNode;
+  actions: React.ReactNode;
+}
+
+function CommentBox({
+  defaultValue,
+  placeholder,
+  label,
+  onValueChange,
+  onSubmit,
+  onRevert,
+  busy,
+  disabled,
+  invalid,
+  autoFocus,
+  compact,
+  leading,
+  actions,
+}: CommentBoxProps) {
+  const ref = React.useRef<HTMLDivElement>(null);
+  React.useEffect(() => {
+    if (autoFocus) focusEditor(ref.current);
+  }, [autoFocus]);
+  return (
+    <div
+      ref={ref}
+      data-slot="comment-box"
+      data-compact={compact ? "" : undefined}
+      aria-invalid={invalid || undefined}
+      className="flex min-w-0 cursor-text flex-col gap-2 rounded-xl border border-border bg-muted/40 px-3 py-2.5 transition-colors focus-within:bg-muted/60 aria-invalid:border-destructive data-[compact]:py-2"
+      onClick={(e) => {
+        if (e.target === e.currentTarget) focusEditor(ref.current);
+      }}
+    >
+      <TextEdit
+        format="markdown"
+        slashCommands={TEXT_EDIT_COMPACT_SLASH_COMMANDS}
+        defaultValue={defaultValue}
+        placeholder={placeholder}
+        aria-label={label}
+        onValueChange={onValueChange}
+        onSubmit={onSubmit}
+        onRevert={onRevert}
+        saving={busy}
+        disabled={disabled}
+        minHeight={compact ? undefined : 40}
+        maxHeight="50vh"
+        aria-invalid={invalid ? true : undefined}
+      />
+      <div className="flex min-w-0 items-center gap-2">
+        {leading}
+        <div className="ms-auto flex shrink-0 items-center gap-2">
+          {actions}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ------------------------------------------------------------------------------------------------
  * CommentComposer
  * ----------------------------------------------------------------------------------------------*/
 
 /** Props for `CommentComposer`. */
 export interface CommentComposerProps {
-  /** The viewer, whose avatar leads the editor. */
-  author: Person;
   /** Post the Markdown; the editor clears when it resolves and keeps the text when it rejects. */
   onSubmit: MaybeAsync<[body: string]>;
   /** Placeholder in the empty editor. @default "Leave a comment…" */
   placeholder?: string;
-  /** Label of the post button. @default "Comment" */
+  /** Accessible name of the round send button. @default "Send comment" */
   submitLabel?: string;
+  /** Controls at the box's bottom left, before the send button (an attach button). @default undefined */
+  attachments?: React.ReactNode;
+  /** Focus the editor when the composer mounts. @default false */
+  autoFocus?: boolean;
   /** Mark the composer busy (controlled; otherwise it follows `onSubmit`'s promise). @default undefined */
   posting?: boolean;
-  /** An error under the editor (controlled; otherwise a rejected `onSubmit`'s message). @default undefined */
+  /** An error under the box (controlled; otherwise a rejected `onSubmit`'s message). @default undefined */
   error?: string | null;
   /** Disable the composer. @default false */
   disabled?: boolean;
@@ -323,17 +440,19 @@ export interface CommentComposerProps {
 }
 
 /**
- * `CommentComposer` — the viewer's avatar beside a minimal Markdown editor (bold, italic, link,
- * bullet list) with the "Comment" button under it; Cmd/Ctrl+Enter posts too.
+ * `CommentComposer` — a soft filled box (Linear style) holding a Markdown editor that grows with
+ * its text, an optional `attachments` slot at the bottom left and a round ↑ send button at the
+ * bottom right, disabled while the box is empty; Cmd/Ctrl+Enter sends too.
  *
  * @example
- * <CommentComposer author={me} onSubmit={(body) => postComment(taskId, body)} />
+ * <CommentComposer onSubmit={(body) => postComment(taskId, body)} />
  */
 export function CommentComposer({
-  author,
   onSubmit,
   placeholder = "Leave a comment…",
-  submitLabel = "Comment",
+  submitLabel = "Send comment",
+  attachments,
+  autoFocus = false,
   posting: postingProp,
   error: errorProp,
   disabled = false,
@@ -347,12 +466,12 @@ export function CommentComposer({
   const posting = postingProp ?? pending;
   const error = errorProp !== undefined ? errorProp : errorState;
 
-  const submit = async (body: string) => {
-    if (!body.trim() || posting) return;
+  const submit = async (value: string) => {
+    if (!value.trim() || posting) return;
     setPending(true);
     setErrorState(null);
     try {
-      await onSubmit(body);
+      await onSubmit(value);
       setGeneration((g) => g + 1);
       setBody("");
       onValueChange?.("");
@@ -366,42 +485,40 @@ export function CommentComposer({
   return (
     <div
       data-slot="comment-composer"
-      className={cn("flex min-w-0 gap-3", className)}
+      className={cn("flex min-w-0 flex-col gap-1.5", className)}
     >
-      <PersonAvatar person={author} className="mt-2" />
-      <div className="flex min-w-0 flex-1 flex-col gap-1.5">
-        <TextEdit
-          key={generation}
-          format="markdown"
-          slashCommands={TEXT_EDIT_COMPACT_SLASH_COMMANDS}
-          placeholder={placeholder}
-          aria-label="Comment"
-          onValueChange={(next) => {
-            setBody(next);
-            onValueChange?.(next);
-          }}
-          onSubmit={submit}
-          saving={posting}
-          disabled={disabled}
-          minHeight={72}
-          aria-invalid={error ? true : undefined}
-        />
-        <div className="flex justify-end">
+      <CommentBox
+        key={generation}
+        label="Comment"
+        placeholder={placeholder}
+        autoFocus={autoFocus || generation > 0}
+        onValueChange={(next) => {
+          setBody(next);
+          onValueChange?.(next);
+        }}
+        onSubmit={(value) => void submit(value)}
+        busy={posting}
+        disabled={disabled}
+        invalid={!!error}
+        leading={attachments}
+        actions={
           <Button
-            size="sm"
+            size="icon-sm"
+            className="rounded-full"
+            aria-label={submitLabel}
             loading={posting}
             disabled={disabled || !body.trim()}
             onClick={() => void submit(body)}
           >
-            {submitLabel}
+            <ArrowUp aria-hidden />
           </Button>
-        </div>
-        {error ? (
-          <p role="alert" className="text-xs text-destructive">
-            {error}
-          </p>
-        ) : null}
-      </div>
+        }
+      />
+      {error ? (
+        <p role="alert" className="text-xs text-destructive">
+          {error}
+        </p>
+      ) : null}
     </div>
   );
 }
@@ -410,17 +527,24 @@ export function CommentComposer({
  * CommentList
  * ----------------------------------------------------------------------------------------------*/
 
+/** The order `CommentList` shows comments in. */
+export type CommentOrder = "oldest" | "newest";
+
 /** Props for `CommentList`. */
 export interface CommentListProps {
-  /** The comments, oldest first. */
+  /** The comments, oldest first (the list reverses them for `order="newest"`). */
   comments: CommentData[];
   /** The total, shown after the heading; defaults to the comments shown. @default comments.length */
   count?: number;
   /** The section heading (an `h2`). @default "Comments" */
   title?: string;
+  /** The order shown. @default "oldest" */
+  order?: CommentOrder;
+  /** Called from the header's "Oldest first" / "Newest first" toggle; the toggle shows when set. @default undefined */
+  onOrderChange?: (order: CommentOrder) => void;
   /** Show the skeleton instead of the list. @default false */
   loading?: boolean;
-  /** Older comments exist: show "Load earlier" above the list. @default false */
+  /** Older comments exist: show "Load earlier" before them. @default false */
   hasEarlier?: boolean;
   /** Load the older page. @default undefined */
   onLoadEarlier?: () => void;
@@ -436,7 +560,11 @@ export interface CommentListProps {
   onCopyLink?: CommentItemProps["onCopyLink"];
   /** Replies under a comment (threads). @default undefined */
   renderReplies?: (comment: CommentData) => React.ReactNode;
-  /** The composer, at the section's end. @default undefined */
+  /**
+   * The composer, at the section's end. With no comments it waits behind the empty state's
+   * "Add a comment" button, then shows and takes focus.
+   * @default undefined
+   */
   composer?: React.ReactNode;
   /** The empty state's text. @default "No comments yet" */
   emptyText?: string;
@@ -447,18 +575,21 @@ export interface CommentListProps {
 }
 
 /**
- * `CommentList` — a record's comments section: "Comments" with a count, "Load earlier", the
- * comments oldest first, and the composer at the end; a skeleton while loading and "No comments
- * yet" when there are none.
+ * `CommentList` — a record's comments section: "Comments" with a count and an Oldest / Newest
+ * first toggle, "Load earlier", the comments, and the composer at the end. A skeleton while
+ * loading; with none, "No comments yet" and an "Add a comment" button that reveals the composer.
  *
  * @example
- * <CommentList comments={comments} onEdit={edit} onDelete={remove} onCopyLink={copy}
- *   composer={<CommentComposer author={me} onSubmit={post} />} />
+ * <CommentList comments={comments} order={order} onOrderChange={setOrder}
+ *   onEdit={edit} onDelete={remove} onCopyLink={copy}
+ *   composer={<CommentComposer onSubmit={post} />} />
  */
 export function CommentList({
   comments,
   count,
   title = "Comments",
+  order = "oldest",
+  onOrderChange,
   loading = false,
   hasEarlier = false,
   onLoadEarlier,
@@ -474,7 +605,11 @@ export function CommentList({
   className,
 }: CommentListProps) {
   const headingId = React.useId();
+  const composerRef = React.useRef<HTMLDivElement>(null);
+  const [adding, setAdding] = React.useState(false);
   const total = count ?? comments.length;
+  const empty = comments.length === 0;
+  const shown = order === "newest" ? [...comments].reverse() : comments;
 
   React.useEffect(() => {
     if (!highlightedId || loading) return;
@@ -483,61 +618,100 @@ export function CommentList({
       ?.scrollIntoView({ block: "center" });
   }, [highlightedId, loading]);
 
+  const loadEarlier = hasEarlier ? (
+    <Button
+      variant="ghost"
+      size="sm"
+      className="self-start"
+      onClick={onLoadEarlier}
+      disabled={loadingEarlier}
+    >
+      {loadingEarlier ? "Loading…" : "Load earlier"}
+    </Button>
+  ) : null;
+
   return (
     <section
       data-slot="comment-list"
       aria-labelledby={headingId}
       className={cn("flex min-w-0 flex-col gap-4", className)}
     >
-      <h2
-        id={headingId}
-        className="flex items-center gap-2 text-base font-medium"
-      >
-        {title}
-        {!loading && total > 0 ? (
-          <span className="text-muted-foreground tabular-nums">{total}</span>
+      <div className="flex min-h-8 items-center justify-between gap-2">
+        <h2
+          id={headingId}
+          className="flex items-center gap-2 text-base font-medium"
+        >
+          {title}
+          {!loading && total > 0 ? (
+            <span className="text-muted-foreground tabular-nums">{total}</span>
+          ) : null}
+        </h2>
+        {onOrderChange && !loading && !empty ? (
+          <Button
+            variant="ghost"
+            size="sm"
+            className="text-muted-foreground"
+            onClick={() =>
+              onOrderChange(order === "newest" ? "oldest" : "newest")
+            }
+          >
+            <ArrowUpDown aria-hidden />
+            {order === "newest" ? "Newest first" : "Oldest first"}
+          </Button>
         ) : null}
-      </h2>
+      </div>
       {loading ? (
         <CommentListSkeleton />
+      ) : empty ? (
+        adding || !composer ? null : (
+          <Empty size="sm" icon={<MessageSquare aria-hidden />}>
+            <EmptyHeader>
+              <EmptyDescription>{emptyText}</EmptyDescription>
+            </EmptyHeader>
+            <EmptyContent>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  setAdding(true);
+                  requestAnimationFrame(() => focusEditor(composerRef.current));
+                }}
+              >
+                Add a comment
+              </Button>
+            </EmptyContent>
+          </Empty>
+        )
       ) : (
         <>
-          {hasEarlier ? (
-            <Button
-              variant="ghost"
-              size="sm"
-              className="self-start"
-              onClick={onLoadEarlier}
-              disabled={loadingEarlier}
-            >
-              {loadingEarlier ? "Loading…" : "Load earlier"}
-            </Button>
-          ) : null}
-          {comments.length === 0 ? (
-            <Empty size="sm" icon={<MessageSquare aria-hidden />}>
-              <EmptyHeader>
-                <EmptyDescription>{emptyText}</EmptyDescription>
-              </EmptyHeader>
-            </Empty>
-          ) : (
-            <ul className="flex flex-col gap-3">
-              {comments.map((comment) => (
-                <CommentItem
-                  key={comment.id}
-                  comment={comment}
-                  highlighted={comment.id === highlightedId}
-                  onEdit={onEdit}
-                  onDelete={onDelete}
-                  onCopyLink={onCopyLink}
-                  replies={renderReplies?.(comment)}
-                  now={now}
-                />
-              ))}
-            </ul>
-          )}
+          {order === "oldest" ? loadEarlier : null}
+          <ul className="flex flex-col gap-3">
+            {shown.map((comment) => (
+              <CommentItem
+                key={comment.id}
+                comment={comment}
+                highlighted={comment.id === highlightedId}
+                onEdit={onEdit}
+                onDelete={onDelete}
+                onCopyLink={onCopyLink}
+                replies={renderReplies?.(comment)}
+                now={now}
+              />
+            ))}
+          </ul>
+          {order === "newest" ? loadEarlier : null}
         </>
       )}
-      {composer}
+      {empty && !composer && !loading ? (
+        <Empty size="sm" icon={<MessageSquare aria-hidden />}>
+          <EmptyHeader>
+            <EmptyDescription>{emptyText}</EmptyDescription>
+          </EmptyHeader>
+        </Empty>
+      ) : null}
+      {composer && !loading && (!empty || adding) ? (
+        <div ref={composerRef}>{composer}</div>
+      ) : null}
     </section>
   );
 }

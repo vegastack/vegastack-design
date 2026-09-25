@@ -12,11 +12,11 @@
     "evidencePolicy": "Observed fields come from source, registry metadata, docs, and test topology. Unknown/not-applicable values are explicit; no inferred behavior is presented as verified."
   },
   "expectedCounts": {
-    "totalRegistryItems": 688,
+    "totalRegistryItems": 689,
     "components": 127,
     "animatedIcons": 467,
     "hooks": 13,
-    "blocks": 10,
+    "blocks": 11,
     "libs": 3,
     "chartBlocks": 68
   },
@@ -24846,6 +24846,15 @@
             "status": "not-applicable",
             "rationale": "Type-only exports do not render or accept runtime refs."
           }
+        },
+        {
+          "name": "CommentOrder",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/comments.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
         }
       ],
       "variants": {
@@ -29785,6 +29794,110 @@
         "vrt": "required"
       },
       "previewModule": "board-01"
+    },
+    {
+      "name": "issue-detail-01",
+      "registryType": "registry:block",
+      "title": "Issue Detail 01",
+      "summary": "An issue page (Linear style) — status circle and a large title that edits in place, a Notion-style description, a separator, then comments; a Properties rail with a Details sheet on small screens.",
+      "family": "starter-block",
+      "wave": "Block",
+      "sourceFiles": [
+        "packages/ui/registry/blocks/issue-detail-01/components/issue-detail.tsx",
+        "packages/ui/registry/blocks/issue-detail-01/page.tsx"
+      ],
+      "publicSymbols": [
+        {
+          "name": "IssueDetail",
+          "kind": "component",
+          "source": "packages/ui/registry/blocks/issue-detail-01/components/issue-detail.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A block part is a composition, not an API: IssueDetail forwards no ref of its own, and its internals are not part of any published surface."
+          }
+        },
+        {
+          "name": "Page",
+          "kind": "component",
+          "source": "packages/ui/registry/blocks/issue-detail-01/page.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A block part is a composition, not an API: Page forwards no ref of its own, and its internals are not part of any published surface."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "A block is a copy-once composition with no prop surface of its own; every variant it shows belongs to a component it composes."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "Sizing is the page layout's, and the composed components own their own scales."
+      },
+      "states": {
+        "behavior": {
+          "status": "observed",
+          "values": ["default", "editing", "comments-empty"],
+          "evidence": "Observed from the block's own branches and the state its parts carry."
+        },
+        "accessibility": {
+          "status": "covered",
+          "values": ["semantic-html", "browser-accessibility-test"],
+          "evidence": "packages/ui/registry/blocks/issue-detail-01/components/issue-detail.tsx + packages/ui/registry/blocks/issue-detail-01/issue-detail-01.test.tsx"
+        },
+        "visual": {
+          "status": "observed",
+          "values": ["default", "hover", "focus"],
+          "evidence": "Observed from the token classes the composition carries."
+        }
+      },
+      "responsive": {
+        "status": "modeled",
+        "risks": ["responsive-or-container-layout", "mobile-or-touch-mode"],
+        "rationale": "A block is a whole page: it is laid out across breakpoints and captured at 1440x900 and 390x844 in the batch's review artifact."
+      },
+      "motion": {
+        "status": "modeled",
+        "mechanisms": ["the composed components' own transitions"],
+        "reducedMotion": {
+          "status": "covered",
+          "rationale": "The global reduced-motion reset in base.css neutralises every transition the composition inherits (MOT-5); the block adds none of its own."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/blocks/issue-detail-01",
+      "registryDependencies": [
+        "@vegastack/app-shell",
+        "@vegastack/comments",
+        "@vegastack/editable-cell",
+        "@vegastack/priority-icon",
+        "@vegastack/property-list",
+        "@vegastack/record-aside",
+        "@vegastack/record-chip",
+        "@vegastack/record-layout",
+        "@vegastack/relative-time",
+        "@vegastack/separator",
+        "@vegastack/status-icon",
+        "@vegastack/text-edit"
+      ],
+      "npmDependencies": [
+        "lucide-react@^1.47.0",
+        "@vegastack/design-tokens@^0.7.33"
+      ],
+      "testFiles": [
+        "packages/ui/registry/blocks/issue-detail-01/issue-detail-01.test.tsx"
+      ],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required"
+      },
+      "previewModule": "issue-detail-01"
     },
     {
       "name": "command-search-01",

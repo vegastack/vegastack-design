@@ -1,6 +1,6 @@
 ---
 title: Comments
-description: A record's comments — a list with a count, Load earlier, skeleton and empty states, comments with edit, delete and copy link, and a composer.
+description: A record's comments — a list with a count, an Oldest or Newest first toggle, skeleton and empty states, in-place editing, and a Linear-style composer.
 audience: public
 registry: comments
 status: stable
@@ -31,17 +31,23 @@ import {
   onEdit={(id, body) => updateComment(id, body)}
   onDelete={(id) => deleteComment(id)}
   onCopyLink={(id) => copy(`${url}#comment-${id}`)}
-  composer={
-    <CommentComposer author={me} onSubmit={(body) => postComment(body)} />
-  }
+  composer={<CommentComposer onSubmit={(body) => postComment(body)} />}
 />;
 ```
 
-`CommentList` is a record's discussion: an `h2` "Comments" with the count, "Load earlier" when older
-comments exist, the comments oldest first, and the composer at the end. The parts take data and
+`CommentList` is a record's discussion: an `h2` "Comments" with the count and, when `onOrderChange`
+is set, an "Oldest first" / "Newest first" toggle; "Load earlier" when older comments exist; the
+comments; and the composer at the end. Pass `comments` oldest first; `order="newest"` reverses
+them. With no comments, the empty state offers "Add a comment", which reveals the composer and
+focuses it.
+
+`CommentComposer` is Linear style: a soft filled box whose editor grows with its text, a round ↑
+send button at the bottom right (disabled while empty; Cmd/Ctrl+Enter also sends) and an optional
+`attachments` slot at the bottom left. No avatar sits beside it. Editing a comment uses a compact
+box with explicit Cancel and Save. The parts take data and
 callbacks and keep only transient UI state. A callback that returns a promise drives the saving or
 posting state. If the promise rejects, its message appears under the editor. Bodies are Markdown,
-edited with `TextEdit` (minimal toolbar: bold, italic, link, bullet list) and rendered with
+edited with `TextEdit` (no toolbar; a reduced slash menu) and rendered with
 `MarkdownView`.
 
 Each comment is anchored at `#comment-<id>`. Pass that id as `highlightedId` to tint it and scroll
@@ -57,6 +63,9 @@ comment's `canEdit` or `canDelete` allows them. Delete asks for confirmation fir
 ## Examples
 
 ### Empty
+
+"Add a comment" reveals the composer and focuses it. Once comments exist, the composer is always
+shown.
 
 <ComponentPreview name="commentsEmpty" file="components/preview/comments.tsx" />
 
@@ -129,7 +138,7 @@ failure.
 
 | Key                               | Action                            |
 | --------------------------------- | --------------------------------- |
-| <kbd>Cmd</kbd> + <kbd>Enter</kbd> | Post the comment, or save an edit |
+| <kbd>Cmd</kbd> + <kbd>Enter</kbd> | Send the comment, or save an edit |
 | <kbd>Esc</kbd>                    | Cancel an edit                    |
 
 <StatesTested name="comments" />

@@ -15,9 +15,7 @@ test("lists comments with a count, and shows the empty state", async () => {
           createdAt: Date.now(),
         },
       ]}
-      composer={
-        <CommentComposer author={{ name: "Asha Rao" }} onSubmit={() => {}} />
-      }
+      composer={<CommentComposer onSubmit={() => {}} />}
     />,
   );
   await expect.element(screen.getByText("Hello")).toBeVisible();
