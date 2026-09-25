@@ -11893,7 +11893,7 @@
       "name": "input",
       "registryType": "registry:ui",
       "title": "Input",
-      "summary": "A styled Base UI input for every text-entry type, with the text-entry focus border tint (FOC-3).",
+      "summary": "A styled Base UI input for every text-entry type: a bordered default with the focus border tint (FOC-3), or a borderless ghost title field tinted on hover and focus; sm, default and lg sizes.",
       "status": "stable",
       "since": "0.1.0",
       "family": "form",
@@ -11909,17 +11909,36 @@
             "target": "element",
             "rationale": "Upstream forwards the ref to its own render target."
           }
+        },
+        {
+          "name": "inputVariants",
+          "kind": "constant",
+          "source": "packages/ui/registry/ui/input.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A class-variance-authority recipe, not a component."
+          }
         }
       ],
       "variants": {
-        "status": "not-applicable-or-inherited",
-        "dimensions": [],
-        "rationale": "Upstream ships no variant dimension for this component."
+        "status": "observed",
+        "dimensions": [
+          {
+            "name": "variant",
+            "values": ["default", "ghost"],
+            "evidence": "packages/ui/registry/ui/input.tsx: cva variant"
+          }
+        ]
       },
       "sizes": {
-        "status": "not-applicable-or-inherited",
-        "dimensions": [],
-        "rationale": "Upstream ships no size dimension for this component."
+        "status": "observed",
+        "dimensions": [
+          {
+            "name": "size",
+            "values": ["sm", "default", "lg"],
+            "evidence": "packages/ui/registry/ui/input.tsx: cva size"
+          }
+        ]
       },
       "states": {
         "behavior": {
@@ -11978,8 +11997,16 @@
         "Input": {
           "attributes": [
             {
+              "name": "data-size",
+              "values": ["default"]
+            },
+            {
               "name": "data-slot",
               "values": ["input"]
+            },
+            {
+              "name": "data-variant",
+              "values": ["default"]
             }
           ],
           "cssVariables": []
@@ -21535,7 +21562,7 @@
       "name": "text-edit",
       "registryType": "registry:ui",
       "title": "Text Edit",
-      "summary": "A Tiptap-based rich-text editor with a compact, token-styled toolbar (bold, italic, strike, heading, lists, blockquote, code) — controlled HTML in, HTML out. Collaboration deferred.",
+      "summary": "A Tiptap-based, markdown-first rich-text editor with no toolbar: a slash menu for blocks and a bubble menu for inline marks, a hover/focus tint, and one onCommit path.",
       "status": "stable",
       "since": "0.1.0",
       "family": "rich-text",
@@ -21543,12 +21570,21 @@
       "sourceFiles": ["packages/ui/registry/ui/text-edit.tsx"],
       "publicSymbols": [
         {
-          "name": "TEXT_EDIT_TOOLBARS",
+          "name": "TEXT_EDIT_COMPACT_SLASH_COMMANDS",
           "kind": "constant",
           "source": "packages/ui/registry/ui/text-edit.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "A lookup of action names, not a component."
+            "rationale": "A list of slash-command names, not a component."
+          }
+        },
+        {
+          "name": "TEXT_EDIT_SLASH_COMMANDS",
+          "kind": "constant",
+          "source": "packages/ui/registry/ui/text-edit.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A list of slash-command names, not a component."
           }
         },
         {
@@ -21571,16 +21607,7 @@
           }
         },
         {
-          "name": "TextEditAction",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/text-edit.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "TextEditToolbar",
+          "name": "TextEditSlashCommand",
           "kind": "type",
           "source": "packages/ui/registry/ui/text-edit.tsx",
           "ref": {
@@ -21662,10 +21689,7 @@
         "@vegastack/checkbox",
         "@vegastack/copy-button",
         "@vegastack/input",
-        "@vegastack/kbd",
-        "@vegastack/popover",
-        "@vegastack/toggle",
-        "@vegastack/tooltip"
+        "@vegastack/toggle"
       ],
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
@@ -21678,6 +21702,7 @@
         "@tiptap/pm@^3",
         "@tiptap/react@^3",
         "@tiptap/starter-kit@^3",
+        "@tiptap/suggestion@^3",
         "@vegastack/design-tokens@^0.7.33",
         "@vegastack/design@^0.7.40",
         "lucide-react@^1.47.0"
@@ -21704,21 +21729,12 @@
               "values": [""]
             },
             {
-              "name": "data-focused",
-              "values": [""]
-            },
-            {
               "name": "data-invalid",
               "values": [""]
             },
             {
               "name": "data-slot",
-              "values": [
-                "text-edit",
-                "text-edit-bubble-menu",
-                "text-edit-content",
-                "text-edit-toolbar"
-              ]
+              "values": ["text-edit", "text-edit-content"]
             }
           ],
           "cssVariables": []
