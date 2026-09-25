@@ -2,12 +2,12 @@
   "schemaVersion": 1,
   "kind": "vegastack-zero-gap-audit-register",
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "4f8ff62a6627948f7e5a97eaaa4f5eb158f4fd24742ae36dbf7a9b30e3e1011e",
+  "contractSha256": "a68afc32371260d6b40f0a791424d8c8e6fca0dd5da01d17cd8a66e588689518",
   "expectedCounts": {
-    "totalRegistryItems": 675,
-    "components": 115,
+    "totalRegistryItems": 679,
+    "components": 118,
     "animatedIcons": 467,
-    "hooks": 12,
+    "hooks": 13,
     "blocks": 10,
     "libs": 3,
     "chartBlocks": 68
@@ -1278,6 +1278,39 @@
         "packages/ui/registry/ui/sidebar.tsx"
       ],
       "docsSlug": "/docs/components/sidebar",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "meta-line",
+      "inventoryClass": "component",
+      "wave": "Data display",
+      "family": "display",
+      "sourceFiles": [
+        "packages/ui/registry/ui/meta-line.tsx"
+      ],
+      "docsSlug": "/docs/components/meta-line",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "record-chip",
+      "inventoryClass": "component",
+      "wave": "Forms/editing",
+      "family": "form",
+      "sourceFiles": [
+        "packages/ui/registry/ui/record-chip.tsx"
+      ],
+      "docsSlug": "/docs/components/record-chip",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "status-line",
+      "inventoryClass": "component",
+      "wave": "Content/marketing",
+      "family": "feedback",
+      "sourceFiles": [
+        "packages/ui/registry/ui/status-line.tsx"
+      ],
+      "docsSlug": "/docs/components/status-line",
       "contractStatus": "reconciled"
     },
     {
@@ -6545,6 +6578,17 @@
       "family": "hook",
       "sourceFiles": [
         "packages/ui/registry/ui/use-overflow.ts"
+      ],
+      "docsSlug": "/docs/guides/components",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "use-tabs-swipe",
+      "inventoryClass": "hook",
+      "wave": "Hooks",
+      "family": "hook",
+      "sourceFiles": [
+        "packages/ui/registry/ui/use-tabs-swipe.ts"
       ],
       "docsSlug": "/docs/guides/components",
       "contractStatus": "reconciled"

@@ -8,6 +8,7 @@ import {
   Transcript,
   TranscriptList,
   TranscriptSearch,
+  TranscriptSpeakers,
   type TranscriptSegment,
 } from "@/components/ui/transcript";
 
@@ -178,6 +179,36 @@ export function transcriptStates(): ReactNode {
       >
         <TranscriptList />
       </Transcript>
+    </Wrapper>
+  );
+}
+
+function TranscriptSpeakersDemo(): ReactNode {
+  const [names, setNames] = useState(PEOPLE);
+  return (
+    <Transcript
+      aria-label="Budget review transcript"
+      segments={SEGMENTS}
+      speakerName={(id) => names[id] ?? id}
+      onSpeakerRename={(id, name) =>
+        setNames((current) => ({ ...current, [id]: name }))
+      }
+      defaultFollow={false}
+      className="h-80 w-full max-w-lg"
+    >
+      <div className="flex flex-wrap items-center gap-2 pb-2">
+        <TranscriptSearch className="min-w-48 flex-1 rounded-md border border-border" />
+        <TranscriptSpeakers />
+      </div>
+      <TranscriptList />
+    </Transcript>
+  );
+}
+
+export function transcriptSpeakers(): ReactNode {
+  return (
+    <Wrapper>
+      <TranscriptSpeakersDemo />
     </Wrapper>
   );
 }

@@ -23,6 +23,13 @@ import { AudioPlayer } from "@/components/ui/audio-player";
 <AudioPlayer src="/media/demo.mp3" label="Product demo audio" />;
 ```
 
+## Anatomy
+
+`AudioPlayer` exports several parts. Every exported part, with the `data-slot` it renders
+(generated from the canonical source):
+
+<Anatomy name="audio-player" />
+
 ## Examples
 
 ### Basic
@@ -88,6 +95,59 @@ belongs to whatever overlay the page opens above it.
 
 <ComponentPreview
   name="audioPlayerDocked"
+  file="components/preview/audio-player.tsx"
+/>
+
+### Floating
+
+`variant="floating"` is a one-line pill — title, play, rewind and forward, time, seek, volume,
+speed and close — centred in its container and sticky 16px above the bottom of its scroll column.
+Render it as the last child of the column it floats over, so it centres on the content, not across
+a sidebar. Below the `sm` breakpoint it spans the full width on the bottom edge, clear of the
+safe-area inset. Like `docked`, it is a `region` named by `label`.
+
+<ComponentPreview
+  name="audioPlayerFloating"
+  file="components/preview/audio-player.tsx"
+/>
+
+### Global player
+
+To keep one recording playing while the reader moves between pages, mount `AudioPlayerProvider`
+in the app shell above the routes and render `GlobalAudioPlayer` at the end of the main content
+column. Any page calls `useGlobalPlayer().open(track, { at })`; opening the same `id` again seeks
+instead of reloading. The pill's title links back to `href` through `renderLink`, so the jump is a
+client navigation. `useGlobalPlayerTime()` reads the position from its own context — feed it to
+`Transcript`'s `currentTime` — and `onSourceExpired` on the track renews an expired signed URL.
+
+```tsx
+// app shell
+<AudioPlayerProvider renderLink={(props) => <Link {...props} />}>
+  <main className="flex min-h-0 flex-1 flex-col overflow-auto">
+    {children}
+    <GlobalAudioPlayer />
+  </main>
+</AudioPlayerProvider>;
+
+// a meeting page
+const player = useGlobalPlayer();
+const time = useGlobalPlayerTime();
+const track = {
+  id: meeting.id,
+  src: mintAudioUrl,
+  onSourceExpired: mintAudioUrl,
+  title: meeting.title,
+  href: `/meetings/${meeting.id}`,
+};
+<Button onClick={() => player.open(track)}>Play</Button>;
+<Transcript
+  currentTime={player.track?.id === meeting.id ? time : undefined}
+  onSeek={(at) => player.open(track, { at })}
+/>;
+```
+
+<ComponentPreview
+  name="audioPlayerGlobal"
   file="components/preview/audio-player.tsx"
 />
 
@@ -186,6 +246,27 @@ Every `AudioPlayer` prop, auto-generated from its TypeScript types.
   name="AudioPlayerProps"
 />
 
+### AudioPlayerProvider
+
+<ApiTable
+  path="../../packages/ui/registry/ui/audio-player.tsx"
+  name="AudioPlayerProviderProps"
+/>
+
+### GlobalAudioPlayer
+
+<ApiTable
+  path="../../packages/ui/registry/ui/audio-player.tsx"
+  name="GlobalAudioPlayerProps"
+/>
+
+### useGlobalPlayer
+
+<ApiTable
+  path="../../packages/ui/registry/ui/audio-player.tsx"
+  name="GlobalPlayerValue"
+/>
+
 ## Accessibility
 
 | Key                                 | Action                                                               |
@@ -232,6 +313,11 @@ Every `AudioPlayer` prop, auto-generated from its TypeScript types.
 <DoDont
   do="Use AudioPlayer for a single audio asset that needs a compact, branded transport."
   dont="Use AudioPlayer for playlists, queue management, or waveform editing."
+/>
+
+<DoDont
+  do="Put one AudioPlayerProvider in the app shell and open recordings through useGlobalPlayer, so playback survives navigation."
+  dont="Mount a second floating player on a page that already has the global one."
 />
 
 <DoDont

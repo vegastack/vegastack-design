@@ -12,24 +12,24 @@
     "evidencePolicy": "Observed fields come from source, registry metadata, docs, and test topology. Unknown/not-applicable values are explicit; no inferred behavior is presented as verified."
   },
   "expectedCounts": {
-    "totalRegistryItems": 675,
-    "components": 115,
+    "totalRegistryItems": 679,
+    "components": 118,
     "animatedIcons": 467,
-    "hooks": 12,
+    "hooks": 13,
     "blocks": 10,
     "libs": 3,
     "chartBlocks": 68
   },
   "expectedWaveCounts": {
     "Core controls": 23,
-    "Forms/editing": 25,
+    "Forms/editing": 26,
     "Navigation/layout": 17,
     "Overlays": 14,
-    "Data display": 13,
-    "Content/marketing": 13,
+    "Data display": 14,
+    "Content/marketing": 14,
     "Shared internals": 2,
     "AI/chat": 8,
-    "Hooks": 12,
+    "Hooks": 13,
     "Block": 1,
     "Animated icons": 467
   },
@@ -60,31 +60,32 @@
       "toggle-group"
     ],
     "Forms/editing": [
-      "field",
-      "settings-row",
       "auto-save-input",
-      "color-picker",
-      "select",
-      "combobox",
-      "searchable-select",
-      "search-input",
-      "password-input",
-      "country-select",
-      "region-select",
-      "date-picker",
-      "filter-bar",
-      "tag-group",
-      "text-edit",
-      "editable-cell",
-      "number-field",
+      "calendar",
       "chip-input",
-      "filter-bar-managed",
-      "sortable-list",
+      "color-picker",
+      "combobox",
+      "country-select",
+      "date-picker",
       "dropzone",
+      "editable-cell",
+      "field",
+      "filter-bar",
+      "filter-bar-managed",
       "input-group",
       "input-otp",
       "native-select",
-      "calendar"
+      "number-field",
+      "password-input",
+      "record-chip",
+      "region-select",
+      "search-input",
+      "searchable-select",
+      "select",
+      "settings-row",
+      "sortable-list",
+      "tag-group",
+      "text-edit"
     ],
     "Navigation/layout": [
       "accordion",
@@ -131,6 +132,7 @@
       "data-list-pager",
       "inbox",
       "load-more",
+      "meta-line",
       "property-list",
       "stat",
       "table",
@@ -138,18 +140,19 @@
     ],
     "Content/marketing": [
       "alert",
-      "empty",
-      "truncated-text",
-      "image",
-      "media-player-controls",
+      "announcement-banner",
       "audio-player",
-      "video-player",
-      "markdown-view",
       "code-block",
-      "page-header",
+      "empty",
+      "image",
       "item",
+      "markdown-view",
+      "media-player-controls",
+      "page-header",
+      "status-line",
       "terminal",
-      "announcement-banner"
+      "truncated-text",
+      "video-player"
     ],
     "Shared internals": ["data-table-parts", "panel-search"],
     "AI/chat": [
@@ -174,7 +177,8 @@
       "use-modal-inert",
       "use-mobile",
       "use-overflow",
-      "use-platform"
+      "use-platform",
+      "use-tabs-swipe"
     ],
     "Block": ["board-01"],
     "Animated icons": "packages/ui/animated-icon-sources.json"
@@ -2035,7 +2039,7 @@
       "name": "audio-player",
       "registryType": "registry:ui",
       "title": "Audio Player",
-      "summary": "A custom audio transport with play/pause, skip, seek, a tappable speed control, and keyboard shortcuts (mute on the M key); a single line on a wide player, two lines with an optional transcript control on a narrow, mobile-width player. Docks to the bottom of a scroll column with a close, resolves a lazy source on first play, and seeks from outside through actionsRef.",
+      "summary": "A compact custom audio transport with play/pause, skip, seek, a tappable speed control, and keyboard shortcuts — a single line on a wide player, two lines with an optional transcript control on a narrow, mobile-width player; a floating pill variant and a global AudioPlayerProvider + useGlobalPlayer that keep one recording playing across routes.",
       "status": "stable",
       "since": "0.5.0",
       "family": "media",
@@ -2069,6 +2073,87 @@
             "status": "not-applicable",
             "rationale": "Type-only exports do not render or accept runtime refs."
           }
+        },
+        {
+          "name": "GlobalPlayerTrack",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/audio-player.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "GlobalPlayerSeekOptions",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/audio-player.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "GlobalPlayerValue",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/audio-player.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "AudioPlayerProviderProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/audio-player.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "AudioPlayerProvider",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/audio-player.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "AudioPlayerProvider does not forward a stable public ref."
+          }
+        },
+        {
+          "name": "useGlobalPlayer",
+          "kind": "hook",
+          "source": "packages/ui/registry/ui/audio-player.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "This exported helper is not a rendered component root."
+          }
+        },
+        {
+          "name": "useGlobalPlayerTime",
+          "kind": "hook",
+          "source": "packages/ui/registry/ui/audio-player.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "This exported helper is not a rendered component root."
+          }
+        },
+        {
+          "name": "GlobalAudioPlayerProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/audio-player.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "GlobalAudioPlayer",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/audio-player.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "GlobalAudioPlayer does not forward a stable public ref."
+          }
         }
       ],
       "variants": {
@@ -2076,8 +2161,8 @@
         "dimensions": [
           {
             "name": "variant",
-            "values": ["default", "waveform"],
-            "evidence": "packages/ui/registry/ui/audio-player.tsx: AudioPlayerProps variant union (default | waveform)"
+            "values": ["default", "waveform", "floating"],
+            "evidence": "packages/ui/registry/ui/audio-player.tsx: AudioPlayerProps variant union (default | waveform | floating)"
           }
         ]
       },
@@ -2105,7 +2190,9 @@
             "loading",
             "error",
             "lazy-source",
-            "queued-seek"
+            "queued-seek",
+            "floating",
+            "global-player"
           ],
           "evidence": "Observed from media event handlers, rewind/forward transport, the shared useMediaShortcuts map, the mute + volume control, control callbacks (including the optional onTranscriptClick), the two-line narrow layout, and state attributes. DS-77: docked sticky region; open/onOpenChange with inert while hidden and focus returned to the opener on close; loading announced once; error alert with retry; a function src resolved once on first play; actionsRef seek queued until loadedmetadata."
         },
@@ -2133,7 +2220,8 @@
             "docked",
             "hidden",
             "loading",
-            "error"
+            "error",
+            "floating"
           ],
           "evidence": "Observed from token classes, optional header branches, and preview states."
         }
@@ -2202,7 +2290,8 @@
                 "audio-player-close",
                 "audio-player-error",
                 "audio-player-header",
-                "audio-player-status"
+                "audio-player-status",
+                "audio-player-title"
               ]
             },
             {
@@ -13339,7 +13428,7 @@
       "name": "transcript",
       "registryType": "registry:ui",
       "title": "Transcript",
-      "summary": "A timestamped, speaker-labelled transcript on MessageScroller's primitive - marks the line playing at currentTime, follows it, pauses on a user scroll with a Back to current line button, seeks from each timestamp, and searches with highlighted, announced matches.",
+      "summary": "A timestamped, speaker-labelled transcript on MessageScroller's primitive - turns with a coloured speaker dot, the line playing at currentTime followed with a Back to current line button, seek from each timestamp, highlighted announced search, speaker chips with rename, and progressive mounting of long transcripts.",
       "status": "stable",
       "since": "0.18.0",
       "family": "communication",
@@ -13407,6 +13496,24 @@
           "ref": {
             "status": "not-applicable",
             "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "TranscriptSpeakersProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/transcript.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "TranscriptSpeakers",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/transcript.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "TranscriptSpeakers does not forward a stable public ref; its root node is incidental."
           }
         }
       ],
@@ -13488,7 +13595,8 @@
         "@vegastack/use-announcer",
         "@vegastack/skeleton",
         "@vegastack/media-player-controls",
-        "@vegastack/use-media-query"
+        "@vegastack/use-media-query",
+        "@vegastack/input"
       ],
       "npmDependencies": [
         "lucide-react@^1.47.0",
@@ -13533,6 +13641,15 @@
             {
               "name": "data-slot",
               "values": ["transcript-search"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "TranscriptSpeakers": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["transcript-speakers"]
             }
           ],
           "cssVariables": []
@@ -22913,6 +23030,349 @@
           "cssVariables": []
         }
       }
+    },
+    {
+      "name": "meta-line",
+      "registryType": "registry:ui",
+      "title": "Meta Line",
+      "summary": "An icon + text meta line under a record title: wrapping facts such as type, date and time, duration and owner, in the muted ink.",
+      "status": "stable",
+      "since": "0.23.10",
+      "family": "display",
+      "wave": "Data display",
+      "sourceFiles": ["packages/ui/registry/ui/meta-line.tsx"],
+      "publicSymbols": [
+        {
+          "name": "MetaLineProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/meta-line.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "MetaLine",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/meta-line.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "MetaLine does not forward a stable public ref; its root node is incidental."
+          }
+        },
+        {
+          "name": "MetaLineItemProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/meta-line.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "MetaLineItem",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/meta-line.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "MetaLineItem does not forward a stable public ref; its root node is incidental."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "No local variant scale."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "No explicit local size scale observed; sizing is fixed, structural, or inherited."
+      },
+      "states": {
+        "behavior": {
+          "status": "observed",
+          "values": ["default", "with-icon"],
+          "evidence": "Observed from the component's prop branches."
+        },
+        "accessibility": {
+          "status": "observed",
+          "values": ["labeled"],
+          "evidence": "Observed from semantic elements, ARIA, or focus styling."
+        },
+        "visual": {
+          "status": "observed",
+          "values": ["default", "with-icon"],
+          "evidence": "Observed from token classes and data attributes."
+        }
+      },
+      "responsive": {
+        "status": "none-observed",
+        "risks": [],
+        "rationale": "Wraps or truncates within its container; consumer layout constrains it."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned motion mechanism observed."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/meta-line",
+      "registryDependencies": [],
+      "npmDependencies": [
+        "@vegastack/design@^0.7.17",
+        "@vegastack/design-tokens@^0.7.1"
+      ],
+      "testFiles": ["packages/ui/registry/ui/meta-line.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required"
+      },
+      "previewModule": "meta-line",
+      "dataAttributes": {
+        "MetaLine": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["meta-line"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "MetaLineItem": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["meta-line-item"]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
+    },
+    {
+      "name": "record-chip",
+      "registryType": "registry:ui",
+      "title": "Record Chip",
+      "summary": "A pill that shows the record something belongs to and picks another: icon, name and a chevron as a picker trigger, plus an arrow link to the record.",
+      "status": "stable",
+      "since": "0.23.10",
+      "family": "form",
+      "wave": "Forms/editing",
+      "sourceFiles": ["packages/ui/registry/ui/record-chip.tsx"],
+      "publicSymbols": [
+        {
+          "name": "RecordChipProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/record-chip.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "RecordChip",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/record-chip.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "RecordChip does not forward a stable public ref; its root node is incidental."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "No local variant scale."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "No explicit local size scale observed; sizing is fixed, structural, or inherited."
+      },
+      "states": {
+        "behavior": {
+          "status": "observed",
+          "values": ["default", "empty", "linked", "disabled"],
+          "evidence": "Observed from the component's prop branches."
+        },
+        "accessibility": {
+          "status": "observed",
+          "values": ["labeled"],
+          "evidence": "Observed from semantic elements, ARIA, or focus styling."
+        },
+        "visual": {
+          "status": "observed",
+          "values": ["default", "empty", "linked", "disabled"],
+          "evidence": "Observed from token classes and data attributes."
+        }
+      },
+      "responsive": {
+        "status": "none-observed",
+        "risks": [],
+        "rationale": "Wraps or truncates within its container; consumer layout constrains it."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned motion mechanism observed."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/record-chip",
+      "registryDependencies": ["@vegastack/button"],
+      "npmDependencies": [
+        "lucide-react@^1.47.0",
+        "@vegastack/design@^0.7.17",
+        "@vegastack/design-tokens@^0.7.1"
+      ],
+      "testFiles": ["packages/ui/registry/ui/record-chip.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required"
+      },
+      "previewModule": "record-chip",
+      "dataAttributes": {
+        "RecordChip": {
+          "attributes": [
+            {
+              "name": "data-empty",
+              "values": [""]
+            },
+            {
+              "name": "data-slot",
+              "values": ["record-chip", "record-chip-trigger"]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
+    },
+    {
+      "name": "status-line",
+      "registryType": "registry:ui",
+      "title": "Status Line",
+      "summary": "A slim inline status: info, progress (spinner) or error (destructive ink, role=alert), with an optional inline action.",
+      "status": "stable",
+      "since": "0.23.10",
+      "family": "feedback",
+      "wave": "Content/marketing",
+      "sourceFiles": ["packages/ui/registry/ui/status-line.tsx"],
+      "publicSymbols": [
+        {
+          "name": "StatusLineStatus",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/status-line.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "StatusLineProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/status-line.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "StatusLine",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/status-line.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "StatusLine does not forward a stable public ref; its root node is incidental."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "No local variant scale."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "No explicit local size scale observed; sizing is fixed, structural, or inherited."
+      },
+      "states": {
+        "behavior": {
+          "status": "observed",
+          "values": ["info", "progress", "error"],
+          "evidence": "Observed from the component's prop branches."
+        },
+        "accessibility": {
+          "status": "observed",
+          "values": ["labeled"],
+          "evidence": "Observed from semantic elements, ARIA, or focus styling."
+        },
+        "visual": {
+          "status": "observed",
+          "values": ["info", "progress", "error"],
+          "evidence": "Observed from token classes and data attributes."
+        }
+      },
+      "responsive": {
+        "status": "none-observed",
+        "risks": [],
+        "rationale": "Wraps or truncates within its container; consumer layout constrains it."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned motion mechanism observed."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/status-line",
+      "registryDependencies": ["@vegastack/spinner"],
+      "npmDependencies": [
+        "lucide-react@^1.47.0",
+        "@vegastack/design@^0.7.17",
+        "@vegastack/design-tokens@^0.7.1"
+      ],
+      "testFiles": ["packages/ui/registry/ui/status-line.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required"
+      },
+      "previewModule": "status-line",
+      "dataAttributes": {
+        "StatusLine": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["status-line", "status-line-action"]
+            },
+            {
+              "name": "data-status",
+              "values": []
+            }
+          ],
+          "cssVariables": []
+        }
+      }
     }
   ],
   "animatedIcons": {
@@ -26761,6 +27221,97 @@
         "preview": "exempt",
         "vrt": "exempt",
         "crossBrowserSmoke": "not-selected-intentional-subset"
+      }
+    },
+    {
+      "name": "use-tabs-swipe",
+      "registryType": "registry:hook",
+      "title": "useTabsSwipe",
+      "summary": "Switch controlled Tabs with a horizontal touch swipe on the panel area; vertical gestures stay a scroll and the direction follows RTL.",
+      "family": "hook",
+      "wave": "Hooks",
+      "sourceFiles": ["packages/ui/registry/ui/use-tabs-swipe.ts"],
+      "publicSymbols": [
+        {
+          "name": "UseTabsSwipeOptions",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/use-tabs-swipe.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "UseTabsSwipeResult",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/use-tabs-swipe.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "useTabsSwipe",
+          "kind": "hook",
+          "source": "packages/ui/registry/ui/use-tabs-swipe.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "This exported helper is not a rendered component root."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "No explicit local CVA or string-union variant dimension observed; structure or inherited props define the surface."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "No explicit local size scale observed; sizing is fixed, structural, or inherited."
+      },
+      "states": {
+        "behavior": {
+          "status": "observed",
+          "values": ["idle", "swiping"],
+          "evidence": "Touch pointerdown records the start; pointerup past the threshold moves to the neighbouring value."
+        },
+        "accessibility": {
+          "status": "observed",
+          "values": ["pointer-only-enhancement"],
+          "evidence": "Keyboard and mouse keep the tab list's own behaviour; the swipe only adds a touch path."
+        },
+        "visual": {
+          "status": "not-applicable",
+          "values": ["not-applicable"],
+          "evidence": "Pure hooks do not render visual states."
+        }
+      },
+      "responsive": {
+        "status": "not-applicable",
+        "risks": [],
+        "rationale": "Touch-only gesture; consumers own layout."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned motion mechanism observed."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/guides/components",
+      "registryDependencies": [],
+      "npmDependencies": ["@vegastack/design@^0.7.17"],
+      "testFiles": ["packages/ui/registry/ui/use-tabs-swipe.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "shared-guide-only",
+        "navigation": "exempt",
+        "preview": "exempt",
+        "vrt": "exempt"
       }
     }
   ],

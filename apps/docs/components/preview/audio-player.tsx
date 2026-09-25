@@ -5,6 +5,9 @@ import { Wrapper } from "./wrapper";
 // Copied INTO apps/docs via `shadcn add @vegastack/audio-player` (dogfoods the registry) → auto-scanned.
 import {
   AudioPlayer,
+  AudioPlayerProvider,
+  GlobalAudioPlayer,
+  useGlobalPlayer,
   type AudioPlayerActions,
 } from "@/components/ui/audio-player";
 import { Button } from "@/components/ui/button";
@@ -232,6 +235,68 @@ export function audioPlayerSeek(): ReactNode {
   return (
     <Wrapper>
       <AudioPlayerSeekDemo />
+    </Wrapper>
+  );
+}
+
+export function audioPlayerFloating(): ReactNode {
+  return (
+    <Wrapper>
+      <div className="relative flex h-64 w-full flex-col overflow-auto rounded-lg border border-border bg-background">
+        <div className="flex-1 p-4 text-sm text-muted-foreground">
+          The pill floats 16px above the bottom of this column, centred on it.
+        </div>
+        <AudioPlayer
+          variant="floating"
+          src={SAMPLE_AUDIO}
+          label="Weekly sync recording"
+          title="Weekly sync"
+          skipSeconds={10}
+          onOpenChange={() => {}}
+        />
+      </div>
+    </Wrapper>
+  );
+}
+
+function GlobalPlayerOpenButton(): ReactNode {
+  const player = useGlobalPlayer();
+  return (
+    <div className="flex flex-wrap gap-2">
+      <Button
+        onClick={() =>
+          player.open({
+            id: "weekly-sync",
+            src: SAMPLE_AUDIO,
+            title: "Weekly sync",
+            href: "#global-player",
+          })
+        }
+      >
+        Play
+      </Button>
+      <Button
+        variant="outline"
+        disabled={!player.track}
+        onClick={() => player.seek(30)}
+      >
+        Jump to 0:30
+      </Button>
+    </div>
+  );
+}
+
+export function audioPlayerGlobal(): ReactNode {
+  return (
+    <Wrapper>
+      <AudioPlayerProvider>
+        <div className="relative flex h-64 w-full flex-col overflow-auto rounded-lg border border-border bg-background">
+          <div className="flex-1 p-4">
+            <GlobalPlayerOpenButton />
+          </div>
+          <GlobalAudioPlayer />
+        </div>
+      </AudioPlayerProvider>
     </Wrapper>
   );
 }

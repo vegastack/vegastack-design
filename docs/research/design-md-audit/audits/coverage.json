@@ -1,16 +1,16 @@
 {
   "schemaVersion": 1,
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "4f8ff62a6627948f7e5a97eaaa4f5eb158f4fd24742ae36dbf7a9b30e3e1011e",
+  "contractSha256": "a68afc32371260d6b40f0a791424d8c8e6fca0dd5da01d17cd8a66e588689518",
   "inventory": {
-    "expected": 675,
-    "actual": 675,
-    "unique": 675
+    "expected": 679,
+    "actual": 679,
+    "unique": 679
   },
   "classes": {
-    "components": 115,
+    "components": 118,
     "animatedIcons": 467,
-    "hooks": 12,
+    "hooks": 13,
     "blocks": 10,
     "chartBlocks": 68,
     "libs": 3
@@ -46,8 +46,8 @@
       ]
     },
     "Forms/editing": {
-      "expected": 25,
-      "actual": 25,
+      "expected": 26,
+      "actual": 26,
       "members": [
         "auto-save-input",
         "calendar",
@@ -66,6 +66,7 @@
         "native-select",
         "number-field",
         "password-input",
+        "record-chip",
         "region-select",
         "search-input",
         "searchable-select",
@@ -120,8 +121,8 @@
       ]
     },
     "Data display": {
-      "expected": 13,
-      "actual": 13,
+      "expected": 14,
+      "actual": 14,
       "members": [
         "card",
         "carousel",
@@ -132,6 +133,7 @@
         "data-list-pager",
         "inbox",
         "load-more",
+        "meta-line",
         "property-list",
         "stat",
         "table",
@@ -139,8 +141,8 @@
       ]
     },
     "Content/marketing": {
-      "expected": 13,
-      "actual": 13,
+      "expected": 14,
+      "actual": 14,
       "members": [
         "alert",
         "announcement-banner",
@@ -152,6 +154,7 @@
         "markdown-view",
         "media-player-controls",
         "page-header",
+        "status-line",
         "terminal",
         "truncated-text",
         "video-player"
@@ -180,8 +183,8 @@
       ]
     },
     "Hooks": {
-      "expected": 12,
-      "actual": 12,
+      "expected": 13,
+      "actual": 13,
       "members": [
         "use-animation-replay",
         "use-announcer",
@@ -194,7 +197,8 @@
         "use-mobile",
         "use-modal-inert",
         "use-overflow",
-        "use-platform"
+        "use-platform",
+        "use-tabs-swipe"
       ]
     },
     "Block": {
@@ -755,7 +759,7 @@
       ]
     }
   },
-  "componentRoutes": 113,
+  "componentRoutes": 116,
   "blockRoutes": 17,
   "modeledExemptions": 3
 }

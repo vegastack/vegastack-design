@@ -1,4 +1,4 @@
-// @vegastack review-split-01@0.23.9 sha256-G9Xh+FL726nwY3P/40N7PigE7qBtXTxDPzxKWdDPtWA=
+// @vegastack review-split-01@0.23.9 sha256-9D2sYbj5G+aMF/6XdZFND/uzYLTCfI7Ow4lpxOjOvUo=
 
 "use client";
 
@@ -22,6 +22,7 @@ import {
   Transcript,
   TranscriptList,
   TranscriptSearch,
+  TranscriptSpeakers,
   type TranscriptSegment,
 } from "@/components/ui/transcript";
 import { cn } from "@vegastack/design";
@@ -255,7 +256,10 @@ export function ReviewSplit({
             loading={loading}
             className="h-[60dvh] min-h-0 rounded-lg border border-border @4xl/review:h-auto @4xl/review:flex-1"
           >
-            <TranscriptSearch />
+            <div className="flex flex-wrap items-center gap-2">
+              <TranscriptSearch className="min-w-40 flex-1" />
+              <TranscriptSpeakers />
+            </div>
             <TranscriptList />
           </Transcript>
         </TabsContent>

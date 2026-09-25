@@ -3,7 +3,7 @@
 <!-- GENERATED — do not hand-edit. Regenerated from the design system's component contract,
      which is the authority for membership and counts. -->
 
-**115 components**, plus 467 animated-icon items, 12 hooks (`use-animation-replay`, `use-announcer`, `use-async-search`, `use-drag-reorder`, `use-file-drop`, `use-inline-edit`, `use-list-nav`, `use-media-query`, `use-mobile`, `use-modal-inert`, `use-overflow`, `use-platform`), 10 starter blocks (`app-shell-01`, `board-01`, `command-search-01`, `list-page-01`, `login-01`, `notifications-01`, `review-split-01`, `settings-01`, `settings-02`, `status-pages-01`), 68 chart blocks across 7 families, and 3 data libs (`date-time`, `geo-data`, `drag-item`) — 675 registry items in total.
+**118 components**, plus 467 animated-icon items, 13 hooks (`use-animation-replay`, `use-announcer`, `use-async-search`, `use-drag-reorder`, `use-file-drop`, `use-inline-edit`, `use-list-nav`, `use-media-query`, `use-mobile`, `use-modal-inert`, `use-overflow`, `use-platform`, `use-tabs-swipe`), 10 starter blocks (`app-shell-01`, `board-01`, `command-search-01`, `list-page-01`, `login-01`, `notifications-01`, `review-split-01`, `settings-01`, `settings-02`, `status-pages-01`), 68 chart blocks across 7 families, and 3 data libs (`date-time`, `geo-data`, `drag-item`) — 679 registry items in total.
 
 Install any of them with `shadcn add @vegastack/<name>`. Animated icons install as
 `@vegastack/icon-<name>`; the bare name is reserved for components, so a component whose name
@@ -39,6 +39,7 @@ starts with `icon-` is a component and never an icon.
 - **`number-field`** — Locale-aware numeric input on Base UI's NumberField in upstream's InputGroup chrome, with full-height flanking steppers.
 - **`password-input`** — A password field with a show/hide toggle, composed from InputGroup, forwarding native input props and the ref to the inner input.
 - **`radio-group`** — Mutually-exclusive options with arrow-key navigation and a 24px invisible hit area (A11Y-2).
+- **`record-chip`** — A pill that shows the record something belongs to and picks another: icon, name and a chevron as a picker trigger, plus an arrow link to the record.
 - **`region-select`** — A searchable picker of states/provinces for a country, with a free-text fallback for countries with no subdivisions. A thin wrapper over SearchableSelect fed by the geo-data item.
 - **`search-input`** — A token-safe search field with a consistent clear action and controlled or uncontrolled native input semantics.
 - **`searchable-select`** — The Select-shaped Combobox preset: a full-width trigger, an in-panel search field, a tick on the selected row (matched by key, so async options tick too), a standard person option (name plus muted email, both searched) and an optional clear control. Single or multiple, controlled through value/onValueChange.
@@ -51,6 +52,7 @@ starts with `icon-` is a component and never an icon.
 
 - **`chip`** — The one labelled pill primitive — 10 decorative hues, two tiers, an optional selection rung, and a real 24x24 remove control. Behind Tag and FilterChip; ComboboxChip is Base UI's own chip, not this primitive.
 - **`code-block`** — A code panel with a language header and copy affordance — the shared code surface for chat transcripts, docs, and examples.
+- **`meta-line`** — An icon + text meta line under a record title: wrapping facts such as type, date and time, duration and owner, in the muted ink.
 - **`stat`** — A labelled value block — muted label over a value, honest faint empty state, optional delta line. Two scales.
 - **`tag-group`** — Hue-tinted label chips on the 10-hue tag palette, with +N overflow collapsing and removable tags.
 
@@ -121,6 +123,7 @@ starts with `icon-` is a component and never an icon.
 - **`provider`** — The single app-root wrapper — theme (next-themes), Base UI toasts, tooltip delays, and text direction in one mount-once component.
 - **`skeleton`** — A pulsing placeholder that reserves layout space while content loads.
 - **`spinner`** — An indeterminate loading indicator that inherits its host's ink.
+- **`status-line`** — A slim inline status: info, progress (spinner) or error (destructive ink, role=alert), with an optional inline action.
 - **`toast`** — Brief, non-blocking notifications — a stacking Base UI Toast surface with typed icons, actions and promise toasts.
 
 ## Layout
@@ -136,7 +139,7 @@ starts with `icon-` is a component and never an icon.
 
 ## Media
 
-- **`audio-player`** — A custom audio transport with play/pause, skip, seek, a tappable speed control, and keyboard shortcuts (mute on the M key); a single line on a wide player, two lines with an optional transcript control on a narrow, mobile-width player. Docks to the bottom of a scroll column with a close, resolves a lazy source on first play, and seeks from outside through actionsRef.
+- **`audio-player`** — A compact custom audio transport with play/pause, skip, seek, a tappable speed control, and keyboard shortcuts — a single line on a wide player, two lines with an optional transcript control on a narrow, mobile-width player; a floating pill variant and a global AudioPlayerProvider + useGlobalPlayer that keep one recording playing across routes.
 - **`image`** — A presentational framed image with aspect-ratio, rounding, a loading skeleton, and an error fallback.
 - **`inbox`** — The notification Inbox: frame with header actions, All | Unread chips, sticky day groups, full-bleed rows with avatar or icon and an unread tint (no dot), rich titles, action chips, a fixed right column with the time over the hover actions (read toggle and menu), and empty, loading and error states.
 - **`media-player-controls`** — The shared media transport — play/pause, skip, seek, elapsed/duration, mute + volume, playback speed, and one keyboard shortcut map (useMediaShortcuts) — composed by Audio Player and Video Player.
@@ -159,7 +162,7 @@ starts with `icon-` is a component and never an icon.
 - **`message`** — Layout primitives for a conversation row - avatar anchoring, content column, header/footer slots, start/end alignment. Server-safe.
 - **`message-scroller`** — An auto-scrolling conversation viewport (not virtualised) - pins to the latest message, preserves position on prepend, tracks the anchor, and a floating scroll-to-end button.
 - **`questionnaire`** — A guided one-question-at-a-time form — choices, freeform answers, skip, shortcuts, validation, resume and conditional items, built on the @shadcn/react questionnaire state machine.
-- **`transcript`** — A timestamped, speaker-labelled transcript on MessageScroller's primitive - marks the line playing at currentTime, follows it, pauses on a user scroll with a Back to current line button, seeks from each timestamp, and searches with highlighted, announced matches.
+- **`transcript`** — A timestamped, speaker-labelled transcript on MessageScroller's primitive - turns with a coloured speaker dot, the line playing at currentTime followed with a Back to current line button, seek from each timestamp, highlighted announced search, speaker chips with rename, and progressive mounting of long transcripts.
 
 ## Marketing
 

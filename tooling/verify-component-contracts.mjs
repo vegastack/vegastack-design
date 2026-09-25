@@ -573,11 +573,11 @@ assert(
 
 const expectedWaves = {
   "Core controls": 23,
-  "Forms/editing": 25,
+  "Forms/editing": 26,
   "Navigation/layout": 17,
   Overlays: 14,
-  "Data display": 13,
-  "Content/marketing": 13,
+  "Data display": 14,
+  "Content/marketing": 14,
   "AI/chat": 8,
   // Not a browse group: components other components install, with no page of their own. See
   // `isSharedGuideOnly` below — every member of this wave must carry that whole shape.
@@ -646,6 +646,7 @@ const expectedComponentWaveMembers = {
     "native-select",
     "number-field",
     "password-input",
+    "record-chip",
     "region-select",
     "search-input",
     "searchable-select",
@@ -700,6 +701,7 @@ const expectedComponentWaveMembers = {
     "data-list-pager",
     "inbox",
     "load-more",
+    "meta-line",
     "property-list",
     "stat",
     "table",
@@ -716,6 +718,7 @@ const expectedComponentWaveMembers = {
     "markdown-view",
     "media-player-controls",
     "page-header",
+    "status-line",
     "terminal",
     "truncated-text",
     "video-player",
@@ -1107,6 +1110,7 @@ sameStrings(
     "use-mobile",
     "use-overflow",
     "use-platform",
+    "use-tabs-swipe",
   ],
   "Hooks membership",
 );
@@ -1123,8 +1127,8 @@ assert(
   "Animated icons membership must be sourced from packages/ui/animated-icon-sources.json",
 );
 assert(
-  contracts.expectedWaveCounts?.Hooks === 12,
-  "expectedWaveCounts.Hooks must be 12",
+  contracts.expectedWaveCounts?.Hooks === 13,
+  "expectedWaveCounts.Hooks must be 13",
 );
 assert(
   contracts.expectedWaveCounts?.Block === 1,
