@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.23.34 sha256-XQC1XisGI2pVZ0QU46XyUiK+xKc5YWutE3jCMz0JTcU=
+// @vegastack text-edit@0.23.34 sha256-pT5syAlmDlFmtoQaxRIoaXa2OqGjsdHMSLRI0aJXcDY=
 
 "use client";
 
@@ -550,6 +550,35 @@ function SlashMenu({
   );
 }
 
+/**
+ * Tidy serialized markdown. Tiptap writes an empty paragraph (a blank line typed with Enter) as
+ * `&nbsp;` between extra blank lines; markdown has no empty paragraph, so they collapse: `&nbsp;`
+ * lines go, and runs of blank lines become one. Fenced code is left exactly as typed. The result
+ * parses back to itself, so the round trip is stable.
+ */
+function cleanMarkdown(md: string): string {
+  const out: string[] = [];
+  let fence: string | null = null;
+  for (const line of md.split("\n")) {
+    const marker = /^\s*(`{3,}|~{3,})/.exec(line)?.[1];
+    if (fence) {
+      out.push(line);
+      if (marker && marker[0] === fence[0] && marker.length >= fence.length)
+        fence = null;
+      continue;
+    }
+    if (marker) {
+      fence = marker;
+      out.push(line);
+      continue;
+    }
+    const blank = line.trim() === "" || line.trim() === "&nbsp;";
+    if (blank && (out.length === 0 || out[out.length - 1] === "")) continue;
+    out.push(blank ? "" : line);
+  }
+  return out.join("\n").trim();
+}
+
 /* ------------------------------------------------------------------------------------------------
  * Bubble menu
  * ----------------------------------------------------------------------------------------------*/
@@ -934,7 +963,7 @@ export function TextEdit({
   // Fixed at creation: the parser is chosen once.
   const [markdown] = React.useState(format === "markdown");
   const serialize = React.useCallback(
-    (ed: Editor) => (markdown ? ed.getMarkdown().trimEnd() : ed.getHTML()),
+    (ed: Editor) => (markdown ? cleanMarkdown(ed.getMarkdown()) : ed.getHTML()),
     [markdown],
   );
 

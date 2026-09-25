@@ -15035,7 +15035,7 @@
         "whenToUse": "Single-line text entry — email, password, search, URL/slug with a domain prefix, numbers, etc.",
         "whenNotToUse": "Multi-line text (use a textarea) or choosing from fixed options (use a select/radio).",
         "version": "0.23.34",
-        "integrity": "sha256-IaUehjO5ANZe1Us53LDaBz157qY6DeJnhO6EcEdYgvQ="
+        "integrity": "sha256-ewfTTmDM0AFHO+qgml5kyCMU2L4/RhtCwGGU7AT7IYs="
       }
     },
     {
@@ -16867,7 +16867,7 @@
         "whenToUse": "Comments, notes, summaries and documents stored as Markdown (format=\"markdown\") or HTML; in-place editing of a MarkdownView with variant=\"ghost\".",
         "whenNotToUse": "Plain single-line input (Input) or collaborative real-time docs (deferred text-edit-collab).",
         "version": "0.23.34",
-        "integrity": "sha256-XQC1XisGI2pVZ0QU46XyUiK+xKc5YWutE3jCMz0JTcU="
+        "integrity": "sha256-pT5syAlmDlFmtoQaxRIoaXa2OqGjsdHMSLRI0aJXcDY="
       }
     },
     {

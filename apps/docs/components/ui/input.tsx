@@ -1,4 +1,4 @@
-// @vegastack input@0.23.34 sha256-IaUehjO5ANZe1Us53LDaBz157qY6DeJnhO6EcEdYgvQ=
+// @vegastack input@0.23.34 sha256-ewfTTmDM0AFHO+qgml5kyCMU2L4/RhtCwGGU7AT7IYs=
 
 import * as React from "react";
 import { Input as InputPrimitive } from "@base-ui/react/input";
@@ -58,4 +58,4 @@ function Input({ className, type, variant, size, ...props }: InputProps) {
   );
 }
 
-export { Input, inputVariants };
+export { Input };

@@ -19,7 +19,7 @@
 #               reflows the file, and `registry-stamp.mjs` writes the provenance header the
 #               three-copy model needs (DOC-1); those hunks carry no decision of their own.
 diff --git a/input.tsx b/input.tsx
-index 7c4ab5a..f4f3fd6 100644
+index 7c4ab5a..74fad52 100644
 --- a/input.tsx
 +++ b/input.tsx
 @@ -1,19 +1,59 @@
@@ -91,4 +91,4 @@ index 7c4ab5a..f4f3fd6 100644
  }
  
 -export { Input }
-+export { Input, inputVariants };
++export { Input };

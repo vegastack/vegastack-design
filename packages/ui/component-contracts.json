@@ -11909,15 +11909,6 @@
             "target": "element",
             "rationale": "Upstream forwards the ref to its own render target."
           }
-        },
-        {
-          "name": "inputVariants",
-          "kind": "constant",
-          "source": "packages/ui/registry/ui/input.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "A class-variance-authority recipe, not a component."
-          }
         }
       ],
       "variants": {
