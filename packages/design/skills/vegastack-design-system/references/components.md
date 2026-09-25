@@ -3,7 +3,7 @@
 <!-- GENERATED — do not hand-edit. Regenerated from the design system's component contract,
      which is the authority for membership and counts. -->
 
-**114 components**, plus 467 animated-icon items, 12 hooks (`use-animation-replay`, `use-announcer`, `use-async-search`, `use-drag-reorder`, `use-file-drop`, `use-inline-edit`, `use-list-nav`, `use-media-query`, `use-mobile`, `use-modal-inert`, `use-overflow`, `use-platform`), 10 starter blocks (`app-shell-01`, `board-01`, `command-search-01`, `list-page-01`, `login-01`, `notifications-01`, `review-split-01`, `settings-01`, `settings-02`, `status-pages-01`), 68 chart blocks across 7 families, and 3 data libs (`date-time`, `geo-data`, `drag-item`) — 674 registry items in total.
+**115 components**, plus 467 animated-icon items, 12 hooks (`use-animation-replay`, `use-announcer`, `use-async-search`, `use-drag-reorder`, `use-file-drop`, `use-inline-edit`, `use-list-nav`, `use-media-query`, `use-mobile`, `use-modal-inert`, `use-overflow`, `use-platform`), 10 starter blocks (`app-shell-01`, `board-01`, `command-search-01`, `list-page-01`, `login-01`, `notifications-01`, `review-split-01`, `settings-01`, `settings-02`, `status-pages-01`), 68 chart blocks across 7 families, and 3 data libs (`date-time`, `geo-data`, `drag-item`) — 675 registry items in total.
 
 Install any of them with `shadcn add @vegastack/<name>`. Animated icons install as
 `@vegastack/icon-<name>`; the bare name is reserved for components, so a component whose name
@@ -138,8 +138,8 @@ starts with `icon-` is a component and never an icon.
 
 - **`audio-player`** — A custom audio transport with play/pause, skip, seek, a tappable speed control, and keyboard shortcuts (mute on the M key); a single line on a wide player, two lines with an optional transcript control on a narrow, mobile-width player. Docks to the bottom of a scroll column with a close, resolves a lazy source on first play, and seeks from outside through actionsRef.
 - **`image`** — A presentational framed image with aspect-ratio, rounding, a loading skeleton, and an error fallback.
+- **`inbox`** — The notification Inbox: frame with header actions, All | Unread chips, sticky day groups, full-bleed rows with avatar or icon, rich titles, action chips, hover read toggle and menu, and empty, loading and error states.
 - **`media-player-controls`** — The shared media transport — play/pause, skip, seek, elapsed/duration, mute + volume, playback speed, and one keyboard shortcut map (useMediaShortcuts) — composed by Audio Player and Video Player.
-- **`inbox`** — The notification Inbox: `Inbox` frame (header actions, ✕), `InboxFilters` All | Unread chips, sticky `InboxGroup` day labels, full-bleed `InboxItem` rows (avatar for a person event, muted icon tile for a system event, `InboxEmphasis` on actor and record, ≤3 action chips, hover/focus Mark read toggle and ⋯ menu, `count` for grouped repeats), plus `InboxEmpty`, `InboxSkeleton`, `InboxError`. Use it for any notifications panel instead of hand-rolled rows; dock it in a Sheet or panel, full screen on phones.
 - **`notification-bell`** — A bell icon button with an unread-count badge overlay, plus the shared NotificationDot unread marker. Presentational — the app supplies the count.
 - **`video-player`** — A framed video player with the same grouped custom transport controls as Audio Player.
 

@@ -2,10 +2,10 @@
   "schemaVersion": 1,
   "kind": "vegastack-zero-gap-audit-register",
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "194ca0ecbaafdc9b59cd990a14d5a3ef4d2cffe634af628955582ab14d37b2a8",
+  "contractSha256": "b244bfaaafbc850133dde392dc664df3d09b88573bcd6569a2f189ce55bc7870",
   "expectedCounts": {
-    "totalRegistryItems": 674,
-    "components": 114,
+    "totalRegistryItems": 675,
+    "components": 115,
     "animatedIcons": 467,
     "hooks": 12,
     "blocks": 10,
@@ -748,6 +748,17 @@
         "packages/ui/registry/ui/navigation-menu.tsx"
       ],
       "docsSlug": "/docs/components/navigation-menu",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "inbox",
+      "inventoryClass": "component",
+      "wave": "Data display",
+      "family": "media",
+      "sourceFiles": [
+        "packages/ui/registry/ui/inbox.tsx"
+      ],
+      "docsSlug": "/docs/components/inbox",
       "contractStatus": "reconciled"
     },
     {
