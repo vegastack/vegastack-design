@@ -58,7 +58,7 @@
       "name": "alert",
       "type": "registry:ui",
       "title": "Alert",
-      "description": "A status banner — upstream's two variants plus our three extra status tones (COL-12).",
+      "description": "A status banner — upstream's two variants plus our three extra status tones (COL-12); buttons inside a status alert hover in the family's own tint and ink, never white.",
       "categories": ["feedback"],
       "dependencies": [
         "class-variance-authority@^0.7.1",
@@ -922,17 +922,20 @@
       "name": "data-list",
       "type": "registry:ui",
       "title": "Data List",
-      "description": "A generic, typed data table — configurable columns, row selection, sortable headers, plus loading and empty states.",
+      "description": "A generic, typed data table — configurable columns, row selection, sortable columns (indicator, custom compare and first direction, client or manual), a standard rowActions ⋯ column always last, untinted-link rows (no underline), loading, and Empty-based emptyState and noResults states.",
       "categories": ["data"],
       "dependencies": [
         "@vegastack/design@^0.7.17",
-        "@vegastack/design-tokens@^0.7.1"
+        "@vegastack/design-tokens@^0.7.1",
+        "lucide-react@^1.47.0"
       ],
       "registryDependencies": [
         "@vegastack/data-table-parts",
         "@vegastack/load-more",
         "@vegastack/table",
-        "@vegastack/truncated-text"
+        "@vegastack/truncated-text",
+        "@vegastack/button",
+        "@vegastack/empty"
       ],
       "files": [
         {
@@ -1070,7 +1073,7 @@
       "name": "dialog",
       "type": "registry:ui",
       "title": "Dialog",
-      "description": "A modal overlay — backdrop, centred popup, a plain right-aligned footer and an optional close button.",
+      "description": "A modal overlay — backdrop, centred popup, a plain right-aligned footer and an optional close button; opens onto the first field or the popup, never the close ×.",
       "categories": ["overlay"],
       "dependencies": [
         "@base-ui/react@^1.6.0",
@@ -1326,13 +1329,14 @@
       "name": "empty",
       "type": "registry:ui",
       "title": "Empty",
-      "description": "A zero-data placeholder — media, title, description and a content slot.",
+      "description": "A zero-data placeholder — always an icon (the icon prop, Inbox by default), title, description and a content slot, with a compact sm size for inline empties. The one empty-state markup: DataList's emptyState and noResults (SearchX, \"No matches\", Clear filters) are built on it.",
       "categories": ["data-display"],
       "dependencies": [
         "@base-ui/react@^1.6.0",
         "class-variance-authority@^0.7.1",
         "@vegastack/design@^0.7.17",
-        "@vegastack/design-tokens@^0.7.1"
+        "@vegastack/design-tokens@^0.7.1",
+        "lucide-react@^1.47.0"
       ],
       "registryDependencies": [],
       "files": [
@@ -1379,7 +1383,7 @@
       "name": "filter-bar",
       "type": "registry:ui",
       "title": "Filter Bar",
-      "description": "The two-row toolbar above a list or table — search, scope and view on top, filters below, folding into a sheet on a narrow screen.",
+      "description": "The two-row toolbar above a list or table — search (~320px) left; a Filters (n) toggle, scope Tabs and the view switch right; compact rounded-md filter chips (FilterBarFacet, DateRangeFilter with presets) on a toggled row 12px below that scrolls sideways on a phone.",
       "categories": ["data"],
       "dependencies": [
         "lucide-react@^1.47.0",
@@ -1393,7 +1397,8 @@
         "@vegastack/popover",
         "@vegastack/search-input",
         "@vegastack/searchable-select",
-        "@vegastack/sheet"
+        "@vegastack/calendar",
+        "@vegastack/date-time"
       ],
       "files": [
         {
@@ -11869,7 +11874,7 @@
       "name": "item",
       "type": "registry:ui",
       "title": "Item",
-      "description": "A composable row for list and feed content — media, title, description, actions.",
+      "description": "A composable row for list and feed content — media, title, description, actions — with a highlighted flash for a just-changed row.",
       "categories": ["data-display"],
       "dependencies": [
         "@base-ui/react@^1.6.0",
@@ -12193,7 +12198,7 @@
       "name": "inbox",
       "type": "registry:ui",
       "title": "Inbox",
-      "description": "The notification Inbox: frame with header actions, All | Unread chips, sticky day groups, full-bleed rows with avatar or icon, rich titles, action chips, hover read toggle and menu, and empty, loading and error states.",
+      "description": "The notification Inbox: frame with header actions, All | Unread chips, sticky day groups, full-bleed rows with avatar or icon and an unread tint (no dot), rich titles, action chips, a fixed right column with the time over the hover actions (read toggle and menu), and empty, loading and error states.",
       "categories": ["notifications"],
       "dependencies": [
         "lucide-react@^1.47.0",
@@ -12280,7 +12285,7 @@
       "name": "page-header",
       "type": "registry:ui",
       "title": "Page Header",
-      "description": "The standardized header at the top of a page — back button, breadcrumb trail, title, description, actions, secondary menu, and a favorite star.",
+      "description": "The standardized header at the top of a page — back button, breadcrumb trail, title, description, actions, secondary menu, and a favorite star — plus SectionHeading for in-page section titles (sm and md sizes, a muted eyebrow variant, trailing actions).",
       "categories": ["navigation"],
       "dependencies": [
         "@base-ui/react@^1.6.0",
@@ -12590,7 +12595,7 @@
       "name": "searchable-select",
       "type": "registry:ui",
       "title": "Searchable Select",
-      "description": "The Select-shaped Combobox preset: a full-width trigger, an in-panel search field, a check on the selected row and an optional clear control. Single-select, controlled through value/onValueChange.",
+      "description": "The Select-shaped Combobox preset: a full-width trigger, an in-panel search field, a tick on the selected row (matched by key, so async options tick too), a standard person option (name plus muted email, both searched) and an optional clear control. Single or multiple, controlled through value/onValueChange.",
       "categories": ["form"],
       "dependencies": [
         "@base-ui/react@^1.6.0",
@@ -12747,7 +12752,7 @@
       "name": "sheet",
       "type": "registry:ui",
       "title": "Sheet",
-      "description": "A panel that slides in from any edge — Dialog semantics with a side, a header and a footer.",
+      "description": "A panel that slides in from any edge — Dialog semantics with a side, a header and a footer; opens onto the first field, never the close ×; a left sheet can dock beside the sidebar rail (beside).",
       "categories": ["overlay"],
       "dependencies": [
         "@base-ui/react@^1.6.0",
@@ -12806,7 +12811,7 @@
       "name": "sidebar",
       "type": "registry:ui",
       "title": "Sidebar",
-      "description": "A collapsible app navigation rail — header/content/footer, labelled groups, menu items with active state, and an expand/collapse trigger.",
+      "description": "A collapsible app navigation rail — header/content/footer, labelled groups, menu items with active and open (menu-trigger) states, and an expand/collapse trigger.",
       "categories": ["navigation"],
       "dependencies": [
         "@base-ui/react@^1.6.0",
@@ -13108,7 +13113,7 @@
       "name": "tabs",
       "type": "registry:ui",
       "title": "Tabs",
-      "description": "Layered content sections — line or pill variants, optional icons and counts, horizontal or vertical, full keyboard navigation.",
+      "description": "Layered content sections — default (segmented) or line variants, compact size, optional leading icons and counts, horizontal or vertical, full keyboard navigation. Use Tabs for scope/views (My tasks | Team tasks); use an icon ToggleGroup for List/Board layout switches. The one component that keeps a focus ring.",
       "categories": ["navigation"],
       "dependencies": [
         "@base-ui/react@^1.6.0",

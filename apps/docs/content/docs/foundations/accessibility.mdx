@@ -19,46 +19,36 @@ component — there is nothing extra to wire up.
 - **Full keyboard support** — every interactive control is reachable and operable without a pointer.
 - **Semantic roles** — correct elements and ARIA via Base UI primitives, never `<div>` buttons.
 
-## Focus ring
+## Focus — no rings except Tabs
 
-The system ships **one** focus treatment: a `:focus-visible` outline keyed off the `--ring` token.
-It appears only on **keyboard** focus (`:focus-visible`), never on mouse click, so pointer users don't
-see a ring on every press. The convention is a **2px outline at 1px offset** — there are no separate
-ring-width or ring-offset tokens; `--ring` (light `oklch(0.205 0 0)`, dark `oklch(0.922 0 0)`)
-is the only knob. Upstream's `ring-3 ring-ring/50` glow is removed everywhere, and `design-lint`'s
-`no-focus-ring-glow` rule keeps it from returning on the next upstream pull.
+**Foundation rule (FOC-13): nothing draws a focus ring except Tabs.** The system ships one focus cue
+for keyboard users, owned by `base.css` and never restated by a component:
 
-Text-entry controls are the deliberate exception: `Input`, `Textarea`, `Select`, and combobox inputs
-tint their border on `:focus` (`focus:border-ring/70`) so caret and pointer focus remain visible
-without adding an outer ring inside dense forms. Other controls use the shared `:focus-visible`
-outline.
+- **Everything focusable** — buttons, chips, rows, menu items, toggles, cards, links, checkboxes,
+  switches — shows a subtle **background tint** on `:focus-visible`: `accent` at 50%, laid over the
+  control's own fill as a background image, so it reads on a primary button as well as a ghost one.
+  It appears only on keyboard focus, never on a mouse click.
+- **Text entry** — `Input`, `Textarea`, `Select` and combobox inputs — tints its **border**
+  instead (`focus:border-ring/70`, on plain `:focus` so a click and a Tab read alike). An invalid
+  field shows the error border colour, never a ring.
+- **Tabs** — the triggers and the panel — keep the 2px `--ring` outline at 1px offset, the one ring
+  left in the system.
+- **Forced colours** drop the tint, so a `forced-colors: active` block restores
+  `outline: 2px solid Highlight` on every focused element.
+- **Overlays** — Dialog and Sheet open onto their first field, or the popup itself; never the close
+  ×, so opening one never lights the × up.
 
-One further case changes the **offset only**, never the treatment. If a focusable element cannot
-paint outside its own border box — because an ancestor is `overflow-hidden`, or because a mask
-utility such as [`scroll-fade`](/docs/utilities/scroll-fade) is applied to it — the outline is
-pulled inside with `focus-visible:-outline-offset-2`. Same width, same `--ring` token. Do not reach
-for the border-tint instead: outside text-entry fields it is not a focus indicator at all, because
-`forced-colors: active` replaces `border-color` with a system value. `Terminal`'s scrollable command
-pane is the shipped example.
-
-Content links remain underlined at rest and keep this same neutral focus-visible outline. Navigation
-and button-like anchors may rely on their explicit control geometry instead of a resting underline,
-but never remove the outline without an equally visible replacement.
+Content links remain underlined at rest (list and table row links are the exception: the row tint is
+enough) and take the same background tint on focus.
 
 <FocusRingSpecimen />
 
-```tsx
-// The sanctioned focus treatment — outline keyed off the --ring token.
-<button className="outline-none focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-ring">
-  Save
-</button>
-```
-
 <Callout type="info">
-  Use `focus-visible:` for the shared outer outline. Use `focus:` only for the
-  sanctioned text-entry border-tint pattern described above; do not invent a
-  second focus treatment. Inverting the offset on a clipped or masked container
-  is not a second treatment — it is the same outline, drawn inside.
+  Do not write a focus class at all. `design-lint`'s `no-focus-ring-glow` rule
+  rejects any `focus:`/`focus-visible:ring-*`, `focus-visible:outline-*`,
+  `aria-invalid:ring-*`, `ring-3` or `ring-ring/NN` in registry source, so a
+  ring cannot creep back on an upstream pull. The only sanctioned local focus
+  class is the text-entry border tint.
 </Callout>
 
 ## Axe-clean from day one

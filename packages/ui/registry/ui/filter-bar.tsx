@@ -1,4 +1,4 @@
-// @vegastack filter-bar@0.23.8 sha256-zzLnTMM2gudQHiwJyqkw9wQdLaMUd95ArgagWQZjk5s=
+// @vegastack filter-bar@0.23.8 sha256-Ux6dWHSV2TdHIzRXS/PpbpqBugaZsHHABgruwVNFt18=
 
 "use client";
 
@@ -6,6 +6,7 @@ import * as React from "react";
 import { ChevronDown, CirclePlus, ListFilter, X } from "lucide-react";
 import { cn, mergeRefs } from "@vegastack/design";
 import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
 import { Chip } from "@/components/ui/chip";
 import {
   DropdownMenu,
@@ -26,16 +27,7 @@ import {
   SearchableSelect,
   type SearchableSelectProps,
 } from "@/components/ui/searchable-select";
-import {
-  Sheet,
-  SheetBody,
-  SheetClose,
-  SheetContent,
-  SheetFooter,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from "@/components/ui/sheet";
+import { formatDateRange } from "@/lib/date-time";
 
 /* ------------------------------------------------------------------------------------------------
  * Types
@@ -156,14 +148,15 @@ export interface FilterBarProps extends Omit<
    */
   searchPlacement?: "start" | "end";
   /**
-   * Whose rows the list shows, beside the search — a segmented `ToggleGroup` such as
-   * "My tasks | Created by me | Team". Takes its own full-width row on a narrow bar.
+   * Whose rows the list shows — views such as "My tasks | Team tasks". Use `Tabs` with the
+   * default variant at `size="sm"` (optionally with leading icons). Sits right of the Filters
+   * toggle, before `view`.
    * @default undefined
    */
   scope?: React.ReactNode;
   /**
-   * How the rows are laid out, pinned to the end of the first row — a segmented `ToggleGroup`
-   * such as "List | Board". On a narrow bar only the icons show: wrap each option's text in a
+   * How the rows are laid out, pinned furthest right — an icon `ToggleGroup` such as
+   * "List | Board". On a narrow bar only the icons show: wrap each option's text in a
    * `<span>` and it stays as the option's accessible name.
    * @default undefined
    */
@@ -174,9 +167,9 @@ export interface FilterBarProps extends Omit<
    */
   actions?: React.ReactNode;
   /**
-   * The primary {@link FilterBarFacet}s ("Status", "Due", "Assignee"), always visible on the
-   * second row. An unset facet is a quiet trigger that reads its label; a set facet is a filled
-   * pill with a clear control.
+   * The primary {@link FilterBarFacet}s ("Status", "Due", "Assignee") and `DateRangeFilter`s,
+   * on the filter row the Filters toggle shows. Unset and set share one compact rounded-md chip
+   * shape; a set one is tinted and carries a clear control.
    * @default undefined
    */
   facets?: React.ReactNode;
@@ -228,21 +221,39 @@ export interface FilterBarProps extends Omit<
    */
   clearLabel?: string;
   /**
-   * How many filters are applied. Drives "Clear" and the narrow bar's "Filters (n)". Defaults to
+   * How many filters are applied. Drives "Clear", the toggle's "Filters (n)" and its auto-open.
+   * Defaults to
    * the facets holding a value plus the `filters` chips.
    * @default undefined
    */
   activeCount?: number;
   /**
-   * The filter row's accessible name, and the label of the narrow bar's filters button and sheet.
+   * The filter row's accessible name, and the Filters toggle's label ("Filters (n)").
    * @default 'Filters'
    */
   filtersLabel?: string;
   /**
-   * The button that closes the narrow bar's filters sheet.
-   * @default 'Done'
+   * @deprecated The phone bottom sheet is gone; the filter row scrolls sideways instead.
+   * Accepted and ignored.
+   * @default undefined
    */
   doneLabel?: string;
+  /**
+   * Whether the filter row is shown (controlled). The Filters toggle flips it.
+   * @default undefined
+   */
+  filtersOpen?: boolean;
+  /**
+   * Whether the filter row starts shown, when uncontrolled.
+   * @default activeCount > 0
+   */
+  defaultFiltersOpen?: boolean;
+  /**
+   * Called when the Filters toggle shows or hides the filter row — and when the row opens by
+   * itself because a filter became set.
+   * @default undefined
+   */
+  onFiltersOpenChange?: (open: boolean) => void;
   /**
    * Content at the end of the filter row, before "Clear" — e.g. a "Save view" button.
    * @default undefined
@@ -327,9 +338,9 @@ function FilterChipText({
 /**
  * `FilterChip` — a single removable filter pill: a `label`, an optional `value`
  * after a colon, and a trailing `×` control that fires `onRemove`. The {@link Chip}
- * primitive at the standalone (`md`, 32px) tier, so it lines up with the Buttons and
- * Inputs beside it in the bar. An applied filter is a selection, so it carries the
- * selected fill by default; pass `active={false}` for a plain presence chip.
+ * primitive in the FilterBar's one chip shape — compact (h-7), rounded-md, quiet type — the
+ * same shape as a {@link FilterBarFacet}. An applied filter is a selection, so it carries the
+ * tinted fill by default; pass `active={false}` for a plain presence chip.
  * Purely presentational; the {@link FilterBar} renders one per active filter.
  *
  * @example
@@ -355,11 +366,15 @@ export function FilterChip({
   return (
     <Chip
       data-slot="filter-chip"
-      size="md"
+      size="sm"
       active={active}
       onRemove={onRemove}
       removeLabel={computedRemoveLabel}
-      className={cn("max-w-xs", className)}
+      // The FilterBar's one chip shape: compact (h-7), rounded-md, quiet type — set or unset.
+      className={cn(
+        "max-w-xs rounded-md text-sm font-normal [&_[data-slot=chip-remove]]:rounded-sm",
+        className,
+      )}
       {...props}
     >
       {/* The icon + label stay muted in BOTH states so the label/value hierarchy
@@ -418,21 +433,22 @@ const BAR_SIZE =
 /**
  * `FilterBar` — the toolbar above a list or table, in two rows.
  *
- * Row 1: the search field (first, taking the free space), an optional `scope` segmented control,
- * an optional `view` segmented control pinned to the end, and optional `actions`.
- * Row 2 (only when there are filters to show): the primary `facets`, any applied `filters` chips,
- * a "More" menu of secondary filters, and "Clear" at the end while anything is applied.
+ * Row 1: `[Search ~320px] … [⚲ Filters (n)] [scope] [actions] [view]` — the view furthest right.
+ * The Filters toggle shows or hides row 2, opens it by itself when anything becomes set, and
+ * shows the applied count.
+ * Row 2 (12px below): the `facets`, any applied `filters` chips, a "More" menu of secondary
+ * filters, and "Clear" at the end while anything is applied.
  *
- * On a narrow bar (below its own `@3xl` container width) the scope takes its own full-width row,
- * the view shows icons only, and the filter row folds into one "Filters (n)" button that opens a
- * bottom sheet with the facets stacked, "Clear" and "Done".
+ * On a narrow bar (below its own `@3xl` container width) the search takes the full width, then
+ * one row holds `[⚲ n] [scope] [view]` (the view icon-only), and the filter row scrolls sideways
+ * by touch with a hidden scrollbar.
  *
  * Purely presentational: the host owns every value.
  *
  * @example
  * <FilterBar
  *   search={{ value: query, onValueChange: setQuery, placeholder: "Search tasks" }}
- *   scope={<ToggleGroup aria-label="Scope" value={[scope]} onValueChange={([v]) => v && setScope(v)} deselectable={false} variant="outline" spacing={0}>…</ToggleGroup>}
+ *   scope={<Tabs value={scope} onValueChange={setScope}><TabsList size="sm"><TabsTrigger value="mine"><User />My tasks</TabsTrigger><TabsTrigger value="team"><Users />Team tasks</TabsTrigger></TabsList></Tabs>}
  *   view={<ToggleGroup aria-label="View" value={[view]} onValueChange={([v]) => v && setView(v)} deselectable={false} variant="outline" spacing={0}>…</ToggleGroup>}
  *   facets={<><FilterBarFacet label="Status" … /><FilterBarFacet label="Due" … /></>}
  *   addFilters={[{ id: "priority", label: "Priority" }]}
@@ -462,7 +478,10 @@ export function FilterBar({
   clearLabel = "Clear",
   activeCount: activeCountProp,
   filtersLabel = "Filters",
-  doneLabel = "Done",
+  doneLabel: _doneLabel,
+  filtersOpen: filtersOpenProp,
+  defaultFiltersOpen,
+  onFiltersOpenChange,
   trailing,
   ...props
 }: FilterBarProps) {
@@ -504,6 +523,7 @@ export function FilterBar({
   const showClear = onClear != null && activeCount > 0;
 
   const filterRowRef = React.useRef<HTMLDivElement>(null);
+  const filterRowId = React.useId();
   const clear = () => {
     onClear?.();
     // "Clear" unmounts once nothing is applied; hand focus to the row's first control rather
@@ -512,6 +532,26 @@ export function FilterBar({
       ?.querySelector<HTMLElement>("button:not([disabled])")
       ?.focus();
   };
+
+  // The Filters toggle: shows or hides the filter row, and opens it on its own the moment
+  // anything is applied (a URL restore, a "Clear" undone), so a set filter is never hidden.
+  const [filtersOpenState, setFiltersOpenState] = React.useState(
+    defaultFiltersOpen ?? activeCount > 0,
+  );
+  const filtersOpen = filtersOpenProp ?? filtersOpenState;
+  const setFiltersOpen = (next: boolean) => {
+    if (filtersOpenProp === undefined) setFiltersOpenState(next);
+    onFiltersOpenChange?.(next);
+  };
+  const hadActive = React.useRef(activeCount > 0);
+  React.useEffect(() => {
+    const active = activeCount > 0;
+    if (active && !hadActive.current && !filtersOpen) {
+      if (filtersOpenProp === undefined) setFiltersOpenState(true);
+      onFiltersOpenChange?.(true);
+    }
+    hadActive.current = active;
+  }, [activeCount, filtersOpen, filtersOpenProp, onFiltersOpenChange]);
 
   const searchField =
     search != null ? (
@@ -525,7 +565,7 @@ export function FilterBar({
         aria-label={search["aria-label"] ?? search.placeholder ?? "Search"}
         data-slot="filter-bar-search"
         className={cn(
-          "h-8 w-auto min-w-0 flex-1 basis-40 @3xl/filter-bar:max-w-sm",
+          "h-8 w-full min-w-0 @3xl/filter-bar:w-80 @3xl/filter-bar:flex-none",
           searchInputProps?.className,
         )}
       />
@@ -562,7 +602,8 @@ export function FilterBar({
           render={
             <Button
               variant="ghost"
-              className="text-muted-foreground"
+              size="sm"
+              className="shrink-0 font-normal text-muted-foreground"
               data-slot="filter-bar-add"
             >
               <CirclePlus aria-hidden />
@@ -589,8 +630,44 @@ export function FilterBar({
     ) : null);
 
   const hasFilters = facets != null || filters.length > 0 || moreMenu != null;
+  // The row stays mounted while hidden, so each facet keeps reporting whether it is set.
+  const showFilterRow = hasFilters || trailing != null;
+  const filterRowVisible = (hasFilters && filtersOpen) || trailing != null;
+
+  const filtersToggle = hasFilters ? (
+    <Button
+      variant="ghost"
+      size="sm"
+      data-slot="filter-bar-filters-toggle"
+      aria-expanded={filtersOpen}
+      aria-controls={filterRowId}
+      aria-label={
+        activeCount > 0 ? `${filtersLabel} (${activeCount})` : filtersLabel
+      }
+      data-state={filtersOpen ? "open" : "closed"}
+      className="h-8 shrink-0 font-normal text-muted-foreground aria-expanded:bg-muted aria-expanded:text-foreground"
+      onClick={() => setFiltersOpen(!filtersOpen)}
+    >
+      <ListFilter aria-hidden />
+      {/* The word hides on a narrow bar; the count stays. */}
+      <span className="hidden @3xl/filter-bar:inline">{filtersLabel}</span>
+      {activeCount > 0 ? (
+        <span
+          data-slot="filter-bar-filters-count"
+          className="rounded-sm bg-foreground/10 px-1 text-xs text-foreground tabular-nums"
+        >
+          {activeCount}
+        </span>
+      ) : null}
+    </Button>
+  ) : null;
+
   const hasPrimaryRow =
-    search != null || scope != null || view != null || actions != null;
+    search != null ||
+    scope != null ||
+    view != null ||
+    actions != null ||
+    filtersToggle != null;
 
   return (
     <FilterBarContext.Provider value={context}>
@@ -602,114 +679,74 @@ export function FilterBar({
         }
         aria-labelledby={ariaLabelledBy}
         className={cn(
-          "@container/filter-bar flex w-full min-w-0 flex-col gap-1.5",
+          "@container/filter-bar flex w-full min-w-0 flex-col gap-3",
           BAR_SIZE,
           className,
         )}
         {...props}
       >
         {hasPrimaryRow ? (
+          // [Search ~320px] … [Filters (n)] [scope/tabs] [actions] [view]. On a narrow bar the
+          // search takes the full width and the controls wrap onto one row beneath it.
           <div
             data-slot="filter-bar-primary"
-            className="flex w-full min-w-0 items-center gap-1.5"
+            className="flex w-full min-w-0 flex-wrap items-center gap-2 @3xl/filter-bar:flex-nowrap"
           >
             {searchField}
-            {scope != null ? (
-              <div
-                data-slot="filter-bar-scope"
-                className="hidden shrink-0 @3xl/filter-bar:flex"
-              >
-                {scope}
-              </div>
-            ) : null}
-            {view != null ? (
-              <div
-                data-slot="filter-bar-view"
-                className="ms-auto flex shrink-0 @max-3xl/filter-bar:[&_[data-slot=toggle-group-item]>span]:sr-only"
-              >
-                {view}
-              </div>
-            ) : null}
-            {actions != null ? (
-              <div
-                data-slot="filter-bar-actions"
-                className={cn(
-                  "flex shrink-0 items-center gap-1.5",
-                  view == null && "ms-auto",
-                )}
-              >
-                {actions}
-              </div>
-            ) : null}
+            <div
+              data-slot="filter-bar-controls"
+              className="flex min-w-0 flex-1 items-center gap-2 @3xl/filter-bar:flex-none @3xl/filter-bar:ms-auto"
+            >
+              {filtersToggle}
+              {scope != null ? (
+                <div
+                  data-slot="filter-bar-scope"
+                  // Clips and scrolls on a squeezed phone row rather than painting over the view.
+                  className="flex min-w-0 shrink items-center overflow-x-auto scrollbar-none"
+                >
+                  {scope}
+                </div>
+              ) : null}
+              {actions != null ? (
+                <div
+                  data-slot="filter-bar-actions"
+                  className="flex shrink-0 items-center gap-2"
+                >
+                  {actions}
+                </div>
+              ) : null}
+              {view != null ? (
+                <div
+                  data-slot="filter-bar-view"
+                  className="ms-auto flex shrink-0 @max-3xl/filter-bar:[&_[data-slot=toggle-group-item]>span]:sr-only"
+                >
+                  {view}
+                </div>
+              ) : null}
+            </div>
           </div>
         ) : null}
 
-        {scope != null ? (
-          // The narrow bar's scope row: the same control, full width, segments sharing the row.
-          <div
-            data-slot="filter-bar-scope-row"
-            className="flex w-full @3xl/filter-bar:hidden [&_[data-slot=toggle-group-item]]:flex-1 [&_[data-slot=toggle-group]]:w-full"
-          >
-            {scope}
-          </div>
-        ) : null}
-
-        {hasFilters || trailing != null ? (
+        {showFilterRow ? (
           <div
             ref={filterRowRef}
+            id={filterRowId}
             data-slot="filter-bar-filters"
             role="group"
             aria-label={filtersLabel}
-            className="flex w-full min-w-0 flex-wrap items-center gap-1.5"
+            // Wraps on a wide bar; on a narrow one it is one row that scrolls sideways by touch,
+            // with the scrollbar hidden.
+            className={cn(
+              "flex w-full min-w-0 flex-nowrap items-center gap-1.5 overflow-x-auto overscroll-x-contain scrollbar-none @3xl/filter-bar:flex-wrap @3xl/filter-bar:overflow-visible",
+              !filterRowVisible && "hidden",
+            )}
           >
             {hasFilters ? (
-              <>
-                <div className="hidden @3xl/filter-bar:contents">
-                  {facets}
-                  {chips}
-                  {moreMenu}
-                </div>
-                <Sheet>
-                  <SheetTrigger
-                    render={
-                      <Button
-                        variant="outline"
-                        data-slot="filter-bar-sheet-trigger"
-                        className="@3xl/filter-bar:hidden"
-                      >
-                        <ListFilter aria-hidden />
-                        {activeCount > 0
-                          ? `${filtersLabel} (${activeCount})`
-                          : filtersLabel}
-                      </Button>
-                    }
-                  />
-                  <SheetContent
-                    side="bottom"
-                    data-slot="filter-bar-sheet"
-                    className="max-h-[85dvh]"
-                  >
-                    <SheetHeader>
-                      <SheetTitle>{filtersLabel}</SheetTitle>
-                    </SheetHeader>
-                    <SheetBody>
-                      <div className="flex flex-col items-start gap-1.5">
-                        {facets}
-                        {chips}
-                        {moreMenu}
-                      </div>
-                    </SheetBody>
-                    <SheetFooter className="flex-row justify-end">
-                      {showClear ? (
-                        <Button variant="ghost" onClick={onClear}>
-                          {clearLabel}
-                        </Button>
-                      ) : null}
-                      <SheetClose render={<Button />}>{doneLabel}</SheetClose>
-                    </SheetFooter>
-                  </SheetContent>
-                </Sheet>
-              </>
+              <div className={filtersOpen ? "contents" : "hidden"}>
+                {facets}
+                {chips}
+                {moreMenu}
+              </div>
             ) : null}
             {trailing != null || showClear ? (
               <div
@@ -720,8 +757,9 @@ export function FilterBar({
                 {showClear ? (
                   <Button
                     variant="ghost"
+                    size="sm"
                     data-slot="filter-bar-clear"
-                    className="hidden @3xl/filter-bar:inline-flex"
+                    className="font-normal text-muted-foreground"
                     onClick={clear}
                   >
                     {clearLabel}
@@ -809,11 +847,14 @@ export type FilterBarFacetProps<
   FilterBarFacetOwnProps<Item>;
 
 /**
- * `FilterBarFacet` — one filter on `SearchableSelect`. Unset, it is a quiet borderless trigger that
- * reads its label ("Status ▾"). Set, it becomes a filled pill: "Status: Open", "Status: Open, In
- * progress", then "Status (3)" from three values, with a × that clears it ("Clear Status"). Single
- * or `multiple`, local or server-searched (`remote` + `useAsyncSearch`), optionally pinned and
- * removable. Put it in a `FilterBar`'s `facets` slot; it takes the bar's h-8 height.
+ * `FilterBarFacet` — one filter on `SearchableSelect`, as a compact rounded-md chip (h-7). Unset,
+ * it is quiet and reads its label ("Status ▾"). Set, the same chip is tinted: "Status: Open", then
+ * "Status: 2" from two values (the values on hover and ticked in the popover), with a × in the
+ * chevron's fixed slot that clears it ("Clear Status"). Single or `multiple`, local or
+ * server-searched (`remote` + `useAsyncSearch`; the tick matches by `itemToKey`), optionally pinned
+ * and removable. For people, pass `itemToSecondaryLabel={(p) => p.email}`: each option reads the
+ * name plus a smaller muted email, and search matches both. Put it in a
+ * `FilterBar`'s `facets` slot.
  *
  * @example
  * <FilterBarFacet
@@ -872,14 +913,19 @@ export function FilterBarFacet<
   // "Selected" and "More" under the pointer; the next open re-pins.
   const [pinnedKeys, setPinnedKeys] = React.useState(selectedKeys);
   const pinned = (item: Item) => pinnedKeys.has(itemToKey(item));
+  // One value reads "Status: Open"; several read "Status: 2", with the values on hover (the
+  // chip's `title`) and ticked in the popover.
   const text = (list: Item[]) =>
     list.length === 0
       ? label
-      : list.length > 2
-        ? countLabel
-          ? `${label}: ${countLabel(list.length)}`
-          : `${label} (${list.length})`
-        : `${label}: ${list.map(itemToStringLabel).join(", ")}`;
+      : list.length > 1
+        ? `${label}: ${countLabel ? countLabel(list.length) : list.length}`
+        : `${label}: ${itemToStringLabel(list[0]!)}`;
+  const selectedList = Array.isArray(current)
+    ? current
+    : current
+      ? [current]
+      : [];
 
   const clear = () => {
     // The × unmounts with the value; hand focus to the trigger first (DS-22).
@@ -896,7 +942,12 @@ export function FilterBarFacet<
     <span
       data-slot="filter-bar-facet"
       data-state={hasValue ? "set" : "unset"}
-      className="inline-flex min-w-0 items-center gap-0.5"
+      title={
+        selectedList.length > 1
+          ? selectedList.map(itemToStringLabel).join(", ")
+          : undefined
+      }
+      className="inline-flex min-w-0 shrink-0 items-center gap-0.5"
     >
       <span className="relative inline-flex min-w-0">
         <SearchableSelect<Item, Multiple>
@@ -915,8 +966,8 @@ export function FilterBarFacet<
               : select.items
           }
           variant="ghost"
-          // The FilterBar's one height tier: every control in both rows is h-8.
-          size="default"
+          // The filter row's compact chip tier (h-7).
+          size="sm"
           countLabel={countLabel}
           placeholder={label}
           searchPlaceholder={searchPlaceholder}
@@ -934,31 +985,37 @@ export function FilterBarFacet<
           groupOrder={pinSelected ? [selectedGroupLabel] : undefined}
           // The select's own chevron gives way to the facet's ▾ or ×.
           containerClassName="w-fit [&>svg]:hidden"
+          // ONE chip shape for unset and set (rounded-md, h-7, the same border box and the
+          // same 28px trailing reserve); a set chip is tinted, never reshaped.
           className={cn(
-            "w-auto max-w-64",
+            "h-7 w-auto max-w-64 rounded-md border-border ps-2 pe-7 text-sm font-normal hover:border-border focus:border-border aria-expanded:border-border",
             hasValue
-              ? "rounded-full border-border bg-accent ps-2.5 pe-8 font-medium text-foreground hover:border-border hover:bg-accent aria-expanded:border-border dark:bg-accent dark:hover:bg-accent"
-              : "ps-2.5 pe-7 text-muted-foreground hover:border-transparent hover:bg-muted hover:text-foreground aria-expanded:border-transparent aria-expanded:bg-muted aria-expanded:text-foreground dark:hover:bg-muted",
+              ? "bg-accent text-foreground hover:bg-accent/80 aria-expanded:bg-accent dark:bg-accent dark:hover:bg-accent/80"
+              : "bg-transparent text-muted-foreground hover:bg-muted hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground dark:bg-transparent dark:hover:bg-muted",
           )}
           contentClassName="min-w-56"
           data-slot="filter-bar-facet-select"
         />
         {hasValue ? (
+          // The × holds the chevron's exact box (24px, `end-0.5`), so nothing shifts when a
+          // value is set; its 24px box is the whole hit area.
           <Button
             variant="ghost"
             size="icon-xs"
             aria-label={clearLabel}
             data-slot="filter-bar-facet-clear"
-            className="absolute end-1 top-1/2 -translate-y-1/2 rounded-full"
+            className="absolute end-0.5 top-1/2 size-6 -translate-y-1/2 rounded-sm text-muted-foreground hover:bg-foreground/10 hover:text-foreground"
             onClick={clear}
           >
-            <X aria-hidden />
+            <X aria-hidden className="size-3.5" />
           </Button>
         ) : (
-          <ChevronDown
+          <span
             aria-hidden
-            className="pointer-events-none absolute end-2 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
-          />
+            className="pointer-events-none absolute end-0.5 top-1/2 flex size-6 -translate-y-1/2 items-center justify-center text-muted-foreground"
+          >
+            <ChevronDown className="size-3.5" />
+          </span>
         )}
       </span>
       {removable && !hasValue ? (
@@ -972,6 +1029,312 @@ export function FilterBarFacet<
           <X aria-hidden />
         </Button>
       ) : null}
+    </span>
+  );
+}
+
+/* ------------------------------------------------------------------------------------------------
+ * DateRangeFilter
+ * ----------------------------------------------------------------------------------------------*/
+
+/** The built-in presets of a {@link DateRangeFilter}, plus `"custom"` (the calendar). */
+export type DateRangeFilterPreset =
+  | "today"
+  | "yesterday"
+  | "last7"
+  | "last30"
+  | "thisMonth"
+  | "lastMonth"
+  | "custom";
+
+/** A {@link DateRangeFilter} value: whole days, `from` and `to` inclusive. */
+export interface DateRangeFilterValue {
+  /** The first day (local midnight). */
+  from: Date;
+  /** The last day, inclusive (local midnight). */
+  to: Date;
+  /**
+   * The preset it came from; the chip reads the preset's name ("Last 7 days") while it is set,
+   * and the dates ("Sep 1–25") for `"custom"` or when omitted.
+   * @default undefined
+   */
+  preset?: DateRangeFilterPreset;
+}
+
+/** Props accepted by `DateRangeFilter`. */
+export interface DateRangeFilterProps {
+  /** The filter's name, in sentence case ("Due date", "Created"). */
+  label: string;
+  /** The applied range, or `null` when unset (controlled). */
+  value: DateRangeFilterValue | null;
+  /** Called with the new range, or `null` when cleared. */
+  onValueChange: (value: DateRangeFilterValue | null) => void;
+  /**
+   * Which presets to offer, in order. `"custom"` opens the calendar.
+   * @default ["today", "yesterday", "last7", "last30", "thisMonth", "lastMonth", "custom"]
+   */
+  presets?: DateRangeFilterPreset[];
+  /**
+   * Relabel presets — for another language.
+   * @default English ("Today", "Yesterday", "Last 7 days", …, "Custom range")
+   */
+  presetLabels?: Partial<Record<DateRangeFilterPreset, string>>;
+  /**
+   * "Today", for the presets and the label's year rule.
+   * @default new Date()
+   */
+  now?: Date;
+  /**
+   * The zone the range label's days are written in (the date-time helpers' `timeZone`).
+   * @default the runtime's zone
+   */
+  timeZone?: string;
+  /**
+   * The locale of the range label.
+   * @default "en-US"
+   */
+  locale?: string;
+  /**
+   * Accessible name of the clear control.
+   * @default `Clear ${label}`
+   */
+  clearLabel?: string;
+  /**
+   * Disable the filter.
+   * @default false
+   */
+  disabled?: boolean;
+}
+
+const DATE_RANGE_PRESET_LABELS: Record<DateRangeFilterPreset, string> = {
+  today: "Today",
+  yesterday: "Yesterday",
+  last7: "Last 7 days",
+  last30: "Last 30 days",
+  thisMonth: "This month",
+  lastMonth: "Last month",
+  custom: "Custom range",
+};
+
+const DEFAULT_DATE_RANGE_PRESETS: DateRangeFilterPreset[] = [
+  "today",
+  "yesterday",
+  "last7",
+  "last30",
+  "thisMonth",
+  "lastMonth",
+  "custom",
+];
+
+/**
+ * The `{ from, to }` a preset covers on the day `now` falls on — whole local days, inclusive.
+ *
+ * @example
+ * dateRangeForPreset("last7") // the last 7 days, today included
+ */
+export function dateRangeForPreset(
+  preset: Exclude<DateRangeFilterPreset, "custom">,
+  now: Date = new Date(),
+): DateRangeFilterValue {
+  const day = (offset: number, base = now) =>
+    new Date(base.getFullYear(), base.getMonth(), base.getDate() + offset);
+  const y = now.getFullYear();
+  const m = now.getMonth();
+  switch (preset) {
+    case "today":
+      return { from: day(0), to: day(0), preset };
+    case "yesterday":
+      return { from: day(-1), to: day(-1), preset };
+    case "last7":
+      return { from: day(-6), to: day(0), preset };
+    case "last30":
+      return { from: day(-29), to: day(0), preset };
+    case "thisMonth":
+      return { from: new Date(y, m, 1), to: new Date(y, m + 1, 0), preset };
+    case "lastMonth":
+      return { from: new Date(y, m - 1, 1), to: new Date(y, m, 0), preset };
+  }
+}
+
+/**
+ * `DateRangeFilter` — a date-range chip for a `FilterBar`, in the same compact rounded-md shape as
+ * `FilterBarFacet`. Unset it reads its label ("Due date ▾"); set it is tinted and reads the preset
+ * ("Due date: Last 7 days") or the dates ("Due date: Sep 1–25", from the date-time helpers), with
+ * a × in the chevron's fixed slot. Its popover lists Today · Yesterday · Last 7 days · Last 30
+ * days · This month · Last month · Custom range, the last opening a two-month calendar.
+ *
+ * @example
+ * <DateRangeFilter label="Created" value={created} onValueChange={setCreated} />
+ */
+export function DateRangeFilter({
+  label,
+  value,
+  onValueChange,
+  presets = DEFAULT_DATE_RANGE_PRESETS,
+  presetLabels,
+  now,
+  timeZone,
+  locale,
+  clearLabel = `Clear ${label}`,
+  disabled = false,
+}: DateRangeFilterProps) {
+  const labels = { ...DATE_RANGE_PRESET_LABELS, ...presetLabels };
+  const hasValue = value != null;
+  const bar = React.useContext(FilterBarContext);
+  const id = React.useId();
+  React.useEffect(() => {
+    bar?.report(id, label, hasValue);
+  }, [bar, id, label, hasValue]);
+  React.useEffect(() => () => bar?.report(id, label, null), [bar, id, label]);
+
+  const [open, setOpen] = React.useState(false);
+  const [custom, setCustom] = React.useState(false);
+  const [draft, setDraft] = React.useState<
+    { from: Date | undefined; to?: Date } | undefined
+  >(undefined);
+  const triggerRef = React.useRef<HTMLButtonElement>(null);
+
+  const valueText = !value
+    ? null
+    : value.preset && value.preset !== "custom"
+      ? labels[value.preset]
+      : formatDateRange(value.from, value.to, {
+          withTime: false,
+          timeZone,
+          locale,
+          now,
+        });
+
+  const openChange = (next: boolean) => {
+    setOpen(next);
+    if (next) {
+      setCustom(value?.preset === "custom" || (value != null && !value.preset));
+      setDraft(value ? { from: value.from, to: value.to } : undefined);
+    }
+  };
+
+  return (
+    <span
+      data-slot="date-range-filter"
+      data-state={hasValue ? "set" : "unset"}
+      className="relative inline-flex min-w-0 shrink-0"
+    >
+      <Popover open={open} onOpenChange={openChange}>
+        <PopoverTrigger
+          render={
+            <Button
+              ref={triggerRef}
+              variant="ghost"
+              size="sm"
+              disabled={disabled}
+              data-slot="date-range-filter-trigger"
+              className={cn(
+                "h-7 max-w-64 justify-start rounded-md border border-border ps-2 pe-7 text-sm font-normal",
+                hasValue
+                  ? "bg-accent text-foreground hover:bg-accent/80 aria-expanded:bg-accent"
+                  : "text-muted-foreground hover:bg-muted hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground",
+              )}
+            />
+          }
+        >
+          <span className="min-w-0 truncate">
+            {valueText ? `${label}: ${valueText}` : label}
+          </span>
+        </PopoverTrigger>
+        <PopoverContent
+          align="start"
+          data-slot="date-range-filter-content"
+          className="w-auto gap-0 p-0"
+        >
+          {custom ? (
+            <div className="flex flex-col">
+              <Calendar
+                mode="range"
+                numberOfMonths={2}
+                className="bg-transparent"
+                selected={draft}
+                onSelect={setDraft}
+                defaultMonth={draft?.from ?? now}
+                autoFocus
+              />
+              <div className="flex items-center justify-end gap-1.5 border-t border-border p-2">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setCustom(false)}
+                >
+                  Back
+                </Button>
+                <Button
+                  size="sm"
+                  disabled={!draft?.from}
+                  onClick={() => {
+                    if (!draft?.from) return;
+                    onValueChange({
+                      from: draft.from,
+                      to: draft.to ?? draft.from,
+                      preset: "custom",
+                    });
+                    setOpen(false);
+                  }}
+                >
+                  Apply
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <div
+              role="group"
+              aria-label={label}
+              data-slot="date-range-filter-presets"
+              className="flex min-w-44 flex-col p-1"
+            >
+              {presets.map((preset) => (
+                <Button
+                  key={preset}
+                  variant="ghost"
+                  size="sm"
+                  aria-pressed={value?.preset === preset}
+                  className="justify-start font-normal aria-pressed:bg-accent"
+                  onClick={() => {
+                    if (preset === "custom") {
+                      setCustom(true);
+                      return;
+                    }
+                    onValueChange(dateRangeForPreset(preset, now));
+                    setOpen(false);
+                  }}
+                >
+                  {labels[preset]}
+                </Button>
+              ))}
+            </div>
+          )}
+        </PopoverContent>
+      </Popover>
+      {hasValue ? (
+        <Button
+          variant="ghost"
+          size="icon-xs"
+          aria-label={clearLabel}
+          disabled={disabled}
+          data-slot="date-range-filter-clear"
+          className="absolute end-0.5 top-1/2 size-6 -translate-y-1/2 rounded-sm text-muted-foreground hover:bg-foreground/10 hover:text-foreground"
+          onClick={() => {
+            triggerRef.current?.focus();
+            onValueChange(null);
+          }}
+        >
+          <X aria-hidden className="size-3.5" />
+        </Button>
+      ) : (
+        <span
+          aria-hidden
+          className="pointer-events-none absolute end-0.5 top-1/2 flex size-6 -translate-y-1/2 items-center justify-center text-muted-foreground"
+        >
+          <ChevronDown className="size-3.5" />
+        </span>
+      )}
     </span>
   );
 }

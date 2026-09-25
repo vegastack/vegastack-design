@@ -1301,9 +1301,9 @@ test("FOC-1/FOC-6: keyboard focus lands on the design system's own 2px outline",
   const focused = document.activeElement as HTMLElement;
   expect(focused.dataset.slot).toBe("sidebar-menu-button");
   const style = getComputedStyle(focused);
-  // `auto` would be the USER AGENT's ring — accepting it is how a focus check becomes unfalsifiable.
-  expect(style.outlineStyle).toBe("solid");
-  expect(Number.parseFloat(style.outlineWidth)).toBeGreaterThanOrEqual(2);
+  // FOC-13: no ring — the row shows base.css's background tint.
+  expect(style.outlineStyle).toBe("none");
+  expect(style.backgroundImage).toContain("gradient");
 });
 
 test("FRM-4: a disabled row keeps live pointer events so a tooltip can explain it", async () => {

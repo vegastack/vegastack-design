@@ -45,6 +45,14 @@ Reach for a plain [Select](/docs/components/select) when the option set is short
 [Combobox](/docs/components/combobox) directly when you need free text, suggestions, or
 multi-select chips.
 
+## Anatomy
+
+`Searchable Select` exports the picker and `PersonOption`, the standard person row (the name, then a
+smaller muted email) it draws from `itemToSecondaryLabel`. Every exported part, with the `data-slot`
+it renders (generated from the canonical source):
+
+<Anatomy name="searchable-select" />
+
 ## Examples
 
 ### Anatomy
@@ -163,6 +171,26 @@ lists the headings that come first whatever the rows' order.
   name="searchableSelectDisabled"
   file="components/preview/searchable-select.tsx"
 />
+
+### People
+
+`itemToSecondaryLabel={(p) => p.email}` turns each option into the standard person row — the name,
+then a smaller muted email — and the local search matches both. The selected tick matches by
+`itemToKey`, so options from a server search (fresh objects on each fetch) tick exactly as static
+ones do.
+
+```tsx
+<SearchableSelect
+  items={people}
+  value={owner}
+  onValueChange={setOwner}
+  itemToKey={(p) => p.id}
+  itemToStringLabel={(p) => p.name}
+  itemToSecondaryLabel={(p) => p.email}
+  renderItem={(p) => p.name}
+  searchLabel="Search people"
+/>
+```
 
 ## API Reference
 

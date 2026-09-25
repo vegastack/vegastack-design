@@ -297,3 +297,15 @@ test("no a11y violations — live destructive and live warning", async () => {
   );
   await expectNoA11yViolations(screen.container);
 });
+
+test("a button inside a status alert hovers in the family's own tint and ink (API-29)", async () => {
+  // The neutral hover (`bg-muted text-foreground`) read white in dark mode on a destructive alert.
+  // `contrast-check.mjs` gates this exact pair — `<family>-text` on `<family>/10` over `card` — in
+  // both themes.
+  for (const variant of STATUS_VARIANTS) {
+    const classes = await classesFor(variant);
+    const hover = "[&_[data-slot=button]:not([data-variant=default]):hover]";
+    expect(classes).toContain(`${hover}:bg-${variant}/10`);
+    expect(classes).toContain(`${hover}:text-${variant}-text`);
+  }
+});

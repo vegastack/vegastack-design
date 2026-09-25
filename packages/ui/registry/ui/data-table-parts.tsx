@@ -1,4 +1,4 @@
-// @vegastack data-table-parts@0.23.8 sha256-iUKXr6WoqNVpA0t7Od0Z4AiTipTfsOmmuh5fCwbi17M=
+// @vegastack data-table-parts@0.23.8 sha256-iL3aTkNOlUCtEdGPNlcjH9+ShJBy0FZeOjs+JHqgZZE=
 
 "use client";
 
@@ -9,7 +9,7 @@ import {
   ChevronDown,
   ChevronRight,
   ChevronsUpDown,
-  EllipsisVertical,
+  Ellipsis,
   Inbox,
 } from "lucide-react";
 import { cn } from "@vegastack/design";
@@ -520,7 +520,7 @@ export function SortHeaderButton({
             {order != null ? <span className="text-xs">{order}</span> : null}
           </>
         ) : (
-          <ChevronsUpDown className="size-3.5 opacity-0 transition-opacity duration-fast ease-standard group-hover/sort:opacity-60" />
+          <ChevronsUpDown className="size-3.5 opacity-40 transition-opacity duration-fast ease-standard group-hover/sort:opacity-70" />
         )}
       </span>
     </Button>
@@ -1051,7 +1051,7 @@ export function RowActionsMenu({
             render={
               <Button
                 variant="ghost"
-                size="icon-sm"
+                size="icon"
                 data-slot="row-actions-menu-action"
                 aria-label={name}
                 aria-describedby={reason ? reasonId : undefined}
@@ -1076,11 +1076,11 @@ export function RowActionsMenu({
         render={
           <Button
             variant="ghost"
-            size="icon-sm"
+            size="icon"
             data-slot="row-actions-menu-trigger"
             aria-label={actionsLabel(label)}
           >
-            <EllipsisVertical />
+            <Ellipsis />
           </Button>
         }
       />

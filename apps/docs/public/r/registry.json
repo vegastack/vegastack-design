@@ -66,7 +66,7 @@
       "name": "alert",
       "type": "registry:ui",
       "title": "Alert",
-      "description": "A status banner — upstream's two variants plus our three extra status tones (COL-12).",
+      "description": "A status banner — upstream's two variants plus our three extra status tones (COL-12); buttons inside a status alert hover in the family's own tint and ink, never white.",
       "categories": [
         "feedback"
       ],
@@ -87,7 +87,7 @@
         "whenToUse": "Persistent, in-page status messages — info, success, warning, or error context tied to surrounding content.",
         "whenNotToUse": "Transient feedback after a user action — use a toast instead.",
         "version": "0.23.8",
-        "integrity": "sha256-gDGnePtyyNDKa730nNALnWAZX0ZwKoctwZ21II5VWe4="
+        "integrity": "sha256-BVD36GZolqYhe0671fy7g/Xb7YikkhNUJ+uEvMvDF9w="
       }
     },
     {
@@ -519,7 +519,7 @@
         "whenToUse": "Any clickable action — submit, confirm, destructive, etc.",
         "whenNotToUse": "Navigation to a URL — style the link with buttonVariants(): <Link href className={buttonVariants({ variant, size })}>.",
         "version": "0.23.8",
-        "integrity": "sha256-neEnkDD6nWpRRv4hmWZnFfa1J6cCfkBhkm2EzMij5Is="
+        "integrity": "sha256-Oj/vI8d0kvjkCXnXmp68ztQd6TA2b85N+T4jachCLQo="
       }
     },
     {
@@ -1056,19 +1056,22 @@
       "name": "data-list",
       "type": "registry:ui",
       "title": "Data List",
-      "description": "A generic, typed data table — configurable columns, row selection, sortable headers, plus loading and empty states.",
+      "description": "A generic, typed data table — configurable columns, row selection, sortable columns (indicator, custom compare and first direction, client or manual), a standard rowActions ⋯ column always last, untinted-link rows (no underline), loading, and Empty-based emptyState and noResults states.",
       "categories": [
         "data"
       ],
       "dependencies": [
         "@vegastack/design@^0.7.17",
-        "@vegastack/design-tokens@^0.7.1"
+        "@vegastack/design-tokens@^0.7.1",
+        "lucide-react@^1.47.0"
       ],
       "registryDependencies": [
         "@vegastack/data-table-parts",
         "@vegastack/load-more",
         "@vegastack/table",
-        "@vegastack/truncated-text"
+        "@vegastack/truncated-text",
+        "@vegastack/button",
+        "@vegastack/empty"
       ],
       "files": [
         {
@@ -1081,7 +1084,7 @@
         "whenToUse": "A list of records as a table with typed columns, selection, click-to-sort, loading/empty states, keyset paging through loadMore, rows as links, collapsible sections and a row-actions column.",
         "whenNotToUse": "A board/kanban view (Board), full-parity grids with grouping/editing/virtualization (DataGrid), or a simple static table (Table).",
         "version": "0.23.8",
-        "integrity": "sha256-iNmPkEP17JNyrrruT3ajOPEljq9gr0t+XcFjDFoST/I="
+        "integrity": "sha256-6dP0P00muI+TyYSnHFHlEGptEdt+ftVi5bDCpGRJAj0="
       }
     },
     {
@@ -1180,7 +1183,7 @@
         "whenToUse": "Installed automatically with DataList or DataGrid; import it directly when building a bespoke table that should share their sort header, selection cells and column rules.",
         "whenNotToUse": "A plain presentational table (Table alone), or as a table component in its own right — these are parts, not a renderer.",
         "version": "0.23.8",
-        "integrity": "sha256-iUKXr6WoqNVpA0t7Od0Z4AiTipTfsOmmuh5fCwbi17M="
+        "integrity": "sha256-iL3aTkNOlUCtEdGPNlcjH9+ShJBy0FZeOjs+JHqgZZE="
       }
     },
     {
@@ -1221,7 +1224,7 @@
       "name": "dialog",
       "type": "registry:ui",
       "title": "Dialog",
-      "description": "A modal overlay — backdrop, centred popup, a plain right-aligned footer and an optional close button.",
+      "description": "A modal overlay — backdrop, centred popup, a plain right-aligned footer and an optional close button; opens onto the first field or the popup, never the close ×.",
       "categories": [
         "overlay"
       ],
@@ -1246,7 +1249,7 @@
         "whenToUse": "Modal interactions requiring full attention — confirmations, focused forms, destructive-action prompts. size sm/default/lg/xl steps the width; put long content in DialogBody so the header and footer stay in view.",
         "whenNotToUse": "Non-blocking feedback (Toast), inline contextual content (Popover/Tooltip), or a swipeable bottom panel (Drawer).",
         "version": "0.23.8",
-        "integrity": "sha256-Ox//vBiPeq+iK6da0gz02cuopCL2d0SS/vFWj7IxFzQ="
+        "integrity": "sha256-k9B+c6tOaFu67hwZqAtVUF+wWJZ6NQw2PvRCjSRR6RM="
       }
     },
     {
@@ -1515,7 +1518,7 @@
       "name": "empty",
       "type": "registry:ui",
       "title": "Empty",
-      "description": "A zero-data placeholder — media, title, description and a content slot.",
+      "description": "A zero-data placeholder — always an icon (the icon prop, Inbox by default), title, description and a content slot, with a compact sm size for inline empties. The one empty-state markup: DataList's emptyState and noResults (SearchX, \"No matches\", Clear filters) are built on it.",
       "categories": [
         "data-display"
       ],
@@ -1523,7 +1526,8 @@
         "@base-ui/react@^1.6.0",
         "class-variance-authority@^0.7.1",
         "@vegastack/design@^0.7.17",
-        "@vegastack/design-tokens@^0.7.1"
+        "@vegastack/design-tokens@^0.7.1",
+        "lucide-react@^1.47.0"
       ],
       "registryDependencies": [],
       "files": [
@@ -1537,7 +1541,7 @@
         "whenToUse": "When a list, table, or panel has no content — communicate the zero state and offer the next action.",
         "whenNotToUse": "While loading (skeleton/spinner) or for transient post-action feedback (toast).",
         "version": "0.23.8",
-        "integrity": "sha256-/JWCKfpvmSCpn1SSm7JbVOxNA7Bhczewi7v4QX/9CNU="
+        "integrity": "sha256-8NH7TetkpAKaV7msmwdrC5xREL/jDqtfEgROjVMAEZk="
       }
     },
     {
@@ -1577,7 +1581,7 @@
       "name": "filter-bar",
       "type": "registry:ui",
       "title": "Filter Bar",
-      "description": "The two-row toolbar above a list or table — search, scope and view on top, filters below, folding into a sheet on a narrow screen.",
+      "description": "The two-row toolbar above a list or table — search (~320px) left; a Filters (n) toggle, scope Tabs and the view switch right; compact rounded-md filter chips (FilterBarFacet, DateRangeFilter with presets) on a toggled row 12px below that scrolls sideways on a phone.",
       "categories": [
         "data"
       ],
@@ -1593,7 +1597,8 @@
         "@vegastack/popover",
         "@vegastack/search-input",
         "@vegastack/searchable-select",
-        "@vegastack/sheet"
+        "@vegastack/calendar",
+        "@vegastack/date-time"
       ],
       "files": [
         {
@@ -1606,7 +1611,7 @@
         "whenToUse": "Filter toolbars for lists/tables — 'Label: value' chips that edit in place, facets on SearchableSelect, an Add-filter menu and a settled search, at the end or first.",
         "whenNotToUse": "A single search box (Input), value selection (Select), or unrelated row actions.",
         "version": "0.23.8",
-        "integrity": "sha256-zzLnTMM2gudQHiwJyqkw9wQdLaMUd95ArgagWQZjk5s="
+        "integrity": "sha256-Ux6dWHSV2TdHIzRXS/PpbpqBugaZsHHABgruwVNFt18="
       }
     },
     {
@@ -14893,7 +14898,7 @@
       "name": "item",
       "type": "registry:ui",
       "title": "Item",
-      "description": "A composable row for list and feed content — media, title, description, actions.",
+      "description": "A composable row for list and feed content — media, title, description, actions — with a highlighted flash for a just-changed row.",
       "categories": [
         "data-display"
       ],
@@ -14918,7 +14923,7 @@
         "whenToUse": "A row of structured content in a feed, list, or panel — a person, file, notification, or settings link — with optional media and trailing actions. Rows rendered as links or buttons can sit inside an ItemGroup (the list item moves to a wrapper), and ItemGroupLabel names a group.",
         "whenNotToUse": "Tabular/sortable data with columns (use Table or DataList) or a zero-data placeholder (use Empty).",
         "version": "0.23.8",
-        "integrity": "sha256-p3wcg720B0LUYT2qJbhGrhEgoS0cTVU9L0SoPZWEMOk="
+        "integrity": "sha256-u7iUc4DKlvmag3VL21sO+4P7aL7He9TCp8wfoVdOJEI="
       }
     },
     {
@@ -15259,7 +15264,7 @@
       "name": "inbox",
       "type": "registry:ui",
       "title": "Inbox",
-      "description": "The notification Inbox: frame with header actions, All | Unread chips, sticky day groups, full-bleed rows with avatar or icon, rich titles, action chips, hover read toggle and menu, and empty, loading and error states.",
+      "description": "The notification Inbox: frame with header actions, All | Unread chips, sticky day groups, full-bleed rows with avatar or icon and an unread tint (no dot), rich titles, action chips, a fixed right column with the time over the hover actions (read toggle and menu), and empty, loading and error states.",
       "categories": [
         "notifications"
       ],
@@ -15287,7 +15292,7 @@
         "whenToUse": "The notifications panel: a feed of person and system events the user reads, acts on and marks read. Put it in a Sheet, Popover or docked panel.",
         "whenNotToUse": "Toasts for transient confirmations, an activity log on a record (Timeline), or a bare unread count (NotificationBell).",
         "version": "0.23.8",
-        "integrity": "sha256-yAtyBXbaKi9f9F7OrdaGVRq+DBHQZT6WDYEwqeZDO/0="
+        "integrity": "sha256-LyuuH0zUco/phWpsQJiaIOqYNxsoH9MahHfGyl7PcJA="
       }
     },
     {
@@ -15357,7 +15362,7 @@
       "name": "page-header",
       "type": "registry:ui",
       "title": "Page Header",
-      "description": "The standardized header at the top of a page — back button, breadcrumb trail, title, description, actions, secondary menu, and a favorite star.",
+      "description": "The standardized header at the top of a page — back button, breadcrumb trail, title, description, actions, secondary menu, and a favorite star — plus SectionHeading for in-page section titles (sm and md sizes, a muted eyebrow variant, trailing actions).",
       "categories": [
         "navigation"
       ],
@@ -15382,7 +15387,7 @@
         "whenToUse": "The header band at the top of a page — title plus back/breadcrumb nav (backRender for a framework link), actions, favorite, and a meta row that can hold badges and inline pickers.",
         "whenNotToUse": "App-shell chrome (top nav/sidebar) or a section heading inside a page.",
         "version": "0.23.8",
-        "integrity": "sha256-7QSJb/CE19qPOlPsBsKlE0mpoz1Usk06i0KHPvbab40="
+        "integrity": "sha256-N8V9q3ulRVFXb3wM4vGeDcSaYpav4L9BJaksEaByKe8="
       }
     },
     {
@@ -15712,7 +15717,7 @@
       "name": "searchable-select",
       "type": "registry:ui",
       "title": "Searchable Select",
-      "description": "The Select-shaped Combobox preset: a full-width trigger, an in-panel search field, a check on the selected row and an optional clear control. Single-select, controlled through value/onValueChange.",
+      "description": "The Select-shaped Combobox preset: a full-width trigger, an in-panel search field, a tick on the selected row (matched by key, so async options tick too), a standard person option (name plus muted email, both searched) and an optional clear control. Single or multiple, controlled through value/onValueChange.",
       "categories": [
         "form"
       ],
@@ -15739,7 +15744,7 @@
         "whenToUse": "A Select-shaped searchable picker: one or several values, option descriptions and disabled reasons, and server search with paging (remote + useAsyncSearch).",
         "whenNotToUse": "A short fixed option set (Select), free text with suggestions (Combobox directly), or multi-select (Combobox with chips).",
         "version": "0.23.8",
-        "integrity": "sha256-uMYGq/YF6AZcL3gnmkUs+aEpPXyNvpsKFBk7ELPgE8c="
+        "integrity": "sha256-W3n73SCuxdCxHSdW29B7rs1sFpNQDu41qNz+fHpPAsA="
       }
     },
     {
@@ -15895,7 +15900,7 @@
       "name": "sheet",
       "type": "registry:ui",
       "title": "Sheet",
-      "description": "A panel that slides in from any edge — Dialog semantics with a side, a header and a footer.",
+      "description": "A panel that slides in from any edge — Dialog semantics with a side, a header and a footer; opens onto the first field, never the close ×; a left sheet can dock beside the sidebar rail (beside).",
       "categories": [
         "overlay"
       ],
@@ -15920,7 +15925,7 @@
         "whenToUse": "Secondary content beside the page — filters, details, a settings panel, a long record form — that should not take the centre of the screen. Side sheets take size sm/default/lg/xl (Dialog's width scale); put long content in SheetBody so the footer stays on screen.",
         "whenNotToUse": "A decision (AlertDialog), a centred form (Dialog), or a touch-first panel with snap points (Drawer).",
         "version": "0.23.8",
-        "integrity": "sha256-cWnSze76+VajtNXblt87fitxnos/8RWE9qVaYDLSmwI="
+        "integrity": "sha256-Dafj/8wkYHsqg+qg8V3mGHFViE854+HPblFKsr9D2h8="
       }
     },
     {
@@ -15960,7 +15965,7 @@
       "name": "sidebar",
       "type": "registry:ui",
       "title": "Sidebar",
-      "description": "A collapsible app navigation rail — header/content/footer, labelled groups, menu items with active state, and an expand/collapse trigger.",
+      "description": "A collapsible app navigation rail — header/content/footer, labelled groups, menu items with active and open (menu-trigger) states, and an expand/collapse trigger.",
       "categories": [
         "navigation"
       ],
@@ -15992,7 +15997,7 @@
         "whenToUse": "Primary app navigation in a dashboard/console shell — collapsible rail with grouped items.",
         "whenNotToUse": "A few top-level links (horizontal nav) or transient small-viewport nav (Sheet).",
         "version": "0.23.8",
-        "integrity": "sha256-0NKm9efgqnP0lW06K/hbOGDU8saesdSuEgYUpRxX5Lo="
+        "integrity": "sha256-N8FFUdasUGAZCVBKesKu1GBcpSAxrNMwDqJfG/REOS8="
       }
     },
     {
@@ -16301,7 +16306,7 @@
       "name": "tabs",
       "type": "registry:ui",
       "title": "Tabs",
-      "description": "Layered content sections — line or pill variants, optional icons and counts, horizontal or vertical, full keyboard navigation.",
+      "description": "Layered content sections — default (segmented) or line variants, compact size, optional leading icons and counts, horizontal or vertical, full keyboard navigation. Use Tabs for scope/views (My tasks | Team tasks); use an icon ToggleGroup for List/Board layout switches. The one component that keeps a focus ring.",
       "categories": [
         "navigation"
       ],
@@ -16323,7 +16328,7 @@
         "whenToUse": "Organize related content into peer sections the user switches between in place; a count after a trigger's label is an aria-hidden tabular number plus an sr-only suffix, so it reads as part of the tab's name. A line list scrolls sideways inside itself when the tabs outnumber the width; orientation=\"vertical\" suits a stable column of settings sections. For tabs that are separate pages, draw a nav of links from tabsListVariants and tabsTriggerVariants with aria-current=\"page\" (route tabs).",
         "whenNotToUse": "Sequential multi-step flows (stepper), single-select form input (radio/select), sections that must be visible at once, or page-level navigation rendered as a tablist — route tabs are links, not tabs.",
         "version": "0.23.8",
-        "integrity": "sha256-FbgguYLYtu3wHWhv54F8d8sYK77vZvVAi2DszJAnatM="
+        "integrity": "sha256-f78Y8sdm2nS62RQI/kDcWWFu5fqsLZ34iMHWtoCByCw="
       }
     },
     {

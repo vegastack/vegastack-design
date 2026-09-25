@@ -1,4 +1,4 @@
-// @vegastack searchable-select@0.23.8 sha256-uMYGq/YF6AZcL3gnmkUs+aEpPXyNvpsKFBk7ELPgE8c=
+// @vegastack searchable-select@0.23.8 sha256-W3n73SCuxdCxHSdW29B7rs1sFpNQDu41qNz+fHpPAsA=
 
 "use client";
 
@@ -82,6 +82,12 @@ export interface SearchableSelectProps<
    */
   itemToDescription?: (item: Item) => string | undefined;
   /**
+   * The standard person option: a second, smaller muted line beside the name — an email. The
+   * local search matches it as well as `itemToStringLabel`.
+   * @default undefined
+   */
+  itemToSecondaryLabel?: (item: Item) => string | undefined;
+  /**
    * Why an option is unavailable. Returning a reason disables the option — it stays reachable
    * and reads the reason as its description.
    * @default undefined
@@ -155,8 +161,10 @@ export interface SearchableSelectProps<
    * @default (n) => `${n} selected`
    */
   countLabel?: (n: number) => string;
-  /** Identity comparison between the `value` and an entry of `items`. Defaults to reference equality.
-   * @default undefined
+  /** Identity comparison between the `value` and an entry of `items`. Defaults to comparing
+   * `itemToKey`, so the selected tick shows on async/dynamic options (fresh objects per fetch)
+   * exactly as on static ones.
+   * @default (a, b) => itemToKey(a) === itemToKey(b)
    */
   isItemEqualToValue?: (a: Item, b: Item) => boolean;
   /** The string the search query filters against (and the trigger's fallback accessible name). */
@@ -319,6 +327,7 @@ export function SearchableSelect<
   value: valueProp,
   onValueChange,
   itemToDescription,
+  itemToSecondaryLabel,
   itemToDisabledReason,
   remote = false,
   onSearchChange,
@@ -406,17 +415,35 @@ export function SearchableSelect<
   }, [allItems, groupBy, groupOrder]);
   const filter = React.useMemo(() => {
     if (remote) return null;
-    if (leadingKeys.size === 0) return undefined;
-    return (item: Item, query: string) =>
-      leadingKeys.has(itemToKey(item)) ||
-      itemToStringLabel(item)
-        .toLowerCase()
-        .includes(query.trim().toLowerCase());
-  }, [remote, leadingKeys, itemToKey, itemToStringLabel]);
+    if (leadingKeys.size === 0 && !itemToSecondaryLabel) return undefined;
+    return (item: Item, query: string) => {
+      const q = query.trim().toLowerCase();
+      return (
+        leadingKeys.has(itemToKey(item)) ||
+        itemToStringLabel(item).toLowerCase().includes(q) ||
+        (itemToSecondaryLabel?.(item) ?? "").toLowerCase().includes(q)
+      );
+    };
+  }, [remote, leadingKeys, itemToKey, itemToStringLabel, itemToSecondaryLabel]);
+  // Match by key, so a fresh object from a new fetch still reads as selected.
+  const isEqual = React.useCallback(
+    (a: Item, b: Item) =>
+      isItemEqualToValue
+        ? isItemEqualToValue(a, b)
+        : a === b || itemToKey(a) === itemToKey(b),
+    [isItemEqualToValue, itemToKey],
+  );
 
   const renderOption = (item: Item) => {
     const reason = itemToDisabledReason?.(item);
     const description = reason ?? itemToDescription?.(item);
+    const secondary = itemToSecondaryLabel?.(item);
+    const main =
+      secondary !== undefined ? (
+        <PersonOption name={renderItem(item)} email={secondary} />
+      ) : (
+        renderItem(item)
+      );
     return (
       <ComboboxItem
         key={itemToKey(item)}
@@ -426,11 +453,11 @@ export function SearchableSelect<
       >
         {description !== undefined ? (
           <ItemContent>
-            <ItemTitle>{renderItem(item)}</ItemTitle>
+            <ItemTitle>{main}</ItemTitle>
             <ItemDescription>{description}</ItemDescription>
           </ItemContent>
         ) : (
-          renderItem(item)
+          main
         )}
       </ComboboxItem>
     );
@@ -485,7 +512,7 @@ export function SearchableSelect<
         onInputValueChange={
           onSearchChange ? (query: string) => onSearchChange(query) : undefined
         }
-        isItemEqualToValue={isItemEqualToValue}
+        isItemEqualToValue={isEqual}
         itemToStringLabel={itemToStringLabel}
         open={open}
         onOpenChange={onOpenChange}
@@ -630,5 +657,45 @@ export function SearchableSelect<
         />
       )}
     </div>
+  );
+}
+
+/** Props accepted by `PersonOption`. */
+export interface PersonOptionProps {
+  /** The person's name. */
+  name: React.ReactNode;
+  /**
+   * The smaller, muted second line — usually the email.
+   * @default undefined
+   */
+  email?: React.ReactNode;
+  /**
+   * A leading avatar.
+   * @default undefined
+   */
+  avatar?: React.ReactNode;
+}
+
+/**
+ * `PersonOption` — the standard person row for a picker: the name, then a smaller muted email.
+ * `SearchableSelect` and `FilterBarFacet` draw it for you from `itemToSecondaryLabel`; use it
+ * directly inside a custom `renderItem`.
+ *
+ * @example
+ * <PersonOption name="Arjun Mehta" email="arjun@acme.com" />
+ */
+export function PersonOption({ name, email, avatar }: PersonOptionProps) {
+  return (
+    <span data-slot="person-option" className="flex min-w-0 items-center gap-2">
+      {avatar}
+      <span className="flex min-w-0 flex-col">
+        <span className="truncate">{name}</span>
+        {email != null ? (
+          <span className="truncate text-xs text-muted-foreground">
+            {email}
+          </span>
+        ) : null}
+      </span>
+    </span>
   );
 }

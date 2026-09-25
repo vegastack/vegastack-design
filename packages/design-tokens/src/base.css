@@ -4,7 +4,8 @@
    REBUILT BY THE SHADCN RESET (Batch 1, 2026-09-18). This file is now upstream's own base layer
    plus exactly the decisions `docs/plans/2026-09-18-shadcn-reset/decisions.md` marks **ours**:
 
-     FOC-1   one global :focus-visible outline; components restate nothing
+     FOC-1   one global :focus-visible cue; components restate nothing
+     FOC-13  no focus rings except Tabs: the cue is a background tint (MK 2026-09-25)
      FOC-7   the forced-colours fallback for text entry
      MOT-5   the reduced-motion reset (and the one sanctioned !important)
      INT-1   the hand cursor, on a wider selector list than shadcn's --pointer rule
@@ -59,12 +60,41 @@
     @apply font-sans;
   }
 
-  /* FOC-1 — the SINGLE focus affordance in the system. 2px solid, offset 1, in `ring`, which
-     FOC-2 binds to the near-black / near-white ink rather than shadcn's mid-grey. Components carry
-     no focus ring of their own: upstream's `focus-visible:ring-3 focus-visible:ring-ring/50` glow
-     is stripped from every migrated component (FOC-6), and `design-lint`'s `no-focus-ring-glow`
-     rule is what stops it coming back through a later upstream pull. */
+  /* FOC-1 + FOC-13 — the SINGLE focus affordance in the system, and it is NOT a ring.
+     No focus ring anywhere except Tabs (MK 2026-09-25): a keyboard user sees a subtle background
+     TINT — `accent` at 50%, laid over whatever fill the control already has as a background IMAGE,
+     so a primary button, a chip, a row and a menu item all show it without any component
+     restating it. Text entry (text inputs, textarea, contenteditable) keeps its border tint
+     (FOC-3) and takes no fill. Tabs — the triggers and the panel — keep the 2px `ring` outline,
+     which FOC-2 binds to the near-black / near-white ink. Components carry no focus ring of their
+     own (FOC-6), and `design-lint`'s `no-focus-ring-glow` rule rejects any focus ring or outline
+     class, so one cannot creep back through a later upstream pull. */
   :focus-visible {
+    outline: none;
+  }
+  :focus-visible:not(
+    textarea,
+    [contenteditable="true"],
+    [role="tab"],
+    [role="tabpanel"],
+    input:not(
+      [type="range"],
+      [type="radio"],
+      [type="checkbox"],
+      [type="button"],
+      [type="submit"],
+      [type="reset"],
+      [type="color"],
+      [type="file"]
+    )
+  ) {
+    background-image: linear-gradient(
+      color-mix(in oklch, var(--accent) 50%, transparent),
+      color-mix(in oklch, var(--accent) 50%, transparent)
+    );
+  }
+  [role="tab"]:focus-visible,
+  [role="tabpanel"]:focus-visible {
     @apply outline-2 outline-offset-1 outline-ring;
   }
 
@@ -99,8 +129,10 @@
 /* FOC-7 — preserve the focus contract when authored colours are replaced by a forced-colours
    palette. */
 @media (forced-colors: active) {
+  /* Forced colours drop the background tint, so the outline comes back here — and only here. */
   :focus-visible {
-    outline-color: Highlight;
+    outline: 2px solid Highlight;
+    outline-offset: 1px;
   }
 
   /* Text-entry focus (FOC-3). Every text-entry control signals focus with a border TINT and strips

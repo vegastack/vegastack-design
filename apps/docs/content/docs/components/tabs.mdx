@@ -59,6 +59,28 @@ the grey pill track — the two are the whole variant set.
 
 <ComponentPreview name="tabsLine" file="components/preview/tabs.tsx" />
 
+### Views and scope
+
+Views of one list — _My tasks | Team tasks_ — are **Tabs**: the default (segmented) variant, not
+`line`, at the compact `size="sm"` (h-7), with optional leading icons. This is what a `FilterBar`'s
+`scope` slot takes. A **layout** switch (List | Board) is not a view of different rows, so it is an
+icon `ToggleGroup`, never Tabs.
+
+```tsx
+<Tabs value={scope} onValueChange={setScope}>
+  <TabsList size="sm" aria-label="Scope">
+    <TabsTrigger value="mine">
+      <User />
+      My tasks
+    </TabsTrigger>
+    <TabsTrigger value="team">
+      <Users />
+      Team tasks
+    </TabsTrigger>
+  </TabsList>
+</Tabs>
+```
+
 ### Vertical
 
 Use `orientation="vertical"` on `Tabs` for vertical tabs. The root writes `data-orientation` onto
@@ -253,7 +275,8 @@ generated JSX.
 
 <ApiTable path="lib/api-props.ts" name="TabsListProps" />
 
-`TabsList` adds `variant` (`"default"` or `"line"`) and `overflow` (`"scroll"` or `"visible"`,
+`TabsList` adds `variant` (`"default"` or `"line"`), `size` (`"default"` or `"sm"`, the compact h-7
+list for views) and `overflow` (`"scroll"` or `"visible"`,
 defaulting to `"scroll"` for `variant="line"` and `"visible"` otherwise). `Tabs`, `TabsTrigger` and
 `TabsContent` add no props of their own — each accepts everything the corresponding Base UI Tabs
 part accepts (`Root`, `Tab`, `Panel`): `value` / `defaultValue` / `onValueChange` and `orientation`
@@ -283,8 +306,8 @@ above is what they are for.
 - The panel itself carries `tabindex="0"`, so a panel whose content holds nothing focusable is still
   reachable. That is why `TabsContent` keeps its outline: suppressing it would leave a focusable
   element with no affordance (FOC-6).
-- Focus is the global 2px `:focus-visible` outline from `base.css`; there is no ring glow on a
-  trigger (FOC-1).
+- **Tabs are the one component that keeps a focus ring** (FOC-13): `base.css` draws the 2px `ring`
+  outline on `[role=tab]` and `[role=tabpanel]`; every other control shows a background tint.
 - A disabled trigger keeps its pointer events (FRM-4) so a tooltip explaining the state can still be
   hovered.
 
@@ -293,8 +316,8 @@ above is what they are for.
 ## Do / Don't
 
 <DoDont
-  do="Use Tabs for two to about seven peer views of the same subject, and give each trigger a short noun label."
-  dont="Use Tabs as a wizard or for a sequence that must be completed in order, and do not put a form's submit inside one tab and its errors in another."
+  do="Use Tabs for two to about seven peer views of the same subject (including scope/views like My tasks | Team tasks), and give each trigger a short noun label."
+  dont="Use Tabs for a List/Board layout switch (that is an icon ToggleGroup), or as a wizard or for a sequence that must be completed in order, and do not put a form's submit inside one tab and its errors in another."
 />
 
 ## Deviations
@@ -316,6 +339,8 @@ Upstream's file plus `packages/ui/upstream/patches/tabs.patch`. Every hunk:
   `ring-ring/50`, `outline-1 outline-ring`) go from `TabsTrigger`, and `outline-none` goes from
   `TabsContent` — Base UI gives the panel a tab stop, so suppressing the outline would leave a
   focusable element with no affordance at all.
+- **API-29** — `TabsList` takes `size="default" | "sm"` (written as `data-size`); `sm` is the
+  compact h-7 list for views, with `px-2` triggers and 14px icons.
 - **FRM-4** — `disabled:pointer-events-none` and `aria-disabled:pointer-events-none` are dropped, so
   a disabled tab stays hoverable and a Tooltip can explain why. Both opacity halves stay.
 - **API-5** — NO HUNK, and that is the audit the plan asks for. A `loading` prop belongs on a control

@@ -1,6 +1,9 @@
 # component: dialog
-# decisions: A11Y-9, API-21, BRD-1, DOC-1, DOC-2, OVL-13, OVL-16, OVL-18, VOI-1
+# decisions: A11Y-9, API-21, BRD-1, DOC-1, DOC-2, FOC-13, OVL-13, OVL-16, OVL-18, VOI-1
 # hunks:
+#   FOC-13: `DialogContent` passes `initialFocus` (overridable), which picks the first field or
+#     control in the content and never the close ×, else the popup itself, so opening a dialog does
+#     not land focus on the × (MK, 2026-09-25). The popup ref is merged with a local one for it.
 #   OVL-13: `DialogPortal` reads `useInternalThemeScope()` and wraps its children in a
 #     `display: contents` element carrying that class, so a nested theme scope survives the jump
 #     to `<body>`. The wrapper generates no box, so nothing about the backdrop's or the popup's
@@ -34,7 +37,7 @@
 #               reflows the file, and `registry-stamp.mjs` writes the provenance header the
 #               three-copy model needs (DOC-1); those hunks carry no decision of their own.
 diff --git a/dialog.tsx b/dialog.tsx
-index 0b42f3f..0042a0b 100644
+index 0b42f3f..174b093 100644
 --- a/dialog.tsx
 +++ b/dialog.tsx
 @@ -1,26 +1,41 @@
@@ -46,7 +49,7 @@ index 0b42f3f..0042a0b 100644
 -import { cn } from "cn"
 +import * as React from "react";
 +import { Dialog as DialogPrimitive } from "@base-ui/react/dialog";
-+import { cn } from "@vegastack/design";
++import { cn, mergeRefs } from "@vegastack/design";
 +import { useInternalThemeScope } from "@vegastack/design/theme-scope";
 +import { useModalInert } from "@/components/ui/use-modal-inert";
  
@@ -91,7 +94,7 @@ index 0b42f3f..0042a0b 100644
  }
  
  function DialogOverlay({
-@@ -32,29 +47,42 @@ function DialogOverlay({
+@@ -32,29 +47,62 @@ function DialogOverlay({
        data-slot="dialog-overlay"
        className={cn(
          "fixed inset-0 isolate z-50 bg-black/10 duration-100 supports-backdrop-filter:backdrop-blur-xs data-open:animate-in data-open:fade-in-0 data-closed:animate-out data-closed:fade-out-0",
@@ -102,6 +105,20 @@ index 0b42f3f..0042a0b 100644
      />
 -  )
 +  );
++}
++
++/**
++ * Where focus lands when the popup opens: the first field or control in the content, never the
++ * close ×, else the popup itself — so opening it never lights up the × (FOC-13).
++ */
++function initialFocusTarget(popup: HTMLElement | null): HTMLElement | true {
++  if (!popup) return true;
++  const first = Array.from(
++    popup.querySelectorAll<HTMLElement>(
++      'input:not([type="hidden"]):not(:disabled), textarea:not(:disabled), select:not(:disabled), [contenteditable="true"], button:not(:disabled), a[href], [tabindex]:not([tabindex="-1"])',
++    ),
++  ).find((el) => !el.closest('[data-slot$="-close"]'));
++  return first ?? popup;
  }
  
  function DialogContent({
@@ -123,12 +140,18 @@ index 0b42f3f..0042a0b 100644
 +    ref,
 +    enabled: modal === true,
 +  });
++  const nodeRef = React.useRef<HTMLDivElement | null>(null);
++  const mergedRef = React.useMemo(
++    () => mergeRefs(popupRef, nodeRef),
++    [popupRef],
++  );
 +
    return (
      <DialogPortal>
        <DialogOverlay />
        <DialogPrimitive.Popup
-+        ref={popupRef}
++        ref={mergedRef}
++        initialFocus={() => initialFocusTarget(nodeRef.current)}
          data-slot="dialog-content"
 +        data-size={size}
          className={cn(
@@ -139,7 +162,7 @@ index 0b42f3f..0042a0b 100644
          )}
          {...props}
        >
-@@ -70,14 +98,13 @@ function DialogContent({
+@@ -70,14 +118,13 @@ function DialogContent({
                />
              }
            >
@@ -157,7 +180,7 @@ index 0b42f3f..0042a0b 100644
  }
  
  function DialogHeader({ className, ...props }: React.ComponentProps<"div">) {
-@@ -87,34 +114,46 @@ function DialogHeader({ className, ...props }: React.ComponentProps<"div">) {
+@@ -87,34 +134,46 @@ function DialogHeader({ className, ...props }: React.ComponentProps<"div">) {
        className={cn("flex flex-col gap-2", className)}
        {...props}
      />
@@ -211,7 +234,7 @@ index 0b42f3f..0042a0b 100644
  }
  
  function DialogTitle({ className, ...props }: DialogPrimitive.Title.Props) {
-@@ -123,11 +162,11 @@ function DialogTitle({ className, ...props }: DialogPrimitive.Title.Props) {
+@@ -123,11 +182,11 @@ function DialogTitle({ className, ...props }: DialogPrimitive.Title.Props) {
        data-slot="dialog-title"
        className={cn(
          "font-heading text-base leading-none font-medium",
@@ -225,7 +248,7 @@ index 0b42f3f..0042a0b 100644
  }
  
  function DialogDescription({
-@@ -139,15 +178,16 @@ function DialogDescription({
+@@ -139,15 +198,16 @@ function DialogDescription({
        data-slot="dialog-description"
        className={cn(
          "text-sm text-muted-foreground *:[a]:underline *:[a]:underline-offset-3 *:[a]:hover:text-foreground",
@@ -244,7 +267,7 @@ index 0b42f3f..0042a0b 100644
    DialogClose,
    DialogContent,
    DialogDescription,
-@@ -157,4 +197,4 @@ export {
+@@ -157,4 +217,4 @@ export {
    DialogPortal,
    DialogTitle,
    DialogTrigger,

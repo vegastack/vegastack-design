@@ -1,6 +1,8 @@
 # component: button
-# decisions: A11Y-12, A11Y-13, API-5, DOC-2, FOC-1, FOC-5, FOC-6, FRM-4, TYP-18
+# decisions: A11Y-12, A11Y-13, API-5, API-29, DOC-2, FOC-1, FOC-5, FOC-6, FRM-4, TYP-18
 # hunks:
+#   API-29: the root writes `data-variant`, so a tinted container (a status Alert) can give its
+#     non-primary buttons a variant-aware hover without touching the primary one (MK, 2026-09-25).
 #   FOC-1, FOC-6: `outline-none focus-visible:border-ring focus-visible:ring-3
 #     focus-visible:ring-ring/50` is removed, along with the `aria-invalid` glow rings.
 #     `base.css` owns the single `:focus-visible` outline and `outline-none` would suppress it.
@@ -22,7 +24,7 @@
 #   formatting: the repository formatter (prettier defaults: semicolons, trailing commas)
 #               reflows the file; those hunks carry no decision of their own.
 diff --git a/button.tsx b/button.tsx
-index 1efb940..9d16927 100644
+index 1efb940..059d8e4 100644
 --- a/button.tsx
 +++ b/button.tsx
 @@ -1,28 +1,30 @@
@@ -64,7 +66,7 @@ index 1efb940..9d16927 100644
          lg: "h-9 gap-1.5 px-2.5 has-data-[icon=inline-end]:pe-2 has-data-[icon=inline-start]:ps-2",
          icon: "size-8",
          "icon-xs":
-@@ -36,22 +38,55 @@ const buttonVariants = cva(
+@@ -36,22 +38,56 @@ const buttonVariants = cva(
        variant: "default",
        size: "default",
      },
@@ -96,6 +98,7 @@ index 1efb940..9d16927 100644
    return (
      <ButtonPrimitive
        data-slot="button"
++      data-variant={variant}
 +      data-loading={loading ? "" : undefined}
 +      aria-busy={loading ? true : ariaBusy}
 +      disabled={disabled || loading}

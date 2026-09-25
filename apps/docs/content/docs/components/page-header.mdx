@@ -232,6 +232,23 @@ it via `secondaryMenu` — it renders to the right of `actions`:
 />
 ```
 
+### Section headings
+
+`SectionHeading` titles an in-page section below the `PageHeader`, so a page never hand-rolls
+`<h2 className="text-base font-medium">`. `size="md"` (16px, the default) titles a page section,
+`size="sm"` (14px) a card or panel section, and `variant="eyebrow"` is the quiet muted 12px label
+above a group. `actions` sits at the end of the same row; `as` sets the outline level.
+
+```tsx
+import { SectionHeading } from "@/components/ui/page-header";
+
+<SectionHeading actions={<Button variant="ghost" size="sm">View all</Button>}>
+  Recent activity
+</SectionHeading>
+<SectionHeading size="sm" as="h3">Contacts</SectionHeading>
+<SectionHeading variant="eyebrow" as="h3">Pinned</SectionHeading>
+```
+
 ## API Reference
 
 ### PageHeader
@@ -239,6 +256,13 @@ it via `secondaryMenu` — it renders to the right of `actions`:
 <ApiTable
   path="../../packages/ui/registry/ui/page-header.tsx"
   name="PageHeaderProps"
+/>
+
+### SectionHeading
+
+<ApiTable
+  path="../../packages/ui/registry/ui/page-header.tsx"
+  name="SectionHeadingProps"
 />
 
 ### PageHeaderFavorite

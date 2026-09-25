@@ -1,6 +1,9 @@
 # component: sidebar
-# decisions: A11Y-2, A11Y-17, A11Y-18, BRD-1, DOC-1, DOC-2, FOC-1, FOC-6, FRM-4, INT-11, LAY-13, LAY-16, OVL-16, VOI-1
+# decisions: A11Y-2, A11Y-17, A11Y-18, API-29, BRD-1, DOC-1, DOC-2, FOC-1, FOC-6, FRM-4, INT-11, LAY-13, LAY-16, OVL-16, VOI-1
 # hunks:
+#   API-29: `SidebarMenuButton` styles its own open state — `aria-expanded:` and
+#     `data-popup-open:` take the `sidebar-accent` fill and ink — so a menu trigger such as the
+#     user menu needs no className (MK, 2026-09-25).
 #   BRD-1: the floating variant's inner surface swaps upstream's
 #     `group-data-[variant=floating]:ring-1 …:ring-sidebar-border` box-shadow outline for a real
 #     `…:border …:border-sidebar-border` — the sidebar's own hairline ink, so the edge matches the
@@ -75,7 +78,7 @@
 #               reflows the file, and `registry-stamp.mjs` writes the provenance header the
 #               three-copy model needs (DOC-1); those hunks carry no decision of their own.
 diff --git a/sidebar.tsx b/sidebar.tsx
-index cbcc413..1cac445 100644
+index cbcc413..ba88556 100644
 --- a/sidebar.tsx
 +++ b/sidebar.tsx
 @@ -1,117 +1,207 @@
@@ -686,7 +689,7 @@ index cbcc413..1cac445 100644
  
  const sidebarMenuButtonVariants = cva(
 -  "peer/menu-button group/menu-button flex w-full items-center gap-2 overflow-hidden rounded-md p-2 text-start text-sm ring-sidebar-ring outline-hidden transition-[width,height,padding] group-has-data-[sidebar=menu-action]/menu-item:pe-8 group-data-[collapsible=icon]:size-8! group-data-[collapsible=icon]:p-2! hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 active:bg-sidebar-accent active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-open:hover:bg-sidebar-accent data-open:hover:text-sidebar-accent-foreground data-active:bg-sidebar-accent data-active:font-medium data-active:text-sidebar-accent-foreground [&_svg]:size-4 [&_svg]:shrink-0 [&>span:last-child]:truncate",
-+  "peer/menu-button group/menu-button flex w-full items-center gap-2 overflow-hidden rounded-md p-2 text-start text-sm ring-sidebar-ring transition-[width,height,padding] group-has-data-[sidebar=menu-action]/menu-item:pe-8 group-has-data-[sidebar=menu-badge]/menu-item:pe-8 group-has-[[data-sidebar=menu-badge][data-badge-size=lg]]/menu-item:pe-12 group-data-[collapsible=icon]:size-8! group-data-[collapsible=icon]:p-2! hover:bg-sidebar-accent hover:text-sidebar-accent-foreground active:bg-sidebar-accent active:text-sidebar-accent-foreground disabled:opacity-50 aria-disabled:opacity-50 data-open:hover:bg-sidebar-accent data-open:hover:text-sidebar-accent-foreground data-active:bg-sidebar-accent data-active:font-medium data-active:text-sidebar-accent-foreground [&_svg]:size-4 [&_svg]:shrink-0 [&>span:last-child]:truncate [&_svg:not([class*='text-'])]:text-sidebar-foreground/70 hover:**:[svg]:text-sidebar-accent-foreground active:**:[svg]:text-sidebar-accent-foreground data-active:**:[svg]:text-sidebar-accent-foreground",
++  "peer/menu-button group/menu-button flex w-full items-center gap-2 overflow-hidden rounded-md p-2 text-start text-sm ring-sidebar-ring transition-[width,height,padding] group-has-data-[sidebar=menu-action]/menu-item:pe-8 group-has-data-[sidebar=menu-badge]/menu-item:pe-8 group-has-[[data-sidebar=menu-badge][data-badge-size=lg]]/menu-item:pe-12 group-data-[collapsible=icon]:size-8! group-data-[collapsible=icon]:p-2! hover:bg-sidebar-accent hover:text-sidebar-accent-foreground active:bg-sidebar-accent active:text-sidebar-accent-foreground disabled:opacity-50 aria-disabled:opacity-50 data-open:hover:bg-sidebar-accent data-open:hover:text-sidebar-accent-foreground aria-expanded:bg-sidebar-accent aria-expanded:text-sidebar-accent-foreground data-popup-open:bg-sidebar-accent data-popup-open:text-sidebar-accent-foreground data-active:bg-sidebar-accent data-active:font-medium data-active:text-sidebar-accent-foreground [&_svg]:size-4 [&_svg]:shrink-0 [&>span:last-child]:truncate [&_svg:not([class*='text-'])]:text-sidebar-foreground/70 hover:**:[svg]:text-sidebar-accent-foreground active:**:[svg]:text-sidebar-accent-foreground data-active:**:[svg]:text-sidebar-accent-foreground",
    {
      variants: {
        variant: {

@@ -143,8 +143,8 @@ if (args.includes("--self-test")) {
     process.exit(1);
   }
   const retinted = docsCss.replace(
-    "outline-color: Highlight;",
-    "outline-color: red;",
+    "outline: 2px solid Highlight;",
+    "outline: 2px solid red;",
   );
   if (findDrift(baseCss, retinted).length === 0) {
     console.error(
@@ -152,13 +152,10 @@ if (args.includes("--self-test")) {
     );
     process.exit(1);
   }
-  const reringed = docsCss.replace(
-    "@apply outline-2 outline-offset-1 outline-ring;",
-    "@apply outline-1 outline-offset-1 outline-ring;",
-  );
+  const reringed = docsCss.replace("outline: none;", "outline: 1px solid;");
   if (findDrift(baseCss, reringed).length === 0) {
     console.error(
-      "✗ verify-docs-base-mirror self-test: a weakened `@apply` focus ring was NOT caught",
+      "✗ verify-docs-base-mirror self-test: a restored focus ring was NOT caught",
     );
     process.exit(1);
   }

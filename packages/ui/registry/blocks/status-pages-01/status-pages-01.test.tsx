@@ -69,7 +69,7 @@ test("the error page omits the reference without a digest", async () => {
   expect(screen.container.textContent).not.toContain("Reference:");
   expect(
     document
-      .querySelector('[data-slot="empty-icon"] svg')!
+      .querySelector('[data-slot="empty-icon"]:not([data-default]) svg')!
       .getAttribute("class"),
   ).toContain("text-destructive-text");
 });

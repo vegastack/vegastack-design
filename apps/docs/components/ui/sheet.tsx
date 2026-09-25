@@ -1,10 +1,10 @@
-// @vegastack sheet@0.23.8 sha256-cWnSze76+VajtNXblt87fitxnos/8RWE9qVaYDLSmwI=
+// @vegastack sheet@0.23.8 sha256-Dafj/8wkYHsqg+qg8V3mGHFViE854+HPblFKsr9D2h8=
 
 "use client";
 
 import * as React from "react";
 import { Dialog as SheetPrimitive } from "@base-ui/react/dialog";
-import { cn } from "@vegastack/design";
+import { cn, mergeRefs } from "@vegastack/design";
 import { useInternalThemeScope } from "@vegastack/design/theme-scope";
 import { useModalInert } from "@/components/ui/use-modal-inert";
 
@@ -53,6 +53,20 @@ function SheetOverlay({ className, ...props }: SheetPrimitive.Backdrop.Props) {
   );
 }
 
+/**
+ * Where focus lands when the popup opens: the first field or control in the content, never the
+ * close ×, else the popup itself — so opening it never lights up the × (FOC-13).
+ */
+function initialFocusTarget(popup: HTMLElement | null): HTMLElement | true {
+  if (!popup) return true;
+  const first = Array.from(
+    popup.querySelectorAll<HTMLElement>(
+      'input:not([type="hidden"]):not(:disabled), textarea:not(:disabled), select:not(:disabled), [contenteditable="true"], button:not(:disabled), a[href], [tabindex]:not([tabindex="-1"])',
+    ),
+  ).find((el) => !el.closest('[data-slot$="-close"]'));
+  return first ?? popup;
+}
+
 function SheetContent({
   className,
   children,
@@ -62,6 +76,8 @@ function SheetContent({
   size = "default",
   closeLabel = "Close",
   showOverlay = true,
+  beside,
+  style,
   ...props
 }: SheetPrimitive.Popup.Props & {
   side?: "top" | "right" | "bottom" | "left";
@@ -70,18 +86,41 @@ function SheetContent({
   closeLabel?: string;
   /** `false` drops the dimmed backdrop — for a non-modal panel docked beside the page. */
   showOverlay?: boolean;
+  /**
+   * Dock a `side="left"` sheet beside the app's sidebar rail instead of over it: `"sidebar"` starts
+   * it at `--sidebar-width`, `"sidebar-icon"` at the collapsed `--sidebar-width-icon`.
+   */
+  beside?: "sidebar" | "sidebar-icon";
 }) {
   const modal = React.useContext(SheetModalContext);
   const popupRef = useModalInert<HTMLDivElement>({
     ref,
     enabled: modal === true,
   });
+  const nodeRef = React.useRef<HTMLDivElement | null>(null);
+  const mergedRef = React.useMemo(
+    () => mergeRefs(popupRef, nodeRef),
+    [popupRef],
+  );
 
   return (
     <SheetPortal>
       {showOverlay ? <SheetOverlay /> : null}
       <SheetPrimitive.Popup
-        ref={popupRef}
+        ref={mergedRef}
+        data-beside={beside}
+        style={
+          beside
+            ? {
+                insetInlineStart:
+                  beside === "sidebar"
+                    ? "var(--sidebar-width, 16rem)"
+                    : "var(--sidebar-width-icon, 3rem)",
+                ...(typeof style === "object" ? style : null),
+              }
+            : style
+        }
+        initialFocus={() => initialFocusTarget(nodeRef.current)}
         data-slot="sheet-content"
         data-side={side}
         data-size={size}

@@ -1,4 +1,4 @@
-// @vegastack alert@0.23.8 sha256-gDGnePtyyNDKa730nNALnWAZX0ZwKoctwZ21II5VWe4=
+// @vegastack alert@0.23.8 sha256-BVD36GZolqYhe0671fy7g/Xb7YikkhNUJ+uEvMvDF9w=
 
 import * as React from "react";
 import { cva, type VariantProps } from "class-variance-authority";
@@ -11,12 +11,12 @@ const alertVariants = cva(
       variant: {
         default: "bg-card text-card-foreground",
         destructive:
-          "bg-card text-destructive-text *:data-[slot=alert-description]:text-destructive-text/90 *:[svg]:text-current",
+          "bg-card text-destructive-text *:data-[slot=alert-description]:text-destructive-text/90 *:[svg]:text-current [&_[data-slot=button]:not([data-variant=default]):hover]:bg-destructive/10 [&_[data-slot=button]:not([data-variant=default]):hover]:text-destructive-text [&_[data-slot=button]:not([data-variant=default]):hover]:**:[svg]:text-destructive-text [&_[data-slot=button]:not([data-variant=default])[aria-expanded=true]]:bg-destructive/10 [&_[data-slot=button]:not([data-variant=default])[aria-expanded=true]]:text-destructive-text",
         success:
-          "bg-card text-success-text *:data-[slot=alert-description]:text-success-text/90 *:[svg]:text-current",
+          "bg-card text-success-text *:data-[slot=alert-description]:text-success-text/90 *:[svg]:text-current [&_[data-slot=button]:not([data-variant=default]):hover]:bg-success/10 [&_[data-slot=button]:not([data-variant=default]):hover]:text-success-text [&_[data-slot=button]:not([data-variant=default]):hover]:**:[svg]:text-success-text [&_[data-slot=button]:not([data-variant=default])[aria-expanded=true]]:bg-success/10 [&_[data-slot=button]:not([data-variant=default])[aria-expanded=true]]:text-success-text",
         warning:
-          "bg-card text-warning-text *:data-[slot=alert-description]:text-warning-text/90 *:[svg]:text-current",
-        info: "bg-card text-info-text *:data-[slot=alert-description]:text-info-text/90 *:[svg]:text-current",
+          "bg-card text-warning-text *:data-[slot=alert-description]:text-warning-text/90 *:[svg]:text-current [&_[data-slot=button]:not([data-variant=default]):hover]:bg-warning/10 [&_[data-slot=button]:not([data-variant=default]):hover]:text-warning-text [&_[data-slot=button]:not([data-variant=default]):hover]:**:[svg]:text-warning-text [&_[data-slot=button]:not([data-variant=default])[aria-expanded=true]]:bg-warning/10 [&_[data-slot=button]:not([data-variant=default])[aria-expanded=true]]:text-warning-text",
+        info: "bg-card text-info-text *:data-[slot=alert-description]:text-info-text/90 *:[svg]:text-current [&_[data-slot=button]:not([data-variant=default]):hover]:bg-info/10 [&_[data-slot=button]:not([data-variant=default]):hover]:text-info-text [&_[data-slot=button]:not([data-variant=default]):hover]:**:[svg]:text-info-text [&_[data-slot=button]:not([data-variant=default])[aria-expanded=true]]:bg-info/10 [&_[data-slot=button]:not([data-variant=default])[aria-expanded=true]]:text-info-text",
       },
     },
     defaultVariants: {

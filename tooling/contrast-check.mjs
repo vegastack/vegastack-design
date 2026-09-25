@@ -77,7 +77,8 @@ const STATUS_FAMILIES = ["destructive", "success", "warning", "info"];
 const STATUS_TEXT_SURFACES = ["background", "card", "popover"];
 // The tint alphas a status surface is actually painted at: `bg-<family>/10` at rest, `/20` on
 // hover, `/30` pressed — upstream's own vocabulary, and what Alert, Badge, Toast and the soft
-// Button wear. The ink on them is `<family>-text`, never the fill: the fill measured 3.98-4.35:1 on
+// Button wear. It is also the HOVER of every non-primary button inside a status Alert (API-29,
+// 2026-09-25): `<family>-text` on `<family>/10` over `card`, gated here in light and dark. The ink on them is `<family>-text`, never the fill: the fill measured 3.98-4.35:1 on
 // its own tint in the rendered axe lane (2026-09-18), which is why the `-text` role exists.
 const STATUS_TINT_ALPHAS = [0.1, 0.2, 0.3];
 

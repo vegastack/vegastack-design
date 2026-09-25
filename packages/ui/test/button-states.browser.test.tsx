@@ -209,7 +209,7 @@ test("A11Y-13: the destructive variant is a tint inked with --destructive-text",
   expect(style.color).toBe(resolved(token("--destructive-text")));
 });
 
-test("FOC-1 / FOC-6: a keyboard-focused button paints one outline and no glow", async () => {
+test("FOC-13: a keyboard-focused button paints the background tint, no ring and no glow", async () => {
   for (const variant of VARIANTS) {
     const screen = await render(
       <Button variant={variant} data-testid={`f-${variant}`}>
@@ -220,10 +220,9 @@ test("FOC-1 / FOC-6: a keyboard-focused button paints one outline and no glow", 
     await userEvent.tab();
     const style = getComputedStyle(element);
     expect(document.activeElement).toBe(element);
-    // The user agent's own ring is not an affordance this system ships.
-    expect(style.outlineStyle).not.toBe("auto");
-    expect(style.outlineStyle).not.toBe("none");
-    expect(Number.parseFloat(style.outlineWidth)).toBeGreaterThanOrEqual(2);
+    // No ring (FOC-13): the cue is base.css's background tint, never an outline.
+    expect(style.outlineStyle).toBe("none");
+    expect(style.backgroundImage).toContain("gradient");
     // No ring, and no box-shadow standing in for one.
     expect(style.boxShadow === "none" || style.boxShadow === "").toBe(true);
   }

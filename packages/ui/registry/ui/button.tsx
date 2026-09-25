@@ -1,4 +1,4 @@
-// @vegastack button@0.23.8 sha256-neEnkDD6nWpRRv4hmWZnFfa1J6cCfkBhkm2EzMij5Is=
+// @vegastack button@0.23.8 sha256-Oj/vI8d0kvjkCXnXmp68ztQd6TA2b85N+T4jachCLQo=
 
 import { Button as ButtonPrimitive } from "@base-ui/react/button";
 import { cva, type VariantProps } from "class-variance-authority";
@@ -65,6 +65,7 @@ function Button({
   return (
     <ButtonPrimitive
       data-slot="button"
+      data-variant={variant}
       data-loading={loading ? "" : undefined}
       aria-busy={loading ? true : ariaBusy}
       disabled={disabled || loading}

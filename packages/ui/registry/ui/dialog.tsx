@@ -1,10 +1,10 @@
-// @vegastack dialog@0.23.8 sha256-Ox//vBiPeq+iK6da0gz02cuopCL2d0SS/vFWj7IxFzQ=
+// @vegastack dialog@0.23.8 sha256-k9B+c6tOaFu67hwZqAtVUF+wWJZ6NQw2PvRCjSRR6RM=
 
 "use client";
 
 import * as React from "react";
 import { Dialog as DialogPrimitive } from "@base-ui/react/dialog";
-import { cn } from "@vegastack/design";
+import { cn, mergeRefs } from "@vegastack/design";
 import { useInternalThemeScope } from "@vegastack/design/theme-scope";
 import { useModalInert } from "@/components/ui/use-modal-inert";
 
@@ -56,6 +56,20 @@ function DialogOverlay({
   );
 }
 
+/**
+ * Where focus lands when the popup opens: the first field or control in the content, never the
+ * close ×, else the popup itself — so opening it never lights up the × (FOC-13).
+ */
+function initialFocusTarget(popup: HTMLElement | null): HTMLElement | true {
+  if (!popup) return true;
+  const first = Array.from(
+    popup.querySelectorAll<HTMLElement>(
+      'input:not([type="hidden"]):not(:disabled), textarea:not(:disabled), select:not(:disabled), [contenteditable="true"], button:not(:disabled), a[href], [tabindex]:not([tabindex="-1"])',
+    ),
+  ).find((el) => !el.closest('[data-slot$="-close"]'));
+  return first ?? popup;
+}
+
 function DialogContent({
   className,
   children,
@@ -74,12 +88,18 @@ function DialogContent({
     ref,
     enabled: modal === true,
   });
+  const nodeRef = React.useRef<HTMLDivElement | null>(null);
+  const mergedRef = React.useMemo(
+    () => mergeRefs(popupRef, nodeRef),
+    [popupRef],
+  );
 
   return (
     <DialogPortal>
       <DialogOverlay />
       <DialogPrimitive.Popup
-        ref={popupRef}
+        ref={mergedRef}
+        initialFocus={() => initialFocusTarget(nodeRef.current)}
         data-slot="dialog-content"
         data-size={size}
         className={cn(

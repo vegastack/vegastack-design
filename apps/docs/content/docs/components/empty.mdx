@@ -41,6 +41,40 @@ import {
 
 <ComponentPreview name="empty" file="components/preview/empty.tsx" />
 
+**An empty state always shows an icon.** `Empty` takes an `icon` prop and renders it in the icon
+tile; with no `icon` and no composed `EmptyMedia` it falls back to lucide `Inbox`. A composed
+`EmptyMedia` replaces the default.
+
+```tsx
+<Empty icon={<SearchX />}>
+  <EmptyHeader>
+    <EmptyTitle>No matches</EmptyTitle>
+    <EmptyDescription>
+      Try a different search or clear the filters.
+    </EmptyDescription>
+  </EmptyHeader>
+</Empty>
+```
+
+**Compact.** `size="sm"` is the small inline empty — "No tasks yet" inside a card — with a 16px
+padding and an 8px gap:
+
+```tsx
+<Empty size="sm" icon={<ListTodo />}>
+  <EmptyHeader>
+    <EmptyTitle>No tasks yet</EmptyTitle>
+  </EmptyHeader>
+</Empty>
+```
+
+**When to use which** — in a `DataList`, never hand-roll either:
+
+- **Nothing yet** (`DataList emptyState`) — the list has no records at all. Say what is missing and
+  offer the one create action.
+- **No matches** (`DataList noResults`, or `NoResultsEmpty` elsewhere) — a search or filter matched
+  nothing. SearchX, "No matches", a short description and "Clear filters" wired to the
+  `FilterBar`'s `onClear`.
+
 Which empty state a surface needs — nothing yet, no matches, couldn't load, blocked — and its default
 copy is set by the [empty-state tiers](/docs/foundations/empty-states). A search or filter that
 matched nothing is "No matches" with a "Clear filters" action, and a failed load is `role="alert"`
@@ -163,4 +197,7 @@ Upstream's file plus `packages/ui/upstream/patches/empty.patch`. Every hunk:
   upstream's.
 - **API-16** — `"use client"` is added: `useRender` calls `React.useRef` internally, so the module
   needs the client boundary to import in a Server Component.
+- **API-29** — `Empty` always renders an icon: an `icon` prop (lucide `Inbox` by default) drawn as a
+  leading `EmptyMedia variant="icon"`, hidden when the composition brings its own `EmptyMedia`;
+  and `size="sm"` is the compact inline empty.
 - **DOC-2** — `cn` is imported from `@vegastack/design`.

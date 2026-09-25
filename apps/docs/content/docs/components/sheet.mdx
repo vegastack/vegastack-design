@@ -140,6 +140,26 @@ renames that close button — here "Close invoice" instead of the default "Close
   file="components/preview/sheet.tsx"
 />
 
+### Beside the sidebar
+
+`beside="sidebar"` docks a `side="left"` sheet at the sidebar rail's edge (`--sidebar-width`), and
+`beside="sidebar-icon"` at the collapsed rail (`--sidebar-width-icon`), so a panel such as the
+Inbox slides out beside the navigation without a hard-coded offset. Pair it with
+`showOverlay={false}` for a non-modal docked panel.
+
+```tsx
+<SheetContent
+  side="left"
+  beside={collapsed ? "sidebar-icon" : "sidebar"}
+  showOverlay={false}
+>
+  …
+</SheetContent>
+```
+
+Opening any sheet puts focus on its first field or control — never the close × — or on the panel
+itself.
+
 ## Playground
 
 Pick the edge the panel pins to and whether it carries a close button, then copy the generated JSX.
@@ -188,6 +208,10 @@ and the backdrop are internal to `SheetContent` and are not exported.
 
 Upstream's file plus `packages/ui/upstream/patches/sheet.patch`. Every hunk:
 
+- **API-29** — `SheetContent` takes `beside="sidebar" | "sidebar-icon"`: a left sheet starts at
+  `var(--sidebar-width)` / `var(--sidebar-width-icon)` (written as `data-beside`).
+- **FOC-13** — `SheetContent` passes an overridable `initialFocus` that picks the first field or
+  control, never the close ×, else the panel itself.
 - **OVL-13** — `SheetPortal` reads `useInternalThemeScope()` and wraps its children in a
   `display: contents` element carrying that class.
 - **A11Y-9** — `SheetContent` mirrors Base UI's `data-base-ui-inert` markers onto native `inert`

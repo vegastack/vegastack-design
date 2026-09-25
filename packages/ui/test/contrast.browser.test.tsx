@@ -258,17 +258,15 @@ async function integrationFailures(container: Element) {
         `${surface.dataset.focusSurface}: keyboard-path focus is not :focus-visible`,
       );
     }
-    if (
-      style.outlineStyle === "none" ||
-      Number.parseFloat(style.outlineWidth) < 2
-    ) {
+    // FOC-13: no ring — the focus cue is base.css's background tint.
+    if (style.outlineStyle !== "none") {
       failures.push(
-        `${surface.dataset.focusSurface}: expected a visible >=2px outline, got ${style.outline}`,
+        `${surface.dataset.focusSurface}: expected no focus ring, got ${style.outline}`,
       );
     }
-    if (Number.parseFloat(style.outlineOffset) < 1) {
+    if (!style.backgroundImage.includes("gradient")) {
       failures.push(
-        `${surface.dataset.focusSurface}: expected >=1px outline offset, got ${style.outlineOffset}`,
+        `${surface.dataset.focusSurface}: expected the background focus tint, got ${style.backgroundImage}`,
       );
     }
   }

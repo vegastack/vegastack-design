@@ -260,11 +260,9 @@ test("FOC-9: the focused viewport pulls the global outline INSIDE the frame's cl
       .map((animation) => animation.finished.catch(() => {})),
   );
   const style = getComputedStyle(viewport);
-  // base.css's ring still paints — FOC-9 moves the offset and nothing else.
-  expect(style.outlineStyle).not.toBe("none");
-  expect(Number.parseFloat(style.outlineWidth)).toBeGreaterThanOrEqual(2);
-  // …and it is drawn INSIDE the border box, which is the whole deviation.
-  expect(Number.parseFloat(style.outlineOffset)).toBeLessThan(0);
+  // FOC-13: no ring — the viewport shows base.css's background tint, which the clip cannot cut.
+  expect(style.outlineStyle).toBe("none");
+  expect(style.backgroundImage).toContain("gradient");
 });
 
 test("FOC-1/FOC-6: no ring-3 and no ring-ring glow anywhere in the rendered tree", async () => {

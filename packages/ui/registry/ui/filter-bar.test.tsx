@@ -215,8 +215,8 @@ test("forwards searchInputProps to SearchInput and preserves placement", async (
     '[data-slot="filter-bar-search"]',
   ) as HTMLElement;
   expect(group.className).toContain("max-w-sm");
-  // The search leads the first row and takes the free space; nothing pushes it.
-  expect(group.className.split(/\s+/)).toContain("flex-1");
+  // The search leads the first row at ~320px (full width on a narrow bar); nothing pushes it.
+  expect(group.className.split(/\s+/)).toContain("@3xl/filter-bar:w-80");
   expect(group.className.split(/\s+/)).not.toContain("ms-auto");
   await expect
     .element(screen.getByRole("searchbox", { name: "Search" }))
@@ -353,12 +353,11 @@ test("active chip keeps the muted label / emphasized value hierarchy", async () 
   expect(icon.className).toContain("text-muted-foreground");
   const value = screen.getByText("In Progress").element() as HTMLElement;
   expect(value.className).not.toContain("text-muted-foreground");
-  // The 500 weight comes from the chip's own `text-sm font-medium`, not from a second
-  // `font-medium` on the value: the hierarchy is carried by INK — muted key, foreground value —
-  // so restating the weight here would flatten exactly what the muted key is for.
+  // The hierarchy is carried by INK — muted key, foreground value — on the compact chip's quiet
+  // regular weight.
   expect(value.className).not.toContain("font-medium");
   const chip = value.closest('[data-slot="filter-chip"]') as HTMLElement;
-  expect(chip.className).toContain("text-sm font-medium");
+  expect(chip.className).toContain("text-sm font-normal");
 });
 
 test("chip value truncates within max-w-xs — the value span carries min-w-0 alongside its shrink-0 label sibling", async () => {
@@ -474,7 +473,11 @@ test.each([160, 200, 254, 288, 320])(
       '[data-slot="filter-bar"]',
     )!;
     expect(bar.scrollWidth).toBeLessThanOrEqual(bar.clientWidth);
-    for (const element of bar.querySelectorAll("*")) {
+    // The filter row scrolls sideways on a narrow bar, so its chips may run past the edge inside
+    // their own scroll box; the row itself must not.
+    for (const element of bar.querySelectorAll(
+      "*:not([data-slot=filter-bar-filters] *)",
+    )) {
       const rect = element.getBoundingClientRect();
       expect(
         rect.right,
@@ -584,12 +587,12 @@ test("scope sits beside the search and view is pinned to the end", async () => {
   )!;
   expect(
     [...primary.children].map((el) => el.getAttribute("data-slot")),
-  ).toEqual([
-    "filter-bar-search",
-    "filter-bar-scope",
-    "filter-bar-view",
-    "filter-bar-actions",
-  ]);
+  ).toEqual(["filter-bar-search", "filter-bar-controls"]);
+  const controls = primary.querySelector('[data-slot="filter-bar-controls"]')!;
+  // [Filters toggle] [scope] [actions] [view] — the view furthest right.
+  expect(
+    [...controls.children].map((el) => el.getAttribute("data-slot")),
+  ).toEqual(["filter-bar-scope", "filter-bar-actions", "filter-bar-view"]);
   const view = primary.querySelector('[data-slot="filter-bar-view"]')!;
   expect(view.className.split(/\s+/)).toContain("ms-auto");
   // No filters: no filter row.
@@ -598,9 +601,8 @@ test("scope sits beside the search and view is pinned to the end", async () => {
   ).toBeNull();
 });
 
-test("a narrow bar folds the filters into a sheet with Clear and Done", async () => {
+test("the Filters toggle shows the count, opens when a filter is set, and hides the row", async () => {
   const onClear = vi.fn();
-  // The narrow layout is container-query CSS, so this test needs the compiled stylesheet.
   const sheet = document.createElement("style");
   sheet.textContent = geometryCss;
   document.head.append(sheet);
@@ -616,19 +618,18 @@ test("a narrow bar folds the filters into a sheet with Clear and Done", async ()
       />
     </div>,
   );
-  // The scope takes its own row; the one in the first row is hidden.
   await expect
     .element(screen.getByRole("button", { name: "My tasks" }))
     .toBeVisible();
-  await screen.getByRole("button", { name: "Filters (1)" }).click();
-  await expect
-    .element(page.getByRole("dialog", { name: "Filters" }))
-    .toBeVisible();
+  const toggle = screen.getByRole("button", { name: "Filters (1)" });
+  // Something is set, so the row opened by itself.
+  await expect.element(toggle).toHaveAttribute("aria-expanded", "true");
   await page.getByRole("button", { name: "Clear", exact: true }).click();
   expect(onClear).toHaveBeenCalledOnce();
-  await page.getByRole("button", { name: "Done" }).click();
+  await toggle.click();
+  await expect.element(toggle).toHaveAttribute("aria-expanded", "false");
   await expect
-    .element(page.getByRole("dialog", { name: "Filters" }))
+    .element(page.getByRole("button", { name: "Clear Status" }))
     .not.toBeInTheDocument();
 });
 
@@ -681,8 +682,8 @@ const STATUSES: Status[] = [
 test.each([
   [[], "Status"],
   [[STATUSES[0]!], "Status: Open"],
-  [[STATUSES[0]!, STATUSES[1]!], "Status: Open, In progress"],
-  [STATUSES, "Status (3)"],
+  [[STATUSES[0]!, STATUSES[1]!], "Status: 2"],
+  [STATUSES, "Status: 3"],
 ])("a facet trigger reads the selection (DS-35) %#", async (value, text) => {
   const screen = await render(
     <FilterBarFacet<Status, true>
