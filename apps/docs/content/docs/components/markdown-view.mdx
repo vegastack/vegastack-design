@@ -106,6 +106,15 @@ so the complete prose surface renders in one view.
   file="components/preview/markdown-view.tsx"
 />
 
+Markdown usually starts its outline at `#`. When it renders under the page's own headings — a
+card titled with an `h2` — pass `headingOffset` to move every heading down that many levels, capped
+at `h6`: `headingOffset` of `2` renders `#` as an `h3`, so the outline never skips back up. Each
+heading takes the prose style of the level it lands on.
+
+```tsx
+<MarkdownView headingOffset={2}>{notes}</MarkdownView>
+```
+
 ## API Reference
 
 <ApiTable

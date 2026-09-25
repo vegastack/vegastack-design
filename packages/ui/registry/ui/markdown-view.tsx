@@ -1,4 +1,4 @@
-// @vegastack markdown-view@0.21.2 sha256-QpvCsvvq7t4lTKx/qAy/bRtEVCLvyp0PP7mMvItFGLU=
+// @vegastack markdown-view@0.21.2 sha256-GIRL+J8PGX9Qm6Z6/emeyy0L6QXGpSQe8V2ZXq/3r7A=
 
 import * as React from "react";
 import Markdown, { type Components } from "react-markdown";
@@ -199,6 +199,31 @@ function componentsWithImagePolicy(
   };
 }
 
+/** The slice of a hast tree the heading shift walks. */
+interface HastNode {
+  type: string;
+  tagName?: string;
+  children?: HastNode[];
+}
+
+/**
+ * A rehype transform that moves every heading `offset` levels down (h1 → h2 at 1), capped at h6:
+ * markdown that starts at `#` nested under the page's own headings keeps a valid outline. It
+ * renames elements in the tree react-markdown builds, so the `prose` recipe styles each heading
+ * by the level it lands on.
+ */
+function shiftHeadings(offset: number) {
+  const shift = (node: HastNode) => {
+    if (node.type === "element" && node.tagName) {
+      const match = /^h([1-6])$/.exec(node.tagName);
+      if (match)
+        node.tagName = `h${Math.min(6, Math.max(1, Number(match[1]) + offset))}`;
+    }
+    node.children?.forEach(shift);
+  };
+  return () => shift;
+}
+
 /** Props accepted by `MarkdownView`. */
 export interface MarkdownViewProps extends React.ComponentPropsWithRef<"div"> {
   /**
@@ -224,6 +249,13 @@ export interface MarkdownViewProps extends React.ComponentPropsWithRef<"div"> {
    * @default []
    */
   allowedImageOrigins?: readonly string[];
+  /**
+   * Move every heading this many levels down, capped at h6: `1` renders `#` as an `h2`, `2` as
+   * an `h3`. Use it when the markdown sits under the page's own headings (a card titled with an
+   * `h2`), so the document outline never skips back up.
+   * @default 0
+   */
+  headingOffset?: number;
 }
 
 /**
@@ -258,6 +290,7 @@ export function MarkdownView({
   children,
   content,
   allowedImageOrigins = [],
+  headingOffset = 0,
   className,
   ...props
 }: MarkdownViewProps) {
@@ -273,6 +306,11 @@ export function MarkdownView({
     >
       <Markdown
         remarkPlugins={[remarkGfm]}
+        rehypePlugins={
+          Math.trunc(headingOffset) !== 0
+            ? [shiftHeadings(Math.trunc(headingOffset))]
+            : undefined
+        }
         components={componentsWithImagePolicy(allowedImageOrigins)}
       >
         {source}

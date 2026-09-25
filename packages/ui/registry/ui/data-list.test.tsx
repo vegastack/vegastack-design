@@ -1054,6 +1054,94 @@ test("a narrow container merges overflow columns into the primary cell", async (
   await expectNoA11yViolations(screen.container);
 });
 
+test("mergedRender: a folded value carries its own context, not a bare number", async () => {
+  const screen = await render(
+    <div style={{ width: "300px" }}>
+      <DataList
+        aria-label="Meetings"
+        columns={[
+          { key: "name", header: "Name" },
+          { key: "role", header: "Role" },
+          {
+            key: "email",
+            header: "To review",
+            render: () => "4",
+            mergedRender: () => "4 to review",
+          },
+        ]}
+        data={wideData.slice(0, 1)}
+        getRowId={(r) => r.id}
+      />
+    </div>,
+  );
+  await expect.poll(headerTexts).toEqual(["Name", "Role"]);
+  const merged = screen.container.querySelector(
+    '[data-slot="data-list-merged"]',
+  )!;
+  // The value's own words replace the sr-only header prefix.
+  expect(merged.textContent).toBe("4 to review");
+});
+
+test('mergedLayout="line": folded values share one compact meta line', async () => {
+  const screen = await render(
+    <div style={{ width: "300px" }}>
+      <DataList
+        aria-label="Tasks"
+        mergedLayout="line"
+        columns={[
+          { key: "name", header: "Name" },
+          { key: "role", header: "Role" },
+          { key: "email", header: "Due", mergedRender: () => "Today" },
+          { key: "team", header: "Owner", mergedRender: () => "Arjun Mehta" },
+        ]}
+        data={wideData.slice(0, 1)}
+        getRowId={(r) => r.id}
+      />
+    </div>,
+  );
+  await expect.poll(headerTexts).toEqual(["Name", "Role"]);
+  const merged = screen.container.querySelector<HTMLElement>(
+    '[data-slot="data-list-merged"]',
+  )!;
+  expect(merged.dataset.layout).toBe("line");
+  expect(merged.textContent).toBe("Today·Arjun Mehta");
+  expect(merged.querySelectorAll('[aria-hidden="true"]')).toHaveLength(1);
+});
+
+test("rowProps: data-* passthrough and a highlighted row", async () => {
+  const screen = await render(
+    <DataList
+      aria-label="People"
+      columns={columns}
+      data={data}
+      getRowId={(r) => r.id}
+      rowProps={(row) => ({
+        "data-row-id": row.id,
+        "data-slot": "not-this",
+        className: "custom-row",
+        highlighted: row.id === "b",
+      })}
+    />,
+  );
+  const rows = [...screen.container.querySelectorAll<HTMLElement>("tbody tr")];
+  expect(rows.map((r) => r.getAttribute("data-row-id"))).toEqual([
+    "a",
+    "b",
+    "c",
+  ]);
+  // The list's own slot wins over a passed one.
+  expect(rows.every((r) => r.dataset.slot === "data-list-row")).toBe(true);
+  expect(rows.every((r) => r.classList.contains("custom-row"))).toBe(true);
+  expect(rows.map((r) => r.hasAttribute("data-highlighted"))).toEqual([
+    false,
+    true,
+    false,
+  ]);
+  expect(rows[1]!.classList.contains("bg-accent")).toBe(true);
+  expect(rows[0]!.classList.contains("bg-accent")).toBe(false);
+  await expectNoA11yViolations(screen.container);
+});
+
 test("a wide container shows every column and merges nothing", async () => {
   const screen = await render(
     <div style={{ width: "1200px" }}>

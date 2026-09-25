@@ -1,4 +1,4 @@
-// @vegastack data-list@0.21.2 sha256-RFJxnffE1vh8m94b66o8sxh74lF3hObn8Hd2d5Is8YA=
+// @vegastack data-list@0.21.2 sha256-ADjRTJc1Q5uQsDYtwmifH3E8URRL8lD6BXATru+Zlfw=
 
 "use client";
 
@@ -92,6 +92,19 @@ export interface DataListColumn<T> extends DataTableColumnLayout {
    * @default false
    */
   sortable?: boolean;
+  /**
+   * What this column shows when a narrow container folds it into the first column's cell. A
+   * value lifted out of its column loses the header above it, so a bare `4` reads as nothing:
+   * return the value with its context instead (`4 to review`). Defaults to `render` (or the raw
+   * value), with the header kept as a screen-reader-only prefix; when this is set the prefix is
+   * dropped, because the value now carries its own.
+   * @default undefined
+   */
+  mergedRender?: (
+    row: T,
+    index: number,
+    cell: DataListCellContext,
+  ) => React.ReactNode;
   /** Extra className applied to every body cell in this column. */
   className?: string;
   /**
@@ -113,6 +126,27 @@ export interface DataListColumn<T> extends DataTableColumnLayout {
    * @default false
    */
   interactive?: boolean;
+}
+
+/**
+ * What `rowProps` may put on a row: `data-*` attributes for the host's own styling or tests, a
+ * class, and the `highlighted` state.
+ */
+export interface DataListRowProps {
+  /**
+   * Wash the row in the accent tint and mark it `data-highlighted` — a row the user just created
+   * or that just changed. The wash eases in (instantly under reduced motion); clear the flag after
+   * a moment to return the row to rest. Selection's wash, when both apply, wins.
+   * @default false
+   */
+  highlighted?: boolean;
+  /**
+   * Extra classes merged onto the row.
+   * @default undefined
+   */
+  className?: string;
+  /** Any `data-*` attribute, passed through to the row. */
+  [attribute: `data-${string}`]: string | number | boolean | undefined;
 }
 
 /**
@@ -224,6 +258,12 @@ export interface DataListProps<T> extends Omit<
    */
   rowLinkRender?: React.ReactElement;
   /**
+   * Per-row passthrough: `data-*` attributes, a class, and `highlighted` (flash a new row). The
+   * list's own `data-slot`, `data-selected` and `data-clickable` always win over a passed one.
+   * @default undefined
+   */
+  rowProps?: (row: T, index: number) => DataListRowProps | undefined;
+  /**
    * A row's name, for its selection checkbox ("Select {label}").
    * @default (row, index) => `row ${index + 1}`
    */
@@ -283,6 +323,13 @@ export interface DataListProps<T> extends Omit<
    * @default undefined
    */
   onGroupStateChange?: (state: GroupState) => void;
+  /**
+   * How values folded into the first column are laid out on a narrow container: `stack`, one
+   * value per line, or `line`, one compact meta line under the primary value with the values
+   * joined by a dot ("Today · High · Arjun Mehta"). A `line` pairs well with `mergedRender`.
+   * @default "stack"
+   */
+  mergedLayout?: "stack" | "line";
   /**
    * A section's count as a screen reader hears it.
    * @default (n) => `${n} rows`
@@ -527,6 +574,8 @@ export function DataList<T>({
   onRowClick,
   getRowHref,
   rowLinkRender,
+  rowProps,
+  mergedLayout = "stack",
   getRowLabel,
   toolbar,
   footer,
@@ -746,9 +795,16 @@ export function DataList<T>({
       !!onRowClick &&
       href === undefined &&
       visibleColumns[0]?.interactive !== true;
+    const {
+      highlighted = false,
+      className: rowClassName,
+      ...rowAttributes
+    } = rowProps?.(row, index) ?? {};
     return (
       <TableRow
         key={id}
+        {...rowAttributes}
+        data-highlighted={highlighted ? "" : undefined}
         data-slot="data-list-row"
         data-selected={isSelected ? "" : undefined}
         data-clickable={clickable ? "" : undefined}
@@ -762,9 +818,14 @@ export function DataList<T>({
         }
         className={cn(
           clickable && "cursor-pointer",
+          // A highlighted row (`rowProps` → `highlighted`) eases into the accent wash over
+          // `TableRow`'s own `transition-colors`; reduced motion drops the ease (global reset).
+          highlighted && "bg-accent duration-slow",
+          rowClassName,
           // A checked row keeps a persistent half-`muted` wash through hover and press
           // (SP-06), light enough that a `secondary` Badge in it stays visible — see
-          // `SELECTED_ROW_CLASS`. The checkbox is the authoritative selection cue.
+          // `SELECTED_ROW_CLASS`. The checkbox is the authoritative selection cue, and its wash
+          // comes last so neither `highlighted` nor a `rowProps` class can remove it.
           isSelected && SELECTED_ROW_CLASS,
         )}
       >
@@ -823,9 +884,15 @@ export function DataList<T>({
                 // merged block any closer would cover the bottom of its pointer target.
                 <span
                   data-slot="data-list-merged"
-                  className="mt-1 flex min-w-0 flex-col gap-0.5 text-xs text-muted-foreground"
+                  data-layout={mergedLayout}
+                  className={cn(
+                    "mt-1 flex min-w-0 text-xs text-muted-foreground",
+                    mergedLayout === "line"
+                      ? "flex-row flex-wrap gap-x-1"
+                      : "flex-col gap-0.5",
+                  )}
                 >
-                  {mergedColumns.map((merged) => (
+                  {mergedColumns.map((merged, mergedIdx) => (
                     // Each value wraps and wears its own column's face, whatever the
                     // primary cell's `nowrap`/mono posture is (`mergedValueClass`).
                     <span
@@ -837,10 +904,26 @@ export function DataList<T>({
                       }
                       className={mergedValueClass(merged)}
                     >
-                      {typeof merged.header === "string" ? (
-                        <span className="sr-only">{merged.header}: </span>
+                      {mergedLayout === "line" && mergedIdx > 0 ? (
+                        // `line`: a decorative dot before every value but the first.
+                        <span aria-hidden="true" className="me-1">
+                          ·
+                        </span>
                       ) : null}
-                      {renderCell(merged, row, index, id, isSelected)}
+                      {merged.mergedRender ? (
+                        merged.mergedRender(row, index, {
+                          rowId: id,
+                          columnKey: merged.key,
+                          selected: isSelected,
+                        })
+                      ) : (
+                        <>
+                          {typeof merged.header === "string" ? (
+                            <span className="sr-only">{merged.header}: </span>
+                          ) : null}
+                          {renderCell(merged, row, index, id, isSelected)}
+                        </>
+                      )}
                     </span>
                   ))}
                 </span>

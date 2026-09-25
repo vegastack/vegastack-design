@@ -101,6 +101,11 @@ the alert appears after mount because of something the user just did — a faile
 card. With `live`, a `destructive` or `warning` alert becomes an assertive `role="alert"`; every
 other variant stays a polite `status`.
 
+To leave an alert out of every live region — a standing notice that is part of the page when it
+loads — pass your own `role`, which always wins: `role="note"` makes it a static note
+that no screen reader announces on its own. `live` stays off by default, so nothing changes for an
+alert that does not pass one.
+
 <ComponentPreview name="alertLive" file="components/preview/alert.tsx" />
 
 ### Action placement

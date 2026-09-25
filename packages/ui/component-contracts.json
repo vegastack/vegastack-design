@@ -6657,6 +6657,15 @@
           }
         },
         {
+          "name": "DataListRowProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/data-list.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
           "name": "DataListLoadMoreProps",
           "kind": "type",
           "source": "packages/ui/registry/ui/data-list.tsx",
@@ -6850,6 +6859,14 @@
             {
               "name": "data-collapsed",
               "values": [""]
+            },
+            {
+              "name": "data-highlighted",
+              "values": [""]
+            },
+            {
+              "name": "data-layout",
+              "values": []
             },
             {
               "name": "data-section",
@@ -9375,6 +9392,10 @@
         "EditableCell": {
           "attributes": [
             {
+              "name": "data-flush",
+              "values": [""]
+            },
+            {
               "name": "data-focus-mode",
               "values": []
             },
@@ -9385,6 +9406,10 @@
             {
               "name": "data-status",
               "values": []
+            },
+            {
+              "name": "data-wrap",
+              "values": [""]
             }
           ],
           "cssVariables": []

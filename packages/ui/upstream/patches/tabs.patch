@@ -12,8 +12,9 @@
 #     fit-content never narrows below its min-content), `justify-start` (a centred overflowing row
 #     clips its first tab), `overflow-y-hidden`, and `bottom-[-4px]` on the triggers' line
 #     indicator, which upstream draws 1px below the list and a scroll box would clip — every one
-#     behind `data-horizontal:`, so a vertical list keeps upstream's layout and its inline-end
-#     indicator. `relative` makes the list the triggers' offset parent, which Base UI's own
+#     behind `not-data-vertical:`, so a vertical list keeps upstream's layout and its inline-end
+#     indicator, while a list that carries no orientation at all (the route-tabs recipe's plain
+#     `div`) scrolls as the horizontal list it is, without the consumer writing the attribute. `relative` makes the list the triggers' offset parent, which Base UI's own
 #     composite measures against when it scrolls the roving stop into view on mount and on arrow
 #     keys; without it that scroll lands on the wrong offset. The one thing the engine does not do —
 #     keep the SELECTED tab in view when the value changes from outside — is `useActiveTabInView`,
@@ -40,7 +41,7 @@
 #               reflows the file, and `registry-stamp.mjs` writes the provenance header the
 #               three-copy model needs (DOC-1); those hunks carry no decision of their own.
 diff --git a/tabs.tsx b/tabs.tsx
-index c3262d3..b993cc6 100644
+index c3262d3..22ac53a 100644
 --- a/tabs.tsx
 +++ b/tabs.tsx
 @@ -1,8 +1,9 @@
@@ -81,7 +82,7 @@ index c3262d3..b993cc6 100644
 +      overflow: {
 +        visible: "",
 +        scroll:
-+          "relative data-horizontal:max-w-full data-horizontal:min-w-0 data-horizontal:scroll-fade-x data-horizontal:justify-start data-horizontal:scrollbar-none data-horizontal:overflow-x-auto data-horizontal:overflow-y-hidden data-horizontal:overscroll-x-contain data-horizontal:[&>[data-slot=tabs-trigger]]:after:bottom-[-4px]",
++          "relative not-data-vertical:max-w-full not-data-vertical:min-w-0 not-data-vertical:scroll-fade-x not-data-vertical:justify-start not-data-vertical:scrollbar-none not-data-vertical:overflow-x-auto not-data-vertical:overflow-y-hidden not-data-vertical:overscroll-x-contain not-data-vertical:[&>[data-slot=tabs-trigger]]:after:bottom-[-4px]",
 +      },
      },
      defaultVariants: {
