@@ -9,6 +9,26 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.23.19] — September 25, 2026
+
+<!-- assembled from 4 changesets: 554b5f20d46d -->
+
+### 🔧 Changed components
+
+- PersonHoverCard: `AvatarStack` (stacked avatars, max 5, the rest behind "+N" as rows), `PersonHoverCard` (hover, focus or tap: a compact 240px card, a 32px avatar with the name and muted email stacked beside it), `PersonCard` and `PersonAvatar`; people without an account show initials and the name. Card gains `variant="outline"` (a border, no fill; API-30). RecordAside cards are outline, the inline PropertyList has a fixed 112px label column with values left-aligned, and the rail has layout-matching skeletons. Stat gains `StatSkeleton`.
+  [`e2ef1fc`](https://github.com/VegaStack/vegastack-design/commit/e2ef1fc)
+- RecordAside: the record rail's cards — `RecordAsideCard`, `RecordAsideSection` (title, count, a tooltip icon action), full-width `ActionList` rows on Item (edge to edge, hover tint, no underline) with a one-line `ActionListEmpty`, and `PropertyPerson`, `PropertyPeople` (+N) and `PropertyClamp` (Show more). PropertyList gains `variant="inline"`, `PropertyEmpty` and `PropertySection`. People icons are the round lucide set (UserRound, UsersRound, CircleUserRound).
+  [`e2ef1fc`](https://github.com/VegaStack/vegastack-design/commit/e2ef1fc)
+- Row actions: `RowActionItem` gains an optional `submenu` slot — custom content (a searched, paged list such as Assign › members) rendered inside the submenu after `items`.
+  [`2c9582f`](https://github.com/VegaStack/vegastack-design/commit/2c9582f)
+- NotificationBell: the count badge is a solid destructive fill (was a faded tint) and the unread dot is solid info blue (was primary ink); both sit inside the button's top inline-end corner with a background ring, so they never spill out when pressed. Counts cap at "99+" with a matching "99+ unread" accessible name.
+  [`c6ea931`](https://github.com/VegaStack/vegastack-design/commit/c6ea931)
+
+### 📦 npm
+
+- **`@vegastack/design`** → **`0.7.28`** (was `0.7.27`).
+- The design-system registry (`@vegastack/ui`) bumps 0.23.18 → 0.23.19.
+
 ## [0.23.18] — September 25, 2026
 
 <!-- assembled from 1 changeset: 1fa1e17b4b1f -->

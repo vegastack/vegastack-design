@@ -1,5 +1,16 @@
 # @vegastack/ui
 
+## 0.23.19
+
+### Patch Changes
+
+- [#277](https://github.com/vegastack/vegastack-design/pull/277) [`e2ef1fc`](https://github.com/vegastack/vegastack-design/commit/e2ef1fc45aab188dfdc7d658f7fc12823cc44a41) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🔧 PersonHoverCard: `AvatarStack` (stacked avatars, max 5, the rest behind "+N" as rows), `PersonHoverCard` (hover, focus or tap: a compact 240px card, a 32px avatar with the name and muted email stacked beside it), `PersonCard` and `PersonAvatar`; people without an account show initials and the name. Card gains `variant="outline"` (a border, no fill; API-30). RecordAside cards are outline, the inline PropertyList has a fixed 112px label column with values left-aligned, and the rail has layout-matching skeletons. Stat gains `StatSkeleton`.
+
+- [#277](https://github.com/vegastack/vegastack-design/pull/277) [`e2ef1fc`](https://github.com/vegastack/vegastack-design/commit/e2ef1fc45aab188dfdc7d658f7fc12823cc44a41) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🔧 RecordAside: the record rail's cards — `RecordAsideCard`, `RecordAsideSection` (title, count, a tooltip icon action), full-width `ActionList` rows on Item (edge to edge, hover tint, no underline) with a one-line `ActionListEmpty`, and `PropertyPerson`, `PropertyPeople` (+N) and `PropertyClamp` (Show more). PropertyList gains `variant="inline"`, `PropertyEmpty` and `PropertySection`. People icons are the round lucide set (UserRound, UsersRound, CircleUserRound).
+
+- Updated dependencies [[`e2ef1fc`](https://github.com/vegastack/vegastack-design/commit/e2ef1fc45aab188dfdc7d658f7fc12823cc44a41), [`e2ef1fc`](https://github.com/vegastack/vegastack-design/commit/e2ef1fc45aab188dfdc7d658f7fc12823cc44a41), [`2c9582f`](https://github.com/vegastack/vegastack-design/commit/2c9582f887c14a0d389346e13002f76cadaa3b80), [`c6ea931`](https://github.com/vegastack/vegastack-design/commit/c6ea931d7dd81bceacc0cb0bea1c9898e26fb69f)]:
+  - @vegastack/design@0.7.28
+
 ## 0.23.18
 
 ### Patch Changes
