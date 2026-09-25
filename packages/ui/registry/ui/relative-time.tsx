@@ -1,4 +1,4 @@
-// @vegastack relative-time@0.23.2 sha256-NBnbhUceiByYRFss7xfeVW9c20z5dXpN6Q7CfMIND5E=
+// @vegastack relative-time@0.23.2 sha256-n8/LSbrkv4nTV2EnpWMVGFC1Y5ghIhCPF7fvAzdwXT8=
 
 "use client";
 
@@ -551,6 +551,11 @@ export interface DateTimeProps extends Omit<
   title?: boolean | string;
   /** IANA zone; defaults to the `TimeZoneProvider` zone. */
   timeZone?: string;
+  /**
+   * Whether the tooltip trigger takes a tab stop. Defaults to `true` standalone and to a
+   * `TruncationFocusProvider`'s setting (off inside DataList/DataGrid rows).
+   */
+  focusable?: boolean;
 }
 
 /**
@@ -567,9 +572,11 @@ export function DateTime({
   options,
   title = true,
   timeZone: timeZoneProp,
+  focusable,
   className,
   ...props
 }: DateTimeProps) {
+  const isFocusable = useTruncationFocusable(focusable);
   const contextZone = useTimeZone();
   const timeZone = timeZoneProp ?? contextZone;
   const target = toDate(date);
@@ -588,7 +595,7 @@ export function DateTime({
       data-variant={variant}
       dateTime={valid ? target.toISOString() : undefined}
       suppressHydrationWarning
-      tabIndex={title && valid ? 0 : undefined}
+      tabIndex={title && valid && isFocusable ? 0 : undefined}
       className={cn("tabular-nums", className)}
       {...props}
     >
@@ -661,6 +668,11 @@ export interface DueLabelProps extends Omit<
   toned?: boolean;
   /** IANA zone; defaults to the `TimeZoneProvider` zone. */
   timeZone?: string;
+  /**
+   * Whether the tooltip trigger takes a tab stop. Defaults to `true` standalone and to a
+   * `TruncationFocusProvider`'s setting (off inside DataList/DataGrid rows).
+   */
+  focusable?: boolean;
 }
 
 /**
@@ -672,9 +684,11 @@ export function DueLabel({
   title = true,
   toned = true,
   timeZone: timeZoneProp,
+  focusable,
   className,
   ...props
 }: DueLabelProps) {
+  const isFocusable = useTruncationFocusable(focusable);
   const contextZone = useTimeZone();
   const timeZone = timeZoneProp ?? contextZone;
   const target = toDate(date);
@@ -686,7 +700,7 @@ export function DueLabel({
       data-tone={tone}
       dateTime={valid ? target.toISOString() : undefined}
       suppressHydrationWarning
-      tabIndex={title && valid ? 0 : undefined}
+      tabIndex={title && valid && isFocusable ? 0 : undefined}
       className={cn("tabular-nums", toned && DUE_TONE_CLASS[tone], className)}
       {...props}
     >
