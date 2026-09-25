@@ -311,7 +311,9 @@ for the row (_Actions for Ada Lovelace_). It is end-aligned, stays visible on na
 `interactive`, so opening the menu never activates the row. Each `RowAction` runs `onSelect`, or
 renders as a real link through `render={<a href="…" />}`; `destructive` paints it in the destructive
 ink; `disabled` keeps it in the menu — still reachable by the arrow keys — and `disabledReason` is
-read as its description. A row with exactly one action that has an `icon` gets an icon button with a
+a tooltip on the item and its accessible description (never wrapped text in the menu). The menu is
+at least 192px and as wide as its longest item, so labels never wrap; give items a leading muted
+icon (Pencil for Edit, Trash2 for Delete). A row with exactly one action that has an `icon` gets an icon button with a
 tooltip instead of a menu. The column header is _Actions_ for assistive tech only. Put
 `{ type: "separator" }` between groups — _Copy link · Share ─ Copy summary ─ Delete_ — and leading,
 trailing or doubled separators are dropped, so a conditional group can leave one behind safely. The

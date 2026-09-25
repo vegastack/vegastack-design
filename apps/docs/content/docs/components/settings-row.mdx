@@ -64,7 +64,8 @@ element with a forwarded ref and a `data-slot` for styling and targeting:
 ```
 
 - `SettingsSection` — a titled group (`data-slot="settings-section"`). Renders an optional `title`
-  and `description` above its children. Use one section per logical group (Account, Notifications,
+  and `description` above its children, with optional `actions` ("Sign out other devices", "New
+  attribute") right-aligned on the title's row. Use one section per logical group (Account, Notifications,
   Danger zone).
 - `SettingsCard` — **upstream's [`Card`](/docs/components/card)** (`data-slot="settings-card"`),
   flattened for a divided list: `py-0 gap-0`, so rows sit edge to edge and each row's own `border-b`

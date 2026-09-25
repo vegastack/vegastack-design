@@ -1,4 +1,4 @@
-// @vegastack data-table-parts@0.23.21 sha256-FIo55UWL17VgtnxBq+CyPzZOzZ6l0u0DwreqXnZoJY4=
+// @vegastack data-table-parts@0.23.21 sha256-PCX3wPF5dmMYV/0yGOs+EB/UiY4ctVfJeSD8UHYHvFY=
 
 "use client";
 
@@ -27,7 +27,6 @@ import {
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { ItemContent, ItemDescription, ItemTitle } from "@/components/ui/item";
 import {
   Tooltip,
   TooltipContent,
@@ -945,7 +944,7 @@ export interface RowActionItem {
    */
   disabled?: boolean;
   /**
-   * Why a disabled item is unavailable — a second line, read as the item's description.
+   * Why a disabled item is unavailable — a tooltip on the item, read as its description.
    * @default undefined
    */
   disabledReason?: string;
@@ -1095,47 +1094,69 @@ export function RowActionMenuItems({
               </DropdownMenuSubContent>
             </DropdownMenuSub>
           ) : (
-            <DropdownMenuItem
-              variant={action.destructive ? "destructive" : "default"}
-              disabled={action.disabled}
-              data-row-action-shortcut={action.shortcut?.toUpperCase()}
-              render={action.render}
-              onClick={
-                action.disabled || !action.onSelect
-                  ? undefined
-                  : () => {
-                      onAction?.();
-                      action.onSelect?.();
-                    }
-              }
-            >
-              {action.icon}
-              {action.disabled && action.disabledReason ? (
-                <ItemContent>
-                  <ItemTitle>{action.label}</ItemTitle>
-                  <ItemDescription>{action.disabledReason}</ItemDescription>
-                </ItemContent>
-              ) : (
-                action.label
-              )}
-              {action.checked ? (
-                <span className="sr-only">(current)</span>
-              ) : null}
-              {action.checked ? (
-                <Check
-                  data-slot="row-action-check"
-                  aria-hidden="true"
-                  className={cn(!action.shortcut && "ms-auto")}
-                />
-              ) : null}
-              {action.shortcut ? (
-                <DropdownMenuShortcut>{action.shortcut}</DropdownMenuShortcut>
-              ) : null}
-            </DropdownMenuItem>
+            <RowActionMenuItem action={action} onAction={onAction} />
           )}
         </React.Fragment>
       ))}
     </>
+  );
+}
+
+/**
+ * One plain row action. A disabled item's `disabledReason` is a tooltip on the item (and its
+ * accessible description), never a wrapped second line inside the menu.
+ */
+function RowActionMenuItem({
+  action,
+  onAction,
+}: {
+  action: RowActionItem;
+  onAction?: () => void;
+}) {
+  const reasonId = React.useId();
+  const reason = action.disabled ? action.disabledReason : undefined;
+  const item = (
+    <DropdownMenuItem
+      variant={action.destructive ? "destructive" : "default"}
+      disabled={action.disabled}
+      render={action.render}
+      aria-describedby={reason ? reasonId : undefined}
+      data-row-action-shortcut={action.shortcut?.toUpperCase()}
+      onClick={
+        action.disabled || !action.onSelect
+          ? undefined
+          : () => {
+              onAction?.();
+              action.onSelect?.();
+            }
+      }
+    >
+      {action.icon}
+      {action.label}
+      {action.checked ? <span className="sr-only">(current)</span> : null}
+      {action.checked ? (
+        <Check
+          data-slot="row-action-check"
+          aria-hidden="true"
+          className={cn(!action.shortcut && "ms-auto")}
+        />
+      ) : null}
+      {action.shortcut ? (
+        <DropdownMenuShortcut>{action.shortcut}</DropdownMenuShortcut>
+      ) : null}
+      {reason ? (
+        <span id={reasonId} hidden>
+          {reason}
+        </span>
+      ) : null}
+    </DropdownMenuItem>
+  );
+  if (!reason) return item;
+  return (
+    <Tooltip>
+      <TooltipTrigger render={item} />
+      <TooltipContent side="left">{reason}</TooltipContent>
+    </Tooltip>
   );
 }
 
@@ -1228,7 +1249,8 @@ export function RowActionsMenu({
       />
       <DropdownMenuContent
         align="end"
-        className="w-auto min-w-48"
+        data-slot="row-actions-menu-content"
+        className="w-max min-w-48 max-w-72 whitespace-nowrap"
         onKeyDown={pickShortcut}
       >
         <RowActionMenuItems actions={actions} />

@@ -1157,7 +1157,6 @@
         "@vegastack/checkbox",
         "@vegastack/dropdown-menu",
         "@vegastack/empty",
-        "@vegastack/item",
         "@vegastack/skeleton",
         "@vegastack/table",
         "@vegastack/tooltip"

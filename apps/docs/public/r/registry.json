@@ -1326,7 +1326,6 @@
         "@vegastack/checkbox",
         "@vegastack/dropdown-menu",
         "@vegastack/empty",
-        "@vegastack/item",
         "@vegastack/skeleton",
         "@vegastack/table",
         "@vegastack/tooltip"
@@ -1342,7 +1341,7 @@
         "whenToUse": "Installed automatically with DataList or DataGrid; import it directly when building a bespoke table that should share their sort header, selection cells and column rules.",
         "whenNotToUse": "A plain presentational table (Table alone), or as a table component in its own right — these are parts, not a renderer.",
         "version": "0.23.21",
-        "integrity": "sha256-FIo55UWL17VgtnxBq+CyPzZOzZ6l0u0DwreqXnZoJY4="
+        "integrity": "sha256-PCX3wPF5dmMYV/0yGOs+EB/UiY4ctVfJeSD8UHYHvFY="
       }
     },
     {
@@ -16235,7 +16234,7 @@
         "whenToUse": "Settings/preferences screens — titled sections, bordered cards, label/description + control rows.",
         "whenNotToUse": "Free-form content surfaces (Card), data tables, or complex multi-field forms.",
         "version": "0.23.21",
-        "integrity": "sha256-sFm/d20EWibsOERq8I2p2jz8d/ppmDtbIY7ejfnjP0A="
+        "integrity": "sha256-jLxT3+XU9PDmycqZLTSH5P9fZrMnTGNpOnBSXBZkWL8="
       }
     },
     {
