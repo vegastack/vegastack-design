@@ -77,7 +77,7 @@ const THREADS = [
   { title: "Invoice 1042 failed to send", unread: true, attention: true },
 ];
 
-// The shared unread dot on list rows: primary for "unread", destructive for
+// The shared unread dot on list rows: info blue for "unread", destructive for
 // something that needs attention. The dot is decorative, so each row says
 // "unread" in its own text for screen readers.
 export function notificationBellDot(): ReactNode {

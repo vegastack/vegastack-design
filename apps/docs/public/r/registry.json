@@ -15597,7 +15597,7 @@
         "whenToUse": "A bell trigger surfacing an unread count in app chrome — app owns the count and handler. Its NotificationDot is the one unread marker for rows, inbox items and nav items.",
         "whenNotToUse": "The notifications panel itself, or a generic count badge (Badge).",
         "version": "0.23.18",
-        "integrity": "sha256-QpUjOHsnOebrXq01Lcy3B3KMA9zca7+GDF+FhPg31mQ="
+        "integrity": "sha256-OeR1v6DHQMkJ0Gpd6zwEVCEXdQ/zPvP6YLA3FYVx3zw="
       }
     },
     {

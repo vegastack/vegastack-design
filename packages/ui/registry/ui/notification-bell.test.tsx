@@ -204,16 +204,15 @@ test("rapid successive count changes settle on the final value without crashing"
     .toBeInTheDocument();
 });
 
-test("the count badge is inline-start anchored so wide counts grow outward", async () => {
-  // Logical anchoring plus an RTL transform mirror keeps overflow outside the bell in either direction.
+test("the count badge is anchored inside the button at the top inline-end corner", async () => {
   const screen = await render(<NotificationBell count={100} />);
   const badge = screen.container.querySelector(
     '[data-slot="notification-bell-badge"]',
   ) as HTMLElement;
   expect(badge.textContent).toBe("99+");
-  expect(badge.classList.contains("start-full")).toBe(true);
-  expect(badge.classList.contains("-translate-x-3")).toBe(true);
-  expect(badge.classList.contains("rtl:translate-x-3")).toBe(true);
+  expect(badge.classList.contains("end-0")).toBe(true);
+  expect(badge.classList.contains("top-0")).toBe(true);
+  expect(badge.classList.contains("ring-background")).toBe(true);
   expect(badge.classList.contains("-right-1")).toBe(false);
 });
 
@@ -237,7 +236,7 @@ test("NotificationDot is a decorative primary dot by default", async () => {
   )!;
   expect(dot).not.toBeNull();
   expect(dot).toHaveAttribute("aria-hidden", "true");
-  expect(dot.classList.contains("bg-primary")).toBe(true);
+  expect(dot.classList.contains("bg-info")).toBe(true);
   expect(dot.classList.contains("bg-destructive")).toBe(false);
   expect(dot.classList.contains("ms-auto")).toBe(true);
   expect(dot.textContent).toBe("");
@@ -249,7 +248,7 @@ test('NotificationDot intent="destructive" is the destructive fill', async () =>
     '[data-slot="notification-dot"]',
   )!;
   expect(dot.classList.contains("bg-destructive")).toBe(true);
-  expect(dot.classList.contains("bg-primary")).toBe(false);
+  expect(dot.classList.contains("bg-info")).toBe(false);
 });
 
 test("the bell's dot mode is the shared NotificationDot, primary by default", async () => {
@@ -258,7 +257,7 @@ test("the bell's dot mode is the shared NotificationDot, primary by default", as
     '[data-slot="notification-bell"] [data-slot="notification-dot"]',
   )!;
   expect(dot).not.toBeNull();
-  expect(dot.classList.contains("bg-primary")).toBe(true);
+  expect(dot.classList.contains("bg-info")).toBe(true);
   expect(dot.classList.contains("absolute")).toBe(true);
   expect(
     screen.container.querySelector('[data-slot="notification-bell-badge"]'),

@@ -38,7 +38,7 @@ the `data-slot` it renders (generated from the canonical source):
 ### Counts and indicators
 
 The badge appears only when `count > 0`, shows the number (capped to `99+`), or a minimal dot when
-`dot` is set. `count={0}` renders the bare bell with no badge.
+`dot` is set. The count is a solid destructive pill and the dot a solid info-blue circle, both anchored inside the button's top inline-end corner with a background ring, so they stay in bounds when pressed. `count={0}` renders the bare bell with no badge.
 
 <ComponentPreview
   name="notificationBellCounts"
@@ -48,7 +48,7 @@ The badge appears only when `count > 0`, shows the number (capped to `99+`), or 
 ### Shared unread dot
 
 `NotificationDot` is the one unread dot: the 8px solid circle the bell draws in `dot` mode, exported
-for unread rows in a list, an inbox or a nav item. Its default `intent` is the primary ink, for
+for unread rows in a list, an inbox or a nav item. Its default `intent` is the solid info blue, for
 "unread"; `intent="destructive"` is for something that needs attention. The dot is `aria-hidden`, so
 the row it marks must say "unread" in its own accessible name.
 
