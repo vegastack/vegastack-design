@@ -1,4 +1,4 @@
-// @vegastack review-split-01@0.23.5 sha256-uWWuRKuJXlhMZmlU7vZX5aJlHeR9EWVKVqj/huqcbNs=
+// @vegastack review-split-01@0.23.6 sha256-ntf7u5lyUd2livZXYFJItW7+Bm+D3UtoLYLqKeU1HnQ=
 
 "use client";
 

@@ -1,5 +1,11 @@
 # @vegastack/design
 
+## 0.7.15
+
+### Patch Changes
+
+- [#244](https://github.com/vegastack/vegastack-design/pull/244) [`164e490`](https://github.com/vegastack/vegastack-design/commit/164e490846805a4529c324837be25a064d7b6523) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🔧 **Leading icons are muted and follow their row** — menu, select, combobox, command, sidebar, navigation-menu, toggle, ghost/outline button, breadcrumb and item-media icons rest at `text-muted-foreground` and go full colour on hover, focus, highlight, selection, active, open and pressed. Destructive rows keep `text-destructive`.
+
 ## 0.7.14
 
 ### Patch Changes
