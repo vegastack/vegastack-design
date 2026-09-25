@@ -87,9 +87,11 @@ more. Pass `height="auto"` to size lanes to their cards, or any CSS length.
 
 ### Collapsed lanes
 
-Every lane header has a ⋯ menu with "Collapse lane" (turn it off with `collapsible={false}`, or
-add the lane's own actions with `getColumnActions`). A collapsed lane is a slim vertical strip with
-its count; activating it expands the lane. Control the set with `collapsedColumns` and
+Every lane header has a collapse icon button (tooltip "Collapse lane") left of its ⋯ menu; turn it
+off with `collapsible={false}`. The ⋯ menu holds only the lane's own actions from
+`getColumnActions` and hides when there are none. Lanes are transparent, like list view: only the
+column spacing separates them, and cards keep their own surface. A collapsed lane is a slim dashed
+strip with an expand icon and its count (tooltip "Expand lane"); activating it expands the lane. Control the set with `collapsedColumns` and
 `onCollapsedChange` to remember it. A lane declared `defaultCollapsed` is a terminal lane: it
 expands read-only.
 

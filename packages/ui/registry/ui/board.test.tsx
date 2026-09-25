@@ -252,13 +252,12 @@ test("getItemActions come first in the card menu, submenus included", async () =
   expect(open).toHaveBeenCalled();
 });
 
-test("lanes collapse from their header menu to a slim strip and expand again", async () => {
+test("lanes collapse from their header button to a slim strip and expand again", async () => {
   const onCollapsedChange = vi.fn();
   const screen = await render(
     <Controlled onCollapsedChange={onCollapsedChange} />,
   );
-  await press(screen.getByRole("button", { name: "Won lane actions" }));
-  await press(page.getByRole("menuitem", { name: "Collapse lane" }));
+  await press(screen.getByRole("button", { name: "Collapse Won lane" }));
   expect(onCollapsedChange).toHaveBeenLastCalledWith(["won"]);
   const strip = document.querySelector<HTMLElement>(
     '[data-slot="board-column-collapsed"]',
