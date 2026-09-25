@@ -1,5 +1,6 @@
 ---
 "@vegastack/ui": patch
+"@vegastack/design": patch
 ---
 
-Alert: no focus ring when an app moves focus to it to announce an error (`outline-none`); it is not an interactive control.
+🐛 **Alert has no focus ring** — an app can move focus to an error `Alert` so screen readers announce it; the alert no longer shows the focus ring, since it is not an interactive control.
