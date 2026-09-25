@@ -32,6 +32,10 @@ export const metadata: Metadata = {
 // (including our `@theme inline` custom properties) loads — it must be a literal color, not a
 // token reference. Values mirror packages/design-tokens `--background` light/dark (theme.css :root / .dark).
 export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  // Stops iOS Safari's focus zoom on inputs; pinch-zoom still works on iOS.
+  maximumScale: 1,
   viewportFit: "cover",
   themeColor: [
     // eslint-disable-next-line no-restricted-syntax -- literal required, see comment above

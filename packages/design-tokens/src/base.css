@@ -197,3 +197,30 @@
     animation: none !important;
   }
 }
+
+/* INT-9 (ours) — NO iOS FOCUS ZOOM (MK 2026-09-26).
+   iOS Safari zooms the page into any focused text control whose font-size is under 16px, and the
+   system's controls are 14px. On a touch pointer every text-entry control renders at 16px at
+   least, so Safari never zooms; desktop keeps the 14px density. Deliberately OUTSIDE `@layer
+   base`: unlayered rules outrank the utilities layer, so a control's own `text-sm` cannot undo
+   it, and no `!important` is needed. Pair it with the viewport's `maximumScale: 1` (see the
+   consume guide), which stops focus zoom while pinch-zoom keeps working on iOS. */
+@media (pointer: coarse) {
+  input:not(
+    [type="checkbox"],
+    [type="radio"],
+    [type="range"],
+    [type="color"],
+    [type="file"],
+    [type="button"],
+    [type="submit"],
+    [type="reset"],
+    [type="image"]
+  ),
+  textarea,
+  select,
+  [contenteditable="true"],
+  [contenteditable=""] {
+    font-size: max(16px, 1em);
+  }
+}

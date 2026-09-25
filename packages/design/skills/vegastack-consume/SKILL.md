@@ -79,6 +79,20 @@ content. Get it from `@vegastack/design/base.css` (which sets `body { isolation:
 putting `className="isolate"` on your `<body>` yourself. Without it, popups can render _under_ app
 chrome or mis-position in stacking-context-heavy layouts.
 
+**Stop iOS focus zoom.** iOS Safari zooms into any focused field under 16px. `base.css` renders
+text-entry controls at 16px on touch pointers, and the viewport should cap the scale as well, which
+stops focus zoom while pinch-zoom keeps working on iOS. In Next.js, in the root layout:
+
+```tsx
+import type { Viewport } from "next";
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+};
+```
+
 ## 4. Configure registry access
 
 Components come from a private registry behind Cloudflare Access service tokens.

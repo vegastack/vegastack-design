@@ -1,4 +1,4 @@
-// @vegastack data-table-parts@0.23.34 sha256-kZhUROlPv8dD/J3Qv7hqwfNxAa5f4mSA0Yd+Cdle5OQ=
+// @vegastack data-table-parts@0.23.34 sha256-lcbaYypWenhQ0n8Mu7XrpKwStIFdGj19kHTsuWLrfi4=
 
 "use client";
 
@@ -32,13 +32,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import {
-  Empty,
-  EmptyDescription,
-  EmptyHeader,
-  EmptyMedia,
-  EmptyTitle,
-} from "@/components/ui/empty";
+import { Empty, EmptyHeader, EmptyTitle } from "@/components/ui/empty";
 import { Skeleton } from "@/components/ui/skeleton";
 import { TableCell, TableHead, TableRow } from "@/components/ui/table";
 
@@ -896,15 +890,9 @@ export function EmptyRow({
     <TableRow data-slot={slot} className="hover:bg-transparent">
       <TableCell colSpan={colSpan} className="min-w-0 p-0">
         {children ?? (
-          <Empty>
+          <Empty icon={<Inbox aria-hidden />}>
             <EmptyHeader>
-              <EmptyMedia>
-                <Inbox />
-              </EmptyMedia>
-              <EmptyTitle>No data</EmptyTitle>
-              <EmptyDescription>
-                There are no records to display.
-              </EmptyDescription>
+              <EmptyTitle>Nothing here</EmptyTitle>
             </EmptyHeader>
           </Empty>
         )}

@@ -2805,6 +2805,15 @@
             "status": "not-applicable",
             "rationale": "Type-only exports do not render or accept runtime refs."
           }
+        },
+        {
+          "name": "BoardEmpty",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/board.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
         }
       ],
       "variants": {
@@ -2889,6 +2898,7 @@
         "@vegastack/button",
         "@vegastack/data-table-parts",
         "@vegastack/dropdown-menu",
+        "@vegastack/empty",
         "@vegastack/load-more",
         "@vegastack/skeleton",
         "@vegastack/toast",
@@ -7141,6 +7151,24 @@
             "status": "not-applicable",
             "rationale": "Type-only exports do not render or accept runtime refs."
           }
+        },
+        {
+          "name": "DataListEmpty",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/data-list.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "DataListEmptyState",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/data-list.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "No stable public ref target is forwarded by NoResultsEmpty in packages/ui/registry/ui/data-list.tsx; incidental internal nodes are not part of its API."
+          }
         }
       ],
       "variants": {
@@ -7257,6 +7285,15 @@
       },
       "previewModule": "data-list",
       "dataAttributes": {
+        "DataListEmptyState": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["data-list-empty"]
+            }
+          ],
+          "cssVariables": []
+        },
         "NoResultsEmpty": {
           "attributes": [
             {

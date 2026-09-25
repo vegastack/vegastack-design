@@ -36,6 +36,23 @@ tokens, the **base a11y layer**, and the utility helpers in one import.
 > marketing site) can install just the design contract: `npm install @vegastack/design-tokens` —
 > zero dependencies, pure CSS/JSON.
 
+## Viewport
+
+iOS Safari zooms into any focused field whose text is under 16px. `base.css` renders text-entry
+controls (inputs, textareas, selects, rich-text editors) at 16px on touch pointers, and the root
+layout should also cap the scale. That stops focus zoom while pinch-zoom keeps working on iOS:
+
+```tsx
+// app/layout.tsx
+import type { Viewport } from "next";
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+};
+```
+
 ## shadcn Base UI
 
 Initialize shadcn with the Base UI implementation.

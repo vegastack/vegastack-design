@@ -60,7 +60,7 @@ it has in common with [`DataGrid`](/docs/components/data-grid).
   sort={sort}                       // controlled sort ({ key, direction } | null)
   onSortChange={setSort}
   loading={false}
-  emptyState={/* optional override */}
+  empty={{ title: "No tasks yet" }}
 />;
 ```
 
@@ -81,7 +81,7 @@ it has in common with [`DataGrid`](/docs/components/data-grid).
   stays visible (the full `accent` is the badge's own fill).
 - **Loading** — skeleton rows (`data-slot="data-list-skeleton-row"`) replace the body while
   `loading`; the table gets `aria-busy` and a live status while placeholder rows stay `aria-hidden`.
-- **Empty** — a single full-width row (`data-slot="data-list-empty-row"`) hosting the `emptyState`.
+- **Empty** — a single full-width row (`data-slot="data-list-empty-row"`) hosting the empty state (`empty`, or your `emptyState`).
 - **Merged stack** — when the container is too narrow, overflow columns render inside the first
   cell as `<span data-slot="data-list-merged">`, the sorted one marked `data-sorted`.
 - **Status lines** — under the table, in `<div data-slot="data-list-status">`: a column dropped with
@@ -224,9 +224,11 @@ const columns: DataListColumn<Person>[] = [
 `loading` swaps the body for `loadingRows` skeleton rows (default `5`). When `data` is empty and not loading,
 `DataList` renders one of two standard `Empty` states — never hand-roll empty markup:
 
-- **`emptyState`** — there is nothing at all yet (no filters applied). The built-in one reads "No
-  data" with an Inbox icon; pass an `Empty` composition (with its `icon`) for "No tasks yet" and a
-  create action.
+- **`empty`** — there is nothing at all yet (no filters applied). The built-in `Empty` shows an
+  Inbox icon and "Nothing here" in the table, the grid and every board lane. Pass only the copy the
+  page needs — `{ icon, title, description, action }` — for "No tasks yet" and a create action; a
+  section's own `empty` wins for its lane. `emptyState` replaces the whole state with your own node
+  (prefer `empty`). `DataListEmptyState` is the same state outside a DataList.
 - **`noResults`** — the list is empty _because of_ a search or filter. `true` shows the standard
   one: a SearchX icon, "No matches", a short description; pass `{ onClear }` to add a "Clear
   filters" button wired to the `FilterBar`'s `onClear` (`title`, `description` and `clearLabel`
@@ -237,13 +239,7 @@ const columns: DataListColumn<Person>[] = [
   columns={columns}
   data={rows}
   noResults={hasQueryOrFilters && { onClear: clearAll }}
-  emptyState={
-    <Empty icon={<ListTodo />}>
-      <EmptyHeader>
-        <EmptyTitle>No tasks yet</EmptyTitle>
-      </EmptyHeader>
-    </Empty>
-  }
+  empty={{ icon: <ListTodo />, title: "No tasks yet" }}
 />
 ```
 

@@ -322,10 +322,7 @@ test("empty data renders the empty state", async () => {
   const screen = await render(
     <DataList columns={columns} data={[]} getRowId={(r) => r.id} />,
   );
-  await expect.element(screen.getByText("No data")).toBeInTheDocument();
-  await expect
-    .element(screen.getByText("There are no records to display."))
-    .toBeInTheDocument();
+  await expect.element(screen.getByText("Nothing here")).toBeInTheDocument();
 });
 
 test("a custom emptyState overrides the default", async () => {
