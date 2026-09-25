@@ -1,5 +1,18 @@
 # @vegastack/ui
 
+## 0.23.31
+
+### Patch Changes
+
+- [#317](https://github.com/vegastack/vegastack-design/pull/317) [`8e5f523`](https://github.com/vegastack/vegastack-design/commit/8e5f523c22d20aba56a813256ecc1d2055fa2824) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🔧 Dates and times (RelativeTime, DateTime, DueLabel, Duration) render in the body font with proportional figures, like the text around them, instead of tabular figures that read as monospace. Live timers keep tabular figures.
+
+- [#315](https://github.com/vegastack/vegastack-design/pull/315) [`3da5a55`](https://github.com/vegastack/vegastack-design/commit/3da5a558c7d7364cb357b16c43a96104a1c99053) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🔧 TextEdit is Notion-style: no border, ground or focus ring, and no view mode — it rests looking exactly like `MarkdownView`; click anywhere and type. The Save/Cancel buttons are gone: leaving the editor calls the new `onCommit(value)` when the document changed, Escape reverts and calls `onRevert()`, Cmd/Ctrl+Enter calls `onSubmit` (or commits), and `autosave` commits after an idle gap. The formatting toolbar is a compact row under the text, shown only while focused (minimal included). `onSave`/`onCancel` still work as aliases; `variant`, `saveLabel` and `cancelLabel` are ignored. The `prose` recipe is now the app's body text: `text-sm`, body family and `foreground` ink for paragraphs, lists, list markers, links, quotes and table cells (no relaxed leading, no muted markers), headings on the app scale (`#` text-lg, `##` text-base, the rest body size, all `font-heading`), and only inline code and code blocks in mono — identical in MarkdownView and TextEdit.
+
+- [#314](https://github.com/vegastack/vegastack-design/pull/314) [`384ff99`](https://github.com/vegastack/vegastack-design/commit/384ff993de899ae0f168500794bc8323e2980303) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🔧 Toasts are tighter: 12px padding (was 16px), 10px between the icon, text and actions (was 12px), and 2px between title and description (was 4px). Close and action buttons are unchanged.
+
+- Updated dependencies [[`3da5a55`](https://github.com/vegastack/vegastack-design/commit/3da5a558c7d7364cb357b16c43a96104a1c99053)]:
+  - @vegastack/design@0.7.40
+
 ## 0.23.30
 
 ### Patch Changes

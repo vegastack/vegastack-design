@@ -9,6 +9,24 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.23.31] — September 26, 2026
+
+<!-- assembled from 3 changesets: 7406bf83baba -->
+
+### 🔧 Changed components
+
+- Dates and times (RelativeTime, DateTime, DueLabel, Duration) render in the body font with proportional figures, like the text around them, instead of tabular figures that read as monospace. Live timers keep tabular figures.
+  [`8e5f523`](https://github.com/VegaStack/vegastack-design/commit/8e5f523)
+- TextEdit is Notion-style: no border, ground or focus ring, and no view mode — it rests looking exactly like `MarkdownView`; click anywhere and type. The Save/Cancel buttons are gone: leaving the editor calls the new `onCommit(value)` when the document changed, Escape reverts and calls `onRevert()`, Cmd/Ctrl+Enter calls `onSubmit` (or commits), and `autosave` commits after an idle gap. The formatting toolbar is a compact row under the text, shown only while focused (minimal included). `onSave`/`onCancel` still work as aliases; `variant`, `saveLabel` and `cancelLabel` are ignored. The `prose` recipe is now the app's body text: `text-sm`, body family and `foreground` ink for paragraphs, lists, list markers, links, quotes and table cells (no relaxed leading, no muted markers), headings on the app scale (`#` text-lg, `##` text-base, the rest body size, all `font-heading`), and only inline code and code blocks in mono — identical in MarkdownView and TextEdit.
+  [`3da5a55`](https://github.com/VegaStack/vegastack-design/commit/3da5a55)
+- Toasts are tighter: 12px padding (was 16px), 10px between the icon, text and actions (was 12px), and 2px between title and description (was 4px). Close and action buttons are unchanged.
+  [`384ff99`](https://github.com/VegaStack/vegastack-design/commit/384ff99)
+
+### 📦 npm
+
+- **`@vegastack/design`** → **`0.7.40`** (was `0.7.39`).
+- The design-system registry (`@vegastack/ui`) bumps 0.23.30 → 0.23.31.
+
 ## [0.23.30] — September 26, 2026
 
 <!-- assembled from 1 changeset: 8b76c99a52b4 -->
