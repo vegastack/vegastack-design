@@ -15875,11 +15875,11 @@
         "@vegastack/date-time",
         "@vegastack/dropdown-menu",
         "@vegastack/inbox",
-        "@vegastack/load-more",
         "@vegastack/notification-bell",
         "@vegastack/page-header",
         "@vegastack/sheet",
         "@vegastack/sidebar",
+        "@vegastack/tooltip",
         "@vegastack/use-announcer"
       ],
       "files": [

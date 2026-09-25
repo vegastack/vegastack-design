@@ -1,4 +1,4 @@
-// @vegastack inbox@0.23.12 sha256-MTm4iOxpgiCaf5x/BYw70bmD7bvzZgz10JDKXItbsVE=
+// @vegastack inbox@0.23.12 sha256-RQ9hcz45TqhO53Tc/8Ii8wkyu91qSKB5kuvUPW4O5EM=
 
 "use client";
 
@@ -63,15 +63,44 @@ export interface InboxProps extends Omit<
    */
   filters?: React.ReactNode;
   /**
-   * Content under the list ("You're all caught up", Load older).
+   * Content under the list; with `onLoadMore` the end of the list is drawn for you.
    * @default undefined
    */
   footer?: React.ReactNode;
+  /**
+   * Infinite scroll: called when the sentinel under the last row scrolls into view while
+   * `hasMore` is true and nothing is loading. Load the next page (15 rows is the house size).
+   * @default undefined
+   */
+  onLoadMore?: () => void;
+  /**
+   * More rows exist; `false` ends the list on `endLabel`.
+   * @default false
+   */
+  hasMore?: boolean;
+  /**
+   * A page is loading: three skeleton rows show under the list.
+   * @default false
+   */
+  loadingMore?: boolean;
+  /**
+   * The last page failed: a ghost "Try again" button replaces the sentinel and calls `onLoadMore`.
+   * @default false
+   */
+  loadMoreError?: boolean;
+  /**
+   * The end of the list once `hasMore` is false.
+   * @default "You’re all caught up"
+   */
+  endLabel?: React.ReactNode;
 }
 
 /**
  * `Inbox` — the notification panel's frame: a header (title, icon actions, close), a filter row,
- * a scrolling body of full-bleed rows and an optional footer. It fills its container, so put it in
+ * a scrolling body of full-bleed rows and an optional footer. Pass `onLoadMore` + `hasMore` +
+ * `loadingMore` for infinite scroll: an IntersectionObserver sentinel pages as the list nears its
+ * end, three skeleton rows stand in while a page loads, a ghost "Try again" follows a failure and
+ * "You’re all caught up" ends the list. It fills its container, so put it in
  * a `Sheet`, a `Popover` or a docked panel; on a phone give that container the whole screen.
  *
  * @example
@@ -87,11 +116,66 @@ export function Inbox({
   closeLabel = "Close inbox",
   filters,
   footer,
+  onLoadMore,
+  hasMore = false,
+  loadingMore = false,
+  loadMoreError = false,
+  endLabel = "You’re all caught up",
   className,
   children,
   ...props
 }: InboxProps) {
   const titleId = React.useId();
+  const bodyRef = React.useRef<HTMLDivElement>(null);
+  const sentinelRef = React.useRef<HTMLDivElement>(null);
+  const loadRef = React.useRef(onLoadMore);
+  loadRef.current = onLoadMore;
+  const armed =
+    Boolean(onLoadMore) && hasMore && !loadingMore && !loadMoreError;
+
+  React.useEffect(() => {
+    const sentinel = sentinelRef.current;
+    if (!armed || !sentinel || typeof IntersectionObserver === "undefined") {
+      return;
+    }
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((entry) => entry.isIntersecting)) loadRef.current?.();
+      },
+      { root: bodyRef.current, rootMargin: "0px 0px 240px 0px" },
+    );
+    observer.observe(sentinel);
+    return () => observer.disconnect();
+  }, [armed]);
+
+  let end: React.ReactNode = footer;
+  if (onLoadMore) {
+    if (loadingMore) {
+      end = <InboxSkeleton rows={3} label="Loading more notifications" />;
+    } else if (loadMoreError) {
+      end = (
+        <div className="flex justify-center px-4 py-3">
+          <Button variant="ghost" size="sm" onClick={onLoadMore}>
+            Try again
+          </Button>
+        </div>
+      );
+    } else if (hasMore) {
+      end = <div ref={sentinelRef} aria-hidden className="h-px" />;
+    } else {
+      end = (
+        <div className="px-4 py-4 text-center text-xs text-muted-foreground">
+          {endLabel}
+        </div>
+      );
+    }
+  } else if (footer) {
+    end = (
+      <div className="px-4 py-4 text-center text-xs text-muted-foreground">
+        {footer}
+      </div>
+    );
+  }
   return (
     <section
       data-slot="inbox"
@@ -120,15 +204,12 @@ export function Inbox({
         {filters}
       </header>
       <div
+        ref={bodyRef}
         data-slot="inbox-body"
-        className="min-h-0 flex-1 overflow-y-auto border-t"
+        className="min-h-0 flex-1 overflow-y-auto"
       >
         {children}
-        {footer ? (
-          <div className="px-4 py-4 text-center text-xs text-muted-foreground">
-            {footer}
-          </div>
-        ) : null}
+        {end}
       </div>
     </section>
   );
@@ -316,7 +397,7 @@ export function InboxList({
       role="list"
       aria-label={label}
       data-slot="inbox-list"
-      className={cn("divide-y border-b", className)}
+      className={cn("divide-y", className)}
       {...props}
     />
   );
@@ -329,7 +410,8 @@ export interface InboxGroupProps extends React.ComponentProps<"ul"> {
 }
 
 /**
- * A day (or other) group: a sticky small-caps label over a list named by it.
+ * A day (or other) group: a label that sticks to the top of the scroll area (no dividers; 16px
+ * above except on the first group, 6px below) over a list named by it.
  *
  * @example
  * <InboxGroup label="Today">{rows}</InboxGroup>
@@ -342,17 +424,17 @@ export function InboxGroup({
 }: InboxGroupProps) {
   const id = React.useId();
   return (
-    <div data-slot="inbox-group">
+    <div data-slot="inbox-group" className="group/inbox-group">
       <div
         id={id}
-        className="sticky top-0 z-10 border-b bg-background/95 px-4 py-1.5 text-xs font-medium text-muted-foreground backdrop-blur"
+        className="sticky top-0 z-10 bg-background px-4 pt-4 pb-1.5 text-xs font-medium text-muted-foreground group-first/inbox-group:pt-2"
       >
         {label}
       </div>
       <ul
         role="list"
         aria-labelledby={id}
-        className={cn("divide-y border-b", className)}
+        className={cn("divide-y", className)}
         {...props}
       >
         {children}
@@ -373,12 +455,7 @@ export function InboxEmphasis({
   className,
   ...props
 }: React.ComponentProps<"strong">) {
-  return (
-    <strong
-      className={cn("font-semibold text-foreground", className)}
-      {...props}
-    />
-  );
+  return <strong className={cn("font-medium", className)} {...props} />;
 }
 
 /** One action chip on an {@link InboxItem}. */
@@ -412,7 +489,8 @@ export interface InboxItemProps extends Omit<
   /** The sentence: plain text, or a template with {@link InboxEmphasis} for the actor and record. */
   title: React.ReactNode;
   /**
-   * Unread: a soft full-bleed tint, a medium-weight title and an sr-only "Unread".
+   * Unread: a soft full-bleed tint, the title in the foreground colour (read titles are muted) and
+   * an sr-only "Unread".
    * @default false
    */
   unread?: boolean;
@@ -570,8 +648,8 @@ export function InboxItem({
       <div className="flex min-w-0 flex-1 flex-col gap-0.5">
         <p
           className={cn(
-            "text-sm leading-5 text-foreground [&_strong]:font-semibold",
-            unread ? "font-medium" : "font-normal",
+            "text-sm leading-5 font-normal [&_strong]:font-medium",
+            unread ? "text-foreground" : "text-muted-foreground",
           )}
         >
           {titleContent}
@@ -652,7 +730,12 @@ export function InboxItem({
                     </Button>
                   }
                 />
-                <DropdownMenuContent align="end">{menu}</DropdownMenuContent>
+                <DropdownMenuContent
+                  align="end"
+                  className="w-max max-w-80 min-w-56"
+                >
+                  {menu}
+                </DropdownMenuContent>
               </DropdownMenu>
             ) : null}
           </div>

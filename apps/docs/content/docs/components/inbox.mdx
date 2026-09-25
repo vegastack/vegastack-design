@@ -31,7 +31,9 @@ import {
   filters={
     <InboxFilters value={view} onValueChange={setView} unreadCount={3} />
   }
-  footer="You’re all caught up"
+  onLoadMore={loadOlder}
+  hasMore={hasMore}
+  loadingMore={loadingOlder}
 >
   <InboxGroup label="Today">
     <InboxItem
@@ -67,11 +69,15 @@ import {
 <Anatomy name="inbox" />
 
 - `Inbox` — the frame: title, header actions (`InboxMarkAllRead`, `InboxMenuAction`, any
-  `InboxHeaderAction`), the ✕ when `onClose` is set, the `filters` row, a scrolling body and a `footer`.
+  `InboxHeaderAction`), the ✕ when `onClose` is set, the `filters` row, a scrolling body and a `footer`
+  — or, with `onLoadMore`, the infinite-scroll end.
 - `InboxFilters` — the All | Unread chips, with the count on Unread.
-- `InboxGroup` — a sticky small-caps label over a list it names. `InboxList` is the ungrouped list.
-- `InboxItem` — one row. Title 14px medium (semibold when unread), meta 12px muted (the ramp has no 13px step), time 12px muted;
-  16px sides and 12px vertical padding; 1px dividers and a tint that reach both edges.
+- `InboxGroup` — a label that sticks within the scroll area, with no divider above or below it
+  (16px above, except on the first group; 6px below), over a list it names. `InboxList` is the ungrouped list.
+- `InboxItem` — one row. Title 14px regular — foreground when unread, muted once read — with the actor and
+  record (`InboxEmphasis`) in medium; the tint marks unread. Meta 12px muted (the ramp has no 13px step), time 12px muted;
+  16px sides and 12px vertical padding; a 1px divider between rows only, and a tint, reaching both
+  edges. The ⋯ menu sizes to its content (224–320px).
 - `InboxEmpty`, `InboxSkeleton`, `InboxError` — the empty, first-load and failed-load states.
 
 ## Examples
@@ -82,11 +88,25 @@ A person event leads with the actor's 28px avatar; a system event leads with its
 28px tile (`destructive` for a failure). Emphasise the actor and the record with `InboxEmphasis` so
 identical events name their record. `actions` adds up to three chips (the first can be `primary`),
 each with `loading` and `done` states. `count` marks a row standing for grouped repeats ("Raj
-assigned you 3 tasks"). Unread rows carry a soft tint and a medium-weight title. A fixed right column
+assigned you 3 tasks"). Unread rows carry a soft tint and a foreground title; read titles are muted. A fixed right column
 keeps the time on top; hover a row, or tab into it, to show Mark read / Mark unread and the ⋯ menu
 below it.
 
 <ComponentPreview name="inbox" file="components/preview/inbox.tsx" />
+
+### Infinite scroll
+
+Pass `onLoadMore`, `hasMore` and `loadingMore`: a sentinel under the last row calls `onLoadMore` as
+it nears the viewport (page 15 rows at a time). While a page loads, three skeleton rows stand in —
+no spinner. Set `loadMoreError` after a failure to show a ghost **Try again**, and `hasMore={false}`
+ends the list on "You’re all caught up".
+
+<ComponentPreview name="inboxLoadingMore" file="components/preview/inbox.tsx" />
+
+<ComponentPreview
+  name="inboxLoadMoreError"
+  file="components/preview/inbox.tsx"
+/>
 
 ### Empty
 

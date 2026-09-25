@@ -15501,7 +15501,7 @@
         "whenToUse": "The notifications panel: a feed of person and system events the user reads, acts on and marks read. Put it in a Sheet, Popover or docked panel.",
         "whenNotToUse": "Toasts for transient confirmations, an activity log on a record (Timeline), or a bare unread count (NotificationBell).",
         "version": "0.23.12",
-        "integrity": "sha256-MTm4iOxpgiCaf5x/BYw70bmD7bvzZgz10JDKXItbsVE="
+        "integrity": "sha256-RQ9hcz45TqhO53Tc/8Ii8wkyu91qSKB5kuvUPW4O5EM="
       }
     },
     {
@@ -19759,11 +19759,11 @@
         "@vegastack/date-time",
         "@vegastack/dropdown-menu",
         "@vegastack/inbox",
-        "@vegastack/load-more",
         "@vegastack/notification-bell",
         "@vegastack/page-header",
         "@vegastack/sheet",
         "@vegastack/sidebar",
+        "@vegastack/tooltip",
         "@vegastack/use-announcer"
       ],
       "files": [
@@ -19787,7 +19787,7 @@
         "whenToUse": "Your app's notification inbox, opened from the shell — copy it once and wire the rows, Mark all read and paging to your API.",
         "whenNotToUse": "A single transient message — use a toast; an activity history on a record — use Timeline.",
         "version": "0.23.12",
-        "integrity": "sha256-jKnaAXn94qvzV7eZ+ij5GQsQbfNgNQiMafjSaxua0kw="
+        "integrity": "sha256-B/BXcuWvXHhm5HrcuNxwVZeIuqRhMjM5Lq5WjMUJ/Xw="
       }
     },
     {
