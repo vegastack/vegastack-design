@@ -9,6 +9,20 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.23.8] — September 25, 2026
+
+<!-- assembled from 1 changeset: ea1a35d0f797 -->
+
+### 🔧 Changed components
+
+- notifications-01 is rebuilt on the Inbox component to match the Regent app (Mark all read and ⋯, All | Unread chips, day groups, avatar or icon rows with the unread tint, action chips, "You’re all caught up"); command-search-01 uses CommandFilters, the built-in CommandFooter hints and the wide default size; the alert, checkbox (circle preview) and sidebar docs pages describe the current behaviour.
+  [`6353561`](https://github.com/VegaStack/vegastack-design/commit/6353561)
+
+### 📦 npm
+
+- **`@vegastack/design`** → **`0.7.17`** (was `0.7.16`).
+- The design-system registry (`@vegastack/ui`) bumps 0.23.7 → 0.23.8.
+
 ## [0.23.7] — September 25, 2026
 
 <!-- assembled from 1 changeset: 8e6ac872cb1c -->
