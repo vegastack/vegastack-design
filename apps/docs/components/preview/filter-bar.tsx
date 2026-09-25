@@ -1,7 +1,15 @@
 "use client";
 
 import { useState, type ReactNode } from "react";
-import { CircleDot, Flag, ListFilterPlus, Tag, User } from "lucide-react";
+import {
+  CircleDot,
+  Columns3,
+  Flag,
+  List,
+  ListFilterPlus,
+  Tag,
+  User,
+} from "lucide-react";
 import { Wrapper } from "./wrapper";
 import { Button } from "@/components/ui/button";
 import {
@@ -20,6 +28,7 @@ import {
   type FilterBarFilter,
 } from "@/components/ui/filter-bar";
 import { NumberField } from "@/components/ui/number-field";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 
 const ADD_OPTIONS = [
   { id: "status", label: "Status", icon: <CircleDot /> },
@@ -28,73 +37,134 @@ const ADD_OPTIONS = [
   { id: "label", label: "Label", icon: <Tag /> },
 ];
 
+type Option = { id: string; name: string };
+
+const TOOLBAR_STATUSES: Option[] = [
+  { id: "open", name: "Open" },
+  { id: "progress", name: "In progress" },
+  { id: "review", name: "In review" },
+  { id: "done", name: "Done" },
+];
+const TOOLBAR_DUE: Option[] = [
+  { id: "overdue", name: "Overdue" },
+  { id: "today", name: "Today" },
+  { id: "week", name: "This week" },
+];
+const TOOLBAR_PEOPLE: Option[] = [
+  { id: "ada", name: "Ada Lovelace" },
+  { id: "grace", name: "Grace Hopper" },
+];
+const TOOLBAR_PRIORITIES: Option[] = [
+  { id: "high", name: "High" },
+  { id: "medium", name: "Medium" },
+  { id: "low", name: "Low" },
+];
+const optionProps = {
+  itemToKey: (o: Option) => o.id,
+  itemToStringLabel: (o: Option) => o.name,
+  isItemEqualToValue: (a: Option, b: Option) => a.id === b.id,
+};
+
+/** The full toolbar: search, scope, view, primary facets, "More" and "Clear". */
 export function filterBar(): ReactNode {
-  const [filters, setFilters] = useState<FilterBarFilter[]>([
-    {
-      id: "status",
-      label: "Status",
-      value: "In Progress",
-      icon: <CircleDot />,
-      // The one applied selection → neutral accent tint.
-      active: true,
-      onRemove: () => remove("status"),
-    },
-    {
-      id: "priority",
-      label: "Priority",
-      value: "High",
-      icon: <Flag />,
-      // A staged, not-yet-applied filter → neutral.
-      active: false,
-      onRemove: () => remove("priority"),
-    },
-    {
-      id: "assignee",
-      label: "Assignee",
-      value: "Any",
-      icon: <User />,
-      active: false,
-      onRemove: () => remove("assignee"),
-    },
-  ]);
-
-  function remove(id: string) {
-    setFilters((prev) => prev.filter((f) => f.id !== id));
-  }
-
-  function add(id: string) {
-    const option = ADD_OPTIONS.find((o) => o.id === id);
-    if (!option || filters.some((f) => f.id === id)) return;
-    setFilters((prev) => [
-      ...prev,
-      {
-        id,
-        label: option.label,
-        value: "Any",
-        icon: option.icon,
-        active: false,
-        onRemove: () => remove(id),
-      },
-    ]);
-  }
+  const [query, setQuery] = useState("");
+  const [scope, setScope] = useState("mine");
+  const [view, setView] = useState("list");
+  const [status, setStatus] = useState<Option[]>([TOOLBAR_STATUSES[0]!]);
+  const [due, setDue] = useState<Option | null>(null);
+  const [assignee, setAssignee] = useState<Option | null>(null);
+  const [priority, setPriority] = useState<Option[] | null>(null);
 
   return (
-    <Wrapper className="justify-start">
+    <Wrapper className="flex-col items-stretch">
       <FilterBar
-        aria-label="Task filters"
-        className="max-w-2xl"
-        filters={filters}
-        addFilters={ADD_OPTIONS.filter(
-          (o) => !filters.some((f) => f.id === o.id),
-        )}
-        onAddFilter={add}
-        trailing={
-          filters.length > 0 ? (
-            <Button variant="ghost" onClick={() => setFilters([])}>
-              Clear all
-            </Button>
-          ) : undefined
+        aria-label="Task toolbar"
+        search={{
+          value: query,
+          onValueChange: setQuery,
+          placeholder: "Search tasks",
+        }}
+        scope={
+          <ToggleGroup
+            aria-label="Scope"
+            variant="outline"
+            spacing={0}
+            deselectable={false}
+            value={[scope]}
+            onValueChange={([next]) => next && setScope(next)}
+          >
+            <ToggleGroupItem value="mine">My tasks</ToggleGroupItem>
+            <ToggleGroupItem value="created">Created by me</ToggleGroupItem>
+            <ToggleGroupItem value="team">Team</ToggleGroupItem>
+          </ToggleGroup>
         }
+        view={
+          <ToggleGroup
+            aria-label="View"
+            variant="outline"
+            spacing={0}
+            deselectable={false}
+            value={[view]}
+            onValueChange={([next]) => next && setView(next)}
+          >
+            <ToggleGroupItem value="list">
+              <List aria-hidden />
+              <span>List</span>
+            </ToggleGroupItem>
+            <ToggleGroupItem value="board">
+              <Columns3 aria-hidden />
+              <span>Board</span>
+            </ToggleGroupItem>
+          </ToggleGroup>
+        }
+        facets={
+          <>
+            <FilterBarFacet<Option, true>
+              label="Status"
+              multiple
+              items={TOOLBAR_STATUSES}
+              value={status}
+              onValueChange={setStatus}
+              {...optionProps}
+            />
+            <FilterBarFacet<Option>
+              label="Due"
+              items={TOOLBAR_DUE}
+              value={due}
+              onValueChange={setDue}
+              {...optionProps}
+            />
+            <FilterBarFacet<Option>
+              label="Assignee"
+              items={TOOLBAR_PEOPLE}
+              value={assignee}
+              onValueChange={setAssignee}
+              {...optionProps}
+            />
+            {priority != null ? (
+              <FilterBarFacet<Option, true>
+                label="Priority"
+                multiple
+                removable
+                onRemove={() => setPriority(null)}
+                items={TOOLBAR_PRIORITIES}
+                value={priority}
+                onValueChange={setPriority}
+                {...optionProps}
+              />
+            ) : null}
+          </>
+        }
+        addFilters={
+          priority == null ? [{ id: "priority", label: "Priority" }] : []
+        }
+        onAddFilter={() => setPriority([])}
+        onClear={() => {
+          setStatus([]);
+          setDue(null);
+          setAssignee(null);
+          setPriority(null);
+        }}
       />
     </Wrapper>
   );
@@ -125,7 +195,7 @@ export function filterBarSearch(): ReactNode {
         search={{
           value: query,
           onValueChange: setQuery,
-          placeholder: "Search tasks…",
+          placeholder: "Search tasks",
         }}
       />
     </Wrapper>
@@ -151,7 +221,6 @@ export function filterBarSearchFirst(): ReactNode {
       <FilterBar
         aria-label="Task filters"
         className="max-w-2xl"
-        searchPlacement="start"
         filters={filters}
         addFilters={ADD_OPTIONS}
         onAddFilter={() => {}}
@@ -159,7 +228,7 @@ export function filterBarSearchFirst(): ReactNode {
           value: query,
           onValueChange: setQuery,
           onValueCommitted: setCommitted,
-          placeholder: "Search tasks…",
+          placeholder: "Search tasks",
         }}
       />
       <p className="text-sm text-muted-foreground">
@@ -178,7 +247,11 @@ export function filterBarEmpty(): ReactNode {
         filters={[]}
         addFilters={ADD_OPTIONS}
         onAddFilter={() => {}}
-        search={{ value: "", onValueChange: () => {}, placeholder: "Search…" }}
+        search={{
+          value: "",
+          onValueChange: () => {},
+          placeholder: "Search tasks",
+        }}
       />
     </Wrapper>
   );
@@ -194,7 +267,7 @@ const ADD_OPTIONS_WITH_DISABLED = [
 
 /**
  * A presence-only (value-less) chip sits next to a regular label:value chip, and
- * the "Add filter" menu carries a disabled option that arrow keys skip.
+ * the "More" menu carries a disabled option that arrow keys skip.
  */
 export function filterBarPresenceChip(): ReactNode {
   const [filters, setFilters] = useState<FilterBarFilter[]>([
@@ -210,7 +283,7 @@ export function filterBarPresenceChip(): ReactNode {
     {
       id: "status",
       label: "Status",
-      value: "In Progress",
+      value: "In progress",
       icon: <CircleDot />,
       active: true,
       onRemove: () =>
@@ -273,10 +346,7 @@ export function filterBarCustomMenu(): ReactNode {
           <DropdownMenu>
             <DropdownMenuTrigger
               render={
-                <Button
-                  variant="outline"
-                  className="border-dashed text-muted-foreground"
-                >
+                <Button variant="ghost" className="text-muted-foreground">
                   <ListFilterPlus aria-hidden />
                   Labels
                 </Button>
@@ -312,7 +382,7 @@ export function filterBarStandaloneChips(): ReactNode {
     <Wrapper className="flex-wrap justify-start gap-1.5">
       <FilterChip
         label="Status"
-        value="In Progress"
+        value="In progress"
         icon={<CircleDot />}
         active
         onRemove={() => {}}
@@ -401,7 +471,7 @@ export function filterBarEditing(): ReactNode {
         ? `≥ ${range.min} W`
         : range.max != null
           ? `≤ ${range.max} W`
-          : "Any";
+          : "Not set";
   // The same editor edits the chip and opens on it when "Wattage" is added back.
   const editor = (
     <div className="flex items-center gap-2 p-1">

@@ -1550,7 +1550,7 @@
       "name": "filter-bar",
       "type": "registry:ui",
       "title": "Filter Bar",
-      "description": "A row of removable filter chips, an \"Add filter\" dropdown, and an optional search input — for list and table filter toolbars.",
+      "description": "The two-row toolbar above a list or table — search, scope and view on top, filters below, folding into a sheet on a narrow screen.",
       "categories": [
         "data"
       ],
@@ -1565,7 +1565,8 @@
         "@vegastack/dropdown-menu",
         "@vegastack/popover",
         "@vegastack/search-input",
-        "@vegastack/searchable-select"
+        "@vegastack/searchable-select",
+        "@vegastack/sheet"
       ],
       "files": [
         {
@@ -1578,7 +1579,7 @@
         "whenToUse": "Filter toolbars for lists/tables — 'Label: value' chips that edit in place, facets on SearchableSelect, an Add-filter menu and a settled search, at the end or first.",
         "whenNotToUse": "A single search box (Input), value selection (Select), or unrelated row actions.",
         "version": "0.23.1",
-        "integrity": "sha256-iLLAwXOraXzcw4QQtUjVbxWkvS8H338RVrQGU+whKzw="
+        "integrity": "sha256-iul+v6nHtEiCC6mK/gn5cHkwOahRHErkldMB4c7L7nU="
       }
     },
     {
