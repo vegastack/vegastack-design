@@ -1,5 +1,14 @@
 # @vegastack/ui
 
+## 0.23.3
+
+### Patch Changes
+
+- [#243](https://github.com/vegastack/vegastack-design/pull/243) [`e5a31c1`](https://github.com/vegastack/vegastack-design/commit/e5a31c17c9b2f0aaaca9fcfd145fe821e4701086) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🔧 Command palette: `CommandFilters` row for type chips and selects, built-in `Kbd` key hints in `CommandFooter`, animated search icon in `CommandLoading`, the wide 820px palette as `CommandDialog`'s default size, and no blank space below the footer.
+
+- Updated dependencies [[`e5a31c1`](https://github.com/vegastack/vegastack-design/commit/e5a31c17c9b2f0aaaca9fcfd145fe821e4701086)]:
+  - @vegastack/design@0.7.12
+
 ## 0.23.2
 
 ### Patch Changes
