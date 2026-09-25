@@ -9,6 +9,20 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.23.16] — September 25, 2026
+
+<!-- assembled from 1 changeset: 5e46c14cf6d4 -->
+
+### 🔧 Changed components
+
+- StatusIcon and PriorityIcon keep their semantic colour on hover, focus and highlight inside dropdown, context-menu, menubar, select, combobox, command, sidebar, navigation-menu, toggle, button and item rows: both icons carry `data-icon-tone`, and the rows' muted-icon default and state recolours skip it. Add `data-icon-tone` to any other semantic-coloured icon to get the same behaviour.
+  [`8d8eb5b`](https://github.com/VegaStack/vegastack-design/commit/8d8eb5b)
+
+### 📦 npm
+
+- **`@vegastack/design`** → **`0.7.25`** (was `0.7.24`).
+- The design-system registry (`@vegastack/ui`) bumps 0.23.15 → 0.23.16.
+
 ## [0.23.15] — September 25, 2026
 
 <!-- assembled from 2 changesets: 51aa50b18da6 -->
