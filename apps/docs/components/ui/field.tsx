@@ -1,4 +1,4 @@
-// @vegastack field@0.23.13 sha256-ITdcx2NhNWz3M8yBfHYSHwUOfuZJwIp7oc0NNjQNxHs=
+// @vegastack field@0.23.12 sha256-jALCmy7hbiXwPA5DvsqFIyV1Y8Syp1HGaHJQ38mndkM=
 
 "use client";
 
@@ -170,14 +170,23 @@ function FieldTitle({ className, ...props }: React.ComponentProps<"div">) {
   );
 }
 
-function FieldDescription({ className, ...props }: React.ComponentProps<"p">) {
+function FieldDescription({
+  className,
+  variant = "default",
+  ...props
+}: React.ComponentProps<"p"> & {
+  /** `footnote`: a centred 12px muted line with a small gap above, for form and auth-block footers. */
+  variant?: "default" | "footnote";
+}) {
   const Root = useContext(FieldScope) ? FieldPrimitive.Description : "p";
   return (
     <Root
       data-slot="field-description"
+      data-variant={variant}
       className={cn(
         "text-start text-sm leading-normal font-normal text-muted-foreground group-has-data-horizontal/field:text-balance [[data-variant=legend]+&]:-mt-1.5",
         "last:mt-0 nth-last-2:-mt-1",
+        variant === "footnote" && "mt-2 text-center text-xs last:mt-2",
         "[&>a]:underline [&>a]:underline-offset-4 [&>a:hover]:text-primary",
         className,
       )}

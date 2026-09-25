@@ -63,6 +63,10 @@ What the form does for you:
   `autoComplete="current-password"` inside `PasswordInput`, whose toggle shows and hides it.
 - **Links go somewhere real.** "Forgot password?" is an `<a href="/forgot-password">` and "Sign up"
   an `<a href="/sign-up">`; change them with `forgotPasswordHref` and `signUpHref`.
+- **The footer is a footnote.** The line under the button is `FieldDescription variant="footnote"`
+  — 12px muted text, centred, with a small gap above. Use the same variant for the sign-up, forgot
+  password and set password footers, or for an invite-only line such as "Access is managed by your
+  administrator."
 
 ## Sign up
 
@@ -87,7 +91,8 @@ Password reset is the same frame with one field:
 - After a successful submit, replace the form with a confirmation in the same card — "Check your
   email" — that names the address. Say the same thing whether or not the address has an account,
   so the page does not reveal who is registered.
-- Footer: "Remembered it? Sign in", linking back to your sign-in route.
+- Footer: "Remembered it? Sign in", linking back to your sign-in route, as a
+  `FieldDescription variant="footnote"`.
 
 ## Files
 
