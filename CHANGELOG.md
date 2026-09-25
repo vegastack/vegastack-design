@@ -9,6 +9,22 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.23.22] — September 25, 2026
+
+<!-- assembled from 2 changesets: 4397ec272864 -->
+
+### 🔧 Changed components
+
+- `EditableCell` keyboard focus shows only the system focus tint (FOC-13), the same as hover: no focus ring or outline. The 0.7.30 changelog entry now describes the shared box correctly (the text sizes the box and the field is laid over it).
+  [`f2d4304`](https://github.com/VegaStack/vegastack-design/commit/f2d4304)
+- SettingsSection takes `actions`, right-aligned on the title's row. Row ⋯ menus (RowActionsMenu) are at least 192px and as wide as their longest item, so labels never wrap, and a disabled item's `disabledReason` is a tooltip on the item (still its accessible description) instead of a wrapped second line.
+  [`fae1529`](https://github.com/VegaStack/vegastack-design/commit/fae1529)
+
+### 📦 npm
+
+- **`@vegastack/design`** → **`0.7.31`** (was `0.7.30`).
+- The design-system registry (`@vegastack/ui`) bumps 0.23.21 → 0.23.22.
+
 ## [0.23.21] — September 25, 2026
 
 <!-- assembled from 1 changeset: 934715e345e1 -->
