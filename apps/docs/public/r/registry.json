@@ -16869,7 +16869,7 @@
         "whenToUse": "Comments, notes, summaries and documents stored as Markdown (format=\"markdown\") or HTML; in-place editing of a MarkdownView with variant=\"ghost\".",
         "whenNotToUse": "Plain single-line input (Input) or collaborative real-time docs (deferred text-edit-collab).",
         "version": "0.23.30",
-        "integrity": "sha256-H+gb1Ynig3IJbFUyjgIGXqtemQgePCZxyN5tbN5de0A="
+        "integrity": "sha256-6208KqnwPuxrRqw6hiVJp65nu4RY3pUUKyEQArWDSQE="
       }
     },
     {

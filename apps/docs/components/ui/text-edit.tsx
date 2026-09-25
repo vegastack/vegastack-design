@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.23.30 sha256-H+gb1Ynig3IJbFUyjgIGXqtemQgePCZxyN5tbN5de0A=
+// @vegastack text-edit@0.23.30 sha256-6208KqnwPuxrRqw6hiVJp65nu4RY3pUUKyEQArWDSQE=
 
 "use client";
 
@@ -42,7 +42,7 @@ import {
   Table as TableIcon,
   Undo2,
 } from "lucide-react";
-import { cn, proseClassName } from "@vegastack/design";
+import { cn, mergeRefs, proseClassName } from "@vegastack/design";
 import { useInternalThemeScope } from "@vegastack/design/theme-scope";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -1215,14 +1215,7 @@ export function TextEdit({
     return () => clearTimeout(timer);
   }, [linkOpen, bubbleLinkOpen, isInside, leave]);
 
-  const setRootRef = React.useCallback(
-    (node: HTMLDivElement | null) => {
-      rootRef.current = node;
-      if (typeof ref === "function") ref(node);
-      else if (ref) ref.current = node;
-    },
-    [ref],
-  );
+  const setRootRef = React.useMemo(() => mergeRefs(rootRef, ref), [ref]);
 
   const themeScope = useInternalThemeScope();
   const minCss = toCssLength(minHeight);
