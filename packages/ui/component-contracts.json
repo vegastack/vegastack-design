@@ -5586,6 +5586,25 @@
             "target": "element",
             "rationale": "Upstream forwards the ref to its own render target."
           }
+        },
+        {
+          "name": "CommandFilters",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/command.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "element",
+            "rationale": "Props (including ref) spread onto its own div."
+          }
+        },
+        {
+          "name": "CommandHint",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/command.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
         }
       ],
       "variants": {
@@ -5668,9 +5687,12 @@
       "docsSlug": "/docs/components/command",
       "registryDependencies": [
         "@vegastack/dialog",
+        "@vegastack/icon-search",
         "@vegastack/input-group",
         "@vegastack/item",
-        "@vegastack/use-announcer"
+        "@vegastack/kbd",
+        "@vegastack/use-announcer",
+        "@vegastack/use-platform"
       ],
       "npmDependencies": [
         "cmdk@^1.1.1",
@@ -5703,6 +5725,15 @@
             {
               "name": "data-slot",
               "values": ["command-input", "command-input-wrapper"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "CommandFilters": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["command-filters"]
             }
           ],
           "cssVariables": []
