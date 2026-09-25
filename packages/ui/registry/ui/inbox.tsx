@@ -1,4 +1,4 @@
-// @vegastack inbox@0.23.4 sha256-4CeTqFQ1PehaUuZRLyDfmn9fvqH2Me5HZ/QqJynR2GA=
+// @vegastack inbox@0.23.4 sha256-pwyICLsI3PkizIarQ5RDDje4MqHD95ABdhmHZ7VFIis=
 
 "use client";
 
@@ -271,7 +271,7 @@ export function InboxFilters({
         return (
           <Button
             key={chip.value}
-            size="xs"
+            size="sm"
             variant={selected ? "default" : "outline"}
             aria-pressed={selected}
             onClick={() => onValueChange(chip.value)}
@@ -581,7 +581,7 @@ export function InboxItem({
           >
             {titleContent}
           </p>
-          <div className="relative flex h-5 shrink-0 items-center">
+          <div className="relative flex h-5 shrink-0 items-center overflow-visible">
             {time !== undefined ? (
               <RelativeTime
                 date={time}
@@ -606,7 +606,7 @@ export function InboxItem({
                       render={
                         <Button
                           variant="ghost"
-                          size="icon-xs"
+                          size="icon-sm"
                           aria-label={unread ? "Mark read" : "Mark unread"}
                           onClick={onToggleRead}
                         >
@@ -625,7 +625,7 @@ export function InboxItem({
                       render={
                         <Button
                           variant="ghost"
-                          size="icon-xs"
+                          size="icon-sm"
                           aria-label="More actions"
                         >
                           <MoreHorizontal />
@@ -651,7 +651,7 @@ export function InboxItem({
             {actions.slice(0, 3).map((action, i) => (
               <Button
                 key={action.label}
-                size="xs"
+                size="sm"
                 variant={
                   action.variant === "primary" && i === 0
                     ? "default"
