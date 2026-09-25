@@ -9,6 +9,22 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.23.32] — September 26, 2026
+
+<!-- assembled from 2 changesets: 8aa1f8ecc217 -->
+
+### 🔧 Changed components
+
+- Comments go Linear style: `CommentComposer` is a soft filled box with a round ↑ send button (Cmd/Ctrl+Enter sends), an `attachments` slot and no avatar (`author` is gone); `CommentList` gets an Oldest / Newest first toggle (`order`, `onOrderChange`) and an empty state whose "Add a comment" reveals and focuses the composer; editing a comment uses a compact box with Cancel and Save. New block `issue-detail-01`: a Linear-style issue page composed of the real components.
+  [`41c25fe`](https://github.com/VegaStack/vegastack-design/commit/41c25fe)
+- TextEdit has no toolbar: type `/` for a slash menu (headings, lists, task list, quote, code block, divider, link) and select text for a bubble menu (bold, italic, strikethrough, inline code, link). `slashCommands` limits the menu — `TEXT_EDIT_SLASH_COMMANDS` is the full set, `TEXT_EDIT_COMPACT_SLASH_COMMANDS` the comment-sized one. Hover and focus tint the surface, and every change leaves through one `onCommit` path; the `toolbar`, `variant`, `onSave`, `onCancel`, `saveLabel` and `cancelLabel` props are removed. Blank lines round-trip in markdown. Input gains `variant="ghost"` (borderless, tinted on hover and focus) and `size="lg"` (heading type) for a title field, and `InputGroupInput` accepts Input's props. EditableCell `variant="heading"` has no box padding, so a title is edited exactly where it renders. PropertyRow top-aligns its label on the value's first line. Prose list markers inherit the item's colour and use proportional figures, so lists read exactly like body text.
+  [`9ae6bb2`](https://github.com/VegaStack/vegastack-design/commit/9ae6bb2)
+
+### 📦 npm
+
+- **`@vegastack/design`** → **`0.7.41`** (was `0.7.40`).
+- The design-system registry (`@vegastack/ui`) bumps 0.23.31 → 0.23.32.
+
 ## [0.23.31] — September 26, 2026
 
 <!-- assembled from 3 changesets: 7406bf83baba -->
