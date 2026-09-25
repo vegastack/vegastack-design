@@ -177,6 +177,12 @@ A component's name undersells it. Before composing something by hand, check this
   column `thumbnail` + `thumbnailFallback` (the app mark) — never a hand-rolled card grid, card or
   `<img>`. A count needing attention is `<Badge variant="warning"><TriangleAlert />n</Badge>`, and
   groups in a ⋯ menu are split by `{ type: "separator" }` entries.
+- **A task's status or priority** → `StatusIcon` (todo, progress — static unless `animated`,
+  blocked, done, cancelled) and `PriorityIcon` (urgent, high, medium, low, none flags). To change
+  them, use the Status menu / Priority menu recipes on their docs pages — a ghost icon-button
+  trigger over `DropdownMenu` items with the icon leading and a `DropdownMenuShortcut` (O/P/B/D/C,
+  1/2/3/4/0), ⌥/Alt-click on the circle for quick Done with an Undo toast — and the same icons
+  leading `Select`/`Combobox` options and filter options. No local badges or picker components.
 - **A list that pages by cursor** → `DataList` `loadMore` (or `LoadMore` under your own list), with
   `useAsyncSearch` when the search runs on the server.
 

@@ -12,8 +12,8 @@
     "evidencePolicy": "Observed fields come from source, registry metadata, docs, and test topology. Unknown/not-applicable values are explicit; no inferred behavior is presented as verified."
   },
   "expectedCounts": {
-    "totalRegistryItems": 682,
-    "components": 121,
+    "totalRegistryItems": 683,
+    "components": 122,
     "animatedIcons": 467,
     "hooks": 13,
     "blocks": 10,
@@ -21,7 +21,7 @@
     "chartBlocks": 68
   },
   "expectedWaveCounts": {
-    "Core controls": 23,
+    "Core controls": 24,
     "Forms/editing": 26,
     "Navigation/layout": 17,
     "Overlays": 14,
@@ -52,6 +52,7 @@
       "separator",
       "skeleton",
       "spinner",
+      "priority-icon",
       "status-icon",
       "kbd",
       "relative-time",
@@ -7494,6 +7495,135 @@
                 "media-card-meta",
                 "media-card-title"
               ]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
+    },
+    {
+      "name": "priority-icon",
+      "registryType": "registry:ui",
+      "title": "Priority Icon",
+      "summary": "A flag marking priority — urgent, high, medium, low, none — each in a semantic color with filled, outline or dashed fill.",
+      "status": "stable",
+      "since": "0.23.11",
+      "family": "data-display",
+      "wave": "Core controls",
+      "sourceFiles": ["packages/ui/registry/ui/priority-icon.tsx"],
+      "publicSymbols": [
+        {
+          "name": "PriorityIcon",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/priority-icon.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "Flag",
+            "rationale": "Source forwards the ref to this JSX/Base UI render target."
+          }
+        },
+        {
+          "name": "PriorityIconProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/priority-icon.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "priorityIconVariants",
+          "kind": "variant-builder",
+          "source": "packages/ui/registry/ui/priority-icon.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "This exported helper is not a rendered component root."
+          }
+        }
+      ],
+      "variants": {
+        "status": "observed",
+        "dimensions": [
+          {
+            "name": "priority",
+            "values": ["high", "low", "medium", "none", "urgent"],
+            "evidence": "packages/ui/registry/ui/priority-icon.tsx: CVA; packages/ui/registry/ui/priority-icon.tsx: prop union"
+          }
+        ]
+      },
+      "sizes": {
+        "status": "observed",
+        "dimensions": [
+          {
+            "name": "size",
+            "values": ["default", "lg", "sm", "xs"],
+            "evidence": "packages/ui/registry/ui/priority-icon.tsx: CVA; packages/ui/registry/ui/priority-icon.tsx: prop union"
+          }
+        ]
+      },
+      "states": {
+        "behavior": {
+          "status": "observed",
+          "values": ["default", "empty", "error", "success"],
+          "evidence": "Observed from branches, state attributes, and inline source contract."
+        },
+        "accessibility": {
+          "status": "observed",
+          "values": ["labeled"],
+          "evidence": "Observed from semantic elements, ARIA, keyboard handlers, or focus styling."
+        },
+        "visual": {
+          "status": "observed",
+          "values": ["default", "error", "success", "empty"],
+          "evidence": "Observed from token classes, state selectors, or visual branches."
+        }
+      },
+      "responsive": {
+        "status": "modeled",
+        "risks": ["responsive-or-container-layout"],
+        "rationale": "Source-signaled responsive, overflow, truncation, positioning, mobile, or grid risks."
+      },
+      "motion": {
+        "status": "modeled",
+        "mechanisms": ["CSS utility motion-reduce", "loader animation utility"],
+        "reducedMotion": {
+          "status": "observed-or-documented",
+          "rationale": "Source explicitly implements or documents reduced motion."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/priority-icon",
+      "registryDependencies": [],
+      "npmDependencies": [
+        "class-variance-authority@^0.7.1",
+        "lucide-react@^1.47.0",
+        "@vegastack/design@^0.7.21",
+        "@vegastack/design-tokens@^0.7.18"
+      ],
+      "testFiles": ["packages/ui/registry/ui/priority-icon.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required"
+      },
+      "previewModule": "priority-icon",
+      "dataAttributes": {
+        "PriorityIcon": {
+          "attributes": [
+            {
+              "name": "data-priority",
+              "values": []
+            },
+            {
+              "name": "data-size",
+              "values": []
+            },
+            {
+              "name": "data-slot",
+              "values": ["priority-icon"]
             }
           ],
           "cssVariables": []
@@ -19403,7 +19533,7 @@
       "name": "status-icon",
       "registryType": "registry:ui",
       "title": "Status Icon",
-      "summary": "A small status indicator icon — todo, in progress, blocked, done — each mapping to a lucide icon and semantic color.",
+      "summary": "A small status indicator icon — todo, in progress, blocked, done, cancelled — each mapping to a lucide icon and semantic color.",
       "status": "stable",
       "since": "0.1.0",
       "family": "data-display",
@@ -19444,7 +19574,7 @@
         "dimensions": [
           {
             "name": "status",
-            "values": ["blocked", "done", "progress", "todo"],
+            "values": ["blocked", "cancelled", "done", "progress", "todo"],
             "evidence": "packages/ui/registry/ui/status-icon.tsx: CVA; packages/ui/registry/ui/status-icon.tsx: prop union"
           }
         ]

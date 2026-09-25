@@ -16357,10 +16357,39 @@
       }
     },
     {
+      "name": "priority-icon",
+      "type": "registry:ui",
+      "title": "Priority Icon",
+      "description": "A flag marking priority — urgent, high, medium, low, none — each in a semantic color with filled, outline or dashed fill.",
+      "categories": [
+        "data-display"
+      ],
+      "dependencies": [
+        "class-variance-authority@^0.7.1",
+        "lucide-react@^1.47.0",
+        "@vegastack/design@^0.7.21",
+        "@vegastack/design-tokens@^0.7.18"
+      ],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/priority-icon.tsx",
+          "type": "registry:ui",
+          "target": "@ui/priority-icon.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "Show a task or item's priority in rows, cards and pickers — beside StatusIcon.",
+        "whenNotToUse": "Status (StatusIcon) or a severity message (Alert, Badge).",
+        "version": "0.23.12",
+        "integrity": "sha256-0dqMA7g4TUy2HRq5W2+Atn4Nh2F0d9e31R2j3gFb7ow="
+      }
+    },
+    {
       "name": "status-icon",
       "type": "registry:ui",
       "title": "Status Icon",
-      "description": "A small status indicator icon — todo, in progress, blocked, done — each mapping to a lucide icon and semantic color.",
+      "description": "A small status indicator icon — todo, in progress, blocked, done, cancelled — each mapping to a lucide icon and semantic color.",
       "categories": [
         "data-display"
       ],
@@ -16380,9 +16409,9 @@
       ],
       "meta": {
         "whenToUse": "Indicate the state of a task or item — todo, in progress, blocked, or done — alongside a label.",
-        "whenNotToUse": "Measurable progress (Progress) or generic loading (Spinner).",
+        "whenNotToUse": "Measurable progress (Progress), generic loading (Spinner), or priority (PriorityIcon).",
         "version": "0.23.12",
-        "integrity": "sha256-1HGGLW275+R4jdS7TJuq/KZQWO+iTZf9vIZ6A5zGsmo="
+        "integrity": "sha256-e/NJXOqZ+ZN4BL1RqiCryNqdTQkuIwNVrK1vEfI5DRs="
       }
     },
     {

@@ -1,6 +1,6 @@
 ---
 title: Status Icon
-description: A small status indicator icon for the canonical task states — todo, in progress, blocked, and done.
+description: A small status indicator icon for the canonical task states — todo, in progress, blocked, done, and cancelled.
 audience: public
 registry: status-icon
 status: stable
@@ -26,11 +26,21 @@ import { StatusIcon } from "@/components/ui/status-icon";
 ### States
 
 Each `status` maps to a `lucide-react` icon and a semantic color token: `todo` (`Circle`,
-muted), `progress` (spinning `Loader`, info), `blocked` (`CircleAlert`, destructive), and `done`
-(`CircleCheck`, success).
+muted), `progress` (`CircleDashed`, info), `blocked` (`CircleSlash`, warning), `done` (filled
+`CircleCheck`, success) and `cancelled` (`CircleX`, muted).
 
 <ComponentPreview
   name="statusIconStates"
+  file="components/preview/status-icon.tsx"
+/>
+
+### Still and animated progress
+
+`progress` is static by default — lists and boards should not spin dozens of rows at once. Pass
+`animated` to swap in the spinning `Loader` for a single live item.
+
+<ComponentPreview
+  name="statusIconAnimated"
   file="components/preview/status-icon.tsx"
 />
 
@@ -44,7 +54,7 @@ that matches the text it sits beside.
   file="components/preview/status-icon.tsx"
 />
 
-Each `status` renders at every size — only `progress` animates (its spinning `Loader`):
+Each `status` renders at every size:
 
 <ComponentPreview
   name="statusIconStatusSizeMatrix"
@@ -69,6 +79,65 @@ recommended accessible pattern.
 </span>
 ```
 
+### Status menu recipe
+
+There is no picker component: compose `DropdownMenu` + `StatusIcon` + `DropdownMenuShortcut`. The
+trigger is a ghost icon button showing the current status. While the menu is open, **O** / **P** /
+**B** / **D** / **C** pick To do / In progress / Blocked / Done / Cancelled. **⌥/Alt-click** the
+circle marks the item Done without opening the menu — pair it with an Undo toast.
+
+<ComponentPreview
+  name="statusIconMenu"
+  file="components/preview/status-icon.tsx"
+/>
+
+```tsx
+<DropdownMenu open={open} onOpenChange={setOpen}>
+  <DropdownMenuTrigger
+    render={
+      <Button
+        variant="ghost"
+        size="icon-sm"
+        aria-label={`Status: ${label}. Alt-click to mark done`}
+        onClick={(e) => {
+          if (!e.altKey) return;
+          e.preventBaseUIHandler();
+          setStatus("done");
+        }}
+      />
+    }
+  >
+    <StatusIcon status={status} size="sm" label="" />
+  </DropdownMenuTrigger>
+  <DropdownMenuContent onKeyDown={pickByShortcut}>
+    {STATUSES.map((s) => (
+      <DropdownMenuItem key={s.value} onClick={() => setStatus(s.value)}>
+        <StatusIcon status={s.value} size="sm" label="" />
+        {s.label}
+        <DropdownMenuShortcut>{s.key}</DropdownMenuShortcut>
+      </DropdownMenuItem>
+    ))}
+  </DropdownMenuContent>
+</DropdownMenu>
+```
+
+### In Select and Combobox options
+
+Use the icon as the leading icon of each option (with `label=""`, since the option text names the
+status), so filters and pickers read the same as rows.
+
+<ComponentPreview
+  name="statusIconSelect"
+  file="components/preview/status-icon.tsx"
+/>
+
+<ComponentPreview
+  name="statusIconCombobox"
+  file="components/preview/status-icon.tsx"
+/>
+
+For priority, see [Priority Icon](/docs/components/priority-icon).
+
 ## Playground
 
 Pick a status and size to preview each state's icon and color, then copy the generated JSX.
@@ -90,14 +159,14 @@ Pick a status and size to preview each state's icon and color, then copy the gen
   to make the icon decorative (`aria-hidden`) and avoid a redundant announcement.
 - Color is conveyed through a semantic token (`currentColor`) only — never rely on color alone to
   communicate the status; the distinct icon shapes carry the meaning too.
-- The `progress` spin stops under `prefers-reduced-motion: reduce` through the global
+- `progress` is static unless `animated`; the spin stops under `prefers-reduced-motion: reduce` through the global
   reset in `base.css`, which every component inherits rather than restating.
 
 | Concern         | Behavior                                                      |
 | --------------- | ------------------------------------------------------------- |
 | Role            | `role="img"` unless `label=""` (decorative, `aria-hidden`)    |
 | Accessible name | `aria-label` from `label`, or a default derived from `status` |
-| Reduced motion  | `progress` animation frozen by the global `base.css` reset    |
+| Reduced motion  | `animated` progress frozen by the global `base.css` reset     |
 
 <StatesTested name="status-icon" />
 

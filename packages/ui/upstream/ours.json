@@ -249,6 +249,12 @@
       "family": "display",
       "source": "extras.md"
     },
+    "priority-icon": {
+      "disposition": "keep",
+      "family": "data-display",
+      "source": "Regent tasks status/priority, approved by MK 2026-09-25",
+      "rationale": "Upstream ships no priority icon; a StatusIcon sibling with no patch."
+    },
     "status-icon": {
       "disposition": "keep",
       "family": "data-display",
