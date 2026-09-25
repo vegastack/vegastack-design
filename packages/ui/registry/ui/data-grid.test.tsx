@@ -440,7 +440,7 @@ test("loading renders skeletons; empty renders the Empty state", async () => {
       getRowId={(d: Deal) => d.id}
     />,
   );
-  await expect.element(screen.getByText("No data")).toBeInTheDocument();
+  await expect.element(screen.getByText("Nothing here")).toBeInTheDocument();
 });
 
 test("focus indicator: nothing strips the outline (text entry excepted)", async () => {

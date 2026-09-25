@@ -6,12 +6,6 @@ import { Wrapper } from "./wrapper";
 import { Board, type BoardColumn } from "@/components/ui/board";
 import { BoardCard } from "@/components/ui/board-card";
 import { Badge } from "@/components/ui/badge";
-import {
-  Empty,
-  EmptyDescription,
-  EmptyHeader,
-  EmptyTitle,
-} from "@/components/ui/empty";
 
 interface Deal {
   id: string;
@@ -243,16 +237,10 @@ export function boardLaneStates(): ReactNode {
       id: "blocked",
       title: "Blocked",
       items: [],
-      emptyState: (
-        <Empty className="border border-dashed">
-          <EmptyHeader>
-            <EmptyTitle>Nothing blocked</EmptyTitle>
-            <EmptyDescription>
-              Move a task here when it waits on someone
-            </EmptyDescription>
-          </EmptyHeader>
-        </Empty>
-      ),
+      empty: {
+        title: "Nothing blocked",
+        description: "Move a task here when it waits on someone",
+      },
     },
     {
       id: "done",
@@ -525,7 +513,7 @@ export function boardTasks(): ReactNode {
 /** Collapsed lanes: a lane collapsed from its header menu (controlled here) is a slim strip. */
 export function boardCollapsed(): ReactNode {
   const [columns, setColumns] = useState(TASKS);
-  const [collapsed, setCollapsed] = useState<string[]>(["review"]);
+  const [collapsed, setCollapsed] = useState<string[]>(["review", "done"]);
   return (
     <Wrapper className="block">
       <Board<Task>

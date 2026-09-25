@@ -443,7 +443,12 @@ export function dataListRowLinks(): ReactNode {
 export function dataListEmpty(): ReactNode {
   return (
     <Wrapper className="block">
-      <DataList columns={columns} data={[]} getRowId={(p) => p.id} />
+      <DataList
+        columns={columns}
+        data={[]}
+        getRowId={(p) => p.id}
+        empty={{ title: "No people yet" }}
+      />
     </Wrapper>
   );
 }

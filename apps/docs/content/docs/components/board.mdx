@@ -95,6 +95,10 @@ strip with an expand icon and its count (tooltip "Expand lane"); activating it e
 `onCollapsedChange` to remember it. A lane declared `defaultCollapsed` is a terminal lane: it
 expands read-only.
 
+Lanes keep their width (`columnWidth`, default `20rem`) however many are collapsed: the space a
+collapsed lane frees stays empty instead of stretching the others, and a board with more lanes than
+fit scrolls sideways. The preview starts with two lanes collapsed.
+
 <ComponentPreview name="boardCollapsed" file="components/preview/board.tsx" />
 
 ### Server-gated moves
@@ -125,8 +129,10 @@ accessible name, their menu control ("Actions for Token audit") and every announ
 ### Lane states
 
 `count` is the lane's total when it has loaded only some cards ("Open, 14 tasks", through
-`countLabel`). `loading` shows skeleton cards and marks the lane `aria-busy`. `emptyState`
-replaces the dashed "Nothing here" zone at rest.
+`countLabel`). `loading` shows skeleton cards and marks the lane `aria-busy`. An empty lane shows
+the design-system `Empty` at rest: an Inbox icon and "Nothing here" (a locked lane adds its
+`lockedReason`). Change its copy with `empty` (`icon`, `title`, `description`, `action`); `emptyState`
+replaces it outright. While a card is dragged, an empty lane that accepts it shows "Drop here".
 
 <ComponentPreview name="boardLaneStates" file="components/preview/board.tsx" />
 

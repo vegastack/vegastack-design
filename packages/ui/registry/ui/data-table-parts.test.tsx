@@ -720,7 +720,7 @@ test("EmptyRow spans the table and accepts a custom state", async () => {
   );
   const cell = screen.container.querySelector("td") as HTMLTableCellElement;
   expect(cell.colSpan).toBe(4);
-  expect(cell.textContent).toContain("No data");
+  expect(cell.textContent).toContain("Nothing here");
   await screen.unmount();
 
   const custom = await render(

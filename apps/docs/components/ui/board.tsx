@@ -1,10 +1,11 @@
-// @vegastack board@0.23.34 sha256-dbYZhymsbAIPf9rWrBte4e+lMnKZuO0PcvxNf6VSsgg=
+// @vegastack board@0.23.34 sha256-8auV19sy4qZ33IqhwOLZ5AYjQuX31ZQEOW64LsnlFAY=
 
 "use client";
 
 import * as React from "react";
 import {
   EllipsisVertical,
+  Inbox,
   PanelLeftClose,
   PanelLeftOpen,
   Plus,
@@ -29,6 +30,13 @@ import {
   RowActionMenuItems,
   type RowAction,
 } from "@/components/ui/data-table-parts";
+import {
+  Empty,
+  EmptyContent,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyTitle,
+} from "@/components/ui/empty";
 import { LoadMore, type LoadMoreProps } from "@/components/ui/load-more";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "@/components/ui/toast";
@@ -79,6 +87,30 @@ Deliberately NOT done here:
 - No focus ring (FOC-13): the focus cue on a card is the system background tint.
 --- */
 
+/** The copy of an empty lane's design-system `Empty`. */
+export interface BoardEmpty {
+  /**
+   * The icon.
+   * @default <Inbox />
+   */
+  icon?: React.ReactNode;
+  /**
+   * The title.
+   * @default "Nothing here"
+   */
+  title?: React.ReactNode;
+  /**
+   * A short line under the title. A locked lane (`droppable: false`) shows its `lockedReason`.
+   * @default undefined
+   */
+  description?: React.ReactNode;
+  /**
+   * An action under the text, e.g. a small "Add task" button.
+   * @default undefined
+   */
+  action?: React.ReactNode;
+}
+
 /** One board column (lane). */
 export interface BoardColumn<T> {
   /** Stable column id — the container identity moves target. */
@@ -108,8 +140,15 @@ export interface BoardColumn<T> {
    */
   loading?: boolean;
   /**
-   * What an empty lane shows at rest, replacing the dashed "Nothing here" zone. While a card is
-   * being dragged an empty droppable lane always shows the "Drop here" zone.
+   * An empty lane's copy: the design-system `Empty` it shows at rest (an Inbox icon and
+   * "Nothing here" by default). Pass only what this lane needs to say differently.
+   * @default undefined
+   */
+  empty?: BoardEmpty;
+  /**
+   * Replace the empty lane's `Empty` with your own node. Prefer `empty`, which keeps the
+   * standard look. While a card is being dragged an empty droppable lane always shows the
+   * "Drop here" zone.
    * @default undefined
    */
   emptyState?: React.ReactNode;
@@ -263,7 +302,9 @@ export interface BoardProps<T> {
    */
   fillOffset?: string;
   /**
-   * The lane's base width as a CSS length. Lanes grow to share a wide board.
+   * Every lane's width as a CSS length. Lanes keep it whatever the board's width and however
+   * many lanes are collapsed (the board scrolls sideways when they overflow); on a phone each
+   * lane takes the full width.
    * @default "20rem"
    */
   columnWidth?: string;
@@ -437,7 +478,7 @@ function LaneAutoLoad({
 
 /**
  * `Board` — kanban lanes: full-height lanes whose cards scroll inside them, sticky lane headers
- * with a collapse menu, "+ Add" at each lane's foot, empty "Nothing here" / "Drop here" zones,
+ * with a collapse menu, "+ Add" at each lane's foot, empty lanes as a design-system `Empty` ("Nothing here") and a "Drop here" zone while dragging,
  * per-lane skeletons and load-on-scroll paging. Cards drag live (a mouse drag, or a 250ms touch
  * long-press) with lift, make-room and settle motion and edge auto-scroll; Space, the arrows,
  * Space and Escape move them from the keyboard; every card's ⋯ menu lists its actions. Moves are optimistic and roll back with a toast when `onMove` rejects. On a phone it
@@ -1326,7 +1367,7 @@ export function Board<T>({
         data-read-only={readOnly ? "" : undefined}
         data-drop-over={dropOver ? "" : undefined}
         className={cn(
-          "flex min-h-0 min-w-0 shrink-0 grow basis-(--board-column-width) flex-col rounded-xl transition-colors data-drop-over:bg-accent/60",
+          "flex min-h-0 min-w-0 shrink-0 grow-0 basis-(--board-column-width) flex-col rounded-xl transition-colors data-drop-over:bg-accent/60",
           "max-md:basis-full max-md:snap-start max-md:snap-always",
           fill ? "h-full" : "self-start",
         )}
@@ -1408,15 +1449,27 @@ export function Board<T>({
             ) : column.emptyState !== undefined ? (
               column.emptyState
             ) : (
-              <div
+              <Empty
+                size="sm"
                 data-slot="board-column-empty"
-                className="flex min-h-24 flex-col items-center justify-center gap-0.5 rounded-lg border border-dashed border-border px-3 text-center text-sm text-muted-foreground"
+                icon={column.empty?.icon ?? <Inbox aria-hidden />}
               >
-                Nothing here
-                {column.droppable === false && column.lockedReason ? (
-                  <span className="text-xs">{column.lockedReason}</span>
+                <EmptyHeader>
+                  <EmptyTitle>
+                    {column.empty?.title ?? "Nothing here"}
+                  </EmptyTitle>
+                  {column.droppable === false && column.lockedReason ? (
+                    <EmptyDescription>{column.lockedReason}</EmptyDescription>
+                  ) : column.empty?.description != null ? (
+                    <EmptyDescription>
+                      {column.empty.description}
+                    </EmptyDescription>
+                  ) : null}
+                </EmptyHeader>
+                {column.empty?.action != null ? (
+                  <EmptyContent>{column.empty.action}</EmptyContent>
                 ) : null}
-              </div>
+              </Empty>
             )
           ) : (
             <div

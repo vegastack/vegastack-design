@@ -1,4 +1,4 @@
-// @vegastack data-list@0.23.34 sha256-pLXvDnQVw+2auCBdt0eaLD4dU839aTOLmh9IBIuOYrI=
+// @vegastack data-list@0.23.34 sha256-j/8Pof49Q8SpG0clb/jAVuySUnIlNtaBdoKzQW86vsU=
 
 "use client";
 
@@ -13,7 +13,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { LoadMore, type LoadMoreProps } from "@/components/ui/load-more";
-import { SearchX } from "lucide-react";
+import { Inbox, SearchX } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Empty,
@@ -266,9 +266,17 @@ export interface DataListProps<T> extends Omit<
    */
   loadingRows?: number;
   /**
-   * Content shown when `data` is empty and not `loading` and there is nothing at all yet (no
-   * filters applied). Defaults to a built-in {@link Empty} ("No data", an Inbox icon). Pass an
-   * `Empty` composition to customise it; never hand-roll empty markup.
+   * The copy of the design-system `Empty` shown when `data` is empty, not `loading` and nothing
+   * is filtered — in the table, the grid and each board lane (an Inbox icon and "Nothing here"
+   * by default). Pass only the text, icon or action this list needs. A section's own `empty`
+   * wins for its lane.
+
+   * @default undefined
+   */
+  empty?: DataListEmpty;
+  /**
+   * Replace the whole empty state with your own node (table and grid). Prefer `empty`, which
+   * keeps the standard `Empty`; never hand-roll empty markup.
 
    * @default undefined
    */
@@ -517,8 +525,63 @@ export interface DataListProps<T> extends Omit<
   boardHeight?: "fill" | "auto" | (string & {});
 }
 
+/** The copy of an empty list's design-system `Empty`. */
+export interface DataListEmpty {
+  /**
+   * The icon.
+   * @default <Inbox />
+   */
+  icon?: React.ReactNode;
+  /**
+   * The title.
+   * @default "Nothing here"
+   */
+  title?: React.ReactNode;
+  /**
+   * A short line under the title.
+   * @default undefined
+   */
+  description?: React.ReactNode;
+  /**
+   * An action under the text, e.g. a "New customer" button.
+   * @default undefined
+   */
+  action?: React.ReactNode;
+}
+
+/**
+ * `DataListEmptyState` — the standard empty state of a list, grid or lane: the design-system
+ * `Empty` with an icon (Inbox), a title ("Nothing here") and an optional line and action.
+ *
+ * @example
+ * <DataListEmptyState title="No customers yet" action={<Button>New customer</Button>} />
+ */
+export function DataListEmptyState({
+  icon,
+  title = "Nothing here",
+  description,
+  action,
+}: DataListEmpty) {
+  return (
+    <Empty icon={icon ?? <Inbox aria-hidden />} data-slot="data-list-empty">
+      <EmptyHeader>
+        <EmptyTitle>{title}</EmptyTitle>
+        {description != null ? (
+          <EmptyDescription>{description}</EmptyDescription>
+        ) : null}
+      </EmptyHeader>
+      {action != null ? <EmptyContent>{action}</EmptyContent> : null}
+    </Empty>
+  );
+}
+
 /** The `noResults` state's copy and its "Clear filters" action. */
 export interface DataListNoResults {
+  /**
+   * The icon.
+   * @default <SearchX />
+   */
+  icon?: React.ReactNode;
   /**
    * The title.
    * @default "No matches"
@@ -549,13 +612,17 @@ export interface DataListNoResults {
  * <NoResultsEmpty onClear={clearFilters} />
  */
 export function NoResultsEmpty({
+  icon,
   title = "No matches",
   description = "Nothing matches these filters. Try a different search or clear the filters.",
   onClear,
   clearLabel = "Clear filters",
 }: DataListNoResults) {
   return (
-    <Empty icon={<SearchX aria-hidden />} data-slot="data-list-no-results">
+    <Empty
+      icon={icon ?? <SearchX aria-hidden />}
+      data-slot="data-list-no-results"
+    >
       <EmptyHeader>
         <EmptyTitle>{title}</EmptyTitle>
         <EmptyDescription>{description}</EmptyDescription>
@@ -662,8 +729,14 @@ export interface DataListSection {
    */
   loadMore?: DataListLoadMoreProps;
   /**
-   * Board view: what an empty lane shows at rest (while dragging, it shows "Drop here").
-   * @default a dashed "Nothing here" zone
+   * Board view: this lane's empty copy — the design-system `Empty` it shows at rest (while
+   * dragging, it shows "Drop here").
+   * @default the list's `empty` (an Inbox icon and "Nothing here")
+   */
+  empty?: DataListEmpty;
+  /**
+   * Board view: replace this lane's `Empty` with your own node. Prefer `empty`.
+   * @default undefined
    */
   emptyState?: React.ReactNode;
   /**
@@ -853,6 +926,7 @@ export function DataList<T>({
   onSortChange,
   loading = false,
   loadingRows = 5,
+  empty,
   emptyState,
   onRowClick,
   getRowHref,
@@ -1445,7 +1519,7 @@ export function DataList<T>({
               {noResults ? (
                 <NoResultsEmpty {...(noResults === true ? {} : noResults)} />
               ) : (
-                emptyState
+                (emptyState ?? <DataListEmptyState {...empty} />)
               )}
             </EmptyRow>
           </TableBody>
@@ -1580,14 +1654,7 @@ export function DataList<T>({
   const emptyContent = noResults ? (
     <NoResultsEmpty {...(noResults === true ? {} : noResults)} />
   ) : (
-    (emptyState ?? (
-      <Empty>
-        <EmptyHeader>
-          <EmptyTitle>No data</EmptyTitle>
-          <EmptyDescription>There are no records to display.</EmptyDescription>
-        </EmptyHeader>
-      </Empty>
-    ))
+    (emptyState ?? <DataListEmptyState {...empty} />)
   );
   const allIndexes = () => data.map((_, index) => index);
   const renderGrid = () => (
@@ -1657,6 +1724,7 @@ export function DataList<T>({
     count: section.count,
     loading: section.loading ?? loading,
     loadMore: section.loadMore,
+    empty: section.empty ?? empty,
     emptyState: section.emptyState,
     defaultCollapsed: section.defaultCollapsed,
     droppable: section.droppable,

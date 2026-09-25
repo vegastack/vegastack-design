@@ -423,6 +423,7 @@
         "@vegastack/button",
         "@vegastack/data-table-parts",
         "@vegastack/dropdown-menu",
+        "@vegastack/empty",
         "@vegastack/load-more",
         "@vegastack/skeleton",
         "@vegastack/toast",
