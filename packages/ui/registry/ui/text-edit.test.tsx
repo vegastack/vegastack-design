@@ -410,6 +410,11 @@ fieldWiringTests({
   find: (screen, name) => screen.getByRole("textbox", { name }),
 });
 
+// Chromium on macOS moves to the document end with Cmd+ArrowDown; Ctrl+End does nothing there.
+const MAC = navigator.platform.startsWith("Mac");
+const END = MAC ? "{Meta>}{ArrowDown}{/Meta}" : "{Control>}{End}{/Control}";
+const MOD = MAC ? "Meta" : "Control";
+
 // ---- DS-48: Markdown format, readOnly, disabled ---------------------------------------------
 
 const markdownFixtures: [string, string][] = [
@@ -420,6 +425,13 @@ const markdownFixtures: [string, string][] = [
   ["a bullet list", "- Apples\n- Pears\n- Plums"],
   ["an ordered list", "1. One\n2. Two\n3. Three"],
   ["a link", "See [the spec](https://example.com/spec) for details."],
+  ["headings h1–h3", "# One\n\n## Two\n\n### Three"],
+  ["strike and inline code", "Some ~~old~~ and `code` text."],
+  ["a code block", "```ts\nconst a = 1;\n```"],
+  ["a quote", "> Quoted words."],
+  ["a divider", "Above\n\n---\n\nBelow"],
+  ["a task list", "- [ ] Open\n- [x] Done"],
+  ["nested lists", "- One\n  - Nested\n    1. Deeper"],
   // Empty paragraphs (blank lines typed with Enter) survive: Tiptap writes them as `&nbsp;` and
   // extra blank lines, and reads both back as the same empty paragraphs.
   ["blank lines", "a\n\n\n\n&nbsp;\n\nb\n\n- x\n\n\n\nc"],
@@ -440,8 +452,11 @@ test.each(markdownFixtures)(
     const box = screen.getByRole("textbox", { name: "Summary" });
     await expect.element(box).toBeInTheDocument();
     expect(onValueChange).not.toHaveBeenCalled();
-    await box.click();
-    await userEvent.keyboard("{Control>}{End}{/Control}x");
+    // Click the last text block, not the box's centre: a click on a divider or a code block's
+    // header selects that node, and typing would replace it.
+    const blocks = box.element().querySelectorAll("p, h1, h2, h3, li, code");
+    await userEvent.click(blocks[blocks.length - 1]!);
+    await userEvent.keyboard(`${END}x`);
     await userEvent.keyboard("{Backspace}");
     await vi.waitFor(() => {
       expect(onValueChange).toHaveBeenCalled();
@@ -534,4 +549,155 @@ test("no a11y violations — Markdown, editable", async () => {
     .element(screen.getByRole("textbox", { name: "Notes" }))
     .toBeInTheDocument();
   await expectNoA11yViolations(screen.container);
+});
+
+// ---- One behaviour everywhere: commit, revert, autosave, slash-menu keys ----------------------
+
+const slashMenu = () =>
+  document.querySelector('[role="listbox"][data-slot="text-edit-slash-menu"]');
+
+function markdownEditor(
+  props: Partial<React.ComponentProps<typeof TextEdit>> = {},
+) {
+  return render(
+    <>
+      <TextEdit format="markdown" aria-label="Notes" {...props} />
+      <button type="button">Outside</button>
+    </>,
+  );
+}
+
+test("leaving with a change commits once; leaving unchanged commits nothing", async () => {
+  const onCommit = vi.fn();
+  const screen = await markdownEditor({ defaultValue: "Hello", onCommit });
+  const box = screen.getByRole("textbox", { name: "Notes" });
+  await box.click();
+  await screen.getByRole("button", { name: "Outside" }).click();
+  expect(onCommit).not.toHaveBeenCalled();
+  await box.click();
+  await userEvent.keyboard(`${END} world`);
+  await screen.getByRole("button", { name: "Outside" }).click();
+  await vi.waitFor(() => expect(onCommit).toHaveBeenCalledTimes(1));
+  expect(onCommit.mock.calls[0]?.[0]).toBe("Hello world");
+});
+
+test("Escape reverts to the value focus arrived with and commits nothing", async () => {
+  const onCommit = vi.fn();
+  const onRevert = vi.fn();
+  const screen = await markdownEditor({
+    defaultValue: "Keep",
+    onCommit,
+    onRevert,
+  });
+  const box = screen.getByRole("textbox", { name: "Notes" });
+  await box.click();
+  await userEvent.keyboard(`${END} this`);
+  await userEvent.keyboard("{Escape}");
+  await vi.waitFor(() => expect(onRevert).toHaveBeenCalled());
+  expect(box.element().textContent).toBe("Keep");
+  expect(onCommit).not.toHaveBeenCalled();
+});
+
+test("autosave commits after the idle gap while still focused", async () => {
+  const onCommit = vi.fn();
+  const screen = await markdownEditor({ onCommit, autosave: 200 });
+  await screen.getByRole("textbox", { name: "Notes" }).click();
+  await userEvent.keyboard("Draft");
+  await vi.waitFor(() => expect(onCommit).toHaveBeenCalledWith("Draft"), {
+    timeout: 2000,
+  });
+});
+
+test("unmounting mid-edit commits the change", async () => {
+  const onCommit = vi.fn();
+  const screen = await markdownEditor({ onCommit });
+  await screen.getByRole("textbox", { name: "Notes" }).click();
+  await userEvent.keyboard("Unsaved");
+  await screen.unmount();
+  expect(onCommit).toHaveBeenCalledWith("Unsaved");
+});
+
+test("slash menu: Enter picks a block and Escape closes it, without submitting or reverting", async () => {
+  const onSubmit = vi.fn();
+  const onRevert = vi.fn();
+  const onCommit = vi.fn();
+  const screen = await markdownEditor({ onSubmit, onRevert, onCommit });
+  const box = screen.getByRole("textbox", { name: "Notes" });
+  await box.click();
+  await userEvent.keyboard("/bullet");
+  await vi.waitFor(() => expect(slashMenu()).not.toBeNull());
+  await userEvent.keyboard("{Enter}");
+  await vi.waitFor(() =>
+    expect(box.element().querySelector("ul")).not.toBeNull(),
+  );
+  await userEvent.keyboard("Item /");
+  await vi.waitFor(() => expect(slashMenu()).not.toBeNull());
+  await userEvent.keyboard("{Escape}");
+  await vi.waitFor(() => expect(slashMenu()).toBeNull());
+  expect(onRevert).not.toHaveBeenCalled();
+  expect(onSubmit).not.toHaveBeenCalled();
+  expect(box.element().querySelector("li")?.textContent).toBe("Item /");
+});
+
+test("undo and redo", async () => {
+  const onValueChange = vi.fn();
+  const screen = await markdownEditor({ onValueChange });
+  await screen.getByRole("textbox", { name: "Notes" }).click();
+  await userEvent.keyboard("abc");
+  await userEvent.keyboard(`{${MOD}>}z{/${MOD}}`);
+  await vi.waitFor(() => expect(onValueChange.mock.calls.at(-1)?.[0]).toBe(""));
+  await userEvent.keyboard(`{${MOD}>}{Shift>}z{/Shift}{/${MOD}}`);
+  await vi.waitFor(() =>
+    expect(onValueChange.mock.calls.at(-1)?.[0]).toBe("abc"),
+  );
+});
+
+test("pasted markdown becomes rich text", async () => {
+  const onValueChange = vi.fn();
+  const screen = await markdownEditor({ onValueChange });
+  const box = screen.getByRole("textbox", { name: "Notes" });
+  await box.click();
+  const data = new DataTransfer();
+  data.setData("text/plain", "- one\n- two");
+  box.element().dispatchEvent(
+    new ClipboardEvent("paste", {
+      clipboardData: data,
+      bubbles: true,
+      cancelable: true,
+    }),
+  );
+  await vi.waitFor(() =>
+    expect(box.element().querySelectorAll("li").length).toBe(2),
+  );
+  expect(onValueChange.mock.calls.at(-1)?.[0]).toBe("- one\n- two");
+});
+
+test("bubble menu: a selection gets a link from the link input", async () => {
+  const onValueChange = vi.fn();
+  const screen = await markdownEditor({
+    defaultValue: "Read the spec",
+    onValueChange,
+  });
+  const box = screen.getByRole("textbox", { name: "Notes" });
+  await userEvent.click(box.element().querySelector("p")!);
+  await userEvent.keyboard(
+    `${END}{Shift>}{ArrowLeft}{ArrowLeft}{ArrowLeft}{ArrowLeft}{/Shift}`,
+  );
+  await vi.waitFor(() =>
+    expect(
+      document.querySelector('[data-slot="text-edit-bubble-menu"]'),
+    ).not.toBeNull(),
+  );
+  await userEvent.click(
+    document.querySelector<HTMLElement>('[aria-label="Link"]')!,
+  );
+  await vi.waitFor(() =>
+    expect(document.querySelector('[aria-label="Link URL"]')).not.toBeNull(),
+  );
+  await userEvent.keyboard("example.com/spec{Enter}");
+  await vi.waitFor(() =>
+    expect(onValueChange.mock.calls.at(-1)?.[0]).toBe(
+      "Read the [spec](https://example.com/spec)",
+    ),
+  );
 });

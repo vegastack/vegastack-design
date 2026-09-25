@@ -1,9 +1,9 @@
-// @vegastack comments@0.23.33 sha256-To2h2Qir04LVaF63b72QN6JTs2IDqjaxgokVHV1da6c=
+// @vegastack comments@0.23.33 sha256-ZehOybj3WS3d8kXQzr/AtiiC91xYbhPb2XoEQNhGfxo=
 
 "use client";
 
 import * as React from "react";
-import { ArrowUp, ArrowUpDown, MessageSquare } from "lucide-react";
+import { ArrowUp, ArrowUpDown, MessageSquare, X } from "lucide-react";
 import { cn } from "@vegastack/design";
 import {
   AlertDialog,
@@ -109,7 +109,8 @@ export interface CommentItemProps {
 /**
  * `CommentItem` — one comment: avatar, name and badge, relative time ("edited" after an edit),
  * the Markdown body, and a ⋯ menu (Copy link · Edit · Delete) for what the viewer may do. Edit
- * turns the body into a borderless editor in place with Cancel and Save; Delete asks first.
+ * turns the body into the composer's compact box with a round ↑ Save (disabled while empty or
+ * unchanged) and a ghost × Cancel; Cmd/Ctrl+Enter saves and Escape cancels. Delete asks first.
  *
  * @example
  * <CommentItem comment={c} onEdit={save} onDelete={remove} onCopyLink={copy} />
@@ -140,6 +141,7 @@ export function CommentItem({
 
   const save = async (body: string) => {
     if (!onEdit || !body.trim()) return;
+    if (body.trim() === comment.body.trim()) return cancel();
     setSaving(true);
     setError(null);
     try {
@@ -275,17 +277,42 @@ export function CommentItem({
               busy={saving}
               actions={
                 <>
-                  <Button variant="ghost" size="sm" onClick={cancel}>
-                    Cancel
-                  </Button>
-                  <Button
-                    size="sm"
-                    loading={saving}
-                    disabled={!draft.trim()}
-                    onClick={() => void save(draft)}
-                  >
-                    Save
-                  </Button>
+                  <Tooltip>
+                    <TooltipTrigger
+                      render={
+                        <Button
+                          variant="ghost"
+                          size="icon-sm"
+                          className="rounded-full"
+                          aria-label="Cancel"
+                          onClick={cancel}
+                        />
+                      }
+                    >
+                      <X aria-hidden />
+                    </TooltipTrigger>
+                    <TooltipContent>Cancel</TooltipContent>
+                  </Tooltip>
+                  <Tooltip>
+                    <TooltipTrigger
+                      render={
+                        <Button
+                          size="icon-sm"
+                          className="rounded-full"
+                          aria-label="Save"
+                          loading={saving}
+                          disabled={
+                            !draft.trim() ||
+                            draft.trim() === comment.body.trim()
+                          }
+                          onClick={() => void save(draft)}
+                        />
+                      }
+                    >
+                      <ArrowUp aria-hidden />
+                    </TooltipTrigger>
+                    <TooltipContent>Save</TooltipContent>
+                  </Tooltip>
                 </>
               }
             />
