@@ -1,6 +1,6 @@
 ---
 title: Board
-description: Kanban columns over the drag-reorder seam — pointer drag, keyboard move mode, a lossless per-card Move menu, server-refusable moves, collapsed lanes.
+description: Kanban columns over the drag-reorder seam — pointer drag, keyboard move mode, a per-card ⋯ menu of the card's actions, server-refusable moves, collapsed lanes.
 audience: public
 registry: board
 status: stable
@@ -105,8 +105,8 @@ title, or `false` turns it off; the app mounts [`Toaster`](/docs/components/toas
 
 ### Locked lanes and auto height
 
-A lane with `droppable: false` is never a target; its `lockedReason` shows in the Move menu and
-in the lane when it is empty. `readOnly` turns every move off for the whole board. With
+A lane with `droppable: false` is never a target; its `lockedReason` shows in the lane when it is
+empty. `readOnly` turns every move off for the whole board. With
 `height="auto"`, `columnMaxHeight` caps each lane's card list.
 
 <ComponentPreview name="boardLanes" file="components/preview/board.tsx" />
@@ -116,7 +116,7 @@ in the lane when it is empty. `readOnly` turns every move off for the whole boar
 Every lane and card has a plain-text name, because the board speaks them. A string `title` names
 its lane on its own; a lane whose `title` is a node passes `label` (the board warns in
 development when it has to fall back to the id). `getItemLabel` names the cards — in their
-accessible name, their menu control ("Move Token audit") and every announcement.
+accessible name, their menu control ("Actions for Token audit") and every announcement.
 
 <ComponentPreview name="boardLabels" file="components/preview/board.tsx" />
 
@@ -140,8 +140,9 @@ it. Enter follows the link; Space still picks the card up.
 
 A lane with more cards than it has loaded takes `loadMore`: the next batch loads as the lane's
 foot scrolls into view, and the shared [`LoadMore`](/docs/components/load-more) button stays as the
-fallback and the retry after an error. `getItemActions(item)` lists the card's own actions first
-in its ⋯ menu, above the Move items; an action with `items` opens a submenu.
+fallback and the retry after an error. `getItemActions(item)` lists the card's own actions in
+its ⋯ menu (a card with none shows no ⋯); an action with `items` opens a submenu. The menu has no
+Move items — moves are the drag and the keyboard (Space, the arrows, Space).
 
 <ComponentPreview name="boardPagedLanes" file="components/preview/board.tsx" />
 
@@ -149,8 +150,7 @@ in its ⋯ menu, above the Move items; an action with `items` opens a submenu.
 
 Below 768px the board shows one lane at a time at full width. Swipe to move between lanes, or tap
 a lane in the strip above, which shows each lane's count. To move a card to another lane, hold it,
-then drag it to the screen's edge: the board turns to the next lane. The card's ⋯ menu and "Move
-to…" items remain the one-tap path.
+then drag it to the screen's edge: the board turns to the next lane.
 
 <ComponentPreview name="board" file="components/preview/board.tsx" />
 
@@ -168,8 +168,8 @@ to…" items remain the one-tap path.
   move it (<kbd>↑</kbd>/<kbd>↓</kbd> within its lane, <kbd>←</kbd>/<kbd>→</kbd> across lanes,
   RTL-aware), <kbd>Space</kbd> drops it and <kbd>Escape</kbd> puts it back. Nothing is committed
   until the drop, and each step is announced ("In review, position 2 of 3").
-- The card menu (<kbd>M</kbd>) lists every move — up, down, top, bottom and each lane, with lock
-  reasons on unavailable ones — so a move is one action too.
+- <kbd>M</kbd> opens the card's ⋯ menu of its own actions (it lists no Move
+  items).
 - Cards form one roving tab stop per board: <kbd>↑</kbd>/<kbd>↓</kbd> within a lane,
   <kbd>←</kbd>/<kbd>→</kbd> across, <kbd>Home</kbd>/<kbd>End</kbd> within the
   lane.

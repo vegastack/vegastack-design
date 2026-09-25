@@ -223,35 +223,12 @@ test("moves are optimistic; a rejection snaps back, announces and stops pending"
   expect(announcement()).toContain("Move rejected");
 });
 
-test("Enter activates a button card; the menu's Move to… commits with lock reasons", async () => {
+test("Enter activates a button card", async () => {
   const onCardActivate = vi.fn();
-  const onMove = vi.fn();
-  await render(<Controlled onMove={onMove} onCardActivate={onCardActivate} />);
+  await render(<Controlled onCardActivate={onCardActivate} />);
   surface("d1").focus();
   await userEvent.keyboard("{Enter}");
   expect(onCardActivate).toHaveBeenCalledWith({ id: "d1", name: "Acme" });
-  await userEvent.keyboard("m");
-  const menu = page.getByRole("menu");
-  await expect.element(menu).toBeInTheDocument();
-  const parked = page.getByRole("menuitem", { name: /Move to Parked/ });
-  await expect.element(parked).toHaveAttribute("aria-disabled", "true");
-  expect(parked.element().textContent).toContain(
-    "Closed deals only move by automation",
-  );
-  await press(page.getByRole("menuitem", { name: "Move to Won" }));
-  expect(onMove).toHaveBeenCalledWith("d1", "won", 1);
-});
-
-test("the card menu offers within-lane ordering", async () => {
-  const onMove = vi.fn();
-  await render(<Controlled onMove={onMove} />);
-  surface("d2").focus();
-  await userEvent.keyboard("m");
-  await expect
-    .element(page.getByRole("menuitem", { name: "Move down" }))
-    .toHaveAttribute("aria-disabled", "true");
-  await press(page.getByRole("menuitem", { name: "Move to top" }));
-  expect(onMove).toHaveBeenCalledWith("d2", "lead", 0);
 });
 
 test("getItemActions come first in the card menu, submenus included", async () => {

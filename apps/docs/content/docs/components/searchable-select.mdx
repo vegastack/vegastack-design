@@ -47,8 +47,11 @@ multi-select chips.
 
 ## Anatomy
 
-`Searchable Select` exports the picker and `PersonOption`, the standard person row (the name, then a
-smaller muted email) it draws from `itemToSecondaryLabel`. Every exported part, with the `data-slot`
+`Searchable Select` exports the picker and `PersonOption`, the standard person row it draws from
+`itemToSecondaryLabel`: an avatar, then the name on the first line and a smaller muted email on the
+second — stacked, never inline. It is the standard for every person list — pickers, filter facets
+and menus such as a row's _Assign ›_ submenu — and a popup that lists people is at least 18rem wide
+(`min-w-72`) so neither line truncates. Every exported part, with the `data-slot`
 it renders (generated from the canonical source):
 
 <Anatomy name="searchable-select" />

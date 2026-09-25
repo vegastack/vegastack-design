@@ -427,7 +427,7 @@
       "name": "board",
       "type": "registry:ui",
       "title": "Board",
-      "description": "Kanban lanes — full-height lanes that scroll their cards inside, sticky headers with a collapse menu, + Add at each lane's foot, Nothing here / Drop here empty zones, per-lane skeletons and load-on-scroll paging; live pointer and touch drag (lift, make room, settle, edge auto-scroll), a keyboard pick-up/move/drop model, a lossless per-card Move menu, optimistic moves with rollback and a toast, and one lane at a time on a phone.",
+      "description": "Kanban lanes — full-height lanes that scroll their cards inside, sticky headers with a collapse menu, + Add at each lane's foot, Nothing here / Drop here empty zones, per-lane skeletons and load-on-scroll paging; live pointer and touch drag (lift, make room, settle, edge auto-scroll), a keyboard pick-up/move/drop model, a per-card ⋯ menu of the card's own actions, optimistic moves with rollback and a toast, and one lane at a time on a phone.",
       "categories": [
         "layout"
       ],
@@ -461,7 +461,7 @@
         "whenToUse": "Cross-column card movement — pipelines, kanban, staged workflows — where the host owns ordering and the move can be refused by a server gate; lanes may be partially loaded (count shows the total) and cards may be links to their records.",
         "whenNotToUse": "Single-list reordering (sortable-list), tabular data (data-list/data-grid), or static column layouts with no movement (plain Cards in a flex row).",
         "version": "0.23.23",
-        "integrity": "sha256-4BvcZJWhxZ+K0DoFOHQ9GsYJa+2U+tKM38S65PgUex4="
+        "integrity": "sha256-hd/CdeQ7X08qVYFlcyI1TRkN+cxF4GcGVoF52CHx32M="
       }
     },
     {
@@ -494,7 +494,7 @@
         "whenToUse": "The content of a Board card (tasks, deals, tickets) — DataList's board view renders one per row — or a standalone work-item card.",
         "whenNotToUse": "A record with an image (MediaCard), a long body (Card), or a table row (DataList).",
         "version": "0.23.23",
-        "integrity": "sha256-8W2TULgegL/251ulywhzef3764N8d6hGQCt+UaWBDUs="
+        "integrity": "sha256-OcW4dzjlC5kOokfJgxo+AOujcCdafTuCEFklI1lBmhA="
       }
     },
     {
@@ -1248,7 +1248,7 @@
         "whenToUse": "A card per record in a grid (DataList view=\"grid\" renders one per row), or card content on a board.",
         "whenNotToUse": "A record with a long body or its own controls (Card), or a row in a table (DataList).",
         "version": "0.23.23",
-        "integrity": "sha256-QkQdtVEQDIqQ/eQc3Mxs6ql3kvKAXa1TJF1LTps/oYw="
+        "integrity": "sha256-ZPHrlRwwiWggHByFPb1UueLYSEF0VY2BB+5MhpKZqe8="
       }
     },
     {
@@ -1342,7 +1342,7 @@
         "whenToUse": "Installed automatically with DataList or DataGrid; import it directly when building a bespoke table that should share their sort header, selection cells and column rules.",
         "whenNotToUse": "A plain presentational table (Table alone), or as a table component in its own right — these are parts, not a renderer.",
         "version": "0.23.23",
-        "integrity": "sha256-Tn23830OrCOxS9KWJRE0otm7EfY+YD+09hHCy9DI5BE="
+        "integrity": "sha256-aeVK6wnYDrRmHO77EpHKcO8Lb0DhzGxvYC3+DKfHO3U="
       }
     },
     {
@@ -16088,7 +16088,7 @@
         "whenToUse": "A Select-shaped searchable picker: one or several values, option descriptions and disabled reasons, and server search with paging (remote + useAsyncSearch).",
         "whenNotToUse": "A short fixed option set (Select), free text with suggestions (Combobox directly), or multi-select (Combobox with chips).",
         "version": "0.23.23",
-        "integrity": "sha256-sWPG6MXZKbgxCmHkZv7wENh8vyZZM4omJMOkyBB1Dpc="
+        "integrity": "sha256-vt0aqjxPNSnGijCE5Jr59MDDYOKR45+4fsfzBHpEfQU="
       }
     },
     {

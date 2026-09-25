@@ -328,6 +328,13 @@ An action with `items` opens a submenu instead of running `onSelect` — _Open �
 status › · Assign › ─ Remove_. Its entries are `RowAction`s too, so separators, links, disabled
 reasons and destructive items work the same inside it.
 
+Every item carries a leading `icon` (muted, per the icon rule) — _Open_ (`ArrowUpRight`), _Copy
+link_ (`Link`), _Change status ›_ (the current status's icon), _Assign ›_ (`UserRoundPlus`),
+_Archive_ / _Unarchive_ (`Archive` / `ArchiveRestore`), _Cancel_ (`CircleX`, destructive). The menu
+is at least 12rem wide so no label wraps. A status submenu lists each status with its coloured
+`StatusIcon`, ticks the current one (`checked`) and shows its one-key `shortcut` (O/P/B/D/C) —
+pressing the key while the submenu is open picks it.
+
 <ComponentPreview
   name="dataListRowActionSubmenu"
   file="components/preview/data-list.tsx"
@@ -335,7 +342,9 @@ reasons and destructive items work the same inside it.
 
 For a submenu that is more than a fixed list — _Assign ›_ with a searched, paged member list — pass
 `submenu`: any React content rendered after `items` inside the submenu. Compose it from
-`DropdownMenuItem`s, led by a `PanelSearch` row when it is searchable.
+`DropdownMenuItem`s, led by a `PanelSearch` row when it is searchable, and draw each person as a
+[`PersonOption`](/docs/components/searchable-select) — avatar, then name over email, stacked. A
+`submenu` popup is at least 18rem wide so a name and an email never truncate.
 
 <ComponentPreview
   name="dataListRowActionSearchSubmenu"
@@ -465,6 +474,8 @@ slots, or anything else.
 `FilterBar` it lands in the bar's `view` slot; otherwise it sits at the end of the toolbar row.
 `views` sets which views it offers, in order (default Grid | List). Like every toolbar switch it is the default (pill) `Tabs`. The chosen view is remembered
 for the browser session under `viewStorageKey` (default: the path plus the list's `aria-label`).
+`defaultView` is the page's first view before the user picks one — `"board"` for a task list,
+`"grid"` for a catalogue — and the remembered choice wins after that.
 
 ```tsx
 <DataList
@@ -488,10 +499,11 @@ the viewport below the list and cards scroll inside each lane (`boardHeight`, de
 Offer it with `views={["list", "board"]}`.
 
 - **Cards.** `boardCard(row)` maps a row to the card's fields — `title`, `context`, `due`,
-  `priority`, `assignee`, `done` / `onDoneChange`, `source`. Without it the title is the first
+  `priority`, `assignee`, `done` / `onDoneChange`, and `status` (your status circle, the same
+  control the list rows use). Without it the title is the first
   column and the context line joins the other columns. `renderCard` replaces the card entirely.
-- **Moves.** `onMove(row, fromSection, toSection, move)` applies a drag, a keyboard move or a
-  "Move to" between lanes. The card moves at once; return a promise to gate it on the server — a
+- **Moves.** `onMove(row, fromSection, toSection, move)` applies a drag or a keyboard move between
+  lanes. The card moves at once; return a promise to gate it on the server — a
   rejection snaps it back with a toast. Without `onMove` the board is read-only.
 - **Lanes.** `onAddToSection(sectionId)` adds an "+ Add" button (its text is `addLabel`) at each lane's foot so the host's
   create form opens with that status filled in. Every lane collapses from its header's ⋯ menu
