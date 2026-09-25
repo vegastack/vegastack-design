@@ -101,10 +101,11 @@ pauses following, and announces its position ("2 of 5"). Pass `query` and
 
 ### Speakers and rename
 
-`TranscriptSpeakers` renders one chip per speaker, with the dot colour their turns use. Pass
-`onSpeakerRename(id, name)` to the Transcript and each chip gets a ✎ button: it turns into a field
-where Enter or leaving the field saves and Escape cancels. Store the name and return it from
-`speakerName`. Put the search and the chips in one toolbar row above the list.
+Pass `onSpeakerRename(id, name)` to the Transcript and the speaker name in every turn header becomes
+an inline `EditableCell`: click the name to edit it, Enter or leaving the field saves, Escape
+cancels. The rename is by speaker id, so every turn with that speaker takes the new name. Store the
+name and return it from `speakerName`. The search field is capped at `max-w-sm`, so it never
+stretches across the toolbar. `TranscriptSpeakers` (the old chip row) is deprecated.
 
 ```tsx
 <Transcript
@@ -113,10 +114,7 @@ where Enter or leaving the field saves and Escape cancels. Store the name and re
   speakerName={(id) => names[id] ?? id}
   onSpeakerRename={(id, name) => renameSpeaker(id, name)}
 >
-  <div className="flex flex-wrap items-center gap-2">
-    <TranscriptSearch className="flex-1" />
-    <TranscriptSpeakers />
-  </div>
+  <TranscriptSearch />
   <TranscriptList />
 </Transcript>
 ```

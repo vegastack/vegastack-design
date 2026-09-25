@@ -1,4 +1,4 @@
-// @vegastack transcript@0.23.23 sha256-EHYEak32rPSO6EJbiaCG0Er4BMuwUBqLB39DiT+24tg=
+// @vegastack transcript@0.23.23 sha256-uj59SdwJXQT1cRQbZ5u2gNydYt/fwX+xV656pBgJGoE=
 
 "use client";
 
@@ -7,6 +7,7 @@ import { ChevronDown, ChevronUp, LocateFixed, Pencil } from "lucide-react";
 import { cn } from "@vegastack/design";
 
 import { Button } from "@/components/ui/button";
+import { EditableCell } from "@/components/ui/editable-cell";
 import { Input } from "@/components/ui/input";
 import { Item, ItemContent, ItemTitle } from "@/components/ui/item";
 import { formatDefaultTime } from "@/components/ui/media-player-controls";
@@ -77,7 +78,8 @@ export interface TranscriptProps extends Omit<
   /** The segments, sorted by `start`. */
   segments: TranscriptSegment[];
   /**
-   * Called when a speaker chip in `TranscriptSpeakers` is renamed. Without it, the chips have no
+   * Called when a speaker is renamed — by clicking the name in any turn of `TranscriptList`
+   * (every turn with that id takes the new name). Without it, names are read-only and the chips have no
    * rename button.
    * @default undefined
    */
@@ -179,6 +181,12 @@ export interface TranscriptListProps {
    * @default undefined
    */
   className?: string;
+  /**
+   * Accessible name of a turn's speaker-name field, used when the Transcript has
+   * `onSpeakerRename`.
+   * @default "Speaker name"
+   */
+  speakerInputLabel?: string;
 }
 
 /** Props accepted by `TranscriptSpeakers`. */
@@ -709,6 +717,9 @@ interface RowProps {
   needle: string;
   currentOccurrence: number;
   nowPlayingLabel: string;
+  /** Renames this turn's speaker (every turn with the same id); `null` shows the name read-only. */
+  onRename: ((id: string, name: string) => void) | null;
+  speakerInputLabel: string;
 }
 
 const TranscriptRow = React.memo(function TranscriptRow({
@@ -722,6 +733,8 @@ const TranscriptRow = React.memo(function TranscriptRow({
   needle,
   currentOccurrence,
   nowPlayingLabel,
+  onRename,
+  speakerInputLabel,
 }: RowProps) {
   const active = useIsActive(activeStore, segment.id);
   return (
@@ -760,7 +773,23 @@ const TranscriptRow = React.memo(function TranscriptRow({
           )}
           <SpeakerDot className={dot} />
           <ItemTitle className="min-w-0">
-            <span className="truncate">{speaker}</span>
+            {onRename ? (
+              // Click the name to rename; Enter or blur saves, Escape cancels. The rename is by
+              // speaker id, so every turn with this speaker takes the new name.
+              <EditableCell
+                variant="inline"
+                required
+                saveErrorToast={false}
+                label={speakerInputLabel}
+                value={speaker}
+                onSave={(next) => {
+                  const name = next.trim();
+                  if (name && name !== speaker) onRename(segment.speaker, name);
+                }}
+              />
+            ) : (
+              <span className="truncate">{speaker}</span>
+            )}
           </ItemTitle>
         </div>
         <p data-slot="transcript-text" className="text-sm text-foreground">
@@ -826,7 +855,10 @@ const SCROLL_KEYS = new Set([
  *   <TranscriptList />
  * </Transcript>
  */
-export function TranscriptList({ className }: TranscriptListProps) {
+export function TranscriptList({
+  className,
+  speakerInputLabel = "Speaker name",
+}: TranscriptListProps) {
   const {
     segments,
     activeStore,
@@ -837,6 +869,7 @@ export function TranscriptList({ className }: TranscriptListProps) {
     seek,
     speakerName,
     speakerDot,
+    onSpeakerRename,
     renderedCount,
     formatTime,
     seekLabel,
@@ -870,6 +903,8 @@ export function TranscriptList({ className }: TranscriptListProps) {
               current?.id === segment.id ? current.occurrence : -1
             }
             nowPlayingLabel={nowPlayingLabel}
+            onRename={onSpeakerRename}
+            speakerInputLabel={speakerInputLabel}
           />
         );
       }),
@@ -885,6 +920,8 @@ export function TranscriptList({ className }: TranscriptListProps) {
       query,
       current,
       nowPlayingLabel,
+      onSpeakerRename,
+      speakerInputLabel,
     ],
   );
 
@@ -1060,7 +1097,10 @@ export function TranscriptSearch({
   return (
     <PanelSearch
       data-slot="transcript-search"
-      className={cn("static z-auto h-9 bg-transparent pe-1", className)}
+      className={cn(
+        "static z-auto h-9 w-full max-w-sm bg-transparent pe-1",
+        className,
+      )}
     >
       <PanelSearchField
         aria-label={label}
@@ -1196,6 +1236,9 @@ function SpeakerChip({
 const defaultRenameLabel = (name: string) => `Rename ${name}`;
 
 /**
+ * @deprecated Rename speakers in place: each turn's speaker name in `TranscriptList` is
+ * inline-editable when the Transcript has `onSpeakerRename`. Kept for existing hosts.
+ *
  * `TranscriptSpeakers` — one chip per speaker, in order of first appearance, with the speaker's
  * dot colour and name. When the Transcript has `onSpeakerRename`, each chip carries a rename
  * button that turns it into a field: Enter or leaving the field saves, Escape cancels.

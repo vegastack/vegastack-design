@@ -5,7 +5,7 @@
    plus exactly the decisions `docs/plans/2026-09-18-shadcn-reset/decisions.md` marks **ours**:
 
      FOC-1   one global :focus-visible cue; components restate nothing
-     FOC-13  no focus rings except Tabs: the cue is a background tint (MK 2026-09-25)
+     FOC-13  no focus rings anywhere, Tabs included: the cue is a background tint (MK 2026-09-25)
      FOC-7   the forced-colours fallback for text entry
      MOT-5   the reduced-motion reset (and the one sanctioned !important)
      INT-1   the hand cursor, on a wider selector list than shadcn's --pointer rule
@@ -61,12 +61,11 @@
   }
 
   /* FOC-1 + FOC-13 — the SINGLE focus affordance in the system, and it is NOT a ring.
-     No focus ring anywhere except Tabs (MK 2026-09-25): a keyboard user sees a subtle background
+     No focus ring anywhere, Tabs included (MK 2026-09-25): a keyboard user sees a subtle background
      TINT — `accent` at 50%, laid over whatever fill the control already has as a background IMAGE,
      so a primary button, a chip, a row and a menu item all show it without any component
      restating it. Text entry (text inputs, textarea, contenteditable) keeps its border tint
-     (FOC-3) and takes no fill. Tabs — the triggers and the panel — keep the 2px `ring` outline,
-     which FOC-2 binds to the near-black / near-white ink. Components carry no focus ring of their
+     (FOC-3) and takes no fill. Tab triggers and panels take the same tint as everything else. Components carry no focus ring of their
      own (FOC-6), and `design-lint`'s `no-focus-ring-glow` rule rejects any focus ring or outline
      class, so one cannot creep back through a later upstream pull. */
   :focus-visible {
@@ -75,8 +74,6 @@
   :focus-visible:not(
     textarea,
     [contenteditable="true"],
-    [role="tab"],
-    [role="tabpanel"],
     input:not(
       [type="range"],
       [type="radio"],
@@ -92,10 +89,6 @@
       color-mix(in oklch, var(--accent) 50%, transparent),
       color-mix(in oklch, var(--accent) 50%, transparent)
     );
-  }
-  [role="tab"]:focus-visible,
-  [role="tabpanel"]:focus-visible {
-    @apply outline-2 outline-offset-1 outline-ring;
   }
 
   /* INT-1 — the hand cursor. shadcn's `--pointer` flag writes

@@ -19,9 +19,9 @@ component — there is nothing extra to wire up.
 - **Full keyboard support** — every interactive control is reachable and operable without a pointer.
 - **Semantic roles** — correct elements and ARIA via Base UI primitives, never `<div>` buttons.
 
-## Focus — no rings except Tabs
+## Focus — no rings anywhere
 
-**Foundation rule (FOC-13): nothing draws a focus ring except Tabs.** The system ships one focus cue
+**Foundation rule (FOC-13): nothing draws a focus ring, Tabs included.** The system ships one focus cue
 for keyboard users, owned by `base.css` and never restated by a component:
 
 - **Everything focusable** — buttons, chips, rows, menu items, toggles, cards, links, checkboxes,
@@ -31,8 +31,8 @@ for keyboard users, owned by `base.css` and never restated by a component:
 - **Text entry** — `Input`, `Textarea`, `Select` and combobox inputs — tints its **border**
   instead (`focus:border-ring/70`, on plain `:focus` so a click and a Tab read alike). An invalid
   field shows the error border colour, never a ring.
-- **Tabs** — the triggers and the panel — keep the 2px `--ring` outline at 1px offset, the one ring
-  left in the system.
+- **Tabs** — the triggers and the panel — take the same background tint as everything else; clicking
+  a tab shows nothing.
 - **Forced colours** drop the tint, so a `forced-colors: active` block restores
   `outline: 2px solid Highlight` on every focused element.
 - **Overlays** — Dialog and Sheet open onto their first field, or the popup itself; never the close
