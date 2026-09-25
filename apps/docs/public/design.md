@@ -685,7 +685,7 @@ recipes:
 
 # VegaStack design
 
-This system **is** shadcn `base-nova`, plus ninety-eight recorded exceptions. Every component we share with
+This system **is** shadcn `base-nova`, plus one hundred recorded exceptions. Every component we share with
 shadcn is upstream's own file with an approved patch applied; every difference traces to a decision
 ID; and three offline gates prove both claims on every pull request. That is the whole doctrine, and
 this document is deliberately thin because most of what used to be written here is now upstream's
@@ -756,35 +756,37 @@ Three offline gates carry that, in `pnpm upstream:check`, inside `pnpm lint`:
 All four scripts under `tooling/upstream/` carry a `--self-test` that observes them failing
 (`pnpm upstream:selftest`), because a gate nobody has seen fail is an assumption.
 
-## What we add — the ninety-eight exceptions
+## What we add — the one hundred exceptions
 
-`docs/plans/2026-09-18-shadcn-reset/decisions.md` is the register: 206 rows, 108 resolved as
-**shadcn** (upstream ships unchanged) and 98 as **ours**. `packages/ui/upstream/decisions.json` is
+`docs/plans/2026-09-18-shadcn-reset/decisions.md` is the register: 208 rows, 108 resolved as
+**shadcn** (upstream ships unchanged) and 100 as **ours**. `packages/ui/upstream/decisions.json` is
 its machine copy and the only thing a gate reads; `packages/ui/upstream/exception-map.json` records
 which shared component each exception is assigned to. Re-opening a row is MK's decision. The ninety-eight
 group into six themes.
 
-### 1. Focus — one outline, and no glow anywhere
+### 1. Focus — no rings except Tabs; a background tint everywhere else
 
-`FOC-1 · FOC-2 · FOC-3 · FOC-4 · FOC-5 · FOC-6 · FOC-7 · FOC-8 · FOC-9 · FOC-10 · FOC-12`
+`FOC-1 · FOC-2 · FOC-3 · FOC-4 · FOC-5 · FOC-6 · FOC-7 · FOC-8 · FOC-9 · FOC-10 · FOC-12 · FOC-13`
 
-`base.css` owns one rule: `:focus-visible { outline: 2px solid var(--ring); outline-offset: 1px }`,
-with `ring` bound to the near-black / near-white ink rather than upstream's mid-grey (FOC-1, FOC-2).
-Text entry shows a border tint instead — `focus:border-ring/70`, on plain `:focus` so a click and a
-Tab read identically, with `outline-hidden` rather than `outline-none` so forced colours can repaint
-it (FOC-3, FOC-8); a button-style trigger combines the tint with the outline (FOC-4). Focus outranks
-the invalid tint (`not-focus:aria-invalid:…`, FOC-5). Inside a clipping ancestor the outline is
-pulled in with `-outline-offset-2`, the one permitted local deviation (FOC-9). A forced-colours
-block paints `outline: 2px solid Highlight` on focused text entry (FOC-7). The focus tint is
-contrast-gated as a composite at 3:1 in both themes (FOC-10). A checkbox, radio or switch inside a
-field label gets the global outline on the control; upstream rings the whole choice card, and we do
-not (FOC-12).
+**The foundation rule (FOC-13, MK 2026-09-25): nothing draws a focus ring except Tabs.** `base.css`
+owns the one focus cue: `:focus-visible { outline: none }`, plus a subtle background TINT —
+`accent` at 50%, laid as a background image over whatever fill the control already has — on every
+focusable element except text entry and tabs, so a button, a chip, a row, a menu item, a toggle, a
+checkbox or a link shows where the keyboard is without any component restating it. Text entry
+shows a border tint instead — `focus:border-ring/70`, on plain `:focus` so a click and a Tab read
+identically, with `outline-hidden` so forced colours can repaint it (FOC-3, FOC-8). Tabs — the
+triggers and the panel — keep the 2px `ring` outline, with `ring` bound to the near-black /
+near-white ink (FOC-1, FOC-2). Focus outranks the invalid tint (`not-focus:aria-invalid:…`, FOC-5);
+an invalid field shows an error border colour, never a ring. A forced-colours block restores
+`outline: 2px solid Highlight` on every focused element, because forced colours drop the tint
+(FOC-7). Dialog and Sheet open onto the first field or the popup itself, never the close ×.
 
 **Upstream's `ring-3 ring-ring/50` halo is removed everywhere** — button, badge, input, checkbox,
 switch, slider, scroll-area, tabs, toast, field cards, all of it (FOC-6). This is the exception most
 likely to creep back on a future pull, so it has a machine check:
 `design-lint`'s **`no-focus-ring-glow`** rejects `ring-3`, `ring-[3px]`, `ring-ring/NN`,
-`focus-visible:ring-*` and a focus-variant `shadow-[0_0_0_…]` anywhere in `packages/ui/registry/**`.
+`focus:`/`focus-visible:ring-*`, `focus-visible:outline-*`, `aria-invalid:ring-*` and a focus-variant
+`shadow-[0_0_0_…]` anywhere in `packages/ui/registry/**`, so no ring creeps back.
 A **resting** `0 0 0 1px` hairline — upstream's outline `SidebarMenuButton` draws one — is not a
 glow and is accepted; the structural self-test observes both halves.
 

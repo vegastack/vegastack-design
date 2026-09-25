@@ -1,6 +1,6 @@
 ---
 title: Filter Bar
-description: The two-row toolbar above a list or table — search, scope and view on top, filters below, folding into a sheet on a narrow screen.
+description: The toolbar above a list — search left; a Filters toggle, view tabs and a layout switch right; compact filter chips on a row that scrolls on a phone.
 audience: public
 registry: filter-bar
 status: stable
@@ -16,7 +16,12 @@ preview: filterBar
 ## Usage
 
 ```tsx
-import { FilterBar, FilterBarFacet } from "@/components/ui/filter-bar";
+import {
+  DateRangeFilter,
+  FilterBar,
+  FilterBarFacet,
+} from "@/components/ui/filter-bar";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 
 <FilterBar
@@ -27,18 +32,22 @@ import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
     placeholder: "Search tasks",
   }}
   scope={
-    <ToggleGroup
-      aria-label="Scope"
-      variant="outline"
-      spacing={0}
-      deselectable={false}
-      value={[scope]}
-      onValueChange={([v]) => v && setScope(v)}
-    >
-      {/* My tasks | Created by me | Team */}
-    </ToggleGroup>
+    // Views are Tabs — the default variant, compact size, optional leading icons.
+    <Tabs value={scope} onValueChange={setScope}>
+      <TabsList size="sm" aria-label="Scope">
+        <TabsTrigger value="mine">
+          <User />
+          My tasks
+        </TabsTrigger>
+        <TabsTrigger value="team">
+          <Users />
+          Team tasks
+        </TabsTrigger>
+      </TabsList>
+    </Tabs>
   }
   view={
+    // Layout switches are an icon ToggleGroup.
     <ToggleGroup
       aria-label="View"
       variant="outline"
@@ -47,14 +56,25 @@ import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
       value={[view]}
       onValueChange={([v]) => v && setView(v)}
     >
-      {/* List | Board */}
+      <ToggleGroupItem value="list">
+        <List />
+        <span>List</span>
+      </ToggleGroupItem>
+      <ToggleGroupItem value="board">
+        <Kanban />
+        <span>Board</span>
+      </ToggleGroupItem>
     </ToggleGroup>
   }
   facets={
     <>
-      <FilterBarFacet label="Status" {...status} />
-      <FilterBarFacet label="Due" {...due} />
-      <FilterBarFacet label="Assignee" {...assignee} />
+      <FilterBarFacet label="Status" multiple {...status} />
+      <FilterBarFacet
+        label="Assignee"
+        itemToSecondaryLabel={(p) => p.email}
+        {...assignee}
+      />
+      <DateRangeFilter label="Due" value={due} onValueChange={setDue} />
     </>
   }
   addFilters={[{ id: "priority", label: "Priority" }]}
@@ -64,8 +84,13 @@ import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 ```
 
 ```
-Row 1  [Search………………………]  [scope segmented]                 [view segmented] [actions]
-Row 2  Status ▾   Due ▾   Assignee ▾   ⊕ More                               Clear
+Row 1  [Search ~320px]                    [⚲ Filters 2] [My tasks | Team tasks] [≣ ▦]
+                                    12px
+Row 2  Status: 2 ×   Assignee ▾   Due: Last 7 days ×   ⊕ More                  Clear
+
+Phone  [Search………………………………………………]
+       [⚲ 2] [My tasks | Team tasks]             [≣ ▦]
+       Status: 2 ×  Assignee ▾  Due ▾  ⊕ More   → (scrolls sideways)
 ```
 
 `FilterBar` is **presentational** — it never holds filter state. You own every value: the search
@@ -85,11 +110,11 @@ and what "Clear" resets.
 
 ```tsx
 <FilterBar
-  search={{ value, onValueChange }} // row 1, first — a <SearchInput> that takes the free space
-  scope={/* ToggleGroup */} //          row 1, after the search
-  view={/* ToggleGroup */} //           row 1, pinned to the end
-  actions={/* e.g. a Select Button */} // row 1, very end
-  facets={/* FilterBarFacet… */} //     row 2, the primary filters
+  search={{ value, onValueChange }} // row 1, first — a <SearchInput>, ~320px (full width on a phone)
+  scope={/* Tabs size="sm" */} //      row 1, right of the Filters toggle
+  actions={/* e.g. a Select Button */} // row 1, before the view
+  view={/* icon ToggleGroup */} //       row 1, furthest right
+  facets={/* FilterBarFacet, DateRangeFilter */} // row 2, the primary filters
   filters={[/* … */]} //                row 2, one removable <FilterChip> per applied filter
   addFilters={[/* … */]} //             row 2, the "More" <DropdownMenu> of secondary filters
   onClear={clearAll} //                 row 2, "Clear" at the end while anything is applied
@@ -99,23 +124,31 @@ and what "Clear" resets.
 - `FilterBar` — the container (`data-slot="filter-bar"`, `role="toolbar"`, named "List controls"
   by default; pass `aria-label` or `aria-labelledby` for a specific name like "Task toolbar"). It
   is a size container: its layout follows its own width, not the viewport's.
-- **Row 1** (`filter-bar-primary`) — the search field, `scope` (`filter-bar-scope`), `view`
-  (`filter-bar-view`) and `actions` (`filter-bar-actions`). Rendered when any of them is set.
-- **Row 2** (`filter-bar-filters`, a `role="group"` named by `filtersLabel`, "Filters") — the facets,
-  the chips, "More" (`filter-bar-add`), `trailing` and "Clear" (`filter-bar-clear`). Rendered only
-  when there is something to filter.
-- **One height.** Every control in both rows is h-8, the default size, with a 6px gap. Leave
-  `ToggleGroup`, `Button` and `Select` at their default size inside the bar; one passed in at
-  `size="sm"` is lifted to h-8.
-- **Narrow bar** (below the bar's own `@3xl`, 768px): the scope takes its own full-width row
-  (`filter-bar-scope-row`), the view shows icons only (wrap each option's text in a `<span>`; it
-  stays the option's accessible name), and row 2 folds into one "Filters (n)" button
-  (`filter-bar-sheet-trigger`) that opens a bottom sheet with the facets stacked, "Clear" and "Done".
+- **Row 1** (`filter-bar-primary`) — the search field (`w-80`, ~320px), then on the right
+  (`filter-bar-controls`): the **Filters toggle** (`filter-bar-filters-toggle`, lucide
+  `ListFilter`), `scope` (`filter-bar-scope`), `actions` (`filter-bar-actions`) and `view`
+  (`filter-bar-view`), the view furthest right.
+- **The Filters toggle** shows or hides row 2 (`aria-expanded`, `aria-controls`), shows the applied
+  count ("Filters 2"), and opens row 2 by itself whenever something becomes set, so an applied
+  filter is never hidden. Control it with `filtersOpen` / `defaultFiltersOpen` /
+  `onFiltersOpenChange`.
+- **Row 2** (`filter-bar-filters`, a `role="group"` named by `filtersLabel`, "Filters"), 12px below
+  row 1 — the facets, the chips, "More" (`filter-bar-add`), `trailing` and "Clear"
+  (`filter-bar-clear`).
+- **One chip shape.** Facets, `DateRangeFilter` and applied chips are compact (h-7), rounded-md and
+  quiet (14px, regular weight). A set chip is tinted (`accent`), never reshaped; its × sits in the
+  chevron's fixed 24px slot, so nothing shifts. Several values read "Status: 2", with the values in
+  the chip's tooltip (`title`) and ticked in the popover.
+- **Phone** (below the bar's own `@3xl`, 768px): the search takes the full width; beneath it one
+  row holds `[⚲ n] [tabs] [view]` (the Filters word hides, the view shows icons only — wrap each
+  option's text in a `<span>`; it stays the option's accessible name). Row 2 is one line that
+  scrolls sideways by touch, with the scrollbar hidden. There is no bottom sheet.
 
 ### Toolbar
 
 The whole toolbar: search, a scope and a view, three primary facets, a "More" menu that adds a
-removable "Priority" facet, and "Clear". Narrow the window below 768px to see the phone layout.
+removable "Priority" facet, and "Clear". Narrow the window below 768px to see the phone layout:
+full-width search, then the toggle, tabs and view on one row, and a sideways-scrolling filter row.
 
 <ComponentPreview name="filterBar" file="components/preview/filter-bar.tsx" />
 
@@ -279,7 +312,29 @@ The controlled `search` config passed to `FilterBar`.
   name="FilterBarSearch"
 />
 
+### DateRangeFilter
+
+A date-range chip in the same shape as a facet. Presets: Today · Yesterday · Last 7 days · Last 30
+days · This month · Last month · Custom range (a two-month calendar with Apply). Set, it reads the
+preset ("Due: Last 7 days") or the dates from the date-time helpers ("Due: Sep 1–25").
+`dateRangeForPreset(preset, now)` returns the `{ from, to }` a preset covers, for the query.
+
+```tsx
+<DateRangeFilter label="Created" value={created} onValueChange={setCreated} />
+// value: { from: Date; to: Date; preset?: "today" | "yesterday" | "last7" | "last30" | "thisMonth" | "lastMonth" | "custom" } | null
+```
+
+<ApiTable
+  path="../../packages/ui/registry/ui/filter-bar.tsx"
+  name="DateRangeFilterProps"
+/>
+
 ### FilterBarFacet
+
+The tick on a selected option matches by `itemToKey`, so options that arrive from a server search
+(new objects on every fetch) tick exactly as static ones do. For people, pass
+`itemToSecondaryLabel={(p) => p.email}`: each option reads the name plus a smaller muted email
+(`PersonOption`), and the search matches both.
 
 `FilterBarFacet` passes `SearchableSelect`'s props through (minus the trigger face it owns:
 `renderItem`, `renderValue`, `renderTriggerValue`, `placeholder`, `variant`, `size`, `aria-label`
@@ -297,12 +352,12 @@ and `groupBy`) and adds its own:
   `role="group"` named "Filters" (`filtersLabel`).
 - Name the `scope` and `view` groups (`aria-label="Scope"`, `aria-label="View"`). On a narrow bar
   the view's text is visually hidden, not removed, so each option keeps its name.
-- A set facet and every chip carry a round 24×24 × (WCAG 2.5.8) named `Clear {label}` — "Clear
-  Status". Clearing a facet moves focus to its trigger; "Clear" moves focus to the filter row's
+- A set facet and every chip carry a 24×24 × (WCAG 2.5.8) named `Clear {label}` — "Clear
+  Status" — in a fixed slot, with no focus ring (a background tint marks keyboard focus). Clearing a facet moves focus to its trigger; "Clear" moves focus to the filter row's
   first control, so focus never drops to the page.
 - "More" is a labelled `Button` that opens a keyboard-navigable `DropdownMenu`.
-- The narrow bar's "Filters (n)" button opens a modal bottom sheet titled "Filters"; <kbd>Esc</kbd>
-  or "Done" closes it and returns focus to the button.
+- The Filters toggle is a button with `aria-expanded` and `aria-controls` pointing at the filter
+  row; its name carries the count ("Filters (2)") when the word is hidden on a phone.
 - The search field always has an accessible name — `search["aria-label"]`, then the placeholder,
   then "Search".
 
@@ -311,7 +366,7 @@ and `groupBy`) and adds its own:
 | <kbd>Tab</kbd>                      | Move through the search, scope, view, facets, chips, "More" and Clear. |
 | <kbd>Enter</kbd> / <kbd>Space</kbd> | Open a facet or "More", press a segment, or clear the focused pill.    |
 | <kbd>↑</kbd> / <kbd>↓</kbd>         | Move between options in an open facet or "More" menu.                  |
-| <kbd>Esc</kbd>                      | Close the open facet, menu or filters sheet.                           |
+| <kbd>Esc</kbd>                      | Close the open facet, date range or menu.                              |
 
 <StatesTested name="filter-bar" />
 
@@ -319,5 +374,5 @@ and `groupBy`) and adds its own:
 
 <DoDont
   do="Keep three or four primary facets on the filter row with short sentence-case labels, and move the rest into More."
-  dont="Label an unset facet 'Any' or 'All statuses', pass size='sm' to controls in the bar, or keep an option in More for a facet that is already showing."
+  dont="Label an unset facet 'Any' or 'All statuses', use a line Tabs or a ToggleGroup for scope/views, or keep an option in More for a facet that is already showing."
 />

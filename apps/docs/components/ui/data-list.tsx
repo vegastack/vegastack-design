@@ -1,4 +1,4 @@
-// @vegastack data-list@0.23.8 sha256-iNmPkEP17JNyrrruT3ajOPEljq9gr0t+XcFjDFoST/I=
+// @vegastack data-list@0.23.8 sha256-6dP0P00muI+TyYSnHFHlEGptEdt+ftVi5bDCpGRJAj0=
 
 "use client";
 
@@ -13,9 +13,17 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { LoadMore, type LoadMoreProps } from "@/components/ui/load-more";
+import { SearchX } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import {
+  Empty,
+  EmptyContent,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyTitle,
+} from "@/components/ui/empty";
 import {
   columnCellClass,
-  cycleSort,
   EmptyRow,
   mergedValueClass,
   offscreenSortSummary,
@@ -86,12 +94,26 @@ export interface DataListColumn<T> extends DataTableColumnLayout {
     cell: DataListCellContext,
   ) => React.ReactNode;
   /**
-   * Allow the user to sort by this column by clicking its header. Sorting is
-   * controlled — the parent receives the next {@link SortState} via
-   * `onSortChange` and re-orders `data` itself.
+   * Allow the user to sort by this column by clicking its header; the header shows a sort
+   * indicator (a faint ⇅ at rest, ↑/↓ while sorted). The parent receives the next
+   * {@link SortState} via `onSortChange`. With `sortMode="client"`, or a `compare` on the column,
+   * `DataList` orders `data` itself; otherwise the parent re-orders `data`.
    * @default false
    */
   sortable?: boolean;
+  /**
+   * The comparator for this column, ascending. Setting it sorts client-side whatever `sortMode`
+   * is; descending is its reverse. Without it, client sorting compares `row[key]` (numbers,
+   * dates, then strings with a numeric-aware `localeCompare`), empty values last.
+   * @default undefined
+   */
+  compare?: (a: T, b: T) => number;
+  /**
+   * The direction the first click sorts by — `"desc"` for dates and amounts where newest or
+   * largest first is the useful order. The cycle is first → the other → none.
+   * @default "asc"
+   */
+  sortFirst?: SortDirection;
   /**
    * What this column shows when a narrow container folds it into the first column's cell. A
    * value lifted out of its column loses the header above it, so a bare `4` reads as nothing:
@@ -218,8 +240,9 @@ export interface DataListProps<T> extends Omit<
    */
   loadingRows?: number;
   /**
-   * Content shown when `data` is empty and not `loading`. Defaults to a built-in
-   * {@link Empty}. Pass a node to fully customise it.
+   * Content shown when `data` is empty and not `loading` and there is nothing at all yet (no
+   * filters applied). Defaults to a built-in {@link Empty} ("No data", an Inbox icon). Pass an
+   * `Empty` composition to customise it; never hand-roll empty markup.
 
    * @default undefined
    */
@@ -335,6 +358,106 @@ export interface DataListProps<T> extends Omit<
    * @default (n) => `${n} rows`
    */
   sectionCountLabel?: (count: number) => string;
+  /**
+   * Who orders the rows. `"manual"` only signals (`onSortChange`) and the parent sorts `data`;
+   * `"client"` sorts `data` in place with each column's `compare` (or the default comparator).
+   * A column with its own `compare` always sorts client-side.
+   * @default "manual"
+   */
+  sortMode?: "manual" | "client";
+  /**
+   * The "no matches for these filters" state, used instead of `emptyState` while `data` is empty
+   * because of a search or filter. `true` shows the standard one (a SearchX icon, "No matches", a
+   * short description); pass an object to relabel it and wire "Clear filters" to the
+   * `FilterBar`'s `onClear`.
+   * @default undefined
+   */
+  noResults?: boolean | DataListNoResults;
+  /**
+   * The standard row-actions column: when set, a trailing column (always last) renders a 32px
+   * ghost ⋯ menu per row, end-aligned, never activating the row. Return `[]` for no menu.
+   * @default undefined
+   */
+  rowActions?: (row: T) => RowAction[];
+  /**
+   * The ⋯ trigger's accessible name, from the row's label (`getRowLabel`).
+   * @default (label) => `Actions for ${label}`
+   */
+  rowActionsLabel?: (label: string) => string;
+  /**
+   * Row ids to flash in the accent wash — rows that were just created or changed (the same
+   * `highlighted` state `rowProps` sets). Clear an id after a moment to return its row to rest.
+   * @default undefined
+   */
+  highlightedIds?: ReadonlySet<string>;
+}
+
+/** The `noResults` state's copy and its "Clear filters" action. */
+export interface DataListNoResults {
+  /**
+   * The title.
+   * @default "No matches"
+   */
+  title?: React.ReactNode;
+  /**
+   * The short description.
+   * @default "Nothing matches these filters. Try a different search or clear the filters."
+   */
+  description?: React.ReactNode;
+  /**
+   * Clears the search and filters — pass the `FilterBar`'s `onClear`. Omit for no button.
+   * @default undefined
+   */
+  onClear?: () => void;
+  /**
+   * The button's label.
+   * @default "Clear filters"
+   */
+  clearLabel?: string;
+}
+
+/**
+ * `NoResultsEmpty` — the standard "no matches" empty state, also usable
+ * outside a DataList (a Board, a card grid).
+ *
+ * @example
+ * <NoResultsEmpty onClear={clearFilters} />
+ */
+export function NoResultsEmpty({
+  title = "No matches",
+  description = "Nothing matches these filters. Try a different search or clear the filters.",
+  onClear,
+  clearLabel = "Clear filters",
+}: DataListNoResults) {
+  return (
+    <Empty icon={<SearchX aria-hidden />} data-slot="data-list-no-results">
+      <EmptyHeader>
+        <EmptyTitle>{title}</EmptyTitle>
+        <EmptyDescription>{description}</EmptyDescription>
+      </EmptyHeader>
+      {onClear ? (
+        <EmptyContent>
+          <Button variant="outline" size="sm" onClick={onClear}>
+            {clearLabel}
+          </Button>
+        </EmptyContent>
+      ) : null}
+    </Empty>
+  );
+}
+
+/** The default client comparator: numbers, dates, booleans, then numeric-aware strings. */
+function defaultCompare(a: unknown, b: unknown): number {
+  const empty = (v: unknown) => v == null || v === "";
+  if (empty(a) || empty(b)) return empty(a) ? (empty(b) ? 0 : 1) : -1;
+  if (typeof a === "number" && typeof b === "number") return a - b;
+  if (a instanceof Date && b instanceof Date) return a.getTime() - b.getTime();
+  if (typeof a === "boolean" && typeof b === "boolean")
+    return Number(a) - Number(b);
+  return String(a).localeCompare(String(b), undefined, {
+    numeric: true,
+    sensitivity: "base",
+  });
 }
 
 /** Options accepted by `rowActionsColumn`. */
@@ -453,7 +576,7 @@ function RowLink({
     href,
     "data-slot": "data-list-row-link",
     className:
-      "-mx-1 -my-0.5 inline-flex max-w-full items-center rounded-sm px-1 py-0.5 text-start text-inherit no-underline hover:underline",
+      "-mx-1 -my-0.5 inline-flex max-w-full items-center rounded-sm px-1 py-0.5 text-start text-inherit no-underline hover:no-underline focus-visible:no-underline",
     children,
   };
   if (render) {
@@ -561,7 +684,7 @@ function RowLink({
  */
 export function DataList<T>({
   columns,
-  data,
+  data: rawData,
   getRowId = (_row, index) => String(index),
   selectable = false,
   selectedIds,
@@ -586,6 +709,11 @@ export function DataList<T>({
   defaultGroupState,
   onGroupStateChange,
   sectionCountLabel,
+  sortMode = "manual",
+  noResults,
+  highlightedIds,
+  rowActions,
+  rowActionsLabel,
   className,
   "aria-busy": ariaBusy,
   "aria-describedby": ariaDescribedBy,
@@ -601,6 +729,23 @@ export function DataList<T>({
   // nothing to it, so the table's ref reaches it through `parentElement`. That
   // div is `w-full` and clips its own overflow, so its width is the width the
   // columns must fit, independent of how wide the table currently renders.
+  // The standard row-actions column, always last.
+  const allColumns = React.useMemo(
+    () =>
+      rowActions
+        ? [
+            ...columns,
+            rowActionsColumn<T>({
+              getRowLabel: (row) => getRowLabel?.(row) ?? "row",
+              actions: rowActions,
+              actionsLabel: rowActionsLabel,
+              key: "__row-actions",
+            }),
+          ]
+        : columns,
+    [columns, rowActions, rowActionsLabel, getRowLabel],
+  );
+
   const [measureRef, containerWidth] = useContainerWidth();
   const tableNode = React.useRef<HTMLTableElement | null>(null);
   const measureContainer = React.useCallback(
@@ -617,11 +762,11 @@ export function DataList<T>({
   const { visibleColumns, mergedColumns, hiddenColumns } = React.useMemo(
     () =>
       revealColumns(
-        columns,
+        allColumns,
         containerWidth,
         selectable ? SELECTION_COLUMN_WIDTH : 0,
       ),
-    [columns, containerWidth, selectable],
+    [allColumns, containerWidth, selectable],
   );
   // The last rung. Revelation budgets columns by `minWidth`, but a value can
   // still be wider than its budget — a long unbroken email, a one-line mono
@@ -635,7 +780,14 @@ export function DataList<T>({
   const layoutKey = React.useMemo(
     () => ({}),
     // eslint-disable-next-line react-hooks/exhaustive-deps -- the identity IS the signal
-    [containerWidth, visibleColumns, mergedColumns, data, loading, selectable],
+    [
+      containerWidth,
+      visibleColumns,
+      mergedColumns,
+      rawData,
+      loading,
+      selectable,
+    ],
   );
   const [squeezedFor, setSqueezedFor] = React.useState<object | null>(null);
   const squeezed = squeezedFor === layoutKey;
@@ -657,10 +809,38 @@ export function DataList<T>({
       // One key at a time: DataList only SIGNALS intent, and a presentational
       // table that asked its host to honour a priority list would be pretending
       // to own ordering it does not own.
-      commitSort(cycleSort(activeSort ? [activeSort] : [], key)[0] ?? null);
+      const first =
+        allColumns.find((col) => col.key === key)?.sortFirst ?? "asc";
+      if (activeSort?.key !== key) {
+        commitSort({ key, direction: first });
+        return;
+      }
+      // first → the other → none
+      commitSort(
+        activeSort.direction === first
+          ? { key, direction: first === "asc" ? "desc" : "asc" }
+          : null,
+      );
     },
-    [activeSort, commitSort],
+    [activeSort, commitSort, allColumns],
   );
+
+  // Client-side ordering: `sortMode="client"`, or a column that brings its own `compare`.
+  const sortedData = React.useMemo(() => {
+    if (!activeSort) return rawData;
+    const col = allColumns.find((c) => c.key === activeSort.key);
+    if (!col || (sortMode !== "client" && !col.compare)) return rawData;
+    const cmp =
+      col.compare ??
+      ((a: T, b: T) =>
+        defaultCompare(
+          (a as Record<string, unknown>)[col.key],
+          (b as Record<string, unknown>)[col.key],
+        ));
+    const sign = activeSort.direction === "desc" ? -1 : 1;
+    return [...rawData].sort((a, b) => sign * cmp(a, b));
+  }, [rawData, activeSort, allColumns, sortMode]);
+  const data = sortedData;
 
   const rowIds = React.useMemo(
     () => data.map((row, i) => getRowId(row, i)),
@@ -728,7 +908,7 @@ export function DataList<T>({
   // The active sort's column may have been merged or hidden, taking its header
   // (arrow and `aria-sort`) with it. Say what the order is instead.
   const sortSummary = activeSort
-    ? offscreenSortSummary([activeSort], columns, visibleColumns)
+    ? offscreenSortSummary([activeSort], allColumns, visibleColumns)
     : null;
 
   const colSpan = visibleColumns.length + (selectable ? 1 : 0);
@@ -796,7 +976,7 @@ export function DataList<T>({
       href === undefined &&
       visibleColumns[0]?.interactive !== true;
     const {
-      highlighted = false,
+      highlighted = highlightedIds?.has(id) ?? false,
       className: rowClassName,
       ...rowAttributes
     } = rowProps?.(row, index) ?? {};
@@ -817,7 +997,8 @@ export function DataList<T>({
             : undefined
         }
         className={cn(
-          clickable && "cursor-pointer",
+          clickable &&
+            "cursor-pointer [&_a]:no-underline [&_a:focus-visible]:no-underline [&_a:hover]:no-underline",
           // A highlighted row (`rowProps` → `highlighted`) eases into the accent wash over
           // `TableRow`'s own `transition-colors`; reduced motion drops the ease (global reset).
           highlighted && "bg-accent duration-slow",
@@ -1026,7 +1207,11 @@ export function DataList<T>({
         ) : data.length === 0 ? (
           <TableBody>
             <EmptyRow colSpan={colSpan} slot="data-list-empty-row">
-              {emptyState}
+              {noResults ? (
+                <NoResultsEmpty {...(noResults === true ? {} : noResults)} />
+              ) : (
+                emptyState
+              )}
             </EmptyRow>
           </TableBody>
         ) : sectionGroups ? (

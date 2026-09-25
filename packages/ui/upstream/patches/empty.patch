@@ -1,6 +1,11 @@
 # component: empty
-# decisions: API-16, API-22, DOC-2, TYP-15
+# decisions: API-16, API-22, API-29, DOC-2, TYP-15
 # hunks:
+#   API-29: `Empty` takes `size="sm"` (`data-size`), the compact inline empty: a 16px padding, an
+#     8px gap and no media margin.
+#   API-29: `Empty` always renders an icon — an `icon` prop, lucide `Inbox` by default — as a
+#     leading `EmptyMedia variant="icon"` marked `data-default`, hidden by a `:has()` rule when the
+#     composition brings its own `EmptyMedia`. `React` types and the lucide import come with it.
 #   TYP-15: the title's `tracking-tight` is dropped. TYP-15 puts the heading tier's optical
 #     tracking in the theme and holds the COPY tier at zero, which is Geist's own copy/heading
 #     split; this title is `text-sm` (14px), squarely in the copy tier, where negative tracking
@@ -15,36 +20,59 @@
 #   formatting: the repository formatter (prettier defaults: semicolons, trailing commas)
 #               reflows the file; those hunks carry no decision of their own.
 diff --git a/empty.tsx b/empty.tsx
-index e11ce34..8eaf67e 100644
+index e11ce34..6faddee 100644
 --- a/empty.tsx
 +++ b/empty.tsx
-@@ -1,5 +1,9 @@
+@@ -1,17 +1,42 @@
 -import { cva, type VariantProps } from "class-variance-authority"
 -import { cn } from "cn"
 +"use client";
-+
+ 
+-function Empty({ className, ...props }: React.ComponentProps<"div">) {
 +import { mergeProps } from "@base-ui/react/merge-props";
 +import { useRender } from "@base-ui/react/use-render";
 +import { cva, type VariantProps } from "class-variance-authority";
++import { Inbox } from "lucide-react";
 +import { cn } from "@vegastack/design";
- 
- function Empty({ className, ...props }: React.ComponentProps<"div">) {
++
++function Empty({
++  className,
++  icon,
++  size = "default",
++  children,
++  ...props
++}: React.ComponentProps<"div"> & {
++  icon?: React.ReactNode;
++  size?: "default" | "sm";
++}) {
    return (
-@@ -7,11 +11,11 @@ function Empty({ className, ...props }: React.ComponentProps<"div">) {
+     <div
        data-slot="empty"
++      data-size={size}
        className={cn(
          "flex w-full min-w-0 flex-1 flex-col items-center justify-center gap-4 rounded-xl border-dashed p-6 text-center text-balance",
 -        className
++        // An empty state always shows an icon: the default one stands down when the
++        // composition brings its own `EmptyMedia`.
++        "has-[[data-slot=empty-icon]:not([data-default])]:[&>[data-default]]:hidden",
++        // The compact size for a small inline empty — "No tasks yet" inside a card.
++        "data-[size=sm]:gap-2 data-[size=sm]:p-4 data-[size=sm]:[&_[data-slot=empty-icon]]:mb-0",
 +        className,
        )}
        {...props}
-     />
+-    />
 -  )
++    >
++      <EmptyMedia variant="icon" data-default="" className="mb-0">
++        {icon ?? <Inbox aria-hidden />}
++      </EmptyMedia>
++      {children}
++    </div>
 +  );
  }
  
  function EmptyHeader({ className, ...props }: React.ComponentProps<"div">) {
-@@ -21,7 +25,7 @@ function EmptyHeader({ className, ...props }: React.ComponentProps<"div">) {
+@@ -21,7 +46,7 @@ function EmptyHeader({ className, ...props }: React.ComponentProps<"div">) {
        className={cn("flex max-w-sm flex-col items-center gap-2", className)}
        {...props}
      />
@@ -53,7 +81,7 @@ index e11ce34..8eaf67e 100644
  }
  
  const emptyMediaVariants = cva(
-@@ -36,8 +40,8 @@ const emptyMediaVariants = cva(
+@@ -36,8 +61,8 @@ const emptyMediaVariants = cva(
      defaultVariants: {
        variant: "default",
      },
@@ -64,7 +92,7 @@ index e11ce34..8eaf67e 100644
  
  function EmptyMedia({
    className,
-@@ -51,20 +55,27 @@ function EmptyMedia({
+@@ -51,20 +76,27 @@ function EmptyMedia({
        className={cn(emptyMediaVariants({ variant, className }))}
        {...props}
      />
@@ -104,7 +132,7 @@ index e11ce34..8eaf67e 100644
  }
  
  function EmptyDescription({ className, ...props }: React.ComponentProps<"p">) {
-@@ -73,11 +84,11 @@ function EmptyDescription({ className, ...props }: React.ComponentProps<"p">) {
+@@ -73,11 +105,11 @@ function EmptyDescription({ className, ...props }: React.ComponentProps<"p">) {
        data-slot="empty-description"
        className={cn(
          "text-sm/relaxed text-muted-foreground [&>a]:underline [&>a]:underline-offset-4 [&>a:hover]:text-primary",
@@ -118,7 +146,7 @@ index e11ce34..8eaf67e 100644
  }
  
  function EmptyContent({ className, ...props }: React.ComponentProps<"div">) {
-@@ -86,11 +97,11 @@ function EmptyContent({ className, ...props }: React.ComponentProps<"div">) {
+@@ -86,11 +118,11 @@ function EmptyContent({ className, ...props }: React.ComponentProps<"div">) {
        data-slot="empty-content"
        className={cn(
          "flex w-full max-w-sm min-w-0 flex-col items-center gap-2.5 text-sm text-balance",
@@ -132,7 +160,7 @@ index e11ce34..8eaf67e 100644
  }
  
  export {
-@@ -100,4 +111,4 @@ export {
+@@ -100,4 +132,4 @@ export {
    EmptyDescription,
    EmptyContent,
    EmptyMedia,

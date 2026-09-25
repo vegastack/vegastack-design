@@ -154,6 +154,8 @@ its accessible name survives (A11Y-12).
 
 Upstream's file plus `packages/ui/upstream/patches/button.patch`. Every hunk:
 
+- **API-29** — the root writes `data-variant`, so a tinted container (a status Alert) can give its
+  non-primary buttons a variant-aware hover.
 - **FOC-1, FOC-6** — the `focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50`
   glow and the `outline-none` that suppressed the global outline are removed.
 - **FOC-5** — the invalid tint becomes `not-focus:aria-invalid:border-destructive`, so focus outranks

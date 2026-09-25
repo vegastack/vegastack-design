@@ -136,8 +136,8 @@ const RULES = [
   // component that wants a hairline has `border` and this shadow spelling, not a ring.
   {
     id: "no-focus-ring-glow",
-    re: /\bring-3\b|\bring-\[3px\]|\bring-ring\/\d+|focus-visible:ring-|\bfocus(?:-visible|-within)?:shadow-\[0_0_0_/g,
-    msg: "focus ring glow (FOC-1/FOC-6): base.css owns the one `:focus-visible` outline — no ring-3, no ring-ring/NN, no focus-visible:ring-*, no focus 0 0 0 box-shadow ring",
+    re: /\bring-3\b|\bring-\[3px\]|\bring-ring\/\d+|focus(?:-visible|-within)?:ring-|aria-invalid:ring-|focus(?:-visible)?:outline-(?!none\b|hidden\b|offset)[\w[]|\bfocus(?:-visible|-within)?:shadow-\[0_0_0_/g,
+    msg: "focus ring (FOC-1/FOC-6/FOC-13): no focus rings except Tabs, which base.css owns — base.css paints the one focus cue (a background tint; a border tint on text entry). No ring-3, ring-ring/NN, focus:/focus-visible:ring-*, focus-visible:outline-*, aria-invalid:ring-*, or focus 0 0 0 box-shadow ring",
   },
   // BRD-1 (ours since MK 2026-09-23) — a surface separates with a real 1px `border border-border`,
   // never shadcn's `ring-1 ring-foreground/10` box-shadow outline. The reset had taken upstream's

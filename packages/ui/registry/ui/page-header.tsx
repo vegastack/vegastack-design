@@ -1,4 +1,4 @@
-// @vegastack page-header@0.23.8 sha256-7QSJb/CE19qPOlPsBsKlE0mpoz1Usk06i0KHPvbab40=
+// @vegastack page-header@0.23.8 sha256-N8V9q3ulRVFXb3wM4vGeDcSaYpav4L9BJaksEaByKe8=
 
 "use client";
 
@@ -346,6 +346,84 @@ export function PageHeader({
 
       {children}
     </header>
+  );
+}
+
+/** Props accepted by `SectionHeading`. */
+export interface SectionHeadingProps extends React.ComponentPropsWithRef<"h2"> {
+  /**
+   * `md` titles a page section (16px, medium); `sm` titles a card or panel section (14px,
+   * medium).
+   * @default "md"
+   */
+  size?: "sm" | "md";
+  /**
+   * `eyebrow` is the quiet label above a group — 12px, muted, medium — instead of a title.
+   * @default "default"
+   */
+  variant?: "default" | "eyebrow";
+  /**
+   * Content at the end of the row — a "View all" link, a small action.
+   * @default undefined
+   */
+  actions?: React.ReactNode;
+  /**
+   * The heading element, for the document outline.
+   * @default "h2"
+   */
+  as?: "h2" | "h3" | "h4";
+}
+
+/**
+ * `SectionHeading` — the title of an in-page section, below the `PageHeader`: `md` for a page
+ * section, `sm` inside a card, and the muted `eyebrow` for a quiet group label. Optional trailing
+ * `actions` sit on the same row.
+ *
+ * @example
+ * <SectionHeading actions={<Button variant="ghost" size="sm">View all</Button>}>Recent activity</SectionHeading>
+ * @example
+ * <SectionHeading variant="eyebrow" as="h3">Pinned</SectionHeading>
+ */
+export function SectionHeading({
+  size = "md",
+  variant = "default",
+  actions,
+  as: Heading = "h2",
+  className,
+  children,
+  ...props
+}: SectionHeadingProps) {
+  const heading = (
+    <Heading
+      data-slot="section-heading"
+      data-size={size}
+      data-variant={variant}
+      className={cn(
+        "min-w-0 truncate",
+        variant === "eyebrow"
+          ? "text-xs font-medium text-muted-foreground"
+          : size === "sm"
+            ? "text-sm font-medium text-foreground"
+            : "text-base font-medium text-foreground",
+        actions == null && className,
+      )}
+      {...(actions == null ? props : {})}
+    >
+      {children}
+    </Heading>
+  );
+  if (actions == null) return heading;
+  return (
+    <div
+      data-slot="section-heading-row"
+      className={cn(
+        "flex min-w-0 items-center justify-between gap-2",
+        className,
+      )}
+    >
+      {heading}
+      <div className="flex shrink-0 items-center gap-1.5">{actions}</div>
+    </div>
   );
 }
 

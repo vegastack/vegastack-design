@@ -1,6 +1,10 @@
 # component: alert
-# decisions: A11Y-3, A11Y-8, A11Y-13, COL-12, DOC-2, LAY-15
+# decisions: A11Y-3, A11Y-8, A11Y-13, API-29, COL-12, DOC-2, LAY-15
 # hunks:
+#   API-29: each status variant gives every non-primary button inside it the family's own hover
+#     and open state (`bg-<family>/10 text-<family>-text`, the svg too), keyed on Button's
+#     `data-variant`; the neutral `bg-muted text-foreground` hover read white in dark mode on a
+#     destructive alert. `contrast-check.mjs` gates the pair in both themes (MK, 2026-09-25).
 #   LAY-15 (MK, 2026-09-24): the root becomes an `@container/alert` grid whose action gets its own
 #     trailing column (`[1fr_auto]`, `[auto_1fr_auto]` with an icon) from `@md` up, with the title
 #     and description pinned to the text column; `AlertAction` loses `absolute top-2 end-2` for
@@ -22,7 +26,7 @@
 #   formatting: the repository formatter (prettier defaults: semicolons, trailing commas)
 #               reflows the file; those hunks carry no decision of their own.
 diff --git a/alert.tsx b/alert.tsx
-index babd454..f4839c6 100644
+index babd454..69c22b9 100644
 --- a/alert.tsx
 +++ b/alert.tsx
 @@ -1,36 +1,49 @@
@@ -42,12 +46,12 @@ index babd454..f4839c6 100644
          default: "bg-card text-card-foreground",
          destructive:
 -          "bg-card text-destructive *:data-[slot=alert-description]:text-destructive/90 *:[svg]:text-current",
-+          "bg-card text-destructive-text *:data-[slot=alert-description]:text-destructive-text/90 *:[svg]:text-current",
++          "bg-card text-destructive-text *:data-[slot=alert-description]:text-destructive-text/90 *:[svg]:text-current [&_[data-slot=button]:not([data-variant=default]):hover]:bg-destructive/10 [&_[data-slot=button]:not([data-variant=default]):hover]:text-destructive-text [&_[data-slot=button]:not([data-variant=default]):hover]:**:[svg]:text-destructive-text [&_[data-slot=button]:not([data-variant=default])[aria-expanded=true]]:bg-destructive/10 [&_[data-slot=button]:not([data-variant=default])[aria-expanded=true]]:text-destructive-text",
 +        success:
-+          "bg-card text-success-text *:data-[slot=alert-description]:text-success-text/90 *:[svg]:text-current",
++          "bg-card text-success-text *:data-[slot=alert-description]:text-success-text/90 *:[svg]:text-current [&_[data-slot=button]:not([data-variant=default]):hover]:bg-success/10 [&_[data-slot=button]:not([data-variant=default]):hover]:text-success-text [&_[data-slot=button]:not([data-variant=default]):hover]:**:[svg]:text-success-text [&_[data-slot=button]:not([data-variant=default])[aria-expanded=true]]:bg-success/10 [&_[data-slot=button]:not([data-variant=default])[aria-expanded=true]]:text-success-text",
 +        warning:
-+          "bg-card text-warning-text *:data-[slot=alert-description]:text-warning-text/90 *:[svg]:text-current",
-+        info: "bg-card text-info-text *:data-[slot=alert-description]:text-info-text/90 *:[svg]:text-current",
++          "bg-card text-warning-text *:data-[slot=alert-description]:text-warning-text/90 *:[svg]:text-current [&_[data-slot=button]:not([data-variant=default]):hover]:bg-warning/10 [&_[data-slot=button]:not([data-variant=default]):hover]:text-warning-text [&_[data-slot=button]:not([data-variant=default]):hover]:**:[svg]:text-warning-text [&_[data-slot=button]:not([data-variant=default])[aria-expanded=true]]:bg-warning/10 [&_[data-slot=button]:not([data-variant=default])[aria-expanded=true]]:text-warning-text",
++        info: "bg-card text-info-text *:data-[slot=alert-description]:text-info-text/90 *:[svg]:text-current [&_[data-slot=button]:not([data-variant=default]):hover]:bg-info/10 [&_[data-slot=button]:not([data-variant=default]):hover]:text-info-text [&_[data-slot=button]:not([data-variant=default]):hover]:**:[svg]:text-info-text [&_[data-slot=button]:not([data-variant=default])[aria-expanded=true]]:bg-info/10 [&_[data-slot=button]:not([data-variant=default])[aria-expanded=true]]:text-info-text",
        },
      },
      defaultVariants: {

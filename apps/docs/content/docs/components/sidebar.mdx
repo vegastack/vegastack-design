@@ -340,6 +340,10 @@ row, the default and a two-line row, and `variant="outline"` gives it a hairline
   file="components/preview/sidebar.tsx"
 />
 
+A `SidebarMenuButton` used as a menu trigger (the user menu in the footer) styles its own open
+state: while its menu is open (`aria-expanded` / `data-popup-open`) it keeps the `sidebar-accent`
+fill and ink, so the trigger needs no `className`.
+
 ### SidebarMenuAction
 
 `SidebarMenuAction` is a second control on the same row — an overflow menu, an add button. It sits
@@ -812,6 +816,8 @@ everything its underlying element or component accepts.
 
 Upstream's file plus `packages/ui/upstream/patches/sidebar.patch`. Every hunk:
 
+- **API-29** — `SidebarMenuButton` takes the `sidebar-accent` fill and ink on `aria-expanded` and
+  `data-popup-open`, so a menu trigger shows its open state without a `className`.
 - **A11Y-2** — `md:after:hidden` is dropped from `SidebarMenuAction` and `SidebarGroupAction`. Both
   are `w-5` (20px) squares, which is under the 24px floor, and upstream already solves that the way
   A11Y-2 asks — with an invisible `after:absolute after:-inset-2` hit area — and then switches the

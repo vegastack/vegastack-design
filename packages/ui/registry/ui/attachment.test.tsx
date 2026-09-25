@@ -75,14 +75,6 @@ function classesOf(root: HTMLElement): string {
 }
 
 /**
- * A CSS outline style somebody AUTHORED. `auto` is excluded deliberately — it is the user agent's
- * own ring, and accepting it is exactly how a focus assertion becomes unable to fail. Same
- * constant, same reasoning, as `packages/ui/test/geometry.browser.test.tsx`.
- */
-const AUTHORED_OUTLINE =
-  /^(?:solid|dashed|dotted|double|groove|ridge|inset|outset)$/;
-
-/**
  * The 24px effective pointer target of one control, measured the way the geometry lane measures
  * it: the union of the border box and any absolutely positioned `::before`/`::after` hit area for
  * SIZE, plus five `document.elementFromPoint` probes inside the centred 24px square for
@@ -743,7 +735,7 @@ test("FOC-1: the trigger keeps its own outline, and follows the card's corner", 
   );
 });
 
-test("FOC-1: a keyboard-focused trigger paints an authored outline of at least 2px", async () => {
+test("FOC-13: a keyboard-focused trigger paints the background tint, not a ring", async () => {
   const screen = await render(
     <Attachment className="w-full max-w-sm">
       <AttachmentContent>
@@ -756,12 +748,10 @@ test("FOC-1: a keyboard-focused trigger paints an authored outline of at least 2
   await tabTo(trigger);
   expect(trigger.matches(":focus-visible")).toBe(true);
   const style = getComputedStyle(trigger);
-  // `auto` is the user agent's own ring. Accepting it is how this assertion would stop being able
-  // to fail, so it is rejected by name.
-  expect(style.outlineStyle, "the trigger paints no authored outline").toMatch(
-    AUTHORED_OUTLINE,
+  expect(style.outlineStyle).toBe("none");
+  expect(style.backgroundImage, "the trigger paints no focus tint").toContain(
+    "gradient",
   );
-  expect(Number.parseFloat(style.outlineWidth)).toBeGreaterThanOrEqual(2);
 });
 
 /* ── axe, per distinct state ────────────────────────────────────────────────────────────────── */

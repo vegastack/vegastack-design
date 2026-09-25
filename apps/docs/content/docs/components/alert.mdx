@@ -166,6 +166,9 @@ own width (a container query), not the viewport's.
 
 Upstream's file plus `packages/ui/upstream/patches/alert.patch`. Every hunk:
 
+- **API-29** — each status variant gives every non-primary button inside it the family's own hover
+  (`bg-<family>/10 text-<family>-text`), never the neutral hover that read white in dark mode;
+  `contrast-check.mjs` gates the pair in both themes.
 - **COL-12** — `success`, `warning` and `info` variants, written in upstream's own `destructive`
   shape: one ink on `bg-card`, with a dimmed description. The four status families exist in the
   token contract; Alert is where they surface as a banner.

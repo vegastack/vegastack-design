@@ -1,22 +1,43 @@
-// @vegastack empty@0.23.8 sha256-/JWCKfpvmSCpn1SSm7JbVOxNA7Bhczewi7v4QX/9CNU=
+// @vegastack empty@0.23.8 sha256-8NH7TetkpAKaV7msmwdrC5xREL/jDqtfEgROjVMAEZk=
 
 "use client";
 
 import { mergeProps } from "@base-ui/react/merge-props";
 import { useRender } from "@base-ui/react/use-render";
 import { cva, type VariantProps } from "class-variance-authority";
+import { Inbox } from "lucide-react";
 import { cn } from "@vegastack/design";
 
-function Empty({ className, ...props }: React.ComponentProps<"div">) {
+function Empty({
+  className,
+  icon,
+  size = "default",
+  children,
+  ...props
+}: React.ComponentProps<"div"> & {
+  icon?: React.ReactNode;
+  size?: "default" | "sm";
+}) {
   return (
     <div
       data-slot="empty"
+      data-size={size}
       className={cn(
         "flex w-full min-w-0 flex-1 flex-col items-center justify-center gap-4 rounded-xl border-dashed p-6 text-center text-balance",
+        // An empty state always shows an icon: the default one stands down when the
+        // composition brings its own `EmptyMedia`.
+        "has-[[data-slot=empty-icon]:not([data-default])]:[&>[data-default]]:hidden",
+        // The compact size for a small inline empty — "No tasks yet" inside a card.
+        "data-[size=sm]:gap-2 data-[size=sm]:p-4 data-[size=sm]:[&_[data-slot=empty-icon]]:mb-0",
         className,
       )}
       {...props}
-    />
+    >
+      <EmptyMedia variant="icon" data-default="" className="mb-0">
+        {icon ?? <Inbox aria-hidden />}
+      </EmptyMedia>
+      {children}
+    </div>
   );
 }
 

@@ -80,6 +80,16 @@ link` (upstream's set, verbatim). `destructive` is a soft tint, not a solid red 
 - **Empty is tiered** — nothing yet, no matches ("Clear filters"), couldn't load (`role="alert"`,
   "Try again"), blocked. Pick the tier from the empty-state foundation
   (<https://design.vegastack.com/docs/foundations/empty-states>); never leave a region blank.
+  `Empty` always shows an icon (`icon`, `Inbox` by default). In a `DataList`, use `emptyState` for
+  "nothing yet" and `noResults={{ onClear }}` for "no matches" (SearchX, "No matches", "Clear
+  filters" wired to the FilterBar's `onClear`) — never hand-roll empty markup.
+- **List toolbars are one recipe** — `FilterBar`: search (~320px) left; right, the Filters (n)
+  toggle, then views as `Tabs` (default variant, `TabsList size="sm"`, optional leading icons), then
+  the layout switch as an icon `ToggleGroup`, furthest right. Filters are `FilterBarFacet` /
+  `DateRangeFilter` chips (compact, rounded-md, tinted when set) on the toggled row; people facets
+  take `itemToSecondaryLabel={(p) => p.email}`. Use Tabs for scope/views, an icon ToggleGroup for
+  List/Board. Tables are `DataList` with `sortable` columns (`compare`, `sortFirst`,
+  `sortMode="client"`) and `rowActions` (the ⋯ column, always last); row links are never underlined.
 - **`alert`** for an in-content notice — `variant` is `default · destructive · success · warning ·
 info`, each an ink on the `card` surface with a required icon; **`announcement-banner`** only for
   the full-width inverse strip at the very top of the page.
@@ -185,7 +195,7 @@ on shadcn's `neutral` base. Always use the utility, never a raw value.
 | Fill     | `bg-primary` (solid action, every checked control) · `bg-secondary` (soft) · `bg-muted` (well, track, skeleton) · `bg-accent` (hover)                                                                               |
 | Text     | `text-foreground` · `text-muted-foreground` · `text-{primary,secondary,accent,card,popover}-foreground`                                                                                                             |
 | Status   | `bg-{destructive,success,warning,info}` · `-foreground` (ink ON the fill) · `-text` (ink on the page or on the family's own tint)                                                                                   |
-| Border   | `border-border` · `border-input` — there are no rings; focus is one global outline                                                                                                                                  |
+| Border   | `border-border` · `border-input` — there are no rings; focus is a global background tint (Tabs alone keep a ring)                                                                                                   |
 | Radius   | `rounded-{sm,md,lg,xl,2xl}` — all derived from the single `--radius`                                                                                                                                                |
 | Type     | Tailwind's own `text-{xs…7xl}`. `text-sm` is 14px, `text-base` is 16px. Line-height and letter-spacing above `text-base` come from the theme — never write `tracking-*`, an arbitrary `text-[13px]`, or `uppercase` |
 | Font     | `font-sans` `font-mono` `font-serif` `font-heading`                                                                                                                                                                 |
@@ -316,8 +326,11 @@ contract.
 **Don't**
 
 - Hardcode a hex, a px value, or a raw Tailwind palette class (`bg-neutral-900`, `text-red-500`).
-- Add a focus ring or glow. Focus is one global outline, and text entry tints its border instead;
-  `ring-3`, `ring-ring/50` and `focus-visible:ring-*` are rejected by lint.
+- Add a focus ring, outline or glow. No focus rings anywhere except Tabs: `base.css` paints a subtle
+  background tint on `:focus-visible` and text entry tints its border instead; `ring-3`,
+  `ring-ring/50`, `focus-visible:ring-*` and `focus-visible:outline-*` are rejected by lint.
+- Leave a neutral hover on a button inside a tinted container — a status `Alert` already gives its
+  buttons the family's own hover; don't override it back to `hover:bg-muted`.
 - Set `outline-none` without providing another focus affordance.
 - Use a status FILL as ink on its own tint — `bg-destructive/10 text-destructive` measures 3.99:1.
   The ink on a tint is `-text`.

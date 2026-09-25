@@ -618,6 +618,8 @@ function focusIndicatorProblem(
   }
   if (!textEntry && AUTHORED_OUTLINE.test(style.outlineStyle) && width >= 2)
     return null;
+  // FOC-13: the system's focus cue is base.css's background tint (a gradient image over the fill).
+  if (!textEntry && style.backgroundImage.includes("gradient")) return null;
 
   const focused = focusSignature(control);
   if (focused.borders.some((border, index) => border !== rest.borders[index]))

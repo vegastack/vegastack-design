@@ -41,7 +41,7 @@ starts with `icon-` is a component and never an icon.
 - **`radio-group`** — Mutually-exclusive options with arrow-key navigation and a 24px invisible hit area (A11Y-2).
 - **`region-select`** — A searchable picker of states/provinces for a country, with a free-text fallback for countries with no subdivisions. A thin wrapper over SearchableSelect fed by the geo-data item.
 - **`search-input`** — A token-safe search field with a consistent clear action and controlled or uncontrolled native input semantics.
-- **`searchable-select`** — The Select-shaped Combobox preset: a full-width trigger, an in-panel search field, a check on the selected row and an optional clear control. Single-select, controlled through value/onValueChange.
+- **`searchable-select`** — The Select-shaped Combobox preset: a full-width trigger, an in-panel search field, a tick on the selected row (matched by key, so async options tick too), a standard person option (name plus muted email, both searched) and an optional clear control. Single or multiple, controlled through value/onValueChange.
 - **`select`** — A dropdown for one value — trigger, grouped scrollable popup and item-aligned positioning.
 - **`slider`** — A number or range over a continuous track — horizontal or vertical, any number of thumbs.
 - **`switch`** — An on/off toggle for instant settings — two sizes and a 24px invisible hit area (A11Y-2).
@@ -64,8 +64,8 @@ starts with `icon-` is a component and never an icon.
 - **`carousel`** — A slide track with previous and next controls — horizontal or vertical, any slide size or spacing, Embla options, events and plugins.
 - **`chart`** — A themed Recharts wrapper — a ChartConfig that maps each series to a colour and a label, a bordered tooltip and legend, and Recharts' own built-in keyboard + screen-reader layer.
 - **`collapsible`** — An interactive component which expands and collapses a panel, with an animated height and a trigger you supply.
-- **`empty`** — A zero-data placeholder — media, title, description and a content slot.
-- **`item`** — A composable row for list and feed content — media, title, description, actions.
+- **`empty`** — A zero-data placeholder — always an icon (the icon prop, Inbox by default), title, description and a content slot, with a compact sm size for inline empties. The one empty-state markup: DataList's emptyState and noResults (SearchX, "No matches", Clear filters) are built on it.
+- **`item`** — A composable row for list and feed content — media, title, description, actions — with a highlighted flash for a just-changed row.
 - **`kbd`** — A keyboard-key chip, and a group that lays several of them out inline.
 - **`markdown-view`** — Render a markdown string to safe, token-styled HTML — headings, lists, code, blockquotes, links, GFM tables — XSS-safe, no raw HTML.
 - **`relative-time`** — One Intl-based dates & times module — formatRelative, formatDuration, formatDate, formatDateTime, formatDateRange, formatTimeOfDay, formatDueLabel, groupByDay, time-zone cookie + provider — and the RelativeTime, DateTime, Duration and DueLabel components with absolute-time tooltips.
@@ -77,10 +77,10 @@ starts with `icon-` is a component and never an icon.
 ## Data
 
 - **`data-grid`** — The full-parity grid — TanStack-sorted multi-key sort, column picker with responsive revelation, collapsible grouping, keyboard-continuous load-more, opt-in virtualization, and an APG grid keyboard layer with inline cell editing.
-- **`data-list`** — A generic, typed data table — configurable columns, row selection, sortable headers, plus loading and empty states.
+- **`data-list`** — A generic, typed data table — configurable columns, row selection, sortable columns (indicator, custom compare and first direction, client or manual), a standard rowActions ⋯ column always last, untinted-link rows (no underline), loading, and Empty-based emptyState and noResults states.
 - **`data-list-pager`** — A controlled paging footer for DataList — a tabular-numeral range summary, a rows-per-page Select, and a windowed Pagination that hides on a single page.
 - **`data-table-parts`** — The chrome DataList and DataGrid share — sort header, selection cells, skeleton rows, the empty row, column class rules, and the selection/sort/controlled-state hooks.
-- **`filter-bar`** — The two-row toolbar above a list or table — search, scope and view on top, filters below, folding into a sheet on a narrow screen.
+- **`filter-bar`** — The two-row toolbar above a list or table — search (~320px) left; a Filters (n) toggle, scope Tabs and the view switch right; compact rounded-md filter chips (FilterBarFacet, DateRangeFilter with presets) on a toggled row 12px below that scrolls sideways on a phone.
 - **`filter-bar-managed`** — The controlled nested and/or filter builder — host-injected field grammar (vocabulary + per-type value editors), depth and condition caps, focus-managed removal, and a removable FilterChip summary.
 - **`load-more`** — The shared Load more footer for keyset lists — an outline button that keeps its width while loading, an error line with Try again, and an optional end caption.
 - **`property-list`** — Record-facts rows: an icon+label column beside a value column, as an accessible definition list.
@@ -90,13 +90,13 @@ starts with `icon-` is a component and never an icon.
 
 - **`alert-dialog`** — A modal that interrupts for a decision — an optional media slot, two sizes and an action/cancel footer.
 - **`context-menu`** — The same menu vocabulary opened by right-click, positioned at the pointer.
-- **`dialog`** — A modal overlay — a backdrop, a centred popup, an optional close button and a plain, right-aligned footer.
+- **`dialog`** — A modal overlay — backdrop, centred popup, a plain right-aligned footer and an optional close button; opens onto the first field or the popup, never the close ×.
 - **`drawer`** — A swipeable panel with snap points — four directions, a swipe handle, nesting and a non-modal mode.
 - **`dropdown-menu`** — An anchored action menu — items, submenus, checkboxes, radio groups, shortcuts and a destructive variant.
 - **`hover-card`** — A preview surface that opens on hover or focus, with configurable delays and sides.
 - **`panel-search`** — The sticky, box-free search row a filtering popup puts at the top of its panel (decision OVL-11) — shared by EmojiPicker and ShortcutOverlay.
 - **`popover`** — An anchored, dismissible surface for secondary content, with a header, title and description.
-- **`sheet`** — A panel that slides in from any edge — Dialog semantics with a side, a header and a footer.
+- **`sheet`** — A panel that slides in from any edge — Dialog semantics with a side, a header and a footer; opens onto the first field, never the close ×; a left sheet can dock beside the sidebar rail (beside).
 - **`shortcut-overlay`** — The ?-triggered dialog listing keyboard shortcuts, rendered from a declaration registry (keys, label, category, when) — grouped, filterable, platform-aware via use-platform + Kbd.
 - **`tooltip`** — A floating label on hover or focus, portaled inside the theme scope (OVL-13).
 
@@ -107,16 +107,16 @@ starts with `icon-` is a component and never an icon.
 - **`menubar`** — A persistent horizontal bar of menus — application-style File / Edit / View navigation.
 - **`multi-step-form`** — A guarded, branching flow around a Stepper — conditional steps, sync and async advance guards, locking, reachability-derived deep links and resume, and a phone layout chosen from the same predicate. Owns no fields and no validator.
 - **`navigation-menu`** — A collection of links for navigating websites — triggers that open one shared panel, and plain links styled to match.
-- **`page-header`** — The standardized header at the top of a page — back button, breadcrumb trail, title, description, actions, secondary menu, and a favorite star.
+- **`page-header`** — The standardized header at the top of a page — back button, breadcrumb trail, title, description, actions, secondary menu, and a favorite star — plus SectionHeading for in-page section titles (sm and md sizes, a muted eyebrow variant, trailing actions).
 - **`pagination`** — Page navigation — previous/next, numbered page links, an ellipsis for long ranges, and the active page.
-- **`sidebar`** — A composable, themeable and customizable sidebar — a provider, a collapsible panel with header, content and footer, labelled groups, menu rows with actions, badges and submenus, a rail and a trigger.
+- **`sidebar`** — A collapsible app navigation rail — header/content/footer, labelled groups, menu items with active and open (menu-trigger) states, and an expand/collapse trigger.
 - **`stepper`** — A bounded linear process as an ordered list — seven step states on a numbered rail that fills in behind you, aria-current=step, orientation chosen from the step count, and a compact summary below a container width.
-- **`tabs`** — A set of layered sections of content — known as tab panels — that are displayed one at a time.
+- **`tabs`** — Layered content sections — default (segmented) or line variants, compact size, optional leading icons and counts, horizontal or vertical, full keyboard navigation. Use Tabs for scope/views (My tasks | Team tasks); use an icon ToggleGroup for List/Board layout switches. The one component that keeps a focus ring.
 
 ## Feedback
 
 - **`action-bar`** — Floating contextual bar — status region + action children, CSS-only enter/exit, raised band. Bulk selection, unsaved changes, and batch progress are recipes over it.
-- **`alert`** — A status banner — upstream's two variants plus our three extra status tones (COL-12).
+- **`alert`** — A status banner — upstream's two variants plus our three extra status tones (COL-12); buttons inside a status alert hover in the family's own tint and ink, never white.
 - **`progress`** — Displays an indicator showing the completion progress of a task, typically displayed as a progress bar.
 - **`provider`** — The single app-root wrapper — theme (next-themes), Base UI toasts, tooltip delays, and text direction in one mount-once component.
 - **`skeleton`** — A pulsing placeholder that reserves layout space while content loads.
@@ -138,7 +138,7 @@ starts with `icon-` is a component and never an icon.
 
 - **`audio-player`** — A custom audio transport with play/pause, skip, seek, a tappable speed control, and keyboard shortcuts (mute on the M key); a single line on a wide player, two lines with an optional transcript control on a narrow, mobile-width player. Docks to the bottom of a scroll column with a close, resolves a lazy source on first play, and seeks from outside through actionsRef.
 - **`image`** — A presentational framed image with aspect-ratio, rounding, a loading skeleton, and an error fallback.
-- **`inbox`** — The notification Inbox: frame with header actions, All | Unread chips, sticky day groups, full-bleed rows with avatar or icon, rich titles, action chips, hover read toggle and menu, and empty, loading and error states.
+- **`inbox`** — The notification Inbox: frame with header actions, All | Unread chips, sticky day groups, full-bleed rows with avatar or icon and an unread tint (no dot), rich titles, action chips, a fixed right column with the time over the hover actions (read toggle and menu), and empty, loading and error states.
 - **`media-player-controls`** — The shared media transport — play/pause, skip, seek, elapsed/duration, mute + volume, playback speed, and one keyboard shortcut map (useMediaShortcuts) — composed by Audio Player and Video Player.
 - **`notification-bell`** — A bell icon button with an unread-count badge overlay, plus the shared NotificationDot unread marker. Presentational — the app supplies the count.
 - **`video-player`** — A framed video player with the same grouped custom transport controls as Audio Player.

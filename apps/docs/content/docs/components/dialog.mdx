@@ -196,6 +196,8 @@ Width is the `size` prop on `DialogContent` (OVL-16). At `size="default"` the ca
 
 Upstream's file plus `packages/ui/upstream/patches/dialog.patch`. Every hunk:
 
+- **FOC-13** — `DialogContent` passes an overridable `initialFocus` that picks the first field or
+  control, never the close ×, else the popup itself, so opening a dialog never lights up the ×.
 - **OVL-13** — `DialogPortal` reads `useInternalThemeScope()` and wraps its children in a
   `display: contents` element carrying that class, so a nested theme scope survives the jump to
   `<body>`. The wrapper generates no box, so nothing about the backdrop's or the popup's fixed

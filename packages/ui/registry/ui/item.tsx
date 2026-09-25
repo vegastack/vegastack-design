@@ -1,4 +1,4 @@
-// @vegastack item@0.23.8 sha256-p3wcg720B0LUYT2qJbhGrhEgoS0cTVU9L0SoPZWEMOk=
+// @vegastack item@0.23.8 sha256-u7iUc4DKlvmag3VL21sO+4P7aL7He9TCp8wfoVdOJEI=
 
 "use client";
 
@@ -114,8 +114,10 @@ function Item({
   size = "default",
   render,
   children,
+  highlighted = false,
   ...props
-}: useRender.ComponentProps<"div"> & VariantProps<typeof itemVariants>) {
+}: useRender.ComponentProps<"div"> &
+  VariantProps<typeof itemVariants> & { highlighted?: boolean }) {
   const inGroup = React.useContext(ItemGroupContext);
   // A11Y-7 (amended): a row rendered as anything but a `div` — a link, a button — owns a role
   // of its own, and `listitem` would overwrite it. Such a row keeps its role and the `listitem`
@@ -131,7 +133,14 @@ function Item({
     props: mergeProps<"div">(
       {
         role: inGroup && !control ? "listitem" : undefined,
-        className: cn(itemVariants({ variant, size, className })),
+        ...({ "data-highlighted": highlighted ? "" : undefined } as object),
+        className: cn(
+          itemVariants({ variant, size }),
+          // API-29: the "just changed" flash — the accent wash, eased in; clear the flag after a
+          // moment to return the row to rest.
+          highlighted && "bg-accent duration-slow",
+          className,
+        ),
         children: control ? (
           <TruncationFocusProvider focusable={false}>
             {children}

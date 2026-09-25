@@ -181,10 +181,35 @@ figure > [class~="absolute"]:has(> button) + .fd-scroll-container {
   summary {
     cursor: pointer;
   }
-  /* a11y: the ONE neutral focus ring (mirror of base.css — docs load theme.css, not full base.css).
-     Keep in sync with base.css. Components no longer carry their own focus ring; this is the single
-     source of truth, re-skinnable from the `ring` token. */
+  /* a11y: the ONE focus cue (mirror of base.css — docs load theme.css, not full base.css). Keep in
+     sync with base.css. No focus rings except Tabs (FOC-13): a background tint everywhere, the
+     border tint on text entry, the `ring` outline on tabs. */
   :focus-visible {
+    outline: none;
+  }
+  :focus-visible:not(
+    textarea,
+    [contenteditable="true"],
+    [role="tab"],
+    [role="tabpanel"],
+    input:not(
+      [type="range"],
+      [type="radio"],
+      [type="checkbox"],
+      [type="button"],
+      [type="submit"],
+      [type="reset"],
+      [type="color"],
+      [type="file"]
+    )
+  ) {
+    background-image: linear-gradient(
+      color-mix(in oklch, var(--accent) 50%, transparent),
+      color-mix(in oklch, var(--accent) 50%, transparent)
+    );
+  }
+  [role="tab"]:focus-visible,
+  [role="tabpanel"]:focus-visible {
     @apply outline-2 outline-offset-1 outline-ring;
   }
 }
@@ -197,7 +222,8 @@ figure > [class~="absolute"]:has(> button) + .fd-scroll-container {
    already get it because they import the real `base.css`. */
 @media (forced-colors: active) {
   :focus-visible {
-    outline-color: Highlight;
+    outline: 2px solid Highlight;
+    outline-offset: 1px;
   }
   /* Text-entry controls signal focus with a border TINT and `outline-none`; forced-colors
      replaces border-color, so they need a real outline (mirror of base.css B1-01 block). */

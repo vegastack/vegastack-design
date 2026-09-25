@@ -162,6 +162,17 @@ label an `id` and the group `aria-labelledby` yourself.
   file="components/preview/item.tsx"
 />
 
+### Highlighted
+
+`highlighted` flashes a row the user just created or changed: the accent wash eases in and the row
+is marked `data-highlighted`. Clear the flag after a moment to return it to rest — never hand-write
+`data-highlighted:bg-accent`. (`DataList` rows take the same state through `highlightedIds` or
+`rowProps`.)
+
+```tsx
+<Item highlighted={justChanged.has(task.id)}>…</Item>
+```
+
 ## API Reference
 
 <ApiTable path="lib/api-props.ts" name="ItemProps" />
@@ -220,6 +231,8 @@ label an `id` and the group `aria-labelledby` yourself.
 
 Upstream's file plus `packages/ui/upstream/patches/item.patch`. Every hunk:
 
+- **API-29** — `Item` takes `highlighted`: `data-highlighted` and the `bg-accent` wash eased in
+  over `duration-slow`, the "just changed" flash.
 - **A11Y-7** — `ItemGroup` licenses `role="listitem"` on the items inside it, through context, and
   hides the separator's rule from assistive tech. `role="list"` admits only `listitem` children, so
   upstream's own composition is a critical `aria-required-children` violation as shipped. A row

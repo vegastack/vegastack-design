@@ -1,6 +1,6 @@
 ---
 title: Data List
-description: A generic, typed data table — configurable columns, row selection, sortable headers, plus loading and empty states.
+description: A typed data table — selection, sortable columns with custom compare, a standard row-actions column, loading, and empty and no-results states.
 audience: public
 registry: data-list
 status: stable
@@ -103,10 +103,41 @@ indeterminate when only some rows are selected, checked when all are, and toggle
 
 ### Sorting
 
-Mark a column `sortable` to make its header interactive. Sorting is **controlled by intent**: `onSortChange`
-fires with the next `{ key, direction }` (or `null` when cleared) and **you** re-order `data` — the same API
-works for client-side and server-side sorting. The header reflects the active sort with an arrow icon,
-`aria-sort`, and `data-sorted`.
+Mark **any** column `sortable` to make its header interactive. The header always shows an indicator
+— a faint ⇅ at rest, ↑ or ↓ while sorted — plus `aria-sort` and `data-sorted`. `onSortChange` fires
+with the next `{ key, direction }` (or `null` when cleared). The click cycle is the column's
+`sortFirst` (default `"asc"`; use `"desc"` for dates and amounts) → the other → none.
+
+- **Manual** (default, `sortMode="manual"`): **you** re-order `data` — the right choice for
+  server-side sorting.
+- **Client** (`sortMode="client"`, or any column with its own `compare`): `DataList` orders `data`
+  itself with the column's `compare(a, b)` (ascending; descending is its reverse), else a default
+  comparator over `row[key]` (numbers, dates, then numeric-aware strings, empties last).
+
+```tsx
+<DataList
+  sortMode="client"
+  columns={[
+    { key: "name", header: "Name", sortable: true },
+    {
+      key: "due",
+      header: "Due",
+      sortable: true,
+      sortFirst: "desc",
+      compare: (a, b) => a.due.getTime() - b.due.getTime(),
+    },
+    {
+      key: "priority",
+      header: "Priority",
+      sortable: true,
+      compare: (a, b) => RANK[a.priority] - RANK[b.priority],
+    }, // a custom order
+  ]}
+  data={rows}
+/>
+```
+
+Manual, controlled:
 
 ```tsx
 const [sort, setSort] = React.useState<SortState | null>(null);
@@ -184,7 +215,30 @@ const columns: DataListColumn<Person>[] = [
 ### Loading & Empty states
 
 `loading` swaps the body for `loadingRows` skeleton rows (default `5`). When `data` is empty and not loading,
-`DataList` renders a built-in `Empty` — override it with the `emptyState` prop.
+`DataList` renders one of two standard `Empty` states — never hand-roll empty markup:
+
+- **`emptyState`** — there is nothing at all yet (no filters applied). The built-in one reads "No
+  data" with an Inbox icon; pass an `Empty` composition (with its `icon`) for "No tasks yet" and a
+  create action.
+- **`noResults`** — the list is empty _because of_ a search or filter. `true` shows the standard
+  one: a SearchX icon, "No matches", a short description; pass `{ onClear }` to add a "Clear
+  filters" button wired to the `FilterBar`'s `onClear` (`title`, `description` and `clearLabel`
+  relabel it). `NoResultsEmpty` is the same state for a Board or a card grid.
+
+```tsx
+<DataList
+  columns={columns}
+  data={rows}
+  noResults={hasQueryOrFilters && { onClear: clearAll }}
+  emptyState={
+    <Empty icon={<ListTodo />}>
+      <EmptyHeader>
+        <EmptyTitle>No tasks yet</EmptyTitle>
+      </EmptyHeader>
+    </Empty>
+  }
+/>
+```
 
 <ComponentPreview
   name="dataListLoading"
@@ -235,7 +289,10 @@ the table reports `aria-rowcount="-1"`, because the total is unknown.
 
 ### Row actions
 
-`rowActionsColumn({ getRowLabel, actions })` adds a trailing column with one ⋯ menu per row, named
+The standard: pass `rowActions={(row) => RowAction[]}` (with `getRowLabel`) and `DataList` adds the
+actions column itself — always the **last** column, with a 32px ghost ⋯ trigger per row
+(`rowActionsLabel` renames it). `rowActionsColumn({ getRowLabel, actions })` is the same column for a
+host that assembles `columns` itself. Either way the column is one ⋯ menu per row, named
 for the row (_Actions for Ada Lovelace_). It is end-aligned, stays visible on narrow widths, and is
 `interactive`, so opening the menu never activates the row. Each `RowAction` runs `onSelect`, or
 renders as a real link through `render={<a href="…" />}`; `destructive` paints it in the destructive
@@ -253,13 +310,16 @@ tooltip instead of a menu. The column header is _Actions_ for assistive tech onl
 
 ### Rows as links
 
+Row links and titles are never underlined, on hover or focus — the row's tint is the affordance.
+
 `getRowHref(row)` makes each row a real link: the first cell's content becomes an `<a>` (or your
 router's link through `rowLinkRender`), so Enter, a middle click and ⌘/Ctrl/Shift-clicks are the
 browser's own. A click anywhere else on the row follows the same link with its modifiers; interactive
 cells (a checkbox, a menu) keep their own behaviour. A row without an href falls back to
 `onRowClick`. `getRowLabel(row)` names each selection checkbox ("Select Ada Lovelace").
 
-`rowProps(row, index)` passes `data-*` attributes and a class through to each row, and
+`highlightedIds` (a `Set` of row ids) flashes those rows — the shortcut for `rowProps`'s
+`highlighted`. `rowProps(row, index)` passes `data-*` attributes and a class through to each row, and
 `highlighted` flashes a row — one the user just created — in the accent wash, marked
 `data-highlighted`. Clear it after a moment; the list's own `data-slot`, `data-selected` and
 `data-clickable` always win over a passed attribute.
