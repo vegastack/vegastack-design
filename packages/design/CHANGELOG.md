@@ -1,5 +1,13 @@
 # @vegastack/design
 
+## 0.7.31
+
+### Patch Changes
+
+- [#295](https://github.com/vegastack/vegastack-design/pull/295) [`f2d4304`](https://github.com/vegastack/vegastack-design/commit/f2d430440e8e854e3cdbc547c97ac3bf7525f52e) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🔧 `EditableCell` keyboard focus shows only the system focus tint (FOC-13), the same as hover: no focus ring or outline. The 0.7.30 changelog entry now describes the shared box correctly (the text sizes the box and the field is laid over it).
+
+- [#292](https://github.com/vegastack/vegastack-design/pull/292) [`fae1529`](https://github.com/vegastack/vegastack-design/commit/fae15291746a7f1fa205b6d67085ec548b10b9e2) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🔧 SettingsSection takes `actions`, right-aligned on the title's row. Row ⋯ menus (RowActionsMenu) are at least 192px and as wide as their longest item, so labels never wrap, and a disabled item's `disabledReason` is a tooltip on the item (still its accessible description) instead of a wrapped second line.
+
 ## 0.7.30
 
 ### Patch Changes
