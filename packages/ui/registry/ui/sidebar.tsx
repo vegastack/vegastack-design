@@ -1,4 +1,4 @@
-// @vegastack sidebar@0.23.8 sha256-N8FFUdasUGAZCVBKesKu1GBcpSAxrNMwDqJfG/REOS8=
+// @vegastack sidebar@0.23.9 sha256-g1ZEUf1QV8EjZhf39Ghd7oq0L8LWAK/eT7kuS4MNh9I=
 
 "use client";
 

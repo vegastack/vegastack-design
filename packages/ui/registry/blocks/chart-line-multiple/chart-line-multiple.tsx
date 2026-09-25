@@ -1,4 +1,4 @@
-// @vegastack chart-line-multiple@0.23.8 sha256-oNUh5FK6tEw/UjSLGACSPpUmwwOWaKSrqhAAD1w82XU=
+// @vegastack chart-line-multiple@0.23.9 sha256-bfnAq5gvGvC+r0nhQlff2+bRr8HtEjDoKv0XkcZZK3w=
 
 "use client";
 

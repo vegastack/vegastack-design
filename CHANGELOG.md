@@ -9,6 +9,21 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.23.9] — September 25, 2026
+
+<!-- assembled from 1 changeset: 42f64dc77f65 -->
+
+### 🔧 Changed components
+
+- List toolbars, tables and focus: FilterBar puts search (~320px) left and a Filters (n) toggle, scope Tabs and the view switch right, with compact rounded-md filter chips (tinted when set, a fixed 24px ×, "Status: 2") on a toggled row 12px below that scrolls sideways on a phone (the bottom sheet is gone); new DateRangeFilter with presets; SearchableSelect ticks async options and gains a person option (name plus muted email, both searched); DataList adds sortable columns with an indicator, `compare`/`sortFirst`/`sortMode`, a standard `rowActions` ⋯ column (32px, always last), un-underlined row links, and `noResults`; Empty always renders an icon; TabsList gains `size="sm"`; buttons inside a status Alert hover in the family's own tint; Dialog and Sheet open onto the first field, never the ×; and no focus rings anywhere except Tabs — keyboard focus is a subtle background tint (a border tint on text entry).
+  [`283057d`](https://github.com/VegaStack/vegastack-design/commit/283057d)
+
+### 📦 npm
+
+- **`@vegastack/design`** → **`0.7.18`** (was `0.7.17`).
+- **`@vegastack/design-tokens`** → **`0.7.18`** (was `0.7.1`).
+- The design-system registry (`@vegastack/ui`) bumps 0.23.8 → 0.23.9.
+
 ## [0.23.8] — September 25, 2026
 
 <!-- assembled from 1 changeset: ea1a35d0f797 -->
