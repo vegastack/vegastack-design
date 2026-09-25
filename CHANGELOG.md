@@ -9,6 +9,20 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.23.3] — September 25, 2026
+
+<!-- assembled from 1 changeset: b9b2973b8c1c -->
+
+### 🔧 Changed components
+
+- Command palette: `CommandFilters` row for type chips and selects, built-in `Kbd` key hints in `CommandFooter`, animated search icon in `CommandLoading`, the wide 820px palette as `CommandDialog`'s default size, and no blank space below the footer.
+  [`e5a31c1`](https://github.com/VegaStack/vegastack-design/commit/e5a31c1)
+
+### 📦 npm
+
+- **`@vegastack/design`** → **`0.7.12`** (was `0.7.11`).
+- The design-system registry (`@vegastack/ui`) bumps 0.23.2 → 0.23.3.
+
 ## [0.23.2] — September 25, 2026
 
 <!-- assembled from 2 changesets: a13b63bf2c85 -->
