@@ -17,112 +17,142 @@ preview: board
 
 ```tsx
 import { Board } from "@/components/ui/board";
+import { BoardCard } from "@/components/ui/board-card";
 
 <Board
-  aria-label="Deals"
-  columns={stages.map((s) => ({ id: s.id, title: s.label, items: s.deals }))}
-  getItemId={(deal) => deal.id}
-  renderCard={(deal) => (
-    <>
-      {deal.name} · {deal.amount}
-    </>
+  aria-label="Tasks"
+  columns={statuses.map((s) => ({
+    id: s.id,
+    title: s.label,
+    items: tasksBy[s.id],
+  }))}
+  getItemId={(task) => task.id}
+  getItemLabel={(task) => task.title}
+  renderCard={(task) => (
+    <BoardCard
+      surface={false}
+      title={task.title}
+      due={task.dueAt}
+      priority={task.priority}
+    />
   )}
-  onMove={({ id, to }) => api.moveDeal(id, to.container, to.index)}
+  onMove={({ id, to }) => api.moveTask(id, to.container, to.index)}
+  onAdd={(status) => openCreate({ status })}
+  addLabel="Add task"
 />;
 ```
 
-The split is content/chrome: **you render card content only**; the board owns
-the column shells, counts, empty drop targets, collapsed strips, drag and
-keyboard models, and the pending/rejected affordances. `onMove` is the single
-move command for every input path — drag, keyboard move mode, and the menu.
+The split is content/chrome: **you render card content only** — a
+[`BoardCard`](/docs/components/board-card) with `surface={false}` is the standard content — and the
+board owns the lanes, sticky headers, counts, the collapse strip, empty drop zones, skeletons,
+paging, the add button, the lifted card and the gap it lands in. `onMove` is the single move
+command for every input path: drag, keyboard and the card menu.
 
 ## Scope
 
-| Behaviour              | Where it lives                                                    |
-| ---------------------- | ----------------------------------------------------------------- |
-| Ordering + persistence | Host — `onMove` is a request; reject its promise to refuse a move |
-| Card content           | Host, via `renderCard` — the board owns all chrome                |
-| Single-list reordering | [`SortableList`](/docs/components/sortable-list)                  |
-| Column model / stages  | Host data — columns are props, never fetched                      |
-| Virtualization         | Deliberately none — columns are bounded at this component's scale |
+| Behaviour              | Where it lives                                                        |
+| ---------------------- | --------------------------------------------------------------------- |
+| Ordering + persistence | Host — `onMove` is a request; reject its promise to refuse a move     |
+| Card content           | Host, via `renderCard` (a `BoardCard`) — the board owns all chrome    |
+| Creating a card        | Host — `onAdd(laneId)` opens the host's form with the lane pre-filled |
+| Single-list reordering | [`SortableList`](/docs/components/sortable-list)                      |
+| Lanes from a list      | [`DataList`](/docs/components/data-list) `view="board"` (sections)    |
+| Virtualization         | Deliberately none — lanes page with `loadMore` instead                |
 
 ## Examples
 
+### Task board
+
+The full board: `BoardCard` content, "+ Add task" at each lane's foot (`onAdd` receives the lane's
+id, so the host's create form opens with that status filled in), per-card actions with a submenu,
+and an empty lane that reads "Nothing here" at rest and "Drop here" while a card is dragged.
+
+Drag a card: it lifts with a shadow and a slight tilt, the cards around it slide to make room, and
+it settles into its slot. Near a lane's top or bottom edge the lane scrolls; near the board's
+side edges the board scrolls. On a touch screen, hold a card for a quarter of a second to pick it
+up (the device buzzes where it can); a swipe still scrolls. Under reduced motion the card still
+follows the pointer, without the tilt or the slides.
+
+<ComponentPreview name="boardTasks" file="components/preview/board.tsx" />
+
+### Full height
+
+`height="fill"` is the default: the board measures where it starts and runs its lanes to the
+bottom of the viewport (less `fillOffset`, the page's bottom padding). Cards scroll inside each
+lane and the page never scrolls. Lanes are 320px (`columnWidth`) with a 12px gap and grow to share
+a wide screen; the board scrolls sideways with a hidden scrollbar and fades at the edges that have
+more. Pass `height="auto"` to size lanes to their cards, or any CSS length.
+
+<ComponentPreview name="boardFill" file="components/preview/board.tsx" />
+
+### Collapsed lanes
+
+Every lane header has a ⋯ menu with "Collapse lane" (turn it off with `collapsible={false}`, or
+add the lane's own actions with `getColumnActions`). A collapsed lane is a slim vertical strip with
+its count; activating it expands the lane. Control the set with `collapsedColumns` and
+`onCollapsedChange` to remember it. A lane declared `defaultCollapsed` is a terminal lane: it
+expands read-only.
+
+<ComponentPreview name="boardCollapsed" file="components/preview/board.tsx" />
+
 ### Server-gated moves
 
-Return a promise from `onMove`: the card shimmers in place while the write is
-in flight, and a rejection announces the snap-back — the host never applied
-the move, so the card simply stays.
+Moves are optimistic: the card lands at once and shimmers while `onMove`'s promise is pending. A
+rejection snaps it back, announces it, and raises an error toast (`moveErrorToast` sets its
+title, or `false` turns it off; the app mounts [`Toaster`](/docs/components/toast)).
 
 <ComponentPreview name="boardGated" file="components/preview/board.tsx" />
 
-### Locked lanes, the keyboard path, and column height
+### Locked lanes and auto height
 
-A column with `droppable: false` renders as an inert drop target that states its `lockedReason`
-rather than silently refusing. Every card's "Move card" menu is the lossless keyboard and
-assistive-tech equivalent of a drag, and it stays available for lanes the pointer path refuses —
-which is also why the grab cursor appears only where a pointer drag can actually start (not under
-`dragDisabled`, not below the mobile breakpoint, not in `readOnly`).
-
-`columnMaxHeight` caps the scrolling card list. It defaults to `calc(100dvh - 16rem)`; a board
-inside a shorter shell passes its own CSS length instead of inheriting that viewport reservation.
+A lane with `droppable: false` is never a target; its `lockedReason` shows in the Move menu and
+in the lane when it is empty. `readOnly` turns every move off for the whole board. With
+`height="auto"`, `columnMaxHeight` caps each lane's card list.
 
 <ComponentPreview name="boardLanes" file="components/preview/board.tsx" />
 
 ### Lane and card labels
 
-Every lane and card has a plain-text name, because the board speaks them: the lane's card list is
-named "To do, 2 cards", the Move menu says "Move to Blocked", each card's menu control is
-"Move Token audit", and every move announces the card and the lane ("Moved Token audit to Blocked,
-position 1 of 1"). A string `title` names its lane on its own. A lane whose `title` is a node — a
-`Badge`, an icon beside text — passes `label`; without one the board falls back to the column `id`
-and warns in development. `getItemLabel` names the cards; without it the control is "Move card".
-
-"Drag a card here" appears in an empty lane only where a pointer drag can start — not under
-`dragDisabled`, not below 768px, not in a read-only lane. Card content sits under
-`TruncationFocusProvider focusable={false}`, so a `TruncatedText` inside a card never adds a second
-tab stop.
+Every lane and card has a plain-text name, because the board speaks them. A string `title` names
+its lane on its own; a lane whose `title` is a node passes `label` (the board warns in
+development when it has to fall back to the id). `getItemLabel` names the cards — in their
+accessible name, their menu control ("Move Token audit") and every announcement.
 
 <ComponentPreview name="boardLabels" file="components/preview/board.tsx" />
 
 ### Lane states
 
-A lane that has loaded only some of its cards passes its total as `count`: the lane shows it as a
-muted number and its name says it ("Open, 14 tasks" — `countLabel` supplies the host's noun, and
-defaults to "cards"). `loading` shows skeleton cards below any loaded ones and marks the lane
-`aria-busy`. `emptyState` replaces the default "No cards" drop target; pass an
-`Empty className="border"` to keep the drop-zone look. `defaultCollapsed` starts a terminal lane as
-a strip that expands read-only (`collapsed` is its older alias). The board keeps scrolling sideways.
+`count` is the lane's total when it has loaded only some cards ("Open, 14 tasks", through
+`countLabel`). `loading` shows skeleton cards and marks the lane `aria-busy`. `emptyState`
+replaces the dashed "Nothing here" zone at rest.
 
 <ComponentPreview name="boardLaneStates" file="components/preview/board.tsx" />
 
 ### Cards as links
 
-`getItemHref` makes a card a real link, rendered as `<a>` or as the element you pass in
-`itemLinkRender` (your router's `<Link />`). A click follows it, and a Cmd, Ctrl, Shift or middle
-click opens it wherever the browser would — the board never intercepts it, and `onCardActivate`
-is for button cards only. Enter follows the link; Space still lifts the card into move mode. The
-Move menu is a separate control beside the link, never inside it, so keep links and buttons out of
-the card content too.
-
-A card with a menu reserves the ⋯ trigger's width at its inline end, so a long title wraps before
-the trigger instead of running under it.
-
-`itemLinkRender` is one template for every card, so the card's own props win over the template's:
-pass your router link as `<Link href="" />` to satisfy its required `href`, and each card still
-links to its own `getItemHref` — the same rule as `DataList`'s `rowLinkRender`.
+`getItemHref` makes each card a real link, rendered as `<a>` or as your router's link through
+`itemLinkRender`. A click follows it and a modifier click opens a new tab; a drag never follows
+it. Enter follows the link; Space still picks the card up.
 
 <ComponentPreview name="boardLinks" file="components/preview/board.tsx" />
 
 ### Paged lanes and card actions
 
-A lane with more cards than it has loaded takes `loadMore` (a `LoadMoreState`): the shared
-[`LoadMore`](/docs/components/load-more) footer sits after the lane's cards, inside its scroll.
-`getItemActions(item)` returns the card's own `RowAction`s — open, edit, archive — listed first in
-its ⋯ menu, above a separator and the Move items, so each card keeps one menu. With actions the
-menu control is named `Actions for {card}`.
+A lane with more cards than it has loaded takes `loadMore`: the next batch loads as the lane's
+foot scrolls into view, and the shared [`LoadMore`](/docs/components/load-more) button stays as the
+fallback and the retry after an error. `getItemActions(item)` lists the card's own actions first
+in its ⋯ menu, above the Move items; an action with `items` opens a submenu.
 
 <ComponentPreview name="boardPagedLanes" file="components/preview/board.tsx" />
+
+### On a phone
+
+Below 768px the board shows one lane at a time at full width. Swipe to move between lanes, or tap
+a lane in the strip above, which shows each lane's count. To move a card to another lane, hold it,
+then drag it to the screen's edge: the board turns to the next lane. The card's ⋯ menu and "Move
+to…" items remain the one-tap path.
+
+<ComponentPreview name="board" file="components/preview/board.tsx" />
 
 ## API Reference
 
@@ -134,42 +164,39 @@ menu control is named `Actions for {card}`.
 
 ## Accessibility
 
-- **The keyboard path is not a fallback** — below 768px pointer drag disables
-  outright, so the move mode and the per-card Move menu are the only paths and
-  are lossless by construction: every droppable column is a menu target, with
-  visible lock reasons on unavailable ones.
-- Cards form one roving tab stop per board: <kbd>↑</kbd>/<kbd>↓</kbd> move
-  within a column, <kbd>←</kbd>/<kbd>→</kbd> across columns at a clamped index
-  (RTL-aware), <kbd>Home</kbd>/<kbd>End</kbd> jump within the column.
-- <kbd>Space</kbd> lifts the focused card into move mode (arrows then commit one
-  announced step at a time; <kbd>Escape</kbd> ends); <kbd>Enter</kbd>
-  activates the card; <kbd>M</kbd> opens its Move menu.
-- A dragged card gains **no shadow** — flat by doctrine; lift reads as the
-  dimmed origin plus the drop-indicator line. Empty columns are real drop
-  targets, rendered as `Empty className="border"` for the dashed drop-zone look.
+- **Every move has a keyboard path.** <kbd>Space</kbd> picks the focused card up, the arrows
+  move it (<kbd>↑</kbd>/<kbd>↓</kbd> within its lane, <kbd>←</kbd>/<kbd>→</kbd> across lanes,
+  RTL-aware), <kbd>Space</kbd> drops it and <kbd>Escape</kbd> puts it back. Nothing is committed
+  until the drop, and each step is announced ("In review, position 2 of 3").
+- The card menu (<kbd>M</kbd>) lists every move — up, down, top, bottom and each lane, with lock
+  reasons on unavailable ones — so a move is one action too.
+- Cards form one roving tab stop per board: <kbd>↑</kbd>/<kbd>↓</kbd> within a lane,
+  <kbd>←</kbd>/<kbd>→</kbd> across, <kbd>Home</kbd>/<kbd>End</kbd> within the
+  lane.
 - Each lane is a region named by its label and total ("Open, 14 tasks"); a loading lane is
-  `aria-busy`. A card with an href is a link, not a button, and nothing interactive nests inside it.
-- Every move and every rejection announces through a polite live region, naming the card
-  (`getItemLabel`) and the lane (`label`, or a string `title`).
+  `aria-busy`. The card's activator (a button, or a link) is a sibling of its content, so a
+  `BoardCard`'s done tick is its own control, never nested inside another.
+- Moves, drops, cancels and rejections announce through one polite live region.
+- No focus ring: the focused card takes the system's background tint (FOC-13).
 
 | Key                                                 | Action                                         |
 | --------------------------------------------------- | ---------------------------------------------- |
-| <kbd>↑</kbd>/<kbd>↓</kbd>/<kbd>←</kbd>/<kbd>→</kbd> | Browse cards (roving focus).                   |
-| <kbd>Space</kbd>                                    | Toggle move mode on the focused card.          |
+| <kbd>↑</kbd>/<kbd>↓</kbd>/<kbd>←</kbd>/<kbd>→</kbd> | Browse cards; while picked up, move the card.  |
+| <kbd>Space</kbd>                                    | Pick the focused card up; drop it.             |
+| <kbd>Escape</kbd>                                   | Cancel the move and put the card back.         |
 | <kbd>Enter</kbd>                                    | Activate the focused card, or follow its link. |
-| <kbd>M</kbd>                                        | Open the focused card's Move menu.             |
-| <kbd>Escape</kbd>                                   | End move mode.                                 |
+| <kbd>M</kbd>                                        | Open the focused card's menu.                  |
 
 <StatesTested name="board" />
 
 ## Do / Don't
 
 <DoDont
-  do="Keep onMove the single move command and refuse bad moves by rejecting its promise — every input path gets the shimmer and announced snap-back."
-  dont="Give a dragged card a drop shadow to 'lift' it — the browser's drag preview is a flat snapshot taken before the class lands, so the shadow paints on the card left behind and not on the one moving."
+  do="Keep onMove the single move command and refuse a bad move by rejecting its promise — the card snaps back, the rejection is announced and a toast says so."
+  dont="Re-sort the lane yourself while the promise is pending — the board already shows the move optimistically."
 />
 
 <DoDont
-  do="Pass getItemHref when a card opens a record at its own URL, so Cmd-click and middle click open it in a new tab."
-  dont="Put a link or button inside renderCard's content — the card is already a control, and a nested one is unreachable by keyboard and confusing to a screen reader."
+  do="Render a BoardCard with surface={false} and put the card's actions in getItemActions."
+  dont="Pass actions to the BoardCard as well — the card would show two ⋯ menus."
 />

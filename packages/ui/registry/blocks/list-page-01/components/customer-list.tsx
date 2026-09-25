@@ -1,22 +1,16 @@
-// @vegastack list-page-01@0.23.16 sha256-clX1EgCFWJWzbhcSOe/zuWmoyu/QHBbblZ0DspT3lXc=
+// @vegastack list-page-01@0.23.16 sha256-UucGcXGrRnorNqG06TNMzj923nyfaBQWMOYvy49ryzE=
 
 "use client";
 
 import * as React from "react";
-import {
-  LayoutGrid,
-  List,
-  SearchX,
-  TriangleAlert,
-  UsersRound,
-} from "lucide-react";
+import { TriangleAlert, UsersRound } from "lucide-react";
 
 import { Badge, type BadgeVariant } from "@/components/ui/badge";
 import { Button, buttonVariants } from "@/components/ui/button";
 import {
   DataList,
-  rowActionsColumn,
   type DataListColumn,
+  type DataListSection,
 } from "@/components/ui/data-list";
 import {
   Empty,
@@ -27,16 +21,7 @@ import {
   EmptyTitle,
 } from "@/components/ui/empty";
 import { FilterBar, FilterBarFacet } from "@/components/ui/filter-bar";
-import {
-  Item,
-  ItemContent,
-  ItemDescription,
-  ItemGroup,
-  ItemTitle,
-} from "@/components/ui/item";
-import { LoadMore } from "@/components/ui/load-more";
 import { RelativeTime } from "@/components/ui/relative-time";
-import { Skeleton } from "@/components/ui/skeleton";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 
 import {
@@ -53,6 +38,10 @@ type Status = Customer["status"];
 const STATUSES: Status[] = ["Active", "Prospect", "Paused"];
 type Industry = Customer["industry"];
 const INDUSTRIES: Industry[] = ["Hospitality", "Retail", "Offices"];
+const INDUSTRY_SECTIONS: DataListSection[] = INDUSTRIES.map((industry) => ({
+  id: industry,
+  label: industry,
+}));
 const STATUS_BADGE: Record<Status, BadgeVariant> = {
   Active: "success",
   Prospect: "info",
@@ -96,10 +85,11 @@ export interface CustomerListProps {
 const customerHref = (customer: Customer) => `/customers/${customer.id}`;
 
 /**
- * The customer list: a `FilterBar` (search first, Status and Industry facets, a Mine | Team switch and a
- * Grid | List view switch) over the same records as a `DataList` or a grid of whole-tile links
- * grouped by industry, paged with Load more. Three empty tiers: nothing yet, no matches (with
- * "Clear filters"), and a failed load (with "Try again").
+ * The customer list: one `DataList` with a `FilterBar` toolbar (search first, Status and Industry
+ * facets, a Mine | Team scope, and the list's own Grid | List view toggle in the bar's view slot).
+ * Both views show the same records grouped by industry — a table, or a grid of `MediaCard` links —
+ * paged with Load more. Three empty tiers: nothing yet, no matches (with "Clear filters"), and a
+ * failed load (with "Try again").
  *
  * @example
  * <CustomerList customers={customers} loading={isPending} error={error?.message} onRetry={refetch} />
@@ -197,20 +187,13 @@ export function CustomerList({
         <RelativeTime date={c.updatedAt} className="text-muted-foreground" />
       ),
     },
-    rowActionsColumn<Customer>({
-      getRowLabel: (c) => c.name,
-      actions: (c) => [
-        { label: "Edit", render: <a href={`${customerHref(c)}/edit`} /> },
-        { label: "Archive", destructive: true, onSelect: () => {} },
-      ],
-    }),
   ];
 
   const ready = !loading && error == null;
 
-  let body: React.ReactNode;
+  let emptyState: React.ReactNode;
   if (error != null) {
-    body = (
+    emptyState = (
       <Empty className="border border-dashed" role="alert">
         <EmptyHeader>
           <EmptyMedia variant="icon">
@@ -226,8 +209,8 @@ export function CustomerList({
         </EmptyContent>
       </Empty>
     );
-  } else if (ready && inScope.length === 0) {
-    body = (
+  } else {
+    emptyState = (
       <Empty className="border border-dashed">
         <EmptyHeader>
           <EmptyMedia variant="icon">
@@ -251,198 +234,113 @@ export function CustomerList({
         )}
       </Empty>
     );
-  } else if (ready && matching.length === 0) {
-    body = (
-      <Empty className="border border-dashed">
-        <EmptyHeader>
-          <EmptyMedia variant="icon">
-            <SearchX aria-hidden />
-          </EmptyMedia>
-          <EmptyTitle render={<h2 />}>No matches</EmptyTitle>
-          <EmptyDescription>
-            No customer matches these filters.
-          </EmptyDescription>
-        </EmptyHeader>
-        <EmptyContent>
-          <Button variant="outline" onClick={clearFilters}>
-            Clear filters
-          </Button>
-        </EmptyContent>
-      </Empty>
-    );
-  } else if (view === "list") {
-    body = (
-      <DataList<Customer>
-        aria-label="Customers"
-        columns={columns}
-        data={shown}
-        getRowId={(c) => c.id}
-        getRowHref={customerHref}
-        loading={loading}
-        loadMore={
-          ready
-            ? { hasMore, loading: loadingMore, onLoadMore: loadMore }
-            : undefined
-        }
-      />
-    );
-  } else {
-    body = (
-      <div className="@container flex flex-col gap-8">
-        {loading ? (
-          <div
-            aria-busy="true"
-            className="grid gap-3 @sm:grid-cols-2 @4xl:grid-cols-3"
-          >
-            <span className="sr-only">Loading customers…</span>
-            {Array.from({ length: 6 }, (_, i) => (
-              <Skeleton key={i} className="h-16 rounded-lg" />
-            ))}
-          </div>
-        ) : (
-          INDUSTRIES.map((industry) => {
-            const tiles = shown.filter((c) => c.industry === industry);
-            if (tiles.length === 0) return null;
-            const headingId = `list-page-01-${industry.toLowerCase()}`;
-            return (
-              <section
-                key={industry}
-                aria-labelledby={headingId}
-                className="flex flex-col gap-3"
-              >
-                <h2
-                  id={headingId}
-                  className="font-heading text-base font-medium"
-                >
-                  {industry}
-                </h2>
-                <ItemGroup
-                  aria-labelledby={headingId}
-                  className="grid gap-3 @sm:grid-cols-2 @4xl:grid-cols-3"
-                >
-                  {tiles.map((c) => (
-                    <Item
-                      key={c.id}
-                      variant="outline"
-                      render={<a href={customerHref(c)} />}
-                    >
-                      <ItemContent>
-                        <ItemTitle>{c.name}</ItemTitle>
-                        <ItemDescription>
-                          {c.city} ·{" "}
-                          <span className="tabular-nums">{c.projects}</span>{" "}
-                          {c.projects === 1 ? "project" : "projects"}
-                        </ItemDescription>
-                      </ItemContent>
-                      <Badge variant={STATUS_BADGE[c.status]}>{c.status}</Badge>
-                    </Item>
-                  ))}
-                </ItemGroup>
-              </section>
-            );
-          })
-        )}
-        {ready ? (
-          <LoadMore
-            hasMore={hasMore}
-            loading={loadingMore}
-            onLoadMore={loadMore}
-          />
-        ) : null}
-      </div>
-    );
   }
 
-  return (
-    <div className="flex min-w-0 flex-col gap-3">
-      <FilterBar
-        aria-label="Customer filters"
-        searchPlacement="start"
-        search={{
-          value: query,
-          onValueChange: setQuery,
-          onValueCommitted: (value) => {
-            setCommittedQuery(value);
+  const toolbar = (
+    <FilterBar
+      aria-label="Customer filters"
+      searchPlacement="start"
+      search={{
+        value: query,
+        onValueChange: setQuery,
+        onValueCommitted: (value) => {
+          setCommittedQuery(value);
+          setPages(1);
+        },
+        placeholder: "Search customers…",
+        "aria-label": "Search customers",
+      }}
+      searchInputProps={{ ref: searchRef }}
+      facets={
+        <>
+          <FilterBarFacet<{ id: Status; name: Status }>
+            label="Status"
+            items={STATUSES.map((st) => ({ id: st, name: st }))}
+            value={
+              statusFilter ? { id: statusFilter, name: statusFilter } : null
+            }
+            onValueChange={(item) => {
+              setStatusFilter(item ? item.id : null);
+              setPages(1);
+            }}
+            itemToKey={(item) => item.id}
+            itemToStringLabel={(item) => item.name}
+            searchLabel="Search statuses"
+          />
+          <FilterBarFacet<{ id: Industry; name: Industry }>
+            label="Industry"
+            items={INDUSTRIES.map((ind) => ({ id: ind, name: ind }))}
+            value={
+              industryFilter
+                ? { id: industryFilter, name: industryFilter }
+                : null
+            }
+            onValueChange={(item) => {
+              setIndustryFilter(item ? item.id : null);
+              setPages(1);
+            }}
+            itemToKey={(item) => item.id}
+            itemToStringLabel={(item) => item.name}
+            searchLabel="Search industries"
+          />
+        </>
+      }
+      scope={
+        <ToggleGroup
+          variant="outline"
+          aria-label="Owner"
+          deselectable={false}
+          value={[scope]}
+          onValueChange={(value) => {
+            if (value[0]) setScope(value[0] as Scope);
             setPages(1);
-          },
-          placeholder: "Search customers…",
-          "aria-label": "Search customers",
-        }}
-        searchInputProps={{ ref: searchRef }}
-        facets={
-          <>
-            <FilterBarFacet<{ id: Status; name: Status }>
-              label="Status"
-              items={STATUSES.map((st) => ({ id: st, name: st }))}
-              value={
-                statusFilter ? { id: statusFilter, name: statusFilter } : null
-              }
-              onValueChange={(item) => {
-                setStatusFilter(item ? item.id : null);
-                setPages(1);
-              }}
-              itemToKey={(item) => item.id}
-              itemToStringLabel={(item) => item.name}
-              searchLabel="Search statuses"
-            />
-            <FilterBarFacet<{ id: Industry; name: Industry }>
-              label="Industry"
-              items={INDUSTRIES.map((ind) => ({ id: ind, name: ind }))}
-              value={
-                industryFilter
-                  ? { id: industryFilter, name: industryFilter }
-                  : null
-              }
-              onValueChange={(item) => {
-                setIndustryFilter(item ? item.id : null);
-                setPages(1);
-              }}
-              itemToKey={(item) => item.id}
-              itemToStringLabel={(item) => item.name}
-              searchLabel="Search industries"
-            />
-          </>
-        }
-        trailing={
-          <div className="flex flex-wrap items-center gap-2">
-            {filtering ? (
-              <Button variant="ghost" onClick={clearFilters}>
-                Clear filters
-              </Button>
-            ) : null}
-            <ToggleGroup
-              variant="outline"
-              aria-label="Owner"
-              deselectable={false}
-              value={[scope]}
-              onValueChange={(value) => {
-                if (value[0]) setScope(value[0] as Scope);
-                setPages(1);
-              }}
-            >
-              <ToggleGroupItem value="mine">Mine</ToggleGroupItem>
-              <ToggleGroupItem value="team">Team</ToggleGroupItem>
-            </ToggleGroup>
-            <ToggleGroup
-              variant="outline"
-              aria-label="View"
-              deselectable={false}
-              value={[view]}
-              onValueChange={(value) => {
-                if (value[0]) setView(value[0] as View);
-              }}
-            >
-              <ToggleGroupItem value="grid" aria-label="Grid">
-                <LayoutGrid />
-              </ToggleGroupItem>
-              <ToggleGroupItem value="list" aria-label="List">
-                <List />
-              </ToggleGroupItem>
-            </ToggleGroup>
-          </div>
-        }
-      />
-      {body}
-    </div>
+          }}
+        >
+          <ToggleGroupItem value="mine">Mine</ToggleGroupItem>
+          <ToggleGroupItem value="team">Team</ToggleGroupItem>
+        </ToggleGroup>
+      }
+      trailing={
+        filtering ? (
+          <Button variant="ghost" onClick={clearFilters}>
+            Clear filters
+          </Button>
+        ) : null
+      }
+    />
+  );
+
+  return (
+    <DataList<Customer>
+      aria-label="Customers"
+      toolbar={toolbar}
+      view={view}
+      onViewChange={(next) => setView(next as View)}
+      views={["grid", "list"]}
+      columns={columns}
+      data={error != null ? [] : shown}
+      getRowId={(c) => c.id}
+      getRowLabel={(c) => c.name}
+      getRowHref={customerHref}
+      rowActions={(c) => [
+        { label: "Edit", render: <a href={`${customerHref(c)}/edit`} /> },
+        { type: "separator" },
+        { label: "Archive", destructive: true, onSelect: () => {} },
+      ]}
+      sections={INDUSTRY_SECTIONS}
+      getRowSection={(c) => c.industry}
+      loading={loading}
+      emptyState={emptyState}
+      noResults={
+        ready && inScope.length > 0 && matching.length === 0
+          ? { onClear: clearFilters }
+          : undefined
+      }
+      loadMore={
+        ready && shown.length > 0
+          ? { hasMore, loading: loadingMore, onLoadMore: loadMore }
+          : undefined
+      }
+    />
   );
 }

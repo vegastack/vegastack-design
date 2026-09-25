@@ -2,10 +2,10 @@
   "schemaVersion": 1,
   "kind": "vegastack-zero-gap-audit-register",
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "9b30f3bc4da2f77fd17fa01d27831411b37241be881b131ba8d7dfceff8aba05",
+  "contractSha256": "d551f1ac379ca91328b891bcde2c30d390cfce85fa4114df89c3cc09734a3c50",
   "expectedCounts": {
-    "totalRegistryItems": 684,
-    "components": 123,
+    "totalRegistryItems": 685,
+    "components": 124,
     "animatedIcons": 467,
     "hooks": 13,
     "blocks": 10,
@@ -165,6 +165,17 @@
         "packages/ui/registry/ui/board.tsx"
       ],
       "docsSlug": "/docs/components/board",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "board-card",
+      "inventoryClass": "component",
+      "wave": "Data display",
+      "family": "data",
+      "sourceFiles": [
+        "packages/ui/registry/ui/board-card.tsx"
+      ],
+      "docsSlug": "/docs/components/board-card",
       "contractStatus": "reconciled"
     },
     {

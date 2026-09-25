@@ -151,6 +151,13 @@ const [sort, setSort] = React.useState<SortState | null>(null);
 />;
 ```
 
+Client sorting, live — click a header to cycle it:
+
+<ComponentPreview
+  name="dataListSortable"
+  file="components/preview/data-list.tsx"
+/>
+
 ### Row activation
 
 Pass `onRowClick` to make rows activatable — for navigating to a detail page, opening a drawer, and
@@ -250,6 +257,13 @@ const columns: DataListColumn<Person>[] = [
   file="components/preview/data-list.tsx"
 />
 
+The `noResults` state, from a search with a Clear filters action:
+
+<ComponentPreview
+  name="dataListNoResults"
+  file="components/preview/data-list.tsx"
+/>
+
 Pass `emptyState` to fully replace the built-in node — for a filtered "no results" message with its own
 icon and actions, for example:
 
@@ -308,6 +322,15 @@ same entries drive the grid card's ⋯ and the board card's ⋯.
   file="components/preview/data-list.tsx"
 />
 
+An action with `items` opens a submenu instead of running `onSelect` — _Open · Copy link · Change
+status › · Assign › ─ Remove_. Its entries are `RowAction`s too, so separators, links, disabled
+reasons and destructive items work the same inside it.
+
+<ComponentPreview
+  name="dataListRowActionSubmenu"
+  file="components/preview/data-list.tsx"
+/>
+
 `RowActionsMenu` (and `RowActionMenuItems`, for a host that owns its own menu) are exported from
 `data-table-parts`; Board cards and SortableList rows use the same parts.
 
@@ -338,6 +361,13 @@ cells (a checkbox, a menu) keep their own behaviour. A row without an href falls
 
 <ComponentPreview
   name="dataListRowLinks"
+  file="components/preview/data-list.tsx"
+/>
+
+Highlighted rows, through `highlightedIds`:
+
+<ComponentPreview
+  name="dataListHighlighted"
   file="components/preview/data-list.tsx"
 />
 
@@ -441,16 +471,51 @@ for the browser session under `viewStorageKey` (default: the path plus the list'
 ### Board
 
 `view="board"` renders the sections as [`Board`](/docs/components/board) lanes — every lane shows,
-empty or not — and each row as a card (the same `renderCard`, or a plain card from the columns; the
-board owns the card surface, link and ⋯ menu). `onMove(row, fromSection, toSection)` applies a
-drag or a "Move to" between lanes; return a promise to gate it on the server. A section's own
-`loading`, `loadMore` and `emptyState` give each lane its own first load, **Load more** and empty
-state. Offer it with `views={["list", "board"]}`.
+empty or not — and each row as a [`BoardCard`](/docs/components/board-card). The board owns the
+card surface, its link and its ⋯ menu (`rowActions`, submenus included). By default the lanes fill
+the viewport below the list and cards scroll inside each lane (`boardHeight`, default `"fill"`).
+Offer it with `views={["list", "board"]}`.
+
+- **Cards.** `boardCard(row)` maps a row to the card's fields — `title`, `context`, `due`,
+  `priority`, `assignee`, `done` / `onDoneChange`, `source`. Without it the title is the first
+  column and the context line joins the other columns. `renderCard` replaces the card entirely.
+- **Moves.** `onMove(row, fromSection, toSection, move)` applies a drag, a keyboard move or a
+  "Move to" between lanes. The card moves at once; return a promise to gate it on the server — a
+  rejection snaps it back with a toast. Without `onMove` the board is read-only.
+- **Lanes.** `onAddToSection(sectionId)` adds "+ {addLabel}" at each lane's foot so the host's
+  create form opens with that status filled in. Every lane collapses from its header's ⋯ menu
+  (`collapsedSections` / `onCollapsedSectionsChange` control it); a section's `defaultCollapsed`
+  starts it as a read-only strip, `droppable: false` and `lockedReason` refuse cards, and
+  `addable: false` hides its add button.
+- **Per-lane data.** A section's own `loading`, `loadMore` (loaded as the lane's foot scrolls into
+  view, with the Load more button as fallback) and `emptyState` give each lane its own first load,
+  paging and empty state. An empty lane reads "Nothing here", and "Drop here" while dragging.
+
+<ComponentPreview
+  name="dataListBoardCards"
+  file="components/preview/data-list.tsx"
+/>
+
+The simplest board: two columns, three sections and `onMove`, switched with the view toggle.
 
 <ComponentPreview
   name="dataListBoard"
   file="components/preview/data-list.tsx"
 />
+
+Loading: every lane shows skeleton cards while the list loads, and a section's `loading` does the
+same for one lane.
+
+<ComponentPreview
+  name="dataListBoardLoading"
+  file="components/preview/data-list.tsx"
+/>
+
+**On a phone** (below 768px) the board shows one lane at a time at full width: swipe between
+lanes, or tap one in the lane strip above, which shows each lane's count. Hold a card for a
+quarter of a second to pick it up (a swipe still scrolls), and drag it to the screen's edge to
+turn to the next lane; the card's ⋯ menu is the one-tap path. The grid drops to one column and
+the list keeps its merged columns.
 
 ### Fitting the width
 

@@ -426,7 +426,7 @@
       "name": "board",
       "type": "registry:ui",
       "title": "Board",
-      "description": "Kanban columns over use-drag-reorder — content/chrome split (host renders card content only), pointer drag, keyboard move mode + roving focus, lossless per-card Move menu with lock reasons, server-refusable moves, named lanes with a muted total count, loading and custom empty lanes, collapsed lanes, cards as real links, Empty-bordered drop targets.",
+      "description": "Kanban lanes — full-height lanes that scroll their cards inside, sticky headers with a collapse menu, + Add at each lane's foot, Nothing here / Drop here empty zones, per-lane skeletons and load-on-scroll paging; live pointer and touch drag (lift, make room, settle, edge auto-scroll), a keyboard pick-up/move/drop model, a lossless per-card Move menu, optimistic moves with rollback and a toast, and one lane at a time on a phone.",
       "categories": [
         "layout"
       ],
@@ -438,16 +438,15 @@
       ],
       "registryDependencies": [
         "@vegastack/button",
-        "@vegastack/card",
         "@vegastack/data-table-parts",
-        "@vegastack/drag-item",
         "@vegastack/dropdown-menu",
-        "@vegastack/empty",
         "@vegastack/load-more",
-        "@vegastack/scroll-area",
         "@vegastack/skeleton",
+        "@vegastack/toast",
         "@vegastack/truncated-text",
+        "@vegastack/use-announcer",
         "@vegastack/use-drag-reorder",
+        "@vegastack/use-media-query",
         "@vegastack/use-mobile"
       ],
       "files": [
@@ -461,7 +460,40 @@
         "whenToUse": "Cross-column card movement — pipelines, kanban, staged workflows — where the host owns ordering and the move can be refused by a server gate; lanes may be partially loaded (count shows the total) and cards may be links to their records.",
         "whenNotToUse": "Single-list reordering (sortable-list), tabular data (data-list/data-grid), or static column layouts with no movement (plain Cards in a flex row).",
         "version": "0.23.16",
-        "integrity": "sha256-RO27IZZbKDSqO9gYEEyy35mGHK3X7I9fHJ7wULXBJDk="
+        "integrity": "sha256-5PujYEE2t27lvrGzOVW32Swm+3EIyWhZgiI7mivQe5M="
+      }
+    },
+    {
+      "name": "board-card",
+      "type": "registry:ui",
+      "title": "Board Card",
+      "description": "A work item as a board card — a round completion tick, a two-line title, a muted context line, and a bottom row with the due chip (destructive when overdue, warning when due today), the priority chip, a source icon and the assignee's avatar.",
+      "categories": [
+        "data"
+      ],
+      "dependencies": [
+        "@vegastack/design@^0.7.20",
+        "@vegastack/design-tokens@^0.7.18",
+        "@base-ui/react@^1.6.0"
+      ],
+      "registryDependencies": [
+        "@vegastack/avatar",
+        "@vegastack/badge",
+        "@vegastack/checkbox",
+        "@vegastack/date-time"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/board-card.tsx",
+          "type": "registry:ui",
+          "target": "@ui/board-card.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "The content of a Board card (tasks, deals, tickets) — DataList's board view renders one per row — or a standalone work-item card.",
+        "whenNotToUse": "A record with an image (MediaCard), a long body (Card), or a table row (DataList).",
+        "version": "0.23.12",
+        "integrity": "sha256-sTEadbdpjzlwAhyRlxLQ6oi8qNJ3rPeF81jpLaNpVQ4="
       }
     },
     {
@@ -1106,6 +1138,7 @@
         "@vegastack/board",
         "@vegastack/filter-bar",
         "@vegastack/media-card",
+        "@vegastack/board-card",
         "@vegastack/skeleton",
         "@vegastack/thumbnail",
         "@vegastack/view-toggle",
@@ -1122,7 +1155,7 @@
         "whenToUse": "A list of records as a table, a card grid or board lanes (view) with typed columns, selection, click-to-sort, loading/empty states, keyset paging through loadMore, rows as links, sections, thumbnails and a row-actions column.",
         "whenNotToUse": "Full-parity grids with grouping/editing/virtualization (DataGrid), or a simple static table (Table).",
         "version": "0.23.16",
-        "integrity": "sha256-kOhbIqy7i1kUPfU1I8rTU4kuc0tzXFWBKGdC+nFjH9o="
+        "integrity": "sha256-p/tiQSG9beeJsreeQVQSXlIYnsuQZlCEx4c0dqUmpIU="
       }
     },
     {
@@ -1309,7 +1342,7 @@
         "whenToUse": "Installed automatically with DataList or DataGrid; import it directly when building a bespoke table that should share their sort header, selection cells and column rules.",
         "whenNotToUse": "A plain presentational table (Table alone), or as a table component in its own right — these are parts, not a renderer.",
         "version": "0.23.16",
-        "integrity": "sha256-Cro7yq+g9bU0CB7VNCb9YSTisEqgirpSsC6EML2zzvc="
+        "integrity": "sha256-vKT8qvrAO8Swxf7M8yqu6K3MKfqJw3UZMsT2f0InHd0="
       }
     },
     {
@@ -17048,7 +17081,7 @@
         "whenToUse": "Any reorder-by-drag surface — sortable lists, wrapped tile grids (`columns` for row-aware ↑/↓), board cards, a future bespoke drag surface — where pointer, keyboard move mode, announcements, and server-refusable drops must all work from one API.",
         "whenNotToUse": "File drag-in (use-file-drop), resizing panes (Resizable), or single-axis value dragging (Slider).",
         "version": "0.23.16",
-        "integrity": "sha256-gHZsXoGPmP7uctUw9jlyQVcug/bN/CNhSHrT0nFzUlA="
+        "integrity": "sha256-WP6BDXX0eO3CAZf12GRgW7MjjGLpzhuub0/SslQLm0U="
       }
     },
     {
@@ -17347,12 +17380,11 @@
       ],
       "registryDependencies": [
         "@vegastack/app-shell",
-        "@vegastack/avatar",
-        "@vegastack/board",
+        "@vegastack/board-card",
         "@vegastack/button",
+        "@vegastack/data-list",
         "@vegastack/data-table-parts",
         "@vegastack/dropdown-menu",
-        "@vegastack/empty",
         "@vegastack/filter-bar",
         "@vegastack/page-header"
       ],
@@ -17372,7 +17404,7 @@
         "whenToUse": "A tasks or pipeline page laid out as lanes — copy it once and wire the filters, card links and moves to your data.",
         "whenNotToUse": "A list with many columns of data — use a DataList page instead.",
         "version": "0.23.16",
-        "integrity": "sha256-U9qs4rSthlJGPsT0obsnuRGJQM6PSTyW9wJOtFj7oZQ="
+        "integrity": "sha256-j80CGf+n/jtN2hJt/aNKCJyDpOeGiEh2NOmvqwMtdf0="
       }
     },
     {
@@ -19770,11 +19802,8 @@
         "@vegastack/data-list",
         "@vegastack/empty",
         "@vegastack/filter-bar",
-        "@vegastack/item",
-        "@vegastack/load-more",
         "@vegastack/page-header",
         "@vegastack/relative-time",
-        "@vegastack/skeleton",
         "@vegastack/toggle-group"
       ],
       "files": [
@@ -19798,7 +19827,7 @@
         "whenToUse": "A page that lists one kind of record — customers, products, projects — copy it once and wire the filters, paging and routes to your API.",
         "whenNotToUse": "A small list inside another page — compose DataList or an ItemGroup directly.",
         "version": "0.23.16",
-        "integrity": "sha256-clX1EgCFWJWzbhcSOe/zuWmoyu/QHBbblZ0DspT3lXc="
+        "integrity": "sha256-UucGcXGrRnorNqG06TNMzj923nyfaBQWMOYvy49ryzE="
       }
     },
     {

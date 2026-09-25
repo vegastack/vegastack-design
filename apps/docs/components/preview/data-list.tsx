@@ -4,7 +4,7 @@ import * as React from "react";
 import type { ReactNode } from "react";
 import { Wrapper } from "./wrapper";
 // Copied INTO apps/docs via `shadcn add @vegastack/data-list` (dogfoods the registry) → auto-scanned.
-import { Lamp, Search, TriangleAlert } from "lucide-react";
+import { CalendarDays, Lamp, Search, TriangleAlert } from "lucide-react";
 import {
   DataList,
   rowActionsColumn,
@@ -884,6 +884,7 @@ export function dataListBoard(): ReactNode {
         onViewChange={setView}
         views={["list", "board"]}
         viewStorageKey="docs-data-list-board"
+        boardHeight="24rem"
         onMove={(task, _from, to) =>
           setTasks((all) =>
             all.map((t) =>
@@ -891,6 +892,248 @@ export function dataListBoard(): ReactNode {
             ),
           )
         }
+      />
+    </Wrapper>
+  );
+}
+
+/** Client sorting: click a header to cycle its order — ascending, descending, none. */
+export function dataListSortable(): ReactNode {
+  return (
+    <Wrapper className="block">
+      <DataList
+        aria-label="People, sortable"
+        columns={columns}
+        data={people}
+        getRowId={(p) => p.id}
+        sortMode="client"
+      />
+    </Wrapper>
+  );
+}
+
+/** Highlighted rows: `highlightedIds` flashes rows the user just created or changed. */
+export function dataListHighlighted(): ReactNode {
+  return (
+    <Wrapper className="block">
+      <DataList
+        aria-label="People, one just added"
+        columns={columns}
+        data={people.slice(0, 4)}
+        getRowId={(p) => p.id}
+        highlightedIds={new Set(["2"])}
+      />
+    </Wrapper>
+  );
+}
+
+/** No results: the list is empty because of a search, with a Clear filters action. */
+export function dataListNoResults(): ReactNode {
+  const [q, setQ] = React.useState("zzz");
+  const rows = people.filter((p) =>
+    p.name.toLowerCase().includes(q.trim().toLowerCase()),
+  );
+  return (
+    <Wrapper className="block">
+      <DataList
+        aria-label="People search"
+        columns={columns}
+        data={rows}
+        getRowId={(p) => p.id}
+        noResults={q ? { onClear: () => setQ("") } : undefined}
+        toolbar={
+          <FilterBar
+            aria-label="People filters"
+            search={{
+              value: q,
+              onValueChange: setQ,
+              placeholder: "Search people",
+            }}
+          />
+        }
+      />
+    </Wrapper>
+  );
+}
+
+/** Row actions with submenus: an action with `items` opens a submenu. */
+export function dataListRowActionSubmenu(): ReactNode {
+  return (
+    <Wrapper className="block">
+      <DataList
+        aria-label="People with submenus"
+        columns={columns.slice(0, 3)}
+        data={people.slice(0, 3)}
+        getRowId={(p) => p.id}
+        getRowLabel={(p) => p.name}
+        rowActions={() => [
+          { label: "Open", onSelect: () => {} },
+          { label: "Copy link", onSelect: () => {} },
+          {
+            label: "Change status",
+            items: [
+              { label: "Active", onSelect: () => {} },
+              { label: "Invited", onSelect: () => {} },
+              { label: "Suspended", onSelect: () => {} },
+            ],
+          },
+          {
+            label: "Assign",
+            items: [
+              { label: "Ada Lovelace", onSelect: () => {} },
+              { label: "Cole Train", onSelect: () => {} },
+            ],
+          },
+          { type: "separator" },
+          { label: "Remove", destructive: true, onSelect: () => {} },
+        ]}
+      />
+    </Wrapper>
+  );
+}
+
+interface WorkItem {
+  id: string;
+  title: string;
+  project: string;
+  customer: string;
+  status: "todo" | "doing" | "review" | "done";
+  due: number;
+  priority?: "urgent" | "high" | "medium" | "low";
+  owner: string;
+  meeting?: boolean;
+}
+
+const DAY = 86_400_000;
+const WORK: WorkItem[] = [
+  {
+    id: "w1",
+    title: "Send the revised lighting schedule",
+    project: "Harbour Tower",
+    customer: "Acme Build",
+    status: "todo",
+    due: -1,
+    priority: "urgent",
+    owner: "Priya Shah",
+    meeting: true,
+  },
+  {
+    id: "w2",
+    title: "Confirm the fixture count for level 3",
+    project: "Harbour Tower",
+    customer: "Acme Build",
+    status: "todo",
+    due: 0,
+    priority: "high",
+    owner: "Manoj Kumar",
+  },
+  {
+    id: "w3",
+    title: "Draft the lobby pendant quote",
+    project: "Riverside",
+    customer: "Northwind",
+    status: "doing",
+    due: 3,
+    owner: "Alex Lee",
+  },
+  {
+    id: "w4",
+    title: "Share the photometric report",
+    project: "Riverside",
+    customer: "Northwind",
+    status: "done",
+    due: -3,
+    owner: "Alex Lee",
+  },
+];
+
+const WORK_LANES: DataListSection[] = [
+  { id: "todo", label: "To do" },
+  { id: "doing", label: "In progress" },
+  { id: "review", label: "In review" },
+  { id: "done", label: "Done" },
+];
+
+/**
+ * The board view with BoardCard content (`boardCard`), "+ Add task" per lane (`onAddToSection`),
+ * an empty lane, a collapsible lane, and card actions with a submenu.
+ */
+export function dataListBoardCards(): ReactNode {
+  const [items, setItems] = React.useState(WORK);
+  const [done, setDone] = React.useState<ReadonlySet<string>>(new Set(["w4"]));
+  return (
+    <Wrapper className="block">
+      <DataList<WorkItem>
+        aria-label="Work"
+        view="board"
+        boardHeight="28rem"
+        columns={[{ key: "title", header: "Task", mobile: "visible" }]}
+        data={items}
+        getRowId={(t) => t.id}
+        getRowLabel={(t) => t.title}
+        sections={WORK_LANES}
+        getRowSection={(t) => t.status}
+        sectionCountLabel={(n) => `${n} ${n === 1 ? "task" : "tasks"}`}
+        boardCard={(t) => ({
+          title: t.title,
+          context: `${t.project} · ${t.customer}`,
+          done: done.has(t.id),
+          onDoneChange: (next) =>
+            setDone((prev) => {
+              const out = new Set(prev);
+              if (next) out.add(t.id);
+              else out.delete(t.id);
+              return out;
+            }),
+          due: new Date(Date.now() + t.due * DAY),
+          priority: t.priority,
+          assignee: { name: t.owner },
+          source: t.meeting ? <CalendarDays /> : undefined,
+          sourceLabel: t.meeting ? "From a meeting" : undefined,
+        })}
+        rowActions={() => [
+          { label: "Open", onSelect: () => {} },
+          {
+            label: "Change priority",
+            items: [
+              { label: "Urgent", onSelect: () => {} },
+              { label: "High", onSelect: () => {} },
+            ],
+          },
+          { type: "separator" },
+          { label: "Cancel task", destructive: true, onSelect: () => {} },
+        ]}
+        onAddToSection={() => {}}
+        addLabel="Add task"
+        onMove={(task, _from, to) =>
+          setItems((all) =>
+            all.map((t) =>
+              t.id === task.id ? { ...t, status: to as WorkItem["status"] } : t,
+            ),
+          )
+        }
+      />
+    </Wrapper>
+  );
+}
+
+/** The board view while loading: each lane shows skeleton cards; one lane is still fetching. */
+export function dataListBoardLoading(): ReactNode {
+  return (
+    <Wrapper className="block">
+      <DataList<WorkItem>
+        aria-label="Work, loading"
+        view="board"
+        boardHeight="22rem"
+        columns={[{ key: "title", header: "Task", mobile: "visible" }]}
+        data={WORK.filter((t) => t.status !== "doing")}
+        getRowId={(t) => t.id}
+        getRowLabel={(t) => t.title}
+        sections={WORK_LANES.map((lane) =>
+          lane.id === "doing" ? { ...lane, loading: true } : lane,
+        )}
+        getRowSection={(t) => t.status}
+        boardCard={(t) => ({ title: t.title, context: t.project })}
       />
     </Wrapper>
   );

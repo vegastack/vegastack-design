@@ -1189,9 +1189,7 @@ for (const theme of ["light", "dark"] as const) {
       board.getByRole("searchbox", { name: "Search tasks" }),
       "zebra",
     );
-    await expect
-      .element(board.getByRole("heading", { name: "No matches" }))
-      .toBeInTheDocument();
+    await expect.element(board.getByText("No matches")).toBeInTheDocument();
     for (const v of await contrastViolations(board.container))
       failures.push(`board-01 no matches: ${v}`);
     spy.mockRestore();
@@ -1219,7 +1217,10 @@ for (const theme of ["light", "dark"] as const) {
     const list = await contrastViolations(screen.container);
     await screen.getByRole("button", { name: "Grid", exact: true }).click();
     await expect
-      .poll(() => document.querySelectorAll('a[data-slot="item"]').length)
+      .poll(
+        () =>
+          document.querySelectorAll('a[data-slot="media-card-link"]').length,
+      )
       .toBeGreaterThan(0);
     const grid = await contrastViolations(screen.container);
     expect(
