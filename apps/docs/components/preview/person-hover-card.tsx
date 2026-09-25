@@ -49,3 +49,21 @@ export function personHoverCardCard(): ReactNode {
     </Wrapper>
   );
 }
+
+export function personHoverCardInactive(): ReactNode {
+  const person = {
+    name: "Ravi Kumar",
+    email: "ravi@acme.com",
+    badge: "Inactive",
+  };
+  return (
+    <Wrapper>
+      <div className="flex items-center gap-4">
+        <PersonHoverCard person={person}>
+          <PersonAvatar person={person} />
+        </PersonHoverCard>
+        <PersonCard person={person} />
+      </div>
+    </Wrapper>
+  );
+}

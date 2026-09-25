@@ -1,4 +1,4 @@
-// @vegastack person-hover-card@0.23.24 sha256-dIWKvZHGjYTWLvqBUugyd3OcKQAhz/Gu0IFEx5lK5RI=
+// @vegastack person-hover-card@0.23.24 sha256-Ixn7unszR2SQGUSIiA8vH2PhqhCo89VRLHYQTQrUd1E=
 
 "use client";
 
@@ -12,6 +12,7 @@ import {
   AvatarImage,
 } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import { PersonBadge } from "@/components/ui/searchable-select";
 import {
   HoverCard,
   HoverCardContent,
@@ -38,6 +39,8 @@ export interface Person {
   email?: string | null;
   /** The avatar image. @default undefined */
   image?: string | null;
+  /** A status after the name, such as "Inactive" — a string is a small muted outline badge. @default undefined */
+  badge?: React.ReactNode;
 }
 
 /** The two initials of a name ("Northwind FM leads" → "NF"). */
@@ -105,7 +108,12 @@ export function PersonCard({
         size={layout === "card" ? "default" : "sm"}
       />
       <div className="flex min-w-0 flex-col">
-        <span className="text-sm font-medium wrap-anywhere">{person.name}</span>
+        <span className="flex min-w-0 flex-wrap items-center gap-x-1.5">
+          <span className="text-sm font-medium wrap-anywhere">
+            {person.name}
+          </span>
+          <PersonBadge badge={person.badge} />
+        </span>
         {person.email ? (
           <span className="text-xs wrap-anywhere text-muted-foreground">
             {person.email}

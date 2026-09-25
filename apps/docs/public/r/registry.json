@@ -15824,7 +15824,8 @@
         "@vegastack/avatar",
         "@vegastack/button",
         "@vegastack/hover-card",
-        "@vegastack/popover"
+        "@vegastack/popover",
+        "@vegastack/searchable-select"
       ],
       "files": [
         {
@@ -15837,7 +15838,7 @@
         "whenToUse": "Show the people on a record (participants, watchers, a team) as stacked avatars, each previewing the person on hover, focus or tap.",
         "whenNotToUse": "A picker of people (SearchableSelect) or a full member list (DataList).",
         "version": "0.23.24",
-        "integrity": "sha256-dIWKvZHGjYTWLvqBUugyd3OcKQAhz/Gu0IFEx5lK5RI="
+        "integrity": "sha256-Ixn7unszR2SQGUSIiA8vH2PhqhCo89VRLHYQTQrUd1E="
       }
     },
     {
@@ -15858,6 +15859,7 @@
         "@vegastack/card",
         "@vegastack/item",
         "@vegastack/person-hover-card",
+        "@vegastack/searchable-select",
         "@vegastack/skeleton",
         "@vegastack/tooltip"
       ],
@@ -15872,7 +15874,7 @@
         "whenToUse": "A record page's rail cards (and its Details sheet): a Details section of inline properties, people and linked records, then sections of full-width rows for the record's tasks and suggestions.",
         "whenNotToUse": "A full list page (DataList) or a settings form (Field).",
         "version": "0.23.24",
-        "integrity": "sha256-6pkTb31lqMl6PJRAFBauhFH/Yv6UjyJid3pZzmz67/U="
+        "integrity": "sha256-lC3uXMV371xGwXUYiOamhN0atGX2k6XsjUwqvEi1TwE="
       }
     },
     {
@@ -16070,6 +16072,7 @@
         "@vegastack/design-tokens@^0.7.33"
       ],
       "registryDependencies": [
+        "@vegastack/badge",
         "@vegastack/button",
         "@vegastack/combobox",
         "@vegastack/item",
@@ -16088,7 +16091,7 @@
         "whenToUse": "A Select-shaped searchable picker: one or several values, option descriptions and disabled reasons, and server search with paging (remote + useAsyncSearch).",
         "whenNotToUse": "A short fixed option set (Select), free text with suggestions (Combobox directly), or multi-select (Combobox with chips).",
         "version": "0.23.24",
-        "integrity": "sha256-6fCgcZpSVCdZOoLk8J2dudnB8f7gyr8n6mtSv3ES6No="
+        "integrity": "sha256-pXUxjW4xO4Of3fvUXx7yUotJvqVEuoplKBHW8OFIYDc="
       }
     },
     {
