@@ -1,5 +1,15 @@
 # @vegastack/design
 
+## 0.7.10
+
+### Patch Changes
+
+- [#235](https://github.com/vegastack/vegastack-design/pull/235) [`c126f9f`](https://github.com/vegastack/vegastack-design/commit/c126f9f577015ba497473e6f0f66a01855368285) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🐛 **Alert has no focus ring** — an app can move focus to an error `Alert` so screen readers announce it; the alert no longer shows the focus ring, since it is not an interactive control. `SheetContent` takes `showOverlay={false}` to drop the backdrop for a non-modal panel docked beside the page.
+
+- [#236](https://github.com/vegastack/vegastack-design/pull/236) [`499e2dd`](https://github.com/vegastack/vegastack-design/commit/499e2ddb0ecfedb962f2e4aef02d6cb9a233f45e) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🔧 **Checkbox takes `shape="circle"`** — a round check for marking a task or to-do done; `square` stays the default for selection and form fields.
+
+- [#238](https://github.com/vegastack/vegastack-design/pull/238) [`008bea6`](https://github.com/vegastack/vegastack-design/commit/008bea6b4db39564bb49bef1fd9f76d335f54c7c) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🐛 **No focus ring on programmatic focus targets** — `AppShellContent`'s `<main>` (the skip-link and route-change focus target) no longer draws a focus outline, which showed as a line under the app header after navigation. The same applies to `SheetContent`'s popup, the `MultiStepForm` step heading and section list, and the `Stepper` summary; interactive controls keep their focus rings.
+
 ## 0.7.9
 
 ### Patch Changes
