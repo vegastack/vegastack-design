@@ -1177,7 +1177,7 @@
         "whenToUse": "Installed automatically with DataList or DataGrid; import it directly when building a bespoke table that should share their sort header, selection cells and column rules.",
         "whenNotToUse": "A plain presentational table (Table alone), or as a table component in its own right — these are parts, not a renderer.",
         "version": "0.22.0",
-        "integrity": "sha256-uMs+Hy4Rszp3MFCbuF7meab2SvbIXbPk0CHkrBMdNV0="
+        "integrity": "sha256-Ijj1LuwLUz+9N2RjRNsV2dX2HmVJX92IrxDZTxdtgmc="
       }
     },
     {
@@ -15675,7 +15675,7 @@
         "whenToUse": "A Select-shaped searchable picker: one or several values, option descriptions and disabled reasons, and server search with paging (remote + useAsyncSearch).",
         "whenNotToUse": "A short fixed option set (Select), free text with suggestions (Combobox directly), or multi-select (Combobox with chips).",
         "version": "0.22.0",
-        "integrity": "sha256-sSKT6uH7KsMfDBfludxDisHk5JAuzOzhe8MCpJpWwCA="
+        "integrity": "sha256-yjct5dWgpl9oc75VNIA7sOZSqIwcWJmcU6E6AnUaVck="
       }
     },
     {
@@ -16259,7 +16259,7 @@
         "whenToUse": "Organize related content into peer sections the user switches between in place; a count after a trigger's label is an aria-hidden tabular number plus an sr-only suffix, so it reads as part of the tab's name. A line list scrolls sideways inside itself when the tabs outnumber the width; orientation=\"vertical\" suits a stable column of settings sections. For tabs that are separate pages, draw a nav of links from tabsListVariants and tabsTriggerVariants with aria-current=\"page\" (route tabs).",
         "whenNotToUse": "Sequential multi-step flows (stepper), single-select form input (radio/select), sections that must be visible at once, or page-level navigation rendered as a tablist — route tabs are links, not tabs.",
         "version": "0.22.0",
-        "integrity": "sha256-Tp74s1g8qJjeCOR04WsgVyVreDIJi9EsOV8fck+727w="
+        "integrity": "sha256-NYrLMK2GMJEbzHkAigf4lhFKyMXtocBPFplDPE8OJ+0="
       }
     },
     {

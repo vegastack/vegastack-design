@@ -297,9 +297,11 @@ follow without a header, and select-all covers every loaded row. The collapsed s
 `DataList` never forces a horizontal scroll. It measures its container and fits the columns into
 it with the same **responsive column revelation** as [`DataGrid`](/docs/components/data-grid): every
 column declares a pixel budget (`minWidth`, default `120`) and a posture for when it no longer fits
-(`mobile`, default `"merge"`). Columns are kept left to right while their budgets fit; the first
-column always stays, and once one column overflows every column after it overflows too, so a narrow
-late column never survives a wide earlier one.
+(`mobile`, default `"merge"`). The first column and every `"visible"` column always stay, and their
+budgets are reserved first, wherever they sit — a trailing Status or actions column is never
+squeezed by an earlier column that took its room. The rest are kept left to right while their
+budgets fit, and once one column overflows every column after it overflows too, so a narrow late
+column never survives a wide earlier one.
 
 | `mobile`    | When the column no longer fits                                                                           |
 | ----------- | -------------------------------------------------------------------------------------------------------- |

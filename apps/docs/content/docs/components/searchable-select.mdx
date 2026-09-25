@@ -183,7 +183,7 @@ public ref is its root.
   `Field`, by a `<label for>` pointing at `id`, or by `aria-label`. With none of these it falls
   back to the selected item's label, then the placeholder — never over a label it has.
 - Outside a `Field`, `aria-invalid` and `aria-describedby` wire the trigger to an error message.
-- The search field is labelled by the required `searchLabel` and focused when the panel opens.
+- The search field is named by `searchLabel` (default "Search"; name what it searches, "Search people") and focused when the panel opens. Inside a `Field`, the Field's label names the trigger only — the search field keeps its own name.
 - The clear control is a `Button size="icon-xs"` **sibling** of the trigger with its own `aria-label`, so the
   trigger never nests one interactive control inside another.
 - Selection is one code path for pointer and keyboard alike: both go through the Combobox root's

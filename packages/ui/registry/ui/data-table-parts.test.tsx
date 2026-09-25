@@ -394,6 +394,22 @@ test("revealColumns: an unmeasured container (the server answer) shows every col
   expect(result.hiddenColumns).toEqual([]);
 });
 
+test("revealColumns: trailing visible columns are reserved before earlier merge columns fit", () => {
+  // The Tasks list at 390: title 240 + due 96 would fit alone, but Status 112 and the ⋯ 48 must
+  // stay, so due folds rather than leaving the row squeezed.
+  const result = revealColumns(
+    [
+      { key: "title", minWidth: 240 },
+      { key: "due", minWidth: 96 },
+      { key: "status", minWidth: 112, mobile: "visible" },
+      { key: "actions", minWidth: 48, mobile: "visible" },
+    ],
+    390,
+  );
+  expect(keys(result.visibleColumns)).toEqual(["title", "status", "actions"]);
+  expect(keys(result.mergedColumns)).toEqual(["due"]);
+});
+
 test("revealColumns: defaults are minWidth 120 and mobile merge", () => {
   expect(DEFAULT_COLUMN_MIN_WIDTH).toBe(120);
   const result = revealColumns([{ key: "a" }, { key: "b" }, { key: "c" }], 250);
