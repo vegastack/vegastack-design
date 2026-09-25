@@ -43,8 +43,9 @@ focuses it.
 
 `CommentComposer` is Linear style: a soft filled box whose editor grows with its text, a round ↑
 send button at the bottom right (disabled while empty; Cmd/Ctrl+Enter also sends) and an optional
-`attachments` slot at the bottom left. No avatar sits beside it. Editing a comment uses a compact
-box with explicit Cancel and Save. The parts take data and
+`attachments` slot at the bottom left. No avatar sits beside it. Editing a comment uses the same box,
+compact: a round ↑ Save (disabled while empty or unchanged) and a ghost × Cancel, both with
+tooltips; Cmd/Ctrl+Enter saves and Esc cancels. The parts take data and
 callbacks and keep only transient UI state. A callback that returns a promise drives the saving or
 posting state. If the promise rejects, its message appears under the editor. Bodies are Markdown,
 edited with `TextEdit` (no toolbar; a reduced slash menu) and rendered with
