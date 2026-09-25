@@ -1,4 +1,4 @@
-// @vegastack data-table-parts@0.23.18 sha256-MyYiAN3/U7qj+LEv7XokOiaQKu6Nw0YrIMzeC3BwrkA=
+// @vegastack data-table-parts@0.23.18 sha256-KTAgeKTz5I78DZCJyzgpxyA/rmlN+sG9/+6KwncRIks=
 
 "use client";
 
@@ -964,6 +964,12 @@ export interface RowActionItem {
    * @default undefined
    */
   items?: RowAction[];
+  /**
+   * Custom submenu content rendered after `items` (a searched, paged list such as "Assign › people").
+   * Compose it from `DropdownMenuItem`s; a `PanelSearch` row may lead it.
+   * @default undefined
+   */
+  submenu?: React.ReactNode;
 }
 
 /** A divider between groups of row actions: `{ type: "separator" }`. */
@@ -1029,7 +1035,8 @@ export function RowActionMenuItems({
       {withSeparators(actions).map(({ action, separated }) => (
         <React.Fragment key={action.label}>
           {separated ? <DropdownMenuSeparator /> : null}
-          {action.items && action.items.some(isRowActionItem) ? (
+          {action.submenu ||
+          (action.items && action.items.some(isRowActionItem)) ? (
             <DropdownMenuSub>
               <DropdownMenuSubTrigger
                 data-slot="row-action-submenu-trigger"
@@ -1041,9 +1048,10 @@ export function RowActionMenuItems({
               </DropdownMenuSubTrigger>
               <DropdownMenuSubContent>
                 <RowActionMenuItems
-                  actions={action.items}
+                  actions={action.items ?? []}
                   onAction={onAction}
                 />
+                {action.submenu}
               </DropdownMenuSubContent>
             </DropdownMenuSub>
           ) : (
@@ -1115,7 +1123,7 @@ export function RowActionsMenu({
   const items = actions.filter(isRowActionItem);
   if (items.length === 0) return null;
   const only = items.length === 1 ? items[0]! : null;
-  if (only && only.icon != null && !only.items) {
+  if (only && only.icon != null && !only.items && !only.submenu) {
     const name = `${only.label} ${label}`;
     // A tooltip is not a description: a disabled icon action says why through a hidden element.
     const reason = only.disabled ? only.disabledReason : undefined;

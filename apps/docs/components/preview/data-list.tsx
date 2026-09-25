@@ -15,6 +15,8 @@ import {
   type SortState,
 } from "@/components/ui/data-list";
 import { FilterBar } from "@/components/ui/filter-bar";
+import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
+import { PanelSearch, PanelSearchField } from "@/components/ui/panel-search";
 import { MediaCard } from "@/components/ui/media-card";
 import { DataListPager } from "@/components/ui/data-list-pager";
 import { Badge } from "@/components/ui/badge";
@@ -1134,6 +1136,65 @@ export function dataListBoardLoading(): ReactNode {
         )}
         getRowSection={(t) => t.status}
         boardCard={(t) => ({ title: t.title, context: t.project })}
+      />
+    </Wrapper>
+  );
+}
+
+const MEMBERS = [
+  "Ada Lovelace",
+  "Alan Turing",
+  "Grace Hopper",
+  "Katherine Johnson",
+  "Linus Torvalds",
+];
+
+/** The searched member list a `submenu` slot renders: a `PanelSearch` row leads plain menu items. */
+function AssignSubmenu({ onAssign }: { onAssign: (name: string) => void }) {
+  const [query, setQuery] = React.useState("");
+  const matches = MEMBERS.filter((m) =>
+    m.toLowerCase().includes(query.trim().toLowerCase()),
+  );
+  return (
+    <>
+      <PanelSearch>
+        <PanelSearchField
+          aria-label="Search members"
+          placeholder="Search members"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          // Keep the menu's typeahead from swallowing the letters typed into the field.
+          onKeyDown={(e) => e.stopPropagation()}
+        />
+      </PanelSearch>
+      {matches.length === 0 ? (
+        <DropdownMenuItem disabled>No members</DropdownMenuItem>
+      ) : (
+        matches.map((m) => (
+          <DropdownMenuItem key={m} onClick={() => onAssign(m)}>
+            {m}
+          </DropdownMenuItem>
+        ))
+      )}
+    </>
+  );
+}
+
+/** A row action whose submenu is custom content — here a searchable member list (`submenu`). */
+export function dataListRowActionSearchSubmenu(): ReactNode {
+  return (
+    <Wrapper className="block">
+      <DataList
+        columns={columns}
+        data={people.slice(0, 4)}
+        getRowId={(p) => p.id}
+        getRowLabel={(p) => p.name}
+        rowActions={() => [
+          { label: "Open", onSelect: () => {} },
+          { label: "Assign", submenu: <AssignSubmenu onAssign={() => {}} /> },
+          { type: "separator" },
+          { label: "Remove", destructive: true, onSelect: () => {} },
+        ]}
       />
     </Wrapper>
   );

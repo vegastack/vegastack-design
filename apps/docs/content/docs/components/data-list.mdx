@@ -331,6 +331,15 @@ reasons and destructive items work the same inside it.
   file="components/preview/data-list.tsx"
 />
 
+For a submenu that is more than a fixed list — _Assign ›_ with a searched, paged member list — pass
+`submenu`: any React content rendered after `items` inside the submenu. Compose it from
+`DropdownMenuItem`s, led by a `PanelSearch` row when it is searchable.
+
+<ComponentPreview
+  name="dataListRowActionSearchSubmenu"
+  file="components/preview/data-list.tsx"
+/>
+
 `RowActionsMenu` (and `RowActionMenuItems`, for a host that owns its own menu) are exported from
 `data-table-parts`; Board cards and SortableList rows use the same parts.
 
