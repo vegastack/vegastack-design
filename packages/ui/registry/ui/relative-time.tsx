@@ -1,4 +1,4 @@
-// @vegastack relative-time@0.23.30 sha256-vNsdyt7R5GCXOTIZRyQ/XH/h4mKpWRPoNlnutQCiCXw=
+// @vegastack relative-time@0.23.30 sha256-iiCa1MfR/1+uwAOQCp7vWfPoOKCbBQ/UEEP+4stVgXk=
 
 "use client";
 
@@ -482,7 +482,6 @@ export function RelativeTime({
       // a real, readable absolute date, not a placeholder.
       tabIndex={hasTooltip && isFocusable ? 0 : undefined}
       className={cn(
-        "tabular-nums",
         // A11Y-2: when the <time> is a tooltip trigger it is a real pointer target, so it owns a
         // real 24px box (`min-h-6`) instead of an invisible `::before` expansion. The pseudo
         // version lost the hit test wherever a denser neighbour's box overlapped the overflow —
@@ -617,7 +616,7 @@ export function DateTime({
       dateTime={valid ? target.toISOString() : undefined}
       suppressHydrationWarning
       tabIndex={title && valid && isFocusable ? 0 : undefined}
-      className={cn("tabular-nums", title && valid && TRIGGER_BOX, className)}
+      className={cn(title && valid && TRIGGER_BOX, className)}
       {...props}
     >
       {label}
@@ -668,7 +667,7 @@ export function Duration({
     <time
       data-slot="duration"
       dateTime={Number.isFinite(seconds) ? `PT${seconds}S` : undefined}
-      className={cn("tabular-nums", className)}
+      className={className}
       {...props}
     >
       {formatDuration(value, { unit, clock })}
@@ -736,7 +735,6 @@ export function DueLabel({
       suppressHydrationWarning
       tabIndex={title && valid && isFocusable ? 0 : undefined}
       className={cn(
-        "tabular-nums",
         title && valid && TRIGGER_BOX,
         toned && DUE_TONE_CLASS[tone],
         className,
