@@ -5,7 +5,7 @@ audience: public
 registry: view-toggle
 status: stable
 since: 0.23.10
-a11y: toggle group, one pressed item
+a11y: tablist, one selected tab
 preview: viewToggle
 ---
 
@@ -21,8 +21,8 @@ import { ViewToggle } from "@/components/ui/view-toggle";
 <ViewToggle value={view} onValueChange={setView} />;
 ```
 
-`ViewToggle` switches a list page between its views — an outline icon group, one item always
-pressed. The labels show beside the icons from a small screen up and hide on a phone (they stay in
+`ViewToggle` switches a list page between its views — the default (pill) `Tabs` at `size="sm"`, one view
+always selected; every toolbar switch uses this style. The labels show beside the icons from a small screen up and hide on a phone (they stay in
 the accessible name). [`DataList`](/docs/components/data-list) mounts it for you in the `FilterBar`
 `view` slot when you pass `onViewChange`, and remembers the choice for the session.
 
@@ -33,7 +33,7 @@ the accessible name). [`DataList`](/docs/components/data-list) mounts it for you
 ### Views
 
 `views` sets which views are offered, in order: Grid (`LayoutGrid`), List (`List`) and Board
-(`Kanban`). An app passes only the views it allows — `views={["list", "board"]}` for a task list.
+(`Columns3`). An app passes only the views it allows — `views={["list", "board"]}` for a task list.
 
 <ComponentPreview
   name="viewToggleBoard"
@@ -49,15 +49,14 @@ the accessible name). [`DataList`](/docs/components/data-list) mounts it for you
 
 ## Accessibility
 
-- A `group` named "View" (`aria-label` to rename) of toggle buttons; the current view is the pressed
-  one, and pressing it again keeps it.
-- On a phone the labels are visually hidden but still name each button.
+- A `tablist` named "View" (`aria-label` to rename); the current view is the selected tab.
+- On a phone the labels are visually hidden but still name each tab.
 
-| Key                                 | Action                         |
-| ----------------------------------- | ------------------------------ |
-| <kbd>Tab</kbd>                      | Move into and out of the group |
-| <kbd>←</kbd> / <kbd>→</kbd>         | Move between views             |
-| <kbd>Enter</kbd> / <kbd>Space</kbd> | Switch to the focused view     |
+| Key                                 | Action                        |
+| ----------------------------------- | ----------------------------- |
+| <kbd>Tab</kbd>                      | Move into and out of the list |
+| <kbd>←</kbd> / <kbd>→</kbd>         | Move between views            |
+| <kbd>Enter</kbd> / <kbd>Space</kbd> | Switch to the focused view    |
 
 <StatesTested name="view-toggle" />
 
@@ -65,5 +64,5 @@ the accessible name). [`DataList`](/docs/components/data-list) mounts it for you
 
 <DoDont
   do="Offer only the views the page supports, in the same order everywhere."
-  dont="Use ViewToggle for a scope switch such as Mine | Team — that is a ToggleGroup or Tabs."
+  dont="Use ViewToggle for a scope switch such as Mine | Team — that is a default Tabs in the scope slot."
 />

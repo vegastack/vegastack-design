@@ -1127,7 +1127,7 @@
         "@vegastack/design-tokens@^0.7.18",
         "lucide-react@^1.47.0"
       ],
-      "registryDependencies": ["@vegastack/toggle-group"],
+      "registryDependencies": ["@vegastack/tabs"],
       "files": [
         {
           "path": "packages/ui/registry/ui/view-toggle.tsx",
@@ -1137,7 +1137,7 @@
       ],
       "meta": {
         "whenToUse": "Switching a list page between list, grid and board views — DataList mounts it for you with onViewChange.",
-        "whenNotToUse": "A scope switch such as Mine | Team (ToggleGroup or Tabs), or a form value (RadioGroup).",
+        "whenNotToUse": "A scope switch such as Mine | Team (default Tabs), or a form value (RadioGroup).",
         "version": "0.23.21"
       }
     },
@@ -13435,7 +13435,7 @@
       "name": "tabs",
       "type": "registry:ui",
       "title": "Tabs",
-      "description": "Layered content sections — default (segmented) or line variants, compact size, optional leading icons and counts, horizontal or vertical, full keyboard navigation. Use Tabs for scope/views (My tasks | Team tasks); use an icon ToggleGroup for List/Board layout switches. The one component that keeps a focus ring.",
+      "description": "Layered content sections — default (segmented) or line variants, compact size, optional leading icons and counts, horizontal or vertical, full keyboard navigation. Toolbar switches use default Tabs: scope (My tasks | Team tasks) and views, whose List/Board/Grid switch is ViewToggle (default Tabs with icons). The one component that keeps a focus ring.",
       "categories": ["navigation"],
       "dependencies": [
         "@base-ui/react@^1.6.0",

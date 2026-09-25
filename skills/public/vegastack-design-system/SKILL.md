@@ -90,8 +90,8 @@ link` (upstream's set, verbatim). `destructive` is a soft tint, not a solid red 
   toggle, then views as `Tabs` (default variant, `TabsList size="sm"`, optional leading icons), then
   the layout switch (`ViewToggle`), furthest right. Filters are `FilterBarFacet` /
   `DateRangeFilter` chips (compact, rounded-md, tinted when set) on the toggled row; people facets
-  take `itemToSecondaryLabel={(p) => p.email}`. Use Tabs for scope/views, `ViewToggle` for
-  Grid | List | Board. Tables are `DataList` with `sortable` columns (`compare`, `sortFirst`,
+  take `itemToSecondaryLabel={(p) => p.email}`. Toolbar switches use default Tabs — never a ToggleGroup or line
+  Tabs: `Tabs` for scope, `ViewToggle` (default Tabs, icons) for Grid | List | Board. Tables are `DataList` with `sortable` columns (`compare`, `sortFirst`,
   `sortMode="client"`) and `rowActions` (the ⋯ column, always last); row links are never underlined.
 - **`alert`** for an in-content notice — `variant` is `default · destructive · success · warning ·
 info`, each an ink on the `card` surface with a required icon; **`announcement-banner`** only for

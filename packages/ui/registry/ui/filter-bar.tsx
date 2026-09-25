@@ -1,4 +1,4 @@
-// @vegastack filter-bar@0.23.21 sha256-P0tJAB0LsSl+5kafPgA64rGdFeFPh9F6h6GI+WXnkVc=
+// @vegastack filter-bar@0.23.21 sha256-wlmn1TVSKfqVySCH/PenCOvBQ2fdZtmV0dW9yQN/uuc=
 
 "use client";
 
@@ -155,8 +155,8 @@ export interface FilterBarProps extends Omit<
    */
   scope?: React.ReactNode;
   /**
-   * How the rows are laid out, pinned furthest right — an icon `ToggleGroup` such as
-   * "List | Board". On a narrow bar only the icons show: wrap each option's text in a
+   * How the rows are laid out, pinned furthest right — `ViewToggle`, or a default `Tabs`
+   * (`TabsList size="sm"`) with icons such as "List | Board". On a narrow bar only the icons show: wrap each option's text in a
    * `<span>` and it stays as the option's accessible name.
    * @default undefined
    */
@@ -449,7 +449,7 @@ const BAR_SIZE =
  * <FilterBar
  *   search={{ value: query, onValueChange: setQuery, placeholder: "Search tasks" }}
  *   scope={<Tabs value={scope} onValueChange={setScope}><TabsList size="sm"><TabsTrigger value="mine"><UserRound />My tasks</TabsTrigger><TabsTrigger value="team"><UsersRound />Team tasks</TabsTrigger></TabsList></Tabs>}
- *   view={<ToggleGroup aria-label="View" value={[view]} onValueChange={([v]) => v && setView(v)} deselectable={false} variant="outline" spacing={0}>…</ToggleGroup>}
+ *   view={<ViewToggle value={view} onValueChange={setView} views={["list", "board"]} />}
  *   facets={<><FilterBarFacet label="Status" … /><FilterBarFacet label="Due" … /></>}
  *   addFilters={[{ id: "priority", label: "Priority" }]}
  *   onAddFilter={showFacet}
