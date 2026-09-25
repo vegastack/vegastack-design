@@ -5,12 +5,15 @@
  */
 
 import { render } from "vitest-browser-react";
-import { expect, test } from "vitest";
+import { beforeEach, expect, test } from "vitest";
 
 import { expectNoA11yViolations } from "../../../test/a11y";
 import { CustomerList } from "./components/customer-list";
 import { CUSTOMERS } from "./components/sample-customers";
 import ListPage01 from "./page";
+
+// The list remembers its view for the session; start every test on the default view.
+beforeEach(() => sessionStorage.clear());
 
 const names = (selector: string) =>
   [...document.querySelectorAll(selector)].map(
@@ -36,8 +39,6 @@ test("grid and list show the same records, and the view switch never empties", a
 });
 
 test("Load more appends the next page", async () => {
-  // The list remembers the view per session; the first test left it on Grid.
-  sessionStorage.clear();
   const screen = await render(<ListPage01 />);
   await screen.getByRole("button", { name: "Load more" }).click();
   await expect.poll(() => document.querySelectorAll("tbody a").length).toBe(16);
