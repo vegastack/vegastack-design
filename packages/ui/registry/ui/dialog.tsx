@@ -1,4 +1,4 @@
-// @vegastack dialog@0.23.19 sha256-N0Jd0uBw6iBAdhOLAZ6gHY3zXew9DW8HvcM1GwVwKSI=
+// @vegastack dialog@0.23.20 sha256-yAmdC8bIrZNhNA+H2nC6EvqvPIOUfpjVY0XjCXQCiwg=
 
 "use client";
 

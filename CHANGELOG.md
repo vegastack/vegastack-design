@@ -9,6 +9,20 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.23.20] — September 25, 2026
+
+<!-- assembled from 1 changeset: c2d7e16c8a50 -->
+
+### 🔧 Changed components
+
+- AvatarStack: truly stacked 24px avatars (overlapping, background ring, "+N") as one button that lists everyone, with a hover preview per avatar; PersonCard never truncates. RecordChip: `placeholder={null}` shows the icon alone, and the chevron sits as far from the divider as the ↗ does. Clear and remove × controls (DatePicker, SearchableSelect, FilterBar, Chip, SearchInput, AnnouncementBanner, RecordAsideAction) no longer move when pressed: the absolutely centred ones used `-translate-y-1/2`, which Button's press nudge replaced.
+  [`1ccbcee`](https://github.com/VegaStack/vegastack-design/commit/1ccbcee)
+
+### 📦 npm
+
+- **`@vegastack/design`** → **`0.7.29`** (was `0.7.28`).
+- The design-system registry (`@vegastack/ui`) bumps 0.23.19 → 0.23.20.
+
 ## [0.23.19] — September 25, 2026
 
 <!-- assembled from 4 changesets: 554b5f20d46d -->
