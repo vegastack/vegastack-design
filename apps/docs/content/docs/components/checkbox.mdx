@@ -42,6 +42,15 @@ const [checked, setChecked] = React.useState(false);
   file="components/preview/checkbox.tsx"
 />
 
+### Shape
+
+`shape` is `square` (the default) or `circle`. Use `circle` for a check that marks something done —
+a task or a to-do row; keep `square` for selection (bulk-select, "select all") and form fields.
+
+```tsx
+<Checkbox shape="circle" aria-label="Mark Send the quote done" />
+```
+
 ### Invalid State
 
 Set `aria-invalid` on the Checkbox and `data-invalid` on the `Field` wrapper. The tint is scoped to

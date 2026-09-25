@@ -4378,6 +4378,10 @@
         "Checkbox": {
           "attributes": [
             {
+              "name": "data-shape",
+              "values": []
+            },
+            {
               "name": "data-slot",
               "values": ["checkbox", "checkbox-indicator"]
             }
