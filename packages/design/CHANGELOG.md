@@ -1,5 +1,13 @@
 # @vegastack/design
 
+## 0.7.34
+
+### Patch Changes
+
+- [#299](https://github.com/vegastack/vegastack-design/pull/299) [`4e40109`](https://github.com/vegastack/vegastack-design/commit/4e40109e4d758447efd865f9c415eea8c477a685) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🔧 AudioPlayer: the `floating` pill is redesigned — no visible title, back 10s · filled play · forward 10s, tabular times around a thin seek bar with a buffered shade, hover thumb and hover time, a speed menu and a volume popover, even `size-8` controls; Space plays or pauses and ←/→ move 5s. Full width and tighter on phones, with volume hidden.
+
+- [#300](https://github.com/vegastack/vegastack-design/pull/300) [`98045ec`](https://github.com/vegastack/vegastack-design/commit/98045ec0bdacbaf49e10d5bd8752361e0960e72c) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🔧 Person status badge: `PersonOption` takes `badge`, and `Person` (for `PersonCard`, `PersonHoverCard` and `AvatarStack`) and `PropertyPerson` take `badge` — a status right after the name on the same line; a string such as "Inactive" renders as a small muted outline `Badge`. `SearchableSelect` and `FilterBarFacet` pass it to person options with `itemToBadge`. `PersonBadge` is exported for person cells that compose their own avatar, name and email.
+
 ## 0.7.33
 
 ### Patch Changes
