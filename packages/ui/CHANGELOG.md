@@ -1,5 +1,16 @@
 # @vegastack/ui
 
+## 0.23.32
+
+### Patch Changes
+
+- [#318](https://github.com/vegastack/vegastack-design/pull/318) [`41c25fe`](https://github.com/vegastack/vegastack-design/commit/41c25fecf0139618385feb57c7b1a3e267dd9ecb) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🔧 Comments go Linear style: `CommentComposer` is a soft filled box with a round ↑ send button (Cmd/Ctrl+Enter sends), an `attachments` slot and no avatar (`author` is gone); `CommentList` gets an Oldest / Newest first toggle (`order`, `onOrderChange`) and an empty state whose "Add a comment" reveals and focuses the composer; editing a comment uses a compact box with Cancel and Save. New block `issue-detail-01`: a Linear-style issue page composed of the real components.
+
+- [#319](https://github.com/vegastack/vegastack-design/pull/319) [`9ae6bb2`](https://github.com/vegastack/vegastack-design/commit/9ae6bb291d0f8864966c94aad0ff4faca491be1b) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🔧 TextEdit has no toolbar: type `/` for a slash menu (headings, lists, task list, quote, code block, divider, link) and select text for a bubble menu (bold, italic, strikethrough, inline code, link). `slashCommands` limits the menu — `TEXT_EDIT_SLASH_COMMANDS` is the full set, `TEXT_EDIT_COMPACT_SLASH_COMMANDS` the comment-sized one. Hover and focus tint the surface, and every change leaves through one `onCommit` path; the `toolbar`, `variant`, `onSave`, `onCancel`, `saveLabel` and `cancelLabel` props are removed. Blank lines round-trip in markdown. Input gains `variant="ghost"` (borderless, tinted on hover and focus) and `size="lg"` (heading type) for a title field, and `InputGroupInput` accepts Input's props. EditableCell `variant="heading"` has no box padding, so a title is edited exactly where it renders. PropertyRow top-aligns its label on the value's first line. Prose list markers inherit the item's colour and use proportional figures, so lists read exactly like body text.
+
+- Updated dependencies [[`41c25fe`](https://github.com/vegastack/vegastack-design/commit/41c25fecf0139618385feb57c7b1a3e267dd9ecb), [`9ae6bb2`](https://github.com/vegastack/vegastack-design/commit/9ae6bb291d0f8864966c94aad0ff4faca491be1b)]:
+  - @vegastack/design@0.7.41
+
 ## 0.23.31
 
 ### Patch Changes

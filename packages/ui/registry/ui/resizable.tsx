@@ -1,4 +1,4 @@
-// @vegastack resizable@0.23.31 sha256-m5g3MwnlRA7+xlINmxHZdxRgpYJlohttGmAGKKYCskE=
+// @vegastack resizable@0.23.32 sha256-S047+mIW6H+bCHcytHkPg3AkkcsiABixMqpxr70RJ6E=
 
 "use client";
 
