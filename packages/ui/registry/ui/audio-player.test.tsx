@@ -770,7 +770,7 @@ test("onSourceExpired renews an expired URL once and resumes where playback stop
   const audio = screen.container.querySelector("audio")!;
   setMediaState(audio, { currentTime: 30, paused: false });
   audio.dispatchEvent(new Event("error"));
-  expect(renew).toHaveBeenCalledOnce();
+  await vi.waitFor(() => expect(renew).toHaveBeenCalledOnce());
   // No error line while the renewal is in hand.
   await new Promise((resolve) => setTimeout(resolve, 50));
   expect(screen.container.querySelector('[role="alert"]')).toBeNull();

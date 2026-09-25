@@ -1,4 +1,4 @@
-// @vegastack board@0.21.2 sha256-MJF8XDSPwERohnoem8dyf3jnV+P66yxkUED7saFcGMc=
+// @vegastack board@0.21.2 sha256-oPhrdDirIXq05GPlddz2bPKb2Vxr2p/lpNXLTRoMa8E=
 
 "use client";
 
@@ -6,7 +6,7 @@ import * as React from "react";
 import { EllipsisVertical } from "lucide-react";
 import { mergeProps } from "@base-ui/react/merge-props";
 import { useRender } from "@base-ui/react/use-render";
-import { cn } from "@vegastack/design";
+import { cn, mergeRefs } from "@vegastack/design";
 import { dragItemClasses } from "@/lib/drag-item";
 import { Button } from "@/components/ui/button";
 import {
@@ -298,11 +298,17 @@ function BoardCardSurface({
   return useRender({
     defaultTagName: "div",
     render: template
-      ? (renderProps) =>
-          React.cloneElement(
-            template,
-            mergeProps(template.props as object, renderProps) as object,
-          )
+      ? (renderProps) => {
+          const own = template.props as { ref?: React.Ref<HTMLElement> };
+          return React.cloneElement(template, {
+            ...(mergeProps(own as object, renderProps) as object),
+            // `mergeProps` does not merge refs: the template's own ref and the card's both land.
+            ref: mergeRefs(
+              own.ref,
+              (renderProps as { ref?: React.Ref<HTMLElement> }).ref,
+            ),
+          } as object);
+        }
       : undefined,
     ref,
     props: mergeProps<"div">(
@@ -708,6 +714,9 @@ export function Board<T>({
                           );
                           const href = getItemHref?.(item);
                           const canDrag = !pointerDisabled && !readOnly;
+                          const hasMenu = !(
+                            readOnly && itemActions.length === 0
+                          );
                           return (
                             <div
                               key={id}
@@ -767,6 +776,9 @@ export function Board<T>({
                                 }
                                 className={cn(
                                   "flex w-full min-w-0 flex-col gap-1 rounded-md border border-border bg-card p-3 text-start text-sm",
+                                  // The ⋯ trigger sits over the card's top end corner (`end-1`,
+                                  // 24px): reserve its width so a long title wraps before it.
+                                  hasMenu && "pe-8",
                                   "hover:bg-accent",
                                   // The grab cursor promises a pointer drag, so it appears
                                   // only where one can actually start: not in `readOnly`, and
@@ -790,7 +802,7 @@ export function Board<T>({
                               </BoardCardSurface>
                               {/* A read-only lane (collapsed or terminal) keeps the card's own
                                   actions; only the Move items go. */}
-                              {readOnly && itemActions.length === 0 ? null : (
+                              {!hasMenu ? null : (
                                 <DropdownMenu
                                   open={openMenuCard === id}
                                   onOpenChange={(open) =>

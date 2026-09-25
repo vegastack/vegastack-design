@@ -105,6 +105,9 @@ is for button cards only. Enter follows the link; Space still lifts the card int
 Move menu is a separate control beside the link, never inside it, so keep links and buttons out of
 the card content too.
 
+A card with a menu reserves the ⋯ trigger's width at its inline end, so a long title wraps before
+the trigger instead of running under it.
+
 `itemLinkRender` is one template for every card, so the card's own props win over the template's:
 pass your router link as `<Link href="" />` to satisfy its required `href`, and each card still
 links to its own `getItemHref` — the same rule as `DataList`'s `rowLinkRender`.

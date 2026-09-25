@@ -1,4 +1,4 @@
-// @vegastack data-list@0.21.2 sha256-6i5U6nWNzUA1l5TX1uXAxFV8Zry7XevGr2zbNwekJ9E=
+// @vegastack data-list@0.21.2 sha256-IYtDUYhXZ8DD7qQVYXCXij90b7Agm22lYa5EQGa8BtY=
 
 "use client";
 
@@ -321,6 +321,13 @@ export interface DataListProps<T> extends Omit<
    */
   onGroupStateChange?: (state: GroupState) => void;
   /**
+   * How values folded into the first column are laid out on a narrow container: `stack`, one
+   * value per line, or `line`, one compact meta line under the primary value with the values
+   * joined by a dot ("Today · High · Arjun Mehta"). A `line` pairs well with `mergedRender`.
+   * @default "stack"
+   */
+  mergedLayout?: "stack" | "line";
+  /**
    * A section's count as a screen reader hears it.
    * @default (n) => `${n} rows`
    */
@@ -565,6 +572,7 @@ export function DataList<T>({
   getRowHref,
   rowLinkRender,
   rowProps,
+  mergedLayout = "stack",
   getRowLabel,
   toolbar,
   footer,
@@ -810,11 +818,12 @@ export function DataList<T>({
           // A highlighted row (`rowProps` → `highlighted`) eases into the accent wash over
           // `TableRow`'s own `transition-colors`; reduced motion drops the ease (global reset).
           highlighted && "bg-accent duration-slow",
+          rowClassName,
           // A checked row keeps a persistent half-`muted` wash through hover and press
           // (SP-06), light enough that a `secondary` Badge in it stays visible — see
-          // `SELECTED_ROW_CLASS`. The checkbox is the authoritative selection cue.
+          // `SELECTED_ROW_CLASS`. The checkbox is the authoritative selection cue, and its wash
+          // comes last so neither `highlighted` nor a `rowProps` class can remove it.
           isSelected && SELECTED_ROW_CLASS,
-          rowClassName,
         )}
       >
         {selectable && (
@@ -872,9 +881,15 @@ export function DataList<T>({
                 // merged block any closer would cover the bottom of its pointer target.
                 <span
                   data-slot="data-list-merged"
-                  className="mt-1 flex min-w-0 flex-col gap-0.5 text-xs text-muted-foreground"
+                  data-layout={mergedLayout}
+                  className={cn(
+                    "mt-1 flex min-w-0 text-xs text-muted-foreground",
+                    mergedLayout === "line"
+                      ? "flex-row flex-wrap gap-x-1"
+                      : "flex-col gap-0.5",
+                  )}
                 >
-                  {mergedColumns.map((merged) => (
+                  {mergedColumns.map((merged, mergedIdx) => (
                     // Each value wraps and wears its own column's face, whatever the
                     // primary cell's `nowrap`/mono posture is (`mergedValueClass`).
                     <span
@@ -886,6 +901,12 @@ export function DataList<T>({
                       }
                       className={mergedValueClass(merged)}
                     >
+                      {mergedLayout === "line" && mergedIdx > 0 ? (
+                        // `line`: a decorative dot before every value but the first.
+                        <span aria-hidden="true" className="me-1">
+                          ·
+                        </span>
+                      ) : null}
                       {merged.mergedRender ? (
                         merged.mergedRender(row, index, {
                           rowId: id,

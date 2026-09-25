@@ -1,4 +1,4 @@
-// @vegastack audio-player@0.21.2 sha256-WBMe0vFUwGXu3IplbIh+jf7IXR8BE6zskGLAyxKF9Bs=
+// @vegastack audio-player@0.21.2 sha256-NMS3inCHr42NrNg6GgiN5YVaUoTmxitMG1t3u3uJBOY=
 
 "use client";
 
@@ -389,8 +389,12 @@ export function AudioPlayer({
   }>();
   const audioSrc = renewed && renewed.from === baseSrc ? renewed.url : baseSrc;
   const renewalArmedRef = React.useRef(true);
+  // Bumped when the base URL changes or "Try again" starts, so a renewal still in flight from
+  // before can neither swap the URL nor queue its old position onto the new source.
+  const renewalSeqRef = React.useRef(0);
   React.useEffect(() => {
     renewalArmedRef.current = true;
+    renewalSeqRef.current += 1;
   }, [baseSrc]);
   const onSourceExpiredRef = React.useRef(onSourceExpired);
   React.useLayoutEffect(() => {
@@ -551,6 +555,7 @@ export function AudioPlayer({
   const handleRetry = () => {
     setLoadFailed(false);
     renewalArmedRef.current = true;
+    renewalSeqRef.current += 1;
     setRenewed(undefined);
     if (typeof srcRef.current === "function") {
       resolutionRef.current = null;
@@ -641,13 +646,20 @@ export function AudioPlayer({
               (media.currentTime > 0 || !media.paused
                 ? { seconds: media.currentTime, play: !media.paused }
                 : null);
-            void renew().then(
-              (url) => {
-                pendingSeekRef.current = resumeAt;
-                setRenewed({ from, url });
-              },
-              () => setLoadFailed(true),
-            );
+            const seq = renewalSeqRef.current;
+            // Through a promise chain, so a synchronous throw lands in the error state too.
+            void Promise.resolve()
+              .then(() => renew())
+              .then(
+                (url) => {
+                  if (seq !== renewalSeqRef.current) return;
+                  pendingSeekRef.current = resumeAt;
+                  setRenewed({ from, url });
+                },
+                () => {
+                  if (seq === renewalSeqRef.current) setLoadFailed(true);
+                },
+              );
             return;
           }
           setLoadFailed(true);

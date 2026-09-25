@@ -1082,6 +1082,32 @@ test("mergedRender: a folded value carries its own context, not a bare number", 
   expect(merged.textContent).toBe("4 to review");
 });
 
+test('mergedLayout="line": folded values share one compact meta line', async () => {
+  const screen = await render(
+    <div style={{ width: "300px" }}>
+      <DataList
+        aria-label="Tasks"
+        mergedLayout="line"
+        columns={[
+          { key: "name", header: "Name" },
+          { key: "role", header: "Role" },
+          { key: "email", header: "Due", mergedRender: () => "Today" },
+          { key: "team", header: "Owner", mergedRender: () => "Arjun Mehta" },
+        ]}
+        data={wideData.slice(0, 1)}
+        getRowId={(r) => r.id}
+      />
+    </div>,
+  );
+  await expect.poll(headerTexts).toEqual(["Name", "Role"]);
+  const merged = screen.container.querySelector<HTMLElement>(
+    '[data-slot="data-list-merged"]',
+  )!;
+  expect(merged.dataset.layout).toBe("line");
+  expect(merged.textContent).toBe("Today·Arjun Mehta");
+  expect(merged.querySelectorAll('[aria-hidden="true"]')).toHaveLength(1);
+});
+
 test("rowProps: data-* passthrough and a highlighted row", async () => {
   const screen = await render(
     <DataList

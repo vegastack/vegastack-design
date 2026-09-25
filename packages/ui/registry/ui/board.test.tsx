@@ -894,6 +894,18 @@ test("the card's href wins over one on the itemLinkRender template, as on DataLi
     .toHaveAttribute("href", "/tasks/p1");
 });
 
+test("a card with a menu reserves end padding so a long title wraps before the ⋯ trigger", async () => {
+  await render(
+    laneBoard([{ id: "open", title: "Open", items: TWO_TASKS }], {
+      getItemActions: () => [{ label: "Delete", onSelect: () => {} }],
+    }),
+  );
+  const surface = document.querySelector<HTMLElement>(
+    '[data-slot="board-card-surface"]',
+  )!;
+  expect(surface.classList.contains("pe-8")).toBe(true);
+});
+
 test("a lane's loadMore renders the shared LoadMore footer (DS-30)", async () => {
   const onLoadMore = vi.fn();
   const columns = makeColumns();

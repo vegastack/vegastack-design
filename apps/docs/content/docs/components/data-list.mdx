@@ -336,6 +336,11 @@ stack, so the wide table still shows `4` under its "To review" header:
 }
 ```
 
+Several short facts read better on one line than stacked. `mergedLayout="line"` joins the merged
+values into one compact meta line under the primary value, separated by a decorative dot — "Today ·
+High · Arjun Mehta" — and it wraps when the line runs out. The default, `"stack"`, is one value per
+line.
+
 <ComponentPreview
   name="dataListFitting"
   file="components/preview/data-list.tsx"
