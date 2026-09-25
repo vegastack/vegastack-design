@@ -38,7 +38,7 @@ app-local behavior such as closing a picker or returning to a non-URL state.
 
 `PageHeader` lays out, top to bottom, an optional breadcrumb row, then a title row split into a
 left **title block** (back button, `<h1>`, favorite star, description) and a right **actions block**
-(actions + secondary menu), followed by any `children` (tabs, search bars). Every region exposes a
+(actions + secondary menu), then the **tabs row** (`tabs`, with `view` at its end), followed by any `children`. Every region exposes a
 `data-slot` for styling and testing:
 
 <Anatomy name="page-header" />
@@ -71,6 +71,8 @@ left **title block** (back button, `<h1>`, favorite star, description) and a rig
 - `page-header-description` — the muted description under the title. Omitted when no `description`.
 - `page-header-meta` — the muted metadata row under the description, a `<div>` that can hold controls. Omitted when no `meta`.
 - `page-header-actions` — the right-aligned slot holding `actions` then `secondaryMenu`. Omitted when both are empty.
+- `page-header-tabs` — the row directly under the title holding `tabs`, with `view` pinned to its end. Omitted when both are empty.
+- `page-header-view` — the end-aligned wrapper for `view` inside the tabs row. Omitted when no `view`.
 
 ## Examples
 
@@ -165,6 +167,40 @@ An unbroken token still breaks rather than pushing the page sideways.
   name="pageHeaderWrappingTitle"
   file="components/preview/page-header.tsx"
 />
+
+### View tabs
+
+A list page's views — whose records it shows ("My tasks | Created by me | Team") — go in `tabs`, a
+default (pill) `Tabs` at `size="sm"`, on their own row directly under the title and above the
+list's toolbar. The layout switch (`ViewToggle`, "List | Board") goes in `view`, pinned to the end
+of that row. Both change the content in place, so the toolbar below keeps only search and filters.
+
+<ComponentPreview
+  name="pageHeaderTabs"
+  file="components/preview/page-header.tsx"
+/>
+
+```tsx
+<PageHeader
+  title="Tasks"
+  actions={<Button>New task</Button>}
+  tabs={
+    <Tabs value={scope} onValueChange={setScope}>
+      <TabsList size="sm" aria-label="Tasks to show">
+        <TabsTrigger value="mine">My tasks</TabsTrigger>
+        <TabsTrigger value="team">Team</TabsTrigger>
+      </TabsList>
+    </Tabs>
+  }
+  view={
+    <ViewToggle
+      value={view}
+      onValueChange={setView}
+      views={["list", "board"]}
+    />
+  }
+/>
+```
 
 ### Metadata with controls
 

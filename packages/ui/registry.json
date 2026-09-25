@@ -16079,7 +16079,8 @@
         "@vegastack/filter-bar",
         "@vegastack/page-header",
         "@vegastack/relative-time",
-        "@vegastack/toggle-group"
+        "@vegastack/tabs",
+        "@vegastack/view-toggle"
       ],
       "files": [
         {

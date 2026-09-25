@@ -21,7 +21,7 @@ npx shadcn@latest add @vegastack/list-page-01
 
 <RegistryInstallCallout />
 
-This installs the block's own files plus the components it composes: `app-shell`, `badge`, `button`, `data-list`, `dropdown-menu`, `empty`, `filter-bar`, `item`, `load-more`, `page-header`, `relative-time`, `skeleton`, `toggle-group`.
+This installs the block's own files plus the components it composes: `app-shell`, `badge`, `button`, `data-list`, `dropdown-menu`, `empty`, `filter-bar`, `item`, `load-more`, `page-header`, `relative-time`, `skeleton`, `tabs`, `view-toggle`.
 
 ## Preview
 
@@ -29,9 +29,10 @@ This installs the block's own files plus the components it composes: `app-shell`
 
 ## Anatomy
 
-- `AppShellPage` › `PageHeader` h1 "Customers" with a "New customer" link.
-- `FilterBar searchPlacement="start"` — the search first, then a `FilterBarFacet` "Status: Any", Mine | Team and Grid | List as `ToggleGroup`s with `deselectable={false}`,
-  so neither can end up with nothing pressed.
+- `AppShellPage` › `PageHeader` h1 "Customers" with a "New customer" link, and under the title
+  its `tabs` row: Mine | Team as default (pill) `Tabs`, with the Grid | List `ViewToggle` in
+  `view`, pinned to the row's end.
+- `FilterBar searchPlacement="start"` — the search first, then the `FilterBarFacet`s "Status: Any" and "Industry".
 - **List** — a `DataList` with `getRowHref`, so each row is a real link (the first cell, name over
   city, is the link; a click anywhere on the row follows it), a status `Badge`,
   a `tabular-nums` count, a `RelativeTime`, and `rowActionsColumn` for Edit and Archive.
