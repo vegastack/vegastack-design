@@ -423,6 +423,8 @@
         "@vegastack/avatar",
         "@vegastack/badge",
         "@vegastack/checkbox",
+        "@vegastack/hover-card",
+        "@vegastack/person-hover-card",
         "@vegastack/date-time"
       ],
       "files": [

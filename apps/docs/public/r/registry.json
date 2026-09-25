@@ -485,6 +485,8 @@
         "@vegastack/avatar",
         "@vegastack/badge",
         "@vegastack/checkbox",
+        "@vegastack/hover-card",
+        "@vegastack/person-hover-card",
         "@vegastack/date-time"
       ],
       "files": [
@@ -498,7 +500,7 @@
         "whenToUse": "The content of a Board card (tasks, deals, tickets) — DataList's board view renders one per row — or a standalone work-item card.",
         "whenNotToUse": "A record with an image (MediaCard), a long body (Card), or a table row (DataList).",
         "version": "0.23.25",
-        "integrity": "sha256-FAOWpauJXY4BV4Q6I+EfP/lRomIgnZYdIbwwSIOvASA="
+        "integrity": "sha256-8hCr/YEw/9RRo3xnmZRtZ/TIKtQY63sGJyAib7KRMkY="
       }
     },
     {

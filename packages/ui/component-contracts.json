@@ -3115,7 +3115,9 @@
         "@vegastack/avatar",
         "@vegastack/badge",
         "@vegastack/checkbox",
-        "@vegastack/date-time"
+        "@vegastack/date-time",
+        "@vegastack/hover-card",
+        "@vegastack/person-hover-card"
       ],
       "npmDependencies": [
         "@vegastack/design@^0.7.34",
