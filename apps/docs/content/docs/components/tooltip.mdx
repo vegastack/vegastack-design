@@ -48,7 +48,7 @@ TooltipProvider
 ```
 
 - `TooltipProvider` — the app-root wrapper that shares one delay across every tooltip, so moving
-  between neighbouring triggers does not re-pay it. Its `delay` defaults to `0` here.
+  between neighbouring triggers does not re-pay it. The app-root `VegaStackProvider` sets it to `TIMINGS.tooltipOpenDelayMs` (250ms).
 - `Tooltip` — the root that owns open state (`open`, `defaultOpen`, `onOpenChange`) and can be
   disabled outright (`data-slot="tooltip"`).
 - `TooltipTrigger` — the element the popup describes (`data-slot="tooltip-trigger"`). Use `render`

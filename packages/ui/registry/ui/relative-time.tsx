@@ -3,6 +3,7 @@
 "use client";
 
 import * as React from "react";
+import { TIMINGS } from "@vegastack/design";
 import { cn } from "@vegastack/design";
 import {
   Tooltip,
@@ -322,9 +323,9 @@ export interface RelativeTimeProps extends Omit<
    */
   title?: boolean | string;
   /**
-   * How long to wait (ms) before the tooltip opens on hover. `0` reveals the
-   * absolute date instantly. Ignored when `title` is `false`.
-   * @default 0
+   * How long to wait (ms) before the tooltip opens on hover. Defaults to the
+   * app-wide `TIMINGS.tooltipOpenDelayMs`. Ignored when `title` is `false`.
+   * @default TIMINGS.tooltipOpenDelayMs
    */
   tooltipDelay?: number;
   /**
@@ -385,7 +386,7 @@ export function RelativeTime({
   refresh = true,
   locale,
   title = true,
-  tooltipDelay = 0,
+  tooltipDelay = TIMINGS.tooltipOpenDelayMs,
   focusable,
   timeZone: timeZoneProp,
   format,
@@ -533,7 +534,7 @@ function WithTooltip({
 }) {
   if (!title) return children;
   return (
-    <TooltipProvider delay={0}>
+    <TooltipProvider delay={TIMINGS.tooltipOpenDelayMs}>
       <Tooltip>
         <TooltipTrigger render={children} />
         <TooltipContent>

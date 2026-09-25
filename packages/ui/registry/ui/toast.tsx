@@ -135,6 +135,8 @@ const toastVariants = cva(
  */
 type ToastCustomData = {
   render?: (toast: ToastPrimitive.Root.ToastObject) => React.ReactNode;
+  /** Keep the toast up after its action runs. By default the action closes it: the action is taken. */
+  keepOpen?: boolean;
 };
 
 // OVL-17: the manager of the `ToastProvider` mounted above, if any. A `Toaster` given the same
@@ -379,7 +381,7 @@ function ToastList({
   swipeDirection,
 }: VariantProps<typeof toastVariants> &
   Pick<ToastPrimitive.Root.Props, "swipeDirection">) {
-  const { toasts } = ToastPrimitive.useToastManager();
+  const { toasts, close } = ToastPrimitive.useToastManager();
 
   return toasts.map((toastItem) => {
     // OVL-15: a toast carrying `data.render` owns its own body; everything around it — the surface,
@@ -403,7 +405,13 @@ function ToastList({
                 <ToastTitle />
                 <ToastDescription />
               </div>
-              <ToastAction />
+              <ToastAction
+                // The action is taken, so its toast goes; `data.keepOpen` opts out.
+                onClick={() => {
+                  if (!(toastItem.data as ToastCustomData | undefined)?.keepOpen)
+                    close(toastItem.id);
+                }}
+              />
               <ToastClose />
             </>
           )}

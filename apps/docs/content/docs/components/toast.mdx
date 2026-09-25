@@ -54,18 +54,14 @@ urgently instead of politely.
 
 ### Action
 
-`actionProps` are button props. `toast.add` returns the toast's id, so the handler can close the
-toast it belongs to.
+`actionProps` are button props. Clicking the action runs its handler and closes the toast — the
+action has been taken, so there is no need to call `toast.close` yourself. Pass `data: { keepOpen:
+true }` for the rare action that should leave its toast up.
 
 ```tsx
-const id = toast.add({
+toast.add({
   title: "Event created",
-  actionProps: {
-    children: "Undo",
-    onClick() {
-      toast.close(id);
-    },
-  },
+  actionProps: { children: "Undo", onClick: () => undo(eventId) },
 });
 ```
 

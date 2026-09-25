@@ -81,7 +81,7 @@ export const TIMINGS = {
    * instant. Base UI's `Tooltip.Provider` grouping then opens adjacent tips with no delay at
    * all. Set once, in the app-root provider.
    */
-  tooltipOpenDelayMs: 300,
+  tooltipOpenDelayMs: 250,
   /**
    * Delay before a tooltip closes. Zero: a tooltip has nothing to travel into (it is not
    * hoverable content, unlike a HoverCard), so holding it after the pointer leaves only
