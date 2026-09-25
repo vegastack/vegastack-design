@@ -1,4 +1,4 @@
-// @vegastack use-file-drop@0.23.23 sha256-0TEcMGRhXn2unH+mObcQEWfQiBz70siKeMmUgVpgZ/o=
+// @vegastack use-file-drop@0.23.24 sha256-9WDIIE5s9V7EbiYXyy5QlDwp1PZzbRHHHVa7T4FN5DM=
 
 "use client";
 
