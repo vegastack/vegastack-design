@@ -103,6 +103,9 @@ export function installedVersionsFromLock(
 // an item NAME, so both must be reconciled against `registryDependencies`; without the second arm
 // a `@vegastack/geo-data` dependency would read as a phantom.
 function registrySpecifier(specifier) {
+  // A vendored animated icon (`@/components/ui/icons/search`) is the item `icon-search`.
+  const icon = /^@\/components\/ui\/icons\/([a-z0-9-]+)$/.exec(specifier)?.[1];
+  if (icon) return `icon-${icon}`;
   return /^@\/(?:components\/ui|lib)\/([a-z0-9-]+)(?:\/|$)/.exec(
     specifier,
   )?.[1];
