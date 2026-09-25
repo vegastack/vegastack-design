@@ -1,4 +1,6 @@
-// @vegastack date-time@0.23.35 sha256-+ecc3yRl29v6m+PManH9JD0m9PnKeXWVucYAivORnzE=
+// @vegastack date-time@0.23.35 sha256-p04tr9hAKPww+qiFyqXSOAoMSsBnS/pXvxLBE7wQHaw=
+
+export type DateInput = Date | string | number;
 
 /**
  * Dates & times — the one formatting module. Plain functions (server + client), built on `Intl`,
@@ -8,9 +10,10 @@
  * - minimal units s/m/h/d/w/mo/y with no space before the unit ("2m", "3h");
  * - calendar days are decided in `timeZone` (the viewer's zone), else the runtime's;
  * - anything under 45 seconds reads "now".
+ *
+ * This comment sits below the first statement on purpose: `shadcn add` drops every comment
+ * before a file's first statement, so a module doc placed first never reaches the consumer.
  */
-
-export type DateInput = Date | string | number;
 
 /** Options every formatter takes. */
 export interface DateTimeOptions {
