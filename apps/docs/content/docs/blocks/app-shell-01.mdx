@@ -41,8 +41,11 @@ This installs the block's own files plus the components it composes: `app-shell`
   `aria-current="page"`.
 - **Coming soon** — a collapsible row: the `Collapsible` renders as the `SidebarMenuItem`, so the
   menu list keeps only list items, and the row's `CollapsibleTrigger` carries `aria-expanded`.
-- **User menu** — the footer row opens the account menu, with the theme as a
-  `DropdownMenuRadioGroup` (Light · Dark · System) through `useVegaStackTheme`.
+- **User menu** — the standard account menu. The footer trigger shows the avatar, name and role;
+  the menu header repeats that row with the email in place of the role. Then Profile and Settings,
+  a **Theme** submenu (`DropdownMenuSub`) whose `DropdownMenuRadioGroup` offers Light · Dark ·
+  System with Sun · Moon · Monitor icons and a check on the active one (through
+  `useVegaStackTheme`), Keyboard shortcuts, a separator, and Sign out. Every item has an icon.
 
 ## The page
 

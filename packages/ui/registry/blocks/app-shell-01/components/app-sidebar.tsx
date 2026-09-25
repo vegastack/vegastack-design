@@ -10,13 +10,19 @@ import {
   ChevronsUpDown,
   FileText,
   Inbox,
+  Keyboard,
   LifeBuoy,
   ListChecks,
   LogOut,
+  Monitor,
+  Moon,
   Plus,
   Search,
   Settings2,
   Sparkles,
+  Sun,
+  SunMoon,
+  UserRound,
   UsersRound,
 } from "lucide-react";
 
@@ -45,6 +51,9 @@ import {
   DropdownMenuRadioGroup,
   DropdownMenuRadioItem,
   DropdownMenuSeparator,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Kbd } from "@/components/ui/kbd";
@@ -81,7 +90,12 @@ const WORKSPACES: [Workspace, ...Workspace[]] = [
 
 const data = {
   workspaces: WORKSPACES,
-  user: { name: "Ana Ruiz", email: "ana@acme.com", initials: "AR" },
+  user: {
+    name: "Ana Ruiz",
+    role: "Admin",
+    email: "ana@acme.com",
+    initials: "AR",
+  },
   inbox: { href: "/inbox", unread: 3 },
   navMain: [
     { title: "Overview", href: "/", icon: BarChart3, isActive: true },
@@ -111,7 +125,9 @@ const PAGES = [...data.navMain, ...data.navLibrary, ...data.navFooter];
  * - An Inbox row whose unread count is part of its name (`badge` + `badgeLabel`).
  * - Grouped links under `SidebarGroupLabel`s, with `isActive` marking the current page
  *   (`aria-current="page"`), and a collapsible "Coming soon" group.
- * - A user menu in the footer with the theme choice as a radio group.
+ * - A user menu in the footer: avatar, name and role on the trigger; the same row with the email as
+ *   the menu header; Profile and Settings; a Theme submenu; Keyboard shortcuts; Sign out. Every item
+ *   has an icon.
  *
  * The items are inline sample data — replace `data` and swap each `<a>` for your router's link.
  *
@@ -314,28 +330,66 @@ export function AppSidebar() {
                 <div className="grid flex-1 text-start text-sm leading-tight">
                   <span className="truncate font-medium">{data.user.name}</span>
                   <span className="truncate text-xs text-muted-foreground">
-                    {data.user.email}
+                    {data.user.role}
                   </span>
                 </div>
                 <ChevronsUpDown aria-hidden className="ms-auto" />
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" side="top" className="min-w-56">
                 <DropdownMenuGroup>
-                  <DropdownMenuLabel>Theme</DropdownMenuLabel>
-                  <DropdownMenuRadioGroup
-                    value={theme ?? "system"}
-                    onValueChange={(value) => setTheme(value)}
-                  >
-                    <DropdownMenuRadioItem value="light">
-                      Light
-                    </DropdownMenuRadioItem>
-                    <DropdownMenuRadioItem value="dark">
-                      Dark
-                    </DropdownMenuRadioItem>
-                    <DropdownMenuRadioItem value="system">
-                      System
-                    </DropdownMenuRadioItem>
-                  </DropdownMenuRadioGroup>
+                  <DropdownMenuLabel className="flex items-center gap-2 font-normal">
+                    <Avatar size="sm">
+                      <AvatarFallback>{data.user.initials}</AvatarFallback>
+                    </Avatar>
+                    <div className="grid flex-1 text-start text-sm leading-tight">
+                      <span className="truncate font-medium text-foreground">
+                        {data.user.name}
+                      </span>
+                      <span className="truncate text-xs text-muted-foreground">
+                        {data.user.email}
+                      </span>
+                    </div>
+                  </DropdownMenuLabel>
+                </DropdownMenuGroup>
+                <DropdownMenuSeparator />
+                <DropdownMenuGroup>
+                  <DropdownMenuItem render={<a href="/settings/profile" />}>
+                    <UserRound />
+                    Profile
+                  </DropdownMenuItem>
+                  <DropdownMenuItem render={<a href="/settings" />}>
+                    <Settings2 />
+                    Settings
+                  </DropdownMenuItem>
+                  <DropdownMenuSub>
+                    <DropdownMenuSubTrigger>
+                      <SunMoon />
+                      Theme
+                    </DropdownMenuSubTrigger>
+                    <DropdownMenuSubContent>
+                      <DropdownMenuRadioGroup
+                        value={theme ?? "system"}
+                        onValueChange={(value) => setTheme(value)}
+                      >
+                        <DropdownMenuRadioItem value="light">
+                          <Sun />
+                          Light
+                        </DropdownMenuRadioItem>
+                        <DropdownMenuRadioItem value="dark">
+                          <Moon />
+                          Dark
+                        </DropdownMenuRadioItem>
+                        <DropdownMenuRadioItem value="system">
+                          <Monitor />
+                          System
+                        </DropdownMenuRadioItem>
+                      </DropdownMenuRadioGroup>
+                    </DropdownMenuSubContent>
+                  </DropdownMenuSub>
+                  <DropdownMenuItem>
+                    <Keyboard />
+                    Keyboard shortcuts
+                  </DropdownMenuItem>
                 </DropdownMenuGroup>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem>
