@@ -428,7 +428,7 @@ test("DS-11: a plain label is inline text; only a tooltip trigger owns the 24px 
   const trigger = screen.getByText("2 hours ago").element();
   expect(plain.className).not.toContain("min-h-6");
   expect(plain.className).not.toContain("inline-flex");
-  expect(plain.className).toContain("tabular-nums");
+  expect(plain.className).not.toContain("tabular-nums");
   expect(trigger.className).toContain("min-h-6");
   expect(trigger.className).toContain("inline-flex");
 });
