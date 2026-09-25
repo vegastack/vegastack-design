@@ -276,6 +276,19 @@ contract.
   element, so navigation announces as an action. `buttonVariants` comes from a module with no
   `'use client'`, so a Server Component uses it directly.
 
+- **Dates & times come from one module** — `@/lib/date-time` (plain functions, server + client)
+  and the `RelativeTime` / `DateTime` / `Duration` / `DueLabel` components in
+  `@/components/ui/relative-time`. Never `toLocaleString`, a hand-rolled "minutes ago", or a date
+  library. Pick by surface: updated/last-activity columns → `formatRelative` ("2m"); created/due
+  dates → `formatDate` ("Today", "Mon", "Sep 25"); detail/audit rows → `formatDateTime`
+  ("Sep 25 · 2:30 PM", `separator: "comma"` inside sentences); hover tooltips → the components'
+  built-in `formatTooltip` ("Sep 25, 2026 · 2:30 PM IST"); due chips → `formatDueLabel` /
+  `<DueLabel>` (tone overdue/soon/normal); lengths → `formatDuration` ("1h 15m", `clock` for
+  players); schedules → `formatDateRange` / `formatTimeOfDay`; feed/inbox headers → `groupByDay`.
+  Pass the viewer's `timeZone` (the `tz` cookie via `getTimeZone(cookie, orgZone)` on the server,
+  `useTimeZone()` on the client; render `TimeZoneScript` + `TimeZoneProvider` once at the root).
+  API/JSON output stays ISO.
+
 ## Do / Don't
 
 **Do**

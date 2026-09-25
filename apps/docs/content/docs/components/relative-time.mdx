@@ -1,6 +1,6 @@
 ---
-title: Relative Time
-description: Render a date as a human-relative string ("2 hours ago", "yesterday", "in 3 days") with the native Intl.RelativeTimeFormat — no date library.
+title: Dates & times
+description: One Intl-based module for every date, time, duration, due label and day grouping — plus RelativeTime, DateTime, Duration and DueLabel. No date library.
 audience: public
 registry: relative-time
 status: stable
@@ -16,18 +16,163 @@ preview: relativeTime
 ## Usage
 
 ```tsx
-import { RelativeTime } from "@/components/ui/relative-time";
+import {
+  DateTime,
+  DueLabel,
+  Duration,
+  RelativeTime,
+} from "@/components/ui/relative-time";
+import { formatDate, formatRelative, groupByDay } from "@/lib/date-time";
 
-<RelativeTime date={comment.createdAt} />;
+<RelativeTime date={row.updatedAt} format="minimal" />; // "2m"
+<DateTime date={task.createdAt} />; // "Sep 25"
+<DueLabel date={task.dueAt} />; // "Overdue 2d"
+formatRelative(row.updatedAt, { timeZone }); // plain string, server or client
 ```
+
+The formatting functions live in `@/lib/date-time` and are plain — call them in server components,
+route handlers, emails and client code alike. The components wrap them in a semantic `<time>` and
+add the absolute time in a hover tooltip ("Sep 25, 2026 · 2:30 PM IST").
+
+### Shared rules
+
+- The year shows only when it is not the current year.
+- 12-hour clock with no leading zero: "9:04 AM".
+- Minimal units `s` `m` `h` `d` `w` `mo` `y`, no space before the unit.
+- Calendar days use the viewer's time zone (`timeZone` option on every function).
+- Anything under 45 seconds reads "now".
+- Built on `Intl`, locale-ready; English for now.
+
+### Where to use what
+
+| Surface                                  | Use                                                         | Reads                                               |
+| ---------------------------------------- | ----------------------------------------------------------- | --------------------------------------------------- |
+| Table columns (updated, last activity)   | `formatRelative` / `<RelativeTime format="minimal">`        | now · 2m · 3h · 5d                                  |
+| Table columns (created, due, start date) | `formatDate` / `<DateTime>`                                 | Today · Mon · Sep 25                                |
+| Detail pages, audit rows                 | `formatDateTime` / `<DateTime variant="datetime">`          | Sep 25 · 2:30 PM                                    |
+| Hover tooltips                           | `formatTooltip` (built into every component)                | Sep 25, 2026 · 2:30 PM IST                          |
+| Notifications, feeds                     | `formatRelative` + `groupByDay` headers                     | 2m under "Today"                                    |
+| Sentences                                | `formatRelative({ style: "suffix" })`, `separator: "comma"` | 2m ago · Sep 25, 2:30 PM                            |
+| Due chips                                | `formatDueLabel` / `<DueLabel>`                             | Overdue 2d · Due today · Due Sep 30                 |
+| Durations (meetings, audio, SLAs)        | `formatDuration` / `<Duration>`; `clock` for players        | 1h 15m · 1:15:04                                    |
+| Schedules, events                        | `formatDateRange`, `formatTimeOfDay`                        | Sep 25 · 2–3:30 PM                                  |
+| Grouped lists (inbox, activity)          | `groupByDay`                                                | Today / Yesterday / This week / Last week / Earlier |
+| API / JSON                               | ISO strings — never formatted text                          | 2026-09-25T09:00:00.000Z                            |
+
+## Anatomy
+
+`Dates & times` exports several parts. Every exported part, with the `data-slot` it renders
+(generated from the canonical source):
+
+<Anatomy name="relative-time" />
+
+## Examples
+
+### formatRelative
+
+`now · 2m · 3h · 5d · 1w · 2mo · 1y · in 2d`. `style: "suffix"` gives "2m ago"; `style: "long"`
+gives "2 minutes ago".
+
+<ComponentPreview
+  name="dateTimeRelative"
+  file="components/preview/relative-time.tsx"
+/>
+
+### formatDuration
+
+Input in seconds (or `unit: "milliseconds"`). At most two units; seconds drop once minutes exist.
+`clock: true` reads "1:15:04".
+
+<ComponentPreview
+  name="dateTimeDuration"
+  file="components/preview/relative-time.tsx"
+/>
+
+### formatDate and formatTimeOfDay
+
+Today · Tomorrow · Yesterday · a weekday within ±6 days ("Mon", "Last Fri") · "Sep 25" ·
+"Dec 20, 2026". `looseFuture: true` turns far-future dates into "in 2 weeks"; `absolute: true`
+always prints the date.
+
+<ComponentPreview
+  name="dateTimeDates"
+  file="components/preview/relative-time.tsx"
+/>
+
+### formatDateTime and formatDateRange
+
+`formatDateTime` joins the day and time with a middle dot ("Today · 2:30 PM"); use
+`separator: "comma"` inside sentences. `formatDateRange` collapses what the ends share.
+
+<ComponentPreview
+  name="dateTimeDateTimes"
+  file="components/preview/relative-time.tsx"
+/>
+
+### formatDueLabel
+
+Returns `{ label, tone }` — tone is `overdue`, `soon` (today/tomorrow) or `normal`.
+
+<ComponentPreview
+  name="dateTimeDue"
+  file="components/preview/relative-time.tsx"
+/>
+
+### groupByDay
+
+Buckets items into Today / Yesterday / This week / Last week / Earlier (weeks start Monday; empty
+groups are dropped). Each group has a stable `key` and a `label`.
+
+<ComponentPreview
+  name="dateTimeGroups"
+  file="components/preview/relative-time.tsx"
+/>
+
+### Components
+
+`<RelativeTime>` auto-refreshes; `<DateTime>`, `<Duration>` and `<DueLabel>` render once. Each
+shows the absolute time in a hover tooltip unless `title={false}`.
+
+<ComponentPreview
+  name="dateTimeComponents"
+  file="components/preview/relative-time.tsx"
+/>
+
+### Time zone
+
+Day boundaries follow the viewer. Write the browser zone to a `tz` cookie, read it on the server
+with the org zone from app config as the fallback, and provide it to the tree:
+
+```tsx
+// app/layout.tsx (server)
+import { cookies } from "next/headers";
+import {
+  TimeZoneProvider,
+  TimeZoneScript,
+} from "@/components/ui/relative-time";
+import { TIME_ZONE_COOKIE, getTimeZone } from "@/lib/date-time";
+import { config } from "@/config";
+
+const timeZone = getTimeZone(
+  (await cookies()).get(TIME_ZONE_COOKIE)?.value,
+  config.orgTimeZone,
+);
+
+<body>
+  <TimeZoneScript />
+  <TimeZoneProvider timeZone={timeZone}>{children}</TimeZoneProvider>
+</body>;
+```
+
+`TimeZoneScript` writes the cookie on load and again when the tab becomes visible, so a changed
+zone reaches the next request. Client code reads the zone with `useTimeZone()`; server code passes
+`timeZone` to each function.
 
 `RelativeTime` renders a semantic `<time dateTime>` element and self-updates on a
 timer while the date is recent. It uses the platform-native `Intl.RelativeTimeFormat`
 — no `date-fns` or other date dependency.
 
-## Examples
-
-### Formats and modes
+### RelativeTime formats
 
 Past and future instants, from seconds to days. Sub-minute deltas collapse to `now`;
 future dates read `in …`.
@@ -185,6 +330,6 @@ machine-readable `dateTime` attribute is there either way.
 ## Do / Don't
 
 <DoDont
-  do="Use mode='ago' for moments (created/updated timestamps) and mode='day' for calendar-day grouping (activity-feed headers, due dates)."
-  dont="Reach for a date library or hardcode the formatting — Intl.RelativeTimeFormat is built in and localizes for free via the locale prop."
+  do="Pick the function from the where-to-use table — formatRelative for activity, formatDate for dates, formatDateTime for detail rows, formatDueLabel for due chips, formatDuration for lengths."
+  dont="Call toLocaleString, hand-roll 'minutes ago', or add a date library — and never put formatted text in API/JSON output."
 />

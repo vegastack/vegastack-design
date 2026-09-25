@@ -3,7 +3,7 @@
 <!-- GENERATED — do not hand-edit. Regenerated from the design system's component contract,
      which is the authority for membership and counts. -->
 
-**114 components**, plus 467 animated-icon items, 12 hooks (`use-animation-replay`, `use-announcer`, `use-async-search`, `use-drag-reorder`, `use-file-drop`, `use-inline-edit`, `use-list-nav`, `use-media-query`, `use-mobile`, `use-modal-inert`, `use-overflow`, `use-platform`), 10 starter blocks (`app-shell-01`, `board-01`, `command-search-01`, `list-page-01`, `login-01`, `notifications-01`, `review-split-01`, `settings-01`, `settings-02`, `status-pages-01`), 68 chart blocks across 7 families, and 2 data libs (`geo-data`, `drag-item`) — 673 registry items in total.
+**114 components**, plus 467 animated-icon items, 12 hooks (`use-animation-replay`, `use-announcer`, `use-async-search`, `use-drag-reorder`, `use-file-drop`, `use-inline-edit`, `use-list-nav`, `use-media-query`, `use-mobile`, `use-modal-inert`, `use-overflow`, `use-platform`), 10 starter blocks (`app-shell-01`, `board-01`, `command-search-01`, `list-page-01`, `login-01`, `notifications-01`, `review-split-01`, `settings-01`, `settings-02`, `status-pages-01`), 68 chart blocks across 7 families, and 3 data libs (`date-time`, `geo-data`, `drag-item`) — 674 registry items in total.
 
 Install any of them with `shadcn add @vegastack/<name>`. Animated icons install as
 `@vegastack/icon-<name>`; the bare name is reserved for components, so a component whose name
@@ -68,7 +68,7 @@ starts with `icon-` is a component and never an icon.
 - **`item`** — A composable row for list and feed content — media, title, description, actions.
 - **`kbd`** — A keyboard-key chip, and a group that lays several of them out inline.
 - **`markdown-view`** — Render a markdown string to safe, token-styled HTML — headings, lists, code, blockquotes, links, GFM tables — XSS-safe, no raw HTML.
-- **`relative-time`** — Render a date as a human-relative string ("2 hours ago", "yesterday") with native Intl.RelativeTimeFormat — self-updating, with an absolute-date tooltip.
+- **`relative-time`** — One Intl-based dates & times module — formatRelative, formatDuration, formatDate, formatDateTime, formatDateRange, formatTimeOfDay, formatDueLabel, groupByDay, time-zone cookie + provider — and the RelativeTime, DateTime, Duration and DueLabel components with absolute-time tooltips.
 - **`status-icon`** — A small status indicator icon — todo, in progress, blocked, done — each mapping to a lucide icon and semantic color.
 - **`table`** — A responsive table component — caption, header, body, footer, row, head and cell parts over semantic table markup.
 - **`timeline`** — Rail geometry for chronological records — a continuous connector with a node per entry. Rows compose Item parts; separators render through Marker; entries carry content-visibility render skipping.

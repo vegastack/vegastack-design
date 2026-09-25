@@ -202,7 +202,7 @@ test("reveals the absolute date-time on focus", async () => {
   // slot; `relative-time.tsx` is what carries the accessible copy, on the <time> itself.
   const tip = await openTooltip(screen.container);
   // The tooltip also renders the time of day, which depends on the host timezone.
-  expect(tip?.textContent ?? "").toContain("January 15, 2026");
+  expect(tip?.textContent ?? "").toContain("Jan 15, 2026");
 });
 
 test("accepts a custom tooltip label", async () => {
@@ -379,7 +379,7 @@ test("DS-11: the tooltip label is formatted in the same zone", async () => {
   );
   (screen.getByText("yesterday").element() as HTMLElement).focus();
   const tip = await openTooltip(screen.container);
-  expect(tip?.textContent ?? "").toContain("September 22, 2026 at 10:30 PM");
+  expect(tip?.textContent ?? "").toContain("Sep 22, 2026 · 10:30 PM");
 });
 
 test("DS-11: the server render and the client render print the same text in a zone", async () => {

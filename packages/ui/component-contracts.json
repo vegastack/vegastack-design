@@ -12,12 +12,12 @@
     "evidencePolicy": "Observed fields come from source, registry metadata, docs, and test topology. Unknown/not-applicable values are explicit; no inferred behavior is presented as verified."
   },
   "expectedCounts": {
-    "totalRegistryItems": 673,
+    "totalRegistryItems": 674,
     "components": 114,
     "animatedIcons": 467,
     "hooks": 12,
     "blocks": 10,
-    "libs": 2,
+    "libs": 3,
     "chartBlocks": 68
   },
   "expectedWaveCounts": {
@@ -15781,14 +15781,71 @@
     {
       "name": "relative-time",
       "registryType": "registry:ui",
-      "title": "Relative Time",
-      "summary": "Render a date as a human-relative string (\"2 hours ago\", \"yesterday\") with native Intl.RelativeTimeFormat — self-updating, with an absolute-date tooltip.",
+      "title": "Dates & Times",
+      "summary": "One Intl-based dates & times module — formatRelative, formatDuration, formatDate, formatDateTime, formatDateRange, formatTimeOfDay, formatDueLabel, groupByDay, time-zone cookie + provider — and the RelativeTime, DateTime, Duration and DueLabel components with absolute-time tooltips.",
       "status": "stable",
       "since": "0.1.0",
       "family": "data-display",
       "wave": "Core controls",
       "sourceFiles": ["packages/ui/registry/ui/relative-time.tsx"],
       "publicSymbols": [
+        {
+          "name": "DateTime",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/relative-time.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "time",
+            "rationale": "Source forwards the ref to this JSX/Base UI render target."
+          }
+        },
+        {
+          "name": "DateTimeProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/relative-time.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "DueLabel",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/relative-time.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "time",
+            "rationale": "Source forwards the ref to this JSX/Base UI render target."
+          }
+        },
+        {
+          "name": "DueLabelProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/relative-time.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "Duration",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/relative-time.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "time",
+            "rationale": "Source forwards the ref to this JSX/Base UI render target."
+          }
+        },
+        {
+          "name": "DurationProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/relative-time.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
         {
           "name": "RelativeTime",
           "kind": "component",
@@ -15806,6 +15863,33 @@
           "ref": {
             "status": "not-applicable",
             "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "TimeZoneProvider",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/relative-time.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A context provider; renders no DOM of its own and takes no ref."
+          }
+        },
+        {
+          "name": "TimeZoneScript",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/relative-time.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "An inline script element; accepts no ref."
+          }
+        },
+        {
+          "name": "useTimeZone",
+          "kind": "hook",
+          "source": "packages/ui/registry/ui/relative-time.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A hook renders nothing and accepts no ref."
           }
         }
       ],
@@ -15857,6 +15941,7 @@
       "engines": [],
       "docsSlug": "/docs/components/relative-time",
       "registryDependencies": [
+        "@vegastack/date-time",
         "@vegastack/tooltip",
         "@vegastack/truncated-text"
       ],
@@ -15884,6 +15969,41 @@
             {
               "name": "data-slot",
               "values": ["relative-time"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "DateTime": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["date-time"]
+            },
+            {
+              "name": "data-variant",
+              "values": []
+            }
+          ],
+          "cssVariables": []
+        },
+        "Duration": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["duration"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "DueLabel": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["due-label"]
+            },
+            {
+              "name": "data-tone",
+              "values": []
             }
           ],
           "cssVariables": []
@@ -27454,6 +27574,331 @@
     }
   ],
   "libs": [
+    {
+      "name": "date-time",
+      "registryType": "registry:lib",
+      "title": "Date Time",
+      "summary": "The one Intl-based dates & times module — formatRelative, formatDuration, formatDate, formatDateTime, formatDateRange, formatTimeOfDay, formatDueLabel, groupByDay, and the tz cookie + getTimeZone server helper. Plain functions for server and client.",
+      "family": "lib",
+      "wave": "Libs",
+      "sourceFiles": ["packages/ui/registry/lib/date-time.ts"],
+      "publicSymbols": [
+        {
+          "name": "DateInput",
+          "kind": "type",
+          "source": "packages/ui/registry/lib/date-time.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "DateTimeOptions",
+          "kind": "interface",
+          "source": "packages/ui/registry/lib/date-time.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "toDate",
+          "kind": "function",
+          "source": "packages/ui/registry/lib/date-time.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A pure function; it renders nothing and takes no ref."
+          }
+        },
+        {
+          "name": "dayDelta",
+          "kind": "function",
+          "source": "packages/ui/registry/lib/date-time.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A pure function; it renders nothing and takes no ref."
+          }
+        },
+        {
+          "name": "FormatRelativeOptions",
+          "kind": "interface",
+          "source": "packages/ui/registry/lib/date-time.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "formatRelative",
+          "kind": "function",
+          "source": "packages/ui/registry/lib/date-time.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A pure function; it renders nothing and takes no ref."
+          }
+        },
+        {
+          "name": "FormatDurationOptions",
+          "kind": "interface",
+          "source": "packages/ui/registry/lib/date-time.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "formatDuration",
+          "kind": "function",
+          "source": "packages/ui/registry/lib/date-time.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A pure function; it renders nothing and takes no ref."
+          }
+        },
+        {
+          "name": "FormatDateOptions",
+          "kind": "interface",
+          "source": "packages/ui/registry/lib/date-time.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "formatDate",
+          "kind": "function",
+          "source": "packages/ui/registry/lib/date-time.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A pure function; it renders nothing and takes no ref."
+          }
+        },
+        {
+          "name": "formatTimeOfDay",
+          "kind": "function",
+          "source": "packages/ui/registry/lib/date-time.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A pure function; it renders nothing and takes no ref."
+          }
+        },
+        {
+          "name": "timeZoneAbbreviation",
+          "kind": "function",
+          "source": "packages/ui/registry/lib/date-time.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A pure function; it renders nothing and takes no ref."
+          }
+        },
+        {
+          "name": "FormatDateTimeOptions",
+          "kind": "interface",
+          "source": "packages/ui/registry/lib/date-time.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "formatDateTime",
+          "kind": "function",
+          "source": "packages/ui/registry/lib/date-time.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A pure function; it renders nothing and takes no ref."
+          }
+        },
+        {
+          "name": "formatTooltip",
+          "kind": "function",
+          "source": "packages/ui/registry/lib/date-time.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A pure function; it renders nothing and takes no ref."
+          }
+        },
+        {
+          "name": "FormatDateRangeOptions",
+          "kind": "interface",
+          "source": "packages/ui/registry/lib/date-time.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "formatDateRange",
+          "kind": "function",
+          "source": "packages/ui/registry/lib/date-time.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A pure function; it renders nothing and takes no ref."
+          }
+        },
+        {
+          "name": "DueTone",
+          "kind": "type",
+          "source": "packages/ui/registry/lib/date-time.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "DueLabel",
+          "kind": "interface",
+          "source": "packages/ui/registry/lib/date-time.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "formatDueLabel",
+          "kind": "function",
+          "source": "packages/ui/registry/lib/date-time.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A pure function; it renders nothing and takes no ref."
+          }
+        },
+        {
+          "name": "DayGroupKey",
+          "kind": "type",
+          "source": "packages/ui/registry/lib/date-time.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "DayGroup",
+          "kind": "interface",
+          "source": "packages/ui/registry/lib/date-time.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "GroupByDayOptions",
+          "kind": "interface",
+          "source": "packages/ui/registry/lib/date-time.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "dayGroupKey",
+          "kind": "function",
+          "source": "packages/ui/registry/lib/date-time.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A pure function; it renders nothing and takes no ref."
+          }
+        },
+        {
+          "name": "groupByDay",
+          "kind": "function",
+          "source": "packages/ui/registry/lib/date-time.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A pure function; it renders nothing and takes no ref."
+          }
+        },
+        {
+          "name": "TIME_ZONE_COOKIE",
+          "kind": "component-constant",
+          "source": "packages/ui/registry/lib/date-time.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "component-constant symbols do not expose a rendered DOM instance or ref contract."
+          }
+        },
+        {
+          "name": "isValidTimeZone",
+          "kind": "function",
+          "source": "packages/ui/registry/lib/date-time.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A pure function; it renders nothing and takes no ref."
+          }
+        },
+        {
+          "name": "getTimeZone",
+          "kind": "function",
+          "source": "packages/ui/registry/lib/date-time.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A pure function; it renders nothing and takes no ref."
+          }
+        },
+        {
+          "name": "TIME_ZONE_COOKIE_SCRIPT",
+          "kind": "component-constant",
+          "source": "packages/ui/registry/lib/date-time.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "component-constant symbols do not expose a rendered DOM instance or ref contract."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "A formatting module renders nothing and has no variant surface."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "A formatting module renders nothing and has no size scale."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned motion mechanism observed."
+        }
+      },
+      "engines": [],
+      "registryDependencies": [],
+      "docsSlug": "/docs/guides/components",
+      "states": {
+        "behavior": {
+          "status": "not-applicable",
+          "values": ["not-applicable"],
+          "evidence": "Plain formatting functions; no state machine."
+        },
+        "accessibility": {
+          "status": "not-applicable",
+          "values": ["not-applicable"],
+          "evidence": "No DOM — the components in relative-time own the <time> semantics."
+        },
+        "visual": {
+          "status": "not-applicable",
+          "values": ["not-applicable"],
+          "evidence": "Returns strings; renders nothing."
+        }
+      },
+      "responsive": {
+        "status": "not-applicable",
+        "risks": [],
+        "rationale": "No DOM of its own; consumers own layout."
+      },
+      "npmDependencies": [],
+      "testFiles": ["packages/ui/registry/ui/relative-time.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "shared-guide-only",
+        "navigation": "exempt",
+        "preview": "exempt",
+        "vrt": "exempt"
+      }
+    },
     {
       "name": "geo-data",
       "registryType": "registry:lib",

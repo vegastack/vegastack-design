@@ -1276,6 +1276,30 @@
       }
     },
     {
+      "name": "date-time",
+      "type": "registry:lib",
+      "title": "Date Time",
+      "description": "The one Intl-based dates & times module — formatRelative, formatDuration, formatDate, formatDateTime, formatDateRange, formatTimeOfDay, formatDueLabel, groupByDay, and the tz cookie + getTimeZone server helper. Plain functions for server and client.",
+      "categories": [
+        "data"
+      ],
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "packages/ui/registry/lib/date-time.ts",
+          "type": "registry:lib",
+          "target": "@lib/date-time.ts"
+        }
+      ],
+      "meta": {
+        "whenToUse": "Any date, time, duration, due label or day grouping shown as text — on the server, in route handlers, emails or client code.",
+        "whenNotToUse": "API/JSON output — keep ISO strings there.",
+        "version": "0.23.3",
+        "integrity": "sha256-1vlgsGibo3bJkuypSPfUIB4ZKwXIH88lB7YBkYqdXa8="
+      }
+    },
+    {
       "name": "drag-item",
       "type": "registry:lib",
       "title": "Drag Item",
@@ -15565,8 +15589,8 @@
     {
       "name": "relative-time",
       "type": "registry:ui",
-      "title": "Relative Time",
-      "description": "Render a date as a human-relative string (\"2 hours ago\", \"yesterday\") with native Intl.RelativeTimeFormat — self-updating, with an absolute-date tooltip.",
+      "title": "Dates & Times",
+      "description": "One Intl-based dates & times module — formatRelative, formatDuration, formatDate, formatDateTime, formatDateRange, formatTimeOfDay, formatDueLabel, groupByDay, time-zone cookie + provider — and the RelativeTime, DateTime, Duration and DueLabel components with absolute-time tooltips.",
       "categories": [
         "data-display"
       ],
@@ -15575,6 +15599,7 @@
         "@vegastack/design-tokens@^0.7.1"
       ],
       "registryDependencies": [
+        "@vegastack/date-time",
         "@vegastack/tooltip",
         "@vegastack/truncated-text"
       ],
@@ -15586,10 +15611,10 @@
         }
       ],
       "meta": {
-        "whenToUse": "A timestamp relative to now — comment/activity times (ago) or calendar-day grouping (day).",
-        "whenNotToUse": "A fixed absolute date that should never change — just format it once.",
-        "version": "0.23.4",
-        "integrity": "sha256-bc7GP/JQB1Q9OBZOwYrRx71j0MXd9EaaWAWjrXKtqx0="
+        "whenToUse": "Any date, time, duration, due label or day grouping shown in UI — pick the function per the Dates & times page's where-to-use table.",
+        "whenNotToUse": "API/JSON output — keep ISO strings there.",
+        "version": "0.23.3",
+        "integrity": "sha256-Vps5ogGUjbChn1d1xCD790WUMJhxC/S9OOHUKWefCBY="
       }
     },
     {
