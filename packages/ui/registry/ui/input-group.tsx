@@ -1,4 +1,4 @@
-// @vegastack input-group@0.23.31 sha256-yOLn3CRl5ZMHRDVSQtox10cu1qN7lGkMT4Rh+e2szVo=
+// @vegastack input-group@0.23.31 sha256-/YAIEl95I+665dIcp6vsH4fG0ZfJRNdpa8LXOUJxoYI=
 
 "use client";
 
@@ -121,7 +121,7 @@ function InputGroupText({ className, ...props }: React.ComponentProps<"span">) {
 function InputGroupInput({
   className,
   ...props
-}: React.ComponentProps<"input">) {
+}: React.ComponentProps<typeof Input>) {
   return (
     <Input
       data-slot="input-group-control"

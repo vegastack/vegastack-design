@@ -280,7 +280,7 @@
         "whenToUse": "Discussion on a record's page (a task, a meeting): comments oldest first with the composer at the end.",
         "whenNotToUse": "An activity feed or notifications — use Inbox.",
         "version": "0.23.31",
-        "integrity": "sha256-jM0Hr97PUdjFcC9KL9ce59wEYp0hB0ugnJll8RNEaRM="
+        "integrity": "sha256-VyS8p6KgGQwMcJoW4VyrZRaqZvoGcaV+XhIyLY4DrLg="
       }
     },
     {
@@ -1654,7 +1654,7 @@
         "whenToUse": "Any optimistic inline edit of a single value — grid cells (focusMode=managed), record-page property lists, settings rows — where the write is async and can fail.",
         "whenNotToUse": "Debounced save-as-you-type on a standing form field (AutoSaveInput), or whole forms (Field).",
         "version": "0.23.31",
-        "integrity": "sha256-U+J7daa9mTGegZyFbitKAST6olFai+T5mAPzDUvLhow="
+        "integrity": "sha256-OGAYJkTkk4En+4P2lOsNmPZ4CyEL8hxWY0J54EeVj6s="
       }
     },
     {
@@ -15035,7 +15035,7 @@
         "whenToUse": "Single-line text entry — email, password, search, URL/slug with a domain prefix, numbers, etc.",
         "whenNotToUse": "Multi-line text (use a textarea) or choosing from fixed options (use a select/radio).",
         "version": "0.23.31",
-        "integrity": "sha256-flciaocPmc3I2jQHcSfVx+NicjRGRrPlIAAnSUY74vg="
+        "integrity": "sha256-oFkFuR2Vwbv3zfHzxVzbUFqA4WrdS9XABrejx/dSDxw="
       }
     },
     {
@@ -15067,7 +15067,7 @@
         "whenToUse": "A text control that needs an affordance on the same surface — a search icon, a currency prefix, a reveal button, a character counter.",
         "whenNotToUse": "A control whose affordance belongs outside the field — use a Field description or a ButtonGroup.",
         "version": "0.23.31",
-        "integrity": "sha256-yOLn3CRl5ZMHRDVSQtox10cu1qN7lGkMT4Rh+e2szVo="
+        "integrity": "sha256-/YAIEl95I+665dIcp6vsH4fG0ZfJRNdpa8LXOUJxoYI="
       }
     },
     {
@@ -15851,7 +15851,7 @@
         "whenToUse": "Heterogeneous key→value panes (record details, metadata sidebars).",
         "whenNotToUse": "Homogeneous collections (DataList/Table) or form editing (Field).",
         "version": "0.23.31",
-        "integrity": "sha256-3/fzkPG9DRsxZAr/hR5s1uuCHJ0DoWZ+dGxvnJnre6E="
+        "integrity": "sha256-IICJ9Lgum2aCCGqiPfqwC3FcyeRBvsC8eCw2IOxu0Ts="
       }
     },
     {
@@ -16829,7 +16829,7 @@
       "name": "text-edit",
       "type": "registry:ui",
       "title": "Text Edit",
-      "description": "A Tiptap markdown-first rich-text editor in the shared prose typography — toolbar levels that set the schema, bubble menu, link popover, task lists, tables, code blocks, markdown input rules and paste, onSave/onCancel, autosave, and a borderless ghost variant.",
+      "description": "A Tiptap markdown-first rich-text editor in the shared prose typography — a slash menu and a bubble menu instead of a toolbar, a link popover, task lists, tables, code blocks, markdown input rules and paste, and one onCommit path.",
       "categories": [
         "rich-text"
       ],
@@ -16844,6 +16844,7 @@
         "@tiptap/extension-list@^3",
         "@tiptap/extension-table@^3",
         "@tiptap/extensions@^3",
+        "@tiptap/suggestion@^3",
         "lucide-react@^1.47.0",
         "@vegastack/design@^0.7.40",
         "@vegastack/design-tokens@^0.7.33"
@@ -16853,10 +16854,7 @@
         "@vegastack/checkbox",
         "@vegastack/copy-button",
         "@vegastack/input",
-        "@vegastack/kbd",
-        "@vegastack/popover",
-        "@vegastack/toggle",
-        "@vegastack/tooltip"
+        "@vegastack/toggle"
       ],
       "files": [
         {
@@ -16869,7 +16867,7 @@
         "whenToUse": "Comments, notes, summaries and documents stored as Markdown (format=\"markdown\") or HTML; in-place editing of a MarkdownView with variant=\"ghost\".",
         "whenNotToUse": "Plain single-line input (Input) or collaborative real-time docs (deferred text-edit-collab).",
         "version": "0.23.31",
-        "integrity": "sha256-nNvDqFlV7AHefKSpuJk4JD2MN+JHIyZ//Xzt3kgTV6g="
+        "integrity": "sha256-qAlTaCnPwlF6AK25DKY6DBleRLqoYoTAXWuJdHUordY="
       }
     },
     {

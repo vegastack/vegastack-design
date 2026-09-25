@@ -1,4 +1,4 @@
-// @vegastack comments@0.23.31 sha256-jM0Hr97PUdjFcC9KL9ce59wEYp0hB0ugnJll8RNEaRM=
+// @vegastack comments@0.23.31 sha256-VyS8p6KgGQwMcJoW4VyrZRaqZvoGcaV+XhIyLY4DrLg=
 
 "use client";
 
@@ -26,7 +26,10 @@ import { PersonAvatar, type Person } from "@/components/ui/person-hover-card";
 import { PersonBadge } from "@/components/ui/searchable-select";
 import { RelativeTime } from "@/components/ui/relative-time";
 import { Skeleton } from "@/components/ui/skeleton";
-import { TextEdit } from "@/components/ui/text-edit";
+import {
+  TEXT_EDIT_COMPACT_SLASH_COMMANDS,
+  TextEdit,
+} from "@/components/ui/text-edit";
 import {
   Tooltip,
   TooltipContent,
@@ -244,7 +247,7 @@ export function CommentItem({
           {comment.deleted ? null : editing ? (
             <TextEdit
               format="markdown"
-              toolbar="minimal"
+              slashCommands={TEXT_EDIT_COMPACT_SLASH_COMMANDS}
               defaultValue={comment.body}
               aria-label="Edit comment"
               onCommit={save}
@@ -370,7 +373,7 @@ export function CommentComposer({
         <TextEdit
           key={generation}
           format="markdown"
-          toolbar="minimal"
+          slashCommands={TEXT_EDIT_COMPACT_SLASH_COMMANDS}
           placeholder={placeholder}
           aria-label="Comment"
           onValueChange={(next) => {

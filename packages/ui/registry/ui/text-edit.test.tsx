@@ -28,70 +28,6 @@ test("exposes the text-edit slot and is editable by default", async () => {
   expect(root).toHaveAttribute("data-editable", "");
 });
 
-test("renders the formatting toolbar with all command buttons", async () => {
-  const screen = await render(<TextEdit aria-label="Body" />);
-  // Notion-style: the row appears only while the editor has focus.
-  await screen.getByRole("textbox", { name: "Body" }).click();
-  await expect
-    .element(screen.getByRole("toolbar", { name: "Formatting" }))
-    .toBeInTheDocument();
-  for (const name of [
-    "Heading",
-    "Subheading",
-    "Bold",
-    "Italic",
-    "Inline code",
-    "Link",
-    "Bullet list",
-    "Ordered list",
-    "Task list",
-    "Blockquote",
-  ]) {
-    await expect
-      .element(screen.getByRole("button", { name }))
-      .toBeInTheDocument();
-  }
-});
-
-test("toolbar keyboard: one tab stop in, arrows move across groups, Shift+Tab leaves", async () => {
-  const screen = await render(
-    <div>
-      <TextEdit aria-label="Body" />
-    </div>,
-  );
-  // The row sits under the text and exists while the editor has focus; Tab from the text enters it.
-  await screen.getByRole("textbox", { name: "Body" }).click();
-  const before = screen
-    .getByRole("textbox", { name: "Body" })
-    .element() as HTMLElement;
-  const heading = screen.getByRole("button", { name: "Heading" }).element();
-  const subheading = screen
-    .getByRole("button", { name: "Subheading" })
-    .element();
-  // Arrow traversal crosses a `Toolbar.Group` boundary and its separator.
-  const bold = screen.getByRole("button", { name: "Bold" }).element();
-  const italic = screen.getByRole("button", { name: "Italic" }).element();
-
-  // ONE tab stop for the whole bar: every other control is roving.
-  expect(heading.getAttribute("tabindex")).toBe("0");
-  for (const control of [subheading, bold, italic])
-    expect(control.getAttribute("tabindex")).toBe("-1");
-
-  await userEvent.tab();
-  expect(document.activeElement).toBe(heading);
-
-  await userEvent.keyboard("{ArrowRight}{ArrowRight}");
-  expect(document.activeElement).toBe(bold);
-  await userEvent.keyboard("{ArrowRight}");
-  expect(document.activeElement).toBe(italic);
-  await userEvent.keyboard("{ArrowLeft}");
-  expect(document.activeElement).toBe(bold);
-
-  // Shift+Tab leaves the toolbar outright rather than walking back through eight buttons.
-  await userEvent.tab({ shift: true });
-  expect(document.activeElement).toBe(before);
-});
-
 test("the editor surface and MarkdownView wear the same prose recipe", async () => {
   const screen = await render(<TextEdit aria-label="Body" />);
   const editable = screen
@@ -102,20 +38,6 @@ test("the editor surface and MarkdownView wear the same prose recipe", async () 
   expect(editable.className).toContain("[&_h1]:text-lg [&_h1]:font-semibold");
   expect(editable.className).toContain("[&_p]:my-2");
   expect(editable.className).toContain("[&_code]:font-mono");
-});
-
-test("clicking Bold toggles its active state", async () => {
-  // Collapsed cursor: toggling Bold sets ProseMirror's stored mark, so editor.isActive('bold') (which
-  // drives aria-pressed) flips true — no text selection required. Avoids the prior flake where a
-  // manual DOM Range didn't sync to ProseMirror's internal selection under full-suite load.
-  const screen = await render(
-    <TextEdit defaultValue="<p>format me</p>" aria-label="Body" />,
-  );
-  const editable = screen.getByRole("textbox", { name: "Body" });
-  await editable.click();
-  const bold = screen.getByRole("button", { name: "Bold" });
-  await bold.click();
-  await expect.element(bold).toHaveAttribute("aria-pressed", "true");
 });
 
 test("typing into the editor emits HTML via onValueChange", async () => {
@@ -214,17 +136,6 @@ test("a controlled value change while not focused applies immediately", async ()
   });
 });
 
-test("non-editable mode hides the toolbar and marks the surface read-only", async () => {
-  const screen = await render(
-    <TextEdit value="<p>read only</p>" editable={false} aria-label="Body" />,
-  );
-  await expect.element(screen.getByText("read only")).toBeInTheDocument();
-  await expect
-    .element(screen.getByRole("textbox", { name: "Body" }))
-    .toHaveAttribute("contenteditable", "false");
-  expect(screen.container.querySelector('[role="toolbar"]')).toBeNull();
-});
-
 test("forwards validation ARIA to the contenteditable textbox", async () => {
   const screen = await render(
     <>
@@ -301,7 +212,7 @@ test("no a11y violations", async () => {
 
 test("no a11y violations — non-editable", async () => {
   const screen = await render(
-    <TextEdit value="<p>read only</p>" editable={false} aria-label="Body" />,
+    <TextEdit value="<p>read only</p>" readOnly aria-label="Body" />,
   );
   await expect
     .element(screen.getByRole("textbox", { name: "Body" }))
@@ -509,6 +420,9 @@ const markdownFixtures: [string, string][] = [
   ["a bullet list", "- Apples\n- Pears\n- Plums"],
   ["an ordered list", "1. One\n2. Two\n3. Three"],
   ["a link", "See [the spec](https://example.com/spec) for details."],
+  // Empty paragraphs (blank lines typed with Enter) survive: Tiptap writes them as `&nbsp;` and
+  // extra blank lines, and reads both back as the same empty paragraphs.
+  ["blank lines", "a\n\n\n\n&nbsp;\n\nb\n\n- x\n\n\n\nc"],
 ];
 
 test.each(markdownFixtures)(
@@ -583,7 +497,7 @@ test("Markdown: a controlled value is applied as Markdown", async () => {
   });
 });
 
-test("readOnly hides the toolbar and marks the surface read-only", async () => {
+test("readOnly marks the surface read-only", async () => {
   const screen = await render(
     <TextEdit defaultValue="<p>Fixed</p>" readOnly aria-label="Body" />,
   );
@@ -594,7 +508,7 @@ test("readOnly hides the toolbar and marks the surface read-only", async () => {
   await expectNoA11yViolations(screen.container);
 });
 
-test("disabled hides the toolbar and marks the editor disabled", async () => {
+test("disabled marks the editor disabled", async () => {
   const screen = await render(
     <TextEdit defaultValue="<p>Locked</p>" disabled aria-label="Body" />,
   );

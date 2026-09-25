@@ -153,7 +153,6 @@ export function editableCellHeading(): ReactNode {
         <h2 className="text-2xl font-semibold">
           <EditableCell
             variant="heading"
-            flush
             required
             value={title}
             label="Meeting title"

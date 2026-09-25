@@ -31,7 +31,7 @@ starts with `icon-` is a component and never an icon.
 - **`editable-cell`** — Inline-editable value whose edit mode looks like view — same box, inherited type, no border — with optimistic saves, a delayed spinner, rollback plus a Retry toast on failure, required, multiline, table-cell and heading variants, and a typed text/select/custom editor registry.
 - **`emoji-picker`** — A popover with a searchable, category-grouped grid of emoji that returns the selected character via onValueChange (curated set, not full Unicode).
 - **`field`** — The form-field scaffold — label, description, error, legend, separator and choice-card layouts.
-- **`input`** — A styled Base UI input for every text-entry type, with the text-entry focus border tint (FOC-3).
+- **`input`** — A styled Base UI input for every text-entry type: a bordered default with the focus border tint (FOC-3), or a borderless ghost title field tinted on hover and focus; sm, default and lg sizes.
 - **`input-group`** — An input or textarea with addons — icons, text, buttons, kbd hints and spinners on one surface.
 - **`input-otp`** — A one-time-password field with per-character slots, driven by one hidden input.
 - **`label`** — A styled native label for form controls.
@@ -157,7 +157,7 @@ starts with `icon-` is a component and never an icon.
 
 ## Rich text
 
-- **`text-edit`** — A Tiptap-based rich-text editor with a compact, token-styled toolbar (bold, italic, strike, heading, lists, blockquote, code) — controlled HTML in, HTML out. Collaboration deferred.
+- **`text-edit`** — A Tiptap-based, markdown-first rich-text editor with no toolbar: a slash menu for blocks and a bubble menu for inline marks, a hover/focus tint, and one onCommit path.
 
 ## Chat
 

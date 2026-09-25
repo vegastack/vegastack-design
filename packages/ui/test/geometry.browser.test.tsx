@@ -274,10 +274,8 @@ const DYNAMIC_DOM: Record<string, string> = {
   textEditHeights: ".tiptap[contenteditable]",
   textEditInsideField: ".tiptap[contenteditable]",
   markdownParity: ".tiptap[contenteditable]",
-  markdownToolbarMinimal: ".tiptap[contenteditable]",
-  markdownToolbarStandard: ".tiptap[contenteditable]",
-  markdownToolbarFull: ".tiptap[contenteditable]",
-  markdownToolbarCustom: ".tiptap[contenteditable]",
+  markdownSlashMenu: ".tiptap[contenteditable]",
+  markdownSlashCommandsLimited: ".tiptap[contenteditable]",
   markdownBubbleMenu: ".tiptap[contenteditable]",
   markdownAutosave: ".tiptap[contenteditable]",
   markdownInPlace: ".tiptap[contenteditable]",
@@ -568,12 +566,19 @@ function tintCarriers(control: Element): Element[] {
   return carriers;
 }
 
-type FocusSignature = { outlineStyle: string; borders: string[] };
+type FocusSignature = {
+  outlineStyle: string;
+  borders: string[];
+  fills: string[];
+};
 
 const focusSignature = (control: Element): FocusSignature => ({
   outlineStyle: getComputedStyle(control).outlineStyle,
   borders: tintCarriers(control).map(
     (element) => getComputedStyle(element).borderColor,
+  ),
+  fills: tintCarriers(control).map(
+    (element) => getComputedStyle(element).backgroundColor,
   ),
 });
 
@@ -632,11 +637,15 @@ function focusIndicatorProblem(
   const focused = focusSignature(control);
   if (focused.borders.some((border, index) => border !== rest.borders[index]))
     return null;
+  // A borderless text-entry surface (Input `ghost`, TextEdit) signals focus with a background
+  // tint instead of a border — the same system cue, on the fill.
+  if (focused.fills.some((fill, index) => fill !== rest.fills[index]))
+    return null;
 
   if (textEntry)
     return (
-      `is a text-entry control with no border tint on focus: no border-colour change on the ` +
-      `control, its [data-field-group], or its wrapper. The tint IS the affordance for this set ` +
+      `is a text-entry control with no border tint on focus: no border-colour or background tint ` +
+      `on the control, its [data-field-group], or its wrapper. The tint IS the affordance for this set ` +
       `(AGENTS.md \u00a7 Accessibility), and the global ring is suppressed here`
     );
   return style.outlineStyle === "auto"
@@ -1191,15 +1200,6 @@ for (const [name, fixture] of FIXTURES) {
         // control never took focus and nothing about ITS indicator was demonstrated.
         const active = document.activeElement;
         if (active !== control && !control.contains(active)) continue;
-        // TextEdit's surface is Notion-style by operator decision (2026-09-26): no ring and no
-        // border. Its focus cue is the caret plus the formatting row that mounts under the text
-        // once the editor reports focus — a visible change owned by the system.
-        if (
-          active instanceof HTMLElement &&
-          active.isContentEditable &&
-          active.closest('[data-slot="text-edit"]')
-        )
-          continue;
         const focused = active instanceof HTMLElement ? active : control;
         // The redirect target needs a baseline of its OWN, and it has to be taken with focus
         // released — reading it here, while the target already holds focus, compared the focused

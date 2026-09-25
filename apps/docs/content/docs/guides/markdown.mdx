@@ -1,6 +1,6 @@
 ---
 title: Markdown
-description: Render markdown with MarkdownView and edit it with TextEdit in one typography — every element, toolbar levels, bubble menu, shortcuts, input rules.
+description: Render markdown with MarkdownView and edit it with TextEdit in one typography — every element, slash menu, bubble menu, shortcuts, input rules.
 audience: public
 ---
 
@@ -34,8 +34,7 @@ import { TextEdit } from "@/components/ui/text-edit";
 
 ## Every element, view and edit
 
-The same document rendered by `MarkdownView` and edited by a `TextEdit` with the `full`
-toolbar, stacked. Headings h1–h6, paragraphs, **bold**, _italic_, ~~strike~~, inline code, fenced
+The same document rendered by `MarkdownView` and edited by a `TextEdit`, stacked. Headings h1–h6, paragraphs, **bold**, _italic_, ~~strike~~, inline code, fenced
 code blocks, links, bullet, ordered and task lists (nested), blockquotes, rules, tables, images and
 hard breaks. Edit the lower copy: the upper one follows.
 
@@ -60,53 +59,47 @@ hard breaks. Edit the lower copy: the upper one follows.
 | Image         | `![alt](src)`       | `MarkdownView` blocks remote origins unless listed in `allowedImageOrigins`.        |
 | Hard break    | trailing `\`        |                                                                                     |
 
-## Toolbar levels
+## Slash menu
 
-`toolbar` picks a level, and the editor's schema follows it: a mark or node with no action is not
-allowed, so markdown for it becomes plain text. Any heading action allows every heading level, so a
-document with an `#` still round-trips.
+There is no toolbar. Type <kbd>/</kbd> at the start of a line or after a space to open the block
+menu, then type to filter it. <kbd>↑</kbd> <kbd>↓</kbd> move, <kbd>Enter</kbd> inserts and
 
-| Level                  | Actions                                                                            |
-| ---------------------- | ---------------------------------------------------------------------------------- |
-| `minimal`              | bold, italic, link, bullet list                                                    |
-| `standard` _(default)_ | minimal + H2, H3, ordered list, task list, blockquote, inline code                 |
-| `full`                 | standard + strikethrough, code block, table, divider, undo, redo, clear formatting |
-| an array               | any of `TextEditAction`, rendered in the fixed cluster order                       |
+<kbd>Esc</kbd> closes it with the text left as typed.
 
-### Minimal
+| Command       | Inserts                        | Markdown shortcut           |
+| ------------- | ------------------------------ | --------------------------- |
+| Text          | a plain paragraph              |                             |
+| Heading 1–3   | a heading                      | `# ` `## ` `### `           |
+| Bullet list   | a bullet list                  | `- `                        |
+| Numbered list | an ordered list                | `1. `                       |
+| Checklist     | a task list                    | `[ ] `                      |
+| Quote         | a blockquote                   | `> `                        |
+| Code block    | a fenced code block            | ` ``` `                     |
+| Divider       | a horizontal rule              | `---`                       |
+| Link          | a link, through the link input | <kbd>Mod</kbd> <kbd>K</kbd> |
+
+`slashCommands` limits and orders the menu, for example a comment composer that offers only lists,
+code and links. `[]` turns the menu off. It limits the menu only: markdown typed or pasted for any
+element still works, so every document round-trips.
 
 <ComponentPreview
-  name="markdownToolbarMinimal"
+  name="markdownSlashMenu"
   file="components/preview/text-edit.tsx"
 />
 
-### Standard
+### A smaller set
 
 <ComponentPreview
-  name="markdownToolbarStandard"
-  file="components/preview/text-edit.tsx"
-/>
-
-### Full
-
-<ComponentPreview
-  name="markdownToolbarFull"
-  file="components/preview/text-edit.tsx"
-/>
-
-### Custom actions
-
-<ComponentPreview
-  name="markdownToolbarCustom"
+  name="markdownSlashCommandsLimited"
   file="components/preview/text-edit.tsx"
 />
 
 ## Bubble menu
 
-`bubbleMenu` (on by default) floats a toolbar over a text selection with heading, bold, italic,
-inline code and link — whichever of them the toolbar allows. The link button opens the same link
-popover as the toolbar: type a URL to add or update the link, or **Remove** it. Pasting a URL over a
-selection links it without the popover.
+Selecting text floats a small menu with bold, italic, strikethrough, inline code and link. The link
+button, and <kbd>Mod</kbd> <kbd>K</kbd>, turn the menu into an inline URL input: <kbd>Enter</kbd>
+applies it, <kbd>Esc</kbd> closes it, and **Remove** unlinks. Pasting a URL over a selection links
+it directly. Links open in a new tab with `rel="noopener noreferrer"`.
 
 <ComponentPreview
   name="markdownBubbleMenu"
@@ -116,8 +109,9 @@ selection links it without the popover.
 ## In-place editing
 
 There is no mode to switch. The editor is transparent and borderless, so it takes the surface it
-sits on and its text lands exactly where `MarkdownView` would put it. Focus shows the compact
-formatting row under the text; there are no Save or Cancel buttons.
+sits on and its text lands exactly where `MarkdownView` would put it. Hover and focus show a faint
+background tint, never a border or ring, and an empty focused editor hints "Type / for commands".
+There are no Save or Cancel buttons.
 
 | Event                           | Result                                                                   |
 | ------------------------------- | ------------------------------------------------------------------------ |
@@ -126,8 +120,9 @@ formatting row under the text; there are no Save or Cancel buttons.
 | <kbd>Mod</kbd> <kbd>Enter</kbd> | `onSubmit(value)` when set; otherwise commit and blur.                   |
 | `autosave` idle gap             | `onCommit(value)` without leaving.                                       |
 
-`onSave`, `onCancel`, `saveLabel`, `cancelLabel` and `variant` are deprecated: `onSave` and
-`onCancel` alias `onCommit` and `onRevert`, the rest are ignored.
+The page going hidden and the editor unmounting mid-edit commit through the same path, so a value is
+never committed twice. A new `value` that arrives while the editor is focused waits for blur, so the
+caret never jumps.
 
 <ComponentPreview
   name="markdownInPlace"
@@ -146,7 +141,7 @@ default.
 
 ## Shortcuts
 
-Toolbar tooltips show each shortcut. `Mod` is <kbd>⌘</kbd> on Apple platforms and <kbd>Ctrl</kbd>
+`Mod` is <kbd>⌘</kbd> on Apple platforms and <kbd>Ctrl</kbd>
 elsewhere.
 
 | Keys                                                                       | Action                        |
@@ -184,4 +179,4 @@ way.
 | `~~text~~`       | ~~Strikethrough~~ |
 | `` `text` ``     | Inline code       |
 
-Each rule needs its action: `[ ] ` does nothing without `taskList`.
+Every rule works in every editor: `slashCommands` limits the menu, never the schema.

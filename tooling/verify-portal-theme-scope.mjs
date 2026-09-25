@@ -72,6 +72,11 @@ const EXPECTED_HOSTS = new Map([
   // read `useInternalThemeScope()` and attach it to the Positioner INSIDE the portal.
   ["packages/ui/registry/ui/select.tsx", ["SelectPrimitive.Portal"]],
   ["packages/ui/registry/ui/combobox.tsx", ["ComboboxPrimitive.Portal"]],
+  // TextEdit's slash menu follows the caret, not an anchor element, and must keep focus (and the
+  // caret) in the editor — no Base UI popup fits, so it is a raw `createPortal` to `<body>` of a
+  // `position: fixed` listbox. `SlashMenu` receives `useInternalThemeScope()` and attaches it to
+  // the listbox itself, the element rendered inside the portal.
+  ["packages/ui/registry/ui/text-edit.tsx", ["createPortal"]],
 ]);
 
 function walk(dir, out = []) {
@@ -238,9 +243,10 @@ for (const file of walk(ROOT)) {
         const tag = "createPortal";
         hosts.push(tag);
         const { line } = sf.getLineAndCharacterOfPosition(node.getStart(sf));
-        violations.push(
-          `${file}:${line + 1} raw ${tag}() bypasses the reviewed portal host contract; use an inventoried, theme-scoped host`,
-        );
+        if (!EXPECTED_HOSTS.get(file)?.includes(tag))
+          violations.push(
+            `${file}:${line + 1} raw ${tag}() bypasses the reviewed portal host contract; use an inventoried, theme-scoped host`,
+          );
       }
     }
     ancestors.push(node);
