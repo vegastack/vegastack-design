@@ -12717,6 +12717,7 @@
         "@vegastack/card",
         "@vegastack/item",
         "@vegastack/person-hover-card",
+        "@vegastack/searchable-select",
         "@vegastack/skeleton",
         "@vegastack/tooltip"
       ],

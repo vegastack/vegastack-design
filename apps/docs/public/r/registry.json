@@ -15859,6 +15859,7 @@
         "@vegastack/card",
         "@vegastack/item",
         "@vegastack/person-hover-card",
+        "@vegastack/searchable-select",
         "@vegastack/skeleton",
         "@vegastack/tooltip"
       ],
@@ -15873,7 +15874,7 @@
         "whenToUse": "A record page's rail cards (and its Details sheet): a Details section of inline properties, people and linked records, then sections of full-width rows for the record's tasks and suggestions.",
         "whenNotToUse": "A full list page (DataList) or a settings form (Field).",
         "version": "0.23.24",
-        "integrity": "sha256-6pkTb31lqMl6PJRAFBauhFH/Yv6UjyJid3pZzmz67/U="
+        "integrity": "sha256-lC3uXMV371xGwXUYiOamhN0atGX2k6XsjUwqvEi1TwE="
       }
     },
     {
@@ -16090,7 +16091,7 @@
         "whenToUse": "A Select-shaped searchable picker: one or several values, option descriptions and disabled reasons, and server search with paging (remote + useAsyncSearch).",
         "whenNotToUse": "A short fixed option set (Select), free text with suggestions (Combobox directly), or multi-select (Combobox with chips).",
         "version": "0.23.24",
-        "integrity": "sha256-tUjKo7crnaOQ3TZmw0PPMZdaXgVgu1/ZiTNeBkOkWpo="
+        "integrity": "sha256-pXUxjW4xO4Of3fvUXx7yUotJvqVEuoplKBHW8OFIYDc="
       }
     },
     {

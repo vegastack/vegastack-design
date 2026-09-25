@@ -1,4 +1,4 @@
-// @vegastack record-aside@0.23.24 sha256-6pkTb31lqMl6PJRAFBauhFH/Yv6UjyJid3pZzmz67/U=
+// @vegastack record-aside@0.23.24 sha256-lC3uXMV371xGwXUYiOamhN0atGX2k6XsjUwqvEi1TwE=
 
 "use client";
 
@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Item, ItemContent, ItemGroup } from "@/components/ui/item";
 import { PersonAvatar } from "@/components/ui/person-hover-card";
+import { PersonBadge } from "@/components/ui/searchable-select";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   Tooltip,
@@ -244,6 +245,8 @@ export interface PropertyPersonValue {
   name: string;
   /** The avatar image. @default undefined */
   image?: string | null;
+  /** A status after the name, such as "Inactive" — a string is a small muted outline badge. @default undefined */
+  badge?: React.ReactNode;
 }
 
 /** Props for `PropertyPerson`. */
@@ -254,6 +257,7 @@ export interface PropertyPersonProps
 export function PropertyPerson({
   name,
   image,
+  badge,
   className,
   ...props
 }: PropertyPersonProps) {
@@ -265,6 +269,7 @@ export function PropertyPerson({
     >
       <PersonAvatar person={{ name, image }} />
       <span className="min-w-0 truncate">{name}</span>
+      <PersonBadge badge={badge} />
     </span>
   );
 }
