@@ -1,4 +1,4 @@
-// @vegastack data-table-parts@0.23.10 sha256-XJLS0HN0Kb6DLh+zTfQfHkXeRuZPH4OzTxNccqphKzg=
+// @vegastack data-table-parts@0.23.10 sha256-FURSy/bpmqWT81hvgCdifaKlQHYBhPSYRZBLnEIB1B4=
 
 "use client";
 
@@ -19,6 +19,7 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { ItemContent, ItemDescription, ItemTitle } from "@/components/ui/item";
@@ -908,8 +909,13 @@ export function EmptyRow({
   );
 }
 
-/** One entry of a row's actions menu. */
-export interface RowAction {
+/** One item of a row's actions menu. */
+export interface RowActionItem {
+  /**
+   * An item (the default). `{ type: "separator" }` is the other kind of entry.
+   * @default "item"
+   */
+  type?: "item";
   /** The item's text, and its accessible name. */
   label: string;
   /**
@@ -944,6 +950,49 @@ export interface RowAction {
    * @default undefined
    */
   icon?: React.ReactNode;
+  /**
+   * Draw a separator above this item — to set a destructive action apart from the rest.
+   * @default false
+   */
+  separatorBefore?: boolean;
+}
+
+/** A divider between groups of row actions: `{ type: "separator" }`. */
+export interface RowActionSeparator {
+  /** Marks the entry as a separator. */
+  type: "separator";
+}
+
+/**
+ * One entry of a row's actions menu — an item, or `{ type: "separator" }` between groups.
+ * Leading, trailing and doubled separators are dropped.
+ */
+export type RowAction = RowActionItem | RowActionSeparator;
+
+/** True for a real item (not a separator). */
+export function isRowActionItem(action: RowAction): action is RowActionItem {
+  return action.type !== "separator";
+}
+
+/**
+ * The entries as items, each marked when a separator (or `separatorBefore`) precedes it — with
+ * leading, trailing and doubled separators dropped.
+ */
+function withSeparators(actions: RowAction[]) {
+  const out: { action: RowActionItem; separated: boolean }[] = [];
+  let pending = false;
+  for (const action of actions) {
+    if (!isRowActionItem(action)) {
+      pending = true;
+      continue;
+    }
+    out.push({
+      action,
+      separated: out.length > 0 && (pending || !!action.separatorBefore),
+    });
+    pending = false;
+  }
+  return out;
 }
 
 /**
@@ -968,31 +1017,33 @@ export function RowActionMenuItems({
 }) {
   return (
     <>
-      {actions.map((action) => (
-        <DropdownMenuItem
-          key={action.label}
-          variant={action.destructive ? "destructive" : "default"}
-          disabled={action.disabled}
-          render={action.render}
-          onClick={
-            action.disabled || !action.onSelect
-              ? undefined
-              : () => {
-                  onAction?.();
-                  action.onSelect?.();
-                }
-          }
-        >
-          {action.icon}
-          {action.disabled && action.disabledReason ? (
-            <ItemContent>
-              <ItemTitle>{action.label}</ItemTitle>
-              <ItemDescription>{action.disabledReason}</ItemDescription>
-            </ItemContent>
-          ) : (
-            action.label
-          )}
-        </DropdownMenuItem>
+      {withSeparators(actions).map(({ action, separated }) => (
+        <React.Fragment key={action.label}>
+          {separated ? <DropdownMenuSeparator /> : null}
+          <DropdownMenuItem
+            variant={action.destructive ? "destructive" : "default"}
+            disabled={action.disabled}
+            render={action.render}
+            onClick={
+              action.disabled || !action.onSelect
+                ? undefined
+                : () => {
+                    onAction?.();
+                    action.onSelect?.();
+                  }
+            }
+          >
+            {action.icon}
+            {action.disabled && action.disabledReason ? (
+              <ItemContent>
+                <ItemTitle>{action.label}</ItemTitle>
+                <ItemDescription>{action.disabledReason}</ItemDescription>
+              </ItemContent>
+            ) : (
+              action.label
+            )}
+          </DropdownMenuItem>
+        </React.Fragment>
       ))}
     </>
   );
@@ -1033,8 +1084,9 @@ export function RowActionsMenu({
   actionsLabel = defaultActionsLabel,
 }: RowActionsMenuProps) {
   const reasonId = React.useId();
-  if (actions.length === 0) return null;
-  const only = actions.length === 1 ? actions[0]! : null;
+  const items = actions.filter(isRowActionItem);
+  if (items.length === 0) return null;
+  const only = items.length === 1 ? items[0]! : null;
   if (only && only.icon != null) {
     const name = `${only.label} ${label}`;
     // A tooltip is not a description: a disabled icon action says why through a hidden element.

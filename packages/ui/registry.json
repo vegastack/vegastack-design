@@ -935,7 +935,14 @@
         "@vegastack/table",
         "@vegastack/truncated-text",
         "@vegastack/button",
-        "@vegastack/empty"
+        "@vegastack/empty",
+        "@vegastack/board",
+        "@vegastack/filter-bar",
+        "@vegastack/media-card",
+        "@vegastack/skeleton",
+        "@vegastack/thumbnail",
+        "@vegastack/view-toggle",
+        "@vegastack/use-drag-reorder"
       ],
       "files": [
         {
@@ -945,8 +952,8 @@
         }
       ],
       "meta": {
-        "whenToUse": "A list of records as a table with typed columns, selection, click-to-sort, loading/empty states, keyset paging through loadMore, rows as links, collapsible sections and a row-actions column.",
-        "whenNotToUse": "A board/kanban view (Board), full-parity grids with grouping/editing/virtualization (DataGrid), or a simple static table (Table).",
+        "whenToUse": "A list of records as a table, a card grid or board lanes (view) with typed columns, selection, click-to-sort, loading/empty states, keyset paging through loadMore, rows as links, sections, thumbnails and a row-actions column.",
+        "whenNotToUse": "Full-parity grids with grouping/editing/virtualization (DataGrid), or a simple static table (Table).",
         "version": "0.23.10"
       }
     },
@@ -1001,6 +1008,81 @@
       "meta": {
         "whenToUse": "The footer of a keyset (cursor) list — DataList's or DataGrid's loadMore, a board lane, a feed: load the next batch, retry a failed one, optionally say the list has ended.",
         "whenNotToUse": "Numbered pages with a known total (DataListPager); loading on scroll with no button.",
+        "version": "0.23.10"
+      }
+    },
+    {
+      "name": "media-card",
+      "type": "registry:ui",
+      "title": "Media Card",
+      "description": "A record as a card — an image, the title, a meta line, a badge and a ⋯ menu — where the whole card is one link.",
+      "categories": ["data"],
+      "dependencies": [
+        "@vegastack/design@^0.7.18",
+        "@vegastack/design-tokens@^0.7.18",
+        "@base-ui/react@^1.6.0"
+      ],
+      "registryDependencies": ["@vegastack/thumbnail"],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/media-card.tsx",
+          "type": "registry:ui",
+          "target": "@ui/media-card.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "A card per record in a grid (DataList view=\"grid\" renders one per row), or card content on a board.",
+        "whenNotToUse": "A record with a long body or its own controls (Card), or a row in a table (DataList).",
+        "version": "0.23.10"
+      }
+    },
+    {
+      "name": "thumbnail",
+      "type": "registry:ui",
+      "title": "Thumbnail",
+      "description": "A small rounded, cover-fit image, 32 or 48px, with a fallback for records that have no image.",
+      "categories": ["data"],
+      "dependencies": [
+        "@vegastack/design@^0.7.18",
+        "@vegastack/design-tokens@^0.7.18",
+        "lucide-react@^1.47.0"
+      ],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/thumbnail.tsx",
+          "type": "registry:ui",
+          "target": "@ui/thumbnail.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "A record image in a list row (32px) or a card (48px), with the app mark as the fallback.",
+        "whenNotToUse": "A person (Avatar), a large image or media (Image), or an icon (Icon).",
+        "version": "0.23.10"
+      }
+    },
+    {
+      "name": "view-toggle",
+      "type": "registry:ui",
+      "title": "View Toggle",
+      "description": "The Grid | List | Board icon switch for a list page, labels hidden on a phone.",
+      "categories": ["data"],
+      "dependencies": [
+        "@vegastack/design@^0.7.18",
+        "@vegastack/design-tokens@^0.7.18",
+        "lucide-react@^1.47.0"
+      ],
+      "registryDependencies": ["@vegastack/toggle-group"],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/view-toggle.tsx",
+          "type": "registry:ui",
+          "target": "@ui/view-toggle.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "Switching a list page between list, grid and board views — DataList mounts it for you with onViewChange.",
+        "whenNotToUse": "A scope switch such as Mine | Team (ToggleGroup or Tabs), or a form value (RadioGroup).",
         "version": "0.23.10"
       }
     },

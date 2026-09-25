@@ -110,6 +110,22 @@ const RUN_STATUS = {
 
 <ComponentPreview name="badgeStatusMap" file="components/preview/badge.tsx" />
 
+### Warning pill
+
+A count that needs attention — missing specs, overdue items — is the `warning` variant with a
+`TriangleAlert` and the count. Say what is counted when the pill stands alone; the bare number is
+enough only where a column header or label already names it. It is the existing `Badge`: never a
+new pill component.
+
+```tsx
+<Badge variant="warning">
+  <TriangleAlert aria-hidden />
+  {n} missing specs
+</Badge>
+```
+
+<ComponentPreview name="badgeWarningPill" file="components/preview/badge.tsx" />
+
 ## API Reference
 
 <ApiTable path="lib/api-props.ts" name="BadgeProps" />

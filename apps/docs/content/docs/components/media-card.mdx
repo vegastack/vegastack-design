@@ -1,0 +1,102 @@
+---
+title: Media Card
+description: A record as a card — an image, the title, a meta line, a badge and a ⋯ menu — where the whole card is one link.
+audience: public
+registry: media-card
+status: stable
+since: 0.23.10
+a11y: one link named by the title, menu above the link
+preview: mediaCard
+---
+
+## Install
+
+<InstallSteps name="media-card" />
+
+## Usage
+
+```tsx
+import { MediaCard } from "@/components/ui/media-card";
+
+<MediaCard
+  href={`/families/${f.id}`}
+  linkRender={<Link href="" />}
+  image={f.imageUrl}
+  fallback={<BrandMark />}
+  title={f.name}
+  meta="8 products · 3 sub-families"
+  badge={
+    <Badge variant="warning">
+      <TriangleAlert aria-hidden />3 missing specs
+    </Badge>
+  }
+  timestamp={<RelativeTime date={f.updatedAt} format="suffix" />}
+  actions={<RowActionsMenu label={f.name} actions={actions} />}
+/>;
+```
+
+`MediaCard` is one record in a card grid: a 48px [`Thumbnail`](/docs/components/thumbnail) on the
+left, the title, one meta line (meta, then the `badge`, then the `timestamp`), and the ⋯ menu on
+the right. With `href` the whole card is a link — the title is the link, stretched over the card —
+and it never underlines. [`DataList`](/docs/components/data-list)'s grid view renders one per row.
+
+<ComponentPreview name="mediaCard" file="components/preview/media-card.tsx" />
+
+## Examples
+
+### Fallback image
+
+A record with no image shows `fallback` — the app's brand mark.
+
+<ComponentPreview
+  name="mediaCardFallback"
+  file="components/preview/media-card.tsx"
+/>
+
+### Large
+
+`size="lg"` puts a 16:9 image on top, for records whose picture matters.
+
+<ComponentPreview
+  name="mediaCardLarge"
+  file="components/preview/media-card.tsx"
+/>
+
+### Without an image
+
+A card with neither `image` nor `fallback` has no image area, and `surface={false}` drops the
+card's own border for a host that owns the surface, such as a `Board` card.
+
+<ComponentPreview
+  name="mediaCardPlain"
+  file="components/preview/media-card.tsx"
+/>
+
+## API Reference
+
+<ApiTable
+  path="../../packages/ui/registry/ui/media-card.tsx"
+  name="MediaCardProps"
+/>
+
+## Accessibility
+
+- The card is one link, named by its title; the meta line, badge and time are read after it.
+- The ⋯ menu sits above the stretched link, so it is its own tab stop and never follows the link.
+  It shows on hover and on keyboard focus, and always on a touch screen.
+- The image is decorative (`alt=""`) because the title names the record.
+
+| Key                                 | Action                            |
+| ----------------------------------- | --------------------------------- |
+| <kbd>Tab</kbd>                      | Move to the card link, then its ⋯ |
+| <kbd>Enter</kbd>                    | Open the record                   |
+| <kbd>Enter</kbd> / <kbd>Space</kbd> | On ⋯, open the menu               |
+
+<StatesTested name="media-card" />
+
+## Do / Don't
+
+<DoDont
+  do="Keep the meta line to one short fact line; put a status or warning in the badge slot."
+  dont="Put buttons or links inside the title or meta — the whole card is already the link."
+/>

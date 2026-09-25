@@ -1,6 +1,6 @@
 ---
 title: Data List
-description: A typed data table — selection, sortable columns with custom compare, a standard row-actions column, loading, and empty and no-results states.
+description: A typed data table, card grid or board — selection, sortable columns, a standard row-actions column, loading, and empty and no-results states.
 audience: public
 registry: data-list
 status: stable
@@ -298,7 +298,10 @@ for the row (_Actions for Ada Lovelace_). It is end-aligned, stays visible on na
 renders as a real link through `render={<a href="…" />}`; `destructive` paints it in the destructive
 ink; `disabled` keeps it in the menu — still reachable by the arrow keys — and `disabledReason` is
 read as its description. A row with exactly one action that has an `icon` gets an icon button with a
-tooltip instead of a menu. The column header is _Actions_ for assistive tech only.
+tooltip instead of a menu. The column header is _Actions_ for assistive tech only. Put
+`{ type: "separator" }` between groups — _Copy link · Share ─ Copy summary ─ Delete_ — and leading,
+trailing or doubled separators are dropped, so a conditional group can leave one behind safely. The
+same entries drive the grid card's ⋯ and the board card's ⋯.
 
 <ComponentPreview
   name="dataListRowActions"
@@ -349,6 +352,103 @@ follow without a header, and select-all covers every loaded row. The collapsed s
 
 <ComponentPreview
   name="dataListSections"
+  file="components/preview/data-list.tsx"
+/>
+
+### List
+
+`view="list"` — the default — is the table on this page. Every other view below takes the same
+`data`, `sections`, sort, filters, `loadMore`, `loading`, `emptyState` and `noResults`, so switching
+views never changes what is shown, only how.
+
+### Thumbnails
+
+A column's `thumbnail` returns the row's image URL, and the cell shows a 32px
+[`Thumbnail`](/docs/components/thumbnail) before its value. `thumbnailFallback` is what a row with
+no image shows — pass the app's brand mark. The grid view uses the same column as the card image.
+
+```tsx
+<DataList
+  columns={[{ key: "name", header: "Family", thumbnail: (f) => f.imageUrl }]}
+  thumbnailFallback={<BrandMark />}
+/>
+```
+
+<ComponentPreview
+  name="dataListThumbnails"
+  file="components/preview/data-list.tsx"
+/>
+
+### Grid
+
+`view="grid"` renders one [`MediaCard`](/docs/components/media-card) per row in a responsive grid:
+one column on a phone, two from a medium container, three from a wide one. The first column is the
+card title, the other columns join into its meta line (a column's `mergedRender` is used there, so
+give counts their noun), a `thumbnail` column is its image, `getRowHref` makes the whole card a
+link, and `rowActions` is its ⋯ menu — on hover and focus, always on touch. Links never underline.
+
+<ComponentPreview name="dataListGrid" file="components/preview/data-list.tsx" />
+
+### Grid with groups
+
+With `sections`, each group renders as a heading and its count ("Indoor Luminaires · 4") above its
+own grid.
+
+<ComponentPreview
+  name="dataListGridGroups"
+  file="components/preview/data-list.tsx"
+/>
+
+### Grid lg
+
+`gridSize="lg"` puts a 16:9 image on top of each card, in fewer, wider columns.
+
+<ComponentPreview
+  name="dataListGridLg"
+  file="components/preview/data-list.tsx"
+/>
+
+### Custom card
+
+`renderCard` replaces the default card — compose a `MediaCard` with its `badge` and `timestamp`
+slots, or anything else.
+
+<ComponentPreview
+  name="dataListGridCustomCard"
+  file="components/preview/data-list.tsx"
+/>
+
+### View toggle
+
+`onViewChange` mounts a [`ViewToggle`](/docs/components/view-toggle). When the `toolbar` is a
+`FilterBar` it lands in the bar's `view` slot; otherwise it sits at the end of the toolbar row.
+`views` sets which views it offers, in order (default Grid | List). The chosen view is remembered
+for the browser session under `viewStorageKey` (default: the path plus the list's `aria-label`).
+
+```tsx
+<DataList
+  view={view}
+  onViewChange={setView}
+  toolbar={<FilterBar search={search} />}
+/>
+```
+
+<ComponentPreview
+  name="dataListViewToggle"
+  file="components/preview/data-list.tsx"
+/>
+
+### Board
+
+`view="board"` renders the sections as [`Board`](/docs/components/board) lanes — every lane shows,
+empty or not — and each row as a card (the same `renderCard`, or a plain card from the columns; the
+board owns the card surface, link and ⋯ menu). `onMove(row, fromSection, toSection)` applies a
+drag or a "Move to" between lanes; return a promise to gate it on the server. A section's own
+`loading`, `loadMore` and `emptyState` give each lane its own first load, **Load more** and empty
+state. Offer it with `views={["list", "board"]}`.
+
+<ComponentPreview
+  name="dataListBoard"
   file="components/preview/data-list.tsx"
 />
 
@@ -624,8 +724,10 @@ renders, and `RowAction` is one entry of either.
 
 <ApiTable
   path="../../packages/ui/registry/ui/data-table-parts.tsx"
-  name="RowAction"
+  name="RowActionItem"
 />
+
+`RowAction` is a `RowActionItem` or `{ type: "separator" }`.
 
 ## Accessibility
 

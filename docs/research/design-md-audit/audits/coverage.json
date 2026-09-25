@@ -1,14 +1,14 @@
 {
   "schemaVersion": 1,
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "9aa7a68c5fb59fc6b5b106c066b81ed6819133ec974bcf120059b6e0ce03adf2",
+  "contractSha256": "8fab6924cfedba4e40b8ab1835723c0272d3155a7f9503095d4d2b4635356d4b",
   "inventory": {
-    "expected": 679,
-    "actual": 679,
-    "unique": 679
+    "expected": 682,
+    "actual": 682,
+    "unique": 682
   },
   "classes": {
-    "components": 118,
+    "components": 121,
     "animatedIcons": 467,
     "hooks": 13,
     "blocks": 10,
@@ -121,8 +121,8 @@
       ]
     },
     "Data display": {
-      "expected": 14,
-      "actual": 14,
+      "expected": 17,
+      "actual": 17,
       "members": [
         "card",
         "carousel",
@@ -133,11 +133,14 @@
         "data-list-pager",
         "inbox",
         "load-more",
+        "media-card",
         "meta-line",
         "property-list",
         "stat",
         "table",
-        "timeline"
+        "thumbnail",
+        "timeline",
+        "view-toggle"
       ]
     },
     "Content/marketing": {
@@ -759,7 +762,7 @@
       ]
     }
   },
-  "componentRoutes": 116,
+  "componentRoutes": 119,
   "blockRoutes": 17,
   "modeledExemptions": 3
 }

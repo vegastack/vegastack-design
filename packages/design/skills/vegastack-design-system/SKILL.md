@@ -85,10 +85,10 @@ link` (upstream's set, verbatim). `destructive` is a soft tint, not a solid red 
   filters" wired to the FilterBar's `onClear`) — never hand-roll empty markup.
 - **List toolbars are one recipe** — `FilterBar`: search (~320px) left; right, the Filters (n)
   toggle, then views as `Tabs` (default variant, `TabsList size="sm"`, optional leading icons), then
-  the layout switch as an icon `ToggleGroup`, furthest right. Filters are `FilterBarFacet` /
+  the layout switch (`ViewToggle`), furthest right. Filters are `FilterBarFacet` /
   `DateRangeFilter` chips (compact, rounded-md, tinted when set) on the toggled row; people facets
-  take `itemToSecondaryLabel={(p) => p.email}`. Use Tabs for scope/views, an icon ToggleGroup for
-  List/Board. Tables are `DataList` with `sortable` columns (`compare`, `sortFirst`,
+  take `itemToSecondaryLabel={(p) => p.email}`. Use Tabs for scope/views, `ViewToggle` for
+  Grid | List | Board. Tables are `DataList` with `sortable` columns (`compare`, `sortFirst`,
   `sortMode="client"`) and `rowActions` (the ⋯ column, always last); row links are never underlined.
 - **`alert`** for an in-content notice — `variant` is `default · destructive · success · warning ·
 info`, each an ink on the `card` surface with a required icon; **`announcement-banner`** only for
@@ -169,6 +169,14 @@ A component's name undersells it. Before composing something by hand, check this
   for its processing state (progress, or an error with its reason and Retry inline). The body is
   default `Tabs` stretched full width (`TabsList className="w-full"`) with `useTabsSwipe` on the
   panels, and no cards around the panels.
+- **A list page with a grid, list or board view** → one `DataList` with `view` + `onViewChange`
+  (it mounts `ViewToggle` in the `FilterBar` `view` slot and remembers the view for the session) and
+  `views` for the ones the page allows. The grid renders a `MediaCard` per row (whole card is the
+  link, ⋯ on hover/focus/touch) with `sections` as headings; `view="board"` makes `sections` Board
+  lanes with `onMove` and a per-section `loading` / `loadMore` / `emptyState`. Record images are a
+  column `thumbnail` + `thumbnailFallback` (the app mark) — never a hand-rolled card grid, card or
+  `<img>`. A count needing attention is `<Badge variant="warning"><TriangleAlert />n</Badge>`, and
+  groups in a ⋯ menu are split by `{ type: "separator" }` entries.
 - **A list that pages by cursor** → `DataList` `loadMore` (or `LoadMore` under your own list), with
   `useAsyncSearch` when the search runs on the server.
 
