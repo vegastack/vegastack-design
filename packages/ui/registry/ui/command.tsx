@@ -1,4 +1,4 @@
-// @vegastack command@0.23.35 sha256-0lRBGPpdvMLOVRLImQFbBjA7XHjQJsdKn9+STFrHxTE=
+// @vegastack command@0.23.36 sha256-/93aLZjV7dcOC2PffYuo9MQacf3OTcnULJAyzKs93FY=
 
 "use client";
 

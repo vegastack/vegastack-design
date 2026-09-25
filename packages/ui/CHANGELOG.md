@@ -1,5 +1,11 @@
 # @vegastack/ui
 
+## 0.23.36
+
+### Patch Changes
+
+- [#328](https://github.com/vegastack/vegastack-design/pull/328) [`ec9fb47`](https://github.com/vegastack/vegastack-design/commit/ec9fb477d0eb18722bca9a2521c00cb5b6b2e112) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🔧 The `date-time` lib's module doc now reaches consumers: `shadcn add` drops every comment before a file's first statement, so the doc moves below `DateInput`. The code is unchanged.
+
 ## 0.23.35
 
 ### Patch Changes

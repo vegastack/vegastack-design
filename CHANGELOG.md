@@ -9,6 +9,19 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.23.36] — September 26, 2026
+
+<!-- assembled from 1 changeset: ffe9de44d228 -->
+
+### 🔧 Changed components
+
+- The `date-time` lib's module doc now reaches consumers: `shadcn add` drops every comment before a file's first statement, so the doc moves below `DateInput`. The code is unchanged.
+  [`ec9fb47`](https://github.com/VegaStack/vegastack-design/commit/ec9fb47)
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.23.35 → 0.23.36.
+
 ## [0.23.35] — September 26, 2026
 
 <!-- assembled from 2 changesets: 21be5b239abc -->
