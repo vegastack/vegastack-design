@@ -1215,7 +1215,7 @@ for (const theme of ["light", "dark"] as const) {
       .element(screen.getByText("Skyline Hotels"))
       .toBeInTheDocument();
     const list = await contrastViolations(screen.container);
-    await screen.getByRole("button", { name: "Grid", exact: true }).click();
+    await screen.getByRole("tab", { name: "Grid", exact: true }).click();
     await expect
       .poll(
         () =>

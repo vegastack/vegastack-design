@@ -21,7 +21,7 @@ import { ViewToggle } from "@/components/ui/view-toggle";
 <ViewToggle value={view} onValueChange={setView} />;
 ```
 
-`ViewToggle` switches a list page between its views — the default (pill) `Tabs` at `size="sm"`, one view
+`ViewToggle` switches a list page between its views — the default (pill) `Tabs` at the toolbar's h-8 tier, one view
 always selected; every toolbar switch uses this style. The labels show beside the icons from a small screen up and hide on a phone (they stay in
 the accessible name). [`DataList`](/docs/components/data-list) mounts it for you in the `FilterBar`
 `view` slot when you pass `onViewChange`, and remembers the choice for the session.

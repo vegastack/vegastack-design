@@ -1,4 +1,4 @@
-// @vegastack filter-bar@0.23.21 sha256-wlmn1TVSKfqVySCH/PenCOvBQ2fdZtmV0dW9yQN/uuc=
+// @vegastack filter-bar@0.23.21 sha256-Y0JW0qJcc252HYSrl+o2KrOyC8mZUHYVPVP3C530hIQ=
 
 "use client";
 
@@ -424,11 +424,11 @@ const FilterBarContext = React.createContext<FilterBarContextValue | null>(
 );
 
 /**
- * One height tier for the whole bar: every control is h-8, the default size. A `ToggleGroup` or
+ * One height tier for the whole bar: every control is h-8, the default size. A `ToggleGroup`, `TabsList` or
  * `Select` passed in at `size="sm"` is lifted to h-8 so the rows stay level.
  */
 const BAR_SIZE =
-  "[&_[data-slot=toggle-group-item][data-size=sm]]:h-8 [&_[data-slot=toggle-group-item][data-size=sm]]:min-w-8 [&_[data-slot=toggle-group-item][data-size=sm]]:text-sm [&_[data-slot=select-trigger][data-size=sm]]:h-8";
+  "[&_[data-slot=toggle-group-item][data-size=sm]]:h-8 [&_[data-slot=toggle-group-item][data-size=sm]]:min-w-8 [&_[data-slot=toggle-group-item][data-size=sm]]:text-sm [&_[data-slot=select-trigger][data-size=sm]]:h-8 [&_[data-slot=tabs-list][data-size=sm]]:h-8";
 
 /**
  * `FilterBar` — the toolbar above a list or table, in two rows.
@@ -718,7 +718,7 @@ export function FilterBar({
               {view != null ? (
                 <div
                   data-slot="filter-bar-view"
-                  className="ms-auto flex shrink-0 @max-3xl/filter-bar:[&_[data-slot=toggle-group-item]>span]:sr-only"
+                  className="ms-auto flex shrink-0 @max-3xl/filter-bar:[&_[data-slot=toggle-group-item]>span]:sr-only @max-3xl/filter-bar:[&_[data-slot=tabs-trigger]>span]:sr-only"
                 >
                   {view}
                 </div>

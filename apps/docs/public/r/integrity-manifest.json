@@ -120,7 +120,7 @@
   "emoji-picker": "sha256-Z5q3ITATduOpOHr2kZEMLSiMti3MwcR9vfk17veul60=",
   "empty": "sha256-ONBgI8Jafqqz3Tz6nEdhHYVn3T9sc7G14H+0eJzWOIc=",
   "field": "sha256-JZ21F5QDG4zr7l1BI1TTn/v48d4antCDSeCNymzbats=",
-  "filter-bar": "sha256-wlmn1TVSKfqVySCH/PenCOvBQ2fdZtmV0dW9yQN/uuc=",
+  "filter-bar": "sha256-Y0JW0qJcc252HYSrl+o2KrOyC8mZUHYVPVP3C530hIQ=",
   "filter-bar-managed": "sha256-KPbu3iI86/wwSSoXhkprEwylCQFHI26Zo37ZerfZKjU=",
   "geo-data": "sha256-f3WXzgpyDR7sSx3Q/OwOF/ZNq/dvglABYbTjDX6e7Mc=",
   "hover-card": "sha256-/IkqGYAI1pJ633Cvzu/klLHiUk18M0yliZYjZvVmxsU=",
@@ -685,5 +685,5 @@
   "use-platform": "sha256-5yEOL1UiZ0ZKZpw+0eXdVlMnUz6utKfB/CS5VRZo66A=",
   "use-tabs-swipe": "sha256-XbFjQp0q+YQOitwKLzysSv6qILu9gxXMn108n+eWNLs=",
   "video-player": "sha256-M/4wFTozztZhTYZit8RzvN/6O9FSRbzOiMSzlCaJq7A=",
-  "view-toggle": "sha256-a6FEEmaO5cGdQ6pl0kZgW1IWwKoZlNvu+oXXIJTz/24="
+  "view-toggle": "sha256-6v1OES6LkACVKZpazo3gsH2DSMj5UwWlndwa8RhJSGE="
 }

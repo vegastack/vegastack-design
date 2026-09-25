@@ -14,9 +14,9 @@ test("offers the given views and reports the one picked", async () => {
     />,
   );
   await expect
-    .element(screen.getByRole("group", { name: "View" }))
+    .element(screen.getByRole("tablist", { name: "View" }))
     .toBeVisible();
-  await screen.getByRole("button", { name: "Board" }).click();
+  await screen.getByRole("tab", { name: "Board" }).click();
   expect(onValueChange).toHaveBeenCalledWith("board");
   await expectNoA11yViolations(screen.container);
 });

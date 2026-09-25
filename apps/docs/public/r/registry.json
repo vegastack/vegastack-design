@@ -1305,7 +1305,7 @@
         "whenToUse": "Switching a list page between list, grid and board views — DataList mounts it for you with onViewChange.",
         "whenNotToUse": "A scope switch such as Mine | Team (default Tabs), or a form value (RadioGroup).",
         "version": "0.23.21",
-        "integrity": "sha256-a6FEEmaO5cGdQ6pl0kZgW1IWwKoZlNvu+oXXIJTz/24="
+        "integrity": "sha256-6v1OES6LkACVKZpazo3gsH2DSMj5UwWlndwa8RhJSGE="
       }
     },
     {
@@ -1768,7 +1768,7 @@
         "whenToUse": "Filter toolbars for lists/tables — 'Label: value' chips that edit in place, facets on SearchableSelect, an Add-filter menu and a settled search, at the end or first.",
         "whenNotToUse": "A single search box (Input), value selection (Select), or unrelated row actions.",
         "version": "0.23.21",
-        "integrity": "sha256-wlmn1TVSKfqVySCH/PenCOvBQ2fdZtmV0dW9yQN/uuc="
+        "integrity": "sha256-Y0JW0qJcc252HYSrl+o2KrOyC8mZUHYVPVP3C530hIQ="
       }
     },
     {

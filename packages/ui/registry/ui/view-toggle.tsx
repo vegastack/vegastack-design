@@ -1,4 +1,4 @@
-// @vegastack view-toggle@0.23.21 sha256-a6FEEmaO5cGdQ6pl0kZgW1IWwKoZlNvu+oXXIJTz/24=
+// @vegastack view-toggle@0.23.21 sha256-6v1OES6LkACVKZpazo3gsH2DSMj5UwWlndwa8RhJSGE=
 
 "use client";
 
@@ -45,7 +45,7 @@ export interface ViewToggleProps<V extends ListView = ListView> {
 
 /**
  * `ViewToggle` — the Grid | List (| Board) switch for a list page, a default (pill) `Tabs` at
- * `size="sm"` whose labels hide on a phone. `DataList` mounts it in the `FilterBar`'s `view` slot for you when it
+ * the bar's h-8 tier, whose labels hide on a phone. `DataList` mounts it in the `FilterBar`'s `view` slot for you when it
  * is given `onViewChange`.
  *
  * @example
@@ -68,7 +68,7 @@ export function ViewToggle<V extends ListView = ListView>({
       }}
       className={className}
     >
-      <TabsList size="sm" aria-label={ariaLabel}>
+      <TabsList aria-label={ariaLabel}>
         {views.map((view) => {
           const label = labels?.[view] ?? VIEW_META[view].label;
           return (
