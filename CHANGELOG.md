@@ -9,6 +9,20 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.23.14] — September 25, 2026
+
+<!-- assembled from 1 changeset: 5a901ca1198b -->
+
+### 🔧 Changed components
+
+- FieldDescription `variant="footnote"`: a centred 12px muted line with a small gap above, the documented footer style for login-01 and the sign-up, forgot password and set password variants.
+  [`49ce48f`](https://github.com/VegaStack/vegastack-design/commit/49ce48f)
+
+### 📦 npm
+
+- **`@vegastack/design`** → **`0.7.23`** (was `0.7.22`).
+- The design-system registry (`@vegastack/ui`) bumps 0.23.13 → 0.23.14.
+
 ## [0.23.13] — September 25, 2026
 
 <!-- assembled from 2 changesets: 896730837e08 -->
