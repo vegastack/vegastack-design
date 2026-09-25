@@ -107,7 +107,11 @@ tabular. The seek bar is a thin `Slider` with a buffered shade, a time readout o
 that appears on hover. Space plays or pauses and ←/→ move 5 seconds anywhere on the pill. It is centred in its container and sticky 16px above the bottom of its scroll column.
 Render it as the last child of the column it floats over, so it centres on the content, not across
 a sidebar. Below the `sm` breakpoint it spans the full width on the bottom edge, clear of the
-safe-area inset, with tighter padding and no volume control. Like `docked`, it is a `region` named by `label`.
+safe-area inset, with tighter padding and no volume control. It always sits at the bottom of its flex column
+(`mt-auto`), however short the page. With an end rail beside the content, set
+`--audio-player-inset-end` on an ancestor to the width the rail takes and the pill centres on the
+main column instead of overlapping the rail; inside `AppShell`, a `RecordLayoutRail` sets it (22rem)
+automatically from the `5xl` content width. Like `docked`, it is a `region` named by `label`.
 
 <ComponentPreview
   name="audioPlayerFloating"

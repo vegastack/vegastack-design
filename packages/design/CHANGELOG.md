@@ -1,5 +1,11 @@
 # @vegastack/design
 
+## 0.7.35
+
+### Patch Changes
+
+- [#306](https://github.com/vegastack/vegastack-design/pull/306) [`7fafdc5`](https://github.com/vegastack/vegastack-design/commit/7fafdc5505cc39c51b68874fcb6452a957123c48) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🔧 `BoardCard`'s assignee avatar opens the person hover card on hover (`PersonCard`: name, email and status badge); `BoardCardAssignee` takes `email` and `badge` ("Inactive").
+
 ## 0.7.34
 
 ### Patch Changes
