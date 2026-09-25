@@ -14359,6 +14359,7 @@
         "@vegastack/message-scroller",
         "@vegastack/item",
         "@vegastack/button",
+        "@vegastack/editable-cell",
         "@vegastack/panel-search",
         "@vegastack/use-announcer",
         "@vegastack/skeleton",
