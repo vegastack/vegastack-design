@@ -15940,7 +15940,9 @@
         "@vegastack/button",
         "@vegastack/combobox",
         "@vegastack/item",
-        "@vegastack/load-more"
+        "@vegastack/load-more",
+        "@vegastack/skeleton",
+        "@vegastack/spinner"
       ],
       "files": [
         {
@@ -15953,7 +15955,7 @@
         "whenToUse": "A Select-shaped searchable picker: one or several values, option descriptions and disabled reasons, and server search with paging (remote + useAsyncSearch).",
         "whenNotToUse": "A short fixed option set (Select), free text with suggestions (Combobox directly), or multi-select (Combobox with chips).",
         "version": "0.23.11",
-        "integrity": "sha256-0IEOSI8TnHtoFhVhTcjYlD52Vn8AEH4vThbV3mY+1rk="
+        "integrity": "sha256-Ul7/VIbFMl2Ag7V7vEBll4bOBMeuWKeExRnfeY37lUU="
       }
     },
     {

@@ -264,7 +264,7 @@ export function searchableSelectServerSearch(): ReactNode {
             items: matches.slice(start, start + 4),
             nextCursor: start + 4 < matches.length ? String(start + 4) : null,
           });
-        }, 400);
+        }, 1200);
         signal.addEventListener("abort", () => {
           clearTimeout(timer);
           reject(new DOMException("aborted", "AbortError"));

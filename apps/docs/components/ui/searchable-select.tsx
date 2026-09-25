@@ -1,4 +1,4 @@
-// @vegastack searchable-select@0.23.11 sha256-0IEOSI8TnHtoFhVhTcjYlD52Vn8AEH4vThbV3mY+1rk=
+// @vegastack searchable-select@0.23.11 sha256-Ul7/VIbFMl2Ag7V7vEBll4bOBMeuWKeExRnfeY37lUU=
 
 "use client";
 
@@ -22,6 +22,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { ItemContent, ItemDescription, ItemTitle } from "@/components/ui/item";
 import { LoadMore, type LoadMoreState } from "@/components/ui/load-more";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Spinner } from "@/components/ui/spinner";
 
 /* ------------------------------------------------------------------------------------------------
  * SearchableSelect — the ONE "Select-shaped Combobox" preset: a full-width trigger that reads like
@@ -594,16 +596,12 @@ export function SearchableSelect<
             placeholder={searchPlaceholder}
           />
           {/* The polite status region (API-27): mounted for the panel's life, only its text
-              changes, and a sibling of the list (never inside the listbox). It is visible while
-              a search has no rows to show yet, so the panel is never blank, like Command's
-              loading row. */}
-          <ComboboxStatus
-            data-slot={`${slot}-status`}
-            visible={loading && allItems.length === 0}
-          >
+              changes, and a sibling of the list (never inside the listbox). Screen-reader only: the
+              skeleton rows below are the visible loading state. */}
+          <ComboboxStatus data-slot={`${slot}-status`}>
             {loading ? loadingLabel : null}
           </ComboboxStatus>
-          <ComboboxEmpty>{loading ? null : emptyMessage}</ComboboxEmpty>
+          {loading ? null : <ComboboxEmpty>{emptyMessage}</ComboboxEmpty>}
           <ComboboxList className="p-1">
             {grouped
               ? (group: { value: string; items: Item[] }) => (
@@ -616,6 +614,47 @@ export function SearchableSelect<
                 )
               : (item: Item) => renderOption(item)}
           </ComboboxList>
+          {/* Loading with no rows yet (first open, or a new query that cleared them): skeleton
+              rows the height of real options (two lines with `itemToSecondaryLabel`), under any
+              `leadingItems`, so the panel is never blank. With rows already on screen they stay
+              and a small spinner at the search field's end marks the fetch. The status region
+              above carries the announcement. */}
+          {loading && items.length === 0 ? (
+            <div
+              aria-hidden
+              data-slot={`${slot}-loading`}
+              className={cn(
+                "flex flex-col px-1 pb-1",
+                !leadingItems?.length && "pt-1",
+              )}
+            >
+              {[0, 1, 2, 3, 4].map((i) => (
+                <div
+                  key={i}
+                  className={cn(
+                    "flex flex-col justify-center gap-1.5 px-1.5",
+                    itemToSecondaryLabel ? "h-11" : "h-7",
+                  )}
+                >
+                  <Skeleton
+                    className={cn("h-3.5", i % 2 === 0 ? "w-3/5" : "w-2/5")}
+                  />
+                  {itemToSecondaryLabel ? (
+                    <Skeleton
+                      className={cn("h-3", i % 2 === 0 ? "w-2/5" : "w-1/2")}
+                    />
+                  ) : null}
+                </div>
+              ))}
+            </div>
+          ) : null}
+          {loading && items.length > 0 ? (
+            <Spinner
+              aria-hidden
+              data-slot={`${slot}-searching`}
+              className="pointer-events-none absolute end-3 top-3 size-3.5 text-muted-foreground"
+            />
+          ) : null}
           {showFooter ? (
             <LoadMore
               hasMore
