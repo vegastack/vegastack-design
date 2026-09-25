@@ -1,5 +1,23 @@
 # @vegastack/design
 
+## 0.7.32
+
+### Patch Changes
+
+- [#284](https://github.com/vegastack/vegastack-design/pull/284) [`c6920d0`](https://github.com/vegastack/vegastack-design/commit/c6920d047a16e4d7647fa12ae40c4532885c34a3) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🔧 Markdown view and edit share one typography: `TextEdit` gains `toolbar` levels (minimal/standard/full or an action array) that set the schema, a selection bubble menu, a link popover (⌘K), task lists, tables, code blocks and images, markdown paste, `onSave`/`onCancel` (⌘Enter/Esc) with toolbar Save/Cancel, optional `autosave`, a borderless `ghost` variant and a zero-shift placeholder; `MarkdownView` task items take the same DOM through the new `prose.taskList` rules. New Markdown guide shows every element in view and edit.
+
+- [#289](https://github.com/vegastack/vegastack-design/pull/289) [`e706cd9`](https://github.com/vegastack/vegastack-design/commit/e706cd97beb94bea37c1ea0cd709de4ebf8659ae) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🔧 Combobox's clear and chip-remove × no longer move when pressed (API-31). RecordLayout gains `RecordLayoutPanels`, `RecordTabCount` and `RecordLayoutMainSkeleton`; RecordChip gains `RecordChipMenu`, the flush picker popover a pill opens. RecordLayout picks the rail from its own width (container query, `useRecordLayoutWide`) and gains `RecordTabsRow` / `RecordTabsActions`.
+
+- [#293](https://github.com/vegastack/vegastack-design/pull/293) [`78d1263`](https://github.com/vegastack/vegastack-design/commit/78d1263220b9c48315269b7f97811e7106d986af) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🔧 Toolbar switches use the default Tabs. `ViewToggle` now renders the default (pill) `Tabs` (at the bar's h-8 tier, which FilterBar also lifts a `TabsList size="sm"` scope to) instead of an outline `ToggleGroup`, keeping its icons (List, `Columns3` for Board, LayoutGrid) with labels hidden on a phone. The `FilterBar` `scope` and `view` slot guidance, the FilterBar, ViewToggle and DataList docs, and the skill now say every scope or view switch in a table or list toolbar is a default `Tabs`, never a `ToggleGroup` or line tabs.
+
+## 0.7.31
+
+### Patch Changes
+
+- [#295](https://github.com/vegastack/vegastack-design/pull/295) [`f2d4304`](https://github.com/vegastack/vegastack-design/commit/f2d430440e8e854e3cdbc547c97ac3bf7525f52e) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🔧 `EditableCell` keyboard focus shows only the system focus tint (FOC-13), the same as hover: no focus ring or outline. The 0.7.30 changelog entry now describes the shared box correctly (the text sizes the box and the field is laid over it).
+
+- [#292](https://github.com/vegastack/vegastack-design/pull/292) [`fae1529`](https://github.com/vegastack/vegastack-design/commit/fae15291746a7f1fa205b6d67085ec548b10b9e2) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🔧 SettingsSection takes `actions`, right-aligned on the title's row. Row ⋯ menus (RowActionsMenu) are at least 192px and as wide as their longest item, so labels never wrap, and a disabled item's `disabledReason` is a tooltip on the item (still its accessible description) instead of a wrapped second line.
+
 ## 0.7.30
 
 ### Patch Changes

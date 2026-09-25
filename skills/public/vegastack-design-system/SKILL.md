@@ -90,8 +90,8 @@ link` (upstream's set, verbatim). `destructive` is a soft tint, not a solid red 
   toggle, then views as `Tabs` (default variant, `TabsList size="sm"`, optional leading icons), then
   the layout switch (`ViewToggle`), furthest right. Filters are `FilterBarFacet` /
   `DateRangeFilter` chips (compact, rounded-md, tinted when set) on the toggled row; people facets
-  take `itemToSecondaryLabel={(p) => p.email}`. Use Tabs for scope/views, `ViewToggle` for
-  Grid | List | Board. Tables are `DataList` with `sortable` columns (`compare`, `sortFirst`,
+  take `itemToSecondaryLabel={(p) => p.email}`. Toolbar switches use default Tabs — never a ToggleGroup or line
+  Tabs: `Tabs` for scope, `ViewToggle` (default Tabs, icons) for Grid | List | Board. Tables are `DataList` with `sortable` columns (`compare`, `sortFirst`,
   `sortMode="client"`) and `rowActions` (the ⋯ column, always last); row links are never underlined.
 - **`alert`** for an in-content notice — `variant` is `default · destructive · success · warning ·
 info`, each an ink on the `card` surface with a required icon; **`announcement-banner`** only for
@@ -167,7 +167,7 @@ A component's name undersells it. Before composing something by hand, check this
   edge: give it `data-slot="sheet-cancel"` and `SheetFooter` pushes it left with `me-auto`.
 - **Feedback after an action** → `toast.add({ title })`.
 - **A recording's text beside its player** → `Transcript` (follows `currentTime`, seeks through
-  `onSeek`, searches; `TranscriptSpeakers` + `onSpeakerRename` for speaker chips) with a `docked`
+  `onSeek`, searches; `onSpeakerRename` makes each turn's speaker name inline-editable) with a `docked`
   `AudioPlayer` at the bottom of the column — or, when playback must survive navigation, one
   `AudioPlayerProvider` in the app shell, `GlobalAudioPlayer` at the end of the main column and
   `useGlobalPlayer().open(track, { at })` / `useGlobalPlayerTime()` on the page.
@@ -281,6 +281,13 @@ descendant rules (`[&_h1]:…`), which means an element-level class on a child *
 by setting a class on the rendered element. Under the page's own headings, `MarkdownView headingOffset={n}` moves every
 heading down `n` levels (capped at h6) so the outline never skips back up.
 
+**Markdown is read with `MarkdownView` and edited with `TextEdit format="markdown"`** — never a
+textarea, a local prose class, or a hand-rolled editor. For in-place editing, swap the view for
+`<TextEdit format="markdown" variant="ghost" onSave onCancel />`: ghost is borderless with no inset,
+so the text does not move, and Save/Cancel sit at the toolbar's end (⌘/Ctrl+Enter saves, Esc
+cancels). Pick `toolbar="minimal"` for comments, `"standard"` (default) for notes and summaries,
+`"full"` for documents; the schema follows the toolbar. Keep `variant="outline"` inside forms.
+
 `muted`, `accent` and `secondary` share one value in this base, and all three are kept: name the one
 whose ROLE you mean, so a consumer can retune one without moving the others.
 
@@ -367,7 +374,7 @@ contract.
 **Don't**
 
 - Hardcode a hex, a px value, or a raw Tailwind palette class (`bg-neutral-900`, `text-red-500`).
-- Add a focus ring, outline or glow. No focus rings anywhere except Tabs: `base.css` paints a subtle
+- Add a focus ring, outline or glow. No focus rings anywhere, Tabs included: `base.css` paints a subtle
   background tint on `:focus-visible` and text entry tints its border instead; `ring-3`,
   `ring-ring/50`, `focus-visible:ring-*` and `focus-visible:outline-*` are rejected by lint.
 - Leave a neutral hover on a button inside a tinted container — a status `Alert` already gives its

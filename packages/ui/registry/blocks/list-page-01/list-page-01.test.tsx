@@ -29,12 +29,12 @@ test("grid and list show the same records, and the view switch never empties", a
   expect(listNames).toHaveLength(8);
   await expectNoA11yViolations(document.body, ["color-contrast"]);
 
-  const grid = screen.getByRole("button", { name: "Grid", exact: true });
+  const grid = screen.getByRole("tab", { name: "Grid", exact: true });
   await grid.click();
   const gridNames = names('a[data-slot="media-card-link"]');
   expect(new Set(gridNames)).toEqual(new Set(listNames));
   await grid.click();
-  await expect.element(grid).toHaveAttribute("aria-pressed", "true");
+  await expect.element(grid).toHaveAttribute("aria-selected", "true");
   await expectNoA11yViolations(document.body, ["color-contrast"]);
 });
 

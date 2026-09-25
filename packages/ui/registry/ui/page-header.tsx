@@ -1,4 +1,4 @@
-// @vegastack page-header@0.23.21 sha256-USPMEWIldfxOKrZk3NAFw30PjjNtXVMDTiVQzfVDj7o=
+// @vegastack page-header@0.23.23 sha256-ktY8gpeyoUbLIQYDtEiZJ1oEYSHpc1PPpfRli3y01Jk=
 
 "use client";
 

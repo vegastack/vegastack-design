@@ -133,7 +133,8 @@ test("the overlay seek rail rests at its own thickness, not the default rail's",
     '[data-slot="media-player-controls"][data-variant="overlay"] [data-slot="slider-track"][data-orientation="horizontal"]',
   );
   if (!track) throw new Error("overlay seek track not found");
-  expect(getComputedStyle(track).height).toBe("4px");
+  // Polled: the rail's height transitions, so a read mid-transition can land a sub-pixel off.
+  await expect.poll(() => getComputedStyle(track).height).toBe("4px");
 });
 
 test("the vertical volume rail fits inside its own pill", async () => {

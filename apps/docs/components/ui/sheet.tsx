@@ -1,4 +1,4 @@
-// @vegastack sheet@0.23.21 sha256-0/CH1j7VilMDXLzSN54iJhLyAqlLfuao4J01fSueHtg=
+// @vegastack sheet@0.23.23 sha256-/6zsT4ZV+Z7tdjHMWZ8vhtWBeODSdE1K/54OaWnMvrk=
 
 "use client";
 
@@ -137,7 +137,7 @@ function SheetContent({
             render={
               <Button
                 variant="ghost"
-                className="absolute top-3 end-3"
+                className="absolute top-3 end-3 active:not-aria-[haspopup]:translate-y-0"
                 size="icon-sm"
               />
             }

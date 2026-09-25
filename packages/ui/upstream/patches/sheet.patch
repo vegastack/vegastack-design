@@ -32,7 +32,7 @@
 #   formatting: prettier reflow plus the `registry-stamp.mjs` provenance header (DOC-1); no
 #               decision of their own.
 diff --git a/sheet.tsx b/sheet.tsx
-index 1972cc1..56d1313 100644
+index 1972cc1..1853a83 100644
 --- a/sheet.tsx
 +++ b/sheet.tsx
 @@ -1,26 +1,41 @@
@@ -184,7 +184,13 @@ index 1972cc1..56d1313 100644
          )}
          {...props}
        >
-@@ -70,34 +140,62 @@ function SheetContent({
+@@ -65,39 +135,67 @@ function SheetContent({
+             render={
+               <Button
+                 variant="ghost"
+-                className="absolute top-3 end-3"
++                className="absolute top-3 end-3 active:not-aria-[haspopup]:translate-y-0"
+                 size="icon-sm"
                />
              }
            >

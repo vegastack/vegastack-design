@@ -8,7 +8,6 @@ import {
   Transcript,
   TranscriptList,
   TranscriptSearch,
-  TranscriptSpeakers,
   type TranscriptSegment,
 } from "@/components/ui/transcript";
 
@@ -196,10 +195,7 @@ function TranscriptSpeakersDemo(): ReactNode {
       defaultFollow={false}
       className="h-80 w-full max-w-lg"
     >
-      <div className="flex flex-wrap items-center gap-2 pb-2">
-        <TranscriptSearch className="min-w-48 flex-1 rounded-md border border-border" />
-        <TranscriptSpeakers />
-      </div>
+      <TranscriptSearch className="mb-2 rounded-md border border-border" />
       <TranscriptList />
     </Transcript>
   );

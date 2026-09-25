@@ -103,7 +103,7 @@ test("the icon variant is the tinted chip; the default variant is not", async ()
   const iconClasses = bySlot(icon.container, "empty-icon").className.split(
     /\s+/,
   );
-  expect(iconClasses).toContain("size-8");
+  expect(iconClasses).toContain("size-10");
   expect(iconClasses).toContain("bg-muted");
 
   const plain = await render(<EmptyMedia />);
@@ -111,7 +111,7 @@ test("the icon variant is the tinted chip; the default variant is not", async ()
     /\s+/,
   );
   expect(plainClasses).toContain("bg-transparent");
-  expect(plainClasses).not.toContain("size-8");
+  expect(plainClasses).not.toContain("size-10");
 });
 
 test("EmptyMedia defaults to the default variant when none is passed", async () => {

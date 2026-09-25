@@ -1,4 +1,4 @@
-// @vegastack empty@0.23.21 sha256-ONBgI8Jafqqz3Tz6nEdhHYVn3T9sc7G14H+0eJzWOIc=
+// @vegastack empty@0.23.23 sha256-W181i6KyK+alDs8K7UE8p0zQNKcqVAbqx8L1dyDDnj4=
 
 "use client";
 
@@ -28,7 +28,7 @@ function Empty({
         // composition brings its own `EmptyMedia`.
         "has-[[data-slot=empty-icon]:not([data-default])]:[&>[data-default]]:hidden",
         // The compact size for a small inline empty — "No tasks yet" inside a card.
-        "data-[size=sm]:gap-2 data-[size=sm]:p-4 data-[size=sm]:[&_[data-slot=empty-icon]]:mb-0",
+        "data-[size=sm]:gap-2 data-[size=sm]:p-4 data-[size=sm]:[&_[data-slot=empty-icon]]:mb-0 data-[size=sm]:[&_[data-slot=empty-icon][data-variant=icon]]:size-8 data-[size=sm]:[&_[data-slot=empty-icon][data-variant=icon]_svg]:size-4",
         className,
       )}
       {...props}
@@ -57,7 +57,9 @@ const emptyMediaVariants = cva(
     variants: {
       variant: {
         default: "bg-transparent",
-        icon: "flex size-8 shrink-0 items-center justify-center rounded-lg bg-muted text-foreground [&_svg:not([class*='size-'])]:size-4",
+        // A 40px tile with a 20px icon; the tile sizes ANY icon passed in, so a consumer's own
+        // `size-*` on the svg cannot shrink it (the compact `sm` Empty takes 32px / 16px).
+        icon: "flex size-10 shrink-0 items-center justify-center rounded-lg bg-muted text-foreground [&_svg]:size-5",
       },
     },
     defaultVariants: {

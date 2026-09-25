@@ -1,4 +1,4 @@
-// @vegastack filter-bar@0.23.21 sha256-P0tJAB0LsSl+5kafPgA64rGdFeFPh9F6h6GI+WXnkVc=
+// @vegastack filter-bar@0.23.23 sha256-2hWqFaiOewbHegbqMiaWX2DjJQMLecYqP+yxDJ3/Sc8=
 
 "use client";
 
@@ -155,8 +155,8 @@ export interface FilterBarProps extends Omit<
    */
   scope?: React.ReactNode;
   /**
-   * How the rows are laid out, pinned furthest right — an icon `ToggleGroup` such as
-   * "List | Board". On a narrow bar only the icons show: wrap each option's text in a
+   * How the rows are laid out, pinned furthest right — `ViewToggle`, or a default `Tabs`
+   * (`TabsList size="sm"`) with icons such as "List | Board". On a narrow bar only the icons show: wrap each option's text in a
    * `<span>` and it stays as the option's accessible name.
    * @default undefined
    */
@@ -424,11 +424,11 @@ const FilterBarContext = React.createContext<FilterBarContextValue | null>(
 );
 
 /**
- * One height tier for the whole bar: every control is h-8, the default size. A `ToggleGroup` or
+ * One height tier for the whole bar: every control is h-8, the default size. A `ToggleGroup`, `TabsList` or
  * `Select` passed in at `size="sm"` is lifted to h-8 so the rows stay level.
  */
 const BAR_SIZE =
-  "[&_[data-slot=toggle-group-item][data-size=sm]]:h-8 [&_[data-slot=toggle-group-item][data-size=sm]]:min-w-8 [&_[data-slot=toggle-group-item][data-size=sm]]:text-sm [&_[data-slot=select-trigger][data-size=sm]]:h-8";
+  "[&_[data-slot=toggle-group-item][data-size=sm]]:h-8 [&_[data-slot=toggle-group-item][data-size=sm]]:min-w-8 [&_[data-slot=toggle-group-item][data-size=sm]]:text-sm [&_[data-slot=select-trigger][data-size=sm]]:h-8 [&_[data-slot=tabs-list][data-size=sm]]:h-8";
 
 /**
  * `FilterBar` — the toolbar above a list or table, in two rows.
@@ -449,7 +449,7 @@ const BAR_SIZE =
  * <FilterBar
  *   search={{ value: query, onValueChange: setQuery, placeholder: "Search tasks" }}
  *   scope={<Tabs value={scope} onValueChange={setScope}><TabsList size="sm"><TabsTrigger value="mine"><UserRound />My tasks</TabsTrigger><TabsTrigger value="team"><UsersRound />Team tasks</TabsTrigger></TabsList></Tabs>}
- *   view={<ToggleGroup aria-label="View" value={[view]} onValueChange={([v]) => v && setView(v)} deselectable={false} variant="outline" spacing={0}>…</ToggleGroup>}
+ *   view={<ViewToggle value={view} onValueChange={setView} views={["list", "board"]} />}
  *   facets={<><FilterBarFacet label="Status" … /><FilterBarFacet label="Due" … /></>}
  *   addFilters={[{ id: "priority", label: "Priority" }]}
  *   onAddFilter={showFacet}
@@ -718,7 +718,7 @@ export function FilterBar({
               {view != null ? (
                 <div
                   data-slot="filter-bar-view"
-                  className="ms-auto flex shrink-0 @max-3xl/filter-bar:[&_[data-slot=toggle-group-item]>span]:sr-only"
+                  className="ms-auto flex shrink-0 @max-3xl/filter-bar:[&_[data-slot=toggle-group-item]>span]:sr-only @max-3xl/filter-bar:[&_[data-slot=tabs-trigger]>span]:sr-only"
                 >
                   {view}
                 </div>

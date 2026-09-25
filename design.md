@@ -758,25 +758,23 @@ All four scripts under `tooling/upstream/` carry a `--self-test` that observes t
 
 ## What we add — the one hundred exceptions
 
-`docs/plans/2026-09-18-shadcn-reset/decisions.md` is the register: 209 rows, 108 resolved as
-**shadcn** (upstream ships unchanged) and 101 as **ours**. `packages/ui/upstream/decisions.json` is
+`docs/plans/2026-09-18-shadcn-reset/decisions.md` is the register: 210 rows, 108 resolved as
+**shadcn** (upstream ships unchanged) and 102 as **ours**. `packages/ui/upstream/decisions.json` is
 its machine copy and the only thing a gate reads; `packages/ui/upstream/exception-map.json` records
 which shared component each exception is assigned to. Re-opening a row is MK's decision. The ninety-eight
 group into six themes.
 
-### 1. Focus — no rings except Tabs; a background tint everywhere else
+### 1. Focus — no rings anywhere; a background tint everywhere
 
 `FOC-1 · FOC-2 · FOC-3 · FOC-4 · FOC-5 · FOC-6 · FOC-7 · FOC-8 · FOC-9 · FOC-10 · FOC-12 · FOC-13`
 
-**The foundation rule (FOC-13, MK 2026-09-25): nothing draws a focus ring except Tabs.** `base.css`
+**The foundation rule (FOC-13, MK 2026-09-25): nothing draws a focus ring, Tabs included.** `base.css`
 owns the one focus cue: `:focus-visible { outline: none }`, plus a subtle background TINT —
 `accent` at 50%, laid as a background image over whatever fill the control already has — on every
-focusable element except text entry and tabs, so a button, a chip, a row, a menu item, a toggle, a
+focusable element except text entry (tab triggers and panels included), so a button, a chip, a row, a menu item, a toggle, a
 checkbox or a link shows where the keyboard is without any component restating it. Text entry
 shows a border tint instead — `focus:border-ring/70`, on plain `:focus` so a click and a Tab read
-identically, with `outline-hidden` so forced colours can repaint it (FOC-3, FOC-8). Tabs — the
-triggers and the panel — keep the 2px `ring` outline, with `ring` bound to the near-black /
-near-white ink (FOC-1, FOC-2). Focus outranks the invalid tint (`not-focus:aria-invalid:…`, FOC-5);
+identically, with `outline-hidden` so forced colours can repaint it (FOC-3, FOC-8). Focus outranks the invalid tint (`not-focus:aria-invalid:…`, FOC-5);
 an invalid field shows an error border colour, never a ring. A forced-colours block restores
 `outline: 2px solid Highlight` on every focused element, because forced colours drop the tint
 (FOC-7). Dialog and Sheet open onto the first field or the popup itself, never the close ×.

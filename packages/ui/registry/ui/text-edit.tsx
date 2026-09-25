@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.23.21 sha256-S5LkbfY8g5Y1ge7cp0t7lXVgDg/JqUJq2XIMqk54CaI=
+// @vegastack text-edit@0.23.23 sha256-vOda6hfBz3eAQ7qnuUBKkz5xx4QvpolrnpuazRUlya4=
 
 "use client";
 
@@ -7,272 +7,698 @@ import {
   useEditor,
   useEditorState,
   EditorContent,
+  NodeViewContent,
+  NodeViewWrapper,
+  ReactNodeViewRenderer,
   type Editor,
+  type ReactNodeViewProps,
 } from "@tiptap/react";
+import { BubbleMenu } from "@tiptap/react/menus";
 import StarterKit from "@tiptap/starter-kit";
 import { Markdown } from "@tiptap/markdown";
+import { CodeBlock as CodeBlockNode } from "@tiptap/extension-code-block";
+import { Image } from "@tiptap/extension-image";
+import { TaskItem, TaskList } from "@tiptap/extension-list";
+import { TableKit } from "@tiptap/extension-table";
+import { Placeholder } from "@tiptap/extensions";
 import { Field as FieldPrimitive } from "@base-ui/react/field";
+import { Toolbar } from "@base-ui/react/toolbar";
 import {
   Bold,
-  Italic,
-  Strikethrough,
+  Code,
   Heading2,
+  Heading3,
+  Italic,
+  Link as LinkIcon,
   List,
   ListOrdered,
+  ListTodo,
+  Minus,
   Quote,
-  Code,
+  Redo2,
+  RemoveFormatting,
+  SquareCode,
+  Strikethrough,
+  Table as TableIcon,
+  Undo2,
 } from "lucide-react";
-import { Toolbar } from "@base-ui/react/toolbar";
 import { cn, proseClassName } from "@vegastack/design";
+import { useInternalThemeScope } from "@vegastack/design/theme-scope";
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import { CopyButton } from "@/components/ui/copy-button";
+import { Input } from "@/components/ui/input";
+import { Kbd } from "@/components/ui/kbd";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { Toggle } from "@/components/ui/toggle";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
-/** A cluster of related formatting controls inside the toolbar row. */
-const TOOLBAR_GROUP = "flex items-center gap-0.5";
+/* ------------------------------------------------------------------------------------------------
+ * Actions and toolbar levels
+ * ----------------------------------------------------------------------------------------------*/
+
+/** A named formatting action. The toolbar renders them; the schema allows only what they need. */
+export type TextEditAction =
+  | "bold"
+  | "italic"
+  | "strike"
+  | "code"
+  | "link"
+  | "h2"
+  | "h3"
+  | "bulletList"
+  | "orderedList"
+  | "taskList"
+  | "blockquote"
+  | "codeBlock"
+  | "table"
+  | "hr"
+  | "undo"
+  | "redo"
+  | "clearFormatting";
+
+/** A toolbar level, or an explicit list of actions. */
+export type TextEditToolbar =
+  "minimal" | "standard" | "full" | readonly TextEditAction[];
+
+/** The action set behind each named level. Each level is a superset of the one before. */
+export const TEXT_EDIT_TOOLBARS: Record<
+  "minimal" | "standard" | "full",
+  readonly TextEditAction[]
+> = {
+  minimal: ["bold", "italic", "link", "bulletList"],
+  standard: [
+    "h2",
+    "h3",
+    "bold",
+    "italic",
+    "code",
+    "link",
+    "bulletList",
+    "orderedList",
+    "taskList",
+    "blockquote",
+  ],
+  full: [
+    "undo",
+    "redo",
+    "h2",
+    "h3",
+    "bold",
+    "italic",
+    "strike",
+    "code",
+    "link",
+    "bulletList",
+    "orderedList",
+    "taskList",
+    "blockquote",
+    "codeBlock",
+    "table",
+    "hr",
+    "clearFormatting",
+  ],
+};
+
+/** Toolbar clusters, in order. An action lands in the cluster that names it. */
+const ACTION_GROUPS: { label: string; actions: readonly TextEditAction[] }[] = [
+  { label: "History", actions: ["undo", "redo"] },
+  { label: "Headings", actions: ["h2", "h3"] },
+  {
+    label: "Text style",
+    actions: ["bold", "italic", "strike", "code", "link"],
+  },
+  { label: "Lists", actions: ["bulletList", "orderedList", "taskList"] },
+  { label: "Blocks", actions: ["blockquote", "codeBlock", "table", "hr"] },
+  { label: "Clear", actions: ["clearFormatting"] },
+];
+
+/** What the bubble menu offers, filtered by the allowed actions. */
+const BUBBLE_ACTIONS: readonly TextEditAction[] = [
+  "h2",
+  "bold",
+  "italic",
+  "code",
+  "link",
+];
+
+interface ActionSpec {
+  label: string;
+  icon: React.ComponentType;
+  /** Shortcut keys; `Mod` renders ⌘ on Apple platforms and Ctrl elsewhere. */
+  keys?: string[];
+  isActive?: (ed: Editor) => boolean;
+  run: (ed: Editor) => void;
+}
+
+const ACTIONS: Record<TextEditAction, ActionSpec> = {
+  bold: {
+    label: "Bold",
+    icon: Bold,
+    keys: ["Mod", "B"],
+    isActive: (ed) => ed.isActive("bold"),
+    run: (ed) => ed.chain().focus().toggleBold().run(),
+  },
+  italic: {
+    label: "Italic",
+    icon: Italic,
+    keys: ["Mod", "I"],
+    isActive: (ed) => ed.isActive("italic"),
+    run: (ed) => ed.chain().focus().toggleItalic().run(),
+  },
+  strike: {
+    label: "Strikethrough",
+    icon: Strikethrough,
+    keys: ["Mod", "Shift", "S"],
+    isActive: (ed) => ed.isActive("strike"),
+    run: (ed) => ed.chain().focus().toggleStrike().run(),
+  },
+  code: {
+    label: "Inline code",
+    icon: Code,
+    keys: ["Mod", "E"],
+    isActive: (ed) => ed.isActive("code"),
+    run: (ed) => ed.chain().focus().toggleCode().run(),
+  },
+  link: {
+    label: "Link",
+    icon: LinkIcon,
+    keys: ["Mod", "K"],
+    isActive: (ed) => ed.isActive("link"),
+    // The link action opens the link popover; see `LinkControl`.
+    run: () => {},
+  },
+  h2: {
+    label: "Heading",
+    icon: Heading2,
+    keys: ["Mod", "Alt", "2"],
+    isActive: (ed) => ed.isActive("heading", { level: 2 }),
+    run: (ed) => ed.chain().focus().toggleHeading({ level: 2 }).run(),
+  },
+  h3: {
+    label: "Subheading",
+    icon: Heading3,
+    keys: ["Mod", "Alt", "3"],
+    isActive: (ed) => ed.isActive("heading", { level: 3 }),
+    run: (ed) => ed.chain().focus().toggleHeading({ level: 3 }).run(),
+  },
+  bulletList: {
+    label: "Bullet list",
+    icon: List,
+    keys: ["Mod", "Shift", "8"],
+    isActive: (ed) => ed.isActive("bulletList"),
+    run: (ed) => ed.chain().focus().toggleBulletList().run(),
+  },
+  orderedList: {
+    label: "Ordered list",
+    icon: ListOrdered,
+    keys: ["Mod", "Shift", "7"],
+    isActive: (ed) => ed.isActive("orderedList"),
+    run: (ed) => ed.chain().focus().toggleOrderedList().run(),
+  },
+  taskList: {
+    label: "Task list",
+    icon: ListTodo,
+    keys: ["Mod", "Shift", "9"],
+    isActive: (ed) => ed.isActive("taskList"),
+    run: (ed) => ed.chain().focus().toggleTaskList().run(),
+  },
+  blockquote: {
+    label: "Blockquote",
+    icon: Quote,
+    keys: ["Mod", "Shift", "B"],
+    isActive: (ed) => ed.isActive("blockquote"),
+    run: (ed) => ed.chain().focus().toggleBlockquote().run(),
+  },
+  codeBlock: {
+    label: "Code block",
+    icon: SquareCode,
+    keys: ["Mod", "Alt", "C"],
+    isActive: (ed) => ed.isActive("codeBlock"),
+    run: (ed) => ed.chain().focus().toggleCodeBlock().run(),
+  },
+  table: {
+    label: "Table",
+    icon: TableIcon,
+    isActive: (ed) => ed.isActive("table"),
+    run: (ed) =>
+      ed
+        .chain()
+        .focus()
+        .insertTable({ rows: 3, cols: 3, withHeaderRow: true })
+        .run(),
+  },
+  hr: {
+    label: "Divider",
+    icon: Minus,
+    run: (ed) => ed.chain().focus().setHorizontalRule().run(),
+  },
+  undo: {
+    label: "Undo",
+    icon: Undo2,
+    keys: ["Mod", "Z"],
+    run: (ed) => ed.chain().focus().undo().run(),
+  },
+  redo: {
+    label: "Redo",
+    icon: Redo2,
+    keys: ["Mod", "Shift", "Z"],
+    run: (ed) => ed.chain().focus().redo().run(),
+  },
+  clearFormatting: {
+    label: "Clear formatting",
+    icon: RemoveFormatting,
+    run: (ed) => ed.chain().focus().unsetAllMarks().clearNodes().run(),
+  },
+};
+
+function resolveActions(toolbar: TextEditToolbar): Set<TextEditAction> {
+  return new Set(
+    typeof toolbar === "string" ? TEXT_EDIT_TOOLBARS[toolbar] : toolbar,
+  );
+}
+
+function isApplePlatform() {
+  return (
+    typeof navigator !== "undefined" &&
+    /Mac|iPhone|iPad|iPod/.test(navigator.platform || navigator.userAgent)
+  );
+}
+
+/** Render shortcut keys for the current platform (⌘B on Apple, Ctrl B elsewhere). */
+function shortcutLabel(keys: string[]): string[] {
+  const apple = isApplePlatform();
+  return keys.map((key) => {
+    if (key === "Mod") return apple ? "⌘" : "Ctrl";
+    if (key === "Alt") return apple ? "⌥" : "Alt";
+    if (key === "Shift") return apple ? "⇧" : "Shift";
+    return key;
+  });
+}
+
+/* ------------------------------------------------------------------------------------------------
+ * Schema — the extensions follow the allowed actions
+ * ----------------------------------------------------------------------------------------------*/
 
 /**
- * The rule between two clusters. `Toolbar.Separator` defaults to the orientation perpendicular to
- * the toolbar, so a horizontal bar gets a vertical hairline without stating it.
+ * Task item node view: the system `Checkbox` beside a content box — the same DOM `MarkdownView`
+ * renders for a GFM task item, so `prose.taskList` lays both out identically.
  */
-const TOOLBAR_SEPARATOR = "mx-0.5 h-4 w-px shrink-0 bg-border";
+function TaskItemView({ node, updateAttributes, editor }: ReactNodeViewProps) {
+  const checked = Boolean(node.attrs.checked);
+  return (
+    <NodeViewWrapper className="contents">
+      <Checkbox
+        contentEditable={false}
+        checked={checked}
+        disabled={!editor.isEditable}
+        onCheckedChange={(next) => updateAttributes({ checked: next === true })}
+        aria-label={checked ? "Mark task not done" : "Mark task done"}
+        className="data-disabled:cursor-default data-disabled:opacity-100"
+      />
+      <NodeViewContent data-slot="task-item-content" />
+    </NodeViewWrapper>
+  );
+}
 
 /**
- * The editor surface (the ProseMirror `.tiptap` root) wears the shared `prose` recipe from
- * `@vegastack/design` — the SAME string `MarkdownView` puts on its root, so edited rich text and
- * rendered markdown are one typography rather than two that agree by review (audit B4-09). It is
- * applied through `editorProps.attributes.class`, which styles the contenteditable element
- * directly; ProseMirror owns that DOM, which is why the recipe is expressed as descendant rules.
- *
- * Only what is specific to a contenteditable stays here: `tiptap` (the primitive's own hook),
- * `min-w-0` (the editor is a flex child), `outline-none` (focus is drawn on the container's
- * border), and the content inset.
+ * Code block node view: the `CodeBlock` surface (header with language and copy, sunken panel), so
+ * a fenced block is the same box in edit mode as `MarkdownView` renders in view mode.
  */
-const editorClassName = cn(
+function CodeBlockView({ node }: ReactNodeViewProps) {
+  const language = (node.attrs.language as string | null) || undefined;
+  return (
+    <NodeViewWrapper
+      as="figure"
+      data-slot="code-block"
+      data-language={language}
+      className="my-3 w-full min-w-0 max-w-full overflow-hidden rounded-lg border border-border bg-muted text-foreground"
+    >
+      <figcaption
+        data-slot="code-block-header"
+        contentEditable={false}
+        className="flex items-center justify-between gap-2 border-b border-border px-3 py-1.5 select-none"
+      >
+        <span className="font-mono text-xs text-muted-foreground">
+          {language ?? "code"}
+        </span>
+        <CopyButton
+          value={node.textContent}
+          size="icon-xs"
+          variant="ghost"
+          copyLabel={`Copy ${language ?? "code"}`}
+        />
+      </figcaption>
+      <pre data-slot="code-block-pre" className="overflow-x-auto p-4 text-sm">
+        <NodeViewContent<"code"> as="code" className="font-mono" />
+      </pre>
+    </NodeViewWrapper>
+  );
+}
+
+const TaskItemWithView = TaskItem.extend({
+  addNodeView() {
+    return ReactNodeViewRenderer(TaskItemView, {
+      as: "li",
+      attrs: ({ node }) => ({
+        "data-type": "taskItem",
+        "data-checked": String(Boolean(node.attrs.checked)),
+      }),
+    });
+  },
+});
+
+const CodeBlockWithView = CodeBlockNode.extend({
+  addNodeView() {
+    return ReactNodeViewRenderer(CodeBlockView);
+  },
+});
+
+function buildExtensions(actions: Set<TextEditAction>, placeholder?: string) {
+  const has = (action: TextEditAction) => actions.has(action);
+  const lists = has("bulletList") || has("orderedList");
+  return [
+    StarterKit.configure({
+      bold: has("bold") ? {} : false,
+      italic: has("italic") ? {} : false,
+      strike: has("strike") ? {} : false,
+      code: has("code") ? {} : false,
+      // Any heading action allows every level, so markdown with an `#` round-trips losslessly.
+      heading: has("h2") || has("h3") ? {} : false,
+      bulletList: has("bulletList") ? {} : false,
+      orderedList: has("orderedList") ? {} : false,
+      listItem: lists ? {} : false,
+      listKeymap: lists || has("taskList") ? {} : false,
+      blockquote: has("blockquote") ? {} : false,
+      horizontalRule: has("hr") ? {} : false,
+      codeBlock: false,
+      underline: false,
+      // A trailing empty paragraph would add a line edit mode has and view mode does not.
+      trailingNode: false,
+      link: has("link")
+        ? {
+            openOnClick: false,
+            autolink: true,
+            linkOnPaste: true,
+            defaultProtocol: "https",
+            HTMLAttributes: {
+              rel: "noopener noreferrer nofollow",
+              target: "_blank",
+            },
+          }
+        : false,
+    }),
+    ...(has("codeBlock") ? [CodeBlockWithView] : []),
+    ...(has("taskList")
+      ? [TaskList, TaskItemWithView.configure({ nested: true })]
+      : []),
+    ...(has("table")
+      ? [TableKit.configure({ table: { resizable: false } })]
+      : []),
+    // Inline, like GFM's `![]()` inside a paragraph, so an image sits where view mode puts it.
+    Image.configure({ inline: true }),
+    Placeholder.configure({ placeholder: placeholder ?? "" }),
+    Markdown,
+  ];
+}
+
+/** Whether pasted plain text reads as markdown worth parsing rather than inserting verbatim. */
+function looksLikeMarkdown(text: string) {
+  return /(^|\n)\s{0,3}(#{1,6}\s|[-*+]\s|\d+[.)]\s|>\s|```|\|.+\||-{3,}\s*$)|\*\*[^*]+\*\*|__[^_]+__|`[^`\n]+`|\[[^\]]+\]\([^)]+\)/.test(
+    text,
+  );
+}
+
+/* ------------------------------------------------------------------------------------------------
+ * Styling
+ * ----------------------------------------------------------------------------------------------*/
+
+/**
+ * The editor surface (ProseMirror's `.tiptap` root) wears the shared `prose` recipe — the SAME
+ * string `MarkdownView` puts on its root — so edited and rendered markdown are one typography.
+ * What is added here only resets ProseMirror so edit mode lays out like view mode: no focus
+ * outline (the container or nothing draws focus), the placeholder as a zero-height pseudo-element
+ * (no reflow on the first keystroke), the table scroll box `MarkdownView` wraps tables in, and the
+ * selected-node and selected-cell washes.
+ */
+const editorBaseClassName = cn(
   proseClassName,
-  "tiptap min-h-24 min-w-0 px-3 py-2.5 outline-none",
+  "tiptap min-w-0 outline-none",
+  "[&_p.is-editor-empty:first-child]:before:pointer-events-none [&_p.is-editor-empty:first-child]:before:float-start [&_p.is-editor-empty:first-child]:before:h-0 [&_p.is-editor-empty:first-child]:before:text-muted-foreground [&_p.is-editor-empty:first-child]:before:content-[attr(data-placeholder)]",
+  "[&_.tableWrapper]:my-3 [&_.tableWrapper]:w-full [&_.tableWrapper]:overflow-x-auto [&_.selectedCell]:bg-accent",
+  "[&_.ProseMirror-selectednode]:rounded-sm [&_.ProseMirror-selectednode]:bg-accent",
 );
 
-/**
- * Normalize a `minHeight`/`maxHeight` prop to a CSS length: a number becomes
- * `${n}px`, a string is passed through verbatim. Returns `undefined` so the CSS
- * custom property is omitted when the prop is unset (never emits a hardcoded
- * literal — the value is always the consumer's runtime prop, fed into a `--te-*`
- * variable that the content area's arbitrary-value classes consume).
- */
+const TOOLBAR_GROUP = "flex items-center gap-0.5";
+const TOOLBAR_SEPARATOR = "mx-0.5 h-4 w-px shrink-0 bg-border";
+
+/* ------------------------------------------------------------------------------------------------
+ * Toolbar parts
+ * ----------------------------------------------------------------------------------------------*/
+
+function ShortcutHint({ label, keys }: { label: string; keys?: string[] }) {
+  return (
+    <>
+      {label}
+      {keys ? (
+        <span className="flex items-center gap-0.5">
+          {shortcutLabel(keys).map((key) => (
+            <Kbd key={key}>{key}</Kbd>
+          ))}
+        </span>
+      ) : null}
+    </>
+  );
+}
+
+/** One icon toggle with a tooltip that names it and its shortcut. */
+function ActionToggle({
+  action,
+  editor,
+  pressed,
+}: {
+  action: TextEditAction;
+  editor: Editor;
+  pressed: boolean;
+}) {
+  const spec = ACTIONS[action];
+  const Icon = spec.icon;
+  return (
+    <Tooltip>
+      <TooltipTrigger
+        render={
+          <Toolbar.Button
+            focusableWhenDisabled={false}
+            render={
+              <Toggle
+                size="sm"
+                pressed={pressed}
+                onPressedChange={() => spec.run(editor)}
+                aria-label={spec.label}
+                className="min-w-7 px-0"
+              >
+                <Icon />
+              </Toggle>
+            }
+          />
+        }
+      />
+      <TooltipContent>
+        <ShortcutHint label={spec.label} keys={spec.keys} />
+      </TooltipContent>
+    </Tooltip>
+  );
+}
+
+function normalizeHref(raw: string) {
+  const value = raw.trim();
+  if (!value) return "";
+  if (/^(https?:|mailto:|tel:|\/|#)/i.test(value)) return value;
+  return `https://${value}`;
+}
+
+/** The link toggle and its popover: add, edit or remove the link on the selection. */
+function LinkControl({
+  editor,
+  pressed,
+  open,
+  onOpenChange,
+}: {
+  editor: Editor;
+  pressed: boolean;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+}) {
+  const [href, setHref] = React.useState("");
+  React.useEffect(() => {
+    if (open) setHref((editor.getAttributes("link").href as string) ?? "");
+  }, [open, editor]);
+
+  const apply = (event: React.FormEvent) => {
+    event.preventDefault();
+    const next = normalizeHref(href);
+    const chain = editor.chain().focus().extendMarkRange("link");
+    if (!next) chain.unsetLink().run();
+    else if (editor.state.selection.empty && !editor.isActive("link"))
+      chain
+        .insertContent({
+          type: "text",
+          text: next,
+          marks: [{ type: "link", attrs: { href: next } }],
+        })
+        .run();
+    else chain.setLink({ href: next }).run();
+    onOpenChange(false);
+  };
+
+  const remove = () => {
+    editor.chain().focus().extendMarkRange("link").unsetLink().run();
+    onOpenChange(false);
+  };
+
+  const spec = ACTIONS.link;
+  return (
+    <Popover open={open} onOpenChange={onOpenChange}>
+      <Tooltip>
+        <TooltipTrigger
+          render={
+            <PopoverTrigger
+              render={
+                <Toolbar.Button
+                  focusableWhenDisabled={false}
+                  render={
+                    <Toggle
+                      size="sm"
+                      pressed={pressed}
+                      aria-label={spec.label}
+                      className="min-w-7 px-0"
+                    >
+                      <LinkIcon />
+                    </Toggle>
+                  }
+                />
+              }
+            />
+          }
+        />
+        <TooltipContent>
+          <ShortcutHint label={spec.label} keys={spec.keys} />
+        </TooltipContent>
+      </Tooltip>
+      <PopoverContent data-slot="text-edit-link" align="start" className="w-80">
+        <form onSubmit={apply} className="flex items-center gap-1.5">
+          <Input
+            aria-label="Link URL"
+            placeholder="https://"
+            value={href}
+            onChange={(event) => setHref(event.target.value)}
+            autoFocus
+          />
+          <Button type="submit" size="sm">
+            {pressed ? "Update" : "Add"}
+          </Button>
+          {pressed ? (
+            <Button type="button" size="sm" variant="ghost" onClick={remove}>
+              Remove
+            </Button>
+          ) : null}
+        </form>
+      </PopoverContent>
+    </Popover>
+  );
+}
+
+/** Subscribe to the active state of just the allowed actions (Tiptap v3 does not re-render). */
+function useActiveState(editor: Editor, actions: readonly TextEditAction[]) {
+  return useEditorState({
+    editor,
+    selector: ({ editor: ed }) => ({
+      isEditable: ed.isEditable,
+      active: actions.map((action) => ACTIONS[action].isActive?.(ed) ?? false),
+    }),
+    equalityFn: (a, b) =>
+      !!b &&
+      a.isEditable === b.isEditable &&
+      a.active.every((value, index) => value === b.active[index]),
+  });
+}
+
+function ActionRow({
+  editor,
+  actions,
+  linkOpen,
+  onLinkOpenChange,
+}: {
+  editor: Editor;
+  actions: readonly TextEditAction[];
+  linkOpen: boolean;
+  onLinkOpenChange: (open: boolean) => void;
+}) {
+  const state = useActiveState(editor, actions);
+  const pressed = (action: TextEditAction) =>
+    state?.active[actions.indexOf(action)] ?? false;
+  const groups = ACTION_GROUPS.map((group) => ({
+    ...group,
+    actions: group.actions.filter((action) => actions.includes(action)),
+  })).filter((group) => group.actions.length > 0);
+
+  return groups.map((group, index) => (
+    <React.Fragment key={group.label}>
+      {index > 0 ? <Toolbar.Separator className={TOOLBAR_SEPARATOR} /> : null}
+      <Toolbar.Group
+        data-slot="text-edit-toolbar-group"
+        aria-label={group.label}
+        className={TOOLBAR_GROUP}
+      >
+        {group.actions.map((action) =>
+          action === "link" ? (
+            <LinkControl
+              key={action}
+              editor={editor}
+              pressed={pressed(action)}
+              open={linkOpen}
+              onOpenChange={onLinkOpenChange}
+            />
+          ) : (
+            <ActionToggle
+              key={action}
+              action={action}
+              editor={editor}
+              pressed={pressed(action)}
+            />
+          ),
+        )}
+      </Toolbar.Group>
+    </React.Fragment>
+  ));
+}
+
+/* ------------------------------------------------------------------------------------------------
+ * Field bridge
+ * ----------------------------------------------------------------------------------------------*/
+
 function toCssLength(value: number | string | undefined): string | undefined {
   if (value == null) return undefined;
   return typeof value === "number" ? `${value}px` : value;
 }
 
-/** Whether an `aria-invalid` value should mark the control invalid. */
 function isAriaInvalid(value: React.AriaAttributes["aria-invalid"]): boolean {
   return value !== undefined && value !== false && value !== "false";
 }
 
-/** Tiptap/ProseMirror DOM attributes must be string-valued. */
 function toAriaInvalidAttribute(
   value: React.AriaAttributes["aria-invalid"],
 ): string | undefined {
   if (!isAriaInvalid(value)) return undefined;
   return value === true ? "true" : String(value);
-}
-
-/** The reactive slice of editor state the toolbar reads (active marks/nodes + editability). */
-interface ToolbarState {
-  isEditable: boolean;
-  isBold: boolean;
-  isItalic: boolean;
-  isStrike: boolean;
-  isHeading: boolean;
-  isBulletList: boolean;
-  isOrderedList: boolean;
-  isBlockquote: boolean;
-  isCode: boolean;
-}
-
-/**
- * Token-styled formatting toolbar wired to the editor's chained commands.
- *
- * Built on Base UI `Toolbar` (audit B4-10): the row is a real APG toolbar with **one tab stop** and
- * roving focus — Tab enters at the last-focused control, the arrow keys move between controls (and
- * wrap), Shift+Tab leaves. Before this it was a hand-written `role="toolbar"` whose every button
- * was its own tab stop, so a keyboard user paid eight Tab presses to cross a formatting bar and the
- * announced role promised traversal that did not exist.
- *
- * Each control is a `Toolbar.Button` rendering the system `Toggle`, which keeps the pressed
- * semantics (`aria-pressed` + `data-pressed`) that make a formatting button legible; the clusters
- * are `Toolbar.Group`s so the arrow keys still cross them while assistive tech announces the
- * grouping. Active state is derived from `editor.isActive(...)` via `useEditorState` (Tiptap v3 no
- * longer re-renders on every transaction, so the toolbar subscribes to just the marks and nodes it
- * cares about).
- *
- * `disabled` is declared once on `Toolbar.Root` and reaches every item through context.
- * `focusableWhenDisabled={false}` is deliberate: it makes a disabled item a natively disabled
- * `<button>`, which is what `Toggle`'s `disabled:` styling reads. The state is defensive anyway —
- * the toolbar is not rendered at all when `editable` is false.
- */
-function FormattingToolbar({ editor }: { editor: Editor }) {
-  const state = useEditorState({
-    editor,
-    selector: ({ editor: ed }): ToolbarState => ({
-      isEditable: ed.isEditable,
-      isBold: ed.isActive("bold"),
-      isItalic: ed.isActive("italic"),
-      isStrike: ed.isActive("strike"),
-      isHeading: ed.isActive("heading", { level: 2 }),
-      isBulletList: ed.isActive("bulletList"),
-      isOrderedList: ed.isActive("orderedList"),
-      isBlockquote: ed.isActive("blockquote"),
-      isCode: ed.isActive("code"),
-    }),
-  });
-
-  const disabled = !state.isEditable;
-
-  return (
-    <Toolbar.Root
-      data-slot="text-edit-toolbar"
-      aria-label="Formatting"
-      disabled={disabled}
-      className="flex flex-wrap items-center gap-0.5 border-b border-border bg-muted/40 px-1.5 py-1"
-    >
-      <Toolbar.Group
-        data-slot="text-edit-toolbar-group"
-        aria-label="Text style"
-        className={TOOLBAR_GROUP}
-      >
-        <Toolbar.Button
-          focusableWhenDisabled={false}
-          render={
-            <Toggle
-              size="sm"
-              pressed={state.isBold}
-              onPressedChange={() => editor.chain().focus().toggleBold().run()}
-              aria-label="Bold"
-            >
-              <Bold />
-            </Toggle>
-          }
-        />
-        <Toolbar.Button
-          focusableWhenDisabled={false}
-          render={
-            <Toggle
-              size="sm"
-              pressed={state.isItalic}
-              onPressedChange={() =>
-                editor.chain().focus().toggleItalic().run()
-              }
-              aria-label="Italic"
-            >
-              <Italic />
-            </Toggle>
-          }
-        />
-        <Toolbar.Button
-          focusableWhenDisabled={false}
-          render={
-            <Toggle
-              size="sm"
-              pressed={state.isStrike}
-              onPressedChange={() =>
-                editor.chain().focus().toggleStrike().run()
-              }
-              aria-label="Strikethrough"
-            >
-              <Strikethrough />
-            </Toggle>
-          }
-        />
-      </Toolbar.Group>
-      <Toolbar.Separator className={TOOLBAR_SEPARATOR} />
-      <Toolbar.Group
-        data-slot="text-edit-toolbar-group"
-        aria-label="Blocks"
-        className={TOOLBAR_GROUP}
-      >
-        <Toolbar.Button
-          focusableWhenDisabled={false}
-          render={
-            <Toggle
-              size="sm"
-              pressed={state.isHeading}
-              onPressedChange={() =>
-                editor.chain().focus().toggleHeading({ level: 2 }).run()
-              }
-              aria-label="Heading"
-            >
-              <Heading2 />
-            </Toggle>
-          }
-        />
-        <Toolbar.Button
-          focusableWhenDisabled={false}
-          render={
-            <Toggle
-              size="sm"
-              pressed={state.isBulletList}
-              onPressedChange={() =>
-                editor.chain().focus().toggleBulletList().run()
-              }
-              aria-label="Bullet list"
-            >
-              <List />
-            </Toggle>
-          }
-        />
-        <Toolbar.Button
-          focusableWhenDisabled={false}
-          render={
-            <Toggle
-              size="sm"
-              pressed={state.isOrderedList}
-              onPressedChange={() =>
-                editor.chain().focus().toggleOrderedList().run()
-              }
-              aria-label="Ordered list"
-            >
-              <ListOrdered />
-            </Toggle>
-          }
-        />
-      </Toolbar.Group>
-      <Toolbar.Separator className={TOOLBAR_SEPARATOR} />
-      <Toolbar.Group
-        data-slot="text-edit-toolbar-group"
-        aria-label="Insert"
-        className={TOOLBAR_GROUP}
-      >
-        <Toolbar.Button
-          focusableWhenDisabled={false}
-          render={
-            <Toggle
-              size="sm"
-              pressed={state.isBlockquote}
-              onPressedChange={() =>
-                editor.chain().focus().toggleBlockquote().run()
-              }
-              aria-label="Blockquote"
-            >
-              <Quote />
-            </Toggle>
-          }
-        />
-        <Toolbar.Button
-          focusableWhenDisabled={false}
-          render={
-            <Toggle
-              size="sm"
-              pressed={state.isCode}
-              onPressedChange={() => editor.chain().focus().toggleCode().run()}
-              aria-label="Inline code"
-            >
-              <Code />
-            </Toggle>
-          }
-        />
-      </Toolbar.Group>
-    </Toolbar.Root>
-  );
 }
 
 /** The ARIA wiring an enclosing `Field` resolved for the editor (see `FieldControlBridge`). */
@@ -285,10 +711,8 @@ interface FieldAria {
 }
 
 /**
- * DS-47: renders nothing, and reports the props Base UI's `Field.Control` resolved — the control
- * id, the label id, the rendered description and error ids, `aria-invalid`, and a disabled
- * `Field` — so `TextEdit` can put them on the contenteditable Tiptap creates, which cannot itself
- * BE the control element.
+ * DS-47: renders nothing, and reports the props Base UI's `Field.Control` resolved so `TextEdit`
+ * can put them on the contenteditable Tiptap creates, which cannot itself BE the control element.
  */
 function FieldControlBridge({
   control,
@@ -316,121 +740,141 @@ function FieldControlBridge({
   return null;
 }
 
+/* ------------------------------------------------------------------------------------------------
+ * TextEdit
+ * ----------------------------------------------------------------------------------------------*/
+
 /** Props accepted by `TextEdit`. */
 export interface TextEditProps {
   /**
-   * What `value`, `defaultValue` and `onValueChange` carry: HTML, or Markdown
-   * (CommonMark + GFM strikethrough, through `@tiptap/markdown`). Fixed for the
-   * editor's life — it is read when the editor is created.
+   * What `value`, `defaultValue` and `onValueChange` carry: HTML, or Markdown (CommonMark + GFM
+   * through `@tiptap/markdown`, lossless for every element the toolbar allows). Fixed for the
+   * editor's life.
    * @default "html"
    */
   format?: "html" | "markdown";
   /**
-   * Controlled value (HTML, or Markdown with `format="markdown"`). When provided, the editor is synced to this string
-   * whenever it changes externally (and the editor isn't focused). Pair with
-   * `onValueChange` to drive it from React state.
-
+   * Controlled value. Synced into the editor when it changes externally and the editor is not
+   * focused (a focused-time change is applied on blur).
    * @default undefined
    */
   value?: string;
   /**
-   * Uncontrolled initial HTML content, used only on first render. Ignored when
-   * `value` is provided.
+   * Uncontrolled initial content, used only on first render. Ignored when `value` is provided.
    * @default ''
    */
   defaultValue?: string;
   /**
-   * Called with the serialized document (HTML, or Markdown with
-   * `format="markdown"`) whenever it changes.
-
+   * Called with the serialized document whenever it changes.
    * @default undefined
    */
   onValueChange?: (value: string) => void;
   /**
-   * Placeholder shown (overlaid) while the document is empty.
-
+   * Shown in the first empty line while the document is empty.
    * @default undefined
    */
   placeholder?: string;
   /**
-   * Render the document without letting it be edited: no toolbar, and the
-   * surface reports `aria-readonly`. It stays readable and selectable.
+   * The formatting toolbar: `"minimal"` (bold, italic, link, bullet list), `"standard"` (adds
+   * H2, H3, ordered and task lists, blockquote, inline code), `"full"` (adds strikethrough, code
+   * block, table, divider, undo/redo, clear formatting), or an explicit array of actions. The
+   * editor's schema follows it: a mark or node with no action is not allowed, so pasted or typed
+   * markdown for it becomes plain text.
+   * @default "standard"
+   */
+  toolbar?: TextEditToolbar;
+  /**
+   * Show a floating toolbar over a text selection (heading, bold, italic, inline code, link —
+   * whichever of them the toolbar allows).
+   * @default true
+   */
+  bubbleMenu?: boolean;
+  /**
+   * `outline` is the bordered form control; `ghost` is borderless in-place editing — no border,
+   * ground or ring and no content inset, so the text sits exactly where the `MarkdownView` it
+   * replaces sat, with only the toolbar above.
+   * @default "outline"
+   */
+  variant?: "outline" | "ghost";
+  /**
+   * Called with the serialized document on Cmd/Ctrl+Enter, from the toolbar's Save button, and by
+   * autosave. When `onSave` or `onCancel` is set, Cancel and Save buttons sit at the toolbar's end.
+   * @default undefined
+   */
+  onSave?: (value: string) => void;
+  /**
+   * Called on Escape and from the toolbar's Cancel button.
+   * @default undefined
+   */
+  onCancel?: () => void;
+  /**
+   * Call `onSave` after this many milliseconds without typing (`true` is 1000ms). Off by default.
+   * @default false
+   */
+  autosave?: boolean | number;
+  /**
+   * Disable the Save button and mark the editor busy while the host persists.
+   * @default false
+   */
+  saving?: boolean;
+  /** Label of the toolbar's Save button.
+   * @default "Save"
+   */
+  saveLabel?: string;
+  /** Label of the toolbar's Cancel button.
+   * @default "Cancel"
+   */
+  cancelLabel?: string;
+  /**
+   * Render the document without letting it be edited: no toolbar, and the surface reports
+   * `aria-readonly`.
    * @default false
    */
   readOnly?: boolean;
   /**
-   * Disable the editor: no toolbar, the surface reports `aria-disabled`, and the
-   * root carries `data-disabled` and dims.
+   * Disable the editor: no toolbar, the surface reports `aria-disabled`, and the root dims.
    * @default false
    */
   disabled?: boolean;
   /**
    * Whether the content is editable.
-   * @deprecated Use `readOnly` (or `disabled`). `editable={false}` is `readOnly`.
+   * @deprecated Use `readOnly` (or `disabled`).
    * @default true
    */
   editable?: boolean;
   /**
-   * Fire when the user presses Cmd/Ctrl+Enter inside the editor, with the
-   * current serialized HTML. A presentational keyboard affordance only — the
-   * *host* decides what submitting does (save, send, …); plain Enter still
-   * inserts a newline. Omit to disable the shortcut.
-
+   * Fired on Cmd/Ctrl+Enter with the serialized document.
+   * @deprecated Use `onSave`.
    * @default undefined
    */
   onSubmit?: (value: string) => void;
   /**
-   * Minimum height of the editable content area. A number is treated as `px`;
-   * a string is used verbatim (e.g. `'8rem'`). Fed from this runtime value into
-   * the `--te-min-h` CSS variable (not a token) so it reflects the consumer's
-   * prop while keeping the inline style variable-only.
-   * @default a built-in minimum (`min-h-24`)
+   * Minimum height of the editable content area (a number is `px`).
+   * @default a built-in minimum for `outline`, none for `ghost`
    */
   minHeight?: number | string;
   /**
-   * Maximum height of the editable content area. A number is treated as `px`;
-   * a string is used verbatim. When set, the content area scrolls past it.
-   * Fed from this runtime value into the `--te-max-h` CSS variable.
-
+   * Maximum height of the editable content area; it scrolls past it.
    * @default undefined
    */
   maxHeight?: number | string;
-  /**
-   * Accessible label for the editable region (applied to the contenteditable
-   * surface). Provide one when there is no associated visible label.
-
+  /** Accessible label for the editable region.
    * @default undefined
    */
   "aria-label"?: string;
-  /**
-   * `id` applied to the contenteditable surface — the same host element that
-   * receives `aria-label`. Use it to target the editor with a `<label htmlFor>`
-   * or to reference it from another element's `aria-labelledby`/`aria-controls`.
-
+  /** `id` applied to the contenteditable surface.
    * @default undefined
    */
   id?: string;
-  /**
-   * References the id(s) of the element(s) that label the editable region
-   * (space-separated, same as the native ARIA attribute), applied to the
-   * contenteditable surface alongside `aria-label`/`id`. Prefer this over
-   * `aria-label` when a visible label element already exists.
-
+  /** Id(s) of the element(s) that label the editable region.
    * @default undefined
    */
   "aria-labelledby"?: string;
-  /**
-   * Marks the contenteditable textbox invalid for form integrations. When true
-   * (or `"grammar"` / `"spelling"`), the container also receives the destructive
-   * invalid styling hook via the child textbox.
-
+  /** Marks the textbox invalid.
    * @default undefined
    */
   "aria-invalid"?: React.AriaAttributes["aria-invalid"];
-  /**
-   * ID(s) of helper or error text describing the editor. Space-separate
-   * multiple ids, same as the native ARIA attribute.
-
+  /** Id(s) of helper or error text describing the editor.
    * @default undefined
    */
   "aria-describedby"?: string;
@@ -445,46 +889,21 @@ export interface TextEditProps {
 }
 
 /**
- * `TextEdit` — a Tiptap-based rich-text editor with a compact, token-styled
- * toolbar (bold, italic, strike, heading, bullet/ordered list, blockquote,
- * inline code) and markdown-ish input rules (type `**bold**`, `# heading`,
- * `- list`, `> quote`). Built on [Tiptap v3](https://tiptap.dev) `StarterKit`
- * (history, marks, headings, lists, blockquote, code), `@tiptap/react`'s
- * `useEditor` + `EditorContent`, Base UI `Toolbar`, and the design system's `Toggle`.
+ * `TextEdit` — a Tiptap v3 markdown-first rich-text editor that edits in the same typography
+ * `MarkdownView` renders (the shared `prose` recipe), with toolbar levels, a selection bubble menu,
+ * a link popover, markdown input rules and paste, and a Save/Cancel keyboard contract.
  *
- * The toolbar is a real APG toolbar: one tab stop, arrow keys between controls,
- * Shift+Tab out.
- *
- * Controlled via `value` / `onValueChange` (HTML), or uncontrolled via
- * `defaultValue`. The content surface wears the shared `prose` recipe from
- * `@vegastack/design` — the same one `MarkdownView` uses — so edited rich text and
- * rendered markdown are one typography and both track the active theme.
- * Server-safe to import (`immediatelyRender: false`); the contenteditable mounts
- * on the client.
- *
- * **Scope (base editor — G7 app-coupled split).** This is the *presentational* base
- * rich-text editor: a controlled HTML value, the StarterKit formatting set, the styled
- * toolbar, the empty-state placeholder, read-only mode, and host-composition affordances
- * — `onSubmit` (Cmd/Ctrl+Enter, the host decides what submit means) plus `minHeight` /
- * `maxHeight` (a scrolling content area). App-coupled and heavier editor capabilities from
- * the platform editor are intentionally **out of this core** — each needs app
- * infrastructure or ships as a separate composed component:
- * - **Image upload / paste-to-upload** → needs app storage (R2/CDN); the app owns the
- *   upload + supplies resolved URLs (mirrors the `Image` G7 split).
- * - **@mentions** → needs the app's user/entity data source + query.
- * - **Markdown import/export, emoji insertion, task lists, code-block language menus,
- *   real-time collaboration (Yjs)** → future, composed extensions (collaboration in
- *   particular ships as a separate `text-edit-collab`).
- *
- * Controlled via `value` / `onValueChange` (HTML), or uncontrolled via `defaultValue`.
+ * - **Toolbar** — `toolbar="minimal" | "standard" | "full"` or an action array; the schema follows
+ *   it. A sticky, quiet Base UI `Toolbar` (one tab stop, arrow keys) of icon toggles whose tooltips
+ *   carry the shortcut.
+ * - **Markdown** — input rules (`# `, `- `, `1. `, `[ ] `, `> `, ```` ``` ````, `---`, `**`, `_`),
+ *   markdown paste, and lossless round-trip through `@tiptap/markdown` with `format="markdown"`.
+ * - **Keys** — Cmd/Ctrl+Enter saves, Escape cancels, Cmd/Ctrl+K edits the link.
+ * - **Ghost** — `variant="ghost"` edits in place with no pixel shift from `MarkdownView`.
  *
  * @example
- * const [html, setHtml] = useState('<p>Hello</p>');
- * <TextEdit value={html} onValueChange={setHtml} placeholder="Write something…" />
- *
- * @example
- * // Submit on Cmd/Ctrl+Enter, with a fixed scrolling height
- * <TextEdit onValueChange={setHtml} onSubmit={save} minHeight={120} maxHeight={320} />
+ * <TextEdit format="markdown" variant="ghost" value={md} onValueChange={setMd}
+ *   onSave={save} onCancel={cancel} />
  */
 export function TextEdit({
   format = "html",
@@ -492,6 +911,15 @@ export function TextEdit({
   defaultValue = "",
   onValueChange,
   placeholder,
+  toolbar = "standard",
+  bubbleMenu = true,
+  variant = "outline",
+  onSave,
+  onCancel,
+  autosave = false,
+  saving = false,
+  saveLabel = "Save",
+  cancelLabel = "Cancel",
   readOnly = false,
   disabled: disabledProp = false,
   editable: editableProp = true,
@@ -506,34 +934,42 @@ export function TextEdit({
   className,
   ref,
 }: TextEditProps) {
-  // DS-47: what the enclosing `Field` resolved (see `FieldControlBridge`). Until it reports, and
-  // outside a `Field`, the explicit props stand alone.
   const [field, setField] = React.useState<FieldAria>({});
   const disabled = disabledProp || field.disabled === true;
   const editable = editableProp && !readOnly && !disabled;
-  // The serialization the host asked for, fixed when the editor is created (the extension set
-  // and the parser are chosen once), so a later `format` change cannot half-apply.
+  // Fixed at creation: the extension set and the parser are chosen once.
   const [markdown] = React.useState(format === "markdown");
+  const [allowed] = React.useState(() => resolveActions(toolbar));
+  const actions = React.useMemo(
+    () =>
+      ACTION_GROUPS.flatMap((group) => group.actions).filter((action) =>
+        allowed.has(action),
+      ),
+    [allowed],
+  );
+  const bubbleActions = React.useMemo(
+    () => BUBBLE_ACTIONS.filter((action) => allowed.has(action)),
+    [allowed],
+  );
   const serialize = React.useCallback(
-    // Trailing blank lines carry nothing in Markdown; the serializer leaves two after a list.
     (ed: Editor) => (markdown ? ed.getMarkdown().trimEnd() : ed.getHTML()),
     [markdown],
   );
 
-  const onValueChangeRef = React.useRef(onValueChange);
+  const callbacks = React.useRef({ onValueChange, onSave, onCancel, onSubmit });
   React.useEffect(() => {
-    onValueChangeRef.current = onValueChange;
-  }, [onValueChange]);
+    callbacks.current = { onValueChange, onSave, onCancel, onSubmit };
+  }, [onValueChange, onSave, onCancel, onSubmit]);
 
-  // Keep the latest `onSubmit` in a ref — the editor is created once, but its
-  // keydown handler must always call the current callback.
-  const onSubmitRef = React.useRef(onSubmit);
-  React.useEffect(() => {
-    onSubmitRef.current = onSubmit;
-  }, [onSubmit]);
+  const [linkOpen, setLinkOpen] = React.useState(false);
+  const [bubbleLinkOpen, setBubbleLinkOpen] = React.useState(false);
+  const linkShortcutRef = React.useRef<() => void>(() => {});
+  linkShortcutRef.current = () => {
+    if (!allowed.has("link")) return;
+    if (actions.includes("link")) setLinkOpen(true);
+    else setBubbleLinkOpen(true);
+  };
 
-  // The keydown handler closes over the editor before it's assigned; route
-  // through a ref so it always reads the live instance to serialize HTML.
   const editorRef = React.useRef<Editor | null>(null);
   const resolvedId = field.id ?? id;
   const resolvedLabelledBy = field["aria-labelledby"] ?? ariaLabelledBy;
@@ -542,9 +978,10 @@ export function TextEdit({
     field["aria-invalid"] ?? ariaInvalid,
   );
   const invalid = ariaInvalidAttribute !== undefined;
+  const ghost = variant === "ghost";
   const editorAttributes = React.useMemo(
     () => ({
-      class: editorClassName,
+      class: cn(editorBaseClassName, ghost ? "p-0" : "min-h-24 px-3 py-2.5"),
       ...(resolvedId ? { id: resolvedId } : {}),
       ...(ariaLabel ? { "aria-label": ariaLabel } : {}),
       ...(resolvedLabelledBy ? { "aria-labelledby": resolvedLabelledBy } : {}),
@@ -554,10 +991,13 @@ export function TextEdit({
         : {}),
       role: "textbox",
       "aria-multiline": "true",
+      ...(saving ? { "aria-busy": "true" } : {}),
       ...(disabled ? { "aria-disabled": "true" } : {}),
       ...(!disabled && !editable ? { "aria-readonly": "true" } : {}),
     }),
     [
+      ghost,
+      saving,
       disabled,
       editable,
       resolvedDescribedBy,
@@ -568,41 +1008,65 @@ export function TextEdit({
     ],
   );
 
+  const save = React.useCallback(() => {
+    const ed = editorRef.current;
+    const handler = callbacks.current.onSave ?? callbacks.current.onSubmit;
+    if (!ed || !handler) return false;
+    handler(serialize(ed));
+    return true;
+  }, [serialize]);
+
   const editor = useEditor({
-    extensions: markdown ? [StarterKit, Markdown] : [StarterKit],
+    extensions: buildExtensions(allowed, placeholder),
     content: value ?? defaultValue,
     ...(markdown ? { contentType: "markdown" as const } : {}),
     editable,
-    // Avoid SSR hydration mismatch — the contenteditable mounts on the client.
     immediatelyRender: false,
     editorProps: {
       attributes: editorAttributes,
-      // Cmd/Ctrl+Enter submits (when `onSubmit` is set); plain Enter is left to
-      // ProseMirror so newlines still work. Return `true` to consume the event.
       handleKeyDown: (_view, event) => {
-        if (
-          event.key === "Enter" &&
-          (event.metaKey || event.ctrlKey) &&
-          onSubmitRef.current
-        ) {
+        const mod = event.metaKey || event.ctrlKey;
+        if (event.key === "Enter" && mod) {
+          if (!save()) return false;
           event.preventDefault();
-          onSubmitRef.current(
-            editorRef.current ? serialize(editorRef.current) : "",
-          );
+          return true;
+        }
+        if (event.key === "Escape" && callbacks.current.onCancel) {
+          event.preventDefault();
+          callbacks.current.onCancel();
+          return true;
+        }
+        if (mod && event.key.toLowerCase() === "k" && allowed.has("link")) {
+          event.preventDefault();
+          linkShortcutRef.current();
           return true;
         }
         return false;
       },
+      // Markdown pasted as plain text is parsed, not inserted verbatim. A bare URL is left to the
+      // link extension, which turns it into a link over the selection.
+      handlePaste: (_view, event) => {
+        const ed = editorRef.current;
+        const text = event.clipboardData?.getData("text/plain");
+        if (
+          !ed ||
+          !text ||
+          event.clipboardData?.getData("text/html") ||
+          ed.isActive("codeBlock") ||
+          !looksLikeMarkdown(text)
+        )
+          return false;
+        ed.commands.insertContent(text, { contentType: "markdown" });
+        return true;
+      },
     },
     onUpdate: ({ editor: ed }) => {
-      onValueChangeRef.current?.(serialize(ed));
+      callbacks.current.onValueChange?.(serialize(ed));
     },
   });
 
   editorRef.current = editor;
 
-  // Keep ARIA attributes current after mount; Tiptap reads editorProps at
-  // creation time unless we update the editor options.
   React.useEffect(() => {
     if (!editor) return;
     editor.setOptions({
@@ -613,22 +1077,29 @@ export function TextEdit({
     });
   }, [editor, editorAttributes]);
 
-  // Sync the `editable` prop into the editor instance.
   React.useEffect(() => {
-    if (editor && editor.isEditable !== editable) {
-      editor.setEditable(editable);
-    }
+    if (editor && editor.isEditable !== editable) editor.setEditable(editable);
   }, [editor, editable]);
 
-  // Holds the latest controlled `value` that arrived while the editor was focused
-  // and so could NOT be applied yet (applying mid-edit would clobber the caret).
-  // `undefined` means "nothing pending"; it is reconciled on blur (below).
-  const pendingValueRef = React.useRef<string | undefined>(undefined);
+  // Autosave: `onSave` after an idle gap. Off unless `autosave` is set.
+  React.useEffect(() => {
+    if (!editor || !autosave) return;
+    const delay = autosave === true ? 1000 : autosave;
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    const schedule = () => {
+      clearTimeout(timer);
+      timer = setTimeout(() => {
+        callbacks.current.onSave?.(serialize(editor));
+      }, delay);
+    };
+    editor.on("update", schedule);
+    return () => {
+      clearTimeout(timer);
+      editor.off("update", schedule);
+    };
+  }, [editor, autosave, serialize]);
 
-  // Reconcile the editor content to `html` without re-emitting `onValueChange`.
-  // The `emitUpdate: false` guard is what breaks the setContent → onUpdate →
-  // onValueChange → value sync loop; we still bail when content already matches so identical
-  // values never touch the document/selection.
+  const pendingValueRef = React.useRef<string | undefined>(undefined);
   const applyValue = React.useCallback(
     (ed: Editor, next: string) => {
       if (serialize(ed) === next) return;
@@ -640,25 +1111,16 @@ export function TextEdit({
     [markdown, serialize],
   );
 
-  // Sync a controlled `value` in when it changes externally. While the user is
-  // actively editing we must NOT replace the document (it would clobber their
-  // caret/selection) — instead we stash the value as pending and replay it on
-  // blur. When the editor isn't focused, apply immediately as before.
   React.useEffect(() => {
     if (!editor || value === undefined) return;
     if (editor.isFocused) {
-      // Defer: record the latest external value; the blur listener applies it.
       pendingValueRef.current = value;
       return;
     }
-    // Not focused → safe to apply now; nothing is pending anymore.
     pendingValueRef.current = undefined;
     applyValue(editor, value);
   }, [editor, value, applyValue]);
 
-  // When focus leaves, flush any pending controlled value the focused-edit guard
-  // above had to skip — this is what stops the rendered editor from going
-  // permanently stale relative to the prop after a focused-time `value` change.
   React.useEffect(() => {
     if (!editor) return;
     const onBlur = () => {
@@ -673,30 +1135,7 @@ export function TextEdit({
     };
   }, [editor, applyValue]);
 
-  // Reactive empty-state so the placeholder hides on the first keystroke. Subscribe
-  // directly to the editor lifecycle (create/update/transaction) — robust across
-  // `immediatelyRender:false` (the editor is null until it mounts on the client).
-  const [isEmpty, setIsEmpty] = React.useState(true);
-  React.useEffect(() => {
-    if (!editor) return;
-    const sync = () => setIsEmpty(editor.isEmpty);
-    sync();
-    editor.on("create", sync);
-    editor.on("update", sync);
-    editor.on("transaction", sync);
-    return () => {
-      editor.off("create", sync);
-      editor.off("update", sync);
-      editor.off("transaction", sync);
-    };
-  }, [editor]);
-  const showPlaceholder = !!placeholder && !!editor && isEmpty;
-
-  // Prop-driven sizing for the content area. These are runtime consumer values
-  // (not tokens). They're passed as CSS custom properties (`--te-min-h` /
-  // `--te-max-h`) and consumed by arbitrary-value classes — so the inline style
-  // sets ONLY `--*` variables, never a direct visual property (contract-clean per
-  // §7.1). A var is set only when its prop is provided. `maxHeight` also scrolls.
+  const themeScope = useInternalThemeScope();
   const minCss = toCssLength(minHeight);
   const maxCss = toCssLength(maxHeight);
   const contentStyle: React.CSSProperties | undefined =
@@ -706,30 +1145,29 @@ export function TextEdit({
           ...(maxCss != null && { ["--te-max-h"]: maxCss }),
         } as React.CSSProperties)
       : undefined;
+  const hasCommit = Boolean(onSave || onCancel);
+  const showToolbar = editable && !!editor && (actions.length > 0 || hasCommit);
 
   return (
     <div
       ref={ref}
       data-slot="text-edit"
+      data-variant={variant}
       data-editable={editable ? "" : undefined}
       data-disabled={disabled ? "" : undefined}
       data-invalid={invalid ? "" : undefined}
       className={cn(
-        "relative overflow-hidden rounded-lg border border-input bg-background",
-        "focus-within:border-ring/70",
-        // Focus outranks invalid — same reasoning, same mechanism as the shared field chrome
-        // (`@vegastack/design`, #100): the contenteditable carries `outline-none`, so this
-        // container border is the editor's whole focus affordance and the invalid tint must
-        // stand down while it holds focus rather than win the cascade.
-        "not-focus-within:has-aria-invalid:border-destructive/70",
+        "relative min-w-0",
+        !ghost && [
+          "rounded-lg border border-input bg-background",
+          "focus-within:border-ring/70",
+          // Focus outranks invalid (#100): the container border is the whole focus affordance.
+          "not-focus-within:has-aria-invalid:border-destructive/70",
+        ],
         disabled && "opacity-50",
         className,
       )}
     >
-      {/* DS-47: the editor's `Field.Control`. It renders nothing; the bridge hands the ids Base
-          UI resolved to the contenteditable. An explicit `id`/`aria-labelledby` wins and an
-          explicit `aria-describedby` keeps its ids first; only DEFINED props are passed, because
-          Base UI's merge lets an `undefined` erase the label id. */}
       <FieldPrimitive.Control
         id={id}
         {...(ariaLabelledBy ? { "aria-labelledby": ariaLabelledBy } : {})}
@@ -739,21 +1177,109 @@ export function TextEdit({
           <FieldControlBridge control={control} onResolve={setField} />
         )}
       />
-      {editable && editor ? <FormattingToolbar editor={editor} /> : null}
+      {showToolbar ? (
+        <Toolbar.Root
+          data-slot="text-edit-toolbar"
+          aria-label="Formatting"
+          className={cn(
+            "sticky top-0 z-10 flex flex-wrap items-center gap-0.5 bg-background",
+            ghost
+              ? "mb-2 py-1"
+              : "rounded-t-lg border-b border-border px-1.5 py-1",
+          )}
+        >
+          <ActionRow
+            editor={editor}
+            actions={actions}
+            linkOpen={linkOpen}
+            onLinkOpenChange={setLinkOpen}
+          />
+          {hasCommit ? (
+            <div
+              data-slot="text-edit-commit"
+              className="ms-auto flex items-center gap-1.5"
+            >
+              {onCancel ? (
+                <Tooltip>
+                  <TooltipTrigger
+                    render={
+                      <Toolbar.Button
+                        render={
+                          <Button size="sm" variant="ghost" onClick={onCancel}>
+                            {cancelLabel}
+                          </Button>
+                        }
+                      />
+                    }
+                  />
+                  <TooltipContent>
+                    <ShortcutHint label={cancelLabel} keys={["Esc"]} />
+                  </TooltipContent>
+                </Tooltip>
+              ) : null}
+              {onSave ? (
+                <Tooltip>
+                  <TooltipTrigger
+                    render={
+                      <Toolbar.Button
+                        disabled={saving}
+                        render={
+                          <Button size="sm" onClick={() => save()}>
+                            {saveLabel}
+                          </Button>
+                        }
+                      />
+                    }
+                  />
+                  <TooltipContent>
+                    <ShortcutHint label={saveLabel} keys={["Mod", "↵"]} />
+                  </TooltipContent>
+                </Tooltip>
+              ) : null}
+            </div>
+          ) : null}
+        </Toolbar.Root>
+      ) : null}
+      {editable && editor && bubbleMenu && bubbleActions.length > 0 ? (
+        <BubbleMenu
+          editor={editor}
+          shouldShow={({ editor: ed, from, to }) =>
+            bubbleLinkOpen ||
+            (ed.isEditable &&
+              from !== to &&
+              !ed.isActive("codeBlock") &&
+              !ed.isActive("image"))
+          }
+          className={cn("z-50", themeScope)}
+        >
+          <Toolbar.Root
+            data-slot="text-edit-bubble-menu"
+            aria-label="Selection formatting"
+            className="flex items-center gap-0.5 rounded-lg border border-border bg-popover p-1 text-popover-foreground shadow-md"
+          >
+            <ActionRow
+              editor={editor}
+              actions={bubbleActions}
+              linkOpen={bubbleLinkOpen}
+              onLinkOpenChange={setBubbleLinkOpen}
+            />
+          </Toolbar.Root>
+        </BubbleMenu>
+      ) : null}
       <div
         data-slot="text-edit-content"
         className={cn(
           "relative",
+          // Ghost focus cue without a pixel shift: a hairline that is transparent at rest sits in
+          // an outset (negative margin, padding one pixel short), so the text box stays exactly
+          // where view mode puts it and only the hairline appears while the editor holds focus.
+          ghost &&
+            "-mx-2 -my-1.5 rounded-md border border-transparent px-[calc(--spacing(2)-1px)] py-[calc(--spacing(1.5)-1px)] focus-within:border-border",
           minCss != null && "min-h-[var(--te-min-h)]",
           maxCss != null && "max-h-[var(--te-max-h)] overflow-y-auto",
         )}
         style={contentStyle}
       >
-        {showPlaceholder ? (
-          <p className="pointer-events-none absolute top-2.5 start-3 z-10 text-sm leading-relaxed text-muted-foreground select-none">
-            {placeholder}
-          </p>
-        ) : null}
         <EditorContent editor={editor} />
       </div>
     </div>

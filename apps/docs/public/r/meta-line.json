@@ -4,14 +4,14 @@
   "title": "Meta Line",
   "description": "An icon + text meta line under a record title: wrapping facts such as type, date and time, duration and owner, in the muted ink.",
   "dependencies": [
-    "@vegastack/design@^0.7.30",
+    "@vegastack/design@^0.7.32",
     "@vegastack/design-tokens@^0.7.18"
   ],
   "registryDependencies": [],
   "files": [
     {
       "path": "packages/ui/registry/ui/meta-line.tsx",
-      "content": "// @vegastack meta-line@0.23.21 sha256-F2HVIf7rI6dT9E9TO/3hGuTSmxQU8SGiLkeGO1VU5gQ=\n\nimport * as React from \"react\";\nimport { cn } from \"@vegastack/design\";\n\n/** Props accepted by `MetaLine`. */\nexport interface MetaLineProps extends React.ComponentProps<\"div\"> {\n  /**\n   * `MetaLineItem`s.\n   * @default undefined\n   */\n  children?: React.ReactNode;\n}\n\n/**\n * `MetaLine` — a wrapping line of small icon + text facts about a record (type, date and time,\n * duration, owner). Muted ink, one step below the title it sits under.\n *\n * @example\n * <MetaLine>\n *   <MetaLineItem icon={<Video />}>Video call</MetaLineItem>\n *   <MetaLineItem icon={<Calendar />}>25 Sep, 10:30</MetaLineItem>\n * </MetaLine>\n */\nexport function MetaLine({ className, ...props }: MetaLineProps) {\n  return (\n    <div\n      data-slot=\"meta-line\"\n      className={cn(\n        \"flex min-w-0 flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted-foreground\",\n        className,\n      )}\n      {...props}\n    />\n  );\n}\n\n/** Props accepted by `MetaLineItem`. */\nexport interface MetaLineItemProps extends React.ComponentProps<\"span\"> {\n  /**\n   * A leading icon, drawn at 14px in the muted ink. Decorative: the text carries the meaning.\n   * @default undefined\n   */\n  icon?: React.ReactNode;\n}\n\n/**\n * `MetaLineItem` — one fact in a `MetaLine`: an optional icon and its text.\n *\n * @example\n * <MetaLineItem icon={<Clock />}>42 min</MetaLineItem>\n */\nexport function MetaLineItem({\n  icon,\n  className,\n  children,\n  ...props\n}: MetaLineItemProps) {\n  return (\n    <span\n      data-slot=\"meta-line-item\"\n      className={cn(\n        \"inline-flex min-w-0 items-center gap-1.5 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-3.5\",\n        className,\n      )}\n      {...props}\n    >\n      {icon ? (\n        <span aria-hidden className=\"inline-flex shrink-0\">\n          {icon}\n        </span>\n      ) : null}\n      <span className=\"min-w-0 truncate\">{children}</span>\n    </span>\n  );\n}\n",
+      "content": "// @vegastack meta-line@0.23.23 sha256-9sV3Hv5iaRnThEowAMXNLM4a511SuDCyttwYypUAnRI=\n\nimport * as React from \"react\";\nimport { cn } from \"@vegastack/design\";\n\n/** Props accepted by `MetaLine`. */\nexport interface MetaLineProps extends React.ComponentProps<\"div\"> {\n  /**\n   * `MetaLineItem`s.\n   * @default undefined\n   */\n  children?: React.ReactNode;\n}\n\n/**\n * `MetaLine` — a wrapping line of small icon + text facts about a record (type, date and time,\n * duration, owner). Muted ink, one step below the title it sits under.\n *\n * @example\n * <MetaLine>\n *   <MetaLineItem icon={<Video />}>Video call</MetaLineItem>\n *   <MetaLineItem icon={<Calendar />}>25 Sep, 10:30</MetaLineItem>\n * </MetaLine>\n */\nexport function MetaLine({ className, ...props }: MetaLineProps) {\n  return (\n    <div\n      data-slot=\"meta-line\"\n      className={cn(\n        \"flex min-w-0 flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted-foreground\",\n        className,\n      )}\n      {...props}\n    />\n  );\n}\n\n/** Props accepted by `MetaLineItem`. */\nexport interface MetaLineItemProps extends React.ComponentProps<\"span\"> {\n  /**\n   * A leading icon, drawn at 14px in the muted ink. Decorative: the text carries the meaning.\n   * @default undefined\n   */\n  icon?: React.ReactNode;\n}\n\n/**\n * `MetaLineItem` — one fact in a `MetaLine`: an optional icon and its text.\n *\n * @example\n * <MetaLineItem icon={<Clock />}>42 min</MetaLineItem>\n */\nexport function MetaLineItem({\n  icon,\n  className,\n  children,\n  ...props\n}: MetaLineItemProps) {\n  return (\n    <span\n      data-slot=\"meta-line-item\"\n      className={cn(\n        \"inline-flex min-w-0 items-center gap-1.5 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-3.5\",\n        className,\n      )}\n      {...props}\n    >\n      {icon ? (\n        <span aria-hidden className=\"inline-flex shrink-0\">\n          {icon}\n        </span>\n      ) : null}\n      <span className=\"min-w-0 truncate\">{children}</span>\n    </span>\n  );\n}\n",
       "type": "registry:ui",
       "target": "@ui/meta-line.tsx"
     }
@@ -19,8 +19,8 @@
   "meta": {
     "whenToUse": "The facts line under a record's title — type, date and time, duration, who recorded it.",
     "whenNotToUse": "Labelled key/value details (PropertyList) or status (Badge, StatusLine).",
-    "version": "0.23.21",
-    "integrity": "sha256-F2HVIf7rI6dT9E9TO/3hGuTSmxQU8SGiLkeGO1VU5gQ="
+    "version": "0.23.23",
+    "integrity": "sha256-9sV3Hv5iaRnThEowAMXNLM4a511SuDCyttwYypUAnRI="
   },
   "categories": [
     "display"

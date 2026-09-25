@@ -1,4 +1,4 @@
-// @vegastack combobox@0.23.21 sha256-m+O7/F/L0bwb2JXeMaKOx2QWycJHiDrkHY/BkalhFik=
+// @vegastack combobox@0.23.23 sha256-6EC6JaSBI7UOF6YHg/xjq2vGmuY4z5eVew1art8mJk8=
 
 "use client";
 
@@ -53,6 +53,7 @@ function ComboboxClear({ className, ...props }: ComboboxPrimitive.Clear.Props) {
           variant="ghost"
           size="icon-xs"
           aria-label="Clear selection"
+          className="active:not-aria-[haspopup]:translate-y-0"
         />
       }
       className={cn(className)}
@@ -315,7 +316,14 @@ function ComboboxChip({
       {children}
       {showRemove && (
         <ComboboxPrimitive.ChipRemove
-          render={<Button variant="ghost" size="icon-xs" aria-label="Remove" />}
+          render={
+            <Button
+              variant="ghost"
+              size="icon-xs"
+              aria-label="Remove"
+              className="active:not-aria-[haspopup]:translate-y-0"
+            />
+          }
           className="-ms-1 opacity-50 hover:opacity-100"
           data-slot="combobox-chip-remove"
         >

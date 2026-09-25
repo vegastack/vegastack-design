@@ -106,13 +106,28 @@ test("MarkdownView and TextEdit wear the identical prose recipe", async () => {
   const extras = [...new Set([...renderedClasses, ...editedClasses])].filter(
     (rule) => !recipe.includes(rule) && !editorMarkers.has(rule),
   );
-  expect(extras.sort()).toEqual([
-    "min-h-24",
-    "min-w-0",
-    "outline-none",
-    "px-3",
-    "py-2.5",
-  ]);
+  // The editor's ProseMirror resets (placeholder pseudo-element, table scroll box, selection
+  // washes) are layout parity with MarkdownView, not typography.
+  expect(extras.sort()).toEqual(
+    [
+      "min-h-24",
+      "min-w-0",
+      "outline-none",
+      "px-3",
+      "py-2.5",
+      "[&_p.is-editor-empty:first-child]:before:pointer-events-none",
+      "[&_p.is-editor-empty:first-child]:before:float-start",
+      "[&_p.is-editor-empty:first-child]:before:h-0",
+      "[&_p.is-editor-empty:first-child]:before:text-muted-foreground",
+      "[&_p.is-editor-empty:first-child]:before:content-[attr(data-placeholder)]",
+      "[&_.tableWrapper]:my-3",
+      "[&_.tableWrapper]:w-full",
+      "[&_.tableWrapper]:overflow-x-auto",
+      "[&_.selectedCell]:bg-accent",
+      "[&_.ProseMirror-selectednode]:rounded-sm",
+      "[&_.ProseMirror-selectednode]:bg-accent",
+    ].sort(),
+  );
 
   // Both actually rendered the elements the recipe styles.
   for (const selector of ["h1", "p", "code"]) {
