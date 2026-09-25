@@ -15929,7 +15929,7 @@
         "whenToUse": "Primary app navigation in a dashboard/console shell — collapsible rail with grouped items.",
         "whenNotToUse": "A few top-level links (horizontal nav) or transient small-viewport nav (Sheet).",
         "version": "0.23.2",
-        "integrity": "sha256-Wy/hpS/AnbMuCyIpG51PqKpYkq8EdLOLAdXGT92NMxo="
+        "integrity": "sha256-LX/Bp4C5zNVNoItbsxnAf2G9QMDWEKUOG1mXss9O/os="
       }
     },
     {
@@ -16990,7 +16990,7 @@
         "whenToUse": "Starting an application whose every route sits inside one shell and sidebar — copy it once, then hoist AppShell into a layout.",
         "whenNotToUse": "You only need the shell mechanics in many places — install the app-shell component and compose it yourself.",
         "version": "0.23.2",
-        "integrity": "sha256-BhFXO/6AXgEjqOtKj32g8CsBMPF/5elRN7fBc3ECo8o="
+        "integrity": "sha256-Tv1Jv0kE1JfMh6b4GXHdnBxiRWIhUcSQFstBtZRFU3s="
       }
     },
     {
