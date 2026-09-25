@@ -9,6 +9,20 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.23.10] — September 25, 2026
+
+<!-- assembled from 1 changeset: efc4a4c6da64 -->
+
+### 🔧 Changed components
+
+- Meeting page parts: AudioPlayer gains `variant="floating"` (a centred pill) and a global player — `AudioPlayerProvider`, `GlobalAudioPlayer`, `useGlobalPlayer` and `useGlobalPlayerTime` — that keeps one recording playing across routes with a title link back; Transcript turns show time, a coloured speaker dot and the name above full-width text, `TranscriptSpeakers` adds speaker chips with rename (`onSpeakerRename`), and long transcripts mount progressively (`batchSize`); new `MetaLine`, `RecordChip` and `StatusLine`; new `useTabsSwipe` hook for touch swipe between Tabs, documented with the full-width default variant; review-split-01 shows the speaker chips.
+  [`ffbf133`](https://github.com/VegaStack/vegastack-design/commit/ffbf133)
+
+### 📦 npm
+
+- **`@vegastack/design`** → **`0.7.19`** (was `0.7.18`).
+- The design-system registry (`@vegastack/ui`) bumps 0.23.9 → 0.23.10.
+
 ## [0.23.9] — September 25, 2026
 
 <!-- assembled from 1 changeset: 42f64dc77f65 -->

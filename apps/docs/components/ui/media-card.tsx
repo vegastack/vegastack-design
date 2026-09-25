@@ -1,4 +1,4 @@
-// @vegastack media-card@0.23.9 sha256-CGbAQ154DD7099GMgbUuaAUHpPE8Sar94rg6vtOcFZk=
+// @vegastack media-card@0.23.10 sha256-xYtCf3GIsMxCLlpksYIv6tfSMjWOy3FrkbChbrDgwJE=
 
 "use client";
 
@@ -83,7 +83,7 @@ function CardLink({
     href,
     "data-slot": "media-card-link",
     className:
-      "min-w-0 truncate text-sm font-medium text-inherit no-underline after:absolute after:inset-0 after:rounded-[inherit] after:content-[''] hover:no-underline focus-visible:no-underline",
+      "block min-h-6 min-w-0 truncate text-sm leading-6 font-medium text-inherit no-underline after:absolute after:inset-0 after:rounded-[inherit] after:content-[''] hover:no-underline focus-visible:no-underline",
     children,
   };
   if (render)

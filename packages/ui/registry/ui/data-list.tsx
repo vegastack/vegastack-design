@@ -1,4 +1,4 @@
-// @vegastack data-list@0.23.9 sha256-j5/gbJ7lXIz05iZjx6g2Dx57u3VfO9Rw0Bp88HB6g2o=
+// @vegastack data-list@0.23.10 sha256-fztSgGEmHwyW8FQmEw+TzIXJOhy4NVIDfkrcclalX84=
 
 "use client";
 
@@ -1515,7 +1515,7 @@ export function DataList<T>({
     ))
   );
   const allIndexes = () => data.map((_, index) => index);
-  const grid = (
+  const renderGrid = () => (
     <div
       data-slot="data-list-grid-root"
       aria-label={listLabel}
@@ -1584,7 +1584,7 @@ export function DataList<T>({
     loadMore: section.loadMore,
     emptyState: section.emptyState,
   }));
-  const board =
+  const renderBoard = () =>
     !loading && data.length === 0 && noResults ? (
       emptyContent
     ) : (
@@ -1650,7 +1650,11 @@ export function DataList<T>({
       {toolbarWithToggle != null ? (
         <div data-slot="data-list-toolbar">{toolbarWithToggle}</div>
       ) : null}
-      {activeView === "grid" ? grid : activeView === "board" ? board : table}
+      {activeView === "grid"
+        ? renderGrid()
+        : activeView === "board"
+          ? renderBoard()
+          : table}
       {loadMore ? <LoadMore {...loadMore} /> : null}
       {footer != null ? <div data-slot="data-list-footer">{footer}</div> : null}
     </div>
