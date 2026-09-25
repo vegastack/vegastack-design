@@ -1,4 +1,4 @@
-// @vegastack use-inline-edit@0.23.20 sha256-lZ6KctXxUCkqfFs3XcRw5SLsvNGqL00Naj7uyR/GO1M=
+// @vegastack use-inline-edit@0.23.20 sha256-W1ADwkZ6FOB5UJeNJ+no7+Bw0Lf66d1flgyq4ed4dYI=
 
 "use client";
 
@@ -72,6 +72,13 @@ export interface UseInlineEditOptions {
    * @default true
    */
   trim?: boolean;
+  /**
+   * A multi-line editor: <kbd>Enter</kbd> inserts a newline and <kbd>⌘</kbd>/<kbd>Ctrl</kbd>+<kbd>Enter</kbd>
+   * commits. Single-line editors (the default) commit on a plain <kbd>Enter</kbd> — even when the
+   * editor is a wrapping `textarea`, as a heading's is.
+   * @default false
+   */
+  multiline?: boolean;
 }
 
 /** What {@link useInlineEdit} returns. */
@@ -94,13 +101,17 @@ export interface UseInlineEditResult {
    * Attach to the edit-mode input. Focuses and selects the whole value when the edit opens, so
    * typing replaces rather than appends.
    */
-  editRef: React.RefCallback<HTMLInputElement>;
+  editRef: React.RefCallback<HTMLInputElement | HTMLTextAreaElement>;
   /**
    * Attach to the display element. Focus returns here when a KEYBOARD commit or cancel closed
    * the edit — never when a blur committed it, where the user has already moved on.
    */
   displayRef: React.RefCallback<HTMLElement>;
-  /** <kbd>Enter</kbd> commits, <kbd>Escape</kbd> cancels; both restore focus to the display. */
+  /**
+   * <kbd>Enter</kbd> (single-line) or <kbd>⌘</kbd>/<kbd>Ctrl</kbd>+<kbd>Enter</kbd> (multiline) commits,
+   * <kbd>Escape</kbd> cancels; both restore focus to the display. Keys pressed while an IME is
+   * composing are left alone.
+   */
   onKeyDown: (event: React.KeyboardEvent) => void;
 }
 
@@ -135,13 +146,16 @@ export function useInlineEdit({
   onEditingChange,
   disabled = false,
   trim = true,
+  multiline = false,
 }: UseInlineEditOptions): UseInlineEditResult {
   const [internalEditing, setInternalEditing] = React.useState(false);
   const isEditingControlled = editing !== undefined;
   const isEditing = isEditingControlled ? editing : internalEditing;
   const [draft, setDraft] = React.useState(value);
 
-  const inputRef = React.useRef<HTMLInputElement | null>(null);
+  const inputRef = React.useRef<HTMLInputElement | HTMLTextAreaElement | null>(
+    null,
+  );
   const displayElementRef = React.useRef<HTMLElement | null>(null);
   // Enter closes the edit, which unmounts the input, which makes the browser fire blur — and
   // blur commits. Without this the second commit fires against a stale draft.
@@ -211,9 +225,12 @@ export function useInlineEdit({
     }
   }, [isEditing]);
 
-  const editRef = React.useCallback((node: HTMLInputElement | null) => {
-    inputRef.current = node;
-  }, []);
+  const editRef = React.useCallback(
+    (node: HTMLInputElement | HTMLTextAreaElement | null) => {
+      inputRef.current = node;
+    },
+    [],
+  );
 
   const displayRef = React.useCallback((node: HTMLElement | null) => {
     displayElementRef.current = node;
@@ -221,7 +238,11 @@ export function useInlineEdit({
 
   const onKeyDown = React.useCallback(
     (event: React.KeyboardEvent) => {
-      if (event.key === "Enter") {
+      if (event.nativeEvent?.isComposing) return;
+      if (
+        event.key === "Enter" &&
+        (!multiline || event.metaKey || event.ctrlKey)
+      ) {
         event.preventDefault();
         restoreFocusRef.current = true;
         commit();
@@ -231,7 +252,7 @@ export function useInlineEdit({
         cancel();
       }
     },
-    [commit, cancel],
+    [commit, cancel, multiline],
   );
 
   return {

@@ -1579,20 +1579,19 @@
       "name": "editable-cell",
       "type": "registry:ui",
       "title": "Editable Cell",
-      "description": "Inline-editable value with an async commit lifecycle — optimistic display, saving/saved/error status, revert on a rejected write, and a typed text/select/custom editor registry.",
+      "description": "Inline-editable value whose edit mode looks like view — same box, inherited type, no border — with optimistic saves, a delayed spinner, rollback plus a Retry toast on failure, required, multiline, table-cell and heading variants, and a typed text/select/custom editor registry.",
       "categories": [
         "form"
       ],
       "dependencies": [
-        "lucide-react@^1.47.0",
         "@vegastack/design@^0.7.29",
         "@vegastack/design-tokens@^0.7.18"
       ],
       "registryDependencies": [
         "@vegastack/auto-save-input",
-        "@vegastack/input",
         "@vegastack/select",
         "@vegastack/spinner",
+        "@vegastack/toast",
         "@vegastack/use-announcer",
         "@vegastack/use-inline-edit",
         "@vegastack/use-overflow"
@@ -1608,7 +1607,7 @@
         "whenToUse": "Any optimistic inline edit of a single value — grid cells (focusMode=managed), record-page property lists, settings rows — where the write is async and can fail.",
         "whenNotToUse": "Debounced save-as-you-type on a standing form field (AutoSaveInput), or whole forms (Field).",
         "version": "0.23.20",
-        "integrity": "sha256-+V8V5KlHKoBFo3emvNBbxbXTTMRH1ba2dcDGbW6Rstw="
+        "integrity": "sha256-HwwcSx2gqNHINxSLGExkq3ct0d98XtM/f5hbQvr+oiw="
       }
     },
     {
@@ -17204,7 +17203,7 @@
         "whenToUse": "Any click-to-edit surface: an inline field, a grid cell, a rename affordance - anywhere Enter commits, Escape cancels, and blur must not commit twice.",
         "whenNotToUse": "A field that is always in edit mode (Input inside a Field); persistence, async status or optimistic revert, which belong to the component composing this hook.",
         "version": "0.23.20",
-        "integrity": "sha256-lZ6KctXxUCkqfFs3XcRw5SLsvNGqL00Naj7uyR/GO1M="
+        "integrity": "sha256-W1ADwkZ6FOB5UJeNJ+no7+Bw0Lf66d1flgyq4ed4dYI="
       }
     },
     {
