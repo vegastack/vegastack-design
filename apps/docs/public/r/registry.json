@@ -1078,7 +1078,7 @@
         "whenToUse": "A list of records as a table with typed columns, selection, click-to-sort, loading/empty states, keyset paging through loadMore, rows as links, collapsible sections and a row-actions column.",
         "whenNotToUse": "A board/kanban view (Board), full-parity grids with grouping/editing/virtualization (DataGrid), or a simple static table (Table).",
         "version": "0.21.2",
-        "integrity": "sha256-IYtDUYhXZ8DD7qQVYXCXij90b7Agm22lYa5EQGa8BtY="
+        "integrity": "sha256-ADjRTJc1Q5uQsDYtwmifH3E8URRL8lD6BXATru+Zlfw="
       }
     },
     {

@@ -6861,6 +6861,14 @@
               "values": [""]
             },
             {
+              "name": "data-highlighted",
+              "values": [""]
+            },
+            {
+              "name": "data-layout",
+              "values": []
+            },
+            {
               "name": "data-section",
               "values": []
             },
@@ -9384,6 +9392,10 @@
         "EditableCell": {
           "attributes": [
             {
+              "name": "data-flush",
+              "values": [""]
+            },
+            {
               "name": "data-focus-mode",
               "values": []
             },
@@ -9394,6 +9406,10 @@
             {
               "name": "data-status",
               "values": []
+            },
+            {
+              "name": "data-wrap",
+              "values": [""]
             }
           ],
           "cssVariables": []

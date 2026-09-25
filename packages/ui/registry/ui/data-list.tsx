@@ -1,4 +1,4 @@
-// @vegastack data-list@0.21.2 sha256-IYtDUYhXZ8DD7qQVYXCXij90b7Agm22lYa5EQGa8BtY=
+// @vegastack data-list@0.21.2 sha256-ADjRTJc1Q5uQsDYtwmifH3E8URRL8lD6BXATru+Zlfw=
 
 "use client";
 
@@ -140,7 +140,10 @@ export interface DataListRowProps {
    * @default false
    */
   highlighted?: boolean;
-  /** Extra classes merged onto the row. */
+  /**
+   * Extra classes merged onto the row.
+   * @default undefined
+   */
   className?: string;
   /** Any `data-*` attribute, passed through to the row. */
   [attribute: `data-${string}`]: string | number | boolean | undefined;
