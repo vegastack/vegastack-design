@@ -1,4 +1,4 @@
-// @vegastack notifications-01@0.23.7 sha256-WM/eEae+8ztumq3f7aWYrGglBc4q8Ooxx6qpL2227Ek=
+// @vegastack notifications-01@0.23.7 sha256-AaZg8Nhbsinm9+fGZIaTTsGrcEJuGTowynNhoHMncWY=
 
 /**
  * Sample data for `notifications-01`. Replace it with your notifications API; the shape is what
@@ -6,7 +6,7 @@
  */
 
 /** What a notification is about — picks the row's icon when there is no actor. */
-export type InboxNotificationKind = "task" | "meeting" | "failed" | "export";
+type InboxNotificationKind = "task" | "meeting" | "failed" | "export";
 
 /** One notification. */
 export interface InboxNotification {

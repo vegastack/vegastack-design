@@ -19571,7 +19571,7 @@
         "whenToUse": "Your app's notification inbox, opened from the shell — copy it once and wire the rows, Mark all read and paging to your API.",
         "whenNotToUse": "A single transient message — use a toast; an activity history on a record — use Timeline.",
         "version": "0.23.7",
-        "integrity": "sha256-WM/eEae+8ztumq3f7aWYrGglBc4q8Ooxx6qpL2227Ek="
+        "integrity": "sha256-AaZg8Nhbsinm9+fGZIaTTsGrcEJuGTowynNhoHMncWY="
       }
     },
     {
