@@ -41,7 +41,7 @@
 #               reflows the file, and `registry-stamp.mjs` writes the provenance header the
 #               three-copy model needs (DOC-1); those hunks carry no decision of their own.
 diff --git a/select.tsx b/select.tsx
-index e8a22e1..e5a8de5 100644
+index e8a22e1..8d9fb8c 100644
 --- a/select.tsx
 +++ b/select.tsx
 @@ -1,11 +1,35 @@
@@ -214,7 +214,7 @@ index e8a22e1..e5a8de5 100644
 +        data-slot="select-item"
 +        aria-describedby={description.id || undefined}
 +        className={cn(
-+          "relative flex w-full items-center gap-1.5 rounded-md py-1 pe-8 ps-1.5 text-sm outline-hidden select-none focus:bg-accent focus:text-accent-foreground not-data-[variant=destructive]:focus:**:text-accent-foreground data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 *:[span]:last:flex *:[span]:last:items-center *:[span]:last:gap-2 [&_svg:not([class*='text-'])]:text-muted-foreground focus:**:[svg]:text-accent-foreground data-highlighted:**:[svg]:text-accent-foreground",
++          "relative flex w-full items-center gap-1.5 rounded-md py-1 pe-8 ps-1.5 text-sm outline-hidden select-none focus:bg-accent focus:text-accent-foreground not-data-[variant=destructive]:focus:**:[&:not([data-icon-tone],[data-icon-tone]_*)]:text-accent-foreground data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 *:[span]:last:flex *:[span]:last:items-center *:[span]:last:gap-2 [&_svg:not([class*='text-']):not([data-icon-tone])]:text-muted-foreground focus:**:[svg:not([data-icon-tone])]:text-accent-foreground data-highlighted:**:[svg:not([data-icon-tone])]:text-accent-foreground",
 +          className,
 +        )}
 +        {...props}
