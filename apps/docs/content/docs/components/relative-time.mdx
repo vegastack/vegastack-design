@@ -206,8 +206,8 @@ string to `title` for a custom label, or `title={false}` to drop the tooltip.
 ### Tooltip delay
 
 `tooltipDelay` (ms) sets how long the pointer must hover before the absolute-date
-tooltip opens. The default `0` reveals it instantly; raise it to avoid flashing the
-tooltip on a quick pass-through. Ignored when `title={false}`.
+tooltip opens. It defaults to the app-wide tooltip delay (`TIMINGS.tooltipOpenDelayMs`, 250ms),
+so it matches every other tooltip. Ignored when `title={false}`.
 
 <ComponentPreview
   name="relativeTimeTooltipDelay"
