@@ -1,11 +1,11 @@
 {
   "schemaVersion": 1,
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "b220ca3f34fe09e2dcdaa98a0c47c0ddef4cfc1a9571c0e3ab6624a0d3d110c9",
+  "contractSha256": "194ca0ecbaafdc9b59cd990a14d5a3ef4d2cffe634af628955582ab14d37b2a8",
   "inventory": {
-    "expected": 673,
-    "actual": 673,
-    "unique": 673
+    "expected": 674,
+    "actual": 674,
+    "unique": 674
   },
   "classes": {
     "components": 114,
@@ -13,7 +13,7 @@
     "hooks": 12,
     "blocks": 10,
     "chartBlocks": 68,
-    "libs": 2
+    "libs": 3
   },
   "waves": {
     "Core controls": {

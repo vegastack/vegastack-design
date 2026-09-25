@@ -2,14 +2,14 @@
   "schemaVersion": 1,
   "kind": "vegastack-zero-gap-audit-register",
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "b220ca3f34fe09e2dcdaa98a0c47c0ddef4cfc1a9571c0e3ab6624a0d3d110c9",
+  "contractSha256": "194ca0ecbaafdc9b59cd990a14d5a3ef4d2cffe634af628955582ab14d37b2a8",
   "expectedCounts": {
-    "totalRegistryItems": 673,
+    "totalRegistryItems": 674,
     "components": 114,
     "animatedIcons": 467,
     "hooks": 12,
     "blocks": 10,
-    "libs": 2,
+    "libs": 3,
     "chartBlocks": 68
   },
   "records": [
@@ -7408,6 +7408,17 @@
         "packages/ui/registry/blocks/chart-tooltip-label-none/chart-tooltip-label-none.tsx"
       ],
       "docsSlug": "/docs/blocks/charts-tooltip",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "date-time",
+      "inventoryClass": "lib",
+      "wave": "Libs",
+      "family": "lib",
+      "sourceFiles": [
+        "packages/ui/registry/lib/date-time.ts"
+      ],
+      "docsSlug": "/docs/guides/components",
       "contractStatus": "reconciled"
     },
     {

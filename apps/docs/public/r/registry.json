@@ -1276,6 +1276,30 @@
       }
     },
     {
+      "name": "date-time",
+      "type": "registry:lib",
+      "title": "Date Time",
+      "description": "The one Intl-based dates & times module — formatRelative, formatDuration, formatDate, formatDateTime, formatDateRange, formatTimeOfDay, formatDueLabel, groupByDay, and the tz cookie + getTimeZone server helper. Plain functions for server and client.",
+      "categories": [
+        "data"
+      ],
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "packages/ui/registry/lib/date-time.ts",
+          "type": "registry:lib",
+          "target": "@lib/date-time.ts"
+        }
+      ],
+      "meta": {
+        "whenToUse": "Any date, time, duration, due label or day grouping shown as text — on the server, in route handlers, emails or client code.",
+        "whenNotToUse": "API/JSON output — keep ISO strings there.",
+        "version": "0.23.3",
+        "integrity": "sha256-1vlgsGibo3bJkuypSPfUIB4ZKwXIH88lB7YBkYqdXa8="
+      }
+    },
+    {
       "name": "drag-item",
       "type": "registry:lib",
       "title": "Drag Item",
@@ -15575,6 +15599,7 @@
         "@vegastack/design-tokens@^0.7.1"
       ],
       "registryDependencies": [
+        "@vegastack/date-time",
         "@vegastack/tooltip",
         "@vegastack/truncated-text"
       ],
@@ -15583,18 +15608,13 @@
           "path": "packages/ui/registry/ui/relative-time.tsx",
           "type": "registry:ui",
           "target": "@ui/relative-time.tsx"
-        },
-        {
-          "path": "packages/ui/registry/lib/date-time.ts",
-          "type": "registry:lib",
-          "target": "@lib/date-time.ts"
         }
       ],
       "meta": {
         "whenToUse": "Any date, time, duration, due label or day grouping shown in UI — pick the function per the Dates & times page's where-to-use table.",
         "whenNotToUse": "API/JSON output — keep ISO strings there.",
         "version": "0.23.3",
-        "integrity": "sha256-fg5et4luNZ3GnZ6u55avcv+eTxT/J83hGLNwWvtfC6c="
+        "integrity": "sha256-L9DmZwxNy2AOwLMVHH41rQ2uuJhe8YCr/xipzgetGgE="
       }
     },
     {
