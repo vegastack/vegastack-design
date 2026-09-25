@@ -80,6 +80,15 @@ export const prose = {
   ol: "[&_ol]:my-3 [&_ol]:ms-6 [&_ol]:list-decimal [&_ol]:text-foreground [&_ol]:marker:text-muted-foreground",
   li: "[&_li]:mt-1.5 [&_li]:leading-relaxed",
 
+  // Task lists, one shape for both producers: `MarkdownView` tags the GFM list
+  // `data-type="taskList"` and each item `data-type="taskItem"` with its body in a
+  // `data-slot="task-item-content"` box, which is exactly the DOM Tiptap's `TaskItem` node view
+  // renders — so the checkbox IS the marker, the body wraps beside it, and a nested list indents
+  // under the body in view and edit alike. A cell's or item's paragraph inherits its ink so a
+  // Tiptap `<td><p>` reads the same as GFM's bare `<td>`.
+  taskList:
+    "[&_ul[data-type=taskList]]:ms-0 [&_ul[data-type=taskList]]:list-none [&_li[data-type=taskItem]]:flex [&_li[data-type=taskItem]]:items-start [&_li[data-type=taskItem]]:gap-2 [&_li[data-type=taskItem]_[data-slot=checkbox]]:mt-1 [&_li[data-type=taskItem]_[data-slot=checkbox]]:me-0 [&_[data-slot=task-item-content]]:min-w-0 [&_[data-slot=task-item-content]]:flex-1 [&_td_p]:text-inherit [&_th_p]:text-inherit",
+
   blockquote:
     "[&_blockquote]:my-3 [&_blockquote]:border-s-2 [&_blockquote]:border-border [&_blockquote]:ps-4 [&_blockquote]:text-muted-foreground [&_blockquote]:italic",
 

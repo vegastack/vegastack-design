@@ -1,0 +1,175 @@
+---
+title: Markdown
+description: Render markdown with MarkdownView and edit it with TextEdit in one typography — every element, toolbar levels, bubble menu, shortcuts, input rules.
+audience: public
+---
+
+Markdown in VegaStack has two surfaces and one typography. [`MarkdownView`](/docs/components/markdown-view)
+renders a markdown string; [`TextEdit`](/docs/components/text-edit) with `format="markdown"` edits
+one. Both wear the shared `prose` recipe from `@vegastack/design` (`proseClassName`), and `TextEdit`
+resets ProseMirror's defaults, so a document sits at the same position whether it is being read or
+edited. Store the string `TextEdit` emits; render it with `MarkdownView`.
+
+```tsx
+import { MarkdownView } from "@/components/ui/markdown-view";
+import { TextEdit } from "@/components/ui/text-edit";
+
+{
+  editing ? (
+    <TextEdit
+      format="markdown"
+      variant="ghost"
+      defaultValue={summary}
+      onSave={save}
+      onCancel={() => setEditing(false)}
+      aria-label="Summary"
+    />
+  ) : (
+    <MarkdownView>{summary}</MarkdownView>
+  );
+}
+```
+
+## Every element, view and edit
+
+The same document rendered by `MarkdownView` and edited by a ghost `TextEdit` with the `full`
+toolbar, stacked. Headings h1–h6, paragraphs, **bold**, _italic_, ~~strike~~, inline code, fenced
+code blocks, links, bullet, ordered and task lists (nested), blockquotes, rules, tables, images and
+hard breaks. Edit the lower copy: the upper one follows.
+
+<ComponentPreview
+  name="markdownParity"
+  file="components/preview/text-edit.tsx"
+/>
+
+| Element       | Markdown            | Notes                                                                               |
+| ------------- | ------------------- | ----------------------------------------------------------------------------------- |
+| Headings      | `#` … `######`      | `MarkdownView headingOffset` moves them down under a page heading.                  |
+| Bold / italic | `**b**` / `_i_`     |                                                                                     |
+| Strikethrough | `~~s~~`             | Needs the `strike` action to edit.                                                  |
+| Inline code   | `` `c` ``           | A muted chip.                                                                       |
+| Code block    | ` ```ts `           | The `CodeBlock` surface (language and copy) in both modes.                          |
+| Link          | `[t](url)`          | View mode autolinks bare URLs; external links open a new tab with `rel="noopener"`. |
+| Lists         | `- ` / `1. `        | Nest with two (bullet) or three (ordered) spaces.                                   |
+| Task list     | `- [ ] ` / `- [x] ` | The system `Checkbox` is the marker; it toggles in edit mode.                       |
+| Blockquote    | `> `                |                                                                                     |
+| Rule          | `---`               |                                                                                     |
+| Table         | GFM pipes           | Scrolls inside its own box.                                                         |
+| Image         | `![alt](src)`       | `MarkdownView` blocks remote origins unless listed in `allowedImageOrigins`.        |
+| Hard break    | trailing `\`        |                                                                                     |
+
+## Toolbar levels
+
+`toolbar` picks a level, and the editor's schema follows it: a mark or node with no action is not
+allowed, so markdown for it becomes plain text. Any heading action allows every heading level, so a
+document with an `#` still round-trips.
+
+| Level                  | Actions                                                                            |
+| ---------------------- | ---------------------------------------------------------------------------------- |
+| `minimal`              | bold, italic, link, bullet list                                                    |
+| `standard` _(default)_ | minimal + H2, H3, ordered list, task list, blockquote, inline code                 |
+| `full`                 | standard + strikethrough, code block, table, divider, undo, redo, clear formatting |
+| an array               | any of `TextEditAction`, rendered in the fixed cluster order                       |
+
+### Minimal
+
+<ComponentPreview
+  name="markdownToolbarMinimal"
+  file="components/preview/text-edit.tsx"
+/>
+
+### Standard
+
+<ComponentPreview
+  name="markdownToolbarStandard"
+  file="components/preview/text-edit.tsx"
+/>
+
+### Full
+
+<ComponentPreview
+  name="markdownToolbarFull"
+  file="components/preview/text-edit.tsx"
+/>
+
+### Custom actions
+
+<ComponentPreview
+  name="markdownToolbarCustom"
+  file="components/preview/text-edit.tsx"
+/>
+
+## Bubble menu
+
+`bubbleMenu` (on by default) floats a toolbar over a text selection with heading, bold, italic,
+inline code and link — whichever of them the toolbar allows. The link button opens the same link
+popover as the toolbar: type a URL to add or update the link, or **Remove** it. Pasting a URL over a
+selection links it without the popover.
+
+<ComponentPreview
+  name="markdownBubbleMenu"
+  file="components/preview/text-edit.tsx"
+/>
+
+## In-place editing
+
+`variant="ghost"` drops the border, ground, ring and content inset, so the editor's text lands
+exactly where the `MarkdownView` it replaces was, with only the sticky toolbar above. Setting
+`onSave` or `onCancel` puts Cancel and Save buttons at the toolbar's end.
+
+<ComponentPreview
+  name="markdownInPlace"
+  file="components/preview/text-edit.tsx"
+/>
+
+### Autosave
+
+`autosave` calls `onSave` after an idle gap (`true` is 1000ms, or pass milliseconds). It is off by
+default.
+
+<ComponentPreview
+  name="markdownAutosave"
+  file="components/preview/text-edit.tsx"
+/>
+
+## Shortcuts
+
+Toolbar tooltips show each shortcut. `Mod` is <kbd>⌘</kbd> on Apple platforms and <kbd>Ctrl</kbd>
+elsewhere.
+
+| Keys                                                                       | Action                       |
+| -------------------------------------------------------------------------- | ---------------------------- |
+| <kbd>Mod</kbd> <kbd>B</kbd>                                                | Bold                         |
+| <kbd>Mod</kbd> <kbd>I</kbd>                                                | Italic                       |
+| <kbd>Mod</kbd> <kbd>K</kbd>                                                | Add or edit the link         |
+| <kbd>Mod</kbd> <kbd>E</kbd>                                                | Inline code                  |
+| <kbd>Mod</kbd> <kbd>Shift</kbd> <kbd>S</kbd>                               | Strikethrough                |
+| <kbd>Mod</kbd> <kbd>Alt</kbd> <kbd>2</kbd> / <kbd>3</kbd>                  | Heading 2 / 3                |
+| <kbd>Mod</kbd> <kbd>Shift</kbd> <kbd>7</kbd> / <kbd>8</kbd> / <kbd>9</kbd> | Ordered / bullet / task list |
+| <kbd>Mod</kbd> <kbd>Shift</kbd> <kbd>B</kbd>                               | Blockquote                   |
+| <kbd>Mod</kbd> <kbd>Alt</kbd> <kbd>C</kbd>                                 | Code block                   |
+| <kbd>Mod</kbd> <kbd>Z</kbd> / <kbd>Mod</kbd> <kbd>Shift</kbd> <kbd>Z</kbd> | Undo / redo                  |
+| <kbd>Mod</kbd> <kbd>Enter</kbd>                                            | Save (`onSave`)              |
+| <kbd>Esc</kbd>                                                             | Cancel (`onCancel`)          |
+| <kbd>Tab</kbd> / <kbd>Shift</kbd> <kbd>Tab</kbd>                           | Indent / outdent a list item |
+
+## Input rules
+
+Type markdown and it becomes formatting as you go. Pasted plain-text markdown is parsed the same
+way.
+
+| Type             | Becomes           |
+| ---------------- | ----------------- |
+| `# ` … `###### ` | Heading           |
+| `- ` or `* `     | Bullet list       |
+| `1. `            | Ordered list      |
+| `[ ] ` or `[x] ` | Task item         |
+| `> `             | Blockquote        |
+| ` ``` `          | Code block        |
+| `---`            | Divider           |
+| `**text**`       | **Bold**          |
+| `_text_`         | _Italic_          |
+| `~~text~~`       | ~~Strikethrough~~ |
+| `` `text` ``     | Inline code       |
+
+Each rule needs its action: `[ ] ` does nothing without `taskList`.

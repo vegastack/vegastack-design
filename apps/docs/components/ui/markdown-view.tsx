@@ -1,4 +1,4 @@
-// @vegastack markdown-view@0.23.22 sha256-l4me2UI+JnQl18C5BYMGuv1ygyhCAN0Kv3oYuid8Aqg=
+// @vegastack markdown-view@0.23.22 sha256-z/k0aB15ecrZBqzLdku0jcM95trk1Tu6Fw0f+7IlYRg=
 
 import * as React from "react";
 import Markdown, { type Components } from "react-markdown";
@@ -29,6 +29,7 @@ function extractText(node: React.ReactNode): string {
  *
  * - `a` — an external link needs `target`/`rel` and an SR-only "opens in new tab" hint.
  * - `input` — a GFM task-list checkbox must be the system `Checkbox`, not the browser glyph.
+ * - `ul`/`li` — a task item takes the checkbox + body shape `TextEdit`'s `TaskItem` renders.
  * - `pre` — fenced code delegates to `CodeBlock` (header + copy affordance).
  * - `table` — the horizontal scroll container the recipe deliberately does not own.
  *
@@ -81,6 +82,46 @@ const markdownComponents: Components = {
     ) : (
       <input type={type} className={className} {...props} />
     ),
+  // Task lists take Tiptap's `TaskItem` shape (checkbox, then a body box) so the `prose.taskList`
+  // rules lay both surfaces out identically. A loose item (checkbox inside a paragraph) keeps
+  // react-markdown's inline flow.
+  ul: ({ className, ...props }) => (
+    <ul
+      className={className}
+      {...(className?.includes("contains-task-list")
+        ? { "data-type": "taskList" }
+        : {})}
+      {...props}
+    />
+  ),
+  li: ({ className, children, ...props }) => {
+    const items = React.Children.toArray(children);
+    const box = items[0];
+    const checkbox =
+      className?.includes("task-list-item") &&
+      React.isValidElement<{ type?: string; checked?: boolean }>(box) &&
+      box.props.type === "checkbox"
+        ? box
+        : null;
+    if (!checkbox) {
+      return (
+        <li className={className} {...props}>
+          {children}
+        </li>
+      );
+    }
+    return (
+      <li
+        className={className}
+        data-type="taskItem"
+        data-checked={Boolean(checkbox.props.checked)}
+        {...props}
+      >
+        {checkbox}
+        <div data-slot="task-item-content">{items.slice(1)}</div>
+      </li>
+    );
+  },
   pre: ({ className, children, ...props }) => {
     // Fenced code delegates to `CodeBlock` (Wave 3): derive the language from the
     // code child's `language-*` class and the copy source from its text content,

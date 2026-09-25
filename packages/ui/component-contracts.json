@@ -21505,6 +21505,15 @@
       "sourceFiles": ["packages/ui/registry/ui/text-edit.tsx"],
       "publicSymbols": [
         {
+          "name": "TEXT_EDIT_TOOLBARS",
+          "kind": "constant",
+          "source": "packages/ui/registry/ui/text-edit.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A lookup of action names, not a component."
+          }
+        },
+        {
           "name": "TextEdit",
           "kind": "component",
           "source": "packages/ui/registry/ui/text-edit.tsx",
@@ -21517,6 +21526,24 @@
         {
           "name": "TextEditProps",
           "kind": "interface",
+          "source": "packages/ui/registry/ui/text-edit.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "TextEditAction",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/text-edit.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "TextEditToolbar",
+          "kind": "type",
           "source": "packages/ui/registry/ui/text-edit.tsx",
           "ref": {
             "status": "not-applicable",
@@ -21592,16 +21619,30 @@
         }
       ],
       "docsSlug": "/docs/components/text-edit",
-      "registryDependencies": ["@vegastack/toggle"],
+      "registryDependencies": [
+        "@vegastack/button",
+        "@vegastack/checkbox",
+        "@vegastack/copy-button",
+        "@vegastack/input",
+        "@vegastack/kbd",
+        "@vegastack/popover",
+        "@vegastack/toggle",
+        "@vegastack/tooltip"
+      ],
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
-        "@tiptap/react@^3",
-        "@tiptap/starter-kit@^3",
+        "@tiptap/extension-code-block@^3",
+        "@tiptap/extension-image@^3",
+        "@tiptap/extension-list@^3",
+        "@tiptap/extension-table@^3",
+        "@tiptap/extensions@^3",
         "@tiptap/markdown@^3",
         "@tiptap/pm@^3",
-        "lucide-react@^1.47.0",
+        "@tiptap/react@^3",
+        "@tiptap/starter-kit@^3",
+        "@vegastack/design-tokens@^0.7.18",
         "@vegastack/design@^0.7.31",
-        "@vegastack/design-tokens@^0.7.18"
+        "lucide-react@^1.47.0"
       ],
       "testFiles": ["packages/ui/registry/ui/text-edit.test.tsx"],
       "coverage": {
@@ -21630,7 +21671,17 @@
             },
             {
               "name": "data-slot",
-              "values": ["text-edit", "text-edit-content"]
+              "values": [
+                "text-edit",
+                "text-edit-bubble-menu",
+                "text-edit-commit",
+                "text-edit-content",
+                "text-edit-toolbar"
+              ]
+            },
+            {
+              "name": "data-variant",
+              "values": []
             }
           ],
           "cssVariables": []
