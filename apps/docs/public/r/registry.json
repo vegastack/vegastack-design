@@ -226,7 +226,8 @@
       ],
       "registryDependencies": [
         "@vegastack/button",
-        "@vegastack/sheet"
+        "@vegastack/sheet",
+        "@vegastack/skeleton"
       ],
       "files": [
         {
@@ -239,7 +240,7 @@
         "whenToUse": "A record's page (a meeting, a customer, a deal): the main column with a sticky rail of property and related-work cards on wide screens, and an ⓘ Details sheet on small ones.",
         "whenNotToUse": "A list page (DataList), or a page with no per-record facts — use AppShellPage alone.",
         "version": "0.23.22",
-        "integrity": "sha256-icym/KOxiRhJSBtDR+ahWaEJDqU1FIebiTygk3cldqQ="
+        "integrity": "sha256-/GIPGHpjHZqkkE/TgRRsDNuiOVkDGDAn+bqtvxFP9Jk="
       }
     },
     {
@@ -943,7 +944,7 @@
         "whenToUse": "Choosing from a large or dynamic set that benefits from typing to narrow it down — searchable pickers, tag/label multi-select, async-loaded results. A two-line option composes ItemTitle + ItemDescription, and the description is the option's accessible description.",
         "whenNotToUse": "A small, fixed set with no need to search (Select), boolean on/off (Switch), or a few always-visible options (radios/checkboxes).",
         "version": "0.23.22",
-        "integrity": "sha256-WGTpoXy3iNEssjmZc6uXYb8szxrGBy6SnmAvix+/Kws="
+        "integrity": "sha256-x/k9Wg2AOeohF+I21bKfvh0v9q8/Cnpjc0YZvGNgSyA="
       }
     },
     {
@@ -15401,7 +15402,8 @@
         "@vegastack/design-tokens@^0.7.18"
       ],
       "registryDependencies": [
-        "@vegastack/button"
+        "@vegastack/button",
+        "@vegastack/popover"
       ],
       "files": [
         {
@@ -15414,7 +15416,7 @@
         "whenToUse": "Linking a record to another one in its header — a meeting's customer or project — with a picker and a jump to the linked record.",
         "whenNotToUse": "A free-form tag (Chip) or a form field with a label (Combobox, Select).",
         "version": "0.23.22",
-        "integrity": "sha256-LuJYfXVUr8XlzlXxY9qxjc+4TLQGiTfz7OhjgXewQOI="
+        "integrity": "sha256-dDFhjrxId61ggpDnuONEJm3X5d6ZysPaXqp6appH9o0="
       }
     },
     {

@@ -1,6 +1,8 @@
 # component: combobox
-# decisions: A11Y-16, A11Y-2, A11Y-3, A11Y-4, A11Y-9, API-19, API-26, API-27, BRD-1, DOC-1, DOC-2, FOC-1, FOC-3, FOC-5, FOC-6, FRM-4, INT-1, OVL-13
+# decisions: A11Y-16, A11Y-2, A11Y-3, A11Y-4, A11Y-9, API-19, API-26, API-27, API-31, BRD-1, DOC-1, DOC-2, FOC-1, FOC-3, FOC-5, FOC-6, FRM-4, INT-1, OVL-13
 # hunks:
+#   API-31: the clear button and the chip remove button add `active:not-aria-[haspopup]:translate-y-0`
+#     so a × never moves when pressed (MK, 25-09-2026).
 #   API-19: `ComboboxItem` calls Item's `useItemDescriptionId()`, provides its `register` through
 #     `ItemDescriptionContext`, and sets `aria-describedby` on the option once an `ItemDescription`
 #     inside it registers, so a two-line option (`ItemContent` > `ItemTitle` + `ItemDescription`)
@@ -72,7 +74,7 @@
 #               reflows the file, and `registry-stamp.mjs` writes the provenance header the
 #               three-copy model needs (DOC-1); those hunks carry no decision of their own.
 diff --git a/combobox.tsx b/combobox.tsx
-index 39e776a..6f1743c 100644
+index 39e776a..6d9f09c 100644
 --- a/combobox.tsx
 +++ b/combobox.tsx
 @@ -1,22 +1,28 @@
@@ -113,7 +115,7 @@ index 39e776a..6f1743c 100644
  }
  
  function ComboboxTrigger({
-@@ -33,20 +39,26 @@ function ComboboxTrigger({
+@@ -33,20 +39,27 @@ function ComboboxTrigger({
        {children}
        <ChevronDownIcon className="pointer-events-none size-4 text-muted-foreground" />
      </ComboboxPrimitive.Trigger>
@@ -131,6 +133,7 @@ index 39e776a..6f1743c 100644
 +          variant="ghost"
 +          size="icon-xs"
 +          aria-label="Clear selection"
++          className="active:not-aria-[haspopup]:translate-y-0"
 +        />
 +      }
        className={cn(className)}
@@ -143,7 +146,7 @@ index 39e776a..6f1743c 100644
  }
  
  function ComboboxInput({
-@@ -57,8 +69,8 @@ function ComboboxInput({
+@@ -57,8 +70,8 @@ function ComboboxInput({
    showClear = false,
    ...props
  }: ComboboxPrimitive.Input.Props & {
@@ -154,7 +157,7 @@ index 39e776a..6f1743c 100644
  }) {
    return (
      <InputGroup className={cn("w-auto", className)}>
-@@ -72,16 +84,39 @@ function ComboboxInput({
+@@ -72,16 +85,39 @@ function ComboboxInput({
              size="icon-xs"
              variant="ghost"
              render={<ComboboxTrigger />}
@@ -195,7 +198,7 @@ index 39e776a..6f1743c 100644
  }
  
  function ComboboxContent({
-@@ -97,6 +132,8 @@ function ComboboxContent({
+@@ -97,6 +133,8 @@ function ComboboxContent({
      ComboboxPrimitive.Positioner.Props,
      "side" | "align" | "sideOffset" | "alignOffset" | "anchor"
    >) {
@@ -204,7 +207,7 @@ index 39e776a..6f1743c 100644
    return (
      <ComboboxPrimitive.Portal>
        <ComboboxPrimitive.Positioner
-@@ -105,17 +142,20 @@ function ComboboxContent({
+@@ -105,17 +143,20 @@ function ComboboxContent({
          align={align}
          alignOffset={alignOffset}
          anchor={anchor}
@@ -228,7 +231,7 @@ index 39e776a..6f1743c 100644
  }
  
  function ComboboxList({ className, ...props }: ComboboxPrimitive.List.Props) {
-@@ -124,11 +164,11 @@ function ComboboxList({ className, ...props }: ComboboxPrimitive.List.Props) {
+@@ -124,11 +165,11 @@ function ComboboxList({ className, ...props }: ComboboxPrimitive.List.Props) {
        data-slot="combobox-list"
        className={cn(
          "no-scrollbar max-h-[min(calc(--spacing(72)---spacing(9)),calc(var(--available-height)---spacing(9)))] scroll-py-1 overflow-y-auto overscroll-contain p-1 data-empty:p-0",
@@ -242,7 +245,7 @@ index 39e776a..6f1743c 100644
  }
  
  function ComboboxItem({
-@@ -136,25 +176,29 @@ function ComboboxItem({
+@@ -136,25 +177,29 @@ function ComboboxItem({
    children,
    ...props
  }: ComboboxPrimitive.Item.Props) {
@@ -289,7 +292,7 @@ index 39e776a..6f1743c 100644
  }
  
  function ComboboxGroup({ className, ...props }: ComboboxPrimitive.Group.Props) {
-@@ -164,7 +208,7 @@ function ComboboxGroup({ className, ...props }: ComboboxPrimitive.Group.Props) {
+@@ -164,7 +209,7 @@ function ComboboxGroup({ className, ...props }: ComboboxPrimitive.Group.Props) {
        className={cn(className)}
        {...props}
      />
@@ -298,7 +301,7 @@ index 39e776a..6f1743c 100644
  }
  
  function ComboboxLabel({
-@@ -177,13 +221,13 @@ function ComboboxLabel({
+@@ -177,13 +222,13 @@ function ComboboxLabel({
        className={cn("px-2 py-1.5 text-xs text-muted-foreground", className)}
        {...props}
      />
@@ -314,7 +317,7 @@ index 39e776a..6f1743c 100644
  }
  
  function ComboboxEmpty({ className, ...props }: ComboboxPrimitive.Empty.Props) {
-@@ -191,12 +235,32 @@ function ComboboxEmpty({ className, ...props }: ComboboxPrimitive.Empty.Props) {
+@@ -191,12 +236,32 @@ function ComboboxEmpty({ className, ...props }: ComboboxPrimitive.Empty.Props) {
      <ComboboxPrimitive.Empty
        data-slot="combobox-empty"
        className={cn(
@@ -350,7 +353,7 @@ index 39e776a..6f1743c 100644
  }
  
  function ComboboxSeparator({
-@@ -209,7 +273,7 @@ function ComboboxSeparator({
+@@ -209,7 +274,7 @@ function ComboboxSeparator({
        className={cn("-mx-1 my-1 h-px bg-border", className)}
        {...props}
      />
@@ -359,7 +362,7 @@ index 39e776a..6f1743c 100644
  }
  
  function ComboboxChips({
-@@ -221,12 +285,12 @@ function ComboboxChips({
+@@ -221,12 +286,12 @@ function ComboboxChips({
      <ComboboxPrimitive.Chips
        data-slot="combobox-chips"
        className={cn(
@@ -375,7 +378,7 @@ index 39e776a..6f1743c 100644
  }
  
  function ComboboxChip({
-@@ -235,21 +299,21 @@ function ComboboxChip({
+@@ -235,21 +300,28 @@ function ComboboxChip({
    showRemove = true,
    ...props
  }: ComboboxPrimitive.Chip.Props & {
@@ -397,11 +400,18 @@ index 39e776a..6f1743c 100644
        {showRemove && (
          <ComboboxPrimitive.ChipRemove
 -          render={<Button variant="ghost" size="icon-xs" />}
-+          render={<Button variant="ghost" size="icon-xs" aria-label="Remove" />}
++          render={
++            <Button
++              variant="ghost"
++              size="icon-xs"
++              aria-label="Remove"
++              className="active:not-aria-[haspopup]:translate-y-0"
++            />
++          }
            className="-ms-1 opacity-50 hover:opacity-100"
            data-slot="combobox-chip-remove"
          >
-@@ -257,7 +321,7 @@ function ComboboxChip({
+@@ -257,7 +329,7 @@ function ComboboxChip({
          </ComboboxPrimitive.ChipRemove>
        )}
      </ComboboxPrimitive.Chip>
@@ -410,7 +420,7 @@ index 39e776a..6f1743c 100644
  }
  
  function ComboboxChipsInput({
-@@ -267,14 +331,14 @@ function ComboboxChipsInput({
+@@ -267,14 +339,14 @@ function ComboboxChipsInput({
    return (
      <ComboboxPrimitive.Input
        data-slot="combobox-chip-input"
@@ -428,7 +438,7 @@ index 39e776a..6f1743c 100644
  }
  
  export {
-@@ -287,6 +351,7 @@ export {
+@@ -287,6 +359,7 @@ export {
    ComboboxLabel,
    ComboboxCollection,
    ComboboxEmpty,
@@ -436,7 +446,7 @@ index 39e776a..6f1743c 100644
    ComboboxSeparator,
    ComboboxChips,
    ComboboxChip,
-@@ -294,4 +359,4 @@ export {
+@@ -294,4 +367,4 @@ export {
    ComboboxTrigger,
    ComboboxValue,
    useComboboxAnchor,

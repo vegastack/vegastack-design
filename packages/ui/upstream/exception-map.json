@@ -172,6 +172,7 @@
     "API-27": ["combobox"],
     "API-28": ["attachment"],
     "API-30": ["card"],
+    "API-31": ["combobox"],
     "COL-23": ["toast"],
     "ICO-8": ["spinner", "toast"],
     "BRD-1": [
