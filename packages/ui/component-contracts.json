@@ -8564,7 +8564,6 @@
         "@vegastack/checkbox",
         "@vegastack/dropdown-menu",
         "@vegastack/empty",
-        "@vegastack/item",
         "@vegastack/skeleton",
         "@vegastack/table",
         "@vegastack/tooltip"
@@ -8655,7 +8654,11 @@
           "attributes": [
             {
               "name": "data-slot",
-              "values": ["row-actions-menu-action", "row-actions-menu-trigger"]
+              "values": [
+                "row-actions-menu-action",
+                "row-actions-menu-content",
+                "row-actions-menu-trigger"
+              ]
             }
           ],
           "cssVariables": []
@@ -18652,6 +18655,7 @@
               "name": "data-slot",
               "values": [
                 "settings-section",
+                "settings-section-actions",
                 "settings-section-description",
                 "settings-section-header",
                 "settings-section-title"
