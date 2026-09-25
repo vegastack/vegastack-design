@@ -1,4 +1,4 @@
-// @vegastack inbox@0.23.4 sha256-pwyICLsI3PkizIarQ5RDDje4MqHD95ABdhmHZ7VFIis=
+// @vegastack inbox@0.23.4 sha256-QVH2wsrFVAjAoeH3RTnUs9g9TNlxZbM4DnkI3xm73dQ=
 
 "use client";
 
@@ -586,6 +586,7 @@ export function InboxItem({
               <RelativeTime
                 date={time}
                 unitStyle="narrow"
+                focusable={false}
                 className={cn(
                   "text-xs whitespace-nowrap text-muted-foreground",
                   hasControls &&
