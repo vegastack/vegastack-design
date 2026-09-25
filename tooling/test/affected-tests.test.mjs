@@ -39,9 +39,14 @@ describe("affected component closure", () => {
     const result = plan(change("packages/ui/registry/ui/code-block.tsx"));
     expect(result.errors).toEqual([]);
     expect(result.seedItems).toEqual(["code-block"]);
-    expect(result.affectedItems).toEqual(["code-block", "markdown-view"]);
+    expect(result.affectedItems).toEqual([
+      "code-block",
+      "comments",
+      "markdown-view",
+    ]);
     expect(result.componentTestFiles).toEqual([
       "packages/ui/registry/ui/code-block.test.tsx",
+      "packages/ui/registry/ui/comments.test.tsx",
       "packages/ui/registry/ui/markdown-view.test.tsx",
     ]);
     // bubble's preview renders a CodeBlock, so its fixtures run although bubble does not depend on it.
@@ -49,6 +54,7 @@ describe("affected component closure", () => {
     expect(result.previewModules).toEqual([
       "bubble",
       "code-block",
+      "comments",
       "markdown-view",
       "text-edit",
     ]);
@@ -67,6 +73,7 @@ describe("affected component closure", () => {
     const result = plan(change("packages/ui/registry/ui/copy-button.tsx"));
     expect(result.affectedItems).toEqual([
       "code-block",
+      "comments",
       "copy-button",
       "markdown-view",
       // status-pages-01's error page copies its reference with CopyButton (DS-60).
@@ -98,6 +105,7 @@ describe("affected component closure", () => {
       // app-shell-01's user menu reads the theme through the provider (DS-80).
       "app-shell-01",
       "code-block",
+      "comments",
       "markdown-view",
       "provider",
     ]);

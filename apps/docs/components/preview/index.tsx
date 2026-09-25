@@ -99,6 +99,7 @@ export * from "./thumbnail";
 export * from "./person-hover-card";
 export * from "./record-aside";
 export * from "./record-layout";
+export * from "./comments";
 export * from "./view-toggle";
 export * from "./data-list-pager";
 export * from "./load-more";

@@ -12,8 +12,8 @@
     "evidencePolicy": "Observed fields come from source, registry metadata, docs, and test topology. Unknown/not-applicable values are explicit; no inferred behavior is presented as verified."
   },
   "expectedCounts": {
-    "totalRegistryItems": 687,
-    "components": 126,
+    "totalRegistryItems": 688,
+    "components": 127,
     "animatedIcons": 467,
     "hooks": 13,
     "blocks": 10,
@@ -25,7 +25,7 @@
     "Forms/editing": 26,
     "Navigation/layout": 18,
     "Overlays": 14,
-    "Data display": 20,
+    "Data display": 21,
     "Content/marketing": 14,
     "Shared internals": 2,
     "AI/chat": 8,
@@ -144,7 +144,8 @@
       "timeline",
       "view-toggle",
       "record-aside",
-      "person-hover-card"
+      "person-hover-card",
+      "comments"
     ],
     "Content/marketing": [
       "alert",
@@ -24742,6 +24743,217 @@
             {
               "name": "data-slot",
               "values": ["record-tabs-actions"]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
+    },
+    {
+      "name": "comments",
+      "registryType": "registry:ui",
+      "title": "Comments",
+      "summary": "A record's comments: a list with a count, Load earlier, skeleton and empty states, comments with edit/delete/copy link, and a composer.",
+      "status": "stable",
+      "since": "0.23.30",
+      "family": "display",
+      "wave": "Data display",
+      "sourceFiles": ["packages/ui/registry/ui/comments.tsx"],
+      "publicSymbols": [
+        {
+          "name": "CommentList",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/comments.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "CommentList takes no ref; it composes other parts."
+          }
+        },
+        {
+          "name": "CommentItem",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/comments.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "CommentItem takes no ref; it composes other parts."
+          }
+        },
+        {
+          "name": "CommentComposer",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/comments.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "CommentComposer takes no ref; it composes other parts."
+          }
+        },
+        {
+          "name": "CommentListSkeleton",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/comments.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "CommentListSkeleton takes no ref; it composes other parts."
+          }
+        },
+        {
+          "name": "CommentData",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/comments.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "CommentListProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/comments.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "CommentItemProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/comments.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "CommentComposerProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/comments.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "A composed set; no local axis."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "A composed set; no local axis."
+      },
+      "states": {
+        "behavior": {
+          "status": "covered",
+          "values": [
+            "empty",
+            "loading",
+            "list",
+            "edited",
+            "deleted",
+            "editing",
+            "posting",
+            "error",
+            "highlighted"
+          ],
+          "evidence": "packages/ui/registry/ui/comments.tsx + packages/ui/registry/ui/comments.test.tsx"
+        },
+        "accessibility": {
+          "status": "covered",
+          "values": ["labeled", "browser-accessibility-test"],
+          "evidence": "packages/ui/registry/ui/comments.test.tsx"
+        },
+        "visual": {
+          "status": "observed",
+          "values": ["default"],
+          "evidence": "packages/ui/registry/ui/comments.tsx"
+        }
+      },
+      "responsive": {
+        "status": "modeled",
+        "risks": ["responsive-or-container-layout"],
+        "rationale": "Fills its column; long names and bodies wrap."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned motion mechanism."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/comments",
+      "registryDependencies": [
+        "@vegastack/alert-dialog",
+        "@vegastack/button",
+        "@vegastack/data-table-parts",
+        "@vegastack/empty",
+        "@vegastack/markdown-view",
+        "@vegastack/person-hover-card",
+        "@vegastack/relative-time",
+        "@vegastack/searchable-select",
+        "@vegastack/skeleton",
+        "@vegastack/text-edit",
+        "@vegastack/tooltip"
+      ],
+      "npmDependencies": [
+        "@vegastack/design@^0.7.34",
+        "@vegastack/design-tokens@^0.7.33",
+        "lucide-react@^1.47.0"
+      ],
+      "testFiles": ["packages/ui/registry/ui/comments.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required"
+      },
+      "previewModule": "comments",
+      "dataAttributes": {
+        "CommentItem": {
+          "attributes": [
+            {
+              "name": "data-deleted",
+              "values": [""]
+            },
+            {
+              "name": "data-highlighted",
+              "values": [""]
+            },
+            {
+              "name": "data-slot",
+              "values": ["comment-edited", "comment-item", "comment-replies"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "CommentComposer": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["comment-composer"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "CommentList": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["comment-list"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "CommentListSkeleton": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["comment-list-skeleton"]
             }
           ],
           "cssVariables": []
