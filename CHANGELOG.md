@@ -9,6 +9,19 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.23.34] — September 26, 2026
+
+<!-- assembled from 1 changeset: 45e9080ad827 -->
+
+### 🔧 Changed components
+
+- Editing a comment uses the composer's compact box with icon buttons: a round ↑ Save (disabled while the text is empty or unchanged) and a ghost × Cancel, each with a tooltip; Cmd/Ctrl+Enter saves and Escape cancels. TextEdit's tests now cover every markdown element's round-trip (headings, strike, inline code, code blocks, quotes, dividers, task and nested lists, blank lines), commit on blur and unmount, Escape revert, autosave, slash-menu keys, undo/redo, paste and bubble-menu links.
+  [`efb06cc`](https://github.com/VegaStack/vegastack-design/commit/efb06cc)
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.23.33 → 0.23.34.
+
 ## [0.23.33] — September 26, 2026
 
 <!-- assembled from 1 changeset: 4ed551786307 -->
