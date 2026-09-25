@@ -1,0 +1,126 @@
+---
+title: Priority Icon
+description: A flag marking priority — urgent, high, medium, low and none — in semantic colours, the sibling of Status Icon.
+audience: public
+registry: priority-icon
+status: stable
+since: 0.23.11
+a11y: img role with derived label
+preview: priorityIcon
+---
+
+## Install
+
+<InstallSteps name="priority-icon" />
+
+## Usage
+
+```tsx
+import { PriorityIcon } from "@/components/ui/priority-icon";
+
+<PriorityIcon priority="high" size="sm" />;
+```
+
+## Examples
+
+### Levels
+
+A lucide `Flag` per level: `urgent` (filled, destructive), `high` (filled, warning), `medium`
+(filled, info), `low` (outline, muted) and `none` (dashed outline, muted). The fill backs up the
+colour so the level never rests on colour alone.
+
+<ComponentPreview
+  name="priorityIconLevels"
+  file="components/preview/priority-icon.tsx"
+/>
+
+### Sizes
+
+The same `xs` (14px), `sm` (16px), `md` (20px) and `lg` (24px) steps as `StatusIcon`.
+
+<ComponentPreview
+  name="priorityIconSizes"
+  file="components/preview/priority-icon.tsx"
+/>
+
+Every level at every size:
+
+<ComponentPreview
+  name="priorityIconLevelSizeMatrix"
+  file="components/preview/priority-icon.tsx"
+/>
+
+### Priority menu recipe
+
+Compose `DropdownMenu` + `PriorityIcon` + `DropdownMenuShortcut` — there is no picker component.
+While the menu is open, **1** / **2** / **3** / **4** / **0** pick Urgent / High / Medium / Low /
+No priority.
+
+<ComponentPreview
+  name="priorityIconMenu"
+  file="components/preview/priority-icon.tsx"
+/>
+
+```tsx
+<DropdownMenu open={open} onOpenChange={setOpen}>
+  <DropdownMenuTrigger
+    render={
+      <Button
+        variant="ghost"
+        size="icon-sm"
+        aria-label={`Priority: ${label}`}
+      />
+    }
+  >
+    <PriorityIcon priority={priority} size="sm" label="" />
+  </DropdownMenuTrigger>
+  <DropdownMenuContent onKeyDown={pickByShortcut}>
+    {PRIORITIES.map((p) => (
+      <DropdownMenuItem key={p.value} onClick={() => setPriority(p.value)}>
+        <PriorityIcon priority={p.value} size="sm" label="" />
+        {p.label}
+        <DropdownMenuShortcut>{p.key}</DropdownMenuShortcut>
+      </DropdownMenuItem>
+    ))}
+  </DropdownMenuContent>
+</DropdownMenu>
+```
+
+### In Select and Combobox options
+
+<ComponentPreview
+  name="priorityIconSelect"
+  file="components/preview/priority-icon.tsx"
+/>
+
+<ComponentPreview
+  name="priorityIconCombobox"
+  file="components/preview/priority-icon.tsx"
+/>
+
+## API Reference
+
+<ApiTable
+  path="../../packages/ui/registry/ui/priority-icon.tsx"
+  name="PriorityIconProps"
+/>
+
+## Accessibility
+
+- Renders `role="img"` with an `aria-label` such as `"High priority"`; override with `label`.
+- Pass `label=""` when adjacent text names the priority, making the icon decorative (`aria-hidden`).
+- Filled, outline and dashed fills distinguish the levels without relying on colour.
+
+| Concern         | Behavior                                                        |
+| --------------- | --------------------------------------------------------------- |
+| Role            | `role="img"` unless `label=""` (decorative, `aria-hidden`)      |
+| Accessible name | `aria-label` from `label`, or a default derived from `priority` |
+
+<StatesTested name="priority-icon" />
+
+## Do / Don't
+
+<DoDont
+  do="Show the flag beside a record's title or in a picker option, with the menu recipe for changes."
+  dont="Use the flag for status or severity messages — use StatusIcon, Badge or Alert."
+/>

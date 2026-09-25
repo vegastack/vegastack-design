@@ -1,8 +1,15 @@
-// @vegastack status-icon@0.23.12 sha256-1HGGLW275+R4jdS7TJuq/KZQWO+iTZf9vIZ6A5zGsmo=
+// @vegastack status-icon@0.23.12 sha256-e/NJXOqZ+ZN4BL1RqiCryNqdTQkuIwNVrK1vEfI5DRs=
 
 import * as React from "react";
 import { cva, type VariantProps } from "class-variance-authority";
-import { Circle, CircleAlert, CircleCheck, Loader } from "lucide-react";
+import {
+  Circle,
+  CircleCheck,
+  CircleDashed,
+  CircleSlash,
+  CircleX,
+  Loader,
+} from "lucide-react";
 import { cn } from "@vegastack/design";
 
 /**
@@ -11,7 +18,8 @@ import { cn } from "@vegastack/design";
  *
  * Colour is conveyed through `currentColor`, so every status maps to a semantic text token (no
  * hardcoded hex, no numbered palette): `todo` → `text-muted-foreground`, `progress` →
- * `text-info-text`, `blocked` → `text-destructive-text`, `done` → `text-success-text`.
+ * `text-info-text`, `blocked` → `text-warning-text`, `done` → `text-success-text` (filled),
+ * `cancelled` → `text-muted-foreground`.
  *
  * `progress` does NOT compose upstream's `Spinner`, and the reason is semantic rather than
  * stylistic: `Spinner` is `role="status"` named "Loading", which is a live announcement about a
@@ -25,8 +33,9 @@ export const statusIconVariants = cva("inline-block shrink-0", {
     status: {
       todo: "text-muted-foreground",
       progress: "text-info-text",
-      blocked: "text-destructive-text",
+      blocked: "text-warning-text",
       done: "text-success-text",
+      cancelled: "text-muted-foreground",
     },
     size: {
       xs: "size-3.5",
@@ -41,9 +50,10 @@ export const statusIconVariants = cva("inline-block shrink-0", {
 /** The lucide icon rendered for each status. */
 const STATUS_ICON = {
   todo: Circle,
-  progress: Loader,
-  blocked: CircleAlert,
+  progress: CircleDashed,
+  blocked: CircleSlash,
   done: CircleCheck,
+  cancelled: CircleX,
 } as const;
 
 /** Default accessible label per status, used when no `label` is supplied. */
@@ -55,6 +65,7 @@ const STATUS_LABEL: Record<
   progress: "In progress",
   blocked: "Blocked",
   done: "Done",
+  cancelled: "Cancelled",
 };
 
 /** Props accepted by `StatusIcon`. */
@@ -65,12 +76,19 @@ export interface StatusIconProps
   /**
    * Status to display. Selects both the icon and its semantic color token:
    * - `todo` → `Circle`, `text-muted-foreground`
-   * - `progress` → spinning `Loader`, `text-info-text`
-   * - `blocked` → `CircleAlert`, `text-destructive-text`
-   * - `done` → `CircleCheck`, `text-success-text`
+   * - `progress` → static `CircleDashed` (or spinning `Loader` with `animated`), `text-info-text`
+   * - `blocked` → `CircleSlash`, `text-warning-text`
+   * - `done` → filled `CircleCheck`, `text-success-text`
+   * - `cancelled` → `CircleX`, `text-muted-foreground`
    * @default 'todo'
    */
-  status?: "todo" | "progress" | "blocked" | "done";
+  status?: "todo" | "progress" | "blocked" | "done" | "cancelled";
+  /**
+   * `progress` only: render the spinning `Loader` instead of the static `CircleDashed`. Leave it
+   * off in lists and boards, where many rows would spin at once; turn it on for a single live item.
+   * @default false
+   */
+  animated?: boolean;
   /**
    * Size variant: `xs` (14px), `sm` (16px), `md` (20px), `lg` (24px).
    * @default 'md'
@@ -89,10 +107,10 @@ export interface StatusIconProps
 
 /**
  * `StatusIcon` — a small status indicator icon for the canonical task states
- * `todo` / `progress` / `blocked` / `done`. Each status maps to a `lucide-react`
- * icon and a semantic color token via `currentColor` (no hardcoded colors). The
- * `progress` status spins its `Loader` icon; reduced motion is handled globally
- * by the `base.css` reset, never restated here.
+ * `todo` / `progress` / `blocked` / `done` / `cancelled`. Each status maps to a
+ * `lucide-react` icon and a semantic color token via `currentColor` (no hardcoded
+ * colors). `progress` is static by default; `animated` spins a `Loader` instead
+ * (reduced motion is handled globally by the `base.css` reset).
  *
  * Accessible by default: it renders `role="img"` with an `aria-label` derived
  * from `status` (or the `label` prop). When adjacent text already states the
@@ -110,10 +128,12 @@ export function StatusIcon({
   status = "todo",
   size = "md",
   label,
+  animated = false,
   ref,
   ...props
 }: StatusIconProps) {
-  const Icon = STATUS_ICON[status];
+  const spinning = status === "progress" && animated;
+  const Icon = spinning ? Loader : STATUS_ICON[status];
   const resolvedLabel = label ?? STATUS_LABEL[status];
   const decorative = resolvedLabel === "";
   return (
@@ -124,7 +144,8 @@ export function StatusIcon({
       data-size={size}
       className={cn(
         statusIconVariants({ status, size }),
-        status === "progress" && "animate-spin",
+        spinning && "animate-spin",
+        status === "done" && "fill-current [&_path]:stroke-background",
         className,
       )}
       {...(decorative
