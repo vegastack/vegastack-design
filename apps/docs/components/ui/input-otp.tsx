@@ -1,4 +1,4 @@
-// @vegastack input-otp@0.23.1 sha256-NJaId6rBBvFlFaREuWt363E+T2+G5eSUqAeE0JFTUUE=
+// @vegastack input-otp@0.23.2 sha256-7XOwfddGPDCYyrVsPCQIE/krXKU1QHf2ocpZbX4k0hs=
 
 "use client";
 

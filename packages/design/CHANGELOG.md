@@ -1,5 +1,13 @@
 # @vegastack/design
 
+## 0.7.11
+
+### Patch Changes
+
+- [#240](https://github.com/vegastack/vegastack-design/pull/240) [`a3ddf24`](https://github.com/vegastack/vegastack-design/commit/a3ddf2470802ee9492b5cee5f19fc4d11feb02d1) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🔧 **FilterBar is a two-row table toolbar** — search, `scope`, `view` and `actions` on the first row; facets, "More" and `onClear`'s "Clear" on the second, folding into a "Filters (n)" sheet on a narrow bar. An unset facet reads just its label and a set one is a filled pill with a "Clear Status" ×; `searchPlacement` and `anyLabel` are deprecated and ignored.
+
+- [#239](https://github.com/vegastack/vegastack-design/pull/239) [`f22ce1f`](https://github.com/vegastack/vegastack-design/commit/f22ce1f6ea20f408a9216333ba47195f13de8f87) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🔧 **Overlay footers are as plain as their headers** — `DialogFooter` and `AlertDialogFooter` drop the muted, top-bordered band and sit in the popup's own padding. `SheetFooter` right-aligns its actions at every width instead of stacking them full width; give a Cancel `data-slot="sheet-cancel"` to seat it at the start edge. Secondary actions use `variant="secondary"`: `AlertDialogCancel`, `DialogFooter showCloseButton`, and `MultiStepForm`'s Back, Skip and Exit now default to it, and the `MultiStepFormActions` row is right-aligned with no divider. See [Sheet](/docs/components/sheet) and [Dialog](/docs/components/dialog).
+
 ## 0.7.10
 
 ### Patch Changes
