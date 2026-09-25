@@ -9,6 +9,20 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.23.29] — September 26, 2026
+
+<!-- assembled from 1 changeset: 2c2b3f627d51 -->
+
+### 🔧 Changed components
+
+- Toast actions close their toast: clicking the action (e.g. "Undo") runs it and dismisses the toast; `data: { keepOpen: true }` opts out. Tooltips open after 250ms everywhere (`TIMINGS.tooltipOpenDelayMs`, was 300), and RelativeTime's date tooltips now use that shared delay instead of opening instantly.
+  [`ffa5257`](https://github.com/VegaStack/vegastack-design/commit/ffa5257)
+
+### 📦 npm
+
+- **`@vegastack/design`** → **`0.7.38`** (was `0.7.37`).
+- The design-system registry (`@vegastack/ui`) bumps 0.23.28 → 0.23.29.
+
 ## [0.23.28] — September 26, 2026
 
 <!-- assembled from 1 changeset: 0346a2574a8a -->
