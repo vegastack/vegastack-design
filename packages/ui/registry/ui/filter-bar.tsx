@@ -1,10 +1,10 @@
-// @vegastack filter-bar@0.23.1 sha256-iLLAwXOraXzcw4QQtUjVbxWkvS8H338RVrQGU+whKzw=
+// @vegastack filter-bar@0.23.1 sha256-iul+v6nHtEiCC6mK/gn5cHkwOahRHErkldMB4c7L7nU=
 
 "use client";
 
 import * as React from "react";
-import { ListFilterPlus, X } from "lucide-react";
-import { cn } from "@vegastack/design";
+import { ChevronDown, CirclePlus, ListFilter, X } from "lucide-react";
+import { cn, mergeRefs } from "@vegastack/design";
 import { Button } from "@/components/ui/button";
 import { Chip } from "@/components/ui/chip";
 import {
@@ -26,6 +26,16 @@ import {
   SearchableSelect,
   type SearchableSelectProps,
 } from "@/components/ui/searchable-select";
+import {
+  Sheet,
+  SheetBody,
+  SheetClose,
+  SheetContent,
+  SheetFooter,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 
 /* ------------------------------------------------------------------------------------------------
  * Types
@@ -40,8 +50,8 @@ export interface FilterBarFilter {
   /** Stable identity for the chip (used as the React key and `data-filter-id`). */
   id: string;
   /**
-   * The filter's name (e.g. `"Status"`). Rendered as the muted leading text of
-   * the chip.
+   * The filter's name in sentence case (e.g. `"Status"`). Rendered as the muted leading text
+   * of the chip.
    */
   label: React.ReactNode;
   /**
@@ -71,9 +81,8 @@ export interface FilterBarFilter {
 }
 
 /**
- * An entry in the declarative "Add filter" menu. Provide these via
- * {@link FilterBarProps.addFilters} as a shorthand for building the menu
- * yourself — or pass `addFilterMenu` for full control.
+ * An entry in the declarative "More" menu of secondary filters. Provide these via
+ * {@link FilterBarProps.addFilters}, or pass `addFilterMenu` for full control.
  */
 export interface FilterBarAddOption {
   /** Stable identity for the option (used as the React key and passed to `onAddFilter`). */
@@ -129,63 +138,8 @@ export interface FilterBarProps extends Omit<
   "onChange" | "children"
 > {
   /**
-   * Where the search field sits: `"end"` pushes it to the trailing edge after
-   * the chips; `"start"` puts it first, for lists where search is the primary
-   * filter (the trailing slot then takes the end push).
-   * @default "end"
-   */
-  searchPlacement?: "start" | "end";
-  /**
-   * Called when a chip's editor opens or closes, with the filter's id.
-   * @default undefined
-   */
-  onEditorOpenChange?: (id: string, open: boolean) => void;
-  /**
-   * The active filters, rendered as removable chips after the facets.
-   * @default []
-   */
-  filters?: FilterBarFilter[];
-  /**
-   * Always-visible {@link FilterBarFacet}s ("Status: Any"), rendered after a leading search and
-   * before the chips. A facet lives in the bar, not inside the "Add filter" menu.
-   * @default undefined
-   */
-  facets?: React.ReactNode;
-  /**
-   * Declarative "Add filter" menu options. The bar builds a {@link DropdownMenu}
-   * from these and calls {@link FilterBarProps.onAddFilter} with the chosen
-   * option's `id`. Ignored when `addFilterMenu` is provided.
-
-   * @default undefined
-   */
-  addFilters?: FilterBarAddOption[];
-  /**
-   * Invoked with the chosen option's `id` when an item from the declarative
-   * `addFilters` menu is selected.
-
-   * @default undefined
-   */
-  onAddFilter?: (id: string) => void;
-  /**
-   * Fully custom "Add filter" menu content (e.g. a {@link DropdownMenu} with
-   * submenus / checkbox items). Takes precedence over `addFilters` — supply the
-   * whole {@link DropdownMenu} tree, including its trigger. When omitted and
-   * `addFilters` is empty, no "Add filter" control is rendered.
-
-   * @default undefined
-   */
-  addFilterMenu?: React.ReactNode;
-  /**
-   * Accessible name for the built-in "Add filter" trigger (icon + text button).
-   * @default 'Add filter'
-   */
-  addFilterLabel?: string;
-  /** Alignment of the built-in "Add filter" menu relative to its trigger. @default 'start' */
-  addFilterMenuAlign?: React.ComponentProps<
-    typeof DropdownMenuContent
-  >["align"];
-  /**
-   * Controlled search/query input config. Omit to hide the search field.
+   * Controlled search config. The field always leads the first row and takes the free space.
+   * Omit to hide it.
    * @default undefined
    */
   search?: FilterBarSearch;
@@ -197,9 +151,100 @@ export interface FilterBarProps extends Omit<
     "defaultValue" | "onChange" | "onValueChange" | "placeholder" | "value"
   >;
   /**
-   * Content rendered at the trailing (right) end of the bar — e.g. a
-   * "Save view" or "Clear all" {@link Button}.
-
+   * @deprecated The search field always leads the first row. Accepted and ignored.
+   * @default "start"
+   */
+  searchPlacement?: "start" | "end";
+  /**
+   * Whose rows the list shows, beside the search — a segmented `ToggleGroup` such as
+   * "My tasks | Created by me | Team". Takes its own full-width row on a narrow bar.
+   * @default undefined
+   */
+  scope?: React.ReactNode;
+  /**
+   * How the rows are laid out, pinned to the end of the first row — a segmented `ToggleGroup`
+   * such as "List | Board". On a narrow bar only the icons show: wrap each option's text in a
+   * `<span>` and it stays as the option's accessible name.
+   * @default undefined
+   */
+  view?: React.ReactNode;
+  /**
+   * Controls at the very end of the first row, after `view` — a "Select" button, an export menu.
+   * @default undefined
+   */
+  actions?: React.ReactNode;
+  /**
+   * The primary {@link FilterBarFacet}s ("Status", "Due", "Assignee"), always visible on the
+   * second row. An unset facet is a quiet trigger that reads its label; a set facet is a filled
+   * pill with a clear control.
+   * @default undefined
+   */
+  facets?: React.ReactNode;
+  /**
+   * Applied filters shown as removable chips after the facets.
+   * @default []
+   */
+  filters?: FilterBarFilter[];
+  /**
+   * Called when a chip's editor opens or closes, with the filter's id.
+   * @default undefined
+   */
+  onEditorOpenChange?: (id: string, open: boolean) => void;
+  /**
+   * The secondary filters offered from the "More" menu. The bar builds the menu and calls
+   * `onAddFilter` with the chosen option's `id`. Ignored when `addFilterMenu` is provided.
+   * @default undefined
+   */
+  addFilters?: FilterBarAddOption[];
+  /**
+   * Called with the chosen option's `id` when an `addFilters` item is selected.
+   * @default undefined
+   */
+  onAddFilter?: (id: string) => void;
+  /**
+   * A custom "More" menu — the whole {@link DropdownMenu} tree, trigger included. Takes
+   * precedence over `addFilters`.
+   * @default undefined
+   */
+  addFilterMenu?: React.ReactNode;
+  /**
+   * The label of the built-in "More" trigger.
+   * @default 'More'
+   */
+  addFilterLabel?: string;
+  /** Alignment of the built-in "More" menu relative to its trigger. @default 'start' */
+  addFilterMenuAlign?: React.ComponentProps<
+    typeof DropdownMenuContent
+  >["align"];
+  /**
+   * Clears every filter. When set, a "Clear" button sits at the end of the filter row while
+   * anything is applied (`activeCount` above 0).
+   * @default undefined
+   */
+  onClear?: () => void;
+  /**
+   * The label of the "Clear" button.
+   * @default 'Clear'
+   */
+  clearLabel?: string;
+  /**
+   * How many filters are applied. Drives "Clear" and the narrow bar's "Filters (n)". Defaults to
+   * the facets holding a value plus the `filters` chips.
+   * @default undefined
+   */
+  activeCount?: number;
+  /**
+   * The filter row's accessible name, and the label of the narrow bar's filters button and sheet.
+   * @default 'Filters'
+   */
+  filtersLabel?: string;
+  /**
+   * The button that closes the narrow bar's filters sheet.
+   * @default 'Done'
+   */
+  doneLabel?: string;
+  /**
+   * Content at the end of the filter row, before "Clear" — e.g. a "Save view" button.
    * @default undefined
    */
   trailing?: React.ReactNode;
@@ -227,9 +272,8 @@ export interface FilterChipProps extends Omit<
   /** Invoked when the remove (`×`) control is activated. */
   onRemove: () => void;
   /**
-   * Accessible name for the remove control. Defaults to `Remove <label> filter`
-   * when `label` is a string.
-
+   * Accessible name for the remove control. Defaults to `Clear <label>` when `label` is a
+   * string.
    * @default undefined
    */
   removeLabel?: string;
@@ -250,7 +294,7 @@ export interface FilterChipProps extends Omit<
    */
   onEditorOpenChange?: (open: boolean) => void;
   /**
-   * Open the editor when the chip mounts — a filter just added from "Add filter".
+   * Open the editor when the chip mounts — a filter just added from "More".
    * @default false
    */
   defaultEditorOpen?: boolean;
@@ -306,7 +350,7 @@ export function FilterChip({
 }: FilterChipProps) {
   const computedRemoveLabel =
     removeLabel ??
-    (typeof label === "string" ? `Remove ${label} filter` : "Remove filter");
+    (typeof label === "string" ? `Clear ${label}` : "Clear filter");
 
   return (
     <Chip
@@ -351,41 +395,74 @@ export function FilterChip({
  * ----------------------------------------------------------------------------------------------*/
 
 /**
- * `FilterBar` — a horizontal row of always-visible {@link FilterBarFacet}s (`facets`),
- * active filter {@link FilterChip}s (each removable), an "Add filter" {@link DropdownMenu}, and an optional controlled
- * search {@link Input}. Composes the VegaStack {@link Button}, {@link DropdownMenu},
- * and {@link Input}.
+ * What the bar shares with the facets inside it: each facet reports whether it holds a value, so
+ * the bar can count applied filters for "Clear" and "Filters (n)" without the host doing it. A
+ * facet can render twice (the row, and the narrow bar's sheet), so reports are per instance and
+ * the count is per label.
+ */
+interface FilterBarContextValue {
+  report: (id: string, label: string, active: boolean | null) => void;
+}
+
+const FilterBarContext = React.createContext<FilterBarContextValue | null>(
+  null,
+);
+
+/**
+ * One height tier for the whole bar: every control is h-8, the default size. A `ToggleGroup` or
+ * `Select` passed in at `size="sm"` is lifted to h-8 so the rows stay level.
+ */
+const BAR_SIZE =
+  "[&_[data-slot=toggle-group-item][data-size=sm]]:h-8 [&_[data-slot=toggle-group-item][data-size=sm]]:min-w-8 [&_[data-slot=toggle-group-item][data-size=sm]]:text-sm [&_[data-slot=select-trigger][data-size=sm]]:h-8";
+
+/**
+ * `FilterBar` — the toolbar above a list or table, in two rows.
  *
- * Purely presentational: the host owns all filter state. The bar renders one chip
- * per `filters` entry and calls each filter's `onRemove` on dismiss; the "Add
- * filter" menu is either declarative (`addFilters` + `onAddFilter`) or fully
- * custom (`addFilterMenu`); `search` is a controlled value/onChange pair.
+ * Row 1: the search field (first, taking the free space), an optional `scope` segmented control,
+ * an optional `view` segmented control pinned to the end, and optional `actions`.
+ * Row 2 (only when there are filters to show): the primary `facets`, any applied `filters` chips,
+ * a "More" menu of secondary filters, and "Clear" at the end while anything is applied.
+ *
+ * On a narrow bar (below its own `@3xl` container width) the scope takes its own full-width row,
+ * the view shows icons only, and the filter row folds into one "Filters (n)" button that opens a
+ * bottom sheet with the facets stacked, "Clear" and "Done".
+ *
+ * Purely presentational: the host owns every value.
  *
  * @example
  * <FilterBar
- *   facets={<FilterBarFacet label="Owner" items={owners} value={owner} onValueChange={setOwner} itemToKey={(o) => o.id} itemToStringLabel={(o) => o.name} searchLabel="Search owners" />}
- *   filters={[{ id: 'status', label: 'Status', value: 'In Progress', onRemove: removeStatus }]}
- *   addFilters={[{ id: 'priority', label: 'Priority', icon: <Flag /> }]}
- *   onAddFilter={(id) => openFilter(id)}
- *   search={{ value: query, onValueChange: setQuery }}
- *   trailing={<Button variant="ghost" onClick={clearAll}>Clear all</Button>}
+ *   search={{ value: query, onValueChange: setQuery, placeholder: "Search tasks" }}
+ *   scope={<ToggleGroup aria-label="Scope" value={[scope]} onValueChange={([v]) => v && setScope(v)} deselectable={false} variant="outline" spacing={0}>…</ToggleGroup>}
+ *   view={<ToggleGroup aria-label="View" value={[view]} onValueChange={([v]) => v && setView(v)} deselectable={false} variant="outline" spacing={0}>…</ToggleGroup>}
+ *   facets={<><FilterBarFacet label="Status" … /><FilterBarFacet label="Due" … /></>}
+ *   addFilters={[{ id: "priority", label: "Priority" }]}
+ *   onAddFilter={showFacet}
+ *   onClear={clearAll}
  * />
  */
 export function FilterBar({
   className,
   "aria-label": ariaLabel,
   "aria-labelledby": ariaLabelledBy,
-  filters = [],
+  search,
+  searchInputProps,
+  searchPlacement: _searchPlacement,
+  scope,
+  view,
+  actions,
   facets,
+  filters = [],
+  onEditorOpenChange,
   addFilters,
   onAddFilter,
   addFilterMenu,
-  addFilterLabel = "Add filter",
+  addFilterLabel = "More",
   addFilterMenuAlign = "start",
-  search,
-  searchInputProps,
-  searchPlacement = "end",
-  onEditorOpenChange,
+  onClear,
+  clearLabel = "Clear",
+  activeCount: activeCountProp,
+  filtersLabel = "Filters",
+  doneLabel = "Done",
   trailing,
   ...props
 }: FilterBarProps) {
@@ -399,8 +476,43 @@ export function FilterBar({
       setEditOnMount(null);
   }, [editOnMount, filters]);
 
-  // Optional controlled search/query input — first, or pushed to the trailing edge.
-  const searchStart = searchPlacement === "start";
+  const [facetState, setFacetState] = React.useState<
+    Record<string, { label: string; active: boolean }>
+  >({});
+  const report = React.useCallback(
+    (id: string, label: string, active: boolean | null) =>
+      setFacetState((prev) => {
+        if (active == null) {
+          if (!(id in prev)) return prev;
+          const next = { ...prev };
+          delete next[id];
+          return next;
+        }
+        const current = prev[id];
+        if (current?.label === label && current.active === active) return prev;
+        return { ...prev, [id]: { label, active } };
+      }),
+    [],
+  );
+  const context = React.useMemo(() => ({ report }), [report]);
+  const activeFacets = new Set(
+    Object.values(facetState)
+      .filter((entry) => entry.active)
+      .map((entry) => entry.label),
+  ).size;
+  const activeCount = activeCountProp ?? activeFacets + filters.length;
+  const showClear = onClear != null && activeCount > 0;
+
+  const filterRowRef = React.useRef<HTMLDivElement>(null);
+  const clear = () => {
+    onClear?.();
+    // "Clear" unmounts once nothing is applied; hand focus to the row's first control rather
+    // than dropping it to <body>.
+    filterRowRef.current
+      ?.querySelector<HTMLElement>("button:not([disabled])")
+      ?.focus();
+  };
+
   const searchField =
     search != null ? (
       <SearchInput
@@ -413,99 +525,214 @@ export function FilterBar({
         aria-label={search["aria-label"] ?? search.placeholder ?? "Search"}
         data-slot="filter-bar-search"
         className={cn(
-          "h-8 w-auto min-w-0 basis-48",
-          !searchStart && "ms-auto",
+          "h-8 w-auto min-w-0 flex-1 basis-40 @3xl/filter-bar:max-w-sm",
           searchInputProps?.className,
         )}
       />
     ) : null;
 
-  return (
-    <div
-      data-slot="filter-bar"
-      role="group"
-      aria-label={ariaLabelledBy == null ? (ariaLabel ?? "Filters") : undefined}
-      aria-labelledby={ariaLabelledBy}
-      className={cn(
-        "flex w-full min-w-0 flex-wrap items-center gap-1.5",
-        className,
-      )}
-      {...props}
-    >
-      {searchStart ? searchField : null}
+  const chips = filters.map((filter) => (
+    <FilterChip
+      key={filter.id}
+      data-filter-id={filter.id}
+      label={filter.label}
+      value={filter.value}
+      icon={filter.icon}
+      active={filter.active}
+      onRemove={filter.onRemove}
+      editor={
+        filter.editor ??
+        addFilters?.find((option) => option.id === filter.id)?.editor
+      }
+      defaultEditorOpen={filter.id === editOnMount}
+      onEditorOpenChange={
+        onEditorOpenChange
+          ? (open) => onEditorOpenChange(filter.id, open)
+          : undefined
+      }
+    />
+  ));
 
-      {facets}
-
-      {filters.map((filter) => (
-        <FilterChip
-          key={filter.id}
-          data-filter-id={filter.id}
-          label={filter.label}
-          value={filter.value}
-          icon={filter.icon}
-          active={filter.active}
-          onRemove={filter.onRemove}
-          editor={
-            filter.editor ??
-            addFilters?.find((option) => option.id === filter.id)?.editor
-          }
-          defaultEditorOpen={filter.id === editOnMount}
-          onEditorOpenChange={
-            onEditorOpenChange
-              ? (open) => onEditorOpenChange(filter.id, open)
-              : undefined
+  // "More" — a custom menu wins, else the declarative one from `addFilters`.
+  const moreMenu =
+    addFilterMenu ??
+    (hasDeclarativeMenu ? (
+      <DropdownMenu>
+        <DropdownMenuTrigger
+          render={
+            <Button
+              variant="ghost"
+              className="text-muted-foreground"
+              data-slot="filter-bar-add"
+            >
+              <CirclePlus aria-hidden />
+              {addFilterLabel}
+            </Button>
           }
         />
-      ))}
+        <DropdownMenuContent align={addFilterMenuAlign}>
+          {addFilters!.map((option) => (
+            <DropdownMenuItem
+              key={option.id}
+              disabled={option.disabled}
+              onClick={() => {
+                if (option.editor != null) setEditOnMount(option.id);
+                onAddFilter?.(option.id);
+              }}
+            >
+              {option.icon}
+              {option.label}
+            </DropdownMenuItem>
+          ))}
+        </DropdownMenuContent>
+      </DropdownMenu>
+    ) : null);
 
-      {/* Add filter — custom menu wins, else declarative menu from `addFilters`. */}
-      {addFilterMenu ??
-        (hasDeclarativeMenu ? (
-          <DropdownMenu>
-            <DropdownMenuTrigger
-              render={
-                <Button
-                  variant="outline"
-                  className="border-dashed text-muted-foreground"
-                  data-slot="filter-bar-add"
-                >
-                  <ListFilterPlus aria-hidden />
-                  {addFilterLabel}
-                </Button>
-              }
-            />
-            <DropdownMenuContent align={addFilterMenuAlign}>
-              {addFilters!.map((option) => (
-                <DropdownMenuItem
-                  key={option.id}
-                  disabled={option.disabled}
-                  onClick={() => {
-                    if (option.editor != null) setEditOnMount(option.id);
-                    onAddFilter?.(option.id);
-                  }}
-                >
-                  {option.icon}
-                  {option.label}
-                </DropdownMenuItem>
-              ))}
-            </DropdownMenuContent>
-          </DropdownMenu>
-        ) : null)}
+  const hasFilters = facets != null || filters.length > 0 || moreMenu != null;
+  const hasPrimaryRow =
+    search != null || scope != null || view != null || actions != null;
 
-      {searchStart ? null : searchField}
+  return (
+    <FilterBarContext.Provider value={context}>
+      <div
+        data-slot="filter-bar"
+        role="toolbar"
+        aria-label={
+          ariaLabelledBy == null ? (ariaLabel ?? "List controls") : undefined
+        }
+        aria-labelledby={ariaLabelledBy}
+        className={cn(
+          "@container/filter-bar flex w-full min-w-0 flex-col gap-1.5",
+          BAR_SIZE,
+          className,
+        )}
+        {...props}
+      >
+        {hasPrimaryRow ? (
+          <div
+            data-slot="filter-bar-primary"
+            className="flex w-full min-w-0 items-center gap-1.5"
+          >
+            {searchField}
+            {scope != null ? (
+              <div
+                data-slot="filter-bar-scope"
+                className="hidden shrink-0 @3xl/filter-bar:flex"
+              >
+                {scope}
+              </div>
+            ) : null}
+            {view != null ? (
+              <div
+                data-slot="filter-bar-view"
+                className="ms-auto flex shrink-0 @max-3xl/filter-bar:[&_[data-slot=toggle-group-item]>span]:sr-only"
+              >
+                {view}
+              </div>
+            ) : null}
+            {actions != null ? (
+              <div
+                data-slot="filter-bar-actions"
+                className={cn(
+                  "flex shrink-0 items-center gap-1.5",
+                  view == null && "ms-auto",
+                )}
+              >
+                {actions}
+              </div>
+            ) : null}
+          </div>
+        ) : null}
 
-      {trailing != null ? (
-        <div
-          data-slot="filter-bar-trailing"
-          className={cn(
-            "shrink-0",
-            (search == null || searchStart) && "ms-auto",
-          )}
-        >
-          {trailing}
-        </div>
-      ) : null}
-    </div>
+        {scope != null ? (
+          // The narrow bar's scope row: the same control, full width, segments sharing the row.
+          <div
+            data-slot="filter-bar-scope-row"
+            className="flex w-full @3xl/filter-bar:hidden [&_[data-slot=toggle-group-item]]:flex-1 [&_[data-slot=toggle-group]]:w-full"
+          >
+            {scope}
+          </div>
+        ) : null}
+
+        {hasFilters || trailing != null ? (
+          <div
+            ref={filterRowRef}
+            data-slot="filter-bar-filters"
+            role="group"
+            aria-label={filtersLabel}
+            className="flex w-full min-w-0 flex-wrap items-center gap-1.5"
+          >
+            {hasFilters ? (
+              <>
+                <div className="hidden @3xl/filter-bar:contents">
+                  {facets}
+                  {chips}
+                  {moreMenu}
+                </div>
+                <Sheet>
+                  <SheetTrigger
+                    render={
+                      <Button
+                        variant="outline"
+                        data-slot="filter-bar-sheet-trigger"
+                        className="@3xl/filter-bar:hidden"
+                      >
+                        <ListFilter aria-hidden />
+                        {activeCount > 0
+                          ? `${filtersLabel} (${activeCount})`
+                          : filtersLabel}
+                      </Button>
+                    }
+                  />
+                  <SheetContent
+                    side="bottom"
+                    data-slot="filter-bar-sheet"
+                    className="max-h-[85dvh]"
+                  >
+                    <SheetHeader>
+                      <SheetTitle>{filtersLabel}</SheetTitle>
+                    </SheetHeader>
+                    <SheetBody>
+                      <div className="flex flex-col items-start gap-1.5">
+                        {facets}
+                        {chips}
+                        {moreMenu}
+                      </div>
+                    </SheetBody>
+                    <SheetFooter className="flex-row justify-end">
+                      {showClear ? (
+                        <Button variant="ghost" onClick={onClear}>
+                          {clearLabel}
+                        </Button>
+                      ) : null}
+                      <SheetClose render={<Button />}>{doneLabel}</SheetClose>
+                    </SheetFooter>
+                  </SheetContent>
+                </Sheet>
+              </>
+            ) : null}
+            {trailing != null || showClear ? (
+              <div
+                data-slot="filter-bar-trailing"
+                className="ms-auto flex shrink-0 items-center gap-1.5"
+              >
+                {trailing}
+                {showClear ? (
+                  <Button
+                    variant="ghost"
+                    data-slot="filter-bar-clear"
+                    className="hidden @3xl/filter-bar:inline-flex"
+                    onClick={clear}
+                  >
+                    {clearLabel}
+                  </Button>
+                ) : null}
+              </div>
+            ) : null}
+          </div>
+        ) : null}
+      </div>
+    </FilterBarContext.Provider>
   );
 }
 
@@ -515,7 +742,10 @@ export function FilterBar({
 
 /** `FilterBarFacet`'s own props, on top of the `SearchableSelect` props it passes through. */
 export interface FilterBarFacetOwnProps<Item> {
-  /** The facet's name — the trigger reads "{label}: {value}". */
+  /**
+   * The facet's name, in sentence case ("Status", "Due date"). An unset facet reads just this;
+   * a set one reads "{label}: {value}".
+   */
   label: string;
   /**
    * Renders one option.
@@ -523,17 +753,18 @@ export interface FilterBarFacetOwnProps<Item> {
    */
   renderItem?: (item: Item) => React.ReactNode;
   /**
-   * Show a remove control beside the facet (a facet added from "Add filter").
+   * A secondary facet added from "More": clearing it also calls `onRemove`, and while it is unset
+   * a remove control sits beside it.
    * @default false
    */
   removable?: boolean;
   /**
-   * Called when the remove control is used.
+   * Called when a `removable` facet is removed or cleared.
    * @default undefined
    */
   onRemove?: () => void;
   /**
-   * Accessible name of the remove control.
+   * Accessible name of the remove control beside an unset `removable` facet.
    * @default `Remove ${label} filter`
    */
   removeLabel?: string;
@@ -553,8 +784,8 @@ export interface FilterBarFacetOwnProps<Item> {
    */
   moreGroupLabel?: string;
   /**
-   * What an empty facet reads.
-   * @default "Any"
+   * @deprecated An unset facet reads just its label. Accepted and ignored.
+   * @default undefined
    */
   anyLabel?: string;
 }
@@ -578,10 +809,11 @@ export type FilterBarFacetProps<
   FilterBarFacetOwnProps<Item>;
 
 /**
- * `FilterBarFacet` — a "Label: value" facet on `SearchableSelect`: "Status: Any", "Status:
- * Open", "Status: Open, In progress", "Status: 3 selected". Single or `multiple`, local or
- * server-searched (`remote` + `useAsyncSearch`), optionally pinned and removable. Put it in a
- * `FilterBar`'s `facets` slot, or anywhere in a toolbar; it takes the bar's height.
+ * `FilterBarFacet` — one filter on `SearchableSelect`. Unset, it is a quiet borderless trigger that
+ * reads its label ("Status ▾"). Set, it becomes a filled pill: "Status: Open", "Status: Open, In
+ * progress", then "Status (3)" from three values, with a × that clears it ("Clear Status"). Single
+ * or `multiple`, local or server-searched (`remote` + `useAsyncSearch`), optionally pinned and
+ * removable. Put it in a `FilterBar`'s `facets` slot; it takes the bar's h-8 height.
  *
  * @example
  * <FilterBarFacet
@@ -607,69 +839,129 @@ export function FilterBarFacet<
   pinSelected = false,
   selectedGroupLabel = "Selected",
   moreGroupLabel = "More",
-  anyLabel = "Any",
-  countLabel = (n) => `${n} selected`,
+  anyLabel: _anyLabel,
+  countLabel,
+  clearable: _clearable,
+  clearLabel = `Clear ${label}`,
+  searchPlaceholder = `Search ${label.toLowerCase()}`,
+  searchLabel = `Search ${label.toLowerCase()}`,
+  emptyMessage = "No matches",
+  ref,
   ...select
 }: FilterBarFacetProps<Item, Multiple>) {
-  const { itemToStringLabel, itemToKey, onOpenChange } = select;
+  const { itemToStringLabel, itemToKey, onOpenChange, onValueChange } = select;
   const current = select.value as Item | Item[] | null | undefined;
   const selectedKeys = new Set(
     (Array.isArray(current) ? current : current ? [current] : []).map(
       itemToKey,
     ),
   );
+  const hasValue = selectedKeys.size > 0;
+
+  const bar = React.useContext(FilterBarContext);
+  const id = React.useId();
+  React.useEffect(() => {
+    bar?.report(id, label, hasValue);
+  }, [bar, id, label, hasValue]);
+  React.useEffect(() => () => bar?.report(id, label, null), [bar, id, label]);
+
+  const [trigger, setTrigger] = React.useState<HTMLButtonElement | null>(null);
+  const triggerRef = React.useMemo(() => mergeRefs(setTrigger, ref), [ref]);
+
   // The pinned split is taken when the list opens, so toggling a row does not move it between
   // "Selected" and "More" under the pointer; the next open re-pins.
   const [pinnedKeys, setPinnedKeys] = React.useState(selectedKeys);
   const pinned = (item: Item) => pinnedKeys.has(itemToKey(item));
   const text = (list: Item[]) =>
-    `${label}: ${
-      list.length === 0
-        ? anyLabel
-        : list.length > 2
-          ? countLabel(list.length)
-          : list.map(itemToStringLabel).join(", ")
-    }`;
+    list.length === 0
+      ? label
+      : list.length > 2
+        ? countLabel
+          ? `${label}: ${countLabel(list.length)}`
+          : `${label} (${list.length})`
+        : `${label}: ${list.map(itemToStringLabel).join(", ")}`;
+
+  const clear = () => {
+    // The × unmounts with the value; hand focus to the trigger first (DS-22).
+    trigger?.focus();
+    onValueChange?.(
+      (select.multiple ? [] : null) as Parameters<
+        NonNullable<typeof onValueChange>
+      >[0],
+    );
+    if (removable) onRemove?.();
+  };
+
   return (
     <span
       data-slot="filter-bar-facet"
+      data-state={hasValue ? "set" : "unset"}
       className="inline-flex min-w-0 items-center gap-0.5"
     >
-      <SearchableSelect<Item, Multiple>
-        {...select}
-        onOpenChange={(open) => {
-          if (open) setPinnedKeys(selectedKeys);
-          onOpenChange?.(open);
-        }}
-        items={
-          pinSelected
-            ? [
-                ...select.items.filter(pinned),
-                ...select.items.filter((i) => !pinned(i)),
-              ]
-            : select.items
-        }
-        variant="outline"
-        // The FilterBar row's one height tier: the search, the chips and "Add filter" are h-8.
-        size="default"
-        countLabel={countLabel}
-        placeholder={`${label}: ${anyLabel}`}
-        renderItem={renderItem ?? itemToStringLabel}
-        renderTriggerValue={text}
-        groupBy={
-          pinSelected
-            ? (item: Item) =>
-                pinned(item) ? selectedGroupLabel : moreGroupLabel
-            : undefined
-        }
-        // A leading item outside the selection must not put "More" above "Selected".
-        groupOrder={pinSelected ? [selectedGroupLabel] : undefined}
-        containerClassName="w-fit"
-        className="w-auto max-w-64"
-        contentClassName="min-w-56"
-        data-slot="filter-bar-facet-select"
-      />
-      {removable ? (
+      <span className="relative inline-flex min-w-0">
+        <SearchableSelect<Item, Multiple>
+          {...select}
+          ref={triggerRef}
+          onOpenChange={(open) => {
+            if (open) setPinnedKeys(selectedKeys);
+            onOpenChange?.(open);
+          }}
+          items={
+            pinSelected
+              ? [
+                  ...select.items.filter(pinned),
+                  ...select.items.filter((i) => !pinned(i)),
+                ]
+              : select.items
+          }
+          variant="ghost"
+          // The FilterBar's one height tier: every control in both rows is h-8.
+          size="default"
+          countLabel={countLabel}
+          placeholder={label}
+          searchPlaceholder={searchPlaceholder}
+          searchLabel={searchLabel}
+          emptyMessage={emptyMessage}
+          renderItem={renderItem ?? itemToStringLabel}
+          renderTriggerValue={text}
+          groupBy={
+            pinSelected
+              ? (item: Item) =>
+                  pinned(item) ? selectedGroupLabel : moreGroupLabel
+              : undefined
+          }
+          // A leading item outside the selection must not put "More" above "Selected".
+          groupOrder={pinSelected ? [selectedGroupLabel] : undefined}
+          // The select's own chevron gives way to the facet's ▾ or ×.
+          containerClassName="w-fit [&>svg]:hidden"
+          className={cn(
+            "w-auto max-w-64",
+            hasValue
+              ? "rounded-full border-border bg-accent ps-2.5 pe-8 font-medium text-foreground hover:border-border hover:bg-accent aria-expanded:border-border dark:bg-accent dark:hover:bg-accent"
+              : "ps-2.5 pe-7 text-muted-foreground hover:border-transparent hover:bg-muted hover:text-foreground aria-expanded:border-transparent aria-expanded:bg-muted aria-expanded:text-foreground dark:hover:bg-muted",
+          )}
+          contentClassName="min-w-56"
+          data-slot="filter-bar-facet-select"
+        />
+        {hasValue ? (
+          <Button
+            variant="ghost"
+            size="icon-xs"
+            aria-label={clearLabel}
+            data-slot="filter-bar-facet-clear"
+            className="absolute end-1 top-1/2 -translate-y-1/2 rounded-full"
+            onClick={clear}
+          >
+            <X aria-hidden />
+          </Button>
+        ) : (
+          <ChevronDown
+            aria-hidden
+            className="pointer-events-none absolute end-2 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
+          />
+        )}
+      </span>
+      {removable && !hasValue ? (
         <Button
           variant="ghost"
           size="icon-xs"

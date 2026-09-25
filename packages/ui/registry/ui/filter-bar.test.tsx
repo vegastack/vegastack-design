@@ -3,7 +3,7 @@ import * as React from "react";
 // other test here measures against its own style mirror and must not see real CSS.
 import geometryCss from "../../test/geometry.css?inline";
 import { render } from "vitest-browser-react";
-import { expect, onTestFinished, test, vi } from "vitest";
+import { beforeEach, expect, onTestFinished, test, vi } from "vitest";
 import { page, userEvent } from "vitest/browser";
 import { Flag } from "lucide-react";
 import { expectNoA11yViolations } from "../../test/a11y";
@@ -14,6 +14,12 @@ import {
   type FilterBarFilter,
   type FilterBarProps,
 } from "./filter-bar";
+
+// The filter row shows from the bar's own @3xl container width; below it the row folds into a
+// "Filters (n)" sheet. Test at a desktop width unless a test sizes its own box.
+beforeEach(async () => {
+  await page.viewport(1280, 800);
+});
 
 test("searchInputProps cannot take ownership of the search value event", () => {
   const acceptSearchInputProps = (
@@ -56,8 +62,11 @@ test("tags the container and exposes the filter id", async () => {
     />,
   );
   await expect
-    .element(screen.getByRole("group", { name: "Filters" }))
+    .element(screen.getByRole("toolbar", { name: "List controls" }))
     .toHaveAttribute("data-slot", "filter-bar");
+  await expect
+    .element(screen.getByRole("group", { name: "Filters" }))
+    .toHaveAttribute("data-slot", "filter-bar-filters");
   expect(document.querySelector('[data-filter-id="status"]')).not.toBeNull();
 });
 
@@ -66,7 +75,7 @@ test("allows the filter group label to be customized", async () => {
     <FilterBar filters={[]} aria-label="Issue filters" />,
   );
   await expect
-    .element(screen.getByRole("group", { name: "Issue filters" }))
+    .element(screen.getByRole("toolbar", { name: "Issue filters" }))
     .toHaveAttribute("data-slot", "filter-bar");
 });
 
@@ -77,7 +86,7 @@ test("removing a chip fires its onRemove", async () => {
       filters={[{ id: "status", label: "Status", value: "Open", onRemove }]}
     />,
   );
-  await screen.getByRole("button", { name: "Remove Status filter" }).click();
+  await screen.getByRole("button", { name: "Clear Status" }).click();
   expect(onRemove).toHaveBeenCalledOnce();
 });
 
@@ -97,7 +106,7 @@ test("add-filter opens the menu and fires onAddFilter with the option id", async
   // Closed: the menu is not in the DOM.
   expect(document.querySelector('[role="menu"]')).toBeNull();
 
-  await screen.getByRole("button", { name: "Add filter" }).click();
+  await screen.getByRole("button", { name: "More" }).click();
 
   await expect.element(page.getByRole("menu")).toBeInTheDocument();
   await expect
@@ -206,9 +215,9 @@ test("forwards searchInputProps to SearchInput and preserves placement", async (
     '[data-slot="filter-bar-search"]',
   ) as HTMLElement;
   expect(group.className).toContain("max-w-sm");
-  // RTL: pushed to the logical inline end, so it mirrors under a DirectionProvider.
-  expect(group.className.split(/\s+/)).toContain("ms-auto");
-  expect(group.className).not.toMatch(/(^|\s)ml-auto(\s|$)/);
+  // The search leads the first row and takes the free space; nothing pushes it.
+  expect(group.className.split(/\s+/)).toContain("flex-1");
+  expect(group.className.split(/\s+/)).not.toContain("ms-auto");
   await expect
     .element(screen.getByRole("searchbox", { name: "Search" }))
     .toHaveAttribute("name", "query");
@@ -247,9 +256,9 @@ test("FilterChip computes a remove label from a string label", async () => {
     <FilterChip label="Status" value="Open" onRemove={onRemove} />,
   );
   await expect
-    .element(screen.getByRole("button", { name: "Remove Status filter" }))
+    .element(screen.getByRole("button", { name: "Clear Status" }))
     .toBeInTheDocument();
-  await screen.getByRole("button", { name: "Remove Status filter" }).click();
+  await screen.getByRole("button", { name: "Clear Status" }).click();
   expect(onRemove).toHaveBeenCalledOnce();
 });
 
@@ -318,7 +327,7 @@ test("no a11y violations — add filter menu open", async () => {
       onAddFilter={() => {}}
     />,
   );
-  await page.getByRole("button", { name: "Add filter" }).click();
+  await page.getByRole("button", { name: "More" }).click();
   await expect.element(page.getByRole("menu")).toBeInTheDocument();
   // The menu portals to document.body, so the audit target must cover the whole document.
   await expectNoA11yViolations(document.body);
@@ -403,7 +412,7 @@ test("the shared remove control's real border-box is >= 24x24", async () => {
       <FilterChip label="Status" value="Open" onRemove={() => {}} />,
     );
     const el = screen
-      .getByRole("button", { name: "Remove Status filter" })
+      .getByRole("button", { name: "Clear Status" })
       .element() as HTMLElement;
     const rect = el.getBoundingClientRect();
     expect(rect.width).toBeGreaterThanOrEqual(24);
@@ -421,7 +430,7 @@ test("a point 1px inside the real 24px box still hits and fires onRemove", async
       <FilterChip label="Status" value="Open" onRemove={onRemove} />,
     );
     const el = screen
-      .getByRole("button", { name: "Remove Status filter" })
+      .getByRole("button", { name: "Clear Status" })
       .element() as HTMLElement;
     const rect = el.getBoundingClientRect();
     // 1px inside the top-left corner of the real 24px box.
@@ -496,24 +505,126 @@ test("a chip reads label: value, with the colon (DS-36)", async () => {
   await expectNoA11yViolations(screen.container);
 });
 
-test("searchPlacement start puts the search first, without the end push (DS-37)", async () => {
+test("the search leads the first row; trailing and Clear end the filter row", async () => {
+  const onClear = vi.fn();
   const screen = await render(
     <FilterBar
-      searchPlacement="start"
+      searchPlacement="end"
       filters={[{ id: "status", label: "Status", onRemove: () => {} }]}
       search={{ value: "", onValueChange: () => {} }}
-      trailing={<button type="button">Clear all</button>}
+      trailing={<button type="button">Save view</button>}
+      onClear={onClear}
     />,
   );
   const bar = screen.container.querySelector('[data-slot="filter-bar"]')!;
-  const first = bar.firstElementChild as HTMLElement;
-  expect(first.getAttribute("data-slot")).toBe("filter-bar-search");
-  expect(first.className.split(/\s+/)).not.toContain("ms-auto");
+  const primary = bar.querySelector('[data-slot="filter-bar-primary"]')!;
+  // `searchPlacement` is deprecated and ignored: the search is always first.
+  expect(primary.firstElementChild!.getAttribute("data-slot")).toBe(
+    "filter-bar-search",
+  );
   const trailing = bar.querySelector(
     '[data-slot="filter-bar-trailing"]',
   ) as HTMLElement;
   expect(trailing.className.split(/\s+/)).toContain("ms-auto");
+  await screen.getByRole("button", { name: "Clear", exact: true }).click();
+  expect(onClear).toHaveBeenCalledOnce();
   await expectNoA11yViolations(screen.container);
+});
+
+test("Clear shows only while a filter is applied", async () => {
+  const screen = await render(
+    <FilterBar
+      facets={
+        <FilterBarFacet<Status>
+          label="Owner"
+          items={STATUSES}
+          value={null}
+          onValueChange={() => {}}
+          itemToKey={(s) => s.id}
+          itemToStringLabel={(s) => s.name}
+        />
+      }
+      onClear={() => {}}
+    />,
+  );
+  expect(
+    screen.container.querySelector('[data-slot="filter-bar-clear"]'),
+  ).toBeNull();
+  await screen.rerender(
+    <FilterBar
+      facets={
+        <FilterBarFacet<Status>
+          label="Owner"
+          items={STATUSES}
+          value={STATUSES[0]!}
+          onValueChange={() => {}}
+          itemToKey={(s) => s.id}
+          itemToStringLabel={(s) => s.name}
+        />
+      }
+      onClear={() => {}}
+    />,
+  );
+  await expect
+    .element(screen.getByRole("button", { name: "Clear", exact: true }))
+    .toBeInTheDocument();
+});
+
+test("scope sits beside the search and view is pinned to the end", async () => {
+  const screen = await render(
+    <FilterBar
+      search={{ value: "", onValueChange: () => {} }}
+      scope={<button type="button">My tasks</button>}
+      view={<button type="button">List</button>}
+      actions={<button type="button">Select</button>}
+    />,
+  );
+  const primary = screen.container.querySelector(
+    '[data-slot="filter-bar-primary"]',
+  )!;
+  expect(
+    [...primary.children].map((el) => el.getAttribute("data-slot")),
+  ).toEqual([
+    "filter-bar-search",
+    "filter-bar-scope",
+    "filter-bar-view",
+    "filter-bar-actions",
+  ]);
+  const view = primary.querySelector('[data-slot="filter-bar-view"]')!;
+  expect(view.className.split(/\s+/)).toContain("ms-auto");
+  // No filters: no filter row.
+  expect(
+    screen.container.querySelector('[data-slot="filter-bar-filters"]'),
+  ).toBeNull();
+});
+
+test("a narrow bar folds the filters into a sheet with Clear and Done", async () => {
+  const onClear = vi.fn();
+  const screen = await render(
+    <div style={{ width: 360 }}>
+      <FilterBar
+        scope={<button type="button">My tasks</button>}
+        filters={[
+          { id: "status", label: "Status", value: "Open", onRemove: () => {} },
+        ]}
+        onClear={onClear}
+      />
+    </div>,
+  );
+  // The scope takes its own row; the one in the first row is hidden.
+  await expect
+    .element(screen.getByRole("button", { name: "My tasks" }))
+    .toBeVisible();
+  await screen.getByRole("button", { name: "Filters (1)" }).click();
+  await expect
+    .element(page.getByRole("dialog", { name: "Filters" }))
+    .toBeVisible();
+  await page.getByRole("button", { name: "Clear", exact: true }).click();
+  expect(onClear).toHaveBeenCalledOnce();
+  await page.getByRole("button", { name: "Done" }).click();
+  await expect
+    .element(page.getByRole("dialog", { name: "Filters" }))
+    .not.toBeInTheDocument();
 });
 
 test("search.onValueCommitted receives the settled query (DS-37)", async () => {
@@ -563,10 +674,10 @@ const STATUSES: Status[] = [
 ];
 
 test.each([
-  [[], "Status: Any"],
+  [[], "Status"],
   [[STATUSES[0]!], "Status: Open"],
   [[STATUSES[0]!, STATUSES[1]!], "Status: Open, In progress"],
-  [STATUSES, "Status: 3 selected"],
+  [STATUSES, "Status (3)"],
 ])("a facet trigger reads the selection (DS-35) %#", async (value, text) => {
   const screen = await render(
     <FilterBarFacet<Status, true>
@@ -624,8 +735,12 @@ test("a facet toggles values, pins the selected ones and can be removed (DS-35)"
     [...document.querySelectorAll('[role="option"]')].map((o) => o.textContent),
   ).toEqual(options);
   await userEvent.keyboard("{Escape}");
-  await screen.getByRole("button", { name: "Remove Status filter" }).click();
+  // A set, removable facet: its × clears the value and removes the facet.
+  await screen.getByRole("button", { name: "Clear Status" }).click();
   expect(onRemove).toHaveBeenCalledOnce();
+  await expect
+    .element(screen.getByRole("combobox", { name: "Status" }))
+    .toBeInTheDocument();
   await expectNoA11yViolations(screen.container);
 });
 
@@ -653,7 +768,7 @@ test("a chip with an editor opens it in place and returns focus on Escape (DS-36
     .toHaveAttribute("data-slot", "filter-chip-trigger");
   // The remove control stays its own target.
   await expect
-    .element(screen.getByRole("button", { name: "Remove Status filter" }))
+    .element(screen.getByRole("button", { name: "Clear Status" }))
     .toBeInTheDocument();
   await trigger.click();
   await expect.element(screen.getByText("Status editor")).toBeInTheDocument();
@@ -677,10 +792,9 @@ test("a chip without an editor stays non-interactive (DS-36)", async () => {
   ).toBeNull();
 });
 
-test("facets sit after a leading search and before the chips (DS-35)", async () => {
+test("facets sit on the filter row before the chips (DS-35)", async () => {
   const screen = await render(
     <FilterBar
-      searchPlacement="start"
       search={{ value: "", onValueChange: () => {}, "aria-label": "Search" }}
       facets={
         <FilterBarFacet<Status>
@@ -699,11 +813,19 @@ test("facets sit after a leading search and before the chips (DS-35)", async () 
     />,
   );
   const bar = screen.container.querySelector('[data-slot="filter-bar"]')!;
-  expect([...bar.children].map((el) => el.getAttribute("data-slot"))).toEqual([
-    "filter-bar-search",
-    "filter-bar-facet",
-    "filter-chip",
-  ]);
+  expect(
+    bar
+      .querySelector('[data-slot="filter-bar-primary"]')!
+      .firstElementChild!.getAttribute("data-slot"),
+  ).toBe("filter-bar-search");
+  const row = bar.querySelector('[data-slot="filter-bar-filters"]')!;
+  expect(
+    [
+      ...row.querySelectorAll(
+        '[data-slot="filter-bar-facet"], [data-slot="filter-chip"]',
+      ),
+    ].map((el) => el.getAttribute("data-slot")),
+  ).toEqual(["filter-bar-facet", "filter-chip"]);
 });
 
 test("a leading item outside the selection keeps the pinned group first (DS-35)", async () => {
@@ -747,7 +869,7 @@ test("an add option with an editor opens it on the new chip (DS-36)", async () =
             {
               id,
               label: "Status",
-              value: "Any",
+              value: "Open",
               onRemove: () => setFilters([]),
             },
           ])
@@ -756,10 +878,10 @@ test("an add option with an editor opens it on the new chip (DS-36)", async () =
     );
   }
   const screen = await render(<Host />);
-  await screen.getByRole("button", { name: "Add filter" }).click();
+  await screen.getByRole("button", { name: "More" }).click();
   await screen.getByRole("menuitem", { name: "Status" }).click();
   await expect.element(screen.getByText("Status editor")).toBeVisible();
-  const trigger = screen.getByRole("button", { name: "Status: Any" });
+  const trigger = screen.getByRole("button", { name: "Status: Open" });
   await expect.element(trigger).toHaveAttribute("aria-expanded", "true");
   await userEvent.keyboard("{Escape}");
   await expect

@@ -1355,7 +1355,7 @@
       "name": "filter-bar",
       "type": "registry:ui",
       "title": "Filter Bar",
-      "description": "A row of removable filter chips, an \"Add filter\" dropdown, and an optional search input — for list and table filter toolbars.",
+      "description": "The two-row toolbar above a list or table — search, scope and view on top, filters below, folding into a sheet on a narrow screen.",
       "categories": ["data"],
       "dependencies": [
         "lucide-react@^1.47.0",
@@ -1368,7 +1368,8 @@
         "@vegastack/dropdown-menu",
         "@vegastack/popover",
         "@vegastack/search-input",
-        "@vegastack/searchable-select"
+        "@vegastack/searchable-select",
+        "@vegastack/sheet"
       ],
       "files": [
         {

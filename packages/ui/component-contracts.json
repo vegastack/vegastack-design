@@ -10083,7 +10083,7 @@
       "name": "filter-bar",
       "registryType": "registry:ui",
       "title": "Filter Bar",
-      "summary": "A row of removable filter chips, an \"Add filter\" dropdown, and an optional search input — for list and table filter toolbars.",
+      "summary": "The two-row toolbar above a list or table — search, scope and view on top, filters below, folding into a sheet on a narrow screen.",
       "status": "stable",
       "since": "0.1.0",
       "family": "data",
@@ -10243,7 +10243,8 @@
         "@vegastack/dropdown-menu",
         "@vegastack/popover",
         "@vegastack/search-input",
-        "@vegastack/searchable-select"
+        "@vegastack/searchable-select",
+        "@vegastack/sheet"
       ],
       "npmDependencies": [
         "lucide-react@^1.47.0",
@@ -10280,9 +10281,18 @@
               "name": "data-slot",
               "values": [
                 "filter-bar",
+                "filter-bar-actions",
                 "filter-bar-add",
+                "filter-bar-clear",
+                "filter-bar-filters",
+                "filter-bar-primary",
+                "filter-bar-scope",
+                "filter-bar-scope-row",
                 "filter-bar-search",
-                "filter-bar-trailing"
+                "filter-bar-sheet",
+                "filter-bar-sheet-trigger",
+                "filter-bar-trailing",
+                "filter-bar-view"
               ]
             }
           ],
@@ -10294,9 +10304,14 @@
               "name": "data-slot",
               "values": [
                 "filter-bar-facet",
+                "filter-bar-facet-clear",
                 "filter-bar-facet-remove",
                 "filter-bar-facet-select"
               ]
+            },
+            {
+              "name": "data-state",
+              "values": ["set", "unset"]
             }
           ],
           "cssVariables": []

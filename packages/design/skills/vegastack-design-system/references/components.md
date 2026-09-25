@@ -80,7 +80,7 @@ starts with `icon-` is a component and never an icon.
 - **`data-list`** — A generic, typed data table — configurable columns, row selection, sortable headers, plus loading and empty states.
 - **`data-list-pager`** — A controlled paging footer for DataList — a tabular-numeral range summary, a rows-per-page Select, and a windowed Pagination that hides on a single page.
 - **`data-table-parts`** — The chrome DataList and DataGrid share — sort header, selection cells, skeleton rows, the empty row, column class rules, and the selection/sort/controlled-state hooks.
-- **`filter-bar`** — A row of removable filter chips, an "Add filter" dropdown, and an optional search input — for list and table filter toolbars.
+- **`filter-bar`** — The two-row toolbar above a list or table — search, scope and view on top, filters below, folding into a sheet on a narrow screen.
 - **`filter-bar-managed`** — The controlled nested and/or filter builder — host-injected field grammar (vocabulary + per-type value editors), depth and condition caps, focus-managed removal, and a removable FilterChip summary.
 - **`load-more`** — The shared Load more footer for keyset lists — an outline button that keeps its width while loading, an error line with Try again, and an optional end caption.
 - **`property-list`** — Record-facts rows: an icon+label column beside a value column, as an accessible definition list.
