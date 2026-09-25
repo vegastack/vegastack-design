@@ -12,8 +12,8 @@
     "evidencePolicy": "Observed fields come from source, registry metadata, docs, and test topology. Unknown/not-applicable values are explicit; no inferred behavior is presented as verified."
   },
   "expectedCounts": {
-    "totalRegistryItems": 674,
-    "components": 114,
+    "totalRegistryItems": 675,
+    "components": 115,
     "animatedIcons": 467,
     "hooks": 12,
     "blocks": 10,
@@ -25,7 +25,7 @@
     "Forms/editing": 25,
     "Navigation/layout": 17,
     "Overlays": 14,
-    "Data display": 12,
+    "Data display": 13,
     "Content/marketing": 13,
     "Shared internals": 2,
     "AI/chat": 8,
@@ -129,6 +129,7 @@
       "data-grid",
       "data-list",
       "data-list-pager",
+      "inbox",
       "load-more",
       "property-list",
       "stat",
@@ -13810,6 +13811,353 @@
             {
               "name": "data-slot",
               "values": ["navigation-menu-indicator"]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
+    },
+    {
+      "name": "inbox",
+      "registryType": "registry:ui",
+      "title": "Inbox",
+      "summary": "The notification Inbox: frame with header actions, All | Unread chips, sticky day groups, full-bleed rows with avatar or icon, rich titles, action chips, hover read toggle and menu, and empty, loading and error states.",
+      "status": "stable",
+      "since": "0.23.4",
+      "family": "media",
+      "wave": "Data display",
+      "sourceFiles": ["packages/ui/registry/ui/inbox.tsx"],
+      "publicSymbols": [
+        {
+          "name": "InboxProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/inbox.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "Inbox",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/inbox.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Inbox does not forward a stable public ref; its root node is incidental."
+          }
+        },
+        {
+          "name": "InboxHeaderActionProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/inbox.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "InboxHeaderAction",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/inbox.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "InboxHeaderAction does not forward a stable public ref; its root node is incidental."
+          }
+        },
+        {
+          "name": "InboxMenuActionProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/inbox.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "InboxMenuAction",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/inbox.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "InboxMenuAction does not forward a stable public ref; its root node is incidental."
+          }
+        },
+        {
+          "name": "InboxMarkAllRead",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/inbox.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "InboxMarkAllRead does not forward a stable public ref; its root node is incidental."
+          }
+        },
+        {
+          "name": "InboxFilter",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/inbox.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "InboxFiltersProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/inbox.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "InboxFilters",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/inbox.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "InboxFilters does not forward a stable public ref; its root node is incidental."
+          }
+        },
+        {
+          "name": "InboxListProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/inbox.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "InboxList",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/inbox.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "InboxList does not forward a stable public ref; its root node is incidental."
+          }
+        },
+        {
+          "name": "InboxGroupProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/inbox.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "InboxGroup",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/inbox.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "InboxGroup does not forward a stable public ref; its root node is incidental."
+          }
+        },
+        {
+          "name": "InboxEmphasis",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/inbox.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "InboxEmphasis does not forward a stable public ref; its root node is incidental."
+          }
+        },
+        {
+          "name": "InboxItemAction",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/inbox.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "InboxItemProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/inbox.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "InboxItem",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/inbox.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "InboxItem does not forward a stable public ref; its root node is incidental."
+          }
+        },
+        {
+          "name": "InboxEmptyProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/inbox.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "InboxEmpty",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/inbox.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "InboxEmpty does not forward a stable public ref; its root node is incidental."
+          }
+        },
+        {
+          "name": "InboxErrorProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/inbox.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "InboxError",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/inbox.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "InboxError does not forward a stable public ref; its root node is incidental."
+          }
+        },
+        {
+          "name": "InboxSkeletonProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/inbox.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "InboxSkeleton",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/inbox.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "InboxSkeleton does not forward a stable public ref; its root node is incidental."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "No local variant scale; rows vary by props (unread, avatar or icon, destructive)."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "No explicit local size scale observed; sizing is fixed, structural, or inherited."
+      },
+      "states": {
+        "behavior": {
+          "status": "observed",
+          "values": ["default", "unread", "loading", "empty", "error"],
+          "evidence": "InboxItem unread branch; InboxSkeleton, InboxEmpty and InboxError states."
+        },
+        "accessibility": {
+          "status": "observed",
+          "values": ["labeled"],
+          "evidence": "Observed from semantic elements, ARIA, keyboard handlers, or focus styling."
+        },
+        "visual": {
+          "status": "observed",
+          "values": [
+            "default",
+            "error",
+            "dot-intent-default",
+            "dot-intent-destructive"
+          ],
+          "evidence": "Observed from token classes, state selectors, or visual branches."
+        }
+      },
+      "responsive": {
+        "status": "none-observed",
+        "risks": [],
+        "rationale": "No component-owned responsive risk observed; consumer layout can still constrain it."
+      },
+      "motion": {
+        "status": "modeled",
+        "mechanisms": ["CSS utility motion-pop-in", "tokenized CSS transition"],
+        "reducedMotion": {
+          "status": "inherited-global",
+          "rationale": "CSS animation/transition reduction is enforced by packages/design-tokens/src/base.css; component-specific JS engines require an intrinsic branch instead.",
+          "evidence": "packages/design-tokens/src/base.css#prefers-reduced-motion"
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/inbox",
+      "registryDependencies": [
+        "@vegastack/avatar",
+        "@vegastack/button",
+        "@vegastack/dropdown-menu",
+        "@vegastack/notification-bell",
+        "@vegastack/relative-time",
+        "@vegastack/skeleton",
+        "@vegastack/tooltip"
+      ],
+      "npmDependencies": [
+        "lucide-react@^1.47.0",
+        "@vegastack/design@^0.7.12",
+        "@vegastack/design-tokens@^0.7.1"
+      ],
+      "testFiles": ["packages/ui/registry/ui/inbox.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required"
+      },
+      "previewModule": "inbox",
+      "dataAttributes": {
+        "Inbox": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["inbox", "inbox-body"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "InboxList": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["inbox-list"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "InboxGroup": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["inbox-group"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "InboxItem": {
+          "attributes": [
+            {
+              "name": "data-icon",
+              "values": ["inline-start"]
+            },
+            {
+              "name": "data-slot",
+              "values": ["inbox-item"]
+            },
+            {
+              "name": "data-unread",
+              "values": []
             }
           ],
           "cssVariables": []
