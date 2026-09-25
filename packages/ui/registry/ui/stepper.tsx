@@ -1,4 +1,4 @@
-// @vegastack stepper@0.23.0 sha256-jAjwk4T6U7M3xR/NAeT5Ck2fJbFsg+vQGdtNTwh95Dw=
+// @vegastack stepper@0.23.0 sha256-clIrlCr0yDfuj3Q2JdOjLfwYzQochkf/Zwq+L6DctV8=
 
 "use client";
 
@@ -474,7 +474,7 @@ export function Stepper({
           ref={summaryRef}
           tabIndex={-1}
           data-slot="stepper-summary"
-          className={cn("flex flex-col gap-2", collapseAt.summary)}
+          className={cn("flex flex-col gap-2 outline-none", collapseAt.summary)}
         >
           <Progress
             value={Math.round((completed / Math.max(steps.length, 1)) * 100)}
