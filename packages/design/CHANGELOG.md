@@ -1,5 +1,15 @@
 # @vegastack/design
 
+## 0.7.32
+
+### Patch Changes
+
+- [#284](https://github.com/vegastack/vegastack-design/pull/284) [`c6920d0`](https://github.com/vegastack/vegastack-design/commit/c6920d047a16e4d7647fa12ae40c4532885c34a3) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🔧 Markdown view and edit share one typography: `TextEdit` gains `toolbar` levels (minimal/standard/full or an action array) that set the schema, a selection bubble menu, a link popover (⌘K), task lists, tables, code blocks and images, markdown paste, `onSave`/`onCancel` (⌘Enter/Esc) with toolbar Save/Cancel, optional `autosave`, a borderless `ghost` variant and a zero-shift placeholder; `MarkdownView` task items take the same DOM through the new `prose.taskList` rules. New Markdown guide shows every element in view and edit.
+
+- [#289](https://github.com/vegastack/vegastack-design/pull/289) [`e706cd9`](https://github.com/vegastack/vegastack-design/commit/e706cd97beb94bea37c1ea0cd709de4ebf8659ae) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🔧 Combobox's clear and chip-remove × no longer move when pressed (API-31). RecordLayout gains `RecordLayoutPanels`, `RecordTabCount` and `RecordLayoutMainSkeleton`; RecordChip gains `RecordChipMenu`, the flush picker popover a pill opens. RecordLayout picks the rail from its own width (container query, `useRecordLayoutWide`) and gains `RecordTabsRow` / `RecordTabsActions`.
+
+- [#293](https://github.com/vegastack/vegastack-design/pull/293) [`78d1263`](https://github.com/vegastack/vegastack-design/commit/78d1263220b9c48315269b7f97811e7106d986af) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🔧 Toolbar switches use the default Tabs. `ViewToggle` now renders the default (pill) `Tabs` (at the bar's h-8 tier, which FilterBar also lifts a `TabsList size="sm"` scope to) instead of an outline `ToggleGroup`, keeping its icons (List, `Columns3` for Board, LayoutGrid) with labels hidden on a phone. The `FilterBar` `scope` and `view` slot guidance, the FilterBar, ViewToggle and DataList docs, and the skill now say every scope or view switch in a table or list toolbar is a default `Tabs`, never a `ToggleGroup` or line tabs.
+
 ## 0.7.31
 
 ### Patch Changes
