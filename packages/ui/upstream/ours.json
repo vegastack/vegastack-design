@@ -404,6 +404,12 @@
       "family": "data",
       "source": "Operator brief 2026-09-25 (DataList grid/board views) — approved by MK 2026-09-25",
       "rationale": "Upstream ships no view switch. It is a fixed composition of upstream toggle-group, shared by DataList and consumers; no patch."
+    },
+    "record-layout": {
+      "disposition": "keep",
+      "family": "layout",
+      "source": "Operator brief 2026-09-25 (meeting page right rail) — approved by MK 2026-09-25",
+      "rationale": "Upstream ships no record-page frame. It is a fixed composition of upstream sheet and button with a sticky rail; no patch."
     }
   }
 }

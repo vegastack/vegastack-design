@@ -12,8 +12,8 @@
     "evidencePolicy": "Observed fields come from source, registry metadata, docs, and test topology. Unknown/not-applicable values are explicit; no inferred behavior is presented as verified."
   },
   "expectedCounts": {
-    "totalRegistryItems": 684,
-    "components": 123,
+    "totalRegistryItems": 685,
+    "components": 124,
     "animatedIcons": 467,
     "hooks": 13,
     "blocks": 10,
@@ -23,7 +23,7 @@
   "expectedWaveCounts": {
     "Core controls": 24,
     "Forms/editing": 26,
-    "Navigation/layout": 17,
+    "Navigation/layout": 18,
     "Overlays": 14,
     "Data display": 18,
     "Content/marketing": 14,
@@ -105,7 +105,8 @@
       "board",
       "aspect-ratio",
       "direction",
-      "menubar"
+      "menubar",
+      "record-layout"
     ],
     "Overlays": [
       "alert-dialog",
@@ -24121,6 +24122,181 @@
             {
               "name": "data-status",
               "values": []
+            }
+          ],
+          "cssVariables": []
+        }
+      }
+    },
+    {
+      "name": "record-layout",
+      "registryType": "registry:ui",
+      "title": "Record Layout",
+      "summary": "A record page's main column beside a sticky right rail of cards, with an ⓘ Details sheet in its place on small screens.",
+      "status": "stable",
+      "since": "0.23.15",
+      "family": "layout",
+      "wave": "Navigation/layout",
+      "sourceFiles": ["packages/ui/registry/ui/record-layout.tsx"],
+      "publicSymbols": [
+        {
+          "name": "RecordLayout",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/record-layout.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "div",
+            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/record-layout.tsx."
+          }
+        },
+        {
+          "name": "RecordLayoutMain",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/record-layout.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "div",
+            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/record-layout.tsx."
+          }
+        },
+        {
+          "name": "RecordLayoutRail",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/record-layout.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "aside",
+            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/record-layout.tsx."
+          }
+        },
+        {
+          "name": "RecordDetailsSheet",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/record-layout.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "RecordDetailsSheet takes no ref; it renders a Sheet and its trigger."
+          }
+        },
+        {
+          "name": "RecordLayoutProps",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/record-layout.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "RecordLayoutMainProps",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/record-layout.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "RecordLayoutRailProps",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/record-layout.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "RecordDetailsSheetProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/record-layout.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "A layout frame; no local axis."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "A layout frame; no local axis."
+      },
+      "states": {
+        "behavior": {
+          "status": "covered",
+          "values": ["rail", "details-sheet"],
+          "evidence": "packages/ui/registry/ui/record-layout.tsx + packages/ui/registry/ui/record-layout.test.tsx"
+        },
+        "accessibility": {
+          "status": "covered",
+          "values": ["labeled", "browser-accessibility-test"],
+          "evidence": "packages/ui/registry/ui/record-layout.test.tsx"
+        },
+        "visual": {
+          "status": "observed",
+          "values": ["default"],
+          "evidence": "packages/ui/registry/ui/record-layout.tsx"
+        }
+      },
+      "responsive": {
+        "status": "modeled",
+        "risks": ["responsive-or-container-layout"],
+        "rationale": "The rail shows from lg up; below it the Details sheet takes its place."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned motion mechanism."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/record-layout",
+      "registryDependencies": ["@vegastack/button", "@vegastack/sheet"],
+      "npmDependencies": [
+        "@vegastack/design@^0.7.22",
+        "@vegastack/design-tokens@^0.7.18",
+        "lucide-react@^1.47.0"
+      ],
+      "testFiles": ["packages/ui/registry/ui/record-layout.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required"
+      },
+      "previewModule": "record-layout",
+      "dataAttributes": {
+        "RecordLayout": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["record-layout"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "RecordLayoutMain": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["record-layout-main"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "RecordLayoutRail": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["record-layout-rail"]
             }
           ],
           "cssVariables": []

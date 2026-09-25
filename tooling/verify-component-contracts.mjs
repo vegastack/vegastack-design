@@ -574,7 +574,7 @@ assert(
 const expectedWaves = {
   "Core controls": 24,
   "Forms/editing": 26,
-  "Navigation/layout": 17,
+  "Navigation/layout": 18,
   Overlays: 14,
   "Data display": 18,
   "Content/marketing": 14,
@@ -670,6 +670,7 @@ const expectedComponentWaveMembers = {
     "multi-step-form",
     "navigation-menu",
     "pagination",
+    "record-layout",
     "resizable",
     "scroll-area",
     "sidebar",

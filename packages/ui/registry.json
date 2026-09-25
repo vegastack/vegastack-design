@@ -182,6 +182,31 @@
       }
     },
     {
+      "name": "record-layout",
+      "type": "registry:ui",
+      "title": "Record Layout",
+      "description": "A record page's main column beside a sticky right rail of cards, with an ⓘ Details sheet in its place on small screens.",
+      "categories": ["layout"],
+      "dependencies": [
+        "@vegastack/design@^0.7.22",
+        "@vegastack/design-tokens@^0.7.18",
+        "lucide-react@^1.47.0"
+      ],
+      "registryDependencies": ["@vegastack/button", "@vegastack/sheet"],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/record-layout.tsx",
+          "type": "registry:ui",
+          "target": "@ui/record-layout.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "A record's page (a meeting, a customer, a deal): the main column with a sticky rail of property and related-work cards on wide screens, and an ⓘ Details sheet on small ones.",
+        "whenNotToUse": "A list page (DataList), or a page with no per-record facts — use AppShellPage alone.",
+        "version": "0.23.13"
+      }
+    },
+    {
       "name": "aspect-ratio",
       "type": "registry:ui",
       "title": "Aspect Ratio",
