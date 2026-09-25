@@ -8,6 +8,7 @@ import {
   CommentItem,
   CommentList,
   type CommentData,
+  type CommentOrder,
 } from "@/components/ui/comments";
 
 const NOW = Date.parse("2026-09-26T10:00:00Z");
@@ -55,10 +56,13 @@ function Demo({
 
 function CommentsDemo() {
   const [items, setItems] = React.useState(COMMENTS);
+  const [order, setOrder] = React.useState<CommentOrder>("oldest");
   return (
     <Demo>
       <CommentList
         comments={items}
+        order={order}
+        onOrderChange={setOrder}
         now={NOW}
         hasEarlier
         onLoadEarlier={() => {}}
@@ -72,7 +76,6 @@ function CommentsDemo() {
         onDelete={(id) => setItems((xs) => xs.filter((c) => c.id !== id))}
         composer={
           <CommentComposer
-            author={ME}
             onSubmit={async (body) => {
               await wait(600);
               setItems((xs) => [
@@ -105,7 +108,7 @@ export function commentsEmpty(): ReactNode {
     <Demo>
       <CommentList
         comments={[]}
-        composer={<CommentComposer author={ME} onSubmit={() => {}} />}
+        composer={<CommentComposer onSubmit={() => {}} />}
       />
     </Demo>
   );
@@ -174,9 +177,8 @@ export function commentsEditing(): ReactNode {
 export function commentsComposerStates(): ReactNode {
   return (
     <Demo className="flex max-w-2xl flex-col items-stretch gap-6">
-      <CommentComposer author={ME} onSubmit={() => {}} posting />
+      <CommentComposer onSubmit={() => {}} posting />
       <CommentComposer
-        author={ME}
         onSubmit={() => {}}
         error="Couldn't post the comment. Check your connection and try again."
       />

@@ -2,13 +2,13 @@
   "schemaVersion": 1,
   "kind": "vegastack-zero-gap-audit-register",
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "7761ad538acb0ad9bcd196680a96d531be3804fb82d936f7cb06eb200d357d6c",
+  "contractSha256": "79e9e3a5a9edf30e3d334d2c13adec83e99cc4621110d96a773c62add0e89275",
   "expectedCounts": {
-    "totalRegistryItems": 688,
+    "totalRegistryItems": 689,
     "components": 127,
     "animatedIcons": 467,
     "hooks": 13,
-    "blocks": 10,
+    "blocks": 11,
     "libs": 3,
     "chartBlocks": 68
   },
@@ -6714,6 +6714,18 @@
         "packages/ui/registry/blocks/board-01/page.tsx"
       ],
       "docsSlug": "/docs/blocks/board-01",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "issue-detail-01",
+      "inventoryClass": "block",
+      "wave": "Block",
+      "family": "starter-block",
+      "sourceFiles": [
+        "packages/ui/registry/blocks/issue-detail-01/components/issue-detail.tsx",
+        "packages/ui/registry/blocks/issue-detail-01/page.tsx"
+      ],
+      "docsSlug": "/docs/blocks/issue-detail-01",
       "contractStatus": "reconciled"
     },
     {

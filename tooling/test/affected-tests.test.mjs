@@ -42,9 +42,11 @@ describe("affected component closure", () => {
     expect(result.affectedItems).toEqual([
       "code-block",
       "comments",
+      "issue-detail-01",
       "markdown-view",
     ]);
     expect(result.componentTestFiles).toEqual([
+      "packages/ui/registry/blocks/issue-detail-01/issue-detail-01.test.tsx",
       "packages/ui/registry/ui/code-block.test.tsx",
       "packages/ui/registry/ui/comments.test.tsx",
       "packages/ui/registry/ui/markdown-view.test.tsx",
@@ -55,6 +57,7 @@ describe("affected component closure", () => {
       "bubble",
       "code-block",
       "comments",
+      "issue-detail-01",
       "markdown-view",
       "text-edit",
     ]);
@@ -75,6 +78,7 @@ describe("affected component closure", () => {
       "code-block",
       "comments",
       "copy-button",
+      "issue-detail-01",
       "markdown-view",
       // status-pages-01's error page copies its reference with CopyButton (DS-60).
       "status-pages-01",
@@ -106,6 +110,7 @@ describe("affected component closure", () => {
       "app-shell-01",
       "code-block",
       "comments",
+      "issue-detail-01",
       "markdown-view",
       "provider",
     ]);

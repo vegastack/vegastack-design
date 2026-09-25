@@ -1,0 +1,59 @@
+---
+title: issue-detail-01
+description: An issue page in the Linear style — status and title, a Notion-style description, comments, and a Properties rail.
+audience: public
+registry: issue-detail-01
+preview: issueDetail01Demo
+---
+
+## What it is
+
+An issue's page in the Linear style. The main column holds the status circle beside a large title
+that edits in place, the description as a Notion-style `TextEdit`, a `Separator`, then the
+`CommentList` with its `CommentComposer`. The Properties card sits in the sticky right rail. On small
+screens a Details button (`RecordDetailsSheet`) beside the title shows the same properties. It is a **block**:
+you pull it once with `shadcn add`, and then you own it.
+
+Your app composes the same components directly. The block shows how they fit together, so don't
+copy its sample state.
+
+## Install
+
+```npm
+npx shadcn@latest add @vegastack/issue-detail-01
+```
+
+<RegistryInstallCallout />
+
+This installs the block's own files plus the components it composes: `app-shell`, `comments`,
+`editable-cell`, `priority-icon`, `property-list`, `record-aside`, `record-chip`, `record-layout`,
+`relative-time`, `separator`, `status-icon`, `text-edit`.
+
+## Preview
+
+<ComponentPreview name="issueDetail01Demo" />
+
+## Anatomy
+
+- `RecordLayout` › `RecordLayoutMain` (centred, `max-w-3xl`) and `RecordLayoutRail`.
+- **Title row**: `StatusIcon size="lg"`, then the `h1` holding `EditableCell variant="heading"`,
+  then `RecordDetailsSheet` (hidden while the rail shows).
+- **Description**: a `TextEdit` with `format="markdown"` that commits on blur (`onCommit`).
+- `Separator`, then **Comments**: `CommentList` with the Oldest / Newest first toggle
+  (`order`, `onOrderChange`) and a `CommentComposer` at the end.
+- **Rail**: `RecordAsideCard` › `RecordAsideSection` "Properties" › an inline `PropertyList`
+  (status, priority, assignee, due, customer, project, created by).
+
+## Files
+
+| File                                          | Registry type        | Target                                            |
+| --------------------------------------------- | -------------------- | ------------------------------------------------- |
+| `issue-detail-01/components/issue-detail.tsx` | `registry:component` | `app/issue-detail-01/components/issue-detail.tsx` |
+| `issue-detail-01/page.tsx`                    | `registry:page`      | `app/issue-detail-01/page.tsx`                    |
+
+## Do / Don't
+
+<DoDont
+  do="Show the same properties in the rail and in the Details sheet, and persist the comment order per viewer."
+  dont="Put page actions in the rail, or save the description on every keystroke."
+/>
