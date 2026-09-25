@@ -4,13 +4,17 @@ import * as React from "react";
 import type { ReactNode } from "react";
 import { Wrapper } from "./wrapper";
 // Copied INTO apps/docs via `shadcn add @vegastack/data-list` (dogfoods the registry) → auto-scanned.
-import { Search } from "lucide-react";
+import { Lamp, Search, TriangleAlert } from "lucide-react";
 import {
   DataList,
   rowActionsColumn,
   type DataListColumn,
+  type DataListSection,
+  type DataListView,
   type SortState,
 } from "@/components/ui/data-list";
+import { FilterBar } from "@/components/ui/filter-bar";
+import { MediaCard } from "@/components/ui/media-card";
 import { DataListPager } from "@/components/ui/data-list-pager";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -589,6 +593,305 @@ export function dataListCustomEmpty(): ReactNode {
               </Button>
             </EmptyContent>
           </Empty>
+        }
+      />
+    </Wrapper>
+  );
+}
+
+interface Family {
+  id: string;
+  name: string;
+  category: string;
+  products: number;
+  subfamilies: number;
+  missing: number;
+  image: string | null;
+}
+
+const IMG =
+  "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 9'><rect width='16' height='9' fill='%23d6d3d1'/><circle cx='8' cy='4.5' r='2.5' fill='%23a8a29e'/></svg>";
+
+const FAMILIES: Family[] = [
+  {
+    id: "f1",
+    name: "Aurora Downlight",
+    category: "indoor",
+    products: 8,
+    subfamilies: 3,
+    missing: 2,
+    image: IMG,
+  },
+  {
+    id: "f2",
+    name: "Beacon Track",
+    category: "indoor",
+    products: 5,
+    subfamilies: 1,
+    missing: 0,
+    image: null,
+  },
+  {
+    id: "f3",
+    name: "Cove Linear",
+    category: "indoor",
+    products: 12,
+    subfamilies: 4,
+    missing: 0,
+    image: IMG,
+  },
+  {
+    id: "f4",
+    name: "Drift Pendant",
+    category: "indoor",
+    products: 3,
+    subfamilies: 0,
+    missing: 1,
+    image: IMG,
+  },
+  {
+    id: "f5",
+    name: "Harbor Bollard",
+    category: "outdoor",
+    products: 6,
+    subfamilies: 2,
+    missing: 0,
+    image: null,
+  },
+  {
+    id: "f6",
+    name: "Summit Flood",
+    category: "outdoor",
+    products: 9,
+    subfamilies: 3,
+    missing: 4,
+    image: IMG,
+  },
+];
+
+const SECTIONS: DataListSection[] = [
+  { id: "indoor", label: "Indoor Luminaires" },
+  { id: "outdoor", label: "Outdoor Luminaires" },
+];
+
+const plural = (n: number, one: string, many: string) =>
+  `${n} ${n === 1 ? one : many}`;
+
+function MissingPill({ n }: { n: number }) {
+  return n > 0 ? (
+    <Badge variant="warning">
+      <TriangleAlert aria-hidden />
+      {plural(n, "missing spec", "missing specs")}
+    </Badge>
+  ) : null;
+}
+
+const COLUMNS: DataListColumn<Family>[] = [
+  {
+    key: "name",
+    header: "Family",
+    mobile: "visible",
+    minWidth: 200,
+    thumbnail: (f) => f.image,
+    render: (f) => (
+      <span className="flex min-w-0 items-center gap-2">
+        <span className="truncate">{f.name}</span>
+        <MissingPill n={f.missing} />
+      </span>
+    ),
+  },
+  {
+    key: "products",
+    header: "Products",
+    align: "end",
+    minWidth: 96,
+    mergedRender: (f) => plural(f.products, "product", "products"),
+  },
+  {
+    key: "subfamilies",
+    header: "Sub-families",
+    align: "end",
+    minWidth: 110,
+    mergedRender: (f) => plural(f.subfamilies, "sub-family", "sub-families"),
+  },
+];
+
+const ACTIONS = () => [
+  { label: "Copy link", onSelect: () => {} },
+  { label: "Settings", onSelect: () => {} },
+  {
+    label: "Delete family",
+    destructive: true,
+    separatorBefore: true,
+    onSelect: () => {},
+  },
+];
+
+const common = {
+  "aria-label": "Families",
+  columns: COLUMNS,
+  data: FAMILIES,
+  getRowId: (f: Family) => f.id,
+  getRowLabel: (f: Family) => f.name,
+  getRowHref: (f: Family) => `#${f.id}`,
+  rowActions: ACTIONS,
+  thumbnailFallback: <Lamp aria-hidden />,
+};
+
+/** The list view with a thumbnail column. */
+export function dataListThumbnails(): ReactNode {
+  return (
+    <Wrapper className="block">
+      <DataList<Family> {...common} />
+    </Wrapper>
+  );
+}
+
+/** The grid view: one MediaCard per row. */
+export function dataListGrid(): ReactNode {
+  return (
+    <Wrapper className="block">
+      <DataList<Family> {...common} view="grid" />
+    </Wrapper>
+  );
+}
+
+/** The grid view with groups: a heading and count over each group's cards. */
+export function dataListGridGroups(): ReactNode {
+  return (
+    <Wrapper className="block">
+      <DataList<Family>
+        {...common}
+        view="grid"
+        sections={SECTIONS}
+        getRowSection={(f) => f.category}
+      />
+    </Wrapper>
+  );
+}
+
+/** The grid view at `gridSize="lg"`: a 16:9 image on top. */
+export function dataListGridLg(): ReactNode {
+  return (
+    <Wrapper className="block">
+      <DataList<Family> {...common} view="grid" gridSize="lg" />
+    </Wrapper>
+  );
+}
+
+/** A custom card through `renderCard`. */
+export function dataListGridCustomCard(): ReactNode {
+  return (
+    <Wrapper className="block">
+      <DataList<Family>
+        {...common}
+        view="grid"
+        renderCard={(f) => (
+          <MediaCard
+            href={`#${f.id}`}
+            image={f.image}
+            fallback={<Lamp aria-hidden />}
+            title={f.name}
+            meta={plural(f.products, "product", "products")}
+            badge={<MissingPill n={f.missing} />}
+            timestamp="2h ago"
+          />
+        )}
+      />
+    </Wrapper>
+  );
+}
+
+/** The view toggle, in the FilterBar's view slot, remembered for the session. */
+export function dataListViewToggle(): ReactNode {
+  const [view, setView] = React.useState<DataListView>("grid");
+  const [q, setQ] = React.useState("");
+  const rows = FAMILIES.filter((f) =>
+    f.name.toLowerCase().includes(q.trim().toLowerCase()),
+  );
+  return (
+    <Wrapper className="block">
+      <DataList<Family>
+        {...common}
+        data={rows}
+        view={view}
+        onViewChange={setView}
+        viewStorageKey="docs-data-list-view-toggle"
+        sections={SECTIONS}
+        getRowSection={(f) => f.category}
+        noResults={q ? { onClear: () => setQ("") } : undefined}
+        toolbar={
+          <FilterBar
+            aria-label="Family filters"
+            search={{
+              value: q,
+              onValueChange: setQ,
+              placeholder: "Search families",
+            }}
+          />
+        }
+      />
+    </Wrapper>
+  );
+}
+
+interface Task {
+  id: string;
+  title: string;
+  status: "open" | "in_progress" | "done";
+  due: string;
+}
+
+const TASKS: Task[] = [
+  {
+    id: "t1",
+    title: "Send quote to Arora Builders",
+    status: "open",
+    due: "Today",
+  },
+  { id: "t2", title: "Photograph Cove samples", status: "open", due: "Fri" },
+  {
+    id: "t3",
+    title: "Review Summit spec sheet",
+    status: "in_progress",
+    due: "Tomorrow",
+  },
+  { id: "t4", title: "Close March PO", status: "done", due: "Mon" },
+];
+
+const LANES: DataListSection[] = [
+  { id: "open", label: "Open" },
+  { id: "in_progress", label: "In progress" },
+  { id: "done", label: "Done" },
+];
+
+/** The board view: sections become lanes, cards drag between them. */
+export function dataListBoard(): ReactNode {
+  const [tasks, setTasks] = React.useState(TASKS);
+  const [view, setView] = React.useState<DataListView>("board");
+  return (
+    <Wrapper className="block">
+      <DataList<Task>
+        aria-label="Tasks"
+        columns={[
+          { key: "title", header: "Task", mobile: "visible", minWidth: 220 },
+          { key: "due", header: "Due", minWidth: 96 },
+        ]}
+        data={tasks}
+        getRowId={(t) => t.id}
+        getRowLabel={(t) => t.title}
+        sections={LANES}
+        getRowSection={(t) => t.status}
+        view={view}
+        onViewChange={setView}
+        views={["list", "board"]}
+        viewStorageKey="docs-data-list-board"
+        onMove={(task, _from, to) =>
+          setTasks((all) =>
+            all.map((t) =>
+              t.id === task.id ? { ...t, status: to as Task["status"] } : t,
+            ),
+          )
         }
       />
     </Wrapper>

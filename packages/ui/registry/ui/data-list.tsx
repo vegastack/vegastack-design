@@ -1,4 +1,4 @@
-// @vegastack data-list@0.23.9 sha256-UdFpsVyJvgBkDWT648+IF8nn5G2GDB3AY74PdVtl93I=
+// @vegastack data-list@0.23.9 sha256-M9Hv9pC+c54jLjMWmT41H2U7IuEZBNxbBIDuqF+kLxw=
 
 "use client";
 
@@ -46,8 +46,18 @@ import {
   type RowAction,
 } from "@/components/ui/data-table-parts";
 import { TruncationFocusProvider } from "@/components/ui/truncated-text";
+import { Board, type BoardColumn } from "@/components/ui/board";
+import { FilterBar } from "@/components/ui/filter-bar";
+import { MediaCard } from "@/components/ui/media-card";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Thumbnail } from "@/components/ui/thumbnail";
+import { ViewToggle, type ListView } from "@/components/ui/view-toggle";
+import type { DragReorderMove } from "@/components/ui/use-drag-reorder";
 
 export type { DataTableColumnMobile, RowAction, SortDirection };
+
+/** How a `DataList` lays its rows out: a table, a card grid, or board lanes. */
+export type DataListView = ListView;
 
 /** The active sort — which column and which direction. */
 export interface SortState {
@@ -127,6 +137,13 @@ export interface DataListColumn<T> extends DataTableColumnLayout {
     index: number,
     cell: DataListCellContext,
   ) => React.ReactNode;
+  /**
+   * Show a 32px `Thumbnail` before this column's value (usually the first column), from the
+   * row's image URL. The grid view uses it as the card's image. A row with no image shows the
+   * list's `thumbnailFallback`.
+   * @default undefined
+   */
+  thumbnail?: (row: T) => string | null | undefined;
   /** Extra className applied to every body cell in this column. */
   className?: string;
   /**
@@ -390,6 +407,67 @@ export interface DataListProps<T> extends Omit<
    * @default undefined
    */
   highlightedIds?: ReadonlySet<string>;
+  /**
+   * The layout: `"list"` (the table), `"grid"` (a card per row, groups as headings over a
+   * responsive grid) or `"board"` (sections as `Board` lanes). Items, groups, sort, filters,
+   * paging, loading, empty and no-results states are the same in each. Controlled with
+   * `onViewChange`.
+   * @default "list"
+   */
+  view?: DataListView;
+  /**
+   * The initial view when uncontrolled.
+   * @default "list"
+   */
+  defaultView?: DataListView;
+  /**
+   * Called with the view the user picks. Setting it mounts a `ViewToggle` — in the toolbar's
+   * `FilterBar` `view` slot when the toolbar is a `FilterBar` — and the chosen view is
+   * remembered for the browser session.
+   * @default undefined
+   */
+  onViewChange?: (view: DataListView) => void;
+  /**
+   * The views the toggle offers, in order.
+   * @default ["grid", "list"]
+   */
+  views?: readonly DataListView[];
+  /**
+   * The session-storage key the chosen view is remembered under.
+   * @default `data-list-view:` + the path + the list's aria-label
+   */
+  viewStorageKey?: string;
+  /**
+   * The grid's card size: `default` (48px thumbnail, three columns on a wide container) or `lg`
+   * (a 16:9 image on top).
+   * @default "default"
+   */
+  gridSize?: "default" | "lg";
+  /**
+   * Render a row as a card, for the grid and board views. Defaults to a `MediaCard`: the first
+   * column is the title, the other columns join into its meta line, a `thumbnail` column is its
+   * image, `getRowHref` its link and `rowActions` its ⋯ menu. On a board it is the card's
+   * content only — the board owns the card surface and its link.
+   * @default undefined
+   */
+  renderCard?: (row: T, index: number) => React.ReactNode;
+  /**
+   * What a `thumbnail` column or a card shows for a row with no image — the app's brand mark.
+   * @default <ImageIcon />
+   */
+  thumbnailFallback?: React.ReactNode;
+  /**
+   * Board view: a card was dragged (or moved from its menu) from one lane to another. Return a
+   * promise for a server-gated move; a rejection snaps the card back. Without it the board is
+   * read-only (its menus still work).
+   * @default undefined
+   */
+  onMove?: (
+    row: T,
+    fromSection: string,
+    toSection: string,
+    move: DragReorderMove,
+  ) => void | Promise<void>;
 }
 
 /** The `noResults` state's copy and its "Clear filters" action. */
@@ -526,6 +604,21 @@ export interface DataListSection {
    * @default the loaded row count
    */
   count?: number;
+  /**
+   * Board view: this lane is loading its first batch (it shows skeleton cards).
+   * @default the list's `loading`
+   */
+  loading?: boolean;
+  /**
+   * Board view: this lane's own keyset paging, a `LoadMore` at the lane's foot.
+   * @default undefined
+   */
+  loadMore?: DataListLoadMoreProps;
+  /**
+   * Board view: what an empty lane shows.
+   * @default a bordered "No items" Empty
+   */
+  emptyState?: React.ReactNode;
 }
 
 const EMPTY_GROUP_STATE: GroupState = {};
@@ -714,6 +807,15 @@ export function DataList<T>({
   highlightedIds,
   rowActions,
   rowActionsLabel,
+  view,
+  defaultView = "list",
+  onViewChange,
+  views = ["grid", "list"],
+  viewStorageKey,
+  gridSize = "default",
+  renderCard,
+  thumbnailFallback,
+  onMove,
   className,
   "aria-busy": ariaBusy,
   "aria-describedby": ariaDescribedBy,
@@ -841,6 +943,50 @@ export function DataList<T>({
     return [...rawData].sort((a, b) => sign * cmp(a, b));
   }, [rawData, activeSort, allColumns, sortMode]);
   const data = sortedData;
+
+  // ---- view (list | grid | board), remembered for the session ------------
+  const [activeView, commitView] = useControlledState<DataListView>(
+    view,
+    defaultView,
+    onViewChange,
+  );
+  const listLabel = (tableProps as { "aria-label"?: string })["aria-label"];
+  const storageKeyFor = React.useCallback(
+    () =>
+      viewStorageKey ??
+      `data-list-view:${typeof window === "undefined" ? "" : window.location.pathname}:${listLabel ?? ""}`,
+    [viewStorageKey, listLabel],
+  );
+  const restoredView = React.useRef(false);
+  React.useEffect(() => {
+    if (!onViewChange || restoredView.current) return;
+    restoredView.current = true;
+    try {
+      const stored = window.sessionStorage.getItem(storageKeyFor());
+      if (
+        stored &&
+        stored !== activeView &&
+        (views as readonly string[]).includes(stored)
+      )
+        commitView(stored as DataListView);
+    } catch {
+      // Storage can be unavailable (private mode, blocked site data); the view just isn't remembered.
+    }
+  }, [onViewChange, storageKeyFor, activeView, views, commitView]);
+  const changeView = React.useCallback(
+    (next: DataListView) => {
+      try {
+        window.sessionStorage.setItem(storageKeyFor(), next);
+      } catch {
+        // See above.
+      }
+      commitView(next);
+    },
+    [commitView, storageKeyFor],
+  );
+  const viewToggle = onViewChange ? (
+    <ViewToggle value={activeView} onValueChange={changeView} views={views} />
+  ) : null;
 
   const rowIds = React.useMemo(
     () => data.map((row, i) => getRowId(row, i)),
@@ -1022,7 +1168,23 @@ export function DataList<T>({
           />
         )}
         {visibleColumns.map((col, colIdx) => {
-          const content = renderCell(col, row, index, id, isSelected);
+          const value = renderCell(col, row, index, id, isSelected);
+          const content = col.thumbnail ? (
+            <span
+              data-slot="data-list-thumbnail-cell"
+              className="flex min-w-0 items-center gap-3"
+            >
+              <Thumbnail
+                size="sm"
+                src={col.thumbnail(row)}
+                alt=""
+                fallback={thumbnailFallback}
+              />
+              <span className="min-w-0">{value}</span>
+            </span>
+          ) : (
+            value
+          );
           // First cell + activatable + not an interactive column → wrap
           // the content in a real <button>. It lives INSIDE the <td>, so
           // the cell keeps its `role="cell"` and the row its `role="row"`;
@@ -1262,15 +1424,225 @@ export function DataList<T>({
   // `w-full min-w-0` keeps the width the bare `table-container` had (it is
   // `w-full`), so a host layout sees one full-width block either way. `ref` and
   // `className` still reach the `<table>`.
+  // ---- grid and board ------------------------------------------------------
+  const thumbnailColumn = columns.find((col) => col.thumbnail);
+  const metaColumns = columns.slice(1);
+  const cardMeta = (row: T, index: number) => {
+    const id = rowIds[index]!;
+    const parts = metaColumns
+      .map((col) =>
+        col.mergedRender
+          ? col.mergedRender(row, index, {
+              rowId: id,
+              columnKey: col.key,
+              selected: false,
+            })
+          : renderCell(col, row, index, id, false),
+      )
+      .filter((part) => part != null && part !== "" && part !== false);
+    if (parts.length === 0) return undefined;
+    return parts.map((part, i) => (
+      <React.Fragment key={i}>
+        {i > 0 ? " · " : null}
+        {part}
+      </React.Fragment>
+    ));
+  };
+  const defaultCard = (row: T, index: number, onBoard: boolean) => {
+    const first = columns[0];
+    const id = rowIds[index]!;
+    return (
+      <MediaCard
+        size={onBoard ? "default" : gridSize}
+        surface={!onBoard}
+        href={onBoard ? undefined : getRowHref?.(row)}
+        linkRender={rowLinkRender}
+        image={
+          thumbnailColumn
+            ? (thumbnailColumn.thumbnail!(row) ?? null)
+            : undefined
+        }
+        fallback={thumbnailColumn ? thumbnailFallback : undefined}
+        title={first ? renderCell(first, row, index, id, false) : null}
+        meta={cardMeta(row, index)}
+        actions={
+          !onBoard && rowActions ? (
+            <RowActionsMenu
+              label={getRowLabel?.(row) ?? "row"}
+              actions={rowActions(row)}
+              actionsLabel={rowActionsLabel}
+            />
+          ) : undefined
+        }
+      />
+    );
+  };
+  const gridClass = cn(
+    "grid grid-cols-1 gap-3",
+    gridSize === "lg"
+      ? "@xl/data-list:grid-cols-2 @5xl/data-list:grid-cols-3"
+      : "@xl/data-list:grid-cols-2 @4xl/data-list:grid-cols-3",
+  );
+  const gridCards = (indexes: number[]) => (
+    <div role="list" data-slot="data-list-grid" className={gridClass}>
+      {indexes.map((index) => (
+        <div role="listitem" key={rowIds[index]} className="min-w-0">
+          {renderCard
+            ? renderCard(data[index]!, index)
+            : defaultCard(data[index]!, index, false)}
+        </div>
+      ))}
+    </div>
+  );
+  const emptyContent = noResults ? (
+    <NoResultsEmpty {...(noResults === true ? {} : noResults)} />
+  ) : (
+    (emptyState ?? (
+      <Empty>
+        <EmptyHeader>
+          <EmptyTitle>No data</EmptyTitle>
+          <EmptyDescription>There are no records to display.</EmptyDescription>
+        </EmptyHeader>
+      </Empty>
+    ))
+  );
+  const allIndexes = () => data.map((_, index) => index);
+  const grid = (
+    <div
+      data-slot="data-list-grid-root"
+      aria-label={listLabel}
+      aria-busy={loading || undefined}
+      className="flex min-w-0 flex-col gap-6"
+    >
+      {loadingStatus}
+      {loading ? (
+        <div className={gridClass} data-slot="data-list-grid-skeleton">
+          {Array.from({ length: loadingRows }, (_, i) => (
+            <Skeleton
+              key={i}
+              className={cn(
+                "rounded-lg",
+                gridSize === "lg" ? "aspect-[4/3]" : "h-16",
+              )}
+            />
+          ))}
+        </div>
+      ) : data.length === 0 ? (
+        emptyContent
+      ) : sectionGroups ? (
+        sectionGroups.map((group) => (
+          <section
+            key={group.id}
+            data-slot="data-list-grid-section"
+            data-section={group.id}
+            aria-label={
+              typeof group.label === "string" ? group.label : undefined
+            }
+            className="flex min-w-0 flex-col gap-3"
+          >
+            {group.label != null ? (
+              <h3 className="text-sm font-medium">
+                {group.label}
+                <span className="font-normal text-muted-foreground">
+                  {" · "}
+                  <span className="tabular-nums">
+                    {group.count ?? group.indexes.length}
+                  </span>
+                </span>
+              </h3>
+            ) : null}
+            {gridCards(group.indexes)}
+          </section>
+        ))
+      ) : (
+        gridCards(allIndexes())
+      )}
+    </div>
+  );
+
+  const rowIndex = new Map<T, number>();
+  data.forEach((row, index) => rowIndex.set(row, index));
+  const boardLanes: BoardColumn<T>[] = (
+    sections && getRowSection ? sections : [{ id: "__all", label: "All" }]
+  ).map((section) => ({
+    id: section.id,
+    title: section.label,
+    label: typeof section.label === "string" ? section.label : undefined,
+    items: getRowSection
+      ? data.filter((row) => getRowSection(row) === section.id)
+      : data,
+    count: section.count,
+    loading: section.loading ?? loading,
+    loadMore: section.loadMore,
+    emptyState: section.emptyState,
+  }));
+  const board =
+    !loading && data.length === 0 && noResults ? (
+      emptyContent
+    ) : (
+      <Board<T>
+        aria-label={listLabel}
+        columns={boardLanes}
+        getItemId={(row) => rowIds[rowIndex.get(row) ?? 0]!}
+        getItemLabel={getRowLabel}
+        getItemHref={getRowHref}
+        itemLinkRender={rowLinkRender}
+        getItemActions={rowActions}
+        actionsLabel={rowActionsLabel}
+        countLabel={sectionCountLabel}
+        onCardActivate={
+          onRowClick
+            ? (row) => onRowClick(row, rowIndex.get(row) ?? 0)
+            : undefined
+        }
+        dragDisabled={!onMove}
+        onMove={(move) => {
+          const index = rowIds.indexOf(move.id);
+          if (index < 0 || !onMove) return;
+          return onMove(
+            data[index]!,
+            move.from.container,
+            move.to.container,
+            move,
+          );
+        }}
+        renderCard={(row) => {
+          const index = rowIndex.get(row) ?? 0;
+          return renderCard
+            ? renderCard(row, index)
+            : defaultCard(row, index, true);
+        }}
+      />
+    );
+
+  // The view toggle lands in the toolbar's FilterBar `view` slot, else beside the toolbar.
+  const toolbarWithToggle =
+    viewToggle &&
+    React.isValidElement<{ view?: React.ReactNode }>(toolbar) &&
+    toolbar.type === FilterBar &&
+    toolbar.props.view == null ? (
+      React.cloneElement(toolbar, { view: viewToggle })
+    ) : viewToggle ? (
+      <div className="flex min-w-0 flex-wrap items-center gap-2">
+        {toolbar != null ? (
+          <div className="min-w-0 flex-1">{toolbar}</div>
+        ) : null}
+        <div className="ms-auto">{viewToggle}</div>
+      </div>
+    ) : (
+      toolbar
+    );
+
   return (
     <div
       data-slot="data-list-root"
-      className="flex w-full min-w-0 flex-col gap-3"
+      data-view={activeView}
+      className="@container/data-list flex w-full min-w-0 flex-col gap-3"
     >
-      {toolbar != null ? (
-        <div data-slot="data-list-toolbar">{toolbar}</div>
+      {toolbarWithToggle != null ? (
+        <div data-slot="data-list-toolbar">{toolbarWithToggle}</div>
       ) : null}
-      {table}
+      {activeView === "grid" ? grid : activeView === "board" ? board : table}
       {loadMore ? <LoadMore {...loadMore} /> : null}
       {footer != null ? <div data-slot="data-list-footer">{footer}</div> : null}
     </div>

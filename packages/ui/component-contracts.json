@@ -12,8 +12,8 @@
     "evidencePolicy": "Observed fields come from source, registry metadata, docs, and test topology. Unknown/not-applicable values are explicit; no inferred behavior is presented as verified."
   },
   "expectedCounts": {
-    "totalRegistryItems": 679,
-    "components": 118,
+    "totalRegistryItems": 682,
+    "components": 121,
     "animatedIcons": 467,
     "hooks": 13,
     "blocks": 10,
@@ -25,7 +25,7 @@
     "Forms/editing": 26,
     "Navigation/layout": 17,
     "Overlays": 14,
-    "Data display": 14,
+    "Data display": 17,
     "Content/marketing": 14,
     "Shared internals": 2,
     "AI/chat": 8,
@@ -132,11 +132,14 @@
       "data-list-pager",
       "inbox",
       "load-more",
+      "media-card",
       "meta-line",
       "property-list",
       "stat",
       "table",
-      "timeline"
+      "thumbnail",
+      "timeline",
+      "view-toggle"
     ],
     "Content/marketing": [
       "alert",
@@ -6892,6 +6895,15 @@
             "status": "not-applicable",
             "rationale": "Type-only exports do not render or accept runtime refs."
           }
+        },
+        {
+          "name": "DataListView",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/data-list.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
         }
       ],
       "variants": {
@@ -6977,12 +6989,19 @@
       "engines": [],
       "docsSlug": "/docs/components/data-list",
       "registryDependencies": [
+        "@vegastack/board",
         "@vegastack/button",
         "@vegastack/data-table-parts",
         "@vegastack/empty",
+        "@vegastack/filter-bar",
         "@vegastack/load-more",
+        "@vegastack/media-card",
+        "@vegastack/skeleton",
         "@vegastack/table",
-        "@vegastack/truncated-text"
+        "@vegastack/thumbnail",
+        "@vegastack/truncated-text",
+        "@vegastack/use-drag-reorder",
+        "@vegastack/view-toggle"
       ],
       "npmDependencies": [
         "@vegastack/design-tokens@^0.7.18",
@@ -7040,6 +7059,10 @@
               "values": [
                 "data-list",
                 "data-list-footer",
+                "data-list-grid",
+                "data-list-grid-root",
+                "data-list-grid-section",
+                "data-list-grid-skeleton",
                 "data-list-head",
                 "data-list-hidden-hint",
                 "data-list-merged",
@@ -7049,6 +7072,7 @@
                 "data-list-section",
                 "data-list-sort-hint",
                 "data-list-status",
+                "data-list-thumbnail-cell",
                 "data-list-toolbar"
               ]
             },
@@ -7059,6 +7083,10 @@
             {
               "name": "data-squeezed",
               "values": [""]
+            },
+            {
+              "name": "data-view",
+              "values": []
             }
           ],
           "cssVariables": []
@@ -7338,6 +7366,338 @@
             {
               "name": "data-state",
               "values": ["done", "error", "idle", "loading"]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
+    },
+    {
+      "name": "media-card",
+      "registryType": "registry:ui",
+      "title": "Media Card",
+      "summary": "A record as a card — an image, the title, a meta line, a badge and a ⋯ menu — where the whole card is one link.",
+      "status": "stable",
+      "since": "0.23.10",
+      "family": "data",
+      "wave": "Data display",
+      "sourceFiles": ["packages/ui/registry/ui/media-card.tsx"],
+      "publicSymbols": [
+        {
+          "name": "MediaCard",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/media-card.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "div",
+            "rationale": "Spread onto the root div."
+          }
+        },
+        {
+          "name": "MediaCardProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/media-card.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "size is default | lg (16:9 image on top); no visual variant axis."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "size is default | lg (16:9 image on top); no visual variant axis."
+      },
+      "states": {
+        "behavior": {
+          "status": "covered",
+          "values": ["link", "plain", "lg", "no-media"],
+          "evidence": "packages/ui/registry/ui/media-card.tsx + packages/ui/registry/ui/media-card.test.tsx"
+        },
+        "accessibility": {
+          "status": "covered",
+          "values": ["labeled", "browser-accessibility-test"],
+          "evidence": "packages/ui/registry/ui/media-card.test.tsx"
+        },
+        "visual": {
+          "status": "observed",
+          "values": ["default", "hover"],
+          "evidence": "packages/ui/registry/ui/media-card.tsx"
+        }
+      },
+      "responsive": {
+        "status": "modeled",
+        "risks": ["responsive-or-container-layout"],
+        "rationale": "Fixed-size media and truncating text; nothing grows past its container."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned motion mechanism."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/media-card",
+      "registryDependencies": ["@vegastack/thumbnail"],
+      "npmDependencies": [
+        "@vegastack/design@^0.7.18",
+        "@vegastack/design-tokens@^0.7.18",
+        "@base-ui/react@^1.6.0"
+      ],
+      "testFiles": ["packages/ui/registry/ui/media-card.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required"
+      },
+      "previewModule": "media-card",
+      "dataAttributes": {
+        "MediaCard": {
+          "attributes": [
+            {
+              "name": "data-size",
+              "values": []
+            },
+            {
+              "name": "data-slot",
+              "values": [
+                "media-card",
+                "media-card-actions",
+                "media-card-meta",
+                "media-card-title"
+              ]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
+    },
+    {
+      "name": "thumbnail",
+      "registryType": "registry:ui",
+      "title": "Thumbnail",
+      "summary": "A small rounded, cover-fit image, 32 or 48px, with a fallback for records that have no image.",
+      "status": "stable",
+      "since": "0.23.10",
+      "family": "data",
+      "wave": "Data display",
+      "sourceFiles": ["packages/ui/registry/ui/thumbnail.tsx"],
+      "publicSymbols": [
+        {
+          "name": "Thumbnail",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/thumbnail.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "span",
+            "rationale": "Spread onto the root span."
+          }
+        },
+        {
+          "name": "ThumbnailProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/thumbnail.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "size is sm (32px) | default (48px)."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "size is sm (32px) | default (48px)."
+      },
+      "states": {
+        "behavior": {
+          "status": "covered",
+          "values": ["image", "fallback", "error"],
+          "evidence": "packages/ui/registry/ui/thumbnail.tsx + packages/ui/registry/ui/thumbnail.test.tsx"
+        },
+        "accessibility": {
+          "status": "covered",
+          "values": ["labeled", "browser-accessibility-test"],
+          "evidence": "packages/ui/registry/ui/thumbnail.test.tsx"
+        },
+        "visual": {
+          "status": "observed",
+          "values": ["default", "hover"],
+          "evidence": "packages/ui/registry/ui/thumbnail.tsx"
+        }
+      },
+      "responsive": {
+        "status": "modeled",
+        "risks": ["responsive-or-container-layout"],
+        "rationale": "Fixed-size media and truncating text; nothing grows past its container."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned motion mechanism."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/thumbnail",
+      "registryDependencies": [],
+      "npmDependencies": [
+        "@vegastack/design@^0.7.18",
+        "@vegastack/design-tokens@^0.7.18",
+        "lucide-react@^1.47.0"
+      ],
+      "testFiles": ["packages/ui/registry/ui/thumbnail.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required"
+      },
+      "previewModule": "thumbnail",
+      "dataAttributes": {
+        "Thumbnail": {
+          "attributes": [
+            {
+              "name": "data-fallback",
+              "values": [""]
+            },
+            {
+              "name": "data-size",
+              "values": []
+            },
+            {
+              "name": "data-slot",
+              "values": ["thumbnail", "thumbnail-fallback"]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
+    },
+    {
+      "name": "view-toggle",
+      "registryType": "registry:ui",
+      "title": "View Toggle",
+      "summary": "The Grid | List | Board icon switch for a list page, labels hidden on a phone.",
+      "status": "stable",
+      "since": "0.23.10",
+      "family": "data",
+      "wave": "Data display",
+      "sourceFiles": ["packages/ui/registry/ui/view-toggle.tsx"],
+      "publicSymbols": [
+        {
+          "name": "ViewToggle",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/view-toggle.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "ViewToggle takes no ref; it renders a ToggleGroup."
+          }
+        },
+        {
+          "name": "ViewToggleProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/view-toggle.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "ListView",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/view-toggle.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "ToggleGroup outline variant; no local axis."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "ToggleGroup outline variant; no local axis."
+      },
+      "states": {
+        "behavior": {
+          "status": "covered",
+          "values": ["grid", "list", "board"],
+          "evidence": "packages/ui/registry/ui/view-toggle.tsx + packages/ui/registry/ui/view-toggle.test.tsx"
+        },
+        "accessibility": {
+          "status": "covered",
+          "values": ["labeled", "browser-accessibility-test"],
+          "evidence": "packages/ui/registry/ui/view-toggle.test.tsx"
+        },
+        "visual": {
+          "status": "observed",
+          "values": ["default", "hover"],
+          "evidence": "packages/ui/registry/ui/view-toggle.tsx"
+        }
+      },
+      "responsive": {
+        "status": "modeled",
+        "risks": ["responsive-or-container-layout"],
+        "rationale": "Fixed-size media and truncating text; nothing grows past its container."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned motion mechanism."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/view-toggle",
+      "registryDependencies": ["@vegastack/toggle-group"],
+      "npmDependencies": [
+        "@vegastack/design@^0.7.18",
+        "@vegastack/design-tokens@^0.7.18",
+        "lucide-react@^1.47.0"
+      ],
+      "testFiles": ["packages/ui/registry/ui/view-toggle.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required"
+      },
+      "previewModule": "view-toggle",
+      "dataAttributes": {
+        "ViewToggle": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["view-toggle"]
+            },
+            {
+              "name": "data-view",
+              "values": []
             }
           ],
           "cssVariables": []

@@ -1,0 +1,69 @@
+---
+title: View Toggle
+description: The Grid | List | Board icon switch for a list page, with its labels hidden on a phone.
+audience: public
+registry: view-toggle
+status: stable
+since: 0.23.10
+a11y: toggle group, one pressed item
+preview: viewToggle
+---
+
+## Install
+
+<InstallSteps name="view-toggle" />
+
+## Usage
+
+```tsx
+import { ViewToggle } from "@/components/ui/view-toggle";
+
+<ViewToggle value={view} onValueChange={setView} />;
+```
+
+`ViewToggle` switches a list page between its views — an outline icon group, one item always
+pressed. The labels show beside the icons from a small screen up and hide on a phone (they stay in
+the accessible name). [`DataList`](/docs/components/data-list) mounts it for you in the `FilterBar`
+`view` slot when you pass `onViewChange`, and remembers the choice for the session.
+
+<ComponentPreview name="viewToggle" file="components/preview/view-toggle.tsx" />
+
+## Examples
+
+### Views
+
+`views` sets which views are offered, in order: Grid (`LayoutGrid`), List (`List`) and Board
+(`Kanban`). An app passes only the views it allows — `views={["list", "board"]}` for a task list.
+
+<ComponentPreview
+  name="viewToggleBoard"
+  file="components/preview/view-toggle.tsx"
+/>
+
+## API Reference
+
+<ApiTable
+  path="../../packages/ui/registry/ui/view-toggle.tsx"
+  name="ViewToggleProps"
+/>
+
+## Accessibility
+
+- A `group` named "View" (`aria-label` to rename) of toggle buttons; the current view is the pressed
+  one, and pressing it again keeps it.
+- On a phone the labels are visually hidden but still name each button.
+
+| Key                                 | Action                         |
+| ----------------------------------- | ------------------------------ |
+| <kbd>Tab</kbd>                      | Move into and out of the group |
+| <kbd>←</kbd> / <kbd>→</kbd>         | Move between views             |
+| <kbd>Enter</kbd> / <kbd>Space</kbd> | Switch to the focused view     |
+
+<StatesTested name="view-toggle" />
+
+## Do / Don't
+
+<DoDont
+  do="Offer only the views the page supports, in the same order everywhere."
+  dont="Use ViewToggle for a scope switch such as Mine | Team — that is a ToggleGroup or Tabs."
+/>

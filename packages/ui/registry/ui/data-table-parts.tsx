@@ -1,4 +1,4 @@
-// @vegastack data-table-parts@0.23.9 sha256-XYfAifI2PM2k+CeaEiPfKvKRmjhyOz4KfQwTie30s1I=
+// @vegastack data-table-parts@0.23.9 sha256-F7mWX8S+tTUP2+iVkfhwqNRZNJG0XaUdXy4ixNEbVKQ=
 
 "use client";
 
@@ -19,6 +19,7 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { ItemContent, ItemDescription, ItemTitle } from "@/components/ui/item";
@@ -944,6 +945,11 @@ export interface RowAction {
    * @default undefined
    */
   icon?: React.ReactNode;
+  /**
+   * Draw a separator above this item — to set a destructive action apart from the rest.
+   * @default false
+   */
+  separatorBefore?: boolean;
 }
 
 /**
@@ -968,31 +974,35 @@ export function RowActionMenuItems({
 }) {
   return (
     <>
-      {actions.map((action) => (
-        <DropdownMenuItem
-          key={action.label}
-          variant={action.destructive ? "destructive" : "default"}
-          disabled={action.disabled}
-          render={action.render}
-          onClick={
-            action.disabled || !action.onSelect
-              ? undefined
-              : () => {
-                  onAction?.();
-                  action.onSelect?.();
-                }
-          }
-        >
-          {action.icon}
-          {action.disabled && action.disabledReason ? (
-            <ItemContent>
-              <ItemTitle>{action.label}</ItemTitle>
-              <ItemDescription>{action.disabledReason}</ItemDescription>
-            </ItemContent>
-          ) : (
-            action.label
-          )}
-        </DropdownMenuItem>
+      {actions.map((action, index) => (
+        <React.Fragment key={action.label}>
+          {action.separatorBefore && index > 0 ? (
+            <DropdownMenuSeparator />
+          ) : null}
+          <DropdownMenuItem
+            variant={action.destructive ? "destructive" : "default"}
+            disabled={action.disabled}
+            render={action.render}
+            onClick={
+              action.disabled || !action.onSelect
+                ? undefined
+                : () => {
+                    onAction?.();
+                    action.onSelect?.();
+                  }
+            }
+          >
+            {action.icon}
+            {action.disabled && action.disabledReason ? (
+              <ItemContent>
+                <ItemTitle>{action.label}</ItemTitle>
+                <ItemDescription>{action.disabledReason}</ItemDescription>
+              </ItemContent>
+            ) : (
+              action.label
+            )}
+          </DropdownMenuItem>
+        </React.Fragment>
       ))}
     </>
   );

@@ -144,6 +144,12 @@
       "family": "data-display",
       "source": "extras.md"
     },
+    "media-card": {
+      "disposition": "keep",
+      "family": "data",
+      "source": "Operator brief 2026-09-25 (DataList grid/board views) — approved by MK 2026-09-25",
+      "rationale": "Upstream ships no record card with a stretched link, thumbnail, meta line and hover menu. DataList grid view and consumer card grids need one shared card; it composes our thumbnail and carries no patch."
+    },
     "media-player-controls": {
       "disposition": "keep",
       "family": "media",
@@ -284,6 +290,12 @@
       "family": "rich-text",
       "source": "extras.md"
     },
+    "thumbnail": {
+      "disposition": "keep",
+      "family": "data",
+      "source": "Operator brief 2026-09-25 (DataList grid/board views) — approved by MK 2026-09-25",
+      "rationale": "Upstream ships no small cover-fit record image with a fallback (Avatar is for people). Lists and cards need one; no patch."
+    },
     "timeline": {
       "disposition": "keep",
       "family": "data-display",
@@ -374,6 +386,12 @@
       "disposition": "keep",
       "family": "media",
       "source": "extras.md"
+    },
+    "view-toggle": {
+      "disposition": "keep",
+      "family": "data",
+      "source": "Operator brief 2026-09-25 (DataList grid/board views) — approved by MK 2026-09-25",
+      "rationale": "Upstream ships no view switch. It is a fixed composition of upstream toggle-group, shared by DataList and consumers; no patch."
     }
   }
 }

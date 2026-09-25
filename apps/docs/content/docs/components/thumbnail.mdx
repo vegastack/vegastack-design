@@ -1,0 +1,72 @@
+---
+title: Thumbnail
+description: A small rounded, cover-fit record image — 32px in a list row, 48px in a card — with a fallback for records that have none.
+audience: public
+registry: thumbnail
+status: stable
+since: 0.23.10
+a11y: alt text, or decorative beside its name
+preview: thumbnail
+---
+
+## Install
+
+<InstallSteps name="thumbnail" />
+
+## Usage
+
+```tsx
+import { Thumbnail } from "@/components/ui/thumbnail";
+
+<Thumbnail src={family.imageUrl} alt="" fallback={<BrandMark />} size="sm" />;
+```
+
+`Thumbnail` shows a record's image, cropped to cover a rounded square. A record with no image —
+or one whose image fails to load — shows `fallback`: pass the app's brand mark so an empty record
+still looks like it belongs. `DataList`'s `thumbnail` column and `MediaCard` render it for you.
+
+<ComponentPreview name="thumbnail" file="components/preview/thumbnail.tsx" />
+
+## Examples
+
+### Sizes
+
+`sm` is 32px, for a list row; `default` is 48px, for a card.
+
+<ComponentPreview
+  name="thumbnailSizes"
+  file="components/preview/thumbnail.tsx"
+/>
+
+### Fallback
+
+With no `fallback`, a record with no image (or a broken one) shows an image icon on the muted
+surface.
+
+<ComponentPreview
+  name="thumbnailFallback"
+  file="components/preview/thumbnail.tsx"
+/>
+
+## API Reference
+
+<ApiTable
+  path="../../packages/ui/registry/ui/thumbnail.tsx"
+  name="ThumbnailProps"
+/>
+
+## Accessibility
+
+- Pass `alt=""` when the record's name sits right beside the image — a list row, a card title — so
+  it is not read twice. Give it real alt text when it stands alone.
+- The fallback takes the same name: with an `alt`, it is an `img` named by it; with `alt=""` it is
+  hidden from assistive technology.
+
+<StatesTested name="thumbnail" />
+
+## Do / Don't
+
+<DoDont
+  do="Pass the app's brand mark as the fallback, so a record without an image still reads as one of yours."
+  dont="Use Thumbnail for a person — that is Avatar, with initials as its fallback."
+/>

@@ -1,7 +1,12 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { ArrowUpRightIcon, BadgeCheckIcon, BookmarkIcon } from "lucide-react";
+import {
+  ArrowUpRightIcon,
+  BadgeCheckIcon,
+  BookmarkIcon,
+  TriangleAlert,
+} from "lucide-react";
 import { Wrapper } from "./wrapper";
 // Copied INTO apps/docs via `shadcn add @vegastack/badge` (dogfoods the registry) → auto-scanned.
 import { Badge, type BadgeVariant } from "@/components/ui/badge";
@@ -156,6 +161,19 @@ export function badgeStatusMap(): ReactNode {
           {RUN_STATUS[status].label}
         </Badge>
       ))}
+    </Wrapper>
+  );
+}
+
+export function badgeWarningPill(): ReactNode {
+  return (
+    <Wrapper>
+      <Badge variant="warning">
+        <TriangleAlert aria-hidden />3
+      </Badge>
+      <Badge variant="warning">
+        <TriangleAlert aria-hidden />3 missing specs
+      </Badge>
     </Wrapper>
   );
 }
