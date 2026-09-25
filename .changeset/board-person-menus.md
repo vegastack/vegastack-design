@@ -1,5 +1,0 @@
----
-"@vegastack/design": patch
----
-
-🔧 Board, BoardCard, row menus and PersonOption: `BoardCard` takes a `status` slot (your status circle, click to change and Alt-click to finish, as in list rows) in a fixed leading column, with the title, context and meta row sharing one text column; the meta row reads assignee avatar, due, then priority, and the `source`/`sourceLabel` icon is removed; a done title's strike no longer clips. The `Board` card ⋯ menu drops its Move up/down/top/bottom/"Move to" items (drag and Space + arrows stay) and shows only when a card has actions. `RowActionItem` gains `checked` (a tick for the current choice) and `shortcut` (a one-key pick such as O/P/B/D/C); row and card menus are at least 12rem wide, submenus 12rem, and person submenus 18rem. `PersonOption` (avatar, name over email) is the standard for every person list, and `SearchableSelect` with `itemToSecondaryLabel` widens its popup to 18rem. Card ⋯ menus (`MediaCard`, `BoardCard`) are top-aligned with the title's first line.

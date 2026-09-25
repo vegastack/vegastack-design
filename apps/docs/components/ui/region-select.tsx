@@ -1,4 +1,4 @@
-// @vegastack region-select@0.23.23 sha256-H0K6kgo3MRHIzxHgfjFBsNqaEYoufRI4Ap8tQ2dTck8=
+// @vegastack region-select@0.23.24 sha256-Y9R3l+cTa+WMvfaT0K5lw2wIMeErPMBnLlxq12I4s+g=
 
 "use client";
 

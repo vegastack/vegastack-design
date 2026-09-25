@@ -1,5 +1,16 @@
 # @vegastack/design
 
+## 0.7.33
+
+### Patch Changes
+
+- [#290](https://github.com/vegastack/vegastack-design/pull/290) [`12744e2`](https://github.com/vegastack/vegastack-design/commit/12744e22a4f2841fd633a17301b7eb0679b52864) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🔧 Board, BoardCard, row menus and PersonOption: `BoardCard` takes a `status` slot (your status circle, click to change and Alt-click to finish, as in list rows) in a fixed leading column, with the title, context and meta row sharing one text column; the meta row reads assignee avatar, due, then priority, and the `source`/`sourceLabel` icon is removed; a done title's strike no longer clips. The `Board` card ⋯ menu drops its Move up/down/top/bottom/"Move to" items (drag and Space + arrows stay) and shows only when a card has actions. `RowActionItem` gains `checked` (a tick for the current choice) and `shortcut` (a one-key pick such as O/P/B/D/C); row and card menus are at least 12rem wide, submenus 12rem, and person submenus 18rem. `PersonOption` (avatar, name over email) is the standard for every person list, and `SearchableSelect` with `itemToSecondaryLabel` widens its popup to 18rem. Card ⋯ menus (`MediaCard`, `BoardCard`) are top-aligned with the title's first line.
+
+- [#296](https://github.com/vegastack/vegastack-design/pull/296) [`7d9d485`](https://github.com/vegastack/vegastack-design/commit/7d9d4855470cb4a36c213ea9bdca6429d52404bd) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🔧 No focus rings anywhere, Tabs included (FOC-13): tab triggers and panels take the same background tint as everything else, and clicking a tab shows nothing. Every clear and dismiss × (FilterBar facet and date clear, Chip remove, SearchableSelect, Combobox and DatePicker clear, Dialog and Sheet close) opts out of Button's press nudge and centres with inset and auto margins, so it never jumps when pressed. Transcript: the search field is capped at `max-w-sm`, the speaker name in each turn is an inline `EditableCell` when `onSpeakerRename` is set (a rename applies to every turn with that speaker), and `TranscriptSpeakers` is deprecated. Empty's icon tile is 40px with a 20px icon (32px / 16px at `size="sm"`), and the tile sizes any icon passed in.
+
+- Updated dependencies [[`7d9d485`](https://github.com/vegastack/vegastack-design/commit/7d9d4855470cb4a36c213ea9bdca6429d52404bd)]:
+  - @vegastack/design-tokens@0.7.33
+
 ## 0.7.32
 
 ### Patch Changes
