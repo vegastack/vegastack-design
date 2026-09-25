@@ -43,7 +43,7 @@ add the absolute time in a hover tooltip ("Sep 25, 2026 · 2:30 PM IST").
 - Anything under 45 seconds reads "now".
 - Built on `Intl`, locale-ready; English for now.
 
-## Where to use what
+### Where to use what
 
 | Surface                                  | Use                                                         | Reads                                               |
 | ---------------------------------------- | ----------------------------------------------------------- | --------------------------------------------------- |
@@ -59,7 +59,7 @@ add the absolute time in a hover tooltip ("Sep 25, 2026 · 2:30 PM IST").
 | Grouped lists (inbox, activity)          | `groupByDay`                                                | Today / Yesterday / This week / Last week / Earlier |
 | API / JSON                               | ISO strings — never formatted text                          | 2026-09-25T09:00:00.000Z                            |
 
-## Functions
+## Examples
 
 ### formatRelative
 
@@ -121,7 +121,7 @@ groups are dropped). Each group has a stable `key` and a `label`.
   file="components/preview/relative-time.tsx"
 />
 
-## Components
+### Components
 
 `<RelativeTime>` auto-refreshes; `<DateTime>`, `<Duration>` and `<DueLabel>` render once. Each
 shows the absolute time in a hover tooltip unless `title={false}`.
@@ -131,7 +131,7 @@ shows the absolute time in a hover tooltip unless `title={false}`.
   file="components/preview/relative-time.tsx"
 />
 
-## Time zone
+### Time zone
 
 Day boundaries follow the viewer. Write the browser zone to a `tz` cookie, read it on the server
 with the org zone from app config as the fallback, and provide it to the tree:
@@ -165,9 +165,7 @@ zone reaches the next request. Client code reads the zone with `useTimeZone()`; 
 timer while the date is recent. It uses the platform-native `Intl.RelativeTimeFormat`
 — no `date-fns` or other date dependency.
 
-## RelativeTime examples
-
-### Formats and modes
+### RelativeTime formats
 
 Past and future instants, from seconds to days. Sub-minute deltas collapse to `now`;
 future dates read `in …`.
