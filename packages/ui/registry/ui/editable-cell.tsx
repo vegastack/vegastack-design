@@ -105,7 +105,8 @@ export interface EditableCellProps {
   /**
    * Layout of the text editor. `inline` sizes the box to its value; `cell` fills the table cell
    * (the row link still takes clicks outside the text); `heading` keeps the surrounding size and
-   * weight and wraps naturally — a page or record title.
+   * weight, wraps naturally and has no box padding — a page or record title edited in place, idle
+   * and editing at the identical position.
    * @default "inline"
    */
   variant?: "inline" | "cell" | "heading";
@@ -269,6 +270,11 @@ interface InlineTextEditorProps {
   onNavigate?: (direction: "next" | "previous") => void;
   /** Native hover hint while displaying. */
   tooltip?: string;
+  /**
+   * No box padding (the `heading` variant): the text sits exactly where surrounding text would,
+   * idle and editing alike, and only the hover tint marks it editable.
+   */
+  bare?: boolean;
 }
 
 /**
@@ -277,6 +283,8 @@ interface InlineTextEditorProps {
  * focus (FOC-13) show it, editing does not. No focus ring or outline.
  */
 const boxClasses = "rounded-lg px-2.5 py-1.5";
+/** The `heading` box: no padding, so a title is edited exactly where it is rendered. */
+const bareBoxClasses = "rounded-sm";
 
 /** The field laid over the text: no chrome, inherits every type property from the box. */
 const fieldClasses =
@@ -305,7 +313,9 @@ function InlineTextEditor({
   flush = false,
   onNavigate,
   tooltip,
+  bare = false,
 }: InlineTextEditorProps) {
+  const box = bare ? bareBoxClasses : boxClasses;
   // `readOnly` folds into the hook's `disabled` because both mean the same thing to the machine:
   // an edit may not be entered, and one in flight reverts. They differ only in chrome.
   const edit = useInlineEdit({
@@ -353,7 +363,7 @@ function InlineTextEditor({
     onKeyDown: onFieldKeyDown,
     // The field covers the whole box and carries the box's padding, so the pointer target is the
     // full box and the caret starts exactly where the text did.
-    className: cn(fieldClasses, boxClasses),
+    className: cn(fieldClasses, box),
   };
 
   return (
@@ -400,10 +410,10 @@ function InlineTextEditor({
         // box (`absolute inset-0`), so it grows with its content and nothing shifts. No font of
         // its own: size, weight, line height and tracking come from the surroundings.
         "relative max-w-full min-w-0 items-center",
-        boxClasses,
+        box,
         fill ? "flex w-full" : "inline-flex align-top",
         // `flush`: the box starts one padding-width before its slot, so the text starts on it.
-        flush && "-ms-2.5 max-w-[calc(100%+0.625rem)]",
+        flush && !bare && "-ms-2.5 max-w-[calc(100%+0.625rem)]",
         // The tint is the only affordance: hover here, keyboard focus from base.css FOC-13 (the
         // system's focus tint). No focus ring or outline.
         interactive && !disabled && "cursor-text hover:bg-accent",
@@ -706,6 +716,7 @@ export function EditableCell({
         flush={flush}
         onNavigate={onNavigate}
         tooltip={tooltip}
+        bare={variant === "heading"}
       />
     );
   }

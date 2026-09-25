@@ -78,10 +78,12 @@ export function PropertyRow({ className, ...props }: PropertyRowProps) {
         // (80px) floor, instead of the old fixed 112px: short labels stop wasting
         // the value column's width, and long ones are no longer clipped by a
         // track that never negotiated with them.
-        "@xs/property-list:min-h-7 @xs/property-list:grid-cols-[minmax(calc(var(--spacing)*20),max-content)_minmax(0,1fr)] @xs/property-list:items-center @xs/property-list:gap-y-2",
+        "@xs/property-list:min-h-7 @xs/property-list:grid-cols-[minmax(calc(var(--spacing)*20),max-content)_minmax(0,1fr)] @xs/property-list:gap-y-2",
         // Inline: one line at every width — a fixed 112px label column, so every value starts at
         // the same x, and the value takes the rest.
-        "group-data-[variant=inline]/property-list:grid-cols-[--spacing(28)_minmax(0,1fr)] group-data-[variant=inline]/property-list:items-center group-data-[variant=inline]/property-list:gap-x-3",
+        "group-data-[variant=inline]/property-list:grid-cols-[--spacing(28)_minmax(0,1fr)] group-data-[variant=inline]/property-list:gap-x-3",
+        // Top-aligned, never centred: the label sits on the value's FIRST line, so a value that wraps
+        // (or a multi-line note) keeps its label beside its opening line (see `PropertyLabel`).
         className,
       )}
       {...props}
@@ -106,7 +108,9 @@ export function PropertyLabel({
     <dt
       data-slot="property-label"
       className={cn(
-        "flex min-w-0 items-center gap-1.5 text-xs font-medium text-muted-foreground",
+        // `leading-5` is the value's line height (`text-sm`), so the label's line box IS the value's
+        // first line box and the two share a centre whatever the value's length.
+        "flex min-w-0 items-center gap-1.5 text-xs leading-5 font-medium text-muted-foreground",
         "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-3.5",
         className,
       )}
@@ -142,6 +146,9 @@ export function PropertyValue({ className, ...props }: PropertyValueProps) {
         // Compose `TruncatedText` explicitly where a single line is genuinely
         // required.
         "m-0 min-w-0 text-sm wrap-anywhere text-foreground",
+        // A 28px quiet control (picker button, select trigger) hangs 4px above and below the 20px
+        // first line, so its text shares the label's centre like a plain value does.
+        "[&>[data-slot=button]]:-my-1 [&>[data-slot=select-trigger]]:-my-1",
         // Inline: a quiet picker's ghost padding hangs past the column's start so its text lines
         // up with plain values.
         "group-data-[variant=inline]/property-list:flex group-data-[variant=inline]/property-list:min-w-0 group-data-[variant=inline]/property-list:[&>[data-slot=button]]:-ms-2",

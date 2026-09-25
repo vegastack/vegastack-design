@@ -76,13 +76,16 @@ export const prose = {
   del: "[&_del]:line-through [&_s]:line-through",
 
   // Lists. Items and markers are body text: family, size and ink inherit (a `::marker` takes the
-  // item's font), so `1.` and `•` never read as a second typeface or a second colour. A GFM task
+  // item's font), so `1.` and `•` never read as a second typeface or a second colour. One thing
+  // does NOT inherit: the user-agent stylesheet gives `::marker` `font-variant-numeric:
+  // tabular-nums`, and Geist's tabular figures are fixed-width — that is what made ordered-list
+  // numbers look monospaced. `marker:normal-nums` restores the body's proportional figures. A GFM task
   // list carries `contains-task-list` and its checkbox IS the marker, so the disc goes — expressed
   // as a second, more specific descendant rule rather than a class on the element, which would
   // lose the cascade (see the header).
   ul: "[&_ul]:my-2 [&_ul]:ms-5 [&_ul]:list-disc [&_ul.contains-task-list]:list-none",
   ol: "[&_ol]:my-2 [&_ol]:ms-5 [&_ol]:list-decimal",
-  li: "[&_li]:mt-1 [&_li]:marker:font-sans [&_li]:marker:text-foreground [&_li_p]:my-0",
+  li: "[&_li]:mt-1 [&_li]:marker:normal-nums [&_li]:marker:text-foreground [&_li_p]:my-0",
 
   // Task lists, one shape for both producers: `MarkdownView` tags the GFM list
   // `data-type="taskList"` and each item `data-type="taskItem"` with its body in a

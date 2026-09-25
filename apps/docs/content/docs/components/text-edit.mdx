@@ -1,11 +1,11 @@
 ---
 title: Text Edit
-description: A Notion-style Tiptap markdown editor in body typography — toolbar levels, bubble menu, link popover and an onCommit contract.
+description: A Notion-style Tiptap markdown editor in body typography — slash menu, bubble menu, markdown shortcuts and an onCommit contract.
 audience: public
 registry: text-edit
 status: stable
 since: 0.1.0
-a11y: multiline textbox + APG toolbar
+a11y: multiline textbox + listbox slash menu
 preview: textEdit
 ---
 
@@ -47,7 +47,7 @@ history, the **bold / italic / strike / code** marks, **headings**, **bullet & o
 ## Scope
 
 `TextEdit` is the **presentational base editor** — a controlled HTML value, the StarterKit
-formatting set, the styled toolbar, the placeholder, read-only mode, a `Cmd/Ctrl+Enter` `onSubmit`
+formatting set, the slash and bubble menus, the placeholder, read-only mode, a `Cmd/Ctrl+Enter` `onSubmit`
 affordance, and `minHeight`/`maxHeight` sizing. Heavier, app-coupled capabilities are intentionally
 **out of this core** (each needs app infrastructure or ships as a separate composed extension),
 mirroring the system's presentational / app-coupled rule:
@@ -69,50 +69,68 @@ types here and what the app renders from markdown are one typography.
 
 ## Examples
 
-### Toolbar levels, bubble menu and in-place editing
+### Slash menu, bubble menu and in-place editing
 
-`toolbar="minimal" | "standard" | "full"` (or an array of `TextEditAction`s) sets both the buttons
-and the schema; `bubbleMenu` (default on) floats heading, bold, italic, code and link over a
-selection. The editor is always borderless and transparent, with no view mode: leaving it calls
-`onCommit` when the text changed, <kbd>Esc</kbd> reverts (`onRevert`), and `autosave` commits after
-an idle gap. The toolbar is a compact row under the text, shown while the editor has focus. Every level, the bubble menu, the shortcuts,
-the input rules and a view/edit parity example are on the [Markdown guide](/docs/guides/markdown).
+There is no toolbar. Type <kbd>/</kbd> for a filterable block menu (text, headings, lists, a
+checklist, a quote, a code block, a divider, a link); `slashCommands` limits it. Select text for a
+bubble menu with bold, italic, strikethrough, inline code and an inline link input. The editor has
+no view mode: leaving it calls `onCommit` when the text changed, <kbd>Esc</kbd> reverts
+(`onRevert`), and `autosave` commits after an idle gap. Every command, the shortcuts, the input rules
+and a view/edit parity example are on the [Markdown guide](/docs/guides/markdown).
 
 <ComponentPreview
-  name="markdownToolbarStandard"
+  name="markdownSlashMenu"
+  file="components/preview/text-edit.tsx"
+/>
+
+#### A smaller slash menu
+
+<ComponentPreview
+  name="markdownSlashCommandsLimited"
+  file="components/preview/text-edit.tsx"
+/>
+
+#### Bubble menu
+
+<ComponentPreview
+  name="markdownBubbleMenu"
   file="components/preview/text-edit.tsx"
 />
 
 ### Anatomy
 
-`TextEdit` is a single self-contained component, but it composes three layered pieces internally:
+`TextEdit` is a single self-contained component, but it composes these pieces internally:
 
 ```tsx
 // data-slot="text-edit" — transparent root, no border, no ring
 <TextEdit>
   // Tiptap contenteditable, role="textbox" aria-multiline
   <EditorContent />
-  // data-slot="text-edit-toolbar" — role="toolbar", shown while focused
-  <Toolbar />
+  // data-slot="text-edit-bubble-menu" — role="toolbar", over a selection
+  <BubbleMenu />
+  // data-slot="text-edit-slash-menu" — role="listbox", while typing after /
+  <SlashMenu />
 </TextEdit>
 ```
 
 - **Root** (`data-slot="text-edit"`) — transparent and borderless: it takes the surface it sits on.
-  Carries `data-editable`, `data-focused` while editing and `data-invalid` when it wraps an
+  Carries `data-editable` and `data-invalid` when it wraps an
   `aria-invalid` control. Clicking its blank space focuses the end of the document.
-- **Toolbar** (`data-slot="text-edit-toolbar"`, `role="toolbar"`) — a compact row of `Toggle`
-  buttons under the text, rendered only while the editor has focus. Each button's pressed state is
-  derived from `editor.isActive(...)` via Tiptap's `useEditorState`, so it stays in sync with the
-  caret. Never shown when `editable={false}`.
+- **Bubble menu** (`data-slot="text-edit-bubble-menu"`, `role="toolbar"`) — `Toggle` buttons for
+  bold, italic, strikethrough, inline code and link over a selection; link swaps it for an inline
+  URL input (`data-slot="text-edit-link"`).
+- **Slash menu** (`data-slot="text-edit-slash-menu"`, `role="listbox"`) — the block menu, in the
+  Command item style with muted icons. Focus stays in the editor; the caret never moves.
 - **Editor surface** (`role="textbox"`, `aria-multiline`) — the Tiptap/ProseMirror contenteditable.
   Prose is styled entirely with semantic tokens (headings, lists, code, blockquote), so it tracks the
-  active theme with no `@tailwindcss/typography` dependency.
+  active theme with no `@tailwindcss/typography` dependency. Hover and focus tint it faintly; there
+  is no border and no ring.
 
 ### Editing patterns
 
-An empty editor with a placeholder, a `readOnly` editor (no toolbar, `aria-readonly`) for rendering
-stored content, and a `disabled` one (no toolbar, dimmed, `aria-disabled`). `editable={false}` still
-works and means `readOnly`.
+An empty editor with a faint placeholder (focused, it reads "Type / for commands"), a `readOnly`
+editor (`aria-readonly`) for rendering stored content, and a `disabled` one (dimmed,
+`aria-disabled`).
 
 <ComponentPreview
   name="textEditStates"
@@ -191,15 +209,15 @@ fires it with the current value. It's presentational only: the **host** decides 
   (or associate a visible label) so the region is announced.
 - Use `aria-invalid` and `aria-describedby` to connect validation state and helper/error text to the
   contenteditable textbox.
-- The toolbar is a Base UI `Toolbar` labelled “Formatting” — a real APG toolbar, so the whole row is
-  **one tab stop** and the arrow keys move between controls (wrapping at the ends) across the three
-  `Toolbar.Group` clusters. Each button is an icon-only `Toggle` with an `aria-label` and
-  `aria-pressed` reflecting the active mark or node.
-- Editing keymaps come from Tiptap `StarterKit` — see the table below. Focus is shown by the caret
-  and the formatting row appearing under the text, Notion-style; there is no ring or border.
+- The slash menu is a `listbox` of `option`s with `aria-selected`; focus stays in the textbox and
+  <kbd>↑</kbd> <kbd>↓</kbd>, <kbd>Enter</kbd> and <kbd>Esc</kbd> drive it.
+- The bubble menu is a Base UI `Toolbar` labelled “Selection formatting”: one tab stop, arrow keys
+  between its `Toggle`s, each with an `aria-label` and `aria-pressed`.
+- Editing keymaps come from Tiptap `StarterKit` — see the table below. Focus is shown by the
+  system's background tint on the surface (FOC-13); there is no ring or border.
 - An invalid control (`aria-invalid`) sets `data-invalid` on the root for downstream styling; pair
   it with visible error text through `aria-describedby`.
-- `editable={false}` removes the toolbar and marks the surface read-only.
+- `readOnly` marks the surface read-only.
 
 | Key                                                   | Action                                                                                                                        |
 | ----------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
@@ -210,10 +228,9 @@ fires it with the current value. It's presentational only: the **host** decides 
 | <kbd>Enter</kbd>                                      | New paragraph (or new list item inside a list).                                                                               |
 | <kbd>Cmd/Ctrl</kbd> + <kbd>Enter</kbd>                | Fire `onSubmit` with the current value (when set); otherwise commit and blur. Plain <kbd>Enter</kbd> still inserts a newline. |
 | <kbd>Esc</kbd>                                        | Revert to the value focus found, blur, and fire `onRevert`.                                                                   |
-| <kbd>Cmd/Ctrl</kbd> + <kbd>K</kbd>                    | Open the link popover (add, edit or remove the link).                                                                         |
+| <kbd>Cmd/Ctrl</kbd> + <kbd>K</kbd>                    | Open the inline link input (add, edit or remove the link).                                                                    |
 | <kbd>Tab</kbd>                                        | Move focus out of the editor to the next control.                                                                             |
-| <kbd>←</kbd> / <kbd>→</kbd> _(in the toolbar)_        | Move between formatting controls; focus wraps at either end.                                                                  |
-| <kbd>Shift</kbd> + <kbd>Tab</kbd> _(in the toolbar)_  | Leave the toolbar in one press, rather than stepping back through every button.                                               |
+| <kbd>/</kbd>                                          | Open the slash menu.                                                                                                          |
 
 <StatesTested name="text-edit" />
 

@@ -274,10 +274,8 @@ const DYNAMIC_DOM: Record<string, string> = {
   textEditHeights: ".tiptap[contenteditable]",
   textEditInsideField: ".tiptap[contenteditable]",
   markdownParity: ".tiptap[contenteditable]",
-  markdownToolbarMinimal: ".tiptap[contenteditable]",
-  markdownToolbarStandard: ".tiptap[contenteditable]",
-  markdownToolbarFull: ".tiptap[contenteditable]",
-  markdownToolbarCustom: ".tiptap[contenteditable]",
+  markdownSlashMenu: ".tiptap[contenteditable]",
+  markdownSlashCommandsLimited: ".tiptap[contenteditable]",
   markdownBubbleMenu: ".tiptap[contenteditable]",
   markdownAutosave: ".tiptap[contenteditable]",
   markdownInPlace: ".tiptap[contenteditable]",
@@ -1191,15 +1189,6 @@ for (const [name, fixture] of FIXTURES) {
         // control never took focus and nothing about ITS indicator was demonstrated.
         const active = document.activeElement;
         if (active !== control && !control.contains(active)) continue;
-        // TextEdit's surface is Notion-style by operator decision (2026-09-26): no ring and no
-        // border. Its focus cue is the caret plus the formatting row that mounts under the text
-        // once the editor reports focus — a visible change owned by the system.
-        if (
-          active instanceof HTMLElement &&
-          active.isContentEditable &&
-          active.closest('[data-slot="text-edit"]')
-        )
-          continue;
         const focused = active instanceof HTMLElement ? active : control;
         // The redirect target needs a baseline of its OWN, and it has to be taken with focus
         // released — reading it here, while the target already holds focus, compared the focused

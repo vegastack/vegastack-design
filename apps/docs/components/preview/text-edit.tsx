@@ -19,9 +19,8 @@ const TextEdit = dynamic(
 );
 
 /**
- * Editing state — the interactive editor with its formatting toolbar, seeded with
- * controlled HTML. Type or use the toolbar; links render in `info` (blue) and
- * inline code in a `rounded-sm` `bg-muted` chip.
+ * Editing state — the interactive editor, seeded with controlled HTML. Type `/` for blocks or
+ * select text to format it; links render in `info` (blue) and inline code in a `bg-muted` chip.
  */
 export function textEdit(): ReactNode {
   const [html, setHtml] = useState(
@@ -42,8 +41,7 @@ export function textEdit(): ReactNode {
 /**
  * The non-editing states:
  * - **Empty** — an editable editor showing only its placeholder.
- * - **Display (read-only)** — `editable={false}` hides the toolbar and renders
- *   stored rich text for previews and comments.
+ * - **Display (read-only)** — `readOnly` renders stored rich text for previews.
  */
 export function textEditStates(): ReactNode {
   return (
@@ -54,12 +52,12 @@ export function textEditStates(): ReactNode {
       />
       <TextEdit
         readOnly
-        value="<h2>Read-only</h2><ul><li>Renders rich text without a toolbar.</li><li>Useful for previews and comments.</li></ul>"
+        value="<h2>Read-only</h2><ul><li>Renders rich text without editing.</li><li>Useful for previews and comments.</li></ul>"
         aria-label="Read-only editor"
       />
       <TextEdit
         disabled
-        value="<p>Disabled: no toolbar, dimmed, and announced as unavailable.</p>"
+        value="<p>Disabled: dimmed and announced as unavailable.</p>"
         aria-label="Disabled editor"
       />
     </Wrapper>
@@ -242,7 +240,6 @@ export function markdownParity(): ReactNode {
         <span className="text-xs font-medium text-muted-foreground">Edit</span>
         <TextEdit
           format="markdown"
-          toolbar="full"
           value={markdown}
           onValueChange={setMarkdown}
           aria-label="Markdown document"
@@ -252,70 +249,49 @@ export function markdownParity(): ReactNode {
   );
 }
 
-/** `toolbar="minimal"` — bold, italic, link and bullet list; the schema allows only those. */
-export function markdownToolbarMinimal(): ReactNode {
+/**
+ * The slash menu — type `/` anywhere to insert a block: text, headings, lists, a checklist, a
+ * quote, a code block, a divider or a link. Type to filter; ↑↓ move, Enter picks, Esc closes.
+ */
+export function markdownSlashMenu(): ReactNode {
   return (
     <Wrapper className="items-stretch">
       <TextEdit
         format="markdown"
-        toolbar="minimal"
-        defaultValue="A **short** comment with a [link](https://vegastack.com)."
-        aria-label="Comment"
-      />
-    </Wrapper>
-  );
-}
-
-/** `toolbar="standard"` (the default) — adds H2, H3, ordered and task lists, blockquote, code. */
-export function markdownToolbarStandard(): ReactNode {
-  return (
-    <Wrapper className="items-stretch">
-      <TextEdit
-        format="markdown"
-        toolbar="standard"
         defaultValue={SHORT_SAMPLE}
+        placeholder="Write something…"
         aria-label="Notes"
       />
     </Wrapper>
   );
 }
 
-/** `toolbar="full"` — adds strike, code block, table, divider, undo/redo and clear formatting. */
-export function markdownToolbarFull(): ReactNode {
+/** `slashCommands` limits the menu — a comment composer offers a smaller set. */
+export function markdownSlashCommandsLimited(): ReactNode {
   return (
     <Wrapper className="items-stretch">
       <TextEdit
         format="markdown"
-        toolbar="full"
-        defaultValue={SHORT_SAMPLE}
-        aria-label="Document"
+        slashCommands={[
+          "bulletList",
+          "orderedList",
+          "taskList",
+          "codeBlock",
+          "link",
+        ]}
+        placeholder="Leave a comment…"
+        aria-label="Comment"
       />
     </Wrapper>
   );
 }
 
-/** An explicit action array — any subset, in the toolbar's fixed cluster order. */
-export function markdownToolbarCustom(): ReactNode {
-  return (
-    <Wrapper className="items-stretch">
-      <TextEdit
-        format="markdown"
-        toolbar={["bold", "italic", "link", "taskList", "undo", "redo"]}
-        defaultValue="- [ ] Only bold, italic, links and tasks here"
-        aria-label="Checklist"
-      />
-    </Wrapper>
-  );
-}
-
-/** Select text to see the bubble menu: heading, bold, italic, inline code and link. */
+/** Select text to see the bubble menu: bold, italic, strikethrough, inline code and link. */
 export function markdownBubbleMenu(): ReactNode {
   return (
     <Wrapper className="items-stretch">
       <TextEdit
         format="markdown"
-        variant="ghost"
-        toolbar="standard"
         defaultValue="Select any **part of this sentence** to format it from the floating bubble menu."
         aria-label="Bubble menu demo"
       />
@@ -352,7 +328,6 @@ export function markdownAutosave(): ReactNode {
     <Wrapper className="flex-col items-stretch">
       <TextEdit
         format="markdown"
-        toolbar="minimal"
         autosave
         defaultValue="Type here — it saves itself a second after you stop."
         onCommit={() => setSavedAt(new Date().toLocaleTimeString())}
