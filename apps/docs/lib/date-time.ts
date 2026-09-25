@@ -1,4 +1,4 @@
-// @vegastack date-time@0.23.14 sha256-lzaQ8iCPGelGwYJdBDnsH2ayOXI7SzvBvIQuBy3KUGk=
+// @vegastack date-time@0.23.15 sha256-MjuqMTe3BqswqAcu6/zBZVqeQeFpaR77LGG/W9G1KOk=
 
 /**
  * Dates & times — the one formatting module. Plain functions (server + client), built on `Intl`,
