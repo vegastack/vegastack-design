@@ -1,9 +1,14 @@
-// @vegastack board@0.23.27 sha256-/DNad5YzoMZpshyQRrTmgEo+6iyMe0ZE4ZVNoOzNGp0=
+// @vegastack board@0.23.27 sha256-pMmqHUrBsVHJqWOYTcjsXim1kx4xvIb90ZILvmva8Gs=
 
 "use client";
 
 import * as React from "react";
-import { EllipsisVertical, Plus } from "lucide-react";
+import {
+  EllipsisVertical,
+  PanelLeftClose,
+  PanelLeftOpen,
+  Plus,
+} from "lucide-react";
 import { mergeProps } from "@base-ui/react/merge-props";
 import { useRender } from "@base-ui/react/use-render";
 import { cn, mergeRefs } from "@vegastack/design";
@@ -11,10 +16,13 @@ import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import {
   defaultActionsLabel,
   pickShortcut,
@@ -232,7 +240,7 @@ export interface BoardProps<T> {
    */
   onCollapsedChange?: (ids: string[]) => void;
   /**
-   * A lane's own actions, listed in its header's ⋯ menu above "Collapse lane".
+   * A lane's own actions, listed in its header's ⋯ menu; the ⋯ hides when a lane has none. Collapse is its own icon button left of the ⋯.
    * @default undefined
    */
   getColumnActions?: (column: BoardColumn<T>) => RowAction[];
@@ -1241,44 +1249,54 @@ export function Board<T>({
     const dropOver = drag?.over?.container === column.id;
     if (isCollapsed(column)) {
       return (
-        <Button
-          key={column.id}
-          variant="ghost"
-          data-slot="board-column-collapsed"
-          data-board-lane={column.id}
-          data-board-strip=""
-          data-drop-over={dropOver ? "" : undefined}
-          onClick={() => setCollapsed(column.id, false)}
-          // `relative`: the sr-only child is absolutely positioned and must not resolve against
-          // the page, where its static x would widen the page's scroll area.
-          className="relative h-full min-h-48 w-10 shrink-0 flex-col max-md:snap-start items-center justify-start gap-2 rounded-xl bg-muted/60 px-1 py-3 hover:bg-muted data-drop-over:bg-accent"
-        >
-          <span
-            aria-hidden="true"
-            data-slot="board-column-count"
-            className="text-xs text-muted-foreground tabular-nums"
-          >
-            {count}
-          </span>
-          <span
-            aria-hidden="true"
-            data-slot="board-column-collapsed-title"
-            className="min-h-0 flex-1 [writing-mode:vertical-rl] text-xs font-medium text-muted-foreground"
-          >
-            {column.title}
-          </span>
-          <span className="sr-only">
-            {readOnly
-              ? `${laneName(column)}. Expand column, read-only`
-              : `${laneName(column)}. Expand column`}
-          </span>
-        </Button>
+        <Tooltip key={column.id}>
+          <TooltipTrigger
+            render={
+              <Button
+                variant="ghost"
+                data-slot="board-column-collapsed"
+                data-board-lane={column.id}
+                data-board-strip=""
+                data-drop-over={dropOver ? "" : undefined}
+                onClick={() => setCollapsed(column.id, false)}
+                // `relative`: the sr-only child is absolutely positioned and must not resolve against
+                // the page, where its static x would widen the page's scroll area.
+                className="relative h-full min-h-48 w-10 shrink-0 flex-col max-md:snap-start items-center justify-start gap-2 rounded-xl border border-dashed border-border px-1 py-3 hover:bg-muted data-drop-over:bg-accent"
+              >
+                <PanelLeftOpen
+                  aria-hidden="true"
+                  data-slot="board-column-expand-icon"
+                />
+                <span
+                  aria-hidden="true"
+                  data-slot="board-column-count"
+                  className="text-xs text-muted-foreground tabular-nums"
+                >
+                  {count}
+                </span>
+                <span
+                  aria-hidden="true"
+                  data-slot="board-column-collapsed-title"
+                  className="min-h-0 flex-1 [writing-mode:vertical-rl] text-xs font-medium text-muted-foreground"
+                >
+                  {column.title}
+                </span>
+                <span className="sr-only">
+                  {readOnly
+                    ? `${laneName(column)}. Expand column, read-only`
+                    : `${laneName(column)}. Expand column`}
+                </span>
+              </Button>
+            }
+          />
+          <TooltipContent side="right">Expand lane</TooltipContent>
+        </Tooltip>
       );
     }
     const laneIds = display[column.id] ?? [];
     const gapIndex = dropOver && drag?.over ? drag.over.index : -1;
     const columnActions = getColumnActions?.(column) ?? [];
-    const hasLaneMenu = collapsible || columnActions.length > 0;
+    const hasLaneMenu = columnActions.length > 0;
     const addText =
       typeof addLabel === "function" ? addLabel(column) : addLabel;
     const showAdd =
@@ -1308,7 +1326,7 @@ export function Board<T>({
         data-read-only={readOnly ? "" : undefined}
         data-drop-over={dropOver ? "" : undefined}
         className={cn(
-          "flex min-h-0 min-w-0 shrink-0 grow basis-(--board-column-width) flex-col rounded-xl bg-muted/60 transition-colors data-drop-over:bg-accent/60",
+          "flex min-h-0 min-w-0 shrink-0 grow basis-(--board-column-width) flex-col rounded-xl transition-colors data-drop-over:bg-accent/60",
           "max-md:basis-full max-md:snap-start max-md:snap-always",
           fill ? "h-full" : "self-start",
         )}
@@ -1331,6 +1349,24 @@ export function Board<T>({
           </span>
           <div className="ms-auto flex shrink-0 items-center gap-0.5">
             {renderColumnAction ? renderColumnAction(column) : null}
+            {collapsible ? (
+              <Tooltip>
+                <TooltipTrigger
+                  render={
+                    <Button
+                      variant="ghost"
+                      size="icon-xs"
+                      aria-label={`Collapse ${laneLabel(column)} lane`}
+                      data-slot="board-column-collapse"
+                      onClick={() => setCollapsed(column.id, true)}
+                    >
+                      <PanelLeftClose />
+                    </Button>
+                  }
+                />
+                <TooltipContent>Collapse lane</TooltipContent>
+              </Tooltip>
+            ) : null}
             {hasLaneMenu ? (
               <DropdownMenu>
                 <DropdownMenuTrigger
@@ -1346,19 +1382,7 @@ export function Board<T>({
                   }
                 />
                 <DropdownMenuContent align="end">
-                  {columnActions.length > 0 ? (
-                    <RowActionMenuItems actions={columnActions} />
-                  ) : null}
-                  {columnActions.length > 0 && collapsible ? (
-                    <DropdownMenuSeparator />
-                  ) : null}
-                  {collapsible ? (
-                    <DropdownMenuItem
-                      onClick={() => setCollapsed(column.id, true)}
-                    >
-                      Collapse lane
-                    </DropdownMenuItem>
-                  ) : null}
+                  <RowActionMenuItems actions={columnActions} />
                 </DropdownMenuContent>
               </DropdownMenu>
             ) : null}
