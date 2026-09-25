@@ -16005,7 +16005,7 @@
         "whenToUse": "Any date, time, duration, due label or day grouping shown in UI — pick the function per the Dates & times page's where-to-use table.",
         "whenNotToUse": "API/JSON output — keep ISO strings there.",
         "version": "0.23.28",
-        "integrity": "sha256-sbc676dUbMEkBhqCBVJTQ4BjNHbc30za+BidQGvJNM0="
+        "integrity": "sha256-vXhr4++wjzddgHTilwN3iGyOJwPDYspXHQmjazXSSdE="
       }
     },
     {
@@ -16917,7 +16917,7 @@
         "whenToUse": "Brief confirmations of an action — 'Saved', 'Copied', 'Invitation sent' — and the loading → success/error arc of an async one.",
         "whenNotToUse": "Errors the user must resolve, destructive confirmations, or essential info — use inline copy or a Dialog.",
         "version": "0.23.28",
-        "integrity": "sha256-KC6SJWiRaKtE7QPc4zLAD2oYLnJyYqoqcTynztvJgFY="
+        "integrity": "sha256-Zw0yOWdZ1VuMch/QhZSgMw69N0UkZG3ATLdosgMthcU="
       }
     },
     {
