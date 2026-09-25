@@ -1,4 +1,4 @@
-// @vegastack sheet@0.23.0 sha256-nft1SIgxUlrGrt2Elpj96w5XiOaVv+n3Dou+uAdhGfQ=
+// @vegastack sheet@0.23.0 sha256-Vy/UYsH+Hq9eFPTFa2LWDgzYg1MW9q6eNGE97U5/ems=
 
 "use client";
 
@@ -61,12 +61,15 @@ function SheetContent({
   showCloseButton = true,
   size = "default",
   closeLabel = "Close",
+  showOverlay = true,
   ...props
 }: SheetPrimitive.Popup.Props & {
   side?: "top" | "right" | "bottom" | "left";
   showCloseButton?: boolean;
   size?: "sm" | "default" | "lg" | "xl";
   closeLabel?: string;
+  /** `false` drops the dimmed backdrop — for a non-modal panel docked beside the page. */
+  showOverlay?: boolean;
 }) {
   const modal = React.useContext(SheetModalContext);
   const popupRef = useModalInert<HTMLDivElement>({
@@ -76,7 +79,7 @@ function SheetContent({
 
   return (
     <SheetPortal>
-      <SheetOverlay />
+      {showOverlay ? <SheetOverlay /> : null}
       <SheetPrimitive.Popup
         ref={popupRef}
         data-slot="sheet-content"

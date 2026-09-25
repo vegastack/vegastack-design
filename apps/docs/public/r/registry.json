@@ -87,7 +87,7 @@
         "whenToUse": "Persistent, in-page status messages — info, success, warning, or error context tied to surrounding content.",
         "whenNotToUse": "Transient feedback after a user action — use a toast instead.",
         "version": "0.23.0",
-        "integrity": "sha256-tZPFL/IfoJeQ1nQytCoAgGVkroCH2k1OwNSO50JFI+U="
+        "integrity": "sha256-BAdSievRQilzdwN9NzX+A0kMJhTxmVlljRguqEII3cs="
       }
     },
     {
@@ -15856,7 +15856,7 @@
         "whenToUse": "Secondary content beside the page — filters, details, a settings panel, a long record form — that should not take the centre of the screen. Side sheets take size sm/default/lg/xl (Dialog's width scale); put long content in SheetBody so the footer stays on screen.",
         "whenNotToUse": "A decision (AlertDialog), a centred form (Dialog), or a touch-first panel with snap points (Drawer).",
         "version": "0.23.0",
-        "integrity": "sha256-nft1SIgxUlrGrt2Elpj96w5XiOaVv+n3Dou+uAdhGfQ="
+        "integrity": "sha256-Vy/UYsH+Hq9eFPTFa2LWDgzYg1MW9q6eNGE97U5/ems="
       }
     },
     {
