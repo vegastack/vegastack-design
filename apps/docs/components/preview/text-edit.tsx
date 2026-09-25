@@ -3,6 +3,8 @@
 import { useState, type ReactNode } from "react";
 import dynamic from "next/dynamic";
 import { toast } from "@/components/ui/toast";
+import { Button } from "@/components/ui/button";
+import { MarkdownView } from "@/components/ui/markdown-view";
 import {
   Field,
   FieldDescription,
@@ -113,7 +115,7 @@ export function textEditInvalid(): ReactNode {
 
 /**
  * Submit affordance — pressing <kbd>Cmd/Ctrl</kbd>+<kbd>Enter</kbd> inside the
- * editor fires `onSubmit` with the current HTML (plain <kbd>Enter</kbd> still
+ * editor fires `onSave` with the current HTML (plain <kbd>Enter</kbd> still
  * inserts a newline). The host decides what submitting means; here it raises a
  * toast. Try it: click in, type, then press Cmd/Ctrl+Enter.
  */
@@ -124,7 +126,7 @@ export function textEditSubmit(): ReactNode {
       <TextEdit
         value={html}
         onValueChange={setHtml}
-        onSubmit={() =>
+        onSave={() =>
           toast.add({ type: "success", title: "Submitted with Cmd/Ctrl+Enter" })
         }
         placeholder="Write a reply…"
@@ -168,6 +170,218 @@ export function textEditInsideField(): ReactNode {
         </FieldDescription>
         <FieldError>Write a summary before you publish.</FieldError>
       </Field>
+    </Wrapper>
+  );
+}
+
+/** Every element the shared `prose` recipe covers, in one document. */
+const MARKDOWN_SAMPLE = `# Heading 1
+
+## Heading 2
+
+### Heading 3
+
+#### Heading 4
+
+##### Heading 5
+
+###### Heading 6
+
+A paragraph with **bold**, _italic_, ~~strikethrough~~, \`inline code\` and a [link](https://vegastack.com).
+A hard line break follows,\\
+then https://example.com autolinks in view mode.
+
+- Bullet item
+- Another item
+  - Nested item
+
+1. First
+2. Second
+   1. Nested ordered
+
+- [x] Done task
+- [ ] Open task
+  - [ ] Nested task
+
+> A blockquote carries a quoted thought.
+
+\`\`\`ts
+const answer = 42;
+\`\`\`
+
+---
+
+| Name | Role |
+| --- | --- |
+| Ada | Engineer |
+| Grace | Admiral |
+
+![VegaStack mark](/brand/vegastack-mark.svg)`;
+
+const SHORT_SAMPLE = `## Weekly sync
+
+Decided to **ship the beta** on Friday. Owners:
+
+- [x] Draft release notes
+- [ ] Update the _pricing_ page
+
+> Follow up with legal about the terms.`;
+
+/**
+ * Visual parity — the same markdown rendered by `MarkdownView` (top) and edited by a ghost
+ * `TextEdit` (bottom). The shared `prose` recipe and the ProseMirror resets make every element sit
+ * at the same position in both.
+ */
+export function markdownParity(): ReactNode {
+  const [markdown, setMarkdown] = useState(MARKDOWN_SAMPLE);
+  return (
+    <Wrapper className="flex-col items-stretch gap-6">
+      <section className="flex flex-col gap-2">
+        <span className="text-xs font-medium text-muted-foreground">View</span>
+        <MarkdownView allowedImageOrigins={[]}>{markdown}</MarkdownView>
+      </section>
+      <section className="flex flex-col gap-2 border-t border-border pt-6">
+        <span className="text-xs font-medium text-muted-foreground">Edit</span>
+        <TextEdit
+          format="markdown"
+          variant="ghost"
+          toolbar="full"
+          value={markdown}
+          onValueChange={setMarkdown}
+          aria-label="Markdown document"
+        />
+      </section>
+    </Wrapper>
+  );
+}
+
+/** `toolbar="minimal"` — bold, italic, link and bullet list; the schema allows only those. */
+export function markdownToolbarMinimal(): ReactNode {
+  return (
+    <Wrapper className="items-stretch">
+      <TextEdit
+        format="markdown"
+        toolbar="minimal"
+        defaultValue="A **short** comment with a [link](https://vegastack.com)."
+        aria-label="Comment"
+      />
+    </Wrapper>
+  );
+}
+
+/** `toolbar="standard"` (the default) — adds H2, H3, ordered and task lists, blockquote, code. */
+export function markdownToolbarStandard(): ReactNode {
+  return (
+    <Wrapper className="items-stretch">
+      <TextEdit
+        format="markdown"
+        toolbar="standard"
+        defaultValue={SHORT_SAMPLE}
+        aria-label="Notes"
+      />
+    </Wrapper>
+  );
+}
+
+/** `toolbar="full"` — adds strike, code block, table, divider, undo/redo and clear formatting. */
+export function markdownToolbarFull(): ReactNode {
+  return (
+    <Wrapper className="items-stretch">
+      <TextEdit
+        format="markdown"
+        toolbar="full"
+        defaultValue={SHORT_SAMPLE}
+        aria-label="Document"
+      />
+    </Wrapper>
+  );
+}
+
+/** An explicit action array — any subset, in the toolbar's fixed cluster order. */
+export function markdownToolbarCustom(): ReactNode {
+  return (
+    <Wrapper className="items-stretch">
+      <TextEdit
+        format="markdown"
+        toolbar={["bold", "italic", "link", "taskList", "undo", "redo"]}
+        defaultValue="- [ ] Only bold, italic, links and tasks here"
+        aria-label="Checklist"
+      />
+    </Wrapper>
+  );
+}
+
+/** Select text to see the bubble menu: heading, bold, italic, inline code and link. */
+export function markdownBubbleMenu(): ReactNode {
+  return (
+    <Wrapper className="items-stretch">
+      <TextEdit
+        format="markdown"
+        variant="ghost"
+        toolbar="standard"
+        defaultValue="Select any **part of this sentence** to format it from the floating bubble menu."
+        aria-label="Bubble menu demo"
+      />
+    </Wrapper>
+  );
+}
+
+/**
+ * In-place editing — view mode swaps to a ghost `TextEdit` with Save and Cancel at the toolbar's
+ * end. ⌘/Ctrl+Enter saves, Esc cancels. The text does not move when the mode changes.
+ */
+export function markdownInPlace(): ReactNode {
+  const [saved, setSaved] = useState(SHORT_SAMPLE);
+  const [editing, setEditing] = useState(false);
+  return (
+    <Wrapper className="flex-col items-stretch">
+      {editing ? (
+        <TextEdit
+          format="markdown"
+          variant="ghost"
+          defaultValue={saved}
+          onSave={(next) => {
+            setSaved(next);
+            setEditing(false);
+            toast.add({ type: "success", title: "Saved" });
+          }}
+          onCancel={() => setEditing(false)}
+          aria-label="Summary"
+        />
+      ) : (
+        <>
+          <div className="flex justify-end">
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => setEditing(true)}
+            >
+              Edit
+            </Button>
+          </div>
+          <MarkdownView>{saved}</MarkdownView>
+        </>
+      )}
+    </Wrapper>
+  );
+}
+
+/** `autosave` — `onSave` fires after an idle gap (1000ms for `true`). Off by default. */
+export function markdownAutosave(): ReactNode {
+  const [savedAt, setSavedAt] = useState<string | null>(null);
+  return (
+    <Wrapper className="flex-col items-stretch">
+      <TextEdit
+        format="markdown"
+        toolbar="minimal"
+        autosave
+        defaultValue="Type here — it saves itself a second after you stop."
+        onSave={() => setSavedAt(new Date().toLocaleTimeString())}
+        aria-label="Autosaving note"
+      />
+      <span className="text-xs text-muted-foreground">
+        {savedAt ? `Saved at ${savedAt}` : "Not saved yet"}
+      </span>
     </Wrapper>
   );
 }

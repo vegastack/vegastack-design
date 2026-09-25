@@ -13521,7 +13521,7 @@
       "name": "text-edit",
       "type": "registry:ui",
       "title": "Text Edit",
-      "description": "A Tiptap-based rich-text editor with a compact, token-styled toolbar (bold, italic, strike, heading, lists, blockquote, code) — controlled HTML in, HTML out. Collaboration deferred.",
+      "description": "A Tiptap markdown-first rich-text editor in the shared prose typography — toolbar levels that set the schema, bubble menu, link popover, task lists, tables, code blocks, markdown input rules and paste, onSave/onCancel, autosave, and a borderless ghost variant.",
       "categories": ["rich-text"],
       "dependencies": [
         "@base-ui/react@^1.6.0",
@@ -13529,11 +13529,25 @@
         "@tiptap/starter-kit@^3",
         "@tiptap/markdown@^3",
         "@tiptap/pm@^3",
+        "@tiptap/extension-code-block@^3",
+        "@tiptap/extension-image@^3",
+        "@tiptap/extension-list@^3",
+        "@tiptap/extension-table@^3",
+        "@tiptap/extensions@^3",
         "lucide-react@^1.47.0",
         "@vegastack/design@^0.7.31",
         "@vegastack/design-tokens@^0.7.18"
       ],
-      "registryDependencies": ["@vegastack/toggle"],
+      "registryDependencies": [
+        "@vegastack/button",
+        "@vegastack/checkbox",
+        "@vegastack/copy-button",
+        "@vegastack/input",
+        "@vegastack/kbd",
+        "@vegastack/popover",
+        "@vegastack/toggle",
+        "@vegastack/tooltip"
+      ],
       "files": [
         {
           "path": "packages/ui/registry/ui/text-edit.tsx",
@@ -13542,7 +13556,7 @@
         }
       ],
       "meta": {
-        "whenToUse": "Short-to-medium rich text — comments, descriptions, release notes — stored as HTML or Markdown (format=\"markdown\"), editable, read-only or disabled.",
+        "whenToUse": "Comments, notes, summaries and documents stored as Markdown (format=\"markdown\") or HTML; in-place editing of a MarkdownView with variant=\"ghost\".",
         "whenNotToUse": "Plain single-line input (Input) or collaborative real-time docs (deferred text-edit-collab).",
         "version": "0.23.22"
       }

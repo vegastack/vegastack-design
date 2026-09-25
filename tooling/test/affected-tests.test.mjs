@@ -45,10 +45,12 @@ describe("affected component closure", () => {
       "packages/ui/registry/ui/markdown-view.test.tsx",
     ]);
     // bubble's preview renders a CodeBlock, so its fixtures run although bubble does not depend on it.
+    // text-edit's preview renders a MarkdownView beside the editor (the Markdown guide's parity demo).
     expect(result.previewModules).toEqual([
       "bubble",
       "code-block",
       "markdown-view",
+      "text-edit",
     ]);
     expect(result.geometryFixtures).toContain("codeBlock");
     expect(result.geometryFixtures).toContain("markdownView");
@@ -70,6 +72,8 @@ describe("affected component closure", () => {
       // status-pages-01's error page copies its reference with CopyButton (DS-60).
       "status-pages-01",
       "terminal",
+      // text-edit's code-block node view carries the copy affordance.
+      "text-edit",
     ]);
     expect(result.affectedItems).not.toContain("provider");
   });

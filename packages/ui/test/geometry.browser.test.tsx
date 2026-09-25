@@ -273,6 +273,13 @@ const DYNAMIC_DOM: Record<string, string> = {
   textEditMarkdown: ".tiptap[contenteditable]",
   textEditHeights: ".tiptap[contenteditable]",
   textEditInsideField: ".tiptap[contenteditable]",
+  markdownParity: ".tiptap[contenteditable]",
+  markdownToolbarMinimal: ".tiptap[contenteditable]",
+  markdownToolbarStandard: ".tiptap[contenteditable]",
+  markdownToolbarFull: ".tiptap[contenteditable]",
+  markdownToolbarCustom: ".tiptap[contenteditable]",
+  markdownBubbleMenu: ".tiptap[contenteditable]",
+  markdownAutosave: ".tiptap[contenteditable]",
 };
 
 type Fixture = () => React.ReactNode;

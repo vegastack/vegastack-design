@@ -34,14 +34,16 @@ test("renders the formatting toolbar with all command buttons", async () => {
     .element(screen.getByRole("toolbar", { name: "Formatting" }))
     .toBeInTheDocument();
   for (const name of [
+    "Heading",
+    "Subheading",
     "Bold",
     "Italic",
-    "Strikethrough",
-    "Heading",
+    "Inline code",
+    "Link",
     "Bullet list",
     "Ordered list",
+    "Task list",
     "Blockquote",
-    "Inline code",
   ]) {
     await expect
       .element(screen.getByRole("button", { name }))
@@ -59,29 +61,29 @@ test("toolbar keyboard: one tab stop in, arrows move across groups, Shift+Tab le
   const before = screen
     .getByRole("button", { name: "before" })
     .element() as HTMLElement;
-  const bold = screen.getByRole("button", { name: "Bold" }).element();
-  const italic = screen.getByRole("button", { name: "Italic" }).element();
-  const strike = screen
-    .getByRole("button", { name: "Strikethrough" })
+  const heading = screen.getByRole("button", { name: "Heading" }).element();
+  const subheading = screen
+    .getByRole("button", { name: "Subheading" })
     .element();
   // Arrow traversal crosses a `Toolbar.Group` boundary and its separator.
-  const heading = screen.getByRole("button", { name: "Heading" }).element();
+  const bold = screen.getByRole("button", { name: "Bold" }).element();
+  const italic = screen.getByRole("button", { name: "Italic" }).element();
 
   // ONE tab stop for the whole bar: every other control is roving.
-  expect(bold.getAttribute("tabindex")).toBe("0");
-  for (const control of [italic, strike, heading])
+  expect(heading.getAttribute("tabindex")).toBe("0");
+  for (const control of [subheading, bold, italic])
     expect(control.getAttribute("tabindex")).toBe("-1");
 
   before.focus();
   await userEvent.tab();
-  expect(document.activeElement).toBe(bold);
+  expect(document.activeElement).toBe(heading);
 
   await userEvent.keyboard("{ArrowRight}{ArrowRight}");
-  expect(document.activeElement).toBe(strike);
+  expect(document.activeElement).toBe(bold);
   await userEvent.keyboard("{ArrowRight}");
-  expect(document.activeElement).toBe(heading);
+  expect(document.activeElement).toBe(italic);
   await userEvent.keyboard("{ArrowLeft}");
-  expect(document.activeElement).toBe(strike);
+  expect(document.activeElement).toBe(bold);
 
   // Shift+Tab leaves the toolbar outright rather than walking back through eight buttons.
   await userEvent.tab({ shift: true });
@@ -259,7 +261,11 @@ test("shows the placeholder only while empty", async () => {
   // The editor initializes after mount (immediatelyRender:false), then isEmpty flips true.
   await vi.waitFor(
     () => {
-      expect(screen.container.textContent).toContain("Write something…");
+      expect(
+        screen.container.querySelector(
+          'p.is-editor-empty[data-placeholder="Write something…"]',
+        ),
+      ).not.toBeNull();
     },
     { timeout: 3000 },
   );
@@ -268,7 +274,7 @@ test("shows the placeholder only while empty", async () => {
   await editable.click();
   await editable.fill("not empty");
   await vi.waitFor(() => {
-    expect(screen.container.textContent).not.toContain("Write something…");
+    expect(screen.container.querySelector("p.is-editor-empty")).toBeNull();
   });
 });
 
