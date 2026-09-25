@@ -358,13 +358,15 @@ test("remote mode never filters locally and announces loading once (DS-38)", asy
   expect(status.closest('[role="listbox"]')).toBeNull();
 });
 
-test("a search with no rows yet shows its loading line (DS-38)", async () => {
+test("a search with no rows yet shows skeleton rows and announces (DS-38)", async () => {
   const screen = await render(<Picker remote loading items={[]} />);
   await screen.getByRole("combobox").click();
-  // Shown, not screen-reader-only (this lane compiles no CSS, so assert the switch itself).
   await expect
     .element(screen.getByRole("status").filter({ hasText: "Searching…" }))
-    .toHaveAttribute("data-visible");
+    .toBeInTheDocument();
+  await expect
+    .poll(() => document.querySelectorAll('[data-slot="skeleton"]').length)
+    .toBe(5);
 });
 
 test("an error shows in the panel and Try again retries (DS-38)", async () => {
