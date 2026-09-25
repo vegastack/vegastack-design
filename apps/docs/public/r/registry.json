@@ -280,7 +280,7 @@
         "whenToUse": "Discussion on a record's page (a task, a meeting): comments oldest first with the composer at the end.",
         "whenNotToUse": "An activity feed or notifications — use Inbox.",
         "version": "0.23.30",
-        "integrity": "sha256-dn+hpQx40n3HJLFhT7EK1z6EoyTuJ4OGCzR2/PVMeH8="
+        "integrity": "sha256-IYc4X27NZBFWv5Pqabp0kHYqrHBJoMXy+SEi0bLzn8M="
       }
     },
     {
