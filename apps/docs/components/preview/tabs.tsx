@@ -24,6 +24,7 @@ import {
   tabsListVariants,
   tabsTriggerVariants,
 } from "@/components/ui/tabs";
+import { useTabsSwipe } from "@/components/ui/use-tabs-swipe";
 
 /*
  * Every fixture down to `tabsRtl` is upstream's own example from `vendor/shadcn/4.21.0/docs/tabs.md`,
@@ -486,6 +487,51 @@ export function tabsRouteResponsive(): ReactNode {
           </div>
         </nav>
       </div>
+    </Wrapper>
+  );
+}
+
+const SWIPE_TABS = ["summary", "actions", "transcript"] as const;
+type SwipeTab = (typeof SWIPE_TABS)[number];
+
+function TabsSwipeDemo(): ReactNode {
+  const [value, setValue] = useState<SwipeTab>("summary");
+  const swipe = useTabsSwipe({
+    values: SWIPE_TABS,
+    value,
+    onValueChange: setValue,
+  });
+  return (
+    <Tabs
+      value={value}
+      onValueChange={(next) => setValue(next as SwipeTab)}
+      className="w-full max-w-lg"
+    >
+      <TabsList className="w-full">
+        <TabsTrigger value="summary">Summary</TabsTrigger>
+        <TabsTrigger value="actions">Action items 3</TabsTrigger>
+        <TabsTrigger value="transcript">Transcript</TabsTrigger>
+      </TabsList>
+      <div {...swipe} className="min-h-32 py-2 text-muted-foreground">
+        <TabsContent value="summary">
+          The meeting agreed the Q4 budget. Swipe left on a touch screen for the
+          action items.
+        </TabsContent>
+        <TabsContent value="actions">
+          Three action items, waiting for review.
+        </TabsContent>
+        <TabsContent value="transcript">
+          42 minutes, three speakers.
+        </TabsContent>
+      </div>
+    </Tabs>
+  );
+}
+
+export function tabsSwipe(): ReactNode {
+  return (
+    <Wrapper>
+      <TabsSwipeDemo />
     </Wrapper>
   );
 }

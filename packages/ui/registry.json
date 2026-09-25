@@ -235,7 +235,7 @@
       "name": "audio-player",
       "type": "registry:ui",
       "title": "Audio Player",
-      "description": "A compact custom audio transport with play/pause, skip, seek, a tappable speed control, and keyboard shortcuts — a single line on a wide player, two lines with an optional transcript control on a narrow, mobile-width player.",
+      "description": "A compact custom audio transport with play/pause, skip, seek, a tappable speed control, and keyboard shortcuts — a single line on a wide player, two lines with an optional transcript control on a narrow, mobile-width player; a floating pill variant and a global AudioPlayerProvider + useGlobalPlayer that keep one recording playing across routes.",
       "categories": ["media"],
       "dependencies": [
         "lucide-react@^1.47.0",
@@ -12112,7 +12112,7 @@
       "name": "transcript",
       "type": "registry:ui",
       "title": "Transcript",
-      "description": "A timestamped, speaker-labelled transcript on MessageScroller's primitive - marks the line playing at currentTime, follows it, pauses on a user scroll with a Back to current line button, seeks from each timestamp, and searches with highlighted, announced matches.",
+      "description": "A timestamped, speaker-labelled transcript on MessageScroller's primitive - turns with a coloured speaker dot, the line playing at currentTime followed with a Back to current line button, seek from each timestamp, highlighted announced search, speaker chips with rename, and progressive mounting of long transcripts.",
       "categories": ["communication"],
       "dependencies": [
         "lucide-react@^1.47.0",
@@ -12127,7 +12127,8 @@
         "@vegastack/use-announcer",
         "@vegastack/skeleton",
         "@vegastack/media-player-controls",
-        "@vegastack/use-media-query"
+        "@vegastack/use-media-query",
+        "@vegastack/input"
       ],
       "files": [
         {
@@ -12140,6 +12141,101 @@
         "whenToUse": "The text of a recording - a meeting, call or interview - read alongside its player: timestamped speaker lines that follow playback, seek on click, and can be searched.",
         "whenNotToUse": "A live chat or AI thread that pins to the newest message (MessageScroller with Message), or a chronological record of events rather than speech (Timeline).",
         "version": "0.23.9"
+      }
+    },
+    {
+      "name": "meta-line",
+      "type": "registry:ui",
+      "title": "Meta Line",
+      "description": "An icon + text meta line under a record title: wrapping facts such as type, date and time, duration and owner, in the muted ink.",
+      "categories": ["display"],
+      "dependencies": [
+        "@vegastack/design@^0.7.17",
+        "@vegastack/design-tokens@^0.7.1"
+      ],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/meta-line.tsx",
+          "type": "registry:ui",
+          "target": "@ui/meta-line.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "The facts line under a record's title — type, date and time, duration, who recorded it.",
+        "whenNotToUse": "Labelled key/value details (PropertyList) or status (Badge, StatusLine).",
+        "version": "0.23.8"
+      }
+    },
+    {
+      "name": "record-chip",
+      "type": "registry:ui",
+      "title": "Record Chip",
+      "description": "A pill that shows the record something belongs to and picks another: icon, name and a chevron as a picker trigger, plus an arrow link to the record.",
+      "categories": ["forms"],
+      "dependencies": [
+        "lucide-react@^1.47.0",
+        "@vegastack/design@^0.7.17",
+        "@vegastack/design-tokens@^0.7.1"
+      ],
+      "registryDependencies": ["@vegastack/button"],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/record-chip.tsx",
+          "type": "registry:ui",
+          "target": "@ui/record-chip.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "Linking a record to another one in its header — a meeting's customer or project — with a picker and a jump to the linked record.",
+        "whenNotToUse": "A free-form tag (Chip) or a form field with a label (Combobox, Select).",
+        "version": "0.23.8"
+      }
+    },
+    {
+      "name": "status-line",
+      "type": "registry:ui",
+      "title": "Status Line",
+      "description": "A slim inline status: info, progress (spinner) or error (destructive ink, role=alert), with an optional inline action.",
+      "categories": ["feedback"],
+      "dependencies": [
+        "lucide-react@^1.47.0",
+        "@vegastack/design@^0.7.17",
+        "@vegastack/design-tokens@^0.7.1"
+      ],
+      "registryDependencies": ["@vegastack/spinner"],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/status-line.tsx",
+          "type": "registry:ui",
+          "target": "@ui/status-line.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "One line of status inside a record header — processing, a failure with its reason and Retry, a quiet notice.",
+        "whenNotToUse": "A page-level message with a title (Alert) or a transient confirmation (Toast).",
+        "version": "0.23.8"
+      }
+    },
+    {
+      "name": "use-tabs-swipe",
+      "type": "registry:hook",
+      "title": "useTabsSwipe",
+      "description": "Switch controlled Tabs with a horizontal touch swipe on the panel area; vertical gestures stay a scroll and the direction follows RTL.",
+      "categories": ["hook"],
+      "dependencies": ["@vegastack/design@^0.7.17"],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/use-tabs-swipe.ts",
+          "type": "registry:hook",
+          "target": "@ui/use-tabs-swipe.ts"
+        }
+      ],
+      "meta": {
+        "whenToUse": "Tabs over full-width panels on a phone, where a swipe between Summary / Action items / Transcript is expected.",
+        "whenNotToUse": "Tabs whose panels scroll horizontally themselves (tables, carousels) — the gesture would fight them.",
+        "version": "0.23.8"
       }
     },
     {

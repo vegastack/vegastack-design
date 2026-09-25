@@ -1,12 +1,13 @@
-// @vegastack transcript@0.23.9 sha256-xO/OkLWDiGHXULDo4T4EJxFqiriqES4eCeiJ0nsy+6o=
+// @vegastack transcript@0.23.9 sha256-6HRcoapMtoQlm/GqE4pmeZyD23DSvUxRVBKQk8zwbbM=
 
 "use client";
 
 import * as React from "react";
-import { ChevronDown, ChevronUp, LocateFixed } from "lucide-react";
+import { ChevronDown, ChevronUp, LocateFixed, Pencil } from "lucide-react";
 import { cn } from "@vegastack/design";
 
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Item, ItemContent, ItemTitle } from "@/components/ui/item";
 import { formatDefaultTime } from "@/components/ui/media-player-controls";
 import {
@@ -32,7 +33,9 @@ Transcript (DS-49) is a THIN layer on MessageScroller's primitive, and it owns n
 - The engine's own user-intent signal (wheel, touch, the scroll keys) is what pauses follow: the
   viewport forwards those events to our handlers after the engine has seen them.
 - "Back to current line" reads the engine's `visibleMessageIds`; nothing here measures a rect.
-- No virtualization engine, and no render skipping either: rows opt OUT of MessageScrollerItem's
+- Lazy rendering is progressive MOUNTING, never render skipping: the first `batchSize` rows mount
+  at once and the rest follow in idle-time batches; the current row and the current search match
+  are always mounted before anything scrolls to them. Rows still opt OUT of MessageScrollerItem's
   `content-visibility: auto`. `scrollToMessage` measures the target against the heights laid out
   at that moment, and skipped rows report their intrinsic ESTIMATE; as soon as the rows near the
   target render, the real heights replace the estimate and a long jump lands hundreds of pixels
@@ -73,6 +76,18 @@ export interface TranscriptProps extends Omit<
 > {
   /** The segments, sorted by `start`. */
   segments: TranscriptSegment[];
+  /**
+   * Called when a speaker chip in `TranscriptSpeakers` is renamed. Without it, the chips have no
+   * rename button.
+   * @default undefined
+   */
+  onSpeakerRename?: (id: string, name: string) => void;
+  /**
+   * Rows mounted in the first paint; the rest mount in idle-time batches of the same size. The
+   * current row and the current search match are always mounted.
+   * @default 100
+   */
+  batchSize?: number;
   /**
    * Maps a speaker id to the name shown on its rows. Keep it referentially stable (module level
    * or `useCallback`) on a long transcript — it is a render dependency of every row.
@@ -166,6 +181,25 @@ export interface TranscriptListProps {
   className?: string;
 }
 
+/** Props accepted by `TranscriptSpeakers`. */
+export interface TranscriptSpeakersProps {
+  /**
+   * Accessible name of a chip's rename button, given the speaker's name.
+   * @default (name) => `Rename ${name}`
+   */
+  renameLabel?: (name: string) => string;
+  /**
+   * Accessible name of the rename field.
+   * @default "Speaker name"
+   */
+  inputLabel?: string;
+  /**
+   * Classes for the chip row.
+   * @default undefined
+   */
+  className?: string;
+}
+
 /** Props accepted by `TranscriptSearch`. */
 export interface TranscriptSearchProps {
   /**
@@ -245,6 +279,28 @@ function occurrences(text: string, needle: string) {
 
 type Match = { id: string; occurrence: number };
 
+/** Speaker dot colours, assigned in order of first appearance and cycled past eight speakers. */
+const SPEAKER_DOTS = [
+  "bg-chart-1",
+  "bg-chart-2",
+  "bg-chart-3",
+  "bg-chart-4",
+  "bg-chart-5",
+  "bg-chart-6",
+  "bg-chart-7",
+  "bg-chart-8",
+] as const;
+
+function SpeakerDot({ className }: { className: string }) {
+  return (
+    <span
+      aria-hidden
+      data-slot="transcript-speaker-dot"
+      className={cn("size-2 shrink-0 rounded-full", className)}
+    />
+  );
+}
+
 /** A one-value store rows subscribe to, so a new active id re-renders two rows, not the list. */
 function createActiveStore(initial: string | null) {
   let value = initial;
@@ -298,6 +354,14 @@ interface TranscriptContextValue {
   setMatchIndex: (next: number) => void;
   seek: ((seconds: number) => void) | null;
   speakerName: (id: string) => string;
+  /** Speaker ids in order of first appearance. */
+  speakers: string[];
+  speakerDot: (id: string) => string;
+  onSpeakerRename: ((id: string, name: string) => void) | null;
+  /** Rows mounted so far. */
+  renderedCount: number;
+  /** Make sure segment `index` is mounted. */
+  ensureRendered: (index: number) => void;
   formatTime: (seconds: number) => string;
   seekLabel: (time: string) => string;
   nowPlayingLabel: string;
@@ -376,6 +440,8 @@ function TranscriptFollow({
  */
 export function Transcript({
   segments,
+  onSpeakerRename,
+  batchSize = 100,
   speakerName = identity,
   currentTime,
   onSeek,
@@ -460,6 +526,55 @@ export function Transcript({
     [needle],
   );
 
+  const speakers = React.useMemo(() => {
+    const seen = new Set<string>();
+    for (const segment of segments) seen.add(segment.speaker);
+    return [...seen];
+  }, [segments]);
+  const speakerDot = React.useCallback(
+    (id: string) =>
+      SPEAKER_DOTS[Math.max(0, speakers.indexOf(id)) % SPEAKER_DOTS.length]!,
+    [speakers],
+  );
+  const hasRename = onSpeakerRename !== undefined;
+  const renameRef = React.useRef(onSpeakerRename);
+  React.useLayoutEffect(() => {
+    renameRef.current = onSpeakerRename;
+  });
+  const rename = React.useMemo(
+    () =>
+      hasRename
+        ? (id: string, name: string) => renameRef.current?.(id, name)
+        : null,
+    [hasRename],
+  );
+
+  // ── Progressive mounting ──
+  const [grown, setGrown] = React.useState(batchSize);
+  const currentMatchSegment = matches[matchIndex]
+    ? segments.findIndex((segment) => segment.id === matches[matchIndex]!.id)
+    : -1;
+  const renderedCount = Math.min(
+    segments.length,
+    Math.max(grown, activeIndex + 1, currentMatchSegment + 1),
+  );
+  React.useEffect(() => {
+    if (grown >= segments.length) return;
+    const idle =
+      typeof window !== "undefined" && "requestIdleCallback" in window
+        ? window.requestIdleCallback(() => setGrown((n) => n + batchSize))
+        : setTimeout(() => setGrown((n) => n + batchSize), 16);
+    return () => {
+      if (typeof window !== "undefined" && "cancelIdleCallback" in window)
+        window.cancelIdleCallback(idle as number);
+      clearTimeout(idle as ReturnType<typeof setTimeout>);
+    };
+  }, [grown, segments.length, batchSize]);
+  const ensureRendered = React.useCallback(
+    (index: number) => setGrown((n) => Math.max(n, index + 1)),
+    [],
+  );
+
   const hasSeek = onSeek !== undefined;
   const seek = React.useMemo(
     () =>
@@ -484,6 +599,11 @@ export function Transcript({
       setMatchIndex,
       seek,
       speakerName,
+      speakers,
+      speakerDot,
+      onSpeakerRename: rename,
+      renderedCount,
+      ensureRendered,
       formatTime,
       seekLabel,
       nowPlayingLabel,
@@ -508,6 +628,11 @@ export function Transcript({
       setMatchIndex,
       seek,
       speakerName,
+      speakers,
+      speakerDot,
+      rename,
+      renderedCount,
+      ensureRendered,
       formatTime,
       seekLabel,
       nowPlayingLabel,
@@ -577,6 +702,7 @@ interface RowProps {
   segment: TranscriptSegment;
   activeStore: ActiveStore;
   speaker: string;
+  dot: string;
   time: string;
   seekName: string;
   seek: ((seconds: number) => void) | null;
@@ -589,6 +715,7 @@ const TranscriptRow = React.memo(function TranscriptRow({
   segment,
   activeStore,
   speaker,
+  dot,
   time,
   seekName,
   seek,
@@ -606,22 +733,22 @@ const TranscriptRow = React.memo(function TranscriptRow({
       className="flex-nowrap items-start [content-visibility:visible] aria-[current=true]:bg-muted"
       render={<MessageScrollerItem messageId={segment.id} />}
     >
-      <ItemContent className="min-w-0 gap-0.5">
-        <div className="flex min-w-0 flex-wrap items-center gap-x-2">
+      <ItemContent className="min-w-0 gap-1">
+        <div
+          data-slot="transcript-turn-header"
+          className="flex min-w-0 items-center gap-2"
+        >
           {active ? (
             <span data-slot="transcript-now-playing" className="sr-only">
               {nowPlayingLabel}
             </span>
           ) : null}
-          <ItemTitle className="min-w-0">
-            <span className="truncate">{speaker}</span>
-          </ItemTitle>
           {seek ? (
             <Button
               variant="ghost"
               size="xs"
               aria-label={seekName}
-              className="-ms-1 text-muted-foreground tabular-nums"
+              className="-ms-1.5 text-muted-foreground tabular-nums"
               onClick={() => seek(segment.start)}
             >
               {time}
@@ -631,6 +758,10 @@ const TranscriptRow = React.memo(function TranscriptRow({
               {time}
             </span>
           )}
+          <SpeakerDot className={dot} />
+          <ItemTitle className="min-w-0">
+            <span className="truncate">{speaker}</span>
+          </ItemTitle>
         </div>
         <p data-slot="transcript-text" className="text-sm text-foreground">
           <Highlighted
@@ -705,6 +836,8 @@ export function TranscriptList({ className }: TranscriptListProps) {
     query,
     seek,
     speakerName,
+    speakerDot,
+    renderedCount,
     formatTime,
     seekLabel,
     nowPlayingLabel,
@@ -720,7 +853,7 @@ export function TranscriptList({ className }: TranscriptListProps) {
   const current = matches[matchIndex];
   const rows = React.useMemo(
     () =>
-      segments.map((segment) => {
+      segments.slice(0, renderedCount).map((segment) => {
         const time = formatTime(segment.start);
         return (
           <TranscriptRow
@@ -728,6 +861,7 @@ export function TranscriptList({ className }: TranscriptListProps) {
             segment={segment}
             activeStore={activeStore}
             speaker={speakerName(segment.speaker)}
+            dot={speakerDot(segment.speaker)}
             time={time}
             seekName={seekLabel(time)}
             seek={seek}
@@ -741,9 +875,11 @@ export function TranscriptList({ className }: TranscriptListProps) {
       }),
     [
       segments,
+      renderedCount,
       activeStore,
       formatTime,
       speakerName,
+      speakerDot,
       seekLabel,
       seek,
       query,
@@ -851,6 +987,9 @@ export function TranscriptSearch({
     setMatchIndex,
     setFollowing,
     announce,
+    segments,
+    renderedCount,
+    ensureRendered,
   } = useTranscript("TranscriptSearch");
   const { scrollToMessage } = useMessageScroller();
   const behavior = useJumpBehavior();
@@ -861,9 +1000,26 @@ export function TranscriptSearch({
       const match = matches[index];
       if (!match) return;
       setFollowing(false);
+      const target = segments.findIndex((segment) => segment.id === match.id);
+      if (target >= renderedCount) {
+        // Mount the target first, then scroll once it is laid out.
+        ensureRendered(target);
+        requestAnimationFrame(() =>
+          scrollToMessage(match.id, { align: "center", behavior }),
+        );
+        return;
+      }
       scrollToMessage(match.id, { align: "center", behavior });
     },
-    [matches, setFollowing, scrollToMessage, behavior],
+    [
+      matches,
+      setFollowing,
+      scrollToMessage,
+      behavior,
+      segments,
+      renderedCount,
+      ensureRendered,
+    ],
   );
 
   // A new query (or a first match arriving for it) settles on its first match and says where the
@@ -944,5 +1100,141 @@ export function TranscriptSearch({
         <ChevronDown aria-hidden />
       </Button>
     </PanelSearch>
+  );
+}
+
+// ── TranscriptSpeakers ────────────────────────────────────────────────────────────────────────
+
+function SpeakerChip({
+  id,
+  name,
+  dot,
+  onRename,
+  renameLabel,
+  inputLabel,
+}: {
+  id: string;
+  name: string;
+  dot: string;
+  onRename: ((id: string, name: string) => void) | null;
+  renameLabel: (name: string) => string;
+  inputLabel: string;
+}) {
+  const [editing, setEditing] = React.useState(false);
+  const [draft, setDraft] = React.useState(name);
+  const buttonRef = React.useRef<HTMLButtonElement>(null);
+
+  const finish = (commit: boolean) => {
+    const next = draft.trim();
+    if (commit && next && next !== name) onRename?.(id, next);
+    setEditing(false);
+    requestAnimationFrame(() => buttonRef.current?.focus());
+  };
+
+  if (editing) {
+    return (
+      <span
+        role="listitem"
+        data-slot="transcript-speaker"
+        data-editing=""
+        className="inline-flex h-7 items-center gap-1.5 rounded-full border border-ring ps-2.5 pe-1"
+      >
+        <SpeakerDot className={dot} />
+        <Input
+          autoFocus
+          aria-label={inputLabel}
+          value={draft}
+          onChange={(event) => setDraft(event.currentTarget.value)}
+          onFocus={(event) => event.currentTarget.select()}
+          onBlur={() => finish(true)}
+          onKeyDown={(event) => {
+            if (event.key === "Enter") {
+              event.preventDefault();
+              finish(true);
+            } else if (event.key === "Escape") {
+              event.preventDefault();
+              event.stopPropagation();
+              finish(false);
+            }
+          }}
+          className="h-6 w-32 border-0 bg-transparent px-0 text-xs shadow-none dark:bg-transparent"
+        />
+      </span>
+    );
+  }
+
+  return (
+    <span
+      role="listitem"
+      data-slot="transcript-speaker"
+      className={cn(
+        "inline-flex h-7 max-w-full items-center gap-1.5 rounded-full border border-border ps-2.5 text-xs font-medium text-foreground",
+        onRename ? "pe-0.5" : "pe-2.5",
+      )}
+    >
+      <SpeakerDot className={dot} />
+      <span className="min-w-0 truncate">{name}</span>
+      {onRename ? (
+        <Button
+          ref={buttonRef}
+          variant="ghost"
+          size="icon-xs"
+          aria-label={renameLabel(name)}
+          className="rounded-full text-muted-foreground"
+          onClick={() => {
+            setDraft(name);
+            setEditing(true);
+          }}
+        >
+          <Pencil aria-hidden />
+        </Button>
+      ) : null}
+    </span>
+  );
+}
+
+const defaultRenameLabel = (name: string) => `Rename ${name}`;
+
+/**
+ * `TranscriptSpeakers` — one chip per speaker, in order of first appearance, with the speaker's
+ * dot colour and name. When the Transcript has `onSpeakerRename`, each chip carries a rename
+ * button that turns it into a field: Enter or leaving the field saves, Escape cancels.
+ *
+ * @example
+ * <Transcript aria-label="Transcript" segments={segments} onSpeakerRename={rename}>
+ *   <div className="flex flex-wrap items-center gap-2">
+ *     <TranscriptSearch className="flex-1" />
+ *     <TranscriptSpeakers />
+ *   </div>
+ *   <TranscriptList />
+ * </Transcript>
+ */
+export function TranscriptSpeakers({
+  renameLabel = defaultRenameLabel,
+  inputLabel = "Speaker name",
+  className,
+}: TranscriptSpeakersProps) {
+  const { speakers, speakerName, speakerDot, onSpeakerRename } =
+    useTranscript("TranscriptSpeakers");
+  if (speakers.length === 0) return null;
+  return (
+    <div
+      role="list"
+      aria-label="Speakers"
+      data-slot="transcript-speakers"
+      className={cn("flex flex-wrap items-center gap-1.5", className)}
+    >
+      {speakers.map((id) => (
+        <SpeakerChip
+          key={id}
+          id={id}
+          name={speakerName(id)}
+          dot={speakerDot(id)}
+          onRename={onSpeakerRename}
+          renameLabel={renameLabel}
+          inputLabel={inputLabel}
+        />
+      ))}
+    </div>
   );
 }

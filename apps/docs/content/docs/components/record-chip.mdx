@@ -1,0 +1,72 @@
+---
+title: Record Chip
+description: A picker chip that shows which record something belongs to — icon, name and ▾ — with a ↗ link to that record.
+audience: public
+registry: record-chip
+status: stable
+since: 0.23.10
+a11y: picker button plus a named link
+preview: recordChip
+---
+
+## Install
+
+<InstallSteps name="record-chip" />
+
+## Usage
+
+```tsx
+import { RecordChip } from "@/components/ui/record-chip";
+
+<PopoverTrigger
+  render={
+    <RecordChip
+      icon={<Building2 />}
+      value={customer?.name}
+      placeholder="Add customer"
+      href={customer ? `/customers/${customer.id}` : undefined}
+      linkLabel={`Open ${customer?.name}`}
+      renderLink={(props) => <Link {...props} />}
+    />
+  }
+/>;
+```
+
+Every prop not listed below — and the ref — goes to the picker button, so the chip drops into any
+trigger's `render` (Popover, DropdownMenu, Combobox).
+
+## Anatomy
+
+<Anatomy name="record-chip" />
+
+## Examples
+
+### Customer and project
+
+A customer chip, and a project chip that appears once a customer is set. An empty chip has a dashed
+border and the placeholder; a set chip adds the ↗ link to the record.
+
+<ComponentPreview name="recordChip" file="components/preview/record-chip.tsx" />
+
+## API Reference
+
+<ApiTable
+  path="../../packages/ui/registry/ui/record-chip.tsx"
+  name="RecordChipProps"
+/>
+
+## Accessibility
+
+- The picker is a `button`; the trigger it is rendered into adds `aria-expanded` and
+  `aria-haspopup`. Give it an `aria-label` such as "Customer: Acme" when the icon is the only thing
+  that says which kind of record it is.
+- The ↗ link is a separate tab stop named by `linkLabel` ("Open Acme").
+
+<StatesTested name="record-chip" />
+
+## Do / Don't
+
+<DoDont
+  do="Use RecordChip in a record's header to link it to its customer or project, with a jump to that record."
+  dont="Use it for free-form tags (Chip) or inside a form with a visible label (Combobox, Select)."
+/>

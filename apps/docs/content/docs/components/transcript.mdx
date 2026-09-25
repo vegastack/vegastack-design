@@ -36,14 +36,20 @@ import {
 ```
 
 Each segment is `{ id, start, end?, speaker, text }`, with `start` and `end` in seconds and the
-segments sorted by `start`. The row playing at `currentTime` is marked current, and while the
+segments sorted by `start`. Each turn is a header — the time, the speaker's coloured dot and name
+— with the text full width below it, the same layout on a phone and a desktop. The row playing at `currentTime` is marked current, and while the
 transcript is following it stays centred. A reader who scrolls pauses following, and "Back to
 current line" brings it back.
+
+Long transcripts mount progressively: the first `batchSize` turns (100) at once and the rest in
+idle-time batches, with the current line and the current search match always mounted before
+anything scrolls to them.
 
 ## Scope
 
 - **Owns:** the current line, following it, pausing on a user scroll, seek buttons, search with
-  `<mark>` highlights, and the empty and loading states.
+  `<mark>` highlights, speaker colours and chips, progressive mounting, and the empty and loading
+  states.
 - **Does not own:** playback or the clock. Pass `currentTime` from your player, and seek it in
   `onSeek`.
 - **Compose with:** [`AudioPlayer`](/docs/components/audio-player) or
@@ -93,6 +99,33 @@ pauses following, and announces its position ("2 of 5"). Pass `query` and
   file="components/preview/transcript.tsx"
 />
 
+### Speakers and rename
+
+`TranscriptSpeakers` renders one chip per speaker, with the dot colour their turns use. Pass
+`onSpeakerRename(id, name)` to the Transcript and each chip gets a ✎ button: it turns into a field
+where Enter or leaving the field saves and Escape cancels. Store the name and return it from
+`speakerName`. Put the search and the chips in one toolbar row above the list.
+
+```tsx
+<Transcript
+  aria-label="Meeting transcript"
+  segments={segments}
+  speakerName={(id) => names[id] ?? id}
+  onSpeakerRename={(id, name) => renameSpeaker(id, name)}
+>
+  <div className="flex flex-wrap items-center gap-2">
+    <TranscriptSearch className="flex-1" />
+    <TranscriptSpeakers />
+  </div>
+  <TranscriptList />
+</Transcript>
+```
+
+<ComponentPreview
+  name="transcriptSpeakers"
+  file="components/preview/transcript.tsx"
+/>
+
 ### Read-only
 
 Without `onSeek` the timestamps are plain text and no row has a button. Without `currentTime`
@@ -127,6 +160,13 @@ the list shows `emptyState` ("No transcript yet" by default).
   name="TranscriptSearchProps"
 />
 
+### TranscriptSpeakers
+
+<ApiTable
+  path="../../packages/ui/registry/ui/transcript.tsx"
+  name="TranscriptSpeakersProps"
+/>
+
 ### TranscriptList
 
 <ApiTable
@@ -145,6 +185,9 @@ the list shows `emptyState` ("No transcript yet" by default).
   focus.
 - When "Back to current line" scrolls back, focus moves to the list so it does not fall to the
   page.
+- Speaker chips are a `list` named "Speakers"; each rename button is named "Rename {name}", and the
+  rename field returns focus to it when it closes. Speaker colour is never the only cue: every turn
+  names its speaker.
 - Follow and search scroll smoothly, and instantly under `prefers-reduced-motion`.
 
 | Key                                                                                              | Action                                                          |

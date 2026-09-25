@@ -172,6 +172,33 @@ selection changes, and the keyboard's roving stop scrolls in as it moves. The pi
 
 <ComponentPreview name="tabsMany" file="components/preview/tabs.tsx" />
 
+### Full width with swipe
+
+The default variant stretched across its column (`className="w-full"` on `TabsList`) is the
+record-page pattern: Summary · Action items · Transcript over full-width panels with no card
+around them. On touch, `useTabsSwipe` lets a horizontal swipe on the panels move to the
+neighbouring tab. Spread its result on the element that wraps the `TabsContent` panels; only touch
+pointers count, a mostly vertical gesture stays a scroll, and the direction follows RTL. The hook
+is a separate registry item (`shadcn add @vegastack/use-tabs-swipe`), so `Tabs` itself stays
+upstream's file.
+
+```tsx
+const swipe = useTabsSwipe({
+  values: ["summary", "actions", "transcript"],
+  value,
+  onValueChange: setValue,
+});
+
+<Tabs value={value} onValueChange={setValue}>
+  <TabsList className="w-full">…</TabsList>
+  <div {...swipe}>
+    <TabsContent value="summary">…</TabsContent>…
+  </div>
+</Tabs>;
+```
+
+<ComponentPreview name="tabsSwipe" file="components/preview/tabs.tsx" />
+
 ### Route tabs
 
 When each tab is its own page, the tabs are navigation, not a tablist: render a named `nav` of links

@@ -1,0 +1,83 @@
+---
+title: Meta Line
+description: An icon + text meta line under a record title — type, date and time, duration, owner — wrapping in the muted ink.
+audience: public
+registry: meta-line
+status: stable
+since: 0.23.10
+a11y: decorative icons, text carries meaning
+preview: metaLine
+---
+
+## Install
+
+<InstallSteps name="meta-line" />
+
+## Usage
+
+```tsx
+import { MetaLine, MetaLineItem } from "@/components/ui/meta-line";
+
+<MetaLine>
+  <MetaLineItem icon={<Video />}>Video call</MetaLineItem>
+  <MetaLineItem icon={<Calendar />}>
+    <DateTime date={meeting.startedAt} variant="datetime" />
+  </MetaLineItem>
+  <MetaLineItem icon={<Clock />}>
+    <Duration seconds={meeting.durationSeconds} />
+  </MetaLineItem>
+  <MetaLineItem icon={<Mic />}>Recorded by {meeting.recorder}</MetaLineItem>
+</MetaLine>;
+```
+
+## Anatomy
+
+<Anatomy name="meta-line" />
+
+## Examples
+
+### Record facts
+
+The line under a record's title. Each fact is an optional 14px icon and its text, `gap-x-4`
+between facts, in the muted ink one step below the title.
+
+<ComponentPreview name="metaLine" file="components/preview/meta-line.tsx" />
+
+### Narrow container
+
+Facts wrap to the next line as whole items; a long fact truncates rather than pushing the line
+wider than its container.
+
+<ComponentPreview
+  name="metaLineNarrow"
+  file="components/preview/meta-line.tsx"
+/>
+
+## API Reference
+
+<ApiTable
+  path="../../packages/ui/registry/ui/meta-line.tsx"
+  name="MetaLineProps"
+/>
+
+### MetaLineItem
+
+<ApiTable
+  path="../../packages/ui/registry/ui/meta-line.tsx"
+  name="MetaLineItemProps"
+/>
+
+## Accessibility
+
+- Icons are `aria-hidden`: the text of each fact carries its meaning, so write "42m" or
+  "Recorded by Asha", never an icon alone.
+- The line is plain text with no interactive parts; put links or pickers next to it, not inside.
+
+<StatesTested name="meta-line" />
+
+## Do / Don't
+
+<DoDont
+  do="Use MetaLine for three or four short facts directly under a record title."
+  dont="Use it for labelled key/value details — that is PropertyList — or for status, which is StatusLine or a Badge."
+/>

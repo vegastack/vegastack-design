@@ -1,0 +1,71 @@
+---
+title: Status Line
+description: A slim inline status — info, progress or error — with an optional inline action, for one record's processing state.
+audience: public
+registry: status-line
+status: stable
+since: 0.23.10
+a11y: role=status, role=alert for errors
+preview: statusLine
+---
+
+## Install
+
+<InstallSteps name="status-line" />
+
+## Usage
+
+```tsx
+import { StatusLine } from "@/components/ui/status-line";
+
+<StatusLine status="progress">Transcribing… updates on its own</StatusLine>;
+
+<StatusLine
+  status="error"
+  action={
+    <Button size="xs" variant="outline" onClick={retry}>
+      Retry
+    </Button>
+  }
+>
+  Transcription failed: {reason}
+</StatusLine>;
+```
+
+## Anatomy
+
+<Anatomy name="status-line" />
+
+## Examples
+
+### Progress, info and error
+
+`progress` shows a spinner, `info` an info icon, and `error` an alert icon with the whole line in
+the destructive ink. Actions sit inline after the text. There is no box and no border — the line
+reads as part of the header it sits in. Show one status line per record: fold a secondary notice
+into the same line rather than stacking a second one.
+
+<ComponentPreview name="statusLine" file="components/preview/status-line.tsx" />
+
+## API Reference
+
+<ApiTable
+  path="../../packages/ui/registry/ui/status-line.tsx"
+  name="StatusLineProps"
+/>
+
+## Accessibility
+
+- `progress` and `info` are `role="status"` (polite); `error` is `role="alert"`, so a failure that
+  appears while the reader is on the page is announced once.
+- Icons are decorative; the text says what is happening and why.
+- Actions are ordinary buttons after the text, in the tab order.
+
+<StatesTested name="status-line" />
+
+## Do / Don't
+
+<DoDont
+  do="Use StatusLine for a record's own processing state inside its header, with the reason and the one or two actions that fix it."
+  dont="Use it for a page-level message with a title (Alert) or a transient confirmation (Toast)."
+/>
