@@ -1,4 +1,4 @@
-// @vegastack audio-player@0.23.26 sha256-PZP/R9yY1OR7l05OnCDhHE3i+5sg69DtAMTMJbDlmkI=
+// @vegastack audio-player@0.23.26 sha256-WyI32dW5TKz4E4b0IsuhDxyQRSDVDh4/2OYDXkOikfY=
 
 "use client";
 
@@ -261,7 +261,10 @@ export interface AudioPlayerProps extends Omit<
   /**
    * Presentation. `waveform` renders a decoded-audio waveform in place of the
    * seek slider (its keyboard and pointer semantics are preserved beneath the
-   * bars). `floating` is a one-line pill — transport, seek, speed, volume, close; `title` is not shown — centred in
+   * bars). `floating` sits at the bottom of its flex column (`mt-auto`) and
+   * centres on the main column: set `--audio-player-inset-end` on an ancestor to
+   * the width an end rail takes (inside AppShell a RecordLayout rail sets 22rem
+   * for you). It is a one-line pill — transport, seek, speed, volume, close; `title` is not shown — centred in
    * its container and sticky 16px above the bottom of its scroll column; below
    * the `sm` breakpoint it spans the full width on the bottom edge. A floating
    * player is a `region` named by `label`.
@@ -640,9 +643,14 @@ export function AudioPlayer({
           "data-[active=true]:motion-dock-in data-[active=true]:translate-y-0 data-[active=false]:motion-dock-out data-[active=false]:translate-y-[calc(100%+env(safe-area-inset-bottom))]",
         ],
         isFloating && [
-          "sticky bottom-4 z-20 mx-auto w-[calc(100%-2rem)] max-w-3xl flex-row flex-wrap items-center gap-x-2 gap-y-1 rounded-full border border-border bg-popover p-1.5 text-popover-foreground shadow-md",
+          // Always at the bottom of its flex column (`mt-auto`), centred on the main
+          // column: `--audio-player-inset-end` narrows and shifts it clear of an end
+          // rail. Inside AppShell it is set for a RecordLayout rail automatically.
+          "@5xl/app-shell-content:[:has([data-slot=record-layout-rail])_&]:[--audio-player-inset-end:22rem]",
+          "w-[calc(100%-2rem-var(--audio-player-inset-end,0px))] -translate-x-[calc(var(--audio-player-inset-end,0px)/2)] rtl:translate-x-[calc(var(--audio-player-inset-end,0px)/2)]",
+          "sticky bottom-4 z-20 mx-auto mt-auto max-w-3xl flex-row flex-wrap items-center gap-x-2 gap-y-1 rounded-full border border-border bg-popover p-1.5 text-popover-foreground shadow-md",
           // Phone: full width on the bottom edge, clear of the safe-area inset.
-          "max-sm:bottom-0 max-sm:w-full max-sm:rounded-none max-sm:border-x-0 max-sm:border-b-0 max-sm:px-1 max-sm:pb-[calc(var(--spacing)*1+env(safe-area-inset-bottom))]",
+          "max-sm:bottom-0 max-sm:w-full max-sm:translate-x-0 max-sm:rounded-none max-sm:border-x-0 max-sm:border-b-0 max-sm:px-1 max-sm:pb-[calc(var(--spacing)*1+env(safe-area-inset-bottom))]",
           "data-[active=true]:motion-dock-in data-[active=true]:translate-y-0 data-[active=false]:motion-dock-out data-[active=false]:translate-y-[calc(100%+var(--spacing)*4+env(safe-area-inset-bottom))]",
         ],
         !docked && !isFloating && !isOpen && "hidden",
