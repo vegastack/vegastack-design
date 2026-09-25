@@ -104,9 +104,9 @@
   "copy-button": "sha256-zM/1x8c5qfWleE2TW3+MQai2/v6+n2PepfKaBzR3cDg=",
   "country-select": "sha256-u+jik6eLh8QUxxeYJQ/8d5Jh8Rpk19Ti7LJ1HqHxHC8=",
   "data-grid": "sha256-sssW60P3GYxiTAgZFGLThC66t9ab/iJBI8ut3ESwDSw=",
-  "data-list": "sha256-UdFpsVyJvgBkDWT648+IF8nn5G2GDB3AY74PdVtl93I=",
+  "data-list": "sha256-M9Hv9pC+c54jLjMWmT41H2U7IuEZBNxbBIDuqF+kLxw=",
   "data-list-pager": "sha256-LbB/Q4DHFscoNyLAx8tvqaHzIDuMO+VfXAZPWm9xqBk=",
-  "data-table-parts": "sha256-XYfAifI2PM2k+CeaEiPfKvKRmjhyOz4KfQwTie30s1I=",
+  "data-table-parts": "sha256-F7mWX8S+tTUP2+iVkfhwqNRZNJG0XaUdXy4ixNEbVKQ=",
   "date-picker": "sha256-khS5wLe5Hgrme29HDYFpL6sTFfdoCI99ezxhGLTIvXE=",
   "date-time": "sha256-o8c+bD+fGCvamPEo3rHdSofqzUMFU+FAWZweWAoDNxU=",
   "dialog": "sha256-TXJqtqb1S5y3y3AhbnjcAL34NT6gLjlJgCFam2AaBSo=",
@@ -603,6 +603,7 @@
   "login-01": "sha256-wh3UUSSH1bfZN1hjGBLImRnSW5FSYngOn/KJ6KzSGEA=",
   "markdown-view": "sha256-xOrDhSletVymwzZgjCNis7CxGPjcmMCm/IHF9II/t/g=",
   "marker": "sha256-C0KfaX7btnUnMaDyT/d9AlEHust25+AnmYYM77y/JiY=",
+  "media-card": "sha256-CGbAQ154DD7099GMgbUuaAUHpPE8Sar94rg6vtOcFZk=",
   "media-player-controls": "sha256-lzEkIcGwlINos2/1HREplWE21uZl4MZjizIJKUdAS5U=",
   "menubar": "sha256-v5WTg67MYlQGrmJhAXkpUd79hpzMCPnoeINOJBiF7q0=",
   "message": "sha256-dlLRAEXFgPfl0183iXdCVj5LwQa3GfGLcuwcnYbrtnQ=",
@@ -656,6 +657,7 @@
   "terminal": "sha256-CPX/HiC211xFLDK4we0iJhzCnXDY0IPGf0bEV2PdmoI=",
   "text-edit": "sha256-q/jznqYl+tM2N4lQFiAXQPGZp9JQbMR5JVSqcX7EmzE=",
   "textarea": "sha256-XIWeQWy49sxsvzoclkockt2uUzSgcD6IJCdSe8SjD+s=",
+  "thumbnail": "sha256-np8LH46hgZGoCCuHqz+iHQzcb80ya+2fk6/9ArbaTfU=",
   "timeline": "sha256-lLIe+pd0qKhT8uaRj/p9qbLB0jLbCVbr7z/g9R/vHYc=",
   "toast": "sha256-ws/II1n0eaarwBB+/wCmrpMjRPWcJnLtl0cvckTzM44=",
   "toggle": "sha256-zR9O8grQcNKYtXSXIZB+AmZn81eh+bRx1Faii1Fps70=",
@@ -677,5 +679,6 @@
   "use-overflow": "sha256-73iteFV3NxYMK0qXHYE47alLjQBXvO5LoR3BUK0GyWc=",
   "use-platform": "sha256-r/92rMRZYMcWX1wJvnT/KDEnRiCDPYlNDTrqEbLANEA=",
   "use-tabs-swipe": "sha256-8tKcEfdejIjLebl4baWwIsN/7mPmcEC+NOg2jhf8NAE=",
-  "video-player": "sha256-FZ1a1/Mqswr7Z49qgADfhuhytmo66t1rY68eAz+GCJI="
+  "video-player": "sha256-FZ1a1/Mqswr7Z49qgADfhuhytmo66t1rY68eAz+GCJI=",
+  "view-toggle": "sha256-1Iqyo4S9CnIr9BIDZH394EonQbW9hKnDhn29YAfJrWg="
 }

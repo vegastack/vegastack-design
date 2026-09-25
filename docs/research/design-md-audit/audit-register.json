@@ -2,10 +2,10 @@
   "schemaVersion": 1,
   "kind": "vegastack-zero-gap-audit-register",
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "a68afc32371260d6b40f0a791424d8c8e6fca0dd5da01d17cd8a66e588689518",
+  "contractSha256": "c86a96a7879988c3331f2b8f841d2fb418be517caa1389640e37fd0e36af1ebf",
   "expectedCounts": {
-    "totalRegistryItems": 679,
-    "components": 118,
+    "totalRegistryItems": 682,
+    "components": 121,
     "animatedIcons": 467,
     "hooks": 13,
     "blocks": 10,
@@ -418,6 +418,39 @@
         "packages/ui/registry/ui/load-more.tsx"
       ],
       "docsSlug": "/docs/components/load-more",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "media-card",
+      "inventoryClass": "component",
+      "wave": "Data display",
+      "family": "data",
+      "sourceFiles": [
+        "packages/ui/registry/ui/media-card.tsx"
+      ],
+      "docsSlug": "/docs/components/media-card",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "thumbnail",
+      "inventoryClass": "component",
+      "wave": "Data display",
+      "family": "data",
+      "sourceFiles": [
+        "packages/ui/registry/ui/thumbnail.tsx"
+      ],
+      "docsSlug": "/docs/components/thumbnail",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "view-toggle",
+      "inventoryClass": "component",
+      "wave": "Data display",
+      "family": "data",
+      "sourceFiles": [
+        "packages/ui/registry/ui/view-toggle.tsx"
+      ],
+      "docsSlug": "/docs/components/view-toggle",
       "contractStatus": "reconciled"
     },
     {
