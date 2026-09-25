@@ -9,6 +9,20 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.23.11] — September 25, 2026
+
+<!-- assembled from 1 changeset: a0f1a3f085cf -->
+
+### 🔧 Changed components
+
+- DataList views: `view` is `"list"`, `"grid"` or `"board"` over the same items, sections, sort, filters, paging, loading, empty and no-results states. The grid renders a MediaCard per row (sections as "Label · n" headings over a 1/2/3-column container grid, `gridSize="lg"` for a 16:9 image, `renderCard` to override); the board renders sections as Board lanes with `onMove(row, from, to)` and a per-section `loading`/`loadMore`/`emptyState`. `onViewChange` mounts the new ViewToggle (Grid | List | Board, labels hidden on a phone) in the FilterBar `view` slot and remembers the view for the session; `views` picks the offered views. Columns take a `thumbnail` (32px Thumbnail with `thumbnailFallback`). New MediaCard (whole-card link, 48px thumbnail, meta, badge, timestamp, ⋯ on hover/focus/touch, `lg` size), Thumbnail (32/48px, cover-fit, fallback) and ViewToggle; RowAction entries can be `{ type: "separator" }` between groups (and an item can take `separatorBefore`), in row, grid-card and board-card menus; the Badge page documents the warning pill.
+  [`08196ae`](https://github.com/VegaStack/vegastack-design/commit/08196ae)
+
+### 📦 npm
+
+- **`@vegastack/design`** → **`0.7.20`** (was `0.7.19`).
+- The design-system registry (`@vegastack/ui`) bumps 0.23.10 → 0.23.11.
+
 ## [0.23.10] — September 25, 2026
 
 <!-- assembled from 1 changeset: efc4a4c6da64 -->
