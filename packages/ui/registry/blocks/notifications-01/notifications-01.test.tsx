@@ -95,6 +95,8 @@ test("the error and loading states render and are axe-clean", async () => {
       onToggleRead={() => {}}
     />,
   );
-  await expect.element(loading.getByText("Loading inbox")).toBeInTheDocument();
+  await expect
+    .element(loading.getByRole("status", { name: "Loading inbox" }))
+    .toBeInTheDocument();
   await expectNoA11yViolations(document.body, ["color-contrast"]);
 });
