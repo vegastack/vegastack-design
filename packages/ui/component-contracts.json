@@ -23727,6 +23727,60 @@
             "status": "not-applicable",
             "rationale": "RecordChip does not forward a stable public ref; its root node is incidental."
           }
+        },
+        {
+          "name": "SplitChipProps",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/record-chip.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "SplitChip",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/record-chip.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "SplitChip does not forward a stable public ref; its root node is incidental."
+          }
+        },
+        {
+          "name": "SplitChipButton",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/record-chip.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "SplitChipButton does not forward a stable public ref; its root node is incidental."
+          }
+        },
+        {
+          "name": "SplitChipSeparator",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/record-chip.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A decorative divider; its root node is incidental."
+          }
+        },
+        {
+          "name": "splitChipButtonClassName",
+          "kind": "constant",
+          "source": "packages/ui/registry/ui/record-chip.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A class string, not a component."
+          }
+        },
+        {
+          "name": "splitChipIconActionClassName",
+          "kind": "constant",
+          "source": "packages/ui/registry/ui/record-chip.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A class string, not a component."
+          }
         }
       ],
       "variants": {
@@ -23788,6 +23842,33 @@
       },
       "previewModule": "record-chip",
       "dataAttributes": {
+        "SplitChip": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["split-chip"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "SplitChipButton": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["split-chip-button"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "SplitChipSeparator": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["split-chip-separator"]
+            }
+          ],
+          "cssVariables": []
+        },
         "RecordChip": {
           "attributes": [
             {

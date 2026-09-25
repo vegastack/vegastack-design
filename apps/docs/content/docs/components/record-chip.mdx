@@ -48,6 +48,38 @@ border and the placeholder; a set chip adds the ↗ link to the record.
 
 <ComponentPreview name="recordChip" file="components/preview/record-chip.tsx" />
 
+### Split chip anatomy
+
+RecordChip is built on `SplitChip`, exported from the same file, for any pill that holds a main
+action plus a secondary icon action. The pill carries one shared `p-0.5` inset, and every segment is
+24px tall and rounded-full, so each hover or open background sits the same 2px from the border on
+every side. Segments are divided by `SplitChipSeparator`.
+
+```tsx
+import {
+  SplitChip,
+  SplitChipButton,
+  SplitChipSeparator,
+  splitChipIconActionClassName,
+} from "@/components/ui/record-chip";
+
+<SplitChip>
+  <SplitChipButton onClick={pick}>
+    Acme <ChevronDown />
+  </SplitChipButton>
+  <SplitChipSeparator />
+  <Link
+    href="/customers/acme"
+    aria-label="Open Acme"
+    className={splitChipIconActionClassName}
+  >
+    <ArrowUpRight />
+  </Link>
+</SplitChip>;
+```
+
+Do not add padding, margins or heights to the segments — the inset belongs to the pill.
+
 ## API Reference
 
 <ApiTable
