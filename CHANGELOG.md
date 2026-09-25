@@ -9,6 +9,22 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.23.2] — September 25, 2026
+
+<!-- assembled from 2 changesets: a13b63bf2c85 -->
+
+### 🔧 Changed components
+
+- **FilterBar is a two-row table toolbar** — search, `scope`, `view` and `actions` on the first row; facets, "More" and `onClear`'s "Clear" on the second, folding into a "Filters (n)" sheet on a narrow bar. An unset facet reads just its label and a set one is a filled pill with a "Clear Status" ×; `searchPlacement` and `anyLabel` are deprecated and ignored.
+  [`a3ddf24`](https://github.com/VegaStack/vegastack-design/commit/a3ddf24)
+- **Overlay footers are as plain as their headers** — `DialogFooter` and `AlertDialogFooter` drop the muted, top-bordered band and sit in the popup's own padding. `SheetFooter` right-aligns its actions at every width instead of stacking them full width; give a Cancel `data-slot="sheet-cancel"` to seat it at the start edge. Secondary actions use `variant="secondary"`: `AlertDialogCancel`, `DialogFooter showCloseButton`, and `MultiStepForm`'s Back, Skip and Exit now default to it, and the `MultiStepFormActions` row is right-aligned with no divider. See [Sheet](/docs/components/sheet) and [Dialog](/docs/components/dialog).
+  [`f22ce1f`](https://github.com/VegaStack/vegastack-design/commit/f22ce1f)
+
+### 📦 npm
+
+- **`@vegastack/design`** → **`0.7.11`** (was `0.7.10`).
+- The design-system registry (`@vegastack/ui`) bumps 0.23.1 → 0.23.2.
+
 ## [0.23.1] — September 25, 2026
 
 <!-- assembled from 3 changesets: c5c32741ddef -->
