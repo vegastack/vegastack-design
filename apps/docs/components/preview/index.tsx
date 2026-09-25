@@ -95,6 +95,7 @@ export * from "./data-grid";
 export * from "./data-list";
 export * from "./media-card";
 export * from "./thumbnail";
+export * from "./record-layout";
 export * from "./view-toggle";
 export * from "./data-list-pager";
 export * from "./load-more";

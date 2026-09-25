@@ -67,6 +67,7 @@
     "scroll-area",
     "resizable",
     "app-shell",
+    "record-layout",
     "settings-row",
     "---Data Display---",
     "timeline",
