@@ -1,5 +1,11 @@
 # @vegastack/design
 
+## 0.7.16
+
+### Patch Changes
+
+- [#251](https://github.com/vegastack/vegastack-design/pull/251) [`ca2bd35`](https://github.com/vegastack/vegastack-design/commit/ca2bd35aa8c0118c963eb5b4a60382572d518d19) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🔧 InboxItem: unread rows drop the dot for a soft full-bleed tint and a medium title (regular when read); a fixed right column keeps the time on top with the read toggle and ⋯ menu below it on hover or focus.
+
 ## 0.7.15
 
 ### Patch Changes

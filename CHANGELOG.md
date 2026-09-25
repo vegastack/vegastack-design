@@ -9,6 +9,20 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.23.7] — September 25, 2026
+
+<!-- assembled from 1 changeset: 8e6ac872cb1c -->
+
+### 🔧 Changed components
+
+- InboxItem: unread rows drop the dot for a soft full-bleed tint and a medium title (regular when read); a fixed right column keeps the time on top with the read toggle and ⋯ menu below it on hover or focus.
+  [`ca2bd35`](https://github.com/VegaStack/vegastack-design/commit/ca2bd35)
+
+### 📦 npm
+
+- **`@vegastack/design`** → **`0.7.16`** (was `0.7.15`).
+- The design-system registry (`@vegastack/ui`) bumps 0.23.6 → 0.23.7.
+
 ## [0.23.6] — September 25, 2026
 
 <!-- assembled from 1 changeset: 5d2a4e2568f5 -->
