@@ -12685,7 +12685,8 @@
         "@vegastack/avatar",
         "@vegastack/button",
         "@vegastack/hover-card",
-        "@vegastack/popover"
+        "@vegastack/popover",
+        "@vegastack/searchable-select"
       ],
       "files": [
         {
@@ -12902,6 +12903,7 @@
         "@vegastack/design-tokens@^0.7.33"
       ],
       "registryDependencies": [
+        "@vegastack/badge",
         "@vegastack/button",
         "@vegastack/combobox",
         "@vegastack/item",

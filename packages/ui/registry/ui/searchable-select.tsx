@@ -1,4 +1,4 @@
-// @vegastack searchable-select@0.23.24 sha256-6fCgcZpSVCdZOoLk8J2dudnB8f7gyr8n6mtSv3ES6No=
+// @vegastack searchable-select@0.23.24 sha256-tUjKo7crnaOQ3TZmw0PPMZdaXgVgu1/ZiTNeBkOkWpo=
 
 "use client";
 
@@ -19,6 +19,7 @@ import {
   ComboboxCollection,
   ComboboxStatus,
 } from "@/components/ui/combobox";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ItemContent, ItemDescription, ItemTitle } from "@/components/ui/item";
 import { LoadMore, type LoadMoreState } from "@/components/ui/load-more";
@@ -89,6 +90,12 @@ export interface SearchableSelectProps<
    * @default undefined
    */
   itemToSecondaryLabel?: (item: Item) => string | undefined;
+  /**
+   * A small muted outline badge right after a person option's name, on the same line — e.g.
+   * "Inactive" for someone who is no longer an active member. Needs `itemToSecondaryLabel`.
+   * @default undefined
+   */
+  itemToBadge?: (item: Item) => React.ReactNode;
   /**
    * Why an option is unavailable. Returning a reason disables the option — it stays reachable
    * and reads the reason as its description.
@@ -330,6 +337,7 @@ export function SearchableSelect<
   onValueChange,
   itemToDescription,
   itemToSecondaryLabel,
+  itemToBadge,
   itemToDisabledReason,
   remote = false,
   onSearchChange,
@@ -442,7 +450,11 @@ export function SearchableSelect<
     const secondary = itemToSecondaryLabel?.(item);
     const main =
       secondary !== undefined ? (
-        <PersonOption name={renderItem(item)} email={secondary} />
+        <PersonOption
+          name={renderItem(item)}
+          email={secondary}
+          badge={itemToBadge?.(item)}
+        />
       ) : (
         renderItem(item)
       );
@@ -720,6 +732,27 @@ export interface PersonOptionProps {
    * @default undefined
    */
   avatar?: React.ReactNode;
+  /**
+   * A status beside the name on the same line, such as "Inactive". A string renders as a small
+   * muted outline `Badge`; pass any node for something else.
+   * @default undefined
+   */
+  badge?: React.ReactNode;
+}
+
+/** `PersonBadge` — the small muted outline badge after a person's name ("Inactive"); a non-string passes through. @example <PersonBadge badge="Inactive" /> */
+export function PersonBadge({ badge }: { badge?: React.ReactNode }) {
+  if (badge == null || badge === false) return null;
+  if (typeof badge !== "string") return <>{badge}</>;
+  return (
+    <Badge
+      variant="outline"
+      data-slot="person-badge"
+      className="shrink-0 text-xs font-normal text-muted-foreground"
+    >
+      {badge}
+    </Badge>
+  );
 }
 
 /**
@@ -730,15 +763,25 @@ export interface PersonOptionProps {
  * `DropdownMenuItem`. Give the popup that lists people at least `min-w-72` (a `RowActionItem`
  * `submenu` and a `SearchableSelect` with `itemToSecondaryLabel` do this themselves).
  *
+ * `badge` adds a status after the name ("Inactive").
+ *
  * @example
- * <PersonOption name="Arjun Mehta" email="arjun@acme.com" />
+ * <PersonOption name="Arjun Mehta" email="arjun@acme.com" badge="Inactive" />
  */
-export function PersonOption({ name, email, avatar }: PersonOptionProps) {
+export function PersonOption({
+  name,
+  email,
+  avatar,
+  badge,
+}: PersonOptionProps) {
   return (
     <span data-slot="person-option" className="flex min-w-0 items-center gap-2">
       {avatar}
       <span className="flex min-w-0 flex-col">
-        <span className="truncate">{name}</span>
+        <span className="flex min-w-0 items-center gap-1.5">
+          <span className="truncate">{name}</span>
+          <PersonBadge badge={badge} />
+        </span>
         {email != null ? (
           <span className="truncate text-xs text-muted-foreground">
             {email}

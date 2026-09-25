@@ -196,6 +196,27 @@ ones do.
 />
 ```
 
+### Inactive member
+
+`itemToBadge` puts a small muted outline badge right after a person's name — "Inactive" for
+someone who has left the workspace but still owns records you can filter by. List active people
+first. `FilterBarFacet` takes the same prop; a custom `renderItem` can use
+`<PersonOption badge="Inactive" />` directly.
+
+```tsx
+<FilterBarFacet
+  label="Recorded by"
+  items={recorders}
+  value={recorder}
+  onValueChange={setRecorder}
+  itemToKey={(p) => p.id}
+  itemToStringLabel={(p) => p.name}
+  itemToSecondaryLabel={(p) => p.email}
+  itemToBadge={(p) => (p.active ? undefined : "Inactive")}
+  searchLabel="Search people"
+/>
+```
+
 ## API Reference
 
 <ApiTable

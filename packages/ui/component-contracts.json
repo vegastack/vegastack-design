@@ -17732,6 +17732,15 @@
       "sourceFiles": ["packages/ui/registry/ui/searchable-select.tsx"],
       "publicSymbols": [
         {
+          "name": "PersonBadge",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/searchable-select.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "No stable public ref target is forwarded by PersonBadge in packages/ui/registry/ui/searchable-select.tsx; incidental internal nodes are not part of its API."
+          }
+        },
+        {
           "name": "PersonOption",
           "kind": "component",
           "source": "packages/ui/registry/ui/searchable-select.tsx",
@@ -17845,6 +17854,7 @@
       "engines": [],
       "docsSlug": "/docs/components/searchable-select",
       "registryDependencies": [
+        "@vegastack/badge",
         "@vegastack/button",
         "@vegastack/combobox",
         "@vegastack/item",
@@ -17886,6 +17896,15 @@
             {
               "name": "data-variant",
               "values": []
+            }
+          ],
+          "cssVariables": []
+        },
+        "PersonBadge": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["person-badge"]
             }
           ],
           "cssVariables": []
@@ -25296,7 +25315,8 @@
         "@vegastack/avatar",
         "@vegastack/button",
         "@vegastack/hover-card",
-        "@vegastack/popover"
+        "@vegastack/popover",
+        "@vegastack/searchable-select"
       ],
       "npmDependencies": [
         "@vegastack/design@^0.7.33",
