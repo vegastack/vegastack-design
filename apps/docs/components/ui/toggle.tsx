@@ -1,4 +1,4 @@
-// @vegastack toggle@0.23.5 sha256-3oGkLqkRYDUpin9GruEtw7E2lwNe9EDp1tXpY8t2NTE=
+// @vegastack toggle@0.23.5 sha256-+M8ad9G77ojhA5vpmEyruLFR5P1tOj+ArIOT+AbFpvc=
 
 "use client";
 
@@ -9,7 +9,7 @@ import { cn } from "@vegastack/design";
 import { Spinner } from "@/components/ui/spinner";
 
 const toggleVariants = cva(
-  "group/toggle relative inline-flex items-center justify-center gap-1 rounded-lg text-sm font-medium whitespace-nowrap transition-all hover:bg-muted hover:text-foreground not-focus:aria-invalid:border-destructive disabled:not-data-loading:opacity-50 aria-pressed:bg-muted data-[state=on]:bg-muted [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+  "group/toggle relative inline-flex items-center justify-center gap-1 rounded-lg text-sm font-medium whitespace-nowrap transition-all hover:bg-muted hover:text-foreground not-focus:aria-invalid:border-destructive disabled:not-data-loading:opacity-50 aria-pressed:bg-muted data-[state=on]:bg-muted [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 [&_svg:not([class*='text-'])]:text-muted-foreground hover:**:[svg]:text-foreground aria-pressed:**:[svg]:text-foreground data-[state=on]:**:[svg]:text-foreground",
   {
     variants: {
       variant: {

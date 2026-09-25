@@ -1,4 +1,4 @@
-// @vegastack select@0.23.5 sha256-fUB/2Be2heVoccnM1ToeKetK/UWUM//gw5kyLI7l18w=
+// @vegastack select@0.23.5 sha256-L34V/jAqQUM0wZ/KLWk4NCLrGg4bbWNh02GfOHQtTl0=
 
 "use client";
 
@@ -160,7 +160,7 @@ function SelectItem({
         data-slot="select-item"
         aria-describedby={description.id || undefined}
         className={cn(
-          "relative flex w-full items-center gap-1.5 rounded-md py-1 pe-8 ps-1.5 text-sm outline-hidden select-none focus:bg-accent focus:text-accent-foreground not-data-[variant=destructive]:focus:**:text-accent-foreground data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 *:[span]:last:flex *:[span]:last:items-center *:[span]:last:gap-2",
+          "relative flex w-full items-center gap-1.5 rounded-md py-1 pe-8 ps-1.5 text-sm outline-hidden select-none focus:bg-accent focus:text-accent-foreground not-data-[variant=destructive]:focus:**:text-accent-foreground data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 *:[span]:last:flex *:[span]:last:items-center *:[span]:last:gap-2 [&_svg:not([class*='text-'])]:text-muted-foreground focus:**:[svg]:text-accent-foreground data-highlighted:**:[svg]:text-accent-foreground",
           className,
         )}
         {...props}

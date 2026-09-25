@@ -459,7 +459,7 @@
         "whenToUse": "Show location in a hierarchy and navigate back up — nested pages, file trees.",
         "whenNotToUse": "Primary navigation or a menu — a breadcrumb reflects location only.",
         "version": "0.23.5",
-        "integrity": "sha256-y+iXFIWg8EPYlPyVA13geOsFxj1eL0kFtu+LbY0d6iA="
+        "integrity": "sha256-L0vUJ2IMhm6BW/I08i7GFP114YewzMCMs5xQCz/1atY="
       }
     },
     {
@@ -519,7 +519,7 @@
         "whenToUse": "Any clickable action — submit, confirm, destructive, etc.",
         "whenNotToUse": "Navigation to a URL — style the link with buttonVariants(): <Link href className={buttonVariants({ variant, size })}>.",
         "version": "0.23.5",
-        "integrity": "sha256-Y5xW/rAf8k2qCSvvTerbvwx4YaC/kouqcn1fQTn5FMc="
+        "integrity": "sha256-ti7BipTlKvZ4wIVvRdufRRTtQIhuPYPpUP9oS3oZblY="
       }
     },
     {
@@ -880,7 +880,7 @@
         "whenToUse": "Choosing from a large or dynamic set that benefits from typing to narrow it down — searchable pickers, tag/label multi-select, async-loaded results. A two-line option composes ItemTitle + ItemDescription, and the description is the option's accessible description.",
         "whenNotToUse": "A small, fixed set with no need to search (Select), boolean on/off (Switch), or a few always-visible options (radios/checkboxes).",
         "version": "0.23.5",
-        "integrity": "sha256-7GVsuKEpsqm6gW8m2D/42bQqpih4O4eS+jLEbsyyWQk="
+        "integrity": "sha256-obDsHLl6B+r/AZmbFzEuRnAR/LanySUTN+VFrjz5KZ8="
       }
     },
     {
@@ -917,7 +917,7 @@
         "whenToUse": "A keyboard-first command palette — global ⌘K, action launchers, a filtered list of things to do or go to — including a large palette over server results, with a loading status, two-line results and a footer of key hints.",
         "whenNotToUse": "Picking a form value, and never a multi-select — Command's check mark is visual only (Select, SearchableSelect or Combobox) — or a small static action menu (DropdownMenu).",
         "version": "0.23.5",
-        "integrity": "sha256-JtQELvlqIHeLRCyaMrFJ3O3ToeaQAST1bFzRbvdBuhU="
+        "integrity": "sha256-vBLAjVXu+jbI6twxlqewt9gvGaBQc/n7H2Qr1s3i7hY="
       }
     },
     {
@@ -948,7 +948,7 @@
         "whenToUse": "Secondary actions on an object the user has already found — a file row, a canvas node, a board card. A two-line row composes ItemTitle + ItemDescription, and the description is the row's accessible description — including a disabled row's reason.",
         "whenNotToUse": "The only way to reach an action — right-click is discoverable by almost nobody; pair it with a visible menu.",
         "version": "0.23.5",
-        "integrity": "sha256-4sK/syIR4ItrSfhL4f3zxjmXOvpHgQDwc6g03rK6dZY="
+        "integrity": "sha256-h5WXBxoPxdElyN86Vwvi4ONH89g6eztltUpsRBnwCKA="
       }
     },
     {
@@ -1381,7 +1381,7 @@
         "whenToUse": "A list of actions or option toggles anchored to a button — row actions, an account menu, a view switcher. A two-line row composes ItemTitle + ItemDescription, and the description is the row's accessible description — including a disabled row's reason.",
         "whenNotToUse": "Choosing a form value (Select), navigating between pages (NavigationMenu), or content the user reads (Popover).",
         "version": "0.23.5",
-        "integrity": "sha256-2UO90g4rgj0KFKPHf7DK373LG2CJrEOw/id1My1RMlw="
+        "integrity": "sha256-o9vvziW/ux+1tmzwxGDowwgk+Vduf489KP15L/2Tf5U="
       }
     },
     {
@@ -14918,7 +14918,7 @@
         "whenToUse": "A row of structured content in a feed, list, or panel — a person, file, notification, or settings link — with optional media and trailing actions. Rows rendered as links or buttons can sit inside an ItemGroup (the list item moves to a wrapper), and ItemGroupLabel names a group.",
         "whenNotToUse": "Tabular/sortable data with columns (use Table or DataList) or a zero-data placeholder (use Empty).",
         "version": "0.23.5",
-        "integrity": "sha256-dv2GflbPpSzbfc28qAuT0uGMItgBT9qh3p6gahFQCW4="
+        "integrity": "sha256-K5Z0W8zkxd0N0qWNo9VV9BCKJcZz95lOho/u6SEBdIo="
       }
     },
     {
@@ -15098,7 +15098,7 @@
         "whenToUse": "A desktop-application shell where several menus stay visible and move focus between each other. A two-line row composes ItemTitle + ItemDescription, and the description is the row's accessible description — including a disabled row's reason.",
         "whenNotToUse": "A single button's actions (DropdownMenu), or site navigation (NavigationMenu).",
         "version": "0.23.5",
-        "integrity": "sha256-C7We32QuDR81falG8pT57rpSWSgLk+Pu/oth0PYVJmc="
+        "integrity": "sha256-0i4kF4+p7O8kGj50iDRTp1XOUUumaQvyqVtT9zdPw7U="
       }
     },
     {
@@ -15251,7 +15251,7 @@
         "whenToUse": "Top-level site/product navigation with rich dropdown panels.",
         "whenNotToUse": "In-app action menus (DropdownMenu) or content tabs (Tabs).",
         "version": "0.23.5",
-        "integrity": "sha256-s4wVMFpmhbUnTn5CJWE6koqhsHgxRZT13rvBZzYspG4="
+        "integrity": "sha256-LHLH10tYKFt5NN/9eO/+X6/hJSiKalaqPjR0+Ft5fk0="
       },
       "registryDependencies": []
     },
@@ -15832,7 +15832,7 @@
         "whenToUse": "Choosing from a short fixed, known set — statuses, sort orders, units — including grouped options; pass multiple for a multi-value select. The default trigger fills its parent; use variant=\"ghost\" (with size=\"sm\") for an inline trigger in table rows, list items and toolbars. A two-line option composes ItemTitle + ItemDescription, and the description is the option's accessible description.",
         "whenNotToUse": "Boolean on/off (Switch), few inline options (radios), a list long enough to need a search field (SearchableSelect), or free-text/async search (Combobox).",
         "version": "0.23.5",
-        "integrity": "sha256-fUB/2Be2heVoccnM1ToeKetK/UWUM//gw5kyLI7l18w="
+        "integrity": "sha256-L34V/jAqQUM0wZ/KLWk4NCLrGg4bbWNh02GfOHQtTl0="
       }
     },
     {
@@ -15993,7 +15993,7 @@
         "whenToUse": "Primary app navigation in a dashboard/console shell — collapsible rail with grouped items.",
         "whenNotToUse": "A few top-level links (horizontal nav) or transient small-viewport nav (Sheet).",
         "version": "0.23.5",
-        "integrity": "sha256-pw6VeJTlljtPAN/v4m/lqBjWODdVSnWd8Ry7XwiZWgY="
+        "integrity": "sha256-N6FjMQE4ojOcFloxvW1pz8IIlbw8HwDa0csh7O8PgJ4="
       }
     },
     {
@@ -16546,7 +16546,7 @@
         "whenToUse": "A binary on/off control that persists — bold/italic, mute, pin.",
         "whenNotToUse": "One-shot action (Button) or mutually-exclusive options (ToggleGroup/RadioGroup).",
         "version": "0.23.5",
-        "integrity": "sha256-3oGkLqkRYDUpin9GruEtw7E2lwNe9EDp1tXpY8t2NTE="
+        "integrity": "sha256-+M8ad9G77ojhA5vpmEyruLFR5P1tOj+ArIOT+AbFpvc="
       }
     },
     {

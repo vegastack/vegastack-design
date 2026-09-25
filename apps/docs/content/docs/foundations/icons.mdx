@@ -67,6 +67,18 @@ it will never play.
 route so its generated icon modules load only when you ask for the full catalog, not on every docs
 page.
 
+## Leading icons are muted
+
+An icon to the left of a row's text is muted by default (`text-muted-foreground`; in the sidebar,
+`text-sidebar-foreground/70`) and goes to full colour whenever its row does: on hover, focus,
+highlight, selection, active, open and pressed. The components carry this themselves —
+dropdown, context and menubar items, select and combobox items, command items, sidebar menu
+buttons, navigation-menu links, toggle and toggle-group, ghost and outline buttons, breadcrumb
+links and item media — so do not add colour classes to leading icons. Destructive rows keep
+`text-destructive` and coloured alerts keep `text-current`; tabs, badges, chips, input groups,
+alerts and empty states are unchanged. A status icon that carries its own colour class keeps it at
+rest and follows the row's full colour on its states.
+
 <DoDont
   do="Use Icon / BrandIcon / AnimatedIcon. Keep icons currentColor so they theme automatically."
   dont="Import other icon libraries or inline a raw <svg> as an icon."

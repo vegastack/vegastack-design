@@ -22,7 +22,7 @@
 #               reflows the file, and `registry-stamp.mjs` writes the provenance header the
 #               three-copy model needs (DOC-1); those hunks carry no decision of their own.
 diff --git a/breadcrumb.tsx b/breadcrumb.tsx
-index 506a758..b507c51 100644
+index 506a758..1d594be 100644
 --- a/breadcrumb.tsx
 +++ b/breadcrumb.tsx
 @@ -1,8 +1,10 @@
@@ -85,7 +85,7 @@ index 506a758..b507c51 100644
 +          // block axis and NOT on the inline axis, so two adjacent crumbs never fight for a
 +          // pixel. Nothing moves and nothing paints.
 +          "relative after:absolute after:inset-x-0 after:-inset-y-1 after:content-['']",
-+          "transition-colors hover:text-foreground",
++          "transition-colors hover:text-foreground [&_svg:not([class*='text-'])]:text-muted-foreground hover:**:[svg]:text-foreground",
 +          className,
 +        ),
        },

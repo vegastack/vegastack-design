@@ -23,7 +23,7 @@
 #               reflows the file, and `registry-stamp.mjs` writes the provenance header the
 #               three-copy model needs (DOC-1); those hunks carry no decision of their own.
 diff --git a/navigation-menu.tsx b/navigation-menu.tsx
-index cef1d5f..1e23871 100644
+index cef1d5f..054795e 100644
 --- a/navigation-menu.tsx
 +++ b/navigation-menu.tsx
 @@ -1,7 +1,10 @@
@@ -155,7 +155,7 @@ index cef1d5f..1e23871 100644
        className={cn(
 -        "flex items-center gap-2 rounded-lg p-2 text-sm transition-all outline-none hover:bg-muted focus:bg-muted focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-1 in-data-[slot=navigation-menu-content]:rounded-md data-active:bg-muted/50 data-active:hover:bg-muted data-active:focus:bg-muted [&_svg:not([class*='size-'])]:size-4",
 -        className
-+        "flex items-center gap-2 rounded-lg p-2 text-sm transition-all hover:bg-muted focus:bg-muted in-data-[slot=navigation-menu-content]:rounded-md data-active:bg-muted/50 data-active:hover:bg-muted data-active:focus:bg-muted [&_svg:not([class*='size-'])]:size-4",
++        "flex items-center gap-2 rounded-lg p-2 text-sm transition-all hover:bg-muted focus:bg-muted in-data-[slot=navigation-menu-content]:rounded-md data-active:bg-muted/50 data-active:hover:bg-muted data-active:focus:bg-muted [&_svg:not([class*='size-'])]:size-4 [&_svg:not([class*='text-'])]:text-muted-foreground hover:**:[svg]:text-foreground focus:**:[svg]:text-foreground data-active:**:[svg]:text-foreground",
 +        className,
        )}
        {...props}

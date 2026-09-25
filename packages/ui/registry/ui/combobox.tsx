@@ -1,4 +1,4 @@
-// @vegastack combobox@0.23.5 sha256-7GVsuKEpsqm6gW8m2D/42bQqpih4O4eS+jLEbsyyWQk=
+// @vegastack combobox@0.23.5 sha256-obDsHLl6B+r/AZmbFzEuRnAR/LanySUTN+VFrjz5KZ8=
 
 "use client";
 
@@ -185,7 +185,7 @@ function ComboboxItem({
         data-slot="combobox-item"
         aria-describedby={description.id || undefined}
         className={cn(
-          "relative flex w-full items-center gap-2 rounded-md py-1 pe-8 ps-1.5 text-sm outline-hidden select-none data-highlighted:bg-accent data-highlighted:text-accent-foreground not-data-[variant=destructive]:data-highlighted:**:text-accent-foreground data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+          "relative flex w-full items-center gap-2 rounded-md py-1 pe-8 ps-1.5 text-sm outline-hidden select-none data-highlighted:bg-accent data-highlighted:text-accent-foreground not-data-[variant=destructive]:data-highlighted:**:text-accent-foreground data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 [&_svg:not([class*='text-'])]:text-muted-foreground data-highlighted:**:[svg]:text-accent-foreground",
           className,
         )}
         {...props}

@@ -51,6 +51,11 @@ link` (upstream's set, verbatim). `destructive` is a soft tint, not a solid red 
   an icon in a bare `<button>` is off-system. An icon-only LINK stays an `<a>` styled with
   `buttonVariants({ variant, size: "icon" })` — never a `Button`, which would put `role="button"`
   on navigation. `loading` is ours: it holds the label's box and sets `aria-busy`.
+- **Leading icons are muted and follow the row** — menus, select/combobox/command items, sidebar
+  buttons, nav links, toggles, ghost/outline buttons, breadcrumb links and item media mute a
+  leading icon and turn it full colour on hover, focus, highlight, selection, active, open and
+  pressed. Never add `text-muted-foreground` (or any colour) to those icons; only intentional
+  status colours belong there. Destructive rows keep `text-destructive`.
 - **Control sizes are upstream's names: `default · xs · sm · lg`**, plus
   `icon · icon-xs · icon-sm · icon-lg` where a square tier exists. The old `md` default is gone, and
   most of the components that are ours dropped their `size` prop entirely and take their height from
