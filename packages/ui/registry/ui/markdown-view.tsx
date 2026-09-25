@@ -1,4 +1,4 @@
-// @vegastack markdown-view@0.23.30 sha256-8phcVSaDeBbLBbkMtWJCDzKE8zUtf0Se+EbiJhGLFMo=
+// @vegastack markdown-view@0.23.30 sha256-RsBgDRqv4K74iQ5HmpaaHc9CWCH41Xl2pF8fGWaY/EY=
 
 import * as React from "react";
 import Markdown, { type Components } from "react-markdown";
@@ -142,7 +142,7 @@ const markdownComponents: Components = {
       <CodeBlock
         language={languageMatch?.[1]}
         copyValue={raw || undefined}
-        className={cn("my-3", className)}
+        className={cn("my-2", className)}
         {...props}
       >
         {codeChild?.props.children}
@@ -152,7 +152,7 @@ const markdownComponents: Components = {
   // The recipe styles the cells; the scroll container is structure. A wide table must scroll
   // inside its own box rather than widen the page (the 320px reflow contract).
   table: ({ className, ...props }) => (
-    <div className="my-3 w-full overflow-x-auto">
+    <div className="my-2 w-full overflow-x-auto">
       <table className={className} {...props} />
     </div>
   ),
@@ -208,7 +208,7 @@ function componentsWithImagePolicy(
           <span
             data-slot="markdown-image-blocked"
             className={cn(
-              "my-3 block rounded-lg border border-border bg-muted px-3 py-2 text-muted-foreground",
+              "my-2 block rounded-lg border border-border bg-muted px-3 py-2 text-muted-foreground",
               className,
             )}
           >

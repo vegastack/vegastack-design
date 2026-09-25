@@ -51,46 +51,49 @@ export const prose = {
    * rather than something prose falls into by accident. A consumer who genuinely wants mono prose
    * still says so on the root, where it reads as a decision.
    */
-  root: "font-sans text-sm text-foreground",
+  root: "font-sans text-sm font-normal text-foreground",
 
-  // Headings. `scroll-m-20` keeps an anchored heading clear of a sticky header; the weight is
-  // `font-semibold`, the ordinary Tailwind weight upstream uses — Batch 1 of the shadcn reset
-  // deleted both the 400/500 ladder and the `text-h*` roles this comment used to name.
-  h1: "[&_h1]:mt-6 [&_h1]:mb-3 [&_h1]:scroll-m-20 [&_h1]:text-3xl [&_h1]:font-semibold [&_h1]:text-foreground [&_h1]:first:mt-0",
-  h2: "[&_h2]:mt-6 [&_h2]:mb-3 [&_h2]:scroll-m-20 [&_h2]:text-2xl [&_h2]:font-semibold [&_h2]:text-foreground [&_h2]:first:mt-0",
-  h3: "[&_h3]:mt-5 [&_h3]:mb-2 [&_h3]:scroll-m-20 [&_h3]:text-xl [&_h3]:font-semibold [&_h3]:text-foreground [&_h3]:first:mt-0",
-  h4: "[&_h4]:mt-4 [&_h4]:mb-2 [&_h4]:scroll-m-20 [&_h4]:text-base [&_h4]:font-medium [&_h4]:text-foreground [&_h4]:first:mt-0",
-  // h5/h6 leave the display tier and become labels — the type scale has no sixth heading size.
-  h5: "[&_h5]:mt-4 [&_h5]:mb-2 [&_h5]:text-sm [&_h5]:font-medium [&_h5]:text-foreground [&_h5]:first:mt-0",
-  h6: "[&_h6]:mt-4 [&_h6]:mb-2 [&_h6]:text-sm [&_h6]:font-medium [&_h6]:text-muted-foreground [&_h6]:first:mt-0",
+  // Headings follow the app's type scale (design.md §Headings), not a document scale: the page
+  // title is the only `text-2xl`, so a heading inside rendered text stops at `text-lg` for `#`,
+  // the section size (`text-base`) for `##`, and body size for everything below — weight carries
+  // the rest. Every heading wears `font-heading` like the app's own titles.
+  h1: "[&_h1]:mt-5 [&_h1]:mb-2 [&_h1]:scroll-m-20 [&_h1]:font-heading [&_h1]:text-lg [&_h1]:font-semibold [&_h1]:text-foreground [&_h1]:first:mt-0",
+  h2: "[&_h2]:mt-4 [&_h2]:mb-2 [&_h2]:scroll-m-20 [&_h2]:font-heading [&_h2]:text-base [&_h2]:font-semibold [&_h2]:text-foreground [&_h2]:first:mt-0",
+  h3: "[&_h3]:mt-4 [&_h3]:mb-1.5 [&_h3]:scroll-m-20 [&_h3]:font-heading [&_h3]:text-sm [&_h3]:font-semibold [&_h3]:text-foreground [&_h3]:first:mt-0",
+  h4: "[&_h4]:mt-3 [&_h4]:mb-1.5 [&_h4]:font-heading [&_h4]:text-sm [&_h4]:font-medium [&_h4]:text-foreground [&_h4]:first:mt-0",
+  h5: "[&_h5]:mt-3 [&_h5]:mb-1.5 [&_h5]:font-heading [&_h5]:text-sm [&_h5]:font-medium [&_h5]:text-foreground [&_h5]:first:mt-0",
+  h6: "[&_h6]:mt-3 [&_h6]:mb-1.5 [&_h6]:font-heading [&_h6]:text-sm [&_h6]:font-medium [&_h6]:text-foreground [&_h6]:first:mt-0",
 
-  p: "[&_p]:my-3 [&_p]:leading-relaxed [&_p]:text-foreground [&_p]:first:mt-0 [&_p]:last:mb-0",
+  // Body text is the app's body text — size, leading and ink inherit from the root, so a paragraph
+  // here is indistinguishable from any other `text-sm` paragraph in the product. No prose look.
+  p: "[&_p]:my-2 [&_p]:first:mt-0 [&_p]:last:mb-0",
 
-  // Marks. Links are `info` ink per design.md §Colours; `s` is Tiptap's strike element and `del`
-  // is GFM's — the same mark from two producers.
-  a: "[&_a]:font-medium [&_a]:text-info-text [&_a]:underline [&_a]:underline-offset-4 [&_a]:hover:text-info-text/88",
-  strong: "[&_strong]:font-medium [&_strong]:text-foreground",
+  // Marks. Links are `info` ink per design.md §Colours at body weight; `s` is Tiptap's strike
+  // element and `del` is GFM's — the same mark from two producers.
+  a: "[&_a]:text-info-text [&_a]:underline [&_a]:underline-offset-4 [&_a]:hover:text-info-text/88",
+  strong: "[&_strong]:font-semibold",
   em: "[&_em]:italic",
-  del: "[&_del]:text-muted-foreground [&_del]:line-through [&_s]:text-muted-foreground [&_s]:line-through",
+  del: "[&_del]:line-through [&_s]:line-through",
 
-  // Lists. A GFM task list carries `contains-task-list` and its checkbox IS the marker, so the
-  // disc goes — expressed as a second, more specific descendant rule rather than a class on the
-  // element, which would lose the cascade (see the header).
-  ul: "[&_ul]:my-3 [&_ul]:ms-6 [&_ul]:list-disc [&_ul]:text-foreground [&_ul]:marker:text-muted-foreground [&_ul.contains-task-list]:list-none",
-  ol: "[&_ol]:my-3 [&_ol]:ms-6 [&_ol]:list-decimal [&_ol]:text-foreground [&_ol]:marker:text-muted-foreground",
-  li: "[&_li]:mt-1.5 [&_li]:leading-relaxed",
+  // Lists. Items and markers are body text: family, size and ink inherit (a `::marker` takes the
+  // item's font), so `1.` and `•` never read as a second typeface or a second colour. A GFM task
+  // list carries `contains-task-list` and its checkbox IS the marker, so the disc goes — expressed
+  // as a second, more specific descendant rule rather than a class on the element, which would
+  // lose the cascade (see the header).
+  ul: "[&_ul]:my-2 [&_ul]:ms-5 [&_ul]:list-disc [&_ul.contains-task-list]:list-none",
+  ol: "[&_ol]:my-2 [&_ol]:ms-5 [&_ol]:list-decimal",
+  li: "[&_li]:mt-1 [&_li]:marker:font-sans [&_li]:marker:text-foreground [&_li_p]:my-0",
 
   // Task lists, one shape for both producers: `MarkdownView` tags the GFM list
   // `data-type="taskList"` and each item `data-type="taskItem"` with its body in a
   // `data-slot="task-item-content"` box, which is exactly the DOM Tiptap's `TaskItem` node view
   // renders — so the checkbox IS the marker, the body wraps beside it, and a nested list indents
-  // under the body in view and edit alike. A cell's or item's paragraph inherits its ink so a
-  // Tiptap `<td><p>` reads the same as GFM's bare `<td>`.
+  // under the body in view and edit alike.
   taskList:
-    "[&_ul[data-type=taskList]]:ms-0 [&_ul[data-type=taskList]]:list-none [&_li[data-type=taskItem]]:flex [&_li[data-type=taskItem]]:items-start [&_li[data-type=taskItem]]:gap-2 [&_li[data-type=taskItem]_[data-slot=checkbox]]:mt-1 [&_li[data-type=taskItem]_[data-slot=checkbox]]:me-0 [&_[data-slot=task-item-content]]:min-w-0 [&_[data-slot=task-item-content]]:flex-1 [&_td_p]:text-inherit [&_th_p]:text-inherit",
+    "[&_ul[data-type=taskList]]:ms-0 [&_ul[data-type=taskList]]:list-none [&_li[data-type=taskItem]]:flex [&_li[data-type=taskItem]]:items-start [&_li[data-type=taskItem]]:gap-2 [&_li[data-type=taskItem]_[data-slot=checkbox]]:mt-0.5 [&_li[data-type=taskItem]_[data-slot=checkbox]]:me-0 [&_[data-slot=task-item-content]]:min-w-0 [&_[data-slot=task-item-content]]:flex-1",
 
   blockquote:
-    "[&_blockquote]:my-3 [&_blockquote]:border-s-2 [&_blockquote]:border-border [&_blockquote]:ps-4 [&_blockquote]:text-muted-foreground [&_blockquote]:italic",
+    "[&_blockquote]:my-2 [&_blockquote]:border-s-2 [&_blockquote]:border-border [&_blockquote]:ps-3",
 
   // Inline code is a chip. Code inside a `pre` is not: it inherits the panel's ground, so the chip
   // is undone at higher specificity (`[&_pre_code]` is (0,1,2) against the chip's (0,1,1)).
@@ -98,18 +101,18 @@ export const prose = {
   // A bare `<pre>` wears `CodeBlock`'s surface — the same sunken panel, one vocabulary (B4-09).
   // `CodeBlock`'s own `pre` is excluded: it already sits inside a `figure` carrying the border,
   // radius and ground, and re-applying them here would draw a second panel inside the first.
-  pre: "[&_pre:not([data-slot='code-block-pre'])]:my-3 [&_pre:not([data-slot='code-block-pre'])]:overflow-x-auto [&_pre:not([data-slot='code-block-pre'])]:rounded-lg [&_pre:not([data-slot='code-block-pre'])]:border [&_pre:not([data-slot='code-block-pre'])]:border-border [&_pre:not([data-slot='code-block-pre'])]:bg-muted [&_pre:not([data-slot='code-block-pre'])]:p-4 [&_pre:not([data-slot='code-block-pre'])]:text-foreground",
+  pre: "[&_pre:not([data-slot='code-block-pre'])]:my-2 [&_pre:not([data-slot='code-block-pre'])]:overflow-x-auto [&_pre:not([data-slot='code-block-pre'])]:rounded-lg [&_pre:not([data-slot='code-block-pre'])]:border [&_pre:not([data-slot='code-block-pre'])]:border-border [&_pre:not([data-slot='code-block-pre'])]:bg-muted [&_pre:not([data-slot='code-block-pre'])]:p-4 [&_pre:not([data-slot='code-block-pre'])]:text-foreground",
   preCode:
     "[&_pre_code]:bg-transparent [&_pre_code]:p-0 [&_pre_code]:font-mono [&_pre_code]:text-sm [&_pre_code]:text-foreground",
 
-  hr: "[&_hr]:my-6 [&_hr]:border-border",
+  hr: "[&_hr]:my-4 [&_hr]:border-border",
 
   // GFM tables. The scroll container is structural and belongs to the consumer (MarkdownView wraps
   // the table in an `overflow-x-auto` div); these are the cell and rule tokens.
   table:
-    "[&_table]:w-full [&_table]:border-collapse [&_table]:text-sm [&_table]:text-foreground [&_thead]:border-b [&_thead]:border-border [&_tr]:border-b [&_tr]:border-border [&_tr]:last:border-0 [&_th]:px-3 [&_th]:py-2 [&_th]:text-start [&_th]:font-medium [&_th]:text-foreground [&_td]:px-3 [&_td]:py-2 [&_td]:text-muted-foreground",
+    "[&_table]:w-full [&_table]:border-collapse [&_thead]:border-b [&_thead]:border-border [&_tr]:border-b [&_tr]:border-border [&_tr]:last:border-0 [&_th]:px-3 [&_th]:py-2 [&_th]:text-start [&_th]:font-medium [&_td]:px-3 [&_td]:py-2 [&_td_p]:my-0 [&_th_p]:my-0",
 
-  img: "[&_img]:my-3 [&_img]:max-w-full [&_img]:rounded-lg [&_img]:border [&_img]:border-border",
+  img: "[&_img]:my-2 [&_img]:max-w-full [&_img]:rounded-lg [&_img]:border [&_img]:border-border",
 } as const;
 
 /** The element roles the prose recipe covers. */

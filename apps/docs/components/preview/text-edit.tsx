@@ -3,7 +3,6 @@
 import { useState, type ReactNode } from "react";
 import dynamic from "next/dynamic";
 import { toast } from "@/components/ui/toast";
-import { Button } from "@/components/ui/button";
 import { MarkdownView } from "@/components/ui/markdown-view";
 import {
   Field,
@@ -88,9 +87,8 @@ export function textEditMarkdown(): ReactNode {
 
 /**
  * Invalid (error) state — `aria-invalid` forwards to the contenteditable textbox
- * and the container picks up `has-aria-invalid:border-destructive/70` (a
- * destructive border) plus `data-invalid`. Pair it with `aria-describedby` so the
- * error text is announced with the region.
+ * and the root carries `data-invalid`. The editor draws no border, so the error
+ * text is the cue: pair it with `aria-describedby` so it is announced with the region.
  */
 export function textEditInvalid(): ReactNode {
   return (
@@ -115,7 +113,7 @@ export function textEditInvalid(): ReactNode {
 
 /**
  * Submit affordance — pressing <kbd>Cmd/Ctrl</kbd>+<kbd>Enter</kbd> inside the
- * editor fires `onSave` with the current HTML (plain <kbd>Enter</kbd> still
+ * editor fires `onSubmit` with the current HTML (plain <kbd>Enter</kbd> still
  * inserts a newline). The host decides what submitting means; here it raises a
  * toast. Try it: click in, type, then press Cmd/Ctrl+Enter.
  */
@@ -126,7 +124,7 @@ export function textEditSubmit(): ReactNode {
       <TextEdit
         value={html}
         onValueChange={setHtml}
-        onSave={() =>
+        onSubmit={() =>
           toast.add({ type: "success", title: "Submitted with Cmd/Ctrl+Enter" })
         }
         placeholder="Write a reply…"
@@ -147,7 +145,7 @@ export function textEditHeights(): ReactNode {
       <TextEdit
         minHeight={120}
         maxHeight={200}
-        defaultValue="<h2>Sized editor</h2><p>This editor starts at a 120px minimum and caps at 200px — once the content grows past the cap, the area scrolls.</p><p>Add a few more paragraphs and the toolbar stays pinned while the body scrolls.</p><ul><li>Resize-free, height-bounded.</li><li>Great for inline reply boxes.</li><li>Keep typing to push past the cap…</li></ul><p>And here is one more line to make sure the scroll kicks in.</p>"
+        defaultValue="<h2>Sized editor</h2><p>This editor starts at a 120px minimum and caps at 200px — once the content grows past the cap, the area scrolls.</p><p>Add a few more paragraphs and the body scrolls inside the cap.</p><ul><li>Resize-free, height-bounded.</li><li>Great for inline reply boxes.</li><li>Keep typing to push past the cap…</li></ul><p>And here is one more line to make sure the scroll kicks in.</p>"
         placeholder="Write something…"
         aria-label="Sized editor"
       />
@@ -228,7 +226,7 @@ Decided to **ship the beta** on Friday. Owners:
 > Follow up with legal about the terms.`;
 
 /**
- * Visual parity — the same markdown rendered by `MarkdownView` (top) and edited by a ghost
+ * Visual parity — the same markdown rendered by `MarkdownView` (top) and edited by a
  * `TextEdit` (bottom). The shared `prose` recipe and the ProseMirror resets make every element sit
  * at the same position in both.
  */
@@ -244,7 +242,6 @@ export function markdownParity(): ReactNode {
         <span className="text-xs font-medium text-muted-foreground">Edit</span>
         <TextEdit
           format="markdown"
-          variant="ghost"
           toolbar="full"
           value={markdown}
           onValueChange={setMarkdown}
@@ -327,46 +324,28 @@ export function markdownBubbleMenu(): ReactNode {
 }
 
 /**
- * In-place editing — view mode swaps to a ghost `TextEdit` with Save and Cancel at the toolbar's
- * end. ⌘/Ctrl+Enter saves, Esc cancels. The text does not move when the mode changes.
+ * Notion-style editing — there is no view mode to swap out of. The editor rests looking exactly like
+ * `MarkdownView`; click anywhere and type. Leaving commits through `onCommit` (only when the text
+ * changed), Esc reverts to what it was when you clicked in.
  */
 export function markdownInPlace(): ReactNode {
   const [saved, setSaved] = useState(SHORT_SAMPLE);
-  const [editing, setEditing] = useState(false);
   return (
     <Wrapper className="flex-col items-stretch">
-      {editing ? (
-        <TextEdit
-          format="markdown"
-          variant="ghost"
-          defaultValue={saved}
-          onSave={(next) => {
-            setSaved(next);
-            setEditing(false);
-            toast.add({ type: "success", title: "Saved" });
-          }}
-          onCancel={() => setEditing(false)}
-          aria-label="Summary"
-        />
-      ) : (
-        <>
-          <div className="flex justify-end">
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={() => setEditing(true)}
-            >
-              Edit
-            </Button>
-          </div>
-          <MarkdownView>{saved}</MarkdownView>
-        </>
-      )}
+      <TextEdit
+        format="markdown"
+        defaultValue={saved}
+        onCommit={(next) => {
+          setSaved(next);
+          toast.add({ type: "success", title: "Saved" });
+        }}
+        aria-label="Summary"
+      />
     </Wrapper>
   );
 }
 
-/** `autosave` — `onSave` fires after an idle gap (1000ms for `true`). Off by default. */
+/** `autosave` — `onCommit` also fires after an idle gap (1000ms for `true`). Off by default. */
 export function markdownAutosave(): ReactNode {
   const [savedAt, setSavedAt] = useState<string | null>(null);
   return (
@@ -376,7 +355,7 @@ export function markdownAutosave(): ReactNode {
         toolbar="minimal"
         autosave
         defaultValue="Type here — it saves itself a second after you stop."
-        onSave={() => setSavedAt(new Date().toLocaleTimeString())}
+        onCommit={() => setSavedAt(new Date().toLocaleTimeString())}
         aria-label="Autosaving note"
       />
       <span className="text-xs text-muted-foreground">
