@@ -141,7 +141,8 @@ Pick the edge the panel pins to and whether it carries a close button, then copy
 <ApiTable path="lib/api-props.ts" name="SheetContentProps" />
 
 `SheetContent` adds `size` (`"sm" | "default" | "lg" | "xl"`, default `"default"`; side sheets
-only) and `closeLabel` (the corner close button's name, default `"Close"`).
+only), `closeLabel` (the corner close button's name, default `"Close"`) and `showOverlay`
+(default `true`; `false` drops the dimmed backdrop for a non-modal panel docked beside the page).
 
 `SheetTrigger`, `SheetClose`, `SheetHeader`, `SheetAction`, `SheetBody`, `SheetFooter`,
 `SheetTitle` and `SheetDescription` add no props of their own — each accepts everything its Base UI part or its `div` accepts. The portal
