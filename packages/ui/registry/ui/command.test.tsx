@@ -155,7 +155,8 @@ test("CommandDialog owns a centered, viewport-capped scrolling region", async ()
   expect(content.className).toContain("top-1/2");
   expect(content.className).toContain("-translate-y-1/2");
   expect(content.className).toContain("max-h-[calc(100dvh-var(--spacing)*8)]");
-  expect(content.className).toContain("grid-rows-[minmax(0,1fr)_auto]");
+  expect(content.className).toContain("flex-col");
+  expect(content.className).toContain("gap-0");
   expect(content.querySelector('[data-slot="command"]')?.className).toContain(
     "min-h-0",
   );
@@ -627,7 +628,8 @@ test("API-18: CommandLoading is a polite status whose text is spoken", async () 
   expect(loading.hasAttribute("aria-label")).toBe(false);
   // The default copy is VOI-1's, and it is exposed rather than hidden behind cmdk's aria-hidden.
   expect(loading.textContent).toBe("Searching…");
-  expect(loading.querySelector('[aria-hidden="true"]')).toBeNull();
+  // Only the decorative animated search icon is hidden; the text is not.
+  expect(loading.firstElementChild?.hasAttribute("aria-hidden")).toBe(false);
   expect(screen.container.querySelector('[role="progressbar"]')).toBeNull();
 });
 
