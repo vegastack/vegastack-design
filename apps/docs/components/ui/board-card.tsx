@@ -1,4 +1,4 @@
-// @vegastack board-card@0.23.25 sha256-FAOWpauJXY4BV4Q6I+EfP/lRomIgnZYdIbwwSIOvASA=
+// @vegastack board-card@0.23.25 sha256-8hCr/YEw/9RRo3xnmZRtZ/TIKtQY63sGJyAib7KRMkY=
 
 "use client";
 
@@ -14,6 +14,12 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
+import {
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
+} from "@/components/ui/hover-card";
+import { PersonCard } from "@/components/ui/person-hover-card";
 
 /* ---
 `BoardCard` is the content of one card on a `Board` lane (a task, a deal, a ticket): a round
@@ -45,6 +51,16 @@ export interface BoardCardAssignee {
    * @default undefined
    */
   image?: string | null;
+  /**
+   * The muted line in the avatar's hover card — usually the email.
+   * @default undefined
+   */
+  email?: string | null;
+  /**
+   * A status after the name in the hover card, such as "Inactive".
+   * @default undefined
+   */
+  badge?: React.ReactNode;
 }
 
 /** Props accepted by `BoardCard`. */
@@ -292,15 +308,24 @@ export function BoardCard({
             className="flex min-w-0 flex-wrap items-center gap-1.5"
           >
             {assignee ? (
-              <Avatar data-slot="board-card-assignee" size="sm">
-                {assignee.image ? (
-                  <AvatarImage src={assignee.image} alt={assignee.name} />
-                ) : null}
-                <AvatarFallback>
-                  <span aria-hidden="true">{initials(assignee.name)}</span>
-                  <span className="sr-only">{assignee.name}</span>
-                </AvatarFallback>
-              </Avatar>
+              <HoverCard>
+                <HoverCardTrigger
+                  render={<span className="inline-flex rounded-full" />}
+                >
+                  <Avatar data-slot="board-card-assignee" size="sm">
+                    {assignee.image ? (
+                      <AvatarImage src={assignee.image} alt={assignee.name} />
+                    ) : null}
+                    <AvatarFallback>
+                      <span aria-hidden="true">{initials(assignee.name)}</span>
+                      <span className="sr-only">{assignee.name}</span>
+                    </AvatarFallback>
+                  </Avatar>
+                </HoverCardTrigger>
+                <HoverCardContent align="start" className="w-60 p-2">
+                  <PersonCard person={assignee} />
+                </HoverCardContent>
+              </HoverCard>
             ) : null}
             {dueLabel && dueLabel.label ? (
               <Badge
