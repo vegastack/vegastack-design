@@ -23,7 +23,7 @@ test("displays the value; clicking opens the text editor; Enter commits", async 
   const screen = await render(
     <EditableCell value="Acme" label="Account name" onCommit={onCommit} />,
   );
-  await screen.getByRole("button", { name: "Account name" }).click();
+  await screen.getByRole("button", { name: "Edit Account name" }).click();
   const input = screen.getByRole("textbox", { name: "Account name" });
   await expect.element(input).toBeInTheDocument();
   // The text leaf focus-and-selects the whole value on open — wait for it so
@@ -40,11 +40,11 @@ test("Escape cancels without committing", async () => {
   const screen = await render(
     <EditableCell value="Acme" label="Account name" onCommit={onCommit} />,
   );
-  await screen.getByRole("button", { name: "Account name" }).click();
+  await screen.getByRole("button", { name: "Edit Account name" }).click();
   await userEvent.keyboard("edited{Escape}");
   expect(onCommit).not.toHaveBeenCalled();
   await expect
-    .element(screen.getByRole("button", { name: "Account name" }))
+    .element(screen.getByRole("button", { name: "Edit Account name" }))
     .toBeInTheDocument();
 });
 
@@ -53,7 +53,7 @@ test("committing an unchanged value never engages the async layer", async () => 
   const screen = await render(
     <EditableCell value="Acme" label="Account name" onCommit={onCommit} />,
   );
-  await screen.getByRole("button", { name: "Account name" }).click();
+  await screen.getByRole("button", { name: "Edit Account name" }).click();
   await userEvent.keyboard("{Enter}");
   expect(onCommit).not.toHaveBeenCalled();
   const root = document.querySelector('[data-slot="editable-cell"]')!;
@@ -69,7 +69,7 @@ test("a promise-returning commit shows the optimistic value + saving, then saved
       onCommit={() => d.promise}
     />,
   );
-  await screen.getByRole("button", { name: "Account name" }).click();
+  await screen.getByRole("button", { name: "Edit Account name" }).click();
   await expect
     .poll(
       () =>
@@ -84,7 +84,7 @@ test("a promise-returning commit shows the optimistic value + saving, then saved
   const root = document.querySelector('[data-slot="editable-cell"]')!;
   // Optimistic: the display shows the committed draft while saving.
   await expect
-    .element(screen.getByRole("button", { name: "Account name" }))
+    .element(screen.getByRole("button", { name: "Edit Account name" }))
     .toHaveTextContent("Globex");
   expect(root.getAttribute("data-status")).toBe("saving");
   d.resolve();
@@ -100,7 +100,7 @@ test("a rejected commit reverts the display to `value` and announces it", async 
       onCommit={() => d.promise}
     />,
   );
-  await screen.getByRole("button", { name: "Account name" }).click();
+  await screen.getByRole("button", { name: "Edit Account name" }).click();
   await expect
     .poll(
       () =>
@@ -117,12 +117,14 @@ test("a rejected commit reverts the display to `value` and announces it", async 
   await expect.poll(() => root.getAttribute("data-status")).toBe("error");
   // The revert: display snaps back to the persisted value.
   await expect
-    .element(screen.getByRole("button", { name: "Account name" }))
+    .element(screen.getByRole("button", { name: "Edit Account name" }))
     .toHaveTextContent("Acme");
   const announcer = document.querySelector(
     '[data-slot="announcer"]',
   ) as HTMLElement;
-  expect(announcer.textContent).toContain("Save failed — value reverted");
+  expect(announcer.textContent).toContain(
+    "Couldn't save Account name — value restored",
+  );
 });
 
 test("controlled status wins over the internal machine", async () => {
@@ -151,7 +153,7 @@ test('focusMode="managed" removes the display tab stop; the host opens the edito
     />,
   );
   const display = screen
-    .getByRole("button", { name: "Account name" })
+    .getByRole("button", { name: "Edit Account name" })
     .element() as HTMLElement;
   expect(display.tabIndex).toBe(-1);
   // Activation only *requests* edit mode — the host decides.
@@ -221,13 +223,13 @@ test("custom editor renders through the open contract and can commit", async () 
       onCommit={onCommit}
     />,
   );
-  await screen.getByRole("button", { name: "Close date" }).click();
+  await screen.getByRole("button", { name: "Edit Close date" }).click();
   await expect.element(screen.getByTestId("custom-editor")).toBeInTheDocument();
   await screen.getByRole("button", { name: "Set date" }).click();
   expect(onCommit).toHaveBeenCalledWith("2026-08-01");
   // Back to display mode after commit.
   await expect
-    .element(screen.getByRole("button", { name: "Close date" }))
+    .element(screen.getByRole("button", { name: "Edit Close date" }))
     .toBeInTheDocument();
 });
 
@@ -293,7 +295,7 @@ test("disabled keeps the display visible but blocks editing", async () => {
     />,
   );
   const display = screen
-    .getByRole("button", { name: "Account name" })
+    .getByRole("button", { name: "Edit Account name" })
     .element() as HTMLElement;
   expect(display.getAttribute("aria-disabled")).toBe("true");
   expect(display.tabIndex).toBe(-1);
@@ -317,18 +319,15 @@ test("heading use: the display and the editor carry no font size of their own, s
   expect(display.className).not.toMatch(
     /(^|\s)text-(xs|sm|base|lg|\dxl)(\s|$)/,
   );
-  await screen.getByRole("button", { name: "Meeting title" }).click();
+  await screen.getByRole("button", { name: "Edit Meeting title" }).click();
   const input = document.querySelector<HTMLElement>(
     '[data-slot="editable-cell-input"]',
   )!;
-  // Upstream Input's `text-base md:text-sm` is merged away, not layered under an override.
+  // Edit looks like view: the field inherits the surrounding type and carries no chrome.
   expect(input.className).not.toMatch(/(^|\s)(md:)?text-(sm|base)(\s|$)/);
-  expect(input.className).toContain("md:text-[length:inherit]");
-  expect(input.className).toContain("text-[length:max(1rem,1em)]");
-  expect(input.className).toContain("leading-[1lh]");
-  // `h-8` would clip heading-sized text; the box keeps its 32px floor instead.
-  expect(input.className).not.toMatch(/(^|\s)h-8(\s|$)/);
-  expect(input.className).toContain("min-h-8");
+  expect(input.className).toContain("[font:inherit]");
+  expect(input.className).toContain("border-0");
+  expect(input.className).toContain("bg-transparent");
 });
 
 test("page-title use at 390px: a long value truncates to its container and offers the full value as title", async () => {
@@ -354,7 +353,7 @@ test("page-title use at 390px: a long value truncates to its container and offer
     </div>,
   );
   const display = screen
-    .getByRole("button", { name: "Meeting title" })
+    .getByRole("button", { name: "Edit Meeting title" })
     .element() as HTMLElement;
   const text = display.querySelector<HTMLElement>(
     '[data-slot="editable-cell-text"]',
@@ -398,13 +397,13 @@ test("wrap + flush: a page title wraps whole and its text lines up with the line
     </div>,
   );
   const display = screen
-    .getByRole("button", { name: "Meeting title" })
+    .getByRole("button", { name: "Edit Meeting title" })
     .element() as HTMLElement;
   const text = display.querySelector<HTMLElement>(
     '[data-slot="editable-cell-text"]',
   )!;
   // Wrapped, not clipped: no ellipsis, no title, and more than one line tall.
-  expect(getComputedStyle(text).whiteSpace).toBe("normal");
+  expect(getComputedStyle(text).whiteSpace).toBe("pre-wrap");
   expect(text.scrollWidth).toBeLessThanOrEqual(text.clientWidth);
   expect(display.hasAttribute("title")).toBe(false);
   expect(display.hasAttribute("data-truncated")).toBe(false);
@@ -436,7 +435,7 @@ test("a value that fits carries no title", async () => {
   const screen = await render(
     <EditableCell value="Acme" label="Account name" onCommit={() => {}} />,
   );
-  const display = screen.getByRole("button", { name: "Account name" });
+  const display = screen.getByRole("button", { name: "Edit Account name" });
   await expect.element(display).not.toHaveAttribute("title");
   await expect.element(display).not.toHaveAttribute("data-truncated");
 });
@@ -459,7 +458,7 @@ test("focus: the display element receives the keyboard focus outline (no outline
     <EditableCell value="Acme" label="Account name" onCommit={() => {}} />,
   );
   const display = screen
-    .getByRole("button", { name: "Account name" })
+    .getByRole("button", { name: "Edit Account name" })
     .element() as HTMLElement;
   display.focus();
   expect(document.activeElement).toBe(display);
@@ -472,7 +471,7 @@ test("no a11y violations — display, edit, saving, error states", async () => {
     <EditableCell value="Acme" label="Account name" onCommit={() => {}} />,
   );
   await expectNoA11yViolations(screen.container);
-  await screen.getByRole("button", { name: "Account name" }).click();
+  await screen.getByRole("button", { name: "Edit Account name" }).click();
   await expectNoA11yViolations(screen.container);
   await userEvent.keyboard("{Escape}");
   await screen.rerender(
@@ -537,7 +536,7 @@ test("committing back to the persisted value DURING a slow save supersedes it (n
     />,
   );
   const openAndType = async (text: string, selectionEnd: number) => {
-    await screen.getByRole("button", { name: "Account name" }).click();
+    await screen.getByRole("button", { name: "Edit Account name" }).click();
     await expect
       .poll(
         () =>
@@ -557,14 +556,14 @@ test("committing back to the persisted value DURING a slow save supersedes it (n
   // a real edit (it differs from the optimistic display) that must supersede.
   await openAndType("Acme", 6);
   await expect
-    .element(screen.getByRole("button", { name: "Account name" }))
+    .element(screen.getByRole("button", { name: "Edit Account name" }))
     .toHaveTextContent("Acme");
   // The FIRST promise settling is stale and must be ignored.
   d1.resolve();
   await new Promise((r) => setTimeout(r, 10));
   expect(root.getAttribute("data-status")).toBe("saving");
   await expect
-    .element(screen.getByRole("button", { name: "Account name" }))
+    .element(screen.getByRole("button", { name: "Edit Account name" }))
     .toHaveTextContent("Acme");
   // The second (current) commit resolves → saved, showing the reverted value.
   d2.resolve();
