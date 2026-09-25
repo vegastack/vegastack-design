@@ -4,14 +4,14 @@
   "title": "Kbd",
   "description": "A keyboard-key chip, and a group that lays several of them out inline.",
   "dependencies": [
-    "@vegastack/design@^0.7.15",
+    "@vegastack/design@^0.7.16",
     "@vegastack/design-tokens@^0.7.1"
   ],
   "registryDependencies": [],
   "files": [
     {
       "path": "packages/ui/registry/ui/kbd.tsx",
-      "content": "// @vegastack kbd@0.23.6 sha256-tV9lFKqmKcpQTg5m9xWX0Tm0xD38Cs+Lf3OAbGAR58g=\n\nimport { cn } from \"@vegastack/design\";\n\nfunction Kbd({ className, ...props }: React.ComponentProps<\"kbd\">) {\n  return (\n    <kbd\n      data-slot=\"kbd\"\n      className={cn(\n        \"pointer-events-none inline-flex h-5 w-fit min-w-5 items-center justify-center gap-1 rounded-sm bg-muted px-1 font-sans text-xs font-medium text-muted-foreground select-none in-data-[slot=tooltip-content]:bg-background/20 in-data-[slot=tooltip-content]:text-background dark:in-data-[slot=tooltip-content]:bg-background/10 [&_svg:not([class*='size-'])]:size-3\",\n        className,\n      )}\n      {...props}\n    />\n  );\n}\n\nfunction KbdGroup({ className, ...props }: React.ComponentProps<\"div\">) {\n  return (\n    <kbd\n      data-slot=\"kbd-group\"\n      className={cn(\"inline-flex items-center gap-1\", className)}\n      {...props}\n    />\n  );\n}\n\nexport { Kbd, KbdGroup };\n",
+      "content": "// @vegastack kbd@0.23.7 sha256-O/ytk5X27YT1tUr6b7mOwAdoPwrQuXX9FJuN70MQZY0=\n\nimport { cn } from \"@vegastack/design\";\n\nfunction Kbd({ className, ...props }: React.ComponentProps<\"kbd\">) {\n  return (\n    <kbd\n      data-slot=\"kbd\"\n      className={cn(\n        \"pointer-events-none inline-flex h-5 w-fit min-w-5 items-center justify-center gap-1 rounded-sm bg-muted px-1 font-sans text-xs font-medium text-muted-foreground select-none in-data-[slot=tooltip-content]:bg-background/20 in-data-[slot=tooltip-content]:text-background dark:in-data-[slot=tooltip-content]:bg-background/10 [&_svg:not([class*='size-'])]:size-3\",\n        className,\n      )}\n      {...props}\n    />\n  );\n}\n\nfunction KbdGroup({ className, ...props }: React.ComponentProps<\"div\">) {\n  return (\n    <kbd\n      data-slot=\"kbd-group\"\n      className={cn(\"inline-flex items-center gap-1\", className)}\n      {...props}\n    />\n  );\n}\n\nexport { Kbd, KbdGroup };\n",
       "type": "registry:ui",
       "target": "@ui/kbd.tsx"
     }
@@ -19,8 +19,8 @@
   "meta": {
     "whenToUse": "Display a keyboard shortcut or key in menus, tooltips, command palettes, help text.",
     "whenNotToUse": "As an interactive control or to capture keystrokes — Kbd is presentational only.",
-    "version": "0.23.6",
-    "integrity": "sha256-tV9lFKqmKcpQTg5m9xWX0Tm0xD38Cs+Lf3OAbGAR58g="
+    "version": "0.23.7",
+    "integrity": "sha256-O/ytk5X27YT1tUr6b7mOwAdoPwrQuXX9FJuN70MQZY0="
   },
   "categories": [
     "data-display"
