@@ -1,6 +1,6 @@
 "use client";
 
-import { type ReactNode, useState } from "react";
+import { type ReactNode, useCallback, useState } from "react";
 import { Wrapper } from "./wrapper";
 // Copied INTO apps/docs via `shadcn add @vegastack/editable-cell` (dogfoods the registry) → auto-scanned.
 import { Button } from "@/components/ui/button";
@@ -307,35 +307,52 @@ export function editableCellSlow(): ReactNode {
   );
 }
 
-/** Parity: the same value in view and in edit mode, one above the other — nothing moves. */
+/**
+ * Parity: one cell over a 20px baseline grid. Toggle edit mode and watch the box readout — the
+ * width, height and text position do not change.
+ */
 export function editableCellParity(): ReactNode {
+  const [editing, setEditing] = useState(false);
+  const [box, setBox] = useState("");
+  const measure = useCallback((node: HTMLSpanElement | null) => {
+    if (!node) return;
+    const update = () => {
+      const rect = node.getBoundingClientRect();
+      setBox(`${Math.round(rect.width)} × ${Math.round(rect.height)}px`);
+    };
+    update();
+    new MutationObserver(update).observe(node, {
+      subtree: true,
+      childList: true,
+      attributes: true,
+    });
+  }, []);
   return (
     <Wrapper className="block">
-      <div className="mx-auto grid w-full max-w-md grid-cols-[auto_1fr] items-center gap-x-4 gap-y-2 text-sm">
-        <span className="text-xs text-muted-foreground">View</span>
+      <div className="mx-auto flex w-full max-w-md flex-col items-start gap-3 text-sm">
         <span className="bg-[repeating-linear-gradient(to_bottom,transparent_0_19px,var(--color-border)_19px_20px)]">
           <EditableCell
+            ref={measure}
             value="Quarterly business review"
-            label="Title (view)"
+            label="Title"
+            editing={editing}
+            onEditingChange={setEditing}
           />
         </span>
-        <span className="text-xs text-muted-foreground">Edit</span>
-        <span className="bg-[repeating-linear-gradient(to_bottom,transparent_0_19px,var(--color-border)_19px_20px)]">
-          <EditableCell
-            value="Quarterly business review"
-            label="Title (edit)"
-            editing
-            onEditingChange={() => {}}
-          />
-        </span>
-        <span className="text-xs text-muted-foreground">Heading</span>
-        <h3 className="text-xl font-semibold">
-          <EditableCell
-            variant="heading"
-            value="Same size, weight and line box"
-            label="Heading"
-          />
-        </h3>
+        <div className="flex items-center gap-3">
+          <Button
+            size="sm"
+            variant="outline"
+            // Keep focus in the field, so the click toggles instead of blurring it first.
+            onMouseDown={(event) => event.preventDefault()}
+            onClick={() => setEditing((current) => !current)}
+          >
+            {editing ? "Show view mode" : "Show edit mode"}
+          </Button>
+          <span className="text-xs text-muted-foreground tabular-nums">
+            {editing ? "Edit" : "View"} box: {box}
+          </span>
+        </div>
       </div>
     </Wrapper>
   );
