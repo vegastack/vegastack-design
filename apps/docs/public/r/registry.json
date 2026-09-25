@@ -19982,7 +19982,8 @@
         "@vegastack/filter-bar",
         "@vegastack/page-header",
         "@vegastack/relative-time",
-        "@vegastack/toggle-group"
+        "@vegastack/tabs",
+        "@vegastack/view-toggle"
       ],
       "files": [
         {
@@ -20005,7 +20006,7 @@
         "whenToUse": "A page that lists one kind of record — customers, products, projects — copy it once and wire the filters, paging and routes to your API.",
         "whenNotToUse": "A small list inside another page — compose DataList or an ItemGroup directly.",
         "version": "0.23.32",
-        "integrity": "sha256-fxpr7gF8fRr0gTXUD9/Z+WVMOikmnQCB4t1kz7PN5uI="
+        "integrity": "sha256-a73Zqbjs1ERmtv6DRDOHrR+lY310Z381527fx8kW+aA="
       }
     },
     {
