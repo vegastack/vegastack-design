@@ -1377,18 +1377,17 @@
       "name": "editable-cell",
       "type": "registry:ui",
       "title": "Editable Cell",
-      "description": "Inline-editable value with an async commit lifecycle — optimistic display, saving/saved/error status, revert on a rejected write, and a typed text/select/custom editor registry.",
+      "description": "Inline-editable value whose edit mode looks like view — same box, inherited type, no border — with optimistic saves, a delayed spinner, rollback plus a Retry toast on failure, required, multiline, table-cell and heading variants, and a typed text/select/custom editor registry.",
       "categories": ["form"],
       "dependencies": [
-        "lucide-react@^1.47.0",
         "@vegastack/design@^0.7.29",
         "@vegastack/design-tokens@^0.7.18"
       ],
       "registryDependencies": [
         "@vegastack/auto-save-input",
-        "@vegastack/input",
         "@vegastack/select",
         "@vegastack/spinner",
+        "@vegastack/toast",
         "@vegastack/use-announcer",
         "@vegastack/use-inline-edit",
         "@vegastack/use-overflow"

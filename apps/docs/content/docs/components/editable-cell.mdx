@@ -1,6 +1,6 @@
 ---
 title: Editable Cell
-description: Inline-editable value with an async commit lifecycle — optimistic display, saving/saved/error status, and revert on a rejected write.
+description: Inline-editable value whose edit mode looks like view — optimistic saves, a delayed spinner, rollback with a Retry toast, and table-cell and heading variants.
 audience: public
 registry: editable-cell
 status: stable
@@ -21,48 +21,143 @@ import { EditableCell } from "@/components/ui/editable-cell";
 <EditableCell
   value={deal.name}
   label="Deal name"
-  onCommit={(name) => api.updateDeal({ name })}
+  onSave={(name) => api.updateDeal({ name })}
 />;
 ```
 
-`EditableCell` owns the click-to-edit text leaf — display text, a focused
-[`Input`](/docs/components/input) on activation, Enter or blur to commit, Escape
-to cancel — and layers on what every optimistic inline edit needs beyond the edit
-interaction itself: an `idle → saving → saved | error` status indicator (the
-same `AutoSaveStatus` vocabulary [`AutoSaveInput`](/docs/components/auto-save-input)
-uses), conflict revert, and a typed per-type editor.
+**Edit looks like view.** There is no border, ring or background change when the cell edits: the
+field inherits the font, size, weight, line height, tracking and colour of its surroundings, and
+only the caret and the selection show it is being edited. The display and the field share one box —
+a grid cell holding the value text with the field laid over it — so the field grows with its
+content, wraps when the value wraps, and entering or leaving edit changes neither the width nor the
+line box.
 
-When `onCommit` returns a promise, the cell shows the committed value
-optimistically with a saving indicator. On resolve it flips to saved; on reject
-it **reverts the display to `value`** and politely announces the revert — the
-`version_conflict` path every optimistic CRM edit needs.
+**Saving.** Blur or a click outside saves; <kbd>Enter</kbd> saves a single-line value and
+
+<kbd>⌘</kbd>/<kbd>Ctrl</kbd>+<kbd>Enter</kbd> a multiline one; <kbd>Escape</kbd>
+cancels and restores. Nothing is saved when the value is unchanged. When
+`onSave` returns a promise the display updates at once; a subtle spinner trails
+the value only if the save takes longer than 300ms; on failure the value rolls
+back, the failure is announced and a toast offers Retry (the app mounts
+`Toaster`). `onCommit` is the older name of `onSave` and still works.
+
+**Affordance.** The only affordances are the hover tint, a text cursor and an optional `tooltip`.
+Keyboard focus shows the same tint; <kbd>Tab</kbd> reaches the cell and <kbd>Enter</kbd> or
+
+<kbd>F2</kbd> starts editing.
 
 ## Scope
 
-What this component deliberately does not own, in the style of
-[`DataList`](/docs/components/data-list)'s scope table:
-
-| Behaviour                            | Where it lives                                                       |
-| ------------------------------------ | -------------------------------------------------------------------- |
-| Persistence, retries, conflict check | Host — `onCommit` fires once per commit; a rejected promise = revert |
-| Debounced auto-save while typing     | [`AutoSaveInput`](/docs/components/auto-save-input)                  |
-| The grid's roving focus model        | The grid host — `focusMode="managed"` only removes this tab stop     |
-| Date / actor / currency editors      | Apps, via the open `custom` editor contract                          |
+| Behaviour                        | Where it lives                                                                                  |
+| -------------------------------- | ----------------------------------------------------------------------------------------------- |
+| Persistence, conflict check      | Host — `onSave` fires once per changed value; a rejected promise rolls back and offers Retry    |
+| Debounced auto-save while typing | [`AutoSaveInput`](/docs/components/auto-save-input)                                             |
+| The grid's roving focus model    | The grid host — `focusMode="managed"` removes this tab stop; `onNavigate` reports Enter and Tab |
+| Date / actor / currency editors  | Apps, via the open `custom` editor contract                                                     |
 
 ## Examples
 
-### Conflict revert
+### Table cell
+
+`variant="cell"` fills the table cell, so the field is as wide as the column and the column never
+resizes. Only the text starts an edit: a click beside it goes to the row (a row link keeps
+working). With `onNavigate`, <kbd>Enter</kbd> and <kbd>Tab</kbd> save and hand the host a
+direction to move to the next cell (<kbd>Shift</kbd> goes back).
+
+<ComponentPreview
+  name="editableCellTable"
+  file="components/preview/editable-cell.tsx"
+/>
+
+### Page title
+
+`variant="heading"` keeps the heading's size and weight and wraps naturally, in view and in edit.
+`flush` lines the text up with the lines below it by pulling the box into the gutter. Put the cell
+inside the heading element rather than restyling its parts.
+
+```tsx
+<h1 className="text-2xl font-semibold">
+  <EditableCell
+    variant="heading"
+    flush
+    required
+    label="Meeting title"
+    value={title}
+    onSave={rename}
+  />
+</h1>
+```
+
+<ComponentPreview
+  name="editableCellHeading"
+  file="components/preview/editable-cell.tsx"
+/>
+
+### Single-line
+
+The default. A long value truncates with an ellipsis and offers the full value as its `title`;
+opening the editor shows all of it. `wrap` breaks it onto more lines instead.
+
+<ComponentPreview
+  name="editableCell"
+  file="components/preview/editable-cell.tsx"
+/>
+
+### Multiline
+
+`multiline` edits several lines: <kbd>Enter</kbd> adds a line, <kbd>⌘</kbd>/<kbd>Ctrl</kbd>+<kbd>Enter</kbd>
+or blur saves.
+
+<ComponentPreview
+  name="editableCellMultiline"
+  file="components/preview/editable-cell.tsx"
+/>
+
+### Required
+
+With `required`, clearing the value saves nothing: the previous value comes back and
+`requiredMessage` (default `{label} can't be empty`) is announced and toasted.
+
+<ComponentPreview
+  name="editableCellRequired"
+  file="components/preview/editable-cell.tsx"
+/>
+
+### Save error
+
+A rejected `onSave` rolls the value back, announces it and raises an error toast whose Retry runs
+the same save again. `saveErrorToast={false}` leaves the toast to the host.
 
 <ComponentPreview
   name="editableCellConflict"
   file="components/preview/editable-cell.tsx"
 />
 
+### Slow save
+
+The value updates optimistically; the trailing spinner appears only after 300ms, so fast saves
+never flash it.
+
+<ComponentPreview
+  name="editableCellSlow"
+  file="components/preview/editable-cell.tsx"
+/>
+
+### Parity
+
+The same value in view and in edit mode, over a 20px baseline grid: the text sits on the same
+line, at the same x, with the same width.
+
+<ComponentPreview
+  name="editableCellParity"
+  file="components/preview/editable-cell.tsx"
+/>
+
 ### Select editor
 
-Real inline editors are per-type: a stage field edits with a popover list, not
-a text box. The `select` editor renders a [`Select`](/docs/components/select)
-whose popover is the editor; commit fires on selection.
+Real inline editors are per-type: a stage field edits with a popover list, not a text box. The
+`select` editor renders a [`Select`](/docs/components/select) whose popover is the editor; the save
+fires on selection.
 
 <ComponentPreview
   name="editableCellSelect"
@@ -71,9 +166,9 @@ whose popover is the editor; commit fires on selection.
 
 ### Custom editor with a label
 
-When the value is an id — an owner, a customer, a project — pass `renderValue` so the cell shows
-the name a person reads instead of the stored id. It is used while displaying, for every editor
-type; the editor still works on the raw `value`, and an empty value keeps the placeholder.
+When the value is an id — an owner, a customer, a project — pass `renderValue` so the cell shows the
+name a person reads instead of the stored id. It is used while displaying, for every editor type;
+the editor still works on the raw `value`, and an empty value keeps the placeholder.
 
 <ComponentPreview
   name="editableCellCustomLabel"
@@ -87,58 +182,23 @@ type; the editor still works on the raw `value`, and an empty value keeps the pl
   file="components/preview/editable-cell.tsx"
 />
 
-### Heading use
-
-The cell carries no font size of its own: the display and the editor take the surrounding type —
-size, weight, line height and tracking — so the same component reads as body text in a table and as
-the title in a page heading. Put it inside the heading element rather than restyling its parts.
-Below the `md` breakpoint the editor never drops under 16px, so iOS does not zoom on focus.
-
-The value stays on one line. When the heading is narrower than the value — a long meeting title on a
-390px phone — it truncates with an ellipsis instead of overflowing or wrapping, the clipped display
-carries the full value as its `title` (and `data-truncated`), and opening the editor shows all of
-it. Truncation needs a width to truncate to: inside a flex row, give the heading's flex item
-`min-w-0`.
-
-A page title that must be read whole takes `wrap`: the value breaks onto as many lines as it needs
-instead of ending in an ellipsis, so it carries no `title`. `flush` lines the value's text up with
-the lines above and below it — the description under a page title — by pulling the display box
-into the gutter by its own padding; the hover wash and the editor use that gutter, and the text does
-not move when the editor opens. Both are off by default.
-
-```tsx
-<h1 className="text-2xl font-semibold">
-  <EditableCell
-    wrap
-    flush
-    label="Meeting title"
-    value={title}
-    onCommit={rename}
-  />
-</h1>
-```
-
-<ComponentPreview
-  name="editableCellHeading"
-  file="components/preview/editable-cell.tsx"
-/>
-
 ### Managed focus (grid hosts)
 
-Inside a grid, one tab stop per editable cell per row is an ergonomics
-regression — the grid's roving focus model owns reachability. `focusMode="managed"`
-removes the cell's own tab stop, and the host opens the editor from its keyboard
-model through the controlled `editing` / `onEditingChange` pair:
+Inside a grid the grid's roving focus model owns reachability. `focusMode="managed"` removes the
+cell's own tab stop, and the host opens the editor from its keyboard model through the controlled
+`editing` / `onEditingChange` pair:
 
 ```tsx
 <EditableCell
+  variant="cell"
   value={cell.value}
   label={column.header}
   focusMode="managed"
   editing={isEditingThisCell}
   onEditingChange={(editing) => grid.setEditingCell(editing ? cellId : null)}
+  onNavigate={(direction) => grid.moveEditor(direction)}
   status={grid.cellStatus(rowId, column.key)}
-  onCommit={(next) => grid.commitCell(rowId, column.key, next)}
+  onSave={(next) => grid.commitCell(rowId, column.key, next)}
 />
 ```
 
@@ -160,28 +220,27 @@ The `custom` editor receives `EditableCellEditorProps`:
 
 ## Accessibility
 
-- The display element is a `role="button"` — <kbd>Enter</kbd>
-  or <kbd>Space</kbd> opens the editor, mirroring a mouse click; the editor is
-  never unnamed (`label` → `placeholder` → generic fallback).
-- Status changes are announced through a visually hidden polite live region —
-  "Saving…", "Saved", "Save failed — value reverted". The indicator icons differ
-  by shape, never by colour alone.
-- <kbd>Escape</kbd> cancels, restores the prior value, and returns to the
-  display element; a rejected commit reverts the value _and_ announces it.
-- In `focusMode="managed"` the cell has no tab stop of its own — the host grid
-  must own reachability and open the editor from its keyboard model.
+- Read mode is a `role="button"` labelled `Edit {label}`, described by the value; edit mode is a
+  text field labelled `label` (then `placeholder`, then a generic name).
+- Saves and errors are announced through a visually hidden polite live region — "Saved",
+  `Couldn't save {label} — value restored`, and the `required` message. The spinner is decorative.
+- <kbd>Escape</kbd> cancels, restores the prior value and returns focus to the
+  display.
+- In `focusMode="managed"` the cell has no tab stop of its own — the host grid owns reachability.
 
-| Key                                 | Action                                            |
-| ----------------------------------- | ------------------------------------------------- |
-| <kbd>Enter</kbd> / <kbd>Space</kbd> | Open the editor from the focused display element. |
-| <kbd>Enter</kbd>                    | Commit the draft (text editor).                   |
-| <kbd>Escape</kbd>                   | Cancel and restore the prior value.               |
+| Key                                                 | Action                                                     |
+| --------------------------------------------------- | ---------------------------------------------------------- |
+| <kbd>Enter</kbd> / <kbd>F2</kbd> / <kbd>Space</kbd> | Start editing from the focused display.                    |
+| <kbd>Enter</kbd>                                    | Save a single-line value (and move on, with `onNavigate`). |
+| <kbd>⌘</kbd>/<kbd>Ctrl</kbd>+<kbd>Enter</kbd>       | Save a multiline value.                                    |
+| <kbd>Tab</kbd>                                      | With `onNavigate`: save and move to the next cell.         |
+| <kbd>Escape</kbd>                                   | Cancel and restore the prior value.                        |
 
 <StatesTested name="editable-cell" />
 
 ## Do / Don't
 
 <DoDont
-  do="Return a promise from onCommit so the cell can run the saving/saved/error lifecycle and revert on rejection."
-  dont="Toast the failure and leave the stale optimistic value on screen — the inline status and the revert are the feedback."
+  do="Return a promise from onSave so the cell can update optimistically, roll back on rejection and offer Retry."
+  dont="Style the cell — no width, border, padding or background overrides. Put it inside the heading or table cell and let it inherit."
 />
