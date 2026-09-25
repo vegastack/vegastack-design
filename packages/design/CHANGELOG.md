@@ -1,5 +1,11 @@
 # @vegastack/design
 
+## 0.7.9
+
+### Patch Changes
+
+- [#233](https://github.com/vegastack/vegastack-design/pull/233) [`ac4341c`](https://github.com/vegastack/vegastack-design/commit/ac4341ca9c80c821cf9e18620e16df0c180f27f2) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🔧 **Last facelift gaps** — `DataList` (and `DataGrid`) reserve the first column and every `mobile: "visible"` column before fitting the rest, so a trailing Status or actions column no longer leaves a narrow table squeezed while an earlier column that should fold stays. `tabsListVariants` and `tabsTriggerVariants` draw horizontal tabs — the list height and the line indicator — whenever the `group/tabs` ancestor is not vertical, so route tabs need no `data-orientation` at all, and a scrolling route list keeps its indicator inside the scroll box. `SearchableSelect`'s in-panel search keeps its own name inside a `Field` instead of taking the Field label, and `searchLabel` is now optional (default "Search"). [docs](https://design.vegastack.com/docs/components/data-list)
+
 ## 0.7.8
 
 ### Patch Changes

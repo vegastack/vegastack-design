@@ -1,4 +1,4 @@
-// @vegastack data-table-parts@0.22.0 sha256-Ijj1LuwLUz+9N2RjRNsV2dX2HmVJX92IrxDZTxdtgmc=
+// @vegastack data-table-parts@0.23.0 sha256-L9p221abxnU+FP/jcgWH3r7T5RIPiog5MbvR/im/Cbs=
 
 "use client";
 

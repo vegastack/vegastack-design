@@ -1,4 +1,4 @@
-// @vegastack relative-time@0.22.0 sha256-q1ampj6zwOWbQLwnPZaAnoEXFyxPPGiaUEEsx3SQZiY=
+// @vegastack relative-time@0.23.0 sha256-LERyJyoGiePUm6ZGbXV2NT14E/T3h6DWAB2aeFc/p1A=
 
 "use client";
 

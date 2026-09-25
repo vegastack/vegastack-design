@@ -1,4 +1,4 @@
-// @vegastack review-split-01@0.22.0 sha256-XVQsjG476F9/53gIL3WDdEQExBhSIDGc7ukt6sPYji8=
+// @vegastack review-split-01@0.23.0 sha256-wt1IKc9+o+cwsz/8ah+BaOXAsmGp+Afmtk0pe36J/mo=
 
 import { AppShellPage } from "@/components/ui/app-shell";
 import { PageHeader } from "@/components/ui/page-header";

@@ -1,4 +1,4 @@
-// @vegastack progress@0.22.0 sha256-U9g0dDFyOg3mJx9QsDVLtsNB/chkEeP7qvoxT7ruMdM=
+// @vegastack progress@0.23.0 sha256-OtogrppmZrcXHmoETxeFOf2X3ZZCN+JjqrHQPAJAegE=
 
 "use client";
 
