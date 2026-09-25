@@ -1,4 +1,4 @@
-// @vegastack input@0.23.31 sha256-flciaocPmc3I2jQHcSfVx+NicjRGRrPlIAAnSUY74vg=
+// @vegastack input@0.23.31 sha256-oFkFuR2Vwbv3zfHzxVzbUFqA4WrdS9XABrejx/dSDxw=
 
 import * as React from "react";
 import { Input as InputPrimitive } from "@base-ui/react/input";
@@ -20,7 +20,7 @@ const inputVariants = cva(
       size: {
         sm: "h-7 px-2 py-0.5 text-sm",
         default: "h-8 px-2.5 py-1 text-base md:text-sm",
-        lg: "h-auto py-1 font-heading text-xl font-semibold tracking-tight md:text-xl",
+        lg: "h-auto py-1 font-heading text-xl font-semibold md:text-xl",
       },
     },
     compoundVariants: [

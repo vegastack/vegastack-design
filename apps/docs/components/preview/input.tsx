@@ -343,3 +343,53 @@ export function inputStates(): ReactNode {
     </Wrapper>
   );
 }
+
+/** `size`: `sm` (28px), `default` (32px) and `lg` (heading type). */
+export function inputSizes(): ReactNode {
+  return (
+    <Wrapper className="items-stretch">
+      <div className="mx-auto flex w-full max-w-sm flex-col gap-3">
+        <Input size="sm" aria-label="Small" placeholder="Small" />
+        <Input aria-label="Default" placeholder="Default" />
+        <Input size="lg" aria-label="Large" placeholder="Large" />
+      </div>
+    </Wrapper>
+  );
+}
+
+/**
+ * `variant="ghost"`: no border and no fill — a title typed straight onto the page. Hover and focus
+ * tint the background; an invalid ghost field turns its placeholder destructive.
+ */
+export function inputGhost(): ReactNode {
+  return (
+    <Wrapper className="items-stretch">
+      <div className="mx-auto flex w-full max-w-md flex-col gap-3">
+        <Input
+          variant="ghost"
+          size="lg"
+          aria-label="Issue title"
+          placeholder="Issue title"
+        />
+        <Input
+          variant="ghost"
+          aria-label="Subtitle"
+          placeholder="Add a subtitle"
+        />
+        <Input
+          variant="ghost"
+          size="sm"
+          aria-label="Note"
+          placeholder="Add a note"
+        />
+        <Input
+          variant="ghost"
+          size="lg"
+          aria-label="Required title"
+          placeholder="A title is required"
+          aria-invalid
+        />
+      </div>
+    </Wrapper>
+  );
+}

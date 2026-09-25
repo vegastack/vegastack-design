@@ -13573,7 +13573,7 @@
       "name": "text-edit",
       "type": "registry:ui",
       "title": "Text Edit",
-      "description": "A Tiptap markdown-first rich-text editor in the shared prose typography — toolbar levels that set the schema, bubble menu, link popover, task lists, tables, code blocks, markdown input rules and paste, onSave/onCancel, autosave, and a borderless ghost variant.",
+      "description": "A Tiptap markdown-first rich-text editor in the shared prose typography — a slash menu and a bubble menu instead of a toolbar, a link popover, task lists, tables, code blocks, markdown input rules and paste, and one onCommit path.",
       "categories": ["rich-text"],
       "dependencies": [
         "@base-ui/react@^1.6.0",
@@ -13586,6 +13586,7 @@
         "@tiptap/extension-list@^3",
         "@tiptap/extension-table@^3",
         "@tiptap/extensions@^3",
+        "@tiptap/suggestion@^3",
         "lucide-react@^1.47.0",
         "@vegastack/design@^0.7.40",
         "@vegastack/design-tokens@^0.7.33"
@@ -13595,10 +13596,7 @@
         "@vegastack/checkbox",
         "@vegastack/copy-button",
         "@vegastack/input",
-        "@vegastack/kbd",
-        "@vegastack/popover",
-        "@vegastack/toggle",
-        "@vegastack/tooltip"
+        "@vegastack/toggle"
       ],
       "files": [
         {

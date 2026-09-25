@@ -85,7 +85,7 @@ export const prose = {
   // lose the cascade (see the header).
   ul: "[&_ul]:my-2 [&_ul]:ms-5 [&_ul]:list-disc [&_ul.contains-task-list]:list-none",
   ol: "[&_ol]:my-2 [&_ol]:ms-5 [&_ol]:list-decimal",
-  li: "[&_li]:mt-1 [&_li]:marker:normal-nums [&_li]:marker:text-foreground [&_li_p]:my-0",
+  li: "[&_li]:mt-1 [&_li]:marker:normal-nums [&_li]:marker:text-inherit [&_li_p]:my-0",
 
   // Task lists, one shape for both producers: `MarkdownView` tags the GFM list
   // `data-type="taskList"` and each item `data-type="taskItem"` with its body in a

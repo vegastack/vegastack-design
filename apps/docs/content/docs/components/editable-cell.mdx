@@ -72,14 +72,14 @@ direction to move to the next cell (<kbd>Shift</kbd> goes back).
 ### Page title
 
 `variant="heading"` keeps the heading's size and weight and wraps naturally, in view and in edit.
-`flush` lines the text up with the lines below it by pulling the box into the gutter. Put the cell
-inside the heading element rather than restyling its parts.
+It has no box padding, so the title is edited exactly where it is rendered — idle and editing sit at
+the same position, lined up with the lines below, and only the hover tint marks it editable. Put the
+cell inside the heading element rather than restyling its parts.
 
 ```tsx
 <h1 className="text-2xl font-semibold">
   <EditableCell
     variant="heading"
-    flush
     required
     label="Meeting title"
     value={title}

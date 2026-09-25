@@ -420,6 +420,9 @@ const markdownFixtures: [string, string][] = [
   ["a bullet list", "- Apples\n- Pears\n- Plums"],
   ["an ordered list", "1. One\n2. Two\n3. Three"],
   ["a link", "See [the spec](https://example.com/spec) for details."],
+  // Empty paragraphs (blank lines typed with Enter) survive: Tiptap writes them as `&nbsp;` and
+  // extra blank lines, and reads both back as the same empty paragraphs.
+  ["blank lines", "a\n\n\n\n&nbsp;\n\nb\n\n- x\n\n\n\nc"],
 ];
 
 test.each(markdownFixtures)(

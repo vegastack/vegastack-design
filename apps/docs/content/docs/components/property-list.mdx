@@ -79,7 +79,9 @@ decorative (`aria-hidden`); keep the text label present — never an icon-only `
 
 Compose plain values, links, empty values, and tag groups in the same aligned definition list.
 Long values wrap onto as many lines as they need; the label track sizes itself to the longest label
-above its 80px floor.
+above its 80px floor. Rows are top-aligned: the label sits on the value's first line, so a
+value that wraps keeps its label beside its opening line, and a quiet picker or select trigger
+shares the label's centre like plain text does.
 
 <ComponentPreview
   name="propertyList"

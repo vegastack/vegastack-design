@@ -19,28 +19,71 @@
 #               reflows the file, and `registry-stamp.mjs` writes the provenance header the
 #               three-copy model needs (DOC-1); those hunks carry no decision of their own.
 diff --git a/input.tsx b/input.tsx
-index 7c4ab5a..2b47064 100644
+index 7c4ab5a..f4f3fd6 100644
 --- a/input.tsx
 +++ b/input.tsx
-@@ -1,6 +1,6 @@
+@@ -1,19 +1,59 @@
 -import * as React from "react"
 -import { Input as InputPrimitive } from "@base-ui/react/input"
 -import { cn } from "cn"
 +import * as React from "react";
 +import { Input as InputPrimitive } from "@base-ui/react/input";
++import { cva, type VariantProps } from "class-variance-authority";
 +import { cn } from "@vegastack/design";
  
- function Input({ className, type, ...props }: React.ComponentProps<"input">) {
+-function Input({ className, type, ...props }: React.ComponentProps<"input">) {
++const inputVariants = cva(
++  "w-full min-w-0 transition-colors outline-hidden file:inline-flex file:h-6 file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50",
++  {
++    variants: {
++      variant: {
++        default:
++          "rounded-lg border border-input bg-transparent focus:border-ring/70 disabled:bg-input/50 not-focus:aria-invalid:border-destructive dark:bg-input/30 dark:disabled:bg-input/80 dark:not-focus:aria-invalid:border-destructive/50",
++        // A borderless, transparent field for a big title (Linear's issue title). No box: the tint
++        // is the focus cue, and an invalid title turns its placeholder and text destructive.
++        ghost:
++          "rounded-md border-0 bg-transparent px-0 hover:bg-accent/30 focus:bg-accent/50 aria-invalid:placeholder:text-destructive/70",
++      },
++      size: {
++        sm: "h-7 px-2 py-0.5 text-sm",
++        default: "h-8 px-2.5 py-1 text-base md:text-sm",
++        lg: "h-auto py-1 font-heading text-xl font-semibold md:text-xl",
++      },
++    },
++    compoundVariants: [
++      { variant: "ghost", size: "sm", className: "px-0" },
++      { variant: "ghost", size: "default", className: "px-0" },
++      { variant: "default", size: "lg", className: "px-2.5" },
++    ],
++    defaultVariants: { variant: "default", size: "default" },
++  },
++);
++
++type InputProps = Omit<React.ComponentProps<"input">, "size"> &
++  VariantProps<typeof inputVariants>;
++
++/**
++ * `Input` — a single-line text field.
++ *
++ * - `variant="default"`: the bordered field; focus tints the border.
++ * - `variant="ghost"`: borderless and transparent, for a title you type straight onto the page.
++ * - `size`: `sm` (28px), `default` (32px), `lg` (heading size — pair with `ghost` for a big title).
++ *
++ * @example
++ * <Input variant="ghost" size="lg" placeholder="Issue title" aria-label="Title" />
++ */
++function Input({ className, type, variant, size, ...props }: InputProps) {
    return (
-@@ -8,12 +8,12 @@ function Input({ className, type, ...props }: React.ComponentProps<"input">) {
+     <InputPrimitive
        type={type}
        data-slot="input"
-       className={cn(
+-      className={cn(
 -        "h-8 w-full min-w-0 rounded-lg border border-input bg-transparent px-2.5 py-1 text-base transition-colors outline-none file:inline-flex file:h-6 file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:pointer-events-none disabled:cursor-not-allowed disabled:bg-input/50 disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 md:text-sm dark:bg-input/30 dark:disabled:bg-input/80 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40",
 -        className
-+        "h-8 w-full min-w-0 rounded-lg border border-input bg-transparent px-2.5 py-1 text-base transition-colors outline-hidden file:inline-flex file:h-6 file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus:border-ring/70 disabled:cursor-not-allowed disabled:bg-input/50 disabled:opacity-50 not-focus:aria-invalid:border-destructive md:text-sm dark:bg-input/30 dark:disabled:bg-input/80 dark:not-focus:aria-invalid:border-destructive/50",
-+        className,
-       )}
+-      )}
++      data-variant={variant ?? "default"}
++      data-size={size ?? "default"}
++      className={cn(inputVariants({ variant, size }), className)}
        {...props}
      />
 -  )
@@ -48,4 +91,4 @@ index 7c4ab5a..2b47064 100644
  }
  
 -export { Input }
-+export { Input };
++export { Input, inputVariants };

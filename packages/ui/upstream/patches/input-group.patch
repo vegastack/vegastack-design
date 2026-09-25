@@ -22,7 +22,7 @@
 #               reflows the file, and `registry-stamp.mjs` writes the provenance header the
 #               three-copy model needs (DOC-1); those hunks carry no decision of their own.
 diff --git a/input-group.tsx b/input-group.tsx
-index 2e3e7cd..cc77c04 100644
+index 2e3e7cd..ae3e669 100644
 --- a/input-group.tsx
 +++ b/input-group.tsx
 @@ -1,12 +1,12 @@
@@ -118,7 +118,7 @@ index 2e3e7cd..cc77c04 100644
  }
  
  function InputGroupText({ className, ...props }: React.ComponentProps<"span">) {
-@@ -109,11 +109,11 @@ function InputGroupText({ className, ...props }: React.ComponentProps<"span">) {
+@@ -109,27 +109,27 @@ function InputGroupText({ className, ...props }: React.ComponentProps<"span">) {
      <span
        className={cn(
          "flex items-center gap-2 text-sm text-muted-foreground [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4",
@@ -132,7 +132,11 @@ index 2e3e7cd..cc77c04 100644
  }
  
  function InputGroupInput({
-@@ -124,12 +124,12 @@ function InputGroupInput({
+   className,
+   ...props
+-}: React.ComponentProps<"input">) {
++}: React.ComponentProps<typeof Input>) {
+   return (
      <Input
        data-slot="input-group-control"
        className={cn(

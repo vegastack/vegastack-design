@@ -31,6 +31,25 @@ A bare input with a placeholder.
 
 <ComponentPreview name="inputBasic" file="components/preview/input.tsx" />
 
+### Sizes
+
+`size="sm"` is 28px, `default` 32px, and `lg` sets heading type — pair it with `ghost` for a big
+title.
+
+<ComponentPreview name="inputSizes" file="components/preview/input.tsx" />
+
+### Ghost
+
+`variant="ghost"` drops the border and the fill, so the text sits on the page like a heading — the
+title field of a new-issue dialog. Hover and focus tint the background (there is no ring), and an
+invalid ghost field turns its placeholder destructive.
+
+```tsx
+<Input variant="ghost" size="lg" placeholder="Issue title" aria-label="Title" />
+```
+
+<ComponentPreview name="inputGhost" file="components/preview/input.tsx" />
+
 ### Field
 
 `Field`, `FieldLabel` and `FieldDescription` give the input a label and helper text.

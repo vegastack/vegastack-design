@@ -566,12 +566,19 @@ function tintCarriers(control: Element): Element[] {
   return carriers;
 }
 
-type FocusSignature = { outlineStyle: string; borders: string[] };
+type FocusSignature = {
+  outlineStyle: string;
+  borders: string[];
+  fills: string[];
+};
 
 const focusSignature = (control: Element): FocusSignature => ({
   outlineStyle: getComputedStyle(control).outlineStyle,
   borders: tintCarriers(control).map(
     (element) => getComputedStyle(element).borderColor,
+  ),
+  fills: tintCarriers(control).map(
+    (element) => getComputedStyle(element).backgroundColor,
   ),
 });
 
@@ -630,11 +637,15 @@ function focusIndicatorProblem(
   const focused = focusSignature(control);
   if (focused.borders.some((border, index) => border !== rest.borders[index]))
     return null;
+  // A borderless text-entry surface (Input `ghost`, TextEdit) signals focus with a background
+  // tint instead of a border — the same system cue, on the fill.
+  if (focused.fills.some((fill, index) => fill !== rest.fills[index]))
+    return null;
 
   if (textEntry)
     return (
-      `is a text-entry control with no border tint on focus: no border-colour change on the ` +
-      `control, its [data-field-group], or its wrapper. The tint IS the affordance for this set ` +
+      `is a text-entry control with no border tint on focus: no border-colour or background tint ` +
+      `on the control, its [data-field-group], or its wrapper. The tint IS the affordance for this set ` +
       `(AGENTS.md \u00a7 Accessibility), and the global ring is suppressed here`
     );
   return style.outlineStyle === "auto"
