@@ -85,9 +85,11 @@ info`, each an ink on the `card` surface with a required icon; **`announcement-b
   render ONE `Announcer` element per component, mounted for its life. It keeps the region observed from first paint
   and re-keys it per call, so repeating an identical string still announces. Do not hand-roll a
   `role="status"` node with a `{text, seq}` counter.
-- **Theme choice lives in the user menu** — a `DropdownMenuRadioGroup` of Light, Dark and System
-  bound to `theme` and `setTheme` from `useVegaStackTheme()`. There is no `theme-toggle` registry
-  item yet (a known gap); do not hand-roll a local toggle button.
+- **The user menu is one standard** (as in `app-shell-01`): the footer trigger shows avatar, name
+  and role; the menu header repeats avatar + name with the email instead of the role; then Profile
+  and Settings, a Theme `DropdownMenuSub` whose `DropdownMenuRadioGroup` (Light · Dark · System, with
+  Sun · Moon · Monitor icons) is bound to `theme`/`setTheme` from `useVegaStackTheme()`, Keyboard
+  shortcuts, a separator, and Sign out. Every item has an icon. Do not hand-roll a theme toggle button.
 - **`code-block`** for static syntax-highlighted source; **`terminal`** for command sessions.
 - **`navigation-menu`** is top-level site navigation with panels, not a menu inside a page.
 
