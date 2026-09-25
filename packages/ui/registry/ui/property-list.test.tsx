@@ -1,7 +1,7 @@
 import * as React from "react";
 import { render } from "vitest-browser-react";
 import { expect, test } from "vitest";
-import { Globe, Users } from "lucide-react";
+import { Globe, UsersRound } from "lucide-react";
 import { expectNoA11yViolations } from "../../test/a11y";
 import {
   PropertyLabel,
@@ -22,7 +22,7 @@ function Example() {
         </PropertyValue>
       </PropertyRow>
       <PropertyRow>
-        <PropertyLabel icon={<Users />}>Team</PropertyLabel>
+        <PropertyLabel icon={<UsersRound />}>Team</PropertyLabel>
         <PropertyValue>
           <span className="text-sm text-muted-foreground">Set a value…</span>
         </PropertyValue>

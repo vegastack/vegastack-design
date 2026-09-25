@@ -1,0 +1,110 @@
+---
+title: Person Hover Card
+description: Stacked avatars with a hover card per person — a compact card with a 32px avatar, with the name and muted email beside it — and the rest behind "+N".
+audience: public
+registry: person-hover-card
+status: stable
+since: 0.23.19
+a11y: named buttons, hover card on hover and focus, tap on touch
+preview: personHoverCard
+---
+
+## Install
+
+<InstallSteps name="person-hover-card" />
+
+## Usage
+
+```tsx
+import { AvatarStack } from "@/components/ui/person-hover-card";
+
+<AvatarStack people={participants} label="Participants" />;
+```
+
+`AvatarStack` stacks up to `max` (5) avatars in an [Avatar](/docs/components/avatar) group; the
+rest go behind a "+N" that opens them as rows. Hovering or focusing an avatar — tapping it on touch
+— opens its `PersonHoverCard`: a compact card with a 32px avatar and, stacked beside it, the name and a smaller muted email (always shown when known). Someone without
+an account (a free-text participant such as "Northwind FM leads") has no email: their avatar shows
+initials and the card just the name.
+
+<ComponentPreview
+  name="personHoverCard"
+  file="components/preview/person-hover-card.tsx"
+/>
+
+## Anatomy
+
+<Anatomy name="person-hover-card" />
+
+## Examples
+
+### One person
+
+`PersonHoverCard` wraps any trigger — usually a `PersonAvatar` — in a round ghost button named by
+the person.
+
+<ComponentPreview
+  name="personHoverCardSingle"
+  file="components/preview/person-hover-card.tsx"
+/>
+
+### The card
+
+`PersonCard` is the card's body (`layout="card"`) and the "+N" list's row (`layout="row"`).
+
+<ComponentPreview
+  name="personHoverCardCard"
+  file="components/preview/person-hover-card.tsx"
+/>
+
+## API Reference
+
+### AvatarStack
+
+<ApiTable
+  path="../../packages/ui/registry/ui/person-hover-card.tsx"
+  name="AvatarStackProps"
+/>
+
+### PersonHoverCard
+
+<ApiTable
+  path="../../packages/ui/registry/ui/person-hover-card.tsx"
+  name="PersonHoverCardProps"
+/>
+
+### PersonCard
+
+<ApiTable
+  path="../../packages/ui/registry/ui/person-hover-card.tsx"
+  name="PersonCardProps"
+/>
+
+### PersonAvatar
+
+<ApiTable
+  path="../../packages/ui/registry/ui/person-hover-card.tsx"
+  name="PersonAvatarProps"
+/>
+
+## Accessibility
+
+- The stack is a `group` named by `label`; each avatar is a button named by the person, and "+N"
+  is named "N more".
+- The hover card opens on hover and on keyboard focus, and a tap toggles it on touch; it closes on
+  <kbd>Esc</kbd> and when focus leaves.
+
+| Key                                 | Action                            |
+| ----------------------------------- | --------------------------------- |
+| <kbd>Tab</kbd>                      | Move between people and "+N"      |
+| <kbd>Enter</kbd> / <kbd>Space</kbd> | Open a person's card, or the rest |
+| <kbd>Esc</kbd>                      | Close the card or the list        |
+
+<StatesTested name="person-hover-card" />
+
+## Do / Don't
+
+<DoDont
+  do="Pass an email only for people with an account; a free-text participant is just a name."
+  dont="Put actions in the hover card — it is a preview; link to the person's page instead."
+/>

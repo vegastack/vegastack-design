@@ -1,4 +1,4 @@
-// @vegastack filter-bar@0.23.18 sha256-UiRoGI2qhPVmgbiJoabvVdSVnpzZQEW+15g2LnL2Od0=
+// @vegastack filter-bar@0.23.18 sha256-1uGRwrivzp/9kYKCn2QW10EV5m6+xPbgvBHYIRSbHvw=
 
 "use client";
 
@@ -448,7 +448,7 @@ const BAR_SIZE =
  * @example
  * <FilterBar
  *   search={{ value: query, onValueChange: setQuery, placeholder: "Search tasks" }}
- *   scope={<Tabs value={scope} onValueChange={setScope}><TabsList size="sm"><TabsTrigger value="mine"><User />My tasks</TabsTrigger><TabsTrigger value="team"><Users />Team tasks</TabsTrigger></TabsList></Tabs>}
+ *   scope={<Tabs value={scope} onValueChange={setScope}><TabsList size="sm"><TabsTrigger value="mine"><UserRound />My tasks</TabsTrigger><TabsTrigger value="team"><UsersRound />Team tasks</TabsTrigger></TabsList></Tabs>}
  *   view={<ToggleGroup aria-label="View" value={[view]} onValueChange={([v]) => v && setView(v)} deselectable={false} variant="outline" spacing={0}>…</ToggleGroup>}
  *   facets={<><FilterBarFacet label="Status" … /><FilterBarFacet label="Due" … /></>}
  *   addFilters={[{ id: "priority", label: "Priority" }]}

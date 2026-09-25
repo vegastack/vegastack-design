@@ -1,10 +1,22 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { Building2, Globe, Tags, Users } from "lucide-react";
+import {
+  Building2,
+  Clock,
+  Component,
+  Globe,
+  Tags,
+  Timer,
+  UserRound,
+  UsersRound,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { Wrapper } from "./wrapper";
 // Copied INTO apps/docs via `shadcn add @vegastack/property-list` (dogfoods the registry) → auto-scanned.
 import {
+  PropertyEmpty,
+  PropertySection,
   PropertyLabel,
   PropertyList,
   PropertyRow,
@@ -33,7 +45,7 @@ export function propertyList(): ReactNode {
           <PropertyValue>Attio</PropertyValue>
         </PropertyRow>
         <PropertyRow>
-          <PropertyLabel icon={<Users />}>Team</PropertyLabel>
+          <PropertyLabel icon={<UsersRound />}>Team</PropertyLabel>
           <PropertyValue>
             <span className="text-sm text-muted-foreground">Set a value…</span>
           </PropertyValue>
@@ -71,12 +83,60 @@ export function propertyListNarrow(): ReactNode {
           <PropertyValue>Example Corporation Holdings</PropertyValue>
         </PropertyRow>
         <PropertyRow>
-          <PropertyLabel icon={<Users />}>Team</PropertyLabel>
+          <PropertyLabel icon={<UsersRound />}>Team</PropertyLabel>
           <PropertyValue>
             <span className="text-sm text-muted-foreground">Set a value…</span>
           </PropertyValue>
         </PropertyRow>
       </PropertyList>
+    </Wrapper>
+  );
+}
+
+export function propertyListInline(): ReactNode {
+  return (
+    <Wrapper>
+      <div className="flex w-72 flex-col gap-5">
+        <PropertyList variant="inline" aria-label="Meeting details">
+          <PropertyRow>
+            <PropertyLabel icon={<Component />}>Type</PropertyLabel>
+            <PropertyValue>Client call</PropertyValue>
+          </PropertyRow>
+          <PropertyRow>
+            <PropertyLabel icon={<Timer />}>Duration</PropertyLabel>
+            <PropertyValue>42 min</PropertyValue>
+          </PropertyRow>
+          <PropertyRow>
+            <PropertyLabel icon={<UserRound />}>Owner</PropertyLabel>
+            <PropertyValue>
+              <Button variant="ghost" size="xs">
+                Asha Rao
+              </Button>
+            </PropertyValue>
+          </PropertyRow>
+          <PropertyRow>
+            <PropertyLabel icon={<Clock />}>Follow-up</PropertyLabel>
+            <PropertyValue>
+              <PropertyEmpty />
+            </PropertyValue>
+          </PropertyRow>
+          <PropertyRow>
+            <PropertyLabel icon={<Building2 />}>Customer</PropertyLabel>
+            <PropertyValue>
+              <Button
+                variant="ghost"
+                size="xs"
+                className="text-muted-foreground"
+              >
+                + Add
+              </Button>
+            </PropertyValue>
+          </PropertyRow>
+        </PropertyList>
+        <PropertySection title="Tags">
+          <span className="text-sm">Renewal, Q4</span>
+        </PropertySection>
+      </div>
     </Wrapper>
   );
 }

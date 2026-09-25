@@ -11,6 +11,7 @@ import {
   StatDelta,
   StatEmpty,
   StatLabel,
+  StatSkeleton,
   StatValue,
 } from "@/components/ui/stat";
 
@@ -107,6 +108,22 @@ function StatLinkedTilesDemo(): ReactNode {
       >
         Show loading
       </Button>
+    </Wrapper>
+  );
+}
+
+export function statSkeleton(): ReactNode {
+  return (
+    <Wrapper>
+      <div className="grid w-full max-w-lg grid-cols-2 gap-4">
+        {Array.from({ length: 2 }, (_, i) => (
+          <Item key={i} variant="outline">
+            <ItemContent>
+              <StatSkeleton size="lg" />
+            </ItemContent>
+          </Item>
+        ))}
+      </div>
     </Wrapper>
   );
 }

@@ -1,9 +1,9 @@
-// @vegastack board-01@0.23.18 sha256-fQOT78jr8qwbTCbpVxp7mwKfV2oKCnE9URd53XUSEAE=
+// @vegastack board-01@0.23.18 sha256-mMMaj0IPlHlfIbcCDY7Xsdf7FauRp/cpY8g85bI/HyA=
 
 "use client";
 
 import * as React from "react";
-import { User } from "lucide-react";
+import { UserRound } from "lucide-react";
 
 import type { BoardCardPriority } from "@/components/ui/board-card";
 import type { RowAction } from "@/components/ui/data-table-parts";
@@ -241,7 +241,7 @@ export function BoardView() {
           id: "assignee",
           label: "Assignee",
           value: nameOf(assignee),
-          icon: <User />,
+          icon: <UserRound />,
           onRemove: () => setAssignee(null),
         },
       ]
@@ -299,7 +299,7 @@ export function BoardView() {
           addFilterMenu={
             <DropdownMenu>
               <DropdownMenuTrigger render={<Button variant="outline" />}>
-                <User />
+                <UserRound />
                 Assignee
               </DropdownMenuTrigger>
               <DropdownMenuContent align="start">

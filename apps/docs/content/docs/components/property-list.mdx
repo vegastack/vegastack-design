@@ -98,11 +98,29 @@ a reader has to interpret.
   file="components/preview/property-list.tsx"
 />
 
+### Inline rows and sections
+
+`variant="inline"` is the record-aside row for a narrow rail card: icon + label in a fixed 112px
+column (a long label truncates, its full text in the tooltip), and the value left-aligned in the
+second column, so every value starts at the same x — as in Linear or Notion. An editable value is a
+quiet picker — a ghost `xs` Button whose padding hangs past the column's start so its text lines up
+— and an unset one is `PropertyEmpty` ("—") or a quiet "+ Add". `PropertySection` puts a small muted title over values too big for a row (chips,
+people). The rail's other value shapes — an avatar, avatar rows with "+N", a long value clamped to
+three lines — are in [Record Aside](/docs/components/record-aside).
+
+<ComponentPreview
+  name="propertyListInline"
+  file="components/preview/property-list.tsx"
+/>
+
 ## API Reference
 
 ### PropertyList
 
-`PropertyList` accepts native `<dl>` props and forwards its ref to the definition list.
+<ApiTable
+  path="../../packages/ui/registry/ui/property-list.tsx"
+  name="PropertyListProps"
+/>
 
 ### PropertyRow
 
@@ -118,6 +136,20 @@ a reader has to interpret.
 ### PropertyValue
 
 `PropertyValue` accepts native `<dd>` props and forwards its ref to the value cell.
+
+### PropertyEmpty
+
+<ApiTable
+  path="../../packages/ui/registry/ui/property-list.tsx"
+  name="PropertyEmptyProps"
+/>
+
+### PropertySection
+
+<ApiTable
+  path="../../packages/ui/registry/ui/property-list.tsx"
+  name="PropertySectionProps"
+/>
 
 ## Accessibility
 

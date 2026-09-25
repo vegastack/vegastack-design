@@ -56,6 +56,9 @@ link` (upstream's set, verbatim). `destructive` is a soft tint, not a solid red 
   leading icon and turn it full colour on hover, focus, highlight, selection, active, open and
   pressed. Never add `text-muted-foreground` (or any colour) to those icons; only intentional
   status colours belong there. Destructive rows keep `text-destructive`.
+- **People icons are the round lucide set** — `UserRound`, `UsersRound`, `CircleUserRound` (and
+  their `-Plus`/`-Check` kin), never the square-shouldered `User`, `Users` or `CircleUser`, so a
+  person reads the same as an `Avatar` everywhere.
 - **Control sizes are upstream's names: `default · xs · sm · lg`**, plus
   `icon · icon-xs · icon-sm · icon-lg` where a square tier exists. The old `md` default is gone, and
   most of the components that are ours dropped their `size` prop entirely and take their height from

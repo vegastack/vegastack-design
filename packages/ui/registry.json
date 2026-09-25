@@ -12668,6 +12668,68 @@
       }
     },
     {
+      "name": "person-hover-card",
+      "type": "registry:ui",
+      "title": "Person Hover Card",
+      "description": "Stacked avatars with a hover card per person — a compact card with a 32px avatar, with the name and muted email beside it — and the rest behind \"+N\".",
+      "categories": ["data"],
+      "dependencies": [
+        "@vegastack/design@^0.7.23",
+        "@vegastack/design-tokens@^0.7.18",
+        "lucide-react@^1.47.0"
+      ],
+      "registryDependencies": [
+        "@vegastack/avatar",
+        "@vegastack/button",
+        "@vegastack/hover-card",
+        "@vegastack/popover"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/person-hover-card.tsx",
+          "type": "registry:ui",
+          "target": "@ui/person-hover-card.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "Show the people on a record (participants, watchers, a team) as stacked avatars, each previewing the person on hover, focus or tap.",
+        "whenNotToUse": "A picker of people (SearchableSelect) or a full member list (DataList).",
+        "version": "0.23.14"
+      }
+    },
+    {
+      "name": "record-aside",
+      "type": "registry:ui",
+      "title": "Record Aside",
+      "description": "The cards of a record page's right rail — titled sections of inline properties, people, linked records and full-width action rows.",
+      "categories": ["data"],
+      "dependencies": [
+        "@vegastack/design@^0.7.23",
+        "@vegastack/design-tokens@^0.7.18",
+        "lucide-react@^1.47.0"
+      ],
+      "registryDependencies": [
+        "@vegastack/button",
+        "@vegastack/card",
+        "@vegastack/item",
+        "@vegastack/person-hover-card",
+        "@vegastack/skeleton",
+        "@vegastack/tooltip"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/record-aside.tsx",
+          "type": "registry:ui",
+          "target": "@ui/record-aside.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "A record page's rail cards (and its Details sheet): a Details section of inline properties, people and linked records, then sections of full-width rows for the record's tasks and suggestions.",
+        "whenNotToUse": "A full list page (DataList) or a settings form (Field).",
+        "version": "0.23.14"
+      }
+    },
+    {
       "name": "provider",
       "type": "registry:ui",
       "title": "Provider",
@@ -13206,7 +13268,8 @@
         "whenToUse": "Record highlights and dashboard stat tiles where a value needs a quiet label.",
         "whenNotToUse": "Tabular data (Table/DataList) or live-updating counters (AnimatedNumber inside StatValue is fine).",
         "version": "0.23.18"
-      }
+      },
+      "registryDependencies": ["@vegastack/skeleton"]
     },
     {
       "name": "priority-icon",

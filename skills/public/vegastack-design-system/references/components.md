@@ -3,7 +3,7 @@
 <!-- GENERATED — do not hand-edit. Regenerated from the design system's component contract,
      which is the authority for membership and counts. -->
 
-**124 components**, plus 467 animated-icon items, 13 hooks (`use-animation-replay`, `use-announcer`, `use-async-search`, `use-drag-reorder`, `use-file-drop`, `use-inline-edit`, `use-list-nav`, `use-media-query`, `use-mobile`, `use-modal-inert`, `use-overflow`, `use-platform`, `use-tabs-swipe`), 10 starter blocks (`app-shell-01`, `board-01`, `command-search-01`, `list-page-01`, `login-01`, `notifications-01`, `review-split-01`, `settings-01`, `settings-02`, `status-pages-01`), 68 chart blocks across 7 families, and 3 data libs (`date-time`, `geo-data`, `drag-item`) — 685 registry items in total.
+**126 components**, plus 467 animated-icon items, 13 hooks (`use-animation-replay`, `use-announcer`, `use-async-search`, `use-drag-reorder`, `use-file-drop`, `use-inline-edit`, `use-list-nav`, `use-media-query`, `use-mobile`, `use-modal-inert`, `use-overflow`, `use-platform`, `use-tabs-swipe`), 10 starter blocks (`app-shell-01`, `board-01`, `command-search-01`, `list-page-01`, `login-01`, `notifications-01`, `review-split-01`, `settings-01`, `settings-02`, `status-pages-01`), 68 chart blocks across 7 families, and 3 data libs (`date-time`, `geo-data`, `drag-item`) — 687 registry items in total.
 
 Install any of them with `shadcn add @vegastack/<name>`. Animated icons install as
 `@vegastack/icon-<name>`; the bare name is reserved for components, so a component whose name
@@ -88,7 +88,9 @@ starts with `icon-` is a component and never an icon.
 - **`filter-bar-managed`** — The controlled nested and/or filter builder — host-injected field grammar (vocabulary + per-type value editors), depth and condition caps, focus-managed removal, and a removable FilterChip summary.
 - **`load-more`** — The shared Load more footer for keyset lists — an outline button that keeps its width while loading, an error line with Try again, and an optional end caption.
 - **`media-card`** — A record as a card — an image, the title, a meta line, a badge and a ⋯ menu — where the whole card is one link.
+- **`person-hover-card`** — Stacked avatars with a hover card per person — a compact card with a 32px avatar, with the name and muted email beside it — and the rest behind "+N".
 - **`property-list`** — Record-facts rows: an icon+label column beside a value column, as an accessible definition list.
+- **`record-aside`** — The cards of a record page's right rail — titled sections of inline properties, people, linked records and full-width action rows.
 - **`sortable-list`** — Reorderable rows or tiles on ItemGroup/Item via use-drag-reorder — pointer drag with drop indicators, keyboard move mode, a lossless row menu, locked rows, inline actions, a grid layout, and server-refusable moves. Controlled; the host owns the order.
 - **`thumbnail`** — A small rounded, cover-fit image, 32 or 48px, with a fallback for records that have no image.
 - **`view-toggle`** — The Grid | List | Board icon switch for a list page, labels hidden on a phone.
