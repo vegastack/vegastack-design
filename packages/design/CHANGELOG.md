@@ -1,5 +1,11 @@
 # @vegastack/design
 
+## 0.7.39
+
+### Patch Changes
+
+- [#309](https://github.com/vegastack/vegastack-design/pull/309) [`cc7d5ba`](https://github.com/vegastack/vegastack-design/commit/cc7d5ba97f7a65b31b9424db1d1b88bd93fc506c) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🔧 Comments: `CommentList` (heading with a count, Load earlier, skeleton, "No comments yet"), `CommentItem` (avatar, name and badge, relative time, "edited", ⋯ Copy link / Edit / Delete, in-place Markdown editing, `#comment-<id>` highlight, a replies slot) and `CommentComposer` (avatar and a minimal Markdown editor; Cmd/Ctrl+Enter or Comment posts, with posting and error states).
+
 ## 0.7.38
 
 ### Patch Changes

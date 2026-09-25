@@ -1,4 +1,4 @@
-// @vegastack use-modal-inert@0.23.29 sha256-f82pXB3QR5FtZvkVtVcKy2ARrV6/ycERTCjaXXfLPAg=
+// @vegastack use-modal-inert@0.23.30 sha256-TRoxey0gPa01UjsfMGrHb+94mm7d0p/fEy1sVQP54LE=
 
 "use client";
 

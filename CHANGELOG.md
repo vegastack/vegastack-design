@@ -9,6 +9,20 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.23.30] — September 26, 2026
+
+<!-- assembled from 1 changeset: 8b76c99a52b4 -->
+
+### 🔧 Changed components
+
+- Comments: `CommentList` (heading with a count, Load earlier, skeleton, "No comments yet"), `CommentItem` (avatar, name and badge, relative time, "edited", ⋯ Copy link / Edit / Delete, in-place Markdown editing, `#comment-<id>` highlight, a replies slot) and `CommentComposer` (avatar and a minimal Markdown editor; Cmd/Ctrl+Enter or Comment posts, with posting and error states).
+  [`cc7d5ba`](https://github.com/VegaStack/vegastack-design/commit/cc7d5ba)
+
+### 📦 npm
+
+- **`@vegastack/design`** → **`0.7.39`** (was `0.7.38`).
+- The design-system registry (`@vegastack/ui`) bumps 0.23.29 → 0.23.30.
+
 ## [0.23.29] — September 26, 2026
 
 <!-- assembled from 1 changeset: 2c2b3f627d51 -->
