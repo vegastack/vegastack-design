@@ -1,4 +1,4 @@
-// @vegastack chart-line-dots-custom@0.23.9 sha256-K3LbW5NFrVqW1sedAmFGhdi1NRZA5n/hd8zsK6ljN/g=
+// @vegastack chart-line-dots-custom@0.23.10 sha256-KQyoryJTtrWGJvvcb8P/uy7EAZ7V+HDDY/fAkYYBH6I=
 
 "use client";
 
