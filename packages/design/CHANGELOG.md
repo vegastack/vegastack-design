@@ -1,5 +1,11 @@
 # @vegastack/design
 
+## 0.7.23
+
+### Patch Changes
+
+- [#270](https://github.com/vegastack/vegastack-design/pull/270) [`49ce48f`](https://github.com/vegastack/vegastack-design/commit/49ce48fa6a1d92bf8d10d0327ecce67a132c1bc7) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🔧 FieldDescription `variant="footnote"`: a centred 12px muted line with a small gap above, the documented footer style for login-01 and the sign-up, forgot password and set password variants.
+
 ## 0.7.22
 
 ### Patch Changes
