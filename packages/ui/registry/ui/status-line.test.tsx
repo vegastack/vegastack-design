@@ -24,8 +24,8 @@ test("progress is a status, error is an alert with its action", async () => {
     .element(screen.getByRole("status"))
     .toHaveTextContent("Transcribing…");
   await expect
-    .element(screen.getByRole("alert"))
-    .toHaveTextContent(/Transcription failed/);
+    .element(screen.getByRole("alert").getByText("Transcription failed"))
+    .toBeVisible();
   await screen.getByRole("button", { name: "Retry" }).click();
   expect(onRetry).toHaveBeenCalledOnce();
   await expectNoA11yViolations(screen.container);
