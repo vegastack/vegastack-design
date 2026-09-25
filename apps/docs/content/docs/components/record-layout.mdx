@@ -1,0 +1,112 @@
+---
+title: Record Layout
+description: A record page's main column beside a sticky right rail of cards, with an ⓘ Details sheet in its place on small screens.
+audience: public
+registry: record-layout
+status: stable
+since: 0.23.15
+a11y: complementary landmark, dialog on small screens
+preview: recordLayout
+---
+
+## Install
+
+<InstallSteps name="record-layout" />
+
+## Usage
+
+```tsx
+import {
+  RecordDetailsSheet,
+  RecordLayout,
+  RecordLayoutMain,
+  RecordLayoutRail,
+} from "@/components/ui/record-layout";
+
+<RecordLayout>
+  <RecordLayoutMain>
+    <PageHeader
+      title="Weekly sync"
+      actions={<RecordDetailsSheet>{facts}</RecordDetailsSheet>}
+    />
+    <Tabs>…</Tabs>
+  </RecordLayoutMain>
+  <RecordLayoutRail aria-label="Details">
+    <Card size="sm">…</Card>
+  </RecordLayoutRail>
+</RecordLayout>;
+```
+
+`RecordLayout` is a record page's frame: the main column (title, status line, tabs) and, from `lg`
+up, a 320px right rail of cards — a [`PropertyList`](/docs/components/property-list) of the
+record's facts first, related work below. The rail sticks to the top of the scroll container and
+scrolls on its own when it is taller than the viewport; set `--record-rail-offset` to the height
+above it. Below `lg` the rail is hidden, and `RecordDetailsSheet` — a ghost ⓘ icon button beside the
+title — opens the same facts in a Sheet from the right, full width on a phone. Anything else from
+the rail moves into the main column, usually as a tab.
+
+The switch is CSS, so the layout is server-safe. When a rail card holds state that must exist only
+once (a selection, pending writes), mount it in one place with `useMediaQuery`.
+
+<ComponentPreview
+  name="recordLayout"
+  file="components/preview/record-layout.tsx"
+/>
+
+## Anatomy
+
+<Anatomy name="record-layout" />
+
+## Examples
+
+### Actions in a tab on small screens
+
+A rail card that holds state — suggestions being selected, writes waiting on Undo — mounts once:
+in the rail from `lg` up, else as the last tab of the main column.
+
+```tsx
+const wide = useMediaQuery("(min-width: 1024px)");
+const actions = <MeetingActions … />;
+
+<RecordLayout>
+  <RecordLayoutMain>
+    <Tabs>
+      <TabsList>
+        <TabsTrigger value="summary">Summary</TabsTrigger>
+        {!wide && <TabsTrigger value="actions">Actions</TabsTrigger>}
+      </TabsList>
+      {!wide && <TabsContent value="actions">{actions}</TabsContent>}
+    </Tabs>
+  </RecordLayoutMain>
+  {wide && <RecordLayoutRail aria-label="Details and actions">{actions}</RecordLayoutRail>}
+</RecordLayout>;
+```
+
+## API Reference
+
+<ApiTable
+  path="../../packages/ui/registry/ui/record-layout.tsx"
+  name="RecordDetailsSheetProps"
+/>
+
+`RecordLayout`, `RecordLayoutMain` and `RecordLayoutRail` take their element's native props.
+
+## Accessibility
+
+- The rail is an `aside` (a complementary landmark): name it with `aria-label`.
+- The ⓘ trigger is named by `title` ("Details"); the sheet is a modal dialog titled the same, and
+  focus returns to the trigger when it closes.
+
+| Key                                 | Action                 |
+| ----------------------------------- | ---------------------- |
+| <kbd>Enter</kbd> / <kbd>Space</kbd> | Open the Details sheet |
+| <kbd>Esc</kbd>                      | Close the sheet        |
+
+<StatesTested name="record-layout" />
+
+## Do / Don't
+
+<DoDont
+  do="Put the record's facts first in the rail and the same facts in the Details sheet."
+  dont="Use the rail for navigation or page actions — those belong in the sidebar and the top bar."
+/>
