@@ -9,6 +9,22 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.23.5] — September 25, 2026
+
+<!-- assembled from 2 changesets: b5df7c9ea658 -->
+
+### 🔧 Changed components
+
+- Dates & times: one Intl-based module (`@/lib/date-time`) — formatRelative, formatDuration, formatDate, formatDateTime, formatDateRange, formatTimeOfDay, formatDueLabel, groupByDay, getTimeZone and the `tz` cookie script — plus `DateTime`, `Duration`, `DueLabel`, `TimeZoneProvider`/`useTimeZone`/`TimeZoneScript` beside `RelativeTime` (new `format` prop). The Relative Time docs page becomes "Dates & times" with a where-to-use table, and the design-system skill says which to pick.
+  [`323e8c8`](https://github.com/VegaStack/vegastack-design/commit/323e8c8)
+- Inbox: `Inbox`, `InboxFilters`, `InboxGroup`, `InboxItem` (avatar or muted icon, rich titles, action chips with loading and done states, hover/focus read toggle and menu, grouped counts), `InboxEmpty`, `InboxSkeleton` and `InboxError` for notification panels.
+  [`af1194d`](https://github.com/VegaStack/vegastack-design/commit/af1194d)
+
+### 📦 npm
+
+- **`@vegastack/design`** → **`0.7.14`** (was `0.7.13`).
+- The design-system registry (`@vegastack/ui`) bumps 0.23.4 → 0.23.5.
+
 ## [0.23.4] — September 25, 2026
 
 <!-- assembled from 1 changeset: 7bd61439c1df -->

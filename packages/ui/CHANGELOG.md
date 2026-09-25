@@ -1,5 +1,16 @@
 # @vegastack/ui
 
+## 0.23.5
+
+### Patch Changes
+
+- [#245](https://github.com/vegastack/vegastack-design/pull/245) [`323e8c8`](https://github.com/vegastack/vegastack-design/commit/323e8c84dc1ebb54f44eef2bd713248e70bb4065) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🔧 Dates & times: one Intl-based module (`@/lib/date-time`) — formatRelative, formatDuration, formatDate, formatDateTime, formatDateRange, formatTimeOfDay, formatDueLabel, groupByDay, getTimeZone and the `tz` cookie script — plus `DateTime`, `Duration`, `DueLabel`, `TimeZoneProvider`/`useTimeZone`/`TimeZoneScript` beside `RelativeTime` (new `format` prop). The Relative Time docs page becomes "Dates & times" with a where-to-use table, and the design-system skill says which to pick.
+
+- [#247](https://github.com/vegastack/vegastack-design/pull/247) [`af1194d`](https://github.com/vegastack/vegastack-design/commit/af1194d973e6c82f5beff593da9490ea2ae72526) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🔧 Inbox: `Inbox`, `InboxFilters`, `InboxGroup`, `InboxItem` (avatar or muted icon, rich titles, action chips with loading and done states, hover/focus read toggle and menu, grouped counts), `InboxEmpty`, `InboxSkeleton` and `InboxError` for notification panels.
+
+- Updated dependencies [[`323e8c8`](https://github.com/vegastack/vegastack-design/commit/323e8c84dc1ebb54f44eef2bd713248e70bb4065), [`af1194d`](https://github.com/vegastack/vegastack-design/commit/af1194d973e6c82f5beff593da9490ea2ae72526)]:
+  - @vegastack/design@0.7.14
+
 ## 0.23.4
 
 ### Patch Changes
