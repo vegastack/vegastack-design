@@ -1,4 +1,4 @@
-// @vegastack relative-time@0.23.4 sha256-TiRpI6Ru1kVVuGAtH7gPmLpz0/fFnL4YM0bWdzB61FM=
+// @vegastack relative-time@0.23.4 sha256-Vps5ogGUjbChn1d1xCD790WUMJhxC/S9OOHUKWefCBY=
 
 "use client";
 
@@ -488,7 +488,8 @@ export function RelativeTime({
         // measured in `geometry.browser.test.tsx`'s `timeline` fixture after Batch 2 tightened
         // Item's padding. A box the browser lays out cannot be out-painted the same way. A plain
         // label (`title={false}`) is not a target, so it stays inline text at the line's height.
-        hasTooltip && "relative inline-flex min-h-6 items-center rounded-sm",
+        hasTooltip &&
+          "relative inline-flex min-h-6 min-w-6 items-center justify-center rounded-sm",
         className,
       )}
       {...props}
@@ -515,6 +516,10 @@ export function RelativeTime({
 // ---------------------------------------------------------------------------
 // DateTime, Duration, DueLabel
 // ---------------------------------------------------------------------------
+
+/** A tooltip trigger is a real pointer target: at least 24×24 (WCAG 2.5.8). */
+const TRIGGER_BOX =
+  "relative inline-flex min-h-6 min-w-6 items-center justify-center rounded-sm";
 
 /** Wrap a `<time>` in the absolute-time Tooltip when `title` asks for one. */
 function WithTooltip({
@@ -611,7 +616,7 @@ export function DateTime({
       dateTime={valid ? target.toISOString() : undefined}
       suppressHydrationWarning
       tabIndex={title && valid && isFocusable ? 0 : undefined}
-      className={cn("tabular-nums", className)}
+      className={cn("tabular-nums", title && valid && TRIGGER_BOX, className)}
       {...props}
     >
       {label}
@@ -729,7 +734,12 @@ export function DueLabel({
       dateTime={valid ? target.toISOString() : undefined}
       suppressHydrationWarning
       tabIndex={title && valid && isFocusable ? 0 : undefined}
-      className={cn("tabular-nums", toned && DUE_TONE_CLASS[tone], className)}
+      className={cn(
+        "tabular-nums",
+        title && valid && TRIGGER_BOX,
+        toned && DUE_TONE_CLASS[tone],
+        className,
+      )}
       {...props}
     >
       {label}
