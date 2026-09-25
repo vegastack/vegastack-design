@@ -9,6 +9,20 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.23.27] — September 26, 2026
+
+<!-- assembled from 1 changeset: 23b98dd79d07 -->
+
+### 🔧 Changed components
+
+- AudioPlayer: the `floating` pill always sits at the bottom of its flex column (`mt-auto` built in) and centres on the main column beside an end rail — `--audio-player-inset-end` narrows and shifts it, and inside AppShell a RecordLayout rail sets it automatically.
+  [`8334813`](https://github.com/VegaStack/vegastack-design/commit/8334813)
+
+### 📦 npm
+
+- **`@vegastack/design`** → **`0.7.36`** (was `0.7.35`).
+- The design-system registry (`@vegastack/ui`) bumps 0.23.26 → 0.23.27.
+
 ## [0.23.26] — September 26, 2026
 
 <!-- assembled from 1 changeset: 83547a976597 -->

@@ -1,5 +1,11 @@
 # @vegastack/design
 
+## 0.7.36
+
+### Patch Changes
+
+- [#305](https://github.com/vegastack/vegastack-design/pull/305) [`8334813`](https://github.com/vegastack/vegastack-design/commit/8334813fbe7e046bb1ca3c678f49f3d8db347d8e) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🔧 AudioPlayer: the `floating` pill always sits at the bottom of its flex column (`mt-auto` built in) and centres on the main column beside an end rail — `--audio-player-inset-end` narrows and shifts it, and inside AppShell a RecordLayout rail sets it automatically.
+
 ## 0.7.35
 
 ### Patch Changes
