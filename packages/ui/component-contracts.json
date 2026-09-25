@@ -2261,8 +2261,12 @@
       "docsSlug": "/docs/components/audio-player",
       "registryDependencies": [
         "@vegastack/button",
+        "@vegastack/dropdown-menu",
         "@vegastack/media-player-controls",
+        "@vegastack/popover",
+        "@vegastack/slider",
         "@vegastack/spinner",
+        "@vegastack/tooltip",
         "@vegastack/use-announcer"
       ],
       "npmDependencies": [
@@ -2298,8 +2302,7 @@
                 "audio-player-close",
                 "audio-player-error",
                 "audio-player-header",
-                "audio-player-status",
-                "audio-player-title"
+                "audio-player-status"
               ]
             },
             {

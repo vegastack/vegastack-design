@@ -100,11 +100,14 @@ belongs to whatever overlay the page opens above it.
 
 ### Floating
 
-`variant="floating"` is a one-line pill — title, play, rewind and forward, time, seek, volume,
-speed and close — centred in its container and sticky 16px above the bottom of its scroll column.
+`variant="floating"` is a one-line pill — back 10s, play (the filled primary), forward 10s, elapsed,
+seek, total, a speed menu, a volume popover and close — with no visible title (`title` is not shown;
+`label` still names the region). Every icon button is `size-8`, play is `size-9`, times are
+tabular. The seek bar is a thin `Slider` with a buffered shade, a time readout on hover and a thumb
+that appears on hover. Space plays or pauses and ←/→ move 5 seconds anywhere on the pill. It is centred in its container and sticky 16px above the bottom of its scroll column.
 Render it as the last child of the column it floats over, so it centres on the content, not across
 a sidebar. Below the `sm` breakpoint it spans the full width on the bottom edge, clear of the
-safe-area inset. Like `docked`, it is a `region` named by `label`.
+safe-area inset, with tighter padding and no volume control. Like `docked`, it is a `region` named by `label`.
 
 <ComponentPreview
   name="audioPlayerFloating"

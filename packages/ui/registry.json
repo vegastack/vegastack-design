@@ -273,8 +273,12 @@
       ],
       "registryDependencies": [
         "@vegastack/button",
+        "@vegastack/dropdown-menu",
         "@vegastack/media-player-controls",
+        "@vegastack/popover",
+        "@vegastack/slider",
         "@vegastack/spinner",
+        "@vegastack/tooltip",
         "@vegastack/use-announcer"
       ],
       "files": [
