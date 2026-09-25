@@ -1,4 +1,4 @@
-// @vegastack inbox@0.23.3 sha256-i7b8TNI9me5ASWAROzCJY8yKBSOQyG/VjWWHXE9ummM=
+// @vegastack inbox@0.23.3 sha256-4CeTqFQ1PehaUuZRLyDfmn9fvqH2Me5HZ/QqJynR2GA=
 
 "use client";
 
@@ -146,7 +146,12 @@ export interface InboxHeaderActionProps extends Omit<
   icon: React.ReactNode;
 }
 
-/** An icon button in the Inbox header, named by its tooltip. */
+/**
+ * An icon button in the Inbox header, named by its tooltip.
+ *
+ * @example
+ * <InboxHeaderAction label="Settings" icon={<Settings />} onClick={openSettings} />
+ */
 export function InboxHeaderAction({
   label,
   icon,
@@ -177,7 +182,12 @@ export interface InboxMenuActionProps {
   children: React.ReactNode;
 }
 
-/** The header's ⋯ settings menu. */
+/**
+ * The header's ⋯ settings menu.
+ *
+ * @example
+ * <InboxMenuAction><DropdownMenuItem>Notification settings</DropdownMenuItem></InboxMenuAction>
+ */
 export function InboxMenuAction({
   label = "Inbox settings",
   children,
@@ -196,7 +206,12 @@ export function InboxMenuAction({
   );
 }
 
-/** "Mark all read" as a header action: the ✓✓ icon with its tooltip. */
+/**
+ * "Mark all read" as a header action: the ✓✓ icon with its tooltip.
+ *
+ * @example
+ * <InboxMarkAllRead disabled={unread === 0} onClick={markAllRead} />
+ */
 export function InboxMarkAllRead(
   props: Omit<InboxHeaderActionProps, "label" | "icon"> & { label?: string },
 ) {
@@ -229,7 +244,12 @@ export interface InboxFiltersProps {
   className?: string;
 }
 
-/** The All | Unread chips under the title, with the count on Unread. */
+/**
+ * The All | Unread chips under the title, with the count on Unread.
+ *
+ * @example
+ * <InboxFilters value={view} onValueChange={setView} unreadCount={3} />
+ */
 export function InboxFilters({
   value,
   onValueChange,
@@ -281,7 +301,12 @@ export interface InboxListProps extends React.ComponentProps<"ul"> {
   "aria-label"?: string;
 }
 
-/** An ungrouped, named list of {@link InboxItem}s. */
+/**
+ * An ungrouped, named list of {@link InboxItem}s.
+ *
+ * @example
+ * <InboxList>{items.map((n) => <InboxItem key={n.id} title={n.title} />)}</InboxList>
+ */
 export function InboxList({
   className,
   "aria-label": label = "Notifications",
@@ -304,7 +329,12 @@ export interface InboxGroupProps extends React.ComponentProps<"ul"> {
   label: React.ReactNode;
 }
 
-/** A day (or other) group: a sticky small-caps label over a list named by it. */
+/**
+ * A day (or other) group: a sticky small-caps label over a list named by it.
+ *
+ * @example
+ * <InboxGroup label="Today">{rows}</InboxGroup>
+ */
 export function InboxGroup({
   label,
   className,
@@ -334,7 +364,12 @@ export function InboxGroup({
 
 /* ------------------------------------------------------------------ items */
 
-/** Emphasis inside an item title: the actor or record name. */
+/**
+ * Emphasis inside an item title: the actor or record name.
+ *
+ * @example
+ * <><InboxEmphasis>Asha</InboxEmphasis> assigned you a task</>
+ */
 export function InboxEmphasis({
   className,
   ...props
@@ -453,6 +488,9 @@ function initials(name: string) {
  * One notification row: full-bleed, 16px sides and 12px vertical padding, the unread dot, a 28px
  * avatar or muted icon tile, the title, a muted meta line and optional action chips. On hover or
  * keyboard focus the time swaps for Mark read / Mark unread and the ⋯ menu.
+ *
+ * @example
+ * <InboxItem unread avatar={{ name: "Asha Kumar" }} title="Asha assigned you a task" href="/tasks/41" onToggleRead={toggle} />
  */
 export function InboxItem({
   title,
@@ -652,7 +690,12 @@ export interface InboxEmptyProps {
   icon?: React.ReactNode;
 }
 
-/** The empty state. */
+/**
+ * The empty state.
+ *
+ * @example
+ * <InboxEmpty description="New assignments show up here." />
+ */
 export function InboxEmpty({
   title = "You’re all caught up",
   description,
@@ -686,7 +729,12 @@ export interface InboxErrorProps {
   retrying?: boolean;
 }
 
-/** The failed-load state, with Try again. */
+/**
+ * The failed-load state, with Try again.
+ *
+ * @example
+ * <InboxError onRetry={retry} />
+ */
 export function InboxError({
   title = "Couldn’t load notifications",
   description,
@@ -729,7 +777,12 @@ export interface InboxSkeletonProps {
   label?: string;
 }
 
-/** Placeholder rows while the first page loads. */
+/**
+ * Placeholder rows while the first page loads.
+ *
+ * @example
+ * <InboxSkeleton rows={4} />
+ */
 export function InboxSkeleton({
   rows = 5,
   label = "Loading notifications",
