@@ -1,5 +1,14 @@
 # @vegastack/ui
 
+## 0.23.33
+
+### Patch Changes
+
+- [#320](https://github.com/vegastack/vegastack-design/pull/320) [`2bf27bf`](https://github.com/vegastack/vegastack-design/commit/2bf27bfc0b516ba041c681462d3db4e441a312fb) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🔧 PageHeader gains `tabs` and `view` slots: a list page's view tabs sit on their own row directly under the title, with the layout switch (`ViewToggle`) pinned to that row's end. The list-page-01 block moves its Mine | Team scope (now default `Tabs`) and Grid | List toggle there, out of the FilterBar.
+
+- Updated dependencies [[`2bf27bf`](https://github.com/vegastack/vegastack-design/commit/2bf27bfc0b516ba041c681462d3db4e441a312fb)]:
+  - @vegastack/design@0.7.42
+
 ## 0.23.32
 
 ### Patch Changes

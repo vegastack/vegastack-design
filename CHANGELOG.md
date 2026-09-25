@@ -9,6 +9,20 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.23.33] — September 26, 2026
+
+<!-- assembled from 1 changeset: 4ed551786307 -->
+
+### 🔧 Changed components
+
+- PageHeader gains `tabs` and `view` slots: a list page's view tabs sit on their own row directly under the title, with the layout switch (`ViewToggle`) pinned to that row's end. The list-page-01 block moves its Mine | Team scope (now default `Tabs`) and Grid | List toggle there, out of the FilterBar.
+  [`2bf27bf`](https://github.com/VegaStack/vegastack-design/commit/2bf27bf)
+
+### 📦 npm
+
+- **`@vegastack/design`** → **`0.7.42`** (was `0.7.41`).
+- The design-system registry (`@vegastack/ui`) bumps 0.23.32 → 0.23.33.
+
 ## [0.23.32] — September 26, 2026
 
 <!-- assembled from 2 changesets: 8aa1f8ecc217 -->
