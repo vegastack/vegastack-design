@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.23.30 sha256-6208KqnwPuxrRqw6hiVJp65nu4RY3pUUKyEQArWDSQE=
+// @vegastack text-edit@0.23.30 sha256-WkaRoYAM3wIvmFMENNa+b/Wbav7a5APpHvOVLXjbT+E=
 
 "use client";
 
@@ -451,7 +451,7 @@ function looksLikeMarkdown(text: string) {
  */
 const editorBaseClassName = cn(
   proseClassName,
-  "tiptap min-w-0 outline-none",
+  "tiptap min-h-6 min-w-0 outline-none",
   "[&_p.is-editor-empty:first-child]:before:pointer-events-none [&_p.is-editor-empty:first-child]:before:float-start [&_p.is-editor-empty:first-child]:before:h-0 [&_p.is-editor-empty:first-child]:before:text-muted-foreground [&_p.is-editor-empty:first-child]:before:content-[attr(data-placeholder)]",
   "[&_.tableWrapper]:my-2 [&_.tableWrapper]:w-full [&_.tableWrapper]:overflow-x-auto [&_.selectedCell]:bg-accent",
   "[&_.ProseMirror-selectednode]:rounded-sm [&_.ProseMirror-selectednode]:bg-accent",

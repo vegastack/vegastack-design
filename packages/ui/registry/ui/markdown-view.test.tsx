@@ -110,6 +110,7 @@ test("MarkdownView and TextEdit wear the identical prose recipe", async () => {
   // washes) are layout parity with MarkdownView, not typography.
   expect(extras.sort()).toEqual(
     [
+      "min-h-6",
       "min-w-0",
       "outline-none",
       "[&_p.is-editor-empty:first-child]:before:pointer-events-none",
