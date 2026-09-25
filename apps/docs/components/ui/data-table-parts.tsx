@@ -1,4 +1,4 @@
-// @vegastack data-table-parts@0.23.21 sha256-ZhwJ0G64lkA7HTroRf4HVMU/u3caf7RIeItPibnfS+o=
+// @vegastack data-table-parts@0.23.21 sha256-U7ptpW4oZtE2Ir+Ed3lQZ9KAv/XnEkynouyJObEJ8Us=
 
 "use client";
 
@@ -25,7 +25,6 @@ import {
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { ItemContent, ItemDescription, ItemTitle } from "@/components/ui/item";
 import {
   Tooltip,
   TooltipContent,
@@ -943,7 +942,7 @@ export interface RowActionItem {
    */
   disabled?: boolean;
   /**
-   * Why a disabled item is unavailable — a second line, read as the item's description.
+   * Why a disabled item is unavailable — a tooltip on the item, read as its description.
    * @default undefined
    */
   disabledReason?: string;
@@ -1055,33 +1054,57 @@ export function RowActionMenuItems({
               </DropdownMenuSubContent>
             </DropdownMenuSub>
           ) : (
-            <DropdownMenuItem
-              variant={action.destructive ? "destructive" : "default"}
-              disabled={action.disabled}
-              render={action.render}
-              onClick={
-                action.disabled || !action.onSelect
-                  ? undefined
-                  : () => {
-                      onAction?.();
-                      action.onSelect?.();
-                    }
-              }
-            >
-              {action.icon}
-              {action.disabled && action.disabledReason ? (
-                <ItemContent>
-                  <ItemTitle>{action.label}</ItemTitle>
-                  <ItemDescription>{action.disabledReason}</ItemDescription>
-                </ItemContent>
-              ) : (
-                action.label
-              )}
-            </DropdownMenuItem>
+            <RowActionMenuItem action={action} onAction={onAction} />
           )}
         </React.Fragment>
       ))}
     </>
+  );
+}
+
+/**
+ * One plain row action. A disabled item's `disabledReason` is a tooltip on the item (and its
+ * accessible description), never a wrapped second line inside the menu.
+ */
+function RowActionMenuItem({
+  action,
+  onAction,
+}: {
+  action: RowActionItem;
+  onAction?: () => void;
+}) {
+  const reasonId = React.useId();
+  const reason = action.disabled ? action.disabledReason : undefined;
+  const item = (
+    <DropdownMenuItem
+      variant={action.destructive ? "destructive" : "default"}
+      disabled={action.disabled}
+      render={action.render}
+      aria-describedby={reason ? reasonId : undefined}
+      onClick={
+        action.disabled || !action.onSelect
+          ? undefined
+          : () => {
+              onAction?.();
+              action.onSelect?.();
+            }
+      }
+    >
+      {action.icon}
+      {action.label}
+      {reason ? (
+        <span id={reasonId} hidden>
+          {reason}
+        </span>
+      ) : null}
+    </DropdownMenuItem>
+  );
+  if (!reason) return item;
+  return (
+    <Tooltip>
+      <TooltipTrigger render={item} />
+      <TooltipContent side="left">{reason}</TooltipContent>
+    </Tooltip>
   );
 }
 
@@ -1172,7 +1195,11 @@ export function RowActionsMenu({
           </Button>
         }
       />
-      <DropdownMenuContent align="end">
+      <DropdownMenuContent
+        align="end"
+        data-slot="row-actions-menu-content"
+        className="w-max min-w-48 max-w-72 whitespace-nowrap"
+      >
         <RowActionMenuItems actions={actions} />
       </DropdownMenuContent>
     </DropdownMenu>
