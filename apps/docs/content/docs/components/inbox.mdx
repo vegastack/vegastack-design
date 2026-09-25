@@ -1,0 +1,105 @@
+---
+title: Inbox
+description: The notification Inbox — a header with actions, All | Unread chips, day groups of full-bleed rows, action chips, and empty, loading and error states.
+audience: public
+registry: inbox
+status: stable
+since: 0.23.4
+a11y: named lists, whole-row links, hover controls reachable on focus
+preview: inbox
+---
+
+## Install
+
+<InstallSteps name="inbox" />
+
+## Usage
+
+```tsx
+import {
+  Inbox,
+  InboxEmphasis,
+  InboxFilters,
+  InboxGroup,
+  InboxItem,
+  InboxMarkAllRead,
+} from "@/components/ui/inbox";
+
+<Inbox
+  onClose={close}
+  actions={<InboxMarkAllRead onClick={markAllRead} />}
+  filters={
+    <InboxFilters value={view} onValueChange={setView} unreadCount={3} />
+  }
+  footer="You’re all caught up"
+>
+  <InboxGroup label="Today">
+    <InboxItem
+      unread
+      avatar={{ name: "Asha Kumar" }}
+      title={
+        <>
+          <InboxEmphasis>Asha</InboxEmphasis> assigned you{" "}
+          <InboxEmphasis>Send Skyline delivery schedule</InboxEmphasis>
+        </>
+      }
+      meta="Skyline Tower B · Project"
+      time={createdAt}
+      href="/tasks/41"
+      onToggleRead={toggleRead}
+    />
+  </InboxGroup>
+</Inbox>;
+```
+
+## When to use
+
+- **Use it** for the notifications panel: a feed of person events (someone assigned, mentioned or
+  asked you) and system events (a meeting processed, an export finished, a job failed) that the user
+  reads, acts on and marks read.
+- `Inbox` fills its container. Dock it in a `Sheet`, a `Popover` or a panel beside the sidebar; on a
+  phone give that container the whole screen.
+- **Don't use it** for transient confirmations (Toast), a record's history (Timeline), or a bare
+  unread count in the chrome (NotificationBell).
+
+## Anatomy
+
+<Anatomy name="inbox" />
+
+- `Inbox` — the frame: title, header actions (`InboxMarkAllRead`, `InboxMenuAction`, any
+  `InboxHeaderAction`), the ✕ when `onClose` is set, the `filters` row, a scrolling body and a `footer`.
+- `InboxFilters` — the All | Unread chips, with the count on Unread.
+- `InboxGroup` — a sticky small-caps label over a list it names. `InboxList` is the ungrouped list.
+- `InboxItem` — one row. Title 14px medium (semibold when unread), meta 12px muted (the ramp has no 13px step), time 12px muted;
+  16px sides and 12px vertical padding; 1px dividers and a tint that reach both edges.
+- `InboxEmpty`, `InboxSkeleton`, `InboxError` — the empty, first-load and failed-load states.
+
+## Examples
+
+### Person, system, actionable and grouped events
+
+A person event leads with the actor's 28px avatar; a system event leads with its icon in a muted
+28px tile (`destructive` for a failure). Emphasise the actor and the record with `InboxEmphasis` so
+identical events name their record. `actions` adds up to three chips (the first can be `primary`),
+each with `loading` and `done` states. `count` marks a row standing for grouped repeats ("Raj
+assigned you 3 tasks"). Hover a row, or tab into it, to swap its time for Mark read / Mark unread and
+the ⋯ menu.
+
+<ComponentPreview name="inbox" file="components/preview/inbox.tsx" />
+
+### Empty
+
+<ComponentPreview name="inboxEmpty" file="components/preview/inbox.tsx" />
+
+### Loading
+
+<ComponentPreview name="inboxLoading" file="components/preview/inbox.tsx" />
+
+## Accessibility
+
+- Each group is a list named by its label; the whole row is one link (`href`, or your router link
+  through `linkRender`), and the chips and hover controls sit above it.
+- The hover controls are always in the tab order and show on `focus-within`; on touch screens they
+  are always visible.
+- An unread row carries the dot and an sr-only "Unread:" before its title.
+- The header icon buttons are named by their tooltips.

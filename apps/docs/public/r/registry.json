@@ -15256,6 +15256,42 @@
       "registryDependencies": []
     },
     {
+      "name": "inbox",
+      "type": "registry:ui",
+      "title": "Inbox",
+      "description": "The notification Inbox: frame with header actions, All | Unread chips, sticky day groups, full-bleed rows with avatar or icon, rich titles, action chips, hover read toggle and menu, and empty, loading and error states.",
+      "categories": [
+        "notifications"
+      ],
+      "dependencies": [
+        "lucide-react@^1.47.0",
+        "@vegastack/design@^0.7.12",
+        "@vegastack/design-tokens@^0.7.1"
+      ],
+      "registryDependencies": [
+        "@vegastack/avatar",
+        "@vegastack/button",
+        "@vegastack/dropdown-menu",
+        "@vegastack/notification-bell",
+        "@vegastack/relative-time",
+        "@vegastack/skeleton",
+        "@vegastack/tooltip"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/inbox.tsx",
+          "type": "registry:ui",
+          "target": "@ui/inbox.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "The notifications panel: a feed of person and system events the user reads, acts on and marks read. Put it in a Sheet, Popover or docked panel.",
+        "whenNotToUse": "Toasts for transient confirmations, an activity log on a record (Timeline), or a bare unread count (NotificationBell).",
+        "version": "0.23.3",
+        "integrity": "sha256-i7b8TNI9me5ASWAROzCJY8yKBSOQyG/VjWWHXE9ummM="
+      }
+    },
+    {
       "name": "notification-bell",
       "type": "registry:ui",
       "title": "Notification Bell",
