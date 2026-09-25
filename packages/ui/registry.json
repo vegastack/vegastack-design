@@ -12785,7 +12785,9 @@
         "@vegastack/button",
         "@vegastack/combobox",
         "@vegastack/item",
-        "@vegastack/load-more"
+        "@vegastack/load-more",
+        "@vegastack/skeleton",
+        "@vegastack/spinner"
       ],
       "files": [
         {

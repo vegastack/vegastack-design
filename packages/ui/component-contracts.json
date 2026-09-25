@@ -17415,7 +17415,9 @@
         "@vegastack/button",
         "@vegastack/combobox",
         "@vegastack/item",
-        "@vegastack/load-more"
+        "@vegastack/load-more",
+        "@vegastack/skeleton",
+        "@vegastack/spinner"
       ],
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
