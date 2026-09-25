@@ -52,7 +52,7 @@ import {
 </Inbox>;
 ```
 
-## When to use
+### When to use
 
 - **Use it** for the notifications panel: a feed of person events (someone assigned, mentioned or
   asked you) and system events (a meeting processed, an export finished, a job failed) that the user
@@ -95,6 +95,52 @@ the ⋯ menu.
 
 <ComponentPreview name="inboxLoading" file="components/preview/inbox.tsx" />
 
+## API Reference
+
+<ApiTable path="../../packages/ui/registry/ui/inbox.tsx" name="InboxProps" />
+
+### InboxFilters
+
+<ApiTable
+  path="../../packages/ui/registry/ui/inbox.tsx"
+  name="InboxFiltersProps"
+/>
+
+### InboxGroup
+
+<ApiTable
+  path="../../packages/ui/registry/ui/inbox.tsx"
+  name="InboxGroupProps"
+/>
+
+### InboxItem
+
+<ApiTable
+  path="../../packages/ui/registry/ui/inbox.tsx"
+  name="InboxItemProps"
+/>
+
+### InboxEmpty
+
+<ApiTable
+  path="../../packages/ui/registry/ui/inbox.tsx"
+  name="InboxEmptyProps"
+/>
+
+### InboxError
+
+<ApiTable
+  path="../../packages/ui/registry/ui/inbox.tsx"
+  name="InboxErrorProps"
+/>
+
+### InboxSkeleton
+
+<ApiTable
+  path="../../packages/ui/registry/ui/inbox.tsx"
+  name="InboxSkeletonProps"
+/>
+
 ## Accessibility
 
 - Each group is a list named by its label; the whole row is one link (`href`, or your router link
@@ -103,3 +149,17 @@ the ⋯ menu.
   are always visible.
 - An unread row carries the dot and an sr-only "Unread:" before its title.
 - The header icon buttons are named by their tooltips.
+
+<StatesTested name="inbox" />
+
+## Do / Don't
+
+<DoDont
+  do="Name the actor and the record in the title with InboxEmphasis, so identical events tell themselves apart."
+  dont="Show a row of identical generic titles such as “Task assigned to you”."
+/>
+
+<DoDont
+  do="Fold repeats of one event on one record into a single row with count."
+  dont="Put more than three action chips on a row, or make every chip primary."
+/>
