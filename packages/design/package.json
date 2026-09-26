@@ -1,6 +1,6 @@
 {
   "name": "@vegastack/design",
-  "version": "0.7.45",
+  "version": "0.7.46",
   "description": "VegaStack design system — cn utility, icon runtime, Tailwind v4 preset, and the vegastack-design CLI (tokens ship separately as @vegastack/design-tokens)",
   "license": "MIT",
   "repository": {
@@ -70,7 +70,7 @@
     "test": "node test/compare.test.mjs && node test/check-updates.test.mjs && node test/skills-install.test.mjs && node test/doctor.test.mjs"
   },
   "dependencies": {
-    "@vegastack/design-tokens": "^0.7.45",
+    "@vegastack/design-tokens": "^0.7.46",
     "clsx": "^2.1.1",
     "tailwind-merge": "^3.6.0",
     "tsconfig-paths": "^4.2.0",

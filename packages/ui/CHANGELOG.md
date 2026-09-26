@@ -1,5 +1,17 @@
 # @vegastack/ui
 
+## 0.23.40
+
+### Patch Changes
+
+- [#335](https://github.com/vegastack/vegastack-design/pull/335) [`5674880`](https://github.com/vegastack/vegastack-design/commit/5674880da439732cf937680ae6341e761613d378) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🔧 Comments: each posted comment sits in its own card (the composer's `bg-muted/30` surface, `border-border`, `rounded-xl`), and so do the deleted placeholder and edit mode; the border never changes on hover or focus. The add-reaction and ⋯ buttons are identical ghost `icon-sm` buttons at the card's top-right, both shown on hover or focus-within (kept while their popup is open, always on touch). The ⋯ menu is sized to its content with muted Link, Pencil and destructive Trash2 icons. `ReactionAdd` gains a `size` prop (`icon-xs` default, `icon-sm`).
+
+- [#335](https://github.com/vegastack/vegastack-design/pull/335) [`5674880`](https://github.com/vegastack/vegastack-design/commit/5674880da439732cf937680ae6341e761613d378) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🔧 A border never changes colour on focus or while active (FOC-14). Every control keeps its resting `border-border`/`border-input` in every state, and the focus cue is `base.css`'s background tint everywhere — text entry included. A bordered field group (`InputGroup`, `NumberField`, `ChipInput`, `ComboboxChips`, `PanelSearch`, now all `data-field-group`) wears the tint on the group; `TextEdit` stays caret-only, and the comment composer box no longer re-borders when active. `Input`, `Textarea`, `NativeSelect`, `Select`, `Combobox`, `InputOTP` (the active slot takes the tint), `Questionnaire`, `DatePicker` and `SearchableSelect` ghost triggers, and `MediaPlayerControls`' seek thumb lose their focus border; the ghost `Select` no longer re-borders while open. The invalid state keeps its destructive border in every state, focused or not (the `not-focus:` guards are gone from `Button`, `Badge`, `Toggle`, `Checkbox`, `RadioGroup`, `Switch` and the fields). `design-lint` gains `no-focus-border`, and the geometry focus sweep fails any control whose border colour moves on focus.
+
+- Updated dependencies [[`5674880`](https://github.com/vegastack/vegastack-design/commit/5674880da439732cf937680ae6341e761613d378)]:
+  - @vegastack/design@0.7.46
+  - @vegastack/design-tokens@0.7.46
+
 ## 0.23.39
 
 ### Patch Changes
