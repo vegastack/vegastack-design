@@ -56,11 +56,11 @@ import { ViewToggle } from "@/components/ui/view-toggle";
 ```
 
 ```
-Row 1   [Search……………………………………………………………………]  [⚲ Filters 2] [≣ List | ▦ Board]
+Row 1   [Search ~320px]                        [⚲ Filters 2] [≣ List | ▦ Board]
                                     12px   (row 2 shows only once the toggle opens it)
 Row 2   Status: 2 ×   Assignee ▾   Due: Last 7 days ×   ⊕ More                  Clear
 
-Tablet  [Search……………………………………………]  [⚲ 2] [≣ ▦]
+Tablet  [Search ~320px]              [⚲ 2] [≣ ▦]
         Status: 2 ×  Assignee ▾  Due ▾  ⊕ More   → (scrolls sideways)
 
 Phone   [Search………………………………………………]
@@ -88,7 +88,7 @@ the title — not in the bar — and the layout switch sits in the bar's `view`,
 
 ```tsx
 <FilterBar
-  search={{ value, onValueChange }} // row 1, first — a <SearchInput> taking the free space
+  search={{ value, onValueChange }} // row 1, first — a <SearchInput>, ~320px (full width on a phone)
   scope={/* Tabs size="sm" */} //      row 1, right of the Filters toggle (a list page puts it in PageHeader tabs)
   actions={/* e.g. a Select Button */} // row 1, before the view
   view={/* ViewToggle (default Tabs) */} // row 1, furthest right
@@ -102,7 +102,7 @@ the title — not in the bar — and the layout switch sits in the bar's `view`,
 - `FilterBar` — the container (`data-slot="filter-bar"`, `role="toolbar"`, named "List controls"
   by default; pass `aria-label` or `aria-labelledby` for a specific name like "Task toolbar"). It
   is a size container: its layout follows its own width, not the viewport's.
-- **Row 1** (`filter-bar-primary`) — the search field, taking the free space, then on the right
+- **Row 1** (`filter-bar-primary`) — the search field (`w-80`, ~320px), then on the right
   (`filter-bar-controls`): the **Filters toggle** (`filter-bar-filters-toggle`, lucide
   `ListFilter`), `scope` (`filter-bar-scope`), `actions` (`filter-bar-actions`) and `view`
   (`filter-bar-view`), the view furthest right.

@@ -1,4 +1,4 @@
-// @vegastack filter-bar@0.23.42 sha256-i7JQvLpfawvlAkfdZZoj8ECembdaTp3HiaQDg8FZBvo=
+// @vegastack filter-bar@0.23.42 sha256-o5W6tUGCgn9DBy1myme8pJLqr08n60i/BVHZUnUgWl0=
 
 "use client";
 
@@ -130,7 +130,8 @@ export interface FilterBarProps extends Omit<
   "onChange" | "children"
 > {
   /**
-   * Controlled search config. The field always leads the first row and takes the free space.
+   * Controlled search config. The field always leads the first row, ~320px wide (the full width
+   * of a phone-width bar).
    * Omit to hide it.
    * @default undefined
    */
@@ -446,7 +447,7 @@ const BAR_SIZE =
 /**
  * `FilterBar` — the toolbar above a list or table, in two rows.
  *
- * Row 1: `[Search — the free space] [⚲ Filters (n)] [scope] [actions] [view]` — the view
+ * Row 1: `[Search ~320px] … [⚲ Filters (n)] [scope] [actions] [view]` — the view
  * furthest right. Scope tabs ("My | Team") usually sit in the `PageHeader`'s `tabs` instead.
  * Row 2 (12px below): the `facets`, any applied `filters` chips, a "More" menu of secondary
  * filters, and "Clear" at the end while anything is applied. It is hidden until the Filters
@@ -610,7 +611,7 @@ export function FilterBar({
         aria-label={search["aria-label"] ?? search.placeholder ?? "Search"}
         data-slot="filter-bar-search"
         className={cn(
-          "h-8 w-full min-w-0 @lg/filter-bar:w-auto @lg/filter-bar:flex-1",
+          "h-8 w-full min-w-0 @lg/filter-bar:w-80 @lg/filter-bar:flex-none",
           searchInputProps?.className,
         )}
       />
@@ -732,7 +733,7 @@ export function FilterBar({
         {...props}
       >
         {hasPrimaryRow ? (
-          // [Search — the free space] [Filters (n)] [scope] [actions] [view]. Below `@lg` the
+          // [Search ~320px] … [Filters (n)] [scope] [actions] [view]. Below `@lg` the
           // search takes the full width and the controls wrap onto one row beneath it.
           <div
             data-slot="filter-bar-primary"
