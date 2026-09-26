@@ -9,6 +9,22 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.23.44] — September 27, 2026
+
+<!-- assembled from 2 changesets: 8a68e2d494cc -->
+
+### 🔧 Changed components
+
+- People carry their own colour and photo everywhere. `AvatarFallback` takes a `hue` (`AvatarHue`, the ten tag hues: initials in the hue's ink on its subtle fill; API-32). A new shared `person-avatar` item owns `PersonAvatar` and the `Person` shape (now with `hue`) — `person-hover-card` still re-exports them — and it exports the one initials rule, `personInitials(name, email?)`: first letters of the first and last words, two letters of a single word, else the email's first two characters. `RecordChip`, `BoardCard` and `InboxItem` draw `PersonAvatar` instead of their own initials, and take `hue` on `person`, `assignee` and `avatar` (`{ name, src?, hue? }`); `PropertyPerson` and comment authors take it too. `SearchableSelect` (and `FilterBarFacet`) gain `itemToAvatar`, leading each person option — and a single selection on the trigger — with the person's avatar. `Image` and `Thumbnail` take a `placeholder` data URL, a blurred cover until the image loads (`Image` still runs a caller's `onLoad`/`onError`), and `Thumbnail` passes `srcSet`/`sizes`, retrying when either changes. New `AvatarPicker`: a large `PersonAvatar` with a busy spinner, Upload / Change photo through the file picker, Remove, and a line for a refused file. `app-shell-01`'s user menu draws `PersonAvatar`. The shipped `vegastack-design-system` skill says a person is always `PersonAvatar`.
+  [`74415be`](https://github.com/VegaStack/vegastack-design/commit/74415be)
+- `personInitials(name, email?)` now lives in `person-avatar` — import it from `@/components/ui/person-avatar`. The separate `person` lib item is gone, so `person-avatar` installs nothing into your `lib/` alias.
+  [`74415be`](https://github.com/VegaStack/vegastack-design/commit/74415be)
+
+### 📦 npm
+
+- **`@vegastack/design`** → **`0.7.47`** (was `0.7.46`).
+- The design-system registry (`@vegastack/ui`) bumps 0.23.43 → 0.23.44.
+
 ## [0.23.43] — September 26, 2026
 
 <!-- assembled from 1 changeset: 3927b41bb149 -->

@@ -1,4 +1,4 @@
-// @vegastack pagination@0.23.43 sha256-9anZwxuObo9abJU79PQ1rq7BhthZPEFsoJuAUAA5z9w=
+// @vegastack pagination@0.23.44 sha256-FzyPbpXoMYJH8AkgaKHa/Hbcqxju7WrDyiy+fjRe41o=
 
 import * as React from "react";
 import { cn } from "@vegastack/design";
