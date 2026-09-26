@@ -12,7 +12,7 @@
   "files": [
     {
       "path": "packages/ui/registry/ui/textarea.tsx",
-      "content": "// @vegastack textarea@0.23.42 sha256-k6Rg2+4BpkuUuuuCqY8kM3eM0xl74Rw6gNGCNSOmRi0=\n\n\"use client\";\n\nimport * as React from \"react\";\nimport { Field as FieldPrimitive } from \"@base-ui/react/field\";\nimport { cn } from \"@vegastack/design\";\n\nfunction Textarea({ className, ...props }: React.ComponentProps<\"textarea\">) {\n  return (\n    <FieldPrimitive.Control\n      render={<textarea />}\n      data-slot=\"textarea\"\n      className={cn(\n        \"flex field-sizing-content min-h-16 w-full rounded-lg border border-input bg-transparent px-2.5 py-2 text-base transition-colors outline-hidden placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:bg-input/50 disabled:opacity-50 aria-invalid:border-destructive md:text-sm dark:bg-input/30 dark:disabled:bg-input/80 dark:aria-invalid:border-destructive/50\",\n        className,\n      )}\n      {...(props as FieldPrimitive.Control.Props)}\n    />\n  );\n}\n\nexport { Textarea };\n",
+      "content": "// @vegastack textarea@0.23.43 sha256-IShCLaxLnstx+BoY0BAcOE0JQyUAuYrEyz5VpAw6KtI=\n\n\"use client\";\n\nimport * as React from \"react\";\nimport { Field as FieldPrimitive } from \"@base-ui/react/field\";\nimport { cn } from \"@vegastack/design\";\n\nfunction Textarea({ className, ...props }: React.ComponentProps<\"textarea\">) {\n  return (\n    <FieldPrimitive.Control\n      render={<textarea />}\n      data-slot=\"textarea\"\n      className={cn(\n        \"flex field-sizing-content min-h-16 w-full rounded-lg border border-input bg-transparent px-2.5 py-2 text-base transition-colors outline-hidden placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:bg-input/50 disabled:opacity-50 aria-invalid:border-destructive md:text-sm dark:bg-input/30 dark:disabled:bg-input/80 dark:aria-invalid:border-destructive/50\",\n        className,\n      )}\n      {...(props as FieldPrimitive.Control.Props)}\n    />\n  );\n}\n\nexport { Textarea };\n",
       "type": "registry:ui",
       "target": "@ui/textarea.tsx"
     }
@@ -20,8 +20,8 @@
   "meta": {
     "whenToUse": "Multi-line free text — descriptions, comments, messages, notes.",
     "whenNotToUse": "Single-line entry (input), rich text (editor), or fixed options (select).",
-    "version": "0.23.42",
-    "integrity": "sha256-k6Rg2+4BpkuUuuuCqY8kM3eM0xl74Rw6gNGCNSOmRi0="
+    "version": "0.23.43",
+    "integrity": "sha256-IShCLaxLnstx+BoY0BAcOE0JQyUAuYrEyz5VpAw6KtI="
   },
   "categories": [
     "form"

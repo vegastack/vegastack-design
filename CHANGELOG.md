@@ -9,6 +9,19 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.23.43] — September 26, 2026
+
+<!-- assembled from 1 changeset: 3927b41bb149 -->
+
+### 🔧 Changed components
+
+- `FilterBar`'s search field is ~320px (`w-80`) on a desktop- or tablet-width bar again, with the Filters toggle and the view at the far end; it takes the full width only on a phone-width bar (below `@lg`), where it sits on its own row.
+  [`98a6981`](https://github.com/VegaStack/vegastack-design/commit/98a6981)
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.23.42 → 0.23.43.
+
 ## [0.23.42] — September 26, 2026
 
 <!-- assembled from 1 changeset: 55967bc7e188 -->
