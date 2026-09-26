@@ -1,4 +1,4 @@
-// @vegastack image@0.23.43 sha256-wmjlDMI37X/MVfgiZ2IgyYmd4GF26p2SHto9MU87qFU=
+// @vegastack image@0.23.43 sha256-Os0/x7iRL620LMkYDy5rPddAUilrmg3VR7WC1o+Emrg=
 
 "use client";
 
@@ -131,6 +131,8 @@ export function Image({
   placeholder,
   loading = "lazy",
   decoding = "async",
+  onLoad,
+  onError,
   ref,
   ...props
 }: ImageProps) {
@@ -185,13 +187,20 @@ export function Image({
           alt={alt}
           loading={loading}
           decoding={decoding}
-          onLoad={() => setStatus("loaded")}
-          onError={() => setStatus("error")}
+          {...props}
+          // The caller's handlers run too; the frame's own state always resolves.
+          onLoad={(event) => {
+            setStatus("loaded");
+            onLoad?.(event);
+          }}
+          onError={(event) => {
+            setStatus("error");
+            onError?.(event);
+          }}
           className={cn(
             "relative size-full object-cover transition-opacity duration-fast ease-standard",
             status === "loaded" ? "opacity-100" : "opacity-0",
           )}
-          {...props}
         />
       ) : null}
 

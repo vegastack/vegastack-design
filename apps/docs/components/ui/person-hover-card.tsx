@@ -1,4 +1,4 @@
-// @vegastack person-hover-card@0.23.43 sha256-3v3PcaF0KPwM+4fzNLfbgWDKm4l13xMexs2uli0lqgI=
+// @vegastack person-hover-card@0.23.43 sha256-040eL5NniqLT1C9Oe5All9azU+jskxKIHK4lkp5/38w=
 
 "use client";
 
@@ -6,7 +6,10 @@ import * as React from "react";
 import { cn } from "@vegastack/design";
 import { AvatarGroup, AvatarGroupCount } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { PersonAvatar, type Person } from "@/components/ui/person-avatar";
+import {
+  PersonAvatar as BasePersonAvatar,
+  type Person as BasePerson,
+} from "@/components/ui/person-avatar";
 import { PersonBadge } from "@/components/ui/searchable-select";
 import {
   HoverCard,
@@ -25,6 +28,12 @@ import {
  * group recipe) with the rest behind a "+N" that opens the same rows in a list. A person without
  * an account (a free-text participant) shows initials and just the name.
  * ----------------------------------------------------------------------------------------------*/
+
+/** A person — re-exported from `person-avatar`, their home, for existing imports. */
+export type Person = BasePerson;
+
+/** `PersonAvatar` — re-exported from `person-avatar`, its home, for existing imports. @example <PersonAvatar person={{ name: "Asha Rao", hue: "blue" }} /> */
+export const PersonAvatar = BasePersonAvatar;
 
 /** Props for `PersonCard`. */
 export interface PersonCardProps extends React.ComponentPropsWithRef<"div"> {

@@ -1,4 +1,4 @@
-// @vegastack avatar-picker@0.23.43 sha256-ZTn4xaOH8SiBwCAq+XvKp0l7QlzoYqgmfUoaQd4oPSg=
+// @vegastack avatar-picker@0.23.43 sha256-SAvfV5IEBVHCTgWKoOz1+MO1RGjFQB5Xw58NnswleXg=
 
 "use client";
 
@@ -93,7 +93,7 @@ function refusal(
   maxSize: number | undefined,
 ): string {
   if (reasons.includes("file-invalid-type"))
-    return `${file.name} isn't a supported image. Choose a JPEG, PNG or WebP file.`;
+    return `${file.name} isn't a supported image.`;
   if (reasons.includes("file-too-large") && maxSize !== undefined)
     return `${file.name} is larger than ${formatSize(maxSize)}. Choose a smaller image.`;
   return `${file.name} can't be used. Try another image.`;
@@ -207,15 +207,17 @@ export function AvatarPicker({
             </Button>
           ) : null}
         </div>
-        {message ? (
-          <p
-            id={messageId}
-            data-slot="avatar-picker-message"
-            className="text-xs text-destructive-text"
-          >
-            {message}
-          </p>
-        ) : null}
+        {/* A refusal is already announced by the drop hook's own region; the app's `error`
+            is not, so this line is a polite region only while it shows `error`. It stays
+            mounted so a new error is announced when it appears. */}
+        <p
+          id={messageId}
+          data-slot="avatar-picker-message"
+          role={refused ? undefined : "status"}
+          className="text-xs text-destructive-text empty:hidden"
+        >
+          {message}
+        </p>
       </div>
       <input {...drop.inputProps} />
       <drop.Announcer />

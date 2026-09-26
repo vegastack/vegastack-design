@@ -1,4 +1,4 @@
-// @vegastack thumbnail@0.23.43 sha256-9u6gzryvPEytwiwy/5/8OIEK4vOkI9Jbkdjotz1dwoI=
+// @vegastack thumbnail@0.23.43 sha256-SNlypOHAwrFsv/JFBLescmthgq8K94Gl/MMDrXIGKMA=
 
 "use client";
 
@@ -70,17 +70,19 @@ export function Thumbnail({
   className,
   ...props
 }: ThumbnailProps) {
-  // The src that failed, so a new src gets its own attempt.
+  // State is keyed by the candidate set (src + srcSet): a new src or srcSet gets its own attempt
+  // after a failure, and shows its placeholder again until it loads.
+  const candidate = src ? `${src} ${srcSet ?? ""}` : null;
   const [failed, setFailed] = React.useState<string | null>(null);
-  const showImage = !!src && failed !== src;
-  // The src that has loaded, so the blur preview stays only until its own image is in. An image
-  // already decoded before hydration fires no `load`, so the element is read once on mount too.
+  const showImage = !!candidate && failed !== candidate;
+  // An image already decoded before hydration fires no `load`, so the element is read on mount too.
   const [loaded, setLoaded] = React.useState<string | null>(null);
   const imgRef = React.useCallback(
     (img: HTMLImageElement | null) => {
-      if (img?.complete && img.naturalWidth > 0 && src) setLoaded(src);
+      if (img?.complete && img.naturalWidth > 0 && candidate)
+        setLoaded(candidate);
     },
-    [src],
+    [candidate],
   );
   return (
     <span
@@ -96,7 +98,7 @@ export function Thumbnail({
       )}
       {...props}
     >
-      {showImage && placeholder && loaded !== src ? (
+      {showImage && placeholder && loaded !== candidate ? (
         <span
           aria-hidden="true"
           data-slot="thumbnail-placeholder"
@@ -107,14 +109,14 @@ export function Thumbnail({
       {showImage ? (
         <img
           ref={imgRef}
-          src={src}
+          src={src ?? undefined}
           srcSet={srcSet}
           sizes={sizes}
           alt={alt}
           loading="lazy"
           decoding="async"
-          onLoad={() => setLoaded(src)}
-          onError={() => setFailed(src)}
+          onLoad={() => setLoaded(candidate)}
+          onError={() => setFailed(candidate)}
           className="relative size-full object-cover"
         />
       ) : (

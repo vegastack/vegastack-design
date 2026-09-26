@@ -25920,6 +25920,24 @@
             "status": "not-applicable",
             "rationale": "Type-only exports do not render or accept runtime refs."
           }
+        },
+        {
+          "name": "PersonAvatar",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/person-hover-card.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A re-export of person-avatar's PersonAvatar, kept for existing imports."
+          }
+        },
+        {
+          "name": "Person",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/person-hover-card.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
         }
       ],
       "variants": {
