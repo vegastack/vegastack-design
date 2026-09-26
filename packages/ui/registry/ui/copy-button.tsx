@@ -1,4 +1,4 @@
-// @vegastack copy-button@0.23.38 sha256-XcpK8bM3tMmf/Wt9cUbI6Ct4e7WpPtSd/l/iZYI3kEc=
+// @vegastack copy-button@0.23.39 sha256-HDQbe8+xSRKx0NU8LF6NpIEMYR/NnbwGJ7ZruhdLGLA=
 
 "use client";
 

@@ -1,5 +1,14 @@
 # @vegastack/design
 
+## 0.7.45
+
+### Patch Changes
+
+- [#336](https://github.com/vegastack/vegastack-design/pull/336) [`1100891`](https://github.com/vegastack/vegastack-design/commit/11008911198cffda80bcd7da0bed7aaf87a3b2ec) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🐛 Programmatic focus targets (`tabindex="-1"`) no longer paint the `:focus-visible` background tint. Before this, clicking the empty part of AppShell's `<main>` and then pressing any key (Shift or ⌘ alone) tinted the whole page grey. Combobox chips keep the cue.
+
+- Updated dependencies [[`1100891`](https://github.com/vegastack/vegastack-design/commit/11008911198cffda80bcd7da0bed7aaf87a3b2ec)]:
+  - @vegastack/design-tokens@0.7.45
+
 ## 0.7.44
 
 ### Patch Changes

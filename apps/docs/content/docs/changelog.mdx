@@ -10,6 +10,19 @@ npm package versions are listed per entry. This page is generated from the repo'
 
 {/* CHANGELOG:START — generated from /CHANGELOG.md by tooling/sync-changelog.mjs. DO NOT EDIT. */}
 
+## [0.23.39] — September 26, 2026
+
+### 📦 npm
+
+- **`@vegastack/design-tokens`** → **`0.7.45`** (was `0.7.43`).
+- **`@vegastack/design`** → **`0.7.45`** (was `0.7.44`).
+- The design-system registry (`@vegastack/ui`) bumps 0.23.38 → 0.23.39.
+
+### 🐛 Fixed
+
+- Programmatic focus targets (`tabindex="-1"`) no longer paint the `:focus-visible` background tint. Before this, clicking the empty part of AppShell's `<main>` and then pressing any key (Shift or ⌘ alone) tinted the whole page grey. Combobox chips keep the cue.
+  [`1100891`](https://github.com/VegaStack/vegastack-design/commit/1100891)
+
 ## [0.23.38] — September 26, 2026
 
 ### 🔧 Changed components
