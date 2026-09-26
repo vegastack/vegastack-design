@@ -1,0 +1,5 @@
+---
+"@vegastack/ui": patch
+---
+
+🔧 One list toolbar for every list page. `FilterBar`'s filter row is hidden by default and never opens by itself when a filter becomes set — the Filters toggle shows it and carries the applied count meanwhile; `autoOpenFilters` opts back in, and `filtersOpenStorageKey` remembers the toggle per page for the browser session. Row 1 is the search taking the free space, then the Filters toggle, then the `view` switch at the far end. On a tablet-width bar (below `@3xl`) the Filters toggle and the view go icon-only, with the count as a badge; below `@lg` the search takes its own row and the icon-only toggle and view share the next one, start and end. `PageHeader` drops the `view` slot (and `page-header-view`) added in 0.7.42: the layout switch belongs only in the `FilterBar`'s `view`, and the header's `tabs` hold the scope. `list-page-01` moves its Grid | List switch into the toolbar and uses the bar's "Clear". Docs: FilterBar gains a Breakpoints example, and the PageHeader "View tabs", DataList "View toggle" and list-page-01 pages show the layout.

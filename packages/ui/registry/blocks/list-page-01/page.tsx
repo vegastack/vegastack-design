@@ -1,4 +1,4 @@
-// @vegastack list-page-01@0.23.41 sha256-2PWbRMTxGLF87I9Unevgvux5JC9OdwPiidIi5zVYScA=
+// @vegastack list-page-01@0.23.41 sha256-8hfSoEHCNHvn4DEAlvj2KVZprv0WEaB0SqewT1l90tU=
 
 import { Plus } from "lucide-react";
 
@@ -8,7 +8,7 @@ import { buttonVariants } from "@/components/ui/button";
 
 /**
  * `list-page-01` — the list page reference: `CustomerList` — a `PageHeader` h1 with its create link,
- * the Mine | Team tabs and the Grid | List toggle under the title — over a list that filters, pages and switches between a table and a grid of the same records.
+ * the Mine | Team tabs under the title — over a list whose toolbar holds the search, the Filters toggle and the Grid | List switch, and that filters, pages and switches between a table and a grid of the same records.
  *
  * Server-safe: the interactive half is the client leaf it imports. Replace the sample customers
  * with your API, and each href with your routes.

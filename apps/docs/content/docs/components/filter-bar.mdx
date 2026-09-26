@@ -1,6 +1,6 @@
 ---
 title: Filter Bar
-description: The toolbar above a list — search left; a Filters toggle, view tabs and a layout switch right; compact filter chips on a row that scrolls on a phone.
+description: The toolbar above a list — search, a Filters toggle and the layout switch; compact filter chips on a row the toggle shows.
 audience: public
 registry: filter-bar
 status: stable
@@ -21,7 +21,6 @@ import {
   FilterBar,
   FilterBarFacet,
 } from "@/components/ui/filter-bar";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ViewToggle } from "@/components/ui/view-toggle";
 
 <FilterBar
@@ -31,21 +30,6 @@ import { ViewToggle } from "@/components/ui/view-toggle";
     onValueChange: setQuery,
     placeholder: "Search tasks",
   }}
-  scope={
-    // Views are Tabs — the default variant, compact size, optional leading icons.
-    <Tabs value={scope} onValueChange={setScope}>
-      <TabsList size="sm" aria-label="Scope">
-        <TabsTrigger value="mine">
-          <User />
-          My tasks
-        </TabsTrigger>
-        <TabsTrigger value="team">
-          <Users />
-          Team tasks
-        </TabsTrigger>
-      </TabsList>
-    </Tabs>
-  }
   view={
     // Layout switches are ViewToggle — the same default Tabs, icons kept, labels hidden on a phone.
     <ViewToggle
@@ -72,18 +56,24 @@ import { ViewToggle } from "@/components/ui/view-toggle";
 ```
 
 ```
-Row 1  [Search ~320px]                    [⚲ Filters 2] [My tasks | Team tasks] [≣ ▦]
-                                    12px
-Row 2  Status: 2 ×   Assignee ▾   Due: Last 7 days ×   ⊕ More                  Clear
+Row 1   [Search……………………………………………………………………]  [⚲ Filters 2] [≣ List | ▦ Board]
+                                    12px   (row 2 shows only once the toggle opens it)
+Row 2   Status: 2 ×   Assignee ▾   Due: Last 7 days ×   ⊕ More                  Clear
 
-Phone  [Search………………………………………………]
-       [⚲ 2] [My tasks | Team tasks]             [≣ ▦]
-       Status: 2 ×  Assignee ▾  Due ▾  ⊕ More   → (scrolls sideways)
+Tablet  [Search……………………………………………]  [⚲ 2] [≣ ▦]
+        Status: 2 ×  Assignee ▾  Due ▾  ⊕ More   → (scrolls sideways)
+
+Phone   [Search………………………………………………]
+        [⚲ 2]                              [≣ ▦]
+        Status: 2 ×  Assignee ▾  Due ▾  ⊕ More   → (scrolls sideways)
 ```
 
 `FilterBar` is **presentational** — it never holds filter state. You own every value: the search
-query, the scope and view, each facet's selection, the `filters` chips, what a "More" option adds,
+query, the view, each facet's selection, the `filters` chips, what a "More" option adds,
 and what "Clear" resets.
+
+On a list page the scope tabs ("My tasks | Team tasks") sit in the `PageHeader`'s `tabs`, under
+the title — not in the bar — and the layout switch sits in the bar's `view`, never in the header.
 
 ## Anatomy
 
@@ -98,8 +88,8 @@ and what "Clear" resets.
 
 ```tsx
 <FilterBar
-  search={{ value, onValueChange }} // row 1, first — a <SearchInput>, ~320px (full width on a phone)
-  scope={/* Tabs size="sm" */} //      row 1, right of the Filters toggle
+  search={{ value, onValueChange }} // row 1, first — a <SearchInput> taking the free space
+  scope={/* Tabs size="sm" */} //      row 1, right of the Filters toggle (a list page puts it in PageHeader tabs)
   actions={/* e.g. a Select Button */} // row 1, before the view
   view={/* ViewToggle (default Tabs) */} // row 1, furthest right
   facets={/* FilterBarFacet, DateRangeFilter */} // row 2, the primary filters
@@ -112,14 +102,16 @@ and what "Clear" resets.
 - `FilterBar` — the container (`data-slot="filter-bar"`, `role="toolbar"`, named "List controls"
   by default; pass `aria-label` or `aria-labelledby` for a specific name like "Task toolbar"). It
   is a size container: its layout follows its own width, not the viewport's.
-- **Row 1** (`filter-bar-primary`) — the search field (`w-80`, ~320px), then on the right
+- **Row 1** (`filter-bar-primary`) — the search field, taking the free space, then on the right
   (`filter-bar-controls`): the **Filters toggle** (`filter-bar-filters-toggle`, lucide
   `ListFilter`), `scope` (`filter-bar-scope`), `actions` (`filter-bar-actions`) and `view`
   (`filter-bar-view`), the view furthest right.
-- **The Filters toggle** shows or hides row 2 (`aria-expanded`, `aria-controls`), shows the applied
-  count ("Filters 2"), and opens row 2 by itself whenever something becomes set, so an applied
-  filter is never hidden. Control it with `filtersOpen` / `defaultFiltersOpen` /
-  `onFiltersOpenChange`.
+- **The Filters toggle** shows or hides row 2 (`aria-expanded`, `aria-controls`) and shows the
+  applied count ("Filters 2"), so a hidden row still says what is applied. Row 2 is **hidden by
+  default and never opens by itself** — setting a filter from elsewhere (a URL, a saved view) only
+  moves the count. Opt back in with `autoOpenFilters`. Control it with `filtersOpen` /
+  `defaultFiltersOpen` / `onFiltersOpenChange`, or pass `filtersOpenStorageKey` to remember it per
+  page for the browser session.
 - **Row 2** (`filter-bar-filters`, a `role="group"` named by `filtersLabel`, "Filters"), 12px below
   row 1 — the facets, the chips, "More" (`filter-bar-add`), `trailing` and "Clear"
   (`filter-bar-clear`).
@@ -127,18 +119,31 @@ and what "Clear" resets.
   quiet (14px, regular weight). A set chip is tinted (`accent`), never reshaped; its × sits in the
   chevron's fixed 24px slot, so nothing shifts. Several values read "Status: 2", with the values in
   the chip's tooltip (`title`) and ticked in the popover.
-- **Phone** (below the bar's own `@3xl`, 768px): the search takes the full width; beneath it one
-  row holds `[⚲ n] [tabs] [view]` (the Filters word hides, the view shows icons only — wrap each
-  option's text in a `<span>`; it stays the option's accessible name). Row 2 is one line that
-  scrolls sideways by touch, with the scrollbar hidden. There is no bottom sheet.
+- **Tablet** (below the bar's own `@3xl`, 768px): one row still — the Filters toggle goes
+  icon-only with its count as a badge, and the view shows icons only (wrap each option's text in a
+  `<span>`; it stays the option's accessible name). Row 2 is one line that scrolls sideways by
+  touch, with the scrollbar hidden. There is no bottom sheet.
+- **Phone** (below `@lg`, 512px): the search takes the full width; beneath it one row holds the
+  icon-only `[⚲ n]` at the start and the icon-only view at the end.
 
 ### Toolbar
 
-The whole toolbar: search, a scope and a view, three primary facets, a "More" menu that adds a
-removable "Priority" facet, and "Clear". Narrow the window below 768px to see the phone layout:
-full-width search, then the toggle, tabs and view on one row, and a sideways-scrolling filter row.
+The whole toolbar: search, the Filters toggle and a view; behind the toggle, three primary facets,
+a "More" menu that adds a removable "Priority" facet, and "Clear". "Status" is set, so the toggle
+reads "Filters 1" while the row is hidden.
 
 <ComponentPreview name="filterBar" file="components/preview/filter-bar.tsx" />
+
+### Breakpoints
+
+The same bar at a desktop, a tablet and a phone width. It follows its own width, so each column
+shows its tier: labels on the desktop row; icon-only Filters (with its count) and view on the
+tablet row; on the phone, the search on its own row and `[⚲ n] … [view]` beneath it.
+
+<ComponentPreview
+  name="filterBarBreakpoints"
+  file="components/preview/filter-bar.tsx"
+/>
 
 ### Filter compositions
 

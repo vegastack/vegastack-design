@@ -30,9 +30,15 @@ This installs the block's own files plus the components it composes: `app-shell`
 ## Anatomy
 
 - `AppShellPage` › `PageHeader` h1 "Customers" with a "New customer" link, and under the title
-  its `tabs` row: Mine | Team as default (pill) `Tabs`, with the Grid | List `ViewToggle` in
-  `view`, pinned to the row's end.
-- `FilterBar searchPlacement="start"` — the search first, then the `FilterBarFacet`s "Status: Any" and "Industry".
+  its `tabs` row: Mine | Team as default (pill) `Tabs`.
+- `FilterBar` — row 1: the search, taking the free space; then the Filters toggle and the
+  Grid | List `ViewToggle` in its `view` slot, at the far end. Row 2 — the `FilterBarFacet`s
+  "Status" and "Industry", then "Clear" — stays hidden until the Filters toggle opens it (the
+  toggle shows the applied count meanwhile), and the toggle's state is remembered for the session
+  (`filtersOpenStorageKey`).
+- **Tablet** — the Filters toggle and the view go icon-only; the filter row scrolls sideways.
+  **Phone** — the search takes the full width; beneath it the icon-only Filters toggle (with its
+  count) sits at the start and the icon-only view at the end.
 - **List** — a `DataList` with `getRowHref`, so each row is a real link (the first cell, name over
   city, is the link; a click anywhere on the row follows it), a status `Badge`,
   a `tabular-nums` count, a `RelativeTime`, and `rowActionsColumn` for Edit and Archive.

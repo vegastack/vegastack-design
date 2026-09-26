@@ -66,10 +66,13 @@ const optionProps = {
   isItemEqualToValue: (a: Option, b: Option) => a.id === b.id,
 };
 
-/** The full toolbar: search, scope, view, primary facets, "More" and "Clear". */
+/**
+ * The list toolbar: search taking the free space, the Filters toggle, the view switch at the end;
+ * the facets, "More" and "Clear" on the filter row the toggle shows (hidden until then — the toggle
+ * carries the count). Scope tabs ("My tasks | Team") belong in the `PageHeader`'s `tabs`.
+ */
 export function filterBar(): ReactNode {
   const [query, setQuery] = useState("");
-  const [scope, setScope] = useState("mine");
   const [view, setView] = useState<ListView>("list");
   const [status, setStatus] = useState<Option[]>([TOOLBAR_STATUSES[0]!]);
   const [due, setDue] = useState<Option | null>(null);
@@ -85,15 +88,6 @@ export function filterBar(): ReactNode {
           onValueChange: setQuery,
           placeholder: "Search tasks",
         }}
-        scope={
-          <Tabs value={scope} onValueChange={(next) => setScope(String(next))}>
-            <TabsList size="sm" aria-label="Scope">
-              <TabsTrigger value="mine">My tasks</TabsTrigger>
-              <TabsTrigger value="created">Created by me</TabsTrigger>
-              <TabsTrigger value="team">Team</TabsTrigger>
-            </TabsList>
-          </Tabs>
-        }
         view={
           <ViewToggle
             value={view}
@@ -171,6 +165,7 @@ export function filterBarSearch(): ReactNode {
   return (
     <Wrapper className="justify-start">
       <FilterBar
+        defaultFiltersOpen
         aria-label="Task filters"
         className="max-w-2xl"
         filters={filters}
@@ -203,6 +198,7 @@ export function filterBarSearchFirst(): ReactNode {
   return (
     <Wrapper className="flex-col items-stretch">
       <FilterBar
+        defaultFiltersOpen
         aria-label="Task filters"
         className="max-w-2xl"
         filters={filters}
@@ -226,6 +222,7 @@ export function filterBarEmpty(): ReactNode {
   return (
     <Wrapper className="justify-start">
       <FilterBar
+        defaultFiltersOpen
         aria-label="Task filters"
         className="max-w-2xl"
         filters={[]}
@@ -278,6 +275,7 @@ export function filterBarPresenceChip(): ReactNode {
   return (
     <Wrapper className="justify-start">
       <FilterBar
+        defaultFiltersOpen
         aria-label="Task filters"
         className="max-w-2xl"
         filters={filters}
@@ -323,6 +321,7 @@ export function filterBarCustomMenu(): ReactNode {
   return (
     <Wrapper className="justify-start">
       <FilterBar
+        defaultFiltersOpen
         aria-label="Issue filters"
         className="max-w-2xl"
         filters={filters}
@@ -402,6 +401,7 @@ export function filterBarFacets(): ReactNode {
   return (
     <Wrapper className="justify-start">
       <FilterBar
+        defaultFiltersOpen
         aria-label="Task filters"
         facets={
           <>
@@ -477,6 +477,7 @@ export function filterBarEditing(): ReactNode {
   return (
     <Wrapper className="justify-start">
       <FilterBar
+        defaultFiltersOpen
         aria-label="Product filters"
         filters={
           active
@@ -497,6 +498,68 @@ export function filterBarEditing(): ReactNode {
         addFilters={active ? [] : [{ id: "wattage", label: "Wattage", editor }]}
         onAddFilter={() => setActive(true)}
       />
+    </Wrapper>
+  );
+}
+
+/** The same toolbar in a wide, a tablet and a phone column — it responds to its own width. */
+export function filterBarBreakpoints(): ReactNode {
+  const [query, setQuery] = useState("");
+  const [view, setView] = useState<ListView>("list");
+  const [status, setStatus] = useState<Option[]>([TOOLBAR_STATUSES[0]!]);
+  const bar = (
+    <FilterBar
+      aria-label="Task toolbar"
+      search={{
+        value: query,
+        onValueChange: setQuery,
+        placeholder: "Search tasks",
+      }}
+      view={
+        <ViewToggle
+          value={view}
+          onValueChange={setView}
+          views={["list", "board"]}
+        />
+      }
+      facets={
+        <>
+          <FilterBarFacet<Option, true>
+            label="Status"
+            multiple
+            items={TOOLBAR_STATUSES}
+            value={status}
+            onValueChange={setStatus}
+            {...optionProps}
+          />
+          <FilterBarFacet<Option>
+            label="Assignee"
+            items={TOOLBAR_PEOPLE}
+            value={null}
+            onValueChange={() => {}}
+            {...optionProps}
+          />
+        </>
+      }
+      onClear={() => setStatus([])}
+    />
+  );
+  return (
+    <Wrapper className="flex-col items-stretch gap-6">
+      {[
+        { label: "Desktop", width: "100%" },
+        { label: "Tablet — icon-only Filters and view", width: 600 },
+        { label: "Phone — search on its own row", width: 360 },
+      ].map(({ label, width }) => (
+        <div
+          key={label}
+          className="flex flex-col gap-2"
+          style={{ maxWidth: width }}
+        >
+          <span className="text-xs text-muted-foreground">{label}</span>
+          {bar}
+        </div>
+      ))}
     </Wrapper>
   );
 }

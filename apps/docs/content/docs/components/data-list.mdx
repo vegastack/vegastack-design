@@ -467,7 +467,9 @@ slots, or anything else.
 ### View toggle
 
 `onViewChange` mounts a [`ViewToggle`](/docs/components/view-toggle). When the `toolbar` is a
-`FilterBar` it lands in the bar's `view` slot; otherwise it sits at the end of the toolbar row.
+`FilterBar` it lands in the bar's `view` slot — the end of its first row, after the search and the
+Filters toggle, icon-only on a tablet or phone; otherwise it sits at the end of the toolbar row.
+Never put it in the `PageHeader`: the header's `tabs` hold the scope ("My | Team") only.
 `views` sets which views it offers, in order (default Grid | List). Like every toolbar switch it is the default (pill) `Tabs`. The chosen view is remembered
 for the browser session under `viewStorageKey` (default: the path plus the list's `aria-label`).
 `defaultView` is the page's first view before the user picks one — `"board"` for a task list,
@@ -477,7 +479,7 @@ for the browser session under `viewStorageKey` (default: the path plus the list'
 <DataList
   view={view}
   onViewChange={setView}
-  toolbar={<FilterBar search={search} />}
+  toolbar={<FilterBar search={search} facets={facets} onClear={clearAll} />}
 />
 ```
 

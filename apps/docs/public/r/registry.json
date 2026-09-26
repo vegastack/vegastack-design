@@ -1853,7 +1853,7 @@
         "whenToUse": "Filter toolbars for lists/tables — 'Label: value' chips that edit in place, facets on SearchableSelect, an Add-filter menu and a settled search, at the end or first.",
         "whenNotToUse": "A single search box (Input), value selection (Select), or unrelated row actions.",
         "version": "0.23.41",
-        "integrity": "sha256-ddLBGgANXYR7eLGYPa4OISQYD/buMWaI7mXFVdB1jDM="
+        "integrity": "sha256-TL7gxNTZiBs0BMZxZfJy7vzhombNQ/jXB7erP7QkmOA="
       }
     },
     {
@@ -15771,7 +15771,7 @@
         "whenToUse": "The header band at the top of a page — title plus back/breadcrumb nav (backRender for a framework link), actions, favorite, and a meta row that can hold badges and inline pickers.",
         "whenNotToUse": "App-shell chrome (top nav/sidebar) or a section heading inside a page.",
         "version": "0.23.41",
-        "integrity": "sha256-BvB3fIVuYPj0utbAPWcxY5gUOL4V1IAA6C5kcIbKVik="
+        "integrity": "sha256-u0z7QOHQz30Znhnj6FAjQANEl/6beQB8j9dVPks73Sc="
       }
     },
     {
@@ -20074,7 +20074,7 @@
         "whenToUse": "A page that lists one kind of record — customers, products, projects — copy it once and wire the filters, paging and routes to your API.",
         "whenNotToUse": "A small list inside another page — compose DataList or an ItemGroup directly.",
         "version": "0.23.41",
-        "integrity": "sha256-2PWbRMTxGLF87I9Unevgvux5JC9OdwPiidIi5zVYScA="
+        "integrity": "sha256-8hfSoEHCNHvn4DEAlvj2KVZprv0WEaB0SqewT1l90tU="
       }
     },
     {

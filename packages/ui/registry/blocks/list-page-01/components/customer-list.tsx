@@ -1,4 +1,4 @@
-// @vegastack list-page-01@0.23.41 sha256-2PWbRMTxGLF87I9Unevgvux5JC9OdwPiidIi5zVYScA=
+// @vegastack list-page-01@0.23.41 sha256-8hfSoEHCNHvn4DEAlvj2KVZprv0WEaB0SqewT1l90tU=
 
 "use client";
 
@@ -92,9 +92,10 @@ export interface CustomerListProps {
 const customerHref = (customer: Customer) => `/customers/${customer.id}`;
 
 /**
- * The customer list page: a `PageHeader` whose tab row holds the Mine | Team scope and, at its
- * end, the Grid | List `ViewToggle`, over one `DataList` with a `FilterBar` toolbar (search first,
- * Status and Industry facets).
+ * The customer list page: a `PageHeader` (title, create action, the Mine | Team scope tabs under
+ * the title) over one `DataList` whose `FilterBar` toolbar holds the search, the Filters toggle and
+ * the Grid | List `ViewToggle` at the end of its first row, and the Status and Industry facets on
+ * the filter row the toggle shows.
  * Both views show the same records grouped by industry — a table, or a grid of `MediaCard` links —
  * paged with Load more. Three empty tiers: nothing yet, no matches (with "Clear filters"), and a
  * failed load (with "Try again").
@@ -138,8 +139,6 @@ export function CustomerList({
   );
   const shown = matching.slice(0, pages * PAGE_SIZE);
   const hasMore = shown.length < matching.length;
-  const filtering =
-    query.trim() !== "" || statusFilter !== null || industryFilter !== null;
 
   function clearFilters() {
     setQuery("");
@@ -248,7 +247,6 @@ export function CustomerList({
   const toolbar = (
     <FilterBar
       aria-label="Customer filters"
-      searchPlacement="start"
       search={{
         value: query,
         onValueChange: setQuery,
@@ -294,12 +292,14 @@ export function CustomerList({
           />
         </>
       }
-      trailing={
-        filtering ? (
-          <Button variant="ghost" onClick={clearFilters}>
-            Clear filters
-          </Button>
-        ) : null
+      onClear={clearFilters}
+      filtersOpenStorageKey="list-page-01:filters-open"
+      view={
+        <ViewToggle
+          value={view}
+          onValueChange={setView}
+          views={["grid", "list"]}
+        />
       }
     />
   );
@@ -323,13 +323,6 @@ export function CustomerList({
               <TabsTrigger value="team">Team</TabsTrigger>
             </TabsList>
           </Tabs>
-        }
-        view={
-          <ViewToggle
-            value={view}
-            onValueChange={setView}
-            views={["grid", "list"]}
-          />
         }
       />
       <DataList<Customer>

@@ -14,7 +14,7 @@ import {
   type RowAction,
   type SortState,
 } from "@/components/ui/data-list";
-import { FilterBar } from "@/components/ui/filter-bar";
+import { FilterBar, FilterBarFacet } from "@/components/ui/filter-bar";
 import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { PanelSearch, PanelSearchField } from "@/components/ui/panel-search";
 import { MediaCard } from "@/components/ui/media-card";
@@ -811,8 +811,11 @@ export function dataListGridCustomCard(): ReactNode {
 export function dataListViewToggle(): ReactNode {
   const [view, setView] = React.useState<DataListView>("grid");
   const [q, setQ] = React.useState("");
-  const rows = FAMILIES.filter((f) =>
-    f.name.toLowerCase().includes(q.trim().toLowerCase()),
+  const [section, setSection] = React.useState<DataListSection | null>(null);
+  const rows = FAMILIES.filter(
+    (f) =>
+      f.name.toLowerCase().includes(q.trim().toLowerCase()) &&
+      (section == null || f.category === section.id),
   );
   return (
     <Wrapper className="block">
@@ -824,7 +827,16 @@ export function dataListViewToggle(): ReactNode {
         viewStorageKey="docs-data-list-view-toggle"
         sections={SECTIONS}
         getRowSection={(f) => f.category}
-        noResults={q ? { onClear: () => setQ("") } : undefined}
+        noResults={
+          q || section
+            ? {
+                onClear: () => {
+                  setQ("");
+                  setSection(null);
+                },
+              }
+            : undefined
+        }
         toolbar={
           <FilterBar
             aria-label="Family filters"
@@ -833,6 +845,17 @@ export function dataListViewToggle(): ReactNode {
               onValueChange: setQ,
               placeholder: "Search families",
             }}
+            facets={
+              <FilterBarFacet<DataListSection>
+                label="Category"
+                items={SECTIONS}
+                value={section}
+                onValueChange={setSection}
+                itemToKey={(s) => s.id}
+                itemToStringLabel={(s) => String(s.label)}
+              />
+            }
+            onClear={() => setSection(null)}
           />
         }
       />

@@ -15,8 +15,8 @@ import {
   type FilterBarProps,
 } from "./filter-bar";
 
-// The filter row shows from the bar's own @3xl container width; below it the row folds into a
-// "Filters (n)" sheet. Test at a desktop width unless a test sizes its own box.
+// The filter row is hidden until the Filters toggle opens it; most tests here open it up front
+// (`defaultFiltersOpen`). Test at a desktop width unless a test sizes its own box.
 beforeEach(async () => {
   await page.viewport(1280, 800);
 });
@@ -33,6 +33,7 @@ test("searchInputProps cannot take ownership of the search value event", () => {
 test("renders a chip per active filter", async () => {
   const screen = await render(
     <FilterBar
+      defaultFiltersOpen
       filters={[
         {
           id: "status",
@@ -58,6 +59,7 @@ test("renders a chip per active filter", async () => {
 test("tags the container and exposes the filter id", async () => {
   const screen = await render(
     <FilterBar
+      defaultFiltersOpen
       filters={[{ id: "status", label: "Status", onRemove: () => {} }]}
     />,
   );
@@ -83,6 +85,7 @@ test("removing a chip fires its onRemove", async () => {
   const onRemove = vi.fn();
   const screen = await render(
     <FilterBar
+      defaultFiltersOpen
       filters={[{ id: "status", label: "Status", value: "Open", onRemove }]}
     />,
   );
@@ -94,6 +97,7 @@ test("add-filter opens the menu and fires onAddFilter with the option id", async
   const onAddFilter = vi.fn();
   const screen = await render(
     <FilterBar
+      defaultFiltersOpen
       filters={[]}
       addFilters={[
         { id: "priority", label: "Priority", icon: <Flag /> },
@@ -120,6 +124,7 @@ test("add-filter opens the menu and fires onAddFilter with the option id", async
 test("custom addFilterMenu takes precedence over declarative addFilters", async () => {
   const screen = await render(
     <FilterBar
+      defaultFiltersOpen
       filters={[]}
       addFilters={[{ id: "priority", label: "Priority" }]}
       addFilterMenu={<button type="button">Custom add</button>}
@@ -136,6 +141,7 @@ test("search field is controlled — typing fires onValueChange", async () => {
   const onValueChange = vi.fn();
   const screen = await render(
     <FilterBar
+      defaultFiltersOpen
       filters={[]}
       search={{ value: "", onValueChange, placeholder: "Search tasks…" }}
     />,
@@ -151,6 +157,7 @@ test("search clear reports one empty value and keeps input focus", async () => {
   const onValueChange = vi.fn();
   const screen = await render(
     <FilterBar
+      defaultFiltersOpen
       filters={[]}
       search={{
         value: "regent",
@@ -170,6 +177,7 @@ test("Escape clears FilterBar search exactly once", async () => {
   const onValueChange = vi.fn();
   const screen = await render(
     <FilterBar
+      defaultFiltersOpen
       filters={[]}
       search={{ value: "regent", onValueChange, "aria-label": "Query" }}
     />,
@@ -186,6 +194,7 @@ test.each(["empty", "disabled", "readOnly"])(
     const value = state === "empty" ? "" : "regent";
     await render(
       <FilterBar
+        defaultFiltersOpen
         filters={[]}
         search={{ value, onValueChange: () => {} }}
         searchInputProps={
@@ -206,6 +215,7 @@ test.each(["empty", "disabled", "readOnly"])(
 test("forwards searchInputProps to SearchInput and preserves placement", async () => {
   const screen = await render(
     <FilterBar
+      defaultFiltersOpen
       filters={[]}
       search={{ value: "regent", onValueChange: () => {} }}
       searchInputProps={{ className: "max-w-sm", name: "query" }}
@@ -215,8 +225,8 @@ test("forwards searchInputProps to SearchInput and preserves placement", async (
     '[data-slot="filter-bar-search"]',
   ) as HTMLElement;
   expect(group.className).toContain("max-w-sm");
-  // The search leads the first row at ~320px (full width on a narrow bar); nothing pushes it.
-  expect(group.className.split(/\s+/)).toContain("@3xl/filter-bar:w-80");
+  // The search leads the first row and takes the free space (its own row on a phone).
+  expect(group.className.split(/\s+/)).toContain("@lg/filter-bar:flex-1");
   expect(group.className.split(/\s+/)).not.toContain("ms-auto");
   await expect
     .element(screen.getByRole("searchbox", { name: "Search" }))
@@ -226,6 +236,7 @@ test("forwards searchInputProps to SearchInput and preserves placement", async (
 test("omits the search field when search is not provided", async () => {
   await render(
     <FilterBar
+      defaultFiltersOpen
       filters={[{ id: "status", label: "Status", onRemove: () => {} }]}
     />,
   );
@@ -235,6 +246,7 @@ test("omits the search field when search is not provided", async () => {
 test("renders trailing content", async () => {
   const screen = await render(
     <FilterBar
+      defaultFiltersOpen
       filters={[]}
       trailing={<button type="button">Clear all</button>}
     />,
@@ -264,7 +276,7 @@ test("FilterChip computes a remove label from a string label", async () => {
 
 test("FilterBar forwards ref to the root element", async () => {
   const ref = React.createRef<HTMLDivElement>();
-  await render(<FilterBar ref={ref} filters={[]} />);
+  await render(<FilterBar ref={ref} defaultFiltersOpen filters={[]} />);
   expect(ref.current).toBeInstanceOf(HTMLDivElement);
   expect(ref.current?.dataset.slot).toBe("filter-bar");
 });
@@ -283,6 +295,7 @@ test("FilterChip forwards ref to the root element", async () => {
 test("no a11y violations", async () => {
   const screen = await render(
     <FilterBar
+      defaultFiltersOpen
       filters={[
         {
           id: "status",
@@ -302,6 +315,7 @@ test("no a11y violations", async () => {
 test("no a11y violations — inactive chip", async () => {
   const screen = await render(
     <FilterBar
+      defaultFiltersOpen
       filters={[
         {
           id: "status",
@@ -319,6 +333,7 @@ test("no a11y violations — inactive chip", async () => {
 test("no a11y violations — add filter menu open", async () => {
   await render(
     <FilterBar
+      defaultFiltersOpen
       filters={[]}
       addFilters={[
         { id: "priority", label: "Priority" },
@@ -458,6 +473,7 @@ test.each([160, 200, 254, 288, 320])(
     const screen = await render(
       <div style={{ width }} data-testid="box">
         <FilterBar
+          defaultFiltersOpen
           filters={[
             { id: "label", label: "Label", value: "bug", onRemove: () => {} },
           ]}
@@ -490,6 +506,7 @@ test.each([160, 200, 254, 288, 320])(
 test("a chip reads label: value, with the colon (DS-36)", async () => {
   const screen = await render(
     <FilterBar
+      defaultFiltersOpen
       filters={[
         {
           id: "status",
@@ -512,6 +529,7 @@ test("the search leads the first row; trailing and Clear end the filter row", as
   const onClear = vi.fn();
   const screen = await render(
     <FilterBar
+      defaultFiltersOpen
       searchPlacement="end"
       filters={[{ id: "status", label: "Status", onRemove: () => {} }]}
       search={{ value: "", onValueChange: () => {} }}
@@ -537,6 +555,7 @@ test("the search leads the first row; trailing and Clear end the filter row", as
 test("Clear shows only while a filter is applied", async () => {
   const screen = await render(
     <FilterBar
+      defaultFiltersOpen
       facets={
         <FilterBarFacet<Status>
           label="Owner"
@@ -555,6 +574,7 @@ test("Clear shows only while a filter is applied", async () => {
   ).toBeNull();
   await screen.rerender(
     <FilterBar
+      defaultFiltersOpen
       facets={
         <FilterBarFacet<Status>
           label="Owner"
@@ -576,6 +596,7 @@ test("Clear shows only while a filter is applied", async () => {
 test("scope sits beside the search and view is pinned to the end", async () => {
   const screen = await render(
     <FilterBar
+      defaultFiltersOpen
       search={{ value: "", onValueChange: () => {} }}
       scope={<button type="button">My tasks</button>}
       view={<button type="button">List</button>}
@@ -601,7 +622,7 @@ test("scope sits beside the search and view is pinned to the end", async () => {
   ).toBeNull();
 });
 
-test("the Filters toggle shows the count, opens when a filter is set, and hides the row", async () => {
+test("the filter row stays hidden until the toggle opens it; the icon-only toggle keeps the count", async () => {
   const onClear = vi.fn();
   const sheet = document.createElement("style");
   sheet.textContent = geometryCss;
@@ -610,7 +631,8 @@ test("the Filters toggle shows the count, opens when a filter is set, and hides 
   const screen = await render(
     <div style={{ width: 360 }}>
       <FilterBar
-        scope={<button type="button">My tasks</button>}
+        search={{ value: "", onValueChange: () => {} }}
+        view={<button type="button">List</button>}
         filters={[
           { id: "status", label: "Status", value: "Open", onRemove: () => {} },
         ]}
@@ -618,19 +640,81 @@ test("the Filters toggle shows the count, opens when a filter is set, and hides 
       />
     </div>,
   );
-  await expect
-    .element(screen.getByRole("button", { name: "My tasks" }))
-    .toBeVisible();
   const toggle = screen.getByRole("button", { name: "Filters (1)" });
-  // Something is set, so the row opened by itself.
+  // A filter is set, but the row never opens by itself.
+  await expect.element(toggle).toHaveAttribute("aria-expanded", "false");
+  const row = screen.container.querySelector<HTMLElement>(
+    '[data-slot="filter-bar-filters"]',
+  )!;
+  expect(row.checkVisibility()).toBe(false);
+  // Narrow bar: the toggle is icon-only, with the count as a badge.
+  await expect
+    .element(
+      screen.getByRole("button", { name: "Filters (1)" }).getByText("Filters"),
+    )
+    .not.toBeVisible();
+  await expect
+    .element(
+      toggle
+        .element()
+        .querySelector<HTMLElement>('[data-slot="filter-bar-filters-count"]')!,
+    )
+    .toHaveTextContent("1");
+  // Phone width: the search takes the full row; the toggle and the view share the next one.
+  const search = screen.container.querySelector(
+    '[data-slot="filter-bar-search"]',
+  )!;
+  const view = screen.container.querySelector('[data-slot="filter-bar-view"]')!;
+  expect(search.getBoundingClientRect().width).toBeGreaterThan(300);
+  expect(toggle.element().getBoundingClientRect().top).toBeGreaterThan(
+    search.getBoundingClientRect().bottom - 1,
+  );
+  expect(
+    Math.abs(
+      view.getBoundingClientRect().top -
+        toggle.element().getBoundingClientRect().top,
+    ),
+  ).toBeLessThan(8);
+  await toggle.click();
   await expect.element(toggle).toHaveAttribute("aria-expanded", "true");
   await page.getByRole("button", { name: "Clear", exact: true }).click();
   expect(onClear).toHaveBeenCalledOnce();
   await toggle.click();
   await expect.element(toggle).toHaveAttribute("aria-expanded", "false");
+});
+
+test("autoOpenFilters opts back in to opening the row when a filter becomes set", async () => {
+  const filter: FilterBarFilter = {
+    id: "status",
+    label: "Status",
+    value: "Open",
+    onRemove: () => {},
+  };
+  const screen = await render(<FilterBar autoOpenFilters filters={[]} />);
+  await screen.rerender(<FilterBar autoOpenFilters filters={[filter]} />);
   await expect
-    .element(page.getByRole("button", { name: "Clear Status" }))
-    .not.toBeInTheDocument();
+    .element(screen.getByRole("button", { name: "Filters (1)" }))
+    .toHaveAttribute("aria-expanded", "true");
+});
+
+test("filtersOpenStorageKey remembers the toggle for the session", async () => {
+  const key = "filter-bar-test:open";
+  window.sessionStorage.removeItem(key);
+  onTestFinished(() => window.sessionStorage.removeItem(key));
+  const bar = (
+    <FilterBar
+      filtersOpenStorageKey={key}
+      filters={[{ id: "status", label: "Status", onRemove: () => {} }]}
+    />
+  );
+  const first = await render(bar);
+  await first.getByRole("button", { name: "Filters (1)" }).click();
+  expect(window.sessionStorage.getItem(key)).toBe("1");
+  await first.unmount();
+  const second = await render(bar);
+  await expect
+    .element(second.getByRole("button", { name: "Filters (1)" }))
+    .toHaveAttribute("aria-expanded", "true");
 });
 
 test("search.onValueCommitted receives the settled query (DS-37)", async () => {
@@ -641,6 +725,7 @@ test("search.onValueCommitted receives the settled query (DS-37)", async () => {
       const [value, setValue] = React.useState("");
       return (
         <FilterBar
+          defaultFiltersOpen
           filters={[]}
           search={{
             value,
@@ -756,6 +841,7 @@ test("a chip with an editor opens it in place and returns focus on Escape (DS-36
   const onEditorOpenChange = vi.fn();
   const screen = await render(
     <FilterBar
+      defaultFiltersOpen
       onEditorOpenChange={onEditorOpenChange}
       filters={[
         {
@@ -788,6 +874,7 @@ test("a chip with an editor opens it in place and returns focus on Escape (DS-36
 test("a chip without an editor stays non-interactive (DS-36)", async () => {
   const screen = await render(
     <FilterBar
+      defaultFiltersOpen
       filters={[
         { id: "status", label: "Status", value: "Open", onRemove: () => {} },
       ]}
@@ -801,6 +888,7 @@ test("a chip without an editor stays non-interactive (DS-36)", async () => {
 test("facets sit on the filter row before the chips (DS-35)", async () => {
   const screen = await render(
     <FilterBar
+      defaultFiltersOpen
       search={{ value: "", onValueChange: () => {}, "aria-label": "Search" }}
       facets={
         <FilterBarFacet<Status>
@@ -866,6 +954,7 @@ test("an add option with an editor opens it on the new chip (DS-36)", async () =
     const [filters, setFilters] = React.useState<FilterBarFilter[]>([]);
     return (
       <FilterBar
+        defaultFiltersOpen
         filters={filters}
         addFilters={[
           { id: "status", label: "Status", editor: <p>Status editor</p> },
