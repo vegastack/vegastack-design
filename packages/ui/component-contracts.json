@@ -12,12 +12,12 @@
     "evidencePolicy": "Observed fields come from source, registry metadata, docs, and test topology. Unknown/not-applicable values are explicit; no inferred behavior is presented as verified."
   },
   "expectedCounts": {
-    "totalRegistryItems": 694,
+    "totalRegistryItems": 693,
     "components": 130,
     "animatedIcons": 467,
     "hooks": 13,
     "blocks": 11,
-    "libs": 5,
+    "libs": 4,
     "chartBlocks": 68
   },
   "expectedWaveCounts": {
@@ -26067,6 +26067,15 @@
             "status": "not-applicable",
             "rationale": "Type-only exports do not render or accept runtime refs."
           }
+        },
+        {
+          "name": "personInitials",
+          "kind": "function",
+          "source": "packages/ui/registry/ui/person-avatar.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A pure function; it renders nothing and takes no ref."
+          }
         }
       ],
       "variants": {
@@ -26111,7 +26120,7 @@
       },
       "engines": [],
       "docsSlug": "/docs/guides/components",
-      "registryDependencies": ["@vegastack/avatar", "@vegastack/person"],
+      "registryDependencies": ["@vegastack/avatar"],
       "npmDependencies": [
         "@vegastack/design@^0.7.46",
         "@vegastack/design-tokens@^0.7.46"
@@ -32186,82 +32195,6 @@
       "testFiles": [
         "packages/ui/registry/lib/drag-item.test.ts",
         "packages/ui/registry/ui/sortable-list.test.tsx"
-      ],
-      "coverage": {
-        "source": "required",
-        "test": "required",
-        "docs": "shared-guide-only",
-        "navigation": "exempt",
-        "preview": "exempt",
-        "vrt": "exempt"
-      }
-    },
-    {
-      "name": "person",
-      "registryType": "registry:lib",
-      "title": "Person",
-      "summary": "The one initials rule for a person's avatar — first and last word, two letters of a single word, else the email — shared by PersonAvatar and every people surface.",
-      "family": "lib",
-      "wave": "Libs",
-      "sourceFiles": ["packages/ui/registry/lib/person.ts"],
-      "publicSymbols": [
-        {
-          "name": "personInitials",
-          "kind": "function",
-          "source": "packages/ui/registry/lib/person.ts",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "A pure function; it renders nothing and takes no ref."
-          }
-        }
-      ],
-      "variants": {
-        "status": "not-applicable-or-inherited",
-        "dimensions": [],
-        "rationale": "A pure function has no variant surface."
-      },
-      "sizes": {
-        "status": "not-applicable-or-inherited",
-        "dimensions": [],
-        "rationale": "A pure function has no size scale."
-      },
-      "motion": {
-        "status": "not-applicable",
-        "mechanisms": [],
-        "reducedMotion": {
-          "status": "not-applicable",
-          "rationale": "No component-owned motion mechanism observed."
-        }
-      },
-      "engines": [],
-      "registryDependencies": [],
-      "docsSlug": "/docs/guides/components",
-      "states": {
-        "behavior": {
-          "status": "covered",
-          "values": ["two-words", "one-word", "email"],
-          "evidence": "packages/ui/registry/lib/person.test.ts"
-        },
-        "accessibility": {
-          "status": "not-applicable",
-          "values": ["not-applicable"],
-          "evidence": "No DOM — PersonAvatar renders the initials."
-        },
-        "visual": {
-          "status": "not-applicable",
-          "values": ["not-applicable"],
-          "evidence": "No DOM."
-        }
-      },
-      "responsive": {
-        "status": "not-applicable",
-        "risks": [],
-        "rationale": "No DOM of its own; consumers own layout."
-      },
-      "npmDependencies": [],
-      "testFiles": [
-        "packages/ui/registry/lib/person.test.ts",
-        "packages/ui/registry/ui/person-avatar.test.tsx"
       ],
       "coverage": {
         "source": "required",

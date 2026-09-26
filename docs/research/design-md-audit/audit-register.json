@@ -2,14 +2,14 @@
   "schemaVersion": 1,
   "kind": "vegastack-zero-gap-audit-register",
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "e7075a5d14c59bd1c08bb913b62bff0966f9ec400c9601c7a3534b2d7bdaa7e2",
+  "contractSha256": "f142bde42e410ded3d7817e1e7705505739c51a095c3212d45e8b547d5f10193",
   "expectedCounts": {
-    "totalRegistryItems": 694,
+    "totalRegistryItems": 693,
     "components": 130,
     "animatedIcons": 467,
     "hooks": 13,
     "blocks": 11,
-    "libs": 5,
+    "libs": 4,
     "chartBlocks": 68
   },
   "records": [
@@ -7649,17 +7649,6 @@
       "family": "lib",
       "sourceFiles": [
         "packages/ui/registry/lib/drag-item.ts"
-      ],
-      "docsSlug": "/docs/guides/components",
-      "contractStatus": "reconciled"
-    },
-    {
-      "name": "person",
-      "inventoryClass": "lib",
-      "wave": "Libs",
-      "family": "lib",
-      "sourceFiles": [
-        "packages/ui/registry/lib/person.ts"
       ],
       "docsSlug": "/docs/guides/components",
       "contractStatus": "reconciled"

@@ -1599,30 +1599,6 @@
       }
     },
     {
-      "name": "person",
-      "type": "registry:lib",
-      "title": "Person",
-      "description": "The one initials rule for a person's avatar — first and last word, two letters of a single word, else the email — shared by PersonAvatar and every people surface.",
-      "categories": [
-        "data"
-      ],
-      "dependencies": [],
-      "registryDependencies": [],
-      "files": [
-        {
-          "path": "packages/ui/registry/lib/person.ts",
-          "type": "registry:lib",
-          "target": "@lib/person.ts"
-        }
-      ],
-      "meta": {
-        "whenToUse": "Deriving a person's initials outside PersonAvatar (a mention, an export) so they match the avatar.",
-        "whenNotToUse": "Drawing an avatar — compose PersonAvatar, which applies the rule itself.",
-        "version": "0.23.43",
-        "integrity": "sha256-0XiXUntsDA9HFLCx/GF5UgdVGd8z1k2naP4r1lBUyE8="
-      }
-    },
-    {
       "name": "drawer",
       "type": "registry:ui",
       "title": "Drawer",
@@ -16021,8 +15997,7 @@
         "@vegastack/design-tokens@^0.7.46"
       ],
       "registryDependencies": [
-        "@vegastack/avatar",
-        "@vegastack/person"
+        "@vegastack/avatar"
       ],
       "files": [
         {
@@ -16035,7 +16010,7 @@
         "whenToUse": "Any avatar that stands for a person: rows, chips, cards, menus, comments and the user menu.",
         "whenNotToUse": "An organisation or record image (Thumbnail) or a non-person avatar composition (Avatar).",
         "version": "0.23.43",
-        "integrity": "sha256-0U+sF+4zsAAyhCcigm4PEakjFj3vDHcyTY35Z8/UV3A="
+        "integrity": "sha256-c6t+p5WOknoQtGSZxRDwo02u28z80u4ZNAqbVoH31Ag="
       }
     },
     {
