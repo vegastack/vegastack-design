@@ -1,4 +1,4 @@
-// @vegastack property-list@0.23.40 sha256-UuwN+u+c2l72i7W2l69M90nUvZwFkNTqsbHFPrqQfEQ=
+// @vegastack property-list@0.23.40 sha256-OaPelEJS1uzQzUXYOFb3XB8ODNI1Bd6p0HKDNukZkyY=
 
 import * as React from "react";
 import { cn } from "@vegastack/design";
@@ -18,7 +18,7 @@ export interface PropertyListProps extends React.ComponentPropsWithRef<"dl"> {
    * `stacked` — the label column beside the value, stacking when the pane is narrow. `inline` —
    * the record-aside row for a narrow rail card: a fixed 112px label column (a long label
    * truncates, its full text in the tooltip), so every value starts at the same x, left-aligned,
-   * as in Linear or Notion; its editable values are quiet (ghost) pickers.
+   * as in Linear or Notion; its editable values are quiet pickers — `RecordChip variant="ghost"`.
    * @default "stacked"
    */
   variant?: "stacked" | "inline";
@@ -149,6 +149,11 @@ export function PropertyValue({ className, ...props }: PropertyValueProps) {
         // A 28px quiet control (picker button, select trigger) hangs 4px above and below the 20px
         // first line, so its text shares the label's centre like a plain value does.
         "[&>[data-slot=button]]:-my-1 [&>[data-slot=select-trigger]]:-my-1",
+        // A ghost RecordChip is a value that reads as plain text: its 28px box hangs 4px above and
+        // below the line, and its 8px padding hangs past the column's start, so its text (or its
+        // status icon or avatar) starts where plain values do and its tint sits in the gutter. A row
+        // holding a chip is exactly as tall as a row holding text, whatever the pane's width.
+        "[&>[data-slot=record-chip][data-variant=ghost]]:-my-1 [&>[data-slot=record-chip][data-variant=ghost]]:-ms-2",
         // Inline: a quiet picker's ghost padding hangs past the column's start so its text lines
         // up with plain values.
         "group-data-[variant=inline]/property-list:flex group-data-[variant=inline]/property-list:min-w-0 group-data-[variant=inline]/property-list:[&>[data-slot=button]]:-ms-2",

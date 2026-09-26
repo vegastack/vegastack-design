@@ -11,7 +11,6 @@ import {
   UserRound,
   UsersRound,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { Wrapper } from "./wrapper";
 // Copied INTO apps/docs via `shadcn add @vegastack/property-list` (dogfoods the registry) → auto-scanned.
 import {
@@ -22,7 +21,12 @@ import {
   PropertyRow,
   PropertyValue,
 } from "@/components/ui/property-list";
+import { RecordChip } from "@/components/ui/record-chip";
+import { DateTime } from "@/components/ui/relative-time";
 import { Tag, TagGroup } from "@/components/ui/tag-group";
+
+/** A fixed instant, so the preview renders the same on the server and the client. */
+const CREATED = Date.UTC(2026, 8, 22, 9, 30);
 
 export function propertyList(): ReactNode {
   // The record-facts pane: label track + value column, values are compositions.
@@ -109,32 +113,43 @@ export function propertyListInline(): ReactNode {
           <PropertyRow>
             <PropertyLabel icon={<UserRound />}>Owner</PropertyLabel>
             <PropertyValue>
-              <Button variant="ghost" size="xs">
-                Asha Rao
-              </Button>
+              <RecordChip
+                variant="ghost"
+                person={{ name: "Asha Rao" }}
+                aria-label="Owner: Asha Rao"
+              />
             </PropertyValue>
           </PropertyRow>
           <PropertyRow>
             <PropertyLabel icon={<Clock />}>Follow-up</PropertyLabel>
             <PropertyValue>
-              <PropertyEmpty />
+              <RecordChip
+                variant="ghost"
+                placeholder="Set follow-up date"
+                aria-label="Set follow-up date"
+              />
             </PropertyValue>
           </PropertyRow>
           <PropertyRow>
-            <PropertyLabel icon={<Building2 />}>Customer</PropertyLabel>
+            <PropertyLabel icon={<Clock />}>Created at</PropertyLabel>
             <PropertyValue>
-              <Button
-                variant="ghost"
-                size="xs"
-                className="text-muted-foreground"
-              >
-                + Add
-              </Button>
+              <DateTime date={CREATED} variant="datetime" />
+            </PropertyValue>
+          </PropertyRow>
+          <PropertyRow>
+            <PropertyLabel icon={<Globe />}>Region</PropertyLabel>
+            <PropertyValue>
+              <PropertyEmpty />
             </PropertyValue>
           </PropertyRow>
         </PropertyList>
-        <PropertySection title="Tags">
-          <span className="text-sm">Renewal, Q4</span>
+        <PropertySection title="Linked to">
+          <RecordChip
+            icon={<Building2 />}
+            value="Northwind"
+            href="#customer"
+            linkLabel="Open Northwind"
+          />
         </PropertySection>
       </div>
     </Wrapper>

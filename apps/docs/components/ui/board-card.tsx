@@ -1,4 +1,4 @@
-// @vegastack board-card@0.23.40 sha256-AJDqmwfcdPMEGsjY0ZC2PgdZ4XOfe/X51Q89Tu+b41A=
+// @vegastack board-card@0.23.40 sha256-XWPKeFBGH0n5SUBY8rxkuWsaWiFfjwHhcSMIfekA2pg=
 
 "use client";
 
@@ -333,7 +333,6 @@ export function BoardCard({
                 variant={
                   done ? "outline" : dueVariant(due as DateInput, dateOptions)
                 }
-                className="tabular-nums"
               >
                 {dueLabel.label}
               </Badge>

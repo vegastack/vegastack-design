@@ -48,6 +48,67 @@ border and the placeholder; a set chip adds the ↗ link to the record.
 
 <ComponentPreview name="recordChip" file="components/preview/record-chip.tsx" />
 
+### States
+
+Empty (dashed border, muted placeholder), set with its ↗ link, open (the name segment keeps its
+muted background while the menu is open), and disabled. Hover tints a segment the same way as
+open. Each segment's background sits 2px from the border on every side, and 2px either side of the
+separator.
+
+<ComponentPreview
+  name="recordChipStates"
+  file="components/preview/record-chip.tsx"
+/>
+
+### Ghost variant
+
+`variant="ghost"` is the quiet form for a property value in a `PropertyList`, such as a task's
+Status, Priority, Assignee or Due. It has no border and no fill, and the value reads as plain body
+text: the same size, weight and colour as a plain value such as a date. Hover and keyboard focus
+give it the standard tint, and a ▾ fades in at the end. The ▾ stays visible while the menu is open.
+
+- **Icons:** a status circle or a priority flag keeps its colour, and any other leading icon (a
+  record-type icon such as a calendar or a person) is dropped.
+- **People:** `person` shows a 20px avatar (with an initials fallback) before the name, and its
+  `badge` (such as "Inactive") after it, like `PropertyPerson`.
+- **Due dates:** pass a `DueLabel` as the value. It keeps its overdue colour.
+- **Empty:** the muted placeholder, such as "Set due date".
+
+In a `PropertyValue`, the chip's 8px padding and its 28px height hang outside the cell. Its text
+starts where plain values do, the tint sits in the gutter, and a row holding a chip is as tall as a
+row holding text. Nothing moves on hover or open, because the ▾ is always laid out and only its
+opacity changes.
+
+```tsx
+<PropertyRow>
+  <PropertyLabel icon={<UserRound />}>Assignee</PropertyLabel>
+  <PropertyValue>
+    <PopoverTrigger
+      render={
+        <RecordChip
+          variant="ghost"
+          person={
+            assignee && {
+              name: assignee.name,
+              badge: assignee.inactive ? "Inactive" : undefined,
+            }
+          }
+          placeholder="Unassigned"
+          aria-label={assignee ? `Assignee: ${assignee.name}` : "Set assignee"}
+        />
+      }
+    />
+  </PropertyValue>
+</PropertyRow>
+```
+
+<ComponentPreview
+  name="recordChipGhost"
+  file="components/preview/record-chip.tsx"
+/>
+
+Keep the default chips for links to other records, such as a "Linked to" section.
+
 ### Split chip anatomy
 
 RecordChip is built on `SplitChip`, exported from the same file, for any pill that holds a main
@@ -105,5 +166,5 @@ searchable `Command` list (`width="list"`) or as wide as a `Calendar` (`width="f
 
 <DoDont
   do="Use RecordChip in a record's header to link it to its customer or project, with a jump to that record."
-  dont="Use it for free-form tags (Chip) or inside a form with a visible label (Combobox, Select)."
+  dont="Use it for free-form tags (Chip), inside a form with a visible label (Combobox, Select), or as a bordered chip for a property value (use the ghost variant)."
 />
