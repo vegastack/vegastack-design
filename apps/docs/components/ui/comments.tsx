@@ -1,4 +1,4 @@
-// @vegastack comments@0.23.36 sha256-7DTBfNuzHeFINmdynj+hafAluJ4Xjzxr+VOBn6gV7dY=
+// @vegastack comments@0.23.36 sha256-HeQKJXbj9D+nMmrjs6wkdjA5pX1kUXAAh3Rr1yvGrgU=
 
 "use client";
 
@@ -28,6 +28,11 @@ import {
 } from "@/components/ui/empty";
 import { MarkdownView } from "@/components/ui/markdown-view";
 import { PersonAvatar, type Person } from "@/components/ui/person-hover-card";
+import {
+  ReactionAdd,
+  Reactions,
+  type ReactionData,
+} from "@/components/ui/reactions";
 import { PersonBadge } from "@/components/ui/searchable-select";
 import { RelativeTime } from "@/components/ui/relative-time";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -46,6 +51,7 @@ import {
  * first toggle, "Load earlier", skeleton and an empty state whose "Add a comment" reveals the
  * composer), `CommentItem` (avatar, name, relative time, "edited", a ⋯ menu with Copy link / Edit
  * / Delete, in-place editing in a compact box, a `#comment-<id>` highlight and a replies slot) and
+ * Slack-style reactions under the body (pills, and an add-reaction button in the hover actions),
  * `CommentComposer` (a Linear-style soft box with a round send button; Cmd/Ctrl+Enter sends). The
  * parts hold only transient UI state — the host owns the data and persists through callbacks; a
  * callback that returns a promise drives the saving/posting state and, on rejection, the error.
@@ -69,6 +75,8 @@ export interface CommentData {
   canEdit?: boolean;
   /** The viewer may delete it (the menu shows Delete). @default false */
   canDelete?: boolean;
+  /** Emoji reactions, shown as pills under the body. @default undefined */
+  reactions?: ReactionData[];
 }
 
 /** A callback that may persist asynchronously; a rejected promise shows its message. */
@@ -92,6 +100,11 @@ export interface CommentItemProps {
   onDelete?: MaybeAsync<[id: string]>;
   /** Copy a link to the comment; the menu shows Copy link when set. @default undefined */
   onCopyLink?: (id: string) => void;
+  /**
+   * Add or remove the viewer's reaction; enables the pills and the add-reaction hover action.
+   * May return a promise. @default undefined
+   */
+  onReactionToggle?: MaybeAsync<[id: string, emoji: string]>;
   /** Tint the comment — it was opened from its `#comment-<id>` link. @default false */
   highlighted?: boolean;
   /** Start in editing mode (controlled when `onEditingChange` is set). @default undefined */
@@ -113,13 +126,15 @@ export interface CommentItemProps {
  * unchanged) and a ghost × Cancel; Cmd/Ctrl+Enter saves and Escape cancels. Delete asks first.
  *
  * @example
- * <CommentItem comment={c} onEdit={save} onDelete={remove} onCopyLink={copy} />
+ * <CommentItem comment={c} onEdit={save} onDelete={remove} onCopyLink={copy}
+ *   onReactionToggle={(id, emoji) => toggle(id, emoji)} />
  */
 export function CommentItem({
   comment,
   onEdit,
   onDelete,
   onCopyLink,
+  onReactionToggle,
   highlighted = false,
   editing: editingProp,
   onEditingChange,
@@ -138,6 +153,11 @@ export function CommentItem({
   const [error, setError] = React.useState<string | null>(null);
   const [confirmOpen, setConfirmOpen] = React.useState(false);
   const { author } = comment;
+  const reactions = comment.reactions?.filter((r) => r.count > 0) ?? [];
+  const toggleReaction = onReactionToggle
+    ? (emoji: string) => onReactionToggle(comment.id, emoji)
+    : undefined;
+  const canReact = !!toggleReaction && !comment.deleted && !editing;
 
   const save = async (body: string) => {
     if (!onEdit || !body.trim()) return;
@@ -207,7 +227,7 @@ export function CommentItem({
     >
       <div
         data-highlighted={highlighted ? "" : undefined}
-        className="-mx-2 flex min-w-0 gap-3 rounded-lg px-2 py-2 transition-colors data-[highlighted]:bg-accent"
+        className="group/comment -mx-2 flex min-w-0 gap-3 rounded-lg px-2 py-2 transition-colors data-[highlighted]:bg-accent"
       >
         {comment.deleted ? (
           <span aria-hidden className="size-6 shrink-0 rounded-full bg-muted" />
@@ -256,12 +276,26 @@ export function CommentItem({
                 </span>
               </span>
             )}
-            {actions.length > 0 && !editing ? (
-              <span className="ms-auto shrink-0">
-                <RowActionsMenu
-                  label={`comment by ${author.name}`}
-                  actions={actions}
-                />
+            {(actions.length > 0 && !editing) || canReact ? (
+              <span className="ms-auto flex shrink-0 items-center gap-0.5">
+                {canReact ? (
+                  <ReactionAdd
+                    onSelect={(emoji) => {
+                      if (reactions.some((r) => r.emoji === emoji && r.reacted))
+                        return;
+                      void Promise.resolve(toggleReaction?.(emoji)).catch(
+                        () => {},
+                      );
+                    }}
+                    className="opacity-0 group-hover/comment:opacity-100 group-focus-within/comment:opacity-100 focus-visible:opacity-100 data-popup-open:opacity-100 pointer-coarse:opacity-100"
+                  />
+                ) : null}
+                {actions.length > 0 && !editing ? (
+                  <RowActionsMenu
+                    label={`comment by ${author.name}`}
+                    actions={actions}
+                  />
+                ) : null}
               </span>
             ) : null}
           </div>
@@ -319,6 +353,13 @@ export function CommentItem({
           ) : (
             <MarkdownView className="text-sm">{comment.body}</MarkdownView>
           )}
+          {!comment.deleted && !editing && reactions.length > 0 ? (
+            <Reactions
+              reactions={reactions}
+              onToggle={toggleReaction}
+              className="mt-1"
+            />
+          ) : null}
           {error ? (
             <p role="alert" className="text-xs text-destructive">
               {error}
@@ -585,6 +626,8 @@ export interface CommentListProps {
   onDelete?: CommentItemProps["onDelete"];
   /** Copy a comment's link. @default undefined */
   onCopyLink?: CommentItemProps["onCopyLink"];
+  /** Add or remove the viewer's reaction on a comment. @default undefined */
+  onReactionToggle?: CommentItemProps["onReactionToggle"];
   /** Replies under a comment (threads). @default undefined */
   renderReplies?: (comment: CommentData) => React.ReactNode;
   /**
@@ -625,6 +668,7 @@ export function CommentList({
   onEdit,
   onDelete,
   onCopyLink,
+  onReactionToggle,
   renderReplies,
   composer,
   emptyText = "No comments yet",
@@ -721,6 +765,7 @@ export function CommentList({
                 onEdit={onEdit}
                 onDelete={onDelete}
                 onCopyLink={onCopyLink}
+                onReactionToggle={onReactionToggle}
                 replies={renderReplies?.(comment)}
                 now={now}
               />

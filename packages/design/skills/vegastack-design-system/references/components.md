@@ -3,7 +3,7 @@
 <!-- GENERATED — do not hand-edit. Regenerated from the design system's component contract,
      which is the authority for membership and counts. -->
 
-**127 components**, plus 467 animated-icon items, 13 hooks (`use-animation-replay`, `use-announcer`, `use-async-search`, `use-drag-reorder`, `use-file-drop`, `use-inline-edit`, `use-list-nav`, `use-media-query`, `use-mobile`, `use-modal-inert`, `use-overflow`, `use-platform`, `use-tabs-swipe`), 11 starter blocks (`app-shell-01`, `board-01`, `issue-detail-01`, `command-search-01`, `list-page-01`, `login-01`, `notifications-01`, `review-split-01`, `settings-01`, `settings-02`, `status-pages-01`), 68 chart blocks across 7 families, and 3 data libs (`date-time`, `geo-data`, `drag-item`) — 689 registry items in total.
+**128 components**, plus 467 animated-icon items, 13 hooks (`use-animation-replay`, `use-announcer`, `use-async-search`, `use-drag-reorder`, `use-file-drop`, `use-inline-edit`, `use-list-nav`, `use-media-query`, `use-mobile`, `use-modal-inert`, `use-overflow`, `use-platform`, `use-tabs-swipe`), 11 starter blocks (`app-shell-01`, `board-01`, `issue-detail-01`, `command-search-01`, `list-page-01`, `login-01`, `notifications-01`, `review-split-01`, `settings-01`, `settings-02`, `status-pages-01`), 68 chart blocks across 7 families, and 4 data libs (`date-time`, `geo-data`, `emoji-data`, `drag-item`) — 691 registry items in total.
 
 Install any of them with `shadcn add @vegastack/<name>`. Animated icons install as
 `@vegastack/icon-<name>`; the bare name is reserved for components, so a component whose name
@@ -29,7 +29,7 @@ starts with `icon-` is a component and never an icon.
 - **`date-picker`** — Pick a single date or a date range from a calendar popover — token-styled, keyboard-navigable, with optional quick presets.
 - **`dropzone`** — File acquisition surface — drop, click-to-browse, and paste — as a thin shell over use-file-drop; the surface is the named focusable control over a hidden picker-bridge input; data-dragging/data-drag-invalid styling flags.
 - **`editable-cell`** — Inline-editable value whose edit mode looks like view — same box, inherited type, no border — with optimistic saves, a delayed spinner, rollback plus a Retry toast on failure, required, multiline, table-cell and heading variants, and a typed text/select/custom editor registry.
-- **`emoji-picker`** — A popover with a searchable, category-grouped grid of emoji that returns the selected character via onValueChange (curated set, not full Unicode).
+- **`emoji-picker`** — A popover with a quick row, search, a category bar, recents and a category-grouped grid of emoji that returns the selected character via onValueChange (curated set, loaded lazily).
 - **`field`** — The form-field scaffold — label, description, error, legend, separator and choice-card layouts.
 - **`input`** — A styled Base UI input for every text-entry type: a bordered default with the focus border tint (FOC-3), or a borderless ghost title field tinted on hover and focus; sm, default and lg sizes.
 - **`input-group`** — An input or textarea with addons — icons, text, buttons, kbd hints and spinners on one surface.
@@ -52,8 +52,9 @@ starts with `icon-` is a component and never an icon.
 
 - **`chip`** — The one labelled pill primitive — 10 decorative hues, two tiers, an optional selection rung, and a real 24x24 remove control. Behind Tag and FilterChip; ComboboxChip is Base UI's own chip, not this primitive.
 - **`code-block`** — A code panel with a language header and copy affordance — the shared code surface for chat transcripts, docs, and examples.
-- **`comments`** — A record's comments: a list with a count, Load earlier, skeleton and empty states, comments with edit/delete/copy link, and a composer.
+- **`comments`** — A record's comments: a list with a count, Load earlier, skeleton and empty states, comments with edit/delete/copy link and emoji reactions, and a composer.
 - **`meta-line`** — An icon + text meta line under a record title: wrapping facts such as type, date and time, duration and owner, in the muted ink.
+- **`reactions`** — Slack-style emoji reactions: pills with counts that toggle, a hover card naming who reacted, and an add-reaction button with quick reactions.
 - **`stat`** — A labelled value block — muted label over a value, honest faint empty state, optional delta line. Two scales.
 - **`tag-group`** — Hue-tinted label chips on the 10-hue tag palette, with +N overflow collapsing and removable tags.
 

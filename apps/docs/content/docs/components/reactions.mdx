@@ -1,0 +1,130 @@
+---
+title: Reactions
+description: Slack-style emoji reactions — pills with counts that toggle, a card naming who reacted, and an add button with quick reactions.
+audience: public
+registry: reactions
+status: stable
+since: 0.23.37
+a11y: toggle buttons with aria-pressed, labelled group
+preview: reactions
+---
+
+## Install
+
+<InstallSteps name="reactions" />
+
+## Usage
+
+```tsx
+import { Reactions, toggleReaction } from "@/components/ui/reactions";
+
+<Reactions
+  reactions={reactions}
+  onToggle={(emoji) => setReactions((rs) => toggleReaction(rs, emoji, me))}
+/>;
+```
+
+Each pill shows an emoji and its count. It is tinted and pressed when the viewer reacted, and a
+click toggles it. Hover a pill to see who reacted, for example "Neha Kapoor, Arjun Mehta and 3
+others reacted with :thumbs_up:". People who are no longer active are marked "(Inactive)".
+
+The ghost "Add reaction" button opens the compact [`EmojiPicker`](/docs/components/emoji-picker)
+with a quick row: 👍 ❤️ 😄 🎉 👀 🙏. Picking an emoji you already reacted with does nothing.
+
+The host owns the data. `onToggle` may return a promise: the pill stays busy until it settles,
+and repeat clicks are ignored meanwhile. `toggleReaction` is the pure update for an optimistic
+change; on failure, restore the previous list and show a toast.
+
+<ComponentPreview name="reactions" file="components/preview/reactions.tsx" />
+
+## Anatomy
+
+<Anatomy name="reactions" />
+
+## Examples
+
+### No reactions yet
+
+<ComponentPreview
+  name="reactionsEmpty"
+  file="components/preview/reactions.tsx"
+/>
+
+### Read-only
+
+Without `onToggle` there is no add button, and pills only show who reacted.
+
+<ComponentPreview
+  name="reactionsReadOnly"
+  file="components/preview/reactions.tsx"
+/>
+
+### Fewer names
+
+`maxUsersShown` caps the names in the card; the rest become "and N others".
+
+<ComponentPreview
+  name="reactionsMaxUsers"
+  file="components/preview/reactions.tsx"
+/>
+
+### Optimistic with rollback
+
+The pill flips at once and stays busy until the promise settles. Here 👀 fails and rolls back.
+
+<ComponentPreview
+  name="reactionsOptimistic"
+  file="components/preview/reactions.tsx"
+/>
+
+### Add button alone
+
+`ReactionAdd` is the button `CommentItem` puts in its hover actions.
+
+<ComponentPreview name="reactionsAdd" file="components/preview/reactions.tsx" />
+
+### In comments
+
+`CommentItem` and `CommentList` take `onReactionToggle` and read each comment's `reactions`; see
+[Comments](/docs/components/comments).
+
+## API Reference
+
+<ApiTable
+  path="../../packages/ui/registry/ui/reactions.tsx"
+  name="ReactionsProps"
+/>
+
+<ApiTable
+  path="../../packages/ui/registry/ui/reactions.tsx"
+  name="ReactionData"
+/>
+
+<ApiTable
+  path="../../packages/ui/registry/ui/reactions.tsx"
+  name="ReactionUser"
+/>
+
+## Accessibility
+
+- The row is a group named "Reactions".
+- Each pill is a toggle button with `aria-pressed`, named with the emoji and count, for example
+  "thumbs up 5, react".
+- A pill waiting on its promise sets `aria-busy`.
+- The add button is named "Add reaction". The picker's quick row, category bar and grid each take
+  one tab stop and move with the arrow keys.
+
+| Key                                 | Action                                 |
+| ----------------------------------- | -------------------------------------- |
+| <kbd>Enter</kbd> / <kbd>Space</kbd> | Toggle a pill, or open the picker      |
+| <kbd>←</kbd> / <kbd>→</kbd>         | Move within the picker's rows and grid |
+| <kbd>Esc</kbd>                      | Close the picker                       |
+
+<StatesTested name="reactions" />
+
+## Do / Don't
+
+<DoDont
+  do="Update optimistically with toggleReaction, and roll back with a toast when the request fails."
+  dont="Use reactions as a vote count or rating — they are lightweight acknowledgements."
+/>

@@ -1,4 +1,4 @@
-// @vegastack issue-detail-01@0.23.36 sha256-62IcDGfPzqZrqs9eWAO8E6qMVXbiY9xkqIV99tb3aqQ=
+// @vegastack issue-detail-01@0.23.36 sha256-s+CFdBUfcKV7piXJkhTdAlazDG99W85BGh7iHQJWOWo=
 
 "use client";
 
@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/comments";
 import { EditableCell } from "@/components/ui/editable-cell";
 import { PriorityIcon } from "@/components/ui/priority-icon";
+import { toggleReaction } from "@/components/ui/reactions";
 import {
   PropertyLabel,
   PropertyList,
@@ -37,6 +38,7 @@ import { StatusIcon } from "@/components/ui/status-icon";
 import { TextEdit } from "@/components/ui/text-edit";
 
 const ME = { name: "Asha Rao", email: "asha@acme.com" };
+const ME_REACTOR = { id: "asha", name: ME.name };
 const HOUR = 3_600_000;
 
 function initialComments(now: number): CommentData[] {
@@ -46,6 +48,17 @@ function initialComments(now: number): CommentData[] {
       author: { name: "Arjun Mehta", email: "arjun@acme.com" },
       body: "Customer asked for the **revised quote** by Friday.",
       createdAt: now - 26 * HOUR,
+      reactions: [
+        {
+          emoji: "👀",
+          count: 2,
+          reacted: true,
+          users: [
+            ME_REACTOR,
+            { id: "priya", name: "Priya Nair", inactive: true },
+          ],
+        },
+      ],
     },
     {
       id: "c2",
@@ -55,6 +68,24 @@ function initialComments(now: number): CommentData[] {
       editedAt: now - 2 * HOUR,
       canEdit: true,
       canDelete: true,
+      reactions: [
+        {
+          emoji: "👍",
+          count: 3,
+          reacted: false,
+          users: [
+            { id: "arjun", name: "Arjun Mehta" },
+            { id: "neha", name: "Neha Kapoor" },
+            { id: "ravi", name: "Ravi Iyer" },
+          ],
+        },
+        {
+          emoji: "🎉",
+          count: 1,
+          reacted: false,
+          users: [{ id: "arjun", name: "Arjun Mehta" }],
+        },
+      ],
     },
   ];
 }
@@ -176,6 +207,22 @@ export function IssueDetail() {
             )
           }
           onDelete={(id) => setComments((xs) => xs.filter((c) => c.id !== id))}
+          onReactionToggle={(id, emoji) =>
+            setComments((xs) =>
+              xs.map((c) =>
+                c.id === id
+                  ? {
+                      ...c,
+                      reactions: toggleReaction(
+                        c.reactions ?? [],
+                        emoji,
+                        ME_REACTOR,
+                      ),
+                    }
+                  : c,
+              ),
+            )
+          }
           composer={
             <CommentComposer
               onSubmit={(body) =>

@@ -12,12 +12,12 @@
     "evidencePolicy": "Observed fields come from source, registry metadata, docs, and test topology. Unknown/not-applicable values are explicit; no inferred behavior is presented as verified."
   },
   "expectedCounts": {
-    "totalRegistryItems": 689,
-    "components": 127,
+    "totalRegistryItems": 691,
+    "components": 128,
     "animatedIcons": 467,
     "hooks": 13,
     "blocks": 11,
-    "libs": 3,
+    "libs": 4,
     "chartBlocks": 68
   },
   "expectedWaveCounts": {
@@ -25,7 +25,7 @@
     "Forms/editing": 26,
     "Navigation/layout": 18,
     "Overlays": 14,
-    "Data display": 21,
+    "Data display": 22,
     "Content/marketing": 14,
     "Shared internals": 2,
     "AI/chat": 8,
@@ -145,7 +145,8 @@
       "view-toggle",
       "record-aside",
       "person-hover-card",
-      "comments"
+      "comments",
+      "reactions"
     ],
     "Content/marketing": [
       "alert",
@@ -10398,22 +10399,13 @@
       "name": "emoji-picker",
       "registryType": "registry:ui",
       "title": "Emoji Picker",
-      "summary": "A popover with a searchable, category-grouped grid of emoji that returns the selected character via onValueChange (curated set, not full Unicode).",
+      "summary": "A popover with a quick row, search, a category bar, recents and a category-grouped grid of emoji that returns the selected character via onValueChange (curated set, loaded lazily).",
       "status": "stable",
       "since": "0.1.0",
       "family": "form",
       "wave": "Overlays",
       "sourceFiles": ["packages/ui/registry/ui/emoji-picker.tsx"],
       "publicSymbols": [
-        {
-          "name": "EMOJI",
-          "kind": "component-constant",
-          "source": "packages/ui/registry/ui/emoji-picker.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "component-constant symbols do not expose a rendered DOM instance or ref contract."
-          }
-        },
         {
           "name": "EmojiCategory",
           "kind": "type",
@@ -10450,6 +10442,24 @@
             "status": "not-applicable",
             "rationale": "Type-only exports do not render or accept runtime refs."
           }
+        },
+        {
+          "name": "loadEmojiData",
+          "kind": "function",
+          "source": "packages/ui/registry/ui/emoji-picker.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Function exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "useEmojiData",
+          "kind": "hook",
+          "source": "packages/ui/registry/ui/emoji-picker.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Hooks return values and accept no ref."
+          }
         }
       ],
       "variants": {
@@ -10471,7 +10481,9 @@
             "empty",
             "filtering",
             "open",
-            "selected"
+            "selected",
+            "loading",
+            "recents"
           ],
           "evidence": "Observed from branches, state attributes, and inline source contract."
         },
@@ -10515,8 +10527,11 @@
       "docsSlug": "/docs/components/emoji-picker",
       "registryDependencies": [
         "@vegastack/button",
+        "@vegastack/emoji-data",
+        "@vegastack/empty",
         "@vegastack/panel-search",
         "@vegastack/popover",
+        "@vegastack/skeleton",
         "@vegastack/use-list-nav"
       ],
       "npmDependencies": [
@@ -10538,13 +10553,24 @@
         "EmojiPicker": {
           "attributes": [
             {
+              "name": "data-section",
+              "values": []
+            },
+            {
+              "name": "data-size",
+              "values": []
+            },
+            {
               "name": "data-slot",
               "values": [
                 "emoji-picker",
+                "emoji-picker-categories",
                 "emoji-picker-empty",
                 "emoji-picker-grid",
                 "emoji-picker-item",
+                "emoji-picker-quick",
                 "emoji-picker-search",
+                "emoji-picker-skeleton",
                 "emoji-picker-status"
               ]
             }
@@ -24798,7 +24824,7 @@
       "name": "comments",
       "registryType": "registry:ui",
       "title": "Comments",
-      "summary": "A record's comments: a list with a count, Load earlier, skeleton and empty states, comments with edit/delete/copy link, and a composer.",
+      "summary": "A record's comments: a list with a count, Load earlier, skeleton and empty states, comments with edit/delete/copy link and emoji reactions, and a composer.",
       "status": "stable",
       "since": "0.23.30",
       "family": "display",
@@ -24909,7 +24935,8 @@
             "editing",
             "posting",
             "error",
-            "highlighted"
+            "highlighted",
+            "reactions"
           ],
           "evidence": "packages/ui/registry/ui/comments.tsx + packages/ui/registry/ui/comments.test.tsx"
         },
@@ -24946,6 +24973,7 @@
         "@vegastack/empty",
         "@vegastack/markdown-view",
         "@vegastack/person-hover-card",
+        "@vegastack/reactions",
         "@vegastack/relative-time",
         "@vegastack/searchable-select",
         "@vegastack/skeleton",
@@ -25008,6 +25036,173 @@
             {
               "name": "data-slot",
               "values": ["comment-list-skeleton"]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
+    },
+    {
+      "name": "reactions",
+      "registryType": "registry:ui",
+      "title": "Reactions",
+      "summary": "Slack-style emoji reactions: pills with counts that toggle, a hover card naming who reacted, and an add-reaction button with quick reactions.",
+      "status": "stable",
+      "since": "0.23.37",
+      "family": "display",
+      "wave": "Data display",
+      "sourceFiles": ["packages/ui/registry/ui/reactions.tsx"],
+      "publicSymbols": [
+        {
+          "name": "Reactions",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/reactions.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Reactions takes no ref; it composes other parts."
+          }
+        },
+        {
+          "name": "ReactionAdd",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/reactions.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "ReactionAdd takes no ref; it composes other parts."
+          }
+        },
+        {
+          "name": "ReactionsProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/reactions.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "ReactionData",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/reactions.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "ReactionUser",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/reactions.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "QUICK_REACTIONS",
+          "kind": "component-constant",
+          "source": "packages/ui/registry/ui/reactions.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "component-constant symbols do not expose a rendered DOM instance or ref contract."
+          }
+        },
+        {
+          "name": "formatReactors",
+          "kind": "function",
+          "source": "packages/ui/registry/ui/reactions.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Function exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "toggleReaction",
+          "kind": "function",
+          "source": "packages/ui/registry/ui/reactions.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Function exports do not render or accept runtime refs."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "A composed set; no local axis."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "A composed set; no local axis."
+      },
+      "states": {
+        "behavior": {
+          "status": "covered",
+          "values": ["default", "reacted", "busy", "hover-card", "add"],
+          "evidence": "packages/ui/registry/ui/reactions.tsx + packages/ui/registry/ui/reactions.test.tsx"
+        },
+        "accessibility": {
+          "status": "covered",
+          "values": ["labeled", "pressed", "browser-accessibility-test"],
+          "evidence": "packages/ui/registry/ui/reactions.test.tsx"
+        },
+        "visual": {
+          "status": "observed",
+          "values": ["default", "reacted"],
+          "evidence": "packages/ui/registry/ui/reactions.tsx"
+        }
+      },
+      "responsive": {
+        "status": "modeled",
+        "risks": ["responsive-or-container-layout"],
+        "rationale": "Pills wrap onto new lines."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned motion mechanism."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/reactions",
+      "registryDependencies": [
+        "@vegastack/button",
+        "@vegastack/emoji-picker",
+        "@vegastack/hover-card"
+      ],
+      "npmDependencies": [
+        "@vegastack/design@^0.7.43",
+        "@vegastack/design-tokens@^0.7.43",
+        "lucide-react@^1.47.0"
+      ],
+      "testFiles": ["packages/ui/registry/ui/reactions.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required"
+      },
+      "previewModule": "reactions",
+      "dataAttributes": {
+        "ReactionAdd": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["reaction-add"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "Reactions": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["reactions"]
             }
           ],
           "cssVariables": []
@@ -29904,6 +30099,7 @@
         "@vegastack/editable-cell",
         "@vegastack/priority-icon",
         "@vegastack/property-list",
+        "@vegastack/reactions",
         "@vegastack/record-aside",
         "@vegastack/record-chip",
         "@vegastack/record-layout",
@@ -31490,6 +31686,124 @@
       },
       "npmDependencies": [],
       "testFiles": ["packages/ui/registry/lib/geo-data.test.ts"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "shared-guide-only",
+        "navigation": "exempt",
+        "preview": "exempt",
+        "vrt": "exempt"
+      }
+    },
+    {
+      "name": "emoji-data",
+      "registryType": "registry:lib",
+      "title": "Emoji Data",
+      "summary": "The curated emoji set behind EmojiPicker and Reactions, in nine categories, plus a lookup by character and a search matcher. Pure data, loaded lazily by the picker.",
+      "family": "lib",
+      "wave": "Libs",
+      "sourceFiles": ["packages/ui/registry/lib/emoji-data.ts"],
+      "publicSymbols": [
+        {
+          "name": "EmojiEntry",
+          "kind": "interface",
+          "source": "packages/ui/registry/lib/emoji-data.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "EmojiCategory",
+          "kind": "type",
+          "source": "packages/ui/registry/lib/emoji-data.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "EMOJI",
+          "kind": "component-constant",
+          "source": "packages/ui/registry/lib/emoji-data.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "component-constant symbols do not expose a rendered DOM instance or ref contract."
+          }
+        },
+        {
+          "name": "EMOJI_CATEGORIES",
+          "kind": "component-constant",
+          "source": "packages/ui/registry/lib/emoji-data.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "component-constant symbols do not expose a rendered DOM instance or ref contract."
+          }
+        },
+        {
+          "name": "getEmoji",
+          "kind": "function",
+          "source": "packages/ui/registry/lib/emoji-data.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Function exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "matchesEmoji",
+          "kind": "function",
+          "source": "packages/ui/registry/lib/emoji-data.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Function exports do not render or accept runtime refs."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "A data/recipe module renders nothing and has no variant surface."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "A data/recipe module renders nothing and has no size scale."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned motion mechanism observed."
+        }
+      },
+      "engines": [],
+      "registryDependencies": [],
+      "docsSlug": "/docs/guides/components",
+      "states": {
+        "behavior": {
+          "status": "not-applicable",
+          "values": ["not-applicable"],
+          "evidence": "Frozen data plus two pure lookups; no state machine."
+        },
+        "accessibility": {
+          "status": "not-applicable",
+          "values": ["not-applicable"],
+          "evidence": "No DOM — the picker owns every ARIA contract."
+        },
+        "visual": {
+          "status": "not-applicable",
+          "values": ["not-applicable"],
+          "evidence": "No DOM and no classes."
+        }
+      },
+      "responsive": {
+        "status": "not-applicable",
+        "risks": [],
+        "rationale": "No DOM of its own; consumers own layout."
+      },
+      "npmDependencies": [],
+      "testFiles": ["packages/ui/registry/lib/emoji-data.test.ts"],
       "coverage": {
         "source": "required",
         "test": "required",

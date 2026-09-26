@@ -1,7 +1,7 @@
 {
   "_note": "Every name in packages/ui/registry/ui/ that has NO counterpart in vendor/shadcn/<cli>/ui/. verify-parity.mjs fails on a registry name that is neither upstream-backed nor listed here, so a component cannot appear by accident. Dispositions come from docs/plans/2026-09-18-shadcn-reset/extras.md (66 rows, MK 2026-09-18); hooks and internal parts are not components and are recorded here with their reason.",
   "counts": {
-    "total": 70,
+    "total": 71,
     "fromExtras": 46
   },
   "items": {
@@ -428,6 +428,12 @@
       "family": "display",
       "source": "Operator brief 2026-09-26 (task page comments) — approved by MK 2026-09-26",
       "rationale": "Upstream ships no comments set. It is a fixed composition of upstream avatar, alert-dialog, empty, skeleton and the text editor; no patch."
+    },
+    "reactions": {
+      "disposition": "keep",
+      "family": "display",
+      "source": "Operator brief 2026-09-26 (comment reactions) — approved by MK 2026-09-26",
+      "rationale": "Upstream ships no reactions. A fixed composition of upstream button, hover-card and our emoji-picker; no patch."
     }
   }
 }

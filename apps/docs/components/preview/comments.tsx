@@ -10,11 +10,13 @@ import {
   type CommentData,
   type CommentOrder,
 } from "@/components/ui/comments";
+import { toggleReaction } from "@/components/ui/reactions";
 
 const NOW = Date.parse("2026-09-26T10:00:00Z");
 const ME = { name: "Asha Rao", email: "asha@acme.com" };
 const ARJUN = { name: "Arjun Mehta", email: "arjun@acme.com" };
 const PRIYA = { name: "Priya Nair", badge: "Inactive" };
+const ME_REACTOR = { id: "asha", name: ME.name };
 
 const COMMENTS: CommentData[] = [
   {
@@ -29,6 +31,25 @@ const COMMENTS: CommentData[] = [
     body: "Sent it over. Details:\n\n- 12 units\n- delivery in October",
     createdAt: NOW - 3 * 3_600_000,
     editedAt: NOW - 2 * 3_600_000,
+    reactions: [
+      {
+        emoji: "👍",
+        count: 4,
+        reacted: true,
+        users: [
+          ME_REACTOR,
+          { id: "neha", name: "Neha Kapoor" },
+          { id: "priya", name: "Priya Nair", inactive: true },
+          { id: "ravi", name: "Ravi Iyer" },
+        ],
+      },
+      {
+        emoji: "🎉",
+        count: 1,
+        reacted: false,
+        users: [{ id: "neha", name: "Neha Kapoor" }],
+      },
+    ],
   },
   {
     id: "c3",
@@ -74,6 +95,22 @@ function CommentsDemo() {
           );
         }}
         onDelete={(id) => setItems((xs) => xs.filter((c) => c.id !== id))}
+        onReactionToggle={(id, emoji) =>
+          setItems((xs) =>
+            xs.map((c) =>
+              c.id === id
+                ? {
+                    ...c,
+                    reactions: toggleReaction(
+                      c.reactions ?? [],
+                      emoji,
+                      ME_REACTOR,
+                    ),
+                  }
+                : c,
+            ),
+          )
+        }
         composer={
           <CommentComposer
             onSubmit={async (body) => {
@@ -184,4 +221,30 @@ export function commentsComposerStates(): ReactNode {
       />
     </Demo>
   );
+}
+
+function ReactionsDemo() {
+  const [comment, setComment] = React.useState<CommentData>(COMMENTS[1]!);
+  return (
+    <Demo>
+      <ul>
+        <CommentItem
+          comment={comment}
+          now={NOW}
+          onReactionToggle={async (_id, emoji) => {
+            setComment((c) => ({
+              ...c,
+              reactions: toggleReaction(c.reactions ?? [], emoji, ME_REACTOR),
+            }));
+            await wait(300);
+          }}
+        />
+      </ul>
+    </Demo>
+  );
+}
+
+/** Reactions: pills under the body, and an add-reaction button in the hover actions. */
+export function commentsReactions(): ReactNode {
+  return <ReactionsDemo />;
 }

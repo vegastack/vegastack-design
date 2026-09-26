@@ -2,14 +2,14 @@
   "schemaVersion": 1,
   "kind": "vegastack-zero-gap-audit-register",
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "9692f2f391ed58c4dccf88554bfa138e01f221d646283c1c8d0cf2e69b75ddf1",
+  "contractSha256": "a03e03138d874287cbc59f6fc6841b28ef3d37118eafec8d852dd05db78f7e87",
   "expectedCounts": {
-    "totalRegistryItems": 689,
-    "components": 127,
+    "totalRegistryItems": 691,
+    "components": 128,
     "animatedIcons": 467,
     "hooks": 13,
     "blocks": 11,
-    "libs": 3,
+    "libs": 4,
     "chartBlocks": 68
   },
   "records": [
@@ -1388,6 +1388,17 @@
         "packages/ui/registry/ui/comments.tsx"
       ],
       "docsSlug": "/docs/components/comments",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "reactions",
+      "inventoryClass": "component",
+      "wave": "Data display",
+      "family": "display",
+      "sourceFiles": [
+        "packages/ui/registry/ui/reactions.tsx"
+      ],
+      "docsSlug": "/docs/components/reactions",
       "contractStatus": "reconciled"
     },
     {
@@ -7594,6 +7605,17 @@
       "family": "lib",
       "sourceFiles": [
         "packages/ui/registry/lib/geo-data.ts"
+      ],
+      "docsSlug": "/docs/guides/components",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "emoji-data",
+      "inventoryClass": "lib",
+      "wave": "Libs",
+      "family": "lib",
+      "sourceFiles": [
+        "packages/ui/registry/lib/emoji-data.ts"
       ],
       "docsSlug": "/docs/guides/components",
       "contractStatus": "reconciled"
