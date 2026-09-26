@@ -1,4 +1,4 @@
-// @vegastack chart-radar-legend@0.23.43 sha256-/coL/xqZ2XJf7+Zhgfx5Gq8TS7McptDZvXnzLbsNXtw=
+// @vegastack chart-radar-legend@0.23.44 sha256-5+VN1yyoKY9JwO2nn0j3OCdpX/RL/5p4aipzerl91Rs=
 
 "use client";
 

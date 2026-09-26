@@ -1,5 +1,16 @@
 # @vegastack/ui
 
+## 0.23.44
+
+### Patch Changes
+
+- [#345](https://github.com/vegastack/vegastack-design/pull/345) [`780cef6`](https://github.com/vegastack/vegastack-design/commit/780cef6b2be9cccfc7f03463407e87f18290b70f) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🔧 People carry their own colour and photo everywhere. `AvatarFallback` takes a `hue` (`AvatarHue`, the ten tag hues: initials in the hue's ink on its subtle fill; API-32). A new shared `person-avatar` item owns `PersonAvatar` and the `Person` shape (now with `hue`) — `person-hover-card` still re-exports them — and it exports the one initials rule, `personInitials(name, email?)`: first letters of the first and last words, two letters of a single word, else the email's first two characters. `RecordChip`, `BoardCard` and `InboxItem` draw `PersonAvatar` instead of their own initials, and take `hue` on `person`, `assignee` and `avatar` (`{ name, src?, hue? }`); `PropertyPerson` and comment authors take it too. `SearchableSelect` (and `FilterBarFacet`) gain `itemToAvatar`, leading each person option — and a single selection on the trigger — with the person's avatar. `Image` and `Thumbnail` take a `placeholder` data URL, a blurred cover until the image loads (`Image` still runs a caller's `onLoad`/`onError`), and `Thumbnail` passes `srcSet`/`sizes`, retrying when either changes. New `AvatarPicker`: a large `PersonAvatar` with a busy spinner, Upload / Change photo through the file picker, Remove, and a line for a refused file. `app-shell-01`'s user menu draws `PersonAvatar`. The shipped `vegastack-design-system` skill says a person is always `PersonAvatar`.
+
+- [#347](https://github.com/vegastack/vegastack-design/pull/347) [`74415be`](https://github.com/vegastack/vegastack-design/commit/74415bef8b3045701e2cd6dccdb2a9483447a138) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🔧 `personInitials(name, email?)` now lives in `person-avatar` — import it from `@/components/ui/person-avatar`. The separate `person` lib item is gone, so `person-avatar` installs nothing into your `lib/` alias.
+
+- Updated dependencies [[`780cef6`](https://github.com/vegastack/vegastack-design/commit/780cef6b2be9cccfc7f03463407e87f18290b70f), [`74415be`](https://github.com/vegastack/vegastack-design/commit/74415bef8b3045701e2cd6dccdb2a9483447a138)]:
+  - @vegastack/design@0.7.47
+
 ## 0.23.43
 
 ### Patch Changes
