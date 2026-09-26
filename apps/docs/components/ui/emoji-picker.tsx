@@ -1,16 +1,32 @@
-// @vegastack emoji-picker@0.23.36 sha256-COLZlXOH8CxKIV+NuFKJwMoAxiJF4gDakUY7y6xBQWY=
+// @vegastack emoji-picker@0.23.36 sha256-M/jErvAi/7UaASuO89MavIhFH8x+JU1z66Oqcc1S8T4=
 
 "use client";
 
 import * as React from "react";
-import { SmilePlus } from "lucide-react";
+import {
+  Apple,
+  Clock,
+  Flag,
+  Hash,
+  Lightbulb,
+  PawPrint,
+  Plane,
+  SearchX,
+  Smile,
+  SmilePlus,
+  Trophy,
+  Users,
+} from "lucide-react";
 import { cn, FLOATING } from "@vegastack/design";
+import type { EmojiCategory, EmojiEntry } from "@/lib/emoji-data";
 import {
   Popover,
   PopoverTrigger,
   PopoverContent,
 } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
+import { Empty, EmptyDescription, EmptyHeader } from "@/components/ui/empty";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useListNav } from "@/components/ui/use-list-nav";
 import { PanelSearch, PanelSearchField } from "@/components/ui/panel-search";
 
@@ -18,411 +34,101 @@ import { PanelSearch, PanelSearchField } from "@/components/ui/panel-search";
  * EmojiPicker — a Popover-housed, searchable grid of emoji, grouped by category, that returns the
  * selected emoji character via `onValueChange`.
  *
- * Self-contained + lightweight by design: instead of pulling in a heavy emoji library, it EMBEDS a
- * curated set of ~300 of the most common emoji (the `EMOJI` dataset below), grouped into the nine
- * standard categories. This keeps the copy-in zero-dependency and tree-shakeable; consumers who need
- * the full Unicode set can extend `EMOJI` or swap in their own data.
+ * The data (`@/lib/emoji-data`, a curated ~260-emoji set) is loaded with a dynamic `import()` the
+ * first time the panel opens, so a page that only renders the trigger never ships the table; a
+ * skeleton grid stands in for the few milliseconds it takes. Above the grid: an optional quick row
+ * (`quickEmoji`), the shared panel-search row and a category bar that jumps to a section. The first
+ * section is "Recent" — the viewer's last picks, kept in `localStorage`.
  *
- * Composition: our `Popover` (trigger + floating panel) + the shared panel-search row + a grid
- * of icon `Button`s. Each emoji button carries an `aria-label` (the emoji name) so the grid is
- * screen-reader navigable. Search filters across emoji names and keywords.
+ * Composition: our `Popover` + the shared panel-search row + icon `Button`s. Each emoji button
+ * carries an `aria-label` (the emoji name). Search filters across names and keywords.
  * ----------------------------------------------------------------------------------------------*/
 
-/** A single emoji entry: the rendered character, its accessible name, and search keywords. */
-export interface EmojiEntry {
-  /** The emoji character to render and return from `onValueChange`. */
-  char: string;
-  /** Human-readable name — used as the button `aria-label` and matched by search. */
-  name: string;
-  /** Extra search terms (beyond `name`) that should surface this emoji. */
-  keywords?: string[];
+export type { EmojiCategory, EmojiEntry } from "@/lib/emoji-data";
+
+type EmojiData = typeof import("@/lib/emoji-data");
+
+let emojiData: EmojiData | undefined;
+let emojiDataPromise: Promise<EmojiData> | undefined;
+
+/** Start loading the emoji data (once per page); resolves to the `emoji-data` module. */
+export function loadEmojiData(): Promise<EmojiData> {
+  emojiDataPromise ??= import("@/lib/emoji-data").then((mod) => {
+    emojiData = mod;
+    return mod;
+  });
+  return emojiDataPromise;
 }
 
-/** The ordered list of emoji categories shown as section headings. */
-export type EmojiCategory =
-  | "Smileys"
-  | "People"
-  | "Animals"
-  | "Food"
-  | "Activities"
-  | "Travel"
-  | "Objects"
-  | "Symbols"
-  | "Flags";
-
 /**
- * `EMOJI` — the embedded, curated emoji dataset: a few hundred of the most common emoji grouped by
- * category. NOT the full Unicode set — intentionally kept small so the component stays self-contained
- * and lightweight. Extend or replace this to support more emoji.
+ * `useEmojiData` — the lazily loaded `emoji-data` module, or `undefined` until it arrives. Loading
+ * starts once `enabled` is true (the picker passes its open state) and is shared page-wide.
+ *
+ * @example
+ * const data = useEmojiData(open);
+ * const name = data?.getEmoji("👍")?.name;
  */
-export const EMOJI: Record<EmojiCategory, EmojiEntry[]> = {
-  Smileys: [
-    { char: "😀", name: "grinning face", keywords: ["smile", "happy"] },
-    {
-      char: "😃",
-      name: "grinning face with big eyes",
-      keywords: ["smile", "happy"],
-    },
-    {
-      char: "😄",
-      name: "grinning face with smiling eyes",
-      keywords: ["smile", "happy"],
-    },
-    { char: "😁", name: "beaming face with smiling eyes", keywords: ["grin"] },
-    {
-      char: "😆",
-      name: "grinning squinting face",
-      keywords: ["laugh", "haha"],
-    },
-    {
-      char: "😅",
-      name: "grinning face with sweat",
-      keywords: ["laugh", "relief"],
-    },
-    {
-      char: "😂",
-      name: "face with tears of joy",
-      keywords: ["lol", "laugh", "cry"],
-    },
-    {
-      char: "🤣",
-      name: "rolling on the floor laughing",
-      keywords: ["rofl", "lol"],
-    },
-    {
-      char: "😊",
-      name: "smiling face with smiling eyes",
-      keywords: ["blush", "happy"],
-    },
-    {
-      char: "😇",
-      name: "smiling face with halo",
-      keywords: ["angel", "innocent"],
-    },
-    { char: "🙂", name: "slightly smiling face", keywords: ["smile"] },
-    { char: "🙃", name: "upside-down face", keywords: ["silly"] },
-    { char: "😉", name: "winking face", keywords: ["wink", "flirt"] },
-    { char: "😌", name: "relieved face", keywords: ["calm"] },
-    {
-      char: "😍",
-      name: "smiling face with heart-eyes",
-      keywords: ["love", "crush"],
-    },
-    {
-      char: "🥰",
-      name: "smiling face with hearts",
-      keywords: ["love", "adore"],
-    },
-    { char: "😘", name: "face blowing a kiss", keywords: ["kiss", "love"] },
-    { char: "😋", name: "face savoring food", keywords: ["yum", "tasty"] },
-    {
-      char: "😜",
-      name: "winking face with tongue",
-      keywords: ["silly", "joke"],
-    },
-    { char: "🤪", name: "zany face", keywords: ["crazy", "goofy"] },
-    { char: "😎", name: "smiling face with sunglasses", keywords: ["cool"] },
-    { char: "🤩", name: "star-struck", keywords: ["excited", "star"] },
-    { char: "🥳", name: "partying face", keywords: ["party", "celebrate"] },
-    { char: "😏", name: "smirking face", keywords: ["smug"] },
-    { char: "😒", name: "unamused face", keywords: ["meh", "unimpressed"] },
-    { char: "🙄", name: "face with rolling eyes", keywords: ["annoyed"] },
-    { char: "😞", name: "disappointed face", keywords: ["sad"] },
-    { char: "😔", name: "pensive face", keywords: ["sad", "down"] },
-    { char: "😢", name: "crying face", keywords: ["sad", "tear"] },
-    { char: "😭", name: "loudly crying face", keywords: ["sob", "cry"] },
-    {
-      char: "😤",
-      name: "face with steam from nose",
-      keywords: ["frustrated", "proud"],
-    },
-    { char: "😠", name: "angry face", keywords: ["mad"] },
-    { char: "😡", name: "pouting face", keywords: ["rage", "angry"] },
-    { char: "🤔", name: "thinking face", keywords: ["hmm", "consider"] },
-    {
-      char: "🤨",
-      name: "face with raised eyebrow",
-      keywords: ["skeptical", "suspicious"],
-    },
-    { char: "😴", name: "sleeping face", keywords: ["sleep", "zzz"] },
-    { char: "🤯", name: "exploding head", keywords: ["mind blown", "shocked"] },
-    {
-      char: "😱",
-      name: "face screaming in fear",
-      keywords: ["scream", "shock"],
-    },
-    { char: "🤗", name: "smiling face with open hands", keywords: ["hug"] },
-    { char: "🤐", name: "zipper-mouth face", keywords: ["quiet", "secret"] },
-  ],
-  People: [
-    { char: "👍", name: "thumbs up", keywords: ["+1", "approve", "yes"] },
-    { char: "👎", name: "thumbs down", keywords: ["-1", "disapprove", "no"] },
-    { char: "👏", name: "clapping hands", keywords: ["applause", "bravo"] },
-    { char: "🙌", name: "raising hands", keywords: ["celebrate", "hooray"] },
-    { char: "👋", name: "waving hand", keywords: ["hi", "bye", "hello"] },
-    { char: "🤝", name: "handshake", keywords: ["deal", "agreement"] },
-    {
-      char: "🙏",
-      name: "folded hands",
-      keywords: ["please", "thanks", "pray"],
-    },
-    { char: "✌️", name: "victory hand", keywords: ["peace"] },
-    { char: "🤞", name: "crossed fingers", keywords: ["luck", "hope"] },
-    { char: "👌", name: "OK hand", keywords: ["ok", "perfect"] },
-    { char: "🤙", name: "call me hand", keywords: ["shaka", "hang loose"] },
-    { char: "💪", name: "flexed biceps", keywords: ["strong", "muscle"] },
-    { char: "👀", name: "eyes", keywords: ["look", "watch"] },
-    { char: "🧠", name: "brain", keywords: ["smart", "mind"] },
-    { char: "👶", name: "baby", keywords: ["infant", "child"] },
-    { char: "🧑", name: "person", keywords: ["adult"] },
-    { char: "👩", name: "woman", keywords: ["female"] },
-    { char: "👨", name: "man", keywords: ["male"] },
-    { char: "🧑‍💻", name: "technologist", keywords: ["developer", "coder"] },
-    { char: "🦸", name: "superhero", keywords: ["hero"] },
-    { char: "🤷", name: "person shrugging", keywords: ["shrug", "idk"] },
-    { char: "💁", name: "person tipping hand", keywords: ["info", "sassy"] },
-    {
-      char: "🙋",
-      name: "person raising hand",
-      keywords: ["question", "volunteer"],
-    },
-    { char: "👫", name: "woman and man holding hands", keywords: ["couple"] },
-    { char: "👪", name: "family", keywords: ["parents", "kids"] },
-  ],
-  Animals: [
-    { char: "🐶", name: "dog face", keywords: ["puppy", "pet"] },
-    { char: "🐱", name: "cat face", keywords: ["kitten", "pet"] },
-    { char: "🐭", name: "mouse face", keywords: ["rodent"] },
-    { char: "🐹", name: "hamster", keywords: ["pet"] },
-    { char: "🐰", name: "rabbit face", keywords: ["bunny"] },
-    { char: "🦊", name: "fox", keywords: ["sly"] },
-    { char: "🐻", name: "bear", keywords: [] },
-    { char: "🐼", name: "panda", keywords: [] },
-    { char: "🐨", name: "koala", keywords: [] },
-    { char: "🐯", name: "tiger face", keywords: [] },
-    { char: "🦁", name: "lion", keywords: [] },
-    { char: "🐮", name: "cow face", keywords: [] },
-    { char: "🐷", name: "pig face", keywords: [] },
-    { char: "🐸", name: "frog", keywords: [] },
-    { char: "🐵", name: "monkey face", keywords: [] },
-    { char: "🐔", name: "chicken", keywords: [] },
-    { char: "🐧", name: "penguin", keywords: [] },
-    { char: "🐦", name: "bird", keywords: [] },
-    { char: "🦄", name: "unicorn", keywords: ["magic"] },
-    { char: "🐝", name: "honeybee", keywords: ["bee"] },
-    { char: "🦋", name: "butterfly", keywords: [] },
-    { char: "🐢", name: "turtle", keywords: ["tortoise"] },
-    { char: "🐠", name: "tropical fish", keywords: ["fish"] },
-    { char: "🐬", name: "dolphin", keywords: [] },
-    { char: "🐳", name: "spouting whale", keywords: ["whale"] },
-    { char: "🌸", name: "cherry blossom", keywords: ["flower", "spring"] },
-    { char: "🌹", name: "rose", keywords: ["flower", "love"] },
-    { char: "🌻", name: "sunflower", keywords: ["flower"] },
-    { char: "🌳", name: "deciduous tree", keywords: ["tree", "nature"] },
-    { char: "🌵", name: "cactus", keywords: ["plant"] },
-  ],
-  Food: [
-    { char: "🍎", name: "red apple", keywords: ["fruit"] },
-    { char: "🍌", name: "banana", keywords: ["fruit"] },
-    { char: "🍇", name: "grapes", keywords: ["fruit"] },
-    { char: "🍓", name: "strawberry", keywords: ["fruit"] },
-    { char: "🍉", name: "watermelon", keywords: ["fruit"] },
-    { char: "🍒", name: "cherries", keywords: ["fruit"] },
-    { char: "🍑", name: "peach", keywords: ["fruit"] },
-    { char: "🥑", name: "avocado", keywords: ["fruit"] },
-    { char: "🍕", name: "pizza", keywords: ["food", "slice"] },
-    { char: "🍔", name: "hamburger", keywords: ["burger", "food"] },
-    { char: "🍟", name: "french fries", keywords: ["fries", "food"] },
-    { char: "🌭", name: "hot dog", keywords: ["food"] },
-    { char: "🌮", name: "taco", keywords: ["food", "mexican"] },
-    { char: "🍣", name: "sushi", keywords: ["food", "japanese"] },
-    { char: "🍜", name: "steaming bowl", keywords: ["ramen", "noodles"] },
-    { char: "🍞", name: "bread", keywords: ["food"] },
-    { char: "🧀", name: "cheese wedge", keywords: ["food"] },
-    { char: "🍳", name: "cooking", keywords: ["egg", "breakfast"] },
-    { char: "🍩", name: "doughnut", keywords: ["donut", "sweet"] },
-    { char: "🍪", name: "cookie", keywords: ["sweet", "biscuit"] },
-    { char: "🎂", name: "birthday cake", keywords: ["cake", "celebrate"] },
-    { char: "🍰", name: "shortcake", keywords: ["cake", "sweet"] },
-    { char: "🍫", name: "chocolate bar", keywords: ["sweet"] },
-    { char: "🍿", name: "popcorn", keywords: ["movie", "snack"] },
-    { char: "☕", name: "hot beverage", keywords: ["coffee", "tea"] },
-    { char: "🍵", name: "teacup without handle", keywords: ["tea"] },
-    { char: "🍺", name: "beer mug", keywords: ["drink", "beer"] },
-    { char: "🍷", name: "wine glass", keywords: ["drink", "wine"] },
-    { char: "🥂", name: "clinking glasses", keywords: ["cheers", "celebrate"] },
-    { char: "🍦", name: "soft ice cream", keywords: ["dessert", "sweet"] },
-  ],
-  Activities: [
-    { char: "⚽", name: "soccer ball", keywords: ["football", "sport"] },
-    { char: "🏀", name: "basketball", keywords: ["sport"] },
-    { char: "🏈", name: "american football", keywords: ["sport"] },
-    { char: "⚾", name: "baseball", keywords: ["sport"] },
-    { char: "🎾", name: "tennis", keywords: ["sport"] },
-    { char: "🏐", name: "volleyball", keywords: ["sport"] },
-    { char: "🎱", name: "pool 8 ball", keywords: ["billiards"] },
-    { char: "🏓", name: "ping pong", keywords: ["table tennis"] },
-    { char: "🏸", name: "badminton", keywords: ["sport"] },
-    { char: "🥅", name: "goal net", keywords: ["sport"] },
-    { char: "🏆", name: "trophy", keywords: ["win", "award"] },
-    { char: "🥇", name: "first place medal", keywords: ["gold", "win"] },
-    { char: "🎯", name: "bullseye", keywords: ["target", "dart"] },
-    { char: "🎮", name: "video game", keywords: ["gaming", "controller"] },
-    { char: "🎲", name: "game die", keywords: ["dice", "random"] },
-    { char: "🎨", name: "artist palette", keywords: ["art", "paint"] },
-    { char: "🎭", name: "performing arts", keywords: ["theater", "drama"] },
-    { char: "🎤", name: "microphone", keywords: ["sing", "music"] },
-    { char: "🎧", name: "headphone", keywords: ["music", "listen"] },
-    { char: "🎸", name: "guitar", keywords: ["music", "rock"] },
-    { char: "🎹", name: "musical keyboard", keywords: ["piano", "music"] },
-    { char: "🎺", name: "trumpet", keywords: ["music"] },
-    { char: "🥁", name: "drum", keywords: ["music"] },
-    { char: "🎬", name: "clapper board", keywords: ["movie", "film"] },
-    { char: "🎉", name: "party popper", keywords: ["celebrate", "tada"] },
-    { char: "🎊", name: "confetti ball", keywords: ["celebrate", "party"] },
-    { char: "🎁", name: "wrapped gift", keywords: ["present", "birthday"] },
-    { char: "🧩", name: "puzzle piece", keywords: ["jigsaw"] },
-  ],
-  Travel: [
-    { char: "🚗", name: "automobile", keywords: ["car"] },
-    { char: "🚕", name: "taxi", keywords: ["cab"] },
-    { char: "🚌", name: "bus", keywords: [] },
-    { char: "🚓", name: "police car", keywords: [] },
-    { char: "🚑", name: "ambulance", keywords: [] },
-    { char: "🚒", name: "fire engine", keywords: [] },
-    { char: "🚲", name: "bicycle", keywords: ["bike"] },
-    { char: "🛵", name: "motor scooter", keywords: ["scooter"] },
-    { char: "🏍️", name: "motorcycle", keywords: ["bike"] },
-    { char: "✈️", name: "airplane", keywords: ["flight", "travel"] },
-    { char: "🚀", name: "rocket", keywords: ["launch", "space"] },
-    { char: "🚁", name: "helicopter", keywords: [] },
-    { char: "⛵", name: "sailboat", keywords: ["boat"] },
-    { char: "🚢", name: "ship", keywords: ["cruise"] },
-    { char: "🚂", name: "locomotive", keywords: ["train"] },
-    { char: "🚆", name: "train", keywords: [] },
-    { char: "🗺️", name: "world map", keywords: ["travel"] },
-    { char: "🏔️", name: "snow-capped mountain", keywords: ["mountain"] },
-    {
-      char: "🏖️",
-      name: "beach with umbrella",
-      keywords: ["beach", "vacation"],
-    },
-    { char: "🏝️", name: "desert island", keywords: ["island", "tropical"] },
-    { char: "🌋", name: "volcano", keywords: [] },
-    { char: "🗽", name: "Statue of Liberty", keywords: ["new york"] },
-    { char: "🗼", name: "Tokyo tower", keywords: [] },
-    { char: "🏰", name: "castle", keywords: [] },
-    { char: "🌃", name: "night with stars", keywords: ["city", "night"] },
-    { char: "🌅", name: "sunrise", keywords: ["morning"] },
-    { char: "🏠", name: "house", keywords: ["home"] },
-    { char: "🏢", name: "office building", keywords: ["work"] },
-  ],
-  Objects: [
-    { char: "💻", name: "laptop", keywords: ["computer", "work"] },
-    { char: "🖥️", name: "desktop computer", keywords: ["computer"] },
-    { char: "⌨️", name: "keyboard", keywords: ["type"] },
-    { char: "🖱️", name: "computer mouse", keywords: [] },
-    { char: "📱", name: "mobile phone", keywords: ["phone", "smartphone"] },
-    { char: "☎️", name: "telephone", keywords: ["phone", "call"] },
-    { char: "📷", name: "camera", keywords: ["photo"] },
-    { char: "🎥", name: "movie camera", keywords: ["film", "video"] },
-    { char: "📺", name: "television", keywords: ["tv"] },
-    { char: "🔋", name: "battery", keywords: ["power"] },
-    { char: "🔌", name: "electric plug", keywords: ["power"] },
-    { char: "💡", name: "light bulb", keywords: ["idea"] },
-    { char: "🔦", name: "flashlight", keywords: ["torch"] },
-    { char: "📚", name: "books", keywords: ["read", "study"] },
-    { char: "📖", name: "open book", keywords: ["read"] },
-    { char: "✏️", name: "pencil", keywords: ["write", "edit"] },
-    { char: "✒️", name: "black nib", keywords: ["pen", "write"] },
-    { char: "📝", name: "memo", keywords: ["note", "write"] },
-    { char: "📌", name: "pushpin", keywords: ["pin", "location"] },
-    { char: "📎", name: "paperclip", keywords: ["attach"] },
-    { char: "🔑", name: "key", keywords: ["unlock", "password"] },
-    { char: "🔒", name: "locked", keywords: ["lock", "secure"] },
-    { char: "🔓", name: "unlocked", keywords: ["open"] },
-    { char: "🛠️", name: "hammer and wrench", keywords: ["tools", "build"] },
-    { char: "⚙️", name: "gear", keywords: ["settings", "config"] },
-    { char: "💰", name: "money bag", keywords: ["cash", "rich"] },
-    { char: "💳", name: "credit card", keywords: ["payment", "pay"] },
-    { char: "📦", name: "package", keywords: ["box", "shipping"] },
-    { char: "🔍", name: "magnifying glass", keywords: ["search", "find"] },
-    { char: "⏰", name: "alarm clock", keywords: ["time", "wake"] },
-  ],
-  Symbols: [
-    { char: "❤️", name: "red heart", keywords: ["love", "like"] },
-    { char: "🧡", name: "orange heart", keywords: ["love"] },
-    { char: "💛", name: "yellow heart", keywords: ["love"] },
-    { char: "💚", name: "green heart", keywords: ["love"] },
-    { char: "💙", name: "blue heart", keywords: ["love"] },
-    { char: "💜", name: "purple heart", keywords: ["love"] },
-    { char: "🖤", name: "black heart", keywords: ["love"] },
-    { char: "💔", name: "broken heart", keywords: ["breakup", "sad"] },
-    { char: "💯", name: "hundred points", keywords: ["100", "perfect"] },
-    { char: "✅", name: "check mark button", keywords: ["done", "yes", "ok"] },
-    { char: "❌", name: "cross mark", keywords: ["no", "cancel", "wrong"] },
-    { char: "❓", name: "question mark", keywords: ["help", "ask"] },
-    {
-      char: "❗",
-      name: "exclamation mark",
-      keywords: ["important", "warning"],
-    },
-    { char: "⚠️", name: "warning", keywords: ["caution", "alert"] },
-    { char: "🚫", name: "prohibited", keywords: ["no", "forbidden"] },
-    { char: "⭐", name: "star", keywords: ["favorite"] },
-    { char: "🌟", name: "glowing star", keywords: ["sparkle"] },
-    { char: "🔥", name: "fire", keywords: ["lit", "hot", "flame"] },
-    { char: "✨", name: "sparkles", keywords: ["shiny", "magic"] },
-    { char: "⚡", name: "high voltage", keywords: ["lightning", "fast"] },
-    { char: "💥", name: "collision", keywords: ["boom", "explosion"] },
-    { char: "💢", name: "anger symbol", keywords: ["mad"] },
-    { char: "💬", name: "speech balloon", keywords: ["chat", "comment"] },
-    { char: "💭", name: "thought balloon", keywords: ["think"] },
-    { char: "🔔", name: "bell", keywords: ["notification", "alert"] },
-    { char: "➕", name: "plus", keywords: ["add"] },
-    { char: "➖", name: "minus", keywords: ["subtract", "remove"] },
-    { char: "♻️", name: "recycling symbol", keywords: ["recycle", "green"] },
-    {
-      char: "🔄",
-      name: "counterclockwise arrows",
-      keywords: ["refresh", "sync"],
-    },
-    { char: "🎵", name: "musical note", keywords: ["music", "sound"] },
-  ],
-  Flags: [
-    { char: "🏁", name: "chequered flag", keywords: ["race", "finish"] },
-    { char: "🚩", name: "triangular flag", keywords: ["flag", "marker"] },
-    { char: "🏴", name: "black flag", keywords: [] },
-    { char: "🏳️", name: "white flag", keywords: ["surrender"] },
-    { char: "🏳️‍🌈", name: "rainbow flag", keywords: ["pride", "lgbt"] },
-    { char: "🇺🇸", name: "flag United States", keywords: ["usa", "america"] },
-    { char: "🇬🇧", name: "flag United Kingdom", keywords: ["uk", "britain"] },
-    { char: "🇨🇦", name: "flag Canada", keywords: [] },
-    { char: "🇮🇳", name: "flag India", keywords: [] },
-    { char: "🇩🇪", name: "flag Germany", keywords: [] },
-    { char: "🇫🇷", name: "flag France", keywords: [] },
-    { char: "🇯🇵", name: "flag Japan", keywords: [] },
-    { char: "🇧🇷", name: "flag Brazil", keywords: [] },
-    { char: "🇦🇺", name: "flag Australia", keywords: [] },
-    { char: "🇪🇸", name: "flag Spain", keywords: [] },
-    { char: "🇮🇹", name: "flag Italy", keywords: [] },
-  ],
+export function useEmojiData(enabled = true): EmojiData | undefined {
+  const [data, setData] = React.useState(emojiData);
+  React.useEffect(() => {
+    if (!enabled || data) return;
+    let live = true;
+    void loadEmojiData().then((mod) => {
+      if (live) setData(mod);
+    });
+    return () => {
+      live = false;
+    };
+  }, [enabled, data]);
+  return data;
+}
+
+const RECENTS_KEY = "vegastack:emoji-recents";
+const MAX_RECENTS = 14;
+
+function readRecents(): string[] {
+  try {
+    const raw = window.localStorage.getItem(RECENTS_KEY);
+    const list: unknown = raw ? JSON.parse(raw) : [];
+    return Array.isArray(list)
+      ? list.filter((x): x is string => typeof x === "string")
+      : [];
+  } catch {
+    return [];
+  }
+}
+
+function writeRecent(char: string) {
+  try {
+    const next = [char, ...readRecents().filter((c) => c !== char)].slice(
+      0,
+      MAX_RECENTS,
+    );
+    window.localStorage.setItem(RECENTS_KEY, JSON.stringify(next));
+  } catch {
+    // Storage blocked (private mode, quota) — recents are a convenience only.
+  }
+}
+
+const CATEGORY_ICONS: Record<EmojiCategory | "Recent", React.ElementType> = {
+  Recent: Clock,
+  Smileys: Smile,
+  People: Users,
+  Animals: PawPrint,
+  Food: Apple,
+  Activities: Trophy,
+  Travel: Plane,
+  Objects: Lightbulb,
+  Symbols: Hash,
+  Flags: Flag,
 };
 
-/** The category order used for rendering and tab navigation. */
-const CATEGORY_ORDER = Object.keys(EMOJI) as EmojiCategory[];
-
-/** Columns in the emoji grid — matches the `grid-cols-7` class on `[data-slot="emoji-picker-grid"]`
- * category groups below. Kept as a constant (not derived from the class string) since arrow-key
- * math needs the number, not the Tailwind utility. */
+/** Columns in the emoji grid — matches the `grid-cols-7` class below; arrow-key math needs it. */
 const GRID_COLUMNS = 7;
 
-/** Normalize an emoji entry to its searchable haystack (name + keywords), lowercased. */
-function matchesQuery(entry: EmojiEntry, query: string): boolean {
-  if (entry.name.toLowerCase().includes(query)) return true;
-  return (
-    entry.keywords?.some((kw) => kw.toLowerCase().includes(query)) ?? false
-  );
+interface Section {
+  key: EmojiCategory | "Recent";
+  entries: EmojiEntry[];
 }
 
 /** Props accepted by `EmojiPicker`. */
@@ -433,31 +139,43 @@ export interface EmojiPickerProps {
    */
   onValueChange: (emoji: string) => void;
   /**
-   * Custom button-like trigger element (composed via Base UI `render`). Defaults to a ghost
-   * `SmilePlus` icon button.
-
+   * Custom trigger element, composed via Base UI's `render` prop. Defaults to a ghost icon button
+   * with a smiley-plus glyph.
    * @default undefined
    */
-  trigger?: React.ReactElement<React.ComponentPropsWithoutRef<"button">>;
+  trigger?: React.ReactElement;
   /**
-   * `aria-label` for the default trigger button.
+   * Accessible label for the default trigger button.
    * @default "Pick an emoji"
    */
   triggerLabel?: string;
   /**
-   * Placeholder for the search input.
+   * Placeholder and accessible label for the search field.
    * @default "Search emoji"
    */
   searchPlaceholder?: string;
   /**
+   * A row of one-click emoji above the search — the quick reactions of a reaction bar.
+   * @default undefined
+   */
+  quickEmoji?: string[];
+  /**
+   * Show the "Recent" section: the viewer's last picks, kept in `localStorage`.
+   * @default true
+   */
+  showRecents?: boolean;
+  /**
+   * `sm` is the compact panel (narrower, 28px cells) for tight spots such as a comment's actions.
+   * @default "default"
+   */
+  size?: "default" | "sm";
+  /**
    * Controlled open state of the popover. Omit for uncontrolled usage.
-
    * @default undefined
    */
   open?: boolean;
   /**
    * Called when the popover's open state changes (controlled or uncontrolled).
-
    * @default undefined
    */
   onOpenChange?: (open: boolean) => void;
@@ -483,23 +201,20 @@ export interface EmojiPickerProps {
   /**
    * Ref forwarded to the trigger button — the component's focusable root (the popover panel is
    * portaled, so the trigger is the stable host element to focus/measure).
-
    * @default undefined
    */
   ref?: React.Ref<HTMLButtonElement>;
 }
 
 /**
- * `EmojiPicker` — a popover with a searchable, category-grouped grid of emoji that returns the
- * selected character via `onValueChange`. Built on our `Popover` + the shared panel-search row + a scrollable grid
- * of icon `Button`s, with a curated embedded emoji dataset (`EMOJI`) so it ships zero extra
- * dependencies. Each emoji button is keyboard-focusable and has an `aria-label`.
+ * `EmojiPicker` — a popover with an optional quick row, search, a category bar, a "Recent" section
+ * and a category-grouped grid of emoji; returns the picked character via `onValueChange`. The data
+ * loads lazily on first open behind a skeleton; a search with no match shows an empty state.
  *
- * **Keyboard:** the grid uses a roving tabindex (WAI-ARIA grid pattern) spanning every visible
- * emoji across every category — category headings are visual grouping only, not separate keyboard
- * regions. Only one emoji is ever Tab-reachable at a time. `ArrowLeft`/`ArrowRight` move one emoji;
- * `ArrowUp`/`ArrowDown` move by the grid's column count (7); `Home`/`End` jump to the first/last
- * emoji in the whole (filtered) grid. Click selection is unchanged.
+ * **Keyboard:** the grid is one roving-tabindex tab stop spanning every visible emoji across every
+ * section. `ArrowLeft`/`ArrowRight` move one emoji; `ArrowUp`/`ArrowDown` move a row (7);
+ * `Home`/`End` jump to the first/last emoji. The quick row and the category bar are each one tab
+ * stop moved with the arrow keys.
  *
  * @example
  * <EmojiPicker onValueChange={(emoji) => insert(emoji)} />
@@ -509,6 +224,9 @@ export function EmojiPicker({
   trigger,
   triggerLabel = "Pick an emoji",
   searchPlaceholder = "Search emoji",
+  quickEmoji,
+  showRecents = true,
+  size = "default",
   open,
   onOpenChange,
   closeOnSelect = true,
@@ -529,62 +247,80 @@ export function EmojiPicker({
     [isControlled, onOpenChange],
   );
 
+  const data = useEmojiData(isOpen);
   const [query, setQuery] = React.useState("");
+  const [recents, setRecents] = React.useState<string[]>([]);
+  const gridRef = React.useRef<HTMLDivElement>(null);
 
-  // Reset the search when the popover closes so it reopens clean.
+  // Reopen clean, with the recents as they are now.
   React.useEffect(() => {
     if (!isOpen) setQuery("");
-  }, [isOpen]);
+    else if (showRecents) setRecents(readRecents());
+  }, [isOpen, showRecents]);
 
-  // Build the (optionally filtered) category → entries map for the current query.
-  const filtered = React.useMemo(() => {
-    const q = query.trim().toLowerCase();
-    return CATEGORY_ORDER.map((category) => {
-      const entries = q
-        ? EMOJI[category].filter((e) => matchesQuery(e, q))
-        : EMOJI[category];
-      return { category, entries };
-    }).filter((group) => group.entries.length > 0);
-  }, [query]);
+  const q = query.trim().toLowerCase();
+  const sections = React.useMemo<Section[]>(() => {
+    if (!data) return [];
+    const byCategory = data.EMOJI_CATEGORIES.map((key) => ({
+      key,
+      entries: q
+        ? data.EMOJI[key].filter((e) => data.matchesEmoji(e, q))
+        : data.EMOJI[key],
+    }));
+    const recent: Section[] =
+      showRecents && !q && recents.length > 0
+        ? [
+            {
+              key: "Recent",
+              entries: recents
+                .map((c) => data.getEmoji(c))
+                .filter((e): e is EmojiEntry => !!e),
+            },
+          ]
+        : [];
+    return [...recent, ...byCategory].filter((s) => s.entries.length > 0);
+  }, [data, q, recents, showRecents]);
 
-  const hasResults = filtered.length > 0;
-  const resultCount = filtered.reduce(
-    (count, group) => count + group.entries.length,
-    0,
+  const flatEntries = React.useMemo(
+    () => sections.flatMap((s) => s.entries),
+    [sections],
   );
-  const statusMessage = hasResults
-    ? `${resultCount} emoji ${resultCount === 1 ? "result" : "results"} available.`
-    : "No emoji found.";
+  const resultCount = flatEntries.length;
+  const statusMessage = !data
+    ? ""
+    : resultCount > 0
+      ? `${resultCount} emoji ${resultCount === 1 ? "result" : "results"} available.`
+      : "No emoji found.";
 
   const handleSelect = React.useCallback(
     (emoji: string) => {
+      if (showRecents) writeRecent(emoji);
       onValueChange(emoji);
       if (closeOnSelect) setOpen(false);
     },
-    [onValueChange, closeOnSelect, setOpen],
+    [onValueChange, closeOnSelect, setOpen, showRecents],
   );
 
-  // Roving tabindex across the WHOLE grid (every visible emoji button across every category),
-  // treated as one continuous `GRID_COLUMNS`-wide grid — the category headings are visual grouping
-  // only, not separate keyboard regions. Exactly one button is Tab-reachable (`tabIndex 0`) at a
-  // time; the rest are `-1`. Flattening lets ArrowDown/ArrowUp move a full row even across a
-  // category boundary, matching how a single searchable list would behave. Home/End keep the
-  // shipped whole-grid jump (the hook's `homeEndScope` default) — with a scrollable
-  // multi-category grid, "jump to the very first/last result" reads as more useful than a
-  // row-local Home/End. The shared hook also makes the horizontal arrows RTL-aware (previously
-  // LTR-only here — a correction, matching color-picker).
-  const flatEntries = React.useMemo(
-    () => filtered.flatMap((group) => group.entries),
-    [filtered],
-  );
-  const {
-    setActiveIndex,
-    handleKeyDown: handleGridKeyDown,
-    getItemProps,
-  } = useListNav({
-    count: flatEntries.length,
-    columns: GRID_COLUMNS,
+  const grid = useListNav({ count: flatEntries.length, columns: GRID_COLUMNS });
+  const quick = useListNav({
+    count: quickEmoji?.length ?? 0,
+    columns: quickEmoji?.length || 1,
   });
+  const categoryKeys = sections.map((s) => s.key);
+  const bar = useListNav({
+    count: categoryKeys.length,
+    columns: categoryKeys.length || 1,
+  });
+
+  const jumpTo = (key: Section["key"]) => {
+    const root = gridRef.current;
+    const target = root?.querySelector<HTMLElement>(`[data-section="${key}"]`);
+    // The grid is `relative`, so a section's offsetTop is measured from the grid itself.
+    if (root && target) root.scrollTop = target.offsetTop;
+  };
+
+  const small = size === "sm";
+  const cell = small ? "icon-sm" : "icon";
 
   return (
     <Popover open={isOpen} onOpenChange={setOpen}>
@@ -592,12 +328,7 @@ export function EmojiPicker({
         ref={ref}
         render={
           trigger ?? (
-            <Button
-              variant="ghost"
-              size="icon-sm"
-              className="text-muted-foreground"
-              aria-label={triggerLabel}
-            >
+            <Button variant="ghost" size="icon-sm" aria-label={triggerLabel}>
               <SmilePlus />
             </Button>
           )
@@ -605,15 +336,44 @@ export function EmojiPicker({
       />
       <PopoverContent
         data-slot="emoji-picker"
+        data-size={size}
         side={side}
         align={align}
         sideOffset={FLOATING.sideOffsetAttached}
         className={cn(
-          "w-72 max-w-[calc(100vw-var(--spacing)*8)] p-0",
+          "max-w-[calc(100vw-var(--spacing)*8)] gap-0 p-0",
+          small ? "w-64" : "w-72",
           className,
         )}
       >
         <div className="flex flex-col">
+          {quickEmoji && quickEmoji.length > 0 ? (
+            <div
+              role="group"
+              aria-label="Quick reactions"
+              data-slot="emoji-picker-quick"
+              onKeyDown={quick.handleKeyDown}
+              className="flex items-center justify-between gap-0.5 border-b border-border p-1.5"
+            >
+              {quickEmoji.map((char, index) => (
+                <Button
+                  key={char}
+                  type="button"
+                  variant="ghost"
+                  size={cell}
+                  aria-label={data?.getEmoji(char)?.name ?? char}
+                  {...quick.getItemProps(index)}
+                  onClick={() => {
+                    quick.setActiveIndex(index);
+                    handleSelect(char);
+                  }}
+                  className="text-lg leading-none"
+                >
+                  <span aria-hidden>{char}</span>
+                </Button>
+              ))}
+            </div>
+          ) : null}
           {/* Search — the shared in-panel recipe: leading glyph, no box of its own, hairline
               below. A bordered `Input` inside a bordered popup nests two borders (B8-04). */}
           <PanelSearch>
@@ -634,29 +394,72 @@ export function EmojiPicker({
             {statusMessage}
           </div>
 
-          {/* Scrollable grid */}
+          {data && !q && sections.length > 1 ? (
+            <div
+              role="toolbar"
+              aria-label="Categories"
+              data-slot="emoji-picker-categories"
+              onKeyDown={bar.handleKeyDown}
+              className="flex items-center justify-between border-b border-border px-1.5 py-1"
+            >
+              {categoryKeys.map((key, index) => {
+                const Icon = CATEGORY_ICONS[key];
+                return (
+                  <Button
+                    key={key}
+                    type="button"
+                    variant="ghost"
+                    size="icon-xs"
+                    aria-label={key}
+                    title={key}
+                    {...bar.getItemProps(index)}
+                    onClick={() => {
+                      bar.setActiveIndex(index);
+                      jumpTo(key);
+                    }}
+                  >
+                    <Icon aria-hidden />
+                  </Button>
+                );
+              })}
+            </div>
+          ) : null}
+
           <div
+            ref={gridRef}
             data-slot="emoji-picker-grid"
-            onKeyDown={handleGridKeyDown}
-            className="max-h-64 overflow-y-auto overscroll-contain p-2"
+            onKeyDown={grid.handleKeyDown}
+            className={cn(
+              "relative overflow-y-auto overscroll-contain p-2",
+              small ? "max-h-52" : "max-h-64",
+            )}
           >
-            {hasResults ? (
+            {!data ? (
+              <div
+                aria-hidden
+                data-slot="emoji-picker-skeleton"
+                className="grid grid-cols-7 justify-items-center gap-0.5"
+              >
+                {Array.from({ length: 28 }, (_, i) => (
+                  <Skeleton
+                    key={i}
+                    className={cn("rounded-md", small ? "size-7" : "size-8")}
+                  />
+                ))}
+              </div>
+            ) : resultCount > 0 ? (
               (() => {
-                // `flatIndex` runs across every category's entries so the roving tabindex spans
-                // the whole grid (see `flatEntries`/`handleGridKeyDown` above).
+                // `flatIndex` runs across every section so the roving tabindex spans the grid.
                 let flatIndex = -1;
-                return filtered.map(({ category, entries }) => (
-                  <div key={category} className="mb-2 last:mb-0">
+                return sections.map(({ key, entries }) => (
+                  <div key={key} data-section={key} className="mb-2 last:mb-0">
                     <div className="px-1 py-1 text-xs font-medium text-muted-foreground">
-                      {category}
+                      {key}
                     </div>
                     <div
                       role="group"
-                      aria-label={category}
-                      // `justify-items-center` centers each fixed 32px button inside its
-                      // (wider) grid track so leftover track space splits evenly — otherwise
-                      // the buttons pack left and the horizontal gutters read uneven vs the
-                      // 2px vertical gap.
+                      aria-label={key}
+                      // Centre each fixed-size button in its (wider) track so the gutters read even.
                       className="grid grid-cols-7 justify-items-center gap-0.5"
                     >
                       {entries.map((entry) => {
@@ -667,14 +470,13 @@ export function EmojiPicker({
                             key={entry.char}
                             type="button"
                             variant="ghost"
-                            size="icon"
+                            size={cell}
                             data-slot="emoji-picker-item"
                             aria-label={entry.name}
                             title={entry.name}
-                            // Roving tabindex, registration ref, and focus sync from the shared hook.
-                            {...getItemProps(index)}
+                            {...grid.getItemProps(index)}
                             onClick={() => {
-                              setActiveIndex(index);
+                              grid.setActiveIndex(index);
                               handleSelect(entry.char);
                             }}
                             className="text-lg leading-none"
@@ -688,13 +490,16 @@ export function EmojiPicker({
                 ));
               })()
             ) : (
-              <div
+              <Empty
+                size="sm"
+                icon={<SearchX aria-hidden />}
                 data-slot="emoji-picker-empty"
                 aria-hidden="true"
-                className="py-6 text-center text-sm text-muted-foreground"
               >
-                No emoji found.
-              </div>
+                <EmptyHeader>
+                  <EmptyDescription>No emoji found</EmptyDescription>
+                </EmptyHeader>
+              </Empty>
             )}
           </div>
         </div>

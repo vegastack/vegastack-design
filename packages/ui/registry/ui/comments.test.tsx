@@ -62,3 +62,42 @@ test("editing: round ↑ Save is disabled until the text changes, × Cancel leav
     expect(onEdit).toHaveBeenCalledWith("a", "Hello there"),
   );
 });
+
+test("reactions: pills under the body and an add-reaction hover action", async () => {
+  const onReactionToggle = vi.fn();
+  const screen = await render(
+    <ul>
+      <CommentItem
+        comment={{
+          id: "r1",
+          author: { name: "Neha Kapoor" },
+          body: "Shipped.",
+          createdAt: 0,
+          reactions: [
+            {
+              emoji: "👍",
+              count: 2,
+              reacted: false,
+              users: [
+                { id: "a", name: "Arjun Mehta" },
+                { id: "n", name: "Neha Kapoor" },
+              ],
+            },
+          ],
+        }}
+        onReactionToggle={onReactionToggle}
+        now={0}
+      />
+    </ul>,
+  );
+  const pill = document.querySelector(
+    '[data-slot="reaction-pill"]',
+  ) as HTMLElement;
+  pill.click();
+  expect(onReactionToggle).toHaveBeenCalledWith("r1", "👍");
+  // One add button in the hover actions, one after the pills.
+  expect(document.querySelectorAll('[data-slot="reaction-add"]')).toHaveLength(
+    2,
+  );
+  await expectNoA11yViolations(screen.container);
+});

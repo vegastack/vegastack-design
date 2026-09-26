@@ -100,6 +100,7 @@ export * from "./person-hover-card";
 export * from "./record-aside";
 export * from "./record-layout";
 export * from "./comments";
+export * from "./reactions";
 export * from "./issue-detail-01";
 export * from "./view-toggle";
 export * from "./data-list-pager";

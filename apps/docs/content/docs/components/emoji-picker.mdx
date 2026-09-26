@@ -1,6 +1,6 @@
 ---
 title: Emoji Picker
-description: A popover with a searchable, category-grouped grid of emoji that returns the selected character.
+description: A popover with a quick row, search, categories, recents and a lazily loaded emoji grid that returns the selected character.
 audience: public
 registry: emoji-picker
 status: stable
@@ -37,12 +37,15 @@ automatically and is documented there. `SearchableSelect` draws its own search f
 install it.
 Selecting an emoji fires `onValueChange(emoji)` with the character and (by default) closes the panel.
 
-The emoji data is a **curated, embedded set** (`EMOJI`) — a few hundred of the most common emoji
-grouped into nine categories: Smileys, People, Animals, Food, Activities, Travel, Objects, Symbols,
-and Flags. It is intentionally **not** the full Unicode set: keeping the data inline makes the
-component self-contained and zero-dependency (no heavy emoji library, no sprite sheets). Search
-matches each emoji's name and keywords. To support more emoji, extend or replace the exported
-`EMOJI` record.
+Above the grid sit an optional quick row (`quickEmoji`), the search and a category bar that jumps
+to a section. The first section, "Recent", holds the viewer's last picks, kept in `localStorage`
+(`showRecents={false}` turns it off). `size="sm"` is the compact panel.
+
+The data is a curated set of about 260 emoji in nine categories, in the
+[`emoji-data`](/docs/guides/components) lib. The picker loads it with a dynamic `import()` the
+first time it opens and shows a skeleton grid meanwhile, so a page that only renders the trigger
+never ships the table. `useEmojiData(enabled)` gives you the same module, for example to name an
+emoji. It is not the full Unicode set; skin tones are not offered.
 
 ## Examples
 
@@ -115,10 +118,35 @@ without touching the trigger. Here the default `w-72` panel is widened to `w-80`
   file="components/preview/emoji-picker.tsx"
 />
 
+### Quick row
+
+`quickEmoji` puts one-click emoji above the search. [`Reactions`](/docs/components/reactions)
+passes 👍 ❤️ 😄 🎉 👀 🙏.
+
+<ComponentPreview
+  name="emojiPickerQuick"
+  file="components/preview/emoji-picker.tsx"
+/>
+
+### Compact
+
+`size="sm"` is a narrower panel with 28px cells.
+
+<ComponentPreview
+  name="emojiPickerCompact"
+  file="components/preview/emoji-picker.tsx"
+/>
+
+### Without recents
+
+<ComponentPreview
+  name="emojiPickerNoRecents"
+  file="components/preview/emoji-picker.tsx"
+/>
+
 ### Empty state
 
-When the search query matches nothing, the grid is replaced by a **"No emoji found."**
-message and a polite `role="status"` region announces the result count (or the empty state)
+When the search query matches nothing, the grid is replaced by an empty state, "No emoji found", and a polite `role="status"` region announces the result count (or the empty state)
 as the query changes. This is owned by the picker's internal search state, so the example
 below is **live** — open it and type a non-matching query like `zzz`.
 
@@ -138,44 +166,17 @@ below is **live** — open it and type a non-matching query like `zzz`.
 
 ### EmojiEntry
 
-A single entry in the `EMOJI` dataset — the rendered character, its accessible name, and
-optional search keywords.
+One emoji in the `emoji-data` set — the character, its accessible name and search keywords.
 
 <ApiTable
-  path="../../packages/ui/registry/ui/emoji-picker.tsx"
+  path="../../packages/ui/registry/lib/emoji-data.ts"
   name="EmojiEntry"
 />
 
 ### EmojiCategory
 
-The category keys of the `EMOJI` record, rendered as section headings in their declared
-order. (`EmojiCategory` is a string-union type alias, so the values are listed by hand.)
-
-<TypeTable
-  type={{
-    EmojiCategory: {
-      type: '"Smileys" | "People" | "Animals" | "Food" | "Activities" | "Travel" | "Objects" | "Symbols" | "Flags"',
-      description:
-        "One of the nine emoji categories. The keys of EMOJI, used as grid section headings and search groupings.",
-    },
-  }}
-/>
-
-### EMOJI
-
-The exported, curated emoji dataset you extend or replace to support more emoji. It is a
-`Record<EmojiCategory, EmojiEntry[]>` — each category key maps to an ordered array of
-`EmojiEntry` objects.
-
-<TypeTable
-  type={{
-    EMOJI: {
-      type: "Record<EmojiCategory, EmojiEntry[]>",
-      description:
-        "Curated, embedded emoji dataset (258 entries). Not the full Unicode set — kept inline so the component ships zero extra dependencies. Add entries or swap in your own data to extend coverage.",
-    },
-  }}
-/>
+`"Smileys" | "People" | "Animals" | "Food" | "Activities" | "Travel" | "Objects" | "Symbols" | "Flags"`
+— the section order of the grid and the category bar. The data itself lives in the `emoji-data` lib.
 
 ## Accessibility
 
@@ -183,16 +184,17 @@ The exported, curated emoji dataset you extend or replace to support more emoji.
 - Each emoji is a focusable `<button>` with an `aria-label` (the emoji name) and `title`, so the grid is screen-reader navigable and keyboard-operable.
 - The search field is a labelled `<input type="search">`; typing filters the grid live, and a polite
   `role="status"` announces result counts or the empty state when nothing matches.
-- Focus is always visible, and it is one treatment: the global 2px `outline-ring` outline from the
-  tokens' `base.css`, on the trigger and on every emoji button alike. The search **row** is the one
-  exception — being text entry, it tints its hairline to `border-ring/70` while the field inside it
-  holds focus. Nothing here sets `outline: none`.
+- Focus is a background tint from the tokens' `base.css`, on the trigger and every emoji button
+  alike; there is no ring. The search row tints its hairline while the field holds focus.
+- While the data loads, the skeleton is hidden from assistive technology.
 - Dismiss is built in (via `Popover`) — clicking outside the panel or pressing <kbd>Esc</kbd> closes it and returns focus to the trigger.
 
 | Key                                                | Action                                                                 |
 | -------------------------------------------------- | ---------------------------------------------------------------------- |
 | <kbd>Enter</kbd> / <kbd>Space</kbd>                | Open the picker (on the trigger) or select the focused emoji.          |
-| <kbd>←</kbd> / <kbd>→</kbd>                        | Move one emoji within the grid.                                        |
+| <kbd>←</kbd> / <kbd>→</kbd>                        | Move one emoji within the grid, the quick row or the category bar.     |
+| <kbd>↑</kbd> / <kbd>↓</kbd>                        | Move one row in the grid.                                              |
+| <kbd>Home</kbd> / <kbd>End</kbd>                   | Jump to the first or last emoji.                                       |
 | <kbd>Tab</kbd> / <kbd>Shift</kbd> + <kbd>Tab</kbd> | Move between the search field and the grid — the grid is one tab stop. |
 | <kbd>Esc</kbd>                                     | Close the picker and return focus to the trigger.                      |
 
@@ -202,5 +204,5 @@ The exported, curated emoji dataset you extend or replace to support more emoji.
 
 <DoDont
   do="Use it for lightweight emoji insertion — reactions, comments, status, icon selection. Keep ownership of the value in the parent via onValueChange."
-  dont="Rely on it as a complete Unicode emoji browser — it ships a curated subset. Extend the EMOJI dataset if you need full coverage, or use a dedicated library."
+  dont="Rely on it as a complete Unicode emoji browser — it ships a curated subset. Use a dedicated library if you need full coverage."
 />

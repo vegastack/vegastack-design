@@ -153,3 +153,38 @@ export function emojiPickerClassName(): ReactNode {
     </Wrapper>
   );
 }
+
+/** Quick row — `quickEmoji` puts one-click emoji above the search, as a reaction bar does. */
+export function emojiPickerQuick(): ReactNode {
+  return (
+    <Wrapper>
+      <EmojiPicker
+        onValueChange={() => {}}
+        align="center"
+        quickEmoji={["👍", "❤️", "😄", "🎉", "👀", "🙏"]}
+      />
+    </Wrapper>
+  );
+}
+
+/** Compact — `size="sm"`: a narrower panel with 28px cells, for a comment's actions. */
+export function emojiPickerCompact(): ReactNode {
+  return (
+    <Wrapper>
+      <EmojiPicker onValueChange={() => {}} align="center" size="sm" />
+    </Wrapper>
+  );
+}
+
+/** No recents — `showRecents={false}` skips the Recent section and never touches storage. */
+export function emojiPickerNoRecents(): ReactNode {
+  return (
+    <Wrapper>
+      <EmojiPicker
+        onValueChange={() => {}}
+        align="center"
+        showRecents={false}
+      />
+    </Wrapper>
+  );
+}

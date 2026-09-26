@@ -55,6 +55,10 @@ Each comment is anchored at `#comment-<id>`. Pass that id as `highlightedId` to 
 it into view. The ⋯ menu shows Copy link when `onCopyLink` is set, and Edit or Delete when the
 comment's `canEdit` or `canDelete` allows them. Delete asks for confirmation first.
 
+Reactions come from each comment's `reactions` and show as [`Reactions`](/docs/components/reactions)
+pills under the body. With `onReactionToggle`, a pill click toggles and an "Add reaction" button
+joins the hover actions, Slack style.
+
 <ComponentPreview name="comments" file="components/preview/comments.tsx" />
 
 ## Anatomy
@@ -92,6 +96,16 @@ one with no replies yourself. `replies` (or `renderReplies` on the list) indents
 
 <ComponentPreview
   name="commentsEditing"
+  file="components/preview/comments.tsx"
+/>
+
+### Reactions
+
+Pass `reactions` on a comment and `onReactionToggle(id, emoji)`. Hover a pill to see who reacted.
+The add-reaction button sits in the hover actions and stays visible on touch screens.
+
+<ComponentPreview
+  name="commentsReactions"
   file="components/preview/comments.tsx"
 />
 
@@ -136,6 +150,7 @@ failure.
 - The relative time shows the exact time on hover or focus. "edited" does the same with the edit
   time.
 - Errors are announced with `role="alert"`.
+- Reaction pills are toggle buttons (`aria-pressed`) named with the emoji and count.
 
 | Key                               | Action                            |
 | --------------------------------- | --------------------------------- |

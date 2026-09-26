@@ -247,7 +247,7 @@
       "name": "comments",
       "type": "registry:ui",
       "title": "Comments",
-      "description": "A record's comments: a list with a count, Load earlier, skeleton and empty states, comments with edit/delete/copy link, and a composer.",
+      "description": "A record's comments: a list with a count, Load earlier, skeleton and empty states, comments with edit/delete/copy link and emoji reactions, and a composer.",
       "categories": [
         "display"
       ],
@@ -263,6 +263,7 @@
         "@vegastack/empty",
         "@vegastack/markdown-view",
         "@vegastack/person-hover-card",
+        "@vegastack/reactions",
         "@vegastack/relative-time",
         "@vegastack/searchable-select",
         "@vegastack/skeleton",
@@ -280,7 +281,39 @@
         "whenToUse": "Discussion on a record's page (a task, a meeting): comments oldest first with the composer at the end.",
         "whenNotToUse": "An activity feed or notifications — use Inbox.",
         "version": "0.23.36",
-        "integrity": "sha256-7DTBfNuzHeFINmdynj+hafAluJ4Xjzxr+VOBn6gV7dY="
+        "integrity": "sha256-HeQKJXbj9D+nMmrjs6wkdjA5pX1kUXAAh3Rr1yvGrgU="
+      }
+    },
+    {
+      "name": "reactions",
+      "type": "registry:ui",
+      "title": "Reactions",
+      "description": "Slack-style emoji reactions: pills with counts that toggle, a hover card naming who reacted, and an add-reaction button with quick reactions.",
+      "categories": [
+        "display"
+      ],
+      "dependencies": [
+        "@vegastack/design@^0.7.43",
+        "@vegastack/design-tokens@^0.7.43",
+        "lucide-react@^1.47.0"
+      ],
+      "registryDependencies": [
+        "@vegastack/button",
+        "@vegastack/emoji-picker",
+        "@vegastack/hover-card"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/reactions.tsx",
+          "type": "registry:ui",
+          "target": "@ui/reactions.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "Letting people react to a comment, message or post with emoji.",
+        "whenNotToUse": "A single like or rating — use a toggle button.",
+        "version": "0.23.36",
+        "integrity": "sha256-0sY/8H9L2rYbhaCWCW5BtMR6gN7X9Tg2XSQFQ1QK2EQ="
       }
     },
     {
@@ -1662,7 +1695,7 @@
       "name": "emoji-picker",
       "type": "registry:ui",
       "title": "Emoji Picker",
-      "description": "A popover with a searchable, category-grouped grid of emoji that returns the selected character via onValueChange (curated set, not full Unicode).",
+      "description": "A popover with a quick row, search, a category bar, recents and a category-grouped grid of emoji that returns the selected character via onValueChange (curated set, loaded lazily).",
       "categories": [
         "form"
       ],
@@ -1673,8 +1706,11 @@
       ],
       "registryDependencies": [
         "@vegastack/button",
+        "@vegastack/emoji-data",
+        "@vegastack/empty",
         "@vegastack/panel-search",
         "@vegastack/popover",
+        "@vegastack/skeleton",
         "@vegastack/use-list-nav"
       ],
       "files": [
@@ -1688,7 +1724,7 @@
         "whenToUse": "Lightweight emoji insertion — reactions, comments, status, icon selection.",
         "whenNotToUse": "A complete Unicode emoji browser — extend the embedded set or use a library.",
         "version": "0.23.36",
-        "integrity": "sha256-COLZlXOH8CxKIV+NuFKJwMoAxiJF4gDakUY7y6xBQWY="
+        "integrity": "sha256-M/jErvAi/7UaASuO89MavIhFH8x+JU1z66Oqcc1S8T4="
       }
     },
     {
@@ -1877,6 +1913,30 @@
         "whenNotToUse": "A curated subset (pass your own array to the select) or data that has to come from a server.",
         "version": "0.23.36",
         "integrity": "sha256-V0ZsRZOzDJYg/wRVYQjtlVmq8hYKNgS51McllbSMdDQ="
+      }
+    },
+    {
+      "name": "emoji-data",
+      "type": "registry:lib",
+      "title": "Emoji Data",
+      "description": "The curated emoji set behind EmojiPicker and Reactions, in nine categories, plus a lookup by character and a search matcher. Pure data, loaded lazily by the picker.",
+      "categories": [
+        "form"
+      ],
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "packages/ui/registry/lib/emoji-data.ts",
+          "type": "registry:lib",
+          "target": "@lib/emoji-data.ts"
+        }
+      ],
+      "meta": {
+        "whenToUse": "Resolving an emoji's name or searching the curated set outside the picker.",
+        "whenNotToUse": "The full Unicode set — bring a dedicated library.",
+        "version": "0.23.36",
+        "integrity": "sha256-L20NUlO8Yle6sVOyLh29dn30d4Ok3IChOGSACQVKhRw="
       }
     },
     {
@@ -17559,6 +17619,7 @@
         "@vegastack/editable-cell",
         "@vegastack/priority-icon",
         "@vegastack/property-list",
+        "@vegastack/reactions",
         "@vegastack/record-aside",
         "@vegastack/record-chip",
         "@vegastack/record-layout",
@@ -17583,7 +17644,7 @@
         "whenToUse": "A task or issue page — title, description, comments and a properties rail; compose the same components in your app.",
         "whenNotToUse": "A meeting or media record with tabs — use RecordLayout with Tabs.",
         "version": "0.23.36",
-        "integrity": "sha256-62IcDGfPzqZrqs9eWAO8E6qMVXbiY9xkqIV99tb3aqQ="
+        "integrity": "sha256-s+CFdBUfcKV7piXJkhTdAlazDG99W85BGh7iHQJWOWo="
       }
     },
     {
