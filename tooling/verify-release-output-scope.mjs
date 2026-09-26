@@ -11,7 +11,7 @@ import { fileURLToPath } from "node:url";
 import { ROOT } from "./lib/fs.mjs";
 
 const HEADER_PATH =
-  /^(?:packages\/ui\/registry\/(?:ui|lib|blocks)\/|apps\/docs\/components\/ui\/|apps\/docs\/lib\/(?:geo-data|drag-item|date-time)\.ts$)/;
+  /^(?:packages\/ui\/registry\/(?:ui|lib|blocks)\/|apps\/docs\/components\/ui\/|apps\/docs\/lib\/(?:geo-data|drag-item|date-time|emoji-data)\.ts$)/;
 const GENERATED_PATH =
   /^(?:apps\/docs\/public\/r\/|packages\/ui\/(?:component-contracts|registry)\.json$|docs\/ledger\/component-matrix\.md$|docs\/research\/design-md-audit\/(?:audit-register\.json|audits\/coverage\.json)$)/;
 const CHANGELOG_PATH =
