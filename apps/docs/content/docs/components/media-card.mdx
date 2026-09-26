@@ -62,6 +62,16 @@ A record with no image shows `fallback` — the app's brand mark.
   file="components/preview/media-card.tsx"
 />
 
+### Blur placeholder
+
+`imagePlaceholder` takes the image's tiny blurred preview as a data URL; it covers the image area
+until the image loads. `imageSrcSet` and `imageSizes` let the browser pick a stored variant.
+
+<ComponentPreview
+  name="mediaCardPlaceholder"
+  file="components/preview/media-card.tsx"
+/>
+
 ### Without an image
 
 A card with neither `image` nor `fallback` has no image area, and `surface={false}` drops the

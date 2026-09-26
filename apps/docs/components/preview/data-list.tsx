@@ -1225,3 +1225,27 @@ export function dataListRowActionSearchSubmenu(): ReactNode {
     </Wrapper>
   );
 }
+
+const BLUR =
+  "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 4 3'><rect width='4' height='3' fill='%23a8a29e'/></svg>";
+
+/** A `thumbnail` that returns `{ src, placeholder, srcSet, sizes }`: a blur until each image loads. */
+export function dataListThumbnailPlaceholder(): ReactNode {
+  return (
+    <Wrapper className="block">
+      <DataList<Family>
+        {...common}
+        columns={[
+          {
+            ...COLUMNS[0]!,
+            thumbnail: (f) =>
+              f.image
+                ? { src: f.image, placeholder: BLUR, sizes: "32px" }
+                : null,
+          },
+          ...COLUMNS.slice(1),
+        ]}
+      />
+    </Wrapper>
+  );
+}

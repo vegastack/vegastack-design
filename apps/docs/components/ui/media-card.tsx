@@ -1,4 +1,4 @@
-// @vegastack media-card@0.23.44 sha256-Mnb868ZUX0y3pHEU0Zlb76KB9wlbSShMfWKJW+Rgx98=
+// @vegastack media-card@0.23.44 sha256-IUcL5EXrQnShdZG6CJGlQJoCsDTPuvfpjmkO/ayAzWs=
 
 "use client";
 
@@ -41,6 +41,21 @@ export interface MediaCardProps extends Omit<
    * @default undefined
    */
   image?: string | null;
+  /**
+   * A tiny blurred preview of `image` as a data URL, covering the image area until it loads.
+   * @default undefined
+   */
+  imagePlaceholder?: string;
+  /**
+   * Candidate sources for `image` (`"a.webp 480w, b.webp 1280w"`), with `imageSizes`.
+   * @default undefined
+   */
+  imageSrcSet?: string;
+  /**
+   * Which `imageSrcSet` width the image renders at.
+   * @default undefined
+   */
+  imageSizes?: string;
   /**
    * What shows when there is no image — the app's brand mark.
    * @default <ImageIcon />
@@ -118,6 +133,9 @@ export function MediaCard({
   timestamp,
   actions,
   image,
+  imagePlaceholder,
+  imageSrcSet,
+  imageSizes,
   fallback,
   href,
   linkRender,
@@ -174,6 +192,9 @@ export function MediaCard({
       {hasMedia ? (
         <Thumbnail
           src={image}
+          srcSet={imageSrcSet}
+          sizes={imageSizes}
+          placeholder={imagePlaceholder}
           alt=""
           fallback={fallback}
           className={cn(

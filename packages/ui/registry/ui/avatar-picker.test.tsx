@@ -62,10 +62,16 @@ test("an error shows on the message line and describes the upload button", async
       onSelect={() => {}}
     />,
   );
-  const message = screen.getByText(
+  const line = screen.container.querySelector(
+    '[data-slot="avatar-picker-message"]',
+  );
+  expect(line?.textContent).toBe(
     "We couldn't read photo.png. Try another image.",
   );
-  await expect.element(message).toBeInTheDocument();
+  // The one polite region announces it too.
+  await expect
+    .element(screen.getByRole("status"))
+    .toHaveTextContent("We couldn't read photo.png. Try another image.");
   await expect
     .element(screen.getByRole("button", { name: "Upload photo" }))
     .toHaveAccessibleDescription(

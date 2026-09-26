@@ -1,4 +1,4 @@
-// @vegastack data-list@0.23.44 sha256-2bH4+EXbnfKE/6Ydt52mZJyLItVt5Hh+2h6YzpCjFVM=
+// @vegastack data-list@0.23.44 sha256-YhhuIEFUWeSnPC9tUMIx4qXDdOSomLJGDr+mB9xkRac=
 
 "use client";
 
@@ -89,6 +89,36 @@ export interface DataListCellContext {
   selected: boolean;
 }
 
+/** A row's image for a `thumbnail` column: a URL, or the URL with its blur preview and srcset. */
+export type DataListThumbnail =
+  | string
+  | {
+      /** The image URL. */
+      src: string | null | undefined;
+      /** A tiny blurred preview as a data URL, shown until the image loads. */
+      placeholder?: string;
+      /** Candidate sources (`"a.webp 480w, b.webp 1280w"`). */
+      srcSet?: string;
+      /** Which `srcSet` width renders. */
+      sizes?: string;
+    };
+
+/** A `thumbnail` value as Thumbnail/MediaCard props. */
+function thumbnailProps(value: DataListThumbnail | null | undefined): {
+  src: string | null;
+  placeholder?: string;
+  srcSet?: string;
+  sizes?: string;
+} {
+  if (value == null || typeof value === "string") return { src: value ?? null };
+  return {
+    src: value.src ?? null,
+    placeholder: value.placeholder,
+    srcSet: value.srcSet,
+    sizes: value.sizes,
+  };
+}
+
 /**
  * A single column definition for {@link DataList}. Generic over the row type `T`
  * so `render` receives a fully-typed row.
@@ -148,11 +178,12 @@ export interface DataListColumn<T> extends DataTableColumnLayout {
   ) => React.ReactNode;
   /**
    * Show a 32px `Thumbnail` before this column's value (usually the first column), from the
-   * row's image URL. The grid view uses it as the card's image. A row with no image shows the
+   * row's image URL — or `{ src, placeholder?, srcSet?, sizes? }` for a blurred preview until it
+   * loads and a srcset. The grid view uses it as the card's image. A row with no image shows the
    * list's `thumbnailFallback`.
    * @default undefined
    */
-  thumbnail?: (row: T) => string | null | undefined;
+  thumbnail?: (row: T) => DataListThumbnail | null | undefined;
   /** Extra className applied to every body cell in this column. */
   className?: string;
   /**
@@ -1323,7 +1354,7 @@ export function DataList<T>({
             >
               <Thumbnail
                 size="sm"
-                src={col.thumbnail(row)}
+                {...thumbnailProps(col.thumbnail(row))}
                 alt=""
                 fallback={thumbnailFallback}
               />
@@ -1608,17 +1639,19 @@ export function DataList<T>({
           context={cardMeta(row, index)}
         />
       );
+    const thumb = thumbnailColumn
+      ? thumbnailProps(thumbnailColumn.thumbnail!(row))
+      : undefined;
     return (
       <MediaCard
         size={onBoard ? "default" : gridSize}
         surface={!onBoard}
         href={onBoard ? undefined : getRowHref?.(row)}
         linkRender={rowLinkRender}
-        image={
-          thumbnailColumn
-            ? (thumbnailColumn.thumbnail!(row) ?? null)
-            : undefined
-        }
+        image={thumb ? thumb.src : undefined}
+        imagePlaceholder={thumb?.placeholder}
+        imageSrcSet={thumb?.srcSet}
+        imageSizes={thumb?.sizes}
         fallback={thumbnailColumn ? thumbnailFallback : undefined}
         title={first ? renderCell(first, row, index, id, false) : null}
         meta={cardMeta(row, index)}

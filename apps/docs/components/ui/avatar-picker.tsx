@@ -1,4 +1,4 @@
-// @vegastack avatar-picker@0.23.44 sha256-5jn3t+L3ZW+/SZdjnZop9mmrtS+cKQy52Zq8MLIT1X0=
+// @vegastack avatar-picker@0.23.44 sha256-a5TXIEGVNySjJC81YCh20AjMaR0oW7HHH9f0i+hGuTU=
 
 "use client";
 
@@ -7,6 +7,7 @@ import { cn } from "@vegastack/design";
 import { Button } from "@/components/ui/button";
 import { PersonAvatar, type Person } from "@/components/ui/person-avatar";
 import { Spinner } from "@/components/ui/spinner";
+import { useAnnouncer } from "@/components/ui/use-announcer";
 import {
   useFileDrop,
   type FileDropRejection,
@@ -54,7 +55,8 @@ export interface AvatarPickerProps extends Omit<
    */
   maxSize?: number;
   /**
-   * An error from after the file was accepted (processing or upload), shown on the message line.
+   * An error from after the file was accepted (processing or upload), shown on the message line
+   * and announced (a string is announced each time it changes).
    * @default undefined
    */
   error?: React.ReactNode;
@@ -87,13 +89,20 @@ function formatSize(bytes: number): string {
   return `${Math.round(bytes / 1024)} KB`;
 }
 
+/** An iPhone HEIC/HEIF photo — by type, or by extension when the browser reports no type. */
+function isHeic(file: File): boolean {
+  return /^image\/hei[cf]/i.test(file.type) || /\.hei[cf]$/i.test(file.name);
+}
+
 /** The message for a refused file: what was wrong, in one sentence. */
 function refusal(
   { file, reasons }: FileDropRejection,
   maxSize: number | undefined,
 ): string {
   if (reasons.includes("file-invalid-type"))
-    return `${file.name} isn't a supported image.`;
+    return isHeic(file)
+      ? `${file.name} is a HEIC photo. Export it as JPEG and try again.`
+      : `${file.name} isn't a supported image.`;
   if (reasons.includes("file-too-large") && maxSize !== undefined)
     return `${file.name} is larger than ${formatSize(maxSize)}. Choose a smaller image.`;
   return `${file.name} can't be used. Try another image.`;
@@ -128,6 +137,12 @@ export function AvatarPicker({
 }: AvatarPickerProps) {
   const [refused, setRefused] = React.useState<string | null>(null);
   const messageId = React.useId();
+  // ONE polite region speaks every refusal and every `error`, exactly once each; the drop hook's
+  // own region (its generic "was refused — wrong type") is deliberately not rendered.
+  const { announce, Announcer } = useAnnouncer();
+  React.useEffect(() => {
+    if (typeof error === "string" && error) announce(error);
+  }, [error, announce]);
   const drop = useFileDrop({
     accept: Object.fromEntries(
       accept
@@ -145,8 +160,11 @@ export function AvatarPicker({
       setRefused(null);
       if (files[0]) onSelect(files[0]);
     },
-    onFilesRejected: (rejections) =>
-      setRefused(rejections[0] ? refusal(rejections[0], maxSize) : null),
+    onFilesRejected: (rejections) => {
+      const text = rejections[0] ? refusal(rejections[0], maxSize) : null;
+      setRefused(text);
+      if (text) announce(text);
+    },
   });
   const message = refused ?? error;
   const hasImage = Boolean(person.image);
@@ -207,20 +225,19 @@ export function AvatarPicker({
             </Button>
           ) : null}
         </div>
-        {/* A refusal is already announced by the drop hook's own region; the app's `error`
-            is not, so this line is a polite region only while it shows `error`. It stays
-            mounted so a new error is announced when it appears. */}
-        <p
-          id={messageId}
-          data-slot="avatar-picker-message"
-          role={refused ? undefined : "status"}
-          className="text-xs text-destructive-text empty:hidden"
-        >
-          {message}
-        </p>
+        {/* The visible line; the Announcer below is what speaks it. */}
+        {message ? (
+          <p
+            id={messageId}
+            data-slot="avatar-picker-message"
+            className="text-xs text-destructive-text"
+          >
+            {message}
+          </p>
+        ) : null}
       </div>
       <input {...drop.inputProps} />
-      <drop.Announcer />
+      <Announcer />
     </div>
   );
 }
