@@ -425,6 +425,7 @@
         "@vegastack/button",
         "@vegastack/person-avatar",
         "@vegastack/spinner",
+        "@vegastack/use-announcer",
         "@vegastack/use-file-drop"
       ],
       "files": [

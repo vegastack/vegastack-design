@@ -81,3 +81,24 @@ export function mediaCardPlain(): ReactNode {
     </Wrapper>
   );
 }
+
+const BLUR =
+  "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 9'><rect width='16' height='9' fill='%23a8a29e'/></svg>";
+
+/** `imagePlaceholder` blurs under the image until it loads; `imageSrcSet`/`imageSizes` pass through. */
+export function mediaCardPlaceholder(): ReactNode {
+  return (
+    <Wrapper className="block max-w-sm">
+      <MediaCard
+        size="lg"
+        href="#aurora"
+        image={IMG}
+        imageSrcSet={`${IMG} 480w`}
+        imageSizes="384px"
+        imagePlaceholder={BLUR}
+        title="Aurora Downlight"
+        meta="8 products · 3 sub-families"
+      />
+    </Wrapper>
+  );
+}

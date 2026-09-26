@@ -487,6 +487,7 @@
         "@vegastack/button",
         "@vegastack/person-avatar",
         "@vegastack/spinner",
+        "@vegastack/use-announcer",
         "@vegastack/use-file-drop"
       ],
       "files": [
@@ -500,7 +501,7 @@
         "whenToUse": "A profile or member settings row where someone sets their own photo.",
         "whenNotToUse": "Attaching files to a record (Dropzone / Attachment) or picking a person (SearchableSelect).",
         "version": "0.23.44",
-        "integrity": "sha256-5jn3t+L3ZW+/SZdjnZop9mmrtS+cKQy52Zq8MLIT1X0="
+        "integrity": "sha256-a5TXIEGVNySjJC81YCh20AjMaR0oW7HHH9f0i+hGuTU="
       }
     },
     {
@@ -1269,7 +1270,7 @@
         "whenToUse": "A list of records as a table, a card grid or board lanes (view) with typed columns, selection, click-to-sort, loading/empty states, keyset paging through loadMore, rows as links, sections, thumbnails and a row-actions column.",
         "whenNotToUse": "Full-parity grids with grouping/editing/virtualization (DataGrid), or a simple static table (Table).",
         "version": "0.23.44",
-        "integrity": "sha256-2bH4+EXbnfKE/6Ydt52mZJyLItVt5Hh+2h6YzpCjFVM="
+        "integrity": "sha256-YhhuIEFUWeSnPC9tUMIx4qXDdOSomLJGDr+mB9xkRac="
       }
     },
     {
@@ -1361,7 +1362,7 @@
         "whenToUse": "A card per record in a grid (DataList view=\"grid\" renders one per row), or card content on a board.",
         "whenNotToUse": "A record with a long body or its own controls (Card), or a row in a table (DataList).",
         "version": "0.23.44",
-        "integrity": "sha256-Mnb868ZUX0y3pHEU0Zlb76KB9wlbSShMfWKJW+Rgx98="
+        "integrity": "sha256-IUcL5EXrQnShdZG6CJGlQJoCsDTPuvfpjmkO/ayAzWs="
       }
     },
     {

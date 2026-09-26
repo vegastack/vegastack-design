@@ -31,7 +31,7 @@ import { AvatarPicker } from "@/components/ui/avatar-picker";
 photo, else their initials on their colour — beside "Upload photo", which opens the file browser
 (on a phone, the browser offers the camera and the gallery). Once there is a photo the button reads
 "Change photo" and "Remove" appears. A file of the wrong type or over `maxSize` is refused on the
-line under the buttons and announced.
+line under the buttons and announced — an iPhone HEIC photo is told to export it as JPEG.
 
 It only acquires the file: `onSelect` hands the app the one accepted `File`, and the app resizes
 and uploads it, holds `busy` meanwhile, then passes the new `person.image` back.
@@ -80,8 +80,8 @@ the same line a refused file uses. `size="xl"` draws an 80px avatar.
 
 - "Upload photo" / "Change photo" and "Remove" are real buttons; the file input behind them is
   hidden and never takes focus.
-- A refused file is announced through a polite live region and shown under the buttons; the upload
-  button is described by that line while it shows.
+- One polite live region announces every refused file and every `error`, exactly once each, with the
+  same words shown under the buttons; the upload button is described by that line while it shows.
 - While `busy` the root is `aria-busy` and the spinner reads "Loading".
 
 | Key                                 | Action                                        |

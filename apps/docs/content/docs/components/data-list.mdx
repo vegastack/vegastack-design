@@ -425,6 +425,23 @@ no image shows — pass the app's brand mark. The grid view uses the same column
   file="components/preview/data-list.tsx"
 />
 
+`thumbnail` can also return `{ src, placeholder?, srcSet?, sizes? }`: the `placeholder` data URL
+blurs under the image until it loads, in the row and on the grid card alike.
+
+```tsx
+thumbnail: (f) => ({
+  src: f.image.url480,
+  placeholder: f.image.blur,
+  srcSet: f.image.srcset,
+  sizes: "48px",
+});
+```
+
+<ComponentPreview
+  name="dataListThumbnailPlaceholder"
+  file="components/preview/data-list.tsx"
+/>
+
 ### Grid
 
 `view="grid"` renders one [`MediaCard`](/docs/components/media-card) per row in a responsive grid:

@@ -2754,6 +2754,7 @@
         "@vegastack/button",
         "@vegastack/person-avatar",
         "@vegastack/spinner",
+        "@vegastack/use-announcer",
         "@vegastack/use-file-drop"
       ],
       "npmDependencies": [
@@ -7315,6 +7316,15 @@
           "ref": {
             "status": "not-applicable",
             "rationale": "No stable public ref target is forwarded by NoResultsEmpty in packages/ui/registry/ui/data-list.tsx; incidental internal nodes are not part of its API."
+          }
+        },
+        {
+          "name": "DataListThumbnail",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/data-list.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         }
       ],
