@@ -67,7 +67,14 @@
      restating it. Text entry (text inputs, textarea, contenteditable) keeps its border tint
      (FOC-3) and takes no fill. Tab triggers and panels take the same tint as everything else. Components carry no focus ring of their
      own (FOC-6), and `design-lint`'s `no-focus-ring-glow` rule rejects any focus ring or outline
-     class, so one cannot creep back through a later upstream pull. */
+     class, so one cannot creep back through a later upstream pull.
+
+     Programmatic focus targets (`tabindex="-1"`) take no tint: AppShell's skip-link `<main>`, Base UI
+     popups, a step heading focus is moved to. They are not tab stops, and each is a whole region.
+     Clicking the empty part of `<main>` focuses it, and the next key press (Shift or ⌘ alone is
+     enough) flips it to `:focus-visible` in Chromium. Before this exclusion that painted the entire
+     page grey. Combobox chips are the one `tabindex="-1"` control that arrow keys move focus onto,
+     so they keep the cue. */
   :focus-visible {
     outline: none;
   }
@@ -83,7 +90,8 @@
       [type="reset"],
       [type="color"],
       [type="file"]
-    )
+    ),
+    [tabindex="-1"]:not([data-slot="combobox-chip"])
   ) {
     background-image: linear-gradient(
       color-mix(in oklch, var(--accent) 50%, transparent),
