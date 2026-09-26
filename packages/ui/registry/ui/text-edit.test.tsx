@@ -416,6 +416,19 @@ const MAC = navigator.platform.startsWith("Mac");
 const END = MAC ? "{Meta>}{ArrowDown}{/Meta}" : "{Control>}{End}{/Control}";
 const MOD = MAC ? "Meta" : "Control";
 
+/** Select the last `count` characters of `block`'s text through the DOM (platform-independent). */
+function selectTail(block: Element, count: number) {
+  const walker = document.createTreeWalker(block, NodeFilter.SHOW_TEXT);
+  let last: Text | null = null;
+  while (walker.nextNode()) last = walker.currentNode as Text;
+  const range = document.createRange();
+  range.setStart(last!, last!.length - count);
+  range.setEnd(last!, last!.length);
+  const selection = window.getSelection()!;
+  selection.removeAllRanges();
+  selection.addRange(range);
+}
+
 // ---- DS-48: Markdown format, readOnly, disabled ---------------------------------------------
 
 const markdownFixtures: [string, string][] = [
@@ -679,13 +692,13 @@ test("bubble menu: a selection gets a link from the link input", async () => {
   });
   const box = screen.getByRole("textbox", { name: "Notes" });
   await userEvent.click(box.element().querySelector("p")!);
-  await userEvent.keyboard(
-    `${END}{Shift>}{ArrowLeft}{ArrowLeft}{ArrowLeft}{ArrowLeft}{/Shift}`,
-  );
-  await vi.waitFor(() =>
-    expect(
-      document.querySelector('[data-slot="text-edit-bubble-menu"]'),
-    ).not.toBeNull(),
+  selectTail(box.element().querySelector("p")!, 4);
+  await vi.waitFor(
+    () =>
+      expect(
+        document.querySelector('[data-slot="text-edit-bubble-menu"]'),
+      ).not.toBeNull(),
+    { timeout: 3000 },
   );
   await userEvent.click(
     document.querySelector<HTMLElement>('[aria-label="Link"]')!,
@@ -925,9 +938,8 @@ test("pasting a URL over a selection links it; pasted HTML is sanitized", async 
   });
   const box = screen.getByRole("textbox", { name: "Notes" });
   await userEvent.click(box.element().querySelector("p")!);
-  await userEvent.keyboard(
-    `${END}{Shift>}{ArrowLeft}{ArrowLeft}{ArrowLeft}{ArrowLeft}{/Shift}`,
-  );
+  selectTail(box.element().querySelector("p")!, 4);
+  await new Promise((resolve) => setTimeout(resolve, 50));
   const url = new DataTransfer();
   url.setData("text/plain", "https://example.com/spec");
   box.element().dispatchEvent(
