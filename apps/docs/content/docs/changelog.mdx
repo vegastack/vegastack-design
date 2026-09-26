@@ -10,6 +10,17 @@ npm package versions are listed per entry. This page is generated from the repo'
 
 {/* CHANGELOG:START — generated from /CHANGELOG.md by tooling/sync-changelog.mjs. DO NOT EDIT. */}
 
+## [0.23.37] — September 26, 2026
+
+### 🔧 Changed components
+
+- Emoji reactions. New `Reactions` (pills with counts that toggle, a hover card naming who reacted, an add button with quick reactions 👍 ❤ 😄 🎉 👀 🙏) and `toggleReaction` for optimistic updates. `CommentItem` and `CommentList` take `onReactionToggle` and read each comment's `reactions`; the add button joins the hover actions. `EmojiPicker` gains a quick row, a category bar, a Recent section, `size="sm"`, a skeleton and a DS empty state, and loads its data lazily from the new `emoji-data` lib (`EMOJI` moved there).
+  [`a7e0e2b`](https://github.com/VegaStack/vegastack-design/commit/a7e0e2b)
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.23.36 → 0.23.37.
+
 ## [0.23.36] — September 26, 2026
 
 ### 🔧 Changed components
