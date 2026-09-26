@@ -1,4 +1,4 @@
-// @vegastack person-avatar@0.23.43 sha256-0U+sF+4zsAAyhCcigm4PEakjFj3vDHcyTY35Z8/UV3A=
+// @vegastack person-avatar@0.23.43 sha256-c6t+p5WOknoQtGSZxRDwo02u28z80u4ZNAqbVoH31Ag=
 
 import * as React from "react";
 import {
@@ -7,15 +7,35 @@ import {
   AvatarImage,
   type AvatarHue,
 } from "@/components/ui/avatar";
-import { personInitials } from "@/lib/person";
 
 /* ------------------------------------------------------------------------------------------------
  * PersonAvatar — the ONE way a person is drawn as an avatar: their photo, else their initials on
  * their own colour (`hue`, API-32), else initials on the muted fallback. Every people surface
  * (PersonHoverCard, RecordChip, BoardCard, Inbox, Comments, RecordAside, SearchableSelect's person
- * rows, AvatarPicker) composes it, so a person reads the same everywhere. Initials come from the
- * shared rule in `@/lib/person`.
+ * rows, AvatarPicker) composes it, so a person reads the same everywhere. Initials follow the one
+ * rule in `personInitials`, exported here for anything else that shows a person's initials.
  * ----------------------------------------------------------------------------------------------*/
+
+/** The first `n` characters of a string, by code point, so an emoji or accent is never split. */
+function head(value: string, n: number): string {
+  return Array.from(value).slice(0, n).join("");
+}
+
+/**
+ * `personInitials` — the one initials rule for a person, on the trimmed name: the first letters of
+ * the first and last words ("Asha K Rao" → "AR"); one word → its first two letters ("Asha" → "AS");
+ * no name → the email's first two characters; always uppercase.
+ *
+ * @example
+ * personInitials("Asha Rao"); // "AR"
+ * personInitials("", "ops@acme.com"); // "OP"
+ */
+export function personInitials(name: string, email?: string | null): string {
+  const words = name.trim().split(/\s+/).filter(Boolean);
+  if (words.length === 0) return head((email ?? "").trim(), 2).toUpperCase();
+  if (words.length === 1) return head(words[0]!, 2).toUpperCase();
+  return (head(words[0]!, 1) + head(words.at(-1)!, 1)).toUpperCase();
+}
 
 /** A person shown by `PersonAvatar`, `PersonCard`, `PersonHoverCard` and `AvatarStack`. */
 export interface Person {

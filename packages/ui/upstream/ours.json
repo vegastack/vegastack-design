@@ -439,7 +439,7 @@
       "disposition": "keep",
       "family": "data",
       "source": "internal shared part; not listed in extras.md. Operator brief 2026-09-27 (Regent member photos) — approved by MK 2026-09-27",
-      "rationale": "The one way a person is drawn: upstream avatar with the photo, else initials (the `person` lib rule) on the person's hue (API-32). It moved out of person-hover-card so searchable-select, record-chip, board-card and inbox can compose it without a dependency cycle."
+      "rationale": "The one way a person is drawn: upstream avatar with the photo, else initials (its `personInitials` rule) on the person's hue (API-32). It moved out of person-hover-card so searchable-select, record-chip, board-card and inbox can compose it without a dependency cycle."
     },
     "avatar-picker": {
       "disposition": "keep",

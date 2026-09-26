@@ -3,7 +3,7 @@ import { render } from "vitest-browser-react";
 import { expect, test } from "vitest";
 import { expectNoA11yViolations } from "../../test/a11y";
 import "../../test/contrast.css";
-import { PersonAvatar } from "./person-avatar";
+import { PersonAvatar, personInitials } from "./person-avatar";
 
 const fallback = (c: HTMLElement) =>
   c.querySelector<HTMLElement>('[data-slot="avatar-fallback"]')!;
@@ -25,4 +25,12 @@ test("no hue keeps the muted fallback; no name uses the email", async () => {
   expect(fallback(screen.container).textContent).toBe("OP");
   expect(fallback(screen.container).dataset.hue).toBeUndefined();
   expect(fallback(screen.container).className).toContain("bg-muted");
+});
+
+test("personInitials: first and last word, two letters of one word, else the email", () => {
+  expect(personInitials("Asha Rao")).toBe("AR");
+  expect(personInitials("  asha k  rao ")).toBe("AR");
+  expect(personInitials("asha")).toBe("AS");
+  expect(personInitials("", "ops@acme.com")).toBe("OP");
+  expect(personInitials("   ")).toBe("");
 });
