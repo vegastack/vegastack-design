@@ -172,16 +172,15 @@ test("inputRef forwards to the inner input element", async () => {
   expect(ref.current?.dataset.slot).toBe("input-group-control");
 });
 
-test("focus: the input carries the text-entry focus affordance on the group border", async () => {
+test("FOC-14: the group wears the focus tint as a field group and never moves its border", async () => {
   await render(<NumberField aria-label="Quantity" />);
   const root = document.querySelector(
     '[data-slot="number-field"]',
   ) as HTMLElement;
-  // The focus affordance is upstream InputGroup's own: the box borders `ring/70` when the
-  // control inside it takes focus. This file adds no focus class of its own.
-  expect(root.className).toContain(
-    "has-[[data-slot=input-group-control]:focus]:border-ring/70",
-  );
+  // The focus affordance is base.css's tint on the field group (FOC-14); the border never moves.
+  // This file adds no focus class of its own.
+  expect(root.hasAttribute("data-field-group")).toBe(true);
+  expect(root.className).not.toMatch(/focus[\w-]*\]?:border-/);
   const input = document.querySelector(
     '[data-slot="input-group-control"]',
   ) as HTMLInputElement;
