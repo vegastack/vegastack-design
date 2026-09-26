@@ -1,4 +1,4 @@
-// @vegastack markdown-view@0.23.41 sha256-/WVX9VxVqSsSa4U8TInHTw55OuEyC/S5vzocJXkdWn4=
+// @vegastack markdown-view@0.23.42 sha256-SmzymT6MN6DM2qWUXfZ2OzcjCXfUXGXG2C4VdEAwhRg=
 
 import * as React from "react";
 import Markdown, { type Components } from "react-markdown";
