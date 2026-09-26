@@ -139,6 +139,19 @@ export function comments(): ReactNode {
   return <CommentsDemo />;
 }
 
+/**
+ * The composer at rest: a light, near-transparent box with the "Add a comment…" placeholder that
+ * grows to about twelve lines before it scrolls inside; the ↑ send button is a quiet grey disc
+ * while there is nothing to send, and turns primary once there is.
+ */
+export function commentsComposer(): ReactNode {
+  return (
+    <Demo className="flex max-w-2xl flex-col items-stretch gap-6">
+      <CommentComposer onSubmit={() => {}} />
+    </Demo>
+  );
+}
+
 /** No comments yet. */
 export function commentsEmpty(): ReactNode {
   return (

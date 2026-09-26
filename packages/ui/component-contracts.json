@@ -21618,7 +21618,7 @@
       "name": "text-edit",
       "registryType": "registry:ui",
       "title": "Text Edit",
-      "summary": "A Tiptap-based, markdown-first rich-text editor with no toolbar: a slash menu for blocks and a bubble menu for inline marks, a hover/focus tint, and one onCommit path.",
+      "summary": "A Tiptap-based, markdown-first rich-text editor with no toolbar and no fill: a slash menu for blocks, a bubble menu for marks and block types, GFM tables with a menu and drag grips, block drag handles, portaled menus, and one onCommit path.",
       "status": "stable",
       "since": "0.1.0",
       "family": "rich-text",
@@ -21711,7 +21711,7 @@
         },
         "visual": {
           "status": "observed",
-          "values": ["default", "hover", "invalid", "error", "empty"],
+          "values": ["default", "invalid", "error", "empty"],
           "evidence": "Observed from token classes, state selectors, or visual branches."
         }
       },
@@ -21745,13 +21745,16 @@
         "@vegastack/checkbox",
         "@vegastack/copy-button",
         "@vegastack/input",
-        "@vegastack/toggle"
+        "@vegastack/native-select",
+        "@vegastack/toggle",
+        "@vegastack/tooltip"
       ],
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
         "@tiptap/extension-code-block@^3",
         "@tiptap/extension-image@^3",
         "@tiptap/extension-list@^3",
+        "@tiptap/extension-paragraph@^3",
         "@tiptap/extension-table@^3",
         "@tiptap/extensions@^3",
         "@tiptap/markdown@^3",

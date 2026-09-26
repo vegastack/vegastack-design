@@ -1,7 +1,8 @@
 import * as React from "react";
 import { render } from "vitest-browser-react";
 import { userEvent } from "vitest/browser";
-import { expect, test, vi } from "vitest";
+import { expect, onTestFinished, test, vi } from "vitest";
+import geometryCss from "../../test/geometry.css?inline";
 import { expectNoA11yViolations } from "../../test/a11y";
 import { fieldWiringTests } from "../../test/field-wiring";
 import { TextEdit } from "./text-edit";
@@ -415,6 +416,19 @@ const MAC = navigator.platform.startsWith("Mac");
 const END = MAC ? "{Meta>}{ArrowDown}{/Meta}" : "{Control>}{End}{/Control}";
 const MOD = MAC ? "Meta" : "Control";
 
+/** Select the last `count` characters of `block`'s text through the DOM (platform-independent). */
+function selectTail(block: Element, count: number) {
+  const walker = document.createTreeWalker(block, NodeFilter.SHOW_TEXT);
+  let last: Text | null = null;
+  while (walker.nextNode()) last = walker.currentNode as Text;
+  const range = document.createRange();
+  range.setStart(last!, last!.length - count);
+  range.setEnd(last!, last!.length);
+  const selection = window.getSelection()!;
+  selection.removeAllRanges();
+  selection.addRange(range);
+}
+
 // ---- DS-48: Markdown format, readOnly, disabled ---------------------------------------------
 
 const markdownFixtures: [string, string][] = [
@@ -678,13 +692,13 @@ test("bubble menu: a selection gets a link from the link input", async () => {
   });
   const box = screen.getByRole("textbox", { name: "Notes" });
   await userEvent.click(box.element().querySelector("p")!);
-  await userEvent.keyboard(
-    `${END}{Shift>}{ArrowLeft}{ArrowLeft}{ArrowLeft}{ArrowLeft}{/Shift}`,
-  );
-  await vi.waitFor(() =>
-    expect(
-      document.querySelector('[data-slot="text-edit-bubble-menu"]'),
-    ).not.toBeNull(),
+  selectTail(box.element().querySelector("p")!, 4);
+  await vi.waitFor(
+    () =>
+      expect(
+        document.querySelector('[data-slot="text-edit-bubble-menu"]'),
+      ).not.toBeNull(),
+    { timeout: 3000 },
   );
   await userEvent.click(
     document.querySelector<HTMLElement>('[aria-label="Link"]')!,
@@ -732,4 +746,527 @@ test("Markdown: blank lines inside a code block are kept", async () => {
   await userEvent.click(code[code.length - 1]!);
   await userEvent.keyboard(`${END}x{Backspace}`);
   await vi.waitFor(() => expect(onValueChange.mock.calls.at(-1)?.[0]).toBe(md));
+});
+
+// ---- Notion-grade coverage: every element round-trips, menus float, nothing overflows --------
+
+const lastValue = (fn: ReturnType<typeof vi.fn>) =>
+  fn.mock.calls.at(-1)?.[0] as string | undefined;
+
+const moreMarkdownFixtures: [string, string][] = [
+  ["a heading 4", "#### Four\n\nBody"],
+  ["a nested checklist", "- [ ] Open\n  - [x] Sub done\n- [x] Done"],
+  [
+    "a GFM table",
+    "| Name | Role |\n| ---- | ---- |\n| Ada  | Eng  |\n| Bo   | PM   |",
+  ],
+  ["an image with alt text", "![A chart](https://example.com/chart.png)"],
+  ["a code block with a language", "```python\nprint(1)\n```"],
+  [
+    "a link and marks together",
+    "**Bold [link](https://example.com)** and ~~gone~~",
+  ],
+];
+
+test.each(moreMarkdownFixtures)(
+  "Markdown: %s round-trips unchanged after an edit",
+  async (_name, md) => {
+    const onValueChange = vi.fn();
+    const screen = await render(
+      <TextEdit
+        format="markdown"
+        defaultValue={md}
+        onValueChange={onValueChange}
+        aria-label="Doc"
+      />,
+    );
+    const box = screen.getByRole("textbox", { name: "Doc" });
+    await expect.element(box).toBeInTheDocument();
+    expect(onValueChange).not.toHaveBeenCalled();
+    // Put the caret at the end of the last text block directly: a click can land on an image
+    // (selecting it) or a table cell's padding, and Cmd+ArrowDown does not leave a table cell.
+    const blocks = box.element().querySelectorAll("p, h4, li p, td p, code");
+    const last = blocks[blocks.length - 1]!;
+    await userEvent.click(box);
+    const range = document.createRange();
+    range.selectNodeContents(last);
+    range.collapse(false);
+    window.getSelection()!.removeAllRanges();
+    window.getSelection()!.addRange(range);
+    await userEvent.keyboard("x{Backspace}");
+    await vi.waitFor(() => expect(lastValue(onValueChange)).toBe(md));
+  },
+);
+
+test("slash menu offers every block, and Table inserts a GFM table", async () => {
+  const onValueChange = vi.fn();
+  const screen = await markdownEditor({ onValueChange });
+  await screen.getByRole("textbox", { name: "Notes" }).click();
+  await userEvent.keyboard("/");
+  await vi.waitFor(() => expect(slashMenu()).not.toBeNull());
+  const labels = [
+    ...slashMenu()!.querySelectorAll('[data-slot="text-edit-slash-item"]'),
+  ].map((item) => item.textContent);
+  for (const label of [
+    "Text",
+    "Heading 1",
+    "Heading 4",
+    "Checklist",
+    "Code block",
+    "Table",
+    "Image",
+    "Divider",
+    "Link",
+  ])
+    expect(labels.some((text) => text?.startsWith(label))).toBe(true);
+  await userEvent.keyboard("table{Enter}");
+  await vi.waitFor(() =>
+    expect(lastValue(onValueChange)).toContain("| --- | --- | --- |"),
+  );
+});
+
+test("slash menu Image inserts an image with its alt text", async () => {
+  const onValueChange = vi.fn();
+  const screen = await markdownEditor({ onValueChange });
+  await screen.getByRole("textbox", { name: "Notes" }).click();
+  await userEvent.keyboard("/image{Enter}");
+  await vi.waitFor(() =>
+    expect(document.querySelector('[aria-label="Image URL"]')).not.toBeNull(),
+  );
+  await userEvent.keyboard("example.com/cat.png");
+  await userEvent.click(document.querySelector('[aria-label="Alt text"]')!);
+  await userEvent.keyboard("A cat{Enter}");
+  await vi.waitFor(() =>
+    expect(lastValue(onValueChange)).toBe(
+      "![A cat](https://example.com/cat.png)",
+    ),
+  );
+});
+
+test("markdown shortcuts: ⇧⌘X strike, ⌘E code, ⌘⇧7 numbered list, Tab nests", async () => {
+  const onValueChange = vi.fn();
+  const screen = await markdownEditor({ onValueChange });
+  await screen.getByRole("textbox", { name: "Notes" }).click();
+  await userEvent.keyboard(`{${MOD}>}{Shift>}x{/Shift}{/${MOD}}gone`);
+  await vi.waitFor(() => expect(lastValue(onValueChange)).toBe("~~gone~~"));
+  await userEvent.keyboard(`{${MOD}>}{Shift>}x{/Shift}{/${MOD}} `);
+  await userEvent.keyboard(`{${MOD}>}e{/${MOD}}x{${MOD}>}e{/${MOD}}`);
+  await vi.waitFor(() => expect(lastValue(onValueChange)).toBe("~~gone~~ `x`"));
+  await userEvent.keyboard(
+    `{Enter}{${MOD}>}{Shift>}7{/Shift}{/${MOD}}one{Enter}two`,
+  );
+  await userEvent.keyboard("{Tab}");
+  await vi.waitFor(() =>
+    expect(lastValue(onValueChange)).toBe("~~gone~~ `x`\n\n1. one\n   1. two"),
+  );
+});
+
+test("input rules: ####, [ ], ``` with a language and ---", async () => {
+  const onValueChange = vi.fn();
+  const screen = await markdownEditor({ onValueChange });
+  await screen.getByRole("textbox", { name: "Notes" }).click();
+  await userEvent.keyboard("#### Four{Enter}[[ ] task{Enter}{Enter}");
+  await userEvent.keyboard("```ts ");
+  await userEvent.keyboard("const a = 1");
+  await vi.waitFor(() =>
+    expect(lastValue(onValueChange)).toBe(
+      "#### Four\n\n- [ ] task\n\n```ts\nconst a = 1\n```",
+    ),
+  );
+});
+
+test("the code block's language selector writes the fence's info string", async () => {
+  const onValueChange = vi.fn();
+  const screen = await markdownEditor({
+    defaultValue: "```\nx = 1\n```",
+    onValueChange,
+  });
+  const select = screen.getByRole("combobox", { name: "Code language" });
+  await select.selectOptions("python");
+  await vi.waitFor(() =>
+    expect(lastValue(onValueChange)).toBe("```python\nx = 1\n```"),
+  );
+});
+
+async function selectAllOf(box: Element) {
+  await userEvent.click(box.querySelector("p, li, h1, h2")!);
+  await userEvent.keyboard(`{${MOD}>}a{/${MOD}}`);
+  await vi.waitFor(() =>
+    expect(
+      document.querySelector('[data-slot="text-edit-bubble-menu"]'),
+    ).not.toBeNull(),
+  );
+}
+
+test("bubble menu: Turn into converts the block, Clear formatting drops the marks", async () => {
+  const onValueChange = vi.fn();
+  const screen = await markdownEditor({
+    defaultValue: "Some **bold** words",
+    onValueChange,
+  });
+  await selectAllOf(screen.getByRole("textbox", { name: "Notes" }).element());
+  await userEvent.click(
+    document.querySelector<HTMLElement>('[aria-label^="Turn into"]')!,
+  );
+  await vi.waitFor(() =>
+    expect(
+      document.querySelector('[data-slot="text-edit-turn-into"]'),
+    ).not.toBeNull(),
+  );
+  await userEvent.click(
+    [...document.querySelectorAll<HTMLElement>("[role=menuitemradio]")].find(
+      (item) => item.textContent === "Heading 2",
+    )!,
+  );
+  await vi.waitFor(() =>
+    expect(lastValue(onValueChange)).toBe("## Some **bold** words"),
+  );
+  await selectAllOf(screen.getByRole("textbox", { name: "Notes" }).element());
+  await userEvent.click(
+    document.querySelector<HTMLElement>('[aria-label="Clear formatting"]')!,
+  );
+  await vi.waitFor(() =>
+    expect(lastValue(onValueChange)).toBe("## Some bold words"),
+  );
+});
+
+test("pasting a URL over a selection links it; pasted HTML is sanitized", async () => {
+  const onValueChange = vi.fn();
+  const screen = await markdownEditor({
+    defaultValue: "Read the spec",
+    onValueChange,
+  });
+  const box = screen.getByRole("textbox", { name: "Notes" });
+  await userEvent.click(box.element().querySelector("p")!);
+  selectTail(box.element().querySelector("p")!, 4);
+  await new Promise((resolve) => setTimeout(resolve, 50));
+  const url = new DataTransfer();
+  url.setData("text/plain", "https://example.com/spec");
+  box.element().dispatchEvent(
+    new ClipboardEvent("paste", {
+      clipboardData: url,
+      bubbles: true,
+      cancelable: true,
+    }),
+  );
+  await vi.waitFor(() =>
+    expect(lastValue(onValueChange)).toBe(
+      "Read the [spec](https://example.com/spec)",
+    ),
+  );
+  await userEvent.keyboard(`${END}{Enter}`);
+  const html = new DataTransfer();
+  html.setData(
+    "text/html",
+    '<p onclick="alert(1)">Safe <b>text</b><script>alert(2)</script></p>',
+  );
+  html.setData("text/plain", "Safe text");
+  box.element().dispatchEvent(
+    new ClipboardEvent("paste", {
+      clipboardData: html,
+      bubbles: true,
+      cancelable: true,
+    }),
+  );
+  await vi.waitFor(() =>
+    expect(lastValue(onValueChange)).toContain("Safe **text**"),
+  );
+  expect(box.element().querySelector("script,[onclick]")).toBeNull();
+});
+
+const TABLE = "| A   | B   |\n| --- | --- |\n| 1   | 2   |\n| 3   | 4   |";
+
+test("table menu: insert, move and delete rows and columns", async () => {
+  const onValueChange = vi.fn();
+  const screen = await markdownEditor({ defaultValue: TABLE, onValueChange });
+  const box = screen.getByRole("textbox", { name: "Notes" }).element();
+  await userEvent.click(box.querySelectorAll("td")[0]!);
+  const menu = () =>
+    document.querySelector<HTMLElement>('[data-slot="text-edit-table-menu"]');
+  await vi.waitFor(() => expect(menu()).not.toBeNull());
+  const press = (label: string) =>
+    userEvent.click(
+      menu()!.querySelector<HTMLElement>(`[aria-label="${label}"]`)!,
+    );
+  await press("Move column right");
+  await vi.waitFor(() =>
+    expect(lastValue(onValueChange)).toBe(
+      "| B   | A   |\n| --- | --- |\n| 2   | 1   |\n| 4   | 3   |",
+    ),
+  );
+  await press("Move row down");
+  await vi.waitFor(() =>
+    expect(lastValue(onValueChange)).toBe(
+      "| B   | A   |\n| --- | --- |\n| 4   | 3   |\n| 2   | 1   |",
+    ),
+  );
+  await press("Insert row below");
+  await vi.waitFor(() => expect(box.querySelectorAll("tr").length).toBe(4));
+  await press("Delete row");
+  await vi.waitFor(() => expect(box.querySelectorAll("tr").length).toBe(3));
+  await press("Delete column");
+  await vi.waitFor(() =>
+    expect(box.querySelectorAll("tr")[0]!.children.length).toBe(1),
+  );
+  expect(lastValue(onValueChange)).toMatch(/^\| [AB] +\|\n\| --- \|/);
+});
+
+test("Tab and Shift+Tab move between table cells", async () => {
+  const screen = await markdownEditor({ defaultValue: TABLE });
+  const box = screen.getByRole("textbox", { name: "Notes" }).element();
+  await userEvent.click(box.querySelectorAll("td")[0]!);
+  // Tab selects the next cell's text, so typing replaces it; Shift+Tab goes back.
+  await userEvent.keyboard("{Tab}x");
+  await vi.waitFor(() =>
+    expect(box.querySelectorAll("td")[1]!.textContent).toBe("x"),
+  );
+  await userEvent.keyboard("{Shift>}{Tab}{/Shift}y");
+  await vi.waitFor(() =>
+    expect(box.querySelectorAll("td")[0]!.textContent).toBe("y"),
+  );
+});
+
+function pointer(type: string, target: EventTarget, x: number, y: number) {
+  target.dispatchEvent(
+    new PointerEvent(type, {
+      clientX: x,
+      clientY: y,
+      button: 0,
+      bubbles: true,
+      cancelable: true,
+      pointerId: 1,
+    }),
+  );
+}
+
+async function drag(handle: HTMLElement, x: number, y: number) {
+  const box = handle.getBoundingClientRect();
+  pointer("pointerdown", handle, box.left + 4, box.top + 4);
+  pointer("pointermove", window, box.left + 20, box.top + 20);
+  pointer("pointermove", window, x, y);
+  pointer("pointerup", window, x, y);
+}
+
+test("dragging a column grip reorders the columns", async () => {
+  const onValueChange = vi.fn();
+  const screen = await markdownEditor({ defaultValue: TABLE, onValueChange });
+  const box = screen.getByRole("textbox", { name: "Notes" }).element();
+  const first = box.querySelectorAll("td")[0]!;
+  await userEvent.hover(first);
+  const grip = () =>
+    document.querySelector<HTMLElement>(
+      '[data-slot="text-edit-table-grip"][data-axis="col"]',
+    );
+  await vi.waitFor(() => expect(grip()).not.toBeNull());
+  const last = box.querySelectorAll("th")[1]!.getBoundingClientRect();
+  await drag(grip()!, last.right - 2, last.top + 4);
+  await vi.waitFor(() =>
+    expect(lastValue(onValueChange)).toBe(
+      "| B   | A   |\n| --- | --- |\n| 2   | 1   |\n| 4   | 3   |",
+    ),
+  );
+});
+
+test("dragging a row grip reorders the body rows", async () => {
+  const onValueChange = vi.fn();
+  const screen = await markdownEditor({ defaultValue: TABLE, onValueChange });
+  const box = screen.getByRole("textbox", { name: "Notes" }).element();
+  await userEvent.hover(box.querySelectorAll("td")[0]!);
+  const grip = () =>
+    document.querySelector<HTMLElement>(
+      '[data-slot="text-edit-table-grip"][data-axis="row"]',
+    );
+  await vi.waitFor(() => expect(grip()).not.toBeNull());
+  const lastRow = box.querySelectorAll("tr")[2]!.getBoundingClientRect();
+  await drag(grip()!, lastRow.left + 4, lastRow.bottom - 2);
+  await vi.waitFor(() =>
+    expect(lastValue(onValueChange)).toBe(
+      "| A   | B   |\n| --- | --- |\n| 3   | 4   |\n| 1   | 2   |",
+    ),
+  );
+});
+
+test("the block handle drags a block to a new place, and ⌘⇧↑ moves it back", async () => {
+  const onValueChange = vi.fn();
+  const screen = await markdownEditor({
+    defaultValue: "One\n\nTwo\n\nThree",
+    onValueChange,
+  });
+  const box = screen.getByRole("textbox", { name: "Notes" }).element();
+  const paragraphs = box.querySelectorAll("p");
+  await userEvent.hover(paragraphs[0]!);
+  const handle = () =>
+    document.querySelector<HTMLElement>('[data-slot="text-edit-block-handle"]');
+  await vi.waitFor(() => expect(handle()).not.toBeNull());
+  const end = paragraphs[2]!.getBoundingClientRect();
+  await drag(handle()!, end.left + 4, end.bottom - 1);
+  await vi.waitFor(() =>
+    expect(lastValue(onValueChange)).toBe("Two\n\nThree\n\nOne"),
+  );
+  await userEvent.keyboard(`{${MOD}>}{Shift>}{ArrowUp}{/Shift}{/${MOD}}`);
+  await vi.waitFor(() =>
+    expect(lastValue(onValueChange)).toBe("Two\n\nOne\n\nThree"),
+  );
+});
+
+test("the block handle moves a list item among its siblings", async () => {
+  const onValueChange = vi.fn();
+  const screen = await markdownEditor({
+    defaultValue: "- a\n- b\n- c",
+    onValueChange,
+  });
+  const box = screen.getByRole("textbox", { name: "Notes" }).element();
+  const items = box.querySelectorAll("li");
+  await userEvent.hover(items[2]!.querySelector("p")!);
+  const handle = () =>
+    document.querySelector<HTMLElement>('[data-slot="text-edit-block-handle"]');
+  await vi.waitFor(() => expect(handle()).not.toBeNull());
+  const top = items[0]!.getBoundingClientRect();
+  await drag(handle()!, top.left + 4, top.top + 1);
+  await vi.waitFor(() =>
+    expect(lastValue(onValueChange)).toBe("- c\n- a\n- b"),
+  );
+});
+
+test("dragHandles={false} shows no handle or grips", async () => {
+  const screen = await markdownEditor({
+    defaultValue: TABLE,
+    dragHandles: false,
+  });
+  const box = screen.getByRole("textbox", { name: "Notes" }).element();
+  await userEvent.hover(box.querySelectorAll("td")[0]!);
+  await new Promise((resolve) => setTimeout(resolve, 50));
+  expect(
+    document.querySelector(
+      '[data-slot="text-edit-block-handle"],[data-slot="text-edit-table-grip"]',
+    ),
+  ).toBeNull();
+});
+
+test("the link popover floats above a clipping container instead of being cut off", async () => {
+  const sheet = document.createElement("style");
+  sheet.textContent = geometryCss;
+  document.head.append(sheet);
+  onTestFinished(() => sheet.remove());
+  const screen = await render(
+    <div
+      style={{ overflow: "hidden", height: 40, marginTop: 120 }}
+      data-testid="clip"
+    >
+      <TextEdit
+        format="markdown"
+        defaultValue="Read the spec"
+        aria-label="Clipped"
+      />
+    </div>,
+  );
+  const box = screen.getByRole("textbox", { name: "Clipped" }).element();
+  await userEvent.click(box.querySelector("p")!);
+  await userEvent.keyboard(`${END}{${MOD}>}k{/${MOD}}`);
+  await vi.waitFor(() =>
+    expect(
+      document.querySelector('[data-slot="text-edit-link"]'),
+    ).not.toBeNull(),
+  );
+  const form = document.querySelector<HTMLElement>(
+    '[data-slot="text-edit-link"]',
+  )!;
+  const clip = screen.getByTestId("clip").element();
+  expect(clip.contains(form)).toBe(false);
+  const rect = form.getBoundingClientRect();
+  expect(rect.height).toBeGreaterThan(20);
+  const hit = document.elementFromPoint(
+    rect.left + rect.width / 2,
+    rect.top + rect.height / 2,
+  );
+  expect(form.contains(hit)).toBe(true);
+});
+
+test("the slash menu flips above the caret near the bottom of the viewport", async () => {
+  const screen = await render(
+    <div style={{ position: "fixed", bottom: 8, left: 8, width: 300 }}>
+      <TextEdit format="markdown" aria-label="Low" />
+    </div>,
+  );
+  await screen.getByRole("textbox", { name: "Low" }).click();
+  await userEvent.keyboard("/");
+  await vi.waitFor(() => expect(slashMenu()).not.toBeNull());
+  expect(slashMenu()!.getAttribute("data-side")).toBe("top");
+  const rect = slashMenu()!.getBoundingClientRect();
+  expect(rect.top).toBeGreaterThanOrEqual(0);
+  expect(rect.bottom).toBeLessThanOrEqual(window.innerHeight);
+});
+
+test("nothing overflows horizontally: long words, URLs, code and tables stay in their box", async () => {
+  const sheet = document.createElement("style");
+  sheet.textContent = geometryCss;
+  document.head.append(sheet);
+  onTestFinished(() => sheet.remove());
+  const long = "x".repeat(300);
+  const md = [
+    `A long word ${long} and https://example.com/${long}`,
+    `Inline \`${long}\``,
+    "```\n" + long + "\n```",
+    `| ${long} | b |\n| --- | --- |\n| 1 | 2 |`,
+  ].join("\n\n");
+  const screen = await render(
+    <div style={{ width: 320 }} data-testid="narrow">
+      <TextEdit format="markdown" defaultValue={md} aria-label="Narrow" />
+    </div>,
+  );
+  const box = screen.getByRole("textbox", { name: "Narrow" }).element();
+  await vi.waitFor(() => expect(box.querySelector("table")).not.toBeNull());
+  const narrow = screen.getByTestId("narrow").element();
+  expect(narrow.scrollWidth).toBeLessThanOrEqual(narrow.clientWidth);
+  expect(box.scrollWidth).toBeLessThanOrEqual(box.clientWidth);
+  expect(document.documentElement.scrollWidth).toBeLessThanOrEqual(
+    window.innerWidth,
+  );
+  // The wide pieces scroll inside their own block.
+  const wrapper = box.querySelector<HTMLElement>(".tableWrapper")!;
+  expect(getComputedStyle(wrapper).overflowX).toBe("auto");
+  expect(wrapper.getBoundingClientRect().width).toBeLessThanOrEqual(320);
+});
+
+test("no fill in any state: the caret is the focus cue", async () => {
+  const sheet = document.createElement("style");
+  sheet.textContent = geometryCss;
+  document.head.append(sheet);
+  onTestFinished(() => sheet.remove());
+  const screen = await markdownEditor({ defaultValue: "Hello" });
+  const box = screen.getByRole("textbox", { name: "Notes" }).element();
+  const root = screen.container.querySelector<HTMLElement>(
+    '[data-slot="text-edit"]',
+  )!;
+  const fills = () =>
+    [box, root].map((el) => [
+      getComputedStyle(el).backgroundColor,
+      getComputedStyle(el).backgroundImage,
+    ]);
+  const rest = fills();
+  await userEvent.hover(box);
+  await userEvent.click(box);
+  expect(fills()).toEqual(rest);
+  expect(
+    rest.every(
+      ([color, image]) => color === "rgba(0, 0, 0, 0)" && image === "none",
+    ),
+  ).toBe(true);
+  expect(box.getAttribute("data-focus-cue")).toBe("caret");
+});
+
+test("the slash hint shows only while focused and empty", async () => {
+  const sheet = document.createElement("style");
+  sheet.textContent = geometryCss;
+  document.head.append(sheet);
+  onTestFinished(() => sheet.remove());
+  const screen = await markdownEditor({ placeholder: "Add a description…" });
+  const box = screen.getByRole("textbox", { name: "Notes" }).element();
+  const hint = () =>
+    getComputedStyle(box.querySelector("p")!, "::before").content;
+  await vi.waitFor(() => expect(hint()).toContain("Add a description…"));
+  await userEvent.click(box);
+  await vi.waitFor(() => expect(hint()).toContain("Type / for commands"));
+  await userEvent.keyboard("a");
+  await vi.waitFor(() => expect(hint()).not.toContain("Type / for commands"));
 });

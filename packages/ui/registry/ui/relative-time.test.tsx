@@ -49,7 +49,7 @@ test("a controlled `now` server-renders the relative label with no swap", () => 
       locale="en"
     />,
   );
-  expect(markup).toContain("2 hours ago");
+  expect(markup).toContain("2h ago");
 });
 
 test('renders a past instant as "ago" copy', async () => {
@@ -57,21 +57,51 @@ test('renders a past instant as "ago" copy', async () => {
   const screen = await render(
     <RelativeTime date={date} now={NOW} title={false} />,
   );
-  await expect.element(screen.getByText("2 hours ago")).toBeInTheDocument();
+  await expect.element(screen.getByText("2h ago")).toBeInTheDocument();
 });
 
-test('unitStyle="narrow" renders the compact form ("2h ago")', async () => {
-  const date = new Date(ms(-2 * 3_600_000));
+test("the default is the compact house form, with no periods", async () => {
+  const cases: [number, string][] = [
+    [-30_000, "now"],
+    [-19 * 60_000, "19m ago"],
+    [-3 * 3_600_000, "3h ago"],
+    [-2 * 86_400_000, "2d ago"],
+    [-3 * 7 * 86_400_000, "3w ago"],
+    [-5 * 30 * 86_400_000, "5mo ago"],
+    [-400 * 86_400_000, "1y ago"],
+  ];
+  for (const [delta, label] of cases) {
+    const screen = await render(
+      <RelativeTime date={new Date(ms(delta))} now={NOW} title={false} />,
+    );
+    await expect.element(screen.getByText(label)).toBeInTheDocument();
+    expect(screen.container.textContent).not.toContain(".");
+    await screen.unmount();
+  }
+});
+
+test('format="minimal" drops the suffix; format="long" spells the unit', async () => {
+  const date = new Date(ms(-19 * 60_000));
+  const minimal = await render(
+    <RelativeTime date={date} now={NOW} title={false} format="minimal" />,
+  );
+  await expect.element(minimal.getByText("19m")).toBeInTheDocument();
+  const long = await render(
+    <RelativeTime date={date} now={NOW} title={false} format="long" />,
+  );
+  await expect.element(long.getByText("19 minutes ago")).toBeInTheDocument();
+});
+
+test('the deprecated unitStyle="short" no longer prints "min."', async () => {
   const screen = await render(
     <RelativeTime
-      date={date}
+      date={new Date(ms(-19 * 60_000))}
       now={NOW}
       title={false}
-      unitStyle="narrow"
-      locale="en"
+      unitStyle="short"
     />,
   );
-  await expect.element(screen.getByText("2h ago")).toBeInTheDocument();
+  await expect.element(screen.getByText("19m ago")).toBeInTheDocument();
 });
 
 test('renders a future instant as "in …" copy', async () => {
@@ -79,7 +109,7 @@ test('renders a future instant as "in …" copy', async () => {
   const screen = await render(
     <RelativeTime date={date} now={NOW} title={false} />,
   );
-  await expect.element(screen.getByText("in 3 days")).toBeInTheDocument();
+  await expect.element(screen.getByText("in 3d")).toBeInTheDocument();
 });
 
 test('collapses a sub-minute delta to "now"', async () => {
@@ -94,7 +124,7 @@ test("renders a semantic <time> with an ISO dateTime + data-slot", async () => {
   const screen = await render(
     <RelativeTime date={date} now={NOW} title={false} />,
   );
-  const el = screen.getByText("1 hour ago");
+  const el = screen.getByText("1h ago");
   await expect.element(el).toHaveAttribute("dateTime", date.toISOString());
   await expect.element(el).toHaveAttribute("data-slot", "relative-time");
 });
@@ -103,12 +133,12 @@ test("accepts an ISO string and an epoch-number date", async () => {
   const iso = await render(
     <RelativeTime date="2026-01-15T10:00:00.000Z" now={NOW} title={false} />,
   );
-  await expect.element(iso.getByText("2 hours ago")).toBeInTheDocument();
+  await expect.element(iso.getByText("2h ago")).toBeInTheDocument();
 
   const num = await render(
     <RelativeTime date={ms(-60_000)} now={NOW} title={false} />,
   );
-  await expect.element(num.getByText("1 minute ago")).toBeInTheDocument();
+  await expect.element(num.getByText("1m ago")).toBeInTheDocument();
 });
 
 test("day mode labels adjacent days and sets data-mode", async () => {
@@ -179,7 +209,7 @@ test("projects the <time> itself as the tooltip trigger (focusable)", async () =
   );
   // The <time> stays the rendered element (Base UI projects its trigger handlers
   // onto it) and becomes keyboard-focusable so the absolute date is reachable.
-  const el = screen.getByText("2 hours ago");
+  const el = screen.getByText("2h ago");
   expect(el.element().tagName).toBe("TIME");
   await expect.element(el).toHaveAttribute("data-slot", "relative-time");
   await expect.element(el).toHaveAttribute("tabindex", "0");
@@ -195,7 +225,7 @@ test("reveals the absolute date-time on focus", async () => {
   // Focus opens the tooltip instantly (no hover delay). The preceding test separately proves the
   // projected <time> is a real tab stop; target it here so this assertion measures the focus
   // behavior rather than inheriting Firefox's document-level Tab cursor from earlier tests.
-  (screen.getByText("2 hours ago").element() as HTMLElement).focus();
+  (screen.getByText("2h ago").element() as HTMLElement).focus();
   // Base UI's Tooltip popup carries NO `role="tooltip"` and the trigger gets no
   // `aria-describedby` — deliberate upstream behaviour ("tooltips are visual-only"), inherited
   // when Batch 2 of the shadcn reset put Tooltip back on upstream's file. Locate the popup by its
@@ -215,7 +245,7 @@ test("accepts a custom tooltip label", async () => {
       />
     </TooltipProvider>,
   );
-  (screen.getByText("1 hour ago").element() as HTMLElement).focus();
+  (screen.getByText("1h ago").element() as HTMLElement).focus();
   expect((await openTooltip(screen.container)).textContent).toBe(
     "Created at launch",
   );
@@ -225,7 +255,7 @@ test("renders a bare <time> with no tooltip when title is false", async () => {
   const screen = await render(
     <RelativeTime date={new Date(ms(-3_600_000))} now={NOW} title={false} />,
   );
-  const el = screen.getByText("1 hour ago");
+  const el = screen.getByText("1h ago");
   await expect.element(el).not.toHaveAttribute("data-slot", "tooltip-trigger");
   await expect.element(el).toHaveAttribute("data-slot", "relative-time");
 });
@@ -245,7 +275,7 @@ test("no a11y violations (tooltip open)", async () => {
       <RelativeTime date={new Date(ms(-90 * 60_000))} now={NOW} />
     </TooltipProvider>,
   );
-  (screen.getByText("1 hour ago").element() as HTMLElement).focus();
+  (screen.getByText("1h ago").element() as HTMLElement).focus();
   await openTooltip(screen.container);
   // axe the portaled popup, which lands outside the test container.
   await expectNoA11yViolations(screen.container.ownerDocument.body);
@@ -424,8 +454,8 @@ test("DS-11: a plain label is inline text; only a tooltip trigger owns the 24px 
       <RelativeTime date={new Date(ms(-7_200_000))} now={NOW} />
     </TooltipProvider>,
   );
-  const plain = screen.getByText("1 hour ago").element();
-  const trigger = screen.getByText("2 hours ago").element();
+  const plain = screen.getByText("1h ago").element();
+  const trigger = screen.getByText("2h ago").element();
   expect(plain.className).not.toContain("min-h-6");
   expect(plain.className).not.toContain("inline-flex");
   expect(plain.className).not.toContain("tabular-nums");

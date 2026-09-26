@@ -171,13 +171,25 @@ zone reaches the next request. Client code reads the zone with `useTimeZone()`; 
 `timeZone` to each function.
 
 `RelativeTime` renders a semantic `<time dateTime>` element and self-updates on a
-timer while the date is recent. It uses the platform-native `Intl.RelativeTimeFormat`
-— no `date-fns` or other date dependency.
+timer while the date is recent, with the exact date and time in the hover. It uses the
+platform-native `Intl` APIs — no `date-fns` or other date dependency.
 
 ### RelativeTime formats
 
-Past and future instants, from seconds to days. Sub-minute deltas collapse to `now`;
-future dates read `in …`.
+Past and future instants, in the house compact form: `now` under a minute, then `19m ago`,
+`3h ago`, `2d ago`, `3w ago`, `5mo ago`, `1y ago`; future dates read `in 2d`. No unit carries a
+period — the old Intl short style (`19 min. ago`) is gone.
+
+#### Format variants
+
+`format` picks the form of the `ago` label: `suffix` (the default, `19m ago`), `minimal` for dense
+tables and chips (`19m`), and `long` for sentences (`19 minutes ago`). The deprecated `unitStyle`
+maps `long` to `format="long"` and everything else to the default.
+
+<ComponentPreview
+  name="relativeTimeFormatVariants"
+  file="components/preview/relative-time.tsx"
+/>
 
 <ComponentPreview
   name="relativeTimeExamples"
@@ -186,7 +198,7 @@ future dates read `in …`.
 
 ### Modes
 
-`mode="ago"` (default) is duration-relative — `"2 hours ago"`, `"in 3 days"`.
+`mode="ago"` (default) is duration-relative — `"2h ago"`, `"in 3d"`.
 `mode="day"` is calendar-relative — `"today"`, `"yesterday"`, `"tomorrow"`, and an
 absolute date (`"March 15"`, `"March 15, 2025"`) once a date is further out.
 
@@ -218,9 +230,9 @@ so it matches every other tooltip. Ignored when `title={false}`.
 
 ### Localization
 
-`RelativeTime` formats with the platform-native `Intl.RelativeTimeFormat`, so passing
-a BCP-47 `locale` localizes the string for free — no translation table. Omit `locale`
-to follow the runtime locale.
+`locale` localizes what `Intl` words: the `mode="day"` labels and dates and `format="long"`. The
+compact `ago` form (`2h ago`) is the house form everywhere, so a dense column reads the same in
+every locale. Omit `locale` to follow the runtime locale.
 
 <ComponentPreview
   name="relativeTimeLocale"
@@ -301,7 +313,7 @@ An uncontrolled instance renders the **absolute** date (`"Mar 15, 2025"`) on the
 on the hydration render, then swaps to the relative label once the client clock exists.
 There is no empty frame and no layout jump.
 
-The reason it cannot simply render the relative label is that `"2 hours ago"` needs
+The reason it cannot simply render the relative label is that `"2h ago"` needs
 `Date.now()`, which the server cannot reproduce — so the two renders would disagree and
 React would warn. Deriving the first paint from the target instant alone keeps both sides
 byte-identical. Pass `now` to make the output fully deterministic and skip the swap.

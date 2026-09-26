@@ -76,8 +76,24 @@ A paragraph with **bold**, _italic_, ~~strikethrough~~, and inline \`code\`.
 
 - Unordered item
 - Another item
+  - Nested item
+
+- [x] Done task
+- [ ] Open task
+  - [ ] Nested task
 
 > A blockquote settles at the muted foreground.
+
+\`\`\`python
+print("fenced code keeps its language")
+\`\`\`
+
+| Owner | Task          |
+| ----- | ------------- |
+| Ada   | Release notes |
+| Grace | Pricing page  |
+
+A long URL wraps inside the line: https://example.com/a/very/long/path/that/would/otherwise/widen/the/page/and/scroll/it/sideways
 
 ---
 

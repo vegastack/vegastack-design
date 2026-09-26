@@ -50,8 +50,13 @@ export const prose = {
    * Geist Mono is now the exception the recipe names explicitly — `code`, `pre` and `pre code` —
    * rather than something prose falls into by accident. A consumer who genuinely wants mono prose
    * still says so on the root, where it reads as a decision.
+   *
+   * `min-w-0 wrap-anywhere` is the no-horizontal-overflow contract (2026-09-26): a long word, URL
+   * or inline code run breaks inside the line instead of widening the page, and `anywhere` (not
+   * `break-word`) also lowers the min-content width, so a prose root inside a flex item shrinks.
+   * Fenced code (`white-space: pre`) and tables keep their lines and scroll inside their own box.
    */
-  root: "font-sans text-sm font-normal text-foreground",
+  root: "font-sans text-sm font-normal text-foreground min-w-0 wrap-anywhere",
 
   // Headings follow the app's type scale (design.md §Headings), not a document scale: the page
   // title is the only `text-2xl`, so a heading inside rendered text stops at `text-lg` for `#`,
@@ -91,9 +96,12 @@ export const prose = {
   // `data-type="taskList"` and each item `data-type="taskItem"` with its body in a
   // `data-slot="task-item-content"` box, which is exactly the DOM Tiptap's `TaskItem` node view
   // renders — so the checkbox IS the marker, the body wraps beside it, and a nested list indents
-  // under the body in view and edit alike.
+  // under the body in view and edit alike. The checkbox's hit area is trimmed to exactly 24px tall
+  // here (`after:-inset-y-1.25` — the pseudo insets from inside the 1px border — not its own 30px) and items sit 26px apart (`mt-1.5`), so each
+  // checkbox owns a whole 24px target with a hair to spare instead of reaching into its
+  // neighbour's.
   taskList:
-    "[&_ul[data-type=taskList]]:ms-0 [&_ul[data-type=taskList]]:list-none [&_li[data-type=taskItem]]:flex [&_li[data-type=taskItem]]:items-start [&_li[data-type=taskItem]]:gap-2 [&_li[data-type=taskItem]_[data-slot=checkbox]]:mt-0.5 [&_li[data-type=taskItem]_[data-slot=checkbox]]:me-0 [&_[data-slot=task-item-content]]:min-w-0 [&_[data-slot=task-item-content]]:flex-1",
+    "[&_ul[data-type=taskList]]:ms-0 [&_ul[data-type=taskList]]:list-none [&_li[data-type=taskItem]]:mt-1.5 [&_li[data-type=taskItem]]:flex [&_li[data-type=taskItem]]:items-start [&_li[data-type=taskItem]]:gap-2 [&_li[data-type=taskItem]_[data-slot=checkbox]]:mt-0.5 [&_li[data-type=taskItem]_[data-slot=checkbox]]:me-0 [&_li[data-type=taskItem]_[data-slot=checkbox]]:after:-inset-y-1.25 [&_[data-slot=task-item-content]]:min-w-0 [&_[data-slot=task-item-content]]:flex-1",
 
   blockquote:
     "[&_blockquote]:my-2 [&_blockquote]:border-s-2 [&_blockquote]:border-border [&_blockquote]:ps-3",
@@ -111,9 +119,11 @@ export const prose = {
   hr: "[&_hr]:my-4 [&_hr]:border-border",
 
   // GFM tables. The scroll container is structural and belongs to the consumer (MarkdownView wraps
-  // the table in an `overflow-x-auto` div); these are the cell and rule tokens.
+  // the table in an `overflow-x-auto` div); these are the cell and rule tokens. Cells take
+  // `break-word`, not the root's `anywhere`, so a column keeps its words whole and the table scrolls
+  // in its box rather than crushing to one character per line.
   table:
-    "[&_table]:w-full [&_table]:border-collapse [&_thead]:border-b [&_thead]:border-border [&_tr]:border-b [&_tr]:border-border [&_tr]:last:border-0 [&_th]:px-3 [&_th]:py-2 [&_th]:text-start [&_th]:font-medium [&_td]:px-3 [&_td]:py-2 [&_td_p]:my-0 [&_th_p]:my-0",
+    "[&_table]:w-full [&_table]:border-collapse [&_thead]:border-b [&_thead]:border-border [&_tr]:border-b [&_tr]:border-border [&_tr]:last:border-0 [&_th]:px-3 [&_th]:py-2 [&_th]:text-start [&_th]:font-medium [&_td]:px-3 [&_td]:py-2 [&_td_p]:my-0 [&_th_p]:my-0 [&_th]:wrap-break-word [&_td]:wrap-break-word",
 
   img: "[&_img]:my-2 [&_img]:max-w-full [&_img]:rounded-lg [&_img]:border [&_img]:border-border",
 } as const;

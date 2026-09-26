@@ -50,6 +50,9 @@ export function relativeTimeExamples(): ReactNode {
       <RelativeTime date={offset(-5 * MIN)} now={NOW} />
       <RelativeTime date={offset(-2 * HOUR)} now={NOW} />
       <RelativeTime date={offset(-3 * DAY)} now={NOW} />
+      <RelativeTime date={offset(-3 * 7 * DAY)} now={NOW} />
+      <RelativeTime date={offset(-5 * 30 * DAY)} now={NOW} />
+      <RelativeTime date={offset(-400 * DAY)} now={NOW} />
       <RelativeTime date={offset(2 * HOUR)} now={NOW} />
       <RelativeTime date={offset(3 * DAY)} now={NOW} />
     </Wrapper>
@@ -95,33 +98,47 @@ export function relativeTimeStates(): ReactNode {
 export function relativeTimeLocale(): ReactNode {
   return (
     <Wrapper className="gap-6 text-sm">
-      <div className="flex items-center gap-2">
-        <span className="text-muted-foreground">en-US</span>
-        <RelativeTime
-          date={offset(-2 * HOUR)}
-          now={NOW}
-          locale="en-US"
-          className="text-foreground"
-        />
-      </div>
-      <div className="flex items-center gap-2">
-        <span className="text-muted-foreground">de-DE</span>
-        <RelativeTime
-          date={offset(-2 * HOUR)}
-          now={NOW}
-          locale="de-DE"
-          className="text-foreground"
-        />
-      </div>
-      <div className="flex items-center gap-2">
-        <span className="text-muted-foreground">fr-FR</span>
-        <RelativeTime
-          date={offset(3 * DAY)}
-          now={NOW}
-          locale="fr-FR"
-          className="text-foreground"
-        />
-      </div>
+      {(["en-US", "de-DE", "fr-FR"] as const).map((locale) => (
+        <div key={locale} className="flex items-center gap-2">
+          <span className="text-muted-foreground">{locale}</span>
+          <RelativeTime
+            date={offset(-1 * DAY)}
+            now={NOW}
+            mode="day"
+            locale={locale}
+            className="text-foreground"
+          />
+          <span aria-hidden className="text-muted-foreground">
+            ·
+          </span>
+          <RelativeTime
+            date={offset(-2 * HOUR)}
+            now={NOW}
+            format="long"
+            locale={locale}
+            className="text-foreground"
+          />
+        </div>
+      ))}
+    </Wrapper>
+  );
+}
+
+/** `format`: the default `suffix` ("19m ago"), `minimal` ("19m") and `long` ("19 minutes ago"). */
+export function relativeTimeFormatVariants(): ReactNode {
+  return (
+    <Wrapper className="gap-6 text-sm">
+      {(["suffix", "minimal", "long"] as const).map((format) => (
+        <div key={format} className="flex items-center gap-2">
+          <span className="text-muted-foreground">{format}</span>
+          <RelativeTime
+            date={offset(-19 * MIN)}
+            now={NOW}
+            format={format}
+            className="text-foreground"
+          />
+        </div>
+      ))}
     </Wrapper>
   );
 }

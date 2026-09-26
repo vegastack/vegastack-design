@@ -1,4 +1,4 @@
-// @vegastack comments@0.23.37 sha256-RzBNszghZ7ewU/VrmPG8ahGpmrb4M66tqYMyWCw90rs=
+// @vegastack comments@0.23.37 sha256-x80g0I1DRoxN+vrynonEJh+Gv8HCfi8hAjhL/gAnOzI=
 
 "use client";
 
@@ -52,7 +52,7 @@ import {
  * composer), `CommentItem` (avatar, name, relative time, "edited", a ⋯ menu with Copy link / Edit
  * / Delete, in-place editing in a compact box, a `#comment-<id>` highlight and a replies slot) and
  * Slack-style reactions under the body (pills, and an add-reaction button in the hover actions),
- * `CommentComposer` (a Linear-style soft box with a round send button; Cmd/Ctrl+Enter sends). The
+ * `CommentComposer` (a light, near-transparent box with a round send button; Cmd/Ctrl+Enter sends). The
  * parts hold only transient UI state — the host owns the data and persists through callbacks; a
  * callback that returns a promise drives the saving/posting state and, on rejection, the error.
  * ----------------------------------------------------------------------------------------------*/
@@ -247,11 +247,7 @@ export function CommentItem({
                 </span>
                 <PersonBadge badge={author.badge} />
                 <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                  <RelativeTime
-                    date={comment.createdAt}
-                    now={now}
-                    unitStyle="short"
-                  />
+                  <RelativeTime date={comment.createdAt} now={now} />
                   {comment.editedAt ? (
                     <>
                       <span aria-hidden>·</span>
@@ -330,10 +326,8 @@ export function CommentItem({
                   <Tooltip>
                     <TooltipTrigger
                       render={
-                        <Button
-                          size="icon-sm"
-                          className="rounded-full"
-                          aria-label="Save"
+                        <SendButton
+                          label="Save"
                           loading={saving}
                           disabled={
                             !draft.trim() ||
@@ -342,9 +336,7 @@ export function CommentItem({
                           onClick={() => void save(draft)}
                         />
                       }
-                    >
-                      <ArrowUp aria-hidden />
-                    </TooltipTrigger>
+                    />
                     <TooltipContent>Save</TooltipContent>
                   </Tooltip>
                 </>
@@ -397,7 +389,9 @@ export function CommentItem({
 }
 
 /* ------------------------------------------------------------------------------------------------
- * CommentBox — the soft filled editor box the composer and in-place edit share
+ * CommentBox — the light editor box the composer and in-place edit share: a near-transparent fill
+ * (`bg-muted/30`) and a hairline border that tints on focus, no editor tint of its own, growing to
+ * about twelve lines before it scrolls inside
  * ----------------------------------------------------------------------------------------------*/
 
 /** Focus the editable surface inside `root`, retrying for a few frames while the editor mounts. */
@@ -449,7 +443,7 @@ function CommentBox({
       data-slot="comment-box"
       data-compact={compact ? "" : undefined}
       aria-invalid={invalid || undefined}
-      className="flex min-w-0 cursor-text flex-col gap-2 rounded-xl border border-border bg-muted/40 px-3 py-2.5 transition-colors focus-within:bg-muted/60 aria-invalid:border-destructive data-[compact]:py-2"
+      className="flex min-w-0 cursor-text flex-col gap-2 rounded-xl border border-border bg-muted/30 px-3 py-2.5 transition-colors focus-within:border-ring/50 aria-invalid:border-destructive data-[compact]:py-2"
       onClick={(e) => {
         if (e.target === e.currentTarget) focusEditor(ref.current);
       }}
@@ -465,8 +459,10 @@ function CommentBox({
         onRevert={onRevert}
         saving={busy}
         disabled={disabled}
+        dragHandles={false}
         minHeight={compact ? undefined : 40}
-        maxHeight="50vh"
+        // About twelve lines of body text, then it scrolls inside the box.
+        maxHeight="15rem"
         aria-invalid={invalid ? true : undefined}
       />
       <div className="flex min-w-0 items-center gap-2">
@@ -479,6 +475,39 @@ function CommentBox({
   );
 }
 
+/**
+ * The round ↑ send / save button. Disabled (nothing to send) it turns into a quiet grey disc with a
+ * full-strength muted arrow rather than a half-transparent primary one, so it still reads clearly.
+ */
+function SendButton({
+  label,
+  disabled,
+  loading,
+  onClick,
+  ...props
+}: {
+  label: string;
+  disabled: boolean;
+  loading?: boolean;
+  onClick: () => void;
+} & Omit<React.ComponentProps<typeof Button>, "onClick" | "disabled">) {
+  const idle = disabled && !loading;
+  return (
+    <Button
+      size="icon-sm"
+      variant={idle ? "secondary" : "default"}
+      aria-label={label}
+      loading={loading}
+      disabled={disabled}
+      onClick={onClick}
+      {...props}
+      className="rounded-full data-disabled:not-data-loading:opacity-100 data-disabled:not-data-loading:text-muted-foreground"
+    >
+      <ArrowUp aria-hidden />
+    </Button>
+  );
+}
+
 /* ------------------------------------------------------------------------------------------------
  * CommentComposer
  * ----------------------------------------------------------------------------------------------*/
@@ -487,7 +516,7 @@ function CommentBox({
 export interface CommentComposerProps {
   /** Post the Markdown; the editor clears when it resolves and keeps the text when it rejects. */
   onSubmit: MaybeAsync<[body: string]>;
-  /** Placeholder in the empty editor. @default "Leave a comment…" */
+  /** Placeholder in the empty editor. @default "Add a comment…" */
   placeholder?: string;
   /** Accessible name of the round send button. @default "Send comment" */
   submitLabel?: string;
@@ -508,8 +537,8 @@ export interface CommentComposerProps {
 }
 
 /**
- * `CommentComposer` — a soft filled box (Linear style) holding a Markdown editor that grows with
- * its text, an optional `attachments` slot at the bottom left and a round ↑ send button at the
+ * `CommentComposer` — a light box holding a Markdown editor that grows with its text (to about
+ * twelve lines, then scrolls inside), an optional `attachments` slot at the bottom left and a round ↑ send button at the
  * bottom right, disabled while the box is empty; Cmd/Ctrl+Enter sends too.
  *
  * @example
@@ -517,7 +546,7 @@ export interface CommentComposerProps {
  */
 export function CommentComposer({
   onSubmit,
-  placeholder = "Leave a comment…",
+  placeholder = "Add a comment…",
   submitLabel = "Send comment",
   attachments,
   autoFocus = false,
@@ -570,16 +599,12 @@ export function CommentComposer({
         invalid={!!error}
         leading={attachments}
         actions={
-          <Button
-            size="icon-sm"
-            className="rounded-full"
-            aria-label={submitLabel}
+          <SendButton
+            label={submitLabel}
             loading={posting}
             disabled={disabled || !body.trim()}
             onClick={() => void submit(body)}
-          >
-            <ArrowUp aria-hidden />
-          </Button>
+          />
         }
       />
       {error ? (

@@ -281,7 +281,7 @@
         "whenToUse": "Discussion on a record's page (a task, a meeting): comments oldest first with the composer at the end.",
         "whenNotToUse": "An activity feed or notifications — use Inbox.",
         "version": "0.23.37",
-        "integrity": "sha256-RzBNszghZ7ewU/VrmPG8ahGpmrb4M66tqYMyWCw90rs="
+        "integrity": "sha256-x80g0I1DRoxN+vrynonEJh+Gv8HCfi8hAjhL/gAnOzI="
       }
     },
     {
@@ -15674,7 +15674,7 @@
         "whenToUse": "The notifications panel: a feed of person and system events the user reads, acts on and marks read. Put it in a Sheet, Popover or docked panel.",
         "whenNotToUse": "Toasts for transient confirmations, an activity log on a record (Timeline), or a bare unread count (NotificationBell).",
         "version": "0.23.37",
-        "integrity": "sha256-apyzQ7sjxRQydZE6BBHLF1IjJ2vlAtba93VvCdZYn5E="
+        "integrity": "sha256-eExu4RcbXkSxqG17JVBNq1jE9y8+HgARIAbPyG0GThA="
       }
     },
     {
@@ -16106,7 +16106,7 @@
         "whenToUse": "Any date, time, duration, due label or day grouping shown in UI — pick the function per the Dates & times page's where-to-use table.",
         "whenNotToUse": "API/JSON output — keep ISO strings there.",
         "version": "0.23.37",
-        "integrity": "sha256-RZznHzfRsVrd/yV8P0uNAZmKE/wBDYs30ewK1E28VjA="
+        "integrity": "sha256-2xZhU+5uUG2Es2mSOStIcSER7EB9isEsCCR3KxWd338="
       }
     },
     {
@@ -16903,6 +16903,7 @@
         "@tiptap/extension-code-block@^3",
         "@tiptap/extension-image@^3",
         "@tiptap/extension-list@^3",
+        "@tiptap/extension-paragraph@^3",
         "@tiptap/extension-table@^3",
         "@tiptap/extensions@^3",
         "@tiptap/suggestion@^3",
@@ -16915,7 +16916,9 @@
         "@vegastack/checkbox",
         "@vegastack/copy-button",
         "@vegastack/input",
-        "@vegastack/toggle"
+        "@vegastack/native-select",
+        "@vegastack/toggle",
+        "@vegastack/tooltip"
       ],
       "files": [
         {
@@ -16928,7 +16931,7 @@
         "whenToUse": "Comments, notes, summaries and documents stored as Markdown (format=\"markdown\") or HTML; in-place editing of a MarkdownView with variant=\"ghost\".",
         "whenNotToUse": "Plain single-line input (Input) or collaborative real-time docs (deferred text-edit-collab).",
         "version": "0.23.37",
-        "integrity": "sha256-s7j3pxRPU2GdGmiiY6nZnWqRJ/9fHRcbK3ATlPQaiTA="
+        "integrity": "sha256-Zs2upeoAl/5oe3sqW2QddOvBS1GARrUntbJU774KLG8="
       }
     },
     {
@@ -17644,7 +17647,7 @@
         "whenToUse": "A task or issue page — title, description, comments and a properties rail; compose the same components in your app.",
         "whenNotToUse": "A meeting or media record with tabs — use RecordLayout with Tabs.",
         "version": "0.23.37",
-        "integrity": "sha256-ZzATW8EUAha6JlzFyi+W99t/0HrlRXMwuenfSrxzlkQ="
+        "integrity": "sha256-mPZsa/7TlNS/MK457sreSsl3rBED8kV604IwRFP5wUk="
       }
     },
     {
