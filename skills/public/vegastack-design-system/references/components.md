@@ -158,7 +158,7 @@ starts with `icon-` is a component and never an icon.
 
 ## Rich text
 
-- **`text-edit`** — A Tiptap-based, markdown-first rich-text editor with no toolbar: a slash menu for blocks and a bubble menu for inline marks, a hover/focus tint, and one onCommit path.
+- **`text-edit`** — A Tiptap-based, markdown-first rich-text editor with no toolbar and no fill: a slash menu for blocks, a bubble menu for marks and block types, GFM tables with a menu and drag grips, block drag handles, portaled menus, and one onCommit path.
 
 ## Chat
 

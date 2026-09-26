@@ -279,6 +279,9 @@ const DYNAMIC_DOM: Record<string, string> = {
   markdownBubbleMenu: ".tiptap[contenteditable]",
   markdownAutosave: ".tiptap[contenteditable]",
   markdownInPlace: ".tiptap[contenteditable]",
+  textEditPlaceholders: ".tiptap[contenteditable]",
+  markdownTables: ".tiptap[contenteditable]",
+  markdownBlockHandles: ".tiptap[contenteditable]",
 };
 
 type Fixture = () => React.ReactNode;
@@ -602,10 +605,24 @@ const focusSignature = (control: Element): FocusSignature => ({
  * purpose, so an outline on one is a defect rather than an alternative affordance. Letting (A)
  * answer for them is how a destroyed `outline-hidden` on the OTP slot passed this very assertion.
  */
+/**
+ * The one caret-only surface: a `role="textbox"` contenteditable that declares
+ * `data-focus-cue="caret"`. TextEdit is the only wearer (MK 2026-09-26): a Notion-style document
+ * editor has no ring, no border and no fill in any state, because it must rest looking exactly
+ * like the `MarkdownView` it replaces, and the blinking caret at the insertion point IS the focus
+ * indicator — the same cue a native `<textarea>` gives inside a borderless page. The exemption is
+ * narrow on purpose: it needs all three attributes, so a stray `data-focus-cue` on a button or a
+ * plain div cannot opt out of the contract, and forced colours still restore the outline
+ * (base.css FOC-7 covers `[contenteditable="true"]:focus`).
+ */
+const CARET_FOCUS_CUE =
+  '[contenteditable="true"][role="textbox"][data-focus-cue="caret"]';
+
 function focusIndicatorProblem(
   control: Element,
   rest: FocusSignature,
 ): string | null {
+  if (control.matches(CARET_FOCUS_CUE)) return null;
   const style = getComputedStyle(control);
   const width = Number.parseFloat(style.outlineWidth);
   const textEntry = control.matches(TEXT_ENTRY_SLOTS);

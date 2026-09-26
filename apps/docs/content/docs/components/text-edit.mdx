@@ -1,6 +1,6 @@
 ---
 title: Text Edit
-description: A Notion-style Tiptap markdown editor in body typography — slash menu, bubble menu, markdown shortcuts and an onCommit contract.
+description: A Notion-style Tiptap markdown editor in body typography — slash and bubble menus, GFM tables, block drag handles, markdown shortcuts and an onCommit contract.
 audience: public
 registry: text-edit
 status: stable
@@ -23,7 +23,7 @@ const [html, setHtml] = useState("<p>Hello</p>");
 <TextEdit
   value={html}
   onValueChange={setHtml}
-  placeholder="Write something…"
+  placeholder="Add a description…"
   aria-label="Body"
   aria-describedby="body-help"
 />;
@@ -56,7 +56,8 @@ mirroring the system's presentational / app-coupled rule:
 | ----------------------------------------------------------- | ---------------------------------------------------------------- | ----------------------------------------- |
 | Image upload / paste-to-upload                              | Needs app storage (R2/CDN)                                       | App resolves URLs (same split as `Image`) |
 | @mentions                                                   | Needs the app's user/entity data                                 | App-supplied data source + query          |
-| Emoji, code-block language menus                            | Composed Tiptap extensions                                       | Future composed addons                    |
+| Emoji picker, syntax highlighting                           | Composed Tiptap extensions                                       | Future composed addons                    |
+| Callouts                                                    | No clean CommonMark/GFM form to round-trip to                    | A quote, or a MarkdownView-only extension |
 | Real-time collaboration (multi-cursor, awareness, Yjs CRDT) | Needs `@tiptap/extension-collaboration` + `yjs` + a sync backend | Separate `text-edit-collab` component     |
 
 This base ships no `@tiptap/extension-collaboration` and no `yjs` dependency — it is a self-contained
@@ -71,12 +72,14 @@ types here and what the app renders from markdown are one typography.
 
 ### Slash menu, bubble menu and in-place editing
 
-There is no toolbar. Type <kbd>/</kbd> for a filterable block menu (text, headings, lists, a
-checklist, a quote, a code block, a divider, a link); `slashCommands` limits it. Select text for a
-bubble menu with bold, italic, strikethrough, inline code and an inline link input. The editor has
-no view mode: leaving it calls `onCommit` when the text changed, <kbd>Esc</kbd> reverts
-(`onRevert`), and `autosave` commits after an idle gap. Every command, the shortcuts, the input rules
-and a view/edit parity example are on the [Markdown guide](/docs/guides/markdown).
+There is no toolbar. Type <kbd>/</kbd> for a filterable block menu (text, headings 1–4, lists, a
+checklist, a quote, a code block, a table, an image, a divider, a link); `slashCommands` limits it.
+Select text for a bubble menu with Turn into, bold, italic, strikethrough, inline code, link and
+clear formatting. Every menu floats in a portal on `<body>` and flips to stay in view, so no
+overflow container clips it. The editor has no view mode: leaving it calls `onCommit` when the text
+changed, <kbd>Esc</kbd> reverts (`onRevert`), and `autosave` commits after an idle gap. Every
+command, the shortcuts, the input rules and a view/edit parity example are on the
+[Markdown guide](/docs/guides/markdown).
 
 <ComponentPreview
   name="markdownSlashMenu"
@@ -97,38 +100,92 @@ and a view/edit parity example are on the [Markdown guide](/docs/guides/markdown
   file="components/preview/text-edit.tsx"
 />
 
+### Every element
+
+Headings, marks, links, the three lists (nested), quotes, fenced code with a language selector,
+rules, GFM tables and images, rendered by `MarkdownView` above and edited below. Each round-trips to
+the same markdown.
+
+<ComponentPreview
+  name="markdownParity"
+  file="components/preview/text-edit.tsx"
+/>
+
+### Tables
+
+A table menu (insert, move and delete rows and columns) while the caret is in a cell, drag grips on
+the hovered cell's column and row, and <kbd>Tab</kbd> / <kbd>Shift</kbd> <kbd>Tab</kbd> between
+cells. The header row always stays first — GFM has no other place for it.
+
+<ComponentPreview
+  name="markdownTables"
+  file="components/preview/text-edit.tsx"
+/>
+
+### Block handles
+
+The ⋮⋮ handle beside the hovered block drags it (or a single list item) to a new place;
+
+<kbd>Mod</kbd> <kbd>Shift</kbd> <kbd>↑</kbd> / <kbd>↓</kbd> does the same from
+the keyboard. `dragHandles=false` turns the handle and the table grips off.
+
+<ComponentPreview
+  name="markdownBlockHandles"
+  file="components/preview/text-edit.tsx"
+/>
+
+### Placeholders
+
+Keep `placeholder` to the recommended copy — "Add a description…", "Add a summary…", "Add a
+comment…". Focused and still empty, it becomes the "Type / for commands" hint.
+
+<ComponentPreview
+  name="textEditPlaceholders"
+  file="components/preview/text-edit.tsx"
+/>
+
 ### Anatomy
 
 `TextEdit` is a single self-contained component, but it composes these pieces internally:
 
 ```tsx
-// data-slot="text-edit" — transparent root, no border, no ring
+// data-slot="text-edit" — transparent root: no border, no ring, no fill
 <TextEdit>
-  // Tiptap contenteditable, role="textbox" aria-multiline
+  // Tiptap contenteditable, role="textbox" aria-multiline data-focus-cue="caret"
   <EditorContent />
+  // In a <body> portal:
   // data-slot="text-edit-bubble-menu" — role="toolbar", over a selection
+  //   (or text-edit-link / text-edit-image / text-edit-turn-into while a panel is open)
   <BubbleMenu />
+  // data-slot="text-edit-table-menu" — role="toolbar", while the caret is in a table
+  <TableMenu />
   // data-slot="text-edit-slash-menu" — role="listbox", while typing after /
   <SlashMenu />
+  // data-slot="text-edit-block-handle" / "text-edit-table-grip" — pointer-only drag handles
+  <BlockHandle />
 </TextEdit>
 ```
 
 - **Root** (`data-slot="text-edit"`) — transparent and borderless: it takes the surface it sits on.
   Carries `data-editable` and `data-invalid` when it wraps an
   `aria-invalid` control. Clicking its blank space focuses the end of the document.
-- **Bubble menu** (`data-slot="text-edit-bubble-menu"`, `role="toolbar"`) — `Toggle` buttons for
-  bold, italic, strikethrough, inline code and link over a selection; link swaps it for an inline
-  URL input (`data-slot="text-edit-link"`).
+- **Bubble menu** (`data-slot="text-edit-bubble-menu"`, `role="toolbar"`) — a Turn into button,
+  `Toggle` buttons for bold, italic, strikethrough, inline code and link, and Clear formatting;
+  link swaps it for an inline URL input with Open and Remove (`data-slot="text-edit-link"`).
+- **Table menu** (`data-slot="text-edit-table-menu"`, `role="toolbar"`) — insert, move and delete
+  rows and columns, delete the table.
+- **Handles** (`data-slot="text-edit-block-handle"`, `data-slot="text-edit-table-grip"`) — pointer
+  drag handles; the keyboard has the same moves.
 - **Slash menu** (`data-slot="text-edit-slash-menu"`, `role="listbox"`) — the block menu, in the
   Command item style with muted icons. Focus stays in the editor; the caret never moves.
 - **Editor surface** (`role="textbox"`, `aria-multiline`) — the Tiptap/ProseMirror contenteditable.
   Prose is styled entirely with semantic tokens (headings, lists, code, blockquote), so it tracks the
-  active theme with no `@tailwindcss/typography` dependency. Hover and focus tint it faintly; there
-  is no border and no ring.
+  active theme with no `@tailwindcss/typography` dependency. It has no fill, border or ring in any
+  state — the caret is the focus cue — and nothing in it widens the page.
 
 ### Editing patterns
 
-An empty editor with a faint placeholder (focused, it reads "Type / for commands"), a `readOnly`
+An empty editor with a faint placeholder ("Add a description…"; focused, it reads "Type / for commands"), a `readOnly`
 editor (`aria-readonly`) for rendering stored content, and a `disabled` one (dimmed,
 `aria-disabled`).
 
@@ -141,7 +198,8 @@ editor (`aria-readonly`) for rendering stored content, and a `disabled` one (dim
 
 `format="markdown"` makes `value`, `defaultValue`, `onValueChange` and `onSubmit` carry Markdown
 instead of HTML, through Tiptap's own `@tiptap/markdown` extension: headings, bold, italic,
-strikethrough, links, bullet and ordered lists, blockquotes and code round-trip unchanged. Loading a
+strikethrough, links, bullet, ordered and task lists, blockquotes, code, tables and images
+round-trip unchanged. Loading a
 document never fires `onValueChange`; only an edit does. Store what the editor emits and render it
 elsewhere with [`MarkdownView`](/docs/components/markdown-view). The format is read once, when the
 editor is created.
@@ -213,8 +271,12 @@ fires it with the current value. It's presentational only: the **host** decides 
   <kbd>↑</kbd> <kbd>↓</kbd>, <kbd>Enter</kbd> and <kbd>Esc</kbd> drive it.
 - The bubble menu is a Base UI `Toolbar` labelled “Selection formatting”: one tab stop, arrow keys
   between its `Toggle`s, each with an `aria-label` and `aria-pressed`.
-- Editing keymaps come from Tiptap `StarterKit` — see the table below. Focus is shown by the
-  system's background tint on the surface (FOC-13); there is no ring or border.
+- Editing keymaps come from Tiptap `StarterKit` plus a few of ours — see the table below. Focus is
+  shown by the caret itself: the surface has no ring, border or tint (it declares
+  `data-focus-cue="caret"`), and forced-colours mode restores a system outline.
+- The table menu is a `Toolbar` labelled "Table"; the drag handles are pointer-only and hidden from
+  assistive tech, because <kbd>Mod</kbd> <kbd>Shift</kbd> <kbd>↑</kbd> / <kbd>↓</kbd> and the table
+  menu's move buttons do the same from the keyboard.
 - An invalid control (`aria-invalid`) sets `data-invalid` on the root for downstream styling; pair
   it with visible error text through `aria-describedby`.
 - `readOnly` marks the surface read-only.
@@ -223,13 +285,18 @@ fires it with the current value. It's presentational only: the **host** decides 
 | ----------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
 | <kbd>Cmd/Ctrl</kbd> + <kbd>B</kbd>                    | Toggle **bold**.                                                                                                              |
 | <kbd>Cmd/Ctrl</kbd> + <kbd>I</kbd>                    | Toggle _italic_.                                                                                                              |
+| <kbd>Cmd/Ctrl</kbd> + <kbd>E</kbd>                    | Toggle inline code.                                                                                                           |
+| <kbd>Cmd/Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>X</kbd> | Toggle strikethrough.                                                                                                         |
+| <kbd>Cmd/Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>7</kbd> | Numbered list (<kbd>8</kbd> bullet, <kbd>9</kbd> checklist).                                                                  |
+| <kbd>Cmd/Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>↑</kbd> | Move the block up (<kbd>↓</kbd> down).                                                                                        |
 | <kbd>Cmd/Ctrl</kbd> + <kbd>Z</kbd>                    | Undo.                                                                                                                         |
 | <kbd>Cmd/Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>Z</kbd> | Redo.                                                                                                                         |
 | <kbd>Enter</kbd>                                      | New paragraph (or new list item inside a list).                                                                               |
 | <kbd>Cmd/Ctrl</kbd> + <kbd>Enter</kbd>                | Fire `onSubmit` with the current value (when set); otherwise commit and blur. Plain <kbd>Enter</kbd> still inserts a newline. |
 | <kbd>Esc</kbd>                                        | Revert to the value focus found, blur, and fire `onRevert`.                                                                   |
 | <kbd>Cmd/Ctrl</kbd> + <kbd>K</kbd>                    | Open the inline link input (add, edit or remove the link).                                                                    |
-| <kbd>Tab</kbd>                                        | Move focus out of the editor to the next control.                                                                             |
+| <kbd>Tab</kbd>                                        | Indent a list item, or move to the next table cell; elsewhere, move focus out of the editor.                                  |
+| <kbd>Shift</kbd> + <kbd>Tab</kbd>                     | Outdent a list item, or move to the previous table cell.                                                                      |
 | <kbd>/</kbd>                                          | Open the slash menu.                                                                                                          |
 
 <StatesTested name="text-edit" />

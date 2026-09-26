@@ -1,4 +1,4 @@
-// @vegastack issue-detail-01@0.23.37 sha256-ZzATW8EUAha6JlzFyi+W99t/0HrlRXMwuenfSrxzlkQ=
+// @vegastack issue-detail-01@0.23.37 sha256-mPZsa/7TlNS/MK457sreSsl3rBED8kV604IwRFP5wUk=
 
 "use client";
 
@@ -163,7 +163,13 @@ export function IssueDetail() {
     "Send the revised quote to Northwind",
   );
   const [description, setDescription] = React.useState(
-    "Update the quote with the **new unit price** and the October delivery window.\n\n- 12 units\n- Installation included",
+    [
+      "Update the quote with the **new unit price** and the October delivery window.",
+      "## Checklist",
+      "- [x] Confirm 12 units\n- [ ] Installation included\n  - [ ] Site survey booked",
+      "| Item      | Qty | Price  |\n| --------- | --- | ------ |\n| Unit      | 12  | 1,450  |\n| Install   | 1   | 2,000  |",
+      "> Delivery must land before the October freeze.",
+    ].join("\n\n"),
   );
   const [comments, setComments] = React.useState(() => initialComments(now));
   const [order, setOrder] = React.useState<CommentOrder>("oldest");
@@ -225,6 +231,7 @@ export function IssueDetail() {
           }
           composer={
             <CommentComposer
+              placeholder="Add a comment…"
               onSubmit={(body) =>
                 setComments((xs) => [
                   ...xs,

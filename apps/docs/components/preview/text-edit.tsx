@@ -46,10 +46,7 @@ export function textEdit(): ReactNode {
 export function textEditStates(): ReactNode {
   return (
     <Wrapper className="flex-col items-stretch">
-      <TextEdit
-        placeholder="Empty editor with a placeholder…"
-        aria-label="Empty editor"
-      />
+      <TextEdit placeholder="Add a description…" aria-label="Empty editor" />
       <TextEdit
         readOnly
         value="<h2>Read-only</h2><ul><li>Renders rich text without editing.</li><li>Useful for previews and comments.</li></ul>"
@@ -250,8 +247,9 @@ export function markdownParity(): ReactNode {
 }
 
 /**
- * The slash menu — type `/` anywhere to insert a block: text, headings, lists, a checklist, a
- * quote, a code block, a divider or a link. Type to filter; ↑↓ move, Enter picks, Esc closes.
+ * The slash menu — type `/` anywhere to insert a block: text, headings 1–4, lists, a checklist, a
+ * quote, a code block, a table, an image, a divider or a link. Type to filter; ↑↓ move, Enter
+ * picks, Esc closes.
  */
 export function markdownSlashMenu(): ReactNode {
   return (
@@ -279,14 +277,17 @@ export function markdownSlashCommandsLimited(): ReactNode {
           "codeBlock",
           "link",
         ]}
-        placeholder="Leave a comment…"
+        placeholder="Add a comment…"
         aria-label="Comment"
       />
     </Wrapper>
   );
 }
 
-/** Select text to see the bubble menu: bold, italic, strikethrough, inline code and link. */
+/**
+ * Select text to see the bubble menu: Turn into, bold, italic, strikethrough, inline code, link
+ * (edit, open, remove) and clear formatting. It floats in a portal, so no container clips it.
+ */
 export function markdownBubbleMenu(): ReactNode {
   return (
     <Wrapper className="items-stretch">
@@ -336,6 +337,91 @@ export function markdownAutosave(): ReactNode {
       <span className="text-xs text-muted-foreground">
         {savedAt ? `Saved at ${savedAt}` : "Not saved yet"}
       </span>
+    </Wrapper>
+  );
+}
+
+/**
+ * The recommended placeholder copy: "Add a description…" on a record, "Add a summary…" on a
+ * meeting, "Add a comment…" in a composer. Focused and still empty, each becomes the "Type / for
+ * commands" hint.
+ */
+export function textEditPlaceholders(): ReactNode {
+  return (
+    <Wrapper className="flex-col items-stretch gap-4">
+      <TextEdit
+        format="markdown"
+        placeholder="Add a description…"
+        aria-label="Description"
+      />
+      <TextEdit
+        format="markdown"
+        placeholder="Add a summary…"
+        aria-label="Summary"
+      />
+      <TextEdit
+        format="markdown"
+        slashCommands={[
+          "bulletList",
+          "orderedList",
+          "taskList",
+          "blockquote",
+          "codeBlock",
+          "link",
+        ]}
+        dragHandles={false}
+        placeholder="Add a comment…"
+        aria-label="Comment"
+      />
+    </Wrapper>
+  );
+}
+
+const TABLE_SAMPLE = `| Owner | Task           | Due    |
+| ----- | -------------- | ------ |
+| Ada   | Release notes  | Friday |
+| Grace | Pricing page   | Monday |
+| Linus | Legal review   | Today  |`;
+
+/**
+ * GFM tables. Put the caret in a cell for the table menu (insert, move and delete rows and
+ * columns); hover a cell for the grips — drag one to reorder its column or row, click it to select
+ * the whole column or row. Tab and Shift+Tab move between cells.
+ */
+export function markdownTables(): ReactNode {
+  const [markdown, setMarkdown] = useState(TABLE_SAMPLE);
+  return (
+    <Wrapper className="flex-col items-stretch gap-4">
+      <TextEdit
+        format="markdown"
+        value={markdown}
+        onValueChange={setMarkdown}
+        aria-label="Table"
+      />
+      <pre className="overflow-x-auto rounded-lg border border-border bg-muted p-3 font-mono text-xs">
+        {markdown}
+      </pre>
+    </Wrapper>
+  );
+}
+
+/**
+ * Block handles — hover any block (or list item) for the ⋮⋮ handle at its left and drag it to a new
+ * place; click it to select the block. ⌘⇧↑ and ⌘⇧↓ move the block the caret is in.
+ * `dragHandles=false` turns the handle and the table grips off (comments do).
+ */
+export function markdownBlockHandles(): ReactNode {
+  const [markdown, setMarkdown] = useState(
+    "## Agenda\n\nDrag a block by its handle.\n\n- First item\n- Second item\n- Third item\n\n> A quote moves as one block.",
+  );
+  return (
+    <Wrapper className="flex-col items-stretch gap-4 ps-8">
+      <TextEdit
+        format="markdown"
+        value={markdown}
+        onValueChange={setMarkdown}
+        aria-label="Agenda"
+      />
     </Wrapper>
   );
 }

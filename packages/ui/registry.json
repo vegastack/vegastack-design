@@ -13639,6 +13639,7 @@
         "@tiptap/extension-code-block@^3",
         "@tiptap/extension-image@^3",
         "@tiptap/extension-list@^3",
+        "@tiptap/extension-paragraph@^3",
         "@tiptap/extension-table@^3",
         "@tiptap/extensions@^3",
         "@tiptap/suggestion@^3",
@@ -13651,7 +13652,9 @@
         "@vegastack/checkbox",
         "@vegastack/copy-button",
         "@vegastack/input",
-        "@vegastack/toggle"
+        "@vegastack/native-select",
+        "@vegastack/toggle",
+        "@vegastack/tooltip"
       ],
       "files": [
         {

@@ -12,8 +12,8 @@ edited. The recipe is the app's body text — `text-sm`, the body family and `fo
 paragraphs, lists, list markers, marks and quotes, headings on the app's type scale — so neither
 surface has a separate "prose" look. Only inline code and code blocks are mono.
 
-`TextEdit` is Notion-style: no border, no ground, no focus ring and no view mode. It rests looking
-exactly like `MarkdownView`; click anywhere and type. Leaving the editor calls `onCommit` with the
+`TextEdit` is Notion-style: no border, no fill in any state, no focus ring and no view mode — the
+caret is the focus cue. It rests looking exactly like `MarkdownView`; click anywhere and type. Leaving the editor calls `onCommit` with the
 new markdown when it changed; <kbd>Esc</kbd> reverts.
 
 ```tsx
@@ -55,7 +55,7 @@ hard breaks. Edit the lower copy: the upper one follows.
 | Task list     | `- [ ] ` / `- [x] ` | The system `Checkbox` is the marker; it toggles in edit mode.                       |
 | Blockquote    | `> `                |                                                                                     |
 | Rule          | `---`               |                                                                                     |
-| Table         | GFM pipes           | Scrolls inside its own box.                                                         |
+| Table         | GFM pipes           | Scrolls inside its own box; the header row is always first.                         |
 | Image         | `![alt](src)`       | `MarkdownView` blocks remote origins unless listed in `allowedImageOrigins`.        |
 | Hard break    | trailing `\`        |                                                                                     |
 
@@ -69,12 +69,14 @@ menu, then type to filter it. <kbd>↑</kbd> <kbd>↓</kbd> move, <kbd>Enter</kb
 | Command       | Inserts                        | Markdown shortcut           |
 | ------------- | ------------------------------ | --------------------------- |
 | Text          | a plain paragraph              |                             |
-| Heading 1–3   | a heading                      | `# ` `## ` `### `           |
+| Heading 1–4   | a heading                      | `# ` `## ` `### ` `#### `   |
 | Bullet list   | a bullet list                  | `- `                        |
 | Numbered list | an ordered list                | `1. `                       |
 | Checklist     | a task list                    | `[ ] `                      |
 | Quote         | a blockquote                   | `> `                        |
-| Code block    | a fenced code block            | ` ``` `                     |
+| Code block    | a fenced code block            | ` ```ts `                   |
+| Table         | a 3×3 GFM table with a header  |                             |
+| Image         | an image, from a URL and alt   | `![alt](url)`               |
 | Divider       | a horizontal rule              | `---`                       |
 | Link          | a link, through the link input | <kbd>Mod</kbd> <kbd>K</kbd> |
 
@@ -96,22 +98,74 @@ element still works, so every document round-trips.
 
 ## Bubble menu
 
-Selecting text floats a small menu with bold, italic, strikethrough, inline code and link. The link
+Selecting text floats a small menu: **Turn into** (text, headings 1–4, the three lists, quote or
+code block), bold, italic, strikethrough, inline code, link and **Clear formatting**. The link
 button, and <kbd>Mod</kbd> <kbd>K</kbd>, turn the menu into an inline URL input: <kbd>Enter</kbd>
-applies it, <kbd>Esc</kbd> closes it, and **Remove** unlinks. Pasting a URL over a selection links
-it directly. Links open in a new tab with `rel="noopener noreferrer"`.
+applies it, <kbd>Esc</kbd> closes it, and on an existing link **Open** and **Remove** sit beside it.
+Pasting a URL over a selection links it directly. Links open in a new tab with
+`rel="noopener noreferrer"`.
+
+Every floating part — the bubble menu, the link and image inputs, the slash menu and the table
+menu — renders in a portal on `<body>` with fixed positioning that flips and shifts to stay in the
+viewport, so an `overflow: hidden` card, a comment box or a dialog never clips it.
 
 <ComponentPreview
   name="markdownBubbleMenu"
   file="components/preview/text-edit.tsx"
 />
 
+## Tables
+
+Tables are GFM tables: a header row, then body rows. With the caret in a cell, a table menu offers
+insert row above or below, insert column left or right, move row up or down, move column left or
+right, delete row, delete column and delete table. Hover a cell for its grips: drag the grip above a
+column, or beside a row, to reorder it — a line shows where it lands — or click a grip to select the
+whole column or row. <kbd>Tab</kbd> and <kbd>Shift</kbd> <kbd>Tab</kbd> move between cells, and
+
+<kbd>Tab</kbd> in the last cell adds a row. Markdown has no header-less table,
+so the header row stays first and has no toggle.
+
+<ComponentPreview
+  name="markdownTables"
+  file="components/preview/text-edit.tsx"
+/>
+
+## Block handles
+
+Hover any block — a paragraph, heading, quote, code block, table, or a single list item — for the
+⋮⋮ handle at its left. Drag it to reorder; a line marks the drop slot, and a list item moves among
+its own siblings. Click the handle to select the block, then <kbd>Backspace</kbd> deletes it and
+
+<kbd>Mod</kbd> <kbd>C</kbd> copies it. <kbd>Mod</kbd> <kbd>Shift</kbd>
+<kbd>↑</kbd> /<kbd>↓</kbd> moves the block the caret is in. A move is a move of
+whole blocks, so the markdown is the same blocks in a new order.
+`dragHandles=false` turns the handle and the table grips off; the comment
+composer does.
+
+<ComponentPreview
+  name="markdownBlockHandles"
+  file="components/preview/text-edit.tsx"
+/>
+
+## Placeholders
+
+`placeholder` shows faintly while the editor is empty. Use the recommended copy: **Add a
+description…** on a record, **Add a summary…** on a meeting and **Add a comment…** in a composer.
+While the editor is focused and still empty, the placeholder yields to the "Type / for commands"
+hint (when the slash menu is on).
+
+<ComponentPreview
+  name="textEditPlaceholders"
+  file="components/preview/text-edit.tsx"
+/>
+
 ## In-place editing
 
-There is no mode to switch. The editor is transparent and borderless, so it takes the surface it
-sits on and its text lands exactly where `MarkdownView` would put it. Hover and focus show a faint
-background tint, never a border or ring, and an empty focused editor hints "Type / for commands".
-There are no Save or Cancel buttons.
+There is no mode to switch. The editor is transparent and borderless in every state, so it takes
+the surface it sits on and its text lands exactly where `MarkdownView` would put it. Hover and focus
+change nothing but the caret — there is no tint, border or ring — and an empty focused editor hints
+"Type / for commands". There are no Save or Cancel buttons. Nothing inside it widens the page: long
+words, URLs and inline code wrap, and code blocks and tables scroll inside their own box.
 
 | Event                           | Result                                                                   |
 | ------------------------------- | ------------------------------------------------------------------------ |
@@ -150,7 +204,7 @@ elsewhere.
 | <kbd>Mod</kbd> <kbd>I</kbd>                                                | Italic                        |
 | <kbd>Mod</kbd> <kbd>K</kbd>                                                | Add or edit the link          |
 | <kbd>Mod</kbd> <kbd>E</kbd>                                                | Inline code                   |
-| <kbd>Mod</kbd> <kbd>Shift</kbd> <kbd>S</kbd>                               | Strikethrough                 |
+| <kbd>Mod</kbd> <kbd>Shift</kbd> <kbd>X</kbd> (or <kbd>S</kbd>)             | Strikethrough                 |
 | <kbd>Mod</kbd> <kbd>Alt</kbd> <kbd>2</kbd> / <kbd>3</kbd>                  | Heading 2 / 3                 |
 | <kbd>Mod</kbd> <kbd>Shift</kbd> <kbd>7</kbd> / <kbd>8</kbd> / <kbd>9</kbd> | Ordered / bullet / task list  |
 | <kbd>Mod</kbd> <kbd>Shift</kbd> <kbd>B</kbd>                               | Blockquote                    |
@@ -159,24 +213,27 @@ elsewhere.
 | <kbd>Mod</kbd> <kbd>Enter</kbd>                                            | Submit (`onSubmit`) or commit |
 | <kbd>Esc</kbd>                                                             | Revert (`onRevert`)           |
 | <kbd>Tab</kbd> / <kbd>Shift</kbd> <kbd>Tab</kbd>                           | Indent / outdent a list item  |
+| <kbd>Tab</kbd> / <kbd>Shift</kbd> <kbd>Tab</kbd> in a table                | Next / previous cell          |
+| <kbd>Mod</kbd> <kbd>Shift</kbd> <kbd>↑</kbd> / <kbd>↓</kbd>                | Move the block up / down      |
 
 ## Input rules
 
 Type markdown and it becomes formatting as you go. Pasted plain-text markdown is parsed the same
-way.
+way; pasted HTML is sanitized (scripts, styles, frames, event handlers and `javascript:` URLs are
+dropped) before it is parsed.
 
-| Type             | Becomes           |
-| ---------------- | ----------------- |
-| `# ` … `###### ` | Heading           |
-| `- ` or `* `     | Bullet list       |
-| `1. `            | Ordered list      |
-| `[ ] ` or `[x] ` | Task item         |
-| `> `             | Blockquote        |
-| ` ``` `          | Code block        |
-| `---`            | Divider           |
-| `**text**`       | **Bold**          |
-| `_text_`         | _Italic_          |
-| `~~text~~`       | ~~Strikethrough~~ |
-| `` `text` ``     | Inline code       |
+| Type               | Becomes           |
+| ------------------ | ----------------- |
+| `# ` … `###### `   | Heading           |
+| `- ` or `* `       | Bullet list       |
+| `1. `              | Ordered list      |
+| `[ ] ` or `[x] `   | Task item         |
+| `> `               | Blockquote        |
+| ` ```ts `          | Code block        |
+| `---`              | Divider           |
+| `**text**`         | **Bold**          |
+| `*text*`, `_text_` | _Italic_          |
+| `~~text~~`         | ~~Strikethrough~~ |
+| `` `text` ``       | Inline code       |
 
 Every rule works in every editor: `slashCommands` limits the menu, never the schema.

@@ -46,6 +46,10 @@
 @source '../registry/ui/**/*.tsx';
 @source '../registry/blocks/**/*.tsx';
 @source '../../../apps/docs/components/preview/**/*.tsx';
+/* The shared prose recipe (`proseClassName`), worn by MarkdownView and TextEdit. Load-bearing
+   since 2026-09-26: `text-edit.test.tsx`'s no-horizontal-overflow case measures its
+   `wrap-anywhere`, which compiles to nothing without this glob. */
+@source '../../design/src/prose.ts';
 /* The lane's own compiled-CSS sentinel (`w-6 h-6 min-w-0 truncate`, asserted in `beforeAll`)
    lives in the test file, so it needs a glob of its own — the sentinel exists to prove this
    stylesheet reached the page at all, and it can only do that if its utilities compile. */

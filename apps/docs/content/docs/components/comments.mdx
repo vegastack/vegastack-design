@@ -41,15 +41,18 @@ comments; and the composer at the end. Pass `comments` oldest first; `order="new
 them. With no comments, the empty state offers "Add a comment", which reveals the composer and
 focuses it.
 
-`CommentComposer` is Linear style: a soft filled box whose editor grows with its text, a round ↑
-send button at the bottom right (disabled while empty; Cmd/Ctrl+Enter also sends) and an optional
-`attachments` slot at the bottom left. No avatar sits beside it. Editing a comment uses the same box,
+`CommentComposer` is a light box — a near-transparent fill and a hairline border that tints on
+focus, with no tint on the editor itself — whose editor grows with its text to about twelve lines
+and then scrolls inside. Its placeholder is "Add a comment…". A round ↑ send button sits at the
+bottom right (a quiet grey disc while there is nothing to send; Cmd/Ctrl+Enter also sends) and an
+optional `attachments` slot at the bottom left. No avatar sits beside it. Editing a comment uses the same box,
 compact: a round ↑ Save (disabled while empty or unchanged) and a ghost × Cancel, both with
 tooltips; Cmd/Ctrl+Enter saves and Esc cancels. The parts take data and
 callbacks and keep only transient UI state. A callback that returns a promise drives the saving or
 posting state. If the promise rejects, its message appears under the editor. Bodies are Markdown,
-edited with `TextEdit` (no toolbar; a reduced slash menu) and rendered with
-`MarkdownView`.
+edited with `TextEdit` (no toolbar; a reduced slash menu; no drag handles) and rendered with
+`MarkdownView`. The editor's bubble menu and link input float in a portal, so the box never clips
+them. Times read in the compact form — "now", "19m ago", "3h ago" — with the exact time on hover.
 
 Each comment is anchored at `#comment-<id>`. Pass that id as `highlightedId` to tint it and scroll
 it into view. The ⋯ menu shows Copy link when `onCopyLink` is set, and Edit or Delete when the
@@ -106,6 +109,13 @@ The add-reaction button sits in the hover actions and stays visible on touch scr
 
 <ComponentPreview
   name="commentsReactions"
+  file="components/preview/comments.tsx"
+/>
+
+### Composer
+
+<ComponentPreview
+  name="commentsComposer"
   file="components/preview/comments.tsx"
 />
 

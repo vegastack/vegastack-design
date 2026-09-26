@@ -1,4 +1,4 @@
-// @vegastack relative-time@0.23.37 sha256-RZznHzfRsVrd/yV8P0uNAZmKE/wBDYs30ewK1E28VjA=
+// @vegastack relative-time@0.23.37 sha256-2xZhU+5uUG2Es2mSOStIcSER7EB9isEsCCR3KxWd338=
 
 "use client";
 
@@ -91,36 +91,6 @@ const MS = {
   month: 2_592_000_000,
   year: 31_536_000_000,
 } as const;
-
-/** Ordered `[unit, ms-per-unit]` thresholds, largest → smallest. */
-const DIVISIONS: ReadonlyArray<readonly [Intl.RelativeTimeFormatUnit, number]> =
-  [
-    ["year", MS.year],
-    ["month", MS.month],
-    ["week", MS.week],
-    ["day", MS.day],
-    ["hour", MS.hour],
-    ["minute", MS.minute],
-    ["second", MS.second],
-  ];
-
-/**
- * Pick the largest whole unit for a signed millisecond delta and format it with
- * `Intl.RelativeTimeFormat` → `"2 hours ago"`, `"in 3 days"`. A delta under one
- * minute collapses to a localized `"now"` (`format(0, 'second')` with
- * `numeric: 'auto'`).
- *
- * @param deltaMs - `target − now` in ms (negative = past, positive = future).
- */
-function formatAgo(deltaMs: number, rtf: Intl.RelativeTimeFormat): string {
-  if (Math.abs(deltaMs) < MS.minute) return rtf.format(0, "second");
-  for (const [unit, ms] of DIVISIONS) {
-    if (Math.abs(deltaMs) >= ms || unit === "second") {
-      return rtf.format(Math.round(deltaMs / ms), unit);
-    }
-  }
-  return rtf.format(0, "second");
-}
 
 /**
  * The calendar day an instant falls on, as `[year, month, day]` — in `timeZone` when one is
@@ -256,16 +226,16 @@ export interface RelativeTimeProps extends Omit<
   date: Date | string | number;
   /**
    * Formatting mode.
-   * - `ago`: duration-relative — `"2 hours ago"`, `"in 3 days"`.
+   * - `ago`: duration-relative in the house compact form — `"now"`, `"19m ago"`, `"3h ago"`,
+   *   `"2d ago"`, `"3w ago"`, `"5mo ago"`, `"1y ago"`, `"in 2d"`.
    * - `day`: calendar-relative — `"today"`, `"yesterday"`, else an absolute date.
    * @default 'ago'
    */
   mode?: "ago" | "day";
   /**
-   * Unit length, mapped to `Intl.RelativeTimeFormat`'s `style` — `'long'` gives
-   * `"2 hours ago"`, `'short'` `"2 hr. ago"`, `'narrow'` the compact `"2h ago"`
-   * (dense tables, activity feeds). Applies to `mode="day"`'s relative words too.
-   * @default 'long'
+   * @deprecated Use `format`. `"long"` maps to `format="long"`; `"short"` and `"narrow"` map to
+   * the default compact form — the Intl short style with its periods (`"19 min. ago"`) is gone.
+   * @default undefined
    */
   unitStyle?: "long" | "short" | "narrow";
   /**
@@ -282,7 +252,9 @@ export interface RelativeTimeProps extends Omit<
    */
   refresh?: boolean;
   /**
-   * BCP-47 locale(s) for `Intl` formatting. Defaults to the runtime locale.
+   * BCP-47 locale(s) for `Intl` formatting: `mode="day"`'s words and dates, `format="long"` and
+   * the tooltip. The compact `ago` form ("19m ago") is the house form in every locale. Defaults to
+   * the runtime locale.
 
    * @default undefined
    */
@@ -340,19 +312,19 @@ export interface RelativeTimeProps extends Omit<
    */
   focusable?: boolean;
   /**
-   * The compact house format from `formatRelative` — `minimal` ("2m", "3h", "in 2d"), `suffix`
-   * ("2m ago") or `long` ("2 minutes ago"). Set it for new code; when unset, `mode` and
-   * `unitStyle` keep their `Intl.RelativeTimeFormat` output.
-   * @default undefined
+   * The `ago` label's form, from `formatRelative`: `suffix` ("19m ago", the house default),
+   * `minimal` ("19m", for dense tables and chips) or `long` ("19 minutes ago", for sentences).
+   * Every form reads "now" under a minute and carries no periods. Ignored in `mode="day"`.
+   * @default 'suffix'
    */
   format?: FormatRelativeOptions["style"];
 }
 
 /**
- * `RelativeTime` — render an instant as a human-relative string using the native
- * `Intl.RelativeTimeFormat` (no date library). `mode="ago"` gives duration-relative
- * copy (`"2 hours ago"`, `"in 3 days"`); `mode="day"` gives calendar-relative copy
- * (`"today"`, `"yesterday"`, else an absolute date).
+ * `RelativeTime` — render an instant as a human-relative string (no date library). `mode="ago"`
+ * gives the house compact form (`"now"`, `"19m ago"`, `"3h ago"`, `"2d ago"`, `"in 2d"`) with
+ * the exact time in the hover; `mode="day"` gives calendar-relative copy (`"today"`,
+ * `"yesterday"`, else an absolute date).
  *
  * Renders a semantic `<time dateTime>` so the machine-readable ISO timestamp is
  * always present. Self-updating: while the date is recent it refreshes on a timer
@@ -366,7 +338,8 @@ export interface RelativeTimeProps extends Omit<
  * output fully deterministic and skip the swap entirely.
  *
  * @example
- * <RelativeTime date={comment.createdAt} />            // "2 hours ago"
+ * <RelativeTime date={comment.createdAt} />            // "2h ago"
+ * <RelativeTime date={row.updatedAt} format="minimal" /> // "2h"
  * <RelativeTime date={dueDate} mode="day" />            // "tomorrow" / "March 15"
  * <RelativeTime date={ts} now={FIXED} refresh={false} /> // deterministic
  * <RelativeTime date={due} mode="day" capitalize timeZone="Asia/Kolkata" withTime />
@@ -381,7 +354,7 @@ export interface RelativeTimeProps extends Omit<
 export function RelativeTime({
   date,
   mode = "ago",
-  unitStyle = "long",
+  unitStyle,
   now,
   refresh = true,
   locale,
@@ -414,14 +387,12 @@ export function RelativeTime({
   const [hydrated, setHydrated] = React.useState(isControlled);
   const [clock, setClock] = React.useState(() => now ?? 0);
 
+  // `mode="day"`'s "today" / "yesterday" / "tomorrow" words.
   const rtf = React.useMemo(
-    () =>
-      new Intl.RelativeTimeFormat(locale, {
-        numeric: "auto",
-        style: unitStyle,
-      }),
-    [localeKey, unitStyle], // eslint-disable-line react-hooks/exhaustive-deps -- locale array compared by joined key
+    () => new Intl.RelativeTimeFormat(locale, { numeric: "auto" }),
+    [localeKey], // eslint-disable-line react-hooks/exhaustive-deps -- locale array compared by joined key
   );
+  const agoStyle = format ?? (unitStyle === "long" ? "long" : "suffix");
 
   React.useEffect(() => {
     if (isControlled) return;
@@ -452,19 +423,22 @@ export function RelativeTime({
     ? ""
     : isPendingHydration
       ? formatAbsolute(target, locale, timeZone)
-      : format
-        ? formatRelative(target, { now: nowMs, style: format, timeZone })
-        : mode === "day"
-          ? formatDay(
-              target,
-              nowDate,
-              locale,
-              rtf,
-              timeZone,
-              formatOptions,
-              withTime,
-            )
-          : formatAgo(targetMs - nowMs, rtf);
+      : mode === "day"
+        ? formatDay(
+            target,
+            nowDate,
+            locale,
+            rtf,
+            timeZone,
+            formatOptions,
+            withTime,
+          )
+        : formatRelative(target, {
+            now: nowMs,
+            style: agoStyle,
+            timeZone,
+            locale: Array.isArray(locale) ? locale[0] : locale,
+          });
   const display = capitalize ? capitalizeFirst(label, locale) : label;
 
   const isoString = isValid ? target.toISOString() : undefined;

@@ -1,4 +1,4 @@
-// @vegastack inbox@0.23.37 sha256-apyzQ7sjxRQydZE6BBHLF1IjJ2vlAtba93VvCdZYn5E=
+// @vegastack inbox@0.23.37 sha256-eExu4RcbXkSxqG17JVBNq1jE9y8+HgARIAbPyG0GThA=
 
 "use client";
 
@@ -691,7 +691,6 @@ export function InboxItem({
         {time !== undefined ? (
           <RelativeTime
             date={time}
-            unitStyle="narrow"
             focusable={false}
             className="text-xs leading-5 whitespace-nowrap text-muted-foreground"
           />
