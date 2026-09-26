@@ -1853,7 +1853,7 @@
         "whenToUse": "Filter toolbars for lists/tables — 'Label: value' chips that edit in place, facets on SearchableSelect, an Add-filter menu and a settled search, at the end or first.",
         "whenNotToUse": "A single search box (Input), value selection (Select), or unrelated row actions.",
         "version": "0.23.42",
-        "integrity": "sha256-i7JQvLpfawvlAkfdZZoj8ECembdaTp3HiaQDg8FZBvo="
+        "integrity": "sha256-o5W6tUGCgn9DBy1myme8pJLqr08n60i/BVHZUnUgWl0="
       }
     },
     {

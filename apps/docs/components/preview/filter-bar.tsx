@@ -67,7 +67,7 @@ const optionProps = {
 };
 
 /**
- * The list toolbar: search taking the free space, the Filters toggle, the view switch at the end;
+ * The list toolbar: search (~320px), the Filters toggle, the view switch at the end;
  * the facets, "More" and "Clear" on the filter row the toggle shows (hidden until then — the toggle
  * carries the count). Scope tabs ("My tasks | Team") belong in the `PageHeader`'s `tabs`.
  */

@@ -225,8 +225,8 @@ test("forwards searchInputProps to SearchInput and preserves placement", async (
     '[data-slot="filter-bar-search"]',
   ) as HTMLElement;
   expect(group.className).toContain("max-w-sm");
-  // The search leads the first row and takes the free space (its own row on a phone).
-  expect(group.className.split(/\s+/)).toContain("@lg/filter-bar:flex-1");
+  // The search leads the first row at ~320px (its own full-width row on a phone).
+  expect(group.className.split(/\s+/)).toContain("@lg/filter-bar:w-80");
   expect(group.className.split(/\s+/)).not.toContain("ms-auto");
   await expect
     .element(screen.getByRole("searchbox", { name: "Search" }))
