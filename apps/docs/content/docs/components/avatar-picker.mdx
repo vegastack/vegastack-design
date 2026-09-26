@@ -1,0 +1,99 @@
+---
+title: Avatar Picker
+description: Upload, change or remove a person's photo — a large avatar with a busy spinner, a file-picker button, Remove, and a line for a refused file.
+audience: public
+registry: avatar-picker
+status: stable
+since: 0.23.44
+a11y: named buttons, busy state, refusal announced and shown
+preview: avatarPicker
+---
+
+## Install
+
+<InstallSteps name="avatar-picker" />
+
+## Usage
+
+```tsx
+import { AvatarPicker } from "@/components/ui/avatar-picker";
+
+<AvatarPicker
+  person={{ name: me.name, image: me.image, hue: me.color }}
+  busy={saving}
+  maxSize={10 * 1024 * 1024}
+  onSelect={(file) => uploadPhoto(file)}
+  onRemove={() => removePhoto()}
+/>;
+```
+
+`AvatarPicker` is where someone sets their own photo. It shows their `PersonAvatar` at 64px — the
+photo, else their initials on their colour — beside "Upload photo", which opens the file browser
+(on a phone, the browser offers the camera and the gallery). Once there is a photo the button reads
+"Change photo" and "Remove" appears. A file of the wrong type or over `maxSize` is refused on the
+line under the buttons and announced.
+
+It only acquires the file: `onSelect` hands the app the one accepted `File`, and the app resizes
+and uploads it, holds `busy` meanwhile, then passes the new `person.image` back.
+
+<ComponentPreview
+  name="avatarPicker"
+  file="components/preview/avatar-picker.tsx"
+/>
+
+## Examples
+
+### With a photo
+
+<ComponentPreview
+  name="avatarPickerImage"
+  file="components/preview/avatar-picker.tsx"
+/>
+
+### Busy
+
+While `busy`, a spinner covers the avatar, the buttons are disabled and the root is `aria-busy`.
+
+<ComponentPreview
+  name="avatarPickerBusy"
+  file="components/preview/avatar-picker.tsx"
+/>
+
+### Error
+
+`error` shows a failure the app found after the file was accepted — an image it could not read — on
+the same line a refused file uses. `size="xl"` draws an 80px avatar.
+
+<ComponentPreview
+  name="avatarPickerError"
+  file="components/preview/avatar-picker.tsx"
+/>
+
+## API Reference
+
+<ApiTable
+  path="../../packages/ui/registry/ui/avatar-picker.tsx"
+  name="AvatarPickerProps"
+/>
+
+## Accessibility
+
+- "Upload photo" / "Change photo" and "Remove" are real buttons; the file input behind them is
+  hidden and never takes focus.
+- A refused file is announced through a polite live region and shown under the buttons; the upload
+  button is described by that line while it shows.
+- While `busy` the root is `aria-busy` and the spinner reads "Loading".
+
+| Key                                 | Action                                        |
+| ----------------------------------- | --------------------------------------------- |
+| <kbd>Tab</kbd>                      | Move between Upload / Change photo and Remove |
+| <kbd>Enter</kbd> / <kbd>Space</kbd> | Open the file browser, or remove the photo    |
+
+<StatesTested name="avatar-picker" />
+
+## Do / Don't
+
+<DoDont
+  do="Hold busy until the new photo URL is back, then pass it as person.image."
+  dont="Use AvatarPicker to attach files to a record — that is Dropzone with Attachment."
+/>

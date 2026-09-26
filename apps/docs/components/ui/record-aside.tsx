@@ -1,4 +1,4 @@
-// @vegastack record-aside@0.23.43 sha256-JvBz3on0RdKxqOQgCixOkEe+mrp226z1yFmm7Wsiq1I=
+// @vegastack record-aside@0.23.43 sha256-4xhdP+cwD76DIZ9w7fDoG2IvCBYCLfvQN/DPStnrsKc=
 
 "use client";
 
@@ -7,7 +7,7 @@ import { cn } from "@vegastack/design";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Item, ItemContent, ItemGroup } from "@/components/ui/item";
-import { PersonAvatar } from "@/components/ui/person-hover-card";
+import { PersonAvatar, type Person } from "@/components/ui/person-avatar";
 import { PersonBadge } from "@/components/ui/searchable-select";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
@@ -245,6 +245,8 @@ export interface PropertyPersonValue {
   name: string;
   /** The avatar image. @default undefined */
   image?: string | null;
+  /** The person's colour behind their initials. @default undefined */
+  hue?: Person["hue"];
   /** A status after the name, such as "Inactive" — a string is a small muted outline badge. @default undefined */
   badge?: React.ReactNode;
 }
@@ -257,6 +259,7 @@ export interface PropertyPersonProps
 export function PropertyPerson({
   name,
   image,
+  hue,
   badge,
   className,
   ...props
@@ -268,7 +271,7 @@ export function PropertyPerson({
       {...props}
     >
       <PersonAvatar
-        person={{ name, image }}
+        person={{ name, image, hue }}
         className="data-[size=sm]:size-5"
       />
       <span className="min-w-0 truncate">{name}</span>

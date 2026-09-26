@@ -280,3 +280,31 @@ export function avatarRtl(): ReactNode {
     </Wrapper>
   );
 }
+
+/** The ten fallback hues (API-32): a person's stored colour behind their initials. */
+export function avatarHues(): ReactNode {
+  const hues = [
+    ["blue", "AR"],
+    ["cyan", "BK"],
+    ["green", "CM"],
+    ["lime", "DS"],
+    ["yellow", "EO"],
+    ["orange", "FN"],
+    ["red", "GP"],
+    ["pink", "HL"],
+    ["magenta", "IT"],
+    ["purple", "JW"],
+  ] as const;
+  return (
+    <Wrapper>
+      {hues.map(([hue, initials]) => (
+        <Avatar key={hue}>
+          <AvatarFallback hue={hue}>{initials}</AvatarFallback>
+        </Avatar>
+      ))}
+      <Avatar>
+        <AvatarFallback>NA</AvatarFallback>
+      </Avatar>
+    </Wrapper>
+  );
+}

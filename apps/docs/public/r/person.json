@@ -1,0 +1,26 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "person",
+  "title": "Person",
+  "description": "The one initials rule for a person's avatar — first and last word, two letters of a single word, else the email — shared by PersonAvatar and every people surface.",
+  "dependencies": [],
+  "registryDependencies": [],
+  "files": [
+    {
+      "path": "packages/ui/registry/lib/person.ts",
+      "content": "// @vegastack person@0.23.43 sha256-0XiXUntsDA9HFLCx/GF5UgdVGd8z1k2naP4r1lBUyE8=\n\n/**\n * person — the ONE initials rule for a person's avatar, shared by `PersonAvatar` and every\n * surface that draws a person, so a name reads the same initials everywhere (and in the apps that\n * mirror the rule).\n *\n * The rule, on the trimmed name:\n * - two or more words → the first letter of the first word and of the last word (\"Asha K Rao\" → \"AR\");\n * - one word → its first two letters (\"Asha\" → \"AS\");\n * - no name → the email's first two characters (\"ar@acme.com\" → \"AR\");\n * - always uppercase.\n */\n\n/** The first `n` characters of a string, by code point, so an emoji or accent is never split. */\nfunction head(value: string, n: number): string {\n  return Array.from(value).slice(0, n).join(\"\");\n}\n\n/**\n * The two initials of a person.\n *\n * @example\n * personInitials(\"Asha Rao\"); // \"AR\"\n * personInitials(\"\", \"ops@acme.com\"); // \"OP\"\n */\nexport function personInitials(name: string, email?: string | null): string {\n  const words = name.trim().split(/\\s+/).filter(Boolean);\n  if (words.length === 0) return head((email ?? \"\").trim(), 2).toUpperCase();\n  if (words.length === 1) return head(words[0]!, 2).toUpperCase();\n  return (head(words[0]!, 1) + head(words.at(-1)!, 1)).toUpperCase();\n}\n",
+      "type": "registry:lib",
+      "target": "@lib/person.ts"
+    }
+  ],
+  "meta": {
+    "whenToUse": "Deriving a person's initials outside PersonAvatar (a mention, an export) so they match the avatar.",
+    "whenNotToUse": "Drawing an avatar — compose PersonAvatar, which applies the rule itself.",
+    "version": "0.23.43",
+    "integrity": "sha256-0XiXUntsDA9HFLCx/GF5UgdVGd8z1k2naP4r1lBUyE8="
+  },
+  "categories": [
+    "data"
+  ],
+  "type": "registry:lib"
+}

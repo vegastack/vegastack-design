@@ -6,6 +6,7 @@ import { GitBranch } from "lucide-react";
 import { Wrapper } from "./wrapper";
 // Copied INTO apps/docs via `shadcn add @vegastack/searchable-select` (dogfoods the registry).
 import { SearchableSelect } from "@/components/ui/searchable-select";
+import type { Person } from "@/components/ui/person-avatar";
 import { useAsyncSearch } from "@/components/ui/use-async-search";
 import {
   Field,
@@ -319,6 +320,51 @@ export function searchableSelectMultiple(): ReactNode {
           searchLabel="Search repositories"
           placeholder="Select repositories"
           aria-label="Repositories"
+        />
+      </div>
+    </Wrapper>
+  );
+}
+
+interface Member extends Person {
+  id: string;
+  email: string;
+}
+
+const MEMBERS: Member[] = [
+  { id: "asha", name: "Asha Rao", email: "asha@acme.com", hue: "blue" },
+  {
+    id: "dev",
+    name: "Dev Menon",
+    email: "dev@acme.com",
+    hue: "green",
+    image: "/preview/avatar-2.svg",
+  },
+  { id: "lena", name: "Lena Ortiz", email: "lena@acme.com", hue: "purple" },
+  { id: "yuki", name: "Yuki Tan", email: "yuki@acme.com", hue: "orange" },
+];
+
+/**
+ * People — `itemToSecondaryLabel` gives each row the email line, and `itemToAvatar` leads each row
+ * (and the selected value on the trigger) with the person's avatar: the photo, else initials on
+ * their hue.
+ */
+export function searchableSelectPeople(): ReactNode {
+  const [value, setValue] = React.useState<Member | null>(MEMBERS[0]!);
+  return (
+    <Wrapper>
+      <div className="w-full max-w-72">
+        <SearchableSelect<Member>
+          items={MEMBERS}
+          value={value}
+          onValueChange={setValue}
+          itemToKey={(p) => p.id}
+          itemToStringLabel={(p) => p.name}
+          itemToSecondaryLabel={(p) => p.email}
+          itemToAvatar={(p) => p}
+          renderItem={(p) => p.name}
+          placeholder="Assign someone"
+          searchLabel="Search people"
         />
       </div>
     </Wrapper>

@@ -107,3 +107,29 @@ export function imageAuto(): ReactNode {
     </Wrapper>
   );
 }
+
+// A tiny blurred preview as a data URL — what an upload pipeline stores beside the image.
+const BLUR =
+  "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 4 3'><rect width='4' height='3' fill='%2393c5fd'/><rect y='2' width='4' height='1' fill='%2386efac'/></svg>";
+
+/**
+ * `placeholder` — the blurred preview fills the frame until the image loads, then fades out under
+ * it. The local fixture decodes at once, so the preview shows the loaded state; with `srcSet` the
+ * browser picks the width `sizes` asks for.
+ */
+export function imagePlaceholder(): ReactNode {
+  return (
+    <Wrapper>
+      <div className="w-56">
+        <Image
+          src={SAMPLE}
+          srcSet={`${SAMPLE} 400w`}
+          sizes="224px"
+          placeholder={BLUR}
+          alt="A landscape with a blur preview"
+          aspectRatio="video"
+        />
+      </div>
+    </Wrapper>
+  );
+}

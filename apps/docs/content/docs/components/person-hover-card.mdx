@@ -58,6 +58,19 @@ the person.
   file="components/preview/person-hover-card.tsx"
 />
 
+### Photo, hue and initials
+
+`PersonAvatar` draws a person the one way every people surface does: their photo when `image` is
+set; else their initials on their own `hue` (one of the ten tag hues, stored per member); else the
+initials on the muted fallback, for someone without an account. Initials follow one rule: the first
+letters of the first and last words, the first two letters of a single word, or the email's first
+two characters when there is no name (`personInitials` in `@/lib/person`).
+
+<ComponentPreview
+  name="personHoverCardAvatar"
+  file="components/preview/person-hover-card.tsx"
+/>
+
 ### Inactive member
 
 `badge` on the person puts a status right after the name — a string such as "Inactive" is a small
@@ -94,8 +107,10 @@ table's person cell, compose `PersonAvatar` with the name and `PersonBadge`.
 
 ### PersonAvatar
 
+`PersonAvatar` and the `Person` shape live in the `person-avatar` item, which this one installs.
+
 <ApiTable
-  path="../../packages/ui/registry/ui/person-hover-card.tsx"
+  path="../../packages/ui/registry/ui/person-avatar.tsx"
   name="PersonAvatarProps"
 />
 

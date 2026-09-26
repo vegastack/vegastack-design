@@ -36,3 +36,22 @@ export function thumbnailFallback(): ReactNode {
     </Wrapper>
   );
 }
+
+const BLUR =
+  "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 4 3'><rect width='4' height='3' fill='%23a8a29e'/></svg>";
+
+/** `placeholder` blurs under the image until it loads; `srcSet` and `sizes` pass through. */
+export function thumbnailPlaceholder(): ReactNode {
+  return (
+    <Wrapper>
+      <Thumbnail
+        src={IMG}
+        srcSet={`${IMG} 48w`}
+        sizes="48px"
+        placeholder={BLUR}
+        alt=""
+      />
+      <Thumbnail src={IMG} placeholder={BLUR} alt="" size="sm" />
+    </Wrapper>
+  );
+}

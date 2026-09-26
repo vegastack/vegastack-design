@@ -59,6 +59,11 @@ link` (upstream's set, verbatim). `destructive` is a soft tint, not a solid red 
 - **People icons are the round lucide set** — `UserRound`, `UsersRound`, `CircleUserRound` (and
   their `-Plus`/`-Check` kin), never the square-shouldered `User`, `Users` or `CircleUser`, so a
   person reads the same as an `Avatar` everywhere.
+- **A person is always `PersonAvatar`** (from `person-avatar`) — the photo, else initials (one rule,
+  `personInitials` in `@/lib/person`) on the person's stored `hue`, else muted. Pass `hue` wherever a
+  person is (`RecordChip` `person`, `BoardCard` `assignee`, `InboxItem` `avatar`, `PropertyPerson`,
+  `SearchableSelect` `itemToAvatar`); never hand-roll `Avatar` + initials for a person, and set a
+  person's own photo with `AvatarPicker`.
 - **Control sizes are upstream's names: `default · xs · sm · lg`**, plus
   `icon · icon-xs · icon-sm · icon-lg` where a square tier exists. The old `md` default is gone, and
   most of the components that are ours dropped their `size` prop entirely and take their height from

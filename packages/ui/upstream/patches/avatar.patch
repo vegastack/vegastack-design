@@ -1,13 +1,16 @@
 # component: avatar
-# decisions: DOC-2, TYP-14
+# decisions: DOC-2, TYP-14, API-32
 # hunks:
 #   cn: `import { cn } from "cn"` becomes `@vegastack/design` — our npm layer owns `cn` (DOC-2).
 #   fallback typography: all three Avatar sizes use `text-xs`; the public size API and diameter
 #                        classes remain upstream's (TYP-14, approved for issue #148).
+#   fallback hue: `AvatarFallback` takes an optional `hue` (the ten `--tag-*` hues, exported as
+#                 `AvatarHue`) painting `bg-tag-{hue}-subtle text-tag-{hue}-text` and writing
+#                 `data-hue`; no hue keeps upstream's muted fallback (API-32).
 #   formatting: the repository formatter (prettier defaults: semicolons, trailing commas)
 #               reflows the file; those hunks carry no decision of their own.
 diff --git a/avatar.tsx b/avatar.tsx
-index 1eda9f0..d5aca9d 100644
+index 1eda9f0..53307f1 100644
 --- a/avatar.tsx
 +++ b/avatar.tsx
 @@ -1,15 +1,15 @@
@@ -45,7 +48,7 @@ index 1eda9f0..d5aca9d 100644
  }
  
  function AvatarImage({ className, ...props }: AvatarPrimitive.Image.Props) {
-@@ -30,11 +30,11 @@ function AvatarImage({ className, ...props }: AvatarPrimitive.Image.Props) {
+@@ -30,27 +30,57 @@ function AvatarImage({ className, ...props }: AvatarPrimitive.Image.Props) {
        data-slot="avatar-image"
        className={cn(
          "aspect-square size-full rounded-full object-cover",
@@ -58,14 +61,48 @@ index 1eda9f0..d5aca9d 100644
 +  );
  }
  
++type AvatarHue =
++  | "blue"
++  | "cyan"
++  | "green"
++  | "lime"
++  | "yellow"
++  | "orange"
++  | "red"
++  | "pink"
++  | "magenta"
++  | "purple";
++
++const AVATAR_HUE_CLASSES: Record<AvatarHue, string> = {
++  blue: "bg-tag-blue-subtle text-tag-blue-text",
++  cyan: "bg-tag-cyan-subtle text-tag-cyan-text",
++  green: "bg-tag-green-subtle text-tag-green-text",
++  lime: "bg-tag-lime-subtle text-tag-lime-text",
++  yellow: "bg-tag-yellow-subtle text-tag-yellow-text",
++  orange: "bg-tag-orange-subtle text-tag-orange-text",
++  red: "bg-tag-red-subtle text-tag-red-text",
++  pink: "bg-tag-pink-subtle text-tag-pink-text",
++  magenta: "bg-tag-magenta-subtle text-tag-magenta-text",
++  purple: "bg-tag-purple-subtle text-tag-purple-text",
++};
++
  function AvatarFallback({
-@@ -45,12 +45,12 @@ function AvatarFallback({
+   className,
++  hue,
+   ...props
+-}: AvatarPrimitive.Fallback.Props) {
++}: AvatarPrimitive.Fallback.Props & {
++  hue?: AvatarHue;
++}) {
+   return (
      <AvatarPrimitive.Fallback
        data-slot="avatar-fallback"
++      data-hue={hue}
        className={cn(
 -        "flex size-full items-center justify-center rounded-full bg-muted text-sm text-muted-foreground group-data-[size=sm]/avatar:text-xs",
 -        className
 +        "flex size-full items-center justify-center rounded-full bg-muted text-xs text-muted-foreground",
++        hue && AVATAR_HUE_CLASSES[hue],
 +        className,
        )}
        {...props}
@@ -75,7 +112,7 @@ index 1eda9f0..d5aca9d 100644
  }
  
  function AvatarBadge({ className, ...props }: React.ComponentProps<"span">) {
-@@ -62,11 +62,11 @@ function AvatarBadge({ className, ...props }: React.ComponentProps<"span">) {
+@@ -62,11 +92,11 @@ function AvatarBadge({ className, ...props }: React.ComponentProps<"span">) {
          "group-data-[size=sm]/avatar:size-2 group-data-[size=sm]/avatar:[&>svg]:hidden",
          "group-data-[size=default]/avatar:size-2.5 group-data-[size=default]/avatar:[&>svg]:size-2",
          "group-data-[size=lg]/avatar:size-3 group-data-[size=lg]/avatar:[&>svg]:size-2",
@@ -89,7 +126,7 @@ index 1eda9f0..d5aca9d 100644
  }
  
  function AvatarGroup({ className, ...props }: React.ComponentProps<"div">) {
-@@ -75,11 +75,11 @@ function AvatarGroup({ className, ...props }: React.ComponentProps<"div">) {
+@@ -75,11 +105,11 @@ function AvatarGroup({ className, ...props }: React.ComponentProps<"div">) {
        data-slot="avatar-group"
        className={cn(
          "group/avatar-group flex -space-x-2 *:data-[slot=avatar]:ring-2 *:data-[slot=avatar]:ring-background",
@@ -103,7 +140,7 @@ index 1eda9f0..d5aca9d 100644
  }
  
  function AvatarGroupCount({
-@@ -91,11 +91,11 @@ function AvatarGroupCount({
+@@ -91,11 +121,11 @@ function AvatarGroupCount({
        data-slot="avatar-group-count"
        className={cn(
          "relative flex size-8 shrink-0 items-center justify-center rounded-full bg-muted text-sm text-muted-foreground ring-2 ring-background group-has-data-[size=lg]/avatar-group:size-10 group-has-data-[size=sm]/avatar-group:size-6 [&>svg]:size-4 group-has-data-[size=lg]/avatar-group:[&>svg]:size-5 group-has-data-[size=sm]/avatar-group:[&>svg]:size-3",
@@ -117,9 +154,10 @@ index 1eda9f0..d5aca9d 100644
  }
  
  export {
-@@ -105,4 +105,4 @@ export {
+@@ -105,4 +135,5 @@ export {
    AvatarGroup,
    AvatarGroupCount,
    AvatarBadge,
 -}
++  type AvatarHue,
 +};

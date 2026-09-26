@@ -758,8 +758,8 @@ All four scripts under `tooling/upstream/` carry a `--self-test` that observes t
 
 ## What we add — the one hundred exceptions
 
-`docs/plans/2026-09-18-shadcn-reset/decisions.md` is the register: 211 rows, 108 resolved as
-**shadcn** (upstream ships unchanged) and 103 as **ours**. `packages/ui/upstream/decisions.json` is
+`docs/plans/2026-09-18-shadcn-reset/decisions.md` is the register: 212 rows, 108 resolved as
+**shadcn** (upstream ships unchanged) and 104 as **ours**. `packages/ui/upstream/decisions.json` is
 its machine copy and the only thing a gate reads; `packages/ui/upstream/exception-map.json` records
 which shared component each exception is assigned to. Re-opening a row is MK's decision. The ninety-eight
 group into six themes.
@@ -928,7 +928,7 @@ token — that is COL-20 being enforced, not broken.
 `MOT-5 · MOT-6 · MOT-7 · MOT-13 · TYP-13 · BRD-1 · LAY-9 · LAY-10 · LAY-11 · LAY-12 · LAY-13 · LAY-14 ·
 LAY-15 · LAY-16 · FRM-9 · FRM-10 · FRM-12 · FRM-13 · OVL-10 · OVL-11 · OVL-13 · OVL-14 · OVL-15 ·
 OVL-16 · OVL-17 · OVL-18 · API-5 · API-9 · API-17 · API-18 · API-19 · API-20 · API-21 · API-22 · API-23 ·
-API-24 · API-26 · API-27 · API-28 · VOI-1`
+API-24 · API-26 · API-27 · API-28 · API-32 · VOI-1`
 
 - **Motion.** The global reduced-motion reset in `base.css` is the one sanctioned `!important`, and a
   `motion-reduce:` restatement of it is a violation (MOT-5). Keyed-presence utilities
@@ -985,7 +985,7 @@ API-24 · API-26 · API-27 · API-28 · VOI-1`
   re-applies the theme scope so a popup opened from inside a scoped subtree paints in that scope
   (OVL-13); `verify-portal-theme-scope` discovers every Base UI portal host and requires its owner to
   attach the scope, so an added, missing or unscoped portal fails.
-- **API** (API-5, API-9, API-17…API-24, API-27, API-28) — `loading` holds a committing control's box and sets `aria-busy`
+- **API** (API-5, API-9, API-17…API-24, API-27, API-28, API-32) — `loading` holds a committing control's box and sets `aria-busy`
   (API-5; audited per component, and a tab does not commit anything, so it has none). Chip/Tag is one
   primitive with a real 24px remove control (API-9). `intent` is the name for a hue-only axis on a
   component that is **ours**; never `color` or `status` (API-17). A component reset onto upstream does
@@ -998,9 +998,10 @@ API-24 · API-26 · API-27 · API-28 · VOI-1`
   header and footer, `SheetAction` is an end seat in `SheetHeader`, and `closeLabel` renames the
   close control (API-21); `CardTitle` and `EmptyTitle` take `render`, so the heading level is set on
   the part (API-22); ToggleGroup's `deselectable` (default `true`) and `wrap` (API-23); Combobox's
-  `ComboboxStatus`, Base UI's own polite region, kept mounted beside the list (API-27); and
+  `ComboboxStatus`, Base UI's own polite region, kept mounted beside the list (API-27);
   Attachment's `AttachmentGroup layout="scroll" | "grid"`, `AttachmentProgress` with
-  `aria-valuetext` "{n}%", `muted`, and nested-image styling (API-28).
+  `aria-valuetext` "{n}%", `muted`, and nested-image styling (API-28); and `AvatarFallback`'s `hue`,
+  a person's colour from the ten `--tag-*` hues behind their initials (API-32).
 - **Voice** (VOI-1) — upstream's default English copy is rewritten to sentence case with the ellipsis
   character, and every built-in string can be overridden: through an `<action>Label` prop on a part
   we add, and through the prop upstream already names where it has one (`PaginationPrevious` /

@@ -573,7 +573,7 @@ assert(
 
 const expectedWaves = {
   "Core controls": 24,
-  "Forms/editing": 26,
+  "Forms/editing": 27,
   "Navigation/layout": 18,
   Overlays: 14,
   "Data display": 22,
@@ -581,7 +581,7 @@ const expectedWaves = {
   "AI/chat": 8,
   // Not a browse group: components other components install, with no page of their own. See
   // `isSharedGuideOnly` below — every member of this wave must carry that whole shape.
-  "Shared internals": 2,
+  "Shared internals": 3,
 };
 // The homepage renames three waves for display. The map is the only hand-maintained coupling
 // between the contract's wave keys and `home-component-catalog.generated.ts`; an unmapped wave is a
@@ -631,6 +631,7 @@ const expectedComponentWaveMembers = {
   ],
   "Forms/editing": [
     "auto-save-input",
+    "avatar-picker",
     "calendar",
     "chip-input",
     "color-picker",
@@ -733,7 +734,7 @@ const expectedComponentWaveMembers = {
     "truncated-text",
     "video-player",
   ],
-  "Shared internals": ["data-table-parts", "panel-search"],
+  "Shared internals": ["data-table-parts", "panel-search", "person-avatar"],
   "AI/chat": [
     "attachment",
     "bubble",

@@ -191,10 +191,20 @@ ones do.
   itemToKey={(p) => p.id}
   itemToStringLabel={(p) => p.name}
   itemToSecondaryLabel={(p) => p.email}
+  itemToAvatar={(p) => p}
   renderItem={(p) => p.name}
   searchLabel="Search people"
 />
 ```
+
+`itemToAvatar` returns the option's `Person` (`name`, `image`, `hue`): each row then leads with its
+`PersonAvatar` — the photo, else the initials on the person's hue — and so does a single selection
+on the trigger. `FilterBarFacet` takes the same prop for a people filter.
+
+<ComponentPreview
+  name="searchableSelectPeople"
+  file="components/preview/searchable-select.tsx"
+/>
 
 ### Inactive member
 

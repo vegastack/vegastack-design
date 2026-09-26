@@ -2,14 +2,14 @@
   "schemaVersion": 1,
   "kind": "vegastack-zero-gap-audit-register",
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "4da8e949d80f8f1a056c5f94f560f3f8fcf735e3ed436111278899e191f28a6c",
+  "contractSha256": "e7075a5d14c59bd1c08bb913b62bff0966f9ec400c9601c7a3534b2d7bdaa7e2",
   "expectedCounts": {
-    "totalRegistryItems": 691,
-    "components": 128,
+    "totalRegistryItems": 694,
+    "components": 130,
     "animatedIcons": 467,
     "hooks": 13,
     "blocks": 11,
-    "libs": 4,
+    "libs": 5,
     "chartBlocks": 68
   },
   "records": [
@@ -143,6 +143,17 @@
         "packages/ui/registry/ui/avatar.tsx"
       ],
       "docsSlug": "/docs/components/avatar",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "avatar-picker",
+      "inventoryClass": "component",
+      "wave": "Forms/editing",
+      "family": "forms",
+      "sourceFiles": [
+        "packages/ui/registry/ui/avatar-picker.tsx"
+      ],
+      "docsSlug": "/docs/components/avatar-picker",
       "contractStatus": "reconciled"
     },
     {
@@ -1421,6 +1432,17 @@
         "packages/ui/registry/ui/person-hover-card.tsx"
       ],
       "docsSlug": "/docs/components/person-hover-card",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "person-avatar",
+      "inventoryClass": "component",
+      "wave": "Shared internals",
+      "family": "data",
+      "sourceFiles": [
+        "packages/ui/registry/ui/person-avatar.tsx"
+      ],
+      "docsSlug": "/docs/guides/components",
       "contractStatus": "reconciled"
     },
     {
@@ -7627,6 +7649,17 @@
       "family": "lib",
       "sourceFiles": [
         "packages/ui/registry/lib/drag-item.ts"
+      ],
+      "docsSlug": "/docs/guides/components",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "person",
+      "inventoryClass": "lib",
+      "wave": "Libs",
+      "family": "lib",
+      "sourceFiles": [
+        "packages/ui/registry/lib/person.ts"
       ],
       "docsSlug": "/docs/guides/components",
       "contractStatus": "reconciled"

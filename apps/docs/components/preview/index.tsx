@@ -23,6 +23,7 @@ export * from "./empty";
 export * from "./checkbox";
 export * from "./switch";
 export * from "./avatar";
+export * from "./avatar-picker";
 export * from "./label";
 export * from "./textarea";
 export * from "./radio-group";

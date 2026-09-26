@@ -1,4 +1,4 @@
-// @vegastack searchable-select@0.23.43 sha256-LyfWIybvvE0Xchykf6yiBVLiD9ixyiU+7x7daib+D1I=
+// @vegastack searchable-select@0.23.43 sha256-NMUPk/MvEY4eEUuQPiXB6BvghItfe8Z5xIYmvOO+hBs=
 
 "use client";
 
@@ -23,6 +23,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ItemContent, ItemDescription, ItemTitle } from "@/components/ui/item";
 import { LoadMore, type LoadMoreState } from "@/components/ui/load-more";
+import { PersonAvatar, type Person } from "@/components/ui/person-avatar";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Spinner } from "@/components/ui/spinner";
 
@@ -90,6 +91,12 @@ export interface SearchableSelectProps<
    * @default undefined
    */
   itemToSecondaryLabel?: (item: Item) => string | undefined;
+  /**
+   * The person an option stands for: each row (and a single selection on the trigger) leads with
+   * their `PersonAvatar` — the photo, else initials on their hue.
+   * @default undefined
+   */
+  itemToAvatar?: (item: Item) => Person | undefined;
   /**
    * A small muted outline badge right after a person option's name, on the same line — e.g.
    * "Inactive" for someone who is no longer an active member. Needs `itemToSecondaryLabel`.
@@ -337,6 +344,7 @@ export function SearchableSelect<
   onValueChange,
   itemToDescription,
   itemToSecondaryLabel,
+  itemToAvatar,
   itemToBadge,
   itemToDisabledReason,
   remote = false,
@@ -448,11 +456,13 @@ export function SearchableSelect<
     const reason = itemToDisabledReason?.(item);
     const description = reason ?? itemToDescription?.(item);
     const secondary = itemToSecondaryLabel?.(item);
+    const person = itemToAvatar?.(item);
     const main =
-      secondary !== undefined ? (
+      secondary !== undefined || person ? (
         <PersonOption
           name={renderItem(item)}
           email={secondary}
+          avatar={person ? <PersonAvatar person={person} /> : undefined}
           badge={itemToBadge?.(item)}
         />
       ) : (
@@ -585,10 +595,19 @@ export function SearchableSelect<
                   </span>
                 );
               // A flex child only truncates with `min-w-0` (LAY-11).
+              const person = isMultiple ? undefined : itemToAvatar?.(list[0]!);
               return (
-                <span className="min-w-0 truncate">
-                  {isMultiple ? valueText(list) : face(list[0]!)}
-                </span>
+                <>
+                  {person ? (
+                    <PersonAvatar
+                      person={person}
+                      className="data-[size=sm]:size-5"
+                    />
+                  ) : null}
+                  <span className="min-w-0 truncate">
+                    {isMultiple ? valueText(list) : face(list[0]!)}
+                  </span>
+                </>
               );
             }}
           </ComboboxValue>
@@ -757,9 +776,9 @@ export function PersonBadge({ badge }: { badge?: React.ReactNode }) {
 
 /**
  * `PersonOption` — the standard person row wherever people are listed (pickers, menus, submenus
- * such as "Assign ›"): an avatar, then the name on the first line and a smaller muted email on
+ * such as "Assign ›"): an avatar (`PersonAvatar`), then the name on the first line and a smaller muted email on
  * the second — stacked, never inline. `SearchableSelect` and `FilterBarFacet` draw it for you
- * from `itemToSecondaryLabel`; use it directly inside a custom `renderItem` or a
+ * from `itemToSecondaryLabel` and `itemToAvatar`; use it directly inside a custom `renderItem` or a
  * `DropdownMenuItem`. Give the popup that lists people at least `min-w-72` (a `RowActionItem`
  * `submenu` and a `SearchableSelect` with `itemToSecondaryLabel` do this themselves).
  *

@@ -1,4 +1,4 @@
-// @vegastack inbox@0.23.43 sha256-v39S0ADaTePtTGZXs5scJmqFNoHdLZw5TYIpaV//lLU=
+// @vegastack inbox@0.23.43 sha256-M2hHm5SDjwYIax7oI5FVyDMZQyLvUr2ZAmgpFzkcovU=
 
 "use client";
 
@@ -14,7 +14,7 @@ import {
   X,
 } from "lucide-react";
 import { cn } from "@vegastack/design";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { PersonAvatar, type Person } from "@/components/ui/person-avatar";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -495,10 +495,11 @@ export interface InboxItemProps extends Omit<
    */
   unread?: boolean;
   /**
-   * The actor, as a 28px avatar: `{ name, src? }`. Takes precedence over `icon`.
+   * The actor, as a 28px avatar: `{ name, src?, hue? }` — the photo, else initials on their hue.
+   * Takes precedence over `icon`.
    * @default undefined
    */
-  avatar?: { name: string; src?: string };
+  avatar?: { name: string; src?: string | null; hue?: Person["hue"] };
   /**
    * A system event's icon, drawn muted in a 28px tile.
    * @default undefined
@@ -550,15 +551,6 @@ export interface InboxItemProps extends Omit<
    * @default undefined
    */
   count?: number;
-}
-
-function initials(name: string) {
-  return name
-    .split(/\s+/)
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((part) => part[0]!.toUpperCase())
-    .join("");
 }
 
 /**
@@ -628,12 +620,11 @@ export function InboxItem({
     >
       <div className="shrink-0 pt-0.5" aria-hidden>
         {avatar ? (
-          <Avatar className="size-7">
-            {avatar.src ? <AvatarImage src={avatar.src} alt="" /> : null}
-            <AvatarFallback className="text-xs">
-              {initials(avatar.name)}
-            </AvatarFallback>
-          </Avatar>
+          <PersonAvatar
+            person={{ name: avatar.name, image: avatar.src, hue: avatar.hue }}
+            size="default"
+            className="size-7"
+          />
         ) : icon ? (
           <span
             className={cn(

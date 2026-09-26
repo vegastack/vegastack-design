@@ -227,7 +227,7 @@
         "@vegastack/dropdown-menu",
         "@vegastack/empty",
         "@vegastack/markdown-view",
-        "@vegastack/person-hover-card",
+        "@vegastack/person-avatar",
         "@vegastack/reactions",
         "@vegastack/relative-time",
         "@vegastack/searchable-select",
@@ -412,6 +412,35 @@
       }
     },
     {
+      "name": "avatar-picker",
+      "type": "registry:ui",
+      "title": "Avatar Picker",
+      "description": "Upload, change or remove a person's photo — a large PersonAvatar with a busy spinner, Upload/Change photo through the file picker, Remove, and a line for a refused file.",
+      "categories": ["forms"],
+      "dependencies": [
+        "@vegastack/design@^0.7.46",
+        "@vegastack/design-tokens@^0.7.46"
+      ],
+      "registryDependencies": [
+        "@vegastack/button",
+        "@vegastack/person-avatar",
+        "@vegastack/spinner",
+        "@vegastack/use-file-drop"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/avatar-picker.tsx",
+          "type": "registry:ui",
+          "target": "@ui/avatar-picker.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "A profile or member settings row where someone sets their own photo.",
+        "whenNotToUse": "Attaching files to a record (Dropzone / Attachment) or picking a person (SearchableSelect).",
+        "version": "0.23.43"
+      }
+    },
+    {
       "name": "badge",
       "type": "registry:ui",
       "title": "Badge",
@@ -489,12 +518,12 @@
         "@base-ui/react@^1.6.0"
       ],
       "registryDependencies": [
-        "@vegastack/avatar",
         "@vegastack/badge",
         "@vegastack/checkbox",
+        "@vegastack/date-time",
         "@vegastack/hover-card",
-        "@vegastack/person-hover-card",
-        "@vegastack/date-time"
+        "@vegastack/person-avatar",
+        "@vegastack/person-hover-card"
       ],
       "files": [
         {
@@ -1373,6 +1402,27 @@
       "meta": {
         "whenToUse": "Building a drag surface on use-drag-reorder — spread it onto the element carrying the hook`s getItemProps() attributes.",
         "whenNotToUse": "File drag-in (use-file-drop) or any surface that does not use the reorder hook.",
+        "version": "0.23.43"
+      }
+    },
+    {
+      "name": "person",
+      "type": "registry:lib",
+      "title": "Person",
+      "description": "The one initials rule for a person's avatar — first and last word, two letters of a single word, else the email — shared by PersonAvatar and every people surface.",
+      "categories": ["data"],
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "packages/ui/registry/lib/person.ts",
+          "type": "registry:lib",
+          "target": "@lib/person.ts"
+        }
+      ],
+      "meta": {
+        "whenToUse": "Deriving a person's initials outside PersonAvatar (a mention, an export) so they match the avatar.",
+        "whenNotToUse": "Drawing an avatar — compose PersonAvatar, which applies the rule itself.",
         "version": "0.23.43"
       }
     },
@@ -12418,9 +12468,9 @@
         "@vegastack/design-tokens@^0.7.46"
       ],
       "registryDependencies": [
-        "@vegastack/avatar",
         "@vegastack/badge",
         "@vegastack/button",
+        "@vegastack/person-avatar",
         "@vegastack/popover"
       ],
       "files": [
@@ -12546,9 +12596,9 @@
         "@vegastack/design-tokens@^0.7.46"
       ],
       "registryDependencies": [
-        "@vegastack/avatar",
         "@vegastack/button",
         "@vegastack/dropdown-menu",
+        "@vegastack/person-avatar",
         "@vegastack/relative-time",
         "@vegastack/skeleton",
         "@vegastack/tooltip"
@@ -12789,6 +12839,7 @@
         "@vegastack/avatar",
         "@vegastack/button",
         "@vegastack/hover-card",
+        "@vegastack/person-avatar",
         "@vegastack/popover",
         "@vegastack/searchable-select"
       ],
@@ -12802,6 +12853,30 @@
       "meta": {
         "whenToUse": "Show the people on a record (participants, watchers, a team) as stacked avatars, each previewing the person on hover, focus or tap.",
         "whenNotToUse": "A picker of people (SearchableSelect) or a full member list (DataList).",
+        "version": "0.23.43"
+      }
+    },
+    {
+      "name": "person-avatar",
+      "type": "registry:ui",
+      "title": "Person Avatar",
+      "description": "A person's avatar — the photo, else initials on their hue, else initials on the muted fallback — the one way every people surface draws a person.",
+      "categories": ["data"],
+      "dependencies": [
+        "@vegastack/design@^0.7.46",
+        "@vegastack/design-tokens@^0.7.46"
+      ],
+      "registryDependencies": ["@vegastack/avatar", "@vegastack/person"],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/person-avatar.tsx",
+          "type": "registry:ui",
+          "target": "@ui/person-avatar.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "Any avatar that stands for a person: rows, chips, cards, menus, comments and the user menu.",
+        "whenNotToUse": "An organisation or record image (Thumbnail) or a non-person avatar composition (Avatar).",
         "version": "0.23.43"
       }
     },
@@ -12820,7 +12895,7 @@
         "@vegastack/button",
         "@vegastack/card",
         "@vegastack/item",
-        "@vegastack/person-hover-card",
+        "@vegastack/person-avatar",
         "@vegastack/searchable-select",
         "@vegastack/skeleton",
         "@vegastack/tooltip"
@@ -13013,6 +13088,7 @@
         "@vegastack/combobox",
         "@vegastack/item",
         "@vegastack/load-more",
+        "@vegastack/person-avatar",
         "@vegastack/skeleton",
         "@vegastack/spinner"
       ],
@@ -14166,7 +14242,6 @@
       ],
       "registryDependencies": [
         "@vegastack/app-shell",
-        "@vegastack/avatar",
         "@vegastack/breadcrumb",
         "@vegastack/button",
         "@vegastack/card",
@@ -14176,6 +14251,7 @@
         "@vegastack/item",
         "@vegastack/kbd",
         "@vegastack/page-header",
+        "@vegastack/person-avatar",
         "@vegastack/provider",
         "@vegastack/sidebar",
         "@vegastack/stat",

@@ -1,4 +1,4 @@
-// @vegastack image@0.23.43 sha256-v4fP/M8+3D/cbVKbQDYp3Ws9l4U/fBYhsoysHVjeRGs=
+// @vegastack image@0.23.43 sha256-Os0/x7iRL620LMkYDy5rPddAUilrmg3VR7WC1o+Emrg=
 
 "use client";
 
@@ -77,6 +77,13 @@ export interface ImageProps
    */
   fallback?: React.ReactNode;
   /**
+   * A tiny preview of the image as a data URL (a 16px blur, under 1 KB). It fills the frame as a
+   * blurred cover until the image has loaded, then fades out under it — in place of the pulsing
+   * skeleton. `srcSet` and `sizes` pass straight to the `<img>`.
+   * @default undefined
+   */
+  placeholder?: string;
+  /**
    * Native lazy-loading hint. Defaults to `lazy` so an off-screen image costs
    * nothing until it scrolls near the viewport (audit B4-08 — `MarkdownView`
    * already did this for its images). Pass `eager` for an above-the-fold hero,
@@ -109,6 +116,10 @@ export interface ImageProps
  * @example
  * // square thumbnail with an initials fallback on error
  * <Image src={url} alt="Ada Lovelace" aspectRatio="square" fallback="AL" />
+ *
+ * @example
+ * // a stored image: the 480w variant, a srcset, and its blur preview until it loads
+ * <Image src={file.url480} srcSet={file.srcset} sizes="(min-width: 768px) 50vw, 100vw" placeholder={file.blur} alt="" />
  */
 export function Image({
   className,
@@ -117,8 +128,11 @@ export function Image({
   aspectRatio = "auto",
   rounded = "md",
   fallback,
+  placeholder,
   loading = "lazy",
   decoding = "async",
+  onLoad,
+  onError,
   ref,
   ...props
 }: ImageProps) {
@@ -150,6 +164,21 @@ export function Image({
       data-state={status}
       className={cn(imageVariants({ aspectRatio, rounded }), className)}
     >
+      {/* The blurred preview sits UNDER the image (the image is `relative`, so it paints above
+          this absolute layer) and fades out as the image fades in, so there is no flash of the
+          bare frame between them. `scale-110` pushes the blur's soft edge outside the clip. */}
+      {placeholder && src && !showFallback ? (
+        <span
+          aria-hidden="true"
+          data-slot="image-placeholder"
+          style={{ backgroundImage: `url("${placeholder}")` }}
+          className={cn(
+            "absolute inset-0 scale-110 bg-cover bg-center blur-lg transition-opacity duration-fast ease-standard",
+            status === "loaded" ? "opacity-0" : "opacity-100",
+          )}
+        />
+      ) : null}
+
       {src && !showFallback ? (
         <img
           ref={setImgRef}
@@ -158,13 +187,20 @@ export function Image({
           alt={alt}
           loading={loading}
           decoding={decoding}
-          onLoad={() => setStatus("loaded")}
-          onError={() => setStatus("error")}
+          {...props}
+          // The caller's handlers run too; the frame's own state always resolves.
+          onLoad={(event) => {
+            setStatus("loaded");
+            onLoad?.(event);
+          }}
+          onError={(event) => {
+            setStatus("error");
+            onError?.(event);
+          }}
           className={cn(
-            "size-full object-cover transition-opacity duration-fast ease-standard",
+            "relative size-full object-cover transition-opacity duration-fast ease-standard",
             status === "loaded" ? "opacity-100" : "opacity-0",
           )}
-          {...props}
         />
       ) : null}
 
@@ -176,7 +212,7 @@ export function Image({
           re-parented by the HTML parser, so the server markup and the client tree would
           disagree and hydration would break. The radius is deliberately absent too — the frame
           is `overflow-hidden`, so the placeholder is clipped to the frame's own corner. */}
-      {status === "loading" ? (
+      {status === "loading" && !placeholder ? (
         <span
           aria-hidden="true"
           data-slot="image-skeleton"

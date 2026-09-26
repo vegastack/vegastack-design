@@ -135,14 +135,14 @@ function RecordChipGhostDemo(): ReactNode {
         <GhostRow label="Assignee">
           <RecordChip
             variant="ghost"
-            person={{ name: "Asha Rao" }}
+            person={{ name: "Asha Rao", hue: "blue" }}
             aria-label="Assignee: Asha Rao"
           />
         </GhostRow>
         <GhostRow label="Reviewer">
           <RecordChip
             variant="ghost"
-            person={{ name: "Priya Nair", badge: "Inactive" }}
+            person={{ name: "Priya Nair", hue: "pink", badge: "Inactive" }}
             aria-label="Reviewer: Priya Nair"
           />
         </GhostRow>

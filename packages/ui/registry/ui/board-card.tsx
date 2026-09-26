@@ -1,4 +1,4 @@
-// @vegastack board-card@0.23.43 sha256-4V3E8p7PORHqN2GjuLcNeJ4czxDGX/ff9Q4zE1SQa6U=
+// @vegastack board-card@0.23.43 sha256-8OGuc7VBWkWEscOOKu+Petbt3uz/w6tTaUi2ZgHv2kY=
 
 "use client";
 
@@ -11,7 +11,6 @@ import {
   type DateInput,
   type DateTimeOptions,
 } from "@/lib/date-time";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -19,6 +18,7 @@ import {
   HoverCardContent,
   HoverCardTrigger,
 } from "@/components/ui/hover-card";
+import { PersonAvatar, type Person } from "@/components/ui/person-avatar";
 import { PersonCard } from "@/components/ui/person-hover-card";
 
 /* ---
@@ -51,6 +51,11 @@ export interface BoardCardAssignee {
    * @default undefined
    */
   image?: string | null;
+  /**
+   * The person's colour behind their initials.
+   * @default undefined
+   */
+  hue?: Person["hue"];
   /**
    * The muted line in the avatar's hover card — usually the email.
    * @default undefined
@@ -159,13 +164,6 @@ const PRIORITY_VARIANT: Record<
   medium: "outline",
   low: "outline",
 };
-
-function initials(name: string): string {
-  const parts = name.trim().split(/\s+/).filter(Boolean);
-  const first = parts[0]?.[0] ?? "";
-  const last = parts.length > 1 ? (parts.at(-1)?.[0] ?? "") : "";
-  return (first + last).toUpperCase();
-}
 
 /** The due chip's badge variant: destructive when overdue, warning when due today. */
 function dueVariant(due: DateInput, options?: DateTimeOptions) {
@@ -310,17 +308,15 @@ export function BoardCard({
             {assignee ? (
               <HoverCard>
                 <HoverCardTrigger
-                  render={<span className="inline-flex rounded-full" />}
+                  render={
+                    <span
+                      data-slot="board-card-assignee"
+                      className="inline-flex rounded-full"
+                    />
+                  }
                 >
-                  <Avatar data-slot="board-card-assignee" size="sm">
-                    {assignee.image ? (
-                      <AvatarImage src={assignee.image} alt={assignee.name} />
-                    ) : null}
-                    <AvatarFallback>
-                      <span aria-hidden="true">{initials(assignee.name)}</span>
-                      <span className="sr-only">{assignee.name}</span>
-                    </AvatarFallback>
-                  </Avatar>
+                  <PersonAvatar person={assignee} />
+                  <span className="sr-only">{assignee.name}</span>
                 </HoverCardTrigger>
                 <HoverCardContent align="start" className="w-60 p-2">
                   <PersonCard person={assignee} />
