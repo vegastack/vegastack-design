@@ -1,4 +1,4 @@
-// @vegastack page-header@0.23.41 sha256-BvB3fIVuYPj0utbAPWcxY5gUOL4V1IAA6C5kcIbKVik=
+// @vegastack page-header@0.23.41 sha256-u0z7QOHQz30Znhnj6FAjQANEl/6beQB8j9dVPks73Sc=
 
 "use client";
 
@@ -135,20 +135,15 @@ export interface PageHeaderProps extends Omit<
    */
   favorite?: PageHeaderFavorite;
   /**
-   * The page's view tabs, on their own row directly under the title — a default (pill) `Tabs`
+   * The page's scope tabs, on their own row directly under the title — a default (pill) `Tabs`
    * such as "My tasks | Created by me | Team" that switches whose records a list page shows.
    * Tabs that change content in place belong here, above the list's toolbar, not inside it.
+   * How the records are laid out (a `ViewToggle`, "List | Board") is not a tab: it sits at the
+   * end of the `FilterBar`'s first row, in its `view` slot.
 
    * @default undefined
    */
   tabs?: React.ReactNode;
-  /**
-   * How the page lays its records out — a `ViewToggle` ("List | Board"), pinned to the end of
-   * the `tabs` row (on its own row, end-aligned, when there are no `tabs`).
-
-   * @default undefined
-   */
-  view?: React.ReactNode;
 }
 
 /**
@@ -228,12 +223,11 @@ function FavoriteStar({
  * />
  *
  * @example
- * // A list page: scope tabs under the title, the layout switch at the row's end
+ * // A list page: scope tabs under the title (the layout switch goes in the FilterBar's `view`)
  * <PageHeader
  *   title="Tasks"
  *   actions={<Button>New task</Button>}
  *   tabs={<Tabs value={scope} onValueChange={setScope}><TabsList><TabsTrigger value="mine">My tasks</TabsTrigger><TabsTrigger value="team">Team</TabsTrigger></TabsList></Tabs>}
- *   view={<ViewToggle value={view} onValueChange={setView} views={["list", "board"]} />}
  * />
  *
  * @example
@@ -261,7 +255,6 @@ export function PageHeader({
   secondaryMenu,
   favorite,
   tabs,
-  view,
   className,
   children,
   ...props
@@ -370,17 +363,12 @@ export function PageHeader({
         ) : null}
       </div>
 
-      {tabs != null || view != null ? (
+      {tabs != null ? (
         <div
           data-slot="page-header-tabs"
           className="flex flex-wrap items-center gap-2"
         >
           {tabs}
-          {view != null ? (
-            <div data-slot="page-header-view" className="ms-auto">
-              {view}
-            </div>
-          ) : null}
         </div>
       ) : null}
 

@@ -1,4 +1,4 @@
-// @vegastack filter-bar@0.23.41 sha256-ddLBGgANXYR7eLGYPa4OISQYD/buMWaI7mXFVdB1jDM=
+// @vegastack filter-bar@0.23.41 sha256-TL7gxNTZiBs0BMZxZfJy7vzhombNQ/jXB7erP7QkmOA=
 
 "use client";
 
@@ -221,7 +221,7 @@ export interface FilterBarProps extends Omit<
    */
   clearLabel?: string;
   /**
-   * How many filters are applied. Drives "Clear", the toggle's "Filters (n)" and its auto-open.
+   * How many filters are applied. Drives "Clear" and the toggle's "Filters (n)" count.
    * Defaults to
    * the facets holding a value plus the `filters` chips.
    * @default undefined
@@ -244,13 +244,26 @@ export interface FilterBarProps extends Omit<
    */
   filtersOpen?: boolean;
   /**
-   * Whether the filter row starts shown, when uncontrolled.
-   * @default activeCount > 0
+   * Whether the filter row starts shown, when uncontrolled. Hidden by default: the Filters
+   * toggle carries the applied count while the row is hidden.
+   * @default false
    */
   defaultFiltersOpen?: boolean;
   /**
-   * Called when the Filters toggle shows or hides the filter row — and when the row opens by
-   * itself because a filter became set.
+   * Open the filter row by itself whenever a filter becomes set (and start it open when one
+   * already is). Off by default — the row opens only from the Filters toggle.
+   * @default false
+   */
+  autoOpenFilters?: boolean;
+  /**
+   * Remember whether the filter row is shown, per page, for the browser session: the
+   * session-storage key it is kept under. Only when uncontrolled.
+   * @default undefined
+   */
+  filtersOpenStorageKey?: string;
+  /**
+   * Called when the Filters toggle shows or hides the filter row — and, with `autoOpenFilters`,
+   * when the row opens by itself because a filter became set.
    * @default undefined
    */
   onFiltersOpenChange?: (open: boolean) => void;
@@ -433,15 +446,17 @@ const BAR_SIZE =
 /**
  * `FilterBar` — the toolbar above a list or table, in two rows.
  *
- * Row 1: `[Search ~320px] … [⚲ Filters (n)] [scope] [actions] [view]` — the view furthest right.
- * The Filters toggle shows or hides row 2, opens it by itself when anything becomes set, and
- * shows the applied count.
+ * Row 1: `[Search — the free space] [⚲ Filters (n)] [scope] [actions] [view]` — the view
+ * furthest right. Scope tabs ("My | Team") usually sit in the `PageHeader`'s `tabs` instead.
  * Row 2 (12px below): the `facets`, any applied `filters` chips, a "More" menu of secondary
- * filters, and "Clear" at the end while anything is applied.
+ * filters, and "Clear" at the end while anything is applied. It is hidden until the Filters
+ * toggle shows it, and never opens by itself (opt in with `autoOpenFilters`); the toggle shows
+ * the applied count.
  *
- * On a narrow bar (below its own `@3xl` container width) the search takes the full width, then
- * one row holds `[⚲ n] [scope] [view]` (the view icon-only), and the filter row scrolls sideways
- * by touch with a hidden scrollbar.
+ * Below its own `@3xl` container width the Filters toggle and the view go icon-only (the count
+ * stays as a badge) and the filter row scrolls sideways by touch with a hidden scrollbar. Below
+ * `@lg` the search takes the full width, and the next row holds `[⚲ n]` at the start and the
+ * view at the end.
  *
  * Purely presentational: the host owns every value.
  *
@@ -481,6 +496,8 @@ export function FilterBar({
   doneLabel: _doneLabel,
   filtersOpen: filtersOpenProp,
   defaultFiltersOpen,
+  autoOpenFilters = false,
+  filtersOpenStorageKey,
   onFiltersOpenChange,
   trailing,
   ...props
@@ -533,25 +550,53 @@ export function FilterBar({
       ?.focus();
   };
 
-  // The Filters toggle: shows or hides the filter row, and opens it on its own the moment
-  // anything is applied (a URL restore, a "Clear" undone), so a set filter is never hidden.
+  // The Filters toggle shows or hides the filter row. Hidden by default; with `autoOpenFilters`
+  // it also opens on its own the moment anything is applied (a URL restore, a "Clear" undone).
   const [filtersOpenState, setFiltersOpenState] = React.useState(
-    defaultFiltersOpen ?? activeCount > 0,
+    defaultFiltersOpen ?? (autoOpenFilters && activeCount > 0),
   );
   const filtersOpen = filtersOpenProp ?? filtersOpenState;
   const setFiltersOpen = (next: boolean) => {
-    if (filtersOpenProp === undefined) setFiltersOpenState(next);
+    if (filtersOpenProp === undefined) {
+      setFiltersOpenState(next);
+      if (filtersOpenStorageKey != null) {
+        try {
+          window.sessionStorage.setItem(
+            filtersOpenStorageKey,
+            next ? "1" : "0",
+          );
+        } catch {
+          // Storage can be unavailable (private mode, blocked site data); it just isn't remembered.
+        }
+      }
+    }
     onFiltersOpenChange?.(next);
   };
+  // Restore the remembered state after mount, so the server render and hydration agree.
+  React.useEffect(() => {
+    if (filtersOpenProp !== undefined || filtersOpenStorageKey == null) return;
+    try {
+      const stored = window.sessionStorage.getItem(filtersOpenStorageKey);
+      if (stored === "1" || stored === "0") setFiltersOpenState(stored === "1");
+    } catch {
+      // See above.
+    }
+  }, [filtersOpenProp, filtersOpenStorageKey]);
   const hadActive = React.useRef(activeCount > 0);
   React.useEffect(() => {
     const active = activeCount > 0;
-    if (active && !hadActive.current && !filtersOpen) {
+    if (autoOpenFilters && active && !hadActive.current && !filtersOpen) {
       if (filtersOpenProp === undefined) setFiltersOpenState(true);
       onFiltersOpenChange?.(true);
     }
     hadActive.current = active;
-  }, [activeCount, filtersOpen, filtersOpenProp, onFiltersOpenChange]);
+  }, [
+    autoOpenFilters,
+    activeCount,
+    filtersOpen,
+    filtersOpenProp,
+    onFiltersOpenChange,
+  ]);
 
   const searchField =
     search != null ? (
@@ -565,7 +610,7 @@ export function FilterBar({
         aria-label={search["aria-label"] ?? search.placeholder ?? "Search"}
         data-slot="filter-bar-search"
         className={cn(
-          "h-8 w-full min-w-0 @3xl/filter-bar:w-80 @3xl/filter-bar:flex-none",
+          "h-8 w-full min-w-0 @lg/filter-bar:w-auto @lg/filter-bar:flex-1",
           searchInputProps?.className,
         )}
       />
@@ -649,12 +694,13 @@ export function FilterBar({
       onClick={() => setFiltersOpen(!filtersOpen)}
     >
       <ListFilter aria-hidden />
-      {/* The word hides on a narrow bar; the count stays. */}
+      {/* The word hides on a narrow bar (icon-only); the count stays as a badge. */}
       <span className="hidden @3xl/filter-bar:inline">{filtersLabel}</span>
       {activeCount > 0 ? (
         <span
+          aria-hidden
           data-slot="filter-bar-filters-count"
-          className="rounded-sm bg-foreground/10 px-1 text-xs text-foreground tabular-nums"
+          className="min-w-4 rounded-sm bg-foreground/10 px-1 text-center text-xs text-foreground tabular-nums"
         >
           {activeCount}
         </span>
@@ -686,16 +732,16 @@ export function FilterBar({
         {...props}
       >
         {hasPrimaryRow ? (
-          // [Search ~320px] … [Filters (n)] [scope/tabs] [actions] [view]. On a narrow bar the
+          // [Search — the free space] [Filters (n)] [scope] [actions] [view]. Below `@lg` the
           // search takes the full width and the controls wrap onto one row beneath it.
           <div
             data-slot="filter-bar-primary"
-            className="flex w-full min-w-0 flex-wrap items-center gap-2 @3xl/filter-bar:flex-nowrap"
+            className="flex w-full min-w-0 flex-wrap items-center gap-2 @lg/filter-bar:flex-nowrap"
           >
             {searchField}
             <div
               data-slot="filter-bar-controls"
-              className="flex min-w-0 flex-1 items-center gap-2 @3xl/filter-bar:flex-none @3xl/filter-bar:ms-auto"
+              className="flex min-w-0 flex-1 items-center gap-2 @lg/filter-bar:flex-none @lg/filter-bar:ms-auto"
             >
               {filtersToggle}
               {scope != null ? (

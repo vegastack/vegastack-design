@@ -3,6 +3,7 @@
 import { useState, type ComponentProps, type ReactNode } from "react";
 import { MoreVertical } from "lucide-react";
 // Copied INTO apps/docs via `shadcn add @vegastack/page-header` (dogfoods the registry) → auto-scanned.
+import { FilterBar, FilterBarFacet } from "@/components/ui/filter-bar";
 import { PageHeader } from "@/components/ui/page-header";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -223,9 +224,10 @@ export function pageHeaderFavoriteControlled(): ReactNode {
 
 export function pageHeaderTabs(): ReactNode {
   const [scope, setScope] = useState("mine");
+  const [query, setQuery] = useState("");
   const [view, setView] = useState<"list" | "board">("list");
   return (
-    <Wrapper className="block">
+    <Wrapper className="block space-y-4">
       <PageHeader
         title="Tasks"
         actions={<Button>New task</Button>}
@@ -237,6 +239,25 @@ export function pageHeaderTabs(): ReactNode {
               <TabsTrigger value="team">Team</TabsTrigger>
             </TabsList>
           </Tabs>
+        }
+      />
+      {/* The layout switch is the toolbar's, not the header's: it ends the FilterBar's first row. */}
+      <FilterBar
+        aria-label="Task toolbar"
+        search={{
+          value: query,
+          onValueChange: setQuery,
+          placeholder: "Search tasks",
+        }}
+        facets={
+          <FilterBarFacet<{ id: string }>
+            label="Status"
+            items={[{ id: "Open" }, { id: "Done" }]}
+            value={null}
+            onValueChange={() => {}}
+            itemToKey={(o) => o.id}
+            itemToStringLabel={(o) => o.id}
+          />
         }
         view={
           <ViewToggle

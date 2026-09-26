@@ -30,6 +30,10 @@ test("grid and list show the same records, and the view switch never empties", a
   await expectNoA11yViolations(document.body, ["color-contrast"]);
 
   const grid = screen.getByRole("tab", { name: "Grid", exact: true });
+  // The view switch ends the toolbar's first row, not the page header.
+  expect(
+    grid.element().closest('[data-slot="filter-bar-view"]'),
+  ).not.toBeNull();
   await grid.click();
   const gridNames = names('a[data-slot="media-card-link"]');
   expect(new Set(gridNames)).toEqual(new Set(listNames));
