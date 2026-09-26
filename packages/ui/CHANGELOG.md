@@ -1,5 +1,11 @@
 # @vegastack/ui
 
+## 0.23.43
+
+### Patch Changes
+
+- [#343](https://github.com/vegastack/vegastack-design/pull/343) [`98a6981`](https://github.com/vegastack/vegastack-design/commit/98a69811a422de394587da237081fd7d6dcdd765) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🔧 `FilterBar`'s search field is ~320px (`w-80`) on a desktop- or tablet-width bar again, with the Filters toggle and the view at the far end; it takes the full width only on a phone-width bar (below `@lg`), where it sits on its own row.
+
 ## 0.23.42
 
 ### Patch Changes

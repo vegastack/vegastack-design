@@ -11,7 +11,7 @@
   "files": [
     {
       "path": "packages/ui/registry/ui/skeleton.tsx",
-      "content": "// @vegastack skeleton@0.23.42 sha256-wSEzGPrshWfDs0FUpvQ03s1lDXigUYW3N/QRWLkhRKQ=\n\nimport { cn } from \"@vegastack/design\";\n\nfunction Skeleton({ className, ...props }: React.ComponentProps<\"div\">) {\n  return (\n    <div\n      data-slot=\"skeleton\"\n      className={cn(\"animate-pulse rounded-md bg-muted\", className)}\n      {...props}\n    />\n  );\n}\n\nexport { Skeleton };\n",
+      "content": "// @vegastack skeleton@0.23.43 sha256-FNBiGTP1x3LghuNH4iTFkV4Ob+mNpmrzysLz5p6WAiY=\n\nimport { cn } from \"@vegastack/design\";\n\nfunction Skeleton({ className, ...props }: React.ComponentProps<\"div\">) {\n  return (\n    <div\n      data-slot=\"skeleton\"\n      className={cn(\"animate-pulse rounded-md bg-muted\", className)}\n      {...props}\n    />\n  );\n}\n\nexport { Skeleton };\n",
       "type": "registry:ui",
       "target": "@ui/skeleton.tsx"
     }
@@ -19,8 +19,8 @@
   "meta": {
     "whenToUse": "Reserve layout space while content loads to avoid layout shift.",
     "whenNotToUse": "Indeterminate progress with no known layout (Spinner) or determinate tasks (progress bar).",
-    "version": "0.23.42",
-    "integrity": "sha256-wSEzGPrshWfDs0FUpvQ03s1lDXigUYW3N/QRWLkhRKQ="
+    "version": "0.23.43",
+    "integrity": "sha256-FNBiGTP1x3LghuNH4iTFkV4Ob+mNpmrzysLz5p6WAiY="
   },
   "categories": [
     "feedback"
