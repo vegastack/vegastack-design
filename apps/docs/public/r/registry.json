@@ -575,7 +575,7 @@
         "whenToUse": "The content of a Board card (tasks, deals, tickets) — DataList's board view renders one per row — or a standalone work-item card.",
         "whenNotToUse": "A record with an image (MediaCard), a long body (Card), or a table row (DataList).",
         "version": "0.23.40",
-        "integrity": "sha256-AJDqmwfcdPMEGsjY0ZC2PgdZ4XOfe/X51Q89Tu+b41A="
+        "integrity": "sha256-XWPKeFBGH0n5SUBY8rxkuWsaWiFfjwHhcSMIfekA2pg="
       }
     },
     {
@@ -1329,7 +1329,7 @@
         "whenToUse": "A card per record in a grid (DataList view=\"grid\" renders one per row), or card content on a board.",
         "whenNotToUse": "A record with a long body or its own controls (Card), or a row in a table (DataList).",
         "version": "0.23.40",
-        "integrity": "sha256-3eqMHvc8lPYS5YV1V7BM1tpZqmrbC+OiE0TRHBiXXh8="
+        "integrity": "sha256-Qdl4DFt7KDu4ttETbwU8rXkyN+bhfT3wqIPAKZlhMWg="
       }
     },
     {
@@ -15501,7 +15501,7 @@
       "name": "record-chip",
       "type": "registry:ui",
       "title": "Record Chip",
-      "description": "A pill that shows the record something belongs to and picks another: icon, name and a chevron as a picker trigger, plus an arrow link to the record.",
+      "description": "A pill that shows the record something belongs to and picks another: icon, name and a chevron as a picker trigger, plus an arrow link to the record — or, as the ghost variant, a property value that reads as plain text.",
       "categories": [
         "forms"
       ],
@@ -15511,6 +15511,8 @@
         "@vegastack/design-tokens@^0.7.46"
       ],
       "registryDependencies": [
+        "@vegastack/avatar",
+        "@vegastack/badge",
         "@vegastack/button",
         "@vegastack/popover"
       ],
@@ -15525,7 +15527,7 @@
         "whenToUse": "Linking a record to another one in its header — a meeting's customer or project — with a picker and a jump to the linked record.",
         "whenNotToUse": "A free-form tag (Chip) or a form field with a label (Combobox, Select).",
         "version": "0.23.40",
-        "integrity": "sha256-bPYYlLCaaXK6jjOv6Fo77fAnO1+kpbeTpbG+UncTiaQ="
+        "integrity": "sha256-jD1TGgWgaboHWik2X1TLeDmCBuAWM/XsAmPJL26NO9w="
       }
     },
     {
@@ -15912,7 +15914,7 @@
         "whenToUse": "Heterogeneous key→value panes (record details, metadata sidebars).",
         "whenNotToUse": "Homogeneous collections (DataList/Table) or form editing (Field).",
         "version": "0.23.40",
-        "integrity": "sha256-UuwN+u+c2l72i7W2l69M90nUvZwFkNTqsbHFPrqQfEQ="
+        "integrity": "sha256-OaPelEJS1uzQzUXYOFb3XB8ODNI1Bd6p0HKDNukZkyY="
       }
     },
     {
@@ -15982,7 +15984,7 @@
         "whenToUse": "A record page's rail cards (and its Details sheet): a Details section of inline properties, people and linked records, then sections of full-width rows for the record's tasks and suggestions.",
         "whenNotToUse": "A full list page (DataList) or a settings form (Field).",
         "version": "0.23.40",
-        "integrity": "sha256-hVElNPqtxucZka5MmWnKh96hUr6PwilqliEnIFOVFbo="
+        "integrity": "sha256-QbADVKXOmIKBOD/zGLKAzEYZx8Esur8ABsO1n3C7PG8="
       }
     },
     {
@@ -17619,6 +17621,7 @@
       "registryDependencies": [
         "@vegastack/app-shell",
         "@vegastack/comments",
+        "@vegastack/dropdown-menu",
         "@vegastack/editable-cell",
         "@vegastack/priority-icon",
         "@vegastack/property-list",
@@ -17647,7 +17650,7 @@
         "whenToUse": "A task or issue page — title, description, comments and a properties rail; compose the same components in your app.",
         "whenNotToUse": "A meeting or media record with tabs — use RecordLayout with Tabs.",
         "version": "0.23.40",
-        "integrity": "sha256-Pxil7t34+OCtHUQuaJQBWB3lLDLsrRAh2ebEBQ5yJmI="
+        "integrity": "sha256-eRWbYsgg2xrdY0UexsDiNzjQfOg0hHmcxsMeAjo1OjE="
       }
     },
     {

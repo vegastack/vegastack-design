@@ -12410,14 +12410,19 @@
       "name": "record-chip",
       "type": "registry:ui",
       "title": "Record Chip",
-      "description": "A pill that shows the record something belongs to and picks another: icon, name and a chevron as a picker trigger, plus an arrow link to the record.",
+      "description": "A pill that shows the record something belongs to and picks another: icon, name and a chevron as a picker trigger, plus an arrow link to the record — or, as the ghost variant, a property value that reads as plain text.",
       "categories": ["forms"],
       "dependencies": [
         "lucide-react@^1.47.0",
         "@vegastack/design@^0.7.46",
         "@vegastack/design-tokens@^0.7.46"
       ],
-      "registryDependencies": ["@vegastack/button", "@vegastack/popover"],
+      "registryDependencies": [
+        "@vegastack/avatar",
+        "@vegastack/badge",
+        "@vegastack/button",
+        "@vegastack/popover"
+      ],
       "files": [
         {
           "path": "packages/ui/registry/ui/record-chip.tsx",
@@ -14245,6 +14250,7 @@
       "registryDependencies": [
         "@vegastack/app-shell",
         "@vegastack/comments",
+        "@vegastack/dropdown-menu",
         "@vegastack/editable-cell",
         "@vegastack/priority-icon",
         "@vegastack/property-list",

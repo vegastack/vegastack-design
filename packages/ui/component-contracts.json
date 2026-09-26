@@ -261,6 +261,18 @@
         "globalInputGroups": ["tokens", "shared-runtime"]
       },
       {
+        "file": "packages/ui/test/record-chip-geometry.browser.test.tsx",
+        "owners": [
+          "priority-icon",
+          "property-list",
+          "record-aside",
+          "record-chip",
+          "relative-time",
+          "status-icon"
+        ],
+        "globalInputGroups": ["tokens", "shared-runtime"]
+      },
+      {
         "file": "packages/ui/test/control-paint.browser.test.tsx",
         "owners": [
           "field",
@@ -24219,6 +24231,15 @@
           }
         },
         {
+          "name": "RecordChipPerson",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/record-chip.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
           "name": "RecordChip",
           "kind": "component",
           "source": "packages/ui/registry/ui/record-chip.tsx",
@@ -24313,7 +24334,15 @@
       "states": {
         "behavior": {
           "status": "observed",
-          "values": ["default", "empty", "linked", "disabled"],
+          "values": [
+            "default",
+            "empty",
+            "linked",
+            "disabled",
+            "ghost",
+            "person",
+            "open"
+          ],
           "evidence": "Observed from the component's prop branches."
         },
         "accessibility": {
@@ -24323,7 +24352,15 @@
         },
         "visual": {
           "status": "observed",
-          "values": ["default", "empty", "linked", "disabled"],
+          "values": [
+            "default",
+            "empty",
+            "linked",
+            "disabled",
+            "ghost",
+            "person",
+            "open"
+          ],
           "evidence": "Observed from token classes and data attributes."
         }
       },
@@ -24342,7 +24379,12 @@
       },
       "engines": [],
       "docsSlug": "/docs/components/record-chip",
-      "registryDependencies": ["@vegastack/button", "@vegastack/popover"],
+      "registryDependencies": [
+        "@vegastack/avatar",
+        "@vegastack/badge",
+        "@vegastack/button",
+        "@vegastack/popover"
+      ],
       "npmDependencies": [
         "lucide-react@^1.47.0",
         "@vegastack/design@^0.7.46",
@@ -24394,7 +24436,18 @@
             },
             {
               "name": "data-slot",
-              "values": ["record-chip", "record-chip-trigger"]
+              "values": [
+                "record-chip",
+                "record-chip-avatar",
+                "record-chip-badge",
+                "record-chip-chevron",
+                "record-chip-icon",
+                "record-chip-trigger"
+              ]
+            },
+            {
+              "name": "data-variant",
+              "values": []
             }
           ],
           "cssVariables": []
@@ -30118,6 +30171,7 @@
       "registryDependencies": [
         "@vegastack/app-shell",
         "@vegastack/comments",
+        "@vegastack/dropdown-menu",
         "@vegastack/editable-cell",
         "@vegastack/priority-icon",
         "@vegastack/property-list",

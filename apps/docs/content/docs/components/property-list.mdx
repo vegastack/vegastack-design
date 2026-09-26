@@ -105,8 +105,10 @@ a reader has to interpret.
 `variant="inline"` is the record-aside row for a narrow rail card: icon + label in a fixed 112px
 column (a long label truncates, its full text in the tooltip), and the value left-aligned in the
 second column, so every value starts at the same x — as in Linear or Notion. An editable value is a
-quiet picker — a ghost `xs` Button whose padding hangs past the column's start so its text lines up
-— and an unset one is `PropertyEmpty` ("—") or a quiet "+ Add". `PropertySection` puts a small muted title over values too big for a row (chips,
+ghost [Record Chip](/docs/components/record-chip#ghost-variant) (`variant="ghost"`): `PropertyValue`
+hangs its padding past the column's start and its 28px height outside the line, so its text lines up
+with plain values and every row is the same height. An unset value is the chip's muted placeholder
+("Set due date"), or `PropertyEmpty` ("—") when it cannot be edited. `PropertySection` puts a small muted title over values too big for a row (chips,
 people). The rail's other value shapes — an avatar, avatar rows with "+N", a long value clamped to
 three lines — are in [Record Aside](/docs/components/record-aside).
 

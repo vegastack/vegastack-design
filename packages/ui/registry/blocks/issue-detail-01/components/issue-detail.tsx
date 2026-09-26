@@ -1,4 +1,4 @@
-// @vegastack issue-detail-01@0.23.40 sha256-Pxil7t34+OCtHUQuaJQBWB3lLDLsrRAh2ebEBQ5yJmI=
+// @vegastack issue-detail-01@0.23.40 sha256-eRWbYsgg2xrdY0UexsDiNzjQfOg0hHmcxsMeAjo1OjE=
 
 "use client";
 
@@ -15,9 +15,16 @@ import { EditableCell } from "@/components/ui/editable-cell";
 import { PriorityIcon } from "@/components/ui/priority-icon";
 import { toggleReaction } from "@/components/ui/reactions";
 import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
   PropertyLabel,
   PropertyList,
   PropertyRow,
+  PropertySection,
   PropertyValue,
 } from "@/components/ui/property-list";
 import {
@@ -32,7 +39,7 @@ import {
   RecordLayoutMain,
   RecordLayoutRail,
 } from "@/components/ui/record-layout";
-import { DueLabel } from "@/components/ui/relative-time";
+import { DateTime, DueLabel } from "@/components/ui/relative-time";
 import { Separator } from "@/components/ui/separator";
 import { StatusIcon } from "@/components/ui/status-icon";
 import { TextEdit } from "@/components/ui/text-edit";
@@ -90,63 +97,186 @@ function initialComments(now: number): CommentData[] {
   ];
 }
 
-/** The issue's facts, shown in the rail card and in the Details sheet. */
-function Properties({ due }: { due: number }) {
+const STATUSES = [
+  { value: "todo", label: "Todo" },
+  { value: "progress", label: "In progress" },
+  { value: "done", label: "Done" },
+] as const;
+const PRIORITIES = [
+  { value: "urgent", label: "Urgent" },
+  { value: "high", label: "High" },
+  { value: "medium", label: "Medium" },
+  { value: "low", label: "Low" },
+] as const;
+const PEOPLE = [ME, { name: "Arjun Mehta" }, { name: "Neha Kapoor" }];
+const DAY = 24 * HOUR;
+
+/**
+ * The issue's facts, shown in the rail card and in the Details sheet. Each editable value is a
+ * ghost RecordChip — it reads as plain text and shows its ▾ on hover, focus or while open; the
+ * links to other records keep the bordered chips under "Linked to".
+ */
+function Properties({ due: initialDue }: { due: number }) {
+  const [status, setStatus] =
+    React.useState<(typeof STATUSES)[number]["value"]>("progress");
+  const [priority, setPriority] =
+    React.useState<(typeof PRIORITIES)[number]["value"]>("high");
+  const [assignee, setAssignee] = React.useState<string | null>(ME.name);
+  const [due, setDue] = React.useState<number | null>(initialDue);
+  const statusLabel = STATUSES.find((s) => s.value === status)!.label;
+  const priorityLabel = PRIORITIES.find((p) => p.value === priority)!.label;
   return (
-    <PropertyList variant="inline" aria-label="Properties">
-      <PropertyRow>
-        <PropertyLabel>Status</PropertyLabel>
-        <PropertyValue>
-          <span className="inline-flex items-center gap-2">
-            <StatusIcon status="progress" size="sm" />
-            In progress
-          </span>
-        </PropertyValue>
-      </PropertyRow>
-      <PropertyRow>
-        <PropertyLabel>Priority</PropertyLabel>
-        <PropertyValue>
-          <span className="inline-flex items-center gap-2">
-            <PriorityIcon priority="high" size="sm" />
-            High
-          </span>
-        </PropertyValue>
-      </PropertyRow>
-      <PropertyRow>
-        <PropertyLabel>Assignee</PropertyLabel>
-        <PropertyValue>
-          <PropertyPerson name={ME.name} />
-        </PropertyValue>
-      </PropertyRow>
-      <PropertyRow>
-        <PropertyLabel icon={<CalendarDays />}>Due</PropertyLabel>
-        <PropertyValue>
-          <DueLabel date={due} />
-        </PropertyValue>
-      </PropertyRow>
-      <PropertyRow>
-        <PropertyLabel>Customer</PropertyLabel>
-        <PropertyValue>
-          <RecordChip icon={<Building2 />} value="Northwind" href="#customer" />
-        </PropertyValue>
-      </PropertyRow>
-      <PropertyRow>
-        <PropertyLabel>Project</PropertyLabel>
-        <PropertyValue>
-          <RecordChip
-            icon={<FolderKanban />}
-            value="Office fit-out"
-            href="#project"
-          />
-        </PropertyValue>
-      </PropertyRow>
-      <PropertyRow>
-        <PropertyLabel>Created by</PropertyLabel>
-        <PropertyValue>
-          <PropertyPerson name="Priya Nair" badge="Inactive" />
-        </PropertyValue>
-      </PropertyRow>
-    </PropertyList>
+    <>
+      <PropertyList variant="inline" aria-label="Properties">
+        <PropertyRow>
+          <PropertyLabel>Status</PropertyLabel>
+          <PropertyValue>
+            <DropdownMenu>
+              <DropdownMenuTrigger
+                render={
+                  <RecordChip
+                    variant="ghost"
+                    icon={<StatusIcon status={status} size="xs" label="" />}
+                    value={statusLabel}
+                    aria-label={`Status: ${statusLabel}`}
+                  />
+                }
+              />
+              <DropdownMenuContent align="start">
+                {STATUSES.map((s) => (
+                  <DropdownMenuItem
+                    key={s.value}
+                    onClick={() => setStatus(s.value)}
+                  >
+                    <StatusIcon status={s.value} size="sm" label="" />
+                    {s.label}
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </PropertyValue>
+        </PropertyRow>
+        <PropertyRow>
+          <PropertyLabel>Priority</PropertyLabel>
+          <PropertyValue>
+            <DropdownMenu>
+              <DropdownMenuTrigger
+                render={
+                  <RecordChip
+                    variant="ghost"
+                    icon={
+                      <PriorityIcon priority={priority} size="xs" label="" />
+                    }
+                    value={priorityLabel}
+                    aria-label={`Priority: ${priorityLabel}`}
+                  />
+                }
+              />
+              <DropdownMenuContent align="start">
+                {PRIORITIES.map((p) => (
+                  <DropdownMenuItem
+                    key={p.value}
+                    onClick={() => setPriority(p.value)}
+                  >
+                    <PriorityIcon priority={p.value} size="sm" label="" />
+                    {p.label}
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </PropertyValue>
+        </PropertyRow>
+        <PropertyRow>
+          <PropertyLabel>Assignee</PropertyLabel>
+          <PropertyValue>
+            <DropdownMenu>
+              <DropdownMenuTrigger
+                render={
+                  <RecordChip
+                    variant="ghost"
+                    person={assignee ? { name: assignee } : null}
+                    placeholder="Unassigned"
+                    aria-label={
+                      assignee ? `Assignee: ${assignee}` : "Set assignee"
+                    }
+                  />
+                }
+              />
+              <DropdownMenuContent align="start">
+                {PEOPLE.map((p) => (
+                  <DropdownMenuItem
+                    key={p.name}
+                    onClick={() => setAssignee(p.name)}
+                  >
+                    {p.name}
+                  </DropdownMenuItem>
+                ))}
+                <DropdownMenuItem onClick={() => setAssignee(null)}>
+                  Unassigned
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </PropertyValue>
+        </PropertyRow>
+        <PropertyRow>
+          <PropertyLabel icon={<CalendarDays />}>Due</PropertyLabel>
+          <PropertyValue>
+            <DropdownMenu>
+              <DropdownMenuTrigger
+                render={
+                  <RecordChip
+                    variant="ghost"
+                    value={
+                      due === null ? undefined : (
+                        <DueLabel date={due} title={false} focusable={false} />
+                      )
+                    }
+                    placeholder="Set due date"
+                    aria-label={
+                      due === null ? "Set due date" : "Change due date"
+                    }
+                  />
+                }
+              />
+              <DropdownMenuContent align="start">
+                <DropdownMenuItem onClick={() => setDue(Date.now())}>
+                  Today
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setDue(Date.now() + DAY)}>
+                  Tomorrow
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setDue(Date.now() + 7 * DAY)}>
+                  Next week
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setDue(null)}>
+                  No due date
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </PropertyValue>
+        </PropertyRow>
+        <PropertyRow>
+          <PropertyLabel>Created by</PropertyLabel>
+          <PropertyValue>
+            <PropertyPerson name="Priya Nair" badge="Inactive" />
+          </PropertyValue>
+        </PropertyRow>
+        <PropertyRow>
+          <PropertyLabel>Created</PropertyLabel>
+          <PropertyValue>
+            <DateTime date={initialDue - 6 * DAY} variant="datetime" />
+          </PropertyValue>
+        </PropertyRow>
+      </PropertyList>
+      <PropertySection title="Linked to">
+        <RecordChip icon={<Building2 />} value="Northwind" href="#customer" />
+        <RecordChip
+          icon={<FolderKanban />}
+          value="Office fit-out"
+          href="#project"
+        />
+      </PropertySection>
+    </>
   );
 }
 

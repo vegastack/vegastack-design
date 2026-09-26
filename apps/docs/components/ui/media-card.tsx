@@ -1,4 +1,4 @@
-// @vegastack media-card@0.23.40 sha256-3eqMHvc8lPYS5YV1V7BM1tpZqmrbC+OiE0TRHBiXXh8=
+// @vegastack media-card@0.23.40 sha256-Qdl4DFt7KDu4ttETbwU8rXkyN+bhfT3wqIPAKZlhMWg=
 
 "use client";
 
@@ -153,7 +153,7 @@ export function MediaCard({
           <span className="flex shrink-0 items-center">{badge}</span>
         ) : null}
         {timestamp != null ? (
-          <span className="shrink-0 tabular-nums">{timestamp}</span>
+          <span className="shrink-0">{timestamp}</span>
         ) : null}
       </div>
     ) : null;

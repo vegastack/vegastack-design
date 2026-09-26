@@ -1,4 +1,4 @@
-// @vegastack record-aside@0.23.40 sha256-hVElNPqtxucZka5MmWnKh96hUr6PwilqliEnIFOVFbo=
+// @vegastack record-aside@0.23.40 sha256-QbADVKXOmIKBOD/zGLKAzEYZx8Esur8ABsO1n3C7PG8=
 
 "use client";
 
@@ -253,7 +253,7 @@ export interface PropertyPersonValue {
 export interface PropertyPersonProps
   extends PropertyPersonValue, React.ComponentPropsWithRef<"span"> {}
 
-/** `PropertyPerson` — a person value: a small avatar and the name. @example <PropertyPerson name="Asha Rao" /> */
+/** `PropertyPerson` — a person value: a 20px avatar and the name (the ghost RecordChip's person, read-only). @example <PropertyPerson name="Asha Rao" /> */
 export function PropertyPerson({
   name,
   image,
@@ -267,7 +267,10 @@ export function PropertyPerson({
       className={cn("inline-flex min-w-0 items-center gap-2", className)}
       {...props}
     >
-      <PersonAvatar person={{ name, image }} />
+      <PersonAvatar
+        person={{ name, image }}
+        className="data-[size=sm]:size-5"
+      />
       <span className="min-w-0 truncate">{name}</span>
       <PersonBadge badge={badge} />
     </span>
