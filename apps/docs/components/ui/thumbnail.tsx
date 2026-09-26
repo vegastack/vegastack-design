@@ -1,4 +1,4 @@
-// @vegastack thumbnail@0.23.44 sha256-8hEQy43oFLDaKnhiRdkGsU0YAC3Hoyz7+Z1Bg+vPp/Y=
+// @vegastack thumbnail@0.23.45 sha256-/z8NX/11zUbM0flN7HxDpCsYt3LC+tpV71YP70IQenA=
 
 "use client";
 
