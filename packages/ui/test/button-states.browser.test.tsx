@@ -228,6 +228,33 @@ test("FOC-13: a keyboard-focused button paints the background tint, no ring and 
   }
 });
 
+test("FOC-13: a programmatic focus target (tabindex=-1) never paints the tint over its region", async () => {
+  // Clicking the empty part of AppShell's `<main tabIndex={-1}>` focuses it; the next key press
+  // (Shift or ⌘ alone) flips it to :focus-visible in Chromium. The tint painted the whole page grey.
+  const screen = await render(
+    <div>
+      <main tabIndex={-1} data-testid="region" style={{ height: 200 }}>
+        <p>Content</p>
+      </main>
+      <div tabIndex={-1} data-slot="combobox-chip" data-testid="chip">
+        Chip
+      </div>
+    </div>,
+  );
+  const region = screen.getByTestId("region").element() as HTMLElement;
+  await userEvent.click(region, { position: { x: 20, y: 150 } });
+  await userEvent.keyboard("{Shift}");
+  expect(document.activeElement).toBe(region);
+  expect(region.matches(":focus-visible")).toBe(true);
+  expect(getComputedStyle(region).backgroundImage).toBe("none");
+
+  // The one tabindex=-1 control arrow keys move focus onto keeps the cue.
+  const chip = screen.getByTestId("chip").element() as HTMLElement;
+  chip.focus();
+  expect(chip.matches(":focus-visible")).toBe(true);
+  expect(getComputedStyle(chip).backgroundImage).toContain("gradient");
+});
+
 // Batch 7a of the shadcn reset retired `IconButton` in favour of upstream's four icon sizes on
 // `Button`. The geometry claim survives the wrapper: these are the sizes a consumer now writes,
 // and `rounded-full` is the shape the wrapper's `shape="round"` used to apply.
