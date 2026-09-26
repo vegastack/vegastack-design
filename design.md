@@ -758,24 +758,35 @@ All four scripts under `tooling/upstream/` carry a `--self-test` that observes t
 
 ## What we add — the one hundred exceptions
 
-`docs/plans/2026-09-18-shadcn-reset/decisions.md` is the register: 210 rows, 108 resolved as
-**shadcn** (upstream ships unchanged) and 102 as **ours**. `packages/ui/upstream/decisions.json` is
+`docs/plans/2026-09-18-shadcn-reset/decisions.md` is the register: 211 rows, 108 resolved as
+**shadcn** (upstream ships unchanged) and 103 as **ours**. `packages/ui/upstream/decisions.json` is
 its machine copy and the only thing a gate reads; `packages/ui/upstream/exception-map.json` records
 which shared component each exception is assigned to. Re-opening a row is MK's decision. The ninety-eight
 group into six themes.
 
 ### 1. Focus — no rings anywhere; a background tint everywhere
 
-`FOC-1 · FOC-2 · FOC-3 · FOC-4 · FOC-5 · FOC-6 · FOC-7 · FOC-8 · FOC-9 · FOC-10 · FOC-12 · FOC-13`
+`FOC-1 · FOC-2 · FOC-3 · FOC-4 · FOC-5 · FOC-6 · FOC-7 · FOC-8 · FOC-9 · FOC-10 · FOC-12 · FOC-13 · FOC-14`
 
 **The foundation rule (FOC-13, MK 2026-09-25): nothing draws a focus ring, Tabs included.** `base.css`
 owns the one focus cue: `:focus-visible { outline: none }`, plus a subtle background TINT —
 `accent` at 50%, laid as a background image over whatever fill the control already has — on every
-focusable element except text entry (tab triggers and panels included), so a button, a chip, a row, a menu item, a toggle, a
-checkbox or a link shows where the keyboard is without any component restating it. Text entry
-shows a border tint instead — `focus:border-ring/70`, on plain `:focus` so a click and a Tab read
-identically, with `outline-hidden` so forced colours can repaint it (FOC-3, FOC-8). Focus outranks the invalid tint (`not-focus:aria-invalid:…`, FOC-5);
-an invalid field shows an error border colour, never a ring. A forced-colours block restores
+focusable element (tab triggers and panels included), so a button, a chip, a row, a menu item, a toggle, a
+checkbox, a link or a text field shows where the keyboard is without any component restating it.
+Text entry takes the same tint — a text field is focus-visible on a click as well as a Tab, so the
+two read identically — with `outline-hidden` so forced colours can repaint it (FOC-3, FOC-8). A
+bordered field group (`data-field-group`: InputGroup, NumberField, ChipInput, the combobox chips,
+the panel search row) wears the tint on the group and the control inside stands down. The
+contenteditable document editor (TextEdit, `data-focus-cue="caret"`) is caret-only.
+
+**A border never changes colour on focus or while active (FOC-14, MK 2026-09-26).** Every control,
+field group and wrapper keeps its resting `border-border`/`border-input` in every state — no
+`focus:`, `focus-visible:`, `focus-within:`, `data-focused:` or `data-popup-open:` border change,
+and the comment composer's box neither re-borders nor re-fills when active. The one exception is
+invalid: an invalid field shows its destructive border in every state, focused or not (no
+`not-focus:` guard; FOC-14 supersedes FOC-3's border tint and FOC-5), never a ring.
+`design-lint`'s **`no-focus-border`** rejects a focus-variant border colour in the registry, and the
+geometry lane's focus sweep fails any control whose border colour moves between rest and focus. A forced-colours block restores
 `outline: 2px solid Highlight` on every focused element, because forced colours drop the tint
 (FOC-7). Dialog and Sheet open onto the first field or the popup itself, never the close ×.
 

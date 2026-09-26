@@ -1,5 +1,5 @@
 # component: select
-# decisions: API-19, API-24, API-26, BRD-1, DOC-1, DOC-2, FOC-1, FOC-3, FOC-4, FOC-5, FOC-6, FRM-4, INT-1, OVL-13
+# decisions: API-19, API-24, API-26, BRD-1, DOC-1, DOC-2, FOC-1, FOC-3, FOC-4, FOC-5, FOC-6, FRM-4, INT-1, OVL-13, FOC-14
 # hunks:
 #   API-19: `SelectItem` calls Item's `useItemDescriptionId()`, provides its `register` through
 #     `ItemDescriptionContext`, and sets `aria-describedby` on the option once an `ItemDescription`
@@ -36,12 +36,14 @@
 #   API-26: NO HUNK for the Field wiring — Base UI's `Select.Root` and `Select.Trigger` read the
 #     `Field` context themselves (label, description and error ids, `aria-invalid`);
 #     `select.test.tsx` pins it.
+#   FOC-14 (supersedes the FOC-3 border tint and FOC-5 above): no `focus:border-ring/70` and no
+#     ghost `data-popup-open:border-input`; the invalid border holds in every state.
 #   cn: `import { cn } from "cn"` becomes `@vegastack/design` — our npm layer owns `cn` (DOC-2).
 #   formatting: the repository formatter (prettier defaults: semicolons, trailing commas)
 #               reflows the file, and `registry-stamp.mjs` writes the provenance header the
 #               three-copy model needs (DOC-1); those hunks carry no decision of their own.
 diff --git a/select.tsx b/select.tsx
-index e8a22e1..8d9fb8c 100644
+index e8a22e1..9c051e0 100644
 --- a/select.tsx
 +++ b/select.tsx
 @@ -1,11 +1,35 @@
@@ -68,16 +70,16 @@ index e8a22e1..8d9fb8c 100644
 +const Select = SelectPrimitive.Root;
 +
 +// API-24: the default (outline) trigger takes its width from its parent like every form control;
-+// `ghost` is the inline tier — content width, no border at rest, the border on hover, on focus
-+// and while the popup is open. A variant, so a consumer width or border class still wins.
++// `ghost` is the inline tier — content width, no border at rest and the border on hover; focus
++// and an open popup never change it (FOC-14). A variant, so a consumer width or border class still wins.
 +const selectTriggerVariants = cva(
-+  "flex items-center justify-between gap-1.5 rounded-lg border border-input bg-transparent py-2 pe-2 ps-2.5 text-sm whitespace-nowrap transition-colors select-none focus:border-ring/70 disabled:cursor-not-allowed disabled:opacity-50 not-focus:aria-invalid:border-destructive data-placeholder:text-muted-foreground data-[size=default]:h-8 data-[size=sm]:h-7 data-[size=sm]:rounded-[min(var(--radius-md),10px)] *:data-[slot=select-value]:line-clamp-1 *:data-[slot=select-value]:flex *:data-[slot=select-value]:items-center *:data-[slot=select-value]:gap-1.5 dark:bg-input/30 dark:hover:bg-input/50 dark:not-focus:aria-invalid:border-destructive/50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
++  "flex items-center justify-between gap-1.5 rounded-lg border border-input bg-transparent py-2 pe-2 ps-2.5 text-sm whitespace-nowrap transition-colors select-none disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-destructive data-placeholder:text-muted-foreground data-[size=default]:h-8 data-[size=sm]:h-7 data-[size=sm]:rounded-[min(var(--radius-md),10px)] *:data-[slot=select-value]:line-clamp-1 *:data-[slot=select-value]:flex *:data-[slot=select-value]:items-center *:data-[slot=select-value]:gap-1.5 dark:bg-input/30 dark:hover:bg-input/50 dark:aria-invalid:border-destructive/50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
 +  {
 +    variants: {
 +      variant: {
 +        outline: "w-full",
 +        ghost:
-+          "w-fit border-transparent hover:border-input data-popup-open:border-input dark:bg-transparent dark:hover:bg-input/50",
++          "w-fit border-transparent hover:border-input dark:bg-transparent dark:hover:bg-input/50",
 +      },
 +    },
 +    defaultVariants: { variant: "outline" },

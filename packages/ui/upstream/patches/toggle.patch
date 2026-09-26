@@ -1,5 +1,5 @@
 # component: toggle
-# decisions: A11Y-12, API-5, DOC-2, FOC-1, FOC-5, FOC-6, FRM-4, TYP-18
+# decisions: A11Y-12, API-5, DOC-2, FOC-1, FOC-5, FOC-6, FRM-4, TYP-18, FOC-14
 # hunks:
 #   FOC-1, FOC-6: `outline-none focus-visible:border-ring focus-visible:ring-[3px]
 #     focus-visible:ring-ring/50` and the `aria-invalid` rings are removed.
@@ -16,11 +16,13 @@
 #     `test/control-paint.browser.test.tsx` (ICO-8's sibling fix, 2026-09-22).
 #   TYP-18: the `sm` tier's `text-[0.8rem]` becomes `text-xs`, matching Button's `sm` tier — the
 #     two share a geometry (`h-7`, `px-2.5`) and must not disagree on type (MK, 2026-09-22).
+#   FOC-14 (supersedes the FOC-3 border tint and FOC-5 above): the invalid border drops its `not-
+#     focus:` guard, so it holds in every state and focus never changes the border.
 #   cn: `import { cn } from "cn"` becomes `@vegastack/design` — our npm layer owns `cn` (DOC-2).
 #   formatting: the repository formatter (prettier defaults: semicolons, trailing commas)
 #               reflows the file; those hunks carry no decision of their own.
 diff --git a/toggle.tsx b/toggle.tsx
-index 1651768..f0bbfd6 100644
+index 1651768..4530d0b 100644
 --- a/toggle.tsx
 +++ b/toggle.tsx
 @@ -1,11 +1,13 @@
@@ -38,7 +40,7 @@ index 1651768..f0bbfd6 100644
  
  const toggleVariants = cva(
 -  "group/toggle inline-flex items-center justify-center gap-1 rounded-lg text-sm font-medium whitespace-nowrap transition-all outline-none hover:bg-muted hover:text-foreground focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 aria-pressed:bg-muted data-[state=on]:bg-muted dark:aria-invalid:ring-destructive/40 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
-+  "group/toggle relative inline-flex items-center justify-center gap-1 rounded-lg text-sm font-medium whitespace-nowrap transition-all hover:bg-muted hover:text-foreground not-focus:aria-invalid:border-destructive disabled:not-data-loading:opacity-50 aria-pressed:bg-muted data-[state=on]:bg-muted [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 [&_svg:not([class*='text-']):not([data-icon-tone])]:text-muted-foreground hover:**:[svg:not([data-icon-tone])]:text-foreground aria-pressed:**:[svg:not([data-icon-tone])]:text-foreground data-[state=on]:**:[svg:not([data-icon-tone])]:text-foreground",
++  "group/toggle relative inline-flex items-center justify-center gap-1 rounded-lg text-sm font-medium whitespace-nowrap transition-all hover:bg-muted hover:text-foreground aria-invalid:border-destructive disabled:not-data-loading:opacity-50 aria-pressed:bg-muted data-[state=on]:bg-muted [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 [&_svg:not([class*='text-']):not([data-icon-tone])]:text-muted-foreground hover:**:[svg:not([data-icon-tone])]:text-foreground aria-pressed:**:[svg:not([data-icon-tone])]:text-foreground data-[state=on]:**:[svg:not([data-icon-tone])]:text-foreground",
    {
      variants: {
        variant: {

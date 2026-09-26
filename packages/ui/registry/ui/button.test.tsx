@@ -77,10 +77,9 @@ test("FOC-1/FOC-6: no focus glow and no outline suppression anywhere in the reci
   }
 });
 
-test("FOC-5: the invalid tint stands down while the control is focused", async () => {
-  expect(buttonVariants({})).toContain(
-    "not-focus:aria-invalid:border-destructive",
-  );
+test("FOC-14: the invalid border holds while the control is focused", async () => {
+  expect(buttonVariants({})).toContain("aria-invalid:border-destructive");
+  expect(buttonVariants({})).not.toContain("not-focus:");
 });
 
 test("FRM-4: disabled is the aria-disabled form, not the native attribute", async () => {

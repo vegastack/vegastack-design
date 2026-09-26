@@ -1,5 +1,5 @@
 # component: combobox
-# decisions: A11Y-16, A11Y-2, A11Y-3, A11Y-4, A11Y-9, API-19, API-26, API-27, API-31, BRD-1, DOC-1, DOC-2, FOC-1, FOC-3, FOC-5, FOC-6, FRM-4, INT-1, OVL-13
+# decisions: A11Y-16, A11Y-2, A11Y-3, A11Y-4, A11Y-9, API-19, API-26, API-27, API-31, BRD-1, DOC-1, DOC-2, FOC-1, FOC-3, FOC-5, FOC-6, FRM-4, INT-1, OVL-13, FOC-14
 # hunks:
 #   API-31: the clear button and the chip remove button add `active:not-aria-[haspopup]:translate-y-0`
 #     so a × never moves when pressed (MK, 25-09-2026).
@@ -69,12 +69,15 @@
 #     never hidden with `display: none`, `hidden` or `aria-hidden` — Base UI documents that the root
 #     must stay mounted — so a consumer renders it as a sibling of `ComboboxList` and toggles its
 #     children.
+#   FOC-14 (supersedes the FOC-3 border tint and FOC-5 above): the chips field carries `data-field-
+#     group` and no focus border: base.css paints the focus tint on it, and the invalid border holds
+#     in every state.
 #   cn: `import { cn } from "cn"` becomes `@vegastack/design` — our npm layer owns `cn` (DOC-2).
 #   formatting: the repository formatter (prettier defaults: semicolons, trailing commas)
 #               reflows the file, and `registry-stamp.mjs` writes the provenance header the
 #               three-copy model needs (DOC-1); those hunks carry no decision of their own.
 diff --git a/combobox.tsx b/combobox.tsx
-index 39e776a..6d9f09c 100644
+index 39e776a..83aa6eb 100644
 --- a/combobox.tsx
 +++ b/combobox.tsx
 @@ -1,22 +1,28 @@
@@ -362,13 +365,15 @@ index 39e776a..6d9f09c 100644
  }
  
  function ComboboxChips({
-@@ -221,12 +286,12 @@ function ComboboxChips({
+@@ -220,13 +285,14 @@ function ComboboxChips({
+   return (
      <ComboboxPrimitive.Chips
        data-slot="combobox-chips"
++      data-field-group=""
        className={cn(
 -        "flex min-h-8 flex-wrap items-center gap-1 rounded-lg border border-input bg-transparent bg-clip-padding px-2.5 py-1 text-sm transition-colors focus-within:border-ring focus-within:ring-3 focus-within:ring-ring/50 has-aria-invalid:border-destructive has-aria-invalid:ring-3 has-aria-invalid:ring-destructive/20 has-data-[slot=combobox-chip]:px-1 dark:bg-input/30 dark:has-aria-invalid:border-destructive/50 dark:has-aria-invalid:ring-destructive/40",
 -        className
-+        "flex min-h-8 flex-wrap items-center gap-1 rounded-lg border border-input bg-transparent bg-clip-padding px-2.5 py-1 text-sm transition-colors focus-within:border-ring/70 not-focus-within:has-aria-invalid:border-destructive has-data-[slot=combobox-chip]:px-1 dark:bg-input/30 dark:not-focus-within:has-aria-invalid:border-destructive/50",
++        "flex min-h-8 flex-wrap items-center gap-1 rounded-lg border border-input bg-transparent bg-clip-padding px-2.5 py-1 text-sm transition-colors has-aria-invalid:border-destructive has-data-[slot=combobox-chip]:px-1 dark:bg-input/30 dark:has-aria-invalid:border-destructive/50",
 +        className,
        )}
        {...props}
@@ -378,7 +383,7 @@ index 39e776a..6d9f09c 100644
  }
  
  function ComboboxChip({
-@@ -235,21 +300,28 @@ function ComboboxChip({
+@@ -235,21 +301,28 @@ function ComboboxChip({
    showRemove = true,
    ...props
  }: ComboboxPrimitive.Chip.Props & {
@@ -411,7 +416,7 @@ index 39e776a..6d9f09c 100644
            className="-ms-1 opacity-50 hover:opacity-100"
            data-slot="combobox-chip-remove"
          >
-@@ -257,7 +329,7 @@ function ComboboxChip({
+@@ -257,7 +330,7 @@ function ComboboxChip({
          </ComboboxPrimitive.ChipRemove>
        )}
      </ComboboxPrimitive.Chip>
@@ -420,7 +425,7 @@ index 39e776a..6d9f09c 100644
  }
  
  function ComboboxChipsInput({
-@@ -267,14 +339,14 @@ function ComboboxChipsInput({
+@@ -267,14 +340,14 @@ function ComboboxChipsInput({
    return (
      <ComboboxPrimitive.Input
        data-slot="combobox-chip-input"
@@ -438,7 +443,7 @@ index 39e776a..6d9f09c 100644
  }
  
  export {
-@@ -287,6 +359,7 @@ export {
+@@ -287,6 +360,7 @@ export {
    ComboboxLabel,
    ComboboxCollection,
    ComboboxEmpty,
@@ -446,7 +451,7 @@ index 39e776a..6d9f09c 100644
    ComboboxSeparator,
    ComboboxChips,
    ComboboxChip,
-@@ -294,4 +367,4 @@ export {
+@@ -294,4 +368,4 @@ export {
    ComboboxTrigger,
    ComboboxValue,
    useComboboxAnchor,

@@ -1,4 +1,4 @@
-// @vegastack panel-search@0.23.39 sha256-6ZJi5lOsdYWlTR1G5fm5nhy/6fgdBT4rsaJmcdko0bY=
+// @vegastack panel-search@0.23.39 sha256-6QE3P74oTCboZ3kVbTElVZKtedA80OwcYJAofgfkMV8=
 
 "use client";
 
@@ -37,8 +37,8 @@ export interface PanelSearchProps extends React.ComponentProps<"div"> {
 
 /**
  * `PanelSearch` — the sticky search header inside a popup panel: leading glyph, the field, and a
- * hairline that tints to `ring/70` while the field inside it holds focus (FOC-3's border tint,
- * lifted to the row because the row is what draws the border).
+ * hairline. The row is a field group (`data-field-group`), so while the field inside it holds
+ * focus the row wears `base.css`'s background tint; the hairline never changes (FOC-14).
  *
  * @example
  * <PopoverContent>
@@ -56,8 +56,9 @@ export function PanelSearch({
   return (
     <div
       data-slot="panel-search"
+      data-field-group=""
       className={cn(
-        "sticky top-0 z-10 flex h-8 items-center gap-2 border-b border-border bg-popover px-3 focus-within:border-ring/70",
+        "sticky top-0 z-10 flex h-8 items-center gap-2 border-b border-border bg-popover px-3",
         className,
       )}
       {...props}

@@ -1,4 +1,4 @@
-// @vegastack searchable-select@0.23.39 sha256-eER3jPsMXBYcyqVUgAZqkHWpcETeSgKuEXP0wZSmtWM=
+// @vegastack searchable-select@0.23.39 sha256-yedMOnQw/MoZoM4oHV7QQoC5CMbOZTYGff6agyjSciE=
 
 "use client";
 
@@ -558,7 +558,7 @@ export function SearchableSelect<
                 "w-full justify-start pe-9 font-normal",
                 size === "sm" && "text-sm",
                 ghost &&
-                  "border-transparent bg-transparent shadow-none hover:border-input focus:border-ring/70 aria-expanded:border-input dark:bg-transparent",
+                  "border-transparent bg-transparent shadow-none hover:border-input dark:bg-transparent",
                 className,
               )}
               data-slot={`${slot}-trigger`}

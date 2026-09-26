@@ -1,4 +1,4 @@
-// @vegastack select@0.23.39 sha256-t8Mr3oBOs8geJOEnKs/5+93LLYqvBvEkafKvLVx5zUU=
+// @vegastack select@0.23.39 sha256-as9L5tC9tdS8lC5rpJo5pqi6ewsYyDQxPlls6+JYbiE=
 
 "use client";
 
@@ -17,16 +17,16 @@ import {
 const Select = SelectPrimitive.Root;
 
 // API-24: the default (outline) trigger takes its width from its parent like every form control;
-// `ghost` is the inline tier — content width, no border at rest, the border on hover, on focus
-// and while the popup is open. A variant, so a consumer width or border class still wins.
+// `ghost` is the inline tier — content width, no border at rest and the border on hover; focus
+// and an open popup never change it (FOC-14). A variant, so a consumer width or border class still wins.
 const selectTriggerVariants = cva(
-  "flex items-center justify-between gap-1.5 rounded-lg border border-input bg-transparent py-2 pe-2 ps-2.5 text-sm whitespace-nowrap transition-colors select-none focus:border-ring/70 disabled:cursor-not-allowed disabled:opacity-50 not-focus:aria-invalid:border-destructive data-placeholder:text-muted-foreground data-[size=default]:h-8 data-[size=sm]:h-7 data-[size=sm]:rounded-[min(var(--radius-md),10px)] *:data-[slot=select-value]:line-clamp-1 *:data-[slot=select-value]:flex *:data-[slot=select-value]:items-center *:data-[slot=select-value]:gap-1.5 dark:bg-input/30 dark:hover:bg-input/50 dark:not-focus:aria-invalid:border-destructive/50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+  "flex items-center justify-between gap-1.5 rounded-lg border border-input bg-transparent py-2 pe-2 ps-2.5 text-sm whitespace-nowrap transition-colors select-none disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-destructive data-placeholder:text-muted-foreground data-[size=default]:h-8 data-[size=sm]:h-7 data-[size=sm]:rounded-[min(var(--radius-md),10px)] *:data-[slot=select-value]:line-clamp-1 *:data-[slot=select-value]:flex *:data-[slot=select-value]:items-center *:data-[slot=select-value]:gap-1.5 dark:bg-input/30 dark:hover:bg-input/50 dark:aria-invalid:border-destructive/50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
   {
     variants: {
       variant: {
         outline: "w-full",
         ghost:
-          "w-fit border-transparent hover:border-input data-popup-open:border-input dark:bg-transparent dark:hover:bg-input/50",
+          "w-fit border-transparent hover:border-input dark:bg-transparent dark:hover:bg-input/50",
       },
     },
     defaultVariants: { variant: "outline" },

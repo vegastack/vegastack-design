@@ -47,23 +47,23 @@ Two rules that prevent the common failure modes:
 These land the moment the token layer updates, before you touch a line of your own code. They are the
 point of the release, not side effects.
 
-| Before (0.4.x)                                                              | After (0.5.0)                                                                                                  |
-| --------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
-| A soft 3px `ring-ring/50` glow around a focused control                     | One crisp 2px `:focus-visible` outline in the near-black / near-white ink. Text entry tints its border instead |
-| An arrow cursor on buttons; an explicit `cursor-default` on menu rows       | A hand cursor on every control, menu rows included                                                             |
-| A warm neutral ramp (OKLCH hue 75)                                          | shadcn's own `neutral` — pure achromatic. Light `background` is white                                          |
-| A three-rung surface ladder (`surface-1/2/3`) driving every hover and press | `muted` for a well or track, `accent` for a hover; each component writes its own hover and press               |
-| Every control had a pressed step, enforced by lint                          | A hover with no pressed step is upstream's own behaviour and is fine                                           |
-| Radius capped at `rounded-lg`; `rounded-xl` banned                          | Radius derives from one `--radius` (0.625rem); a card and a dialog wear `rounded-xl`                           |
-| One sanctioned shadow (`--shadow-overlay`), everything else flat            | `shadow-sm` / `shadow-md` / `shadow-lg`, per component, as shadcn uses them                                    |
-| A 14px product type scale bound onto every `text-*` utility                 | Tailwind's stock scale. `text-sm` is 14px, `text-base` is 16px — see section 5                                 |
-| Weight ladder 400/500; `font-semibold` and `font-bold` were lint errors     | Ordinary utilities. `blur-*`, `shadow-*` and `text-4xl` are ordinary too; the ramp owns tracking               |
-| Colour transitions banned (`transition-colors` was a lint error)            | `transition-all duration-100 ease-in-out` is upstream's vocabulary and is legal                                |
-| Three named z-bands (`--z-raised/overlay/toast`)                            | `z-50` and DOM order; only the Toast viewport sits above it, at `z-60`                                         |
-| The modal scrim was `--overlay` at 28% alpha                                | Upstream's `bg-black/10` with a `backdrop-blur-xs` — noticeably lighter                                        |
-| `Sheet` ran on Base UI **Drawer** (swipe, snap points)                      | `Sheet` is Base UI **Dialog** with `side` on the content; the gesture work moved to the new `Drawer`           |
-| Tabs' default list was the underline                                        | Tabs' default list is upstream's grey pill track; `line` is the alternative                                    |
-| Table body cells wrapped                                                    | Every cell is `whitespace-nowrap`; a wide table scrolls in a plain container                                   |
+| Before (0.4.x)                                                              | After (0.5.0)                                                                                                                                                                                                                                                                     |
+| --------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| A soft 3px `ring-ring/50` glow around a focused control                     | One crisp 2px `:focus-visible` outline in the near-black / near-white ink. Text entry tints its border instead (since superseded: every control, text entry included, now shows a subtle `accent`/50 background tint and no border ever changes colour on focus — FOC-13, FOC-14) |
+| An arrow cursor on buttons; an explicit `cursor-default` on menu rows       | A hand cursor on every control, menu rows included                                                                                                                                                                                                                                |
+| A warm neutral ramp (OKLCH hue 75)                                          | shadcn's own `neutral` — pure achromatic. Light `background` is white                                                                                                                                                                                                             |
+| A three-rung surface ladder (`surface-1/2/3`) driving every hover and press | `muted` for a well or track, `accent` for a hover; each component writes its own hover and press                                                                                                                                                                                  |
+| Every control had a pressed step, enforced by lint                          | A hover with no pressed step is upstream's own behaviour and is fine                                                                                                                                                                                                              |
+| Radius capped at `rounded-lg`; `rounded-xl` banned                          | Radius derives from one `--radius` (0.625rem); a card and a dialog wear `rounded-xl`                                                                                                                                                                                              |
+| One sanctioned shadow (`--shadow-overlay`), everything else flat            | `shadow-sm` / `shadow-md` / `shadow-lg`, per component, as shadcn uses them                                                                                                                                                                                                       |
+| A 14px product type scale bound onto every `text-*` utility                 | Tailwind's stock scale. `text-sm` is 14px, `text-base` is 16px — see section 5                                                                                                                                                                                                    |
+| Weight ladder 400/500; `font-semibold` and `font-bold` were lint errors     | Ordinary utilities. `blur-*`, `shadow-*` and `text-4xl` are ordinary too; the ramp owns tracking                                                                                                                                                                                  |
+| Colour transitions banned (`transition-colors` was a lint error)            | `transition-all duration-100 ease-in-out` is upstream's vocabulary and is legal                                                                                                                                                                                                   |
+| Three named z-bands (`--z-raised/overlay/toast`)                            | `z-50` and DOM order; only the Toast viewport sits above it, at `z-60`                                                                                                                                                                                                            |
+| The modal scrim was `--overlay` at 28% alpha                                | Upstream's `bg-black/10` with a `backdrop-blur-xs` — noticeably lighter                                                                                                                                                                                                           |
+| `Sheet` ran on Base UI **Drawer** (swipe, snap points)                      | `Sheet` is Base UI **Dialog** with `side` on the content; the gesture work moved to the new `Drawer`                                                                                                                                                                              |
+| Tabs' default list was the underline                                        | Tabs' default list is upstream's grey pill track; `line` is the alternative                                                                                                                                                                                                       |
+| Table body cells wrapped                                                    | Every cell is `whitespace-nowrap`; a wide table scrolls in a plain container                                                                                                                                                                                                      |
 
 Three of those can read as regressions and are not:
 
@@ -139,8 +139,8 @@ pnpm build && pnpm start
 Walk the app in **both** themes and at a phone width. Section 2 is the list of what should look
 different; section 13 is the list of what a leftover looks like.
 
-**Verify:** tab through a form — every focused control shows a 2px outline, and a focused text input
-shows a tinted border rather than an outline. If nothing shows, `base.css` is not loading; see
+**Verify:** tab through a form — every focused control, text inputs included, shows a subtle
+background tint, and no border changes colour. If nothing shows, `base.css` is not loading; see
 [Theming](/docs/guides/theming).
 
 ## 4. Deleted tokens, with an exact replacement for each
@@ -474,18 +474,18 @@ Ours was Base UI's `OTPField` with one focusable `<input>` per slot. Upstream's 
 package: one hidden input behind presentational slots, which is what makes paste, autofill and the
 platform SMS suggestion work.
 
-| `OTPInput`                  | `InputOTP` composition                                                                        |
-| --------------------------- | --------------------------------------------------------------------------------------------- |
-| `length={6}`                | `maxLength={6}`                                                                               |
-| `groups={[3, 3]}`           | two `InputOTPGroup`s with an `InputOTPSeparator` between                                      |
-| `separator={<Dot />}`       | the children of `InputOTPSeparator` (default is a minus glyph)                                |
-| `separatorClassName`        | `className` on `InputOTPSeparator`                                                            |
-| `slotClassName`             | `className` on each `InputOTPSlot`                                                            |
-| `size="sm" \| "md" \| "lg"` | **gone** — a slot is `size-8`; override with `className` on the slot                          |
-| `value` / `defaultValue`    | same                                                                                          |
-| `onValueChange(v, details)` | `onChange(v)` — there is no Base UI event-details object                                      |
-| `onValueComplete(v)`        | `onComplete(v)`                                                                               |
-| `aria-invalid`              | put it on `InputOTP`; the slot reads `not-data-[active=true]:aria-invalid:border-destructive` |
+| `OTPInput`                  | `InputOTP` composition                                                 |
+| --------------------------- | ---------------------------------------------------------------------- |
+| `length={6}`                | `maxLength={6}`                                                        |
+| `groups={[3, 3]}`           | two `InputOTPGroup`s with an `InputOTPSeparator` between               |
+| `separator={<Dot />}`       | the children of `InputOTPSeparator` (default is a minus glyph)         |
+| `separatorClassName`        | `className` on `InputOTPSeparator`                                     |
+| `slotClassName`             | `className` on each `InputOTPSlot`                                     |
+| `size="sm" \| "md" \| "lg"` | **gone** — a slot is `size-8`; override with `className` on the slot   |
+| `value` / `defaultValue`    | same                                                                   |
+| `onValueChange(v, details)` | `onChange(v)` — there is no Base UI event-details object               |
+| `onValueComplete(v)`        | `onComplete(v)`                                                        |
+| `aria-invalid`              | put it on `InputOTP`; the slot reads `aria-invalid:border-destructive` |
 
 ```tsx
 // Before
@@ -1178,7 +1178,7 @@ The compiler catches the loud half. These are the quiet ones.
 | A toast fired from a dialog is behind the scrim                | A stale copy of `toast`. Since 0.12.0 its viewport sits at `z-60`, above every `z-50` overlay. Re-pull it (stage 4)                                                                       |
 | The modal scrim looks much lighter than it used to             | Correct. `--overlay` at 28% became upstream's `bg-black/10` with a small backdrop blur                                                                                                    |
 | Nothing shows a focus ring when tabbing                        | `base.css` was skipped. The focus outline is global, not per-component — this is a WCAG 2.4.7 failure, treat it as ship-blocking                                                          |
-| A focused text input shows no outline                          | Correct. Text entry tints its border (`focus:border-ring/70`) instead of drawing an outline                                                                                               |
+| A focused text input shows no outline                          | Correct. Text entry shows `base.css`'s background tint instead of an outline, and its border never changes colour (FOC-14)                                                                |
 | A focused button has a fat halo                                | A stale copied-in component still carrying `ring-3 ring-ring/50`. Re-pull it (stage 4)                                                                                                    |
 | `toast(...)` silently does nothing                             | Either no `VegaStackProvider` above the caller, or the old callable form. It is `toast.add({ title })` now (10.6)                                                                         |
 | An error toast is no longer announced urgently                 | The helpers' automatic priority mapping is gone. Pass `priority: "high"` (10.6)                                                                                                           |

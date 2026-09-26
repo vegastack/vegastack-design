@@ -168,14 +168,13 @@ test("ref forwards to the group root; inputRef to the inner input", async () => 
   expect(inputRef.current?.dataset.slot).toBe("input-group-control");
 });
 
-test("focus: the group carries the focus-within border tint (text-entry affordance)", async () => {
+test("FOC-14: the group is a field group (it wears the focus tint) and never moves its border", async () => {
   const screen = await render(<ChipInput aria-label="Tags" />);
   const root = document.querySelector(
     '[data-slot="chip-input"]',
   ) as HTMLElement;
-  expect(root.className).toContain(
-    "has-[[data-slot=input-group-control]:focus]:border-ring/70",
-  );
+  expect(root.hasAttribute("data-field-group")).toBe(true);
+  expect(root.className).not.toMatch(/focus[\w-]*\]?:border-/);
   const input = screen
     .getByRole("textbox", { name: "Tags" })
     .element() as HTMLInputElement;

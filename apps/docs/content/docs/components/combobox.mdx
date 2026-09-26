@@ -131,8 +131,8 @@ the object is DRAWN.
 
 ### Invalid
 
-Put `aria-invalid` on the `ComboboxInput` and `data-invalid` on the `Field`. The tint is scoped to
-`not-focus-within:` (FOC-5), so a focused field shows its focus cue rather than the error colour.
+Put `aria-invalid` on the `ComboboxInput` and `data-invalid` on the `Field`. The destructive border
+holds in every state, focused or not (FOC-14).
 
 <ComponentPreview
   name="comboboxInvalid"
@@ -242,7 +242,9 @@ UI part accepts.
 - `ComboboxEmpty` is the engine's own polite live region, so the filtered result is announced. It
   stays mounted with zero height rather than `display: none` (A11Y-3, A11Y-4) — a region the
   platform never observed is a region it never announces.
-- Focus shows on the **group**: a border tint while the control has focus (FOC-3), and no ring.
+- Focus shows on the **group**: `InputGroup` and `ComboboxChips` are field groups
+  (`data-field-group`), so the group wears `base.css`'s background tint while the control has focus.
+  The border never changes colour (FOC-14), and there is no ring.
 - The popup portals out of the input's subtree, so `ComboboxContent` re-applies the theme scope on
   the positioner inside the portal (OVL-13).
 - Rows carry the hand cursor from the one global rule in `base.css` (INT-1).
@@ -270,12 +272,12 @@ Upstream's file plus `packages/ui/upstream/patches/combobox.patch`. Every hunk:
   line as the option's accessible description ([Two-line options](#two-line-options)). A one-line
   option is unchanged.
 - **FOC-1, FOC-3, FOC-6** — `ComboboxChips`' `focus-within:border-ring` plus `ring-3 ring-ring/50`
-  becomes `focus-within:border-ring/70`, and `ComboboxChipsInput`'s `outline-none` becomes
+  is removed and the chips field gains `data-field-group`, so it wears `base.css`'s background tint
+  while its input has focus (FOC-14 retired the `focus-within:border-ring/70` tint); `ComboboxChipsInput`'s `outline-none` becomes
   `outline-hidden` so the forced-colours fallback has something to repaint. The single-line field's
   own focus chrome comes from `InputGroup`.
-- **FOC-5** — the chips field's invalid tint becomes
-  `not-focus-within:has-aria-invalid:border-destructive` (and its dark counterpart), so focus
-  outranks it; the `has-aria-invalid` halo rings are removed.
+- **FOC-14** — the chips field's invalid border is `has-aria-invalid:border-destructive` (and its
+  dark counterpart), held in every state, focused or not; the `has-aria-invalid` halo rings are removed.
 - **INT-1** — `cursor-default` is removed from `ComboboxItem`, so a row shows the hand cursor the
   one global rule gives every `[role="option"]`.
 - **FRM-4** — `data-disabled:pointer-events-none` is dropped from `ComboboxItem`, and

@@ -1,9 +1,18 @@
-// @vegastack comments@0.23.39 sha256-+hg6Frm2F9rAf8+eBA0vc8Ve8yBCdF+ES6hot8IF1ik=
+// @vegastack comments@0.23.39 sha256-6hLHbPy93ox3jnEuA79CSbSfJRyFd2/OAUkMjE/wcKU=
 
 "use client";
 
 import * as React from "react";
-import { ArrowUp, ArrowUpDown, MessageSquare, X } from "lucide-react";
+import {
+  ArrowUp,
+  ArrowUpDown,
+  Ellipsis,
+  Link,
+  MessageSquare,
+  Pencil,
+  Trash2,
+  X,
+} from "lucide-react";
 import { cn } from "@vegastack/design";
 import {
   AlertDialog,
@@ -17,9 +26,12 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import {
-  RowActionsMenu,
-  type RowAction,
-} from "@/components/ui/data-table-parts";
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import {
   Empty,
   EmptyContent,
@@ -119,6 +131,11 @@ export interface CommentItemProps {
   className?: string;
 }
 
+/** The hover actions (add reaction, ⋯): shown on hover or focus inside the comment, while their
+ * popup is open, and always on a coarse pointer, where there is no hover. */
+const HOVER_ACTION =
+  "opacity-0 group-hover/comment:opacity-100 group-focus-within/comment:opacity-100 focus-visible:opacity-100 data-popup-open:opacity-100 pointer-coarse:opacity-100";
+
 /**
  * `CommentItem` — one comment: avatar, name and badge, relative time ("edited" after an edit),
  * the Markdown body, and a ⋯ menu (Copy link · Edit · Delete) for what the viewer may do. Edit
@@ -189,34 +206,10 @@ export function CommentItem({
     }
   };
 
-  const actions: RowAction[] = comment.deleted
-    ? []
-    : [
-        ...(onCopyLink
-          ? [{ label: "Copy link", onSelect: () => onCopyLink(comment.id) }]
-          : []),
-        ...(onEdit && comment.canEdit
-          ? [
-              {
-                label: "Edit",
-                onSelect: () => {
-                  setDraft(comment.body);
-                  setEditing(true);
-                },
-              },
-            ]
-          : []),
-        ...(onDelete && comment.canDelete
-          ? [
-              {
-                label: "Delete",
-                destructive: true,
-                separatorBefore: true,
-                onSelect: () => setConfirmOpen(true),
-              },
-            ]
-          : []),
-      ];
+  const canCopy = !!onCopyLink && !comment.deleted;
+  const canEditThis = !!onEdit && !!comment.canEdit && !comment.deleted;
+  const canDeleteThis = !!onDelete && !!comment.canDelete && !comment.deleted;
+  const hasMenu = (canCopy || canEditThis || canDeleteThis) && !editing;
 
   return (
     <li
@@ -225,9 +218,13 @@ export function CommentItem({
       data-deleted={comment.deleted ? "" : undefined}
       className={cn("flex min-w-0 scroll-mt-24 flex-col gap-3", className)}
     >
+      {/* The card: the composer's own surface (`bg-muted/30`, a hairline `border-border`,
+          `rounded-xl`). Its border never changes on hover, focus or edit (FOC-14); only a
+          `#comment-<id>` highlight tints the surface. */}
       <div
+        data-slot="comment-card"
         data-highlighted={highlighted ? "" : undefined}
-        className="group/comment -mx-2 flex min-w-0 gap-3 rounded-lg px-2 py-2 transition-colors data-[highlighted]:bg-accent"
+        className="group/comment flex min-w-0 gap-3 rounded-xl border border-border bg-muted/30 px-3 py-2.5 transition-colors data-[highlighted]:bg-accent"
       >
         {comment.deleted ? (
           <span aria-hidden className="size-6 shrink-0 rounded-full bg-muted" />
@@ -272,7 +269,7 @@ export function CommentItem({
                 </span>
               </span>
             )}
-            {(actions.length > 0 && !editing) || canReact ? (
+            {hasMenu || canReact ? (
               <span className="ms-auto flex shrink-0 items-center gap-0.5">
                 {canReact ? (
                   <ReactionAdd
@@ -283,14 +280,65 @@ export function CommentItem({
                         () => {},
                       );
                     }}
-                    className="opacity-0 group-hover/comment:opacity-100 group-focus-within/comment:opacity-100 focus-visible:opacity-100 data-popup-open:opacity-100 pointer-coarse:opacity-100"
+                    size="icon-sm"
+                    className={HOVER_ACTION}
                   />
                 ) : null}
-                {actions.length > 0 && !editing ? (
-                  <RowActionsMenu
-                    label={`comment by ${author.name}`}
-                    actions={actions}
-                  />
+                {hasMenu ? (
+                  <DropdownMenu>
+                    <DropdownMenuTrigger
+                      render={
+                        <Button
+                          variant="ghost"
+                          size="icon-sm"
+                          data-slot="comment-actions"
+                          aria-label={`Actions for comment by ${author.name}`}
+                          className={HOVER_ACTION}
+                        />
+                      }
+                    >
+                      <Ellipsis aria-hidden />
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent
+                      align="end"
+                      data-slot="comment-actions-content"
+                      className="w-auto min-w-0 whitespace-nowrap"
+                    >
+                      {canCopy ? (
+                        <DropdownMenuItem
+                          onClick={() => onCopyLink?.(comment.id)}
+                        >
+                          <Link aria-hidden />
+                          Copy link
+                        </DropdownMenuItem>
+                      ) : null}
+                      {canEditThis ? (
+                        <DropdownMenuItem
+                          onClick={() => {
+                            setDraft(comment.body);
+                            setEditing(true);
+                          }}
+                        >
+                          <Pencil aria-hidden />
+                          Edit
+                        </DropdownMenuItem>
+                      ) : null}
+                      {canDeleteThis ? (
+                        <>
+                          {canCopy || canEditThis ? (
+                            <DropdownMenuSeparator />
+                          ) : null}
+                          <DropdownMenuItem
+                            variant="destructive"
+                            onClick={() => setConfirmOpen(true)}
+                          >
+                            <Trash2 aria-hidden />
+                            Delete
+                          </DropdownMenuItem>
+                        </>
+                      ) : null}
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 ) : null}
               </span>
             ) : null}
@@ -298,6 +346,7 @@ export function CommentItem({
           {comment.deleted ? null : editing ? (
             <CommentBox
               compact
+              bare
               autoFocus
               label="Edit comment"
               defaultValue={comment.body}
@@ -390,7 +439,8 @@ export function CommentItem({
 
 /* ------------------------------------------------------------------------------------------------
  * CommentBox — the light editor box the composer and in-place edit share: a near-transparent fill
- * (`bg-muted/30`) and a hairline border that tints on focus, no editor tint of its own, growing to
+ * (`bg-muted/30`) and a hairline border that never changes on focus (FOC-14), no editor tint of its own — the
+ * caret is the cue — growing to
  * about twelve lines before it scrolls inside
  * ----------------------------------------------------------------------------------------------*/
 
@@ -414,6 +464,8 @@ interface CommentBoxProps {
   invalid?: boolean;
   autoFocus?: boolean;
   compact?: boolean;
+  /** Inside a comment card (edit mode): the card already draws the surface and border. */
+  bare?: boolean;
   leading?: React.ReactNode;
   actions: React.ReactNode;
 }
@@ -430,6 +482,7 @@ function CommentBox({
   invalid,
   autoFocus,
   compact,
+  bare,
   leading,
   actions,
 }: CommentBoxProps) {
@@ -442,8 +495,9 @@ function CommentBox({
       ref={ref}
       data-slot="comment-box"
       data-compact={compact ? "" : undefined}
+      data-bare={bare ? "" : undefined}
       aria-invalid={invalid || undefined}
-      className="flex min-w-0 cursor-text flex-col gap-2 rounded-xl border border-border bg-muted/30 px-3 py-2.5 transition-colors focus-within:border-ring/50 aria-invalid:border-destructive data-[compact]:py-2"
+      className="flex min-w-0 cursor-text flex-col gap-2 rounded-xl border border-border bg-muted/30 px-3 py-2.5 transition-colors aria-invalid:border-destructive data-[compact]:py-2 data-[bare]:rounded-none data-[bare]:border-0 data-[bare]:bg-transparent data-[bare]:p-0"
       onClick={(e) => {
         if (e.target === e.currentTarget) focusEditor(ref.current);
       }}

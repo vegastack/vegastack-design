@@ -106,8 +106,8 @@ Hold the value yourself with `value` and `onChange`.
 
 ### Invalid
 
-Put `aria-invalid` on the slots. The tint is scoped to `not-data-[active=true]:` (FOC-5), so the
-slot the caret is in shows its focus tint rather than the error colour.
+Put `aria-invalid` on the slots. The destructive border holds in every state, the active slot
+included (FOC-14); the active slot shows its focus tint on top.
 
 <ComponentPreview
   name="inputOtpInvalid"
@@ -158,8 +158,9 @@ mirrors with `first:rounded-s-lg` / `last:rounded-e-lg`.
 
 - One real `<input>` holds the value and the focus; the slots are `<div>`s that mirror its state.
   That is what makes paste, autofill and the mobile code suggestion work.
-- The active slot is marked with `data-active`, which paints the border tint the rest of the
-  text-entry family uses on `:focus` (FOC-3) — there is no ring anywhere (FOC-6). The hidden input
+- The active slot is marked with `data-active`, which paints the same `accent`/50 background tint
+  the rest of the text-entry family shows on focus (FOC-3). Its border never changes colour
+  (FOC-14), and there is no ring anywhere (FOC-6). The hidden input
   suppresses its own outline inline, so nothing paints a ring around the whole overlay either.
 - Each slot is 32×32, comfortably past the 24px target floor (A11Y-2).
 - Give the field a label: `FieldLabel` bound with `htmlFor`, or an `aria-label`.
@@ -178,9 +179,10 @@ mirrors with `first:rounded-s-lg` / `last:rounded-e-lg`.
 Upstream's file plus `packages/ui/upstream/patches/input-otp.patch`. Every hunk:
 
 - **FOC-1, FOC-3, FOC-6** — the active slot's `data-[active=true]:border-ring` plus
-  `ring-3 ring-ring/50` becomes `data-[active=true]:border-ring/70`: the same border tint the rest
-  of the text-entry family uses, and no glow.
-- **FOC-5** — the invalid tint becomes `not-data-[active=true]:aria-invalid:border-destructive`, so
-  the slot holding the caret shows its own cue; the group's `has-aria-invalid` halo rings are
-  removed and its border tint becomes `not-focus-within:has-aria-invalid:border-destructive`.
+  `ring-3 ring-ring/50` becomes `data-[active=true]:bg-accent/50`: the same background tint the
+  rest of the text-entry family shows, and no glow. FOC-14 retired the earlier
+  `data-[active=true]:border-ring/70` border tint.
+- **FOC-14** — the slot's invalid border is `aria-invalid:border-destructive`, held in every state,
+  the active slot included; the group's `has-aria-invalid` halo rings are removed and its invalid
+  border is `has-aria-invalid:border-destructive`.
 - **DOC-2** — `cn` is imported from `@vegastack/design`.

@@ -96,10 +96,9 @@ test("FOC-1/FOC-6: no focus glow and no outline suppression anywhere in the reci
   }
 });
 
-test("FOC-5: the invalid tint stands down while the badge is focused", async () => {
-  expect(badgeVariants({})).toContain(
-    "not-focus:aria-invalid:border-destructive",
-  );
+test("FOC-14: the invalid border holds while the badge is focused", async () => {
+  expect(badgeVariants({})).toContain("aria-invalid:border-destructive");
+  expect(badgeVariants({})).not.toContain("not-focus:");
 });
 
 test("DOC-2: cn from @vegastack/design merges a caller's className onto the recipe", async () => {

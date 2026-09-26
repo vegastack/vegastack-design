@@ -1,4 +1,4 @@
-// @vegastack reactions@0.23.39 sha256-QFW97mSGm6E/sWBm2RcYSZs1fPm/zPhHR5030/Fx9pA=
+// @vegastack reactions@0.23.39 sha256-r9l/K/cVznQug9C3ABad/QsEyUszs8RuYqvR/ElS8MQ=
 
 "use client";
 
@@ -202,6 +202,7 @@ export function ReactionAdd({
   onSelect,
   quickReactions = QUICK_REACTIONS,
   label = "Add reaction",
+  size = "icon-xs",
   className,
 }: {
   /** Called with the picked emoji. */
@@ -210,6 +211,8 @@ export function ReactionAdd({
   quickReactions?: string[];
   /** Accessible label. @default "Add reaction" */
   label?: string;
+  /** The button size — `icon-sm` beside another row action such as a ⋯ menu. @default "icon-xs" */
+  size?: "icon-xs" | "icon-sm";
   /** Classes for the button. @default undefined */
   className?: string;
 }) {
@@ -222,11 +225,11 @@ export function ReactionAdd({
         <Button
           type="button"
           variant="ghost"
-          size="icon-xs"
+          size={size}
           aria-label={label}
           title={label}
           data-slot="reaction-add"
-          className={cn("rounded-full", className)}
+          className={cn(size === "icon-xs" && "rounded-full", className)}
         >
           <SmilePlus aria-hidden />
         </Button>

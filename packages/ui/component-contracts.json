@@ -5767,6 +5767,10 @@
         "ComboboxChips": {
           "attributes": [
             {
+              "name": "data-field-group",
+              "values": [""]
+            },
+            {
               "name": "data-slot",
               "values": ["combobox-chips"]
             }
@@ -11956,7 +11960,7 @@
       "name": "input",
       "registryType": "registry:ui",
       "title": "Input",
-      "summary": "A styled Base UI input for every text-entry type: a bordered default with the focus border tint (FOC-3), or a borderless ghost title field tinted on hover and focus; sm, default and lg sizes.",
+      "summary": "A styled Base UI input for every text-entry type: a bordered default whose border never moves on focus (FOC-14), or a borderless ghost title field tinted on hover and focus; sm, default and lg sizes.",
       "status": "stable",
       "since": "0.1.0",
       "family": "form",
@@ -12225,6 +12229,10 @@
       "dataAttributes": {
         "InputGroup": {
           "attributes": [
+            {
+              "name": "data-field-group",
+              "values": [""]
+            },
             {
               "name": "data-slot",
               "values": ["input-group"]
@@ -15464,7 +15472,7 @@
         "accessibility": {
           "status": "observed",
           "values": ["keyboard", "labeled", "semantic-html"],
-          "evidence": "Named inner input (aria-label), named full-height stepper buttons, arrow/Home/End stepping from Base UI, focus-within border tint (text-entry affordance)."
+          "evidence": "Named inner input (aria-label), named full-height stepper buttons, arrow/Home/End stepping from Base UI, the group wears the background focus tint and its border never moves (FOC-14)."
         },
         "visual": {
           "status": "observed",
@@ -21804,7 +21812,7 @@
       "name": "textarea",
       "registryType": "registry:ui",
       "title": "Textarea",
-      "summary": "A styled native textarea that grows with its content, with the text-entry focus border tint (FOC-3).",
+      "summary": "A styled native textarea that grows with its content, with the background focus tint and a border that never moves (FOC-14).",
       "status": "stable",
       "since": "0.1.0",
       "family": "form",
@@ -23349,7 +23357,7 @@
         "visual": {
           "status": "observed",
           "values": ["default", "focus"],
-          "evidence": "The hairline moves to ring/70 on focus-within (FOC-3); the field paints no box and no ring of its own, which is the whole of OVL-11."
+          "evidence": "The row is a field group and wears the background focus tint while its hairline never moves (FOC-14); the field paints no box and no ring of its own, which is the whole of OVL-11."
         }
       },
       "responsive": {
@@ -23386,6 +23394,10 @@
       "dataAttributes": {
         "PanelSearch": {
           "attributes": [
+            {
+              "name": "data-field-group",
+              "values": [""]
+            },
             {
               "name": "data-slot",
               "values": ["panel-search"]
@@ -24972,7 +24984,7 @@
       "registryDependencies": [
         "@vegastack/alert-dialog",
         "@vegastack/button",
-        "@vegastack/data-table-parts",
+        "@vegastack/dropdown-menu",
         "@vegastack/empty",
         "@vegastack/markdown-view",
         "@vegastack/person-hover-card",
@@ -25011,7 +25023,14 @@
             },
             {
               "name": "data-slot",
-              "values": ["comment-edited", "comment-item", "comment-replies"]
+              "values": [
+                "comment-actions",
+                "comment-actions-content",
+                "comment-card",
+                "comment-edited",
+                "comment-item",
+                "comment-replies"
+              ]
             }
           ],
           "cssVariables": []

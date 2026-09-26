@@ -144,9 +144,9 @@ getRegions("SG"); // [] — no predefined subdivisions; use the free-text fallba
   <kbd>↓</kbd> to move the highlight, <kbd>Enter</kbd> to select, and
   <kbd>Esc</kbd> to dismiss — focus returns to the trigger on close.
 - The free-text fallback is an [`InputGroup`](/docs/components/input-group) with a leading pin addon and an `InputGroupInput`; associate a label via `id` for both modes.
-- The trigger is a `Button`, so it takes the global 2px `:focus-visible` outline. The in-panel search
-  row and the free-text fallback are text entry, so they tint their hairline instead
-  (`border-ring/70`). Neither path sets `outline: none` without a replacement.
+- The trigger is a `Button`, so it takes the global `:focus-visible` background tint. The in-panel
+  search row and the free-text fallback are field groups, so they wear the same tint while their
+  input holds focus; no hairline changes colour (FOC-14). Neither path sets `outline: none` without a replacement.
 
 | Key                                 | Action                                      |
 | ----------------------------------- | ------------------------------------------- |

@@ -171,9 +171,10 @@ per-component focus ring; the global `:focus-visible` outline is the mechanism.
 **Fix:** import the preset. This is a WCAG failure, not a cosmetic issue — treat
 as ship-blocking.
 
-Not a bug: a focused **text input** shows a tinted border and no outline. That is
-the design — a text field cannot tell mouse from keyboard, so the border tint is
-the one cue for both.
+Not a bug: a focused **text input** shows a background tint and no outline, and
+its border never changes colour. That is the design — a text field cannot tell
+mouse from keyboard, so the tint (on `:focus`, not just keyboard focus) is the one
+cue for both (FOC-14).
 
 ### Tooltips each wait ~600ms even when moving across a toolbar
 

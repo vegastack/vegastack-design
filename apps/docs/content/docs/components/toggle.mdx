@@ -99,8 +99,8 @@ Upstream's file plus `packages/ui/upstream/patches/toggle.patch`. Every hunk:
 - **FOC-1, FOC-6** — the `focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50`
   glow and the `outline-none` that suppressed the global outline are removed, along with the
   `aria-invalid:ring-destructive/20` and `dark:aria-invalid:ring-destructive/40` halos.
-- **FOC-5** — the invalid tint becomes `not-focus:aria-invalid:border-destructive`, so focus
-  outranks it.
+- **FOC-14** — the invalid tint stays upstream's `aria-invalid:border-destructive`, held in
+  every state, focused or not (FOC-14 retired FOC-5's `not-focus:` guard).
 - **FRM-4** — `disabled:pointer-events-none` is dropped, so a disabled toggle stays hoverable and a
   Tooltip can explain it. Base UI's Toggle has no `focusableWhenDisabled`, so the native `disabled`
   attribute stays: this is the pointer half of FRM-4 only.

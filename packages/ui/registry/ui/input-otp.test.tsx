@@ -203,16 +203,16 @@ test("FOC-1/FOC-6: no slot carries a focus glow", async () => {
   expect(group.className).not.toMatch(/ring-3|ring-destructive\/\d+/);
 });
 
-test("FOC-3: the active slot takes the text-entry border tint", async () => {
+test("FOC-14: the active slot takes the background tint, never a border change", async () => {
   const screen = await render(<Six />);
-  expect(slotClasses(screen)).toContain("data-[active=true]:border-ring/70");
+  expect(slotClasses(screen)).toContain("data-[active=true]:bg-accent/50");
+  expect(slotClasses(screen)).not.toMatch(/data-\[active=true\]:border-/);
 });
 
-test("FOC-5: the invalid tint stands down on the slot holding the caret", async () => {
+test("FOC-14: the invalid border holds on the slot holding the caret", async () => {
   const screen = await render(<Six />);
-  expect(slotClasses(screen)).toContain(
-    "not-data-[active=true]:aria-invalid:border-destructive",
-  );
+  expect(slotClasses(screen)).toContain("aria-invalid:border-destructive");
+  expect(slotClasses(screen)).not.toContain("not-data-[active=true]:");
 });
 
 test("no a11y violations — rest", async () => {

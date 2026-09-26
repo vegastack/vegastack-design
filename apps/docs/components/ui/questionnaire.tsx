@@ -1,4 +1,4 @@
-// @vegastack questionnaire@0.23.39 sha256-01nWRJLRbOV5tumf+UXMhhQ6WEc2SgWoYWfPuSu0Kn8=
+// @vegastack questionnaire@0.23.39 sha256-zWtOTP6/mCjCNh6pk7lc/SAHiM8M59B6l28tBdO06k4=
 
 "use client";
 
@@ -109,14 +109,13 @@ function QuestionnaireChoice({
       data-slot="questionnaire-choice"
       className={cn(
         // FOC-1 / FOC-6: upstream pairs `has-[>input:focus-visible]:border-ring` with the 3px
-        // `ring-3 ring-ring/50` halo. The halo goes; the border tint stays, because the real
-        // control here is an `opacity-0` input stretched over the whole card — `base.css`'s
-        // outline paints on it and is invisible, exactly as it would be on `input-otp`'s hidden
-        // input, so the card's own border IS the affordance (the shape `input-otp`'s active slot
-        // already uses).
-        // FOC-5: focus outranks the invalid tint, so `data-invalid:border-destructive` is held
-        // off while the choice has focus inside it.
-        "group/questionnaire-choice relative flex min-h-11 cursor-pointer items-start gap-2.5 rounded-lg border border-input bg-transparent px-3 py-2.5 text-start text-sm transition-colors outline-none select-none hover:bg-muted/50 has-[>input:focus-visible]:border-ring not-has-[>input:focus-visible]:data-invalid:border-destructive dark:bg-input/20 data-checked:border-primary/40 data-checked:bg-muted dark:data-checked:bg-muted",
+        // `ring-3 ring-ring/50` halo. Both go (FOC-14: a border never changes colour on focus).
+        // The real control here is an `opacity-0` input stretched over the whole card, so
+        // `base.css`'s tint paints on it invisibly; the card wears the same `accent`/50 tint
+        // itself, as a gradient image over its fill exactly as base.css lays it, so it still reads over
+        // the hover and checked fills (the shape `input-otp`'s active slot uses). An invalid choice keeps its
+        // destructive border in every state.
+        "group/questionnaire-choice relative flex min-h-11 cursor-pointer items-start gap-2.5 rounded-lg border border-input bg-transparent px-3 py-2.5 text-start text-sm transition-colors outline-none select-none hover:bg-muted/50 has-[>input:focus-visible]:bg-linear-to-b has-[>input:focus-visible]:from-accent/50 has-[>input:focus-visible]:to-accent/50 data-invalid:border-destructive dark:bg-input/20 data-checked:border-primary/40 data-checked:bg-muted dark:data-checked:bg-muted",
         // FRM-4: `data-disabled:pointer-events-none` is dropped, so a disabled choice stays
         // hoverable and a Tooltip can explain why it cannot be picked. The engine keeps the
         // input's own `disabled`, so nothing becomes answerable.
@@ -184,12 +183,12 @@ function QuestionnaireInput({
         className={cn(
           // FOC-1 / FOC-3 / FOC-6 / FOC-8: text entry, so it takes the same treatment
           // `input.tsx` takes — `outline-hidden` (not `outline-none`, so the FOC-7
-          // forced-colours block has an outline to repaint) plus the 70% border tint on
-          // `:focus` rather than `:focus-visible`, and no glow at all.
-          // FOC-5: the invalid tint becomes `not-focus:aria-invalid:…`, so focus outranks it.
+          // forced-colours block has an outline to repaint) and no glow and no border
+          // change at all: `base.css` paints the focus tint (FOC-14).
+          // An invalid answer keeps its destructive border in every state.
           // FRM-4: `disabled:pointer-events-none` is dropped, so a disabled answer field stays
           // hoverable and a Tooltip can explain it.
-          "h-8 min-h-11 w-full min-w-0 rounded-lg border border-input bg-transparent px-2.5 py-1 text-base transition-[color,box-shadow,background-color] outline-hidden focus:border-ring/70 disabled:cursor-not-allowed disabled:bg-input/50 disabled:opacity-50 not-focus:aria-invalid:border-destructive sm:min-h-0 md:text-sm dark:bg-input/30 dark:disabled:bg-input/80 dark:not-focus:aria-invalid:border-destructive/50",
+          "h-8 min-h-11 w-full min-w-0 rounded-lg border border-input bg-transparent px-2.5 py-1 text-base transition-[color,box-shadow,background-color] outline-hidden disabled:cursor-not-allowed disabled:bg-input/50 disabled:opacity-50 aria-invalid:border-destructive sm:min-h-0 md:text-sm dark:bg-input/30 dark:disabled:bg-input/80 dark:aria-invalid:border-destructive/50",
           "selection:bg-primary selection:text-primary-foreground placeholder:text-muted-foreground",
           className,
         )}

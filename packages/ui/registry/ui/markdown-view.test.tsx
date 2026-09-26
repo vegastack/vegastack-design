@@ -111,13 +111,15 @@ test("MarkdownView and TextEdit wear the identical prose recipe", async () => {
   expect(extras.sort()).toEqual(
     [
       "min-h-6",
-      "min-w-0",
+      "max-w-full",
       "outline-none",
       "[&_p.is-editor-empty:first-child]:before:pointer-events-none",
       "[&_p.is-editor-empty:first-child]:before:float-start",
       "[&_p.is-editor-empty:first-child]:before:h-0",
-      "[&_p.is-editor-empty:first-child]:before:text-muted-foreground",
+      "[&_p.is-editor-empty:first-child]:before:text-muted-foreground/60",
       "[&_p.is-editor-empty:first-child]:before:content-[attr(data-placeholder)]",
+      "[&.ProseMirror-focused_p.is-editor-empty:first-child]:before:content-['Type_/_for_commands']",
+      "[&_.tableWrapper]:max-w-full",
       "[&_.tableWrapper]:my-2",
       "[&_.tableWrapper]:w-full",
       "[&_.tableWrapper]:overflow-x-auto",

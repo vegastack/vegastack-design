@@ -58,8 +58,8 @@ a task or a to-do row; keep `square` for selection (bulk-select, "select all") a
 
 ### Invalid State
 
-Set `aria-invalid` on the Checkbox and `data-invalid` on the `Field` wrapper. The tint is scoped to
-`not-focus:` (FOC-5), so a focused checkbox shows its focus outline rather than the error colour.
+Set `aria-invalid` on the Checkbox and `data-invalid` on the `Field` wrapper. The destructive border
+holds in every state, focused or not (FOC-14).
 
 <ComponentPreview
   name="checkboxInvalidState"
@@ -162,9 +162,9 @@ Upstream's file plus `packages/ui/upstream/patches/checkbox.patch`. Every hunk:
 - **FOC-1, FOC-6** — the `outline-none focus-visible:border-ring focus-visible:ring-3
 focus-visible:ring-ring/50` glow is removed, along with the `aria-invalid` halo rings. `base.css`
   owns the single `:focus-visible` outline, and `outline-none` would suppress it.
-- **FOC-5** — the invalid tint and its checked counterpart become
-  `not-focus:aria-invalid:border-destructive` and
-  `not-focus:aria-invalid:aria-checked:border-primary`, so focus outranks the error colour.
+- **FOC-14** — the invalid tint and its checked counterpart stay upstream's
+  `aria-invalid:border-destructive` and `aria-invalid:aria-checked:border-primary`, held in every
+  state, focused or not (FOC-14 retired FOC-5's `not-focus:` guard).
 - **FOC-12** — upstream rings the whole choice card and cancels the control's own ring with three
   `group-has-[:focus-visible]/field-label:` rules. This system rings the control, so all three are
   removed with the card ring they existed to serve.

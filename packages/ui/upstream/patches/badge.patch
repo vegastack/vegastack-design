@@ -1,5 +1,5 @@
 # component: badge
-# decisions: A11Y-13, A11Y-2, A11Y-8, API-16, API-25, COL-12, DOC-2, FOC-1, FOC-5, FOC-6
+# decisions: A11Y-13, A11Y-2, A11Y-8, API-16, API-25, COL-12, DOC-2, FOC-1, FOC-5, FOC-6, FOC-14
 # hunks:
 #   A11Y-2: an interactive badge (`[a]`/`[button]`) gets an invisible `::after` hit area and drops
 #           `overflow-hidden`, so its pointer target clears 24px. Upstream's is 20px tall.
@@ -16,11 +16,13 @@
 #     `badge.test.tsx` and shown on the docs page.
 #   API-25: `BadgeVariant` — the non-null variant union derived from `badgeVariants` — is
 #     declared and exported, so a consumer types a status map against the system's own union.
+#   FOC-14 (supersedes the FOC-3 border tint and FOC-5 above): the invalid border drops its `not-
+#     focus:` guard, so it holds in every state and focus never changes the border.
 #   cn: `import { cn } from "cn"` becomes `@vegastack/design` — our npm layer owns `cn` (DOC-2).
 #   formatting: the repository formatter (prettier defaults: semicolons, trailing commas)
 #               reflows the file; those hunks carry no decision of their own.
 diff --git a/badge.tsx b/badge.tsx
-index 92bd62f..714f206 100644
+index 92bd62f..a3e259e 100644
 --- a/badge.tsx
 +++ b/badge.tsx
 @@ -1,10 +1,12 @@
@@ -37,7 +39,7 @@ index 92bd62f..714f206 100644
  
  const badgeVariants = cva(
 -  "group/badge inline-flex h-5 w-fit shrink-0 items-center justify-center gap-1 overflow-hidden rounded-4xl border border-transparent px-2 py-0.5 text-xs font-medium whitespace-nowrap transition-all focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 has-data-[icon=inline-end]:pe-1.5 has-data-[icon=inline-start]:ps-1.5 aria-invalid:border-destructive aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 [&>svg]:pointer-events-none [&>svg]:size-3!",
-+  "group/badge inline-flex h-5 w-fit shrink-0 items-center justify-center gap-1 overflow-hidden rounded-4xl border border-transparent px-2 py-0.5 text-xs font-medium whitespace-nowrap transition-all has-data-[icon=inline-end]:pe-1.5 has-data-[icon=inline-start]:ps-1.5 not-focus:aria-invalid:border-destructive [&>svg]:pointer-events-none [&>svg]:size-3! [a,button]:relative [a,button]:overflow-visible [a,button]:after:absolute [a,button]:after:-inset-y-1 [a,button]:after:inset-x-0 [a,button]:after:content-['']",
++  "group/badge inline-flex h-5 w-fit shrink-0 items-center justify-center gap-1 overflow-hidden rounded-4xl border border-transparent px-2 py-0.5 text-xs font-medium whitespace-nowrap transition-all has-data-[icon=inline-end]:pe-1.5 has-data-[icon=inline-start]:ps-1.5 aria-invalid:border-destructive [&>svg]:pointer-events-none [&>svg]:size-3! [a,button]:relative [a,button]:overflow-visible [a,button]:after:absolute [a,button]:after:-inset-y-1 [a,button]:after:inset-x-0 [a,button]:after:content-['']",
    {
      variants: {
        variant: {

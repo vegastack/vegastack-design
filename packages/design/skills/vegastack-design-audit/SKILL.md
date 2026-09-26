@@ -72,13 +72,18 @@ rg -n 'style=\{\{' --glob '!components/ui/**'
 ```bash
 rg -n '#[0-9a-fA-F]{3,8}\b|\b(bg|text|border|ring|fill|stroke)-(slate|gray|zinc|neutral|stone|red|orange|amber|yellow|lime|green|emerald|teal|cyan|sky|blue|indigo|violet|purple|fuchsia|pink|rose)-[0-9]{2,3}\b' --glob '!components/ui/**'
 rg -n 'ring-3\b|ring-\[3px\]|ring-ring/[0-9]+|focus-visible:ring-|shadow-\[0_0_0_' --glob '!components/ui/**'
+rg -n '(focus|focus-visible|focus-within|data-focused|popup-open)[^ "]*:border-(ring|primary|input|destructive|foreground)' --glob '!components/ui/**'
 ```
 
 - a hex literal or a numbered Tailwind palette utility — use a semantic token. **error**
 - **a focus-ring glow** — `ring-3`, `ring-[3px]`, `ring-ring/NN`, `focus-visible:ring-*` or a
-  `0 0 0` box-shadow ring. The system has ONE focus affordance, the global `:focus-visible` outline;
-  text entry tints its border instead. A glow usually means a component was pasted from upstream's
+  `0 0 0` box-shadow ring. The system has ONE focus affordance, `base.css`'s global background
+  tint, text entry included. A glow usually means a component was pasted from upstream's
   docs without the patch. **error**
+- **a focus border** — a border colour under a focus or open-popup variant (`focus:border-ring/70`,
+  `focus-within:border-ring`, `data-popup-open:border-input`, `not-focus:aria-invalid:…`). A border
+  never changes colour on focus or while active (FOC-14); only an invalid field's destructive border
+  shows, in every state. **error**
 - a status FILL used as a text ink on that family's own tint — `bg-destructive/10 text-destructive`
   measures 3.98:1. The readable half is `text-destructive-text`. **error**
 - `text-brand` used as a label — `brand` is a 3:1 marker; labels take `text-brand-text`. **error**

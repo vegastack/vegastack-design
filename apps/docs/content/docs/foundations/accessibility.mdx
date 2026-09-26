@@ -28,9 +28,16 @@ for keyboard users, owned by `base.css` and never restated by a component:
   switches — shows a subtle **background tint** on `:focus-visible`: `accent` at 50%, laid over the
   control's own fill as a background image, so it reads on a primary button as well as a ghost one.
   It appears only on keyboard focus, never on a mouse click.
-- **Text entry** — `Input`, `Textarea`, `Select` and combobox inputs — tints its **border**
-  instead (`focus:border-ring/70`, on plain `:focus` so a click and a Tab read alike). An invalid
-  field shows the error border colour, never a ring.
+- **Text entry** — `Input`, `Textarea`, `Select`, the OTP slots and questionnaire answers — takes the
+  same background tint, on plain `:focus` so a click and a Tab read alike. A bordered field group
+  (`data-field-group`: `InputGroup`, `NumberField`, `ChipInput`, `ComboboxChips`, the panel search
+  row) wears the tint on the group, and the control inside stands down.
+- **Borders never move (FOC-14).** No control changes its border colour on focus or while active —
+  `focus`, `focus-visible`, `focus-within`, `data-focused`, `data-popup-open` or `aria-expanded`.
+  Every control keeps its resting `border-border` / `border-input`. The one exception is an invalid
+  field, which keeps its destructive border in every state, focused or not.
+- **The document editor** (`TextEdit`, `data-focus-cue="caret"`) is caret-only: no border change
+  and no fill. The comment composer shows no border or surface change while active.
 - **Tabs** — the triggers and the panel — take the same background tint as everything else; clicking
   a tab shows nothing.
 - **Forced colours** drop the tint, so a `forced-colors: active` block restores
@@ -47,8 +54,9 @@ enough) and take the same background tint on focus.
   Do not write a focus class at all. `design-lint`'s `no-focus-ring-glow` rule
   rejects any `focus:`/`focus-visible:ring-*`, `focus-visible:outline-*`,
   `aria-invalid:ring-*`, `ring-3` or `ring-ring/NN` in registry source, so a
-  ring cannot creep back on an upstream pull. The only sanctioned local focus
-  class is the text-entry border tint.
+  ring cannot creep back on an upstream pull, and its `no-focus-border` rule
+  rejects any focus-variant border colour (`focus:border-*`,
+  `focus-within:border-*`, `data-popup-open:border-*` and the like).
 </Callout>
 
 ## Axe-clean from day one

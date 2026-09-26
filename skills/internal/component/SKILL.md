@@ -67,8 +67,9 @@ pnpm registry:build && pnpm check:component $N                     # 7. build an
 2. **Apply only the exceptions this component is assigned.**
    `packages/ui/upstream/exception-map.json` is the assignment: its `required` map lists, per
    decision ID, the components whose patch header must name it. In practice the recurring hunks are:
-   strip the `ring-3 ring-ring/50` focus glow (FOC-1/FOC-6), let focus outrank the invalid tint
-   (FOC-5), tint the border on text entry (FOC-3), delete upstream's `cursor-default` (INT-1), drop
+   strip the `ring-3 ring-ring/50` focus glow (FOC-1/FOC-6), strip every focus-variant border
+   colour so no border moves on focus or while open (FOC-14 — invalid keeps
+   `aria-invalid:border-destructive` in every state, with no `not-focus:` guard), delete upstream's `cursor-default` (INT-1), drop
    `disabled:pointer-events-none` (FRM-4), add the theme scope inside the portal (OVL-13), move a
    tinted status surface onto the `-text` ink (A11Y-13), and swap the `cn` import (DOC-2).
    **If an exception seems to need a structural rewrite, stop and ask MK** rather than rewriting the
@@ -135,8 +136,10 @@ Zero hardcoded visual values — enforced by `tooling/design-lint.mjs`. Full voc
 - Semantic colours only — no hex, no numbered Tailwind palette. `bg-black/10` and `bg-white` are
   upstream's own scrim vocabulary and are fine.
 - **No focus-ring glow, anywhere** — no `ring-3`, no `ring-ring/NN`, no `focus-visible:ring-*`, no
-  `shadow-[0_0_0_…]`. base.css owns the one `:focus-visible` outline; text entry tints its border at
-  `focus:border-ring/70`. This is the rule that keeps the reset from unwinding on the next pull.
+  `shadow-[0_0_0_…]`. **No focus border either (FOC-14)**: no focus- or open-variant border
+  colour; every control keeps its resting `border-border`/`border-input`. base.css owns the one cue,
+  an `accent`/50 background tint, text entry included (a `data-field-group` wears it on the group).
+  This is the rule that keeps the reset from unwinding on the next pull.
 - Sizes, radii, shadows, z-index, alpha and opacity are **plain Tailwind** now: `h-8`, `size-4`,
   `rounded-xl`, `shadow-md`, `z-50`, `bg-foreground/10`, `opacity-50`. The token families that used
   to own them are deleted.
@@ -288,11 +291,13 @@ decision tree in [references/conventions.md](references/conventions.md).
 
 - **WCAG 2.2 AA**, preserving every existing 2.1 assertion. One `expectNoA11yViolations(...)` per
   meaningfully-different UI state, not one smoke test at rest.
-- **`:focus-visible` is centralized** — `base.css` provides a global 2px outline. A file that strips
-  it (`outline-none`) must provide some focus affordance elsewhere in the same file: a
-  `focus-visible:`/`focus-within:` ring, the sanctioned text-entry `focus:border-…` tint (Input,
-  Textarea, OTP — deliberately `focus` not `focus-visible` so click and Tab read identically), or
-  Base UI's `data-[highlighted]`/`data-[selected]`/`data-[focused]` styling. `outline-none` on a
+- **`:focus-visible` is centralized** — `base.css` provides a global background tint (`accent` at
+  50%, laid as an image over the fill), text entry included. A focus cue base.css cannot reach must
+  be restated as that same background tint, never a border: the OTP active slot's
+  `data-[active=true]:bg-accent/50`, the questionnaire choice card's `accent`/50 gradient, or Base
+  UI's `data-[highlighted]`/`data-[selected]`/`data-[focused]` background styling. A bordered field
+  group carries `data-field-group` so base.css tints the group; a caret-only editor declares
+  `data-focus-cue="caret"`. `outline-none` on a
   genuinely non-focusable fixed viewport container (a dialog's outer positioner) is fine. There is
   no file-level exemption list any more — the shadcn reset deleted it along with the rule that
   read it — so a file that needs one is a stop-and-ask, not an entry to add.

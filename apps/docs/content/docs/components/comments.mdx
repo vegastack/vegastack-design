@@ -41,8 +41,8 @@ comments; and the composer at the end. Pass `comments` oldest first; `order="new
 them. With no comments, the empty state offers "Add a comment", which reveals the composer and
 focuses it.
 
-`CommentComposer` is a light box — a near-transparent fill and a hairline border that tints on
-focus, with no tint on the editor itself — whose editor grows with its text to about twelve lines
+`CommentComposer` is a light box — a near-transparent fill and a hairline border that never
+changes on focus, with no surface change and no tint on the editor itself (the caret is the cue) — whose editor grows with its text to about twelve lines
 and then scrolls inside. Its placeholder is "Add a comment…". A round ↑ send button sits at the
 bottom right (a quiet grey disc while there is nothing to send; Cmd/Ctrl+Enter also sends) and an
 optional `attachments` slot at the bottom left. No avatar sits beside it. Editing a comment uses the same box,
@@ -54,9 +54,17 @@ edited with `TextEdit` (no toolbar; a reduced slash menu; no drag handles) and r
 `MarkdownView`. The editor's bubble menu and link input float in a portal, so the box never clips
 them. Times read in the compact form — "now", "19m ago", "3h ago" — with the exact time on hover.
 
+Each comment sits in its own card — the composer's surface (`bg-muted/30`), a hairline
+`border-border` and `rounded-xl` — and so do a deleted comment's placeholder and a comment being
+edited (the editor sits straight in the card, with no box inside the box). The card's border never
+changes on hover or focus. Its hover actions sit at the card's top-right: the add-reaction button
+and the ⋯ button, identical ghost `icon-sm` buttons, shown on hover or focus inside the comment,
+kept while their popup is open, and always shown on touch screens.
+
 Each comment is anchored at `#comment-<id>`. Pass that id as `highlightedId` to tint it and scroll
-it into view. The ⋯ menu shows Copy link when `onCopyLink` is set, and Edit or Delete when the
-comment's `canEdit` or `canDelete` allows them. Delete asks for confirmation first.
+it into view. The ⋯ menu is sized to its content and shows Copy link (a link icon) when `onCopyLink`
+is set, and Edit (a pencil) or Delete (a destructive trash can) when the comment's `canEdit` or
+`canDelete` allows them. Delete asks for confirmation first.
 
 Reactions come from each comment's `reactions` and show as [`Reactions`](/docs/components/reactions)
 pills under the body. With `onReactionToggle`, a pill click toggles and an "Add reaction" button

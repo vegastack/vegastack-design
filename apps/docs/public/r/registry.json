@@ -259,7 +259,7 @@
       "registryDependencies": [
         "@vegastack/alert-dialog",
         "@vegastack/button",
-        "@vegastack/data-table-parts",
+        "@vegastack/dropdown-menu",
         "@vegastack/empty",
         "@vegastack/markdown-view",
         "@vegastack/person-hover-card",
@@ -281,7 +281,7 @@
         "whenToUse": "Discussion on a record's page (a task, a meeting): comments oldest first with the composer at the end.",
         "whenNotToUse": "An activity feed or notifications — use Inbox.",
         "version": "0.23.39",
-        "integrity": "sha256-+hg6Frm2F9rAf8+eBA0vc8Ve8yBCdF+ES6hot8IF1ik="
+        "integrity": "sha256-6hLHbPy93ox3jnEuA79CSbSfJRyFd2/OAUkMjE/wcKU="
       }
     },
     {
@@ -313,7 +313,7 @@
         "whenToUse": "Letting people react to a comment, message or post with emoji.",
         "whenNotToUse": "A single like or rating — use a toggle button.",
         "version": "0.23.39",
-        "integrity": "sha256-QFW97mSGm6E/sWBm2RcYSZs1fPm/zPhHR5030/Fx9pA="
+        "integrity": "sha256-r9l/K/cVznQug9C3ABad/QsEyUszs8RuYqvR/ElS8MQ="
       }
     },
     {
@@ -497,7 +497,7 @@
         "whenToUse": "Label or annotate status, counts, or categories — e.g. Active, Beta, 3 New.",
         "whenNotToUse": "An action — use a Button. A Badge is a label; it can be a link through render, but never a control.",
         "version": "0.23.39",
-        "integrity": "sha256-+pzpT7QKj2TVsOBJV/MlRVOa1W1UOuVhgtMA3tVN0yk="
+        "integrity": "sha256-7xRnipF12TrJgiMF1hPYK/k3AavPEzKcMlfp99I+48w="
       }
     },
     {
@@ -664,7 +664,7 @@
         "whenToUse": "Any clickable action — submit, confirm, destructive, etc.",
         "whenNotToUse": "Navigation to a URL — style the link with buttonVariants(): <Link href className={buttonVariants({ variant, size })}>.",
         "version": "0.23.39",
-        "integrity": "sha256-2BLEdXz9WrX2gMYgenYYRcfGVn/l9KV8J+flhbT0LqU="
+        "integrity": "sha256-W6FbQhlWJvv6ROJjgdR1PIgtiR1xFik6aic6X7mD2Vo="
       }
     },
     {
@@ -842,7 +842,7 @@
         "whenToUse": "Toggle a single option on/off, accept terms, or drive a 'select all' parent with indeterminate.",
         "whenNotToUse": "Mutually-exclusive choices (RadioGroup); instant self-saving settings (Switch).",
         "version": "0.23.39",
-        "integrity": "sha256-++vMESudQFdgP1SDpEri7q0sPNRNIg3Lj3z04c9tjiE="
+        "integrity": "sha256-077TmAMMGspXq59gVIUZNcWWpJUfNYnctsm8R7+7T6w="
       }
     },
     {
@@ -1025,7 +1025,7 @@
         "whenToUse": "Choosing from a large or dynamic set that benefits from typing to narrow it down — searchable pickers, tag/label multi-select, async-loaded results. A two-line option composes ItemTitle + ItemDescription, and the description is the option's accessible description.",
         "whenNotToUse": "A small, fixed set with no need to search (Select), boolean on/off (Switch), or a few always-visible options (radios/checkboxes).",
         "version": "0.23.39",
-        "integrity": "sha256-ah/pKgFY+gga0VJYem4A1daQSBejRsWcx1H9Vtwykfg="
+        "integrity": "sha256-WgcceoOc7d+JwhNA4oQCjeyHHkn/n2nqNcs32JdS/SY="
       }
     },
     {
@@ -1457,7 +1457,7 @@
         "whenToUse": "Selecting a single date or a range (with optional Today/Last-7-days presets) from a popover. size=\"sm\" + variant=\"ghost\" is the inline row tier; clearable adds a clear control that returns focus to the trigger.",
         "whenNotToUse": "Free-form/partial dates (masked Input) or inline-only calendars (use Calendar directly).",
         "version": "0.23.39",
-        "integrity": "sha256-1RP/JwsAx/AB3fsWh2GPKO/THcfWUjY/DdNInu4J9v0="
+        "integrity": "sha256-GTA7ICagbf2LP14N9tbcsD87XbQ7JHJ2B6tQeBP5JpE="
       }
     },
     {
@@ -1753,7 +1753,7 @@
         "whenToUse": "Installed automatically with EmojiPicker or ShortcutOverlay; import it directly when building another popup that filters its own contents.",
         "whenNotToUse": "A standalone search field on a page — that is Input, or InputGroup with a leading addon. A command palette is Command, which brings its own input.",
         "version": "0.23.39",
-        "integrity": "sha256-6ZJi5lOsdYWlTR1G5fm5nhy/6fgdBT4rsaJmcdko0bY="
+        "integrity": "sha256-6QE3P74oTCboZ3kVbTElVZKtedA80OwcYJAofgfkMV8="
       }
     },
     {
@@ -15075,7 +15075,7 @@
       "name": "input",
       "type": "registry:ui",
       "title": "Input",
-      "description": "A styled Base UI input for every text-entry type — Field-aware state, invalid and disabled chrome, and the text-entry focus border tint (FOC-3).",
+      "description": "A styled Base UI input for every text-entry type — Field-aware state, invalid and disabled chrome, and the background focus tint with a border that never moves (FOC-14).",
       "categories": [
         "form"
       ],
@@ -15096,7 +15096,7 @@
         "whenToUse": "Single-line text entry — email, password, search, URL/slug with a domain prefix, numbers, etc.",
         "whenNotToUse": "Multi-line text (use a textarea) or choosing from fixed options (use a select/radio).",
         "version": "0.23.39",
-        "integrity": "sha256-k5+UM1yhWo4K5vrp4jhmeajwZLIjM3BGskKNP3VOWpM="
+        "integrity": "sha256-Ni+uOfGR+WkN7wEkm/GHR8coNVX4Df7jeiklD1ThV3c="
       }
     },
     {
@@ -15128,7 +15128,7 @@
         "whenToUse": "A text control that needs an affordance on the same surface — a search icon, a currency prefix, a reveal button, a character counter.",
         "whenNotToUse": "A control whose affordance belongs outside the field — use a Field description or a ButtonGroup.",
         "version": "0.23.39",
-        "integrity": "sha256-8eDhlI3XCTQhWRfRuXAzhUkOhzguKEEmqTCmVtHlqyQ="
+        "integrity": "sha256-9sXeOfzIYJE+HF6Ihjk2I/gC/c73mGV7b/GLxuqGAzQ="
       }
     },
     {
@@ -15157,7 +15157,7 @@
         "whenToUse": "Entering a short verification code — 2FA, email confirmation, a device-pairing PIN.",
         "whenNotToUse": "Any value longer than a handful of characters, or one the user may not know the length of — use an Input.",
         "version": "0.23.39",
-        "integrity": "sha256-tZOidaC6yOYAx8wznnTAU8Blpqpm4WnrVoXB4R0cUzE="
+        "integrity": "sha256-tdVHbpIPrF2NoLRA0uZnioJTl1zS1FVsAcQlijrylcQ="
       }
     },
     {
@@ -15337,7 +15337,7 @@
         "whenToUse": "You are building a player around your own <audio>/<video> element and want the VegaStack transport, chrome and keyboard map.",
         "whenNotToUse": "A ready-made player — reach for Audio Player or Video Player, which compose this.",
         "version": "0.23.39",
-        "integrity": "sha256-wjmq2pAPgNsN/OAB7l8KzjZ5ZCcTg7RMuWcUxg7jB5c="
+        "integrity": "sha256-Y1Fg5nK98xFrcb7Qt7E8XeyGlsnTgdkzVdRvve8XNQA="
       }
     },
     {
@@ -15609,7 +15609,7 @@
         "whenToUse": "A short list of plain options where the platform picker is the better experience — mobile forms, dense tables, settings rows.",
         "whenNotToUse": "Options that need icons, descriptions or custom markup, or a list long enough to want search — use Select or Combobox.",
         "version": "0.23.39",
-        "integrity": "sha256-uSsm4KvwLIoJHhD5UGW0oPRjpSkpvZFgqtqOuqb6ZZY="
+        "integrity": "sha256-aSBe4R4jWf/4Dz/UtyRAQiHj9xxGxO8I06jMczQuhwM="
       }
     },
     {
@@ -15886,7 +15886,7 @@
         "whenToUse": "An onboarding, survey or intake flow that asks one question at a time, validates each answer, and can be resumed.",
         "whenNotToUse": "A conventional form where every field is visible at once — compose Field with the form primitives instead.",
         "version": "0.23.39",
-        "integrity": "sha256-01nWRJLRbOV5tumf+UXMhhQ6WEc2SgWoYWfPuSu0Kn8="
+        "integrity": "sha256-zWtOTP6/mCjCNh6pk7lc/SAHiM8M59B6l28tBdO06k4="
       }
     },
     {
@@ -16043,7 +16043,7 @@
         "whenToUse": "A form value from 2–5 mutually-exclusive choices, all visible at once.",
         "whenNotToUse": "An immediate view or scope switch over the same content (ToggleGroup), many options (Select), or non-exclusive multi-select (Checkboxes).",
         "version": "0.23.39",
-        "integrity": "sha256-GZxeVglUZhl+XrNfoNetkJj1kmcum6hcM6DscKMj0eU="
+        "integrity": "sha256-I48yBMfsMKngKPF2fsHyVZD6DA0fbEnSKlYUr0thDKA="
       }
     },
     {
@@ -16199,7 +16199,7 @@
         "whenToUse": "A Select-shaped searchable picker: one or several values, option descriptions and disabled reasons, and server search with paging (remote + useAsyncSearch).",
         "whenNotToUse": "A short fixed option set (Select), free text with suggestions (Combobox directly), or multi-select (Combobox with chips).",
         "version": "0.23.39",
-        "integrity": "sha256-eER3jPsMXBYcyqVUgAZqkHWpcETeSgKuEXP0wZSmtWM="
+        "integrity": "sha256-yedMOnQw/MoZoM4oHV7QQoC5CMbOZTYGff6agyjSciE="
       }
     },
     {
@@ -16291,7 +16291,7 @@
         "whenToUse": "Choosing from a short fixed, known set — statuses, sort orders, units — including grouped options; pass multiple for a multi-value select. The default trigger fills its parent; use variant=\"ghost\" (with size=\"sm\") for an inline trigger in table rows, list items and toolbars. A two-line option composes ItemTitle + ItemDescription, and the description is the option's accessible description.",
         "whenNotToUse": "Boolean on/off (Switch), few inline options (radios), a list long enough to need a search field (SearchableSelect), or free-text/async search (Combobox).",
         "version": "0.23.39",
-        "integrity": "sha256-t8Mr3oBOs8geJOEnKs/5+93LLYqvBvEkafKvLVx5zUU="
+        "integrity": "sha256-as9L5tC9tdS8lC5rpJo5pqi6ewsYyDQxPlls6+JYbiE="
       }
     },
     {
@@ -16752,7 +16752,7 @@
         "whenToUse": "Settings that apply instantly — notifications, dark mode, feature flags.",
         "whenNotToUse": "Inside a form needing a Submit step — use a Checkbox.",
         "version": "0.23.39",
-        "integrity": "sha256-QzhjdMrxpSMKlUPLTdpHMtoh2nrVxq7fKjjk2XriESQ="
+        "integrity": "sha256-b3LAsBk7PvkYhLDwEctxnuxWxe/U9tfeSJ2pgTHESJo="
       }
     },
     {
@@ -16938,7 +16938,7 @@
       "name": "textarea",
       "type": "registry:ui",
       "title": "Textarea",
-      "description": "A styled native textarea for multi-line text — auto-sizing to its content, invalid and disabled chrome, and the text-entry focus border tint (FOC-3).",
+      "description": "A styled native textarea for multi-line text — auto-sizing to its content, invalid and disabled chrome, and the background focus tint with a border that never moves (FOC-14).",
       "categories": [
         "form"
       ],
@@ -16959,7 +16959,7 @@
         "whenToUse": "Multi-line free text — descriptions, comments, messages, notes.",
         "whenNotToUse": "Single-line entry (input), rich text (editor), or fixed options (select).",
         "version": "0.23.39",
-        "integrity": "sha256-dni5rPfuAfTsRwJEx0HTNArCfOORY+RqiBVmFTGe6To="
+        "integrity": "sha256-dQbjghlU0tb7UV/QbFlDmhrsLuNWwwW9e46ZMplGdbc="
       }
     },
     {
@@ -17050,7 +17050,7 @@
         "whenToUse": "A binary on/off control that persists — bold/italic, mute, pin.",
         "whenNotToUse": "One-shot action (Button) or mutually-exclusive options (ToggleGroup/RadioGroup).",
         "version": "0.23.39",
-        "integrity": "sha256-5O/Og8TPf6+z2WSThjMuoaVoIEillHbgTK8A84ZXG7M="
+        "integrity": "sha256-RZyuvi2N+7Q6oMuClyVkhdb0EDL65Q3Fhlj/j+C3Soc="
       }
     },
     {

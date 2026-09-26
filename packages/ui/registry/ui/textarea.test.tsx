@@ -93,19 +93,18 @@ test("FOC-1/FOC-6: the recipe carries no focus glow", async () => {
   expect(classes).not.toContain("aria-invalid:ring-destructive");
 });
 
-test("FOC-3/FOC-8: focus is a border tint on :focus, with outline-hidden not outline-none", async () => {
+test("FOC-14: focus never changes the border, with outline-hidden not outline-none", async () => {
   const screen = await render(<Textarea aria-label="Message" />);
   const classes = classesOf(screen);
-  expect(classes).toContain("focus:border-ring/70");
+  expect(classes).not.toMatch(/focus[\w-]*:border-/);
   expect(classes).toContain("outline-hidden");
   expect(classes).not.toMatch(/(?:^|\s)outline-none(?:\s|$)/);
 });
 
-test("FOC-5: the invalid tint stands down while the control is focused", async () => {
+test("FOC-14: the invalid border holds while the control is focused", async () => {
   const screen = await render(<Textarea aria-label="Message" aria-invalid />);
-  expect(classesOf(screen)).toContain(
-    "not-focus:aria-invalid:border-destructive",
-  );
+  expect(classesOf(screen)).toContain("aria-invalid:border-destructive");
+  expect(classesOf(screen)).not.toContain("not-focus:");
 });
 
 test("no a11y violations — rest", async () => {

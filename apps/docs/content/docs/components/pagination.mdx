@@ -207,7 +207,7 @@ Upstream's file plus `packages/ui/upstream/patches/pagination.patch`. Every hunk
 - **VOI-1** — upstream's lower-case `aria-label="pagination"` becomes "Pagination", overridable with
   `label`, and the ellipsis's "More pages" is overridable with `morePagesLabel`.
 - **No styling hunk.** `PaginationLink` wears the `Button` recipe, which already carries this
-  system's focus, cursor and disabled behaviour, so pagination inherits FOC-1, FOC-5, FOC-6 and
+  system's focus, cursor and disabled behaviour, so pagination inherits FOC-1, FOC-6, FOC-14 and
   FRM-4 rather than restating them. **A11Y-2 — audited, no hunk:** every control is a `Button` at
   `size="icon"` (32px) or `size="default"`, and `PaginationEllipsis` is `aria-hidden` and not a
   control. `pagination.test.tsx` measures both.

@@ -27,7 +27,7 @@ import { NumberField } from "@/components/ui/number-field";
 
 Everything it renders is imported, not restated:
 [`InputGroup`](/docs/components/input-group) is the bordered box — border, focus
-border, invalid hairline, disabled wash — `InputGroupInput` is
+tint, invalid hairline, disabled wash — `InputGroupInput` is
 [`Input`](/docs/components/input) flattened into it, `prefix` and `suffix` are
 `InputGroupAddon` slots, and each − / + stepper is an `InputGroupButton`, which
 is [`Button`](/docs/components/button) in its `ghost` variant.
@@ -113,9 +113,10 @@ and native form integration via `name`.
 - The − / + steppers are full-height, ≥24px pointer targets with accessible
   names ("Decrease" / "Increase"); keyboard users step with the arrow keys
   instead, so the buttons add no tab stops beyond Base UI's defaults.
-- Focus uses the text-entry affordance: `InputGroup` tints its own border when
-  the control inside it takes focus, and the steppers keep the global
-  `:focus-visible` outline, pulled inside the clipping box (FOC-9).
+- Focus uses the text-entry affordance: `InputGroup` is a field group, so it
+  wears `base.css`'s background tint when the control inside it takes focus,
+  and its border never changes colour (FOC-14). The steppers keep the global
+  `:focus-visible` cue, pulled inside the clipping box (FOC-9).
 
 | Key                                          | Action                          |
 | -------------------------------------------- | ------------------------------- |

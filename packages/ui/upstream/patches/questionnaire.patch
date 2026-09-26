@@ -1,5 +1,5 @@
 # component: questionnaire
-# decisions: A11Y-2, A11Y-3, A11Y-4, A11Y-13, DOC-1, DOC-2, FOC-1, FOC-3, FOC-5, FOC-6, FOC-8, FRM-4, TYP-18
+# decisions: A11Y-2, A11Y-3, A11Y-4, A11Y-13, DOC-1, DOC-2, FOC-1, FOC-3, FOC-5, FOC-6, FOC-8, FRM-4, TYP-18, FOC-14
 # hunks:
 #   TYP-18: the shortcut badge's `text-[0.625rem]` (10px) becomes `text-xs` (12px). An
 #     arbitrary value receives neither half of the type ramp, and 10px is below every tier
@@ -39,12 +39,15 @@
 #   A11Y-13: `QuestionnaireError`'s `text-destructive` becomes `text-destructive-text` — the
 #     identical pair to Field's error copy, which the row names: the fill used as text ink on the
 #     page. Applied by precedent (as Batch 2 and 6 extended the row); flagged for MK.
+#   FOC-14 (supersedes the FOC-3 border tint and FOC-5 above): the choice card takes
+#     `has-[>input:focus-visible]:bg-accent/50` instead of a border tint; the answer field drops
+#     `focus:border-ring/70` for base.css's tint; the invalid border holds in every state.
 #   cn: `import { cn } from "cn"` becomes `@vegastack/design` — our npm layer owns `cn` (DOC-2).
 #   formatting: the repository formatter (prettier defaults: semicolons, trailing commas)
 #               reflows the file, and `registry-stamp.mjs` writes the provenance header the
 #               three-copy model needs (DOC-1); those hunks carry no decision of their own.
 diff --git a/questionnaire.tsx b/questionnaire.tsx
-index 701ac1c..b45e8c7 100644
+index 701ac1c..6223d5e 100644
 --- a/questionnaire.tsx
 +++ b/questionnaire.tsx
 @@ -1,11 +1,11 @@
@@ -139,7 +142,7 @@ index 701ac1c..b45e8c7 100644
  }
  
  function QuestionnaireChoice({
-@@ -106,9 +106,20 @@ function QuestionnaireChoice({
+@@ -106,9 +106,19 @@ function QuestionnaireChoice({
      <QuestionnairePrimitive.Choice
        data-slot="questionnaire-choice"
        className={cn(
@@ -147,14 +150,13 @@ index 701ac1c..b45e8c7 100644
 -        "data-disabled:pointer-events-none data-disabled:cursor-not-allowed data-disabled:opacity-50",
 -        className
 +        // FOC-1 / FOC-6: upstream pairs `has-[>input:focus-visible]:border-ring` with the 3px
-+        // `ring-3 ring-ring/50` halo. The halo goes; the border tint stays, because the real
-+        // control here is an `opacity-0` input stretched over the whole card — `base.css`'s
-+        // outline paints on it and is invisible, exactly as it would be on `input-otp`'s hidden
-+        // input, so the card's own border IS the affordance (the shape `input-otp`'s active slot
-+        // already uses).
-+        // FOC-5: focus outranks the invalid tint, so `data-invalid:border-destructive` is held
-+        // off while the choice has focus inside it.
-+        "group/questionnaire-choice relative flex min-h-11 cursor-pointer items-start gap-2.5 rounded-lg border border-input bg-transparent px-3 py-2.5 text-start text-sm transition-colors outline-none select-none hover:bg-muted/50 has-[>input:focus-visible]:border-ring not-has-[>input:focus-visible]:data-invalid:border-destructive dark:bg-input/20 data-checked:border-primary/40 data-checked:bg-muted dark:data-checked:bg-muted",
++        // `ring-3 ring-ring/50` halo. Both go (FOC-14: a border never changes colour on focus).
++        // The real control here is an `opacity-0` input stretched over the whole card, so
++        // `base.css`'s tint paints on it invisibly; the card wears the same `accent`/50 tint
++        // itself, as a gradient image over its fill exactly as base.css lays it, so it still reads over
++        // the hover and checked fills (the shape `input-otp`'s active slot uses). An invalid choice keeps its
++        // destructive border in every state.
++        "group/questionnaire-choice relative flex min-h-11 cursor-pointer items-start gap-2.5 rounded-lg border border-input bg-transparent px-3 py-2.5 text-start text-sm transition-colors outline-none select-none hover:bg-muted/50 has-[>input:focus-visible]:bg-linear-to-b has-[>input:focus-visible]:from-accent/50 has-[>input:focus-visible]:to-accent/50 data-invalid:border-destructive dark:bg-input/20 data-checked:border-primary/40 data-checked:bg-muted dark:data-checked:bg-muted",
 +        // FRM-4: `data-disabled:pointer-events-none` is dropped, so a disabled choice stays
 +        // hoverable and a Tooltip can explain why it cannot be picked. The engine keeps the
 +        // input's own `disabled`, so nothing becomes answerable.
@@ -163,7 +165,7 @@ index 701ac1c..b45e8c7 100644
        )}
        {...props}
      >
-@@ -125,7 +136,10 @@ function QuestionnaireChoice({
+@@ -125,7 +135,10 @@ function QuestionnaireChoice({
            data-slot="questionnaire-choice-indicator-dot"
            className="hidden size-2 rounded-full bg-primary-foreground group-data-[type=checkbox]/questionnaire-choice:hidden group-data-checked/questionnaire-choice:block"
          />
@@ -175,7 +177,7 @@ index 701ac1c..b45e8c7 100644
        </span>
        <QuestionnairePrimitive.ChoiceLabel
          data-slot="questionnaire-choice-label"
-@@ -135,10 +149,10 @@ function QuestionnaireChoice({
+@@ -135,10 +148,10 @@ function QuestionnaireChoice({
        </QuestionnairePrimitive.ChoiceLabel>
        <QuestionnairePrimitive.ChoiceShortcut
          data-slot="questionnaire-choice-shortcut"
@@ -188,7 +190,7 @@ index 701ac1c..b45e8c7 100644
  }
  
  function QuestionnaireChoiceDescription({
-@@ -151,7 +165,7 @@ function QuestionnaireChoiceDescription({
+@@ -151,7 +164,7 @@ function QuestionnaireChoiceDescription({
        className={cn("text-muted-foreground", className)}
        {...props}
      />
@@ -197,19 +199,19 @@ index 701ac1c..b45e8c7 100644
  }
  
  function QuestionnaireInput({
-@@ -166,14 +180,21 @@ function QuestionnaireInput({
+@@ -166,14 +179,21 @@ function QuestionnaireInput({
        <QuestionnairePrimitive.Input
          data-slot="questionnaire-input"
          className={cn(
 -          "h-8 min-h-11 w-full min-w-0 rounded-lg border border-input bg-transparent px-2.5 py-1 text-base transition-[color,box-shadow,background-color] outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:pointer-events-none disabled:cursor-not-allowed disabled:bg-input/50 disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 sm:min-h-0 md:text-sm dark:bg-input/30 dark:disabled:bg-input/80 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40",
 +          // FOC-1 / FOC-3 / FOC-6 / FOC-8: text entry, so it takes the same treatment
 +          // `input.tsx` takes — `outline-hidden` (not `outline-none`, so the FOC-7
-+          // forced-colours block has an outline to repaint) plus the 70% border tint on
-+          // `:focus` rather than `:focus-visible`, and no glow at all.
-+          // FOC-5: the invalid tint becomes `not-focus:aria-invalid:…`, so focus outranks it.
++          // forced-colours block has an outline to repaint) and no glow and no border
++          // change at all: `base.css` paints the focus tint (FOC-14).
++          // An invalid answer keeps its destructive border in every state.
 +          // FRM-4: `disabled:pointer-events-none` is dropped, so a disabled answer field stays
 +          // hoverable and a Tooltip can explain it.
-+          "h-8 min-h-11 w-full min-w-0 rounded-lg border border-input bg-transparent px-2.5 py-1 text-base transition-[color,box-shadow,background-color] outline-hidden focus:border-ring/70 disabled:cursor-not-allowed disabled:bg-input/50 disabled:opacity-50 not-focus:aria-invalid:border-destructive sm:min-h-0 md:text-sm dark:bg-input/30 dark:disabled:bg-input/80 dark:not-focus:aria-invalid:border-destructive/50",
++          "h-8 min-h-11 w-full min-w-0 rounded-lg border border-input bg-transparent px-2.5 py-1 text-base transition-[color,box-shadow,background-color] outline-hidden disabled:cursor-not-allowed disabled:bg-input/50 disabled:opacity-50 aria-invalid:border-destructive sm:min-h-0 md:text-sm dark:bg-input/30 dark:disabled:bg-input/80 dark:aria-invalid:border-destructive/50",
            "selection:bg-primary selection:text-primary-foreground placeholder:text-muted-foreground",
 -          className
 +          className,
@@ -222,7 +224,7 @@ index 701ac1c..b45e8c7 100644
  }
  
  function QuestionnaireError({
-@@ -183,10 +204,10 @@ function QuestionnaireError({
+@@ -183,10 +203,10 @@ function QuestionnaireError({
    return (
      <QuestionnairePrimitive.Error
        data-slot="questionnaire-error"
@@ -235,7 +237,7 @@ index 701ac1c..b45e8c7 100644
  }
  
  function QuestionnaireActions({
-@@ -198,11 +219,11 @@ function QuestionnaireActions({
+@@ -198,11 +218,11 @@ function QuestionnaireActions({
        data-slot="questionnaire-actions"
        className={cn(
          "grid min-h-11 w-full grid-cols-[minmax(0,1fr)_auto_auto] items-center gap-2 sm:min-h-8",
@@ -249,7 +251,7 @@ index 701ac1c..b45e8c7 100644
  }
  
  function QuestionnairePrevious({
-@@ -221,13 +242,13 @@ function QuestionnairePrevious({
+@@ -221,13 +241,13 @@ function QuestionnairePrevious({
        className={cn(
          buttonVariants({ size, variant }),
          "col-start-1 row-start-1 min-h-11 justify-self-start sm:min-h-0",
@@ -265,7 +267,7 @@ index 701ac1c..b45e8c7 100644
  }
  
  function QuestionnaireSkip({
-@@ -246,13 +267,13 @@ function QuestionnaireSkip({
+@@ -246,13 +266,13 @@ function QuestionnaireSkip({
        className={cn(
          buttonVariants({ size, variant }),
          "col-start-2 row-start-1 min-h-11 justify-self-end sm:min-h-0",
@@ -281,7 +283,7 @@ index 701ac1c..b45e8c7 100644
  }
  
  function QuestionnaireNext({
-@@ -271,13 +292,13 @@ function QuestionnaireNext({
+@@ -271,13 +291,13 @@ function QuestionnaireNext({
        className={cn(
          buttonVariants({ size, variant }),
          "col-start-3 row-start-1 min-h-11 justify-self-end sm:min-h-0",
@@ -297,7 +299,7 @@ index 701ac1c..b45e8c7 100644
  }
  
  function QuestionnaireSubmit({
-@@ -296,13 +317,13 @@ function QuestionnaireSubmit({
+@@ -296,13 +316,13 @@ function QuestionnaireSubmit({
        className={cn(
          buttonVariants({ size, variant }),
          "col-start-3 row-start-1 min-h-11 justify-self-end sm:min-h-0",
@@ -313,7 +315,7 @@ index 701ac1c..b45e8c7 100644
  }
  
  export {
-@@ -321,4 +342,4 @@ export {
+@@ -321,4 +341,4 @@ export {
    QuestionnaireSkip,
    QuestionnaireSubmit,
    QuestionnaireTitle,

@@ -76,8 +76,8 @@ Add `disabled` to the `NativeSelect`. The wrapper dims with `has-[select:disable
 
 ### Invalid
 
-Use `aria-invalid` on the select and `data-invalid` on the `Field`. The tint is scoped to
-`not-focus:` (FOC-5), so a focused select shows its focus cue rather than the error colour.
+Use `aria-invalid` on the select and `data-invalid` on the `Field`. The destructive border
+holds in every state, focused or not (FOC-14).
 
 <ComponentPreview
   name="nativeSelectInvalid"
@@ -127,8 +127,8 @@ the native `<option>` and `<optgroup>` accept.
 - Renders a native `<select>`, so the platform owns the popup, type-ahead, keyboard model and the
   mobile picker sheet. Nothing here re-implements any of it.
 - The chevron is `aria-hidden` and `pointer-events-none`; the select itself owns the whole box.
-- Focus shows the border tint on `:focus` (FOC-3) **and** the global 2px outline, because this is a
-  button-style trigger rather than a text field (FOC-4).
+- Focus shows `base.css`'s global background tint on `:focus-visible`, like every other trigger
+  (FOC-4); the border never changes colour (FOC-14).
 - Give it a label: `FieldLabel` bound with `htmlFor`, or an `aria-label`.
 - Options set `bg-[Canvas] text-[CanvasText]` so the popup stays legible under a forced-colours
   palette and in a dark scope, where some platforms would otherwise paint dark-on-dark.
@@ -147,12 +147,11 @@ the native `<option>` and `<optgroup>` accept.
 Upstream's file plus `packages/ui/upstream/patches/native-select.patch`. Every hunk:
 
 - **FOC-1, FOC-3, FOC-4, FOC-6** — `outline-none focus-visible:border-ring focus-visible:ring-3
-focus-visible:ring-ring/50` becomes `focus:border-ring/70`: the border tint fires on `:focus` for
-  mouse and keyboard alike, and the `outline-none` is dropped so the global `:focus-visible` outline
-  still paints. A native select is a button-style trigger, so it keeps the outline — unlike Input
-  and Textarea, which suppress it.
-- **FOC-5** — the invalid tint becomes `not-focus:aria-invalid:border-destructive` (and its dark
-  counterpart), so focus outranks it; the `aria-invalid` halo rings are removed with the rest.
+focus-visible:ring-ring/50` is removed outright, `outline-none` included, so the global
+  `:focus-visible` tint paints and the border stays `border-input` (FOC-14 retired the
+  `focus:border-ring/70` tint).
+- **FOC-14** — the invalid border is `aria-invalid:border-destructive` (and its dark counterpart),
+  held in every state, focused or not; the `aria-invalid` halo rings are removed with the rest.
 - **FRM-4** — `disabled:pointer-events-none` is dropped, so a disabled select stays hoverable and a
   Tooltip can explain it.
 - **DOC-2** — `cn` is imported from `@vegastack/design`.

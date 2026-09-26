@@ -6,6 +6,8 @@
 
      FOC-1   one global :focus-visible cue; components restate nothing
      FOC-13  no focus rings anywhere, Tabs included: the cue is a background tint (MK 2026-09-25)
+     FOC-14  a border never changes colour on focus or while active; invalid keeps its destructive
+             border in every state (MK 2026-09-26)
      FOC-7   the forced-colours fallback for text entry
      MOT-5   the reduced-motion reset (and the one sanctioned !important)
      INT-1   the hand cursor, on a wider selector list than shadcn's --pointer rule
@@ -60,14 +62,20 @@
     @apply font-sans;
   }
 
-  /* FOC-1 + FOC-13 — the SINGLE focus affordance in the system, and it is NOT a ring.
-     No focus ring anywhere, Tabs included (MK 2026-09-25): a keyboard user sees a subtle background
-     TINT — `accent` at 50%, laid over whatever fill the control already has as a background IMAGE,
-     so a primary button, a chip, a row and a menu item all show it without any component
-     restating it. Text entry (text inputs, textarea, contenteditable) keeps its border tint
-     (FOC-3) and takes no fill. Tab triggers and panels take the same tint as everything else. Components carry no focus ring of their
-     own (FOC-6), and `design-lint`'s `no-focus-ring-glow` rule rejects any focus ring or outline
-     class, so one cannot creep back through a later upstream pull.
+  /* FOC-1 + FOC-13 + FOC-14 — the SINGLE focus affordance in the system, and it is NOT a ring and
+     NOT a border. No focus ring anywhere, Tabs included (MK 2026-09-25), and no border-colour change
+     on focus or while a control is active (MK 2026-09-26): every border keeps its resting
+     `border-border`/`border-input` colour in every state, and only the invalid state paints its
+     destructive border. A keyboard user sees a subtle background TINT — `accent` at 50%, laid over
+     whatever fill the control already has as a background IMAGE, so a primary button, a chip, a
+     row, a menu item and a text field all show it without any component restating it.
+     Text entry takes the same tint (FOC-3). A bare `input`/`textarea` wears it itself; a bordered
+     field GROUP (`data-field-group`: InputGroup, NumberField, ChipInput, the combobox chips, the
+     panel search row) wears it on the group, and the control inside it stands down so the two
+     never stack. The one caret-only surface is a contenteditable document editor (TextEdit,
+     `data-focus-cue="caret"`): no border, no fill, the caret is the cue. Components carry no focus
+     ring or focus border of their own (FOC-6); `design-lint`'s `no-focus-ring-glow` and
+     `no-focus-border` rules reject them, so one cannot creep back through a later upstream pull.
 
      Programmatic focus targets (`tabindex="-1"`) take no tint: AppShell's skip-link `<main>`, Base UI
      popups, a step heading focus is moved to. They are not tab stops, and each is a whole region.
@@ -79,24 +87,20 @@
     outline: none;
   }
   :focus-visible:not(
-    textarea,
     [contenteditable="true"],
-    input:not(
-      [type="range"],
-      [type="radio"],
-      [type="checkbox"],
-      [type="button"],
-      [type="submit"],
-      [type="reset"],
-      [type="color"],
-      [type="file"]
-    ),
     [tabindex="-1"]:not([data-slot="combobox-chip"])
-  ) {
+  ),
+  [data-field-group]:has(input:focus, textarea:focus):not(
+      [data-slot="combobox-content"] *
+    ) {
     background-image: linear-gradient(
       color-mix(in oklch, var(--accent) 50%, transparent),
       color-mix(in oklch, var(--accent) 50%, transparent)
     );
+  }
+  [data-field-group] input:focus-visible,
+  [data-field-group] textarea:focus-visible {
+    background-image: none;
   }
 
   /* INT-1 — the hand cursor. shadcn's `--pointer` flag writes
@@ -136,9 +140,9 @@
     outline-offset: 1px;
   }
 
-  /* Text-entry focus (FOC-3). Every text-entry control signals focus with a border TINT and strips
-     the outline, because a raw text field cannot tell mouse from keyboard. Forced colours replaces
-     `border-color` outright, so the tint vanishes and `outline-style: none` stays in force — a
+  /* Text-entry focus (FOC-3). Every text-entry control signals focus with the background TINT and
+     strips the outline, because a raw text field cannot tell mouse from keyboard. Forced colours
+     drops authored backgrounds outright, so the tint vanishes and `outline-style: none` stays in force — a
      Windows High Contrast user had no caret location at all. This block is UNLAYERED on purpose:
      it beats the component's `outline-none` (a layered utility) regardless of specificity, so the
      fallback is written ONCE here, never per component.
@@ -159,8 +163,8 @@
      NumberField's stepper group, ChipInput, the Combobox input-group — clips with `overflow-hidden`
      so its addons follow the rounded corner. The inner input's own outline is offset outward INTO
      that clip, so it was drawn and then cut, which is how an addon field ended up with no visible
-     focus at all under the forced palette. The group carries the outline (it is the element whose
-     border the tint would have moved); the control inside it stands down, so the two never paint a
+     focus at all under the forced palette. The group carries the outline (it is the element that
+     wears the tint); the control inside it stands down, so the two never paint a
      double ring. */
   [data-field-group] input:focus,
   [data-field-group] textarea:focus {

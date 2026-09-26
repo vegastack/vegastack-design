@@ -31,7 +31,7 @@ starts with `icon-` is a component and never an icon.
 - **`editable-cell`** — Inline-editable value whose edit mode looks like view — same box, inherited type, no border — with optimistic saves, a delayed spinner, rollback plus a Retry toast on failure, required, multiline, table-cell and heading variants, and a typed text/select/custom editor registry.
 - **`emoji-picker`** — A popover with a quick row, search, a category bar, recents and a category-grouped grid of emoji that returns the selected character via onValueChange (curated set, loaded lazily).
 - **`field`** — The form-field scaffold — label, description, error, legend, separator and choice-card layouts.
-- **`input`** — A styled Base UI input for every text-entry type: a bordered default with the focus border tint (FOC-3), or a borderless ghost title field tinted on hover and focus; sm, default and lg sizes.
+- **`input`** — A styled Base UI input for every text-entry type: a bordered default whose border never moves on focus (FOC-14), or a borderless ghost title field tinted on hover and focus; sm, default and lg sizes.
 - **`input-group`** — An input or textarea with addons — icons, text, buttons, kbd hints and spinners on one surface.
 - **`input-otp`** — A one-time-password field with per-character slots, driven by one hidden input.
 - **`label`** — A styled native label for form controls.
@@ -46,7 +46,7 @@ starts with `icon-` is a component and never an icon.
 - **`select`** — A dropdown for one value — trigger, grouped scrollable popup and item-aligned positioning.
 - **`slider`** — A number or range over a continuous track — horizontal or vertical, any number of thumbs.
 - **`switch`** — An on/off toggle for instant settings — two sizes and a 24px invisible hit area (A11Y-2).
-- **`textarea`** — A styled native textarea that grows with its content, with the text-entry focus border tint (FOC-3).
+- **`textarea`** — A styled native textarea that grows with its content, with the background focus tint and a border that never moves (FOC-14).
 
 ## Display
 
