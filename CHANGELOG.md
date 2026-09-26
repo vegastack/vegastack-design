@@ -9,6 +9,21 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.23.39] — September 26, 2026
+
+<!-- assembled from 1 changeset: e26da504da5d -->
+
+### 📦 npm
+
+- **`@vegastack/design-tokens`** → **`0.7.45`** (was `0.7.43`).
+- **`@vegastack/design`** → **`0.7.45`** (was `0.7.44`).
+- The design-system registry (`@vegastack/ui`) bumps 0.23.38 → 0.23.39.
+
+### 🐛 Fixed
+
+- Programmatic focus targets (`tabindex="-1"`) no longer paint the `:focus-visible` background tint. Before this, clicking the empty part of AppShell's `<main>` and then pressing any key (Shift or ⌘ alone) tinted the whole page grey. Combobox chips keep the cue.
+  [`1100891`](https://github.com/VegaStack/vegastack-design/commit/1100891)
+
 ## [0.23.38] — September 26, 2026
 
 <!-- assembled from 1 changeset: 5eca055e8d2e -->

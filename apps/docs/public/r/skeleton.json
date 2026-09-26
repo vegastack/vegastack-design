@@ -4,14 +4,14 @@
   "title": "Skeleton",
   "description": "A pulsing placeholder that reserves layout space while content loads.",
   "dependencies": [
-    "@vegastack/design@^0.7.44",
-    "@vegastack/design-tokens@^0.7.43"
+    "@vegastack/design@^0.7.45",
+    "@vegastack/design-tokens@^0.7.45"
   ],
   "registryDependencies": [],
   "files": [
     {
       "path": "packages/ui/registry/ui/skeleton.tsx",
-      "content": "// @vegastack skeleton@0.23.38 sha256-3SRBV195aPSFKNvzEGbL1oomnd/bZRZp0aZ9ZRpkfvg=\n\nimport { cn } from \"@vegastack/design\";\n\nfunction Skeleton({ className, ...props }: React.ComponentProps<\"div\">) {\n  return (\n    <div\n      data-slot=\"skeleton\"\n      className={cn(\"animate-pulse rounded-md bg-muted\", className)}\n      {...props}\n    />\n  );\n}\n\nexport { Skeleton };\n",
+      "content": "// @vegastack skeleton@0.23.39 sha256-zyKbrEPLOzF7L9gN0fzYZYocw99VE7pYwWdWsd3Dm6U=\n\nimport { cn } from \"@vegastack/design\";\n\nfunction Skeleton({ className, ...props }: React.ComponentProps<\"div\">) {\n  return (\n    <div\n      data-slot=\"skeleton\"\n      className={cn(\"animate-pulse rounded-md bg-muted\", className)}\n      {...props}\n    />\n  );\n}\n\nexport { Skeleton };\n",
       "type": "registry:ui",
       "target": "@ui/skeleton.tsx"
     }
@@ -19,8 +19,8 @@
   "meta": {
     "whenToUse": "Reserve layout space while content loads to avoid layout shift.",
     "whenNotToUse": "Indeterminate progress with no known layout (Spinner) or determinate tasks (progress bar).",
-    "version": "0.23.38",
-    "integrity": "sha256-3SRBV195aPSFKNvzEGbL1oomnd/bZRZp0aZ9ZRpkfvg="
+    "version": "0.23.39",
+    "integrity": "sha256-zyKbrEPLOzF7L9gN0fzYZYocw99VE7pYwWdWsd3Dm6U="
   },
   "categories": [
     "feedback"
