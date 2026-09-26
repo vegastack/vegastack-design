@@ -1,4 +1,4 @@
-// @vegastack avatar@0.23.43 sha256-L3i4JT7Ae9K+WmaznB87kpYipfh/4rWahIpKei2yvJg=
+// @vegastack avatar@0.23.43 sha256-fB2fi6Wd/OKvVQnoPNwnrwgsa5mqsLDJn8FATyMv02s=
 
 "use client";
 
@@ -39,15 +39,45 @@ function AvatarImage({ className, ...props }: AvatarPrimitive.Image.Props) {
   );
 }
 
+type AvatarHue =
+  | "blue"
+  | "cyan"
+  | "green"
+  | "lime"
+  | "yellow"
+  | "orange"
+  | "red"
+  | "pink"
+  | "magenta"
+  | "purple";
+
+const AVATAR_HUE_CLASSES: Record<AvatarHue, string> = {
+  blue: "bg-tag-blue-subtle text-tag-blue-text",
+  cyan: "bg-tag-cyan-subtle text-tag-cyan-text",
+  green: "bg-tag-green-subtle text-tag-green-text",
+  lime: "bg-tag-lime-subtle text-tag-lime-text",
+  yellow: "bg-tag-yellow-subtle text-tag-yellow-text",
+  orange: "bg-tag-orange-subtle text-tag-orange-text",
+  red: "bg-tag-red-subtle text-tag-red-text",
+  pink: "bg-tag-pink-subtle text-tag-pink-text",
+  magenta: "bg-tag-magenta-subtle text-tag-magenta-text",
+  purple: "bg-tag-purple-subtle text-tag-purple-text",
+};
+
 function AvatarFallback({
   className,
+  hue,
   ...props
-}: AvatarPrimitive.Fallback.Props) {
+}: AvatarPrimitive.Fallback.Props & {
+  hue?: AvatarHue;
+}) {
   return (
     <AvatarPrimitive.Fallback
       data-slot="avatar-fallback"
+      data-hue={hue}
       className={cn(
         "flex size-full items-center justify-center rounded-full bg-muted text-xs text-muted-foreground",
+        hue && AVATAR_HUE_CLASSES[hue],
         className,
       )}
       {...props}
@@ -107,4 +137,5 @@ export {
   AvatarGroup,
   AvatarGroupCount,
   AvatarBadge,
+  type AvatarHue,
 };

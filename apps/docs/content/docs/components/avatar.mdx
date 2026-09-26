@@ -116,6 +116,15 @@ mirrors the group's overlap without any extra work.
 
 <ComponentPreview name="avatarRtl" file="components/preview/avatar.tsx" />
 
+### Hues
+
+`AvatarFallback` takes a `hue` — one of the ten tag hues (`AvatarHue`) — and paints the initials in
+that hue's ink on its subtle fill: a person's own colour, so people are told apart before any photo
+exists. Without a hue the fallback stays muted. For a person, compose `PersonAvatar`, which reads the
+hue, the photo and the initials from one `Person`.
+
+<ComponentPreview name="avatarHues" file="components/preview/avatar.tsx" />
+
 ## API Reference
 
 <ApiTable path="lib/api-props.ts" name="AvatarProps" />
@@ -158,3 +167,6 @@ Upstream's file plus `packages/ui/upstream/patches/avatar.patch`. Every hunk:
 - **TYP-14** — `AvatarFallback` uses `text-xs` at all three sizes while preserving upstream's
   public size API and diameters. The decision and approval provenance are recorded in
   `docs/plans/2026-09-18-regent-avatar-148.md`.
+- **API-32** — `AvatarFallback` takes an optional `hue` (the ten `--tag-*` hues, exported as
+  `AvatarHue`) painting `bg-tag-{hue}-subtle text-tag-{hue}-text` and writing `data-hue`; with no hue
+  it keeps upstream's muted fallback.

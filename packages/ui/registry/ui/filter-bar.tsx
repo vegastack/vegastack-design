@@ -1,4 +1,4 @@
-// @vegastack filter-bar@0.23.43 sha256-aMzs6wwh+m1SYA6gO7xJldmNKH0RG0gqrAU08h9Cq2I=
+// @vegastack filter-bar@0.23.43 sha256-faqvkgSnyJlrJSCUef4dTOc6rDvTOXf11zN5bHjT+G8=
 
 "use client";
 
@@ -900,7 +900,8 @@ export type FilterBarFacetProps<
  * chevron's fixed slot that clears it ("Clear Status"). Single or `multiple`, local or
  * server-searched (`remote` + `useAsyncSearch`; the tick matches by `itemToKey`), optionally pinned
  * and removable. For people, pass `itemToSecondaryLabel={(p) => p.email}`: each option reads the
- * name plus a smaller muted email, and search matches both. Put it in a
+ * name plus a smaller muted email, and search matches both; add `itemToAvatar` to lead each option
+ * with the person's `PersonAvatar`. Put it in a
  * `FilterBar`'s `facets` slot.
  *
  * @example

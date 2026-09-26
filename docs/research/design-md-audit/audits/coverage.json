@@ -1,19 +1,19 @@
 {
   "schemaVersion": 1,
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "4da8e949d80f8f1a056c5f94f560f3f8fcf735e3ed436111278899e191f28a6c",
+  "contractSha256": "c27283423d4017e9e363498b1662aafdc59da7d0493702b991dbf7bcbd294ef3",
   "inventory": {
-    "expected": 691,
-    "actual": 691,
-    "unique": 691
+    "expected": 694,
+    "actual": 694,
+    "unique": 694
   },
   "classes": {
-    "components": 128,
+    "components": 130,
     "animatedIcons": 467,
     "hooks": 13,
     "blocks": 11,
     "chartBlocks": 68,
-    "libs": 4
+    "libs": 5
   },
   "waves": {
     "Core controls": {
@@ -47,10 +47,11 @@
       ]
     },
     "Forms/editing": {
-      "expected": 26,
-      "actual": 26,
+      "expected": 27,
+      "actual": 27,
       "members": [
         "auto-save-input",
+        "avatar-picker",
         "calendar",
         "chip-input",
         "color-picker",
@@ -171,11 +172,12 @@
       ]
     },
     "Shared internals": {
-      "expected": 2,
-      "actual": 2,
+      "expected": 3,
+      "actual": 3,
       "members": [
         "data-table-parts",
-        "panel-search"
+        "panel-search",
+        "person-avatar"
       ]
     },
     "AI/chat": {
@@ -770,7 +772,7 @@
       ]
     }
   },
-  "componentRoutes": 126,
+  "componentRoutes": 127,
   "blockRoutes": 18,
   "modeledExemptions": 3
 }

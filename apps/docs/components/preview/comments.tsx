@@ -13,9 +13,13 @@ import {
 import { toggleReaction } from "@/components/ui/reactions";
 
 const NOW = Date.parse("2026-09-26T10:00:00Z");
-const ME = { name: "Asha Rao", email: "asha@acme.com" };
-const ARJUN = { name: "Arjun Mehta", email: "arjun@acme.com" };
-const PRIYA = { name: "Priya Nair", badge: "Inactive" };
+const ME = { name: "Asha Rao", email: "asha@acme.com", hue: "blue" as const };
+const ARJUN = {
+  name: "Arjun Mehta",
+  email: "arjun@acme.com",
+  image: "/preview/avatar-2.svg",
+};
+const PRIYA = { name: "Priya Nair", hue: "pink" as const, badge: "Inactive" };
 const ME_REACTOR = { id: "asha", name: ME.name };
 
 const COMMENTS: CommentData[] = [

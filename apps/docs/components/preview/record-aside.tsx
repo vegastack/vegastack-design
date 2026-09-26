@@ -69,7 +69,7 @@ function Details() {
         <PropertyRow>
           <PropertyLabel icon={<UserRound />}>Created by</PropertyLabel>
           <PropertyValue>
-            <PropertyPerson name="Asha Rao" />
+            <PropertyPerson name="Asha Rao" hue="blue" />
           </PropertyValue>
         </PropertyRow>
         <PropertyRow>

@@ -48,6 +48,16 @@ surface.
   file="components/preview/thumbnail.tsx"
 />
 
+### Placeholder
+
+`placeholder` takes a tiny blurred preview as a data URL; it covers the thumbnail until the image
+has loaded. `srcSet` and `sizes` pass to the `<img>`, so a list row can ask for the 480w variant.
+
+<ComponentPreview
+  name="thumbnailPlaceholder"
+  file="components/preview/thumbnail.tsx"
+/>
+
 ## API Reference
 
 <ApiTable

@@ -29,7 +29,7 @@ export function boardCard(): ReactNode {
         onDoneChange={setDone}
         due={at(2)}
         priority="high"
-        assignee={{ name: "Priya Shah" }}
+        assignee={{ name: "Priya Shah", hue: "purple" }}
         actions={
           <RowActionsMenu
             label="Send the revised lighting schedule"
@@ -75,7 +75,7 @@ export function boardCardDone(): ReactNode {
         done={done}
         onDoneChange={setDone}
         due={at(-1)}
-        assignee={{ name: "Alex Lee" }}
+        assignee={{ name: "Alex Lee", hue: "green" }}
       />
     </Wrapper>
   );

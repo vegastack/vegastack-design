@@ -3,7 +3,7 @@
 <!-- GENERATED — do not hand-edit. Regenerated from the design system's component contract,
      which is the authority for membership and counts. -->
 
-**128 components**, plus 467 animated-icon items, 13 hooks (`use-animation-replay`, `use-announcer`, `use-async-search`, `use-drag-reorder`, `use-file-drop`, `use-inline-edit`, `use-list-nav`, `use-media-query`, `use-mobile`, `use-modal-inert`, `use-overflow`, `use-platform`, `use-tabs-swipe`), 11 starter blocks (`app-shell-01`, `board-01`, `issue-detail-01`, `command-search-01`, `list-page-01`, `login-01`, `notifications-01`, `review-split-01`, `settings-01`, `settings-02`, `status-pages-01`), 68 chart blocks across 7 families, and 4 data libs (`date-time`, `geo-data`, `emoji-data`, `drag-item`) — 691 registry items in total.
+**130 components**, plus 467 animated-icon items, 13 hooks (`use-animation-replay`, `use-announcer`, `use-async-search`, `use-drag-reorder`, `use-file-drop`, `use-inline-edit`, `use-list-nav`, `use-media-query`, `use-mobile`, `use-modal-inert`, `use-overflow`, `use-platform`, `use-tabs-swipe`), 11 starter blocks (`app-shell-01`, `board-01`, `issue-detail-01`, `command-search-01`, `list-page-01`, `login-01`, `notifications-01`, `review-split-01`, `settings-01`, `settings-02`, `status-pages-01`), 68 chart blocks across 7 families, and 5 data libs (`date-time`, `geo-data`, `emoji-data`, `drag-item`, `person`) — 694 registry items in total.
 
 Install any of them with `shadcn add @vegastack/<name>`. Animated icons install as
 `@vegastack/icon-<name>`; the bare name is reserved for components, so a component whose name
@@ -90,6 +90,7 @@ starts with `icon-` is a component and never an icon.
 - **`filter-bar-managed`** — The controlled nested and/or filter builder — host-injected field grammar (vocabulary + per-type value editors), depth and condition caps, focus-managed removal, and a removable FilterChip summary.
 - **`load-more`** — The shared Load more footer for keyset lists — an outline button that keeps its width while loading, an error line with Try again, and an optional end caption.
 - **`media-card`** — A record as a card — an image, the title, a meta line, a badge and a ⋯ menu — where the whole card is one link.
+- **`person-avatar`** — A person's avatar — the photo, else initials on their hue, else initials on the muted fallback — the one way every people surface draws a person.
 - **`person-hover-card`** — Stacked avatars with a hover card per person — a compact card with a 32px avatar, with the name and muted email beside it — and the rest behind "+N".
 - **`property-list`** — Record-facts rows: an icon+label column beside a value column, as an accessible definition list.
 - **`record-aside`** — The cards of a record page's right rail — titled sections of inline properties, people, linked records and full-width action rows.
@@ -178,3 +179,7 @@ starts with `icon-` is a component and never an icon.
 
 - **`announcement-banner`** — A dismissible one-line announcement — the full-width inverse page-top band (in-content notices use Alert variant=strip).
 - **`terminal`** — A dark mono command block with a phosphor prompt glyph and a composed copy button.
+
+## forms
+
+- **`avatar-picker`** — Upload, change or remove a person's photo — a large PersonAvatar with a busy spinner, Upload/Change photo through the file picker, Remove, and a line for a refused file.

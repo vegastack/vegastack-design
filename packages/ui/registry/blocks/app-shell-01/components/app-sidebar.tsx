@@ -1,4 +1,4 @@
-// @vegastack app-shell-01@0.23.43 sha256-PRhOnNcqP39KIWs8kDg242WaYPfYg0gJeoiBuViUjFs=
+// @vegastack app-shell-01@0.23.43 sha256-n+zbdKlnb3ouq1zMlOI8KMf+zYmXQ5DZrSN3oacKBPw=
 
 "use client";
 
@@ -27,7 +27,7 @@ import {
 } from "lucide-react";
 
 import { AppShellSidebar } from "@/components/ui/app-shell";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { PersonAvatar, type Person } from "@/components/ui/person-avatar";
 import {
   Collapsible,
   CollapsibleContent,
@@ -94,7 +94,9 @@ const data = {
     name: "Ana Ruiz",
     role: "Admin",
     email: "ana@acme.com",
-    initials: "AR",
+    // The photo URL, or null for initials on the member's hue.
+    image: null as string | null,
+    hue: "purple" as Person["hue"],
   },
   inbox: { href: "/inbox", unread: 3 },
   navMain: [
@@ -324,9 +326,7 @@ export function AppSidebar() {
                 render={<SidebarMenuButton size="lg" />}
                 aria-label={`Account: ${data.user.name}`}
               >
-                <Avatar size="sm">
-                  <AvatarFallback>{data.user.initials}</AvatarFallback>
-                </Avatar>
+                <PersonAvatar person={data.user} />
                 <div className="grid flex-1 text-start text-sm leading-tight">
                   <span className="truncate font-medium">{data.user.name}</span>
                   <span className="truncate text-xs text-muted-foreground">
@@ -338,9 +338,7 @@ export function AppSidebar() {
               <DropdownMenuContent align="end" side="top" className="min-w-56">
                 <DropdownMenuGroup>
                   <DropdownMenuLabel className="flex items-center gap-2 font-normal">
-                    <Avatar size="sm">
-                      <AvatarFallback>{data.user.initials}</AvatarFallback>
-                    </Avatar>
+                    <PersonAvatar person={data.user} />
                     <div className="grid flex-1 text-start text-sm leading-tight">
                       <span className="truncate font-medium text-foreground">
                         {data.user.name}

@@ -1,7 +1,7 @@
 {
   "_note": "Every name in packages/ui/registry/ui/ that has NO counterpart in vendor/shadcn/<cli>/ui/. verify-parity.mjs fails on a registry name that is neither upstream-backed nor listed here, so a component cannot appear by accident. Dispositions come from docs/plans/2026-09-18-shadcn-reset/extras.md (66 rows, MK 2026-09-18); hooks and internal parts are not components and are recorded here with their reason.",
   "counts": {
-    "total": 71,
+    "total": 73,
     "fromExtras": 46
   },
   "items": {
@@ -434,6 +434,18 @@
       "family": "display",
       "source": "Operator brief 2026-09-26 (comment reactions) — approved by MK 2026-09-26",
       "rationale": "Upstream ships no reactions. A fixed composition of upstream button, hover-card and our emoji-picker; no patch."
+    },
+    "person-avatar": {
+      "disposition": "keep",
+      "family": "data",
+      "source": "internal shared part; not listed in extras.md. Operator brief 2026-09-27 (Regent member photos) — approved by MK 2026-09-27",
+      "rationale": "The one way a person is drawn: upstream avatar with the photo, else initials (the `person` lib rule) on the person's hue (API-32). It moved out of person-hover-card so searchable-select, record-chip, board-card and inbox can compose it without a dependency cycle."
+    },
+    "avatar-picker": {
+      "disposition": "keep",
+      "family": "forms",
+      "source": "Operator brief 2026-09-27 (Regent member photos) — approved by MK 2026-09-27",
+      "rationale": "Upstream ships no photo picker. A fixed composition of person-avatar, button, spinner and use-file-drop; no patch."
     }
   }
 }

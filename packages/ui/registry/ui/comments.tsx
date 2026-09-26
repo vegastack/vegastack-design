@@ -1,4 +1,4 @@
-// @vegastack comments@0.23.43 sha256-pCDqRgirJeGEckNQ+jzLErIvp2sRh0ffRMn4BTSOLgk=
+// @vegastack comments@0.23.43 sha256-WMUg3Ep/iUcI0tmYJDKIwIu51plsGgLzM8ZcYtog1no=
 
 "use client";
 
@@ -39,7 +39,7 @@ import {
   EmptyHeader,
 } from "@/components/ui/empty";
 import { MarkdownView } from "@/components/ui/markdown-view";
-import { PersonAvatar, type Person } from "@/components/ui/person-hover-card";
+import { PersonAvatar, type Person } from "@/components/ui/person-avatar";
 import {
   ReactionAdd,
   Reactions,

@@ -64,7 +64,7 @@ export function inbox(): ReactNode {
         <InboxGroup label="Today">
           <InboxItem
             unread={unread("a")}
-            avatar={{ name: "Asha Kumar" }}
+            avatar={{ name: "Asha Kumar", hue: "orange" }}
             title={
               <>
                 <InboxEmphasis>Asha</InboxEmphasis> assigned you{" "}
@@ -106,7 +106,7 @@ export function inbox(): ReactNode {
           />
           <InboxItem
             unread={unread("c")}
-            avatar={{ name: "Raj Patel" }}
+            avatar={{ name: "Raj Patel", hue: "cyan" }}
             count={3}
             title={
               <>
@@ -151,7 +151,7 @@ export function inboxLoadingMore(): ReactNode {
         <InboxGroup label="Today">
           <InboxItem
             unread
-            avatar={{ name: "Asha Kumar" }}
+            avatar={{ name: "Asha Kumar", hue: "orange" }}
             title={
               <>
                 <InboxEmphasis>Asha</InboxEmphasis> assigned you{" "}

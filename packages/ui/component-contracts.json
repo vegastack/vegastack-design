@@ -12,22 +12,22 @@
     "evidencePolicy": "Observed fields come from source, registry metadata, docs, and test topology. Unknown/not-applicable values are explicit; no inferred behavior is presented as verified."
   },
   "expectedCounts": {
-    "totalRegistryItems": 691,
-    "components": 128,
+    "totalRegistryItems": 694,
+    "components": 130,
     "animatedIcons": 467,
     "hooks": 13,
     "blocks": 11,
-    "libs": 4,
+    "libs": 5,
     "chartBlocks": 68
   },
   "expectedWaveCounts": {
     "Core controls": 24,
-    "Forms/editing": 26,
+    "Forms/editing": 27,
     "Navigation/layout": 18,
     "Overlays": 14,
     "Data display": 22,
     "Content/marketing": 14,
-    "Shared internals": 2,
+    "Shared internals": 3,
     "AI/chat": 8,
     "Hooks": 13,
     "Block": 1,
@@ -62,6 +62,7 @@
     ],
     "Forms/editing": [
       "auto-save-input",
+      "avatar-picker",
       "calendar",
       "chip-input",
       "color-picker",
@@ -164,7 +165,7 @@
       "truncated-text",
       "video-player"
     ],
-    "Shared internals": ["data-table-parts", "panel-search"],
+    "Shared internals": ["data-table-parts", "panel-search", "person-avatar"],
     "AI/chat": [
       "marker",
       "message",
@@ -2534,6 +2535,15 @@
             "target": "element",
             "rationale": "Upstream forwards the ref to its own render target."
           }
+        },
+        {
+          "name": "AvatarHue",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/avatar.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
         }
       ],
       "variants": {
@@ -2628,6 +2638,10 @@
         "AvatarFallback": {
           "attributes": [
             {
+              "name": "data-hue",
+              "values": []
+            },
+            {
               "name": "data-slot",
               "values": ["avatar-fallback"]
             }
@@ -2657,6 +2671,122 @@
             {
               "name": "data-slot",
               "values": ["avatar-group-count"]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
+    },
+    {
+      "name": "avatar-picker",
+      "registryType": "registry:ui",
+      "title": "Avatar Picker",
+      "summary": "Upload, change or remove a person's photo — a large PersonAvatar with a busy spinner, Upload/Change photo through the file picker, Remove, and a line for a refused file.",
+      "status": "stable",
+      "since": "0.23.44",
+      "family": "forms",
+      "wave": "Forms/editing",
+      "sourceFiles": ["packages/ui/registry/ui/avatar-picker.tsx"],
+      "publicSymbols": [
+        {
+          "name": "AvatarPicker",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/avatar-picker.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "div",
+            "rationale": "Spread onto the root div."
+          }
+        },
+        {
+          "name": "AvatarPickerProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/avatar-picker.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "One layout; the label reads Upload or Change from whether a photo exists."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "size is lg (64px) | xl (80px) for the avatar."
+      },
+      "states": {
+        "behavior": {
+          "status": "covered",
+          "values": ["empty", "image", "busy", "rejected"],
+          "evidence": "packages/ui/registry/ui/avatar-picker.tsx + packages/ui/registry/ui/avatar-picker.test.tsx"
+        },
+        "accessibility": {
+          "status": "covered",
+          "values": ["labeled", "browser-accessibility-test"],
+          "evidence": "packages/ui/registry/ui/avatar-picker.test.tsx"
+        },
+        "visual": {
+          "status": "observed",
+          "values": ["default", "busy", "error"],
+          "evidence": "packages/ui/registry/ui/avatar-picker.tsx"
+        }
+      },
+      "responsive": {
+        "status": "modeled",
+        "risks": ["responsive-or-container-layout"],
+        "rationale": "The buttons wrap under a narrow width; the avatar never shrinks."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned motion mechanism; the spinner is Spinner's."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/avatar-picker",
+      "registryDependencies": [
+        "@vegastack/button",
+        "@vegastack/person-avatar",
+        "@vegastack/spinner",
+        "@vegastack/use-file-drop"
+      ],
+      "npmDependencies": [
+        "@vegastack/design@^0.7.46",
+        "@vegastack/design-tokens@^0.7.46"
+      ],
+      "testFiles": ["packages/ui/registry/ui/avatar-picker.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required"
+      },
+      "previewModule": "avatar-picker",
+      "dataAttributes": {
+        "AvatarPicker": {
+          "attributes": [
+            {
+              "name": "data-size",
+              "values": []
+            },
+            {
+              "name": "data-slot",
+              "values": [
+                "avatar-picker",
+                "avatar-picker-avatar",
+                "avatar-picker-busy",
+                "avatar-picker-message",
+                "avatar-picker-remove",
+                "avatar-picker-upload"
+              ]
             }
           ],
           "cssVariables": []
@@ -3139,11 +3269,11 @@
       "engines": [],
       "docsSlug": "/docs/components/board-card",
       "registryDependencies": [
-        "@vegastack/avatar",
         "@vegastack/badge",
         "@vegastack/checkbox",
         "@vegastack/date-time",
         "@vegastack/hover-card",
+        "@vegastack/person-avatar",
         "@vegastack/person-hover-card"
       ],
       "npmDependencies": [
@@ -8009,7 +8139,11 @@
             },
             {
               "name": "data-slot",
-              "values": ["thumbnail", "thumbnail-fallback"]
+              "values": [
+                "thumbnail",
+                "thumbnail-fallback",
+                "thumbnail-placeholder"
+              ]
             }
           ],
           "cssVariables": []
@@ -11956,6 +12090,7 @@
                 "image",
                 "image-fallback",
                 "image-img",
+                "image-placeholder",
                 "image-skeleton"
               ]
             },
@@ -15211,9 +15346,9 @@
       "engines": [],
       "docsSlug": "/docs/components/inbox",
       "registryDependencies": [
-        "@vegastack/avatar",
         "@vegastack/button",
         "@vegastack/dropdown-menu",
+        "@vegastack/person-avatar",
         "@vegastack/relative-time",
         "@vegastack/skeleton",
         "@vegastack/tooltip"
@@ -17970,6 +18105,7 @@
         "@vegastack/combobox",
         "@vegastack/item",
         "@vegastack/load-more",
+        "@vegastack/person-avatar",
         "@vegastack/skeleton",
         "@vegastack/spinner"
       ],
@@ -24379,9 +24515,9 @@
       "engines": [],
       "docsSlug": "/docs/components/record-chip",
       "registryDependencies": [
-        "@vegastack/avatar",
         "@vegastack/badge",
         "@vegastack/button",
+        "@vegastack/person-avatar",
         "@vegastack/popover"
       ],
       "npmDependencies": [
@@ -25039,7 +25175,7 @@
         "@vegastack/dropdown-menu",
         "@vegastack/empty",
         "@vegastack/markdown-view",
-        "@vegastack/person-hover-card",
+        "@vegastack/person-avatar",
         "@vegastack/reactions",
         "@vegastack/relative-time",
         "@vegastack/searchable-select",
@@ -25588,7 +25724,7 @@
         "@vegastack/button",
         "@vegastack/card",
         "@vegastack/item",
-        "@vegastack/person-hover-card",
+        "@vegastack/person-avatar",
         "@vegastack/searchable-select",
         "@vegastack/skeleton",
         "@vegastack/tooltip"
@@ -25759,24 +25895,6 @@
           }
         },
         {
-          "name": "PersonAvatar",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/person-hover-card.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Renders an Avatar; takes no ref."
-          }
-        },
-        {
-          "name": "Person",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/person-hover-card.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
           "name": "AvatarStackProps",
           "kind": "interface",
           "source": "packages/ui/registry/ui/person-hover-card.tsx",
@@ -25796,15 +25914,6 @@
         },
         {
           "name": "PersonCardProps",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/person-hover-card.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "PersonAvatarProps",
           "kind": "interface",
           "source": "packages/ui/registry/ui/person-hover-card.tsx",
           "ref": {
@@ -25859,6 +25968,7 @@
         "@vegastack/avatar",
         "@vegastack/button",
         "@vegastack/hover-card",
+        "@vegastack/person-avatar",
         "@vegastack/popover",
         "@vegastack/searchable-select"
       ],
@@ -25901,6 +26011,103 @@
           "cssVariables": []
         }
       }
+    },
+    {
+      "name": "person-avatar",
+      "registryType": "registry:ui",
+      "title": "Person Avatar",
+      "summary": "A person's avatar — the photo, else initials on their hue, else initials on the muted fallback — the one way every people surface draws a person.",
+      "status": "stable",
+      "since": "0.23.44",
+      "family": "data",
+      "wave": "Shared internals",
+      "sourceFiles": ["packages/ui/registry/ui/person-avatar.tsx"],
+      "publicSymbols": [
+        {
+          "name": "PersonAvatar",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/person-avatar.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Renders an Avatar; takes no ref."
+          }
+        },
+        {
+          "name": "Person",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/person-avatar.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "PersonAvatarProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/person-avatar.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "Composes Avatar; the person's hue is data, not a variant axis."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "Avatar's own sm/default/lg tiers, passed through."
+      },
+      "states": {
+        "behavior": {
+          "status": "covered",
+          "values": ["image", "initials", "hue"],
+          "evidence": "packages/ui/registry/ui/person-avatar.tsx + packages/ui/registry/ui/person-avatar.test.tsx"
+        },
+        "accessibility": {
+          "status": "covered",
+          "values": ["decorative", "browser-accessibility-test"],
+          "evidence": "packages/ui/registry/ui/person-avatar.test.tsx"
+        },
+        "visual": {
+          "status": "observed",
+          "values": ["default", "hue"],
+          "evidence": "packages/ui/registry/ui/person-avatar.tsx"
+        }
+      },
+      "responsive": {
+        "status": "not-applicable",
+        "risks": [],
+        "rationale": "A fixed-size avatar; its host owns layout."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned motion mechanism."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/guides/components",
+      "registryDependencies": ["@vegastack/avatar", "@vegastack/person"],
+      "npmDependencies": [
+        "@vegastack/design@^0.7.46",
+        "@vegastack/design-tokens@^0.7.46"
+      ],
+      "testFiles": ["packages/ui/registry/ui/person-avatar.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "shared-guide-only",
+        "navigation": "exempt",
+        "preview": "exempt",
+        "vrt": "exempt"
+      },
+      "dataAttributes": {}
     }
   ],
   "animatedIcons": {
@@ -29964,7 +30171,6 @@
       "docsSlug": "/docs/blocks/app-shell-01",
       "registryDependencies": [
         "@vegastack/app-shell",
-        "@vegastack/avatar",
         "@vegastack/breadcrumb",
         "@vegastack/button",
         "@vegastack/card",
@@ -29974,6 +30180,7 @@
         "@vegastack/item",
         "@vegastack/kbd",
         "@vegastack/page-header",
+        "@vegastack/person-avatar",
         "@vegastack/provider",
         "@vegastack/sidebar",
         "@vegastack/stat",
@@ -31961,6 +32168,82 @@
       "testFiles": [
         "packages/ui/registry/lib/drag-item.test.ts",
         "packages/ui/registry/ui/sortable-list.test.tsx"
+      ],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "shared-guide-only",
+        "navigation": "exempt",
+        "preview": "exempt",
+        "vrt": "exempt"
+      }
+    },
+    {
+      "name": "person",
+      "registryType": "registry:lib",
+      "title": "Person",
+      "summary": "The one initials rule for a person's avatar — first and last word, two letters of a single word, else the email — shared by PersonAvatar and every people surface.",
+      "family": "lib",
+      "wave": "Libs",
+      "sourceFiles": ["packages/ui/registry/lib/person.ts"],
+      "publicSymbols": [
+        {
+          "name": "personInitials",
+          "kind": "function",
+          "source": "packages/ui/registry/lib/person.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A pure function; it renders nothing and takes no ref."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "A pure function has no variant surface."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "A pure function has no size scale."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned motion mechanism observed."
+        }
+      },
+      "engines": [],
+      "registryDependencies": [],
+      "docsSlug": "/docs/guides/components",
+      "states": {
+        "behavior": {
+          "status": "covered",
+          "values": ["two-words", "one-word", "email"],
+          "evidence": "packages/ui/registry/lib/person.test.ts"
+        },
+        "accessibility": {
+          "status": "not-applicable",
+          "values": ["not-applicable"],
+          "evidence": "No DOM — PersonAvatar renders the initials."
+        },
+        "visual": {
+          "status": "not-applicable",
+          "values": ["not-applicable"],
+          "evidence": "No DOM."
+        }
+      },
+      "responsive": {
+        "status": "not-applicable",
+        "risks": [],
+        "rationale": "No DOM of its own; consumers own layout."
+      },
+      "npmDependencies": [],
+      "testFiles": [
+        "packages/ui/registry/lib/person.test.ts",
+        "packages/ui/registry/ui/person-avatar.test.tsx"
       ],
       "coverage": {
         "source": "required",

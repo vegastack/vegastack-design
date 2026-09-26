@@ -262,7 +262,7 @@
         "@vegastack/dropdown-menu",
         "@vegastack/empty",
         "@vegastack/markdown-view",
-        "@vegastack/person-hover-card",
+        "@vegastack/person-avatar",
         "@vegastack/reactions",
         "@vegastack/relative-time",
         "@vegastack/searchable-select",
@@ -281,7 +281,7 @@
         "whenToUse": "Discussion on a record's page (a task, a meeting): comments oldest first with the composer at the end.",
         "whenNotToUse": "An activity feed or notifications — use Inbox.",
         "version": "0.23.43",
-        "integrity": "sha256-pCDqRgirJeGEckNQ+jzLErIvp2sRh0ffRMn4BTSOLgk="
+        "integrity": "sha256-WMUg3Ep/iUcI0tmYJDKIwIu51plsGgLzM8ZcYtog1no="
       }
     },
     {
@@ -468,7 +468,39 @@
         "whenToUse": "Represent a user/entity with a photo, falling back to initials — alone or stacked in a group.",
         "whenNotToUse": "When you must fetch/resolve the image source — presentational; resolve R2/CDN keys app-side.",
         "version": "0.23.43",
-        "integrity": "sha256-L3i4JT7Ae9K+WmaznB87kpYipfh/4rWahIpKei2yvJg="
+        "integrity": "sha256-fB2fi6Wd/OKvVQnoPNwnrwgsa5mqsLDJn8FATyMv02s="
+      }
+    },
+    {
+      "name": "avatar-picker",
+      "type": "registry:ui",
+      "title": "Avatar Picker",
+      "description": "Upload, change or remove a person's photo — a large PersonAvatar with a busy spinner, Upload/Change photo through the file picker, Remove, and a line for a refused file.",
+      "categories": [
+        "forms"
+      ],
+      "dependencies": [
+        "@vegastack/design@^0.7.46",
+        "@vegastack/design-tokens@^0.7.46"
+      ],
+      "registryDependencies": [
+        "@vegastack/button",
+        "@vegastack/person-avatar",
+        "@vegastack/spinner",
+        "@vegastack/use-file-drop"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/avatar-picker.tsx",
+          "type": "registry:ui",
+          "target": "@ui/avatar-picker.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "A profile or member settings row where someone sets their own photo.",
+        "whenNotToUse": "Attaching files to a record (Dropzone / Attachment) or picking a person (SearchableSelect).",
+        "version": "0.23.43",
+        "integrity": "sha256-ZTn4xaOH8SiBwCAq+XvKp0l7QlzoYqgmfUoaQd4oPSg="
       }
     },
     {
@@ -557,12 +589,12 @@
         "@base-ui/react@^1.6.0"
       ],
       "registryDependencies": [
-        "@vegastack/avatar",
         "@vegastack/badge",
         "@vegastack/checkbox",
+        "@vegastack/date-time",
         "@vegastack/hover-card",
-        "@vegastack/person-hover-card",
-        "@vegastack/date-time"
+        "@vegastack/person-avatar",
+        "@vegastack/person-hover-card"
       ],
       "files": [
         {
@@ -575,7 +607,7 @@
         "whenToUse": "The content of a Board card (tasks, deals, tickets) — DataList's board view renders one per row — or a standalone work-item card.",
         "whenNotToUse": "A record with an image (MediaCard), a long body (Card), or a table row (DataList).",
         "version": "0.23.43",
-        "integrity": "sha256-4V3E8p7PORHqN2GjuLcNeJ4czxDGX/ff9Q4zE1SQa6U="
+        "integrity": "sha256-8OGuc7VBWkWEscOOKu+Petbt3uz/w6tTaUi2ZgHv2kY="
       }
     },
     {
@@ -1357,7 +1389,7 @@
         "whenToUse": "A record image in a list row (32px) or a card (48px), with the app mark as the fallback.",
         "whenNotToUse": "A person (Avatar), a large image or media (Image), or an icon (Icon).",
         "version": "0.23.43",
-        "integrity": "sha256-eXfpewl//zenAE9JZWTR6b92C9f/BkRJnC3gmS28I6I="
+        "integrity": "sha256-9u6gzryvPEytwiwy/5/8OIEK4vOkI9Jbkdjotz1dwoI="
       }
     },
     {
@@ -1564,6 +1596,30 @@
         "whenNotToUse": "File drag-in (use-file-drop) or any surface that does not use the reorder hook.",
         "version": "0.23.43",
         "integrity": "sha256-heORZT2F0txTHdGSKGyxmERzNNJvOr1z152IY4zYAyM="
+      }
+    },
+    {
+      "name": "person",
+      "type": "registry:lib",
+      "title": "Person",
+      "description": "The one initials rule for a person's avatar — first and last word, two letters of a single word, else the email — shared by PersonAvatar and every people surface.",
+      "categories": [
+        "data"
+      ],
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "packages/ui/registry/lib/person.ts",
+          "type": "registry:lib",
+          "target": "@lib/person.ts"
+        }
+      ],
+      "meta": {
+        "whenToUse": "Deriving a person's initials outside PersonAvatar (a mention, an export) so they match the avatar.",
+        "whenNotToUse": "Drawing an avatar — compose PersonAvatar, which applies the rule itself.",
+        "version": "0.23.43",
+        "integrity": "sha256-0XiXUntsDA9HFLCx/GF5UgdVGd8z1k2naP4r1lBUyE8="
       }
     },
     {
@@ -1853,7 +1909,7 @@
         "whenToUse": "Filter toolbars for lists/tables — 'Label: value' chips that edit in place, facets on SearchableSelect, an Add-filter menu and a settled search, at the end or first.",
         "whenNotToUse": "A single search box (Input), value selection (Select), or unrelated row actions.",
         "version": "0.23.43",
-        "integrity": "sha256-aMzs6wwh+m1SYA6gO7xJldmNKH0RG0gqrAU08h9Cq2I="
+        "integrity": "sha256-faqvkgSnyJlrJSCUef4dTOc6rDvTOXf11zN5bHjT+G8="
       }
     },
     {
@@ -15068,7 +15124,7 @@
         "whenToUse": "Display a resolved image URL with reserved aspect-ratio, a loading skeleton, and a graceful error fallback.",
         "whenNotToUse": "When you must fetch/resolve the source (R2/CDN keys) — presentational; resolve URLs app-side.",
         "version": "0.23.43",
-        "integrity": "sha256-v4fP/M8+3D/cbVKbQDYp3Ws9l4U/fBYhsoysHVjeRGs="
+        "integrity": "sha256-wmjlDMI37X/MVfgiZ2IgyYmd4GF26p2SHto9MU87qFU="
       }
     },
     {
@@ -15511,9 +15567,9 @@
         "@vegastack/design-tokens@^0.7.46"
       ],
       "registryDependencies": [
-        "@vegastack/avatar",
         "@vegastack/badge",
         "@vegastack/button",
+        "@vegastack/person-avatar",
         "@vegastack/popover"
       ],
       "files": [
@@ -15527,7 +15583,7 @@
         "whenToUse": "Linking a record to another one in its header — a meeting's customer or project — with a picker and a jump to the linked record.",
         "whenNotToUse": "A free-form tag (Chip) or a form field with a label (Combobox, Select).",
         "version": "0.23.43",
-        "integrity": "sha256-ciIHo2eCm5tp4ZCuOz/GpEdUaYk1wi9nt0RC1KRCVgY="
+        "integrity": "sha256-euRC4+Kno9r7fCompJJREmrDi0B+aGoNIpvmFwckLYs="
       }
     },
     {
@@ -15658,9 +15714,9 @@
         "@vegastack/design-tokens@^0.7.46"
       ],
       "registryDependencies": [
-        "@vegastack/avatar",
         "@vegastack/button",
         "@vegastack/dropdown-menu",
+        "@vegastack/person-avatar",
         "@vegastack/relative-time",
         "@vegastack/skeleton",
         "@vegastack/tooltip"
@@ -15676,7 +15732,7 @@
         "whenToUse": "The notifications panel: a feed of person and system events the user reads, acts on and marks read. Put it in a Sheet, Popover or docked panel.",
         "whenNotToUse": "Toasts for transient confirmations, an activity log on a record (Timeline), or a bare unread count (NotificationBell).",
         "version": "0.23.43",
-        "integrity": "sha256-v39S0ADaTePtTGZXs5scJmqFNoHdLZw5TYIpaV//lLU="
+        "integrity": "sha256-M2hHm5SDjwYIax7oI5FVyDMZQyLvUr2ZAmgpFzkcovU="
       }
     },
     {
@@ -15934,6 +15990,7 @@
         "@vegastack/avatar",
         "@vegastack/button",
         "@vegastack/hover-card",
+        "@vegastack/person-avatar",
         "@vegastack/popover",
         "@vegastack/searchable-select"
       ],
@@ -15948,7 +16005,37 @@
         "whenToUse": "Show the people on a record (participants, watchers, a team) as stacked avatars, each previewing the person on hover, focus or tap.",
         "whenNotToUse": "A picker of people (SearchableSelect) or a full member list (DataList).",
         "version": "0.23.43",
-        "integrity": "sha256-FJQyqQG7coLanHYlGdXYrWRSoTKal5YQCJvHJz+csn8="
+        "integrity": "sha256-3v3PcaF0KPwM+4fzNLfbgWDKm4l13xMexs2uli0lqgI="
+      }
+    },
+    {
+      "name": "person-avatar",
+      "type": "registry:ui",
+      "title": "Person Avatar",
+      "description": "A person's avatar — the photo, else initials on their hue, else initials on the muted fallback — the one way every people surface draws a person.",
+      "categories": [
+        "data"
+      ],
+      "dependencies": [
+        "@vegastack/design@^0.7.46",
+        "@vegastack/design-tokens@^0.7.46"
+      ],
+      "registryDependencies": [
+        "@vegastack/avatar",
+        "@vegastack/person"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/person-avatar.tsx",
+          "type": "registry:ui",
+          "target": "@ui/person-avatar.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "Any avatar that stands for a person: rows, chips, cards, menus, comments and the user menu.",
+        "whenNotToUse": "An organisation or record image (Thumbnail) or a non-person avatar composition (Avatar).",
+        "version": "0.23.43",
+        "integrity": "sha256-0U+sF+4zsAAyhCcigm4PEakjFj3vDHcyTY35Z8/UV3A="
       }
     },
     {
@@ -15968,7 +16055,7 @@
         "@vegastack/button",
         "@vegastack/card",
         "@vegastack/item",
-        "@vegastack/person-hover-card",
+        "@vegastack/person-avatar",
         "@vegastack/searchable-select",
         "@vegastack/skeleton",
         "@vegastack/tooltip"
@@ -15984,7 +16071,7 @@
         "whenToUse": "A record page's rail cards (and its Details sheet): a Details section of inline properties, people and linked records, then sections of full-width rows for the record's tasks and suggestions.",
         "whenNotToUse": "A full list page (DataList) or a settings form (Field).",
         "version": "0.23.43",
-        "integrity": "sha256-JvBz3on0RdKxqOQgCixOkEe+mrp226z1yFmm7Wsiq1I="
+        "integrity": "sha256-4xhdP+cwD76DIZ9w7fDoG2IvCBYCLfvQN/DPStnrsKc="
       }
     },
     {
@@ -16187,6 +16274,7 @@
         "@vegastack/combobox",
         "@vegastack/item",
         "@vegastack/load-more",
+        "@vegastack/person-avatar",
         "@vegastack/skeleton",
         "@vegastack/spinner"
       ],
@@ -16201,7 +16289,7 @@
         "whenToUse": "A Select-shaped searchable picker: one or several values, option descriptions and disabled reasons, and server search with paging (remote + useAsyncSearch).",
         "whenNotToUse": "A short fixed option set (Select), free text with suggestions (Combobox directly), or multi-select (Combobox with chips).",
         "version": "0.23.43",
-        "integrity": "sha256-LyfWIybvvE0Xchykf6yiBVLiD9ixyiU+7x7daib+D1I="
+        "integrity": "sha256-NMUPk/MvEY4eEUuQPiXB6BvghItfe8Z5xIYmvOO+hBs="
       }
     },
     {
@@ -17529,7 +17617,6 @@
       ],
       "registryDependencies": [
         "@vegastack/app-shell",
-        "@vegastack/avatar",
         "@vegastack/breadcrumb",
         "@vegastack/button",
         "@vegastack/card",
@@ -17539,6 +17626,7 @@
         "@vegastack/item",
         "@vegastack/kbd",
         "@vegastack/page-header",
+        "@vegastack/person-avatar",
         "@vegastack/provider",
         "@vegastack/sidebar",
         "@vegastack/stat",
@@ -17560,7 +17648,7 @@
         "whenToUse": "Starting an application whose every route sits inside one shell and sidebar — copy it once, then hoist AppShell into a layout.",
         "whenNotToUse": "You only need the shell mechanics in many places — install the app-shell component and compose it yourself.",
         "version": "0.23.43",
-        "integrity": "sha256-PRhOnNcqP39KIWs8kDg242WaYPfYg0gJeoiBuViUjFs="
+        "integrity": "sha256-n+zbdKlnb3ouq1zMlOI8KMf+zYmXQ5DZrSN3oacKBPw="
       }
     },
     {

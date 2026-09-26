@@ -1,4 +1,4 @@
-// @vegastack thumbnail@0.23.43 sha256-eXfpewl//zenAE9JZWTR6b92C9f/BkRJnC3gmS28I6I=
+// @vegastack thumbnail@0.23.43 sha256-9u6gzryvPEytwiwy/5/8OIEK4vOkI9Jbkdjotz1dwoI=
 
 "use client";
 
@@ -27,6 +27,22 @@ export interface ThumbnailProps extends Omit<
    */
   fallback?: React.ReactNode;
   /**
+   * Candidate sources for the browser to pick from (`"a.webp 480w, b.webp 1280w"`), with `sizes`.
+   * @default undefined
+   */
+  srcSet?: string;
+  /**
+   * Which `srcSet` width the thumbnail renders at.
+   * @default undefined
+   */
+  sizes?: string;
+  /**
+   * A tiny preview of the image as a data URL (a 16px blur): a blurred cover under the image
+   * until it has loaded.
+   * @default undefined
+   */
+  placeholder?: string;
+  /**
    * `sm` is 32px (a list row), `default` is 48px (a card).
    * @default "default"
    */
@@ -39,11 +55,17 @@ export interface ThumbnailProps extends Omit<
  *
  * @example
  * <Thumbnail src={family.imageUrl} alt="" fallback={<BrandMark />} size="sm" />
+ *
+ * @example
+ * <Thumbnail src={file.url480} srcSet={file.srcset} sizes="48px" placeholder={file.blur} alt="" />
  */
 export function Thumbnail({
   src,
   alt,
   fallback,
+  srcSet,
+  sizes,
+  placeholder,
   size = "default",
   className,
   ...props
@@ -51,6 +73,15 @@ export function Thumbnail({
   // The src that failed, so a new src gets its own attempt.
   const [failed, setFailed] = React.useState<string | null>(null);
   const showImage = !!src && failed !== src;
+  // The src that has loaded, so the blur preview stays only until its own image is in. An image
+  // already decoded before hydration fires no `load`, so the element is read once on mount too.
+  const [loaded, setLoaded] = React.useState<string | null>(null);
+  const imgRef = React.useCallback(
+    (img: HTMLImageElement | null) => {
+      if (img?.complete && img.naturalWidth > 0 && src) setLoaded(src);
+    },
+    [src],
+  );
   return (
     <span
       data-slot="thumbnail"
@@ -65,14 +96,26 @@ export function Thumbnail({
       )}
       {...props}
     >
+      {showImage && placeholder && loaded !== src ? (
+        <span
+          aria-hidden="true"
+          data-slot="thumbnail-placeholder"
+          style={{ backgroundImage: `url("${placeholder}")` }}
+          className="absolute inset-0 scale-110 bg-cover bg-center blur-sm"
+        />
+      ) : null}
       {showImage ? (
         <img
+          ref={imgRef}
           src={src}
+          srcSet={srcSet}
+          sizes={sizes}
           alt={alt}
           loading="lazy"
           decoding="async"
+          onLoad={() => setLoaded(src)}
           onError={() => setFailed(src)}
-          className="size-full object-cover"
+          className="relative size-full object-cover"
         />
       ) : (
         <span

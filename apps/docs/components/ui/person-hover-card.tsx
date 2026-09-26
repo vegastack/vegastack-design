@@ -1,17 +1,12 @@
-// @vegastack person-hover-card@0.23.43 sha256-FJQyqQG7coLanHYlGdXYrWRSoTKal5YQCJvHJz+csn8=
+// @vegastack person-hover-card@0.23.43 sha256-3v3PcaF0KPwM+4fzNLfbgWDKm4l13xMexs2uli0lqgI=
 
 "use client";
 
 import * as React from "react";
 import { cn } from "@vegastack/design";
-import {
-  Avatar,
-  AvatarFallback,
-  AvatarGroup,
-  AvatarGroupCount,
-  AvatarImage,
-} from "@/components/ui/avatar";
+import { AvatarGroup, AvatarGroupCount } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import { PersonAvatar, type Person } from "@/components/ui/person-avatar";
 import { PersonBadge } from "@/components/ui/searchable-select";
 import {
   HoverCard,
@@ -26,52 +21,10 @@ import {
 
 /* ------------------------------------------------------------------------------------------------
  * PersonHoverCard — a person behind an avatar: hover or focus (tap on touch) opens a card with a
- * 32px avatar with the name and a muted email stacked beside it. AvatarStack stacks up to `max` of them (the Avatar
+ * 32px avatar (`PersonAvatar`: the photo, else initials on the person's hue) with the name and a muted email stacked beside it. AvatarStack stacks up to `max` of them (the Avatar
  * group recipe) with the rest behind a "+N" that opens the same rows in a list. A person without
  * an account (a free-text participant) shows initials and just the name.
  * ----------------------------------------------------------------------------------------------*/
-
-/** A person shown by `PersonCard`, `PersonHoverCard` and `AvatarStack`. */
-export interface Person {
-  /** The name shown, and the avatar's initials. */
-  name: string;
-  /** The muted line under the name; omit for someone without an account. @default undefined */
-  email?: string | null;
-  /** The avatar image. @default undefined */
-  image?: string | null;
-  /** A status after the name, such as "Inactive" — a string is a small muted outline badge. @default undefined */
-  badge?: React.ReactNode;
-}
-
-/** The two initials of a name ("Northwind FM leads" → "NF"). */
-function initials(name: string): string {
-  const parts = name.trim().split(/\s+/);
-  return ((parts[0]?.[0] ?? "") + (parts[1]?.[0] ?? "")).toUpperCase();
-}
-
-/** Props for `PersonAvatar`. */
-export interface PersonAvatarProps {
-  /** The person. */
-  person: Person;
-  /** Avatar size. @default "sm" */
-  size?: "sm" | "default" | "lg";
-  /** Classes for the avatar. @default undefined */
-  className?: string;
-}
-
-/** `PersonAvatar` — a person's avatar: the image, else their initials. @example <PersonAvatar person={{ name: "Asha Rao" }} /> */
-export function PersonAvatar({
-  person,
-  size = "sm",
-  className,
-}: PersonAvatarProps) {
-  return (
-    <Avatar size={size} className={className}>
-      {person.image ? <AvatarImage src={person.image} alt="" /> : null}
-      <AvatarFallback>{initials(person.name)}</AvatarFallback>
-    </Avatar>
-  );
-}
 
 /** Props for `PersonCard`. */
 export interface PersonCardProps extends React.ComponentPropsWithRef<"div"> {

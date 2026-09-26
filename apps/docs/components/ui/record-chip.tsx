@@ -1,12 +1,12 @@
-// @vegastack record-chip@0.23.43 sha256-ciIHo2eCm5tp4ZCuOz/GpEdUaYk1wi9nt0RC1KRCVgY=
+// @vegastack record-chip@0.23.43 sha256-euRC4+Kno9r7fCompJJREmrDi0B+aGoNIpvmFwckLYs=
 
 import * as React from "react";
 import { ArrowUpRight, ChevronDown } from "lucide-react";
 import { cn } from "@vegastack/design";
 
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { PersonAvatar, type Person } from "@/components/ui/person-avatar";
 import { PopoverContent } from "@/components/ui/popover";
 
 /** Props accepted by `RecordChip`. */
@@ -73,14 +73,10 @@ export interface RecordChipPerson {
   name: string;
   /** The avatar image. @default undefined */
   image?: string | null;
+  /** The person's colour behind their initials. @default undefined */
+  hue?: Person["hue"];
   /** A status after the name, such as "Inactive" — a string is a small muted outline badge. @default undefined */
   badge?: React.ReactNode;
-}
-
-/** The two initials of a name ("Asha Rao" → "AR"). */
-function initials(name: string): string {
-  const parts = name.trim().split(/\s+/);
-  return ((parts[0]?.[0] ?? "") + (parts[1]?.[0] ?? "")).toUpperCase();
 }
 
 const defaultRenderLink: NonNullable<RecordChipProps["renderLink"]> = (
@@ -208,10 +204,12 @@ export function RecordChip({
   const showLink = hasValue && href !== undefined;
   const ghost = variant === "ghost";
   const lead = person ? (
-    <Avatar data-slot="record-chip-avatar" className="size-5">
-      {person.image ? <AvatarImage src={person.image} alt="" /> : null}
-      <AvatarFallback>{initials(person.name)}</AvatarFallback>
-    </Avatar>
+    <PersonAvatar
+      person={person}
+      size="default"
+      data-slot="record-chip-avatar"
+      className="size-5"
+    />
   ) : icon ? (
     <span
       aria-hidden

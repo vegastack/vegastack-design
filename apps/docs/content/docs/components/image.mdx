@@ -90,6 +90,25 @@ Opt out for an above-the-fold hero, where deferring the fetch delays LCP instead
 <Image src={hero} alt="" loading="eager" aspectRatio="video" />
 ```
 
+### Placeholder
+
+`placeholder` takes a tiny preview of the image as a data URL (a 16px blur, under 1 KB, stored
+beside the file). It fills the frame as a blurred cover while the image loads — in place of the
+pulsing skeleton — and fades out as the image fades in. `srcSet` and `sizes` pass straight to the
+`<img>`, so a stored image can offer its 480w and 1280w variants.
+
+```tsx
+<Image
+  src={file.url480}
+  srcSet={file.srcset}
+  sizes="(min-width: 768px) 50vw, 100vw"
+  placeholder={file.blur}
+  alt=""
+/>
+```
+
+<ComponentPreview name="imagePlaceholder" file="components/preview/image.tsx" />
+
 ## Playground
 
 Combine an aspect ratio with a corner radius, then copy the generated JSX.
