@@ -4,7 +4,7 @@
  * Before Batch 7c of the shadcn reset these assertions lived nowhere: `emoji-picker` and
  * `shortcut-overlay` each carried a private copy of the row, and each suite tested its own
  * popup's behaviour through it. The exception itself — a sticky header, no nested bordered box,
- * the border tint on focus-within — is what this file pins, so the two consumers can go back to
+ * the row wearing the focus tint as a field group — is what this file pins, so the two consumers can go back to
  * testing what they actually own.
  */
 
@@ -50,14 +50,15 @@ test("OVL-11: the FIELD paints no box of its own — the row owns the one border
   expect(classes).not.toMatch(/(^|\s)rounded-/);
   expect(classes).toContain("bg-transparent");
   expect(classes).toContain("outline-none");
-  // FOC-1's outline must not appear here either: focus is shown by the ROW's border tint.
+  // FOC-1's outline must not appear here either: focus is shown by the ROW's background tint.
   expect(classes).not.toContain("ring");
 });
 
-test("FOC-3: focus inside the row tints the row's hairline, not the field", async () => {
+test("FOC-14: focus inside the row tints the row (a field group), never its hairline", async () => {
   await render(<Row />);
   const row = document.querySelector('[data-slot="panel-search"]')!;
-  expect(row.className).toContain("focus-within:border-ring/70");
+  expect(row.hasAttribute("data-field-group")).toBe(true);
+  expect(row.className).not.toMatch(/focus[\w-]*:border-/);
 
   const field = page.getByRole("searchbox", { name: "Filter items" });
   await userEvent.click(field);

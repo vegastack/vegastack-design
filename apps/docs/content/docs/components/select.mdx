@@ -120,7 +120,7 @@ properties, so a right-to-left document mirrors the whole control.
 
 The default trigger fills its parent, like every form control. For a Select that sits inline — in a
 table row, a list item or a toolbar — use `variant="ghost"`: it sizes to its content, has no border
-at rest, and shows the border on hover, on focus and while the popup is open. Pair it with
+at rest, and shows the border on hover only — never on focus or while the popup is open (FOC-14). Pair it with
 `size="sm"` in dense rows, and give it an accessible name.
 
 <ComponentPreview
@@ -166,8 +166,9 @@ props of their own — each accepts everything the Base UI part accepts.
 - Renders Base UI's Select: the trigger is a `<button role="combobox">` with `aria-expanded` and
   `aria-controls`, and the popup is a `role="listbox"` of `role="option"` rows with type-ahead,
   <kbd>↑</kbd>/<kbd>↓</kbd>, <kbd>Home</kbd>/<kbd>End</kbd> and <kbd>Esc</kbd>.
-- Focus on the trigger shows the border tint on `:focus` (FOC-3) **and** the global 2px outline,
-  because the trigger is a button rather than a text field (FOC-4).
+- Focus on the trigger shows `base.css`'s global background tint on `:focus-visible`, because the
+  trigger is a button rather than a text field (FOC-4); the border never changes colour on focus
+  or while the popup is open (FOC-14).
 - The popup portals out of the trigger's subtree, so `SelectContent` re-applies the theme scope on
   the positioner inside the portal (OVL-13) — a dark or scoped surface survives the portal.
 - Items carry the hand cursor from the one global rule in `base.css` (INT-1); upstream's local
@@ -193,11 +194,11 @@ Upstream's file plus `packages/ui/upstream/patches/select.patch`. Every hunk:
   line as the option's accessible description ([Two-line options](#two-line-options)). A one-line
   option is unchanged.
 - **FOC-1, FOC-3, FOC-4, FOC-6** — the trigger's `outline-none focus-visible:border-ring
-focus-visible:ring-3 focus-visible:ring-ring/50` becomes `focus:border-ring/70`: a border tint on
-  `:focus` for mouse and keyboard alike, plus the global outline, which the dropped `outline-none`
-  lets through.
-- **FOC-5** — the invalid tint becomes `not-focus:aria-invalid:border-destructive` (and its dark
-  counterpart), so focus outranks it; the `aria-invalid` halo rings are removed with the rest.
+focus-visible:ring-3 focus-visible:ring-ring/50` is removed outright, `outline-none` included,
+  so the global `:focus-visible` tint paints and the border stays `border-input` (FOC-14 retired
+  the `focus:border-ring/70` tint).
+- **FOC-14** — the invalid border is `aria-invalid:border-destructive` (and its dark counterpart),
+  held in every state, focused or not; the `aria-invalid` halo rings are removed with the rest.
 - **INT-1** — `cursor-default` is removed from `SelectItem`, so a row shows the hand cursor the one
   global rule gives every `[role="option"]`. The two scroll arrows keep theirs: `base.css` names
   them as a sanctioned non-pointer cursor.
@@ -211,7 +212,7 @@ focus-visible:ring-3 focus-visible:ring-ring/50` becomes `focus:border-ring/70`:
 - **API-24** — `SelectTrigger` takes `variant="outline" | "ghost"` (reflected as `data-variant`).
   The default trigger is `w-full`, where upstream's is `w-fit`, so a Select takes its width from its
   parent like every other form control; `ghost` keeps `w-fit`, hides its border at rest and shows
-  it on hover, focus and open.
+  it on hover only (`hover:border-input`; FOC-14 dropped `data-popup-open:border-input`).
 - **API-26** — NO HUNK for the wiring: Base UI's `Select` reads the `Field` context itself, so
   inside a `Field` the trigger takes its label, the rendered description and error ids, and
   `aria-invalid`.

@@ -123,10 +123,10 @@ saving).
 - The `error` status sets `aria-invalid` on the field, matching `Input`'s invalid
   styling and announcing the failure to screen readers.
 - The spinner respects `prefers-reduced-motion` (`motion-reduce:animate-none`).
-- On focus the underlying [`Input`](/docs/components/input) tints its border
-  with the `ring` token (`focus:border-ring/70`) instead of removing the affordance —
-  never `outline: none` with nothing in its place. Like every text-entry control,
-  this is a border tint, not the 2px outline other controls take.
+- On focus the underlying [`Input`](/docs/components/input) wears `base.css`'s
+  background tint (`accent` at 50%) instead of removing the affordance — never
+  `outline: none` with nothing in its place. Like every control, its border never
+  changes colour on focus (FOC-14).
 
 | Key          | Action                                             |
 | ------------ | -------------------------------------------------- |

@@ -185,7 +185,8 @@ One emoji in the `emoji-data` set — the character, its accessible name and sea
 - The search field is a labelled `<input type="search">`; typing filters the grid live, and a polite
   `role="status"` announces result counts or the empty state when nothing matches.
 - Focus is a background tint from the tokens' `base.css`, on the trigger and every emoji button
-  alike; there is no ring. The search row tints its hairline while the field holds focus.
+  alike; there is no ring. The search row is a field group, so it wears the same tint while the field holds focus; its
+  hairline never changes (FOC-14).
 - While the data loads, the skeleton is hidden from assistive technology.
 - Dismiss is built in (via `Popover`) — clicking outside the panel or pressing <kbd>Esc</kbd> closes it and returns focus to the trigger.
 

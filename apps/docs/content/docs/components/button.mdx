@@ -158,8 +158,9 @@ Upstream's file plus `packages/ui/upstream/patches/button.patch`. Every hunk:
   non-primary buttons a variant-aware hover.
 - **FOC-1, FOC-6** — the `focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50`
   glow and the `outline-none` that suppressed the global outline are removed.
-- **FOC-5** — the invalid tint becomes `not-focus:aria-invalid:border-destructive`, so focus outranks
-  it; the `aria-invalid` glow rings go with FOC-6.
+- **FOC-14** — the invalid tint stays upstream's `aria-invalid:border-destructive`, held in every
+  state, focused or not (FOC-14 retired FOC-5's `not-focus:` guard); the `aria-invalid` glow rings
+  go with FOC-6.
 - **FRM-4** — `disabled:pointer-events-none` is dropped and `focusableWhenDisabled` defaults to true,
   so a disabled button stays hoverable and focusable.
 - **API-5, A11Y-12** — the `loading` prop, the out-of-flow spinner and the `opacity-0` label.

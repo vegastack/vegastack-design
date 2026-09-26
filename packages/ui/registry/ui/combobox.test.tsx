@@ -362,7 +362,7 @@ test("INT-1/FRM-4: an item forces neither the default cursor nor pointer-events-
   expect(item.className).not.toContain("data-disabled:pointer-events-none");
 });
 
-test("FOC-1/FOC-3/FOC-6: the chips field takes a border tint and no glow", async () => {
+test("FOC-1/FOC-6/FOC-14: the chips field is a field group with no focus border and no glow", async () => {
   const screen = await render(
     <Combobox multiple items={frameworks} defaultValue={["Astro"]}>
       <ComboboxChips>
@@ -392,7 +392,8 @@ test("FOC-1/FOC-3/FOC-6: the chips field takes a border tint and no glow", async
   const chips = screen.container.querySelector(
     '[data-slot="combobox-chips"]',
   ) as HTMLElement;
-  expect(chips.className).toContain("focus-within:border-ring/70");
+  expect(chips.hasAttribute("data-field-group")).toBe(true);
+  expect(chips.className).not.toMatch(/focus[\w-]*:border-/);
   expect(chips.className).not.toMatch(/ring-3|ring-\[3px\]|ring-ring\/\d+/);
   const chipInput = screen.container.querySelector(
     '[data-slot="combobox-chip-input"]',
@@ -401,7 +402,7 @@ test("FOC-1/FOC-3/FOC-6: the chips field takes a border tint and no glow", async
   expect(chipInput.className).not.toMatch(/(?:^|\s)outline-none(?:\s|$)/);
 });
 
-test("FOC-5: the chips field's invalid tint stands down while it holds focus", async () => {
+test("FOC-14: the chips field's invalid border holds while it holds focus", async () => {
   const screen = await render(
     <Combobox multiple items={frameworks}>
       <ComboboxChips>
@@ -422,9 +423,8 @@ test("FOC-5: the chips field's invalid tint stands down while it holds focus", a
   const chips = screen.container.querySelector(
     '[data-slot="combobox-chips"]',
   ) as HTMLElement;
-  expect(chips.className).toContain(
-    "not-focus-within:has-aria-invalid:border-destructive",
-  );
+  expect(chips.className).toContain("has-aria-invalid:border-destructive");
+  expect(chips.className).not.toContain("not-focus-within:");
 });
 
 test("OVL-13: the popup is portaled out of the component's own subtree", async () => {

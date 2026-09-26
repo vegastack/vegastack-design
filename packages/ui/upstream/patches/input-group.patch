@@ -1,5 +1,5 @@
 # component: input-group
-# decisions: API-26, DOC-1, DOC-2, FOC-1, FOC-3, FOC-5, FOC-6
+# decisions: API-26, DOC-1, DOC-2, FOC-1, FOC-3, FOC-5, FOC-6, FOC-14
 # hunks:
 #   FOC-1, FOC-3, FOC-6: the group's `has-[[data-slot=input-group-control]:focus-visible]:border-ring`
 #     plus `ring-3 ring-ring/50` becomes `has-[[data-slot=input-group-control]:focus]:border-ring/70`
@@ -17,15 +17,18 @@
 #   API-26: NO HUNK — `InputGroupInput` renders our `Input` (Base UI `Field.Control`) and
 #     `InputGroupTextarea` our `Textarea` (`Field.Control` since API-26), so both read the `Field`
 #     through the control they wrap; `input-group.test.tsx` pins it.
+#   FOC-14 (supersedes the FOC-3 border tint and FOC-5 above): the group carries `data-field-group`
+#     and no focus border: base.css paints the focus tint on the group, and the invalid border holds
+#     in every state.
 #   cn: `import { cn } from "cn"` becomes `@vegastack/design` — our npm layer owns `cn` (DOC-2).
 #   formatting: the repository formatter (prettier defaults: semicolons, trailing commas)
 #               reflows the file, and `registry-stamp.mjs` writes the provenance header the
 #               three-copy model needs (DOC-1); those hunks carry no decision of their own.
 diff --git a/input-group.tsx b/input-group.tsx
-index 2e3e7cd..ae3e669 100644
+index 2e3e7cd..0d21d1f 100644
 --- a/input-group.tsx
 +++ b/input-group.tsx
-@@ -1,12 +1,12 @@
+@@ -1,25 +1,26 @@
 -"use client"
 +"use client";
  
@@ -45,13 +48,14 @@ index 2e3e7cd..ae3e669 100644
  
  function InputGroup({ className, ...props }: React.ComponentProps<"div">) {
    return (
-@@ -14,12 +14,12 @@ function InputGroup({ className, ...props }: React.ComponentProps<"div">) {
+     <div
        data-slot="input-group"
++      data-field-group=""
        role="group"
        className={cn(
 -        "group/input-group relative flex h-8 w-full min-w-0 items-center rounded-lg border border-input transition-colors outline-none in-data-[slot=combobox-content]:focus-within:border-inherit in-data-[slot=combobox-content]:focus-within:ring-0 has-disabled:bg-input/50 has-disabled:opacity-50 has-[[data-slot=input-group-control]:focus-visible]:border-ring has-[[data-slot=input-group-control]:focus-visible]:ring-3 has-[[data-slot=input-group-control]:focus-visible]:ring-ring/50 has-[[data-slot][aria-invalid=true]]:border-destructive has-[[data-slot][aria-invalid=true]]:ring-3 has-[[data-slot][aria-invalid=true]]:ring-destructive/20 has-[>[data-align=block-end]]:h-auto has-[>[data-align=block-end]]:flex-col has-[>[data-align=block-start]]:h-auto has-[>[data-align=block-start]]:flex-col has-[>textarea]:h-auto dark:bg-input/30 dark:has-disabled:bg-input/80 dark:has-[[data-slot][aria-invalid=true]]:ring-destructive/40 has-[>[data-align=block-end]]:[&>input]:pt-3 has-[>[data-align=block-start]]:[&>input]:pb-3 has-[>[data-align=inline-end]]:[&>input]:pe-1.5 has-[>[data-align=inline-start]]:[&>input]:ps-1.5",
 -        className
-+        "group/input-group relative flex h-8 w-full min-w-0 items-center rounded-lg border border-input transition-colors outline-none in-data-[slot=combobox-content]:focus-within:border-inherit has-disabled:bg-input/50 has-disabled:opacity-50 has-[[data-slot=input-group-control]:focus]:border-ring/70 has-[[data-slot=command-input]:focus]:border-ring/70 not-focus-within:has-[[data-slot][aria-invalid=true]]:border-destructive has-[>[data-align=block-end]]:h-auto has-[>[data-align=block-end]]:flex-col has-[>[data-align=block-start]]:h-auto has-[>[data-align=block-start]]:flex-col has-[>textarea]:h-auto dark:bg-input/30 dark:has-disabled:bg-input/80 has-[>[data-align=block-end]]:[&>input]:pt-3 has-[>[data-align=block-start]]:[&>input]:pb-3 has-[>[data-align=inline-end]]:[&>input]:pe-1.5 has-[>[data-align=inline-start]]:[&>input]:ps-1.5",
++        "group/input-group relative flex h-8 w-full min-w-0 items-center rounded-lg border border-input transition-colors outline-none has-disabled:bg-input/50 has-disabled:opacity-50 has-[[data-slot][aria-invalid=true]]:border-destructive has-[>[data-align=block-end]]:h-auto has-[>[data-align=block-end]]:flex-col has-[>[data-align=block-start]]:h-auto has-[>[data-align=block-start]]:flex-col has-[>textarea]:h-auto dark:bg-input/30 dark:has-disabled:bg-input/80 has-[>[data-align=block-end]]:[&>input]:pt-3 has-[>[data-align=block-start]]:[&>input]:pb-3 has-[>[data-align=inline-end]]:[&>input]:pe-1.5 has-[>[data-align=inline-start]]:[&>input]:ps-1.5",
 +        className,
        )}
        {...props}
@@ -61,7 +65,7 @@ index 2e3e7cd..ae3e669 100644
  }
  
  const inputGroupAddonVariants = cva(
-@@ -40,8 +40,8 @@ const inputGroupAddonVariants = cva(
+@@ -40,8 +41,8 @@ const inputGroupAddonVariants = cva(
      defaultVariants: {
        align: "inline-start",
      },
@@ -72,7 +76,7 @@ index 2e3e7cd..ae3e669 100644
  
  function InputGroupAddon({
    className,
-@@ -56,13 +56,13 @@ function InputGroupAddon({
+@@ -56,13 +57,13 @@ function InputGroupAddon({
        className={cn(inputGroupAddonVariants({ align }), className)}
        onClick={(e) => {
          if ((e.target as HTMLElement).closest("button")) {
@@ -89,7 +93,7 @@ index 2e3e7cd..ae3e669 100644
  }
  
  const inputGroupButtonVariants = cva(
-@@ -80,8 +80,8 @@ const inputGroupButtonVariants = cva(
+@@ -80,8 +81,8 @@ const inputGroupButtonVariants = cva(
      defaultVariants: {
        size: "xs",
      },
@@ -100,7 +104,7 @@ index 2e3e7cd..ae3e669 100644
  
  function InputGroupButton({
    className,
-@@ -91,7 +91,7 @@ function InputGroupButton({
+@@ -91,7 +92,7 @@ function InputGroupButton({
    ...props
  }: Omit<React.ComponentProps<typeof Button>, "size" | "type"> &
    VariantProps<typeof inputGroupButtonVariants> & {
@@ -109,7 +113,7 @@ index 2e3e7cd..ae3e669 100644
    }) {
    return (
      <Button
-@@ -101,7 +101,7 @@ function InputGroupButton({
+@@ -101,7 +102,7 @@ function InputGroupButton({
        className={cn(inputGroupButtonVariants({ size }), className)}
        {...props}
      />
@@ -118,7 +122,7 @@ index 2e3e7cd..ae3e669 100644
  }
  
  function InputGroupText({ className, ...props }: React.ComponentProps<"span">) {
-@@ -109,27 +109,27 @@ function InputGroupText({ className, ...props }: React.ComponentProps<"span">) {
+@@ -109,27 +110,27 @@ function InputGroupText({ className, ...props }: React.ComponentProps<"span">) {
      <span
        className={cn(
          "flex items-center gap-2 text-sm text-muted-foreground [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4",
@@ -152,7 +156,7 @@ index 2e3e7cd..ae3e669 100644
  }
  
  function InputGroupTextarea({
-@@ -140,12 +140,12 @@ function InputGroupTextarea({
+@@ -140,12 +141,12 @@ function InputGroupTextarea({
      <Textarea
        data-slot="input-group-control"
        className={cn(
@@ -168,7 +172,7 @@ index 2e3e7cd..ae3e669 100644
  }
  
  export {
-@@ -155,4 +155,4 @@ export {
+@@ -155,4 +156,4 @@ export {
    InputGroupText,
    InputGroupInput,
    InputGroupTextarea,

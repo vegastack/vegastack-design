@@ -504,9 +504,8 @@ const AUTHORED_OUTLINE =
 /**
  * The TEXT-ENTRY set, for which branch (A) is not an acceptable answer (2026-09-09).
  *
- * AGENTS.md § Accessibility: "visible `:focus-visible` (text-entry fields use a border tint
- * instead)". These controls carry `outline-hidden` precisely so the global ring does NOT paint on
- * them, and the border tint is their whole affordance. The generic predicate below accepted
+ * AGENTS.md § Accessibility: text-entry fields carry `outline-hidden` so no outline paints on
+ * them, and the base.css background tint (FOC-14) is their whole affordance. The generic predicate below accepted
  * whichever branch happened to be true, so a text-entry control that had LOST its `outline-hidden`
  * passed on the ring it is not supposed to have: the retired `otp-input`'s slot measured
  * `outline-style: solid / 2px` here and this assertion went green, because a class-glue defect had
@@ -525,23 +524,23 @@ const TEXT_ENTRY_SLOTS =
   "[data-slot=combobox-input]," +
   // Batch 3 of the shadcn reset added upstream's `input-otp`, whose real control is ONE hidden
   // input behind the slots, and `input-group-control`, which is the `Input`/`Textarea` inside an
-  // `InputGroup`. Both are text entry: they suppress the global ring and signal focus with a
-  // border tint on a carrier — the active slot for the OTP, the group for the input group.
+  // `InputGroup`. Both are text entry: they suppress the global outline and signal focus with a
+  // background tint on a carrier — the active slot for the OTP, the group for the input group.
   // `command-input` is cmdk's input inside an `InputGroup`; upstream gives it its own slot name,
-  // so it needs naming here too, and `input-group.tsx` carries the matching tint selector.
+  // so it needs naming here too.
   "[data-slot=input-otp],[data-slot=input-group-control],[data-slot=command-input]," +
   // Batch 6 added upstream's `questionnaire`, whose freeform answer field is text entry with the
-  // same treatment `input` takes: `outline-hidden` suppresses the global ring and `focus:border-ring/70`
+  // same treatment `input` takes: `outline-hidden` suppresses the global outline and the base.css tint
   // is the whole affordance, so it must be held to branch (B) rather than an outline it should not have.
   "[data-slot=questionnaire-input]";
 
 /**
  * The wrapper that owns a text-entry control's focus affordance, if any.
  *
- * AGENTS.md § Accessibility: "visible `:focus-visible` (text-entry fields use a border tint
- * instead)". The tint is applied by `fieldSurface` / `fieldGroupSurface` in `@vegastack/design` —
- * `focus:border-ring/70` on the control, `focus-within:border-…` on the group —
- * so the element whose border changes may be an ancestor of the focused control.
+ * AGENTS.md § Accessibility: the focus cue is `base.css`'s background tint, and for a text-entry
+ * control inside a field group the GROUP wears it (FOC-14) — so the element whose background
+ * changes may be an ancestor of the focused control. The same carriers are checked for a border
+ * change, which FOC-14 forbids.
  */
 function tintCarriers(control: Element): Element[] {
   const carriers: Element[] = [control];
@@ -557,7 +556,7 @@ function tintCarriers(control: Element): Element[] {
   }
   // An OTP field's tint lands on the ACTIVE SLOT, which is a SIBLING of the hidden input rather
   // than an ancestor of it: one input drives every slot, and the slot the caret is in carries
-  // `data-active` and with it `border-ring/70`. Walking ancestors can never see that, so the
+  // `data-active` and with it `bg-accent/50`. Walking ancestors can never see that, so the
   // slots of the control's own container join the carrier set.
   if (control.matches('[data-slot="input-otp"]')) {
     const container =
@@ -573,6 +572,7 @@ type FocusSignature = {
   outlineStyle: string;
   borders: string[];
   fills: string[];
+  images: string[];
 };
 
 const focusSignature = (control: Element): FocusSignature => ({
@@ -583,28 +583,11 @@ const focusSignature = (control: Element): FocusSignature => ({
   fills: tintCarriers(control).map(
     (element) => getComputedStyle(element).backgroundColor,
   ),
+  images: tintCarriers(control).map(
+    (element) => getComputedStyle(element).backgroundImage,
+  ),
 });
 
-/**
- * Does this control present a focus indicator? Returns `null` when it does, or the reason it does
- * not — worded so the reader can tell WHICH of the two sanctioned affordances was expected.
- *
- * Two branches, both of them non-vacuous:
- *
- *   (A) an AUTHORED outline of at least 2px. Deleting the design system's `:focus-visible` rule
- *       collapses this to `auto` (the user agent's ring), which is rejected.
- *   (B) the sanctioned text-entry border tint: the control, its field group, or its immediate
- *       wrapper changes `border-color` between rest and focus. Deleting the tint from
- *       `fieldSurface` collapses this to an unchanged colour, which is rejected.
- *
- * There is no third branch and no fallback. The predecessor check had one ("forced colours repaints
- * borders on focus") that was unconditionally true, which is what made the whole assertion vacuous.
- *
- * The branches are NOT interchangeable (2026-09-09). For {@link TEXT_ENTRY_SLOTS} only (B) counts,
- * and `outline-style` must additionally be `none`: those controls suppress the global ring on
- * purpose, so an outline on one is a defect rather than an alternative affordance. Letting (A)
- * answer for them is how a destroyed `outline-hidden` on the OTP slot passed this very assertion.
- */
 /**
  * The one caret-only surface: a `role="textbox"` contenteditable that declares
  * `data-focus-cue="caret"`. TextEdit is the only wearer (MK 2026-09-26): a Notion-style document
@@ -618,60 +601,89 @@ const focusSignature = (control: Element): FocusSignature => ({
 const CARET_FOCUS_CUE =
   '[contenteditable="true"][role="textbox"][data-focus-cue="caret"]';
 
+/**
+ * Does this control present a focus indicator the design system owns, WITHOUT a border-colour
+ * change? Returns `null` when it does, or the reason it does not.
+ *
+ * FOC-14 (MK 2026-09-26) is checked FIRST and for every control: a control's border colour never
+ * changes on focus — not on the control, not on its field group, not on its wrapper. The resting
+ * `border-border`/`border-input` holds in every state; only the invalid state paints a destructive
+ * border, and it paints it focused or not. A border that moves between rest and focus is a defect
+ * whatever else the control does, so it is reported even when a tint is also present.
+ *
+ * Then the sanctioned affordance, one of:
+ *
+ *   (A) an AUTHORED outline of at least 2px (non-text-entry only; forced colours restore it).
+ *   (B) the `base.css` background tint — an `accent`/50 gradient laid over the fill as a
+ *       background IMAGE — on the control or on a carrier (the field group or wrapper that wears
+ *       it for a text-entry control), or a fill change on a carrier (Input `ghost`, the OTP's
+ *       active slot, a questionnaire choice).
+ *
+ * For {@link TEXT_ENTRY_SLOTS} `outline-style` must additionally paint nothing: those controls
+ * suppress the global outline on purpose, so an outline on one is a defect rather than an
+ * alternative affordance (2026-09-09).
+ */
 function focusIndicatorProblem(
   control: Element,
   rest: FocusSignature,
 ): string | null {
+  const focused = focusSignature(control);
+  const movedBorder = focused.borders.findIndex(
+    (border, index) => border !== rest.borders[index],
+  );
+  if (movedBorder !== -1)
+    return (
+      `changes border-color on focus (${rest.borders[movedBorder]} → ` +
+      `${focused.borders[movedBorder]}, carrier ${movedBorder}). FOC-14: a border keeps its resting ` +
+      `colour in every state; the focus cue is the base.css background tint`
+    );
   if (control.matches(CARET_FOCUS_CUE)) return null;
   const style = getComputedStyle(control);
   const width = Number.parseFloat(style.outlineWidth);
   const textEntry = control.matches(TEXT_ENTRY_SLOTS);
 
-  // Text entry takes branch (B) and ONLY branch (B) — and must first prove it is not wearing the
-  // ring it suppresses. What counts as suppressed is what PAINTS NOTHING: `outline-hidden` computes
-  // as `outline-style: none`, and a control whose engine writes its own inline suppression (the
+  // What counts as a suppressed outline is what PAINTS NOTHING: `outline-hidden` computes as
+  // `outline-style: none`, and a control whose engine writes its own inline suppression (the
   // `input-otp` package writes `outline: transparent solid 0px`) computes as a solid outline of
-  // zero width in a transparent colour. Both are "no ring"; anything with real width and a real
-  // colour means the suppression was lost.
-  const outlineWidth = Number.parseFloat(style.outlineWidth);
+  // zero width in a transparent colour.
   const outlineIsInvisible =
     style.outlineStyle === "none" ||
-    !(outlineWidth > 0) ||
+    !(width > 0) ||
     /,\s*0\s*\)$/.test(style.outlineColor);
   if (textEntry && !outlineIsInvisible) {
     return (
       `is a text-entry control painting outline-style "${style.outlineStyle}" ` +
       `(${style.outlineWidth}, ${style.outlineColor}). Text entry suppresses the global ` +
-      `:focus-visible ring and signals focus with the border tint instead (AGENTS.md ` +
+      `outline and signals focus with the background tint instead (AGENTS.md ` +
       `\u00a7 Accessibility) — a painted outline here means the suppression was lost`
     );
   }
   if (!textEntry && AUTHORED_OUTLINE.test(style.outlineStyle) && width >= 2)
     return null;
-  // FOC-13: the system's focus cue is base.css's background tint (a gradient image over the fill).
-  if (!textEntry && style.backgroundImage.includes("gradient")) return null;
-
-  const focused = focusSignature(control);
-  if (focused.borders.some((border, index) => border !== rest.borders[index]))
+  // FOC-13: the system's focus cue is base.css's background tint (a gradient image over the fill),
+  // on the control itself or — for a field group — on the group that wears it.
+  if (
+    focused.images.some(
+      (image, index) =>
+        image !== rest.images[index] && image.includes("gradient"),
+    )
+  )
     return null;
-  // A borderless text-entry surface (Input `ghost`, TextEdit) signals focus with a background
-  // tint instead of a border — the same system cue, on the fill.
   if (focused.fills.some((fill, index) => fill !== rest.fills[index]))
     return null;
 
   if (textEntry)
     return (
-      `is a text-entry control with no border tint on focus: no border-colour or background tint ` +
-      `on the control, its [data-field-group], or its wrapper. The tint IS the affordance for this set ` +
-      `(AGENTS.md \u00a7 Accessibility), and the global ring is suppressed here`
+      `is a text-entry control with no background tint on focus: no tint on the control, its ` +
+      `[data-field-group], or its wrapper. The tint IS the affordance (AGENTS.md ` +
+      `\u00a7 Accessibility), and the global outline is suppressed here`
     );
   return style.outlineStyle === "auto"
     ? `presents only the USER AGENT's focus ring (outline-style: auto, ${style.outlineWidth}). ` +
-        `The design system's own ring is missing, and the browser's is not the contract — a ` +
-        `forced-colors or non-Chromium user gets nothing. Expected an authored >=2px outline ` +
-        `from :focus-visible, or the text-entry border tint`
+        `The design system's own cue is missing, and the browser's is not the contract. Expected ` +
+        `the base.css background tint`
     : `presents no focus indicator: outline-style "${style.outlineStyle}" (${style.outlineWidth}) ` +
-        `and no border-colour change on the control, its [data-field-group], or its wrapper`;
+        `and no background tint on the control, its [data-field-group], or its wrapper`;
 }
 
 /**
@@ -2792,7 +2804,7 @@ for (const width of [320, 1280] as const) {
 /**
  * select-trigger-width (API-24): the default (outline) trigger takes its width from its parent,
  * like every other form control, and `variant="ghost"` sizes to its content with no border at
- * rest — the border comes back on hover, on focus and while the popup is open.
+ * rest — the border comes back on hover only; focus and an open popup never change it (FOC-14).
  */
 test("select-trigger-width: the default trigger fills its parent; ghost sizes to content", async () => {
   const fruit = (variant?: "outline" | "ghost", testId?: string) => (
@@ -2825,9 +2837,12 @@ test("select-trigger-width: the default trigger fills its parent; ghost sizes to
   // Rest: the ghost has no visible border; the outline one does.
   expect(borderAlpha(ghost)).toBe(true);
   expect(borderAlpha(outline)).toBe(false);
-  // Focus: the ghost shows the text-entry border tint.
+  // Focus: the border does not change (FOC-14) — the cue is base.css's background tint.
   ghost.focus();
-  await expect.poll(() => borderAlpha(ghost)).toBe(false);
+  await expect
+    .poll(() => getComputedStyle(ghost).backgroundImage)
+    .toContain("gradient");
+  expect(borderAlpha(ghost)).toBe(true);
   ghost.blur();
   await expect.poll(() => borderAlpha(ghost)).toBe(true);
   // Hover: the border comes back under the pointer.
@@ -2835,11 +2850,10 @@ test("select-trigger-width: the default trigger fills its parent; ghost sizes to
   await expect.poll(() => borderAlpha(ghost)).toBe(false);
   await userEvent.unhover(ghost);
   await expect.poll(() => borderAlpha(ghost)).toBe(true);
-  // Open: the border stays while the popup is up.
+  // Open: the border does not come back while the popup is up (FOC-14).
   ghost.click();
   await expect.poll(() => ghost.hasAttribute("data-popup-open")).toBe(true);
-  // `transition-colors` animates the border in, so poll for its settled value.
-  await expect.poll(() => borderAlpha(ghost)).toBe(false);
+  expect(borderAlpha(ghost)).toBe(true);
 });
 
 test("select-trigger-width: a consumer width wins on either variant", async () => {

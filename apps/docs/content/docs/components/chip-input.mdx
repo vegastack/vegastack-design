@@ -25,7 +25,7 @@ import { ChipInput } from "@/components/ui/chip-input";
 [`TagGroup`](/docs/components/tag-group) is a display list with no input, and
 [`Combobox`](/docs/components/combobox)'s value model is selection-from-items —
 it cannot commit an arbitrary token. The field chrome is
-[`InputGroup`](/docs/components/input-group) — border, focus border, invalid
+[`InputGroup`](/docs/components/input-group) — border, focus tint, invalid
 hairline, disabled wash, all of it imported — and the inner control is
 `InputGroupInput`, which is [`Input`](/docs/components/input) flattened into the
 box. The only thing this component adds to that chrome is a field that **wraps**:
@@ -100,8 +100,10 @@ reason is announced — "Up to 3 entries" by default, or your own copy from `max
   alone.
 - Every chip's remove button is named (`Remove …`) with a 24px hit area
   (from `Tag`).
-- The field border reflects focus (`focus-within` tint) and validity
-  (`data-invalid` destructive tint), matching the Combobox input group.
+- The field is a field group: it wears `base.css`'s background tint while the
+  input inside holds focus, and its border changes only for validity
+  (`data-invalid` destructive border, in every state) — never for focus
+  (FOC-14). This matches the Combobox input group.
 
 | Key                                | Action                                          |
 | ---------------------------------- | ----------------------------------------------- |

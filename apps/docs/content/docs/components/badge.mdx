@@ -156,8 +156,8 @@ Upstream's file plus `packages/ui/upstream/patches/badge.patch`. Every hunk:
 
 - **FOC-1, FOC-6** — the `focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50`
   glow and the `aria-invalid` rings are removed; `base.css` owns focus outright.
-- **FOC-5** — the invalid border becomes `not-focus:aria-invalid:border-destructive`, so a focused
-  badge shows the focus cue rather than the red tint.
+- **FOC-14** — the invalid border stays upstream's `aria-invalid:border-destructive`, held in
+  every state, focused or not (FOC-14 retired FOC-5's `not-focus:` guard).
 - **COL-12** — `success`, `warning` and `info` variants, in upstream's own `destructive` shape.
 - **A11Y-13** — each tinted status variant takes the family's `-text` ink; `bg-<family>/10` under
   `text-<family>` measures between 3.98:1 and 4.35:1, under the AA floor A11Y-1 enforces.

@@ -1,5 +1,5 @@
 # component: input-otp
-# decisions: DOC-1, DOC-2, FOC-1, FOC-3, FOC-5, FOC-6
+# decisions: DOC-1, DOC-2, FOC-1, FOC-3, FOC-5, FOC-6, FOC-14
 # hunks:
 #   FOC-1, FOC-3, FOC-6: the active slot's `data-[active=true]:border-ring` plus
 #     `ring-3 ring-ring/50` becomes `data-[active=true]:border-ring/70` — the same border tint the
@@ -8,12 +8,15 @@
 #     `not-data-[active=true]:aria-invalid:border-destructive`, so the slot holding the caret shows
 #     its own cue; the group's `has-aria-invalid` halo rings are removed and its border tint becomes
 #     `not-focus-within:has-aria-invalid:border-destructive`.
+#   FOC-14 (supersedes the FOC-3 border tint and FOC-5 above): the active slot takes
+#     `data-[active=true]:bg-accent/50` instead of a border tint, and the invalid border holds on
+#     every slot.
 #   cn: `import { cn } from "cn"` becomes `@vegastack/design` — our npm layer owns `cn` (DOC-2).
 #   formatting: the repository formatter (prettier defaults: semicolons, trailing commas)
 #               reflows the file, and `registry-stamp.mjs` writes the provenance header the
 #               three-copy model needs (DOC-1); those hunks carry no decision of their own.
 diff --git a/input-otp.tsx b/input-otp.tsx
-index 401d035..3a9309d 100644
+index 401d035..f38e166 100644
 --- a/input-otp.tsx
 +++ b/input-otp.tsx
 @@ -1,29 +1,29 @@
@@ -60,7 +63,7 @@ index 401d035..3a9309d 100644
        className={cn(
 -        "flex items-center rounded-lg has-aria-invalid:border-destructive has-aria-invalid:ring-3 has-aria-invalid:ring-destructive/20 dark:has-aria-invalid:ring-destructive/40",
 -        className
-+        "flex items-center rounded-lg not-focus-within:has-aria-invalid:border-destructive",
++        "flex items-center rounded-lg has-aria-invalid:border-destructive",
 +        className,
        )}
        {...props}
@@ -89,7 +92,7 @@ index 401d035..3a9309d 100644
        className={cn(
 -        "relative flex size-8 items-center justify-center border-y border-e border-input text-sm transition-all outline-none first:rounded-s-lg first:border-s last:rounded-e-lg aria-invalid:border-destructive data-[active=true]:z-10 data-[active=true]:border-ring data-[active=true]:ring-3 data-[active=true]:ring-ring/50 data-[active=true]:aria-invalid:border-destructive data-[active=true]:aria-invalid:ring-destructive/20 dark:bg-input/30 dark:data-[active=true]:aria-invalid:ring-destructive/40",
 -        className
-+        "relative flex size-8 items-center justify-center border-y border-e border-input text-sm transition-all outline-none first:rounded-s-lg first:border-s last:rounded-e-lg not-data-[active=true]:aria-invalid:border-destructive data-[active=true]:z-10 data-[active=true]:border-ring/70 dark:bg-input/30",
++        "relative flex size-8 items-center justify-center border-y border-e border-input text-sm transition-all outline-none first:rounded-s-lg first:border-s last:rounded-e-lg aria-invalid:border-destructive data-[active=true]:z-10 data-[active=true]:bg-accent/50 dark:bg-input/30",
 +        className,
        )}
        {...props}

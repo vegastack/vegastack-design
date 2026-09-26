@@ -241,9 +241,9 @@ Upstream's file plus `packages/ui/upstream/patches/field.patch`. Every hunk:
 
 - **FOC-1, FOC-3, FOC-6, FOC-12** — the choice card's
   `has-[>[data-slot=field]]:has-[:focus-visible]:border-ring` plus `ring-3 ring-ring/50` is removed
-  outright. Field restates no focus chrome of its own: a text control inside it owns the `:focus`
-  border tint (FOC-3), and a checkbox, radio or switch inside it wears the global `:focus-visible`
-  outline (FOC-12).
+  outright. Field restates no focus chrome of its own: a text control inside it wears `base.css`'s
+  background tint on focus (FOC-3), and a checkbox, radio or switch inside it wears the same global
+  `:focus-visible` tint (FOC-12). No border changes colour on focus (FOC-14).
 - **A11Y-8, A11Y-13, COL-12** — `FieldError` gains a leading `CircleAlertIcon` so the error is not
   signalled by colour alone, and its ink becomes `text-destructive-text`, the `destructive`
   family's text role. Upstream's `text-destructive` is the fill, which measures under AA as ink.

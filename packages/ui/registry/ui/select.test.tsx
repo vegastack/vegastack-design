@@ -264,15 +264,16 @@ test("FOC-1/FOC-6: the trigger carries no focus glow and does not suppress the o
   expect(classes).not.toContain("aria-invalid:ring-destructive");
 });
 
-test("FOC-3/FOC-4: the trigger takes the border tint on :focus and keeps the outline", async () => {
+test("FOC-14: the trigger never changes its border on focus", async () => {
   const classes = triggerClasses(await render(<Fruit />));
-  expect(classes).toContain("focus:border-ring/70");
+  expect(classes).not.toMatch(/focus[\w-]*:border-/);
   expect(classes).not.toContain("outline-hidden");
 });
 
-test("FOC-5: the invalid tint stands down while the trigger is focused", async () => {
+test("FOC-14: the invalid border holds while the trigger is focused", async () => {
   const classes = triggerClasses(await render(<Fruit />));
-  expect(classes).toContain("not-focus:aria-invalid:border-destructive");
+  expect(classes).toContain("aria-invalid:border-destructive");
+  expect(classes).not.toContain("not-focus:");
 });
 
 test("INT-1: an item never forces the default cursor", async () => {
@@ -446,7 +447,7 @@ test("API-24: the trigger reflects its variant, outline by default", async () =>
 });
 
 // API-24's geometry — the default trigger filling its parent, ghost sizing to content, a consumer
-// width winning on either variant, the ghost border on hover, focus and open, and the trigger
+// width winning on either variant, the ghost border on hover only (never on focus or open, FOC-14), and the trigger
 // keeping content width inside upstream's ButtonGroup — needs compiled CSS, so it is measured in
 // `test/geometry.browser.test.tsx` (`select-trigger-width`), not asserted as class strings here.
 

@@ -101,3 +101,43 @@ test("reactions: pills under the body and an add-reaction hover action", async (
   );
   await expectNoA11yViolations(screen.container);
 });
+
+test("each comment is a card; ⋯ matches the add-reaction button and opens an icon menu", async () => {
+  const screen = await render(
+    <ul>
+      <CommentItem
+        onCopyLink={() => {}}
+        onEdit={() => {}}
+        onDelete={() => {}}
+        onReactionToggle={() => {}}
+        comment={{
+          id: "a",
+          author: { name: "Asha Rao" },
+          body: "Hello",
+          createdAt: Date.now(),
+          canEdit: true,
+          canDelete: true,
+        }}
+      />
+    </ul>,
+  );
+  const card = document.querySelector('[data-slot="comment-card"]')!;
+  expect(card.className).toContain("border-border");
+  expect(card.className).toContain("rounded-xl");
+  expect(card.className).not.toMatch(/(?:hover|focus[\w-]*):border-/);
+  const add = document.querySelector('[data-slot="reaction-add"]')!;
+  const more = document.querySelector('[data-slot="comment-actions"]')!;
+  // Identical: the same variant, size, radius and hover-reveal classes.
+  expect(more.className).toBe(add.className);
+  expect(more.className).toContain("group-hover/comment:opacity-100");
+  await userEvent.click(
+    screen.getByRole("button", { name: "Actions for comment by Asha Rao" }),
+  );
+  const items = screen.getByRole("menuitem");
+  await expect.element(items.nth(2)).toHaveTextContent("Delete");
+  const content = document.querySelector(
+    '[data-slot="comment-actions-content"]',
+  )!;
+  expect(content.className).not.toContain("min-w-48");
+  expect(content.querySelectorAll("svg")).toHaveLength(3);
+});

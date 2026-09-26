@@ -40,7 +40,8 @@ Each of these fails without an error message. Check them explicitly:
    dead. Verify: fire a `toast.add({ title: 'Hello' })` in the app; see
    [Provider setup](/docs/guides/provider-setup).
 2. **Base a11y layer present** — tab through the app; every focused control must
-   show a visible 2px outline (a text input tints its border instead). If nothing
+   show a visible background tint, text inputs included; no border changes colour
+   on focus. If nothing
    shows, you skipped `base.css` (the preset includes it) — see
    [Theming](/docs/guides/theming).
 3. **Portal stacking** — open a Dialog over your app chrome; it must render on

@@ -4,8 +4,8 @@
  *
  * COMPILED CSS IS LOAD-BEARING HERE. `../../test/geometry.css` compiles the real token theme, so
  * every exception this patch implements is proven by MEASUREMENT rather than by reading a class
- * string back: the choice card's border really changes colour when the invisible input inside it
- * takes focus, the answer field really computes `outline-style: none`, a disabled choice really
+ * string back: the choice card really takes the focus tint (and keeps its border colour) when the
+ * invisible input inside it takes focus, the answer field really computes `outline-style: none`, a disabled choice really
  * still accepts pointer events, and every target really clears the 24px floor. axe's
  * `color-contrast` rule is live for the same reason.
  */
@@ -695,7 +695,7 @@ test("FOC-1/FOC-6: no ring-3 and no ring-ring glow anywhere in the rendered tree
   );
 });
 
-test("FOC-1/FOC-6: the CHOICE CARD's border is the affordance for its invisible input", async () => {
+test("FOC-14: the CHOICE CARD's tint is the affordance for its invisible input; its border holds", async () => {
   const screen = await render(<TwoStep />);
   const card = slot(activeItem(screen.container), "questionnaire-choice");
   const input = card.querySelector<HTMLInputElement>(
@@ -712,18 +712,22 @@ test("FOC-1/FOC-6: the CHOICE CARD's border is the affordance for its invisible 
 
   const thaw = freezeTransitions();
   try {
-    const rest = getComputedStyle(card).borderColor;
+    const rest = getComputedStyle(card);
+    const restBorder = rest.borderColor;
+    const restImage = rest.backgroundImage;
     await userEvent.tab();
     expect(document.activeElement).toBe(input);
     expect(input.matches(":focus-visible")).toBe(true);
-    expect(getComputedStyle(card).borderColor).not.toBe(rest);
+    expect(getComputedStyle(card).borderColor).toBe(restBorder);
+    expect(restImage).not.toContain("gradient");
+    expect(getComputedStyle(card).backgroundImage).toContain("gradient");
   } finally {
     thaw();
     (document.activeElement as HTMLElement | null)?.blur?.();
   }
 });
 
-test("FOC-3/FOC-8: the answer input paints NO outline on focus and tints its own border instead", async () => {
+test("FOC-14/FOC-8: the answer input paints NO outline and NO border change on focus, only the tint", async () => {
   const screen = await render(<TwoStep />);
   const input = slot(activeItem(screen.container), "questionnaire-input");
   const thaw = freezeTransitions();
@@ -733,28 +737,28 @@ test("FOC-3/FOC-8: the answer input paints NO outline on focus and tints its own
     const style = getComputedStyle(input);
     // FOC-8: `outline-hidden`, not `outline-none` — and it computes to no ring at all.
     expect(style.outlineStyle).toBe("none");
-    // FOC-3: the 70% border tint IS the affordance for text entry.
-    expect(style.borderColor).not.toBe(rest);
+    // FOC-14: the border holds; base.css's background tint IS the affordance.
+    expect(style.borderColor).toBe(rest);
+    expect(style.backgroundImage).toContain("gradient");
   } finally {
     thaw();
     input.blur();
   }
 });
 
-test("FOC-5: focus outranks the invalid tint on both the choice and the answer input", async () => {
+test("FOC-14: the invalid border holds under focus on both the choice and the answer input", async () => {
   const screen = await render(<TwoStep invalid />);
   const classes = renderedClasses(screen.container);
-  expect(classes).toContain(
-    "not-has-[>input:focus-visible]:data-invalid:border-destructive",
-  );
-  expect(classes).toContain("not-focus:aria-invalid:border-destructive");
+  expect(classes).toContain("data-invalid:border-destructive");
+  expect(classes).toContain("aria-invalid:border-destructive");
+  expect(classes).not.toMatch(/not-(?:focus|has-\[>input:focus)/);
 
   const input = slot(activeItem(screen.container), "questionnaire-input");
   const thaw = freezeTransitions();
   try {
     const invalidRest = getComputedStyle(input).borderColor;
     input.focus();
-    expect(getComputedStyle(input).borderColor).not.toBe(invalidRest);
+    expect(getComputedStyle(input).borderColor).toBe(invalidRest);
   } finally {
     thaw();
     input.blur();

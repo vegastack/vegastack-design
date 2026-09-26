@@ -121,8 +121,8 @@ const RULES = [
   // FOC-1 / FOC-6 — THE machine check that the glow never creeps back in through a later upstream
   // pull. shadcn writes `focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50`
   // on button, input, checkbox, switch, badge, accordion, slider, scroll-area and the field cards;
-  // this system has exactly ONE focus affordance, the global 2px `:focus-visible` outline in
-  // `base.css`. Every migrated component strips the glow, and this rule is what keeps it stripped —
+  // this system has exactly ONE focus affordance, the global `:focus-visible` background tint in
+  // `base.css` (FOC-13). Every migrated component strips the glow, and this rule is what keeps it stripped —
   // without it, a re-pull in Batch 2 or a hand-written component silently reintroduces the halo
   // and nothing anywhere says so.
   //
@@ -137,7 +137,21 @@ const RULES = [
   {
     id: "no-focus-ring-glow",
     re: /\bring-3\b|\bring-\[3px\]|\bring-ring\/\d+|focus(?:-visible|-within)?:ring-|aria-invalid:ring-|focus(?:-visible)?:outline-(?!none\b|hidden\b|offset)[\w[]|\bfocus(?:-visible|-within)?:shadow-\[0_0_0_/g,
-    msg: "focus ring (FOC-1/FOC-6/FOC-13): no focus rings anywhere, Tabs included — base.css paints the one focus cue (a background tint; a border tint on text entry). No ring-3, ring-ring/NN, focus:/focus-visible:ring-*, focus-visible:outline-*, aria-invalid:ring-*, or focus 0 0 0 box-shadow ring",
+    msg: "focus ring (FOC-1/FOC-6/FOC-13): no focus rings anywhere, Tabs included — base.css paints the one focus cue (a background tint, text entry included). No ring-3, ring-ring/NN, focus:/focus-visible:ring-*, focus-visible:outline-*, aria-invalid:ring-*, or focus 0 0 0 box-shadow ring",
+  },
+  // FOC-14 (ours, MK 2026-09-26) — a border never changes colour on focus or while active. The
+  // one focus cue is base.css's background tint (FOC-13), text entry included; a bordered field
+  // group wears it on the group. So any class token whose variant chain names focus
+  // (`focus:`, `focus-visible:`, `focus-within:`, `not-focus:`, `has-[…:focus]:`, `data-focused:`)
+  // or an open popup (`data-popup-open:`) and ends in a border COLOUR is rejected — including the
+  // old `not-focus:aria-invalid:border-destructive` guard, because invalid now holds its
+  // destructive border in every state. Width, side and style utilities (`focus:border`,
+  // `border-0`, `border-t`, `border-solid`) are not colours and pass, and so does
+  // `border-border`, the resting colour itself (a skip link that only becomes visible on focus).
+  {
+    id: "no-focus-border",
+    re: /(?<![\w-])[^\s"'`{}]*(?:focus|data-focused|popup-open)[^\s"'`{}]*:border-(?!border\b|0\b|[248]\b|[xytbselr]\b|[xytbselr]-[0248]\b|solid\b|dashed\b|dotted\b|double\b|none\b|hidden\b)[a-z]/g,
+    msg: "focus border (FOC-14): a border never changes colour on focus or while active — base.css's background tint is the focus cue, and an invalid border holds in every state (no `not-focus:` guard). No focus:/focus-visible:/focus-within:/has-[…:focus]:/data-focused:/data-popup-open: border colour",
   },
   // BRD-1 (ours since MK 2026-09-23) — a surface separates with a real 1px `border border-border`,
   // never shadcn's `ring-1 ring-foreground/10` box-shadow outline. The reset had taken upstream's

@@ -1,4 +1,4 @@
-// @vegastack date-picker@0.23.39 sha256-1RP/JwsAx/AB3fsWh2GPKO/THcfWUjY/DdNInu4J9v0=
+// @vegastack date-picker@0.23.39 sha256-GTA7ICagbf2LP14N9tbcsD87XbQ7JHJ2B6tQeBP5JpE=
 
 "use client";
 
@@ -384,7 +384,7 @@ export interface DatePickerProps {
 
 /** The inline (`ghost`) trigger chrome shared with `Select variant="ghost"`. */
 const GHOST_TRIGGER =
-  "border-transparent bg-transparent shadow-none hover:border-input focus:border-ring/70 aria-expanded:border-input dark:bg-transparent";
+  "border-transparent bg-transparent shadow-none hover:border-input dark:bg-transparent";
 
 /**
  * `DatePicker` — pick a single date. Renders an outline `Button` showing the formatted date (or the

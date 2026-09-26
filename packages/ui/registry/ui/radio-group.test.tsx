@@ -217,12 +217,11 @@ test("FOC-1/FOC-6: the recipe carries no focus glow and no outline suppression",
   expect(classes).not.toContain("aria-invalid:ring-destructive");
 });
 
-test("FOC-5: the invalid tint stands down while the control is focused", async () => {
+test("FOC-14: the invalid border holds while the control is focused", async () => {
   const classes = itemClasses(await render(<Basic />));
-  expect(classes).toContain("not-focus:aria-invalid:border-destructive");
-  expect(classes).toContain(
-    "not-focus:aria-invalid:aria-checked:border-primary",
-  );
+  expect(classes).toContain("aria-invalid:border-destructive");
+  expect(classes).not.toContain("not-focus:");
+  expect(classes).toContain("aria-invalid:aria-checked:border-primary");
 });
 
 test("FOC-12: the control never cancels its own ring for a choice card", async () => {

@@ -1,6 +1,6 @@
 ---
 title: Input
-description: A styled Base UI input for every text-entry type — Field-aware state, invalid and disabled chrome, and a border tint instead of a focus ring.
+description: A styled Base UI input for every text-entry type — Field-aware state, invalid and disabled chrome, and a background tint instead of a focus ring.
 audience: public
 registry: input
 status: stable
@@ -71,8 +71,8 @@ Use `disabled`, and add `data-disabled` to the `Field` so the label dims with it
 
 ### Invalid
 
-Use `aria-invalid`, and add `data-invalid` to the `Field`. The tint is scoped to `not-focus:`
-(FOC-5), so a focused input shows its focus cue rather than the error colour.
+Use `aria-invalid`, and add `data-invalid` to the `Field`. The destructive border holds in every
+state, focused or not (FOC-14).
 
 <ComponentPreview name="inputInvalid" file="components/preview/input.tsx" />
 
@@ -153,9 +153,10 @@ Try every type with the disabled and invalid states, then copy the generated JSX
 
 - Renders Base UI's Input, which is a native `<input>` wired to the surrounding `Field`, so the
   platform owns selection, IME composition and autofill.
-- Focus is a **border tint on `:focus`**, not a ring, and the global outline is suppressed with
-  `outline-hidden` (FOC-3, FOC-8). The tint fires for mouse and keyboard alike, because a text field
-  cannot tell them apart and both need the caret located.
+- Focus is `base.css`'s **background tint** (`accent` at 50%), not a ring, and the border never
+  changes colour (FOC-3, FOC-14); the global outline is suppressed with `outline-hidden` (FOC-8).
+  The tint fires for mouse and keyboard alike, because a text field cannot tell them apart and both
+  need the caret located.
 - Under `forced-colors: active` the tint disappears with every authored colour, so `base.css` paints
   a 2px `Highlight` outline on `input:focus` instead (FOC-7).
 - Give it a label: `FieldLabel` bound with `htmlFor`, or an `aria-label`.
@@ -174,11 +175,12 @@ Try every type with the disabled and invalid states, then copy the generated JSX
 Upstream's file plus `packages/ui/upstream/patches/input.patch`. Every hunk:
 
 - **FOC-1, FOC-3, FOC-6, FOC-8** — `outline-none focus-visible:border-ring focus-visible:ring-3
-focus-visible:ring-ring/50` becomes `outline-hidden` plus `focus:border-ring/70`: a border tint on
-  `:focus` and no glow. `outline-hidden` rather than `outline-none`, so the forced-colours fallback
+focus-visible:ring-ring/50` becomes `outline-hidden` and nothing else: the border stays
+  `border-input` and the focus cue is `base.css`'s background tint (FOC-14 retired the
+  `focus:border-ring/70` tint). `outline-hidden` rather than `outline-none`, so the forced-colours fallback
   has something to repaint.
-- **FOC-5** — the invalid tint becomes `not-focus:aria-invalid:border-destructive` (and its dark
-  counterpart), so focus outranks it; the `aria-invalid` halo rings are removed with the rest.
+- **FOC-14** — the invalid border is `aria-invalid:border-destructive` (and its dark counterpart),
+  held in every state, focused or not; the `aria-invalid` halo rings are removed with the rest.
 - **FRM-4** — `disabled:pointer-events-none` is dropped, so a disabled input stays hoverable and a
   Tooltip can explain it. Base UI's Input has no `focusableWhenDisabled`, so the native `disabled`
   attribute stays: this is the pointer half of FRM-4 only.

@@ -183,9 +183,11 @@ test("any control marked data-slot=input-group-control joins the group's state (
       </InputGroupAddon>
     </InputGroup>,
   );
-  expect(groupClasses(screen)).toContain(
-    "has-[[data-slot=input-group-control]:focus]:border-ring/70",
-  );
+  expect(
+    screen.container
+      .querySelector('[data-slot="input-group"]')
+      ?.hasAttribute("data-field-group"),
+  ).toBe(true);
   await expect
     .element(screen.getByRole("textbox", { name: "Custom" }))
     .toBeInTheDocument();
@@ -235,26 +237,29 @@ test("FOC-1/FOC-6: neither the group nor its control carries a focus glow", asyn
   expect(control).not.toContain("aria-invalid:ring-0");
 });
 
-test("FOC-3: the GROUP carries the border tint, on :focus", async () => {
+test("FOC-14: the GROUP is a field group (it wears base.css's tint) and never moves its border on focus", async () => {
   const screen = await render(
     <InputGroup>
       <InputGroupInput aria-label="Search" />
     </InputGroup>,
   );
-  expect(groupClasses(screen)).toContain(
-    "has-[[data-slot=input-group-control]:focus]:border-ring/70",
-  );
+  const group = screen.container.querySelector(
+    '[data-slot="input-group"]',
+  ) as HTMLElement;
+  expect(group.hasAttribute("data-field-group")).toBe(true);
+  expect(groupClasses(screen)).not.toMatch(/focus[\w-]*\]?:border-/);
 });
 
-test("FOC-5: the invalid tint stands down while the group holds focus", async () => {
+test("FOC-14: the invalid border holds while the group holds focus", async () => {
   const screen = await render(
     <InputGroup>
       <InputGroupInput aria-label="Search" aria-invalid />
     </InputGroup>,
   );
   expect(groupClasses(screen)).toContain(
-    "not-focus-within:has-[[data-slot][aria-invalid=true]]:border-destructive",
+    "has-[[data-slot][aria-invalid=true]]:border-destructive",
   );
+  expect(groupClasses(screen)).not.toContain("not-focus-within:");
 });
 
 test("no a11y violations — rest", async () => {

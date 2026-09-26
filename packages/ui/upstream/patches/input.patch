@@ -1,5 +1,5 @@
 # component: input
-# decisions: API-26, DOC-1, DOC-2, FOC-1, FOC-3, FOC-5, FOC-6, FOC-8, FRM-4
+# decisions: API-26, DOC-1, DOC-2, FOC-1, FOC-3, FOC-5, FOC-6, FOC-8, FRM-4, FOC-14
 # hunks:
 #   FOC-1, FOC-3, FOC-6, FOC-8: `outline-none focus-visible:border-ring focus-visible:ring-3
 #     focus-visible:ring-ring/50` becomes `outline-hidden` plus `focus:border-ring/70` — the
@@ -14,12 +14,15 @@
 #   API-26: NO HUNK — the engine already implements it. Base UI's `Input` is `Field.Control`, so
 #     inside a `Field` it reads the label, description and error ids and `aria-invalid` with no
 #     code; `input.test.tsx` pins it.
+#   FOC-14 (supersedes the FOC-3 border tint and FOC-5 above): no `focus:` border tint and no `not-
+#     focus:` guard on the invalid border — the border never changes on focus (base.css's background
+#     tint is the cue), and the invalid border holds in every state.
 #   cn: `import { cn } from "cn"` becomes `@vegastack/design` — our npm layer owns `cn` (DOC-2).
 #   formatting: the repository formatter (prettier defaults: semicolons, trailing commas)
 #               reflows the file, and `registry-stamp.mjs` writes the provenance header the
 #               three-copy model needs (DOC-1); those hunks carry no decision of their own.
 diff --git a/input.tsx b/input.tsx
-index 7c4ab5a..74fad52 100644
+index 7c4ab5a..bd0d141 100644
 --- a/input.tsx
 +++ b/input.tsx
 @@ -1,19 +1,59 @@
@@ -38,11 +41,11 @@ index 7c4ab5a..74fad52 100644
 +    variants: {
 +      variant: {
 +        default:
-+          "rounded-lg border border-input bg-transparent focus:border-ring/70 disabled:bg-input/50 not-focus:aria-invalid:border-destructive dark:bg-input/30 dark:disabled:bg-input/80 dark:not-focus:aria-invalid:border-destructive/50",
++          "rounded-lg border border-input bg-transparent disabled:bg-input/50 aria-invalid:border-destructive dark:bg-input/30 dark:disabled:bg-input/80 dark:aria-invalid:border-destructive/50",
 +        // A borderless, transparent field for a big title (Linear's issue title). No box: the tint
 +        // is the focus cue, and an invalid title turns its placeholder and text destructive.
 +        ghost:
-+          "rounded-md border-0 bg-transparent px-0 hover:bg-accent/30 focus:bg-accent/50 aria-invalid:placeholder:text-destructive/70",
++          "rounded-md border-0 bg-transparent px-0 hover:bg-accent/30 aria-invalid:placeholder:text-destructive/70",
 +      },
 +      size: {
 +        sm: "h-7 px-2 py-0.5 text-sm",
@@ -65,7 +68,7 @@ index 7c4ab5a..74fad52 100644
 +/**
 + * `Input` — a single-line text field.
 + *
-+ * - `variant="default"`: the bordered field; focus tints the border.
++ * - `variant="default"`: the bordered field; focus paints the `base.css` background tint; the border never changes.
 + * - `variant="ghost"`: borderless and transparent, for a title you type straight onto the page.
 + * - `size`: `sm` (28px), `default` (32px), `lg` (heading size — pair with `ghost` for a big title).
 + *

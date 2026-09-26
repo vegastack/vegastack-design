@@ -85,22 +85,23 @@ test("FOC-1/FOC-6: the recipe carries no focus glow", async () => {
   expect(classes).not.toContain("aria-invalid:ring-destructive");
 });
 
-test("FOC-3/FOC-8: focus is a border tint on :focus, with outline-hidden not outline-none", async () => {
+test("FOC-14: focus never changes the border, with outline-hidden not outline-none", async () => {
   const screen = await render(<Input aria-label="Email" />);
   const classes = await classesOf(
     screen.getByRole("textbox", { name: "Email" }).element() as HTMLElement,
   );
-  expect(classes).toContain("focus:border-ring/70");
+  expect(classes).not.toMatch(/focus[\w-]*:border-/);
   expect(classes).toContain("outline-hidden");
   expect(classes).not.toMatch(/(?:^|\s)outline-none(?:\s|$)/);
 });
 
-test("FOC-5: the invalid tint stands down while the control is focused", async () => {
+test("FOC-14: the invalid border holds while the control is focused", async () => {
   const screen = await render(<Input aria-label="Email" aria-invalid />);
   const classes = await classesOf(
     screen.getByRole("textbox", { name: "Email" }).element() as HTMLElement,
   );
-  expect(classes).toContain("not-focus:aria-invalid:border-destructive");
+  expect(classes).toContain("aria-invalid:border-destructive");
+  expect(classes).not.toContain("not-focus:");
 });
 
 test("FRM-4: the recipe never removes pointer events from a disabled input", async () => {

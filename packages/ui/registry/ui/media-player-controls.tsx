@@ -1,4 +1,4 @@
-// @vegastack media-player-controls@0.23.39 sha256-wjmq2pAPgNsN/OAB7l8KzjZ5ZCcTg7RMuWcUxg7jB5c=
+// @vegastack media-player-controls@0.23.39 sha256-Y1Fg5nK98xFrcb7Qt7E8XeyGlsnTgdkzVdRvve8XNQA=
 
 "use client";
 
@@ -54,7 +54,7 @@ const MEDIA_SLIDER =
   "[&_[data-slot=slider-thumb]]:bg-muted-foreground " +
   "hover:[&_[data-slot=slider-range]]:bg-foreground focus-within:[&_[data-slot=slider-range]]:bg-foreground " +
   "hover:[&_[data-slot=slider-thumb]]:border-foreground hover:[&_[data-slot=slider-thumb]]:bg-foreground " +
-  "focus-within:[&_[data-slot=slider-thumb]]:border-foreground focus-within:[&_[data-slot=slider-thumb]]:bg-foreground";
+  "focus-within:[&_[data-slot=slider-thumb]]:bg-foreground";
 
 /** The overlay player, drawn over video: media ink on a translucent rail. */
 const OVERLAY_SLIDER =

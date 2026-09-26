@@ -171,8 +171,9 @@ own — each accepts everything the underlying element accepts.
 - The group is a `role="group"`; the control inside it keeps every native semantic, so labelling is
   the control's job, exactly as for a bare `Input`.
 - Clicking an addon focuses the control, unless the click landed on a button inside it.
-- The **group** carries the focus affordance: a border tint while the control has focus (FOC-3), and
-  no ring anywhere. The control itself is borderless, so nothing paints twice.
+- The **group** carries the focus affordance: it is a field group (`data-field-group`), so while the
+  control has focus the group wears `base.css`'s background tint and the control inside stands down,
+  so nothing paints twice. The border never changes colour (FOC-14), and there is no ring anywhere.
 - Give every icon-only `InputGroupButton` an `aria-label` or an `sr-only` label; the design lint
   fails a nameless one.
 
@@ -191,13 +192,12 @@ Upstream's file plus `packages/ui/upstream/patches/input-group.patch`. Every hun
 
 - **FOC-1, FOC-3, FOC-6** — the group's
   `has-[[data-slot=input-group-control]:focus-visible]:border-ring` plus `ring-3 ring-ring/50`
-  becomes `has-[[data-slot=input-group-control]:focus]:border-ring/70`: a border tint on `:focus`,
-  for mouse and keyboard alike, and no glow. Batch 4 added the same tint for
-  `[data-slot=command-input]` — upstream's `CommandInput` puts cmdk's input inside an `InputGroup`
-  under its own slot name, so the group never saw it focus.
-- **FOC-5** — the invalid tint becomes
-  `not-focus-within:has-[[data-slot][aria-invalid=true]]:border-destructive`, so a focused group
-  shows its focus cue rather than the error colour; the `has-aria-invalid` halo rings go with it.
+  is removed, and the group gains `data-field-group`, so `base.css` paints its background tint on the
+  group while any input inside it has focus — `[data-slot=command-input]` included — for mouse and
+  keyboard alike. FOC-14 retired the earlier `has-[…:focus]:border-ring/70` border tint; the border
+  stays `border-input` in every state.
+- **FOC-14** — the invalid border is `has-[[data-slot][aria-invalid=true]]:border-destructive`,
+  held in every state, focused or not; the `has-aria-invalid` halo rings go with it.
 - **FOC-6** — `InputGroupInput` and `InputGroupTextarea` drop `ring-0 focus-visible:ring-0
 aria-invalid:ring-0`, which existed only to cancel the ring `Input` and `Textarea` no longer have.
 - **API-26** — NO HUNK: `InputGroupInput` renders `Input` and `InputGroupTextarea` renders

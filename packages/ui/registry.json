@@ -224,7 +224,7 @@
       "registryDependencies": [
         "@vegastack/alert-dialog",
         "@vegastack/button",
-        "@vegastack/data-table-parts",
+        "@vegastack/dropdown-menu",
         "@vegastack/empty",
         "@vegastack/markdown-view",
         "@vegastack/person-hover-card",
@@ -12032,7 +12032,7 @@
       "name": "input",
       "type": "registry:ui",
       "title": "Input",
-      "description": "A styled Base UI input for every text-entry type — Field-aware state, invalid and disabled chrome, and the text-entry focus border tint (FOC-3).",
+      "description": "A styled Base UI input for every text-entry type — Field-aware state, invalid and disabled chrome, and the background focus tint with a border that never moves (FOC-14).",
       "categories": ["form"],
       "dependencies": [
         "@base-ui/react@^1.6.0",
@@ -13673,7 +13673,7 @@
       "name": "textarea",
       "type": "registry:ui",
       "title": "Textarea",
-      "description": "A styled native textarea for multi-line text — auto-sizing to its content, invalid and disabled chrome, and the text-entry focus border tint (FOC-3).",
+      "description": "A styled native textarea for multi-line text — auto-sizing to its content, invalid and disabled chrome, and the background focus tint with a border that never moves (FOC-14).",
       "categories": ["form"],
       "dependencies": [
         "@base-ui/react@^1.6.0",

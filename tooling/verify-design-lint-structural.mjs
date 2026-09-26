@@ -202,6 +202,37 @@ export function LiteralRules(_props: RenderlessProps) {
     );
   }
 
+  // ── no-focus-border (FOC-14) ──────────────────────────────────────────────────────────────
+  // A border never changes colour on focus or while active. Each shape the registry actually
+  // carried before FOC-14 is a specimen line, so a rule that stopped firing is seen.
+  writeFileSync(
+    join(glowDir, "glow.tsx"),
+    `export function FocusBorder() {
+  return <>
+    <input className="border border-input focus:border-ring/70" />
+    <div className="focus-within:border-ring/50">a composer box</div>
+    <div className="has-[[data-slot=input-group-control]:focus]:border-ring/70">a field group</div>
+    <input className="not-focus:aria-invalid:border-destructive" />
+    <button className="border-transparent data-popup-open:border-input">a ghost trigger</button>
+  </>;
+}
+`,
+  );
+  const focusBorder = run(glowDir);
+  const focusBorderLines = focusBorder.output
+    .split("\n")
+    .filter((line) => line.includes("[no-focus-border]")).length;
+  if (focusBorder.status === 0 || focusBorderLines < 5) {
+    console.error(
+      `  observed ${focusBorderLines} of 5 focus-border forms rejected`,
+    );
+    fail(
+      "design-lint accepted a focus border change — FOC-14: a border never changes colour on " +
+        "focus or while active",
+      focusBorder.output,
+    );
+  }
+
   // ── important: Tailwind's `!` modifier (2026-09-23) ───────────────────────────────────────
   // The raw-CSS half of this rule only ever saw the literal text `!important`, so the spelling
   // component source actually uses — `p-0!`, or the legacy prefix `!p-0` — compiled to
@@ -549,7 +580,8 @@ export function Textarea(props: ComponentProps<'textarea'>) {
     <div className="tracking-widest" />{/* the ONE sanctioned tracking: the keyboard-shortcut hint idiom, a role the ramp does not cover */}
     <div className="z-50 cursor-default" />{/* upstream's z band and its menu-item cursor (OVL-2/INT-10) */}
     <div className="bg-card hover:bg-muted" />{/* a hover with no pressed rung is upstream's norm (INT-4 = shadcn) */}
-    <div className="outline-2 outline-offset-1 outline-ring focus:border-ring" />{/* the KEPT focus affordance: an outline and a text-entry border tint, never a ring */}
+    <div className="outline-2 outline-offset-1 outline-ring" />{/* the KEPT forced-colours affordance: an outline, never a ring */}
+    <div className="sr-only focus:not-sr-only focus:border focus:border-border aria-invalid:border-destructive border-t-2" />{/* a width, the resting border colour and an unconditional invalid border are not a focus border change (FOC-14) */}
     <div className="translate-x-1 motion-reduce:transform-none" />{/* suppresses the END STATE, which base.css does not */}
     <div className={["flex items-center", "gap-2 rounded-md"].join(" ")} />{/* the canonical multi-fragment join — cannot express the class-glue bug */}
     <div title={"a sentence split across two source lines " + "is prose, not a class seam"} />{/* no class context on either side */}

@@ -1,4 +1,4 @@
-// @vegastack checkbox@0.23.39 sha256-++vMESudQFdgP1SDpEri7q0sPNRNIg3Lj3z04c9tjiE=
+// @vegastack checkbox@0.23.39 sha256-077TmAMMGspXq59gVIUZNcWWpJUfNYnctsm8R7+7T6w=
 
 "use client";
 
@@ -19,7 +19,7 @@ function Checkbox({
       data-slot="checkbox"
       data-shape={shape}
       className={cn(
-        "peer relative flex size-4 shrink-0 items-center justify-center rounded-[4px] border border-input transition-colors group-has-disabled/field:opacity-50 after:absolute after:-inset-x-3 after:-inset-y-2 data-disabled:cursor-not-allowed data-disabled:opacity-50 not-focus:aria-invalid:border-destructive not-focus:aria-invalid:aria-checked:border-primary dark:bg-input/30 dark:not-focus:aria-invalid:border-destructive/50 data-checked:border-primary data-checked:bg-primary data-checked:text-primary-foreground dark:data-checked:bg-primary",
+        "peer relative flex size-4 shrink-0 items-center justify-center rounded-[4px] border border-input transition-colors group-has-disabled/field:opacity-50 after:absolute after:-inset-x-3 after:-inset-y-2 data-disabled:cursor-not-allowed data-disabled:opacity-50 aria-invalid:border-destructive aria-invalid:aria-checked:border-primary dark:bg-input/30 dark:aria-invalid:border-destructive/50 data-checked:border-primary data-checked:bg-primary data-checked:text-primary-foreground dark:data-checked:bg-primary",
         shape === "circle" && "rounded-full",
         className,
       )}

@@ -1,5 +1,5 @@
 # component: native-select
-# decisions: DOC-1, DOC-2, FOC-1, FOC-3, FOC-4, FOC-5, FOC-6, FRM-4
+# decisions: DOC-1, DOC-2, FOC-1, FOC-3, FOC-4, FOC-5, FOC-6, FRM-4, FOC-14
 # hunks:
 #   FOC-1, FOC-3, FOC-4, FOC-6: `outline-none focus-visible:border-ring focus-visible:ring-3
 #     focus-visible:ring-ring/50` becomes `focus:border-ring/70`, and the dropped `outline-none`
@@ -9,12 +9,15 @@
 #     counterpart), so focus outranks it; the `aria-invalid` halo rings go with the rest.
 #   FRM-4: `disabled:pointer-events-none` is dropped, so a disabled select stays hoverable and a
 #     Tooltip can explain it.
+#   FOC-14 (supersedes the FOC-3 border tint and FOC-5 above): no `focus:` border tint and no `not-
+#     focus:` guard on the invalid border — the border never changes on focus (base.css's background
+#     tint is the cue), and the invalid border holds in every state.
 #   cn: `import { cn } from "cn"` becomes `@vegastack/design` — our npm layer owns `cn` (DOC-2).
 #   formatting: the repository formatter (prettier defaults: semicolons, trailing commas)
 #               reflows the file, and `registry-stamp.mjs` writes the provenance header the
 #               three-copy model needs (DOC-1); those hunks carry no decision of their own.
 diff --git a/native-select.tsx b/native-select.tsx
-index 09535b2..9e64627 100644
+index 09535b2..3f0ef9a 100644
 --- a/native-select.tsx
 +++ b/native-select.tsx
 @@ -1,10 +1,10 @@
@@ -47,7 +50,7 @@ index 09535b2..9e64627 100644
          data-slot="native-select"
          data-size={size}
 -        className="h-8 w-full min-w-0 appearance-none rounded-lg border border-input bg-transparent py-1 pe-8 ps-2.5 text-sm transition-colors outline-none select-none selection:bg-primary selection:text-primary-foreground placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:pointer-events-none disabled:cursor-not-allowed aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 data-[size=sm]:h-7 data-[size=sm]:rounded-[min(var(--radius-md),10px)] data-[size=sm]:py-0.5 dark:bg-input/30 dark:hover:bg-input/50 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40"
-+        className="h-8 w-full min-w-0 appearance-none rounded-lg border border-input bg-transparent py-1 pe-8 ps-2.5 text-sm transition-colors select-none selection:bg-primary selection:text-primary-foreground placeholder:text-muted-foreground focus:border-ring/70 disabled:cursor-not-allowed not-focus:aria-invalid:border-destructive data-[size=sm]:h-7 data-[size=sm]:rounded-[min(var(--radius-md),10px)] data-[size=sm]:py-0.5 dark:bg-input/30 dark:hover:bg-input/50 dark:not-focus:aria-invalid:border-destructive/50"
++        className="h-8 w-full min-w-0 appearance-none rounded-lg border border-input bg-transparent py-1 pe-8 ps-2.5 text-sm transition-colors select-none selection:bg-primary selection:text-primary-foreground placeholder:text-muted-foreground disabled:cursor-not-allowed aria-invalid:border-destructive data-[size=sm]:h-7 data-[size=sm]:rounded-[min(var(--radius-md),10px)] data-[size=sm]:py-0.5 dark:bg-input/30 dark:hover:bg-input/50 dark:aria-invalid:border-destructive/50"
          {...props}
        />
 -      <ChevronDownIcon className="pointer-events-none absolute top-1/2 end-2.5 size-4 -translate-y-1/2 text-muted-foreground select-none" aria-hidden="true" data-slot="native-select-icon" />

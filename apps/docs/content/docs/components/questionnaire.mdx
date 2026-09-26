@@ -454,8 +454,9 @@ everything the underlying element accepts, plus `render` where the engine expose
   are associated with the current item, and invalid items and answer controls expose `aria-invalid`.
 - Fixed choices are native radios and checkboxes, so arrow keys, <kbd>Space</kbd> and grouping all
   behave the way the platform already taught the reader. The real control is an `opacity-0` input
-  stretched over the card, which is why the card's own border — not an outline on something
-  invisible — is the focus affordance (FOC-1, FOC-6).
+  stretched over the card, which is why the card itself wears the `accent`/50 background tint — not
+  a cue on something invisible — as the focus affordance. Its border never changes colour on focus
+  (FOC-1, FOC-6, FOC-14).
 - `QuestionnaireProgress` is a named `role="progressbar"` with `aria-live="polite"`, so a step change
   is announced at a comfortable pace rather than interrupting (A11Y-3).
 - `QuestionnaireError` is `role="alert"` **only while the item is invalid**, and `hidden` otherwise —
@@ -488,23 +489,25 @@ everything the underlying element accepts, plus `render` where the engine expose
 Upstream's file plus `packages/ui/upstream/patches/questionnaire.patch`. Every hunk:
 
 - **FOC-1, FOC-6 (choice)** — `QuestionnaireChoice` drops `has-[>input:focus-visible]:ring-3` and
-  `has-[>input:focus-visible]:ring-ring/50` and keeps `has-[>input:focus-visible]:border-ring`. The
-  real control is an `opacity-0` input stretched over the whole card, so `base.css`'s outline paints
+  `has-[>input:focus-visible]:ring-ring/50`, and FOC-14 replaces `has-[>input:focus-visible]:border-ring`
+  with the `accent`/50 background tint (`has-[>input:focus-visible]:bg-linear-to-b
+from-accent/50 to-accent/50`, laid as an image over the fill exactly as `base.css` lays it). The
+  real control is an `opacity-0` input stretched over the whole card, so `base.css`'s tint paints
   on something invisible — the same shape `input-otp`'s hidden input has, and the same answer: the
-  visible card's border **is** the affordance.
-- **FOC-5 (choice)** — `data-invalid:border-destructive` becomes
-  `not-has-[>input:focus-visible]:data-invalid:border-destructive`, so focus outranks the invalid
-  tint exactly as it does on `input`, `checkbox` and `select`.
+  visible card wears the cue.
+- **FOC-14 (choice)** — `data-invalid:border-destructive` stays as upstream wrote it: the invalid
+  border holds in every state, focused or not, exactly as it does on `input`, `checkbox` and
+  `select`.
 - **FRM-4 (choice)** — `data-disabled:pointer-events-none` is dropped, so a disabled choice stays
   hoverable and a Tooltip can explain it. The engine keeps the input's own `disabled`, so nothing
   becomes answerable; upstream's `data-disabled:cursor-not-allowed` stays.
-- **FOC-1, FOC-3, FOC-6, FOC-8, FOC-5, FRM-4 (input)** — `QuestionnaireInput` takes the same
+- **FOC-1, FOC-3, FOC-6, FOC-8, FOC-14, FRM-4 (input)** — `QuestionnaireInput` takes the same
   treatment `input.tsx` takes: `outline-none` becomes `outline-hidden` (so the FOC-7 forced-colours
   block has an outline to repaint), `focus-visible:border-ring focus-visible:ring-3
-focus-visible:ring-ring/50` becomes `focus:border-ring/70` — the 70% text-entry tint, on `:focus`
-  so it fires for mouse and keyboard alike — `aria-invalid:border-destructive aria-invalid:ring-3
-aria-invalid:ring-destructive/20` becomes `not-focus:aria-invalid:border-destructive` with its dark
-  counterpart, and `disabled:pointer-events-none` is dropped.
+focus-visible:ring-ring/50` is removed — the border never changes colour and `base.css`'s
+  background tint is the cue — `aria-invalid:border-destructive aria-invalid:ring-3
+aria-invalid:ring-destructive/20` becomes `aria-invalid:border-destructive` with its dark
+  counterpart, held in every state, and `disabled:pointer-events-none` is dropped.
 - **A11Y-13** — `QuestionnaireError`'s `text-destructive` becomes `text-destructive-text`. It is
   the identical pair to `Field`'s error copy, which the row names: the status fill used as text ink
   measures under the AA floor, and the family's `-text` ink clears it.
