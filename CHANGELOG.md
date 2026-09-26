@@ -9,6 +9,19 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.23.41] — September 26, 2026
+
+<!-- assembled from 1 changeset: 77de3d45f09d -->
+
+### 🔧 Changed components
+
+- `RecordChip` gains `variant="ghost"` for property values: no border and no fill, the value in plain body text (the same size, weight and colour as a plain `PropertyValue`), the standard tint on hover and keyboard focus, and a ▾ that fades in then and stays while the menu is open. A status or priority icon keeps its colour, and any other leading icon is dropped. A new `person` prop shows a 20px avatar (initials fallback) and an "Inactive"-style badge. A `DueLabel` value keeps its overdue colour, and an empty chip shows the muted placeholder. `PropertyValue` hangs a ghost chip's padding and 28px height outside the cell, so its text starts where plain values do and every row is the same height. `SplitChip`'s name segment drops the button's transparent border, so its hover background sits the same 2px from the pill's border as the ↗ segment's on every side and around the separator. `PropertyPerson`'s avatar is 20px, matching the ghost chip. Date labels lose `tabular-nums` (`BoardCard`'s due badge, `MediaCard`'s timestamp), so dates use Geist's proportional figures everywhere, and tabular figures stay only on live timers. Docs: the RecordChip and PropertyList pages and the issue-detail-01 block show both variants and every state.
+  [`fe030ca`](https://github.com/VegaStack/vegastack-design/commit/fe030ca)
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.23.40 → 0.23.41.
+
 ## [0.23.40] — September 26, 2026
 
 <!-- assembled from 2 changesets: 0b8ea983ede3 -->
