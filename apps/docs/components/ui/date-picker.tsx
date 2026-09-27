@@ -1,4 +1,4 @@
-// @vegastack date-picker@0.23.53 sha256-/PjM9+ZCLY/etHd+XHprnTEa0XusrNcyqp1xNO/vmeo=
+// @vegastack date-picker@0.23.54 sha256-Z2MHTylyEIVoOvm66znNWNVgGbHzmlpEuFs826wQ2qA=
 
 "use client";
 
