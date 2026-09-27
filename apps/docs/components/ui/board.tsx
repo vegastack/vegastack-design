@@ -1,4 +1,4 @@
-// @vegastack board@0.23.49 sha256-2FCPpS0aQ3Yx+ueETAMxhp8cdZUQznB0tbImGkQ3n9I=
+// @vegastack board@0.23.49 sha256-rANBh9Cs60Q4umUzQMLz52bKCwqagjM8YBl9BKI04XY=
 
 "use client";
 
@@ -185,7 +185,7 @@ export interface BoardColumn<T> {
    */
   loadMore?: Omit<LoadMoreProps, "className" | "ref">;
   /**
-   * Show the "+ Add" button at this lane's foot (when the board has `onAdd`).
+   * Show the "+ Add" button after this lane's last card (when the board has `onAdd`).
    * @default true
    */
   addable?: boolean;
@@ -253,7 +253,7 @@ export interface BoardProps<T> {
    */
   onCardActivate?: (item: T) => void;
   /**
-   * Show "+ Add" at each lane's foot and call this with the lane's id — the host opens its create
+   * Show "+ Add" after each lane's last card (or as an empty lane's action) and call this with the lane's id — the host opens its create
    * form with the lane's status filled in.
    * @default undefined
    */
@@ -478,7 +478,7 @@ function LaneAutoLoad({
 
 /**
  * `Board` — kanban lanes: full-height lanes whose cards scroll inside them, sticky lane headers
- * with a collapse menu, "+ Add" at each lane's foot, empty lanes as a design-system `Empty` ("Nothing here") and a "Drop here" zone while dragging,
+ * with a collapse menu, "+ Add" after each lane's last card, empty lanes as a design-system `Empty` ("Nothing here") and a "Drop here" zone while dragging,
  * per-lane skeletons and load-on-scroll paging. Cards drag live (a mouse drag, or a 250ms touch
  * long-press) with lift, make-room and settle motion and edge auto-scroll; Space, the arrows,
  * Space and Escape move them from the keyboard; every card's ⋯ menu lists its actions. Moves are optimistic and roll back with a toast when `onMove` rejects. On a phone it
@@ -1343,6 +1343,25 @@ export function Board<T>({
     const showAdd =
       onAdd !== undefined && column.addable !== false && !readOnly;
     const empty = laneIds.length === 0 && gapIndex === -1;
+    // The add button rides the scroll content: after the last card (and LoadMore), or as the
+    // default empty state's action when the lane is empty.
+    const addInEmpty =
+      empty &&
+      !column.loading &&
+      !(dragging && receivable) &&
+      column.emptyState === undefined;
+    const addButton = showAdd ? (
+      <Button
+        variant="ghost"
+        size="sm"
+        data-slot="board-column-add"
+        onClick={() => onAdd(column.id)}
+        className="w-full shrink-0 justify-center text-muted-foreground"
+      >
+        <Plus />
+        {addText}
+      </Button>
+    ) : null;
     const gap = (
       <div
         key="__gap"
@@ -1367,7 +1386,8 @@ export function Board<T>({
         data-read-only={readOnly ? "" : undefined}
         data-drop-over={dropOver ? "" : undefined}
         className={cn(
-          "flex min-h-0 min-w-0 shrink-0 grow-0 basis-(--board-column-width) flex-col rounded-xl transition-colors data-drop-over:bg-accent/60",
+          // A subtle top-down fade marks the lane; drop-over swaps it for a solid accent wash.
+          "flex min-h-0 min-w-0 shrink-0 grow-0 basis-(--board-column-width) flex-col rounded-xl bg-linear-to-b from-muted/50 to-transparent transition-colors data-drop-over:bg-accent/60 data-drop-over:bg-none",
           "max-md:basis-full max-md:snap-start max-md:snap-always",
           fill ? "h-full" : "self-start",
         )}
@@ -1433,7 +1453,11 @@ export function Board<T>({
           ref={stableLaneBodyRef(column.id)}
           data-slot="board-column-body"
           className={cn(
-            "relative flex min-h-0 flex-col gap-2 overflow-y-auto overscroll-contain px-2 pb-2",
+            // overflow-x-hidden, not auto: overflow-y:auto alone computes overflow-x to auto, so a
+            // few px of card overflow made the lane pan sideways and swallowed horizontal wheel and
+            // touch pans. Hidden is not user-scrollable, so those pans chain to the board
+            // scroller; overscroll containment is vertical only for the same reason.
+            "relative flex min-h-0 min-w-0 flex-col gap-2 overflow-x-hidden overflow-y-auto overscroll-y-contain px-2 pb-2",
             fill ? "flex-1" : "max-h-(--board-column-max-height)",
           )}
         >
@@ -1466,8 +1490,11 @@ export function Board<T>({
                     </EmptyDescription>
                   ) : null}
                 </EmptyHeader>
-                {column.empty?.action != null ? (
-                  <EmptyContent>{column.empty.action}</EmptyContent>
+                {column.empty?.action != null || (addInEmpty && showAdd) ? (
+                  <EmptyContent>
+                    {column.empty?.action}
+                    {addInEmpty ? addButton : null}
+                  </EmptyContent>
                 ) : null}
               </Empty>
             )
@@ -1476,7 +1503,7 @@ export function Board<T>({
               role="list"
               // The lane (region) carries the total; the list is named by the lane alone.
               aria-label={laneLabel(column)}
-              className="flex flex-col gap-2"
+              className="flex min-w-0 flex-col gap-2"
             >
               {cards}
             </div>
@@ -1513,21 +1540,8 @@ export function Board<T>({
               <LoadMore {...column.loadMore} className="pt-1" />
             </>
           ) : null}
+          {addInEmpty ? null : addButton}
         </div>
-        {showAdd ? (
-          <div className="shrink-0 px-2 pb-2">
-            <Button
-              variant="ghost"
-              size="sm"
-              data-slot="board-column-add"
-              onClick={() => onAdd(column.id)}
-              className="w-full justify-start text-muted-foreground"
-            >
-              <Plus />
-              {addText}
-            </Button>
-          </div>
-        ) : null}
       </section>
     );
   };
@@ -1586,7 +1600,9 @@ export function Board<T>({
           // w-full + max-w-full: inside a flex/grid parent the board must never size to its
           // lanes' max-content — it scrolls internally instead (the 320px reflow contract).
           className={cn(
-            "flex w-full max-w-full min-w-0 gap-3 overflow-x-auto overscroll-x-contain [scrollbar-width:none] [&::-webkit-scrollbar]:hidden",
+            // touch-pan-x + touch-pan-y: a horizontal swipe that starts on a lane or card pans
+            // the board; vertical stays with the lane body.
+            "flex w-full max-w-full min-w-0 touch-pan-x touch-pan-y gap-3 overflow-x-auto overscroll-x-contain [scrollbar-width:none] [&::-webkit-scrollbar]:hidden",
             "max-md:snap-x max-md:snap-mandatory",
             fill ? "h-full items-stretch" : "items-start",
           )}

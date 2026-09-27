@@ -287,7 +287,7 @@ test("defaultCollapsed lanes expand read-only", async () => {
     .toBe(true);
 });
 
-test("onAdd shows + Add at each lane's foot with the lane's id", async () => {
+test("onAdd shows + Add after each lane's last card with the lane's id", async () => {
   const onAdd = vi.fn();
   const screen = await render(<Controlled onAdd={onAdd} addLabel="Add deal" />);
   const buttons = screen.getByRole("button", { name: "Add deal" }).elements();

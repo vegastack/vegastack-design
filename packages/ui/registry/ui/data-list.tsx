@@ -1,4 +1,4 @@
-// @vegastack data-list@0.23.49 sha256-NhS2ExqQCmFIUqFlxKZNy/L0jF3pZp6e8G7pXPswuFk=
+// @vegastack data-list@0.23.49 sha256-00RD0R1HJS9XaJyF20wouF8rhRZ9TJtV/IVeITNJv9k=
 
 "use client";
 
@@ -527,7 +527,7 @@ export interface DataListProps<T> extends Omit<
     row: T,
   ) => Omit<BoardCardProps, "surface" | "href" | "linkRender">;
   /**
-   * Board view: show "+ Add" at each lane's foot and call this with the lane's section id, so the
+   * Board view: show "+ Add" after each lane's last card and call this with the lane's section id, so the
    * host's create form opens with that status filled in.
    * @default undefined
    */
@@ -786,7 +786,7 @@ export interface DataListSection {
    */
   lockedReason?: string;
   /**
-   * Board view: show the "+ Add" button at this lane's foot (with `onAddToSection`).
+   * Board view: show the "+ Add" button after this lane's last card (with `onAddToSection`).
    * @default true
    */
   addable?: boolean;
