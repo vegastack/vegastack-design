@@ -419,7 +419,8 @@
       "categories": ["forms"],
       "dependencies": [
         "@vegastack/design@^0.7.47",
-        "@vegastack/design-tokens@^0.7.46"
+        "@vegastack/design-tokens@^0.7.46",
+        "lucide-react@^1.47.0"
       ],
       "registryDependencies": [
         "@vegastack/button",

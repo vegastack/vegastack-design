@@ -2716,7 +2716,7 @@
       "sizes": {
         "status": "not-applicable-or-inherited",
         "dimensions": [],
-        "rationale": "size is lg (64px) | xl (80px) for the avatar."
+        "rationale": "size is sm (40px) | md (48px, default) | lg (64px) | xl (80px) for the circle."
       },
       "states": {
         "behavior": {
@@ -2731,14 +2731,14 @@
         },
         "visual": {
           "status": "observed",
-          "values": ["default", "busy", "error"],
+          "values": ["default", "hover", "focus", "busy", "error"],
           "evidence": "packages/ui/registry/ui/avatar-picker.tsx"
         }
       },
       "responsive": {
         "status": "modeled",
         "risks": ["responsive-or-container-layout"],
-        "rationale": "The buttons wrap under a narrow width; the avatar never shrinks."
+        "rationale": "The circle never shrinks; the Remove button and message line sit beside it and wrap."
       },
       "motion": {
         "status": "not-applicable",
@@ -2759,7 +2759,8 @@
       ],
       "npmDependencies": [
         "@vegastack/design@^0.7.47",
-        "@vegastack/design-tokens@^0.7.46"
+        "@vegastack/design-tokens@^0.7.46",
+        "lucide-react@^1.47.0"
       ],
       "testFiles": ["packages/ui/registry/ui/avatar-picker.test.tsx"],
       "coverage": {
@@ -2783,10 +2784,11 @@
               "values": [
                 "avatar-picker",
                 "avatar-picker-avatar",
-                "avatar-picker-busy",
+                "avatar-picker-badge",
                 "avatar-picker-message",
+                "avatar-picker-overlay",
                 "avatar-picker-remove",
-                "avatar-picker-upload"
+                "avatar-picker-trigger"
               ]
             }
           ],

@@ -481,7 +481,8 @@
       ],
       "dependencies": [
         "@vegastack/design@^0.7.47",
-        "@vegastack/design-tokens@^0.7.46"
+        "@vegastack/design-tokens@^0.7.46",
+        "lucide-react@^1.47.0"
       ],
       "registryDependencies": [
         "@vegastack/button",
@@ -501,7 +502,7 @@
         "whenToUse": "A profile or member settings row where someone sets their own photo.",
         "whenNotToUse": "Attaching files to a record (Dropzone / Attachment) or picking a person (SearchableSelect).",
         "version": "0.23.45",
-        "integrity": "sha256-8HYH1PYsT/XvjRvNfaWcoif7jhM7L77Kcsp9DcY9bs4="
+        "integrity": "sha256-LhdRUuWH3inbzHXg+FuTaVKuJ+oFmOt+3Na8FO+NdW8="
       }
     },
     {
