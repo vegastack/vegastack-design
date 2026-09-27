@@ -12,8 +12,8 @@
     "evidencePolicy": "Observed fields come from source, registry metadata, docs, and test topology. Unknown/not-applicable values are explicit; no inferred behavior is presented as verified."
   },
   "expectedCounts": {
-    "totalRegistryItems": 693,
-    "components": 130,
+    "totalRegistryItems": 694,
+    "components": 131,
     "animatedIcons": 467,
     "hooks": 13,
     "blocks": 11,
@@ -25,7 +25,7 @@
     "Forms/editing": 27,
     "Navigation/layout": 18,
     "Overlays": 14,
-    "Data display": 22,
+    "Data display": 23,
     "Content/marketing": 14,
     "Shared internals": 3,
     "AI/chat": 8,
@@ -147,7 +147,8 @@
       "record-aside",
       "person-hover-card",
       "comments",
-      "reactions"
+      "reactions",
+      "record-list"
     ],
     "Content/marketing": [
       "alert",
@@ -19618,7 +19619,7 @@
       "name": "sortable-list",
       "registryType": "registry:ui",
       "title": "Sortable List",
-      "summary": "Reorderable rows or tiles on ItemGroup/Item via use-drag-reorder — pointer drag with drop indicators, keyboard move mode, a lossless row menu, locked rows, inline actions, a grid layout, and server-refusable moves. Controlled; the host owns the order.",
+      "summary": "Reorderable rows or tiles on ItemGroup/Item via use-drag-reorder — pointer drag with drop indicators, touch long-press, keyboard move mode, a remove button or a row menu, locked rows, a grid layout with bare tiles for attachments, and server-refusable moves. Controlled; the host owns the order.",
       "status": "stable",
       "since": "0.4.0",
       "family": "data",
@@ -19676,9 +19677,14 @@
             "disabled",
             "item-disabled",
             "locked",
-            "grid"
+            "grid",
+            "touch-drag",
+            "removable",
+            "row-menu",
+            "bare-tile",
+            "columns"
           ],
-          "evidence": "use-drag-reorder drives pointer drags, keyboard move mode, and the async pending/rejected contract; disabled removes handles and menus; a locked (per-item disabled) row keeps a handle-sized spacer and its row menu with the Move items disabled, while other rows move past it; layout=\"grid\" runs the hook on a horizontal axis with measured row-aware ↑/↓."
+          "evidence": "use-drag-reorder drives pointer drags, keyboard move mode, and the async pending/rejected contract; usePointerDrag's touch long-press (250ms, <8px) lifts a row and drops on the edge under the finger; onRemove adds a × per unlocked row, getItemActions a ⋯ menu; disabled removes handles, × and menus; a locked (per-item disabled) row keeps a handle-sized spacer and shows no ×, while other rows move past it; layout=\"grid\" runs the hook on a horizontal axis with measured row-aware ↑/↓, `columns` fixes the track count and tile=\"bare\" drops the tile frame."
         },
         "accessibility": {
           "status": "observed",
@@ -19688,7 +19694,7 @@
             "status-announcement",
             "semantic-html"
           ],
-          "evidence": "ItemGroup list semantics; per-row named handles and \"Actions for {label}\" menus (the lossless path); Space/arrows/Escape move mode; locked rows' disabled Move items carry lockedReason as their accessible description; polite per-step announcements and rejection announcements."
+          "evidence": "ItemGroup list semantics; per-row named handles, \"Remove {label}\" buttons and \"Actions for {label}\" menus; Space/arrows/Escape move mode; a locked row carries lockedReason as its accessible description; polite per-step announcements and rejection announcements."
         },
         "visual": {
           "status": "observed",
@@ -19754,8 +19760,12 @@
               "values": []
             },
             {
+              "name": "data-drag-surface",
+              "values": [""]
+            },
+            {
               "name": "data-dragging",
-              "values": []
+              "values": [""]
             },
             {
               "name": "data-drop-container",
@@ -19784,7 +19794,8 @@
                 "sortable-list-actions",
                 "sortable-list-handle",
                 "sortable-list-handle-spacer",
-                "sortable-list-item"
+                "sortable-list-item",
+                "sortable-list-remove"
               ]
             }
           ],
@@ -24631,6 +24642,176 @@
             {
               "name": "data-width",
               "values": []
+            }
+          ],
+          "cssVariables": []
+        }
+      }
+    },
+    {
+      "name": "record-list",
+      "registryType": "registry:ui",
+      "title": "Record List",
+      "summary": "A numbered list of the records a change affects — a muted record-type icon, the name with a new-tab link after it, a badge and a description line — plus a Show more footer whose next rows keep the numbering. For confirmation dialogs.",
+      "status": "stable",
+      "since": "0.23.54",
+      "family": "data",
+      "wave": "Data display",
+      "sourceFiles": ["packages/ui/registry/ui/record-list.tsx"],
+      "publicSymbols": [
+        {
+          "name": "RecordList",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/record-list.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "ol",
+            "rationale": "Spread onto the root ol."
+          }
+        },
+        {
+          "name": "RecordListProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/record-list.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "RecordListItem",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/record-list.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "li",
+            "rationale": "Spread onto the row li."
+          }
+        },
+        {
+          "name": "RecordListItemProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/record-list.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "RecordListMore",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/record-list.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "div",
+            "rationale": "Spread onto the footer div."
+          }
+        },
+        {
+          "name": "RecordListMoreProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/record-list.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "No visual variant axis."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "One size: 14px rows with a 16px icon."
+      },
+      "states": {
+        "behavior": {
+          "status": "covered",
+          "values": [
+            "default",
+            "link",
+            "description",
+            "badge",
+            "more",
+            "no-more"
+          ],
+          "evidence": "packages/ui/registry/ui/record-list.tsx + packages/ui/registry/ui/record-list.test.tsx"
+        },
+        "accessibility": {
+          "status": "covered",
+          "values": ["labeled", "semantic-html", "browser-accessibility-test"],
+          "evidence": "packages/ui/registry/ui/record-list.test.tsx"
+        },
+        "visual": {
+          "status": "observed",
+          "values": ["default", "hover", "coarse-pointer"],
+          "evidence": "packages/ui/registry/ui/record-list.tsx"
+        }
+      },
+      "responsive": {
+        "status": "modeled",
+        "risks": ["text-truncation-and-flex-shrink"],
+        "rationale": "The name truncates on its line; the badge wraps under it when the row is narrow."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned motion mechanism."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/record-list",
+      "registryDependencies": ["@vegastack/button"],
+      "npmDependencies": [
+        "lucide-react@^1.47.0",
+        "@vegastack/design@^0.7.48",
+        "@vegastack/design-tokens@^0.7.46"
+      ],
+      "testFiles": ["packages/ui/registry/ui/record-list.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required"
+      },
+      "previewModule": "record-list",
+      "dataAttributes": {
+        "RecordList": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["record-list"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "RecordListItem": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": [
+                "record-list-description",
+                "record-list-icon",
+                "record-list-item",
+                "record-list-link",
+                "record-list-title"
+              ]
+            }
+          ],
+          "cssVariables": []
+        },
+        "RecordListMore": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["record-list-more"]
             }
           ],
           "cssVariables": []

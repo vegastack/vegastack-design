@@ -1,17 +1,10 @@
-// @vegastack sortable-list@0.23.53 sha256-1yFiIG5rWU15vsQZd4bvapFtBTxFrGmQ4U8Eq61PreQ=
+// @vegastack sortable-list@0.23.53 sha256-Em9B/+nE0hnqccEYqpzQyDDMnbhLgbIey9xte+YQcMY=
 
 "use client";
 
 import * as React from "react";
 import { cn } from "@vegastack/design";
-import {
-  ArrowDown,
-  ArrowDownToLine,
-  ArrowUp,
-  ArrowUpToLine,
-  EllipsisVertical,
-  GripVertical,
-} from "lucide-react";
+import { EllipsisVertical, GripVertical, X } from "lucide-react";
 import { dragItemClasses } from "@/lib/drag-item";
 import { Button } from "@/components/ui/button";
 import {
@@ -23,8 +16,6 @@ import {
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
@@ -33,36 +24,45 @@ import {
   type RowAction,
 } from "@/components/ui/data-table-parts";
 import {
+  edgeScroll,
   useDragReorder,
+  usePointerDrag,
   type DragReorderMove,
+  type PointerDragPoint,
 } from "@/components/ui/use-drag-reorder";
 
 /* ---
 `SortableList` is the single-list consumer of `use-drag-reorder`: settings reordering,
-ordered taxonomies, pipeline stages. It is CONTROLLED and presentational — the ordered
-`items` come in, `onReorder` emits a requested move, and the host persists (or refuses)
-the order. What is app-coupled is the PERSISTED order, which stays app-side; the
-mechanism (pointer + keyboard + announcements + drop indicators + the menu equivalent)
-is presentational and belongs here — the G7 reading argued openly in the plan (§7.9)
-and reconciled on the data-list docs page.
+ordered taxonomies, pipeline stages, ordered photos. It is CONTROLLED and presentational —
+the ordered `items` come in, `onReorder` emits a requested move, and the host persists (or
+refuses) the order. What is app-coupled is the PERSISTED order, which stays app-side; the
+mechanism (pointer + touch + keyboard + announcements + drop indicators) is presentational
+and belongs here — the G7 reading argued openly in the plan (§7.9) and reconciled on the
+data-list docs page.
 
-The "Move…" menu is not a convenience — it is the REQUIRED lossless path: drag is
-pointer-only by engine design and unavailable on touch-first surfaces, so every
-reorder must be reachable through Move up / Move down / Move to top / Move to bottom.
-("Move to position N…" was considered and dropped: a per-position submenu is unusable
-past a handful of items, and top/bottom + stepping covers the same reachability.)
+Three paths reach every order, so there is no Move menu (removed 2026-09-27, operator
+brief): a mouse or pen drags the handle (Pragmatic's native drag); a finger long-presses
+the row or tile — `usePointerDrag`'s touch model, the one `Board` runs on: a 250ms hold that
+moves less than 8px lifts it, `touchmove` is cancelled only while the drag is live, and the
+long-press context menu is suppressed — then drops on the edge it is over; and the keyboard
+lifts from the handle (Space, arrows, Escape), every step announced. A touch pointer turns the
+native drag off until the next mouse or pen press, so the two engines never race.
+
+Row actions: `onRemove` gives each row a small × ("Remove {label}") in its trailing corner,
+shown on hover or focus within the row and always on a coarse pointer. A host that needs more
+than remove passes `getItemActions` and gets the ⋯ menu instead — the escape hatch.
 
 A LOCKED row (`item.disabled`) is still a row of the list, not a hole in it: its handle
-becomes a same-size spacer so the column of handles stays aligned, its row menu STAYS
-with the Move items disabled (and described by `lockedReason` when the host gives
-one), and `renderActions` still renders. Other rows move past it freely — a lock pins
-the row's own identity, not the positions around it.
+becomes a same-size spacer so the column of handles stays aligned, it shows no ×, and its
+`getItemActions` menu and `renderActions` still render. Other rows move past it freely — a
+lock pins the row's own identity, not the positions around it.
 
-`layout="grid"` wraps the same list into auto-fill tiles (image galleries, ordered
-media): the handle and the actions overlay the tile's top corners (`z-10`, so positioned tile
-content such as `Image` cannot paint over them), the hook runs on a
-horizontal axis so drops read left/right of a tile, and ↑/↓ in move mode step a whole
-measured row.
+`layout="grid"` wraps the same list into tiles (image galleries, ordered media): auto-fill
+tracks at least `--spacing(28)` wide, or a fixed `columns` count. The handle and the actions
+overlay the tile's top corners (`z-10`, so positioned tile content such as `Image` cannot
+paint over them), the hook runs on a horizontal axis so drops read left/right of a tile, and
+↑/↓ in move mode step a whole measured row. `tile="bare"` drops the tile's own border and
+padding so its content — an `Attachment` — is the one frame.
 
 Deliberately NOT done here:
 - No selection. Reordering and multi-select on one surface produce ambiguous drag
@@ -72,6 +72,7 @@ Deliberately NOT done here:
   hook's pending shimmer and rejection snap-back for free.
 - No virtualization. Settings-scale lists; a thousand-row sortable table is data-grid
   territory.
+- No motion on press: the handle and × stay still under the pointer.
 --- */
 
 /** One row in the list. */
@@ -79,15 +80,15 @@ export interface SortableListItem {
   /** Stable id — the identity `onReorder` moves. */
   id: string;
   /**
-   * Accessible name for the row's handle and menu ("Reorder {label}",
-   * "Actions for {label}"). Falls back to the id.
+   * Accessible name for the row's handle and actions ("Reorder {label}",
+   * "Remove {label}", "Actions for {label}"). Falls back to the id.
    * @default undefined
    */
   label?: string;
   /**
-   * Lock this row in place: its handle becomes a same-size spacer and its Move
-   * items disable (described by `lockedReason`), while its row menu and
-   * `renderActions` stay. Other rows can still move past it.
+   * Lock this row in place: its handle becomes a same-size spacer and it shows no
+   * remove button, while its `getItemActions` menu and `renderActions` stay. Other
+   * rows can still move past it.
    * @default false
    */
   disabled?: boolean;
@@ -108,16 +109,28 @@ export interface SortableListProps<
   /** Render a row's content (everything except the handle and actions). */
   renderItem: (item: T) => React.ReactNode;
   /**
-   * Inline actions rendered before the row menu — a rename button, a
-   * visibility toggle. Rendered on locked rows too, and on every row when the
-   * whole list is `disabled`.
+   * Remove a row. Each unlocked row gets a small × button ("Remove {label}") in its
+   * trailing corner, shown on hover or focus within the row and always on a coarse
+   * pointer. Focus moves to the row that takes the removed row's place.
+   * @default undefined
+   */
+  onRemove?: (item: T) => void;
+  /**
+   * Accessible name of a row's remove button, from the row's label.
+   * @default (label) => `Remove ${label}`
+   */
+  removeLabel?: (label: string) => string;
+  /**
+   * Inline actions rendered before the row's remove button or menu — a rename
+   * button, a visibility toggle. Rendered on locked rows too, and on every row
+   * when the whole list is `disabled`.
    * @default undefined
    */
   renderActions?: (item: T) => React.ReactNode;
   /**
-   * A row's own actions (rename, delete), listed first in its ⋯ menu, above a separator and
-   * the Move items — one menu per row, as Board's `getItemActions`. On a locked row they stay
-   * available.
+   * A row's own actions (rename, delete) in a ⋯ menu — the escape hatch for a host
+   * that needs more than `onRemove`. One menu per row, as Board's `getItemActions`;
+   * on a locked row it stays available. No actions, no menu.
    * @default undefined
    */
   getItemActions?: (item: T) => RowAction[];
@@ -132,21 +145,32 @@ export interface SortableListProps<
    */
   actionsLabel?: (label: string) => string;
   /**
-   * Why locked rows cannot move — the accessible description of a locked
-   * row's disabled Move items ("Built-in values can't move").
+   * Why locked rows cannot move — the accessible description of a locked row
+   * ("Built-in values can't move").
    * @default undefined
    */
   lockedReason?: string;
   /**
-   * `list` stacks rows. `grid` wraps them into auto-fill tiles (at least
-   * `--spacing(28)` wide) with the handle and actions overlaid on the tile's
-   * top corners; drops read left/right of a tile, and ↑/↓ in move mode step a
-   * whole row.
+   * `list` stacks rows. `grid` wraps them into tiles with the handle and actions
+   * overlaid on the tile's top corners; drops read left/right of a tile, and ↑/↓
+   * in move mode step a whole row.
    * @default "list"
    */
   layout?: "list" | "grid";
   /**
-   * Disable all reordering (rows render without handles or menus;
+   * Grid only: a fixed number of tiles per row. Without it the grid auto-fills
+   * tracks at least `--spacing(28)` wide, as many as fit.
+   * @default undefined
+   */
+  columns?: 2 | 3 | 4 | 5 | 6;
+  /**
+   * Grid only: `outline` frames each tile; `bare` drops the tile's border and
+   * padding so its content — an `Attachment` — is the tile's one frame.
+   * @default "outline"
+   */
+  tile?: "outline" | "bare";
+  /**
+   * Disable all reordering (rows render without handles, remove buttons or menus;
    * `renderActions` still renders).
    * @default false
    */
@@ -170,16 +194,40 @@ export interface SortableListProps<
 
 const CONTAINER = "list";
 
+// Literal classes, so a consumer's Tailwind scanner sees each one.
+const GRID_COLUMNS = {
+  2: "grid-cols-2",
+  3: "grid-cols-3",
+  4: "grid-cols-4",
+  5: "grid-cols-5",
+  6: "grid-cols-6",
+} as const;
+
+// The nearest ancestor that scrolls vertically — a touch drag auto-scrolls it.
+function scrollParent(element: HTMLElement): HTMLElement | null {
+  let node = element.parentElement;
+  while (node && node !== document.body) {
+    const { overflowY } = getComputedStyle(node);
+    if (
+      (overflowY === "auto" || overflowY === "scroll") &&
+      node.scrollHeight > node.clientHeight
+    )
+      return node;
+    node = node.parentElement;
+  }
+  return document.scrollingElement as HTMLElement | null;
+}
+
+type TouchEdge = "top" | "bottom" | "left" | "right";
+
 /**
  * `SortableList` — reorderable rows on `ItemGroup`/`Item`, driven by
- * `use-drag-reorder`: pointer/touch drag with closest-edge drop indicators,
- * the keyboard move mode (Space on the handle, arrows, Escape), a polite
- * announcement per step, and the required menu equivalent (Move up / down /
- * to top / to bottom). Controlled: the host owns the order and may refuse a
- * move by rejecting the `onReorder` promise. A locked row cannot be moved itself
- * and keeps its menu; other rows still move past it, so a host that needs a
- * position held refuses that move in `onReorder`. `layout="grid"` wraps the rows
- * into tiles.
+ * `use-drag-reorder`: pointer drag on the handle with closest-edge drop indicators,
+ * a touch long-press on the row, the keyboard move mode (Space on the handle,
+ * arrows, Escape), and a polite announcement per step. Controlled: the host owns
+ * the order and may refuse a move by rejecting the `onReorder` promise. `onRemove`
+ * adds a × per row; `getItemActions` a ⋯ menu. A locked row cannot be moved itself;
+ * other rows still move past it. `layout="grid"` wraps the rows into tiles.
  *
  * @example
  * const [stages, setStages] = React.useState(initialStages);
@@ -187,7 +235,7 @@ const CONTAINER = "list";
  *   aria-label="Pipeline stages"
  *   items={stages}
  *   renderItem={(stage) => <span>{stage.label}</span>}
- *   lockedReason="Closed stages can't be moved"
+ *   onRemove={(stage) => setStages((prev) => prev.filter((s) => s.id !== stage.id))}
  *   onReorder={({ id, to }) =>
  *     setStages((prev) => {
  *       const next = prev.filter((s) => s.id !== id);
@@ -201,12 +249,16 @@ export function SortableList<T extends SortableListItem = SortableListItem>({
   items,
   onReorder,
   renderItem,
+  onRemove,
+  removeLabel = (label) => `Remove ${label}`,
   renderActions,
   getItemActions,
   menuItems,
   actionsLabel = defaultActionsLabel,
   lockedReason,
   layout = "list",
+  columns,
+  tile = "outline",
   disabled = false,
   "aria-label": ariaLabel = "Sortable list",
   className,
@@ -218,19 +270,102 @@ export function SortableList<T extends SortableListItem = SortableListItem>({
     [items],
   );
   const grid = layout === "grid";
+  const bare = grid && tile === "bare";
+  // A finger drives the long-press path below; the native drag stays off until a mouse or pen
+  // presses again, so a long-press never starts both engines.
+  const [touchInput, setTouchInput] = React.useState(false);
   const reorder = useDragReorder({
     lists: { [CONTAINER]: ids },
     onReorder,
     axis: grid ? "horizontal" : "vertical",
     columns: grid ? "auto" : undefined,
+    pointerDisabled: touchInput,
     disabled: disabled ? true : (id) => byId.get(id)?.disabled ?? false,
   });
   const reasonId = React.useId();
   const describeLocked =
     !disabled && lockedReason !== undefined && items.some((i) => i.disabled);
 
+  // ---- touch long-press (usePointerDrag's touch model) ----------------------
+  const groupRef = React.useRef<HTMLElement | null>(null);
+  const idsRef = React.useRef(ids);
+  idsRef.current = ids;
+  const [touchDrag, setTouchDrag] = React.useState<{
+    id: string;
+    over: { id: string; edge: TouchEdge } | null;
+  } | null>(null);
+  const touchRef = React.useRef(touchDrag);
+  touchRef.current = touchDrag;
+  const scroller = React.useRef<HTMLElement | null>(null);
+  const hitTest = React.useCallback(
+    (point: PointerDragPoint) => {
+      const current = touchRef.current;
+      if (!current) return;
+      const hit = document
+        .elementFromPoint(point.x, point.y)
+        ?.closest<HTMLElement>("[data-drag-item]");
+      const id = hit?.getAttribute("data-drag-item");
+      let over: { id: string; edge: TouchEdge } | null = null;
+      if (hit && id && id !== current.id && groupRef.current?.contains(hit)) {
+        const rect = hit.getBoundingClientRect();
+        const edge: TouchEdge = grid
+          ? point.x < rect.left + rect.width / 2
+            ? "left"
+            : "right"
+          : point.y < rect.top + rect.height / 2
+            ? "top"
+            : "bottom";
+        over = { id, edge };
+      }
+      if (current.over?.id !== over?.id || current.over?.edge !== over?.edge)
+        setTouchDrag({ id: current.id, over });
+    },
+    [grid],
+  );
+  const pointerDrag = usePointerDrag({
+    disabled,
+    onStart: (id, element, _point, pointerType) => {
+      if (pointerType !== "touch" || byId.get(id)?.disabled) return false;
+      scroller.current = scrollParent(element);
+      setTouchDrag({ id, over: null });
+    },
+    onFrame: (point) => {
+      if (scroller.current) edgeScroll(scroller.current, point, "y");
+      hitTest(point);
+    },
+    onDrop: (point) => {
+      hitTest(point);
+      const current = touchRef.current;
+      setTouchDrag(null);
+      const over = current?.over;
+      if (!current || !over) return;
+      const list = idsRef.current;
+      const from = list.indexOf(current.id);
+      const target = list.indexOf(over.id);
+      if (from === -1 || target === -1) return;
+      let index =
+        over.edge === "bottom" || over.edge === "right" ? target + 1 : target;
+      if (from < index) index -= 1;
+      if (index === from) return;
+      reorder.requestMove({
+        id: current.id,
+        from: { container: CONTAINER, index: from },
+        to: { container: CONTAINER, index },
+      });
+    },
+    onCancel: () => setTouchDrag(null),
+  });
+
   const containerProps = reorder.getContainerProps(CONTAINER);
-  const last = items.length - 1;
+  const setGroupRef = React.useCallback(
+    (element: HTMLDivElement | null) => {
+      groupRef.current = element;
+      containerProps.ref(element);
+    },
+    // `containerProps.ref` is identity-stable per container.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [containerProps.ref],
+  );
 
   return (
     <div
@@ -241,51 +376,72 @@ export function SortableList<T extends SortableListItem = SortableListItem>({
     >
       <ItemGroup
         aria-label={ariaLabel}
-        ref={containerProps.ref}
+        ref={setGroupRef}
         data-drop-container={containerProps["data-drop-container"]}
         data-drop-over={containerProps["data-drop-over"]}
         className={
           grid
-            ? "grid grid-cols-[repeat(auto-fill,minmax(--spacing(28),1fr))] gap-2"
+            ? cn(
+                "grid gap-2",
+                columns
+                  ? GRID_COLUMNS[columns]
+                  : "grid-cols-[repeat(auto-fill,minmax(--spacing(28),1fr))]",
+              )
             : "flex flex-col gap-1"
         }
       >
-        {items.map((item, index) => {
+        {items.map((item) => {
           const itemProps = reorder.getItemProps(CONTAINER, item.id);
           const handleProps = reorder.getHandleProps(CONTAINER, item.id);
+          const sourceProps = pointerDrag.getSourceProps(item.id);
           const label = item.label ?? item.id;
           const locked = !disabled && item.disabled === true;
           const actions = renderActions?.(item);
-          const rowMenuItems = (getItemActions ?? menuItems)?.(item) ?? [];
-          const move = (to: number) => () =>
-            reorder.requestMove({
-              id: item.id,
-              from: { container: CONTAINER, index },
-              to: { container: CONTAINER, index: to },
-            });
-          // A locked row's Move items are all disabled, and say why.
-          const moveItemProps = (edge: boolean) => ({
-            disabled: locked || edge,
-            "aria-describedby": locked && describeLocked ? reasonId : undefined,
-          });
+          const rowMenuItems = disabled
+            ? []
+            : ((getItemActions ?? menuItems)?.(item) ?? []);
+          const removable = onRemove !== undefined && !disabled && !locked;
+          const touchEdge =
+            touchDrag?.over?.id === item.id ? touchDrag.over.edge : undefined;
+          const hasActions =
+            actions != null || removable || rowMenuItems.length > 0;
           return (
             <Item
               key={item.id}
               size="sm"
-              variant={grid ? "outline" : "default"}
+              variant={grid && !bare ? "outline" : "default"}
               ref={itemProps.ref as React.Ref<HTMLDivElement>}
               data-drag-item={itemProps["data-drag-item"]}
-              data-dragging={itemProps["data-dragging"]}
-              data-drop-edge={itemProps["data-drop-edge"]}
+              data-dragging={
+                itemProps["data-dragging"] ??
+                (touchDrag?.id === item.id ? "" : undefined)
+              }
+              data-drop-edge={itemProps["data-drop-edge"] ?? touchEdge}
               data-drag-pending={itemProps["data-drag-pending"]}
               data-locked={locked ? "" : undefined}
               data-slot="sortable-list-item"
+              aria-describedby={locked && describeLocked ? reasonId : undefined}
+              onPointerDown={(event: React.PointerEvent<HTMLElement>) => {
+                const touch = event.pointerType === "touch";
+                if (touch !== touchInput) setTouchInput(touch);
+                if (touch) sourceProps.onPointerDown(event);
+              }}
+              onContextMenu={sourceProps.onContextMenu}
               // The ONE drag-item recipe, shared with Board.
               className={cn(
                 dragItemClasses,
-                // A row never wraps its menu under the handle; its content truncates instead.
+                // A row never wraps its actions under the handle; its content truncates instead.
                 grid
-                  ? "flex-col flex-nowrap items-stretch gap-1 p-1"
+                  ? cn(
+                      "flex-col flex-nowrap items-stretch gap-1",
+                      // Bare: the Attachment fills the tile. The child path outranks its own
+                      // `has-…:w-30`, which would otherwise hold it at 120px in a narrower tile,
+                      // and `flex-nowrap` keeps its progress bar in the column instead of
+                      // wrapping it into a second one beside the image.
+                      bare
+                        ? "border-0 p-0 [&>[data-slot=item-content]>[data-slot=attachment]]:w-full [&>[data-slot=item-content]>[data-slot=attachment]]:min-w-0 [&>[data-slot=item-content]>[data-slot=attachment]]:flex-nowrap"
+                        : "p-1",
+                    )
                   : "flex-nowrap",
               )}
             >
@@ -305,12 +461,14 @@ export function SortableList<T extends SortableListItem = SortableListItem>({
                   size="icon-sm"
                   aria-label={`Reorder ${label}`}
                   data-slot="sortable-list-handle"
+                  // A long-press on the handle lifts the row too.
+                  data-drag-surface=""
                   ref={handleProps.ref as React.Ref<HTMLButtonElement>}
                   onKeyDown={handleProps.onKeyDown}
                   onBlur={handleProps.onBlur}
                   aria-pressed={handleProps["aria-pressed"]}
                   className={cn(
-                    "cursor-grab touch-none",
+                    "cursor-grab touch-none active:not-aria-[haspopup]:translate-y-0",
                     grid && "absolute start-1 top-1 z-10",
                   )}
                 >
@@ -321,13 +479,28 @@ export function SortableList<T extends SortableListItem = SortableListItem>({
               <ItemContent className={grid ? "flex-none" : "min-w-0"}>
                 {renderItem(item)}
               </ItemContent>
-              {actions == null && disabled ? null : (
+              {hasActions ? (
                 <ItemActions
                   data-slot="sortable-list-actions"
                   className={cn("gap-1", grid && "absolute end-1 top-1 z-10")}
                 >
                   {actions}
-                  {disabled ? null : (
+                  {removable ? (
+                    <Button
+                      variant={grid ? "secondary" : "ghost"}
+                      size="icon-xs"
+                      aria-label={removeLabel(label)}
+                      data-slot="sortable-list-remove"
+                      onClick={() => {
+                        reorder.keepFocusAfter(CONTAINER, item.id);
+                        onRemove(item);
+                      }}
+                      className="opacity-0 group-focus-within/item:opacity-100 group-hover/item:opacity-100 focus-visible:opacity-100 active:not-aria-[haspopup]:translate-y-0 pointer-coarse:opacity-100"
+                    >
+                      <X />
+                    </Button>
+                  ) : null}
+                  {rowMenuItems.length > 0 ? (
                     <DropdownMenu>
                       <DropdownMenuTrigger
                         render={
@@ -341,53 +514,23 @@ export function SortableList<T extends SortableListItem = SortableListItem>({
                         }
                       />
                       <DropdownMenuContent align="end">
-                        {rowMenuItems.length > 0 ? (
-                          <>
-                            <RowActionMenuItems
-                              actions={rowMenuItems}
-                              onAction={() =>
-                                reorder.keepFocusAfter(CONTAINER, item.id)
-                              }
-                            />
-                            <DropdownMenuSeparator />
-                          </>
-                        ) : null}
-                        <DropdownMenuItem
-                          {...moveItemProps(index === 0)}
-                          onClick={move(index - 1)}
-                        >
-                          <ArrowUp /> Move up
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                          {...moveItemProps(index === last)}
-                          onClick={move(index + 1)}
-                        >
-                          <ArrowDown /> Move down
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                          {...moveItemProps(index === 0)}
-                          onClick={move(0)}
-                        >
-                          <ArrowUpToLine /> Move to top
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                          {...moveItemProps(index === last)}
-                          onClick={move(last)}
-                        >
-                          <ArrowDownToLine /> Move to bottom
-                        </DropdownMenuItem>
+                        <RowActionMenuItems
+                          actions={rowMenuItems}
+                          onAction={() =>
+                            reorder.keepFocusAfter(CONTAINER, item.id)
+                          }
+                        />
                       </DropdownMenuContent>
                     </DropdownMenu>
-                  )}
+                  ) : null}
                 </ItemActions>
-              )}
+              ) : null}
             </Item>
           );
         })}
       </ItemGroup>
       {describeLocked ? (
-        // Referenced by `aria-describedby`, so it needs no rendering of its own; kept OUT of the
-        // menu items, where it would join their accessible NAME instead.
+        // Referenced by `aria-describedby` on each locked row.
         <span id={reasonId} hidden>
           {lockedReason}
         </span>

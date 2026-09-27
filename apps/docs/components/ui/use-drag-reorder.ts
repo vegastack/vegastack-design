@@ -1,4 +1,4 @@
-// @vegastack use-drag-reorder@0.23.53 sha256-uyzSBi8dp6eJjzOcKclAjLg29/WODFC+CvQzMjQs73k=
+// @vegastack use-drag-reorder@0.23.53 sha256-WkkFqxhCgyAm+RSiNU0O/hqzJ4gdPqmUnDow1D1j12I=
 
 "use client";
 
@@ -31,8 +31,8 @@ not own is implemented here, because it must match this system's interaction voi
   Escape ends move mode. Commit-per-step follows Atlassian's own user-tested guidance
   (and their "Move to…" menu preference) rather than a ghost-position model: there is
   no virtual position to lose, the host's data is always the truth, and "cancel" is
-  arrowing back. Consumers additionally ship a menu equivalent (sortable-list's
-  move-up/down/to-position; board's "Move to…"), which is the REQUIRED lossless path.
+  arrowing back. Consumers add their own non-drag path: board's "Move to…" menu, and
+  sortable-list's touch long-press (on `usePointerDrag`) beside this keyboard mode.
 - the LIVE REGION vocabulary — lifted / moved / dropped / move-ended / rejected, with
   overridable announcement builders.
 - the ASYNC drop contract — `onReorder` may return a promise. While it is in flight

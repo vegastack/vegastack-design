@@ -12469,6 +12469,31 @@
       }
     },
     {
+      "name": "record-list",
+      "type": "registry:ui",
+      "title": "Record List",
+      "description": "A numbered list of the records a change affects — a muted record-type icon, the name with a new-tab link after it, a badge and a description line — plus a Show more footer whose next rows keep the numbering. For confirmation dialogs.",
+      "categories": ["data"],
+      "dependencies": [
+        "lucide-react@^1.47.0",
+        "@vegastack/design@^0.7.48",
+        "@vegastack/design-tokens@^0.7.46"
+      ],
+      "registryDependencies": ["@vegastack/button"],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/record-list.tsx",
+          "type": "registry:ui",
+          "target": "@ui/record-list.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "The records a change will touch, listed in a confirmation dialog (the products a save affects, the products a delete leaves), each with a link to open it in a new tab.",
+        "whenNotToUse": "Navigable or selectable lists (Item, DataList), pickers (Combobox), or a single linked record (RecordChip).",
+        "version": "0.23.51"
+      }
+    },
+    {
       "name": "status-line",
       "type": "registry:ui",
       "title": "Status Line",
@@ -13361,7 +13386,7 @@
       "name": "sortable-list",
       "type": "registry:ui",
       "title": "Sortable List",
-      "description": "Reorderable rows or tiles on ItemGroup/Item via use-drag-reorder — pointer drag with drop indicators, keyboard move mode, a lossless row menu, locked rows, inline actions, a grid layout, and server-refusable moves. Controlled; the host owns the order.",
+      "description": "Reorderable rows or tiles on ItemGroup/Item via use-drag-reorder — pointer drag with drop indicators, touch long-press, keyboard move mode, a remove button or a row menu, locked rows, a grid layout with bare tiles for attachments, and server-refusable moves. Controlled; the host owns the order.",
       "categories": ["data"],
       "dependencies": [
         "lucide-react@^1.47.0",
@@ -13384,7 +13409,7 @@
         }
       ],
       "meta": {
-        "whenToUse": "User-orderable single lists and tile grids — settings sections, pipeline stages, attribute values with locked built-ins, editable rows with inline actions, ordered product photos — where the host persists (and may refuse) the order.",
+        "whenToUse": "User-orderable single lists and tile grids — settings sections, pipeline stages, attribute values with locked built-ins, editable rows with inline actions, ordered product photos and attachments — where the host persists (and may refuse) the order.",
         "whenNotToUse": "Cross-container card movement (board), selectable data tables (DataList — never mix selection with reordering), or read-only lists (ItemGroup).",
         "version": "0.23.53"
       }
