@@ -1,4 +1,4 @@
-// @vegastack drawer@0.23.46 sha256-7hISTyn9yJzE54YW/UW2J4hkGbOp4aml/9dTGXcU+po=
+// @vegastack drawer@0.23.47 sha256-9SOKcEiI6SC6818v++K/zVoGlUswsRIGo/ud+QicXLc=
 
 "use client";
 

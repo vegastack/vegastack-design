@@ -1,5 +1,11 @@
 # @vegastack/ui
 
+## 0.23.47
+
+### Patch Changes
+
+- [#352](https://github.com/vegastack/vegastack-design/pull/352) [`9af2c55`](https://github.com/vegastack/vegastack-design/commit/9af2c55e80d4290379cced47a0b3c3ff581e4736) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🔧 `AvatarPicker`'s hover, focus and busy scrim: the pencil and the spinner are white again (the ghost Button's icon ink no longer overrides them), and the scrim no longer blurs, so the photo or initials stay recognisable under it. With no photo, the initials fade out while the scrim shows (hover, keyboard focus, busy), so only the icon sits on the person's colour; a touch device keeps the initials beside its corner badge.
+
 ## 0.23.46
 
 ### Patch Changes

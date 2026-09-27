@@ -9,6 +9,19 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.23.47] — September 27, 2026
+
+<!-- assembled from 1 changeset: d5c947c2e53b -->
+
+### 🔧 Changed components
+
+- `AvatarPicker`'s hover, focus and busy scrim: the pencil and the spinner are white again (the ghost Button's icon ink no longer overrides them), and the scrim no longer blurs, so the photo or initials stay recognisable under it. With no photo, the initials fade out while the scrim shows (hover, keyboard focus, busy), so only the icon sits on the person's colour; a touch device keeps the initials beside its corner badge.
+  [`9af2c55`](https://github.com/VegaStack/vegastack-design/commit/9af2c55)
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.23.46 → 0.23.47.
+
 ## [0.23.46] — September 27, 2026
 
 <!-- assembled from 1 changeset: e409999d7b2e -->
