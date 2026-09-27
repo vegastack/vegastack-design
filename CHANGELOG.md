@@ -9,6 +9,19 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.23.63] — September 27, 2026
+
+<!-- assembled from 1 changeset: eccbc35a0138 -->
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.23.62 → 0.23.63.
+
+### 🐛 Fixed
+
+- FileViewer builds its file-type icon as an element, so consumers' `react-hooks/static-components` lint passes.
+  [`d1a525f`](https://github.com/VegaStack/vegastack-design/commit/d1a525f)
+
 ## [0.23.62] — September 27, 2026
 
 <!-- assembled from 1 changeset: 52814e6e7b80 -->
