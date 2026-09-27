@@ -1,5 +1,11 @@
 # @vegastack/ui
 
+## 0.23.62
+
+### Patch Changes
+
+- [#382](https://github.com/vegastack/vegastack-design/pull/382) [`758ee45`](https://github.com/vegastack/vegastack-design/commit/758ee45cfae7240406c8503f428f484fc16e24ac) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🧩 New `UploadDialog` (`UploadDialog`, `UploadDialogFileRow`) — the "Add files" modal: a drop zone with the staged files under it (thumbnail or file icon, name, size, ×), then Next to a per-file details view the host renders (`renderDetails`, `detailsValid`) and Add. Without `renderDetails` it adds straight from the staged list. `validate` refuses a file with a message and `maxFiles` caps the staged count. It stages files only — `onSubmit` hands them to the host's upload queue and the dialog closes. `AttachmentGroup` gains `layout="tiles"`: compact square tiles for forms, two per row on a phone and three from `sm` up.
+
 ## 0.23.61
 
 ### Patch Changes

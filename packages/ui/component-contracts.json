@@ -10591,7 +10591,7 @@
         "@vegastack/use-file-drop"
       ],
       "npmDependencies": [
-        "@vegastack/design@^0.7.50",
+        "@vegastack/design@^0.7.53",
         "@vegastack/design-tokens@^0.7.49",
         "lucide-react@^1.47.0"
       ],

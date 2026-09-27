@@ -1,4 +1,4 @@
-// @vegastack carousel@0.23.61 sha256-G8qxic/sbJZZiW/Jk/fhNDHAc2L7gix0qsLlVgKmIls=
+// @vegastack carousel@0.23.62 sha256-wNhWeC3KA6ihN37Uy05tBi3anm2IIk1rVEDRlSFtpqE=
 
 "use client";
 
