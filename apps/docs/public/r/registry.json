@@ -502,7 +502,7 @@
         "whenToUse": "A profile or member settings row where someone sets their own photo.",
         "whenNotToUse": "Attaching files to a record (Dropzone / Attachment) or picking a person (SearchableSelect).",
         "version": "0.23.46",
-        "integrity": "sha256-e2nwfBm+0xAn1GfECQPm7XN7KtLqCw52xD2TFtLl9UU="
+        "integrity": "sha256-FgdwhKpfBYIMa4VWb92AMTYMCcjQqJPTYEOqCVeScxY="
       }
     },
     {
