@@ -3,7 +3,7 @@
 <!-- GENERATED — do not hand-edit. Regenerated from the design system's component contract,
      which is the authority for membership and counts. -->
 
-**130 components**, plus 467 animated-icon items, 13 hooks (`use-animation-replay`, `use-announcer`, `use-async-search`, `use-drag-reorder`, `use-file-drop`, `use-inline-edit`, `use-list-nav`, `use-media-query`, `use-mobile`, `use-modal-inert`, `use-overflow`, `use-platform`, `use-tabs-swipe`), 11 starter blocks (`app-shell-01`, `board-01`, `issue-detail-01`, `command-search-01`, `list-page-01`, `login-01`, `notifications-01`, `review-split-01`, `settings-01`, `settings-02`, `status-pages-01`), 68 chart blocks across 7 families, and 4 data libs (`date-time`, `geo-data`, `emoji-data`, `drag-item`) — 693 registry items in total.
+**131 components**, plus 467 animated-icon items, 13 hooks (`use-animation-replay`, `use-announcer`, `use-async-search`, `use-drag-reorder`, `use-file-drop`, `use-inline-edit`, `use-list-nav`, `use-media-query`, `use-mobile`, `use-modal-inert`, `use-overflow`, `use-platform`, `use-tabs-swipe`), 11 starter blocks (`app-shell-01`, `board-01`, `issue-detail-01`, `command-search-01`, `list-page-01`, `login-01`, `notifications-01`, `review-split-01`, `settings-01`, `settings-02`, `status-pages-01`), 68 chart blocks across 7 families, and 4 data libs (`date-time`, `geo-data`, `emoji-data`, `drag-item`) — 694 registry items in total.
 
 Install any of them with `shadcn add @vegastack/<name>`. Animated icons install as
 `@vegastack/icon-<name>`; the bare name is reserved for components, so a component whose name
@@ -94,7 +94,8 @@ starts with `icon-` is a component and never an icon.
 - **`person-hover-card`** — Stacked avatars with a hover card per person — a compact card with a 32px avatar, with the name and muted email beside it — and the rest behind "+N".
 - **`property-list`** — Record-facts rows: an icon+label column beside a value column, as an accessible definition list.
 - **`record-aside`** — The cards of a record page's right rail — titled sections of inline properties, people, linked records and full-width action rows.
-- **`sortable-list`** — Reorderable rows or tiles on ItemGroup/Item via use-drag-reorder — pointer drag with drop indicators, keyboard move mode, a lossless row menu, locked rows, inline actions, a grid layout, and server-refusable moves. Controlled; the host owns the order.
+- **`record-list`** — A numbered list of the records a change affects — a muted record-type icon, the name with a new-tab link after it, a badge and a description line — plus a Show more footer whose next rows keep the numbering. For confirmation dialogs.
+- **`sortable-list`** — Reorderable rows or tiles on ItemGroup/Item via use-drag-reorder — pointer drag with drop indicators, touch long-press, keyboard move mode, a remove button or a row menu, locked rows, a grid layout with bare tiles for attachments, and server-refusable moves. Controlled; the host owns the order.
 - **`thumbnail`** — A small rounded, cover-fit image, 32 or 48px, with a fallback for records that have no image.
 - **`view-toggle`** — The Grid | List | Board icon switch for a list page, labels hidden on a phone.
 

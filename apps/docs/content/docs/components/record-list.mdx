@@ -1,0 +1,115 @@
+---
+title: Record List
+description: A numbered list of the records a change affects — type icon, name, new-tab link, badge — with a Show more footer that keeps the numbering.
+audience: public
+registry: record-list
+status: stable
+since: 0.23.54
+a11y: ordered list, named new-tab links
+preview: recordList
+---
+
+## Install
+
+<InstallSteps name="record-list" />
+
+## Usage
+
+```tsx
+import {
+  RecordList,
+  RecordListItem,
+  RecordListMore,
+} from "@/components/ui/record-list";
+
+<RecordList aria-label="Affected products">
+  {rows.map((row) => (
+    <RecordListItem
+      key={row.id}
+      icon={<Package />}
+      title={row.name}
+      badge={<StatusBadge status={row.status} />}
+      description={row.newIssue}
+      href={productHref(row.id)}
+    />
+  ))}
+</RecordList>
+<RecordListMore remaining={total - rows.length} onShowMore={loadMore} />;
+```
+
+## Scope
+
+| Behaviour                       | Where it lives                                                                    |
+| ------------------------------- | --------------------------------------------------------------------------------- |
+| The rows, the total, the paging | Host — `RecordListMore` is a controlled footer                                    |
+| Selectable or actionable rows   | [`Item`](/docs/components/item) or [`DataList`](/docs/components/data-list)       |
+| The dialog around it            | [`AlertDialog`](/docs/components/alert-dialog) — the list sits in its scroll body |
+
+## Anatomy
+
+<Anatomy name="record-list" />
+
+## Examples
+
+### Affected records
+
+Each row is numbered, then a muted record-type icon, the name, a small ↗ link right after the
+name, an optional badge and an optional description line. The ↗ opens the record in a new tab —
+named `Open {name} in a new tab` — and shows on row hover or focus within the row, and always on
+a touch screen.
+
+<ComponentPreview name="recordList" file="components/preview/record-list.tsx" />
+
+### Show more
+
+`RecordListMore` says how many records are not shown and offers "Show more". The host appends the
+next batch to the same `RecordList`, so the numbers continue — 11., 12., … — instead of starting
+again.
+
+<ComponentPreview
+  name="recordListShowMore"
+  file="components/preview/record-list.tsx"
+/>
+
+## API Reference
+
+<ApiTable
+  path="../../packages/ui/registry/ui/record-list.tsx"
+  name="RecordListProps"
+/>
+
+### RecordListItem
+
+<ApiTable
+  path="../../packages/ui/registry/ui/record-list.tsx"
+  name="RecordListItemProps"
+/>
+
+### RecordListMore
+
+<ApiTable
+  path="../../packages/ui/registry/ui/record-list.tsx"
+  name="RecordListMoreProps"
+/>
+
+## Accessibility
+
+- The list is an `<ol>`, so a screen reader announces each record's position; name it with
+  `aria-label`.
+- The record-type icon is decorative (`aria-hidden`); the name carries the meaning.
+- The ↗ link is a real link with its own name, `Open {name} in a new tab`, and is reachable by
+  Tab even while it is visually hidden — focusing it shows it.
+
+| Key              | Action                            |
+| ---------------- | --------------------------------- |
+| <kbd>Tab</kbd>   | Move to the next record's ↗ link. |
+| <kbd>Enter</kbd> | Open the record in a new tab.     |
+
+<StatesTested name="record-list" />
+
+## Do / Don't
+
+<DoDont
+  do="List the records a change will touch, in a confirmation dialog, with a link to check each one without losing the dialog."
+  dont="Use it as a navigable list or a picker — rows here are context, not controls; use Item or DataList."
+/>

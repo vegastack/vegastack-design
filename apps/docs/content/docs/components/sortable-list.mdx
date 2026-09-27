@@ -1,6 +1,6 @@
 ---
 title: Sortable List
-description: Reorderable rows or tiles with pointer drag, keyboard move mode, a lossless row menu, locked rows and server-refusable moves. The host owns the order.
+description: Reorderable rows or tiles with pointer drag, touch long-press, keyboard move mode, a remove button, locked rows and server-refusable moves.
 audience: public
 registry: sortable-list
 status: stable
@@ -31,10 +31,11 @@ one drag-engine seam). It is controlled: `items` arrive in display order,
 `onReorder` requests a move, and the host applies — or refuses — it.
 
 Each row has a drag handle, its content, optional inline actions
-(`renderActions`), and a row menu named `Actions for {label}` (`actionsLabel`
-renames it) that holds the Move items. A row with `disabled: true` is locked: it
-keeps its place and its menu, and other rows move past it. `layout="grid"` wraps
-the same list into image tiles.
+(`renderActions`), and — with `onRemove` — a small × named `Remove {label}`. A host
+that needs more than remove passes `getItemActions` for a ⋯ menu named
+`Actions for {label}` (`actionsLabel` renames it). A row with `disabled: true` is
+locked: it keeps its place, shows no ×, and other rows move past it.
+`layout="grid"` wraps the same list into image tiles.
 
 ## Scope
 
@@ -50,19 +51,31 @@ the same list into image tiles.
 ### With inline rename
 
 When a row's content is a text field, drag starts only from the handle, so typing
-(Space included) never lifts the row. `renderActions` puts a delete button beside
-the row menu.
+(Space included) never lifts the row. `renderActions` puts a delete button at the
+row's end.
 
 <ComponentPreview
   name="sortableListInlineRename"
   file="components/preview/sortable-list.tsx"
 />
 
+### Remove
+
+`onRemove(item)` puts a small ghost × in each row's trailing corner, named `Remove {label}`. It
+shows on hover or focus within the row, and always on a coarse pointer (a touch screen), where
+there is no hover. Focus moves to the row that takes the removed row's place. A locked row shows
+no ×.
+
+<ComponentPreview
+  name="sortableListRemove"
+  file="components/preview/sortable-list.tsx"
+/>
+
 ### With row actions
 
-`getItemActions(item)` returns the row's own `RowAction`s — rename, delete — listed first in its ⋯
-menu, above a separator and the Move items: one menu per row, named `Actions for {label}` (Board's
-cards take the same accessor). A disabled action stays reachable and reads its `disabledReason`.
+When a row needs more than remove, `getItemActions(item)` returns its own `RowAction`s — rename,
+delete — in a ⋯ menu: one menu per row, named `Actions for {label}` (Board's cards take the same
+accessor). No actions, no menu. A disabled action stays reachable and reads its `disabledReason`.
 They stay available on a locked row, and an action that removes its row leaves focus on the row
 that took its place. `menuItems` is the deprecated name of the same accessor.
 
@@ -74,9 +87,9 @@ that took its place. `menuItems` is the deprecated name of the same accessor.
 ### Locked rows
 
 Set `disabled: true` on an item to lock it. Its handle becomes a spacer of the
-same size, so the handles stay aligned. Its row menu stays, with the Move items
-disabled, and `lockedReason` is their accessible description. Other rows still
-move past a locked row: the lock fixes the row, not the positions around it.
+same size, so the handles stay aligned, and it shows no ×. Its `getItemActions`
+menu stays, and `lockedReason` is the row's accessible description. Other rows
+still move past a locked row: the lock fixes the row, not the positions around it.
 
 <ComponentPreview
   name="sortableListLocked"
@@ -86,13 +99,26 @@ move past a locked row: the lock fixes the row, not the positions around it.
 ### Image grid
 
 `layout="grid"` wraps the list into tiles at least `--spacing(28)` wide, as many
-per row as fit. The handle and the actions sit over the tile's top corners. A drop
+per row as fit — or exactly `columns` a row (2–6). The handle and the actions sit
+over the tile's top corners. A drop
 lands left or right of a tile, and in keyboard move mode <kbd>←</kbd>/<kbd>→</kbd>
 step one tile while <kbd>↑</kbd>/<kbd>↓</kbd> step a whole row. The column count
 is measured, so the row step is right at any width.
 
 <ComponentPreview
   name="sortableListGrid"
+  file="components/preview/sortable-list.tsx"
+/>
+
+### Attachments in a grid
+
+`tile="bare"` drops the tile's own border and padding, so an `Attachment` inside is the tile's
+one frame — no card inside a card. The attachment keeps its own states: the progress bar while
+uploading, the dashed border when idle, the destructive border and message on error. Here
+`columns={3}` holds three tiles a row.
+
+<ComponentPreview
+  name="sortableListAttachments"
   file="components/preview/sortable-list.tsx"
 />
 
@@ -107,19 +133,13 @@ so the order simply stays.
   file="components/preview/sortable-list.tsx"
 />
 
-### The menu path
+### Touch
 
-Every row carries an "Actions for …" menu — Move up / Move down / Move to top / Move to bottom — so
-the whole ordering is reachable without a pointer and without entering keyboard move mode. It runs
-the same `onReorder` callback as a drag, so the host cannot tell the paths apart.
-
-The drop-edge hairline, the lift dim and the pending shimmer come from the shared `drag-item`
-recipe — the same one `Board` uses, installed once as its own registry item.
-
-<ComponentPreview
-  name="sortableListMenu"
-  file="components/preview/sortable-list.tsx"
-/>
+On a touch screen, press and hold a row or tile for a quarter second without moving — the same
+long-press `Board` uses — and it lifts; drag it, and the drop line shows where it will land. A
+swipe that moves before the hold completes scrolls the page as usual, the page does not scroll
+under a lifted row, and the long-press menu is suppressed. The list scrolls when the finger nears
+its scroll container's edge.
 
 ### Drag handle
 
@@ -143,16 +163,16 @@ disabled and becomes editable: the row's drag source is rebuilt around the handl
 
 ## Accessibility
 
-- Every reorder is reachable three ways: pointer drag on the handle, the
-  keyboard move mode (<kbd>Space</kbd> lifts, arrows commit one announced step
-  at a time, <kbd>Escape</kbd> ends), and the row's Move menu — the required
-  lossless path on touch and for AT.
+- Every reorder is reachable three ways: pointer drag on the handle, a touch
+  long-press on the row, and the keyboard move mode (<kbd>Space</kbd> lifts,
+  arrows commit one announced step at a time, <kbd>Escape</kbd> ends).
 - Each step announces through a polite live region ("Moved to position 2 of
   3"); a refused move announces "Move rejected — position restored".
-- Handles and menu triggers are named per row ("Reorder Alpha", "Actions for
-  Alpha"); drop position shows as a 2px indicator line, and a lifted row dims.
-- A locked row has no handle, only a hidden spacer. Its Move items stay in the
-  menu, disabled, with `lockedReason` as their description.
+- Handles, remove buttons and menu triggers are named per row ("Reorder Alpha",
+  "Remove Alpha", "Actions for Alpha"); drop position shows as a 2px indicator
+  line, and a lifted row dims. The × is always shown on a coarse pointer.
+- A locked row has no handle, only a hidden spacer, and no ×; `lockedReason` is
+  its description.
 
 | Key                                 | Action                                                          |
 | ----------------------------------- | --------------------------------------------------------------- |

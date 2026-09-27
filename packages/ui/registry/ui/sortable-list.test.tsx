@@ -31,6 +31,7 @@ function Controlled({
     | "layout"
     | "renderItem"
     | "getItemActions"
+    | "onRemove"
   >
 >) {
   const [items, setItems] = React.useState<SortableListItem[]>(
@@ -69,7 +70,7 @@ function rowLabels(): string[] {
   );
 }
 
-test("getItemActions render above the Move items in the one row menu (DS-43)", async () => {
+test("getItemActions render in the one row menu, which has no Move items", async () => {
   const onRename = vi.fn();
   const screen = await render(
     <Controlled
@@ -83,8 +84,7 @@ test("getItemActions render above the Move items in the one row menu (DS-43)", a
   const items = [...document.querySelectorAll('[role="menuitem"]')].map((n) =>
     n.textContent?.trim(),
   );
-  expect(items.slice(0, 2)).toEqual(["Rename Beta", "Delete"]);
-  expect(items).toContain("Move up");
+  expect(items).toEqual(["Rename Beta", "Delete"]);
   await screen.getByRole("menuitem", { name: "Rename Beta" }).click();
   expect(onRename).toHaveBeenCalledOnce();
 });
@@ -127,7 +127,7 @@ test("a row action that deletes its row keeps focus in the list (DS-43)", async 
     .toHaveFocus();
 });
 
-test("renders a labelled list of items with handles and menus", async () => {
+test("renders a labelled list of items with handles and no row menu by default", async () => {
   const screen = await render(<Controlled />);
   const list = screen.getByRole("list", { name: "Stages" });
   await expect.element(list).toBeInTheDocument();
@@ -135,9 +135,7 @@ test("renders a labelled list of items with handles and menus", async () => {
   await expect
     .element(screen.getByRole("button", { name: "Reorder Alpha" }))
     .toBeInTheDocument();
-  await expect
-    .element(screen.getByRole("button", { name: "Actions for Alpha" }))
-    .toBeInTheDocument();
+  expect(document.querySelector('[aria-label^="Actions for"]')).toBeNull();
 });
 
 test("rows are native draggables via the engine", async () => {
@@ -165,31 +163,32 @@ test("keyboard: Space on the handle lifts, ArrowDown commits a step, Escape ends
   expect(live.textContent).toContain("Move mode off");
 });
 
-test("the menu equivalent is lossless: Move up / down / to top / to bottom", async () => {
-  const screen = await render(<Controlled />);
-  await screen.getByRole("button", { name: "Actions for Gamma" }).click();
-  await screen.getByRole("menuitem", { name: "Move to top" }).click();
-  await expect.poll(() => rowLabels()).toEqual(["Gamma", "Alpha", "Beta"]);
-  await screen.getByRole("button", { name: "Actions for Gamma" }).click();
-  await screen.getByRole("menuitem", { name: "Move down" }).click();
-  await expect.poll(() => rowLabels()).toEqual(["Alpha", "Gamma", "Beta"]);
-  await screen.getByRole("button", { name: "Actions for Gamma" }).click();
-  await screen.getByRole("menuitem", { name: "Move to bottom" }).click();
-  await expect.poll(() => rowLabels()).toEqual(["Alpha", "Beta", "Gamma"]);
-});
-
-test("edge menu items disable (no wrap): Move up on the first row", async () => {
-  const screen = await render(<Controlled />);
-  await screen.getByRole("button", { name: "Actions for Alpha" }).click();
-  // .element() does not retry — wait for the menu to actually open first
-  // (Firefox opens it a frame later than Chromium).
-  const locator = screen.getByRole("menuitem", { name: "Move up" });
-  await expect.element(locator).toBeInTheDocument();
-  const moveUp = locator.element() as HTMLElement;
-  expect(
-    moveUp.getAttribute("aria-disabled") === "true" ||
-      moveUp.hasAttribute("data-disabled"),
-  ).toBe(true);
+test("onRemove: the × removes its row and focus moves to the row that took its place", async () => {
+  function Host() {
+    const [items, setItems] = React.useState<SortableListItem[]>([
+      { id: "a", label: "Alpha" },
+      { id: "b", label: "Beta" },
+      { id: "c", label: "Gamma" },
+    ]);
+    return (
+      <SortableList
+        aria-label="Stages"
+        items={items}
+        renderItem={(item) => <span>{item.label}</span>}
+        onRemove={(item) =>
+          setItems((prev) => prev.filter((i) => i.id !== item.id))
+        }
+        onReorder={() => {}}
+      />
+    );
+  }
+  const screen = await render(<Host />);
+  expect(document.querySelector('[role="menuitem"]')).toBeNull();
+  await screen.getByRole("button", { name: "Remove Beta" }).click();
+  await expect.poll(() => rowLabels()).toEqual(["Alpha", "Gamma"]);
+  await expect
+    .element(screen.getByRole("button", { name: "Reorder Gamma" }))
+    .toHaveFocus();
 });
 
 test("a rejected move shows pending then announces the snap-back", async () => {
@@ -279,12 +278,13 @@ function rowOf(label: string): HTMLElement {
   )!;
 }
 
-test("a locked row keeps its spacer and menu, and Move items carry the reason", async () => {
-  const screen = await render(
+test("a locked row keeps its spacer, shows no remove, and carries the reason", async () => {
+  await render(
     <Controlled
       initial={["Unit", "Colour"]}
       locked={["Unit"]}
       lockedReason="Built-in values can't move"
+      onRemove={() => {}}
     />,
   );
   const row = rowOf("Unit");
@@ -299,39 +299,23 @@ test("a locked row keeps its spacer and menu, and Move items carry the reason", 
   expect(
     rowOf("Colour").querySelector('[data-slot="sortable-list-handle-spacer"]'),
   ).toBeNull();
-  await screen.getByRole("button", { name: "Actions for Unit" }).click();
-  for (const name of [
-    "Move up",
-    "Move down",
-    "Move to top",
-    "Move to bottom",
-  ]) {
-    const item = screen.getByRole("menuitem", { name });
-    await expect
-      .element(item)
-      .toHaveAccessibleDescription("Built-in values can't move");
-    const el = item.element() as HTMLElement;
-    expect(
-      el.getAttribute("aria-disabled") === "true" ||
-        el.hasAttribute("data-disabled"),
-    ).toBe(true);
-  }
+  expect(row.querySelector('[data-slot="sortable-list-remove"]')).toBeNull();
+  expect(
+    rowOf("Colour").querySelector('[data-slot="sortable-list-remove"]'),
+  ).not.toBeNull();
+  const reason = document.getElementById(row.getAttribute("aria-describedby")!);
+  expect(reason?.textContent).toBe("Built-in values can't move");
 });
 
-test("a locked row without a reason has no description, and unlocked rows never carry one", async () => {
-  const screen = await render(
+test("unlocked rows never carry the locked reason", async () => {
+  await render(
     <Controlled
       initial={["Unit", "Colour", "Size"]}
       locked={["Unit"]}
       lockedReason="Built-in values can't move"
     />,
   );
-  await screen.getByRole("button", { name: "Actions for Colour" }).click();
-  const moveDown = screen.getByRole("menuitem", { name: "Move down" });
-  await expect.element(moveDown).toBeInTheDocument();
-  expect(
-    (moveDown.element() as HTMLElement).hasAttribute("aria-describedby"),
-  ).toBe(false);
+  expect(rowOf("Colour").hasAttribute("aria-describedby")).toBe(false);
 });
 
 test("a locked row cannot be lifted, and others move past it", async () => {
@@ -379,7 +363,10 @@ test("renderActions adds an inline slot on every row, locked ones included", asy
 
 test("actionsLabel names the row menu trigger", async () => {
   const screen = await render(
-    <Controlled actionsLabel={(label) => `${label} options`} />,
+    <Controlled
+      actionsLabel={(label) => `${label} options`}
+      getItemActions={() => [{ label: "Rename" }]}
+    />,
   );
   await expect
     .element(screen.getByRole("button", { name: "Alpha options" }))
@@ -534,17 +521,14 @@ test("no a11y violations — grid and locked", async () => {
       initial={["Unit", "Colour"]}
       locked={["Unit"]}
       lockedReason="Built-in values can't move"
-      renderActions={(item) => (
-        <button type="button" aria-label={`Rename ${item.label}`}>
-          ✎
-        </button>
-      )}
+      getItemActions={() => [{ label: "Rename" }]}
+      onRemove={() => {}}
     />,
   );
   await expectNoA11yViolations(locked.container);
   await locked.getByRole("button", { name: "Actions for Unit" }).click();
   await expect
-    .element(locked.getByRole("menuitem", { name: "Move down" }))
+    .element(locked.getByRole("menuitem", { name: "Rename" }))
     .toBeInTheDocument();
   await expectNoA11yViolations(document.body);
 });

@@ -12,6 +12,13 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Image } from "@/components/ui/image";
 import { Input } from "@/components/ui/input";
+import {
+  Attachment,
+  AttachmentContent,
+  AttachmentDescription,
+  AttachmentMedia,
+  AttachmentProgress,
+} from "@/components/ui/attachment";
 
 const STAGES: SortableListItem[] = [
   { id: "lead", label: "Lead" },
@@ -52,8 +59,8 @@ export function sortableList(): ReactNode {
           }
         />
         <p className="mt-2 text-xs text-muted-foreground">
-          Drag the handle, press Space on it for keyboard move mode, or use the
-          row menu — every path reaches every order.
+          Drag the handle, long-press a row on a touch screen, or press Space on
+          the handle for keyboard move mode — every path reaches every order.
         </p>
       </div>
     </Wrapper>
@@ -91,15 +98,12 @@ export function sortableListGated(): ReactNode {
 }
 
 /**
- * The menu path — the lossless equivalent of a drag. Every row carries an
- * "Actions for …" menu with Move up / Move down / Move to top / Move to bottom, so the
- * whole ordering is reachable without a pointer and without entering keyboard
- * move mode. It is also the only path on a locked row's neighbours once the
- * pointer path is unavailable (audit B8-12). The drop-edge hairline, the lift
- * dim and the pending shimmer all come from the shared `drag-item` recipe, the
- * same one `Board` uses.
+ * Remove: `onRemove` puts a small × in each row's trailing corner, shown on hover or focus
+ * within the row and always on a touch screen. Focus moves to the row that takes the removed
+ * row's place. The drop-edge hairline, the lift dim and the pending shimmer come from the
+ * shared `drag-item` recipe, the same one `Board` uses.
  */
-export function sortableListMenu(): ReactNode {
+export function sortableListRemove(): ReactNode {
   const [items, setItems] = useState<SortableListItem[]>([
     { id: "overview", label: "Overview" },
     { id: "members", label: "Members" },
@@ -115,14 +119,13 @@ export function sortableListMenu(): ReactNode {
           renderItem={(item) => (
             <span className="min-w-0 truncate">{item.label}</span>
           )}
+          onRemove={(item) =>
+            setItems((prev) => prev.filter((i) => i.id !== item.id))
+          }
           onReorder={({ id, to }) =>
             setItems((prev) => applyMove(prev, id, to.index))
           }
         />
-        <p className="mt-2 text-xs text-muted-foreground">
-          Open a row’s menu to move it without dragging — the same reorder
-          callback runs, so the host cannot tell the paths apart.
-        </p>
       </div>
     </Wrapper>
   );
@@ -198,6 +201,9 @@ export function sortableListLocked(): ReactNode {
           aria-label="Product attributes"
           items={items}
           lockedReason="Built-in attributes can't move"
+          onRemove={(item) =>
+            setItems((prev) => prev.filter((i) => i.id !== item.id))
+          }
           renderItem={(item) => (
             <span className="flex min-w-0 items-center gap-2">
               <span className="truncate">{item.label}</span>
@@ -288,6 +294,71 @@ export function sortableListRowActions(): ReactNode {
             },
           ]}
           renderItem={(item) => <span className="truncate">{item.label}</span>}
+          onReorder={({ id, to }) =>
+            setItems((prev) => applyMove(prev, id, to.index))
+          }
+        />
+      </div>
+    </Wrapper>
+  );
+}
+
+type Upload = SortableListItem & {
+  state: "done" | "uploading" | "error";
+  progress?: number;
+};
+
+/**
+ * Attachments in a grid: `tile="bare"` drops the tile's own border and padding, so each
+ * `Attachment` is the tile's one frame and keeps its upload and error states. `columns={3}`
+ * fixes three tiles a row; the × removes a tile.
+ */
+export function sortableListAttachments(): ReactNode {
+  const [items, setItems] = useState<Upload[]>([
+    { id: "front", label: "image 1", state: "done" },
+    { id: "side", label: "image 2", state: "done" },
+    { id: "back", label: "image 3", state: "uploading", progress: 40 },
+    { id: "detail", label: "image 4", state: "error" },
+  ]);
+  return (
+    <Wrapper className="block">
+      <div className="mx-auto w-full max-w-md">
+        <SortableList
+          aria-label="Images"
+          layout="grid"
+          columns={3}
+          tile="bare"
+          items={items}
+          renderItem={(item) => (
+            <Attachment
+              orientation="vertical"
+              state={item.state}
+              className="w-full"
+            >
+              <AttachmentMedia variant="image">
+                <Image
+                  src={PHOTO_SRC.landscape}
+                  alt={item.label ?? ""}
+                  aspectRatio="square"
+                />
+              </AttachmentMedia>
+              {item.state !== "done" ? (
+                <AttachmentContent>
+                  <AttachmentDescription>
+                    {item.state === "error"
+                      ? "Upload failed."
+                      : `${item.progress}%`}
+                  </AttachmentDescription>
+                </AttachmentContent>
+              ) : null}
+              {item.state === "uploading" ? (
+                <AttachmentProgress value={item.progress ?? null} />
+              ) : null}
+            </Attachment>
+          )}
+          onRemove={(item) =>
+            setItems((prev) => prev.filter((i) => i.id !== item.id))
+          }
           onReorder={({ id, to }) =>
             setItems((prev) => applyMove(prev, id, to.index))
           }

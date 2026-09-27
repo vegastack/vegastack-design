@@ -115,6 +115,7 @@ export * from "./message-scroller";
 export * from "./transcript";
 export * from "./meta-line";
 export * from "./record-chip";
+export * from "./record-list";
 export * from "./status-line";
 export * from "./questionnaire";
 export * from "./item";
