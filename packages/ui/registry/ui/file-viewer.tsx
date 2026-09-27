@@ -1,4 +1,4 @@
-// @vegastack file-viewer@0.23.62 sha256-yGptION+PmlSpNfX1wzZtwqISRmnI14xolofOQ/AlnA=
+// @vegastack file-viewer@0.23.62 sha256-Z+GhrWPQfkjTfn2hOS51E5cXUj341jJAWDJQzY+L1B4=
 
 "use client";
 
@@ -113,6 +113,14 @@ function formatBytes(bytes: number): string {
     unit++;
   }
   return `${sizeFormat.format(unit === 0 || value >= 10 ? Math.round(value) : value)} ${units[unit]}`;
+}
+
+/** The file-type icon for a content type, as an element (never a component made during render). */
+function fileIcon(
+  type: string | null,
+  props: React.ComponentProps<typeof FileIcon>,
+) {
+  return React.createElement(iconFor(type), props);
 }
 
 function iconFor(type: string | null) {
@@ -466,7 +474,6 @@ function OtherStage({
   onSwipe: (direction: Swipe) => void;
 }) {
   const swipe = useSwipe(onSwipe);
-  const Icon = iconFor(item.contentType);
   return (
     <div
       data-slot="file-viewer-file"
@@ -489,7 +496,10 @@ function OtherStage({
           transform: `translate3d(${swipe.offset.x}px, ${swipe.offset.y}px, 0)`,
         }}
       >
-        <Icon aria-hidden className="size-16 text-muted-foreground" />
+        {fileIcon(item.contentType, {
+          "aria-hidden": true,
+          className: "size-16 text-muted-foreground",
+        })}
         <div className="flex max-w-full min-w-0 flex-col gap-1">
           <p className="text-base font-medium wrap-anywhere">{item.name}</p>
           {item.size != null ? (
