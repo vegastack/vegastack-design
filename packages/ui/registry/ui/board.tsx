@@ -1,4 +1,4 @@
-// @vegastack board@0.23.52 sha256-32rUewq8R5HyJ9KoqXO1MX6/EZrfwPbwvERFYaOTZhY=
+// @vegastack board@0.23.52 sha256-aD4zZiGgO5TrCH09qFsuLr9zu1NfxL/H+CSiiyM+rS8=
 
 "use client";
 
@@ -1343,8 +1343,8 @@ export function Board<T>({
     const showAdd =
       onAdd !== undefined && column.addable !== false && !readOnly;
     const empty = laneIds.length === 0 && gapIndex === -1;
-    // The add button rides the scroll content: after the last card (and LoadMore), or as the
-    // default empty state's action when the lane is empty.
+    // The add button rides the scroll content: a full-width row after the last card (and
+    // LoadMore), or a content-width action under the default empty state when the lane is empty.
     const addInEmpty =
       empty &&
       !column.loading &&
@@ -1356,7 +1356,10 @@ export function Board<T>({
         size="sm"
         data-slot="board-column-add"
         onClick={() => onAdd(column.id)}
-        className="w-full shrink-0 justify-center text-muted-foreground"
+        className={cn(
+          "shrink-0 text-muted-foreground",
+          !addInEmpty && "w-full justify-center",
+        )}
       >
         <Plus />
         {addText}
