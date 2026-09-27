@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.23.64 sha256-8b/D+A49LxIHJ6q/RxTpmj6JIdB/dCwuiRp0zyu8EOc=
+// @vegastack text-edit@0.23.64 sha256-yFv6WY5gDMJ8lPyjasUsWCqScSeT/qu2xw0dHa8KV2I=
 
 "use client";
 
@@ -61,13 +61,17 @@ export const TEXT_EDIT_COMPACT_SLASH_COMMANDS: readonly TextEditSlashCommand[] =
  * Added here: no outline, no border and NO fill in any state — the caret is the focus cue
  * (`data-focus-cue="caret"`); the placeholder as a faint zero-height pseudo-element (no reflow on
  * the first keystroke), which becomes the "Type / for commands" hint while focused; the table
- * scroll box; and the selected-node wash `MarkdownView` has no equivalent of.
+ * scroll box, the selected-cell wash and the column-resize line; and the selected-node wash
+ * `MarkdownView` has no equivalent of.
  */
 const editorBaseClassName = cn(
   proseClassName,
   "tiptap min-h-6 min-w-0 max-w-full outline-none",
   "[&_p.is-editor-empty:first-child]:before:pointer-events-none [&_p.is-editor-empty:first-child]:before:float-start [&_p.is-editor-empty:first-child]:before:h-0 [&_p.is-editor-empty:first-child]:before:text-muted-foreground/60 [&_p.is-editor-empty:first-child]:before:content-[attr(data-placeholder)]",
   "[&_.tableWrapper]:my-2 [&_.tableWrapper]:w-full [&_.tableWrapper]:max-w-full [&_.tableWrapper]:overflow-x-auto [&_.selectedCell]:bg-accent",
+  // Column resizing (editable only): a thin primary line on the hovered column border, and the
+  // resize cursor while the pointer is on it.
+  "[&_td]:relative [&_th]:relative [&_.column-resize-handle]:pointer-events-none [&_.column-resize-handle]:absolute [&_.column-resize-handle]:-inset-y-px [&_.column-resize-handle]:-end-px [&_.column-resize-handle]:w-0.5 [&_.column-resize-handle]:bg-primary/50 [&.resize-cursor]:cursor-col-resize",
   "[&_.ProseMirror-selectednode]:rounded-sm [&_.ProseMirror-selectednode]:bg-accent",
 );
 
@@ -237,8 +241,9 @@ export interface TextEditProps {
    */
   slashCommands?: readonly TextEditSlashCommand[];
   /**
-   * Show the ⋮⋮ drag handle beside the hovered block and the drag grips on table rows and columns.
-   * Turn it off where the editor sits in a tight box (comments). ⌘⇧↑ / ⌘⇧↓ move blocks either way.
+   * Show the hover chrome: the ⋮⋮ drag handle beside the hovered block, and a table's row and
+   * column grips (menus, drag to reorder), corner grip and "+" bars. Turn it off where the editor
+   * sits in a tight box (comments). ⌘⇧↑ / ⌘⇧↓ move blocks and Tab / ⇧Tab move between cells either way.
    * @default true
    */
   dragHandles?: boolean;
@@ -354,8 +359,11 @@ export interface TextEditProps {
  * - **Bubble menu** — a selection offers "Turn into", bold, italic, strike, inline code, link
  *   (edit, open, remove) and clear formatting. Every menu floats in a `<body>` portal and flips
  *   to stay in view, so no overflow container clips it.
- * - **Tables** — GFM tables with a menu (insert, move and delete rows and columns), Tab / ⇧Tab
- *   between cells, and drag grips to reorder rows and columns.
+ * - **Tables** — Notion's simple table: bordered, rounded, a muted header row. Hover a row or column
+ *   for its ⠿ grip — click for its menu (insert, move, duplicate, clear, delete), drag to reorder;
+ *   the corner grip selects the table (header toggles in HTML, delete); "+" bars add a row or column
+ *   at the end; drag a column border to resize. Tab / ⇧Tab move between cells (Tab in the last cell
+ *   adds a row), ⇧F10 opens the menu from the keyboard, and a fully selected table deletes with ⌫.
  * - **Blocks** — a ⋮⋮ handle drags any block (and any list item) to a new place; ⌘⇧↑ / ⌘⇧↓ too.
  * - **Markdown** — input rules (`#`–`####`, `- `, `* `, `1. `, `[ ] `, `> `, ```` ```lang ````,
  *   `---`, `**`, `*`, `_`, `~~`, `` ` ``), ⌘B / ⌘I / ⌘E / ⇧⌘X / ⌘K / ⌘⇧7·8·9, markdown and URL

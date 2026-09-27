@@ -433,9 +433,10 @@ const TABLE_SAMPLE = `| Owner | Task           | Due    |
 | Linus | Legal review   | Today  |`;
 
 /**
- * GFM tables. Put the caret in a cell for the table menu (insert, move and delete rows and
- * columns); hover a cell for the grips — drag one to reorder its column or row, click it to select
- * the whole column or row. Tab and Shift+Tab move between cells.
+ * GFM tables, Notion's simple table. Hover a cell for its row and column grips — click one for its
+ * menu, drag it to reorder; the corner grip beside the table opens the table menu; the "+" bars add
+ * a row or a column at the end; drag a column border to resize. Tab and Shift+Tab move between
+ * cells (Tab in the last cell adds a row). The markdown below updates as you edit.
  */
 export function markdownTables(): ReactNode {
   const [markdown, setMarkdown] = useState(TABLE_SAMPLE);
@@ -450,6 +451,24 @@ export function markdownTables(): ReactNode {
       <pre className="overflow-x-auto rounded-lg border border-border bg-muted p-3 font-mono text-xs">
         {markdown}
       </pre>
+    </Wrapper>
+  );
+}
+
+const HTML_TABLE_SAMPLE =
+  "<table><tbody><tr><th><p>Plan</p></th><th><p>Seats</p></th><th><p>Price</p></th></tr><tr><th><p>Starter</p></th><td><p>5</p></td><td><p>Free</p></td></tr><tr><th><p>Team</p></th><td><p>25</p></td><td><p>$12</p></td></tr></tbody></table>";
+
+/**
+ * An HTML-format table, where the corner, first-row and first-column menus also toggle the header
+ * row and the header column (markdown always has exactly one header row, so those toggles appear
+ * only here). Beside it, the same table in `MarkdownView` — the read view — in identical styles.
+ */
+export function htmlTables(): ReactNode {
+  const [html, setHtml] = useState(HTML_TABLE_SAMPLE);
+  return (
+    <Wrapper className="flex-col items-stretch gap-4">
+      <TextEdit value={html} onValueChange={setHtml} aria-label="Plans" />
+      <MarkdownView format="html">{html}</MarkdownView>
     </Wrapper>
   );
 }

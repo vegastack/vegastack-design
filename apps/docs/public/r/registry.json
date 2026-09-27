@@ -1759,7 +1759,7 @@
         "whenToUse": "Any optimistic inline edit of a single value — grid cells (focusMode=managed), record-page property lists, settings rows — where the write is async and can fail.",
         "whenNotToUse": "Debounced save-as-you-type on a standing form field (AutoSaveInput), or whole forms (Field).",
         "version": "0.23.64",
-        "integrity": "sha256-L08l+66HKUvtIT5K1RC3fsVhX3irkWSrZscs+PNnukM="
+        "integrity": "sha256-jv7Zn04MO4cGGZSrcJJ4E7BmKGTdmifI3Bj1reMvojw="
       }
     },
     {
@@ -15236,7 +15236,7 @@
         "whenToUse": "Single-line text entry — email, password, search, URL/slug with a domain prefix, numbers, etc.",
         "whenNotToUse": "Multi-line text (use a textarea) or choosing from fixed options (use a select/radio).",
         "version": "0.23.64",
-        "integrity": "sha256-oVhMbJKsUCHeBvFc7EsOQ1jsBMJOaDsVJBuV9iCps3g="
+        "integrity": "sha256-6lrOaju8iBXQ2HFj+v3PDFSxwMXxmY99CbmypKbFiIw="
       }
     },
     {
@@ -17118,6 +17118,7 @@
         "@vegastack/button",
         "@vegastack/checkbox",
         "@vegastack/copy-button",
+        "@vegastack/dropdown-menu",
         "@vegastack/input",
         "@vegastack/markdown-view",
         "@vegastack/native-select",
@@ -17140,7 +17141,7 @@
         "whenToUse": "Comments, notes, summaries and documents stored as Markdown (format=\"markdown\") or HTML; in-place editing of a MarkdownView with variant=\"ghost\".",
         "whenNotToUse": "Plain single-line input (Input) or collaborative real-time docs (deferred text-edit-collab).",
         "version": "0.23.64",
-        "integrity": "sha256-8b/D+A49LxIHJ6q/RxTpmj6JIdB/dCwuiRp0zyu8EOc="
+        "integrity": "sha256-yFv6WY5gDMJ8lPyjasUsWCqScSeT/qu2xw0dHa8KV2I="
       }
     },
     {

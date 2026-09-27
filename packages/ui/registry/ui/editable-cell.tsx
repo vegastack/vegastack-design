@@ -1,4 +1,4 @@
-// @vegastack editable-cell@0.23.64 sha256-L08l+66HKUvtIT5K1RC3fsVhX3irkWSrZscs+PNnukM=
+// @vegastack editable-cell@0.23.64 sha256-jv7Zn04MO4cGGZSrcJJ4E7BmKGTdmifI3Bj1reMvojw=
 
 "use client";
 
@@ -230,8 +230,8 @@ export interface EditableCellProps {
   wrap?: boolean;
   /**
    * Pull the display box back by its own inline-start padding, so the value's text lines up with
-   * the lines above and below it (a page title over its description). The hover tint extends
-   * into the gutter instead; the text does not move when the editor opens.
+   * the lines above and below it (a page title over its description). The box (and its
+   * hit area) extends into the gutter instead; the text does not move when the editor opens.
    * @default false
    */
   flush?: boolean;
@@ -307,7 +307,7 @@ interface InlineTextEditorProps {
   tooltip?: string;
   /**
    * No box padding (the `heading` variant): the text sits exactly where surrounding text would,
-   * idle and editing alike, and only the hover tint marks it editable.
+   * idle and editing alike, and only the text cursor marks it editable.
    */
   bare?: boolean;
   /** The field's `inputMode` (`decimal` for the number editor). */
@@ -325,8 +325,9 @@ interface InlineTextEditorProps {
 
 /**
  * The shared box. Display and editor are the SAME element with the same padding and line box, so
- * entering or leaving edit moves nothing. The tint is the only affordance: hover and keyboard
- * focus (FOC-13) show it, editing does not. No focus ring or outline.
+ * entering or leaving edit moves nothing. No fill at rest, on hover or while editing — the text
+ * cursor is the pointer affordance; only keyboard focus on the resting value shows base.css's
+ * tint (FOC-13). No focus ring or outline.
  */
 const boxClasses = "rounded-lg px-2.5 py-1.5";
 /** The `heading` box: no padding, so a title is edited exactly where it is rendered. */
@@ -337,7 +338,7 @@ const fieldClasses =
   "absolute inset-0 block size-full max-w-none min-w-0 resize-none appearance-none overflow-hidden rounded-none border-0 bg-transparent [color:inherit] [font:inherit] [letter-spacing:inherit] [text-align:inherit] [text-transform:inherit] shadow-none outline-none placeholder:text-muted-foreground aria-invalid:text-destructive-text";
 
 /**
- * The text leaf: a value rendered as plain text with a hover tint; click, <kbd>Enter</kbd> or
+ * The text leaf: a value rendered as plain text with a text cursor; click, <kbd>Enter</kbd> or
  * <kbd>F2</kbd> lays a borderless field over the same text. Blur saves, Enter (single-line) or
  * ⌘/Ctrl+Enter (multiline) saves, Escape cancels — all of it `useInlineEdit`, the hook this cell
  * also runs for its own mode state, so there is exactly one edit machine in the file.
@@ -496,9 +497,10 @@ function InlineTextEditor({
         fill ? "flex w-full" : "inline-flex align-top",
         // `flush`: the box starts one padding-width before its slot, so the text starts on it.
         flush && !bare && "-ms-2.5 max-w-[calc(100%+0.625rem)]",
-        // The tint is the only affordance: hover here, keyboard focus from base.css FOC-13 (the
-        // system's focus tint). No focus ring or outline.
-        interactive && !disabled && "cursor-text hover:bg-accent",
+        // No fill at rest, on hover or while editing: the text cursor is the only pointer
+        // affordance. Keyboard focus on the resting value keeps base.css's focus tint (FOC-13) —
+        // the one cue a keyboard user has; a click goes straight to the transparent field.
+        interactive && !disabled && "cursor-text",
         // FRM-4: no `pointer-events-none` for disabled. A disabled cell stays hoverable so a
         // Tooltip can explain why it cannot be edited; the hook already no-ops `start()`.
         "aria-disabled:opacity-50",
