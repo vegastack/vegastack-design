@@ -1,4 +1,4 @@
-// @vegastack property-list@0.23.60 sha256-9qljnxIPQG2NAs6YkD5nZ/LK6O6+4G4Ztz1C7XCjIxg=
+// @vegastack property-list@0.23.60 sha256-tGUYYQrihfp9v0NQXfvVeGX55FONnaypWWHs5cWZ0lM=
 
 import * as React from "react";
 import { cn } from "@vegastack/design";
@@ -22,6 +22,14 @@ export interface PropertyListProps extends React.ComponentPropsWithRef<"dl"> {
    * @default "stacked"
    */
   variant?: "stacked" | "inline";
+  /**
+   * `2` flows the rows into two columns, left to right, once the list's own container is wide
+   * enough (`@xl`, 36rem) — a wide record pane reads as two columns of facts, and the same list in
+   * a narrow rail stays one column. Works with both variants; `inline` keeps its fixed label
+   * column inside each column.
+   * @default 1
+   */
+  columns?: 1 | 2;
 }
 
 /**
@@ -43,18 +51,23 @@ export interface PropertyListProps extends React.ComponentPropsWithRef<"dl"> {
 export function PropertyList({
   className,
   variant = "stacked",
+  columns = 1,
   ...props
 }: PropertyListProps) {
   return (
     <dl
       data-slot="property-list"
       data-variant={variant}
+      data-columns={columns}
       className={cn(
         "group/property-list",
         // Named container: rows stack or sit side by side according to the PANE's
         // width, not the viewport's — the same facts pane is a narrow sidebar on a
         // wide screen as often as it is a wide column on a narrow one.
         "@container/property-list m-0 flex min-w-0 flex-col gap-1",
+        // Two columns: a two-track grid whose rows span both tracks until the container reaches
+        // @xl (a container cannot query itself, so the ROWS read the width — see PropertyRow).
+        columns === 2 && "grid grid-cols-2 gap-x-8",
         className,
       )}
       {...props}
@@ -82,6 +95,8 @@ export function PropertyRow({ className, ...props }: PropertyRowProps) {
         // Inline: one line at every width — a fixed 112px label column, so every value starts at
         // the same x, and the value takes the rest.
         "group-data-[variant=inline]/property-list:grid-cols-[--spacing(28)_minmax(0,1fr)] group-data-[variant=inline]/property-list:gap-x-3",
+        // `columns={2}`: a row spans both tracks of the list's grid below @xl, one track above.
+        "group-data-[columns=2]/property-list:col-span-2 @xl/property-list:group-data-[columns=2]/property-list:col-span-1",
         // Top-aligned, never centred: the label sits on the value's FIRST line, so a value that wraps
         // (or a multi-line note) keeps its label beside its opening line (see `PropertyLabel`).
         className,
@@ -161,6 +176,10 @@ export function PropertyValue({ className, ...props }: PropertyValueProps) {
         // caret starts on the text and nothing moves entering or leaving edit.
         "[&>[data-slot=editable-cell][data-variant=inline]_[data-slot=editable-cell-display]]:-mx-1.5 [&>[data-slot=editable-cell][data-variant=inline]_[data-slot=editable-cell-display]]:-my-0.5 [&>[data-slot=editable-cell][data-variant=inline]_[data-slot=editable-cell-display]]:max-w-[calc(100%+0.75rem)] [&>[data-slot=editable-cell][data-variant=inline]_[data-slot=editable-cell-display]]:rounded-md [&>[data-slot=editable-cell][data-variant=inline]_[data-slot=editable-cell-display]]:px-1.5 [&>[data-slot=editable-cell][data-variant=inline]_[data-slot=editable-cell-display]]:py-0.5",
         "[&>[data-slot=editable-cell][data-variant=inline]_[data-slot=editable-cell-input]]:rounded-md [&>[data-slot=editable-cell][data-variant=inline]_[data-slot=editable-cell-input]]:px-1.5 [&>[data-slot=editable-cell][data-variant=inline]_[data-slot=editable-cell-input]]:py-0.5",
+        // An EditableCell `select` editor: its 28px trigger hangs 4px above and below the line and
+        // its start padding plus border past the column, so the chosen option's text starts where
+        // plain values do.
+        "[&>[data-slot=editable-cell]_[data-slot=select-trigger]]:-my-1 [&>[data-slot=editable-cell]_[data-slot=select-trigger]]:-ms-[calc(var(--spacing)*2.5+1px)]",
         // Inline: a quiet picker's ghost padding hangs past the column's start so its text lines
         // up with plain values.
         "group-data-[variant=inline]/property-list:flex group-data-[variant=inline]/property-list:min-w-0 group-data-[variant=inline]/property-list:[&>[data-slot=button]]:-ms-2",

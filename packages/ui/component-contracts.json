@@ -12,8 +12,8 @@
     "evidencePolicy": "Observed fields come from source, registry metadata, docs, and test topology. Unknown/not-applicable values are explicit; no inferred behavior is presented as verified."
   },
   "expectedCounts": {
-    "totalRegistryItems": 695,
-    "components": 132,
+    "totalRegistryItems": 696,
+    "components": 133,
     "animatedIcons": 467,
     "hooks": 13,
     "blocks": 11,
@@ -24,7 +24,7 @@
     "Core controls": 24,
     "Forms/editing": 28,
     "Navigation/layout": 18,
-    "Overlays": 14,
+    "Overlays": 15,
     "Data display": 23,
     "Content/marketing": 14,
     "Shared internals": 3,
@@ -124,7 +124,8 @@
       "provider",
       "action-bar",
       "shortcut-overlay",
-      "drawer"
+      "drawer",
+      "file-viewer"
     ],
     "Data display": [
       "board-card",
@@ -1848,7 +1849,7 @@
         "dimensions": [
           {
             "name": "size",
-            "values": ["default", "sm", "xs"],
+            "values": ["default", "lg", "sm", "xs"],
             "evidence": "packages/ui/registry/ui/attachment.tsx: CVA"
           },
           {
@@ -12381,6 +12382,193 @@
       }
     },
     {
+      "name": "file-viewer",
+      "registryType": "registry:ui",
+      "title": "File Viewer",
+      "summary": "A full-screen dark overlay for stored files — images with a blur-up, zoom and pan; PDFs rendered page by page with a lazily loaded pdf.js over range requests; a download card for everything else — paged with arrows, side buttons or a swipe.",
+      "status": "stable",
+      "since": "0.23.61",
+      "family": "media",
+      "wave": "Overlays",
+      "sourceFiles": [
+        "packages/ui/registry/ui/file-viewer.tsx",
+        "packages/ui/registry/ui/file-viewer-pdf.tsx"
+      ],
+      "publicSymbols": [
+        {
+          "name": "FileViewer",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/file-viewer.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A controlled overlay with no single host element a consumer targets; the popup ref is owned by useModalInert."
+          }
+        },
+        {
+          "name": "FileViewerItem",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/file-viewer.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "FileViewerPdf",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/file-viewer-pdf.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Internal lazily loaded stage rendered by FileViewer; it owns its scroller ref for windowing."
+          }
+        },
+        {
+          "name": "FileViewerPdfProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/file-viewer-pdf.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "FileViewerProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/file-viewer.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "No variant axis; the stage follows the item's content type (image, pdf, other)."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "Always full screen."
+      },
+      "states": {
+        "behavior": {
+          "status": "observed",
+          "values": [
+            "default",
+            "open",
+            "closed",
+            "image",
+            "pdf",
+            "other",
+            "zoomed",
+            "loading",
+            "error",
+            "single"
+          ],
+          "evidence": "Controlled index opens and closes; data-kind picks the image, pdf or file-card stage; zoom/pan on images and the PDF zoom toolbar; a PDF shows its thumb or a spinner while loading and falls back to the file card on error; one item hides the count and paging."
+        },
+        "accessibility": {
+          "status": "covered",
+          "values": [
+            "native-or-base-ui-semantics",
+            "browser-accessibility-test",
+            "keyboard-navigation",
+            "labeled",
+            "status-announcement",
+            "focus-return"
+          ],
+          "evidence": "packages/ui/registry/ui/file-viewer.tsx + packages/ui/registry/ui/file-viewer.test.tsx"
+        },
+        "visual": {
+          "status": "observed",
+          "values": ["default", "open", "closed", "hover", "focus", "loading"],
+          "evidence": "Observed from token classes, state selectors, or visual branches."
+        }
+      },
+      "responsive": {
+        "status": "modeled",
+        "risks": ["viewport-positioning-and-collision", "overflow-and-scroll"],
+        "rationale": "Fixed full-viewport overlay with safe-area insets on its bars; side paging buttons only on fine pointers, swipe on touch; 44px icon buttons on coarse pointers; the PDF scroller scrolls inside the stage."
+      },
+      "motion": {
+        "status": "observed",
+        "mechanisms": [
+          "tw-animate-css keyed presence on the backdrop and the popup",
+          "CSS transform transition for zoom and swipe snap-back",
+          "Image blur placeholder fade"
+        ],
+        "reducedMotion": {
+          "status": "covered",
+          "rationale": "The global reduced-motion reset in base.css neutralises it (MOT-5)."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/file-viewer",
+      "registryDependencies": [
+        "@vegastack/button",
+        "@vegastack/dialog",
+        "@vegastack/image",
+        "@vegastack/spinner",
+        "@vegastack/use-announcer",
+        "@vegastack/use-modal-inert"
+      ],
+      "npmDependencies": [
+        "@base-ui/react@^1.6.0",
+        "lucide-react@^1.47.0",
+        "pdfjs-dist@^6.3.289",
+        "@vegastack/design@^0.7.49",
+        "@vegastack/design-tokens@^0.7.49"
+      ],
+      "testFiles": ["packages/ui/registry/ui/file-viewer.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required"
+      },
+      "previewModule": "file-viewer",
+      "dataAttributes": {
+        "FileViewer": {
+          "attributes": [
+            {
+              "name": "data-kind",
+              "values": []
+            },
+            {
+              "name": "data-slot",
+              "values": [
+                "file-viewer",
+                "file-viewer-backdrop",
+                "file-viewer-close",
+                "file-viewer-count",
+                "file-viewer-download",
+                "file-viewer-header",
+                "file-viewer-stage",
+                "file-viewer-title"
+              ]
+            }
+          ],
+          "cssVariables": []
+        },
+        "FileViewerPdf": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": [
+                "file-viewer-pdf",
+                "file-viewer-pdf-page",
+                "file-viewer-pdf-toolbar"
+              ]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
+    },
+    {
       "name": "input",
       "registryType": "registry:ui",
       "title": "Input",
@@ -17342,6 +17530,10 @@
       "dataAttributes": {
         "PropertyList": {
           "attributes": [
+            {
+              "name": "data-columns",
+              "values": []
+            },
             {
               "name": "data-slot",
               "values": ["property-list"]

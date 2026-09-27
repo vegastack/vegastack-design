@@ -3,7 +3,7 @@
 <!-- GENERATED — do not hand-edit. Regenerated from the design system's component contract,
      which is the authority for membership and counts. -->
 
-**132 components**, plus 467 animated-icon items, 13 hooks (`use-animation-replay`, `use-announcer`, `use-async-search`, `use-drag-reorder`, `use-file-drop`, `use-inline-edit`, `use-list-nav`, `use-media-query`, `use-mobile`, `use-modal-inert`, `use-overflow`, `use-platform`, `use-tabs-swipe`), 11 starter blocks (`app-shell-01`, `board-01`, `issue-detail-01`, `command-search-01`, `list-page-01`, `login-01`, `notifications-01`, `review-split-01`, `settings-01`, `settings-02`, `status-pages-01`), 68 chart blocks across 7 families, and 4 data libs (`date-time`, `geo-data`, `emoji-data`, `drag-item`) — 695 registry items in total.
+**133 components**, plus 467 animated-icon items, 13 hooks (`use-animation-replay`, `use-announcer`, `use-async-search`, `use-drag-reorder`, `use-file-drop`, `use-inline-edit`, `use-list-nav`, `use-media-query`, `use-mobile`, `use-modal-inert`, `use-overflow`, `use-platform`, `use-tabs-swipe`), 11 starter blocks (`app-shell-01`, `board-01`, `issue-detail-01`, `command-search-01`, `list-page-01`, `login-01`, `notifications-01`, `review-split-01`, `settings-01`, `settings-02`, `status-pages-01`), 68 chart blocks across 7 families, and 4 data libs (`date-time`, `geo-data`, `emoji-data`, `drag-item`) — 696 registry items in total.
 
 Install any of them with `shadcn add @vegastack/<name>`. Animated icons install as
 `@vegastack/icon-<name>`; the bare name is reserved for components, so a component whose name
@@ -153,6 +153,7 @@ starts with `icon-` is a component and never an icon.
 ## Media
 
 - **`audio-player`** — A compact custom audio transport with play/pause, skip, seek, a tappable speed control, and keyboard shortcuts — a single line on a wide player, two lines with an optional transcript control on a narrow, mobile-width player; a floating pill variant and a global AudioPlayerProvider + useGlobalPlayer that keep one recording playing across routes.
+- **`file-viewer`** — A full-screen dark overlay for stored files — images with a blur-up, zoom and pan; PDFs rendered page by page with a lazily loaded pdf.js over range requests; a download card for everything else — paged with arrows, side buttons or a swipe.
 - **`image`** — A presentational framed image with aspect-ratio, rounding, a loading skeleton, and an error fallback.
 - **`inbox`** — The notification Inbox: frame with header actions, All | Unread chips, sticky day groups, full-bleed rows with avatar or icon and an unread tint (no dot), rich titles, action chips, a fixed right column with the time over the hover actions (read toggle and menu), and empty, loading and error states.
 - **`media-player-controls`** — The shared media transport — play/pause, skip, seek, elapsed/duration, mute + volume, playback speed, and one keyboard shortcut map (useMediaShortcuts) — composed by Audio Player and Video Player.

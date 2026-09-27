@@ -31,7 +31,7 @@
 #     same way it found `breadcrumb` in Batch 5. API-16 puts the boundary at the lowest
 #     interactive leaf, and this file is it.
 #   API-28: Attachment's widened scope (DS-44, approved by MK 24-09-2026) — file and media tiles
-#     on any surface, not only chat. Four hunks:
+#     on any surface, not only chat. Five hunks:
 #     - `AttachmentGroup` takes `layout?: "scroll" | "grid"` (default `"scroll"`, upstream's row
 #       unchanged) and reflects it as `data-layout`; `"grid"` lays the tiles out at listing
 #       size (MK 27-09-2026) — one, two or three equal columns, each at least 18rem and at
@@ -46,12 +46,14 @@
 #       `opacity-50` and leaves the title and description at full ink.
 #     - image media styles a nested `<img>` (`[&_img]` in place of `*:[img]`) and sizes a nested
 #       `Image` frame to the slot, so the system `Image` with its fallback fills the media.
+#     - `Attachment` takes `size="lg"` (MK 27-09-2026): a vertical tile is `w-40`, the listing
+#       tile a product's files strip needs, and a horizontal one gets a larger (`w-12`) media box.
 #   cn: `import { cn } from "cn"` becomes `@vegastack/design` — our npm layer owns `cn` (DOC-2).
 #   formatting: the repository formatter (prettier defaults: semicolons, trailing commas)
 #               reflows the file, and `registry-stamp.mjs` writes the provenance header the
 #               three-copy model needs (DOC-1); those hunks carry no decision of their own.
 diff --git a/attachment.tsx b/attachment.tsx
-index f8ca4a8..0d7f072 100644
+index f8ca4a8..986353a 100644
 --- a/attachment.tsx
 +++ b/attachment.tsx
 @@ -1,13 +1,21 @@
@@ -83,12 +85,26 @@ index f8ca4a8..0d7f072 100644
    {
      variants: {
        size: {
-@@ -21,18 +29,20 @@ const attachmentVariants = cva(
+@@ -15,24 +23,34 @@ const attachmentVariants = cva(
+           "gap-2 text-sm has-data-[slot=attachment-content]:px-2.5 has-data-[slot=attachment-content]:py-2 has-data-[slot=attachment-media]:p-2",
+         sm: "gap-2.5 text-xs has-data-[slot=attachment-content]:px-2 has-data-[slot=attachment-content]:py-1.5 has-data-[slot=attachment-media]:p-1.5",
+         xs: "gap-1.5 rounded-lg text-xs has-data-[slot=attachment-content]:px-1.5 has-data-[slot=attachment-content]:py-1 has-data-[slot=attachment-media]:p-1",
++        lg: "gap-2.5 text-sm has-data-[slot=attachment-content]:px-3 has-data-[slot=attachment-content]:py-2.5 has-data-[slot=attachment-media]:p-2",
+       },
+       orientation: {
+         horizontal: "min-w-40 items-center",
          vertical: "w-24 flex-col has-data-[slot=attachment-content]:w-30",
        },
      },
 -  }
 -)
++    compoundVariants: [
++      {
++        size: "lg",
++        orientation: "vertical",
++        className: "w-40 has-data-[slot=attachment-content]:w-40",
++      },
++    ],
 +  },
 +);
  
@@ -107,7 +123,7 @@ index f8ca4a8..0d7f072 100644
    }) {
    return (
      <div
-@@ -40,10 +50,15 @@ function Attachment({
+@@ -40,27 +58,32 @@ function Attachment({
        data-state={state}
        data-size={size}
        data-orientation={orientation}
@@ -125,7 +141,10 @@ index f8ca4a8..0d7f072 100644
  }
  
  const attachmentMediaVariants = cva(
-@@ -53,14 +68,14 @@ const attachmentMediaVariants = cva(
+-  "relative flex aspect-square w-10 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-muted text-foreground group-data-[orientation=vertical]/attachment:w-full group-data-[size=sm]/attachment:w-8 group-data-[size=xs]/attachment:w-7 group-data-[size=xs]/attachment:rounded-md group-data-[state=error]/attachment:bg-destructive/10 group-data-[state=error]/attachment:text-destructive group-data-[orientation=vertical]/attachment:*:data-[slot=spinner]:size-6! [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 group-data-[orientation=vertical]/attachment:[&_svg:not([class*='size-'])]:size-6 group-data-[size=xs]/attachment:[&_svg:not([class*='size-'])]:size-3.5",
++  "relative flex aspect-square w-10 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-muted text-foreground group-data-[orientation=vertical]/attachment:w-full group-data-[size=sm]/attachment:w-8 group-data-[size=xs]/attachment:w-7 group-data-[size=lg]/attachment:group-data-[orientation=horizontal]/attachment:w-12 group-data-[size=xs]/attachment:rounded-md group-data-[state=error]/attachment:bg-destructive/10 group-data-[state=error]/attachment:text-destructive group-data-[orientation=vertical]/attachment:*:data-[slot=spinner]:size-6! [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 group-data-[orientation=vertical]/attachment:[&_svg:not([class*='size-'])]:size-6 group-data-[size=xs]/attachment:[&_svg:not([class*='size-'])]:size-3.5",
+   {
+     variants: {
        variant: {
          icon: "",
          image:
@@ -143,7 +162,7 @@ index f8ca4a8..0d7f072 100644
  
  function AttachmentMedia({
    className,
-@@ -74,7 +89,7 @@ function AttachmentMedia({
+@@ -74,7 +97,7 @@ function AttachmentMedia({
        className={cn(attachmentMediaVariants({ variant }), className)}
        {...props}
      />
@@ -152,7 +171,7 @@ index f8ca4a8..0d7f072 100644
  }
  
  function AttachmentContent({
-@@ -86,11 +101,11 @@ function AttachmentContent({
+@@ -86,11 +109,11 @@ function AttachmentContent({
        data-slot="attachment-content"
        className={cn(
          "max-w-full min-w-0 flex-1 leading-tight group-data-[orientation=vertical]/attachment:px-1",
@@ -166,7 +185,7 @@ index f8ca4a8..0d7f072 100644
  }
  
  function AttachmentTitle({
-@@ -102,11 +117,11 @@ function AttachmentTitle({
+@@ -102,11 +125,11 @@ function AttachmentTitle({
        data-slot="attachment-title"
        className={cn(
          "block max-w-full min-w-0 truncate font-medium group-data-[state=processing]/attachment:shimmer group-data-[state=uploading]/attachment:shimmer",
@@ -180,7 +199,7 @@ index f8ca4a8..0d7f072 100644
  }
  
  function AttachmentDescription({
-@@ -117,13 +132,58 @@ function AttachmentDescription({
+@@ -117,13 +140,58 @@ function AttachmentDescription({
      <span
        data-slot="attachment-description"
        className={cn(
@@ -242,7 +261,7 @@ index f8ca4a8..0d7f072 100644
  }
  
  function AttachmentActions({
-@@ -135,11 +195,11 @@ function AttachmentActions({
+@@ -135,11 +203,11 @@ function AttachmentActions({
        data-slot="attachment-actions"
        className={cn(
          "relative z-20 flex shrink-0 items-center group-data-[orientation=vertical]/attachment:absolute group-data-[orientation=vertical]/attachment:top-3 group-data-[orientation=vertical]/attachment:end-3 group-data-[orientation=vertical]/attachment:gap-1",
@@ -256,7 +275,7 @@ index f8ca4a8..0d7f072 100644
  }
  
  function AttachmentAction({
-@@ -156,7 +216,7 @@ function AttachmentAction({
+@@ -156,7 +224,7 @@ function AttachmentAction({
        className={cn(className)}
        {...props}
      />
@@ -265,7 +284,7 @@ index f8ca4a8..0d7f072 100644
  }
  
  function AttachmentTrigger({
-@@ -170,28 +230,39 @@ function AttachmentTrigger({
+@@ -170,28 +238,39 @@ function AttachmentTrigger({
      props: mergeProps<"button">(
        {
          type: render ? type : (type ?? "button"),
@@ -312,7 +331,7 @@ index f8ca4a8..0d7f072 100644
  }
  
  export {
-@@ -201,7 +272,8 @@ export {
+@@ -201,7 +280,8 @@ export {
    AttachmentContent,
    AttachmentTitle,
    AttachmentDescription,

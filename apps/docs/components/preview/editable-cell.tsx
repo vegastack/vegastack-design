@@ -6,6 +6,12 @@ import { Wrapper } from "./wrapper";
 import { Button } from "@/components/ui/button";
 import { EditableCell } from "@/components/ui/editable-cell";
 import {
+  PropertyLabel,
+  PropertyList,
+  PropertyRow,
+  PropertyValue,
+} from "@/components/ui/property-list";
+import {
   Table,
   TableBody,
   TableCell,
@@ -397,6 +403,78 @@ export function editableCellCustomLabel(): ReactNode {
           ),
         }}
       />
+    </Wrapper>
+  );
+}
+
+/** Each editor type in an inline PropertyList: values line up with read-only ones in every state. */
+export function editableCellInlineEditors(): ReactNode {
+  const [name, setName] = useState("Nova Pendant");
+  const [width, setWidth] = useState("1250");
+  const [weight, setWeight] = useState("");
+  const [finish, setFinish] = useState("black");
+  return (
+    <Wrapper className="block">
+      <div className="mx-auto w-full max-w-xs">
+        <PropertyList variant="inline" aria-label="Product specs">
+          <PropertyRow>
+            <PropertyLabel>SKU</PropertyLabel>
+            <PropertyValue>RL-26-104</PropertyValue>
+          </PropertyRow>
+          <PropertyRow>
+            <PropertyLabel>Name</PropertyLabel>
+            <PropertyValue>
+              <EditableCell label="Name" value={name} onSave={setName} />
+            </PropertyValue>
+          </PropertyRow>
+          <PropertyRow>
+            <PropertyLabel>Width</PropertyLabel>
+            <PropertyValue>
+              <EditableCell
+                label="Width"
+                value={width}
+                editor={{ type: "number", unit: "mm", min: 0, max: 5000 }}
+                onSave={setWidth}
+              />
+            </PropertyValue>
+          </PropertyRow>
+          <PropertyRow>
+            <PropertyLabel>Weight</PropertyLabel>
+            <PropertyValue>
+              <EditableCell
+                label="Weight"
+                value={weight}
+                editor={{
+                  type: "number",
+                  unit: "kg",
+                  min: 0,
+                  step: 0.1,
+                  placeholder: "Add weight",
+                }}
+                onSave={setWeight}
+              />
+            </PropertyValue>
+          </PropertyRow>
+          <PropertyRow>
+            <PropertyLabel>Finish</PropertyLabel>
+            <PropertyValue>
+              <EditableCell
+                label="Finish"
+                value={finish}
+                editor={{
+                  type: "select",
+                  options: [
+                    { value: "black", label: "Matt black" },
+                    { value: "white", label: "Matt white" },
+                    { value: "brass", label: "Brushed brass" },
+                  ],
+                }}
+                onSave={setFinish}
+              />
+            </PropertyValue>
+          </PropertyRow>
+        </PropertyList>
+      </div>
     </Wrapper>
   );
 }

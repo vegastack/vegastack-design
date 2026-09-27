@@ -169,6 +169,23 @@ fires on selection.
   file="components/preview/editable-cell.tsx"
 />
 
+### Number editor
+
+`editor={{ type: "number", unit, min, max, step }}` edits a spec value. The value is still a
+string: it displays formatted in the reader's locale with the unit muted after it (`1,250 mm`),
+and edits as the raw number with a decimal keyboard and the unit trailing the caret inside the
+same box. A draft that is not a number, falls outside `min`/`max` or is off `step` does not save:
+the field stays open with the draft, marked `aria-invalid`, and the rule is announced. Grouping
+(`1,250`) is accepted and saved without it; an empty draft saves `""`.
+
+Below, each editor type inside a `PropertyList variant="inline"` — text, number with a unit, and
+select — lines up with the read-only value above it at rest, on hover and while editing.
+
+<ComponentPreview
+  name="editableCellInlineEditors"
+  file="components/preview/editable-cell.tsx"
+/>
+
 ### Custom editor with a label
 
 When the value is an id — an owner, a customer, a project — pass `renderValue` so the cell shows the

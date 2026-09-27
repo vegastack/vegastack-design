@@ -169,3 +169,40 @@ export function propertyListInline(): ReactNode {
     </Wrapper>
   );
 }
+
+/** `columns={2}`: rows flow into two columns once the pane is @2xl wide, one column below. */
+export function propertyListColumns(): ReactNode {
+  const rows: [ReactNode, string, ReactNode][] = [
+    [<Component key="i" />, "Type", "Pendant"],
+    [<Building2 key="i" />, "Brand", "Regent"],
+    [<Hash key="i" />, "SKU", "RL-26-104"],
+    [<Timer key="i" />, "Lead time", "6 weeks"],
+    [<Tags key="i" />, "Finish", "Matt black"],
+    [<Globe key="i" />, "Origin", "Switzerland"],
+    [<UserRound key="i" />, "Owner", "Asha Rao"],
+    [<Clock key="i" />, "Updated", "2 days ago"],
+  ];
+  const list = (variant: "stacked" | "inline") => (
+    <PropertyList
+      variant={variant}
+      columns={2}
+      aria-label={`Product facts (${variant})`}
+    >
+      {rows.map(([icon, label, value]) => (
+        <PropertyRow key={label}>
+          <PropertyLabel icon={icon}>{label}</PropertyLabel>
+          <PropertyValue>{value}</PropertyValue>
+        </PropertyRow>
+      ))}
+    </PropertyList>
+  );
+  return (
+    <Wrapper className="block">
+      <div className="flex w-full flex-col gap-8">
+        {list("stacked")}
+        {list("inline")}
+        <div className="w-72">{list("inline")}</div>
+      </div>
+    </Wrapper>
+  );
+}

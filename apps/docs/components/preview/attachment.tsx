@@ -355,6 +355,26 @@ export function attachmentSizes(): ReactNode {
             <AttachmentTitle>Extra small attachment</AttachmentTitle>
           </AttachmentContent>
         </Attachment>
+        <Attachment size="lg" className="w-full">
+          <AttachmentMedia>
+            <FileTextIcon />
+          </AttachmentMedia>
+          <AttachmentContent>
+            <AttachmentTitle>Large attachment</AttachmentTitle>
+            <AttachmentDescription>PDF · 2.4 MB</AttachmentDescription>
+          </AttachmentContent>
+        </Attachment>
+        <AttachmentGroup>
+          <Attachment size="lg" orientation="vertical">
+            <AttachmentMedia variant="image">
+              <img src="/preview/landscape.svg" alt="A scenic landscape" />
+            </AttachmentMedia>
+            <AttachmentContent>
+              <AttachmentTitle>landscape.svg</AttachmentTitle>
+              <AttachmentDescription>Large tile · 10rem</AttachmentDescription>
+            </AttachmentContent>
+          </Attachment>
+        </AttachmentGroup>
       </div>
     </Wrapper>
   );

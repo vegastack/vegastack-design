@@ -120,6 +120,19 @@ three lines — are in [Record Aside](/docs/components/record-aside).
   file="components/preview/property-list.tsx"
 />
 
+### Two columns
+
+`columns={2}` flows the rows into two columns, left to right, once the list's own container is
+at least `@xl` (36rem) wide — a wide record pane reads as two columns of facts — and keeps one
+column in a narrower pane, whatever the viewport. It works with both variants: `inline` keeps its
+fixed label column inside each column. The third list below is the same inline list in a 288px
+rail, back to one column.
+
+<ComponentPreview
+  name="propertyListColumns"
+  file="components/preview/property-list.tsx"
+/>
+
 ## API Reference
 
 ### PropertyList
