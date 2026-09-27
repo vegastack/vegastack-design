@@ -1,8 +1,9 @@
-// @vegastack avatar-picker@0.23.45 sha256-8HYH1PYsT/XvjRvNfaWcoif7jhM7L77Kcsp9DcY9bs4=
+// @vegastack avatar-picker@0.23.45 sha256-LhdRUuWH3inbzHXg+FuTaVKuJ+oFmOt+3Na8FO+NdW8=
 
 "use client";
 
 import * as React from "react";
+import { Pencil } from "lucide-react";
 import { cn } from "@vegastack/design";
 import { Button } from "@/components/ui/button";
 import { PersonAvatar, type Person } from "@/components/ui/person-avatar";
@@ -14,10 +15,13 @@ import {
 } from "@/components/ui/use-file-drop";
 
 /* ------------------------------------------------------------------------------------------------
- * AvatarPicker — a person's own photo, set and cleared in place: a large `PersonAvatar` (the photo,
- * else initials on their hue), "Upload photo" (or "Change photo" once there is one) opening the
- * file browser, "Remove" while a photo exists, and one line under the buttons for a refused file.
- * On a phone the browser's own picker offers the camera and the gallery.
+ * AvatarPicker — a person's own photo, edited in place: the avatar IS the control. Hover or
+ * keyboard focus lays a scrim with a pencil over the circle; a click opens the file browser (on a
+ * phone the browser offers the camera and the gallery). On a device without hover a small pencil
+ * badge sits on the circle's edge instead, so the photo is never covered. While `busy` the scrim
+ * stays up with a spinner, over an instant local preview of the chosen file. "Remove" is a small
+ * ghost button beside the circle while a photo exists, and one line beside it shows a refused
+ * file or an `error`.
  *
  * Deliberately NOT done here: no upload, no resizing, no cropping. `onSelect` hands the app the
  * accepted file; the app processes and uploads it, holds `busy` while it does, and passes the new
@@ -61,17 +65,17 @@ export interface AvatarPickerProps extends Omit<
    */
   error?: React.ReactNode;
   /**
-   * `lg` is a 64px avatar, `xl` 80px.
-   * @default "lg"
+   * The circle: `sm` 40px, `md` 48px, `lg` 64px, `xl` 80px; the initials scale with it.
+   * @default "md"
    */
-  size?: "lg" | "xl";
+  size?: "sm" | "md" | "lg" | "xl";
   /**
-   * The button label while there is no photo.
+   * The circle's accessible name while there is no photo.
    * @default "Upload photo"
    */
   uploadLabel?: string;
   /**
-   * The button label once there is a photo.
+   * The circle's accessible name once there is a photo.
    * @default "Change photo"
    */
   changeLabel?: string;
@@ -81,6 +85,14 @@ export interface AvatarPickerProps extends Omit<
    */
   removeLabel?: string;
 }
+
+/** The circle and its initials, per size. */
+const CIRCLE: Record<NonNullable<AvatarPickerProps["size"]>, string> = {
+  sm: "size-10 *:data-[slot=avatar-fallback]:text-sm",
+  md: "size-12 *:data-[slot=avatar-fallback]:text-base",
+  lg: "size-16 *:data-[slot=avatar-fallback]:text-lg",
+  xl: "size-20 *:data-[slot=avatar-fallback]:text-2xl",
+};
 
 /** A byte count as the message line says it ("5 MB"). */
 function formatSize(bytes: number): string {
@@ -109,7 +121,7 @@ function refusal(
 }
 
 /**
- * `AvatarPicker` — upload, change or remove a person's photo, with the avatar beside the buttons.
+ * `AvatarPicker` — upload, change or remove a person's photo: the avatar is the button.
  *
  * @example
  * <AvatarPicker
@@ -128,7 +140,7 @@ export function AvatarPicker({
   accept = "image/jpeg,image/png,image/webp",
   maxSize,
   error,
-  size = "lg",
+  size = "md",
   uploadLabel = "Upload photo",
   changeLabel = "Change photo",
   removeLabel = "Remove",
@@ -136,6 +148,20 @@ export function AvatarPicker({
   ...props
 }: AvatarPickerProps) {
   const [refused, setRefused] = React.useState<string | null>(null);
+  // An instant local preview of the chosen file, shown under the spinner while `busy`. It is
+  // revoked when it is replaced, on unmount, and when `busy` ends (the app's URL takes over).
+  const [preview, setPreview] = React.useState<string | null>(null);
+  React.useEffect(
+    () => () => {
+      if (preview) URL.revokeObjectURL(preview);
+    },
+    [preview],
+  );
+  const [wasBusy, setWasBusy] = React.useState(busy);
+  if (wasBusy !== busy) {
+    setWasBusy(busy);
+    if (!busy) setPreview(null);
+  }
   const messageId = React.useId();
   // ONE polite region speaks every refusal and every `error`, exactly once each; the drop hook's
   // own region (its generic "was refused — wrong type") is deliberately not rendered.
@@ -158,7 +184,10 @@ export function AvatarPicker({
     preventWindowDrop: false,
     onFilesAccepted: (files) => {
       setRefused(null);
-      if (files[0]) onSelect(files[0]);
+      const file = files[0];
+      if (!file) return;
+      setPreview(URL.createObjectURL(file));
+      onSelect(file);
     },
     onFilesRejected: (rejections) => {
       const text = rejections[0] ? refusal(rejections[0], maxSize) : null;
@@ -168,52 +197,65 @@ export function AvatarPicker({
   });
   const message = refused ?? error;
   const hasImage = Boolean(person.image);
+  const shown = busy && preview ? { ...person, image: preview } : person;
+  const icon = size === "sm" ? "size-3.5" : "size-4";
+  const showMeta = (hasImage && onRemove) || message;
 
   return (
     <div
       data-slot="avatar-picker"
       data-size={size}
-      aria-busy={busy || undefined}
-      className={cn("flex items-center gap-4", className)}
+      className={cn("flex items-center gap-3", className)}
       {...props}
     >
-      <span className="relative inline-flex shrink-0 rounded-full">
+      <Button
+        type="button"
+        variant="ghost"
+        data-slot="avatar-picker-trigger"
+        aria-label={hasImage ? changeLabel : uploadLabel}
+        aria-describedby={message ? messageId : undefined}
+        aria-busy={busy || undefined}
+        disabled={busy}
+        onClick={drop.open}
+        // The circle is the control: no box of its own, no press nudge, and busy keeps it opaque.
+        className="h-auto shrink-0 cursor-pointer rounded-full p-0 hover:bg-transparent active:not-aria-[haspopup]:translate-y-0 data-disabled:not-data-loading:opacity-100"
+      >
         <PersonAvatar
-          person={person}
+          person={shown}
           size="default"
           data-slot="avatar-picker-avatar"
-          className={cn(
-            "*:data-[slot=avatar-fallback]:text-lg",
-            size === "xl"
-              ? "size-20 *:data-[slot=avatar-fallback]:text-2xl"
-              : "size-16",
-          )}
+          className={CIRCLE[size]}
         />
-        {busy ? (
+        {/* Hover and keyboard focus: the modal scrim's ink over the circle, a pencil on it. A
+            device without hover never gets it (the badge below stands in), except while busy. */}
+        <span
+          aria-hidden="true"
+          data-slot="avatar-picker-overlay"
+          className={cn(
+            "absolute inset-0 flex items-center justify-center rounded-full bg-black/40 text-white transition-opacity duration-150 supports-backdrop-filter:backdrop-blur-xs",
+            busy
+              ? "opacity-100"
+              : "opacity-0 group-hover/button:opacity-100 group-focus-visible/button:opacity-100 [@media(hover:none)]:hidden",
+          )}
+        >
+          {busy ? <Spinner className={icon} /> : <Pencil className={icon} />}
+        </span>
+        {busy ? null : (
           <span
-            data-slot="avatar-picker-busy"
-            className="absolute inset-0 flex items-center justify-center rounded-full bg-background/60"
+            aria-hidden="true"
+            data-slot="avatar-picker-badge"
+            className="absolute -end-0.5 -bottom-0.5 hidden size-5 items-center justify-center rounded-full border border-border bg-background text-foreground [@media(hover:none)]:flex"
           >
-            <Spinner className="size-5" />
+            <Pencil className="size-3" />
           </span>
-        ) : null}
-      </span>
-      <div className="flex min-w-0 flex-col gap-1.5">
-        <div className="flex flex-wrap items-center gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            disabled={busy}
-            aria-describedby={message ? messageId : undefined}
-            data-slot="avatar-picker-upload"
-            onClick={drop.open}
-          >
-            {hasImage ? changeLabel : uploadLabel}
-          </Button>
+        )}
+      </Button>
+      {showMeta ? (
+        <div className="flex min-w-0 flex-col items-start gap-1">
           {hasImage && onRemove ? (
             <Button
               variant="ghost"
-              size="sm"
+              size="xs"
               disabled={busy}
               data-slot="avatar-picker-remove"
               onClick={() => {
@@ -224,18 +266,18 @@ export function AvatarPicker({
               {removeLabel}
             </Button>
           ) : null}
+          {/* The visible line; the Announcer below is what speaks it. */}
+          {message ? (
+            <p
+              id={messageId}
+              data-slot="avatar-picker-message"
+              className="text-xs text-destructive-text"
+            >
+              {message}
+            </p>
+          ) : null}
         </div>
-        {/* The visible line; the Announcer below is what speaks it. */}
-        {message ? (
-          <p
-            id={messageId}
-            data-slot="avatar-picker-message"
-            className="text-xs text-destructive-text"
-          >
-            {message}
-          </p>
-        ) : null}
-      </div>
+      ) : null}
       <input {...drop.inputProps} />
       <Announcer />
     </div>

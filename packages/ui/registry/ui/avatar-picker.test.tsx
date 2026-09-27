@@ -47,7 +47,7 @@ test("a photo: Change photo and Remove; busy disables both", async () => {
     .toBeDisabled();
   expect(
     screen.container
-      .querySelector('[data-slot="avatar-picker"]')
+      .querySelector('[data-slot="avatar-picker-trigger"]')
       ?.getAttribute("aria-busy"),
   ).toBe("true");
   expect(removed).toBe(false);

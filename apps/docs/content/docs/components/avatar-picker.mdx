@@ -1,11 +1,11 @@
 ---
 title: Avatar Picker
-description: Upload, change or remove a person's photo — a large avatar with a busy spinner, a file-picker button, Remove, and a line for a refused file.
+description: Upload, change or remove a person's photo — the avatar is the button, with an edit scrim on hover, a busy preview, Remove, and a refusal line.
 audience: public
 registry: avatar-picker
 status: stable
 since: 0.23.44
-a11y: named buttons, busy state, refusal announced and shown
+a11y: named circle button, busy state, refusals announced
 preview: avatarPicker
 ---
 
@@ -27,11 +27,14 @@ import { AvatarPicker } from "@/components/ui/avatar-picker";
 />;
 ```
 
-`AvatarPicker` is where someone sets their own photo. It shows their `PersonAvatar` at 64px — the
-photo, else their initials on their colour — beside "Upload photo", which opens the file browser
-(on a phone, the browser offers the camera and the gallery). Once there is a photo the button reads
-"Change photo" and "Remove" appears. A file of the wrong type or over `maxSize` is refused on the
-line under the buttons and announced — an iPhone HEIC photo is told to export it as JPEG.
+`AvatarPicker` is where someone sets their own photo, and the avatar is the control: their
+`PersonAvatar` (the photo, else their initials on their colour) in a round button named "Upload
+photo", or "Change photo" once there is one. Hover or keyboard focus lays a soft scrim with a pencil
+over the circle, and a click opens the file browser (on a phone, the browser offers the camera and
+the gallery). A device without hover shows a small pencil badge on the circle's edge instead, so the
+photo is never covered. "Remove" is a small ghost button beside the circle while there is a photo.
+A file of the wrong type or over `maxSize` is refused on the line beside the circle and announced —
+an iPhone HEIC photo is told to export it as JPEG.
 
 It only acquires the file: `onSelect` hands the app the one accepted `File`, and the app resizes
 and uploads it, holds `busy` meanwhile, then passes the new `person.image` back.
@@ -50,19 +53,40 @@ and uploads it, holds `busy` meanwhile, then passes the new `person.image` back.
   file="components/preview/avatar-picker.tsx"
 />
 
+### Hover and focus
+
+The scrim and pencil fade in over 150ms on hover and on keyboard focus — the circle's focus cue.
+They are held open here so the look can be seen.
+
+<ComponentPreview
+  name="avatarPickerHover"
+  file="components/preview/avatar-picker.tsx"
+/>
+
 ### Busy
 
-While `busy`, a spinner covers the avatar, the buttons are disabled and the root is `aria-busy`.
+While `busy`, the scrim stays up with a spinner at the pencil's size, the circle and Remove are
+disabled and the circle is `aria-busy`. The chosen file shows at once under the spinner as a local
+preview; when `busy` ends the circle shows `person.image` again, so pass the new URL by then.
 
 <ComponentPreview
   name="avatarPickerBusy"
   file="components/preview/avatar-picker.tsx"
 />
 
+### Sizes
+
+`sm` is 40px, `md` 48px (the default), `lg` 64px and `xl` 80px; the initials scale with the circle.
+
+<ComponentPreview
+  name="avatarPickerSizes"
+  file="components/preview/avatar-picker.tsx"
+/>
+
 ### Error
 
 `error` shows a failure the app found after the file was accepted — an image it could not read — on
-the same line a refused file uses. `size="xl"` draws an 80px avatar.
+the same line a refused file uses.
 
 <ComponentPreview
   name="avatarPickerError"
@@ -78,16 +102,17 @@ the same line a refused file uses. `size="xl"` draws an 80px avatar.
 
 ## Accessibility
 
-- "Upload photo" / "Change photo" and "Remove" are real buttons; the file input behind them is
-  hidden and never takes focus.
+- The circle is a real button named "Upload photo" or "Change photo"; "Remove" is a second button.
+  The file input behind them is hidden and never takes focus.
+- Keyboard focus shows the same scrim and pencil as hover — the circle's focus cue, with no ring.
 - One polite live region announces every refused file and every `error`, exactly once each, with the
-  same words shown under the buttons; the upload button is described by that line while it shows.
-- While `busy` the root is `aria-busy` and the spinner reads "Loading".
+  same words shown beside the circle; the circle is described by that line while it shows.
+- While `busy` the circle is disabled and `aria-busy`.
 
-| Key                                 | Action                                        |
-| ----------------------------------- | --------------------------------------------- |
-| <kbd>Tab</kbd>                      | Move between Upload / Change photo and Remove |
-| <kbd>Enter</kbd> / <kbd>Space</kbd> | Open the file browser, or remove the photo    |
+| Key                                 | Action                                     |
+| ----------------------------------- | ------------------------------------------ |
+| <kbd>Tab</kbd>                      | Move between the circle and Remove         |
+| <kbd>Enter</kbd> / <kbd>Space</kbd> | Open the file browser, or remove the photo |
 
 <StatesTested name="avatar-picker" />
 
