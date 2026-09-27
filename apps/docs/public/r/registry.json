@@ -372,7 +372,7 @@
         "whenToUse": "File and media tiles on any surface: chat attachments, record files, upload queues — a chip or thumbnail with name, size, lifecycle state, determinate upload progress (AttachmentProgress), a muted tile for a file no longer in use, and remove or download actions; AttachmentGroup lays them out as a scrolling row or a grid.",
         "whenNotToUse": "Acquiring files (drop, browse, paste) - that is Dropzone; Attachment renders the files after acquisition.",
         "version": "0.23.60",
-        "integrity": "sha256-Bn0e7Z78hF7E9V5PGHrvcKn1U242fGA3uIX/Hkg8904="
+        "integrity": "sha256-j+V6AeP5niIo7CfpIEpTv71RjTDFvW8+ic8v9YYxq+o="
       }
     },
     {
@@ -1722,7 +1722,7 @@
         "whenToUse": "Any optimistic inline edit of a single value — grid cells (focusMode=managed), record-page property lists, settings rows — where the write is async and can fail.",
         "whenNotToUse": "Debounced save-as-you-type on a standing form field (AutoSaveInput), or whole forms (Field).",
         "version": "0.23.60",
-        "integrity": "sha256-+9OYzYMDKBdJK4x52P5Y7VV0GHkvgO9EolJkvOr2ArI="
+        "integrity": "sha256-OnAzENumS6ZAJXkGuOXxRsKGtEChpB9Mq5SjxGG5ayQ="
       }
     },
     {
@@ -15105,6 +15105,48 @@
       }
     },
     {
+      "name": "file-viewer",
+      "type": "registry:ui",
+      "title": "File Viewer",
+      "description": "A full-screen dark overlay for stored files — images with a blur-up, zoom and pan; PDFs rendered page by page with a lazily loaded pdf.js over range requests; a download card for everything else — paged with arrows, side buttons or a swipe.",
+      "categories": [
+        "media"
+      ],
+      "dependencies": [
+        "@base-ui/react@^1.6.0",
+        "lucide-react@^1.47.0",
+        "pdfjs-dist@^6.3.289",
+        "@vegastack/design@^0.7.49",
+        "@vegastack/design-tokens@^0.7.49"
+      ],
+      "registryDependencies": [
+        "@vegastack/button",
+        "@vegastack/dialog",
+        "@vegastack/image",
+        "@vegastack/spinner",
+        "@vegastack/use-announcer",
+        "@vegastack/use-modal-inert"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/file-viewer.tsx",
+          "type": "registry:ui",
+          "target": "@ui/file-viewer.tsx"
+        },
+        {
+          "path": "packages/ui/registry/ui/file-viewer-pdf.tsx",
+          "type": "registry:ui",
+          "target": "@ui/file-viewer-pdf.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "Opening stored files full screen from attachment tiles, a product's files or a gallery — images to zoom, PDFs to read, anything else to download.",
+        "whenNotToUse": "Video or audio playback (VideoPlayer, AudioPlayer), or a general-purpose modal (Dialog).",
+        "version": "0.23.57",
+        "integrity": "sha256-PA9VtahbixDhY8/gJcKzDE6ObfGVMeOcl7rpgKs/HL4="
+      }
+    },
+    {
       "name": "image",
       "type": "registry:ui",
       "title": "Image",
@@ -16005,7 +16047,7 @@
         "whenToUse": "Heterogeneous key→value panes (record details, metadata sidebars).",
         "whenNotToUse": "Homogeneous collections (DataList/Table) or form editing (Field).",
         "version": "0.23.60",
-        "integrity": "sha256-9qljnxIPQG2NAs6YkD5nZ/LK6O6+4G4Ztz1C7XCjIxg="
+        "integrity": "sha256-tGUYYQrihfp9v0NQXfvVeGX55FONnaypWWHs5cWZ0lM="
       }
     },
     {

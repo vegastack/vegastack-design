@@ -1,14 +1,14 @@
 {
   "schemaVersion": 1,
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "2c36da41fa9b194579722ad4f51a8a4730d6a7c70ee4e15374cb2f12dc47ab85",
+  "contractSha256": "fbbaa20c9fb023269afb6643de909fff0d544d3f43735ae39f12c0d145b850f2",
   "inventory": {
-    "expected": 695,
-    "actual": 695,
-    "unique": 695
+    "expected": 696,
+    "actual": 696,
+    "unique": 696
   },
   "classes": {
-    "components": 132,
+    "components": 133,
     "animatedIcons": 467,
     "hooks": 13,
     "blocks": 11,
@@ -105,8 +105,8 @@
       ]
     },
     "Overlays": {
-      "expected": 14,
-      "actual": 14,
+      "expected": 15,
+      "actual": 15,
       "members": [
         "action-bar",
         "alert-dialog",
@@ -115,6 +115,7 @@
         "drawer",
         "dropdown-menu",
         "emoji-picker",
+        "file-viewer",
         "hover-card",
         "popover",
         "provider",
@@ -774,7 +775,7 @@
       ]
     }
   },
-  "componentRoutes": 129,
+  "componentRoutes": 130,
   "blockRoutes": 18,
   "modeledExemptions": 3
 }

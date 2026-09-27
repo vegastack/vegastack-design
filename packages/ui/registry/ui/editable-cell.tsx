@@ -1,4 +1,4 @@
-// @vegastack editable-cell@0.23.60 sha256-+9OYzYMDKBdJK4x52P5Y7VV0GHkvgO9EolJkvOr2ArI=
+// @vegastack editable-cell@0.23.60 sha256-OnAzENumS6ZAJXkGuOXxRsKGtEChpB9Mq5SjxGG5ayQ=
 
 "use client";
 
@@ -49,7 +49,7 @@ Deliberately NOT done here:
 - No focus registry. `focusMode="managed"` only removes this cell's own tab stop
   (`tabIndex -1` on the display) and hands edit-mode control to the host via
   `editing`/`onEditingChange`; the roving model itself belongs to the grid.
-- No built-in date/actor/currency editors. `text` and `select` cover the common cases;
+- No built-in date/actor/currency editors. `text`, `number` and `select` cover the common cases;
   everything else plugs in through the open `custom` editor contract, because real
   editors beyond these two are app vocabularies (the platform's are status/priority/
   assignee pickers), not design-system chrome.
@@ -67,12 +67,27 @@ export interface EditableCellEditorProps {
 
 /**
  * Which editor the cell opens. `text` edits in place via the internal text leaf;
- * `select` renders a `Select` whose popover is the editor; `custom` is the open
+ * `number` edits the same way with a decimal keyboard, shows `1,234 mm` (the value stays a string,
+ * formatted with `toLocaleString`, the unit muted after it) and refuses a draft that is not a
+ * number or falls outside `min`/`max` — the field stays open, `aria-invalid`, with the draft kept;
+ * an empty draft commits `""`. `select` renders a `Select` whose popover is the editor; `custom` is the open
  * registry — any app editor (date, actor, currency, multi-select) plugs in by
  * rendering its own control against the same commit/cancel contract.
  */
 export type EditableCellEditor =
   | { type: "text"; placeholder?: string }
+  | {
+      type: "number";
+      /** A unit shown muted after the value and inside the edit box, e.g. `"mm"`. */
+      unit?: string;
+      /** The smallest value that commits. */
+      min?: number;
+      /** The largest value that commits. */
+      max?: number;
+      /** The step the value is expected in; a draft off the step does not commit. */
+      step?: number;
+      placeholder?: string;
+    }
   | {
       type: "select";
       options: readonly { value: string; label: string }[];
@@ -233,6 +248,26 @@ export interface EditableCellProps {
 }
 
 /* ------------------------------------------------------------------------------------------------
+ * Number editor helpers
+ * ----------------------------------------------------------------------------------------------*/
+
+/** A typed number with its grouping (`1,234`, `1 234`) removed; `null` when it is not a number. */
+function parseNumber(draft: string): number | null {
+  const plain = draft.replace(/[\s,_]/g, "");
+  if (!/^[-+]?(\d+\.?\d*|\.\d+)$/.test(plain)) return null;
+  const n = Number(plain);
+  return Number.isFinite(n) ? n : null;
+}
+
+/** `1234.5` → `1,234.5` in the reader's locale; a value that is not a number shows as typed. */
+function formatNumber(value: string): string {
+  const n = parseNumber(value);
+  return n === null
+    ? value
+    : n.toLocaleString(undefined, { maximumFractionDigits: 20 });
+}
+
+/* ------------------------------------------------------------------------------------------------
  * InlineTextEditor — the click-to-edit text leaf (internal)
  * ----------------------------------------------------------------------------------------------*/
 
@@ -275,6 +310,17 @@ interface InlineTextEditorProps {
    * idle and editing alike, and only the hover tint marks it editable.
    */
   bare?: boolean;
+  /** The field's `inputMode` (`decimal` for the number editor). */
+  inputMode?: React.HTMLAttributes<HTMLElement>["inputMode"];
+  /** Muted text after the value in both modes — the number editor's unit. */
+  suffix?: string;
+  /**
+   * Checked before a commit: returning `false` keeps the field open with the draft and
+   * `aria-invalid` set, and calls `onInvalid`.
+   */
+  validate?: (draft: string) => boolean;
+  /** Called when a commit was refused by `validate`. */
+  onInvalid?: (draft: string) => void;
 }
 
 /**
@@ -288,7 +334,7 @@ const bareBoxClasses = "rounded-sm";
 
 /** The field laid over the text: no chrome, inherits every type property from the box. */
 const fieldClasses =
-  "absolute inset-0 block size-full max-w-none min-w-0 resize-none appearance-none overflow-hidden rounded-none border-0 bg-transparent [color:inherit] [font:inherit] [letter-spacing:inherit] [text-align:inherit] [text-transform:inherit] shadow-none outline-none placeholder:text-muted-foreground";
+  "absolute inset-0 block size-full max-w-none min-w-0 resize-none appearance-none overflow-hidden rounded-none border-0 bg-transparent [color:inherit] [font:inherit] [letter-spacing:inherit] [text-align:inherit] [text-transform:inherit] shadow-none outline-none placeholder:text-muted-foreground aria-invalid:text-destructive-text";
 
 /**
  * The text leaf: a value rendered as plain text with a hover tint; click, <kbd>Enter</kbd> or
@@ -314,6 +360,10 @@ function InlineTextEditor({
   onNavigate,
   tooltip,
   bare = false,
+  inputMode,
+  suffix,
+  validate,
+  onInvalid,
 }: InlineTextEditorProps) {
   const box = bare ? bareBoxClasses : boxClasses;
   // `readOnly` folds into the hook's `disabled` because both mean the same thing to the machine:
@@ -340,16 +390,38 @@ function InlineTextEditor({
   const truncated = !wrapping && !isEditing && overflowing && hasDisplayValue;
   const interactive = !readOnly && !isEditing;
 
+  // A refused commit (the number editor's validation) keeps the field open with its draft.
+  const [invalid, setInvalid] = React.useState(false);
+  React.useEffect(() => {
+    if (!isEditing) setInvalid(false);
+  }, [isEditing]);
+  const accepts = (draft: string) => {
+    if (!validate || validate(draft.trim())) return true;
+    setInvalid(true);
+    onInvalid?.(draft.trim());
+    return false;
+  };
+
   const onFieldKeyDown = (event: React.KeyboardEvent) => {
     if (onNavigate && !event.nativeEvent?.isComposing) {
       const isTab = event.key === "Tab";
       const isEnter = event.key === "Enter" && !multiline;
       if (isTab || isEnter) {
         event.preventDefault();
+        if (!accepts(edit.draft)) return;
         edit.commit();
         onNavigate(event.shiftKey ? "previous" : "next");
         return;
       }
+    }
+    if (
+      event.key === "Enter" &&
+      (!multiline || event.metaKey || event.ctrlKey) &&
+      !event.nativeEvent?.isComposing &&
+      !accepts(edit.draft)
+    ) {
+      event.preventDefault();
+      return;
     }
     edit.onKeyDown(event);
   };
@@ -359,7 +431,11 @@ function InlineTextEditor({
     "aria-label": name === "value" ? "Edit value" : name,
     value: edit.draft,
     placeholder,
-    onBlur: edit.commit,
+    inputMode,
+    "aria-invalid": invalid || undefined,
+    onBlur: () => {
+      if (accepts(edit.draft)) edit.commit();
+    },
     onKeyDown: onFieldKeyDown,
     // The field covers the whole box and carries the box's padding, so the pointer target is the
     // full box and the caret starts exactly where the text did.
@@ -376,7 +452,13 @@ function InlineTextEditor({
       tabIndex={interactive ? (disabled ? -1 : tabIndex) : undefined}
       aria-disabled={disabled && !readOnly ? true : undefined}
       aria-label={interactive ? `Edit ${name}` : undefined}
-      aria-describedby={interactive && hasDisplayValue ? textId : undefined}
+      aria-describedby={
+        interactive && hasDisplayValue
+          ? suffix
+            ? `${textId} ${textId}-unit`
+            : textId
+          : undefined
+      }
       title={truncated ? value : interactive ? tooltip : undefined}
       data-truncated={truncated ? "" : undefined}
       onClick={
@@ -447,6 +529,18 @@ function InlineTextEditor({
             ? (display ?? value)
             : displayFallback}
       </span>
+      {/* The unit follows the text in both modes. While editing it sits under the transparent
+          field, right after the invisible sizer that holds the draft — so it trails the caret. */}
+      {suffix && (isEditing || hasDisplayValue) ? (
+        <span
+          id={`${textId}-unit`}
+          data-slot="editable-cell-unit"
+          aria-hidden={isEditing ? true : undefined}
+          className="shrink-0 ps-1 whitespace-pre text-muted-foreground"
+        >
+          {suffix}
+        </span>
+      ) : null}
       {isEditing ? (
         wrapping ? (
           <textarea
@@ -460,7 +554,11 @@ function InlineTextEditor({
             ref={edit.editRef}
             type="text"
             {...fieldProps}
-            onChange={(event) => edit.setDraft(event.target.value)}
+            onChange={(event) => {
+              edit.setDraft(event.target.value);
+              if (invalid && validate?.(event.target.value.trim()))
+                setInvalid(false);
+            }}
           />
         )
       ) : null}
@@ -687,6 +785,7 @@ export function EditableCell({
     // `text` in both modes; `custom` while displaying. For `custom`, the text leaf stays in
     // display mode (`editing={false}`) and its activation only raises our edit state.
     const isCustom = editor.type === "custom";
+    const number = editor.type === "number" ? editor : null;
     // A READ-ONLY select cell reads the option's LABEL, like the editable one (2026-09-09).
     const displayText =
       editor.type === "select"
@@ -697,8 +796,51 @@ export function EditableCell({
       <InlineTextEditor
         value={displayText}
         label={label}
-        placeholder={editor.type === "text" ? editor.placeholder : undefined}
-        onCommit={handleCommit}
+        placeholder={
+          editor.type === "text" || editor.type === "number"
+            ? editor.placeholder
+            : undefined
+        }
+        onCommit={
+          number
+            ? (next) => {
+                const n = parseNumber(next);
+                handleCommit(next === "" || n === null ? "" : String(n));
+              }
+            : handleCommit
+        }
+        inputMode={number ? "decimal" : undefined}
+        suffix={number?.unit}
+        validate={
+          number
+            ? (draft) => {
+                if (draft === "") return true;
+                const n = parseNumber(draft);
+                if (n === null) return false;
+                if (number.min !== undefined && n < number.min) return false;
+                if (number.max !== undefined && n > number.max) return false;
+                if (number.step !== undefined && number.step > 0) {
+                  const steps = (n - (number.min ?? 0)) / number.step;
+                  if (Math.abs(steps - Math.round(steps)) > 1e-9) return false;
+                }
+                return true;
+              }
+            : undefined
+        }
+        onInvalid={
+          number
+            ? () =>
+                setAnnouncement(
+                  number.min !== undefined && number.max !== undefined
+                    ? `Enter a number from ${number.min} to ${number.max}`
+                    : number.min !== undefined
+                      ? `Enter a number of at least ${number.min}`
+                      : number.max !== undefined
+                        ? `Enter a number of at most ${number.max}`
+                        : "Enter a number",
+                )
+            : undefined
+        }
         editing={isCustom ? false : isEditing}
         onEditingChange={(next) => {
           if (next) setEditingState(true);
@@ -708,7 +850,11 @@ export function EditableCell({
         disabled={disabled}
         readOnly={readOnly}
         display={
-          renderValue && displayValue ? renderValue(displayValue) : undefined
+          renderValue && displayValue ? (
+            renderValue(displayValue)
+          ) : number && displayValue ? (
+            <span className="tabular-nums">{formatNumber(displayValue)}</span>
+          ) : undefined
         }
         wrap={wrap || variant === "heading"}
         multiline={multiline}

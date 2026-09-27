@@ -1,0 +1,193 @@
+---
+title: File Viewer
+description: A full-screen dark overlay for stored files — zoomable images, pdf.js pages, and a download card for everything else — paged with arrows, buttons or a swipe.
+audience: public
+registry: file-viewer
+status: stable
+since: 0.23.61
+a11y: named dialog, announced paging, focus returns
+preview: fileViewer
+---
+
+## Install
+
+<InstallSteps name="file-viewer" />
+
+The item installs `pdfjs-dist` (`^6.3.289`). It is imported only when a PDF is shown, so an app
+that never passes `pdfSrc` never downloads pdf.js. The worker is served from your own origin: the
+PDF part creates it with `new Worker(new URL("pdfjs-dist/build/pdf.worker.min.mjs", import.meta.url), { type: "module" })`,
+which Next.js and Vite emit as a same-origin asset.
+
+## Usage
+
+```tsx
+import { FileViewer, type FileViewerItem } from "@/components/ui/file-viewer";
+
+const [index, setIndex] = React.useState<number | null>(null);
+
+<FileViewer
+  items={files}
+  index={index}
+  onIndexChange={setIndex}
+  onOpenChange={(open) => !open && setIndex(null)}
+/>;
+```
+
+Each item carries resolved URLs — the viewer fetches nothing it is not handed:
+
+```ts
+const item: FileViewerItem = {
+  id: file.id,
+  name: file.name,
+  contentType: file.contentType,
+  size: file.size,
+  thumb: { src: file.url480, srcSet: file.srcset, blur: file.blur },
+  src: file.url1920, // full-size image; falls back to thumb.src
+  srcSet: file.srcsetFull, // falls back to thumb.srcSet
+  pdfSrc: file.inlineUrl, // PDFs: inline disposition, range requests
+  downloadHref: file.downloadUrl,
+};
+```
+
+## Scope
+
+| Behaviour                       | Where it lives                                                                                  |
+| ------------------------------- | ----------------------------------------------------------------------------------------------- |
+| Which file is open, and closing | Host — `index` is controlled; `onOpenChange(false)` means set it to null                        |
+| Signing or resolving URLs       | Host — pass `src`, `srcSet`, `pdfSrc` and `downloadHref` ready to use                           |
+| Video and audio playback        | [`VideoPlayer`](/docs/components/video-player) / [`AudioPlayer`](/docs/components/audio-player) |
+| The tiles that open it          | [`Attachment`](/docs/components/attachment), a thumbnail grid, any button                       |
+
+## Anatomy
+
+<Anatomy name="file-viewer" />
+
+`FileViewerPdf` is the lazily loaded PDF stage `FileViewer` renders for a PDF item; it ships in
+the same item and is not used on its own.
+
+## Examples
+
+### Image gallery
+
+Images open fit to the screen. The item's `thumb.blur` (or the thumb itself) fills the image's
+box, blurred, and the full image fades in over it; `srcSet` with `sizes="100vw"` lets the browser
+pick the largest variant the screen needs, and the neighbouring images are preloaded so paging is
+instant. Double-click or double-tap zooms to 2.5× at the pointer, a pinch or ⌘/Ctrl + scroll
+zooms freely, a drag pans while zoomed, and <kbd>+</kbd> / <kbd>−</kbd> / <kbd>0</kbd> zoom in,
+out and back to fit. ←/→ or the side buttons page (the buttons show on a mouse or trackpad); on a
+phone a swipe left or right pages and a swipe down closes.
+
+<ComponentPreview name="fileViewer" file="components/preview/file-viewer.tsx" />
+
+### PDF
+
+A PDF with a `pdfSrc` renders with pdf.js, loaded the first time a PDF is shown. It loads with
+range requests (64 KB chunks, no background fetch), so a large file opens at page 1 without
+downloading the rest. Pages render into canvases at the screen's pixel ratio, fit to the width,
+in a vertical scroller; only the current page and two either side hold a canvas. The toolbar
+zooms out, in and back to fit width, and shows "Page 2 of 3". While the document loads, the
+item's thumb (a PDF's preview image) or a spinner shows; if it cannot load, the file card below
+takes its place.
+
+<ComponentPreview
+  name="fileViewerPdf"
+  file="components/preview/file-viewer.tsx"
+/>
+
+### Other files
+
+Anything that is not an image or a PDF — or an image or PDF with no URL to show — gets a card:
+the file-type icon, the name, the size ("2.4 MB") and a Download button.
+
+<ComponentPreview
+  name="fileViewerOther"
+  file="components/preview/file-viewer.tsx"
+/>
+
+### Single file
+
+With one item there is no "1 of 1" and no paging buttons.
+
+<ComponentPreview
+  name="fileViewerSingle"
+  file="components/preview/file-viewer.tsx"
+/>
+
+### From attachment tiles
+
+`AttachmentTrigger` renders a `<button>` that covers the tile, so an `onClick` that sets the index
+is all it takes — no `render` link. Focus returns to the tile that opened the viewer when it
+closes.
+
+```tsx
+<AttachmentGroup>
+  {files.map((file, i) => (
+    <Attachment key={file.id} orientation="vertical">
+      <AttachmentMedia variant="image">
+        <img src={file.thumb?.src} alt="" />
+      </AttachmentMedia>
+      <AttachmentContent>
+        <AttachmentTitle>{file.name}</AttachmentTitle>
+      </AttachmentContent>
+      <AttachmentTrigger
+        aria-label={`Open ${file.name}`}
+        onClick={() => setIndex(i)}
+      />
+    </Attachment>
+  ))}
+</AttachmentGroup>
+```
+
+<ComponentPreview
+  name="fileViewerAttachments"
+  file="components/preview/file-viewer.tsx"
+/>
+
+## API Reference
+
+<ApiTable
+  path="../../packages/ui/registry/ui/file-viewer.tsx"
+  name="FileViewerProps"
+/>
+
+### FileViewerItem
+
+| Field          | Type                                                              | Notes                                                                  |
+| -------------- | ----------------------------------------------------------------- | ---------------------------------------------------------------------- |
+| `id`           | `string`                                                          | Stable id; zoom and scroll reset when it changes.                      |
+| `name`         | `string`                                                          | The dialog's title and the image's alt text.                           |
+| `contentType`  | `string \| null`                                                  | `image/*` → image, `application/pdf` → PDF, anything else → file card. |
+| `size`         | `number \| null`                                                  | Bytes, shown on the file card.                                         |
+| `thumb`        | `{ src: string; srcSet?: string; blur?: string \| null } \| null` | The blurred placeholder, and a PDF's loading frame.                    |
+| `src`          | `string \| null`                                                  | Full-size image; falls back to `thumb.src`.                            |
+| `srcSet`       | `string \| null`                                                  | Full-size srcset; falls back to `thumb.srcSet`.                        |
+| `pdfSrc`       | `string \| null`                                                  | Inline-disposition, range-capable PDF URL.                             |
+| `downloadHref` | `string`                                                          | The Download link's URL.                                               |
+
+## Accessibility
+
+- A modal dialog named by the file name; everything behind it is inert. Focus moves into the
+  viewer when it opens and returns to the element that opened it when it closes.
+- Paging announces the destination through a polite live region — "Image 3 of 12", "PDF 4 of
+  12", "File 5 of 12". Opening does not announce: the dialog's name already says which file.
+- The icon buttons are named (`Download {name}`, "Close", "Previous file", "Next file", "Zoom
+  in", "Zoom out", "Fit to width"); on a touch screen they grow to 44px.
+- Each rendered PDF page is an image named `{name}, page N`.
+- Motion (the zoom easing, the fade) collapses under reduced motion.
+
+| Key                         | Action                              |
+| --------------------------- | ----------------------------------- |
+| <kbd>←</kbd> / <kbd>→</kbd> | Previous / next file.               |
+| <kbd>+</kbd> / <kbd>−</kbd> | Zoom the image or PDF in / out.     |
+| <kbd>0</kbd>                | Back to fit (fit width for a PDF).  |
+| <kbd>Esc</kbd>              | Close and return focus.             |
+| <kbd>Tab</kbd>              | Move between the viewer's controls. |
+
+<StatesTested name="file-viewer" />
+
+## Do / Don't
+
+<DoDont
+  do="Open it from the tiles or thumbnails of stored files, handing it every file in the set so the user can page through them."
+  dont="Use it to play video or audio, or as a general-purpose modal — it is a viewer for files the host has already resolved to URLs."
+/>

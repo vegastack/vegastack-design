@@ -1,7 +1,7 @@
 {
   "_note": "Every name in packages/ui/registry/ui/ that has NO counterpart in vendor/shadcn/<cli>/ui/. verify-parity.mjs fails on a registry name that is neither upstream-backed nor listed here, so a component cannot appear by accident. Dispositions come from docs/plans/2026-09-18-shadcn-reset/extras.md (66 rows, MK 2026-09-18); hooks and internal parts are not components and are recorded here with their reason.",
   "counts": {
-    "total": 74,
+    "total": 76,
     "fromExtras": 46
   },
   "items": {
@@ -463,6 +463,17 @@
       "family": "form",
       "source": "Regent product form rebuild, approved by MK 2026-09-27",
       "rationale": "Upstream ships no responsive field grid or inline choice row; a small server-safe composition with no patch."
+    },
+    "file-viewer": {
+      "disposition": "keep",
+      "family": "media",
+      "source": "Operator brief 2026-09-27 (Regent product files viewer) — approved by MK 2026-09-27",
+      "rationale": "Upstream ships no file viewer. A full-screen composition of upstream dialog and button with our image, spinner and use-announcer; the PDF half renders with pdfjs-dist (sanctioned renderer exception, MK 2026-09-27). No patch."
+    },
+    "file-viewer-pdf": {
+      "disposition": "keep",
+      "family": "internal",
+      "source": "internal part of file-viewer (the lazily loaded pdf.js stage); not listed in extras.md. Operator brief 2026-09-27 — approved by MK 2026-09-27"
     }
   }
 }

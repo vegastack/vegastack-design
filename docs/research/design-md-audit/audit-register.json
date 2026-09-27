@@ -2,10 +2,10 @@
   "schemaVersion": 1,
   "kind": "vegastack-zero-gap-audit-register",
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "2c36da41fa9b194579722ad4f51a8a4730d6a7c70ee4e15374cb2f12dc47ab85",
+  "contractSha256": "fbbaa20c9fb023269afb6643de909fff0d544d3f43735ae39f12c0d145b850f2",
   "expectedCounts": {
-    "totalRegistryItems": 695,
-    "components": 132,
+    "totalRegistryItems": 696,
+    "components": 133,
     "animatedIcons": 467,
     "hooks": 13,
     "blocks": 11,
@@ -660,6 +660,18 @@
         "packages/ui/registry/ui/image.tsx"
       ],
       "docsSlug": "/docs/components/image",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "file-viewer",
+      "inventoryClass": "component",
+      "wave": "Overlays",
+      "family": "media",
+      "sourceFiles": [
+        "packages/ui/registry/ui/file-viewer.tsx",
+        "packages/ui/registry/ui/file-viewer-pdf.tsx"
+      ],
+      "docsSlug": "/docs/components/file-viewer",
       "contractStatus": "reconciled"
     },
     {
