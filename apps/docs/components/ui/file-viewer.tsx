@@ -1,4 +1,4 @@
-// @vegastack file-viewer@0.23.63 sha256-f1gq10s9kwDqLkd+nIBue9K3ano/inyi5TmiM7s+FAI=
+// @vegastack file-viewer@0.23.63 sha256-Ur/NOXxKNj1nNx1b69Qf4i4mFcAuhXX9lcC3H9LiLQA=
 
 "use client";
 
@@ -581,7 +581,10 @@ export function FileViewer({
       : kindOf(item)
     : "other";
   const zoomRef = React.useRef<((op: ZoomOp) => void) | null>(null);
-  const popupRef = useModalInert<HTMLDivElement>({});
+  // The popup itself takes focus on open (a `tabindex="-1"` region, so no tint): the default —
+  // the first tabbable, the Download link — would open with it looking hovered.
+  const popupNode = React.useRef<HTMLDivElement | null>(null);
+  const popupRef = useModalInert<HTMLDivElement>({ ref: popupNode });
   const { announce, Announcer } = useAnnouncer();
 
   const go = React.useCallback(
@@ -672,7 +675,7 @@ export function FileViewer({
           ref={popupRef}
           data-slot="file-viewer"
           data-kind={kind}
-          initialFocus={true}
+          initialFocus={popupNode}
           onKeyDown={onKeyDown}
           className="dark fixed inset-0 z-50 flex flex-col bg-background text-foreground outline-none duration-100 data-open:animate-in data-open:fade-in-0 data-closed:animate-out data-closed:fade-out-0"
         >
@@ -753,13 +756,15 @@ export function FileViewer({
 
             {count > 1 ? (
               <>
+                {/* Centred with `inset-y-0 my-auto`, not a translate: the button's press
+                    `translate-y-px` shares `translate` and would drop it by half its height. */}
                 <Button
                   variant="secondary"
                   size="icon-lg"
                   aria-label="Previous file"
                   disabled={current === 0}
                   onClick={() => go(-1)}
-                  className="absolute start-[calc(var(--spacing)*3+env(safe-area-inset-left))] top-1/2 hidden -translate-y-1/2 rounded-full pointer-fine:inline-flex"
+                  className="absolute start-[calc(var(--spacing)*3+env(safe-area-inset-left))] inset-y-0 my-auto hidden rounded-full pointer-fine:inline-flex"
                 >
                   <ChevronLeftIcon className="rtl:rotate-180" />
                 </Button>
@@ -769,7 +774,7 @@ export function FileViewer({
                   aria-label="Next file"
                   disabled={current === count - 1}
                   onClick={() => go(1)}
-                  className="absolute end-[calc(var(--spacing)*3+env(safe-area-inset-right))] top-1/2 hidden -translate-y-1/2 rounded-full pointer-fine:inline-flex"
+                  className="absolute end-[calc(var(--spacing)*3+env(safe-area-inset-right))] inset-y-0 my-auto hidden rounded-full pointer-fine:inline-flex"
                 >
                   <ChevronRightIcon className="rtl:rotate-180" />
                 </Button>
