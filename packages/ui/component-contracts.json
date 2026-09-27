@@ -22552,6 +22552,7 @@
         "@vegastack/button",
         "@vegastack/checkbox",
         "@vegastack/copy-button",
+        "@vegastack/dropdown-menu",
         "@vegastack/input",
         "@vegastack/markdown-view",
         "@vegastack/native-select",
