@@ -9,6 +9,19 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.23.51] — September 27, 2026
+
+<!-- assembled from 1 changeset: 13f91178db53 -->
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.23.50 → 0.23.51.
+
+### 🐛 Fixed
+
+- Photos show instantly. `PersonAvatar` now renders the photo as a plain `<img>` in the server HTML, layered over the initials, instead of Base UI's `AvatarImage` (which mounts its `<img>` only after a JS loader reports it loaded) — so the browser fetches it from the markup and a cached photo is there on first paint, with no flash of initials; the initials come back if the photo fails. `Image` no longer hides a server-rendered image until hydration: it paints as soon as it decodes, and only a client-mounted image that has not loaded yet fades in; a load or error that fired before hydration is read from the element. New `priority` prop on `Image` (`loading="eager"` + `fetchPriority="high"`) for above-the-fold images.
+  [`8d620f5`](https://github.com/VegaStack/vegastack-design/commit/8d620f5)
+
 ## [0.23.50] — September 27, 2026
 
 <!-- assembled from 1 changeset: 4ed6f8110b59 -->
