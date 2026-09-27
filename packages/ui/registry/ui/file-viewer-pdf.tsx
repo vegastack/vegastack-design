@@ -1,4 +1,4 @@
-// @vegastack file-viewer@0.23.63 sha256-f1gq10s9kwDqLkd+nIBue9K3ano/inyi5TmiM7s+FAI=
+// @vegastack file-viewer@0.23.63 sha256-Ur/NOXxKNj1nNx1b69Qf4i4mFcAuhXX9lcC3H9LiLQA=
 
 "use client";
 
@@ -18,7 +18,8 @@ The document loads with range requests (`rangeChunkSize` 64 KB, `disableAutoFetc
 page 1 of a 40 MB drawing set fetches the first chunks, not the file. Pages render into canvases
 at `devicePixelRatio` in a vertical scroller, windowed: only the current page and two either side
 hold a canvas; the rest are placeholders sized from page 1, so the scrollbar is right from the
-start. Fit-width is zoom 1; the toolbar and +/−/0 step it.
+start. Fit-width is zoom 1 — the scroller's width, capped at a reader's page width (920px) so a
+wide screen shows the page centred on the dark stage; the toolbar and +/−/0 step it from there.
 --- */
 
 /** Props for the lazily loaded PDF stage. Internal to `FileViewer`. */
@@ -39,6 +40,8 @@ const ZOOM_STEPS = [0.5, 0.75, 1, 1.25, 1.5, 2, 3, 4] as const;
 const PAGE_GAP = 16;
 const PAD = 16;
 const WINDOW = 2;
+/** Fit-width stops at a reader's page width: a wide screen shows the page centred on the dark stage. */
+const MAX_FIT_WIDTH = 920;
 
 /**
  * `FileViewerPdf` — windowed canvas pages, fit-width by default, with a zoom toolbar and a
@@ -125,7 +128,10 @@ export function FileViewerPdf({
     };
   }, [zoomRef, step]);
 
-  const fit = doc && width ? Math.max(0.1, (width - PAD * 2) / doc.width) : 0;
+  const fit =
+    doc && width
+      ? Math.max(0.1, Math.min(width - PAD * 2, MAX_FIT_WIDTH) / doc.width)
+      : 0;
   const scale = fit * zoom;
   const pageWidth = doc ? doc.width * scale : 0;
   const pageHeight = doc ? doc.height * scale : 0;

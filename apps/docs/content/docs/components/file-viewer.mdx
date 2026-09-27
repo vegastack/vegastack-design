@@ -83,9 +83,10 @@ phone a swipe left or right pages and a swipe down closes.
 
 A PDF with a `pdfSrc` renders with pdf.js, loaded the first time a PDF is shown. It loads with
 range requests (64 KB chunks, no background fetch), so a large file opens at page 1 without
-downloading the rest. Pages render into canvases at the screen's pixel ratio, fit to the width,
-in a vertical scroller; only the current page and two either side hold a canvas. The toolbar
-zooms out, in and back to fit width, and shows "Page 2 of 3". While the document loads, the
+downloading the rest. Pages render into canvases at the screen's pixel ratio, fit to the width
+up to a reader's page width (920px) — on a wide screen the page sits centred on the dark stage,
+on a phone it fills the width — in a vertical scroller; only the current page and two either
+side hold a canvas. The toolbar zooms out, in and back to fit width, and shows "Page 2 of 3". While the document loads, the
 item's thumb (a PDF's preview image) or a spinner shows; if it cannot load, the file card below
 takes its place.
 
@@ -166,8 +167,9 @@ closes.
 
 ## Accessibility
 
-- A modal dialog named by the file name; everything behind it is inert. Focus moves into the
-  viewer when it opens and returns to the element that opened it when it closes.
+- A modal dialog named by the file name; everything behind it is inert. Focus moves to the
+  viewer itself when it opens (no control looks pressed; Tab reaches them) and returns to the
+  element that opened it when it closes.
 - Paging announces the destination through a polite live region — "Image 3 of 12", "PDF 4 of
   12", "File 5 of 12". Opening does not announce: the dialog's name already says which file.
 - The icon buttons are named (`Download {name}`, "Close", "Previous file", "Next file", "Zoom
