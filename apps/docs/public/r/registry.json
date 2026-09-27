@@ -538,7 +538,7 @@
       "name": "board",
       "type": "registry:ui",
       "title": "Board",
-      "description": "Kanban lanes — full-height lanes that scroll their cards inside, sticky headers with a collapse button left of the ⋯ menu, transparent lanes, + Add at each lane's foot, Nothing here / Drop here empty zones, per-lane skeletons and load-on-scroll paging; live pointer and touch drag (lift, make room, settle, edge auto-scroll), a keyboard pick-up/move/drop model, a per-card ⋯ menu of the card's own actions, optimistic moves with rollback and a toast, and one lane at a time on a phone.",
+      "description": "Kanban lanes — full-height lanes that scroll their cards inside, sticky headers with a collapse button left of the ⋯ menu, a subtle top-down fade on each lane, + Add after the last card (the empty lane's action when it has none), Nothing here / Drop here empty zones, per-lane skeletons and load-on-scroll paging; live pointer and touch drag (lift, make room, settle, edge auto-scroll), a keyboard pick-up/move/drop model, a per-card ⋯ menu of the card's own actions, optimistic moves with rollback and a toast, and one lane at a time on a phone.",
       "categories": [
         "layout"
       ],
@@ -574,7 +574,7 @@
         "whenToUse": "Cross-column card movement — pipelines, kanban, staged workflows — where the host owns ordering and the move can be refused by a server gate; lanes may be partially loaded (count shows the total) and cards may be links to their records.",
         "whenNotToUse": "Single-list reordering (sortable-list), tabular data (data-list/data-grid), or static column layouts with no movement (plain Cards in a flex row).",
         "version": "0.23.49",
-        "integrity": "sha256-2FCPpS0aQ3Yx+ueETAMxhp8cdZUQznB0tbImGkQ3n9I="
+        "integrity": "sha256-rANBh9Cs60Q4umUzQMLz52bKCwqagjM8YBl9BKI04XY="
       }
     },
     {
@@ -1271,7 +1271,7 @@
         "whenToUse": "A list of records as a table, a card grid or board lanes (view) with typed columns, selection, click-to-sort, loading/empty states, keyset paging through loadMore, rows as links, sections, thumbnails and a row-actions column.",
         "whenNotToUse": "Full-parity grids with grouping/editing/virtualization (DataGrid), or a simple static table (Table).",
         "version": "0.23.49",
-        "integrity": "sha256-NhS2ExqQCmFIUqFlxKZNy/L0jF3pZp6e8G7pXPswuFk="
+        "integrity": "sha256-00RD0R1HJS9XaJyF20wouF8rhRZ9TJtV/IVeITNJv9k="
       }
     },
     {

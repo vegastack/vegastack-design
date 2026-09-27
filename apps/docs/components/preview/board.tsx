@@ -466,9 +466,9 @@ function moveTask(
 }
 
 /**
- * The task board: BoardCard content, "+ Add task" at each lane's foot (the host pre-fills the
- * lane's status), a lane collapsible from its header's ⋯ menu, and an empty lane that says
- * "Nothing here" at rest and "Drop here" while a card is dragged.
+ * The task board: BoardCard content, "+ Add task" after each lane's last card (the host pre-fills
+ * the lane's status), a lane collapsible from its header, and an empty lane that says "Nothing
+ * here" with "+ Add task" under it at rest and "Drop here" while a card is dragged.
  */
 export function boardTasks(): ReactNode {
   const [columns, setColumns] = useState(TASKS);
@@ -549,6 +549,26 @@ export function boardFill(): ReactNode {
         onMove={({ id, to }) =>
           setColumns((prev) => moveTask(prev, id, to.container, to.index))
         }
+      />
+    </Wrapper>
+  );
+}
+
+/** Read-only: `readOnly` turns off every move and hides "+ Add"; cards still open. */
+export function boardReadOnly(): ReactNode {
+  return (
+    <Wrapper className="block">
+      <Board<Task>
+        height="26rem"
+        aria-label="Read-only tasks"
+        readOnly
+        columns={TASKS}
+        getItemId={(task) => task.id}
+        getItemLabel={(task) => task.title}
+        renderCard={taskCard}
+        onAdd={() => {}}
+        addLabel="Add task"
+        onMove={() => {}}
       />
     </Wrapper>
   );
