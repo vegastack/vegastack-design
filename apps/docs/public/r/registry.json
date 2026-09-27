@@ -15157,7 +15157,7 @@
         "whenToUse": "Single-line text entry — email, password, search, URL/slug with a domain prefix, numbers, etc.",
         "whenNotToUse": "Multi-line text (use a textarea) or choosing from fixed options (use a select/radio).",
         "version": "0.23.58",
-        "integrity": "sha256-Qvg75JnLMDGAJVBmbdzFu9ApDR0e7Tv7xiLiIxmiPWo="
+        "integrity": "sha256-YI60Ehsi7GMKB4P45cqBjmBQEA6qajc/tPnpJf1yZsg="
       }
     },
     {
