@@ -1,5 +1,11 @@
 # @vegastack/ui
 
+## 0.23.55
+
+### Patch Changes
+
+- [#371](https://github.com/vegastack/vegastack-design/pull/371) [`1dba41b`](https://github.com/vegastack/vegastack-design/commit/1dba41b032533e5e845da8657fb55a92c1fed1d0) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🔧 `SortableList` list rows are as dense as a `DataList`'s — compact padding, 2px between rows (ItemGroup's 10px gap no longer applies), a subtle wash on hover — and the row's ⋯ menu trigger now shows on row hover or focus, while its menu is open, and always on touch, like the ×.
+
 ## 0.23.54
 
 ### Patch Changes

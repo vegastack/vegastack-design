@@ -11,7 +11,7 @@
   "files": [
     {
       "path": "packages/ui/registry/ui/aspect-ratio.tsx",
-      "content": "// @vegastack aspect-ratio@0.23.54 sha256-hd/+cj68EArpL9w/Vs6LTEUCtrILydCz+ntXMM8SobM=\n\nimport { cn } from \"@vegastack/design\";\n\nfunction AspectRatio({\n  ratio,\n  className,\n  ...props\n}: React.ComponentProps<\"div\"> & { ratio: number }) {\n  return (\n    <div\n      data-slot=\"aspect-ratio\"\n      style={\n        {\n          \"--ratio\": ratio,\n        } as React.CSSProperties\n      }\n      className={cn(\"relative aspect-(--ratio)\", className)}\n      {...props}\n    />\n  );\n}\n\nexport { AspectRatio };\n",
+      "content": "// @vegastack aspect-ratio@0.23.55 sha256-1Nb3B/nKKE0H8ZqxPjSUZq+Z27nvvo1cwKpQejZhqVw=\n\nimport { cn } from \"@vegastack/design\";\n\nfunction AspectRatio({\n  ratio,\n  className,\n  ...props\n}: React.ComponentProps<\"div\"> & { ratio: number }) {\n  return (\n    <div\n      data-slot=\"aspect-ratio\"\n      style={\n        {\n          \"--ratio\": ratio,\n        } as React.CSSProperties\n      }\n      className={cn(\"relative aspect-(--ratio)\", className)}\n      {...props}\n    />\n  );\n}\n\nexport { AspectRatio };\n",
       "type": "registry:ui",
       "target": "@ui/aspect-ratio.tsx"
     }
@@ -19,8 +19,8 @@
   "meta": {
     "whenToUse": "Reserve a fixed ratio for media — a video embed, a cover image, a map tile — so the layout does not shift as it loads.",
     "whenNotToUse": "Content whose height must follow its text; use ordinary flow instead.",
-    "version": "0.23.54",
-    "integrity": "sha256-hd/+cj68EArpL9w/Vs6LTEUCtrILydCz+ntXMM8SobM="
+    "version": "0.23.55",
+    "integrity": "sha256-1Nb3B/nKKE0H8ZqxPjSUZq+Z27nvvo1cwKpQejZhqVw="
   },
   "categories": [
     "layout"

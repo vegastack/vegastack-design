@@ -1,4 +1,4 @@
-// @vegastack use-overflow@0.23.54 sha256-zotGrgdRMEYQS2S3V6K7l357tC1cYXt+7d6t0t5VWOI=
+// @vegastack use-overflow@0.23.55 sha256-6AEycGgyPBSxTTwX9YR/67dkMuNC0vYXllF26HosSyk=
 
 "use client";
 
