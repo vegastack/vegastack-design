@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.23.59 sha256-Uv3uTTKEsTaHnwsdzShcWyZdnEMx4MIuSUEvGV1gp0g=
+// @vegastack text-edit@0.23.59 sha256-4etbYB4eoWJDJJRkAgRXqqhMPHY/uAsr9IPuSZlor98=
 
 "use client";
 
@@ -1609,6 +1609,12 @@ function startDrag(
 const GRIP =
   "fixed z-50 flex cursor-grab touch-none items-center justify-center rounded-sm text-muted-foreground/70 hover:bg-muted hover:text-foreground active:cursor-grabbing [&_svg]:size-3.5";
 const DROP_LINE = "pointer-events-none fixed z-50 rounded-full bg-primary";
+/** The block grip's width and its start offset from the text (width + a 3px gap). */
+const HANDLE_WIDTH = 10;
+const HANDLE_GUTTER = HANDLE_WIDTH + 3;
+/** The containers whose padding the block grip stays inside. */
+const HANDLE_FRAME =
+  '[data-slot="dialog-content"],[data-slot="sheet-content"],[data-slot="drawer-content"],[data-slot="popover-content"],[data-slot="card"]';
 
 /**
  * A hover overlay's target: kept while the pointer crosses from the target to the overlay, dropped
@@ -1853,6 +1859,16 @@ function BlockHandle({ editor }: { editor: Editor }) {
   // A bullet or number sits in the list's start padding, outside the item's box; clear it.
   const marker = block.node.type.name === "listItem" ? 20 : 0;
   const lineHeight = Math.min(box.height, 24);
+  // A 10px grip 3px before the text fits the 16px padding of a Dialog, Sheet, Popover or Card,
+  // so the text keeps its column and the grip never meets the container's edge. It is clamped
+  // inside that frame (a boxed editor's own border first) when the padding is narrower.
+  const frame =
+    editor.view.dom.closest('[data-slot="text-edit"][data-variant="boxed"]') ??
+    editor.view.dom.closest(HANDLE_FRAME);
+  const left = Math.max(
+    box.left - marker - HANDLE_GUTTER,
+    frame ? frame.getBoundingClientRect().left + 2 : -Infinity,
+  );
 
   const onPointerDown = (event: React.PointerEvent) => {
     const { siblings } = siblingsOf(editor.view, block.pos);
@@ -1902,9 +1918,9 @@ function BlockHandle({ editor }: { editor: Editor }) {
         onMouseDown={(event) => event.preventDefault()}
         onPointerDown={onPointerDown}
         style={{
-          left: box.left - marker - 22,
+          left,
           top: box.top + lineHeight / 2 - 10,
-          width: 18,
+          width: HANDLE_WIDTH,
           height: 20,
         }}
         className={GRIP}
