@@ -1,4 +1,4 @@
-// @vegastack menubar@0.23.58 sha256-UVj3ykmlyD/W6gHBgnPA/pwCS/7OArhAT752guNDp5k=
+// @vegastack menubar@0.23.59 sha256-WgLjyMj0St4ghnFkeSNXvehjhLy+HlV9vRk2XG7vpjA=
 
 "use client";
 
