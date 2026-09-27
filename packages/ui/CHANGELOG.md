@@ -1,5 +1,16 @@
 # @vegastack/ui
 
+## 0.23.65
+
+### Patch Changes
+
+- [#392](https://github.com/vegastack/vegastack-design/pull/392) [`fc926dc`](https://github.com/vegastack/vegastack-design/commit/fc926dce2c0c1d60c5041f9db855e8a8b9dea454) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🐛 Inline-edit fields paint no fill: `EditableCell` values and the ghost `Input` (a dialog's title) no longer tint on hover — at rest, on hover and while editing they are transparent, and the text cursor is the affordance. Keyboard focus on a resting `EditableCell` keeps the system focus tint. Text alignment and hit areas are unchanged; picker pills and menus keep their button hover.
+
+- [#392](https://github.com/vegastack/vegastack-design/pull/392) [`fc926dc`](https://github.com/vegastack/vegastack-design/commit/fc926dce2c0c1d60c5041f9db855e8a8b9dea454) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🔧 `TextEdit` and `MarkdownView` tables are Notion's simple table: a rounded outer border, a rule between every cell, and a header row on a muted ground at medium weight — the same `prose.table` styles in the read view and the editor. The floating table toolbar is gone; hovering a table shows a row grip and a column grip (click for a menu — insert, move, duplicate, clear, delete; drag to reorder), a corner grip where every block's handle sits (select the table, clear, delete; drag to move it; header row/column toggles in HTML), and "+" bars that add a row or column at the end. Column borders drag to resize. `Shift+F10` opens the menu from the keyboard, Tab in the last cell adds a row, and markdown round-trips unchanged. The stray block handle over a table is gone.
+
+- Updated dependencies [[`fc926dc`](https://github.com/vegastack/vegastack-design/commit/fc926dce2c0c1d60c5041f9db855e8a8b9dea454)]:
+  - @vegastack/design@0.7.54
+
 ## 0.23.64
 
 ### Patch Changes
