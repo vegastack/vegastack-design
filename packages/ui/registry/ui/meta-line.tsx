@@ -1,4 +1,4 @@
-// @vegastack meta-line@0.23.51 sha256-ohQZk3cKTNcl7Y0JYgcRJGsuzCZCaYdYjTjWufNTRoA=
+// @vegastack meta-line@0.23.52 sha256-Xvb9Tr7Ax11vyZFR8mQQknqzyGrV6slYsEUpJDC/CBw=
 
 import * as React from "react";
 import { cn } from "@vegastack/design";

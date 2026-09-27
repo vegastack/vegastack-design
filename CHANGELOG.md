@@ -9,6 +9,19 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.23.52] — September 27, 2026
+
+<!-- assembled from 1 changeset: 13d34c8595b5 -->
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.23.51 → 0.23.52.
+
+### 🐛 Fixed
+
+- `MediaCard`'s `badge` now sits beside the title, where `DataList`'s list view puts a pill, instead of in the meta line — a long title truncates before it and the badge never shrinks; the meta line is just `meta` and `timestamp`. The record title has one weight in the grid and the list: `DataList`'s first column is now `font-medium`, the grid card's title weight, through a shared `RECORD_TITLE_CLASS` exported from `media-card`; merged values under it stay regular. Docs show the badge variants (with, without, long title) and the grid and list side by side.
+  [`747476d`](https://github.com/VegaStack/vegastack-design/commit/747476d)
+
 ## [0.23.51] — September 27, 2026
 
 <!-- assembled from 1 changeset: 13f91178db53 -->
