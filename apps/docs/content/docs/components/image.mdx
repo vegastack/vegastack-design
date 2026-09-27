@@ -62,8 +62,10 @@ proportions (use `square`/`video` instead when you need a fixed, shift-free aspe
 
 ### States
 
-- **Loading** — a `bg-muted` skeleton pulses over the frame until the image decodes; the image
-  fades in on load (`prefers-reduced-motion` suppresses the pulse).
+- **Loading** — a `bg-muted` skeleton pulses under the image until it decodes
+  (`prefers-reduced-motion` suppresses the pulse). An image in the server HTML is never hidden: the
+  browser paints it as soon as it decodes, before hydration, and a cached one is there on first
+  paint. Only an image mounted on the client that has not loaded yet fades in.
 - **Loaded** — the image is shown, `object-cover` cropped to the frame.
 - **Error / empty** — when the image fails (or no `src` is given), the `fallback` node renders;
   there is never a broken-image icon.
@@ -84,17 +86,22 @@ proportions (use `square`/`video` instead when you need a fixed, shift-free aspe
 it scrolls near the viewport and its decode never blocks the frame it lands in. A long list of
 thumbnails gets that for free.
 
-Opt out for an above-the-fold hero, where deferring the fetch delays LCP instead of saving it:
+For an above-the-fold image — a detail page's hero, the first row of a grid, anything visible
+without scrolling — pass `priority`. It loads `eager` with `fetchPriority="high"`, so the browser
+fetches it from the HTML ahead of other images instead of deferring it and delaying LCP. Leave it
+off below the fold, where lazy loading is the saving.
 
 ```tsx
-<Image src={hero} alt="" loading="eager" aspectRatio="video" />
+<Image src={hero} alt={product.name} aspectRatio="square" priority />
 ```
+
+An explicit `loading` or `fetchPriority` still wins over `priority`.
 
 ### Placeholder
 
 `placeholder` takes a tiny preview of the image as a data URL (a 16px blur, under 1 KB, stored
 beside the file). It fills the frame as a blurred cover while the image loads — in place of the
-pulsing skeleton — and fades out as the image fades in. `srcSet` and `sizes` pass straight to the
+pulsing skeleton — and fades out once the image has loaded. `srcSet` and `sizes` pass straight to the
 `<img>`, so a stored image can offer its 480w and 1280w variants.
 
 ```tsx

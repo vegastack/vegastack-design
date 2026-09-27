@@ -26154,7 +26154,17 @@
         "preview": "exempt",
         "vrt": "exempt"
       },
-      "dataAttributes": {}
+      "dataAttributes": {
+        "PersonAvatar": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["avatar-image"]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
     }
   ],
   "animatedIcons": {

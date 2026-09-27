@@ -1,4 +1,4 @@
-// @vegastack image@0.23.50 sha256-iWl24um8gLnl9FiatZ/XPpiDmJxxhszFrE6VxZ/XYyw=
+// @vegastack image@0.23.50 sha256-GX+lsXjtvcVKZURCFTAzwf6MljCavXFkgIXtxcAObWI=
 
 "use client";
 
@@ -86,17 +86,30 @@ export interface ImageProps
   /**
    * Native lazy-loading hint. Defaults to `lazy` so an off-screen image costs
    * nothing until it scrolls near the viewport (audit B4-08 — `MarkdownView`
-   * already did this for its images). Pass `eager` for an above-the-fold hero,
-   * where deferring the fetch delays LCP instead of saving it.
+   * already did this for its images). For an above-the-fold image, pass
+   * `priority` instead, which also raises the fetch priority.
    * @default 'lazy'
    */
   loading?: "lazy" | "eager";
+  /**
+   * An above-the-fold image — a detail page's hero, the first row of a grid, anything visible
+   * without scrolling. Loads `eager` with `fetchPriority="high"`, so the browser fetches it from
+   * the HTML ahead of other images instead of deferring it and delaying LCP. Leave it off below
+   * the fold.
+   * @default false
+   */
+  priority?: boolean;
   /**
    * Native decoding hint. `async` keeps decode off the main thread so a large
    * image cannot block the frame it lands in.
    * @default 'async'
    */
   decoding?: "async" | "sync" | "auto";
+}
+
+/** No subscription: `useSyncExternalStore` here only tells a hydrating render from a client one. */
+function subscribeNothing() {
+  return () => {};
 }
 
 /**
@@ -118,6 +131,10 @@ export interface ImageProps
  * <Image src={url} alt="Ada Lovelace" aspectRatio="square" fallback="AL" />
  *
  * @example
+ * // an above-the-fold hero: fetched eagerly at high priority
+ * <Image src={hero.url} alt={product.name} aspectRatio="square" priority />
+ *
+ * @example
  * // a stored image: the 480w variant, a srcset, and its blur preview until it loads
  * <Image src={file.url480} srcSet={file.srcset} sizes="(min-width: 768px) 50vw, 100vw" placeholder={file.blur} alt="" />
  */
@@ -129,8 +146,10 @@ export function Image({
   rounded = "md",
   fallback,
   placeholder,
-  loading = "lazy",
+  loading,
+  priority = false,
   decoding = "async",
+  fetchPriority,
   onLoad,
   onError,
   ref,
@@ -141,18 +160,28 @@ export function Image({
   );
   const imgRef = React.useRef<HTMLImageElement | null>(null);
   const setImgRef = React.useMemo(() => mergeRefs(imgRef, ref), [ref]);
+  // The fade-in is only for an image mounted on the client, where the first paint is ours. An
+  // image in the server HTML is never hidden: the browser paints it as soon as it decodes —
+  // before hydration, and at once when cached — and hiding it until hydration is a flash.
+  const hydrated = React.useSyncExternalStore(
+    subscribeNothing,
+    () => true,
+    () => false,
+  );
+  const [fade] = React.useState(hydrated);
 
-  // Reset load state whenever the source changes. Sync from the element so an already-cached
-  // image (whose `load` may have fired before this passive effect) isn't stuck behind the skeleton.
-  React.useEffect(() => {
+  // Reset load state whenever the source changes, reading the element's own state before paint:
+  // a cached image (or one whose `load`/`error` fired before hydration) resolves at once, with no
+  // fade and no skeleton.
+  React.useLayoutEffect(() => {
     if (!src) {
       setStatus("error");
       return;
     }
     const img = imgRef.current;
-    setStatus(
-      img && img.complete && img.naturalWidth > 0 ? "loaded" : "loading",
-    );
+    if (img && img.complete && img.naturalWidth > 0) setStatus("loaded");
+    else if (img && img.complete && img.currentSrc) setStatus("error");
+    else setStatus("loading");
   }, [src]);
 
   const showFallback = status === "error";
@@ -185,7 +214,8 @@ export function Image({
           data-slot="image-img"
           src={src}
           alt={alt}
-          loading={loading}
+          loading={loading ?? (priority ? "eager" : "lazy")}
+          fetchPriority={fetchPriority ?? (priority ? "high" : undefined)}
           decoding={decoding}
           {...props}
           // The caller's handlers run too; the frame's own state always resolves.
@@ -198,8 +228,9 @@ export function Image({
             onError?.(event);
           }}
           className={cn(
-            "relative size-full object-cover transition-opacity duration-fast ease-standard",
-            status === "loaded" ? "opacity-100" : "opacity-0",
+            "relative size-full object-cover",
+            fade && "transition-opacity duration-fast ease-standard",
+            fade && status !== "loaded" && "opacity-0",
           )}
         />
       ) : null}
