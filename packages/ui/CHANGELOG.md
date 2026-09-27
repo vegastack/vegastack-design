@@ -1,5 +1,13 @@
 # @vegastack/ui
 
+## 0.23.53
+
+### Patch Changes
+
+- [#365](https://github.com/vegastack/vegastack-design/pull/365) [`c2bcdc8`](https://github.com/vegastack/vegastack-design/commit/c2bcdc8b84dcf19cf024ae143b030c8247a03ff0) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🐛 `AudioPlayer` no longer grows while it loads. The "Loading audio…" status row below the controls is gone: while `loading` is set, a lazy `src` resolves, or the media buffers after play, the play button's glyph becomes a spinner of the same size in the same button (`aria-busy`, same accessible name, still pauses). `loadingLabel` is still announced once to screen readers. `MediaPlayerControls` gains the `loading` prop that draws it.
+
+- [#364](https://github.com/vegastack/vegastack-design/pull/364) [`1e89391`](https://github.com/vegastack/vegastack-design/commit/1e893910e6bc8e61ee8236789c0ba82fe3ddac9d) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🐛 `Board`: an empty lane's "+ Add" action is now as wide as its label, centred under "Nothing here" like any `Empty` action, instead of stretching the full lane so its hover background ran far past the text. After the last card it stays a full-width row.
+
 ## 0.23.52
 
 ### Patch Changes

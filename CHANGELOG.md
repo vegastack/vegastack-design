@@ -9,6 +9,21 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.23.53] — September 27, 2026
+
+<!-- assembled from 2 changesets: e56cfbed0a63 -->
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.23.52 → 0.23.53.
+
+### 🐛 Fixed
+
+- `AudioPlayer` no longer grows while it loads. The "Loading audio…" status row below the controls is gone: while `loading` is set, a lazy `src` resolves, or the media buffers after play, the play button's glyph becomes a spinner of the same size in the same button (`aria-busy`, same accessible name, still pauses). `loadingLabel` is still announced once to screen readers. `MediaPlayerControls` gains the `loading` prop that draws it.
+  [`c2bcdc8`](https://github.com/VegaStack/vegastack-design/commit/c2bcdc8)
+- `Board`: an empty lane's "+ Add" action is now as wide as its label, centred under "Nothing here" like any `Empty` action, instead of stretching the full lane so its hover background ran far past the text. After the last card it stays a full-width row.
+  [`1e89391`](https://github.com/VegaStack/vegastack-design/commit/1e89391)
+
 ## [0.23.52] — September 27, 2026
 
 <!-- assembled from 1 changeset: 13d34c8595b5 -->
