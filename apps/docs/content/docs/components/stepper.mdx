@@ -132,6 +132,16 @@ current, upcoming, and disabled steps never do.
   file="components/preview/stepper.tsx"
 />
 
+### A rail wider than its container
+
+Every step keeps a readable minimum width, so six steps in a narrow container scroll sideways
+instead of crushing their labels (pass `collapse={false}` to keep the rail at every width).
+Revisitable and current steps share one label box — same padding, same weight — so the rail
+never shifts as the current step moves; state is carried by the ink and the node's glyph, and a
+revisitable step shows only the standard hover fill, with no press motion.
+
+<ComponentPreview name="stepperScroll" file="components/preview/stepper.tsx" />
+
 ## API Reference
 
 <ApiTable

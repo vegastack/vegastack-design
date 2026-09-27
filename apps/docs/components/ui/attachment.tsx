@@ -1,4 +1,4 @@
-// @vegastack attachment@0.23.56 sha256-19bj0qUfiP0jjIjrF8Flun60MEk7v5tMpplZetoef/Y=
+// @vegastack attachment@0.23.56 sha256-Vq7gmZc5mjkMAfMonPlf3zxfTm2hrb8YvF6v0UCs/HI=
 
 "use client";
 
@@ -258,7 +258,7 @@ function AttachmentGroup({
       data-layout={layout}
       className={cn(
         layout === "grid"
-          ? "grid min-w-0 grid-cols-[repeat(auto-fill,minmax(--spacing(32),1fr))] gap-3 py-1 *:data-[slot=attachment]:w-full *:data-[slot=attachment]:min-w-0"
+          ? "grid min-w-0 grid-cols-[repeat(auto-fill,minmax(min(100%,max(--spacing(72),calc((100%_-_var(--spacing)*6)/3))),1fr))] gap-3 py-1 *:data-[slot=attachment]:w-full *:data-[slot=attachment]:min-w-0 *:data-[slot=attachment]:data-[orientation=vertical]:flex-nowrap **:data-[slot=attachment-media]:aspect-video [&_[data-slot=attachment-media]_img]:aspect-video"
           : "flex min-w-0 scroll-fade-x snap-x snap-mandatory scroll-px-1 scrollbar-none gap-3 overflow-x-auto overscroll-x-contain py-1 *:data-[slot=attachment]:flex-none *:data-[slot=attachment]:snap-start",
         className,
       )}

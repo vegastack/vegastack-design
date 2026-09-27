@@ -12,8 +12,8 @@
     "evidencePolicy": "Observed fields come from source, registry metadata, docs, and test topology. Unknown/not-applicable values are explicit; no inferred behavior is presented as verified."
   },
   "expectedCounts": {
-    "totalRegistryItems": 694,
-    "components": 131,
+    "totalRegistryItems": 695,
+    "components": 132,
     "animatedIcons": 467,
     "hooks": 13,
     "blocks": 11,
@@ -22,7 +22,7 @@
   },
   "expectedWaveCounts": {
     "Core controls": 24,
-    "Forms/editing": 27,
+    "Forms/editing": 28,
     "Navigation/layout": 18,
     "Overlays": 14,
     "Data display": 23,
@@ -72,6 +72,7 @@
       "dropzone",
       "editable-cell",
       "field",
+      "field-grid",
       "filter-bar",
       "filter-bar-managed",
       "input-group",
@@ -2337,7 +2338,7 @@
       "name": "auto-save-input",
       "registryType": "registry:ui",
       "title": "Auto Save Input",
-      "summary": "An input that debounces edits and persists them via an async onSave, with an inline idle/saving/saved/error status.",
+      "summary": "An input that debounces edits and persists them via an async onSave, with an inline idle/saving/saved/error status; plus useAutoSave (debounced, serialised changed-fields save for a whole form) and AutoSaveIndicator.",
       "status": "stable",
       "since": "0.1.0",
       "family": "form",
@@ -2370,6 +2371,61 @@
           "ref": {
             "status": "not-applicable",
             "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "AutoSaveFormStatus",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/auto-save-input.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "UseAutoSaveOptions",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/auto-save-input.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "UseAutoSaveResult",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/auto-save-input.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "useAutoSave",
+          "kind": "hook",
+          "source": "packages/ui/registry/ui/auto-save-input.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "This exported helper is not a rendered component root."
+          }
+        },
+        {
+          "name": "AutoSaveIndicatorProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/auto-save-input.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "AutoSaveIndicator",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/auto-save-input.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "span",
+            "rationale": "Source forwards the ref to this JSX/Base UI render target."
           }
         }
       ],
@@ -2455,6 +2511,19 @@
             {
               "name": "data-slot",
               "values": ["auto-save-input", "auto-save-input-status"]
+            },
+            {
+              "name": "data-state",
+              "values": []
+            }
+          ],
+          "cssVariables": []
+        },
+        "AutoSaveIndicator": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["auto-save-indicator"]
             },
             {
               "name": "data-state",
@@ -11267,6 +11336,183 @@
             {
               "name": "data-slot",
               "values": ["field-error"]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
+    },
+    {
+      "name": "field-grid",
+      "registryType": "registry:ui",
+      "title": "Field Grid",
+      "summary": "A responsive one-to-three column grid of Fields by container width, plus FieldChoices: radios or checkboxes in a wrapping row.",
+      "status": "stable",
+      "since": "0.23.57",
+      "family": "form",
+      "wave": "Forms/editing",
+      "sourceFiles": ["packages/ui/registry/ui/field-grid.tsx"],
+      "publicSymbols": [
+        {
+          "name": "FieldGridProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/field-grid.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "FieldGrid",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/field-grid.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "div",
+            "rationale": "Source forwards the ref to this JSX/Base UI render target."
+          }
+        },
+        {
+          "name": "FieldGridItemProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/field-grid.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "FieldGridItem",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/field-grid.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "div",
+            "rationale": "Source forwards the ref to this JSX/Base UI render target."
+          }
+        },
+        {
+          "name": "FieldChoicesProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/field-grid.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "FieldChoices",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/field-grid.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "div",
+            "rationale": "Source forwards the ref to this JSX/Base UI render target."
+          }
+        }
+      ],
+      "variants": {
+        "status": "observed",
+        "dimensions": [
+          {
+            "name": "columns",
+            "values": ["2", "3"]
+          },
+          {
+            "name": "orientation",
+            "values": ["horizontal", "vertical"]
+          }
+        ],
+        "rationale": "FieldGrid columns and FieldChoices orientation."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "No explicit local size scale observed; sizing is fixed, structural, or inherited."
+      },
+      "states": {
+        "behavior": {
+          "status": "observed",
+          "values": ["default", "full-span"],
+          "evidence": "Observed from the component's prop branches."
+        },
+        "accessibility": {
+          "status": "observed",
+          "values": ["semantic-html"],
+          "evidence": "Layout only; semantics stay with the Field, FieldSet and RadioGroup inside."
+        },
+        "visual": {
+          "status": "observed",
+          "values": ["default", "horizontal", "vertical"],
+          "evidence": "Observed from token classes and data attributes."
+        }
+      },
+      "responsive": {
+        "status": "modeled",
+        "risks": ["container-query-grid"],
+        "rationale": "Columns follow the container width through @container/field-grid."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned motion mechanism observed."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/field-grid",
+      "registryDependencies": [],
+      "npmDependencies": [
+        "@vegastack/design@^0.7.49",
+        "@vegastack/design-tokens@^0.7.49"
+      ],
+      "testFiles": ["packages/ui/registry/ui/field-grid.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required"
+      },
+      "previewModule": "field-grid",
+      "dataAttributes": {
+        "FieldGrid": {
+          "attributes": [
+            {
+              "name": "data-columns",
+              "values": []
+            },
+            {
+              "name": "data-slot",
+              "values": ["field-grid", "field-grid-body"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "FieldGridItem": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["field-grid-item"]
+            },
+            {
+              "name": "data-span",
+              "values": []
+            }
+          ],
+          "cssVariables": []
+        },
+        "FieldChoices": {
+          "attributes": [
+            {
+              "name": "data-orientation",
+              "values": []
+            },
+            {
+              "name": "data-slot",
+              "values": ["field-choices"]
             }
           ],
           "cssVariables": []
@@ -20916,7 +21162,9 @@
             {
               "name": "data-slot",
               "values": [
+                "multi-step-form-action-end",
                 "multi-step-form-action-row",
+                "multi-step-form-action-start",
                 "multi-step-form-actions",
                 "multi-step-form-finish",
                 "multi-step-form-refusal"

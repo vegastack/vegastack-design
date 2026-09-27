@@ -452,6 +452,12 @@
       "family": "data",
       "source": "Operator brief 2026-09-27 (accessory sheet + impact review) — approved by MK 2026-09-27",
       "rationale": "Upstream ships no affected-records list. Confirmation dialogs (a family or accessory save or delete) need numbered rows that keep counting across Show more, a record-type icon and a new-tab link per record; it composes our Button and carries no patch."
+    },
+    "field-grid": {
+      "disposition": "keep",
+      "family": "form",
+      "source": "Regent product form rebuild, approved by MK 2026-09-27",
+      "rationale": "Upstream ships no responsive field grid or inline choice row; a small server-safe composition with no patch."
     }
   }
 }

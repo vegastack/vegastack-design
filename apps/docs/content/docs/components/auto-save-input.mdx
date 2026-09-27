@@ -46,6 +46,10 @@ success check once saved, and an error cross on failure.
   the app keeps the side effects.
 </Callout>
 
+## Anatomy
+
+<Anatomy name="auto-save-input" />
+
 ## Examples
 
 A failing `onSave` (rejected promise) flags the `error` state and sets
@@ -90,11 +94,49 @@ baseline.
   file="components/preview/auto-save-input.tsx"
 />
 
+### Status indicator
+
+`AutoSaveIndicator` is the same lifecycle as a line of text for an action row: a spinner and
+"Saving…", a check and "Saved", and the `-text` ink with its own icon for "Couldn't save" and a
+conflict ("Not saved"). It is a polite live region, empty while idle.
+
+<ComponentPreview
+  name="autoSaveIndicatorStates"
+  file="components/preview/auto-save-input.tsx"
+/>
+
+### A whole form (useAutoSave)
+
+`useAutoSave` saves a form object rather than one field: debounced (600ms), only the changed
+fields, one save in flight at a time with the latest values sent next, a version carried for
+optimistic concurrency (`isConflict` turns a stale-version error into the `conflict` status),
+and a `flush()` to call before a step change or navigation. Pending changes are also saved on
+unmount and when the tab closes.
+
+<ComponentPreview
+  name="autoSaveForm"
+  file="components/preview/auto-save-input.tsx"
+/>
+
 ## API Reference
 
 <ApiTable
   path="../../packages/ui/registry/ui/auto-save-input.tsx"
   name="AutoSaveInputProps"
+/>
+
+### AutoSaveIndicator
+
+<ApiTable
+  path="../../packages/ui/registry/ui/auto-save-input.tsx"
+  name="AutoSaveIndicatorProps"
+/>
+
+### useAutoSave
+
+<ApiTable
+  path="../../packages/ui/registry/ui/auto-save-input.tsx"
+  name="UseAutoSaveOptions"
 />
 
 `AutoSaveStatus` is the union of states the trailing indicator can reflect; pass

@@ -1,14 +1,14 @@
 {
   "schemaVersion": 1,
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "6317df944027524fc7150ff684d95f3817b7be9a611d3bd84ddece54adc6a963",
+  "contractSha256": "5d7e46a79c3cb11e28e8c2ce4498a09c363854333a5ff8486d3a248b9f9d13c2",
   "inventory": {
-    "expected": 694,
-    "actual": 694,
-    "unique": 694
+    "expected": 695,
+    "actual": 695,
+    "unique": 695
   },
   "classes": {
-    "components": 131,
+    "components": 132,
     "animatedIcons": 467,
     "hooks": 13,
     "blocks": 11,
@@ -47,8 +47,8 @@
       ]
     },
     "Forms/editing": {
-      "expected": 27,
-      "actual": 27,
+      "expected": 28,
+      "actual": 28,
       "members": [
         "auto-save-input",
         "avatar-picker",
@@ -61,6 +61,7 @@
         "dropzone",
         "editable-cell",
         "field",
+        "field-grid",
         "filter-bar",
         "filter-bar-managed",
         "input-group",
@@ -773,7 +774,7 @@
       ]
     }
   },
-  "componentRoutes": 128,
+  "componentRoutes": 129,
   "blockRoutes": 18,
   "modeledExemptions": 3
 }

@@ -13,7 +13,22 @@ import {
   MultiStepFormStep,
   type MultiStepFormStepSpec,
 } from "@/components/ui/multi-step-form";
-import { Field, FieldLabel, FieldDescription } from "@/components/ui/field";
+import {
+  Field,
+  FieldLabel,
+  FieldDescription,
+  FieldLegend,
+  FieldSet,
+} from "@/components/ui/field";
+import {
+  FieldChoices,
+  FieldGrid,
+  FieldGridItem,
+} from "@/components/ui/field-grid";
+import {
+  AutoSaveIndicator,
+  useAutoSave,
+} from "@/components/ui/auto-save-input";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
@@ -583,6 +598,164 @@ export function multiStepFormFullPage(): ReactNode {
   return (
     <Wrapper className="block">
       <MultiStepFormFullPageDemo />
+    </Wrapper>
+  );
+}
+
+export function multiStepFormTopValidate(): ReactNode {
+  const [name, setName] = useState("");
+  const [sku, setSku] = useState("");
+  const [kind, setKind] = useState("standard");
+  // `validate` is pure and synchronous: its refusal clears itself the moment both fields are
+  // filled, without a second press of Next.
+  const steps: MultiStepFormStepSpec[] = [
+    {
+      id: "basics",
+      label: "Basics",
+      validate: () =>
+        name.trim() && sku.trim() ? true : "Fill in the name and the SKU.",
+    },
+    { id: "specs", label: "Specifications" },
+    { id: "files", label: "Files" },
+    { id: "review", label: "Review" },
+  ];
+  return (
+    <Wrapper className="block">
+      <div className="mx-auto w-full max-w-3xl">
+        <MultiStepForm steps={steps} nextLabel="Next" submitLabel="Create">
+          <MultiStepFormNav aria-label="New product" orientation="horizontal" />
+          <MultiStepFormStep id="basics">
+            <FieldGrid>
+              <Field>
+                <FieldLabel htmlFor="top-name">Name</FieldLabel>
+                <Input
+                  id="top-name"
+                  value={name}
+                  onChange={(event) => setName(event.target.value)}
+                />
+              </Field>
+              <Field>
+                <FieldLabel htmlFor="top-sku">SKU</FieldLabel>
+                <Input
+                  id="top-sku"
+                  value={sku}
+                  onChange={(event) => setSku(event.target.value)}
+                />
+              </Field>
+              <FieldGridItem>
+                <FieldSet>
+                  <FieldLegend variant="label">Type</FieldLegend>
+                  <FieldChoices orientation="horizontal">
+                    <RadioGroup
+                      value={kind}
+                      onValueChange={(v) => setKind(String(v))}
+                    >
+                      {["Standard", "Custom"].map((t) => (
+                        <Field key={t} orientation="horizontal">
+                          <RadioGroupItem
+                            value={t.toLowerCase()}
+                            id={`top-kind-${t}`}
+                          />
+                          <FieldLabel htmlFor={`top-kind-${t}`}>{t}</FieldLabel>
+                        </Field>
+                      ))}
+                    </RadioGroup>
+                  </FieldChoices>
+                </FieldSet>
+              </FieldGridItem>
+            </FieldGrid>
+          </MultiStepFormStep>
+          {steps.slice(1).map((step) => (
+            <MultiStepFormStep key={step.id} id={step.id}>
+              <p className="text-sm text-muted-foreground">
+                The {step.label.toLowerCase()} step.
+              </p>
+            </MultiStepFormStep>
+          ))}
+          <MultiStepFormActions start={<MultiStepFormExit />} />
+        </MultiStepForm>
+      </div>
+    </Wrapper>
+  );
+}
+
+export function multiStepFormAutoSave(): ReactNode {
+  const [entries, setEntries] = useState({
+    name: "Aurora pendant",
+    sku: "AUR-01",
+  });
+  const [saves, setSaves] = useState(0);
+  const autosave = useAutoSave({
+    value: entries,
+    version: 1,
+    onSave: async (_changes, { version }) => {
+      await delay(null, 700);
+      setSaves((n) => n + 1);
+      return { version: (version ?? 0) + 1 };
+    },
+  });
+  const steps: MultiStepFormStepSpec[] = [
+    { id: "details", label: "Details", satisfied: true },
+    { id: "specs", label: "Specifications", satisfied: true },
+    { id: "files", label: "Files", satisfied: true },
+    { id: "review", label: "Review", satisfied: true },
+  ];
+  return (
+    <Wrapper className="block">
+      <div className="mx-auto w-full max-w-3xl">
+        <MultiStepForm
+          steps={steps}
+          nextLabel="Next"
+          submitLabel="Save"
+          mobileNav="stepper"
+        >
+          <MultiStepFormNav
+            aria-label="Edit product"
+            orientation="horizontal"
+          />
+          <MultiStepFormStep id="details">
+            <FieldGrid columns={2}>
+              <Field>
+                <FieldLabel htmlFor="auto-name">Name</FieldLabel>
+                <Input
+                  id="auto-name"
+                  value={entries.name}
+                  onChange={(event) =>
+                    setEntries((e) => ({ ...e, name: event.target.value }))
+                  }
+                />
+              </Field>
+              <Field>
+                <FieldLabel htmlFor="auto-sku">SKU</FieldLabel>
+                <Input
+                  id="auto-sku"
+                  value={entries.sku}
+                  onChange={(event) =>
+                    setEntries((e) => ({ ...e, sku: event.target.value }))
+                  }
+                />
+                <FieldDescription>Saved {saves} times.</FieldDescription>
+              </Field>
+            </FieldGrid>
+          </MultiStepFormStep>
+          {steps.slice(1).map((step) => (
+            <MultiStepFormStep key={step.id} id={step.id}>
+              <p className="text-sm text-muted-foreground">
+                The {step.label.toLowerCase()} step saves as you go too.
+              </p>
+            </MultiStepFormStep>
+          ))}
+          <MultiStepFormActions
+            start={<MultiStepFormExit />}
+            status={<AutoSaveIndicator status={autosave.status} />}
+            secondary={
+              <Button variant="outline" onClick={() => void autosave.flush()}>
+                Done
+              </Button>
+            }
+          />
+        </MultiStepForm>
+      </div>
     </Wrapper>
   );
 }

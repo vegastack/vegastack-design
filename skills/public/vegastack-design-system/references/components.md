@@ -3,7 +3,7 @@
 <!-- GENERATED — do not hand-edit. Regenerated from the design system's component contract,
      which is the authority for membership and counts. -->
 
-**131 components**, plus 467 animated-icon items, 13 hooks (`use-animation-replay`, `use-announcer`, `use-async-search`, `use-drag-reorder`, `use-file-drop`, `use-inline-edit`, `use-list-nav`, `use-media-query`, `use-mobile`, `use-modal-inert`, `use-overflow`, `use-platform`, `use-tabs-swipe`), 11 starter blocks (`app-shell-01`, `board-01`, `issue-detail-01`, `command-search-01`, `list-page-01`, `login-01`, `notifications-01`, `review-split-01`, `settings-01`, `settings-02`, `status-pages-01`), 68 chart blocks across 7 families, and 4 data libs (`date-time`, `geo-data`, `emoji-data`, `drag-item`) — 694 registry items in total.
+**132 components**, plus 467 animated-icon items, 13 hooks (`use-animation-replay`, `use-announcer`, `use-async-search`, `use-drag-reorder`, `use-file-drop`, `use-inline-edit`, `use-list-nav`, `use-media-query`, `use-mobile`, `use-modal-inert`, `use-overflow`, `use-platform`, `use-tabs-swipe`), 11 starter blocks (`app-shell-01`, `board-01`, `issue-detail-01`, `command-search-01`, `list-page-01`, `login-01`, `notifications-01`, `review-split-01`, `settings-01`, `settings-02`, `status-pages-01`), 68 chart blocks across 7 families, and 4 data libs (`date-time`, `geo-data`, `emoji-data`, `drag-item`) — 695 registry items in total.
 
 Install any of them with `shadcn add @vegastack/<name>`. Animated icons install as
 `@vegastack/icon-<name>`; the bare name is reserved for components, so a component whose name
@@ -19,7 +19,7 @@ starts with `icon-` is a component and never an icon.
 
 ## Form
 
-- **`auto-save-input`** — An input that debounces edits and persists them via an async onSave, with an inline idle/saving/saved/error status.
+- **`auto-save-input`** — An input that debounces edits and persists them via an async onSave, with an inline idle/saving/saved/error status; plus useAutoSave (debounced, serialised changed-fields save for a whole form) and AutoSaveIndicator.
 - **`calendar`** — A date-field calendar on React DayPicker — single, multiple and range selection.
 - **`checkbox`** — A binary (or indeterminate) toggle on Base UI Checkbox, with a 24px invisible hit area (A11Y-2).
 - **`chip-input`** — Free-token entry field — Enter/comma/paste commits chips, Backspace removes, per-chip validation marks invalid entries instead of dropping them. InputGroup field chrome + real Tag chips.
@@ -31,6 +31,7 @@ starts with `icon-` is a component and never an icon.
 - **`editable-cell`** — Inline-editable value whose edit mode looks like view — same box, inherited type, no border — with optimistic saves, a delayed spinner, rollback plus a Retry toast on failure, required, multiline, table-cell and heading variants, and a typed text/select/custom editor registry.
 - **`emoji-picker`** — A popover with a quick row, search, a category bar, recents and a category-grouped grid of emoji that returns the selected character via onValueChange (curated set, loaded lazily).
 - **`field`** — The form-field scaffold — label, description, error, legend, separator and choice-card layouts.
+- **`field-grid`** — A responsive one-to-three column grid of Fields by container width, plus FieldChoices: radios or checkboxes in a wrapping row.
 - **`input`** — A styled Base UI input for every text-entry type: a bordered default whose border darkens subtly on focus with no fill, or a borderless ghost title field tinted on hover; sm, default and lg sizes.
 - **`input-group`** — An input or textarea with addons — icons, text, buttons, kbd hints and spinners on one surface.
 - **`input-otp`** — A one-time-password field with per-character slots, driven by one hidden input.

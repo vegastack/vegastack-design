@@ -372,7 +372,7 @@
         "whenToUse": "File and media tiles on any surface: chat attachments, record files, upload queues — a chip or thumbnail with name, size, lifecycle state, determinate upload progress (AttachmentProgress), a muted tile for a file no longer in use, and remove or download actions; AttachmentGroup lays them out as a scrolling row or a grid.",
         "whenNotToUse": "Acquiring files (drop, browse, paste) - that is Dropzone; Attachment renders the files after acquisition.",
         "version": "0.23.56",
-        "integrity": "sha256-19bj0qUfiP0jjIjrF8Flun60MEk7v5tMpplZetoef/Y="
+        "integrity": "sha256-Vq7gmZc5mjkMAfMonPlf3zxfTm2hrb8YvF6v0UCs/HI="
       }
     },
     {
@@ -440,7 +440,7 @@
         "whenToUse": "Settings-style fields that save on pause without a Save button — names, slugs, inline fields.",
         "whenNotToUse": "Form submission with a Save button, secrets, or one-time codes.",
         "version": "0.23.56",
-        "integrity": "sha256-rabZAc3ezOT6ZMAxYAglGPOQvo+k8WE4UA1n8myRNBA="
+        "integrity": "sha256-g/bqxd/ZOsijyWT8/h+6Zs6+waMuTjhLihwPlNUyBuo="
       }
     },
     {
@@ -1851,6 +1851,33 @@
         "whenNotToUse": "A bare control with its own label already wired — Field is for the label+message+a11y scaffold.",
         "version": "0.23.56",
         "integrity": "sha256-NPbMTaLEBs4OPf3zfinAS69c8Kt/ia1KqhJ2eEVJvBE="
+      }
+    },
+    {
+      "name": "field-grid",
+      "type": "registry:ui",
+      "title": "Field Grid",
+      "description": "A responsive one-to-three column grid of Fields by container width, plus FieldChoices: radios or checkboxes in a wrapping row.",
+      "categories": [
+        "form"
+      ],
+      "dependencies": [
+        "@vegastack/design@^0.7.49",
+        "@vegastack/design-tokens@^0.7.49"
+      ],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/field-grid.tsx",
+          "type": "registry:ui",
+          "target": "@ui/field-grid.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "Forms with many short fields (specifications, settings) and short choice sets that read better side by side.",
+        "whenNotToUse": "A single-column dialog form (FieldGroup) or label/value read-only details (PropertyList).",
+        "version": "0.23.56",
+        "integrity": "sha256-Ls26Vdp0LcgGA8dx9EO2AlZnigxShH0s/szvDx9L64M="
       }
     },
     {
@@ -16787,7 +16814,7 @@
         "whenToUse": "Any bounded linear process — onboarding, wizards, checkout, import flows — where progress, a failed or skipped step, and a step being checked must all be communicated.",
         "whenNotToUse": "Free navigation between peer views (Tabs), or the reason a flow cannot advance — that belongs beside the control it blocks, not in the rail.",
         "version": "0.23.56",
-        "integrity": "sha256-Tjzbxq+ZJBk5A5RljASZUk+ZZsFcZB/hCstr0iLHNlA="
+        "integrity": "sha256-cqD1ga/kfDxGI3Dmvs6FCHHCLNjqqZtKXvfIuZVLpN4="
       }
     },
     {
@@ -16822,7 +16849,7 @@
         "whenToUse": "A process a person drives across several screens — signup, checkout, an import wizard, a multi-section record editor — where steps can branch, an advance can be refused, and a committed step must not be walked back into.",
         "whenNotToUse": "Progress the system drives and a person only reads (Stepper alone), free navigation between peer views (Tabs), or one question at a time (Questionnaire).",
         "version": "0.23.56",
-        "integrity": "sha256-YNP+9kPSkgRIGxsiY1dyAWz4VBhKQhAmK4qI2XsLnaI="
+        "integrity": "sha256-6s9vEHQ3COhNuqwjTkcxPK1sxp5IVPaQZUoeC3+D63Y="
       }
     },
     {

@@ -573,7 +573,7 @@ assert(
 
 const expectedWaves = {
   "Core controls": 24,
-  "Forms/editing": 27,
+  "Forms/editing": 28,
   "Navigation/layout": 18,
   Overlays: 14,
   "Data display": 23,
@@ -641,6 +641,7 @@ const expectedComponentWaveMembers = {
     "dropzone",
     "editable-cell",
     "field",
+    "field-grid",
     "filter-bar",
     "filter-bar-managed",
     "input-group",

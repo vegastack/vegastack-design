@@ -1,4 +1,4 @@
-// @vegastack stepper@0.23.56 sha256-Tjzbxq+ZJBk5A5RljASZUk+ZZsFcZB/hCstr0iLHNlA=
+// @vegastack stepper@0.23.56 sha256-cqD1ga/kfDxGI3Dmvs6FCHHCLNjqqZtKXvfIuZVLpN4=
 
 "use client";
 
@@ -148,15 +148,26 @@ export const stepperNodeVariants = cva(
 );
 
 /** Label ink per state. The two coloured states take the family's `-text` ink (A11Y-13). */
+// One weight for every state: a label that changes weight (or element padding) as it becomes
+// current makes the whole rail shift sideways on every move. State is carried by the ink and the
+// node's glyph instead.
 const LABEL_CLASS: Record<StepperStepState, string> = {
   complete: "text-foreground",
-  current: "font-medium text-foreground",
-  loading: "font-medium text-foreground",
-  warning: "font-medium text-warning-text",
-  error: "font-medium text-destructive-text",
+  current: "text-foreground",
+  loading: "text-foreground",
+  warning: "text-warning-text",
+  error: "text-destructive-text",
   skipped: "text-muted-foreground",
   upcoming: "text-muted-foreground",
 };
+
+/**
+ * The box every step label sits in, clickable or not. Identical padding and radius in both
+ * cases, so a step that becomes (or stops being) revisitable never moves; the node rail
+ * carries the same inline padding so node and text stay aligned.
+ */
+const LABEL_BOX_CLASS =
+  "flex h-auto min-h-6 min-w-0 flex-col items-start justify-center gap-0 rounded-md px-2 py-1 text-start";
 
 /** Sr-only state text, so state is never carried by colour or glyph alone. */
 const STATE_TEXT: Record<StepperStepState, string> = {
@@ -510,7 +521,13 @@ export function Stepper({
         className={cn(
           "w-full list-none",
           collapseAt ? collapseAt.rail : "flex",
-          isVertical ? "flex-col" : "flex-row items-start",
+          // A horizontal rail wider than its container scrolls sideways rather than crushing
+          // its labels: every step keeps a readable minimum width.
+          isVertical
+            ? "flex-col"
+            : // `relative`: the sr-only state text is absolutely positioned, and it must take
+              // this scroller as its containing block or it escapes the clip and widens the page.
+              "relative scroll-fade-x scrollbar-none flex-row items-start overflow-x-auto overscroll-x-contain",
         )}
       >
         {steps.map((step, index) => {
@@ -573,7 +590,7 @@ export function Stepper({
                 !isVertical && !isLast && "flex-1",
                 !isVertical &&
                   !isInline &&
-                  "flex-col items-start gap-1.5 last:flex-none",
+                  "min-w-28 flex-col items-start gap-1.5 last:flex-none",
                 isInline && "flex-row items-center gap-2 last:flex-none",
               )}
             >
@@ -585,7 +602,9 @@ export function Stepper({
                 className={cn(
                   "flex shrink-0 items-center",
                   isVertical && "flex-col gap-1 self-stretch",
-                  !isVertical && !isInline && "w-full flex-row gap-2",
+                  // `px-2` lines the node up with the label text, which sits inside the
+                  // label box's own `px-2`.
+                  !isVertical && !isInline && "w-full flex-row gap-2 px-2",
                   isInline && "contents",
                 )}
               >
@@ -617,7 +636,7 @@ export function Stepper({
                 data-slot="stepper-content"
                 className={cn(
                   "flex min-w-0 flex-col",
-                  !isVertical && !isInline && "w-full pe-4",
+                  !isVertical && !isInline && "w-full pe-2",
                   isInline && "order-2",
                 )}
               >
@@ -631,7 +650,13 @@ export function Stepper({
                     }}
                     data-slot="stepper-trigger"
                     onClick={() => onStepSelect?.(step.id)}
-                    className="h-auto min-h-6 w-full min-w-0 flex-col items-start justify-center gap-0 px-2 py-1 text-start font-normal whitespace-normal"
+                    // No press motion (Button's `translate-y-px`): a step label is navigation,
+                    // not a push button, and the rail must never move.
+                    className={cn(
+                      LABEL_BOX_CLASS,
+                      "font-normal whitespace-normal active:not-aria-[haspopup]:translate-y-0",
+                      !isInline && "w-full",
+                    )}
                   >
                     {label}
                     {description}
@@ -645,7 +670,8 @@ export function Stepper({
                     // Focus target when the step becomes current — not a tab stop.
                     tabIndex={isCurrent ? -1 : undefined}
                     className={cn(
-                      "flex min-w-0 flex-col rounded-sm",
+                      LABEL_BOX_CLASS,
+                      !isInline && "w-full",
                       step.disabled && "opacity-50",
                     )}
                   >
