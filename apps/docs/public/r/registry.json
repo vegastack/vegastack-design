@@ -16640,7 +16640,7 @@
         "whenToUse": "User-orderable single lists and tile grids — settings sections, pipeline stages, attribute values with locked built-ins, editable rows with inline actions, ordered product photos and attachments — where the host persists (and may refuse) the order.",
         "whenNotToUse": "Cross-container card movement (board), selectable data tables (DataList — never mix selection with reordering), or read-only lists (ItemGroup).",
         "version": "0.23.54",
-        "integrity": "sha256-JDOd0tTZ37b5htfZIwugz/96LH5bPRaoPMA4WyvQYeg="
+        "integrity": "sha256-OPu5YxQf1+8dBx8bHXLrq4snjkvme9IL6EQd7Ecr5Ps="
       }
     },
     {

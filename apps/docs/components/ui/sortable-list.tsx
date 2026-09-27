@@ -1,4 +1,4 @@
-// @vegastack sortable-list@0.23.54 sha256-JDOd0tTZ37b5htfZIwugz/96LH5bPRaoPMA4WyvQYeg=
+// @vegastack sortable-list@0.23.54 sha256-OPu5YxQf1+8dBx8bHXLrq4snjkvme9IL6EQd7Ecr5Ps=
 
 "use client";
 
@@ -48,9 +48,10 @@ long-press context menu is suppressed — then drops on the edge it is over; and
 lifts from the handle (Space, arrows, Escape), every step announced. A touch pointer turns the
 native drag off until the next mouse or pen press, so the two engines never race.
 
-Row actions: `onRemove` gives each row a small × ("Remove {label}") in its trailing corner,
-shown on hover or focus within the row and always on a coarse pointer. A host that needs more
-than remove passes `getItemActions` and gets the ⋯ menu instead — the escape hatch.
+Row actions: `onRemove` gives each row a small × ("Remove {label}") in its trailing corner; a
+host that needs more than remove passes `getItemActions` and gets the ⋯ menu instead — the
+escape hatch. Both show on hover or focus within the row (and while the menu is open), and
+always on a coarse pointer. List rows are DataList-dense: compact padding, a subtle hover wash.
 
 A LOCKED row (`item.disabled`) is still a row of the list, not a hole in it: its handle
 becomes a same-size spacer so the column of handles stays aligned, it shows no ×, and its
@@ -387,7 +388,9 @@ export function SortableList<T extends SortableListItem = SortableListItem>({
                   ? GRID_COLUMNS[columns]
                   : "grid-cols-[repeat(auto-fill,minmax(--spacing(28),1fr))]",
               )
-            : "flex flex-col gap-1"
+            : // ItemGroup's own `has-data-[size=sm]:gap-2.5` is replaced, not stacked: rows sit as
+              // close as a DataList's.
+              "flex flex-col gap-0.5 has-data-[size=sm]:gap-0.5"
         }
       >
         {items.map((item) => {
@@ -442,7 +445,8 @@ export function SortableList<T extends SortableListItem = SortableListItem>({
                         ? "border-0 p-0 [&>[data-slot=item-content]>[data-slot=attachment]]:w-full [&>[data-slot=item-content]>[data-slot=attachment]]:min-w-0 [&>[data-slot=item-content]>[data-slot=attachment]]:flex-nowrap"
                         : "p-1",
                     )
-                  : "flex-nowrap",
+                  : // DataList's row: compact padding, a subtle wash on hover.
+                    "flex-nowrap gap-2 px-1 py-1 hover:bg-muted/50",
               )}
             >
               {disabled ? null : locked ? (
@@ -508,6 +512,7 @@ export function SortableList<T extends SortableListItem = SortableListItem>({
                             variant={grid ? "secondary" : "ghost"}
                             size="icon-sm"
                             aria-label={actionsLabel(label)}
+                            className="opacity-0 group-focus-within/item:opacity-100 group-hover/item:opacity-100 focus-visible:opacity-100 data-popup-open:opacity-100 pointer-coarse:opacity-100"
                           >
                             <EllipsisVertical />
                           </Button>
