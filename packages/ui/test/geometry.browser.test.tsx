@@ -35,6 +35,7 @@ import { ButtonGroup } from "../registry/ui/button-group";
 import { Input } from "../registry/ui/input";
 import { AppShellPage } from "../registry/ui/app-shell";
 import { DatePicker } from "../registry/ui/date-picker";
+import { preloadTextEdit } from "../registry/ui/text-edit";
 import { SearchableSelect } from "../registry/ui/searchable-select";
 import {
   MultiStepForm,
@@ -263,28 +264,34 @@ const UNSWEPT: Record<string, string> =
  */
 const DYNAMIC_DOM: Record<string, string> = {
   // TextEdit is `next/dynamic`-wrapped to keep Tiptap out of the docs barrel's initial module
-  // graph. `.tiptap` is the class the component puts on ProseMirror's contenteditable host
-  // (`EDITOR_PROSE` in `registry/ui/text-edit.tsx`), so it appears only once the editor view is
-  // actually created — which is the thing whose geometry these contracts measure.
-  textEdit: ".tiptap[contenteditable]",
-  textEditStates: ".tiptap[contenteditable]",
-  textEditInvalid: ".tiptap[contenteditable]",
-  textEditBoxed: ".tiptap[contenteditable]",
-  textEditBoxedInvalid: ".tiptap[contenteditable]",
-  textEditSubmit: ".tiptap[contenteditable]",
-  textEditMarkdown: ".tiptap[contenteditable]",
-  textEditHeights: ".tiptap[contenteditable]",
-  textEditInsideField: ".tiptap[contenteditable]",
-  markdownParity: ".tiptap[contenteditable]",
-  markdownSlashMenu: ".tiptap[contenteditable]",
-  markdownSlashCommandsLimited: ".tiptap[contenteditable]",
-  markdownBubbleMenu: ".tiptap[contenteditable]",
-  markdownAutosave: ".tiptap[contenteditable]",
-  markdownInPlace: ".tiptap[contenteditable]",
-  textEditPlaceholders: ".tiptap[contenteditable]",
-  markdownTables: ".tiptap[contenteditable]",
-  markdownBlockHandles: ".tiptap[contenteditable]",
+  // graph, and itself renders a light read view (`.tiptap` classes, `contenteditable`) until its
+  // editor loads. `.ProseMirror` is the class ProseMirror puts on its own contenteditable host, so
+  // it appears only once the editor view is actually created — which is the thing whose geometry
+  // these contracts measure. The editor is preloaded (below), so it swaps in on mount.
+  textEdit: ".ProseMirror[contenteditable]",
+  // `readOnly` and `disabled` never load the editor: their read view is the final DOM.
+  textEditStates:
+    '.ProseMirror[contenteditable], [data-slot="text-edit-read"][contenteditable="false"]',
+  textEditInvalid: ".ProseMirror[contenteditable]",
+  textEditBoxed: ".ProseMirror[contenteditable]",
+  textEditBoxedInvalid: ".ProseMirror[contenteditable]",
+  textEditSubmit: ".ProseMirror[contenteditable]",
+  textEditMarkdown: ".ProseMirror[contenteditable]",
+  textEditHeights: ".ProseMirror[contenteditable]",
+  textEditInsideField: ".ProseMirror[contenteditable]",
+  markdownParity: ".ProseMirror[contenteditable]",
+  markdownSlashMenu: ".ProseMirror[contenteditable]",
+  markdownSlashCommandsLimited: ".ProseMirror[contenteditable]",
+  markdownBubbleMenu: ".ProseMirror[contenteditable]",
+  markdownAutosave: ".ProseMirror[contenteditable]",
+  markdownInPlace: ".ProseMirror[contenteditable]",
+  textEditPlaceholders: ".ProseMirror[contenteditable]",
+  markdownTables: ".ProseMirror[contenteditable]",
+  markdownBlockHandles: ".ProseMirror[contenteditable]",
 };
+
+// Every TextEdit fixture measures the editor, not its read view: load it before the first mount.
+beforeAll(() => preloadTextEdit());
 
 type Fixture = () => React.ReactNode;
 

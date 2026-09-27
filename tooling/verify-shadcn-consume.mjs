@@ -125,9 +125,7 @@ const REQUIRED_EXTERNAL_FAMILIES = {
       dependency.startsWith("react-day-picker"),
     ),
   markdown: (dependencies, name) =>
-    dependencies.some((dependency) =>
-      dependency.startsWith("react-markdown"),
-    ) && dependencies.some((dependency) => dependency.startsWith("remark-gfm")),
+    dependencies.some((dependency) => dependency.startsWith("marked@")),
   resizable: (dependencies, name) =>
     dependencies.some((dependency) =>
       dependency.startsWith("react-resizable-panels"),

@@ -1,4 +1,4 @@
-// @vegastack filter-bar@0.23.58 sha256-dfP1gw9rjD9+ssaIPdQna6TjqJuHCb/fEDJtUzqSRUw=
+// @vegastack filter-bar@0.23.58 sha256-nmoj6N2PacchNFyYoPbc3HxC0+kXoP0zZ76gXjknmUU=
 
 "use client";
 
@@ -6,7 +6,6 @@ import * as React from "react";
 import { ChevronDown, CirclePlus, ListFilter, X } from "lucide-react";
 import { cn, mergeRefs } from "@vegastack/design";
 import { Button } from "@/components/ui/button";
-import { Calendar } from "@/components/ui/calendar";
 import { Chip } from "@/components/ui/chip";
 import {
   DropdownMenu,
@@ -28,6 +27,29 @@ import {
   type SearchableSelectProps,
 } from "@/components/ui/searchable-select";
 import { formatDateRange } from "@/lib/date-time";
+
+/**
+ * The calendar engine (`react-day-picker` + `date-fns`) is only needed for a date filter's custom
+ * range, so it loads lazily: fetched when the date filter is hovered, focused or opened, rendered
+ * when "Custom range" is chosen. A filter bar never ships it in the page's first bundle.
+ */
+let calendarLoad:
+  Promise<typeof import("@/components/ui/calendar")> | undefined;
+function loadCalendar() {
+  calendarLoad ??= import("@/components/ui/calendar").catch(
+    (error: unknown) => {
+      calendarLoad = undefined;
+      throw error;
+    },
+  );
+  return calendarLoad;
+}
+function prefetchCalendar() {
+  void loadCalendar().catch(() => {});
+}
+const Calendar = React.lazy(() =>
+  loadCalendar().then((module) => ({ default: module.Calendar })),
+);
 
 /* ------------------------------------------------------------------------------------------------
  * Types
@@ -1257,6 +1279,7 @@ export function DateRangeFilter({
   const openChange = (next: boolean) => {
     setOpen(next);
     if (next) {
+      prefetchCalendar();
       setCustom(value?.preset === "custom" || (value != null && !value.preset));
       setDraft(value ? { from: value.from, to: value.to } : undefined);
     }
@@ -1277,6 +1300,8 @@ export function DateRangeFilter({
               size="sm"
               disabled={disabled}
               data-slot="date-range-filter-trigger"
+              onPointerEnter={prefetchCalendar}
+              onFocus={prefetchCalendar}
               className={cn(
                 "h-7 max-w-64 justify-start rounded-md border border-border ps-2 pe-7 text-sm font-normal",
                 hasValue
@@ -1297,15 +1322,17 @@ export function DateRangeFilter({
         >
           {custom ? (
             <div className="flex flex-col">
-              <Calendar
-                mode="range"
-                numberOfMonths={2}
-                className="bg-transparent"
-                selected={draft}
-                onSelect={setDraft}
-                defaultMonth={draft?.from ?? now}
-                autoFocus
-              />
+              <React.Suspense fallback={null}>
+                <Calendar
+                  mode="range"
+                  numberOfMonths={2}
+                  className="bg-transparent"
+                  selected={draft}
+                  onSelect={setDraft}
+                  defaultMonth={draft?.from ?? now}
+                  autoFocus
+                />
+              </React.Suspense>
               <div className="flex items-center justify-end gap-1.5 border-t border-border p-2">
                 <Button
                   variant="ghost"

@@ -2,7 +2,21 @@ import "./contrast.css"; // compiled Tailwind + @vegastack token theme (Vite via
 import * as React from "react";
 import { render } from "vitest-browser-react";
 import { afterEach, expect, test, vi } from "vitest";
+import { userEvent } from "vitest/browser";
 import { VideoPlayer } from "../registry/ui/video-player";
+
+/**
+ * Browser test files share one page in CI, so the pointer can still rest wherever an earlier file
+ * left it — over this file's control, holding its hover state. Park it on a corner sentinel first.
+ */
+async function parkPointer() {
+  const sentinel = document.createElement("div");
+  sentinel.style.cssText =
+    "position:fixed;right:0;bottom:0;width:4px;height:4px;z-index:2147483647";
+  document.body.append(sentinel);
+  await userEvent.hover(sentinel);
+  sentinel.remove();
+}
 
 /**
  * Rendered media-chrome gate (audit 2026-09-07, B4-01 / D16). The TOKEN contract — the
@@ -128,6 +142,7 @@ test("the rendered overlay chrome does not change with the theme", async () => {
  * can see that; it only exists once the theme is compiled and the browser has resolved the cascade.
  */
 test("the overlay seek rail rests at its own thickness, not the default rail's", async () => {
+  await parkPointer();
   const container = await renderOverlay(false);
   const track = container.querySelector(
     '[data-slot="media-player-controls"][data-variant="overlay"] [data-slot="slider-track"][data-orientation="horizontal"]',

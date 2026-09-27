@@ -1,13 +1,17 @@
 import * as React from "react";
 import { render } from "vitest-browser-react";
 import { userEvent } from "vitest/browser";
-import { expect, onTestFinished, test, vi } from "vitest";
+import { beforeAll, expect, onTestFinished, test, vi } from "vitest";
 import geometryCss from "../../test/geometry.css?inline";
 import { expectNoA11yViolations } from "../../test/a11y";
 import { fieldWiringTests } from "../../test/field-wiring";
-import { TextEdit } from "./text-edit";
+import { preloadTextEdit, TextEdit } from "./text-edit";
 import { Field as BaseField } from "@base-ui/react/field";
 import { Field, FieldDescription, FieldError, FieldLabel } from "./field";
+
+// TextEdit renders a light read view and loads its editor on intent; these tests exercise the
+// editor itself, so load it up front — every TextEdit then swaps it in right after mounting.
+beforeAll(() => preloadTextEdit());
 
 // Tiptap mounts a real ProseMirror contenteditable, so these tests require the
 // browser DOM that vitest browser-mode provides (jsdom is insufficient).
@@ -427,6 +431,9 @@ function selectTail(block: Element, count: number) {
   const selection = window.getSelection()!;
   selection.removeAllRanges();
   selection.addRange(range);
+  // ProseMirror reads the DOM selection on the async `selectionchange`; fire it now so a view
+  // update in between cannot write the old caret back over this range.
+  document.dispatchEvent(new Event("selectionchange"));
 }
 
 // ---- DS-48: Markdown format, readOnly, disabled ---------------------------------------------
@@ -568,15 +575,27 @@ test("no a11y violations — Markdown, editable", async () => {
 const slashMenu = () =>
   document.querySelector('[role="listbox"][data-slot="text-edit-slash-menu"]');
 
-function markdownEditor(
+async function markdownEditor(
   props: Partial<React.ComponentProps<typeof TextEdit>> = {},
 ) {
-  return render(
+  const screen = await render(
     <>
       <TextEdit format="markdown" aria-label="Notes" {...props} />
       <button type="button">Outside</button>
     </>,
   );
+  // The preloaded editor swaps in for the read view right after mounting; wait for it.
+  if (!props.readOnly && !props.disabled)
+    await vi.waitFor(() => {
+      expect(screen.container.querySelector(".ProseMirror")).not.toBeNull();
+      expect(
+        screen.container.querySelector('[data-slot="text-edit-read"]'),
+      ).toBeNull();
+    });
+  // Let Tiptap finish its first-frame setup (its create event and view sync) before a test
+  // drives the selection.
+  await new Promise((resolve) => setTimeout(resolve, 50));
+  return screen;
 }
 
 test("leaving with a change commits once; leaving unchanged commits nothing", async () => {

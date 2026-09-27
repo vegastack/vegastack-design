@@ -1,10 +1,14 @@
 import * as React from "react";
 import { render } from "vitest-browser-react";
-import { expect, test } from "vitest";
+import { beforeAll, expect, test } from "vitest";
 import { expectNoA11yViolations } from "../../test/a11y";
 import { proseClassName } from "@vegastack/design";
 import { MarkdownView } from "./markdown-view";
-import { TextEdit } from "./text-edit";
+import { preloadTextEdit, TextEdit } from "./text-edit";
+
+// TextEdit renders a light read view and loads its editor on intent; these tests exercise the
+// editor itself, so load it up front — every TextEdit then swaps it in right after mounting.
+beforeAll(() => preloadTextEdit());
 
 /** The class list of a prose root, as a set, so order never matters. */
 function classes(element: Element): Set<string> {

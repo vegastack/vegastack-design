@@ -488,13 +488,6 @@ const RAW_INTERACTIVE_EXEMPTIONS = new Map([
     },
   ],
   [
-    "registry/ui/markdown-view.tsx",
-    {
-      counts: { input: 1 },
-      rationale: "react-markdown non-checkbox input passthrough",
-    },
-  ],
-  [
     "registry/ui/sidebar.tsx",
     {
       counts: { button: 1 },

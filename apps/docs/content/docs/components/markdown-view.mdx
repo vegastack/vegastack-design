@@ -28,16 +28,21 @@ source comes from a data field:
 <MarkdownView content={task.description} />
 ```
 
-`MarkdownView` is built on [`react-markdown`](https://github.com/remarkjs/react-markdown)
-with `remark-gfm` (tables, strikethrough, task lists, autolinks). It builds a
-React tree directly — never `dangerouslySetInnerHTML` — so any raw HTML in the
-source is escaped to inert text. It is server-safe (no `'use client'`) and
-renders nothing for empty/whitespace input.
+`MarkdownView` tokenizes with [`marked`](https://marked.js.org)'s lexer
+(CommonMark + GitHub-flavored markdown: tables, strikethrough, task lists,
+autolinks — the same parser `TextEdit`'s Markdown format uses) and rebuilds the
+tokens as React elements — never `dangerouslySetInnerHTML` — so any raw HTML in
+the source renders as inert text. It is server-safe (no `'use client'`), light
+enough for a page's first bundle (one ~13 KB parser), and renders nothing for
+empty/whitespace input.
 
 Relative image paths render normally. Absolute and protocol-relative remote
 images are blocked by default so untrusted Markdown cannot create tracking
 requests. When a trusted media host is required, allow its exact origin; allowed
 remote images send no referrer:
+
+`["*"]` allows every HTTP(S) origin, for content whose author is trusted to embed images —
+`TextEdit`'s read view passes it, matching the editor, which shows any image.
 
 ```tsx
 <MarkdownView allowedImageOrigins={["https://media.example.com"]}>
@@ -62,7 +67,7 @@ typography rather than two that agree by review.
 
 ### GitHub-flavored markdown
 
-`remark-gfm` adds tables, `~~strikethrough~~`, and `- [ ]` task lists. Task-list
+GitHub-flavored markdown adds tables, `~~strikethrough~~`, and `- [ ]` task lists. Task-list
 checkboxes are rendered read-only (display only).
 
 <ComponentPreview
@@ -118,6 +123,23 @@ heading takes the prose style of the level it lands on.
 <MarkdownView headingOffset={2}>{notes}</MarkdownView>
 ```
 
+### HTML source
+
+`format="html"` renders HTML instead of markdown — `TextEdit`'s `format="html"` output, which is
+how `TextEdit` shows a saved document before it is first edited. The HTML is rebuilt through a tag
+and attribute allowlist (the elements rich text uses: headings, paragraphs, marks, lists and task
+lists, quotes, code, tables, links, images), never injected: scripts, styles, event handlers and
+unsafe URLs are dropped, and the same link, image, code-block and task-list rules apply.
+
+<ComponentPreview
+  name="markdownViewHtml"
+  file="components/preview/markdown-view.tsx"
+/>
+
+```tsx
+<MarkdownView format="html" content={note.html} />
+```
+
 ## API Reference
 
 <ApiTable
@@ -130,10 +152,11 @@ heading takes the prose style of the level it lands on.
 - Markdown maps to **semantic HTML** — `# ` → `<h1>`, `- ` → `<ul><li>`, `> ` →
   `<blockquote>`, ` ``` ` → `<pre><code>` — so the document structure is exposed
   to assistive technology and heading navigation works.
-- **XSS-safe by construction:** react-markdown never uses
-  `dangerouslySetInnerHTML` and escapes raw HTML, so `<script>`, `<img onerror>`,
-  and inline event handlers in untrusted input render as plain text rather than
-  executing. `rehype-raw` is intentionally **not** added.
+- **XSS-safe by construction:** every element is rebuilt as a React element —
+  never `dangerouslySetInnerHTML` — and raw HTML in markdown renders as text, so
+  `<script>`, `<img onerror>`, and inline event handlers in untrusted input render
+  as plain text rather than executing. `format="html"` keeps only allowlisted
+  tags and attributes.
 - Links open in a new tab with `rel="noreferrer noopener"` (no reverse
   tabnabbing); unsafe URL protocols (e.g. `javascript:`) are dropped.
 - Remote images are blocked unless their exact HTTP(S) origin appears in
@@ -152,5 +175,5 @@ heading takes the prose style of the level it lands on.
 
 <DoDont
   do="Use MarkdownView for trusted-or-untrusted markdown — it escapes raw HTML, so user-authored comments and descriptions render safely without extra sanitization."
-  dont="Add rehype-raw to render embedded HTML — it re-enables the XSS vectors this component exists to avoid. Build a dedicated, separately-sanitized renderer if raw HTML is truly required."
+  dont='Inject embedded HTML with dangerouslySetInnerHTML around it — it re-enables the XSS vectors this component exists to avoid. Use format="html" for rich-text HTML; it rebuilds only allowlisted tags.'
 />

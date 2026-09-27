@@ -1,9 +1,14 @@
 import * as React from "react";
 import { render } from "vitest-browser-react";
-import { expect, test, vi } from "vitest";
+import { beforeAll, expect, test, vi } from "vitest";
 import { userEvent } from "vitest/browser";
 import { expectNoA11yViolations } from "../../test/a11y";
 import { CommentComposer, CommentItem, CommentList } from "./comments";
+import { preloadTextEdit } from "./text-edit";
+
+// TextEdit renders a light read view and loads its editor on intent; these tests exercise the
+// editor itself, so load it up front — every TextEdit then swaps it in right after mounting.
+beforeAll(() => preloadTextEdit());
 
 test("lists comments with a count, and shows the empty state", async () => {
   const screen = await render(

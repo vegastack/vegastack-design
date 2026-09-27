@@ -95,8 +95,7 @@ function expectedEnginePackages(dependencies = [], sourceFiles = []) {
     if (dependency.startsWith("next-themes")) packages.add("next-themes");
     if (dependency.startsWith("react-day-picker"))
       packages.add("react-day-picker");
-    if (dependency.startsWith("react-markdown")) packages.add("react-markdown");
-    if (dependency.startsWith("remark-gfm")) packages.add("remark-gfm");
+    if (dependency.startsWith("marked@")) packages.add("marked");
     // The D1-D4 sanctioned engines (MK, 2026-07-27). `-hitbox` folds into the
     // pragmatic engine identity.
     if (dependency.startsWith("@tanstack/react-table"))

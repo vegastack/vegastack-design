@@ -310,7 +310,9 @@ The controlled `search` config passed to `FilterBar`.
 A date-range chip in the same shape as a facet. Presets: Today · Yesterday · Last 7 days · Last 30
 days · This month · Last month · Custom range (a two-month calendar with Apply). Set, it reads the
 preset ("Due: Last 7 days") or the dates from the date-time helpers ("Due: Sep 1–25").
-`dateRangeForPreset(preset, now)` returns the `{ from, to }` a preset covers, for the query.
+`dateRangeForPreset(preset, now)` returns the `{ from, to }` a preset covers, for the query. The
+custom-range calendar loads lazily — fetched when the chip is hovered, focused or opened — so a
+filter bar never puts the calendar engine in the page's first bundle.
 
 ```tsx
 <DateRangeFilter label="Created" value={created} onValueChange={setCreated} />

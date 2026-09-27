@@ -76,7 +76,7 @@ const EXPECTED_HOSTS = new Map([
   // caret) in the editor — no Base UI popup fits, so it is a raw `createPortal` to `<body>` of a
   // `position: fixed` listbox. `SlashMenu` receives `useInternalThemeScope()` and attaches it to
   // the listbox itself, the element rendered inside the portal.
-  ["packages/ui/registry/ui/text-edit.tsx", ["createPortal"]],
+  ["packages/ui/registry/ui/text-edit-editor.tsx", ["createPortal"]],
 ]);
 
 function walk(dir, out = []) {
