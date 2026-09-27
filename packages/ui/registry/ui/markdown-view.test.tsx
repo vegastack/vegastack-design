@@ -111,7 +111,7 @@ test("MarkdownView and TextEdit wear the identical prose recipe", async () => {
     (rule) => !recipe.includes(rule) && !editorMarkers.has(rule),
   );
   // The editor's ProseMirror resets (placeholder pseudo-element, table scroll box, selection
-  // washes) are layout parity with MarkdownView, not typography.
+  // washes, the column-resize line) are layout parity with MarkdownView, not typography.
   expect(extras.sort()).toEqual(
     [
       "min-h-6",
@@ -128,6 +128,15 @@ test("MarkdownView and TextEdit wear the identical prose recipe", async () => {
       "[&_.tableWrapper]:w-full",
       "[&_.tableWrapper]:overflow-x-auto",
       "[&_.selectedCell]:bg-accent",
+      "[&_td]:relative",
+      "[&_th]:relative",
+      "[&_.column-resize-handle]:pointer-events-none",
+      "[&_.column-resize-handle]:absolute",
+      "[&_.column-resize-handle]:-inset-y-px",
+      "[&_.column-resize-handle]:-end-px",
+      "[&_.column-resize-handle]:w-0.5",
+      "[&_.column-resize-handle]:bg-primary/50",
+      "[&.resize-cursor]:cursor-col-resize",
       "[&_.ProseMirror-selectednode]:rounded-sm",
       "[&_.ProseMirror-selectednode]:bg-accent",
     ].sort(),

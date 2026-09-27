@@ -287,6 +287,7 @@ const DYNAMIC_DOM: Record<string, string> = {
   markdownInPlace: ".ProseMirror[contenteditable]",
   textEditPlaceholders: ".ProseMirror[contenteditable]",
   markdownTables: ".ProseMirror[contenteditable]",
+  htmlTables: ".ProseMirror[contenteditable]",
   markdownBlockHandles: ".ProseMirror[contenteditable]",
 };
 
@@ -601,7 +602,7 @@ const focusSignature = (control: Element): FocusSignature => ({
  * indicator. A `role="textbox"` contenteditable that declares `data-focus-cue="caret"` — TextEdit's
  * default `document` variant (MK 2026-09-26), a Notion-style editor that must rest looking exactly
  * like the `MarkdownView` it replaces — and Input's borderless `ghost` variant (a title typed
- * straight onto the page; MK 2026-09-27: it keeps its hover tint and takes no focus fill). The
+ * straight onto the page; MK 2026-09-28: no fill at rest, on hover or on focus). The
  * exemption is narrow on purpose: the contenteditable needs all three attributes, so a stray
  * `data-focus-cue` on a button or a plain div cannot opt out, and forced colours still restore the
  * outline (base.css FOC-7 covers `input:focus` and `[contenteditable="true"]:focus`).

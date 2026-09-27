@@ -41,15 +41,16 @@ the value only if the save takes longer than 300ms; on failure the value rolls
 back, the failure is announced and a toast offers Retry (the app mounts
 `Toaster`). `onCommit` is the older name of `onSave` and still works.
 
-**Affordance.** The only affordances are the hover tint, a text cursor and an optional `tooltip`.
-Keyboard focus shows the same tint; <kbd>Tab</kbd> reaches the cell and <kbd>Enter</kbd> or
+**Affordance.** No fill at rest, on hover or while editing — the text cursor and an optional
+`tooltip` are the only pointer affordances. Keyboard focus on the resting value shows the system's
+focus tint; <kbd>Tab</kbd> reaches the cell and <kbd>Enter</kbd> or
 
 <kbd>F2</kbd> starts editing.
 
 **In a property list.** Inside a `PropertyValue` the inline cell's box turns compact — 6px and 2px
 of padding hung outside by equal negative margins — so its text lines up exactly (left edge,
-baseline, row height) with the read-only values beside it, in every state, and matches a ghost
-`RecordChip`'s tint. See [Property List](/docs/components/property-list#inline-rows-and-sections).
+baseline, row height) with the read-only values beside it, in every state; the box keeps its hit
+area but paints no fill. See [Property List](/docs/components/property-list#inline-rows-and-sections).
 
 ## Scope
 
@@ -78,7 +79,7 @@ direction to move to the next cell (<kbd>Shift</kbd> goes back).
 
 `variant="heading"` keeps the heading's size and weight and wraps naturally, in view and in edit.
 It has no box padding, so the title is edited exactly where it is rendered — idle and editing sit at
-the same position, lined up with the lines below, and only the hover tint marks it editable. Put the
+the same position, lined up with the lines below, and only the text cursor marks it editable. Put the
 cell inside the heading element rather than restyling its parts.
 
 ```tsx

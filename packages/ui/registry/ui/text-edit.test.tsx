@@ -995,39 +995,95 @@ test("pasting a URL over a selection links it; pasted HTML is sanitized", async 
 
 const TABLE = "| A   | B   |\n| --- | --- |\n| 1   | 2   |\n| 3   | 4   |";
 
-test("table menu: insert, move and delete rows and columns", async () => {
+const tableMenu = () =>
+  document.querySelector<HTMLElement>("[data-text-edit-menu]");
+
+/** Hover `cell`, then press (no travel) its row or column grip: the line's menu opens. */
+async function openTableMenu(axis: "row" | "col" | "table", cell: Element) {
+  await userEvent.unhover(cell);
+  await userEvent.hover(cell);
+  const grip = () =>
+    document.querySelector<HTMLElement>(
+      `[data-slot="text-edit-table-grip"][data-axis="${axis}"]`,
+    );
+  await vi.waitFor(() => expect(grip()).not.toBeNull());
+  const box = grip()!.getBoundingClientRect();
+  pointer("pointerdown", grip()!, box.left + 2, box.top + 2);
+  pointer("pointerup", window, box.left + 2, box.top + 2);
+  await vi.waitFor(() => expect(tableMenu()).not.toBeNull());
+}
+
+async function chooseTableItem(label: string) {
+  const item = [
+    ...tableMenu()!.querySelectorAll<HTMLElement>('[role^="menuitem"]'),
+  ].find((element) => element.textContent === label);
+  expect(item, label).toBeDefined();
+  await userEvent.click(item!);
+  await vi.waitFor(() => expect(tableMenu()).toBeNull());
+}
+
+test("table grips open row and column menus: move, duplicate and delete", async () => {
   const onValueChange = vi.fn();
   const screen = await markdownEditor({ defaultValue: TABLE, onValueChange });
   const box = screen.getByRole("textbox", { name: "Notes" }).element();
-  await userEvent.click(box.querySelectorAll("td")[0]!);
-  const menu = () =>
-    document.querySelector<HTMLElement>('[data-slot="text-edit-table-menu"]');
-  await vi.waitFor(() => expect(menu()).not.toBeNull());
-  const press = (label: string) =>
-    userEvent.click(
-      menu()!.querySelector<HTMLElement>(`[aria-label="${label}"]`)!,
-    );
-  await press("Move column right");
+  const td = (index: number) => box.querySelectorAll("td")[index]!;
+  await openTableMenu("col", td(0));
+  await chooseTableItem("Move right");
   await vi.waitFor(() =>
     expect(lastValue(onValueChange)).toBe(
       "| B   | A   |\n| --- | --- |\n| 2   | 1   |\n| 4   | 3   |",
     ),
   );
-  await press("Move row down");
+  await openTableMenu("row", td(0));
+  await chooseTableItem("Move down");
   await vi.waitFor(() =>
     expect(lastValue(onValueChange)).toBe(
       "| B   | A   |\n| --- | --- |\n| 4   | 3   |\n| 2   | 1   |",
     ),
   );
-  await press("Insert row below");
+  await openTableMenu("row", td(0));
+  await chooseTableItem("Duplicate");
   await vi.waitFor(() => expect(box.querySelectorAll("tr").length).toBe(4));
-  await press("Delete row");
+  await openTableMenu("row", td(0));
+  await chooseTableItem("Delete row");
   await vi.waitFor(() => expect(box.querySelectorAll("tr").length).toBe(3));
-  await press("Delete column");
+  await openTableMenu("col", td(0));
+  await chooseTableItem("Delete column");
   await vi.waitFor(() =>
     expect(box.querySelectorAll("tr")[0]!.children.length).toBe(1),
   );
   expect(lastValue(onValueChange)).toMatch(/^\| [AB] +\|\n\| --- \|/);
+});
+
+test("the corner grip deletes the table; the + bars add a row and a column", async () => {
+  const onValueChange = vi.fn();
+  const screen = await markdownEditor({ defaultValue: TABLE, onValueChange });
+  const box = screen.getByRole("textbox", { name: "Notes" }).element();
+  const add = (axis: "row" | "col") =>
+    document.querySelector<HTMLElement>(
+      `[data-slot="text-edit-table-add"][data-axis="${axis}"]`,
+    );
+  await userEvent.hover(box.querySelectorAll("td")[0]!);
+  await vi.waitFor(() => expect(add("row")).not.toBeNull());
+  await userEvent.click(add("row")!);
+  await vi.waitFor(() => expect(box.querySelectorAll("tr").length).toBe(4));
+  await userEvent.unhover(box);
+  await userEvent.hover(box.querySelectorAll("td")[0]!);
+  await vi.waitFor(() => expect(add("col")).not.toBeNull());
+  await userEvent.click(add("col")!);
+  await vi.waitFor(() =>
+    expect(box.querySelectorAll("tr")[3]!.children.length).toBe(3),
+  );
+  await vi.waitFor(() =>
+    expect(lastValue(onValueChange)?.split("\n")).toHaveLength(5),
+  );
+  // No block handle over a table: the corner grip stands in its place.
+  expect(
+    document.querySelector('[data-slot="text-edit-block-handle"]'),
+  ).toBeNull();
+  await openTableMenu("table", box.querySelectorAll("td")[0]!);
+  await chooseTableItem("Delete table");
+  await vi.waitFor(() => expect(box.querySelector("table")).toBeNull());
 });
 
 test("Tab and Shift+Tab move between table cells", async () => {

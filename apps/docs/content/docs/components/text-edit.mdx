@@ -115,12 +115,13 @@ Inside, it composes these pieces:
   // data-slot="text-edit-bubble-menu" — role="toolbar", over a selection
   //   (or text-edit-link / text-edit-image / text-edit-turn-into while a panel is open)
   <BubbleMenu />
-  // data-slot="text-edit-table-menu" — role="toolbar", while the caret is in a table
-  <TableMenu />
   // data-slot="text-edit-slash-menu" — role="listbox", while typing after /
   <SlashMenu />
-  // data-slot="text-edit-block-handle" / "text-edit-table-grip" — pointer-only drag handles
+  // data-slot="text-edit-block-handle" — pointer-only drag handle beside the hovered block
   <BlockHandle />
+  // over the hovered table: data-slot="text-edit-table-grip" (data-axis row | col | table) —
+  // buttons that open a DropdownMenu and drag to reorder; data-slot="text-edit-table-add" — "+" bars
+  <TableControls />
 </TextEdit>
 ```
 
@@ -132,10 +133,13 @@ Inside, it composes these pieces:
 - **Bubble menu** (`data-slot="text-edit-bubble-menu"`, `role="toolbar"`) — a Turn into button,
   `Toggle` buttons for bold, italic, strikethrough, inline code and link, and Clear formatting;
   link swaps it for an inline URL input with Open and Remove (`data-slot="text-edit-link"`).
-- **Table menu** (`data-slot="text-edit-table-menu"`, `role="toolbar"`) — insert, move and delete
-  rows and columns, delete the table.
-- **Handles** (`data-slot="text-edit-block-handle"`, `data-slot="text-edit-table-grip"`) — pointer
-  drag handles; the keyboard has the same moves.
+- **Block handle** (`data-slot="text-edit-block-handle"`) — a pointer drag handle; the keyboard has
+  the same moves.
+- **Table controls** — for the hovered table only: row, column and corner grips
+  (`data-slot="text-edit-table-grip"`, `data-axis="row" | "col" | "table"`), each a labelled button
+  that opens a `DropdownMenu` and drags to reorder (the corner moves the whole table, where every
+  block's handle sits), and the "+" bars (`data-slot="text-edit-table-add"`) that add a row or a
+  column at the end.
 - **Slash menu** (`data-slot="text-edit-slash-menu"`, `role="listbox"`) — the block menu, in the
   Command item style with muted icons. Focus stays in the editor; the caret never moves.
 - **Read view** (`data-slot="text-edit-read"`, `role="textbox"`) — the saved document as
@@ -191,21 +195,48 @@ the same markdown.
 
 ### Tables
 
-A table menu (insert, move and delete rows and columns) while the caret is in a cell, drag grips on
-the hovered cell's column and row, and <kbd>Tab</kbd> / <kbd>Shift</kbd> <kbd>Tab</kbd> between
-cells. The header row always stays first — GFM has no other place for it.
+Notion's simple table: a rounded outer border, a rule between every cell, and a header row on a
+muted ground at medium weight — the same styles in the read view (`MarkdownView`) and the editor.
+There is no toolbar; everything is on hover, for the hovered table only:
+
+- **Row grip** (⠿ on the row's inner left edge) — click to select the row and open its menu:
+  Insert above, Insert below, Move up, Move down, Duplicate, Clear contents, Delete row. Drag it to
+  reorder rows.
+- **Column grip** (on the column's inner top edge) — Insert left, Insert right, Move left, Move
+  right, Duplicate, Clear contents, Delete column. Drag it to reorder columns.
+- **Corner grip** (where every block's handle sits) — selects the whole table: Clear contents,
+  Delete table; drag it to move the table. A fully selected table also deletes with
+  <kbd>Backspace</kbd> or <kbd>Delete</kbd>.
+- **"+" bars** below and beside the table add a row or a column at the end.
+- **Column borders** drag to resize (`col-resize` cursor, a thin line on the border). Markdown has no
+  column widths, so in `format="markdown"` a width lasts for the session; HTML keeps it.
+
+<kbd>Tab</kbd> / <kbd>Shift</kbd> <kbd>Tab</kbd> move between cells and
+<kbd>Tab</kbd> in the last cell adds a row; <kbd>Enter</kbd> stays in the cell;
+`/table` inserts a 3×3 table with a header row. The header row always stays
+first — GFM has no other place for it — and saves as GFM markdown that loads
+back identically.
 
 <ComponentPreview
   name="markdownTables"
   file="components/preview/text-edit.tsx"
 />
 
+#### HTML tables
+
+With `format="html"` the corner, first-row and first-column menus also toggle the **Header row** and
+**Header column** (markdown always has exactly one header row, so the toggles appear only here).
+Beside it, the same table in `MarkdownView`.
+
+<ComponentPreview name="htmlTables" file="components/preview/text-edit.tsx" />
+
 ### Block handles
 
 The ⋮⋮ handle beside the hovered block drags it (or a single list item) to a new place;
 
 <kbd>Mod</kbd> <kbd>Shift</kbd> <kbd>↑</kbd> / <kbd>↓</kbd> does the same from
-the keyboard. `dragHandles=false` turns the handle and the table grips off.
+the keyboard. A table's handle is its corner grip (see Tables).
+`dragHandles=false` turns the handle and all the table's hover controls off.
 
 The handle is a narrow grip 3px before the text, so it fits inside the 16px padding of a Dialog,
 Sheet, Popover or Card and never touches the container's edge; the text keeps its column, with no
@@ -347,9 +378,13 @@ fires it with the current value. It's presentational only: the **host** decides 
   declares `data-focus-cue="caret"`). In `boxed` mode the box's border darkens subtly while the
   editor holds focus and nothing fills (`data-focus-cue="border"`); an invalid box keeps its
   destructive border. Either way forced-colours mode restores a system outline.
-- The table menu is a `Toolbar` labelled "Table"; the drag handles are pointer-only and hidden from
-  assistive tech, because <kbd>Mod</kbd> <kbd>Shift</kbd> <kbd>↑</kbd> / <kbd>↓</kbd> and the table
-  menu's move buttons do the same from the keyboard.
+- The table grips are buttons labelled "Row options", "Column options" and "Table options"; each
+  opens a Base UI `DropdownMenu` (arrow keys, <kbd>Enter</kbd>, <kbd>Esc</kbd>, focus returns to the
+  editor). From the keyboard, <kbd>Shift</kbd> <kbd>F10</kbd> (or the context-menu key) in a table
+  opens the menu for the selection: a selected column (<kbd>Shift</kbd> + arrows across cells), the
+  whole table, else the caret's row. The "+" bars are labelled "Add row" and "Add column". The block
+  handle is pointer-only and hidden from assistive tech, because <kbd>Mod</kbd> <kbd>Shift</kbd>
+  <kbd>↑</kbd> / <kbd>↓</kbd> does the same from the keyboard.
 - An invalid control (`aria-invalid`) sets `data-invalid` on the root for downstream styling; pair
   it with visible error text through `aria-describedby`.
 - `readOnly` marks the surface read-only.
@@ -368,8 +403,9 @@ fires it with the current value. It's presentational only: the **host** decides 
 | <kbd>Cmd/Ctrl</kbd> + <kbd>Enter</kbd>                | Fire `onSubmit` with the current value (when set); otherwise commit and blur. Plain <kbd>Enter</kbd> still inserts a newline. |
 | <kbd>Esc</kbd>                                        | Revert to the value focus found, blur, and fire `onRevert`.                                                                   |
 | <kbd>Cmd/Ctrl</kbd> + <kbd>K</kbd>                    | Open the inline link input (add, edit or remove the link).                                                                    |
-| <kbd>Tab</kbd>                                        | Indent a list item, or move to the next table cell; elsewhere, move focus out of the editor.                                  |
+| <kbd>Tab</kbd>                                        | Indent a list item, or move to the next table cell (the last cell adds a row); elsewhere, move focus out of the editor.       |
 | <kbd>Shift</kbd> + <kbd>Tab</kbd>                     | Outdent a list item, or move to the previous table cell.                                                                      |
+| <kbd>Shift</kbd> + <kbd>F10</kbd>                     | In a table, open the row, column or table menu for the selection.                                                             |
 | <kbd>/</kbd>                                          | Open the slash menu.                                                                                                          |
 
 <StatesTested name="text-edit" />

@@ -118,12 +118,21 @@ export const prose = {
 
   hr: "[&_hr]:my-4 [&_hr]:border-border",
 
-  // GFM tables. The scroll container is structural and belongs to the consumer (MarkdownView wraps
-  // the table in an `overflow-x-auto` div); these are the cell and rule tokens. Cells take
+  // GFM tables, Notion's simple table: a rounded outer border, a rule between every cell, and a
+  // header row on a subtle muted ground at medium weight. The scroll container is structural and
+  // belongs to the consumer (MarkdownView and TextEdit each wrap the table in an `overflow-x-auto`
+  // box); these are the cell and rule tokens. `border-separate` with zero spacing is what lets the
+  // table itself take the radius (a collapsed table cannot); each cell draws only its bottom and
+  // end rule, the last row and column drop theirs against the outer border, and the corner cells
+  // take the radius so a header or selected fill never pokes past the curve. Cells take
   // `break-word`, not the root's `anywhere`, so a column keeps its words whole and the table scrolls
   // in its box rather than crushing to one character per line.
   table:
-    "[&_table]:w-full [&_table]:border-collapse [&_thead]:border-b [&_thead]:border-border [&_tr]:border-b [&_tr]:border-border [&_tr]:last:border-0 [&_th]:px-3 [&_th]:py-2 [&_th]:text-start [&_th]:font-medium [&_td]:px-3 [&_td]:py-2 [&_td_p]:my-0 [&_th_p]:my-0 [&_th]:wrap-break-word [&_td]:wrap-break-word",
+    "[&_table]:w-full [&_table]:border-separate [&_table]:border-spacing-0 [&_table]:rounded-lg [&_table]:border [&_table]:border-border",
+  tableRules:
+    "[&_th]:border-e [&_th]:border-b [&_th]:border-border [&_td]:border-e [&_td]:border-b [&_td]:border-border [&_tr>*:last-child]:border-e-0 [&_tbody>tr:last-child>*]:border-b-0 [&_tr:first-child>*:first-child]:rounded-ss-lg [&_tr:first-child>*:last-child]:rounded-se-lg [&_tbody>tr:last-child>*:first-child]:rounded-es-lg [&_tbody>tr:last-child>*:last-child]:rounded-ee-lg",
+  tableCells:
+    "[&_th]:bg-muted/50 [&_th]:px-3 [&_th]:py-2 [&_th]:text-start [&_th]:align-top [&_th]:font-medium [&_td]:px-3 [&_td]:py-2 [&_td]:align-top [&_td_p]:my-0 [&_th_p]:my-0 [&_th]:wrap-break-word [&_td]:wrap-break-word",
 
   img: "[&_img]:my-2 [&_img]:max-w-full [&_img]:rounded-lg [&_img]:border [&_img]:border-border",
 } as const;
