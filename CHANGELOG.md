@@ -9,6 +9,19 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.23.57] — September 27, 2026
+
+<!-- assembled from 1 changeset: 2203437c4aa1 -->
+
+### 🔧 Changed components
+
+- Form flow: Stepper labels keep one padding and weight in every state (no shift, no press motion) and a crowded horizontal rail scrolls; MultiStepForm gets self-clearing `validate` checks, `mobileNav="stepper"` and an action row with `start` / `status` / `secondary` slots (Cancel is a ghost button before Back); new `FieldGrid` / `FieldGridItem` / `FieldChoices` (responsive 1–3 column fields, inline radios and checkboxes); `useAutoSave` + `AutoSaveIndicator` for forms that save as you go; `AttachmentGroup layout="grid"` tiles at listing size.
+  [`4cfe999`](https://github.com/VegaStack/vegastack-design/commit/4cfe999)
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.23.56 → 0.23.57.
+
 ## [0.23.56] — September 27, 2026
 
 <!-- assembled from 1 changeset: 1b4a4bb22e3c -->

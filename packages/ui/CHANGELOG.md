@@ -1,5 +1,11 @@
 # @vegastack/ui
 
+## 0.23.57
+
+### Patch Changes
+
+- [#373](https://github.com/vegastack/vegastack-design/pull/373) [`4cfe999`](https://github.com/vegastack/vegastack-design/commit/4cfe99971bac2ae9df4e1ba43cf05ab40d088787) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🔧 Form flow: Stepper labels keep one padding and weight in every state (no shift, no press motion) and a crowded horizontal rail scrolls; MultiStepForm gets self-clearing `validate` checks, `mobileNav="stepper"` and an action row with `start` / `status` / `secondary` slots (Cancel is a ghost button before Back); new `FieldGrid` / `FieldGridItem` / `FieldChoices` (responsive 1–3 column fields, inline radios and checkboxes); `useAutoSave` + `AutoSaveIndicator` for forms that save as you go; `AttachmentGroup layout="grid"` tiles at listing size.
+
 ## 0.23.56
 
 ### Patch Changes
