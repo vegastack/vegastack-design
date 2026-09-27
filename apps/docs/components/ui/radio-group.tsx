@@ -1,4 +1,4 @@
-// @vegastack radio-group@0.23.54 sha256-Tc5NJi41weSlGEDNXmtgM1WS6Y+vY+sDncxtv3pzoWU=
+// @vegastack radio-group@0.23.55 sha256-w0T0NzrCo90yy7AksKhOTsVkjK1c0nsWIcARvCb6sgE=
 
 "use client";
 

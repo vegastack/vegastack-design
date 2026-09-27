@@ -9,6 +9,19 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.23.55] — September 27, 2026
+
+<!-- assembled from 1 changeset: 667d66340289 -->
+
+### 🔧 Changed components
+
+- `SortableList` list rows are as dense as a `DataList`'s — compact padding, 2px between rows (ItemGroup's 10px gap no longer applies), a subtle wash on hover — and the row's ⋯ menu trigger now shows on row hover or focus, while its menu is open, and always on touch, like the ×.
+  [`1dba41b`](https://github.com/VegaStack/vegastack-design/commit/1dba41b)
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.23.54 → 0.23.55.
+
 ## [0.23.54] — September 27, 2026
 
 <!-- assembled from 3 changesets: b009f5e71fdc -->
