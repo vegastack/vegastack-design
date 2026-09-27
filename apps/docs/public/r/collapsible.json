@@ -11,7 +11,7 @@
   "files": [
     {
       "path": "packages/ui/registry/ui/collapsible.tsx",
-      "content": "// @vegastack collapsible@0.23.63 sha256-6AbIz4J0BTE2a1txQLypH94lTYSd4Ogeo0rwkHPci3k=\n\n\"use client\";\n\nimport { Collapsible as CollapsiblePrimitive } from \"@base-ui/react/collapsible\";\n\nfunction Collapsible({ ...props }: CollapsiblePrimitive.Root.Props) {\n  return <CollapsiblePrimitive.Root data-slot=\"collapsible\" {...props} />;\n}\n\nfunction CollapsibleTrigger({ ...props }: CollapsiblePrimitive.Trigger.Props) {\n  return (\n    <CollapsiblePrimitive.Trigger data-slot=\"collapsible-trigger\" {...props} />\n  );\n}\n\nfunction CollapsibleContent({ ...props }: CollapsiblePrimitive.Panel.Props) {\n  return (\n    <CollapsiblePrimitive.Panel data-slot=\"collapsible-content\" {...props} />\n  );\n}\n\nexport { Collapsible, CollapsibleTrigger, CollapsibleContent };\n",
+      "content": "// @vegastack collapsible@0.23.64 sha256-TD7kj0vogfoXQs80uz7Rc8UeRd2n54FkwVOjtJDLsME=\n\n\"use client\";\n\nimport { Collapsible as CollapsiblePrimitive } from \"@base-ui/react/collapsible\";\n\nfunction Collapsible({ ...props }: CollapsiblePrimitive.Root.Props) {\n  return <CollapsiblePrimitive.Root data-slot=\"collapsible\" {...props} />;\n}\n\nfunction CollapsibleTrigger({ ...props }: CollapsiblePrimitive.Trigger.Props) {\n  return (\n    <CollapsiblePrimitive.Trigger data-slot=\"collapsible-trigger\" {...props} />\n  );\n}\n\nfunction CollapsibleContent({ ...props }: CollapsiblePrimitive.Panel.Props) {\n  return (\n    <CollapsiblePrimitive.Panel data-slot=\"collapsible-content\" {...props} />\n  );\n}\n\nexport { Collapsible, CollapsibleTrigger, CollapsibleContent };\n",
       "type": "registry:ui",
       "target": "@ui/collapsible.tsx"
     }
@@ -19,8 +19,8 @@
   "meta": {
     "whenToUse": "A single show/hide region — extra detail, an optional form section, 'read more'.",
     "whenNotToUse": "Several coordinated sections where one opens at a time — use Accordion.",
-    "version": "0.23.63",
-    "integrity": "sha256-6AbIz4J0BTE2a1txQLypH94lTYSd4Ogeo0rwkHPci3k="
+    "version": "0.23.64",
+    "integrity": "sha256-TD7kj0vogfoXQs80uz7Rc8UeRd2n54FkwVOjtJDLsME="
   },
   "categories": [
     "data-display"
