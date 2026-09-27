@@ -41,9 +41,9 @@ title.
 ### Ghost
 
 `variant="ghost"` drops the border and the fill, so the text sits on the page like a heading — the
-title field of a new-issue dialog. Hover tints the background to show it is editable; focus paints
-no fill and no ring — the caret is the cue — and an invalid ghost field turns its placeholder
-destructive.
+title field of a new-issue dialog. Hover tints the background to show it is editable until the
+field is focused; a focused field paints no fill and no ring, even under the pointer — the caret is
+the cue — and an invalid ghost field turns its placeholder destructive.
 
 ```tsx
 <Input variant="ghost" size="lg" placeholder="Issue title" aria-label="Title" />
