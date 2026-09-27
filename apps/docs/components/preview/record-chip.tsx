@@ -146,6 +146,13 @@ function RecordChipGhostDemo(): ReactNode {
             aria-label="Reviewer: Priya Nair"
           />
         </GhostRow>
+        <GhostRow label="Owner">
+          <RecordChip
+            variant="ghost"
+            placeholder="Unassigned"
+            aria-label="Set owner"
+          />
+        </GhostRow>
         <GhostRow label="Due">
           <RecordChip
             variant="ghost"
@@ -203,6 +210,11 @@ export function recordChipStates(): ReactNode {
     <Wrapper className="flex-col items-start">
       <div className="flex flex-wrap items-center gap-2">
         <RecordChip placeholder="Add customer" icon={<Building2 />} />
+        <RecordChip
+          placeholder={null}
+          icon={<Folder />}
+          aria-label="Add project"
+        />
         <RecordChip
           icon={<Building2 />}
           value="Acme Corp"

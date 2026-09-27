@@ -1,4 +1,4 @@
-// @vegastack record-chip@0.23.57 sha256-bMR/NI3/7uWkiNQ9QR1IAupm5QU53cqBRkROR+vAKck=
+// @vegastack record-chip@0.23.57 sha256-UqwQ7X4pS9dPBZhpGeHxD5UodydLP4/gXx+fWWETLUg=
 
 import * as React from "react";
 import { ArrowUpRight, ChevronDown } from "lucide-react";
@@ -16,6 +16,8 @@ export interface RecordChipProps extends Omit<
 > {
   /**
    * `default` — the bordered pill, for a record's links ("Linked to").
+   * Empty (no `value`) is the same in both variants: a dashed border, the muted placeholder
+   * and a muted icon — the one "unset" look for every property pill, and `data-empty` is set.
    * `ghost` — a property value that reads as plain body text: no border, no leading icon (a
    * status or priority icon stays), the standard tint on hover and keyboard focus, and a ▾ that
    * fades in then. Its padding hangs outside `PropertyValue`, so its text lines up with plain
@@ -88,7 +90,8 @@ export type SplitChipProps = React.ComponentProps<"span">;
 
 /**
  * `SplitChip` — the pill shell behind RecordChip: a bordered, rounded-full container with one
- * shared `p-0.5` inset, so every segment inside it (a `SplitChipButton` main action, a
+ * shared `p-0.5` inset and a surface-aware fill (none in light, the outline Button's translucent
+ * `input/30` in dark), so it sits one step above a page, card, dialog, sheet or popover alike, so every segment inside it (a `SplitChipButton` main action, a
  * `SplitChipSeparator`, an icon link or button with `splitChipIconActionClassName`) shows its hover and open background with the
  * same gap from the border on every side. Use it for any "main action + icon action in one pill".
  *
@@ -106,7 +109,7 @@ export function SplitChip({ className, ...props }: SplitChipProps) {
     <span
       data-slot="split-chip"
       className={cn(
-        "inline-flex max-w-full min-w-0 items-center rounded-full border border-border bg-background p-0.5 text-xs font-medium text-foreground",
+        "inline-flex max-w-full min-w-0 items-center rounded-full border border-border bg-transparent p-0.5 text-xs dark:bg-input/30 font-medium text-foreground",
         className,
       )}
       {...props}
@@ -247,7 +250,7 @@ export function RecordChip({
       className={cn(
         ghost
           ? // No border and no fill: the chip is the value's text; the button carries the tint.
-            "gap-1 border-0 bg-transparent p-0 text-sm font-normal text-inherit data-empty:text-muted-foreground"
+            "gap-1 border-0 bg-transparent p-0 text-sm font-normal text-inherit data-empty:text-muted-foreground dark:bg-transparent"
           : "data-empty:border-dashed data-empty:text-muted-foreground",
         className,
       )}
@@ -257,11 +260,18 @@ export function RecordChip({
         type={type}
         className={
           ghost
-            ? // 24px tall and 6px of padding — a compact tint just around the text, the same box
-              // as an inline `EditableCell`: `PropertyValue` hangs both outside the row, so the
-              // text starts where plain values do and the row keeps its height. The ▾ is always
-              // laid out (only its opacity changes), so nothing moves on hover or open.
-              "h-6 gap-2 rounded-md px-1.5 text-sm font-normal [&:has(+[data-slot=split-chip-separator])]:pe-1.5 [&_svg:not([class*='size-'])]:size-3.5"
+            ? cn(
+                // 24px tall and 6px of padding — a compact tint just around the text, the same box
+                // as an inline `EditableCell`: `PropertyValue` hangs both outside the row, so the
+                // text starts where plain values do and the row keeps its height. The ▾ is always
+                // laid out (only its opacity changes), so nothing moves on hover or open.
+                "h-6 gap-2 rounded-md px-1.5 text-sm font-normal [&:has(+[data-slot=split-chip-separator])]:pe-1.5 [&_svg:not([class*='size-'])]:size-3.5",
+                // Empty reads as the one empty pill every chip shares: a dashed rounded-full
+                // border around the muted placeholder, inside the same 24px box; 5px of padding
+                // plus the 1px border keeps the text where plain values start.
+                !hasValue &&
+                  "rounded-full border border-dashed border-border px-1.25",
+              )
             : undefined
         }
         {...props}

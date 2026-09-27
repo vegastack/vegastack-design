@@ -169,10 +169,14 @@ test("ghost-chip-align: a ghost chip's text starts where plain values do, and ev
       (c) => getComputedStyle(c).display !== "none",
     )!;
     expect(first.getBoundingClientRect().left, id).toBeCloseTo(column, 0);
-    // No border, no fill at rest.
+    // No fill at rest; no border, except the empty pill's dashed one.
     const chip = valueCell(id).querySelector('[data-slot="record-chip"]')!;
     expect(getComputedStyle(chip).borderTopWidth, id).toBe("0px");
-    expect(getComputedStyle(trigger).borderTopWidth, id).toBe("0px");
+    expect(getComputedStyle(trigger).borderTopWidth, id).toBe(
+      id === "empty" ? "1px" : "0px",
+    );
+    if (id === "empty")
+      expect(getComputedStyle(trigger).borderTopStyle).toBe("dashed");
     expect(getComputedStyle(trigger).backgroundColor, id).toBe(
       "rgba(0, 0, 0, 0)",
     );

@@ -575,6 +575,31 @@ reserve. When the panel collapses to icons, the `tooltip` carries the count too.
 
 <ComponentPreview name="sidebarCounts" file="components/preview/sidebar.tsx" />
 
+### Count with a hover action
+
+A row can carry both a count and a quick action in the same spot. Add a
+`SidebarMenuAction showOnHover` beside a `badge`: at rest the count shows; while the row is hovered,
+holds keyboard focus, or the action's menu is open, the count hides and the action takes its place,
+with no layout shift and no motion. On touch (below `md`) there is no hover, so the action stays
+visible and the count sits just before it. Name the action with `aria-label`.
+
+```tsx
+<SidebarMenuItem>
+  <SidebarMenuButton render={<a href="/tasks" />} badge="8" badgeLabel="8 open">
+    <ListTodo />
+    <span>Tasks</span>
+  </SidebarMenuButton>
+  <SidebarMenuAction showOnHover aria-label="New task" onClick={openNewTask}>
+    <Plus />
+  </SidebarMenuAction>
+</SidebarMenuItem>
+```
+
+<ComponentPreview
+  name="sidebarCountAction"
+  file="components/preview/sidebar.tsx"
+/>
+
 ### Action row with shortcut
 
 A row that opens a palette shows its shortcut with `Kbd`. Mark the keys `aria-hidden` and put the
