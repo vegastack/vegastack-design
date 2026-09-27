@@ -41,8 +41,9 @@ comments; and the composer at the end. Pass `comments` oldest first; `order="new
 them. With no comments, the empty state offers "Add a comment", which reveals the composer and
 focuses it.
 
-`CommentComposer` is a light box — a near-transparent fill and a hairline border that never
-changes on focus, with no surface change and no tint on the editor itself (the caret is the cue) — whose editor grows with its text to about twelve lines
+`CommentComposer` is a light box — [`TextEdit`](/docs/components/text-edit)'s `boxed` variant on a
+near-transparent fill, with a hairline border that darkens subtly with an ease while the editor
+holds focus and no fill change — whose editor grows with its text to about twelve lines
 and then scrolls inside. Its placeholder is "Add a comment…". A round ↑ send button sits at the
 bottom right (a quiet grey disc while there is nothing to send; Cmd/Ctrl+Enter also sends) and an
 optional `attachments` slot at the bottom left. No avatar sits beside it. Editing a comment uses the same box,

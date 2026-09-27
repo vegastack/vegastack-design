@@ -1,4 +1,4 @@
-// @vegastack input-otp@0.23.53 sha256-KHwM4PsvXhcWcqpgW6TQC+JcqhzJZAmT2RQY1LeJfeY=
+// @vegastack input-otp@0.23.53 sha256-CLNSryxxOzYqszw+2GedSnUFP02vYiw4RCKPkBh+Ctk=
 
 "use client";
 
@@ -56,7 +56,7 @@ function InputOTPSlot({
       data-slot="input-otp-slot"
       data-active={isActive}
       className={cn(
-        "relative flex size-8 items-center justify-center border-y border-e border-input text-sm transition-all outline-none first:rounded-s-lg first:border-s last:rounded-e-lg aria-invalid:border-destructive data-[active=true]:z-10 data-[active=true]:bg-accent/50 dark:bg-input/30",
+        "relative flex size-8 items-center justify-center border-y border-e border-input text-sm transition-[color,background-color,border-color] duration-150 ease-out outline-none first:rounded-s-lg first:border-s last:rounded-e-lg aria-invalid:border-destructive data-[active=true]:z-10 data-[active=true]:not-aria-invalid:border-ring/40 dark:bg-input/30",
         className,
       )}
       {...props}

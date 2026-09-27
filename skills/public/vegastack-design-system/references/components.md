@@ -31,7 +31,7 @@ starts with `icon-` is a component and never an icon.
 - **`editable-cell`** — Inline-editable value whose edit mode looks like view — same box, inherited type, no border — with optimistic saves, a delayed spinner, rollback plus a Retry toast on failure, required, multiline, table-cell and heading variants, and a typed text/select/custom editor registry.
 - **`emoji-picker`** — A popover with a quick row, search, a category bar, recents and a category-grouped grid of emoji that returns the selected character via onValueChange (curated set, loaded lazily).
 - **`field`** — The form-field scaffold — label, description, error, legend, separator and choice-card layouts.
-- **`input`** — A styled Base UI input for every text-entry type: a bordered default whose border never moves on focus (FOC-14), or a borderless ghost title field tinted on hover and focus; sm, default and lg sizes.
+- **`input`** — A styled Base UI input for every text-entry type: a bordered default whose border darkens subtly on focus with no fill, or a borderless ghost title field tinted on hover; sm, default and lg sizes.
 - **`input-group`** — An input or textarea with addons — icons, text, buttons, kbd hints and spinners on one surface.
 - **`input-otp`** — A one-time-password field with per-character slots, driven by one hidden input.
 - **`label`** — A styled native label for form controls.
@@ -46,7 +46,7 @@ starts with `icon-` is a component and never an icon.
 - **`select`** — A dropdown for one value — trigger, grouped scrollable popup and item-aligned positioning.
 - **`slider`** — A number or range over a continuous track — horizontal or vertical, any number of thumbs.
 - **`switch`** — An on/off toggle for instant settings — two sizes and a 24px invisible hit area (A11Y-2).
-- **`textarea`** — A styled native textarea that grows with its content, with the background focus tint and a border that never moves (FOC-14).
+- **`textarea`** — A styled native textarea that grows with its content; focus darkens its border subtly with an ease and paints no fill.
 
 ## Display
 
@@ -159,7 +159,7 @@ starts with `icon-` is a component and never an icon.
 
 ## Rich text
 
-- **`text-edit`** — A Tiptap-based, markdown-first rich-text editor with no toolbar and no fill: a slash menu for blocks, a bubble menu for marks and block types, GFM tables with a menu and drag grips, block drag handles, portaled menus, and one onCommit path.
+- **`text-edit`** — A Tiptap-based, markdown-first rich-text editor with no toolbar and no fill — caret-only as a document, or boxed with a subtle focus border: a slash menu for blocks, a bubble menu for marks and block types, GFM tables with a menu and drag grips, block drag handles, portaled menus, and one onCommit path.
 
 ## Chat
 

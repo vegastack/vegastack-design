@@ -21,11 +21,16 @@
 #   formatting: the repository formatter (prettier defaults: semicolons, trailing commas)
 #               reflows the file, and `registry-stamp.mjs` writes the provenance header the
 #               three-copy model needs (DOC-1); those hunks carry no decision of their own.
+#   FOC-14 text-entry exception (MK 2026-09-27; supersedes the FOC-14 note above for text
+#     entry): text entry takes NO fill — base.css excludes text inputs and textarea from the
+#     tint — and shows focus as a subtle darker border that eases in: `focus:not-aria-invalid:not-[[type=file]]:border-ring/40` on the default variant (a file input is a button and keeps the tint),
+#     with `transition-[color,background-color,border-color] duration-150 ease-out`. The
+#     `not-…invalid` guard keeps an invalid field's destructive border in every state.
 diff --git a/input.tsx b/input.tsx
-index 7c4ab5a..bd0d141 100644
+index 7c4ab5a..0bc0639 100644
 --- a/input.tsx
 +++ b/input.tsx
-@@ -1,19 +1,59 @@
+@@ -1,19 +1,61 @@
 -import * as React from "react"
 -import { Input as InputPrimitive } from "@base-ui/react/input"
 -import { cn } from "cn"
@@ -36,14 +41,15 @@ index 7c4ab5a..bd0d141 100644
  
 -function Input({ className, type, ...props }: React.ComponentProps<"input">) {
 +const inputVariants = cva(
-+  "w-full min-w-0 transition-colors outline-hidden file:inline-flex file:h-6 file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50",
++  "w-full min-w-0 transition-[color,background-color,border-color] duration-150 ease-out outline-hidden file:inline-flex file:h-6 file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50",
 +  {
 +    variants: {
 +      variant: {
 +        default:
-+          "rounded-lg border border-input bg-transparent disabled:bg-input/50 aria-invalid:border-destructive dark:bg-input/30 dark:disabled:bg-input/80 dark:aria-invalid:border-destructive/50",
-+        // A borderless, transparent field for a big title (Linear's issue title). No box: the tint
-+        // is the focus cue, and an invalid title turns its placeholder and text destructive.
++          "rounded-lg border border-input bg-transparent focus:not-aria-invalid:not-[[type=file]]:border-ring/40 disabled:bg-input/50 aria-invalid:border-destructive dark:bg-input/30 dark:disabled:bg-input/80 dark:aria-invalid:border-destructive/50",
++        // A borderless, transparent field for a big title (Linear's issue title). No box and no focus
++        // fill (text entry takes no tint, FOC-3): the caret is the focus cue, a hover tint shows it is
++        // editable, and an invalid title turns its placeholder and text destructive.
 +        ghost:
 +          "rounded-md border-0 bg-transparent px-0 hover:bg-accent/30 aria-invalid:placeholder:text-destructive/70",
 +      },
@@ -68,7 +74,8 @@ index 7c4ab5a..bd0d141 100644
 +/**
 + * `Input` — a single-line text field.
 + *
-+ * - `variant="default"`: the bordered field; focus paints the `base.css` background tint; the border never changes.
++ * - `variant="default"`: the bordered field; focus darkens the border subtly (`border-ring/40`,
++ *   150ms ease-out) and paints no fill; an invalid field keeps its destructive border focused or not.
 + * - `variant="ghost"`: borderless and transparent, for a title you type straight onto the page.
 + * - `size`: `sm` (28px), `default` (32px), `lg` (heading size — pair with `ghost` for a big title).
 + *

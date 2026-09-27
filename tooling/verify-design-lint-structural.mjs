@@ -34,7 +34,9 @@ const loaderMarkDir = groupDir("loader-mark");
 const importantDir = groupDir("important");
 const surfaceRingDir = groupDir("surface-ring");
 const validDir = groupDir("valid");
+const textEntryBorderDir = groupDir("text-entry-border");
 for (const dir of [
+  textEntryBorderDir,
   invalidDir,
   vocabularyDir,
   glowDir,
@@ -214,6 +216,7 @@ export function LiteralRules(_props: RenderlessProps) {
     <div className="has-[[data-slot=input-group-control]:focus]:border-ring/70">a field group</div>
     <input className="not-focus:aria-invalid:border-destructive" />
     <button className="border-transparent data-popup-open:border-input">a ghost trigger</button>
+    <div className="has-[input:focus]:not-has-aria-invalid:border-ring/40">not a text-entry file</div>
   </>;
 }
 `,
@@ -222,14 +225,42 @@ export function LiteralRules(_props: RenderlessProps) {
   const focusBorderLines = focusBorder.output
     .split("\n")
     .filter((line) => line.includes("[no-focus-border]")).length;
-  if (focusBorder.status === 0 || focusBorderLines < 5) {
+  if (focusBorder.status === 0 || focusBorderLines < 6) {
     console.error(
-      `  observed ${focusBorderLines} of 5 focus-border forms rejected`,
+      `  observed ${focusBorderLines} of 6 focus-border forms rejected`,
     );
     fail(
       "design-lint accepted a focus border change — FOC-14: a border never changes colour on " +
         "focus or while active",
       focusBorder.output,
+    );
+  }
+
+  // FOC-14's text-entry exception (MK 2026-09-27) is ONE class shape in the named files: the
+  // sanctioned `…:border-ring/40` passes in `ui/input.tsx`, and any other focus border colour in
+  // that same file still fails — so the exemption cannot widen into a blanket file pass.
+  writeFileSync(
+    join(textEntryBorderDir, "input.tsx"),
+    `export function Input() {
+  return <>
+    <input className="border border-input focus:not-aria-invalid:border-ring/40" />
+    <input className="border border-input focus:border-ring/70" />
+  </>;
+}
+`,
+  );
+  const textEntryBorder = run(textEntryBorderDir);
+  const textEntryBorderLines = textEntryBorder.output
+    .split("\n")
+    .filter((line) => line.includes("[no-focus-border]"));
+  if (
+    textEntryBorderLines.length !== 1 ||
+    !textEntryBorderLines[0].includes("input.tsx:4")
+  ) {
+    fail(
+      "design-lint's text-entry focus-border exemption is wrong — it must pass exactly " +
+        "`…:border-ring/40` in the named text-entry files and reject every other focus border colour",
+      textEntryBorder.output,
     );
   }
 

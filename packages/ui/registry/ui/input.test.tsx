@@ -85,12 +85,17 @@ test("FOC-1/FOC-6: the recipe carries no focus glow", async () => {
   expect(classes).not.toContain("aria-invalid:ring-destructive");
 });
 
-test("FOC-14: focus never changes the border, with outline-hidden not outline-none", async () => {
+test("FOC-3/FOC-14: focus darkens the border subtly with an ease, with outline-hidden not outline-none", async () => {
   const screen = await render(<Input aria-label="Email" />);
   const classes = await classesOf(
     screen.getByRole("textbox", { name: "Email" }).element() as HTMLElement,
   );
-  expect(classes).not.toMatch(/focus[\w-]*:border-/);
+  // Text entry's one focus cue: a subtle darker border, guarded so invalid wins, eased in.
+  expect(classes.match(/\S*focus\S*:border-\S+/g)).toEqual([
+    "focus:not-aria-invalid:not-[[type=file]]:border-ring/40",
+  ]);
+  expect(classes).toContain("duration-150");
+  expect(classes).toContain("ease-out");
   expect(classes).toContain("outline-hidden");
   expect(classes).not.toMatch(/(?:^|\s)outline-none(?:\s|$)/);
 });

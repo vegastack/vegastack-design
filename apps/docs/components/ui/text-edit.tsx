@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.23.53 sha256-NCRjQtxXrLoqKcdvt9C5HmPpCK8gKpbt8/MTtg5k2GI=
+// @vegastack text-edit@0.23.53 sha256-TkPIW4BDMAIQwwwHru87ZseTBNeWcVwX9t8uv1rkQus=
 
 "use client";
 
@@ -2165,6 +2165,21 @@ export interface TextEditProps {
    * @default undefined
    */
   "aria-describedby"?: string;
+  /**
+   * The editor's chrome and focus cue. `document` is the Notion-style page editor (a task
+   * description, a meeting summary): no border and no fill in any state, the caret is the focus
+   * cue. `boxed` frames the editor in a bordered field (a comment composer): the border darkens
+   * subtly with a 150ms ease while the editor holds focus, an invalid box keeps its destructive
+   * border, and a click anywhere in the box starts editing. Neither mode paints a focus fill.
+   * @default "document"
+   */
+  variant?: "document" | "boxed";
+  /**
+   * Rendered inside the box, after the document — a composer's actions row. Meant for
+   * `variant="boxed"`.
+   * @default undefined
+   */
+  children?: React.ReactNode;
   /** Additional class names on the editor container.
    * @default undefined
    */
@@ -2177,7 +2192,8 @@ export interface TextEditProps {
 
 /**
  * `TextEdit` — a Tiptap v3 markdown-first rich-text editor, Notion-style: no toolbar, no border, no
- * ring and no fill in any state — the caret is the focus cue. The surface wears the shared `prose`
+ * ring and no fill in any state — the caret is the focus cue. `variant="boxed"` frames it in a
+ * bordered field whose border darkens subtly while it holds focus (the comment composer). The surface wears the shared `prose`
  * recipe — the same string `MarkdownView` renders with — so an idle editor looks exactly like
  * rendered markdown. Click anywhere and type.
  *
@@ -2220,9 +2236,12 @@ export function TextEdit({
   "aria-labelledby": ariaLabelledBy,
   "aria-invalid": ariaInvalid,
   "aria-describedby": ariaDescribedBy,
+  variant = "document",
+  children,
   className,
   ref,
 }: TextEditProps) {
+  const boxed = variant === "boxed";
   const [field, setField] = React.useState<FieldAria>({});
   const disabled = disabledProp || field.disabled === true;
   const editable = !readOnly && !disabled;
@@ -2286,9 +2305,9 @@ export function TextEdit({
         editorBaseClassName,
         editable && hasSlash && slashHintClassName,
       ),
-      // The caret is this surface's whole focus cue — no ring, border or fill (see the
-      // geometry lane's caret-only exemption).
-      "data-focus-cue": "caret",
+      // `document`: the caret is this surface's whole focus cue — no ring, border or fill (see
+      // the geometry lane's caret-only exemption). `boxed`: the box's border is the cue.
+      "data-focus-cue": boxed ? "border" : "caret",
       ...(resolvedId ? { id: resolvedId } : {}),
       ...(ariaLabel ? { "aria-label": ariaLabel } : {}),
       ...(resolvedLabelledBy ? { "aria-labelledby": resolvedLabelledBy } : {}),
@@ -2303,6 +2322,7 @@ export function TextEdit({
       ...(!disabled && !editable ? { "aria-readonly": "true" } : {}),
     }),
     [
+      boxed,
       saving,
       disabled,
       editable,
@@ -2588,15 +2608,31 @@ export function TextEdit({
     <div
       ref={setRootRef}
       data-slot="text-edit"
+      data-variant={variant}
       data-editable={editable ? "" : undefined}
       data-disabled={disabled ? "" : undefined}
       data-invalid={invalid ? "" : undefined}
       className={cn(
         "relative min-w-0 max-w-full bg-transparent",
+        // `boxed`: text entry's border cue (FOC-3) — a subtle darker border that eases in while
+        // the editor holds focus, never a fill; an invalid box keeps its destructive border.
+        boxed &&
+          "rounded-lg border border-input px-2.5 py-2 transition-[color,background-color,border-color] duration-150 ease-out has-[[contenteditable=true]:focus]:not-data-invalid:border-ring/40 data-invalid:border-destructive dark:bg-input/30 dark:data-invalid:border-destructive/50",
         editable && "cursor-text",
         disabled && "opacity-50",
         className,
       )}
+      // `boxed`: a click on the box's own padding starts editing, as a textarea's would.
+      onMouseDown={
+        boxed
+          ? (event) => {
+              if (!editor || !editable || event.target !== event.currentTarget)
+                return;
+              event.preventDefault();
+              editor.commands.focus("end");
+            }
+          : undefined
+      }
     >
       <FieldPrimitive.Control
         id={id}
@@ -2673,6 +2709,7 @@ export function TextEdit({
       >
         <EditorContent editor={editor} />
       </div>
+      {children}
     </div>
   );
 }

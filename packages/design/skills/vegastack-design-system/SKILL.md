@@ -380,9 +380,10 @@ contract.
 
 - Hardcode a hex, a px value, or a raw Tailwind palette class (`bg-neutral-900`, `text-red-500`).
 - Add a focus ring, outline, glow or focus border. No focus rings anywhere, Tabs included: `base.css`
-  paints a subtle background tint on focus, text entry included, and no border changes colour on
-  focus or while a popup is open (FOC-14) — only an invalid field's destructive border, which holds
-  in every state. `ring-3`, `ring-ring/50`, `focus-visible:ring-*`, `focus-visible:outline-*` and
+  paints a subtle background tint on focus, and no border changes colour on focus or while a popup
+  is open (FOC-14) — except text entry, whose DS components already darken their border subtly with
+  no fill; never restate that in app code. Only an invalid field's destructive border holds in every
+  state. `ring-3`, `ring-ring/50`, `focus-visible:ring-*`, `focus-visible:outline-*` and
   any `focus:`/`focus-within:`/`data-popup-open:` border colour are rejected by lint.
 - Leave a neutral hover on a button inside a tinted container — a status `Alert` already gives its
   buttons the family's own hover; don't override it back to `hover:bg-muted`.

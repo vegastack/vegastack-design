@@ -237,7 +237,7 @@ test("FOC-1/FOC-6: neither the group nor its control carries a focus glow", asyn
   expect(control).not.toContain("aria-invalid:ring-0");
 });
 
-test("FOC-14: the GROUP is a field group (it wears base.css's tint) and never moves its border on focus", async () => {
+test("FOC-3/FOC-14: the GROUP is a field group and darkens its border subtly while its text control holds focus", async () => {
   const screen = await render(
     <InputGroup>
       <InputGroupInput aria-label="Search" />
@@ -247,7 +247,12 @@ test("FOC-14: the GROUP is a field group (it wears base.css's tint) and never mo
     '[data-slot="input-group"]',
   ) as HTMLElement;
   expect(group.hasAttribute("data-field-group")).toBe(true);
-  expect(groupClasses(screen)).not.toMatch(/focus[\w-]*\]?:border-/);
+  // Scoped to a TEXT control (an addon button's focus takes the tint, not the border) and guarded
+  // so an invalid group keeps its destructive border.
+  expect(groupClasses(screen).match(/\S*focus\S*:border-\S+/g)).toEqual([
+    "has-[input:focus,textarea:focus]:not-has-aria-invalid:border-ring/40",
+  ]);
+  expect(groupClasses(screen)).toContain("ease-out");
 });
 
 test("FOC-14: the invalid border holds while the group holds focus", async () => {

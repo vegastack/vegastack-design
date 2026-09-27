@@ -144,15 +144,42 @@ comment…". Focused and still empty, it becomes the "Type / for commands" hint.
   file="components/preview/text-edit.tsx"
 />
 
+### Document and boxed
+
+`variant` picks the editor's chrome and focus cue. `document`, the default, is the Notion-style page
+editor for a task description or a meeting summary: no border and no fill in any state, and the
+caret is the focus cue — every other example on this page. `boxed` frames the editor in a bordered
+field for a comment composer or a form field: the border darkens subtly (`border-ring/40`, easing in
+over 150ms) while the editor holds focus, nothing fills, and a click anywhere in the box starts
+editing. `children` render inside the box after the document — a composer's actions row.
+
+#### Boxed
+
+<ComponentPreview
+  name="textEditBoxed"
+  file="components/preview/text-edit.tsx"
+/>
+
+#### Boxed, invalid
+
+A boxed editor marked `aria-invalid` keeps its destructive border while focused; focus never
+replaces it.
+
+<ComponentPreview
+  name="textEditBoxedInvalid"
+  file="components/preview/text-edit.tsx"
+/>
+
 ### Anatomy
 
 `TextEdit` is a single self-contained component, but it composes these pieces internally:
 
 ```tsx
-// data-slot="text-edit" — transparent root: no border, no ring, no fill
+// data-slot="text-edit" data-variant — document: no border, no ring, no fill; boxed: a bordered field
 <TextEdit>
-  // Tiptap contenteditable, role="textbox" aria-multiline data-focus-cue="caret"
+  // Tiptap contenteditable, role="textbox" aria-multiline data-focus-cue="caret" (boxed: "border")
   <EditorContent />
+  // children — boxed only: inside the box, after the document (a composer's actions row)
   // In a <body> portal:
   // data-slot="text-edit-bubble-menu" — role="toolbar", over a selection
   //   (or text-edit-link / text-edit-image / text-edit-turn-into while a panel is open)
@@ -166,9 +193,11 @@ comment…". Focused and still empty, it becomes the "Type / for commands" hint.
 </TextEdit>
 ```
 
-- **Root** (`data-slot="text-edit"`) — transparent and borderless: it takes the surface it sits on.
-  Carries `data-editable` and `data-invalid` when it wraps an
-  `aria-invalid` control. Clicking its blank space focuses the end of the document.
+- **Root** (`data-slot="text-edit"`, `data-variant`) — in `document` mode transparent and borderless:
+  it takes the surface it sits on. In `boxed` mode a bordered field whose border darkens subtly
+  while the editor holds focus and turns destructive when invalid. Carries `data-editable` and
+  `data-invalid` when it wraps an `aria-invalid` control. Clicking its blank space focuses the end
+  of the document.
 - **Bubble menu** (`data-slot="text-edit-bubble-menu"`, `role="toolbar"`) — a Turn into button,
   `Toggle` buttons for bold, italic, strikethrough, inline code and link, and Clear formatting;
   link swaps it for an inline URL input with Open and Remove (`data-slot="text-edit-link"`).
@@ -181,7 +210,8 @@ comment…". Focused and still empty, it becomes the "Type / for commands" hint.
 - **Editor surface** (`role="textbox"`, `aria-multiline`) — the Tiptap/ProseMirror contenteditable.
   Prose is styled entirely with semantic tokens (headings, lists, code, blockquote), so it tracks the
   active theme with no `@tailwindcss/typography` dependency. It has no fill, border or ring in any
-  state — the caret is the focus cue — and nothing in it widens the page.
+  state — in `document` mode the caret is the focus cue, in `boxed` mode the root's border — and
+  nothing in it widens the page.
 
 ### Editing patterns
 
@@ -212,7 +242,8 @@ editor is created.
 ### Invalid
 
 Pass `aria-invalid` to mark the editor invalid: it forwards to the contenteditable textbox and the
-root carries `data-invalid`. The editor draws no border, so the error text is the visible cue.
+root carries `data-invalid`. A `document` editor draws no border, so the error text is the visible
+cue; a `boxed` one also turns its border destructive (see [Boxed, invalid](#boxed-invalid)).
 Connect the error text with `aria-describedby` so it is announced with the region. `aria-invalid`
 also accepts `"grammar"` and `"spelling"`.
 
@@ -271,9 +302,11 @@ fires it with the current value. It's presentational only: the **host** decides 
   <kbd>↑</kbd> <kbd>↓</kbd>, <kbd>Enter</kbd> and <kbd>Esc</kbd> drive it.
 - The bubble menu is a Base UI `Toolbar` labelled “Selection formatting”: one tab stop, arrow keys
   between its `Toggle`s, each with an `aria-label` and `aria-pressed`.
-- Editing keymaps come from Tiptap `StarterKit` plus a few of ours — see the table below. Focus is
-  shown by the caret itself: the surface has no ring, border or tint (it declares
-  `data-focus-cue="caret"`), and forced-colours mode restores a system outline.
+- Editing keymaps come from Tiptap `StarterKit` plus a few of ours — see the table below. In
+  `document` mode focus is shown by the caret itself: the surface has no ring, border or tint (it
+  declares `data-focus-cue="caret"`). In `boxed` mode the box's border darkens subtly while the
+  editor holds focus and nothing fills (`data-focus-cue="border"`); an invalid box keeps its
+  destructive border. Either way forced-colours mode restores a system outline.
 - The table menu is a `Toolbar` labelled "Table"; the drag handles are pointer-only and hidden from
   assistive tech, because <kbd>Mod</kbd> <kbd>Shift</kbd> <kbd>↑</kbd> / <kbd>↓</kbd> and the table
   menu's move buttons do the same from the keyboard.

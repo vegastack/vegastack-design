@@ -145,8 +145,9 @@ getRegions("SG"); // [] — no predefined subdivisions; use the free-text fallba
   <kbd>Esc</kbd> to dismiss — focus returns to the trigger on close.
 - The free-text fallback is an [`InputGroup`](/docs/components/input-group) with a leading pin addon and an `InputGroupInput`; associate a label via `id` for both modes.
 - The trigger is a `Button`, so it takes the global `:focus-visible` background tint. The in-panel
-  search row and the free-text fallback are field groups, so they wear the same tint while their
-  input holds focus; no hairline changes colour (FOC-14). Neither path sets `outline: none` without a replacement.
+  search row and the free-text fallback are text entry: while their input holds focus their border
+  darkens subtly (`border-ring/40`, easing in over 150ms) and nothing fills — FOC-14's text-entry
+  exception (MK 2026-09-27). Neither path sets `outline: none` without a replacement.
 
 | Key                                 | Action                                      |
 | ----------------------------------- | ------------------------------------------- |

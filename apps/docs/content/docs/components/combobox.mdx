@@ -132,7 +132,7 @@ the object is DRAWN.
 ### Invalid
 
 Put `aria-invalid` on the `ComboboxInput` and `data-invalid` on the `Field`. The destructive border
-holds in every state, focused or not (FOC-14).
+holds in every state: focus never replaces it with the darker focus border (FOC-14).
 
 <ComponentPreview
   name="comboboxInvalid"
@@ -208,7 +208,9 @@ muted row above the list.
 
 ### States
 
-The closed input's rest, invalid and disabled chrome.
+The closed input's rest, invalid and disabled chrome. Click or Tab into the field to see the focus
+state: the field's border darkens subtly (`border-ring/40`) over 150ms and nothing fills; the invalid
+field keeps its destructive border while focused.
 
 <ComponentPreview
   name="comboboxStates"
@@ -242,9 +244,11 @@ UI part accepts.
 - `ComboboxEmpty` is the engine's own polite live region, so the filtered result is announced. It
   stays mounted with zero height rather than `display: none` (A11Y-3, A11Y-4) — a region the
   platform never observed is a region it never announces.
-- Focus shows on the **group**: `InputGroup` and `ComboboxChips` are field groups
-  (`data-field-group`), so the group wears `base.css`'s background tint while the control has focus.
-  The border never changes colour (FOC-14), and there is no ring.
+- Focus shows on the **group**: while the input inside `InputGroup` or `ComboboxChips` has focus,
+  the group's border darkens subtly (`border-ring/40`, easing in over 150ms) and no background
+  changes — text entry's exception to FOC-14 (MK 2026-09-27). An invalid field keeps its
+  destructive border while focused, and there is no ring. The popup's search row follows the same
+  rule. Rows, chips and the toggle keep the global background tint.
 - The popup portals out of the input's subtree, so `ComboboxContent` re-applies the theme scope on
   the positioner inside the portal (OVL-13).
 - Rows carry the hand cursor from the one global rule in `base.css` (INT-1).
@@ -272,12 +276,18 @@ Upstream's file plus `packages/ui/upstream/patches/combobox.patch`. Every hunk:
   line as the option's accessible description ([Two-line options](#two-line-options)). A one-line
   option is unchanged.
 - **FOC-1, FOC-3, FOC-6** — `ComboboxChips`' `focus-within:border-ring` plus `ring-3 ring-ring/50`
-  is removed and the chips field gains `data-field-group`, so it wears `base.css`'s background tint
-  while its input has focus (FOC-14 retired the `focus-within:border-ring/70` tint); `ComboboxChipsInput`'s `outline-none` becomes
+  is removed and the chips field gains `data-field-group` (the forced-colours fallback keys on it);
+  `ComboboxChipsInput`'s `outline-none` becomes
   `outline-hidden` so the forced-colours fallback has something to repaint. The single-line field's
   own focus chrome comes from `InputGroup`.
 - **FOC-14** — the chips field's invalid border is `has-aria-invalid:border-destructive` (and its
   dark counterpart), held in every state, focused or not; the `has-aria-invalid` halo rings are removed.
+- **FOC-14 text-entry exception (MK 2026-09-27)** — the chips field adds
+  `has-[input:focus]:not-has-aria-invalid:border-ring/40` with
+  `transition-[color,background-color,border-color] duration-150 ease-out`: a subtle darker border
+  that eases in while its input has focus, and no fill (`base.css` excludes text inputs from the
+  background tint). The `not-has-aria-invalid` guard keeps the destructive border. The single-line
+  field and the popup search row take the same cue from `InputGroup`.
 - **INT-1** — `cursor-default` is removed from `ComboboxItem`, so a row shows the hand cursor the
   one global rule gives every `[role="option"]`.
 - **FRM-4** — `data-disabled:pointer-events-none` is dropped from `ComboboxItem`, and

@@ -5,7 +5,8 @@
  * COMPILED CSS IS LOAD-BEARING HERE. `../../test/geometry.css` compiles the real token theme, so
  * every exception this patch implements is proven by MEASUREMENT rather than by reading a class
  * string back: the choice card really takes the focus tint (and keeps its border colour) when the
- * invisible input inside it takes focus, the answer field really computes `outline-style: none`, a disabled choice really
+ * invisible input inside it takes focus, the answer field really computes `outline-style: none`
+ * (and darkens its border, with no tint), a disabled choice really
  * still accepts pointer events, and every target really clears the 24px floor. axe's
  * `color-contrast` rule is live for the same reason.
  */
@@ -727,7 +728,7 @@ test("FOC-14: the CHOICE CARD's tint is the affordance for its invisible input; 
   }
 });
 
-test("FOC-14/FOC-8: the answer input paints NO outline and NO border change on focus, only the tint", async () => {
+test("FOC-3/FOC-14/FOC-8: the answer input paints NO outline and NO fill on focus, only a darker border", async () => {
   const screen = await render(<TwoStep />);
   const input = slot(activeItem(screen.container), "questionnaire-input");
   const thaw = freezeTransitions();
@@ -737,9 +738,9 @@ test("FOC-14/FOC-8: the answer input paints NO outline and NO border change on f
     const style = getComputedStyle(input);
     // FOC-8: `outline-hidden`, not `outline-none` — and it computes to no ring at all.
     expect(style.outlineStyle).toBe("none");
-    // FOC-14: the border holds; base.css's background tint IS the affordance.
-    expect(style.borderColor).toBe(rest);
-    expect(style.backgroundImage).toContain("gradient");
+    // FOC-3/FOC-14: text entry's cue is a subtle darker border, never base.css's tint.
+    expect(style.borderColor).not.toBe(rest);
+    expect(style.backgroundImage).toBe("none");
   } finally {
     thaw();
     input.blur();

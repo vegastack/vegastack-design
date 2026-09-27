@@ -1,4 +1,4 @@
-// @vegastack comments@0.23.53 sha256-NT8Z6e/us5rWBThzxuR+BApMoM9LOA4vAG8iiDVgy9k=
+// @vegastack comments@0.23.53 sha256-jCu3UnTSkJCEAw2QUrZ6jSZRTrmi2xtEM+xYu44LWVY=
 
 "use client";
 
@@ -438,9 +438,9 @@ export function CommentItem({
 }
 
 /* ------------------------------------------------------------------------------------------------
- * CommentBox — the light editor box the composer and in-place edit share: a near-transparent fill
- * (`bg-muted/30`) and a hairline border that never changes on focus (FOC-14), no editor tint of its own — the
- * caret is the cue — growing to
+ * CommentBox — the light editor box the composer and in-place edit share: `TextEdit`'s `boxed`
+ * variant on a near-transparent fill (`bg-muted/30`) with a hairline border that darkens subtly
+ * with an ease while the editor holds focus (text entry's border cue), no fill change, growing to
  * about twelve lines before it scrolls inside
  * ----------------------------------------------------------------------------------------------*/
 
@@ -497,12 +497,16 @@ function CommentBox({
       data-compact={compact ? "" : undefined}
       data-bare={bare ? "" : undefined}
       aria-invalid={invalid || undefined}
-      className="flex min-w-0 cursor-text flex-col gap-2 rounded-xl border border-border bg-muted/30 px-3 py-2.5 transition-colors aria-invalid:border-destructive data-[compact]:py-2 data-[bare]:rounded-none data-[bare]:border-0 data-[bare]:bg-transparent data-[bare]:p-0"
-      onClick={(e) => {
-        if (e.target === e.currentTarget) focusEditor(ref.current);
-      }}
+      className="min-w-0"
     >
       <TextEdit
+        variant="boxed"
+        className={cn(
+          "rounded-xl border-border bg-muted/30 px-3 py-2.5 dark:bg-muted/30",
+          compact && "py-2",
+          bare &&
+            "rounded-none border-0 bg-transparent p-0 dark:bg-transparent",
+        )}
         format="markdown"
         slashCommands={TEXT_EDIT_COMPACT_SLASH_COMMANDS}
         defaultValue={defaultValue}
@@ -518,13 +522,14 @@ function CommentBox({
         // About twelve lines of body text, then it scrolls inside the box.
         maxHeight="15rem"
         aria-invalid={invalid ? true : undefined}
-      />
-      <div className="flex min-w-0 items-center gap-2">
-        {leading}
-        <div className="ms-auto flex shrink-0 items-center gap-2">
-          {actions}
+      >
+        <div className="mt-2 flex min-w-0 items-center gap-2">
+          {leading}
+          <div className="ms-auto flex shrink-0 items-center gap-2">
+            {actions}
+          </div>
         </div>
-      </div>
+      </TextEdit>
     </div>
   );
 }

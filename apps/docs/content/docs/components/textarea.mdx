@@ -1,6 +1,6 @@
 ---
 title: Textarea
-description: A styled native textarea for multi-line text — it grows with its content, and signals focus with a background tint rather than a ring.
+description: A styled native textarea for multi-line text — it grows with its content, and signals focus with a subtle darker border rather than a ring.
 audience: public
 registry: textarea
 status: stable
@@ -45,7 +45,7 @@ Use `disabled`, and add `data-disabled` to the `Field` so the label dims with it
 
 Add `data-invalid` to the `Field`, and the textarea inside it is marked `aria-invalid` for you (or
 pass `aria-invalid` on a standalone textarea). The destructive border holds in
-every state, focused or not (FOC-14).
+every state: focus never replaces it with the darker focus border (FOC-14).
 
 <ComponentPreview
   name="textareaInvalid"
@@ -70,7 +70,9 @@ extra work.
 
 ### States
 
-Rest, filled, invalid and disabled in one frame.
+Rest, filled, invalid and disabled in one frame. Click or Tab into a textarea to see the focus state:
+the border darkens subtly (`border-ring/40`) over 150ms and no fill is painted; the invalid one keeps
+its destructive border while focused.
 
 <ComponentPreview
   name="textareaStates"
@@ -90,11 +92,12 @@ Try the starting height with the disabled and invalid states, then copy the gene
 ## Accessibility
 
 - Renders a native `<textarea>`, so the platform owns selection, IME composition and spellcheck.
-- Focus is `base.css`'s **background tint** (`accent` at 50%), not a ring, and the border never
-  changes colour (FOC-3, FOC-14); the global outline is suppressed with `outline-hidden` (FOC-8).
-  The tint fires for mouse and keyboard alike, because a text field
-  cannot tell them apart and both need the caret located.
-- Under `forced-colors: active` the tint disappears with every authored colour, so `base.css` paints
+- Focus is a **subtle darker border** (`border-ring/40`, easing in over 150ms), not a ring, and no
+  background change — text entry is the one exception to FOC-14's fixed border (MK 2026-09-27);
+  the global outline is suppressed with `outline-hidden` (FOC-8). It fires on `:focus`, for mouse
+  and keyboard alike, because a text field cannot tell them apart and both need the caret located.
+  An invalid textarea keeps its destructive border while focused.
+- Under `forced-colors: active` the border colour is replaced with every authored colour, so `base.css` paints
   a 2px `Highlight` outline on `textarea:focus` instead (FOC-7).
 - `field-sizing: content` grows the box with the text, so nothing is hidden behind a scrollbar at
   small sizes.
@@ -114,12 +117,15 @@ Try the starting height with the disabled and invalid states, then copy the gene
 Upstream's file plus `packages/ui/upstream/patches/textarea.patch`. Every hunk:
 
 - **FOC-1, FOC-3, FOC-6, FOC-8** — `outline-none focus-visible:border-ring focus-visible:ring-3
-focus-visible:ring-ring/50` becomes `outline-hidden` and nothing else: the border stays
-  `border-input` and the focus cue is `base.css`'s background tint (FOC-14 retired the
-  `focus:border-ring/70` tint). `outline-hidden` rather than `outline-none`, so the forced-colours
-  fallback has something to repaint.
+focus-visible:ring-ring/50` becomes `outline-hidden`, with no ring and no glow. `outline-hidden` rather than `outline-none`, so
+  the forced-colours fallback has something to repaint.
 - **FOC-14** — the invalid border is `aria-invalid:border-destructive` (and its dark counterpart),
   held in every state, focused or not; the `aria-invalid` halo rings are removed with the rest.
+- **FOC-14 text-entry exception (MK 2026-09-27)** — the textarea adds
+  `focus:not-aria-invalid:border-ring/40` with
+  `transition-[color,background-color,border-color] duration-150 ease-out`: a subtle darker border
+  that eases in, and no fill (`base.css` excludes `textarea` from the background tint). The
+  `not-aria-invalid` guard keeps the destructive border.
 - **API-26** — the `<textarea>` renders through Base UI `Field.Control`, so inside a `Field` it takes
   its label, the rendered description and error ids, and `aria-invalid` with no props, like `Input`.
   The file gains `"use client"`, because `Field.Control` is hook-backed.

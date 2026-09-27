@@ -50,15 +50,17 @@ test("OVL-11: the FIELD paints no box of its own — the row owns the one border
   expect(classes).not.toMatch(/(^|\s)rounded-/);
   expect(classes).toContain("bg-transparent");
   expect(classes).toContain("outline-none");
-  // FOC-1's outline must not appear here either: focus is shown by the ROW's background tint.
+  // FOC-1's outline must not appear here either: focus is shown by the ROW's hairline.
   expect(classes).not.toContain("ring");
 });
 
-test("FOC-14: focus inside the row tints the row (a field group), never its hairline", async () => {
+test("FOC-3/FOC-14: focus inside the row darkens the row's hairline, and paints no fill", async () => {
   await render(<Row />);
   const row = document.querySelector('[data-slot="panel-search"]')!;
   expect(row.hasAttribute("data-field-group")).toBe(true);
-  expect(row.className).not.toMatch(/focus[\w-]*:border-/);
+  expect(row.className.match(/\S*focus\S*:border-\S+/g)).toEqual([
+    "has-[input:focus]:border-ring/40",
+  ]);
 
   const field = page.getByRole("searchbox", { name: "Filter items" });
   await userEvent.click(field);
