@@ -488,7 +488,6 @@
         "@vegastack/button",
         "@vegastack/dialog",
         "@vegastack/person-avatar",
-        "@vegastack/spinner",
         "@vegastack/use-announcer",
         "@vegastack/use-file-drop"
       ],
@@ -503,7 +502,7 @@
         "whenToUse": "A profile or member settings row where someone sets their own photo.",
         "whenNotToUse": "Attaching files to a record (Dropzone / Attachment) or picking a person (SearchableSelect).",
         "version": "0.23.48",
-        "integrity": "sha256-MEtX6zPqT6WhIlYOQrrOwC12Fx88s4PenGMTQO5dYAk="
+        "integrity": "sha256-gvCCcsJpTypjzvmqmjnGW/7iwgc2Ncb6/sqiHNeI0FE="
       }
     },
     {

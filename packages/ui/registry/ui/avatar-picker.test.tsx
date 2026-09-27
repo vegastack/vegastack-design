@@ -93,3 +93,39 @@ test("Remove calls onRemove and closes; a rejection keeps it open with the messa
   await expect.poll(() => document.querySelector('[role="dialog"]')).toBeNull();
   expect(calls).toBe(2);
 });
+
+test("the pending call's button shows the spinner; the other button and the circle wait", async () => {
+  let finish: () => void = () => {};
+  const screen = await render(
+    <AvatarPicker
+      person={{ name: "Asha Rao", image: PHOTO }}
+      onUpload={async () => {}}
+      onRemove={() =>
+        new Promise<void>((resolve) => {
+          finish = resolve;
+        })
+      }
+    />,
+  );
+  await screen.getByRole("button", { name: "Change photo" }).click();
+  const dialog = screen.getByRole("dialog");
+  (
+    dialog.getByRole("button", { name: "Remove" }).element() as HTMLElement
+  ).click();
+  await expect
+    .element(dialog.getByRole("button", { name: "Remove" }))
+    .toHaveAttribute("aria-busy", "true");
+  await expect
+    .element(dialog.getByRole("button", { name: "Update" }))
+    .toBeDisabled();
+  await expect
+    .element(dialog.getByRole("button", { name: "Change photo" }))
+    .toBeDisabled();
+  expect(
+    document.querySelector(
+      '[data-slot="avatar-picker-circle"] [data-slot="spinner"]',
+    ),
+  ).toBeNull();
+  finish();
+  await expect.poll(() => document.querySelector('[role="dialog"]')).toBeNull();
+});

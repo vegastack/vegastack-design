@@ -426,7 +426,6 @@
         "@vegastack/button",
         "@vegastack/dialog",
         "@vegastack/person-avatar",
-        "@vegastack/spinner",
         "@vegastack/use-announcer",
         "@vegastack/use-file-drop"
       ],

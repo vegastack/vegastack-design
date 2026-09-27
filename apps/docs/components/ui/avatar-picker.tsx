@@ -1,4 +1,4 @@
-// @vegastack avatar-picker@0.23.48 sha256-MEtX6zPqT6WhIlYOQrrOwC12Fx88s4PenGMTQO5dYAk=
+// @vegastack avatar-picker@0.23.48 sha256-gvCCcsJpTypjzvmqmjnGW/7iwgc2Ncb6/sqiHNeI0FE=
 
 "use client";
 
@@ -15,7 +15,6 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { PersonAvatar, type Person } from "@/components/ui/person-avatar";
-import { Spinner } from "@/components/ui/spinner";
 import { useAnnouncer } from "@/components/ui/use-announcer";
 import {
   useFileDrop,
@@ -28,7 +27,8 @@ import {
  * its edge instead), and a click opens a small dialog. In the dialog a 128px circle is itself the
  * file button and a drop target; a chosen or dropped file is only STAGED there as a local preview.
  * "Update" hands it to `onUpload`; "Remove" clears a staged file, else calls `onRemove`. While a
- * call is pending a spinner covers the circle and the dialog cannot be dismissed; it closes when
+ * call is pending its button shows a spinner, the rest is disabled and the dialog cannot be
+ * dismissed; it closes when
  * the call resolves and stays open with the error's message when it rejects. Closing the dialog
  * any other way discards the staged file.
  *
@@ -178,26 +178,24 @@ function refusal(
 }
 
 /**
- * The inside of a circle button: the avatar, the scrim with a white pencil (or the spinner while
- * busy) on hover, keyboard focus or `active`, and the pencil badge a device without hover gets
+ * The inside of a circle button: the avatar, the scrim with a white pencil on hover, keyboard
+ * focus or `active` (a file dragged over it), and the pencil badge a device without hover gets
  * instead. The initials fade out whenever the scrim shows, so only the icon sits on the hue.
  */
 function CircleFace({
   person,
   circle,
   icon,
-  busy,
   active,
   badge,
 }: {
   person: Person;
   circle: string;
   icon: string;
-  busy: boolean;
   active: boolean;
   badge: string;
 }) {
-  const shown = busy || active;
+  const shown = active;
   return (
     <>
       <PersonAvatar
@@ -213,7 +211,7 @@ function CircleFace({
         )}
       />
       {/* The modal scrim's ink, no blur, so the photo stays readable. `group-hover` only matches
-          where hover exists; a device without it gets the badge below, except while busy. */}
+          where hover exists; a device without it gets the badge below. */}
       <span
         aria-hidden="true"
         data-slot="avatar-picker-overlay"
@@ -224,13 +222,9 @@ function CircleFace({
             : "opacity-0 group-hover/button:opacity-100 group-focus-visible/button:opacity-100 [@media(hover:none)]:hidden",
         )}
       >
-        {/* `data-icon-tone` stands the icons down from the ghost Button's svg ink, so they keep
+        {/* `data-icon-tone` stands the pencil down from the ghost Button's svg ink, so it keeps
             the scrim's white. */}
-        {busy ? (
-          <Spinner data-icon-tone="" className={icon} />
-        ) : (
-          <Pencil data-icon-tone="" className={icon} />
-        )}
+        <Pencil data-icon-tone="" className={icon} />
       </span>
       {shown ? null : (
         <span
@@ -276,7 +270,10 @@ export function AvatarPicker({
   ...props
 }: AvatarPickerProps) {
   const [open, setOpen] = React.useState(false);
-  const [pending, setPending] = React.useState(false);
+  // Which call is in flight: its button shows the spinner, everything else waits.
+  const [pending, setPending] = React.useState<"update" | "remove" | null>(
+    null,
+  );
   const [message, setMessage] = React.useState<string | null>(null);
   // The staged file and its local preview URL; nothing is saved until "Update".
   const [staged, setStaged] = React.useState<{
@@ -312,7 +309,7 @@ export function AvatarPicker({
     ),
     multiple: false,
     maxSize,
-    disabled: pending,
+    disabled: pending !== null,
     paste: false,
     onFilesAccepted: (files) => {
       const file = files[0];
@@ -330,8 +327,11 @@ export function AvatarPicker({
     setStaged(null);
     setMessage(null);
   };
-  const run = async (call: () => Promise<void>) => {
-    setPending(true);
+  const run = async (
+    action: "update" | "remove",
+    call: () => Promise<void>,
+  ) => {
+    setPending(action);
     setMessage(null);
     try {
       await call();
@@ -343,7 +343,7 @@ export function AvatarPicker({
           : "Something went wrong. Try again.",
       );
     } finally {
-      setPending(false);
+      setPending(null);
     }
   };
 
@@ -370,7 +370,7 @@ export function AvatarPicker({
         open={open}
         onOpenChange={(next) => {
           // A pending call holds the dialog open; any other close discards the staged file.
-          if (pending) return;
+          if (pending !== null) return;
           if (next) setOpen(true);
           else close();
         }}
@@ -390,7 +390,6 @@ export function AvatarPicker({
             person={person}
             circle={trigger.circle}
             icon={trigger.icon}
-            busy={false}
             active={false}
             badge="-end-0.5 -bottom-0.5 size-4 [&_svg]:size-2.5"
           />
@@ -403,7 +402,9 @@ export function AvatarPicker({
             <div
               {...dropSurface}
               data-slot="avatar-picker-drop"
-              className="rounded-full"
+              // `flex`, not a block: a line box around the circle added a descender gap that
+              // grew when a photo replaced the initials.
+              className="flex rounded-full"
             >
               <Button
                 type="button"
@@ -411,20 +412,25 @@ export function AvatarPicker({
                 data-slot="avatar-picker-circle"
                 aria-label={staged || hasImage ? changeLabel : uploadLabel}
                 aria-describedby={message ? `${hintId} ${messageId}` : hintId}
-                aria-busy={pending || undefined}
-                disabled={pending}
+                disabled={pending !== null}
                 onClick={drop.open}
-                className={CIRCLE_BUTTON}
+                // While a call is pending the circle only shows the photo: no hover scrim.
+                className={cn(
+                  CIRCLE_BUTTON,
+                  "data-disabled:pointer-events-none",
+                )}
               >
                 <CircleFace
                   person={staged ? { ...person, image: staged.url } : person}
                   circle="size-32 *:data-[slot=avatar-fallback]:text-4xl"
                   icon="size-6"
-                  busy={pending}
                   active={drop.isDragging}
                   badge="end-1 bottom-1 size-8 [&_svg]:size-4"
                 />
               </Button>
+              {/* Out of the dialog's grid flow: a static input there was a grid item and added a
+                  row gap under the footer. `open()` still clicks it while it is not displayed. */}
+              <input {...drop.inputProps} className="hidden" />
             </div>
             <p id={hintId} className="text-xs text-muted-foreground">
               {hintText(accept, maxSize)}
@@ -444,29 +450,30 @@ export function AvatarPicker({
             {hasImage && onRemove ? (
               <Button
                 variant="outline"
-                disabled={pending}
+                loading={pending === "remove"}
+                disabled={pending === "update"}
                 data-slot="avatar-picker-remove"
                 onClick={() => {
                   if (staged) {
                     setStaged(null);
                     setMessage(null);
-                  } else void run(onRemove);
+                  } else void run("remove", onRemove);
                 }}
               >
                 {removeLabel}
               </Button>
             ) : null}
             <Button
-              disabled={pending || !staged}
+              loading={pending === "update"}
+              disabled={pending === "remove" || !staged}
               data-slot="avatar-picker-update"
               onClick={() => {
-                if (staged) void run(() => onUpload(staged.file));
+                if (staged) void run("update", () => onUpload(staged.file));
               }}
             >
               {updateLabel}
             </Button>
           </DialogFooter>
-          <input {...drop.inputProps} />
           <Announcer />
         </DialogContent>
       </Dialog>
