@@ -2316,8 +2316,7 @@
                 "audio-player",
                 "audio-player-close",
                 "audio-player-error",
-                "audio-player-header",
-                "audio-player-status"
+                "audio-player-header"
               ]
             },
             {
@@ -13573,6 +13572,7 @@
         "@vegastack/button",
         "@vegastack/dropdown-menu",
         "@vegastack/slider",
+        "@vegastack/spinner",
         "@vegastack/tooltip"
       ],
       "npmDependencies": [
