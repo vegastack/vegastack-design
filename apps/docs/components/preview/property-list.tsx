@@ -1,11 +1,12 @@
 "use client";
 
-import type { ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import {
   Building2,
   Clock,
   Component,
   Globe,
+  Hash,
   Tags,
   Timer,
   UserRound,
@@ -21,6 +22,7 @@ import {
   PropertyRow,
   PropertyValue,
 } from "@/components/ui/property-list";
+import { EditableCell } from "@/components/ui/editable-cell";
 import { RecordChip } from "@/components/ui/record-chip";
 import { DateTime } from "@/components/ui/relative-time";
 import { Tag, TagGroup } from "@/components/ui/tag-group";
@@ -97,6 +99,12 @@ export function propertyListNarrow(): ReactNode {
   );
 }
 
+/** An editable text value: its text lines up with the read-only values above and below it. */
+function CodeValue() {
+  const [code, setCode] = useState("RL-26-104");
+  return <EditableCell label="Code" value={code} onSave={setCode} />;
+}
+
 export function propertyListInline(): ReactNode {
   return (
     <Wrapper>
@@ -109,6 +117,12 @@ export function propertyListInline(): ReactNode {
           <PropertyRow>
             <PropertyLabel icon={<Timer />}>Duration</PropertyLabel>
             <PropertyValue>42 min</PropertyValue>
+          </PropertyRow>
+          <PropertyRow>
+            <PropertyLabel icon={<Hash />}>Code</PropertyLabel>
+            <PropertyValue>
+              <CodeValue />
+            </PropertyValue>
           </PropertyRow>
           <PropertyRow>
             <PropertyLabel icon={<UserRound />}>Owner</PropertyLabel>

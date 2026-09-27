@@ -15562,7 +15562,7 @@
         "whenToUse": "Linking a record to another one in its header — a meeting's customer or project — with a picker and a jump to the linked record.",
         "whenNotToUse": "A free-form tag (Chip) or a form field with a label (Combobox, Select).",
         "version": "0.23.55",
-        "integrity": "sha256-oxe1YaakzL+RNDdYicuHBBVae0aM5FEcgHsFDUj6vVE="
+        "integrity": "sha256-64jI0SYQW/U+9bUncwj4eFROEI/Uf3F4qZ863mkZ4a0="
       }
     },
     {
@@ -15979,7 +15979,7 @@
         "whenToUse": "Heterogeneous key→value panes (record details, metadata sidebars).",
         "whenNotToUse": "Homogeneous collections (DataList/Table) or form editing (Field).",
         "version": "0.23.55",
-        "integrity": "sha256-zrpPRYmvwcKeuRW2eYt6VlDkynSlCseFQ6IfQDbYtE4="
+        "integrity": "sha256-RLytPCcHxbomaRr/3bEeqWhP/c60/lvZxWSMuUs3O4c="
       }
     },
     {

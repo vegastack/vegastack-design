@@ -1,4 +1,4 @@
-// @vegastack property-list@0.23.55 sha256-zrpPRYmvwcKeuRW2eYt6VlDkynSlCseFQ6IfQDbYtE4=
+// @vegastack property-list@0.23.55 sha256-RLytPCcHxbomaRr/3bEeqWhP/c60/lvZxWSMuUs3O4c=
 
 import * as React from "react";
 import { cn } from "@vegastack/design";
@@ -149,11 +149,18 @@ export function PropertyValue({ className, ...props }: PropertyValueProps) {
         // A 28px quiet control (picker button, select trigger) hangs 4px above and below the 20px
         // first line, so its text shares the label's centre like a plain value does.
         "[&>[data-slot=button]]:-my-1 [&>[data-slot=select-trigger]]:-my-1",
-        // A ghost RecordChip is a value that reads as plain text: its 28px box hangs 4px above and
-        // below the line, and its 8px padding hangs past the column's start, so its text (or its
+        // A ghost RecordChip is a value that reads as plain text: its 24px box hangs 2px above and
+        // below the line, and its 6px padding hangs past the column's start, so its text (or its
         // status icon or avatar) starts where plain values do and its tint sits in the gutter. A row
         // holding a chip is exactly as tall as a row holding text, whatever the pane's width.
-        "[&>[data-slot=record-chip][data-variant=ghost]]:-my-1 [&>[data-slot=record-chip][data-variant=ghost]]:-ms-2",
+        "[&>[data-slot=record-chip][data-variant=ghost]]:-my-0.5 [&>[data-slot=record-chip][data-variant=ghost]]:-ms-1.5",
+        // An inline EditableCell gets the same compact box as a ghost chip, in every state: 6px and
+        // 2px of padding hung outside the value by equal negative margins, so its text starts, sits
+        // and wraps exactly where a read-only value's does, and the hover/focus tint extends just
+        // past the text. The field laid over it while editing carries the same padding, so the
+        // caret starts on the text and nothing moves entering or leaving edit.
+        "[&>[data-slot=editable-cell][data-variant=inline]_[data-slot=editable-cell-display]]:-mx-1.5 [&>[data-slot=editable-cell][data-variant=inline]_[data-slot=editable-cell-display]]:-my-0.5 [&>[data-slot=editable-cell][data-variant=inline]_[data-slot=editable-cell-display]]:max-w-[calc(100%+0.75rem)] [&>[data-slot=editable-cell][data-variant=inline]_[data-slot=editable-cell-display]]:rounded-md [&>[data-slot=editable-cell][data-variant=inline]_[data-slot=editable-cell-display]]:px-1.5 [&>[data-slot=editable-cell][data-variant=inline]_[data-slot=editable-cell-display]]:py-0.5",
+        "[&>[data-slot=editable-cell][data-variant=inline]_[data-slot=editable-cell-input]]:rounded-md [&>[data-slot=editable-cell][data-variant=inline]_[data-slot=editable-cell-input]]:px-1.5 [&>[data-slot=editable-cell][data-variant=inline]_[data-slot=editable-cell-input]]:py-0.5",
         // Inline: a quiet picker's ghost padding hangs past the column's start so its text lines
         // up with plain values.
         "group-data-[variant=inline]/property-list:flex group-data-[variant=inline]/property-list:min-w-0 group-data-[variant=inline]/property-list:[&>[data-slot=button]]:-ms-2",
