@@ -1271,7 +1271,7 @@
         "whenToUse": "A list of records as a table, a card grid or board lanes (view) with typed columns, selection, click-to-sort, loading/empty states, keyset paging through loadMore, rows as links, sections, thumbnails and a row-actions column.",
         "whenNotToUse": "Full-parity grids with grouping/editing/virtualization (DataGrid), or a simple static table (Table).",
         "version": "0.23.51",
-        "integrity": "sha256-aQ/2oNjm9rlTpFma0CmWDweUFDe7X3XQivIBNVlqdXQ="
+        "integrity": "sha256-zUGlxsS+pe6BHu8GrwegYPOA/oUyRl4nu6fbaBzxVoY="
       }
     },
     {
@@ -1363,7 +1363,7 @@
         "whenToUse": "A card per record in a grid (DataList view=\"grid\" renders one per row), or card content on a board.",
         "whenNotToUse": "A record with a long body or its own controls (Card), or a row in a table (DataList).",
         "version": "0.23.51",
-        "integrity": "sha256-aMLWaS2AviEan+2AhLUJdE+ihwSWy5dmqhPzUKSBSTI="
+        "integrity": "sha256-lm2r83ePQ6t8LUfI/1n3MP9hRDDxtqKPIU7bJUbloVc="
       }
     },
     {

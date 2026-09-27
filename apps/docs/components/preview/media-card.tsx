@@ -102,3 +102,40 @@ export function mediaCardPlaceholder(): ReactNode {
     </Wrapper>
   );
 }
+
+/**
+ * The `badge` beside the title: with and without one, and a long title that truncates before the
+ * badge, which never shrinks.
+ */
+export function mediaCardTitleBadge(): ReactNode {
+  return (
+    <Wrapper className="grid max-w-sm grid-cols-1 gap-3">
+      <MediaCard
+        href="#aurora"
+        image={IMG}
+        fallback={<Lamp aria-hidden />}
+        title="Aurora Downlight"
+        meta="8 products · 3 sub-families"
+        badge={pill}
+        timestamp="2h ago"
+      />
+      <MediaCard
+        href="#beacon"
+        image={IMG}
+        fallback={<Lamp aria-hidden />}
+        title="Beacon Track"
+        meta="5 products"
+        timestamp="3d ago"
+      />
+      <MediaCard
+        href="#harbor"
+        image={IMG}
+        fallback={<Lamp aria-hidden />}
+        title="Harbor Architectural Bollard with Integrated Emergency Driver"
+        meta="6 products · 2 sub-families"
+        badge={pill}
+        timestamp="5h ago"
+      />
+    </Wrapper>
+  );
+}

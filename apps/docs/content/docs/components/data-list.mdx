@@ -452,6 +452,18 @@ link, and `rowActions` is its ⋯ menu — on hover and focus, always on touch. 
 
 <ComponentPreview name="dataListGrid" file="components/preview/data-list.tsx" />
 
+### Grid and list
+
+The same rows in both views. The first column is the record's title in each: the card's title in
+the grid and the first cell in the list, at one weight (`font-medium`, `RECORD_TITLE_CLASS`), while
+the meta — the card's meta line, the list's other cells and merged values — stays regular. A pill
+rendered in the first column sits beside the title in both, and a long title truncates before it.
+
+<ComponentPreview
+  name="dataListGridAndList"
+  file="components/preview/data-list.tsx"
+/>
+
 ### Grid with groups
 
 With `sections`, each group renders as a heading and its count ("Indoor Luminaires · 4") above its
@@ -473,8 +485,8 @@ own grid.
 
 ### Custom card
 
-`renderCard` replaces the default card — compose a `MediaCard` with its `badge` and `timestamp`
-slots, or anything else.
+`renderCard` replaces the default card — compose a `MediaCard` with its `badge` (beside the
+title) and `timestamp` slots, or anything else.
 
 <ComponentPreview
   name="dataListGridCustomCard"

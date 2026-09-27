@@ -1,4 +1,4 @@
-// @vegastack media-card@0.23.51 sha256-aMLWaS2AviEan+2AhLUJdE+ihwSWy5dmqhPzUKSBSTI=
+// @vegastack media-card@0.23.51 sha256-lm2r83ePQ6t8LUfI/1n3MP9hRDDxtqKPIU7bJUbloVc=
 
 "use client";
 
@@ -20,12 +20,14 @@ export interface MediaCardProps extends Omit<
    */
   meta?: React.ReactNode;
   /**
-   * A badge after the meta — a status, or a warning pill (`<Badge variant="warning">`).
+   * A badge beside the title — a status, or a warning pill (`<Badge variant="warning">`). It sits
+   * where `DataList`'s list view puts it, after the title on the same line; a long title
+   * truncates before it, and the badge never shrinks.
    * @default undefined
    */
   badge?: React.ReactNode;
   /**
-   * A last meta item after the badge — usually a `RelativeTime` ("2h ago").
+   * A last meta item after the meta — usually a `RelativeTime` ("2h ago").
    * @default undefined
    */
   timestamp?: React.ReactNode;
@@ -85,6 +87,12 @@ export interface MediaCardProps extends Omit<
   surface?: boolean;
 }
 
+/**
+ * The weight of a record's title, shared by `MediaCard` (the grid view) and `DataList`'s first
+ * column (the list view), so a record's name reads the same in both.
+ */
+export const RECORD_TITLE_CLASS = "font-medium";
+
 function CardLink({
   href,
   render,
@@ -97,8 +105,11 @@ function CardLink({
   const props = {
     href,
     "data-slot": "media-card-link",
-    className:
-      "block min-h-6 min-w-0 truncate text-sm leading-6 font-medium text-inherit no-underline after:absolute after:inset-0 after:rounded-[inherit] after:content-[''] hover:no-underline focus-visible:no-underline",
+    // `min-w-6`: beside a badge the title truncates, but the link keeps a 24px pointer target.
+    className: cn(
+      RECORD_TITLE_CLASS,
+      "block min-h-6 min-w-6 truncate text-sm leading-6 text-inherit no-underline after:absolute after:inset-0 after:rounded-[inherit] after:content-[''] hover:no-underline focus-visible:no-underline",
+    ),
     children,
   };
   if (render)
@@ -110,8 +121,8 @@ function CardLink({
 }
 
 /**
- * `MediaCard` — a record as a card: an image, the title, a meta line, a badge and a ⋯ menu. The
- * whole card is one link (no underline). `DataList`'s grid view renders one per row.
+ * `MediaCard` — a record as a card: an image, the title with its badge, a meta line and a ⋯
+ * menu. The whole card is one link (no underline). `DataList`'s grid view renders one per row.
  *
  * @example
  * <MediaCard
@@ -153,22 +164,36 @@ export function MediaCard({
   ) : (
     <span
       data-slot="media-card-title"
-      className="min-w-0 truncate text-sm font-medium"
+      className={cn("min-w-0 truncate text-sm", RECORD_TITLE_CLASS)}
     >
       {title}
     </span>
   );
+  const titleLine =
+    badge != null ? (
+      <div
+        data-slot="media-card-heading"
+        className="flex min-w-0 items-center gap-2"
+      >
+        {heading}
+        <span
+          data-slot="media-card-badge"
+          className="flex shrink-0 items-center"
+        >
+          {badge}
+        </span>
+      </div>
+    ) : (
+      heading
+    );
   const metaLine =
-    meta != null || badge != null || timestamp != null ? (
+    meta != null || timestamp != null ? (
       <div
         data-slot="media-card-meta"
         className="flex min-w-0 items-center gap-2 text-xs text-muted-foreground"
       >
         {meta != null ? (
           <span className="min-w-0 truncate tabular-nums">{meta}</span>
-        ) : null}
-        {badge != null ? (
-          <span className="flex shrink-0 items-center">{badge}</span>
         ) : null}
         {timestamp != null ? (
           <span className="shrink-0">{timestamp}</span>
@@ -210,7 +235,7 @@ export function MediaCard({
         )}
       >
         <div className="flex min-w-0 flex-1 flex-col gap-1">
-          {heading}
+          {titleLine}
           {metaLine}
         </div>
         {actions != null ? (
