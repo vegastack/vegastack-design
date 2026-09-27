@@ -1,5 +1,11 @@
 # @vegastack/ui
 
+## 0.23.52
+
+### Patch Changes
+
+- [#360](https://github.com/vegastack/vegastack-design/pull/360) [`747476d`](https://github.com/vegastack/vegastack-design/commit/747476dfc774b07b883aa0dec8a399652f9a0de7) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🐛 `MediaCard`'s `badge` now sits beside the title, where `DataList`'s list view puts a pill, instead of in the meta line — a long title truncates before it and the badge never shrinks; the meta line is just `meta` and `timestamp`. The record title has one weight in the grid and the list: `DataList`'s first column is now `font-medium`, the grid card's title weight, through a shared `RECORD_TITLE_CLASS` exported from `media-card`; merged values under it stay regular. Docs show the badge variants (with, without, long title) and the grid and list side by side.
+
 ## 0.23.51
 
 ### Patch Changes
