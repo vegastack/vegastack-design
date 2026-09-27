@@ -11348,7 +11348,7 @@
       "title": "Field Grid",
       "summary": "A responsive one-to-three column grid of Fields by container width, plus FieldChoices: radios or checkboxes in a wrapping row.",
       "status": "stable",
-      "since": "0.23.56",
+      "since": "0.23.57",
       "family": "form",
       "wave": "Forms/editing",
       "sourceFiles": ["packages/ui/registry/ui/field-grid.tsx"],
