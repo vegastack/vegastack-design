@@ -1,20 +1,14 @@
-// @vegastack date-picker@0.23.58 sha256-wow2ofkFjsxZX8l3C4kOdK9muSzziJu09xJ9cTTCkoY=
+// @vegastack date-picker@0.23.58 sha256-yczQCX/cH58laLggtl8UOJ46/HdgtGJFsqF4CS+nids=
 
 "use client";
 
 import * as React from "react";
-import {
-  dateMatchModifiers,
-  rangeContainsModifiers,
-  type DateRange,
-  type DayButton,
-  type Matcher,
-} from "react-day-picker";
+import type { DateRange, DayButton, Matcher } from "react-day-picker";
 import { Calendar as CalendarIcon, X } from "lucide-react";
 import { Field as FieldPrimitive } from "@base-ui/react/field";
 import { cn, mergeRefs } from "@vegastack/design";
 import { Button } from "@/components/ui/button";
-import { Calendar, CalendarDayButton } from "@/components/ui/calendar";
+import type { Calendar } from "@/components/ui/calendar";
 import {
   Popover,
   PopoverTrigger,
@@ -35,7 +29,76 @@ import {
  * `react-day-picker` survives here as TYPES plus its two matcher evaluators — see the note on
  * `isDateDisabled` for why the preset gate must read the calendar's own matcher and not a
  * re-derived copy of it. Nothing in this file renders a day, a month or a caption.
+ *
+ * The calendar engine (`react-day-picker` + `date-fns`) is LOADED LAZILY: it is fetched when the
+ * trigger is hovered or focused and rendered only once the popup opens, so a page that shows a
+ * picker never ships the calendar in its first bundle. The popup's body waits for it (a few ms
+ * after a hover prefetch), and nothing else changes.
  * ----------------------------------------------------------------------------------------------*/
+
+/* ------------------------------------------------------------------------------------------------
+ * The lazily loaded calendar engine
+ * ----------------------------------------------------------------------------------------------*/
+
+interface CalendarParts {
+  Calendar: typeof import("@/components/ui/calendar").Calendar;
+  CalendarDayButton: typeof import("@/components/ui/calendar").CalendarDayButton;
+  dateMatchModifiers: typeof import("react-day-picker").dateMatchModifiers;
+  rangeContainsModifiers: typeof import("react-day-picker").rangeContainsModifiers;
+}
+
+/** Set once the engine has loaded; every reader below runs inside `CalendarReady`, after that. */
+let calendarParts: CalendarParts | undefined;
+let calendarLoad: Promise<CalendarParts> | undefined;
+
+/** Fetch the calendar engine once. Safe to call on every hover and focus; a failed load retries. */
+function loadCalendar(): Promise<CalendarParts> {
+  calendarLoad ??= Promise.all([
+    import("@/components/ui/calendar"),
+    import("react-day-picker"),
+  ]).then(
+    ([calendar, dayPicker]) =>
+      (calendarParts = {
+        Calendar: calendar.Calendar,
+        CalendarDayButton: calendar.CalendarDayButton,
+        dateMatchModifiers: dayPicker.dateMatchModifiers,
+        rangeContainsModifiers: dayPicker.rangeContainsModifiers,
+      }),
+    (error: unknown) => {
+      calendarLoad = undefined;
+      throw error;
+    },
+  );
+  return calendarLoad;
+}
+
+function prefetchCalendar() {
+  void loadCalendar().catch(() => {});
+}
+
+/** Renders its children (a render function) once the engine has loaded. */
+const CalendarReady = React.lazy(() =>
+  loadCalendar().then((parts) => ({
+    default: ({
+      children,
+    }: {
+      children: (parts: CalendarParts) => React.ReactNode;
+    }) => children(parts),
+  })),
+);
+
+/** The popup's body: the preset rail and the calendar, once the engine is there. */
+function CalendarBody({
+  children,
+}: {
+  children: (parts: CalendarParts) => React.ReactNode;
+}) {
+  return (
+    <React.Suspense fallback={null}>
+      <CalendarReady>{children}</CalendarReady>
+    </React.Suspense>
+  );
+}
 
 /* ------------------------------------------------------------------------------------------------
  * Formatting helpers (native Intl — no date-fns)
@@ -106,9 +169,11 @@ function PopoverDayButton({
   React.useEffect(() => {
     if (modifiers.focused) ref.current?.focus({ preventScroll: true });
   }, [modifiers.focused]);
+  // Rendered only by the calendar, so the engine is loaded.
+  const DayButton = calendarParts!.CalendarDayButton as DayButtonWithRef;
 
   return (
-    <DayButtonWithRef
+    <DayButton
       ref={ref}
       modifiers={{ ...modifiers, focused: false }}
       {...props}
@@ -123,8 +188,8 @@ function PopoverDayButton({
  * is react-day-picker's `DayButton`, written against `ButtonHTMLAttributes`, which has no `ref`
  * member — so the type, not the behaviour, is what is missing.
  */
-const DayButtonWithRef = CalendarDayButton as (
-  props: React.ComponentProps<typeof CalendarDayButton> & {
+type DayButtonWithRef = (
+  props: React.ComponentProps<CalendarParts["CalendarDayButton"]> & {
     ref?: React.Ref<HTMLButtonElement>;
   },
 ) => React.ReactNode;
@@ -181,7 +246,7 @@ function isDateDisabled(
   disabledDates: Matcher | Matcher[] | undefined,
 ): boolean {
   if (!disabledDates) return false;
-  return dateMatchModifiers(date, disabledDates);
+  return calendarParts!.dateMatchModifiers(date, disabledDates);
 }
 
 /**
@@ -195,13 +260,15 @@ function isRangeDisabled(
 ): boolean {
   if (!disabledDates || !range) return false;
   if (range.from && range.to) {
-    return rangeContainsModifiers(
+    return calendarParts!.rangeContainsModifiers(
       { from: range.from, to: range.to },
       disabledDates,
     );
   }
   const endpoint = range.from ?? range.to;
-  return endpoint ? dateMatchModifiers(endpoint, disabledDates) : false;
+  return endpoint
+    ? calendarParts!.dateMatchModifiers(endpoint, disabledDates)
+    : false;
 }
 
 /**
@@ -462,6 +529,9 @@ export function DatePicker({
               <Button
                 ref={triggerRef}
                 variant="outline"
+                // Fetch the calendar engine as soon as the picker is likely to open.
+                onPointerEnter={prefetchCalendar}
+                onFocus={prefetchCalendar}
                 size={size === "sm" ? "sm" : "default"}
                 data-slot="date-picker-trigger"
                 data-size={size}
@@ -507,44 +577,57 @@ export function DatePicker({
         align={align}
         className={cn(POPUP_CLASSES, presets && "flex-row max-sm:flex-col")}
       >
-        {presets ? (
-          <PresetRail>
-            {presets.map((preset) => {
-              // Honor the SAME `disabledDates` policy the calendar applies — a preset whose date
-              // is blocked must be inert (disabled UI) and must never emit a value.
-              const presetDisabled = isDateDisabled(preset.date, disabledDates);
-              return (
-                <Button
-                  key={preset.label}
-                  variant="ghost"
-                  size="sm"
-                  disabled={presetDisabled}
-                  aria-disabled={presetDisabled || undefined}
-                  className="justify-start font-normal"
-                  onClick={() => {
-                    // Defense in depth: never emit a disabled value even if the click slips through.
-                    if (isDateDisabled(preset.date, disabledDates)) return;
-                    onValueChange?.(preset.date);
-                    setOpen(false);
-                  }}
-                >
-                  {preset.label}
-                </Button>
-              );
-            })}
-          </PresetRail>
-        ) : null}
-        <Calendar
-          components={POPOVER_CALENDAR_COMPONENTS}
-          {...calendarRestProps}
-          className={cn(POPUP_CALENDAR_CLASSES, calendarRestProps.className)}
-          mode="single"
-          selected={value}
-          onSelect={handleSelect}
-          defaultMonth={defaultMonth ?? value}
-          disabled={disabledDates}
-          autoFocus={autoFocus}
-        />
+        <CalendarBody>
+          {({ Calendar }) => (
+            <>
+              {presets ? (
+                <PresetRail>
+                  {presets.map((preset) => {
+                    // Honor the SAME `disabledDates` policy the calendar applies — a preset whose date
+                    // is blocked must be inert (disabled UI) and must never emit a value.
+                    const presetDisabled = isDateDisabled(
+                      preset.date,
+                      disabledDates,
+                    );
+                    return (
+                      <Button
+                        key={preset.label}
+                        variant="ghost"
+                        size="sm"
+                        disabled={presetDisabled}
+                        aria-disabled={presetDisabled || undefined}
+                        className="justify-start font-normal"
+                        onClick={() => {
+                          // Defense in depth: never emit a disabled value even if the click slips through.
+                          if (isDateDisabled(preset.date, disabledDates))
+                            return;
+                          onValueChange?.(preset.date);
+                          setOpen(false);
+                        }}
+                      >
+                        {preset.label}
+                      </Button>
+                    );
+                  })}
+                </PresetRail>
+              ) : null}
+              <Calendar
+                components={POPOVER_CALENDAR_COMPONENTS}
+                {...calendarRestProps}
+                className={cn(
+                  POPUP_CALENDAR_CLASSES,
+                  calendarRestProps.className,
+                )}
+                mode="single"
+                selected={value}
+                onSelect={handleSelect}
+                defaultMonth={defaultMonth ?? value}
+                disabled={disabledDates}
+                autoFocus={autoFocus}
+              />
+            </>
+          )}
+        </CalendarBody>
       </PopoverContent>
     </Popover>
   );
@@ -750,6 +833,8 @@ export function DateRangePicker({
             render={
               <Button
                 variant="outline"
+                onPointerEnter={prefetchCalendar}
+                onFocus={prefetchCalendar}
                 data-slot="date-range-picker-trigger"
                 data-empty={value?.from ? undefined : ""}
                 aria-label={ariaLabel}
@@ -775,48 +860,58 @@ export function DateRangePicker({
         align={align}
         className={cn(POPUP_CLASSES, presets && "flex-row max-sm:flex-col")}
       >
-        {presets ? (
-          <PresetRail>
-            {presets.map((preset) => {
-              // A range preset is blocked when ANY day it spans (endpoints + every day between) is
-              // disabled — same matcher the calendar uses, so the gate can't drift.
-              const presetDisabled = isRangeDisabled(
-                preset.range,
-                disabledDates,
-              );
-              return (
-                <Button
-                  key={preset.label}
-                  variant="ghost"
-                  size="sm"
-                  disabled={presetDisabled}
-                  aria-disabled={presetDisabled || undefined}
-                  className="justify-start font-normal"
-                  onClick={() => {
-                    // Defense in depth: never emit a range that intersects disabled dates.
-                    if (isRangeDisabled(preset.range, disabledDates)) return;
-                    onValueChange?.(preset.range);
-                    setOpen(false);
-                  }}
-                >
-                  {preset.label}
-                </Button>
-              );
-            })}
-          </PresetRail>
-        ) : null}
-        <Calendar
-          components={POPOVER_CALENDAR_COMPONENTS}
-          {...calendarRestProps}
-          className={cn(POPUP_CALENDAR_CLASSES, calendarRestProps.className)}
-          mode="range"
-          selected={value}
-          onSelect={handleSelect}
-          defaultMonth={defaultMonth ?? value?.from}
-          numberOfMonths={numberOfMonths ?? calendarNumberOfMonths ?? 2}
-          disabled={disabledDates}
-          autoFocus={autoFocus}
-        />
+        <CalendarBody>
+          {({ Calendar }) => (
+            <>
+              {presets ? (
+                <PresetRail>
+                  {presets.map((preset) => {
+                    // A range preset is blocked when ANY day it spans (endpoints + every day between) is
+                    // disabled — same matcher the calendar uses, so the gate can't drift.
+                    const presetDisabled = isRangeDisabled(
+                      preset.range,
+                      disabledDates,
+                    );
+                    return (
+                      <Button
+                        key={preset.label}
+                        variant="ghost"
+                        size="sm"
+                        disabled={presetDisabled}
+                        aria-disabled={presetDisabled || undefined}
+                        className="justify-start font-normal"
+                        onClick={() => {
+                          // Defense in depth: never emit a range that intersects disabled dates.
+                          if (isRangeDisabled(preset.range, disabledDates))
+                            return;
+                          onValueChange?.(preset.range);
+                          setOpen(false);
+                        }}
+                      >
+                        {preset.label}
+                      </Button>
+                    );
+                  })}
+                </PresetRail>
+              ) : null}
+              <Calendar
+                components={POPOVER_CALENDAR_COMPONENTS}
+                {...calendarRestProps}
+                className={cn(
+                  POPUP_CALENDAR_CLASSES,
+                  calendarRestProps.className,
+                )}
+                mode="range"
+                selected={value}
+                onSelect={handleSelect}
+                defaultMonth={defaultMonth ?? value?.from}
+                numberOfMonths={numberOfMonths ?? calendarNumberOfMonths ?? 2}
+                disabled={disabledDates}
+                autoFocus={autoFocus}
+              />
+            </>
+          )}
+        </CalendarBody>
       </PopoverContent>
     </Popover>
   );

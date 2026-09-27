@@ -44,12 +44,15 @@ describe("affected component closure", () => {
       "comments",
       "issue-detail-01",
       "markdown-view",
+      // TextEdit's read view is a MarkdownView (2026-09-27).
+      "text-edit",
     ]);
     expect(result.componentTestFiles).toEqual([
       "packages/ui/registry/blocks/issue-detail-01/issue-detail-01.test.tsx",
       "packages/ui/registry/ui/code-block.test.tsx",
       "packages/ui/registry/ui/comments.test.tsx",
       "packages/ui/registry/ui/markdown-view.test.tsx",
+      "packages/ui/registry/ui/text-edit.test.tsx",
     ]);
     // bubble's preview renders a CodeBlock, so its fixtures run although bubble does not depend on it.
     // text-edit's preview renders a MarkdownView beside the editor (the Markdown guide's parity demo).
@@ -113,6 +116,7 @@ describe("affected component closure", () => {
       "issue-detail-01",
       "markdown-view",
       "provider",
+      "text-edit",
     ]);
   });
 

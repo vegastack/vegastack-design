@@ -15,6 +15,19 @@ import { RecordChip } from "../registry/ui/record-chip";
 import { DateTime, DueLabel } from "../registry/ui/relative-time";
 import { StatusIcon } from "../registry/ui/status-icon";
 
+/**
+ * Browser test files share one page in CI, so the pointer can still rest wherever an earlier file
+ * left it — over this file's control, holding its hover state. Park it on a corner sentinel first.
+ */
+async function parkPointer() {
+  const sentinel = document.createElement("div");
+  sentinel.style.cssText =
+    "position:fixed;right:0;bottom:0;width:4px;height:4px;z-index:2147483647";
+  document.body.append(sentinel);
+  await userEvent.hover(sentinel);
+  sentinel.remove();
+}
+
 /** The box a segment paints its hover background into: its padding box when clipped there. */
 function paintBox(el: Element) {
   const r = el.getBoundingClientRect();
@@ -77,6 +90,7 @@ test("split-chip-inset: both segments' hover backgrounds sit the same distance f
 });
 
 test("ghost-chip-align: a ghost chip's text starts where plain values do, and every row is one height", async () => {
+  await parkPointer();
   const due = new Date(Date.now() - 4 * 86_400_000);
   const screen = await render(
     <div className="w-80">

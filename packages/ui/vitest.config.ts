@@ -129,8 +129,7 @@ export default defineConfig({
       "motion/react",
       "react-dom",
       "react-dom/server",
-      "react-markdown",
-      "remark-gfm",
+      "marked",
       "zod",
       // Everything below was still being DISCOVERED by Vite on a cold cache (a fresh clone or
       // worktree with no `node_modules/.vite`): three "new dependencies optimized … reloading"

@@ -157,3 +157,17 @@ export function markdownViewLinks(): ReactNode {
     </Wrapper>
   );
 }
+
+// `TextEdit`'s `format="html"` output — the shape its task list and code block take — rendered
+// through the HTML allowlist. The `<script>` and the `onerror` handler are dropped.
+const HTML = `<h2>Release checklist</h2><p>Ship the <strong>lazy editor</strong> and <a href="https://vegastack.com">tell the team</a>.</p><ul data-type="taskList"><li data-checked="true" data-type="taskItem"><label><input type="checkbox" checked="checked"><span></span></label><div><p>Read view renders on the server</p></div></li><li data-checked="false" data-type="taskItem"><label><input type="checkbox"><span></span></label><div><p>Editor loads on intent</p></div></li></ul><pre><code class="language-ts">const editor = await import("./text-edit-editor");</code></pre><script>alert(1)</script><p><img src="/preview/landscape.svg" alt="A scenic landscape" onerror="alert(1)"></p>`;
+
+export function markdownViewHtml(): ReactNode {
+  return (
+    <Wrapper className="justify-start">
+      <div className="w-full max-w-prose text-left">
+        <MarkdownView format="html">{HTML}</MarkdownView>
+      </div>
+    </Wrapper>
+  );
+}

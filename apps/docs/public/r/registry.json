@@ -1491,7 +1491,7 @@
         "whenToUse": "Selecting a single date or a range (with optional Today/Last-7-days presets) from a popover. size=\"sm\" + variant=\"ghost\" is the inline row tier; clearable adds a clear control that returns focus to the trigger.",
         "whenNotToUse": "Free-form/partial dates (masked Input) or inline-only calendars (use Calendar directly).",
         "version": "0.23.58",
-        "integrity": "sha256-wow2ofkFjsxZX8l3C4kOdK9muSzziJu09xJ9cTTCkoY="
+        "integrity": "sha256-yczQCX/cH58laLggtl8UOJ46/HdgtGJFsqF4CS+nids="
       }
     },
     {
@@ -1914,7 +1914,7 @@
         "whenToUse": "Filter toolbars for lists/tables — 'Label: value' chips that edit in place, facets on SearchableSelect, an Add-filter menu and a settled search, at the end or first.",
         "whenNotToUse": "A single search box (Input), value selection (Select), or unrelated row actions.",
         "version": "0.23.58",
-        "integrity": "sha256-dfP1gw9rjD9+ssaIPdQna6TjqJuHCb/fEDJtUzqSRUw="
+        "integrity": "sha256-nmoj6N2PacchNFyYoPbc3HxC0+kXoP0zZ76gXjknmUU="
       }
     },
     {
@@ -15316,8 +15316,7 @@
         "data-display"
       ],
       "dependencies": [
-        "react-markdown@^10.1.0",
-        "remark-gfm@^4.0.0",
+        "marked@^17.0.1",
         "@vegastack/design@^0.7.50",
         "@vegastack/design-tokens@^0.7.49"
       ],
@@ -15336,7 +15335,7 @@
         "whenToUse": "Display user/system-authored markdown — descriptions, comments, activity — as safe token-styled prose.",
         "whenNotToUse": "Editing markdown (use an editor), or when the source needs embedded raw HTML.",
         "version": "0.23.58",
-        "integrity": "sha256-0YMcNMeZyfdLNsD1s1TNiv7a/J5eLjXqbHUYM0Lnyog="
+        "integrity": "sha256-vMjZzgUlBtYGwxBtX9FHoghQyL3An2++vb0iEkyJFxA="
       }
     },
     {
@@ -17041,6 +17040,7 @@
         "@vegastack/checkbox",
         "@vegastack/copy-button",
         "@vegastack/input",
+        "@vegastack/markdown-view",
         "@vegastack/native-select",
         "@vegastack/toggle",
         "@vegastack/tooltip"
@@ -17050,13 +17050,18 @@
           "path": "packages/ui/registry/ui/text-edit.tsx",
           "type": "registry:ui",
           "target": "@ui/text-edit.tsx"
+        },
+        {
+          "path": "packages/ui/registry/ui/text-edit-editor.tsx",
+          "type": "registry:ui",
+          "target": "@ui/text-edit-editor.tsx"
         }
       ],
       "meta": {
         "whenToUse": "Comments, notes, summaries and documents stored as Markdown (format=\"markdown\") or HTML; in-place editing of a MarkdownView with variant=\"ghost\".",
         "whenNotToUse": "Plain single-line input (Input) or collaborative real-time docs (deferred text-edit-collab).",
         "version": "0.23.58",
-        "integrity": "sha256-JDKWAHrHhOj8sejJkBVpe4Af1vA8K8t0u0jHz9eqC2E="
+        "integrity": "sha256-+n8w76i7BtGWDnQwzet+S3VJJubUsdrVYx0acTm7z7U="
       }
     },
     {

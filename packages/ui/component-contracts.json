@@ -13467,19 +13467,14 @@
       },
       "engines": [
         {
-          "package": "react-markdown",
-          "role": "markdown renderer engine"
-        },
-        {
-          "package": "remark-gfm",
-          "role": "GFM parser plugin"
+          "package": "marked",
+          "role": "markdown lexer engine"
         }
       ],
       "docsSlug": "/docs/components/markdown-view",
       "registryDependencies": ["@vegastack/checkbox", "@vegastack/code-block"],
       "npmDependencies": [
-        "react-markdown@^10.1.0",
-        "remark-gfm@^4.0.0",
+        "marked@^17.0.1",
         "@vegastack/design@^0.7.50",
         "@vegastack/design-tokens@^0.7.49"
       ],
@@ -22068,7 +22063,10 @@
       "since": "0.1.0",
       "family": "rich-text",
       "wave": "Forms/editing",
-      "sourceFiles": ["packages/ui/registry/ui/text-edit.tsx"],
+      "sourceFiles": [
+        "packages/ui/registry/ui/text-edit.tsx",
+        "packages/ui/registry/ui/text-edit-editor.tsx"
+      ],
       "publicSymbols": [
         {
           "name": "TEXT_EDIT_COMPACT_SLASH_COMMANDS",
@@ -22089,6 +22087,15 @@
           }
         },
         {
+          "name": "preloadTextEdit",
+          "kind": "function",
+          "source": "packages/ui/registry/ui/text-edit.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A loader function, not a component."
+          }
+        },
+        {
           "name": "TextEdit",
           "kind": "component",
           "source": "packages/ui/registry/ui/text-edit.tsx",
@@ -22096,6 +22103,24 @@
             "status": "observed",
             "target": "div",
             "rationale": "Source forwards the ref to this JSX/Base UI render target."
+          }
+        },
+        {
+          "name": "TextEditEditor",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/text-edit-editor.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Internal: the lazily loaded editor TextEdit renders inside its own root, which owns the forwarded ref."
+          }
+        },
+        {
+          "name": "TextEditEditorProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/text-edit-editor.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -22190,6 +22215,7 @@
         "@vegastack/checkbox",
         "@vegastack/copy-button",
         "@vegastack/input",
+        "@vegastack/markdown-view",
         "@vegastack/native-select",
         "@vegastack/toggle",
         "@vegastack/tooltip"
@@ -22237,12 +22263,25 @@
               "values": [""]
             },
             {
+              "name": "data-placeholder",
+              "values": []
+            },
+            {
               "name": "data-slot",
               "values": ["text-edit", "text-edit-content"]
             },
             {
               "name": "data-variant",
               "values": []
+            }
+          ],
+          "cssVariables": []
+        },
+        "TextEditEditor": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["text-edit-content"]
             }
           ],
           "cssVariables": []

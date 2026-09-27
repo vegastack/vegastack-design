@@ -302,6 +302,11 @@
       "family": "rich-text",
       "source": "extras.md"
     },
+    "text-edit-editor": {
+      "disposition": "keep",
+      "family": "internal",
+      "source": "internal part of text-edit: the lazily loaded Tiptap editor behind TextEdit's read view (operator 2026-09-27); not listed in extras.md"
+    },
     "thumbnail": {
       "disposition": "keep",
       "family": "data",

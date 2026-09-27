@@ -42,6 +42,11 @@ the invalid border work the same way:
 </Field>
 ```
 
+The calendar engine (`react-day-picker` and `date-fns`) is not in the page's first bundle: both
+pickers fetch it when the trigger is hovered or focused and render it once the popup opens, so a
+form full of date fields costs nothing until one is used. Nothing to configure — the popup looks and
+behaves the same.
+
 ## Anatomy
 
 `Date Picker` is a compound component. Every exported part, with the

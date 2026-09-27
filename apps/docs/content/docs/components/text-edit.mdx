@@ -44,6 +44,30 @@ history, the **bold / italic / strike / code** marks, **headings**, **bullet & o
 />
 ```
 
+### Light first paint
+
+The editor is heavy (Tiptap and ProseMirror, ~180 KB gzipped), so `TextEdit` does not ship it in the
+page's first bundle. It renders the saved value as plain read HTML first — the same
+[`MarkdownView`](/docs/components/markdown-view) tree, in the editor's exact classes, on the server
+too — and loads the editor on intent: a hover or touch starts the download, and a click, tap or
+focus swaps the editor in place before the next paint. The caret lands where the click did, a click
+on a task checkbox toggles it, and anything typed while the editor loads is kept. The swap is
+invisible: the read view is `contenteditable` with the editor's role, label and focus cue, so it
+looks, focuses and opens the keyboard exactly like the editor. `readOnly` and `disabled` never load
+the editor at all.
+
+Once the editor has loaded on a page, every `TextEdit` mounted afterwards swaps it in straight
+away. To load it ahead of a first edit — a "New task" dialog about to open — call
+`preloadTextEdit()`:
+
+```tsx
+import { preloadTextEdit } from "@/components/ui/text-edit";
+
+<Button onPointerEnter={() => void preloadTextEdit()} onClick={openDialog}>
+  New task
+</Button>;
+```
+
 ## Scope
 
 `TextEdit` is the **presentational base editor** — a controlled HTML value, the StarterKit
@@ -67,6 +91,60 @@ follow-up component.
 Prose styling is **not** this component's to own: the editor surface wears the shared `prose`
 recipe from `@vegastack/design`, the same string `MarkdownView` puts on its root, so what a person
 types here and what the app renders from markdown are one typography.
+
+## Anatomy
+
+`TextEdit` is the one component you use. It renders a light read view first and lazily loads
+`TextEditEditor` (its own file, `text-edit-editor.tsx`, never imported directly) in its place:
+
+<Anatomy name="text-edit" />
+
+Inside, it composes these pieces:
+
+```tsx
+// data-slot="text-edit" data-variant — document: no border, no ring, no fill; boxed: a bordered field
+<TextEdit>
+  // Before the editor loads: data-slot="text-edit-read" — the saved value as MarkdownView, with the
+  // editor's classes, role, label and focus cue, contenteditable while editable
+  <MarkdownView />
+  // Once loaded (text-edit-editor.tsx), in its place:
+  // Tiptap contenteditable, role="textbox" aria-multiline data-focus-cue="caret" (boxed: "border")
+  <EditorContent />
+  // children — boxed only: inside the box, after the document (a composer's actions row)
+  // In a <body> portal:
+  // data-slot="text-edit-bubble-menu" — role="toolbar", over a selection
+  //   (or text-edit-link / text-edit-image / text-edit-turn-into while a panel is open)
+  <BubbleMenu />
+  // data-slot="text-edit-table-menu" — role="toolbar", while the caret is in a table
+  <TableMenu />
+  // data-slot="text-edit-slash-menu" — role="listbox", while typing after /
+  <SlashMenu />
+  // data-slot="text-edit-block-handle" / "text-edit-table-grip" — pointer-only drag handles
+  <BlockHandle />
+</TextEdit>
+```
+
+- **Root** (`data-slot="text-edit"`, `data-variant`) — in `document` mode transparent and borderless:
+  it takes the surface it sits on. In `boxed` mode a bordered field whose border darkens subtly
+  while the editor holds focus and turns destructive when invalid. Carries `data-editable` and
+  `data-invalid` when it wraps an `aria-invalid` control. Clicking its blank space focuses the end
+  of the document.
+- **Bubble menu** (`data-slot="text-edit-bubble-menu"`, `role="toolbar"`) — a Turn into button,
+  `Toggle` buttons for bold, italic, strikethrough, inline code and link, and Clear formatting;
+  link swaps it for an inline URL input with Open and Remove (`data-slot="text-edit-link"`).
+- **Table menu** (`data-slot="text-edit-table-menu"`, `role="toolbar"`) — insert, move and delete
+  rows and columns, delete the table.
+- **Handles** (`data-slot="text-edit-block-handle"`, `data-slot="text-edit-table-grip"`) — pointer
+  drag handles; the keyboard has the same moves.
+- **Slash menu** (`data-slot="text-edit-slash-menu"`, `role="listbox"`) — the block menu, in the
+  Command item style with muted icons. Focus stays in the editor; the caret never moves.
+- **Read view** (`data-slot="text-edit-read"`, `role="textbox"`) — the saved document as
+  `MarkdownView` in the editor surface's classes, until the editor loads; see Light first paint.
+- **Editor surface** (`role="textbox"`, `aria-multiline`) — the Tiptap/ProseMirror contenteditable.
+  Prose is styled entirely with semantic tokens (headings, lists, code, blockquote), so it tracks the
+  active theme with no `@tailwindcss/typography` dependency. It has no fill, border or ring in any
+  state — in `document` mode the caret is the focus cue, in `boxed` mode the root's border — and
+  nothing in it widens the page.
 
 ## Examples
 
@@ -169,49 +247,6 @@ replaces it.
   name="textEditBoxedInvalid"
   file="components/preview/text-edit.tsx"
 />
-
-### Anatomy
-
-`TextEdit` is a single self-contained component, but it composes these pieces internally:
-
-```tsx
-// data-slot="text-edit" data-variant — document: no border, no ring, no fill; boxed: a bordered field
-<TextEdit>
-  // Tiptap contenteditable, role="textbox" aria-multiline data-focus-cue="caret" (boxed: "border")
-  <EditorContent />
-  // children — boxed only: inside the box, after the document (a composer's actions row)
-  // In a <body> portal:
-  // data-slot="text-edit-bubble-menu" — role="toolbar", over a selection
-  //   (or text-edit-link / text-edit-image / text-edit-turn-into while a panel is open)
-  <BubbleMenu />
-  // data-slot="text-edit-table-menu" — role="toolbar", while the caret is in a table
-  <TableMenu />
-  // data-slot="text-edit-slash-menu" — role="listbox", while typing after /
-  <SlashMenu />
-  // data-slot="text-edit-block-handle" / "text-edit-table-grip" — pointer-only drag handles
-  <BlockHandle />
-</TextEdit>
-```
-
-- **Root** (`data-slot="text-edit"`, `data-variant`) — in `document` mode transparent and borderless:
-  it takes the surface it sits on. In `boxed` mode a bordered field whose border darkens subtly
-  while the editor holds focus and turns destructive when invalid. Carries `data-editable` and
-  `data-invalid` when it wraps an `aria-invalid` control. Clicking its blank space focuses the end
-  of the document.
-- **Bubble menu** (`data-slot="text-edit-bubble-menu"`, `role="toolbar"`) — a Turn into button,
-  `Toggle` buttons for bold, italic, strikethrough, inline code and link, and Clear formatting;
-  link swaps it for an inline URL input with Open and Remove (`data-slot="text-edit-link"`).
-- **Table menu** (`data-slot="text-edit-table-menu"`, `role="toolbar"`) — insert, move and delete
-  rows and columns, delete the table.
-- **Handles** (`data-slot="text-edit-block-handle"`, `data-slot="text-edit-table-grip"`) — pointer
-  drag handles; the keyboard has the same moves.
-- **Slash menu** (`data-slot="text-edit-slash-menu"`, `role="listbox"`) — the block menu, in the
-  Command item style with muted icons. Focus stays in the editor; the caret never moves.
-- **Editor surface** (`role="textbox"`, `aria-multiline`) — the Tiptap/ProseMirror contenteditable.
-  Prose is styled entirely with semantic tokens (headings, lists, code, blockquote), so it tracks the
-  active theme with no `@tailwindcss/typography` dependency. It has no fill, border or ring in any
-  state — in `document` mode the caret is the focus cue, in `boxed` mode the root's border — and
-  nothing in it widens the page.
 
 ### Editing patterns
 
