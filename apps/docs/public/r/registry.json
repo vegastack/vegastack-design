@@ -15589,7 +15589,7 @@
         "whenToUse": "Linking a record to another one in its header — a meeting's customer or project — with a picker and a jump to the linked record.",
         "whenNotToUse": "A free-form tag (Chip) or a form field with a label (Combobox, Select).",
         "version": "0.23.57",
-        "integrity": "sha256-bMR/NI3/7uWkiNQ9QR1IAupm5QU53cqBRkROR+vAKck="
+        "integrity": "sha256-UqwQ7X4pS9dPBZhpGeHxD5UodydLP4/gXx+fWWETLUg="
       }
     },
     {
@@ -16577,7 +16577,7 @@
         "whenToUse": "Primary app navigation in a dashboard/console shell — collapsible rail with grouped items.",
         "whenNotToUse": "A few top-level links (horizontal nav) or transient small-viewport nav (Sheet).",
         "version": "0.23.57",
-        "integrity": "sha256-WRusq8acU4UXj19T/8RsObtHpJwZ93DWJ6oRJU6WX5A="
+        "integrity": "sha256-hQYd2l/MjGdLljAQEoEl3Un/76r7b8Mm6lo8PzPfimk="
       }
     },
     {

@@ -1215,6 +1215,47 @@ export function sidebarCounts(): ReactNode {
   );
 }
 
+export function sidebarCountAction(): ReactNode {
+  return (
+    <Wrapper className="block h-56 overflow-hidden p-0">
+      <SidebarProvider className="h-full min-h-0">
+        <Sidebar collapsible="none" className="h-full border-e">
+          <SidebarContent>
+            <SidebarGroup>
+              <SidebarGroupLabel>Work</SidebarGroupLabel>
+              <SidebarMenu>
+                <SidebarMenuItem>
+                  <SidebarMenuButton
+                    render={<a href="#tasks" />}
+                    isActive
+                    badge="8"
+                    badgeLabel="8 open"
+                  >
+                    <Inbox />
+                    <span>Tasks</span>
+                  </SidebarMenuButton>
+                  <SidebarMenuAction showOnHover aria-label="New task">
+                    <Plus />
+                  </SidebarMenuAction>
+                </SidebarMenuItem>
+                <SidebarMenuItem>
+                  <SidebarMenuButton render={<a href="#meetings" />} badge="3">
+                    <Folder />
+                    <span>Meetings</span>
+                  </SidebarMenuButton>
+                  <SidebarMenuAction showOnHover aria-label="New meeting">
+                    <Plus />
+                  </SidebarMenuAction>
+                </SidebarMenuItem>
+              </SidebarMenu>
+            </SidebarGroup>
+          </SidebarContent>
+        </Sidebar>
+      </SidebarProvider>
+    </Wrapper>
+  );
+}
+
 export function sidebarActionRow(): ReactNode {
   return <SidebarActionRowDemo />;
 }

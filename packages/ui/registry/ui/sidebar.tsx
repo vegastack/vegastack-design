@@ -1,4 +1,4 @@
-// @vegastack sidebar@0.23.57 sha256-WRusq8acU4UXj19T/8RsObtHpJwZ93DWJ6oRJU6WX5A=
+// @vegastack sidebar@0.23.57 sha256-hQYd2l/MjGdLljAQEoEl3Un/76r7b8Mm6lo8PzPfimk=
 
 "use client";
 
@@ -579,7 +579,7 @@ function SidebarMenuItem({ className, ...props }: React.ComponentProps<"li">) {
 }
 
 const sidebarMenuButtonVariants = cva(
-  "peer/menu-button group/menu-button flex w-full items-center gap-2 overflow-hidden rounded-md p-2 text-start text-sm ring-sidebar-ring transition-[width,height,padding] group-has-data-[sidebar=menu-action]/menu-item:pe-8 group-has-data-[sidebar=menu-badge]/menu-item:pe-8 group-has-[[data-sidebar=menu-badge][data-badge-size=lg]]/menu-item:pe-12 group-data-[collapsible=icon]:size-8! group-data-[collapsible=icon]:p-2! hover:bg-sidebar-accent hover:text-sidebar-accent-foreground active:bg-sidebar-accent active:text-sidebar-accent-foreground disabled:opacity-50 aria-disabled:opacity-50 data-open:hover:bg-sidebar-accent data-open:hover:text-sidebar-accent-foreground aria-expanded:bg-sidebar-accent aria-expanded:text-sidebar-accent-foreground data-popup-open:bg-sidebar-accent data-popup-open:text-sidebar-accent-foreground data-active:bg-sidebar-accent data-active:font-medium data-active:text-sidebar-accent-foreground [&_svg]:size-4 [&_svg]:shrink-0 [&>span:last-child]:truncate [&_svg:not([class*='text-']):not([data-icon-tone])]:text-sidebar-foreground/70 hover:**:[svg:not([data-icon-tone])]:text-sidebar-accent-foreground active:**:[svg:not([data-icon-tone])]:text-sidebar-accent-foreground data-active:**:[svg:not([data-icon-tone])]:text-sidebar-accent-foreground",
+  "peer/menu-button group/menu-button flex w-full items-center gap-2 overflow-hidden rounded-md p-2 text-start text-sm ring-sidebar-ring transition-[width,height,padding] group-has-data-[sidebar=menu-action]/menu-item:pe-8 group-has-data-[sidebar=menu-badge]/menu-item:pe-8 group-has-[[data-sidebar=menu-badge][data-badge-size=lg]]/menu-item:pe-12 max-md:group-has-data-show-on-hover/menu-item:group-has-data-[sidebar=menu-badge]/menu-item:pe-14 group-data-[collapsible=icon]:size-8! group-data-[collapsible=icon]:p-2! hover:bg-sidebar-accent hover:text-sidebar-accent-foreground active:bg-sidebar-accent active:text-sidebar-accent-foreground disabled:opacity-50 aria-disabled:opacity-50 data-open:hover:bg-sidebar-accent data-open:hover:text-sidebar-accent-foreground aria-expanded:bg-sidebar-accent aria-expanded:text-sidebar-accent-foreground data-popup-open:bg-sidebar-accent data-popup-open:text-sidebar-accent-foreground data-active:bg-sidebar-accent data-active:font-medium data-active:text-sidebar-accent-foreground [&_svg]:size-4 [&_svg]:shrink-0 [&>span:last-child]:truncate [&_svg:not([class*='text-']):not([data-icon-tone])]:text-sidebar-foreground/70 hover:**:[svg:not([data-icon-tone])]:text-sidebar-accent-foreground active:**:[svg:not([data-icon-tone])]:text-sidebar-accent-foreground data-active:**:[svg:not([data-icon-tone])]:text-sidebar-accent-foreground",
   {
     variants: {
       variant: {
@@ -734,6 +734,7 @@ function SidebarMenuAction({
     state: {
       slot: "sidebar-menu-action",
       sidebar: "menu-action",
+      showOnHover,
     },
   });
 }
@@ -748,7 +749,7 @@ function SidebarMenuBadge({
       data-sidebar="menu-badge"
       aria-hidden="true"
       className={cn(
-        "pointer-events-none absolute end-1 flex h-5 min-w-5 items-center justify-center rounded-md px-1 text-xs font-medium text-sidebar-foreground tabular-nums select-none group-data-[collapsible=icon]:hidden peer-hover/menu-button:text-sidebar-accent-foreground peer-data-[size=default]/menu-button:top-1.5 peer-data-[size=lg]/menu-button:top-2.5 peer-data-[size=sm]/menu-button:top-1 peer-data-active/menu-button:text-sidebar-accent-foreground",
+        "pointer-events-none absolute end-1 flex h-5 min-w-5 items-center justify-center rounded-md px-1 text-xs font-medium text-sidebar-foreground tabular-nums select-none group-data-[collapsible=icon]:hidden peer-hover/menu-button:text-sidebar-accent-foreground peer-data-[size=default]/menu-button:top-1.5 peer-data-[size=lg]/menu-button:top-2.5 peer-data-[size=sm]/menu-button:top-1 peer-data-active/menu-button:text-sidebar-accent-foreground max-md:group-has-data-show-on-hover/menu-item:end-7 md:group-has-data-show-on-hover/menu-item:group-hover/menu-item:opacity-0 md:group-has-data-show-on-hover/menu-item:group-focus-within/menu-item:opacity-0 md:group-has-[[data-show-on-hover][aria-expanded=true]]/menu-item:opacity-0",
         className,
       )}
       {...props}
