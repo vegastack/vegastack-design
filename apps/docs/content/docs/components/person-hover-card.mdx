@@ -66,6 +66,12 @@ initials on the muted fallback, for someone without an account. Initials follow 
 letters of the first and last words, the first two letters of a single word, or the email's first
 two characters when there is no name (`personInitials`, exported from `person-avatar`).
 
+The photo is a plain `<img>` in the server HTML, layered over the initials, so the browser fetches
+it straight from the markup and paints it the moment it decodes: a cached photo is there on first
+paint, with no flash of initials and no wait for hydration. The initials stay underneath until the
+photo loads, and a photo that fails (a broken or expired URL) falls back to them. Sizes are
+Avatar's own — `sm` (the default), `default` and `lg` — and the photo never changes the box.
+
 <ComponentPreview
   name="personHoverCardAvatar"
   file="components/preview/person-hover-card.tsx"

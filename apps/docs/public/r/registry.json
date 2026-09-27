@@ -15102,7 +15102,7 @@
         "whenToUse": "Display a resolved image URL with reserved aspect-ratio, a loading skeleton, and a graceful error fallback.",
         "whenNotToUse": "When you must fetch/resolve the source (R2/CDN keys) — presentational; resolve URLs app-side.",
         "version": "0.23.50",
-        "integrity": "sha256-iWl24um8gLnl9FiatZ/XPpiDmJxxhszFrE6VxZ/XYyw="
+        "integrity": "sha256-GX+lsXjtvcVKZURCFTAzwf6MljCavXFkgIXtxcAObWI="
       }
     },
     {
@@ -16012,7 +16012,7 @@
         "whenToUse": "Any avatar that stands for a person: rows, chips, cards, menus, comments and the user menu.",
         "whenNotToUse": "An organisation or record image (Thumbnail) or a non-person avatar composition (Avatar).",
         "version": "0.23.50",
-        "integrity": "sha256-iAg/5YHagSeLnGVBPeqmt6LjqO0ahh4KOa/IgNf0L+o="
+        "integrity": "sha256-bJF/9sL2xDea8v3eGB1Yl2T3yh5hK14MV2laiFQtxIs="
       }
     },
     {

@@ -74,11 +74,14 @@ export function personHoverCardInactive(): ReactNode {
   );
 }
 
-/** A photo replaces everything; else initials on the person's hue; else the muted fallback. */
+/**
+ * A photo replaces everything; else initials on the person's hue; else the muted fallback. A photo
+ * that fails to load falls back to the initials. The second row is the three sizes with a photo.
+ */
 export function personHoverCardAvatar(): ReactNode {
   return (
-    <Wrapper>
-      <div className="flex items-center gap-3">
+    <Wrapper className="flex-col">
+      <div className="flex flex-wrap items-center justify-center gap-3">
         <PersonAvatar
           size="lg"
           person={{
@@ -91,6 +94,19 @@ export function personHoverCardAvatar(): ReactNode {
         <PersonAvatar size="lg" person={{ name: "Lena", hue: "magenta" }} />
         <PersonAvatar size="lg" person={{ name: "", email: "ops@acme.com" }} />
         <PersonAvatar size="lg" person={{ name: "Northwind FM leads" }} />
+        <PersonAvatar
+          size="lg"
+          person={{ name: "Grace Hopper", hue: "green", image: "/missing.png" }}
+        />
+      </div>
+      <div className="flex items-center gap-3">
+        {(["sm", "default", "lg"] as const).map((size) => (
+          <PersonAvatar
+            key={size}
+            size={size}
+            person={{ name: "Dev Menon", image: "/preview/avatar-2.svg" }}
+          />
+        ))}
       </div>
     </Wrapper>
   );

@@ -1,12 +1,9 @@
-// @vegastack person-avatar@0.23.50 sha256-iAg/5YHagSeLnGVBPeqmt6LjqO0ahh4KOa/IgNf0L+o=
+// @vegastack person-avatar@0.23.50 sha256-bJF/9sL2xDea8v3eGB1Yl2T3yh5hK14MV2laiFQtxIs=
+
+"use client";
 
 import * as React from "react";
-import {
-  Avatar,
-  AvatarFallback,
-  AvatarImage,
-  type AvatarHue,
-} from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, type AvatarHue } from "@/components/ui/avatar";
 
 /* ------------------------------------------------------------------------------------------------
  * PersonAvatar — the ONE way a person is drawn as an avatar: their photo, else their initials on
@@ -62,18 +59,60 @@ export interface PersonAvatarProps extends Omit<
   size?: "sm" | "default" | "lg";
 }
 
-/** `PersonAvatar` — a person's avatar: the image, else their initials on their hue. @example <PersonAvatar person={{ name: "Asha Rao", hue: "blue" }} /> */
+/**
+ * `PersonAvatar` — a person's avatar: the image, else their initials on their hue.
+ *
+ * The photo is a plain `<img>` in the server HTML, layered over the initials, so the browser starts
+ * fetching it from the markup and paints it the moment it decodes — a cached photo shows on first
+ * paint, with no flash of initials and no wait for hydration. (Base UI's `AvatarImage` renders its
+ * `<img>` only after a JS loader reports it loaded, which is what made every photo start as
+ * initials.) The initials stay underneath until the photo has loaded, and come back if it fails.
+ *
+ * @example <PersonAvatar person={{ name: "Asha Rao", hue: "blue" }} />
+ */
 export function PersonAvatar({
   person,
   size = "sm",
   ...props
 }: PersonAvatarProps) {
+  const src = person.image || undefined;
+  // Keyed by `src`, so a new photo starts over: a failure or a load of the old one never sticks.
+  const [loaded, setLoaded] = React.useState<string | null>(null);
+  const [failed, setFailed] = React.useState<string | null>(null);
+  const imgRef = React.useRef<HTMLImageElement | null>(null);
+
+  // The photo may have loaded, or failed, before hydration attached `onLoad`/`onError` — read the
+  // element's own state once it is in the tree.
+  React.useLayoutEffect(() => {
+    const img = imgRef.current;
+    if (!src || !img || !img.complete) return;
+    if (img.naturalWidth > 0) setLoaded(src);
+    else if (img.currentSrc) setFailed(src);
+  }, [src]);
+
+  const showImage = src !== undefined && failed !== src;
+  const imageLoaded = showImage && loaded === src;
+
   return (
     <Avatar size={size} {...props}>
-      {person.image ? <AvatarImage src={person.image} alt="" /> : null}
-      <AvatarFallback hue={person.hue ?? undefined}>
-        {personInitials(person.name, person.email)}
-      </AvatarFallback>
+      {imageLoaded ? null : (
+        <AvatarFallback hue={person.hue ?? undefined}>
+          {personInitials(person.name, person.email)}
+        </AvatarFallback>
+      )}
+      {showImage ? (
+        <img
+          ref={imgRef}
+          data-slot="avatar-image"
+          src={src}
+          alt=""
+          decoding="async"
+          onLoad={() => setLoaded(src)}
+          onError={() => setFailed(src)}
+          // Over the initials (the root is `relative` and sized), so nothing shifts when it lands.
+          className="absolute inset-0 aspect-square size-full rounded-full object-cover"
+        />
+      ) : null}
     </Avatar>
   );
 }
