@@ -1,4 +1,4 @@
-// @vegastack textarea@0.23.53 sha256-JY1fNOwuICWZQy6qDEFt9BwsmKcnhEsqVzqYJb3Qr+A=
+// @vegastack textarea@0.23.53 sha256-f3wzzadD5mp3J36rJ0kh2NTVwyLvrG8VWstcgwn/8Qo=
 
 "use client";
 
@@ -12,7 +12,7 @@ function Textarea({ className, ...props }: React.ComponentProps<"textarea">) {
       render={<textarea />}
       data-slot="textarea"
       className={cn(
-        "flex field-sizing-content min-h-16 w-full rounded-lg border border-input bg-transparent px-2.5 py-2 text-base transition-colors outline-hidden placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:bg-input/50 disabled:opacity-50 aria-invalid:border-destructive md:text-sm dark:bg-input/30 dark:disabled:bg-input/80 dark:aria-invalid:border-destructive/50",
+        "flex field-sizing-content min-h-16 w-full rounded-lg border border-input bg-transparent px-2.5 py-2 text-base transition-[color,background-color,border-color] duration-150 ease-out outline-hidden placeholder:text-muted-foreground focus:not-aria-invalid:border-ring/40 disabled:cursor-not-allowed disabled:bg-input/50 disabled:opacity-50 aria-invalid:border-destructive md:text-sm dark:bg-input/30 dark:disabled:bg-input/80 dark:aria-invalid:border-destructive/50",
         className,
       )}
       {...(props as FieldPrimitive.Control.Props)}

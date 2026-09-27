@@ -1,4 +1,4 @@
-// @vegastack combobox@0.23.53 sha256-t9DuqdzmSRHsQmPYkBkdnQOquApriVj40pDnY/l2en8=
+// @vegastack combobox@0.23.53 sha256-8oZCVcah4bSwSZN1I/e/8wQ8G1Rjkt0OluCGp1ajzl0=
 
 "use client";
 
@@ -289,7 +289,7 @@ function ComboboxChips({
       data-slot="combobox-chips"
       data-field-group=""
       className={cn(
-        "flex min-h-8 flex-wrap items-center gap-1 rounded-lg border border-input bg-transparent bg-clip-padding px-2.5 py-1 text-sm transition-colors has-aria-invalid:border-destructive has-data-[slot=combobox-chip]:px-1 dark:bg-input/30 dark:has-aria-invalid:border-destructive/50",
+        "flex min-h-8 flex-wrap items-center gap-1 rounded-lg border border-input bg-transparent bg-clip-padding px-2.5 py-1 text-sm transition-[color,background-color,border-color] duration-150 ease-out has-[input:focus]:not-has-aria-invalid:border-ring/40 has-aria-invalid:border-destructive has-data-[slot=combobox-chip]:px-1 dark:bg-input/30 dark:has-aria-invalid:border-destructive/50",
         className,
       )}
       {...props}

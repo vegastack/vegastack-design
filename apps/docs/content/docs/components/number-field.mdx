@@ -27,7 +27,7 @@ import { NumberField } from "@/components/ui/number-field";
 
 Everything it renders is imported, not restated:
 [`InputGroup`](/docs/components/input-group) is the bordered box — border, focus
-tint, invalid hairline, disabled wash — `InputGroupInput` is
+border, invalid hairline, disabled wash — `InputGroupInput` is
 [`Input`](/docs/components/input) flattened into it, `prefix` and `suffix` are
 `InputGroupAddon` slots, and each − / + stepper is an `InputGroupButton`, which
 is [`Button`](/docs/components/button) in its `ghost` variant.
@@ -75,8 +75,10 @@ in display units:
 
 ### Units and states
 
-A percent format, the unit suffix, `hideControls`, `disabled`, and the invalid border tint. Wrap the
-field in a [`Field`](/docs/components/field) to pair the tint with a message.
+A percent format, the unit suffix, `hideControls`, `disabled`, and the invalid destructive border.
+Wrap the field in a [`Field`](/docs/components/field) to pair that border with a message. Click or
+Tab into a field to see the focus state: the box's border darkens subtly and nothing fills; the
+invalid field keeps its destructive border while focused.
 
 <ComponentPreview
   name="numberFieldVariants"
@@ -113,10 +115,12 @@ and native form integration via `name`.
 - The − / + steppers are full-height, ≥24px pointer targets with accessible
   names ("Decrease" / "Increase"); keyboard users step with the arrow keys
   instead, so the buttons add no tab stops beyond Base UI's defaults.
-- Focus uses the text-entry affordance: `InputGroup` is a field group, so it
-  wears `base.css`'s background tint when the control inside it takes focus,
-  and its border never changes colour (FOC-14). The steppers keep the global
-  `:focus-visible` cue, pulled inside the clipping box (FOC-9).
+- Focus uses the text-entry affordance: while the input inside it has focus,
+  the `InputGroup` box's border darkens subtly (`border-ring/40`, easing in
+  over 150ms) and no background changes — text entry's exception to FOC-14
+  (MK 2026-09-27). An invalid field keeps its destructive border while focused.
+  The steppers are buttons: they keep the global `:focus-visible` background
+  tint, pulled inside the clipping box (FOC-9).
 
 | Key                                          | Action                          |
 | -------------------------------------------- | ------------------------------- |

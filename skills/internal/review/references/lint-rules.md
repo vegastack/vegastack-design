@@ -59,8 +59,9 @@ that catch bugs nobody can see in review.
    `ring-ring/NN`, any `focus-visible:ring-*`, or a `shadow-[0_0_0_…]` box-shadow ring. shadcn writes
    `focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50` on button, input,
    checkbox, switch, badge, accordion, slider, scroll-area and the field cards; this system has
-   exactly ONE focus affordance, the global `:focus-visible` background tint (`accent` at 50%) in
-   `@vegastack/design-tokens/base.css`, text entry included (FOC-13).
+   exactly ONE focus affordance per kind: the global `:focus-visible` background tint (`accent` at
+   50%) in `@vegastack/design-tokens/base.css` (FOC-13), and for text entry a subtle darker border
+   with no fill (FOC-14's text-entry exception).
    **This is the rule that makes the reset hold.** Every batch from 2 onward starts by copying an
    upstream file that carries the glow verbatim, so without a machine check the halo returns on the
    next pull and nothing says so. It is not scoped to focus contexts on purpose: FOC-6 bans a
@@ -71,12 +72,16 @@ that catch bugs nobody can see in review.
    `not-focus:`, `has-[…:focus]:`, `data-focused:` or `data-popup-open:` followed by `border-<colour>`
    (`focus:border-ring/70`, `focus-within:border-ring/70`, `data-popup-open:border-input`,
    `not-focus:aria-invalid:border-destructive`). A control keeps its resting `border-border` /
-   `border-input` in every state; the focus cue is `base.css`'s background tint, which a bordered
-   field group (`data-field-group`) wears on the group. Invalid holds its destructive border in
-   every state, so the old `not-focus:` / `not-focus-within:` / `not-data-[active=true]:` guards are
-   rejected too. Width, side and style utilities (`focus:border`, `border-0`, `border-t`,
-   `border-solid`) and `border-border` itself pass. The geometry test's focus sweep is the runtime
-   half: it fails any control whose border colour moves on focus.
+   `border-input` in every state; the focus cue is `base.css`'s background tint. **The one
+   exemption is text entry (MK 2026-09-27)**: in `TEXT_ENTRY_FOCUS_BORDER_FILES` (input, textarea,
+   input-group, combobox, panel-search, questionnaire, text-edit) a token ending in
+   `:border-ring/40` passes — that exact shape only, any other colour there still fails. Invalid
+   holds its destructive border in every state, so the old `not-focus:` / `not-focus-within:` /
+   `not-data-[active=true]:` guards are rejected too (the text-entry class carries a
+   `not-…invalid` guard instead). Width, side and style utilities (`focus:border`, `border-0`,
+   `border-t`, `border-solid`) and `border-border` itself pass. The geometry test's focus sweep is
+   the runtime half: a non-text control whose border moves fails, and so does a text-entry control
+   whose background moves or whose border does not (invalid: whose border moves).
 7. **`no-surface-ring`** (BRD-1, **ours since MK 2026-09-23**) — a 1px ring width (`ring-1`,
    `ring-px`, `ring-[1px]`, and bare `ring`, which is 1px in Tailwind v4 — read from the AST, since
    it is also an English word and a token name: any bare `ring` at a class position (a `className`

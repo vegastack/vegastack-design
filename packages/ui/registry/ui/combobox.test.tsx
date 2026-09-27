@@ -362,7 +362,7 @@ test("INT-1/FRM-4: an item forces neither the default cursor nor pointer-events-
   expect(item.className).not.toContain("data-disabled:pointer-events-none");
 });
 
-test("FOC-1/FOC-6/FOC-14: the chips field is a field group with no focus border and no glow", async () => {
+test("FOC-1/FOC-3/FOC-6/FOC-14: the chips field is a field group whose border darkens while its input holds focus, no glow", async () => {
   const screen = await render(
     <Combobox multiple items={frameworks} defaultValue={["Astro"]}>
       <ComboboxChips>
@@ -393,7 +393,9 @@ test("FOC-1/FOC-6/FOC-14: the chips field is a field group with no focus border 
     '[data-slot="combobox-chips"]',
   ) as HTMLElement;
   expect(chips.hasAttribute("data-field-group")).toBe(true);
-  expect(chips.className).not.toMatch(/focus[\w-]*:border-/);
+  expect(chips.className.match(/\S*focus\S*:border-\S+/g)).toEqual([
+    "has-[input:focus]:not-has-aria-invalid:border-ring/40",
+  ]);
   expect(chips.className).not.toMatch(/ring-3|ring-\[3px\]|ring-ring\/\d+/);
   const chipInput = screen.container.querySelector(
     '[data-slot="combobox-chip-input"]',

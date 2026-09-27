@@ -76,8 +76,13 @@
 #   formatting: the repository formatter (prettier defaults: semicolons, trailing commas)
 #               reflows the file, and `registry-stamp.mjs` writes the provenance header the
 #               three-copy model needs (DOC-1); those hunks carry no decision of their own.
+#   FOC-14 text-entry exception (MK 2026-09-27; supersedes the FOC-14 note above for text
+#     entry): text entry takes NO fill — base.css excludes text inputs and textarea from the
+#     tint — and shows focus as a subtle darker border that eases in: `has-[input:focus]:not-has-aria-invalid:border-ring/40` on the chips field,
+#     with `transition-[color,background-color,border-color] duration-150 ease-out`. The
+#     `not-…invalid` guard keeps an invalid field's destructive border in every state.
 diff --git a/combobox.tsx b/combobox.tsx
-index 39e776a..83aa6eb 100644
+index 39e776a..e913815 100644
 --- a/combobox.tsx
 +++ b/combobox.tsx
 @@ -1,22 +1,28 @@
@@ -373,7 +378,7 @@ index 39e776a..83aa6eb 100644
        className={cn(
 -        "flex min-h-8 flex-wrap items-center gap-1 rounded-lg border border-input bg-transparent bg-clip-padding px-2.5 py-1 text-sm transition-colors focus-within:border-ring focus-within:ring-3 focus-within:ring-ring/50 has-aria-invalid:border-destructive has-aria-invalid:ring-3 has-aria-invalid:ring-destructive/20 has-data-[slot=combobox-chip]:px-1 dark:bg-input/30 dark:has-aria-invalid:border-destructive/50 dark:has-aria-invalid:ring-destructive/40",
 -        className
-+        "flex min-h-8 flex-wrap items-center gap-1 rounded-lg border border-input bg-transparent bg-clip-padding px-2.5 py-1 text-sm transition-colors has-aria-invalid:border-destructive has-data-[slot=combobox-chip]:px-1 dark:bg-input/30 dark:has-aria-invalid:border-destructive/50",
++        "flex min-h-8 flex-wrap items-center gap-1 rounded-lg border border-input bg-transparent bg-clip-padding px-2.5 py-1 text-sm transition-[color,background-color,border-color] duration-150 ease-out has-[input:focus]:not-has-aria-invalid:border-ring/40 has-aria-invalid:border-destructive has-data-[slot=combobox-chip]:px-1 dark:bg-input/30 dark:has-aria-invalid:border-destructive/50",
 +        className,
        )}
        {...props}

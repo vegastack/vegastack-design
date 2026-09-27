@@ -139,9 +139,11 @@ const RULES = [
     re: /\bring-3\b|\bring-\[3px\]|\bring-ring\/\d+|focus(?:-visible|-within)?:ring-|aria-invalid:ring-|focus(?:-visible)?:outline-(?!none\b|hidden\b|offset)[\w[]|\bfocus(?:-visible|-within)?:shadow-\[0_0_0_/g,
     msg: "focus ring (FOC-1/FOC-6/FOC-13): no focus rings anywhere, Tabs included — base.css paints the one focus cue (a background tint, text entry included). No ring-3, ring-ring/NN, focus:/focus-visible:ring-*, focus-visible:outline-*, aria-invalid:ring-*, or focus 0 0 0 box-shadow ring",
   },
-  // FOC-14 (ours, MK 2026-09-26) — a border never changes colour on focus or while active. The
-  // one focus cue is base.css's background tint (FOC-13), text entry included; a bordered field
-  // group wears it on the group. So any class token whose variant chain names focus
+  // FOC-14 (ours, MK 2026-09-26; text-entry exception MK 2026-09-27) — a border never changes
+  // colour on focus or while active. The one focus cue is base.css's background tint (FOC-13) —
+  // EXCEPT text entry, whose cue is a subtle darker border and no fill. That exception is exactly
+  // one class shape (`…:border-ring/40`) in exactly the files in TEXT_ENTRY_FOCUS_BORDER_FILES
+  // below; anywhere else, and any other colour there, still fails. So any class token whose variant chain names focus
   // (`focus:`, `focus-visible:`, `focus-within:`, `not-focus:`, `has-[…:focus]:`, `data-focused:`)
   // or an open popup (`data-popup-open:`) and ends in a border COLOUR is rejected — including the
   // old `not-focus:aria-invalid:border-destructive` guard, because invalid now holds its
@@ -151,7 +153,7 @@ const RULES = [
   {
     id: "no-focus-border",
     re: /(?<![\w-])[^\s"'`{}]*(?:focus|data-focused|popup-open)[^\s"'`{}]*:border-(?!border\b|0\b|[248]\b|[xytbselr]\b|[xytbselr]-[0248]\b|solid\b|dashed\b|dotted\b|double\b|none\b|hidden\b)[a-z]/g,
-    msg: "focus border (FOC-14): a border never changes colour on focus or while active — base.css's background tint is the focus cue, and an invalid border holds in every state (no `not-focus:` guard). No focus:/focus-visible:/focus-within:/has-[…:focus]:/data-focused:/data-popup-open: border colour",
+    msg: "focus border (FOC-14): a border never changes colour on focus or while active — base.css's background tint is the focus cue, and an invalid border holds in every state (no `not-focus:` guard). No focus:/focus-visible:/focus-within:/has-[…:focus]:/data-focused:/data-popup-open: border colour. The one exception is text entry's `…:border-ring/40` in the TEXT_ENTRY_FOCUS_BORDER_FILES components",
   },
   // BRD-1 (ours since MK 2026-09-23) — a surface separates with a real 1px `border border-border`,
   // never shadcn's `ring-1 ring-foreground/10` box-shadow outline. The reset had taken upstream's
@@ -265,6 +267,28 @@ const RULES = [
  * specificity from a composed part (Command over Dialog and InputGroup, a Sidebar button collapsing
  * to icon size, the Tooltip arrow over its side offset). The two of ours say why on their own line.
  */
+// FOC-14's text-entry exception (MK 2026-09-27): text inputs, textarea, the bordered field groups
+// that frame one, and TextEdit's `boxed` variant show focus as a subtle darker border that eases
+// in, and no fill. Keyed by the file's REPO PATH tail (the canonical registry file and its docs
+// copy-in share `ui/<name>.tsx`), and the ONLY class token it lets through is one ending in
+// `:border-ring/40` — any other focus border colour in these files still fails.
+const TEXT_ENTRY_FOCUS_BORDER_FILES = [
+  "ui/input.tsx",
+  "ui/textarea.tsx",
+  "ui/input-group.tsx",
+  "ui/combobox.tsx",
+  "ui/panel-search.tsx",
+  "ui/questionnaire.tsx",
+  "ui/text-edit.tsx",
+];
+const TEXT_ENTRY_FOCUS_BORDER = /:border-ring\/40$/;
+const isTextEntryFocusBorderFile = (file) => {
+  const path = file.replaceAll("\\", "/");
+  return TEXT_ENTRY_FOCUS_BORDER_FILES.some((tail) =>
+    path.endsWith(`/${tail}`),
+  );
+};
+
 const NO_SURFACE_RING_MSG = RULES.find(
   (rule) => rule.id === "no-surface-ring",
 ).msg;
@@ -1172,6 +1196,19 @@ for (const root of ROOTS) {
         const subject =
           id === "hex-color" ? line.replace(SELECTOR_HEX, "[]") : line;
         re.lastIndex = 0;
+        if (id === "no-focus-border" && isTextEntryFocusBorderFile(file)) {
+          // The rule's match stops at the colour's first letter, so read the whole class token.
+          const offending = [...subject.matchAll(re)].filter((match) => {
+            const rest = subject.slice(match.index + match[0].length);
+            const token = match[0] + rest.match(/^[^\s"'`{}]*/)[0];
+            return !TEXT_ENTRY_FOCUS_BORDER.test(token);
+          });
+          if (offending.length > 0) {
+            console.log(`${file}:${i + 1} [${id}] ${msg}\n    ${trimmed}`);
+            violations++;
+          }
+          continue;
+        }
         if (re.test(subject)) {
           console.log(`${file}:${i + 1} [${id}] ${msg}\n    ${trimmed}`);
           violations++;

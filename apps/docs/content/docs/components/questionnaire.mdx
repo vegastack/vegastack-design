@@ -457,6 +457,9 @@ everything the underlying element accepts, plus `render` where the engine expose
   stretched over the card, which is why the card itself wears the `accent`/50 background tint — not
   a cue on something invisible — as the focus affordance. Its border never changes colour on focus
   (FOC-1, FOC-6, FOC-14).
+- `QuestionnaireInput`, the free-text answer field, is text entry: focus darkens its border subtly
+  (`border-ring/40`, easing in over 150ms) and paints no fill — FOC-14's text-entry exception
+  (MK 2026-09-27). An invalid answer keeps its destructive border while focused.
 - `QuestionnaireProgress` is a named `role="progressbar"` with `aria-live="polite"`, so a step change
   is announced at a comfortable pace rather than interrupting (A11Y-3).
 - `QuestionnaireError` is `role="alert"` **only while the item is invalid**, and `hidden` otherwise —
@@ -504,10 +507,16 @@ from-accent/50 to-accent/50`, laid as an image over the fill exactly as `base.cs
 - **FOC-1, FOC-3, FOC-6, FOC-8, FOC-14, FRM-4 (input)** — `QuestionnaireInput` takes the same
   treatment `input.tsx` takes: `outline-none` becomes `outline-hidden` (so the FOC-7 forced-colours
   block has an outline to repaint), `focus-visible:border-ring focus-visible:ring-3
-focus-visible:ring-ring/50` is removed — the border never changes colour and `base.css`'s
-  background tint is the cue — `aria-invalid:border-destructive aria-invalid:ring-3
+focus-visible:ring-ring/50` is removed — no ring and no glow; the focus cue is the text-entry
+  border below — `aria-invalid:border-destructive aria-invalid:ring-3
 aria-invalid:ring-destructive/20` becomes `aria-invalid:border-destructive` with its dark
   counterpart, held in every state, and `disabled:pointer-events-none` is dropped.
+- **FOC-14 text-entry exception (input, MK 2026-09-27)** — `QuestionnaireInput` adds
+  `focus:not-aria-invalid:border-ring/40` with
+  `transition-[color,background-color,border-color] duration-150 ease-out`: a subtle darker border
+  that eases in, and no fill (`base.css` excludes text inputs from the background tint). The
+  `not-aria-invalid` guard keeps the destructive border. The choice card is not text entry and
+  keeps the tint.
 - **A11Y-13** — `QuestionnaireError`'s `text-destructive` becomes `text-destructive-text`. It is
   the identical pair to `Field`'s error copy, which the row names: the status fill used as text ink
   measures under the AA floor, and the family's `-text` ink clears it.

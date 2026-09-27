@@ -28,20 +28,26 @@ for keyboard users, owned by `base.css` and never restated by a component:
   switches — shows a subtle **background tint** on `:focus-visible`: `accent` at 50%, laid over the
   control's own fill as a background image, so it reads on a primary button as well as a ghost one.
   It appears only on keyboard focus, never on a mouse click.
-- **Text entry** — `Input`, `Textarea`, `Select`, the OTP slots and questionnaire answers — takes the
-  same background tint, on plain `:focus` so a click and a Tab read alike. A bordered field group
-  (`data-field-group`: `InputGroup`, `NumberField`, `ChipInput`, `ComboboxChips`, the panel search
-  row) wears the tint on the group, and the control inside stands down.
-- **Borders never move (FOC-14).** No control changes its border colour on focus or while active —
-  `focus`, `focus-visible`, `focus-within`, `data-focused`, `data-popup-open` or `aria-expanded`.
-  Every control keeps its resting `border-border` / `border-input`. The one exception is an invalid
-  field, which keeps its destructive border in every state, focused or not.
+- **Text entry** — `Input`, `Textarea`, the OTP slots, questionnaire answers, and the bordered field
+  groups that frame a text field (`InputGroup`, `NumberField`, `ChipInput`, `ComboboxChips`, the
+  panel search row, the Command input and the popup search rows) — takes **no background change at
+  all**. Its focus cue is a subtle darker border (`border-ring/40`) that eases in over 150ms, on
+  plain `:focus` so a click and a Tab read alike. A field group darkens its own border; the control
+  inside it has no border and no fill.
+- **Borders never move (FOC-14)** — except on text entry (MK 2026-09-27). No other control changes
+  its border colour on focus or while active — `focus`, `focus-visible`, `focus-within`,
+  `data-focused`, `data-popup-open` or `aria-expanded`: buttons, rows, tabs, menu items, chips,
+  checkboxes, radios, switches and select triggers keep their resting `border-border` /
+  `border-input` and show the tint. An invalid field keeps its destructive border in every state;
+  focus never replaces it. Nothing moves, and nothing glows.
 - **The document editor** (`TextEdit`, `data-focus-cue="caret"`) is caret-only: no border change
-  and no fill. The comment composer shows no border or surface change while active.
+  and no fill. Its `boxed` variant — the comment composer — is text entry: the box's border darkens
+  subtly while the editor holds focus, and nothing fills.
 - **Tabs** — the triggers and the panel — take the same background tint as everything else; clicking
   a tab shows nothing.
-- **Forced colours** drop the tint, so a `forced-colors: active` block restores
-  `outline: 2px solid Highlight` on every focused element.
+- **Forced colours** drop the tint and replace the border colour, so a `forced-colors: active` block
+  restores `outline: 2px solid Highlight` on every focused element; on a field group the group
+  carries the outline and the control inside stands down (FOC-7).
 - **Overlays** — Dialog and Sheet open onto their first field, or the popup itself; never the close
   ×, so opening one never lights the × up.
 

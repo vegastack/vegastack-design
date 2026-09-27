@@ -772,23 +772,29 @@ group into six themes.
 owns the one focus cue: `:focus-visible { outline: none }`, plus a subtle background TINT —
 `accent` at 50%, laid as a background image over whatever fill the control already has — on every
 focusable element (tab triggers and panels included), so a button, a chip, a row, a menu item, a toggle, a
-checkbox, a link or a text field shows where the keyboard is without any component restating it.
-Text entry takes the same tint — a text field is focus-visible on a click as well as a Tab, so the
-two read identically — with `outline-hidden` so forced colours can repaint it (FOC-3, FOC-8). A
-bordered field group (`data-field-group`: InputGroup, NumberField, ChipInput, the combobox chips,
-the panel search row) wears the tint on the group and the control inside stands down. The
-contenteditable document editor (TextEdit, `data-focus-cue="caret"`) is caret-only.
+checkbox or a link shows where the keyboard is without any component restating it. Text entry is
+the exception: it takes NO fill (base.css excludes text inputs and textarea from the tint) and
+shows focus as a subtle darker border instead — below — with `outline-hidden` so forced colours can
+repaint it (FOC-3, FOC-8). The contenteditable document editor (TextEdit's default `document`
+variant, `data-focus-cue="caret"`) and Input's borderless `ghost` variant are caret-only.
 
-**A border never changes colour on focus or while active (FOC-14, MK 2026-09-26).** Every control,
-field group and wrapper keeps its resting `border-border`/`border-input` in every state — no
-`focus:`, `focus-visible:`, `focus-within:`, `data-focused:` or `data-popup-open:` border change,
-and the comment composer's box neither re-borders nor re-fills when active. The one exception is
-invalid: an invalid field shows its destructive border in every state, focused or not (no
-`not-focus:` guard; FOC-14 supersedes FOC-3's border tint and FOC-5), never a ring.
-`design-lint`'s **`no-focus-border`** rejects a focus-variant border colour in the registry, and the
-geometry lane's focus sweep fails any control whose border colour moves between rest and focus. A forced-colours block restores
-`outline: 2px solid Highlight` on every focused element, because forced colours drop the tint
-(FOC-7). Dialog and Sheet open onto the first field or the popup itself, never the close ×.
+**A border never changes colour on focus or while active (FOC-14, MK 2026-09-26) — except text
+entry, which darkens its border subtly with an ease (MK 2026-09-27).** Every other control, and
+every wrapper, keeps its resting `border-border`/`border-input` in every state — no `focus:`,
+`focus-visible:`, `focus-within:`, `data-focused:` or `data-popup-open:` border change. Text entry —
+Input, Textarea, the Questionnaire answer, the InputOTP active slot, the bordered field groups that
+frame a text control (InputGroup and everything built on it: NumberField, ChipInput, Combobox,
+Command, the popup search rows; the combobox chips; the PanelSearch row) and TextEdit's `boxed`
+variant (the comment composer) — shows focus as `border-ring/40` easing in over
+`duration-150 ease-out`, on the element that draws the border (the group, never the control inside
+it), and no background change at all. Invalid shows its destructive border in every state, focused
+or not: the focus class carries a `not-…invalid` guard, so focus never replaces it; never a ring.
+`design-lint`'s **`no-focus-border`** rejects a focus-variant border colour in the registry except
+the one text-entry shape (`…:border-ring/40`) in the named text-entry files, and the geometry
+lane's focus sweep fails a non-text control whose border colour moves, a text-entry control whose
+background moves or whose border does not, and an invalid field whose border moves on focus. A forced-colours block restores
+`outline: 2px solid Highlight` on every focused element, because forced colours drop the tint and
+the border cue (FOC-7); a field group carries it and the control inside stands down. Dialog and Sheet open onto the first field or the popup itself, never the close ×.
 
 **Upstream's `ring-3 ring-ring/50` halo is removed everywhere** — button, badge, input, checkbox,
 switch, slider, scroll-area, tabs, toast, field cards, all of it (FOC-6). This is the exception most

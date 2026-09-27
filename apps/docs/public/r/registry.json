@@ -281,7 +281,7 @@
         "whenToUse": "Discussion on a record's page (a task, a meeting): comments oldest first with the composer at the end.",
         "whenNotToUse": "An activity feed or notifications — use Inbox.",
         "version": "0.23.53",
-        "integrity": "sha256-NT8Z6e/us5rWBThzxuR+BApMoM9LOA4vAG8iiDVgy9k="
+        "integrity": "sha256-jCu3UnTSkJCEAw2QUrZ6jSZRTrmi2xtEM+xYu44LWVY="
       }
     },
     {
@@ -1059,7 +1059,7 @@
         "whenToUse": "Choosing from a large or dynamic set that benefits from typing to narrow it down — searchable pickers, tag/label multi-select, async-loaded results. A two-line option composes ItemTitle + ItemDescription, and the description is the option's accessible description.",
         "whenNotToUse": "A small, fixed set with no need to search (Select), boolean on/off (Switch), or a few always-visible options (radios/checkboxes).",
         "version": "0.23.53",
-        "integrity": "sha256-t9DuqdzmSRHsQmPYkBkdnQOquApriVj40pDnY/l2en8="
+        "integrity": "sha256-8oZCVcah4bSwSZN1I/e/8wQ8G1Rjkt0OluCGp1ajzl0="
       }
     },
     {
@@ -1787,7 +1787,7 @@
         "whenToUse": "Installed automatically with EmojiPicker or ShortcutOverlay; import it directly when building another popup that filters its own contents.",
         "whenNotToUse": "A standalone search field on a page — that is Input, or InputGroup with a leading addon. A command palette is Command, which brings its own input.",
         "version": "0.23.53",
-        "integrity": "sha256-M8x5P5Y+G/Vuc+AnAmJAvz8wuYCDGvyXpPGkHWRy2sE="
+        "integrity": "sha256-W+6s+rRd6hPvIbGdrvvOmR8p/ciE5wcOcQJr/CW6Wy4="
       }
     },
     {
@@ -15130,7 +15130,7 @@
         "whenToUse": "Single-line text entry — email, password, search, URL/slug with a domain prefix, numbers, etc.",
         "whenNotToUse": "Multi-line text (use a textarea) or choosing from fixed options (use a select/radio).",
         "version": "0.23.53",
-        "integrity": "sha256-Tn+i18/qKNgihnAr4twpe02UjiZvoVr2UrKdiTp/QME="
+        "integrity": "sha256-1/mdb6FI5yS43ETKHtpxlozseKockrGQS4Ke33algwc="
       }
     },
     {
@@ -15162,7 +15162,7 @@
         "whenToUse": "A text control that needs an affordance on the same surface — a search icon, a currency prefix, a reveal button, a character counter.",
         "whenNotToUse": "A control whose affordance belongs outside the field — use a Field description or a ButtonGroup.",
         "version": "0.23.53",
-        "integrity": "sha256-QKdJndWbgpOPv18AoJAqg1OOXKaF+UTHwZT9Y4fKgaM="
+        "integrity": "sha256-e8tvff8qiqodGOcPANmwVTvRepHknHrUeGDJJAnlDx8="
       }
     },
     {
@@ -15191,7 +15191,7 @@
         "whenToUse": "Entering a short verification code — 2FA, email confirmation, a device-pairing PIN.",
         "whenNotToUse": "Any value longer than a handful of characters, or one the user may not know the length of — use an Input.",
         "version": "0.23.53",
-        "integrity": "sha256-KHwM4PsvXhcWcqpgW6TQC+JcqhzJZAmT2RQY1LeJfeY="
+        "integrity": "sha256-CLNSryxxOzYqszw+2GedSnUFP02vYiw4RCKPkBh+Ctk="
       }
     },
     {
@@ -15923,7 +15923,7 @@
         "whenToUse": "An onboarding, survey or intake flow that asks one question at a time, validates each answer, and can be resumed.",
         "whenNotToUse": "A conventional form where every field is visible at once — compose Field with the form primitives instead.",
         "version": "0.23.53",
-        "integrity": "sha256-wr2zq69op11wjRW7cVky/uy/8iLeAvr40rXhkM7y0CI="
+        "integrity": "sha256-psM7/S7rm9l3F/E5l20/SACW0N1NFpuBMRFluofM6yg="
       }
     },
     {
@@ -16999,7 +16999,7 @@
         "whenToUse": "Comments, notes, summaries and documents stored as Markdown (format=\"markdown\") or HTML; in-place editing of a MarkdownView with variant=\"ghost\".",
         "whenNotToUse": "Plain single-line input (Input) or collaborative real-time docs (deferred text-edit-collab).",
         "version": "0.23.53",
-        "integrity": "sha256-NCRjQtxXrLoqKcdvt9C5HmPpCK8gKpbt8/MTtg5k2GI="
+        "integrity": "sha256-TkPIW4BDMAIQwwwHru87ZseTBNeWcVwX9t8uv1rkQus="
       }
     },
     {
@@ -17027,7 +17027,7 @@
         "whenToUse": "Multi-line free text — descriptions, comments, messages, notes.",
         "whenNotToUse": "Single-line entry (input), rich text (editor), or fixed options (select).",
         "version": "0.23.53",
-        "integrity": "sha256-JY1fNOwuICWZQy6qDEFt9BwsmKcnhEsqVzqYJb3Qr+A="
+        "integrity": "sha256-f3wzzadD5mp3J36rJ0kh2NTVwyLvrG8VWstcgwn/8Qo="
       }
     },
     {

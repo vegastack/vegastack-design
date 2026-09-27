@@ -1,4 +1,4 @@
-// @vegastack questionnaire@0.23.53 sha256-wr2zq69op11wjRW7cVky/uy/8iLeAvr40rXhkM7y0CI=
+// @vegastack questionnaire@0.23.53 sha256-psM7/S7rm9l3F/E5l20/SACW0N1NFpuBMRFluofM6yg=
 
 "use client";
 
@@ -183,12 +183,12 @@ function QuestionnaireInput({
         className={cn(
           // FOC-1 / FOC-3 / FOC-6 / FOC-8: text entry, so it takes the same treatment
           // `input.tsx` takes — `outline-hidden` (not `outline-none`, so the FOC-7
-          // forced-colours block has an outline to repaint) and no glow and no border
-          // change at all: `base.css` paints the focus tint (FOC-14).
+          // forced-colours block has an outline to repaint), no glow and no fill; focus
+          // darkens the border subtly with an ease (FOC-14's text-entry exception).
           // An invalid answer keeps its destructive border in every state.
           // FRM-4: `disabled:pointer-events-none` is dropped, so a disabled answer field stays
           // hoverable and a Tooltip can explain it.
-          "h-8 min-h-11 w-full min-w-0 rounded-lg border border-input bg-transparent px-2.5 py-1 text-base transition-[color,box-shadow,background-color] outline-hidden disabled:cursor-not-allowed disabled:bg-input/50 disabled:opacity-50 aria-invalid:border-destructive sm:min-h-0 md:text-sm dark:bg-input/30 dark:disabled:bg-input/80 dark:aria-invalid:border-destructive/50",
+          "h-8 min-h-11 w-full min-w-0 rounded-lg border border-input bg-transparent px-2.5 py-1 text-base transition-[color,background-color,border-color] duration-150 ease-out outline-hidden focus:not-aria-invalid:border-ring/40 disabled:cursor-not-allowed disabled:bg-input/50 disabled:opacity-50 aria-invalid:border-destructive sm:min-h-0 md:text-sm dark:bg-input/30 dark:disabled:bg-input/80 dark:aria-invalid:border-destructive/50",
           "selection:bg-primary selection:text-primary-foreground placeholder:text-muted-foreground",
           className,
         )}

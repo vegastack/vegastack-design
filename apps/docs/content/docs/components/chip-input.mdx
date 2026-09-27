@@ -25,7 +25,7 @@ import { ChipInput } from "@/components/ui/chip-input";
 [`TagGroup`](/docs/components/tag-group) is a display list with no input, and
 [`Combobox`](/docs/components/combobox)'s value model is selection-from-items —
 it cannot commit an arbitrary token. The field chrome is
-[`InputGroup`](/docs/components/input-group) — border, focus tint, invalid
+[`InputGroup`](/docs/components/input-group) — border, focus border, invalid
 hairline, disabled wash, all of it imported — and the inner control is
 `InputGroupInput`, which is [`Input`](/docs/components/input) flattened into the
 box. The only thing this component adds to that chrome is a field that **wraps**:
@@ -79,6 +79,10 @@ reason is announced — "Up to 3 entries" by default, or your own copy from `max
 
 ### States
 
+Empty, filled and disabled; the invalid field is the per-chip validation example above. Click or
+Tab into a field to see the focus state: the box's border darkens subtly and nothing fills; an
+invalid field keeps its destructive border while focused.
+
 <ComponentPreview
   name="chipInputStates"
   file="components/preview/chip-input.tsx"
@@ -100,10 +104,11 @@ reason is announced — "Up to 3 entries" by default, or your own copy from `max
   alone.
 - Every chip's remove button is named (`Remove …`) with a 24px hit area
   (from `Tag`).
-- The field is a field group: it wears `base.css`'s background tint while the
-  input inside holds focus, and its border changes only for validity
-  (`data-invalid` destructive border, in every state) — never for focus
-  (FOC-14). This matches the Combobox input group.
+- The field is a field group: while the input inside holds focus its border
+  darkens subtly (`border-ring/40`, easing in over 150ms) and no background
+  changes — text entry's exception to FOC-14 (MK 2026-09-27). An invalid field
+  keeps its destructive border in every state; focus never replaces it. This
+  matches the Combobox chips field.
 
 | Key                                | Action                                          |
 | ---------------------------------- | ----------------------------------------------- |

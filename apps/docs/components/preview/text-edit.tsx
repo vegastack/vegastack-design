@@ -2,6 +2,7 @@
 
 import { useState, type ReactNode } from "react";
 import dynamic from "next/dynamic";
+import { Button } from "@/components/ui/button";
 import { toast } from "@/components/ui/toast";
 import { MarkdownView } from "@/components/ui/markdown-view";
 import {
@@ -97,6 +98,54 @@ export function textEditInvalid(): ReactNode {
         />
         <p
           id="text-edit-invalid-error"
+          className="text-sm text-destructive-text"
+        >
+          A comment is required before you can post.
+        </p>
+      </div>
+    </Wrapper>
+  );
+}
+
+/**
+ * `variant="boxed"` — the editor framed as a bordered field, for a composer or a form field. The
+ * border darkens subtly while the editor holds focus; `children` render inside the box after the
+ * document (here, the composer's actions row).
+ */
+export function textEditBoxed(): ReactNode {
+  return (
+    <Wrapper className="flex-col items-stretch">
+      <TextEdit
+        variant="boxed"
+        format="markdown"
+        placeholder="Add a comment…"
+        aria-label="Comment"
+      >
+        <div className="mt-2 flex justify-end gap-2">
+          <Button variant="ghost" size="sm">
+            Cancel
+          </Button>
+          <Button size="sm">Comment</Button>
+        </div>
+      </TextEdit>
+    </Wrapper>
+  );
+}
+
+/** A boxed editor marked `aria-invalid` keeps its destructive border, focused or not. */
+export function textEditBoxedInvalid(): ReactNode {
+  return (
+    <Wrapper className="flex-col items-stretch">
+      <div className="space-y-1.5">
+        <TextEdit
+          variant="boxed"
+          placeholder="Add a comment…"
+          aria-label="Comment"
+          aria-invalid
+          aria-describedby="text-edit-boxed-invalid-error"
+        />
+        <p
+          id="text-edit-boxed-invalid-error"
           className="text-sm text-destructive-text"
         >
           A comment is required before you can post.
