@@ -1,4 +1,4 @@
-// @vegastack chart-area-linear@0.23.60 sha256-XzPaD+tNDZsfnwf5sORoOv795+7KGjWXtv51CtnUvHc=
+// @vegastack chart-area-linear@0.23.61 sha256-ETr03h0lDtfqZ23N/f4Ia9DFcDEKumBPeizO8XDmssc=
 
 "use client";
 

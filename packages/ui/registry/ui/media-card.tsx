@@ -1,4 +1,4 @@
-// @vegastack media-card@0.23.60 sha256-xYFuX8eOhq93zCBMA6nf2582oE8ovV5ToQ9RwhrB39c=
+// @vegastack media-card@0.23.61 sha256-k98Hq6/hXrnzqapQVHyWPN8RFN4YGeFn40/Dgfw+rjw=
 
 "use client";
 
