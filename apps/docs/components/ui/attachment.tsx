@@ -1,4 +1,4 @@
-// @vegastack attachment@0.23.61 sha256-WbR9cyq+xeg997QrjxXn2EpBVj2DLhK6YoFhOE9Sl/Q=
+// @vegastack attachment@0.23.61 sha256-RH6MPnWQ3QvJ0X75Eid+4MYgtHy9bNJ3F5MR8XByf90=
 
 "use client";
 
@@ -259,7 +259,15 @@ function AttachmentGroup({
   className,
   layout = "scroll",
   ...props
-}: React.ComponentProps<"div"> & { layout?: "scroll" | "grid" }) {
+}: React.ComponentProps<"div"> & {
+  /**
+   * `scroll` — one row that scrolls sideways; `grid` — listing-size tiles, up to three per row
+   * with 16:9 media; `tiles` — compact square tiles for forms, two per row on a phone and three
+   * from `sm` up.
+   * @default "scroll"
+   */
+  layout?: "scroll" | "grid" | "tiles";
+}) {
   return (
     <div
       data-slot="attachment-group"
@@ -267,7 +275,9 @@ function AttachmentGroup({
       className={cn(
         layout === "grid"
           ? "grid min-w-0 grid-cols-[repeat(auto-fill,minmax(min(100%,max(--spacing(72),calc((100%_-_var(--spacing)*6)/3))),1fr))] gap-3 py-1 *:data-[slot=attachment]:w-full *:data-[slot=attachment]:min-w-0 *:data-[slot=attachment]:data-[orientation=vertical]:flex-nowrap **:data-[slot=attachment-media]:aspect-video [&_[data-slot=attachment-media]_img]:aspect-video"
-          : "flex min-w-0 scroll-fade-x snap-x snap-mandatory scroll-px-1 scrollbar-none gap-3 overflow-x-auto overscroll-x-contain py-1 *:data-[slot=attachment]:flex-none *:data-[slot=attachment]:snap-start",
+          : layout === "tiles"
+            ? "grid min-w-0 grid-cols-2 gap-3 py-1 sm:grid-cols-3 *:data-[slot=attachment]:w-full *:data-[slot=attachment]:min-w-0 *:data-[slot=attachment]:data-[orientation=vertical]:flex-nowrap"
+            : "flex min-w-0 scroll-fade-x snap-x snap-mandatory scroll-px-1 scrollbar-none gap-3 overflow-x-auto overscroll-x-contain py-1 *:data-[slot=attachment]:flex-none *:data-[slot=attachment]:snap-start",
         className,
       )}
       {...props}

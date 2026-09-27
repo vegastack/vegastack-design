@@ -1,0 +1,116 @@
+---
+title: Upload Dialog
+description: The "Add files" modal — drop or browse, review the staged files, set each file's details, then Add. It stages files; the host uploads them.
+audience: public
+registry: upload-dialog
+status: stable
+since: 0.23.62
+a11y: named dialog, drop surface and remove buttons
+preview: uploadDialog
+---
+
+## Install
+
+<InstallSteps name="upload-dialog" />
+
+## Usage
+
+```tsx
+import {
+  UploadDialog,
+  UploadDialogFileRow,
+} from "@/components/ui/upload-dialog";
+
+<Button variant="outline" onClick={() => setOpen(true)}>
+  <Plus />
+  Add files
+</Button>
+<UploadDialog
+  open={open}
+  onOpenChange={setOpen}
+  dropHint="or click to browse — images up to 20 MB, other files up to 500 MB"
+  validate={(file) => (tooLarge(file) ? `${file.name} is too large.` : null)}
+  renderDetails={(files) =>
+    files.map((f) => (
+      <UploadDialogFileRow key={f.id} file={f}>
+        {/* the host's fields for this file, keyed by f.id */}
+      </UploadDialogFileRow>
+    ))
+  }
+  detailsValid={(files) => files.every(hasACategory)}
+  onSubmit={(files) => startUploads(files)}
+/>;
+```
+
+## Scope
+
+| Behaviour                                  | Where it lives                                                     |
+| ------------------------------------------ | ------------------------------------------------------------------ |
+| Drop, browse, paste, type and size refusal | `UploadDialog` over [`Dropzone`](/docs/components/dropzone)        |
+| The staged list and the details view       | `UploadDialog`; the details' fields and their state are the host's |
+| Uploading, progress, retry                 | Host — [`Attachment`](/docs/components/attachment) tiles on page   |
+
+## Anatomy
+
+<Anatomy name="upload-dialog" />
+
+## Examples
+
+### Files, then details
+
+The first view is a drop zone with the staged files under it — a thumbnail for an image or a file
+icon, the name, the size and a × to remove it. Next is enabled once a file is staged. The details
+view shows one `UploadDialogFileRow` per file, with the host's fields beside the thumbnail; Back
+returns to the files, and Add hands the staged files to `onSubmit` and closes the dialog, so the
+host's upload queue carries on on the page.
+
+<ComponentPreview
+  name="uploadDialog"
+  file="components/preview/upload-dialog.tsx"
+/>
+
+### Without details
+
+Leave out `renderDetails` and the dialog has one view: its primary action adds straight from the
+staged list. `maxFiles` caps how many files can be staged, and says so when a drop goes over.
+
+<ComponentPreview
+  name="uploadDialogImagesOnly"
+  file="components/preview/upload-dialog.tsx"
+/>
+
+## API Reference
+
+<ApiTable
+  path="../../packages/ui/registry/ui/upload-dialog.tsx"
+  name="UploadDialogProps"
+/>
+
+### UploadDialogFileRow
+
+<ApiTable
+  path="../../packages/ui/registry/ui/upload-dialog.tsx"
+  name="UploadDialogFileRowProps"
+/>
+
+## Accessibility
+
+- The dialog is named by its title; focus moves into it on open and back to the trigger on close.
+- The drop surface is one named control (`Drop files here or browse`) that opens the file picker.
+- Refused files are listed with a reason under the drop zone.
+- Each staged file's × is named `Remove {file name}`.
+
+| Key                                 | Action                             |
+| ----------------------------------- | ---------------------------------- |
+| <kbd>Enter</kbd> / <kbd>Space</kbd> | On the drop surface: browse files. |
+| <kbd>Tab</kbd>                      | Move through the files and footer. |
+| <kbd>Esc</kbd>                      | Close the dialog.                  |
+
+<StatesTested name="upload-dialog" />
+
+## Do / Don't
+
+<DoDont
+  do="Open it from an Add files button, ask for each file's details in the second view, and show upload progress on the page's own tiles after Add."
+  dont="Upload inside the dialog or keep it open while files upload — the dialog stages files; the page owns the upload queue."
+/>

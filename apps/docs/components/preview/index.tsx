@@ -92,6 +92,7 @@ export * from "./sortable-list";
 export * from "./board";
 export * from "./board-card";
 export * from "./dropzone";
+export * from "./upload-dialog";
 export * from "./color-picker";
 export * from "./emoji-picker";
 export * from "./data-grid";

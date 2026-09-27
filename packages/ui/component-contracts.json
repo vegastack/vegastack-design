@@ -12,8 +12,8 @@
     "evidencePolicy": "Observed fields come from source, registry metadata, docs, and test topology. Unknown/not-applicable values are explicit; no inferred behavior is presented as verified."
   },
   "expectedCounts": {
-    "totalRegistryItems": 696,
-    "components": 133,
+    "totalRegistryItems": 697,
+    "components": 134,
     "animatedIcons": 467,
     "hooks": 13,
     "blocks": 11,
@@ -22,7 +22,7 @@
   },
   "expectedWaveCounts": {
     "Core controls": 24,
-    "Forms/editing": 28,
+    "Forms/editing": 29,
     "Navigation/layout": 18,
     "Overlays": 15,
     "Data display": 23,
@@ -88,7 +88,8 @@
       "settings-row",
       "sortable-list",
       "tag-group",
-      "text-edit"
+      "text-edit",
+      "upload-dialog"
     ],
     "Navigation/layout": [
       "accordion",
@@ -10473,6 +10474,151 @@
             {
               "name": "data-slot",
               "values": ["dropzone"]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
+    },
+    {
+      "name": "upload-dialog",
+      "registryType": "registry:ui",
+      "title": "Upload Dialog",
+      "summary": "The \"Add files\" modal: a drop zone and the staged files (thumbnail or icon, name, size, remove), then an optional per-file details view the host renders, and Add. It stages files only; the host uploads them.",
+      "status": "stable",
+      "since": "0.23.62",
+      "family": "forms",
+      "wave": "Forms/editing",
+      "sourceFiles": ["packages/ui/registry/ui/upload-dialog.tsx"],
+      "publicSymbols": [
+        {
+          "name": "UploadDialog",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/upload-dialog.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A controlled modal composition; it renders into a portal and takes no ref."
+          }
+        },
+        {
+          "name": "UploadDialogProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/upload-dialog.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "UploadDialogFile",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/upload-dialog.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "UploadDialogFileRow",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/upload-dialog.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "div",
+            "rationale": "Spread onto the Attachment root div."
+          }
+        },
+        {
+          "name": "UploadDialogFileRowProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/upload-dialog.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "No visual variant axis; the details view appears only when renderDetails is passed."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "One size: the dialog's lg width."
+      },
+      "states": {
+        "behavior": {
+          "status": "covered",
+          "values": ["empty", "staged", "refused", "details", "submit"],
+          "evidence": "packages/ui/registry/ui/upload-dialog.tsx + packages/ui/registry/ui/upload-dialog.test.tsx"
+        },
+        "accessibility": {
+          "status": "covered",
+          "values": ["labeled", "semantic-html", "browser-accessibility-test"],
+          "evidence": "packages/ui/registry/ui/upload-dialog.test.tsx"
+        },
+        "visual": {
+          "status": "observed",
+          "values": ["default", "staged", "details"],
+          "evidence": "packages/ui/registry/ui/upload-dialog.tsx"
+        }
+      },
+      "responsive": {
+        "status": "modeled",
+        "risks": ["text-truncation-and-flex-shrink"],
+        "rationale": "File names truncate on their line; the footer stacks on a phone like every dialog."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned motion mechanism; the dialog's own lifecycle applies."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/upload-dialog",
+      "registryDependencies": [
+        "@vegastack/attachment",
+        "@vegastack/button",
+        "@vegastack/dialog",
+        "@vegastack/dropzone",
+        "@vegastack/empty",
+        "@vegastack/field",
+        "@vegastack/image",
+        "@vegastack/use-file-drop"
+      ],
+      "npmDependencies": [
+        "@vegastack/design@^0.7.50",
+        "@vegastack/design-tokens@^0.7.49",
+        "lucide-react@^1.47.0"
+      ],
+      "testFiles": ["packages/ui/registry/ui/upload-dialog.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required"
+      },
+      "previewModule": "upload-dialog",
+      "dataAttributes": {
+        "UploadDialog": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": [
+                "upload-dialog",
+                "upload-dialog-details",
+                "upload-dialog-files"
+              ]
+            },
+            {
+              "name": "data-stage",
+              "values": []
             }
           ],
           "cssVariables": []

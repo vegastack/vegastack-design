@@ -1,14 +1,14 @@
 {
   "schemaVersion": 1,
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "b6455cc4c8835ebda8765910756d32865eb771091ea1cc0f132ec43910e2e996",
+  "contractSha256": "a28c3179fdc82fbc675a6397751ff4b5c1f98b25a739b4b92ebee2342d8e26db",
   "inventory": {
-    "expected": 696,
-    "actual": 696,
-    "unique": 696
+    "expected": 697,
+    "actual": 697,
+    "unique": 697
   },
   "classes": {
-    "components": 133,
+    "components": 134,
     "animatedIcons": 467,
     "hooks": 13,
     "blocks": 11,
@@ -47,8 +47,8 @@
       ]
     },
     "Forms/editing": {
-      "expected": 28,
-      "actual": 28,
+      "expected": 29,
+      "actual": 29,
       "members": [
         "auto-save-input",
         "avatar-picker",
@@ -77,7 +77,8 @@
         "settings-row",
         "sortable-list",
         "tag-group",
-        "text-edit"
+        "text-edit",
+        "upload-dialog"
       ]
     },
     "Navigation/layout": {
@@ -775,7 +776,7 @@
       ]
     }
   },
-  "componentRoutes": 130,
+  "componentRoutes": 131,
   "blockRoutes": 18,
   "modeledExemptions": 3
 }
