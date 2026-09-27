@@ -1,4 +1,4 @@
-// @vegastack alert-dialog@0.23.52 sha256-mlB+h2/KcP0eyFkYyFGuUjFk0a4SAkXDVuqxiln4nTk=
+// @vegastack alert-dialog@0.23.53 sha256-sRB+ARGkA03OP3PIOnMai8RPkAhyX2UTchvM7+9dJwM=
 
 "use client";
 
