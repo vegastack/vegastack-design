@@ -1,4 +1,4 @@
-// @vegastack data-list@0.23.51 sha256-aQ/2oNjm9rlTpFma0CmWDweUFDe7X3XQivIBNVlqdXQ=
+// @vegastack data-list@0.23.51 sha256-zUGlxsS+pe6BHu8GrwegYPOA/oUyRl4nu6fbaBzxVoY=
 
 "use client";
 
@@ -50,7 +50,7 @@ import {
 import { TruncationFocusProvider } from "@/components/ui/truncated-text";
 import { Board, type BoardColumn } from "@/components/ui/board";
 import { FilterBar } from "@/components/ui/filter-bar";
-import { MediaCard } from "@/components/ui/media-card";
+import { MediaCard, RECORD_TITLE_CLASS } from "@/components/ui/media-card";
 import { BoardCard, type BoardCardProps } from "@/components/ui/board-card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Thumbnail } from "@/components/ui/thumbnail";
@@ -1376,6 +1376,9 @@ export function DataList<T>({
               key={col.key}
               className={cn(
                 columnCellClass(col),
+                // The first column is the record's title: the grid card's title weight, so a
+                // name reads the same in the list and the grid (`RECORD_TITLE_CLASS`).
+                colIdx === 0 && RECORD_TITLE_CLASS,
                 col.className,
                 col.cellClassName?.(row, index),
               )}
@@ -1407,7 +1410,8 @@ export function DataList<T>({
                   data-slot="data-list-merged"
                   data-layout={mergedLayout}
                   className={cn(
-                    "mt-1 flex min-w-0 text-xs text-muted-foreground",
+                    // `font-normal`: the merged values are meta, not the title's weight.
+                    "mt-1 flex min-w-0 text-xs font-normal text-muted-foreground",
                     mergedLayout === "line"
                       ? "flex-row flex-wrap gap-x-1"
                       : "flex-col gap-0.5",

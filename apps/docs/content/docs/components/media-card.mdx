@@ -1,6 +1,6 @@
 ---
 title: Media Card
-description: A record as a card — an image, the title, a meta line, a badge and an actions menu — where the whole card is one link.
+description: A record as a card — an image, the title with its badge, a meta line and an actions menu — where the whole card is one link.
 audience: public
 registry: media-card
 status: stable
@@ -36,8 +36,8 @@ import { MediaCard } from "@/components/ui/media-card";
 ```
 
 `MediaCard` is one record in a card grid: a 48px [`Thumbnail`](/docs/components/thumbnail) on the
-left, the title, one meta line (meta, then the `badge`, then the `timestamp`), and the ⋯ menu on
-the right, top-aligned with the title's first line (never centred on the text block). With `href` the whole card is a link — the title is the link, stretched over the card —
+left, the title with its `badge` beside it, one meta line (meta, then the `timestamp`), and the ⋯
+menu on the right, top-aligned with the title's first line (never centred on the text block). With `href` the whole card is a link — the title is the link, stretched over the card —
 and it never underlines. [`DataList`](/docs/components/data-list)'s grid view renders one per row.
 
 <ComponentPreview name="mediaCard" file="components/preview/media-card.tsx" />
@@ -50,6 +50,18 @@ A record with no image shows `fallback` — the app's brand mark.
 
 <ComponentPreview
   name="mediaCardFallback"
+  file="components/preview/media-card.tsx"
+/>
+
+### Title badge
+
+`badge` sits beside the title, where [`DataList`](/docs/components/data-list)'s list view puts it —
+a status or a warning pill. A long title truncates before the badge, and the badge never shrinks.
+The title's weight (`font-medium`) is `RECORD_TITLE_CLASS`, which `DataList`'s first column shares,
+so a record's name reads the same in the grid and the list.
+
+<ComponentPreview
+  name="mediaCardTitleBadge"
   file="components/preview/media-card.tsx"
 />
 
@@ -91,7 +103,7 @@ card's own border for a host that owns the surface, such as a `Board` card.
 
 ## Accessibility
 
-- The card is one link, named by its title; the meta line, badge and time are read after it.
+- The card is one link, named by its title; the badge, meta line and time are read after it.
 - The ⋯ menu sits above the stretched link, so it is its own tab stop and never follows the link.
   It shows on hover and on keyboard focus, and always on a touch screen.
 - The image is decorative (`alt=""`) because the title names the record.

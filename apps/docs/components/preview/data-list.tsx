@@ -784,6 +784,36 @@ export function dataListGridLg(): ReactNode {
   );
 }
 
+/**
+ * The same rows in the grid and the list, side by side: the warning pill sits beside the title in
+ * both, a long title truncates before it, and the title has one weight in both views.
+ */
+export function dataListGridAndList(): ReactNode {
+  const rows: Family[] = [
+    ...FAMILIES.slice(0, 2),
+    {
+      ...FAMILIES[5]!,
+      id: "f7",
+      name: "Summit Architectural Floodlight with Integrated Emergency Driver",
+    },
+  ];
+  return (
+    <Wrapper className="grid grid-cols-1 items-start gap-6 lg:grid-cols-2">
+      <DataList<Family>
+        {...common}
+        aria-label="Families as cards"
+        data={rows}
+        view="grid"
+      />
+      <DataList<Family>
+        {...common}
+        aria-label="Families as a list"
+        data={rows}
+      />
+    </Wrapper>
+  );
+}
+
 /** A custom card through `renderCard`. */
 export function dataListGridCustomCard(): ReactNode {
   return (

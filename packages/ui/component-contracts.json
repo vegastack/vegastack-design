@@ -7818,7 +7818,7 @@
       "name": "media-card",
       "registryType": "registry:ui",
       "title": "Media Card",
-      "summary": "A record as a card — an image, the title, a meta line, a badge and a ⋯ menu — where the whole card is one link.",
+      "summary": "A record as a card — an image, the title with its badge beside it, a meta line and a ⋯ menu — where the whole card is one link.",
       "status": "stable",
       "since": "0.23.10",
       "family": "data",
@@ -7842,6 +7842,15 @@
           "ref": {
             "status": "not-applicable",
             "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "RECORD_TITLE_CLASS",
+          "kind": "constant",
+          "source": "packages/ui/registry/ui/media-card.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A class string for the record title's weight, not a component."
           }
         }
       ],
@@ -7915,6 +7924,8 @@
               "values": [
                 "media-card",
                 "media-card-actions",
+                "media-card-badge",
+                "media-card-heading",
                 "media-card-meta",
                 "media-card-title"
               ]
