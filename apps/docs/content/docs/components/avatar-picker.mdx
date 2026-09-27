@@ -1,11 +1,11 @@
 ---
 title: Avatar Picker
-description: Upload, change or remove a person's photo — the avatar is the button, with an edit scrim on hover, a busy preview, Remove, and a refusal line.
+description: A person's avatar that opens a small dialog to upload, change or remove their photo — staged, then saved on Update.
 audience: public
 registry: avatar-picker
 status: stable
 since: 0.23.44
-a11y: named circle button, busy state, refusals announced
+a11y: named dialog trigger, focus return, errors announced
 preview: avatarPicker
 ---
 
@@ -20,24 +20,32 @@ import { AvatarPicker } from "@/components/ui/avatar-picker";
 
 <AvatarPicker
   person={{ name: me.name, image: me.image, hue: me.color }}
-  busy={saving}
   maxSize={10 * 1024 * 1024}
-  onSelect={(file) => uploadPhoto(file)}
+  onUpload={(file) => uploadPhoto(file)}
   onRemove={() => removePhoto()}
 />;
 ```
 
-`AvatarPicker` is where someone sets their own photo, and the avatar is the control: their
-`PersonAvatar` (the photo, else their initials on their colour) in a round button named "Upload
-photo", or "Change photo" once there is one. Hover or keyboard focus lays a soft scrim with a pencil
-over the circle, and a click opens the file browser (on a phone, the browser offers the camera and
-the gallery). A device without hover shows a small pencil badge on the circle's edge instead, so the
-photo is never covered. "Remove" is a small ghost button beside the circle while there is a photo.
-A file of the wrong type or over `maxSize` is refused on the line beside the circle and announced —
-an iPhone HEIC photo is told to export it as JPEG.
+Inline, `AvatarPicker` is only the person's avatar — their photo, else their initials on their
+colour — as a round button named "Upload photo" or "Change photo". Hover or keyboard focus lays a
+soft scrim with a white pencil over it (the initials fade out under it); a device without hover
+shows a small pencil badge on the edge instead. A click opens the "Profile photo" dialog:
 
-It only acquires the file: `onSelect` hands the app the one accepted `File`, and the app resizes
-and uploads it, holds `busy` meanwhile, then passes the new `person.image` back.
+- A 128px circle that is itself the file button and a drop target, with the accepted formats and
+  size under it ("JPEG, PNG or WebP · up to 10 MB"). On a phone the browser offers the camera and
+  the gallery.
+- A chosen or dropped file is only **staged**: it shows in the circle, nothing is saved. Closing
+  the dialog discards it.
+- **Update** (disabled until a file is staged) awaits `onUpload(file)`; **Remove** (only while
+  there is a photo) clears a staged file, else awaits `onRemove()`. While a call is pending a
+  spinner covers the circle, the controls are disabled and the dialog cannot be dismissed. It
+  closes when the call resolves; when it rejects it stays open, keeps the staged photo, and shows
+  the error's `message` under the circle.
+- A refused file — the wrong type (an iPhone HEIC photo is told to export it as JPEG) or over
+  `maxSize` — shows on the same line.
+
+The component owns the dialog, the staging and the pending state; the app only does the work in
+its callbacks (and shows its own toasts around them), then passes the new `person.image` back.
 
 <ComponentPreview
   name="avatarPicker"
@@ -48,6 +56,8 @@ and uploads it, holds `busy` meanwhile, then passes the new `person.image` back.
 
 ### With a photo
 
+The dialog offers Remove beside Update.
+
 <ComponentPreview
   name="avatarPickerImage"
   file="components/preview/avatar-picker.tsx"
@@ -55,38 +65,28 @@ and uploads it, holds `busy` meanwhile, then passes the new `person.image` back.
 
 ### Hover and focus
 
-The scrim and pencil fade in over 150ms on hover and on keyboard focus — the circle's focus cue.
-They are held open here so the look can be seen.
+The scrim and white pencil fade in over 150ms on hover and on keyboard focus — the circle's focus
+cue — and the initials fade out under them. They are held open here so the look can be seen.
 
 <ComponentPreview
   name="avatarPickerHover"
   file="components/preview/avatar-picker.tsx"
 />
 
-### Busy
-
-While `busy`, the scrim stays up with a spinner at the pencil's size, the circle and Remove are
-disabled and the circle is `aria-busy`. The chosen file shows at once under the spinner as a local
-preview; when `busy` ends the circle shows `person.image` again, so pass the new URL by then.
-
-<ComponentPreview
-  name="avatarPickerBusy"
-  file="components/preview/avatar-picker.tsx"
-/>
-
 ### Sizes
 
-`sm` is 40px, `md` 48px (the default), `lg` 64px and `xl` 80px; the initials scale with the circle.
+`xs` is 32px, `sm` 40px (the default), `md` 48px, `lg` 64px and `xl` 80px; the initials scale with
+the circle. The dialog's circle is always 128px.
 
 <ComponentPreview
   name="avatarPickerSizes"
   file="components/preview/avatar-picker.tsx"
 />
 
-### Error
+### A failing save
 
-`error` shows a failure the app found after the file was accepted — an image it could not read — on
-the same line a refused file uses.
+Stage a photo and press Update: this demo's `onUpload` rejects, so the dialog stays open with the
+photo still staged and the error under the circle, ready to try again or pick another.
 
 <ComponentPreview
   name="avatarPickerError"
@@ -102,23 +102,27 @@ the same line a refused file uses.
 
 ## Accessibility
 
-- The circle is a real button named "Upload photo" or "Change photo"; "Remove" is a second button.
-  The file input behind them is hidden and never takes focus.
+- The inline circle is a button named "Upload photo" or "Change photo" that opens a dialog
+  (`aria-haspopup="dialog"`). Focus moves into the dialog and returns to the circle when it closes.
+- In the dialog the big circle is the file button, described by the format hint and any message;
+  the file input behind it is hidden and never takes focus.
 - Keyboard focus shows the same scrim and pencil as hover — the circle's focus cue, with no ring.
-- One polite live region announces every refused file and every `error`, exactly once each, with the
-  same words shown beside the circle; the circle is described by that line while it shows.
-- While `busy` the circle is disabled and `aria-busy`.
+- One polite live region announces every refused file and every failed call, once each, with the
+  same words shown under the circle.
+- While a call is pending the circle and both buttons are disabled, the circle is `aria-busy`, and
+  <kbd>Esc</kbd> does not close the dialog.
 
-| Key                                 | Action                                     |
-| ----------------------------------- | ------------------------------------------ |
-| <kbd>Tab</kbd>                      | Move between the circle and Remove         |
-| <kbd>Enter</kbd> / <kbd>Space</kbd> | Open the file browser, or remove the photo |
+| Key                                 | Action                                                          |
+| ----------------------------------- | --------------------------------------------------------------- |
+| <kbd>Enter</kbd> / <kbd>Space</kbd> | Open the dialog; in it, open the file browser or press a button |
+| <kbd>Tab</kbd>                      | Move between the circle, Remove, Update and Close               |
+| <kbd>Esc</kbd>                      | Close the dialog and discard a staged photo                     |
 
 <StatesTested name="avatar-picker" />
 
 ## Do / Don't
 
 <DoDont
-  do="Hold busy until the new photo URL is back, then pass it as person.image."
-  dont="Use AvatarPicker to attach files to a record — that is Dropzone with Attachment."
+  do="Throw an Error with a readable message from onUpload or onRemove when the save fails — the dialog shows it."
+  dont="Save the photo when a file is picked — the dialog stages it, and only Update saves."
 />
