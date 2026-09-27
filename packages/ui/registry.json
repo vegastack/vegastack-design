@@ -415,7 +415,7 @@
       "name": "avatar-picker",
       "type": "registry:ui",
       "title": "Avatar Picker",
-      "description": "Upload, change or remove a person's photo — a large PersonAvatar with a busy spinner, Upload/Change photo through the file picker, Remove, and a line for a refused file.",
+      "description": "A person's avatar that opens a dialog to upload, change or remove their photo — the file is staged in a 128px drop circle and saved only on Update.",
       "categories": ["forms"],
       "dependencies": [
         "@vegastack/design@^0.7.47",
@@ -424,6 +424,7 @@
       ],
       "registryDependencies": [
         "@vegastack/button",
+        "@vegastack/dialog",
         "@vegastack/person-avatar",
         "@vegastack/spinner",
         "@vegastack/use-announcer",

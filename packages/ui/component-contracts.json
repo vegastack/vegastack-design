@@ -2681,7 +2681,7 @@
       "name": "avatar-picker",
       "registryType": "registry:ui",
       "title": "Avatar Picker",
-      "summary": "Upload, change or remove a person's photo — a large PersonAvatar with a busy spinner, Upload/Change photo through the file picker, Remove, and a line for a refused file.",
+      "summary": "A person's avatar that opens a dialog to upload, change or remove their photo — the file is staged in a 128px drop circle and saved only on Update.",
       "status": "stable",
       "since": "0.23.44",
       "family": "forms",
@@ -2716,12 +2716,19 @@
       "sizes": {
         "status": "not-applicable-or-inherited",
         "dimensions": [],
-        "rationale": "size is sm (40px) | md (48px, default) | lg (64px) | xl (80px) for the circle."
+        "rationale": "size is xs (32px) | sm (40px, default) | md (48px) | lg (64px) | xl (80px) for the inline circle; the dialog circle is 128px."
       },
       "states": {
         "behavior": {
           "status": "covered",
-          "values": ["empty", "image", "busy", "rejected"],
+          "values": [
+            "empty",
+            "image",
+            "staged",
+            "pending",
+            "rejected",
+            "error"
+          ],
           "evidence": "packages/ui/registry/ui/avatar-picker.tsx + packages/ui/registry/ui/avatar-picker.test.tsx"
         },
         "accessibility": {
@@ -2731,7 +2738,7 @@
         },
         "visual": {
           "status": "observed",
-          "values": ["default", "hover", "focus", "busy", "error"],
+          "values": ["default", "hover", "focus", "dialog", "pending", "error"],
           "evidence": "packages/ui/registry/ui/avatar-picker.tsx"
         }
       },
@@ -2752,6 +2759,7 @@
       "docsSlug": "/docs/components/avatar-picker",
       "registryDependencies": [
         "@vegastack/button",
+        "@vegastack/dialog",
         "@vegastack/person-avatar",
         "@vegastack/spinner",
         "@vegastack/use-announcer",
@@ -2776,10 +2784,6 @@
         "AvatarPicker": {
           "attributes": [
             {
-              "name": "data-icon-tone",
-              "values": [""]
-            },
-            {
               "name": "data-size",
               "values": []
             },
@@ -2787,12 +2791,13 @@
               "name": "data-slot",
               "values": [
                 "avatar-picker",
-                "avatar-picker-avatar",
-                "avatar-picker-badge",
+                "avatar-picker-circle",
+                "avatar-picker-dialog",
+                "avatar-picker-drop",
                 "avatar-picker-message",
-                "avatar-picker-overlay",
                 "avatar-picker-remove",
-                "avatar-picker-trigger"
+                "avatar-picker-trigger",
+                "avatar-picker-update"
               ]
             }
           ],

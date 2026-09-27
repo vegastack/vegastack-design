@@ -182,4 +182,4 @@ starts with `icon-` is a component and never an icon.
 
 ## forms
 
-- **`avatar-picker`** — Upload, change or remove a person's photo — a large PersonAvatar with a busy spinner, Upload/Change photo through the file picker, Remove, and a line for a refused file.
+- **`avatar-picker`** — A person's avatar that opens a dialog to upload, change or remove their photo — the file is staged in a 128px drop circle and saved only on Update.

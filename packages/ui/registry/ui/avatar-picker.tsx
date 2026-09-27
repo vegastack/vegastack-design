@@ -1,4 +1,4 @@
-// @vegastack avatar-picker@0.23.47 sha256-2mEITrQ2iYdO1A3EwkLgdnOVP/+WFxSbTK7bD9tJHwM=
+// @vegastack avatar-picker@0.23.47 sha256-rrbuhud1JoZsWWXo8HwlVq8xREYvkrvfb4t9iXy5fs0=
 
 "use client";
 
@@ -6,6 +6,14 @@ import * as React from "react";
 import { Pencil } from "lucide-react";
 import { cn } from "@vegastack/design";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { PersonAvatar, type Person } from "@/components/ui/person-avatar";
 import { Spinner } from "@/components/ui/spinner";
 import { useAnnouncer } from "@/components/ui/use-announcer";
@@ -15,41 +23,39 @@ import {
 } from "@/components/ui/use-file-drop";
 
 /* ------------------------------------------------------------------------------------------------
- * AvatarPicker — a person's own photo, edited in place: the avatar IS the control. Hover or
- * keyboard focus lays a scrim with a pencil over the circle; a click opens the file browser (on a
- * phone the browser offers the camera and the gallery). On a device without hover a small pencil
- * badge sits on the circle's edge instead, so the photo is never covered. While `busy` the scrim
- * stays up with a spinner, over an instant local preview of the chosen file. "Remove" is a small
- * ghost button beside the circle while a photo exists, and one line beside it shows a refused
- * file or an `error`.
+ * AvatarPicker — a person's own photo. Inline it is only the avatar circle: hover or keyboard focus
+ * lays a scrim with a white pencil over it (a device without hover shows a small pencil badge on
+ * its edge instead), and a click opens a small dialog. In the dialog a 128px circle is itself the
+ * file button and a drop target; a chosen or dropped file is only STAGED there as a local preview.
+ * "Update" hands it to `onUpload`; "Remove" clears a staged file, else calls `onRemove`. While a
+ * call is pending a spinner covers the circle and the dialog cannot be dismissed; it closes when
+ * the call resolves and stays open with the error's message when it rejects. Closing the dialog
+ * any other way discards the staged file.
  *
- * Deliberately NOT done here: no upload, no resizing, no cropping. `onSelect` hands the app the
- * accepted file; the app processes and uploads it, holds `busy` while it does, and passes the new
- * `person.image` back. A failure the app finds after acquisition (an unreadable image) goes back
- * in through `error`.
+ * Deliberately NOT done here: no upload, no resizing, no cropping, no toasts. The app does the
+ * work inside `onUpload` / `onRemove` and passes the new `person.image` back.
  * ----------------------------------------------------------------------------------------------*/
 
 /** Props for `AvatarPicker`. */
 export interface AvatarPickerProps extends Omit<
-  React.ComponentPropsWithRef<"div">,
-  "onSelect" | "children"
+  React.ComponentPropsWithRef<"span">,
+  "children"
 > {
   /** The person whose photo this is: the avatar, its initials and hue, and whether a photo exists (`image`). */
   person: Person;
   /**
-   * An upload or removal is in flight: a spinner covers the avatar and the buttons are disabled.
-   * @default false
+   * Saves the staged file. The dialog closes when it resolves; when it rejects the dialog stays
+   * open, the preview is kept and the error's message shows under the circle.
    */
-  busy?: boolean;
-  /** Called with the one accepted file. */
-  onSelect: (file: File) => void;
+  onUpload: (file: File) => Promise<void>;
   /**
-   * Called by "Remove"; omit to hide it. It shows only while `person.image` is set.
+   * Removes the photo. Called by "Remove" while there is no staged file; omit to hide "Remove". The
+   * dialog closes when it resolves and shows the error's message when it rejects.
    * @default undefined
    */
-  onRemove?: () => void;
+  onRemove?: () => Promise<void>;
   /**
-   * The accepted MIME types, comma-separated, as on `<input accept>`.
+   * The accepted MIME types, comma-separated, as on `<input accept>`. The dialog's hint lists them.
    * @default "image/jpeg,image/png,image/webp"
    */
   accept?: string;
@@ -59,46 +65,97 @@ export interface AvatarPickerProps extends Omit<
    */
   maxSize?: number;
   /**
-   * An error from after the file was accepted (processing or upload), shown on the message line
-   * and announced (a string is announced each time it changes).
-   * @default undefined
+   * The inline circle: `xs` 32px, `sm` 40px, `md` 48px, `lg` 64px, `xl` 80px; the initials scale.
+   * @default "sm"
    */
-  error?: React.ReactNode;
+  size?: "xs" | "sm" | "md" | "lg" | "xl";
   /**
-   * The circle: `sm` 40px, `md` 48px, `lg` 64px, `xl` 80px; the initials scale with it.
-   * @default "md"
+   * The dialog's title.
+   * @default "Profile photo"
    */
-  size?: "sm" | "md" | "lg" | "xl";
+  title?: string;
   /**
-   * The circle's accessible name while there is no photo.
+   * The circles' accessible name while there is no photo.
    * @default "Upload photo"
    */
   uploadLabel?: string;
   /**
-   * The circle's accessible name once there is a photo.
+   * The circles' accessible name once there is a photo.
    * @default "Change photo"
    */
   changeLabel?: string;
   /**
-   * The remove button's label.
+   * The primary button's label.
+   * @default "Update"
+   */
+  updateLabel?: string;
+  /**
+   * The secondary button's label.
    * @default "Remove"
    */
   removeLabel?: string;
 }
 
-/** The circle and its initials, per size. */
-const CIRCLE: Record<NonNullable<AvatarPickerProps["size"]>, string> = {
-  sm: "size-10 *:data-[slot=avatar-fallback]:text-sm",
-  md: "size-12 *:data-[slot=avatar-fallback]:text-base",
-  lg: "size-16 *:data-[slot=avatar-fallback]:text-lg",
-  xl: "size-20 *:data-[slot=avatar-fallback]:text-2xl",
+/** The inline circle and its initials, per size, with the icon size that fits it. */
+const TRIGGER: Record<
+  NonNullable<AvatarPickerProps["size"]>,
+  { circle: string; icon: string }
+> = {
+  xs: {
+    circle: "size-8 *:data-[slot=avatar-fallback]:text-xs",
+    icon: "size-3.5",
+  },
+  sm: {
+    circle: "size-10 *:data-[slot=avatar-fallback]:text-sm",
+    icon: "size-3.5",
+  },
+  md: {
+    circle: "size-12 *:data-[slot=avatar-fallback]:text-base",
+    icon: "size-4",
+  },
+  lg: {
+    circle: "size-16 *:data-[slot=avatar-fallback]:text-lg",
+    icon: "size-4",
+  },
+  xl: {
+    circle: "size-20 *:data-[slot=avatar-fallback]:text-2xl",
+    icon: "size-4",
+  },
 };
 
-/** A byte count as the message line says it ("5 MB"). */
+/** The circle-as-a-button chrome: no box, no press nudge, opaque while disabled. */
+const CIRCLE_BUTTON =
+  "relative h-auto shrink-0 cursor-pointer rounded-full p-0 hover:bg-transparent active:not-aria-[haspopup]:translate-y-0 data-disabled:not-data-loading:opacity-100";
+
+/** A byte count as the hint and the message line say it ("5 MB"). */
 function formatSize(bytes: number): string {
   if (bytes >= 1024 * 1024)
     return `${Math.round((bytes / (1024 * 1024)) * 10) / 10} MB`;
   return `${Math.round(bytes / 1024)} KB`;
+}
+
+const FORMAT_NAMES: Record<string, string> = {
+  jpeg: "JPEG",
+  png: "PNG",
+  webp: "WebP",
+  gif: "GIF",
+  avif: "AVIF",
+};
+
+/** "JPEG, PNG or WebP · up to 10 MB", from `accept` and `maxSize`. */
+function hintText(accept: string, maxSize: number | undefined): string {
+  const names = accept
+    .split(",")
+    .map((type) => type.trim().split("/")[1] ?? "")
+    .filter(Boolean)
+    .map((sub) => FORMAT_NAMES[sub.toLowerCase()] ?? sub.toUpperCase());
+  const list =
+    names.length > 1
+      ? `${names.slice(0, -1).join(", ")} or ${names.at(-1)}`
+      : (names[0] ?? "");
+  return maxSize !== undefined
+    ? `${list} · up to ${formatSize(maxSize)}`
+    : list;
 }
 
 /** An iPhone HEIC/HEIF photo — by type, or by extension when the browser reports no type. */
@@ -121,54 +178,130 @@ function refusal(
 }
 
 /**
- * `AvatarPicker` — upload, change or remove a person's photo: the avatar is the button.
+ * The inside of a circle button: the avatar, the scrim with a white pencil (or the spinner while
+ * busy) on hover, keyboard focus or `active`, and the pencil badge a device without hover gets
+ * instead. The initials fade out whenever the scrim shows, so only the icon sits on the hue.
+ */
+function CircleFace({
+  person,
+  circle,
+  icon,
+  busy,
+  active,
+  badge,
+}: {
+  person: Person;
+  circle: string;
+  icon: string;
+  busy: boolean;
+  active: boolean;
+  badge: string;
+}) {
+  const shown = busy || active;
+  return (
+    <>
+      <PersonAvatar
+        person={person}
+        size="default"
+        data-slot="avatar-picker-avatar"
+        className={cn(
+          circle,
+          "*:data-[slot=avatar-fallback]:transition-colors *:data-[slot=avatar-fallback]:duration-150",
+          shown
+            ? "*:data-[slot=avatar-fallback]:text-transparent"
+            : "group-hover/button:*:data-[slot=avatar-fallback]:text-transparent group-focus-visible/button:*:data-[slot=avatar-fallback]:text-transparent",
+        )}
+      />
+      {/* The modal scrim's ink, no blur, so the photo stays readable. `group-hover` only matches
+          where hover exists; a device without it gets the badge below, except while busy. */}
+      <span
+        aria-hidden="true"
+        data-slot="avatar-picker-overlay"
+        className={cn(
+          "absolute inset-0 flex items-center justify-center rounded-full bg-black/40 text-white transition-opacity duration-150",
+          shown
+            ? "opacity-100"
+            : "opacity-0 group-hover/button:opacity-100 group-focus-visible/button:opacity-100 [@media(hover:none)]:hidden",
+        )}
+      >
+        {/* `data-icon-tone` stands the icons down from the ghost Button's svg ink, so they keep
+            the scrim's white. */}
+        {busy ? (
+          <Spinner data-icon-tone="" className={icon} />
+        ) : (
+          <Pencil data-icon-tone="" className={icon} />
+        )}
+      </span>
+      {shown ? null : (
+        <span
+          aria-hidden="true"
+          data-slot="avatar-picker-badge"
+          className={cn(
+            "absolute hidden items-center justify-center rounded-full border border-border bg-background text-foreground [@media(hover:none)]:flex",
+            badge,
+          )}
+        >
+          <Pencil />
+        </span>
+      )}
+    </>
+  );
+}
+
+/**
+ * `AvatarPicker` — a person's avatar that opens a small dialog to upload, change or remove their
+ * photo. The file is staged in the dialog and saved only on "Update".
  *
  * @example
  * <AvatarPicker
  *   person={{ name: "Asha Rao", image: me.image, hue: me.color }}
- *   busy={saving}
  *   maxSize={10 * 1024 * 1024}
- *   onSelect={(file) => uploadPhoto(file)}
+ *   onUpload={(file) => uploadPhoto(file)}
  *   onRemove={() => removePhoto()}
  * />
  */
 export function AvatarPicker({
   person,
-  busy = false,
-  onSelect,
+  onUpload,
   onRemove,
   accept = "image/jpeg,image/png,image/webp",
   maxSize,
-  error,
-  size = "md",
+  size = "sm",
+  title = "Profile photo",
   uploadLabel = "Upload photo",
   changeLabel = "Change photo",
+  updateLabel = "Update",
   removeLabel = "Remove",
   className,
   ...props
 }: AvatarPickerProps) {
-  const [refused, setRefused] = React.useState<string | null>(null);
-  // An instant local preview of the chosen file, shown under the spinner while `busy`. It is
-  // revoked when it is replaced, on unmount, and when `busy` ends (the app's URL takes over).
-  const [preview, setPreview] = React.useState<string | null>(null);
+  const [open, setOpen] = React.useState(false);
+  const [pending, setPending] = React.useState(false);
+  const [message, setMessage] = React.useState<string | null>(null);
+  // The staged file and its local preview URL; nothing is saved until "Update".
+  const [staged, setStaged] = React.useState<{
+    file: File;
+    url: string;
+  } | null>(null);
   React.useEffect(
     () => () => {
-      if (preview) URL.revokeObjectURL(preview);
+      if (staged) URL.revokeObjectURL(staged.url);
     },
-    [preview],
+    [staged],
   );
-  const [wasBusy, setWasBusy] = React.useState(busy);
-  if (wasBusy !== busy) {
-    setWasBusy(busy);
-    if (!busy) setPreview(null);
-  }
+  const hintId = React.useId();
   const messageId = React.useId();
-  // ONE polite region speaks every refusal and every `error`, exactly once each; the drop hook's
-  // own region (its generic "was refused — wrong type") is deliberately not rendered.
+  // ONE polite region speaks every refusal and every failed call, once each; the drop hook's own
+  // region (its generic "was refused — wrong type") is deliberately not rendered.
   const { announce, Announcer } = useAnnouncer();
-  React.useEffect(() => {
-    if (typeof error === "string" && error) announce(error);
-  }, [error, announce]);
+  const say = React.useCallback(
+    (text: string) => {
+      setMessage(text);
+      announce(text);
+    },
+    [announce],
+  );
+
   const drop = useFileDrop({
     accept: Object.fromEntries(
       accept
@@ -179,122 +312,164 @@ export function AvatarPicker({
     ),
     multiple: false,
     maxSize,
-    disabled: busy,
+    disabled: pending,
     paste: false,
-    preventWindowDrop: false,
     onFilesAccepted: (files) => {
-      setRefused(null);
       const file = files[0];
       if (!file) return;
-      setPreview(URL.createObjectURL(file));
-      onSelect(file);
+      setMessage(null);
+      setStaged({ file, url: URL.createObjectURL(file) });
     },
     onFilesRejected: (rejections) => {
-      const text = rejections[0] ? refusal(rejections[0], maxSize) : null;
-      setRefused(text);
-      if (text) announce(text);
+      if (rejections[0]) say(refusal(rejections[0], maxSize));
     },
   });
-  const message = refused ?? error;
+
+  const close = () => {
+    setOpen(false);
+    setStaged(null);
+    setMessage(null);
+  };
+  const run = async (call: () => Promise<void>) => {
+    setPending(true);
+    setMessage(null);
+    try {
+      await call();
+      close();
+    } catch (error) {
+      say(
+        error instanceof Error && error.message
+          ? error.message
+          : "Something went wrong. Try again.",
+      );
+    } finally {
+      setPending(false);
+    }
+  };
+
   const hasImage = Boolean(person.image);
-  const shown = busy && preview ? { ...person, image: preview } : person;
-  const icon = size === "sm" ? "size-3.5" : "size-4";
-  const showMeta = (hasImage && onRemove) || message;
+  const trigger = TRIGGER[size];
+  // The drop surface keeps the engine's drag handlers and ref, but not its click, keyboard or tab
+  // stop: the circle button inside it is the one control that opens the file browser.
+  const {
+    onClick: _onClick,
+    onKeyDown: _onKeyDown,
+    tabIndex: _tabIndex,
+    role: _role,
+    ...dropSurface
+  } = drop.dropProps;
 
   return (
-    <div
+    <span
       data-slot="avatar-picker"
       data-size={size}
-      className={cn("flex items-center gap-3", className)}
+      className={cn("inline-flex", className)}
       {...props}
     >
-      <Button
-        type="button"
-        variant="ghost"
-        data-slot="avatar-picker-trigger"
-        aria-label={hasImage ? changeLabel : uploadLabel}
-        aria-describedby={message ? messageId : undefined}
-        aria-busy={busy || undefined}
-        disabled={busy}
-        onClick={drop.open}
-        // The circle is the control: no box of its own, no press nudge, and busy keeps it opaque.
-        className="h-auto shrink-0 cursor-pointer rounded-full p-0 hover:bg-transparent active:not-aria-[haspopup]:translate-y-0 data-disabled:not-data-loading:opacity-100"
+      <Dialog
+        open={open}
+        onOpenChange={(next) => {
+          // A pending call holds the dialog open; any other close discards the staged file.
+          if (pending) return;
+          if (next) setOpen(true);
+          else close();
+        }}
       >
-        <PersonAvatar
-          person={shown}
-          size="default"
-          data-slot="avatar-picker-avatar"
-          // Whenever the scrim shows (hover, keyboard focus, busy) the initials fade out, so only
-          // the icon sits on the hue. `group-hover` only matches where hover exists, so a touch
-          // device keeps its initials beside the corner badge.
-          className={cn(
-            CIRCLE[size],
-            "*:data-[slot=avatar-fallback]:transition-colors *:data-[slot=avatar-fallback]:duration-150",
-            busy
-              ? "*:data-[slot=avatar-fallback]:text-transparent"
-              : "group-hover/button:*:data-[slot=avatar-fallback]:text-transparent group-focus-visible/button:*:data-[slot=avatar-fallback]:text-transparent",
-          )}
-        />
-        {/* Hover and keyboard focus: the modal scrim's ink (no blur, so the photo stays readable) over the circle, a white pencil on it. A
-            device without hover never gets it (the badge below stands in), except while busy. */}
-        <span
-          aria-hidden="true"
-          data-slot="avatar-picker-overlay"
-          className={cn(
-            "absolute inset-0 flex items-center justify-center rounded-full bg-black/40 text-white transition-opacity duration-150",
-            busy
-              ? "opacity-100"
-              : "opacity-0 group-hover/button:opacity-100 group-focus-visible/button:opacity-100 [@media(hover:none)]:hidden",
-          )}
-        >
-          {/* `data-icon-tone` stands the icons down from the ghost Button's muted/hover svg ink,
-              so they keep the scrim's white. */}
-          {busy ? (
-            <Spinner data-icon-tone="" className={icon} />
-          ) : (
-            <Pencil data-icon-tone="" className={icon} />
-          )}
-        </span>
-        {busy ? null : (
-          <span
-            aria-hidden="true"
-            data-slot="avatar-picker-badge"
-            className="absolute -end-0.5 -bottom-0.5 hidden size-5 items-center justify-center rounded-full border border-border bg-background text-foreground [@media(hover:none)]:flex"
-          >
-            <Pencil className="size-3" />
-          </span>
-        )}
-      </Button>
-      {showMeta ? (
-        <div className="flex min-w-0 flex-col items-start gap-1">
-          {hasImage && onRemove ? (
+        <DialogTrigger
+          render={
             <Button
+              type="button"
               variant="ghost"
-              size="xs"
-              disabled={busy}
-              data-slot="avatar-picker-remove"
+              data-slot="avatar-picker-trigger"
+              aria-label={hasImage ? changeLabel : uploadLabel}
+              className={CIRCLE_BUTTON}
+            />
+          }
+        >
+          <CircleFace
+            person={person}
+            circle={trigger.circle}
+            icon={trigger.icon}
+            busy={false}
+            active={false}
+            badge="-end-0.5 -bottom-0.5 size-4 [&_svg]:size-2.5"
+          />
+        </DialogTrigger>
+        <DialogContent size="sm" data-slot="avatar-picker-dialog">
+          <DialogHeader>
+            <DialogTitle>{title}</DialogTitle>
+          </DialogHeader>
+          <div className="flex flex-col items-center gap-2 py-2">
+            <div
+              {...dropSurface}
+              data-slot="avatar-picker-drop"
+              className="rounded-full"
+            >
+              <Button
+                type="button"
+                variant="ghost"
+                data-slot="avatar-picker-circle"
+                aria-label={staged || hasImage ? changeLabel : uploadLabel}
+                aria-describedby={message ? `${hintId} ${messageId}` : hintId}
+                aria-busy={pending || undefined}
+                disabled={pending}
+                onClick={drop.open}
+                className={CIRCLE_BUTTON}
+              >
+                <CircleFace
+                  person={staged ? { ...person, image: staged.url } : person}
+                  circle="size-32 *:data-[slot=avatar-fallback]:text-4xl"
+                  icon="size-6"
+                  busy={pending}
+                  active={drop.isDragging}
+                  badge="end-1 bottom-1 size-8 [&_svg]:size-4"
+                />
+              </Button>
+            </div>
+            <p id={hintId} className="text-xs text-muted-foreground">
+              {hintText(accept, maxSize)}
+            </p>
+            {/* The visible line; the Announcer below is what speaks it. */}
+            {message ? (
+              <p
+                id={messageId}
+                data-slot="avatar-picker-message"
+                className="text-center text-xs text-destructive-text"
+              >
+                {message}
+              </p>
+            ) : null}
+          </div>
+          <DialogFooter>
+            {hasImage && onRemove ? (
+              <Button
+                variant="outline"
+                disabled={pending}
+                data-slot="avatar-picker-remove"
+                onClick={() => {
+                  if (staged) {
+                    setStaged(null);
+                    setMessage(null);
+                  } else void run(onRemove);
+                }}
+              >
+                {removeLabel}
+              </Button>
+            ) : null}
+            <Button
+              disabled={pending || !staged}
+              data-slot="avatar-picker-update"
               onClick={() => {
-                setRefused(null);
-                onRemove();
+                if (staged) void run(() => onUpload(staged.file));
               }}
             >
-              {removeLabel}
+              {updateLabel}
             </Button>
-          ) : null}
-          {/* The visible line; the Announcer below is what speaks it. */}
-          {message ? (
-            <p
-              id={messageId}
-              data-slot="avatar-picker-message"
-              className="text-xs text-destructive-text"
-            >
-              {message}
-            </p>
-          ) : null}
-        </div>
-      ) : null}
-      <input {...drop.inputProps} />
-      <Announcer />
-    </div>
+          </DialogFooter>
+          <input {...drop.inputProps} />
+          <Announcer />
+        </DialogContent>
+      </Dialog>
+    </span>
   );
 }
