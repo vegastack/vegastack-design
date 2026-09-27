@@ -1,4 +1,4 @@
-// @vegastack media-player-controls@0.23.52 sha256-rcnU3QAK0fZv82ifeYvN72VcU/bsxcknhd0qYFncAoY=
+// @vegastack media-player-controls@0.23.52 sha256-+NdOcpvzPPKWWbUmYzI3vpsFmuyIO6pH3xRYb/Kh4IQ=
 
 "use client";
 
@@ -29,6 +29,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
+import { Spinner } from "@/components/ui/spinner";
 
 /* ------------------------------------------------------------------------------------------------
  * Media Slider looks
@@ -624,6 +625,13 @@ export interface MediaPlayerControlsProps extends Omit<
    * @default undefined
    */
   waveformFlatPeaks?: readonly number[];
+  /**
+   * The source is loading or buffering. The play/pause glyph becomes a same-size spinner inside
+   * the same button, which gains `aria-busy` and keeps its accessible name and its action. Nothing
+   * else in the layout moves.
+   * @default false
+   */
+  loading?: boolean;
 }
 
 /**
@@ -662,6 +670,7 @@ export function MediaPlayerControls({
   seekVariant = "slider",
   waveformPeaks,
   waveformFlatPeaks,
+  loading = false,
   onKeyDown,
   ref,
   ...props
@@ -1006,19 +1015,31 @@ export function MediaPlayerControls({
 
   // `iconClass` overrides the glyph size — the narrow audio layout passes the
   // larger step; the shared wide/overlay play button keeps the standard action size.
-  const renderPlayButton = (iconClass: string = MEDIA_ACTION_ICON_CLASS) => (
+  // While `loading`, the glyph becomes a spinner of the same size in the same button.
+  const renderPlayButton = (
+    iconClass: string = MEDIA_ACTION_ICON_CLASS,
+    spinnerClass = "size-5",
+  ) => (
     <MediaControlTooltip
       content={playing ? "Pause (Space or K)" : "Play (Space or K)"}
     >
       <Button
         aria-label={playing ? `Pause ${label}` : `Play ${label}`}
         aria-pressed={playing}
+        aria-busy={loading || undefined}
         size="icon"
         variant="ghost"
         onClick={togglePlayback}
         className={cn("rounded-full", iconClass)}
       >
-        {playing ? (
+        {loading ? (
+          <Spinner
+            className={spinnerClass}
+            aria-hidden
+            role={undefined}
+            aria-label={undefined}
+          />
+        ) : playing ? (
           <Pause className="fill-current" />
         ) : (
           <Play className="fill-current" />
@@ -1027,7 +1048,10 @@ export function MediaPlayerControls({
     </MediaControlTooltip>
   );
   const playButton = renderPlayButton();
-  const playButtonCompact = renderPlayButton(MEDIA_PLAY_ICON_LG_CLASS);
+  const playButtonCompact = renderPlayButton(
+    MEDIA_PLAY_ICON_LG_CLASS,
+    "size-6",
+  );
 
   // Visible rewind/forward transport — audio (default variant) only. Video keeps
   // skip on the keyboard (J/L/←/→); its overlay chrome stays uncluttered. On a

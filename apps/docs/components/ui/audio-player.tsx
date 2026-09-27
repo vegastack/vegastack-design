@@ -1,4 +1,4 @@
-// @vegastack audio-player@0.23.52 sha256-tR/ReLGFsR7sWy9ZIweO9Xwi5TsCJQoiixztODqzjcU=
+// @vegastack audio-player@0.23.52 sha256-yfxBxJ5OTZmrhm1vsKj6SMdRiZKdntU/q56Asy0CtA0=
 
 "use client";
 
@@ -299,13 +299,14 @@ export interface AudioPlayerProps extends Omit<
    */
   closeLabel?: string;
   /**
-   * The source is loading. Shows a status line with `loadingLabel` and
-   * announces it once. A lazy `src` that is resolving counts as loading too.
+   * The source is loading. The play button shows a spinner in place of its glyph (same size,
+   * `aria-busy`) and `loadingLabel` is announced once; the layout does not change. A lazy `src`
+   * that is resolving counts as loading too, and so does the media buffering after play.
    * @default false
    */
   loading?: boolean;
   /**
-   * Text shown and announced while loading.
+   * Announced once to screen readers when loading starts (not shown).
    * @default "Loading audio…"
    */
   loadingLabel?: string;
@@ -578,6 +579,22 @@ export function AudioPlayer({
   // ── Loading and error ────────────────────────────────────────────────────
   const hasError = (error != null && error !== false) || loadFailed;
   const isLoading = (loading || resolving) && !hasError;
+  // Buffering after play (`waiting`) shows in the play button only; it is not announced.
+  const [buffering, setBuffering] = React.useState(false);
+  React.useEffect(() => {
+    const media = internalMediaRef.current;
+    if (!media) return;
+    const start = () => setBuffering(true);
+    const stop = () => setBuffering(false);
+    const stops = ["playing", "pause", "ended", "canplay", "emptied", "error"];
+    media.addEventListener("waiting", start);
+    for (const name of stops) media.addEventListener(name, stop);
+    return () => {
+      media.removeEventListener("waiting", start);
+      for (const name of stops) media.removeEventListener(name, stop);
+    };
+  }, []);
+  const showSpinner = isLoading || (buffering && !hasError);
   const { announce, Announcer } = useAnnouncer();
   const announcedLoadingRef = React.useRef(false);
   React.useEffect(() => {
@@ -729,6 +746,7 @@ export function AudioPlayer({
           onTimeChange={onTimeChange}
           onPlaybackRateChange={onPlaybackRateChange}
           closeButton={closeButton}
+          loading={showSpinner}
         />
       ) : (
         <MediaPlayerControls
@@ -745,23 +763,9 @@ export function AudioPlayer({
           seekVariant={isWaveform ? "waveform" : "slider"}
           waveformPeaks={waveformPeaks}
           waveformFlatPeaks={WAVEFORM_FLAT_BARS}
+          loading={showSpinner}
         />
       )}
-
-      {isLoading ? (
-        <div
-          data-slot="audio-player-status"
-          className="flex basis-full min-w-0 items-center gap-2 text-xs text-muted-foreground"
-        >
-          <Spinner
-            className="size-3.5"
-            aria-hidden
-            role={undefined}
-            aria-label={undefined}
-          />
-          <span className="truncate">{loadingLabel}</span>
-        </div>
-      ) : null}
 
       {hasError ? (
         <div
@@ -989,6 +993,7 @@ function FloatingTransport({
   onTimeChange,
   onPlaybackRateChange,
   closeButton,
+  loading,
 }: Pick<
   AudioPlayerProps,
   | "skipSeconds"
@@ -1002,6 +1007,7 @@ function FloatingTransport({
   playbackRates: readonly number[];
   formatTime?: (seconds: number) => string;
   closeButton: React.ReactNode;
+  loading: boolean;
 }) {
   const media = useMediaState(mediaRef, {
     onPlayStateChange,
@@ -1062,10 +1068,13 @@ function FloatingTransport({
           <Button
             size="icon"
             aria-label={media.playing ? `Pause ${label}` : `Play ${label}`}
+            aria-busy={loading || undefined}
             className="size-9 shrink-0 rounded-full [&_svg]:size-4"
             onClick={toggle}
           >
-            {media.playing ? (
+            {loading ? (
+              <Spinner aria-hidden role={undefined} aria-label={undefined} />
+            ) : media.playing ? (
               <Pause className="fill-current" aria-hidden />
             ) : (
               <Play className="fill-current" aria-hidden />

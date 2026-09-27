@@ -409,7 +409,7 @@
         "whenToUse": "A single audio asset that needs a compact, branded transport with rewind/forward, a tappable speed control, keyboard shortcuts, and a two-line mobile layout with an optional transcript control; `docked` pins a closable player to the bottom of a scroll column, a function `src` resolves a signed URL on first play, and `actionsRef` seeks it from a transcript or chapter list.",
         "whenNotToUse": "Playlists, queue management, waveform editing, audio recording, or a bar of bulk actions over a selection (ActionBar).",
         "version": "0.23.52",
-        "integrity": "sha256-tR/ReLGFsR7sWy9ZIweO9Xwi5TsCJQoiixztODqzjcU="
+        "integrity": "sha256-yfxBxJ5OTZmrhm1vsKj6SMdRiZKdntU/q56Asy0CtA0="
       }
     },
     {
@@ -15358,6 +15358,7 @@
         "@vegastack/button",
         "@vegastack/dropdown-menu",
         "@vegastack/slider",
+        "@vegastack/spinner",
         "@vegastack/tooltip"
       ],
       "files": [
@@ -15371,7 +15372,7 @@
         "whenToUse": "You are building a player around your own <audio>/<video> element and want the VegaStack transport, chrome and keyboard map.",
         "whenNotToUse": "A ready-made player — reach for Audio Player or Video Player, which compose this.",
         "version": "0.23.52",
-        "integrity": "sha256-rcnU3QAK0fZv82ifeYvN72VcU/bsxcknhd0qYFncAoY="
+        "integrity": "sha256-+NdOcpvzPPKWWbUmYzI3vpsFmuyIO6pH3xRYb/Kh4IQ="
       }
     },
     {
