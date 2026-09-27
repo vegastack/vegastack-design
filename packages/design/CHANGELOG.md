@@ -1,5 +1,11 @@
 # @vegastack/design
 
+## 0.7.51
+
+### Patch Changes
+
+- [#370](https://github.com/vegastack/vegastack-design/pull/370) [`0ccadf1`](https://github.com/vegastack/vegastack-design/commit/0ccadf1ec832b84c602dd7b96972536bd37a0623) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🔧 Heavy UI stays out of a page's first bundle. [`TextEdit`](/docs/components/text-edit) renders its saved value as light read HTML (server-rendered, same typography, still editable to the touch) and loads the Tiptap editor on hover, focus or tap, swapping it in place with the caret where you clicked; `preloadTextEdit()` loads it ahead of time. [`MarkdownView`](/docs/components/markdown-view) now parses with `marked` instead of `react-markdown` (about a quarter of the size), adds `format="html"` for rich-text HTML and `allowedImageOrigins={["*"]}`. [`DatePicker`](/docs/components/date-picker) and the [`FilterBar`](/docs/components/filter-bar) date filter load the calendar engine only when the picker is about to open.
+
 ## 0.7.50
 
 ### Patch Changes
