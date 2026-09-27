@@ -1,4 +1,4 @@
-// @vegastack number-field@0.23.49 sha256-Q3eB6DBkiaBtgtkLDB1LJ8Oc5jsOosOl21LW5HN1zkI=
+// @vegastack number-field@0.23.50 sha256-5kBuZubd2qY+8gdG20U443XzihhVLGzeYjvHg3e/Vig=
 
 "use client";
 

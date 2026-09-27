@@ -1,4 +1,4 @@
-// @vegastack person-avatar@0.23.49 sha256-c05Qec/I3ECTEnyuoKVShoYYdfvBPOokcnG29s9aMo0=
+// @vegastack person-avatar@0.23.50 sha256-iAg/5YHagSeLnGVBPeqmt6LjqO0ahh4KOa/IgNf0L+o=
 
 import * as React from "react";
 import {
