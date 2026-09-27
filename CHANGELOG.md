@@ -9,6 +9,21 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.23.64] — September 27, 2026
+
+<!-- assembled from 2 changesets: e07ddddd33a2 -->
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.23.63 → 0.23.64.
+
+### 🐛 Fixed
+
+- FileViewer: a PDF fits to a reader's page width (920px max) centred on the dark stage instead of the full screen; the previous/next buttons no longer drop by half their height when pressed; opening focuses the viewer itself, so the Download button no longer looks hovered.
+  [`007aec0`](https://github.com/VegaStack/vegastack-design/commit/007aec0)
+- `SortableList` (and every `useDragReorder` item): dragging a row by its handle no longer drags a picture of half the page. The browser sizes its drag image from the row plus every descendant's box, and a `Checkbox` or `Switch` without a `name` keeps its hidden input fixed at the viewport's top-left — so a row with a "Required" checkbox dragged everything between the page corner and the row. The drag image is now a copy of the row alone, held under the pointer where it was grabbed. Keyboard move mode, touch long-press, drop indicators and announcements are unchanged.
+  [`d7e8139`](https://github.com/VegaStack/vegastack-design/commit/d7e8139)
+
 ## [0.23.63] — September 27, 2026
 
 <!-- assembled from 1 changeset: eccbc35a0138 -->
