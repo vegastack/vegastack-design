@@ -1,5 +1,11 @@
 # @vegastack/ui
 
+## 0.23.63
+
+### Patch Changes
+
+- [#387](https://github.com/vegastack/vegastack-design/pull/387) [`d1a525f`](https://github.com/vegastack/vegastack-design/commit/d1a525f089bd270637f9569b0950301eb304843f) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🐛 FileViewer builds its file-type icon as an element, so consumers' `react-hooks/static-components` lint passes.
+
 ## 0.23.62
 
 ### Patch Changes
