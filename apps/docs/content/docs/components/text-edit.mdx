@@ -207,6 +207,11 @@ The ⋮⋮ handle beside the hovered block drags it (or a single list item) to a
 <kbd>Mod</kbd> <kbd>Shift</kbd> <kbd>↑</kbd> / <kbd>↓</kbd> does the same from
 the keyboard. `dragHandles=false` turns the handle and the table grips off.
 
+The handle is a narrow grip 3px before the text, so it fits inside the 16px padding of a Dialog,
+Sheet, Popover or Card and never touches the container's edge; the text keeps its column, with no
+indent while the handle is hidden. Where the padding is narrower — a `boxed` editor — the grip is
+held just inside the frame.
+
 <ComponentPreview
   name="markdownBlockHandles"
   file="components/preview/text-edit.tsx"
