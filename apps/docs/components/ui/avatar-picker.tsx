@@ -1,4 +1,4 @@
-// @vegastack avatar-picker@0.23.46 sha256-M79t614hITsVOeEno7AgGTeaPsWD4OHwlCpAE1hvWq4=
+// @vegastack avatar-picker@0.23.46 sha256-FgdwhKpfBYIMa4VWb92AMTYMCcjQqJPTYEOqCVeScxY=
 
 "use client";
 
@@ -224,21 +224,36 @@ export function AvatarPicker({
           person={shown}
           size="default"
           data-slot="avatar-picker-avatar"
-          className={CIRCLE[size]}
+          // Whenever the scrim shows (hover, keyboard focus, busy) the initials fade out, so only
+          // the icon sits on the hue. `group-hover` only matches where hover exists, so a touch
+          // device keeps its initials beside the corner badge.
+          className={cn(
+            CIRCLE[size],
+            "*:data-[slot=avatar-fallback]:transition-colors *:data-[slot=avatar-fallback]:duration-150",
+            busy
+              ? "*:data-[slot=avatar-fallback]:text-transparent"
+              : "group-hover/button:*:data-[slot=avatar-fallback]:text-transparent group-focus-visible/button:*:data-[slot=avatar-fallback]:text-transparent",
+          )}
         />
-        {/* Hover and keyboard focus: the modal scrim's ink over the circle, a pencil on it. A
+        {/* Hover and keyboard focus: the modal scrim's ink (no blur, so the photo stays readable) over the circle, a white pencil on it. A
             device without hover never gets it (the badge below stands in), except while busy. */}
         <span
           aria-hidden="true"
           data-slot="avatar-picker-overlay"
           className={cn(
-            "absolute inset-0 flex items-center justify-center rounded-full bg-black/40 text-white transition-opacity duration-150 supports-backdrop-filter:backdrop-blur-xs",
+            "absolute inset-0 flex items-center justify-center rounded-full bg-black/40 text-white transition-opacity duration-150",
             busy
               ? "opacity-100"
               : "opacity-0 group-hover/button:opacity-100 group-focus-visible/button:opacity-100 [@media(hover:none)]:hidden",
           )}
         >
-          {busy ? <Spinner className={icon} /> : <Pencil className={icon} />}
+          {/* `data-icon-tone` stands the icons down from the ghost Button's muted/hover svg ink,
+              so they keep the scrim's white. */}
+          {busy ? (
+            <Spinner data-icon-tone="" className={icon} />
+          ) : (
+            <Pencil data-icon-tone="" className={icon} />
+          )}
         </span>
         {busy ? null : (
           <span

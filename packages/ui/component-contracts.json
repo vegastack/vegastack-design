@@ -2776,6 +2776,10 @@
         "AvatarPicker": {
           "attributes": [
             {
+              "name": "data-icon-tone",
+              "values": [""]
+            },
+            {
               "name": "data-size",
               "values": []
             },
