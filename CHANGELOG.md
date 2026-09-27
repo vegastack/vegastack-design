@@ -9,6 +9,20 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.23.60] — September 27, 2026
+
+<!-- assembled from 1 changeset: 0108f05d824e -->
+
+### 📦 npm
+
+- **`@vegastack/design`** → **`0.7.52`** (was `0.7.51`).
+- The design-system registry (`@vegastack/ui`) bumps 0.23.59 → 0.23.60.
+
+### 🐛 Fixed
+
+- TextEdit's block drag handle stays inside its container. The ⋮⋮ grip is now 10px wide and sits 3px before the text (was 18px, 4px out), so it fits in the 16px padding of a Dialog, Sheet, Popover or Card instead of touching the edge, and it is clamped just inside a `boxed` editor's border or the container when the padding is narrower. The text keeps its column: nothing indents while the handle is hidden.
+  [`84ae2d9`](https://github.com/VegaStack/vegastack-design/commit/84ae2d9)
+
 ## [0.23.59] — September 27, 2026
 
 <!-- assembled from 2 changesets: 1cffa896a21e -->
