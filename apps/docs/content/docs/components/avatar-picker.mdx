@@ -37,8 +37,9 @@ shows a small pencil badge on the edge instead. A click opens the "Profile photo
 - A chosen or dropped file is only **staged**: it shows in the circle, nothing is saved. Closing
   the dialog discards it.
 - **Update** (disabled until a file is staged) awaits `onUpload(file)`; **Remove** (only while
-  there is a photo) clears a staged file, else awaits `onRemove()`. While a call is pending a
-  spinner covers the circle, the controls are disabled and the dialog cannot be dismissed. It
+  there is a photo) clears a staged file, else awaits `onRemove()`. While a call is pending the
+  button that started it shows a spinner (it keeps its width), the other button and the circle
+  are disabled, and the dialog cannot be dismissed. It
   closes when the call resolves; when it rejects it stays open, keeps the staged photo, and shows
   the error's `message` under the circle.
 - A refused file — the wrong type (an iPhone HEIC photo is told to export it as JPEG) or over
@@ -56,7 +57,8 @@ its callbacks (and shows its own toasts around them), then passes the new `perso
 
 ### With a photo
 
-The dialog offers Remove beside Update.
+The dialog offers Remove beside Update. Press Remove to see its pending state: the spinner sits in
+the Remove button while the demo's `onRemove` runs, and the photo stays in the circle.
 
 <ComponentPreview
   name="avatarPickerImage"
@@ -109,8 +111,8 @@ photo still staged and the error under the circle, ready to try again or pick an
 - Keyboard focus shows the same scrim and pencil as hover — the circle's focus cue, with no ring.
 - One polite live region announces every refused file and every failed call, once each, with the
   same words shown under the circle.
-- While a call is pending the circle and both buttons are disabled, the circle is `aria-busy`, and
-  <kbd>Esc</kbd> does not close the dialog.
+- While a call is pending, the button that started it is `aria-busy` with a spinner, the other
+  button and the circle are disabled, and <kbd>Esc</kbd> does not close the dialog.
 
 | Key                                 | Action                                                          |
 | ----------------------------------- | --------------------------------------------------------------- |
