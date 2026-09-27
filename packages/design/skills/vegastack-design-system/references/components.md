@@ -3,7 +3,7 @@
 <!-- GENERATED — do not hand-edit. Regenerated from the design system's component contract,
      which is the authority for membership and counts. -->
 
-**133 components**, plus 467 animated-icon items, 13 hooks (`use-animation-replay`, `use-announcer`, `use-async-search`, `use-drag-reorder`, `use-file-drop`, `use-inline-edit`, `use-list-nav`, `use-media-query`, `use-mobile`, `use-modal-inert`, `use-overflow`, `use-platform`, `use-tabs-swipe`), 11 starter blocks (`app-shell-01`, `board-01`, `issue-detail-01`, `command-search-01`, `list-page-01`, `login-01`, `notifications-01`, `review-split-01`, `settings-01`, `settings-02`, `status-pages-01`), 68 chart blocks across 7 families, and 4 data libs (`date-time`, `geo-data`, `emoji-data`, `drag-item`) — 696 registry items in total.
+**134 components**, plus 467 animated-icon items, 13 hooks (`use-animation-replay`, `use-announcer`, `use-async-search`, `use-drag-reorder`, `use-file-drop`, `use-inline-edit`, `use-list-nav`, `use-media-query`, `use-mobile`, `use-modal-inert`, `use-overflow`, `use-platform`, `use-tabs-swipe`), 11 starter blocks (`app-shell-01`, `board-01`, `issue-detail-01`, `command-search-01`, `list-page-01`, `login-01`, `notifications-01`, `review-split-01`, `settings-01`, `settings-02`, `status-pages-01`), 68 chart blocks across 7 families, and 4 data libs (`date-time`, `geo-data`, `emoji-data`, `drag-item`) — 697 registry items in total.
 
 Install any of them with `shadcn add @vegastack/<name>`. Animated icons install as
 `@vegastack/icon-<name>`; the bare name is reserved for components, so a component whose name
@@ -186,3 +186,4 @@ starts with `icon-` is a component and never an icon.
 ## forms
 
 - **`avatar-picker`** — A person's avatar that opens a dialog to upload, change or remove their photo — the file is staged in a 128px drop circle and saved only on Update.
+- **`upload-dialog`** — The "Add files" modal: a drop zone and the staged files (thumbnail or icon, name, size, remove), then an optional per-file details view the host renders, and Add. It stages files only; the host uploads them.

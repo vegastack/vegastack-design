@@ -173,6 +173,17 @@ For the full upload flow — acquiring files, per-file progress, cancel, retry a
   file="components/preview/attachment.tsx"
 />
 
+### Form tiles
+
+In a form, files sit beside fields and should stay small. Set `layout="tiles"` on
+`AttachmentGroup` for compact square tiles — two per row on a phone, three from `sm` up. Pair it
+with [`UploadDialog`](/docs/components/upload-dialog) for adding files.
+
+<ComponentPreview
+  name="attachmentFormTiles"
+  file="components/preview/attachment.tsx"
+/>
+
 ## Playground
 
 Step through the lifecycle states, sizes, orientations and media treatments, then copy the
@@ -292,7 +303,7 @@ Upstream's file plus `packages/ui/upstream/patches/attachment.patch`. Every hunk
   server component rendering it throws on import. The boundary goes at the lowest interactive leaf,
   and this file is it.
 - **API-28** — Attachment's scope widens from chat to file and media tiles on any surface.
-  `AttachmentGroup` takes `layout="scroll" | "grid"` (upstream's row stays the default), a new
+  `AttachmentGroup` takes `layout="scroll" | "grid" | "tiles"` (upstream's row stays the default), a new
   `AttachmentProgress` part composes `Progress`'s track and indicator and announces
   `aria-valuetext="{n}%"`, `Attachment` takes `muted` (`data-muted`, media at `opacity-50`), and
   image media styles a nested `<img>` with `[&_img]` in place of `*:[img]`, so the system `Image`

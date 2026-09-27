@@ -2,10 +2,10 @@
   "schemaVersion": 1,
   "kind": "vegastack-zero-gap-audit-register",
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "b6455cc4c8835ebda8765910756d32865eb771091ea1cc0f132ec43910e2e996",
+  "contractSha256": "a28c3179fdc82fbc675a6397751ff4b5c1f98b25a739b4b92ebee2342d8e26db",
   "expectedCounts": {
-    "totalRegistryItems": 696,
-    "components": 133,
+    "totalRegistryItems": 697,
+    "components": 134,
     "animatedIcons": 467,
     "hooks": 13,
     "blocks": 11,
@@ -561,6 +561,17 @@
         "packages/ui/registry/ui/dropzone.tsx"
       ],
       "docsSlug": "/docs/components/dropzone",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "upload-dialog",
+      "inventoryClass": "component",
+      "wave": "Forms/editing",
+      "family": "forms",
+      "sourceFiles": [
+        "packages/ui/registry/ui/upload-dialog.tsx"
+      ],
+      "docsSlug": "/docs/components/upload-dialog",
       "contractStatus": "reconciled"
     },
     {

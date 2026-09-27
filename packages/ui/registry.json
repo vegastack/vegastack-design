@@ -1483,6 +1483,40 @@
       }
     },
     {
+      "name": "upload-dialog",
+      "type": "registry:ui",
+      "title": "Upload Dialog",
+      "description": "The \"Add files\" modal: a drop zone and the staged files (thumbnail or icon, name, size, remove), then an optional per-file details view the host renders, and Add. It stages files only; the host uploads them.",
+      "categories": ["forms"],
+      "dependencies": [
+        "@vegastack/design@^0.7.50",
+        "@vegastack/design-tokens@^0.7.49",
+        "lucide-react@^1.47.0"
+      ],
+      "registryDependencies": [
+        "@vegastack/attachment",
+        "@vegastack/button",
+        "@vegastack/dialog",
+        "@vegastack/dropzone",
+        "@vegastack/empty",
+        "@vegastack/field",
+        "@vegastack/image",
+        "@vegastack/use-file-drop"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/upload-dialog.tsx",
+          "type": "registry:ui",
+          "target": "@ui/upload-dialog.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "Adding files to a record from a button — drop or browse, review the files, set each one's name or category, then Add and let the page's upload queue carry on.",
+        "whenNotToUse": "An always-visible drop surface (Dropzone), a single profile photo (AvatarPicker), or showing upload progress (Attachment tiles on the page).",
+        "version": "0.23.62"
+      }
+    },
+    {
       "name": "editable-cell",
       "type": "registry:ui",
       "title": "Editable Cell",

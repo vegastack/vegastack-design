@@ -598,3 +598,42 @@ export function attachmentRecordFiles(): ReactNode {
     </Wrapper>
   );
 }
+
+/**
+ * Ours (API-28): compact square tiles for a form. `layout="tiles"` puts two tiles per row on a
+ * phone and three from `sm` up, with square media, so a form's files stay small beside its fields.
+ */
+export function attachmentFormTiles(): ReactNode {
+  return (
+    <Wrapper>
+      <div className="w-full max-w-xl">
+        <AttachmentGroup layout="tiles" role="group" aria-label="Form files">
+          {IMAGES.slice(0, 2).map((image) => (
+            <Attachment key={image.name} orientation="vertical">
+              <AttachmentMedia variant="image">
+                <img src={image.src} alt={image.alt} />
+              </AttachmentMedia>
+              <AttachmentContent>
+                <AttachmentTitle>{image.name}</AttachmentTitle>
+                <AttachmentDescription>{image.meta}</AttachmentDescription>
+              </AttachmentContent>
+            </Attachment>
+          ))}
+          <Attachment state="uploading" orientation="vertical">
+            <AttachmentMedia>
+              <FileTextIcon />
+            </AttachmentMedia>
+            <AttachmentContent>
+              <AttachmentTitle>beam-30deg.ies</AttachmentTitle>
+              <AttachmentDescription>62%</AttachmentDescription>
+            </AttachmentContent>
+            <AttachmentProgress
+              value={62}
+              aria-label="Uploading beam-30deg.ies"
+            />
+          </Attachment>
+        </AttachmentGroup>
+      </div>
+    </Wrapper>
+  );
+}
