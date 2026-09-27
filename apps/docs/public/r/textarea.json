@@ -5,14 +5,14 @@
   "description": "A styled native textarea for multi-line text — auto-sizing to its content, invalid and disabled chrome, and the background focus tint with a border that never moves (FOC-14).",
   "dependencies": [
     "@base-ui/react@^1.6.0",
-    "@vegastack/design@^0.7.51",
+    "@vegastack/design@^0.7.52",
     "@vegastack/design-tokens@^0.7.49"
   ],
   "registryDependencies": [],
   "files": [
     {
       "path": "packages/ui/registry/ui/textarea.tsx",
-      "content": "// @vegastack textarea@0.23.59 sha256-1E8AbmKpyAQP0Dcz0nZ7dqfJU1Wv3pBPa6Tt5wRQJPI=\n\n\"use client\";\n\nimport * as React from \"react\";\nimport { Field as FieldPrimitive } from \"@base-ui/react/field\";\nimport { cn } from \"@vegastack/design\";\n\nfunction Textarea({ className, ...props }: React.ComponentProps<\"textarea\">) {\n  return (\n    <FieldPrimitive.Control\n      render={<textarea />}\n      data-slot=\"textarea\"\n      className={cn(\n        \"flex field-sizing-content min-h-16 w-full rounded-lg border border-input bg-transparent px-2.5 py-2 text-base transition-[color,background-color,border-color] duration-150 ease-out outline-hidden placeholder:text-muted-foreground focus:not-aria-invalid:border-ring/40 disabled:cursor-not-allowed disabled:bg-input/50 disabled:opacity-50 aria-invalid:border-destructive md:text-sm dark:bg-input/30 dark:disabled:bg-input/80 dark:aria-invalid:border-destructive/50\",\n        className,\n      )}\n      {...(props as FieldPrimitive.Control.Props)}\n    />\n  );\n}\n\nexport { Textarea };\n",
+      "content": "// @vegastack textarea@0.23.60 sha256-cqfMrOqcOgquoPMoIzPeMLn8fMf5FW0i7ubr9XkQ1pg=\n\n\"use client\";\n\nimport * as React from \"react\";\nimport { Field as FieldPrimitive } from \"@base-ui/react/field\";\nimport { cn } from \"@vegastack/design\";\n\nfunction Textarea({ className, ...props }: React.ComponentProps<\"textarea\">) {\n  return (\n    <FieldPrimitive.Control\n      render={<textarea />}\n      data-slot=\"textarea\"\n      className={cn(\n        \"flex field-sizing-content min-h-16 w-full rounded-lg border border-input bg-transparent px-2.5 py-2 text-base transition-[color,background-color,border-color] duration-150 ease-out outline-hidden placeholder:text-muted-foreground focus:not-aria-invalid:border-ring/40 disabled:cursor-not-allowed disabled:bg-input/50 disabled:opacity-50 aria-invalid:border-destructive md:text-sm dark:bg-input/30 dark:disabled:bg-input/80 dark:aria-invalid:border-destructive/50\",\n        className,\n      )}\n      {...(props as FieldPrimitive.Control.Props)}\n    />\n  );\n}\n\nexport { Textarea };\n",
       "type": "registry:ui",
       "target": "@ui/textarea.tsx"
     }
@@ -20,8 +20,8 @@
   "meta": {
     "whenToUse": "Multi-line free text — descriptions, comments, messages, notes.",
     "whenNotToUse": "Single-line entry (input), rich text (editor), or fixed options (select).",
-    "version": "0.23.59",
-    "integrity": "sha256-1E8AbmKpyAQP0Dcz0nZ7dqfJU1Wv3pBPa6Tt5wRQJPI="
+    "version": "0.23.60",
+    "integrity": "sha256-cqfMrOqcOgquoPMoIzPeMLn8fMf5FW0i7ubr9XkQ1pg="
   },
   "categories": [
     "form"

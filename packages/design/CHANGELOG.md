@@ -1,5 +1,11 @@
 # @vegastack/design
 
+## 0.7.52
+
+### Patch Changes
+
+- [#380](https://github.com/vegastack/vegastack-design/pull/380) [`84ae2d9`](https://github.com/vegastack/vegastack-design/commit/84ae2d9d699e5d5e246f43bece20bfbf0bfcef81) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🐛 TextEdit's block drag handle stays inside its container. The ⋮⋮ grip is now 10px wide and sits 3px before the text (was 18px, 4px out), so it fits in the 16px padding of a Dialog, Sheet, Popover or Card instead of touching the edge, and it is clamped just inside a `boxed` editor's border or the container when the padding is narrower. The text keeps its column: nothing indents while the handle is hidden.
+
 ## 0.7.51
 
 ### Patch Changes
