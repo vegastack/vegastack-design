@@ -9,6 +9,25 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.23.65] — September 28, 2026
+
+<!-- assembled from 2 changesets: 81ebefe8cf28 -->
+
+### 🔧 Changed components
+
+- `TextEdit` and `MarkdownView` tables are Notion's simple table: a rounded outer border, a rule between every cell, and a header row on a muted ground at medium weight — the same `prose.table` styles in the read view and the editor. The floating table toolbar is gone; hovering a table shows a row grip and a column grip (click for a menu — insert, move, duplicate, clear, delete; drag to reorder), a corner grip where every block's handle sits (select the table, clear, delete; drag to move it; header row/column toggles in HTML), and "+" bars that add a row or column at the end. Column borders drag to resize. `Shift+F10` opens the menu from the keyboard, Tab in the last cell adds a row, and markdown round-trips unchanged. The stray block handle over a table is gone.
+  [`fc926dc`](https://github.com/VegaStack/vegastack-design/commit/fc926dc)
+
+### 📦 npm
+
+- **`@vegastack/design`** → **`0.7.54`** (was `0.7.53`).
+- The design-system registry (`@vegastack/ui`) bumps 0.23.64 → 0.23.65.
+
+### 🐛 Fixed
+
+- Inline-edit fields paint no fill: `EditableCell` values and the ghost `Input` (a dialog's title) no longer tint on hover — at rest, on hover and while editing they are transparent, and the text cursor is the affordance. Keyboard focus on a resting `EditableCell` keeps the system focus tint. Text alignment and hit areas are unchanged; picker pills and menus keep their button hover.
+  [`fc926dc`](https://github.com/VegaStack/vegastack-design/commit/fc926dc)
+
 ## [0.23.64] — September 27, 2026
 
 <!-- assembled from 2 changesets: e07ddddd33a2 -->
