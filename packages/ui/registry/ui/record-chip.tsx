@@ -1,4 +1,4 @@
-// @vegastack record-chip@0.23.55 sha256-oxe1YaakzL+RNDdYicuHBBVae0aM5FEcgHsFDUj6vVE=
+// @vegastack record-chip@0.23.55 sha256-64jI0SYQW/U+9bUncwj4eFROEI/Uf3F4qZ863mkZ4a0=
 
 import * as React from "react";
 import { ArrowUpRight, ChevronDown } from "lucide-react";
@@ -257,10 +257,11 @@ export function RecordChip({
         type={type}
         className={
           ghost
-            ? // 28px tall and 8px of padding: `PropertyValue` hangs both outside the row, so the
+            ? // 24px tall and 6px of padding — a compact tint just around the text, the same box
+              // as an inline `EditableCell`: `PropertyValue` hangs both outside the row, so the
               // text starts where plain values do and the row keeps its height. The ▾ is always
               // laid out (only its opacity changes), so nothing moves on hover or open.
-              "h-7 gap-2 rounded-md px-2 text-sm font-normal [&:has(+[data-slot=split-chip-separator])]:pe-2 [&_svg:not([class*='size-'])]:size-3.5"
+              "h-6 gap-2 rounded-md px-1.5 text-sm font-normal [&:has(+[data-slot=split-chip-separator])]:pe-1.5 [&_svg:not([class*='size-'])]:size-3.5"
             : undefined
         }
         {...props}
@@ -291,7 +292,7 @@ export function RecordChip({
             href,
             "aria-label": linkLabel,
             className: ghost
-              ? cn(splitChipIconActionClassName, "size-7 rounded-md")
+              ? cn(splitChipIconActionClassName, "size-6 rounded-md")
               : splitChipIconActionClassName,
             children: <ArrowUpRight aria-hidden />,
           })}

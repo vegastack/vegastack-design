@@ -106,8 +106,11 @@ a reader has to interpret.
 column (a long label truncates, its full text in the tooltip), and the value left-aligned in the
 second column, so every value starts at the same x — as in Linear or Notion. An editable value is a
 ghost [Record Chip](/docs/components/record-chip#ghost-variant) (`variant="ghost"`): `PropertyValue`
-hangs its padding past the column's start and its 28px height outside the line, so its text lines up
-with plain values and every row is the same height. An unset value is the chip's muted placeholder
+hangs its padding past the column's start and its 24px height outside the line, so its text lines up
+with plain values and every row is the same height. An editable text value is an inline
+[Editable Cell](/docs/components/editable-cell): `PropertyValue` gives it the same compact box — 6px
+and 2px of padding hung outside by equal negative margins — so its text keeps the plain values' left
+edge, baseline and row height at rest, on hover and while editing, and the tint sits just around it. An unset value is the chip's muted placeholder
 ("Set due date"), or `PropertyEmpty` ("—") when it cannot be edited. `PropertySection` puts a small muted title over values too big for a row (chips,
 people). The rail's other value shapes — an avatar, avatar rows with "+N", a long value clamped to
 three lines — are in [Record Aside](/docs/components/record-aside).

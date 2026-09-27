@@ -74,7 +74,8 @@ give it the standard tint, and a ▾ fades in at the end. The ▾ stays visible 
 - **Due dates:** pass a `DueLabel` as the value. It keeps its overdue colour.
 - **Empty:** the muted placeholder, such as "Set due date".
 
-In a `PropertyValue`, the chip's 8px padding and its 28px height hang outside the cell. Its text
+In a `PropertyValue`, the chip's 6px padding and its 24px height hang outside the cell — the same
+compact box as an inline `EditableCell` there. Its text
 starts where plain values do, the tint sits in the gutter, and a row holding a chip is as tall as a
 row holding text. Nothing moves on hover or open, because the ▾ is always laid out and only its
 opacity changes.
