@@ -9,6 +9,19 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.23.62] — September 27, 2026
+
+<!-- assembled from 1 changeset: 52814e6e7b80 -->
+
+### 🧩 New components
+
+- New `UploadDialog` (`UploadDialog`, `UploadDialogFileRow`) — the "Add files" modal: a drop zone with the staged files under it (thumbnail or file icon, name, size, ×), then Next to a per-file details view the host renders (`renderDetails`, `detailsValid`) and Add. Without `renderDetails` it adds straight from the staged list. `validate` refuses a file with a message and `maxFiles` caps the staged count. It stages files only — `onSubmit` hands them to the host's upload queue and the dialog closes. `AttachmentGroup` gains `layout="tiles"`: compact square tiles for forms, two per row on a phone and three from `sm` up.
+  [`758ee45`](https://github.com/VegaStack/vegastack-design/commit/758ee45)
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.23.61 → 0.23.62.
+
 ## [0.23.61] — September 27, 2026
 
 <!-- assembled from 2 changesets: 7c3f44da484e -->
