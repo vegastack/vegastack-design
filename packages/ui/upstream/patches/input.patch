@@ -27,10 +27,10 @@
 #     with `transition-[color,background-color,border-color] duration-150 ease-out`. The
 #     `not-…invalid` guard keeps an invalid field's destructive border in every state.
 diff --git a/input.tsx b/input.tsx
-index 7c4ab5a..0bc0639 100644
+index 7c4ab5a..aaef3c3 100644
 --- a/input.tsx
 +++ b/input.tsx
-@@ -1,19 +1,61 @@
+@@ -1,19 +1,62 @@
 -import * as React from "react"
 -import { Input as InputPrimitive } from "@base-ui/react/input"
 -import { cn } from "cn"
@@ -48,10 +48,11 @@ index 7c4ab5a..0bc0639 100644
 +        default:
 +          "rounded-lg border border-input bg-transparent focus:not-aria-invalid:not-[[type=file]]:border-ring/40 disabled:bg-input/50 aria-invalid:border-destructive dark:bg-input/30 dark:disabled:bg-input/80 dark:aria-invalid:border-destructive/50",
 +        // A borderless, transparent field for a big title (Linear's issue title). No box and no focus
-+        // fill (text entry takes no tint, FOC-3): the caret is the focus cue, a hover tint shows it is
-+        // editable, and an invalid title turns its placeholder and text destructive.
++        // fill (text entry takes no tint, FOC-3): the caret is the focus cue. A hover tint shows it is
++        // editable only until it is focused — typing into a hovered field shows no grey — and an
++        // invalid title turns its placeholder and text destructive.
 +        ghost:
-+          "rounded-md border-0 bg-transparent px-0 hover:bg-accent/30 aria-invalid:placeholder:text-destructive/70",
++          "rounded-md border-0 bg-transparent px-0 hover:not-focus:bg-accent/30 aria-invalid:placeholder:text-destructive/70",
 +      },
 +      size: {
 +        sm: "h-7 px-2 py-0.5 text-sm",
