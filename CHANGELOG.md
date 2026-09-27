@@ -9,6 +9,31 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.23.54] — September 27, 2026
+
+<!-- assembled from 3 changesets: b009f5e71fdc -->
+
+### 🧩 New components
+
+- New `RecordList` (`RecordList`, `RecordListItem`, `RecordListMore`) — the records a change affects, for confirmation dialogs: numbered rows (an `<ol>`, so the numbers continue when "Show more" appends the next batch), a muted record-type icon, the name with a small ↗ `Open {name} in a new tab` link right after it (shown on row hover or focus, always on touch), an optional badge and description line.
+  [`88c9150`](https://github.com/VegaStack/vegastack-design/commit/88c9150)
+
+### 🔧 Changed components
+
+- `SortableList`: touch long-press reordering (the Board's model — a 250ms hold that moves under 8px lifts the row or tile; the page doesn't scroll under it and the long-press menu is suppressed) for lists and grids, beside the handle's pointer drag and keyboard move mode. The Move up / down / to top / to bottom menu items are gone. New `onRemove` puts a small × (`Remove {label}`) in each unlocked row's corner, shown on hover or focus and always on touch; `getItemActions` still gives a ⋯ menu for more actions, and a row with no actions has no menu. Grid: `columns` (2–6) fixes the tiles per row, and `tile="bare"` drops the tile frame so an `Attachment` inside is the one frame. A locked row's reason is now the row's description.
+  [`88c9150`](https://github.com/VegaStack/vegastack-design/commit/88c9150)
+
+### 📦 npm
+
+- **`@vegastack/design`** → **`0.7.49`** (was `0.7.48`).
+- **`@vegastack/design-tokens`** → **`0.7.49`** (was `0.7.46`).
+- The design-system registry (`@vegastack/ui`) bumps 0.23.53 → 0.23.54.
+
+### 🐛 Fixed
+
+- Text fields show focus as a subtle darker border that eases in (150ms), with no grey fill and no darker rectangle inside input groups. `base.css` again leaves text inputs and textareas out of the background tint and drops the field-group tint that stacked a square inner rectangle over the group. `Input`, `Textarea`, `InputGroup` (and so `NumberField`, `ChipInput`, `Combobox`, `Command`, `SearchInput`, `PasswordInput`, `AutoSaveInput` and the popup search rows), `ComboboxChips`, `PanelSearch`, the `Questionnaire` answer field and the `InputOTP` active slot take `border-ring/40`. An invalid field keeps its destructive border while focused. Buttons, rows, tabs, menu items and chips keep the tint. `TextEdit` gains `variant="document" | "boxed"` and `children`. `document` (the default) stays caret-only. `boxed` draws a bordered box whose border darkens on focus, and the comment composer now uses it. The ghost `Input` has no focus fill. `design-lint`'s `no-focus-border` allows the text-entry border only in those components, and the geometry sweep checks the new contract.
+  [`a0e3482`](https://github.com/VegaStack/vegastack-design/commit/a0e3482)
+
 ## [0.23.53] — September 27, 2026
 
 <!-- assembled from 2 changesets: e56cfbed0a63 -->
