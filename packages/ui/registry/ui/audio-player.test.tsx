@@ -651,7 +651,7 @@ test("Tab reaches every control in the dock and then leaves it", async () => {
   }
 });
 
-test("loading shows a status line and is announced once", async () => {
+test("loading shows in the play button and is announced once", async () => {
   const screen = await render(
     <AudioPlayer src={SOURCE} label="Clip" docked loading />,
   );
@@ -673,18 +673,21 @@ test("loading shows a status line and is announced once", async () => {
   await expect.element(screen.getByText("Standup 2")).toBeInTheDocument();
   // Same node: re-renders while loading never re-announce.
   expect(announcer.firstElementChild).toBe(spoken);
-  expect(
-    root.querySelector('[data-slot="audio-player-status"]')?.textContent,
-  ).toBe("Loading audio…");
+  // No visible status row: the play button carries the spinner.
+  expect(root.querySelector('[data-slot="audio-player-status"]')).toBeNull();
+  const play = root.querySelector<HTMLElement>(
+    'button[aria-label="Play Clip"]',
+  )!;
+  expect(play).toHaveAttribute("aria-busy", "true");
+  expect(play.querySelector('[data-slot="spinner"]')).not.toBeNull();
 
   await screen.rerender(<AudioPlayer src={SOURCE} label="Clip" docked />);
-  await vi.waitFor(() =>
-    expect(root.querySelector('[data-slot="audio-player-status"]')).toBeNull(),
-  );
+  await vi.waitFor(() => expect(play.hasAttribute("aria-busy")).toBe(false));
+  expect(play.querySelector('[data-slot="spinner"]')).toBeNull();
   expect(root.hasAttribute("aria-busy")).toBe(false);
 });
 
-test("loadingLabel overrides the announced and visible copy", async () => {
+test("loadingLabel overrides the announced copy", async () => {
   const screen = await render(
     <AudioPlayer
       src={SOURCE}

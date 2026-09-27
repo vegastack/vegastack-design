@@ -162,7 +162,7 @@ const track = {
 
 `src` also takes a function that resolves a URL, for a short-lived signed URL you only want to
 fetch when someone listens. It is called once, on the first play (or the first `actionsRef` seek),
-and the result is kept. While it resolves the player shows its loading line. To load a different
+and the result is kept. While it resolves the play button shows a spinner. To load a different
 recording, remount the player with a new `key`.
 
 ```tsx
@@ -179,7 +179,10 @@ recording, remount the player with a new `key`.
 
 ### Loading and error
 
-`loading` shows a status line with `loadingLabel` ("Loading audio…") and announces it once.
+The player renders its full layout from the start, and no state changes its height. `loading` —
+and a lazy `src` resolving, or the media buffering after play — swaps the play button's glyph for
+a spinner of the same size in the same button, which gets `aria-busy` and keeps its name and its
+action. `loadingLabel` ("Loading audio…") is announced once to screen readers and never shown.
 `error` renders an alert in the destructive ink with a "Try again" button (`retryLabel`). The retry
 reloads the source, resolves a lazy `src` again and calls `onRetry`, where you clear `error`.
 
@@ -310,7 +313,8 @@ Every `AudioPlayer` prop, auto-generated from its TypeScript types.
 - A docked player is a `region` named by `label`, not a toolbar: every control keeps its own tab
   stop and the seek rail keeps its arrow keys. A hidden player is `inert`, so nothing invisible is
   focusable, and closing returns focus to the control that opened it. Escape does not close it.
-- `loading` is announced once through a polite live region; `error` is a `role="alert"` line in
+- `loading` is announced once through a polite live region (buffering is not announced), and the
+  play button carries `aria-busy` while it shows the spinner; `error` is a `role="alert"` line in
   the `-text` ink, with the retry as a separate button after it.
 
 <StatesTested name="audio-player" />

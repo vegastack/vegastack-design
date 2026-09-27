@@ -176,16 +176,66 @@ export function audioPlayerLazySource(): ReactNode {
   );
 }
 
+function StateCaption({ children }: { children: ReactNode }): ReactNode {
+  return <p className="text-xs text-muted-foreground">{children}</p>;
+}
+
+// Buffering after play shows the same spinner as `loading`; this toggle stands in for the media's
+// own `waiting` event so the state can be seen while the clip plays.
+function AudioPlayerBufferingDemo(): ReactNode {
+  const [buffering, setBuffering] = useState(false);
+  return (
+    <div className="flex flex-col gap-2">
+      <AudioPlayer
+        src={SAMPLE_AUDIO}
+        label="Standup recording"
+        title="Standup"
+        loading={buffering}
+      />
+      <div>
+        <Button
+          variant="outline"
+          size="sm"
+          aria-pressed={buffering}
+          onClick={() => setBuffering((value) => !value)}
+        >
+          {buffering ? "Stop buffering" : "Simulate buffering"}
+        </Button>
+      </div>
+    </div>
+  );
+}
+
 export function audioPlayerStates(): ReactNode {
   return (
     <Wrapper>
       <div className="flex w-full max-w-3xl flex-col gap-4">
+        <StateCaption>Idle — press play to see the playing state.</StateCaption>
+        <AudioPlayer
+          src={SAMPLE_AUDIO}
+          label="Planning recording"
+          title="Planning"
+        />
+        <StateCaption>
+          Loading — the play button shows a spinner; nothing else moves.
+        </StateCaption>
         <AudioPlayer
           src={SAMPLE_AUDIO}
           label="Interview recording"
           title="Interview"
           loading
         />
+        <StateCaption>
+          Buffering — the same spinner, while playing.
+        </StateCaption>
+        <AudioPlayerBufferingDemo />
+        <StateCaption>Lazy source — resolving on the first play.</StateCaption>
+        <AudioPlayer
+          src={resolveSignedUrl}
+          label="Retro recording"
+          title="Retro"
+        />
+        <StateCaption>Error</StateCaption>
         <AudioPlayer
           src={SAMPLE_AUDIO}
           label="Board meeting recording"

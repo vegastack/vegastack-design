@@ -12283,6 +12283,7 @@
         "@vegastack/button",
         "@vegastack/dropdown-menu",
         "@vegastack/slider",
+        "@vegastack/spinner",
         "@vegastack/tooltip"
       ],
       "files": [
