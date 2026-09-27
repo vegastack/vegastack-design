@@ -1,4 +1,4 @@
-// @vegastack checkbox@0.23.48 sha256-MX5OFsdvcMzP+SShdCNiL8/qEx0elVyh74irSFq2Q+I=
+// @vegastack checkbox@0.23.49 sha256-ZXnhiAbTVuJ9zYUVjDdii9rqTkTEcJ0NWwJgKnNHDeI=
 
 "use client";
 
