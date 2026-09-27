@@ -412,6 +412,54 @@ test("with an input in the row, drag starts only from the handle", async () => {
   row.dispatchEvent(new DragEvent("dragend", { bubbles: true }));
 });
 
+test("the drag image is the row alone, even with a fixed-position descendant", async () => {
+  // A Base UI Checkbox without a `name` renders its hidden input like this: fixed at the
+  // viewport's top-left. The browser's own image of the row would stretch to reach it.
+  await render(
+    <Controlled
+      renderItem={(item) => (
+        <span>
+          {item.label}
+          <input
+            type="checkbox"
+            aria-hidden
+            tabIndex={-1}
+            style={{ position: "fixed", top: 0, left: 0, width: 1, height: 1 }}
+          />
+        </span>
+      )}
+    />,
+  );
+  const spy = vi.spyOn(DataTransfer.prototype, "setDragImage");
+  try {
+    const row = document.querySelector<HTMLElement>(
+      '[data-drag-item="alpha"]',
+    )!;
+    const handle = row.querySelector<HTMLElement>(
+      '[data-slot="sortable-list-handle"]',
+    )!;
+    startDragAt(row, handle);
+    await expect.poll(() => spy.mock.calls.length).toBeGreaterThan(0);
+    const image = spy.mock.calls[0]![0] as HTMLElement;
+    expect(image).not.toBe(row);
+    const bounds = [image, ...image.querySelectorAll("*")].map((el) =>
+      el.getBoundingClientRect(),
+    );
+    const rowRect = row.getBoundingClientRect();
+    const width =
+      Math.max(...bounds.map((b) => b.right)) -
+      Math.min(...bounds.map((b) => b.left));
+    const height =
+      Math.max(...bounds.map((b) => b.bottom)) -
+      Math.min(...bounds.map((b) => b.top));
+    expect(width).toBeCloseTo(rowRect.width, 0);
+    expect(height).toBeCloseTo(rowRect.height, 0);
+    row.dispatchEvent(new DragEvent("dragend", { bubbles: true }));
+  } finally {
+    spy.mockRestore();
+  }
+});
+
 /* The harness compiles no Tailwind, so the grid's `grid-cols-[repeat(auto-fill,…)]` is mirrored
    1:1 as a fixed three-column track list (testing.md § Style-mirror): the hook measures the column
    count from where the rows actually wrap, which is what this proves. */

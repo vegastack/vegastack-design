@@ -17486,7 +17486,7 @@
         "whenToUse": "Any reorder-by-drag surface — sortable lists, wrapped tile grids (`columns` for row-aware ↑/↓), board cards, a future bespoke drag surface — where pointer, keyboard move mode, announcements, and server-refusable drops must all work from one API.",
         "whenNotToUse": "File drag-in (use-file-drop), resizing panes (Resizable), or single-axis value dragging (Slider).",
         "version": "0.23.63",
-        "integrity": "sha256-FxQhG+OEDhE+4ocSbB56gSSqz1LaSoVuusaTpuoV7HQ="
+        "integrity": "sha256-ju5nK0A0Imwo8nO8A573aEtC/XLy3tZaHppbT0S3o6I="
       }
     },
     {
