@@ -1,4 +1,4 @@
-// @vegastack use-drag-reorder@0.23.63 sha256-FxQhG+OEDhE+4ocSbB56gSSqz1LaSoVuusaTpuoV7HQ=
+// @vegastack use-drag-reorder@0.23.63 sha256-ju5nK0A0Imwo8nO8A573aEtC/XLy3tZaHppbT0S3o6I=
 
 "use client";
 
@@ -13,6 +13,8 @@ import {
   monitorForElements,
 } from "@atlaskit/pragmatic-drag-and-drop/adapter/element-adapter";
 import { combine } from "@atlaskit/pragmatic-drag-and-drop/utils/combine";
+import { preserveOffsetOnSource } from "@atlaskit/pragmatic-drag-and-drop/element/preserve-offset-on-source";
+import { setCustomNativeDragPreview } from "@atlaskit/pragmatic-drag-and-drop/element/set-custom-native-drag-preview";
 import { attachClosestEdge } from "@atlaskit/pragmatic-drag-and-drop-hitbox/closest-edge/attach-closest-edge";
 import { extractClosestEdge } from "@atlaskit/pragmatic-drag-and-drop-hitbox/closest-edge/extract-closest-edge";
 import type { Edge } from "@atlaskit/pragmatic-drag-and-drop-hitbox/types";
@@ -42,8 +44,10 @@ not own is implemented here, because it must match this system's interaction voi
   need it.
 
 Deliberately NOT done here:
-- No DOM, no styling, no drag preview chrome. Consumers style off the returned state
-  (`draggingId`, `closestEdge`, `pending`) with `data-*` attributes.
+- No styling, no drag preview chrome. Consumers style off the returned state
+  (`draggingId`, `closestEdge`, `pending`) with `data-*` attributes. The one DOM the hook
+  makes is the native drag image: a plain copy of the item, clipped to the item's box, so a
+  descendant positioned outside it (a Checkbox's fixed hidden input) cannot stretch the image.
 - No optimistic insertion. The host owns ordering; optimistic UI is host state.
 - No auto-scroll in `useDragReorder`. `edgeScroll` (below) is the helper `Board` calls each
   frame of a live drag.
@@ -216,6 +220,39 @@ export interface UseDragReorderReturn {
    * (moves land with `input: "menu"`).
    */
   requestMove: (move: Omit<DragReorderMove, "input">) => void;
+}
+
+/**
+ * Mount a copy of `element` into Pragmatic's preview `container`, at the item's own size and in
+ * its inherited type, as the native drag image. The copy's box is a containing block for fixed
+ * and absolute descendants (`contain: layout`) and clips at its edges, so nothing inside it can
+ * stretch the image past the item.
+ */
+function renderItemPreview(element: HTMLElement, container: HTMLElement) {
+  const rect = element.getBoundingClientRect();
+  const inherited = element.parentElement
+    ? getComputedStyle(element.parentElement)
+    : null;
+  const copy = element.cloneNode(true) as HTMLElement;
+  // The copy is not a second item: no id to collide, no drag or drop hooks to find.
+  for (const node of [copy, ...copy.querySelectorAll<HTMLElement>("[id]")])
+    node.removeAttribute("id");
+  copy.removeAttribute("data-drag-item");
+  copy.removeAttribute("draggable");
+  Object.assign(copy.style, {
+    width: `${rect.width}px`,
+    height: `${rect.height}px`,
+    margin: "0",
+    contain: "layout paint",
+    boxSizing: "border-box",
+    ...(inherited && {
+      color: inherited.color,
+      font: inherited.font,
+      direction: inherited.direction,
+    }),
+  });
+  container.append(copy);
+  return () => copy.remove();
 }
 
 /** Locate an id across the lists. */
@@ -438,6 +475,20 @@ export function useDragReorder({
           element,
           dragHandle: handleElements.current.get(`${container}:${id}`),
           canDrag: () => !pointerDisabledRef.current && !isDisabled(id),
+          // The browser sizes its own drag image from the item's box INCLUDING every
+          // descendant's box — and a Base UI Checkbox or Switch without a `name` renders its
+          // hidden input `position: fixed` at the viewport's top-left, which stretched the
+          // image of a row with a "Required" checkbox to everything between the page's
+          // corner and the row. The preview is a copy of the item alone instead.
+          onGenerateDragPreview: ({ nativeSetDragImage, location }) =>
+            setCustomNativeDragPreview({
+              nativeSetDragImage,
+              getOffset: preserveOffsetOnSource({
+                element,
+                input: location.current.input,
+              }),
+              render: ({ container }) => renderItemPreview(element, container),
+            }),
           getInitialData: () => ({
             instance: instanceToken.current,
             id,

@@ -10,6 +10,7 @@ import {
 import { Trash2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Image } from "@/components/ui/image";
 import { Input } from "@/components/ui/input";
 import {
@@ -110,6 +111,9 @@ export function sortableListRemove(): ReactNode {
     { id: "billing", label: "Billing" },
     { id: "audit", label: "Audit log" },
   ]);
+  const [required, setRequired] = useState<ReadonlySet<string>>(
+    () => new Set(["overview"]),
+  );
   return (
     <Wrapper className="block">
       <div className="mx-auto w-full max-w-sm">
@@ -118,6 +122,23 @@ export function sortableListRemove(): ReactNode {
           items={items}
           renderItem={(item) => (
             <span className="min-w-0 truncate">{item.label}</span>
+          )}
+          renderActions={(item) => (
+            <label className="flex items-center gap-2 text-sm">
+              <Checkbox
+                checked={required.has(item.id)}
+                aria-label={`Required ${item.label ?? item.id}`}
+                onCheckedChange={(on) =>
+                  setRequired((prev) => {
+                    const next = new Set(prev);
+                    if (on === true) next.add(item.id);
+                    else next.delete(item.id);
+                    return next;
+                  })
+                }
+              />
+              <span aria-hidden>Required</span>
+            </label>
           )}
           onRemove={(item) =>
             setItems((prev) => prev.filter((i) => i.id !== item.id))
