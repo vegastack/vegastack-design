@@ -1,4 +1,4 @@
-// @vegastack auto-save-input@0.23.49 sha256-4nrr/J+Jbn9e9KjzwiPBW+w3Yc1nzUfkhV9W/oVn/34=
+// @vegastack auto-save-input@0.23.50 sha256-ihspDvUOAVSD7jLUJR6tnkuon39OutHyo+Gh9sTvZ50=
 
 "use client";
 
