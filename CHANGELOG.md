@@ -9,6 +9,19 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.23.56] — September 27, 2026
+
+<!-- assembled from 1 changeset: 1b4a4bb22e3c -->
+
+### 🔧 Changed components
+
+- Editable values in a `PropertyValue` line up exactly with read-only ones: an inline `EditableCell` there keeps the plain values' left edge, baseline and row height at rest, on hover and while editing, with a compact tint (6px × 2px, hung outside by negative margins) instead of an offset 10px × 6px box. A ghost `RecordChip` (the property pickers) now draws the same compact 24px box, so every editable property value reads the same.
+  [`baf9d99`](https://github.com/VegaStack/vegastack-design/commit/baf9d99)
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.23.55 → 0.23.56.
+
 ## [0.23.55] — September 27, 2026
 
 <!-- assembled from 1 changeset: 667d66340289 -->
