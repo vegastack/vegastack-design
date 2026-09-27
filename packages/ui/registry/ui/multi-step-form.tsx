@@ -1,4 +1,4 @@
-// @vegastack multi-step-form@0.23.56 sha256-YNP+9kPSkgRIGxsiY1dyAWz4VBhKQhAmK4qI2XsLnaI=
+// @vegastack multi-step-form@0.23.56 sha256-6s9vEHQ3COhNuqwjTkcxPK1sxp5IVPaQZUoeC3+D63Y=
 
 "use client";
 
@@ -151,6 +151,16 @@ export interface MultiStepFormStepSpec {
    */
   canGoNext?: boolean;
   /**
+   * A synchronous, side-effect-free check of the step's answers, run before `beforeNext`.
+   * Return `true` to pass or a refusal. Unlike a guard's refusal, one raised by `validate`
+   * CLEARS ITSELF: while it shows, the check is re-read on every render, so the message and
+   * the rail's error state go away the moment the answers become valid — the user never has
+   * to press Next again just to find out they fixed it. Keep it cheap and pure; anything that
+   * saves or calls a server belongs in `beforeNext`.
+   * @default undefined
+   */
+  validate?: (context: MultiStepFormGuardContext) => MultiStepFormGuardResult;
+  /**
    * Runs before the flow leaves this step forwards. Return `true` to pass, or a sentence to
    * refuse. On the last step this is the submit check.
    * @default undefined
@@ -198,6 +208,17 @@ interface ResolvedRefusal extends Required<
   id: string;
   tone: "soft" | "error";
   title?: string;
+  /** Raised by the step's `validate`, so it clears itself once that check passes. */
+  fromValidate?: boolean;
+}
+
+function resolveRefusal(
+  id: string,
+  result: Exclude<MultiStepFormGuardResult, true>,
+): ResolvedRefusal {
+  return typeof result === "string"
+    ? { id, reason: result, tone: "error" }
+    : { id, tone: "error", ...result };
 }
 
 interface MultiStepFormContextValue {
@@ -371,6 +392,15 @@ export interface MultiStepFormProps extends Omit<
    */
   skipLabel?: string;
   /**
+   * What a phone shows for a flow whose steps can be jumped between. `sections` replaces the
+   * rail with a tappable section list (and opens a fully satisfied record on it); `stepper`
+   * keeps the `Stepper`, which collapses to the current step's label, "Step n of N" and a
+   * progress bar, so the phone reads the same as a wide screen. A flow with nothing to jump
+   * to always shows the stepper.
+   * @default 'sections'
+   */
+  mobileNav?: "sections" | "stepper";
+  /**
    * `panel` is the shape a wizard takes inside a `Dialog`, `Sheet` or `Drawer`: the nav and
    * the action row hold their place while the step body becomes the one scrolling region.
    * `flow` lets the whole thing grow down the page.
@@ -457,6 +487,7 @@ export function MultiStepForm({
   nextLabel = "Continue",
   submitLabel = "Submit",
   skipLabel = "Skip",
+  mobileNav = "sections",
   layout = "flow",
   dirty = false,
   onExit,
@@ -647,6 +678,16 @@ export function MultiStepForm({
       const guard =
         direction === "next" ? current.beforeNext : current.beforeBack;
 
+      if (direction === "next" && current.validate) {
+        const checked = current.validate(context);
+        if (checked !== true) {
+          const resolved = resolveRefusal(current.id, checked);
+          setRefusal({ ...resolved, fromValidate: true });
+          if (resolved.tone === "error") setFailedId(current.id);
+          return;
+        }
+      }
+
       const commit = () => {
         setRefusal(null);
         if (direction === "back") {
@@ -680,14 +721,7 @@ export function MultiStepForm({
           commit();
           return;
         }
-        const resolved: ResolvedRefusal =
-          typeof result === "string"
-            ? { id: current.id, reason: result, tone: "error" }
-            : {
-                id: current.id,
-                tone: "error",
-                ...result,
-              };
+        const resolved = resolveRefusal(current.id, result);
         setRefusal(resolved);
         // A soft gate is "not yet", not "broken", so it leaves the rail alone.
         if (resolved.tone === "error") setFailedId(current.id);
@@ -748,6 +782,34 @@ export function MultiStepForm({
     [reachable, sealedIndex, setCurrent, visible],
   );
 
+  // A refusal `validate` raised re-reads that check on every render: it clears itself (and
+  // the rail's error mark) as soon as the answers pass, and follows the new reason while
+  // they still don't — no second press of Next just to learn the fix worked.
+  React.useEffect(() => {
+    if (!refusal?.fromValidate || !current || refusal.id !== current.id) return;
+    const checked = current.validate?.({
+      id: current.id,
+      index: currentIndex,
+      total: visible.length,
+      direction: "next",
+    });
+    if (checked === undefined || checked === true) {
+      setRefusal(null);
+      setFailedId((id) => (id === current.id ? null : id));
+      return;
+    }
+    const next = resolveRefusal(current.id, checked);
+    if (
+      next.reason !== refusal.reason ||
+      next.tone !== refusal.tone ||
+      next.title !== refusal.title
+    ) {
+      setRefusal({ ...next, fromValidate: true });
+    }
+    // `current` is rebuilt with the host's answers on every host render, so this re-reads the
+    // check exactly when they may have changed.
+  }, [refusal, current, currentIndex, visible.length]);
+
   /* ----------------------------------------------------------------- rail */
 
   const stepperSteps = React.useMemo<StepperStep[]>(
@@ -785,7 +847,8 @@ export function MultiStepForm({
   const resolvedNavigable =
     navigable === "auto" ? anyJumpTarget : navigable === true;
 
-  const usesSectionList = isMobile && resolvedNavigable;
+  const usesSectionList =
+    isMobile && resolvedNavigable && mobileNav === "sections";
   // Editing a record that is already complete opens on the section list; a fresh flow opens
   // on its first step. Same predicate, one more time.
   const [overview, setOverview] = React.useState<boolean | undefined>(
@@ -1202,7 +1265,8 @@ export function MultiStepFormSkip({
  * `MultiStepFormExit` — a control that leaves the flow, asking first when the current step
  * holds unsaved work. Put it wherever leaving belongs: a dialog's Cancel, a page's "Back to
  * settings". With nothing dirty it simply calls `onExit`; a confirmation nobody needs is the
- * fastest way to teach people to dismiss confirmations unread.
+ * fastest way to teach people to dismiss confirmations unread. It is a ghost button by
+ * default: in the action row it sits at the far start, before Back, as the quietest control.
  *
  * @example
  * <MultiStepFormExit>Cancel</MultiStepFormExit>
@@ -1215,7 +1279,7 @@ export function MultiStepFormExit({
   const { requestExit, dirty } = useMultiStepFormContext("MultiStepFormExit");
   return (
     <Button
-      variant="secondary"
+      variant="ghost"
       data-slot="multi-step-form-exit"
       data-dirty={dirty ? "" : undefined}
       onClick={requestExit}
@@ -1237,13 +1301,32 @@ export interface MultiStepFormActionsProps extends React.ComponentPropsWithRef<"
    * @default false
    */
   sticky?: boolean | "narrow";
+  /**
+   * Rendered at the far start, before Back — the place for leaving the flow
+   * (`<MultiStepFormExit />`). Ignored when you pass children.
+   * @default undefined
+   */
+  start?: React.ReactNode;
+  /**
+   * A quiet status at the end of the row, just before the secondary action — the place for
+   * an auto-save's "Saving…" / "Saved" (`AutoSaveIndicator`). Ignored when you pass children.
+   * @default undefined
+   */
+  status?: React.ReactNode;
+  /**
+   * A secondary action between the status and Next — "Save draft", or "Done" in a flow that
+   * saves as you go. Ignored when you pass children.
+   * @default undefined
+   */
+  secondary?: React.ReactNode;
 }
 
 /**
- * `MultiStepFormActions` — the refusal, then the action row: back at the far start, forward
- * at the far end, with skip beside forward on an optional step. Pass children to compose the
- * row yourself; the refusal is rendered either way. `sticky` pins both to the bottom of the
- * scroll area on a long step.
+ * `MultiStepFormActions` — the refusal, then the action row. The row has one order
+ * everywhere: `start` (Cancel) and Back at the far start; then, at the far end, `status`
+ * ("Saving…" / "Saved"), `secondary` (Save draft or Done), Skip on an optional step, and
+ * Next. Pass children to compose the row yourself; the refusal is rendered either way.
+ * `sticky` pins both to the bottom of the scroll area on a long step.
  *
  * @example
  * <MultiStepFormActions />
@@ -1251,11 +1334,22 @@ export interface MultiStepFormActionsProps extends React.ComponentPropsWithRef<"
  * @example
  * // A long step on a phone: the actions stay in reach
  * <MultiStepFormActions sticky="narrow" />
+ *
+ * @example
+ * // A flow that saves as you go
+ * <MultiStepFormActions
+ *   start={<MultiStepFormExit />}
+ *   status={<AutoSaveIndicator status={status} />}
+ *   secondary={<Button variant="outline">Done</Button>}
+ * />
  */
 export function MultiStepFormActions({
   className,
   children,
   sticky = false,
+  start,
+  status,
+  secondary,
   ref,
   ...props
 }: MultiStepFormActionsProps) {
@@ -1381,12 +1475,23 @@ export function MultiStepFormActions({
       ) : null}
       <div
         data-slot="multi-step-form-action-row"
-        className="flex min-w-0 flex-wrap items-center justify-end gap-2"
+        className="flex min-w-0 flex-wrap items-center justify-between gap-2"
       >
         {children ?? (
           <>
-            <MultiStepFormBack />
-            <div className="flex items-center gap-2">
+            <div
+              data-slot="multi-step-form-action-start"
+              className="flex items-center gap-2"
+            >
+              {start}
+              <MultiStepFormBack />
+            </div>
+            <div
+              data-slot="multi-step-form-action-end"
+              className="ms-auto flex min-w-0 flex-wrap items-center justify-end gap-2"
+            >
+              {status}
+              {secondary}
               <MultiStepFormSkip />
               <MultiStepFormNext />
             </div>

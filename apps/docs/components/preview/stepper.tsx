@@ -244,3 +244,38 @@ export function stepperCollapsed(): ReactNode {
     </Wrapper>
   );
 }
+
+export function stepperScroll(): ReactNode {
+  const labels = [
+    "Family",
+    "Details",
+    "Specifications",
+    "Files",
+    "Accessories",
+    "Review",
+  ];
+  const [current, setCurrent] = useState(2);
+  return (
+    <Wrapper className="block">
+      <div className="mx-auto w-full max-w-md">
+        <Stepper
+          aria-label="Product"
+          orientation="horizontal"
+          collapse={false}
+          navigable
+          onStepSelect={(id) => setCurrent(labels.indexOf(id))}
+          steps={labels.map((label, index) => ({
+            id: label,
+            label,
+            state:
+              index < current
+                ? "complete"
+                : index === current
+                  ? "current"
+                  : "upcoming",
+          }))}
+        />
+      </div>
+    </Wrapper>
+  );
+}

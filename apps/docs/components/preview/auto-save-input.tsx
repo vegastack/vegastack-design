@@ -4,7 +4,13 @@ import { useState, type ReactNode } from "react";
 import { Wrapper } from "./wrapper";
 import { Button } from "@/components/ui/button";
 // Copied INTO apps/docs via `shadcn add @vegastack/auto-save-input` (dogfoods the registry) → auto-scanned.
-import { AutoSaveInput } from "@/components/ui/auto-save-input";
+import {
+  AutoSaveIndicator,
+  AutoSaveInput,
+  useAutoSave,
+} from "@/components/ui/auto-save-input";
+import { Field, FieldLabel } from "@/components/ui/field";
+import { Input } from "@/components/ui/input";
 
 const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -183,6 +189,71 @@ function AutoSaveInputControlledDemo(): ReactNode {
       <p className="text-center text-sm text-muted-foreground">
         Editing saves after the debounce; switching records resets the baseline.
       </p>
+    </Wrapper>
+  );
+}
+
+/** Every `AutoSaveIndicator` status, side by side (`idle` renders an empty live region). */
+export function autoSaveIndicatorStates(): ReactNode {
+  return (
+    <Wrapper className="flex-wrap gap-6">
+      <AutoSaveIndicator status="saving" />
+      <AutoSaveIndicator status="saved" />
+      <AutoSaveIndicator status="error" />
+      <AutoSaveIndicator status="conflict" />
+    </Wrapper>
+  );
+}
+
+/**
+ * `useAutoSave` over a whole form: edit either field and pause 600ms. Only the changed field
+ * is sent, one save runs at a time, and the version advances with each save.
+ */
+export function autoSaveForm(): ReactNode {
+  const [entries, setEntries] = useState({ name: "Orbit", city: "Pune" });
+  const [log, setLog] = useState<string[]>([]);
+  const autosave = useAutoSave({
+    value: entries,
+    version: 1,
+    onSave: async (changes, { version }) => {
+      await wait(800);
+      setLog((l) => [
+        `v${version} → v${(version ?? 0) + 1}: ${Object.keys(changes).join(", ")}`,
+        ...l.slice(0, 2),
+      ]);
+      return { version: (version ?? 0) + 1 };
+    },
+  });
+  return (
+    <Wrapper className="flex-col items-stretch gap-4">
+      <div className="grid gap-4 sm:grid-cols-2">
+        <Field>
+          <FieldLabel htmlFor="asf-name">Name</FieldLabel>
+          <Input
+            id="asf-name"
+            value={entries.name}
+            onChange={(e) =>
+              setEntries((v) => ({ ...v, name: e.target.value }))
+            }
+          />
+        </Field>
+        <Field>
+          <FieldLabel htmlFor="asf-city">City</FieldLabel>
+          <Input
+            id="asf-city"
+            value={entries.city}
+            onChange={(e) =>
+              setEntries((v) => ({ ...v, city: e.target.value }))
+            }
+          />
+        </Field>
+      </div>
+      <div className="flex items-center justify-between gap-4">
+        <AutoSaveIndicator status={autosave.status} />
+        <span className="text-xs text-muted-foreground tabular-nums">
+          {log[0] ?? "No saves yet"}
+        </span>
+      </div>
     </Wrapper>
   );
 }

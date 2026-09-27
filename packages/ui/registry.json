@@ -1628,6 +1628,30 @@
       }
     },
     {
+      "name": "field-grid",
+      "type": "registry:ui",
+      "title": "Field Grid",
+      "description": "A responsive one-to-three column grid of Fields by container width, plus FieldChoices: radios or checkboxes in a wrapping row.",
+      "categories": ["form"],
+      "dependencies": [
+        "@vegastack/design@^0.7.49",
+        "@vegastack/design-tokens@^0.7.49"
+      ],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/field-grid.tsx",
+          "type": "registry:ui",
+          "target": "@ui/field-grid.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "Forms with many short fields (specifications, settings) and short choice sets that read better side by side.",
+        "whenNotToUse": "A single-column dialog form (FieldGroup) or label/value read-only details (PropertyList).",
+        "version": "0.23.56"
+      }
+    },
+    {
       "name": "filter-bar",
       "type": "registry:ui",
       "title": "Filter Bar",

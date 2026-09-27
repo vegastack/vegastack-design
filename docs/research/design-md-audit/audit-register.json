@@ -2,10 +2,10 @@
   "schemaVersion": 1,
   "kind": "vegastack-zero-gap-audit-register",
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "6317df944027524fc7150ff684d95f3817b7be9a611d3bd84ddece54adc6a963",
+  "contractSha256": "3aded41f07f263959a2ff547fc549628d23964099b2b16b0a225b673bd5ee609",
   "expectedCounts": {
-    "totalRegistryItems": 694,
-    "components": 131,
+    "totalRegistryItems": 695,
+    "components": 132,
     "animatedIcons": 467,
     "hooks": 13,
     "blocks": 11,
@@ -605,6 +605,17 @@
         "packages/ui/registry/ui/field.tsx"
       ],
       "docsSlug": "/docs/components/field",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "field-grid",
+      "inventoryClass": "component",
+      "wave": "Forms/editing",
+      "family": "form",
+      "sourceFiles": [
+        "packages/ui/registry/ui/field-grid.tsx"
+      ],
+      "docsSlug": "/docs/components/field-grid",
       "contractStatus": "reconciled"
     },
     {

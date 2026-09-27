@@ -33,8 +33,10 @@
 #   API-28: Attachment's widened scope (DS-44, approved by MK 24-09-2026) — file and media tiles
 #     on any surface, not only chat. Four hunks:
 #     - `AttachmentGroup` takes `layout?: "scroll" | "grid"` (default `"scroll"`, upstream's row
-#       unchanged) and reflects it as `data-layout`; `"grid"` wraps the tiles into equal
-#       `repeat(auto-fill, minmax(--spacing(32), 1fr))` columns and lets each tile fill its cell.
+#       unchanged) and reflects it as `data-layout`; `"grid"` lays the tiles out at listing
+#       size (MK 27-09-2026) — one, two or three equal columns, each at least 18rem and at
+#       least a third of the row, so the counts match a `DataList` card grid — lets each tile
+#       fill its cell, and gives the media a 16:9 frame like a `MediaCard`.
 #     - a new `AttachmentProgress` part composes `progress`'s `ProgressTrack`/`ProgressIndicator`
 #       inside Base UI's `Progress.Root`, takes its own full-width row in the tile, is named
 #       "Upload progress" unless `aria-label` says otherwise, and announces `aria-valuetext`
@@ -49,7 +51,7 @@
 #               reflows the file, and `registry-stamp.mjs` writes the provenance header the
 #               three-copy model needs (DOC-1); those hunks carry no decision of their own.
 diff --git a/attachment.tsx b/attachment.tsx
-index f8ca4a8..63e27d1 100644
+index f8ca4a8..0d7f072 100644
 --- a/attachment.tsx
 +++ b/attachment.tsx
 @@ -1,13 +1,21 @@
@@ -299,7 +301,7 @@ index f8ca4a8..63e27d1 100644
 -        "flex min-w-0 scroll-fade-x snap-x snap-mandatory scroll-px-1 scrollbar-none gap-3 overflow-x-auto overscroll-x-contain py-1 *:data-[slot=attachment]:flex-none *:data-[slot=attachment]:snap-start",
 -        className
 +        layout === "grid"
-+          ? "grid min-w-0 grid-cols-[repeat(auto-fill,minmax(--spacing(32),1fr))] gap-3 py-1 *:data-[slot=attachment]:w-full *:data-[slot=attachment]:min-w-0"
++          ? "grid min-w-0 grid-cols-[repeat(auto-fill,minmax(min(100%,max(--spacing(72),calc((100%_-_var(--spacing)*6)/3))),1fr))] gap-3 py-1 *:data-[slot=attachment]:w-full *:data-[slot=attachment]:min-w-0 *:data-[slot=attachment]:data-[orientation=vertical]:flex-nowrap **:data-[slot=attachment-media]:aspect-video [&_[data-slot=attachment-media]_img]:aspect-video"
 +          : "flex min-w-0 scroll-fade-x snap-x snap-mandatory scroll-px-1 scrollbar-none gap-3 overflow-x-auto overscroll-x-contain py-1 *:data-[slot=attachment]:flex-none *:data-[slot=attachment]:snap-start",
 +        className,
        )}

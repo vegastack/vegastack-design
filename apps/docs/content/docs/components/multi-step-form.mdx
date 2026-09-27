@@ -155,6 +155,32 @@ example also carries `dirty` — type into the first field, then press Cancel.
   file="components/preview/multi-step-form.tsx"
 />
 
+### Steps across the top, checks that clear themselves
+
+`<MultiStepFormNav orientation="horizontal" />` puts the rail above the steps — the layout for a
+full-page form, with no side column. A step's `validate` is a pure, synchronous check run before
+`beforeNext`; its refusal re-reads the check on every render and clears itself (with the rail's
+error mark) as soon as the answers pass. `start` puts Cancel (`MultiStepFormExit`, a ghost
+button) before Back at the far start of the action row.
+
+<ComponentPreview
+  name="multiStepFormTopValidate"
+  file="components/preview/multi-step-form.tsx"
+/>
+
+### Saving as you go
+
+For a record that already exists, save each change instead of asking for Save: `useAutoSave`
+from `auto-save-input` sends the changed fields after a pause, and the action row's `status` and
+`secondary` slots carry an `AutoSaveIndicator` and a Done button, in that order before Next.
+`mobileNav="stepper"` keeps the rail on a phone, where it collapses to the step's label,
+"Step n of N" and a progress bar, instead of the section list.
+
+<ComponentPreview
+  name="multiStepFormAutoSave"
+  file="components/preview/multi-step-form.tsx"
+/>
+
 ### Leaving with unsaved work
 
 `MultiStepFormExit` leaves the flow, asking first when `dirty` says the current step holds

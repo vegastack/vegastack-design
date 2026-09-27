@@ -1,0 +1,123 @@
+---
+title: Field Grid
+description: A responsive one-to-three column grid of Fields by container width, and FieldChoices — radios or checkboxes in a wrapping row.
+audience: public
+registry: field-grid
+status: stable
+since: 0.23.56
+a11y: layout only; Field, FieldSet and RadioGroup keep semantics
+preview: fieldGrid
+---
+
+## Install
+
+<InstallSteps name="field-grid" />
+
+## Usage
+
+```tsx
+import {
+  FieldChoices,
+  FieldGrid,
+  FieldGridItem,
+} from "@/components/ui/field-grid";
+
+<FieldGrid>
+  {specs.map((spec) => (
+    <Field key={spec.id}>
+      <FieldLabel htmlFor={spec.id}>{spec.name}</FieldLabel>
+      <Input id={spec.id} />
+    </Field>
+  ))}
+</FieldGrid>;
+
+<FieldSet>
+  <FieldLegend variant="label">Type</FieldLegend>
+  <FieldChoices orientation="horizontal">
+    <RadioGroup value={type} onValueChange={setType}>
+      …
+    </RadioGroup>
+  </FieldChoices>
+</FieldSet>;
+```
+
+## Anatomy
+
+<Anatomy name="field-grid" />
+
+## Examples
+
+### Three columns
+
+The default grid: one column below 28rem of its container's width, two from 28rem and three
+from 48rem. It follows the container, not the viewport, so the same form stays one column in a
+side panel. A field holding a `Textarea` takes the whole row by itself.
+
+<ComponentPreview name="fieldGrid" file="components/preview/field-grid.tsx" />
+
+### Two columns
+
+`columns={2}` stops at two. `FieldGridItem span="full"` gives any other content the whole row.
+
+<ComponentPreview
+  name="fieldGridTwoColumns"
+  file="components/preview/field-grid.tsx"
+/>
+
+### Choices in a row
+
+`FieldChoices orientation="horizontal"` sets a short set of radios (a `RadioGroup` placed
+directly inside it) or checkbox fields side by side, wrapping onto the next line when the row is
+full. Use it for two to five short options.
+
+<ComponentPreview
+  name="fieldChoicesHorizontal"
+  file="components/preview/field-grid.tsx"
+/>
+
+### Choices in a column
+
+The default `vertical` stack, for longer labels or more options.
+
+<ComponentPreview
+  name="fieldChoicesVertical"
+  file="components/preview/field-grid.tsx"
+/>
+
+## API Reference
+
+<ApiTable
+  path="../../packages/ui/registry/ui/field-grid.tsx"
+  name="FieldGridProps"
+/>
+
+### FieldGridItem
+
+<ApiTable
+  path="../../packages/ui/registry/ui/field-grid.tsx"
+  name="FieldGridItemProps"
+/>
+
+### FieldChoices
+
+<ApiTable
+  path="../../packages/ui/registry/ui/field-grid.tsx"
+  name="FieldChoicesProps"
+/>
+
+## Accessibility
+
+- Layout only: the grid adds no roles. Each `Field` keeps its label, and a set of choices keeps
+  its `FieldSet` and `FieldLegend`, which name the group for assistive tech.
+- Reading and tab order follow the source order in every column count.
+- Radio targets keep their 24px hit areas side by side: the row gap is wide enough that the
+  invisible hit areas of neighbouring choices touch without overlapping.
+
+<StatesTested name="field-grid" />
+
+## Do / Don't
+
+<DoDont
+  do="Use FieldGrid for a long list of short fields (specifications, settings) and FieldChoices horizontal for two to five short options."
+  dont="Put long labels side by side, or use a grid inside a narrow dialog — a FieldGroup reads better there."
+/>

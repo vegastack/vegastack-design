@@ -879,7 +879,7 @@ test("API-28: AttachmentGroup defaults to the scrolling row and reflects its lay
 });
 
 test.each([320, 1280])(
-  'API-28: layout="grid" wraps tiles into equal columns and never scrolls sideways at %ipx',
+  'API-28: layout="grid" wraps tiles into equal listing-size columns and never scrolls sideways at %ipx',
   async (width) => {
     const names = ["a.png", "b.png", "c.png", "d.png", "e.png", "f.png"];
     const screen = await render(
@@ -910,9 +910,12 @@ test.each([320, 1280])(
     const rows = new Set(
       tiles.map((tile) => Math.round(tile.getBoundingClientRect().top)),
     );
-    // Several tiles per row, and more than one row when the six do not fit across.
-    expect(rows.size).toBeLessThan(tiles.length);
-    if (width === 320) expect(rows.size).toBeGreaterThan(1);
+    // Listing-size tiles (MK 27-09-2026): one per row on a phone-width group, several per row
+    // once two 18rem columns fit, never more than three.
+    const perRow = tiles.length / rows.size;
+    if (width < 580) expect(perRow).toBe(1);
+    else expect(perRow).toBeGreaterThan(1);
+    expect(perRow).toBeLessThanOrEqual(3);
   },
 );
 
