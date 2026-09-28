@@ -21477,24 +21477,11 @@
           ],
           "cssVariables": []
         },
-        "MultiStepFormBack": {
-          "attributes": [
-            {
-              "name": "data-sealed",
-              "values": [""]
-            },
-            {
-              "name": "data-slot",
-              "values": ["multi-step-form-back"]
-            }
-          ],
-          "cssVariables": []
-        },
-        "MultiStepFormNext": {
+        "MultiStepFormSave": {
           "attributes": [
             {
               "name": "data-slot",
-              "values": ["multi-step-form-next"]
+              "values": ["multi-step-form-save"]
             }
           ],
           "cssVariables": []
@@ -25517,6 +25504,28 @@
             {
               "name": "data-slot",
               "values": ["record-list-more"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "RecordListGroup": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["record-list-group", "record-list-group-title"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "RecordDiff": {
+          "attributes": [
+            {
+              "name": "data-differs",
+              "values": [""]
+            },
+            {
+              "name": "data-slot",
+              "values": ["record-diff", "record-diff-row"]
             }
           ],
           "cssVariables": []
