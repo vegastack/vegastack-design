@@ -1,5 +1,11 @@
 # @vegastack/design-tokens
 
+## 0.7.56
+
+### Patch Changes
+
+- [#400](https://github.com/vegastack/vegastack-design/pull/400) [`f667c77`](https://github.com/vegastack/vegastack-design/commit/f667c77fb0c55695ce722c04d980235a6a3b70b3) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🔧 New theme-invariant `--scrim` / `--scrim-foreground` token pair (black and white in both themes, with `bg-scrim` / `text-scrim-foreground` utilities) for the wash a photo wears under a control. The `tile-overlay` recipe — `Attachment` tile corner actions, `SortableList`'s grid handle and actions, and `AvatarPicker`'s photo overlay — now paints `bg-scrim/40 text-scrim-foreground` (`/60` on hover and open) instead of raw `bg-black/40 text-white`, so it follows the tokens-only rule and a theme can retune every tile overlay in one place. The rendered result is unchanged.
+
 ## 0.7.49
 
 ### Patch Changes
