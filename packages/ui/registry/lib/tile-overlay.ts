@@ -1,4 +1,4 @@
-// @vegastack tile-overlay@0.23.68 sha256-pt2ViP2pUDJ/L2pihpfONVo7yDPiYbGrOYu+qL3yCTc=
+// @vegastack tile-overlay@0.23.68 sha256-JZeT5BJBklEv3ie4eulmjb5pRR2g5hfZjcClMnVf2VU=
 
 /**
  * tile-overlay — the ONE visual recipe for media tiles and the chrome that floats over them:
@@ -7,7 +7,9 @@
  * `AvatarPicker`'s photo overlay read from here, so a tile grid, a sortable gallery and a profile
  * photo all dim the same way and put their buttons in the same place.
  *
- * - `scrimClasses` — white ink on a subtle dark wash, the overlay a photo wears under a control.
+ * - `scrimClasses` — `scrim-foreground` ink on a subtle `scrim` wash, the overlay a photo wears
+ *   under a control. `--scrim` / `--scrim-foreground` are theme-invariant tokens (black and white in
+ *   both themes), because the wash lies over a photograph, not over the page.
  * - `tileOverlayButtonClasses` — the same scrim with a light blur, for an icon `Button` over an
  *   image (pass them to a `variant="ghost"` Button; `cn` replaces the ghost fills and icon ink).
  * - `tileCornerClasses.start` / `.end` — the top-left and top-right slots, inset from the tile's
@@ -21,23 +23,24 @@
  * Every class is a literal so a consumer's Tailwind scanner sees it.
  */
 
-/** The dim a photo wears under a control: white ink over a subtle dark wash. */
-export const scrimClasses = "bg-black/40 text-white";
+/** The dim a photo wears under a control: `scrim-foreground` ink over a subtle `scrim` wash. */
+export const scrimClasses = "bg-scrim/40 text-scrim-foreground";
 
 /** The group name the corner slots read hover and focus from — put it on the tile's root. */
 export const tileGroupClass = "group/tile";
 
 /**
- * An icon `Button` over an image: the scrim, a light blur, and white icon ink in every state.
+ * An icon `Button` over an image: the scrim, a light blur, and `scrim-foreground` icon ink in every
+ * state.
  * Written against the ghost variant's own selectors so `cn` replaces them rather than stacking.
  */
 export const tileOverlayButtonClasses = [
-  "bg-black/40 text-white backdrop-blur-sm",
-  "hover:bg-black/60 hover:text-white dark:hover:bg-black/60",
-  "aria-expanded:bg-black/60 aria-expanded:text-white",
-  "[&_svg:not([class*='text-']):not([data-icon-tone])]:text-white",
-  "hover:**:[svg:not([data-icon-tone])]:text-white",
-  "aria-expanded:**:[svg:not([data-icon-tone])]:text-white",
+  "bg-scrim/40 text-scrim-foreground backdrop-blur-sm",
+  "hover:bg-scrim/60 hover:text-scrim-foreground dark:hover:bg-scrim/60",
+  "aria-expanded:bg-scrim/60 aria-expanded:text-scrim-foreground",
+  "[&_svg:not([class*='text-']):not([data-icon-tone])]:text-scrim-foreground",
+  "hover:**:[svg:not([data-icon-tone])]:text-scrim-foreground",
+  "aria-expanded:**:[svg:not([data-icon-tone])]:text-scrim-foreground",
 ].join(" ");
 
 // Shown on hover or focus within the tile, while a menu from the slot is open, and always where

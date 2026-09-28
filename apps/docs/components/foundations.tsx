@@ -64,6 +64,11 @@ const COLOR_GROUPS: { label: string; tokens: string[] }[] = [
     tokens: ["media-scrim", "media-scrim-strong", "media-foreground"],
   },
   {
+    // Theme-invariant too: the wash a tile's photo wears under a corner control (`tile-overlay`).
+    label: "Photo scrim",
+    tokens: ["scrim", "scrim-foreground"],
+  },
+  {
     label: "Charts — categorical series",
     tokens: [
       "chart-1",

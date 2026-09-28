@@ -89,7 +89,9 @@ vocabulary: `skills/internal/component/references/tokens.md`. Rule by rule:
 
 - **Colour** — semantic tokens only (`bg-primary`, `text-muted-foreground`, `border-border`); no hex,
   no NUMBERED Tailwind palette. `bg-black/10` and `bg-white` pass, because they are upstream's own
-  scrim vocabulary. There is no surface ladder: `background` → `card`/`popover`/`sidebar` → `muted`
+  scrim vocabulary (the modal backdrops). Our own photo overlays read the theme-invariant `scrim` /
+  `scrim-foreground` pair (`bg-scrim/40 text-scrim-foreground`, via `tile-overlay`), never raw
+  black and white. There is no surface ladder: `background` → `card`/`popover`/`sidebar` → `muted`
   (well, track, skeleton) → `accent` (hover). `muted`, `accent` and `secondary` share one value and
   are all kept, so a consumer can retune one role without moving the others.
 - **Status colour has two inks** — `<family>-foreground` on the solid fill, `<family>-text` on the

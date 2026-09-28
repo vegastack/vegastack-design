@@ -192,9 +192,11 @@ On a vertical tile, `AttachmentActions` is an overlay slot instead of a row: the
 `side="end"` is the top-right corner — at most two icon actions, such as × remove, a ⋯ menu or
 download — and `side="start"` the top-left one, where a drag handle goes (`SortableList`'s grid puts
 its ⠿ there). Each slot is inset from the corner so its buttons sit on the image, shows on hover or
-focus within the tile and always on a touch screen, and paints an `AttachmentAction` white on a
-blurred dark scrim — the same scrim `AvatarPicker` lays over a photo, from the shared `tile-overlay`
-recipe. Leave a slot out and it is not there. A horizontal chip keeps its actions inline.
+focus within the tile and always on a touch screen, and paints an `AttachmentAction` in
+`scrim-foreground` on a blurred `scrim` wash (`bg-scrim/40`, `/60` on hover) — the same scrim
+`AvatarPicker` lays over a photo, from the shared `tile-overlay` recipe. `--scrim` and
+`--scrim-foreground` are theme-invariant tokens (black and white in both themes); retune them in
+your theme to change every tile overlay at once. Leave a slot out and it is not there. A horizontal chip keeps its actions inline.
 
 ```tsx
 <Attachment orientation="vertical" file={file}>

@@ -1,6 +1,6 @@
 {
   "$schema": "https://www.designtokens.org/schemas/2025.10/format.json",
-  "$description": "DARK overrides only. Omissions are intentional and the build asserts every key here has a light counterpart: the media-chrome trio is theme-invariant by design, and radius/font/duration/ease are theme-independent.",
+  "$description": "DARK overrides only. Omissions are intentional and the build asserts every key here has a light counterpart: the media-chrome trio and the scrim pair are theme-invariant by design, and radius/font/duration/ease are theme-independent.",
   "background": {
     "$type": "color",
     "$value": "{color.neutral.950}"
