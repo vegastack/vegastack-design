@@ -5,10 +5,12 @@ import { expect, test } from "vitest";
 import { expectNoA11yViolations } from "../../test/a11y";
 import {
   Field,
+  FieldAction,
   FieldContent,
   FieldDescription,
   FieldError,
   FieldGroup,
+  FieldHeader,
   FieldLabel,
   FieldLegend,
   FieldSeparator,
@@ -570,4 +572,35 @@ test("API-26: Base UI's own validation does not mark a control invalid without d
   // Wait for Base UI to settle the blur (it marks the field touched), then check.
   await expect.element(input).toHaveAttribute("data-touched");
   expect(input.element().hasAttribute("aria-invalid")).toBe(false);
+});
+
+test("FieldHeader holds the label and a trailing FieldAction, and the label still names the control (Header action)", async () => {
+  const screen = await render(
+    <Field>
+      <FieldHeader>
+        <FieldLabel htmlFor="images">Images</FieldLabel>
+        <FieldAction>
+          <button type="button">Add more</button>
+        </FieldAction>
+      </FieldHeader>
+      <FieldDescription>1 of 10 images</FieldDescription>
+      <Input id="images" />
+    </Field>,
+  );
+  const header = screen.container.querySelector(
+    '[data-slot="field-header"]',
+  ) as HTMLElement;
+  const children = [...header.children].map((el) =>
+    el.getAttribute("data-slot"),
+  );
+  expect(children).toEqual(["field-label", "field-action"]);
+  // The description stays outside the row, under it.
+  expect(header.nextElementSibling?.getAttribute("data-slot")).toBe(
+    "field-description",
+  );
+  await expect.element(screen.getByLabelText("Images")).toBeInTheDocument();
+  await expect
+    .element(screen.getByRole("button", { name: "Add more" }))
+    .toBeInTheDocument();
+  await expectNoA11yViolations(screen.container);
 });

@@ -166,6 +166,37 @@ footer line under a form's submit button, such as the auth blocks' "Don’t have
 </Field>
 ```
 
+### Header action
+
+`FieldHeader` puts a field-level action on the label row: the `FieldLabel` (or a `FieldContent`
+of label and description) at the start and a `FieldAction` at the end, aligned on the label's
+baseline. The row wraps on narrow widths with the action kept at the end, and the action's negative
+block margin keeps a `size="sm"` button from making the row taller than the label. Use it for an
+action on the whole field, such as "Add more" on an image list or "Use template" on a textarea;
+the control's own actions stay inside the control.
+
+```tsx
+<Field>
+  <FieldHeader>
+    <FieldLabel>Images</FieldLabel>
+    <FieldAction>
+      <Button variant="ghost" size="sm">
+        <PlusIcon aria-hidden />
+        Add more
+      </Button>
+    </FieldAction>
+  </FieldHeader>
+  <FieldDescription>
+    3 of 10 images · The first image is the thumbnail.
+  </FieldDescription>
+</Field>
+```
+
+<ComponentPreview
+  name="fieldHeaderAction"
+  file="components/preview/field.tsx"
+/>
+
 ### Automatic wiring
 
 Inside a `Field`, the control needs no ids and no `aria-*` props. `Field` renders Base UI's Field

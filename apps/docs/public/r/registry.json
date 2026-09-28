@@ -1939,7 +1939,7 @@
         "whenToUse": "Wrap any form control to give it a label, description and error message: inside a Field the control gets its label, aria-describedby ids and aria-invalid from Base UI Field with no ids to wire.",
         "whenNotToUse": "A bare control with its own label already wired — Field is for the label+message+a11y scaffold.",
         "version": "0.23.69",
-        "integrity": "sha256-/64E4NOmnkMt4xi65tKHImeJh9yqG+CyrEVfDdbn3nA="
+        "integrity": "sha256-rC+u+h1z7tefnW08HyzoPsLPqF0pHqHK298O1OlFrqI="
       }
     },
     {

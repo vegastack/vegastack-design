@@ -23,12 +23,15 @@
 #     exposes the enclosing Field's identity, which `RadioGroup` reads. `FieldTitle`
 #     takes its own `data-slot="field-title"`, so the Base UI label is the one `field-label`
 #     in a Field (plan Task 1, audit D1 B13).
+#   additions: `FieldDescription variant="footnote"` (#270) and the `FieldHeader` / `FieldAction`
+#     label row (a label with a trailing field-level action on its baseline) are additive parts
+#     upstream does not ship; they change no upstream class or behaviour.
 #   cn: `import { cn } from "cn"` becomes `@vegastack/design` — our npm layer owns `cn` (DOC-2).
 #   formatting: the repository formatter (prettier defaults: semicolons, trailing commas)
 #               reflows the file, and `registry-stamp.mjs` writes the provenance header the
 #               three-copy model needs (DOC-1); those hunks carry no decision of their own.
 diff --git a/field.tsx b/field.tsx
-index 8bb6199..4b94f27 100644
+index 8bb6199..030a70a 100644
 --- a/field.tsx
 +++ b/field.tsx
 @@ -1,11 +1,39 @@
@@ -165,7 +168,7 @@ index 8bb6199..4b94f27 100644
  }
  
  function FieldContent({ className, ...props }: React.ComponentProps<"div">) {
-@@ -91,56 +130,67 @@ function FieldContent({ className, ...props }: React.ComponentProps<"div">) {
+@@ -91,56 +130,111 @@ function FieldContent({ className, ...props }: React.ComponentProps<"div">) {
        data-slot="field-content"
        className={cn(
          "group/field-content flex flex-1 flex-col gap-0.5 leading-snug",
@@ -192,6 +195,50 @@ index 8bb6199..4b94f27 100644
 +        "group/field-label peer/field-label flex w-fit gap-2 leading-snug group-data-[disabled=true]/field:opacity-50 has-data-checked:border-primary/30 has-data-checked:bg-primary/5 has-[>[data-slot=field]]:rounded-lg has-[>[data-slot=field]]:border has-[>[data-slot=field]]:not-has-[:disabled,[data-disabled]]:hover:bg-muted/50 *:data-[slot=field]:p-2.5 dark:has-data-checked:border-primary/20 dark:has-data-checked:bg-primary/10",
          "has-[>[data-slot=field]]:w-full has-[>[data-slot=field]]:flex-col",
 -        className
++        className,
++      )}
++      {...props}
++    />
++  );
++}
++
++/**
++ * The label row of a `Field` or `FieldSet`: the label (or a `FieldContent` of label and
++ * description) at the start and a `FieldAction` at the end, on the label's baseline. It wraps on
++ * narrow widths, and the action keeps to the end.
++ *
++ * @example
++ * <FieldHeader>
++ *   <FieldLabel>Images</FieldLabel>
++ *   <FieldAction>
++ *     <Button variant="ghost" size="sm">Add more</Button>
++ *   </FieldAction>
++ * </FieldHeader>
++ */
++function FieldHeader({ className, ...props }: React.ComponentProps<"div">) {
++  return (
++    <div
++      data-slot="field-header"
++      className={cn(
++        "flex flex-wrap items-baseline justify-between gap-x-4 gap-y-2",
++        className,
++      )}
++      {...props}
++    />
++  );
++}
++
++/**
++ * The trailing action of a `FieldHeader` — a small button or link that acts on the whole field.
++ * Its negative block margin lets a `size="sm"` button sit on the label row without making the
++ * row taller than the label.
++ */
++function FieldAction({ className, ...props }: React.ComponentProps<"div">) {
++  return (
++    <div
++      data-slot="field-action"
++      className={cn(
++        "-my-1 ms-auto flex shrink-0 items-center gap-2",
 +        className,
        )}
        {...props}
@@ -246,7 +293,7 @@ index 8bb6199..4b94f27 100644
  }
  
  function FieldSeparator({
-@@ -148,7 +198,7 @@ function FieldSeparator({
+@@ -148,7 +242,7 @@ function FieldSeparator({
    className,
    ...props
  }: React.ComponentProps<"div"> & {
@@ -255,7 +302,7 @@ index 8bb6199..4b94f27 100644
  }) {
    return (
      <div
-@@ -156,7 +206,7 @@ function FieldSeparator({
+@@ -156,7 +250,7 @@ function FieldSeparator({
        data-content={!!children}
        className={cn(
          "relative -my-2 h-5 text-sm group-data-[variant=outline]/field-group:-mb-2",
@@ -264,7 +311,7 @@ index 8bb6199..4b94f27 100644
        )}
        {...props}
      >
-@@ -170,7 +220,7 @@ function FieldSeparator({
+@@ -170,7 +264,7 @@ function FieldSeparator({
          </span>
        )}
      </div>
@@ -273,7 +320,7 @@ index 8bb6199..4b94f27 100644
  }
  
  function FieldError({
-@@ -179,49 +229,54 @@ function FieldError({
+@@ -179,49 +273,54 @@ function FieldError({
    errors,
    ...props
  }: React.ComponentProps<"div"> & {
@@ -342,10 +389,12 @@ index 8bb6199..4b94f27 100644
  }
  
  export {
-@@ -235,4 +290,5 @@ export {
+@@ -235,4 +334,7 @@ export {
    FieldSet,
    FieldContent,
    FieldTitle,
 -}
++  FieldHeader,
++  FieldAction,
 +  useFieldScope,
 +};
