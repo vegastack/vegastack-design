@@ -9,6 +9,19 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.23.67] — September 28, 2026
+
+<!-- assembled from 1 changeset: 06fec06715a1 -->
+
+### 🔧 Changed components
+
+- Image and file tiles overhaul. `AttachmentGroup layout="tiles"` shows at most `columns` square tiles a row (four by default), three and then two as its container narrows; `layout="scroll"` with `columns` sizes each tile so that many fit the row. On a vertical tile, `AttachmentActions` is an overlay slot — `side="end"` top-right (up to two icon actions), `side="start"` top-left (a drag handle) — inset from the corner, shown on hover or focus within the tile and always on touch, with `AttachmentAction` white on a blurred dark scrim. `Attachment` takes `file`, `preview` (default on) and `onOpen`: a tile with a file is one `Open {name}` button that opens the `FileViewer` (lazily loaded), paging through its group or an enclosing new `AttachmentPreview`. `AttachmentTitle` carries the full name as its `title`. `SortableList`'s grid uses the same overlay slots and scrim for its ⠿ handle and ×/⋯ actions, and `columns` is now a responsive cap instead of a fixed count. Every reorder drop indicator — SortableList rows and tiles, and TextEdit's block and table drag line — is drawn in the standard `border` colour from one `drag-item` token (`dropIndicatorClasses`). A new `tile-overlay` lib holds the shared scrim, overlay-slot and tile-grid recipe; `AvatarPicker`'s photo overlay reads its scrim from it.
+  [`866d5b1`](https://github.com/VegaStack/vegastack-design/commit/866d5b1)
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.23.66 → 0.23.67.
+
 ## [0.23.66] — September 28, 2026
 
 <!-- assembled from 1 changeset: 0fb3fdc95eb5 -->
