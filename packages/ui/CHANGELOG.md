@@ -1,5 +1,17 @@
 # @vegastack/ui
 
+## 0.23.69
+
+### Patch Changes
+
+- [#402](https://github.com/vegastack/vegastack-design/pull/402) [`23e7e5b`](https://github.com/vegastack/vegastack-design/commit/23e7e5b5e0f45e23058c2460e8a562119389161a) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🧩 Attributes and SKU generator support. `ComboboxChips showClear` adds a clear-all × to the multiple-selection chips field (`clearLabel`, "Clear all"); both clear controls are muted until hovered and are a keyboard stop while the list is closed (API-34). `FilterBuilder` always renders the Minimum–Maximum pair for a "between" (`range`) operator, even when `editors` registers a single-value editor for the field's type. `MultiStepFormActions` has one footer everywhere: a ‹ icon button (Back, hidden on the first step) then Cancel at the start; the status, the optional outline save (new `MultiStepFormSave`) and a › icon button (Next) at the end; on the last step the finish takes the primary slot with its text label, and an outline save that repeats it steps aside — never two saves. ‹ and › carry "Back"/"Next" as their accessible name and tooltip; `nextLabel` now defaults to "Next". `RecordList` gains `RecordListGroup` (a heading over one list, for grouped conflicts) and `RecordDiff` (the compact "what differs" table that marks differing rows), and its titles take the foreground ink inside a status `Alert`. New documented patterns: the review list dialog (pill tabs with counts over a scrolling numbered list), the conflict message (single and grouped), and checkbox chips for picking allowed values (`ToggleGroup multiple wrap`).
+
+- [#400](https://github.com/vegastack/vegastack-design/pull/400) [`f667c77`](https://github.com/vegastack/vegastack-design/commit/f667c77fb0c55695ce722c04d980235a6a3b70b3) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🔧 New theme-invariant `--scrim` / `--scrim-foreground` token pair (black and white in both themes, with `bg-scrim` / `text-scrim-foreground` utilities) for the wash a photo wears under a control. The `tile-overlay` recipe — `Attachment` tile corner actions, `SortableList`'s grid handle and actions, and `AvatarPicker`'s photo overlay — now paints `bg-scrim/40 text-scrim-foreground` (`/60` on hover and open) instead of raw `bg-black/40 text-white`, so it follows the tokens-only rule and a theme can retune every tile overlay in one place. The rendered result is unchanged.
+
+- Updated dependencies [[`23e7e5b`](https://github.com/vegastack/vegastack-design/commit/23e7e5b5e0f45e23058c2460e8a562119389161a), [`dd91b95`](https://github.com/vegastack/vegastack-design/commit/dd91b9585534a9f0e31483071dae260a3cbfb2b7), [`f667c77`](https://github.com/vegastack/vegastack-design/commit/f667c77fb0c55695ce722c04d980235a6a3b70b3)]:
+  - @vegastack/design@0.7.56
+  - @vegastack/design-tokens@0.7.56
+
 ## 0.23.68
 
 ### Patch Changes
