@@ -5,13 +5,16 @@ import type { ReactNode } from "react";
 import { Wrapper } from "./wrapper";
 // Copied INTO apps/docs via `shadcn add @vegastack/field` (dogfoods the registry) → auto-scanned.
 import { Button } from "@/components/ui/button";
+import { PlusIcon } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
   Field,
   FieldContent,
   FieldDescription,
+  FieldAction,
   FieldError,
   FieldGroup,
+  FieldHeader,
   FieldLabel,
   FieldLegend,
   FieldSeparator,
@@ -539,6 +542,47 @@ export function fieldValidationAndErrors(): ReactNode {
               { message: "Must be at least 8 characters." },
               { message: "Must contain a number." },
             ]}
+          />
+        </Field>
+      </FieldGroup>
+    </Wrapper>
+  );
+}
+
+/**
+ * `FieldHeader` + `FieldAction`: a field-level action on the label row, right-aligned on the
+ * label's baseline; the description stays under the label and the row wraps when narrow.
+ */
+export function fieldHeaderAction(): ReactNode {
+  return (
+    <Wrapper className="items-stretch">
+      <FieldGroup className="mx-auto w-full max-w-sm">
+        <Field>
+          <FieldHeader>
+            <FieldLabel>Images</FieldLabel>
+            <FieldAction>
+              <Button type="button" variant="ghost" size="sm">
+                <PlusIcon aria-hidden />
+                Add more
+              </Button>
+            </FieldAction>
+          </FieldHeader>
+          <FieldDescription>
+            3 of 10 images · The first image is the thumbnail.
+          </FieldDescription>
+        </Field>
+        <Field>
+          <FieldHeader>
+            <FieldLabel htmlFor="header-action-bio">Bio</FieldLabel>
+            <FieldAction>
+              <Button type="button" variant="link" size="sm">
+                Use template
+              </Button>
+            </FieldAction>
+          </FieldHeader>
+          <Textarea
+            id="header-action-bio"
+            placeholder="A few words about you"
           />
         </Field>
       </FieldGroup>

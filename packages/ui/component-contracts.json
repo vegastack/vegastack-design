@@ -11304,6 +11304,26 @@
           }
         },
         {
+          "name": "FieldHeader",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/field.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
+          }
+        },
+        {
+          "name": "FieldAction",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/field.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "element",
+            "rationale": "Upstream forwards the ref to its own render target."
+          }
+        },
+        {
           "name": "useFieldScope",
           "kind": "hook",
           "source": "packages/ui/registry/ui/field.tsx",
@@ -11450,6 +11470,24 @@
             {
               "name": "data-slot",
               "values": ["field-label"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "FieldHeader": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["field-header"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "FieldAction": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["field-action"]
             }
           ],
           "cssVariables": []

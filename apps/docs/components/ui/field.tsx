@@ -1,4 +1,4 @@
-// @vegastack field@0.23.69 sha256-/64E4NOmnkMt4xi65tKHImeJh9yqG+CyrEVfDdbn3nA=
+// @vegastack field@0.23.69 sha256-rC+u+h1z7tefnW08HyzoPsLPqF0pHqHK298O1OlFrqI=
 
 "use client";
 
@@ -157,6 +157,50 @@ function FieldLabel({
   );
 }
 
+/**
+ * The label row of a `Field` or `FieldSet`: the label (or a `FieldContent` of label and
+ * description) at the start and a `FieldAction` at the end, on the label's baseline. It wraps on
+ * narrow widths, and the action keeps to the end.
+ *
+ * @example
+ * <FieldHeader>
+ *   <FieldLabel>Images</FieldLabel>
+ *   <FieldAction>
+ *     <Button variant="ghost" size="sm">Add more</Button>
+ *   </FieldAction>
+ * </FieldHeader>
+ */
+function FieldHeader({ className, ...props }: React.ComponentProps<"div">) {
+  return (
+    <div
+      data-slot="field-header"
+      className={cn(
+        "flex flex-wrap items-baseline justify-between gap-x-4 gap-y-2",
+        className,
+      )}
+      {...props}
+    />
+  );
+}
+
+/**
+ * The trailing action of a `FieldHeader` — a small button or link that acts on the whole field.
+ * Its negative block margin lets a `size="sm"` button sit on the label row without making the
+ * row taller than the label.
+ */
+function FieldAction({ className, ...props }: React.ComponentProps<"div">) {
+  return (
+    <div
+      data-slot="field-action"
+      className={cn(
+        "-my-1 ms-auto flex shrink-0 items-center gap-2",
+        className,
+      )}
+      {...props}
+    />
+  );
+}
+
 function FieldTitle({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
@@ -292,5 +336,7 @@ export {
   FieldSet,
   FieldContent,
   FieldTitle,
+  FieldHeader,
+  FieldAction,
   useFieldScope,
 };
