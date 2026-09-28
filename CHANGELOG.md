@@ -9,6 +9,20 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.23.68] — September 28, 2026
+
+<!-- assembled from 1 changeset: 49f8329814f5 -->
+
+### 🧩 New components
+
+- One page layout. `AppShellPage` has three widths — `prose` (720px of content, centred; `narrow` is its deprecated old name for one release), `default` (1280px, centred) and `full` (edge to edge) — and one gutter, `--page-gutter` (16px, 24px from 640px, 32px from 1024px), which `AppShellHeader` pads with too and `RecordLayoutRail` sticks below, so the header, page and rail edges line up. The new `page-layout` lib's `definePageWidths` declares every route's width once for the page, its loading skeleton (`widthOfPath`) and a route test, and `vegastack-design doctor` fails on an `AppShellPage` that sets its own `max-w-*`, `mx-*` or padding class and warns on `size="narrow"`. New docs page: Foundations › Page layout.
+  [`3032c9d`](https://github.com/VegaStack/vegastack-design/commit/3032c9d)
+
+### 📦 npm
+
+- **`@vegastack/design`** → **`0.7.55`** (was `0.7.54`).
+- The design-system registry (`@vegastack/ui`) bumps 0.23.67 → 0.23.68.
+
 ## [0.23.67] — September 28, 2026
 
 <!-- assembled from 1 changeset: 06fec06715a1 -->
