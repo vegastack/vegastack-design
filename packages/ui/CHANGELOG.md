@@ -1,5 +1,14 @@
 # @vegastack/ui
 
+## 0.23.68
+
+### Patch Changes
+
+- [#398](https://github.com/vegastack/vegastack-design/pull/398) [`3032c9d`](https://github.com/vegastack/vegastack-design/commit/3032c9da5cb57fe73112b358f8dfb01419a05e4b) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🧩 One page layout. `AppShellPage` has three widths — `prose` (720px of content, centred; `narrow` is its deprecated old name for one release), `default` (1280px, centred) and `full` (edge to edge) — and one gutter, `--page-gutter` (16px, 24px from 640px, 32px from 1024px), which `AppShellHeader` pads with too and `RecordLayoutRail` sticks below, so the header, page and rail edges line up. The new `page-layout` lib's `definePageWidths` declares every route's width once for the page, its loading skeleton (`widthOfPath`) and a route test, and `vegastack-design doctor` fails on an `AppShellPage` that sets its own `max-w-*`, `mx-*` or padding class and warns on `size="narrow"`. New docs page: Foundations › Page layout.
+
+- Updated dependencies [[`3032c9d`](https://github.com/vegastack/vegastack-design/commit/3032c9da5cb57fe73112b358f8dfb01419a05e4b)]:
+  - @vegastack/design@0.7.55
+
 ## 0.23.67
 
 ### Patch Changes
