@@ -22,12 +22,12 @@ generated:
       sha256: "b1200c778288683d702c27cc4b713aefc6afc075790a16adac428fdc64499748"
     light:
       path: "packages/design-tokens/tokens/semantic.tokens.json"
-      bytes: 20115
-      sha256: "f2177cf09bfd55252742efa43d0f42f5968b09861253b08ec8192bdb5808f8cd"
+      bytes: 21017
+      sha256: "ef5951fc6153dfc62138e89c73e1e4f431aef7a0530aeacc84e27e83f23ed3f2"
     dark:
       path: "packages/design-tokens/tokens/semantic.dark.tokens.json"
-      bytes: 11733
-      sha256: "9d05d0fe63793e304169db0240048da2dfc9b0213bdf617a77ae4fe99a938791"
+      bytes: 11753
+      sha256: "f1eb708aaa2057df30b601b3e156dcf8c5899f257205de0af3cdf1d60ca91588"
     externalSources:
       path: "docs/research/design-md-audit/source-manifest.json"
       bytes: 3742
@@ -201,6 +201,14 @@ themes:
       type: "color"
       value: "oklch(0.205 0 0)"
       description: "FOC-2 (ours): the focus ring is the near-black/near-white INK, not shadcn's mid-grey (0.708 light / 0.556 dark). FOC-1 paints it as one global 2px `:focus-visible` outline, so it is the whole focus affordance and has to carry real contrast."
+    scrim:
+      type: "color"
+      value: "oklch(0 0 0)"
+      description: "THEME-INVARIANT photo scrim: the dark wash a tile's image wears under a corner control (Attachment tiles, SortableList grid handle/actions, AvatarPicker's edit overlay, all through the tile-overlay recipe). Opaque on purpose and always read through an opacity modifier — `bg-scrim/40` at rest, `bg-scrim/60` on hover or open — the same way the status families take `/10`-`/30`. Identical in both themes, because it lies over a photograph, not over the page. Not AA-gated: it carries icons over arbitrary imagery, not text; text over media reads through `media-scrim`."
+    scrim-foreground:
+      type: "color"
+      value: "oklch(1 0 0)"
+      description: "Theme-invariant ink drawn on `scrim`: the icon (and pencil) colour of every tile-overlay control. Not overridden in dark on purpose."
     secondary:
       type: "color"
       value: "oklch(0.97 0 0)"
@@ -500,6 +508,14 @@ themes:
       type: "color"
       value: "oklch(0.922 0 0)"
       description: "FOC-2 (ours) — the dark half of the ink ring."
+    scrim:
+      type: "color"
+      value: "oklch(0 0 0)"
+      description: "THEME-INVARIANT photo scrim: the dark wash a tile's image wears under a corner control (Attachment tiles, SortableList grid handle/actions, AvatarPicker's edit overlay, all through the tile-overlay recipe). Opaque on purpose and always read through an opacity modifier — `bg-scrim/40` at rest, `bg-scrim/60` on hover or open — the same way the status families take `/10`-`/30`. Identical in both themes, because it lies over a photograph, not over the page. Not AA-gated: it carries icons over arbitrary imagery, not text; text over media reads through `media-scrim`."
+    scrim-foreground:
+      type: "color"
+      value: "oklch(1 0 0)"
+      description: "Theme-invariant ink drawn on `scrim`: the icon (and pencil) colour of every tile-overlay control. Not overridden in dark on purpose."
     secondary:
       type: "color"
       value: "oklch(0.269 0 0)"

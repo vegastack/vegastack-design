@@ -12,12 +12,12 @@ import {
 /* Class-string recipes: the contract is the literals a consumer's Tailwind scanner must find. The
    rendered behaviour is proven in attachment.test.tsx and sortable-list.test.tsx. */
 
-test("the scrim is white ink on the dark wash, and the overlay button adds the blur", () => {
-  expect(scrimClasses).toBe("bg-black/40 text-white");
-  expect(tileOverlayButtonClasses).toContain("bg-black/40");
+test("the scrim is scrim-foreground ink on the scrim token, and the overlay button adds the blur", () => {
+  expect(scrimClasses).toBe("bg-scrim/40 text-scrim-foreground");
+  expect(tileOverlayButtonClasses).toContain("bg-scrim/40");
   expect(tileOverlayButtonClasses).toContain("backdrop-blur-sm");
   expect(tileOverlayButtonClasses).toContain(
-    "[&_svg:not([class*='text-']):not([data-icon-tone])]:text-white",
+    "[&_svg:not([class*='text-']):not([data-icon-tone])]:text-scrim-foreground",
   );
 });
 

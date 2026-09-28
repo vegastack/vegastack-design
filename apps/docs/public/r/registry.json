@@ -1649,7 +1649,7 @@
         "whenToUse": "Building a tile surface with controls over an image — spread tileCornerClasses on the slot, tileOverlayButtonClasses on a ghost icon Button, tileGroupClass on the tile.",
         "whenNotToUse": "Chrome that does not sit over media — use a plain Button.",
         "version": "0.23.68",
-        "integrity": "sha256-pt2ViP2pUDJ/L2pihpfONVo7yDPiYbGrOYu+qL3yCTc="
+        "integrity": "sha256-JZeT5BJBklEv3ie4eulmjb5pRR2g5hfZjcClMnVf2VU="
       }
     },
     {

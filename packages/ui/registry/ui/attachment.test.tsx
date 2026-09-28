@@ -1138,7 +1138,7 @@ test("API-28: a tile's overlay slots sit inside its corners on the scrim and rev
   expect(getComputedStyle(end!).opacity).toBe("0");
   const action = slot(end!, "attachment-action")!;
   expect(action.className).toContain("backdrop-blur-sm");
-  expect(action.className).toContain("bg-black/40");
+  expect(action.className).toContain("bg-scrim/40");
   await userEvent.hover(slot(screen.container, "attachment")!);
   await expect.poll(() => getComputedStyle(end!).opacity).toBe("1");
 });
@@ -1160,7 +1160,7 @@ test("API-28: a horizontal chip keeps its actions inline, without the scrim", as
     getComputedStyle(slot(screen.container, "attachment-actions")!).position,
   ).toBe("relative");
   expect(slot(screen.container, "attachment-action")!.className).not.toContain(
-    "bg-black/40",
+    "bg-scrim/40",
   );
 });
 

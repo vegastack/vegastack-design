@@ -91,6 +91,10 @@ AA-gated rather than eyeballed.
   `--brand-text`, which is AA-gated. Never use `text-brand` for a label.
 - **`--media-scrim`, `--media-scrim-strong`, `--media-foreground`** — theme-invariant media chrome,
   both scrims gated at the AA TEXT floor because labels are drawn on them.
+- **`--scrim`, `--scrim-foreground`** — theme-invariant photo scrim (black / white in both themes)
+  for icon controls over a tile's image. Always read through an opacity modifier — `bg-scrim/40`,
+  `hover:bg-scrim/60` — via the `tile-overlay` recipe. Not AA-gated (icons over arbitrary imagery);
+  text over media uses `media-scrim`. Modal backdrops keep upstream's `bg-black/10`.
 
 ## Radius
 

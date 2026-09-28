@@ -178,6 +178,16 @@
     "$value": "{color.neutral.50}",
     "$description": "Theme-invariant media chrome ink: the warm off-white used for every icon, label and track drawn over media-scrim or media-scrim-strong. Labels are allowed on EITHER scrim — both are gated at the AA text floor (4.5:1) against this ink over the white worst case. Not overridden in dark on purpose."
   },
+  "scrim": {
+    "$type": "color",
+    "$value": "{color.black}",
+    "$description": "THEME-INVARIANT photo scrim: the dark wash a tile's image wears under a corner control (Attachment tiles, SortableList grid handle/actions, AvatarPicker's edit overlay, all through the tile-overlay recipe). Opaque on purpose and always read through an opacity modifier — `bg-scrim/40` at rest, `bg-scrim/60` on hover or open — the same way the status families take `/10`-`/30`. Identical in both themes, because it lies over a photograph, not over the page. Not AA-gated: it carries icons over arbitrary imagery, not text; text over media reads through `media-scrim`."
+  },
+  "scrim-foreground": {
+    "$type": "color",
+    "$value": "{color.white}",
+    "$description": "Theme-invariant ink drawn on `scrim`: the icon (and pencil) colour of every tile-overlay control. Not overridden in dark on purpose."
+  },
   "chart-1": {
     "$type": "color",
     "$value": {
