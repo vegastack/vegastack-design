@@ -1,4 +1,4 @@
-// @vegastack record-layout@0.23.65 sha256-o8+UAHaE+Y73n7Cr6Q7OA30e9Cygo2/4URNJBJ+Qa5s=
+// @vegastack record-layout@0.23.65 sha256-pR72jzlz/FN4epl3ExB1C7TfVasCkfiSXPMDTFTeqWc=
 
 "use client";
 
@@ -76,10 +76,12 @@ export function RecordLayoutMain({
 export type RecordLayoutRailProps = React.ComponentPropsWithRef<"aside">;
 
 /**
- * `RecordLayoutRail` — the sticky right rail (320px), shown from 1024px of the layout's own width (a container query, not the viewport). It sticks to the top of
- * the scroll container and scrolls on its own when taller than the viewport; set
- * `--record-rail-offset` (default `--spacing(24)`) to the height above it (the app's top bar).
- * Name it with `aria-label`.
+ * `RecordLayoutRail` — the sticky right rail (320px), shown from 1024px of the layout's own width (a container query, not the viewport). It sticks
+ * `--record-rail-gap` (default `--spacing(8)`, `AppShellPage`'s top gutter from `md` up) below the
+ * top of the scroll container — the same gap it has at rest, so it never slides under the header —
+ * and scrolls on its own when taller than the viewport minus that gap above and below. Set
+ * `--record-rail-offset` (default `--spacing(14)`, `AppShellHeader`'s height) to the height of the
+ * chrome above the scroll container. Name it with `aria-label`.
  *
  * @example
  * <RecordLayoutRail aria-label="Details"><Card size="sm">…</Card></RecordLayoutRail>
@@ -92,7 +94,7 @@ export function RecordLayoutRail({
     <aside
       data-slot="record-layout-rail"
       className={cn(
-        "sticky top-0 hidden max-h-[calc(100dvh-var(--record-rail-offset))] w-80 shrink-0 flex-col gap-4 overflow-y-auto overscroll-contain [--record-rail-offset:--spacing(24)] @min-[64rem]/record-layout:flex",
+        "sticky top-(--record-rail-gap) hidden max-h-[calc(100dvh-var(--record-rail-offset)-2*var(--record-rail-gap))] w-80 shrink-0 flex-col gap-4 self-start overflow-y-auto overscroll-contain [--record-rail-gap:--spacing(8)] [--record-rail-offset:--spacing(14)] @min-[64rem]/record-layout:flex",
         className,
       )}
       {...props}
@@ -242,15 +244,30 @@ export function RecordLayoutMainSkeleton() {
  * width, the same container query the rail uses), for mounting rail content once: pass the
  * returned `ref` to `RecordLayout`.
  *
+ * The width is unknown on the server and in the first paint, so `wide` is `false` until measured
+ * — mount by `rail` and `sheet` instead: both are `true` until the first measure (the CSS switch
+ * already shows only the right one, so the server-rendered page has its final layout, rail
+ * included), then exactly one is.
+ *
  * @example
- * const { ref, wide } = useRecordLayoutWide();
- * <RecordLayout ref={ref}>…{wide && <RecordLayoutRail>…</RecordLayoutRail>}</RecordLayout>
+ * const { ref, rail, sheet } = useRecordLayoutWide();
+ * <RecordLayout ref={ref}>
+ *   <RecordLayoutMain>
+ *     <PageHeader title="Weekly sync" actions={sheet && <RecordDetailsSheet>{facts}</RecordDetailsSheet>} />
+ *   </RecordLayoutMain>
+ *   {rail && <RecordLayoutRail aria-label="Details">…</RecordLayoutRail>}
+ * </RecordLayout>
  */
 export function useRecordLayoutWide(): {
   ref: (el: HTMLDivElement | null) => void;
+  /** The layout is measured and at least 1024px wide. `false` until measured. */
   wide: boolean;
+  /** Mount the rail: until measured, and while wide. */
+  rail: boolean;
+  /** Mount the small-screen stand-ins (`RecordDetailsSheet`, a rail tab): until measured, and while narrow. */
+  sheet: boolean;
 } {
-  const [wide, setWide] = React.useState(false);
+  const [wide, setWide] = React.useState<boolean | null>(null);
   const ref = React.useCallback((el: HTMLDivElement | null) => {
     if (!el || typeof ResizeObserver === "undefined") return;
     const measure = () => setWide(el.getBoundingClientRect().width >= 1024);
@@ -259,7 +276,12 @@ export function useRecordLayoutWide(): {
     ro.observe(el);
     return () => ro.disconnect();
   }, []);
-  return { ref, wide };
+  return {
+    ref,
+    wide: wide === true,
+    rail: wide !== false,
+    sheet: wide !== true,
+  };
 }
 
 /** Native container props for `RecordTabsRow` and `RecordTabsActions`. */
