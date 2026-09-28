@@ -1,4 +1,4 @@
-// @vegastack video-player@0.23.65 sha256-VLtcDscGh7aLTYxdll+xAyfPmolRv8x9QUZ0vCojdnw=
+// @vegastack video-player@0.23.66 sha256-yireJSzbwHhA7SbDMs1G/L5djIYgRCbsud9Mk4zeV50=
 
 "use client";
 
