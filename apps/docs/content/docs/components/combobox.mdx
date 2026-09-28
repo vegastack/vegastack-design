@@ -102,9 +102,23 @@ list stays put as chips wrap onto a second row.
 ### Clear Button
 
 `showClear` on `ComboboxInput` swaps the trigger for a clear control once something is selected.
+The × is muted until hovered, and it is a keyboard stop while the list is closed — Tab to it and
+press <kbd>Enter</kbd>.
 
 <ComponentPreview
   name="comboboxClearButton"
+  file="components/preview/combobox.tsx"
+/>
+
+### Clear all
+
+`showClear` on `ComboboxChips` adds a clear-all × at the end of the chips field. It removes every
+chip in one press, shows only while something is selected, and is named "Clear all" (`clearLabel`
+changes it). Each chip keeps its own remove ×, and <kbd>Backspace</kbd> in the empty input still
+removes the last chip.
+
+<ComponentPreview
+  name="comboboxMultipleClear"
   file="components/preview/combobox.tsx"
 />
 
@@ -231,8 +245,10 @@ Try the clear button with the disabled and invalid states on a filterable list, 
 
 <ApiTable path="lib/api-props.ts" name="ComboboxChipProps" />
 
+<ApiTable path="lib/api-props.ts" name="ComboboxChipsProps" />
+
 `Combobox`, `ComboboxList`, `ComboboxItem`, `ComboboxGroup`, `ComboboxLabel`,
-`ComboboxCollection`, `ComboboxEmpty`, `ComboboxSeparator`, `ComboboxChips`, `ComboboxChipsInput`,
+`ComboboxCollection`, `ComboboxEmpty`, `ComboboxSeparator`, `ComboboxChipsInput`,
 `ComboboxTrigger` and `ComboboxValue` add no props of their own — each accepts everything the Base
 UI part accepts.
 
@@ -302,6 +318,11 @@ Upstream's file plus `packages/ui/upstream/patches/combobox.patch`. Every hunk:
 - **A11Y-16** — the toggle inside `ComboboxInput`, the clear control and the chip's remove control
   each gain an `aria-label`. All three are icon-only `<button>`s upstream ships with no text, and
   Base UI names none of them.
+- **API-34** — `ComboboxChips` takes `showClear` and `clearLabel` and renders a clear-all control at
+  the end of the chips field ([Clear all](#clear-all)). `ComboboxClear` takes an `aria-label`
+  override, paints its × muted until hovered, and is a keyboard stop while the list is closed —
+  Base UI ships it at `tabIndex={-1}` — dropping out of the tab order while the list is open, when
+  Base UI hides the addon from assistive technology (A11Y-9).
 - **A11Y-9** — the toggle inside `ComboboxInput` takes `tabIndex={-1}`. Base UI marks the whole
   trailing addon `aria-hidden="true"` while the popup is open, and nothing tabbable may sit inside
   an `aria-hidden` subtree (axe `aria-hidden-focus`, serious). The attribute is set at that one

@@ -79,6 +79,7 @@ import type { Calendar } from "@/components/ui/calendar";
 import type { Checkbox } from "@/components/ui/checkbox";
 import type {
   ComboboxChip,
+  ComboboxChips,
   ComboboxContent,
   ComboboxInput,
   ComboboxStatus,
@@ -301,6 +302,7 @@ export type CheckboxProps = React.ComponentProps<typeof Checkbox>;
 export type ComboboxInputProps = React.ComponentProps<typeof ComboboxInput>;
 export type ComboboxContentProps = React.ComponentProps<typeof ComboboxContent>;
 export type ComboboxChipProps = React.ComponentProps<typeof ComboboxChip>;
+export type ComboboxChipsProps = React.ComponentProps<typeof ComboboxChips>;
 export type ComboboxStatusProps = React.ComponentProps<typeof ComboboxStatus>;
 
 export type DirectionProviderProps = React.ComponentProps<

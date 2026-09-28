@@ -1,10 +1,18 @@
-// @vegastack record-list@0.23.68 sha256-q18QeUnwf554DGcxkIOdbafBx6pH1gX4hGvNml/oFS0=
+// @vegastack record-list@0.23.68 sha256-sBGRXQepIkpqzUH1/hCQw293ZutWZvSGfs1/ZuZjOBM=
 
 import * as React from "react";
 import { ExternalLink } from "lucide-react";
 import { cn } from "@vegastack/design";
 
 import { Button, buttonVariants } from "@/components/ui/button";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 
 /* ---
 `RecordList` is the "these records are affected" list a confirmation dialog shows before a
@@ -18,6 +26,12 @@ optional one-line description. With `href`, a small ↗ link sits right after th
 title line — "Open {name} in a new tab" — shown on row hover or focus within the row and
 always on a coarse pointer. It always opens a new tab (`target="_blank"`, `rel="noopener"`)
 because the list lives in a dialog the reader has not answered yet.
+
+Two companions for the "why is this refused" message: `RecordListGroup` puts a short heading
+over one list when a refusal names several groups of clashing records ("Group 1 · 3 products"),
+and `RecordDiff` is the compact "what differs" table — spec | this record | the other one — that
+marks the rows whose values differ, so the reader sees at a glance why two records count as the
+same.
 
 Deliberately NOT done here:
 - No selection and no row click. The rows are context for a decision, not controls; the one
@@ -137,7 +151,7 @@ export function RecordListItem({
             <span className="flex min-w-0 items-center gap-1">
               <span
                 data-slot="record-list-title"
-                className="truncate font-medium"
+                className="truncate font-medium text-foreground"
               >
                 {title}
               </span>
@@ -231,5 +245,178 @@ export function RecordListMore({
         </Button>
       ) : null}
     </div>
+  );
+}
+
+/** Props accepted by `RecordListGroup`. */
+export interface RecordListGroupProps extends Omit<
+  React.ComponentPropsWithRef<"div">,
+  "title"
+> {
+  /** The group's heading ("Group 1 · 3 products"), which also names it for assistive technology. */
+  title: React.ReactNode;
+}
+
+/**
+ * `RecordListGroup` — a short muted heading over one `RecordList`, for a message that names
+ * several groups of records (the products that would clash with each other, group by group).
+ *
+ * @example
+ * <RecordListGroup title="Group 1 · 3 products">
+ *   <RecordList aria-label="Group 1">…</RecordList>
+ * </RecordListGroup>
+ */
+export function RecordListGroup({
+  title,
+  className,
+  children,
+  ...props
+}: RecordListGroupProps) {
+  const titleId = React.useId();
+  return (
+    <div
+      role="group"
+      aria-labelledby={titleId}
+      data-slot="record-list-group"
+      className={cn("flex flex-col gap-1", className)}
+      {...props}
+    >
+      <p
+        id={titleId}
+        data-slot="record-list-group-title"
+        className="text-xs text-muted-foreground"
+      >
+        {title}
+      </p>
+      {children}
+    </div>
+  );
+}
+
+/** One row of a `RecordDiff`: a spec and the value each record holds. */
+export interface RecordDiffRow {
+  /** Stable key; defaults to the label when it is a string. */
+  key?: string;
+  /** The spec's name ("Beam angle"). */
+  label: React.ReactNode;
+  /** One value per column, in column order. An empty value reads "—". */
+  values: readonly React.ReactNode[];
+  /**
+   * Whether the values differ. By default, rows whose values are all strings or numbers are
+   * compared as text; pass it for anything else.
+   * @default the values compared as text
+   */
+  differs?: boolean;
+}
+
+/** Props accepted by `RecordDiff`. */
+export interface RecordDiffProps extends React.ComponentPropsWithRef<"table"> {
+  /** The record columns' headings ("This product", "Existing product"). */
+  columns: readonly React.ReactNode[];
+  /** The specs to compare, one row each. */
+  rows: readonly RecordDiffRow[];
+  /**
+   * The first column's heading.
+   * @default "Spec"
+   */
+  labelHeading?: React.ReactNode;
+  /**
+   * Read after a differing row's label by screen readers.
+   * @default "differs"
+   */
+  differsLabel?: string;
+}
+
+function valuesDiffer(values: readonly React.ReactNode[]): boolean {
+  const text = values.map((value) =>
+    typeof value === "string" || typeof value === "number"
+      ? String(value)
+      : value == null || value === ""
+        ? ""
+        : null,
+  );
+  if (text.some((value) => value === null)) return false;
+  return new Set(text).size > 1;
+}
+
+/**
+ * `RecordDiff` — the compact "what differs" table beside a conflict: spec | this record | the
+ * other record. Rows whose values differ are marked (a tinted row, the values in full ink, and
+ * "differs" for screen readers); rows that match stay muted, so the reason two records count as
+ * the same reads at a glance.
+ *
+ * @example
+ * <RecordDiff
+ *   columns={["This product", "Existing product"]}
+ *   rows={[
+ *     { label: "Colour temperature", values: ["3000K", "3000K"] },
+ *     { label: "Lens", values: ["Clear", "Frosted"] },
+ *   ]}
+ * />
+ */
+export function RecordDiff({
+  columns,
+  rows,
+  labelHeading = "Spec",
+  differsLabel = "differs",
+  className,
+  ...props
+}: RecordDiffProps) {
+  return (
+    <Table
+      data-slot="record-diff"
+      className={cn("text-xs", className)}
+      {...props}
+    >
+      <TableHeader>
+        <TableRow className="hover:bg-transparent">
+          <TableHead className="h-8 text-xs text-muted-foreground">
+            {labelHeading}
+          </TableHead>
+          {columns.map((column, index) => (
+            <TableHead
+              key={index}
+              className="h-8 text-xs text-muted-foreground"
+            >
+              {column}
+            </TableHead>
+          ))}
+        </TableRow>
+      </TableHeader>
+      <TableBody>
+        {rows.map((row, index) => {
+          const differs = row.differs ?? valuesDiffer(row.values);
+          return (
+            <TableRow
+              key={
+                row.key ??
+                (typeof row.label === "string" ? row.label : String(index))
+              }
+              data-slot="record-diff-row"
+              data-differs={differs ? "" : undefined}
+              className="text-muted-foreground hover:bg-transparent data-differs:bg-muted data-differs:text-foreground data-differs:hover:bg-muted"
+            >
+              <TableCell className="py-1.5">
+                {row.label}
+                {differs ? (
+                  <span className="sr-only">{`, ${differsLabel}`}</span>
+                ) : null}
+              </TableCell>
+              {columns.map((_, column) => {
+                const value = row.values[column];
+                return (
+                  <TableCell
+                    key={column}
+                    className="py-1.5 in-data-differs:font-medium"
+                  >
+                    {value == null || value === "" ? "—" : value}
+                  </TableCell>
+                );
+              })}
+            </TableRow>
+          );
+        })}
+      </TableBody>
+    </Table>
   );
 }

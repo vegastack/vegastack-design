@@ -21303,6 +21303,24 @@
             "status": "not-applicable",
             "rationale": "Type-only exports do not render or accept runtime refs."
           }
+        },
+        {
+          "name": "MultiStepFormSave",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/multi-step-form.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Props, including ref, are spread onto the composed Button, which owns the rendered control."
+          }
+        },
+        {
+          "name": "MultiStepFormSaveProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/multi-step-form.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
         }
       ],
       "variants": {
@@ -21379,7 +21397,8 @@
         "@vegastack/alert-dialog",
         "@vegastack/button",
         "@vegastack/stepper",
-        "@vegastack/use-mobile"
+        "@vegastack/use-mobile",
+        "@vegastack/tooltip"
       ],
       "npmDependencies": [
         "lucide-react@^1.47.0",
@@ -21458,24 +21477,11 @@
           ],
           "cssVariables": []
         },
-        "MultiStepFormBack": {
-          "attributes": [
-            {
-              "name": "data-sealed",
-              "values": [""]
-            },
-            {
-              "name": "data-slot",
-              "values": ["multi-step-form-back"]
-            }
-          ],
-          "cssVariables": []
-        },
-        "MultiStepFormNext": {
+        "MultiStepFormSave": {
           "attributes": [
             {
               "name": "data-slot",
-              "values": ["multi-step-form-next"]
+              "values": ["multi-step-form-save"]
             }
           ],
           "cssVariables": []
@@ -25354,6 +25360,53 @@
             "status": "not-applicable",
             "rationale": "Type-only exports do not render or accept runtime refs."
           }
+        },
+        {
+          "name": "RecordListGroup",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/record-list.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "div",
+            "rationale": "Spread onto the group div."
+          }
+        },
+        {
+          "name": "RecordListGroupProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/record-list.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "RecordDiff",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/record-list.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "table",
+            "rationale": "Spread onto the composed Table, which owns the table element."
+          }
+        },
+        {
+          "name": "RecordDiffProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/record-list.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "RecordDiffRow",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/record-list.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
         }
       ],
       "variants": {
@@ -25405,7 +25458,7 @@
       },
       "engines": [],
       "docsSlug": "/docs/components/record-list",
-      "registryDependencies": ["@vegastack/button"],
+      "registryDependencies": ["@vegastack/button", "@vegastack/table"],
       "npmDependencies": [
         "lucide-react@^1.47.0",
         "@vegastack/design@^0.7.55",
@@ -25451,6 +25504,28 @@
             {
               "name": "data-slot",
               "values": ["record-list-more"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "RecordListGroup": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["record-list-group", "record-list-group-title"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "RecordDiff": {
+          "attributes": [
+            {
+              "name": "data-differs",
+              "values": [""]
+            },
+            {
+              "name": "data-slot",
+              "values": ["record-diff", "record-diff-row"]
             }
           ],
           "cssVariables": []

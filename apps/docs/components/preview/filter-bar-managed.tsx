@@ -8,6 +8,8 @@ import {
   FilterBuilder,
   type FilterField,
   type FilterNode,
+  NumberValueEditor,
+  OptionValueEditor,
 } from "@/components/ui/filter-bar-managed";
 
 type Group = Extract<FilterNode<string>, { type: "group" }>;
@@ -224,6 +226,41 @@ const RULE_SEED: RuleGroup = {
     { type: "condition", field: "beam", operator: "gte", value: 30 },
   ],
 };
+
+/**
+ * "is between" always renders the Minimum–Maximum pair, even though `editors.number` registers a
+ * single-value editor for Beam angle; a minimum above the maximum reads under the pair.
+ */
+export function filterBarManagedBetween(): ReactNode {
+  const [tree, setTree] = useState<RuleGroup>({
+    type: "group",
+    op: "and",
+    children: [
+      {
+        type: "condition",
+        field: "beam",
+        operator: "between",
+        value: { min: 60, max: 24 },
+      },
+    ],
+  });
+  return (
+    <Wrapper className="flex-col items-stretch">
+      <FilterBuilder<unknown>
+        vocabulary={RULE_VOCABULARY}
+        editors={{ number: NumberValueEditor, option: OptionValueEditor }}
+        value={tree}
+        onValueChange={setTree}
+        allowGroups={false}
+        prefix="Required when"
+        labels={{ addCondition: "Add rule", remove: (l) => `Remove ${l} rule` }}
+      />
+      <p className="text-sm text-muted-foreground">
+        {describeFilter(tree, RULE_VOCABULARY, { prefix: "Required when" })}
+      </p>
+    </Wrapper>
+  );
+}
 
 export function filterBarManagedConditionRules(): ReactNode {
   const [tree, setTree] = useState<RuleGroup>(RULE_SEED);

@@ -1,6 +1,6 @@
 ---
 title: Record List
-description: A numbered list of the records a change affects — type icon, name, new-tab link, badge — with a Show more footer that keeps the numbering.
+description: A numbered list of the records a change affects, with a Show more footer, group headings and a "what differs" table for conflicts.
 audience: public
 registry: record-list
 status: stable
@@ -39,11 +39,13 @@ import {
 
 ## Scope
 
-| Behaviour                       | Where it lives                                                                    |
-| ------------------------------- | --------------------------------------------------------------------------------- |
-| The rows, the total, the paging | Host — `RecordListMore` is a controlled footer                                    |
-| Selectable or actionable rows   | [`Item`](/docs/components/item) or [`DataList`](/docs/components/data-list)       |
-| The dialog around it            | [`AlertDialog`](/docs/components/alert-dialog) — the list sits in its scroll body |
+| Behaviour                       | Where it lives                                                                                     |
+| ------------------------------- | -------------------------------------------------------------------------------------------------- |
+| The rows, the total, the paging | Host — `RecordListMore` is a controlled footer                                                     |
+| Selectable or actionable rows   | [`Item`](/docs/components/item) or [`DataList`](/docs/components/data-list)                        |
+| The dialog around it            | [`Dialog`](/docs/components/dialog) — the list sits in its `DialogBody` scroll body                |
+| Tabs with counts over the list  | [`Tabs`](/docs/components/tabs) + `RecordTabCount` — see [Review list dialog](#review-list-dialog) |
+| The error around a conflict     | [`Alert`](/docs/components/alert) — see [Conflict message](#conflict-message)                      |
 
 ## Anatomy
 
@@ -71,6 +73,111 @@ again.
   file="components/preview/record-list.tsx"
 />
 
+### Review list dialog
+
+The pattern for "these records will change — check them first": a `Dialog` (`size="lg"`) with a
+title and one plain line, pill `Tabs` whose triggers each carry a count (`RecordTabCount`), a
+numbered `RecordList` per tab inside `DialogBody` — the one region that scrolls, so the title,
+tabs and footer hold still — and a footer of Cancel plus the primary or destructive action. The
+second line (`description`) says why a record is in its tab ("Edited by Ravi", "3 products").
+Give the `Tabs` root `min-h-0` so the body can scroll inside the dialog.
+
+<ComponentPreview
+  name="recordListReviewDialog"
+  file="components/preview/record-list.tsx"
+/>
+
+```tsx
+<DialogContent size="lg">
+  <DialogHeader>
+    <DialogTitle>Undo this run?</DialogTitle>
+    <DialogDescription>
+      758 draft products will be removed. 6 stay because someone changed them.
+    </DialogDescription>
+  </DialogHeader>
+  <Tabs defaultValue="remove" className="min-h-0">
+    <TabsList>
+      <TabsTrigger value="remove">
+        Will be removed <RecordTabCount count={758} />
+      </TabsTrigger>
+      <TabsTrigger value="stay">
+        Will stay <RecordTabCount count={6} />
+      </TabsTrigger>
+    </TabsList>
+    <DialogBody>
+      <TabsContent value="remove">
+        <RecordList aria-label="Products that will be removed">…</RecordList>
+      </TabsContent>
+      <TabsContent value="stay">
+        <RecordList aria-label="Products that will stay">
+          <RecordListItem
+            icon={<Package />}
+            title={name}
+            description="Edited by Ravi"
+            href={href}
+          />
+        </RecordList>
+      </TabsContent>
+    </DialogBody>
+  </Tabs>
+  <DialogFooter>
+    <DialogClose render={<Button variant="secondary" />}>Cancel</DialogClose>
+    <Button variant="destructive">Remove 758 products</Button>
+  </DialogFooter>
+</DialogContent>
+```
+
+### Conflict message
+
+When a save is refused because a record clashes with one that exists, say so plainly: a
+destructive `Alert` with a title ("This product already exists"), one line saying what to do,
+the clashing record in a numbered `RecordList` with its ↗ link, and — optionally — `RecordDiff`,
+the compact "what differs" table (spec | this product | existing product). `RecordDiff` marks
+the rows whose values differ (a tinted row in full ink, and "differs" for screen readers) and
+keeps matching rows muted, so it is clear why the two count as the same. The same composition
+works inline under a field. Give `AlertDescription` `min-w-0` so long names truncate and the
+table scrolls sideways instead of widening the alert on a phone.
+
+<ComponentPreview
+  name="recordListConflict"
+  file="components/preview/record-list.tsx"
+/>
+
+```tsx
+<Alert variant="destructive">
+  <CircleAlert />
+  <AlertTitle>This product already exists</AlertTitle>
+  <AlertDescription className="flex min-w-0 flex-col gap-3">
+    <p>
+      Every choice matches a product in this family. Change at least one choice
+      to save it.
+    </p>
+    <RecordList aria-label="Matching product">
+      <RecordListItem
+        icon={<Package />}
+        title={existing.name}
+        href={existing.url}
+      />
+    </RecordList>
+    <RecordDiff
+      columns={["This product", "Existing product"]}
+      rows={specs.map((s) => ({ label: s.name, values: [s.mine, s.theirs] }))}
+    />
+  </AlertDescription>
+</Alert>
+```
+
+### Grouped conflicts
+
+When one change would make several sets of records identical — a settings save that removes the
+spec that told them apart — list each set under `RecordListGroup`, a short muted heading ("Group
+1 · 3 products") that also names its list for assistive technology.
+
+<ComponentPreview
+  name="recordListConflictGroups"
+  file="components/preview/record-list.tsx"
+/>
+
 ## API Reference
 
 <ApiTable
@@ -92,6 +199,25 @@ again.
   name="RecordListMoreProps"
 />
 
+### RecordListGroup
+
+<ApiTable
+  path="../../packages/ui/registry/ui/record-list.tsx"
+  name="RecordListGroupProps"
+/>
+
+### RecordDiff
+
+<ApiTable
+  path="../../packages/ui/registry/ui/record-list.tsx"
+  name="RecordDiffProps"
+/>
+
+<ApiTable
+  path="../../packages/ui/registry/ui/record-list.tsx"
+  name="RecordDiffRow"
+/>
+
 ## Accessibility
 
 - The list is an `<ol>`, so a screen reader announces each record's position; name it with
@@ -99,6 +225,9 @@ again.
 - The record-type icon is decorative (`aria-hidden`); the name carries the meaning.
 - The ↗ link is a real link with its own name, `Open {name} in a new tab`, and is reachable by
   Tab even while it is visually hidden — focusing it shows it.
+- `RecordListGroup` is a `role="group"` named by its heading. `RecordDiff` is a real table with
+  column headers; a differing row reads its label followed by "differs", so the mark is not
+  colour alone.
 
 | Key              | Action                            |
 | ---------------- | --------------------------------- |

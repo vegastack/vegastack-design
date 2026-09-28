@@ -8,6 +8,7 @@ import {
   MultiStepFormActions,
   MultiStepFormExit,
   MultiStepFormNav,
+  MultiStepFormSave,
   MultiStepFormStep,
   type MultiStepFormStepSpec,
 } from "./multi-step-form";
@@ -119,9 +120,9 @@ test("Continue advances, and the rail records what was passed", async () => {
   expect(stepState(screen.container, "Billing")).toBe("current");
 });
 
-test("Back returns, and is disabled on the first step", async () => {
+test("Back returns, and is not shown on the first step", async () => {
   const screen = await render(<Wizard />);
-  expect(isDisabled(back(screen.container))).toBe(true);
+  expect(back(screen.container)).toBeNull();
   await userEvent.click(next(screen.container));
   expect(isDisabled(back(screen.container))).toBe(false);
   await userEvent.click(back(screen.container));
@@ -150,10 +151,10 @@ test("labels are overridable globally and per step", async () => {
       ]}
     />,
   );
-  expect(next(screen.container).textContent).toContain("Start");
+  expect(next(screen.container).getAttribute("aria-label")).toBe("Start");
   await userEvent.click(next(screen.container));
   expect(next(screen.container).textContent).toContain("Create account");
-  expect(back(screen.container).textContent).toContain("Go back");
+  expect(back(screen.container).getAttribute("aria-label")).toBe("Go back");
 });
 
 /* ------------------------------------------------------- conditional steps */
@@ -939,4 +940,138 @@ test("a one-argument handler keeps working (DS-76)", async () => {
   );
   await userEvent.click(screen.getByRole("button", { name: /next|continue/i }));
   await vi.waitFor(() => expect(seen.at(-1)).toBe("billing"));
+});
+
+/* ------------------------------------------------------------- footer layout */
+
+function FooterWizard({
+  secondary,
+  status,
+  submitLabel = "Create",
+}: {
+  secondary?: React.ReactNode;
+  status?: React.ReactNode;
+  submitLabel?: string;
+}) {
+  return (
+    <MultiStepForm steps={BASIC} submitLabel={submitLabel}>
+      {BASIC.map((s) => (
+        <MultiStepFormStep key={s.id} id={s.id}>
+          <p>{s.label} body</p>
+        </MultiStepFormStep>
+      ))}
+      <MultiStepFormActions
+        start={<MultiStepFormExit onClick={() => {}} />}
+        status={status}
+        secondary={secondary}
+      />
+    </MultiStepForm>
+  );
+}
+
+const rowOrder = (root: ParentNode) =>
+  Array.from(
+    root.querySelectorAll<HTMLElement>(
+      '[data-slot="multi-step-form-action-row"] button',
+    ),
+  ).map(
+    (button) =>
+      button.dataset.slot +
+      ":" +
+      (button.getAttribute("aria-label") ?? button.textContent?.trim()),
+  );
+
+test("the footer reads ‹ Cancel … Save draft › and ends on a labelled finish", async () => {
+  const screen = await render(
+    <FooterWizard
+      secondary={<MultiStepFormSave>Save draft</MultiStepFormSave>}
+    />,
+  );
+  // First step: no Back.
+  expect(rowOrder(screen.container)).toEqual([
+    "multi-step-form-exit:Cancel",
+    "multi-step-form-save:Save draft",
+    "multi-step-form-next:Next",
+  ]);
+  await userEvent.click(next(screen.container));
+  expect(rowOrder(screen.container)).toEqual([
+    "multi-step-form-back:Back",
+    "multi-step-form-exit:Cancel",
+    "multi-step-form-save:Save draft",
+    "multi-step-form-next:Next",
+  ]);
+  await userEvent.click(next(screen.container));
+  // Last step: the finish takes the primary slot with its text; a different save stays.
+  expect(rowOrder(screen.container)).toEqual([
+    "multi-step-form-back:Back",
+    "multi-step-form-exit:Cancel",
+    "multi-step-form-save:Save draft",
+    "multi-step-form-next:Create",
+  ]);
+  await expectNoA11yViolations(screen.container);
+});
+
+test("the ‹ and › arrows are icon buttons named Back and Next, with tooltips", async () => {
+  const screen = await render(<FooterWizard />);
+  await userEvent.click(next(screen.container));
+  for (const arrow of [back(screen.container), next(screen.container)]) {
+    expect(arrow.textContent?.trim()).toBe("");
+    expect(arrow.querySelector("svg")).not.toBeNull();
+  }
+  expect(back(screen.container).getAttribute("aria-label")).toBe("Back");
+  expect(next(screen.container).getAttribute("aria-label")).toBe("Next");
+  // The pointer rests on Next after the click, so hover Back to see a tooltip open.
+  await userEvent.hover(back(screen.container));
+  await expect
+    .poll(
+      () =>
+        document.querySelector('[data-slot="tooltip-content"]')?.textContent,
+      { timeout: 3000 },
+    )
+    .toBe("Back");
+});
+
+test("never two saves: an outline save equal to the finish label steps aside on the last step", async () => {
+  const screen = await render(
+    <FooterWizard
+      submitLabel="Save"
+      secondary={<MultiStepFormSave>Save</MultiStepFormSave>}
+    />,
+  );
+  expect(slot(screen.container, "multi-step-form-save")).not.toBeNull();
+  await userEvent.click(next(screen.container));
+  await userEvent.click(next(screen.container));
+  expect(slot(screen.container, "multi-step-form-save")).toBeNull();
+  expect(next(screen.container).textContent).toContain("Save");
+});
+
+test("auto-save edit: ‹ … Saved Done ›, and Done becomes the finish on the last step", async () => {
+  const screen = await render(
+    <MultiStepForm steps={BASIC} submitLabel="Done">
+      {BASIC.map((s) => (
+        <MultiStepFormStep key={s.id} id={s.id}>
+          <p>{s.label} body</p>
+        </MultiStepFormStep>
+      ))}
+      <MultiStepFormActions
+        status={<span data-slot="test-status">Saved</span>}
+        secondary={<MultiStepFormSave>Done</MultiStepFormSave>}
+      />
+    </MultiStepForm>,
+  );
+  expect(rowOrder(screen.container)).toEqual([
+    "multi-step-form-save:Done",
+    "multi-step-form-next:Next",
+  ]);
+  await userEvent.click(next(screen.container));
+  expect(rowOrder(screen.container)).toEqual([
+    "multi-step-form-back:Back",
+    "multi-step-form-save:Done",
+    "multi-step-form-next:Next",
+  ]);
+  await userEvent.click(next(screen.container));
+  expect(rowOrder(screen.container)).toEqual([
+    "multi-step-form-back:Back",
+    "multi-step-form-next:Done",
+  ]);
 });
