@@ -2,9 +2,10 @@
 
 import * as React from "react";
 import type { ReactNode } from "react";
-import { BoldIcon, ItalicIcon, UnderlineIcon } from "lucide-react";
+import { BoldIcon, CheckIcon, ItalicIcon, UnderlineIcon } from "lucide-react";
 import { Wrapper } from "./wrapper";
 // Copied INTO apps/docs via `shadcn add @vegastack/toggle-group` (dogfoods the registry).
+import { Button } from "@/components/ui/button";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 
 export function toggleGroup(): ReactNode {
@@ -336,6 +337,99 @@ export function toggleGroupMany(): ReactNode {
           </ToggleGroupItem>
         ))}
       </ToggleGroup>
+    </Wrapper>
+  );
+}
+
+const CCT = ["2700K", "3000K", "3500K", "4000K", "5000K", "6500K"];
+const FINISHES = [
+  "Black",
+  "White",
+  "Silver",
+  "Bronze",
+  "Gold",
+  "Graphite",
+  "Custom RAL",
+];
+
+/** One allowed-values picker: a label row with the count and Select all / Clear, then the chips. */
+function AllowedValues({
+  label,
+  options,
+  initial,
+}: {
+  label: string;
+  options: string[];
+  initial: string[];
+}) {
+  const [value, setValue] = React.useState<string[]>(initial);
+  const id = React.useId();
+  return (
+    <div className="flex w-full flex-col gap-2">
+      <div className="flex items-center gap-2">
+        <span id={id} className="text-sm font-medium">
+          {label}
+        </span>
+        <span className="text-sm text-muted-foreground tabular-nums">
+          {value.length} of {options.length}
+        </span>
+        <div className="ms-auto flex items-center gap-1">
+          <Button
+            size="xs"
+            variant="ghost"
+            disabled={value.length === options.length}
+            onClick={() => setValue(options)}
+          >
+            Select all
+          </Button>
+          <Button
+            size="xs"
+            variant="ghost"
+            disabled={value.length === 0}
+            onClick={() => setValue([])}
+          >
+            Clear
+          </Button>
+        </div>
+      </div>
+      <ToggleGroup
+        aria-labelledby={id}
+        variant="outline"
+        size="sm"
+        spacing={1}
+        wrap
+        multiple
+        value={value}
+        onValueChange={setValue}
+      >
+        {options.map((option) => (
+          <ToggleGroupItem key={option} value={option}>
+            {value.includes(option) ? (
+              <CheckIcon data-icon="inline-start" aria-hidden />
+            ) : null}
+            {option}
+          </ToggleGroupItem>
+        ))}
+      </ToggleGroup>
+    </div>
+  );
+}
+
+/**
+ * Checkbox chips: picking the allowed values of a spec. `multiple` + `wrap` + `outline`, a check on
+ * each pressed chip, and a label row with the count and Select all / Clear.
+ */
+export function toggleGroupCheckboxChips(): ReactNode {
+  return (
+    <Wrapper className="flex-col items-stretch">
+      <div className="mx-auto flex w-full max-w-md flex-col gap-6">
+        <AllowedValues
+          label="Colour temperature"
+          options={CCT}
+          initial={["3000K", "4000K"]}
+        />
+        <AllowedValues label="Trim" options={FINISHES} initial={FINISHES} />
+      </div>
     </Wrapper>
   );
 }

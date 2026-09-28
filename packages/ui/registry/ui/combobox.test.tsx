@@ -786,3 +786,96 @@ test("no a11y violations — open with a status message (API-27)", async () => {
   await screen.getByRole("combobox").click();
   await expectNoA11yViolations(document.body);
 });
+
+/* API-34 — clear controls: a clear-all on the chips field, keyboard-reachable while closed */
+
+function ChipsWithClear() {
+  return (
+    <Combobox multiple items={frameworks} defaultValue={["Astro", "Remix"]}>
+      <ComboboxChips showClear>
+        <ComboboxValue>
+          {(values: string[]) => (
+            <React.Fragment>
+              {values.map((value) => (
+                <ComboboxChip key={value}>{value}</ComboboxChip>
+              ))}
+              <ComboboxChipsInput aria-label="Add framework" />
+            </React.Fragment>
+          )}
+        </ComboboxValue>
+      </ComboboxChips>
+      <ComboboxContent>
+        <ComboboxEmpty>No items found.</ComboboxEmpty>
+        <ComboboxList>
+          {(item: string) => (
+            <ComboboxItem key={item} value={item}>
+              {item}
+            </ComboboxItem>
+          )}
+        </ComboboxList>
+      </ComboboxContent>
+    </Combobox>
+  );
+}
+
+test("API-34: showClear on ComboboxChips removes every chip in one press", async () => {
+  const screen = await render(<ChipsWithClear />);
+  expect(
+    screen.container.querySelectorAll('[data-slot="combobox-chip"]').length,
+  ).toBe(2);
+  const clear = screen.getByRole("button", { name: "Clear all" });
+  await clear.click();
+  expect(
+    screen.container.querySelectorAll('[data-slot="combobox-chip"]').length,
+  ).toBe(0);
+  // With nothing selected there is nothing to clear, so the control leaves.
+  await expect
+    .poll(() => screen.container.querySelector('[data-slot="combobox-clear"]'))
+    .toBeNull();
+});
+
+test("API-34: the clear × is muted and a keyboard stop while the list is closed", async () => {
+  const screen = await render(<ChipsWithClear />);
+  const clear = screen.container.querySelector(
+    '[data-slot="combobox-clear"]',
+  ) as HTMLButtonElement;
+  expect(clear.className).toContain("text-muted-foreground");
+  expect(clear.tabIndex).toBe(0);
+  clear.focus();
+  await userEvent.keyboard("{Enter}");
+  expect(
+    screen.container.querySelectorAll('[data-slot="combobox-chip"]').length,
+  ).toBe(0);
+});
+
+test("API-34: the single-value clear is a keyboard stop while closed", async () => {
+  const screen = await render(
+    <Combobox items={frameworks} defaultValue={frameworks[0]}>
+      <ComboboxInput aria-label="Framework" showClear />
+      <ComboboxContent>
+        <ComboboxList>
+          {(item: string) => (
+            <ComboboxItem key={item} value={item}>
+              {item}
+            </ComboboxItem>
+          )}
+        </ComboboxList>
+      </ComboboxContent>
+    </Combobox>,
+  );
+  const clear = screen
+    .getByRole("button", { name: "Clear selection" })
+    .element() as HTMLButtonElement;
+  expect(clear.tabIndex).toBe(0);
+  await userEvent.click(screen.getByRole("combobox", { name: "Framework" }));
+  await expect.poll(() => clear.tabIndex).toBe(-1);
+});
+
+test("no a11y violations — chips with clear-all, closed and open", async () => {
+  const screen = await render(<ChipsWithClear />);
+  await expectNoA11yViolations(screen.container);
+  await userEvent.click(
+    screen.getByRole("combobox", { name: "Add framework" }),
+  );
+  await expectNoA11yViolations(document.body);
+});

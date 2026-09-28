@@ -284,6 +284,41 @@ export function comboboxMultiple(): ReactNode {
   );
 }
 
+/** API-34: a clear-all × at the end of the chips field — muted, keyboard-reachable. */
+export function comboboxMultipleClear(): ReactNode {
+  const anchor = useComboboxAnchor();
+
+  return (
+    <Wrapper className="items-stretch">
+      <div className="mx-auto w-full max-w-xs">
+        <Combobox
+          multiple
+          autoHighlight
+          items={frameworks}
+          defaultValue={[frameworks[0], frameworks[2], frameworks[4]]}
+        >
+          <ComboboxChips ref={anchor} showClear>
+            <ComboboxValue>
+              {(values: string[]) => (
+                <React.Fragment>
+                  {values.map((value) => (
+                    <ComboboxChip key={value}>{value}</ComboboxChip>
+                  ))}
+                  <ComboboxChipsInput aria-label="Add framework" />
+                </React.Fragment>
+              )}
+            </ComboboxValue>
+          </ComboboxChips>
+          <ComboboxContent anchor={anchor}>
+            <ComboboxEmpty>No items found.</ComboboxEmpty>
+            <FrameworkList />
+          </ComboboxContent>
+        </Combobox>
+      </div>
+    </Wrapper>
+  );
+}
+
 export function comboboxClearButton(): ReactNode {
   return (
     <Wrapper className="items-stretch">

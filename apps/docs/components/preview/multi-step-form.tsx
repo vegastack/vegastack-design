@@ -6,10 +6,9 @@ import { Wrapper } from "./wrapper";
 import {
   MultiStepForm,
   MultiStepFormActions,
-  MultiStepFormBack,
   MultiStepFormExit,
   MultiStepFormNav,
-  MultiStepFormNext,
+  MultiStepFormSave,
   MultiStepFormStep,
   type MultiStepFormStepSpec,
 } from "@/components/ui/multi-step-form";
@@ -391,13 +390,7 @@ export function multiStepFormDialog(): ReactNode {
                 {name.trim() || "Nobody yet"} will be invited as a Member.
               </p>
             </MultiStepFormStep>
-            <MultiStepFormActions>
-              <MultiStepFormExit>Cancel</MultiStepFormExit>
-              <div className="flex items-center gap-2">
-                <MultiStepFormBack />
-                <MultiStepFormNext />
-              </div>
-            </MultiStepFormActions>
+            <MultiStepFormActions start={<MultiStepFormExit />} />
           </MultiStepForm>
         </DialogContent>
       </Dialog>
@@ -575,19 +568,17 @@ function MultiStepFormFullPageDemo(): ReactNode {
               </ItemGroup>
             </div>
           </MultiStepFormStep>
-          <MultiStepFormActions sticky="narrow">
-            <MultiStepFormExit>Exit</MultiStepFormExit>
-            <Button
-              variant="secondary"
-              onClick={() => setLastNavigation("saved a draft")}
-            >
-              Save draft
-            </Button>
-            <div className="ms-auto flex gap-2">
-              <MultiStepFormBack />
-              <MultiStepFormNext />
-            </div>
-          </MultiStepFormActions>
+          <MultiStepFormActions
+            sticky="narrow"
+            start={<MultiStepFormExit />}
+            secondary={
+              <MultiStepFormSave
+                onClick={() => setLastNavigation("saved a draft")}
+              >
+                Save draft
+              </MultiStepFormSave>
+            }
+          />
         </div>
       </MultiStepForm>
     </AppShellPage>
@@ -703,12 +694,7 @@ export function multiStepFormAutoSave(): ReactNode {
   return (
     <Wrapper className="block">
       <div className="mx-auto w-full max-w-3xl">
-        <MultiStepForm
-          steps={steps}
-          nextLabel="Next"
-          submitLabel="Save"
-          mobileNav="stepper"
-        >
+        <MultiStepForm steps={steps} submitLabel="Done" mobileNav="stepper">
           <MultiStepFormNav
             aria-label="Edit product"
             orientation="horizontal"
@@ -746,15 +732,144 @@ export function multiStepFormAutoSave(): ReactNode {
             </MultiStepFormStep>
           ))}
           <MultiStepFormActions
-            start={<MultiStepFormExit />}
             status={<AutoSaveIndicator status={autosave.status} />}
             secondary={
-              <Button variant="outline" onClick={() => void autosave.flush()}>
+              <MultiStepFormSave onClick={() => void autosave.flush()}>
                 Done
-              </Button>
+              </MultiStepFormSave>
             }
           />
         </MultiStepForm>
+      </div>
+    </Wrapper>
+  );
+}
+
+const FOOTER_STEPS: MultiStepFormStepSpec[] = [
+  { id: "details", label: "Details", satisfied: true },
+  { id: "specs", label: "Specifications", satisfied: true },
+  { id: "review", label: "Review", satisfied: true },
+];
+
+/** One footer, frozen on one step, with a caption naming the state. */
+function FooterState({
+  caption,
+  step,
+  submitLabel,
+  start,
+  status,
+  secondary,
+}: {
+  caption: string;
+  step: string;
+  submitLabel: string;
+  start?: ReactNode;
+  status?: ReactNode;
+  secondary?: ReactNode;
+}) {
+  return (
+    <div className="flex flex-col gap-2 rounded-lg border border-border p-3">
+      <p className="text-xs text-muted-foreground">{caption}</p>
+      <MultiStepForm
+        steps={FOOTER_STEPS}
+        defaultStep={step}
+        submitLabel={submitLabel}
+        mobileNav="stepper"
+        onExit={() => {}}
+      >
+        {FOOTER_STEPS.map((s) => (
+          <MultiStepFormStep key={s.id} id={s.id}>
+            {null}
+          </MultiStepFormStep>
+        ))}
+        <MultiStepFormActions
+          start={start}
+          status={status}
+          secondary={secondary}
+        />
+      </MultiStepForm>
+    </div>
+  );
+}
+
+const saved = (
+  <span className="flex items-center gap-1 text-sm text-muted-foreground">
+    <Check aria-hidden className="size-4" />
+    Saved
+  </span>
+);
+
+/**
+ * Every footer state: ‹ Back (not on step 1) and Cancel at the start; the status, the optional
+ * outline save and › Next at the end; on the last step the finish takes the primary slot with
+ * its text, and an outline save that says the same thing steps aside — never two saves.
+ */
+export function multiStepFormFooter(): ReactNode {
+  const exit = <MultiStepFormExit />;
+  const draft = <MultiStepFormSave>Save draft</MultiStepFormSave>;
+  return (
+    <Wrapper className="block">
+      <div className="mx-auto grid w-full max-w-2xl gap-3">
+        <FooterState
+          caption="Create · first step"
+          step="details"
+          submitLabel="Create"
+          start={exit}
+        />
+        <FooterState
+          caption="Create · middle step"
+          step="specs"
+          submitLabel="Create"
+          start={exit}
+        />
+        <FooterState
+          caption="Create · last step"
+          step="review"
+          submitLabel="Create"
+          start={exit}
+        />
+        <FooterState
+          caption="Create with Save draft · middle step"
+          step="specs"
+          submitLabel="Save product"
+          start={exit}
+          secondary={draft}
+        />
+        <FooterState
+          caption="Create with Save draft · last step"
+          step="review"
+          submitLabel="Save product"
+          start={exit}
+          secondary={draft}
+        />
+        <FooterState
+          caption="Edit, explicit save · middle step"
+          step="specs"
+          submitLabel="Save"
+          start={exit}
+          secondary={<MultiStepFormSave>Save</MultiStepFormSave>}
+        />
+        <FooterState
+          caption="Edit, explicit save · last step (one Save)"
+          step="review"
+          submitLabel="Save"
+          start={exit}
+          secondary={<MultiStepFormSave>Save</MultiStepFormSave>}
+        />
+        <FooterState
+          caption="Edit, auto-save · middle step"
+          step="specs"
+          submitLabel="Done"
+          status={saved}
+          secondary={<MultiStepFormSave>Done</MultiStepFormSave>}
+        />
+        <FooterState
+          caption="Edit, auto-save · last step"
+          step="review"
+          submitLabel="Done"
+          status={saved}
+          secondary={<MultiStepFormSave>Done</MultiStepFormSave>}
+        />
       </div>
     </Wrapper>
   );

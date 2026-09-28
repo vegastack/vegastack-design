@@ -1006,3 +1006,31 @@ test("TextValueEditor is exported and string-valued (DS-42)", async () => {
     .element(screen.getByRole("textbox", { name: "Stage value" }))
     .toHaveValue("Open");
 });
+
+test("between always gets the min–max editor, even with a number editor registered", async () => {
+  const screen = await render(
+    <RuleBuilder
+      initial={{
+        type: "group",
+        op: "and",
+        children: [
+          {
+            type: "condition",
+            field: "beam",
+            operator: "between",
+            value: { min: 40, max: 20 },
+          },
+        ],
+      }}
+    />,
+  );
+  expect(
+    screen.container.querySelector('[data-slot="filter-range-editor"]'),
+  ).not.toBeNull();
+  await expect
+    .element(screen.getByRole("textbox", { name: "Minimum" }))
+    .toHaveAccessibleDescription(/Minimum can't be more than maximum\./);
+  await expect
+    .element(screen.getByRole("textbox", { name: "Maximum" }))
+    .toBeInTheDocument();
+});

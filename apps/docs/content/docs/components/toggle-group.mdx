@@ -155,6 +155,40 @@ next.
   file="components/preview/toggle-group.tsx"
 />
 
+### Checkbox chips
+
+For picking which values are allowed — a family's colour temperatures, the finishes a generator
+may combine — use a `multiple` group with `wrap`, `variant="outline"` and `size="sm"`: each option
+is a chip that toggles, pressed chips carry a check, and the chips wrap onto rows. Put a label row
+above it with the count ("2 of 6") and two ghost `xs` buttons, **Select all** and **Clear**, each
+disabled when it would do nothing. Name the group from the label with `aria-labelledby`. No
+separate component: this is the whole pattern.
+
+<ComponentPreview
+  name="toggleGroupCheckboxChips"
+  file="components/preview/toggle-group.tsx"
+/>
+
+```tsx
+<ToggleGroup
+  aria-labelledby={labelId}
+  variant="outline"
+  size="sm"
+  spacing={1}
+  wrap
+  multiple
+  value={allowed}
+  onValueChange={setAllowed}
+>
+  {options.map((option) => (
+    <ToggleGroupItem key={option} value={option}>
+      {allowed.includes(option) ? <CheckIcon data-icon="inline-start" /> : null}
+      {option}
+    </ToggleGroupItem>
+  ))}
+</ToggleGroup>
+```
+
 ## API Reference
 
 ### ToggleGroup

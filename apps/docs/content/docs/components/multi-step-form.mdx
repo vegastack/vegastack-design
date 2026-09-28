@@ -44,9 +44,12 @@ renders. The body is whatever you put in it: a
 [`Field`](/docs/components/field) form, a review table, an upload surface, a
 chart, nothing.
 
-`MultiStepFormActions` is as plain as an overlay footer: no divider, no background, its buttons
-right-aligned with the primary last. Back, Skip and Exit are `variant="secondary"`, and so is any
-secondary action you add to the row (Save draft, Cancel).
+`MultiStepFormActions` is as plain as an overlay footer: no divider, no background. The row has
+one order everywhere — `[‹] [Cancel] …… [status] [Save] [›]`: a ‹ icon button (Back, secondary,
+not shown on the first step) then Cancel (ghost) at the start; the status ("Saving…"/"Saved"), an
+optional outline save and a › icon button (Next, primary) at the end. On the last step the finish
+action takes the primary slot with its text label ("Create", "Save product", "Done"). See
+[Footer](#footer).
 
 ## Scope
 
@@ -108,6 +111,46 @@ with the field empty.
   file="components/preview/multi-step-form.tsx"
 />
 
+### Footer
+
+The footer is the same everywhere. ‹ and › are icon buttons named "Back" and "Next" (their
+accessible name and tooltip come from `backLabel` and `nextLabel`), with the same 1px press nudge
+as every button. Back is not rendered on the first step. `start` takes Cancel
+(`MultiStepFormExit`), `status` takes the save state, and `secondary` takes the optional outline
+save, `MultiStepFormSave` — "Save draft" in a create flow, "Save" in an edit flow that saves
+explicitly, "Done" in a flow that saves as you go. On the last step the finish action takes the
+primary slot with `submitLabel`, and a `MultiStepFormSave` whose text equals that label steps aside
+(`hideOnLast` overrides it) — a footer never shows two saves.
+
+| State                       | Row                                           |
+| --------------------------- | --------------------------------------------- |
+| Create, first step          | `[Cancel] …… [›]`                             |
+| Create, middle step         | `[‹] [Cancel] …… [›]`                         |
+| Create, last step           | `[‹] [Cancel] …… [Create]`                    |
+| Create with a draft, last   | `[‹] [Cancel] …… [Save draft] [Save product]` |
+| Edit, explicit save, middle | `[‹] [Cancel] …… [Save] [›]`                  |
+| Edit, explicit save, last   | `[‹] [Cancel] …… [Save]`                      |
+| Edit, auto-save, middle     | `[‹] …… ✓ Saved [Done] [›]`                   |
+| Edit, auto-save, last       | `[‹] …… ✓ Saved [Done]`                       |
+
+<ComponentPreview
+  name="multiStepFormFooter"
+  file="components/preview/multi-step-form.tsx"
+/>
+
+```tsx
+<MultiStepForm steps={steps} submitLabel="Save product">
+  …
+  <MultiStepFormActions
+    start={<MultiStepFormExit />}
+    status={<AutoSaveIndicator status={status} />}
+    secondary={
+      <MultiStepFormSave onClick={saveDraft}>Save draft</MultiStepFormSave>
+    }
+  />
+</MultiStepForm>
+```
+
 ### Editing an existing record
 
 Mark a step `satisfied` when its data is already there. That one predicate
@@ -161,7 +204,7 @@ example also carries `dirty` — type into the first field, then press Cancel.
 full-page form, with no side column. A step's `validate` is a pure, synchronous check run before
 `beforeNext`; its refusal re-reads the check on every render and clears itself (with the rail's
 error mark) as soon as the answers pass. `start` puts Cancel (`MultiStepFormExit`, a ghost
-button) before Back at the far start of the action row.
+button) right after Back at the start of the action row.
 
 <ComponentPreview
   name="multiStepFormTopValidate"
@@ -172,7 +215,9 @@ button) before Back at the far start of the action row.
 
 For a record that already exists, save each change instead of asking for Save: `useAutoSave`
 from `auto-save-input` sends the changed fields after a pause, and the action row's `status` and
-`secondary` slots carry an `AutoSaveIndicator` and a Done button, in that order before Next.
+`secondary` slots carry an `AutoSaveIndicator` and `<MultiStepFormSave>Done</MultiStepFormSave>`,
+in that order before ›: `[‹] …… ✓ Saved [Done] [›]`. With `submitLabel="Done"` the last step shows
+one primary Done.
 `mobileNav="stepper"` keeps the rail on a phone, where it collapses to the step's label,
 "Step n of N" and a progress bar, instead of the section list.
 
@@ -192,13 +237,7 @@ component can fake.
 ```tsx
 <MultiStepForm steps={steps} dirty={form.isDirty} onExit={() => setOpen(false)}>
   …
-  <MultiStepFormActions>
-    <MultiStepFormExit>Cancel</MultiStepFormExit>
-    <div className="flex items-center gap-2">
-      <MultiStepFormBack />
-      <MultiStepFormNext />
-    </div>
-  </MultiStepFormActions>
+  <MultiStepFormActions start={<MultiStepFormExit />} />
 </MultiStepForm>
 ```
 
@@ -264,6 +303,13 @@ Use the controlled `step` alone for a route-driven form; `urlSync` (the `#step=`
   name="MultiStepFormActionsProps"
 />
 
+### Save
+
+<ApiTable
+  path="../../packages/ui/registry/ui/multi-step-form.tsx"
+  name="MultiStepFormSaveProps"
+/>
+
 ## Accessibility
 
 - **Exactly one focus move per transition.** `Stepper` moves focus to the new
@@ -278,6 +324,8 @@ Use the controlled `step` alone for a route-driven form; `urlSync` (the `#step=`
   rather than disappearing like a toast.
 - Sealed and unreachable steps are not focus targets; the phone section rows are
   `Button`s, so they clear the 24px touch floor.
+- ‹ and › are icon-only, so each carries its label as `aria-label` ("Back", "Next") and shows it
+  in a tooltip on hover and focus; on the last step the finish action is a text button.
 - A hash naming a step the guards forbid is ignored and the bar corrected, so a
   pasted link cannot bypass a gate or leave the URL disagreeing with the screen.
 

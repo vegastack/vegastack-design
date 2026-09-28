@@ -12627,7 +12627,7 @@
         "@vegastack/design@^0.7.55",
         "@vegastack/design-tokens@^0.7.49"
       ],
-      "registryDependencies": ["@vegastack/button"],
+      "registryDependencies": ["@vegastack/button", "@vegastack/table"],
       "files": [
         {
           "path": "packages/ui/registry/ui/record-list.tsx",
@@ -13706,7 +13706,8 @@
         "@vegastack/alert-dialog",
         "@vegastack/button",
         "@vegastack/stepper",
-        "@vegastack/use-mobile"
+        "@vegastack/use-mobile",
+        "@vegastack/tooltip"
       ],
       "files": [
         {

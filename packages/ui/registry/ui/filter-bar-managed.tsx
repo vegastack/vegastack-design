@@ -1,4 +1,4 @@
-// @vegastack filter-bar-managed@0.23.68 sha256-32ckc6k4gWUhnyBy4RhxwQ67SQ5NcwnQ+Hn2WRhEd3g=
+// @vegastack filter-bar-managed@0.23.68 sha256-YEjIt5ojvVyGLYTKcL1LeOjMBjg1EvPNrzdET1/4dnc=
 
 "use client";
 
@@ -164,8 +164,9 @@ export interface FilterBuilderProps<V = unknown> {
    * Per-type value editors, keyed by `FilterField.type`. Types without an
    * entry fall back to a STRING-VALUED text `Input` — when `V` is not
    * `string`, every field type needs an entry here. Editors are host code — a
-   * date field should render the host's date picker, not a text box.
-
+   * date field should render the host's date picker, not a text box. `range` and `list` keys
+   * override the shape defaults; a `range` operator ("between") never falls back to the
+   * field type's single-value editor — it gets `range`, else `NumberRangeEditor`.
    * @default undefined
    */
   editors?: Record<string, React.ComponentType<FilterValueEditorProps<V>>>;
@@ -979,18 +980,19 @@ export function FilterBuilder<V = unknown>({
               child.value === ("" as unknown) ||
               (Array.isArray(child.value) && child.value.length === 0));
           const shape = valueShapeOf(operator);
+          // "between" is always two boxes: a host's `range` editor, else Minimum–Maximum. A
+          // single-value editor registered for the field's type never answers a range — it
+          // would store one number where the operator needs two bounds.
           const Editor: React.ComponentType<FilterValueEditorProps<V>> =
-            (shape === "range" || shape === "list"
-              ? editors?.[shape]
-              : undefined) ??
-            editors?.[field.type] ??
-            (shape === "range"
-              ? NumberRangeEditor<V>
-              : shape === "list" && field.options
-                ? OptionsValueEditor<V>
-                : field.options
-                  ? OptionValueEditor<V>
-                  : TextValueEditor<V>);
+            shape === "range"
+              ? (editors?.range ?? NumberRangeEditor<V>)
+              : ((shape === "list" ? editors?.list : undefined) ??
+                editors?.[field.type] ??
+                (shape === "list" && field.options
+                  ? OptionsValueEditor<V>
+                  : field.options
+                    ? OptionValueEditor<V>
+                    : TextValueEditor<V>));
           const rowError = conditionError?.(child, childPath);
           const invalid = missingValue || rowError !== undefined;
           const editorId = `${rowId(childPath)}-value`;

@@ -1,8 +1,13 @@
 # component: combobox
-# decisions: A11Y-16, A11Y-2, A11Y-3, A11Y-4, A11Y-9, API-19, API-26, API-27, API-31, BRD-1, DOC-1, DOC-2, FOC-1, FOC-3, FOC-5, FOC-6, FRM-4, INT-1, OVL-13, FOC-14
+# decisions: A11Y-16, A11Y-2, A11Y-3, A11Y-4, A11Y-9, API-19, API-26, API-27, API-31, API-34, BRD-1, DOC-1, DOC-2, FOC-1, FOC-3, FOC-5, FOC-6, FRM-4, INT-1, OVL-13, FOC-14
 # hunks:
 #   API-31: the clear button and the chip remove button add `active:not-aria-[haspopup]:translate-y-0`
 #     so a × never moves when pressed (MK, 25-09-2026).
+#   API-34: `ComboboxChips` takes `showClear` (and `clearLabel`, "Clear all") and renders a
+#     `ComboboxClear` at the end of the chips field, so a multi-select clears in one press (MK
+#     28-09-2026). `ComboboxClear` takes an `aria-label` override, paints its × muted until hovered,
+#     and renders through a function so it is a keyboard stop (`tabIndex={0}`) while the list is
+#     closed and drops out of the tab order while it is open, when Base UI hides the addon (A11Y-9).
 #   API-19: `ComboboxItem` calls Item's `useItemDescriptionId()`, provides its `register` through
 #     `ItemDescriptionContext`, and sets `aria-describedby` on the option once an `ItemDescription`
 #     inside it registers, so a two-line option (`ItemContent` > `ItemTitle` + `ItemDescription`)
@@ -82,7 +87,7 @@
 #     with `transition-[color,background-color,border-color] duration-150 ease-out`. The
 #     `not-…invalid` guard keeps an invalid field's destructive border in every state.
 diff --git a/combobox.tsx b/combobox.tsx
-index 39e776a..e913815 100644
+index 39e776a..23c6dbc 100644
 --- a/combobox.tsx
 +++ b/combobox.tsx
 @@ -1,22 +1,28 @@
@@ -123,7 +128,7 @@ index 39e776a..e913815 100644
  }
  
  function ComboboxTrigger({
-@@ -33,20 +39,27 @@ function ComboboxTrigger({
+@@ -33,20 +39,42 @@ function ComboboxTrigger({
        {children}
        <ChevronDownIcon className="pointer-events-none size-4 text-muted-foreground" />
      </ComboboxPrimitive.Trigger>
@@ -131,19 +136,35 @@ index 39e776a..e913815 100644
 +  );
  }
  
- function ComboboxClear({ className, ...props }: ComboboxPrimitive.Clear.Props) {
+-function ComboboxClear({ className, ...props }: ComboboxPrimitive.Clear.Props) {
++function ComboboxClear({
++  className,
++  "aria-label": ariaLabel = "Clear selection",
++  ...props
++}: ComboboxPrimitive.Clear.Props) {
    return (
      <ComboboxPrimitive.Clear
        data-slot="combobox-clear"
 -      render={<InputGroupButton variant="ghost" size="icon-xs" />}
-+      render={
++      /*
++       * API-34: the × is muted until hovered, and it is a keyboard stop while the list is closed —
++       * Base UI ships it at `tabIndex={-1}`, which left a keyboard user no way to clear. While the
++       * list is open Base UI hides everything outside it from assistive technology, so it drops
++       * back out of the tab order then (A11Y-9); the input's own keys still work there.
++       */
++      render={(renderProps, state) => (
 +        <InputGroupButton
++          {...renderProps}
 +          variant="ghost"
 +          size="icon-xs"
-+          aria-label="Clear selection"
-+          className="active:not-aria-[haspopup]:translate-y-0"
++          aria-label={ariaLabel}
++          tabIndex={state.open ? -1 : 0}
++          className={cn(
++            "text-muted-foreground hover:text-foreground active:not-aria-[haspopup]:translate-y-0",
++            renderProps.className,
++          )}
 +        />
-+      }
++      )}
        className={cn(className)}
        {...props}
      >
@@ -154,7 +175,7 @@ index 39e776a..e913815 100644
  }
  
  function ComboboxInput({
-@@ -57,8 +70,8 @@ function ComboboxInput({
+@@ -57,8 +85,8 @@ function ComboboxInput({
    showClear = false,
    ...props
  }: ComboboxPrimitive.Input.Props & {
@@ -165,7 +186,7 @@ index 39e776a..e913815 100644
  }) {
    return (
      <InputGroup className={cn("w-auto", className)}>
-@@ -72,16 +85,39 @@ function ComboboxInput({
+@@ -72,16 +100,39 @@ function ComboboxInput({
              size="icon-xs"
              variant="ghost"
              render={<ComboboxTrigger />}
@@ -206,7 +227,7 @@ index 39e776a..e913815 100644
  }
  
  function ComboboxContent({
-@@ -97,6 +133,8 @@ function ComboboxContent({
+@@ -97,6 +148,8 @@ function ComboboxContent({
      ComboboxPrimitive.Positioner.Props,
      "side" | "align" | "sideOffset" | "alignOffset" | "anchor"
    >) {
@@ -215,7 +236,7 @@ index 39e776a..e913815 100644
    return (
      <ComboboxPrimitive.Portal>
        <ComboboxPrimitive.Positioner
-@@ -105,17 +143,20 @@ function ComboboxContent({
+@@ -105,17 +158,20 @@ function ComboboxContent({
          align={align}
          alignOffset={alignOffset}
          anchor={anchor}
@@ -239,7 +260,7 @@ index 39e776a..e913815 100644
  }
  
  function ComboboxList({ className, ...props }: ComboboxPrimitive.List.Props) {
-@@ -124,11 +165,11 @@ function ComboboxList({ className, ...props }: ComboboxPrimitive.List.Props) {
+@@ -124,11 +180,11 @@ function ComboboxList({ className, ...props }: ComboboxPrimitive.List.Props) {
        data-slot="combobox-list"
        className={cn(
          "no-scrollbar max-h-[min(calc(--spacing(72)---spacing(9)),calc(var(--available-height)---spacing(9)))] scroll-py-1 overflow-y-auto overscroll-contain p-1 data-empty:p-0",
@@ -253,7 +274,7 @@ index 39e776a..e913815 100644
  }
  
  function ComboboxItem({
-@@ -136,25 +177,29 @@ function ComboboxItem({
+@@ -136,25 +192,29 @@ function ComboboxItem({
    children,
    ...props
  }: ComboboxPrimitive.Item.Props) {
@@ -300,7 +321,7 @@ index 39e776a..e913815 100644
  }
  
  function ComboboxGroup({ className, ...props }: ComboboxPrimitive.Group.Props) {
-@@ -164,7 +209,7 @@ function ComboboxGroup({ className, ...props }: ComboboxPrimitive.Group.Props) {
+@@ -164,7 +224,7 @@ function ComboboxGroup({ className, ...props }: ComboboxPrimitive.Group.Props) {
        className={cn(className)}
        {...props}
      />
@@ -309,7 +330,7 @@ index 39e776a..e913815 100644
  }
  
  function ComboboxLabel({
-@@ -177,13 +222,13 @@ function ComboboxLabel({
+@@ -177,13 +237,13 @@ function ComboboxLabel({
        className={cn("px-2 py-1.5 text-xs text-muted-foreground", className)}
        {...props}
      />
@@ -325,7 +346,7 @@ index 39e776a..e913815 100644
  }
  
  function ComboboxEmpty({ className, ...props }: ComboboxPrimitive.Empty.Props) {
-@@ -191,12 +236,32 @@ function ComboboxEmpty({ className, ...props }: ComboboxPrimitive.Empty.Props) {
+@@ -191,12 +251,32 @@ function ComboboxEmpty({ className, ...props }: ComboboxPrimitive.Empty.Props) {
      <ComboboxPrimitive.Empty
        data-slot="combobox-empty"
        className={cn(
@@ -361,7 +382,7 @@ index 39e776a..e913815 100644
  }
  
  function ComboboxSeparator({
-@@ -209,7 +274,7 @@ function ComboboxSeparator({
+@@ -209,24 +289,38 @@ function ComboboxSeparator({
        className={cn("-mx-1 my-1 h-px bg-border", className)}
        {...props}
      />
@@ -370,7 +391,19 @@ index 39e776a..e913815 100644
  }
  
  function ComboboxChips({
-@@ -220,13 +285,14 @@ function ComboboxChips({
+   className,
++  children,
++  showClear = false,
++  clearLabel = "Clear all",
+   ...props
+ }: React.ComponentPropsWithRef<typeof ComboboxPrimitive.Chips> &
+-  ComboboxPrimitive.Chips.Props) {
++  ComboboxPrimitive.Chips.Props & {
++    /** API-34: a × at the end of the field that removes every chip. @default false */
++    showClear?: boolean;
++    /** API-34: the clear-all control's accessible name. @default "Clear all" */
++    clearLabel?: string;
++  }) {
    return (
      <ComboboxPrimitive.Chips
        data-slot="combobox-chips"
@@ -382,13 +415,19 @@ index 39e776a..e913815 100644
 +        className,
        )}
        {...props}
-     />
+-    />
 -  )
++    >
++      {children}
++      {showClear && (
++        <ComboboxClear aria-label={clearLabel} className="ms-auto" />
++      )}
++    </ComboboxPrimitive.Chips>
 +  );
  }
  
  function ComboboxChip({
-@@ -235,21 +301,28 @@ function ComboboxChip({
+@@ -235,21 +329,28 @@ function ComboboxChip({
    showRemove = true,
    ...props
  }: ComboboxPrimitive.Chip.Props & {
@@ -421,7 +460,7 @@ index 39e776a..e913815 100644
            className="-ms-1 opacity-50 hover:opacity-100"
            data-slot="combobox-chip-remove"
          >
-@@ -257,7 +330,7 @@ function ComboboxChip({
+@@ -257,7 +358,7 @@ function ComboboxChip({
          </ComboboxPrimitive.ChipRemove>
        )}
      </ComboboxPrimitive.Chip>
@@ -430,7 +469,7 @@ index 39e776a..e913815 100644
  }
  
  function ComboboxChipsInput({
-@@ -267,14 +340,14 @@ function ComboboxChipsInput({
+@@ -267,14 +368,14 @@ function ComboboxChipsInput({
    return (
      <ComboboxPrimitive.Input
        data-slot="combobox-chip-input"
@@ -448,7 +487,7 @@ index 39e776a..e913815 100644
  }
  
  export {
-@@ -287,6 +360,7 @@ export {
+@@ -287,6 +388,7 @@ export {
    ComboboxLabel,
    ComboboxCollection,
    ComboboxEmpty,
@@ -456,7 +495,7 @@ index 39e776a..e913815 100644
    ComboboxSeparator,
    ComboboxChips,
    ComboboxChip,
-@@ -294,4 +368,4 @@ export {
+@@ -294,4 +396,4 @@ export {
    ComboboxTrigger,
    ComboboxValue,
    useComboboxAnchor,

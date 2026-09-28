@@ -1,4 +1,4 @@
-// @vegastack combobox@0.23.68 sha256-psYmerBN3I/KhLGWTrs/u7Ox12Xr3/Luyqg9PEaZkHE=
+// @vegastack combobox@0.23.68 sha256-DJ6eJPCEZZs0VEoePjYpS7Tb+GuSsErxVrBisomQ2+g=
 
 "use client";
 
@@ -44,18 +44,33 @@ function ComboboxTrigger({
   );
 }
 
-function ComboboxClear({ className, ...props }: ComboboxPrimitive.Clear.Props) {
+function ComboboxClear({
+  className,
+  "aria-label": ariaLabel = "Clear selection",
+  ...props
+}: ComboboxPrimitive.Clear.Props) {
   return (
     <ComboboxPrimitive.Clear
       data-slot="combobox-clear"
-      render={
+      /*
+       * API-34: the × is muted until hovered, and it is a keyboard stop while the list is closed —
+       * Base UI ships it at `tabIndex={-1}`, which left a keyboard user no way to clear. While the
+       * list is open Base UI hides everything outside it from assistive technology, so it drops
+       * back out of the tab order then (A11Y-9); the input's own keys still work there.
+       */
+      render={(renderProps, state) => (
         <InputGroupButton
+          {...renderProps}
           variant="ghost"
           size="icon-xs"
-          aria-label="Clear selection"
-          className="active:not-aria-[haspopup]:translate-y-0"
+          aria-label={ariaLabel}
+          tabIndex={state.open ? -1 : 0}
+          className={cn(
+            "text-muted-foreground hover:text-foreground active:not-aria-[haspopup]:translate-y-0",
+            renderProps.className,
+          )}
         />
-      }
+      )}
       className={cn(className)}
       {...props}
     >
@@ -281,9 +296,17 @@ function ComboboxSeparator({
 
 function ComboboxChips({
   className,
+  children,
+  showClear = false,
+  clearLabel = "Clear all",
   ...props
 }: React.ComponentPropsWithRef<typeof ComboboxPrimitive.Chips> &
-  ComboboxPrimitive.Chips.Props) {
+  ComboboxPrimitive.Chips.Props & {
+    /** API-34: a × at the end of the field that removes every chip. @default false */
+    showClear?: boolean;
+    /** API-34: the clear-all control's accessible name. @default "Clear all" */
+    clearLabel?: string;
+  }) {
   return (
     <ComboboxPrimitive.Chips
       data-slot="combobox-chips"
@@ -293,7 +316,12 @@ function ComboboxChips({
         className,
       )}
       {...props}
-    />
+    >
+      {children}
+      {showClear && (
+        <ComboboxClear aria-label={clearLabel} className="ms-auto" />
+      )}
+    </ComboboxPrimitive.Chips>
   );
 }
 

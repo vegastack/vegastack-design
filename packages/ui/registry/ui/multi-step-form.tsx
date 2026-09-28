@@ -1,4 +1,4 @@
-// @vegastack multi-step-form@0.23.68 sha256-P5S12jbZePp7osXexkrx7IydZ7XqzjbeLT3tX8pQCI0=
+// @vegastack multi-step-form@0.23.68 sha256-gqR/90K/+8n7riR3MPgfStlZ4pCe6n+7nawfw4z3Hz8=
 
 "use client";
 
@@ -12,6 +12,11 @@ import {
   type StepperStep,
 } from "@/components/ui/stepper";
 import { Button } from "@/components/ui/button";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import {
   AlertDialog,
@@ -377,8 +382,9 @@ export interface MultiStepFormProps extends Omit<
    */
   backLabel?: string;
   /**
-   * Label for the forward action on every step but the last.
-   * @default 'Continue'
+   * Label for the forward action on every step but the last — the › button's accessible name
+   * and tooltip.
+   * @default 'Next'
    */
   nextLabel?: string;
   /**
@@ -484,7 +490,7 @@ export function MultiStepForm({
   persistKey,
   urlSync = false,
   backLabel = "Back",
-  nextLabel = "Continue",
+  nextLabel = "Next",
   submitLabel = "Submit",
   skipLabel = "Skip",
   mobileNav = "sections",
@@ -1173,8 +1179,30 @@ export function MultiStepFormStep({
 }
 
 /**
- * `MultiStepFormBack` — the backward action. Disabled on the first step, while a guard is
- * running, and for good once a locking step has been passed.
+ * An icon-only step control — ‹ or › — with its label as the accessible name and a tooltip.
+ * The one place the footer's two arrows are drawn, so Back and Next match.
+ */
+function StepArrow({
+  label,
+  children,
+  ...props
+}: React.ComponentProps<typeof Button> & { label: string }) {
+  return (
+    <Tooltip>
+      <TooltipTrigger
+        render={<Button size="icon" aria-label={label} {...props} />}
+      >
+        {children}
+      </TooltipTrigger>
+      <TooltipContent>{label}</TooltipContent>
+    </Tooltip>
+  );
+}
+
+/**
+ * `MultiStepFormBack` — the backward action: a ‹ icon button named "Back" (tooltip too). It is
+ * not rendered on the first step, and is disabled while a guard runs and for good once a
+ * locking step has been passed. Pass children for a text button instead.
  *
  * @example
  * <MultiStepFormBack />
@@ -1186,26 +1214,36 @@ export function MultiStepFormBack({
 }: React.ComponentProps<typeof Button>) {
   const { canGoBack, goBack, labels, isFirst, sealedIndex, currentIndex } =
     useMultiStepFormContext("MultiStepFormBack");
-  const sealed = !isFirst && currentIndex - 1 <= sealedIndex;
+  if (isFirst) return null;
+  const sealed = currentIndex - 1 <= sealedIndex;
+  const shared = {
+    variant: "secondary" as const,
+    "data-slot": "multi-step-form-back",
+    "data-sealed": sealed ? "" : undefined,
+    disabled: !canGoBack,
+    onClick: goBack,
+    className: cn(className),
+  };
+  if (children != null) {
+    return (
+      <Button {...shared} {...props}>
+        {children}
+      </Button>
+    );
+  }
   return (
-    <Button
-      variant="secondary"
-      data-slot="multi-step-form-back"
-      data-sealed={sealed ? "" : undefined}
-      disabled={!canGoBack}
-      onClick={goBack}
-      className={cn(className)}
-      {...props}
-    >
-      {children ?? labels.back}
-    </Button>
+    <StepArrow label={labels.back} {...shared} {...props}>
+      <ChevronLeft aria-hidden />
+    </StepArrow>
   );
 }
 
 /**
- * `MultiStepFormNext` — the forward action, which becomes the submit action on the last
- * step. It shows a spinner while a guard runs, and is described by the refusal whenever one
- * is showing, so the reason reads out with the control it blocks.
+ * `MultiStepFormNext` — the forward action: a › icon button named "Next" (tooltip too) on every
+ * step but the last, where it becomes the finish action with its text label ("Create", "Save
+ * product", "Done"). It shows a spinner while a guard runs, and is described by the refusal
+ * whenever one is showing, so the reason reads out with the control it blocks. Pass children for
+ * a text button on every step.
  *
  * @example
  * <MultiStepFormNext />
@@ -1217,17 +1255,69 @@ export function MultiStepFormNext({
 }: React.ComponentProps<typeof Button>) {
   const { canGoNext, goNext, labels, isLast, pending, refusal, refusalId } =
     useMultiStepFormContext("MultiStepFormNext");
+  const shared = {
+    "data-slot": "multi-step-form-next",
+    "data-finish": isLast ? "" : undefined,
+    loading: pending,
+    disabled: !canGoNext,
+    "aria-describedby": refusal ? refusalId : undefined,
+    onClick: goNext,
+    className: cn(className),
+  };
+  if (children != null || isLast) {
+    return (
+      <Button {...shared} {...props}>
+        {children ?? labels.submit}
+      </Button>
+    );
+  }
+  return (
+    <StepArrow label={labels.next} {...shared} {...props}>
+      <ChevronRight aria-hidden />
+    </StepArrow>
+  );
+}
+
+/** Props accepted by `MultiStepFormSave`. */
+export interface MultiStepFormSaveProps extends React.ComponentProps<
+  typeof Button
+> {
+  /**
+   * Hide this button on the last step. By default it hides there exactly when its text equals
+   * the finish label (`submitLabel` or the step's `nextLabel`) — the finish action already says
+   * "Save", and a footer never shows two saves.
+   * @default children === the finish label
+   */
+  hideOnLast?: boolean;
+}
+
+/**
+ * `MultiStepFormSave` — the optional outline save between the status and Next: "Save draft" in a
+ * create flow, "Save" in an edit flow that saves explicitly, "Done" in a flow that saves as you
+ * go. On the last step, when its text equals the finish label, it steps aside for the finish
+ * action, so there is never a second save.
+ *
+ * @example
+ * <MultiStepFormActions secondary={<MultiStepFormSave onClick={saveDraft}>Save draft</MultiStepFormSave>} />
+ */
+export function MultiStepFormSave({
+  className,
+  children,
+  hideOnLast,
+  ...props
+}: MultiStepFormSaveProps) {
+  const { isLast, labels } = useMultiStepFormContext("MultiStepFormSave");
+  const duplicate =
+    hideOnLast ?? (typeof children === "string" && children === labels.submit);
+  if (isLast && duplicate) return null;
   return (
     <Button
-      data-slot="multi-step-form-next"
-      loading={pending}
-      disabled={!canGoNext}
-      aria-describedby={refusal ? refusalId : undefined}
-      onClick={goNext}
+      variant="outline"
+      data-slot="multi-step-form-save"
       className={cn(className)}
       {...props}
     >
-      {children ?? (isLast ? labels.submit : labels.next)}
+      {children ?? "Save"}
     </Button>
   );
 }
@@ -1266,7 +1356,7 @@ export function MultiStepFormSkip({
  * holds unsaved work. Put it wherever leaving belongs: a dialog's Cancel, a page's "Back to
  * settings". With nothing dirty it simply calls `onExit`; a confirmation nobody needs is the
  * fastest way to teach people to dismiss confirmations unread. It is a ghost button by
- * default: in the action row it sits at the far start, before Back, as the quietest control.
+ * default: in the action row it sits right after Back, as the quietest control.
  *
  * @example
  * <MultiStepFormExit>Cancel</MultiStepFormExit>
@@ -1302,7 +1392,7 @@ export interface MultiStepFormActionsProps extends React.ComponentPropsWithRef<"
    */
   sticky?: boolean | "narrow";
   /**
-   * Rendered at the far start, before Back — the place for leaving the flow
+   * Rendered at the start, right after Back — the place for leaving the flow
    * (`<MultiStepFormExit />`). Ignored when you pass children.
    * @default undefined
    */
@@ -1314,8 +1404,9 @@ export interface MultiStepFormActionsProps extends React.ComponentPropsWithRef<"
    */
   status?: React.ReactNode;
   /**
-   * A secondary action between the status and Next — "Save draft", or "Done" in a flow that
-   * saves as you go. Ignored when you pass children.
+   * The optional outline save between the status and Next — `<MultiStepFormSave>`: "Save draft",
+   * "Save" in an edit flow, or "Done" in a flow that saves as you go. It steps aside on the last
+   * step when it repeats the finish label. Ignored when you pass children.
    * @default undefined
    */
   secondary?: React.ReactNode;
@@ -1323,10 +1414,11 @@ export interface MultiStepFormActionsProps extends React.ComponentPropsWithRef<"
 
 /**
  * `MultiStepFormActions` — the refusal, then the action row. The row has one order
- * everywhere: `start` (Cancel) and Back at the far start; then, at the far end, `status`
- * ("Saving…" / "Saved"), `secondary` (Save draft or Done), Skip on an optional step, and
- * Next. Pass children to compose the row yourself; the refusal is rendered either way.
- * `sticky` pins both to the bottom of the scroll area on a long step.
+ * everywhere: ‹ Back (not on the first step) then `start` (Cancel) at the start; then, at the
+ * end, `status` ("Saving…" / "Saved"), `secondary` (the outline save), Skip on an optional step,
+ * and › Next — which on the last step is the finish action with its text label. Pass children
+ * to compose the row yourself; the refusal is rendered either way. `sticky` pins both to the
+ * bottom of the scroll area on a long step.
  *
  * @example
  * <MultiStepFormActions />
@@ -1336,11 +1428,17 @@ export interface MultiStepFormActionsProps extends React.ComponentPropsWithRef<"
  * <MultiStepFormActions sticky="narrow" />
  *
  * @example
- * // A flow that saves as you go
+ * // A create flow with a draft: [‹] [Cancel] … [Save draft] [›], last step [Save draft] [Create]
  * <MultiStepFormActions
  *   start={<MultiStepFormExit />}
+ *   secondary={<MultiStepFormSave onClick={saveDraft}>Save draft</MultiStepFormSave>}
+ * />
+ *
+ * @example
+ * // A flow that saves as you go (submitLabel="Done"): [‹] … ✓ Saved [Done] [›]
+ * <MultiStepFormActions
  *   status={<AutoSaveIndicator status={status} />}
- *   secondary={<Button variant="outline">Done</Button>}
+ *   secondary={<MultiStepFormSave onClick={close}>Done</MultiStepFormSave>}
  * />
  */
 export function MultiStepFormActions({
@@ -1483,8 +1581,8 @@ export function MultiStepFormActions({
               data-slot="multi-step-form-action-start"
               className="flex items-center gap-2"
             >
-              {start}
               <MultiStepFormBack />
+              {start}
             </div>
             <div
               data-slot="multi-step-form-action-end"

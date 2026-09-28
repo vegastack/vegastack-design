@@ -142,7 +142,15 @@ Maximum; either may be empty, and a minimum above the maximum is an error on the
 `SearchableSelect multiple`; both take `placeholder` and `searchLabel`). Without an
 entry in `editors`, a `range` operator gets `NumberRangeEditor`, a `list` operator on a field with
 `options` gets `OptionsValueEditor`, a field with `options` gets `OptionValueEditor`, and the rest get
-`TextValueEditor`. `editors.range` and `editors.list` override the shape defaults.
+`TextValueEditor`. `editors.range` and `editors.list` override the shape defaults. A `range`
+operator ("is between") always gets two boxes — `editors.range`, else `NumberRangeEditor` — even
+when `editors` registers a single-value editor for the field's type, so "between" never stores one
+number. A minimum above the maximum reads "Minimum can't be more than maximum." under the pair.
+
+<ComponentPreview
+  name="filterBarManagedBetween"
+  file="components/preview/filter-bar-managed.tsx"
+/>
 
 For a long vocabulary, `fieldPicker="searchable"` makes each row's field picker a
 `SearchableSelect`; `fieldPickerProps` reaches it, so `remote` with `useAsyncSearch` searches the

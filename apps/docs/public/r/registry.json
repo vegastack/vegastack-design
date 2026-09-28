@@ -1063,7 +1063,7 @@
         "whenToUse": "Choosing from a large or dynamic set that benefits from typing to narrow it down — searchable pickers, tag/label multi-select, async-loaded results. A two-line option composes ItemTitle + ItemDescription, and the description is the option's accessible description.",
         "whenNotToUse": "A small, fixed set with no need to search (Select), boolean on/off (Switch), or a few always-visible options (radios/checkboxes).",
         "version": "0.23.68",
-        "integrity": "sha256-psYmerBN3I/KhLGWTrs/u7Ox12Xr3/Luyqg9PEaZkHE="
+        "integrity": "sha256-DJ6eJPCEZZs0VEoePjYpS7Tb+GuSsErxVrBisomQ2+g="
       }
     },
     {
@@ -2038,7 +2038,7 @@
         "whenToUse": "Editing a filter or a rule as data: nested and/or groups, or flat condition rules (allowGroups={false}) with a sentence summary, host-injected fields and typed value editors.",
         "whenNotToUse": "A presentational chip row over host-owned filter state (filter-bar), or free-text search (Input in a toolbar).",
         "version": "0.23.68",
-        "integrity": "sha256-32ckc6k4gWUhnyBy4RhxwQ67SQ5NcwnQ+Hn2WRhEd3g="
+        "integrity": "sha256-YEjIt5ojvVyGLYTKcL1LeOjMBjg1EvPNrzdET1/4dnc="
       }
     },
     {
@@ -15736,7 +15736,8 @@
         "@vegastack/design-tokens@^0.7.49"
       ],
       "registryDependencies": [
-        "@vegastack/button"
+        "@vegastack/button",
+        "@vegastack/table"
       ],
       "files": [
         {
@@ -15749,7 +15750,7 @@
         "whenToUse": "The records a change will touch, listed in a confirmation dialog (the products a save affects, the products a delete leaves), each with a link to open it in a new tab.",
         "whenNotToUse": "Navigable or selectable lists (Item, DataList), pickers (Combobox), or a single linked record (RecordChip).",
         "version": "0.23.68",
-        "integrity": "sha256-q18QeUnwf554DGcxkIOdbafBx6pH1gX4hGvNml/oFS0="
+        "integrity": "sha256-sBGRXQepIkpqzUH1/hCQw293ZutWZvSGfs1/ZuZjOBM="
       }
     },
     {
@@ -16967,7 +16968,8 @@
         "@vegastack/alert-dialog",
         "@vegastack/button",
         "@vegastack/stepper",
-        "@vegastack/use-mobile"
+        "@vegastack/use-mobile",
+        "@vegastack/tooltip"
       ],
       "files": [
         {
@@ -16980,7 +16982,7 @@
         "whenToUse": "A process a person drives across several screens — signup, checkout, an import wizard, a multi-section record editor — where steps can branch, an advance can be refused, and a committed step must not be walked back into.",
         "whenNotToUse": "Progress the system drives and a person only reads (Stepper alone), free navigation between peer views (Tabs), or one question at a time (Questionnaire).",
         "version": "0.23.68",
-        "integrity": "sha256-P5S12jbZePp7osXexkrx7IydZ7XqzjbeLT3tX8pQCI0="
+        "integrity": "sha256-gqR/90K/+8n7riR3MPgfStlZ4pCe6n+7nawfw4z3Hz8="
       }
     },
     {
