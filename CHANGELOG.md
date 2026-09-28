@@ -9,6 +9,19 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.23.66] — September 28, 2026
+
+<!-- assembled from 1 changeset: 0fb3fdc95eb5 -->
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.23.65 → 0.23.66.
+
+### 🐛 Fixed
+
+- `RecordLayoutRail` keeps its gap when the page scrolls: it sticks `--record-rail-gap` (default `--spacing(8)`, `AppShellPage`'s top gutter) below the top of the scroll container instead of touching the header, and its own scroll height leaves that gap above and below (`--record-rail-offset` now defaults to `--spacing(14)`, the `AppShellHeader`). `useRecordLayoutWide()` also returns `rail` and `sheet` mount flags — both `true` until the layout is measured — so a server-rendered record page paints its rail on first load instead of popping it in after hydration.
+  [`8321134`](https://github.com/VegaStack/vegastack-design/commit/8321134)
+
 ## [0.23.65] — September 28, 2026
 
 <!-- assembled from 2 changesets: 81ebefe8cf28 -->
