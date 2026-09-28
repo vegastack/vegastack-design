@@ -43,6 +43,8 @@ export const BROWSER_ONLY_NOTES: Record<string, string> = {
     "_Shadow specimen — browser only; the steps are Tailwind's `shadow-sm`/`-md`/`-lg`._",
   SpacingScale:
     "_Spacing specimen — browser only; the 4px ladder is Tailwind's own._",
+  PageLayoutSpecimen:
+    "_Page layout specimen — browser only; the widths and the gutter scale are in the tables on this page._",
   MotionSpecimen:
     "_Motion specimen — browser only; the duration and easing tokens are in design.md §Tokens we add._",
   FocusRingSpecimen:

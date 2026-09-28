@@ -13,9 +13,8 @@ import { fileURLToPath } from "node:url";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const PKG = join(HERE, "..");
-const { main, scanRetiredVocabulary, uiAliasDirs } = await import(
-  join(PKG, "bin/doctor.mjs")
-);
+const { main, scanPageLayout, scanRetiredVocabulary, uiAliasDirs } =
+  await import(join(PKG, "bin/doctor.mjs"));
 
 let failures = 0;
 const tmpRoots = [];
@@ -351,6 +350,36 @@ test("`doctor` fails with file:line when retired vocabulary is present, passes w
 });
 
 for (const dir of tmpRoots) rmSync(dir, { recursive: true, force: true });
+test("page layout: an AppShellPage that sets its own width or gutter is reported; narrow is a warning", () => {
+  const root = project({
+    "src/app/a/page.tsx": [
+      `<AppShellPage size="prose">ok</AppShellPage>`,
+      `<AppShellPage className="max-w-2xl px-0 md:px-10">bad</AppShellPage>`,
+      `<AppShellPage size="prose" className="pb-24 gap-4">ok</AppShellPage>`,
+      `<AppShellPage className={cn("mx-auto", x && "p-0")} size="full">bad</AppShellPage>`,
+      `<AppShellPage size="narrow">old</AppShellPage>`,
+    ].join("\n"),
+    "src/components/ui/app-shell.tsx": `<AppShellPage className="max-w-3xl" />`,
+  });
+  const { findings, deprecated } = scanPageLayout(root, {
+    skipDirs: [join(root, "src/components/ui")],
+  });
+  assert.deepEqual(
+    findings.map((f) => `${f.file}:${f.line} ${f.match}`),
+    [
+      "src/app/a/page.tsx:2 max-w-2xl",
+      "src/app/a/page.tsx:2 px-0",
+      "src/app/a/page.tsx:2 md:px-10",
+      "src/app/a/page.tsx:4 mx-auto",
+      "src/app/a/page.tsx:4 p-0",
+    ],
+  );
+  assert.deepEqual(
+    deprecated.map((f) => `${f.file}:${f.line}`),
+    ["src/app/a/page.tsx:5"],
+  );
+});
+
 if (failures > 0) {
   console.error(`\n✗ doctor: ${failures} test(s) failed`);
   process.exit(1);

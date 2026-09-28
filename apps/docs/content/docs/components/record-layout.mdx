@@ -40,7 +40,7 @@ import {
 `RecordLayout` is a record page's frame: the main column (title, status line, tabs) and, from `lg`
 up, a 320px right rail of cards — a [`PropertyList`](/docs/components/property-list) of the
 record's facts first, related work below. The rail sticks `--record-rail-gap` (default
-`--spacing(8)`, the page's top gutter) below the top of the scroll container — the gap it has at
+`--page-gutter`, the page's own gutter — 32px outside an `AppShellPage`) below the top of the scroll container — the gap it has at
 rest, so it never slides up against the header — and scrolls on its own when it is taller than the
 viewport; set `--record-rail-offset` (default `--spacing(14)`, the `AppShellHeader`) to the height
 of the chrome above the scroll container. Below `lg` the rail is hidden, and `RecordDetailsSheet` — a ghost ⓘ icon button beside the

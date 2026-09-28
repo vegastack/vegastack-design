@@ -1,4 +1,4 @@
-import type { CSSProperties } from "react";
+import type { CSSProperties, ReactNode } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Kbd } from "@/components/ui/kbd";
@@ -415,6 +415,145 @@ export function FocusRingSpecimen() {
           aria-label="Focusable input"
           className="w-48"
         />
+      </div>
+    </div>
+  );
+}
+
+/* ---- Page layout specimen ------------------------------------------------------------------ */
+
+/** One schematic app window: a sidebar strip (or none), the header row, and the content area. */
+function LayoutFrame({
+  caption,
+  sidebar = "open",
+  gutter,
+  children,
+  wide = true,
+}: {
+  caption: string;
+  sidebar?: "open" | "collapsed" | "overlay";
+  gutter: string;
+  children: ReactNode;
+  wide?: boolean;
+}) {
+  return (
+    <figure className="flex min-w-0 flex-col gap-2">
+      <div
+        className={`flex h-44 overflow-hidden rounded-lg border border-border bg-background ${wide ? "w-full" : "mx-auto w-40"}`}
+        style={{ "--g": gutter } as CSSProperties}
+      >
+        {sidebar !== "overlay" && (
+          <div
+            className={`shrink-0 border-e border-border bg-sidebar ${sidebar === "open" ? "w-1/6" : "w-5"}`}
+          />
+        )}
+        <div className="flex min-w-0 flex-1 flex-col">
+          <div className="flex h-5 shrink-0 items-center border-b border-border px-(--g)">
+            <div className="h-1.5 w-10 rounded-full bg-muted-foreground/40" />
+          </div>
+          <div className="flex min-h-0 flex-1">{children}</div>
+        </div>
+      </div>
+      <figcaption className="text-xs text-muted-foreground">
+        {caption}
+      </figcaption>
+    </figure>
+  );
+}
+
+/** The page box inside a frame, drawn at a width. */
+function LayoutPage({
+  width,
+  rail = false,
+  board = false,
+}: {
+  width: "prose" | "default" | "full";
+  rail?: boolean;
+  board?: boolean;
+}) {
+  const max =
+    width === "prose"
+      ? "max-w-[60%]"
+      : width === "default"
+        ? "max-w-[92%]"
+        : "";
+  return (
+    <div className={`mx-auto flex w-full min-w-0 gap-(--g) p-(--g) ${max}`}>
+      <div className="flex min-w-0 flex-1 flex-col gap-1.5 rounded-sm bg-primary/10 p-1.5">
+        <div className="h-1.5 w-1/2 rounded-full bg-primary/50" />
+        {board ? (
+          <div className="flex flex-1 gap-1">
+            {[0, 1, 2, 3].map((i) => (
+              <div key={i} className="flex-1 rounded-sm bg-primary/15" />
+            ))}
+          </div>
+        ) : (
+          [0, 1, 2].map((i) => (
+            <div key={i} className="h-1 w-full rounded-full bg-primary/25" />
+          ))
+        )}
+      </div>
+      {rail && <div className="w-1/4 shrink-0 rounded-sm bg-primary/20" />}
+    </div>
+  );
+}
+
+/** Live page-layout specimen — the three widths, the sidebar states, the small screens. */
+export function PageLayoutSpecimen() {
+  return (
+    <div className="not-prose my-6 flex flex-col gap-6">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+        <LayoutFrame
+          caption="prose — 720px of content, centred"
+          gutter="calc(var(--spacing) * 1.5)"
+        >
+          <LayoutPage width="prose" />
+        </LayoutFrame>
+        <LayoutFrame
+          caption="default — up to 1280px, centred"
+          gutter="calc(var(--spacing) * 1.5)"
+        >
+          <LayoutPage width="default" />
+        </LayoutFrame>
+        <LayoutFrame
+          caption="full — edge to edge (a board)"
+          gutter="calc(var(--spacing) * 1.5)"
+        >
+          <LayoutPage width="full" board />
+        </LayoutFrame>
+      </div>
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <LayoutFrame
+          caption="Record page (default) — the rail sticks one gutter below the header"
+          gutter="calc(var(--spacing) * 1.5)"
+        >
+          <LayoutPage width="default" rail />
+        </LayoutFrame>
+        <LayoutFrame
+          caption="Sidebar collapsed — the same widths in a wider content area; full pages grow"
+          sidebar="collapsed"
+          gutter="calc(var(--spacing) * 1.5)"
+        >
+          <LayoutPage width="default" rail />
+        </LayoutFrame>
+      </div>
+      <div className="grid grid-cols-2 gap-4">
+        <LayoutFrame
+          caption="Tablet — sidebar is an overlay, gutter 24px, Details is the ⓘ sheet"
+          sidebar="overlay"
+          gutter="calc(var(--spacing) * 1.25)"
+          wide={false}
+        >
+          <LayoutPage width="default" />
+        </LayoutFrame>
+        <LayoutFrame
+          caption="Phone — gutter 16px"
+          sidebar="overlay"
+          gutter="calc(var(--spacing) * 0.75)"
+          wide={false}
+        >
+          <LayoutPage width="prose" />
+        </LayoutFrame>
       </div>
     </div>
   );

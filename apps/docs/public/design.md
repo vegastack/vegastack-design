@@ -1062,7 +1062,7 @@ line when its file is next touched, never in a drive-by rename.
 `Stat`, `StatusIcon` and `Chip` (add `default`, keep `md` as an alias); `SettingsSection`'s `titleAs`
 and `TruncatedText`'s `as` (→ `render`); `dismissable` on `AnnouncementBanner` (→ `dismissible`);
 `ActionBar`'s `pending` (→ `loading`); `MultiStepForm`'s `Back`, `Next`, `Skip` and `Exit` parts,
-which export no `…Props` type; `AppShellPage`'s `size` (`narrow · default · full`, a page measure off
+which export no `…Props` type; `AppShellPage`'s `size` (`prose · default · full`, a page width off
 the size ladder); `DataList`'s "Loading rows" status (→ "Loading rows…");
 `PanelSearch`'s look differing from `SearchableSelect`'s in-popup search; and per-component
 async-write status (→ one shared shape).

@@ -12,12 +12,12 @@
     "evidencePolicy": "Observed fields come from source, registry metadata, docs, and test topology. Unknown/not-applicable values are explicit; no inferred behavior is presented as verified."
   },
   "expectedCounts": {
-    "totalRegistryItems": 698,
+    "totalRegistryItems": 699,
     "components": 134,
     "animatedIcons": 467,
     "hooks": 13,
     "blocks": 11,
-    "libs": 5,
+    "libs": 6,
     "chartBlocks": 68
   },
   "expectedWaveCounts": {
@@ -1489,6 +1489,15 @@
             "status": "not-applicable",
             "rationale": "Type-only exports do not render or accept runtime refs."
           }
+        },
+        {
+          "name": "pageGutterClasses",
+          "kind": "component-constant",
+          "source": "packages/ui/registry/ui/app-shell.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "component-constant symbols do not expose a rendered DOM instance or ref contract."
+          }
         }
       ],
       "variants": {
@@ -1550,7 +1559,11 @@
       },
       "engines": [],
       "docsSlug": "/docs/components/app-shell",
-      "registryDependencies": ["@vegastack/sidebar", "@vegastack/skeleton"],
+      "registryDependencies": [
+        "@vegastack/sidebar",
+        "@vegastack/skeleton",
+        "@vegastack/page-layout"
+      ],
       "npmDependencies": [
         "class-variance-authority@^0.7.1",
         "@vegastack/design@^0.7.54",
@@ -33058,6 +33071,115 @@
         "packages/ui/registry/ui/sortable-list.test.tsx",
         "packages/ui/registry/ui/text-edit.test.tsx"
       ],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "shared-guide-only",
+        "navigation": "exempt",
+        "preview": "exempt",
+        "vrt": "exempt"
+      }
+    },
+    {
+      "name": "page-layout",
+      "registryType": "registry:lib",
+      "title": "Page Layout",
+      "summary": "The page-width contract — the prose/default/full vocabulary AppShellPage takes, and definePageWidths, one route → width map that a page, its loading skeleton and a test all read.",
+      "family": "lib",
+      "wave": "Libs",
+      "sourceFiles": ["packages/ui/registry/lib/page-layout.ts"],
+      "publicSymbols": [
+        {
+          "name": "PageWidth",
+          "kind": "type",
+          "source": "packages/ui/registry/lib/page-layout.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "PageWidths",
+          "kind": "interface",
+          "source": "packages/ui/registry/lib/page-layout.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "PAGE_WIDTHS",
+          "kind": "component-constant",
+          "source": "packages/ui/registry/lib/page-layout.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "component-constant symbols do not expose a rendered DOM instance or ref contract."
+          }
+        },
+        {
+          "name": "matchRoute",
+          "kind": "function",
+          "source": "packages/ui/registry/lib/page-layout.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A pure function; it renders nothing and takes no ref."
+          }
+        },
+        {
+          "name": "definePageWidths",
+          "kind": "function",
+          "source": "packages/ui/registry/lib/page-layout.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A pure function; it renders nothing and takes no ref."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "A data module renders nothing and has no variant surface."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "A data module renders nothing and has no size scale."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned motion mechanism observed."
+        }
+      },
+      "engines": [],
+      "registryDependencies": [],
+      "docsSlug": "/docs/guides/components",
+      "states": {
+        "behavior": {
+          "status": "not-applicable",
+          "values": ["not-applicable"],
+          "evidence": "Plain functions over a route map: no DOM and no state."
+        },
+        "accessibility": {
+          "status": "not-applicable",
+          "values": ["not-applicable"],
+          "evidence": "No DOM — AppShellPage renders the page container."
+        },
+        "visual": {
+          "status": "not-applicable",
+          "values": ["not-applicable"],
+          "evidence": "No DOM — the widths are AppShellPage's classes."
+        }
+      },
+      "responsive": {
+        "status": "not-applicable",
+        "risks": [],
+        "rationale": "No DOM of its own; consumers own layout."
+      },
+      "npmDependencies": [],
+      "testFiles": ["packages/ui/registry/lib/page-layout.test.ts"],
       "coverage": {
         "source": "required",
         "test": "required",

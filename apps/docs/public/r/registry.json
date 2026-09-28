@@ -195,7 +195,8 @@
       ],
       "registryDependencies": [
         "@vegastack/sidebar",
-        "@vegastack/skeleton"
+        "@vegastack/skeleton",
+        "@vegastack/page-layout"
       ],
       "files": [
         {
@@ -205,10 +206,10 @@
         }
       ],
       "meta": {
-        "whenToUse": "The root layout for a dashboard/console app — sidebar + header + main content, shared across every downstream VegaStack app; AppShellPage gives every page one container — gutters, rhythm and a narrow/default/full measure.",
+        "whenToUse": "The root layout for a dashboard/console app — sidebar + header + main content, shared across every downstream VegaStack app; AppShellPage gives every page one container — the page gutter, rhythm and a prose/default/full width picked per route from one definePageWidths map.",
         "whenNotToUse": "A marketing/docs page with no persistent nav rail, or an app that already owns an equivalent shell — compose Sidebar/PageHeader/Breadcrumb directly instead.",
         "version": "0.23.67",
-        "integrity": "sha256-0asiaBAxIUHBJ26Hh4hI7eTnL4SEq6cDsMoDqlt4ArE="
+        "integrity": "sha256-JnE4LQM30DFqdtBx3SA+KLjF9cCUoblPGnggVZHC9+k="
       }
     },
     {
@@ -240,7 +241,7 @@
         "whenToUse": "A record's page (a meeting, a customer, a deal): the main column with a sticky rail of property and related-work cards on wide screens, and an ⓘ Details sheet on small ones.",
         "whenNotToUse": "A list page (DataList), or a page with no per-record facts — use AppShellPage alone.",
         "version": "0.23.67",
-        "integrity": "sha256-YdRsCvPcVS9NJe/lZ1XmFMimnztloi5TAQokiIEbKi0="
+        "integrity": "sha256-aIWXRnwyVMt7LaNgwRINqL8aHqIxGKZAOE9maIiDMcU="
       }
     },
     {
@@ -1601,6 +1602,30 @@
         "whenNotToUse": "File drag-in (use-file-drop) or any surface that does not use the reorder hook.",
         "version": "0.23.67",
         "integrity": "sha256-lB0cTINudPM7Y245LSCP3x6k5PgvwQu1rSAO0Tq3Ndw="
+      }
+    },
+    {
+      "name": "page-layout",
+      "type": "registry:lib",
+      "title": "Page Layout",
+      "description": "The page-width contract — the prose/default/full vocabulary AppShellPage takes, and definePageWidths, one route → width map that a page, its loading skeleton and a test all read.",
+      "categories": [
+        "layout"
+      ],
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "packages/ui/registry/lib/page-layout.ts",
+          "type": "registry:lib",
+          "target": "@lib/page-layout.ts"
+        }
+      ],
+      "meta": {
+        "whenToUse": "Choosing how wide a page is — declare every route's width once with definePageWidths and read it from the page's AppShellPage, its loading skeleton and a route test.",
+        "whenNotToUse": "A page outside AppShell (sign-in, a marketing page) — it owns its own layout.",
+        "version": "0.23.67",
+        "integrity": "sha256-dZD1sSwFi2EaiSfuScFggqISyCHzphQpJBsLDfBPOoA="
       }
     },
     {
@@ -20132,7 +20157,7 @@
         "whenToUse": "Starting a preferences, profile or workspace-settings route — copy it once and wire each row to your own state.",
         "whenNotToUse": "One setting inside another page — compose settings-row directly.",
         "version": "0.23.67",
-        "integrity": "sha256-peA5AEfALnqaH0dg3dEqM0EopdDpGWt17anq18DzJWQ="
+        "integrity": "sha256-SaavEHMLfTh+aXZzdbFXAlMnkE7U4hWDw5BU5px3Wps="
       }
     },
     {
@@ -20409,7 +20434,7 @@
         "whenToUse": "App-wide search behind ⌘K and the sidebar's Search row — copy it once and pass your search call.",
         "whenNotToUse": "Filtering one list in place — use FilterBar's search.",
         "version": "0.23.67",
-        "integrity": "sha256-9jXTn5aMlkYa50FEVfKoXq9QhSjJ4gHUeiYKE3l27sA="
+        "integrity": "sha256-x9ev1pZgSPZov2VV+J+IYcBp5Fzxc2R7aoFPcvxF4F4="
       }
     }
   ]

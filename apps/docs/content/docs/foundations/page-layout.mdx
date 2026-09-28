@@ -1,0 +1,114 @@
+---
+title: Page layout
+description: Three page widths, one gutter scale, and one route map — how wide every page is and where its edges sit.
+audience: public
+---
+
+Every page in an `AppShell` is one `AppShellPage`, and it has **one of three widths**. The header,
+the page and the record rail share **one gutter**, so their edges line up. Which width a route
+gets is declared **once**, in a route map the page, its loading skeleton and a test all read.
+Nothing else decides a page's width or gutter.
+
+<PageLayoutSpecimen />
+
+## The three widths
+
+| `size`    | Width                          | Use it for                                                          |
+| --------- | ------------------------------ | ------------------------------------------------------------------- |
+| `prose`   | 720px of content, centred      | Forms, settings, a create or edit flow, a profile                   |
+| `default` | Up to 1280px, centred          | Lists, dashboards, record pages with a rail, a home page            |
+| `full`    | Edge to edge, fills the height | Boards, canvases, chat — a surface that uses the whole content area |
+
+`default` is the default. `narrow` is `prose`'s old name: it still renders `prose` (and reports
+`data-size="prose"`), `vegastack-design doctor` warns on it, and it goes in the next minor.
+
+```tsx
+<AppShellContent>
+  <AppShellPage size="prose">
+    <PageHeader title="Profile" />
+    <ProfileForm />
+  </AppShellPage>
+</AppShellContent>
+```
+
+The widths are caps on the **content area** — the space beside the sidebar — not on the viewport.
+Opening or collapsing the sidebar changes the room a page has, not its width: a `prose` or
+`default` page stays put and centred until the area is narrower than it, and a `full` page grows
+and shrinks with the area. Grids inside a page answer to the content area too, through
+`AppShellContent`'s `@container/app-shell-content` queries.
+
+## The gutter
+
+One CSS variable, `--page-gutter`, pads the header and the page on every side and sets how far
+below the header the record rail sticks.
+
+| Viewport     | `--page-gutter` |
+| ------------ | --------------- |
+| Below 640px  | 16px            |
+| 640px–1023px | 24px            |
+| 1024px up    | 32px            |
+
+`AppShell` sets it for everything inside it (`pageGutterClasses`), and `AppShellHeader`,
+`AppShellPage` and `AppShellSkeleton` set it again so each keeps it on its own. Because the
+header's inline padding is the page's, a `full` page's content starts right under the header's
+first item. `RecordLayoutRail` sticks `--page-gutter` below the top of the scroll container —
+the gap it already has at rest — so it never moves when it starts to stick.
+
+## Small screens
+
+- **Tablet and phone** — below 768px the sidebar is an overlay opened from the header's trigger,
+  so the page has the whole width. The gutter steps to 24px, then 16px under 640px.
+- **Record pages** — below 1024px of the record layout's own width, the rail is hidden and the
+  **ⓘ** button beside the title (`RecordDetailsSheet`) opens the same details in a sheet.
+- **Boards** — a `full` page keeps its horizontal scroll inside the board, never on the page.
+
+## One route map
+
+Declare every route's width once with `definePageWidths` from the `page-layout` lib
+(`shadcn add @vegastack/page-layout`, pulled in with `app-shell`). Keys are the app's route
+patterns in Next.js spelling, without route groups.
+
+```ts title="lib/page-widths.ts"
+import { definePageWidths } from "@/lib/page-layout";
+
+export const pageWidths = definePageWidths({
+  "/": "default",
+  "/tasks": "default",
+  "/tasks/[taskId]": "default",
+  "/settings/profile": "prose",
+  "/products/new/[[...step]]": "prose",
+  "/ask": "full",
+});
+```
+
+- **The page** passes the literal: `<AppShellPage size="prose">`.
+- **The loading skeleton** reads the same map from the pathname, so it paints at the page's
+  width: `<AppShellPage size={pageWidths.widthOfPath(usePathname())}>`. `widthOfPath` resolves a
+  pathname to the most specific listed route, the way Next.js does — `/tasks/new` beats
+  `/tasks/[taskId]`.
+- **A test** walks every `page.tsx`, turns its folder into a route, and checks that the map lists
+  it and that the page's `AppShellPage` says the same `size`. An exhaustive map is what makes that
+  check, and `widthOfPath`, exact.
+
+A page whose width changes with its own state — a task list that switches to a board — passes the
+state's width (`size={board ? "full" : "default"}`); the map holds its resting width.
+
+## Guardrails
+
+- `vegastack-design doctor` fails on an `AppShellPage` carrying a `max-w-*`, `w-*`, `mx-*` or
+  padding class (`p-*`, `px-*`, `py-*`, `pt-*`, `ps-*`, `pe-*`) — the page choosing its own width or gutter
+  — and warns on `size="narrow"`. `pb-*` stays legal: room for a docked save bar is not a gutter.
+- Don't wrap a page's content in a `max-w-*` or padded `div` either; if a section needs to be
+  narrower than its page, the page has the wrong width.
+
+<DoDont
+  do="Pick the width with AppShellPage size, from the route map; let --page-gutter pad the page."
+  dont="Add max-w-*, mx-auto, px-* or py-* to a page or a wrapper around its content."
+/>
+
+## Related
+
+- [App Shell](/docs/components/app-shell) — `AppShellPage`, `AppShellHeader` and the shell.
+- [Record Layout](/docs/components/record-layout) — the rail and the ⓘ details sheet.
+- [Spacing](/docs/foundations/spacing) — the page rhythm inside the page.
+- [Board](/docs/blocks/board-01) — a `full` page.

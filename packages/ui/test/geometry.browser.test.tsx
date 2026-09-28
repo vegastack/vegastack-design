@@ -33,7 +33,17 @@ import { DataList, type DataListColumn } from "../registry/ui/data-list";
 import { DataListPager } from "../registry/ui/data-list-pager";
 import { ButtonGroup } from "../registry/ui/button-group";
 import { Input } from "../registry/ui/input";
-import { AppShellPage } from "../registry/ui/app-shell";
+import {
+  AppShell,
+  AppShellContent,
+  AppShellHeader,
+  AppShellPage,
+} from "../registry/ui/app-shell";
+import {
+  RecordLayout,
+  RecordLayoutMain,
+  RecordLayoutRail,
+} from "../registry/ui/record-layout";
 import { DatePicker } from "../registry/ui/date-picker";
 import { preloadTextEdit } from "../registry/ui/text-edit";
 import { SearchableSelect } from "../registry/ui/searchable-select";
@@ -3784,25 +3794,27 @@ test("app-shell-page-320: the page container caps its measure; a long wrapping c
   try {
     const wide = await render(
       <div style={{ width: "1400px" }}>
-        <AppShellPage size="narrow">x</AppShellPage>
+        <AppShellPage size="prose">x</AppShellPage>
         <AppShellPage>y</AppShellPage>
       </div>,
     );
-    const [narrow, standard] = [
+    const [prose, standard] = [
       ...wide.container.querySelectorAll<HTMLElement>(
         '[data-slot="app-shell-page"]',
       ),
     ] as [HTMLElement, HTMLElement];
-    expect(getComputedStyle(narrow).maxWidth).toBe("768px");
+    // prose is 720px of content inside the 32px gutter; default caps the whole page at 1280px.
+    expect(prose.getBoundingClientRect().width).toBe(720 + 2 * 32);
     expect(getComputedStyle(standard).maxWidth).toBe("1280px");
     expect(getComputedStyle(standard).paddingInlineStart).toBe("32px");
+    expect(getComputedStyle(standard).paddingTop).toBe("32px");
     await wide.unmount();
   } finally {
     await page.viewport(320, 812);
   }
 
   const narrowScreen = await render(
-    <AppShellPage size="narrow">
+    <AppShellPage size="prose">
       <p className="wrap-break-word">
         {"Supercalifragilisticexpialidocious".repeat(6)}
       </p>
@@ -3812,7 +3824,51 @@ test("app-shell-page-320: the page container caps its measure; a long wrapping c
     '[data-slot="app-shell-page"]',
   )!;
   expect(getComputedStyle(container).paddingInlineStart).toBe("16px");
+  expect(getComputedStyle(container).paddingTop).toBe("16px");
   expect(document.documentElement.scrollWidth).toBeLessThanOrEqual(320);
+});
+
+/**
+ * page-gutter: the header, the page and the record rail's sticky offset read ONE gutter, so a
+ * full page's content starts under the header's first item and the rail never moves when it sticks.
+ */
+test("page-gutter: header, page and rail share the gutter at 320, 640 and 1280px", async () => {
+  try {
+    for (const [width, gutter] of [
+      [320, 16],
+      [640, 24],
+      [1280, 32],
+    ] as const) {
+      await page.viewport(width, 900);
+      const screen = await render(
+        <AppShell>
+          <div className="flex h-svh min-w-0 flex-1 flex-col">
+            <AppShellHeader>Title</AppShellHeader>
+            <AppShellContent>
+              <AppShellPage size="full">
+                <RecordLayout>
+                  <RecordLayoutMain>Main</RecordLayoutMain>
+                  <RecordLayoutRail aria-label="Details">Rail</RecordLayoutRail>
+                </RecordLayout>
+              </AppShellPage>
+            </AppShellContent>
+          </div>
+        </AppShell>,
+      );
+      const q = (slot: string) =>
+        screen.container.querySelector<HTMLElement>(`[data-slot="${slot}"]`)!;
+      const px = `${gutter}px`;
+      expect(getComputedStyle(q("app-shell-header")).paddingInlineStart).toBe(
+        px,
+      );
+      expect(getComputedStyle(q("app-shell-page")).paddingInlineStart).toBe(px);
+      expect(getComputedStyle(q("app-shell-page")).paddingTop).toBe(px);
+      expect(getComputedStyle(q("record-layout-rail")).top).toBe(px);
+      await screen.unmount();
+    }
+  } finally {
+    await page.viewport(320, 812);
+  }
 });
 
 test("app-shell-page-320: size full fills a bounded height", async () => {
