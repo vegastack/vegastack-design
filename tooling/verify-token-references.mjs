@@ -106,6 +106,11 @@ const RUNTIME_VARIABLES = new Set([
   "--sidebar-width",
   "--sidebar-width-icon",
   "--sidebar-width-mobile",
+  // The page gutter: `AppShell` declares it on its root (and `AppShellHeader`/`AppShellPage` on
+  // themselves) from `pageGutterClasses`, and `RecordLayoutRail` — a descendant of the page —
+  // reads it with its own fallback to stick one gutter below the header. Viewport-responsive, so
+  // it is a shell variable rather than a theme token.
+  "--page-gutter",
 ]);
 
 // Chart series colours are CONSUMER data: `chart.tsx` writes `--color-<seriesKey>` from the

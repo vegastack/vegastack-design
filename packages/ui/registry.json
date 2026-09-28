@@ -167,7 +167,11 @@
         "@vegastack/design@^0.7.54",
         "@vegastack/design-tokens@^0.7.49"
       ],
-      "registryDependencies": ["@vegastack/sidebar", "@vegastack/skeleton"],
+      "registryDependencies": [
+        "@vegastack/sidebar",
+        "@vegastack/skeleton",
+        "@vegastack/page-layout"
+      ],
       "files": [
         {
           "path": "packages/ui/registry/ui/app-shell.tsx",
@@ -176,7 +180,7 @@
         }
       ],
       "meta": {
-        "whenToUse": "The root layout for a dashboard/console app — sidebar + header + main content, shared across every downstream VegaStack app; AppShellPage gives every page one container — gutters, rhythm and a narrow/default/full measure.",
+        "whenToUse": "The root layout for a dashboard/console app — sidebar + header + main content, shared across every downstream VegaStack app; AppShellPage gives every page one container — the page gutter, rhythm and a prose/default/full width picked per route from one definePageWidths map.",
         "whenNotToUse": "A marketing/docs page with no persistent nav rail, or an app that already owns an equivalent shell — compose Sidebar/PageHeader/Breadcrumb directly instead.",
         "version": "0.23.67"
       }
@@ -1410,6 +1414,27 @@
       "meta": {
         "whenToUse": "Building a drag surface on use-drag-reorder — spread it onto the element carrying the hook`s getItemProps() attributes.",
         "whenNotToUse": "File drag-in (use-file-drop) or any surface that does not use the reorder hook.",
+        "version": "0.23.67"
+      }
+    },
+    {
+      "name": "page-layout",
+      "type": "registry:lib",
+      "title": "Page Layout",
+      "description": "The page-width contract — the prose/default/full vocabulary AppShellPage takes, and definePageWidths, one route → width map that a page, its loading skeleton and a test all read.",
+      "categories": ["layout"],
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "packages/ui/registry/lib/page-layout.ts",
+          "type": "registry:lib",
+          "target": "@lib/page-layout.ts"
+        }
+      ],
+      "meta": {
+        "whenToUse": "Choosing how wide a page is — declare every route's width once with definePageWidths and read it from the page's AppShellPage, its loading skeleton and a route test.",
+        "whenNotToUse": "A page outside AppShell (sign-in, a marketing page) — it owns its own layout.",
         "version": "0.23.67"
       }
     },

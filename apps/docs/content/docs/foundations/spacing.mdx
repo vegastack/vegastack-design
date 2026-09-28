@@ -67,7 +67,7 @@ reach for them first, and depart only where a surface has a reason.
 
 | Between                                 | Spacing                                                                    |
 | --------------------------------------- | -------------------------------------------------------------------------- |
-| The page edge and its content (gutters) | `px-4 py-6`, and `md:px-8 md:py-8` from the `md` breakpoint up             |
+| The page edge and its content (gutters) | `--page-gutter` — 16px, 24px from `sm`, 32px from `lg` (`AppShellPage`)    |
 | `PageHeader` and the first content      | `gap-6`                                                                    |
 | One section and the next                | `gap-8`                                                                    |
 | A section heading and its content       | `gap-3`                                                                    |
@@ -79,7 +79,7 @@ reach for them first, and depart only where a surface has a reason.
 
 ```tsx
 <AppShellContent>
-  <div className="flex flex-col gap-6 px-4 py-6 md:px-8 md:py-8">
+  <AppShellPage>
     <PageHeader title="Tasks" actions={<Button>New task</Button>} />
     <div className="flex flex-col gap-8">
       <section className="flex flex-col gap-3">
@@ -90,12 +90,13 @@ reach for them first, and depart only where a surface has a reason.
         <h2 className="font-heading text-base font-medium">Completed</h2>…
       </section>
     </div>
-  </div>
+  </AppShellPage>
 </AppShellContent>
 ```
 
-`AppShellContent` is the scrolling region and carries no padding of its own, so the gutter is the
-page body's. A card that holds a section wears its padding through `--card-spacing`, never a local
+`AppShellContent` is the scrolling region and carries no padding of its own, so the gutter is
+`AppShellPage`'s — see [Page layout](/docs/foundations/page-layout) for the widths and the gutter
+scale. A card that holds a section wears its padding through `--card-spacing`, never a local
 `p-*`, so a `size="sm"` card tightens every part at once. `FieldGroup` and `Field` already space
 fields and their parts; an override on one form is the drift this recipe exists to prevent.
 

@@ -11,6 +11,7 @@ import {
   AppShellPage,
   AppShellSidebar,
   AppShellSkeleton,
+  pageGutterClasses,
 } from "./app-shell";
 import {
   SidebarContent,
@@ -488,7 +489,7 @@ test("AppShellSkeleton's rail is exactly the width the loaded rail will be", asy
 
 /* DS-19 — AppShellPage, the one page container */
 
-test("DS-19: AppShellPage defaults to the 1280px measure with the page gutters", async () => {
+test("DS-19: AppShellPage defaults to the 1280px measure with the page gutter", async () => {
   const screen = await render(<AppShellPage>Page</AppShellPage>);
   const page = screen.container.querySelector('[data-slot="app-shell-page"]')!;
   expect(page.getAttribute("data-size")).toBe("default");
@@ -498,27 +499,52 @@ test("DS-19: AppShellPage defaults to the 1280px measure with the page gutters",
     "w-full",
     "min-w-0",
     "gap-6",
-    "px-4",
-    "py-6",
-    "md:px-8",
-    "md:py-8",
+    "p-(--page-gutter)",
+    ...pageGutterClasses.split(" "),
   ]) {
     expect(page.className).toContain(cls);
   }
 });
 
+test("the gutter scale is 16px, 24px from sm and 32px from lg — one variable for header and page", async () => {
+  expect(pageGutterClasses).toBe(
+    "[--page-gutter:--spacing(4)] sm:[--page-gutter:--spacing(6)] lg:[--page-gutter:--spacing(8)]",
+  );
+  const screen = await render(
+    <AppShell>
+      <div className="flex h-svh min-w-0 flex-1 flex-col">
+        <AppShellHeader>Title</AppShellHeader>
+        <AppShellContent>
+          <AppShellPage>Page</AppShellPage>
+        </AppShellContent>
+      </div>
+    </AppShell>,
+  );
+  const shell = screen.container.querySelector('[data-slot="app-shell"]')!;
+  const header = screen.container.querySelector(
+    '[data-slot="app-shell-header"]',
+  )!;
+  expect(shell.className).toContain(pageGutterClasses);
+  expect(header.className).toContain("px-(--page-gutter)");
+  expect(header.className).not.toMatch(/\bpx-4\b/);
+});
+
 test("DS-19: each size sets its measure and reflects it as data-size", async () => {
   const screen = await render(
     <>
-      <AppShellPage size="narrow">a</AppShellPage>
+      <AppShellPage size="prose">a</AppShellPage>
       <AppShellPage size="full">b</AppShellPage>
+      <AppShellPage size="narrow">c</AppShellPage>
     </>,
   );
-  const [narrow, full] = [
+  const [prose, full, narrow] = [
     ...screen.container.querySelectorAll('[data-slot="app-shell-page"]'),
-  ] as [Element, Element];
-  expect(narrow.getAttribute("data-size")).toBe("narrow");
-  expect(narrow.className).toContain("max-w-3xl");
+  ] as [Element, Element, Element];
+  expect(prose.getAttribute("data-size")).toBe("prose");
+  expect(prose.className).toContain("max-w-[calc(45rem+2*var(--page-gutter))]");
+  // `narrow` is prose's deprecated old name: same classes, reported as prose.
+  expect(narrow.getAttribute("data-size")).toBe("prose");
+  expect(narrow.className).toBe(prose.className);
   expect(full.getAttribute("data-size")).toBe("full");
   expect(full.className).not.toMatch(/max-w-/);
   expect(full.className).toContain("min-h-0");
@@ -529,7 +555,7 @@ test("DS-19: inside the shell there is still exactly one main landmark", async (
     <AppShell>
       <div className="flex h-svh min-w-0 flex-1 flex-col">
         <AppShellContent>
-          <AppShellPage size="narrow">
+          <AppShellPage size="prose">
             <h1>Profile</h1>
           </AppShellPage>
         </AppShellContent>
@@ -547,7 +573,7 @@ test("DS-19: the skeleton uses the page gutters", async () => {
   const content = screen.container.querySelector(
     '[data-slot="app-shell-skeleton-stats"]',
   )!.parentElement!;
-  for (const cls of ["px-4", "py-6", "md:px-8", "md:py-8", "gap-6"]) {
+  for (const cls of ["p-(--page-gutter)", "gap-6"]) {
     expect(content.className).toContain(cls);
   }
 });
@@ -557,7 +583,7 @@ test("no a11y violations — page container in the shell", async () => {
     <AppShell>
       <div className="flex h-svh min-w-0 flex-1 flex-col">
         <AppShellContent>
-          <AppShellPage size="narrow">
+          <AppShellPage size="prose">
             <h1>Profile</h1>
             <p>Your details.</p>
           </AppShellPage>

@@ -1,4 +1,4 @@
-// @vegastack record-layout@0.23.67 sha256-YdRsCvPcVS9NJe/lZ1XmFMimnztloi5TAQokiIEbKi0=
+// @vegastack record-layout@0.23.67 sha256-aIWXRnwyVMt7LaNgwRINqL8aHqIxGKZAOE9maIiDMcU=
 
 "use client";
 
@@ -76,9 +76,10 @@ export function RecordLayoutMain({
 export type RecordLayoutRailProps = React.ComponentPropsWithRef<"aside">;
 
 /**
- * `RecordLayoutRail` — the sticky right rail (320px), shown from 1024px of the layout's own width (a container query, not the viewport). It sticks
- * `--record-rail-gap` (default `--spacing(8)`, `AppShellPage`'s top gutter from `md` up) below the
- * top of the scroll container — the same gap it has at rest, so it never slides under the header —
+ * `RecordLayoutRail` — the sticky right rail (320px), shown from 1024px of the layout's own width
+ * (a container query, not the viewport). It sticks `--record-rail-gap` below the top of the scroll
+ * container — by default `--page-gutter`, the gutter `AppShellPage` pads with (32px outside one),
+ * which is the same gap it has at rest, so it never slides under the header —
  * and scrolls on its own when taller than the viewport minus that gap above and below. Set
  * `--record-rail-offset` (default `--spacing(14)`, `AppShellHeader`'s height) to the height of the
  * chrome above the scroll container. Name it with `aria-label`.
@@ -94,7 +95,7 @@ export function RecordLayoutRail({
     <aside
       data-slot="record-layout-rail"
       className={cn(
-        "sticky top-(--record-rail-gap) hidden max-h-[calc(100dvh-var(--record-rail-offset)-2*var(--record-rail-gap))] w-80 shrink-0 flex-col gap-4 self-start overflow-y-auto overscroll-contain [--record-rail-gap:--spacing(8)] [--record-rail-offset:--spacing(14)] @min-[64rem]/record-layout:flex",
+        "sticky top-(--record-rail-gap) hidden max-h-[calc(100dvh-var(--record-rail-offset)-2*var(--record-rail-gap))] w-80 shrink-0 flex-col gap-4 self-start overflow-y-auto overscroll-contain [--record-rail-gap:var(--page-gutter,--spacing(8))] [--record-rail-offset:--spacing(14)] @min-[64rem]/record-layout:flex",
         className,
       )}
       {...props}

@@ -18,6 +18,10 @@
 // renders as body text. The Regent consumer carried 338 such classes past every other check
 // (2026-09-23), which is why this is a failing check and not a guide section.
 //
+// And it holds pages to the one page layout: an `AppShellPage` picks its width with `size`
+// (`prose` · `default` · `full`) and pads with the shared page gutter, so a `max-w-*`, `mx-*`,
+// `w-*` or padding class on one is a page choosing its own width or gutter, and fails.
+//
 // Read-only: it never writes, installs, or edits. Exit 0 = all good, 1 = a real problem,
 // so it composes into CI as `vegastack-design doctor`.
 
@@ -48,7 +52,8 @@ Usage: vegastack-design doctor [options]
 
 Checks a consuming project's VegaStack setup and reports what is wrong and how to fix it.
 Also scans the project's own source (not node_modules, build output, or the components.json
-\`ui\` alias directory) for vocabulary the shadcn reset retired, and reports each as file:line.
+\`ui\` alias directory) for vocabulary the shadcn reset retired, and for an AppShellPage that sets
+its own width or gutter, and reports each as file:line.
 
 Options:
   --dir <path>   Project root to inspect (default: the current directory)
@@ -584,6 +589,58 @@ export function scanRetiredVocabulary(
   };
 }
 
+// ---- page layout -----------------------------------------------------------------------------
+
+/**
+ * A class on an `AppShellPage` that picks the page's width or gutter — which `size` and the page
+ * gutter own. `pb-*` stays legal: room at the bottom for a docked save bar is not a gutter.
+ */
+const PAGE_OVERRIDE =
+  /(?<![\w-])(?:[\w@\[\]()/.:-]*:)?(?:max-w|min-w|w|mx|ms|me|px|ps|pe|p|py|pt)-[^\s"'`]+/g;
+
+/**
+ * Every `AppShellPage` in the project's own source that sets its own width or gutter (a failure)
+ * or still says `size="narrow"` (a warning — `prose` is its name now).
+ */
+export function scanPageLayout(root, { skipDirs = [] } = {}) {
+  const skip = new Set(skipDirs.map((d) => resolve(d)));
+  const findings = [];
+  const deprecated = [];
+  const walk = (dir) => {
+    let entries;
+    try {
+      entries = readdirSync(dir, { withFileTypes: true });
+    } catch {
+      return;
+    }
+    for (const e of entries) {
+      if (e.name.startsWith(".") || SCAN_SKIP_DIRS.has(e.name)) continue;
+      const full = join(dir, e.name);
+      if (e.isDirectory()) {
+        if (!skip.has(resolve(full))) walk(full);
+        continue;
+      }
+      if (!e.isFile() || !/\.[jt]sx$/.test(e.name)) continue;
+      const src = readIfExists(full);
+      if (src == null || !src.includes("<AppShellPage")) continue;
+      const file = relative(root, full).split(sep).join("/");
+      for (const tag of src.matchAll(/<AppShellPage\b(?:[^>{]|\{[^}]*\})*>/g)) {
+        const line = src.slice(0, tag.index).split("\n").length;
+        const cls = /\bclassName=(?:"([^"]*)"|\{([\s\S]*?)\}(?=\s|\/?>))/.exec(
+          tag[0],
+        );
+        const text = cls ? (cls[1] ?? cls[2] ?? "") : "";
+        for (const m of text.matchAll(PAGE_OVERRIDE))
+          findings.push({ file, line, match: m[0] });
+        if (/\bsize=(?:"narrow"|\{\s*["']narrow["']\s*\})/.test(tag[0]))
+          deprecated.push({ file, line, match: 'size="narrow"' });
+      }
+    }
+  };
+  walk(root);
+  return { findings, deprecated };
+}
+
 export function main(argv = []) {
   if (argv.includes("-h") || argv.includes("--help")) {
     console.log(USAGE);
@@ -799,6 +856,29 @@ export function main(argv = []) {
       findings: scan.findings.map(
         (f) => `${f.file}:${f.line}  ${f.match}  →  ${f.hint}`,
       ),
+    });
+  }
+
+  // ---- 8. every page takes its width from AppShellPage's size ------------------------------
+  const layout = scanPageLayout(root, { skipDirs });
+  if (layout.findings.length > 0) {
+    results.push({
+      level: "fail",
+      name: "page layout",
+      detail: `${layout.findings.length} class(es) on AppShellPage set the page's own width or gutter`,
+      fix: "delete them — pick the width with size (prose · default · full) from the route map; the gutter is --page-gutter (https://design.vegastack.com/docs/foundations/page-layout)",
+      findings: layout.findings.map((f) => `${f.file}:${f.line}  ${f.match}`),
+    });
+  } else {
+    ok("page layout", "no AppShellPage sets its own width or gutter");
+  }
+  if (layout.deprecated.length > 0) {
+    results.push({
+      level: "warn",
+      name: "page width names",
+      detail: `${layout.deprecated.length} AppShellPage(s) still say size="narrow"`,
+      fix: 'rename to size="prose" — narrow is removed in the next minor',
+      findings: layout.deprecated.map((f) => `${f.file}:${f.line}  ${f.match}`),
     });
   }
 

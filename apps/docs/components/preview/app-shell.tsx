@@ -302,7 +302,7 @@ export function appShellPage(): ReactNode {
   return (
     <Wrapper className="block h-104 overflow-hidden bg-muted p-0">
       <AppShellContent landmark="region" aria-label="Page content">
-        <AppShellPage size="narrow">
+        <AppShellPage size="prose">
           <PageHeader
             title="Profile"
             description="How your name and photo appear to your team."
@@ -310,7 +310,7 @@ export function appShellPage(): ReactNode {
           <section className="flex flex-col gap-3 rounded-xl border bg-card p-4">
             <h2 className="text-sm font-medium">Display name</h2>
             <p className="text-sm text-muted-foreground">
-              A narrow page caps its measure at 768px and keeps the same gutters
+              A prose page holds 720px of content and keeps the same page gutter
               as every other page.
             </p>
           </section>

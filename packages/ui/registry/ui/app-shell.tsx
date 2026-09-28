@@ -1,4 +1,4 @@
-// @vegastack app-shell@0.23.67 sha256-0asiaBAxIUHBJ26Hh4hI7eTnL4SEq6cDsMoDqlt4ArE=
+// @vegastack app-shell@0.23.67 sha256-JnE4LQM30DFqdtBx3SA+KLjF9cCUoblPGnggVZHC9+k=
 
 "use client";
 
@@ -11,6 +11,7 @@ import {
   SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { Skeleton } from "@/components/ui/skeleton";
+import type { PageWidth } from "@/lib/page-layout";
 
 /**
  * The id `AppShell`'s skip link points at and `AppShellContent` claims — generated once per
@@ -34,6 +35,16 @@ import { Skeleton } from "@/components/ui/skeleton";
  * `AppShell` keeps the id its previous users linked to.
  */
 const AppShellContentIdContext = React.createContext<string>("main-content");
+
+/**
+ * The page gutter scale — one CSS variable, `--page-gutter`, that the header, the page and the
+ * record rail's sticky offset all read, so their edges line up whenever the page fills its area:
+ * 16px below 640px, 24px from 640px, 32px from 1024px (viewport breakpoints — the header is outside
+ * the content region, so a container query could not reach it). Set on `AppShell` for everything
+ * inside it, and again on each part that pads with it so a part rendered on its own keeps it.
+ */
+export const pageGutterClasses =
+  "[--page-gutter:--spacing(4)] sm:[--page-gutter:--spacing(6)] lg:[--page-gutter:--spacing(8)]";
 
 /** Props accepted by `AppShell`. */
 export interface AppShellProps extends React.ComponentProps<"div"> {
@@ -145,7 +156,7 @@ export function AppShell({
       onOpenChange={onOpenChange}
       keyboardShortcut={keyboardShortcut}
       data-slot="app-shell"
-      className={className}
+      className={cn(pageGutterClasses, className)}
       {...props}
     >
       <a
@@ -246,7 +257,8 @@ export function AppShellHeader({
     <header
       data-slot="app-shell-header"
       className={cn(
-        "flex h-14 shrink-0 items-center gap-2 border-b border-border bg-background px-4",
+        "flex h-14 shrink-0 items-center gap-2 border-b border-border bg-background px-(--page-gutter)",
+        pageGutterClasses,
         className,
       )}
       {...props}
@@ -372,20 +384,21 @@ export function AppShellContent({
 }
 
 /**
- * The page container's measure: `narrow` (`max-w-3xl`, 768px) for forms and settings, `default`
- * (`max-w-7xl`, 1280px) for lists and dashboards, `full` (no max) for boards and split views that
- * use the whole content region. The gutters are the page-rhythm recipe on the stock scale —
- * `px-4 py-6`, `md:px-8 md:py-8` — and `gap-6` separates the page's direct children (the
- * PageHeader, then each section).
+ * The page container: centred, padded by the page gutter (`--page-gutter`: 16px, 24px from
+ * 640px, 32px from 1024px — the header's own padding) on every side, with `gap-6` between the
+ * page's direct children (the PageHeader, then each section). `size` picks the measure:
+ * `prose` (45rem — 720px — of content) for forms and settings, `default` (`max-w-7xl`, 1280px)
+ * for lists, dashboards and record pages, `full` (no max) for boards and canvases that use the
+ * whole content region.
  */
 export const appShellPageVariants = cva(
-  "mx-auto flex w-full min-w-0 flex-1 flex-col gap-6 px-4 py-6 md:px-8 md:py-8",
+  `mx-auto flex w-full min-w-0 flex-1 flex-col gap-6 p-(--page-gutter) ${pageGutterClasses}`,
   {
     variants: {
       size: {
-        narrow: "max-w-3xl",
+        prose: "max-w-[calc(45rem+2*var(--page-gutter))]",
         default: "max-w-7xl",
-        // A bounded page (a board, a split view) fills the height the content region gives it.
+        // A bounded page (a board, a canvas) fills the height the content region gives it.
         full: "min-h-0",
       },
     },
@@ -397,27 +410,31 @@ export const appShellPageVariants = cva(
 export interface AppShellPageProps
   extends
     React.ComponentProps<"div">,
-    VariantProps<typeof appShellPageVariants> {
+    Omit<VariantProps<typeof appShellPageVariants>, "size"> {
   /**
-   * The page's measure — `narrow` (768px) for forms and settings, `default` (1280px) for lists
-   * and dashboards, `full` (no max width, fills the height) for boards and split views.
+   * The page's width — `prose` (720px of content, centred) for forms and settings, `default`
+   * (1280px, centred) for lists, dashboards and record pages, `full` (edge to edge, fills the
+   * height) for boards and canvases. `narrow` is the deprecated old name of `prose` — it renders
+   * `prose` and reports `data-size="prose"`; it goes in the next minor.
    * @default 'default'
    */
-  size?: "narrow" | "default" | "full";
+  size?: PageWidth | "narrow";
 }
 
 /**
  * `AppShellPage` — the one page container inside `AppShellContent`: a centred column with the
- * system's page gutters and a `gap-6` rhythm between its children, capped at the measure `size`
+ * page gutter on every side and a `gap-6` rhythm between its children, capped at the width `size`
  * picks. Put the `PageHeader` and the page's sections inside it, and nothing else decides a
- * page's width or gutters.
+ * page's width or gutters — no `max-w-*`, `mx-auto` or padding class on it or on a wrapper
+ * (`vegastack-design doctor` reports one). Pick the width per route from one map with
+ * `definePageWidths` (`@/lib/page-layout`), so a page and its loading skeleton cannot drift.
  *
  * It renders a plain `<div>` — `AppShellContent` is already the `main` landmark — and never
  * scrolls sideways: `min-w-0` lets a long unbroken child shrink inside the column.
  *
  * @example
  * <AppShellContent>
- *   <AppShellPage size="narrow">
+ *   <AppShellPage size="prose">
  *     <PageHeader title="Profile" />
  *     <ProfileForm />
  *   </AppShellPage>
@@ -428,11 +445,12 @@ export function AppShellPage({
   className,
   ...props
 }: AppShellPageProps) {
+  const width: PageWidth = size === "narrow" ? "prose" : (size ?? "default");
   return (
     <div
       data-slot="app-shell-page"
-      data-size={size}
-      className={cn(appShellPageVariants({ size }), className)}
+      data-size={width}
+      className={cn(appShellPageVariants({ size: width }), className)}
       {...props}
     />
   );
@@ -489,7 +507,7 @@ export function AppShellSkeleton({
       role="presentation"
       aria-hidden="true"
       aria-busy="true"
-      className={cn("flex min-h-svh w-full", className)}
+      className={cn("flex min-h-svh w-full", pageGutterClasses, className)}
       {...props}
     >
       {/* hidden md:flex mirrors the real shell: below the mobile breakpoint (SidebarProvider's
@@ -519,12 +537,12 @@ export function AppShellSkeleton({
       </div>
 
       <div className="flex h-svh min-w-0 flex-1 flex-col">
-        <div className="flex h-14 shrink-0 items-center gap-2 border-b border-border px-4">
+        <div className="flex h-14 shrink-0 items-center gap-2 border-b border-border px-(--page-gutter)">
           <Skeleton className="rounded-full size-4" />
           <Skeleton className="h-4 w-32" />
         </div>
-        {/* The same gutters as `AppShellPage`, so the loaded page does not jump. */}
-        <div className="@container/app-shell-content flex min-h-0 flex-1 flex-col gap-6 overflow-y-auto px-4 py-6 md:px-8 md:py-8">
+        {/* The same gutter as `AppShellPage`, so the loaded page does not jump. */}
+        <div className="@container/app-shell-content flex min-h-0 flex-1 flex-col gap-6 overflow-y-auto p-(--page-gutter)">
           <div
             data-slot="app-shell-skeleton-stats"
             className="grid grid-cols-1 gap-4 @sm/app-shell-content:grid-cols-2 @lg/app-shell-content:grid-cols-4"

@@ -149,8 +149,10 @@ A component's name undersells it. Before composing something by hand, check this
 
 ### Which component for X
 
-- **A page** → `AppShell` › `AppShellContent` › `AppShellPage` (`size`: `narrow` for forms and
-  settings, `default`, `full`) › `PageHeader` › `FilterBar` › `DataList` (or
+- **A page** → `AppShell` › `AppShellContent` › `AppShellPage` (`size`: `prose` for forms and
+  settings, `default` for lists and record pages, `full` for boards and canvases — picked per route
+  from one `definePageWidths` map, never a `max-w-*` or padding class; see
+  <https://design.vegastack.com/docs/foundations/page-layout>) › `PageHeader` › `FilterBar` › `DataList` (or
   `DataGrid`) › the `Empty` tier that fits. The spacing between them is the page-rhythm recipe
   (<https://design.vegastack.com/docs/foundations/spacing#page-rhythm>).
 - **Inline editing** → `EditableCell` with `onSave` returning a promise: `variant="cell"` inside a

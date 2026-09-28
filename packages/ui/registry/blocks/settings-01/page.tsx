@@ -1,4 +1,4 @@
-// @vegastack settings-01@0.23.67 sha256-peA5AEfALnqaH0dg3dEqM0EopdDpGWt17anq18DzJWQ=
+// @vegastack settings-01@0.23.67 sha256-SaavEHMLfTh+aXZzdbFXAlMnkE7U4hWDw5BU5px3Wps=
 
 "use client";
 
@@ -35,7 +35,7 @@ import { Textarea } from "@/components/ui/textarea";
 
 /**
  * `settings-01` — the settings starter page and the conforming reference for a settings screen:
- * an `AppShellPage size="narrow"` with a `PageHeader`, three `SettingsSection` groups of
+ * an `AppShellPage size="prose"` with a `PageHeader`, three `SettingsSection` groups of
  * `SettingsRow`s over full-width `Field` controls, an `ActionBar` save bar that appears only once
  * something changed, and a destructive action confirmed in an `AlertDialog` whose confirm button
  * repeats the verb.
@@ -58,7 +58,7 @@ export default function Page() {
   };
 
   return (
-    <AppShellPage size="narrow" ref={contentRef} className="pb-24">
+    <AppShellPage size="prose" ref={contentRef} className="pb-24">
       <PageHeader
         title="Settings"
         description="Workspace preferences for everyone on the Acme team."
