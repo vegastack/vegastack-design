@@ -2825,8 +2825,20 @@ for (const width of [320, 1280] as const) {
     )!;
     const t = tile.getBoundingClientRect();
     const h = handle.getBoundingClientRect();
-    expect(h.left - t.left).toBeLessThan(8);
-    expect(h.top - t.top).toBeLessThan(8);
+    // The top-left overlay slot is inset from the corner (`start-3 top-3`, inside the 1px
+    // border) so the handle sits on the tile's image, not on its edge.
+    expect(Math.round(h.left - t.left)).toBe(13);
+    expect(Math.round(h.top - t.top)).toBe(13);
+    // Its line colour is the standard border token.
+    tile.setAttribute("data-drop-edge", "left");
+    const probe = document.createElement("div");
+    probe.className = "bg-border";
+    document.body.append(probe);
+    expect(getComputedStyle(tile, "::before").backgroundColor).toBe(
+      getComputedStyle(probe).backgroundColor,
+    );
+    probe.remove();
+    tile.removeAttribute("data-drop-edge");
     expect(
       handle.contains(
         document.elementFromPoint(h.left + h.width / 2, h.top + h.height / 2),
