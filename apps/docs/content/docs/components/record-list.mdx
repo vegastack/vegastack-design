@@ -135,7 +135,8 @@ the clashing record in a numbered `RecordList` with its ↗ link, and — option
 the compact "what differs" table (spec | this product | existing product). `RecordDiff` marks
 the rows whose values differ (a tinted row in full ink, and "differs" for screen readers) and
 keeps matching rows muted, so it is clear why the two count as the same. The same composition
-works inline under a field.
+works inline under a field. Give `AlertDescription` `min-w-0` so long names truncate and the
+table scrolls sideways instead of widening the alert on a phone.
 
 <ComponentPreview
   name="recordListConflict"
@@ -146,7 +147,7 @@ works inline under a field.
 <Alert variant="destructive">
   <CircleAlert />
   <AlertTitle>This product already exists</AlertTitle>
-  <AlertDescription className="flex flex-col gap-3">
+  <AlertDescription className="flex min-w-0 flex-col gap-3">
     <p>
       Every choice matches a product in this family. Change at least one choice
       to save it.

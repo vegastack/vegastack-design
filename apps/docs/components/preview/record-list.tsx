@@ -210,7 +210,7 @@ export function recordListConflict(): ReactNode {
         <Alert variant="destructive">
           <CircleAlert />
           <AlertTitle>This product already exists</AlertTitle>
-          <AlertDescription className="flex flex-col gap-3">
+          <AlertDescription className="flex min-w-0 flex-col gap-3">
             <p>
               Every choice matches a product in this family. Change at least one
               choice to save it.
@@ -263,7 +263,7 @@ export function recordListConflictGroups(): ReactNode {
         <Alert variant="destructive">
           <CircleAlert />
           <AlertTitle>Can't save these settings</AlertTitle>
-          <AlertDescription className="flex flex-col gap-3">
+          <AlertDescription className="flex min-w-0 flex-col gap-3">
             <p>
               Without Beam angle, the products in each group below would be
               identical. Delete or change them first.
