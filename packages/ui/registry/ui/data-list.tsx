@@ -1,4 +1,4 @@
-// @vegastack data-list@0.23.70 sha256-VX3mh61czsn0Jad9A6bK6RbZpcnRr/SHame9orRrXkc=
+// @vegastack data-list@0.23.70 sha256-/Juw7oHgOCVv6DkMEQyw1wqY6Wf9rhGgEkzmOisL1+U=
 
 "use client";
 
@@ -144,7 +144,7 @@ export interface DataListColumn<T> extends DataTableColumnLayout {
   ) => React.ReactNode;
   /**
    * Allow the user to sort by this column by clicking its header; the header shows a sort
-   * indicator (a faint ⇅ at rest, ↑/↓ while sorted). The parent receives the next
+   * indicator (↑/↓ while sorted; otherwise a ⇅ that fades in on hover or focus). The parent receives the next
    * {@link SortState} via `onSortChange`. With `sortMode="client"`, or a `compare` on the column,
    * `DataList` orders `data` itself; otherwise the parent re-orders `data`.
    * @default false

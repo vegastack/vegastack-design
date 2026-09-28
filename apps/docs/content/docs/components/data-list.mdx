@@ -103,8 +103,8 @@ indeterminate when only some rows are selected, checked when all are, and toggle
 
 ### Sorting
 
-Mark **any** column `sortable` to make its header interactive. The header always shows an indicator
-— a faint ⇅ at rest, ↑ or ↓ while sorted — plus `aria-sort` and `data-sorted`. `onSortChange` fires
+Mark **any** column `sortable` to make its header interactive; it carries `aria-sort`,
+`data-sorted`, and a button named _Sort by &lt;column&gt;_. `onSortChange` fires
 with the next `{ key, direction }` (or `null` when cleared). The click cycle is the column's
 `sortFirst` (default `"asc"`; use `"desc"` for dates and amounts) → the other → none.
 
@@ -150,6 +150,24 @@ const [sort, setSort] = React.useState<SortState | null>(null);
   onSortChange={setSort}
 />;
 ```
+
+The indicator follows the standard sort-header pattern:
+
+- **Active column** — its ↑ (ascending) or ↓ (descending) always shows, at foreground strength.
+- **Other sortable columns** — the ⇅ is rendered but transparent, so the label never shifts; it
+  fades in muted (`text-muted-foreground`) while the pointer hovers the header or the sort button
+  has keyboard focus. Opacity only, no movement, and no fade under reduced motion.
+- **Touch** — a coarse pointer never hovers, so only the active arrow shows; tapping a sortable
+  header still sorts.
+- **Unsortable columns** — no icon and no hover affordance.
+
+Active ascending (Name, top) and active descending (Amount, bottom). Hover or tab to another
+sortable header — Role, say — to see the inactive indicator; Email and Status are not sortable:
+
+<ComponentPreview
+  name="dataListSortIndicators"
+  file="components/preview/data-list.tsx"
+/>
 
 Client sorting, live — click a header to cycle it:
 
@@ -848,8 +866,9 @@ renders, and `RowAction` is one entry of either.
 
 - Renders a real semantic `<table>` with `<thead>`/`<tbody>` and `<th>` header cells, so screen readers
   announce row/column structure natively.
-- Sortable headers expose `aria-sort` (`ascending` / `descending` / `none`) and are real `<button>`s —
-  keyboard <kbd>Enter</kbd> / <kbd>Space</kbd> activate them, with the global 2px `:focus-visible` outline.
+- Sortable headers expose `aria-sort` (`ascending` / `descending` / `none`) and are real `<button>`s
+  named _Sort by &lt;column&gt;_ — keyboard <kbd>Enter</kbd> / <kbd>Space</kbd> activate them, with the
+  global `:focus-visible` tint; keyboard focus also reveals an inactive column's indicator.
 - The select-all and per-row checkboxes have explicit `aria-label`s (e.g. _Select all rows_, _Select row 1_)
   and are fully keyboard operable.
 - While loading, the table has `aria-busy="true"` and is described by a polite `role="status"` node.

@@ -173,7 +173,12 @@ font.
   navigation**; <kbd>Escape</kbd> closes it and restores focus to the cell;
   edit-mode entry announces politely.
 - Multi-key sort headers carry `aria-sort` and a visible ordinal per key;
-  shift-click adds a secondary key.
+  shift-click adds a secondary key. Each sort button is named _Sort by
+  &lt;column&gt;_. Sorted columns always show ↑/↓; an unsorted sortable
+  column's ⇅ stays transparent until the header is hovered (fine pointers only)
+  or its button has keyboard focus, so touch shows only the active arrows and
+  unsortable columns show nothing — the same header parts as
+  [DataList](/docs/components/data-list#sorting).
 - Responsive revelation never hides data silently: `merge` (the default) stacks
   the value into the primary cell with its header as a visually hidden prefix
   (_Stage: Open_), and the only posture that drops a column

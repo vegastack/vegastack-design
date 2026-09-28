@@ -972,6 +972,47 @@ export function dataListSortable(): ReactNode {
   );
 }
 
+function SortIndicatorTable({
+  label,
+  initial,
+}: {
+  label: string;
+  initial: SortState;
+}): ReactNode {
+  const [sort, setSort] = React.useState<SortState | null>(initial);
+  return (
+    <DataList
+      aria-label={label}
+      columns={columns}
+      data={people.slice(0, 3)}
+      getRowId={(p) => p.id}
+      sortMode="client"
+      sort={sort}
+      onSortChange={setSort}
+    />
+  );
+}
+
+/**
+ * Sort indicators: the active column's arrow always shows (ascending, then descending); an
+ * inactive sortable header (Role, Amount) fades its ⇅ in on hover or keyboard focus; Email and
+ * Status are not sortable and show nothing.
+ */
+export function dataListSortIndicators(): ReactNode {
+  return (
+    <Wrapper className="flex flex-col gap-6">
+      <SortIndicatorTable
+        label="People, sorted by name ascending"
+        initial={{ key: "name", direction: "asc" }}
+      />
+      <SortIndicatorTable
+        label="People, sorted by amount descending"
+        initial={{ key: "amount", direction: "desc" }}
+      />
+    </Wrapper>
+  );
+}
+
 /** Highlighted rows: `highlightedIds` flashes rows the user just created or changed. */
 export function dataListHighlighted(): ReactNode {
   return (
