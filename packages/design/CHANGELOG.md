@@ -1,5 +1,11 @@
 # @vegastack/design
 
+## 0.7.58
+
+### Patch Changes
+
+- [#407](https://github.com/vegastack/vegastack-design/pull/407) [`8199cc1`](https://github.com/vegastack/vegastack-design/commit/8199cc155fa9ee41116c537e1652288368b5f1d5) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🔧 DataList and DataGrid sort headers follow the standard indicator pattern: the sorted column's ↑/↓ always shows at foreground strength; other sortable columns keep their ⇅ transparent (space reserved, so labels never shift) and fade it in muted on header hover (fine pointers only) or keyboard focus, so touch shows only the active arrow; unsortable columns show nothing. Each sort button is now named `Sort by <column>` alongside the header's `aria-sort`.
+
 ## 0.7.57
 
 ### Patch Changes

@@ -9,6 +9,20 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.23.71] — September 28, 2026
+
+<!-- assembled from 1 changeset: e57d8eb41097 -->
+
+### 🔧 Changed components
+
+- DataList and DataGrid sort headers follow the standard indicator pattern: the sorted column's ↑/↓ always shows at foreground strength; other sortable columns keep their ⇅ transparent (space reserved, so labels never shift) and fade it in muted on header hover (fine pointers only) or keyboard focus, so touch shows only the active arrow; unsortable columns show nothing. Each sort button is now named `Sort by <column>` alongside the header's `aria-sort`.
+  [`343da2b`](https://github.com/VegaStack/vegastack-design/commit/343da2b)
+
+### 📦 npm
+
+- **`@vegastack/design`** → **`0.7.58`** (was `0.7.57`).
+- The design-system registry (`@vegastack/ui`) bumps 0.23.70 → 0.23.71.
+
 ## [0.23.70] — September 28, 2026
 
 <!-- assembled from 1 changeset: 159caa025020 -->
