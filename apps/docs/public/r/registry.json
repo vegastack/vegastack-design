@@ -240,7 +240,7 @@
         "whenToUse": "A record's page (a meeting, a customer, a deal): the main column with a sticky rail of property and related-work cards on wide screens, and an ⓘ Details sheet on small ones.",
         "whenNotToUse": "A list page (DataList), or a page with no per-record facts — use AppShellPage alone.",
         "version": "0.23.65",
-        "integrity": "sha256-o8+UAHaE+Y73n7Cr6Q7OA30e9Cygo2/4URNJBJ+Qa5s="
+        "integrity": "sha256-pR72jzlz/FN4epl3ExB1C7TfVasCkfiSXPMDTFTeqWc="
       }
     },
     {
