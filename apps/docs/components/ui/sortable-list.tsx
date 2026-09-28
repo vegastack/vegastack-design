@@ -1,4 +1,4 @@
-// @vegastack sortable-list@0.23.66 sha256-K78/ONdiEDTaX11uUTQpIrb1dgXTYPg6Z0JaGIgRWTM=
+// @vegastack sortable-list@0.23.66 sha256-k+PhOqPLBriq4ssIvq/YTxVzdNSamPZZpDKOgppxYRY=
 
 "use client";
 
@@ -6,6 +6,13 @@ import * as React from "react";
 import { cn } from "@vegastack/design";
 import { EllipsisVertical, GripVertical, X } from "lucide-react";
 import { dragItemClasses } from "@/lib/drag-item";
+import {
+  tileColumnClasses,
+  tileCornerClasses,
+  tileGridClasses,
+  tileGroupClass,
+  tileOverlayButtonClasses,
+} from "@/lib/tile-overlay";
 import { Button } from "@/components/ui/button";
 import {
   Item,
@@ -59,11 +66,17 @@ becomes a same-size spacer so the column of handles stays aligned, it shows no �
 lock pins the row's own identity, not the positions around it.
 
 `layout="grid"` wraps the same list into tiles (image galleries, ordered media): auto-fill
-tracks at least `--spacing(28)` wide, or a fixed `columns` count. The handle and the actions
-overlay the tile's top corners (`z-10`, so positioned tile content such as `Image` cannot
-paint over them), the hook runs on a horizontal axis so drops read left/right of a tile, and
-↑/↓ in move mode step a whole measured row. `tile="bare"` drops the tile's own border and
-padding so its content — an `Attachment` — is the one frame.
+tracks at least `--spacing(28)` wide, or at most `columns` per row — fewer as the container
+narrows, never below 8.5rem a tile, so `columns={4}` is four on a desktop, three on a tablet
+and two on a phone (the `tile-overlay` recipe `AttachmentGroup` uses). The handle sits in the
+tile's top-left overlay slot and the actions in its top-right one, inset from the corner on a
+blurred scrim (`z-20`, above positioned tile content such as `Image` and an `Attachment`'s
+full-tile open button); both show on hover or focus within the tile, always on a touch
+screen. The hook runs on a horizontal axis so drops read left/right of a tile, and ↑/↓ in
+move mode step a whole measured row. `tile="bare"` drops the tile's own border and padding so
+its content — an `Attachment` — is the one frame. A drag starts only from the handle (or a
+touch long-press), so a plain click or tap on the tile still reaches the tile: an
+`Attachment` with a `file` opens its viewer.
 
 Deliberately NOT done here:
 - No selection. Reordering and multi-select on one surface produce ambiguous drag
@@ -159,8 +172,9 @@ export interface SortableListProps<
    */
   layout?: "list" | "grid";
   /**
-   * Grid only: a fixed number of tiles per row. Without it the grid auto-fills
-   * tracks at least `--spacing(28)` wide, as many as fit.
+   * Grid only: the most tiles a row holds — fewer as the container narrows, never
+   * below 8.5rem a tile (`4` is four on a desktop, three on a tablet, two on a
+   * phone). Without it the grid auto-fills tracks at least `--spacing(28)` wide.
    * @default undefined
    */
   columns?: 2 | 3 | 4 | 5 | 6;
@@ -194,15 +208,6 @@ export interface SortableListProps<
 }
 
 const CONTAINER = "list";
-
-// Literal classes, so a consumer's Tailwind scanner sees each one.
-const GRID_COLUMNS = {
-  2: "grid-cols-2",
-  3: "grid-cols-3",
-  4: "grid-cols-4",
-  5: "grid-cols-5",
-  6: "grid-cols-6",
-} as const;
 
 // The nearest ancestor that scrolls vertically — a touch drag auto-scrolls it.
 function scrollParent(element: HTMLElement): HTMLElement | null {
@@ -382,12 +387,9 @@ export function SortableList<T extends SortableListItem = SortableListItem>({
         data-drop-over={containerProps["data-drop-over"]}
         className={
           grid
-            ? cn(
-                "grid gap-2",
-                columns
-                  ? GRID_COLUMNS[columns]
-                  : "grid-cols-[repeat(auto-fill,minmax(--spacing(28),1fr))]",
-              )
+            ? columns
+              ? cn(tileColumnClasses[columns], tileGridClasses)
+              : "grid grid-cols-[repeat(auto-fill,minmax(--spacing(28),1fr))] gap-2"
             : // ItemGroup's own `has-data-[size=sm]:gap-2.5` is replaced, not stacked: rows sit as
               // close as a DataList's.
               "flex flex-col gap-0.5 has-data-[size=sm]:gap-0.5"
@@ -436,6 +438,7 @@ export function SortableList<T extends SortableListItem = SortableListItem>({
                 // A row never wraps its actions under the handle; its content truncates instead.
                 grid
                   ? cn(
+                      tileGroupClass,
                       "flex-col flex-nowrap items-stretch gap-1",
                       // Bare: the Attachment fills the tile. The child path outranks its own
                       // `has-…:w-30`, which would otherwise hold it at 120px in a narrower tile,
@@ -451,18 +454,17 @@ export function SortableList<T extends SortableListItem = SortableListItem>({
             >
               {disabled ? null : locked ? (
                 // Same footprint as the handle, so locked and movable rows align.
-                <span
-                  aria-hidden="true"
-                  data-slot="sortable-list-handle-spacer"
-                  className={cn(
-                    "size-7 shrink-0",
-                    grid && "absolute start-1 top-1 z-10",
-                  )}
-                />
+                grid ? null : (
+                  <span
+                    aria-hidden="true"
+                    data-slot="sortable-list-handle-spacer"
+                    className="size-7 shrink-0"
+                  />
+                )
               ) : (
                 <Button
-                  variant={grid ? "secondary" : "ghost"}
-                  size="icon-sm"
+                  variant="ghost"
+                  size={grid ? "icon-xs" : "icon-sm"}
                   aria-label={`Reorder ${label}`}
                   data-slot="sortable-list-handle"
                   // A long-press on the handle lifts the row too.
@@ -473,7 +475,9 @@ export function SortableList<T extends SortableListItem = SortableListItem>({
                   aria-pressed={handleProps["aria-pressed"]}
                   className={cn(
                     "cursor-grab touch-none active:not-aria-[haspopup]:translate-y-0",
-                    grid && "absolute start-1 top-1 z-10",
+                    // The tile's top-left overlay slot, on the scrim.
+                    grid &&
+                      cn(tileCornerClasses.start, tileOverlayButtonClasses),
                   )}
                 >
                   <GripVertical />
@@ -486,12 +490,12 @@ export function SortableList<T extends SortableListItem = SortableListItem>({
               {hasActions ? (
                 <ItemActions
                   data-slot="sortable-list-actions"
-                  className={cn("gap-1", grid && "absolute end-1 top-1 z-10")}
+                  className={cn("gap-1", grid && tileCornerClasses.end)}
                 >
                   {actions}
                   {removable ? (
                     <Button
-                      variant={grid ? "secondary" : "ghost"}
+                      variant="ghost"
                       size="icon-xs"
                       aria-label={removeLabel(label)}
                       data-slot="sortable-list-remove"
@@ -499,7 +503,13 @@ export function SortableList<T extends SortableListItem = SortableListItem>({
                         reorder.keepFocusAfter(CONTAINER, item.id);
                         onRemove(item);
                       }}
-                      className="opacity-0 group-focus-within/item:opacity-100 group-hover/item:opacity-100 focus-visible:opacity-100 active:not-aria-[haspopup]:translate-y-0 pointer-coarse:opacity-100"
+                      className={cn(
+                        "active:not-aria-[haspopup]:translate-y-0",
+                        // A grid's corner slot reveals its buttons together; a row reveals each.
+                        grid
+                          ? tileOverlayButtonClasses
+                          : "opacity-0 group-focus-within/item:opacity-100 group-hover/item:opacity-100 focus-visible:opacity-100 pointer-coarse:opacity-100",
+                      )}
                     >
                       <X />
                     </Button>
@@ -509,10 +519,14 @@ export function SortableList<T extends SortableListItem = SortableListItem>({
                       <DropdownMenuTrigger
                         render={
                           <Button
-                            variant={grid ? "secondary" : "ghost"}
-                            size="icon-sm"
+                            variant="ghost"
+                            size={grid ? "icon-xs" : "icon-sm"}
                             aria-label={actionsLabel(label)}
-                            className="opacity-0 group-focus-within/item:opacity-100 group-hover/item:opacity-100 focus-visible:opacity-100 data-popup-open:opacity-100 pointer-coarse:opacity-100"
+                            className={
+                              grid
+                                ? tileOverlayButtonClasses
+                                : "opacity-0 group-focus-within/item:opacity-100 group-hover/item:opacity-100 focus-visible:opacity-100 data-popup-open:opacity-100 pointer-coarse:opacity-100"
+                            }
                           >
                             <EllipsisVertical />
                           </Button>

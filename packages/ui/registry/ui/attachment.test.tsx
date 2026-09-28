@@ -48,10 +48,12 @@ import {
   AttachmentDescription,
   AttachmentGroup,
   AttachmentMedia,
+  AttachmentPreview,
   AttachmentProgress,
   AttachmentTitle,
   AttachmentTrigger,
 } from "./attachment";
+import type { FileViewerItem } from "./file-viewer";
 import { Image } from "./image";
 import { Spinner } from "./spinner";
 
@@ -1031,4 +1033,197 @@ test("no a11y violations — uploading with AttachmentProgress (API-28)", async 
     </AttachmentGroup>,
   );
   await expectNoA11yViolations(screen.container);
+});
+
+const fileOf = (
+  name: string,
+  contentType = "application/zip",
+): FileViewerItem => ({
+  id: name,
+  name,
+  contentType,
+  size: 2048,
+  downloadHref: `/files/${name}`,
+});
+
+function FileTile({
+  name,
+  ...props
+}: { name: string } & Partial<React.ComponentProps<typeof Attachment>>) {
+  return (
+    <Attachment orientation="vertical" file={fileOf(name)} {...props}>
+      <AttachmentMedia>
+        <FileTextIcon />
+      </AttachmentMedia>
+      <AttachmentContent>
+        <AttachmentTitle>{name}</AttachmentTitle>
+      </AttachmentContent>
+      <AttachmentActions>
+        <AttachmentAction aria-label={`Remove ${name}`}>
+          <XIcon />
+        </AttachmentAction>
+      </AttachmentActions>
+    </Attachment>
+  );
+}
+
+test.each([
+  [1024, 4],
+  [520, 3],
+  [340, 2],
+])(
+  'API-28: layout="tiles" shows at most four square tiles a row, fewer as it narrows (%ipx → %i)',
+  async (width, perRow) => {
+    const names = ["a", "b", "c", "d", "e", "f", "g", "h"];
+    const screen = await render(
+      <div style={{ width: `${width}px` }}>
+        <AttachmentGroup layout="tiles">
+          {names.map((name) => (
+            <FileTile key={name} name={name} />
+          ))}
+        </AttachmentGroup>
+      </div>,
+    );
+    const tiles = slots(screen.container, "attachment");
+    const top = Math.round(tiles[0]!.getBoundingClientRect().top);
+    expect(
+      tiles.filter((t) => Math.round(t.getBoundingClientRect().top) === top),
+    ).toHaveLength(perRow);
+    const media = slot(tiles[0]!, "attachment-media")!.getBoundingClientRect();
+    expect(Math.round(media.width)).toBe(Math.round(media.height));
+  },
+);
+
+test("API-28: a scroll row with columns sizes its tiles so that many fit", async () => {
+  const screen = await render(
+    <div style={{ width: "800px" }}>
+      <AttachmentGroup layout="scroll" columns={4}>
+        {["a", "b", "c", "d", "e", "f"].map((name) => (
+          <FileTile key={name} name={name} size="lg" />
+        ))}
+      </AttachmentGroup>
+    </div>,
+  );
+  const group = slot(screen.container, "attachment-group")!;
+  const tile = slots(screen.container, "attachment")[0]!;
+  // 800px, three 12px gaps: four tiles of 191px fit the row, the other two scroll.
+  expect(Math.round(tile.getBoundingClientRect().width)).toBe(191);
+  expect(group.scrollWidth).toBeGreaterThan(group.clientWidth);
+});
+
+test("API-28: a tile's overlay slots sit inside its corners on the scrim and reveal on hover", async () => {
+  const screen = await render(
+    <Attachment orientation="vertical">
+      <AttachmentMedia>
+        <FileTextIcon />
+      </AttachmentMedia>
+      <AttachmentActions side="start">
+        <AttachmentAction aria-label="Reorder">
+          <XIcon />
+        </AttachmentAction>
+      </AttachmentActions>
+      <AttachmentActions>
+        <AttachmentAction aria-label="Remove">
+          <XIcon />
+        </AttachmentAction>
+      </AttachmentActions>
+    </Attachment>,
+  );
+  const tile = slot(screen.container, "attachment")!.getBoundingClientRect();
+  const [start, end] = slots(screen.container, "attachment-actions");
+  expect(start!.getAttribute("data-side")).toBe("start");
+  // top-3 / start-3 / end-3 inside the tile's 1px border.
+  expect(Math.round(start!.getBoundingClientRect().left - tile.left)).toBe(13);
+  expect(Math.round(tile.right - end!.getBoundingClientRect().right)).toBe(13);
+  expect(getComputedStyle(end!).opacity).toBe("0");
+  const action = slot(end!, "attachment-action")!;
+  expect(action.className).toContain("backdrop-blur-sm");
+  expect(action.className).toContain("bg-black/40");
+  await userEvent.hover(slot(screen.container, "attachment")!);
+  await expect.poll(() => getComputedStyle(end!).opacity).toBe("1");
+});
+
+test("API-28: a horizontal chip keeps its actions inline, without the scrim", async () => {
+  const screen = await render(
+    <Attachment>
+      <AttachmentContent>
+        <AttachmentTitle>notes.txt</AttachmentTitle>
+      </AttachmentContent>
+      <AttachmentActions>
+        <AttachmentAction aria-label="Remove notes.txt">
+          <XIcon />
+        </AttachmentAction>
+      </AttachmentActions>
+    </Attachment>,
+  );
+  expect(
+    getComputedStyle(slot(screen.container, "attachment-actions")!).position,
+  ).toBe("relative");
+  expect(slot(screen.container, "attachment-action")!.className).not.toContain(
+    "bg-black/40",
+  );
+});
+
+test("API-28: a tile with a file opens the viewer on click and on Enter, paging through its group", async () => {
+  const screen = await render(
+    <AttachmentGroup layout="tiles">
+      <FileTile name="one.zip" />
+      <FileTile name="two.zip" />
+    </AttachmentGroup>,
+  );
+  const open = screen.getByRole("button", { name: "Open two.zip" });
+  await open.click();
+  await expect.element(screen.getByRole("dialog")).toBeVisible();
+  // The viewer pages through the group: the second of two.
+  await expect
+    .poll(
+      () => document.querySelector('[data-slot="file-viewer"]')?.textContent,
+    )
+    .toContain("2 of 2");
+});
+
+test("API-28: Enter on a focused tile opens the viewer", async () => {
+  const screen = await render(<FileTile name="one.zip" />);
+  (
+    screen
+      .getByRole("button", { name: "Open one.zip" })
+      .element() as HTMLElement
+  ).focus();
+  await userEvent.keyboard("{Enter}");
+  await expect
+    .poll(
+      () => document.querySelector('[data-slot="file-viewer"]')?.textContent,
+    )
+    .toContain("one.zip");
+});
+
+test("API-28: an action click never opens the viewer, and the title carries the full name", async () => {
+  const screen = await render(<FileTile name="a-very-long-file-name.zip" />);
+  await screen
+    .getByRole("button", { name: "Remove a-very-long-file-name.zip" })
+    .click();
+  expect(document.querySelector('[role="dialog"]')).toBeNull();
+  expect(
+    slot(screen.container, "attachment-title")!.getAttribute("title"),
+  ).toBe("a-very-long-file-name.zip");
+});
+
+test("API-28: preview={false} keeps a plain card; onOpen replaces the viewer", async () => {
+  const opened: string[] = [];
+  const screen = await render(
+    <>
+      <AttachmentGroup preview={false}>
+        <FileTile name="plain.zip" />
+      </AttachmentGroup>
+      <AttachmentPreview>
+        <FileTile name="custom.zip" onOpen={(file) => opened.push(file.name)} />
+      </AttachmentPreview>
+    </>,
+  );
+  expect(
+    screen.container.querySelector('[aria-label="Open plain.zip"]'),
+  ).toBeNull();
+  await screen.getByRole("button", { name: "Open custom.zip" }).click();
+  expect(opened).toEqual(["custom.zip"]);
+  expect(document.querySelector('[role="dialog"]')).toBeNull();
 });

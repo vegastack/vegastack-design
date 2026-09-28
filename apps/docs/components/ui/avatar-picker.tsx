@@ -1,4 +1,4 @@
-// @vegastack avatar-picker@0.23.66 sha256-6DuMWIHpGMOFbz3Kk0v6yfM6FR8ncLGHFxJ8qC+HOj4=
+// @vegastack avatar-picker@0.23.66 sha256-0aAfdPKQ0ppbiRhN0/nsqCUII2uFrQNVhXKgNou66YA=
 
 "use client";
 
@@ -20,6 +20,7 @@ import {
   useFileDrop,
   type FileDropRejection,
 } from "@/components/ui/use-file-drop";
+import { scrimClasses } from "@/lib/tile-overlay";
 
 /* ------------------------------------------------------------------------------------------------
  * AvatarPicker — a person's own photo. Inline it is only the avatar circle: hover or keyboard focus
@@ -210,13 +211,14 @@ function CircleFace({
             : "group-hover/button:*:data-[slot=avatar-fallback]:text-transparent group-focus-visible/button:*:data-[slot=avatar-fallback]:text-transparent",
         )}
       />
-      {/* The modal scrim's ink, no blur, so the photo stays readable. `group-hover` only matches
+      {/* The shared photo scrim (`tile-overlay`), no blur, so the photo stays readable. `group-hover` only matches
           where hover exists; a device without it gets the badge below. */}
       <span
         aria-hidden="true"
         data-slot="avatar-picker-overlay"
         className={cn(
-          "absolute inset-0 flex items-center justify-center rounded-full bg-black/40 text-white transition-opacity duration-150",
+          "absolute inset-0 flex items-center justify-center rounded-full transition-opacity duration-150",
+          scrimClasses,
           shown
             ? "opacity-100"
             : "opacity-0 group-hover/button:opacity-100 group-focus-visible/button:opacity-100 [@media(hover:none)]:hidden",

@@ -2,14 +2,14 @@
   "schemaVersion": 1,
   "kind": "vegastack-zero-gap-audit-register",
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "e90bc01c1aa155dbd4fe3c51e5ce300397d50492ce75fae3bca13c944741d169",
+  "contractSha256": "39b09e85effda1b070c5b72c86144bab16e930aa915a25f7f8a33dcb7747d7c1",
   "expectedCounts": {
-    "totalRegistryItems": 697,
+    "totalRegistryItems": 698,
     "components": 134,
     "animatedIcons": 467,
     "hooks": 13,
     "blocks": 11,
-    "libs": 4,
+    "libs": 5,
     "chartBlocks": 68
   },
   "records": [
@@ -7695,6 +7695,17 @@
       "family": "lib",
       "sourceFiles": [
         "packages/ui/registry/lib/drag-item.ts"
+      ],
+      "docsSlug": "/docs/guides/components",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "tile-overlay",
+      "inventoryClass": "lib",
+      "wave": "Libs",
+      "family": "lib",
+      "sourceFiles": [
+        "packages/ui/registry/lib/tile-overlay.ts"
       ],
       "docsSlug": "/docs/guides/components",
       "contractStatus": "reconciled"

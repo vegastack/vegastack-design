@@ -1,0 +1,73 @@
+// @vegastack tile-overlay@0.23.66 sha256-nWRahvwesqGI4TzYlhF0hC6HmARVPGB7rMSgwvgJMFE=
+
+/**
+ * tile-overlay — the ONE visual recipe for media tiles and the chrome that floats over them:
+ * how many tiles fit in a row, where the corner controls sit, when they show, and the scrim their
+ * buttons paint. `Attachment` (its vertical tiles and `AttachmentGroup`), `SortableList`'s grid and
+ * `AvatarPicker`'s photo overlay read from here, so a tile grid, a sortable gallery and a profile
+ * photo all dim the same way and put their buttons in the same place.
+ *
+ * - `scrimClasses` — white ink on a subtle dark wash, the overlay a photo wears under a control.
+ * - `tileOverlayButtonClasses` — the same scrim with a light blur, for an icon `Button` over an
+ *   image (pass them to a `variant="ghost"` Button; `cn` replaces the ghost fills and icon ink).
+ * - `tileCornerClasses.start` / `.end` — the top-left and top-right slots, inset from the tile's
+ *   corner so a button sits on the image, not on its edge. They show on hover or focus within the
+ *   tile (`group/tile`), while a menu opened from them is open, and always on a coarse pointer.
+ * - `tileGridClasses` / `tileScrollRowClasses` — a tile grid, or a scrolling row, with at most `--tile-columns` per row
+ *   (set it with `tileColumnClasses`): fewer when the container is narrow, never below 8.5rem a
+ *   tile, so four on a desktop form, three on a tablet and two on a phone come from the container's
+ *   own width, not the viewport's.
+ *
+ * Every class is a literal so a consumer's Tailwind scanner sees it.
+ */
+
+/** The dim a photo wears under a control: white ink over a subtle dark wash. */
+export const scrimClasses = "bg-black/40 text-white";
+
+/** The group name the corner slots read hover and focus from — put it on the tile's root. */
+export const tileGroupClass = "group/tile";
+
+/**
+ * An icon `Button` over an image: the scrim, a light blur, and white icon ink in every state.
+ * Written against the ghost variant's own selectors so `cn` replaces them rather than stacking.
+ */
+export const tileOverlayButtonClasses = [
+  "bg-black/40 text-white backdrop-blur-sm",
+  "hover:bg-black/60 hover:text-white dark:hover:bg-black/60",
+  "aria-expanded:bg-black/60 aria-expanded:text-white",
+  "[&_svg:not([class*='text-']):not([data-icon-tone])]:text-white",
+  "hover:**:[svg:not([data-icon-tone])]:text-white",
+  "aria-expanded:**:[svg:not([data-icon-tone])]:text-white",
+].join(" ");
+
+// Shown on hover or focus within the tile, while a menu from the slot is open, and always where
+// there is no hover to reveal it. Only opacity changes: the controls never move.
+const reveal =
+  "opacity-0 transition-opacity duration-150 group-hover/tile:opacity-100 group-focus-within/tile:opacity-100 has-aria-expanded:opacity-100 pointer-coarse:opacity-100";
+
+/** The top-left and top-right overlay slots, inset from the tile's corner. */
+export const tileCornerClasses = {
+  start: `absolute start-3 top-3 z-20 flex items-center gap-1 ${reveal}`,
+  end: `absolute end-3 top-3 z-20 flex items-center gap-1 ${reveal}`,
+} as const;
+
+/** The most tiles a row holds — sets `--tile-columns` for the grid and scroll recipes below. */
+export const tileColumnClasses = {
+  2: "[--tile-columns:2]",
+  3: "[--tile-columns:3]",
+  4: "[--tile-columns:4]",
+  5: "[--tile-columns:5]",
+  6: "[--tile-columns:6]",
+} as const;
+
+/** A tile grid: `--tile-columns` equal tracks at most, fewer below 8.5rem a tile. `gap-3`. */
+export const tileGridClasses =
+  "grid gap-3 grid-cols-[repeat(auto-fill,minmax(min(100%,max(--spacing(34),calc((100%_-_(var(--tile-columns)_-_1)_*_var(--spacing)*3)/var(--tile-columns)))),1fr))]";
+
+/**
+ * A sideways-scrolling row's tiles (`AttachmentGroup layout="scroll"` children), each sized so
+ * `--tile-columns` fit the row and the rest scroll — never below 8.5rem, so a phone shows two and
+ * a peek.
+ */
+export const tileScrollRowClasses =
+  "*:data-[slot=attachment]:w-[max(--spacing(34),calc((100%_-_(var(--tile-columns)_-_1)_*_var(--spacing)*3)/var(--tile-columns)))] *:data-[slot=attachment]:min-w-0 *:data-[slot=attachment]:data-[orientation=vertical]:flex-nowrap";

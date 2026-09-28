@@ -1,5 +1,5 @@
 import { expect, test } from "vitest";
-import { dragItemClasses } from "./drag-item";
+import { dragItemClasses, dropIndicatorClasses } from "./drag-item";
 
 /* The recipe is a class string, so its contract is the literals a consumer's Tailwind scanner must
    find. The behaviour behind each selector (the hook writing the attributes) is proven in
@@ -11,7 +11,7 @@ test("every drop edge the hook can write has a hairline: top, bottom, left and r
       `data-[drop-edge=${edge}]:before:absolute`,
     );
     expect(dragItemClasses).toContain(
-      `data-[drop-edge=${edge}]:before:bg-primary`,
+      `data-[drop-edge=${edge}]:before:bg-border`,
     );
   }
   // Horizontal edges are vertical lines in the gap beside the item.
@@ -26,4 +26,9 @@ test("the containing block, lift dim and pending shimmer stay in the recipe", ()
   expect(classes).toContain("relative");
   expect(classes).toContain("data-dragging:opacity-50");
   expect(classes).toContain("data-drag-pending:animate-pulse");
+});
+
+test("the drop indicator is the standard border colour, the same token everywhere", () => {
+  expect(dropIndicatorClasses).toBe("bg-border");
+  expect(dragItemClasses).not.toContain("bg-primary");
 });

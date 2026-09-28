@@ -12,12 +12,12 @@
     "evidencePolicy": "Observed fields come from source, registry metadata, docs, and test topology. Unknown/not-applicable values are explicit; no inferred behavior is presented as verified."
   },
   "expectedCounts": {
-    "totalRegistryItems": 697,
+    "totalRegistryItems": 698,
     "components": 134,
     "animatedIcons": 467,
     "hooks": 13,
     "blocks": 11,
-    "libs": 4,
+    "libs": 5,
     "chartBlocks": 68
   },
   "expectedWaveCounts": {
@@ -1805,6 +1805,15 @@
           }
         },
         {
+          "name": "AttachmentPreview",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/attachment.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A context scope; it renders no element of its own."
+          }
+        },
+        {
           "name": "AttachmentMedia",
           "kind": "component",
           "source": "packages/ui/registry/ui/attachment.tsx",
@@ -1937,7 +1946,12 @@
       },
       "engines": [],
       "docsSlug": "/docs/components/attachment",
-      "registryDependencies": ["@vegastack/button", "@vegastack/progress"],
+      "registryDependencies": [
+        "@vegastack/button",
+        "@vegastack/file-viewer",
+        "@vegastack/progress",
+        "@vegastack/tile-overlay"
+      ],
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
         "class-variance-authority@^0.7.1",
@@ -1955,31 +1969,6 @@
       },
       "previewModule": "attachment",
       "dataAttributes": {
-        "Attachment": {
-          "attributes": [
-            {
-              "name": "data-muted",
-              "values": []
-            },
-            {
-              "name": "data-orientation",
-              "values": []
-            },
-            {
-              "name": "data-size",
-              "values": []
-            },
-            {
-              "name": "data-slot",
-              "values": ["attachment"]
-            },
-            {
-              "name": "data-state",
-              "values": []
-            }
-          ],
-          "cssVariables": []
-        },
         "AttachmentMedia": {
           "attributes": [
             {
@@ -2032,6 +2021,10 @@
         "AttachmentActions": {
           "attributes": [
             {
+              "name": "data-side",
+              "values": []
+            },
+            {
               "name": "data-slot",
               "values": ["attachment-actions"]
             }
@@ -2049,6 +2042,10 @@
         },
         "AttachmentGroup": {
           "attributes": [
+            {
+              "name": "data-columns",
+              "values": []
+            },
             {
               "name": "data-layout",
               "values": []
@@ -2832,6 +2829,7 @@
         "@vegastack/button",
         "@vegastack/dialog",
         "@vegastack/person-avatar",
+        "@vegastack/tile-overlay",
         "@vegastack/use-announcer",
         "@vegastack/use-file-drop"
       ],
@@ -20310,6 +20308,7 @@
         "@vegastack/drag-item",
         "@vegastack/dropdown-menu",
         "@vegastack/item",
+        "@vegastack/tile-overlay",
         "@vegastack/use-drag-reorder"
       ],
       "npmDependencies": [
@@ -22552,6 +22551,7 @@
         "@vegastack/button",
         "@vegastack/checkbox",
         "@vegastack/copy-button",
+        "@vegastack/drag-item",
         "@vegastack/dropdown-menu",
         "@vegastack/input",
         "@vegastack/markdown-view",
@@ -32991,6 +32991,15 @@
             "status": "not-applicable",
             "rationale": "component-constant symbols do not expose a rendered DOM instance or ref contract."
           }
+        },
+        {
+          "name": "dropIndicatorClasses",
+          "kind": "component-constant",
+          "source": "packages/ui/registry/lib/drag-item.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "component-constant symbols do not expose a rendered DOM instance or ref contract."
+          }
         }
       ],
       "variants": {
@@ -33046,6 +33055,143 @@
       "npmDependencies": [],
       "testFiles": [
         "packages/ui/registry/lib/drag-item.test.ts",
+        "packages/ui/registry/ui/sortable-list.test.tsx",
+        "packages/ui/registry/ui/text-edit.test.tsx"
+      ],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "shared-guide-only",
+        "navigation": "exempt",
+        "preview": "exempt",
+        "vrt": "exempt"
+      }
+    },
+    {
+      "name": "tile-overlay",
+      "registryType": "registry:lib",
+      "title": "Tile Overlay",
+      "summary": "The one visual recipe for media tiles — the photo scrim, the blurred-scrim overlay button, the top-left and top-right overlay slots that show on hover or focus, and the responsive at-most-N-per-row tile grid — shared by Attachment, SortableList and AvatarPicker.",
+      "family": "lib",
+      "wave": "Libs",
+      "sourceFiles": ["packages/ui/registry/lib/tile-overlay.ts"],
+      "publicSymbols": [
+        {
+          "name": "scrimClasses",
+          "kind": "component-constant",
+          "source": "packages/ui/registry/lib/tile-overlay.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "component-constant symbols do not expose a rendered DOM instance or ref contract."
+          }
+        },
+        {
+          "name": "tileGroupClass",
+          "kind": "component-constant",
+          "source": "packages/ui/registry/lib/tile-overlay.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "component-constant symbols do not expose a rendered DOM instance or ref contract."
+          }
+        },
+        {
+          "name": "tileOverlayButtonClasses",
+          "kind": "component-constant",
+          "source": "packages/ui/registry/lib/tile-overlay.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "component-constant symbols do not expose a rendered DOM instance or ref contract."
+          }
+        },
+        {
+          "name": "tileCornerClasses",
+          "kind": "component-constant",
+          "source": "packages/ui/registry/lib/tile-overlay.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "component-constant symbols do not expose a rendered DOM instance or ref contract."
+          }
+        },
+        {
+          "name": "tileColumnClasses",
+          "kind": "component-constant",
+          "source": "packages/ui/registry/lib/tile-overlay.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "component-constant symbols do not expose a rendered DOM instance or ref contract."
+          }
+        },
+        {
+          "name": "tileGridClasses",
+          "kind": "component-constant",
+          "source": "packages/ui/registry/lib/tile-overlay.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "component-constant symbols do not expose a rendered DOM instance or ref contract."
+          }
+        },
+        {
+          "name": "tileScrollRowClasses",
+          "kind": "component-constant",
+          "source": "packages/ui/registry/lib/tile-overlay.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "component-constant symbols do not expose a rendered DOM instance or ref contract."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "A data/recipe module renders nothing and has no variant surface."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "A data/recipe module renders nothing and has no size scale."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned motion mechanism observed."
+        }
+      },
+      "engines": [],
+      "registryDependencies": [],
+      "docsSlug": "/docs/guides/components",
+      "states": {
+        "behavior": {
+          "status": "not-applicable",
+          "values": ["not-applicable"],
+          "evidence": "Class strings: consumers own the DOM and state; this recipe styles it."
+        },
+        "accessibility": {
+          "status": "not-applicable",
+          "values": ["not-applicable"],
+          "evidence": "No DOM — names and roles belong to the buttons consumers render into the slots."
+        },
+        "visual": {
+          "status": "observed",
+          "values": [
+            "hover-reveal",
+            "focus-within-reveal",
+            "coarse-pointer-visible",
+            "menu-open"
+          ],
+          "evidence": "The corner slots reveal on group-hover/tile, group-focus-within/tile and has-aria-expanded, and are always visible under pointer-coarse."
+        }
+      },
+      "responsive": {
+        "status": "not-applicable",
+        "risks": [],
+        "rationale": "No DOM of its own; consumers own layout."
+      },
+      "npmDependencies": [],
+      "testFiles": [
+        "packages/ui/registry/lib/tile-overlay.test.ts",
+        "packages/ui/registry/ui/attachment.test.tsx",
         "packages/ui/registry/ui/sortable-list.test.tsx"
       ],
       "coverage": {

@@ -18,6 +18,7 @@ import {
   AttachmentContent,
   AttachmentDescription,
   AttachmentMedia,
+  AttachmentPreview,
   AttachmentProgress,
 } from "@/components/ui/attachment";
 
@@ -331,8 +332,10 @@ type Upload = SortableListItem & {
 
 /**
  * Attachments in a grid: `tile="bare"` drops the tile's own border and padding, so each
- * `Attachment` is the tile's one frame and keeps its upload and error states. `columns={3}`
- * fixes three tiles a row; the × removes a tile.
+ * `Attachment` is the tile's one frame and keeps its upload and error states. `columns={4}`
+ * holds at most four tiles a row (three, then two, as the container narrows). The ⠿ handle sits
+ * top-left and the × top-right on the blurred scrim; a click on a finished tile opens the viewer,
+ * paging through the images the `AttachmentPreview` around the list collects.
  */
 export function sortableListAttachments(): ReactNode {
   const [items, setItems] = useState<Upload[]>([
@@ -343,47 +346,60 @@ export function sortableListAttachments(): ReactNode {
   ]);
   return (
     <Wrapper className="block">
-      <div className="mx-auto w-full max-w-md">
-        <SortableList
-          aria-label="Images"
-          layout="grid"
-          columns={3}
-          tile="bare"
-          items={items}
-          renderItem={(item) => (
-            <Attachment
-              orientation="vertical"
-              state={item.state}
-              className="w-full"
-            >
-              <AttachmentMedia variant="image">
-                <Image
-                  src={PHOTO_SRC.landscape}
-                  alt={item.label ?? ""}
-                  aspectRatio="square"
-                />
-              </AttachmentMedia>
-              {item.state !== "done" ? (
-                <AttachmentContent>
-                  <AttachmentDescription>
-                    {item.state === "error"
-                      ? "Upload failed."
-                      : `${item.progress}%`}
-                  </AttachmentDescription>
-                </AttachmentContent>
-              ) : null}
-              {item.state === "uploading" ? (
-                <AttachmentProgress value={item.progress ?? null} />
-              ) : null}
-            </Attachment>
-          )}
-          onRemove={(item) =>
-            setItems((prev) => prev.filter((i) => i.id !== item.id))
-          }
-          onReorder={({ id, to }) =>
-            setItems((prev) => applyMove(prev, id, to.index))
-          }
-        />
+      <div className="mx-auto w-full max-w-2xl">
+        <AttachmentPreview>
+          <SortableList
+            aria-label="Images"
+            layout="grid"
+            columns={4}
+            tile="bare"
+            items={items}
+            renderItem={(item) => (
+              <Attachment
+                orientation="vertical"
+                state={item.state}
+                className="w-full"
+                file={
+                  item.state === "done"
+                    ? {
+                        id: item.id,
+                        name: `${item.label}.svg`,
+                        contentType: "image/svg+xml",
+                        src: PHOTO_SRC.landscape,
+                        downloadHref: PHOTO_SRC.landscape!,
+                      }
+                    : undefined
+                }
+              >
+                <AttachmentMedia variant="image">
+                  <Image
+                    src={PHOTO_SRC.landscape}
+                    alt={item.label ?? ""}
+                    aspectRatio="square"
+                  />
+                </AttachmentMedia>
+                {item.state !== "done" ? (
+                  <AttachmentContent>
+                    <AttachmentDescription>
+                      {item.state === "error"
+                        ? "Upload failed."
+                        : `${item.progress}%`}
+                    </AttachmentDescription>
+                  </AttachmentContent>
+                ) : null}
+                {item.state === "uploading" ? (
+                  <AttachmentProgress value={item.progress ?? null} />
+                ) : null}
+              </Attachment>
+            )}
+            onRemove={(item) =>
+              setItems((prev) => prev.filter((i) => i.id !== item.id))
+            }
+            onReorder={({ id, to }) =>
+              setItems((prev) => applyMove(prev, id, to.index))
+            }
+          />
+        </AttachmentPreview>
       </div>
     </Wrapper>
   );

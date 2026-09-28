@@ -1,10 +1,12 @@
 "use client";
 
-import type { ReactNode } from "react";
+import type { ComponentProps, ReactNode } from "react";
 import {
   CheckIcon,
   ClockIcon,
   CopyIcon,
+  DownloadIcon,
+  EllipsisVerticalIcon,
   FileCodeIcon,
   FileSearchIcon,
   FileTextIcon,
@@ -24,10 +26,18 @@ import {
   AttachmentDescription,
   AttachmentGroup,
   AttachmentMedia,
+  AttachmentPreview,
   AttachmentProgress,
   AttachmentTitle,
   AttachmentTrigger,
 } from "@/components/ui/attachment";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import type { FileViewerItem } from "@/components/ui/file-viewer";
 import {
   Dialog,
   DialogContent,
@@ -599,39 +609,221 @@ export function attachmentRecordFiles(): ReactNode {
   );
 }
 
+/** The files the tile examples open: two images, a PDF and a file with no preview. */
+const FILES: (FileViewerItem & { meta: string; icon?: LucideIcon })[] = [
+  {
+    id: "landscape",
+    name: "landscape.svg",
+    meta: "SVG · 820 KB",
+    contentType: "image/svg+xml",
+    src: "/preview/landscape.svg",
+    thumb: {
+      src: "/preview/landscape.svg",
+      blur: "/preview/landscape-blur.svg",
+    },
+    downloadHref: "/preview/landscape.svg",
+  },
+  {
+    id: "portrait",
+    name: "portrait-ada.svg",
+    meta: "SVG · 12 KB",
+    contentType: "image/svg+xml",
+    src: "/preview/avatar-1.svg",
+    downloadHref: "/preview/avatar-1.svg",
+  },
+  {
+    id: "spec",
+    name: "spec-sheet.pdf",
+    meta: "PDF · 64 KB",
+    contentType: "application/pdf",
+    pdfSrc: "/preview/spec-sheet.pdf",
+    downloadHref: "/preview/spec-sheet.pdf",
+    icon: FileTextIcon,
+  },
+  {
+    id: "ies",
+    name: "beam-30deg-with-a-long-photometry-file-name.ies",
+    meta: "IES · 4 KB",
+    contentType: "application/octet-stream",
+    size: 4096,
+    downloadHref: "/preview/spec-sheet.pdf",
+    icon: FileCodeIcon,
+  },
+];
+
+function FileTile({
+  file,
+  actions = true,
+  ...props
+}: {
+  file: (typeof FILES)[number];
+  actions?: boolean;
+} & Omit<ComponentProps<typeof Attachment>, "file">) {
+  const Icon = file.icon;
+  return (
+    <Attachment orientation="vertical" file={file} {...props}>
+      <AttachmentMedia variant={Icon ? "icon" : "image"}>
+        {Icon ? <Icon /> : <img src={file.src ?? ""} alt={file.name} />}
+      </AttachmentMedia>
+      <AttachmentContent>
+        <AttachmentTitle>{file.name}</AttachmentTitle>
+        <AttachmentDescription>{file.meta}</AttachmentDescription>
+      </AttachmentContent>
+      {actions ? (
+        <AttachmentActions>
+          <AttachmentAction
+            aria-label={`Download ${file.name}`}
+            render={<a href={file.downloadHref} download />}
+          >
+            <DownloadIcon />
+          </AttachmentAction>
+          <AttachmentAction aria-label={`Remove ${file.name}`}>
+            <XIcon />
+          </AttachmentAction>
+        </AttachmentActions>
+      ) : null}
+    </Attachment>
+  );
+}
+
 /**
- * Ours (API-28): compact square tiles for a form. `layout="tiles"` puts two tiles per row on a
- * phone and three from `sm` up, with square media, so a form's files stay small beside its fields.
+ * Ours (API-28): square tiles for a form. `layout="tiles"` shows at most four a row (`columns`),
+ * three and then two as the container narrows, with square media; each tile opens the viewer.
  */
 export function attachmentFormTiles(): ReactNode {
   return (
     <Wrapper>
-      <div className="w-full max-w-xl">
+      <div className="w-full max-w-2xl">
         <AttachmentGroup layout="tiles" role="group" aria-label="Form files">
-          {IMAGES.slice(0, 2).map((image) => (
-            <Attachment key={image.name} orientation="vertical">
-              <AttachmentMedia variant="image">
-                <img src={image.src} alt={image.alt} />
-              </AttachmentMedia>
-              <AttachmentContent>
-                <AttachmentTitle>{image.name}</AttachmentTitle>
-                <AttachmentDescription>{image.meta}</AttachmentDescription>
-              </AttachmentContent>
-            </Attachment>
+          {FILES.map((file) => (
+            <FileTile key={file.id} file={file} />
           ))}
           <Attachment state="uploading" orientation="vertical">
             <AttachmentMedia>
               <FileTextIcon />
             </AttachmentMedia>
             <AttachmentContent>
-              <AttachmentTitle>beam-30deg.ies</AttachmentTitle>
+              <AttachmentTitle>ip-rating-cert.pdf</AttachmentTitle>
               <AttachmentDescription>62%</AttachmentDescription>
             </AttachmentContent>
             <AttachmentProgress
               value={62}
-              aria-label="Uploading beam-30deg.ies"
+              aria-label="Uploading ip-rating-cert.pdf"
             />
           </Attachment>
+        </AttachmentGroup>
+      </div>
+    </Wrapper>
+  );
+}
+
+/**
+ * Ours (API-28): the tile's overlay slots. `AttachmentActions side="start"` is the top-left slot
+ * (a drag handle, a selection), the default `side="end"` the top-right one (at most two icon
+ * actions: ×, ⋯, download). Both show on hover or focus within the tile — always on a touch
+ * screen — on the blurred scrim, and a slot you do not render is simply not there.
+ */
+export function attachmentOverlay(): ReactNode {
+  const [photo, pdf] = [FILES[0]!, FILES[2]!];
+  return (
+    <Wrapper>
+      <div className="w-full max-w-2xl">
+        <AttachmentGroup layout="tiles" role="group" aria-label="Overlay slots">
+          <FileTile file={photo} actions={false}>
+            <AttachmentActions side="start">
+              <AttachmentAction aria-label="Mark landscape.svg as the cover">
+                <CheckIcon />
+              </AttachmentAction>
+            </AttachmentActions>
+            <AttachmentActions>
+              <AttachmentAction aria-label="Remove landscape.svg">
+                <XIcon />
+              </AttachmentAction>
+            </AttachmentActions>
+          </FileTile>
+          <FileTile file={pdf} actions={false}>
+            <AttachmentActions>
+              <DropdownMenu>
+                <DropdownMenuTrigger
+                  render={
+                    <AttachmentAction aria-label="Actions for spec-sheet.pdf">
+                      <EllipsisVerticalIcon />
+                    </AttachmentAction>
+                  }
+                />
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem
+                    render={<a href={pdf.downloadHref} download />}
+                  >
+                    Download
+                  </DropdownMenuItem>
+                  <DropdownMenuItem>Replace</DropdownMenuItem>
+                  <DropdownMenuItem variant="destructive">
+                    Remove
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </AttachmentActions>
+          </FileTile>
+          <FileTile file={FILES[1]!} actions={false} />
+        </AttachmentGroup>
+      </div>
+    </Wrapper>
+  );
+}
+
+/**
+ * Ours (API-28): open on click. A tile given a `file` is one "Open {name}" button: a click, or
+ * Enter or Space, opens the `FileViewer` — an image to zoom, a PDF page by page, a download card
+ * for anything else — paging through the group. `AttachmentPreview` spans several groups;
+ * `preview={false}` (on a tile or a group) keeps plain cards, and `onOpen` replaces the viewer.
+ */
+export function attachmentPreview(): ReactNode {
+  return (
+    <Wrapper>
+      <div className="flex w-full max-w-2xl flex-col gap-4">
+        <AttachmentPreview>
+          <AttachmentGroup layout="tiles" role="group" aria-label="Photos">
+            {FILES.slice(0, 2).map((file) => (
+              <FileTile key={file.id} file={file} actions={false} />
+            ))}
+          </AttachmentGroup>
+          <AttachmentGroup layout="tiles" role="group" aria-label="Documents">
+            {FILES.slice(2).map((file) => (
+              <FileTile key={file.id} file={file} actions={false} />
+            ))}
+          </AttachmentGroup>
+        </AttachmentPreview>
+        <AttachmentGroup
+          layout="tiles"
+          preview={false}
+          role="group"
+          aria-label="Without preview"
+        >
+          <FileTile file={FILES[0]!} actions={false} />
+        </AttachmentGroup>
+      </div>
+    </Wrapper>
+  );
+}
+
+/**
+ * Ours (API-28): a scrolling row sized to the row. `layout="scroll"` with `columns={4}` makes
+ * each tile a quarter of the row, so four fit and the rest scroll — two and a peek on a phone.
+ */
+export function attachmentScrollColumns(): ReactNode {
+  return (
+    <Wrapper>
+      <div className="w-full max-w-2xl">
+        <AttachmentGroup layout="scroll" columns={4} aria-label="Product files">
+          {[...FILES, ...FILES].map((file, index) => (
+            <FileTile
+              key={`${file.id}-${index}`}
+              file={{ ...file, id: `${file.id}-${index}` }}
+              size="lg"
+              actions={false}
+            />
+          ))}
         </AttachmentGroup>
       </div>
     </Wrapper>

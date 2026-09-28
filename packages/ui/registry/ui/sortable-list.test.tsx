@@ -29,6 +29,7 @@ function Controlled({
     | "renderActions"
     | "actionsLabel"
     | "layout"
+    | "columns"
     | "renderItem"
     | "getItemActions"
     | "onRemove"
@@ -494,8 +495,24 @@ test("grid: the layout is exposed and the handle overlays the tile", async () =>
   const handle = rowOf("One").querySelector(
     '[data-slot="sortable-list-handle"]',
   )!;
+  // The tile's top-left overlay slot: inset from the corner, on the blurred scrim, shown on
+  // hover or focus within the tile.
   expect(handle.className).toContain("absolute");
-  expect(handle.className).toContain("start-1");
+  expect(handle.className).toContain("start-3");
+  expect(handle.className).toContain("backdrop-blur-sm");
+  expect(handle.className).toContain("group-hover/tile:opacity-100");
+  expect(rowOf("One").className).toContain("group/tile");
+});
+
+test("grid: columns caps a row with the shared responsive tile grid", async () => {
+  await render(<Controlled layout="grid" columns={4} initial={SIX} />);
+  const group = document.querySelector(
+    '[data-slot="sortable-list"] [data-slot="item-group"]',
+  ) as HTMLElement;
+  // The column count is a cap, not a fixed track count (geometry: attachment.test.tsx).
+  expect(group.className).toContain("[--tile-columns:4]");
+  expect(group.className).toContain("var(--tile-columns)");
+  expect(group.className).not.toContain("grid-cols-4");
 });
 
 test("grid: ←/→ step one tile, ↑/↓ move by a measured row", async () => {

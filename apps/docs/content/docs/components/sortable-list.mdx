@@ -102,8 +102,8 @@ still move past a locked row: the lock fixes the row, not the positions around i
 ### Image grid
 
 `layout="grid"` wraps the list into tiles at least `--spacing(28)` wide, as many
-per row as fit — or exactly `columns` a row (2–6). The handle and the actions sit
-over the tile's top corners. A drop
+per row as fit — or at most `columns` a row (2–6), fewer as the container narrows. The
+handle and the actions sit in the tile's top-left and top-right overlay slots. A drop
 lands left or right of a tile, and in keyboard move mode <kbd>←</kbd>/<kbd>→</kbd>
 step one tile while <kbd>↑</kbd>/<kbd>↓</kbd> step a whole row. The column count
 is measured, so the row step is right at any width.
@@ -117,8 +117,18 @@ is measured, so the row step is right at any width.
 
 `tile="bare"` drops the tile's own border and padding, so an `Attachment` inside is the tile's
 one frame — no card inside a card. The attachment keeps its own states: the progress bar while
-uploading, the dashed border when idle, the destructive border and message on error. Here
-`columns={3}` holds three tiles a row.
+uploading, the dashed border when idle, the destructive border and message on error.
+
+`columns={4}` is a cap, not a fixed count: four tiles a row on a wide container, three and then two
+as it narrows (never below 8.5rem a tile) — the same grid `AttachmentGroup layout="tiles"` uses.
+The drag handle ⠿ sits in the tile's top-left overlay slot and the × in its top-right one, inset
+from the corner on a blurred scrim; both show on hover or focus within the tile, always on a touch
+screen.
+
+Give each `Attachment` a `file` and wrap the list in `AttachmentPreview`: a click or tap on a tile —
+or Enter or Space on it — opens the `FileViewer`, paging through every tile. That coexists with
+reordering because a drag starts only from the handle (or a touch long-press, which never ends in
+a click), and a click on the handle or the × never opens the viewer.
 
 <ComponentPreview
   name="sortableListAttachments"
