@@ -1,5 +1,11 @@
 # @vegastack/design
 
+## 0.7.57
+
+### Patch Changes
+
+- [#405](https://github.com/vegastack/vegastack-design/pull/405) [`ab64e86`](https://github.com/vegastack/vegastack-design/commit/ab64e8654b15c6f374cc5ac6b340308c457a0012) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🧩 Field `FieldHeader` and `FieldAction`: a label row with a trailing field-level action (such as a ghost `size="sm"` "Add more" button) right-aligned on the label's baseline, wrapping on narrow widths, with the description staying under the label.
+
 ## 0.7.56
 
 ### Patch Changes

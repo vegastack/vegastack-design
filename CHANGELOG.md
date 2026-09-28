@@ -9,6 +9,20 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.23.70] — September 28, 2026
+
+<!-- assembled from 1 changeset: 159caa025020 -->
+
+### 🧩 New components
+
+- Field `FieldHeader` and `FieldAction`: a label row with a trailing field-level action (such as a ghost `size="sm"` "Add more" button) right-aligned on the label's baseline, wrapping on narrow widths, with the description staying under the label.
+  [`ab64e86`](https://github.com/VegaStack/vegastack-design/commit/ab64e86)
+
+### 📦 npm
+
+- **`@vegastack/design`** → **`0.7.57`** (was `0.7.56`).
+- The design-system registry (`@vegastack/ui`) bumps 0.23.69 → 0.23.70.
+
 ## [0.23.69] — September 28, 2026
 
 <!-- assembled from 3 changesets: f36531eea480 -->
