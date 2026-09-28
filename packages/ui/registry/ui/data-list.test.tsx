@@ -68,7 +68,7 @@ test("clicking a sortable header fires onSortChange and cycles asc → desc → 
       onSortChange={onSortChange}
     />,
   );
-  const button = screen.getByRole("button", { name: "Name" });
+  const button = screen.getByRole("button", { name: "Sort by Name" });
   const nameHead = () =>
     screen.container.querySelector<HTMLElement>(
       '[data-slot="data-list-head"][data-sortable]',

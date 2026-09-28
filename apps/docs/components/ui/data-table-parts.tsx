@@ -1,4 +1,4 @@
-// @vegastack data-table-parts@0.23.70 sha256-tj4wqnbZfIurEYH9X2DdSSMhA421bByE7NbN/lPUWvA=
+// @vegastack data-table-parts@0.23.70 sha256-tI1/OfhUBx5t72Fr9qaoISXEjhrIlyqa+llXPRiVdlI=
 
 "use client";
 
@@ -436,6 +436,13 @@ export interface SortHeaderButtonProps {
    */
   align?: "start" | "center" | "end";
   /**
+   * The column name the accessible label is built from ("Sort by <label>"). Defaults to
+   * `children` when that is a string or number; a node header without it keeps its own
+   * text content as the button's name.
+   * @default undefined
+   */
+  label?: string;
+  /**
    * Extra classes for the button.
    * @default undefined
    */
@@ -464,6 +471,15 @@ export interface SortHeaderButtonProps {
  * label ~2px against its sibling headers. The label stays the only in-flow
  * child, so it defines the baseline in every alignment.
  *
+ * The indicator follows the standard sort-header pattern. The ACTIVE column's
+ * arrow always shows, at foreground strength. An inactive column's ⇅ is always
+ * rendered (so the label never shifts) but transparent; it fades in muted while
+ * a fine pointer hovers the header (`group/sort-head` on `SortableHead`, or the
+ * button itself standalone) or while the button has keyboard focus. A coarse
+ * pointer never hovers, so on touch only the active arrow shows; tapping still
+ * sorts. The fade is opacity only — no movement — and is dropped under reduced
+ * motion.
+ *
  * @example
  * <SortHeaderButton direction="asc" onSort={(e) => sortBy("name", e.shiftKey)}>
  *   Name
@@ -475,15 +491,22 @@ export function SortHeaderButton({
   order,
   onSort,
   align = "start",
+  label,
   className,
 }: SortHeaderButtonProps) {
   const leading = align === "end";
+  const name =
+    label ??
+    (typeof children === "string" || typeof children === "number"
+      ? String(children)
+      : undefined);
   return (
     <Button
       type="button"
       variant="ghost"
       size="sm"
       data-slot="data-table-sort"
+      aria-label={name != null ? `Sort by ${name}` : undefined}
       onClick={onSort}
       className={cn(
         // The label carries upstream `TableHead`'s own type and ink (`text-sm font-medium`,
@@ -507,6 +530,11 @@ export function SortHeaderButton({
         className={cn(
           "inline-flex items-center gap-0.5",
           leading && "absolute start-1.25 top-1/2 -translate-y-1/2",
+          direction
+            ? "text-foreground"
+            : // Inactive: reserved but invisible; a fine-pointer hover on the header (or the
+              // button) or keyboard focus fades it in muted. Touch never hovers, so it stays hidden.
+              "text-muted-foreground opacity-0 transition-opacity duration-fast ease-standard pointer-fine:group-hover/sort:opacity-100 pointer-fine:group-hover/sort-head:opacity-100 group-focus-visible/sort:opacity-100",
         )}
       >
         {direction ? (
@@ -519,7 +547,7 @@ export function SortHeaderButton({
             {order != null ? <span className="text-xs">{order}</span> : null}
           </>
         ) : (
-          <ChevronsUpDown className="size-3.5 opacity-40 transition-opacity duration-fast ease-standard group-hover/sort:opacity-70" />
+          <ChevronsUpDown className="size-3.5" />
         )}
       </span>
     </Button>
@@ -660,7 +688,7 @@ export function SortableHead({
         // The sort control carries the cell's inline padding so its box stays
         // inside the cell: 2px here + the button's 1px border and 5px padding
         // put the label 8px in — on its values' edge, like a plain header.
-        sortable && "px-0.5",
+        sortable && "group/sort-head px-0.5",
         column.headerClassName,
         className,
       )}
@@ -672,6 +700,7 @@ export function SortableHead({
           order={order}
           onSort={onSort}
           align={column.align}
+          label={typeof column.header === "string" ? column.header : undefined}
         >
           {column.header}
         </SortHeaderButton>

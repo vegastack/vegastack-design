@@ -537,6 +537,58 @@ test("SortableHead emits aria-sort on EVERY sortable column, including 'none'", 
   expect(plain!.querySelector("button")).toBeNull();
 });
 
+test("sort indicators: the active arrow always shows, an inactive one waits for hover or focus", async () => {
+  const screen = await render(
+    <Table>
+      <TableHeader>
+        <TableRow>
+          <SortableHead
+            column={{ key: "name", header: "Name", sortable: true }}
+            direction="asc"
+            onSort={() => {}}
+          />
+          <SortableHead
+            column={{ key: "amount", header: "Amount", sortable: true }}
+            direction="desc"
+            onSort={() => {}}
+          />
+          <SortableHead
+            column={{ key: "role", header: "Role", sortable: true }}
+            onSort={() => {}}
+          />
+          <SortableHead column={{ key: "note", header: "Note" }} />
+        </TableRow>
+      </TableHeader>
+    </Table>,
+  );
+  const glyph = (name: string) =>
+    screen
+      .getByRole("button", { name: `Sort by ${name}` })
+      .element()
+      .querySelector<HTMLElement>('[data-slot="data-table-sort-glyph"]')!;
+  // Unit tests run without the stylesheet, so the contract is the class list (the geometry lane
+  // measures the rendered result). Active, either direction: foreground and fully opaque.
+  for (const name of ["Name", "Amount"]) {
+    expect(glyph(name).className).toContain("text-foreground");
+    expect(glyph(name).className).not.toContain("opacity-0");
+  }
+  // Inactive: rendered (space reserved) but transparent; revealed muted by a fine-pointer
+  // hover on the header or keyboard focus on the button — never by a coarse pointer.
+  const inactive = glyph("Role");
+  expect(inactive.className).toMatch(/(^|\s)opacity-0(\s|$)/);
+  expect(inactive.querySelector("svg")).not.toBeNull();
+  expect(inactive.className).toContain("text-muted-foreground");
+  expect(inactive.className).toContain(
+    "pointer-fine:group-hover/sort-head:opacity-100",
+  );
+  expect(inactive.className).toContain("group-focus-visible/sort:opacity-100");
+  expect(inactive.className).not.toMatch(/(^|\s)group-hover/);
+  // Unsortable: no button, no glyph.
+  const note = [...screen.container.querySelectorAll("th")][3]!;
+  expect(note.querySelector('[data-slot="data-table-sort-glyph"]')).toBeNull();
+  expect(note.className).not.toContain("group/sort-head");
+});
+
 /* ------------------------------------------------------------------ selection */
 
 function SelectionHarness({ ids }: { ids: string[] }) {
