@@ -347,7 +347,7 @@
       "name": "attachment",
       "type": "registry:ui",
       "title": "Attachment",
-      "description": "A file chip / thumbnail card for chat, record-file and upload-queue surfaces — media slot, name + meta, idle/uploading/processing/error/done states, determinate progress, a muted tile, an actions row, a full-bleed trigger, and a scrolling or grid group.",
+      "description": "A file chip / thumbnail card for chat, record-file and upload-queue surfaces — media slot, name + meta, idle/uploading/processing/error/done states, determinate progress, a muted tile, an actions row, a full-bleed trigger, and a scrolling or grid group, overlay action slots on a tile, a whole-tile open into the FileViewer, and a column-sized tile grid or scrolling row.",
       "categories": [
         "communication"
       ],
@@ -359,7 +359,9 @@
       ],
       "registryDependencies": [
         "@vegastack/button",
-        "@vegastack/progress"
+        "@vegastack/file-viewer",
+        "@vegastack/progress",
+        "@vegastack/tile-overlay"
       ],
       "files": [
         {
@@ -372,7 +374,7 @@
         "whenToUse": "File and media tiles on any surface: chat attachments, record files, upload queues — a chip or thumbnail with name, size, lifecycle state, determinate upload progress (AttachmentProgress), a muted tile for a file no longer in use, and remove or download actions; AttachmentGroup lays them out as a scrolling row or a grid.",
         "whenNotToUse": "Acquiring files (drop, browse, paste) - that is Dropzone; Attachment renders the files after acquisition.",
         "version": "0.23.66",
-        "integrity": "sha256-C4QAYBDKTDjU1m6dibP3Nv6WqBQ7TF7Gw8IIUyM+Wn8="
+        "integrity": "sha256-lkj08oGJLKTPE9zhje6pN634sFoL5lnuz/QtOGdI2y4="
       }
     },
     {
@@ -488,6 +490,7 @@
         "@vegastack/button",
         "@vegastack/dialog",
         "@vegastack/person-avatar",
+        "@vegastack/tile-overlay",
         "@vegastack/use-announcer",
         "@vegastack/use-file-drop"
       ],
@@ -502,7 +505,7 @@
         "whenToUse": "A profile or member settings row where someone sets their own photo.",
         "whenNotToUse": "Attaching files to a record (Dropzone / Attachment) or picking a person (SearchableSelect).",
         "version": "0.23.66",
-        "integrity": "sha256-6DuMWIHpGMOFbz3Kk0v6yfM6FR8ncLGHFxJ8qC+HOj4="
+        "integrity": "sha256-0aAfdPKQ0ppbiRhN0/nsqCUII2uFrQNVhXKgNou66YA="
       }
     },
     {
@@ -1597,7 +1600,31 @@
         "whenToUse": "Building a drag surface on use-drag-reorder — spread it onto the element carrying the hook`s getItemProps() attributes.",
         "whenNotToUse": "File drag-in (use-file-drop) or any surface that does not use the reorder hook.",
         "version": "0.23.66",
-        "integrity": "sha256-4AVfEZLvf8H8yLsR3Nvb/xdVFmMXHbHfhN9NIMf6Q4k="
+        "integrity": "sha256-375WSW2zNY29WYHBr/jtEXmc5CBT8XfPnkI++27jAVE="
+      }
+    },
+    {
+      "name": "tile-overlay",
+      "type": "registry:lib",
+      "title": "Tile Overlay",
+      "description": "The one visual recipe for media tiles — the photo scrim, the blurred-scrim overlay button, the top-left and top-right overlay slots that show on hover or focus, and the responsive at-most-N-per-row tile grid — shared by Attachment, SortableList and AvatarPicker.",
+      "categories": [
+        "data"
+      ],
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "packages/ui/registry/lib/tile-overlay.ts",
+          "type": "registry:lib",
+          "target": "@lib/tile-overlay.ts"
+        }
+      ],
+      "meta": {
+        "whenToUse": "Building a tile surface with controls over an image — spread tileCornerClasses on the slot, tileOverlayButtonClasses on a ghost icon Button, tileGroupClass on the tile.",
+        "whenNotToUse": "Chrome that does not sit over media — use a plain Button.",
+        "version": "0.23.65",
+        "integrity": "sha256-nWRahvwesqGI4TzYlhF0hC6HmARVPGB7rMSgwvgJMFE="
       }
     },
     {
@@ -16732,6 +16759,7 @@
         "@vegastack/drag-item",
         "@vegastack/dropdown-menu",
         "@vegastack/item",
+        "@vegastack/tile-overlay",
         "@vegastack/use-drag-reorder"
       ],
       "files": [
@@ -16745,7 +16773,7 @@
         "whenToUse": "User-orderable single lists and tile grids — settings sections, pipeline stages, attribute values with locked built-ins, editable rows with inline actions, ordered product photos and attachments — where the host persists (and may refuse) the order.",
         "whenNotToUse": "Cross-container card movement (board), selectable data tables (DataList — never mix selection with reordering), or read-only lists (ItemGroup).",
         "version": "0.23.66",
-        "integrity": "sha256-K78/ONdiEDTaX11uUTQpIrb1dgXTYPg6Z0JaGIgRWTM="
+        "integrity": "sha256-k+PhOqPLBriq4ssIvq/YTxVzdNSamPZZpDKOgppxYRY="
       }
     },
     {
@@ -17118,6 +17146,7 @@
         "@vegastack/button",
         "@vegastack/checkbox",
         "@vegastack/copy-button",
+        "@vegastack/drag-item",
         "@vegastack/dropdown-menu",
         "@vegastack/input",
         "@vegastack/markdown-view",
@@ -17141,7 +17170,7 @@
         "whenToUse": "Comments, notes, summaries and documents stored as Markdown (format=\"markdown\") or HTML; in-place editing of a MarkdownView with variant=\"ghost\".",
         "whenNotToUse": "Plain single-line input (Input) or collaborative real-time docs (deferred text-edit-collab).",
         "version": "0.23.66",
-        "integrity": "sha256-4+mWVA3UCM/3AcQO+Vr3g41W7mp2Ckd/8PGuflj9yFM="
+        "integrity": "sha256-8dnqpfdtWqhi2Ocht3ZBkIJ6K7sSm/SWo3Hpo4+MGqg="
       }
     },
     {

@@ -175,12 +175,79 @@ For the full upload flow — acquiring files, per-file progress, cancel, retry a
 
 ### Form tiles
 
-In a form, files sit beside fields and should stay small. Set `layout="tiles"` on
-`AttachmentGroup` for compact square tiles — two per row on a phone, three from `sm` up. Pair it
-with [`UploadDialog`](/docs/components/upload-dialog) for adding files.
+In a form or a settings page, files sit beside fields. Set `layout="tiles"` on `AttachmentGroup`
+for square tiles — at most `columns` a row (four by default), three and then two as the container
+narrows, never below 8.5rem a tile. The count follows the group's own width, not the viewport's, so
+the same grid fits a full page and a narrow form column. Pair it with
+[`UploadDialog`](/docs/components/upload-dialog) for adding files.
 
 <ComponentPreview
   name="attachmentFormTiles"
+  file="components/preview/attachment.tsx"
+/>
+
+### Tile overlay
+
+On a vertical tile, `AttachmentActions` is an overlay slot instead of a row: the default
+`side="end"` is the top-right corner — at most two icon actions, such as × remove, a ⋯ menu or
+download — and `side="start"` the top-left one, where a drag handle goes (`SortableList`'s grid puts
+its ⠿ there). Each slot is inset from the corner so its buttons sit on the image, shows on hover or
+focus within the tile and always on a touch screen, and paints an `AttachmentAction` white on a
+blurred dark scrim — the same scrim `AvatarPicker` lays over a photo, from the shared `tile-overlay`
+recipe. Leave a slot out and it is not there. A horizontal chip keeps its actions inline.
+
+```tsx
+<Attachment orientation="vertical" file={file}>
+  {/* media, content */}
+  <AttachmentActions side="start">{/* handle */}</AttachmentActions>
+  <AttachmentActions>
+    <DropdownMenu>
+      <DropdownMenuTrigger
+        render={
+          <AttachmentAction aria-label="Actions for spec-sheet.pdf">
+            <EllipsisVerticalIcon />
+          </AttachmentAction>
+        }
+      />
+      <DropdownMenuContent align="end">
+        {/* Download, Replace, Remove */}
+      </DropdownMenuContent>
+    </DropdownMenu>
+  </AttachmentActions>
+</Attachment>
+```
+
+<ComponentPreview
+  name="attachmentOverlay"
+  file="components/preview/attachment.tsx"
+/>
+
+### Open on click
+
+Give a tile its `file` (a `FileViewerItem`) and the whole tile becomes one `Open {name}` button: a
+click or tap, or <kbd>Enter</kbd>/<kbd>Space</kbd> on it, opens the
+[`FileViewer`](/docs/components/file-viewer) — an image to zoom and pan, a PDF page by page, a
+download card for anything else. The viewer is its own chunk, loaded the first time a tile opens.
+It pages through every tile in the same `AttachmentGroup`; wrap several groups (a record's file
+sections) or a `SortableList` of tiles in `AttachmentPreview` to page across all of them. The
+overlay actions sit above the open button, so a click on × never opens the viewer.
+
+Preview is on by default. `preview={false}` on a tile or a group keeps plain cards, and `onOpen`
+replaces the built-in viewer with your own handler.
+
+<ComponentPreview
+  name="attachmentPreview"
+  file="components/preview/attachment.tsx"
+/>
+
+### Sized scroll row
+
+`layout="scroll"` with `columns` sizes each tile so that many fit the row and the rest scroll —
+four large tiles on a record page, two and a peek on a phone. Without `columns` the tiles keep their
+own width, as upstream's row does.
+
+<ComponentPreview
+  name="attachmentScrollColumns"
   file="components/preview/attachment.tsx"
 />
 
@@ -240,12 +307,22 @@ pass an `aria-label`.
 
 <ApiTable path="lib/api-props.ts" name="AttachmentGroupProps" />
 
+### AttachmentPreview
+
+A preview scope: every tile with a `file` inside it opens one `FileViewer` that pages through all of
+them in document order.
+
+<ApiTable path="lib/api-props.ts" name="AttachmentPreviewProps" />
+
 ## Accessibility
 
 - **Label every icon-only action.** `AttachmentAction` is usually a bare icon, so give each one an
   `aria-label` naming the action and its target — "Remove sales-dashboard.pdf", not "Remove".
 - **Label the trigger.** `AttachmentTrigger` covers the card and has no text of its own, so give it
-  an `aria-label` for what activating it does.
+  an `aria-label` for what activating it does. A tile given a `file` labels its own open button
+  `Open {name}`, and <kbd>Enter</kbd> or <kbd>Space</kbd> on it opens the viewer.
+- **Overlay slots reveal on focus too.** A tile's overlay actions show while anything in the tile
+  has focus, so a keyboard user tabbing from the open button to × sees every control it reaches.
 - The trigger sits behind the actions in the stacking order, so an `AttachmentAction` and the
   `AttachmentTrigger` never trap each other — both stay separately focusable and separately
   clickable.
@@ -307,7 +384,10 @@ Upstream's file plus `packages/ui/upstream/patches/attachment.patch`. Every hunk
   `AttachmentProgress` part composes `Progress`'s track and indicator and announces
   `aria-valuetext="{n}%"`, `Attachment` takes `muted` (`data-muted`, media at `opacity-50`), and
   image media styles a nested `<img>` with `[&_img]` in place of `*:[img]`, so the system `Image`
-  and its fallback fill the slot.
+  and its fallback fill the slot. The tile overhaul (28-09-2026) adds `columns` (at most N tiles a
+  row, container-responsive, and a sized `scroll` row), the `side="start" | "end"` overlay slots with
+  the blurred scrim on a vertical tile, `file` / `preview` / `onOpen` and `AttachmentPreview` for the
+  whole-tile open into `FileViewer`, and the full name as `AttachmentTitle`'s `title`.
 - **DOC-2** — `import { cn } from "cn"` becomes `@vegastack/design`; our npm layer owns `cn`.
 - **DOC-1** — prettier reflow plus the `registry-stamp.mjs` provenance header the three-copy model
   needs; no decision of its own.

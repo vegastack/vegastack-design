@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.23.66 sha256-4+mWVA3UCM/3AcQO+Vr3g41W7mp2Ckd/8PGuflj9yFM=
+// @vegastack text-edit@0.23.66 sha256-8dnqpfdtWqhi2Ocht3ZBkIJ6K7sSm/SWo3Hpo4+MGqg=
 
 "use client";
 
@@ -88,6 +88,7 @@ import {
 import { cn } from "@vegastack/design";
 import { useInternalThemeScope } from "@vegastack/design/theme-scope";
 import { Button } from "@/components/ui/button";
+import { dropIndicatorClasses } from "@/lib/drag-item";
 import { Checkbox } from "@/components/ui/checkbox";
 import { CopyButton } from "@/components/ui/copy-button";
 import {
@@ -1639,7 +1640,11 @@ const LINE_GRIP =
 /** Notion's "+" bars below and beside a table. */
 const ADD_BAR =
   "fixed z-50 size-auto min-w-0 rounded-sm bg-muted/50 text-muted-foreground/70 hover:bg-muted hover:text-foreground [&_svg]:size-3";
-const DROP_LINE = "pointer-events-none fixed z-50 rounded-full bg-primary";
+// The drop line's ink is the shared reorder token (`drag-item`), the same as SortableList's.
+const DROP_LINE = cn(
+  "pointer-events-none fixed z-50 rounded-full",
+  dropIndicatorClasses,
+);
 /** The block grip's width and its start offset from the text (width + a 3px gap). */
 const HANDLE_WIDTH = 10;
 const HANDLE_GUTTER = HANDLE_WIDTH + 3;

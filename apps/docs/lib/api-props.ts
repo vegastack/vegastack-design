@@ -207,6 +207,7 @@ import type {
   AttachmentDescription,
   AttachmentGroup,
   AttachmentMedia,
+  AttachmentPreview,
   AttachmentProgress,
   AttachmentTitle,
   AttachmentTrigger,
@@ -507,6 +508,9 @@ export type AttachmentTriggerProps = React.ComponentProps<
 export type AttachmentGroupProps = React.ComponentProps<typeof AttachmentGroup>;
 export type AttachmentProgressProps = React.ComponentProps<
   typeof AttachmentProgress
+>;
+export type AttachmentPreviewProps = React.ComponentProps<
+  typeof AttachmentPreview
 >;
 
 export type MarkerProps = React.ComponentProps<typeof Marker>;
