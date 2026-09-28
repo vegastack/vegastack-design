@@ -1,4 +1,4 @@
-// @vegastack empty@0.23.66 sha256-dyUuVh7gQRii+VDMKZo1HEb/S0JtK9Mz6guHPeEJr+k=
+// @vegastack empty@0.23.67 sha256-phOoBuwTKGpnPWGutIoyCTt8heSSXcW80eutvqZAqJg=
 
 "use client";
 
