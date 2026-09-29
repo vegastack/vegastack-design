@@ -300,7 +300,7 @@ editor (`aria-readonly`) for rendering stored content, and a `disabled` one (dim
 `format="markdown"` makes `value`, `defaultValue`, `onValueChange` and `onSubmit` carry Markdown
 instead of HTML, through Tiptap's own `@tiptap/markdown` extension: headings, bold, italic,
 strikethrough, links, bullet, ordered and task lists, blockquotes, code, tables and images
-round-trip unchanged. Loading a
+round-trip unchanged — and so do mentions, callouts, toggles and file links. Loading a
 document never fires `onValueChange`; only an edit does. Store what the editor emits and render it
 elsewhere with [`MarkdownView`](/docs/components/markdown-view). The format is read once, when the
 editor is created.
@@ -309,6 +309,102 @@ editor is created.
   name="textEditMarkdown"
   file="components/preview/text-edit.tsx"
 />
+
+### Mentions
+
+`mentions={{ kinds, search }}` turns on `@`: typed after a space or at the start of a line it opens
+a menu grouped People · Pages · Files · Tasks (only the `kinds` given, at most five each). `search`
+runs 150ms after the last keystroke with an `AbortSignal` that aborts when the query changes; the
+menu shows "Searching…", "No matches" or "Couldn't search". <kbd>↑</kbd> <kbd>↓</kbd> move,
+
+<kbd>Enter</kbd> or <kbd>Tab</kbd> pick, <kbd>Esc</kbd> closes. A pick becomes a
+chip, stored as `[@Asha Rao](mention://user/u1)`, that <kbd>Backspace</kbd>
+removes whole. `mentionHref(kind, id)` makes a chip open its target on
+<kbd>Cmd/Ctrl</kbd>-click (and link it in the read view and `MarkdownView`); a
+person never links, and an id starting with `restricted:` is a muted chip for a
+target the reader may not open — the app keeps the real id after the colon so an
+edit never loses the mention.
+
+<ComponentPreview
+  name="textEditMentions"
+  file="components/preview/text-edit.tsx"
+/>
+
+```tsx
+<TextEdit
+  format="markdown"
+  defaultValue={page.body}
+  mentions={{
+    kinds: ["user", "page"],
+    search: (q, { signal }) => searchMentions(q, signal),
+  }}
+  mentionHref={(kind, id) => (kind === "page" ? `/library/${id}` : null)}
+/>
+```
+
+### Uploads
+
+`onImageUpload(file, { signal })` takes images pasted, dropped, or picked with the image panel's
+**Upload** (the slash menu's Image). The image shows dimmed under a spinner until the promise
+resolves with `{ src }`, then lands in the document and commits — `onValueChange` and `onCommit`
+both fire, even when focus has already left. A rejection removes the placeholder and calls
+`onUploadError(file, error)`. `onFileUpload(file, { signal })` does the same for any other file
+(dropped, pasted, or the slash menu's File) and inserts `[name](href)`; a link whose href starts
+with `fileLinkPrefix` (default `/api/files/`) shows as a file chip. Without `onFileUpload`, other
+files are ignored.
+
+<ComponentPreview
+  name="textEditUploads"
+  file="components/preview/text-edit.tsx"
+/>
+
+### Callouts and toggles
+
+The slash menu's Callout wraps the block in GitHub's alert syntax — `> [!NOTE]`, `> [!TIP]` or
+`> [!WARNING]`; click the callout's icon to change its tone. Toggle inserts
+`<details><summary>Title</summary>` around its blocks: open while editing, collapsed in
+`MarkdownView`. <kbd>Enter</kbd> in a toggle's title moves into its body.
+
+<ComponentPreview
+  name="textEditCallouts"
+  file="components/preview/text-edit.tsx"
+/>
+
+### Outline
+
+`onOutlineChange` receives the headings (`#`–`####`) with stable ids — the heading's words,
+hyphenated, `-1`, `-2`… for a repeat — after load and 150ms after each change; the same ids are on
+the heading elements (and on `MarkdownView`'s with `headingIds`). `handleRef` gives an imperative
+handle: `scrollToHeading(id)`, `flush()` (commit now, and wait for uploads in flight — before
+creating a comment or navigating), `focus()`, `getAnchorForSelection()` and `pulseAnnotation(id)`.
+
+<ComponentPreview
+  name="textEditOutline"
+  file="components/preview/text-edit.tsx"
+/>
+
+### Comment highlights
+
+`annotations` draws comment highlights — `{ id, anchor }`, where an anchor is offsets into the
+document's text plus the quoted words and up to 80 characters of context (`TextAnchor`). They are
+decorations, never written into the Markdown. Each anchor resolves on load (the stored offsets if
+the words there still match, else the one place its context occurs, else the one place its quote
+occurs, else orphaned), then rides along with edits: typing before a highlight keeps it on the same
+words. `onCreateAnnotation(anchor)` adds **Comment** to the selection bubble — read-only too, never
+in a code block. `onAnnotationsLayout` reports each highlight's `top` (px from the root; `null` when
+orphaned) and its current `anchor`, for comments beside the text and for persisting moved anchors.
+`activeAnnotationId` fills one highlight; `onAnnotationClick` and `onAnnotationHover` (after 250ms)
+report the pointer. Setting `annotations` (or `onOutlineChange`) mounts the editor at once, and
+`readOnly` then keeps it not editable with the highlights drawn.
+
+<ComponentPreview
+  name="textEditAnnotations"
+  file="components/preview/text-edit.tsx"
+/>
+
+The anchor helpers are server-safe libs: `anchorFromRange(text, start, end)` and
+`resolveAnchor(text, anchor)` in `@/lib/text-anchor`; `anchorText(doc)`, `offsetsToRange` and
+`rangeToOffsets` (ProseMirror documents) in `@/lib/text-anchor-doc`.
 
 ### Invalid
 
@@ -372,7 +468,16 @@ fires it with the current value. It's presentational only: the **host** decides 
 - The slash menu is a `listbox` of `option`s with `aria-selected`; focus stays in the textbox and
   <kbd>↑</kbd> <kbd>↓</kbd>, <kbd>Enter</kbd> and <kbd>Esc</kbd> drive it.
 - The bubble menu is a Base UI `Toolbar` labelled “Selection formatting”: one tab stop, arrow keys
-  between its `Toggle`s, each with an `aria-label` and `aria-pressed`.
+  between its `Toggle`s, each with an `aria-label` and `aria-pressed`. With `onCreateAnnotation`
+  it leads with a **Comment** button; read-only, the toolbar (“Selection actions”) holds only that.
+- The mention menu is a `listbox` labelled “Mention” whose `group`s are named by their headings
+  (People, Pages, Files, Tasks); focus stays in the textbox, as with the slash menu. A chip reads
+  as its name.
+- An upload placeholder is a `role="status"` named “Uploading” and the file’s name.
+- A callout is a `role="note"` named by its tone; while editable its icon is a button, “Callout
+  type: Note”, that changes the tone.
+- Comment highlights are decorations with a dashed underline; they carry no role of their own — the
+  comment threads beside the text are the accessible surface.
 - Editing keymaps come from Tiptap `StarterKit` plus a few of ours — see the table below. In
   `document` mode focus is shown by the caret itself: the surface has no ring, border or tint (it
   declares `data-focus-cue="caret"`). In `boxed` mode the box's border darkens subtly while the
@@ -402,7 +507,8 @@ fires it with the current value. It's presentational only: the **host** decides 
 | <kbd>Enter</kbd>                                      | New paragraph (or new list item inside a list).                                                                               |
 | <kbd>Cmd/Ctrl</kbd> + <kbd>Enter</kbd>                | Fire `onSubmit` with the current value (when set); otherwise commit and blur. Plain <kbd>Enter</kbd> still inserts a newline. |
 | <kbd>Esc</kbd>                                        | Revert to the value focus found, blur, and fire `onRevert`.                                                                   |
-| <kbd>Cmd/Ctrl</kbd> + <kbd>K</kbd>                    | Open the inline link input (add, edit or remove the link).                                                                    |
+| <kbd>Cmd/Ctrl</kbd> + <kbd>K</kbd>                    | Open the inline link input (add, edit or remove the link); the key stops here, so a page's own ⌘K palette does not open too.  |
+| <kbd>@</kbd>                                          | Open the mention menu (with `mentions`).                                                                                      |
 | <kbd>Tab</kbd>                                        | Indent a list item, or move to the next table cell (the last cell adds a row); elsewhere, move focus out of the editor.       |
 | <kbd>Shift</kbd> + <kbd>Tab</kbd>                     | Outdent a list item, or move to the previous table cell.                                                                      |
 | <kbd>Shift</kbd> + <kbd>F10</kbd>                     | In a table, open the row, column or table menu for the selection.                                                             |

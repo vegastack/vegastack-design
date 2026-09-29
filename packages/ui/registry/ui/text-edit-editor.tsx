@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.23.72 sha256-xPkV9ZV55NDiVEv1gkG/ydSsNDdHqdkxfYQ5O/KIf/o=
+// @vegastack text-edit@0.23.72 sha256-sl0Qt7btFBuXsgZzbXOeK30TQY4INqZUtaO9Y9ewfKI=
 
 "use client";
 
@@ -1813,7 +1813,7 @@ function CalloutView({ node, editor, updateAttributes }: ReactNodeViewProps) {
               ],
             })
           }
-          className="-my-0.5 -ms-1 size-5 [&_svg]:text-current"
+          className="-my-1 -ms-1.5 size-6 [&_svg]:text-current"
           data-tone={tone}
         >
           <Icon />

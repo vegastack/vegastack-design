@@ -3,7 +3,7 @@
 <!-- GENERATED — do not hand-edit. Regenerated from the design system's component contract,
      which is the authority for membership and counts. -->
 
-**136 components**, plus 467 animated-icon items, 13 hooks (`use-animation-replay`, `use-announcer`, `use-async-search`, `use-drag-reorder`, `use-file-drop`, `use-inline-edit`, `use-list-nav`, `use-media-query`, `use-mobile`, `use-modal-inert`, `use-overflow`, `use-platform`, `use-tabs-swipe`), 12 starter blocks (`app-shell-01`, `board-01`, `issue-detail-01`, `command-search-01`, `list-page-01`, `library-01`, `login-01`, `notifications-01`, `review-split-01`, `settings-01`, `settings-02`, `status-pages-01`), 68 chart blocks across 7 families, and 7 data libs (`date-time`, `geo-data`, `emoji-data`, `drag-item`, `file-kind`, `page-layout`, `tile-overlay`) — 703 registry items in total.
+**136 components**, plus 467 animated-icon items, 13 hooks (`use-animation-replay`, `use-announcer`, `use-async-search`, `use-drag-reorder`, `use-file-drop`, `use-inline-edit`, `use-list-nav`, `use-media-query`, `use-mobile`, `use-modal-inert`, `use-overflow`, `use-platform`, `use-tabs-swipe`), 12 starter blocks (`app-shell-01`, `board-01`, `issue-detail-01`, `command-search-01`, `list-page-01`, `library-01`, `login-01`, `notifications-01`, `review-split-01`, `settings-01`, `settings-02`, `status-pages-01`), 68 chart blocks across 7 families, and 9 data libs (`date-time`, `geo-data`, `emoji-data`, `drag-item`, `text-anchor`, `text-anchor-doc`, `file-kind`, `page-layout`, `tile-overlay`) — 705 registry items in total.
 
 Install any of them with `shadcn add @vegastack/<name>`. Animated icons install as
 `@vegastack/icon-<name>`; the bare name is reserved for components, so a component whose name
@@ -72,7 +72,7 @@ starts with `icon-` is a component and never an icon.
 - **`empty`** — A zero-data placeholder — always an icon (the icon prop, Inbox by default), title, description and a content slot, with a compact sm size for inline empties. The one empty-state markup: DataList's emptyState and noResults (SearchX, "No matches", Clear filters) are built on it.
 - **`item`** — A composable row for list and feed content — media, title, description, actions — with a highlighted flash for a just-changed row.
 - **`kbd`** — A keyboard-key chip, and a group that lays several of them out inline.
-- **`markdown-view`** — Render a markdown string to safe, token-styled HTML — headings, lists, code, blockquotes, links, GFM tables — XSS-safe, no raw HTML.
+- **`markdown-view`** — Render a markdown string to safe, token-styled HTML — headings (with optional ids), lists, code, blockquotes, links, GFM tables, mention and file chips, callouts and toggles — XSS-safe, no raw HTML.
 - **`priority-icon`** — A flag marking priority — urgent, high, medium, low, none — each in a semantic color with filled, outline or dashed fill.
 - **`relative-time`** — One Intl-based dates & times module — formatRelative, formatDuration, formatDate, formatDateTime, formatDateRange, formatTimeOfDay, formatDueLabel, groupByDay, time-zone cookie + provider — and the RelativeTime, DateTime, Duration and DueLabel components with absolute-time tooltips.
 - **`status-icon`** — A small status indicator icon — todo, in progress, blocked, done, cancelled — each mapping to a lucide icon and semantic color.
@@ -164,7 +164,7 @@ starts with `icon-` is a component and never an icon.
 ## Rich text
 
 - **`template-editor`** — A plain-paragraph editor for text with placeholders: typing @ or {{ opens a searchable list of tokens, the one picked becomes an atomic inline chip, and the value is plain text with {{id}} tokens.
-- **`text-edit`** — A Tiptap-based, markdown-first rich-text editor with no toolbar and no fill — caret-only as a document, or boxed with a subtle focus border: a slash menu for blocks, a bubble menu for marks and block types, GFM tables with a menu and drag grips, block drag handles, portaled menus, and one onCommit path.
+- **`text-edit`** — A Tiptap-based, markdown-first rich-text editor with no toolbar and no fill — caret-only as a document, or boxed with a subtle focus border: a slash menu for blocks, a bubble menu for marks and block types, GFM tables with a menu and drag grips, block drag handles, callouts and toggles, @ mentions, image and file uploads, a heading outline, comment highlights, portaled menus, and one onCommit path.
 
 ## Chat
 

@@ -2,14 +2,14 @@
   "schemaVersion": 1,
   "kind": "vegastack-zero-gap-audit-register",
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "b7bce3e4877e795fa545663084c01b0f5e42a065c5bdd496c8b2dbf2ed1d322f",
+  "contractSha256": "18a039a175c96de078f907292d3941cef7a3b0ae30a6db866062a8424ed2cf72",
   "expectedCounts": {
-    "totalRegistryItems": 703,
+    "totalRegistryItems": 705,
     "components": 136,
     "animatedIcons": 467,
     "hooks": 13,
     "blocks": 12,
-    "libs": 7,
+    "libs": 9,
     "chartBlocks": 68
   },
   "records": [
@@ -7730,6 +7730,28 @@
       "family": "lib",
       "sourceFiles": [
         "packages/ui/registry/lib/drag-item.ts"
+      ],
+      "docsSlug": "/docs/guides/components",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "text-anchor",
+      "inventoryClass": "lib",
+      "wave": "Libs",
+      "family": "lib",
+      "sourceFiles": [
+        "packages/ui/registry/lib/text-anchor.ts"
+      ],
+      "docsSlug": "/docs/guides/components",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "text-anchor-doc",
+      "inventoryClass": "lib",
+      "wave": "Libs",
+      "family": "lib",
+      "sourceFiles": [
+        "packages/ui/registry/lib/text-anchor-doc.ts"
       ],
       "docsSlug": "/docs/guides/components",
       "contractStatus": "reconciled"

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
+import { useRef, useState, type ReactNode } from "react";
 import dynamic from "next/dynamic";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/components/ui/toast";
@@ -11,6 +11,13 @@ import {
   FieldError,
   FieldLabel,
 } from "@/components/ui/field";
+import type {
+  MentionOption,
+  TextEditAnnotation,
+  TextEditAnnotationLayout,
+  TextEditHandle,
+  TextEditOutlineItem,
+} from "@/components/ui/text-edit";
 import { Wrapper } from "./wrapper";
 
 // TextEdit pulls in Tiptap; keep it out of the all-preview barrel's initial module graph.
@@ -490,6 +497,217 @@ export function markdownBlockHandles(): ReactNode {
         onValueChange={setMarkdown}
         aria-label="Agenda"
       />
+    </Wrapper>
+  );
+}
+
+/* ---- Library: mentions, uploads, callouts and toggles, outline, comment highlights ------------ */
+
+const PEOPLE: MentionOption[] = [
+  { kind: "user", id: "u1", label: "Asha Rao", description: "Electrical" },
+  { kind: "user", id: "u2", label: "Bo Lindqvist", description: "Site lead" },
+  { kind: "page", id: "p1", label: "Q3 install plan", icon: "📋" },
+  { kind: "page", id: "p2", label: "Breaker sizing", icon: "⚡" },
+  { kind: "file", id: "f1", label: "panel-layout.pdf" },
+  { kind: "task", id: "t1", label: "Wire the east panel" },
+];
+
+/** A stand-in for the host's search: filters the list above, after a short wait. */
+const searchPeople = (query: string, { signal }: { signal: AbortSignal }) =>
+  new Promise<MentionOption[]>((resolve, reject) => {
+    const timer = setTimeout(
+      () =>
+        resolve(
+          PEOPLE.filter((option) =>
+            option.label.toLowerCase().includes(query.toLowerCase()),
+          ),
+        ),
+      200,
+    );
+    signal.addEventListener("abort", () => {
+      clearTimeout(timer);
+      reject(signal.reason);
+    });
+  });
+
+/**
+ * Mentions — type `@` for people, pages, files and tasks. A pick becomes a chip stored as
+ * `[@Label](mention://kind/id)`; ⌘-click a page chip to open it.
+ */
+export function textEditMentions(): ReactNode {
+  const [markdown, setMarkdown] = useState(
+    "Ask [@Asha Rao](mention://user/u1) to check [@Breaker sizing](mention://page/p2) before [@Wire the east panel](mention://task/t1). Type @ to mention someone.",
+  );
+  return (
+    <Wrapper className="flex-col items-stretch">
+      <TextEdit
+        format="markdown"
+        value={markdown}
+        onValueChange={setMarkdown}
+        mentions={{
+          kinds: ["user", "page", "file", "task"],
+          search: searchPeople,
+        }}
+        mentionHref={(kind, id) => `#${kind}-${id}`}
+        aria-label="Notes with mentions"
+      />
+      <pre className="min-w-0 overflow-x-auto rounded-md bg-muted p-3 font-mono text-xs break-all whitespace-pre-wrap">
+        {markdown}
+      </pre>
+    </Wrapper>
+  );
+}
+
+/**
+ * Uploads — paste or drop an image (or pick one from the slash menu's Image), or drop any file.
+ * The placeholder stays until the host's upload resolves; this demo "uploads" in a second.
+ */
+export function textEditUploads(): ReactNode {
+  const [markdown, setMarkdown] = useState(
+    "Paste a screenshot here, or type / and pick Image or File.",
+  );
+  const later = <T,>(value: T) =>
+    new Promise<T>((resolve) => setTimeout(() => resolve(value), 1200));
+  return (
+    <Wrapper className="flex-col items-stretch">
+      <TextEdit
+        format="markdown"
+        value={markdown}
+        onValueChange={setMarkdown}
+        onImageUpload={(file) => later({ src: URL.createObjectURL(file) })}
+        onFileUpload={(file) =>
+          later({
+            href: `/api/files/demo/${encodeURIComponent(file.name)}`,
+            name: file.name,
+          })
+        }
+        onUploadError={(file) =>
+          toast.add({ title: `Couldn't upload ${file.name}` })
+        }
+        aria-label="Notes with uploads"
+      />
+    </Wrapper>
+  );
+}
+
+/**
+ * Callouts and toggles — `> [!NOTE]` / `[!TIP]` / `[!WARNING]` and `<details>`, from the slash
+ * menu. Click a callout's icon to change its tone.
+ */
+export function textEditCallouts(): ReactNode {
+  const [markdown, setMarkdown] = useState(
+    "> [!TIP]\n> Use a 25 A breaker for the kitchen circuit.\n\n> [!WARNING]\n> Isolate the supply before opening the panel.\n\n<details><summary>Wiring colours</summary>\n\n- Brown: live\n- Blue: neutral\n\n</details>",
+  );
+  return (
+    <Wrapper className="flex-col items-stretch">
+      <TextEdit
+        format="markdown"
+        value={markdown}
+        onValueChange={setMarkdown}
+        aria-label="Notes with callouts"
+      />
+      <pre className="min-w-0 overflow-x-auto rounded-md bg-muted p-3 font-mono text-xs break-all whitespace-pre-wrap">
+        {markdown}
+      </pre>
+    </Wrapper>
+  );
+}
+
+/** Outline — `onOutlineChange` feeds a rail; `handleRef.scrollToHeading` jumps to a heading. */
+export function textEditOutline(): ReactNode {
+  const handle = useRef<TextEditHandle>(null);
+  const [outline, setOutline] = useState<TextEditOutlineItem[]>([]);
+  return (
+    <Wrapper className="flex-row items-start gap-6">
+      <nav
+        aria-label="On this page"
+        className="flex w-40 shrink-0 flex-col gap-1 text-sm"
+      >
+        {outline.map((heading) => (
+          <Button
+            key={heading.id}
+            variant="ghost"
+            size="sm"
+            className="justify-start"
+            style={{ paddingInlineStart: `${heading.level * 0.5}rem` }}
+            onClick={() => handle.current?.scrollToHeading(heading.id)}
+          >
+            {heading.text}
+          </Button>
+        ))}
+      </nav>
+      <TextEdit
+        format="markdown"
+        defaultValue={
+          "## Setup\n\nCheck the panel.\n\n### Tools\n\nA tester and a screwdriver.\n\n## Wiring\n\nBrown to L, blue to N."
+        }
+        onOutlineChange={setOutline}
+        handleRef={handle}
+        aria-label="Page with an outline"
+        className="min-w-0 flex-1"
+      />
+    </Wrapper>
+  );
+}
+
+/**
+ * Comment highlights — select text and choose Comment. Highlights stay on their words while you
+ * type; the list beside the editor comes from `onAnnotationsLayout`.
+ */
+export function textEditAnnotations(): ReactNode {
+  const handle = useRef<TextEditHandle>(null);
+  const [annotations, setAnnotations] = useState<TextEditAnnotation[]>([
+    {
+      id: "c1",
+      anchor: {
+        start: 6,
+        end: 18,
+        quote: "25 A breaker",
+        prefix: "Use a ",
+        suffix: " for the kitchen circuit.",
+      },
+    },
+  ]);
+  const [active, setActive] = useState<string | null>(null);
+  const [layout, setLayout] = useState<TextEditAnnotationLayout[]>([]);
+  return (
+    <Wrapper className="flex-row items-start gap-6">
+      <TextEdit
+        format="markdown"
+        defaultValue="Use a 25 A breaker for the kitchen circuit. Keep the panel labelled."
+        annotations={annotations}
+        activeAnnotationId={active}
+        onAnnotationClick={setActive}
+        onCreateAnnotation={(anchor) =>
+          setAnnotations((current) => [
+            ...current,
+            { id: `c${current.length + 1}`, anchor },
+          ])
+        }
+        onAnnotationsLayout={setLayout}
+        handleRef={handle}
+        aria-label="Commented text"
+        className="min-w-0 flex-1"
+      />
+      <ul className="flex w-48 shrink-0 flex-col gap-1 text-sm">
+        {layout.map((item) => (
+          <li key={item.id}>
+            <Button
+              variant={item.id === active ? "secondary" : "ghost"}
+              size="sm"
+              className="w-full justify-start"
+              onClick={() => {
+                setActive(item.id);
+                handle.current?.pulseAnnotation(item.id);
+              }}
+            >
+              <span className="truncate">
+                {item.anchor ? `“${item.anchor.quote}”` : "Text removed"}
+              </span>
+            </Button>
+          </li>
+        ))}
+      </ul>
     </Wrapper>
   );
 }

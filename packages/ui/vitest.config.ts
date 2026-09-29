@@ -155,6 +155,11 @@ export default defineConfig({
       "@atlaskit/pragmatic-drag-and-drop/adapter/element-adapter",
       "@atlaskit/pragmatic-drag-and-drop-hitbox/closest-edge/attach-closest-edge",
       "@atlaskit/pragmatic-drag-and-drop-hitbox/closest-edge/extract-closest-edge",
+      // Discovered mid-run when an affected set mounts TextEdit beside issue-detail-01's drag
+      // previews: pre-bundle them so the page never reloads under a live test.
+      "@atlaskit/pragmatic-drag-and-drop/element/preserve-offset-on-source",
+      "@atlaskit/pragmatic-drag-and-drop/element/set-custom-native-drag-preview",
+      "react-dom/client",
     ],
   },
   test: {

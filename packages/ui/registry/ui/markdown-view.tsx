@@ -1,4 +1,4 @@
-// @vegastack markdown-view@0.23.72 sha256-MBo5+od+M8CYEuHmQpah+/uErhbLESOJu9w74yasU+w=
+// @vegastack markdown-view@0.23.72 sha256-xlRjGCSjFpUVY8OjkaPvhJYLXb6Gh1Z8bdCJj3hlHYw=
 
 import * as React from "react";
 import { Lexer, type Token, type Tokens } from "marked";
@@ -184,8 +184,10 @@ export function fileIconFor(name: string): LucideIcon {
   return File;
 }
 
+// Inline, not flex: a chip sits in a sentence, wraps with it (`box-decoration-clone` keeps its
+// ground on both lines), and stays an inline target WCAG 2.2 §2.5.8 exempts from the 24px size.
 const CHIP =
-  "inline-flex max-w-full items-baseline gap-1 rounded-sm bg-muted px-1 font-medium text-foreground [&_svg]:size-3.5 [&_svg]:shrink-0 [&_svg]:self-center [&_svg]:text-muted-foreground";
+  "rounded-sm bg-muted box-decoration-clone px-1 font-medium text-foreground [&_svg]:me-1 [&_svg]:inline [&_svg]:size-3.5 [&_svg]:align-text-bottom [&_svg]:text-muted-foreground";
 
 /** Props accepted by `MentionChip`. */
 export interface MentionChipProps extends React.ComponentPropsWithRef<"span"> {
@@ -225,21 +227,32 @@ export function MentionChip({
   const body = (
     <>
       <Icon aria-hidden />
-      <span className="min-w-0 truncate">{label}</span>
+      {label}
     </>
   );
-  const shared = {
-    "data-slot": "mention-chip",
-    "data-kind": kind,
-    "data-restricted": restricted ? "" : undefined,
-    className: cn(CHIP, restricted && "text-muted-foreground", className),
-  };
+  const chipClassName = cn(
+    CHIP,
+    restricted && "text-muted-foreground",
+    className,
+  );
   return link ? (
-    <a {...shared} href={link}>
+    <a
+      data-slot="mention-chip"
+      data-kind={kind}
+      href={link}
+      title={props.title}
+      className={chipClassName}
+    >
       {body}
     </a>
   ) : (
-    <span {...shared} {...props}>
+    <span
+      data-slot="mention-chip"
+      data-kind={kind}
+      data-restricted={restricted ? "" : undefined}
+      {...props}
+      className={chipClassName}
+    >
       {body}
     </span>
   );
@@ -252,10 +265,10 @@ export function MentionChip({
  */
 export const markdownExtrasClassName = cn(
   "[&_[data-slot=mention-chip]]:no-underline [&_[data-slot=mention-chip]]:text-foreground [&_[data-slot=mention-chip][data-restricted]]:text-muted-foreground",
-  "[&_[data-slot=file-chip]]:no-underline [&_[data-slot=file-chip]]:text-foreground [&_a[data-slot=file-chip]:hover]:bg-accent [&_a[data-slot=mention-chip]:hover]:bg-accent",
+  "[&_[data-slot=file-chip]]:rounded-sm [&_[data-slot=file-chip]]:bg-muted [&_[data-slot=file-chip]]:px-1 [&_[data-slot=file-chip]]:font-medium [&_[data-slot=file-chip]]:no-underline [&_[data-slot=file-chip]]:text-foreground [&_a[data-slot=file-chip]:hover]:bg-accent [&_a[data-slot=mention-chip]:hover]:bg-accent",
   "[&_[data-slot=callout]]:my-2 [&_[data-slot=callout]]:grid [&_[data-slot=callout]]:grid-cols-[auto_1fr] [&_[data-slot=callout]]:gap-x-2 [&_[data-slot=callout]]:rounded-lg [&_[data-slot=callout]]:border [&_[data-slot=callout]]:border-border [&_[data-slot=callout]]:bg-card [&_[data-slot=callout]]:px-3 [&_[data-slot=callout]]:py-2",
   "[&_[data-slot=callout]>svg]:mt-0.5 [&_[data-slot=callout]>svg]:size-4 [&_[data-slot=callout][data-tone=note]>svg]:text-info-text [&_[data-slot=callout][data-tone=tip]>svg]:text-success-text [&_[data-slot=callout][data-tone=warning]>svg]:text-warning-text [&_[data-slot=callout-content]]:min-w-0",
-  "[&_details]:my-2 [&_summary]:cursor-pointer [&_summary]:font-medium [&_details>:not(summary)]:ms-5 [&_[data-slot=toggle-content]]:ms-5",
+  "[&_details]:my-2 [&_summary]:cursor-pointer [&_summary]:py-0.5 [&_summary]:font-medium [&_details>:not(summary)]:ms-5 [&_[data-slot=toggle-content]]:ms-5",
 );
 
 const CALLOUT_ICONS: Record<CalloutTone, LucideIcon> = {
@@ -815,7 +828,7 @@ function renderNode(
             className={CHIP}
           >
             <Icon aria-hidden />
-            <span className="min-w-0 truncate">{children()}</span>
+            {children()}
           </a>
         );
       }
