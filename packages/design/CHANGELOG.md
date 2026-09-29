@@ -1,5 +1,11 @@
 # @vegastack/design
 
+## 0.7.65
+
+### Patch Changes
+
+- [#429](https://github.com/vegastack/vegastack-design/pull/429) [`d43ea00`](https://github.com/vegastack/vegastack-design/commit/d43ea00ee9e88ec028826dcb90f98b51b7317c41) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🐛 `TextEdit` no longer erases saved text on Escape in a document that saves as you type. A new `escapeBehavior` prop — `"revert"` (restore the document as focus found it, blur, `onRevert`) or `"blur"` (keep the text, commit, blur) — defaults to `"blur"` whenever `autosave` is set and to `"revert"` otherwise. `handleRef` gains `markSaved()`, which advances the baseline Escape reverts to (and a commit compares against) after a host's own acknowledged save.
+
 ## 0.7.64
 
 ### Patch Changes
