@@ -79,3 +79,72 @@ test("arrow keys page, the file card shows the size, Escape closes and focus ret
   await expect.poll(() => document.querySelector("[role=dialog]")).toBeNull();
   expect(document.activeElement).toBe(opener.element());
 });
+
+const MEDIA: FileViewerItem[] = [
+  {
+    id: "v",
+    name: "walkthrough.mp4",
+    contentType: "video/mp4",
+    src: "/clip.mp4",
+    downloadHref: "/download/v",
+  },
+  {
+    id: "m",
+    name: "voice-note.mp3",
+    contentType: "audio/mpeg",
+    src: "/note.mp3",
+    size: 812_000,
+    downloadHref: "/download/m",
+  },
+];
+
+function MediaHarness() {
+  const [index, setIndex] = React.useState<number | null>(0);
+  return (
+    <FileViewer
+      items={MEDIA}
+      index={index}
+      onIndexChange={setIndex}
+      onOpenChange={(open) => !open && setIndex(null)}
+    />
+  );
+}
+
+test("video and audio play on the stage, and the arrows still page between them", async () => {
+  const screen = await render(<MediaHarness />);
+  await expect
+    .element(screen.getByRole("dialog", { name: "walkthrough.mp4" }))
+    .toBeVisible();
+  expect(
+    document
+      .querySelector('[data-slot="file-viewer"]')
+      ?.getAttribute("data-kind"),
+  ).toBe("video");
+  await expect
+    .element(
+      screen.getByRole("group", { name: "walkthrough.mp4 video player" }),
+    )
+    .toBeInTheDocument();
+  const video = document.querySelector("video")!;
+  let paused = 0;
+  video.pause = () => {
+    paused++;
+  };
+  await userEvent.keyboard("{ArrowRight}");
+  await expect
+    .element(screen.getByRole("dialog", { name: "voice-note.mp3" }))
+    .toBeVisible();
+  // Paging away pauses the video it unmounts.
+  expect(paused).toBeGreaterThan(0);
+  expect(
+    document
+      .querySelector('[data-slot="file-viewer"]')
+      ?.getAttribute("data-kind"),
+  ).toBe("audio");
+  await expect.element(screen.getByText("Audio 2 of 2")).toBeInTheDocument();
+  expect(document.querySelector("audio")).not.toBeNull();
+  await userEvent.keyboard("{ArrowLeft}");
+  await expect
+    .element(screen.getByRole("dialog", { name: "walkthrough.mp4" }))
+    .toBeVisible();
+});

@@ -60,12 +60,16 @@
 #       through its `AttachmentGroup` (a preview scope unless an `AttachmentPreview` encloses it;
 #       `preview={false}` switches it off). `AttachmentTitle` carries the full name as its `title`
 #       so a truncated one is one hover away. The tile context these parts read is ours.
+#     - Library rows (MK 29-09-2026): `layout="list"` stacks full-width horizontal rows for a
+#       folder's files or an upload queue — a 32px media box, the resting border transparent
+#       except on an error row, and an `AttachmentProgress` placed inside `AttachmentContent`
+#       sitting under the title. `columns` does not apply to it.
 #   cn: `import { cn } from "cn"` becomes `@vegastack/design` — our npm layer owns `cn` (DOC-2).
 #   formatting: the repository formatter (prettier defaults: semicolons, trailing commas)
 #               reflows the file, and `registry-stamp.mjs` writes the provenance header the
 #               three-copy model needs (DOC-1); those hunks carry no decision of their own.
 diff --git a/attachment.tsx b/attachment.tsx
-index f8ca4a8..de9de1b 100644
+index f8ca4a8..1d5ba85 100644
 --- a/attachment.tsx
 +++ b/attachment.tsx
 @@ -1,13 +1,131 @@
@@ -532,7 +536,7 @@ index f8ca4a8..de9de1b 100644
  }
  
  function AttachmentTrigger({
-@@ -170,38 +448,93 @@ function AttachmentTrigger({
+@@ -170,38 +448,101 @@ function AttachmentTrigger({
      props: mergeProps<"button">(
        {
          type: render ? type : (type ?? "button"),
@@ -566,10 +570,13 @@ index f8ca4a8..de9de1b 100644
 +  /**
 +   * `scroll` — one row that scrolls sideways; `grid` — listing-size tiles, up to three per row
 +   * with 16:9 media; `tiles` — square tiles, `columns` per row at most (four by default), fewer
-+   * as the container narrows: three on a tablet, two on a phone.
++   * as the container narrows: three on a tablet, two on a phone; `list` — dense full-width rows
++   * (a 32px icon or thumbnail, the name, a description line, trailing actions) for a folder's
++   * files or an upload queue. In a row, put `AttachmentProgress` inside `AttachmentContent`, under
++   * the title.
 +   * @default "scroll"
 +   */
-+  layout?: "scroll" | "grid" | "tiles";
++  layout?: "scroll" | "grid" | "tiles" | "list";
 +  /**
 +   * The most tiles a row shows. `tiles`: the grid's column count on a wide container (default
 +   * 4). `scroll`: sizes each tile so this many fit the row and the rest scroll (without it, tiles
@@ -585,7 +592,10 @@ index f8ca4a8..de9de1b 100644
 +  preview?: boolean;
 +}) {
 +  const outer = React.useContext(AttachmentPreviewContext);
-+  const count = columns ?? (layout === "tiles" ? 4 : undefined);
++  const count =
++    layout === "list"
++      ? undefined
++      : (columns ?? (layout === "tiles" ? 4 : undefined));
 +  const group = (
      <div
        data-slot="attachment-group"
@@ -595,18 +605,20 @@ index f8ca4a8..de9de1b 100644
 -        "flex min-w-0 scroll-fade-x snap-x snap-mandatory scroll-px-1 scrollbar-none gap-3 overflow-x-auto overscroll-x-contain py-1 *:data-[slot=attachment]:flex-none *:data-[slot=attachment]:snap-start",
 -        className
 +        count ? tileColumnClasses[count] : undefined,
-+        layout === "grid"
-+          ? "grid min-w-0 grid-cols-[repeat(auto-fill,minmax(min(100%,max(--spacing(72),calc((100%_-_var(--spacing)*6)/3))),1fr))] gap-3 py-1 *:data-[slot=attachment]:w-full *:data-[slot=attachment]:min-w-0 *:data-[slot=attachment]:data-[orientation=vertical]:flex-nowrap **:data-[slot=attachment-media]:aspect-video [&_[data-slot=attachment-media]_img]:aspect-video"
-+          : layout === "tiles"
-+            ? cn(
-+                tileGridClasses,
-+                "min-w-0 py-1 *:data-[slot=attachment]:w-full *:data-[slot=attachment]:min-w-0 *:data-[slot=attachment]:data-[orientation=vertical]:flex-nowrap",
-+              )
-+            : cn(
-+                "flex min-w-0 scroll-fade-x snap-x snap-mandatory scroll-px-1 scrollbar-none gap-3 overflow-x-auto overscroll-x-contain py-1 *:data-[slot=attachment]:flex-none *:data-[slot=attachment]:snap-start",
-+                // Sized to the row: `columns` tiles fit, the rest scroll.
-+                count && tileScrollRowClasses,
-+              ),
++        layout === "list"
++          ? "flex min-w-0 flex-col gap-0.5 py-1 *:data-[slot=attachment]:w-full *:data-[slot=attachment]:min-w-0 *:data-[slot=attachment]:flex-nowrap *:data-[slot=attachment]:rounded-lg *:data-[slot=attachment]:not-data-[state=error]:border-transparent **:data-[slot=attachment-media]:w-8 **:data-[slot=attachment-media]:rounded-md [&_[data-slot=attachment-content]_[data-slot=attachment-progress]]:mt-1.5"
++          : layout === "grid"
++            ? "grid min-w-0 grid-cols-[repeat(auto-fill,minmax(min(100%,max(--spacing(72),calc((100%_-_var(--spacing)*6)/3))),1fr))] gap-3 py-1 *:data-[slot=attachment]:w-full *:data-[slot=attachment]:min-w-0 *:data-[slot=attachment]:data-[orientation=vertical]:flex-nowrap **:data-[slot=attachment-media]:aspect-video [&_[data-slot=attachment-media]_img]:aspect-video"
++            : layout === "tiles"
++              ? cn(
++                  tileGridClasses,
++                  "min-w-0 py-1 *:data-[slot=attachment]:w-full *:data-[slot=attachment]:min-w-0 *:data-[slot=attachment]:data-[orientation=vertical]:flex-nowrap",
++                )
++              : cn(
++                  "flex min-w-0 scroll-fade-x snap-x snap-mandatory scroll-px-1 scrollbar-none gap-3 overflow-x-auto overscroll-x-contain py-1 *:data-[slot=attachment]:flex-none *:data-[slot=attachment]:snap-start",
++                  // Sized to the row: `columns` tiles fit, the rest scroll.
++                  count && tileScrollRowClasses,
++                ),
 +        className,
        )}
        {...props}

@@ -12,12 +12,12 @@
     "evidencePolicy": "Observed fields come from source, registry metadata, docs, and test topology. Unknown/not-applicable values are explicit; no inferred behavior is presented as verified."
   },
   "expectedCounts": {
-    "totalRegistryItems": 700,
+    "totalRegistryItems": 701,
     "components": 135,
     "animatedIcons": 467,
     "hooks": 13,
     "blocks": 11,
-    "libs": 6,
+    "libs": 7,
     "chartBlocks": 68
   },
   "expectedWaveCounts": {
@@ -1893,7 +1893,7 @@
           },
           {
             "name": "group layout",
-            "values": ["grid", "scroll"],
+            "values": ["grid", "list", "scroll", "tiles"],
             "evidence": "packages/ui/registry/ui/attachment.tsx: prop union"
           }
         ]
@@ -2842,6 +2842,7 @@
       "registryDependencies": [
         "@vegastack/button",
         "@vegastack/dialog",
+        "@vegastack/file-kind",
         "@vegastack/person-avatar",
         "@vegastack/tile-overlay",
         "@vegastack/use-announcer",
@@ -10599,6 +10600,7 @@
         "@vegastack/dropzone",
         "@vegastack/empty",
         "@vegastack/field",
+        "@vegastack/file-kind",
         "@vegastack/image",
         "@vegastack/use-file-drop"
       ],
@@ -12640,7 +12642,7 @@
       "variants": {
         "status": "not-applicable-or-inherited",
         "dimensions": [],
-        "rationale": "No variant axis; the stage follows the item's content type (image, pdf, other)."
+        "rationale": "No variant axis; the stage follows the item's content type (image, pdf, video, audio, other)."
       },
       "sizes": {
         "status": "not-applicable-or-inherited",
@@ -12656,13 +12658,15 @@
             "closed",
             "image",
             "pdf",
+            "video",
+            "audio",
             "other",
             "zoomed",
             "loading",
             "error",
             "single"
           ],
-          "evidence": "Controlled index opens and closes; data-kind picks the image, pdf or file-card stage; zoom/pan on images and the PDF zoom toolbar; a PDF shows its thumb or a spinner while loading and falls back to the file card on error; one item hides the count and paging."
+          "evidence": "Controlled index opens and closes; data-kind picks the image, pdf, video, audio or file-card stage; zoom/pan on images and the PDF zoom toolbar; a PDF shows its thumb or a spinner while loading and falls back to the file card on error; a video or audio stage pauses its player when paged away or closed; one item hides the count and paging."
         },
         "accessibility": {
           "status": "covered",
@@ -12702,12 +12706,15 @@
       "engines": [],
       "docsSlug": "/docs/components/file-viewer",
       "registryDependencies": [
+        "@vegastack/audio-player",
         "@vegastack/button",
         "@vegastack/dialog",
+        "@vegastack/file-kind",
         "@vegastack/image",
         "@vegastack/spinner",
         "@vegastack/use-announcer",
-        "@vegastack/use-modal-inert"
+        "@vegastack/use-modal-inert",
+        "@vegastack/video-player"
       ],
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
@@ -33342,6 +33349,127 @@
         "packages/ui/registry/lib/drag-item.test.ts",
         "packages/ui/registry/ui/sortable-list.test.tsx",
         "packages/ui/registry/ui/text-edit.test.tsx"
+      ],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "shared-guide-only",
+        "navigation": "exempt",
+        "preview": "exempt",
+        "vrt": "exempt"
+      }
+    },
+    {
+      "name": "file-kind",
+      "registryType": "registry:lib",
+      "title": "File Kind",
+      "summary": "The one answer to \"what is this file and how big is it\" — formatBytes (1024 base, one decimal under 10), fileKindOf (MIME first, extension fallback) and FileTypeIcon (the muted lucide icon per kind) — shared by Attachment rows, FileViewer, UploadDialog, AvatarPicker and FolderTree.",
+      "family": "lib",
+      "wave": "Libs",
+      "sourceFiles": ["packages/ui/registry/lib/file-kind.ts"],
+      "publicSymbols": [
+        {
+          "name": "FileKind",
+          "kind": "type",
+          "source": "packages/ui/registry/lib/file-kind.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "FormatBytesOptions",
+          "kind": "interface",
+          "source": "packages/ui/registry/lib/file-kind.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "formatBytes",
+          "kind": "function",
+          "source": "packages/ui/registry/lib/file-kind.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "function symbols do not expose a rendered DOM instance or ref contract."
+          }
+        },
+        {
+          "name": "fileKindOf",
+          "kind": "function",
+          "source": "packages/ui/registry/lib/file-kind.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "function symbols do not expose a rendered DOM instance or ref contract."
+          }
+        },
+        {
+          "name": "FileTypeIconProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/lib/file-kind.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "FileTypeIcon",
+          "kind": "component",
+          "source": "packages/ui/registry/lib/file-kind.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Renders a lucide icon element; refs are not part of its contract."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "A data/recipe module renders nothing and has no variant surface."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "A data/recipe module renders nothing and has no size scale."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned motion mechanism observed."
+        }
+      },
+      "engines": [],
+      "registryDependencies": [],
+      "docsSlug": "/docs/guides/components",
+      "states": {
+        "behavior": {
+          "status": "not-applicable",
+          "values": ["not-applicable"],
+          "evidence": "Pure helpers and one stateless icon: no state machine."
+        },
+        "accessibility": {
+          "status": "observed",
+          "values": ["decorative-icon"],
+          "evidence": "FileTypeIcon renders aria-hidden; the file name beside it carries the meaning."
+        },
+        "visual": {
+          "status": "observed",
+          "values": ["default"],
+          "evidence": "One muted icon per kind; a className text-* overrides the ink."
+        }
+      },
+      "responsive": {
+        "status": "not-applicable",
+        "risks": [],
+        "rationale": "No DOM of its own; consumers own layout."
+      },
+      "npmDependencies": ["lucide-react@^1.47.0", "@vegastack/design@^0.7.59"],
+      "testFiles": [
+        "packages/ui/registry/lib/file-kind.test.ts",
+        "packages/ui/registry/ui/file-viewer.test.tsx"
       ],
       "coverage": {
         "source": "required",

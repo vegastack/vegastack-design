@@ -309,7 +309,7 @@
       "name": "attachment",
       "type": "registry:ui",
       "title": "Attachment",
-      "description": "A file chip / thumbnail card for chat, record-file and upload-queue surfaces — media slot, name + meta, idle/uploading/processing/error/done states, determinate progress, a muted tile, an actions row, a full-bleed trigger, and a scrolling or grid group, overlay action slots on a tile, a whole-tile open into the FileViewer, and a column-sized tile grid or scrolling row.",
+      "description": "A file chip / thumbnail card for chat, record-file and upload-queue surfaces — media slot, name + meta, idle/uploading/processing/error/done states, determinate progress, a muted tile, an actions row, a full-bleed trigger, and a scrolling, grid or dense list group, overlay action slots on a tile, a whole-tile open into the FileViewer, and a column-sized tile grid or scrolling row.",
       "categories": ["communication"],
       "dependencies": [
         "@base-ui/react@^1.6.0",
@@ -434,6 +434,7 @@
       "registryDependencies": [
         "@vegastack/button",
         "@vegastack/dialog",
+        "@vegastack/file-kind",
         "@vegastack/person-avatar",
         "@vegastack/tile-overlay",
         "@vegastack/use-announcer",
@@ -1418,6 +1419,27 @@
       }
     },
     {
+      "name": "file-kind",
+      "type": "registry:lib",
+      "title": "File Kind",
+      "description": "The one answer to \"what is this file and how big is it\" — formatBytes (1024 base, one decimal under 10), fileKindOf (MIME first, extension fallback) and FileTypeIcon (the muted lucide icon per kind) — shared by Attachment rows, FileViewer, UploadDialog, AvatarPicker and FolderTree.",
+      "categories": ["data"],
+      "dependencies": ["lucide-react@^1.47.0", "@vegastack/design@^0.7.59"],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "packages/ui/registry/lib/file-kind.ts",
+          "type": "registry:lib",
+          "target": "@lib/file-kind.ts"
+        }
+      ],
+      "meta": {
+        "whenToUse": "Any file surface that shows a size, picks an icon for a file, or branches on what kind of file it holds.",
+        "whenNotToUse": "Previewing a file (FileViewer) or acquiring one (use-file-drop).",
+        "version": "0.23.72"
+      }
+    },
+    {
       "name": "page-layout",
       "type": "registry:lib",
       "title": "Page Layout",
@@ -1552,6 +1574,7 @@
         "@vegastack/dropzone",
         "@vegastack/empty",
         "@vegastack/field",
+        "@vegastack/file-kind",
         "@vegastack/image",
         "@vegastack/use-file-drop"
       ],
@@ -12148,7 +12171,7 @@
       "name": "file-viewer",
       "type": "registry:ui",
       "title": "File Viewer",
-      "description": "A full-screen dark overlay for stored files — images with a blur-up, zoom and pan; PDFs rendered page by page with a lazily loaded pdf.js over range requests; a download card for everything else — paged with arrows, side buttons or a swipe.",
+      "description": "A full-screen dark overlay for stored files — images with a blur-up, zoom and pan; PDFs rendered page by page with a lazily loaded pdf.js over range requests; video and audio in the system players; a download card for everything else — paged with arrows, side buttons or a swipe.",
       "categories": ["media"],
       "dependencies": [
         "@base-ui/react@^1.6.0",
@@ -12158,12 +12181,15 @@
         "@vegastack/design-tokens@^0.7.56"
       ],
       "registryDependencies": [
+        "@vegastack/audio-player",
         "@vegastack/button",
         "@vegastack/dialog",
+        "@vegastack/file-kind",
         "@vegastack/image",
         "@vegastack/spinner",
         "@vegastack/use-announcer",
-        "@vegastack/use-modal-inert"
+        "@vegastack/use-modal-inert",
+        "@vegastack/video-player"
       ],
       "files": [
         {
@@ -12179,7 +12205,7 @@
       ],
       "meta": {
         "whenToUse": "Opening stored files full screen from attachment tiles, a product's files or a gallery — images to zoom, PDFs to read, anything else to download.",
-        "whenNotToUse": "Video or audio playback (VideoPlayer, AudioPlayer), or a general-purpose modal (Dialog).",
+        "whenNotToUse": "An inline player on a page (VideoPlayer, AudioPlayer), or a general-purpose modal (Dialog).",
         "version": "0.23.72"
       }
     },

@@ -1,4 +1,4 @@
-// @vegastack attachment@0.23.72 sha256-73OMx1zcae6ocYyh4QBr+dyzdbY1Ps4lmkMVP+9YTKU=
+// @vegastack attachment@0.23.72 sha256-Cb2IxZ43/zwyJoiJI0Clamm+y2bnaYKbqPsj4moxk7c=
 
 "use client";
 
@@ -475,10 +475,13 @@ function AttachmentGroup({
   /**
    * `scroll` — one row that scrolls sideways; `grid` — listing-size tiles, up to three per row
    * with 16:9 media; `tiles` — square tiles, `columns` per row at most (four by default), fewer
-   * as the container narrows: three on a tablet, two on a phone.
+   * as the container narrows: three on a tablet, two on a phone; `list` — dense full-width rows
+   * (a 32px icon or thumbnail, the name, a description line, trailing actions) for a folder's
+   * files or an upload queue. In a row, put `AttachmentProgress` inside `AttachmentContent`, under
+   * the title.
    * @default "scroll"
    */
-  layout?: "scroll" | "grid" | "tiles";
+  layout?: "scroll" | "grid" | "tiles" | "list";
   /**
    * The most tiles a row shows. `tiles`: the grid's column count on a wide container (default
    * 4). `scroll`: sizes each tile so this many fit the row and the rest scroll (without it, tiles
@@ -494,7 +497,10 @@ function AttachmentGroup({
   preview?: boolean;
 }) {
   const outer = React.useContext(AttachmentPreviewContext);
-  const count = columns ?? (layout === "tiles" ? 4 : undefined);
+  const count =
+    layout === "list"
+      ? undefined
+      : (columns ?? (layout === "tiles" ? 4 : undefined));
   const group = (
     <div
       data-slot="attachment-group"
@@ -502,18 +508,20 @@ function AttachmentGroup({
       data-columns={count}
       className={cn(
         count ? tileColumnClasses[count] : undefined,
-        layout === "grid"
-          ? "grid min-w-0 grid-cols-[repeat(auto-fill,minmax(min(100%,max(--spacing(72),calc((100%_-_var(--spacing)*6)/3))),1fr))] gap-3 py-1 *:data-[slot=attachment]:w-full *:data-[slot=attachment]:min-w-0 *:data-[slot=attachment]:data-[orientation=vertical]:flex-nowrap **:data-[slot=attachment-media]:aspect-video [&_[data-slot=attachment-media]_img]:aspect-video"
-          : layout === "tiles"
-            ? cn(
-                tileGridClasses,
-                "min-w-0 py-1 *:data-[slot=attachment]:w-full *:data-[slot=attachment]:min-w-0 *:data-[slot=attachment]:data-[orientation=vertical]:flex-nowrap",
-              )
-            : cn(
-                "flex min-w-0 scroll-fade-x snap-x snap-mandatory scroll-px-1 scrollbar-none gap-3 overflow-x-auto overscroll-x-contain py-1 *:data-[slot=attachment]:flex-none *:data-[slot=attachment]:snap-start",
-                // Sized to the row: `columns` tiles fit, the rest scroll.
-                count && tileScrollRowClasses,
-              ),
+        layout === "list"
+          ? "flex min-w-0 flex-col gap-0.5 py-1 *:data-[slot=attachment]:w-full *:data-[slot=attachment]:min-w-0 *:data-[slot=attachment]:flex-nowrap *:data-[slot=attachment]:rounded-lg *:data-[slot=attachment]:not-data-[state=error]:border-transparent **:data-[slot=attachment-media]:w-8 **:data-[slot=attachment-media]:rounded-md [&_[data-slot=attachment-content]_[data-slot=attachment-progress]]:mt-1.5"
+          : layout === "grid"
+            ? "grid min-w-0 grid-cols-[repeat(auto-fill,minmax(min(100%,max(--spacing(72),calc((100%_-_var(--spacing)*6)/3))),1fr))] gap-3 py-1 *:data-[slot=attachment]:w-full *:data-[slot=attachment]:min-w-0 *:data-[slot=attachment]:data-[orientation=vertical]:flex-nowrap **:data-[slot=attachment-media]:aspect-video [&_[data-slot=attachment-media]_img]:aspect-video"
+            : layout === "tiles"
+              ? cn(
+                  tileGridClasses,
+                  "min-w-0 py-1 *:data-[slot=attachment]:w-full *:data-[slot=attachment]:min-w-0 *:data-[slot=attachment]:data-[orientation=vertical]:flex-nowrap",
+                )
+              : cn(
+                  "flex min-w-0 scroll-fade-x snap-x snap-mandatory scroll-px-1 scrollbar-none gap-3 overflow-x-auto overscroll-x-contain py-1 *:data-[slot=attachment]:flex-none *:data-[slot=attachment]:snap-start",
+                  // Sized to the row: `columns` tiles fit, the rest scroll.
+                  count && tileScrollRowClasses,
+                ),
         className,
       )}
       {...props}

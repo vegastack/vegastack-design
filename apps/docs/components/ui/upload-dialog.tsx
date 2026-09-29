@@ -1,9 +1,9 @@
-// @vegastack upload-dialog@0.23.72 sha256-3C2XYL7UWoxktzgiWzRoN8i75MQqSilYbUN6gpXpxw0=
+// @vegastack upload-dialog@0.23.72 sha256-EH6kfkXjgQUfFy9HDXJsbTRKlpItIm6H0qFFI+0xPAw=
 
 "use client";
 
 import * as React from "react";
-import { FileText, Upload, X } from "lucide-react";
+import { Upload, X } from "lucide-react";
 import { cn } from "@vegastack/design";
 
 import {
@@ -35,6 +35,7 @@ import {
 } from "@/components/ui/empty";
 import { FieldError } from "@/components/ui/field";
 import { Image } from "@/components/ui/image";
+import { FileTypeIcon, formatBytes } from "@/lib/file-kind";
 import type {
   FileDropRejection,
   UseFileDropOptions,
@@ -134,19 +135,6 @@ const REJECTED: Record<string, (name: string) => string> = {
   "file-too-small": (name) => `${name} is empty.`,
 };
 
-/** A byte count as a short size: `820 KB`, `4.2 MB`. */
-function formatSize(bytes: number): string {
-  if (bytes < 1024) return `${bytes} B`;
-  const units = ["KB", "MB", "GB"];
-  let value = bytes / 1024;
-  let unit = 0;
-  while (value >= 1024 && unit < units.length - 1) {
-    value /= 1024;
-    unit += 1;
-  }
-  return `${value.toLocaleString("en", { maximumFractionDigits: value < 10 ? 1 : 0 })} ${units[unit]}`;
-}
-
 /** A staged file's media: the image's local preview, or a file icon. */
 function UploadDialogMedia({ file }: { file: UploadDialogFile }) {
   return file.previewUrl ? (
@@ -155,7 +143,11 @@ function UploadDialogMedia({ file }: { file: UploadDialogFile }) {
     </AttachmentMedia>
   ) : (
     <AttachmentMedia>
-      <FileText aria-hidden />
+      <FileTypeIcon
+        contentType={file.file.type}
+        name={file.file.name}
+        className="text-current"
+      />
     </AttachmentMedia>
   );
 }
@@ -371,7 +363,7 @@ function UploadDialog({
                       <AttachmentContent>
                         <AttachmentTitle>{f.file.name}</AttachmentTitle>
                         <AttachmentDescription>
-                          {formatSize(f.file.size)}
+                          {formatBytes(f.file.size)}
                         </AttachmentDescription>
                       </AttachmentContent>
                       <AttachmentActions>
