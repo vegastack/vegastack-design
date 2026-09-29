@@ -1,0 +1,136 @@
+---
+title: Template Editor
+description: A plain-paragraph editor for text with placeholders — @ opens a searchable token list, a picked token becomes a chip, and the value stays plain text.
+audience: public
+registry: template-editor
+status: stable
+since: 0.23.72
+a11y: multiline textbox + listbox picker via aria-activedescendant
+preview: templateEditor
+---
+
+## Install
+
+<InstallSteps name="template-editor" />
+
+## Usage
+
+```tsx
+import { TemplateEditor } from "@/components/ui/template-editor";
+
+const specs = [
+  { id: "power", label: "Power", hint: "W" },
+  { id: "efficacy", label: "Efficacy", hint: "lm/W" },
+];
+
+<Field>
+  <FieldLabel>Marketing description</FieldLabel>
+  <TemplateEditor
+    value={template}
+    onChange={setTemplate}
+    tokens={specs}
+    placeholder="Type @ to insert a spec"
+  />
+</Field>;
+```
+
+The value is plain text. Each placeholder is written as `{{id}}`, paragraphs are separated by a
+blank line (`\n\n`) and a single `\n` is a line break inside a paragraph, so
+`"Recessed {{power}} downlight\n\nFits a {{cutout}} cut-out."` is two paragraphs with two chips.
+The string round-trips exactly: rendering a value and changing nothing never calls `onChange`.
+
+## Scope
+
+- **Plain paragraphs only.** No Markdown, bold, lists, links, toolbar or slash menu — reach for
+  `TextEdit` when the text needs formatting.
+- **Placeholders are atomic.** A chip shows the token's `label`, deletes with one Backspace, and is
+  stored by `id`, so renaming a spec relabels every chip without touching the value.
+- **Nothing is lost.** An `{{id}}` whose id is not in `tokens` still renders, as the raw id in the
+  destructive style; `invalidTokenIds` marks known tokens the same way.
+- **Filling the placeholders is the caller's job** — the editor only writes the template.
+
+## Examples
+
+### Placeholders from @
+
+Type `@` (at the start of a word) or `{{` (anywhere) to open the list, keep typing to filter it by
+label, id or hint, then press <kbd>Enter</kbd> or <kbd>Tab</kbd>. The box below shows the stored
+string.
+
+<ComponentPreview
+  name="templateEditor"
+  file="components/preview/template-editor.tsx"
+/>
+
+### Empty
+
+The placeholder shows until the first character, in the muted placeholder colour `Textarea` uses.
+
+<ComponentPreview
+  name="templateEditorEmpty"
+  file="components/preview/template-editor.tsx"
+/>
+
+### Unknown and invalid placeholders
+
+`invalidTokenIds` turns a known token's chip destructive (a spec with no value on this product); an
+id missing from `tokens` renders as its raw id in the same style.
+
+<ComponentPreview
+  name="templateEditorInvalidTokens"
+  file="components/preview/template-editor.tsx"
+/>
+
+### Invalid and disabled
+
+Inside an invalid `Field` the border stays destructive, focused or not. `disabled` dims the box
+and makes it read-only, like a disabled `Textarea`.
+
+<ComponentPreview
+  name="templateEditorStates"
+  file="components/preview/template-editor.tsx"
+/>
+
+## API Reference
+
+<ApiTable
+  path="../../packages/ui/registry/ui/template-editor.tsx"
+  name="TemplateEditorProps"
+/>
+
+### TemplateEditorToken
+
+<ApiTable
+  path="../../packages/ui/registry/ui/template-editor.tsx"
+  name="TemplateEditorToken"
+/>
+
+## Accessibility
+
+- The editable surface is a `role="textbox"` with `aria-multiline="true"`, named by `aria-label`,
+  `aria-labelledby` or an enclosing `Field`'s label; a `Field`'s description, error and invalid
+  state reach it too.
+- The picker is a `listbox` of `option`s. Focus stays in the textbox, which points at the listbox
+  with `aria-controls` and at the highlighted option with `aria-activedescendant` while it is open.
+- The focus cue is text entry's: the box's border darkens subtly over 150ms and nothing fills
+  (`data-focus-cue="border"`); an invalid box keeps its destructive border. Forced-colours mode
+  restores a system outline.
+
+| Key                                   | Action                                                  |
+| ------------------------------------- | ------------------------------------------------------- |
+| <kbd>@</kbd> or <kbd>{"{{"}</kbd>     | Open the placeholder list                               |
+| <kbd>↑</kbd> <kbd>↓</kbd>             | Move through the list                                   |
+| <kbd>Enter</kbd> / <kbd>Tab</kbd>     | Insert the highlighted placeholder (with the list open) |
+| <kbd>Esc</kbd>                        | Close the list, keeping what was typed                  |
+| <kbd>Backspace</kbd> / <kbd>Del</kbd> | Delete the chip before / after the caret as one unit    |
+| <kbd>Enter</kbd>                      | New paragraph (with the list closed)                    |
+| <kbd>Shift</kbd> <kbd>Enter</kbd>     | Line break inside the paragraph                         |
+
+<StatesTested name="template-editor" />
+
+## Do / Don't
+
+<DoDont
+  do="Use TemplateEditor for short marketing or description text built from specs, and pass every spec a product can have as tokens."
+  dont="Use it for formatted text (TextEdit), text with no placeholders (Textarea), or to store rendered text — store the template and fill it when you show it."
+/>

@@ -299,6 +299,11 @@ const DYNAMIC_DOM: Record<string, string> = {
   markdownTables: ".ProseMirror[contenteditable]",
   htmlTables: ".ProseMirror[contenteditable]",
   markdownBlockHandles: ".ProseMirror[contenteditable]",
+  // TemplateEditor is `next/dynamic`-wrapped for the same reason (Tiptap), and renders no read view.
+  templateEditor: ".ProseMirror[contenteditable]",
+  templateEditorEmpty: ".ProseMirror[contenteditable]",
+  templateEditorInvalidTokens: ".ProseMirror[contenteditable]",
+  templateEditorStates: ".ProseMirror[contenteditable]",
 };
 
 // Every TextEdit fixture measures the editor, not its read view: load it before the first mount.

@@ -77,6 +77,10 @@ const EXPECTED_HOSTS = new Map([
   // `position: fixed` listbox. `SlashMenu` receives `useInternalThemeScope()` and attaches it to
   // the listbox itself, the element rendered inside the portal.
   ["packages/ui/registry/ui/text-edit-editor.tsx", ["createPortal"]],
+  // TemplateEditor's placeholder picker is the same shape as TextEdit's slash menu: a caret-anchored
+  // `position: fixed` listbox that must keep focus in the editor, portaled to `<body>` inside a
+  // `contents` wrapper carrying `useInternalThemeScope()`.
+  ["packages/ui/registry/ui/template-editor.tsx", ["createPortal"]],
 ]);
 
 function walk(dir, out = []) {

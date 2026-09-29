@@ -13863,6 +13863,36 @@
       }
     },
     {
+      "name": "template-editor",
+      "type": "registry:ui",
+      "title": "Template Editor",
+      "description": "A plain-paragraph editor for text with placeholders: typing @ or {{ opens a searchable list of tokens, the one picked becomes an atomic inline chip, and the value is plain text with {{id}} tokens.",
+      "categories": ["form"],
+      "dependencies": [
+        "@base-ui/react@^1.6.0",
+        "@tiptap/react@^3",
+        "@tiptap/starter-kit@^3",
+        "@tiptap/pm@^3",
+        "@tiptap/extensions@^3",
+        "@tiptap/suggestion@^3",
+        "@vegastack/design@^0.7.58",
+        "@vegastack/design-tokens@^0.7.56"
+      ],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/template-editor.tsx",
+          "type": "registry:ui",
+          "target": "@ui/template-editor.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "Marketing or description text built from spec placeholders (\"Recessed @Power downlight with @Efficacy…\"), stored as {{id}} tokens a renderer fills in.",
+        "whenNotToUse": "Formatted rich text (TextEdit), plain text with no placeholders (Textarea), or a single-line value (Input).",
+        "version": "0.23.71"
+      }
+    },
+    {
       "name": "text-edit",
       "type": "registry:ui",
       "title": "Text Edit",

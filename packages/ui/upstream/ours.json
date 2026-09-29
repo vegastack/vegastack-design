@@ -480,6 +480,12 @@
       "family": "forms",
       "source": "Operator brief 2026-09-27 (Regent file upload UX) — approved by MK 2026-09-27",
       "rationale": "Upstream ships no upload modal. Product, family and accessory forms add files from a button: a fixed composition of dialog, dropzone, attachment, empty, field, image and button with a host-rendered details view; no patch."
+    },
+    "template-editor": {
+      "disposition": "keep",
+      "family": "rich-text",
+      "source": "Regent product family and product forms (marketing text with spec placeholders), approved by MK 2026-09-29",
+      "rationale": "Upstream ships no placeholder or mention editor. A small Tiptap composition on the TextEdit stack (paragraphs, hard breaks, one atomic token node, @tiptap/suggestion for the picker) with the slash menu's surface; it carries no patch."
     }
   }
 }
