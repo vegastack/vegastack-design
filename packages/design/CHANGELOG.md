@@ -1,5 +1,13 @@
 # @vegastack/design
 
+## 0.7.60
+
+### Patch Changes
+
+- [#414](https://github.com/vegastack/vegastack-design/pull/414) [`655d595`](https://github.com/vegastack/vegastack-design/commit/655d59594f0148dd93829b0dc9ac852e484635d4) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🧩 New `FolderTree`: a Notion-style navigation tree for a file library — sections of folders, pages and files; folders that load their children on first open (`loadChildren`, or a controlled `childrenOf`) with loading, error (Retry), empty and "Show all" rows past `maxChildren`; one tab stop with tree arrow keys, `*` and typeahead; a ⋯ menu per row through `renderRowActions` and `FolderTreeRowAction`; pointer drag into a folder or onto a section heading (`onMove`, which may be async); and `mode="picker"` — folders only, one `selected` — for Move dialogs. `use-drag-reorder` gains `useDragInto`, the drag-into-a-target engine the tree runs on. A new `file-kind` lib gives every file surface one `formatBytes`, `fileKindOf` and `FileTypeIcon`. `AttachmentGroup` takes `layout="list"` for dense full-width file rows; `FileViewer` plays `video/*` and `audio/*` items in the system players and pauses them when paging away; `useFileDrop` and `Dropzone` take `directories` — each accepted file's `relativePath` through `onEntriesAccepted`, `maxFiles` refusing a whole oversized folder, and `openDirectory()` (on the hook, and on `Dropzone`'s new `actionsRef`) for a folder picker. New block: `library-01`.
+
+- [#415](https://github.com/vegastack/vegastack-design/pull/415) [`9799b19`](https://github.com/vegastack/vegastack-design/commit/9799b19bcfe49629a46d87096f879964223780fc) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🔧 `TextEdit` gains what a page editor needs, every construct round-tripping exactly through Markdown: `@` mentions (`mentions`, `mentionHref`) stored as `[@Label](mention://kind/id)`; image and file uploads by paste, drop, the image panel and the slash menu (`onImageUpload`, `onFileUpload`, `onUploadError`, `fileLinkPrefix`) that commit even after blur; callouts (`> [!NOTE]`, `[!TIP]`, `[!WARNING]`) and toggles (`details`); an outline (`onOutlineChange`) and an imperative `handleRef` (`scrollToHeading`, `flush`, `focus`, `getAnchorForSelection`, `pulseAnnotation`); and comment highlights (`annotations`, `activeAnnotationId`, `onAnnotationClick`, `onAnnotationHover`, `onCreateAnnotation`, `onAnnotationsLayout`) drawn as decorations, read-only too. ⌘K inside the editor no longer reaches a page's own palette. `MarkdownView` renders mention and file chips, callouts, toggles and `headingIds`. New libs `text-anchor` and `text-anchor-doc` store and map comment anchors.
+
 ## 0.7.59
 
 ### Patch Changes
