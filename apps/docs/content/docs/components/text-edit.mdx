@@ -163,6 +163,14 @@ changed, <kbd>Esc</kbd> reverts (`onRevert`), and `autosave` commits after an id
 command, the shortcuts, the input rules and a view/edit parity example are on the
 [Markdown guide](/docs/guides/markdown).
 
+**Escape never erases saved text.** `escapeBehavior` decides what <kbd>Esc</kbd> does: `"revert"`
+restores the document as focus found it, blurs and calls `onRevert` — a field you edit and then
+confirm; `"blur"` keeps the text, commits it and blurs — a document that saves as you type. It
+defaults to `"blur"` whenever `autosave` is set and to `"revert"` otherwise, so a page that
+autosaves can never restore text older than what it already saved. A host that saves on its own
+schedule (from `onValueChange`, say) calls `handleRef.current.markSaved()` after each acknowledged
+save: the saved document becomes the baseline Escape reverts to and a commit compares against.
+
 <ComponentPreview
   name="markdownSlashMenu"
   file="components/preview/text-edit.tsx"
@@ -376,7 +384,8 @@ The slash menu's Callout wraps the block in GitHub's alert syntax — `> [!NOTE]
 hyphenated, `-1`, `-2`… for a repeat — after load and 150ms after each change; the same ids are on
 the heading elements (and on `MarkdownView`'s with `headingIds`). `handleRef` gives an imperative
 handle: `scrollToHeading(id)`, `flush()` (commit now, and wait for uploads in flight — before
-creating a comment or navigating), `focus()`, `getAnchorForSelection()` and `pulseAnnotation(id)`.
+creating a comment or navigating), `focus()`, `getAnchorForSelection()`, `pulseAnnotation(id)` and
+`markSaved()` (the host saved the current document: it becomes the baseline Escape reverts to).
 
 <ComponentPreview
   name="textEditOutline"
@@ -518,28 +527,28 @@ fires it with the current value. It's presentational only: the **host** decides 
   it with visible error text through `aria-describedby`.
 - `readOnly` marks the surface read-only.
 
-| Key                                                   | Action                                                                                                                        |
-| ----------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
-| <kbd>Cmd/Ctrl</kbd> + <kbd>B</kbd>                    | Toggle **bold**.                                                                                                              |
-| <kbd>Cmd/Ctrl</kbd> + <kbd>I</kbd>                    | Toggle _italic_.                                                                                                              |
-| <kbd>Cmd/Ctrl</kbd> + <kbd>E</kbd>                    | Toggle inline code.                                                                                                           |
-| <kbd>Cmd/Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>X</kbd> | Toggle strikethrough.                                                                                                         |
-| <kbd>Cmd/Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>7</kbd> | Numbered list (<kbd>8</kbd> bullet, <kbd>9</kbd> checklist).                                                                  |
-| <kbd>Cmd/Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>↑</kbd> | Move the block up (<kbd>↓</kbd> down).                                                                                        |
-| <kbd>Cmd/Ctrl</kbd> + <kbd>Z</kbd>                    | Undo.                                                                                                                         |
-| <kbd>Cmd/Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>Z</kbd> | Redo.                                                                                                                         |
-| <kbd>Enter</kbd>                                      | New paragraph (or new list item inside a list).                                                                               |
-| <kbd>Cmd/Ctrl</kbd> + <kbd>Enter</kbd>                | Fire `onSubmit` with the current value (when set); otherwise commit and blur. Plain <kbd>Enter</kbd> still inserts a newline. |
-| <kbd>Esc</kbd>                                        | Revert to the value focus found, blur, and fire `onRevert`.                                                                   |
-| <kbd>Cmd/Ctrl</kbd> + <kbd>K</kbd>                    | Open the inline link input (add, edit or remove the link); the key stops here, so a page's own ⌘K palette does not open too.  |
-| <kbd>@</kbd>                                          | Open the mention menu (with `mentions`).                                                                                      |
-| <kbd>Tab</kbd>                                        | Indent a list item, or move to the next table cell (the last cell adds a row); elsewhere, move focus out of the editor.       |
-| <kbd>Shift</kbd> + <kbd>Tab</kbd>                     | Outdent a list item, or move to the previous table cell.                                                                      |
-| <kbd>Shift</kbd> + <kbd>F10</kbd>                     | In a table, open the row, column or table menu for the selection.                                                             |
-| <kbd>/</kbd>                                          | Open the slash menu.                                                                                                          |
-| <kbd>Alt</kbd> + <kbd>Enter</kbd>                     | With the caret in (or at either end of) a comment highlight, open its thread (`onAnnotationClick`); elsewhere, unchanged.     |
-| <kbd>Tab</kbd> (read-only)                            | Move to the next comment highlight (with `onAnnotationClick`); each highlight is one tab stop.                                |
-| <kbd>Enter</kbd> / <kbd>Space</kbd> (read-only)       | On a focused comment highlight, open its thread (`onAnnotationClick`).                                                        |
+| Key                                                   | Action                                                                                                                                           |
+| ----------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| <kbd>Cmd/Ctrl</kbd> + <kbd>B</kbd>                    | Toggle **bold**.                                                                                                                                 |
+| <kbd>Cmd/Ctrl</kbd> + <kbd>I</kbd>                    | Toggle _italic_.                                                                                                                                 |
+| <kbd>Cmd/Ctrl</kbd> + <kbd>E</kbd>                    | Toggle inline code.                                                                                                                              |
+| <kbd>Cmd/Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>X</kbd> | Toggle strikethrough.                                                                                                                            |
+| <kbd>Cmd/Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>7</kbd> | Numbered list (<kbd>8</kbd> bullet, <kbd>9</kbd> checklist).                                                                                     |
+| <kbd>Cmd/Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>↑</kbd> | Move the block up (<kbd>↓</kbd> down).                                                                                                           |
+| <kbd>Cmd/Ctrl</kbd> + <kbd>Z</kbd>                    | Undo.                                                                                                                                            |
+| <kbd>Cmd/Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>Z</kbd> | Redo.                                                                                                                                            |
+| <kbd>Enter</kbd>                                      | New paragraph (or new list item inside a list).                                                                                                  |
+| <kbd>Cmd/Ctrl</kbd> + <kbd>Enter</kbd>                | Fire `onSubmit` with the current value (when set); otherwise commit and blur. Plain <kbd>Enter</kbd> still inserts a newline.                    |
+| <kbd>Esc</kbd>                                        | With `escapeBehavior="revert"`: revert to the value focus found, blur, fire `onRevert`. With `"blur"` (the `autosave` default): commit and blur. |
+| <kbd>Cmd/Ctrl</kbd> + <kbd>K</kbd>                    | Open the inline link input (add, edit or remove the link); the key stops here, so a page's own ⌘K palette does not open too.                     |
+| <kbd>@</kbd>                                          | Open the mention menu (with `mentions`).                                                                                                         |
+| <kbd>Tab</kbd>                                        | Indent a list item, or move to the next table cell (the last cell adds a row); elsewhere, move focus out of the editor.                          |
+| <kbd>Shift</kbd> + <kbd>Tab</kbd>                     | Outdent a list item, or move to the previous table cell.                                                                                         |
+| <kbd>Shift</kbd> + <kbd>F10</kbd>                     | In a table, open the row, column or table menu for the selection.                                                                                |
+| <kbd>/</kbd>                                          | Open the slash menu.                                                                                                                             |
+| <kbd>Alt</kbd> + <kbd>Enter</kbd>                     | With the caret in (or at either end of) a comment highlight, open its thread (`onAnnotationClick`); elsewhere, unchanged.                        |
+| <kbd>Tab</kbd> (read-only)                            | Move to the next comment highlight (with `onAnnotationClick`); each highlight is one tab stop.                                                   |
+| <kbd>Enter</kbd> / <kbd>Space</kbd> (read-only)       | On a focused comment highlight, open its thread (`onAnnotationClick`).                                                                           |
 
 <StatesTested name="text-edit" />
 

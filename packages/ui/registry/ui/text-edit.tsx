@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.23.77 sha256-2J+TbAgzjNgFBVcMTk6CSeuBwYg1iCNdX6mL03OkoXk=
+// @vegastack text-edit@0.23.77 sha256-aL5TmfSka0BJWz9voJ4P/khuqfOehWWL/FBzr1xQPPY=
 
 "use client";
 
@@ -171,6 +171,11 @@ export interface TextEditHandle {
   getAnchorForSelection: () => TextAnchor | null;
   /** Pulse an annotation's highlight for 3 seconds and scroll it into view. */
   pulseAnnotation: (id: string) => void;
+  /**
+   * The host has saved the current document: advance the baseline Escape reverts to (and a commit
+   * compares against) to it, so a later `escapeBehavior="revert"` never restores older text.
+   */
+  markSaved: () => void;
 }
 
 /* ------------------------------------------------------------------------------------------------
@@ -378,10 +383,19 @@ export interface TextEditProps {
   onCommit?: (value: string) => void;
   /**
    * Called after Escape reverts the document to what it was when focus arrived and blurs the
-   * editor. Nothing is committed.
+   * editor (`escapeBehavior="revert"`). Nothing is committed.
    * @default undefined
    */
   onRevert?: () => void;
+  /**
+   * What Escape does. `"revert"` restores the document as focus found it (or as the last
+   * `markSaved()` left it), blurs and calls `onRevert` — right for a field edited then confirmed.
+   * `"blur"` keeps the text, commits it and blurs — right for a document that saves as you type,
+   * where reverting would erase text already saved. Defaults to `"blur"` whenever `autosave` is
+   * set, `"revert"` otherwise.
+   * @default autosave ? "blur" : "revert"
+   */
+  escapeBehavior?: "revert" | "blur";
   /**
    * Fired on Cmd/Ctrl+Enter with the serialized document (send a comment, create the record).
    * Without it, Cmd/Ctrl+Enter commits and blurs.
@@ -696,6 +710,7 @@ export function TextEdit(props: TextEditProps) {
       getAnchorForSelection: () =>
         editorHandle.current?.getAnchorForSelection() ?? null,
       pulseAnnotation: (id) => editorHandle.current?.pulseAnnotation(id),
+      markSaved: () => editorHandle.current?.markSaved(),
     }),
     // `activate` reads only refs and stable setters.
     // eslint-disable-next-line react-hooks/exhaustive-deps
