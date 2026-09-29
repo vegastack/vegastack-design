@@ -1,7 +1,7 @@
 {
   "_note": "Every name in packages/ui/registry/ui/ that has NO counterpart in vendor/shadcn/<cli>/ui/. verify-parity.mjs fails on a registry name that is neither upstream-backed nor listed here, so a component cannot appear by accident. Dispositions come from docs/plans/2026-09-18-shadcn-reset/extras.md (66 rows, MK 2026-09-18); hooks and internal parts are not components and are recorded here with their reason.",
   "counts": {
-    "total": 77,
+    "total": 80,
     "fromExtras": 46
   },
   "items": {
@@ -492,6 +492,24 @@
       "family": "navigation",
       "source": "Regent library plan 04 (folders, files and pages) — approved by MK 2026-09-29",
       "rationale": "Upstream ships no tree. A navigation pattern (nav of nested lists, a link and a disclosure per row, the SidebarMenuSub structure) over use-list-nav, use-drag-reorder's useDragInto and the file-kind icons, with lazy children and a picker mode; no ARIA tree engine and no patch."
+    },
+    "comment-margin": {
+      "disposition": "keep",
+      "family": "display",
+      "source": "Plan docs/plans/2026-09-29-collaboration.md (Regent Library comments and versions) — approved by MK 2026-09-29",
+      "rationale": "Upstream ships no comment margin. A layout column for comment cards plus a popover built on Base UI's popover primitive (anchored to a virtual rect, which upstream's PopoverContent does not expose); no patch."
+    },
+    "version-list": {
+      "disposition": "keep",
+      "family": "display",
+      "source": "Plan docs/plans/2026-09-29-collaboration.md (Regent Library comments and versions) — approved by MK 2026-09-29",
+      "rationale": "Upstream ships no version history. A listbox composed of upstream badge, button, switch and skeleton with our person-avatar, relative-time and use-list-nav; no patch."
+    },
+    "diff-view": {
+      "disposition": "keep",
+      "family": "display",
+      "source": "Plan docs/plans/2026-09-29-collaboration.md (Regent Library comments and versions) — approved by MK 2026-09-29",
+      "rationale": "Upstream ships no diff view. Renders jsdiff's (`diff`, sanctioned by MK 2026-09-29) line and word changes as ins/del text; `diff` is imported by this file alone, dynamically, so it loads in its own chunk. No patch."
     }
   }
 }

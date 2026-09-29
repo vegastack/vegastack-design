@@ -1,0 +1,103 @@
+---
+title: Comment Margin
+description: Comment cards beside the text they are about — level with their highlight, stacked without overlap, the active one aligned — and a popover for narrow screens.
+audience: public
+registry: comment-margin
+status: stable
+since: 0.23.74
+a11y: plain column of cards; popover dialog with Escape
+preview: commentMargin
+---
+
+## Install
+
+<InstallSteps name="comment-margin" />
+
+## Usage
+
+```tsx
+import { CommentMargin } from "@/components/ui/comment-margin";
+
+<CommentMargin
+  activeId={activeId}
+  items={layout.map((item) => ({ id: item.id, top: item.top, node: <CommentThread … /> }))}
+/>;
+```
+
+Put the margin in a column beside the editor with its top level with the `TextEdit` root: each
+item's `top` is then `TextEdit`'s `onAnnotationsLayout` `top` as it comes. A card sits level with
+its highlight and is pushed down just enough not to overlap the card above it (`gap`, 12px). The
+active card sits exactly level with its text and the cards above it move up to make room — Google
+Docs' behaviour. Heights are measured live, so a card that grows (its reply box opening) re-flows
+the rest. A card whose `top` is `null` — its text was deleted — is not drawn; list those threads
+elsewhere ("Text removed").
+
+<ComponentPreview
+  name="commentMargin"
+  file="components/preview/comment-margin.tsx"
+/>
+
+## Scope
+
+- Owns: the stacking of cards beside their text, and the popover for narrow screens.
+- Does not own: the cards (compose `CommentThread`), the highlights or their positions (`TextEdit`).
+- Compose with: `TextEdit`'s `annotations` and `onAnnotationsLayout`, `CommentThread`, and `Sheet
+side="bottom"` on touch-sized screens.
+
+## Anatomy
+
+<Anatomy name="comment-margin" />
+
+## Examples
+
+### Popover below the margin breakpoint
+
+Where no margin fits, open the thread in a `CommentPopover` anchored to the highlight's box — read
+it with `getBoundingClientRect()` on the `[data-annotation]` element. On touch-sized screens use
+`Sheet side="bottom"` instead.
+
+<ComponentPreview
+  name="commentMarginPopover"
+  file="components/preview/comment-margin.tsx"
+/>
+
+`layoutCommentMargin(items, gap, activeId)` is the pure layout the margin runs, exported for hosts
+that draw their own column.
+
+## API Reference
+
+<ApiTable
+  path="../../packages/ui/registry/ui/comment-margin.tsx"
+  name="CommentMarginProps"
+/>
+
+<ApiTable
+  path="../../packages/ui/registry/ui/comment-margin.tsx"
+  name="CommentMarginItem"
+/>
+
+<ApiTable
+  path="../../packages/ui/registry/ui/comment-margin.tsx"
+  name="CommentPopoverProps"
+/>
+
+## Accessibility
+
+- The margin is a plain column: each card brings its own semantics (`CommentThread` is an
+  `article`). Cards follow their highlights' order in the DOM, so reading order matches the page.
+- `CommentPopover` is a Base UI popover named "Comment thread": focus moves into it, <kbd>Esc</kbd>
+  closes it and focus returns.
+
+| Key            | Action                                    |
+| -------------- | ----------------------------------------- |
+| <kbd>Tab</kbd> | Move through the cards' controls          |
+| <kbd>Esc</kbd> | Close the popover (`onOpenChange(false)`) |
+
+<StatesTested name="comment-margin" />
+
+## Do / Don't
+
+<DoDont
+  do="Feed the margin straight from onAnnotationsLayout, and make the clicked highlight's thread active."
+  dont="Position cards yourself with the highlight's offset, or render orphaned threads in the margin."
+/>

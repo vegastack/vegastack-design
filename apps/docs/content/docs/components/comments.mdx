@@ -139,6 +139,41 @@ failure.
   file="components/preview/comments.tsx"
 />
 
+### Threads
+
+`CommentThread` is one discussion about a piece of text, the way Google Docs shows it beside the
+page: the quoted words (a button when `onQuoteClick` is set, to find the highlight), the first
+comment, its replies, and a one-line "Reply…" box whose send button appears once it is focused
+(<kbd>Cmd/Ctrl</kbd>+<kbd>Enter</kbd> sends; the box clears when `onReply` resolves and keeps the
+text when it rejects). ✓ in the header calls `onResolve`. Pass `composer` to give the reply box
+`mentions`, `mentionHref` and uploads, and `renderAttachments` to show each comment's files.
+`active` lifts the card beside its highlight. Lay threads beside the text with
+[`CommentMargin`](/docs/components/comment-margin).
+
+<ComponentPreview
+  name="commentsThreadCard"
+  file="components/preview/comments.tsx"
+/>
+
+#### Resolved, orphaned and collapsed
+
+A resolved thread says who resolved it and when, and offers Reopen (`onReopen`). An `orphaned`
+thread — its text was deleted — says "Original text was removed" instead of the quote. `collapsed`
+shows the first comment, "N replies" (a button with `onExpand`) and the last reply, with no reply
+box.
+
+<ComponentPreview
+  name="commentsThreadStates"
+  file="components/preview/comments.tsx"
+/>
+
+### Mentions, uploads and attachments
+
+`CommentComposer` passes `mentions`, `mentionHref`, `onImageUpload`, `onFileUpload` and
+`onUploadError` to its editor, exactly as on [`TextEdit`](/docs/components/text-edit).
+`CommentItem`'s `attachments` renders under the body — an `AttachmentGroup layout="list"` of the
+comment's files — and its `mentionHref` links the mention chips in the body.
+
 ## API Reference
 
 <ApiTable
@@ -158,7 +193,17 @@ failure.
 
 <ApiTable
   path="../../packages/ui/registry/ui/comments.tsx"
+  name="CommentThreadProps"
+/>
+
+<ApiTable
+  path="../../packages/ui/registry/ui/comments.tsx"
   name="CommentData"
+/>
+
+<ApiTable
+  path="../../packages/ui/registry/ui/comments.tsx"
+  name="CommentThreadData"
 />
 
 ## Accessibility
@@ -170,6 +215,8 @@ failure.
   time.
 - Errors are announced with `role="alert"`.
 - Reaction pills are toggle buttons (`aria-pressed`) named with the emoji and count.
+- A thread is an `article` named for its first comment's author; its ✓ is a button named
+  "Resolve", and the reply box is a textbox named "Reply".
 
 | Key                               | Action                            |
 | --------------------------------- | --------------------------------- |

@@ -1,0 +1,88 @@
+---
+title: Version List
+description: A document's version history — time, author, name, kind badges (Current, Restored, Unsaved copy), a Named only switch and Load more — as a keyboard listbox.
+audience: public
+registry: version-list
+status: stable
+since: 0.23.74
+a11y: listbox with one tab stop, labelled switch
+preview: versionList
+---
+
+## Install
+
+<InstallSteps name="version-list" />
+
+## Usage
+
+```tsx
+import { VersionList } from "@/components/ui/version-list";
+
+<VersionList
+  versions={versions}
+  currentId={versions[0]?.id}
+  selectedId={selected}
+  onSelect={setSelected}
+  namedOnly={namedOnly}
+  onNamedOnlyChange={setNamedOnly}
+  loadMore={{ hasMore, onLoadMore: fetchMore, loading: fetching }}
+/>;
+```
+
+Each row shows when the version's text was saved and who wrote it; a named version leads with its
+name. A restore is badged "Restored", a save that lost a race and was kept is "Unsaved copy", and
+`currentId` is "Current". Pair it with [`DiffView`](/docs/components/diff-view) for the selected
+version.
+
+<ComponentPreview
+  name="versionList"
+  file="components/preview/version-list.tsx"
+/>
+
+## Anatomy
+
+<Anatomy name="version-list" />
+
+## Examples
+
+### Loading and empty
+
+`loading` shows a skeleton; with no versions the list says "No versions yet" (`emptyState`).
+
+<ComponentPreview
+  name="versionListStates"
+  file="components/preview/version-list.tsx"
+/>
+
+## API Reference
+
+<ApiTable
+  path="../../packages/ui/registry/ui/version-list.tsx"
+  name="VersionListProps"
+/>
+
+<ApiTable
+  path="../../packages/ui/registry/ui/version-list.tsx"
+  name="VersionItem"
+/>
+
+## Accessibility
+
+- The rows are a `listbox` labelled "Version history", each an `option` with `aria-selected`; the
+  list is one tab stop and the selection follows the arrow keys.
+- "Named only" is a `switch` labelled by its text.
+
+| Key                              | Action                             |
+| -------------------------------- | ---------------------------------- |
+| <kbd>↑</kbd> / <kbd>↓</kbd>      | Select the previous / next version |
+| <kbd>Home</kbd> / <kbd>End</kbd> | Select the newest / oldest shown   |
+| <kbd>Tab</kbd>                   | Leave the list                     |
+
+<StatesTested name="version-list" />
+
+## Do / Don't
+
+<DoDont
+  do="Keep the list newest first and page it with loadMore — keyset lists have no totals."
+  dont="Show a version count or page numbers, or make restoring a version a row click."
+/>

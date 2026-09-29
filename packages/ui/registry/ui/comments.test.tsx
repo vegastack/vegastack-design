@@ -3,7 +3,13 @@ import { render } from "vitest-browser-react";
 import { beforeAll, expect, test, vi } from "vitest";
 import { userEvent } from "vitest/browser";
 import { expectNoA11yViolations } from "../../test/a11y";
-import { CommentComposer, CommentItem, CommentList } from "./comments";
+import {
+  CommentComposer,
+  CommentItem,
+  CommentList,
+  CommentThread,
+  type CommentData,
+} from "./comments";
 import { preloadTextEdit } from "./text-edit";
 
 // TextEdit renders a light read view and loads its editor on intent; these tests exercise the
@@ -145,4 +151,150 @@ test("each comment is a card; ⋯ matches the add-reaction button and opens an i
   )!;
   expect(content.className).not.toContain("min-w-48");
   expect(content.querySelectorAll("svg")).toHaveLength(3);
+});
+
+// ---- CommentThread ------------------------------------------------------------------------------
+
+const asha = { name: "Asha Rao" };
+const rootComment: CommentData = {
+  id: "c1",
+  author: asha,
+  body: "Is 25 A enough here?",
+  createdAt: 0,
+};
+const reply = (id: string, body: string): CommentData => ({
+  id,
+  author: { name: "Bo Lindqvist" },
+  body,
+  createdAt: 0,
+});
+
+test("a thread shows its quote, root and replies, and the ✓ resolves it", async () => {
+  const onResolve = vi.fn();
+  const onQuoteClick = vi.fn();
+  const screen = await render(
+    <CommentThread
+      thread={{
+        id: "t1",
+        quote: "25 A breaker",
+        root: rootComment,
+        replies: [reply("c2", "Yes, per the spec.")],
+      }}
+      onReply={vi.fn()}
+      onResolve={onResolve}
+      onQuoteClick={onQuoteClick}
+      now={0}
+    />,
+  );
+  await expect.element(screen.getByText("25 A breaker")).toBeVisible();
+  await expect.element(screen.getByText("Is 25 A enough here?")).toBeVisible();
+  await expect.element(screen.getByText("Yes, per the spec.")).toBeVisible();
+  await screen.getByText("25 A breaker").click();
+  expect(onQuoteClick).toHaveBeenCalled();
+  await screen.getByRole("button", { name: "Resolve" }).click();
+  expect(onResolve).toHaveBeenCalled();
+  await expectNoA11yViolations(screen.container);
+});
+
+test("a resolved thread shows who resolved it and Reopen calls onReopen", async () => {
+  const onReopen = vi.fn();
+  const screen = await render(
+    <CommentThread
+      thread={{
+        id: "t1",
+        root: rootComment,
+        replies: [],
+        resolved: { by: asha, at: "2026-09-29T10:00:00Z" },
+      }}
+      onReply={vi.fn()}
+      onReopen={onReopen}
+    />,
+  );
+  await expect.element(screen.getByText(/Resolved by Asha/)).toBeVisible();
+  await userEvent.click(screen.getByRole("button", { name: "Reopen" }));
+  expect(onReopen).toHaveBeenCalled();
+  expect(screen.container.querySelector("[data-resolved]")).not.toBeNull();
+});
+
+test("an orphaned thread says the original text was removed", async () => {
+  const screen = await render(
+    <CommentThread
+      thread={{
+        id: "t1",
+        quote: "old words",
+        orphaned: true,
+        root: rootComment,
+        replies: [],
+      }}
+      onReply={vi.fn()}
+    />,
+  );
+  await expect
+    .element(screen.getByText("Original text was removed"))
+    .toBeVisible();
+  expect(screen.container.textContent).not.toContain("old words");
+});
+
+test("a collapsed thread shows the root, the reply count and the last reply, and no reply box", async () => {
+  const screen = await render(
+    <CommentThread
+      collapsed
+      thread={{
+        id: "t1",
+        root: rootComment,
+        replies: [reply("c2", "First reply"), reply("c3", "Second reply")],
+      }}
+      onReply={vi.fn()}
+    />,
+  );
+  await expect.element(screen.getByText("2 replies")).toBeVisible();
+  await expect.element(screen.getByText("Second reply")).toBeVisible();
+  expect(screen.container.textContent).not.toContain("First reply");
+  expect(
+    screen.container.querySelector('[data-slot="comment-thread-reply"]'),
+  ).toBeNull();
+});
+
+test("the reply box sends on Cmd/Ctrl+Enter and clears once the reply posts", async () => {
+  const onReply = vi.fn().mockResolvedValue(undefined);
+  const screen = await render(
+    <CommentThread
+      thread={{ id: "t1", root: rootComment, replies: [] }}
+      onReply={onReply}
+    />,
+  );
+  const box = screen.getByRole("textbox", { name: "Reply" });
+  await box.click();
+  await userEvent.keyboard("Agreed");
+  // Focused, the box opens its send button.
+  await expect
+    .element(screen.getByRole("button", { name: "Send reply" }))
+    .toBeEnabled();
+  await userEvent.keyboard(
+    navigator.platform.startsWith("Mac")
+      ? "{Meta>}{Enter}{/Meta}"
+      : "{Control>}{Enter}{/Control}",
+  );
+  await vi.waitFor(() => expect(onReply).toHaveBeenCalledWith("Agreed"));
+  await vi.waitFor(() =>
+    expect(
+      screen.container.querySelector('[data-slot="comment-thread-reply"]')
+        ?.textContent,
+    ).not.toContain("Agreed"),
+  );
+});
+
+test("a comment's attachments slot renders under its body", async () => {
+  const screen = await render(
+    <ul>
+      <CommentItem
+        comment={rootComment}
+        attachments={<span data-testid="files">report.pdf</span>}
+      />
+    </ul>,
+  );
+  await expect.element(screen.getByTestId("files")).toBeVisible();
+  expect(
+    screen.container.querySelector('[data-slot="comment-attachments"]'),
+  ).not.toBeNull();
 });

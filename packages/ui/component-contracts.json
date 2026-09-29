@@ -12,11 +12,11 @@
     "evidencePolicy": "Observed fields come from source, registry metadata, docs, and test topology. Unknown/not-applicable values are explicit; no inferred behavior is presented as verified."
   },
   "expectedCounts": {
-    "totalRegistryItems": 705,
-    "components": 136,
+    "totalRegistryItems": 709,
+    "components": 139,
     "animatedIcons": 467,
     "hooks": 13,
-    "blocks": 12,
+    "blocks": 13,
     "libs": 9,
     "chartBlocks": 68
   },
@@ -25,7 +25,7 @@
     "Forms/editing": 30,
     "Navigation/layout": 19,
     "Overlays": 15,
-    "Data display": 23,
+    "Data display": 26,
     "Content/marketing": 14,
     "Shared internals": 3,
     "AI/chat": 8,
@@ -153,7 +153,10 @@
       "person-hover-card",
       "comments",
       "reactions",
-      "record-list"
+      "record-list",
+      "comment-margin",
+      "version-list",
+      "diff-view"
     ],
     "Content/marketing": [
       "alert",
@@ -26599,7 +26602,7 @@
       "name": "comments",
       "registryType": "registry:ui",
       "title": "Comments",
-      "summary": "A record's comments: a list with a count, Load earlier, skeleton and empty states, comments with edit/delete/copy link and emoji reactions, and a composer.",
+      "summary": "A record's comments: a list with a count, Load earlier, skeleton and empty states, comments with edit/delete/copy link, emoji reactions and an attachments slot, a composer with mentions and uploads, and CommentThread — a quoted thread with replies and resolve.",
       "status": "stable",
       "since": "0.23.30",
       "family": "display",
@@ -26686,6 +26689,33 @@
             "status": "not-applicable",
             "rationale": "Type-only exports do not render or accept runtime refs."
           }
+        },
+        {
+          "name": "CommentThread",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/comments.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "CommentThread takes no ref; it composes other parts."
+          }
+        },
+        {
+          "name": "CommentThreadProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/comments.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "CommentThreadData",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/comments.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
         }
       ],
       "variants": {
@@ -26711,7 +26741,12 @@
             "posting",
             "error",
             "highlighted",
-            "reactions"
+            "reactions",
+            "thread",
+            "resolved",
+            "orphaned",
+            "collapsed",
+            "attachments"
           ],
           "evidence": "packages/ui/registry/ui/comments.tsx + packages/ui/registry/ui/comments.test.tsx"
         },
@@ -26786,6 +26821,7 @@
               "values": [
                 "comment-actions",
                 "comment-actions-content",
+                "comment-attachments",
                 "comment-card",
                 "comment-edited",
                 "comment-item",
@@ -26804,6 +26840,39 @@
           ],
           "cssVariables": []
         },
+        "CommentThread": {
+          "attributes": [
+            {
+              "name": "data-active",
+              "values": [""]
+            },
+            {
+              "name": "data-collapsed",
+              "values": [""]
+            },
+            {
+              "name": "data-orphaned",
+              "values": [""]
+            },
+            {
+              "name": "data-resolved",
+              "values": [""]
+            },
+            {
+              "name": "data-slot",
+              "values": [
+                "comment-thread",
+                "comment-thread-comments",
+                "comment-thread-header",
+                "comment-thread-more",
+                "comment-thread-quote",
+                "comment-thread-reply",
+                "comment-thread-resolved"
+              ]
+            }
+          ],
+          "cssVariables": []
+        },
         "CommentList": {
           "attributes": [
             {
@@ -26818,6 +26887,394 @@
             {
               "name": "data-slot",
               "values": ["comment-list-skeleton"]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
+    },
+    {
+      "name": "diff-view",
+      "registryType": "registry:ui",
+      "title": "Diff View",
+      "summary": "What changed between two texts — changed lines, then the words inside them, removed struck through and added tinted — with the sanctioned diff engine in its own lazily loaded chunk; line-only above 200 KB.",
+      "status": "stable",
+      "since": "0.23.74",
+      "family": "display",
+      "wave": "Data display",
+      "sourceFiles": ["packages/ui/registry/ui/diff-view.tsx"],
+      "publicSymbols": [
+        {
+          "name": "DiffView",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/diff-view.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "DiffView takes no ref; it renders behind its own Suspense boundary."
+          }
+        },
+        {
+          "name": "DiffViewProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/diff-view.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "A composed set; no local axis."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "A composed set; no local axis."
+      },
+      "states": {
+        "behavior": {
+          "status": "covered",
+          "values": [
+            "comparing",
+            "unchanged",
+            "changed",
+            "collapsed-run",
+            "line-only",
+            "too-large"
+          ],
+          "evidence": "packages/ui/registry/ui/diff-view.tsx + packages/ui/registry/ui/diff-view.test.tsx"
+        },
+        "accessibility": {
+          "status": "covered",
+          "values": ["semantic-html", "browser-accessibility-test"],
+          "evidence": "packages/ui/registry/ui/diff-view.test.tsx"
+        },
+        "visual": {
+          "status": "observed",
+          "values": ["default", "added", "removed"],
+          "evidence": "packages/ui/registry/ui/diff-view.tsx"
+        }
+      },
+      "responsive": {
+        "status": "modeled",
+        "risks": ["overflow-and-scroll"],
+        "rationale": "Long lines wrap anywhere; nothing scrolls sideways."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned motion mechanism."
+        }
+      },
+      "engines": [
+        {
+          "package": "diff",
+          "role": "text diff engine (lazily loaded)"
+        }
+      ],
+      "docsSlug": "/docs/components/diff-view",
+      "registryDependencies": ["@vegastack/button", "@vegastack/skeleton"],
+      "npmDependencies": [
+        "diff@^8.0.4",
+        "@vegastack/design@^0.7.60",
+        "@vegastack/design-tokens@^0.7.56"
+      ],
+      "testFiles": ["packages/ui/registry/ui/diff-view.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required"
+      },
+      "previewModule": "diff-view",
+      "dataAttributes": {}
+    },
+    {
+      "name": "version-list",
+      "registryType": "registry:ui",
+      "title": "Version List",
+      "summary": "A document's version history — time, author, name, kind badges (Current, Restored, Unsaved copy), a Named only switch and Load more — as a keyboard listbox.",
+      "status": "stable",
+      "since": "0.23.74",
+      "family": "display",
+      "wave": "Data display",
+      "sourceFiles": ["packages/ui/registry/ui/version-list.tsx"],
+      "publicSymbols": [
+        {
+          "name": "VersionList",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/version-list.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "VersionList takes no ref; it composes other parts."
+          }
+        },
+        {
+          "name": "VersionListProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/version-list.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "VersionItem",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/version-list.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "A composed set; no local axis."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "A composed set; no local axis."
+      },
+      "states": {
+        "behavior": {
+          "status": "covered",
+          "values": [
+            "loading",
+            "empty",
+            "selected",
+            "named-only",
+            "loading-more"
+          ],
+          "evidence": "packages/ui/registry/ui/version-list.tsx + packages/ui/registry/ui/version-list.test.tsx"
+        },
+        "accessibility": {
+          "status": "covered",
+          "values": ["labeled", "browser-accessibility-test", "keyboard"],
+          "evidence": "packages/ui/registry/ui/version-list.test.tsx"
+        },
+        "visual": {
+          "status": "observed",
+          "values": ["default", "selected"],
+          "evidence": "packages/ui/registry/ui/version-list.tsx"
+        }
+      },
+      "responsive": {
+        "status": "modeled",
+        "risks": ["text-truncation-and-flex-shrink"],
+        "rationale": "Rows wrap names; author names truncate."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned motion mechanism."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/version-list",
+      "registryDependencies": [
+        "@vegastack/badge",
+        "@vegastack/button",
+        "@vegastack/person-avatar",
+        "@vegastack/relative-time",
+        "@vegastack/skeleton",
+        "@vegastack/switch",
+        "@vegastack/use-list-nav"
+      ],
+      "npmDependencies": [
+        "@vegastack/design@^0.7.60",
+        "@vegastack/design-tokens@^0.7.56"
+      ],
+      "testFiles": ["packages/ui/registry/ui/version-list.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required"
+      },
+      "previewModule": "version-list",
+      "dataAttributes": {
+        "VersionList": {
+          "attributes": [
+            {
+              "name": "data-kind",
+              "values": []
+            },
+            {
+              "name": "data-selected",
+              "values": [""]
+            },
+            {
+              "name": "data-slot",
+              "values": [
+                "version-list",
+                "version-list-empty",
+                "version-list-header",
+                "version-list-item",
+                "version-list-items",
+                "version-list-skeleton"
+              ]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
+    },
+    {
+      "name": "comment-margin",
+      "registryType": "registry:ui",
+      "title": "Comment Margin",
+      "summary": "Comment cards laid beside the text they are about — level with their highlight, stacked without overlap, the active card aligned with its text — and a CommentPopover anchored to a highlight for narrow screens.",
+      "status": "stable",
+      "since": "0.23.74",
+      "family": "display",
+      "wave": "Data display",
+      "sourceFiles": ["packages/ui/registry/ui/comment-margin.tsx"],
+      "publicSymbols": [
+        {
+          "name": "CommentMargin",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/comment-margin.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "CommentMargin takes no ref; it lays out other parts."
+          }
+        },
+        {
+          "name": "CommentMarginProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/comment-margin.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "CommentMarginItem",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/comment-margin.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "layoutCommentMargin",
+          "kind": "function",
+          "source": "packages/ui/registry/ui/comment-margin.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A pure function; it renders nothing and takes no ref."
+          }
+        },
+        {
+          "name": "CommentPopover",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/comment-margin.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "CommentPopover takes no ref; Base UI's popover owns its popup."
+          }
+        },
+        {
+          "name": "CommentPopoverProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/comment-margin.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "A composed set; no local axis."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "A composed set; no local axis."
+      },
+      "states": {
+        "behavior": {
+          "status": "covered",
+          "values": ["stacked", "active-aligned", "orphan-skipped", "popover"],
+          "evidence": "packages/ui/registry/ui/comment-margin.tsx + packages/ui/registry/ui/comment-margin.test.tsx"
+        },
+        "accessibility": {
+          "status": "covered",
+          "values": ["browser-accessibility-test", "dismissable"],
+          "evidence": "packages/ui/registry/ui/comment-margin.test.tsx"
+        },
+        "visual": {
+          "status": "observed",
+          "values": ["default", "active"],
+          "evidence": "packages/ui/registry/ui/comment-margin.tsx"
+        }
+      },
+      "responsive": {
+        "status": "modeled",
+        "risks": ["responsive-or-container-layout"],
+        "rationale": "Fills its margin column; below the margin breakpoint hosts use the popover."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned motion mechanism."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/comment-margin",
+      "registryDependencies": [],
+      "npmDependencies": [
+        "@base-ui/react@^1.6.0",
+        "@vegastack/design@^0.7.60",
+        "@vegastack/design-tokens@^0.7.56"
+      ],
+      "testFiles": ["packages/ui/registry/ui/comment-margin.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required"
+      },
+      "previewModule": "comment-margin",
+      "dataAttributes": {
+        "CommentMargin": {
+          "attributes": [
+            {
+              "name": "data-active",
+              "values": [""]
+            },
+            {
+              "name": "data-slot",
+              "values": ["comment-margin", "comment-margin-item"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "CommentPopover": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["comment-popover"]
             }
           ],
           "cssVariables": []
@@ -32063,6 +32520,112 @@
         "vrt": "required"
       },
       "previewModule": "issue-detail-01"
+    },
+    {
+      "name": "page-editor-01",
+      "registryType": "registry:block",
+      "title": "Page Editor 01",
+      "summary": "A document page (Notion style) with comments beside the text — header with save state and presence, an outline rail, TextEdit with comment highlights, a CommentMargin (or CommentPopover), and a version history sheet with VersionList and DiffView.",
+      "family": "starter-block",
+      "wave": "Block",
+      "sourceFiles": [
+        "packages/ui/registry/blocks/page-editor-01/components/page-editor.tsx",
+        "packages/ui/registry/blocks/page-editor-01/page.tsx"
+      ],
+      "publicSymbols": [
+        {
+          "name": "PageEditor",
+          "kind": "component",
+          "source": "packages/ui/registry/blocks/page-editor-01/components/page-editor.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A block part is a composition, not an API: PageEditor forwards no ref of its own, and its internals are not part of any published surface."
+          }
+        },
+        {
+          "name": "Page",
+          "kind": "component",
+          "source": "packages/ui/registry/blocks/page-editor-01/page.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A block part is a composition, not an API: Page forwards no ref of its own, and its internals are not part of any published surface."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "A block is a copy-once composition with no prop surface of its own; every variant it shows belongs to a component it composes."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "Sizing is the page layout's, and the composed components own their own scales."
+      },
+      "states": {
+        "behavior": {
+          "status": "observed",
+          "values": ["default", "comment-active", "history-open"],
+          "evidence": "Observed from the block's own branches and the state its parts carry."
+        },
+        "accessibility": {
+          "status": "covered",
+          "values": ["semantic-html", "browser-accessibility-test"],
+          "evidence": "packages/ui/registry/blocks/page-editor-01/components/page-editor.tsx + packages/ui/registry/blocks/page-editor-01/page-editor-01.test.tsx"
+        },
+        "visual": {
+          "status": "observed",
+          "values": ["default", "hover", "focus"],
+          "evidence": "Observed from the token classes the composition carries."
+        }
+      },
+      "responsive": {
+        "status": "modeled",
+        "risks": ["responsive-or-container-layout", "mobile-or-touch-mode"],
+        "rationale": "A block is a whole page: it is laid out across breakpoints and captured at 1440x900 and 390x844 in the batch's review artifact."
+      },
+      "motion": {
+        "status": "modeled",
+        "mechanisms": ["the composed components' own transitions"],
+        "reducedMotion": {
+          "status": "covered",
+          "rationale": "The global reduced-motion reset in base.css neutralises every transition the composition inherits (MOT-5); the block adds none of its own."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/blocks/page-editor-01",
+      "registryDependencies": [
+        "@vegastack/app-shell",
+        "@vegastack/avatar",
+        "@vegastack/breadcrumb",
+        "@vegastack/button",
+        "@vegastack/comment-margin",
+        "@vegastack/comments",
+        "@vegastack/diff-view",
+        "@vegastack/dropdown-menu",
+        "@vegastack/person-avatar",
+        "@vegastack/sheet",
+        "@vegastack/text-edit",
+        "@vegastack/use-media-query",
+        "@vegastack/version-list"
+      ],
+      "npmDependencies": [
+        "lucide-react@^1.47.0",
+        "@vegastack/design-tokens@^0.7.56"
+      ],
+      "testFiles": [
+        "packages/ui/registry/blocks/page-editor-01/page-editor-01.test.tsx"
+      ],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required"
+      },
+      "previewModule": "page-editor-01",
+      "dataAttributes": {}
     },
     {
       "name": "command-search-01",

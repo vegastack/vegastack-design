@@ -248,7 +248,7 @@
       "name": "comments",
       "type": "registry:ui",
       "title": "Comments",
-      "description": "A record's comments: a list with a count, Load earlier, skeleton and empty states, comments with edit/delete/copy link and emoji reactions, and a composer.",
+      "description": "A record's comments: a list with a count, Load earlier, skeleton and empty states, comments with edit/delete/copy link, emoji reactions and an attachments slot, a composer with mentions and uploads, and CommentThread — a quoted thread with replies and resolve.",
       "categories": [
         "display"
       ],
@@ -282,7 +282,101 @@
         "whenToUse": "Discussion on a record's page (a task, a meeting): comments oldest first with the composer at the end.",
         "whenNotToUse": "An activity feed or notifications — use Inbox.",
         "version": "0.23.73",
-        "integrity": "sha256-iOylVkm7hLFdXR5Ov3aaM2kPeOIDNu/GfwyOnNYhBX8="
+        "integrity": "sha256-2CAXVwwdLda8hQAONvqjIPdpRuXMm471Y5357cu2uP0="
+      }
+    },
+    {
+      "name": "comment-margin",
+      "type": "registry:ui",
+      "title": "Comment Margin",
+      "description": "Comment cards laid beside the text they are about — level with their highlight, stacked without overlap, the active card aligned with its text — and a CommentPopover anchored to a highlight for narrow screens.",
+      "categories": [
+        "display"
+      ],
+      "dependencies": [
+        "@base-ui/react@^1.6.0",
+        "@vegastack/design@^0.7.60",
+        "@vegastack/design-tokens@^0.7.56"
+      ],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/comment-margin.tsx",
+          "type": "registry:ui",
+          "target": "@ui/comment-margin.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "Inline comment threads beside a document (TextEdit annotations + onAnnotationsLayout) on wide screens; the popover below the margin breakpoint.",
+        "whenNotToUse": "A plain comments section under a record (CommentList), or touch-sized screens (Sheet side=\"bottom\").",
+        "version": "0.23.73",
+        "integrity": "sha256-rMKOQYQHR6Ej2ZyIV6TvSt+5Coof+blLJwH2TlTiHA4="
+      }
+    },
+    {
+      "name": "version-list",
+      "type": "registry:ui",
+      "title": "Version List",
+      "description": "A document's version history — time, author, name, kind badges (Current, Restored, Unsaved copy), a Named only switch and Load more — as a keyboard listbox.",
+      "categories": [
+        "display"
+      ],
+      "dependencies": [
+        "@vegastack/design@^0.7.60",
+        "@vegastack/design-tokens@^0.7.56"
+      ],
+      "registryDependencies": [
+        "@vegastack/badge",
+        "@vegastack/button",
+        "@vegastack/person-avatar",
+        "@vegastack/relative-time",
+        "@vegastack/skeleton",
+        "@vegastack/switch",
+        "@vegastack/use-list-nav"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/version-list.tsx",
+          "type": "registry:ui",
+          "target": "@ui/version-list.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "A page's version history beside a DiffView, in a sheet.",
+        "whenNotToUse": "An activity feed (Timeline) or a list of records (DataList).",
+        "version": "0.23.73",
+        "integrity": "sha256-p1scAiR4cNw530xlJ3h9ytPEbyO7QybyjByFd+uk4hU="
+      }
+    },
+    {
+      "name": "diff-view",
+      "type": "registry:ui",
+      "title": "Diff View",
+      "description": "What changed between two texts — changed lines, then the words inside them, removed struck through and added tinted — with the sanctioned diff engine in its own lazily loaded chunk; line-only above 200 KB.",
+      "categories": [
+        "display"
+      ],
+      "dependencies": [
+        "diff@^8.0.4",
+        "@vegastack/design@^0.7.60",
+        "@vegastack/design-tokens@^0.7.56"
+      ],
+      "registryDependencies": [
+        "@vegastack/button",
+        "@vegastack/skeleton"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/diff-view.tsx",
+          "type": "registry:ui",
+          "target": "@ui/diff-view.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "Comparing two versions of a page's Markdown in a version history.",
+        "whenNotToUse": "Code review with side-by-side hunks, or live change tracking while editing.",
+        "version": "0.23.73",
+        "integrity": "sha256-WgVawRoNY3UBo+qBv9X/XNC7RHppCksAW1zRW7LRqc0="
       }
     },
     {
@@ -18072,6 +18166,53 @@
         "whenNotToUse": "A meeting or media record with tabs — use RecordLayout with Tabs.",
         "version": "0.23.73",
         "integrity": "sha256-bedxlbV980oguOJFklXpA2CMrH5BfMg8RBAU290mc9A="
+      }
+    },
+    {
+      "name": "page-editor-01",
+      "type": "registry:block",
+      "title": "Page Editor 01",
+      "description": "A document page (Notion style) with comments beside the text — header with save state and presence, an outline rail, TextEdit with comment highlights, a CommentMargin (or CommentPopover), and a version history sheet with VersionList and DiffView.",
+      "categories": [
+        "document",
+        "comments"
+      ],
+      "dependencies": [
+        "lucide-react@^1.47.0",
+        "@vegastack/design-tokens@^0.7.56"
+      ],
+      "registryDependencies": [
+        "@vegastack/app-shell",
+        "@vegastack/avatar",
+        "@vegastack/breadcrumb",
+        "@vegastack/button",
+        "@vegastack/comment-margin",
+        "@vegastack/comments",
+        "@vegastack/diff-view",
+        "@vegastack/dropdown-menu",
+        "@vegastack/person-avatar",
+        "@vegastack/sheet",
+        "@vegastack/text-edit",
+        "@vegastack/use-media-query",
+        "@vegastack/version-list"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/registry/blocks/page-editor-01/components/page-editor.tsx",
+          "type": "registry:component",
+          "target": "app/page-editor-01/components/page-editor.tsx"
+        },
+        {
+          "path": "packages/ui/registry/blocks/page-editor-01/page.tsx",
+          "type": "registry:page",
+          "target": "app/page-editor-01/page.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "A document page with inline comments and version history; compose the same components in your app.",
+        "whenNotToUse": "A record page with properties and a comments section — use issue-detail-01.",
+        "version": "0.23.73",
+        "integrity": "sha256-xvi4zLWDTCKXMpaoi1wBiqP3EqXbHhxWBjKhfyrXiaE="
       }
     },
     {

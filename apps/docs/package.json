@@ -42,6 +42,7 @@
     "@vegastack/ui": "workspace:*",
     "class-variance-authority": "^0.7.1",
     "cmdk": "^1.1.1",
+    "diff": "^8.0.4",
     "embla-carousel-react": "^8.6.0",
     "fumadocs-core": "16.15.8",
     "fumadocs-mdx": "15.4.0",

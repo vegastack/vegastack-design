@@ -1,0 +1,74 @@
+---
+title: Diff View
+description: What changed between two texts — changed lines, then the words inside them, struck through or tinted — lazily loaded, line-only for large pages.
+audience: public
+registry: diff-view
+status: stable
+since: 0.23.74
+a11y: del and ins elements, status while loading
+preview: diffView
+---
+
+## Install
+
+<InstallSteps name="diff-view" />
+
+## Usage
+
+```tsx
+import { DiffView } from "@/components/ui/diff-view";
+
+<DiffView before={version.body} after={page.body} />;
+```
+
+`DiffView` compares two texts — two versions of a page's Markdown — line by line, then word by
+word inside each changed line: removed words are struck through in the destructive ink, added
+words tinted in the success ink, rendered as `del` and `ins`. Unchanged runs longer than six lines
+fold behind "Show N unchanged lines", and identical texts say "No changes". The `diff` engine
+(jsdiff) loads in its own chunk the first time a `DiffView` renders, behind "Comparing…"; import
+`DiffView` lazily too where it only shows in a history sheet.
+
+<ComponentPreview name="diffView" file="components/preview/diff-view.tsx" />
+
+## Examples
+
+### No changes and folded runs
+
+<ComponentPreview
+  name="diffViewStates"
+  file="components/preview/diff-view.tsx"
+/>
+
+### Large pages
+
+Above `wordDiffLimit` (200 KB, both texts together) the view marks whole changed lines only and
+says "Showing line changes for large pages"; above `maxChars` (1 MB) it compares nothing and says
+the page is too large. The diff runs synchronously once per pair of texts.
+
+## API Reference
+
+<ApiTable
+  path="../../packages/ui/registry/ui/diff-view.tsx"
+  name="DiffViewProps"
+/>
+
+## Accessibility
+
+- Removed and added text are `del` and `ins` elements, so assistive technology that announces
+  edits can; the strikethrough and tint are not the only cue.
+- While the engine loads, the placeholder is a `role="status"` reading "Comparing…".
+- "Show N unchanged lines" is a button.
+
+| Key              | Action                                    |
+| ---------------- | ----------------------------------------- |
+| <kbd>Tab</kbd>   | Move to a "Show N unchanged lines" button |
+| <kbd>Enter</kbd> | Show the folded lines                     |
+
+<StatesTested name="diff-view" />
+
+## Do / Don't
+
+<DoDont
+  do="Compare the selected version with the page as it is now, and lazy-import DiffView with the history sheet."
+  dont="Diff on every keystroke, or render two whole documents side by side on a phone."
+/>

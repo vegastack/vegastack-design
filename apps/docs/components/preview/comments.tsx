@@ -7,8 +7,10 @@ import {
   CommentComposer,
   CommentItem,
   CommentList,
+  CommentThread,
   type CommentData,
   type CommentOrder,
+  type CommentThreadData,
 } from "@/components/ui/comments";
 import { toggleReaction } from "@/components/ui/reactions";
 
@@ -264,4 +266,103 @@ function ReactionsDemo() {
 /** Reactions: pills under the body, and an add-reaction button in the hover actions. */
 export function commentsReactions(): ReactNode {
   return <ReactionsDemo />;
+}
+
+const THREAD: CommentThreadData = {
+  id: "t1",
+  quote: "Use a 25 A breaker for the cooker",
+  root: {
+    id: "t1-1",
+    author: ARJUN,
+    body: "Is 25 A right for a 7 kW cooker?",
+    createdAt: NOW - 5 * 3_600_000,
+  },
+  replies: [
+    {
+      id: "t1-2",
+      author: ME,
+      body: "Yes — it's on its own radial, 6 mm² cable.",
+      createdAt: NOW - 4 * 3_600_000,
+      canEdit: true,
+      canDelete: true,
+    },
+    {
+      id: "t1-3",
+      author: PRIYA,
+      body: "Agreed. Adding it to the checklist.",
+      createdAt: NOW - 3_600_000,
+    },
+  ],
+};
+
+/**
+ * A thread about a piece of text: the quote (click it to find the highlight), the first comment,
+ * its replies and a one-line "Reply…" box that opens when focused. ✓ resolves it.
+ */
+export function commentsThreadCard(): ReactNode {
+  const [thread, setThread] = React.useState(THREAD);
+  return (
+    <Demo>
+      <CommentThread
+        className="max-w-80"
+        active
+        now={NOW}
+        thread={thread}
+        onQuoteClick={() => {}}
+        onReply={(body) =>
+          setThread((current) => ({
+            ...current,
+            replies: [
+              ...current.replies,
+              {
+                id: `r${current.replies.length + 2}`,
+                author: ME,
+                body,
+                createdAt: Date.now(),
+              },
+            ],
+          }))
+        }
+        onResolve={() =>
+          setThread((current) => ({
+            ...current,
+            resolved: { by: ME, at: Date.now() },
+          }))
+        }
+        onReopen={() =>
+          setThread((current) => ({ ...current, resolved: null }))
+        }
+      />
+    </Demo>
+  );
+}
+
+/** Resolved (who and when, with Reopen), orphaned (its text is gone), and collapsed. */
+export function commentsThreadStates(): ReactNode {
+  return (
+    <Demo>
+      <div className="grid gap-4 md:grid-cols-3">
+        <CommentThread
+          now={NOW}
+          thread={{ ...THREAD, resolved: { by: ME, at: NOW - 600_000 } }}
+          onReply={() => {}}
+          onReopen={() => {}}
+        />
+        <CommentThread
+          now={NOW}
+          thread={{ ...THREAD, orphaned: true, replies: [] }}
+          onReply={() => {}}
+          onResolve={() => {}}
+        />
+        <CommentThread
+          now={NOW}
+          collapsed
+          onExpand={() => {}}
+          thread={THREAD}
+          onReply={() => {}}
+          onResolve={() => {}}
+        />
+      </div>
+    </Demo>
+  );
 }

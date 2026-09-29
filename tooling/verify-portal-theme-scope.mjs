@@ -47,6 +47,10 @@ const EXPECTED_HOSTS = new Map([
   // in Batch 2 and Select/Combobox in Batch 3: each is upstream's file now and hosts its own
   // Portal, with the scope attached to the Positioner INSIDE it.
   ["packages/ui/registry/ui/popover.tsx", ["PopoverPrimitive.Portal"]],
+  // CommentPopover (ours, 2026-09-29) anchors Base UI's popover to a virtual rect, which upstream's
+  // PopoverContent does not expose, so it hosts the Portal itself — scoped on its Positioner, the
+  // same shape as popover.tsx.
+  ["packages/ui/registry/ui/comment-margin.tsx", ["PopoverPrimitive.Portal"]],
   ["packages/ui/registry/ui/hover-card.tsx", ["PreviewCardPrimitive.Portal"]],
   // TWO hosts each, because upstream has two: the exported pass-through `*Portal` (scoped through
   // a `contents` wrapper) and `*Content`'s own portal (scoped on its Positioner). Menubar is
