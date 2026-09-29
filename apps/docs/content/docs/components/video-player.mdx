@@ -33,8 +33,11 @@ import { VideoPlayer } from "@/components/ui/video-player";
 
 The video surface owns a hover-revealed overlay transport: a thin media progress rail that expands
 smoothly on hover or focus, then play/pause, time, volume, settings, and fullscreen in the lower row.
-The docs preview uses a 90-second
-local MP4 fixture, so it can play without network access.
+`poster` shows in the frame until playback starts — store one at upload with `probeVideo` from the
+`media-probe` lib — and the player never autoplays. Settings holds playback speed; a Quality entry
+appears only when you pass `qualityOptions` (and switch renditions in `onQualityChange`), since a
+single stored file has one. The docs preview uses a 90-second local MP4 fixture, so it can play
+without network access.
 
 <ComponentPreview
   name="videoPlayer"
@@ -59,6 +62,36 @@ when the video element should keep its intrinsic height.
   name="videoPlayerSquare"
   file="components/preview/video-player.tsx"
 />
+
+### Can't play
+
+A browser cannot play every video: an HEVC `.mov` in Chrome or Firefox, an `.mkv`, an `.avi`. On a
+media error the frame shows "Can’t play this video here" (`loadErrorLabel`) with a Download button
+to `downloadHref`, and the transport — which would do nothing — goes away. Without `downloadHref`
+the message shows alone.
+
+<ComponentPreview
+  name="videoPlayerError"
+  file="components/preview/video-player.tsx"
+/>
+
+### Expired URLs
+
+A signed URL expires; a video paused past its lifetime fails on the next seek. Pass
+`onSourceExpired` and, on the first media error, the player calls it once, loads the URL it
+resolves and resumes at the same position — playing, if it was. Returning the same URL (a route
+that re-signs on every request) reloads it. A second failure shows the "can't play" card. This is
+the same contract as [`AudioPlayer`](/docs/components/audio-player)'s `onSourceExpired`.
+
+```tsx
+<VideoPlayer
+  src={`/api/files/${file.id}`}
+  poster={file.posterUrl}
+  label={file.name}
+  downloadHref={`/api/files/${file.id}?download`}
+  onSourceExpired={async () => `/api/files/${file.id}`}
+/>
+```
 
 ### Controls always visible
 
@@ -113,7 +146,10 @@ Every `VideoPlayer` prop, auto-generated from its TypeScript types.
 - Icon-only transport buttons are `Button size="icon"`, each carrying its own `aria-label`.
 - Tooltips expose the primary keyboard shortcuts for pointer and keyboard users.
 - The volume slider is exposed from the mute control and keeps slider keyboard semantics.
-- Playback speed and quality live in settings submenus with radio selection.
+- Playback speed (and quality, when `qualityOptions` are passed) live in settings submenus with
+  radio selection.
+- A video that cannot play announces "Can’t play this video here" as an alert, and its Download
+  button is a real link with the `download` attribute.
 - Rewind and forward are keyboard shortcuts rather than visible buttons.
 - The overlay controls appear on hover or focus and fade out after the pointer leaves the frame.
 - The fullscreen action changes to an exit-fullscreen icon and accessible name while the frame owns

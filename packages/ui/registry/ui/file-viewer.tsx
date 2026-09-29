@@ -1,4 +1,4 @@
-// @vegastack file-viewer@0.23.75 sha256-GWj9HQVWwOqiicgInIwTIDbmlIGKaOQ/WnqciET2KY8=
+// @vegastack file-viewer@0.23.75 sha256-xsslhppPpBeWPs1J9YU+/gqt+qc53nkVhMeJPqH6bZk=
 
 "use client";
 
@@ -17,6 +17,13 @@ import { Dialog, DialogPortal } from "@/components/ui/dialog";
 import { Image } from "@/components/ui/image";
 import { AudioPlayer } from "@/components/ui/audio-player";
 import { Spinner } from "@/components/ui/spinner";
+import {
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { useAnnouncer } from "@/components/ui/use-announcer";
 import { useModalInert } from "@/components/ui/use-modal-inert";
 import { VideoPlayer } from "@/components/ui/video-player";
@@ -24,9 +31,11 @@ import { FileTypeIcon, fileKindOf, formatBytes } from "@/lib/file-kind";
 
 /* ---
 `FileViewer` is the full-screen look at a stored file: an image you can zoom and pan, a PDF you
-can scroll page by page, or — for anything else — its name, size and a Download button. It is a
-controlled overlay over a list of files (`index` opens it at one, `null` closes it), so a gallery
-of `Attachment` tiles, a product's files or a message's attachments all open it the same way.
+can scroll page by page, a video or audio file in the system's players, the first megabyte of a
+text, CSV or Markdown file — or, for anything else, a card with its name, size, a preview picture
+when it has one, and a Download button. It is a controlled overlay over a list of files (`index`
+opens it at one, `null` closes it), so a gallery of `Attachment` tiles, a product's files or a
+message's attachments all open it the same way.
 
 The stage is always dark whatever the page theme: the popup carries the `dark` theme class, so
 its buttons and ink resolve against the dark tokens, and the scrim is upstream's `bg-black/…`
@@ -34,11 +43,16 @@ vocabulary under an opaque dark `background`. PDF rendering is the one heavy par
 `React.lazy` the first time a PDF is shown — pdf.js never loads for an image gallery.
 
 A video or audio file with a `src` plays on the stage in the system's own `VideoPlayer` /
-`AudioPlayer`, which pause when the viewer pages away or closes.
+`AudioPlayer`, which pause when the viewer pages away or closes; neither autoplays.
 
-Deliberately NOT done here: fetching or signing URLs (the caller passes resolved `src`/`pdfSrc`/
-`downloadHref`), previews of text or office documents (they get the file card), and wrap-around
-paging.
+A text, CSV or Markdown file with a `src` is read here — its first 1 MB, with a `Range` request —
+and shown as text, a table (a small built-in CSV parser; the first 500 rows) or rendered
+Markdown. Anything else — an Office file — is the app's to parse: `loadPreview` hands back text,
+a table, HTML or a richer card, and the viewer draws it, so the parser stays an app dependency.
+
+Deliberately NOT done here: signing URLs (the caller passes resolved `src`/`pdfSrc`/
+`downloadHref`, and `refreshSrc` renews an expired one), parsing Office formats, syntax
+highlighting, and wrap-around paging.
 --- */
 
 /** One file the viewer can show. */
@@ -54,9 +68,15 @@ export type FileViewerItem = {
   contentType: string | null;
   /** Size in bytes, shown on the file card ("2.4 MB"). */
   size?: number | null;
-  /** The small preview: a blurred placeholder while the full image loads, and a PDF's loading frame. */
+  /**
+   * The small preview: a blurred placeholder while the full image loads, a PDF's loading frame,
+   * a video's poster, and the picture on a file card (an Office file's embedded thumbnail).
+   */
   thumb?: { src: string; srcSet?: string; blur?: string | null } | null;
-  /** Full-size image URL (falls back to `thumb.src`), or the video or audio file's URL. */
+  /**
+   * Full-size image URL (falls back to `thumb.src`); the video or audio file's URL; or a text,
+   * CSV or Markdown file's URL, whose first 1 MB the viewer reads with a `Range` request.
+   */
   src?: string | null;
   /** Full-size `srcset`, so the browser picks the largest variant the screen needs. Falls back to `thumb.srcSet`. */
   srcSet?: string | null;
@@ -64,7 +84,36 @@ export type FileViewerItem = {
   pdfSrc?: string | null;
   /** The download URL (attachment disposition). */
   downloadHref: string;
+  /**
+   * Resolve a fresh `src` when a video's or audio file's signed URL has expired; the player
+   * calls it once and resumes where it stopped (its `onSourceExpired`).
+   */
+  refreshSrc?: () => Promise<string>;
+  /**
+   * An audio file's precomputed waveform (`probeAudio` from `media-probe`). With it the audio
+   * plays in the waveform player, without downloading the file to decode it.
+   */
+  peaks?: readonly number[] | null;
 };
+
+/**
+ * Content the app parsed for a file the viewer cannot read itself — what `loadPreview` returns.
+ * `text` shows monospaced; `table` rows (the first is the header) show as a table of at most 500
+ * rows; `markdown` and `html` render through `MarkdownView` (HTML is rebuilt through its
+ * allowlist, never injected); `card` is the file card with a picture and facts ("12 slides").
+ */
+export type FileViewerPreview =
+  | { kind: "text"; text: string; truncated?: boolean }
+  | {
+      kind: "table";
+      rows: readonly (readonly string[])[];
+      /** Data rows in the whole file, when known: "Showing first 500 of 12,400 rows". */
+      totalRows?: number;
+      truncated?: boolean;
+    }
+  | { kind: "markdown"; markdown: string; truncated?: boolean }
+  | { kind: "html"; html: string }
+  | { kind: "card"; thumb?: string | null; facts?: readonly string[] };
 
 /** Props accepted by `FileViewer`. */
 export interface FileViewerProps {
@@ -76,10 +125,43 @@ export interface FileViewerProps {
   onIndexChange: (index: number) => void;
   /** Called with `false` when the user closes it (Esc, ×, swipe down) — set `index` to `null`. */
   onOpenChange: (open: boolean) => void;
+  /**
+   * Parse a file the viewer has no stage for — an Office file with SheetJS or mammoth, say — and
+   * return what to show. Called for every file that is not an image, PDF, video or audio; return
+   * `null` to keep the built-in text, CSV and Markdown reading or the plain file card. The signal
+   * aborts when the user pages away.
+   * @default undefined
+   */
+  loadPreview?: (
+    item: FileViewerItem,
+    options: { signal: AbortSignal },
+  ) => Promise<FileViewerPreview | null | undefined>;
 }
 
-type Kind = "image" | "pdf" | "video" | "audio" | "other";
+type Kind =
+  | "image"
+  | "pdf"
+  | "video"
+  | "audio"
+  | "text"
+  | "table"
+  | "markdown"
+  | "html"
+  | "card";
+type ReadKind = "text" | "table" | "markdown";
+
+/** The first megabyte of a text, CSV or Markdown file is what the viewer reads. */
+const PREVIEW_BYTES = 1024 * 1024;
+/** The most data rows the table shows. */
+const TABLE_ROWS = 500;
 type ZoomOp = "in" | "out" | "reset";
+
+// Markdown and HTML previews load the renderer (and its `marked` lexer) the first time one shows.
+const LazyMarkdown = React.lazy(() =>
+  import("@/components/ui/markdown-view").then((module) => ({
+    default: module.MarkdownView,
+  })),
+);
 
 const LazyPdf = React.lazy(() =>
   import("@/components/ui/file-viewer-pdf").then((module) => ({
@@ -87,12 +169,39 @@ const LazyPdf = React.lazy(() =>
   })),
 );
 
+/** A text file the viewer reads itself, by extension first (browsers mislabel these), then type. */
+function readKindOf(item: FileViewerItem): ReadKind | null {
+  const dot = item.name.lastIndexOf(".");
+  const extension = dot > 0 ? item.name.slice(dot + 1).toLowerCase() : "";
+  const type = (item.contentType ?? "").split(";")[0]!.trim().toLowerCase();
+  if (
+    extension === "csv" ||
+    extension === "tsv" ||
+    type === "text/csv" ||
+    type === "text/tab-separated-values"
+  )
+    return "table";
+  if (
+    extension === "md" ||
+    extension === "markdown" ||
+    extension === "mdx" ||
+    /^text\/(x-)?(markdown|mdx)$/.test(type)
+  )
+    return "markdown";
+  const kind = fileKindOf(item.contentType, item.name);
+  if (kind === "code") return "text";
+  if (kind === "text" && extension !== "rtf" && !type.includes("rtf"))
+    return "text";
+  return null;
+}
+
 function kindOf(item: FileViewerItem): Kind {
   const kind = fileKindOf(item.contentType, item.name);
   if (kind === "image" && (item.src || item.thumb?.src)) return "image";
   if (kind === "pdf" && item.pdfSrc) return "pdf";
   if ((kind === "video" || kind === "audio") && item.src) return kind;
-  return "other";
+  if (item.src) return readKindOf(item) ?? "card";
+  return "card";
 }
 
 const KIND_LABEL: Record<Kind, string> = {
@@ -100,8 +209,194 @@ const KIND_LABEL: Record<Kind, string> = {
   pdf: "PDF",
   video: "Video",
   audio: "Audio",
-  other: "File",
+  text: "Text",
+  table: "Table",
+  markdown: "Document",
+  html: "Document",
+  card: "File",
 };
+
+/**
+ * Parse CSV (RFC 4180) into rows of fields: quoted fields with `,`, line breaks and `""` escapes
+ * inside, CRLF or LF rows, a leading byte-order mark, and the delimiter sniffed from the first
+ * line (`,`, `;` or a tab) unless given. Blank lines are skipped. Stops after `maxRows` rows and
+ * reports whether more followed.
+ *
+ * @example
+ * parseCsv('name,notes\n"Ada","said ""hi"", twice"');
+ * // { rows: [["name", "notes"], ["Ada", 'said "hi", twice']], truncated: false }
+ */
+export function parseCsv(
+  text: string,
+  {
+    delimiter,
+    maxRows = Number.POSITIVE_INFINITY,
+  }: { delimiter?: string; maxRows?: number } = {},
+): { rows: string[][]; truncated: boolean } {
+  const source = text.charCodeAt(0) === 0xfeff ? text.slice(1) : text;
+  const separator = delimiter ?? sniffDelimiter(source);
+  const rows: string[][] = [];
+  let row: string[] = [];
+  let field = "";
+  let quoted = false;
+  let fieldStarted = false;
+  const endRow = () => {
+    row.push(field);
+    // A blank line is one empty, unquoted field: skip it.
+    if (row.length > 1 || fieldStarted || field !== "") rows.push(row);
+    row = [];
+    field = "";
+    fieldStarted = false;
+  };
+  let i = 0;
+  while (i < source.length) {
+    const char = source[i]!;
+    if (quoted) {
+      if (char === '"') {
+        if (source[i + 1] === '"') {
+          field += '"';
+          i += 2;
+          continue;
+        }
+        quoted = false;
+      } else field += char;
+      i++;
+      continue;
+    }
+    if (char === '"' && field === "") {
+      quoted = true;
+      fieldStarted = true;
+      i++;
+    } else if (char === separator) {
+      row.push(field);
+      field = "";
+      fieldStarted = true;
+      i++;
+    } else if (char === "\n" || char === "\r") {
+      endRow();
+      i += char === "\r" && source[i + 1] === "\n" ? 2 : 1;
+      if (rows.length >= maxRows)
+        return { rows, truncated: source.slice(i).trim() !== "" };
+    } else {
+      field += char;
+      i++;
+    }
+  }
+  if (field !== "" || row.length > 0 || fieldStarted) endRow();
+  if (rows.length > maxRows)
+    return { rows: rows.slice(0, maxRows), truncated: true };
+  return { rows, truncated: false };
+}
+
+/** The candidate delimiter that appears most often, outside quotes, on the first line. */
+function sniffDelimiter(source: string): string {
+  const counts = new Map<string, number>([
+    [",", 0],
+    [";", 0],
+    ["\t", 0],
+  ]);
+  let quoted = false;
+  for (let i = 0; i < source.length && i < 64 * 1024; i++) {
+    const char = source[i]!;
+    if (char === '"') quoted = !quoted;
+    else if (!quoted && (char === "\n" || char === "\r")) break;
+    else if (!quoted && counts.has(char))
+      counts.set(char, counts.get(char)! + 1);
+  }
+  let best = ",";
+  for (const [candidate, count] of counts)
+    if (count > counts.get(best)!) best = candidate;
+  return best;
+}
+
+/**
+ * Read the first `PREVIEW_BYTES` of a file as UTF-8 text, asking for just that range. A server
+ * that ignores the range still costs no more than that: the rest is never read. A truncated read
+ * ends at its last complete line.
+ */
+async function readTextHead(
+  url: string,
+  size: number | null | undefined,
+  signal: AbortSignal,
+): Promise<{ text: string; truncated: boolean }> {
+  const response = await fetch(url, {
+    headers: { Range: `bytes=0-${PREVIEW_BYTES - 1}` },
+    signal,
+  });
+  if (!response.ok) throw new Error(`HTTP ${response.status}`);
+  const total = Number(response.headers.get("content-range")?.split("/")[1]);
+  const chunks: Uint8Array[] = [];
+  let length = 0;
+  let more = false;
+  const reader = response.body?.getReader();
+  if (reader) {
+    for (;;) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      chunks.push(value);
+      length += value.byteLength;
+      if (length >= PREVIEW_BYTES) {
+        const { done: ended } =
+          length > PREVIEW_BYTES ? { done: false } : await reader.read();
+        more = length > PREVIEW_BYTES || !ended;
+        void reader.cancel().catch(() => {});
+        break;
+      }
+    }
+  } else {
+    const all = new Uint8Array(await response.arrayBuffer());
+    chunks.push(all);
+    length = all.byteLength;
+    more = length > PREVIEW_BYTES;
+  }
+  const bytes = new Uint8Array(Math.min(length, PREVIEW_BYTES));
+  let offset = 0;
+  for (const chunk of chunks) {
+    if (offset >= bytes.length) break;
+    const part = chunk.subarray(0, bytes.length - offset);
+    bytes.set(part, offset);
+    offset += part.byteLength;
+  }
+  const truncated =
+    more ||
+    (size ?? 0) > PREVIEW_BYTES ||
+    (Number.isFinite(total) && total > PREVIEW_BYTES) ||
+    (response.status === 206 &&
+      !Number.isFinite(total) &&
+      bytes.length >= PREVIEW_BYTES);
+  // `TextDecoder` drops a leading byte-order mark and never throws on a split character.
+  let text = new TextDecoder().decode(bytes);
+  if (truncated) {
+    const cut = text.lastIndexOf("\n");
+    if (cut > 0) text = text.slice(0, cut);
+  }
+  return { text: text.replace(/\r\n?/g, "\n"), truncated };
+}
+
+/** The built-in preview of a text, CSV or Markdown file. */
+async function readPreview(
+  item: FileViewerItem,
+  kind: ReadKind,
+  signal: AbortSignal,
+): Promise<FileViewerPreview> {
+  const { text, truncated } = await readTextHead(
+    item.src ?? "",
+    item.size,
+    signal,
+  );
+  if (kind === "table") {
+    const tab = /\.tsv$/i.test(item.name) ? "\t" : undefined;
+    const parsed = parseCsv(text, { delimiter: tab, maxRows: TABLE_ROWS + 1 });
+    return {
+      kind: "table",
+      rows: parsed.rows,
+      truncated: truncated || parsed.truncated,
+    };
+  }
+  if (kind === "markdown")
+    return { kind: "markdown", markdown: text, truncated };
+  return { kind: "text", text, truncated };
+}
 
 /** Warm the browser cache for a neighbouring image, at the variant the stage will ask for. */
 function preload(item: FileViewerItem | undefined) {
@@ -433,15 +728,33 @@ function ImageStage({
   );
 }
 
-/** Anything the viewer cannot show inline: the type icon, name, size and a Download button. */
-function OtherStage({
+/** Drag a stage's content along with a swipe, snapping back when it ends. */
+function swipeStyle(offset: { x: number; y: number }): React.CSSProperties {
+  return { transform: `translate3d(${offset.x}px, ${offset.y}px, 0)` };
+}
+
+/**
+ * The file card — anything with no richer preview: the file's picture when it has one (an Office
+ * file's embedded thumbnail) or its type icon, the name, the size and any facts ("12 slides"),
+ * and Download as the one primary action.
+ */
+function CardStage({
   item,
+  thumb,
+  facts,
   onSwipe,
 }: {
   item: FileViewerItem;
+  thumb?: string | null;
+  facts?: readonly string[];
   onSwipe: (direction: Swipe) => void;
 }) {
   const swipe = useSwipe(onSwipe);
+  const picture = thumb ?? item.thumb?.src ?? null;
+  const details = [
+    ...(item.size != null ? [formatBytes(item.size)] : []),
+    ...(facts ?? []),
+  ].join(" · ");
   return (
     <div
       data-slot="file-viewer-file"
@@ -460,20 +773,29 @@ function OtherStage({
             swipe.offset.y === 0 &&
             "transition-transform duration-200 ease-out",
         )}
-        style={{
-          transform: `translate3d(${swipe.offset.x}px, ${swipe.offset.y}px, 0)`,
-        }}
+        style={swipeStyle(swipe.offset)}
       >
-        <FileTypeIcon
-          contentType={item.contentType}
-          name={item.name}
-          className="size-16"
-        />
+        {picture ? (
+          <Image
+            src={picture}
+            alt=""
+            rounded="lg"
+            draggable={false}
+            data-slot="file-viewer-file-thumb"
+            className="aspect-4/3 w-72 max-w-full border border-border bg-card [&_[data-slot=image-img]]:object-contain"
+          />
+        ) : (
+          <FileTypeIcon
+            contentType={item.contentType}
+            name={item.name}
+            className="size-16"
+          />
+        )}
         <div className="flex max-w-full min-w-0 flex-col gap-1">
           <p className="text-base font-medium wrap-anywhere">{item.name}</p>
-          {item.size != null ? (
+          {details ? (
             <p className="text-sm text-muted-foreground tabular-nums">
-              {formatBytes(item.size)}
+              {details}
             </p>
           ) : null}
         </div>
@@ -481,7 +803,7 @@ function OtherStage({
           href={item.downloadHref}
           download
           className={cn(
-            buttonVariants({ variant: "secondary" }),
+            buttonVariants({ variant: "default" }),
             "mt-2 pointer-coarse:h-11 pointer-coarse:px-4",
           )}
         >
@@ -493,11 +815,291 @@ function OtherStage({
   );
 }
 
+/** The line under a preview that says it is not the whole file. */
+function PreviewNote({ children }: { children: React.ReactNode }) {
+  return (
+    <p
+      data-slot="file-viewer-note"
+      className="shrink-0 text-sm text-muted-foreground tabular-nums"
+    >
+      {children}
+    </p>
+  );
+}
+
+const FIRST_MB = "Showing the first 1 MB. Download the file to see all of it.";
+
 /**
- * A video or audio file on the stage, in the system's own player. The player pauses when the
- * viewer pages away (the stage is keyed by the file, so it unmounts) or closes (`active` false):
- * a detached media element would otherwise keep playing. A swipe on the stage around the player
- * pages or closes, as elsewhere; the player keeps its own gestures and keys.
+ * The shell every read preview sits in: a scrollable sheet, keyboard-focusable and named, with the
+ * note below it. A horizontal swipe still pages; vertical drags scroll.
+ */
+function SheetStage({
+  item,
+  slot,
+  note,
+  onSwipe,
+  children,
+  sheetClassName,
+}: {
+  item: FileViewerItem;
+  slot: string;
+  note?: React.ReactNode;
+  onSwipe: (direction: Swipe) => void;
+  children: React.ReactNode;
+  sheetClassName?: string;
+}) {
+  const swipe = useSwipe((direction) => {
+    if (direction !== "close") onSwipe(direction);
+  });
+  return (
+    <div
+      data-slot={slot}
+      onPointerDown={(event) => {
+        if (event.pointerType !== "mouse") swipe.begin(event);
+      }}
+      onPointerMove={swipe.move}
+      onPointerUp={swipe.end}
+      onPointerCancel={swipe.cancel}
+      className="flex size-full touch-pan-y flex-col items-center gap-2 px-4 pb-4 pointer-fine:px-20"
+    >
+      <div
+        role="region"
+        aria-label={`${item.name} preview`}
+        tabIndex={0}
+        className={cn(
+          "min-h-0 w-full max-w-5xl overflow-auto rounded-lg border border-border bg-card text-card-foreground focus-visible:-outline-offset-2",
+          sheetClassName,
+        )}
+        style={
+          swipe.offset.x ? swipeStyle({ x: swipe.offset.x, y: 0 }) : undefined
+        }
+      >
+        {children}
+      </div>
+      {note ? <PreviewNote>{note}</PreviewNote> : null}
+    </div>
+  );
+}
+
+/** Rows of a table preview: the first is the header; at most `TABLE_ROWS` data rows show. */
+function TableStage({
+  item,
+  preview,
+  onSwipe,
+}: {
+  item: FileViewerItem;
+  preview: Extract<FileViewerPreview, { kind: "table" }>;
+  onSwipe: (direction: Swipe) => void;
+}) {
+  const [head = [], ...body] = preview.rows;
+  const rows = body.slice(0, TABLE_ROWS);
+  const columns = rows.reduce(
+    (most, row) => Math.max(most, row.length),
+    head.length,
+  );
+  const cells = (row: readonly string[]) =>
+    Array.from({ length: columns }, (_, index) => row[index] ?? "");
+  const more =
+    preview.truncated ||
+    body.length > rows.length ||
+    (preview.totalRows ?? 0) > rows.length;
+  const count = rows.length.toLocaleString();
+  const note = !more
+    ? null
+    : preview.totalRows && preview.totalRows > rows.length
+      ? `Showing first ${count} of ${preview.totalRows.toLocaleString()} rows`
+      : `Showing first ${count} rows`;
+  if (columns === 0)
+    return (
+      <SheetStage item={item} slot="file-viewer-table" onSwipe={onSwipe}>
+        <p className="p-4 text-sm text-muted-foreground">This file is empty.</p>
+      </SheetStage>
+    );
+  return (
+    <div
+      data-slot="file-viewer-table"
+      className="flex size-full flex-col items-center gap-2 px-4 pb-4 pointer-fine:px-20"
+    >
+      {/* One named, focusable scroller for both axes, so the header can stick to its top. */}
+      <div
+        role="region"
+        aria-label={`${item.name} preview`}
+        tabIndex={0}
+        className="max-h-full min-h-0 w-auto max-w-full shrink overflow-auto rounded-lg border border-border bg-card text-card-foreground focus-visible:-outline-offset-2"
+      >
+        <table className="w-max min-w-full caption-bottom text-sm">
+          <TableHeader className="sticky top-0 z-10 bg-card">
+            <TableRow>
+              {cells(head).map((cell, index) => (
+                <TableHead
+                  key={index}
+                  scope="col"
+                  className="max-w-96 truncate"
+                >
+                  {cell}
+                </TableHead>
+              ))}
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {rows.map((row, rowIndex) => (
+              <TableRow key={rowIndex}>
+                {cells(row).map((cell, index) => (
+                  <TableCell
+                    key={index}
+                    className="max-w-96 align-top whitespace-pre-wrap wrap-anywhere"
+                  >
+                    {cell}
+                  </TableCell>
+                ))}
+              </TableRow>
+            ))}
+          </TableBody>
+        </table>
+      </div>
+      {note ? <PreviewNote>{note}</PreviewNote> : null}
+    </div>
+  );
+}
+
+/**
+ * Everything that is not an image, a PDF, video or audio: the app's `loadPreview` first, then the
+ * built-in reading of a text, CSV or Markdown file, and the file card when neither has anything.
+ * Reports what it settled on, so the viewer's `data-kind` names the stage on screen.
+ */
+function PreviewStage({
+  item,
+  kind,
+  loadPreview,
+  onSwipe,
+  onResolve,
+}: {
+  item: FileViewerItem;
+  kind: ReadKind | "card";
+  loadPreview: FileViewerProps["loadPreview"];
+  onSwipe: (direction: Swipe) => void;
+  onResolve: (kind: Kind) => void;
+}) {
+  const immediate = kind === "card" && !loadPreview;
+  const [preview, setPreview] = React.useState<FileViewerPreview | null>(
+    immediate ? { kind: "card" } : null,
+  );
+  // Read through refs: a host that rebuilds its items (or passes an inline `loadPreview`) on
+  // every render must not refetch. The stage is keyed by the item's id.
+  const itemRef = React.useRef(item);
+  const loadRef = React.useRef(loadPreview);
+  const resolveRef = React.useRef(onResolve);
+  React.useLayoutEffect(() => {
+    itemRef.current = item;
+    loadRef.current = loadPreview;
+    resolveRef.current = onResolve;
+  });
+  React.useEffect(() => {
+    if (immediate) return;
+    const controller = new AbortController();
+    const { signal } = controller;
+    void (async () => {
+      const current = itemRef.current;
+      let next: FileViewerPreview | null | undefined = null;
+      const load = loadRef.current;
+      if (load) next = await load(current, { signal }).catch(() => null);
+      if (!next && kind !== "card" && !signal.aborted)
+        next = await readPreview(current, kind, signal).catch(() => null);
+      if (signal.aborted) return;
+      setPreview(next ?? { kind: "card" });
+    })();
+    return () => controller.abort();
+  }, [immediate, kind]);
+  React.useEffect(() => {
+    if (preview) resolveRef.current(preview.kind);
+  }, [preview]);
+
+  if (!preview)
+    return (
+      <div
+        data-slot="file-viewer-loading"
+        className="flex size-full items-center justify-center"
+      >
+        <Spinner className="size-6 text-muted-foreground" />
+      </div>
+    );
+  switch (preview.kind) {
+    case "text":
+      return (
+        <SheetStage
+          item={item}
+          slot="file-viewer-text"
+          onSwipe={onSwipe}
+          note={preview.truncated ? FIRST_MB : null}
+        >
+          {preview.text ? (
+            <pre className="p-4 font-mono text-sm whitespace-pre-wrap wrap-anywhere">
+              {preview.text}
+            </pre>
+          ) : (
+            <p className="p-4 text-sm text-muted-foreground">
+              This file is empty.
+            </p>
+          )}
+        </SheetStage>
+      );
+    case "table":
+      return <TableStage item={item} preview={preview} onSwipe={onSwipe} />;
+    case "markdown":
+    case "html": {
+      const source = preview.kind === "html" ? preview.html : preview.markdown;
+      return (
+        <SheetStage
+          item={item}
+          slot={`file-viewer-${preview.kind}`}
+          onSwipe={onSwipe}
+          sheetClassName="max-w-3xl"
+          note={
+            preview.kind === "markdown" && preview.truncated ? FIRST_MB : null
+          }
+        >
+          {source.trim() ? (
+            <React.Suspense
+              fallback={
+                <div className="flex justify-center p-6">
+                  <Spinner className="size-6 text-muted-foreground" />
+                </div>
+              }
+            >
+              <LazyMarkdown
+                format={preview.kind === "html" ? "html" : "markdown"}
+                className="p-6"
+              >
+                {source}
+              </LazyMarkdown>
+            </React.Suspense>
+          ) : (
+            <p className="p-4 text-sm text-muted-foreground">
+              This file is empty.
+            </p>
+          )}
+        </SheetStage>
+      );
+    }
+    default:
+      return (
+        <CardStage
+          item={item}
+          thumb={preview.thumb}
+          facts={preview.facts}
+          onSwipe={onSwipe}
+        />
+      );
+  }
+}
+
+/**
+ * A video or audio file on the stage, in the system's own player — never autoplaying. The player
+ * pauses when the viewer pages away (the stage is keyed by the file, so it unmounts) or closes
+ * (`active` false): a detached media element would otherwise keep playing. A swipe on the stage
+ * around the player pages or closes, as elsewhere; the player keeps its own gestures and keys. An
+ * expired signed URL is renewed through the item's `refreshSrc`, and a video the browser cannot
+ * play shows "Can’t play this video here" with Download.
  */
 function MediaStage({
   item,
@@ -541,6 +1143,10 @@ function MediaStage({
           label={item.name}
           mediaRef={media as React.RefObject<HTMLVideoElement | null>}
           poster={item.thumb?.src ?? undefined}
+          downloadHref={item.downloadHref}
+          onSourceExpired={item.refreshSrc}
+          // Letterbox, never crop: a portrait phone clip keeps its whole frame.
+          videoClassName="object-contain"
           className="w-full max-w-[min(64rem,calc((100dvh-10rem)*16/9))]"
         />
       ) : (
@@ -554,6 +1160,10 @@ function MediaStage({
             ) : undefined
           }
           mediaRef={media as React.RefObject<HTMLAudioElement | null>}
+          onSourceExpired={item.refreshSrc}
+          // A precomputed waveform when the upload stored one; never a whole-file decode here.
+          variant={item.peaks?.length ? "waveform" : "default"}
+          peaks={item.peaks ?? undefined}
           className="w-full max-w-lg"
         />
       )}
@@ -569,7 +1179,9 @@ const chromeButton =
  * screen with their blurred thumb fading into the full-size variant, and zoom (double-click or
  * double-tap, pinch, +/−/0) and pan; PDFs render page by page with pdf.js, loaded lazily, with
  * fit-width, zoom and a page indicator; video and audio play in `VideoPlayer` / `AudioPlayer`;
- * anything else shows its type icon, size and Download.
+ * text, CSV and Markdown show their first 1 MB as text, a table or rendered Markdown;
+ * `loadPreview` lets the app supply parsed content for anything else (an Office file); and the
+ * rest shows a card with its picture or type icon, size and Download.
  * ←/→ and the side buttons page, a swipe pages on a phone, Esc or a swipe down closes, and focus
  * returns to whatever opened it.
  *
@@ -597,6 +1209,7 @@ export function FileViewer({
   index,
   onIndexChange,
   onOpenChange,
+  loadPreview,
 }: FileViewerProps) {
   const open = index !== null && items.length > 0;
   // Keep showing the last file while the close animation runs, after `index` became null.
@@ -613,11 +1226,25 @@ export function FileViewer({
     setFailed((prev) => (prev.has(id) ? prev : new Set(prev).add(id)));
   }, []);
 
-  const kind: Kind = item
+  const baseKind: Kind = item
     ? failed.has(item.id)
-      ? "other"
+      ? "card"
       : kindOf(item)
-    : "other";
+    : "card";
+  // What a preview stage settled on (the app's HTML for a .docx, the card when a read failed).
+  const [resolved, setResolved] = React.useState<{
+    id: string;
+    kind: Kind;
+  } | null>(null);
+  const kind: Kind =
+    item && resolved?.id === item.id ? resolved.kind : baseKind;
+  const itemId = item?.id;
+  const onResolve = React.useCallback(
+    (next: Kind) => {
+      if (itemId != null) setResolved({ id: itemId, kind: next });
+    },
+    [itemId],
+  );
   const zoomRef = React.useRef<((op: ZoomOp) => void) | null>(null);
   // The popup itself takes focus on open (a `tabindex="-1"` region, so no tint): the default —
   // the first tabbable, the Download link — would open with it looking hovered.
@@ -769,7 +1396,7 @@ export function FileViewer({
             data-slot="file-viewer-stage"
             className="relative min-h-0 flex-1 pb-[env(safe-area-inset-bottom)]"
           >
-            {kind === "image" ? (
+            {baseKind === "image" ? (
               <ImageStage
                 key={item.id}
                 item={item}
@@ -777,7 +1404,7 @@ export function FileViewer({
                 zoomRef={zoomRef}
                 onFail={onFail}
               />
-            ) : kind === "pdf" ? (
+            ) : baseKind === "pdf" ? (
               <React.Suspense fallback={<PdfLoading item={item} />}>
                 <LazyPdf
                   key={item.id}
@@ -788,16 +1415,29 @@ export function FileViewer({
                   loading={<PdfLoading item={item} />}
                 />
               </React.Suspense>
-            ) : kind === "video" || kind === "audio" ? (
+            ) : baseKind === "video" || baseKind === "audio" ? (
               <MediaStage
                 key={item.id}
                 item={item}
-                kind={kind}
+                kind={baseKind}
                 active={open}
                 onSwipe={onSwipe}
               />
             ) : (
-              <OtherStage key={item.id} item={item} onSwipe={onSwipe} />
+              <PreviewStage
+                key={item.id}
+                item={item}
+                kind={
+                  baseKind === "text" ||
+                  baseKind === "table" ||
+                  baseKind === "markdown"
+                    ? baseKind
+                    : "card"
+                }
+                loadPreview={failed.has(item.id) ? undefined : loadPreview}
+                onSwipe={onSwipe}
+                onResolve={onResolve}
+              />
             )}
 
             {count > 1 ? (

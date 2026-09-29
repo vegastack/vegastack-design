@@ -1,6 +1,6 @@
 ---
 title: File Viewer
-description: A full-screen dark viewer for stored files — zoomable images, PDF pages, video and audio players, and a download card — paged by arrows or swipe.
+description: A full-screen dark viewer for stored files — images, PDFs, video, audio, text, CSV and Markdown, app-parsed Office previews and a download card.
 audience: public
 registry: file-viewer
 status: stable
@@ -16,7 +16,8 @@ preview: fileViewer
 The item installs `pdfjs-dist` (`^6.3.289`). It is imported only when a PDF is shown, so an app
 that never passes `pdfSrc` never downloads pdf.js. The worker is served from your own origin: the
 PDF part creates it with `new Worker(new URL("pdfjs-dist/build/pdf.worker.min.mjs", import.meta.url), { type: "module" })`,
-which Next.js and Vite emit as a same-origin asset.
+which Next.js and Vite emit as a same-origin asset. Markdown and HTML previews load
+[`MarkdownView`](/docs/components/markdown-view) the same way — lazily, the first time one shows.
 
 ## Usage
 
@@ -46,8 +47,14 @@ const item: FileViewerItem = {
   srcSet: file.srcsetFull, // falls back to thumb.srcSet
   pdfSrc: file.inlineUrl, // PDFs: inline disposition, range requests
   downloadHref: file.downloadUrl,
+  refreshSrc: () => renewUrl(file.id), // video/audio: an expired signed URL
+  peaks: file.peaks, // audio: a stored waveform
 };
 ```
+
+For video, audio, text, CSV and Markdown, `src` is the file's inline URL. Text-like files are read
+with `Range: bytes=0-1048575`, so a cross-origin store must allow the `Range` request header and
+expose `Content-Range` (a single-range request is CORS-safelisted in current browsers).
 
 ## Scope
 
@@ -56,6 +63,8 @@ const item: FileViewerItem = {
 | Which file is open, and closing | Host — `index` is controlled; `onOpenChange(false)` means set it to null                                              |
 | Signing or resolving URLs       | Host — pass `src`, `srcSet`, `pdfSrc` and `downloadHref` ready to use                                                 |
 | Video and audio playback        | [`VideoPlayer`](/docs/components/video-player) / [`AudioPlayer`](/docs/components/audio-player), mounted on the stage |
+| Parsing Office files            | Host — `loadPreview` returns a table, HTML, text or a card; the parser stays an app dependency                        |
+| Posters, peaks, Office pictures | Host, at upload — `probeVideo`, `probeAudio`, `extractPptxThumbnail` from the `media-probe` lib                       |
 | The tiles that open it          | [`Attachment`](/docs/components/attachment), a thumbnail grid, any button                                             |
 
 ## Anatomy
@@ -98,24 +107,129 @@ takes its place.
 ### Video and audio
 
 A `video/*` or `audio/*` item with a `src` plays on the stage in the system's own
-[`VideoPlayer`](/docs/components/video-player) / [`AudioPlayer`](/docs/components/audio-player).
-The player pauses when you page away or close the viewer; <kbd>←</kbd>/<kbd>→</kbd> still page
-unless focus is inside the player, where they seek.
+[`VideoPlayer`](/docs/components/video-player) / [`AudioPlayer`](/docs/components/audio-player) —
+never autoplaying. The player pauses when you page away or close the viewer; <kbd>←</kbd>/<kbd>→</kbd>
+still page unless focus is inside the player, where they seek. The video letterboxes (a portrait
+clip is never cropped) with `thumb.src` as its poster; one the browser cannot play shows "Can’t play
+this video here" with Download. The item's `refreshSrc` renews an expired signed URL and resumes
+where playback stopped; an audio item with stored `peaks` plays in the waveform player.
 
 <ComponentPreview
   name="fileViewerMedia"
   file="components/preview/file-viewer.tsx"
 />
 
-### Other files
+### Text and code
 
-Anything that is not an image, a PDF, a video or audio — or one with no URL to show — gets a card:
-the file-type icon, the name, the size ("2.4 MB") and a Download button.
+A text or code file with a `src` (`.txt`, `.log`, `.json`, `.yaml`, `.xml`, source files) shows
+its first megabyte, monospaced and wrapped, in a sheet you can scroll and focus. A longer file ends
+at its last whole line and says "Showing the first 1 MB. Download the file to see all of it." There
+is no syntax highlighting.
+
+<ComponentPreview
+  name="fileViewerText"
+  file="components/preview/file-viewer.tsx"
+/>
+
+### CSV
+
+A `.csv` or `.tsv` is a table. A small built-in parser (`parseCsv`, exported) reads quoted fields
+with commas, line breaks and `""` escapes, CRLF rows and a byte-order mark, and sniffs `,`, `;` or a
+tab. The first row is the header, which stays in view while you scroll; at most 500 rows show,
+with "Showing first 500 rows" under the table.
+
+<ComponentPreview
+  name="fileViewerCsv"
+  file="components/preview/file-viewer.tsx"
+/>
+
+### Markdown
+
+A `.md`, `.markdown` or `.mdx` file renders through [`MarkdownView`](/docs/components/markdown-view)
+in a reading-width sheet. MDX is shown as Markdown: its JSX and imports are never compiled or run —
+they show as text.
+
+<ComponentPreview
+  name="fileViewerMarkdown"
+  file="components/preview/file-viewer.tsx"
+/>
+
+### Office and other files
+
+Anything the viewer cannot read — an Office file, an archive, a file with no URL — gets a card: the
+file's own picture when `thumb` has one (PowerPoint saves a first-slide thumbnail inside the file;
+read it at upload with `extractPptxThumbnail`), else its type icon, then the name, the size and a
+primary Download button.
+
+<ComponentPreview
+  name="fileViewerCards"
+  file="components/preview/file-viewer.tsx"
+/>
 
 <ComponentPreview
   name="fileViewerOther"
   file="components/preview/file-viewer.tsx"
 />
+
+### App-parsed previews
+
+`loadPreview` is called for every file that is not an image, PDF, video or audio, with an
+`AbortSignal` that fires when the user pages away. Return a `FileViewerPreview` — `text`, a
+`table` (the first row is the header; `totalRows` makes the note "Showing first 500 of 12,400
+rows"), `markdown`, `html` (rebuilt through `MarkdownView`'s allowlist, never injected) or a `card`
+with a picture and facts ("12 slides") — or `null` to keep the built-in reading. A spinner shows
+while it runs; a rejection falls back to the built-in reading. So SheetJS for spreadsheets or
+mammoth for Word files stay the app's dependencies, lazily imported by the app.
+
+```tsx
+<FileViewer
+  items={files}
+  loadPreview={async (item, { signal }) => {
+    if (item.name.endsWith(".xlsx")) {
+      const { firstSheet } = await import("@/lib/office-preview");
+      return { kind: "table", ...(await firstSheet(item.src!, { signal })) };
+    }
+    return null;
+  }}
+  {...viewer}
+/>
+```
+
+<ComponentPreview
+  name="fileViewerLoadPreview"
+  file="components/preview/file-viewer.tsx"
+/>
+
+### Every kind
+
+An image, a PDF, a video, an audio file, text, a CSV, Markdown, a card with a thumbnail and one
+without — page through them with <kbd>←</kbd> and <kbd>→</kbd>.
+
+<ComponentPreview
+  name="fileViewerEveryKind"
+  file="components/preview/file-viewer.tsx"
+/>
+
+### Upload-time helpers
+
+The `media-probe` lib reads, in the browser and with no dependency, what is worth storing beside
+the original so nothing has to be downloaded again to show it:
+
+```ts
+import {
+  extractPptxThumbnail,
+  probeAudio,
+  probeVideo,
+} from "@/lib/media-probe";
+
+const { duration, width, height, poster } = await probeVideo(file); // a JPEG ~1s in
+const { duration, peaks } = await probeAudio(file); // ≤ 200 peaks; none over 50 MB
+const thumbnail = await extractPptxThumbnail(file); // docProps/thumbnail.jpeg, or null
+```
+
+`probeVideo` rejects when the browser cannot decode the file — upload it without a poster then.
+`extractPptxThumbnail` reads only the zip's central directory and that one entry, and works for
+any Office file saved with a preview picture.
 
 ### Single file
 
@@ -165,17 +279,35 @@ closes.
 
 ### FileViewerItem
 
-| Field          | Type                                                              | Notes                                                                                                                                                                |
-| -------------- | ----------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `id`           | `string`                                                          | Stable id; zoom and scroll reset when it changes.                                                                                                                    |
-| `name`         | `string`                                                          | The dialog's title and the image's alt text.                                                                                                                         |
-| `contentType`  | `string \| null`                                                  | `image/*` → image, `application/pdf` → PDF, `video/*` / `audio/*` → player, anything else → file card; a missing or generic type falls back to the name's extension. |
-| `size`         | `number \| null`                                                  | Bytes, shown on the file card.                                                                                                                                       |
-| `thumb`        | `{ src: string; srcSet?: string; blur?: string \| null } \| null` | The blurred placeholder, and a PDF's loading frame.                                                                                                                  |
-| `src`          | `string \| null`                                                  | Full-size image (falls back to `thumb.src`), or the video/audio URL.                                                                                                 |
-| `srcSet`       | `string \| null`                                                  | Full-size srcset; falls back to `thumb.srcSet`.                                                                                                                      |
-| `pdfSrc`       | `string \| null`                                                  | Inline-disposition, range-capable PDF URL.                                                                                                                           |
-| `downloadHref` | `string`                                                          | The Download link's URL.                                                                                                                                             |
+| Field          | Type                                                              | Notes                                                                                                                                                                                                                                   |
+| -------------- | ----------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `id`           | `string`                                                          | Stable id; zoom and scroll reset when it changes.                                                                                                                                                                                       |
+| `name`         | `string`                                                          | The dialog's title and the image's alt text.                                                                                                                                                                                            |
+| `contentType`  | `string \| null`                                                  | `image/*` → image, `application/pdf` → PDF, `video/*` / `audio/*` → player, text/code, CSV and Markdown → their previews, anything else → `loadPreview` or the file card; a missing or generic type falls back to the name's extension. |
+| `size`         | `number \| null`                                                  | Bytes, shown on the file card.                                                                                                                                                                                                          |
+| `thumb`        | `{ src: string; srcSet?: string; blur?: string \| null } \| null` | The blurred placeholder, a PDF's loading frame, a video's poster and a file card's picture.                                                                                                                                             |
+| `src`          | `string \| null`                                                  | Full-size image (falls back to `thumb.src`); the video/audio URL; or a text, CSV or Markdown file's URL, read with a range request.                                                                                                     |
+| `srcSet`       | `string \| null`                                                  | Full-size srcset; falls back to `thumb.srcSet`.                                                                                                                                                                                         |
+| `pdfSrc`       | `string \| null`                                                  | Inline-disposition, range-capable PDF URL.                                                                                                                                                                                              |
+| `downloadHref` | `string`                                                          | The Download link's URL.                                                                                                                                                                                                                |
+| `refreshSrc`   | `() => Promise<string>`                                           | Renews an expired video or audio URL; the player resumes where it stopped.                                                                                                                                                              |
+| `peaks`        | `readonly number[] \| null`                                       | An audio file's stored waveform; the audio plays in the waveform player.                                                                                                                                                                |
+
+### FileViewerPreview
+
+| `kind`     | Fields                                                                              | Shows                                                             |
+| ---------- | ----------------------------------------------------------------------------------- | ----------------------------------------------------------------- |
+| `text`     | `text: string`, `truncated?: boolean`                                               | Monospaced, wrapped text in a scrollable sheet.                   |
+| `table`    | `rows: readonly (readonly string[])[]`, `totalRows?: number`, `truncated?: boolean` | A table; the first row is the header; at most 500 data rows show. |
+| `markdown` | `markdown: string`, `truncated?: boolean`                                           | Rendered through `MarkdownView`.                                  |
+| `html`     | `html: string`                                                                      | Rebuilt through `MarkdownView format="html"`'s allowlist.         |
+| `card`     | `thumb?: string \| null`, `facts?: readonly string[]`                               | The file card with that picture and the facts after the size.     |
+
+### parseCsv
+
+`parseCsv(text, { delimiter?, maxRows? })` returns `{ rows: string[][]; truncated: boolean }`: RFC
+4180 quoting, CRLF or LF, a leading byte-order mark dropped, blank lines skipped, the delimiter
+sniffed from the first line unless given, and `truncated` when rows remained past `maxRows`.
 
 ## Accessibility
 
@@ -183,7 +315,11 @@ closes.
   viewer itself when it opens (no control looks pressed; Tab reaches them) and returns to the
   element that opened it when it closes.
 - Paging announces the destination through a polite live region — "Image 3 of 12", "PDF 4 of
-  12", "Video 5 of 12", "Audio 6 of 12", "File 7 of 12". Opening does not announce: the dialog's name already says which file.
+  12", "Video 5 of 12", "Audio 6 of 12", "Text 7 of 12", "Table 8 of 12", "Document 9 of 12",
+  "File 10 of 12". Opening does not announce: the dialog's name already says which file.
+- A text, Markdown or HTML preview is a region named `{name} preview` that takes focus, so it
+  scrolls from the keyboard; a table's region takes focus only while it overflows, and its header
+  cells are column headers.
 - The icon buttons are named (`Download {name}`, "Close", "Previous file", "Next file", "Zoom
   in", "Zoom out", "Fit to width"); on a touch screen they grow to 44px.
 - Each rendered PDF page is an image named `{name}, page N`.

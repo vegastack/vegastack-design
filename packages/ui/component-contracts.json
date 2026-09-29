@@ -12,12 +12,12 @@
     "evidencePolicy": "Observed fields come from source, registry metadata, docs, and test topology. Unknown/not-applicable values are explicit; no inferred behavior is presented as verified."
   },
   "expectedCounts": {
-    "totalRegistryItems": 711,
+    "totalRegistryItems": 712,
     "components": 141,
     "animatedIcons": 467,
     "hooks": 13,
     "blocks": 13,
-    "libs": 9,
+    "libs": 10,
     "chartBlocks": 68
   },
   "expectedWaveCounts": {
@@ -2236,9 +2236,11 @@
             "lazy-source",
             "queued-seek",
             "floating",
-            "global-player"
+            "global-player",
+            "precomputed-peaks",
+            "decode-limit"
           ],
-          "evidence": "Observed from media event handlers, rewind/forward transport, the shared useMediaShortcuts map, the mute + volume control, control callbacks (including the optional onTranscriptClick), the two-line narrow layout, and state attributes. DS-77: docked sticky region; open/onOpenChange with inert while hidden and focus returned to the opener on close; loading announced once; error alert with retry; a function src resolved once on first play; actionsRef seek queued until loadedmetadata."
+          "evidence": "Observed from media event handlers, rewind/forward transport, the shared useMediaShortcuts map, the mute + volume control, control callbacks (including the optional onTranscriptClick), the two-line narrow layout, and state attributes. DS-77: docked sticky region; open/onOpenChange with inert while hidden and focus returned to the opener on close; loading announced once; error alert with retry; a function src resolved once on first play; actionsRef seek queued until loadedmetadata. A peaks prop draws a stored waveform without fetching the file; without it the waveform decodes only up to maxDecodeBytes and a larger file shows the plain seek slider."
         },
         "accessibility": {
           "status": "observed",
@@ -12803,7 +12805,7 @@
       "name": "file-viewer",
       "registryType": "registry:ui",
       "title": "File Viewer",
-      "summary": "A full-screen dark overlay for stored files — images with a blur-up, zoom and pan; PDFs rendered page by page with a lazily loaded pdf.js over range requests; a download card for everything else — paged with arrows, side buttons or a swipe.",
+      "summary": "A full-screen dark overlay for stored files — images with a blur-up, zoom and pan; PDFs rendered page by page with a lazily loaded pdf.js over range requests; video and audio in the system players; the first megabyte of text, CSV (as a table) and Markdown; app-parsed previews through loadPreview; a file card with a thumbnail and Download for everything else — paged with arrows, side buttons or a swipe.",
       "status": "stable",
       "since": "0.23.61",
       "family": "media",
@@ -12850,6 +12852,15 @@
           }
         },
         {
+          "name": "FileViewerPreview",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/file-viewer.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
           "name": "FileViewerProps",
           "kind": "interface",
           "source": "packages/ui/registry/ui/file-viewer.tsx",
@@ -12857,12 +12868,21 @@
             "status": "not-applicable",
             "rationale": "Type-only exports do not render or accept runtime refs."
           }
+        },
+        {
+          "name": "parseCsv",
+          "kind": "function",
+          "source": "packages/ui/registry/ui/file-viewer.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A pure function; it renders nothing and takes no ref."
+          }
         }
       ],
       "variants": {
         "status": "not-applicable-or-inherited",
         "dimensions": [],
-        "rationale": "No variant axis; the stage follows the item's content type (image, pdf, video, audio, other)."
+        "rationale": "No variant axis; the stage follows the item's content type (image, pdf, video, audio, text, table, markdown, html, card)."
       },
       "sizes": {
         "status": "not-applicable-or-inherited",
@@ -12880,13 +12900,18 @@
             "pdf",
             "video",
             "audio",
-            "other",
+            "text",
+            "table",
+            "markdown",
+            "html",
+            "card",
+            "truncated",
             "zoomed",
             "loading",
             "error",
             "single"
           ],
-          "evidence": "Controlled index opens and closes; data-kind picks the image, pdf, video, audio or file-card stage; zoom/pan on images and the PDF zoom toolbar; a PDF shows its thumb or a spinner while loading and falls back to the file card on error; a video or audio stage pauses its player when paged away or closed; one item hides the count and paging."
+          "evidence": "Controlled index opens and closes; data-kind names the stage on screen — image, pdf, video, audio, text, table (CSV or an app table), markdown, html (an app preview) or the file card; zoom/pan on images and the PDF zoom toolbar; a PDF shows its thumb or a spinner while loading and falls back to the file card on error; text, CSV and Markdown read their first 1 MB and say so when truncated, a table shows at most 500 rows; loadPreview supplies parsed content and null keeps the built-in reading; a failed read is the card; a video or audio stage pauses its player when paged away or closed, and an unplayable video shows the player's Download card; one item hides the count and paging."
         },
         "accessibility": {
           "status": "covered",
@@ -12931,7 +12956,9 @@
         "@vegastack/dialog",
         "@vegastack/file-kind",
         "@vegastack/image",
+        "@vegastack/markdown-view",
         "@vegastack/spinner",
+        "@vegastack/table",
         "@vegastack/use-announcer",
         "@vegastack/use-modal-inert",
         "@vegastack/video-player"
@@ -25002,7 +25029,7 @@
       "name": "video-player",
       "registryType": "registry:ui",
       "title": "Video Player",
-      "summary": "A framed video player with the same grouped custom transport controls as Audio Player.",
+      "summary": "A framed video player with the same grouped custom transport controls as Audio Player — a poster, no autoplay, a \"can't play\" card with Download, and onSourceExpired to renew an expired signed URL.",
       "status": "stable",
       "since": "0.5.0",
       "family": "media",
@@ -25055,13 +25082,16 @@
             "seeking",
             "keyboard-shortcuts",
             "playback-rate",
-            "quality",
             "volume",
             "fullscreen",
             "fullscreen-exit",
-            "hover-fade-controls"
+            "hover-fade-controls",
+            "quality-opt-in",
+            "poster",
+            "load-error",
+            "source-renewal"
           ],
-          "evidence": "Observed from shared media controls, settings submenus, fullscreen handling, frame-level keyboard handlers, and media event handling."
+          "evidence": "Observed from shared media controls, settings submenus, fullscreen handling, frame-level keyboard handlers, and media event handling. The Quality entry shows only when qualityOptions are passed; a poster shows until playback starts and it never autoplays; a media error shows a role=alert card with a Download link and hides the transport; onSourceExpired renews an expired URL once and resumes at the same position."
         },
         "accessibility": {
           "status": "observed",
@@ -25069,7 +25099,8 @@
             "focus-visible",
             "keyboard-operable",
             "labeled",
-            "semantic-html"
+            "semantic-html",
+            "alert"
           ],
           "evidence": "Observed from named controls, the composed Slider, frame-level keyboard transport, and semantic video element."
         },
@@ -25081,7 +25112,8 @@
             "aspect-ratio",
             "progress-rest",
             "progress-hover",
-            "volume-open"
+            "volume-open",
+            "error"
           ],
           "evidence": "Observed from token classes, named progress rest/hover treatment, contained volume surface, fullscreen state, optional header branches, and preview states."
         }
@@ -25105,8 +25137,12 @@
       },
       "engines": [],
       "docsSlug": "/docs/components/video-player",
-      "registryDependencies": ["@vegastack/media-player-controls"],
+      "registryDependencies": [
+        "@vegastack/button",
+        "@vegastack/media-player-controls"
+      ],
       "npmDependencies": [
+        "lucide-react@^1.47.0",
         "@vegastack/design@^0.7.62",
         "@vegastack/design-tokens@^0.7.56"
       ],
@@ -25128,11 +25164,16 @@
               "values": []
             },
             {
+              "name": "data-icon",
+              "values": ["inline-start"]
+            },
+            {
               "name": "data-slot",
               "values": [
                 "video-player",
                 "video-player-controls-overlay",
                 "video-player-controls-scrim",
+                "video-player-error",
                 "video-player-frame",
                 "video-player-header",
                 "video-player-media"
@@ -25140,7 +25181,7 @@
             },
             {
               "name": "data-state",
-              "values": ["hidden", "visible"]
+              "values": ["error", "hidden", "visible"]
             }
           ],
           "cssVariables": []
@@ -35218,7 +35259,7 @@
       "name": "file-kind",
       "registryType": "registry:lib",
       "title": "File Kind",
-      "summary": "The one answer to \"what is this file and how big is it\" — formatBytes (1024 base, one decimal under 10), fileKindOf (MIME first, extension fallback) and FileTypeIcon (the muted lucide icon per kind) — shared by Attachment rows, FileViewer, UploadDialog, AvatarPicker and FolderTree.",
+      "summary": "The one answer to \"what is this file and how big is it\" — formatBytes (1024 base, one decimal under 10), fileKindOf (MIME first, extension fallback, text/plain treated as generic) and FileTypeIcon (the muted lucide icon per kind) — shared by Attachment rows, FileViewer, UploadDialog, AvatarPicker and FolderTree.",
       "family": "lib",
       "wave": "Libs",
       "sourceFiles": ["packages/ui/registry/lib/file-kind.ts"],
@@ -35326,6 +35367,133 @@
         "packages/ui/registry/lib/file-kind.test.ts",
         "packages/ui/registry/ui/file-viewer.test.tsx"
       ],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "shared-guide-only",
+        "navigation": "exempt",
+        "preview": "exempt",
+        "vrt": "exempt"
+      }
+    },
+    {
+      "name": "media-probe",
+      "registryType": "registry:lib",
+      "title": "Media Probe",
+      "summary": "Upload-time reads in the browser, dependency-free — probeVideo (duration, size and a JPEG poster frame via video + canvas), probeAudio (duration and up to 200 waveform peaks via OfflineAudioContext, skipped over 50 MB) and extractPptxThumbnail (an Office file's docProps/thumbnail.jpeg via a zip central-directory reader and DecompressionStream).",
+      "family": "lib",
+      "wave": "Libs",
+      "sourceFiles": ["packages/ui/registry/lib/media-probe.ts"],
+      "publicSymbols": [
+        {
+          "name": "VideoProbe",
+          "kind": "interface",
+          "source": "packages/ui/registry/lib/media-probe.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "ProbeVideoOptions",
+          "kind": "interface",
+          "source": "packages/ui/registry/lib/media-probe.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "AudioProbe",
+          "kind": "interface",
+          "source": "packages/ui/registry/lib/media-probe.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "ProbeAudioOptions",
+          "kind": "interface",
+          "source": "packages/ui/registry/lib/media-probe.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "probeVideo",
+          "kind": "function",
+          "source": "packages/ui/registry/lib/media-probe.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A pure function; it renders nothing and takes no ref."
+          }
+        },
+        {
+          "name": "probeAudio",
+          "kind": "function",
+          "source": "packages/ui/registry/lib/media-probe.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A pure function; it renders nothing and takes no ref."
+          }
+        },
+        {
+          "name": "extractPptxThumbnail",
+          "kind": "function",
+          "source": "packages/ui/registry/lib/media-probe.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A pure function; it renders nothing and takes no ref."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "A pure module renders nothing and has no variant surface."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "A pure module renders nothing and has no size scale."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned motion mechanism observed."
+        }
+      },
+      "engines": [],
+      "registryDependencies": [],
+      "docsSlug": "/docs/guides/components",
+      "states": {
+        "behavior": {
+          "status": "not-applicable",
+          "values": ["not-applicable"],
+          "evidence": "Async browser reads over a Blob; no state machine."
+        },
+        "accessibility": {
+          "status": "not-applicable",
+          "values": ["not-applicable"],
+          "evidence": "No DOM — the player, grid and FileViewer that show the results own the semantics."
+        },
+        "visual": {
+          "status": "not-applicable",
+          "values": ["not-applicable"],
+          "evidence": "Returns numbers and Blobs; renders nothing."
+        }
+      },
+      "responsive": {
+        "status": "not-applicable",
+        "risks": [],
+        "rationale": "No DOM of its own; consumers own layout."
+      },
+      "npmDependencies": [],
+      "testFiles": ["packages/ui/registry/lib/media-probe.test.ts"],
       "coverage": {
         "source": "required",
         "test": "required",

@@ -1,4 +1,4 @@
-// @vegastack audio-player@0.23.75 sha256-AYdJHPTIak+rC4Sa221f552wpjYNhM7FYXKWZJ2K5ZA=
+// @vegastack audio-player@0.23.75 sha256-UL8nNvFOT1OnPtUcQXU2Ng59kK/3/4XKdrl4NphKBEg=
 
 "use client";
 
@@ -82,16 +82,62 @@ function samplePeaks(buffer: AudioBuffer, barCount: number): number[] {
   return max > 0 ? peaks.map((peak) => peak / max) : peaks;
 }
 
+// The waveform decodes the file itself only up to this size; the whole file and its samples sit in
+// memory while it does. A precomputed `peaks` array skips the download altogether.
+const DEFAULT_MAX_DECODE_BYTES = 20 * 1024 * 1024;
+
+/** Read a response body, giving up (`null`) as soon as it passes `limit` bytes. */
+async function readUpTo(
+  response: Response,
+  limit: number,
+): Promise<ArrayBuffer | null> {
+  const declared = Number(response.headers.get("content-length"));
+  if (Number.isFinite(declared) && declared > limit) return null;
+  const reader = response.body?.getReader();
+  if (!reader) {
+    const bytes = await response.arrayBuffer();
+    return bytes.byteLength > limit ? null : bytes;
+  }
+  const chunks: Uint8Array[] = [];
+  let total = 0;
+  for (;;) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    total += value.byteLength;
+    if (total > limit) {
+      void reader.cancel().catch(() => {});
+      return null;
+    }
+    chunks.push(value);
+  }
+  const bytes = new Uint8Array(total);
+  let offset = 0;
+  for (const chunk of chunks) {
+    bytes.set(chunk, offset);
+    offset += chunk.byteLength;
+  }
+  return bytes.buffer;
+}
+
 /**
  * Fetch and decode `src` via Web Audio, returning normalized waveform peaks.
  * Runs only while `enabled`; aborts the fetch and closes the `AudioContext` on
  * unmount or `src` change. Returns `[]` before decode completes or on failure —
- * the waveform seek falls back to flat placeholder bars and stays operable.
+ * the waveform seek falls back to flat placeholder bars and stays operable. A
+ * file over `maxBytes` (by its Content-Length, or once the download passes it)
+ * is never decoded: `tooLarge` turns true and the player shows the plain seek
+ * slider instead.
  */
-function useAudioPeaks(src: string, enabled: boolean): readonly number[] {
+function useAudioPeaks(
+  src: string,
+  enabled: boolean,
+  maxBytes: number,
+): { peaks: readonly number[]; tooLarge: boolean } {
   const [peaks, setPeaks] = React.useState<readonly number[]>([]);
+  const [tooLarge, setTooLarge] = React.useState(false);
 
   React.useEffect(() => {
+    setTooLarge(false);
     if (!enabled || !src || typeof window === "undefined") {
       setPeaks([]);
       return;
@@ -116,8 +162,14 @@ function useAudioPeaks(src: string, enabled: boolean): readonly number[] {
     void (async () => {
       try {
         const response = await fetch(src, { signal: controller.signal });
-        const bytes = await response.arrayBuffer();
+        const bytes = await readUpTo(response, maxBytes);
         if (cancelled) return;
+        if (!bytes) {
+          controller.abort();
+          setPeaks([]);
+          setTooLarge(true);
+          return;
+        }
         context = new AudioContextCtor();
         const audioBuffer = await context.decodeAudioData(bytes);
         if (cancelled) return;
@@ -134,9 +186,9 @@ function useAudioPeaks(src: string, enabled: boolean): readonly number[] {
       controller.abort();
       closeContext();
     };
-  }, [src, enabled]);
+  }, [src, enabled, maxBytes]);
 
-  return peaks;
+  return { peaks, tooLarge };
 }
 
 /**
@@ -345,6 +397,19 @@ export interface AudioPlayerProps extends Omit<
    * @default undefined
    */
   actionsRef?: React.Ref<AudioPlayerActions>;
+  /**
+   * Precomputed waveform amplitudes for the `waveform` variant — any count, scaled so the
+   * loudest is full height (`probeAudio` from `media-probe` returns up to 200 at upload). With
+   * them the player never downloads the file to decode it.
+   * @default undefined
+   */
+  peaks?: readonly number[];
+  /**
+   * Without `peaks`, the `waveform` variant downloads and decodes the file itself — only up to
+   * this many bytes. A larger file shows the plain seek slider instead.
+   * @default 20971520 (20 MB)
+   */
+  maxDecodeBytes?: number;
 }
 
 /**
@@ -393,6 +458,8 @@ export function AudioPlayer({
   onRetry,
   onSourceExpired,
   actionsRef,
+  peaks,
+  maxDecodeBytes = DEFAULT_MAX_DECODE_BYTES,
   ref,
   ...props
 }: AudioPlayerProps) {
@@ -502,7 +569,20 @@ export function AudioPlayer({
   }, [audioSrc, ensureSource, isLazy]);
 
   const isWaveform = variant === "waveform";
-  const waveformPeaks = useAudioPeaks(audioSrc ?? "", isWaveform);
+  const hasPeaks = peaks != null && peaks.length > 0;
+  const decoded = useAudioPeaks(
+    audioSrc ?? "",
+    isWaveform && !hasPeaks,
+    maxDecodeBytes,
+  );
+  const givenPeaks = React.useMemo(() => {
+    if (!peaks?.length) return null;
+    const loudest = Math.max(...peaks.map((peak) => Math.abs(peak)));
+    return loudest > 0 ? peaks.map((peak) => Math.abs(peak) / loudest) : peaks;
+  }, [peaks]);
+  const waveformPeaks = givenPeaks ?? decoded.peaks;
+  // Too big to decode and no peaks given: a plain seek slider rather than a flat, fake waveform.
+  const showWaveform = isWaveform && (hasPeaks || !decoded.tooLarge);
 
   // ── Imperative seek ──────────────────────────────────────────────────────
   const pendingSeekRef = React.useRef<{
@@ -721,7 +801,9 @@ export function AudioPlayer({
                 (url) => {
                   if (seq !== renewalSeqRef.current) return;
                   pendingSeekRef.current = resumeAt;
-                  setRenewed({ from, url });
+                  // The same URL again (a route that re-signs on every request): reload it.
+                  if (media.getAttribute("src") === url) media.load();
+                  else setRenewed({ from, url });
                 },
                 () => {
                   if (seq === renewalSeqRef.current) setLoadFailed(true);
@@ -760,7 +842,7 @@ export function AudioPlayer({
           onTimeChange={onTimeChange}
           onPlaybackRateChange={onPlaybackRateChange}
           onTranscriptClick={onTranscriptClick}
-          seekVariant={isWaveform ? "waveform" : "slider"}
+          seekVariant={showWaveform ? "waveform" : "slider"}
           waveformPeaks={waveformPeaks}
           waveformFlatPeaks={WAVEFORM_FLAT_BARS}
           loading={showSpinner}

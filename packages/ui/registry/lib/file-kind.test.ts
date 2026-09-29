@@ -58,6 +58,30 @@ describe("fileKindOf", () => {
     expect(fileKindOf(undefined, "README")).toBe("other");
     expect(fileKindOf("application/x-unknown", "x.bin")).toBe("other");
   });
+  it("maps the media, table, Markdown and text files uploads carry", () => {
+    for (const name of ["a.mov", "a.mp4", "a.webm", "a.mkv"])
+      expect(fileKindOf("", name)).toBe("video");
+    for (const name of ["a.mp3", "a.m4a", "a.wav", "a.ogg", "a.flac"])
+      expect(fileKindOf("", name)).toBe("audio");
+    expect(fileKindOf("video/quicktime", "clip.mov")).toBe("video");
+    expect(fileKindOf("audio/x-m4a", "memo.m4a")).toBe("audio");
+    expect(fileKindOf("", "rows.csv")).toBe("spreadsheet");
+    expect(fileKindOf("text/csv", "rows.csv")).toBe("spreadsheet");
+    for (const name of ["a.md", "a.mdx", "a.txt", "a.log"])
+      expect(fileKindOf("", name)).toBe("text");
+    expect(fileKindOf("text/markdown", "a.md")).toBe("text");
+    for (const name of ["a.json", "a.yaml", "a.yml", "a.xml"])
+      expect(fileKindOf("", name)).toBe("code");
+    expect(fileKindOf("application/x-yaml", "a.yaml")).toBe("code");
+    expect(fileKindOf("text/xml", "a.xml")).toBe("code");
+  });
+  it("treats text/plain as generic, so the extension decides", () => {
+    expect(fileKindOf("text/plain", "rows.csv")).toBe("spreadsheet");
+    expect(fileKindOf("text/plain; charset=utf-8", "config.json")).toBe("code");
+    expect(fileKindOf("text/plain", "notes.mdx")).toBe("text");
+    expect(fileKindOf("text/plain", "README")).toBe("text");
+    expect(fileKindOf("text/plain", "server.log")).toBe("text");
+  });
 });
 
 describe("FileTypeIcon", () => {

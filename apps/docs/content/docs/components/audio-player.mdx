@@ -71,6 +71,36 @@ flat placeholder bars render and the seek stays operable.
   file="components/preview/audio-player.tsx"
 />
 
+### Stored peaks
+
+Decoding downloads the whole file, which is wasteful for a long recording. Compute the peaks once
+at upload with `probeAudio` from the `media-probe` lib (up to 200 values), store them with the
+file, and pass them as `peaks`: the waveform draws at once and the file is only streamed when it
+plays. Any count works; the loudest peak is drawn full height.
+
+```tsx
+import { probeAudio } from "@/lib/media-probe";
+
+const { duration, peaks } = await probeAudio(file); // at upload
+<AudioPlayer src={url} variant="waveform" peaks={peaks} />;
+```
+
+<ComponentPreview
+  name="audioPlayerPeaks"
+  file="components/preview/audio-player.tsx"
+/>
+
+### Decode limit
+
+Without `peaks`, the waveform variant decodes the file itself only up to `maxDecodeBytes` (20 MB).
+A larger file — by its `Content-Length`, or as soon as the download passes the limit — is never
+decoded, and the player shows the plain seek slider instead of a flat, fake waveform.
+
+<ComponentPreview
+  name="audioPlayerDecodeLimit"
+  file="components/preview/audio-player.tsx"
+/>
+
 ### With copy
 
 Use `title` and `description` when the player needs a visible track name or short context.

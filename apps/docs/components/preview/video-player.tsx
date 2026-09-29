@@ -70,3 +70,22 @@ export function videoPlayerControlsVisible(): ReactNode {
     </Wrapper>
   );
 }
+
+/**
+ * A video the browser cannot play — an HEVC `.mov`, an `.mkv` — shows "Can’t play this video
+ * here" with a Download button instead of a transport that would do nothing.
+ */
+export function videoPlayerError(): ReactNode {
+  return (
+    <Wrapper>
+      <div className="w-full max-w-2xl">
+        <VideoPlayer
+          src="data:video/mp4;base64,AAAA"
+          poster={POSTER}
+          label="Site walkthrough"
+          downloadHref={SAMPLE_VIDEO}
+        />
+      </div>
+    </Wrapper>
+  );
+}
