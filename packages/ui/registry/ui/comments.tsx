@@ -1,4 +1,4 @@
-// @vegastack comments@0.23.73 sha256-iOylVkm7hLFdXR5Ov3aaM2kPeOIDNu/GfwyOnNYhBX8=
+// @vegastack comments@0.23.73 sha256-2CAXVwwdLda8hQAONvqjIPdpRuXMm471Y5357cu2uP0=
 
 "use client";
 
@@ -987,7 +987,7 @@ export function CommentThread({
                 <Button
                   variant="link"
                   size="sm"
-                  className="h-auto p-0 text-xs"
+                  className="relative h-auto p-0 text-xs before:absolute before:inset-x-0 before:-inset-y-1 before:content-['']"
                   onClick={onExpand}
                 >
                   {replyCount}

@@ -44,11 +44,14 @@ describe("affected component closure", () => {
       "comments",
       "issue-detail-01",
       "markdown-view",
+      // page-editor-01 composes comments and TextEdit (2026-09-29).
+      "page-editor-01",
       // TextEdit's read view is a MarkdownView (2026-09-27).
       "text-edit",
     ]);
     expect(result.componentTestFiles).toEqual([
       "packages/ui/registry/blocks/issue-detail-01/issue-detail-01.test.tsx",
+      "packages/ui/registry/blocks/page-editor-01/page-editor-01.test.tsx",
       "packages/ui/registry/ui/code-block.test.tsx",
       "packages/ui/registry/ui/comments.test.tsx",
       "packages/ui/registry/ui/markdown-view.test.tsx",
@@ -62,6 +65,7 @@ describe("affected component closure", () => {
       "comments",
       "issue-detail-01",
       "markdown-view",
+      "page-editor-01",
       "text-edit",
     ]);
     expect(result.geometryFixtures).toContain("codeBlock");
@@ -83,6 +87,7 @@ describe("affected component closure", () => {
       "copy-button",
       "issue-detail-01",
       "markdown-view",
+      "page-editor-01",
       // status-pages-01's error page copies its reference with CopyButton (DS-60).
       "status-pages-01",
       "terminal",
@@ -115,6 +120,7 @@ describe("affected component closure", () => {
       "comments",
       "issue-detail-01",
       "markdown-view",
+      "page-editor-01",
       "provider",
       "text-edit",
     ]);

@@ -1,17 +1,17 @@
 {
   "schemaVersion": 1,
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "e8180511108c21e2cd54478020f1e054bc46773a458123646fe9e1a7d38772dc",
+  "contractSha256": "4fae3f815fd2339047574d9c693afe265de79cbb4ddf8e27eb6c45d5d6aaa330",
   "inventory": {
-    "expected": 705,
-    "actual": 705,
-    "unique": 705
+    "expected": 709,
+    "actual": 709,
+    "unique": 709
   },
   "classes": {
-    "components": 136,
+    "components": 139,
     "animatedIcons": 467,
     "hooks": 13,
-    "blocks": 12,
+    "blocks": 13,
     "chartBlocks": 68,
     "libs": 9
   },
@@ -129,18 +129,20 @@
       ]
     },
     "Data display": {
-      "expected": 23,
-      "actual": 23,
+      "expected": 26,
+      "actual": 26,
       "members": [
         "board-card",
         "card",
         "carousel",
         "chart",
         "chip",
+        "comment-margin",
         "comments",
         "data-grid",
         "data-list",
         "data-list-pager",
+        "diff-view",
         "inbox",
         "load-more",
         "media-card",
@@ -154,6 +156,7 @@
         "table",
         "thumbnail",
         "timeline",
+        "version-list",
         "view-toggle"
       ]
     },
@@ -221,7 +224,7 @@
     },
     "Block": {
       "expected": 1,
-      "actual": 80,
+      "actual": 81,
       "members": [
         "app-shell-01",
         "board-01",
@@ -299,6 +302,7 @@
         "list-page-01",
         "login-01",
         "notifications-01",
+        "page-editor-01",
         "review-split-01",
         "settings-01",
         "settings-02",
@@ -779,7 +783,7 @@
       ]
     }
   },
-  "componentRoutes": 133,
-  "blockRoutes": 19,
+  "componentRoutes": 136,
+  "blockRoutes": 20,
   "modeledExemptions": 3
 }

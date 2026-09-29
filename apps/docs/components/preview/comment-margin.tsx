@@ -68,20 +68,16 @@ export function commentMarginPopover(): ReactNode {
   const [rect, setRect] = React.useState<DOMRect | null>(null);
   return (
     <Wrapper>
-      <p className="text-sm">
-        Use a{" "}
-        <Button
-          variant="link"
-          className="h-auto p-0 align-baseline"
-          onClick={(event) => {
-            setRect(event.currentTarget.getBoundingClientRect());
-            setOpen(true);
-          }}
-        >
-          25 A breaker
-        </Button>{" "}
-        for the cooker.
-      </p>
+      <Button
+        variant="outline"
+        size="sm"
+        onClick={(event) => {
+          setRect(event.currentTarget.getBoundingClientRect());
+          setOpen(true);
+        }}
+      >
+        Open the thread on “25 A breaker”
+      </Button>
       <CommentPopover anchorRect={rect} open={open} onOpenChange={setOpen}>
         <div className={CARD}>Is 25 A right for a 7 kW cooker?</div>
       </CommentPopover>

@@ -96,6 +96,8 @@ function expectedEnginePackages(dependencies = [], sourceFiles = []) {
     if (dependency.startsWith("react-day-picker"))
       packages.add("react-day-picker");
     if (dependency.startsWith("marked@")) packages.add("marked");
+    // `diff` (jsdiff), the engine behind `diff-view` (MK 2026-09-29).
+    if (dependency.startsWith("diff@")) packages.add("diff");
     // The D1-D4 sanctioned engines (MK, 2026-07-27). `-hitbox` folds into the
     // pragmatic engine identity.
     if (dependency.startsWith("@tanstack/react-table"))
@@ -575,7 +577,7 @@ const expectedWaves = {
   "Forms/editing": 30,
   "Navigation/layout": 19,
   Overlays: 15,
-  "Data display": 23,
+  "Data display": 26,
   "Content/marketing": 14,
   "AI/chat": 8,
   // Not a browse group: components other components install, with no page of their own. See
@@ -702,6 +704,9 @@ const expectedComponentWaveMembers = {
     "board-card",
     "card",
     "comments",
+    "comment-margin",
+    "version-list",
+    "diff-view",
     "carousel",
     "chart",
     "chip",

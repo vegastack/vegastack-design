@@ -1,3 +1,5 @@
+// @vegastack page-editor-01@0.23.73 sha256-Iy/J5Igz+TeP/QLQ2Y9l935YiysSsQ9jFob8kEmY8FE=
+
 "use client";
 
 import * as React from "react";
@@ -162,6 +164,9 @@ function initialVersions(now: number): VersionItem[] {
  * The page editor: header, outline rail, the page with its comment highlights, the threads beside
  * it (a margin on wide screens, a popover below), and the version history sheet. Sample state
  * only — wire each callback to your own data.
+ *
+ * @example
+ * <AppShellPage size="full"><PageEditor /></AppShellPage>
  */
 export function PageEditor() {
   const [now] = React.useState(() => Date.now());
