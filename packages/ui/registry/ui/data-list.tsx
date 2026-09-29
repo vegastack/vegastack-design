@@ -1,4 +1,4 @@
-// @vegastack data-list@0.23.74 sha256-y3L3fILva+owPDMPLGaGhDG0/ZnSzJGFz2uzlUgcXgE=
+// @vegastack data-list@0.23.74 sha256-Omw+tU7A2/qN+klaO7b8ZxQgxuGTKU7P0jkVYKhOvqI=
 
 "use client";
 
@@ -13,7 +13,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { LoadMore, type LoadMoreProps } from "@/components/ui/load-more";
-import { Inbox, SearchX } from "lucide-react";
+import { Inbox, SearchX, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Empty,
@@ -55,7 +55,16 @@ import { BoardCard, type BoardCardProps } from "@/components/ui/board-card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Thumbnail } from "@/components/ui/thumbnail";
 import { ViewToggle, type ListView } from "@/components/ui/view-toggle";
-import type { DragReorderMove } from "@/components/ui/use-drag-reorder";
+import {
+  useDragInto,
+  type DragReorderMove,
+} from "@/components/ui/use-drag-reorder";
+import { Checkbox } from "@/components/ui/checkbox";
+import {
+  ActionBar,
+  ActionBarButton,
+  ActionBarSeparator,
+} from "@/components/ui/action-bar";
 
 export type {
   DataTableColumnMobile,
@@ -271,6 +280,64 @@ export interface DataListProps<T> extends Omit<
    * @default undefined
    */
   onSelectionChange?: (selectedIds: Set<string>) => void;
+  /**
+   * The actions for the current selection. When set, an `ActionBar` docks at the bottom of the
+   * screen, centred over the list, while anything is selected: the count, these actions (compose
+   * `ActionBarButton`), and "Clear selection". On a narrow screen the actions scroll sideways
+   * instead of overflowing. `clear` empties the selection — call it after a bulk action.
+   * @default undefined
+   */
+  selectionActions?: (
+    selectedIds: ReadonlySet<string>,
+    clear: () => void,
+  ) => React.ReactNode;
+  /**
+   * The selection bar's status text.
+   * @default (count) => `${count} selected`
+   */
+  selectionLabel?: (count: number) => string;
+  /**
+   * The selection bar's clear button, as a screen reader hears it.
+   * @default "Clear selection"
+   */
+  clearSelectionLabel?: string;
+  /**
+   * The selection bar's accessible name.
+   * @default "Selection actions"
+   */
+  selectionBarLabel?: string;
+  /**
+   * Rows (list) and cards (grid) can be dragged onto drop targets — rows `canDropOnRow`
+   * accepts, and any `BreadcrumbDropTarget` (or other `useDragInto`) in the same `dragScope`.
+   * Dragging a selected row carries the whole selection. Called for a valid drop; return a
+   * promise for a server-gated move. The keyboard path is the host's own "Move…" action.
+   * @default undefined
+   */
+  onDropInto?: (move: DataListDropMove) => void | Promise<void>;
+  /**
+   * Whether a drop is allowed — a folder cannot go into itself or its own descendants. An
+   * invalid target shows `data-drop-invalid` and refuses the drop. A row can never take a drag
+   * that carries it.
+   * @default undefined
+   */
+  canDropInto?: (move: DataListDropMove) => boolean;
+  /**
+   * Which rows are drop targets (a folder). Without it rows only drag, onto targets elsewhere.
+   * @default undefined
+   */
+  canDropOnRow?: (row: T) => boolean;
+  /**
+   * Share the drag with drop targets outside the list (`BreadcrumbDropTarget`, a tree using
+   * `useDragInto`) that name the same scope.
+   * @default undefined
+   */
+  dragScope?: string;
+  /**
+   * The drag image's label for a drag that carries several rows (and for a single table row
+   * with no `getRowLabel`; a grid card's drag image is the card itself).
+   * @default (count) => (count === 1 ? "1 item" : `${count} items`)
+   */
+  dragItemsLabel?: (count: number) => string;
   /**
    * Controlled active sort. Pair with `onSortChange`. Omit for uncontrolled
    * sorting (the component tracks which header is active, but you must still
@@ -554,6 +621,14 @@ export interface DataListProps<T> extends Omit<
    * @default "fill"
    */
   boardHeight?: "fill" | "auto" | (string & {});
+}
+
+/** A drop of dragged rows onto a target — what `onDropInto` and `canDropInto` receive. */
+export interface DataListDropMove {
+  /** The dragged row ids — one row, or the whole selection when a selected row was dragged. */
+  ids: string[];
+  /** The target's id: a row's id (`getRowId`), or the key a `BreadcrumbDropTarget` names. */
+  targetId: string;
 }
 
 /** The copy of an empty list's design-system `Empty`. */
@@ -953,6 +1028,15 @@ export function DataList<T>({
   selectable = false,
   selectedIds,
   onSelectionChange,
+  selectionActions,
+  selectionLabel = (count) => `${count} selected`,
+  clearSelectionLabel = "Clear selection",
+  selectionBarLabel = "Selection actions",
+  onDropInto,
+  canDropInto,
+  canDropOnRow,
+  dragScope,
+  dragItemsLabel = (count) => (count === 1 ? "1 item" : `${count} items`),
   sort,
   onSortChange,
   loading = false,
@@ -1000,6 +1084,7 @@ export function DataList<T>({
   ref,
   ...tableProps
 }: DataListProps<T>) {
+  const rootRef = React.useRef<HTMLDivElement | null>(null);
   const loadingStatusId = React.useId();
   const hiddenHintId = React.useId();
   const sortHintId = React.useId();
@@ -1171,8 +1256,14 @@ export function DataList<T>({
     [data, getRowId],
   );
 
-  const { selected, allSelected, indeterminate, toggleAll, toggleRow } =
-    useRowSelection({ rowIds, selectedIds, onSelectionChange });
+  const {
+    selected,
+    allSelected,
+    indeterminate,
+    toggleAll,
+    toggleRow,
+    setSelected,
+  } = useRowSelection({ rowIds, selectedIds, onSelectionChange });
 
   // One cell's content: `column.render` invoked as a plain function (see its
   // JSDoc), or the raw `row[key]`. Shared by a column's own cell and by the
@@ -1304,10 +1395,13 @@ export function DataList<T>({
       className: rowClassName,
       ...rowAttributes
     } = rowProps?.(row, index) ?? {};
+    const drag = dragProps(id, row);
     return (
       <TableRow
         key={id}
         {...rowAttributes}
+        {...drag}
+        data-row-id={id}
         data-highlighted={highlighted ? "" : undefined}
         data-slot="data-list-row"
         data-selected={isSelected ? "" : undefined}
@@ -1326,6 +1420,10 @@ export function DataList<T>({
           // A highlighted row (`rowProps` → `highlighted`) eases into the accent wash over
           // `TableRow`'s own `transition-colors`; reduced motion drops the ease (global reset).
           highlighted && "bg-accent duration-slow",
+          // Drag into: the carried rows dim, and a target washes in the primary tint (in the
+          // destructive tint when it refuses the drop) — `FolderTree`'s own drop vocabulary.
+          drag &&
+            "data-dragging:opacity-50 data-drop-invalid:bg-destructive/10 data-drop-over:bg-primary/10",
           rowClassName,
           // A checked row keeps a persistent half-`muted` wash through hover and press
           // (SP-06), light enough that a `secondary` Badge in it stays visible — see
@@ -1336,8 +1434,9 @@ export function DataList<T>({
       >
         {selectable && (
           <SelectionCell
+            {...readShift}
             checked={isSelected}
-            onToggle={() => toggleRow(id)}
+            onToggle={() => toggleFromCheckbox(id)}
             label={
               getRowLabel
                 ? `Select ${getRowLabel(row)}`
@@ -1384,7 +1483,7 @@ export function DataList<T>({
               )}
             >
               {colIdx === 0 && linkFirstCell ? (
-                <RowLink href={href!} render={rowLinkRender}>
+                <RowLink href={href!} render={cardLinkRender}>
                   {content}
                 </RowLink>
               ) : isActionCell ? (
@@ -1498,6 +1597,139 @@ export function DataList<T>({
       out.push({ id: "__unsectioned", label: null, indexes: rest });
     return out;
   }, [data, getRowSection, sections]);
+
+  // ---- selection: ranges, keyboard, the bar -----------------------------------------------
+  // The rows as they read, top to bottom — a shift-click range runs over these. A collapsed
+  // section's rows are not on screen in the list, so a range steps over them.
+  const displayOrder = React.useMemo(() => {
+    if (!sectionGroups) return rowIds;
+    return sectionGroups.flatMap((group) =>
+      activeView === "list" &&
+      group.label != null &&
+      groups[group.id] === "collapsed"
+        ? []
+        : group.indexes.map((index) => rowIds[index]!),
+    );
+  }, [sectionGroups, rowIds, activeView, groups]);
+  // The last row toggled one at a time: a shift-toggle selects (or clears) everything from it.
+  const anchorId = React.useRef<string | null>(null);
+  // Whether Shift was down on the gesture that is toggling a checkbox. Base UI toggles through
+  // its hidden input's change event, which carries no modifiers, so the pointer or key press
+  // that started it is read in the capture phase.
+  const shiftHeld = React.useRef(false);
+  const readShift = {
+    onPointerDownCapture: (event: React.PointerEvent) => {
+      shiftHeld.current = event.shiftKey;
+    },
+    onKeyDownCapture: (event: React.KeyboardEvent) => {
+      shiftHeld.current = event.shiftKey;
+    },
+  };
+  const toggleFromCheckbox = (id: string) => {
+    const range = shiftHeld.current;
+    shiftHeld.current = false;
+    const anchor = anchorId.current;
+    anchorId.current = id;
+    const from = anchor === null ? -1 : displayOrder.indexOf(anchor);
+    const to = displayOrder.indexOf(id);
+    if (!range || from < 0 || to < 0 || from === to) {
+      toggleRow(id);
+      return;
+    }
+    const on = !selected.has(id);
+    const next = new Set(selected);
+    for (const rangeId of displayOrder.slice(
+      Math.min(from, to),
+      Math.max(from, to) + 1,
+    )) {
+      if (on) next.add(rangeId);
+      else next.delete(rangeId);
+    }
+    setSelected(next);
+  };
+  const clearSelection = React.useCallback(() => {
+    anchorId.current = null;
+    setSelected(new Set());
+  }, [setSelected]);
+  // ⌘/Ctrl+A selects every row, Escape clears, and Space on a row's own link toggles that row —
+  // while focus is in the list, never from a text field, and never from a popup (a row's ⋯ menu
+  // portals out of the list, so its keys bubble here through React but not through the DOM).
+  const handleSelectionKeys = (event: React.KeyboardEvent<HTMLDivElement>) => {
+    if (!selectable || event.defaultPrevented) return;
+    const target = event.target as HTMLElement;
+    if (!event.currentTarget.contains(target)) return;
+    if (target.closest('input, textarea, select, [contenteditable="true"]'))
+      return;
+    const key = event.key.toLowerCase();
+    if (key === "a" && (event.metaKey || event.ctrlKey) && !event.altKey) {
+      if (rowIds.length === 0) return;
+      event.preventDefault();
+      const next = new Set(selected);
+      for (const id of rowIds) next.add(id);
+      setSelected(next);
+    } else if (key === "escape" && selected.size > 0) {
+      event.preventDefault();
+      clearSelection();
+    } else if (
+      event.key === " " &&
+      !event.metaKey &&
+      !event.ctrlKey &&
+      !event.altKey &&
+      target.matches(
+        '[data-slot="data-list-row-link"], [data-slot="media-card-link"]',
+      )
+    ) {
+      const id = target
+        .closest<HTMLElement>("[data-row-id]")
+        ?.getAttribute("data-row-id");
+      if (id == null) return;
+      event.preventDefault();
+      anchorId.current = id;
+      toggleRow(id);
+    }
+  };
+
+  // ---- drag rows INTO targets ---------------------------------------------------------------
+  const draggable = onDropInto !== undefined;
+  const labelOfId = (id: string) => {
+    const index = rowIds.indexOf(id);
+    return index >= 0 && getRowLabel ? getRowLabel(data[index]!) : undefined;
+  };
+  const into = useDragInto({
+    disabled: !draggable,
+    scope: dragScope,
+    getDragIds: (id) =>
+      selectable && selected.has(id)
+        ? [
+            ...rowIds.filter((rowId) => selected.has(rowId)),
+            ...[...selected].filter((rowId) => !rowIds.includes(rowId)),
+          ]
+        : [id],
+    // Several rows are named ("3 items"); one table row is named too, since a copy of a `<tr>`
+    // outside its table loses its layout. One grid card drags as itself.
+    getDragPreviewLabel: (ids) =>
+      ids.length > 1
+        ? dragItemsLabel(ids.length)
+        : activeView === "grid"
+          ? undefined
+          : (labelOfId(ids[0]!) ?? dragItemsLabel(1)),
+    canDrop: ({ ids, targetKey }) =>
+      canDropInto?.({ ids, targetId: targetKey }) ?? true,
+    onDrop: ({ ids, targetKey }) => {
+      void onDropInto?.({ ids, targetId: targetKey });
+    },
+  });
+  const dragProps = (id: string, row: T) =>
+    draggable
+      ? into.getItemProps(id, {
+          drag: true,
+          drop: canDropOnRow?.(row) ? "whole" : false,
+        })
+      : undefined;
+  // A row link's own native drag (its URL) would win over the row's.
+  const cardLinkRender = draggable
+    ? React.cloneElement(rowLinkRender ?? <a />, { draggable: false })
+    : rowLinkRender;
 
   const table = (
     // DS-68: a list owns its keyboard model — a row link or a row click, not one tab stop per
@@ -1650,8 +1882,13 @@ export function DataList<T>({
       <MediaCard
         size={onBoard ? "default" : gridSize}
         surface={!onBoard}
+        // A selectable default-size card keeps a gutter for its checkbox, so the checkbox never
+        // covers the title or thumbnail; a `lg` card's checkbox sits on its image instead.
+        className={
+          !onBoard && selectable && gridSize !== "lg" ? "ps-9" : undefined
+        }
         href={onBoard ? undefined : getRowHref?.(row)}
-        linkRender={rowLinkRender}
+        linkRender={onBoard ? rowLinkRender : cardLinkRender}
         image={thumb ? thumb.src : undefined}
         imagePlaceholder={thumb?.placeholder}
         imageSrcSet={thumb?.srcSet}
@@ -1677,15 +1914,69 @@ export function DataList<T>({
       ? "@xl/data-list:grid-cols-2 @5xl/data-list:grid-cols-3"
       : "@xl/data-list:grid-cols-2 @4xl/data-list:grid-cols-3",
   );
+  const selecting = selectable && displayOrder.some((id) => selected.has(id));
   const gridCards = (indexes: number[]) => (
     <div role="list" data-slot="data-list-grid" className={gridClass}>
-      {indexes.map((index) => (
-        <div role="listitem" key={rowIds[index]} className="min-w-0">
-          {renderCard
-            ? renderCard(data[index]!, index)
-            : defaultCard(data[index]!, index, false)}
-        </div>
-      ))}
+      {indexes.map((index) => {
+        const row = data[index]!;
+        const id = rowIds[index]!;
+        const isSelected = selectable && selected.has(id);
+        const drag = dragProps(id, row);
+        return (
+          <div
+            role="listitem"
+            key={id}
+            {...drag}
+            data-row-id={id}
+            data-slot="data-list-grid-item"
+            data-selected={isSelected ? "" : undefined}
+            className={cn(
+              "group/data-list-card relative min-w-0 rounded-lg",
+              // A selected card keeps the list's selected wash over its own surface.
+              isSelected &&
+                "*:data-[slot=media-card]:bg-muted/50 *:data-[slot=media-card]:hover:bg-muted/50",
+              // Drag into — the list rows' vocabulary, laid over the card so any `renderCard`
+              // shows it.
+              drag &&
+                "data-dragging:opacity-50 data-drop-invalid:after:pointer-events-none data-drop-invalid:after:absolute data-drop-invalid:after:inset-0 data-drop-invalid:after:rounded-lg data-drop-invalid:after:bg-destructive/10 data-drop-invalid:after:content-[''] data-drop-over:after:pointer-events-none data-drop-over:after:absolute data-drop-over:after:inset-0 data-drop-over:after:rounded-lg data-drop-over:after:bg-primary/10 data-drop-over:after:content-['']",
+            )}
+          >
+            {renderCard
+              ? renderCard(row, index)
+              : defaultCard(row, index, false)}
+            {selectable ? (
+              // The card's checkbox: above its stretched link, shown on hover or focus and
+              // always once anything is selected (or on a touch screen, which has no hover).
+              <span
+                {...readShift}
+                data-slot="data-list-card-select"
+                className={cn(
+                  "absolute z-20 flex rounded-sm transition-opacity",
+                  // Centred in the default card's gutter; on an image (`lg`) or a host's own
+                  // card, in the top corner.
+                  !renderCard && gridSize !== "lg"
+                    ? "start-2.5 top-1/2 -translate-y-1/2"
+                    : // Over an image, a backing keeps the box readable.
+                      "start-2 top-2 bg-background p-0.5",
+                  isSelected || selecting
+                    ? "opacity-100"
+                    : "opacity-0 group-hover/data-list-card:opacity-100 focus-within:opacity-100 pointer-coarse:opacity-100",
+                )}
+              >
+                <Checkbox
+                  checked={isSelected}
+                  onCheckedChange={() => toggleFromCheckbox(id)}
+                  aria-label={
+                    getRowLabel
+                      ? `Select ${getRowLabel(row)}`
+                      : `Select row ${index + 1}`
+                  }
+                />
+              </span>
+            ) : null}
+          </div>
+        );
+      })}
     </div>
   );
   const emptyContent = noResults ? (
@@ -1830,10 +2121,37 @@ export function DataList<T>({
       toolbar
     );
 
+  const selectionCount = selected.size;
+  const selectionBar =
+    selectable && selectionActions ? (
+      <ActionBar
+        data-slot="data-list-selection-bar"
+        open={selectionCount > 0}
+        status={selectionLabel(selectionCount)}
+        containerRef={rootRef}
+        aria-label={selectionBarLabel}
+      >
+        {selectionActions(selected, clearSelection)}
+        <ActionBarSeparator />
+        <ActionBarButton
+          render={<Button variant="ghost" size="icon-sm" />}
+          aria-label={clearSelectionLabel}
+          onClick={clearSelection}
+        >
+          <X />
+        </ActionBarButton>
+      </ActionBar>
+    ) : null;
+
   return (
+    // The keydown handler is the list's selection shortcuts (⌘/Ctrl+A, Escape, Space on a row
+    // link); the list's own controls stay the interactive elements, so no role is claimed here.
     <div
+      ref={rootRef}
       data-slot="data-list-root"
       data-view={activeView}
+      data-selecting={selectable && selectionCount > 0 ? "" : undefined}
+      onKeyDown={selectable ? handleSelectionKeys : undefined}
       className="@container/data-list flex w-full min-w-0 flex-col gap-3"
     >
       {toolbarWithToggle != null ? (
@@ -1846,6 +2164,7 @@ export function DataList<T>({
           : table}
       {loadMore ? <LoadMore {...loadMore} /> : null}
       {footer != null ? <div data-slot="data-list-footer">{footer}</div> : null}
+      {selectionBar}
     </div>
   );
 }

@@ -2,10 +2,10 @@
   "schemaVersion": 1,
   "kind": "vegastack-zero-gap-audit-register",
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "d23232ccbed80c16ae0413ceb653c48cee381841acb46dbee77a84fc23cd098d",
+  "contractSha256": "dab447dbfbff0222bab86df1612f04b285d2ef34142fa591a3bce437296a2daa",
   "expectedCounts": {
-    "totalRegistryItems": 709,
-    "components": 139,
+    "totalRegistryItems": 711,
+    "components": 141,
     "animatedIcons": 467,
     "hooks": 13,
     "blocks": 13,
@@ -198,6 +198,17 @@
         "packages/ui/registry/ui/breadcrumb.tsx"
       ],
       "docsSlug": "/docs/components/breadcrumb",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "breadcrumb-cascade",
+      "inventoryClass": "component",
+      "wave": "Navigation/layout",
+      "family": "navigation",
+      "sourceFiles": [
+        "packages/ui/registry/ui/breadcrumb-cascade.tsx"
+      ],
+      "docsSlug": "/docs/components/breadcrumb-cascade",
       "contractStatus": "reconciled"
     },
     {
@@ -694,6 +705,17 @@
         "packages/ui/registry/ui/folder-tree.tsx"
       ],
       "docsSlug": "/docs/components/folder-tree",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "table-of-contents",
+      "inventoryClass": "component",
+      "wave": "Navigation/layout",
+      "family": "navigation",
+      "sourceFiles": [
+        "packages/ui/registry/ui/table-of-contents.tsx"
+      ],
+      "docsSlug": "/docs/components/table-of-contents",
       "contractStatus": "reconciled"
     },
     {

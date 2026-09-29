@@ -59,7 +59,7 @@
         "whenToUse": "A floating bar of contextual actions tied to transient state — N selected, unsaved changes, a batch operation in flight. The host owns the state; the bar shows status and actions.",
         "whenNotToUse": "Transient outcome notifications (toast), page-level primary actions (PageHeader), or owning selection — the host's list keeps selectedIds.",
         "version": "0.23.74",
-        "integrity": "sha256-c/YwDCSHAOHyxrVcEpxk//qm/skK1rYSuHE++wQoaRA="
+        "integrity": "sha256-XwJJH2CJyX9vrjJoksnIqw47sG1dz5bZHJtcj94MHfY="
       }
     },
     {
@@ -741,6 +741,40 @@
       }
     },
     {
+      "name": "breadcrumb-cascade",
+      "type": "registry:ui",
+      "title": "Breadcrumb Cascade",
+      "description": "Two additions to a breadcrumb trail for a file browser: BreadcrumbDropTarget, a crumb that takes rows dragged from a DataList, and BreadcrumbSiblings, a menu of a segment's siblings.",
+      "categories": [
+        "navigation"
+      ],
+      "dependencies": [
+        "@base-ui/react@^1.6.0",
+        "lucide-react@^1.47.0",
+        "@vegastack/design@^0.7.61",
+        "@vegastack/design-tokens@^0.7.56"
+      ],
+      "registryDependencies": [
+        "@vegastack/breadcrumb",
+        "@vegastack/button",
+        "@vegastack/dropdown-menu",
+        "@vegastack/use-drag-reorder"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/breadcrumb-cascade.tsx",
+          "type": "registry:ui",
+          "target": "@ui/breadcrumb-cascade.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "A file browser's trail: drop rows onto a parent folder's crumb, or jump to a sibling folder from a segment's menu.",
+        "whenNotToUse": "A plain location trail (Breadcrumb alone), or primary navigation.",
+        "version": "0.23.74",
+        "integrity": "sha256-VZwrM8ZEnC3M7ywB6lwMhzIll6l98rW0R10AvFJYIxM="
+      }
+    },
+    {
       "name": "bubble",
       "type": "registry:ui",
       "title": "Bubble",
@@ -1334,7 +1368,7 @@
       "name": "data-list",
       "type": "registry:ui",
       "title": "Data List",
-      "description": "A generic, typed data table — configurable columns, row selection, sortable columns (indicator, custom compare and first direction, client or manual), a standard rowActions ⋯ column always last, untinted-link rows (no underline), loading, and Empty-based emptyState and noResults states.",
+      "description": "A generic, typed data table — configurable columns, row selection (shift ranges, ⌘/Ctrl+A, Esc, a selection ActionBar), sortable columns (indicator, custom compare and first direction, client or manual), a standard rowActions ⋯ column always last, untinted-link rows (no underline), loading, Empty-based emptyState and noResults states, and rows that drag into folders and breadcrumbs.",
       "categories": [
         "data"
       ],
@@ -1357,7 +1391,9 @@
         "@vegastack/skeleton",
         "@vegastack/thumbnail",
         "@vegastack/view-toggle",
-        "@vegastack/use-drag-reorder"
+        "@vegastack/use-drag-reorder",
+        "@vegastack/checkbox",
+        "@vegastack/action-bar"
       ],
       "files": [
         {
@@ -1370,7 +1406,7 @@
         "whenToUse": "A list of records as a table, a card grid or board lanes (view) with typed columns, selection, click-to-sort, loading/empty states, keyset paging through loadMore, rows as links, sections, thumbnails and a row-actions column.",
         "whenNotToUse": "Full-parity grids with grouping/editing/virtualization (DataGrid), or a simple static table (Table).",
         "version": "0.23.74",
-        "integrity": "sha256-y3L3fILva+owPDMPLGaGhDG0/ZnSzJGFz2uzlUgcXgE="
+        "integrity": "sha256-Omw+tU7A2/qN+klaO7b8ZxQgxuGTKU7P0jkVYKhOvqI="
       }
     },
     {
@@ -1556,7 +1592,7 @@
         "whenToUse": "Installed automatically with DataList or DataGrid; import it directly when building a bespoke table that should share their sort header, selection cells and column rules.",
         "whenNotToUse": "A plain presentational table (Table alone), or as a table component in its own right — these are parts, not a renderer.",
         "version": "0.23.74",
-        "integrity": "sha256-F1LBLCI5w8l2lG5JZW58BFpcjrPwufco+Grm7lFQTYk="
+        "integrity": "sha256-6f/LKBXZ+HGMt00WmYMeMpUg2PrNsPrhurfVay73oOo="
       }
     },
     {
@@ -15448,6 +15484,38 @@
       }
     },
     {
+      "name": "table-of-contents",
+      "type": "registry:ui",
+      "title": "Table of Contents",
+      "description": "The “On this page” outline of a long document — links to its headings with the one the reader has reached marked by a scroll spy; an always-labelled list, a rail of ticks that opens on hover or focus, or a left Sheet from a trigger on narrow screens. Exports useActiveHeading for custom outlines.",
+      "categories": [
+        "navigation"
+      ],
+      "dependencies": [
+        "lucide-react@^1.47.0",
+        "@vegastack/design@^0.7.61",
+        "@vegastack/design-tokens@^0.7.56"
+      ],
+      "registryDependencies": [
+        "@vegastack/sheet",
+        "@vegastack/use-list-nav",
+        "@vegastack/use-media-query"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/table-of-contents.tsx",
+          "type": "registry:ui",
+          "target": "@ui/table-of-contents.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "Headings of a long document (TextEdit onOutlineChange, MarkdownView headingIds) as an “On this page” list or rail, with a trigger instance in the header below the rail's breakpoint.",
+        "whenNotToUse": "App navigation between pages (Sidebar, NavigationMenu, Breadcrumb), or a folder hierarchy (FolderTree).",
+        "version": "0.23.74",
+        "integrity": "sha256-jSENk02uFtxDuKRGmElf9N/nGShARfR2DvJVfmusaPg="
+      }
+    },
+    {
       "name": "image",
       "type": "registry:ui",
       "title": "Image",
@@ -17448,7 +17516,7 @@
         "whenToUse": "Comments, notes, summaries and documents stored as Markdown (format=\"markdown\") or HTML — with @ mentions, uploads, callouts, toggles, an outline and comment highlights for page editors; in-place editing of a MarkdownView (the read view is the editor until first edited).",
         "whenNotToUse": "Plain single-line input (Input) or collaborative real-time docs (deferred text-edit-collab).",
         "version": "0.23.74",
-        "integrity": "sha256-bLK5Ldgqgv8/mdH/ErZhhJp1ft+AH4c1Ui1Qa/TGZZY="
+        "integrity": "sha256-ioL+L/BsFDP5o4JFPnDt4mh8i8elZcSHzhC++wux9tY="
       }
     },
     {
@@ -17794,7 +17862,7 @@
         "whenToUse": "Any reorder-by-drag surface — sortable lists, wrapped tile grids (`columns` for row-aware ↑/↓), board cards, a future bespoke drag surface — where pointer, keyboard move mode, announcements, and server-refusable drops must all work from one API.",
         "whenNotToUse": "File drag-in (use-file-drop), resizing panes (Resizable), or single-axis value dragging (Slider).",
         "version": "0.23.74",
-        "integrity": "sha256-qUh7TSqDQC/mnQ4tpj1+UzeCDKxcYAffHERPUS7kBLA="
+        "integrity": "sha256-DwDo1WyqvhBrydeDcoBjP7J+QSdC6Ve4rhrDak2zJM4="
       }
     },
     {
@@ -18192,6 +18260,7 @@
         "@vegastack/dropdown-menu",
         "@vegastack/person-avatar",
         "@vegastack/sheet",
+        "@vegastack/table-of-contents",
         "@vegastack/text-edit",
         "@vegastack/use-media-query",
         "@vegastack/version-list"
@@ -18212,7 +18281,7 @@
         "whenToUse": "A document page with inline comments and version history; compose the same components in your app.",
         "whenNotToUse": "A record page with properties and a comments section — use issue-detail-01.",
         "version": "0.23.74",
-        "integrity": "sha256-oGNX+rdVd5lG3nTzxQ+czUzWLyFktyfANtwYgIPyL/c="
+        "integrity": "sha256-wc9q8xT70MPlJOOihMdjud47h7yyPm5saWNVdIXEn4k="
       }
     },
     {

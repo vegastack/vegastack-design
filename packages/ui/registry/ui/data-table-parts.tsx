@@ -1,4 +1,4 @@
-// @vegastack data-table-parts@0.23.74 sha256-F1LBLCI5w8l2lG5JZW58BFpcjrPwufco+Grm7lFQTYk=
+// @vegastack data-table-parts@0.23.74 sha256-6f/LKBXZ+HGMt00WmYMeMpUg2PrNsPrhurfVay73oOo=
 
 "use client";
 
@@ -1466,6 +1466,8 @@ export interface UseRowSelectionResult {
   toggleAll: () => void;
   /** Toggle one row. */
   toggleRow: (id: string) => void;
+  /** Replace the whole selection — a range, select-all from the keyboard, or clear. */
+  setSelected: (next: Set<string>) => void;
 }
 
 /**
@@ -1523,5 +1525,6 @@ export function useRowSelection({
     indeterminate: someSelected && !allSelected,
     toggleAll,
     toggleRow,
+    setSelected: commit,
   };
 }

@@ -1,4 +1,4 @@
-// @vegastack page-editor-01@0.23.74 sha256-oGNX+rdVd5lG3nTzxQ+czUzWLyFktyfANtwYgIPyL/c=
+// @vegastack page-editor-01@0.23.74 sha256-wc9q8xT70MPlJOOihMdjud47h7yyPm5saWNVdIXEn4k=
 
 "use client";
 
@@ -43,6 +43,7 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
+import { TableOfContents } from "@/components/ui/table-of-contents";
 import {
   TextEdit,
   type TextAnchor,
@@ -161,8 +162,9 @@ function initialVersions(now: number): VersionItem[] {
 }
 
 /**
- * The page editor: header, outline rail, the page with its comment highlights, the threads beside
- * it (a margin on wide screens, a popover below), and the version history sheet. Sample state
+ * The page editor: header, outline (a `TableOfContents` rail on wide screens, an "Outline" sheet
+ * below), the page with its comment highlights, the threads beside it (a margin on wide screens, a
+ * popover below), and the version history sheet. Sample state
  * only — wire each callback to your own data.
  *
  * @example
@@ -188,7 +190,12 @@ export function PageEditor() {
     () =>
       threads
         .filter((thread) => !thread.resolved)
-        .map(({ id, anchor }) => ({ id, anchor })),
+        // The count pill shows the thread's comments: the first one plus its replies.
+        .map(({ id, anchor, replies }) => ({
+          id,
+          anchor,
+          count: 1 + replies.length,
+        })),
     [threads],
   );
   const open = threads.filter((thread) => !thread.resolved);
@@ -265,11 +272,14 @@ export function PageEditor() {
           ?.getBoundingClientRect() ?? null)
       : null;
   const version = versions.find((item) => item.id === selectedVersion);
+  const scrollToHeading = (id: string) => handle.current?.scrollToHeading(id);
 
   return (
     <div data-slot="page-editor" className="flex min-w-0 flex-col gap-4">
       <header className="flex min-h-10 flex-wrap items-center gap-2">
-        <Breadcrumb className="min-w-0 flex-1">
+        {/* `basis-48`: on a narrow page the trail keeps a readable width and the header's
+            controls wrap to the next line, rather than the trail shrinking to one word a line. */}
+        <Breadcrumb className="min-w-0 flex-1 basis-48">
           <BreadcrumbList>
             <BreadcrumbItem>
               <BreadcrumbLink href="#">Library</BreadcrumbLink>
@@ -290,6 +300,16 @@ export function PageEditor() {
         >
           {saved ? "Saved" : "Saving…"}
         </span>
+        <TableOfContents
+          items={outline}
+          onNavigate={scrollToHeading}
+          trigger={
+            <Button variant="ghost" size="sm" className="lg:hidden">
+              <ListTree aria-hidden />
+              Outline
+            </Button>
+          }
+        />
         <AvatarGroup aria-label="Also editing: Bo Lindqvist">
           <PersonAvatar person={BO} />
         </AvatarGroup>
@@ -333,27 +353,12 @@ export function PageEditor() {
       </header>
 
       <div className="flex min-w-0 gap-8">
-        <nav
-          aria-label="On this page"
-          className="hidden w-44 shrink-0 flex-col gap-0.5 lg:flex"
-        >
-          <span className="flex items-center gap-1.5 px-2 pb-1 text-xs font-medium text-muted-foreground">
-            <ListTree aria-hidden className="size-3.5" />
-            On this page
-          </span>
-          {outline.map((heading) => (
-            <Button
-              key={heading.id}
-              variant="ghost"
-              size="sm"
-              className="justify-start truncate font-normal"
-              style={{ paddingInlineStart: `${heading.level * 0.5}rem` }}
-              onClick={() => handle.current?.scrollToHeading(heading.id)}
-            >
-              {heading.text}
-            </Button>
-          ))}
-        </nav>
+        <TableOfContents
+          variant="rail"
+          items={outline}
+          onNavigate={scrollToHeading}
+          className="hidden [--table-of-contents-top:--spacing(6)] lg:block"
+        />
 
         <div ref={pageRef} className="min-w-0 max-w-3xl flex-1">
           <TextEdit
@@ -372,6 +377,9 @@ export function PageEditor() {
             annotations={annotations}
             activeAnnotationId={activeId}
             onAnnotationClick={setActiveId}
+            // No margin beside the page: a count pill after each highlight marks where the
+            // threads are, and opens one on tap.
+            annotationCounts={wide ? "never" : "always"}
             onCreateAnnotation={createThread}
             onAnnotationsLayout={setLayout}
           />

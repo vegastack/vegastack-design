@@ -1,4 +1,4 @@
-// @vegastack use-drag-reorder@0.23.74 sha256-qUh7TSqDQC/mnQ4tpj1+UzeCDKxcYAffHERPUS7kBLA=
+// @vegastack use-drag-reorder@0.23.74 sha256-DwDo1WyqvhBrydeDcoBjP7J+QSdC6Ve4rhrDak2zJM4=
 
 "use client";
 
@@ -253,6 +253,21 @@ function renderItemPreview(element: HTMLElement, container: HTMLElement) {
   });
   container.append(copy);
   return () => copy.remove();
+}
+
+/**
+ * The native drag image for a drag that is better named than pictured — several selected items
+ * ("3 items"), or a table row, whose copy would lose its table. A small flat label in the
+ * popover's own surface; every class is a literal so a consumer's Tailwind scanner sees it.
+ */
+function renderLabelPreview(label: string, container: HTMLElement) {
+  const pill = document.createElement("div");
+  pill.setAttribute("data-slot", "drag-preview");
+  pill.className =
+    "max-w-64 truncate rounded-md border border-border bg-popover px-2 py-1 text-sm text-popover-foreground";
+  pill.textContent = label;
+  container.append(pill);
+  return () => pill.remove();
 }
 
 /** Locate an id across the lists. */
@@ -1186,10 +1201,18 @@ export function edgeScroll(
 
 /** One requested move into a target — the payload `useDragInto`'s `onDrop` receives. */
 export interface DragIntoMove {
-  /** The dragged item ids (one today; an array so a multi-select drag needs no new shape). */
+  /**
+   * The dragged item ids: the item itself, or every id `getDragIds` returned for it (a
+   * multi-select drag).
+   */
   ids: string[];
   /** The key of the target the items were dropped into. */
   targetKey: string;
+}
+
+/** The ids a `useDragInto` source carries (older sources carry only `id`). */
+function idsOf(data: Record<string | symbol, unknown>): string[] {
+  return Array.isArray(data.ids) ? data.ids.map(String) : [String(data.id)];
 }
 
 /** Options for {@link useDragInto}. */
@@ -1218,6 +1241,25 @@ export interface UseDragIntoOptions {
    * @default false
    */
   disabled?: boolean;
+  /**
+   * Share drags across hook instances: every `useDragInto` with the same `scope` accepts the
+   * others' sources on its targets, so a list's rows can drop onto a breadcrumb or a tree that
+   * owns its own hook. Without it only this instance's sources reach its targets.
+   * @default undefined
+   */
+  scope?: string;
+  /**
+   * The ids a drag of `id` carries — the whole selection when `id` is selected. The target's
+   * `canDrop`/`onDrop` receive them as `ids`.
+   * @default (id) => [id]
+   */
+  getDragIds?: (id: string) => string[];
+  /**
+   * Name the drag instead of picturing it: return a label ("3 items", a row's name) and the
+   * native drag image is that label; return `undefined` to use a copy of the item.
+   * @default undefined
+   */
+  getDragPreviewLabel?: (ids: string[]) => string | undefined;
 }
 
 /** What {@link useDragInto} returns. */
@@ -1261,19 +1303,42 @@ export function useDragInto({
   onHoverExpand,
   hoverExpandDelay = 600,
   disabled = false,
+  scope,
+  getDragIds,
+  getDragPreviewLabel,
 }: UseDragIntoOptions): UseDragIntoReturn {
   const [draggingId, setDraggingId] = React.useState<string | null>(null);
   const [over, setOver] = React.useState<{
     key: string;
     valid: boolean;
   } | null>(null);
-  const latest = React.useRef({ onDrop, canDrop, onHoverExpand, disabled });
-  latest.current = { onDrop, canDrop, onHoverExpand, disabled };
+  const latest = React.useRef({
+    onDrop,
+    canDrop,
+    onHoverExpand,
+    disabled,
+    getDragIds,
+    getDragPreviewLabel,
+  });
+  latest.current = {
+    onDrop,
+    canDrop,
+    onHoverExpand,
+    disabled,
+    getDragIds,
+    getDragPreviewLabel,
+  };
   const delayRef = React.useRef(hoverExpandDelay);
   delayRef.current = hoverExpandDelay;
   const instanceToken = React.useRef<symbol | null>(null);
   if (instanceToken.current === null)
     instanceToken.current = Symbol("use-drag-into");
+  // A scope is a registry symbol, so every instance naming it reads the same token.
+  const tokenRef = React.useRef<symbol>(instanceToken.current);
+  tokenRef.current =
+    scope !== undefined
+      ? Symbol.for(`vegastack/use-drag-into:${scope}`)
+      : instanceToken.current;
   const hoverTimer = React.useRef<{
     key: string;
     timer: ReturnType<typeof setTimeout>;
@@ -1306,20 +1371,37 @@ export function useDragInto({
           draggable({
             element,
             canDrag: () => !latest.current.disabled,
-            onGenerateDragPreview: ({ nativeSetDragImage, location }) =>
+            onGenerateDragPreview: ({
+              nativeSetDragImage,
+              location,
+              source,
+            }) => {
+              const label = latest.current.getDragPreviewLabel?.(
+                idsOf(source.data),
+              );
               setCustomNativeDragPreview({
                 nativeSetDragImage,
-                getOffset: preserveOffsetOnSource({
-                  element,
-                  input: location.current.input,
-                }),
+                getOffset:
+                  label === undefined
+                    ? preserveOffsetOnSource({
+                        element,
+                        input: location.current.input,
+                      })
+                    : () => ({ x: 12, y: 12 }),
                 render: ({ container }) =>
-                  renderItemPreview(element, container),
-              }),
-            getInitialData: () => ({
-              instance: instanceToken.current,
-              id: key,
-            }),
+                  label === undefined
+                    ? renderItemPreview(element, container)
+                    : renderLabelPreview(label, container),
+              });
+            },
+            getInitialData: () => {
+              const ids = latest.current.getDragIds?.(key) ?? [key];
+              return {
+                instance: tokenRef.current,
+                id: key,
+                ids: ids.includes(key) ? ids : [key, ...ids],
+              };
+            },
             onDragStart: () => setDraggingId(key),
             onDrop: () => {
               setDraggingId(null);
@@ -1340,7 +1422,7 @@ export function useDragInto({
             drop === "whole" ||
             (y >= rect.height * 0.25 && y <= rect.height * 0.75);
           const move: DragIntoMove = {
-            ids: [String(source.data.id)],
+            ids: idsOf(source.data),
             targetKey: key,
           };
           const valid =
@@ -1375,7 +1457,7 @@ export function useDragInto({
             element,
             canDrop: ({ source }) =>
               !latest.current.disabled &&
-              source.data.instance === instanceToken.current,
+              source.data.instance === tokenRef.current,
             onDragEnter: ({ source, location }) => {
               const { inside, valid } = read(source, location.current.input);
               track(inside, valid);

@@ -296,6 +296,10 @@ const DYNAMIC_DOM: Record<string, string> = {
   markdownAutosave: ".ProseMirror[contenteditable]",
   markdownInPlace: ".ProseMirror[contenteditable]",
   textEditPlaceholders: ".ProseMirror[contenteditable]",
+  // The count pills are ProseMirror widget decorations: they exist only once the editor view has
+  // resolved the annotations, which is the DOM these contracts measure.
+  textEditAnnotationCounts:
+    '.ProseMirror[contenteditable] [data-slot="text-edit-annotation-count"]',
   markdownTables: ".ProseMirror[contenteditable]",
   htmlTables: ".ProseMirror[contenteditable]",
   textEditMentions: ".ProseMirror[contenteditable]",
@@ -1216,6 +1220,13 @@ for (const [name, fixture] of FIXTURES) {
         // WCAG 2.2 §2.5.8 exempts targets in a block of text for exactly this reason.
         if (
           control instanceof HTMLAnchorElement &&
+          getComputedStyle(control).display === "inline"
+        )
+          continue;
+        // A read-only comment highlight is the same case: a run of words inside a sentence
+        // that TextEdit makes a keyboard control (`role="button"`), sized by the line it is in.
+        if (
+          control.getAttribute("data-slot") === "text-edit-annotation" &&
           getComputedStyle(control).display === "inline"
         )
           continue;

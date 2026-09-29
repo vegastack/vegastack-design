@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.23.74 sha256-bLK5Ldgqgv8/mdH/ErZhhJp1ft+AH4c1Ui1Qa/TGZZY=
+// @vegastack text-edit@0.23.74 sha256-ioL+L/BsFDP5o4JFPnDt4mh8i8elZcSHzhC++wux9tY=
 
 "use client";
 
@@ -141,6 +141,12 @@ export interface TextEditAnnotation {
   id: string;
   /** Where it sits, as stored (`anchorFromRange` / `onAnnotationsLayout`). */
   anchor: TextAnchor;
+  /**
+   * How many comments the thread holds — the number on its count pill (`annotationCounts`) and in
+   * its accessible name. Absent (or below 1) counts as 1.
+   * @default undefined
+   */
+  count?: number;
 }
 
 /** Where a highlight sits now, for laying out comments beside the text. */
@@ -523,7 +529,11 @@ export interface TextEditProps {
    */
   activeAnnotationId?: string | null;
   /**
-   * Called with an annotation's id when its highlight is clicked.
+   * Called with an annotation's id to open its thread: a click on its highlight or its count pill,
+   * and from the keyboard — in view mode (`readOnly`) each highlight is a tab stop (a button named
+   * by `annotationLabel`) that opens on Enter or Space; while editing, a highlight is never a tab
+   * stop (it would steal the caret and Tab), so Alt+Enter with the caret inside or at either end
+   * of a highlight opens it. Without it, highlights are neither tab stops nor buttons.
    * @default undefined
    */
   onAnnotationClick?: (id: string) => void;
@@ -546,6 +556,27 @@ export interface TextEditProps {
    * @default undefined
    */
   onAnnotationsLayout?: (items: TextEditAnnotationLayout[]) => void;
+  /**
+   * A count pill after each highlight (not orphaned ones), showing its `count` — where the text
+   * shows comments without hover or a margin. `auto` shows it only on a coarse pointer or below
+   * the `lg` breakpoint (CSS only); `always` everywhere; `never` renders none. The pill is a
+   * widget (`contenteditable=false`, never in the document or its Markdown, never copied) with a
+   * 24px hit area, a button that calls `onAnnotationClick` without moving the caret, and follows
+   * the active highlight (`data-active`). It is not a tab stop: the highlight (view mode) or
+   * Alt+Enter (editing) is the keyboard path.
+   * @default "never"
+   */
+  annotationCounts?: "never" | "auto" | "always";
+  /**
+   * A view-mode highlight's accessible name, from its quoted text and `count`.
+   * @default (quote, count) => count > 1 ? `${count} comments on “${quote}”` : `Comment on “${quote}”`
+   */
+  annotationLabel?: (quote: string, count: number) => string;
+  /**
+   * The count pill's accessible name (the visible number is `aria-hidden`).
+   * @default (count) => count === 1 ? "1 comment" : `${count} comments`
+   */
+  annotationCountLabel?: (count: number) => string;
 }
 
 /**
@@ -576,6 +607,9 @@ export interface TextEditProps {
  *   paste, sanitized HTML paste, and a lossless round-trip with `format="markdown"`.
  * - **Commit** — `onCommit(value)` when focus leaves with a change (and on hide, unmount and
  *   `autosave`); Escape reverts and calls `onRevert`; Cmd/Ctrl+Enter calls `onSubmit`.
+ * - **Comments** — `annotations` draw highlights (and, with `annotationCounts`, a count pill after
+ *   each). Read-only, each highlight is a tab stop that Enter opens; while editing, Alt+Enter with
+ *   the caret in a highlight opens it — both call `onAnnotationClick`.
  *
  * @example
  * <TextEdit format="markdown" defaultValue={md} onCommit={save} placeholder="Add a description…" aria-label="Description" />

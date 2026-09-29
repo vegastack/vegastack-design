@@ -4,7 +4,15 @@ import * as React from "react";
 import type { ReactNode } from "react";
 import { Wrapper } from "./wrapper";
 // Copied INTO apps/docs via `shadcn add @vegastack/data-list` (dogfoods the registry) → auto-scanned.
-import { Lamp, Search, TriangleAlert } from "lucide-react";
+import {
+  FileText,
+  Folder,
+  FolderInput,
+  Lamp,
+  Search,
+  Trash2,
+  TriangleAlert,
+} from "lucide-react";
 import {
   DataList,
   rowActionsColumn,
@@ -15,6 +23,15 @@ import {
   type SortState,
 } from "@/components/ui/data-list";
 import { FilterBar, FilterBarFacet } from "@/components/ui/filter-bar";
+import { ActionBarButton } from "@/components/ui/action-bar";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
+import { BreadcrumbDropTarget } from "@/components/ui/breadcrumb-cascade";
 import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { PanelSearch, PanelSearchField } from "@/components/ui/panel-search";
 import { MediaCard } from "@/components/ui/media-card";
@@ -1317,6 +1334,219 @@ export function dataListThumbnailPlaceholder(): ReactNode {
           ...COLUMNS.slice(1),
         ]}
       />
+    </Wrapper>
+  );
+}
+
+// ---- selection ranges, the selection bar, drag into -------------------------------------------
+
+interface LibraryRow {
+  id: string;
+  name: string;
+  kind: "folder" | "file";
+  size: string;
+  parent: string;
+}
+
+const LIBRARY: LibraryRow[] = [
+  { id: "clients", name: "Clients", kind: "folder", size: "—", parent: "root" },
+  {
+    id: "projects",
+    name: "Projects",
+    kind: "folder",
+    size: "—",
+    parent: "root",
+  },
+  {
+    id: "brief",
+    name: "Brief.pdf",
+    kind: "file",
+    size: "2.4 MB",
+    parent: "root",
+  },
+  {
+    id: "notes",
+    name: "Kickoff notes.md",
+    kind: "file",
+    size: "12 KB",
+    parent: "root",
+  },
+  {
+    id: "budget",
+    name: "Budget.xlsx",
+    kind: "file",
+    size: "88 KB",
+    parent: "root",
+  },
+  { id: "logo", name: "Logo.svg", kind: "file", size: "6 KB", parent: "root" },
+];
+
+const libraryColumns: DataListColumn<LibraryRow>[] = [
+  {
+    key: "name",
+    header: "Name",
+    render: (r) => (
+      <span className="flex min-w-0 items-center gap-2">
+        {r.kind === "folder" ? (
+          <Folder
+            aria-hidden
+            className="size-4 shrink-0 text-muted-foreground"
+          />
+        ) : (
+          <FileText
+            aria-hidden
+            className="size-4 shrink-0 text-muted-foreground"
+          />
+        )}
+        <span className="truncate">{r.name}</span>
+      </span>
+    ),
+  },
+  { key: "size", header: "Size", align: "end", className: "tabular-nums" },
+];
+
+const libraryCommon = {
+  columns: libraryColumns,
+  getRowId: (r: LibraryRow) => r.id,
+  getRowLabel: (r: LibraryRow) => r.name,
+  getRowHref: (r: LibraryRow) => `#${r.id}`,
+  "aria-label": "Files",
+  selectable: true,
+};
+
+/**
+ * Range and keyboard selection: Shift-click a second checkbox to select everything between it
+ * and the last one toggled; with focus in the list, ⌘/Ctrl+A selects every row, Escape clears
+ * and Space toggles the focused row.
+ */
+export function dataListSelectionKeyboard(): ReactNode {
+  const [selected, setSelected] = React.useState<Set<string>>(
+    new Set(["brief", "notes", "budget"]),
+  );
+  return (
+    <Wrapper className="block">
+      <DataList<LibraryRow>
+        {...libraryCommon}
+        data={LIBRARY}
+        selectedIds={selected}
+        onSelectionChange={setSelected}
+      />
+    </Wrapper>
+  );
+}
+
+/**
+ * `selectionActions` docks an `ActionBar` over the list while anything is selected: the count,
+ * the host's actions and "Clear selection". On a phone the actions scroll sideways in the bar.
+ */
+export function dataListSelectionBar(): ReactNode {
+  const [rows, setRows] = React.useState(LIBRARY);
+  const [selected, setSelected] = React.useState<Set<string>>(
+    new Set(["notes", "budget"]),
+  );
+  return (
+    <Wrapper className="block">
+      <DataList<LibraryRow>
+        {...libraryCommon}
+        data={rows}
+        selectedIds={selected}
+        onSelectionChange={setSelected}
+        selectionActions={(ids, clear) => (
+          <>
+            <ActionBarButton>
+              <FolderInput />
+              Move
+            </ActionBarButton>
+            <ActionBarButton
+              onClick={() => {
+                setRows((current) => current.filter((r) => !ids.has(r.id)));
+                clear();
+              }}
+            >
+              <Trash2 />
+              Move to Trash
+            </ActionBarButton>
+          </>
+        )}
+      />
+    </Wrapper>
+  );
+}
+
+/** The grid carries the same checkboxes: shown on hover or focus, always once one is checked. */
+export function dataListGridSelection(): ReactNode {
+  const [selected, setSelected] = React.useState<Set<string>>(
+    new Set(["projects"]),
+  );
+  return (
+    <Wrapper className="block">
+      <DataList<LibraryRow>
+        {...libraryCommon}
+        data={LIBRARY}
+        view="grid"
+        selectedIds={selected}
+        onSelectionChange={setSelected}
+      />
+    </Wrapper>
+  );
+}
+
+/**
+ * Drag rows onto a folder row, or onto a breadcrumb in the same `dragScope`; a selected row
+ * carries the whole selection. A folder refuses itself, and the crumb of the folder already open
+ * refuses everything.
+ */
+export function dataListDragInto(): ReactNode {
+  const [rows, setRows] = React.useState(LIBRARY);
+  const [selected, setSelected] = React.useState<Set<string>>(new Set());
+  const [log, setLog] = React.useState(
+    "Drag a file onto a folder or onto Library.",
+  );
+  const move = ({ ids, targetId }: { ids: string[]; targetId: string }) => {
+    setRows((current) =>
+      current.map((r) => (ids.includes(r.id) ? { ...r, parent: targetId } : r)),
+    );
+    setSelected(new Set());
+    setLog(
+      `Moved ${ids.length === 1 ? "1 item" : `${ids.length} items`} to ${
+        targetId === "root"
+          ? "Library"
+          : (LIBRARY.find((r) => r.id === targetId)?.name ?? targetId)
+      }`,
+    );
+  };
+  return (
+    <Wrapper className="flex flex-col gap-3">
+      <Breadcrumb>
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbDropTarget
+              href="#library"
+              targetId="root"
+              dragScope="docs-library"
+              onDropInto={move}
+            >
+              Library
+            </BreadcrumbDropTarget>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage>Shared</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
+      </Breadcrumb>
+      <DataList<LibraryRow>
+        {...libraryCommon}
+        data={rows.filter((r) => r.parent === "root")}
+        selectedIds={selected}
+        onSelectionChange={setSelected}
+        dragScope="docs-library"
+        canDropOnRow={(r) => r.kind === "folder"}
+        onDropInto={move}
+      />
+      <p className="text-xs text-muted-foreground" role="status">
+        {log}
+      </p>
     </Wrapper>
   );
 }

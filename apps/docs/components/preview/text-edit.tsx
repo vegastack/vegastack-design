@@ -711,3 +711,89 @@ export function textEditAnnotations(): ReactNode {
     </Wrapper>
   );
 }
+
+const COUNTS_SAMPLE =
+  "Use a 25 A breaker for the kitchen circuit. Keep the panel labelled, and test every socket.";
+
+const COUNTS_ANNOTATIONS: TextEditAnnotation[] = [
+  {
+    id: "breaker",
+    count: 3,
+    anchor: {
+      start: 6,
+      end: 18,
+      quote: "25 A breaker",
+      prefix: "Use a ",
+      suffix: " for the kitchen circuit.",
+    },
+  },
+  {
+    id: "label",
+    anchor: {
+      start: 53,
+      end: 67,
+      quote: "panel labelled",
+      prefix: "Keep the ",
+      suffix: ", and test every socket.",
+    },
+  },
+];
+
+/**
+ * Comment count pills and the keyboard path. `annotationCounts="always"` puts a count after each
+ * highlight (`auto` shows it only on touch or below `lg`); the pill follows the active thread.
+ * Read-only, Tab reaches each highlight and Enter opens it; while editing, put the caret in a
+ * highlight and press Alt+Enter. Both call `onAnnotationClick`, like a click on the text or pill.
+ */
+export function textEditAnnotationCounts(): ReactNode {
+  const [active, setActive] = useState<string | null>("breaker");
+  const opened = active
+    ? `Open thread: ${COUNTS_ANNOTATIONS.find((a) => a.id === active)?.anchor.quote}`
+    : "No thread open";
+  return (
+    <Wrapper className="flex-col items-stretch gap-4">
+      <div className="flex flex-col gap-1">
+        <p className="text-xs font-medium text-muted-foreground">
+          Read-only — Tab to a highlight, Enter opens it
+        </p>
+        <TextEdit
+          format="markdown"
+          readOnly
+          defaultValue={COUNTS_SAMPLE}
+          annotations={COUNTS_ANNOTATIONS}
+          annotationCounts="always"
+          activeAnnotationId={active}
+          onAnnotationClick={setActive}
+          aria-label="Read-only commented text"
+        />
+      </div>
+      <div className="flex flex-col gap-1">
+        <p className="text-xs font-medium text-muted-foreground">
+          Editing — caret in a highlight, Alt+Enter opens it
+        </p>
+        <TextEdit
+          format="markdown"
+          defaultValue={COUNTS_SAMPLE}
+          annotations={COUNTS_ANNOTATIONS}
+          annotationCounts="always"
+          activeAnnotationId={active}
+          onAnnotationClick={setActive}
+          aria-label="Editable commented text"
+        />
+      </div>
+      <div className="flex items-center justify-between gap-3 text-sm">
+        <span className="text-muted-foreground" aria-live="polite">
+          {opened}
+        </span>
+        <Button
+          variant="ghost"
+          size="sm"
+          disabled={!active}
+          onClick={() => setActive(null)}
+        >
+          Close thread
+        </Button>
+      </div>
+    </Wrapper>
+  );
+}

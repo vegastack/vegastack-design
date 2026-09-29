@@ -1702,3 +1702,416 @@ test("⌘K inside the editor opens the link panel and never reaches a document-l
     ),
   ).toBe(false);
 });
+
+// ---- Comment highlights: keyboard path and count pills ----------------------------------------
+
+const DOC = "Use a 25 A breaker";
+const at = (start: number, end: number) => anchorFromRange(DOC, start, end);
+
+/** A read-only TextEdit over `DOC` with a button before it, once its highlights have drawn. */
+async function viewWithHighlights(
+  props: Partial<React.ComponentProps<typeof TextEdit>> = {},
+) {
+  const screen = await render(
+    <>
+      <button type="button">Before</button>
+      <TextEdit
+        format="markdown"
+        aria-label="Doc"
+        readOnly
+        defaultValue={DOC}
+        annotations={[{ id: "c1", anchor: at(6, 10), count: 2 }]}
+        {...props}
+      />
+    </>,
+  );
+  await vi.waitFor(() =>
+    expect(
+      screen.container.querySelector(".ProseMirror [data-annotation]"),
+    ).not.toBeNull(),
+  );
+  // The options land in their own transaction, right after the highlights.
+  await new Promise((resolve) => setTimeout(resolve, 50));
+  return screen;
+}
+
+test("annotations, view mode: a highlight is a tab stop named for its comment; Enter and Space open it", async () => {
+  const onAnnotationClick = vi.fn();
+  const screen = await viewWithHighlights({ onAnnotationClick });
+  const highlight = screen.getByRole("button", {
+    name: "2 comments on “25 A”",
+  });
+  await expect.element(highlight).toHaveAttribute("tabindex", "0");
+  await expect.element(highlight).toHaveAttribute("data-annotation", "c1");
+
+  await screen.getByRole("button", { name: "Before" }).click();
+  await userEvent.tab();
+  expect(document.activeElement).toBe(highlight.element());
+  await userEvent.keyboard("{Enter}");
+  expect(onAnnotationClick).toHaveBeenLastCalledWith("c1");
+  await userEvent.keyboard(" ");
+  expect(onAnnotationClick).toHaveBeenCalledTimes(2);
+  // The document is still read-only: nothing was typed into it.
+  expect(screen.container.querySelector(".ProseMirror")?.textContent).toBe(DOC);
+  await expectNoA11yViolations(screen.container);
+});
+
+test("annotations, view mode: opening a thread (the host marks it active) keeps focus on the highlight", async () => {
+  function Host() {
+    const [active, setActive] = React.useState<string | null>(null);
+    return (
+      <>
+        <button type="button">Before</button>
+        <TextEdit
+          format="markdown"
+          aria-label="Doc"
+          readOnly
+          defaultValue={DOC}
+          annotations={[{ id: "c1", anchor: at(6, 10), count: 2 }]}
+          annotationCounts="always"
+          activeAnnotationId={active}
+          onAnnotationClick={setActive}
+          annotationLabel={(quote) => `Thread on ${quote}`}
+        />
+        <output>{active ?? "none"}</output>
+      </>
+    );
+  }
+  const screen = await render(<Host />);
+  const highlight = screen.getByRole("button", { name: "Thread on 25 A" });
+  await expect.element(highlight).toBeInTheDocument();
+  await screen.getByRole("button", { name: "Before" }).click();
+  await userEvent.tab();
+  expect(document.activeElement).toBe(highlight.element());
+  await userEvent.keyboard("{Enter}");
+  await expect.element(screen.getByText("c1")).toBeInTheDocument();
+  await vi.waitFor(() =>
+    expect(highlight.element().hasAttribute("data-active")).toBe(true),
+  );
+  expect(document.activeElement).toBe(highlight.element());
+});
+
+test("annotations, view mode: the keyboard focus cue is base.css's accent tint, never a ring", async () => {
+  const sheet = document.createElement("style");
+  sheet.textContent = geometryCss;
+  document.head.append(sheet);
+  onTestFinished(() => sheet.remove());
+  const screen = await viewWithHighlights({ onAnnotationClick: vi.fn() });
+  await screen.getByRole("button", { name: "Before" }).click();
+  await userEvent.tab();
+  const focused = document.activeElement as HTMLElement;
+  expect(focused.getAttribute("data-annotation")).toBe("c1");
+  const style = getComputedStyle(focused);
+  expect(style.backgroundImage).toContain("gradient");
+  expect(style.outlineStyle).toBe("none");
+});
+
+test("annotations, view mode: a highlight across marks is ONE tab stop, and its other spans are not read twice", async () => {
+  const source = "Use a **25 A** breaker";
+  const onAnnotationClick = vi.fn();
+  const screen = await viewWithHighlights({
+    defaultValue: source,
+    annotations: [{ id: "c1", anchor: anchorFromRange(DOC, 4, 12) }],
+    onAnnotationClick,
+  });
+  const spans = [
+    ...screen.container.querySelectorAll('.ProseMirror [data-annotation="c1"]'),
+  ];
+  expect(spans.map((span) => span.textContent)).toEqual(["a ", "25 A", " b"]);
+  const stops = spans.filter((span) => span.getAttribute("tabindex") === "0");
+  expect(stops).toHaveLength(1);
+  expect(stops[0]!.getAttribute("aria-label")).toBe("Comment on “a 25 A b”");
+  expect(spans.slice(1).every((span) => span.getAttribute("aria-hidden"))).toBe(
+    true,
+  );
+  await expectNoA11yViolations(screen.container);
+});
+
+test("annotations, view mode: without onAnnotationClick a highlight is not a button or a tab stop", async () => {
+  const screen = await viewWithHighlights();
+  const span = screen.container.querySelector(
+    '.ProseMirror [data-annotation="c1"]',
+  )!;
+  expect(span.hasAttribute("tabindex")).toBe(false);
+  expect(span.hasAttribute("role")).toBe(false);
+  await expectNoA11yViolations(screen.container);
+});
+
+test("annotations, view mode: the active highlight keeps its fill and stays a named tab stop", async () => {
+  const screen = await viewWithHighlights({
+    onAnnotationClick: vi.fn(),
+    activeAnnotationId: "c1",
+    annotationCounts: "always",
+  });
+  const highlight = screen.getByRole("button", {
+    name: "2 comments on “25 A”",
+  });
+  await expect.element(highlight).toHaveAttribute("data-active", "");
+  await vi.waitFor(() =>
+    expect(
+      screen.container
+        .querySelector('[data-slot="text-edit-annotation-count"]')
+        ?.hasAttribute("data-active"),
+    ).toBe(true),
+  );
+  await expectNoA11yViolations(screen.container);
+});
+
+test("annotations, editing: a highlight is never a tab stop; typing inside it keeps the caret in the text", async () => {
+  const onAnnotationClick = vi.fn();
+  const onValueChange = vi.fn();
+  const screen = await markdownEditor({
+    defaultValue: DOC,
+    annotations: [{ id: "c1", anchor: at(6, 10) }],
+    onAnnotationClick,
+    onValueChange,
+  });
+  const box = screen.getByRole("textbox", { name: "Notes" }).element();
+  await vi.waitFor(() =>
+    expect(box.querySelector('[data-annotation="c1"]')?.textContent).toBe(
+      "25 A",
+    ),
+  );
+  const highlight = box.querySelector('[data-annotation="c1"]')!;
+  expect(highlight.hasAttribute("tabindex")).toBe(false);
+  expect(highlight.hasAttribute("role")).toBe(false);
+
+  // A click on the highlight places the caret (and opens the thread, as before).
+  await userEvent.click(highlight);
+  expect(onAnnotationClick).toHaveBeenLastCalledWith("c1");
+  caretAt(highlight, 2);
+  await userEvent.keyboard("0");
+  await vi.waitFor(() =>
+    expect(onValueChange).toHaveBeenLastCalledWith("Use a 250 A breaker"),
+  );
+  expect(document.activeElement).toBe(box);
+  const selection = window.getSelection()!;
+  expect(box.contains(selection.anchorNode)).toBe(true);
+  expect(box.querySelector('[data-annotation="c1"]')?.textContent).toBe(
+    "250 A",
+  );
+  await expectNoA11yViolations(screen.container);
+});
+
+test("annotations, editing: Alt+Enter in a highlight opens its thread; elsewhere, and plain Enter, edit as before", async () => {
+  const onAnnotationClick = vi.fn();
+  const onValueChange = vi.fn();
+  const screen = await markdownEditor({
+    defaultValue: DOC,
+    annotations: [{ id: "c1", anchor: at(6, 10) }],
+    onAnnotationClick,
+    onValueChange,
+  });
+  const box = screen.getByRole("textbox", { name: "Notes" }).element();
+  await vi.waitFor(() =>
+    expect(box.querySelector('[data-annotation="c1"]')).not.toBeNull(),
+  );
+  await userEvent.click(box.querySelector("p")!);
+  onAnnotationClick.mockClear();
+
+  caretAt(box.querySelector('[data-annotation="c1"]')!, 1);
+  await userEvent.keyboard("{Alt>}{Enter}{/Alt}");
+  expect(onAnnotationClick).toHaveBeenCalledWith("c1");
+  expect(onValueChange).not.toHaveBeenCalled();
+
+  // Outside a highlight Alt+Enter is not the thread's.
+  onAnnotationClick.mockClear();
+  caretAt(box.querySelector("p")!, 1);
+  await userEvent.keyboard("{Alt>}{Enter}{/Alt}");
+  expect(onAnnotationClick).not.toHaveBeenCalled();
+
+  // Enter inside a highlight still splits the paragraph (after undoing whatever the browser's
+  // own Alt+Enter did outside it).
+  await userEvent.keyboard(`{${MOD}>}z{/${MOD}}`);
+  await vi.waitFor(() => expect(box.querySelectorAll("p")).toHaveLength(1));
+  caretAt(box.querySelector('[data-annotation="c1"]')!, 2);
+  await userEvent.keyboard("{Enter}");
+  await vi.waitFor(() => expect(box.querySelectorAll("p")).toHaveLength(2));
+});
+
+test("annotation counts: `never` (the default) renders no pill", async () => {
+  const screen = await viewWithHighlights({ onAnnotationClick: vi.fn() });
+  expect(
+    screen.container.querySelector('[data-slot="text-edit-annotation-count"]'),
+  ).toBeNull();
+});
+
+test("annotation counts: `always` renders one pill per drawn highlight, named by annotationCountLabel", async () => {
+  const onAnnotationClick = vi.fn();
+  const screen = await viewWithHighlights({
+    annotations: [
+      { id: "c1", anchor: at(6, 10), count: 3 },
+      { id: "c2", anchor: at(11, 18) },
+      { id: "gone", anchor: anchorFromRange("An old sentence", 3, 6) },
+    ],
+    annotationCounts: "always",
+    onAnnotationClick,
+  });
+  const pills = [
+    ...screen.container.querySelectorAll<HTMLElement>(
+      '[data-slot="text-edit-annotation-count"]',
+    ),
+  ];
+  // The orphan draws no highlight, so it gets no pill.
+  expect(
+    pills.map((pill) => pill.getAttribute("data-annotation-count")),
+  ).toEqual(["c1", "c2"]);
+  await expect
+    .element(screen.getByRole("button", { name: "3 comments" }))
+    .toBeInTheDocument();
+  await expect
+    .element(screen.getByRole("button", { name: "1 comment" }))
+    .toBeInTheDocument();
+  const [first] = pills;
+  expect(first!.getAttribute("contenteditable")).toBe("false");
+  expect(first!.getAttribute("tabindex")).toBe("-1");
+  expect(first!.querySelector('[aria-hidden="true"]')?.textContent).toBe("3");
+  expect(first!.className).toContain("inline-flex");
+  // It sits after its highlight's text.
+  expect(first!.previousSibling?.textContent).toContain("25 A");
+  first!.click();
+  expect(onAnnotationClick).toHaveBeenCalledWith("c1");
+  await expectNoA11yViolations(screen.container);
+
+  // A custom label.
+  screen.rerender(
+    <>
+      <button type="button">Before</button>
+      <TextEdit
+        format="markdown"
+        aria-label="Doc"
+        readOnly
+        defaultValue={DOC}
+        annotations={[{ id: "c1", anchor: at(6, 10), count: 3 }]}
+        annotationCounts="always"
+        annotationCountLabel={(n) => `${n} notes`}
+        onAnnotationClick={onAnnotationClick}
+      />
+    </>,
+  );
+  await expect
+    .element(screen.getByRole("button", { name: "3 notes" }))
+    .toBeInTheDocument();
+});
+
+test("annotation counts: `auto` shows the pill only on a coarse pointer or below lg, in CSS", async () => {
+  const screen = await viewWithHighlights({ annotationCounts: "auto" });
+  const pill = screen.container.querySelector<HTMLElement>(
+    '[data-slot="text-edit-annotation-count"]',
+  )!;
+  expect(pill.className).toContain("hidden");
+  expect(pill.className).toContain("pointer-coarse:inline-flex");
+  expect(pill.className).toContain("max-lg:inline-flex");
+  // No click handler: a count, not a button.
+  expect(pill.hasAttribute("role")).toBe(false);
+  expect(pill.textContent).toBe("22 comments");
+});
+
+test("annotation counts: the pill's hit area is at least 24px (real compiled CSS)", async () => {
+  const sheet = document.createElement("style");
+  sheet.textContent = geometryCss;
+  document.head.append(sheet);
+  onTestFinished(() => sheet.remove());
+  const screen = await viewWithHighlights({
+    annotationCounts: "always",
+    onAnnotationClick: vi.fn(),
+  });
+  const pill = screen.container.querySelector<HTMLElement>(
+    '[data-slot="text-edit-annotation-count"]',
+  )!;
+  const box = pill.getBoundingClientRect();
+  const x = box.left + box.width / 2;
+  const y = box.top + box.height / 2;
+  // 11px from the centre is inside a 24px target in every direction; 14px is outside it.
+  for (const [dx, dy] of [
+    [0, -11],
+    [0, 11],
+    [-11, 0],
+    [11, 0],
+  ] as const)
+    expect(pill.contains(document.elementFromPoint(x + dx, y + dy))).toBe(true);
+  expect(pill.contains(document.elementFromPoint(x, y - 14))).toBe(false);
+});
+
+test("annotation counts: the pill never reaches the document, its Markdown, the clipboard, or the caret", async () => {
+  const onAnnotationClick = vi.fn();
+  const onValueChange = vi.fn();
+  const screen = await markdownEditor({
+    defaultValue: DOC,
+    annotations: [{ id: "c1", anchor: at(6, 10), count: 2 }],
+    annotationCounts: "always",
+    onAnnotationClick,
+    onValueChange,
+  });
+  const box = screen.getByRole("textbox", { name: "Notes" }).element();
+  await vi.waitFor(() =>
+    expect(
+      box.querySelector('[data-slot="text-edit-annotation-count"]'),
+    ).not.toBeNull(),
+  );
+  const pill = box.querySelector<HTMLElement>(
+    '[data-slot="text-edit-annotation-count"]',
+  )!;
+
+  // Clicking the pill opens the thread and leaves the caret where it was.
+  await userEvent.click(box.querySelector("p")!);
+  caretAt(box.querySelector("p")!, 2);
+  const before = window.getSelection()!.getRangeAt(0).cloneRange();
+  pill.dispatchEvent(
+    new MouseEvent("mousedown", { bubbles: true, cancelable: true }),
+  );
+  pill.click();
+  expect(onAnnotationClick).toHaveBeenCalledWith("c1");
+  expect(document.activeElement).toBe(box);
+  const after = window.getSelection()!.getRangeAt(0);
+  expect(after.startContainer).toBe(before.startContainer);
+  expect(after.startOffset).toBe(before.startOffset);
+
+  // Typing at the highlight's end lands after the pill, outside the highlight, in the text.
+  const textNodes = () => {
+    const walker = document.createTreeWalker(
+      box.querySelector("p")!,
+      NodeFilter.SHOW_TEXT,
+    );
+    const nodes: Text[] = [];
+    while (walker.nextNode()) nodes.push(walker.currentNode as Text);
+    return nodes;
+  };
+  const tail = textNodes().find((node) => node.data === " breaker")!;
+  const caret = document.createRange();
+  caret.setStart(tail, 0);
+  caret.collapse(true);
+  window.getSelection()!.removeAllRanges();
+  window.getSelection()!.addRange(caret);
+  document.dispatchEvent(new Event("selectionchange"));
+  await userEvent.keyboard("!");
+  await vi.waitFor(() =>
+    expect(onValueChange).toHaveBeenLastCalledWith("Use a 25 A! breaker"),
+  );
+  expect(box.querySelector('[data-annotation="c1"]')?.textContent).toBe("25 A");
+  expect(
+    box.querySelector("[data-annotation-count]")?.previousSibling?.textContent,
+  ).toBe("25 A");
+
+  // Copying across the highlight copies the text only.
+  const nodes = textNodes();
+  const all = document.createRange();
+  all.setStart(nodes[0]!, 0);
+  const last = nodes.at(-1)!;
+  all.setEnd(last, last.data.length);
+  window.getSelection()!.removeAllRanges();
+  window.getSelection()!.addRange(all);
+  document.dispatchEvent(new Event("selectionchange"));
+  await new Promise((resolve) => setTimeout(resolve, 20));
+  const data = new DataTransfer();
+  box.dispatchEvent(
+    new ClipboardEvent("copy", {
+      clipboardData: data,
+      bubbles: true,
+      cancelable: true,
+    }),
+  );
+  expect(data.getData("text/plain")).toBe("Use a 25 A! breaker");
+  expect(data.getData("text/html")).not.toContain("comment");
+  await expectNoA11yViolations(screen.container);
+});
