@@ -66,7 +66,7 @@ describe("FileTypeIcon", () => {
       contentType: "application/octet-stream",
       name: "q3.xlsx",
       className: "size-4",
-    }) as React.ReactElement<Record<string, unknown>>;
+    }) as unknown as React.ReactElement<Record<string, unknown>>;
     expect(element.props["data-kind"]).toBe("spreadsheet");
     expect(element.props["aria-hidden"]).toBe(true);
     expect(element.props.className).toBe(

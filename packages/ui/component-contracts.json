@@ -12,8 +12,8 @@
     "evidencePolicy": "Observed fields come from source, registry metadata, docs, and test topology. Unknown/not-applicable values are explicit; no inferred behavior is presented as verified."
   },
   "expectedCounts": {
-    "totalRegistryItems": 701,
-    "components": 135,
+    "totalRegistryItems": 702,
+    "components": 136,
     "animatedIcons": 467,
     "hooks": 13,
     "blocks": 11,
@@ -23,7 +23,7 @@
   "expectedWaveCounts": {
     "Core controls": 24,
     "Forms/editing": 30,
-    "Navigation/layout": 18,
+    "Navigation/layout": 19,
     "Overlays": 15,
     "Data display": 23,
     "Content/marketing": 14,
@@ -110,7 +110,8 @@
       "aspect-ratio",
       "direction",
       "menubar",
-      "record-layout"
+      "record-layout",
+      "folder-tree"
     ],
     "Overlays": [
       "alert-dialog",
@@ -10398,6 +10399,15 @@
             "status": "not-applicable",
             "rationale": "Type-only exports do not render or accept runtime refs."
           }
+        },
+        {
+          "name": "DropzoneActions",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/dropzone.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
         }
       ],
       "variants": {
@@ -12765,6 +12775,261 @@
                 "file-viewer-pdf-page",
                 "file-viewer-pdf-toolbar"
               ]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
+    },
+    {
+      "name": "folder-tree",
+      "registryType": "registry:ui",
+      "title": "Folder Tree",
+      "summary": "A Notion-style navigation tree for a file library — sections of folders, pages and files; folders that load their children on first open with loading, error, empty and Show all rows; one tab stop with tree arrow keys and typeahead; a ⋯ menu per row; pointer drag into a folder or section; and a folders-only picker mode for Move dialogs.",
+      "status": "stable",
+      "since": "0.23.73",
+      "family": "navigation",
+      "wave": "Navigation/layout",
+      "sourceFiles": ["packages/ui/registry/ui/folder-tree.tsx"],
+      "publicSymbols": [
+        {
+          "name": "FolderTreeNode",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/folder-tree.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "FolderTreeSection",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/folder-tree.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "FolderTreeMove",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/folder-tree.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "FolderTreeLabels",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/folder-tree.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "FolderTreeProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/folder-tree.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "FolderTree",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/folder-tree.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "nav",
+            "rationale": "Props spread onto the root nav, ref included."
+          }
+        },
+        {
+          "name": "FolderTreeRowActionProps",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/folder-tree.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "FolderTreeRowAction",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/folder-tree.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "button",
+            "rationale": "Delegates to Button, which forwards the ref to its button."
+          }
+        }
+      ],
+      "variants": {
+        "status": "observed",
+        "dimensions": [
+          {
+            "name": "mode",
+            "values": ["nav", "picker"],
+            "evidence": "packages/ui/registry/ui/folder-tree.tsx: prop union"
+          },
+          {
+            "name": "node kind",
+            "values": ["file", "folder", "page"],
+            "evidence": "packages/ui/registry/ui/folder-tree.tsx: FolderTreeNode.kind union"
+          }
+        ]
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "One density, the sidebar's: 28px rows (--folder-tree-row-h) and a 12px indent per level (--folder-tree-indent), both overridable variables."
+      },
+      "states": {
+        "behavior": {
+          "status": "observed",
+          "values": [
+            "default",
+            "expanded",
+            "collapsed",
+            "active",
+            "loading",
+            "error",
+            "empty",
+            "show-all",
+            "drag-over",
+            "drag-invalid",
+            "dragging",
+            "selected",
+            "section-collapsed"
+          ],
+          "evidence": "Observed from the row branches (loading, error, empty and Show all status rows), expanded and collapsed sections, data-active, data-dragging, data-drop-over and data-drop-invalid, and picker selection."
+        },
+        "accessibility": {
+          "status": "covered",
+          "values": [
+            "semantic-html",
+            "browser-accessibility-test",
+            "keyboard-navigation",
+            "labeled",
+            "status-announcement",
+            "focus-visible"
+          ],
+          "evidence": "packages/ui/registry/ui/folder-tree.tsx + packages/ui/registry/ui/folder-tree.test.tsx"
+        },
+        "visual": {
+          "status": "observed",
+          "values": [
+            "default",
+            "hover",
+            "focus",
+            "active",
+            "loading",
+            "error",
+            "empty",
+            "drag-over",
+            "drag-invalid",
+            "selected"
+          ],
+          "evidence": "Observed from token classes, state selectors, or visual branches."
+        }
+      },
+      "responsive": {
+        "status": "modeled",
+        "risks": [
+          "text-truncation-and-flex-shrink",
+          "overflow-and-scroll",
+          "mobile-or-touch-mode"
+        ],
+        "rationale": "Rows truncate their name in whatever width the pane gives them; row actions are always visible on a coarse pointer."
+      },
+      "motion": {
+        "status": "modeled",
+        "mechanisms": ["the disclosure chevron's rotate transition"],
+        "reducedMotion": {
+          "status": "covered",
+          "rationale": "The global reduced-motion reset in base.css neutralises the chevron transition (MOT-5)."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/folder-tree",
+      "registryDependencies": [
+        "@vegastack/button",
+        "@vegastack/file-kind",
+        "@vegastack/skeleton",
+        "@vegastack/use-announcer",
+        "@vegastack/use-drag-reorder",
+        "@vegastack/use-list-nav"
+      ],
+      "npmDependencies": [
+        "@base-ui/react@^1.6.0",
+        "@vegastack/design-tokens@^0.7.56",
+        "@vegastack/design@^0.7.59",
+        "lucide-react@^1.47.0"
+      ],
+      "testFiles": ["packages/ui/registry/ui/folder-tree.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required"
+      },
+      "previewModule": "folder-tree",
+      "dataAttributes": {
+        "FolderTree": {
+          "attributes": [
+            {
+              "name": "data-active",
+              "values": [""]
+            },
+            {
+              "name": "data-expanded",
+              "values": [""]
+            },
+            {
+              "name": "data-kind",
+              "values": []
+            },
+            {
+              "name": "data-mode",
+              "values": []
+            },
+            {
+              "name": "data-slot",
+              "values": [
+                "folder-tree",
+                "folder-tree-badge",
+                "folder-tree-group",
+                "folder-tree-icon",
+                "folder-tree-item",
+                "folder-tree-label",
+                "folder-tree-row",
+                "folder-tree-row-actions",
+                "folder-tree-section",
+                "folder-tree-section-heading",
+                "folder-tree-toggle"
+              ]
+            },
+            {
+              "name": "data-state",
+              "values": ["closed", "open"]
+            }
+          ],
+          "cssVariables": ["--folder-tree-depth"]
+        },
+        "FolderTreeRowAction": {
+          "attributes": [
+            {
+              "name": "data-row-action",
+              "values": [""]
+            },
+            {
+              "name": "data-slot",
+              "values": ["folder-tree-row-action"]
             }
           ],
           "cssVariables": []
@@ -30454,6 +30719,42 @@
             "status": "not-applicable",
             "rationale": "Type-only exports do not render or accept runtime refs."
           }
+        },
+        {
+          "name": "DragIntoMove",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/use-drag-reorder.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "useDragInto",
+          "kind": "hook",
+          "source": "packages/ui/registry/ui/use-drag-reorder.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "This exported helper is not a rendered component root."
+          }
+        },
+        {
+          "name": "UseDragIntoOptions",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/use-drag-reorder.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "UseDragIntoReturn",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/use-drag-reorder.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
         }
       ],
       "variants": {
@@ -30515,7 +30816,10 @@
         "@atlaskit/pragmatic-drag-and-drop@^3.1.0",
         "@atlaskit/pragmatic-drag-and-drop-hitbox@^2.2.0"
       ],
-      "testFiles": ["packages/ui/registry/ui/use-drag-reorder.test.tsx"],
+      "testFiles": [
+        "packages/ui/registry/ui/use-drag-reorder.test.tsx",
+        "packages/ui/registry/ui/folder-tree.test.tsx"
+      ],
       "coverage": {
         "source": "required",
         "test": "required",
@@ -30572,6 +30876,15 @@
         },
         {
           "name": "UseFileDropReturn",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/use-file-drop.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "FileDropEntry",
           "kind": "interface",
           "source": "packages/ui/registry/ui/use-file-drop.ts",
           "ref": {

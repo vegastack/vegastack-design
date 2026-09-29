@@ -486,6 +486,12 @@
       "family": "rich-text",
       "source": "Regent product family and product forms (marketing text with spec placeholders), approved by MK 2026-09-29",
       "rationale": "Upstream ships no placeholder or mention editor. A small Tiptap composition on the TextEdit stack (paragraphs, hard breaks, one atomic token node, @tiptap/suggestion for the picker) with the slash menu's surface; it carries no patch."
+    },
+    "folder-tree": {
+      "disposition": "keep",
+      "family": "navigation",
+      "source": "Regent library plan 04 (folders, files and pages) — approved by MK 2026-09-29",
+      "rationale": "Upstream ships no tree. A navigation pattern (nav of nested lists, a link and a disclosure per row, the SidebarMenuSub structure) over use-list-nav, use-drag-reorder's useDragInto and the file-kind icons, with lazy children and a picker mode; no ARIA tree engine and no patch."
     }
   }
 }

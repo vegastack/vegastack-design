@@ -99,19 +99,25 @@ const MEDIA: FileViewerItem[] = [
 ];
 
 function MediaHarness() {
-  const [index, setIndex] = React.useState<number | null>(0);
+  const [index, setIndex] = React.useState<number | null>(null);
   return (
-    <FileViewer
-      items={MEDIA}
-      index={index}
-      onIndexChange={setIndex}
-      onOpenChange={(open) => !open && setIndex(null)}
-    />
+    <>
+      <button type="button" onClick={() => setIndex(0)}>
+        Open media
+      </button>
+      <FileViewer
+        items={MEDIA}
+        index={index}
+        onIndexChange={setIndex}
+        onOpenChange={(open) => !open && setIndex(null)}
+      />
+    </>
   );
 }
 
 test("video and audio play on the stage, and the arrows still page between them", async () => {
   const screen = await render(<MediaHarness />);
+  await screen.getByRole("button", { name: "Open media" }).click();
   await expect
     .element(screen.getByRole("dialog", { name: "walkthrough.mp4" }))
     .toBeVisible();

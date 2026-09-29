@@ -253,6 +253,19 @@ own width, as upstream's row does.
   file="components/preview/attachment.tsx"
 />
 
+### List rows
+
+`layout="list"` stacks dense, full-width rows — a 32px icon or thumbnail, the name, a description
+line (size · who · when) and trailing actions — for a folder's files or an upload queue. A row with
+a `file` opens the viewer like a tile. While a file uploads, put `AttachmentProgress` inside
+`AttachmentContent` so the bar sits under the title; a failed row keeps its tinted border and
+offers Retry as an action. `columns` does not apply.
+
+<ComponentPreview
+  name="attachmentList"
+  file="components/preview/attachment.tsx"
+/>
+
 ## Playground
 
 Step through the lifecycle states, sizes, orientations and media treatments, then copy the

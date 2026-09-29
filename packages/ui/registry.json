@@ -12210,6 +12210,39 @@
       }
     },
     {
+      "name": "folder-tree",
+      "type": "registry:ui",
+      "title": "Folder Tree",
+      "description": "A Notion-style navigation tree for a file library — sections of folders, pages and files; folders that load their children on first open with loading, error, empty and Show all rows; one tab stop with tree arrow keys and typeahead; a ⋯ menu per row; pointer drag into a folder or section; and a folders-only picker mode for Move dialogs.",
+      "categories": ["navigation"],
+      "dependencies": [
+        "@base-ui/react@^1.6.0",
+        "lucide-react@^1.47.0",
+        "@vegastack/design@^0.7.59",
+        "@vegastack/design-tokens@^0.7.56"
+      ],
+      "registryDependencies": [
+        "@vegastack/button",
+        "@vegastack/file-kind",
+        "@vegastack/skeleton",
+        "@vegastack/use-announcer",
+        "@vegastack/use-drag-reorder",
+        "@vegastack/use-list-nav"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/folder-tree.tsx",
+          "type": "registry:ui",
+          "target": "@ui/folder-tree.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "The navigation pane of a file library or knowledge base — folders, pages and files in sections, with lazy folders, row menus and drag to move; and, in picker mode, the folder list of a Move dialog.",
+        "whenNotToUse": "App navigation with fixed links (Sidebar), a flat list of files (AttachmentGroup layout=\"list\" or DataList), or a nested filter editor (FilterBuilder).",
+        "version": "0.23.72"
+      }
+    },
+    {
       "name": "image",
       "type": "registry:ui",
       "title": "Image",
@@ -14239,7 +14272,7 @@
       "name": "use-drag-reorder",
       "type": "registry:hook",
       "title": "useDragReorder",
-      "description": "The system's one drag engine seam — Pragmatic drag-and-drop pointer/touch mechanics plus the house keyboard move mode, live-region vocabulary, and async pending/rejected drop contract. One API for single lists and cross-container boards.",
+      "description": "The system's one drag engine seam — Pragmatic drag-and-drop pointer/touch mechanics plus the house keyboard move mode, live-region vocabulary, and async pending/rejected drop contract. One API for single lists and cross-container boards, and useDragInto for dragging an item into a folder.",
       "categories": ["hook"],
       "dependencies": [
         "@atlaskit/pragmatic-drag-and-drop@^3.1.0",
@@ -14263,7 +14296,7 @@
       "name": "use-file-drop",
       "type": "registry:hook",
       "title": "useFileDrop",
-      "description": "File acquisition (drop, browse, paste) over the sanctioned react-dropzone engine — typed rejection reasons aligned with Attachment's state prop, announcement payload, window-level missed-drop protection.",
+      "description": "File acquisition (drop, browse, paste) over the sanctioned react-dropzone engine — typed rejection reasons aligned with Attachment's state prop, announcement payload, window-level missed-drop protection, and a folder mode that keeps each file's relative path.",
       "categories": ["hook"],
       "dependencies": ["react-dropzone@^20.1.1"],
       "registryDependencies": ["@vegastack/use-announcer"],

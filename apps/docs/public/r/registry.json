@@ -1629,7 +1629,7 @@
         "whenToUse": "Any file surface that shows a size, picks an icon for a file, or branches on what kind of file it holds.",
         "whenNotToUse": "Previewing a file (FileViewer) or acquiring one (use-file-drop).",
         "version": "0.23.72",
-        "integrity": "sha256-X1dwpYHzLZXTKvxeIfFLe53/rqiCKAWyJa86y+l0WnQ="
+        "integrity": "sha256-EHb4RmH//asroqslUVNcPnv3TTcMtqaNMELRRQ5fr0s="
       }
     },
     {
@@ -1767,7 +1767,7 @@
         "whenToUse": "A visible upload surface — drop files, click to browse, paste — that hands accepted File[]s to the host and typed rejections back.",
         "whenNotToUse": "Chrome-less acquisition inside another surface (compose use-file-drop directly) or rendering the staged files and their upload progress (Attachment with AttachmentProgress, laid out by AttachmentGroup).",
         "version": "0.23.72",
-        "integrity": "sha256-uUrhdZK+8Bas5YJJVcK+FmU1F0uAAZPiC3yRSiDSdcM="
+        "integrity": "sha256-mfswyNp1MpLgfD5YvOFh1sh3sHN2oRYnaRG9M6a/5EA="
       }
     },
     {
@@ -15268,6 +15268,42 @@
       }
     },
     {
+      "name": "folder-tree",
+      "type": "registry:ui",
+      "title": "Folder Tree",
+      "description": "A Notion-style navigation tree for a file library — sections of folders, pages and files; folders that load their children on first open with loading, error, empty and Show all rows; one tab stop with tree arrow keys and typeahead; a ⋯ menu per row; pointer drag into a folder or section; and a folders-only picker mode for Move dialogs.",
+      "categories": [
+        "navigation"
+      ],
+      "dependencies": [
+        "@base-ui/react@^1.6.0",
+        "lucide-react@^1.47.0",
+        "@vegastack/design@^0.7.59",
+        "@vegastack/design-tokens@^0.7.56"
+      ],
+      "registryDependencies": [
+        "@vegastack/button",
+        "@vegastack/file-kind",
+        "@vegastack/skeleton",
+        "@vegastack/use-announcer",
+        "@vegastack/use-drag-reorder",
+        "@vegastack/use-list-nav"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/folder-tree.tsx",
+          "type": "registry:ui",
+          "target": "@ui/folder-tree.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "The navigation pane of a file library or knowledge base — folders, pages and files in sections, with lazy folders, row menus and drag to move; and, in picker mode, the folder list of a Move dialog.",
+        "whenNotToUse": "App navigation with fixed links (Sidebar), a flat list of files (AttachmentGroup layout=\"list\" or DataList), or a nested filter editor (FilterBuilder).",
+        "version": "0.23.72",
+        "integrity": "sha256-TQK2gbZO/WF7PJi4IKhNwUDxGpJfOteqHLuqKWsTnaA="
+      }
+    },
+    {
       "name": "image",
       "type": "registry:ui",
       "title": "Image",
@@ -17586,7 +17622,7 @@
       "name": "use-drag-reorder",
       "type": "registry:hook",
       "title": "useDragReorder",
-      "description": "The system's one drag engine seam — Pragmatic drag-and-drop pointer/touch mechanics plus the house keyboard move mode, live-region vocabulary, and async pending/rejected drop contract. One API for single lists and cross-container boards.",
+      "description": "The system's one drag engine seam — Pragmatic drag-and-drop pointer/touch mechanics plus the house keyboard move mode, live-region vocabulary, and async pending/rejected drop contract. One API for single lists and cross-container boards, and useDragInto for dragging an item into a folder.",
       "categories": [
         "hook"
       ],
@@ -17608,14 +17644,14 @@
         "whenToUse": "Any reorder-by-drag surface — sortable lists, wrapped tile grids (`columns` for row-aware ↑/↓), board cards, a future bespoke drag surface — where pointer, keyboard move mode, announcements, and server-refusable drops must all work from one API.",
         "whenNotToUse": "File drag-in (use-file-drop), resizing panes (Resizable), or single-axis value dragging (Slider).",
         "version": "0.23.72",
-        "integrity": "sha256-6Qk6GQqznycVCGEtRrKZabIxH6i+ZA1nTRHX9KQfslY="
+        "integrity": "sha256-ZVAv3G3xla0+vbR6/nBKKZcZO3b/TcSm2uEh8KW7CR4="
       }
     },
     {
       "name": "use-file-drop",
       "type": "registry:hook",
       "title": "useFileDrop",
-      "description": "File acquisition (drop, browse, paste) over the sanctioned react-dropzone engine — typed rejection reasons aligned with Attachment's state prop, announcement payload, window-level missed-drop protection.",
+      "description": "File acquisition (drop, browse, paste) over the sanctioned react-dropzone engine — typed rejection reasons aligned with Attachment's state prop, announcement payload, window-level missed-drop protection, and a folder mode that keeps each file's relative path.",
       "categories": [
         "hook"
       ],
@@ -17636,7 +17672,7 @@
         "whenToUse": "Any surface that acquires files — a Dropzone, a rich-text composer accepting pasted screenshots, a bespoke drop target — where drag-depth handling, accept matching, and typed rejections should be correct by construction.",
         "whenNotToUse": "Rendering upload state (Attachment) or persisting uploads — acquisition ends at the File[] callback.",
         "version": "0.23.72",
-        "integrity": "sha256-PD34cI1C7ZJGQzsoXrnpeXk4st8hyuKpqgBFcaX1QGQ="
+        "integrity": "sha256-YHkgkTvMW4Ak7Eyal2zXWjz8exDMriQlVKZOBv/vvVQ="
       }
     },
     {

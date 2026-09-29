@@ -3,6 +3,7 @@
 import { type ReactNode, useEffect, useRef, useState } from "react";
 import {
   CheckIcon,
+  FolderUpIcon,
   FileTextIcon,
   FileWarningIcon,
   RotateCwIcon,
@@ -11,8 +12,11 @@ import {
 } from "lucide-react";
 import { Wrapper } from "./wrapper";
 // Copied INTO apps/docs via `shadcn add @vegastack/dropzone` (dogfoods the registry) → auto-scanned.
-import { Dropzone } from "@/components/ui/dropzone";
-import type { FileDropRejection } from "@/components/ui/use-file-drop";
+import { Dropzone, type DropzoneActions } from "@/components/ui/dropzone";
+import type {
+  FileDropEntry,
+  FileDropRejection,
+} from "@/components/ui/use-file-drop";
 import {
   Attachment,
   AttachmentAction,
@@ -41,6 +45,7 @@ import {
   FieldSet,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import { formatBytes } from "@/lib/file-kind";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import {
   Select,
@@ -50,12 +55,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-
-function formatSize(bytes: number): string {
-  return bytes > 1024 * 1024
-    ? `${(bytes / (1024 * 1024)).toFixed(1)} MB`
-    : `${Math.max(1, Math.round(bytes / 1024))} KB`;
-}
 
 export function dropzone(): ReactNode {
   const [files, setFiles] = useState<File[]>([]);
@@ -104,7 +103,7 @@ export function dropzone(): ReactNode {
                 <AttachmentContent>
                   <AttachmentTitle>{file.name}</AttachmentTitle>
                   <AttachmentDescription>
-                    {formatSize(file.size)}
+                    {formatBytes(file.size)}
                   </AttachmentDescription>
                 </AttachmentContent>
                 <AttachmentActions>
@@ -513,7 +512,7 @@ function UploadQueueDemo(): ReactNode {
   const describe = (item: QueueItem) => {
     if (item.state === "error") return item.error;
     if (item.state === "uploading") return `${item.progress}%`;
-    const size = formatSize(item.file.size);
+    const size = formatBytes(item.file.size);
     return item.saved ? `Saved · ${size}` : `Uploaded, not saved · ${size}`;
   };
 
@@ -702,6 +701,70 @@ function UploadQueueDemo(): ReactNode {
         <span className="sr-only" role="status" aria-live="polite">
           {announcement}
         </span>
+      </div>
+    </Wrapper>
+  );
+}
+
+/**
+ * Folders — `directories` keeps each file's path inside a dropped or picked folder
+ * (`onEntriesAccepted`), and caps the WHOLE drop at `maxFiles`: a folder with more files is refused
+ * entirely as too-many-files, never cut short. "Upload folder" sits beside the surface and opens a
+ * folder picker through `actionsRef`.
+ */
+export function dropzoneFolders(): ReactNode {
+  const actions = useRef<DropzoneActions>(null);
+  const [entries, setEntries] = useState<FileDropEntry[]>([]);
+  const [refused, setRefused] = useState<string | null>(null);
+  return (
+    <Wrapper className="block">
+      <div className="mx-auto flex w-full max-w-sm flex-col gap-3">
+        <Dropzone
+          directories
+          maxFiles={500}
+          actionsRef={actions}
+          aria-label="Drop a folder or files"
+          onEntriesAccepted={(accepted) => {
+            setRefused(null);
+            setEntries(accepted);
+          }}
+          onFilesRejected={(rejections) =>
+            setRefused(
+              rejections.some((r) => r.reasons.includes("too-many-files"))
+                ? `${rejections.length} files is more than 500. Drop a smaller folder.`
+                : `${rejections.length} files were refused.`,
+            )
+          }
+        >
+          <Empty className="border">
+            <EmptyHeader>
+              <EmptyTitle>Drop a folder</EmptyTitle>
+              <EmptyDescription>
+                Up to 500 files; subfolders keep their place
+              </EmptyDescription>
+            </EmptyHeader>
+          </Empty>
+        </Dropzone>
+        <Button
+          variant="outline"
+          className="self-start"
+          onClick={() => actions.current?.openDirectory()}
+        >
+          <FolderUpIcon data-icon="inline-start" />
+          Upload folder
+        </Button>
+        {refused ? (
+          <p className="text-xs text-destructive-text">{refused}</p>
+        ) : null}
+        {entries.length > 0 ? (
+          <ul className="flex flex-col gap-1 font-mono text-xs text-muted-foreground">
+            {entries.slice(0, 6).map((entry) => (
+              <li key={entry.relativePath} className="min-w-0 truncate">
+                {entry.relativePath}
+              </li>
+            ))}
+          </ul>
+        ) : null}
       </div>
     </Wrapper>
   );

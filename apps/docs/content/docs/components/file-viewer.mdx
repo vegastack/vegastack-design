@@ -1,6 +1,6 @@
 ---
 title: File Viewer
-description: A full-screen dark overlay for stored files — zoomable images, pdf.js pages, and a download card for everything else — paged with arrows, buttons or a swipe.
+description: A full-screen dark viewer for stored files — zoomable images, PDF pages, video and audio players, and a download card — paged by arrows or swipe.
 audience: public
 registry: file-viewer
 status: stable
@@ -51,12 +51,12 @@ const item: FileViewerItem = {
 
 ## Scope
 
-| Behaviour                       | Where it lives                                                                                  |
-| ------------------------------- | ----------------------------------------------------------------------------------------------- |
-| Which file is open, and closing | Host — `index` is controlled; `onOpenChange(false)` means set it to null                        |
-| Signing or resolving URLs       | Host — pass `src`, `srcSet`, `pdfSrc` and `downloadHref` ready to use                           |
-| Video and audio playback        | [`VideoPlayer`](/docs/components/video-player) / [`AudioPlayer`](/docs/components/audio-player) |
-| The tiles that open it          | [`Attachment`](/docs/components/attachment), a thumbnail grid, any button                       |
+| Behaviour                       | Where it lives                                                                                                        |
+| ------------------------------- | --------------------------------------------------------------------------------------------------------------------- |
+| Which file is open, and closing | Host — `index` is controlled; `onOpenChange(false)` means set it to null                                              |
+| Signing or resolving URLs       | Host — pass `src`, `srcSet`, `pdfSrc` and `downloadHref` ready to use                                                 |
+| Video and audio playback        | [`VideoPlayer`](/docs/components/video-player) / [`AudioPlayer`](/docs/components/audio-player), mounted on the stage |
+| The tiles that open it          | [`Attachment`](/docs/components/attachment), a thumbnail grid, any button                                             |
 
 ## Anatomy
 
@@ -95,9 +95,21 @@ takes its place.
   file="components/preview/file-viewer.tsx"
 />
 
+### Video and audio
+
+A `video/*` or `audio/*` item with a `src` plays on the stage in the system's own
+[`VideoPlayer`](/docs/components/video-player) / [`AudioPlayer`](/docs/components/audio-player).
+The player pauses when you page away or close the viewer; <kbd>←</kbd>/<kbd>→</kbd> still page
+unless focus is inside the player, where they seek.
+
+<ComponentPreview
+  name="fileViewerMedia"
+  file="components/preview/file-viewer.tsx"
+/>
+
 ### Other files
 
-Anything that is not an image or a PDF — or an image or PDF with no URL to show — gets a card:
+Anything that is not an image, a PDF, a video or audio — or one with no URL to show — gets a card:
 the file-type icon, the name, the size ("2.4 MB") and a Download button.
 
 <ComponentPreview
@@ -153,17 +165,17 @@ closes.
 
 ### FileViewerItem
 
-| Field          | Type                                                              | Notes                                                                  |
-| -------------- | ----------------------------------------------------------------- | ---------------------------------------------------------------------- |
-| `id`           | `string`                                                          | Stable id; zoom and scroll reset when it changes.                      |
-| `name`         | `string`                                                          | The dialog's title and the image's alt text.                           |
-| `contentType`  | `string \| null`                                                  | `image/*` → image, `application/pdf` → PDF, anything else → file card. |
-| `size`         | `number \| null`                                                  | Bytes, shown on the file card.                                         |
-| `thumb`        | `{ src: string; srcSet?: string; blur?: string \| null } \| null` | The blurred placeholder, and a PDF's loading frame.                    |
-| `src`          | `string \| null`                                                  | Full-size image; falls back to `thumb.src`.                            |
-| `srcSet`       | `string \| null`                                                  | Full-size srcset; falls back to `thumb.srcSet`.                        |
-| `pdfSrc`       | `string \| null`                                                  | Inline-disposition, range-capable PDF URL.                             |
-| `downloadHref` | `string`                                                          | The Download link's URL.                                               |
+| Field          | Type                                                              | Notes                                                                                                                                                                |
+| -------------- | ----------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `id`           | `string`                                                          | Stable id; zoom and scroll reset when it changes.                                                                                                                    |
+| `name`         | `string`                                                          | The dialog's title and the image's alt text.                                                                                                                         |
+| `contentType`  | `string \| null`                                                  | `image/*` → image, `application/pdf` → PDF, `video/*` / `audio/*` → player, anything else → file card; a missing or generic type falls back to the name's extension. |
+| `size`         | `number \| null`                                                  | Bytes, shown on the file card.                                                                                                                                       |
+| `thumb`        | `{ src: string; srcSet?: string; blur?: string \| null } \| null` | The blurred placeholder, and a PDF's loading frame.                                                                                                                  |
+| `src`          | `string \| null`                                                  | Full-size image (falls back to `thumb.src`), or the video/audio URL.                                                                                                 |
+| `srcSet`       | `string \| null`                                                  | Full-size srcset; falls back to `thumb.srcSet`.                                                                                                                      |
+| `pdfSrc`       | `string \| null`                                                  | Inline-disposition, range-capable PDF URL.                                                                                                                           |
+| `downloadHref` | `string`                                                          | The Download link's URL.                                                                                                                                             |
 
 ## Accessibility
 
@@ -171,7 +183,7 @@ closes.
   viewer itself when it opens (no control looks pressed; Tab reaches them) and returns to the
   element that opened it when it closes.
 - Paging announces the destination through a polite live region — "Image 3 of 12", "PDF 4 of
-  12", "File 5 of 12". Opening does not announce: the dialog's name already says which file.
+  12", "Video 5 of 12", "Audio 6 of 12", "File 7 of 12". Opening does not announce: the dialog's name already says which file.
 - The icon buttons are named (`Download {name}`, "Close", "Previous file", "Next file", "Zoom
   in", "Zoom out", "Fit to width"); on a touch screen they grow to 44px.
 - Each rendered PDF page is an image named `{name}, page N`.
@@ -191,5 +203,5 @@ closes.
 
 <DoDont
   do="Open it from the tiles or thumbnails of stored files, handing it every file in the set so the user can page through them."
-  dont="Use it to play video or audio, or as a general-purpose modal — it is a viewer for files the host has already resolved to URLs."
+  dont="Use it as an inline player on a page or as a general-purpose modal — it is a full-screen viewer for files the host has already resolved to URLs."
 />

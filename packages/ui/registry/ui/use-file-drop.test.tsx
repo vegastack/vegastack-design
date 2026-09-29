@@ -278,15 +278,26 @@ function fileEntry(file: File, fullPath: string) {
   };
 }
 
+interface DirectoryEntry {
+  isFile: false;
+  isDirectory: true;
+  name: string;
+  fullPath: string;
+  createReader(): {
+    readEntries(onSuccess: (batch: unknown[]) => void): void;
+  };
+}
+
 function directoryEntry(
   name: string,
-  children: ReturnType<typeof fileEntry>[],
-) {
+  children: Array<ReturnType<typeof fileEntry> | DirectoryEntry>,
+  fullPath = `/${name}`,
+): DirectoryEntry {
   return {
     isFile: false,
     isDirectory: true,
     name,
-    fullPath: `/${name}`,
+    fullPath,
     createReader() {
       // `readEntries` pages: it must yield the batch once and then an empty array,
       // or file-selector loops forever.
@@ -391,4 +402,98 @@ test("no a11y violations — bare hook surface with its live region", async () =
   const { expectNoA11yViolations } = await import("../../test/a11y");
   const screen = await render(<Probe onFilesAccepted={vi.fn()} />);
   await expectNoA11yViolations(screen.container);
+});
+
+/* -------------------------------------------------------------------------------------------
+ * Folder mode (`directories`): the relative path of every file, and a cap on the WHOLE drop.
+ * ----------------------------------------------------------------------------------------- */
+
+function twoLevelFolder() {
+  const b = makeFile("b.txt", "text/plain");
+  const d = makeFile("d.png");
+  const entry = directoryEntry("a", [
+    fileEntry(b, "/a/b.txt"),
+    directoryEntry("c", [fileEntry(d, "/a/c/d.png")], "/a/c"),
+  ]);
+  return {
+    items: [
+      {
+        kind: "file",
+        type: "",
+        webkitGetAsEntry: () => entry,
+        getAsFile: () => null,
+      },
+    ],
+    files: [b, d],
+  };
+}
+
+test("a two-level folder drop yields relative paths for every file", async () => {
+  const onEntriesAccepted = vi.fn();
+  const screen = await render(
+    <Probe directories onEntriesAccepted={onEntriesAccepted} />,
+  );
+  const folder = twoLevelFolder();
+  dropSynthetic(surface(screen), folder.items, folder.files);
+
+  await vi.waitFor(() => expect(onEntriesAccepted).toHaveBeenCalledTimes(1));
+  expect(onEntriesAccepted).toHaveBeenCalledWith([
+    expect.objectContaining({ relativePath: "a/b.txt" }),
+    expect.objectContaining({ relativePath: "a/c/d.png" }),
+  ]);
+  await expect
+    .element(screen.getByTestId("live"))
+    .toHaveTextContent("Added 2 files");
+});
+
+test("in folder mode maxFiles refuses the whole drop, never the surplus", async () => {
+  const onEntriesAccepted = vi.fn();
+  const onFilesRejected = vi.fn();
+  const screen = await render(
+    <Probe
+      directories
+      maxFiles={1}
+      onEntriesAccepted={onEntriesAccepted}
+      onFilesRejected={onFilesRejected}
+    />,
+  );
+  const folder = twoLevelFolder();
+  dropSynthetic(surface(screen), folder.items, folder.files);
+
+  await vi.waitFor(() => expect(onFilesRejected).toHaveBeenCalledTimes(1));
+  expect(onEntriesAccepted).not.toHaveBeenCalled();
+  const rejections: FileDropRejection[] = onFilesRejected.mock.calls[0]![0];
+  expect(rejections.map((r) => r.file.name)).toEqual(["b.txt", "d.png"]);
+  expect(rejections.every((r) => r.reasons.join() === "too-many-files")).toBe(
+    true,
+  );
+});
+
+test("openDirectory() picks through the engine input switched to webkitdirectory", async () => {
+  function Opener() {
+    const drop = useFileDrop({ directories: true, onEntriesAccepted: vi.fn() });
+    return (
+      <div>
+        <input data-testid="picker" {...drop.inputProps} />
+        <button type="button" onClick={() => drop.openDirectory()}>
+          Upload folder
+        </button>
+      </div>
+    );
+  }
+  const screen = await render(<Opener />);
+  const input = screen.getByTestId("picker").element() as HTMLInputElement;
+  let pickedAsFolder: boolean | null = null;
+  input.click = () => {
+    pickedAsFolder = input.hasAttribute("webkitdirectory");
+  };
+  (
+    screen
+      .getByRole("button", { name: "Upload folder" })
+      .element() as HTMLButtonElement
+  ).click();
+  expect(pickedAsFolder).toBe(true);
+  // The attribute comes off once the picker settles, so the next plain browse picks files.
+  input.dispatchEvent(new Event("cancel"));
+  expect(input.hasAttribute("webkitdirectory")).toBe(false);
 });

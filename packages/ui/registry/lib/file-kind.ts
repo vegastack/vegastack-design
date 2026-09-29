@@ -1,4 +1,4 @@
-// @vegastack file-kind@0.23.72 sha256-X1dwpYHzLZXTKvxeIfFLe53/rqiCKAWyJa86y+l0WnQ=
+// @vegastack file-kind@0.23.72 sha256-EHb4RmH//asroqslUVNcPnv3TTcMtqaNMELRRQ5fr0s=
 
 import * as React from "react";
 import { cn } from "@vegastack/design";
@@ -200,11 +200,12 @@ export function FileTypeIcon({
   ...props
 }: FileTypeIconProps) {
   const resolved = kind ?? fileKindOf(contentType, name);
-  return React.createElement(KIND_ICON[resolved], {
+  const attributes: LucideProps & Record<`data-${string}`, string> = {
     "aria-hidden": true,
     "data-slot": "file-type-icon",
     "data-kind": resolved,
     ...props,
     className: cn("shrink-0 text-muted-foreground", className),
-  });
+  };
+  return React.createElement(KIND_ICON[resolved], attributes);
 }
