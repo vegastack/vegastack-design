@@ -151,6 +151,9 @@ export default defineConfig({
       "@tanstack/react-table",
       "@tanstack/react-virtual",
       "react-dropzone",
+      // DiffView's engine, imported dynamically: pre-bundled so its first load never reloads a
+      // live test page.
+      "diff",
       "@atlaskit/pragmatic-drag-and-drop/utils/combine",
       "@atlaskit/pragmatic-drag-and-drop/adapter/element-adapter",
       "@atlaskit/pragmatic-drag-and-drop-hitbox/closest-edge/attach-closest-edge",

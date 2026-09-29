@@ -1,0 +1,60 @@
+---
+title: page-editor-01
+description: A document page in the Notion style with comments beside the text — outline rail, comment highlights, a comment margin or popover, and version history with a diff.
+audience: public
+registry: page-editor-01
+preview: pageEditor01Demo
+---
+
+## What it is
+
+A document page. The header holds the breadcrumb, the save state ("Saved" / "Saving…"), who else
+is editing (`AvatarGroup` of `PersonAvatar`s), the open-comment count, the version history button
+and a ⋯ menu. An outline rail (from `TextEdit`'s `onOutlineChange`, hidden on narrow screens)
+jumps to headings with `scrollToHeading`. The page is a `TextEdit variant="document"` with comment
+highlights (`annotations`); selecting text offers **Comment**. On wide screens the threads sit
+beside the text in a `CommentMargin`; below that the active thread opens in a `CommentPopover`.
+The history button opens a `Sheet` with a `VersionList`, a `DiffView` against the page as it is
+now, and "Restore this version". It is a **block**: you pull it once with `shadcn add`, and then
+you own it. Sample state only.
+
+## Install
+
+```npm
+npx shadcn@latest add @vegastack/page-editor-01
+```
+
+<RegistryInstallCallout />
+
+This installs the block's own files plus the components it composes: `app-shell`, `avatar`,
+`breadcrumb`, `button`, `comment-margin`, `comments`, `diff-view`, `dropdown-menu`,
+`person-avatar`, `sheet`, `text-edit`, `use-media-query`, `version-list`.
+
+## Preview
+
+<ComponentPreview name="pageEditor01Demo" />
+
+## Anatomy
+
+- **Header**: `Breadcrumb`, the save state (`role="status"`), `AvatarGroup`, the comment count
+  button, the history button, a `DropdownMenu`.
+- **Outline rail**: headings from `onOutlineChange`, each a ghost `Button` calling
+  `handleRef.scrollToHeading`.
+- **Page**: `TextEdit` with `annotations`, `activeAnnotationId`, `onAnnotationClick`,
+  `onCreateAnnotation`, `onAnnotationsLayout`, `autosave`.
+- **Comments**: `CommentMargin` of `CommentThread`s at `min-width: 80rem`, else `CommentPopover`.
+- **History**: `Sheet` › `VersionList` + `DiffView`, "Restore this version" in the footer.
+
+## Files
+
+| File                                        | Registry type        | Target                                          |
+| ------------------------------------------- | -------------------- | ----------------------------------------------- |
+| `page-editor-01/components/page-editor.tsx` | `registry:component` | `app/page-editor-01/components/page-editor.tsx` |
+| `page-editor-01/page.tsx`                   | `registry:page`      | `app/page-editor-01/page.tsx`                   |
+
+## Do / Don't
+
+<DoDont
+  do="Persist moved anchors from onAnnotationsLayout with the next save, and flush() before creating a comment."
+  dont="Write comments into the Markdown, or re-resolve anchors on every keystroke."
+/>

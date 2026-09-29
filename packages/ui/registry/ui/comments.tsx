@@ -6,6 +6,7 @@ import * as React from "react";
 import {
   ArrowUp,
   ArrowUpDown,
+  Check,
   Ellipsis,
   Link,
   MessageSquare,
@@ -51,6 +52,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import {
   TEXT_EDIT_COMPACT_SLASH_COMMANDS,
   TextEdit,
+  type TextEditProps,
 } from "@/components/ui/text-edit";
 import {
   Tooltip,
@@ -127,6 +129,15 @@ export interface CommentItemProps {
   replies?: React.ReactNode;
   /** Pin the relative time's clock (docs, tests). @default undefined */
   now?: number;
+  /**
+   * Under the body — the comment's files, e.g. an `AttachmentGroup layout="list"`.
+   * @default undefined
+   */
+  attachments?: React.ReactNode;
+  /** `@` mentions in the edit box (see `TextEdit`'s `mentions`). @default undefined */
+  mentions?: TextEditProps["mentions"];
+  /** Where a mention chip in the body links (see `MarkdownView`'s `mentionHref`). @default undefined */
+  mentionHref?: TextEditProps["mentionHref"];
   /** Classes for the item. @default undefined */
   className?: string;
 }
@@ -157,6 +168,9 @@ export function CommentItem({
   onEditingChange,
   replies,
   now,
+  attachments,
+  mentions,
+  mentionHref,
   className,
 }: CommentItemProps) {
   const [editingState, setEditingState] = React.useState(editingProp ?? false);
@@ -354,6 +368,8 @@ export function CommentItem({
               onSubmit={(value) => void save(value)}
               onRevert={cancel}
               busy={saving}
+              mentions={mentions}
+              mentionHref={mentionHref}
               actions={
                 <>
                   <Tooltip>
@@ -392,8 +408,15 @@ export function CommentItem({
               }
             />
           ) : (
-            <MarkdownView className="text-sm">{comment.body}</MarkdownView>
+            <MarkdownView className="text-sm" mentionHref={mentionHref}>
+              {comment.body}
+            </MarkdownView>
           )}
+          {!comment.deleted && !editing && attachments ? (
+            <div data-slot="comment-attachments" className="mt-1 min-w-0">
+              {attachments}
+            </div>
+          ) : null}
           {!comment.deleted && !editing && reactions.length > 0 ? (
             <Reactions
               reactions={reactions}
@@ -466,8 +489,15 @@ interface CommentBoxProps {
   compact?: boolean;
   /** Inside a comment card (edit mode): the card already draws the surface and border. */
   bare?: boolean;
+  /** A reply box: one line, its actions row hidden until it holds focus or text. */
+  folded?: boolean;
   leading?: React.ReactNode;
   actions: React.ReactNode;
+  mentions?: TextEditProps["mentions"];
+  mentionHref?: TextEditProps["mentionHref"];
+  onImageUpload?: TextEditProps["onImageUpload"];
+  onFileUpload?: TextEditProps["onFileUpload"];
+  onUploadError?: TextEditProps["onUploadError"];
 }
 
 function CommentBox({
@@ -483,21 +513,31 @@ function CommentBox({
   autoFocus,
   compact,
   bare,
+  folded,
   leading,
   actions,
+  mentions,
+  mentionHref,
+  onImageUpload,
+  onFileUpload,
+  onUploadError,
 }: CommentBoxProps) {
   const ref = React.useRef<HTMLDivElement>(null);
+  const [open, setOpen] = React.useState(!!defaultValue);
   React.useEffect(() => {
     if (autoFocus) focusEditor(ref.current);
   }, [autoFocus]);
+  const unfolded = !folded || open;
   return (
     <div
       ref={ref}
       data-slot="comment-box"
       data-compact={compact ? "" : undefined}
       data-bare={bare ? "" : undefined}
+      data-folded={folded && !open ? "" : undefined}
       aria-invalid={invalid || undefined}
       className="min-w-0"
+      onFocus={folded ? () => setOpen(true) : undefined}
     >
       <TextEdit
         variant="boxed"
@@ -512,9 +552,15 @@ function CommentBox({
         defaultValue={defaultValue}
         placeholder={placeholder}
         aria-label={label}
-        onValueChange={onValueChange}
+        onValueChange={(value) => {
+          if (folded && value.trim()) setOpen(true);
+          onValueChange(value);
+        }}
         onSubmit={onSubmit}
-        onRevert={onRevert}
+        onRevert={() => {
+          if (folded) setOpen(false);
+          onRevert?.();
+        }}
         saving={busy}
         disabled={disabled}
         dragHandles={false}
@@ -522,13 +568,20 @@ function CommentBox({
         // About twelve lines of body text, then it scrolls inside the box.
         maxHeight="15rem"
         aria-invalid={invalid ? true : undefined}
+        mentions={mentions}
+        mentionHref={mentionHref}
+        onImageUpload={onImageUpload}
+        onFileUpload={onFileUpload}
+        onUploadError={onUploadError}
       >
-        <div className="mt-2 flex min-w-0 items-center gap-2">
-          {leading}
-          <div className="ms-auto flex shrink-0 items-center gap-2">
-            {actions}
+        {unfolded ? (
+          <div className="mt-2 flex min-w-0 items-center gap-2">
+            {leading}
+            <div className="ms-auto flex shrink-0 items-center gap-2">
+              {actions}
+            </div>
           </div>
-        </div>
+        ) : null}
       </TextEdit>
     </div>
   );
@@ -591,6 +644,16 @@ export interface CommentComposerProps {
   disabled?: boolean;
   /** Called on every change, e.g. to guard unsaved text. @default undefined */
   onValueChange?: (value: string) => void;
+  /** `@` mentions in the editor (see `TextEdit`'s `mentions`). @default undefined */
+  mentions?: TextEditProps["mentions"];
+  /** Where a mention chip links (see `TextEdit`'s `mentionHref`). @default undefined */
+  mentionHref?: TextEditProps["mentionHref"];
+  /** Upload a pasted or dropped image (see `TextEdit`'s `onImageUpload`). @default undefined */
+  onImageUpload?: TextEditProps["onImageUpload"];
+  /** Upload any other file, inserted as a link (see `TextEdit`'s `onFileUpload`). @default undefined */
+  onFileUpload?: TextEditProps["onFileUpload"];
+  /** Called when an upload rejects. @default undefined */
+  onUploadError?: TextEditProps["onUploadError"];
   /** Classes for the composer. @default undefined */
   className?: string;
 }
@@ -613,6 +676,11 @@ export function CommentComposer({
   error: errorProp,
   disabled = false,
   onValueChange,
+  mentions,
+  mentionHref,
+  onImageUpload,
+  onFileUpload,
+  onUploadError,
   className,
 }: CommentComposerProps) {
   const [generation, setGeneration] = React.useState(0);
@@ -657,6 +725,11 @@ export function CommentComposer({
         disabled={disabled}
         invalid={!!error}
         leading={attachments}
+        mentions={mentions}
+        mentionHref={mentionHref}
+        onImageUpload={onImageUpload}
+        onFileUpload={onFileUpload}
+        onUploadError={onUploadError}
         actions={
           <SendButton
             label={submitLabel}
@@ -672,6 +745,302 @@ export function CommentComposer({
         </p>
       ) : null}
     </div>
+  );
+}
+
+/* ------------------------------------------------------------------------------------------------
+ * CommentThread
+ * ----------------------------------------------------------------------------------------------*/
+
+/** One thread, as `CommentThread` shows it: an optional quote, the first comment and its replies. */
+export interface CommentThreadData {
+  /** Stable id — the thread's root comment id, or the host's own. */
+  id: string;
+  /** The words the thread is about (an inline comment's anchor quote). @default undefined */
+  quote?: string | null;
+  /** Set once the thread is resolved: who and when. @default undefined */
+  resolved?: { by: Person; at: Date | string | number } | null;
+  /** The quoted text is gone from the document: "Original text was removed" replaces the quote. @default false */
+  orphaned?: boolean;
+  /** The first comment. */
+  root: CommentData;
+  /** The replies, oldest first. */
+  replies: CommentData[];
+}
+
+/** Props for `CommentThread`. */
+export interface CommentThreadProps {
+  /** The thread. */
+  thread: CommentThreadData;
+  /** Post a reply; the box clears when it resolves and keeps the text when it rejects. */
+  onReply: MaybeAsync<[body: string]>;
+  /** Resolve the thread; the header shows a ✓ button when set. @default undefined */
+  onResolve?: () => void | Promise<unknown>;
+  /** Reopen a resolved thread; the resolved header shows Reopen when set. @default undefined */
+  onReopen?: () => void | Promise<unknown>;
+  /** Called when the quote is clicked — scroll the document to the highlight. @default undefined */
+  onQuoteClick?: () => void;
+  /** The thread's highlight is the active one: the card lifts. @default false */
+  active?: boolean;
+  /** Show the first comment, "N replies" and the last reply only, and no reply box. @default false */
+  collapsed?: boolean;
+  /** Called from a collapsed thread's "N replies" (shown as a button when set). @default undefined */
+  onExpand?: () => void;
+  /** Save an edit to any comment in the thread. @default undefined */
+  onEdit?: CommentItemProps["onEdit"];
+  /** Delete a comment. @default undefined */
+  onDelete?: CommentItemProps["onDelete"];
+  /** Add or remove the viewer's reaction on a comment. @default undefined */
+  onReactionToggle?: CommentItemProps["onReactionToggle"];
+  /** Copy a comment's link. @default undefined */
+  onCopyLink?: CommentItemProps["onCopyLink"];
+  /** A comment's files, under its body. @default undefined */
+  renderAttachments?: (comment: CommentData) => React.ReactNode;
+  /**
+   * The reply box's options, passed through to its editor — `mentions`, `mentionHref`,
+   * `onImageUpload`, `onFileUpload`, `onUploadError`, `placeholder`, `submitLabel`, `disabled`.
+   * @default undefined
+   */
+  composer?: Partial<
+    Pick<
+      CommentComposerProps,
+      | "mentions"
+      | "mentionHref"
+      | "onImageUpload"
+      | "onFileUpload"
+      | "onUploadError"
+      | "placeholder"
+      | "submitLabel"
+      | "disabled"
+      | "attachments"
+    >
+  >;
+  /** Pin the relative times' clock (docs, tests). @default undefined */
+  now?: number;
+  /** Classes for the thread. @default undefined */
+  className?: string;
+}
+
+/**
+ * `CommentThread` — one discussion about a piece of text (Google Docs style): the quoted words (or
+ * "Original text was removed"), the first comment, its replies and a one-line "Reply…" box that
+ * opens when focused (Cmd/Ctrl+Enter sends). The header's ✓ resolves it; a resolved thread says
+ * who resolved it and when, and offers Reopen. `collapsed` shows the first comment, "N replies"
+ * and the last reply.
+ *
+ * @example
+ * <CommentThread thread={thread} active={thread.id === activeId}
+ *   onReply={(body) => reply(thread.id, body)} onResolve={() => resolve(thread.id)}
+ *   onQuoteClick={() => editor.current?.pulseAnnotation(thread.id)} />
+ */
+export function CommentThread({
+  thread,
+  onReply,
+  onResolve,
+  onReopen,
+  onQuoteClick,
+  active = false,
+  collapsed = false,
+  onExpand,
+  onEdit,
+  onDelete,
+  onReactionToggle,
+  onCopyLink,
+  renderAttachments,
+  composer,
+  now,
+  className,
+}: CommentThreadProps) {
+  const [generation, setGeneration] = React.useState(0);
+  const [draft, setDraft] = React.useState("");
+  const [posting, setPosting] = React.useState(false);
+  const [error, setError] = React.useState<string | null>(null);
+  const { resolved, orphaned, quote, root, replies } = thread;
+
+  const reply = async (body: string) => {
+    if (!body.trim() || posting) return;
+    setPosting(true);
+    setError(null);
+    try {
+      await onReply(body);
+      setGeneration((g) => g + 1);
+      setDraft("");
+    } catch (e) {
+      setError(errorMessage(e, "Couldn't post the reply."));
+    } finally {
+      setPosting(false);
+    }
+  };
+
+  const item = (comment: CommentData) => (
+    <CommentItem
+      key={comment.id}
+      comment={comment}
+      onEdit={onEdit}
+      onDelete={onDelete}
+      onReactionToggle={onReactionToggle}
+      onCopyLink={onCopyLink}
+      attachments={renderAttachments?.(comment)}
+      mentions={composer?.mentions}
+      mentionHref={composer?.mentionHref}
+      now={now}
+    />
+  );
+  const last = replies[replies.length - 1];
+  const replyCount = `${replies.length} ${replies.length === 1 ? "reply" : "replies"}`;
+
+  return (
+    <article
+      data-slot="comment-thread"
+      data-active={active ? "" : undefined}
+      data-resolved={resolved ? "" : undefined}
+      data-collapsed={collapsed ? "" : undefined}
+      aria-label={`Comment by ${root.author.name}`}
+      className={cn(
+        // Comments inside a thread sit flat on the thread's card: the root restates the item
+        // card's surface at higher specificity (a descendant rule beats its own classes).
+        "flex min-w-0 flex-col gap-2 rounded-xl border border-border bg-card p-3 text-card-foreground transition-shadow duration-150 data-active:shadow-md",
+        "[&_[data-slot=comment-card]]:rounded-none [&_[data-slot=comment-card]]:border-0 [&_[data-slot=comment-card]]:bg-transparent [&_[data-slot=comment-card]]:p-0",
+        className,
+      )}
+    >
+      <div
+        data-slot="comment-thread-header"
+        className="flex min-w-0 items-start gap-2"
+      >
+        <div className="min-w-0 flex-1">
+          {orphaned ? (
+            <p
+              data-slot="comment-thread-quote"
+              data-orphaned=""
+              className="text-sm text-muted-foreground italic"
+            >
+              Original text was removed
+            </p>
+          ) : quote ? (
+            onQuoteClick ? (
+              <Button
+                variant="ghost"
+                onClick={onQuoteClick}
+                data-slot="comment-thread-quote"
+                className="h-auto w-full min-w-0 justify-start rounded-sm border-s-2 border-border px-2 py-0.5 text-start text-sm font-normal whitespace-normal text-muted-foreground"
+              >
+                <span className="line-clamp-3 min-w-0">{quote}</span>
+              </Button>
+            ) : (
+              <blockquote
+                data-slot="comment-thread-quote"
+                className="border-s-2 border-border ps-2 text-sm text-muted-foreground"
+              >
+                <span className="line-clamp-3">{quote}</span>
+              </blockquote>
+            )
+          ) : null}
+          {resolved ? (
+            <p
+              data-slot="comment-thread-resolved"
+              className="mt-1 flex flex-wrap items-center gap-x-1 text-xs text-muted-foreground"
+            >
+              <Check aria-hidden className="size-3.5" />
+              Resolved by {resolved.by.name}
+              <span aria-hidden>·</span>
+              <RelativeTime date={resolved.at} now={now} />
+            </p>
+          ) : null}
+        </div>
+        {resolved ? (
+          onReopen ? (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => void Promise.resolve(onReopen()).catch(() => {})}
+            >
+              Reopen
+            </Button>
+          ) : null
+        ) : onResolve ? (
+          <Tooltip>
+            <TooltipTrigger
+              render={
+                <Button
+                  variant="ghost"
+                  size="icon-sm"
+                  aria-label="Resolve"
+                  onClick={() =>
+                    void Promise.resolve(onResolve()).catch(() => {})
+                  }
+                />
+              }
+            >
+              <Check aria-hidden />
+            </TooltipTrigger>
+            <TooltipContent>Resolve</TooltipContent>
+          </Tooltip>
+        ) : null}
+      </div>
+      <ul data-slot="comment-thread-comments" className="flex flex-col gap-3">
+        {item(root)}
+        {collapsed && replies.length > 0 ? (
+          <>
+            <li data-slot="comment-thread-more" className="ms-9">
+              {onExpand ? (
+                <Button
+                  variant="link"
+                  size="sm"
+                  className="h-auto p-0 text-xs"
+                  onClick={onExpand}
+                >
+                  {replyCount}
+                </Button>
+              ) : (
+                <span className="text-xs text-muted-foreground">
+                  {replyCount}
+                </span>
+              )}
+            </li>
+            {last ? item(last) : null}
+          </>
+        ) : (
+          replies.map(item)
+        )}
+      </ul>
+      {collapsed ? null : (
+        <div data-slot="comment-thread-reply" className="flex flex-col gap-1.5">
+          <CommentBox
+            key={generation}
+            compact
+            folded
+            autoFocus={generation > 0}
+            label="Reply"
+            placeholder={composer?.placeholder ?? "Reply…"}
+            onValueChange={setDraft}
+            onSubmit={(value) => void reply(value)}
+            busy={posting}
+            disabled={composer?.disabled}
+            invalid={!!error}
+            leading={composer?.attachments}
+            mentions={composer?.mentions}
+            mentionHref={composer?.mentionHref}
+            onImageUpload={composer?.onImageUpload}
+            onFileUpload={composer?.onFileUpload}
+            onUploadError={composer?.onUploadError}
+            actions={
+              <SendButton
+                label={composer?.submitLabel ?? "Send reply"}
+                loading={posting}
+                disabled={!!composer?.disabled || !draft.trim()}
+                onClick={() => void reply(draft)}
+              />
+            }
+          />
+          {error ? (
+            <p role="alert" className="text-xs text-destructive">
+              {error}
+            </p>
+          ) : null}
+        </div>
+      )}
+    </article>
   );
 }
 
