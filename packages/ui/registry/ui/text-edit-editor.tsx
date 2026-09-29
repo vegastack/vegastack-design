@@ -9,10 +9,14 @@ import {
   useEditorState,
   EditorContent,
   Extension,
+  Node as TiptapNode,
   NodeViewContent,
   NodeViewWrapper,
   ReactNodeViewRenderer,
+  ReactWidgetRenderer,
+  mergeAttributes,
   type Editor,
+  type JSONContent,
   type Range,
   type ReactNodeViewProps,
 } from "@tiptap/react";
@@ -33,6 +37,7 @@ import {
 import { Fragment, type Node as PMNode } from "@tiptap/pm/model";
 import {
   NodeSelection,
+  Plugin,
   PluginKey,
   TextSelection,
   type EditorState,
@@ -44,7 +49,11 @@ import {
   addRow,
   deleteCellSelection,
 } from "@tiptap/pm/tables";
-import type { EditorView } from "@tiptap/pm/view";
+import {
+  Decoration as PMDecoration,
+  DecorationSet,
+  type EditorView,
+} from "@tiptap/pm/view";
 import { Toolbar } from "@base-ui/react/toolbar";
 import {
   ArrowDown,
@@ -57,10 +66,13 @@ import {
   BetweenVerticalStart,
   Bold,
   ChevronDown,
+  CircleCheck,
   Code,
   Copy,
   Eraser,
   ExternalLink,
+  File as FileIcon,
+  FileText,
   GripHorizontal,
   GripVertical,
   Heading1,
@@ -68,11 +80,14 @@ import {
   Heading3,
   Heading4,
   Image as ImageIcon,
+  Info,
   Italic,
+  Lightbulb,
   Link as LinkIcon,
   List,
   ListOrdered,
   ListTodo,
+  MessageSquarePlus,
   Minus,
   PanelLeft,
   PanelTop,
@@ -84,6 +99,9 @@ import {
   Strikethrough,
   Table as TableIcon,
   Trash2,
+  TriangleAlert,
+  Upload,
+  UserRound,
 } from "lucide-react";
 import { cn } from "@vegastack/design";
 import { useInternalThemeScope } from "@vegastack/design/theme-scope";
@@ -110,7 +128,30 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import {
+  MentionChip,
+  fileIconFor,
+  headingIds,
+  markdownExtrasClassName,
+  mentionMarkdown,
+  parseMentionLink,
+  type CalloutTone,
+  type MentionKind,
+} from "@/components/ui/markdown-view";
+import { useFileDrop } from "@/components/ui/use-file-drop";
+import {
+  anchorFromRange,
+  resolveAnchor,
+  type TextAnchor,
+} from "@/lib/text-anchor";
+import {
+  anchorText,
+  offsetsToRange,
+  rangeToOffsets,
+} from "@/lib/text-anchor-doc";
 import type {
+  MentionOption,
+  TextEditHandle,
   TextEditProps,
   TextEditSlashCommand,
 } from "@/components/ui/text-edit";
@@ -126,8 +167,11 @@ import type {
  * Slash commands
  * ----------------------------------------------------------------------------------------------*/
 
-/** A floating panel the editor can open at the caret or over a selection. */
-type Panel = "link" | "image" | "turnInto";
+/**
+ * A floating panel the editor can open at the caret or over a selection. `file` opens no panel:
+ * it opens the file picker (the slash menu's File).
+ */
+type Panel = "link" | "image" | "turnInto" | "file";
 
 interface SlashSpec {
   id: TextEditSlashCommand;
@@ -221,6 +265,24 @@ const SLASH: Record<TextEditSlashCommand, SlashSpec> = {
     run: (ed, range) =>
       ed.chain().focus().deleteRange(range).toggleBlockquote().run(),
   },
+  callout: {
+    id: "callout",
+    label: "Callout",
+    keywords: "note tip warning alert info admonition",
+    icon: Info,
+    run: (ed, range) =>
+      ed.chain().focus().deleteRange(range).wrapIn("callout").run(),
+  },
+  toggle: {
+    id: "toggle",
+    label: "Toggle",
+    keywords: "details summary collapse disclosure fold",
+    icon: ChevronDown,
+    run: (ed, range) => {
+      ed.chain().focus().deleteRange(range).run();
+      insertToggle(ed);
+    },
+  },
   codeBlock: {
     id: "codeBlock",
     label: "Code block",
@@ -253,6 +315,16 @@ const SLASH: Record<TextEditSlashCommand, SlashSpec> = {
       open("image");
     },
   },
+  file: {
+    id: "file",
+    label: "File",
+    keywords: "upload attachment document pdf",
+    icon: FileIcon,
+    run: (ed, range, open) => {
+      ed.chain().focus().deleteRange(range).run();
+      open("file");
+    },
+  },
   divider: {
     id: "divider",
     label: "Divider",
@@ -274,6 +346,30 @@ const SLASH: Record<TextEditSlashCommand, SlashSpec> = {
     },
   },
 };
+
+/** Put an empty toggle where the caret's block is (replacing it when empty), caret in its summary. */
+function insertToggle(ed: Editor) {
+  const { state } = ed;
+  const { $from } = state.selection;
+  const toggle = state.schema.nodes.toggle!.create(null, [
+    state.schema.nodes.toggleSummary!.create(),
+    state.schema.nodes.paragraph!.create(),
+  ]);
+  const depth = $from.depth >= 1 ? $from.depth : 1;
+  const block = $from.node(depth);
+  const before = $from.before(depth);
+  const tr = state.tr;
+  let at: number;
+  if (block.isTextblock && block.content.size === 0) {
+    tr.replaceWith(before, before + block.nodeSize, toggle);
+    at = before;
+  } else {
+    at = $from.after(depth);
+    tr.insert(at, toggle);
+  }
+  tr.setSelection(TextSelection.create(tr.doc, at + 2));
+  ed.view.dispatch(tr.scrollIntoView());
+}
 
 function filterSlash(
   allowed: readonly TextEditSlashCommand[],
@@ -864,6 +960,1087 @@ const ParagraphKeepingImages = Paragraph.extend({
   },
 });
 
+/* --- file chips --------------------------------------------------------------------------------*/
+
+/** The icon at the start of a file chip, by the linked file's name. */
+function FileChipIcon({ name }: { name: string }) {
+  const Icon = fileIconFor(name);
+  return (
+    <Icon
+      aria-hidden
+      className="me-1 inline size-3.5 align-text-bottom text-muted-foreground"
+    />
+  );
+}
+
+/**
+ * A link whose href starts with `fileLinkPrefix` is a file (`[report.pdf](/api/files/…)`): the
+ * link carries `data-slot="file-chip"` and an icon widget sits at its start. The Markdown is an
+ * ordinary link.
+ */
+function fileChips(runtime: EditorRuntime) {
+  const isFile = (href: unknown) =>
+    typeof href === "string" &&
+    runtime.fileLinkPrefix.current !== "" &&
+    href.startsWith(runtime.fileLinkPrefix.current);
+  return Extension.create({
+    name: "textEditFileChips",
+    addGlobalAttributes() {
+      return [
+        {
+          types: ["link"],
+          attributes: {
+            fileChip: {
+              default: null,
+              parseHTML: () => null,
+              renderHTML: (attrs) =>
+                isFile(attrs.href) ? { "data-slot": "file-chip" } : {},
+            },
+          },
+        },
+      ];
+    },
+    addDecorations() {
+      return {
+        create: ({ editor, state }) => {
+          const widgets: ReturnType<typeof ReactWidgetRenderer>[] = [];
+          state.doc.descendants((node, pos, parent, index) => {
+            if (!node.isText) return;
+            const link = node.marks.find(
+              (mark) => mark.type.name === "link" && isFile(mark.attrs.href),
+            );
+            if (!link) return;
+            const previous = index > 0 ? parent?.child(index - 1) : null;
+            if (previous && link.isInSet(previous.marks)) return;
+            widgets.push(
+              ReactWidgetRenderer(FileChipIcon, {
+                editor,
+                pos,
+                key: `file-chip:${pos}:${String(link.attrs.href)}`,
+                props: { name: node.text ?? "" },
+                marks: [link],
+                side: 1,
+              }),
+            );
+          });
+          return widgets;
+        },
+      };
+    },
+  });
+}
+
+/* --- heading ids and the outline ----------------------------------------------------------------*/
+
+interface HeadingEntry {
+  pos: number;
+  size: number;
+  level: number;
+  text: string;
+  id: string;
+}
+
+const OUTLINE_CACHE = new WeakMap<PMNode, HeadingEntry[]>();
+
+/** Every heading in the document, in order, with its outline text and stable id. */
+function headingsOf(doc: PMNode): HeadingEntry[] {
+  const cached = OUTLINE_CACHE.get(doc);
+  if (cached) return cached;
+  const found: Omit<HeadingEntry, "id">[] = [];
+  doc.descendants((node, pos) => {
+    if (node.type.name !== "heading") return;
+    found.push({
+      pos,
+      size: node.nodeSize,
+      level: Number(node.attrs.level) || 1,
+      text: node.textBetween(0, node.content.size, "", (leaf) =>
+        leaf.type.name === "mention" ? `@${leaf.attrs.label}` : "",
+      ),
+    });
+    return false;
+  });
+  const ids = headingIds(found.map((entry) => entry.text));
+  const entries = found.map((entry, index) => ({ ...entry, id: ids[index]! }));
+  OUTLINE_CACHE.set(doc, entries);
+  return entries;
+}
+
+const HEADING_DECORATIONS = new WeakMap<PMNode, DecorationSet>();
+
+/** Every heading carries its outline id, so `scrollToHeading` and `#links` find it. */
+const HeadingIds = Extension.create({
+  name: "textEditHeadingIds",
+  addProseMirrorPlugins() {
+    return [
+      new Plugin({
+        props: {
+          decorations: (state) => {
+            let set = HEADING_DECORATIONS.get(state.doc);
+            if (!set) {
+              set = DecorationSet.create(
+                state.doc,
+                headingsOf(state.doc).map((entry) =>
+                  PMDecoration.node(entry.pos, entry.pos + entry.size, {
+                    id: entry.id,
+                  }),
+                ),
+              );
+              HEADING_DECORATIONS.set(state.doc, set);
+            }
+            return set;
+          },
+        },
+      }),
+    ];
+  },
+});
+
+/* --- comment highlights ------------------------------------------------------------------------*/
+
+interface AnnotationPluginState {
+  /** Each annotation's current range; null when its text is gone (orphaned). */
+  ranges: Map<string, { from: number; to: number } | null>;
+  /** The anchor each annotation was last resolved from, so an unchanged one keeps its mapped range. */
+  keys: Map<string, string>;
+  active: string | null;
+  pulse: string | null;
+  decorations: DecorationSet;
+}
+
+type AnnotationMeta =
+  | { type: "set"; items: readonly { id: string; anchor: TextAnchor }[] }
+  | { type: "active"; id: string | null }
+  | { type: "pulse"; id: string | null };
+
+const ANNOTATION_KEY = new PluginKey<AnnotationPluginState>(
+  "textEditAnnotations",
+);
+
+const ANNOTATION_CLASS =
+  "cursor-pointer rounded-xs underline decoration-warning-text/60 decoration-dashed underline-offset-4 transition-colors duration-150 hover:bg-warning/15";
+const ANNOTATION_ACTIVE_CLASS = "bg-warning/25 decoration-solid";
+const ANNOTATION_PULSE_CLASS = "animate-pulse bg-warning/30";
+
+function annotationDecorations(
+  doc: PMNode,
+  state: Omit<AnnotationPluginState, "decorations">,
+) {
+  const decorations: PMDecoration[] = [];
+  for (const [id, range] of state.ranges) {
+    if (!range) continue;
+    decorations.push(
+      PMDecoration.inline(
+        range.from,
+        range.to,
+        {
+          "data-annotation": id,
+          ...(id === state.active ? { "data-active": "" } : {}),
+          class: cn(
+            ANNOTATION_CLASS,
+            id === state.active && ANNOTATION_ACTIVE_CLASS,
+            id === state.pulse && ANNOTATION_PULSE_CLASS,
+          ),
+        },
+        { id },
+      ),
+    );
+  }
+  return DecorationSet.create(doc, decorations);
+}
+
+/** Resolve an anchor in `doc`: offsets → context → unique quote, then into document positions. */
+function resolveInDoc(doc: PMNode, anchor: TextAnchor) {
+  const offsets = resolveAnchor(anchorText(doc), anchor);
+  if (!offsets) return null;
+  const range = offsetsToRange(doc, offsets.start, offsets.end);
+  return range && range.from < range.to ? range : null;
+}
+
+/**
+ * Comment highlights: each annotation's anchor is resolved to document positions once, then its
+ * range maps through every transaction — typing before a highlight keeps it on the same words.
+ * Decorations only: the document (and its Markdown) never carries a comment.
+ */
+function annotationsExtension(runtime: {
+  onClick: (id: string) => void;
+  onHover: (id: string | null) => void;
+}) {
+  return Extension.create({
+    name: "textEditAnnotations",
+    addProseMirrorPlugins() {
+      let hoverTimer: ReturnType<typeof setTimeout> | undefined;
+      let hovered: string | null = null;
+      const annotationOf = (target: EventTarget | null) =>
+        target instanceof Element
+          ? (target
+              .closest("[data-annotation]")
+              ?.getAttribute("data-annotation") ?? null)
+          : null;
+      return [
+        new Plugin<AnnotationPluginState>({
+          key: ANNOTATION_KEY,
+          state: {
+            init: (_config, state) => ({
+              ranges: new Map(),
+              keys: new Map(),
+              active: null,
+              pulse: null,
+              decorations: DecorationSet.create(state.doc, []),
+            }),
+            apply(tr, previous, _oldState, newState) {
+              const meta = tr.getMeta(ANNOTATION_KEY) as
+                AnnotationMeta | undefined;
+              if (!tr.docChanged && !meta) return previous;
+              let ranges = previous.ranges;
+              let keys = previous.keys;
+              let { active, pulse } = previous;
+              if (tr.docChanged) {
+                ranges = new Map();
+                for (const [id, range] of previous.ranges) {
+                  if (!range) {
+                    ranges.set(id, null);
+                    continue;
+                  }
+                  const from = tr.mapping.map(range.from, 1);
+                  const to = tr.mapping.map(range.to, -1);
+                  ranges.set(id, from < to ? { from, to } : null);
+                }
+              }
+              if (meta?.type === "set") {
+                const nextRanges = new Map<
+                  string,
+                  { from: number; to: number } | null
+                >();
+                const nextKeys = new Map<string, string>();
+                for (const { id, anchor } of meta.items) {
+                  const key = JSON.stringify(anchor);
+                  nextKeys.set(id, key);
+                  nextRanges.set(
+                    id,
+                    keys.get(id) === key && ranges.has(id)
+                      ? ranges.get(id)!
+                      : resolveInDoc(newState.doc, anchor),
+                  );
+                }
+                ranges = nextRanges;
+                keys = nextKeys;
+              } else if (meta?.type === "active") active = meta.id;
+              else if (meta?.type === "pulse") pulse = meta.id;
+              const next = { ranges, keys, active, pulse };
+              return {
+                ...next,
+                decorations: annotationDecorations(newState.doc, next),
+              };
+            },
+          },
+          props: {
+            decorations: (state) => ANNOTATION_KEY.getState(state)?.decorations,
+            handleDOMEvents: {
+              click: (_view, event) => {
+                const id = annotationOf(event.target);
+                if (id) runtime.onClick(id);
+                return false;
+              },
+              mouseover: (_view, event) => {
+                const id = annotationOf(event.target);
+                if (id === hovered) return false;
+                clearTimeout(hoverTimer);
+                if (!id) {
+                  if (hovered !== null) {
+                    hovered = null;
+                    runtime.onHover(null);
+                  }
+                  return false;
+                }
+                hoverTimer = setTimeout(() => {
+                  hovered = id;
+                  runtime.onHover(id);
+                }, 250);
+                return false;
+              },
+              mouseleave: () => {
+                clearTimeout(hoverTimer);
+                if (hovered !== null) {
+                  hovered = null;
+                  runtime.onHover(null);
+                }
+                return false;
+              },
+            },
+          },
+          view: () => ({ destroy: () => clearTimeout(hoverTimer) }),
+        }),
+      ];
+    },
+  });
+}
+
+/* --- uploads -----------------------------------------------------------------------------------*/
+
+interface UploadWidget {
+  id: string;
+  pos: number;
+  name: string;
+  /** An object URL of the image being uploaded; null for any other file. */
+  preview: string | null;
+}
+
+type UploadMeta = { add: UploadWidget } | { remove: string };
+
+const UPLOAD_KEY = new PluginKey<DecorationSet>("textEditUploads");
+
+/** The placeholder an upload shows until it resolves: the image dimmed under a spinner, or the file's name. */
+function uploadPlaceholder(upload: UploadWidget): HTMLElement {
+  const spinner = (size: string) => {
+    const ring = document.createElement("span");
+    ring.className = cn(
+      "inline-block shrink-0 animate-spin rounded-full border-2 border-muted-foreground border-t-transparent",
+      size,
+    );
+    return ring;
+  };
+  const root = document.createElement("span");
+  root.contentEditable = "false";
+  root.setAttribute("data-slot", "text-edit-upload");
+  root.setAttribute("data-uploading", "");
+  root.setAttribute("role", "status");
+  root.setAttribute("aria-label", `Uploading ${upload.name}`);
+  if (upload.preview) {
+    root.setAttribute("data-kind", "image");
+    root.className = "relative inline-block max-w-full align-bottom";
+    const image = document.createElement("img");
+    image.src = upload.preview;
+    image.alt = "";
+    image.className = "block max-h-60 opacity-50";
+    const overlay = document.createElement("span");
+    overlay.className = "absolute inset-0 grid place-items-center";
+    overlay.append(spinner("size-5"));
+    root.append(image, overlay);
+  } else {
+    root.setAttribute("data-kind", "file");
+    root.className =
+      "inline-flex max-w-full items-center gap-1.5 rounded-sm bg-muted px-1 align-baseline text-muted-foreground";
+    const name = document.createElement("span");
+    name.className = "truncate";
+    name.textContent = upload.name;
+    root.append(spinner("size-3"), name);
+  }
+  return root;
+}
+
+/** Upload placeholders: widgets that ride along with edits until their upload resolves. */
+const Uploads = Extension.create({
+  name: "textEditUploads",
+  addProseMirrorPlugins() {
+    return [
+      new Plugin<DecorationSet>({
+        key: UPLOAD_KEY,
+        state: {
+          init: () => DecorationSet.empty,
+          apply(tr, set) {
+            let next = set.map(tr.mapping, tr.doc);
+            const meta = tr.getMeta(UPLOAD_KEY) as UploadMeta | undefined;
+            if (meta && "add" in meta)
+              next = next.add(tr.doc, [
+                PMDecoration.widget(
+                  meta.add.pos,
+                  () => uploadPlaceholder(meta.add),
+                  { id: meta.add.id, key: meta.add.id, side: -1 },
+                ),
+              ]);
+            else if (meta && "remove" in meta)
+              next = next.remove(
+                next.find(
+                  undefined,
+                  undefined,
+                  (spec) => spec.id === meta.remove,
+                ),
+              );
+            return next;
+          },
+        },
+        props: {
+          decorations: (state) => UPLOAD_KEY.getState(state),
+        },
+      }),
+    ];
+  },
+});
+
+/** Where an upload's placeholder sits now, or null once it is gone (its text was deleted). */
+function uploadPos(state: EditorState, id: string): number | null {
+  const found = UPLOAD_KEY.getState(state)?.find(
+    undefined,
+    undefined,
+    (spec) => spec.id === id,
+  );
+  return found?.[0]?.from ?? null;
+}
+
+/* --- mention menu -------------------------------------------------------------------------------*/
+
+const MENTION_KEY = new PluginKey("textEditMention");
+
+/** The mention kinds in menu order, with their group headings. */
+const MENTION_GROUPS: readonly { kind: MentionKind; label: string }[] = [
+  { kind: "user", label: "People" },
+  { kind: "page", label: "Pages" },
+  { kind: "file", label: "Files" },
+  { kind: "task", label: "Tasks" },
+];
+
+interface MentionMenuState {
+  query: string;
+  /** The grouped, capped results in menu order; null until the first search answers. */
+  results: MentionOption[] | null;
+  loading: boolean;
+  error: boolean;
+  index: number;
+  rect: DOMRect | null;
+  command: (option: MentionOption) => void;
+}
+
+const flatOptions = (results: MentionOption[] | null) => results ?? [];
+
+/** At most five per kind, grouped People · Pages · Files · Tasks, only the enabled kinds. */
+function groupResults(
+  options: readonly MentionOption[],
+  kinds: readonly MentionKind[],
+): MentionOption[] {
+  return MENTION_GROUPS.filter((group) => kinds.includes(group.kind)).flatMap(
+    (group) =>
+      options.filter((option) => option.kind === group.kind).slice(0, 5),
+  );
+}
+
+const MENTION_MENU_WIDTH = 288;
+
+function MentionMenu({
+  state,
+  onHover,
+}: {
+  state: MentionMenuState;
+  onHover: (index: number) => void;
+}) {
+  const listRef = React.useRef<HTMLDivElement | null>(null);
+  const baseId = React.useId();
+  React.useEffect(() => {
+    listRef.current
+      ?.querySelector("[data-selected]")
+      ?.scrollIntoView({ block: "nearest" });
+  }, [state.index]);
+  if (!state.rect || typeof window === "undefined") return null;
+  const below = state.rect.bottom + 4;
+  const roomBelow = window.innerHeight - below - VIEWPORT_GAP;
+  const roomAbove = state.rect.top - 4 - VIEWPORT_GAP;
+  const flip = roomBelow < SLASH_MENU_HEIGHT && roomAbove > roomBelow;
+  const left = Math.max(
+    VIEWPORT_GAP,
+    Math.min(
+      state.rect.left,
+      window.innerWidth - MENTION_MENU_WIDTH - VIEWPORT_GAP,
+    ),
+  );
+  const style: React.CSSProperties = {
+    position: "fixed",
+    left,
+    maxHeight: Math.max(
+      120,
+      Math.min(SLASH_MENU_HEIGHT, flip ? roomAbove : roomBelow),
+    ),
+    ...(flip
+      ? { bottom: window.innerHeight - state.rect.top + 4 }
+      : { top: below }),
+  };
+  const options = flatOptions(state.results);
+  const message = state.error
+    ? "Couldn't search"
+    : state.results === null
+      ? "Searching…"
+      : options.length === 0
+        ? state.loading
+          ? "Searching…"
+          : "No matches"
+        : null;
+  let index = -1;
+  return (
+    <div
+      ref={listRef}
+      data-slot="text-edit-mention-menu"
+      data-side={flip ? "top" : "bottom"}
+      role="listbox"
+      aria-label="Mention"
+      aria-busy={state.loading || undefined}
+      style={style}
+      onMouseDown={(event) => event.preventDefault()}
+      className={cn(MENU_SURFACE, "w-72 overflow-y-auto")}
+    >
+      {message ? (
+        <div
+          data-slot="text-edit-mention-status"
+          className="px-2 py-1.5 text-sm text-muted-foreground"
+        >
+          {message}
+        </div>
+      ) : (
+        MENTION_GROUPS.map((group) => {
+          const items = options.filter((option) => option.kind === group.kind);
+          if (items.length === 0) return null;
+          const labelId = `${baseId}-${group.kind}`;
+          return (
+            <div key={group.kind} role="group" aria-labelledby={labelId}>
+              <div
+                id={labelId}
+                className="px-2 pt-1.5 pb-1 text-xs font-medium text-muted-foreground"
+              >
+                {group.label}
+              </div>
+              {items.map((option) => {
+                index += 1;
+                const at = index;
+                const selected = at === state.index;
+                const Icon = MENTION_ICON[option.kind];
+                return (
+                  <div
+                    key={`${option.kind}:${option.id}`}
+                    role="option"
+                    aria-selected={selected}
+                    data-selected={selected ? "" : undefined}
+                    data-slot="text-edit-mention-item"
+                    onMouseEnter={() => onHover(at)}
+                    onClick={() => state.command(option)}
+                    className="flex cursor-default items-center gap-2 rounded-sm px-2 py-1.5 text-sm select-none data-selected:bg-muted [&_svg]:size-4 [&_svg]:shrink-0 [&_svg]:text-muted-foreground"
+                  >
+                    <span
+                      aria-hidden
+                      className="flex size-4 shrink-0 items-center justify-center"
+                    >
+                      {option.icon ?? <Icon />}
+                    </span>
+                    <span className="min-w-0 flex-1 truncate">
+                      {option.label}
+                    </span>
+                    {option.description ? (
+                      <span className="max-w-[45%] truncate text-xs text-muted-foreground">
+                        {option.description}
+                      </span>
+                    ) : null}
+                  </div>
+                );
+              })}
+            </div>
+          );
+        })
+      )}
+    </div>
+  );
+}
+
+const MENTION_ICON: Record<MentionKind, React.ComponentType> = {
+  user: UserRound,
+  page: FileText,
+  file: FileIcon,
+  task: CircleCheck,
+};
+
+/* ------------------------------------------------------------------------------------------------
+ * Library constructs — mentions, callouts, toggles, file chips, heading ids, comment highlights and
+ * uploads. Every one round-trips through Markdown exactly; decorations never touch the document.
+ * ----------------------------------------------------------------------------------------------*/
+
+/** What the extensions read from the component; refs, so the extensions are built once. */
+interface EditorRuntime {
+  mentionHref: React.RefObject<TextEditProps["mentionHref"]>;
+  fileLinkPrefix: React.RefObject<string>;
+  mention: {
+    enabled: () => boolean;
+    get: () => MentionMenuState | null;
+    set: (next: MentionMenuState | null) => void;
+    query: (query: string) => void;
+  };
+}
+
+/** A mention chip's node view: the shared `MentionChip`; ⌘/Ctrl-click opens its target. */
+function mentionView(runtime: EditorRuntime) {
+  return function MentionView({ node }: ReactNodeViewProps) {
+    const { kind, id, label } = node.attrs as {
+      kind: MentionKind;
+      id: string;
+      label: string;
+    };
+    const href =
+      kind === "user" || id.startsWith("restricted:")
+        ? null
+        : (runtime.mentionHref.current?.(kind, id) ?? null);
+    return (
+      <NodeViewWrapper
+        as="span"
+        className="inline"
+        onClick={(event: React.MouseEvent) => {
+          if (!href || !(event.metaKey || event.ctrlKey)) return;
+          event.preventDefault();
+          window.open(href, "_blank", "noopener,noreferrer");
+        }}
+      >
+        <MentionChip
+          kind={kind}
+          id={id}
+          label={label}
+          title={href ? `${label} — ⌘-click to open` : undefined}
+        />
+      </NodeViewWrapper>
+    );
+  };
+}
+
+/**
+ * `@` mention — an inline atom `{ kind, id, label }`. Markdown: `[@<label>](mention://<kind>/<id>)`,
+ * read by a tokenizer that runs before marked's own link rule, so it never becomes a link.
+ */
+function mentionNode(runtime: EditorRuntime) {
+  return TiptapNode.create({
+    name: "mention",
+    group: "inline",
+    inline: true,
+    atom: true,
+    selectable: false,
+    draggable: false,
+    addAttributes() {
+      return {
+        kind: {
+          default: "user",
+          parseHTML: (element) => element.getAttribute("data-kind"),
+          renderHTML: (attrs) => ({ "data-kind": attrs.kind }),
+        },
+        id: {
+          default: "",
+          parseHTML: (element) => element.getAttribute("data-id"),
+          renderHTML: (attrs) => ({ "data-id": attrs.id }),
+        },
+        label: {
+          default: "",
+          parseHTML: (element) => element.getAttribute("data-label"),
+          renderHTML: (attrs) => ({ "data-label": attrs.label }),
+        },
+      };
+    },
+    parseHTML() {
+      return [{ tag: "span[data-type=mention]" }];
+    },
+    renderHTML({ node, HTMLAttributes }) {
+      return [
+        "span",
+        mergeAttributes({ "data-type": "mention" }, HTMLAttributes),
+        `@${node.attrs.label}`,
+      ];
+    },
+    renderText: ({ node }) => `@${node.attrs.label}`,
+    // The anchor text (`anchorText`) and a heading's outline text read a mention as `@label`.
+    extendNodeSchema(extension) {
+      return extension.name === "mention"
+        ? { leafText: (node: PMNode) => `@${node.attrs.label}` }
+        : {};
+    },
+    markdownTokenName: "mention",
+    markdownTokenizer: {
+      name: "mention",
+      level: "inline",
+      start: (src: string) => src.indexOf("[@"),
+      tokenize: (src: string) => {
+        const mention = parseMentionLink(src);
+        if (!mention) return undefined;
+        return {
+          type: "mention",
+          raw: mention.raw,
+          kind: mention.kind,
+          id: mention.id,
+          label: mention.label,
+        };
+      },
+    },
+    parseMarkdown: (token, helpers) =>
+      helpers.createNode("mention", {
+        kind: token.kind,
+        id: token.id,
+        label: token.label,
+      }),
+    renderMarkdown: (node) =>
+      mentionMarkdown(
+        node.attrs?.kind ?? "user",
+        node.attrs?.id ?? "",
+        node.attrs?.label ?? "",
+      ),
+    addNodeView() {
+      return ReactNodeViewRenderer(mentionView(runtime), { as: "span" });
+    },
+    addKeyboardShortcuts() {
+      // A chip goes whole: the caret beside it deletes the atom, never half its label.
+      const removeBeside = (before: boolean) => () => {
+        const { selection } = this.editor.state;
+        if (!selection.empty) return false;
+        const $pos = selection.$from;
+        const beside = before ? $pos.nodeBefore : $pos.nodeAfter;
+        if (beside?.type.name !== "mention") return false;
+        const from = before ? $pos.pos - beside.nodeSize : $pos.pos;
+        this.editor.view.dispatch(
+          this.editor.state.tr.delete(from, from + beside.nodeSize),
+        );
+        return true;
+      };
+      return {
+        Backspace: removeBeside(true),
+        Delete: removeBeside(false),
+      };
+    },
+    addProseMirrorPlugins() {
+      const editor = this.editor;
+      return [
+        Suggestion<MentionOption, MentionOption>({
+          editor,
+          pluginKey: MENTION_KEY,
+          char: "@",
+          allowedPrefixes: [" "],
+          allow: () =>
+            runtime.mention.enabled() && !editor.isActive("codeBlock"),
+          items: () => [],
+          command: ({ editor: ed, range, props }) => {
+            ed.chain()
+              .focus()
+              .insertContentAt(range, [
+                {
+                  type: "mention",
+                  attrs: {
+                    kind: props.kind,
+                    id: props.id,
+                    label: props.label.replace(/\s*\n\s*/g, " "),
+                  },
+                },
+                { type: "text", text: " " },
+              ])
+              .run();
+          },
+          render: () => {
+            const show = (
+              props: SuggestionProps<MentionOption, MentionOption>,
+            ) => {
+              const previous = runtime.mention.get();
+              runtime.mention.set({
+                query: props.query,
+                results: previous?.results ?? null,
+                loading: previous ? previous.loading : true,
+                error: previous?.error ?? false,
+                index: previous?.index ?? 0,
+                rect: props.clientRect?.() ?? null,
+                command: props.command,
+              });
+              if (props.query !== previous?.query || !previous)
+                runtime.mention.query(props.query);
+            };
+            return {
+              onStart: show,
+              onUpdate: show,
+              onExit: () => runtime.mention.set(null),
+              onKeyDown: ({ event }) => {
+                const state = runtime.mention.get();
+                if (!state) return false;
+                if (event.key === "Escape") {
+                  exitSuggestion(editor.view, MENTION_KEY);
+                  return true;
+                }
+                const options = flatOptions(state.results);
+                const count = options.length;
+                if (event.key === "ArrowDown" || event.key === "ArrowUp") {
+                  if (!count) return true;
+                  const step = event.key === "ArrowDown" ? 1 : -1;
+                  runtime.mention.set({
+                    ...state,
+                    index: (state.index + step + count) % count,
+                  });
+                  return true;
+                }
+                if (event.key === "Enter" || event.key === "Tab") {
+                  const picked = options[state.index];
+                  if (!picked) return event.key === "Enter";
+                  state.command(picked);
+                  return true;
+                }
+                return false;
+              },
+            };
+          },
+        }),
+      ];
+    },
+  });
+}
+
+const CALLOUT_TONES: readonly CalloutTone[] = ["note", "tip", "warning"];
+const CALLOUT_ICON: Record<CalloutTone, React.ComponentType> = {
+  note: Info,
+  tip: Lightbulb,
+  warning: TriangleAlert,
+};
+const CALLOUT_NAME: Record<CalloutTone, string> = {
+  note: "Note",
+  tip: "Tip",
+  warning: "Warning",
+};
+
+/** A callout's node view: the tone icon (a button that cycles the tone while editable) and its blocks. */
+function CalloutView({ node, editor, updateAttributes }: ReactNodeViewProps) {
+  const tone = (node.attrs.tone as CalloutTone) ?? "note";
+  const Icon = CALLOUT_ICON[tone] ?? Info;
+  return (
+    <NodeViewWrapper
+      role="note"
+      aria-label={CALLOUT_NAME[tone]}
+      data-slot="callout"
+      data-tone={tone}
+    >
+      {editor.isEditable ? (
+        <Button
+          type="button"
+          size="icon-xs"
+          variant="ghost"
+          contentEditable={false}
+          aria-label={`Callout type: ${CALLOUT_NAME[tone]}`}
+          title="Change callout type"
+          onMouseDown={(event) => event.preventDefault()}
+          onClick={() =>
+            updateAttributes({
+              tone: CALLOUT_TONES[
+                (CALLOUT_TONES.indexOf(tone) + 1) % CALLOUT_TONES.length
+              ],
+            })
+          }
+          className="-my-0.5 -ms-1 size-5 [&_svg]:text-current"
+          data-tone={tone}
+        >
+          <Icon />
+        </Button>
+      ) : (
+        <Icon aria-hidden />
+      )}
+      <NodeViewContent data-slot="callout-content" />
+    </NodeViewWrapper>
+  );
+}
+
+/** `> [!NOTE]` … — the callout's quote lines, from the start of `src`. */
+const CALLOUT_BLOCK =
+  /^> \[!(NOTE|TIP|WARNING)\][ \t]*(?:\n|$)((?:>[^\n]*(?:\n|$))*)/;
+
+/** Callout — GitHub's alert syntax (`> [!NOTE]`, `[!TIP]`, `[!WARNING]`) around its blocks. */
+const Callout = TiptapNode.create({
+  name: "callout",
+  group: "block",
+  content: "block+",
+  defining: true,
+  addAttributes() {
+    return {
+      tone: {
+        default: "note",
+        parseHTML: (element) => element.getAttribute("data-tone") ?? "note",
+        renderHTML: (attrs) => ({ "data-tone": attrs.tone }),
+      },
+    };
+  },
+  parseHTML() {
+    return [
+      {
+        tag: "div[data-slot=callout]",
+        contentElement: "[data-slot=callout-content]",
+      },
+    ];
+  },
+  renderHTML({ HTMLAttributes }) {
+    return [
+      "div",
+      mergeAttributes({ "data-slot": "callout", role: "note" }, HTMLAttributes),
+      ["div", { "data-slot": "callout-content" }, 0],
+    ];
+  },
+  markdownTokenName: "callout",
+  markdownTokenizer: {
+    name: "callout",
+    level: "block",
+    start: (src: string) => {
+      const match = /^> \[!(?:NOTE|TIP|WARNING)\]/m.exec(src);
+      return match ? match.index : -1;
+    },
+    tokenize: (src: string, _tokens, lexer) => {
+      const match = CALLOUT_BLOCK.exec(src);
+      if (!match) return undefined;
+      const body = (match[2] ?? "")
+        .replace(/\n$/, "")
+        .split("\n")
+        .map((line) => line.replace(/^> ?/, ""))
+        .join("\n");
+      return {
+        type: "callout",
+        raw: match[0],
+        tone: match[1]!.toLowerCase(),
+        tokens: body.trim() ? lexer.blockTokens(body) : [],
+      };
+    },
+  },
+  parseMarkdown: (token, helpers) => {
+    const children = helpers.parseChildren(token.tokens ?? []);
+    return helpers.createNode(
+      "callout",
+      { tone: token.tone },
+      children.length ? children : [helpers.createNode("paragraph")],
+    );
+  },
+  renderMarkdown: (node, helpers) => {
+    const lines = [`> [!${String(node.attrs?.tone ?? "note").toUpperCase()}]`];
+    (node.content ?? []).forEach((child: JSONContent, index: number) => {
+      if (index > 0) lines.push(">");
+      const text =
+        helpers.renderChild?.(child, index) ?? helpers.renderChildren([child]);
+      for (const line of text.split("\n"))
+        lines.push(line.trim() === "" ? ">" : `> ${line}`);
+    });
+    return lines.join("\n");
+  },
+  addNodeView() {
+    return ReactNodeViewRenderer(CalloutView);
+  },
+});
+
+/** A toggle's node view: a chevron in the gutter, then its summary and body (always open while editing). */
+function ToggleView() {
+  return (
+    <NodeViewWrapper data-slot="toggle" className="relative my-2 ps-5">
+      <span
+        aria-hidden
+        contentEditable={false}
+        className="pointer-events-none absolute start-0 top-0.5 text-muted-foreground [&_svg]:size-4"
+      >
+        <ChevronDown />
+      </span>
+      <NodeViewContent
+        data-slot="toggle-content"
+        className="[&>[data-slot=toggle-summary]]:font-medium"
+      />
+    </NodeViewWrapper>
+  );
+}
+
+/**
+ * Toggle — `<details><summary>Title</summary>` + blank line + its blocks + blank line +
+ * `</details>`. `MarkdownView` renders it as a native disclosure, collapsed.
+ */
+const ToggleNode = TiptapNode.create({
+  name: "toggle",
+  group: "block",
+  content: "toggleSummary block+",
+  defining: true,
+  parseHTML() {
+    return [{ tag: "details" }, { tag: "div[data-slot=toggle]" }];
+  },
+  renderHTML({ HTMLAttributes }) {
+    return ["details", mergeAttributes({ open: "" }, HTMLAttributes), 0];
+  },
+  markdownTokenName: "toggle",
+  markdownTokenizer: {
+    name: "toggle",
+    level: "block",
+    start: (src: string) => {
+      const match = /^<details>/m.exec(src);
+      return match ? match.index : -1;
+    },
+    tokenize: (src: string, _tokens, lexer) => {
+      const open =
+        /^<details>[ \t]*<summary>([^\n]*?)<\/summary>[ \t]*(?:\n|$)/.exec(src);
+      if (!open) return undefined;
+      // The matching `</details>` line, nested toggles counted.
+      let depth = 1;
+      let at = open[0].length;
+      let bodyEnd = -1;
+      let end = -1;
+      while (at < src.length) {
+        const next = src.indexOf("\n", at);
+        const lineEnd = next === -1 ? src.length : next;
+        const line = src.slice(at, lineEnd);
+        if (/^<details>/.test(line)) depth++;
+        else if (/^<\/details>[ \t]*$/.test(line) && --depth === 0) {
+          bodyEnd = at;
+          end = next === -1 ? lineEnd : lineEnd + 1;
+          break;
+        }
+        at = lineEnd + 1;
+      }
+      if (end === -1) return undefined;
+      const body = src.slice(open[0].length, bodyEnd).trim();
+      return {
+        type: "toggle",
+        raw: src.slice(0, end),
+        summary: lexer.inlineTokens(open[1]!),
+        tokens: body ? lexer.blockTokens(body) : [],
+      };
+    },
+  },
+  parseMarkdown: (token, helpers) => {
+    const body = helpers.parseChildren(token.tokens ?? []);
+    return helpers.createNode("toggle", undefined, [
+      helpers.createNode(
+        "toggleSummary",
+        undefined,
+        helpers.parseInline(token.summary ?? []),
+      ),
+      ...(body.length ? body : [helpers.createNode("paragraph")]),
+    ]);
+  },
+  renderMarkdown: (node, helpers) => {
+    const [summary, ...body] = (node.content ?? []) as JSONContent[];
+    const title = summary?.content?.length
+      ? helpers.renderChildren(summary.content)
+      : "";
+    const blocks = body
+      .map(
+        (child, index) =>
+          helpers.renderChild?.(child, index + 1) ??
+          helpers.renderChildren([child]),
+      )
+      .join("\n\n");
+    return `<details><summary>${title}</summary>\n\n${blocks}\n\n</details>`;
+  },
+  addNodeView() {
+    return ReactNodeViewRenderer(ToggleView);
+  },
+  addKeyboardShortcuts() {
+    // Enter in the summary goes to the body: a summary is one line.
+    const intoBody = () => {
+      const { $from } = this.editor.state.selection;
+      if ($from.parent.type.name !== "toggleSummary") return false;
+      const after = $from.after();
+      const tr = this.editor.state.tr;
+      tr.setSelection(TextSelection.near(tr.doc.resolve(after + 1)));
+      this.editor.view.dispatch(tr.scrollIntoView());
+      return true;
+    };
+    return { Enter: intoBody, "Shift-Enter": intoBody };
+  },
+});
+
+/** A toggle's title line. */
+const ToggleSummary = TiptapNode.create({
+  name: "toggleSummary",
+  content: "inline*",
+  defining: true,
+  parseHTML() {
+    return [{ tag: "summary" }, { tag: "div[data-slot=toggle-summary]" }];
+  },
+  renderHTML({ HTMLAttributes }) {
+    return [
+      "div",
+      mergeAttributes({ "data-slot": "toggle-summary" }, HTMLAttributes),
+      0,
+    ];
+  },
+});
+
 const LINK_ATTRIBUTES = {
   rel: "noopener noreferrer",
   target: "_blank",
@@ -872,6 +2049,8 @@ const LINK_ATTRIBUTES = {
 function buildExtensions(
   placeholder: React.RefObject<string | undefined>,
   runtime: SlashRuntime,
+  editorRuntime: EditorRuntime,
+  annotationRuntime: Parameters<typeof annotationsExtension>[0],
 ) {
   return [
     StarterKit.configure({
@@ -905,6 +2084,14 @@ function buildExtensions(
     Markdown,
     Shortcuts,
     slashExtension(runtime),
+    mentionNode(editorRuntime),
+    Callout,
+    ToggleNode,
+    ToggleSummary,
+    fileChips(editorRuntime),
+    HeadingIds,
+    annotationsExtension(annotationRuntime),
+    Uploads,
   ];
 }
 
@@ -943,7 +2130,7 @@ const MENU_SURFACE =
 
 /** Every floating part of the editor — focus moving into one of them stays in the edit session. */
 const FLOATING_SLOTS =
-  "[data-slot=text-edit-bubble-menu],[data-slot=text-edit-link],[data-slot=text-edit-image],[data-slot=text-edit-turn-into],[data-slot=text-edit-slash-menu],[data-slot=text-edit-table-grip],[data-slot=text-edit-table-add],[data-text-edit-menu]";
+  "[data-slot=text-edit-bubble-menu],[data-slot=text-edit-link],[data-slot=text-edit-image],[data-slot=text-edit-turn-into],[data-slot=text-edit-slash-menu],[data-slot=text-edit-mention-menu],[data-slot=text-edit-table-grip],[data-slot=text-edit-table-add],[data-text-edit-menu]";
 
 /**
  * The one portal every floating part renders through (slash menu, drag handle, table grips and
@@ -1334,10 +2521,13 @@ function ImagePanel({
   editor,
   onClose,
   onLeave,
+  onUpload,
 }: {
   editor: Editor;
   onClose: () => void;
   onLeave: (next: EventTarget | null) => void;
+  /** Open the file picker for an image upload; absent when the host takes no uploads. */
+  onUpload?: () => void;
 }) {
   const [src, setSrc] = React.useState("");
   const [alt, setAlt] = React.useState("");
@@ -1372,9 +2562,24 @@ function ImagePanel({
         "flex w-80 max-w-[calc(100vw-1rem)] flex-col gap-1",
       )}
     >
+      {onUpload ? (
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          onClick={() => {
+            onClose();
+            onUpload();
+          }}
+          className="justify-start"
+        >
+          <Upload />
+          Upload image
+        </Button>
+      ) : null}
       <Input
         aria-label="Image URL"
-        placeholder="Image URL"
+        placeholder={onUpload ? "Or paste an image URL" : "Image URL"}
         value={src}
         onChange={(event) => setSrc(event.target.value)}
         size="sm"
@@ -1463,11 +2668,16 @@ function SelectionMenu({
   panel,
   onPanelChange,
   onLeave,
+  onUploadImage,
+  onComment,
 }: {
   editor: Editor;
   panel: Panel | null;
   onPanelChange: (panel: Panel | null) => void;
   onLeave: (next: EventTarget | null) => void;
+  onUploadImage?: () => void;
+  /** Start a comment on the selection; absent when the host takes no comments. */
+  onComment?: () => void;
 }) {
   const state = useEditorState({
     editor,
@@ -1485,9 +2695,44 @@ function SelectionMenu({
   if (panel === "link")
     return <LinkPanel editor={editor} onClose={close} onLeave={onLeave} />;
   if (panel === "image")
-    return <ImagePanel editor={editor} onClose={close} onLeave={onLeave} />;
+    return (
+      <ImagePanel
+        editor={editor}
+        onClose={close}
+        onLeave={onLeave}
+        onUpload={onUploadImage}
+      />
+    );
   if (panel === "turnInto")
     return <TurnIntoPanel editor={editor} onClose={close} onLeave={onLeave} />;
+
+  const commentButton = onComment ? (
+    <Toolbar.Button
+      render={
+        <Button
+          variant="ghost"
+          size="sm"
+          onMouseDown={(event) => event.preventDefault()}
+          onClick={onComment}
+          className="gap-1 px-2 text-xs"
+        >
+          <MessageSquarePlus />
+          Comment
+        </Button>
+      }
+    />
+  ) : null;
+  // Read-only: the selection can only be commented on.
+  if (!editor.isEditable)
+    return (
+      <Toolbar.Root
+        data-slot="text-edit-bubble-menu"
+        aria-label="Selection actions"
+        className={cn(MENU_SURFACE, "flex items-center gap-0.5")}
+      >
+        {commentButton}
+      </Toolbar.Root>
+    );
 
   const block = BLOCK_TYPES.find((type) => type.id === state?.block);
   return (
@@ -1496,6 +2741,12 @@ function SelectionMenu({
       aria-label="Selection formatting"
       className={cn(MENU_SURFACE, "flex items-center gap-0.5")}
     >
+      {commentButton ? (
+        <>
+          {commentButton}
+          <Toolbar.Separator className="mx-0.5 h-4 w-px bg-border" />
+        </>
+      ) : null}
       <Toolbar.Button
         render={
           <Button
@@ -2444,6 +3695,7 @@ export interface TextEditEditorProps extends Omit<
   | "aria-invalid"
   | "minHeight"
   | "maxHeight"
+  | "handleRef"
 > {
   /** The surface's resolved ARIA wiring (own props merged with an enclosing `Field`). */
   aria: {
@@ -2472,6 +3724,11 @@ export interface TextEditEditorProps extends Omit<
   hidden?: boolean;
   /** Called once the editor's document is in the DOM, so the shell can swap it in. */
   onReady: (editor: Editor) => void;
+  /**
+   * Filled with the editor's imperative handle; the shell's `handleRef` delegates to it.
+   * @default undefined
+   */
+  editorHandle?: React.RefObject<TextEditHandle | null>;
 }
 
 /**
@@ -2500,6 +3757,19 @@ export function TextEditEditor({
   disabled = false,
   "aria-label": ariaLabel,
   variant = "document",
+  mentions,
+  mentionHref,
+  onImageUpload,
+  onFileUpload,
+  onUploadError,
+  fileLinkPrefix = "/api/files/",
+  onOutlineChange,
+  annotations,
+  activeAnnotationId = null,
+  onAnnotationClick,
+  onAnnotationHover,
+  onCreateAnnotation,
+  onAnnotationsLayout,
   aria,
   surfaceClassName,
   hintClassName,
@@ -2508,6 +3778,7 @@ export function TextEditEditor({
   rootRef,
   hidden = false,
   onReady,
+  editorHandle,
 }: TextEditEditorProps) {
   const boxed = variant === "boxed";
   const editable = !readOnly && !disabled;
@@ -2523,15 +3794,61 @@ export function TextEditEditor({
     onCommit,
     onRevert,
     onSubmit,
+    mentions,
+    onImageUpload,
+    onFileUpload,
+    onUploadError,
+    onOutlineChange,
+    onAnnotationClick,
+    onAnnotationHover,
+    onCreateAnnotation,
+    onAnnotationsLayout,
   });
   React.useEffect(() => {
-    callbacks.current = { onValueChange, onCommit, onRevert, onSubmit };
-  }, [onValueChange, onCommit, onRevert, onSubmit]);
+    callbacks.current = {
+      onValueChange,
+      onCommit,
+      onRevert,
+      onSubmit,
+      mentions,
+      onImageUpload,
+      onFileUpload,
+      onUploadError,
+      onOutlineChange,
+      onAnnotationClick,
+      onAnnotationHover,
+      onCreateAnnotation,
+      onAnnotationsLayout,
+    };
+  }, [
+    onValueChange,
+    onCommit,
+    onRevert,
+    onSubmit,
+    mentions,
+    onImageUpload,
+    onFileUpload,
+    onUploadError,
+    onOutlineChange,
+    onAnnotationClick,
+    onAnnotationHover,
+    onCreateAnnotation,
+    onAnnotationsLayout,
+  ]);
 
   const placeholderRef = React.useRef(placeholder);
   placeholderRef.current = placeholder;
-  const slashRef = React.useRef<readonly TextEditSlashCommand[]>(slashCommands);
-  slashRef.current = slashCommands;
+  // `file` needs somewhere to send the file.
+  const allowedSlash = React.useMemo(
+    () => slashCommands.filter((command) => command !== "file" || onFileUpload),
+    [slashCommands, onFileUpload],
+  );
+  const slashRef = React.useRef<readonly TextEditSlashCommand[]>(allowedSlash);
+  slashRef.current = allowedSlash;
+  const mentionHrefRef = React.useRef(mentionHref);
+  mentionHrefRef.current = mentionHref;
+  const fileLinkPrefixRef = React.useRef(fileLinkPrefix);
+  fileLinkPrefixRef.current = fileLinkPrefix;
 
   const [panel, setPanel] = React.useState<Panel | null>(null);
   // One key per instance for each floating menu, so an effect can show or hide exactly this
@@ -2541,18 +3858,101 @@ export function TextEditEditor({
   }));
   const [slash, setSlashState] = React.useState<SlashState | null>(null);
   const slashStateRef = React.useRef<SlashState | null>(null);
+  const [mentionMenu, setMentionState] =
+    React.useState<MentionMenuState | null>(null);
+  const mentionStateRef = React.useRef<MentionMenuState | null>(null);
+  const setMention = React.useCallback((next: MentionMenuState | null) => {
+    mentionStateRef.current = next;
+    setMentionState(next);
+  }, []);
+
+  // The mention search: debounced 150ms, one AbortSignal per keystroke.
+  const searchRef = React.useRef<{
+    timer?: ReturnType<typeof setTimeout>;
+    controller?: AbortController;
+  }>({});
+  const stopSearch = React.useCallback(() => {
+    clearTimeout(searchRef.current.timer);
+    searchRef.current.controller?.abort();
+    searchRef.current = {};
+  }, []);
+  const runSearch = React.useCallback(
+    (query: string) => {
+      stopSearch();
+      const source = callbacks.current.mentions;
+      if (!source) return;
+      const current = mentionStateRef.current;
+      if (current) setMention({ ...current, loading: true, error: false });
+      const controller = new AbortController();
+      searchRef.current.controller = controller;
+      searchRef.current.timer = setTimeout(() => {
+        source.search(query, { signal: controller.signal }).then(
+          (options) => {
+            if (controller.signal.aborted) return;
+            const state = mentionStateRef.current;
+            if (!state) return;
+            setMention({
+              ...state,
+              results: groupResults(options, source.kinds),
+              loading: false,
+              error: false,
+              index: 0,
+            });
+          },
+          () => {
+            if (controller.signal.aborted) return;
+            const state = mentionStateRef.current;
+            if (!state) return;
+            setMention({ ...state, results: [], loading: false, error: true });
+          },
+        );
+      }, 150);
+    },
+    [setMention, stopSearch],
+  );
+  React.useEffect(() => stopSearch, [stopSearch]);
+
+  // Uploads in flight: aborted on unmount, awaited by `flush()`.
+  const uploadsRef = React.useRef(
+    new Map<string, { controller: AbortController; done: Promise<void> }>(),
+  );
+  const pickRef = React.useRef<(() => void) | null>(null);
+  const openPanel = React.useCallback((next: Panel | null) => {
+    if (next === "file") pickRef.current?.();
+    else setPanel(next);
+  }, []);
 
   // Built once: the editor is never recreated by a re-render.
   const [extensions] = React.useState(() =>
-    buildExtensions(placeholderRef, {
-      allowed: slashRef,
-      get: () => slashStateRef.current,
-      set: (next) => {
-        slashStateRef.current = next;
-        setSlashState(next);
+    buildExtensions(
+      placeholderRef,
+      {
+        allowed: slashRef,
+        get: () => slashStateRef.current,
+        set: (next) => {
+          slashStateRef.current = next;
+          setSlashState(next);
+        },
+        open: openPanel,
       },
-      open: setPanel,
-    }),
+      {
+        mentionHref: mentionHrefRef,
+        fileLinkPrefix: fileLinkPrefixRef,
+        mention: {
+          enabled: () => Boolean(callbacks.current.mentions?.kinds.length),
+          get: () => mentionStateRef.current,
+          set: (next) => {
+            if (!next) stopSearch();
+            setMention(next);
+          },
+          query: runSearch,
+        },
+      },
+      {
+        onClick: (id) => callbacks.current.onAnnotationClick?.(id),
+        onHover: (id) => callbacks.current.onAnnotationHover?.(id),
+      },
+    ),
   );
 
   const editorRef = React.useRef<Editor | null>(null);
@@ -2562,10 +3962,14 @@ export function TextEditEditor({
     "aria-describedby": resolvedDescribedBy,
     "aria-invalid": ariaInvalidAttribute,
   } = aria;
-  const hasSlash = slashCommands.length > 0;
+  const hasSlash = allowedSlash.length > 0;
   const editorAttributes = React.useMemo(
     () => ({
-      class: cn(surfaceClassName, editable && hasSlash && hintClassName),
+      class: cn(
+        surfaceClassName,
+        markdownExtrasClassName,
+        editable && hasSlash && hintClassName,
+      ),
       // `document`: the caret is this surface's whole focus cue — no ring, border or fill (see
       // the geometry lane's caret-only exemption). `boxed`: the box's border is the cue.
       "data-focus-cue": boxed ? "border" : "caret",
@@ -2601,14 +4005,34 @@ export function TextEditEditor({
   // The document as focus found it: a commit compares against it, Escape restores it. Null while
   // no edit session is open, which is what makes every commit path idempotent.
   const baselineRef = React.useRef<string | null>(null);
+  // The last document the host has — loaded, committed or applied from `value` — so a commit
+  // that happens outside an edit session (an upload finishing after blur) knows what changed.
+  const committedRef = React.useRef<string | null>(null);
   const commit = React.useCallback(() => {
     const ed = editorRef.current;
     if (!ed || ed.isDestroyed || baselineRef.current === null) return;
     const next = serialize(ed);
     if (next === baselineRef.current) return;
     baselineRef.current = next;
+    committedRef.current = next;
     callbacks.current.onCommit?.(next);
   }, [serialize]);
+  /**
+   * Commit now, focused or not: a programmatic change (an upload landing) must reach the host
+   * even when no edit session is open. Idempotent with `commit`.
+   */
+  const commitNow = React.useCallback(() => {
+    const ed = editorRef.current;
+    if (!ed || ed.isDestroyed) return;
+    if (baselineRef.current !== null) {
+      commit();
+      return;
+    }
+    const next = serialize(ed);
+    if (next === committedRef.current) return;
+    committedRef.current = next;
+    callbacks.current.onCommit?.(next);
+  }, [commit, serialize]);
   const revert = React.useCallback(() => {
     const ed = editorRef.current;
     if (!ed || baselineRef.current === null) return;
@@ -2625,6 +4049,95 @@ export function TextEditEditor({
     callbacks.current.onRevert?.();
   }, [markdown, serialize]);
 
+  /** Upload `file` into the document at `pos`: a placeholder now, the image or link on success. */
+  const startUpload = React.useCallback(
+    (file: File, pos: number): boolean => {
+      const ed = editorRef.current;
+      const image = file.type.startsWith("image/");
+      const { onImageUpload: uploadImage, onFileUpload: uploadFile } =
+        callbacks.current;
+      if (!ed || ed.isDestroyed || (image ? !uploadImage : !uploadFile))
+        return false;
+      const id = `upload-${Math.random().toString(36).slice(2)}`;
+      const controller = new AbortController();
+      const preview = image ? URL.createObjectURL(file) : null;
+      ed.view.dispatch(
+        ed.state.tr.setMeta(UPLOAD_KEY, {
+          add: { id, pos, name: file.name, preview },
+        } satisfies UploadMeta),
+      );
+      const land = (content: JSONContent) => {
+        const current = editorRef.current;
+        if (!current || current.isDestroyed) return;
+        const at = uploadPos(current.state, id);
+        current.view.dispatch(
+          current.state.tr.setMeta(UPLOAD_KEY, {
+            remove: id,
+          } satisfies UploadMeta),
+        );
+        if (at === null) return;
+        current.chain().insertContentAt(at, content).run();
+        commitNow();
+      };
+      const drop = (error: unknown) => {
+        const current = editorRef.current;
+        if (current && !current.isDestroyed)
+          current.view.dispatch(
+            current.state.tr.setMeta(UPLOAD_KEY, {
+              remove: id,
+            } satisfies UploadMeta),
+          );
+        if (!controller.signal.aborted)
+          callbacks.current.onUploadError?.(file, error);
+      };
+      const done = (
+        image
+          ? uploadImage!(file, { signal: controller.signal }).then((result) =>
+              land({
+                type: "image",
+                attrs: {
+                  src: result.src,
+                  alt: result.alt ?? null,
+                  width: result.width ?? null,
+                  height: result.height ?? null,
+                },
+              }),
+            )
+          : uploadFile!(file, { signal: controller.signal }).then((result) =>
+              land({
+                type: "text",
+                text: result.name,
+                marks: [{ type: "link", attrs: { href: result.href } }],
+              }),
+            )
+      )
+        .catch(drop)
+        .finally(() => {
+          if (preview) URL.revokeObjectURL(preview);
+          uploadsRef.current.delete(id);
+        });
+      uploadsRef.current.set(id, { controller, done });
+      return true;
+    },
+    [commitNow],
+  );
+  React.useEffect(() => {
+    const uploads = uploadsRef.current;
+    return () => {
+      for (const { controller } of uploads.values()) controller.abort();
+    };
+  }, []);
+
+  /** Upload each file at `pos`; true when at least one had somewhere to go. */
+  const uploadFiles = React.useCallback(
+    (files: readonly File[], pos: number) => {
+      let started = false;
+      for (const file of files) started = startUpload(file, pos) || started;
+      return started;
+    },
+    [startUpload],
+  );
+
   const editor = useEditor({
     extensions,
     content: value ?? defaultValue,
@@ -2634,8 +4147,9 @@ export function TextEditEditor({
     editorProps: {
       attributes: editorAttributes,
       handleKeyDown: (view, event) => {
-        // The slash menu owns Enter, arrows and Escape while it is open.
+        // The slash and mention menus own Enter, arrows and Escape while open.
         if (SLASH_KEY.getState(view.state)?.active) return false;
+        if (MENTION_KEY.getState(view.state)?.active) return false;
         const mod = event.metaKey || event.ctrlKey;
         if (event.key === "Enter" && mod) {
           event.preventDefault();
@@ -2656,6 +4170,8 @@ export function TextEditEditor({
         }
         if (mod && !event.shiftKey && event.key.toLowerCase() === "k") {
           event.preventDefault();
+          // The editor's ⌘K is the link panel; an app's own ⌘K palette must not open too.
+          event.stopPropagation();
           setPanel("link");
           return true;
         }
@@ -2663,10 +4179,17 @@ export function TextEditEditor({
       },
       transformPastedHTML: sanitizePastedHTML,
       // Markdown pasted as plain text is parsed, not inserted verbatim. A bare URL is left to the
-      // link extension, which turns it into a link over the selection.
-      handlePaste: (_view, event) => {
+      // link extension, which turns it into a link over the selection. Pasted files (a
+      // screenshot) upload, when the host takes uploads.
+      handlePaste: (view, event) => {
         const ed = editorRef.current;
+        const files = Array.from(event.clipboardData?.files ?? []);
         const text = event.clipboardData?.getData("text/plain");
+        if (ed && files.length > 0 && !text) {
+          const { from, to } = view.state.selection;
+          if (from !== to) view.dispatch(view.state.tr.deleteSelection());
+          if (uploadFiles(files, view.state.selection.from)) return true;
+        }
         if (
           !ed ||
           !text ||
@@ -2678,6 +4201,16 @@ export function TextEditEditor({
         ed.commands.insertContent(text, { contentType: "markdown" });
         return true;
       },
+      handleDrop: (view, event, _slice, moved) => {
+        const files = Array.from(event.dataTransfer?.files ?? []);
+        if (moved || files.length === 0) return false;
+        const pos =
+          view.posAtCoords({ left: event.clientX, top: event.clientY })?.pos ??
+          view.state.selection.from;
+        if (!uploadFiles(files, pos)) return false;
+        event.preventDefault();
+        return true;
+      },
     },
     onUpdate: ({ editor: ed }) => {
       callbacks.current.onValueChange?.(serialize(ed));
@@ -2685,6 +4218,29 @@ export function TextEditEditor({
   });
 
   editorRef.current = editor;
+
+  // The document the host passed in is the committed one until something changes it.
+  React.useEffect(() => {
+    if (editor && committedRef.current === null)
+      committedRef.current = serialize(editor);
+  }, [editor, serialize]);
+
+  // The file picker behind the image panel's Upload and the slash menu's File. Files land where
+  // the caret was when it opened.
+  const pickAtRef = React.useRef(0);
+  const picker = useFileDrop({
+    onFilesAccepted: (files) => uploadFiles(files, pickAtRef.current),
+    accept: onFileUpload ? undefined : { "image/*": [] },
+    paste: false,
+    preventWindowDrop: false,
+  });
+  pickRef.current = () => {
+    const ed = editorRef.current;
+    if (!ed || ed.isDestroyed) return;
+    pickAtRef.current = ed.state.selection.from;
+    picker.open();
+  };
+  const canUpload = Boolean(onImageUpload || onFileUpload);
 
   // The document is in the DOM once `EditorContent` has mounted it (a child's layout effect), so
   // the shell swaps the read view out before the browser paints.
@@ -2738,6 +4294,7 @@ export function TextEditEditor({
   const pendingValueRef = React.useRef<string | undefined>(undefined);
   const applyValue = React.useCallback(
     (ed: Editor, next: string) => {
+      committedRef.current = next;
       if (serialize(ed) === next) return;
       ed.commands.setContent(next, {
         emitUpdate: false,
@@ -2804,6 +4361,181 @@ export function TextEditEditor({
     };
   }, [editor, serialize, leave, panel]);
 
+  // Outline: every heading's id, level and text — after load, then 150ms after each change.
+  React.useEffect(() => {
+    if (!editor || !onOutlineChange) return;
+    let last = "";
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    const emit = () => {
+      if (editor.isDestroyed) return;
+      const outline = headingsOf(editor.state.doc)
+        .filter((entry) => entry.level <= 4)
+        .map((entry) => ({
+          id: entry.id,
+          level: entry.level as 1 | 2 | 3 | 4,
+          text: entry.text,
+        }));
+      const key = JSON.stringify(outline);
+      if (key === last) return;
+      last = key;
+      callbacks.current.onOutlineChange?.(outline);
+    };
+    const schedule = () => {
+      clearTimeout(timer);
+      timer = setTimeout(emit, 150);
+    };
+    emit();
+    editor.on("update", schedule);
+    return () => {
+      clearTimeout(timer);
+      editor.off("update", schedule);
+    };
+  }, [editor, onOutlineChange]);
+
+  // Annotations: resolved into the document whenever the host's list changes.
+  React.useEffect(() => {
+    if (!editor || editor.isDestroyed) return;
+    editor.view.dispatch(
+      editor.state.tr
+        .setMeta(ANNOTATION_KEY, {
+          type: "set",
+          items: annotations ?? [],
+        } satisfies AnnotationMeta)
+        .setMeta("addToHistory", false),
+    );
+  }, [editor, annotations]);
+  React.useEffect(() => {
+    if (!editor || editor.isDestroyed) return;
+    editor.view.dispatch(
+      editor.state.tr
+        .setMeta(ANNOTATION_KEY, {
+          type: "active",
+          id: activeAnnotationId,
+        } satisfies AnnotationMeta)
+        .setMeta("addToHistory", false),
+    );
+  }, [editor, activeAnnotationId]);
+
+  // Annotation layout: each highlight's top (relative to the TextEdit root) and its current
+  // anchor, reported once per frame when either changes.
+  React.useEffect(() => {
+    if (!editor || !onAnnotationsLayout) return;
+    let frame = 0;
+    let last = "";
+    const report = () => {
+      frame = 0;
+      if (editor.isDestroyed) return;
+      const state = ANNOTATION_KEY.getState(editor.state);
+      const root = rootRef.current;
+      if (!state || !root) return;
+      const { doc } = editor.state;
+      const origin = root.getBoundingClientRect().top;
+      const items = [...state.ranges].map(([id, range]) => {
+        if (!range) return { id, top: null, anchor: null };
+        let top: number | null = null;
+        try {
+          top = editor.view.coordsAtPos(range.from).top - origin;
+        } catch {
+          top = null;
+        }
+        const offsets = rangeToOffsets(doc, range.from, range.to);
+        return {
+          id,
+          top,
+          anchor: anchorFromRange(anchorText(doc), offsets.start, offsets.end),
+        };
+      });
+      const key = JSON.stringify(items);
+      if (key === last) return;
+      last = key;
+      callbacks.current.onAnnotationsLayout?.(items);
+    };
+    const schedule = () => {
+      if (!frame) frame = requestAnimationFrame(report);
+    };
+    schedule();
+    editor.on("transaction", schedule);
+    const observer =
+      typeof ResizeObserver === "undefined"
+        ? null
+        : new ResizeObserver(schedule);
+    if (rootRef.current) observer?.observe(rootRef.current);
+    window.addEventListener("resize", schedule);
+    return () => {
+      cancelAnimationFrame(frame);
+      editor.off("transaction", schedule);
+      observer?.disconnect();
+      window.removeEventListener("resize", schedule);
+    };
+  }, [editor, onAnnotationsLayout, rootRef]);
+
+  const getAnchorForSelection = React.useCallback((): TextAnchor | null => {
+    const ed = editorRef.current;
+    if (!ed || ed.isDestroyed) return null;
+    const { from, to, empty } = ed.state.selection;
+    if (empty) return null;
+    const { doc } = ed.state;
+    const offsets = rangeToOffsets(doc, from, to);
+    if (offsets.start === offsets.end) return null;
+    return anchorFromRange(anchorText(doc), offsets.start, offsets.end);
+  }, []);
+
+  // The imperative handle the shell's `handleRef` delegates to.
+  const pulseTimerRef = React.useRef<ReturnType<typeof setTimeout>>(undefined);
+  React.useEffect(() => () => clearTimeout(pulseTimerRef.current), []);
+  React.useImperativeHandle(
+    editorHandle,
+    () => ({
+      scrollToHeading: (id: string) => {
+        const target = rootRef.current?.querySelector<HTMLElement>(
+          `[id="${CSS.escape(id)}"]`,
+        );
+        target?.scrollIntoView({ block: "start", behavior: "smooth" });
+      },
+      flush: async () => {
+        commitNow();
+        await Promise.allSettled(
+          [...uploadsRef.current.values()].map((upload) => upload.done),
+        );
+      },
+      focus: () => {
+        editorRef.current?.commands.focus();
+      },
+      getAnchorForSelection,
+      pulseAnnotation: (id: string) => {
+        const ed = editorRef.current;
+        if (!ed || ed.isDestroyed) return;
+        const set = (pulse: string | null) =>
+          ed.view.dispatch(
+            ed.state.tr
+              .setMeta(ANNOTATION_KEY, {
+                type: "pulse",
+                id: pulse,
+              } satisfies AnnotationMeta)
+              .setMeta("addToHistory", false),
+          );
+        set(id);
+        const range = ANNOTATION_KEY.getState(ed.state)?.ranges.get(id);
+        if (range)
+          ed.view.domAtPos(range.from).node.parentElement?.scrollIntoView({
+            block: "center",
+            behavior: "smooth",
+          });
+        clearTimeout(pulseTimerRef.current);
+        pulseTimerRef.current = setTimeout(() => {
+          if (!ed.isDestroyed) set(null);
+        }, 3000);
+      },
+    }),
+    [commitNow, getAnchorForSelection, rootRef],
+  );
+
+  const canComment = Boolean(onCreateAnnotation);
+  const comment = React.useCallback(() => {
+    const anchor = getAnchorForSelection();
+    if (anchor) callbacks.current.onCreateAnnotation?.(anchor);
+  }, [getAnchorForSelection]);
+
   const themeScope = useInternalThemeScope();
   // Floating UI inside the bubble menus: fixed to the viewport, flipped and shifted into view.
   const bubbleOptions = React.useMemo(
@@ -2813,12 +4545,12 @@ export function TextEditEditor({
   const showBubble = React.useCallback(
     ({ editor: ed, from, to, state }: MenuShowProps) =>
       panel !== null ||
-      (ed.isEditable &&
+      ((ed.isEditable || canComment) &&
         from !== to &&
         !(state.selection instanceof NodeSelection) &&
         !(state.selection instanceof CellSelection) &&
         !ed.isActive("codeBlock")),
-    [panel],
+    [panel, canComment],
   );
   // A panel opens from React state (⌘K, the slash menu), not from a selection change, so the
   // bubble menu is told directly; closing one re-evaluates it against the selection.
@@ -2838,7 +4570,7 @@ export function TextEditEditor({
 
   return (
     <>
-      {editable && editor ? (
+      {(editable || canComment) && editor ? (
         <BubbleMenu
           editor={editor}
           pluginKey={menuKeys.bubble}
@@ -2852,6 +4584,10 @@ export function TextEditEditor({
             panel={panel}
             onPanelChange={setPanel}
             onLeave={leave}
+            onUploadImage={
+              onImageUpload && editable ? () => openPanel("file") : undefined
+            }
+            onComment={canComment ? comment : undefined}
           />
         </BubbleMenu>
       ) : null}
@@ -2867,10 +4603,24 @@ export function TextEditEditor({
           />
         </FloatingLayer>
       ) : null}
+      {mentionMenu && editable ? (
+        <FloatingLayer>
+          <MentionMenu
+            state={mentionMenu}
+            onHover={(index) => setMention({ ...mentionMenu, index })}
+          />
+        </FloatingLayer>
+      ) : null}
       {dragHandles && editable && editor ? (
         <>
           <BlockHandle editor={editor} />
           <TableControls editor={editor} markdown={markdown} />
+        </>
+      ) : null}
+      {canUpload && editable ? (
+        <>
+          <input {...picker.inputProps} className="hidden" />
+          <picker.Announcer />
         </>
       ) : null}
       <div

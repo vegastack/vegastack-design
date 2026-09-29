@@ -6,7 +6,11 @@ import * as React from "react";
 import type { Editor } from "@tiptap/react";
 import { Field as FieldPrimitive } from "@base-ui/react/field";
 import { cn, mergeRefs, proseClassName } from "@vegastack/design";
-import { MarkdownView } from "@/components/ui/markdown-view";
+import { MarkdownView, type MentionKind } from "@/components/ui/markdown-view";
+import type { TextAnchor } from "@/lib/text-anchor";
+
+export type { MentionKind } from "@/components/ui/markdown-view";
+export type { TextAnchor } from "@/lib/text-anchor";
 
 /* ------------------------------------------------------------------------------------------------
  * Slash commands
@@ -23,13 +27,19 @@ export type TextEditSlashCommand =
   | "orderedList"
   | "taskList"
   | "blockquote"
+  | "callout"
+  | "toggle"
   | "codeBlock"
   | "table"
   | "image"
+  | "file"
   | "divider"
   | "link";
 
-/** Every slash command, in menu order — the default `slashCommands`. */
+/**
+ * Every slash command, in menu order — the default `slashCommands`. `file` shows only when
+ * `onFileUpload` is set.
+ */
 export const TEXT_EDIT_SLASH_COMMANDS: readonly TextEditSlashCommand[] = [
   "text",
   "h1",
@@ -40,9 +50,12 @@ export const TEXT_EDIT_SLASH_COMMANDS: readonly TextEditSlashCommand[] = [
   "orderedList",
   "taskList",
   "blockquote",
+  "callout",
+  "toggle",
   "codeBlock",
   "table",
   "image",
+  "file",
   "divider",
   "link",
 ];
@@ -50,6 +63,109 @@ export const TEXT_EDIT_SLASH_COMMANDS: readonly TextEditSlashCommand[] = [
 /** A smaller set for comments and replies: lists, a quote, code and links — no headings. */
 export const TEXT_EDIT_COMPACT_SLASH_COMMANDS: readonly TextEditSlashCommand[] =
   ["bulletList", "orderedList", "taskList", "blockquote", "codeBlock", "link"];
+
+/* ------------------------------------------------------------------------------------------------
+ * Mentions, uploads, outline, comment anchors
+ * ----------------------------------------------------------------------------------------------*/
+
+/** One result the `@` menu offers. */
+export interface MentionOption {
+  /** What it is: a person, a page, a file or a task. */
+  kind: MentionKind;
+  /** The target's id — written into the Markdown as `mention://<kind>/<id>`. */
+  id: string;
+  /** The name shown in the menu and on the chip. */
+  label: string;
+  /**
+   * A second, muted line of context (an email, a folder, a status).
+   * @default undefined
+   */
+  description?: string;
+  /**
+   * Replaces the kind's icon in the menu (a page's emoji, a person's avatar).
+   * @default undefined
+   */
+  icon?: React.ReactNode;
+}
+
+/** The `@` menu's source: which kinds it offers, and the search behind it. */
+export interface TextEditMentions {
+  /** The kinds the menu offers, grouped in the order People · Pages · Files · Tasks. */
+  kinds: readonly MentionKind[];
+  /**
+   * Results for what follows the `@` (debounced 150ms). The signal aborts when the query
+   * changes; the menu shows at most five per kind.
+   */
+  search: (
+    query: string,
+    options: { signal: AbortSignal },
+  ) => Promise<MentionOption[]>;
+}
+
+/** What an image upload resolves to: the image's final URL (and optional alt text and size). */
+export interface TextEditImageUpload {
+  /** The uploaded image's URL, written into the Markdown as `![alt](src)`. */
+  src: string;
+  /** Alt text for the image.
+   * @default undefined */
+  alt?: string;
+  /** Intrinsic width in px (HTML format only; Markdown has no size).
+   * @default undefined */
+  width?: number;
+  /** Intrinsic height in px (HTML format only).
+   * @default undefined */
+  height?: number;
+}
+
+/** What a file upload resolves to: a link inserted as `[name](href)`, shown as a file chip. */
+export interface TextEditFileUpload {
+  /** The file's URL; one starting with `fileLinkPrefix` renders as a file chip. */
+  href: string;
+  /** The link text — the file's name. */
+  name: string;
+}
+
+/** One heading in the document's outline. */
+export interface TextEditOutlineItem {
+  /** The heading's element id — its words, hyphenated, `-1`, `-2`… for a repeat. */
+  id: string;
+  /** `#` to `####`. */
+  level: 1 | 2 | 3 | 4;
+  /** The heading's text; a mention reads as `@label`. */
+  text: string;
+}
+
+/** A comment's highlight: its id and where it sits in the text. */
+export interface TextEditAnnotation {
+  /** The comment (thread) id — the highlight's `data-annotation`. */
+  id: string;
+  /** Where it sits, as stored (`anchorFromRange` / `onAnnotationsLayout`). */
+  anchor: TextAnchor;
+}
+
+/** Where a highlight sits now, for laying out comments beside the text. */
+export interface TextEditAnnotationLayout {
+  /** The annotation's id. */
+  id: string;
+  /** The highlight's top edge, in px from the TextEdit root's top; null when orphaned. */
+  top: number | null;
+  /** The highlight's current anchor (persist it when it moved); null when orphaned. */
+  anchor: TextAnchor | null;
+}
+
+/** The imperative handle `handleRef` receives. */
+export interface TextEditHandle {
+  /** Scroll the heading with this outline id into view. */
+  scrollToHeading: (id: string) => void;
+  /** Commit pending edits now (before a comment is created, before navigating); resolves once uploads in flight have landed. */
+  flush: () => Promise<void>;
+  /** Move focus into the editor. */
+  focus: () => void;
+  /** The anchor of the current selection, or null when nothing is selected. */
+  getAnchorForSelection: () => TextAnchor | null;
+  /** Pulse an annotation's highlight for 3 seconds and scroll it into view. */
+  pulseAnnotation: (id: string) => void;
+}
 
 /* ------------------------------------------------------------------------------------------------
  * Styling — shared by the read view below and the editor (`text-edit-editor.tsx`)
@@ -340,6 +456,96 @@ export interface TextEditProps {
    * @default undefined
    */
   ref?: React.Ref<HTMLDivElement>;
+  /**
+   * `@` mentions (Markdown format): typing `@` after a space or at a line start opens a menu of
+   * people, pages, files and tasks from `search`. A pick becomes a chip stored as
+   * `[@<label>](mention://<kind>/<id>)`.
+   * @default undefined
+   */
+  mentions?: TextEditMentions;
+  /**
+   * Where a mention chip links, by kind and id; ⌘/Ctrl-click opens it while editing. People are
+   * never links, and neither is a `restricted:` id (a target the reader may not open).
+   * @default undefined
+   */
+  mentionHref?: (kind: MentionKind, id: string) => string | null;
+  /**
+   * Upload an image pasted, dropped or picked (the image panel's Upload, the slash menu's Image).
+   * It shows dimmed under a spinner until the promise resolves with its URL, then commits — even
+   * after focus has left. A rejection removes it and calls `onUploadError`.
+   * @default undefined
+   */
+  onImageUpload?: (
+    file: File,
+    options: { signal: AbortSignal },
+  ) => Promise<TextEditImageUpload>;
+  /**
+   * Upload any other file dropped, pasted or picked (the slash menu's File): it lands as a link
+   * `[name](href)`, shown as a file chip. Without it, non-image files are ignored.
+   * @default undefined
+   */
+  onFileUpload?: (
+    file: File,
+    options: { signal: AbortSignal },
+  ) => Promise<TextEditFileUpload>;
+  /**
+   * Called when an upload rejects (its placeholder is already gone) — show a toast.
+   * @default undefined
+   */
+  onUploadError?: (file: File, error: unknown) => void;
+  /**
+   * A link whose href starts with this renders as a file chip, here and in `MarkdownView`.
+   * @default "/api/files/"
+   */
+  fileLinkPrefix?: string;
+  /**
+   * The document's headings (`#`–`####`) with stable ids, after load and 150ms after each change —
+   * an outline rail. Setting it mounts the editor at once.
+   * @default undefined
+   */
+  onOutlineChange?: (headings: TextEditOutlineItem[]) => void;
+  /**
+   * The imperative handle: `scrollToHeading`, `flush`, `focus`, `getAnchorForSelection`,
+   * `pulseAnnotation`.
+   * @default undefined
+   */
+  handleRef?: React.Ref<TextEditHandle>;
+  /**
+   * Comment highlights, drawn as decorations over their anchored text (never written into the
+   * document), and kept on the same words while the text around them changes. Setting it mounts
+   * the editor at once — read-only too, where the highlights still draw.
+   * @default undefined
+   */
+  annotations?: readonly TextEditAnnotation[];
+  /**
+   * The annotation shown as active: its highlight fills.
+   * @default null
+   */
+  activeAnnotationId?: string | null;
+  /**
+   * Called with an annotation's id when its highlight is clicked.
+   * @default undefined
+   */
+  onAnnotationClick?: (id: string) => void;
+  /**
+   * Called with an annotation's id after the pointer rests on its highlight for 250ms, and with
+   * `null` when it leaves.
+   * @default undefined
+   */
+  onAnnotationHover?: (id: string | null) => void;
+  /**
+   * Adds "Comment" to the selection bubble (read-only too; never in code blocks) and calls this
+   * with the selection's anchor.
+   * @default undefined
+   */
+  onCreateAnnotation?: (anchor: TextAnchor) => void;
+  /**
+   * Each annotation's highlight top (px from this root's top; null when orphaned) and its current
+   * anchor — for laying comments beside the text and persisting moved anchors. Called once per
+   * frame when anything changed.
+   * @default undefined
+   */
+  onAnnotationsLayout?: (items: TextEditAnnotationLayout[]) => void;
 }
 
 /**
@@ -395,8 +601,12 @@ export function TextEdit(props: TextEditProps) {
     children,
     className,
     ref,
+    handleRef,
     ...editorProps
   } = props;
+  // Highlights and an outline need the document model, so they mount the editor at once.
+  const eager =
+    props.annotations !== undefined || props.onOutlineChange !== undefined;
   const boxed = variant === "boxed";
   const [field, setField] = React.useState<FieldAria>({});
   const disabled = disabledProp || field.disabled === true;
@@ -422,14 +632,41 @@ export function TextEdit(props: TextEditProps) {
     intentRef.current ??= intent;
     setActive(true);
   };
-  // The editor is already loaded (it was used on this page before): mount it straight away.
+  // The editor is already loaded (it was used on this page before), or the host needs it now:
+  // mount it straight away.
   React.useEffect(() => {
-    if (editorLoaded && editable) setActive(true);
-  }, [editable]);
+    if ((editorLoaded && editable) || eager) setActive(true);
+  }, [editable, eager]);
   const onReady = React.useCallback((editor: Editor) => {
     editorRef.current = editor;
     setReady(true);
   }, []);
+
+  // The public handle delegates to the editor once it is in; before that, the read view answers.
+  const editorHandle = React.useRef<TextEditHandle | null>(null);
+  React.useImperativeHandle(
+    handleRef,
+    () => ({
+      scrollToHeading: (id) => {
+        if (editorHandle.current) editorHandle.current.scrollToHeading(id);
+        else
+          rootRef.current
+            ?.querySelector<HTMLElement>(`[id="${CSS.escape(id)}"]`)
+            ?.scrollIntoView({ block: "start", behavior: "smooth" });
+      },
+      flush: () => editorHandle.current?.flush() ?? Promise.resolve(),
+      focus: () => {
+        if (editorHandle.current) editorHandle.current.focus();
+        else activate("end");
+      },
+      getAnchorForSelection: () =>
+        editorHandle.current?.getAnchorForSelection() ?? null,
+      pulseAnnotation: (id) => editorHandle.current?.pulseAnnotation(id),
+    }),
+    // `activate` reads only refs and stable setters.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [],
+  );
 
   // The swap: the editor's document now sits exactly where the read view was, so the clicked point
   // maps to the same place in it. Focus it there, repeat a click on a task checkbox, and replay
@@ -608,6 +845,9 @@ export function TextEdit(props: TextEditProps) {
               format={html ? "html" : "markdown"}
               // The editor shows every image; so does the view that stands in for it.
               allowedImageOrigins={ALL_ORIGINS}
+              mentionHref={props.mentionHref}
+              fileLinkPrefix={props.fileLinkPrefix}
+              headingIds={props.onOutlineChange !== undefined}
             >
               {source}
             </MarkdownView>
@@ -641,6 +881,7 @@ export function TextEdit(props: TextEditProps) {
             rootRef={rootRef}
             hidden={!ready}
             onReady={onReady}
+            editorHandle={editorHandle}
           />
         </React.Suspense>
       ) : null}
