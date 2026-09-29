@@ -3,6 +3,7 @@ import { render } from "vitest-browser-react";
 import { userEvent } from "vitest/browser";
 import { expect, test, vi } from "vitest";
 import { expectNoA11yViolations } from "../../test/a11y";
+import { ActionBarButton } from "./action-bar";
 import {
   DataList,
   rowActionsColumn,
@@ -1990,4 +1991,270 @@ test("rowLinkRender renders a router link (DS-33)", async () => {
   const link = screen.getByRole("link", { name: "Cole" });
   await expect.element(link).toHaveAttribute("data-router", "");
   await expect.element(link).toHaveAttribute("href", "/people/c");
+});
+
+// ---- range selection, keyboard, the selection bar, drag into (plan 2026-09-30) ----------------
+
+interface FileRow {
+  id: string;
+  name: string;
+  kind: "folder" | "file";
+}
+
+const files: FileRow[] = [
+  { id: "f1", name: "Clients", kind: "folder" },
+  { id: "f2", name: "Projects", kind: "folder" },
+  { id: "d1", name: "brief.pdf", kind: "file" },
+  { id: "d2", name: "notes.md", kind: "file" },
+  { id: "d3", name: "plan.xlsx", kind: "file" },
+];
+const fileColumns: DataListColumn<FileRow>[] = [
+  { key: "name", header: "Name" },
+  { key: "kind", header: "Kind" },
+];
+
+function Files(
+  props: Partial<React.ComponentProps<typeof DataList<FileRow>>> & {
+    initial?: string[];
+  },
+) {
+  const { initial = [], ...rest } = props;
+  const [selected, setSelected] = React.useState(() => new Set(initial));
+  return (
+    <DataList<FileRow>
+      aria-label="Files"
+      columns={fileColumns}
+      data={files}
+      getRowId={(r) => r.id}
+      getRowLabel={(r) => r.name}
+      getRowHref={(r) => `#${r.id}`}
+      selectable
+      selectedIds={selected}
+      onSelectionChange={setSelected}
+      {...rest}
+    />
+  );
+}
+
+const box = (name: string) =>
+  document.querySelector<HTMLElement>(`[aria-label="Select ${name}"]`)!;
+const isChecked = (name: string) =>
+  box(name).getAttribute("aria-checked") === "true";
+const checkedNames = () =>
+  files.map((f) => f.name).filter((name) => isChecked(name));
+
+/** Toggle a checkbox the way a pointer does, with or without Shift held. */
+async function toggle(name: string, shiftKey = false) {
+  box(name).dispatchEvent(
+    new PointerEvent("pointerdown", { bubbles: true, shiftKey }),
+  );
+  box(name).click();
+  await new Promise((r) => setTimeout(r, 0));
+}
+
+test("shift-toggle selects the range from the last toggled row, and clears it the same way", async () => {
+  await render(<Files />);
+  await toggle("Projects");
+  await toggle("notes.md", true);
+  await expect
+    .poll(checkedNames)
+    .toEqual(["Projects", "brief.pdf", "notes.md"]);
+  // Upward from the new anchor, and a range whose end is checked clears it.
+  await toggle("Clients", true);
+  await expect
+    .poll(checkedNames)
+    .toEqual(["Clients", "Projects", "brief.pdf", "notes.md"]);
+  await toggle("brief.pdf");
+  await toggle("Clients", true);
+  await expect.poll(checkedNames).toEqual(["notes.md"]);
+  // Without Shift it is a single toggle.
+  await toggle("plan.xlsx");
+  await expect.poll(checkedNames).toEqual(["notes.md", "plan.xlsx"]);
+});
+
+test("⌘/Ctrl+A selects every row from inside the list, Escape clears, Space toggles a focused row", async () => {
+  const screen = await render(
+    <Files toolbar={<input aria-label="Search files" />} />,
+  );
+  // Never from a text field: the field keeps its own select-all.
+  (
+    screen
+      .getByRole("textbox", { name: "Search files" })
+      .element() as HTMLElement
+  ).focus();
+  await userEvent.keyboard("{Control>}a{/Control}");
+  expect(checkedNames()).toEqual([]);
+
+  (
+    screen.getByRole("link", { name: "notes.md" }).element() as HTMLElement
+  ).focus();
+  await userEvent.keyboard(" ");
+  await expect.poll(checkedNames).toEqual(["notes.md"]);
+  await userEvent.keyboard("{Control>}a{/Control}");
+  await expect.poll(checkedNames).toEqual(files.map((f) => f.name));
+  await userEvent.keyboard("{Meta>}a{/Meta}"); // idempotent, either modifier
+  await expect.poll(checkedNames).toEqual(files.map((f) => f.name));
+  await userEvent.keyboard("{Escape}");
+  await expect.poll(checkedNames).toEqual([]);
+});
+
+test("the keyboard shortcuts are off without `selectable`", async () => {
+  const onSelectionChange = vi.fn();
+  const screen = await render(
+    <DataList<FileRow>
+      columns={fileColumns}
+      data={files}
+      getRowId={(r) => r.id}
+      getRowHref={(r) => `#${r.id}`}
+      onSelectionChange={onSelectionChange}
+    />,
+  );
+  (
+    screen.getByRole("link", { name: "Clients" }).element() as HTMLElement
+  ).focus();
+  await userEvent.keyboard("{Control>}a{/Control}");
+  expect(onSelectionChange).not.toHaveBeenCalled();
+});
+
+test("selectionActions docks a bar with the count, the host's actions and Clear selection", async () => {
+  const onTrash = vi.fn();
+  const screen = await render(
+    <Files
+      initial={["d1", "d2"]}
+      selectionActions={(ids, clear) => (
+        <ActionBarButton
+          onClick={() => {
+            onTrash([...ids]);
+            clear();
+          }}
+        >
+          Move to Trash
+        </ActionBarButton>
+      )}
+    />,
+  );
+  const bar = document.querySelector<HTMLElement>(
+    '[data-slot="data-list-selection-bar"]',
+  )!;
+  expect(bar.getAttribute("data-active")).toBe("true");
+  expect(
+    bar.querySelector('[data-slot="action-bar-status"]')?.textContent,
+  ).toBe("2 selected");
+  await expectNoA11yViolations(document.body);
+
+  await screen.getByRole("button", { name: "Move to Trash" }).click();
+  expect(onTrash).toHaveBeenCalledWith(["d1", "d2"]);
+  await expect.poll(() => bar.getAttribute("data-active")).toBe("false");
+  expect(bar.hasAttribute("inert")).toBe(true);
+
+  await toggle("Clients");
+  await expect.poll(() => bar.getAttribute("data-active")).toBe("true");
+  await screen.getByRole("button", { name: "Clear selection" }).click();
+  await expect.poll(checkedNames).toEqual([]);
+});
+
+test("the grid view carries the same checkboxes, ranges and selected state", async () => {
+  await render(<Files view="grid" onViewChange={() => {}} initial={["f2"]} />);
+  const items = document.querySelectorAll('[data-slot="data-list-grid-item"]');
+  expect(items).toHaveLength(files.length);
+  expect(
+    document.querySelector('[data-row-id="f2"]')?.hasAttribute("data-selected"),
+  ).toBe(true);
+  // Once anything is selected every card's checkbox shows, not only on hover.
+  for (const select of document.querySelectorAll(
+    '[data-slot="data-list-card-select"]',
+  ))
+    expect(select.className).toContain("opacity-100");
+  await toggle("Projects");
+  await toggle("notes.md", true);
+  await expect
+    .poll(checkedNames)
+    .toEqual(["Projects", "brief.pdf", "notes.md"]);
+  await expectNoA11yViolations(document.body);
+});
+
+test("no a11y violations — list with a selection", async () => {
+  await render(<Files initial={["f1", "d3"]} />);
+  await expectNoA11yViolations(document.body);
+});
+
+/** Drive a Pragmatic drag from `source` to the middle of `target`. */
+async function dragTo(source: HTMLElement, target: HTMLElement) {
+  const dt = new DataTransfer();
+  const s = source.getBoundingClientRect();
+  const t = target.getBoundingClientRect();
+  const at = {
+    bubbles: true,
+    cancelable: true,
+    dataTransfer: dt,
+    clientX: t.left + t.width / 2,
+    clientY: t.top + t.height / 2,
+  };
+  source.dispatchEvent(
+    new DragEvent("dragstart", {
+      ...at,
+      clientX: s.left + s.width / 2,
+      clientY: s.top + s.height / 2,
+    }),
+  );
+  await new Promise((r) => setTimeout(r, 60));
+  for (const type of ["dragenter", "dragover"] as const) {
+    target.dispatchEvent(new DragEvent(type, at));
+    await new Promise((r) => setTimeout(r, 60));
+  }
+  target.dispatchEvent(new DragEvent("drop", at));
+  source.dispatchEvent(new DragEvent("dragend", at));
+  await new Promise((r) => setTimeout(r, 60));
+}
+
+const rowOf = (id: string) =>
+  document.querySelector<HTMLElement>(
+    `[data-slot="data-list-row"][data-row-id="${id}"]`,
+  )!;
+
+test("onDropInto: rows drag onto folder rows; a selected row carries the selection; refusals take nothing", async () => {
+  const onDropInto = vi.fn();
+  await render(
+    <Files
+      initial={["d2", "d3"]}
+      onDropInto={onDropInto}
+      canDropOnRow={(r) => r.kind === "folder"}
+      canDropInto={({ ids, targetId }) =>
+        !(targetId === "f2" && ids.includes("d1"))
+      }
+    />,
+  );
+  expect(rowOf("d1").getAttribute("draggable")).toBe("true");
+  // The row's own link must not start a URL drag of its own.
+  expect(
+    rowOf("d1")
+      .querySelector('[data-slot="data-list-row-link"]')
+      ?.getAttribute("draggable"),
+  ).toBe("false");
+
+  await dragTo(rowOf("d1"), rowOf("f1"));
+  expect(onDropInto).toHaveBeenLastCalledWith({ ids: ["d1"], targetId: "f1" });
+
+  onDropInto.mockClear();
+  await dragTo(rowOf("d3"), rowOf("f1"));
+  expect(onDropInto).toHaveBeenLastCalledWith({
+    ids: ["d2", "d3"],
+    targetId: "f1",
+  });
+
+  onDropInto.mockClear();
+  await dragTo(rowOf("d1"), rowOf("f2")); // canDropInto refuses
+  await dragTo(rowOf("d1"), rowOf("d2")); // not a folder
+  await dragTo(rowOf("f1"), rowOf("f1")); // onto itself
+  expect(onDropInto).not.toHaveBeenCalled();
+});
+
+test("without onDropInto rows are not draggable", async () => {
+  await render(<Files />);
+  expect(rowOf("d1").hasAttribute("draggable")).toBe(false);
+  expect(
+    rowOf("d1")
+      .querySelector('[data-slot="data-list-row-link"]')
+      ?.hasAttribute("draggable"),
+  ).toBe(false);
 });

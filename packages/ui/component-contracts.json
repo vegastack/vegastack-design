@@ -12,8 +12,8 @@
     "evidencePolicy": "Observed fields come from source, registry metadata, docs, and test topology. Unknown/not-applicable values are explicit; no inferred behavior is presented as verified."
   },
   "expectedCounts": {
-    "totalRegistryItems": 709,
-    "components": 139,
+    "totalRegistryItems": 711,
+    "components": 141,
     "animatedIcons": 467,
     "hooks": 13,
     "blocks": 13,
@@ -23,7 +23,7 @@
   "expectedWaveCounts": {
     "Core controls": 24,
     "Forms/editing": 30,
-    "Navigation/layout": 19,
+    "Navigation/layout": 21,
     "Overlays": 15,
     "Data display": 26,
     "Content/marketing": 14,
@@ -111,7 +111,9 @@
       "direction",
       "menubar",
       "record-layout",
-      "folder-tree"
+      "folder-tree",
+      "breadcrumb-cascade",
+      "table-of-contents"
     ],
     "Overlays": [
       "alert-dialog",
@@ -3618,6 +3620,181 @@
             {
               "name": "data-slot",
               "values": ["breadcrumb-ellipsis"]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
+    },
+    {
+      "name": "breadcrumb-cascade",
+      "registryType": "registry:ui",
+      "title": "Breadcrumb Cascade",
+      "summary": "Two additions to a breadcrumb trail for a file browser: BreadcrumbDropTarget, a crumb that takes rows dragged from a DataList, and BreadcrumbSiblings, a menu of a segment's siblings.",
+      "status": "stable",
+      "since": "0.23.74",
+      "family": "navigation",
+      "wave": "Navigation/layout",
+      "sourceFiles": ["packages/ui/registry/ui/breadcrumb-cascade.tsx"],
+      "publicSymbols": [
+        {
+          "name": "BreadcrumbDropTarget",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/breadcrumb-cascade.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "a",
+            "rationale": "The ref reaches BreadcrumbLink's anchor through useRender, merged with the drop target's own ref."
+          }
+        },
+        {
+          "name": "BreadcrumbDropTargetProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/breadcrumb-cascade.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "BreadcrumbDropMove",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/breadcrumb-cascade.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "BreadcrumbSiblings",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/breadcrumb-cascade.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "BreadcrumbSiblings takes no ref; the DS DropdownMenu owns its trigger and popup."
+          }
+        },
+        {
+          "name": "BreadcrumbSiblingsProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/breadcrumb-cascade.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "BreadcrumbSibling",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/breadcrumb-cascade.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "A composed set; no local axis."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "The trigger is Button's icon-xs; the crumb is BreadcrumbLink's text."
+      },
+      "states": {
+        "behavior": {
+          "status": "covered",
+          "values": [
+            "default",
+            "open",
+            "current",
+            "loading",
+            "empty",
+            "drop-over",
+            "drop-invalid"
+          ],
+          "evidence": "packages/ui/registry/ui/breadcrumb-cascade.tsx + packages/ui/registry/ui/breadcrumb-cascade.test.tsx"
+        },
+        "accessibility": {
+          "status": "covered",
+          "values": [
+            "browser-accessibility-test",
+            "labeled",
+            "busy",
+            "current",
+            "keyboard-menu"
+          ],
+          "evidence": "packages/ui/registry/ui/breadcrumb-cascade.test.tsx"
+        },
+        "visual": {
+          "status": "observed",
+          "values": ["default", "hover", "focus", "drop-over", "drop-invalid"],
+          "evidence": "packages/ui/registry/ui/breadcrumb-cascade.tsx"
+        }
+      },
+      "responsive": {
+        "status": "modeled",
+        "risks": ["responsive-or-container-layout"],
+        "rationale": "Inline in a wrapping breadcrumb list; the menu is capped by DropdownMenu's own available-width clamp."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned motion mechanism; the menu's transitions are DropdownMenu's."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/breadcrumb-cascade",
+      "registryDependencies": [
+        "@vegastack/breadcrumb",
+        "@vegastack/button",
+        "@vegastack/dropdown-menu",
+        "@vegastack/use-drag-reorder"
+      ],
+      "npmDependencies": [
+        "@base-ui/react@^1.6.0",
+        "@vegastack/design-tokens@^0.7.56",
+        "@vegastack/design@^0.7.61",
+        "lucide-react@^1.47.0"
+      ],
+      "testFiles": ["packages/ui/registry/ui/breadcrumb-cascade.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required"
+      },
+      "previewModule": "breadcrumb-cascade",
+      "dataAttributes": {
+        "BreadcrumbDropTarget": {
+          "attributes": [
+            {
+              "name": "data-drop-target",
+              "values": [""]
+            }
+          ],
+          "cssVariables": []
+        },
+        "BreadcrumbSiblings": {
+          "attributes": [
+            {
+              "name": "data-current",
+              "values": [""]
+            },
+            {
+              "name": "data-slot",
+              "values": [
+                "breadcrumb-siblings-item",
+                "breadcrumb-siblings-menu",
+                "breadcrumb-siblings-status",
+                "breadcrumb-siblings-trigger"
+              ]
             }
           ],
           "cssVariables": []
@@ -7399,6 +7576,15 @@
           }
         },
         {
+          "name": "DataListDropMove",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/data-list.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
           "name": "DataListEmpty",
           "kind": "interface",
           "source": "packages/ui/registry/ui/data-list.tsx",
@@ -7469,7 +7655,13 @@
             "sectioned",
             "collapsed-section",
             "row-actions",
-            "row-links"
+            "row-links",
+            "range-selected",
+            "selection-bar",
+            "dragging",
+            "drop-over",
+            "drop-invalid",
+            "grid-selected"
           ],
           "evidence": "Observed from branches, state attributes, and inline source contract."
         },
@@ -7482,7 +7674,9 @@
             "labeled",
             "live",
             "status-announcement",
-            "semantic-html"
+            "semantic-html",
+            "keyboard-selection",
+            "browser-accessibility-test"
           ],
           "evidence": "Observed from semantic elements, ARIA, keyboard handlers, or focus styling."
         },
@@ -7509,9 +7703,11 @@
       "engines": [],
       "docsSlug": "/docs/components/data-list",
       "registryDependencies": [
+        "@vegastack/action-bar",
         "@vegastack/board",
         "@vegastack/board-card",
         "@vegastack/button",
+        "@vegastack/checkbox",
         "@vegastack/data-table-parts",
         "@vegastack/empty",
         "@vegastack/filter-bar",
@@ -7577,6 +7773,10 @@
               "values": []
             },
             {
+              "name": "data-row-id",
+              "values": []
+            },
+            {
               "name": "data-section",
               "values": []
             },
@@ -7585,11 +7785,17 @@
               "values": [""]
             },
             {
+              "name": "data-selecting",
+              "values": [""]
+            },
+            {
               "name": "data-slot",
               "values": [
                 "data-list",
+                "data-list-card-select",
                 "data-list-footer",
                 "data-list-grid",
+                "data-list-grid-item",
                 "data-list-grid-root",
                 "data-list-grid-section",
                 "data-list-grid-skeleton",
@@ -7600,6 +7806,7 @@
                 "data-list-row",
                 "data-list-row-action",
                 "data-list-section",
+                "data-list-selection-bar",
                 "data-list-sort-hint",
                 "data-list-status",
                 "data-list-thumbnail-cell",
@@ -13038,6 +13245,176 @@
           "cssVariables": []
         }
       }
+    },
+    {
+      "name": "table-of-contents",
+      "registryType": "registry:ui",
+      "title": "Table of Contents",
+      "summary": "The “On this page” outline of a long document — links to its headings with the one the reader has reached marked by a scroll spy; an always-labelled list, a rail of ticks that opens on hover or focus, or a left Sheet from a trigger on narrow screens. Exports useActiveHeading for custom outlines.",
+      "status": "stable",
+      "since": "0.23.74",
+      "family": "navigation",
+      "wave": "Navigation/layout",
+      "sourceFiles": ["packages/ui/registry/ui/table-of-contents.tsx"],
+      "publicSymbols": [
+        {
+          "name": "TableOfContentsItem",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/table-of-contents.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "TableOfContentsVariant",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/table-of-contents.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "UseActiveHeadingOptions",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/table-of-contents.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "useActiveHeading",
+          "kind": "hook",
+          "source": "packages/ui/registry/ui/table-of-contents.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "This exported helper is not a rendered component root."
+          }
+        },
+        {
+          "name": "TableOfContentsProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/table-of-contents.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "TableOfContents",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/table-of-contents.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "nav",
+            "rationale": "Props spread onto the root nav, ref included; with trigger, onto the nav inside the open sheet."
+          }
+        }
+      ],
+      "variants": {
+        "status": "observed",
+        "dimensions": [
+          {
+            "name": "variant",
+            "values": ["list", "rail"],
+            "evidence": "packages/ui/registry/ui/table-of-contents.tsx: TableOfContentsVariant union"
+          }
+        ]
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "One density: 28px list rows, 24px rail rows; indentation follows the heading level."
+      },
+      "states": {
+        "behavior": {
+          "status": "covered",
+          "values": [
+            "default",
+            "active",
+            "spy-activation-line",
+            "spy-bottom-forces-last",
+            "rail-collapsed",
+            "rail-expanded",
+            "sheet-open",
+            "empty-renders-nothing",
+            "items-changed"
+          ],
+          "evidence": "packages/ui/registry/ui/table-of-contents.tsx + packages/ui/registry/ui/table-of-contents.test.tsx"
+        },
+        "accessibility": {
+          "status": "covered",
+          "values": [
+            "semantic-html",
+            "landmark-region",
+            "labeled",
+            "aria-current",
+            "keyboard-navigation",
+            "focus-visible",
+            "expanded",
+            "focus-return",
+            "browser-accessibility-test"
+          ],
+          "evidence": "packages/ui/registry/ui/table-of-contents.test.tsx"
+        },
+        "visual": {
+          "status": "observed",
+          "values": [
+            "default",
+            "hover",
+            "focus",
+            "active",
+            "collapsed",
+            "expanded"
+          ],
+          "evidence": "Observed from token classes, data-active and data-expanded selectors."
+        }
+      },
+      "responsive": {
+        "status": "modeled",
+        "risks": [
+          "viewport-breakpoint",
+          "overflow-and-scroll",
+          "text-truncation-and-flex-shrink",
+          "mobile-or-touch-mode"
+        ],
+        "rationale": "Sticky within 100dvh minus --table-of-contents-top and scrolls itself; hosts show the rail or list at a breakpoint and a trigger instance (a left Sheet) below it; rail labels truncate."
+      },
+      "motion": {
+        "status": "modeled",
+        "mechanisms": [
+          "css-state-transition on the rail's width, surface and label opacity"
+        ],
+        "reducedMotion": {
+          "status": "covered",
+          "rationale": "The global reduced-motion reset in base.css neutralises the rail transitions (MOT-5); the default navigation scrolls instantly under prefers-reduced-motion (usePrefersReducedMotion)."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/table-of-contents",
+      "registryDependencies": [
+        "@vegastack/sheet",
+        "@vegastack/use-list-nav",
+        "@vegastack/use-media-query"
+      ],
+      "npmDependencies": [
+        "lucide-react@^1.47.0",
+        "@vegastack/design@^0.7.61",
+        "@vegastack/design-tokens@^0.7.56"
+      ],
+      "testFiles": ["packages/ui/registry/ui/table-of-contents.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required"
+      },
+      "previewModule": "table-of-contents",
+      "dataAttributes": {}
     },
     {
       "name": "input",
@@ -23161,7 +23538,8 @@
             "markdown",
             "uploading",
             "mention-menu",
-            "annotated"
+            "annotated",
+            "annotation-count"
           ],
           "evidence": "Observed from branches, state attributes, and inline source contract."
         },
@@ -23172,13 +23550,15 @@
             "disabled",
             "invalid",
             "labeled",
-            "semantic-html"
+            "semantic-html",
+            "focus-visible",
+            "keyboard-operable"
           ],
           "evidence": "Observed from semantic elements, ARIA, keyboard handlers, or focus styling."
         },
         "visual": {
           "status": "observed",
-          "values": ["default", "invalid", "error", "empty"],
+          "values": ["default", "invalid", "error", "empty", "active"],
           "evidence": "Observed from token classes, state selectors, or visual branches."
         }
       },
@@ -32605,6 +32985,7 @@
         "@vegastack/dropdown-menu",
         "@vegastack/person-avatar",
         "@vegastack/sheet",
+        "@vegastack/table-of-contents",
         "@vegastack/text-edit",
         "@vegastack/use-media-query",
         "@vegastack/version-list"

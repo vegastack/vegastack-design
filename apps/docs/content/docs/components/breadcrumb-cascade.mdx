@@ -1,0 +1,133 @@
+---
+title: Breadcrumb Cascade
+description: Two additions to a breadcrumb trail for a file browser — a crumb that takes dragged rows, and a menu of a segment's siblings.
+audience: public
+registry: breadcrumb-cascade
+status: stable
+since: 0.23.74
+a11y: menu with arrow keys; drops are pointer only
+preview: breadcrumbCascade
+---
+
+## Install
+
+<InstallSteps name="breadcrumb-cascade" />
+
+## Usage
+
+```tsx
+import {
+  BreadcrumbDropTarget,
+  BreadcrumbSiblings,
+} from "@/components/ui/breadcrumb-cascade";
+
+<BreadcrumbItem>
+  <BreadcrumbDropTarget
+    href="/library/f/2"
+    targetId="2"
+    dragScope="library"
+    onDropInto={move}
+  >
+    Projects
+  </BreadcrumbDropTarget>
+  <BreadcrumbSiblings label="Projects" items={siblings} />
+</BreadcrumbItem>;
+```
+
+Both parts sit inside upstream's `BreadcrumbItem`, beside or in place of its `BreadcrumbLink`.
+`BreadcrumbSiblings` is a small chevron after a segment that opens a menu of the segment's
+siblings — the segment itself included and checked — so a reader can move sideways without going
+up a level first. The segment's own link is untouched.
+
+<ComponentPreview
+  name="breadcrumbCascade"
+  file="components/preview/breadcrumb-cascade.tsx"
+/>
+
+## Scope
+
+- Owns: the sibling menu of one segment, and a crumb that takes rows dragged from a list.
+- Does not own: the trail (upstream's `Breadcrumb` parts), the siblings' data, or the move itself —
+  `onDropInto` hands the host the ids and the target.
+- Compose with: `Breadcrumb`, `DataList` (`dragScope` + `onDropInto`), and the host's "Move…" dialog
+  as the keyboard path for a move.
+
+## Anatomy
+
+<Anatomy name="breadcrumb-cascade" />
+
+## Examples
+
+### Loading and empty
+
+Pass `onOpenChange` to load a segment's siblings the first time its menu opens; `loading` shows
+"Loading…" in the menu until they arrive. A segment with nothing beside it says so.
+
+<ComponentPreview
+  name="breadcrumbCascadeLoading"
+  file="components/preview/breadcrumb-cascade.tsx"
+/>
+
+### Drop target
+
+`BreadcrumbDropTarget` renders `BreadcrumbLink`, so the crumb is still the link it was. Rows dragged
+from a `DataList` with the same `dragScope` can be dropped on it — moving files up to a parent
+folder. While a drag is over it the crumb washes in the primary tint (`data-drop-over`), or in the
+destructive tint when `canDropInto` refuses (`data-drop-invalid`). A selected row carries the whole
+selection.
+
+<ComponentPreview
+  name="breadcrumbCascadeDropTarget"
+  file="components/preview/breadcrumb-cascade.tsx"
+/>
+
+## API Reference
+
+<ApiTable
+  path="../../packages/ui/registry/ui/breadcrumb-cascade.tsx"
+  name="BreadcrumbSiblingsProps"
+/>
+
+<ApiTable
+  path="../../packages/ui/registry/ui/breadcrumb-cascade.tsx"
+  name="BreadcrumbSibling"
+/>
+
+<ApiTable
+  path="../../packages/ui/registry/ui/breadcrumb-cascade.tsx"
+  name="BreadcrumbDropTargetProps"
+/>
+
+<ApiTable
+  path="../../packages/ui/registry/ui/breadcrumb-cascade.tsx"
+  name="BreadcrumbDropMove"
+/>
+
+## Accessibility
+
+- The sibling trigger is an icon button named "Items next to {segment}". The menu is the DS
+  `DropdownMenu`: focus moves into it, the current segment carries `aria-current="page"` and a
+  check, and <kbd>Esc</kbd> closes it with focus back on the trigger. While `loading` the menu is
+  `aria-busy` and its one entry says "Loading…".
+- A drop target is pointer only, like every drag in the system: the keyboard path for a move is the
+  host's "Move…" action (a `MoveDialog` or a `FolderTree` picker).
+
+| Key                                 | Action                                          |
+| ----------------------------------- | ----------------------------------------------- |
+| <kbd>Enter</kbd> / <kbd>Space</kbd> | Open the sibling menu; choose the focused entry |
+| <kbd>↓</kbd> / <kbd>↑</kbd>         | Move through the siblings                       |
+| <kbd>Esc</kbd>                      | Close the menu and return focus to the chevron  |
+
+<StatesTested name="breadcrumb-cascade" />
+
+## Do / Don't
+
+<DoDont
+  do="Give the sibling menu the whole level, the current segment marked, and load it when it first opens."
+  dont="Replace the segment's link with the menu — the crumb must still go where it says."
+/>
+
+<DoDont
+  do="Name the same dragScope on the list and its crumbs, and refuse the crumb of the folder the rows are already in."
+  dont="Make a drop the only way to move something: keep a Move action for keyboard and touch."
+/>

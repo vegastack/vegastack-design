@@ -1,4 +1,4 @@
-// @vegastack action-bar@0.23.74 sha256-c/YwDCSHAOHyxrVcEpxk//qm/skK1rYSuHE++wQoaRA=
+// @vegastack action-bar@0.23.74 sha256-XwJJH2CJyX9vrjJoksnIqw47sG1dz5bZHJtcj94MHfY=
 
 "use client";
 
@@ -198,7 +198,7 @@ export function ActionBar({
       {status != null ? (
         <div
           data-slot="action-bar-status"
-          className="flex min-w-0 items-center text-xs whitespace-nowrap text-muted-foreground"
+          className="flex shrink-0 items-center text-xs whitespace-nowrap text-muted-foreground"
         >
           {status}
         </div>
@@ -210,7 +210,9 @@ export function ActionBar({
         // be re-triggerable from the keyboard either.
         inert={pending || undefined}
         className={cn(
-          "flex items-center gap-1",
+          // On a phone the bar is capped at the screen width less its margins: the actions
+          // scroll sideways inside it rather than push the bar off screen.
+          "flex min-w-0 items-center gap-1 overflow-x-auto",
           pending && "opacity-50 select-none",
         )}
       >

@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.23.74 sha256-bLK5Ldgqgv8/mdH/ErZhhJp1ft+AH4c1Ui1Qa/TGZZY=
+// @vegastack text-edit@0.23.74 sha256-ioL+L/BsFDP5o4JFPnDt4mh8i8elZcSHzhC++wux9tY=
 
 "use client";
 
@@ -1096,55 +1096,214 @@ const HeadingIds = Extension.create({
 
 /* --- comment highlights ------------------------------------------------------------------------*/
 
+/** How the highlights present themselves: set from the editor's props, never from the document. */
+interface AnnotationOptions {
+  /** Read-only view with a click handler: the first text span of each highlight is a tab stop. */
+  focusable: boolean;
+  /** A click handler exists: the count pill is a button. */
+  clickable: boolean;
+  /** `annotationCounts`: whether a count pill follows each highlight. */
+  counts: "never" | "auto" | "always";
+  /** `annotationLabel`: a focusable highlight's accessible name. */
+  label: (quote: string, count: number) => string;
+  /** `annotationCountLabel`: the pill's accessible name. */
+  countLabel: (count: number) => string;
+}
+
 interface AnnotationPluginState {
   /** Each annotation's current range; null when its text is gone (orphaned). */
   ranges: Map<string, { from: number; to: number } | null>;
   /** The anchor each annotation was last resolved from, so an unchanged one keeps its mapped range. */
   keys: Map<string, string>;
+  /** Each annotation's comment count, as the host gave it. */
+  counts: Map<string, number | undefined>;
   active: string | null;
   pulse: string | null;
+  options: AnnotationOptions;
   decorations: DecorationSet;
 }
 
 type AnnotationMeta =
-  | { type: "set"; items: readonly { id: string; anchor: TextAnchor }[] }
+  | {
+      type: "set";
+      items: readonly { id: string; anchor: TextAnchor; count?: number }[];
+    }
   | { type: "active"; id: string | null }
-  | { type: "pulse"; id: string | null };
+  | { type: "pulse"; id: string | null }
+  | { type: "options"; options: AnnotationOptions };
 
 const ANNOTATION_KEY = new PluginKey<AnnotationPluginState>(
   "textEditAnnotations",
 );
 
+/** `annotationLabel`'s default. */
+const defaultAnnotationLabel = (quote: string, count: number) =>
+  count > 1 ? `${count} comments on “${quote}”` : `Comment on “${quote}”`;
+/** `annotationCountLabel`'s default. */
+const defaultAnnotationCountLabel = (count: number) =>
+  count === 1 ? "1 comment" : `${count} comments`;
+
+const DEFAULT_ANNOTATION_OPTIONS: AnnotationOptions = {
+  focusable: false,
+  clickable: false,
+  counts: "never",
+  label: defaultAnnotationLabel,
+  countLabel: defaultAnnotationCountLabel,
+};
+
 const ANNOTATION_CLASS =
   "cursor-pointer rounded-xs underline decoration-warning-text/60 decoration-dashed underline-offset-4 transition-colors duration-150 hover:bg-warning/15";
 const ANNOTATION_ACTIVE_CLASS = "bg-warning/25 decoration-solid";
 const ANNOTATION_PULSE_CLASS = "animate-pulse bg-warning/30";
+/**
+ * The count pill: a 16px warning-tinted pill (the highlight's own hue) with a 24px invisible hit
+ * area. `auto` shows it only on a coarse pointer or below the `lg` breakpoint, where a comment
+ * margin has no room — CSS alone, no JS media branch.
+ */
+const ANNOTATION_COUNT_CLASS =
+  "relative ms-0.5 h-4 min-w-4 select-none items-center justify-center rounded-full bg-warning/10 px-1 align-middle font-sans text-xs leading-none font-medium text-warning-text tabular-nums transition-colors duration-150 before:absolute before:-inset-1 before:content-[''] hover:bg-warning/20 data-active:bg-warning/30";
+const ANNOTATION_COUNT_VISIBILITY = {
+  auto: "hidden pointer-coarse:inline-flex max-lg:inline-flex",
+  always: "inline-flex",
+} as const;
+
+/** The count pill after a highlight: `contenteditable=false`, a button when there is a click handler. */
+function annotationCount(
+  id: string,
+  count: number,
+  active: boolean,
+  options: AnnotationOptions,
+  open: (id: string) => void,
+): HTMLElement {
+  const pill = document.createElement("span");
+  pill.contentEditable = "false";
+  pill.setAttribute("data-slot", "text-edit-annotation-count");
+  pill.setAttribute("data-annotation-count", id);
+  if (active) pill.setAttribute("data-active", "");
+  pill.className = cn(
+    ANNOTATION_COUNT_CLASS,
+    options.counts !== "never" && ANNOTATION_COUNT_VISIBILITY[options.counts],
+  );
+  // The visible count is decoration; the name is the sentence (design.md "Counts in controls").
+  const visible = document.createElement("span");
+  visible.setAttribute("aria-hidden", "true");
+  visible.textContent = count > 99 ? "99+" : String(count);
+  const name = document.createElement("span");
+  name.className = "sr-only";
+  name.textContent = options.countLabel(count);
+  pill.append(visible, name);
+  if (options.clickable) {
+    // Not a tab stop: in view mode the highlight is, and while editing Tab must stay the editor's.
+    pill.setAttribute("role", "button");
+    pill.tabIndex = -1;
+    // Keep the caret (and focus) where it is.
+    pill.addEventListener("mousedown", (event) => event.preventDefault());
+    pill.addEventListener("click", (event) => {
+      event.preventDefault();
+      open(id);
+    });
+    pill.addEventListener("keydown", (event) => {
+      if (event.key !== "Enter" && event.key !== " ") return;
+      event.preventDefault();
+      open(id);
+    });
+  }
+  return pill;
+}
 
 function annotationDecorations(
   doc: PMNode,
   state: Omit<AnnotationPluginState, "decorations">,
+  open: (id: string) => void,
 ) {
   const decorations: PMDecoration[] = [];
+  const { options } = state;
   for (const [id, range] of state.ranges) {
     if (!range) continue;
-    decorations.push(
-      PMDecoration.inline(
-        range.from,
-        range.to,
-        {
-          "data-annotation": id,
-          ...(id === state.active ? { "data-active": "" } : {}),
-          class: cn(
-            ANNOTATION_CLASS,
-            id === state.active && ANNOTATION_ACTIVE_CLASS,
-            id === state.pulse && ANNOTATION_PULSE_CLASS,
-          ),
-        },
-        { id },
+    const active = id === state.active;
+    const count = Math.max(1, state.counts.get(id) ?? 1);
+    const attrs = {
+      "data-slot": "text-edit-annotation",
+      "data-annotation": id,
+      ...(active ? { "data-active": "" } : {}),
+      class: cn(
+        ANNOTATION_CLASS,
+        active && ANNOTATION_ACTIVE_CLASS,
+        id === state.pulse && ANNOTATION_PULSE_CLASS,
       ),
-    );
+    };
+    if (!options.focusable) {
+      decorations.push(
+        PMDecoration.inline(range.from, range.to, attrs, { id }),
+      );
+    } else {
+      // View mode: ProseMirror draws one span per inline node, so the highlight is split into
+      // segments here and only its FIRST text span is the tab stop — a button named for the whole
+      // quote. The other text spans are hidden from assistive technology, which already heard
+      // them in that name.
+      const quote = doc
+        .textBetween(range.from, range.to, " ", " ")
+        .replace(/\s+/g, " ")
+        .trim();
+      let first = true;
+      doc.nodesBetween(range.from, range.to, (node, pos) => {
+        if (!node.isInline) return true;
+        const from = Math.max(pos, range.from);
+        const to = Math.min(pos + node.nodeSize, range.to);
+        if (from >= to) return false;
+        let segment: Record<string, string> = attrs;
+        if (node.isText && first) {
+          first = false;
+          segment = {
+            ...attrs,
+            "data-annotation-focus": "",
+            role: "button",
+            tabindex: "0",
+            "aria-label": options.label(quote, count),
+          };
+        } else if (node.isText) segment = { ...attrs, "aria-hidden": "true" };
+        decorations.push(PMDecoration.inline(from, to, segment, { id }));
+        return false;
+      });
+    }
+    if (options.counts !== "never") {
+      decorations.push(
+        PMDecoration.widget(
+          range.to,
+          () => annotationCount(id, count, active, options, open),
+          {
+            id,
+            // Reused while nothing it draws changed.
+            key: `annotation-count:${id}:${count}:${active ? 1 : 0}:${options.counts}:${options.clickable ? 1 : 0}:${options.countLabel(count)}`,
+            // Before a caret at the highlight's end, so typing there lands after the pill.
+            side: -1,
+            // Outside any mark (a link, bold): never nested in the highlighted text's markup.
+            marks: [],
+            ignoreSelection: true,
+            stopEvent: () => true,
+          },
+        ),
+      );
+    }
   }
   return DecorationSet.create(doc, decorations);
+}
+
+/** The innermost highlight around `pos` (its ends included), or null. */
+function annotationAt(
+  state: AnnotationPluginState | undefined,
+  pos: number,
+): string | null {
+  let found: string | null = null;
+  let size = Infinity;
+  for (const [id, range] of state?.ranges ?? []) {
+    if (!range || pos < range.from || pos > range.to) continue;
+    if (range.to - range.from < size) {
+      found = id;
+      size = range.to - range.from;
+    }
+  }
+  return found;
 }
 
 /** Resolve an anchor in `doc`: offsets → context → unique quote, then into document positions. */
@@ -1158,14 +1317,37 @@ function resolveInDoc(doc: PMNode, anchor: TextAnchor) {
 /**
  * Comment highlights: each annotation's anchor is resolved to document positions once, then its
  * range maps through every transaction — typing before a highlight keeps it on the same words.
- * Decorations only: the document (and its Markdown) never carries a comment.
+ * Decorations only: the document (and its Markdown) never carries a comment, and neither does the
+ * count pill, which is a widget.
+ *
+ * Keyboard: in view mode (read-only) each highlight's first text span is a tab stop, and Enter or
+ * Space opens its thread. While editing, a highlight is never a tab stop — a focusable island in
+ * the contenteditable would steal the caret and Tab — so Alt+Enter with the caret inside (or at
+ * either end of) a highlight opens its thread instead; anywhere else Alt+Enter is left alone.
  */
 function annotationsExtension(runtime: {
   onClick: (id: string) => void;
   onHover: (id: string | null) => void;
+  /** Whether the host listens for clicks (`onAnnotationClick`). */
+  canOpen: () => boolean;
 }) {
   return Extension.create({
     name: "textEditAnnotations",
+    addKeyboardShortcuts() {
+      return {
+        "Alt-Enter": () => {
+          const { state } = this.editor;
+          if (!this.editor.isEditable || !runtime.canOpen()) return false;
+          const id = annotationAt(
+            ANNOTATION_KEY.getState(state),
+            state.selection.from,
+          );
+          if (!id) return false;
+          runtime.onClick(id);
+          return true;
+        },
+      };
+    },
     addProseMirrorPlugins() {
       let hoverTimer: ReturnType<typeof setTimeout> | undefined;
       let hovered: string | null = null;
@@ -1182,8 +1364,10 @@ function annotationsExtension(runtime: {
             init: (_config, state) => ({
               ranges: new Map(),
               keys: new Map(),
+              counts: new Map(),
               active: null,
               pulse: null,
+              options: DEFAULT_ANNOTATION_OPTIONS,
               decorations: DecorationSet.create(state.doc, []),
             }),
             apply(tr, previous, _oldState, newState) {
@@ -1192,7 +1376,8 @@ function annotationsExtension(runtime: {
               if (!tr.docChanged && !meta) return previous;
               let ranges = previous.ranges;
               let keys = previous.keys;
-              let { active, pulse } = previous;
+              let counts = previous.counts;
+              let { active, pulse, options } = previous;
               if (tr.docChanged) {
                 ranges = new Map();
                 for (const [id, range] of previous.ranges) {
@@ -1211,9 +1396,11 @@ function annotationsExtension(runtime: {
                   { from: number; to: number } | null
                 >();
                 const nextKeys = new Map<string, string>();
-                for (const { id, anchor } of meta.items) {
+                const nextCounts = new Map<string, number | undefined>();
+                for (const { id, anchor, count } of meta.items) {
                   const key = JSON.stringify(anchor);
                   nextKeys.set(id, key);
+                  nextCounts.set(id, count);
                   nextRanges.set(
                     id,
                     keys.get(id) === key && ranges.has(id)
@@ -1223,12 +1410,18 @@ function annotationsExtension(runtime: {
                 }
                 ranges = nextRanges;
                 keys = nextKeys;
+                counts = nextCounts;
               } else if (meta?.type === "active") active = meta.id;
               else if (meta?.type === "pulse") pulse = meta.id;
-              const next = { ranges, keys, active, pulse };
+              else if (meta?.type === "options") options = meta.options;
+              const next = { ranges, keys, counts, active, pulse, options };
               return {
                 ...next,
-                decorations: annotationDecorations(newState.doc, next),
+                decorations: annotationDecorations(
+                  newState.doc,
+                  next,
+                  runtime.onClick,
+                ),
               };
             },
           },
@@ -1239,6 +1432,21 @@ function annotationsExtension(runtime: {
                 const id = annotationOf(event.target);
                 if (id) runtime.onClick(id);
                 return false;
+              },
+              // View mode: a focused highlight opens on Enter or Space, as a button does.
+              keydown: (_view, event) => {
+                if (event.key !== "Enter" && event.key !== " ") return false;
+                const target = event.target;
+                if (
+                  !(target instanceof Element) ||
+                  !target.hasAttribute("data-annotation-focus")
+                )
+                  return false;
+                const id = target.getAttribute("data-annotation");
+                if (!id) return false;
+                event.preventDefault();
+                runtime.onClick(id);
+                return true;
               },
               mouseover: (_view, event) => {
                 const id = annotationOf(event.target);
@@ -3769,6 +3977,9 @@ export function TextEditEditor({
   onAnnotationHover,
   onCreateAnnotation,
   onAnnotationsLayout,
+  annotationCounts = "never",
+  annotationLabel = defaultAnnotationLabel,
+  annotationCountLabel = defaultAnnotationCountLabel,
   aria,
   surfaceClassName,
   hintClassName,
@@ -3950,6 +4161,7 @@ export function TextEditEditor({
       {
         onClick: (id) => callbacks.current.onAnnotationClick?.(id),
         onHover: (id) => callbacks.current.onAnnotationHover?.(id),
+        canOpen: () => Boolean(callbacks.current.onAnnotationClick),
       },
     ),
   );
@@ -4414,6 +4626,33 @@ export function TextEditEditor({
         .setMeta("addToHistory", false),
     );
   }, [editor, activeAnnotationId]);
+  // How highlights present themselves: tab stops in view mode, and the optional count pills.
+  const clickable = Boolean(onAnnotationClick);
+  const viewing = readOnly && !disabled;
+  React.useEffect(() => {
+    if (!editor || editor.isDestroyed) return;
+    editor.view.dispatch(
+      editor.state.tr
+        .setMeta(ANNOTATION_KEY, {
+          type: "options",
+          options: {
+            focusable: viewing && clickable,
+            clickable,
+            counts: annotationCounts,
+            label: annotationLabel,
+            countLabel: annotationCountLabel,
+          },
+        } satisfies AnnotationMeta)
+        .setMeta("addToHistory", false),
+    );
+  }, [
+    editor,
+    viewing,
+    clickable,
+    annotationCounts,
+    annotationLabel,
+    annotationCountLabel,
+  ]);
 
   // Annotation layout: each highlight's top (relative to the TextEdit root) and its current
   // anchor, reported once per frame when either changes.

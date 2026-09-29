@@ -406,6 +406,25 @@ The anchor helpers are server-safe libs: `anchorFromRange(text, start, end)` and
 `resolveAnchor(text, anchor)` in `@/lib/text-anchor`; `anchorText(doc)`, `offsetsToRange` and
 `rangeToOffsets` (ProseMirror documents) in `@/lib/text-anchor-doc`.
 
+#### Count pills and the keyboard
+
+`annotationCounts` puts a count pill after each drawn highlight — the thread's `count` (absent
+counts as 1) — so the text shows where comments are without hover or a margin. `"auto"` shows it
+only on a coarse pointer or below the `lg` breakpoint, in CSS; `"always"` everywhere; `"never"` (the
+default) renders none. The pill is a widget, `contenteditable="false"`: it is never in the document,
+its Markdown or a copy, clicking it keeps the caret where it was, and it follows the active thread
+(`data-active`). It has a 24px hit area and is named by `annotationCountLabel` (“3 comments”), the
+visible number `aria-hidden`. Every highlight opens from the keyboard, through `onAnnotationClick`:
+read-only, each is a tab stop named by `annotationLabel` (“3 comments on “25 A breaker””) that Enter
+or Space opens; while editing, a focusable highlight would take the caret and Tab from the text, so
+instead Alt+Enter with the caret in a highlight opens it. The pill is never a tab stop — the
+highlight or the shortcut already is.
+
+<ComponentPreview
+  name="textEditAnnotationCounts"
+  file="components/preview/text-edit.tsx"
+/>
+
 ### Invalid
 
 Pass `aria-invalid` to mark the editor invalid: it forwards to the contenteditable textbox and the
@@ -476,8 +495,13 @@ fires it with the current value. It's presentational only: the **host** decides 
 - An upload placeholder is a `role="status"` named “Uploading” and the file’s name.
 - A callout is a `role="note"` named by its tone; while editable its icon is a button, “Callout
   type: Note”, that changes the tone.
-- Comment highlights are decorations with a dashed underline; they carry no role of their own — the
-  comment threads beside the text are the accessible surface.
+- Comment highlights are decorations with a dashed underline. With `onAnnotationClick`, a read-only
+  highlight is a `role="button"` tab stop named by `annotationLabel` (“Comment on “…””): one per
+  highlight, on its first text span, the rest of its text hidden from assistive tech because the
+  name already quotes it; its focus is base.css's `accent` tint. While editing a highlight carries
+  no role and is no tab stop, so the caret, Tab, typing and IME are untouched — Alt+Enter opens it
+  instead. A count pill (`annotationCounts`) is a `role="button"` named by `annotationCountLabel`,
+  out of the tab order.
 - Editing keymaps come from Tiptap `StarterKit` plus a few of ours — see the table below. In
   `document` mode focus is shown by the caret itself: the surface has no ring, border or tint (it
   declares `data-focus-cue="caret"`). In `boxed` mode the box's border darkens subtly while the
@@ -513,6 +537,9 @@ fires it with the current value. It's presentational only: the **host** decides 
 | <kbd>Shift</kbd> + <kbd>Tab</kbd>                     | Outdent a list item, or move to the previous table cell.                                                                      |
 | <kbd>Shift</kbd> + <kbd>F10</kbd>                     | In a table, open the row, column or table menu for the selection.                                                             |
 | <kbd>/</kbd>                                          | Open the slash menu.                                                                                                          |
+| <kbd>Alt</kbd> + <kbd>Enter</kbd>                     | With the caret in (or at either end of) a comment highlight, open its thread (`onAnnotationClick`); elsewhere, unchanged.     |
+| <kbd>Tab</kbd> (read-only)                            | Move to the next comment highlight (with `onAnnotationClick`); each highlight is one tab stop.                                |
+| <kbd>Enter</kbd> / <kbd>Space</kbd> (read-only)       | On a focused comment highlight, open its thread (`onAnnotationClick`).                                                        |
 
 <StatesTested name="text-edit" />
 

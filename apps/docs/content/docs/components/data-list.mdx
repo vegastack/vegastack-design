@@ -101,6 +101,59 @@ indeterminate when only some rows are selected, checked when all are, and toggle
   file="components/preview/data-list.tsx"
 />
 
+### Range and keyboard selection
+
+Shift-click a checkbox to select — or clear — everything between it and the last checkbox toggled,
+in the order the rows read (a collapsed section's rows are stepped over). With focus anywhere in the
+list, <kbd>⌘</kbd>/<kbd>Ctrl</kbd>+<kbd>A</kbd> selects every row, <kbd>Esc</kbd> clears the
+selection, and <kbd>Space</kbd> on a focused row link toggles that row. None of them fire from a
+text field (a toolbar search keeps its own select-all) or from a row's ⋯ menu, and a
+
+<kbd>⌘</kbd>/<kbd>Ctrl</kbd>-click on a row still opens its link in a new tab.
+
+<ComponentPreview
+  name="dataListSelectionKeyboard"
+  file="components/preview/data-list.tsx"
+/>
+
+### Selection bar
+
+`selectionActions` docks an `ActionBar` at the bottom of the screen, centred over the list, while
+anything is selected: the count (`selectionLabel`), your actions — compose `ActionBarButton` — and a
+"Clear selection" button. Your render gets the selected ids and a `clear()` to call after a bulk
+action. On a phone the bar is capped at the screen width and its actions scroll sideways inside it.
+
+<ComponentPreview
+  name="dataListSelectionBar"
+  file="components/preview/data-list.tsx"
+/>
+
+### Grid selection
+
+The grid view carries the same checkbox on each card, above the card's link: shown on hover or
+focus, always on a touch screen, and on every card once anything is selected. A selected card keeps
+the list's selected wash. Ranges and the keyboard work the same way.
+
+<ComponentPreview
+  name="dataListGridSelection"
+  file="components/preview/data-list.tsx"
+/>
+
+### Drag into folders
+
+Set `onDropInto` and rows (list) or cards (grid) can be dragged onto drop targets: rows
+`canDropOnRow` accepts (folders), and any `BreadcrumbDropTarget` naming the same `dragScope`.
+Dragging a selected row carries the whole selection, and its drag image reads "3 items"
+(`dragItemsLabel`). `canDropInto` refuses a move — a folder into itself or its own descendant — and a
+refused target shows `data-drop-invalid` in the destructive tint; an accepted one washes in the
+primary tint (`data-drop-over`). `onDropInto` receives `{ ids, targetId }` and may return a promise.
+Drag is pointer only: keep a "Move…" row action as the keyboard and touch path.
+
+<ComponentPreview
+  name="dataListDragInto"
+  file="components/preview/data-list.tsx"
+/>
+
 ### Sorting
 
 Mark **any** column `sortable` to make its header interactive; it carries `aria-sort`,
@@ -758,6 +811,15 @@ grouping, inline editing, multi-key sort, column management, virtualization — 
   name="DataListProps"
 />
 
+### Drop move
+
+What `onDropInto` and `canDropInto` receive.
+
+<ApiTable
+  path="../../packages/ui/registry/ui/data-list.tsx"
+  name="DataListDropMove"
+/>
+
 ### Row props
 
 What `rowProps` returns for a row, alongside any `data-*` attribute.
@@ -882,11 +944,19 @@ renders, and `RowAction` is one entry of either.
 - Activatable rows (`onRowClick`) keep native table semantics: the `<tr>` is **never** given
   `role="button"`/`tabIndex` (which would invalidate its cells). A real `<button>` injected into the first
   cell is the focusable keyboard / screen-reader activation; the row's `onClick` is mouse-only convenience.
+- The selection bar is a Base UI toolbar named "Selection actions": one tab stop, arrow keys between
+  its actions, and a polite announcement of the count as it changes. While nothing is selected it is
+  `inert`, so its controls leave the tab order.
+- Dragging rows is pointer only; the keyboard path for a move is the host's own "Move…" action.
 
-| Key                                 | Action                                                                                                           |
-| ----------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
-| <kbd>Tab</kbd>                      | Move focus between sortable headers, row checkboxes, and (when activatable) each row's first-cell action button. |
-| <kbd>Enter</kbd> / <kbd>Space</kbd> | Activate the focused sort header, toggle the focused checkbox, or activate the focused row.                      |
+| Key                                                                        | Action                                                                                                           |
+| -------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| <kbd>Tab</kbd>                                                             | Move focus between sortable headers, row checkboxes, and (when activatable) each row's first-cell action button. |
+| <kbd>Enter</kbd> / <kbd>Space</kbd>                                        | Activate the focused sort header, toggle the focused checkbox, or activate the focused row.                      |
+| <kbd>Shift</kbd> + click / <kbd>Shift</kbd>+<kbd>Space</kbd> on a checkbox | Select or clear every row from the last toggled one to this one.                                                 |
+| <kbd>Space</kbd> on a row link                                             | Toggle that row's selection (`selectable`).                                                                      |
+| <kbd>⌘</kbd>/<kbd>Ctrl</kbd>+<kbd>A</kbd>                                  | Select every row, while focus is in the list and not in a text field (`selectable`).                             |
+| <kbd>Esc</kbd>                                                             | Clear the selection (`selectable`).                                                                              |
 
 <StatesTested name="data-list" />
 

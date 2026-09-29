@@ -1,6 +1,6 @@
 ---
 title: page-editor-01
-description: A Notion-style document page with comments beside the text — outline rail, comment highlights, a comment margin or popover, and version history.
+description: A Notion-style document page with comments beside the text — outline rail or sheet, comment highlights, a comment margin or popover, and version history.
 audience: public
 registry: page-editor-01
 preview: pageEditor01Demo
@@ -10,8 +10,10 @@ preview: pageEditor01Demo
 
 A document page. The header holds the breadcrumb, the save state ("Saved" / "Saving…"), who else
 is editing (`AvatarGroup` of `PersonAvatar`s), the open-comment count, the version history button
-and a ⋯ menu. An outline rail (from `TextEdit`'s `onOutlineChange`, hidden on narrow screens)
-jumps to headings with `scrollToHeading`. The page is a `TextEdit variant="document"` with comment
+and a ⋯ menu. The outline (`TableOfContents`, fed by `TextEdit`'s `onOutlineChange`) is a sticky
+rail of ticks on wide screens that opens on hover or focus and marks the heading you have reached;
+below `lg` an "Outline" header button opens it in a sheet. Choosing a heading calls
+`scrollToHeading`. The page is a `TextEdit variant="document"` with comment
 highlights (`annotations`); selecting text offers **Comment**. On wide screens the threads sit
 beside the text in a `CommentMargin`; below that the active thread opens in a `CommentPopover`.
 The history button opens a `Sheet` with a `VersionList`, a `DiffView` against the page as it is
@@ -28,7 +30,7 @@ npx shadcn@latest add @vegastack/page-editor-01
 
 This installs the block's own files plus the components it composes: `app-shell`, `avatar`,
 `breadcrumb`, `button`, `comment-margin`, `comments`, `diff-view`, `dropdown-menu`,
-`person-avatar`, `sheet`, `text-edit`, `use-media-query`, `version-list`.
+`person-avatar`, `sheet`, `table-of-contents`, `text-edit`, `use-media-query`, `version-list`.
 
 ## Preview
 
@@ -36,13 +38,15 @@ This installs the block's own files plus the components it composes: `app-shell`
 
 ## Anatomy
 
-- **Header**: `Breadcrumb`, the save state (`role="status"`), `AvatarGroup`, the comment count
-  button, the history button, a `DropdownMenu`.
-- **Outline rail**: headings from `onOutlineChange`, each a ghost `Button` calling
-  `handleRef.scrollToHeading`.
+- **Header**: `Breadcrumb`, the "Outline" `TableOfContents` trigger (below `lg`), the save state
+  (`role="status"`), `AvatarGroup`, the comment count button, the history button, a
+  `DropdownMenu`.
+- **Outline rail**: `TableOfContents variant="rail"` from `lg`, its items from `onOutlineChange`,
+  navigating with `handleRef.scrollToHeading`.
 - **Page**: `TextEdit` with `annotations`, `activeAnnotationId`, `onAnnotationClick`,
   `onCreateAnnotation`, `onAnnotationsLayout`, `autosave`.
-- **Comments**: `CommentMargin` of `CommentThread`s at `min-width: 80rem`, else `CommentPopover`.
+- **Comments**: `CommentMargin` of `CommentThread`s at `min-width: 80rem`, else `CommentPopover`,
+  with a count pill after each highlight (`annotationCounts`) to show where the threads are.
 - **History**: `Sheet` › `VersionList` + `DiffView`, "Restore this version" in the footer.
 
 ## Files

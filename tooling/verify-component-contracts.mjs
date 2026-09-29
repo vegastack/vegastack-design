@@ -575,7 +575,7 @@ assert(
 const expectedWaves = {
   "Core controls": 24,
   "Forms/editing": 30,
-  "Navigation/layout": 19,
+  "Navigation/layout": 21,
   Overlays: 15,
   "Data display": 26,
   "Content/marketing": 14,
@@ -668,6 +668,7 @@ const expectedComponentWaveMembers = {
     "aspect-ratio",
     "board",
     "breadcrumb",
+    "breadcrumb-cascade",
     "collapsible",
     "command",
     "direction",
@@ -681,6 +682,7 @@ const expectedComponentWaveMembers = {
     "scroll-area",
     "sidebar",
     "stepper",
+    "table-of-contents",
     "tabs",
   ],
   Overlays: [

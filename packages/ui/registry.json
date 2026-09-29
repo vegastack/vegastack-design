@@ -660,6 +660,37 @@
       }
     },
     {
+      "name": "breadcrumb-cascade",
+      "type": "registry:ui",
+      "title": "Breadcrumb Cascade",
+      "description": "Two additions to a breadcrumb trail for a file browser: BreadcrumbDropTarget, a crumb that takes rows dragged from a DataList, and BreadcrumbSiblings, a menu of a segment's siblings.",
+      "categories": ["navigation"],
+      "dependencies": [
+        "@base-ui/react@^1.6.0",
+        "lucide-react@^1.47.0",
+        "@vegastack/design@^0.7.61",
+        "@vegastack/design-tokens@^0.7.56"
+      ],
+      "registryDependencies": [
+        "@vegastack/breadcrumb",
+        "@vegastack/button",
+        "@vegastack/dropdown-menu",
+        "@vegastack/use-drag-reorder"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/breadcrumb-cascade.tsx",
+          "type": "registry:ui",
+          "target": "@ui/breadcrumb-cascade.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "A file browser's trail: drop rows onto a parent folder's crumb, or jump to a sibling folder from a segment's menu.",
+        "whenNotToUse": "A plain location trail (Breadcrumb alone), or primary navigation.",
+        "version": "0.23.74"
+      }
+    },
+    {
       "name": "bubble",
       "type": "registry:ui",
       "title": "Bubble",
@@ -1179,7 +1210,7 @@
       "name": "data-list",
       "type": "registry:ui",
       "title": "Data List",
-      "description": "A generic, typed data table — configurable columns, row selection, sortable columns (indicator, custom compare and first direction, client or manual), a standard rowActions ⋯ column always last, untinted-link rows (no underline), loading, and Empty-based emptyState and noResults states.",
+      "description": "A generic, typed data table — configurable columns, row selection (shift ranges, ⌘/Ctrl+A, Esc, a selection ActionBar), sortable columns (indicator, custom compare and first direction, client or manual), a standard rowActions ⋯ column always last, untinted-link rows (no underline), loading, Empty-based emptyState and noResults states, and rows that drag into folders and breadcrumbs.",
       "categories": ["data"],
       "dependencies": [
         "@vegastack/design@^0.7.61",
@@ -1200,7 +1231,9 @@
         "@vegastack/skeleton",
         "@vegastack/thumbnail",
         "@vegastack/view-toggle",
-        "@vegastack/use-drag-reorder"
+        "@vegastack/use-drag-reorder",
+        "@vegastack/checkbox",
+        "@vegastack/action-bar"
       ],
       "files": [
         {
@@ -12367,6 +12400,35 @@
       }
     },
     {
+      "name": "table-of-contents",
+      "type": "registry:ui",
+      "title": "Table of Contents",
+      "description": "The “On this page” outline of a long document — links to its headings with the one the reader has reached marked by a scroll spy; an always-labelled list, a rail of ticks that opens on hover or focus, or a left Sheet from a trigger on narrow screens. Exports useActiveHeading for custom outlines.",
+      "categories": ["navigation"],
+      "dependencies": [
+        "lucide-react@^1.47.0",
+        "@vegastack/design@^0.7.61",
+        "@vegastack/design-tokens@^0.7.56"
+      ],
+      "registryDependencies": [
+        "@vegastack/sheet",
+        "@vegastack/use-list-nav",
+        "@vegastack/use-media-query"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/table-of-contents.tsx",
+          "type": "registry:ui",
+          "target": "@ui/table-of-contents.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "Headings of a long document (TextEdit onOutlineChange, MarkdownView headingIds) as an “On this page” list or rail, with a trigger instance in the header below the rail's breakpoint.",
+        "whenNotToUse": "App navigation between pages (Sidebar, NavigationMenu, Breadcrumb), or a folder hierarchy (FolderTree).",
+        "version": "0.23.74"
+      }
+    },
+    {
       "name": "image",
       "type": "registry:ui",
       "title": "Image",
@@ -14765,6 +14827,7 @@
         "@vegastack/dropdown-menu",
         "@vegastack/person-avatar",
         "@vegastack/sheet",
+        "@vegastack/table-of-contents",
         "@vegastack/text-edit",
         "@vegastack/use-media-query",
         "@vegastack/version-list"

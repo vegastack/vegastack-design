@@ -1,0 +1,186 @@
+---
+title: Table of Contents
+description: The “On this page” outline of a document — a list or a rail that opens on hover or focus, a scroll spy, and a sheet for narrow screens.
+audience: public
+registry: table-of-contents
+status: stable
+since: 0.23.74
+a11y: nav of links, aria-current location, arrow keys
+preview: tableOfContents
+---
+
+## Install
+
+<InstallSteps name="table-of-contents" />
+
+## Usage
+
+```tsx
+import { TableOfContents } from "@/components/ui/table-of-contents";
+
+<TableOfContents
+  variant="rail"
+  items={outline} // TextEdit's onOutlineChange items, or { id, level, text }[]
+  onNavigate={(id) => handle.current?.scrollToHeading(id)}
+/>;
+```
+
+Feed it the headings of the page in document order. `TextEdit` hands them over through
+`onOutlineChange`, and both `TextEdit` and `MarkdownView` (`headingIds`) put the matching `id` on
+each heading, which is all the scroll spy needs: the marked item is the last heading whose top has
+passed a line `min(180px, 28%)` down the scroller, and the last heading once the scroller reaches
+its bottom — so a short closing section still lights up. Choosing an item calls `onNavigate`;
+without it, the heading is scrolled to the top (instantly under reduced motion — give headings a
+`scroll-margin-top` to clear a sticky header).
+
+The outline is sticky by default: set `--table-of-contents-top` through its `className` (your
+header's height, `[--table-of-contents-top:--spacing(14)]`) and it sticks there and scrolls within
+the rest of the viewport. It renders nothing when no
+heading is in range, so an empty page shows no outline.
+
+**Wide and narrow are two instances.** Show the `rail` (or `list`) in a column from a breakpoint,
+and the `trigger` instance — a header button that opens the outline in a left `Sheet` — below it:
+
+```tsx
+<TableOfContents
+  items={outline}
+  onNavigate={go}
+  trigger={
+    <Button variant="ghost" size="sm" className="lg:hidden">
+      Outline
+    </Button>
+  }
+/>
+<TableOfContents variant="rail" items={outline} onNavigate={go} className="hidden lg:block" />
+```
+
+<ComponentPreview
+  name="tableOfContents"
+  file="components/preview/table-of-contents.tsx"
+/>
+
+## Scope
+
+- Owns: the outline's links, the scroll spy (`useActiveHeading`, exported), the rail's open and
+  close, the sticky placement and the narrow-screen sheet.
+- Does not own: the headings or their ids (`TextEdit`, `MarkdownView`), or scrolling to a heading
+  when you pass `onNavigate` (`TextEdit`'s `scrollToHeading`).
+- Compose with: `TextEdit` `onOutlineChange` and `handleRef`, `MarkdownView` `headingIds`, and a
+  header `Button` as the `trigger`.
+
+## Anatomy
+
+<Anatomy name="table-of-contents" />
+
+## Examples
+
+### Rail
+
+Short ticks whose width follows the level; the reached one is thicker. Rest the pointer on the rail,
+or <kbd>Tab</kbd> into it, and it opens into the labelled list over the content beside it;
+
+<kbd>Esc</kbd> or leaving closes it. A rail row is 28px tall and 24px wide, so
+each tick is a full-size target.
+
+<ComponentPreview
+  name="tableOfContentsRail"
+  file="components/preview/table-of-contents.tsx"
+/>
+
+### Controlled active item
+
+Pass `activeId` to decide the marked item yourself — `onActiveIdChange` still reports what the spy
+has reached. The marked item carries `aria-current="location"`, a leading bar and a heavier weight,
+never colour alone.
+
+<ComponentPreview
+  name="tableOfContentsActive"
+  file="components/preview/table-of-contents.tsx"
+/>
+
+### Levels
+
+Levels 1 to 3 show by default (`minLevel`, `maxLevel`); indentation is relative to the shallowest
+level shown.
+
+<ComponentPreview
+  name="tableOfContentsLevels"
+  file="components/preview/table-of-contents.tsx"
+/>
+
+### Sheet for narrow screens
+
+With `trigger`, the outline opens in a left `Sheet` titled with the `label`; choosing a heading
+closes the sheet, then calls `onNavigate`, so the page's scroll is unlocked by the time it moves.
+
+<ComponentPreview
+  name="tableOfContentsSheet"
+  file="components/preview/table-of-contents.tsx"
+/>
+
+### Empty
+
+No heading in range renders nothing — there is no empty message to show.
+
+<ComponentPreview
+  name="tableOfContentsEmpty"
+  file="components/preview/table-of-contents.tsx"
+/>
+
+## API Reference
+
+<ApiTable
+  path="../../packages/ui/registry/ui/table-of-contents.tsx"
+  name="TableOfContentsProps"
+/>
+
+### TableOfContentsItem
+
+<ApiTable
+  path="../../packages/ui/registry/ui/table-of-contents.tsx"
+  name="TableOfContentsItem"
+/>
+
+### useActiveHeading
+
+`useActiveHeading(ids, options)` returns the id of the heading the reader has reached, by the same
+rule the component uses, for hosts that draw their own outline.
+
+<ApiTable
+  path="../../packages/ui/registry/ui/table-of-contents.tsx"
+  name="UseActiveHeadingOptions"
+/>
+
+## Accessibility
+
+- A `<nav>` landmark named by its visible title (`label`, "On this page"), holding an ordered list
+  of real links (`href="#id"`), so copying a link or opening it in a new tab still works; a plain
+  click or <kbd>Enter</kbd> is handed to `onNavigate`.
+- The reached heading's link carries `aria-current="location"`; the visible marker is a bar (list)
+  or a thicker tick (rail) plus weight, never colour alone.
+- The list is one tab stop, and tabbing in lands on the reached heading. The rail opens on keyboard
+  focus so its labels are visible, and its links keep their names while it is closed.
+- In a sheet, focus moves into the dialog, <kbd>Esc</kbd> closes it and focus returns to the
+  trigger.
+
+| Key                                 | Action                                         |
+| ----------------------------------- | ---------------------------------------------- |
+| <kbd>Tab</kbd>                      | Into the outline, on the reached heading; out. |
+| <kbd>↑</kbd> / <kbd>↓</kbd>         | Previous / next heading.                       |
+| <kbd>Home</kbd> / <kbd>End</kbd>    | First / last heading.                          |
+| <kbd>Enter</kbd> / <kbd>Space</kbd> | Go to the heading (`onNavigate`).              |
+| <kbd>Esc</kbd>                      | Close the open rail, or the sheet.             |
+
+<StatesTested name="table-of-contents" />
+
+## Do / Don't
+
+<DoDont
+  do="Feed items straight from TextEdit's onOutlineChange and navigate with handle.scrollToHeading, so edits update the outline and the spy."
+  dont="Collect headings from the DOM yourself, or scroll with a fixed pixel offset — set scroll-margin-top or --table-of-contents-top instead."
+/>
+
+<DoDont
+  do="Render two instances — a rail or list from a breakpoint, and a trigger instance in the header below it."
+  dont="Hide the outline on narrow screens with no way to reach it, or show the rail and the sheet trigger at the same width."
+/>
