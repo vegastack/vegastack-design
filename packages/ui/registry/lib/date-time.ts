@@ -1,4 +1,4 @@
-// @vegastack date-time@0.23.71 sha256-6noD+IipgbkKJYZ9XAJNkCZitz/Rxvt9Lhx9F9thLjs=
+// @vegastack date-time@0.23.71 sha256-FKj/ReRqj50OxwHwGDYyjfXuX9u9AHzcADLnZ/WjCFQ=
 
 export type DateInput = Date | string | number;
 
@@ -174,13 +174,28 @@ export function formatRelative(
 // ---------------------------------------------------------------------------
 
 export interface FormatDurationOptions {
-  /** "1:15:04" / "4:05" instead of "1h 15m". */
+  /** "1:15:04" / "4:05" instead of "1h 15m". Wins over `style`. */
   clock?: boolean;
+  /**
+   * - `minimal` (default): "1h 15m", "7d" — tables, chips, headers.
+   * - `long`: "1 hour 15 minutes", "7 days" — sentences, emails and screen-reader copy.
+   */
+  style?: "minimal" | "long";
   /** The input unit. @default "seconds" */
   unit?: "seconds" | "milliseconds";
 }
 
-/** Duration: 42s · 2m · 1h 15m · 1h · 2d 3h (at most two units). Clock: 1:15:04. */
+const LONG_UNITS = {
+  d: ["day", "days"],
+  h: ["hour", "hours"],
+  m: ["minute", "minutes"],
+  s: ["second", "seconds"],
+} as const;
+
+/**
+ * Duration: 42s · 2m · 1h 15m · 1h · 2d 3h (at most two units). Clock: 1:15:04.
+ * Long: 42 seconds · 1 hour 15 minutes · 7 days.
+ */
 export function formatDuration(
   value: number,
   options: FormatDurationOptions = {},
@@ -200,10 +215,14 @@ export function formatDuration(
     const ss = String(s).padStart(2, "0");
     return hours > 0 ? `${hours}:${mm}:${ss}` : `${mm}:${ss}`;
   }
-  if (d > 0) return h > 0 ? `${d}d ${h}h` : `${d}d`;
-  if (h > 0) return m > 0 ? `${h}h ${m}m` : `${h}h`;
-  if (m > 0) return `${m}m`;
-  return `${s}s`;
+  const unit = (n: number, key: keyof typeof LONG_UNITS) =>
+    options.style === "long"
+      ? `${n} ${LONG_UNITS[key][n === 1 ? 0 : 1]}`
+      : `${n}${key}`;
+  if (d > 0) return h > 0 ? `${unit(d, "d")} ${unit(h, "h")}` : unit(d, "d");
+  if (h > 0) return m > 0 ? `${unit(h, "h")} ${unit(m, "m")}` : unit(h, "h");
+  if (m > 0) return unit(m, "m");
+  return unit(s, "s");
 }
 
 // ---------------------------------------------------------------------------
@@ -247,6 +266,51 @@ export function formatDate(
     return rtf.format(Math.round(delta / 365), "year");
   }
   return monthDay(target, options);
+}
+
+/**
+ * Long date for page headers and greetings: "Thursday, September 24" — with the year outside the
+ * current year ("Thursday, September 24, 2025"). The day/month order follows `locale`:
+ * `en-IN` / `en-GB` read "Thursday, 24 September".
+ */
+export function formatLongDate(
+  date: DateInput,
+  options: DateTimeOptions = {},
+): string {
+  const target = toDate(date);
+  if (Number.isNaN(target.getTime())) return "";
+  const weekday = clean(
+    dtf(options.locale, {
+      weekday: "long",
+      timeZone: options.timeZone,
+    }).format(target),
+  );
+  const day = clean(
+    dtf(options.locale, {
+      month: "long",
+      day: "numeric",
+      ...(isCurrentYear(target, options) ? {} : { year: "numeric" }),
+      timeZone: options.timeZone,
+    }).format(target),
+  );
+  return `${weekday}, ${day}`;
+}
+
+/** The hour (0–23) on the clock of `timeZone` — for greetings and working-hours checks. */
+export function hourOfDay(
+  date: DateInput,
+  options: Pick<DateTimeOptions, "timeZone"> = {},
+): number {
+  const target = toDate(date);
+  if (Number.isNaN(target.getTime())) return Number.NaN;
+  const hour = dtf("en-US", {
+    hour: "numeric",
+    hourCycle: "h23",
+    timeZone: options.timeZone,
+  })
+    .formatToParts(target)
+    .find((p) => p.type === "hour")?.value;
+  return Number(hour);
 }
 
 /** Time of day: 2:30 PM. */

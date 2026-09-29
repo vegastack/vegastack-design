@@ -57,6 +57,8 @@ add the absolute time in a hover tooltip ("Sep 25, 2026 · 2:30 PM IST").
 | Sentences                                | `formatRelative({ style: "suffix" })`, `separator: "comma"` | 2m ago · Sep 25, 2:30 PM                            |
 | Due chips                                | `formatDueLabel` / `<DueLabel>`                             | Overdue 2d · Due today · Due Sep 30                 |
 | Durations (meetings, audio, SLAs)        | `formatDuration` / `<Duration>`; `clock` for players        | 1h 15m · 1:15:04                                    |
+| Durations in sentences and emails        | `formatDuration({ style: "long" })`                         | 1 hour 15 minutes · 7 days                          |
+| Page headers, greetings                  | `formatLongDate`; `hourOfDay` for the greeting              | Thursday, September 24                              |
 | Schedules, events                        | `formatDateRange`, `formatTimeOfDay`                        | Sep 25 · 2–3:30 PM                                  |
 | Grouped lists (inbox, activity)          | `groupByDay`                                                | Today / Yesterday / This week / Last week / Earlier |
 | API / JSON                               | ISO strings — never formatted text                          | 2026-09-25T09:00:00.000Z                            |
@@ -83,7 +85,8 @@ gives "2 minutes ago".
 ### formatDuration
 
 Input in seconds (or `unit: "milliseconds"`). At most two units; seconds drop once minutes exist.
-`clock: true` reads "1:15:04".
+`clock: true` reads "1:15:04"; `style: "long"` spells the units for sentences and emails —
+"1 hour 15 minutes", "7 days".
 
 <ComponentPreview
   name="dateTimeDuration"
@@ -95,6 +98,10 @@ Input in seconds (or `unit: "milliseconds"`). At most two units; seconds drop on
 Today · Tomorrow · Yesterday · a weekday within ±6 days ("Mon", "Last Fri") · "Sep 25" ·
 "Dec 20, 2026". `looseFuture: true` turns far-future dates into "in 2 weeks"; `absolute: true`
 always prints the date.
+
+`formatLongDate` is the page-header date — "Thursday, September 24", with the year outside the
+current year; `locale: "en-IN"` (or `en-GB`) reads "Thursday, 24 September". `hourOfDay` returns
+the hour (0–23) on the viewer's clock, for a greeting or a working-hours check.
 
 <ComponentPreview
   name="dateTimeDates"

@@ -5,7 +5,8 @@
 //
 // HOW IT WORKS (one index request + bounded item requests for installed copies):
 //   1. Resolve the @vegastack registry url + auth headers from components.json (or env).
-//   2. Scan the components dir for files carrying the provenance header the registry stamps:
+//   2. Scan the components dir — plus `aliases.lib` / `aliases.hooks` for `@lib/…` and `@hooks/…`
+//      targets such as `date-time` — for files carrying the provenance header the registry stamps:
 //        // @vegastack <name>@<version> sha256-<integrity>
 //      That header IS the version pin recorded at copy-in time.
 //   3. Fetch the registry INDEX once (…/registry.json) — every item carries meta.version + meta.integrity.
@@ -357,15 +358,42 @@ function indexUrl(urlTemplate) {
 }
 
 // ── components dir + scan ──────────────────────────────────────────────────────────────────────
-function resolveComponentsDir(cwd, dirFlag, componentsJson) {
-  if (dirFlag) return resolve(cwd, dirFlag);
-  const ui = componentsJson?.aliases?.ui;
-  const rel = ui ? ui.replace(/^@\//, "").replace(/^~\//, "") : "components/ui";
+function resolveAliasDir(cwd, alias, fallback) {
+  const rel = alias ? alias.replace(/^@\//, "").replace(/^~\//, "") : fallback;
   const direct = resolve(cwd, rel); // assumes @/ = project root
   if (existsSync(direct)) return direct;
   const srcVariant = resolve(cwd, "src", rel); // common alias: @/* -> src/*
   if (existsSync(srcVariant)) return srcVariant;
   return direct; // documented default; "none found" message hints --dir
+}
+
+function resolveComponentsDir(cwd, dirFlag, componentsJson) {
+  if (dirFlag) return resolve(cwd, dirFlag);
+  return resolveAliasDir(cwd, componentsJson?.aliases?.ui, "components/ui");
+}
+
+/**
+ * Where registry files land besides the components dir: `@lib/…` targets (e.g. `date-time`,
+ * `page-layout`) under `aliases.lib`, `@hooks/…` under `aliases.hooks`. Scanned only when
+ * components.json names the alias and the directory exists — so a locally edited lib file is
+ * drift exactly like an edited component.
+ */
+function resolveExtraRoots(cwd, componentsJson, uiDir) {
+  const roots = [];
+  for (const kind of ["lib", "hooks"]) {
+    const alias = componentsJson?.aliases?.[kind];
+    if (!alias) continue;
+    const dir = resolveAliasDir(cwd, alias, kind);
+    if (!existsSync(dir)) continue;
+    const overlaps = [uiDir, ...roots.map((r) => r.dir)].some(
+      (other) =>
+        dir === other ||
+        dir.startsWith(other + sep) ||
+        other.startsWith(dir + sep),
+    );
+    if (!overlaps) roots.push({ kind, dir });
+  }
+  return roots;
 }
 
 function walk(dir, out = [], isRoot = true) {
@@ -410,7 +438,7 @@ function walk(dir, out = [], isRoot = true) {
 // pipeline strips leading comments during its transform, so most consumer copies have NO
 // header. Headerless files are identified by filename against the registry index and compared
 // by alias-normalized CONTENT instead (see `normalizeForCompare`).
-function readInstalled(file, root) {
+function readInstalled(file, root, kind = "ui") {
   let content;
   try {
     content = readFileSync(file, "utf8");
@@ -423,7 +451,7 @@ function readInstalled(file, root) {
   );
   const m = PROVENANCE_RE.exec(firstLine);
   const name = basename(file).replace(/\.tsx?$/, "");
-  const relativePath = relative(root, file).split(sep).join("/");
+  const relativePath = `${kind}/${relative(root, file).split(sep).join("/")}`;
   return m
     ? {
         file,
@@ -464,10 +492,19 @@ function expectedVariantsForCompare(content, label, aliases, fileType) {
   return new Set([exact, stripped]);
 }
 
-function uiTargetPath(file) {
-  return typeof file?.target === "string" && file.target.startsWith("@ui/")
-    ? file.target.slice("@ui/".length)
-    : undefined;
+const TARGET_ROOTS = [
+  ["@ui/", "ui"],
+  ["@lib/", "lib"],
+  ["@hooks/", "hooks"],
+];
+
+/** A registry file's install location as `<root kind>/<path>`, or undefined for other targets. */
+function targetPath(file) {
+  if (typeof file?.target !== "string") return undefined;
+  for (const [prefix, kind] of TARGET_ROOTS)
+    if (file.target.startsWith(prefix))
+      return `${kind}/${file.target.slice(prefix.length)}`;
+  return undefined;
 }
 
 async function mapLimit(values, limit, fn) {
@@ -611,7 +648,7 @@ export async function main(argv) {
     }
     remote.set(item.name, item);
     for (const file of item.files) {
-      const target = uiTargetPath(file);
+      const target = targetPath(file);
       if (!target) continue;
       if (targetOwners.has(target)) {
         console.error(
@@ -630,15 +667,19 @@ export async function main(argv) {
   //  - headerless files NOT in the index are skipped (they're the consumer's own components)
   let installedFiles;
   try {
-    installedFiles = walk(dir);
+    installedFiles = [
+      ...walk(dir).map((file) => readInstalled(file, dir, "ui")),
+      ...(opts.dir ? [] : resolveExtraRoots(cwd, componentsJson, dir)).flatMap(
+        ({ kind, dir: extra }) =>
+          walk(extra).map((file) => readInstalled(file, extra, kind)),
+      ),
+    ];
   } catch (err) {
     console.error(`✗ ${terminalText(err.message)}`);
     return 2;
   }
   const grouped = new Map();
-  for (const installedFile of installedFiles
-    .map((file) => readInstalled(file, dir))
-    .filter(Boolean)) {
+  for (const installedFile of installedFiles.filter(Boolean)) {
     const itemName = installedFile.header
       ? installedFile.name
       : targetOwners.get(installedFile.relativePath);
@@ -708,7 +749,7 @@ export async function main(argv) {
         status: "missing",
       };
 
-    const expectedTargets = (r.files ?? []).map(uiTargetPath).filter(Boolean);
+    const expectedTargets = (r.files ?? []).map(targetPath).filter(Boolean);
     const installedByTarget = new Map(
       group.files.map((file) => [file.relativePath, file]),
     );
@@ -735,7 +776,7 @@ export async function main(argv) {
       if (item.name !== group.name || !Array.isArray(item.files)) {
         throw new Error("registry item identity/files contract mismatch");
       }
-      const fetchedTargets = item.files.map(uiTargetPath).filter(Boolean);
+      const fetchedTargets = item.files.map(targetPath).filter(Boolean);
       const sortedFetchedTargets = [...fetchedTargets].sort();
       const sortedExpectedTargets = [...expectedTargets].sort();
       if (
@@ -751,7 +792,7 @@ export async function main(argv) {
       }
       if (
         item.files.some(
-          (entry) => uiTargetPath(entry) && typeof entry.content !== "string",
+          (entry) => targetPath(entry) && typeof entry.content !== "string",
         )
       ) {
         throw new Error("registry item contains a non-string component file");
@@ -765,7 +806,7 @@ export async function main(argv) {
       }
       let same = true;
       for (const entry of item.files ?? []) {
-        const target = uiTargetPath(entry);
+        const target = targetPath(entry);
         if (!target) continue;
         const local = installedByTarget.get(target);
         const expectedVariants = expectedVariantsForCompare(

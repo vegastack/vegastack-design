@@ -5,6 +5,7 @@ import { expect, test, vi } from "vitest";
 import { expectNoA11yViolations } from "../../test/a11y";
 import { TooltipProvider } from "./tooltip";
 import { RelativeTime } from "./relative-time";
+import { formatDuration, formatLongDate, hourOfDay } from "../lib/date-time";
 
 /**
  * The open tooltip popup, by slot.
@@ -497,4 +498,24 @@ test("DS-11: a dateStyle formatOptions renders another year and withTime without
   await expect
     .element(screen.getByTestId("styled"))
     .toHaveTextContent("Sep 2, 2025, 12:00 PM");
+});
+
+test("formatDuration long style, formatLongDate and hourOfDay", () => {
+  expect(formatDuration(3_600, { style: "long" })).toBe("1 hour");
+  expect(formatDuration(4_500, { style: "long" })).toBe("1 hour 15 minutes");
+  expect(formatDuration(604_800, { style: "long" })).toBe("7 days");
+  expect(formatDuration(4_504, { style: "long", clock: true })).toBe("1:15:04");
+  const at = Date.UTC(2026, 8, 24, 3); // Thu Sep 24, 08:30 in Kolkata
+  const o = { timeZone: "Asia/Kolkata", now: at };
+  expect(formatLongDate(at, o)).toBe("Thursday, September 24");
+  expect(formatLongDate(at, { ...o, locale: "en-IN" })).toBe(
+    "Thursday, 24 September",
+  );
+  expect(formatLongDate(Date.UTC(2025, 8, 24, 3), o)).toBe(
+    "Wednesday, September 24, 2025",
+  );
+  expect(hourOfDay(at, { timeZone: "Asia/Kolkata" })).toBe(8);
+  expect(
+    hourOfDay(Date.UTC(2026, 8, 23, 18, 40), { timeZone: "Asia/Kolkata" }),
+  ).toBe(0);
 });

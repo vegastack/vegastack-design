@@ -32780,6 +32780,24 @@
           }
         },
         {
+          "name": "formatLongDate",
+          "kind": "function",
+          "source": "packages/ui/registry/lib/date-time.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A pure function; it renders nothing and takes no ref."
+          }
+        },
+        {
+          "name": "hourOfDay",
+          "kind": "function",
+          "source": "packages/ui/registry/lib/date-time.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A pure function; it renders nothing and takes no ref."
+          }
+        },
+        {
           "name": "formatTimeOfDay",
           "kind": "function",
           "source": "packages/ui/registry/lib/date-time.ts",
