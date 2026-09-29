@@ -1,5 +1,13 @@
 # @vegastack/design
 
+## 0.7.59
+
+### Patch Changes
+
+- [#411](https://github.com/vegastack/vegastack-design/pull/411) [`82ade2c`](https://github.com/vegastack/vegastack-design/commit/82ade2c23c2f6b7d52284d24e5d19f81c38bf0ab) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🛠 `vegastack-design check-updates` also checks registry files outside the components dir — `@lib/…` targets under `aliases.lib` (`date-time`, `page-layout`, `tile-overlay`, `drag-item`, `emoji-data`, `geo-data`) and `@hooks/…` under `aliases.hooks` — so a locally edited lib file is drift and fails `--fail-on-update` like an edited component. `--dir` still scans only that directory.
+
+- [#410](https://github.com/vegastack/vegastack-design/pull/410) [`0e3bd65`](https://github.com/vegastack/vegastack-design/commit/0e3bd657b6dbce65551c1606f6ba63911addd2cc) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🔧 New `TemplateEditor`: a plain-paragraph editor for text with spec placeholders. Typing `@` or `{{` opens a searchable list of `tokens`; the picked one becomes an inline chip that deletes as one unit and is stored as `{{id}}`. The value is plain text (paragraphs joined by a blank line) and round-trips exactly; unknown ids and `invalidTokenIds` render in the destructive style. Sized and bordered like `Textarea`, with its focus border.
+
 ## 0.7.58
 
 ### Patch Changes

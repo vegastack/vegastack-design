@@ -9,6 +9,28 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.23.72] — September 29, 2026
+
+<!-- assembled from 3 changesets: ddc89f56d386 -->
+
+### 🔧 Changed components
+
+- **Dates & times** — `formatDuration` takes `style: "long"` for sentences and emails ("1 hour 15 minutes", "7 days"); new `formatLongDate` for page headers ("Thursday, September 24", day-first with `locale: "en-IN"`, the year only outside the current year) and `hourOfDay` for the hour on the viewer's clock (greetings, working hours).
+  [docs](https://design.vegastack.com/docs/components/relative-time) ·
+  [`82ade2c`](https://github.com/VegaStack/vegastack-design/commit/82ade2c)
+- New `TemplateEditor`: a plain-paragraph editor for text with spec placeholders. Typing `@` or `{{` opens a searchable list of `tokens`; the picked one becomes an inline chip that deletes as one unit and is stored as `{{id}}`. The value is plain text (paragraphs joined by a blank line) and round-trips exactly; unknown ids and `invalidTokenIds` render in the destructive style. Sized and bordered like `Textarea`, with its focus border.
+  [`0e3bd65`](https://github.com/VegaStack/vegastack-design/commit/0e3bd65)
+
+### 🛠 CLI & tooling
+
+- `vegastack-design check-updates` also checks registry files outside the components dir — `@lib/…` targets under `aliases.lib` (`date-time`, `page-layout`, `tile-overlay`, `drag-item`, `emoji-data`, `geo-data`) and `@hooks/…` under `aliases.hooks` — so a locally edited lib file is drift and fails `--fail-on-update` like an edited component. `--dir` still scans only that directory.
+  [`82ade2c`](https://github.com/VegaStack/vegastack-design/commit/82ade2c)
+
+### 📦 npm
+
+- **`@vegastack/design`** → **`0.7.59`** (was `0.7.58`).
+- The design-system registry (`@vegastack/ui`) bumps 0.23.71 → 0.23.72.
+
 ## [0.23.71] — September 28, 2026
 
 <!-- assembled from 1 changeset: e57d8eb41097 -->
