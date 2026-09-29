@@ -295,7 +295,7 @@
       ],
       "dependencies": [
         "@base-ui/react@^1.6.0",
-        "@vegastack/design@^0.7.59",
+        "@vegastack/design@^0.7.60",
         "@vegastack/design-tokens@^0.7.56"
       ],
       "registryDependencies": [],
@@ -309,8 +309,8 @@
       "meta": {
         "whenToUse": "Inline comment threads beside a document (TextEdit annotations + onAnnotationsLayout) on wide screens; the popover below the margin breakpoint.",
         "whenNotToUse": "A plain comments section under a record (CommentList), or touch-sized screens (Sheet side=\"bottom\").",
-        "version": "0.23.72",
-        "integrity": "sha256-YmnI36qOhY596KWPNjKTH1yJTB5tnSk5zR+f6Ei6dwQ="
+        "version": "0.23.73",
+        "integrity": "sha256-rMKOQYQHR6Ej2ZyIV6TvSt+5Coof+blLJwH2TlTiHA4="
       }
     },
     {
@@ -322,7 +322,7 @@
         "display"
       ],
       "dependencies": [
-        "@vegastack/design@^0.7.59",
+        "@vegastack/design@^0.7.60",
         "@vegastack/design-tokens@^0.7.56"
       ],
       "registryDependencies": [
@@ -344,8 +344,8 @@
       "meta": {
         "whenToUse": "A page's version history beside a DiffView, in a sheet.",
         "whenNotToUse": "An activity feed (Timeline) or a list of records (DataList).",
-        "version": "0.23.72",
-        "integrity": "sha256-a0XdhfQjGxqqBVwDKYmXS5N+oQZ/Ji7aYUl6+hpLtjw="
+        "version": "0.23.73",
+        "integrity": "sha256-p1scAiR4cNw530xlJ3h9ytPEbyO7QybyjByFd+uk4hU="
       }
     },
     {
@@ -358,7 +358,7 @@
       ],
       "dependencies": [
         "diff@^8.0.4",
-        "@vegastack/design@^0.7.59",
+        "@vegastack/design@^0.7.60",
         "@vegastack/design-tokens@^0.7.56"
       ],
       "registryDependencies": [
@@ -375,8 +375,8 @@
       "meta": {
         "whenToUse": "Comparing two versions of a page's Markdown in a version history.",
         "whenNotToUse": "Code review with side-by-side hunks, or live change tracking while editing.",
-        "version": "0.23.72",
-        "integrity": "sha256-ofX+rIuXVaChIRepMOLXOP4ffkrLx0sYpt+u8g1alB0="
+        "version": "0.23.73",
+        "integrity": "sha256-WgVawRoNY3UBo+qBv9X/XNC7RHppCksAW1zRW7LRqc0="
       }
     },
     {
@@ -18211,8 +18211,8 @@
       "meta": {
         "whenToUse": "A document page with inline comments and version history; compose the same components in your app.",
         "whenNotToUse": "A record page with properties and a comments section — use issue-detail-01.",
-        "version": "0.23.72",
-        "integrity": "sha256-Iy/J5Igz+TeP/QLQ2Y9l935YiysSsQ9jFob8kEmY8FE="
+        "version": "0.23.73",
+        "integrity": "sha256-xvi4zLWDTCKXMpaoi1wBiqP3EqXbHhxWBjKhfyrXiaE="
       }
     },
     {

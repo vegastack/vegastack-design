@@ -26980,7 +26980,7 @@
       "registryDependencies": ["@vegastack/button", "@vegastack/skeleton"],
       "npmDependencies": [
         "diff@^8.0.4",
-        "@vegastack/design@^0.7.59",
+        "@vegastack/design@^0.7.60",
         "@vegastack/design-tokens@^0.7.56"
       ],
       "testFiles": ["packages/ui/registry/ui/diff-view.test.tsx"],
@@ -27092,7 +27092,7 @@
         "@vegastack/use-list-nav"
       ],
       "npmDependencies": [
-        "@vegastack/design@^0.7.59",
+        "@vegastack/design@^0.7.60",
         "@vegastack/design-tokens@^0.7.56"
       ],
       "testFiles": ["packages/ui/registry/ui/version-list.test.tsx"],
@@ -27243,7 +27243,7 @@
       "registryDependencies": [],
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
-        "@vegastack/design@^0.7.59",
+        "@vegastack/design@^0.7.60",
         "@vegastack/design-tokens@^0.7.56"
       ],
       "testFiles": ["packages/ui/registry/ui/comment-margin.test.tsx"],

@@ -260,7 +260,7 @@
       "categories": ["display"],
       "dependencies": [
         "@base-ui/react@^1.6.0",
-        "@vegastack/design@^0.7.59",
+        "@vegastack/design@^0.7.60",
         "@vegastack/design-tokens@^0.7.56"
       ],
       "registryDependencies": [],
@@ -274,7 +274,7 @@
       "meta": {
         "whenToUse": "Inline comment threads beside a document (TextEdit annotations + onAnnotationsLayout) on wide screens; the popover below the margin breakpoint.",
         "whenNotToUse": "A plain comments section under a record (CommentList), or touch-sized screens (Sheet side=\"bottom\").",
-        "version": "0.23.72"
+        "version": "0.23.73"
       }
     },
     {
@@ -284,7 +284,7 @@
       "description": "A document's version history — time, author, name, kind badges (Current, Restored, Unsaved copy), a Named only switch and Load more — as a keyboard listbox.",
       "categories": ["display"],
       "dependencies": [
-        "@vegastack/design@^0.7.59",
+        "@vegastack/design@^0.7.60",
         "@vegastack/design-tokens@^0.7.56"
       ],
       "registryDependencies": [
@@ -306,7 +306,7 @@
       "meta": {
         "whenToUse": "A page's version history beside a DiffView, in a sheet.",
         "whenNotToUse": "An activity feed (Timeline) or a list of records (DataList).",
-        "version": "0.23.72"
+        "version": "0.23.73"
       }
     },
     {
@@ -317,7 +317,7 @@
       "categories": ["display"],
       "dependencies": [
         "diff@^8.0.4",
-        "@vegastack/design@^0.7.59",
+        "@vegastack/design@^0.7.60",
         "@vegastack/design-tokens@^0.7.56"
       ],
       "registryDependencies": ["@vegastack/button", "@vegastack/skeleton"],
@@ -331,7 +331,7 @@
       "meta": {
         "whenToUse": "Comparing two versions of a page's Markdown in a version history.",
         "whenNotToUse": "Code review with side-by-side hunks, or live change tracking while editing.",
-        "version": "0.23.72"
+        "version": "0.23.73"
       }
     },
     {
@@ -14784,7 +14784,7 @@
       "meta": {
         "whenToUse": "A document page with inline comments and version history; compose the same components in your app.",
         "whenNotToUse": "A record page with properties and a comments section — use issue-detail-01.",
-        "version": "0.23.72"
+        "version": "0.23.73"
       }
     },
     {
