@@ -1,4 +1,4 @@
-// @vegastack text-anchor-doc@0.23.74 sha256-9IMDyvalgy1OsJRNet+sYOCWpcudgMCG/nYsrpAOPxQ=
+// @vegastack text-anchor-doc@0.23.75 sha256-TLSviMT9FDn8REiDw9F7UsVJNJrM6vv2wETtcb5xMnA=
 
 import type { Node } from "@tiptap/pm/model";
 
