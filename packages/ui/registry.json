@@ -16501,6 +16501,54 @@
       }
     },
     {
+      "name": "library-01",
+      "type": "registry:block",
+      "title": "Library 01",
+      "description": "A file library page — a resizable FolderTree pane beside the open folder's breadcrumb, header, uploads in flight and contents as a list or a grid, with the FileViewer and a Move dialog.",
+      "categories": ["data", "files"],
+      "dependencies": [
+        "lucide-react@^1.47.0",
+        "@vegastack/design-tokens@^0.7.56"
+      ],
+      "registryDependencies": [
+        "@vegastack/attachment",
+        "@vegastack/breadcrumb",
+        "@vegastack/button",
+        "@vegastack/data-list",
+        "@vegastack/dialog",
+        "@vegastack/dropdown-menu",
+        "@vegastack/empty",
+        "@vegastack/file-kind",
+        "@vegastack/file-viewer",
+        "@vegastack/folder-tree",
+        "@vegastack/page-header",
+        "@vegastack/relative-time",
+        "@vegastack/resizable"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/registry/blocks/library-01/components/library.tsx",
+          "type": "registry:component",
+          "target": "app/library-01/components/library.tsx"
+        },
+        {
+          "path": "packages/ui/registry/blocks/library-01/components/sample-library.ts",
+          "type": "registry:component",
+          "target": "app/library-01/components/sample-library.ts"
+        },
+        {
+          "path": "packages/ui/registry/blocks/library-01/page.tsx",
+          "type": "registry:page",
+          "target": "app/library-01/page.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "A page for a team's files and pages — folders in Shared and Private, uploads, a list or grid of a folder's contents, a viewer and moves; copy it once and wire it to your storage API.",
+        "whenNotToUse": "A few files on a record (AttachmentGroup) or a single upload form (UploadDialog).",
+        "version": "0.23.72"
+      }
+    },
+    {
       "name": "notifications-01",
       "type": "registry:block",
       "title": "Notifications 01",

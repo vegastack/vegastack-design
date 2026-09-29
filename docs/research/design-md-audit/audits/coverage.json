@@ -1,17 +1,17 @@
 {
   "schemaVersion": 1,
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "db094edd6cc5e504c4d517c144963c9331cb61d9c86387f5750df14187eeb3f4",
+  "contractSha256": "59ebe51cbc091e2143c61919ab463a2a6f2c354f07d5fd65dcb7b6bed6ef719d",
   "inventory": {
-    "expected": 702,
-    "actual": 702,
-    "unique": 702
+    "expected": 703,
+    "actual": 703,
+    "unique": 703
   },
   "classes": {
     "components": 136,
     "animatedIcons": 467,
     "hooks": 13,
-    "blocks": 11,
+    "blocks": 12,
     "chartBlocks": 68,
     "libs": 7
   },
@@ -221,7 +221,7 @@
     },
     "Block": {
       "expected": 1,
-      "actual": 79,
+      "actual": 80,
       "members": [
         "app-shell-01",
         "board-01",
@@ -295,6 +295,7 @@
         "chart-tooltip-label-none",
         "command-search-01",
         "issue-detail-01",
+        "library-01",
         "list-page-01",
         "login-01",
         "notifications-01",
@@ -779,6 +780,6 @@
     }
   },
   "componentRoutes": 133,
-  "blockRoutes": 18,
+  "blockRoutes": 19,
   "modeledExemptions": 3
 }

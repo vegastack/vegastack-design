@@ -140,6 +140,7 @@ export * from "./app-shell-01";
 export * from "./board-01";
 export * from "./command-search-01";
 export * from "./list-page-01";
+export * from "./library-01";
 export * from "./login-01";
 export * from "./notifications-01";
 export * from "./review-split-01";

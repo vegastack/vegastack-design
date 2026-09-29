@@ -1,0 +1,6 @@
+---
+"@vegastack/ui": patch
+"@vegastack/design": patch
+---
+
+🧩 New `FolderTree`: a Notion-style navigation tree for a file library — sections of folders, pages and files; folders that load their children on first open (`loadChildren`, or a controlled `childrenOf`) with loading, error (Retry), empty and "Show all" rows past `maxChildren`; one tab stop with tree arrow keys, `*` and typeahead; a ⋯ menu per row through `renderRowActions` and `FolderTreeRowAction`; pointer drag into a folder or onto a section heading (`onMove`, which may be async); and `mode="picker"` — folders only, one `selected` — for Move dialogs. `use-drag-reorder` gains `useDragInto`, the drag-into-a-target engine the tree runs on. A new `file-kind` lib gives every file surface one `formatBytes`, `fileKindOf` and `FileTypeIcon`. `AttachmentGroup` takes `layout="list"` for dense full-width file rows; `FileViewer` plays `video/*` and `audio/*` items in the system players and pauses them when paging away; `useFileDrop` and `Dropzone` take `directories` — each accepted file's `relativePath` through `onEntriesAccepted`, `maxFiles` refusing a whole oversized folder, and `openDirectory()` (on the hook, and on `Dropzone`'s new `actionsRef`) for a folder picker. New block: `library-01`.
