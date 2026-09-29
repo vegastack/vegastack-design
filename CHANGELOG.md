@@ -9,6 +9,20 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.23.77] — September 30, 2026
+
+<!-- assembled from 1 changeset: c5fe4096c5a1 -->
+
+### 📦 npm
+
+- **`@vegastack/design`** → **`0.7.64`** (was `0.7.63`).
+- The design-system registry (`@vegastack/ui`) bumps 0.23.76 → 0.23.77.
+
+### 🐛 Fixed
+
+- `CommentList` takes `mentionHref` and passes it to every comment, so mention chips in top-level comments link as they already did in `CommentThread`. A top or bottom `SheetContent` now stops at `85dvh` (API-21), so a long body — a comment thread on a phone — scrolls inside `SheetBody` with the footer in view instead of running past the screen.
+  [`8e6abe4`](https://github.com/VegaStack/vegastack-design/commit/8e6abe4)
+
 ## [0.23.76] — September 30, 2026
 
 <!-- assembled from 1 changeset: 9f8ef23ff988 -->

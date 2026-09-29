@@ -1,5 +1,11 @@
 # @vegastack/design
 
+## 0.7.64
+
+### Patch Changes
+
+- [#427](https://github.com/vegastack/vegastack-design/pull/427) [`8e6abe4`](https://github.com/vegastack/vegastack-design/commit/8e6abe4575eacaff1999bc780d705c3626dedd9b) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🐛 `CommentList` takes `mentionHref` and passes it to every comment, so mention chips in top-level comments link as they already did in `CommentThread`. A top or bottom `SheetContent` now stops at `85dvh` (API-21), so a long body — a comment thread on a phone — scrolls inside `SheetBody` with the footer in view instead of running past the screen.
+
 ## 0.7.63
 
 ### Patch Changes
