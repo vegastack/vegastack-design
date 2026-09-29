@@ -122,7 +122,7 @@ and needs an `aria-label`.
 
 - A navigation pattern, not an ARIA tree: a `<nav>` named by `aria-label`, nested lists, each row a
   link with `aria-current="page"` on the open item (a button in picker mode, `aria-pressed` on the
-  selected folder) and a disclosure button named "{name} folder" with `aria-expanded`. The system
+  selected folder) and a disclosure button named `{name} folder` with `aria-expanded`. The system
   keeps `role="tree"` out on purpose: controls inside tree items trap a screen reader.
 - The tree is one tab stop; the active row's ⋯ button is the next. Focus shows as a background
   tint, never a ring.
