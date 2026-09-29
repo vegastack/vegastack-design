@@ -1,4 +1,4 @@
-// @vegastack settings-02@0.23.73 sha256-COZ7RmL9Jj+t2Sny8Z2thQaIOgqNa9tnD0pivgCnx7E=
+// @vegastack settings-02@0.23.74 sha256-MQwUdaMcVUkPoxQIn3BXFfzwXMemkd/FfATWhLF3+WQ=
 
 import { ChevronRight } from "lucide-react";
 

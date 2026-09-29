@@ -1,5 +1,11 @@
 # @vegastack/design
 
+## 0.7.61
+
+### Patch Changes
+
+- [#419](https://github.com/vegastack/vegastack-design/pull/419) [`78e2a2c`](https://github.com/vegastack/vegastack-design/commit/78e2a2c221eb2dd28341496de4f456d4ee1de965) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🧩 Comments beside the text and version history. `CommentThread` (in `comments`): a quoted thread with replies, a one-line reply box, resolve/reopen, orphaned and collapsed states; `CommentItem` takes `attachments`, and the composers pass `mentions`, `mentionHref` and uploads to their editor. New `CommentMargin` lays thread cards beside their highlights (active card aligned, the rest stacked) with `CommentPopover` for narrow screens; `VersionList` is a version history listbox (Current, Restored, Unsaved copy, Named only, Load more); `DiffView` shows word-level changes between two texts, line-only above 200 KB, with the sanctioned `diff` engine in its own lazy chunk. New block: `page-editor-01`.
+
 ## 0.7.60
 
 ### Patch Changes
