@@ -12478,7 +12478,11 @@
         "@vegastack/design@^0.7.59",
         "@vegastack/design-tokens@^0.7.56"
       ],
-      "registryDependencies": ["@vegastack/checkbox", "@vegastack/code-block"],
+      "registryDependencies": [
+        "@vegastack/checkbox",
+        "@vegastack/code-block",
+        "@vegastack/file-kind"
+      ],
       "files": [
         {
           "path": "packages/ui/registry/ui/markdown-view.tsx",
@@ -14023,6 +14027,7 @@
         "@vegastack/copy-button",
         "@vegastack/drag-item",
         "@vegastack/dropdown-menu",
+        "@vegastack/file-kind",
         "@vegastack/input",
         "@vegastack/markdown-view",
         "@vegastack/native-select",

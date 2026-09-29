@@ -14137,15 +14137,6 @@
           }
         },
         {
-          "name": "fileIconFor",
-          "kind": "function",
-          "source": "packages/ui/registry/ui/markdown-view.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "A pure function; it renders nothing and takes no ref."
-          }
-        },
-        {
           "name": "markdownExtrasClassName",
           "kind": "constant",
           "source": "packages/ui/registry/ui/markdown-view.tsx",
@@ -14209,7 +14200,11 @@
         }
       ],
       "docsSlug": "/docs/components/markdown-view",
-      "registryDependencies": ["@vegastack/checkbox", "@vegastack/code-block"],
+      "registryDependencies": [
+        "@vegastack/checkbox",
+        "@vegastack/code-block",
+        "@vegastack/file-kind"
+      ],
       "npmDependencies": [
         "marked@^17.0.1",
         "@vegastack/design@^0.7.59",
@@ -23215,6 +23210,7 @@
         "@vegastack/copy-button",
         "@vegastack/drag-item",
         "@vegastack/dropdown-menu",
+        "@vegastack/file-kind",
         "@vegastack/input",
         "@vegastack/markdown-view",
         "@vegastack/native-select",

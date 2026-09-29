@@ -15572,7 +15572,8 @@
       ],
       "registryDependencies": [
         "@vegastack/checkbox",
-        "@vegastack/code-block"
+        "@vegastack/code-block",
+        "@vegastack/file-kind"
       ],
       "files": [
         {
@@ -15585,7 +15586,7 @@
         "whenToUse": "Display user/system-authored markdown — descriptions, comments, activity — as safe token-styled prose.",
         "whenNotToUse": "Editing markdown (use an editor), or when the source needs embedded raw HTML.",
         "version": "0.23.72",
-        "integrity": "sha256-xlRjGCSjFpUVY8OjkaPvhJYLXb6Gh1Z8bdCJj3hlHYw="
+        "integrity": "sha256-fpZeyw2V+OtN0lGD7kLAF+kkPZr/KjXcjwOUwFPDRi0="
       }
     },
     {
@@ -17327,6 +17328,7 @@
         "@vegastack/copy-button",
         "@vegastack/drag-item",
         "@vegastack/dropdown-menu",
+        "@vegastack/file-kind",
         "@vegastack/input",
         "@vegastack/markdown-view",
         "@vegastack/native-select",
@@ -17352,7 +17354,7 @@
         "whenToUse": "Comments, notes, summaries and documents stored as Markdown (format=\"markdown\") or HTML — with @ mentions, uploads, callouts, toggles, an outline and comment highlights for page editors; in-place editing of a MarkdownView (the read view is the editor until first edited).",
         "whenNotToUse": "Plain single-line input (Input) or collaborative real-time docs (deferred text-edit-collab).",
         "version": "0.23.72",
-        "integrity": "sha256-sl0Qt7btFBuXsgZzbXOeK30TQY4INqZUtaO9Y9ewfKI="
+        "integrity": "sha256-ajTwdDwjEsw/zm7wXb2trV2/uSkTX9odzumOL5XCi7I="
       }
     },
     {

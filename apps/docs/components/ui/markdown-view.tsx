@@ -1,16 +1,10 @@
-// @vegastack markdown-view@0.23.72 sha256-xlRjGCSjFpUVY8OjkaPvhJYLXb6Gh1Z8bdCJj3hlHYw=
+// @vegastack markdown-view@0.23.72 sha256-fpZeyw2V+OtN0lGD7kLAF+kkPZr/KjXcjwOUwFPDRi0=
 
 import * as React from "react";
 import { Lexer, type Token, type Tokens } from "marked";
 import {
   CircleCheck,
   File,
-  FileArchive,
-  FileCode,
-  FileImage,
-  FileMusic,
-  FilePlay,
-  FileSpreadsheet,
   FileText,
   Info,
   Lightbulb,
@@ -23,6 +17,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 // `CodeBlock` owns the fenced-code surface (header + copy + sunken mono panel); shadcn rewrites
 // this alias on `add`, and vitest/tsconfig map `@/components/ui/*` → `registry/ui/*`.
 import { CodeBlock } from "@/components/ui/code-block";
+import { FileTypeIcon } from "@/lib/file-kind";
 
 /* ------------------------------------------------------------------------------------------------
  * The document tree
@@ -165,25 +160,6 @@ const MENTION_ICONS: Record<MentionKind, LucideIcon> = {
   task: CircleCheck,
 };
 
-/** A file's icon, from its name's extension. */
-export function fileIconFor(name: string): LucideIcon {
-  const ext = /\.([a-z0-9]+)$/i.exec(name)?.[1]?.toLowerCase() ?? "";
-  if (/^(png|jpe?g|gif|webp|avif|svg|heic|bmp|tiff?)$/.test(ext))
-    return FileImage;
-  if (/^(mp4|mov|webm|mkv|avi|m4v)$/.test(ext)) return FilePlay;
-  if (/^(mp3|wav|m4a|aac|ogg|flac)$/.test(ext)) return FileMusic;
-  if (/^(zip|rar|7z|tar|gz|tgz|bz2)$/.test(ext)) return FileArchive;
-  if (/^(xlsx?|csv|tsv|ods|numbers)$/.test(ext)) return FileSpreadsheet;
-  if (
-    /^(js|jsx|ts|tsx|json|ya?ml|xml|html?|css|py|rb|go|rs|java|sh|sql)$/.test(
-      ext,
-    )
-  )
-    return FileCode;
-  if (/^(pdf|docx?|odt|rtf|txt|md|pages|pptx?|key)$/.test(ext)) return FileText;
-  return File;
-}
-
 // Inline, not flex: a chip sits in a sentence, wraps with it (`box-decoration-clone` keeps its
 // ground on both lines), and stays an inline target WCAG 2.2 §2.5.8 exempts from the 24px size.
 const CHIP =
@@ -226,7 +202,7 @@ export function MentionChip({
   const link = href && !restricted && kind !== "user" ? safeUrl(href) : "";
   const body = (
     <>
-      <Icon aria-hidden />
+      {kind === "file" ? <FileTypeIcon name={label} /> : <Icon aria-hidden />}
       {label}
     </>
   );
@@ -818,7 +794,7 @@ function renderNode(
       const href = safeUrl(attrs.href ?? "");
       if (ctx.fileLinkPrefix && href.startsWith(ctx.fileLinkPrefix)) {
         const name = textOf(node);
-        const Icon = fileIconFor(name);
+
         return (
           <a
             key={key}
@@ -827,7 +803,7 @@ function renderNode(
             data-slot="file-chip"
             className={CHIP}
           >
-            <Icon aria-hidden />
+            <FileTypeIcon name={name} />
             {children()}
           </a>
         );

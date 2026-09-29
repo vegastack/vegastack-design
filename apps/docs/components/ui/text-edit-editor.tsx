@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.23.72 sha256-sl0Qt7btFBuXsgZzbXOeK30TQY4INqZUtaO9Y9ewfKI=
+// @vegastack text-edit@0.23.72 sha256-ajTwdDwjEsw/zm7wXb2trV2/uSkTX9odzumOL5XCi7I=
 
 "use client";
 
@@ -130,7 +130,6 @@ import {
 } from "@/components/ui/tooltip";
 import {
   MentionChip,
-  fileIconFor,
   headingIds,
   markdownExtrasClassName,
   mentionMarkdown,
@@ -139,6 +138,7 @@ import {
   type MentionKind,
 } from "@/components/ui/markdown-view";
 import { useFileDrop } from "@/components/ui/use-file-drop";
+import { FileTypeIcon } from "@/lib/file-kind";
 import {
   anchorFromRange,
   resolveAnchor,
@@ -964,11 +964,10 @@ const ParagraphKeepingImages = Paragraph.extend({
 
 /** The icon at the start of a file chip, by the linked file's name. */
 function FileChipIcon({ name }: { name: string }) {
-  const Icon = fileIconFor(name);
   return (
-    <Icon
-      aria-hidden
-      className="me-1 inline size-3.5 align-text-bottom text-muted-foreground"
+    <FileTypeIcon
+      name={name}
+      className="me-1 inline size-3.5 align-text-bottom"
     />
   );
 }
