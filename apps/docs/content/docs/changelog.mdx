@@ -10,6 +10,18 @@ npm package versions are listed per entry. This page is generated from the repo'
 
 {/* CHANGELOG:START — generated from /CHANGELOG.md by tooling/sync-changelog.mjs. DO NOT EDIT. */}
 
+## [0.23.78] — September 30, 2026
+
+### 📦 npm
+
+- **`@vegastack/design`** → **`0.7.65`** (was `0.7.64`).
+- The design-system registry (`@vegastack/ui`) bumps 0.23.77 → 0.23.78.
+
+### 🐛 Fixed
+
+- `TextEdit` no longer erases saved text on Escape in a document that saves as you type. A new `escapeBehavior` prop — `"revert"` (restore the document as focus found it, blur, `onRevert`) or `"blur"` (keep the text, commit, blur) — defaults to `"blur"` whenever `autosave` is set and to `"revert"` otherwise. `handleRef` gains `markSaved()`, which advances the baseline Escape reverts to (and a commit compares against) after a host's own acknowledged save.
+  [`d43ea00`](https://github.com/VegaStack/vegastack-design/commit/d43ea00)
+
 ## [0.23.77] — September 30, 2026
 
 ### 📦 npm

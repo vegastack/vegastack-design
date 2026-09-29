@@ -9,6 +9,20 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.23.78] — September 30, 2026
+
+<!-- assembled from 1 changeset: 515ff9c7a194 -->
+
+### 📦 npm
+
+- **`@vegastack/design`** → **`0.7.65`** (was `0.7.64`).
+- The design-system registry (`@vegastack/ui`) bumps 0.23.77 → 0.23.78.
+
+### 🐛 Fixed
+
+- `TextEdit` no longer erases saved text on Escape in a document that saves as you type. A new `escapeBehavior` prop — `"revert"` (restore the document as focus found it, blur, `onRevert`) or `"blur"` (keep the text, commit, blur) — defaults to `"blur"` whenever `autosave` is set and to `"revert"` otherwise. `handleRef` gains `markSaved()`, which advances the baseline Escape reverts to (and a commit compares against) after a host's own acknowledged save.
+  [`d43ea00`](https://github.com/VegaStack/vegastack-design/commit/d43ea00)
+
 ## [0.23.77] — September 30, 2026
 
 <!-- assembled from 1 changeset: c5fe4096c5a1 -->
