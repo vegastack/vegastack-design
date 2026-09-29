@@ -171,3 +171,41 @@ export function markdownViewHtml(): ReactNode {
     </Wrapper>
   );
 }
+
+const LIBRARY = `## Kitchen circuit
+
+Ask [@Asha Rao](mention://user/u1) before changing [@Breaker sizing](mention://page/p2). The layout is in [panel-layout.pdf](/api/files/f1/download); [@Private page](mention://page/restricted:p9) stays muted.
+
+> [!NOTE]
+> The panel is labelled left to right.
+
+> [!TIP]
+> Use a 25 A breaker for the kitchen circuit.
+
+> [!WARNING]
+> Isolate the supply before opening the panel.
+
+<details><summary>Wiring colours</summary>
+
+- Brown: live
+- Blue: neutral
+
+</details>
+
+## Kitchen circuit
+`;
+
+/**
+ * TextEdit's Markdown constructs, rendered: mention chips (a page links through `mentionHref`, a
+ * person and a `restricted:` target never do), a file chip, callouts in three tones, a toggle
+ * (collapsed), and `headingIds` — the repeated heading gets `-1`.
+ */
+export function markdownViewLibrary(): ReactNode {
+  return (
+    <Wrapper className="block">
+      <MarkdownView headingIds mentionHref={(kind, id) => `#${kind}-${id}`}>
+        {LIBRARY}
+      </MarkdownView>
+    </Wrapper>
+  );
+}

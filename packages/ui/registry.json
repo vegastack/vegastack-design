@@ -1419,6 +1419,48 @@
       }
     },
     {
+      "name": "text-anchor",
+      "type": "registry:lib",
+      "title": "Text Anchor",
+      "description": "Where a comment sits in a text, stored so it survives edits — TextAnchor (offsets, quote, 80 characters of context each side), anchorFromRange and resolveAnchor (offsets → context → unique quote → orphaned). Pure strings, server-safe.",
+      "categories": ["data"],
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "packages/ui/registry/lib/text-anchor.ts",
+          "type": "registry:lib",
+          "target": "@lib/text-anchor.ts"
+        }
+      ],
+      "meta": {
+        "whenToUse": "Storing and re-finding comment anchors on a text — on the server (a save route) or in the client, with TextEdit's annotations.",
+        "whenNotToUse": "Positions inside a live ProseMirror document — convert with text-anchor-doc first.",
+        "version": "0.23.72"
+      }
+    },
+    {
+      "name": "text-anchor-doc",
+      "type": "registry:lib",
+      "title": "Text Anchor Doc",
+      "description": "The bridge between a ProseMirror document and comment-anchor offsets — anchorText (blocks joined by a newline, a mention as @label, other leaves as ￼), textIndex, and the exact two-way offsetsToRange / rangeToOffsets map.",
+      "categories": ["data"],
+      "dependencies": ["@tiptap/pm@^3"],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "packages/ui/registry/lib/text-anchor-doc.ts",
+          "type": "registry:lib",
+          "target": "@lib/text-anchor-doc.ts"
+        }
+      ],
+      "meta": {
+        "whenToUse": "Mapping comment anchors onto a TextEdit (Tiptap/ProseMirror) document and back.",
+        "whenNotToUse": "Server code with no ProseMirror document — use text-anchor on the flat text.",
+        "version": "0.23.72"
+      }
+    },
+    {
       "name": "file-kind",
       "type": "registry:lib",
       "title": "File Kind",
@@ -12428,14 +12470,19 @@
       "name": "markdown-view",
       "type": "registry:ui",
       "title": "Markdown View",
-      "description": "Render a markdown string to safe, token-styled HTML — headings, lists, code, blockquotes, links, GFM tables — XSS-safe, no raw HTML.",
+      "description": "Render a markdown string to safe, token-styled HTML — headings (with optional ids), lists, code, blockquotes, links, GFM tables, mention and file chips, callouts and toggles — XSS-safe, no raw HTML.",
       "categories": ["data-display"],
       "dependencies": [
         "marked@^17.0.1",
+        "lucide-react@^1.47.0",
         "@vegastack/design@^0.7.59",
         "@vegastack/design-tokens@^0.7.56"
       ],
-      "registryDependencies": ["@vegastack/checkbox", "@vegastack/code-block"],
+      "registryDependencies": [
+        "@vegastack/checkbox",
+        "@vegastack/code-block",
+        "@vegastack/file-kind"
+      ],
       "files": [
         {
           "path": "packages/ui/registry/ui/markdown-view.tsx",
@@ -13955,7 +14002,7 @@
       "name": "text-edit",
       "type": "registry:ui",
       "title": "Text Edit",
-      "description": "A Tiptap markdown-first rich-text editor in the shared prose typography — a slash menu and a bubble menu instead of a toolbar, a link popover, task lists, tables, code blocks, markdown input rules and paste, and one onCommit path.",
+      "description": "A Tiptap markdown-first rich-text editor in the shared prose typography — a slash menu and a bubble menu instead of a toolbar, a link popover, task lists, tables, code blocks, callouts and toggles, @ mentions, image and file uploads, a heading outline, comment highlights, markdown input rules and paste, and one onCommit path.",
       "categories": ["rich-text"],
       "dependencies": [
         "@base-ui/react@^1.6.0",
@@ -13980,11 +14027,15 @@
         "@vegastack/copy-button",
         "@vegastack/drag-item",
         "@vegastack/dropdown-menu",
+        "@vegastack/file-kind",
         "@vegastack/input",
         "@vegastack/markdown-view",
         "@vegastack/native-select",
+        "@vegastack/text-anchor",
+        "@vegastack/text-anchor-doc",
         "@vegastack/toggle",
-        "@vegastack/tooltip"
+        "@vegastack/tooltip",
+        "@vegastack/use-file-drop"
       ],
       "files": [
         {
@@ -13999,7 +14050,7 @@
         }
       ],
       "meta": {
-        "whenToUse": "Comments, notes, summaries and documents stored as Markdown (format=\"markdown\") or HTML; in-place editing of a MarkdownView with variant=\"ghost\".",
+        "whenToUse": "Comments, notes, summaries and documents stored as Markdown (format=\"markdown\") or HTML — with @ mentions, uploads, callouts, toggles, an outline and comment highlights for page editors; in-place editing of a MarkdownView (the read view is the editor until first edited).",
         "whenNotToUse": "Plain single-line input (Input) or collaborative real-time docs (deferred text-edit-collab).",
         "version": "0.23.72"
       }

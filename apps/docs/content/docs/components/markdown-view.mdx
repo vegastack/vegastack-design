@@ -50,6 +50,10 @@ remote images send no referrer:
 </MarkdownView>
 ```
 
+## Anatomy
+
+<Anatomy name="markdown-view" />
+
 ## Examples
 
 ### Default
@@ -142,11 +146,51 @@ unsafe URLs are dropped, and the same link, image, code-block and task-list rule
 <MarkdownView format="html" content={note.html} />
 ```
 
+### Mentions, files, callouts and toggles
+
+The constructs `TextEdit`'s Markdown carries beyond GFM render here too, still server-safe:
+
+- **Mentions** — `[@Asha Rao](mention://user/u1)` renders as a `MentionChip`: an icon for its kind
+  (person, page, file, task) and the name. `mentionHref(kind, id)` makes a chip a link (return
+  `null` for none); a person is never a link, and an id starting with `restricted:` renders a
+  muted chip that never links (the target is one the reader may not open).
+- **File chips** — a link whose href starts with `fileLinkPrefix` (default `/api/files/`) renders
+  as a chip with an icon for the file's type; `""` turns file chips off.
+- **Callouts** — GitHub's alert syntax, `> [!NOTE]`, `> [!TIP]` and `> [!WARNING]`, renders as a
+  `role="note"` box in the tone's ink.
+- **Toggles** — `<details><summary>Title</summary>`, a blank line, the body, a blank line and
+  `</details>` render as a native disclosure, collapsed. Any other raw HTML still renders as text.
+- **Heading ids** — `headingIds` gives every heading the id `TextEdit`'s `onOutlineChange`
+  reports (its words, hyphenated; `-1`, `-2`… for a repeat), so an outline links into either.
+  `headingIds(texts)` is exported for servers building the same ids.
+
+<ComponentPreview
+  name="markdownViewLibrary"
+  file="components/preview/markdown-view.tsx"
+/>
+
+```tsx
+<MarkdownView
+  headingIds
+  mentionHref={(kind, id) => (kind === "page" ? `/library/${id}` : null)}
+>
+  {page.body}
+</MarkdownView>
+```
+
+`parseMentionLink(source)` reads a mention at the start of a string and `mentionMarkdown(kind, id,
+label)` writes one exactly as `TextEdit` does (the label escapes `\`, `[` and `]`).
+
 ## API Reference
 
 <ApiTable
   path="../../packages/ui/registry/ui/markdown-view.tsx"
   name="MarkdownViewProps"
+/>
+
+<ApiTable
+  path="../../packages/ui/registry/ui/markdown-view.tsx"
+  name="MentionChipProps"
 />
 
 ## Accessibility
@@ -159,6 +203,11 @@ unsafe URLs are dropped, and the same link, image, code-block and task-list rule
   `<script>`, `<img onerror>`, and inline event handlers in untrusted input render
   as plain text rather than executing. `format="html"` keeps only allowlisted
   tags and attributes.
+- A callout is a `role="note"` named by its tone ("Note", "Tip", "Warning"); its icon is
+  decorative. A toggle is a native `<details>`/`<summary>`: <kbd>Enter</kbd> or <kbd>Space</kbd>
+  on the summary opens and closes it.
+- A mention chip that links is an ordinary link; one that does not (a person, a restricted
+  target) is plain text with an icon.
 - Links open in a new tab with `rel="noreferrer noopener"` (no reverse
   tabnabbing); unsafe URL protocols (e.g. `javascript:`) are dropped.
 - Remote images are blocked unless their exact HTTP(S) origin appears in

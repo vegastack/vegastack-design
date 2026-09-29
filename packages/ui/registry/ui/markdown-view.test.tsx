@@ -3,7 +3,13 @@ import { render } from "vitest-browser-react";
 import { beforeAll, expect, test } from "vitest";
 import { expectNoA11yViolations } from "../../test/a11y";
 import { proseClassName } from "@vegastack/design";
-import { MarkdownView } from "./markdown-view";
+import {
+  MarkdownView,
+  headingIds,
+  markdownExtrasClassName,
+  mentionMarkdown,
+  parseMentionLink,
+} from "./markdown-view";
 import { preloadTextEdit, TextEdit } from "./text-edit";
 
 // TextEdit renders a light read view and loads its editor on intent; these tests exercise the
@@ -92,8 +98,12 @@ test("MarkdownView and TextEdit wear the identical prose recipe", async () => {
     .not.toBeNull();
   const edited = screen.container.querySelector(".tiptap") as HTMLElement;
 
-  // Every rule of the recipe is on BOTH roots — neither surface may keep a private copy.
-  const recipe = proseClassName.split(/\s+/).filter(Boolean);
+  // Every rule of the recipe — and of the chips, callouts and toggles both surfaces render — is on
+  // BOTH roots: neither surface may keep a private copy.
+  const recipe = [
+    ...proseClassName.split(/\s+/).filter(Boolean),
+    ...markdownExtrasClassName.split(/\s+/).filter(Boolean),
+  ];
   expect(recipe.length).toBeGreaterThan(50);
   const renderedClasses = classes(rendered);
   const editedClasses = classes(edited);
@@ -341,4 +351,105 @@ test("no a11y violations", async () => {
   ].join("\n");
   const screen = await render(<MarkdownView>{md}</MarkdownView>);
   await expectNoA11yViolations(screen.container);
+});
+
+// ---- Library constructs: mentions, file chips, callouts, toggles, heading ids ------------------
+
+test("mentions render as chips: a page links through mentionHref, a person and a restricted target never do", async () => {
+  const screen = await render(
+    <MarkdownView mentionHref={(kind, id) => `/go/${kind}/${id}`}>
+      {
+        "Ask [@Asha Rao](mention://user/u1) about [@Q3 plan](mention://page/p1) and [@Private page](mention://page/restricted:p9)."
+      }
+    </MarkdownView>,
+  );
+  const chips = [
+    ...screen.container.querySelectorAll<HTMLElement>(
+      '[data-slot="mention-chip"]',
+    ),
+  ];
+  expect(chips.map((chip) => chip.textContent)).toEqual([
+    "Asha Rao",
+    "Q3 plan",
+    "Private page",
+  ]);
+  expect(chips.map((chip) => chip.tagName)).toEqual(["SPAN", "A", "SPAN"]);
+  expect(chips[1]).toHaveAttribute("href", "/go/page/p1");
+  expect(chips[2]).toHaveAttribute("data-restricted", "");
+  expect(screen.container.textContent).not.toContain("mention://");
+});
+
+test("a mention label keeps escaped brackets, and mentionMarkdown writes what parseMentionLink reads", async () => {
+  const md = mentionMarkdown("page", "p2", "Plan [draft] \\ v2");
+  expect(md).toBe("[@Plan \\[draft\\] \\\\ v2](mention://page/p2)");
+  expect(parseMentionLink(`${md} tail`)).toEqual({
+    raw: md,
+    kind: "page",
+    id: "p2",
+    label: "Plan [draft] \\ v2",
+  });
+  const screen = await render(<MarkdownView>{`See ${md}`}</MarkdownView>);
+  expect(
+    screen.container.querySelector('[data-slot="mention-chip"]')?.textContent,
+  ).toBe("Plan [draft] \\ v2");
+});
+
+test("a link under fileLinkPrefix renders as a file chip; javascript: links are still emptied", async () => {
+  const screen = await render(
+    <MarkdownView>
+      {
+        "Attached [report.pdf](/api/files/f2/download) and [bad](javascript:alert(1))."
+      }
+    </MarkdownView>,
+  );
+  const chip = screen.container.querySelector('[data-slot="file-chip"]');
+  expect(chip?.tagName).toBe("A");
+  expect(chip).toHaveAttribute("href", "/api/files/f2/download");
+  expect(chip?.textContent).toBe("report.pdf");
+  expect(chip?.querySelector("svg")).not.toBeNull();
+  const bad = [...screen.container.querySelectorAll("a")].find(
+    (a) => a.textContent === "bad",
+  );
+  expect(bad?.getAttribute("href")).toBe("");
+});
+
+test("callouts render as notes with their tone; a toggle is a closed native disclosure", async () => {
+  const screen = await render(
+    <MarkdownView>
+      {
+        "> [!TIP]\n> Use a 25 A breaker\n\n> [!WARNING]\n> Isolate first.\n\n<details><summary>Wiring **plan**</summary>\n\n- red\n- black\n\n</details>"
+      }
+    </MarkdownView>,
+  );
+  const callouts = [
+    ...screen.container.querySelectorAll('[data-slot="callout"]'),
+  ];
+  expect(callouts.map((c) => c.getAttribute("data-tone"))).toEqual([
+    "tip",
+    "warning",
+  ]);
+  expect(callouts[0]).toHaveAttribute("role", "note");
+  expect(callouts[0]?.textContent).toBe("Use a 25 A breaker");
+  const details = screen.container.querySelector("details");
+  expect(details).not.toBeNull();
+  expect(details!.open).toBe(false);
+  expect(details!.querySelector("summary strong")?.textContent).toBe("plan");
+  expect(details!.querySelectorAll("li")).toHaveLength(2);
+  expect(screen.container.textContent).not.toContain("<details>");
+  await expectNoA11yViolations(screen.container);
+});
+
+test("headingIds gives every heading a stable id, a repeat suffixed", async () => {
+  expect(headingIds(["Setup", "Wiring plan", "Setup", "Setup"])).toEqual([
+    "setup",
+    "wiring-plan",
+    "setup-1",
+    "setup-2",
+  ]);
+  const screen = await render(
+    <MarkdownView headingIds>{"## Setup\n\ntext\n\n## Setup"}</MarkdownView>,
+  );
+  expect([...screen.container.querySelectorAll("h2")].map((h) => h.id)).toEqual(
+    ["setup", "setup-1"],
+  );
 });

@@ -481,6 +481,14 @@ const RAW_INTERACTIVE_EXEMPTIONS = new Map([
     },
   ],
   [
+    "registry/ui/text-edit-editor.tsx",
+    {
+      counts: { input: 1 },
+      rationale:
+        "the hidden file-picker bridge the image panel's Upload and the slash menu's File open through use-file-drop's open() — react-dropzone's prop-getter must attach to a native <input type=file>; no VegaStack control substitutes for it",
+    },
+  ],
+  [
     "registry/ui/data-list.tsx",
     {
       counts: { button: 1 },

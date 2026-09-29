@@ -1,12 +1,23 @@
-// @vegastack markdown-view@0.23.72 sha256-MBo5+od+M8CYEuHmQpah+/uErhbLESOJu9w74yasU+w=
+// @vegastack markdown-view@0.23.72 sha256-fpZeyw2V+OtN0lGD7kLAF+kkPZr/KjXcjwOUwFPDRi0=
 
 import * as React from "react";
 import { Lexer, type Token, type Tokens } from "marked";
+import {
+  CircleCheck,
+  File,
+  FileText,
+  Info,
+  Lightbulb,
+  TriangleAlert,
+  UserRound,
+  type LucideIcon,
+} from "lucide-react";
 import { cn, proseClassName } from "@vegastack/design";
 import { Checkbox } from "@/components/ui/checkbox";
 // `CodeBlock` owns the fenced-code surface (header + copy + sunken mono panel); shadcn rewrites
 // this alias on `add`, and vitest/tsconfig map `@/components/ui/*` → `registry/ui/*`.
 import { CodeBlock } from "@/components/ui/code-block";
+import { FileTypeIcon } from "@/lib/file-kind";
 
 /* ------------------------------------------------------------------------------------------------
  * The document tree
@@ -85,6 +96,198 @@ function decode(text: string): string {
   );
 }
 
+/* ------------------------------------------------------------------------------------------------
+ * Mentions, file links, callouts, toggles — the constructs TextEdit's Markdown carries beyond GFM
+ * ----------------------------------------------------------------------------------------------*/
+
+/** What a mention points at. */
+export type MentionKind = "user" | "page" | "file" | "task";
+
+/** The tones a callout (`> [!NOTE]`) takes. */
+export type CalloutTone = "note" | "tip" | "warning";
+
+/**
+ * `[@<label>](mention://<kind>/<id>)` at the start of a string. The label escapes `\`, `[` and `]`
+ * with a backslash; the id has no whitespace or parentheses.
+ */
+const MENTION_LINK =
+  /^\[@((?:[^\\[\]\n]|\\[^\n])*)\]\(mention:\/\/(user|page|file|task)\/([^\s()]+)\)/;
+
+/**
+ * Read a mention link — `[@<label>](mention://<kind>/<id>)` — at the start of `source`, the shape
+ * `TextEdit` writes for an `@` mention. `null` when `source` does not start with one.
+ *
+ * @example
+ * parseMentionLink("[@Asha Rao](mention://user/u1) said…");
+ * // { raw: "[@Asha Rao](mention://user/u1)", kind: "user", id: "u1", label: "Asha Rao" }
+ */
+export function parseMentionLink(
+  source: string,
+): { raw: string; kind: MentionKind; id: string; label: string } | null {
+  const match = MENTION_LINK.exec(source);
+  if (!match) return null;
+  return {
+    raw: match[0],
+    kind: match[2] as MentionKind,
+    id: match[3]!,
+    label: match[1]!.replace(/\\([^\n])/g, "$1"),
+  };
+}
+
+/**
+ * The Markdown for a mention, exactly as `TextEdit` writes it: the label on one line with `\`, `[`
+ * and `]` escaped.
+ *
+ * @example
+ * mentionMarkdown("page", "p1", "Q3 [draft]"); // "[@Q3 \\[draft\\]](mention://page/p1)"
+ */
+export function mentionMarkdown(
+  kind: MentionKind,
+  id: string,
+  label: string,
+): string {
+  const text = label.replace(/\s*\n\s*/g, " ").replace(/[\\[\]]/g, "\\$&");
+  return `[@${text}](mention://${kind}/${id})`;
+}
+
+/** A mention whose target the reader may not open: the app keeps the real id after the colon. */
+const isRestricted = (id: string) => id.startsWith("restricted:");
+
+const MENTION_ICONS: Record<MentionKind, LucideIcon> = {
+  user: UserRound,
+  page: FileText,
+  file: File,
+  task: CircleCheck,
+};
+
+// Inline, not flex: a chip sits in a sentence, wraps with it (`box-decoration-clone` keeps its
+// ground on both lines), and stays an inline target WCAG 2.2 §2.5.8 exempts from the 24px size.
+const CHIP =
+  "rounded-sm bg-muted box-decoration-clone px-1 font-medium text-foreground [&_svg]:me-1 [&_svg]:inline [&_svg]:size-3.5 [&_svg]:align-text-bottom [&_svg]:text-muted-foreground";
+
+/** Props accepted by `MentionChip`. */
+export interface MentionChipProps extends React.ComponentPropsWithRef<"span"> {
+  /** What the mention points at; picks the icon. */
+  kind: MentionKind;
+  /** The target's id. An id starting with `restricted:` renders a muted chip that is never a link. */
+  id: string;
+  /** The name shown on the chip. */
+  label: string;
+  /**
+   * Where the chip links. People are never links, and neither is a restricted target.
+   * @default undefined
+   */
+  href?: string | null;
+}
+
+/**
+ * `MentionChip` — the chip a `@` mention renders as, in `MarkdownView` and inside `TextEdit`: an
+ * icon for its kind (person, page, file, task) and the target's name, a link when `href` is given.
+ * An id starting with `restricted:` is a target the reader may not open: a muted chip, never a
+ * link.
+ *
+ * @example
+ * <MentionChip kind="page" id="p1" label="Q3 plan" href="/library/p1" />
+ */
+export function MentionChip({
+  kind,
+  id,
+  label,
+  href,
+  className,
+  ...props
+}: MentionChipProps) {
+  const restricted = isRestricted(id);
+  const Icon = MENTION_ICONS[kind] ?? File;
+  const link = href && !restricted && kind !== "user" ? safeUrl(href) : "";
+  const body = (
+    <>
+      {kind === "file" ? <FileTypeIcon name={label} /> : <Icon aria-hidden />}
+      {label}
+    </>
+  );
+  const chipClassName = cn(
+    CHIP,
+    restricted && "text-muted-foreground",
+    className,
+  );
+  return link ? (
+    <a
+      data-slot="mention-chip"
+      data-kind={kind}
+      href={link}
+      title={props.title}
+      className={chipClassName}
+    >
+      {body}
+    </a>
+  ) : (
+    <span
+      data-slot="mention-chip"
+      data-kind={kind}
+      data-restricted={restricted ? "" : undefined}
+      {...props}
+      className={chipClassName}
+    >
+      {body}
+    </span>
+  );
+}
+
+/**
+ * The root rules the chips, callouts and toggles need on a prose surface: a chip is an `<a>` and
+ * the recipe's link rules are descendant rules, which an element class cannot beat, so the root
+ * restates them at higher specificity. `MarkdownView` and `TextEdit`'s editor both wear it.
+ */
+export const markdownExtrasClassName = cn(
+  "[&_[data-slot=mention-chip]]:no-underline [&_[data-slot=mention-chip]]:text-foreground [&_[data-slot=mention-chip][data-restricted]]:text-muted-foreground",
+  "[&_[data-slot=file-chip]]:rounded-sm [&_[data-slot=file-chip]]:bg-muted [&_[data-slot=file-chip]]:px-1 [&_[data-slot=file-chip]]:font-medium [&_[data-slot=file-chip]]:no-underline [&_[data-slot=file-chip]]:text-foreground [&_a[data-slot=file-chip]:hover]:bg-accent [&_a[data-slot=mention-chip]:hover]:bg-accent",
+  "[&_[data-slot=callout]]:my-2 [&_[data-slot=callout]]:grid [&_[data-slot=callout]]:grid-cols-[auto_1fr] [&_[data-slot=callout]]:gap-x-2 [&_[data-slot=callout]]:rounded-lg [&_[data-slot=callout]]:border [&_[data-slot=callout]]:border-border [&_[data-slot=callout]]:bg-card [&_[data-slot=callout]]:px-3 [&_[data-slot=callout]]:py-2",
+  "[&_[data-slot=callout]>svg]:mt-0.5 [&_[data-slot=callout]>svg]:size-4 [&_[data-slot=callout][data-tone=note]>svg]:text-info-text [&_[data-slot=callout][data-tone=tip]>svg]:text-success-text [&_[data-slot=callout][data-tone=warning]>svg]:text-warning-text [&_[data-slot=callout-content]]:min-w-0",
+  "[&_details]:my-2 [&_summary]:cursor-pointer [&_summary]:py-0.5 [&_summary]:font-medium [&_details>:not(summary)]:ms-5 [&_[data-slot=toggle-content]]:ms-5",
+);
+
+const CALLOUT_ICONS: Record<CalloutTone, LucideIcon> = {
+  note: Info,
+  tip: Lightbulb,
+  warning: TriangleAlert,
+};
+
+const CALLOUT_LABELS: Record<CalloutTone, string> = {
+  note: "Note",
+  tip: "Tip",
+  warning: "Warning",
+};
+
+/** `> [!NOTE]` / `[!TIP]` / `[!WARNING]` — the first line of a callout's quote. */
+const CALLOUT_MARKER = /^\[!(NOTE|TIP|WARNING)\][ \t]*(?:\n|$)/;
+
+/** `<details><summary>Title</summary>` — the opening line of a toggle. */
+const TOGGLE_OPEN = /^<details>[ \t]*<summary>([^\n]*?)<\/summary>[ \t]*$/;
+const TOGGLE_CLOSE = /^<\/details>[ \t]*$/;
+
+/**
+ * Stable ids for a document's headings, in order: the heading's words, lower-cased and joined with
+ * hyphens, then `-1`, `-2`… for a repeat — so identical text always gets the same id.
+ *
+ * @example
+ * headingIds(["Setup", "Wiring plan", "Setup"]); // ["setup", "wiring-plan", "setup-1"]
+ */
+export function headingIds(texts: readonly string[]): string[] {
+  const seen = new Map<string, number>();
+  return texts.map((text) => {
+    const base =
+      text
+        .toLowerCase()
+        .trim()
+        .replace(/[^\p{L}\p{N}\s-]/gu, "")
+        .replace(/\s+/g, "-") || "heading";
+    const count = seen.get(base) ?? 0;
+    seen.set(base, count + 1);
+    return count === 0 ? base : `${base}-${count}`;
+  });
+}
+
 /* --- markdown → tree --------------------------------------------------------------------------*/
 
 function inline(tokens: Token[] | undefined): DocNode[] {
@@ -110,7 +313,22 @@ function inline(tokens: Token[] | undefined): DocNode[] {
       case "br":
         out.push(el("br"));
         break;
-      case "link":
+      case "link": {
+        // `[@label](mention://kind/id)` — a mention, read from the raw source so the label is
+        // exactly what was written (the link's own tokens would parse emphasis inside it).
+        const mention = t.href?.startsWith("mention://")
+          ? parseMentionLink(t.raw)
+          : null;
+        if (mention) {
+          out.push(
+            el("mention", {
+              kind: mention.kind,
+              id: mention.id,
+              label: mention.label,
+            }),
+          );
+          break;
+        }
         out.push(
           el(
             "a",
@@ -119,6 +337,7 @@ function inline(tokens: Token[] | undefined): DocNode[] {
           ),
         );
         break;
+      }
       case "image":
         out.push(
           el("img", {
@@ -157,10 +376,27 @@ function cellAttrs(align: string | null): Record<string, string> {
   return align ? { align } : {};
 }
 
+/**
+ * `<details><summary>Title</summary>` … `</details>`: marked reads the two tags as separate HTML
+ * blocks around the body's own blocks. From the opening tag at `start`, the index of its matching
+ * close (nested toggles counted), or -1.
+ */
+function toggleClose(tokens: Token[], start: number): number {
+  let depth = 0;
+  for (let at = start; at < tokens.length; at++) {
+    const t = tokens[at] as Tokens.Generic;
+    if (t.type !== "html") continue;
+    const text = String(t.text).trim();
+    if (TOGGLE_OPEN.test(text)) depth++;
+    else if (TOGGLE_CLOSE.test(text) && --depth === 0) return at;
+  }
+  return -1;
+}
+
 function blocks(tokens: Token[]): DocNode[] {
   const out: DocNode[] = [];
-  for (const token of tokens) {
-    const t = token as Tokens.Generic;
+  for (let index = 0; index < tokens.length; index++) {
+    const t = tokens[index] as Tokens.Generic;
     switch (t.type) {
       case "space":
       case "def":
@@ -182,9 +418,22 @@ function blocks(tokens: Token[]): DocNode[] {
           ]),
         );
         break;
-      case "blockquote":
+      case "blockquote": {
+        // GitHub's alert syntax: `> [!TIP]` on the first line makes the quote a callout.
+        const marker = CALLOUT_MARKER.exec(t.text ?? "");
+        if (marker) {
+          out.push(
+            el(
+              "callout",
+              { tone: marker[1]!.toLowerCase() },
+              blocks(Lexer.lex(t.text.slice(marker[0].length), { gfm: true })),
+            ),
+          );
+          break;
+        }
         out.push(el("blockquote", {}, blocks(t.tokens ?? [])));
         break;
+      }
       case "hr":
         out.push(el("hr"));
         break;
@@ -225,9 +474,26 @@ function blocks(tokens: Token[]): DocNode[] {
         );
         break;
       }
-      case "html":
+      case "html": {
+        const open = TOGGLE_OPEN.exec(String(t.text).trim());
+        const close = open ? toggleClose(tokens, index) : -1;
+        if (open && close !== -1) {
+          out.push(
+            el("details", {}, [
+              el(
+                "summary",
+                {},
+                inline(Lexer.lexInline(open[1]!, { gfm: true })),
+              ),
+              ...blocks(tokens.slice(index + 1, close)),
+            ]),
+          );
+          index = close;
+          break;
+        }
         out.push(t.text.replace(/\n+$/, ""));
         break;
+      }
       default:
         if (t.tokens) out.push(...blocks(t.tokens));
         else if (typeof t.text === "string") out.push(decode(t.text));
@@ -398,6 +664,13 @@ function textOf(node: DocNode): string {
   return typeof node === "string" ? node : node.children.map(textOf).join("");
 }
 
+/** A heading's words as the outline shows them: a mention reads as `@label`. */
+function headingText(node: DocNode): string {
+  if (typeof node === "string") return node;
+  if (node.tag === "mention") return `@${node.attrs.label ?? ""}`;
+  return node.children.map(headingText).join("");
+}
+
 function childElements(node: El): El[] {
   return node.children.filter(
     (child): child is El => typeof child !== "string",
@@ -444,6 +717,8 @@ function imageSourceAllowed(src: string, allowed: ReadonlySet<string>) {
 interface RenderContext {
   images: ReadonlySet<string>;
   headingOffset: number;
+  mentionHref?: (kind: MentionKind, id: string) => string | null;
+  fileLinkPrefix: string;
 }
 
 const TEXT_ALIGN = new Set(["left", "right", "center"]);
@@ -483,12 +758,56 @@ function renderNode(
       6,
       Math.max(1, Number(heading[1]) + ctx.headingOffset),
     );
-    return React.createElement(`h${level}`, { key }, children());
+    return React.createElement(`h${level}`, { key, id: attrs.id }, children());
   }
 
   switch (tag) {
+    case "mention": {
+      const kind = attrs.kind as MentionKind;
+      return (
+        <MentionChip
+          key={key}
+          kind={kind}
+          id={attrs.id ?? ""}
+          label={attrs.label ?? ""}
+          href={ctx.mentionHref?.(kind, attrs.id ?? "")}
+        />
+      );
+    }
+    case "callout": {
+      const tone = (attrs.tone ?? "note") as CalloutTone;
+      const Icon = CALLOUT_ICONS[tone] ?? Info;
+      return (
+        <div
+          key={key}
+          role="note"
+          aria-label={CALLOUT_LABELS[tone]}
+          data-slot="callout"
+          data-tone={tone}
+        >
+          <Icon aria-hidden />
+          <div data-slot="callout-content">{children()}</div>
+        </div>
+      );
+    }
     case "a": {
       const href = safeUrl(attrs.href ?? "");
+      if (ctx.fileLinkPrefix && href.startsWith(ctx.fileLinkPrefix)) {
+        const name = textOf(node);
+
+        return (
+          <a
+            key={key}
+            href={href}
+            title={attrs.title}
+            data-slot="file-chip"
+            className={CHIP}
+          >
+            <FileTypeIcon name={name} />
+            {children()}
+          </a>
+        );
+      }
       const external = /^https?:\/\//i.test(href);
       return (
         <a
@@ -687,6 +1006,24 @@ export interface MarkdownViewProps extends React.ComponentPropsWithRef<"div"> {
    * @default 0
    */
   headingOffset?: number;
+  /**
+   * Give every heading an `id` — its words, hyphenated, `-1`, `-2`… for a repeat (`headingIds`) —
+   * the same ids `TextEdit`'s `onOutlineChange` reports, so an outline links into either.
+   * @default false
+   */
+  headingIds?: boolean;
+  /**
+   * Where a mention chip links, by kind and id (`[@Q3 plan](mention://page/p1)`). Return `null`
+   * for no link. People are never links, and neither is a `restricted:` id.
+   * @default undefined
+   */
+  mentionHref?: (kind: MentionKind, id: string) => string | null;
+  /**
+   * A link whose href starts with this renders as a file chip — an icon for the file's type and
+   * its name. `""` turns file chips off.
+   * @default "/api/files/"
+   */
+  fileLinkPrefix?: string;
 }
 
 /**
@@ -721,6 +1058,9 @@ export function MarkdownView({
   format = "markdown",
   allowedImageOrigins = [],
   headingOffset = 0,
+  headingIds: withHeadingIds = false,
+  mentionHref,
+  fileLinkPrefix = "/api/files/",
   className,
   ...props
 }: MarkdownViewProps) {
@@ -729,16 +1069,32 @@ export function MarkdownView({
   if (!source.trim()) return null;
 
   const tree = format === "html" ? fromHtml(source) : fromMarkdown(source);
+  if (withHeadingIds) {
+    const headings: El[] = [];
+    const walk = (nodes: DocNode[]) => {
+      for (const node of nodes) {
+        if (typeof node === "string") continue;
+        if (/^h[1-6]$/.test(node.tag)) headings.push(node);
+        else walk(node.children);
+      }
+    };
+    walk(tree);
+    headingIds(headings.map(headingText)).forEach((id, index) => {
+      headings[index]!.attrs.id = id;
+    });
+  }
 
   return (
     <div
       data-slot="markdown-view"
-      className={cn(proseClassName, className)}
+      className={cn(proseClassName, markdownExtrasClassName, className)}
       {...props}
     >
       {render(tree, {
         images: normalizeAllowedImageOrigins(allowedImageOrigins),
         headingOffset: Math.trunc(headingOffset),
+        mentionHref,
+        fileLinkPrefix,
       })}
     </div>
   );

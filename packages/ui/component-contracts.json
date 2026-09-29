@@ -12,12 +12,12 @@
     "evidencePolicy": "Observed fields come from source, registry metadata, docs, and test topology. Unknown/not-applicable values are explicit; no inferred behavior is presented as verified."
   },
   "expectedCounts": {
-    "totalRegistryItems": 703,
+    "totalRegistryItems": 705,
     "components": 136,
     "animatedIcons": 467,
     "hooks": 13,
     "blocks": 12,
-    "libs": 7,
+    "libs": 9,
     "chartBlocks": 68
   },
   "expectedWaveCounts": {
@@ -14047,7 +14047,7 @@
       "name": "markdown-view",
       "registryType": "registry:ui",
       "title": "Markdown View",
-      "summary": "Render a markdown string to safe, token-styled HTML — headings, lists, code, blockquotes, links, GFM tables — XSS-safe, no raw HTML.",
+      "summary": "Render a markdown string to safe, token-styled HTML — headings (with optional ids), lists, code, blockquotes, links, GFM tables, mention and file chips, callouts and toggles — XSS-safe, no raw HTML.",
       "status": "stable",
       "since": "0.1.0",
       "family": "data-display",
@@ -14071,6 +14071,78 @@
           "ref": {
             "status": "not-applicable",
             "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "MentionChip",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/markdown-view.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "MentionChip renders a span or an anchor chip inside prose; it takes no ref."
+          }
+        },
+        {
+          "name": "MentionChipProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/markdown-view.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "MentionKind",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/markdown-view.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "CalloutTone",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/markdown-view.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "parseMentionLink",
+          "kind": "function",
+          "source": "packages/ui/registry/ui/markdown-view.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A pure function; it renders nothing and takes no ref."
+          }
+        },
+        {
+          "name": "mentionMarkdown",
+          "kind": "function",
+          "source": "packages/ui/registry/ui/markdown-view.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A pure function; it renders nothing and takes no ref."
+          }
+        },
+        {
+          "name": "headingIds",
+          "kind": "function",
+          "source": "packages/ui/registry/ui/markdown-view.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A pure function; it renders nothing and takes no ref."
+          }
+        },
+        {
+          "name": "markdownExtrasClassName",
+          "kind": "constant",
+          "source": "packages/ui/registry/ui/markdown-view.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A constant; it renders nothing and takes no ref."
           }
         }
       ],
@@ -14128,11 +14200,16 @@
         }
       ],
       "docsSlug": "/docs/components/markdown-view",
-      "registryDependencies": ["@vegastack/checkbox", "@vegastack/code-block"],
+      "registryDependencies": [
+        "@vegastack/checkbox",
+        "@vegastack/code-block",
+        "@vegastack/file-kind"
+      ],
       "npmDependencies": [
         "marked@^17.0.1",
         "@vegastack/design@^0.7.59",
-        "@vegastack/design-tokens@^0.7.56"
+        "@vegastack/design-tokens@^0.7.56",
+        "lucide-react@^1.47.0"
       ],
       "testFiles": ["packages/ui/registry/ui/markdown-view.test.tsx"],
       "coverage": {
@@ -14145,6 +14222,23 @@
       },
       "previewModule": "markdown-view",
       "dataAttributes": {
+        "MentionChip": {
+          "attributes": [
+            {
+              "name": "data-kind",
+              "values": []
+            },
+            {
+              "name": "data-restricted",
+              "values": [""]
+            },
+            {
+              "name": "data-slot",
+              "values": ["mention-chip"]
+            }
+          ],
+          "cssVariables": []
+        },
         "MarkdownView": {
           "attributes": [
             {
@@ -22865,7 +22959,7 @@
       "name": "text-edit",
       "registryType": "registry:ui",
       "title": "Text Edit",
-      "summary": "A Tiptap-based, markdown-first rich-text editor with no toolbar and no fill — caret-only as a document, or boxed with a subtle focus border: a slash menu for blocks, a bubble menu for marks and block types, GFM tables with a menu and drag grips, block drag handles, portaled menus, and one onCommit path.",
+      "summary": "A Tiptap-based, markdown-first rich-text editor with no toolbar and no fill — caret-only as a document, or boxed with a subtle focus border: a slash menu for blocks, a bubble menu for marks and block types, GFM tables with a menu and drag grips, block drag handles, callouts and toggles, @ mentions, image and file uploads, a heading outline, comment highlights, portaled menus, and one onCommit path.",
       "status": "stable",
       "since": "0.1.0",
       "family": "rich-text",
@@ -22947,6 +23041,96 @@
             "status": "not-applicable",
             "rationale": "Type-only exports do not render or accept runtime refs."
           }
+        },
+        {
+          "name": "MentionKind",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/text-edit.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "MentionOption",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/text-edit.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "TextEditMentions",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/text-edit.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "TextEditImageUpload",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/text-edit.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "TextEditFileUpload",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/text-edit.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "TextEditOutlineItem",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/text-edit.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "TextEditAnnotation",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/text-edit.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "TextEditAnnotationLayout",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/text-edit.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "TextEditHandle",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/text-edit.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "TextAnchor",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/text-edit.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
         }
       ],
       "variants": {
@@ -22971,7 +23155,10 @@
             "invalid",
             "pressed",
             "read-only",
-            "markdown"
+            "markdown",
+            "uploading",
+            "mention-menu",
+            "annotated"
           ],
           "evidence": "Observed from branches, state attributes, and inline source contract."
         },
@@ -23023,11 +23210,15 @@
         "@vegastack/copy-button",
         "@vegastack/drag-item",
         "@vegastack/dropdown-menu",
+        "@vegastack/file-kind",
         "@vegastack/input",
         "@vegastack/markdown-view",
         "@vegastack/native-select",
+        "@vegastack/text-anchor",
+        "@vegastack/text-anchor-doc",
         "@vegastack/toggle",
-        "@vegastack/tooltip"
+        "@vegastack/tooltip",
+        "@vegastack/use-file-drop"
       ],
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
@@ -33830,6 +34021,244 @@
       "testFiles": [
         "packages/ui/registry/lib/drag-item.test.ts",
         "packages/ui/registry/ui/sortable-list.test.tsx",
+        "packages/ui/registry/ui/text-edit.test.tsx"
+      ],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "shared-guide-only",
+        "navigation": "exempt",
+        "preview": "exempt",
+        "vrt": "exempt"
+      }
+    },
+    {
+      "name": "text-anchor",
+      "registryType": "registry:lib",
+      "title": "Text Anchor",
+      "summary": "Where a comment sits in a text, stored so it survives edits — TextAnchor (offsets, quote, 80 characters of context each side), anchorFromRange and resolveAnchor (offsets → context → unique quote → orphaned). Pure strings, server-safe.",
+      "family": "lib",
+      "wave": "Libs",
+      "sourceFiles": ["packages/ui/registry/lib/text-anchor.ts"],
+      "publicSymbols": [
+        {
+          "name": "TextAnchor",
+          "kind": "type",
+          "source": "packages/ui/registry/lib/text-anchor.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "TEXT_ANCHOR_CONTEXT",
+          "kind": "constant",
+          "source": "packages/ui/registry/lib/text-anchor.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A constant; it renders nothing and takes no ref."
+          }
+        },
+        {
+          "name": "anchorFromRange",
+          "kind": "function",
+          "source": "packages/ui/registry/lib/text-anchor.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A pure function; it renders nothing and takes no ref."
+          }
+        },
+        {
+          "name": "resolveAnchor",
+          "kind": "function",
+          "source": "packages/ui/registry/lib/text-anchor.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A pure function; it renders nothing and takes no ref."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "A pure module renders nothing and has no variant surface."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "A pure module renders nothing and has no size scale."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned motion mechanism observed."
+        }
+      },
+      "engines": [],
+      "registryDependencies": [],
+      "docsSlug": "/docs/guides/components",
+      "states": {
+        "behavior": {
+          "status": "not-applicable",
+          "values": ["not-applicable"],
+          "evidence": "Pure functions over strings; no state machine."
+        },
+        "accessibility": {
+          "status": "not-applicable",
+          "values": ["not-applicable"],
+          "evidence": "No DOM — TextEdit's highlights and the comment threads beside them own the semantics."
+        },
+        "visual": {
+          "status": "not-applicable",
+          "values": ["not-applicable"],
+          "evidence": "Returns offsets and strings; renders nothing."
+        }
+      },
+      "responsive": {
+        "status": "not-applicable",
+        "risks": [],
+        "rationale": "No DOM of its own; consumers own layout."
+      },
+      "npmDependencies": [],
+      "testFiles": [
+        "packages/ui/registry/lib/text-anchor.test.ts",
+        "packages/ui/registry/ui/text-edit.test.tsx"
+      ],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "shared-guide-only",
+        "navigation": "exempt",
+        "preview": "exempt",
+        "vrt": "exempt"
+      }
+    },
+    {
+      "name": "text-anchor-doc",
+      "registryType": "registry:lib",
+      "title": "Text Anchor Doc",
+      "summary": "The bridge between a ProseMirror document and comment-anchor offsets — anchorText (blocks joined by a newline, a mention as @label, other leaves as ￼), textIndex, and the exact two-way offsetsToRange / rangeToOffsets map.",
+      "family": "lib",
+      "wave": "Libs",
+      "sourceFiles": ["packages/ui/registry/lib/text-anchor-doc.ts"],
+      "publicSymbols": [
+        {
+          "name": "LEAF_TEXT",
+          "kind": "constant",
+          "source": "packages/ui/registry/lib/text-anchor-doc.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A constant; it renders nothing and takes no ref."
+          }
+        },
+        {
+          "name": "leafText",
+          "kind": "function",
+          "source": "packages/ui/registry/lib/text-anchor-doc.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A pure function; it renders nothing and takes no ref."
+          }
+        },
+        {
+          "name": "anchorText",
+          "kind": "function",
+          "source": "packages/ui/registry/lib/text-anchor-doc.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A pure function; it renders nothing and takes no ref."
+          }
+        },
+        {
+          "name": "TextRun",
+          "kind": "interface",
+          "source": "packages/ui/registry/lib/text-anchor-doc.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "textIndex",
+          "kind": "function",
+          "source": "packages/ui/registry/lib/text-anchor-doc.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A pure function; it renders nothing and takes no ref."
+          }
+        },
+        {
+          "name": "offsetsToRange",
+          "kind": "function",
+          "source": "packages/ui/registry/lib/text-anchor-doc.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A pure function; it renders nothing and takes no ref."
+          }
+        },
+        {
+          "name": "rangeToOffsets",
+          "kind": "function",
+          "source": "packages/ui/registry/lib/text-anchor-doc.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A pure function; it renders nothing and takes no ref."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "A pure module renders nothing and has no variant surface."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "A pure module renders nothing and has no size scale."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned motion mechanism observed."
+        }
+      },
+      "engines": [
+        {
+          "package": "tiptap",
+          "role": "ProseMirror document model (types only)"
+        }
+      ],
+      "registryDependencies": [],
+      "docsSlug": "/docs/guides/components",
+      "states": {
+        "behavior": {
+          "status": "not-applicable",
+          "values": ["not-applicable"],
+          "evidence": "Pure functions over an immutable document, cached per document; no state machine."
+        },
+        "accessibility": {
+          "status": "not-applicable",
+          "values": ["not-applicable"],
+          "evidence": "No DOM — TextEdit's highlights and the comment threads beside them own the semantics."
+        },
+        "visual": {
+          "status": "not-applicable",
+          "values": ["not-applicable"],
+          "evidence": "Returns offsets and strings; renders nothing."
+        }
+      },
+      "responsive": {
+        "status": "not-applicable",
+        "risks": [],
+        "rationale": "No DOM of its own; consumers own layout."
+      },
+      "npmDependencies": ["@tiptap/pm@^3"],
+      "testFiles": [
+        "packages/ui/registry/lib/text-anchor-doc.test.ts",
         "packages/ui/registry/ui/text-edit.test.tsx"
       ],
       "coverage": {

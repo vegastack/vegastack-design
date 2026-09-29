@@ -5,7 +5,13 @@ import { beforeAll, expect, onTestFinished, test, vi } from "vitest";
 import geometryCss from "../../test/geometry.css?inline";
 import { expectNoA11yViolations } from "../../test/a11y";
 import { fieldWiringTests } from "../../test/field-wiring";
-import { preloadTextEdit, TextEdit } from "./text-edit";
+import {
+  preloadTextEdit,
+  TextEdit,
+  type MentionOption,
+  type TextEditHandle,
+} from "./text-edit";
+import { anchorFromRange } from "../lib/text-anchor";
 import { Field as BaseField } from "@base-ui/react/field";
 import { Field, FieldDescription, FieldError, FieldLabel } from "./field";
 
@@ -785,6 +791,31 @@ const moreMarkdownFixtures: [string, string][] = [
     "a link and marks together",
     "**Bold [link](https://example.com)** and ~~gone~~",
   ],
+  [
+    "mentions of a person and a page",
+    "Ask [@Asha Rao](mention://user/u1) about [@Q3 plan](mention://page/p1) today",
+  ],
+  [
+    "mentions of a file and a task",
+    "See [@spec.pdf](mention://file/f1) and [@Wire the panel](mention://task/t1) now",
+  ],
+  [
+    "a mention whose label holds brackets",
+    "Read [@Plan \\[draft\\] v2](mention://page/p2) first",
+  ],
+  [
+    "a restricted mention",
+    "Linked [@Private page](mention://page/restricted:p9) here",
+  ],
+  ["a note callout", "> [!NOTE]\n> Check the load first."],
+  ["a tip callout", "> [!TIP]\n> Use a 25 A breaker"],
+  ["a warning callout", "> [!WARNING]\n> Isolate the supply.\n>\n> Then test."],
+  [
+    "a toggle holding a nested list",
+    "<details><summary>Wiring</summary>\n\n- red\n- black\n  - earth\n\n</details>",
+  ],
+  ["an uploaded image", "![](/api/files/f1)"],
+  ["a file link", "Attached [report.pdf](/api/files/f2/download)"],
 ];
 
 test.each(moreMarkdownFixtures)(
@@ -1344,4 +1375,330 @@ test("the slash hint shows only while focused and empty", async () => {
   await vi.waitFor(() => expect(hint()).toContain("Type / for commands"));
   await userEvent.keyboard("a");
   await vi.waitFor(() => expect(hint()).not.toContain("Type / for commands"));
+});
+
+// ---- Library: mentions, uploads, outline, comment highlights, ⌘K -----------------------------
+
+const mentionMenu = () =>
+  document.querySelector(
+    '[role="listbox"][data-slot="text-edit-mention-menu"]',
+  );
+
+/** Put the caret at `offset` in the first text node under `block`, through the DOM. */
+function caretAt(block: Element, offset: number) {
+  const walker = document.createTreeWalker(block, NodeFilter.SHOW_TEXT);
+  const text = walker.nextNode() as Text;
+  const range = document.createRange();
+  range.setStart(text, offset);
+  range.collapse(true);
+  const selection = window.getSelection()!;
+  selection.removeAllRanges();
+  selection.addRange(range);
+  document.dispatchEvent(new Event("selectionchange"));
+}
+
+/** Select `text` inside `block` through the DOM. */
+function selectText(block: Element, text: string) {
+  const walker = document.createTreeWalker(block, NodeFilter.SHOW_TEXT);
+  while (walker.nextNode()) {
+    const node = walker.currentNode as Text;
+    const at = node.data.indexOf(text);
+    if (at === -1) continue;
+    const range = document.createRange();
+    range.setStart(node, at);
+    range.setEnd(node, at + text.length);
+    const selection = window.getSelection()!;
+    selection.removeAllRanges();
+    selection.addRange(range);
+    document.dispatchEvent(new Event("selectionchange"));
+    return;
+  }
+  throw new Error(`"${text}" not found`);
+}
+
+function pasteFiles(target: Element, files: File[]) {
+  const data = new DataTransfer();
+  for (const file of files) data.items.add(file);
+  target.dispatchEvent(
+    new ClipboardEvent("paste", {
+      clipboardData: data,
+      bubbles: true,
+      cancelable: true,
+    }),
+  );
+}
+
+const png = () =>
+  new File([new Uint8Array([137, 80, 78, 71, 13, 10, 26, 10])], "shot.png", {
+    type: "image/png",
+  });
+
+test("mentions: @as searches once after the debounce, Enter inserts a chip, Backspace removes it whole, Escape closes", async () => {
+  const search = vi.fn(async (): Promise<MentionOption[]> => [
+    { kind: "user", id: "u1", label: "Asha Rao" },
+    { kind: "page", id: "p1", label: "Assembly notes" },
+    { kind: "task", id: "t1", label: "Not offered" },
+  ]);
+  const onValueChange = vi.fn();
+  const screen = await markdownEditor({
+    mentions: { kinds: ["user", "page"], search },
+    onValueChange,
+  });
+  await screen.getByRole("textbox", { name: "Notes" }).click();
+  await userEvent.keyboard("@as");
+  await vi.waitFor(() =>
+    expect(mentionMenu()?.textContent).toContain("Asha Rao"),
+  );
+  expect(search).toHaveBeenCalledTimes(1);
+  expect(search).toHaveBeenCalledWith("as", {
+    signal: expect.any(AbortSignal),
+  });
+  // Grouped People · Pages; a kind the prop does not enable is never offered.
+  const groups = [...mentionMenu()!.querySelectorAll('[role="group"]')];
+  expect(groups.map((group) => group.firstElementChild?.textContent)).toEqual([
+    "People",
+    "Pages",
+  ]);
+  expect(mentionMenu()!.textContent).not.toContain("Not offered");
+  await expectNoA11yViolations(document.body, ["color-contrast"]);
+
+  await userEvent.keyboard("{Enter}");
+  await vi.waitFor(() =>
+    expect(lastValue(onValueChange)).toBe("[@Asha Rao](mention://user/u1)"),
+  );
+  expect(mentionMenu()).toBeNull();
+  const box = screen.getByRole("textbox", { name: "Notes" }).element();
+  expect(box.querySelector('[data-slot="mention-chip"]')?.textContent).toBe(
+    "Asha Rao",
+  );
+
+  // The trailing space, then the whole chip.
+  await userEvent.keyboard("{Backspace}{Backspace}");
+  await vi.waitFor(() => expect(lastValue(onValueChange)).toBe(""));
+
+  await userEvent.keyboard("@");
+  await vi.waitFor(() => expect(mentionMenu()).not.toBeNull());
+  await userEvent.keyboard("{Escape}");
+  await vi.waitFor(() => expect(mentionMenu()).toBeNull());
+});
+
+test("uploads: a pasted image shows the uploading overlay, then its final src — committed after blur", async () => {
+  let land!: (result: { src: string }) => void;
+  const onImageUpload = vi.fn(
+    () =>
+      new Promise<{ src: string }>((resolve) => {
+        land = resolve;
+      }),
+  );
+  const onCommit = vi.fn();
+  const screen = await markdownEditor({
+    defaultValue: "Before",
+    onImageUpload,
+    onCommit,
+  });
+  const box = screen.getByRole("textbox", { name: "Notes" });
+  await box.click();
+  await userEvent.keyboard(END);
+  const file = png();
+  pasteFiles(box.element(), [file]);
+  await vi.waitFor(() =>
+    expect(
+      box
+        .element()
+        .querySelector('[data-slot="text-edit-upload"][data-uploading]'),
+    ).not.toBeNull(),
+  );
+  expect(onImageUpload).toHaveBeenCalledWith(file, {
+    signal: expect.any(AbortSignal),
+  });
+
+  // Focus leaves before the upload lands: nothing changed yet, so nothing is committed.
+  await screen.getByRole("button", { name: "Outside" }).click();
+  expect(onCommit).not.toHaveBeenCalled();
+
+  land({ src: "/api/files/f1" });
+  await vi.waitFor(() =>
+    expect(onCommit).toHaveBeenLastCalledWith("Before![](/api/files/f1)"),
+  );
+  expect(box.element().querySelector("[data-uploading]")).toBeNull();
+  expect(box.element().querySelector("img")?.getAttribute("src")).toBe(
+    "/api/files/f1",
+  );
+});
+
+test("uploads: a rejected upload removes its placeholder and calls onUploadError", async () => {
+  const error = new Error("Too large");
+  const onImageUpload = vi.fn().mockRejectedValue(error);
+  const onUploadError = vi.fn();
+  const onValueChange = vi.fn();
+  const screen = await markdownEditor({
+    defaultValue: "Text",
+    onImageUpload,
+    onUploadError,
+    onValueChange,
+  });
+  const box = screen.getByRole("textbox", { name: "Notes" });
+  await box.click();
+  const file = png();
+  pasteFiles(box.element(), [file]);
+  await vi.waitFor(() =>
+    expect(onUploadError).toHaveBeenCalledWith(file, error),
+  );
+  expect(box.element().querySelector("[data-uploading]")).toBeNull();
+  expect(box.element().querySelector("img")).toBeNull();
+  expect(onValueChange).not.toHaveBeenCalled();
+});
+
+test("outline: headings are emitted with stable ids, and scrollToHeading scrolls to a repeat", async () => {
+  const onOutlineChange = vi.fn();
+  const handleRef = React.createRef<TextEditHandle>();
+  await render(
+    <TextEdit
+      format="markdown"
+      aria-label="Doc"
+      value={"## Setup\n\ntext\n\n## Setup"}
+      onOutlineChange={onOutlineChange}
+      handleRef={handleRef}
+    />,
+  );
+  await vi.waitFor(() =>
+    expect(onOutlineChange).toHaveBeenLastCalledWith([
+      expect.objectContaining({ id: "setup", level: 2, text: "Setup" }),
+      expect.objectContaining({ id: "setup-1", level: 2, text: "Setup" }),
+    ]),
+  );
+  await vi.waitFor(() =>
+    expect(document.querySelector(".ProseMirror #setup-1")).not.toBeNull(),
+  );
+  const scrollIntoView = vi.fn();
+  document.getElementById("setup-1")!.scrollIntoView = scrollIntoView;
+  handleRef.current!.scrollToHeading("setup-1");
+  expect(scrollIntoView).toHaveBeenCalled();
+});
+
+test("annotations: a highlight stays on its words as text is typed before it, and the layout reports the moved anchor", async () => {
+  const anchor = anchorFromRange("Use a 25 A breaker", 6, 10);
+  const onAnnotationsLayout = vi.fn();
+  const annotations = [{ id: "c1", anchor }];
+  const screen = await markdownEditor({
+    defaultValue: "Use a 25 A breaker",
+    annotations,
+    onAnnotationsLayout,
+  });
+  const box = screen.getByRole("textbox", { name: "Notes" }).element();
+  await vi.waitFor(() =>
+    expect(box.querySelector('[data-annotation="c1"]')?.textContent).toBe(
+      "25 A",
+    ),
+  );
+  await vi.waitFor(() =>
+    expect(onAnnotationsLayout).toHaveBeenCalledWith([
+      { id: "c1", top: expect.any(Number), anchor },
+    ]),
+  );
+  await userEvent.click(box.querySelector("p")!);
+  caretAt(box.querySelector("p")!, 0);
+  await userEvent.keyboard("Note: ");
+  await vi.waitFor(() =>
+    expect(box.querySelector('[data-annotation="c1"]')?.textContent).toBe(
+      "25 A",
+    ),
+  );
+  await vi.waitFor(() =>
+    expect(onAnnotationsLayout).toHaveBeenLastCalledWith([
+      {
+        id: "c1",
+        top: expect.any(Number),
+        anchor: expect.objectContaining({ start: 12, end: 16, quote: "25 A" }),
+      },
+    ]),
+  );
+  // Nothing about the highlight reaches the document.
+  expect(box.textContent).toBe("Note: Use a 25 A breaker");
+});
+
+test("annotations: read-only still draws highlights, and an orphan reports a null top", async () => {
+  const onAnnotationsLayout = vi.fn();
+  const screen = await render(
+    <TextEdit
+      format="markdown"
+      aria-label="Doc"
+      readOnly
+      defaultValue="Use a 25 A breaker"
+      annotations={[
+        { id: "c1", anchor: anchorFromRange("Use a 25 A breaker", 6, 10) },
+        { id: "gone", anchor: anchorFromRange("An old sentence", 3, 6) },
+      ]}
+      onAnnotationsLayout={onAnnotationsLayout}
+    />,
+  );
+  await vi.waitFor(() =>
+    expect(
+      screen.container.querySelector('.ProseMirror [data-annotation="c1"]')
+        ?.textContent,
+    ).toBe("25 A"),
+  );
+  expect(
+    screen.container
+      .querySelector(".ProseMirror")
+      ?.getAttribute("contenteditable"),
+  ).toBe("false");
+  await vi.waitFor(() =>
+    expect(onAnnotationsLayout).toHaveBeenCalledWith([
+      expect.objectContaining({ id: "c1", top: expect.any(Number) }),
+      { id: "gone", top: null, anchor: null },
+    ]),
+  );
+});
+
+test("Comment: the selection bubble offers it and hands over the anchor; never inside a code block", async () => {
+  const onCreateAnnotation = vi.fn();
+  const screen = await markdownEditor({
+    defaultValue: "Use a 25 A breaker\n\n```\ncode here\n```",
+    onCreateAnnotation,
+  });
+  const box = screen.getByRole("textbox", { name: "Notes" }).element();
+  await userEvent.click(box.querySelector("p")!);
+  selectText(box.querySelector("p")!, "25 A");
+  const comment = () =>
+    [
+      ...document.querySelectorAll(
+        '[data-slot="text-edit-bubble-menu"] button',
+      ),
+    ].find(
+      (button) =>
+        button.textContent === "Comment" &&
+        // A hidden bubble menu stays in the DOM, invisible.
+        !button.closest('[style*="visibility: hidden"]'),
+    ) as HTMLElement | undefined;
+  await vi.waitFor(() => expect(comment()).toBeDefined());
+  comment()!.click();
+  expect(onCreateAnnotation).toHaveBeenCalledWith(
+    expect.objectContaining({ start: 6, end: 10, quote: "25 A" }),
+  );
+
+  selectText(box.querySelector("pre code")!, "code");
+  // The bubble follows the selection after its own short update delay.
+  await vi.waitFor(() => expect(comment()).toBeUndefined());
+});
+
+test("⌘K inside the editor opens the link panel and never reaches a document-level listener", async () => {
+  const screen = await markdownEditor({ defaultValue: "Text" });
+  const documentKeydown = vi.fn();
+  document.addEventListener("keydown", documentKeydown);
+  onTestFinished(() =>
+    document.removeEventListener("keydown", documentKeydown),
+  );
+  await screen.getByRole("textbox", { name: "Notes" }).click();
+  await userEvent.keyboard(`{${MOD}>}k{/${MOD}}`);
+  await vi.waitFor(() =>
+    expect(
+      document.querySelector('[data-slot="text-edit-link"]'),
+    ).not.toBeNull(),
+  );
+  expect(
+    documentKeydown.mock.calls.some(
+      ([event]) => (event as KeyboardEvent).key.toLowerCase() === "k",
+    ),
+  ).toBe(false);
 });
