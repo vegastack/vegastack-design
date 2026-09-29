@@ -635,6 +635,62 @@ test("Escape reverts to the value focus arrived with and commits nothing", async
   expect(onCommit).not.toHaveBeenCalled();
 });
 
+test("escapeBehavior: an autosaving document keeps its text on Escape, commits and blurs", async () => {
+  const onCommit = vi.fn();
+  const onRevert = vi.fn();
+  const screen = await markdownEditor({
+    defaultValue: "Saved",
+    onCommit,
+    onRevert,
+    autosave: 5000,
+  });
+  const box = screen.getByRole("textbox", { name: "Notes" });
+  await box.click();
+  await userEvent.keyboard(`${END} and more`);
+  await userEvent.keyboard("{Escape}");
+  await vi.waitFor(() =>
+    expect(onCommit).toHaveBeenCalledWith("Saved and more"),
+  );
+  expect(box.element().textContent).toBe("Saved and more");
+  expect(onRevert).not.toHaveBeenCalled();
+  expect(box.element().contains(document.activeElement)).toBe(false);
+  // Explicit "revert" still wins over the autosave default.
+  await screen.unmount();
+  const onRevert2 = vi.fn();
+  const again = await markdownEditor({
+    defaultValue: "Keep",
+    autosave: 5000,
+    escapeBehavior: "revert",
+    onRevert: onRevert2,
+  });
+  const box2 = again.getByRole("textbox", { name: "Notes" });
+  await box2.click();
+  await userEvent.keyboard(`${END} this`);
+  await userEvent.keyboard("{Escape}");
+  await vi.waitFor(() => expect(onRevert2).toHaveBeenCalled());
+  expect(box2.element().textContent).toBe("Keep");
+});
+
+test("markSaved advances the baseline, so Escape reverts only what came after the save", async () => {
+  const handleRef = React.createRef<TextEditHandle>();
+  const onCommit = vi.fn();
+  const screen = await markdownEditor({
+    defaultValue: "A",
+    handleRef,
+    onCommit,
+  });
+  const box = screen.getByRole("textbox", { name: "Notes" });
+  await box.click();
+  await userEvent.keyboard(`${END} B`);
+  // The host saved "A B" (an acknowledged save of its own).
+  handleRef.current!.markSaved();
+  await userEvent.keyboard(" C");
+  await userEvent.keyboard("{Escape}");
+  await vi.waitFor(() => expect(box.element().textContent).toBe("A B"));
+  // Leaving without changes after the save commits nothing new.
+  expect(onCommit).not.toHaveBeenCalled();
+});
+
 test("autosave commits after the idle gap while still focused", async () => {
   const onCommit = vi.fn();
   const screen = await markdownEditor({ onCommit, autosave: 200 });

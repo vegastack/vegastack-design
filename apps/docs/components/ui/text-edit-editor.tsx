@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.23.77 sha256-2J+TbAgzjNgFBVcMTk6CSeuBwYg1iCNdX6mL03OkoXk=
+// @vegastack text-edit@0.23.77 sha256-aL5TmfSka0BJWz9voJ4P/khuqfOehWWL/FBzr1xQPPY=
 
 "use client";
 
@@ -3959,6 +3959,7 @@ export function TextEditEditor({
   onRevert,
   onSubmit,
   autosave = false,
+  escapeBehavior = autosave ? "blur" : "revert",
   saving = false,
   readOnly = false,
   disabled = false,
@@ -4244,6 +4245,19 @@ export function TextEditEditor({
     committedRef.current = next;
     callbacks.current.onCommit?.(next);
   }, [commit, serialize]);
+  // Read by the key handler, which the editor captures once.
+  const escapeRef = React.useRef(escapeBehavior);
+  React.useLayoutEffect(() => {
+    escapeRef.current = escapeBehavior;
+  });
+  /** The host saved the current document: it becomes the baseline Escape and commits compare to. */
+  const markSaved = React.useCallback(() => {
+    const ed = editorRef.current;
+    if (!ed || ed.isDestroyed) return;
+    const next = serialize(ed);
+    if (baselineRef.current !== null) baselineRef.current = next;
+    committedRef.current = next;
+  }, [serialize]);
   const revert = React.useCallback(() => {
     const ed = editorRef.current;
     if (!ed || baselineRef.current === null) return;
@@ -4376,7 +4390,11 @@ export function TextEditEditor({
         }
         if (event.key === "Escape") {
           event.preventDefault();
-          revert();
+          if (escapeRef.current === "blur") {
+            // Keep what is typed: a document that saves as you type must never lose saved text.
+            commit();
+            editorRef.current?.commands.blur();
+          } else revert();
           return true;
         }
         if (mod && !event.shiftKey && event.key.toLowerCase() === "k") {
@@ -4740,6 +4758,7 @@ export function TextEditEditor({
         editorRef.current?.commands.focus();
       },
       getAnchorForSelection,
+      markSaved,
       pulseAnnotation: (id: string) => {
         const ed = editorRef.current;
         if (!ed || ed.isDestroyed) return;
@@ -4765,7 +4784,7 @@ export function TextEditEditor({
         }, 3000);
       },
     }),
-    [commitNow, getAnchorForSelection, rootRef],
+    [commitNow, getAnchorForSelection, markSaved, rootRef],
   );
 
   const canComment = Boolean(onCreateAnnotation);

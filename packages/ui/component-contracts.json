@@ -23566,9 +23566,11 @@
             "uploading",
             "mention-menu",
             "annotated",
-            "annotation-count"
+            "annotation-count",
+            "escape-blur",
+            "mark-saved"
           ],
-          "evidence": "Observed from branches, state attributes, and inline source contract."
+          "evidence": "Observed from branches, state attributes, and inline source contract. escapeBehavior: Escape reverts (default) or, with autosave, commits and blurs; handleRef.markSaved() advances the revert baseline after a host save."
         },
         "accessibility": {
           "status": "observed",
