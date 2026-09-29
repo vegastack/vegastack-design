@@ -426,10 +426,12 @@ export function verifyWorkflowSources(sources, { root = ROOT } = {}) {
       (step) =>
         /^changesets\/action@/.test(step.uses ?? "") &&
         step.with?.version === "pnpm run version-packages" &&
-        step.with?.commitMode === "github-api" &&
+        // git-cli, not github-api (MK, 30-09-2026): the Version commit restamps ~2,086 files, and
+        // one GraphQL createCommitOnBranch payload (~19 MB) exceeds GitHub's limit.
+        step.with?.commitMode === "git-cli" &&
         step.env?.GITHUB_TOKEN === "${{ secrets.GITHUB_TOKEN }}",
     ),
-    "release.yml: Changesets must create the Version Packages PR through the GitHub API",
+    "release.yml: Changesets must push the Version Packages commit with git-cli (MK 30-09-2026)",
   );
   assert.ok(
     hasCommand(versionPr, /git\/ref\/heads\/\$VERSION_BRANCH/),
