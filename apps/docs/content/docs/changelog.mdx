@@ -10,6 +10,18 @@ npm package versions are listed per entry. This page is generated from the repo'
 
 {/* CHANGELOG:START — generated from /CHANGELOG.md by tooling/sync-changelog.mjs. DO NOT EDIT. */}
 
+## [0.23.77] — September 30, 2026
+
+### 📦 npm
+
+- **`@vegastack/design`** → **`0.7.64`** (was `0.7.63`).
+- The design-system registry (`@vegastack/ui`) bumps 0.23.76 → 0.23.77.
+
+### 🐛 Fixed
+
+- `CommentList` takes `mentionHref` and passes it to every comment, so mention chips in top-level comments link as they already did in `CommentThread`. A top or bottom `SheetContent` now stops at `85dvh` (API-21), so a long body — a comment thread on a phone — scrolls inside `SheetBody` with the footer in view instead of running past the screen.
+  [`8e6abe4`](https://github.com/VegaStack/vegastack-design/commit/8e6abe4)
+
 ## [0.23.76] — September 30, 2026
 
 ### 🔧 Changed components
