@@ -406,6 +406,55 @@ test("renders the waveform seek variant and seeks against media time", async () 
   expect(media.currentTime).toBe(31);
 });
 
+test("draws precomputed peaks, scaled to the loudest, without downloading the file", async () => {
+  const fetchSpy = vi.spyOn(window, "fetch");
+  try {
+    const screen = await render(
+      <AudioPlayer
+        src="/never-fetched.mp3"
+        label="Demo audio"
+        variant="waveform"
+        peaks={[0.1, 0.2, 0.4]}
+      />,
+    );
+    const bars = compactLayout(screen.container).querySelector(
+      '[data-slot="media-player-waveform-bars"]',
+    )!;
+    expect(bars.childElementCount).toBe(3);
+    const heights = [...bars.children].map((bar) =>
+      (bar as HTMLElement).style.getPropertyValue("--wave-peak"),
+    );
+    expect(heights).toEqual(["25%", "50%", "100%"]);
+    await new Promise((resolve) => setTimeout(resolve, 50));
+    expect(
+      fetchSpy.mock.calls.some(([input]) =>
+        String(input).includes("never-fetched"),
+      ),
+    ).toBe(false);
+  } finally {
+    fetchSpy.mockRestore();
+  }
+});
+
+test("a file over maxDecodeBytes is never decoded and shows the plain seek slider", async () => {
+  const screen = await render(
+    <AudioPlayer
+      src={SOURCE}
+      label="Demo audio"
+      variant="waveform"
+      maxDecodeBytes={10}
+    />,
+  );
+  const compact = compactLayout(screen.container);
+  await vi.waitFor(() =>
+    expect(
+      compact.querySelector('[data-slot="media-player-waveform-bars"]'),
+    ).toBeNull(),
+  );
+  expect(compact.querySelector('input[type="range"]')).not.toBeNull();
+  await expectNoA11yViolations(screen.container);
+});
+
 test("forwards refs to the root and media element", async () => {
   const rootRef = React.createRef<HTMLDivElement>();
   const mediaRef = React.createRef<HTMLAudioElement>();

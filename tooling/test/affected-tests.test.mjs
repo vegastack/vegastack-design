@@ -40,33 +40,51 @@ describe("affected component closure", () => {
     expect(result.errors).toEqual([]);
     expect(result.seedItems).toEqual(["code-block"]);
     expect(result.affectedItems).toEqual([
+      // FileViewer renders Markdown previews through MarkdownView (2026-09-30), and attachment,
+      // library-01 and upload-dialog open a FileViewer.
+      "attachment",
       "code-block",
       "comments",
+      "file-viewer",
       "issue-detail-01",
+      "library-01",
       "markdown-view",
       // page-editor-01 composes comments and TextEdit (2026-09-29).
       "page-editor-01",
       // TextEdit's read view is a MarkdownView (2026-09-27).
       "text-edit",
+      "upload-dialog",
     ]);
     expect(result.componentTestFiles).toEqual([
       "packages/ui/registry/blocks/issue-detail-01/issue-detail-01.test.tsx",
+      "packages/ui/registry/blocks/library-01/library-01.test.tsx",
       "packages/ui/registry/blocks/page-editor-01/page-editor-01.test.tsx",
+      "packages/ui/registry/ui/attachment.test.tsx",
       "packages/ui/registry/ui/code-block.test.tsx",
       "packages/ui/registry/ui/comments.test.tsx",
+      "packages/ui/registry/ui/file-viewer.test.tsx",
       "packages/ui/registry/ui/markdown-view.test.tsx",
       "packages/ui/registry/ui/text-edit.test.tsx",
+      "packages/ui/registry/ui/upload-dialog.test.tsx",
     ]);
     // bubble's preview renders a CodeBlock, so its fixtures run although bubble does not depend on it.
     // text-edit's preview renders a MarkdownView beside the editor (the Markdown guide's parity demo).
+    // dropzone's, message's and sortable-list's previews compose Attachment tiles.
     expect(result.previewModules).toEqual([
+      "attachment",
       "bubble",
       "code-block",
       "comments",
+      "dropzone",
+      "file-viewer",
       "issue-detail-01",
+      "library-01",
       "markdown-view",
+      "message",
       "page-editor-01",
+      "sortable-list",
       "text-edit",
+      "upload-dialog",
     ]);
     expect(result.geometryFixtures).toContain("codeBlock");
     expect(result.geometryFixtures).toContain("markdownView");
@@ -82,10 +100,14 @@ describe("affected component closure", () => {
   it("expands a shared primitive without selecting unrelated components", () => {
     const result = plan(change("packages/ui/registry/ui/copy-button.tsx"));
     expect(result.affectedItems).toEqual([
+      "attachment",
       "code-block",
       "comments",
       "copy-button",
+      // FileViewer's Markdown previews reach CodeBlock through MarkdownView (2026-09-30).
+      "file-viewer",
       "issue-detail-01",
+      "library-01",
       "markdown-view",
       "page-editor-01",
       // status-pages-01's error page copies its reference with CopyButton (DS-60).
@@ -93,6 +115,7 @@ describe("affected component closure", () => {
       "terminal",
       // text-edit's code-block node view carries the copy affordance.
       "text-edit",
+      "upload-dialog",
     ]);
     expect(result.affectedItems).not.toContain("provider");
   });
@@ -116,13 +139,17 @@ describe("affected component closure", () => {
     expect(result.affectedItems).toEqual([
       // app-shell-01's user menu reads the theme through the provider (DS-80).
       "app-shell-01",
+      "attachment",
       "code-block",
       "comments",
+      "file-viewer",
       "issue-detail-01",
+      "library-01",
       "markdown-view",
       "page-editor-01",
       "provider",
       "text-edit",
+      "upload-dialog",
     ]);
   });
 

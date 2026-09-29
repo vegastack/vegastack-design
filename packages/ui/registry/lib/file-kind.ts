@@ -1,4 +1,4 @@
-// @vegastack file-kind@0.23.75 sha256-E6f3GvcxHrnBGjnasFF6uahGlO/CJtutD5h6m16kJaE=
+// @vegastack file-kind@0.23.75 sha256-sFxGQ04Bs4Q4dFkhOrSbZqczHG8VIAaejHloMJl/Rr8=
 
 import * as React from "react";
 import { cn } from "@vegastack/design";
@@ -95,14 +95,14 @@ extensions(
 extensions("pdf", "pdf");
 extensions("video", "mp4 m4v mov webm mkv avi wmv mpeg mpg ogv");
 extensions("audio", "mp3 m4a wav ogg oga flac aac opus weba");
-extensions("text", "txt md markdown rtf log");
+extensions("text", "txt text md markdown mdx rtf log");
 extensions("archive", "zip rar 7z tar gz tgz bz2 xz");
 extensions("spreadsheet", "xls xlsx xlsm ods csv tsv numbers");
 extensions("document", "doc docx odt pages");
 extensions("presentation", "ppt pptx odp key");
 extensions(
   "code",
-  "json js mjs cjs ts tsx jsx html htm css xml yaml yml sql sh py rb go rs java c h cpp",
+  "json jsonc js mjs cjs ts tsx jsx html htm css xml yaml yml toml ini sql sh py rb go rs java c h cpp",
 );
 
 /** The kind a MIME type names outright, or `null` when it is missing or generic. */
@@ -129,26 +129,32 @@ function kindOfType(type: string): FileKind | null {
   return null;
 }
 
+/** The kind a file name's extension names, or `null`. */
+function kindOfName(name: string | null | undefined): FileKind | null {
+  const dot = name ? name.lastIndexOf(".") : -1;
+  if (!name || dot <= 0 || dot >= name.length - 1) return null;
+  return EXTENSION_KIND[name.slice(dot + 1).toLowerCase()] ?? null;
+}
+
 /**
  * The kind of a file: its MIME type first, its name's extension when the type is missing or
- * generic (`application/octet-stream`), else `"other"`.
+ * generic (`application/octet-stream`), else `"other"`. `text/plain` counts as generic too, so a
+ * `notes.json` or `data.csv` a browser labels `text/plain` is still code or a spreadsheet, and
+ * only falls back to `"text"` when the extension says nothing.
  *
  * @example
  * fileKindOf("image/png"); // "image"
  * fileKindOf("application/octet-stream", "q3.xlsx"); // "spreadsheet"
+ * fileKindOf("text/plain", "config.yaml"); // "code"
  */
 export function fileKindOf(
   contentType: string | null | undefined,
   name?: string | null,
 ): FileKind {
-  const byType = kindOfType((contentType ?? "").trim().toLowerCase());
-  if (byType) return byType;
-  const dot = name ? name.lastIndexOf(".") : -1;
-  if (name && dot > 0 && dot < name.length - 1) {
-    const byExtension = EXTENSION_KIND[name.slice(dot + 1).toLowerCase()];
-    if (byExtension) return byExtension;
-  }
-  return "other";
+  // Drop parameters ("text/plain; charset=utf-8").
+  const type = (contentType ?? "").split(";")[0]!.trim().toLowerCase();
+  if (type === "text/plain") return kindOfName(name) ?? "text";
+  return kindOfType(type) ?? kindOfName(name) ?? "other";
 }
 
 /** The lucide icon for each kind. */

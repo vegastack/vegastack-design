@@ -1,25 +1,22 @@
-// @vegastack video-player@0.23.75 sha256-XwWSHc2mMV3vJ79BnG0m2k/oYnCY/2skCSKrnutoTp4=
+// @vegastack video-player@0.23.75 sha256-XaVInHPbQ7qElQ7AfpeCvBw6eOgeG3zLi77p5aPbA6s=
 
 "use client";
 
 import * as React from "react";
 import { cn, mergeRefs } from "@vegastack/design";
+import { DownloadIcon } from "lucide-react";
+import { buttonVariants } from "@/components/ui/button";
 import {
   MediaPlayerControls,
+  clampTime,
   type MediaPlayerControlsProps,
   useMediaShortcuts,
 } from "@/components/ui/media-player-controls";
 
 const VIDEO_CONTROLS_HIDE_DELAY_MS = 1000;
 const VIDEO_CONTROLS_FADE_MS = 150;
-const DEFAULT_VIDEO_QUALITIES = [
-  "144p",
-  "240p",
-  "360p",
-  "480p",
-  "720p",
-  "1080p",
-] as const;
+// No quality menu unless the caller has renditions to switch between: a single stored file has one.
+const NO_QUALITIES: readonly string[] = [];
 
 function isTextEntryTarget(target: EventTarget | null): boolean {
   return (
@@ -49,6 +46,12 @@ export interface VideoPlayerProps extends Omit<
    * Video source URL.
    */
   src: string;
+  /**
+   * An image shown in the frame until playback starts — a poster frame stored with the upload
+   * (`probeVideo` grabs one). It also sits behind the "can't play" card.
+   * @default undefined
+   */
+  poster?: string;
   /**
    * Accessible label used by the video element and custom controls.
    * @default 'Video'
@@ -105,13 +108,14 @@ export interface VideoPlayerProps extends Omit<
    */
   defaultPlaybackRate?: MediaPlayerControlsProps["defaultPlaybackRate"];
   /**
-   * Selectable quality labels shown in the settings menu.
-   * @default ['144p', '240p', '360p', '480p', '720p', '1080p']
+   * Selectable quality labels shown in the settings menu. Empty hides the Quality entry: pass
+   * labels only when `onQualityChange` really switches renditions.
+   * @default []
    */
   qualityOptions?: MediaPlayerControlsProps["qualityOptions"];
   /**
-   * Initial quality label selected in the settings menu.
-   * @default '720p'
+   * Initial quality label selected in the settings menu (the first option when omitted).
+   * @default undefined
    */
   defaultQuality?: MediaPlayerControlsProps["defaultQuality"];
   /**
@@ -148,12 +152,39 @@ export interface VideoPlayerProps extends Omit<
    * @default undefined
    */
   controlsVisible?: boolean;
+  /**
+   * Renew an expired source. When the video fails to load after it had a URL — a signed URL that
+   * has expired — the player calls this once, loads the URL it resolves, and resumes at the same
+   * position (playing, if it was). A second failure, or a rejection, shows the "can't play" card;
+   * a new `src` re-arms it. The same contract as `AudioPlayer`'s `onSourceExpired`.
+   * @default undefined
+   */
+  onSourceExpired?: () => Promise<string>;
+  /**
+   * The file's download URL. When the browser cannot play the video (an HEVC `.mov`, an `.mkv`
+   * or `.avi`), the frame shows `loadErrorLabel` with a Download button to this URL.
+   * @default undefined
+   */
+  downloadHref?: string;
+  /**
+   * The message the frame shows when the video cannot play.
+   * @default "Can’t play this video here"
+   */
+  loadErrorLabel?: string;
+  /**
+   * The label of the Download button beside `loadErrorLabel`.
+   * @default "Download"
+   */
+  downloadLabel?: string;
 }
 
 /**
  * `VideoPlayer` — a tokenized video frame with the same VegaStack transport
  * controls as `AudioPlayer`: play/pause, seek, elapsed/duration labels, mute,
- * playback speed, and keyboard skip shortcuts.
+ * playback speed, and keyboard skip shortcuts. It never autoplays. A video the
+ * browser cannot play shows "Can’t play this video here" with a Download
+ * button (`downloadHref`), and `onSourceExpired` renews an expired signed URL
+ * and resumes where playback stopped.
  *
  * @example
  * <VideoPlayer src="/media/demo.mp4" poster="/media/poster.webp" label="Product demo video" />
@@ -170,14 +201,19 @@ export function VideoPlayer({
   skipSeconds,
   playbackRates,
   defaultPlaybackRate,
-  qualityOptions = DEFAULT_VIDEO_QUALITIES,
-  defaultQuality = "720p",
+  qualityOptions = NO_QUALITIES,
+  defaultQuality,
   formatTime,
   onPlayStateChange,
   onTimeChange,
   onPlaybackRateChange,
   onQualityChange,
   controlsVisible: controlsVisibleProp,
+  onSourceExpired,
+  downloadHref,
+  loadErrorLabel = "Can’t play this video here",
+  downloadLabel = "Download",
+  poster,
   preload = "metadata",
   playsInline = true,
   ref,
@@ -203,6 +239,82 @@ export function VideoPlayer({
     () => mergeRefs(internalMediaRef, mediaRef),
     [mediaRef],
   );
+
+  // ── Expired source and load failure ──────────────────────────────────────
+  // The same mechanism as AudioPlayer's: a URL `onSourceExpired` renewed stands in for `src`
+  // until `src` changes; the renewal runs once per `src`, and a stale one never lands.
+  const [renewed, setRenewed] = React.useState<{ from: string; url: string }>();
+  const videoSrc = renewed && renewed.from === src ? renewed.url : src;
+  const [loadFailed, setLoadFailed] = React.useState(false);
+  const renewalArmedRef = React.useRef(true);
+  const renewalSeqRef = React.useRef(0);
+  const pendingSeekRef = React.useRef<{
+    seconds: number;
+    play: boolean;
+  } | null>(null);
+  React.useEffect(() => {
+    renewalArmedRef.current = true;
+    renewalSeqRef.current += 1;
+    setLoadFailed(false);
+  }, [src]);
+  const onSourceExpiredRef = React.useRef(onSourceExpired);
+  React.useLayoutEffect(() => {
+    onSourceExpiredRef.current = onSourceExpired;
+  });
+  React.useEffect(() => {
+    const media = internalMediaRef.current;
+    if (!media) return;
+    const resume = () => {
+      const queued = pendingSeekRef.current;
+      if (!queued) return;
+      pendingSeekRef.current = null;
+      media.currentTime = clampTime(media, queued.seconds);
+      if (queued.play) void media.play().catch(() => {});
+    };
+    media.addEventListener("loadedmetadata", resume);
+    return () => media.removeEventListener("loadedmetadata", resume);
+  }, []);
+
+  const handleMediaError = (event: React.SyntheticEvent<HTMLVideoElement>) => {
+    const media = event.currentTarget;
+    if (!media.getAttribute("src")) return props.onError?.(event);
+    const renew = onSourceExpiredRef.current;
+    if (renew && renewalArmedRef.current) {
+      renewalArmedRef.current = false;
+      const from = src;
+      const resumeAt =
+        media.currentTime > 0 || !media.paused
+          ? { seconds: media.currentTime, play: !media.paused }
+          : null;
+      const seq = renewalSeqRef.current;
+      void Promise.resolve()
+        .then(() => renew())
+        .then(
+          (url) => {
+            if (seq !== renewalSeqRef.current) return;
+            pendingSeekRef.current = resumeAt;
+            // The same URL again (a route that re-signs on every request): reload it.
+            if (media.getAttribute("src") === url) media.load();
+            else setRenewed({ from, url });
+          },
+          () => {
+            if (seq === renewalSeqRef.current) setLoadFailed(true);
+          },
+        );
+      return;
+    }
+    setLoadFailed(true);
+    props.onError?.(event);
+  };
+
+  // A server-rendered <video> starts loading before hydration, so a source that fails fast (an
+  // unsupported format) can fire `error` before React listens. Pick that failure up on mount.
+  React.useEffect(() => {
+    const media = internalMediaRef.current;
+    if (media?.error && media.getAttribute("src")) {
+      media.dispatchEvent(new Event("error"));
+    }
+  }, []);
 
   const clearHideTimer = React.useCallback(() => {
     if (!hideTimerRef.current) return;
@@ -387,6 +499,7 @@ export function VideoPlayer({
       ref={ref}
       data-slot="video-player"
       data-aspect-ratio={aspectRatio}
+      data-state={loadFailed ? "error" : undefined}
       className={cn("flex w-full flex-col gap-2", className)}
     >
       {title || description ? (
@@ -434,7 +547,8 @@ export function VideoPlayer({
         <video
           {...props}
           ref={setVideoRef}
-          src={src}
+          src={videoSrc}
+          poster={poster}
           preload={preload}
           playsInline={playsInline}
           aria-label={label}
@@ -444,7 +558,32 @@ export function VideoPlayer({
             aspectRatio === "auto" ? "h-auto" : "h-full",
             videoClassName,
           )}
+          onError={handleMediaError}
         />
+
+        {loadFailed ? (
+          <div
+            data-slot="video-player-error"
+            className="absolute inset-0 z-20 flex flex-col items-center justify-center gap-3 bg-media-scrim-strong p-4 text-center text-scrim-foreground"
+          >
+            <p role="alert" className="text-sm font-medium">
+              {loadErrorLabel}
+            </p>
+            {downloadHref ? (
+              <a
+                href={downloadHref}
+                download
+                className={cn(
+                  buttonVariants({ variant: "secondary", size: "sm" }),
+                  "pointer-coarse:h-11 pointer-coarse:px-4",
+                )}
+              >
+                <DownloadIcon data-icon="inline-start" />
+                {downloadLabel}
+              </a>
+            ) : null}
+          </div>
+        ) : null}
 
         <div
           data-slot="video-player-controls-scrim"
@@ -455,7 +594,7 @@ export function VideoPlayer({
           )}
         />
 
-        {controlsRendered ? (
+        {controlsRendered && !loadFailed ? (
           <div
             data-slot="video-player-controls-overlay"
             data-state={controlsVisible ? "visible" : "hidden"}

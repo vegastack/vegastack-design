@@ -349,3 +349,49 @@ export function audioPlayerGlobal(): ReactNode {
     </Wrapper>
   );
 }
+
+/**
+ * Peaks stored at upload (`probeAudio`) — the waveform draws at once and the file is never
+ * downloaded to decode it. The shape here is a stand-in for a real recording's.
+ */
+const STORED_PEAKS = Array.from({ length: 200 }, (_, i) =>
+  Number(
+    (0.25 + 0.75 * Math.abs(Math.sin(i / 7) * Math.cos(i / 23))).toFixed(2),
+  ),
+);
+
+export function audioPlayerPeaks(): ReactNode {
+  return (
+    <Wrapper>
+      <div className="w-full max-w-xl">
+        <AudioPlayer
+          src={SAMPLE_AUDIO}
+          label="Site visit recording"
+          title="Site visit recording"
+          variant="waveform"
+          peaks={STORED_PEAKS}
+        />
+      </div>
+    </Wrapper>
+  );
+}
+
+/**
+ * Past `maxDecodeBytes` (20 MB by default) the waveform variant does not download the file to
+ * decode it: it shows the plain seek slider. Here the limit is set below the sample's size.
+ */
+export function audioPlayerDecodeLimit(): ReactNode {
+  return (
+    <Wrapper>
+      <div className="w-full max-w-xl">
+        <AudioPlayer
+          src={SAMPLE_AUDIO}
+          label="Long recording"
+          title="Long recording"
+          variant="waveform"
+          maxDecodeBytes={1024 * 1024}
+        />
+      </div>
+    </Wrapper>
+  );
+}

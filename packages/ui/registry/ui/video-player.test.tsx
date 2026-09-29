@@ -6,7 +6,13 @@ import { TIMINGS } from "@vegastack/design";
 import { expectNoA11yViolations } from "../../test/a11y";
 import { VideoPlayer } from "./video-player";
 
-const SOURCE = "data:video/mp4;base64,";
+// A real, playable 10-minute VP8 WebM of one grey 16×16 frame a minute (846 bytes, ffmpeg lavfi).
+// It must really load: an unplayable source now shows the "can't play" card in place of the
+// controls, which is its own test below; and it must be long, because the element clamps seeks.
+const SOURCE =
+  "data:video/webm;base64,GkXfo59ChoEBQveBAULygQRC84EIQoKEd2VibUKHgQJChYECGFOAZwEAAAAAAAMeEU2bdLpNu4tTq4QVSalmU6yBoU27i1OrhBZUrmtTrIHYTbuMU6uEElTDZ1OsggEmTbuMU6uEHFO7a1OsggMI7AEAAAAAAABZAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAVSalmsirXsYMPQkBNgI1MYXZmNjIuMTIuMTAwV0GNTGF2ZjYyLjEyLjEwMESJiEEiT4AAAAAAFlSua8muAQAAAAAAAEDXgQFzxYgomqey49nGeJyBACK1nIN1bmSIgQCGhVZfVlA4g4EBI+ODhQ34R1gA4JCwgRC6gRCagQJVsIRVuYEBElTDZ/xzc6BjwIBnyJpFo4dFTkNPREVSRIeNTGF2ZjYyLjEyLjEwMHNz1mPAi2PFiCiap7Lj2cZ4Z8ihRaOHRU5DT0RFUkSHlExhdmM2Mi4yOC4xMDAgbGlidnB4Z8ihRaOIRFVSQVRJT05Eh5MwMDoxMDowMC4wMDAwMDAwMDAAH0O2dafngQCjooEAAIAQAgCdASoQABAAAEcIhYWImYSIAgIADA1gAP7D4AAfQ7Z1nueC6mCjmIEAAACxAQABEBAAGAAwP/QMAAAA/sPgAB9DtnWd54MB1MCjloEAAACxAQAMEYgAGAAwP/QMAAAA5EAfQ7Z1n+eDAr8go5iBAAAAsQEADBAQABgAMD/0DAAAAP7D4AAfQ7Z1nOeDA6mAo5WBAAAAsQEADxHkABgAGG/0DAAEAAAfQ7Z1n+eDBJPgo5iBAAAAsQEADxAQABgAMD/0DAAAAP7D4AAfQ7Z1nOeDBX5Ao5WBAAAAsQEADxH8ABgAGG/0DAAEAAAfQ7Z1nueDBmigo5eBAAAAkQEADxAQFGAAwP/QMAAA/sPgAB9DtnWc54MHUwCjlYEAAACxAQAPEfwAGAAYb/QMAAQAAB9DtnWd54MIPWCjloEAAACxAQAPEWgAGAAwP/QMAAAA5EAcU7trkbuPs4EAt4r3gQHxggGn8IED";
+// Bytes no browser decodes — the "can't play" path.
+const BROKEN = "data:video/mp4;base64,AAAA";
 
 // Park the harness pointer in a far corner before every test. The player renders at the top-left
 // origin, and Firefox dispatches a pointerenter when the frame appears under the resting pointer
@@ -616,12 +622,24 @@ test("cycles playback speed", async () => {
   expect(onPlaybackRateChange).toHaveBeenLastCalledWith(1.5);
 });
 
+test("has no quality entry unless qualities are passed", async () => {
+  const screen = await render(<VideoPlayer src={SOURCE} label="Demo video" />);
+  await showVideoControls(screen.container);
+  await screen.getByRole("button", { name: "Demo video settings" }).click();
+  await expect
+    .element(page.getByRole("menuitem", { name: /Playback speed/ }))
+    .toBeVisible();
+  expect(document.body.textContent).not.toMatch(/Quality/);
+  await userEvent.keyboard("{Escape}");
+});
+
 test("selects video quality from the settings submenu", async () => {
   const onQualityChange = vi.fn();
   const screen = await render(
     <VideoPlayer
       src={SOURCE}
       label="Demo video"
+      qualityOptions={["720p", "1080p"]}
       onQualityChange={onQualityChange}
     />,
   );
@@ -834,4 +852,137 @@ test("forwards refs to the root and media element", async () => {
 test("has no accessibility violations", async () => {
   const screen = await render(<VideoPlayer src={SOURCE} label="Demo video" />);
   await expectNoA11yViolations(screen.container);
+});
+
+test("never autoplays, and shows the poster until playback starts", async () => {
+  const mediaRef = React.createRef<HTMLVideoElement>();
+  await render(
+    <VideoPlayer
+      mediaRef={mediaRef}
+      src={SOURCE}
+      poster="/poster.jpg"
+      label="Demo video"
+    />,
+  );
+  const media = mediaRef.current!;
+  expect(media.autoplay).toBe(false);
+  expect(media.getAttribute("poster")).toBe("/poster.jpg");
+  expect(media.getAttribute("preload")).toBe("metadata");
+  await new Promise((resolve) => setTimeout(resolve, 100));
+  expect(media.paused).toBe(true);
+});
+
+test("a video the browser cannot play shows the card with a Download button", async () => {
+  const onError = vi.fn();
+  const screen = await render(
+    <VideoPlayer
+      src={BROKEN}
+      label="Clip"
+      poster="/poster.jpg"
+      downloadHref="/download/clip.mov"
+      onError={onError}
+    />,
+  );
+  await expect
+    .element(screen.getByRole("alert"))
+    .toHaveTextContent("Can’t play this video here");
+  const download = screen.getByRole("link", { name: "Download" }).element();
+  expect(download.getAttribute("href")).toBe("/download/clip.mov");
+  expect(download.hasAttribute("download")).toBe(true);
+  expect(
+    screen.container
+      .querySelector('[data-slot="video-player"]')
+      ?.getAttribute("data-state"),
+  ).toBe("error");
+  expect(onError).toHaveBeenCalled();
+  // The transport is gone: there is nothing to play.
+  await userEvent.hover(
+    screen.container.querySelector('[data-slot="video-player-frame"]')!,
+  );
+  expect(
+    screen.container.querySelector('[data-slot="media-player-controls"]'),
+  ).toBeNull();
+  await expectNoA11yViolations(screen.container);
+});
+
+test("the card takes its own copy, and shows no button without a download URL", async () => {
+  const screen = await render(
+    <VideoPlayer
+      src={BROKEN}
+      label="Clip"
+      loadErrorLabel="This format can’t play in the browser"
+    />,
+  );
+  await expect
+    .element(screen.getByRole("alert"))
+    .toHaveTextContent("This format can’t play in the browser");
+  expect(screen.container.querySelector("a")).toBeNull();
+});
+
+test("onSourceExpired renews an expired URL once and resumes where playback stopped", async () => {
+  let settle!: (url: string) => void;
+  const renew = vi.fn(
+    () => new Promise<string>((resolve) => (settle = resolve)),
+  );
+  const mediaRef = React.createRef<HTMLVideoElement>();
+  const screen = await render(
+    <VideoPlayer
+      mediaRef={mediaRef}
+      src={SOURCE}
+      label="Clip"
+      onSourceExpired={renew}
+    />,
+  );
+  const video = mediaRef.current!;
+  await vi.waitFor(() => expect(video.readyState).toBeGreaterThan(0));
+  video.currentTime = 30;
+  Object.defineProperty(video, "paused", { configurable: true, value: false });
+  video.dispatchEvent(new Event("error"));
+  await vi.waitFor(() => expect(renew).toHaveBeenCalledOnce());
+  // No card while the renewal is in hand.
+  await new Promise((resolve) => setTimeout(resolve, 50));
+  expect(screen.container.querySelector('[role="alert"]')).toBeNull();
+  const play = vi.spyOn(video, "play").mockResolvedValue();
+  const fresh = `${SOURCE}#fresh`;
+  settle(fresh);
+  await vi.waitFor(() => expect(video.getAttribute("src")).toBe(fresh));
+  video.dispatchEvent(new Event("loadedmetadata"));
+  expect(video.currentTime).toBe(30);
+  expect(play).toHaveBeenCalled();
+
+  // Once: a second failure is the card, not another renewal.
+  video.dispatchEvent(new Event("error"));
+  await expect
+    .element(screen.getByRole("alert"))
+    .toHaveTextContent("Can’t play this video here");
+  expect(renew).toHaveBeenCalledOnce();
+});
+
+test("a rejected renewal shows the card", async () => {
+  const screen = await render(
+    <VideoPlayer
+      src={BROKEN}
+      label="Clip"
+      onSourceExpired={() => Promise.reject(new Error("gone"))}
+    />,
+  );
+  await expect
+    .element(screen.getByRole("alert"))
+    .toHaveTextContent("Can’t play this video here");
+});
+
+test("a renewal that returns the same URL (a route that re-signs) reloads it", async () => {
+  const mediaRef = React.createRef<HTMLVideoElement>();
+  await render(
+    <VideoPlayer
+      mediaRef={mediaRef}
+      src={SOURCE}
+      label="Clip"
+      onSourceExpired={async () => SOURCE}
+    />,
+  );
+  const video = mediaRef.current!;
+  const load = vi.spyOn(video, "load");
+  video.dispatchEvent(new Event("error"));
+  await vi.waitFor(() => expect(load).toHaveBeenCalledOnce());
 });

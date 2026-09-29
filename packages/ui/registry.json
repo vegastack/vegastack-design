@@ -447,7 +447,7 @@
         }
       ],
       "meta": {
-        "whenToUse": "A single audio asset that needs a compact, branded transport with rewind/forward, a tappable speed control, keyboard shortcuts, and a two-line mobile layout with an optional transcript control; `docked` pins a closable player to the bottom of a scroll column, a function `src` resolves a signed URL on first play, and `actionsRef` seeks it from a transcript or chapter list.",
+        "whenToUse": "A single audio asset that needs a compact, branded transport with rewind/forward, a tappable speed control, keyboard shortcuts, and a two-line mobile layout with an optional transcript control; `docked` pins a closable player to the bottom of a scroll column, a function `src` resolves a signed URL on first play, `actionsRef` seeks it from a transcript or chapter list, and `peaks` draws a stored waveform without downloading the file.",
         "whenNotToUse": "Playlists, queue management, waveform editing, audio recording, or a bar of bulk actions over a selection (ActionBar).",
         "version": "0.23.75"
       }
@@ -1594,6 +1594,27 @@
         "whenToUse": "Any file surface that shows a size, picks an icon for a file, or branches on what kind of file it holds.",
         "whenNotToUse": "Previewing a file (FileViewer) or acquiring one (use-file-drop).",
         "version": "0.23.75"
+      }
+    },
+    {
+      "name": "media-probe",
+      "type": "registry:lib",
+      "title": "Media Probe",
+      "description": "Upload-time reads in the browser, dependency-free — probeVideo (duration, size and a JPEG poster frame via video + canvas), probeAudio (duration and up to 200 waveform peaks via OfflineAudioContext, skipped over 50 MB) and extractPptxThumbnail (an Office file's docProps/thumbnail.jpeg via a zip central-directory reader and DecompressionStream).",
+      "categories": ["data"],
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "packages/ui/registry/lib/media-probe.ts",
+          "type": "registry:lib",
+          "target": "@lib/media-probe.ts"
+        }
+      ],
+      "meta": {
+        "whenToUse": "An upload flow that stores a video's poster and duration, an audio file's waveform peaks, or an Office file's preview picture beside the original, so grids, players and FileViewer show them without re-reading the file.",
+        "whenNotToUse": "Server code (it needs a browser), or parsing Office content (a sheet or a slide) — that is the app's parser, returned through FileViewer's loadPreview.",
+        "version": "0.23.74"
       }
     },
     {
@@ -12328,7 +12349,7 @@
       "name": "file-viewer",
       "type": "registry:ui",
       "title": "File Viewer",
-      "description": "A full-screen dark overlay for stored files — images with a blur-up, zoom and pan; PDFs rendered page by page with a lazily loaded pdf.js over range requests; video and audio in the system players; a download card for everything else — paged with arrows, side buttons or a swipe.",
+      "description": "A full-screen dark overlay for stored files — images with a blur-up, zoom and pan; PDFs rendered page by page with a lazily loaded pdf.js over range requests; video and audio in the system players; the first megabyte of text, CSV (a table) and Markdown; app-parsed previews through loadPreview; a file card with a thumbnail and Download for everything else — paged with arrows, side buttons or a swipe.",
       "categories": ["media"],
       "dependencies": [
         "@base-ui/react@^1.6.0",
@@ -12343,7 +12364,9 @@
         "@vegastack/dialog",
         "@vegastack/file-kind",
         "@vegastack/image",
+        "@vegastack/markdown-view",
         "@vegastack/spinner",
+        "@vegastack/table",
         "@vegastack/use-announcer",
         "@vegastack/use-modal-inert",
         "@vegastack/video-player"
@@ -12361,7 +12384,7 @@
         }
       ],
       "meta": {
-        "whenToUse": "Opening stored files full screen from attachment tiles, a product's files or a gallery — images to zoom, PDFs to read, anything else to download.",
+        "whenToUse": "Opening stored files full screen from attachment tiles, a product's files or a gallery — images to zoom, PDFs to read, video and audio to play, text, CSV and Markdown to read, Office files as a card (or the app's own parsed preview through loadPreview).",
         "whenNotToUse": "An inline player on a page (VideoPlayer, AudioPlayer), or a general-purpose modal (Dialog).",
         "version": "0.23.75"
       }
@@ -14659,13 +14682,17 @@
       "name": "video-player",
       "type": "registry:ui",
       "title": "Video Player",
-      "description": "A framed video player with the same grouped custom transport controls as Audio Player.",
+      "description": "A framed video player with the same grouped custom transport controls as Audio Player — a poster, no autoplay, a \"can't play\" card with Download, and onSourceExpired to renew an expired signed URL.",
       "categories": ["media"],
       "dependencies": [
+        "lucide-react@^1.47.0",
         "@vegastack/design@^0.7.62",
         "@vegastack/design-tokens@^0.7.56"
       ],
-      "registryDependencies": ["@vegastack/media-player-controls"],
+      "registryDependencies": [
+        "@vegastack/button",
+        "@vegastack/media-player-controls"
+      ],
       "files": [
         {
           "path": "packages/ui/registry/ui/video-player.tsx",

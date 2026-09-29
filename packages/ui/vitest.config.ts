@@ -107,6 +107,20 @@ export default defineConfig({
       "@tiptap/react",
       "@tiptap/starter-kit",
       "@tiptap/markdown",
+      // The lazily loaded TextEdit editor's own entry points. On a cold cache an affected set that
+      // mounts TextEdit beside FileViewer's lazy Markdown stage discovered these mid-run, reloaded
+      // the page and split React (attachment's viewer tests threw "Invalid hook call").
+      "@tiptap/extension-code-block",
+      "@tiptap/extension-image",
+      "@tiptap/extension-list",
+      "@tiptap/extension-paragraph",
+      "@tiptap/extension-table",
+      "@tiptap/extensions",
+      "@tiptap/pm/state",
+      "@tiptap/pm/tables",
+      "@tiptap/pm/view",
+      "@tiptap/react/menus",
+      "@tiptap/suggestion",
       // Base UI entry points registry sources import that no list above named: each was discovered
       // mid-run on a cold cache and reloaded the page (text-edit: 40/45 failed cold).
       "@base-ui/react",

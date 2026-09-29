@@ -2,14 +2,14 @@
   "schemaVersion": 1,
   "kind": "vegastack-zero-gap-audit-register",
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "a8461ff6def8361fb2614d2fa637d9074b51d7b44f569aa569402c392a65d177",
+  "contractSha256": "0f208526cc940b8ee564c5f4e1ee627243255b9359b45ec28a66ef48b842a558",
   "expectedCounts": {
-    "totalRegistryItems": 711,
+    "totalRegistryItems": 712,
     "components": 141,
     "animatedIcons": 467,
     "hooks": 13,
     "blocks": 13,
-    "libs": 9,
+    "libs": 10,
     "chartBlocks": 68
   },
   "records": [
@@ -7830,6 +7830,17 @@
       "family": "lib",
       "sourceFiles": [
         "packages/ui/registry/lib/file-kind.ts"
+      ],
+      "docsSlug": "/docs/guides/components",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "media-probe",
+      "inventoryClass": "lib",
+      "wave": "Libs",
+      "family": "lib",
+      "sourceFiles": [
+        "packages/ui/registry/lib/media-probe.ts"
       ],
       "docsSlug": "/docs/guides/components",
       "contractStatus": "reconciled"
