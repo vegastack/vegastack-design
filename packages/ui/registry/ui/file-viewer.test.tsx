@@ -251,7 +251,7 @@ test("a text or code file shows its text in a named, focusable sheet", async () 
   await expect.element(sheet).toHaveTextContent("line one line two");
   expect(sheet.element().querySelector("pre")).not.toBeNull();
   expect(sheet.element().tabIndex).toBe(0);
-  expect(kindShown()).toBe("text");
+  await expect.poll(kindShown).toBe("text");
   expect(document.querySelector('[data-slot="file-viewer-note"]')).toBeNull();
   await expectNoA11yViolations(document.body);
 });
@@ -282,7 +282,7 @@ test("a CSV shows as a table with a header, capped at 500 rows", async () => {
   await expect
     .element(screen.getByText("Showing first 500 rows"))
     .toBeVisible();
-  expect(kindShown()).toBe("table");
+  await expect.poll(kindShown).toBe("table");
   await expectNoA11yViolations(document.body);
 });
 
@@ -310,7 +310,7 @@ test("Markdown and MDX render through MarkdownView", async () => {
   await expect
     .element(screen.getByRole("heading", { name: "Site visit" }))
     .toBeVisible();
-  expect(kindShown()).toBe("markdown");
+  await expect.poll(kindShown).toBe("markdown");
   await expectNoA11yViolations(document.body);
   await pageNext();
   await expect
@@ -380,7 +380,7 @@ test("an Office file is a card with its thumbnail, or its icon, and a primary Do
   const download = screen.getByRole("link", { name: "Download", exact: true });
   expect(download.element().getAttribute("href")).toBe("/download/deck");
   expect(download.element().className).toContain("bg-primary");
-  expect(kindShown()).toBe("card");
+  await expect.poll(kindShown).toBe("card");
   await expectNoA11yViolations(document.body);
   await pageNext();
   await expect.element(screen.getByText("2 KB")).toBeVisible();
@@ -411,7 +411,7 @@ test("a file that cannot be read falls back to the card", async () => {
   await expect
     .element(screen.getByRole("link", { name: "Download", exact: true }))
     .toBeVisible();
-  expect(kindShown()).toBe("card");
+  await expect.poll(kindShown).toBe("card");
 });
 
 test("loadPreview supplies HTML, tables and cards, and null keeps the built-in reading", async () => {
@@ -477,12 +477,12 @@ test("loadPreview supplies HTML, tables and cards, and null keeps the built-in r
   expect(
     document.querySelector('[data-slot="file-viewer-html"] script'),
   ).toBeNull();
-  expect(kindShown()).toBe("html");
+  await expect.poll(kindShown).toBe("html");
   await pageNext();
   await expect
     .element(screen.getByText("Showing first 1 of 900 rows"))
     .toBeVisible();
-  expect(kindShown()).toBe("table");
+  await expect.poll(kindShown).toBe("table");
   expect(signals[0]!.aborted).toBe(true);
   await pageNext();
   await expect.element(screen.getByText("1 KB · 12 slides")).toBeVisible();
