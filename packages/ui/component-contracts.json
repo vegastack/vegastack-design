@@ -12,8 +12,8 @@
     "evidencePolicy": "Observed fields come from source, registry metadata, docs, and test topology. Unknown/not-applicable values are explicit; no inferred behavior is presented as verified."
   },
   "expectedCounts": {
-    "totalRegistryItems": 699,
-    "components": 134,
+    "totalRegistryItems": 700,
+    "components": 135,
     "animatedIcons": 467,
     "hooks": 13,
     "blocks": 11,
@@ -22,7 +22,7 @@
   },
   "expectedWaveCounts": {
     "Core controls": 24,
-    "Forms/editing": 29,
+    "Forms/editing": 30,
     "Navigation/layout": 18,
     "Overlays": 15,
     "Data display": 23,
@@ -88,6 +88,7 @@
       "settings-row",
       "sortable-list",
       "tag-group",
+      "template-editor",
       "text-edit",
       "upload-dialog"
     ],
@@ -22442,6 +22443,146 @@
             {
               "name": "data-slot",
               "values": ["terminal-body"]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
+    },
+    {
+      "name": "template-editor",
+      "registryType": "registry:ui",
+      "title": "Template Editor",
+      "summary": "A plain-paragraph editor for text with placeholders: typing @ or {{ opens a searchable list of tokens, the one picked becomes an atomic inline chip, and the value is plain text with {{id}} tokens.",
+      "status": "stable",
+      "since": "0.23.72",
+      "family": "rich-text",
+      "wave": "Forms/editing",
+      "sourceFiles": ["packages/ui/registry/ui/template-editor.tsx"],
+      "publicSymbols": [
+        {
+          "name": "TemplateEditorToken",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/template-editor.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "TemplateEditorProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/template-editor.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "TemplateEditor",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/template-editor.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "div",
+            "rationale": "Source forwards the ref to the bordered root div."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "No variant axis; one bordered text-entry look, like Textarea."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "Textarea's size and padding; no local size scale."
+      },
+      "states": {
+        "behavior": {
+          "status": "observed",
+          "values": ["default", "empty", "disabled", "invalid", "menu-open"],
+          "evidence": "Observed from the component's prop branches and the picker state."
+        },
+        "accessibility": {
+          "status": "observed",
+          "values": [
+            "labeled",
+            "described",
+            "disabled",
+            "invalid",
+            "semantic-html"
+          ],
+          "evidence": "A role=textbox contenteditable wired by aria-label/aria-labelledby or an enclosing Field; aria-activedescendant into the listbox while the picker is open."
+        },
+        "visual": {
+          "status": "observed",
+          "values": [
+            "default",
+            "empty",
+            "invalid",
+            "disabled",
+            "invalid-token"
+          ],
+          "evidence": "Observed from token classes and data attributes."
+        }
+      },
+      "responsive": {
+        "status": "modeled",
+        "risks": ["viewport-positioning-and-collision"],
+        "rationale": "The picker flips above the caret and slides to stay inside the viewport."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned motion mechanism observed."
+        }
+      },
+      "engines": [
+        {
+          "package": "tiptap",
+          "role": "rich-text editor engine"
+        }
+      ],
+      "docsSlug": "/docs/components/template-editor",
+      "registryDependencies": [],
+      "npmDependencies": [
+        "@base-ui/react@^1.6.0",
+        "@tiptap/extensions@^3",
+        "@tiptap/pm@^3",
+        "@tiptap/react@^3",
+        "@tiptap/starter-kit@^3",
+        "@tiptap/suggestion@^3",
+        "@vegastack/design-tokens@^0.7.56",
+        "@vegastack/design@^0.7.58"
+      ],
+      "testFiles": ["packages/ui/registry/ui/template-editor.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required"
+      },
+      "previewModule": "template-editor",
+      "dataAttributes": {
+        "TemplateEditor": {
+          "attributes": [
+            {
+              "name": "data-disabled",
+              "values": [""]
+            },
+            {
+              "name": "data-invalid",
+              "values": [""]
+            },
+            {
+              "name": "data-slot",
+              "values": ["template-editor"]
             }
           ],
           "cssVariables": []

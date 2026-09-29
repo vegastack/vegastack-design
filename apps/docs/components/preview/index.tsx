@@ -109,6 +109,7 @@ export * from "./view-toggle";
 export * from "./data-list-pager";
 export * from "./load-more";
 export * from "./text-edit";
+export * from "./template-editor";
 export * from "./marker";
 export * from "./message";
 export * from "./bubble";

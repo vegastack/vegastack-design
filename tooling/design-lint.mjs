@@ -280,6 +280,7 @@ const TEXT_ENTRY_FOCUS_BORDER_FILES = [
   "ui/panel-search.tsx",
   "ui/questionnaire.tsx",
   "ui/text-edit.tsx",
+  "ui/template-editor.tsx",
 ];
 const TEXT_ENTRY_FOCUS_BORDER = /:border-ring\/40$/;
 const isTextEntryFocusBorderFile = (file) => {

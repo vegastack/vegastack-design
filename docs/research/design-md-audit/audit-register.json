@@ -2,10 +2,10 @@
   "schemaVersion": 1,
   "kind": "vegastack-zero-gap-audit-register",
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "50b3c3b46f5bb91fdb6a379326079b63e7f04f9bb3904abe4fd69cd3a34cb0a7",
+  "contractSha256": "ff96deb374dd0da95a71634e0bd68272f57673af1f183647a861182ec90639fc",
   "expectedCounts": {
-    "totalRegistryItems": 699,
-    "components": 134,
+    "totalRegistryItems": 700,
+    "components": 135,
     "animatedIcons": 467,
     "hooks": 13,
     "blocks": 11,
@@ -1246,6 +1246,17 @@
         "packages/ui/registry/ui/terminal-body.tsx"
       ],
       "docsSlug": "/docs/components/terminal",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "template-editor",
+      "inventoryClass": "component",
+      "wave": "Forms/editing",
+      "family": "rich-text",
+      "sourceFiles": [
+        "packages/ui/registry/ui/template-editor.tsx"
+      ],
+      "docsSlug": "/docs/components/template-editor",
       "contractStatus": "reconciled"
     },
     {
