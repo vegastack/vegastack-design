@@ -1,5 +1,11 @@
 # @vegastack/design
 
+## 0.7.62
+
+### Patch Changes
+
+- [#423](https://github.com/vegastack/vegastack-design/pull/423) [`268d6bd`](https://github.com/vegastack/vegastack-design/commit/268d6bd924d37667350a0de51608f2f30b8c20ec) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🧩 Outline, keyboard comments, list selection and drag into folders. New `TableOfContents`: an "On this page" outline with a scroll spy (the last heading above `min(180px, 28%)`, the last one at the bottom), `aria-current="location"`, a `list` or a `rail` of ticks that opens on hover or focus, sticky placement, one tab stop with arrow keys, and a left `Sheet` through `trigger`; `useActiveHeading` is exported and `page-editor-01` uses it. `TextEdit` comment highlights are tab stops in the read view (Enter or Space opens the thread) and open with Alt+Enter while editing; `annotationCounts` adds a count pill after each highlight (`TextEditAnnotation.count`, `annotationCountLabel`, `annotationLabel`). `DataList` adds shift-click ranges, ⌘/Ctrl+A, Esc and Space on a row link, grid-card checkboxes, a `selectionActions` bar, and dragging rows onto folder rows and breadcrumbs (`onDropInto`, `canDropInto`, `canDropOnRow`, `dragScope`); `useDragInto` gains `scope`, `getDragIds` and `getDragPreviewLabel`, and `ActionBar`'s actions scroll on a narrow screen. New `breadcrumb-cascade`: `BreadcrumbDropTarget` (a crumb that takes dropped rows) and `BreadcrumbSiblings` (a menu of a segment's siblings).
+
 ## 0.7.61
 
 ### Patch Changes

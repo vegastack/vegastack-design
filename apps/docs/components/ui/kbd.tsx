@@ -1,4 +1,4 @@
-// @vegastack kbd@0.23.74 sha256-Czmiix9jxSut5cBn6tAPvfEm+GiLwUkFguCS2w3EFDM=
+// @vegastack kbd@0.23.75 sha256-qpOhsqeYolLpZ32SWQZnen9yD52dTsI7uC+Aj1zu8aE=
 
 import { cn } from "@vegastack/design";
 
