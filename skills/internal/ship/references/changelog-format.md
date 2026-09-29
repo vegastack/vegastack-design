@@ -59,6 +59,8 @@ merging into. `sync-changelog` strips it from the docs page (MDX has no HTML com
 - A body's `/docs` links and commit shas are validated at PR time by `tooling/changeset-lint.mjs`,
   using `changelog-lint`'s own rules rather than a second copy of them.
 - Multi-line bodies keep their line breaks; continuation lines are indented into the bullet.
+- Never put a bare `<word>` in a changeset; wrap it in backticks, or the changelog page fails to
+  build — the body lands in `changelog.mdx`, where a bare `<word>` parses as a JSX tag.
 
 ## Bullets
 
