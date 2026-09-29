@@ -1,0 +1,155 @@
+---
+title: Folder Tree
+description: A Notion-style library tree — sections of folders, pages and files, lazy folders, tree keys, row menus, drag into a folder, and a Move picker.
+audience: public
+registry: folder-tree
+status: stable
+since: 0.23.73
+a11y: nav of nested lists, one tab stop, tree arrow keys
+preview: folderTree
+---
+
+## Install
+
+<InstallSteps name="folder-tree" />
+
+## Usage
+
+```tsx
+import { FolderTree, FolderTreeRowAction } from "@/components/ui/folder-tree";
+
+<FolderTree
+  aria-label="Library"
+  sections={[
+    { id: "shared", label: "Shared" },
+    { id: "private", label: "Private" },
+  ]}
+  rootItems={{ shared: sharedTop, private: privateTop }}
+  loadChildren={(id) => fetchChildren(id)}
+  expanded={expanded}
+  onExpandedChange={setExpanded}
+  activeId={openItemId}
+  renderRowActions={(node) => <RowMenu node={node} />}
+  onMove={({ ids, targetId, targetSection }) =>
+    moveItems(ids, targetId, targetSection)
+  }
+/>;
+```
+
+## Scope
+
+- **Owns** the tree's structure, its keyboard model, lazy children (loading, error and empty rows,
+  the cache), the "Show all" cut-off, pointer drag into a folder or section, and picker mode.
+- **Does not own** the data or its order (the host sorts), fetching, renaming, uploads onto a row,
+  or what a menu item does — `onMove` and the row menu are the host's.
+- **Compose with** `DropdownMenu` for the row menu (its trigger is a `FolderTreeRowAction`),
+  `Dialog` for a Move dialog holding a `mode="picker"` tree, and `Sidebar` or a `ResizablePanel`
+  for the pane it lives in.
+
+## Anatomy
+
+<Anatomy name="folder-tree" />
+
+## Examples
+
+### Library
+
+Sections hold folders, pages and files, sorted by the host. A folder's chevron opens it; the row is
+a link (`href`, or your router's `Link` through `linkRender`) and the open item is marked. Each row
+has a ⋯ menu, shown on hover, on focus and on the open row. Drag a row into the middle of a folder,
+or onto a section heading, to move it there — a closed folder opens after a moment's rest. The
+tree shows the new place once your data says so: `onMove` may be async.
+
+<ComponentPreview name="folderTree" file="components/preview/folder-tree.tsx" />
+
+### Row states
+
+A folder opened for the first time calls `loadChildren` and shows a loading row until it
+resolves; a failure shows "Couldn't load · Retry"; a folder with nothing in it says "Empty" (mark
+one known to be empty with `hasChildren: false` and it never loads). Past `maxChildren` (200 by
+default) a folder ends with a "Show all" row that calls `onShowAll`, or lists the rest in place
+without it. `badge` adds a trailing count.
+
+<ComponentPreview
+  name="folderTreeStates"
+  file="components/preview/folder-tree.tsx"
+/>
+
+### Move dialog
+
+`mode="picker"` shows folders only, marks one `selected`, and has no menus and no drag — the tree
+for a Move dialog, which is also the keyboard path for every drag: put "Move…" in the row menu.
+
+<ComponentPreview
+  name="folderTreePicker"
+  file="components/preview/folder-tree.tsx"
+/>
+
+## API Reference
+
+<ApiTable
+  path="../../packages/ui/registry/ui/folder-tree.tsx"
+  name="FolderTreeProps"
+/>
+
+### FolderTreeNode
+
+<ApiTable
+  path="../../packages/ui/registry/ui/folder-tree.tsx"
+  name="FolderTreeNode"
+/>
+
+### FolderTreeSection
+
+<ApiTable
+  path="../../packages/ui/registry/ui/folder-tree.tsx"
+  name="FolderTreeSection"
+/>
+
+### FolderTreeMove
+
+<ApiTable
+  path="../../packages/ui/registry/ui/folder-tree.tsx"
+  name="FolderTreeMove"
+/>
+
+### FolderTreeRowAction
+
+A `Button` (`ghost`, `icon-xs`) that is a tab stop only on the active row. It takes Button's props
+and needs an `aria-label`.
+
+## Accessibility
+
+- A navigation pattern, not an ARIA tree: a `<nav>` named by `aria-label`, nested lists, each row a
+  link with `aria-current="page"` on the open item (a button in picker mode, `aria-pressed` on the
+  selected folder) and a disclosure button named "{name} folder" with `aria-expanded`. The system
+  keeps `role="tree"` out on purpose: controls inside tree items trap a screen reader.
+- The tree is one tab stop; the active row's ⋯ button is the next. Focus shows as a background
+  tint, never a ring.
+- A drop is announced ("Moved Brand to Shared"), and so is a move the host refused.
+- A loading row carries screen-reader text; a truncated name shows in full on hover.
+
+| Key                              | Action                                                          |
+| -------------------------------- | --------------------------------------------------------------- |
+| <kbd>↑</kbd> / <kbd>↓</kbd>      | Previous / next visible row.                                    |
+| <kbd>→</kbd>                     | Open a closed folder or section; on an open one, its first row. |
+| <kbd>←</kbd>                     | Close an open folder or section; otherwise go to its parent.    |
+| <kbd>Home</kbd> / <kbd>End</kbd> | First / last visible row.                                       |
+| <kbd>Enter</kbd>                 | Follow the link, or choose the folder in picker mode.           |
+| <kbd>\*</kbd>                    | Open every folder beside the current row.                       |
+| A letter                         | Next row whose name starts with it.                             |
+| <kbd>Tab</kbd>                   | The active row's ⋯ button, then out of the tree.                |
+
+<StatesTested name="folder-tree" />
+
+## Do / Don't
+
+<DoDont
+  do="Keep the data sorted and in your state, persist `expanded`, and put Move… in the row menu with a picker-mode tree in a dialog."
+  dont="Nest editing fields or checkboxes in rows, or rely on drag alone to move items — the keyboard needs the Move… path."
+/>
+
+<DoDont
+  do="Pass `hasChildren: false` for a folder you know is empty, and `childrenOf` for children you already hold."
+  dont="Reorder rows by drag — the tree has no manual order; a drop moves an item into a folder."
+/>

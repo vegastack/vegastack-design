@@ -1,0 +1,71 @@
+---
+title: library-01
+description: A file library page — a folder tree beside the open folder's uploads and contents as a list or grid, with the file viewer and a Move dialog.
+audience: public
+registry: library-01
+preview: library01Demo
+---
+
+## What it is
+
+A file library page — a resizable `FolderTree` pane beside the open folder: its breadcrumb and
+header, the uploads in flight, and its contents as a list or a grid of cards. It is a **block**: you
+pull it once with `shadcn add`, and then you own it — nothing re-pulls it and no integrity hash
+tracks your edits, unlike the components it composes.
+
+`Library` lives in `components/`, with the sample library beside it. Replace the sample items and
+uploads with your API, and each `/library/…` href with your routes.
+
+## Install
+
+```npm
+npx shadcn@latest add @vegastack/library-01
+```
+
+<RegistryInstallCallout />
+
+This installs the block's own files plus the components it composes: `attachment`, `breadcrumb`,
+`button`, `data-list`, `dialog`, `dropdown-menu`, `empty`, `file-kind`, `file-viewer`,
+`folder-tree`, `page-header`, `relative-time`, `resizable`, `sheet`, `data-table-parts`.
+
+## Preview
+
+<ComponentPreview name="library01Demo" />
+
+## The tree pane
+
+`FolderTree` in a `ResizablePanel` (28% to start, 200px at least, 45% at most) on the sidebar
+surface: Shared and Private sections with a "+" on each heading, a ⋯ menu per row (Rename, Move…,
+Move to trash), the open folder marked and expanded, and a drag into a folder or onto a section
+heading to move an item. The host holds the whole library here, so it passes every folder's
+children through `childrenOf`; a host that fetches passes `loadChildren` instead.
+
+## The open folder
+
+A `PageHeader` whose `h1` is the folder's name, with its trail in a `Breadcrumb` and New folder and
+Upload actions. The uploads in flight sit under it as `AttachmentGroup layout="list"` rows — a
+progress bar under the name while a file uploads, an indeterminate one while the server processes
+it, a Retry action when it failed. The contents are a `DataList` — folders, then pages, then files,
+each by name — that switches between a list and a grid of `MediaCard`s; an empty folder shows an
+`Empty` that points at Upload.
+
+## Opening and moving
+
+A folder row opens that folder; a file row opens the `FileViewer`, paging through the folder's
+files. "Move…" in any row menu opens a Move dialog holding the same tree in `mode="picker"` —
+folders only, the item being moved left out — which is also the keyboard path for every drag.
+
+## Files
+
+| File                                      | Registry type        | Target                                        |
+| ----------------------------------------- | -------------------- | --------------------------------------------- |
+| `library-01/components/library.tsx`       | `registry:component` | `app/library-01/components/library.tsx`       |
+| `library-01/components/sample-library.ts` | `registry:component` | `app/library-01/components/sample-library.ts` |
+| `library-01/page.tsx`                     | `registry:page`      | `app/library-01/page.tsx`                     |
+
+## Do / Don't
+
+<DoDont
+  do="Keep the library in your data layer, persist the expanded folders, and put Move… in every row menu."
+  dont="Rely on drag alone to move items, or render the tree twice for the page and the Move dialog with different data."
+/>

@@ -1,4 +1,4 @@
-// @vegastack use-drag-reorder@0.23.72 sha256-6Qk6GQqznycVCGEtRrKZabIxH6i+ZA1nTRHX9KQfslY=
+// @vegastack use-drag-reorder@0.23.72 sha256-ZVAv3G3xla0+vbR6/nBKKZcZO3b/TcSm2uEh8KW7CR4=
 
 "use client";
 
@@ -1180,4 +1180,264 @@ export function edgeScroll(
   if (axis === "x") element.scrollLeft += delta;
   else element.scrollTop += delta;
   return (axis === "x" ? element.scrollLeft : element.scrollTop) !== before;
+}
+
+// ---- drag INTO (trees) ----------------------------------------------------------------------
+
+/** One requested move into a target — the payload `useDragInto`'s `onDrop` receives. */
+export interface DragIntoMove {
+  /** The dragged item ids (one today; an array so a multi-select drag needs no new shape). */
+  ids: string[];
+  /** The key of the target the items were dropped into. */
+  targetKey: string;
+}
+
+/** Options for {@link useDragInto}. */
+export interface UseDragIntoOptions {
+  /** Apply a move. Called only for a valid drop inside a target's inside zone. */
+  onDrop: (move: DragIntoMove) => void;
+  /**
+   * Whether a move is allowed. An invalid target still shows the drag (as
+   * `data-drop-invalid`) but refuses the drop.
+   * @default undefined
+   */
+  canDrop?: (move: DragIntoMove) => boolean;
+  /**
+   * Called once when a drag has hovered a target's inside zone for `hoverExpandDelay` — the tree
+   * expands a collapsed folder here.
+   * @default undefined
+   */
+  onHoverExpand?: (targetKey: string) => void;
+  /**
+   * How long a drag rests on a target before `onHoverExpand`, in milliseconds.
+   * @default 600
+   */
+  hoverExpandDelay?: number;
+  /**
+   * Disable every source and target.
+   * @default false
+   */
+  disabled?: boolean;
+}
+
+/** What {@link useDragInto} returns. */
+export interface UseDragIntoReturn {
+  /**
+   * Register one element (a callback ref plus its state flags) as a drag source (`drag`), a drop
+   * target (`drop`), or both. `drop: "middle"` takes a drop only in the middle half of the
+   * element — its top and bottom quarters are ignored, so a drag across a list of rows does not
+   * flicker; `"whole"` takes it anywhere (a section heading).
+   */
+  getItemProps: (
+    key: string,
+    options: { drag?: boolean; drop?: "middle" | "whole" | false },
+  ) => {
+    ref: (element: HTMLElement | null) => void;
+    "data-dragging": "" | undefined;
+    "data-drop-over": "" | undefined;
+    "data-drop-invalid": "" | undefined;
+  };
+  /** The id being dragged, or `null`. */
+  draggingId: string | null;
+}
+
+/**
+ * `useDragInto` — drag an item INTO a target, the move a folder tree makes. Pointer only, on the
+ * same Pragmatic engine as `useDragReorder`; a target takes a drop in its middle half, an invalid
+ * target shows `data-drop-invalid` and refuses, and resting on a target calls `onHoverExpand`.
+ * The keyboard path is the host's "Move…" menu: there is no order to step through.
+ *
+ * @example
+ * const into = useDragInto({
+ *   canDrop: ({ ids, targetKey }) => !ids.includes(targetKey),
+ *   onDrop: ({ ids, targetKey }) => moveInto(ids, targetKey),
+ *   onHoverExpand: (key) => expand(key),
+ * });
+ * // <div {...into.getItemProps(id, { drag: true, drop: isFolder && "middle" })}>…</div>
+ */
+export function useDragInto({
+  onDrop,
+  canDrop,
+  onHoverExpand,
+  hoverExpandDelay = 600,
+  disabled = false,
+}: UseDragIntoOptions): UseDragIntoReturn {
+  const [draggingId, setDraggingId] = React.useState<string | null>(null);
+  const [over, setOver] = React.useState<{
+    key: string;
+    valid: boolean;
+  } | null>(null);
+  const latest = React.useRef({ onDrop, canDrop, onHoverExpand, disabled });
+  latest.current = { onDrop, canDrop, onHoverExpand, disabled };
+  const delayRef = React.useRef(hoverExpandDelay);
+  delayRef.current = hoverExpandDelay;
+  const instanceToken = React.useRef<symbol | null>(null);
+  if (instanceToken.current === null)
+    instanceToken.current = Symbol("use-drag-into");
+  const hoverTimer = React.useRef<{
+    key: string;
+    timer: ReturnType<typeof setTimeout>;
+  } | null>(null);
+
+  const clearHover = React.useCallback(() => {
+    if (hoverTimer.current) clearTimeout(hoverTimer.current.timer);
+    hoverTimer.current = null;
+  }, []);
+
+  React.useEffect(() => clearHover, [clearHover]);
+
+  const cleanups = React.useRef(new Map<string, () => void>());
+  // One callback ref per (key, options): React re-runs a changed callback ref on every render,
+  // which would tear the ACTIVE draggable down mid-drag.
+  const refCache = React.useRef(
+    new Map<string, (element: HTMLElement | null) => void>(),
+  );
+
+  const attach = React.useCallback(
+    (
+      element: HTMLElement,
+      key: string,
+      drag: boolean,
+      drop: "middle" | "whole" | false,
+    ) => {
+      const parts: Array<() => void> = [];
+      if (drag)
+        parts.push(
+          draggable({
+            element,
+            canDrag: () => !latest.current.disabled,
+            onGenerateDragPreview: ({ nativeSetDragImage, location }) =>
+              setCustomNativeDragPreview({
+                nativeSetDragImage,
+                getOffset: preserveOffsetOnSource({
+                  element,
+                  input: location.current.input,
+                }),
+                render: ({ container }) =>
+                  renderItemPreview(element, container),
+              }),
+            getInitialData: () => ({
+              instance: instanceToken.current,
+              id: key,
+            }),
+            onDragStart: () => setDraggingId(key),
+            onDrop: () => {
+              setDraggingId(null);
+              setOver(null);
+              clearHover();
+            },
+          }),
+        );
+      if (drop) {
+        /** Where the pointer is: inside the zone, and whether the move is allowed there. */
+        const read = (
+          source: { data: Record<string | symbol, unknown> },
+          input: { clientY: number },
+        ) => {
+          const rect = element.getBoundingClientRect();
+          const y = input.clientY - rect.top;
+          const inside =
+            drop === "whole" ||
+            (y >= rect.height * 0.25 && y <= rect.height * 0.75);
+          const move: DragIntoMove = {
+            ids: [String(source.data.id)],
+            targetKey: key,
+          };
+          const valid =
+            !move.ids.includes(key) && (latest.current.canDrop?.(move) ?? true);
+          return { inside, valid, move };
+        };
+        const track = (inside: boolean, valid: boolean) => {
+          setOver((prev) =>
+            !inside
+              ? prev?.key === key
+                ? null
+                : prev
+              : prev?.key === key && prev.valid === valid
+                ? prev
+                : { key, valid },
+          );
+          if (inside && valid) {
+            if (hoverTimer.current?.key !== key) {
+              clearHover();
+              hoverTimer.current = {
+                key,
+                timer: setTimeout(() => {
+                  hoverTimer.current = null;
+                  latest.current.onHoverExpand?.(key);
+                }, delayRef.current),
+              };
+            }
+          } else if (hoverTimer.current?.key === key) clearHover();
+        };
+        parts.push(
+          dropTargetForElements({
+            element,
+            canDrop: ({ source }) =>
+              !latest.current.disabled &&
+              source.data.instance === instanceToken.current,
+            onDragEnter: ({ source, location }) => {
+              const { inside, valid } = read(source, location.current.input);
+              track(inside, valid);
+            },
+            onDrag: ({ source, location }) => {
+              const { inside, valid } = read(source, location.current.input);
+              track(inside, valid);
+            },
+            onDragLeave: () => {
+              setOver((prev) => (prev?.key === key ? null : prev));
+              if (hoverTimer.current?.key === key) clearHover();
+            },
+            onDrop: ({ source, location }) => {
+              const { inside, valid, move } = read(
+                source,
+                location.current.input,
+              );
+              setOver(null);
+              clearHover();
+              if (inside && valid) latest.current.onDrop(move);
+            },
+          }),
+        );
+      }
+      return combine(...parts);
+    },
+    [clearHover],
+  );
+
+  const getItemProps = React.useCallback(
+    (
+      key: string,
+      {
+        drag = false,
+        drop = false,
+      }: { drag?: boolean; drop?: "middle" | "whole" | false },
+    ) => {
+      const cacheKey = `${drag ? "d" : "-"}${drop || "-"}:${key}`;
+      let ref = refCache.current.get(cacheKey);
+      if (!ref) {
+        ref = (element: HTMLElement | null) => {
+          cleanups.current.get(cacheKey)?.();
+          cleanups.current.delete(cacheKey);
+          if (!element) {
+            refCache.current.delete(cacheKey);
+            return;
+          }
+          cleanups.current.set(cacheKey, attach(element, key, drag, drop));
+        };
+        refCache.current.set(cacheKey, ref);
+      }
+      return {
+        ref,
+        "data-dragging": draggingId === key ? ("" as const) : undefined,
+        "data-drop-over":
+          over?.key === key && over.valid ? ("" as const) : undefined,
+        "data-drop-invalid":
+          over?.key === key && !over.valid ? ("" as const) : undefined,
+      };
+    },
+    [attach, draggingId, over],
+  );
+
+  return { getItemProps, draggingId };
 }

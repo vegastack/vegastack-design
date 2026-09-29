@@ -1,4 +1,4 @@
-// @vegastack dropzone@0.23.72 sha256-uUrhdZK+8Bas5YJJVcK+FmU1F0uAAZPiC3yRSiDSdcM=
+// @vegastack dropzone@0.23.72 sha256-mfswyNp1MpLgfD5YvOFh1sh3sHN2oRYnaRG9M6a/5EA=
 
 "use client";
 
@@ -35,13 +35,28 @@ Deliberately NOT done here:
   carries `border-dashed` (add `border` to draw it), or any content as children.
 --- */
 
+/** What `Dropzone`'s `actionsRef` exposes. */
+export interface DropzoneActions {
+  /** Open the file picker from a control outside the surface. */
+  open: () => void;
+  /**
+   * Open a folder picker (a `directories` dropzone) — for an "Upload folder" button beside the
+   * surface, never inside it: the surface is itself the control.
+   */
+  openDirectory: () => void;
+}
+
 /** Props accepted by `Dropzone`. */
 export interface DropzoneProps extends Omit<
   UseFileDropOptions,
   "onFilesAccepted" | "onFilesRejected"
 > {
-  /** Receives the accepted files of each drop/paste/browse batch. */
-  onFilesAccepted: (files: File[]) => void;
+  /**
+   * Receives the accepted files of each drop/paste/browse batch. Pass it, `onEntriesAccepted`,
+   * or both.
+   * @default undefined
+   */
+  onFilesAccepted?: (files: File[]) => void;
   /**
    * Receives the refused files of a batch, with typed reasons.
 
@@ -68,6 +83,11 @@ export interface DropzoneProps extends Omit<
    * @default undefined
    */
   className?: string;
+  /**
+   * Imperative handle: `open()` / `openDirectory()` the picker from a control outside the surface.
+   * @default undefined
+   */
+  actionsRef?: React.Ref<DropzoneActions>;
   /**
    * Ref forwarded to the drop surface (`data-slot="dropzone"`).
 
@@ -100,6 +120,11 @@ export interface DropzoneProps extends Omit<
  *   </Empty>
  * </Dropzone>
  * <AttachmentGroup>…render the staged files with Attachment…</AttachmentGroup>
+ *
+ * // A folder upload: paths come back relative to the dropped or picked folder.
+ * const actions = React.useRef<DropzoneActions>(null);
+ * <Dropzone directories maxFiles={500} actionsRef={actions} onEntriesAccepted={stageTree}>…</Dropzone>
+ * <Button onClick={() => actions.current?.openDirectory()}>Upload folder</Button>
  */
 export function Dropzone({
   onFilesAccepted,
@@ -108,10 +133,21 @@ export function Dropzone({
   children,
   dragState,
   className,
+  actionsRef,
   ref,
   ...options
 }: DropzoneProps) {
   const drop = useFileDrop({ onFilesAccepted, onFilesRejected, ...options });
+  const dropRef = React.useRef(drop);
+  dropRef.current = drop;
+  React.useImperativeHandle(
+    actionsRef,
+    () => ({
+      open: () => dropRef.current.open(),
+      openDirectory: () => dropRef.current.openDirectory(),
+    }),
+    [],
+  );
   const {
     "data-dragging": dragging,
     "data-drag-invalid": dragInvalid,

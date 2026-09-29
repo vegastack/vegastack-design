@@ -829,3 +829,76 @@ export function attachmentScrollColumns(): ReactNode {
     </Wrapper>
   );
 }
+
+/**
+ * Ours (API-28): dense rows for a folder's files or an upload queue. `layout="list"` stacks
+ * full-width horizontal rows with a 32px media box; a row uploading puts its progress under the
+ * title, a failed one keeps its tinted border and offers Retry; each finished row opens the viewer.
+ */
+export function attachmentList(): ReactNode {
+  return (
+    <Wrapper>
+      <div className="w-full max-w-lg">
+        <AttachmentGroup layout="list" role="list" aria-label="Folder files">
+          {FILES.map((file) => {
+            const Icon = file.icon;
+            return (
+              <Attachment key={file.id} file={file} role="listitem">
+                <AttachmentMedia variant={Icon ? "icon" : "image"}>
+                  {Icon ? <Icon /> : <img src={file.src ?? ""} alt="" />}
+                </AttachmentMedia>
+                <AttachmentContent>
+                  <AttachmentTitle>{file.name}</AttachmentTitle>
+                  <AttachmentDescription>
+                    {file.meta} · Asha Rao · 2 days ago
+                  </AttachmentDescription>
+                </AttachmentContent>
+                <AttachmentActions>
+                  <AttachmentAction
+                    aria-label={`Download ${file.name}`}
+                    render={<a href={file.downloadHref} download />}
+                  >
+                    <DownloadIcon />
+                  </AttachmentAction>
+                </AttachmentActions>
+              </Attachment>
+            );
+          })}
+          <Attachment state="uploading" role="listitem">
+            <AttachmentMedia>
+              <FileTextIcon />
+            </AttachmentMedia>
+            <AttachmentContent>
+              <AttachmentTitle>install-guide.pdf</AttachmentTitle>
+              <AttachmentProgress
+                value={64}
+                aria-label="Uploading install-guide.pdf"
+              />
+            </AttachmentContent>
+            <AttachmentActions>
+              <AttachmentAction aria-label="Cancel install-guide.pdf">
+                <XIcon />
+              </AttachmentAction>
+            </AttachmentActions>
+          </Attachment>
+          <Attachment state="error" role="listitem">
+            <AttachmentMedia>
+              <FileWarningIcon />
+            </AttachmentMedia>
+            <AttachmentContent>
+              <AttachmentTitle>warranty-scan.tiff</AttachmentTitle>
+              <AttachmentDescription>
+                Upload failed. Check your connection and retry.
+              </AttachmentDescription>
+            </AttachmentContent>
+            <AttachmentActions>
+              <AttachmentAction aria-label="Retry warranty-scan.tiff">
+                <RefreshCwIcon />
+              </AttachmentAction>
+            </AttachmentActions>
+          </Attachment>
+        </AttachmentGroup>
+      </div>
+    </Wrapper>
+  );
+}

@@ -2,14 +2,14 @@
   "schemaVersion": 1,
   "kind": "vegastack-zero-gap-audit-register",
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "9010c1bdb4cde1cd6c1bef3b7ea6cf0d4801ccea37bdc736f6c76d90c8cd1ad4",
+  "contractSha256": "b7bce3e4877e795fa545663084c01b0f5e42a065c5bdd496c8b2dbf2ed1d322f",
   "expectedCounts": {
-    "totalRegistryItems": 700,
-    "components": 135,
+    "totalRegistryItems": 703,
+    "components": 136,
     "animatedIcons": 467,
     "hooks": 13,
-    "blocks": 11,
-    "libs": 6,
+    "blocks": 12,
+    "libs": 7,
     "chartBlocks": 68
   },
   "records": [
@@ -683,6 +683,17 @@
         "packages/ui/registry/ui/file-viewer-pdf.tsx"
       ],
       "docsSlug": "/docs/components/file-viewer",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "folder-tree",
+      "inventoryClass": "component",
+      "wave": "Navigation/layout",
+      "family": "navigation",
+      "sourceFiles": [
+        "packages/ui/registry/ui/folder-tree.tsx"
+      ],
+      "docsSlug": "/docs/components/folder-tree",
       "contractStatus": "reconciled"
     },
     {
@@ -6845,6 +6856,19 @@
       "contractStatus": "reconciled"
     },
     {
+      "name": "library-01",
+      "inventoryClass": "block",
+      "wave": "Block",
+      "family": "starter-block",
+      "sourceFiles": [
+        "packages/ui/registry/blocks/library-01/components/library.tsx",
+        "packages/ui/registry/blocks/library-01/components/sample-library.ts",
+        "packages/ui/registry/blocks/library-01/page.tsx"
+      ],
+      "docsSlug": "/docs/blocks/library-01",
+      "contractStatus": "reconciled"
+    },
+    {
       "name": "login-01",
       "inventoryClass": "block",
       "wave": "Block",
@@ -7706,6 +7730,17 @@
       "family": "lib",
       "sourceFiles": [
         "packages/ui/registry/lib/drag-item.ts"
+      ],
+      "docsSlug": "/docs/guides/components",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "file-kind",
+      "inventoryClass": "lib",
+      "wave": "Libs",
+      "family": "lib",
+      "sourceFiles": [
+        "packages/ui/registry/lib/file-kind.ts"
       ],
       "docsSlug": "/docs/guides/components",
       "contractStatus": "reconciled"

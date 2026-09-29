@@ -1,4 +1,4 @@
-// @vegastack use-file-drop@0.23.72 sha256-PD34cI1C7ZJGQzsoXrnpeXk4st8hyuKpqgBFcaX1QGQ=
+// @vegastack use-file-drop@0.23.72 sha256-YHkgkTvMW4Ak7Eyal2zXWjz8exDMriQlVKZOBv/vvVQ=
 
 "use client";
 
@@ -63,10 +63,38 @@ export interface FileDropRejection {
   reasons: FileDropRejectionReason[];
 }
 
+/** One accepted file with its path inside the dropped or picked folder. */
+export interface FileDropEntry {
+  /** The accepted file. */
+  file: File;
+  /**
+   * Its path relative to the drop: `"a/c/d.png"` for a file inside a dropped folder `a`, the bare
+   * name for a loose file. Forward slashes, no leading `./` or `/`.
+   */
+  relativePath: string;
+}
+
 /** Options for {@link useFileDrop}. */
 export interface UseFileDropOptions {
-  /** Receives the accepted files of each drop/paste/browse batch. */
-  onFilesAccepted: (files: File[]) => void;
+  /**
+   * Receives the accepted files of each drop/paste/browse batch.
+   * @default undefined
+   */
+  onFilesAccepted?: (files: File[]) => void;
+  /**
+   * Receives the accepted files of each batch with their path inside a dropped or picked folder —
+   * the callback a folder upload wants, so the host can recreate the folder tree.
+   * @default undefined
+   */
+  onEntriesAccepted?: (entries: FileDropEntry[]) => void;
+  /**
+   * Folder mode: `openDirectory()` opens a folder picker, every accepted file reports its
+   * `relativePath` through `onEntriesAccepted`, and `maxFiles` applies to the whole flattened drop —
+   * a folder with more files than that is refused ENTIRELY (`too-many-files`), never cut short. A
+   * dropped folder is walked either way; this option is what keeps its paths and its cap honest.
+   * @default false
+   */
+  directories?: boolean;
   /**
    * Receives the refused files of a batch, with typed reasons.
 
@@ -140,6 +168,12 @@ export interface UseFileDropReturn {
   /** Open the file browser programmatically. A no-op while `disabled`. */
   open: () => void;
   /**
+   * Open a FOLDER picker — the engine's own input, switched to `webkitdirectory` for this one
+   * pick, so `accept`, sizes and the cap apply as on a drop. Needs `directories`; without it this
+   * opens the file picker. A no-op while `disabled`.
+   */
+  openDirectory: () => void;
+  /**
    * The polite live region every acquisition announcement speaks through — the shared
    * `useAnnouncer` node. Render it once, anywhere inside the drop surface.
    */
@@ -175,6 +209,17 @@ function refusalText(rejections: readonly FileDropRejection[]): string {
   return rejections.length === 1
     ? `${rejections[0]!.file.name} was refused — ${reasons}`
     : `${rejections.length} files were refused — ${reasons}`;
+}
+
+/** A file's path inside its drop: file-selector's `relativePath`/`path`, or the picker's own. */
+function relativePathOf(file: File): string {
+  const withPath = file as File & { relativePath?: string; path?: string };
+  const raw =
+    withPath.relativePath ||
+    file.webkitRelativePath ||
+    withPath.path ||
+    file.name;
+  return raw.replace(/\\/g, "/").replace(/^(\.\/|\/)+/, "") || file.name;
 }
 
 /**
@@ -245,6 +290,8 @@ function armWindowFileDropGuard(): () => void {
  */
 export function useFileDrop({
   onFilesAccepted,
+  onEntriesAccepted,
+  directories = false,
   onFilesRejected,
   accept,
   multiple = true,
@@ -259,16 +306,40 @@ export function useFileDrop({
 
   const acceptedRef = React.useRef(onFilesAccepted);
   acceptedRef.current = onFilesAccepted;
+  const entriesRef = React.useRef(onEntriesAccepted);
+  entriesRef.current = onEntriesAccepted;
   const rejectedRef = React.useRef(onFilesRejected);
   rejectedRef.current = onFilesRejected;
 
+  /** Hand an accepted batch to both callbacks. */
+  const deliver = React.useCallback((accepted: File[]) => {
+    if (accepted.length === 0) return;
+    acceptedRef.current?.(accepted);
+    entriesRef.current?.(
+      accepted.map((file) => ({ file, relativePath: relativePathOf(file) })),
+    );
+  }, []);
+
+  // In folder mode the cap is the WHOLE drop's: the engine only ever refuses the surplus, which
+  // would upload the first N files of a folder and silently drop the rest.
+  const folderCap =
+    directories && maxFiles !== undefined && maxFiles >= 1 ? maxFiles : null;
+
   const handleBatch = React.useCallback(
-    (accepted: File[], rejections: readonly FileRejection[]) => {
-      if (accepted.length > 0) acceptedRef.current(accepted);
-      const typed: FileDropRejection[] = rejections.map((rejection) => ({
+    (acceptedIn: File[], rejections: readonly FileRejection[]) => {
+      let accepted = acceptedIn;
+      let typed: FileDropRejection[] = rejections.map((rejection) => ({
         file: rejection.file,
         reasons: rejection.errors.map((error) => toReason(error.code)),
       }));
+      if (folderCap !== null && accepted.length + typed.length > folderCap) {
+        typed = [...accepted, ...typed.map((r) => r.file)].map((file) => ({
+          file,
+          reasons: ["too-many-files"],
+        }));
+        accepted = [];
+      }
+      deliver(accepted);
       if (typed.length > 0) rejectedRef.current?.(typed);
       // Voice: counts only when they inform; no "successfully".
       const parts: string[] = [];
@@ -281,15 +352,15 @@ export function useFileDrop({
       if (typed.length > 0) parts.push(refusalText(typed));
       if (parts.length > 0) announce(parts.join(" · "));
     },
-    [announce],
+    [announce, deliver, folderCap],
   );
 
   const dropzone = useDropzone({
     accept,
-    multiple,
+    multiple: multiple || directories,
     maxSize,
     minSize,
-    maxFiles,
+    maxFiles: folderCap !== null ? 0 : maxFiles,
     disabled,
     // The engine's own document-level cancellation is payload-BLIND (it
     // kills text drags into unrelated inputs) and per-instance (one default
@@ -334,7 +405,7 @@ export function useFileDrop({
       }
       for (const file of files.slice(within.length))
         rejections.push({ file, reasons: ["too-many-files"] });
-      if (accepted.length > 0) acceptedRef.current(accepted);
+      deliver(accepted);
       if (rejections.length > 0) rejectedRef.current?.(rejections);
       if (accepted.length > 0 || rejections.length > 0)
         announce(
@@ -350,7 +421,17 @@ export function useFileDrop({
             .join(" · "),
         );
     },
-    [paste, disabled, accept, maxFiles, maxSize, minSize, multiple, announce],
+    [
+      paste,
+      disabled,
+      accept,
+      maxFiles,
+      maxSize,
+      minSize,
+      multiple,
+      announce,
+      deliver,
+    ],
   );
 
   return {
@@ -365,6 +446,22 @@ export function useFileDrop({
     isDragInvalid: dropzone.isDragReject,
     // The engine nulls `open` while disabled; keep the declared type honest.
     open: () => {
+      dropzone.open?.();
+    },
+    openDirectory: () => {
+      const input = dropzone.inputRef.current;
+      if (directories && input && !disabled) {
+        // One folder pick through the engine's own input, so accept, sizes and the cap apply as
+        // on a drop. The attribute comes off again once the picker settles either way.
+        input.setAttribute("webkitdirectory", "");
+        const reset = () => {
+          input.removeAttribute("webkitdirectory");
+          input.removeEventListener("change", reset);
+          input.removeEventListener("cancel", reset);
+        };
+        input.addEventListener("change", reset);
+        input.addEventListener("cancel", reset);
+      }
       dropzone.open?.();
     },
     Announcer,

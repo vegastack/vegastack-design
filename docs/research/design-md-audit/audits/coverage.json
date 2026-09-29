@@ -1,19 +1,19 @@
 {
   "schemaVersion": 1,
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "9010c1bdb4cde1cd6c1bef3b7ea6cf0d4801ccea37bdc736f6c76d90c8cd1ad4",
+  "contractSha256": "b7bce3e4877e795fa545663084c01b0f5e42a065c5bdd496c8b2dbf2ed1d322f",
   "inventory": {
-    "expected": 700,
-    "actual": 700,
-    "unique": 700
+    "expected": 703,
+    "actual": 703,
+    "unique": 703
   },
   "classes": {
-    "components": 135,
+    "components": 136,
     "animatedIcons": 467,
     "hooks": 13,
-    "blocks": 11,
+    "blocks": 12,
     "chartBlocks": 68,
-    "libs": 6
+    "libs": 7
   },
   "waves": {
     "Core controls": {
@@ -83,8 +83,8 @@
       ]
     },
     "Navigation/layout": {
-      "expected": 18,
-      "actual": 18,
+      "expected": 19,
+      "actual": 19,
       "members": [
         "accordion",
         "app-shell",
@@ -94,6 +94,7 @@
         "collapsible",
         "command",
         "direction",
+        "folder-tree",
         "menubar",
         "multi-step-form",
         "navigation-menu",
@@ -220,7 +221,7 @@
     },
     "Block": {
       "expected": 1,
-      "actual": 79,
+      "actual": 80,
       "members": [
         "app-shell-01",
         "board-01",
@@ -294,6 +295,7 @@
         "chart-tooltip-label-none",
         "command-search-01",
         "issue-detail-01",
+        "library-01",
         "list-page-01",
         "login-01",
         "notifications-01",
@@ -777,7 +779,7 @@
       ]
     }
   },
-  "componentRoutes": 132,
-  "blockRoutes": 18,
+  "componentRoutes": 133,
+  "blockRoutes": 19,
   "modeledExemptions": 3
 }

@@ -1227,3 +1227,82 @@ test("API-28: preview={false} keeps a plain card; onOpen replaces the viewer", a
   expect(opened).toEqual(["custom.zip"]);
   expect(document.querySelector('[role="dialog"]')).toBeNull();
 });
+
+function ListRow({
+  name,
+  state = "done",
+  progress,
+}: {
+  name: string;
+  state?: React.ComponentProps<typeof Attachment>["state"];
+  progress?: number;
+}) {
+  return (
+    <Attachment state={state} file={fileOf(name)}>
+      <AttachmentMedia>
+        <FileTextIcon />
+      </AttachmentMedia>
+      <AttachmentContent>
+        <AttachmentTitle>{name}</AttachmentTitle>
+        {progress !== undefined ? (
+          <AttachmentProgress
+            value={progress}
+            aria-label={`Uploading ${name}`}
+          />
+        ) : (
+          <AttachmentDescription>2 KB · Asha · 2 min ago</AttachmentDescription>
+        )}
+      </AttachmentContent>
+      <AttachmentActions>
+        <AttachmentAction aria-label={`Remove ${name}`}>
+          <XIcon />
+        </AttachmentAction>
+      </AttachmentActions>
+    </Attachment>
+  );
+}
+
+test('API-28: layout="list" lays out full-width rows with a 32px media box and progress under the title', async () => {
+  const screen = await render(
+    <div style={{ width: "480px" }}>
+      <AttachmentGroup layout="list">
+        <ListRow name="spec.zip" />
+        <ListRow name="draft.zip" state="uploading" progress={40} />
+      </AttachmentGroup>
+    </div>,
+  );
+  const group = slot(screen.container, "attachment-group")!;
+  expect(group.getAttribute("data-layout")).toBe("list");
+  const [first, second] = slots(screen.container, "attachment");
+  expect(Math.round(first!.getBoundingClientRect().width)).toBe(480);
+  expect(
+    Math.round(slot(first!, "attachment-media")!.getBoundingClientRect().width),
+  ).toBe(32);
+  // The progress bar sits under the title, inside the content column.
+  const title = slot(second!, "attachment-title")!.getBoundingClientRect();
+  const bar = slot(second!, "attachment-progress")!.getBoundingClientRect();
+  expect(bar.top).toBeGreaterThanOrEqual(title.bottom);
+  expect(bar.left).toBeGreaterThanOrEqual(title.left - 1);
+  await expectNoA11yViolations(screen.container);
+});
+
+test("API-28: a list row click opens the viewer over the group", async () => {
+  const screen = await render(
+    <AttachmentGroup layout="list">
+      <ListRow name="one.zip" />
+      <ListRow name="two.zip" />
+    </AttachmentGroup>,
+  );
+  // The whole row is the open button: a click on its name lands on the trigger.
+  const name = screen.getByText("two.zip").element().getBoundingClientRect();
+  expect(
+    document.elementFromPoint(name.left + 4, name.top + name.height / 2),
+  ).toBe(screen.getByRole("button", { name: "Open two.zip" }).element());
+  await screen.getByRole("button", { name: "Open two.zip" }).click();
+  await expect.element(screen.getByRole("dialog")).toBeVisible();
+  await expect
+    .poll(
+      () => document.querySelector('[data-slot="file-viewer"]')?.textContent,
+    )
+    .toContain("2 of 2");
+});

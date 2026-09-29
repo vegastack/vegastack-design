@@ -3,7 +3,7 @@
 <!-- GENERATED — do not hand-edit. Regenerated from the design system's component contract,
      which is the authority for membership and counts. -->
 
-**135 components**, plus 467 animated-icon items, 13 hooks (`use-animation-replay`, `use-announcer`, `use-async-search`, `use-drag-reorder`, `use-file-drop`, `use-inline-edit`, `use-list-nav`, `use-media-query`, `use-mobile`, `use-modal-inert`, `use-overflow`, `use-platform`, `use-tabs-swipe`), 11 starter blocks (`app-shell-01`, `board-01`, `issue-detail-01`, `command-search-01`, `list-page-01`, `login-01`, `notifications-01`, `review-split-01`, `settings-01`, `settings-02`, `status-pages-01`), 68 chart blocks across 7 families, and 6 data libs (`date-time`, `geo-data`, `emoji-data`, `drag-item`, `page-layout`, `tile-overlay`) — 700 registry items in total.
+**136 components**, plus 467 animated-icon items, 13 hooks (`use-animation-replay`, `use-announcer`, `use-async-search`, `use-drag-reorder`, `use-file-drop`, `use-inline-edit`, `use-list-nav`, `use-media-query`, `use-mobile`, `use-modal-inert`, `use-overflow`, `use-platform`, `use-tabs-swipe`), 12 starter blocks (`app-shell-01`, `board-01`, `issue-detail-01`, `command-search-01`, `list-page-01`, `library-01`, `login-01`, `notifications-01`, `review-split-01`, `settings-01`, `settings-02`, `status-pages-01`), 68 chart blocks across 7 families, and 7 data libs (`date-time`, `geo-data`, `emoji-data`, `drag-item`, `file-kind`, `page-layout`, `tile-overlay`) — 703 registry items in total.
 
 Install any of them with `shadcn add @vegastack/<name>`. Animated icons install as
 `@vegastack/icon-<name>`; the bare name is reserved for components, so a component whose name
@@ -118,6 +118,7 @@ starts with `icon-` is a component and never an icon.
 
 - **`breadcrumb`** — A hierarchical navigation trail — links, separators, the current page, and ellipsis collapse for long paths.
 - **`command`** — A searchable command palette — filtered, grouped items with keyboard navigation, optionally inside a ⌘K dialog.
+- **`folder-tree`** — A Notion-style navigation tree for a file library — sections of folders, pages and files; folders that load their children on first open with loading, error, empty and Show all rows; one tab stop with tree arrow keys and typeahead; a ⋯ menu per row; pointer drag into a folder or section; and a folders-only picker mode for Move dialogs.
 - **`menubar`** — A persistent horizontal bar of menus — application-style File / Edit / View navigation.
 - **`multi-step-form`** — A guarded, branching flow around a Stepper — conditional steps, sync and async advance guards, locking, reachability-derived deep links and resume, and a phone layout chosen from the same predicate. Owns no fields and no validator.
 - **`navigation-menu`** — A collection of links for navigating websites — triggers that open one shared panel, and plain links styled to match.

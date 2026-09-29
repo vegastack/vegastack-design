@@ -348,7 +348,7 @@
       "name": "attachment",
       "type": "registry:ui",
       "title": "Attachment",
-      "description": "A file chip / thumbnail card for chat, record-file and upload-queue surfaces — media slot, name + meta, idle/uploading/processing/error/done states, determinate progress, a muted tile, an actions row, a full-bleed trigger, and a scrolling or grid group, overlay action slots on a tile, a whole-tile open into the FileViewer, and a column-sized tile grid or scrolling row.",
+      "description": "A file chip / thumbnail card for chat, record-file and upload-queue surfaces — media slot, name + meta, idle/uploading/processing/error/done states, determinate progress, a muted tile, an actions row, a full-bleed trigger, and a scrolling, grid or dense list group, overlay action slots on a tile, a whole-tile open into the FileViewer, and a column-sized tile grid or scrolling row.",
       "categories": [
         "communication"
       ],
@@ -375,7 +375,7 @@
         "whenToUse": "File and media tiles on any surface: chat attachments, record files, upload queues — a chip or thumbnail with name, size, lifecycle state, determinate upload progress (AttachmentProgress), a muted tile for a file no longer in use, and remove or download actions; AttachmentGroup lays them out as a scrolling row or a grid.",
         "whenNotToUse": "Acquiring files (drop, browse, paste) - that is Dropzone; Attachment renders the files after acquisition.",
         "version": "0.23.72",
-        "integrity": "sha256-73OMx1zcae6ocYyh4QBr+dyzdbY1Ps4lmkMVP+9YTKU="
+        "integrity": "sha256-EXd6wsK6khey10Ntxmy4VY3q7N4qg1+NOCh0VTwfC9I="
       }
     },
     {
@@ -490,6 +490,7 @@
       "registryDependencies": [
         "@vegastack/button",
         "@vegastack/dialog",
+        "@vegastack/file-kind",
         "@vegastack/person-avatar",
         "@vegastack/tile-overlay",
         "@vegastack/use-announcer",
@@ -506,7 +507,7 @@
         "whenToUse": "A profile or member settings row where someone sets their own photo.",
         "whenNotToUse": "Attaching files to a record (Dropzone / Attachment) or picking a person (SearchableSelect).",
         "version": "0.23.72",
-        "integrity": "sha256-oW2sv5zKc97esBSvRGMNqxHLAWb9fZSnu+vm/9x21cc="
+        "integrity": "sha256-2DpvtYF74+utJxOWYsJLGYKDzQ0a/PhwPFnRlKtPF+4="
       }
     },
     {
@@ -1605,6 +1606,33 @@
       }
     },
     {
+      "name": "file-kind",
+      "type": "registry:lib",
+      "title": "File Kind",
+      "description": "The one answer to \"what is this file and how big is it\" — formatBytes (1024 base, one decimal under 10), fileKindOf (MIME first, extension fallback) and FileTypeIcon (the muted lucide icon per kind) — shared by Attachment rows, FileViewer, UploadDialog, AvatarPicker and FolderTree.",
+      "categories": [
+        "data"
+      ],
+      "dependencies": [
+        "lucide-react@^1.47.0",
+        "@vegastack/design@^0.7.59"
+      ],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "packages/ui/registry/lib/file-kind.ts",
+          "type": "registry:lib",
+          "target": "@lib/file-kind.ts"
+        }
+      ],
+      "meta": {
+        "whenToUse": "Any file surface that shows a size, picks an icon for a file, or branches on what kind of file it holds.",
+        "whenNotToUse": "Previewing a file (FileViewer) or acquiring one (use-file-drop).",
+        "version": "0.23.72",
+        "integrity": "sha256-EHb4RmH//asroqslUVNcPnv3TTcMtqaNMELRRQ5fr0s="
+      }
+    },
+    {
       "name": "page-layout",
       "type": "registry:lib",
       "title": "Page Layout",
@@ -1739,7 +1767,7 @@
         "whenToUse": "A visible upload surface — drop files, click to browse, paste — that hands accepted File[]s to the host and typed rejections back.",
         "whenNotToUse": "Chrome-less acquisition inside another surface (compose use-file-drop directly) or rendering the staged files and their upload progress (Attachment with AttachmentProgress, laid out by AttachmentGroup).",
         "version": "0.23.72",
-        "integrity": "sha256-uUrhdZK+8Bas5YJJVcK+FmU1F0uAAZPiC3yRSiDSdcM="
+        "integrity": "sha256-mfswyNp1MpLgfD5YvOFh1sh3sHN2oRYnaRG9M6a/5EA="
       }
     },
     {
@@ -1762,6 +1790,7 @@
         "@vegastack/dropzone",
         "@vegastack/empty",
         "@vegastack/field",
+        "@vegastack/file-kind",
         "@vegastack/image",
         "@vegastack/use-file-drop"
       ],
@@ -1776,7 +1805,7 @@
         "whenToUse": "Adding files to a record from a button — drop or browse, review the files, set each one's name or category, then Add and let the page's upload queue carry on.",
         "whenNotToUse": "An always-visible drop surface (Dropzone), a single profile photo (AvatarPicker), or showing upload progress (Attachment tiles on the page).",
         "version": "0.23.72",
-        "integrity": "sha256-3C2XYL7UWoxktzgiWzRoN8i75MQqSilYbUN6gpXpxw0="
+        "integrity": "sha256-EH6kfkXjgQUfFy9HDXJsbTRKlpItIm6H0qFFI+0xPAw="
       }
     },
     {
@@ -15197,7 +15226,7 @@
       "name": "file-viewer",
       "type": "registry:ui",
       "title": "File Viewer",
-      "description": "A full-screen dark overlay for stored files — images with a blur-up, zoom and pan; PDFs rendered page by page with a lazily loaded pdf.js over range requests; a download card for everything else — paged with arrows, side buttons or a swipe.",
+      "description": "A full-screen dark overlay for stored files — images with a blur-up, zoom and pan; PDFs rendered page by page with a lazily loaded pdf.js over range requests; video and audio in the system players; a download card for everything else — paged with arrows, side buttons or a swipe.",
       "categories": [
         "media"
       ],
@@ -15209,12 +15238,15 @@
         "@vegastack/design-tokens@^0.7.56"
       ],
       "registryDependencies": [
+        "@vegastack/audio-player",
         "@vegastack/button",
         "@vegastack/dialog",
+        "@vegastack/file-kind",
         "@vegastack/image",
         "@vegastack/spinner",
         "@vegastack/use-announcer",
-        "@vegastack/use-modal-inert"
+        "@vegastack/use-modal-inert",
+        "@vegastack/video-player"
       ],
       "files": [
         {
@@ -15230,9 +15262,45 @@
       ],
       "meta": {
         "whenToUse": "Opening stored files full screen from attachment tiles, a product's files or a gallery — images to zoom, PDFs to read, anything else to download.",
-        "whenNotToUse": "Video or audio playback (VideoPlayer, AudioPlayer), or a general-purpose modal (Dialog).",
+        "whenNotToUse": "An inline player on a page (VideoPlayer, AudioPlayer), or a general-purpose modal (Dialog).",
         "version": "0.23.72",
-        "integrity": "sha256-5mduAm7D9f76Yo1TqfBKBs2dCWZokclkNxY6RGeS+N0="
+        "integrity": "sha256-drMMKxqO1GYDOBAgwA80xOuBet5fuH5SFQ9hq6WOw1A="
+      }
+    },
+    {
+      "name": "folder-tree",
+      "type": "registry:ui",
+      "title": "Folder Tree",
+      "description": "A Notion-style navigation tree for a file library — sections of folders, pages and files; folders that load their children on first open with loading, error, empty and Show all rows; one tab stop with tree arrow keys and typeahead; a ⋯ menu per row; pointer drag into a folder or section; and a folders-only picker mode for Move dialogs.",
+      "categories": [
+        "navigation"
+      ],
+      "dependencies": [
+        "@base-ui/react@^1.6.0",
+        "lucide-react@^1.47.0",
+        "@vegastack/design@^0.7.59",
+        "@vegastack/design-tokens@^0.7.56"
+      ],
+      "registryDependencies": [
+        "@vegastack/button",
+        "@vegastack/file-kind",
+        "@vegastack/skeleton",
+        "@vegastack/use-announcer",
+        "@vegastack/use-drag-reorder",
+        "@vegastack/use-list-nav"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/folder-tree.tsx",
+          "type": "registry:ui",
+          "target": "@ui/folder-tree.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "The navigation pane of a file library or knowledge base — folders, pages and files in sections, with lazy folders, row menus and drag to move; and, in picker mode, the folder list of a Move dialog.",
+        "whenNotToUse": "App navigation with fixed links (Sidebar), a flat list of files (AttachmentGroup layout=\"list\" or DataList), or a nested filter editor (FilterBuilder).",
+        "version": "0.23.72",
+        "integrity": "sha256-wDtiJZnFINVPIDBrbQa/U7x6r5oSOv2IiGFD+lb4GT8="
       }
     },
     {
@@ -17554,7 +17622,7 @@
       "name": "use-drag-reorder",
       "type": "registry:hook",
       "title": "useDragReorder",
-      "description": "The system's one drag engine seam — Pragmatic drag-and-drop pointer/touch mechanics plus the house keyboard move mode, live-region vocabulary, and async pending/rejected drop contract. One API for single lists and cross-container boards.",
+      "description": "The system's one drag engine seam — Pragmatic drag-and-drop pointer/touch mechanics plus the house keyboard move mode, live-region vocabulary, and async pending/rejected drop contract. One API for single lists and cross-container boards, and useDragInto for dragging an item into a folder.",
       "categories": [
         "hook"
       ],
@@ -17576,14 +17644,14 @@
         "whenToUse": "Any reorder-by-drag surface — sortable lists, wrapped tile grids (`columns` for row-aware ↑/↓), board cards, a future bespoke drag surface — where pointer, keyboard move mode, announcements, and server-refusable drops must all work from one API.",
         "whenNotToUse": "File drag-in (use-file-drop), resizing panes (Resizable), or single-axis value dragging (Slider).",
         "version": "0.23.72",
-        "integrity": "sha256-6Qk6GQqznycVCGEtRrKZabIxH6i+ZA1nTRHX9KQfslY="
+        "integrity": "sha256-ZVAv3G3xla0+vbR6/nBKKZcZO3b/TcSm2uEh8KW7CR4="
       }
     },
     {
       "name": "use-file-drop",
       "type": "registry:hook",
       "title": "useFileDrop",
-      "description": "File acquisition (drop, browse, paste) over the sanctioned react-dropzone engine — typed rejection reasons aligned with Attachment's state prop, announcement payload, window-level missed-drop protection.",
+      "description": "File acquisition (drop, browse, paste) over the sanctioned react-dropzone engine — typed rejection reasons aligned with Attachment's state prop, announcement payload, window-level missed-drop protection, and a folder mode that keeps each file's relative path.",
       "categories": [
         "hook"
       ],
@@ -17604,7 +17672,7 @@
         "whenToUse": "Any surface that acquires files — a Dropzone, a rich-text composer accepting pasted screenshots, a bespoke drop target — where drag-depth handling, accept matching, and typed rejections should be correct by construction.",
         "whenNotToUse": "Rendering upload state (Attachment) or persisting uploads — acquisition ends at the File[] callback.",
         "version": "0.23.72",
-        "integrity": "sha256-PD34cI1C7ZJGQzsoXrnpeXk4st8hyuKpqgBFcaX1QGQ="
+        "integrity": "sha256-YHkgkTvMW4Ak7Eyal2zXWjz8exDMriQlVKZOBv/vvVQ="
       }
     },
     {
@@ -20372,6 +20440,60 @@
         "whenNotToUse": "A small list inside another page — compose DataList or an ItemGroup directly.",
         "version": "0.23.72",
         "integrity": "sha256-akA3oUxPntV8tDbO3tCZoc00QI9vIvWLGGyHzVCaIcY="
+      }
+    },
+    {
+      "name": "library-01",
+      "type": "registry:block",
+      "title": "Library 01",
+      "description": "A file library page — a resizable FolderTree pane beside the open folder's breadcrumb, header, uploads in flight and contents as a list or a grid, with the FileViewer and a Move dialog.",
+      "categories": [
+        "data",
+        "files"
+      ],
+      "dependencies": [
+        "lucide-react@^1.47.0",
+        "@vegastack/design-tokens@^0.7.56"
+      ],
+      "registryDependencies": [
+        "@vegastack/attachment",
+        "@vegastack/breadcrumb",
+        "@vegastack/button",
+        "@vegastack/data-list",
+        "@vegastack/data-table-parts",
+        "@vegastack/dialog",
+        "@vegastack/dropdown-menu",
+        "@vegastack/empty",
+        "@vegastack/file-kind",
+        "@vegastack/file-viewer",
+        "@vegastack/folder-tree",
+        "@vegastack/page-header",
+        "@vegastack/relative-time",
+        "@vegastack/resizable",
+        "@vegastack/sheet"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/registry/blocks/library-01/components/library.tsx",
+          "type": "registry:component",
+          "target": "app/library-01/components/library.tsx"
+        },
+        {
+          "path": "packages/ui/registry/blocks/library-01/components/sample-library.ts",
+          "type": "registry:component",
+          "target": "app/library-01/components/sample-library.ts"
+        },
+        {
+          "path": "packages/ui/registry/blocks/library-01/page.tsx",
+          "type": "registry:page",
+          "target": "app/library-01/page.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "A page for a team's files and pages — folders in Shared and Private, uploads, a list or grid of a folder's contents, a viewer and moves; copy it once and wire it to your storage API.",
+        "whenNotToUse": "A few files on a record (AttachmentGroup) or a single upload form (UploadDialog).",
+        "version": "0.23.72",
+        "integrity": "sha256-OwphZLNs83PF3OcsOajyhSF2ffIff10mQCqPoJkjA+Q="
       }
     },
     {

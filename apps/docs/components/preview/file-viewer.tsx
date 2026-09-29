@@ -1,7 +1,12 @@
 "use client";
 
 import { type ReactNode, useState } from "react";
-import { FileTextIcon, FileSpreadsheetIcon } from "lucide-react";
+import {
+  FileAudioIcon,
+  FileSpreadsheetIcon,
+  FileTextIcon,
+  FileVideoIcon,
+} from "lucide-react";
 import { Wrapper } from "./wrapper";
 // Copied INTO apps/docs via `shadcn add @vegastack/file-viewer` (dogfoods the registry) → auto-scanned.
 import { FileViewer, type FileViewerItem } from "@/components/ui/file-viewer";
@@ -186,6 +191,44 @@ export function fileViewerAttachments(): ReactNode {
         ))}
       </AttachmentGroup>
       <FileViewer items={MIXED} {...viewer.props} />
+    </Wrapper>
+  );
+}
+
+const MEDIA: FileViewerItem[] = [
+  {
+    id: "demo-video",
+    name: "install-walkthrough.mp4",
+    contentType: "video/mp4",
+    src: "/preview/media-player-demo.mp4",
+    downloadHref: "/preview/media-player-demo.mp4",
+  },
+  {
+    id: "demo-audio",
+    name: "site-visit-note.wav",
+    contentType: "audio/wav",
+    size: 812_000,
+    src: "/preview/media-player-demo.wav",
+    downloadHref: "/preview/media-player-demo.wav",
+  },
+];
+
+/** Video and audio play on the stage in the system players, and pause when you page away. */
+export function fileViewerMedia(): ReactNode {
+  const viewer = useViewer();
+  return (
+    <Wrapper>
+      <div className="flex flex-wrap gap-2">
+        <Button variant="outline" onClick={() => viewer.open(0)}>
+          <FileVideoIcon data-icon="inline-start" />
+          Open video
+        </Button>
+        <Button variant="outline" onClick={() => viewer.open(1)}>
+          <FileAudioIcon data-icon="inline-start" />
+          Open audio
+        </Button>
+      </div>
+      <FileViewer items={MEDIA} {...viewer.props} />
     </Wrapper>
   );
 }

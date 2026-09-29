@@ -1,4 +1,4 @@
-// @vegastack file-viewer@0.23.72 sha256-5mduAm7D9f76Yo1TqfBKBs2dCWZokclkNxY6RGeS+N0=
+// @vegastack file-viewer@0.23.72 sha256-drMMKxqO1GYDOBAgwA80xOuBet5fuH5SFQ9hq6WOw1A=
 
 "use client";
 
@@ -9,23 +9,18 @@ import {
   ChevronLeftIcon,
   ChevronRightIcon,
   DownloadIcon,
-  FileArchiveIcon,
-  FileAudioIcon,
-  FileCodeIcon,
-  FileIcon,
-  FileImageIcon,
-  FileSpreadsheetIcon,
-  FileTextIcon,
-  FileVideoIcon,
   XIcon,
 } from "lucide-react";
 
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Dialog, DialogPortal } from "@/components/ui/dialog";
 import { Image } from "@/components/ui/image";
+import { AudioPlayer } from "@/components/ui/audio-player";
 import { Spinner } from "@/components/ui/spinner";
 import { useAnnouncer } from "@/components/ui/use-announcer";
 import { useModalInert } from "@/components/ui/use-modal-inert";
+import { VideoPlayer } from "@/components/ui/video-player";
+import { FileTypeIcon, fileKindOf, formatBytes } from "@/lib/file-kind";
 
 /* ---
 `FileViewer` is the full-screen look at a stored file: an image you can zoom and pan, a PDF you
@@ -38,8 +33,12 @@ its buttons and ink resolve against the dark tokens, and the scrim is upstream's
 vocabulary under an opaque dark `background`. PDF rendering is the one heavy part and lives in `file-viewer-pdf.tsx`, loaded with
 `React.lazy` the first time a PDF is shown — pdf.js never loads for an image gallery.
 
+A video or audio file with a `src` plays on the stage in the system's own `VideoPlayer` /
+`AudioPlayer`, which pause when the viewer pages away or closes.
+
 Deliberately NOT done here: fetching or signing URLs (the caller passes resolved `src`/`pdfSrc`/
-`downloadHref`), video/audio playback (use `VideoPlayer`/`AudioPlayer`), and wrap-around paging.
+`downloadHref`), previews of text or office documents (they get the file card), and wrap-around
+paging.
 --- */
 
 /** One file the viewer can show. */
@@ -48,13 +47,16 @@ export type FileViewerItem = {
   id: string;
   /** The file name: the dialog's title and the image's alt text. */
   name: string;
-  /** MIME type. `image/*` shows the image, `application/pdf` the PDF, anything else the file card. */
+  /**
+   * MIME type. `image/*` shows the image, `application/pdf` the PDF, `video/*` and `audio/*` a
+   * player (given `src`), anything else the file card.
+   */
   contentType: string | null;
   /** Size in bytes, shown on the file card ("2.4 MB"). */
   size?: number | null;
   /** The small preview: a blurred placeholder while the full image loads, and a PDF's loading frame. */
   thumb?: { src: string; srcSet?: string; blur?: string | null } | null;
-  /** Full-size image URL. Falls back to `thumb.src`. */
+  /** Full-size image URL (falls back to `thumb.src`), or the video or audio file's URL. */
   src?: string | null;
   /** Full-size `srcset`, so the browser picks the largest variant the screen needs. Falls back to `thumb.srcSet`. */
   srcSet?: string | null;
@@ -76,7 +78,7 @@ export interface FileViewerProps {
   onOpenChange: (open: boolean) => void;
 }
 
-type Kind = "image" | "pdf" | "other";
+type Kind = "image" | "pdf" | "video" | "audio" | "other";
 type ZoomOp = "in" | "out" | "reset";
 
 const LazyPdf = React.lazy(() =>
@@ -86,54 +88,20 @@ const LazyPdf = React.lazy(() =>
 );
 
 function kindOf(item: FileViewerItem): Kind {
-  const type = item.contentType ?? "";
-  if (type.startsWith("image/") && (item.src || item.thumb?.src))
-    return "image";
-  if (type === "application/pdf" && item.pdfSrc) return "pdf";
+  const kind = fileKindOf(item.contentType, item.name);
+  if (kind === "image" && (item.src || item.thumb?.src)) return "image";
+  if (kind === "pdf" && item.pdfSrc) return "pdf";
+  if ((kind === "video" || kind === "audio") && item.src) return kind;
   return "other";
 }
 
 const KIND_LABEL: Record<Kind, string> = {
   image: "Image",
   pdf: "PDF",
+  video: "Video",
+  audio: "Audio",
   other: "File",
 };
-
-const sizeFormat = new Intl.NumberFormat(undefined, {
-  maximumFractionDigits: 1,
-});
-
-/** Bytes as a person reads them: `980 B`, `12 KB`, `2.4 MB`. */
-function formatBytes(bytes: number): string {
-  const units = ["B", "KB", "MB", "GB", "TB"];
-  let value = bytes;
-  let unit = 0;
-  while (value >= 1024 && unit < units.length - 1) {
-    value /= 1024;
-    unit++;
-  }
-  return `${sizeFormat.format(unit === 0 || value >= 10 ? Math.round(value) : value)} ${units[unit]}`;
-}
-
-/** The file-type icon for a content type, as an element (never a component made during render). */
-function fileIcon(
-  type: string | null,
-  props: React.ComponentProps<typeof FileIcon>,
-) {
-  return React.createElement(iconFor(type), props);
-}
-
-function iconFor(type: string | null) {
-  const t = type ?? "";
-  if (t.startsWith("image/")) return FileImageIcon;
-  if (t.startsWith("video/")) return FileVideoIcon;
-  if (t.startsWith("audio/")) return FileAudioIcon;
-  if (t === "application/pdf" || t.startsWith("text/")) return FileTextIcon;
-  if (/zip|tar|gzip|compressed|rar|7z/.test(t)) return FileArchiveIcon;
-  if (/sheet|excel|csv/.test(t)) return FileSpreadsheetIcon;
-  if (/json|javascript|typescript|xml|html/.test(t)) return FileCodeIcon;
-  return FileIcon;
-}
 
 /** Warm the browser cache for a neighbouring image, at the variant the stage will ask for. */
 function preload(item: FileViewerItem | undefined) {
@@ -496,10 +464,11 @@ function OtherStage({
           transform: `translate3d(${swipe.offset.x}px, ${swipe.offset.y}px, 0)`,
         }}
       >
-        {fileIcon(item.contentType, {
-          "aria-hidden": true,
-          className: "size-16 text-muted-foreground",
-        })}
+        <FileTypeIcon
+          contentType={item.contentType}
+          name={item.name}
+          className="size-16"
+        />
         <div className="flex max-w-full min-w-0 flex-col gap-1">
           <p className="text-base font-medium wrap-anywhere">{item.name}</p>
           {item.size != null ? (
@@ -524,6 +493,74 @@ function OtherStage({
   );
 }
 
+/**
+ * A video or audio file on the stage, in the system's own player. The player pauses when the
+ * viewer pages away (the stage is keyed by the file, so it unmounts) or closes (`active` false):
+ * a detached media element would otherwise keep playing. A swipe on the stage around the player
+ * pages or closes, as elsewhere; the player keeps its own gestures and keys.
+ */
+function MediaStage({
+  item,
+  kind,
+  active,
+  onSwipe,
+}: {
+  item: FileViewerItem;
+  kind: "video" | "audio";
+  active: boolean;
+  onSwipe: (direction: Swipe) => void;
+}) {
+  const swipe = useSwipe(onSwipe);
+  const media = React.useRef<HTMLMediaElement | null>(null);
+  React.useEffect(() => {
+    if (!active) media.current?.pause();
+  }, [active]);
+  React.useEffect(() => {
+    const element = media.current;
+    return () => element?.pause();
+  }, []);
+  const src = item.src ?? "";
+  return (
+    <div
+      data-slot={`file-viewer-${kind}`}
+      onPointerDown={(event) => {
+        if (
+          event.target === event.currentTarget &&
+          event.pointerType !== "mouse"
+        )
+          swipe.begin(event);
+      }}
+      onPointerMove={swipe.move}
+      onPointerUp={swipe.end}
+      onPointerCancel={swipe.cancel}
+      className="flex size-full items-center justify-center p-6 pointer-fine:px-20"
+    >
+      {kind === "video" ? (
+        <VideoPlayer
+          src={src}
+          label={item.name}
+          mediaRef={media as React.RefObject<HTMLVideoElement | null>}
+          poster={item.thumb?.src ?? undefined}
+          className="w-full max-w-[min(64rem,calc((100dvh-10rem)*16/9))]"
+        />
+      ) : (
+        <AudioPlayer
+          src={src}
+          label={item.name}
+          title={item.name}
+          description={
+            item.size != null ? (
+              <span className="tabular-nums">{formatBytes(item.size)}</span>
+            ) : undefined
+          }
+          mediaRef={media as React.RefObject<HTMLAudioElement | null>}
+          className="w-full max-w-lg"
+        />
+      )}
+    </div>
+  );
+}
+
 const chromeButton =
   "text-foreground pointer-coarse:size-11 [&_svg:not([class*='size-'])]:size-5";
 
@@ -531,7 +568,8 @@ const chromeButton =
  * `FileViewer` — a full-screen, dark overlay for a list of stored files. Images open fit to the
  * screen with their blurred thumb fading into the full-size variant, and zoom (double-click or
  * double-tap, pinch, +/−/0) and pan; PDFs render page by page with pdf.js, loaded lazily, with
- * fit-width, zoom and a page indicator; anything else shows its type icon, size and Download.
+ * fit-width, zoom and a page indicator; video and audio play in `VideoPlayer` / `AudioPlayer`;
+ * anything else shows its type icon, size and Download.
  * ←/→ and the side buttons page, a swipe pages on a phone, Esc or a swipe down closes, and focus
  * returns to whatever opened it.
  *
@@ -750,6 +788,14 @@ export function FileViewer({
                   loading={<PdfLoading item={item} />}
                 />
               </React.Suspense>
+            ) : kind === "video" || kind === "audio" ? (
+              <MediaStage
+                key={item.id}
+                item={item}
+                kind={kind}
+                active={open}
+                onSwipe={onSwipe}
+              />
             ) : (
               <OtherStage key={item.id} item={item} onSwipe={onSwipe} />
             )}

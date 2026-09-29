@@ -1,4 +1,4 @@
-// @vegastack avatar-picker@0.23.72 sha256-oW2sv5zKc97esBSvRGMNqxHLAWb9fZSnu+vm/9x21cc=
+// @vegastack avatar-picker@0.23.72 sha256-2DpvtYF74+utJxOWYsJLGYKDzQ0a/PhwPFnRlKtPF+4=
 
 "use client";
 
@@ -20,6 +20,7 @@ import {
   useFileDrop,
   type FileDropRejection,
 } from "@/components/ui/use-file-drop";
+import { formatBytes } from "@/lib/file-kind";
 import { scrimClasses } from "@/lib/tile-overlay";
 
 /* ------------------------------------------------------------------------------------------------
@@ -128,13 +129,6 @@ const TRIGGER: Record<
 const CIRCLE_BUTTON =
   "relative h-auto shrink-0 cursor-pointer rounded-full p-0 hover:bg-transparent active:not-aria-[haspopup]:translate-y-0 data-disabled:not-data-loading:opacity-100";
 
-/** A byte count as the hint and the message line say it ("5 MB"). */
-function formatSize(bytes: number): string {
-  if (bytes >= 1024 * 1024)
-    return `${Math.round((bytes / (1024 * 1024)) * 10) / 10} MB`;
-  return `${Math.round(bytes / 1024)} KB`;
-}
-
 const FORMAT_NAMES: Record<string, string> = {
   jpeg: "JPEG",
   png: "PNG",
@@ -155,7 +149,7 @@ function hintText(accept: string, maxSize: number | undefined): string {
       ? `${names.slice(0, -1).join(", ")} or ${names.at(-1)}`
       : (names[0] ?? "");
   return maxSize !== undefined
-    ? `${list} · up to ${formatSize(maxSize)}`
+    ? `${list} · up to ${formatBytes(maxSize)}`
     : list;
 }
 
@@ -174,7 +168,7 @@ function refusal(
       ? `${file.name} is a HEIC photo. Export it as JPEG and try again.`
       : `${file.name} isn't a supported image.`;
   if (reasons.includes("file-too-large") && maxSize !== undefined)
-    return `${file.name} is larger than ${formatSize(maxSize)}. Choose a smaller image.`;
+    return `${file.name} is larger than ${formatBytes(maxSize)}. Choose a smaller image.`;
   return `${file.name} can't be used. Try another image.`;
 }
 

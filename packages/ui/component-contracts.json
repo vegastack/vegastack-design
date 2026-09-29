@@ -12,18 +12,18 @@
     "evidencePolicy": "Observed fields come from source, registry metadata, docs, and test topology. Unknown/not-applicable values are explicit; no inferred behavior is presented as verified."
   },
   "expectedCounts": {
-    "totalRegistryItems": 700,
-    "components": 135,
+    "totalRegistryItems": 703,
+    "components": 136,
     "animatedIcons": 467,
     "hooks": 13,
-    "blocks": 11,
-    "libs": 6,
+    "blocks": 12,
+    "libs": 7,
     "chartBlocks": 68
   },
   "expectedWaveCounts": {
     "Core controls": 24,
     "Forms/editing": 30,
-    "Navigation/layout": 18,
+    "Navigation/layout": 19,
     "Overlays": 15,
     "Data display": 23,
     "Content/marketing": 14,
@@ -110,7 +110,8 @@
       "aspect-ratio",
       "direction",
       "menubar",
-      "record-layout"
+      "record-layout",
+      "folder-tree"
     ],
     "Overlays": [
       "alert-dialog",
@@ -1893,7 +1894,7 @@
           },
           {
             "name": "group layout",
-            "values": ["grid", "scroll"],
+            "values": ["grid", "list", "scroll", "tiles"],
             "evidence": "packages/ui/registry/ui/attachment.tsx: prop union"
           }
         ]
@@ -2842,6 +2843,7 @@
       "registryDependencies": [
         "@vegastack/button",
         "@vegastack/dialog",
+        "@vegastack/file-kind",
         "@vegastack/person-avatar",
         "@vegastack/tile-overlay",
         "@vegastack/use-announcer",
@@ -10397,6 +10399,15 @@
             "status": "not-applicable",
             "rationale": "Type-only exports do not render or accept runtime refs."
           }
+        },
+        {
+          "name": "DropzoneActions",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/dropzone.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
         }
       ],
       "variants": {
@@ -10599,6 +10610,7 @@
         "@vegastack/dropzone",
         "@vegastack/empty",
         "@vegastack/field",
+        "@vegastack/file-kind",
         "@vegastack/image",
         "@vegastack/use-file-drop"
       ],
@@ -12640,7 +12652,7 @@
       "variants": {
         "status": "not-applicable-or-inherited",
         "dimensions": [],
-        "rationale": "No variant axis; the stage follows the item's content type (image, pdf, other)."
+        "rationale": "No variant axis; the stage follows the item's content type (image, pdf, video, audio, other)."
       },
       "sizes": {
         "status": "not-applicable-or-inherited",
@@ -12656,13 +12668,15 @@
             "closed",
             "image",
             "pdf",
+            "video",
+            "audio",
             "other",
             "zoomed",
             "loading",
             "error",
             "single"
           ],
-          "evidence": "Controlled index opens and closes; data-kind picks the image, pdf or file-card stage; zoom/pan on images and the PDF zoom toolbar; a PDF shows its thumb or a spinner while loading and falls back to the file card on error; one item hides the count and paging."
+          "evidence": "Controlled index opens and closes; data-kind picks the image, pdf, video, audio or file-card stage; zoom/pan on images and the PDF zoom toolbar; a PDF shows its thumb or a spinner while loading and falls back to the file card on error; a video or audio stage pauses its player when paged away or closed; one item hides the count and paging."
         },
         "accessibility": {
           "status": "covered",
@@ -12702,12 +12716,15 @@
       "engines": [],
       "docsSlug": "/docs/components/file-viewer",
       "registryDependencies": [
+        "@vegastack/audio-player",
         "@vegastack/button",
         "@vegastack/dialog",
+        "@vegastack/file-kind",
         "@vegastack/image",
         "@vegastack/spinner",
         "@vegastack/use-announcer",
-        "@vegastack/use-modal-inert"
+        "@vegastack/use-modal-inert",
+        "@vegastack/video-player"
       ],
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
@@ -12758,6 +12775,261 @@
                 "file-viewer-pdf-page",
                 "file-viewer-pdf-toolbar"
               ]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
+    },
+    {
+      "name": "folder-tree",
+      "registryType": "registry:ui",
+      "title": "Folder Tree",
+      "summary": "A Notion-style navigation tree for a file library — sections of folders, pages and files; folders that load their children on first open with loading, error, empty and Show all rows; one tab stop with tree arrow keys and typeahead; a ⋯ menu per row; pointer drag into a folder or section; and a folders-only picker mode for Move dialogs.",
+      "status": "stable",
+      "since": "0.23.73",
+      "family": "navigation",
+      "wave": "Navigation/layout",
+      "sourceFiles": ["packages/ui/registry/ui/folder-tree.tsx"],
+      "publicSymbols": [
+        {
+          "name": "FolderTreeNode",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/folder-tree.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "FolderTreeSection",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/folder-tree.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "FolderTreeMove",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/folder-tree.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "FolderTreeLabels",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/folder-tree.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "FolderTreeProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/folder-tree.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "FolderTree",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/folder-tree.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "nav",
+            "rationale": "Props spread onto the root nav, ref included."
+          }
+        },
+        {
+          "name": "FolderTreeRowActionProps",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/folder-tree.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "FolderTreeRowAction",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/folder-tree.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "button",
+            "rationale": "Delegates to Button, which forwards the ref to its button."
+          }
+        }
+      ],
+      "variants": {
+        "status": "observed",
+        "dimensions": [
+          {
+            "name": "mode",
+            "values": ["nav", "picker"],
+            "evidence": "packages/ui/registry/ui/folder-tree.tsx: prop union"
+          },
+          {
+            "name": "node kind",
+            "values": ["file", "folder", "page"],
+            "evidence": "packages/ui/registry/ui/folder-tree.tsx: FolderTreeNode.kind union"
+          }
+        ]
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "One density, the sidebar's: 28px rows (--folder-tree-row-h) and a 12px indent per level (--folder-tree-indent), both overridable variables."
+      },
+      "states": {
+        "behavior": {
+          "status": "observed",
+          "values": [
+            "default",
+            "expanded",
+            "collapsed",
+            "active",
+            "loading",
+            "error",
+            "empty",
+            "show-all",
+            "drag-over",
+            "drag-invalid",
+            "dragging",
+            "selected",
+            "section-collapsed"
+          ],
+          "evidence": "Observed from the row branches (loading, error, empty and Show all status rows), expanded and collapsed sections, data-active, data-dragging, data-drop-over and data-drop-invalid, and picker selection."
+        },
+        "accessibility": {
+          "status": "covered",
+          "values": [
+            "semantic-html",
+            "browser-accessibility-test",
+            "keyboard-navigation",
+            "labeled",
+            "status-announcement",
+            "focus-visible"
+          ],
+          "evidence": "packages/ui/registry/ui/folder-tree.tsx + packages/ui/registry/ui/folder-tree.test.tsx"
+        },
+        "visual": {
+          "status": "observed",
+          "values": [
+            "default",
+            "hover",
+            "focus",
+            "active",
+            "loading",
+            "error",
+            "empty",
+            "drag-over",
+            "drag-invalid",
+            "selected"
+          ],
+          "evidence": "Observed from token classes, state selectors, or visual branches."
+        }
+      },
+      "responsive": {
+        "status": "modeled",
+        "risks": [
+          "text-truncation-and-flex-shrink",
+          "overflow-and-scroll",
+          "mobile-or-touch-mode"
+        ],
+        "rationale": "Rows truncate their name in whatever width the pane gives them; row actions are always visible on a coarse pointer."
+      },
+      "motion": {
+        "status": "modeled",
+        "mechanisms": ["the disclosure chevron's rotate transition"],
+        "reducedMotion": {
+          "status": "covered",
+          "rationale": "The global reduced-motion reset in base.css neutralises the chevron transition (MOT-5)."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/folder-tree",
+      "registryDependencies": [
+        "@vegastack/button",
+        "@vegastack/file-kind",
+        "@vegastack/skeleton",
+        "@vegastack/use-announcer",
+        "@vegastack/use-drag-reorder",
+        "@vegastack/use-list-nav"
+      ],
+      "npmDependencies": [
+        "@base-ui/react@^1.6.0",
+        "@vegastack/design-tokens@^0.7.56",
+        "@vegastack/design@^0.7.59",
+        "lucide-react@^1.47.0"
+      ],
+      "testFiles": ["packages/ui/registry/ui/folder-tree.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required"
+      },
+      "previewModule": "folder-tree",
+      "dataAttributes": {
+        "FolderTree": {
+          "attributes": [
+            {
+              "name": "data-active",
+              "values": [""]
+            },
+            {
+              "name": "data-expanded",
+              "values": [""]
+            },
+            {
+              "name": "data-kind",
+              "values": []
+            },
+            {
+              "name": "data-mode",
+              "values": []
+            },
+            {
+              "name": "data-slot",
+              "values": [
+                "folder-tree",
+                "folder-tree-badge",
+                "folder-tree-group",
+                "folder-tree-icon",
+                "folder-tree-item",
+                "folder-tree-label",
+                "folder-tree-row",
+                "folder-tree-row-actions",
+                "folder-tree-section",
+                "folder-tree-section-heading",
+                "folder-tree-toggle"
+              ]
+            },
+            {
+              "name": "data-state",
+              "values": ["closed", "open"]
+            }
+          ],
+          "cssVariables": ["--folder-tree-depth"]
+        },
+        "FolderTreeRowAction": {
+          "attributes": [
+            {
+              "name": "data-row-action",
+              "values": [""]
+            },
+            {
+              "name": "data-slot",
+              "values": ["folder-tree-row-action"]
             }
           ],
           "cssVariables": []
@@ -30447,6 +30719,42 @@
             "status": "not-applicable",
             "rationale": "Type-only exports do not render or accept runtime refs."
           }
+        },
+        {
+          "name": "DragIntoMove",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/use-drag-reorder.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "useDragInto",
+          "kind": "hook",
+          "source": "packages/ui/registry/ui/use-drag-reorder.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "This exported helper is not a rendered component root."
+          }
+        },
+        {
+          "name": "UseDragIntoOptions",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/use-drag-reorder.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "UseDragIntoReturn",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/use-drag-reorder.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
         }
       ],
       "variants": {
@@ -30508,7 +30816,10 @@
         "@atlaskit/pragmatic-drag-and-drop@^3.1.0",
         "@atlaskit/pragmatic-drag-and-drop-hitbox@^2.2.0"
       ],
-      "testFiles": ["packages/ui/registry/ui/use-drag-reorder.test.tsx"],
+      "testFiles": [
+        "packages/ui/registry/ui/use-drag-reorder.test.tsx",
+        "packages/ui/registry/ui/folder-tree.test.tsx"
+      ],
       "coverage": {
         "source": "required",
         "test": "required",
@@ -30565,6 +30876,15 @@
         },
         {
           "name": "UseFileDropReturn",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/use-file-drop.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "FileDropEntry",
           "kind": "interface",
           "source": "packages/ui/registry/ui/use-file-drop.ts",
           "ref": {
@@ -31874,6 +32194,175 @@
         "vrt": "required"
       },
       "previewModule": "list-page-01"
+    },
+    {
+      "name": "library-01",
+      "registryType": "registry:block",
+      "title": "Library 01",
+      "summary": "A file library page — a resizable FolderTree pane beside the open folder's breadcrumb, header, uploads in flight and contents as a list or a grid, with the FileViewer and a Move dialog.",
+      "family": "starter-block",
+      "wave": "Block",
+      "sourceFiles": [
+        "packages/ui/registry/blocks/library-01/components/library.tsx",
+        "packages/ui/registry/blocks/library-01/components/sample-library.ts",
+        "packages/ui/registry/blocks/library-01/page.tsx"
+      ],
+      "publicSymbols": [
+        {
+          "name": "LIBRARY",
+          "kind": "component-constant",
+          "source": "packages/ui/registry/blocks/library-01/components/sample-library.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Sample data the block renders; it exposes no rendered DOM instance or ref contract."
+          }
+        },
+        {
+          "name": "Library",
+          "kind": "component",
+          "source": "packages/ui/registry/blocks/library-01/components/library.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A block part is a composition, not an API: Library forwards no ref of its own, and its internals are not part of any published surface."
+          }
+        },
+        {
+          "name": "LibraryItem",
+          "kind": "interface",
+          "source": "packages/ui/registry/blocks/library-01/components/sample-library.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "LibraryProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/blocks/library-01/components/library.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "LibraryUpload",
+          "kind": "interface",
+          "source": "packages/ui/registry/blocks/library-01/components/sample-library.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "Page",
+          "kind": "component",
+          "source": "packages/ui/registry/blocks/library-01/page.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A block part is a composition, not an API: Page forwards no ref of its own, and its internals are not part of any published surface."
+          }
+        },
+        {
+          "name": "SECTIONS",
+          "kind": "component-constant",
+          "source": "packages/ui/registry/blocks/library-01/components/sample-library.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Sample data the block renders; it exposes no rendered DOM instance or ref contract."
+          }
+        },
+        {
+          "name": "UPLOADS",
+          "kind": "component-constant",
+          "source": "packages/ui/registry/blocks/library-01/components/sample-library.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Sample data the block renders; it exposes no rendered DOM instance or ref contract."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "A block is a copy-once composition with no prop surface of its own; every variant it shows belongs to a component it composes."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "Sizing is the page layout's, and the composed components own their own scales."
+      },
+      "states": {
+        "behavior": {
+          "status": "observed",
+          "values": [
+            "list",
+            "grid",
+            "uploading",
+            "empty-folder",
+            "viewer-open",
+            "move-dialog"
+          ],
+          "evidence": "Observed from the block's own branches and the state its parts carry."
+        },
+        "accessibility": {
+          "status": "covered",
+          "values": ["semantic-html", "browser-accessibility-test"],
+          "evidence": "packages/ui/registry/blocks/library-01/components/library.tsx + packages/ui/registry/blocks/library-01/library-01.test.tsx"
+        },
+        "visual": {
+          "status": "observed",
+          "values": ["default", "hover", "focus"],
+          "evidence": "Observed from the token classes the composition carries."
+        }
+      },
+      "responsive": {
+        "status": "modeled",
+        "risks": ["responsive-or-container-layout", "overflow-and-scroll"],
+        "rationale": "Two resizable panes in the block's own container; the tree and the folder each scroll on their own, and the folder's padding follows the @container/library query."
+      },
+      "motion": {
+        "status": "modeled",
+        "mechanisms": ["the composed components' own transitions"],
+        "reducedMotion": {
+          "status": "covered",
+          "rationale": "The global reduced-motion reset in base.css neutralises every transition the composition inherits (MOT-5); the block adds none of its own."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/blocks/library-01",
+      "registryDependencies": [
+        "@vegastack/attachment",
+        "@vegastack/breadcrumb",
+        "@vegastack/button",
+        "@vegastack/data-list",
+        "@vegastack/data-table-parts",
+        "@vegastack/dialog",
+        "@vegastack/dropdown-menu",
+        "@vegastack/empty",
+        "@vegastack/file-kind",
+        "@vegastack/file-viewer",
+        "@vegastack/folder-tree",
+        "@vegastack/page-header",
+        "@vegastack/relative-time",
+        "@vegastack/resizable",
+        "@vegastack/sheet"
+      ],
+      "npmDependencies": [
+        "@vegastack/design-tokens@^0.7.56",
+        "lucide-react@^1.47.0"
+      ],
+      "testFiles": [
+        "packages/ui/registry/blocks/library-01/library-01.test.tsx"
+      ],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required"
+      },
+      "previewModule": "library-01"
     },
     {
       "name": "login-01",
@@ -33342,6 +33831,127 @@
         "packages/ui/registry/lib/drag-item.test.ts",
         "packages/ui/registry/ui/sortable-list.test.tsx",
         "packages/ui/registry/ui/text-edit.test.tsx"
+      ],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "shared-guide-only",
+        "navigation": "exempt",
+        "preview": "exempt",
+        "vrt": "exempt"
+      }
+    },
+    {
+      "name": "file-kind",
+      "registryType": "registry:lib",
+      "title": "File Kind",
+      "summary": "The one answer to \"what is this file and how big is it\" — formatBytes (1024 base, one decimal under 10), fileKindOf (MIME first, extension fallback) and FileTypeIcon (the muted lucide icon per kind) — shared by Attachment rows, FileViewer, UploadDialog, AvatarPicker and FolderTree.",
+      "family": "lib",
+      "wave": "Libs",
+      "sourceFiles": ["packages/ui/registry/lib/file-kind.ts"],
+      "publicSymbols": [
+        {
+          "name": "FileKind",
+          "kind": "type",
+          "source": "packages/ui/registry/lib/file-kind.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "FormatBytesOptions",
+          "kind": "interface",
+          "source": "packages/ui/registry/lib/file-kind.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "formatBytes",
+          "kind": "function",
+          "source": "packages/ui/registry/lib/file-kind.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "function symbols do not expose a rendered DOM instance or ref contract."
+          }
+        },
+        {
+          "name": "fileKindOf",
+          "kind": "function",
+          "source": "packages/ui/registry/lib/file-kind.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "function symbols do not expose a rendered DOM instance or ref contract."
+          }
+        },
+        {
+          "name": "FileTypeIconProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/lib/file-kind.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "FileTypeIcon",
+          "kind": "component",
+          "source": "packages/ui/registry/lib/file-kind.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Renders a lucide icon element; refs are not part of its contract."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "A data/recipe module renders nothing and has no variant surface."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "A data/recipe module renders nothing and has no size scale."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned motion mechanism observed."
+        }
+      },
+      "engines": [],
+      "registryDependencies": [],
+      "docsSlug": "/docs/guides/components",
+      "states": {
+        "behavior": {
+          "status": "not-applicable",
+          "values": ["not-applicable"],
+          "evidence": "Pure helpers and one stateless icon: no state machine."
+        },
+        "accessibility": {
+          "status": "observed",
+          "values": ["decorative-icon"],
+          "evidence": "FileTypeIcon renders aria-hidden; the file name beside it carries the meaning."
+        },
+        "visual": {
+          "status": "observed",
+          "values": ["default"],
+          "evidence": "One muted icon per kind; a className text-* overrides the ink."
+        }
+      },
+      "responsive": {
+        "status": "not-applicable",
+        "risks": [],
+        "rationale": "No DOM of its own; consumers own layout."
+      },
+      "npmDependencies": ["lucide-react@^1.47.0", "@vegastack/design@^0.7.59"],
+      "testFiles": [
+        "packages/ui/registry/lib/file-kind.test.ts",
+        "packages/ui/registry/ui/file-viewer.test.tsx"
       ],
       "coverage": {
         "source": "required",

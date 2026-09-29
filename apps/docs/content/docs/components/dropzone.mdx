@@ -102,6 +102,29 @@ save.
   file="components/preview/dropzone.tsx"
 />
 
+### Folders
+
+`directories` turns on folder mode: a dropped folder is walked (it always is) and every accepted
+file comes back through `onEntriesAccepted` with its `relativePath` inside the drop —
+`"brand/logos/mark.svg"`, the bare name for a loose file — so the host can recreate the folders.
+`maxFiles` then caps the **whole** drop: a folder with more files is refused entirely as
+`too-many-files`, never cut short. A folder picker opens from a button beside the surface through
+`actionsRef.current.openDirectory()` — never inside it, because the surface is itself the control.
+
+```tsx
+const actions = React.useRef<DropzoneActions>(null);
+
+<Dropzone directories maxFiles={500} actionsRef={actions} onEntriesAccepted={stageTree}>
+  …
+</Dropzone>
+<Button onClick={() => actions.current?.openDirectory()}>Upload folder</Button>
+```
+
+<ComponentPreview
+  name="dropzoneFolders"
+  file="components/preview/dropzone.tsx"
+/>
+
 ## API Reference
 
 <ApiTable
@@ -114,6 +137,20 @@ save.
 <ApiTable
   path="../../packages/ui/registry/ui/use-file-drop.ts"
   name="FileDropRejection"
+/>
+
+### Folder entry
+
+<ApiTable
+  path="../../packages/ui/registry/ui/use-file-drop.ts"
+  name="FileDropEntry"
+/>
+
+### Actions
+
+<ApiTable
+  path="../../packages/ui/registry/ui/dropzone.tsx"
+  name="DropzoneActions"
 />
 
 ## Accessibility
