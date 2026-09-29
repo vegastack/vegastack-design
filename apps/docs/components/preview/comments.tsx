@@ -366,3 +366,30 @@ export function commentsThreadStates(): ReactNode {
     </Demo>
   );
 }
+
+const MENTIONED: CommentData[] = [
+  {
+    id: "mention-1",
+    author: ARJUN,
+    body: "Filed as [@Fix the hinge](mention://task/t-42) — [@Asha Rao](mention://user/u-1) can you take it? Spec in [@Hinge spec](mention://page/p-7).",
+    createdAt: NOW - 3_600_000,
+  },
+];
+
+/**
+ * `mentionHref` on the list links every comment's mention chips (a person is never a link);
+ * without it the chips are plain labels.
+ */
+export function commentsMentions(): ReactNode {
+  return (
+    <Demo className="flex max-w-2xl flex-col gap-8">
+      <CommentList
+        title="With mentionHref"
+        comments={MENTIONED}
+        now={NOW}
+        mentionHref={(kind, id) => `#${kind}-${id}`}
+      />
+      <CommentList title="Without" comments={MENTIONED} now={NOW} />
+    </Demo>
+  );
+}

@@ -129,6 +129,14 @@ screen however many fields sit between them. It carries the panel's `px-4` inset
   file="components/preview/sheet.tsx"
 />
 
+A top or bottom sheet is as tall as its content up to `85dvh`, then stops: a long thread on a
+phone scrolls inside `SheetBody` rather than running past the screen, and the footer stays in view.
+
+<ComponentPreview
+  name="sheetBottomHeights"
+  file="components/preview/sheet.tsx"
+/>
+
 ### Header action
 
 `SheetAction` seats one control at the end of `SheetHeader`, beside the title and description, and
@@ -221,8 +229,9 @@ Upstream's file plus `packages/ui/upstream/patches/sheet.patch`. Every hunk:
   `data-size`; a left or right sheet steps Dialog's scale (`sm:max-w-xs` · `sm:max-w-sm` ·
   `sm:max-w-2xl` · `sm:max-w-5xl`), top and bottom ignore it, and below `sm` a side sheet is full
   width. Widened from Dialog by MK 2026-09-24.
-- **API-21** — `SheetBody` scrolls between the header and the footer; `SheetAction` is an end seat
-  in `SheetHeader` that clears the close button; `closeLabel` renames the corner close control.
+- **API-21** — `SheetBody` scrolls between the header and the footer, and a top or bottom sheet
+  stops at `max-h-[85dvh]` so it can; `SheetAction` is an end seat in `SheetHeader` that clears the
+  close button; `closeLabel` renames the corner close control.
 - **OVL-18** — `SheetFooter` is a right-aligned wrapping row (`flex flex-wrap items-center
 justify-end`) at every width, not upstream's full-width `flex-col` stack; a direct child with
   `data-slot="sheet-cancel"` takes `me-auto` to sit at the start edge. MK, 2026-09-25.

@@ -282,7 +282,7 @@
         "whenToUse": "Discussion on a record's page (a task, a meeting): comments oldest first with the composer at the end.",
         "whenNotToUse": "An activity feed or notifications — use Inbox.",
         "version": "0.23.76",
-        "integrity": "sha256-pHgKYSSORInWxF1j55VRsC91JoZNZVQpZaP1CkQ8nH0="
+        "integrity": "sha256-myf1cy+NlGxq17ojWvv1/+ErChFCogIVE2VmXkM7HeU="
       }
     },
     {
@@ -16944,7 +16944,7 @@
         "whenToUse": "Secondary content beside the page — filters, details, a settings panel, a long record form — that should not take the centre of the screen. Side sheets take size sm/default/lg/xl (Dialog's width scale); put long content in SheetBody so the footer stays on screen.",
         "whenNotToUse": "A decision (AlertDialog), a centred form (Dialog), or a touch-first panel with snap points (Drawer).",
         "version": "0.23.76",
-        "integrity": "sha256-+HBmFiusiV725LcMW2/uRKpqos5wwRRIU4AmdDK16nU="
+        "integrity": "sha256-IRnyD6KOfS31PNsZpW6WjkECJw9waD+y1Yyin4hqsuc="
       }
     },
     {

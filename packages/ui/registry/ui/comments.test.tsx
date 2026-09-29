@@ -298,3 +298,23 @@ test("a comment's attachments slot renders under its body", async () => {
     screen.container.querySelector('[data-slot="comment-attachments"]'),
   ).not.toBeNull();
 });
+
+test("CommentList passes mentionHref to each comment, so its mention chips link", async () => {
+  const screen = await render(
+    <CommentList
+      comments={[
+        {
+          id: "m",
+          author: { name: "Asha Rao" },
+          body: "Filed as [@Fix the hinge](mention://task/t-42) for Dev",
+          createdAt: Date.now(),
+        },
+      ]}
+      mentionHref={(kind, id) => `/${kind}s/${id}`}
+    />,
+  );
+  const chip = screen.getByRole("link", { name: /Fix the hinge/ });
+  await expect.element(chip).toBeVisible();
+  expect(chip.element().getAttribute("href")).toBe("/tasks/t-42");
+  await expectNoA11yViolations(screen.container);
+});

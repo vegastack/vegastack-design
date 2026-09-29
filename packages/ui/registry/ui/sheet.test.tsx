@@ -458,6 +458,24 @@ test("API-21: SheetBody scrolls between a fixed header and footer", async () => 
   ]);
 });
 
+test("API-21: a bottom or top sheet stops at 85dvh so its body scrolls inside", async () => {
+  const screen = await render(
+    <LongSubject contentProps={{ side: "bottom" }} />,
+  );
+  await screen.getByRole("button", { name: "Open sheet" }).click();
+  await expect.element(screen.getByRole("dialog")).toBeInTheDocument();
+  const panel = bySlot("sheet-content")!;
+  expect(panel.getAttribute("data-side")).toBe("bottom");
+  const tokens = panel.className.split(/\s+/);
+  expect(tokens).toContain("data-[side=bottom]:max-h-[85dvh]");
+  expect(tokens).toContain("data-[side=top]:max-h-[85dvh]");
+  // The side sheets keep their full height.
+  expect(
+    tokens.filter((t) => /data-\[side=(left|right)\].*max-h/.test(t)),
+  ).toEqual([]);
+  await expectNoA11yViolations(document.body);
+});
+
 test("API-21: SheetAction is an end seat in the header that clears the close button", async () => {
   const screen = await render(<LongSubject />);
   await screen.getByRole("button", { name: "Open sheet" }).click();
