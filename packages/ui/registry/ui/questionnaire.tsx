@@ -1,4 +1,4 @@
-// @vegastack questionnaire@0.23.75 sha256-+IuFMSeA4l8WaagkxN06yDOFlOIfVJgcbvR6J65iuzM=
+// @vegastack questionnaire@0.23.76 sha256-pn/KO2EfB6ll1Oe3iLTK6Zp5a2n7UNYMhH0El+O0kl4=
 
 "use client";
 
