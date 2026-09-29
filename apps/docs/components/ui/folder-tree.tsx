@@ -1,4 +1,4 @@
-// @vegastack folder-tree@0.23.72 sha256-TQK2gbZO/WF7PJi4IKhNwUDxGpJfOteqHLuqKWsTnaA=
+// @vegastack folder-tree@0.23.72 sha256-wDtiJZnFINVPIDBrbQa/U7x6r5oSOv2IiGFD+lb4GT8=
 
 "use client";
 
@@ -708,7 +708,7 @@ function FolderTree({
                   aria-controls={open ? listId : undefined}
                   data-slot="folder-tree-toggle"
                   onClick={() => setExpanded(node.id, !open)}
-                  className="text-muted-foreground hover:bg-transparent"
+                  className="text-muted-foreground hover:bg-transparent aria-expanded:bg-transparent"
                 >
                   <ChevronRightIcon className="transition-transform duration-100 group-data-expanded/folder-tree-row:rotate-90 rtl:-scale-x-100" />
                 </Button>

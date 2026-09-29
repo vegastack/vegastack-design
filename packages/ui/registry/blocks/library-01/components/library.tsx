@@ -1,4 +1,4 @@
-// @vegastack library-01@0.23.72 sha256-6FGBb8vuMw4sWxR6Vrf3xFlqKDcvreMi1DKS6uKuKQg=
+// @vegastack library-01@0.23.72 sha256-OwphZLNs83PF3OcsOajyhSF2ffIff10mQCqPoJkjA+Q=
 
 "use client";
 
@@ -9,6 +9,7 @@ import {
   FolderIcon,
   FolderInputIcon,
   FolderPlusIcon,
+  FolderTreeIcon,
   FolderUpIcon,
   PencilIcon,
   PlusIcon,
@@ -66,6 +67,7 @@ import {
   type FolderTreeMove,
   type FolderTreeNode,
 } from "@/components/ui/folder-tree";
+import { useContainerWidth } from "@/components/ui/data-table-parts";
 import { PageHeader } from "@/components/ui/page-header";
 import {
   ResizableHandle,
@@ -73,6 +75,7 @@ import {
   ResizablePanelGroup,
 } from "@/components/ui/resizable";
 import { RelativeTime } from "@/components/ui/relative-time";
+import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 import { FileTypeIcon, formatBytes } from "@/lib/file-kind";
 
 import {
@@ -135,6 +138,12 @@ export function Library({
   const [moving, setMoving] = React.useState<LibraryItem | null>(null);
   const [moveTarget, setMoveTarget] = React.useState<string | undefined>();
   const [pickerExpanded, setPickerExpanded] = React.useState<string[]>([]);
+  const [measureRef, width] = useContainerWidth();
+  // The layout follows the block's OWN width: two resizable panes from 48rem, else the folder
+  // alone with the tree in a sheet. Before the first measurement it renders narrow, which is
+  // also the server's answer.
+  const wide = width !== null && width >= 768;
+  const [foldersOpen, setFoldersOpen] = React.useState(false);
 
   const byId = React.useMemo(
     () => new Map(items.map((item) => [item.id, item])),
@@ -191,6 +200,7 @@ export function Library({
   }));
 
   const open = (item: LibraryItem) => {
+    setFoldersOpen(false);
     if (item.kind === "folder") openFolder(item.id);
     else if (item.kind === "file")
       setViewerIndex(files.findIndex((file) => file.id === item.id));
@@ -265,187 +275,219 @@ export function Library({
     ? ancestorsOf(items, folder.id).map((id) => byId.get(id)!)
     : [];
 
-  return (
-    <div
-      data-slot="library"
-      className="@container/library flex h-full min-h-0 w-full overflow-hidden rounded-xl border bg-background"
-    >
-      <ResizablePanelGroup orientation="horizontal">
-        <ResizablePanel defaultSize="28%" minSize="200px" maxSize="45%">
-          <div className="flex h-full min-h-0 flex-col gap-2 bg-sidebar p-2">
-            <div className="flex items-center justify-between gap-2 px-1 pt-1">
-              <span className="text-sm font-medium">Library</span>
-              <Button variant="ghost" size="icon-xs" aria-label="New page">
-                <PlusIcon />
-              </Button>
-            </div>
-            <FolderTree
-              aria-label="Library"
-              className="min-h-0 flex-1 overflow-y-auto"
-              sections={SECTIONS.map((section) => ({
-                id: section.id,
-                label: section.label,
-                action: (
-                  <FolderTreeRowAction aria-label={`Add to ${section.label}`}>
-                    <PlusIcon />
-                  </FolderTreeRowAction>
-                ),
-              }))}
-              rootItems={Object.fromEntries(
-                SECTIONS.map((section) => [
-                  section.id,
-                  childrenOf(null, section.id).map(toNode),
-                ]),
-              )}
-              childrenOf={Object.fromEntries(
-                items
-                  .filter((item) => item.kind === "folder")
-                  .map((item) => [item.id, childrenOf(item.id).map(toNode)]),
-              )}
-              expanded={expanded}
-              onExpandedChange={setExpanded}
-              activeId={folderId ?? undefined}
-              linkRender={(props) => (
-                <a
-                  {...props}
+  const treePane = (
+    <div className="flex h-full min-h-0 flex-col gap-2 bg-sidebar p-2">
+      <div className="flex items-center justify-between gap-2 px-1 pt-1">
+        <span className="text-sm font-medium">Library</span>
+        <Button variant="ghost" size="icon-xs" aria-label="New page">
+          <PlusIcon />
+        </Button>
+      </div>
+      <FolderTree
+        aria-label="Library"
+        className="min-h-0 flex-1 overflow-y-auto"
+        sections={SECTIONS.map((section) => ({
+          id: section.id,
+          label: section.label,
+          action: (
+            <FolderTreeRowAction aria-label={`Add to ${section.label}`}>
+              <PlusIcon />
+            </FolderTreeRowAction>
+          ),
+        }))}
+        rootItems={Object.fromEntries(
+          SECTIONS.map((section) => [
+            section.id,
+            childrenOf(null, section.id).map(toNode),
+          ]),
+        )}
+        childrenOf={Object.fromEntries(
+          items
+            .filter((item) => item.kind === "folder")
+            .map((item) => [item.id, childrenOf(item.id).map(toNode)]),
+        )}
+        expanded={expanded}
+        onExpandedChange={setExpanded}
+        activeId={folderId ?? undefined}
+        linkRender={(props) => (
+          <a
+            {...props}
+            onClick={(event) => {
+              event.preventDefault();
+              const id = (props as { href?: string }).href?.split("/").pop();
+              const item = id ? byId.get(id) : undefined;
+              if (item) open(item);
+            }}
+          />
+        )}
+        renderRowActions={(node) => {
+          const item = byId.get(node.id);
+          return item ? rowMenu(item) : null;
+        }}
+        onMove={move}
+      />
+    </div>
+  );
+
+  const mainPane = (
+    <div className="flex h-full min-h-0 flex-col gap-4 overflow-y-auto p-4 @3xl/library:p-6">
+      <PageHeader
+        title={folder?.name ?? "Shared"}
+        breadcrumb={
+          <Breadcrumb>
+            <BreadcrumbList>
+              <BreadcrumbItem>
+                <BreadcrumbLink
+                  href="/library"
                   onClick={(event) => {
                     event.preventDefault();
-                    const id = (props as { href?: string }).href
-                      ?.split("/")
-                      .pop();
-                    const item = id ? byId.get(id) : undefined;
-                    if (item) open(item);
+                    setFolderId(null);
                   }}
-                />
-              )}
-              renderRowActions={(node) => {
-                const item = byId.get(node.id);
-                return item ? rowMenu(item) : null;
-              }}
-              onMove={move}
-            />
-          </div>
-        </ResizablePanel>
-        <ResizableHandle />
-        <ResizablePanel defaultSize="72%">
-          <div className="flex h-full min-h-0 flex-col gap-4 overflow-y-auto p-4 @3xl/library:p-6">
-            <PageHeader
-              title={folder?.name ?? "Shared"}
-              breadcrumb={
-                <Breadcrumb>
-                  <BreadcrumbList>
-                    <BreadcrumbItem>
-                      <BreadcrumbLink
-                        href="/library"
-                        onClick={(event) => {
-                          event.preventDefault();
-                          setFolderId(null);
-                        }}
-                      >
-                        {folder?.section === "private" ? "Private" : "Shared"}
-                      </BreadcrumbLink>
-                    </BreadcrumbItem>
-                    {trail.map((crumb) => (
-                      <React.Fragment key={crumb.id}>
-                        <BreadcrumbSeparator />
-                        <BreadcrumbItem>
-                          <BreadcrumbLink
-                            href={itemHref(crumb)}
-                            onClick={(event) => {
-                              event.preventDefault();
-                              openFolder(crumb.id);
-                            }}
-                          >
-                            {crumb.name}
-                          </BreadcrumbLink>
-                        </BreadcrumbItem>
-                      </React.Fragment>
-                    ))}
-                    {folder ? (
-                      <>
-                        <BreadcrumbSeparator />
-                        <BreadcrumbItem>
-                          <BreadcrumbPage>{folder.name}</BreadcrumbPage>
-                        </BreadcrumbItem>
-                      </>
-                    ) : null}
-                  </BreadcrumbList>
-                </Breadcrumb>
-              }
-              actions={
+                >
+                  {folder?.section === "private" ? "Private" : "Shared"}
+                </BreadcrumbLink>
+              </BreadcrumbItem>
+              {trail.map((crumb) => (
+                <React.Fragment key={crumb.id}>
+                  <BreadcrumbSeparator />
+                  <BreadcrumbItem>
+                    <BreadcrumbLink
+                      href={itemHref(crumb)}
+                      onClick={(event) => {
+                        event.preventDefault();
+                        openFolder(crumb.id);
+                      }}
+                    >
+                      {crumb.name}
+                    </BreadcrumbLink>
+                  </BreadcrumbItem>
+                </React.Fragment>
+              ))}
+              {folder ? (
                 <>
-                  <Button variant="outline">
-                    <FolderPlusIcon />
-                    New folder
-                  </Button>
-                  <Button>
-                    <UploadIcon />
-                    Upload
-                  </Button>
+                  <BreadcrumbSeparator />
+                  <BreadcrumbItem>
+                    <BreadcrumbPage>{folder.name}</BreadcrumbPage>
+                  </BreadcrumbItem>
                 </>
-              }
-            />
+              ) : null}
+            </BreadcrumbList>
+          </Breadcrumb>
+        }
+        actions={
+          <>
+            {wide ? null : (
+              <Button
+                variant="outline"
+                size="icon"
+                aria-label="Folders"
+                onClick={() => setFoldersOpen(true)}
+              >
+                <FolderTreeIcon />
+              </Button>
+            )}
+            {wide ? (
+              <Button variant="outline">
+                <FolderPlusIcon />
+                New folder
+              </Button>
+            ) : (
+              <Button variant="outline" size="icon" aria-label="New folder">
+                <FolderPlusIcon />
+              </Button>
+            )}
+            <Button>
+              <UploadIcon />
+              Upload
+            </Button>
+          </>
+        }
+      />
 
-            {folderId === defaultFolder && uploads.length ? (
-              <section aria-label="Uploads" className="flex flex-col gap-1">
-                <h2 className="font-heading text-base font-medium">
-                  Uploading {uploads.length} files
-                </h2>
-                <AttachmentGroup layout="list" preview={false} role="list">
-                  {uploads.map((upload) => (
-                    <UploadRow key={upload.id} upload={upload} />
-                  ))}
-                </AttachmentGroup>
-              </section>
-            ) : null}
+      {folderId === defaultFolder && uploads.length ? (
+        <section aria-label="Uploads" className="flex flex-col gap-1">
+          <h2 className="font-heading text-base font-medium">
+            Uploading {uploads.length} files
+          </h2>
+          <AttachmentGroup layout="list" preview={false} role="list">
+            {uploads.map((upload) => (
+              <UploadRow key={upload.id} upload={upload} />
+            ))}
+          </AttachmentGroup>
+        </section>
+      ) : null}
 
-            <DataList<LibraryItem>
-              aria-label={`${folder?.name ?? "Shared"} contents`}
-              columns={columns}
-              data={contents}
-              view={view}
-              onViewChange={(next) => setView(next as "list" | "grid")}
-              getRowId={(item) => item.id}
-              getRowLabel={(item) => item.name}
-              onRowClick={open}
-              rowActions={(item) => [
-                ...(item.kind === "file"
-                  ? [
-                      {
-                        label: "Download",
-                        render: (
-                          <a href={`/library/${item.id}/download`} download />
-                        ),
-                      },
-                    ]
-                  : []),
-                { label: "Move…", onSelect: () => startMove(item) },
-                { type: "separator" as const },
+      <DataList<LibraryItem>
+        aria-label={`${folder?.name ?? "Shared"} contents`}
+        columns={columns}
+        data={contents}
+        view={view}
+        onViewChange={(next) => setView(next as "list" | "grid")}
+        getRowId={(item) => item.id}
+        getRowLabel={(item) => item.name}
+        onRowClick={open}
+        rowActions={(item) => [
+          ...(item.kind === "file"
+            ? [
                 {
-                  label: "Move to trash",
-                  destructive: true,
-                  onSelect: () => {},
+                  label: "Download",
+                  render: <a href={`/library/${item.id}/download`} download />,
                 },
-              ]}
-              thumbnailFallback={<FolderIcon aria-hidden />}
-              emptyState={
-                <Empty className="border" icon={<FolderUpIcon aria-hidden />}>
-                  <EmptyHeader>
-                    <EmptyTitle>This folder is empty</EmptyTitle>
-                    <EmptyDescription>
-                      Drop files here, or upload a file or a whole folder.
-                    </EmptyDescription>
-                  </EmptyHeader>
-                  <Button variant="outline">
-                    <UploadIcon />
-                    Upload
-                  </Button>
-                </Empty>
-              }
-            />
-          </div>
-        </ResizablePanel>
-      </ResizablePanelGroup>
+              ]
+            : []),
+          { label: "Move…", onSelect: () => startMove(item) },
+          { type: "separator" as const },
+          {
+            label: "Move to trash",
+            destructive: true,
+            onSelect: () => {},
+          },
+        ]}
+        thumbnailFallback={<FolderIcon aria-hidden />}
+        emptyState={
+          <Empty className="border" icon={<FolderUpIcon aria-hidden />}>
+            <EmptyHeader>
+              <EmptyTitle>This folder is empty</EmptyTitle>
+              <EmptyDescription>
+                Drop files here, or upload a file or a whole folder.
+              </EmptyDescription>
+            </EmptyHeader>
+            <Button variant="outline">
+              <UploadIcon />
+              Upload
+            </Button>
+          </Empty>
+        }
+      />
+    </div>
+  );
+
+  return (
+    <div
+      ref={measureRef}
+      data-slot="library"
+      data-mode={wide ? "wide" : "narrow"}
+      className="@container/library flex h-full min-h-0 w-full overflow-hidden rounded-xl border bg-background"
+    >
+      {wide ? (
+        <ResizablePanelGroup orientation="horizontal">
+          <ResizablePanel defaultSize="28%" minSize="200px" maxSize="45%">
+            {treePane}
+          </ResizablePanel>
+          <ResizableHandle />
+          <ResizablePanel defaultSize="72%">{mainPane}</ResizablePanel>
+        </ResizablePanelGroup>
+      ) : (
+        <>
+          <div className="min-w-0 flex-1">{mainPane}</div>
+          <Sheet open={foldersOpen} onOpenChange={setFoldersOpen}>
+            <SheetContent side="left" size="sm" className="p-0">
+              <SheetTitle className="sr-only">Folders</SheetTitle>
+              {treePane}
+            </SheetContent>
+          </Sheet>
+        </>
+      )}
 
       <FileViewer
         items={viewerItems}
@@ -592,7 +634,7 @@ function UploadRow({ upload }: { upload: LibraryUpload }) {
           />
         )}
       </AttachmentContent>
-      <AttachmentActions>
+      <AttachmentActions className="gap-1">
         {state === "error" ? (
           <AttachmentAction aria-label={`Retry ${upload.name}`}>
             <RefreshCwIcon />

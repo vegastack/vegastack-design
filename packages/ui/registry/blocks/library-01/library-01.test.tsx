@@ -13,7 +13,11 @@ import { Library } from "./components/library";
 import Library01Page from "./page";
 
 test("library-01 mounts the tree beside the open folder, with one h1", async () => {
-  const screen = await render(<Library01Page />);
+  const screen = await render(
+    <div style={{ height: 720, width: 1100 }}>
+      <Library01Page />
+    </div>,
+  );
   await expect
     .element(screen.getByRole("heading", { level: 1, name: "Nova pendant" }))
     .toBeInTheDocument();
@@ -66,5 +70,24 @@ test("Move… opens the Move dialog with a folders-only tree", async () => {
   const picker = dialog.getByRole("navigation", { name: "Folders" });
   await expect.element(picker.getByText("Product specs")).toBeVisible();
   expect(picker.element().textContent).not.toContain("Team handbook");
+  await expectNoA11yViolations(document.body, ["color-contrast"]);
+});
+
+test("a narrow block shows the folder alone, with the tree in a Folders sheet", async () => {
+  const screen = await render(
+    <div style={{ height: 720, width: 380 }}>
+      <Library />
+    </div>,
+  );
+  await expect
+    .poll(() =>
+      document.querySelector("[data-slot=library]")?.getAttribute("data-mode"),
+    )
+    .toBe("narrow");
+  expect(document.querySelector("[data-slot=folder-tree]")).toBeNull();
+  await screen.getByRole("button", { name: "Folders" }).click();
+  await expect
+    .element(screen.getByRole("navigation", { name: "Library" }))
+    .toBeVisible();
   await expectNoA11yViolations(document.body, ["color-contrast"]);
 });

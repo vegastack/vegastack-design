@@ -375,7 +375,7 @@
         "whenToUse": "File and media tiles on any surface: chat attachments, record files, upload queues — a chip or thumbnail with name, size, lifecycle state, determinate upload progress (AttachmentProgress), a muted tile for a file no longer in use, and remove or download actions; AttachmentGroup lays them out as a scrolling row or a grid.",
         "whenNotToUse": "Acquiring files (drop, browse, paste) - that is Dropzone; Attachment renders the files after acquisition.",
         "version": "0.23.72",
-        "integrity": "sha256-Cb2IxZ43/zwyJoiJI0Clamm+y2bnaYKbqPsj4moxk7c="
+        "integrity": "sha256-EXd6wsK6khey10Ntxmy4VY3q7N4qg1+NOCh0VTwfC9I="
       }
     },
     {
@@ -15300,7 +15300,7 @@
         "whenToUse": "The navigation pane of a file library or knowledge base — folders, pages and files in sections, with lazy folders, row menus and drag to move; and, in picker mode, the folder list of a Move dialog.",
         "whenNotToUse": "App navigation with fixed links (Sidebar), a flat list of files (AttachmentGroup layout=\"list\" or DataList), or a nested filter editor (FilterBuilder).",
         "version": "0.23.72",
-        "integrity": "sha256-TQK2gbZO/WF7PJi4IKhNwUDxGpJfOteqHLuqKWsTnaA="
+        "integrity": "sha256-wDtiJZnFINVPIDBrbQa/U7x6r5oSOv2IiGFD+lb4GT8="
       }
     },
     {
@@ -20460,6 +20460,7 @@
         "@vegastack/breadcrumb",
         "@vegastack/button",
         "@vegastack/data-list",
+        "@vegastack/data-table-parts",
         "@vegastack/dialog",
         "@vegastack/dropdown-menu",
         "@vegastack/empty",
@@ -20468,7 +20469,8 @@
         "@vegastack/folder-tree",
         "@vegastack/page-header",
         "@vegastack/relative-time",
-        "@vegastack/resizable"
+        "@vegastack/resizable",
+        "@vegastack/sheet"
       ],
       "files": [
         {
@@ -20491,7 +20493,7 @@
         "whenToUse": "A page for a team's files and pages — folders in Shared and Private, uploads, a list or grid of a folder's contents, a viewer and moves; copy it once and wire it to your storage API.",
         "whenNotToUse": "A few files on a record (AttachmentGroup) or a single upload form (UploadDialog).",
         "version": "0.23.72",
-        "integrity": "sha256-6FGBb8vuMw4sWxR6Vrf3xFlqKDcvreMi1DKS6uKuKQg="
+        "integrity": "sha256-OwphZLNs83PF3OcsOajyhSF2ffIff10mQCqPoJkjA+Q="
       }
     },
     {

@@ -32335,6 +32335,7 @@
         "@vegastack/breadcrumb",
         "@vegastack/button",
         "@vegastack/data-list",
+        "@vegastack/data-table-parts",
         "@vegastack/dialog",
         "@vegastack/dropdown-menu",
         "@vegastack/empty",
@@ -32343,7 +32344,8 @@
         "@vegastack/folder-tree",
         "@vegastack/page-header",
         "@vegastack/relative-time",
-        "@vegastack/resizable"
+        "@vegastack/resizable",
+        "@vegastack/sheet"
       ],
       "npmDependencies": [
         "@vegastack/design-tokens@^0.7.56",
