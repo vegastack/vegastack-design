@@ -15,6 +15,7 @@ import {
   formatDateTime,
   formatDueLabel,
   formatDuration,
+  formatLongDate,
   formatRelative,
   formatTimeOfDay,
   groupByDay,
@@ -307,6 +308,7 @@ export function dateTimeDuration(): ReactNode {
           ["3600", formatDuration(3600)],
           ["183600", formatDuration(183_600)],
           ["4504, clock", formatDuration(4504, { clock: true })],
+          ["4500, long", formatDuration(4500, { style: "long" })],
         ]}
       />
     </Wrapper>
@@ -330,6 +332,11 @@ export function dateTimeDates(): ReactNode {
             formatDate(offset(20 * DAY), { ...O, looseFuture: true }),
           ],
           ["formatTimeOfDay", formatTimeOfDay(offset(0), O)],
+          ["formatLongDate", formatLongDate(offset(0), O)],
+          [
+            "formatLongDate, en-IN",
+            formatLongDate(offset(0), { ...O, locale: "en-IN" }),
+          ],
         ]}
       />
     </Wrapper>
