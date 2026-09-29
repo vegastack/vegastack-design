@@ -884,6 +884,65 @@ try {
       }
     },
   );
+
+  await t(
+    "@lib targets under aliases.lib are checked: identical is current, a local edit is drift",
+    async () => {
+      const LIB_CONTENT = `// @vegastack date-time@0.2.0 sha256-X==\n\n/** Module doc shadcn strips. */\nexport function toDate() {}\n`;
+      const item = {
+        name: "date-time",
+        files: [
+          {
+            path: "packages/ui/registry/lib/date-time.ts",
+            type: "registry:lib",
+            target: "@lib/date-time.ts",
+            content: LIB_CONTENT,
+          },
+        ],
+        meta: { version: "0.2.0" },
+      };
+      item.meta.integrity = itemHash(item);
+      ITEMS["date-time"] = item;
+      INDEX.items.push({
+        name: "date-time",
+        files: [{ target: "@lib/date-time.ts" }],
+        meta: { version: "0.2.0", integrity: item.meta.integrity },
+      });
+      const project = mkdtempSync(join(tmpdir(), "vega-cu-lib-"));
+      try {
+        writeFileSync(
+          join(project, "components.json"),
+          JSON.stringify({
+            aliases: { ui: "@/components/ui", lib: "@/lib" },
+            registries: {
+              "@vegastack": { url: "https://example.test/r/{name}.json" },
+            },
+          }),
+        );
+        mkdirSync(join(project, "src", "components", "ui"), {
+          recursive: true,
+        });
+        mkdirSync(join(project, "src", "lib"), { recursive: true });
+        const libFile = join(project, "src", "lib", "date-time.ts");
+        writeFileSync(join(project, "src", "lib", "own.ts"), "export {};\n");
+        writeFileSync(libFile, "export function toDate() {}\n");
+        let res = await run(["--cwd", project, "--json", "--fail-on-update"]);
+        assert.equal(res.code, 0, res.err);
+        assert.deepEqual(
+          JSON.parse(res.out).items.map((i) => [i.name, i.status]),
+          [["date-time", "current"]],
+        );
+        writeFileSync(libFile, "function toDate() {}\n");
+        res = await run(["--cwd", project, "--json", "--fail-on-update"]);
+        assert.equal(res.code, 1);
+        assert.equal(JSON.parse(res.out).items[0].status, "drift");
+      } finally {
+        delete ITEMS["date-time"];
+        INDEX.items = INDEX.items.filter((i) => i.name !== "date-time");
+        rmSync(project, { recursive: true, force: true });
+      }
+    },
+  );
 } finally {
   rmSync(root, { recursive: true, force: true });
 }
