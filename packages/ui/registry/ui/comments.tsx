@@ -1,4 +1,4 @@
-// @vegastack comments@0.23.76 sha256-pHgKYSSORInWxF1j55VRsC91JoZNZVQpZaP1CkQ8nH0=
+// @vegastack comments@0.23.76 sha256-myf1cy+NlGxq17ojWvv1/+ErChFCogIVE2VmXkM7HeU=
 
 "use client";
 
@@ -1083,6 +1083,8 @@ export interface CommentListProps {
   onReactionToggle?: CommentItemProps["onReactionToggle"];
   /** Replies under a comment (threads). @default undefined */
   renderReplies?: (comment: CommentData) => React.ReactNode;
+  /** Where a mention chip in each comment's body links (see `MarkdownView`'s `mentionHref`). @default undefined */
+  mentionHref?: CommentItemProps["mentionHref"];
   /**
    * The composer, at the section's end. With no comments it waits behind the empty state's
    * "Add a comment" button, then shows and takes focus.
@@ -1123,6 +1125,7 @@ export function CommentList({
   onCopyLink,
   onReactionToggle,
   renderReplies,
+  mentionHref,
   composer,
   emptyText = "No comments yet",
   now,
@@ -1220,6 +1223,7 @@ export function CommentList({
                 onCopyLink={onCopyLink}
                 onReactionToggle={onReactionToggle}
                 replies={renderReplies?.(comment)}
+                mentionHref={mentionHref}
                 now={now}
               />
             ))}

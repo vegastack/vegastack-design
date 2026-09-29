@@ -315,3 +315,59 @@ export function sheetHeaderAction(): ReactNode {
     </Wrapper>
   );
 }
+
+const THREAD = Array.from({ length: 24 }, (_, index) => ({
+  id: index,
+  who: index % 2 ? "Arjun Mehta" : "Asha Rao",
+  text:
+    index % 3
+      ? "Checked the hinge on site — it binds when the door is fully open."
+      : "Agreed. Ordering the replacement today; it should land by Friday.",
+}));
+
+/**
+ * A bottom sheet hugs a short body and stops at 85dvh with a long one, where `SheetBody`
+ * scrolls and the footer stays on screen — the phone shape of a comment thread.
+ */
+export function sheetBottomHeights(): ReactNode {
+  return (
+    <Wrapper className="flex-wrap gap-2">
+      {(["Short", "Long thread"] as const).map((label) => (
+        <Sheet key={label}>
+          <SheetTrigger render={<Button variant="outline" />}>
+            {label}
+          </SheetTrigger>
+          <SheetContent side="bottom">
+            <SheetHeader>
+              <SheetTitle>Comments</SheetTitle>
+              <SheetDescription>
+                {label === "Short"
+                  ? "Two comments: the sheet is as tall as its content."
+                  : "Twenty-four comments: the sheet stops at 85% of the screen."}
+              </SheetDescription>
+            </SheetHeader>
+            <SheetBody>
+              <ul className="flex flex-col gap-3 pb-2">
+                {(label === "Short" ? THREAD.slice(0, 2) : THREAD).map(
+                  (comment) => (
+                    <li key={comment.id} className="flex flex-col gap-0.5">
+                      <span className="font-medium">{comment.who}</span>
+                      <span className="text-muted-foreground">
+                        {comment.text}
+                      </span>
+                    </li>
+                  ),
+                )}
+              </ul>
+            </SheetBody>
+            <SheetFooter>
+              <SheetClose render={<Button variant="secondary" />}>
+                Close
+              </SheetClose>
+            </SheetFooter>
+          </SheetContent>
+        </Sheet>
+      ))}
+    </Wrapper>
+  );
+}

@@ -172,7 +172,13 @@ box.
 `CommentComposer` passes `mentions`, `mentionHref`, `onImageUpload`, `onFileUpload` and
 `onUploadError` to its editor, exactly as on [`TextEdit`](/docs/components/text-edit).
 `CommentItem`'s `attachments` renders under the body — an `AttachmentGroup layout="list"` of the
-comment's files — and its `mentionHref` links the mention chips in the body.
+comment's files — and its `mentionHref` links the mention chips in the body. Pass `mentionHref` to
+`CommentList` and it reaches every comment in the list; without it the chips are plain labels.
+
+<ComponentPreview
+  name="commentsMentions"
+  file="components/preview/comments.tsx"
+/>
 
 ## API Reference
 
