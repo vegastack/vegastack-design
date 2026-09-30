@@ -868,3 +868,89 @@
 .dark [data-brand-artwork="dark"] {
   display: contents;
 }
+
+/* ---------------------------------------------------------------------------
+ * Syntax highlighting — `CodeBlock` and `TextEdit`'s code block.
+ *
+ * lowlight (highlight.js grammars) marks tokens with `.hljs-*` classes; these
+ * map them onto the semantic palette, so code reads in both themes with no
+ * theme of its own: plain ink, keywords in `tag-pink-text`, names in
+ * `info-text`, strings in `brand-text`, numbers and literals in
+ * `tag-orange-text`, attributes and variables in `tag-cyan-text`, types in
+ * `tag-lime-text`, comments muted. Only AA text tokens: each clears 4.5:1 on
+ * full `muted` (the darkest code ground in light, lightest in dark) in both
+ * themes. Every value is a theme-split token, so the dark half follows `.dark`
+ * through the cascade.
+ * Plain selectors (not utilities), for the same reason as the BrandIcon swap
+ * above: a consumer's Tailwind build never scans the component source.
+ * ------------------------------------------------------------------------- */
+.hljs {
+  color: var(--foreground);
+}
+/* 13px code with relaxed leading — below the ramp's `text-sm`, on purpose, as Notion's code. */
+.hljs,
+.hljs code {
+  font-size: 0.8125rem;
+  line-height: 1.625;
+}
+.hljs-comment,
+.hljs-quote {
+  color: var(--muted-foreground);
+  font-style: italic;
+}
+.hljs-keyword,
+.hljs-selector-tag,
+.hljs-doctag,
+.hljs-meta .hljs-keyword,
+.hljs-name {
+  color: var(--tag-pink-text);
+}
+.hljs-title,
+.hljs-title.function_,
+.hljs-title.class_,
+.hljs-section,
+.hljs-selector-id,
+.hljs-selector-class {
+  color: var(--info-text);
+}
+.hljs-string,
+.hljs-regexp,
+.hljs-char.escape_,
+.hljs-meta .hljs-string {
+  color: var(--brand-text);
+}
+.hljs-number,
+.hljs-literal,
+.hljs-symbol,
+.hljs-bullet,
+.hljs-built_in,
+.hljs-link {
+  color: var(--tag-orange-text);
+}
+.hljs-attr,
+.hljs-attribute,
+.hljs-property,
+.hljs-variable,
+.hljs-template-variable,
+.hljs-params,
+.hljs-selector-attr,
+.hljs-selector-pseudo {
+  color: var(--tag-cyan-text);
+}
+.hljs-type,
+.hljs-title.class_.inherited__,
+.hljs-meta {
+  color: var(--tag-lime-text);
+}
+.hljs-addition {
+  color: var(--success-text);
+}
+.hljs-deletion {
+  color: var(--destructive-text);
+}
+.hljs-emphasis {
+  font-style: italic;
+}
+.hljs-strong {
+  font-weight: 600;
+}

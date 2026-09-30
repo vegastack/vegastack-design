@@ -150,8 +150,9 @@ unsafe URLs are dropped, and the same link, image, code-block and task-list rule
 
 The constructs `TextEdit`'s Markdown carries beyond GFM render here too, still server-safe:
 
-- **Mentions** — `[@Asha Rao](mention://user/u1)` renders as a `MentionChip`: an icon for its kind
-  (person, page, file, task) and the name. `mentionHref(kind, id)` makes a chip a link (return
+- **Mentions** — `[@Asha Rao](mention://user/u1)` renders as a `MentionChip` on the info tint: an icon
+  for its kind (person, page, file, task) and the name; `mentionImage(id)` gives a person chip a
+  16px avatar instead of the icon. `mentionHref(kind, id)` makes a chip a link (return
   `null` for none); a person is never a link, and an id starting with `restricted:` renders a
   muted chip that never links (the target is one the reader may not open).
 - **File chips** — a link whose href starts with `fileLinkPrefix` (default `/api/files/`) renders

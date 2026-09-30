@@ -1,6 +1,6 @@
 ---
 title: Code Block
-description: A code panel with a language header and copy affordance — the shared code surface for chat transcripts, docs prose, and examples.
+description: A syntax-highlighted code panel with the language and a copy button on hover — the shared code surface for chat, docs prose and examples.
 audience: public
 registry: code-block
 status: stable
@@ -27,13 +27,17 @@ import { CodeBlock } from "@/components/ui/code-block";
 
 `MarkdownView` delegates every fenced code block here automatically — the language comes from
 the fence info string and the copy source from the block's text, so chat transcripts and
-rendered markdown get the labelled, copyable surface with no extra wiring.
+rendered markdown get the highlighted, copyable surface with no extra wiring. `TextEdit`'s code
+block wears the same surface, with a searchable language picker in place of the label.
 
 ## Anatomy
 
-A `<figure>`: the header (`<figcaption>`) carries the language in `font-mono text-xs`, rendered as given, and a
-`CopyButton` when `copyValue` is set; the body is the sunken `bg-muted` panel with
-`overflow-x-auto` and `font-mono text-sm` mono. Omit both header props for a bare block.
+A `<figure>` on `bg-muted/60`, `rounded-lg`, with no border or header bar. On hover or focus inside
+(always on a touch screen) the language's display name (`<figcaption>`, "TypeScript" for `ts`)
+shows top-left and a Copy `CopyButton` (check and "Copied" after a copy) top-right when
+`copyValue` is set. The body is 13px mono with relaxed leading, `px-4 py-3`, scrolling sideways. A
+string child is highlighted with lowlight's common grammars (fence aliases such as `ts`, `js`, `sh`
+and `yml` resolve), coloured by the token-mapped `.hljs-*` rules in `utilities.css`.
 
 <Anatomy name="code-block" />
 

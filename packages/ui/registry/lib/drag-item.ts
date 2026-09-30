@@ -1,4 +1,4 @@
-// @vegastack drag-item@0.23.94 sha256-bkocwI3Xvq6ALduDJCpO88jApbI9/jHlWdYxG5zYrPk=
+// @vegastack drag-item@0.23.94 sha256-HOhKa9UMLYL2XdEOl0paK9Pz/l/M8I5WXp9b1bmFUVo=
 
 /**
  * drag-item — the ONE visual recipe for an item that `use-drag-reorder` can move. The hook owns
@@ -26,28 +26,28 @@
  * at runtime from fragments would compile to nothing in their build.
  */
 /**
- * The drop indicator's ink — the standard `border` colour, one token for every reorder surface:
+ * The drop indicator's ink — the `info` blue, one token for every reorder surface:
  * the hairlines below (SortableList rows and tiles) and a free-standing drop line such as
  * TextEdit's block and table-row/column drag. A surface that draws its own line element spreads
- * this onto it; the hairlines spell the same token as `before:bg-border` literals.
+ * this onto it; the lines spell the same token as `before:bg-info` literals.
  */
-export const dropIndicatorClasses = "bg-border";
+export const dropIndicatorClasses = "bg-info";
 
 export const dragItemClasses = [
   // `relative` is load-bearing, not cosmetic: the drop indicator below is an absolutely
   // positioned `::before` and needs this element as its containing block.
   "relative",
-  // Drop indicator — a 2px hairline in the standard border colour (`dropIndicatorClasses`) on whichever edge the pointer is closest to. On a
+  // Drop indicator — a 2px line in the info blue (`dropIndicatorClasses`) on whichever edge the pointer is closest to. On a
   // vertical axis it sits in the gap ABOVE/BELOW the item (`-top-1` / `-bottom-1`), so it reads as
   // a seam between two rows rather than a border on one of them.
-  "data-[drop-edge=top]:before:absolute data-[drop-edge=top]:before:inset-x-0 data-[drop-edge=top]:before:-top-1 data-[drop-edge=top]:before:h-0.5 data-[drop-edge=top]:before:bg-border data-[drop-edge=top]:before:content-['']",
-  "data-[drop-edge=bottom]:before:absolute data-[drop-edge=bottom]:before:inset-x-0 data-[drop-edge=bottom]:before:-bottom-1 data-[drop-edge=bottom]:before:h-0.5 data-[drop-edge=bottom]:before:bg-border data-[drop-edge=bottom]:before:content-['']",
+  "data-[drop-edge=top]:before:absolute data-[drop-edge=top]:before:inset-x-0 data-[drop-edge=top]:before:-top-1 data-[drop-edge=top]:before:h-0.5 data-[drop-edge=top]:before:bg-info data-[drop-edge=top]:before:content-['']",
+  "data-[drop-edge=bottom]:before:absolute data-[drop-edge=bottom]:before:inset-x-0 data-[drop-edge=bottom]:before:-bottom-1 data-[drop-edge=bottom]:before:h-0.5 data-[drop-edge=bottom]:before:bg-info data-[drop-edge=bottom]:before:content-['']",
   // The same seam for a HORIZONTAL axis (a row of tiles, or a grid that wraps): a vertical hairline
   // in the gap beside the item. The hook's closest-edge hitbox reports PHYSICAL left/right, so
   // these are physical offsets, not logical `start`/`end` — in RTL the engine's "left" is still
   // the left of the box.
-  "data-[drop-edge=left]:before:absolute data-[drop-edge=left]:before:inset-y-0 data-[drop-edge=left]:before:-left-1 data-[drop-edge=left]:before:w-0.5 data-[drop-edge=left]:before:bg-border data-[drop-edge=left]:before:content-['']",
-  "data-[drop-edge=right]:before:absolute data-[drop-edge=right]:before:inset-y-0 data-[drop-edge=right]:before:-right-1 data-[drop-edge=right]:before:w-0.5 data-[drop-edge=right]:before:bg-border data-[drop-edge=right]:before:content-['']",
+  "data-[drop-edge=left]:before:absolute data-[drop-edge=left]:before:inset-y-0 data-[drop-edge=left]:before:-left-1 data-[drop-edge=left]:before:w-0.5 data-[drop-edge=left]:before:bg-info data-[drop-edge=left]:before:content-['']",
+  "data-[drop-edge=right]:before:absolute data-[drop-edge=right]:before:inset-y-0 data-[drop-edge=right]:before:-right-1 data-[drop-edge=right]:before:w-0.5 data-[drop-edge=right]:before:bg-info data-[drop-edge=right]:before:content-['']",
   // Lift = dim on the ORIGIN item. Flat by doctrine: a dragged item never gains a shadow.
   "data-dragging:opacity-50",
   // A server-gated move in flight shimmers — the one sanctioned loader animation. The global

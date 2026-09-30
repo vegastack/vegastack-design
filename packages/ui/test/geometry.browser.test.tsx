@@ -2860,10 +2860,10 @@ for (const width of [320, 1280] as const) {
     // border) so the handle sits on the tile's image, not on its edge.
     expect(Math.round(h.left - t.left)).toBe(13);
     expect(Math.round(h.top - t.top)).toBe(13);
-    // Its line colour is the standard border token.
+    // Its line colour is the shared drop-indicator token (info blue).
     tile.setAttribute("data-drop-edge", "left");
     const probe = document.createElement("div");
-    probe.className = "bg-border";
+    probe.className = "bg-info";
     document.body.append(probe);
     expect(getComputedStyle(tile, "::before").backgroundColor).toBe(
       getComputedStyle(probe).backgroundColor,

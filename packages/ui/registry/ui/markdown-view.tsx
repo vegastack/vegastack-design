@@ -1,4 +1,4 @@
-// @vegastack markdown-view@0.23.94 sha256-KRkD5xlDxLspa1tQyu5F9qRUDww+VLMODlHhX5nQYjs=
+// @vegastack markdown-view@0.23.94 sha256-x69ENesto4rIb1hHlni3aA+47V+6z3Ycku+aAftLlAw=
 
 import * as React from "react";
 import { Lexer, type Token, type Tokens } from "marked";
@@ -167,10 +167,16 @@ const MENTION_ICONS: Record<MentionKind, LucideIcon> = {
   task: CircleCheck,
 };
 
-// Inline, not flex: a chip sits in a sentence, wraps with it (`box-decoration-clone` keeps its
-// ground on both lines), and stays an inline target WCAG 2.2 §2.5.8 exempts from the 24px size.
-const CHIP =
+// A file chip: inline, not flex — it sits in a sentence, wraps with it (`box-decoration-clone`
+// keeps its ground on both lines), and stays an inline target WCAG 2.2 §2.5.8 exempts from the
+// 24px size.
+const FILE_CHIP =
   "rounded-sm bg-muted box-decoration-clone px-1 font-medium text-foreground [&_svg]:me-1 [&_svg]:inline [&_svg]:size-3.5 [&_svg]:align-text-bottom [&_svg]:text-muted-foreground";
+
+// An inline-flex chip on the info tint: the icon (or a person's 16px avatar) centred on the name;
+// a restricted chip is muted. A `before:` hit area lifts the 20px line to a 24px+ target.
+const CHIP =
+  "relative before:absolute before:inset-x-0 before:-inset-y-1 before:content-[''] inline-flex max-w-full items-center gap-1 rounded-sm bg-info/10 px-1 align-baseline font-medium text-info-text [&_svg]:size-3.5 [&_svg]:shrink-0 [&_svg]:text-info-text data-restricted:bg-muted data-restricted:text-muted-foreground data-restricted:[&_svg]:text-muted-foreground";
 
 /** Props accepted by `MentionChip`. */
 export interface MentionChipProps extends React.ComponentPropsWithRef<"span"> {
@@ -185,6 +191,11 @@ export interface MentionChipProps extends React.ComponentPropsWithRef<"span"> {
    * @default undefined
    */
   href?: string | null;
+  /**
+   * A person's avatar URL: a `user` chip shows it (16px, round) in place of the person icon.
+   * @default undefined
+   */
+  image?: string | null;
 }
 
 /**
@@ -201,27 +212,39 @@ export function MentionChip({
   id,
   label,
   href,
+  image,
   className,
   ...props
 }: MentionChipProps) {
   const restricted = isRestricted(id);
   const Icon = MENTION_ICONS[kind] ?? File;
   const link = href && !restricted && kind !== "user" ? safeUrl(href) : "";
+  const avatar = kind === "user" && !restricted && image ? safeUrl(image) : "";
   const body = (
     <>
-      {kind === "file" ? <FileTypeIcon name={label} /> : <Icon aria-hidden />}
-      {label}
+      {avatar ? (
+        // Plain <img>: registry source is framework-agnostic (no next/image dependency).
+        <img
+          src={avatar}
+          alt=""
+          aria-hidden
+          data-slot="mention-chip-avatar"
+          className="size-4 shrink-0 rounded-full object-cover"
+        />
+      ) : kind === "file" ? (
+        <FileTypeIcon name={label} />
+      ) : (
+        <Icon aria-hidden />
+      )}
+      <span className="min-w-0 truncate">{label}</span>
     </>
   );
-  const chipClassName = cn(
-    CHIP,
-    restricted && "text-muted-foreground",
-    className,
-  );
+  const chipClassName = cn(CHIP, className);
   return link ? (
     <a
       data-slot="mention-chip"
       data-kind={kind}
+      data-restricted={restricted ? "" : undefined}
       href={link}
       title={props.title}
       className={chipClassName}
@@ -247,8 +270,8 @@ export function MentionChip({
  * restates them at higher specificity. `MarkdownView` and `TextEdit`'s editor both wear it.
  */
 export const markdownExtrasClassName = cn(
-  "[&_[data-slot=mention-chip]]:no-underline [&_[data-slot=mention-chip]]:text-foreground [&_[data-slot=mention-chip][data-restricted]]:text-muted-foreground",
-  "[&_[data-slot=file-chip]]:rounded-sm [&_[data-slot=file-chip]]:bg-muted [&_[data-slot=file-chip]]:px-1 [&_[data-slot=file-chip]]:font-medium [&_[data-slot=file-chip]]:no-underline [&_[data-slot=file-chip]]:text-foreground [&_a[data-slot=file-chip]:hover]:bg-accent [&_a[data-slot=mention-chip]:hover]:bg-accent",
+  "[&_[data-slot=mention-chip]]:no-underline [&_[data-slot=mention-chip]]:text-info-text [&_[data-slot=mention-chip][data-restricted]]:text-muted-foreground",
+  "[&_[data-slot=file-chip]]:rounded-sm [&_[data-slot=file-chip]]:bg-muted [&_[data-slot=file-chip]]:px-1 [&_[data-slot=file-chip]]:font-medium [&_[data-slot=file-chip]]:no-underline [&_[data-slot=file-chip]]:text-foreground [&_a[data-slot=file-chip]:hover]:bg-accent [&_[data-slot=mention-chip]:not([data-restricted]):hover]:bg-info/15",
   "[&_[data-slot=callout]]:my-2 [&_[data-slot=callout]]:grid [&_[data-slot=callout]]:grid-cols-[auto_1fr] [&_[data-slot=callout]]:gap-x-2 [&_[data-slot=callout]]:rounded-lg [&_[data-slot=callout]]:border [&_[data-slot=callout]]:border-border [&_[data-slot=callout]]:bg-card [&_[data-slot=callout]]:px-3 [&_[data-slot=callout]]:py-2",
   "[&_[data-slot=callout]>svg]:mt-0.5 [&_[data-slot=callout]>svg]:size-4 [&_[data-slot=callout][data-tone=note]>svg]:text-info-text [&_[data-slot=callout][data-tone=tip]>svg]:text-success-text [&_[data-slot=callout][data-tone=warning]>svg]:text-warning-text [&_[data-slot=callout-content]]:min-w-0",
   "[&_details]:my-2 [&_summary]:cursor-pointer [&_summary]:py-0.5 [&_summary]:font-medium [&_details>:not(summary)]:ms-5 [&_[data-slot=toggle-content]]:ms-5",
@@ -773,6 +796,7 @@ interface RenderContext {
   images: ReadonlySet<string>;
   headingOffset: number;
   mentionHref?: (kind: MentionKind, id: string) => string | null;
+  mentionImage?: (id: string) => string | null | undefined;
   fileLinkPrefix: string;
   citation?: (n: number) => MarkdownCitation | null | undefined;
 }
@@ -842,6 +866,9 @@ function renderNode(
           id={attrs.id ?? ""}
           label={attrs.label ?? ""}
           href={ctx.mentionHref?.(kind, attrs.id ?? "")}
+          image={
+            kind === "user" ? ctx.mentionImage?.(attrs.id ?? "") : undefined
+          }
         />
       );
     }
@@ -872,7 +899,7 @@ function renderNode(
             href={href}
             title={attrs.title}
             data-slot="file-chip"
-            className={CHIP}
+            className={FILE_CHIP}
           >
             <FileTypeIcon name={name} />
             {children()}
@@ -1108,6 +1135,11 @@ export interface MarkdownViewProps extends React.ComponentPropsWithRef<"div"> {
    */
   mentionHref?: (kind: MentionKind, id: string) => string | null;
   /**
+   * A person mention's avatar URL, by id: the chip shows it (16px) in place of the person icon.
+   * @default undefined
+   */
+  mentionImage?: (id: string) => string | null | undefined;
+  /**
    * A link whose href starts with this renders as a file chip — an icon for the file's type and
    * its name. `""` turns file chips off.
    * @default "/api/files/"
@@ -1164,6 +1196,7 @@ export function MarkdownView({
   headingIds: withHeadingIds = false,
   headingScale = "compact",
   mentionHref,
+  mentionImage,
   fileLinkPrefix = "/api/files/",
   citation,
   className,
@@ -1205,6 +1238,7 @@ export function MarkdownView({
         images: normalizeAllowedImageOrigins(allowedImageOrigins),
         headingOffset: Math.trunc(headingOffset),
         mentionHref,
+        mentionImage,
         fileLinkPrefix,
         citation,
       })}

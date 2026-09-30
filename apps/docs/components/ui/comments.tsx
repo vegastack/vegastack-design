@@ -1,4 +1,4 @@
-// @vegastack comments@0.23.94 sha256-K7k/iCl/DUzdMbzNnes6CtKosnlU4edGYI5jEExOGQs=
+// @vegastack comments@0.23.94 sha256-4UTWEKU9hEBIwN8lh1t0++/3bvi22fEvgKJiGXy76U0=
 
 "use client";
 
@@ -10,8 +10,9 @@ import {
   Check,
   Ellipsis,
   Link,
-  MessageSquare,
+  Paperclip,
   Pencil,
+  Reply,
   Trash2,
   X,
 } from "lucide-react";
@@ -34,12 +35,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import {
-  Empty,
-  EmptyContent,
-  EmptyDescription,
-  EmptyHeader,
-} from "@/components/ui/empty";
 import { MarkdownView } from "@/components/ui/markdown-view";
 import { PersonAvatar, type Person } from "@/components/ui/person-avatar";
 import {
@@ -53,6 +48,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import {
   TEXT_EDIT_COMPACT_SLASH_COMMANDS,
   TextEdit,
+  type TextEditHandle,
   type TextEditProps,
 } from "@/components/ui/text-edit";
 import {
@@ -63,8 +59,8 @@ import {
 
 /* ------------------------------------------------------------------------------------------------
  * Comments — a record's discussion: `CommentList` (heading with a count and an Oldest / Newest
- * first toggle, "Load earlier", skeleton and an empty state whose "Add a comment" reveals the
- * composer), `CommentItem` (avatar, name, relative time, "edited", a ⋯ menu with Copy link / Edit
+ * first toggle, "Load earlier", skeleton and a one-line "No comments yet" with the composer under
+ * it), `CommentItem` (avatar, name, relative time, "edited", a ⋯ menu with Copy link / Edit
  * / Delete, in-place editing in a compact box, a `#comment-<id>` highlight and a replies slot) and
  * Slack-style reactions under the body (pills, and an add-reaction button in the hover actions),
  * `CommentComposer` (a light, near-transparent box with a round send button; Cmd/Ctrl+Enter sends). The
@@ -263,20 +259,25 @@ export function CommentItem({
       id={`comment-${comment.id}`}
       data-slot="comment-item"
       data-deleted={comment.deleted ? "" : undefined}
-      className={cn("flex min-w-0 scroll-mt-24 flex-col gap-3", className)}
+      className={cn(
+        // The card: the composer's own surface (`bg-muted/30`, a hairline `border-border`,
+        // `rounded-xl`), holding the comment and its replies as rows. A reply is a row of its
+        // parent's card, not a card of its own. The border never changes on hover, focus or edit
+        // (FOC-14); only a `#comment-<id>` highlight tints a row.
+        "flex min-w-0 scroll-mt-24 flex-col overflow-hidden rounded-xl border border-border bg-muted/30",
+        "in-data-[slot=comment-replies]:overflow-visible in-data-[slot=comment-replies]:rounded-none in-data-[slot=comment-replies]:border-0 in-data-[slot=comment-replies]:bg-transparent",
+        className,
+      )}
     >
-      {/* The card: the composer's own surface (`bg-muted/30`, a hairline `border-border`,
-          `rounded-xl`). Its border never changes on hover, focus or edit (FOC-14); only a
-          `#comment-<id>` highlight tints the surface. */}
       <div
         data-slot="comment-card"
         data-highlighted={highlighted ? "" : undefined}
-        className="group/comment flex min-w-0 gap-3 rounded-xl border border-border bg-muted/30 px-3 py-2.5 transition-colors data-[highlighted]:bg-accent"
+        className="group/comment flex min-w-0 gap-2.5 px-3 py-2.5 transition-colors data-[highlighted]:bg-accent"
       >
         {comment.deleted ? (
-          <span aria-hidden className="size-6 shrink-0 rounded-full bg-muted" />
+          <span aria-hidden className="size-7 shrink-0 rounded-full bg-muted" />
         ) : (
-          <PersonAvatar person={author} className="mt-0.5" />
+          <PersonAvatar person={author} className="data-[size=sm]:size-7" />
         )}
         <div className="flex min-w-0 flex-1 flex-col gap-1">
           <div className="flex min-h-7 min-w-0 items-center gap-2">
@@ -285,12 +286,15 @@ export function CommentItem({
                 Comment deleted
               </span>
             ) : (
-              <span className="flex min-w-0 flex-1 flex-wrap items-center gap-x-2 gap-y-0.5">
-                <span className="text-sm font-medium wrap-anywhere">
+              <span className="flex min-w-0 flex-1 items-center gap-x-2">
+                <span
+                  className="min-w-0 truncate text-sm font-medium"
+                  title={author.name}
+                >
                   {author.name}
                 </span>
                 <PersonBadge badge={author.badge} />
-                <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                <span className="flex shrink-0 items-center gap-1.5 text-xs text-muted-foreground">
                   <RelativeTime date={comment.createdAt} now={now} />
                   {comment.editedAt ? (
                     <>
@@ -390,7 +394,6 @@ export function CommentItem({
           </div>
           {comment.deleted ? null : editing ? (
             <CommentBox
-              compact
               bare
               autoFocus
               label="Edit comment"
@@ -412,7 +415,7 @@ export function CommentItem({
                         <Button
                           variant="ghost"
                           size="icon-sm"
-                          className="rounded-full"
+                          className={cn("rounded-full", TOUCH_TARGET)}
                           aria-label="Cancel"
                           onClick={cancel}
                         />
@@ -468,7 +471,7 @@ export function CommentItem({
       {replies ? (
         <ul
           data-slot="comment-replies"
-          className="ms-9 flex flex-col gap-3"
+          className="flex flex-col"
           aria-label="Replies"
         >
           {replies}
@@ -516,15 +519,14 @@ interface CommentBoxProps {
   onValueChange: (value: string) => void;
   onSubmit: (value: string) => void;
   onRevert?: () => void;
+  /** Escape keeps the text and calls this instead of reverting (a reply being cancelled). */
+  onEscape?: () => void;
   busy?: boolean;
   disabled?: boolean;
   invalid?: boolean;
   autoFocus?: boolean;
-  compact?: boolean;
   /** Inside a comment card (edit mode): the card already draws the surface and border. */
   bare?: boolean;
-  /** A reply box: one line, its actions row hidden until it holds focus or text. */
-  folded?: boolean;
   leading?: React.ReactNode;
   actions: React.ReactNode;
   mentions?: TextEditProps["mentions"];
@@ -534,6 +536,17 @@ interface CommentBoxProps {
   onUploadError?: TextEditProps["onUploadError"];
 }
 
+/**
+ * A 40px touch target around a 28px round control on a coarse pointer, without growing the
+ * control (or the one-line box) itself.
+ */
+const TOUCH_TARGET =
+  "pointer-coarse:after:absolute pointer-coarse:after:-inset-1.5 pointer-coarse:after:rounded-full";
+
+/**
+ * The box: one line and 32px tall at rest, the text centred; the controls sit inline at its end,
+ * pinned to the bottom line as the text grows (to about twelve lines, then it scrolls inside).
+ */
 function CommentBox({
   defaultValue,
   placeholder,
@@ -541,13 +554,12 @@ function CommentBox({
   onValueChange,
   onSubmit,
   onRevert,
+  onEscape,
   busy,
   disabled,
   invalid,
   autoFocus,
-  compact,
   bare,
-  folded,
   leading,
   actions,
   mentions,
@@ -557,27 +569,35 @@ function CommentBox({
   onUploadError,
 }: CommentBoxProps) {
   const ref = React.useRef<HTMLDivElement>(null);
-  const [open, setOpen] = React.useState(!!defaultValue);
+  const handle = React.useRef<TextEditHandle>(null);
   React.useEffect(() => {
     if (autoFocus) focusEditor(ref.current);
   }, [autoFocus]);
-  const unfolded = !folded || open;
+  const canAttach = !!(onImageUpload || onFileUpload) && !disabled;
+  const fileInput = React.useRef<HTMLInputElement>(null);
   return (
     <div
       ref={ref}
       data-slot="comment-box"
-      data-compact={compact ? "" : undefined}
       data-bare={bare ? "" : undefined}
-      data-folded={folded && !open ? "" : undefined}
       aria-invalid={invalid || undefined}
       className="min-w-0"
-      onFocus={folded ? () => setOpen(true) : undefined}
+      onKeyDown={
+        onEscape
+          ? (event) => {
+              // A mention / slash menu's Escape stops propagation, so it only closes the menu.
+              if (event.key === "Escape") onEscape();
+            }
+          : undefined
+      }
     >
       <TextEdit
         variant="boxed"
+        handleRef={handle}
         className={cn(
-          "rounded-xl border-border bg-muted/30 px-3 py-2.5 dark:bg-muted/30",
-          compact && "py-2",
+          "flex min-h-8 items-end gap-1 rounded-xl border-border bg-muted/30 py-px ps-3 pe-px dark:bg-muted/30",
+          // The text column fills the row and centres a single line against the 28px controls.
+          "[&_[data-slot=text-edit-content]]:flex-1 [&_[data-slot=text-edit-content]]:self-center [&_[data-slot=text-edit-content]]:py-0.5 [&_.tiptap]:py-0.5",
           bare &&
             "rounded-none border-0 bg-transparent p-0 dark:bg-transparent",
         )}
@@ -586,19 +606,13 @@ function CommentBox({
         defaultValue={defaultValue}
         placeholder={placeholder}
         aria-label={label}
-        onValueChange={(value) => {
-          if (folded && value.trim()) setOpen(true);
-          onValueChange(value);
-        }}
+        onValueChange={onValueChange}
         onSubmit={onSubmit}
-        onRevert={() => {
-          if (folded) setOpen(false);
-          onRevert?.();
-        }}
+        onRevert={onRevert}
+        escapeBehavior={onEscape ? "blur" : undefined}
         saving={busy}
         disabled={disabled}
         dragHandles={false}
-        minHeight={compact ? undefined : 40}
         // About twelve lines of body text, then it scrolls inside the box.
         maxHeight="15rem"
         aria-invalid={invalid ? true : undefined}
@@ -608,14 +622,54 @@ function CommentBox({
         onFileUpload={onFileUpload}
         onUploadError={onUploadError}
       >
-        {unfolded ? (
-          <div className="mt-2 flex min-w-0 items-center gap-2">
-            {leading}
-            <div className="ms-auto flex shrink-0 items-center gap-2">
-              {actions}
-            </div>
-          </div>
-        ) : null}
+        <div
+          data-slot="comment-box-actions"
+          className="flex shrink-0 items-center gap-1"
+        >
+          {leading}
+          {canAttach ? (
+            <>
+              <Tooltip>
+                <TooltipTrigger
+                  render={
+                    <Button
+                      variant="ghost"
+                      size="icon-sm"
+                      data-slot="comment-attach"
+                      aria-label="Attach files"
+                      className={cn(
+                        "rounded-full focus-visible:bg-muted",
+                        TOUCH_TARGET,
+                      )}
+                      // A picker of our own, clicked in the gesture (the lazy editor may not be
+                      // in yet); picked files go to the editor's upload flow at the caret.
+                      onClick={() => fileInput.current?.click()}
+                    />
+                  }
+                >
+                  <Paperclip aria-hidden />
+                </TooltipTrigger>
+                <TooltipContent>Attach files</TooltipContent>
+              </Tooltip>
+              <input
+                ref={fileInput}
+                type="file"
+                multiple
+                hidden
+                tabIndex={-1}
+                aria-hidden
+                // The editor's rules: images only unless any file may upload.
+                accept={onFileUpload ? undefined : "image/*"}
+                onChange={(event) => {
+                  const files = Array.from(event.currentTarget.files ?? []);
+                  event.currentTarget.value = "";
+                  if (files.length) handle.current?.uploadFiles(files);
+                }}
+              />
+            </>
+          ) : null}
+          {actions}
+        </div>
       </TextEdit>
     </div>
   );
@@ -647,7 +701,10 @@ function SendButton({
       disabled={disabled}
       onClick={onClick}
       {...props}
-      className="rounded-full data-disabled:not-data-loading:opacity-100 data-disabled:not-data-loading:text-muted-foreground"
+      className={cn(
+        "rounded-full data-disabled:not-data-loading:opacity-100 data-disabled:not-data-loading:text-muted-foreground",
+        TOUCH_TARGET,
+      )}
     >
       <ArrowUp aria-hidden />
     </Button>
@@ -667,12 +724,23 @@ export interface CommentComposerProps {
    * non-empty. After a successful post the box starts empty. @default undefined
    */
   defaultValue?: string;
-  /** Placeholder in the empty editor. @default "Add a comment…" */
+  /** Placeholder in the empty editor. @default "Add a comment…" ("Write a reply…" while `replyingTo`) */
   placeholder?: string;
-  /** Accessible name of the round send button. @default "Send comment" */
+  /** Accessible name of the round send button. @default "Send comment" ("Send reply" while `replyingTo`) */
   submitLabel?: string;
-  /** Controls at the box's bottom left, before the send button (an attach button). @default undefined */
+  /**
+   * Extra controls on the box's line, before the attach and send buttons. The attach (paperclip)
+   * button itself shows whenever `onImageUpload` or `onFileUpload` is set. @default undefined
+   */
   attachments?: React.ReactNode;
+  /**
+   * The comment being replied to: a "Replying to `name` ×" line shows over the box and the
+   * placeholder becomes "Write a reply…". × or Escape calls `onCancelReply`; the text stays.
+   * @default undefined
+   */
+  replyingTo?: { name: string } | null;
+  /** Called from the "Replying to" line's × and from Escape while replying. @default undefined */
+  onCancelReply?: () => void;
   /** Focus the editor when the composer mounts. @default false */
   autoFocus?: boolean;
   /** Mark the composer busy (controlled; otherwise it follows `onSubmit`'s promise). @default undefined */
@@ -708,9 +776,11 @@ export interface CommentComposerProps {
 export function CommentComposer({
   onSubmit,
   defaultValue,
-  placeholder = "Add a comment…",
-  submitLabel = "Send comment",
+  placeholder,
+  submitLabel,
   attachments,
+  replyingTo,
+  onCancelReply,
   autoFocus = false,
   posting: postingProp,
   error: errorProp,
@@ -751,11 +821,39 @@ export function CommentComposer({
       data-slot="comment-composer"
       className={cn("flex min-w-0 flex-col gap-1.5", className)}
     >
+      {replyingTo ? (
+        <div
+          data-slot="comment-composer-replying"
+          className="flex min-w-0 items-center gap-1.5 ps-1 text-xs text-muted-foreground"
+        >
+          <Reply aria-hidden className="size-3.5 shrink-0" />
+          <span className="min-w-0 truncate">
+            Replying to{" "}
+            <span className="font-medium text-foreground">
+              {replyingTo.name}
+            </span>
+          </span>
+          {onCancelReply ? (
+            <Button
+              variant="ghost"
+              size="icon-xs"
+              aria-label="Cancel reply"
+              className={cn("rounded-full", TOUCH_TARGET)}
+              onClick={onCancelReply}
+            >
+              <X aria-hidden />
+            </Button>
+          ) : null}
+        </div>
+      ) : null}
       <CommentBox
         key={generation}
-        label="Comment"
+        label={replyingTo ? "Reply" : "Comment"}
         defaultValue={generation === 0 ? defaultValue : undefined}
-        placeholder={placeholder}
+        placeholder={
+          placeholder ?? (replyingTo ? "Write a reply…" : "Add a comment…")
+        }
+        onEscape={replyingTo ? onCancelReply : undefined}
         autoFocus={autoFocus || generation > 0}
         onValueChange={(next) => {
           setBody(next);
@@ -773,7 +871,7 @@ export function CommentComposer({
         onUploadError={onUploadError}
         actions={
           <SendButton
-            label={submitLabel}
+            label={submitLabel ?? (replyingTo ? "Send reply" : "Send comment")}
             loading={posting}
             disabled={disabled || !body.trim()}
             onClick={() => void submit(body)}
@@ -883,8 +981,8 @@ export interface CommentThreadProps {
   /**
    * The reply box's options, passed through to its editor — `mentions`, `mentionHref`,
    * `onImageUpload`, `onFileUpload`, `onUploadError`, `placeholder`, `submitLabel`, `disabled`,
-   * `attachments`; `defaultValue` (the starting text on mount, e.g. a restored draft — the box
-   * opens unfolded and Send is enabled), `onValueChange` (every change, and `""` after a reply
+   * `attachments`; `defaultValue` (the starting text on mount, e.g. a restored draft —
+   * Send is enabled), `onValueChange` (every change, and `""` after a reply
    * posts) and `posting` (busy, OR'd with the reply's own posting state: Send shows loading and
    * neither it nor Cmd/Ctrl+Enter sends — e.g. while an upload in the box is running).
    * @default undefined
@@ -914,8 +1012,8 @@ export interface CommentThreadProps {
 
 /**
  * `CommentThread` — one discussion about a piece of text (Google Docs style): the quoted words (or
- * "Original text was removed"), the first comment, its replies and a one-line "Reply…" box that
- * opens when focused (Cmd/Ctrl+Enter sends). The header's ✓ resolves it; a resolved thread says
+ * "Original text was removed"), the first comment, its replies and a one-line "Write a reply…" box
+ * (Cmd/Ctrl+Enter sends). The header's ✓ resolves it; a resolved thread says
  * who resolved it and when, and offers Reopen. `collapsed` shows the first comment, "N replies"
  * and the last reply.
  *
@@ -1004,7 +1102,7 @@ export function CommentThread({
         // Comments inside a thread sit flat on the thread's card: the root restates the item
         // card's surface at higher specificity (a descendant rule beats its own classes).
         "flex min-w-0 flex-col gap-2 rounded-xl border border-border bg-card p-3 text-card-foreground transition-shadow duration-150 data-active:shadow-md",
-        "[&_[data-slot=comment-card]]:rounded-none [&_[data-slot=comment-card]]:border-0 [&_[data-slot=comment-card]]:bg-transparent [&_[data-slot=comment-card]]:p-0",
+        "[&_[data-slot=comment-item]]:overflow-visible [&_[data-slot=comment-item]]:rounded-none [&_[data-slot=comment-item]]:border-0 [&_[data-slot=comment-item]]:bg-transparent [&_[data-slot=comment-card]]:p-0",
         className,
       )}
     >
@@ -1086,7 +1184,7 @@ export function CommentThread({
         {item(root)}
         {collapsed && replies.length > 0 ? (
           <>
-            <li data-slot="comment-thread-more" className="ms-9">
+            <li data-slot="comment-thread-more">
               {onExpand ? (
                 <Button
                   variant="link"
@@ -1112,12 +1210,10 @@ export function CommentThread({
         <div data-slot="comment-thread-reply" className="flex flex-col gap-1.5">
           <CommentBox
             key={generation}
-            compact
-            folded
             autoFocus={generation > 0}
             label="Reply"
             defaultValue={generation === 0 ? composer?.defaultValue : undefined}
-            placeholder={composer?.placeholder ?? "Reply…"}
+            placeholder={composer?.placeholder ?? "Write a reply…"}
             onValueChange={(value) => {
               setDraft(value);
               composer?.onValueChange?.(value);
@@ -1213,8 +1309,8 @@ export interface CommentListProps {
   /** Where a mention chip in each comment's body links (see `MarkdownView`'s `mentionHref`). @default undefined */
   mentionHref?: CommentItemProps["mentionHref"];
   /**
-   * The composer, at the section's end. With no comments it waits behind the empty state's
-   * "Add a comment" button, then shows and takes focus.
+   * The composer, at the section's end — with no comments, directly under the "No comments yet"
+   * line.
    * @default undefined
    */
   composer?: React.ReactNode;
@@ -1229,7 +1325,7 @@ export interface CommentListProps {
 /**
  * `CommentList` — a record's comments section: "Comments" with a count and an Oldest / Newest
  * first toggle, "Load earlier", the comments, and the composer at the end. A skeleton while
- * loading; with none, "No comments yet" and an "Add a comment" button that reveals the composer.
+ * loading; with none, a muted "No comments yet" line with the composer right under it.
  *
  * @example
  * <CommentList comments={comments} order={order} onOrderChange={setOrder}
@@ -1268,8 +1364,6 @@ export function CommentList({
     editDefaultValue,
   );
   const headingId = React.useId();
-  const composerRef = React.useRef<HTMLDivElement>(null);
-  const [adding, setAdding] = React.useState(false);
   const total = count ?? comments.length;
   const empty = comments.length === 0;
   const shown = order === "newest" ? [...comments].reverse() : comments;
@@ -1326,25 +1420,12 @@ export function CommentList({
       {loading ? (
         <CommentListSkeleton />
       ) : empty ? (
-        adding || !composer ? null : (
-          <Empty size="sm" icon={<MessageSquare aria-hidden />}>
-            <EmptyHeader>
-              <EmptyDescription>{emptyText}</EmptyDescription>
-            </EmptyHeader>
-            <EmptyContent>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => {
-                  setAdding(true);
-                  requestAnimationFrame(() => focusEditor(composerRef.current));
-                }}
-              >
-                Add a comment
-              </Button>
-            </EmptyContent>
-          </Empty>
-        )
+        <p
+          data-slot="comment-list-empty"
+          className="text-sm text-muted-foreground"
+        >
+          {emptyText}
+        </p>
       ) : (
         <>
           {order === "oldest" ? loadEarlier : null}
@@ -1369,16 +1450,7 @@ export function CommentList({
           {order === "newest" ? loadEarlier : null}
         </>
       )}
-      {empty && !composer && !loading ? (
-        <Empty size="sm" icon={<MessageSquare aria-hidden />}>
-          <EmptyHeader>
-            <EmptyDescription>{emptyText}</EmptyDescription>
-          </EmptyHeader>
-        </Empty>
-      ) : null}
-      {composer && !loading && (!empty || adding) ? (
-        <div ref={composerRef}>{composer}</div>
-      ) : null}
+      {composer && !loading ? composer : null}
     </section>
   );
 }
@@ -1393,7 +1465,7 @@ export function CommentListSkeleton() {
     >
       {[0, 1, 2].map((i) => (
         <div key={i} className="flex gap-3">
-          <Skeleton className="size-6 shrink-0 rounded-full" />
+          <Skeleton className="size-7 shrink-0 rounded-full" />
           <div className="flex flex-1 flex-col gap-2">
             <Skeleton className="h-3.5 w-40" />
             <Skeleton className="h-3.5 w-full" />

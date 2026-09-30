@@ -234,7 +234,6 @@
         "@vegastack/alert-dialog",
         "@vegastack/button",
         "@vegastack/dropdown-menu",
-        "@vegastack/empty",
         "@vegastack/markdown-view",
         "@vegastack/person-avatar",
         "@vegastack/reactions",
@@ -961,6 +960,27 @@
       }
     },
     {
+      "name": "code-highlight",
+      "type": "registry:lib",
+      "title": "Code Highlight",
+      "description": "The one shared lowlight instance (highlight.js common grammars) CodeBlock loads lazily and TextEdit's code block uses — one module so the grammars stay out of the main bundle.",
+      "categories": ["data"],
+      "dependencies": ["lowlight@^3.3.0"],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "packages/ui/registry/lib/code-highlight.ts",
+          "type": "registry:lib",
+          "target": "@lib/code-highlight.ts"
+        }
+      ],
+      "meta": {
+        "version": "0.23.94",
+        "whenToUse": "Highlighting code with the design system's shared grammars.",
+        "whenNotToUse": "Rendering code — use CodeBlock."
+      }
+    },
+    {
       "name": "code-block",
       "type": "registry:ui",
       "title": "Code Block",
@@ -968,9 +988,14 @@
       "categories": ["display"],
       "dependencies": [
         "@vegastack/design@^0.7.79",
-        "@vegastack/design-tokens@^0.7.79"
+        "@vegastack/design-tokens@^0.7.79",
+        "hast-util-to-jsx-runtime@^2.3.6",
+        "lowlight@^3.3.0"
       ],
-      "registryDependencies": ["@vegastack/copy-button"],
+      "registryDependencies": [
+        "@vegastack/copy-button",
+        "@vegastack/code-highlight"
+      ],
       "files": [
         {
           "path": "packages/ui/registry/ui/code-block.tsx",
@@ -14204,6 +14229,9 @@
         "@tiptap/markdown@^3",
         "@tiptap/pm@^3",
         "@tiptap/extension-code-block@^3",
+        "@tiptap/extension-code-block-lowlight@^3",
+        "lowlight@^3.3.0",
+        "highlight.js@^11.11.1",
         "@tiptap/extension-image@^3",
         "@tiptap/extension-list@^3",
         "@tiptap/extension-paragraph@^3",
@@ -14217,18 +14245,21 @@
       "registryDependencies": [
         "@vegastack/button",
         "@vegastack/checkbox",
+        "@vegastack/code-block",
+        "@vegastack/command",
         "@vegastack/copy-button",
         "@vegastack/drag-item",
         "@vegastack/dropdown-menu",
         "@vegastack/file-kind",
         "@vegastack/input",
         "@vegastack/markdown-view",
-        "@vegastack/native-select",
+        "@vegastack/popover",
         "@vegastack/text-anchor",
         "@vegastack/text-anchor-doc",
         "@vegastack/toggle",
         "@vegastack/tooltip",
-        "@vegastack/use-file-drop"
+        "@vegastack/use-file-drop",
+        "@vegastack/code-highlight"
       ],
       "files": [
         {

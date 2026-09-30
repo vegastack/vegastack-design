@@ -993,14 +993,16 @@ test("input rules: ####, [ ], ``` with a language and ---", async () => {
   );
 });
 
-test("the code block's language selector writes the fence's info string", async () => {
+test("the code block's language picker writes the fence's info string", async () => {
   const onValueChange = vi.fn();
   const screen = await markdownEditor({
     defaultValue: "```\nx = 1\n```",
     onValueChange,
   });
-  const select = screen.getByRole("combobox", { name: "Code language" });
-  await select.selectOptions("python");
+  await userEvent.click(
+    screen.getByRole("button", { name: "Code language: Plain text" }),
+  );
+  await userEvent.click(screen.getByRole("option", { name: "Python" }));
   await vi.waitFor(() =>
     expect(lastValue(onValueChange)).toBe("```python\nx = 1\n```"),
   );

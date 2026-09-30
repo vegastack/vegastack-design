@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.23.94 sha256-m2seArylkFGw72TqS1ePji+VlUdoG8hgfcIqdsS9Umg=
+// @vegastack text-edit@0.23.94 sha256-jVreV5pI8yQFYM1jhoOIkGfo0Pgsa7eC0GQzJW4KZLE=
 
 "use client";
 
@@ -181,6 +181,17 @@ export interface TextEditHandle {
    * compares against) to it, so a later `escapeBehavior="revert"` never restores older text.
    */
   markSaved: () => void;
+  /**
+   * Upload files at the caret through the editor's own upload flow (the placeholder, spinner and
+   * abort a paste or drop gets) — e.g. from an attach button's file picker. Needs `onImageUpload`
+   * or `onFileUpload`; mounts the editor first when it is not in yet.
+   */
+  uploadFiles: (files: readonly File[]) => void;
+  /**
+   * Open the editor's file picker (images only without `onFileUpload`); the picked files upload
+   * at the caret through `uploadFiles`. Mounts the editor first when it is not in yet.
+   */
+  pickFiles: () => void;
 }
 
 /* ------------------------------------------------------------------------------------------------
@@ -501,6 +512,11 @@ export interface TextEditProps {
    */
   mentionHref?: (kind: MentionKind, id: string) => string | null;
   /**
+   * A person mention's avatar URL, by id: its chip shows it (16px) in place of the person icon.
+   * @default undefined
+   */
+  mentionImage?: (id: string) => string | null | undefined;
+  /**
    * `MarkdownView`'s `citation`, for the read view shown before the editor activates: a `[[n]]`
    * marker renders as a superscript citation, and clicking it is the citation's, never an edit.
    * In the editor the markers stay plain `[[n]]` text.
@@ -715,6 +731,9 @@ export function TextEdit(props: TextEditProps) {
 
   // The public handle delegates to the editor once it is in; before that, the read view answers.
   const editorHandle = React.useRef<TextEditHandle | null>(null);
+  // Files handed to `uploadFiles` before the editor was in: uploaded once it is.
+  const pendingFilesRef = React.useRef<File[]>([]);
+  const pendingPickRef = React.useRef(false);
   React.useImperativeHandle(
     handleRef,
     () => ({
@@ -734,6 +753,20 @@ export function TextEdit(props: TextEditProps) {
         editorHandle.current?.getAnchorForSelection() ?? null,
       pulseAnnotation: (id) => editorHandle.current?.pulseAnnotation(id),
       markSaved: () => editorHandle.current?.markSaved(),
+      uploadFiles: (files) => {
+        if (editorHandle.current) editorHandle.current.uploadFiles(files);
+        else {
+          pendingFilesRef.current.push(...files);
+          activate("end");
+        }
+      },
+      pickFiles: () => {
+        if (editorHandle.current) editorHandle.current.pickFiles();
+        else {
+          pendingPickRef.current = true;
+          activate("end");
+        }
+      },
     }),
     // `activate` reads only refs and stable setters.
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -768,6 +801,14 @@ export function TextEdit(props: TextEditProps) {
     if (typedRef.current) {
       editor.commands.insertContent(typedRef.current);
       typedRef.current = "";
+    }
+    if (pendingFilesRef.current.length > 0) {
+      editorHandle.current?.uploadFiles(pendingFilesRef.current);
+      pendingFilesRef.current = [];
+    }
+    if (pendingPickRef.current) {
+      pendingPickRef.current = false;
+      editorHandle.current?.pickFiles();
     }
   }, [ready]);
 
@@ -920,6 +961,7 @@ export function TextEdit(props: TextEditProps) {
               // The editor shows every image; so does the view that stands in for it.
               allowedImageOrigins={ALL_ORIGINS}
               mentionHref={props.mentionHref}
+              mentionImage={props.mentionImage}
               citation={props.citation}
               fileLinkPrefix={props.fileLinkPrefix}
               headingIds={props.onOutlineChange !== undefined}

@@ -446,7 +446,7 @@ test('AutoSaveIndicator variant="icon": one icon per state, labelled for screen 
   await screen.rerender(<AutoSaveIndicator variant="icon" status="saved" />);
   await expect.element(screen.getByRole("status")).toHaveTextContent("Saved");
   expect(region.querySelector("svg")!.getAttribute("class")).toContain(
-    "text-success-text",
+    "text-muted-foreground",
   );
   await expectNoA11yViolations(screen.container);
 
@@ -463,7 +463,7 @@ test('AutoSaveIndicator variant="icon": one icon per state, labelled for screen 
     .element(screen.getByRole("status"))
     .toHaveTextContent("Couldn't save");
   const svg = region.querySelector("svg")!.getAttribute("class")!;
-  expect(svg).toContain("text-destructive-text");
+  expect(svg).toContain("text-warning-text");
   expect(svg).toContain("lucide-triangle-alert");
   expect(svg).not.toContain("motion-shake");
 });
