@@ -1,5 +1,14 @@
 # @vegastack/ui
 
+## 0.23.97
+
+### Patch Changes
+
+- [#469](https://github.com/vegastack/vegastack-design/pull/469) [`ba00a25`](https://github.com/vegastack/vegastack-design/commit/ba00a2536b4dbc9ac62c8bb69b5926be61439f95) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🔧 Comment boxes and code blocks. A code block's language label and Copy button get their own room above the code (`codeBlockControlsPadClassName`) instead of covering the first line, in `CodeBlock` and in `TextEdit`. `TextEdit` takes `slashHint` (default on); comment boxes turn it off, so "Add a comment…" and "Write a reply…" stay while focused instead of "Type / for commands". A press on a `TextEdit` box's padding before its editor has loaded now focuses the read view, so text typed while the editor loads is kept and replayed with the caret at its end.
+
+- Updated dependencies [[`ba00a25`](https://github.com/vegastack/vegastack-design/commit/ba00a2536b4dbc9ac62c8bb69b5926be61439f95)]:
+  - @vegastack/design@0.7.82
+
 ## 0.23.96
 
 ### Patch Changes

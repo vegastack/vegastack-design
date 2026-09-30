@@ -1,4 +1,4 @@
-// @vegastack file-viewer@0.23.96 sha256-/dRVnHaImXXIgY7nUOsPnE+hX2cEhPFeufDROyUw4z4=
+// @vegastack file-viewer@0.23.97 sha256-x6T3ItG5g5jRhD5GZ+NiRw5QsWGBJznJ7nxBMZkE7sg=
 
 "use client";
 
