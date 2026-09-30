@@ -147,6 +147,27 @@ test("LAY-15: the action takes its own grid column, never an absolute overlay (A
   expect(action.className).toContain("@md/alert:row-span-2");
 });
 
+test("LAY-15: two actions sit side by side with a gap and wrap when narrow (Action)", async () => {
+  const screen = await render(
+    <Alert>
+      <AlertTitle>Invitation sent</AlertTitle>
+      <AlertAction>
+        <Button size="xs" variant="outline">
+          Resend
+        </Button>
+        <Button size="xs" variant="ghost">
+          Revoke
+        </Button>
+      </AlertAction>
+    </Alert>,
+  );
+  const action = screen.container.querySelector("[data-slot=alert-action]")!;
+  expect(action.className).toContain("flex");
+  expect(action.className).toContain("flex-wrap");
+  expect(action.className).toContain("gap-2");
+  expect(action.querySelectorAll("[data-slot=button]")).toHaveLength(2);
+});
+
 test("DOC-2: cn from @vegastack/design merges a caller's className onto the recipe (Custom Colors)", async () => {
   const screen = await render(
     <Alert variant="warning" className="border-warning/40 bg-warning/10">

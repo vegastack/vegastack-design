@@ -257,3 +257,40 @@ export function alertActionWidth(): ReactNode {
     </Wrapper>
   );
 }
+
+export function alertActions(): ReactNode {
+  return (
+    <Wrapper>
+      <div className="grid w-full max-w-md gap-3">
+        <Alert variant="info">
+          <InfoIcon />
+          <AlertTitle>Invitation pending</AlertTitle>
+          <AlertDescription>
+            Sent to ada@example.com. The link expires in seven days.
+          </AlertDescription>
+          <AlertAction>
+            <Button size="xs" variant="outline">
+              Resend invite
+            </Button>
+            <Button size="xs" variant="ghost">
+              Revoke invite
+            </Button>
+          </AlertAction>
+        </Alert>
+        <Alert variant="info" className="max-w-xs">
+          <InfoIcon />
+          <AlertTitle>Invitation pending (a narrow alert)</AlertTitle>
+          <AlertDescription>The link expires in seven days.</AlertDescription>
+          <AlertAction>
+            <Button size="xs" variant="outline">
+              Resend invite
+            </Button>
+            <Button size="xs" variant="ghost">
+              Revoke invite
+            </Button>
+          </AlertAction>
+        </Alert>
+      </div>
+    </Wrapper>
+  );
+}

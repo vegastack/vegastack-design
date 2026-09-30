@@ -3308,6 +3308,60 @@ for (const width of [320, 1280] as const) {
   }
 }
 
+/**
+ * `alert-two-actions`: LAY-15 amended (MK, 30-09-2026). Two buttons placed straight in
+ * `AlertAction` sit side by side with the `gap-2` (8px) gap at 1280px, and at 320px, where the
+ * action has dropped below the text, they still never touch: side by side with the gap, or wrapped
+ * onto a second line.
+ */
+for (const width of [320, 1280] as const) {
+  test(`alert-two-actions: two sm actions at ${width}px keep an 8px gap and never overlap (LAY-15)`, async () => {
+    await page.viewport(width, 800);
+    try {
+      const screen = await render(
+        <div style={{ padding: "16px" }}>
+          <Alert>
+            <AlertTitle>Invitation pending</AlertTitle>
+            <AlertDescription>
+              Sent to ada@example.com. The link expires in seven days.
+            </AlertDescription>
+            <AlertAction>
+              <Button size="sm" variant="outline">
+                Resend invite
+              </Button>
+              <Button size="sm" variant="outline">
+                Revoke invite
+              </Button>
+            </AlertAction>
+          </Alert>
+        </div>,
+      );
+      await settle();
+      const first = screen
+        .getByRole("button", { name: "Resend invite" })
+        .element()
+        .getBoundingClientRect();
+      const second = screen
+        .getByRole("button", { name: "Revoke invite" })
+        .element()
+        .getBoundingClientRect();
+      const detail =
+        `first ${first.left.toFixed(1)}..${first.right.toFixed(1)} @${first.top.toFixed(1)} · ` +
+        `second ${second.left.toFixed(1)}..${second.right.toFixed(1)} @${second.top.toFixed(1)}`;
+      if (Math.abs(first.top - second.top) < 1) {
+        expect(second.left - first.right, detail).toBeGreaterThanOrEqual(7.5);
+      } else {
+        expect(second.top - first.bottom, detail).toBeGreaterThanOrEqual(7.5);
+      }
+      if (width === 1280) {
+        expect(Math.abs(first.top - second.top), detail).toBeLessThan(1);
+      }
+    } finally {
+      await page.viewport(320, 812);
+    }
+  });
+}
+
 // ── tabs (LAY-14, A11Y-20) ───────────────────────────────────────────────────────────────────────
 
 const EIGHT_TABS = [
