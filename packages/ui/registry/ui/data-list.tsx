@@ -1,4 +1,4 @@
-// @vegastack data-list@0.23.91 sha256-pgsBzAjXvCOT9AKukSkncjmTDl1fkt5HCgoyODaD09A=
+// @vegastack data-list@0.23.91 sha256-j0W1vQB/TA9BXchs3kiMkQudEqKAfAyqTf5EISYiQLs=
 
 "use client";
 
@@ -63,6 +63,7 @@ import {
 import { Checkbox } from "@/components/ui/checkbox";
 import {
   ActionBar,
+  type ActionBarProps,
   ActionBarButton,
   ActionBarSeparator,
 } from "@/components/ui/action-bar";
@@ -300,6 +301,17 @@ export interface DataListProps<T> extends Omit<
    * @default (count) => `${count} selected`
    */
   selectionLabel?: (count: number) => string;
+  /**
+   * Secondary selection actions, passed to the bar's `ActionBar` — buttons on a wide screen, a ⋯
+   * menu on a phone.
+   * @default undefined
+   */
+  selectionSecondaryActions?: ActionBarProps["secondaryActions"];
+  /**
+   * The selection bar's ⋯ menu trigger name, passed to `ActionBar` as `moreLabel`.
+   * @default "More actions"
+   */
+  selectionMoreLabel?: string;
   /**
    * The selection bar's clear button, as a screen reader hears it.
    * @default "Clear selection"
@@ -1076,6 +1088,8 @@ export function DataList<T>({
   onSelectionChange,
   selectionActions,
   selectionLabel = (count) => `${count} selected`,
+  selectionSecondaryActions,
+  selectionMoreLabel,
   clearSelectionLabel = "Clear selection",
   selectionBarLabel = "Selection actions",
   onDropInto,
@@ -2216,6 +2230,10 @@ export function DataList<T>({
         status={selectionLabel(selectionCount)}
         containerRef={rootRef}
         aria-label={selectionBarLabel}
+        secondaryActions={selectionSecondaryActions}
+        {...(selectionMoreLabel !== undefined
+          ? { moreLabel: selectionMoreLabel }
+          : {})}
       >
         {selectionActions(selected, clearSelection)}
         <ActionBarSeparator />

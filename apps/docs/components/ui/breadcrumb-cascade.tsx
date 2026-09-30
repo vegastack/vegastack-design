@@ -1,4 +1,4 @@
-// @vegastack breadcrumb-cascade@0.23.91 sha256-EoLUZgIXI/wueuo9L3My3jkUv2hQhPL1SWxNp9kMso4=
+// @vegastack breadcrumb-cascade@0.23.91 sha256-OR7a2e7N9Rp12ubK7m1XNvaTCHazZeCWX1tdnl1ly7k=
 
 "use client";
 
@@ -279,6 +279,13 @@ export interface BreadcrumbTrailStep {
   label: string;
   /** Where the step goes. The last step is the current page and is never a link. */
   href?: string;
+  /**
+   * Props for the step's `BreadcrumbItem` — `data-*` attributes, or `onDragOver`/`onDrop` for a
+   * native drop target.
+   * @default undefined
+   */
+  itemProps?: React.ComponentPropsWithoutRef<"li"> &
+    Record<`data-${string}`, string | undefined>;
 }
 
 /** Props accepted by `BreadcrumbTrail`. */
@@ -299,6 +306,12 @@ export interface BreadcrumbTrailProps extends Omit<
    * @default undefined
    */
   renderStep?: (step: BreadcrumbTrailStep, index: number) => React.ReactNode;
+  /**
+   * Render the current (last) step's content yourself. Return `undefined` for the default
+   * `BreadcrumbPage`.
+   * @default undefined
+   */
+  renderCurrent?: (step: BreadcrumbTrailStep, index: number) => React.ReactNode;
   /**
    * The "…" menu trigger's accessible name.
    * @default "Show path"
@@ -327,6 +340,7 @@ export function BreadcrumbTrail({
   steps,
   linkRender,
   renderStep,
+  renderCurrent,
   collapsedLabel = "Show path",
   className,
   ref,
@@ -375,8 +389,11 @@ export function BreadcrumbTrail({
   }, [foldable, steps]);
 
   const content = (step: BreadcrumbTrailStep, index: number) => {
-    if (index === last)
+    if (index === last) {
+      const current = renderCurrent?.(step, index);
+      if (current !== undefined) return current;
       return <BreadcrumbPage className="truncate">{step.label}</BreadcrumbPage>;
+    }
     const custom = renderStep?.(step, index);
     if (custom !== undefined) return custom;
     if (step.href === undefined) return <span>{step.label}</span>;
@@ -444,9 +461,11 @@ export function BreadcrumbTrail({
             <React.Fragment key={step.key ?? index}>
               {index > 0 ? <BreadcrumbSeparator /> : null}
               <BreadcrumbItem
+                {...step.itemProps}
                 data-current={index === last ? "" : undefined}
                 // Earlier steps keep their width; only the current step shortens.
                 className={cn(
+                  step.itemProps?.className,
                   "whitespace-nowrap",
                   index === last ? "min-w-0" : "shrink-0",
                 )}
