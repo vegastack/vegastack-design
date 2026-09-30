@@ -1,4 +1,4 @@
-// @vegastack direction@0.23.82 sha256-BUS/2T7rFrdc8kf3lqO7g8+x0rRcDvxxc93BPG4aptA=
+// @vegastack direction@0.23.83 sha256-SAfpqqC2EdkimiTLCmZdvFKTbZaeYOJkHjd3v/fuwL0=
 
 "use client";
 

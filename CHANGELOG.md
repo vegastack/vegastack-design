@@ -9,6 +9,17 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.23.83] — September 30, 2026
+
+<!-- assembled from 1 changeset: d30ce1c7945c -->
+
+### 📦 npm
+
+- The audio player loads less. `AudioPlayerProvider`, `useGlobalPlayer`, `useGlobalPlayerTime` and `GlobalAudioPlayer` now live in `audio-player-global` (still re-exported from `audio-player`): import them from there in an app shell and the player UI loads only once a recording opens, so routes that never play one ship no player code. `AudioPlayer` takes `deferControls`: a light play button (and the still waveform with `peaks`) until the first play, then the full controls with focus on their play button, for lists of recordings.
+  [`fae3c2e`](https://github.com/VegaStack/vegastack-design/commit/fae3c2e)
+- **`@vegastack/design`** → **`0.7.70`** (was `0.7.69`).
+- The design-system registry (`@vegastack/ui`) bumps 0.23.82 → 0.23.83.
+
 ## [0.23.82] — September 30, 2026
 
 <!-- assembled from 1 changeset: cb13b4aba494 -->

@@ -1,5 +1,11 @@
 # @vegastack/design
 
+## 0.7.70
+
+### Patch Changes
+
+- [#439](https://github.com/vegastack/vegastack-design/pull/439) [`fae3c2e`](https://github.com/vegastack/vegastack-design/commit/fae3c2e6b32a12741cb14c377a8d62e4f68abd49) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 📦 The audio player loads less. `AudioPlayerProvider`, `useGlobalPlayer`, `useGlobalPlayerTime` and `GlobalAudioPlayer` now live in `audio-player-global` (still re-exported from `audio-player`): import them from there in an app shell and the player UI loads only once a recording opens, so routes that never play one ship no player code. `AudioPlayer` takes `deferControls`: a light play button (and the still waveform with `peaks`) until the first play, then the full controls with focus on their play button, for lists of recordings.
+
 ## 0.7.69
 
 ### Patch Changes
