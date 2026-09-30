@@ -9,6 +9,20 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.23.91] — September 30, 2026
+
+<!-- assembled from 1 changeset: 731fb11c2f97 -->
+
+### 🔧 Changed components
+
+- `AutoSaveIndicator` takes `variant="icon"`: the status as one 16px icon for a field's trailing slot — a muted spinner while saving, a success check once saved that fades out when the status returns to idle, and a destructive warning triangle on error (warning ink on conflict). Each state pops in (fade plus a 0.9 → 1 scale), the box is always reserved, and the wording stays as screen-reader text in the live region. In a textarea `InputGroup`, an inline addon now sits top-aligned with the first line instead of mid-height (FRM-16), so a status icon lands in the top-right corner.
+  [`f45d422`](https://github.com/VegaStack/vegastack-design/commit/f45d422)
+
+### 📦 npm
+
+- **`@vegastack/design`** → **`0.7.76`** (was `0.7.75`).
+- The design-system registry (`@vegastack/ui`) bumps 0.23.90 → 0.23.91.
+
 ## [0.23.90] — September 30, 2026
 
 <!-- assembled from 1 changeset: 28195f7f65c3 -->
