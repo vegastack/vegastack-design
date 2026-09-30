@@ -1,4 +1,4 @@
-// @vegastack filter-bar@0.23.84 sha256-SQp7a5owcFylNGeZcp0gb3UV7TosBumwJiIMIhwAEhI=
+// @vegastack filter-bar@0.23.84 sha256-cmL0WX3eH3UYm/eK25ML8dS9rwbCDsOqgbJck5eSSvA=
 
 "use client";
 
@@ -855,7 +855,8 @@ export interface FilterBarFacetOwnProps<Item> {
    */
   label: string;
   /**
-   * Renders one option.
+   * Renders one option. Not used with the person contract (`itemToSecondaryLabel` /
+   * `itemToAvatar`), which draws avatar, name and email once; passing both warns in development.
    * @default itemToStringLabel
    */
   renderItem?: (item: Item) => React.ReactNode;
@@ -1043,7 +1044,7 @@ export function FilterBarFacet<
           searchPlaceholder={searchPlaceholder}
           searchLabel={searchLabel}
           emptyMessage={emptyMessage}
-          renderItem={renderItem ?? itemToStringLabel}
+          renderItem={renderItem}
           renderTriggerValue={text}
           groupBy={
             pinSelected

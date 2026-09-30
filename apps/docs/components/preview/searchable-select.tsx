@@ -362,7 +362,6 @@ export function searchableSelectPeople(): ReactNode {
           itemToStringLabel={(p) => p.name}
           itemToSecondaryLabel={(p) => p.email}
           itemToAvatar={(p) => p}
-          renderItem={(p) => p.name}
           placeholder="Assign someone"
           searchLabel="Search people"
         />

@@ -26,7 +26,6 @@ const [project, setProject] = React.useState<Project | null>(null);
   onValueChange={setProject}
   itemToKey={(p) => p.id}
   itemToStringLabel={(p) => p.name}
-  renderItem={(p) => p.name}
   searchLabel="Search projects"
   placeholder="Select project"
 />;
@@ -130,7 +129,8 @@ trigger.
 
 ### Rich rows
 
-`renderItem` draws a row; `renderValue` draws the trigger face when it should differ. Filtering
+`renderItem` draws a row (it defaults to `itemToStringLabel`); `renderValue` draws the trigger face
+when it should differ. Neither is used for people — see [People](#people). Filtering
 always runs against `itemToStringLabel`, so include everything a user might type — an owner, a code,
 an alias.
 
@@ -178,10 +178,14 @@ lists the headings that come first whatever the rows' order.
 
 ### People
 
-`itemToSecondaryLabel={(p) => p.email}` turns each option into the standard person row — the name,
-then a smaller muted email — and the local search matches both. The selected tick matches by
-`itemToKey`, so options from a server search (fresh objects on each fetch) tick exactly as static
+People have **one contract**: `itemToStringLabel` (the name), `itemToSecondaryLabel` (the email)
+and `itemToAvatar` (the `Person`). With either of the last two, the component draws each option as
+one `PersonOption` — avatar, name, then a smaller muted email, each exactly once — and the trigger as
+the avatar plus the name. The local search matches the name and the email. The selected tick matches
+by `itemToKey`, so options from a server search (fresh objects on each fetch) tick exactly as static
 ones do.
+
+This is the only correct usage — pass no `renderItem` or `renderValue`:
 
 ```tsx
 <SearchableSelect
@@ -192,10 +196,14 @@ ones do.
   itemToStringLabel={(p) => p.name}
   itemToSecondaryLabel={(p) => p.email}
   itemToAvatar={(p) => p}
-  renderItem={(p) => p.name}
   searchLabel="Search people"
 />
 ```
+
+Never return a `PersonOption` (or a `PersonAvatar`) from `renderItem` alongside the person contract:
+the rows would carry two avatars and two emails. The component prevents it — with the person
+contract, `renderItem` and `renderValue` are ignored and a development build logs one
+`console.warn` naming the ignored prop.
 
 `itemToAvatar` returns the option's `Person` (`name`, `image`, `hue`): each row then leads with its
 `PersonAvatar` — the photo, else the initials on the person's hue — and so does a single selection
@@ -210,8 +218,8 @@ on the trigger. `FilterBarFacet` takes the same prop for a people filter.
 
 `itemToBadge` puts a small muted outline badge right after a person's name — "Inactive" for
 someone who has left the workspace but still owns records you can filter by. List active people
-first. `FilterBarFacet` takes the same prop; a custom `renderItem` can use
-`<PersonOption badge="Inactive" />` directly.
+first. `FilterBarFacet` takes the same prop; outside a picker (a `DropdownMenuItem`, a list of your
+own) use `<PersonOption badge="Inactive" />` directly.
 
 ```tsx
 <FilterBarFacet
@@ -266,4 +274,9 @@ public ref is its root.
 <DoDont
   do="Let the parent size it — the trigger is w-full and the panel follows the anchor width."
   dont="Give the trigger a fixed width; it is the one thing that breaks the control at 320px."
+/>
+
+<DoDont
+  do="List people with itemToStringLabel, itemToSecondaryLabel and itemToAvatar alone — the component draws the avatar, name and email once."
+  dont="Return a PersonOption or PersonAvatar from renderItem as well; it is ignored with a development warning."
 />

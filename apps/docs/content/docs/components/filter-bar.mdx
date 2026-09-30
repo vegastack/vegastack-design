@@ -328,8 +328,10 @@ filter bar never puts the calendar engine in the page's first bundle.
 
 The tick on a selected option matches by `itemToKey`, so options that arrive from a server search
 (new objects on every fetch) tick exactly as static ones do. For people, pass
-`itemToSecondaryLabel={(p) => p.email}`: each option reads the name plus a smaller muted email
-(`PersonOption`), and the search matches both.
+`itemToSecondaryLabel={(p) => p.email}` (and `itemToAvatar`): each option is one `PersonOption` —
+avatar, name, then a smaller muted email, each drawn once — and the search matches both. A
+`renderItem` passed with them is ignored, with a development warning
+([the person contract](/docs/components/searchable-select#people)).
 
 `FilterBarFacet` passes `SearchableSelect`'s props through (minus the trigger face it owns:
 `renderItem`, `renderValue`, `renderTriggerValue`, `placeholder`, `variant`, `size`, `aria-label`

@@ -74,7 +74,8 @@ give it the standard tint, and a ▾ fades in at the end. The ▾ stays visible 
 - **Icons:** a status circle or a priority flag keeps its colour, and any other leading icon (a
   record-type icon such as a calendar or a person) is dropped.
 - **People:** `person` shows a 20px avatar (with an initials fallback) before the name, and its
-  `badge` (such as "Inactive") after it, like `PropertyPerson`.
+  `badge` (such as "Inactive") after it, like `PropertyPerson`. The person is the value: pass no
+  `value` with it (it is ignored, with a development warning), so the name is drawn once.
 - **Due dates:** pass a `DueLabel` as the value. It keeps its overdue colour.
 - **Empty:** the same empty pill as the default variant — a dashed rounded-full border around the
   muted placeholder, such as "Set due date" — inside the same 24px box, so every unset property
