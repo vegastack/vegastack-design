@@ -1,5 +1,11 @@
 # @vegastack/design
 
+## 0.7.71
+
+### Patch Changes
+
+- [#441](https://github.com/vegastack/vegastack-design/pull/441) [`ceb5c59`](https://github.com/vegastack/vegastack-design/commit/ceb5c5984497d3f2d73d21dd35750db43de1a5fe) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🐛 A sidebar item's `showOnHover` action no longer overlaps its count. `SidebarMenuAction` now writes the `data-show-on-hover` attribute the badge swap selects on — Base UI lower-cases state keys, so it had only ever written `data-showonhover` and the API-33 swap never engaged. At rest the count shows; on hover, keyboard focus or while the action's menu is open the action takes the count's place, with no layout shift or motion. Touch keeps both side by side: below `md`, and now also on a coarse pointer at any width, the action stays visible and the count sits just before it.
+
 ## 0.7.70
 
 ### Patch Changes
