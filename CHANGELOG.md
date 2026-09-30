@@ -9,6 +9,19 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.23.85] — September 30, 2026
+
+<!-- assembled from 1 changeset: 5a9ea10c81cb -->
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.23.84 → 0.23.85.
+
+### 🐛 Fixed
+
+- **SearchableSelect** — a person option can no longer render two avatars and two emails. With the person contract (`itemToStringLabel` for the name, `itemToSecondaryLabel` for the email, `itemToAvatar` for the `Person`), the component draws each option as one `PersonOption` and the trigger as one avatar plus the name; `renderItem` and `renderValue` are ignored there, with a one-time development `console.warn` when they are passed. `renderItem` is now optional and defaults to `itemToStringLabel`. `FilterBarFacet` follows the same rule, and `RecordChip` warns in development when `value` is passed with `person` (the person already wins). [docs](https://design.vegastack.com/docs/components/searchable-select) ·
+  [`6d5ec6f`](https://github.com/VegaStack/vegastack-design/commit/6d5ec6f)
+
 ## [0.23.84] — September 30, 2026
 
 <!-- assembled from 1 changeset: b50aa444b38e -->

@@ -1,5 +1,11 @@
 # @vegastack/ui
 
+## 0.23.85
+
+### Patch Changes
+
+- [#442](https://github.com/vegastack/vegastack-design/pull/442) [`6d5ec6f`](https://github.com/vegastack/vegastack-design/commit/6d5ec6fa89f3e6db6752e30b97b91b9117a20ba8) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🐛 **SearchableSelect** — a person option can no longer render two avatars and two emails. With the person contract (`itemToStringLabel` for the name, `itemToSecondaryLabel` for the email, `itemToAvatar` for the `Person`), the component draws each option as one `PersonOption` and the trigger as one avatar plus the name; `renderItem` and `renderValue` are ignored there, with a one-time development `console.warn` when they are passed. `renderItem` is now optional and defaults to `itemToStringLabel`. `FilterBarFacet` follows the same rule, and `RecordChip` warns in development when `value` is passed with `person` (the person already wins). [docs](https://design.vegastack.com/docs/components/searchable-select)
+
 ## 0.23.84
 
 ### Patch Changes
