@@ -1,10 +1,13 @@
 # component: sidebar
 # decisions: A11Y-2, A11Y-17, A11Y-18, API-29, API-33, BRD-1, DOC-1, DOC-2, FOC-1, FOC-6, FRM-4, INT-11, LAY-13, LAY-16, OVL-16, VOI-1
 # hunks:
-#   API-33: `SidebarMenuAction showOnHover` writes `data-show-on-hover`, and `SidebarMenuBadge`
-#     yields its slot to it: from `md` up the badge hides while the item is hovered or holds focus
-#     or the action is expanded; below `md` it moves to `end-7` beside the always-visible action,
-#     and `SidebarMenuButton` reserves `pe-14` for both (MK, 2026-09-27).
+#   API-33: `SidebarMenuAction showOnHover` writes `data-show-on-hover` explicitly (Base UI's
+#     state attribute is the lower-cased `data-showonhover`, which no selector matched — the
+#     30-09-2026 overlap), and `SidebarMenuBadge` yields its slot to it: from `md` up on a fine
+#     pointer the badge hides while the item is hovered or holds focus or the action is expanded;
+#     on touch (below `md`, or a coarse pointer at any width) the action stays visible, the badge
+#     moves to `end-7` beside it, and `SidebarMenuButton` reserves `pe-14` for both (MK,
+#     2026-09-27; coarse pointer 2026-09-30).
 #   API-29: `SidebarMenuButton` styles its own open state — `aria-expanded:` and
 #     `data-popup-open:` take the `sidebar-accent` fill and ink — so a menu trigger such as the
 #     user menu needs no className (MK, 2026-09-25).
@@ -82,7 +85,7 @@
 #               reflows the file, and `registry-stamp.mjs` writes the provenance header the
 #               three-copy model needs (DOC-1); those hunks carry no decision of their own.
 diff --git a/sidebar.tsx b/sidebar.tsx
-index cbcc413..63a6dc7 100644
+index cbcc413..254a3a7 100644
 --- a/sidebar.tsx
 +++ b/sidebar.tsx
 @@ -1,117 +1,207 @@
@@ -693,7 +696,7 @@ index cbcc413..63a6dc7 100644
  
  const sidebarMenuButtonVariants = cva(
 -  "peer/menu-button group/menu-button flex w-full items-center gap-2 overflow-hidden rounded-md p-2 text-start text-sm ring-sidebar-ring outline-hidden transition-[width,height,padding] group-has-data-[sidebar=menu-action]/menu-item:pe-8 group-data-[collapsible=icon]:size-8! group-data-[collapsible=icon]:p-2! hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 active:bg-sidebar-accent active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-open:hover:bg-sidebar-accent data-open:hover:text-sidebar-accent-foreground data-active:bg-sidebar-accent data-active:font-medium data-active:text-sidebar-accent-foreground [&_svg]:size-4 [&_svg]:shrink-0 [&>span:last-child]:truncate",
-+  "peer/menu-button group/menu-button flex w-full items-center gap-2 overflow-hidden rounded-md p-2 text-start text-sm ring-sidebar-ring transition-[width,height,padding] group-has-data-[sidebar=menu-action]/menu-item:pe-8 group-has-data-[sidebar=menu-badge]/menu-item:pe-8 group-has-[[data-sidebar=menu-badge][data-badge-size=lg]]/menu-item:pe-12 max-md:group-has-data-show-on-hover/menu-item:group-has-data-[sidebar=menu-badge]/menu-item:pe-14 group-data-[collapsible=icon]:size-8! group-data-[collapsible=icon]:p-2! hover:bg-sidebar-accent hover:text-sidebar-accent-foreground active:bg-sidebar-accent active:text-sidebar-accent-foreground disabled:opacity-50 aria-disabled:opacity-50 data-open:hover:bg-sidebar-accent data-open:hover:text-sidebar-accent-foreground aria-expanded:bg-sidebar-accent aria-expanded:text-sidebar-accent-foreground data-popup-open:bg-sidebar-accent data-popup-open:text-sidebar-accent-foreground data-active:bg-sidebar-accent data-active:font-medium data-active:text-sidebar-accent-foreground [&_svg]:size-4 [&_svg]:shrink-0 [&>span:last-child]:truncate [&_svg:not([class*='text-']):not([data-icon-tone])]:text-sidebar-foreground/70 hover:**:[svg:not([data-icon-tone])]:text-sidebar-accent-foreground active:**:[svg:not([data-icon-tone])]:text-sidebar-accent-foreground data-active:**:[svg:not([data-icon-tone])]:text-sidebar-accent-foreground",
++  "peer/menu-button group/menu-button flex w-full items-center gap-2 overflow-hidden rounded-md p-2 text-start text-sm ring-sidebar-ring transition-[width,height,padding] group-has-data-[sidebar=menu-action]/menu-item:pe-8 group-has-data-[sidebar=menu-badge]/menu-item:pe-8 group-has-[[data-sidebar=menu-badge][data-badge-size=lg]]/menu-item:pe-12 max-md:group-has-data-show-on-hover/menu-item:group-has-data-[sidebar=menu-badge]/menu-item:pe-14 pointer-coarse:group-has-data-show-on-hover/menu-item:group-has-data-[sidebar=menu-badge]/menu-item:pe-14 group-data-[collapsible=icon]:size-8! group-data-[collapsible=icon]:p-2! hover:bg-sidebar-accent hover:text-sidebar-accent-foreground active:bg-sidebar-accent active:text-sidebar-accent-foreground disabled:opacity-50 aria-disabled:opacity-50 data-open:hover:bg-sidebar-accent data-open:hover:text-sidebar-accent-foreground aria-expanded:bg-sidebar-accent aria-expanded:text-sidebar-accent-foreground data-popup-open:bg-sidebar-accent data-popup-open:text-sidebar-accent-foreground data-active:bg-sidebar-accent data-active:font-medium data-active:text-sidebar-accent-foreground [&_svg]:size-4 [&_svg]:shrink-0 [&>span:last-child]:truncate [&_svg:not([class*='text-']):not([data-icon-tone])]:text-sidebar-foreground/70 hover:**:[svg:not([data-icon-tone])]:text-sidebar-accent-foreground active:**:[svg:not([data-icon-tone])]:text-sidebar-accent-foreground data-active:**:[svg:not([data-icon-tone])]:text-sidebar-accent-foreground",
    {
      variants: {
        variant: {
@@ -832,7 +835,7 @@ index cbcc413..63a6dc7 100644
  }
  
  function SidebarMenuAction({
-@@ -557,27 +713,28 @@ function SidebarMenuAction({
+@@ -557,27 +713,31 @@ function SidebarMenuAction({
    ...props
  }: useRender.ComponentProps<"button"> &
    React.ComponentProps<"button"> & {
@@ -847,10 +850,14 @@ index cbcc413..63a6dc7 100644
 -          "absolute top-1.5 end-1 flex aspect-square w-5 items-center justify-center rounded-md p-0 text-sidebar-foreground ring-sidebar-ring outline-hidden transition-transform group-data-[collapsible=icon]:hidden peer-hover/menu-button:text-sidebar-accent-foreground peer-data-[size=default]/menu-button:top-1.5 peer-data-[size=lg]/menu-button:top-2.5 peer-data-[size=sm]/menu-button:top-1 after:absolute after:-inset-2 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 md:after:hidden [&>svg]:size-4 [&>svg]:shrink-0",
 +          "absolute top-1.5 end-1 flex aspect-square w-5 items-center justify-center rounded-md p-0 text-sidebar-foreground ring-sidebar-ring transition-transform group-data-[collapsible=icon]:hidden peer-hover/menu-button:text-sidebar-accent-foreground peer-data-[size=default]/menu-button:top-1.5 peer-data-[size=lg]/menu-button:top-2.5 peer-data-[size=sm]/menu-button:top-1 after:absolute after:-inset-2 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground [&>svg]:size-4 [&>svg]:shrink-0",
            showOnHover &&
-             "group-focus-within/menu-item:opacity-100 group-hover/menu-item:opacity-100 peer-data-active/menu-button:text-sidebar-accent-foreground aria-expanded:opacity-100 md:opacity-0",
+-            "group-focus-within/menu-item:opacity-100 group-hover/menu-item:opacity-100 peer-data-active/menu-button:text-sidebar-accent-foreground aria-expanded:opacity-100 md:opacity-0",
 -          className
++            "group-focus-within/menu-item:opacity-100 group-hover/menu-item:opacity-100 peer-data-active/menu-button:text-sidebar-accent-foreground aria-expanded:opacity-100 md:opacity-0 pointer-coarse:opacity-100",
 +          className,
          ),
++        // Base UI lower-cases state keys (`data-showonhover`), so the hyphenated hook the badge and
++        // button select on is written here, explicitly.
++        ...(showOnHover ? { "data-show-on-hover": "" } : {}),
        },
 -      props
 +      props,
@@ -866,7 +873,7 @@ index cbcc413..63a6dc7 100644
  }
  
  function SidebarMenuBadge({
-@@ -588,26 +745,32 @@ function SidebarMenuBadge({
+@@ -588,26 +748,32 @@ function SidebarMenuBadge({
      <div
        data-slot="sidebar-menu-badge"
        data-sidebar="menu-badge"
@@ -874,7 +881,7 @@ index cbcc413..63a6dc7 100644
        className={cn(
 -        "pointer-events-none absolute end-1 flex h-5 min-w-5 items-center justify-center rounded-md px-1 text-xs font-medium text-sidebar-foreground tabular-nums select-none group-data-[collapsible=icon]:hidden peer-hover/menu-button:text-sidebar-accent-foreground peer-data-[size=default]/menu-button:top-1.5 peer-data-[size=lg]/menu-button:top-2.5 peer-data-[size=sm]/menu-button:top-1 peer-data-active/menu-button:text-sidebar-accent-foreground",
 -        className
-+        "pointer-events-none absolute end-1 flex h-5 min-w-5 items-center justify-center rounded-md px-1 text-xs font-medium text-sidebar-foreground tabular-nums select-none group-data-[collapsible=icon]:hidden peer-hover/menu-button:text-sidebar-accent-foreground peer-data-[size=default]/menu-button:top-1.5 peer-data-[size=lg]/menu-button:top-2.5 peer-data-[size=sm]/menu-button:top-1 peer-data-active/menu-button:text-sidebar-accent-foreground max-md:group-has-data-show-on-hover/menu-item:end-7 md:group-has-data-show-on-hover/menu-item:group-hover/menu-item:opacity-0 md:group-has-data-show-on-hover/menu-item:group-focus-within/menu-item:opacity-0 md:group-has-[[data-show-on-hover][aria-expanded=true]]/menu-item:opacity-0",
++        "pointer-events-none absolute end-1 flex h-5 min-w-5 items-center justify-center rounded-md px-1 text-xs font-medium text-sidebar-foreground tabular-nums select-none group-data-[collapsible=icon]:hidden peer-hover/menu-button:text-sidebar-accent-foreground peer-data-[size=default]/menu-button:top-1.5 peer-data-[size=lg]/menu-button:top-2.5 peer-data-[size=sm]/menu-button:top-1 peer-data-active/menu-button:text-sidebar-accent-foreground max-md:group-has-data-show-on-hover/menu-item:end-7 pointer-coarse:group-has-data-show-on-hover/menu-item:end-7 md:not-pointer-coarse:group-has-data-show-on-hover/menu-item:group-hover/menu-item:opacity-0 md:not-pointer-coarse:group-has-data-show-on-hover/menu-item:group-focus-within/menu-item:opacity-0 md:not-pointer-coarse:group-has-[[data-show-on-hover][aria-expanded=true]]/menu-item:opacity-0",
 +        className,
        )}
        {...props}
@@ -907,7 +914,7 @@ index cbcc413..63a6dc7 100644
  
    return (
      <div
-@@ -632,7 +795,7 @@ function SidebarMenuSkeleton({
+@@ -632,7 +798,7 @@ function SidebarMenuSkeleton({
          }
        />
      </div>
@@ -916,7 +923,7 @@ index cbcc413..63a6dc7 100644
  }
  
  function SidebarMenuSub({ className, ...props }: React.ComponentProps<"ul">) {
-@@ -642,11 +805,11 @@ function SidebarMenuSub({ className, ...props }: React.ComponentProps<"ul">) {
+@@ -642,11 +808,11 @@ function SidebarMenuSub({ className, ...props }: React.ComponentProps<"ul">) {
        data-sidebar="menu-sub"
        className={cn(
          "mx-3.5 flex min-w-0 translate-x-px rtl:-translate-x-px flex-col gap-1 border-s border-sidebar-border px-2.5 py-0.5 group-data-[collapsible=icon]:hidden",
@@ -930,7 +937,7 @@ index cbcc413..63a6dc7 100644
  }
  
  function SidebarMenuSubItem({
-@@ -660,7 +823,7 @@ function SidebarMenuSubItem({
+@@ -660,7 +826,7 @@ function SidebarMenuSubItem({
        className={cn("group/menu-sub-item relative", className)}
        {...props}
      />
@@ -939,7 +946,7 @@ index cbcc413..63a6dc7 100644
  }
  
  function SidebarMenuSubButton({
-@@ -671,19 +834,19 @@ function SidebarMenuSubButton({
+@@ -671,19 +837,19 @@ function SidebarMenuSubButton({
    ...props
  }: useRender.ComponentProps<"a"> &
    React.ComponentProps<"a"> & {
@@ -964,7 +971,7 @@ index cbcc413..63a6dc7 100644
      ),
      render,
      state: {
-@@ -692,7 +855,7 @@ function SidebarMenuSubButton({
+@@ -692,7 +858,7 @@ function SidebarMenuSubButton({
        size,
        active: isActive,
      },
@@ -973,7 +980,7 @@ index cbcc413..63a6dc7 100644
  }
  
  export {
-@@ -718,6 +881,8 @@ export {
+@@ -718,6 +884,8 @@ export {
    SidebarProvider,
    SidebarRail,
    SidebarSeparator,

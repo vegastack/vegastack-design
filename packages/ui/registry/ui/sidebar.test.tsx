@@ -897,6 +897,87 @@ test("showOnHover hides the action at md and above until the row is hovered (Sid
   await expect.poll(() => Number(getComputedStyle(action).opacity)).toBe(1);
 });
 
+function CountAction() {
+  return (
+    <StaticPanel>
+      <SidebarMenu>
+        <SidebarMenuItem>
+          <SidebarMenuButton badge="2" badgeLabel="2 due">
+            <Inbox />
+            <span>Tasks</span>
+          </SidebarMenuButton>
+          <SidebarMenuAction showOnHover aria-label="New task">
+            <Plus />
+          </SidebarMenuAction>
+        </SidebarMenuItem>
+      </SidebarMenu>
+    </StaticPanel>
+  );
+}
+
+test("API-33: showOnHover swaps with the badge in the same spot from md up (rest, hover, leave)", async () => {
+  const screen = await render(<CountAction />);
+  const item = slot(screen.container, "sidebar-menu-item") as HTMLElement;
+  const action = slot(screen.container, "sidebar-menu-action") as HTMLElement;
+  const badge = slot(screen.container, "sidebar-menu-badge") as HTMLElement;
+  // The hyphenated hook the badge selects on — Base UI's own state attribute is `data-showonhover`.
+  expect(action.hasAttribute("data-show-on-hover")).toBe(true);
+
+  const opacity = (el: HTMLElement) => Number(getComputedStyle(el).opacity);
+  // The pointer persists between tests; start it off the row.
+  await userEvent.unhover(item);
+  await expect.poll(() => [opacity(badge), opacity(action)]).toEqual([1, 0]);
+  const b = badge.getBoundingClientRect();
+  const a = action.getBoundingClientRect();
+  expect(Math.abs(b.right - a.right)).toBeLessThan(0.5);
+  expect(Math.abs(b.top - a.top)).toBeLessThan(0.5);
+
+  await userEvent.hover(item);
+  await expect.poll(() => [opacity(badge), opacity(action)]).toEqual([0, 1]);
+  expect(badge.getBoundingClientRect().right).toBeCloseTo(b.right, 1);
+
+  await userEvent.unhover(item);
+  await expect.poll(() => [opacity(badge), opacity(action)]).toEqual([1, 0]);
+
+  // Keyboard focus anywhere in the item swaps too.
+  (slot(screen.container, "sidebar-menu-button") as HTMLElement).focus();
+  await expect.poll(() => [opacity(badge), opacity(action)]).toEqual([0, 1]);
+});
+
+test("API-33: below md the action stays visible and the badge sits beside it, clear of the label", async () => {
+  await page.viewport(...NARROW);
+  const screen = await render(<CountAction />);
+  const action = slot(screen.container, "sidebar-menu-action") as HTMLElement;
+  const badge = slot(screen.container, "sidebar-menu-badge") as HTMLElement;
+  expect(Number(getComputedStyle(action).opacity)).toBe(1);
+  expect(Number(getComputedStyle(badge).opacity)).toBe(1);
+  expect(badge.getBoundingClientRect().right).toBeLessThanOrEqual(
+    action.getBoundingClientRect().left + 0.5,
+  );
+  const label = screen.container.querySelector(
+    "[data-slot=sidebar-menu-button] span:not(.sr-only)",
+  ) as HTMLElement;
+  expect(label.getBoundingClientRect().right).toBeLessThanOrEqual(
+    badge.getBoundingClientRect().left + 0.5,
+  );
+});
+
+test("API-33: a coarse pointer gets the touch layout at any width (class contract)", async () => {
+  const screen = await render(<CountAction />);
+  const action = slot(screen.container, "sidebar-menu-action") as HTMLElement;
+  const badge = slot(screen.container, "sidebar-menu-badge") as HTMLElement;
+  const button = slot(screen.container, "sidebar-menu-button") as HTMLElement;
+  // The Chromium lane cannot emulate `(pointer: coarse)`, so the contract is the class string.
+  expect(action.className).toContain("pointer-coarse:opacity-100");
+  expect(badge.className).toContain(
+    "pointer-coarse:group-has-data-show-on-hover/menu-item:end-7",
+  );
+  expect(badge.className).not.toMatch(/(^| )md:group-has/);
+  expect(button.className).toContain(
+    "pointer-coarse:group-has-data-show-on-hover/menu-item:group-has-data-[sidebar=menu-badge]/menu-item:pe-14",
+  );
+});
+
 /* ── SidebarMenuSub ─────────────────────────────────────────────────────────────────────────── */
 
 test("a submenu is a nested list of anchors with their own size and active state (SidebarMenuSub)", async () => {
