@@ -63,7 +63,8 @@ expose `Content-Range` (a single-range request is CORS-safelisted in current bro
 | Which file is open, and closing | Host — `index` is controlled; `onOpenChange(false)` means set it to null                                              |
 | Signing or resolving URLs       | Host — pass `src`, `srcSet`, `pdfSrc` and `downloadHref` ready to use                                                 |
 | Video and audio playback        | [`VideoPlayer`](/docs/components/video-player) / [`AudioPlayer`](/docs/components/audio-player), mounted on the stage |
-| Parsing Office files            | Host — `loadPreview` returns a table, HTML, text or a card; the parser stays an app dependency                        |
+| Excel and Word files            | Built in — SheetJS and mammoth, imported only when such a file opens (up to 20 MB); `loadPreview` overrides it        |
+| Parsing other Office files      | Host — `loadPreview` returns a table, a workbook, HTML, text or a card                                                |
 | Posters, peaks, Office pictures | Host, at upload — `probeVideo`, `probeAudio`, `extractPptxThumbnail` from the `media-probe` lib                       |
 | The tiles that open it          | [`Attachment`](/docs/components/attachment), a thumbnail grid, any button                                             |
 
@@ -182,9 +183,19 @@ they show as text.
   file="components/preview/file-viewer.tsx"
 />
 
+### Excel and Word
+
+An Excel workbook (`.xlsx`, `.xlsm`, `.xls`, `.ods`) or a Word document (`.docx`) with a `src` is
+read in the viewer. The reader, and SheetJS or mammoth inside it, is imported the first time such a
+file opens, so a page that never opens one never loads either. A workbook shows a tab per sheet over
+the same table as a CSV, each sheet cut at its first 500 rows with "Showing the first 500 rows ·
+Download". A document shows mammoth's HTML in the document surface, rebuilt through
+`MarkdownView`'s allowlist, so no script, handler or style from the file survives. A file over
+20 MB, or one that fails to read, shows the Download card.
+
 ### Office and other files
 
-Anything the viewer cannot read — an Office file, an archive, a file with no URL — gets a card: the
+Anything the viewer cannot read — a slide deck, an archive, a file with no URL — gets a card: the
 file's own picture when `thumb` has one (PowerPoint saves a first-slide thumbnail inside the file;
 read it at upload with `extractPptxThumbnail`), else its type icon, then the name, the size and a
 primary Download button.
@@ -206,8 +217,8 @@ primary Download button.
 `table` (the first row is the header; `totalRows` makes the note "Showing first 500 of 12,400
 rows"), `markdown`, `html` (rebuilt through `MarkdownView`'s allowlist, never injected) or a `card`
 with a picture and facts ("12 slides") — or `null` to keep the built-in reading. A spinner shows
-while it runs; a rejection falls back to the built-in reading. So SheetJS for spreadsheets or
-mammoth for Word files stay the app's dependencies, lazily imported by the app.
+while it runs; a rejection falls back to the built-in reading. Use it for a format the viewer does
+not read (a slide deck), or to parse Excel and Word files your own way.
 
 ```tsx
 <FileViewer

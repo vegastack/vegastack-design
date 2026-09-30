@@ -1107,6 +1107,43 @@ test('mergedLayout="line": folded values share one compact meta line', async () 
   expect(merged.querySelectorAll('[aria-hidden="true"]')).toHaveLength(1);
 });
 
+test('mergedLayout="line" is one truncating line: empty values ("—") drop with their dot, avatars hide', async () => {
+  const screen = await render(
+    <div style={{ width: "300px" }}>
+      <DataList
+        aria-label="Files"
+        mergedLayout="line"
+        columns={[
+          { key: "name", header: "Name" },
+          { key: "role", header: "Role" },
+          {
+            key: "team",
+            header: "By",
+            mergedRender: () => (
+              <>
+                <span data-slot="avatar">KM</span>K Manoj Kumar
+              </>
+            ),
+          },
+          { key: "email", header: "Size", mergedRender: () => "—" },
+          { key: "id", header: "When", mergedRender: () => "13h ago" },
+        ]}
+        data={wideData.slice(0, 1)}
+        getRowId={(r) => r.id}
+      />
+    </div>,
+  );
+  await expect.poll(headerTexts).toEqual(["Name", "Role"]);
+  const merged = screen.container.querySelector<HTMLElement>(
+    '[data-slot="data-list-merged"]',
+  )!;
+  expect(merged.textContent).toBe("KMK Manoj Kumar·13h ago");
+  expect(merged.className).toContain("flex-nowrap");
+  expect(merged.className).toContain("[&_[data-slot=avatar]]:hidden");
+  for (const value of merged.children)
+    expect(value.className).toContain("truncate");
+});
+
 test("rowProps: data-* passthrough and a highlighted row", async () => {
   const screen = await render(
     <DataList

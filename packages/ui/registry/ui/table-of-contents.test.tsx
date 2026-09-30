@@ -372,3 +372,13 @@ test("sticky: the top offset defaults to zero and a className spelling of it win
   );
   expect(root().className).toContain("sticky");
 });
+
+test("rail: the open panel is a raised, solid overlay above the page's positioned content", async () => {
+  await render(<TableOfContents items={ITEMS} variant="rail" />);
+  expect(root().className).toContain("z-20");
+  const surface = document.querySelector<HTMLElement>(
+    '[data-slot="table-of-contents-surface"]',
+  )!;
+  expect(surface.className).toContain("bg-popover");
+  expect(surface.className).toContain("shadow-md");
+});

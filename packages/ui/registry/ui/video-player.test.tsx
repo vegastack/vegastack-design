@@ -1,6 +1,6 @@
 import * as React from "react";
 import { render } from "vitest-browser-react";
-import { beforeEach, expect, test, vi } from "vitest";
+import { beforeEach, expect, onTestFinished, test, vi } from "vitest";
 import { page, userEvent } from "vitest/browser";
 import { TIMINGS } from "@vegastack/design";
 import { expectNoA11yViolations } from "../../test/a11y";
@@ -985,4 +985,35 @@ test("a renewal that returns the same URL (a route that re-signs) reloads it", a
   const load = vi.spyOn(video, "load");
   video.dispatchEvent(new Event("error"));
   await vi.waitFor(() => expect(load).toHaveBeenCalledOnce());
+});
+
+/** Answer every media query as `matches(query)` for the rest of the test. */
+function stubMediaQueries(matches: (query: string) => boolean) {
+  const spy = vi.spyOn(window, "matchMedia").mockImplementation(
+    (query: string) =>
+      ({
+        matches: matches(query),
+        media: query,
+        onchange: null,
+        addEventListener() {},
+        removeEventListener() {},
+        addListener() {},
+        removeListener() {},
+        dispatchEvent: () => false,
+      }) as MediaQueryList,
+  );
+  onTestFinished(() => spy.mockRestore());
+}
+
+test("on a coarse pointer (touch) the controls, and the play button, are always shown", async () => {
+  stubMediaQueries((query) => query === "(pointer: coarse)");
+  const screen = await render(<VideoPlayer src={SOURCE} label="Walkthrough" />);
+  const overlay = () =>
+    screen.container.querySelector<HTMLElement>(
+      '[data-slot="video-player-controls-overlay"]',
+    );
+  await expect.poll(() => overlay()?.dataset.state).toBe("visible");
+  await expect
+    .element(screen.getByRole("button", { name: /^Play/ }))
+    .toBeInTheDocument();
 });

@@ -51,6 +51,18 @@ test("the editor surface and MarkdownView wear the same prose recipe", async () 
   expect(editable.className).toContain("[&_code]:font-mono");
 });
 
+test('headingScale="document" lays the document heading sizes over the prose recipe', async () => {
+  const screen = await render(
+    <TextEdit aria-label="Body" headingScale="document" />,
+  );
+  const editable = screen
+    .getByRole("textbox", { name: "Body" })
+    .element() as HTMLElement;
+  expect(editable.className).toContain("[&_h1]:text-3xl");
+  expect(editable.className).toContain("[&_h2]:text-2xl");
+  expect(editable.className).not.toContain("[&_h1]:text-lg");
+});
+
 test("typing into the editor emits HTML via onValueChange", async () => {
   const onValueChange = vi.fn();
   const screen = await render(

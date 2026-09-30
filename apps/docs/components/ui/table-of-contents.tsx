@@ -1,4 +1,4 @@
-// @vegastack table-of-contents@0.23.88 sha256-dNHNEi8itaB1xgxQDP4oS0F/yt3YJhOn7bol0nSmMEI=
+// @vegastack table-of-contents@0.23.88 sha256-r3m/P1djYEYx0l86MLihaBKoLfDYQduH35eorUG2e7Q=
 
 "use client";
 
@@ -568,7 +568,9 @@ function TableOfContentsNav({
       data-variant="rail"
       data-expanded={expanded ? "" : undefined}
       className={cn(
-        "group/table-of-contents relative w-6 shrink-0",
+        // `z-20`: the open panel is an overlay, so it paints over the page's own positioned
+        // content (the title, the editor), never under it.
+        "group/table-of-contents relative z-20 w-6 shrink-0",
         sticky && STICKY,
         className,
       )}
@@ -608,7 +610,7 @@ function TableOfContentsNav({
         <div
           aria-hidden
           data-slot="table-of-contents-surface"
-          className="pointer-events-none absolute inset-0 rounded-lg border border-border bg-popover opacity-0 transition-opacity duration-150 group-data-expanded/table-of-contents:opacity-100"
+          className="pointer-events-none absolute inset-0 rounded-lg border border-border bg-popover opacity-0 shadow-md transition-opacity duration-150 group-data-expanded/table-of-contents:opacity-100"
         />
         <div
           ref={scrollerRef}

@@ -242,6 +242,8 @@ Upstream's file plus `packages/ui/upstream/patches/context-menu.patch`. Every hu
 
 - **OVL-13** — the same two hosts `dropdown-menu` has: `ContextMenuContent`'s own portal is scoped
   on its Positioner, and the exported `ContextMenuPortal` scopes a `display: contents` wrapper.
+- **OVL-19** — `ContextMenuContent` takes `w-max max-w-(--available-width)`, so the menu is as
+  wide as its longest item and an item never wraps near a viewport edge.
 - **INT-1** — `cursor-default` is removed from the item, the submenu trigger, the checkbox item
   and the radio item.
 - **FRM-4** — `data-disabled:pointer-events-none` is dropped from the item, the checkbox item and

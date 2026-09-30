@@ -1,5 +1,5 @@
 # component: dropdown-menu
-# decisions: A11Y-13, API-19, BRD-1, DOC-1, DOC-2, FRM-4, INT-1, OVL-13, OVL-14
+# decisions: A11Y-13, API-19, BRD-1, DOC-1, DOC-2, FRM-4, INT-1, OVL-13, OVL-14, OVL-19
 # hunks:
 #   OVL-13: two hosts, because upstream has two. `DropdownMenuContent` opens its own
 #     `Menu.Portal`, so it reads `useInternalThemeScope()` and attaches it to the Positioner
@@ -34,8 +34,12 @@
 #   cn: `import { cn } from "cn"` becomes `@vegastack/design` — our npm layer owns `cn` (DOC-2).
 #   formatting: prettier reflow plus the `registry-stamp.mjs` provenance header (DOC-1); no
 #               decision of their own.
+#   OVL-19 (MK 2026-09-30): `DropdownMenuContent` is `w-max max-w-(--available-width)` with a
+#     `min-w` of the larger of `--spacing(32)` and the trigger (`--anchor-width`), in place of
+#     upstream's `w-(--anchor-width) min-w-32`, and `DropdownMenuSubContent`'s `w-auto` becomes
+#     `w-max`: a menu is as wide as its longest item, so an item never wraps.
 diff --git a/dropdown-menu.tsx b/dropdown-menu.tsx
-index 13d14a6..6d61e7c 100644
+index 13d14a6..4959533 100644
 --- a/dropdown-menu.tsx
 +++ b/dropdown-menu.tsx
 @@ -1,20 +1,35 @@
@@ -113,7 +117,7 @@ index 13d14a6..6d61e7c 100644
            data-slot="dropdown-menu-content"
 -          className={cn("z-50 max-h-(--available-height) w-(--anchor-width) min-w-32 origin-(--transform-origin) overflow-x-hidden overflow-y-auto rounded-lg bg-popover p-1 text-popover-foreground shadow-md ring-1 ring-foreground/10 duration-100 outline-none data-[side=bottom]:slide-in-from-top-2 data-[side=inline-end]:slide-in-from-start-2 data-[side=inline-start]:slide-in-from-end-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:overflow-hidden data-closed:fade-out-0 data-closed:zoom-out-95", className )}
 +          className={cn(
-+            "z-50 max-h-(--available-height) w-(--anchor-width) min-w-32 origin-(--transform-origin) overflow-x-hidden overflow-y-auto rounded-lg bg-popover p-1 text-popover-foreground shadow-md border border-border duration-100 outline-none data-[side=bottom]:slide-in-from-top-2 data-[side=inline-end]:slide-in-from-start-2 data-[side=inline-start]:slide-in-from-end-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:overflow-hidden data-closed:fade-out-0 data-closed:zoom-out-95",
++            "z-50 max-h-(--available-height) w-max max-w-(--available-width) min-w-[max(--spacing(32),var(--anchor-width))] origin-(--transform-origin) overflow-x-hidden overflow-y-auto rounded-lg bg-popover p-1 text-popover-foreground shadow-md border border-border duration-100 outline-none data-[side=bottom]:slide-in-from-top-2 data-[side=inline-end]:slide-in-from-start-2 data-[side=inline-start]:slide-in-from-end-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:overflow-hidden data-closed:fade-out-0 data-closed:zoom-out-95",
 +            className,
 +          )}
            {...props}
@@ -230,7 +234,7 @@ index 13d14a6..6d61e7c 100644
        data-slot="dropdown-menu-sub-content"
 -      className={cn("w-auto min-w-[96px] rounded-lg bg-popover p-1 text-popover-foreground shadow-lg ring-1 ring-foreground/10 duration-100 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95", className )}
 +      className={cn(
-+        "w-auto min-w-[96px] rounded-lg bg-popover p-1 text-popover-foreground shadow-lg border border-border duration-100 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95",
++        "w-max min-w-[96px] rounded-lg bg-popover p-1 text-popover-foreground shadow-lg border border-border duration-100 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95",
 +        className,
 +      )}
        align={align}

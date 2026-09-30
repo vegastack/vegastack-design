@@ -46,7 +46,9 @@
         "@vegastack/design-tokens@^0.7.56"
       ],
       "registryDependencies": [
-        "@vegastack/button"
+        "@vegastack/button",
+        "@vegastack/dropdown-menu",
+        "@vegastack/use-media-query"
       ],
       "files": [
         {
@@ -59,7 +61,7 @@
         "whenToUse": "A floating bar of contextual actions tied to transient state — N selected, unsaved changes, a batch operation in flight. The host owns the state; the bar shows status and actions.",
         "whenNotToUse": "Transient outcome notifications (toast), page-level primary actions (PageHeader), or owning selection — the host's list keeps selectedIds.",
         "version": "0.23.88",
-        "integrity": "sha256-rEIZhxMcSjNt7p8tz88QARitoXCVYnsXy8wCZrZTS8Y="
+        "integrity": "sha256-/ArpI1KDjQnVjC7J5S1FNokuqsuK/enVAeBfa6A+tJw="
       }
     },
     {
@@ -777,7 +779,7 @@
         "whenToUse": "A file browser's trail: drop rows onto a parent folder's crumb, or jump to a sibling folder from a segment's menu.",
         "whenNotToUse": "A plain location trail (Breadcrumb alone), or primary navigation.",
         "version": "0.23.88",
-        "integrity": "sha256-f3Yh2WidTFgPzWYAF0wqy+Ff+uSZ8SMkoVSxXar2Rlg="
+        "integrity": "sha256-dG6PnaHSb5+XuC5T597dDZ2Wkxea3rDm8U6fas+/cKA="
       }
     },
     {
@@ -1266,7 +1268,7 @@
         "whenToUse": "Secondary actions on an object the user has already found — a file row, a canvas node, a board card. A two-line row composes ItemTitle + ItemDescription, and the description is the row's accessible description — including a disabled row's reason.",
         "whenNotToUse": "The only way to reach an action — right-click is discoverable by almost nobody; pair it with a visible menu.",
         "version": "0.23.88",
-        "integrity": "sha256-MB4TlhfFqfMU1h9+NoyNz0FDh2GRawdUhu7S5TgBsIA="
+        "integrity": "sha256-fUVRQVY2RRL8+ULFB1F3r6tBQ+AYOMxfE94rLycLyl0="
       }
     },
     {
@@ -1412,7 +1414,7 @@
         "whenToUse": "A list of records as a table, a card grid or board lanes (view) with typed columns, selection, click-to-sort, loading/empty states, keyset paging through loadMore, rows as links, sections, thumbnails and a row-actions column.",
         "whenNotToUse": "Full-parity grids with grouping/editing/virtualization (DataGrid), or a simple static table (Table).",
         "version": "0.23.88",
-        "integrity": "sha256-8wljjeFbQSAMO8kRzwN08LacE7omtSdntWApklk80JE="
+        "integrity": "sha256-ZB3dinK8IoZhokBX6Pa2ENQhqID0Dgz8B5k/bXnod80="
       }
     },
     {
@@ -1816,7 +1818,7 @@
         "whenToUse": "Any file surface that shows a size, picks an icon for a file, or branches on what kind of file it holds.",
         "whenNotToUse": "Previewing a file (FileViewer) or acquiring one (use-file-drop).",
         "version": "0.23.88",
-        "integrity": "sha256-cC6uN3rZkdj5wjZFe6V+8dmW9zqeBKimOR4HzMn8kTc="
+        "integrity": "sha256-iWVbUX0xS1IA610wgmpT8uXa2wcXsY1Gq0m5lzX2CG0="
       }
     },
     {
@@ -1949,7 +1951,7 @@
         "whenToUse": "A list of actions or option toggles anchored to a button — row actions, an account menu, a view switcher. A two-line row composes ItemTitle + ItemDescription, and the description is the row's accessible description — including a disabled row's reason.",
         "whenNotToUse": "Choosing a form value (Select), navigating between pages (NavigationMenu), or content the user reads (Popover).",
         "version": "0.23.88",
-        "integrity": "sha256-G7vmBX3f0ED8ICb1nsRn3BpCGBrstRYVEgaywUE222I="
+        "integrity": "sha256-KOKh16rpl4aLyuTiifB9j5H1vwfVa5PmD7vLrQ7uyu4="
       }
     },
     {
@@ -15437,7 +15439,7 @@
       "name": "file-viewer",
       "type": "registry:ui",
       "title": "File Viewer",
-      "description": "A full-screen dark overlay for stored files — images with a blur-up, zoom and pan; PDFs rendered page by page with a lazily loaded pdf.js over range requests; video and audio in the system players; the first megabyte of text, CSV (a table) and Markdown; app-parsed previews through loadPreview; a file card with a thumbnail and Download for everything else — paged with arrows, side buttons or a swipe.",
+      "description": "A full-screen dark overlay for stored files — images with a blur-up, zoom and pan; PDFs rendered page by page with a lazily loaded pdf.js over range requests; video and audio in the system players; the first megabyte of text, CSV (a table) and Markdown; Excel workbooks (sheet tabs, the first 500 rows) and Word documents, read by lazily loaded SheetJS and mammoth; app-parsed previews through loadPreview; a file card with a thumbnail and Download for everything else — paged with arrows, side buttons or a swipe.",
       "categories": [
         "media"
       ],
@@ -15445,6 +15447,8 @@
         "@base-ui/react@^1.6.0",
         "lucide-react@^1.47.0",
         "pdfjs-dist@^6.3.289",
+        "mammoth@1.13.0",
+        "xlsx@https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz",
         "@vegastack/design@^0.7.73",
         "@vegastack/design-tokens@^0.7.56"
       ],
@@ -15457,6 +15461,7 @@
         "@vegastack/markdown-view",
         "@vegastack/spinner",
         "@vegastack/table",
+        "@vegastack/tabs",
         "@vegastack/use-announcer",
         "@vegastack/use-modal-inert",
         "@vegastack/video-player"
@@ -15471,13 +15476,18 @@
           "path": "packages/ui/registry/ui/file-viewer-pdf.tsx",
           "type": "registry:ui",
           "target": "@ui/file-viewer-pdf.tsx"
+        },
+        {
+          "path": "packages/ui/registry/ui/file-viewer-office.ts",
+          "type": "registry:ui",
+          "target": "@ui/file-viewer-office.ts"
         }
       ],
       "meta": {
-        "whenToUse": "Opening stored files full screen from attachment tiles, a product's files or a gallery — images to zoom, PDFs to read, video and audio to play, text, CSV and Markdown to read, Office files as a card (or the app's own parsed preview through loadPreview).",
+        "whenToUse": "Opening stored files full screen from attachment tiles, a product's files or a gallery — images to zoom, PDFs to read, video and audio to play, text, CSV, Markdown, Excel and Word files to read, other Office files as a card (or the app's own parsed preview through loadPreview).",
         "whenNotToUse": "An inline player on a page (VideoPlayer, AudioPlayer), or a general-purpose modal (Dialog).",
         "version": "0.23.88",
-        "integrity": "sha256-TS02bhaOtmLuxFEFSMkx/oWgeh0d9StBWMHOkZN2nSw="
+        "integrity": "sha256-6i+SauB73AEP5WOtrTvGlqgMJHfs04+29+56a9i6jHE="
       }
     },
     {
@@ -15545,7 +15555,7 @@
         "whenToUse": "Headings of a long document (TextEdit onOutlineChange, MarkdownView headingIds) as an “On this page” list or rail, with a trigger instance in the header below the rail's breakpoint.",
         "whenNotToUse": "App navigation between pages (Sidebar, NavigationMenu, Breadcrumb), or a folder hierarchy (FolderTree).",
         "version": "0.23.88",
-        "integrity": "sha256-dNHNEi8itaB1xgxQDP4oS0F/yt3YJhOn7bol0nSmMEI="
+        "integrity": "sha256-r3m/P1djYEYx0l86MLihaBKoLfDYQduH35eorUG2e7Q="
       }
     },
     {
@@ -15781,7 +15791,7 @@
         "whenToUse": "Display user/system-authored markdown — descriptions, comments, activity — as safe token-styled prose.",
         "whenNotToUse": "Editing markdown (use an editor), or when the source needs embedded raw HTML.",
         "version": "0.23.88",
-        "integrity": "sha256-suVQpD1Nvj/D4f/qFIVZ847uPf6G0fPicn0xVtSxZTU="
+        "integrity": "sha256-ay3WrxgWQ9i6cIdZpxmdbov9jeCmPSe5MARx9iKqx2w="
       }
     },
     {
@@ -17549,7 +17559,7 @@
         "whenToUse": "Comments, notes, summaries and documents stored as Markdown (format=\"markdown\") or HTML — with @ mentions, uploads, callouts, toggles, an outline and comment highlights for page editors; in-place editing of a MarkdownView (the read view is the editor until first edited).",
         "whenNotToUse": "Plain single-line input (Input) or collaborative real-time docs (deferred text-edit-collab).",
         "version": "0.23.88",
-        "integrity": "sha256-jqdiNTyvrRzWJwcJwHsVH10U0mVNNbMrIitIDyZ2n8A="
+        "integrity": "sha256-LdLu0fPmU0eAskPDI25oyn8z4OXmHrlGvAsdG6BRFSo="
       }
     },
     {
@@ -18116,7 +18126,8 @@
       ],
       "registryDependencies": [
         "@vegastack/button",
-        "@vegastack/media-player-controls"
+        "@vegastack/media-player-controls",
+        "@vegastack/use-media-query"
       ],
       "files": [
         {
@@ -18129,7 +18140,7 @@
         "whenToUse": "A single video asset that needs a branded frame plus grouped skip controls, mute, and keyboard shortcuts.",
         "whenNotToUse": "Playlists, caption editing, fullscreen-first viewing, or adaptive streaming control surfaces.",
         "version": "0.23.88",
-        "integrity": "sha256-tIf4KkZVieJ0u3J5/ZWxkfSkAhw2z0kghbmkubATdIY="
+        "integrity": "sha256-ijPUkRVoWAjO8mowASjI6L2YB26AVCdAlh7oLqkvqDE="
       }
     },
     {

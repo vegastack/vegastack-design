@@ -11,6 +11,17 @@ import {
 } from "./file-viewer";
 import { Button } from "./button";
 import { InfoIcon } from "lucide-react";
+import * as XLSX from "xlsx";
+
+// mammoth is replaced by a spy, so a test can see WHEN the viewer loads it (only once a .docx
+// opens) and feed it HTML with a script in it. SheetJS runs for real.
+const mammoth = vi.hoisted(() => ({
+  convertToHtml: vi.fn(async () => ({
+    value: "<h2>Scope</h2><script>alert(1)</script><p>Tiles and grout.</p>",
+    messages: [],
+  })),
+}));
+vi.mock("mammoth", () => ({ ...mammoth, default: mammoth }));
 
 const PIXEL =
   "data:image/svg+xml;utf8," +
@@ -583,4 +594,121 @@ test("audio with stored peaks plays in the waveform player", async () => {
     document.querySelector('[data-slot="media-player-waveform-bars"]')
       ?.childElementCount,
   ).toBe(3);
+});
+
+/** A workbook built with SheetJS itself, served as a blob URL. */
+function workbookUrl(sheets: Record<string, (string | number)[][]>) {
+  const book = XLSX.utils.book_new();
+  for (const [name, rows] of Object.entries(sheets))
+    XLSX.utils.book_append_sheet(book, XLSX.utils.aoa_to_sheet(rows), name);
+  const bytes = XLSX.write(book, { type: "array", bookType: "xlsx" });
+  return URL.createObjectURL(new Blob([bytes]));
+}
+
+test("an Excel workbook shows a tab per sheet over the table, capped at 500 rows with Download", async () => {
+  const big: (string | number)[][] = [["Item", "Cost"]];
+  for (let i = 0; i < 620; i++) big.push([`Line ${i}`, i]);
+  const screen = await render(
+    <Viewer
+      items={[
+        {
+          id: "xlsx",
+          name: "costs.xlsx",
+          contentType:
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+          size: 40_000,
+          src: workbookUrl({ Budget: big, Notes: [["Note"], ["Check tiles"]] }),
+          downloadHref: "/download/xlsx",
+        },
+      ]}
+    />,
+  );
+  await expect
+    .element(screen.getByRole("columnheader", { name: "Cost" }))
+    .toBeVisible();
+  expect(document.querySelectorAll("tbody tr")).toHaveLength(500);
+  const note = document.querySelector('[data-slot="file-viewer-note"]')!;
+  expect(note.textContent).toBe("Showing the first 500 rows · Download");
+  expect(note.querySelector("a")?.getAttribute("href")).toBe("/download/xlsx");
+  await expect.poll(kindShown).toBe("workbook");
+  (screen.getByRole("tab", { name: "Notes" }).element() as HTMLElement).click();
+  await expect
+    .element(screen.getByRole("cell", { name: "Check tiles" }))
+    .toBeVisible();
+  expect(document.querySelector('[data-slot="file-viewer-note"]')).toBeNull();
+  await expectNoA11yViolations(document.body);
+});
+
+test("a Word document loads mammoth only when it opens and shows its sanitised HTML", async () => {
+  mammoth.convertToHtml.mockClear();
+  const screen = await render(
+    <Viewer
+      items={[
+        {
+          id: "txt",
+          name: "readme.txt",
+          contentType: "text/plain",
+          src: served("plain words"),
+          downloadHref: "/d/txt",
+        },
+        {
+          id: "docx",
+          name: "scope.docx",
+          contentType:
+            "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+          size: 1024,
+          src: served("PK", "application/octet-stream"),
+          downloadHref: "/d/docx",
+        },
+      ]}
+    />,
+  );
+  await expect
+    .element(screen.getByRole("region", { name: "readme.txt preview" }))
+    .toHaveTextContent("plain words");
+  expect(mammoth.convertToHtml).not.toHaveBeenCalled();
+  await pageNext();
+  await expect
+    .element(screen.getByRole("heading", { name: "Scope" }))
+    .toBeVisible();
+  expect(mammoth.convertToHtml).toHaveBeenCalledTimes(1);
+  expect(
+    document.querySelector('[data-slot="file-viewer-html"] script'),
+  ).toBeNull();
+  await expect.poll(kindShown).toBe("html");
+});
+
+test("an Office file over 20 MB, or one that fails to read, shows the Download card", async () => {
+  mammoth.convertToHtml.mockClear();
+  const screen = await render(
+    <Viewer
+      items={[
+        {
+          id: "huge",
+          name: "archive.xlsx",
+          contentType: null,
+          size: 21 * 1024 * 1024,
+          src: "/never-fetched.xlsx",
+          downloadHref: "/d/huge",
+        },
+        {
+          id: "broken",
+          name: "broken.xlsx",
+          contentType: null,
+          size: 10,
+          src: "/definitely-not-here.xlsx",
+          downloadHref: "/d/broken",
+        },
+      ]}
+    />,
+  );
+  await expect
+    .element(screen.getByRole("link", { name: "Download", exact: true }))
+    .toHaveAttribute("href", "/d/huge");
+  await expect.poll(kindShown).toBe("card");
+  await pageNext();
+  await expect
+    .element(screen.getByRole("link", { name: "Download", exact: true }))
+    .toHaveAttribute("href", "/d/broken");
+  await expect.poll(kindShown).toBe("card");
 });

@@ -1,6 +1,12 @@
 import * as React from "react";
 import { describe, expect, it } from "vitest";
-import { fileKindOf, FileTypeIcon, formatBytes } from "./file-kind";
+import {
+  FileKindTile,
+  fileKindOf,
+  FileTypeIcon,
+  formatBytes,
+} from "./file-kind";
+import { renderToStaticMarkup } from "react-dom/server";
 
 describe("formatBytes", () => {
   it("formats byte counts on a 1024 base, one decimal under 10", () => {
@@ -96,5 +102,27 @@ describe("FileTypeIcon", () => {
     expect(element.props.className).toBe(
       "shrink-0 text-muted-foreground size-4",
     );
+  });
+});
+
+describe("tinted kinds", () => {
+  it("FileTypeIcon tinted colours the icon by kind; FileKindTile names the kind in its ink", () => {
+    const sheet = renderToStaticMarkup(
+      React.createElement(FileTypeIcon, { name: "q3.xlsx", tinted: true }),
+    );
+    expect(sheet).toContain("text-success-text");
+    const plain = renderToStaticMarkup(
+      React.createElement(FileTypeIcon, { name: "q3.xlsx" }),
+    );
+    expect(plain).toContain("text-muted-foreground");
+    const tile = renderToStaticMarkup(
+      React.createElement(FileKindTile, {
+        contentType: "application/pdf",
+        name: "spec.pdf",
+      }),
+    );
+    expect(tile).toContain('data-kind="pdf"');
+    expect(tile).toContain(">PDF</span>");
+    expect(tile).toContain("text-destructive-text");
   });
 });

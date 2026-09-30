@@ -1,4 +1,4 @@
-// @vegastack data-list@0.23.88 sha256-8wljjeFbQSAMO8kRzwN08LacE7omtSdntWApklk80JE=
+// @vegastack data-list@0.23.88 sha256-ZB3dinK8IoZhokBX6Pa2ENQhqID0Dgz8B5k/bXnod80=
 
 "use client";
 
@@ -498,7 +498,9 @@ export interface DataListProps<T> extends Omit<
   /**
    * How values folded into the first column are laid out on a narrow container: `stack`, one
    * value per line, or `line`, one compact meta line under the primary value with the values
-   * joined by a dot ("Today · High · Arjun Mehta"). A `line` pairs well with `mergedRender`.
+   * joined by a dot ("Today · High · Arjun Mehta"). A `line` is one text line that truncates:
+   * avatars inside it are hidden, and a value that renders nothing, `""` or `"—"` is dropped with
+   * its dot. It pairs well with `mergedRender` (return `null` to drop a value).
    * @default "stack"
    */
   mergedLayout?: "stack" | "line";
@@ -894,6 +896,24 @@ export interface DataListSection {
 }
 
 const EMPTY_GROUP_STATE: GroupState = {};
+
+/**
+ * A row with keyboard focus inside it. `accent`/50 on a small link measured barely above 1:1, so
+ * the whole row carries the cue: the hover wash (`muted`/50; a stronger fill drops muted text
+ * under AA in light) plus a 2px start-edge bar in `foreground`, painted as a background image on
+ * the first cell — a tint, not a ring or an outline (FOC-13).
+ */
+const FOCUS_ROW_CLASS =
+  "has-[:focus-visible]:bg-muted/50 [&:has(:focus-visible)>:first-child]:bg-[linear-gradient(var(--color-foreground),var(--color-foreground))] [&:has(:focus-visible)>:first-child]:bg-no-repeat [&:has(:focus-visible)>:first-child]:bg-size-[2px_100%] [&:has(:focus-visible)>:first-child]:bg-left rtl:[&:has(:focus-visible)>:first-child]:bg-right";
+
+/** A merged value with nothing to show: nothing, an empty string, or the "—" placeholder. */
+function isEmptyMergedValue(node: React.ReactNode): boolean {
+  return (
+    node == null ||
+    node === false ||
+    (typeof node === "string" && (node.trim() === "" || node.trim() === "—"))
+  );
+}
 
 /** The `loadMore` prop: the paging state plus the footer's own labels. */
 export type DataListLoadMoreProps = Omit<LoadMoreProps, "className" | "ref">;
@@ -1449,6 +1469,10 @@ export function DataList<T>({
           // A highlighted row (`rowProps` → `highlighted`) eases into the accent wash over
           // `TableRow`'s own `transition-colors`; reduced motion drops the ease (global reset).
           highlighted && "bg-accent duration-slow",
+          // Keyboard focus anywhere in the row (FOC-13: a background tint, never a ring): the row
+          // takes the hover wash — the strongest fill muted text keeps AA on — and its first cell
+          // paints a 2px `foreground` edge as a background layer, the part that clears 3:1.
+          FOCUS_ROW_CLASS,
           // Drag into: the carried rows dim, and a target washes in the primary tint (in the
           // destructive tint when it refuses the drop) — `FolderTree`'s own drop vocabulary.
           drag &&
@@ -1541,44 +1565,58 @@ export function DataList<T>({
                     // `font-normal`: the merged values are meta, not the title's weight.
                     "mt-1 flex min-w-0 text-xs font-normal text-muted-foreground",
                     mergedLayout === "line"
-                      ? "flex-row flex-wrap gap-x-1"
+                      ? // `line`: ONE text line that truncates — never a second or third line,
+                        // never an avatar (a picture in a meta line breaks its rhythm).
+                        "flex-row flex-nowrap gap-x-1 overflow-hidden whitespace-nowrap [&_[data-slot=avatar]]:hidden"
                       : "flex-col gap-0.5",
                   )}
                 >
-                  {mergedColumns.map((merged, mergedIdx) => (
-                    // Each value wraps and wears its own column's face, whatever the
-                    // primary cell's `nowrap`/mono posture is (`mergedValueClass`).
-                    <span
-                      key={merged.key}
-                      data-sorted={
-                        activeSort?.key === merged.key
-                          ? activeSort.direction
-                          : undefined
-                      }
-                      className={mergedValueClass(merged)}
-                    >
-                      {mergedLayout === "line" && mergedIdx > 0 ? (
-                        // `line`: a decorative dot before every value but the first.
-                        <span aria-hidden="true" className="me-1">
-                          ·
-                        </span>
-                      ) : null}
-                      {merged.mergedRender ? (
-                        merged.mergedRender(row, index, {
-                          rowId: id,
-                          columnKey: merged.key,
-                          selected: isSelected,
-                        })
-                      ) : (
-                        <>
-                          {typeof merged.header === "string" ? (
-                            <span className="sr-only">{merged.header}: </span>
-                          ) : null}
-                          {renderCell(merged, row, index, id, isSelected)}
-                        </>
-                      )}
-                    </span>
-                  ))}
+                  {mergedColumns
+                    .map((merged) => ({
+                      merged,
+                      node: merged.mergedRender
+                        ? merged.mergedRender(row, index, {
+                            rowId: id,
+                            columnKey: merged.key,
+                            selected: isSelected,
+                          })
+                        : renderCell(merged, row, index, id, isSelected),
+                    }))
+                    // `line` drops an empty value (nothing, "", or the "—" placeholder) with its
+                    // dot, so the line never reads "· —".
+                    .filter(
+                      ({ node }) =>
+                        mergedLayout !== "line" || !isEmptyMergedValue(node),
+                    )
+                    .map(({ merged, node }, mergedIdx) => (
+                      // Each value wears its own column's face, whatever the primary cell's
+                      // `nowrap`/mono posture is (`mergedValueClass`); stacked, it wraps.
+                      <span
+                        key={merged.key}
+                        data-sorted={
+                          activeSort?.key === merged.key
+                            ? activeSort.direction
+                            : undefined
+                        }
+                        className={cn(
+                          mergedValueClass(merged),
+                          mergedLayout === "line" &&
+                            "shrink truncate whitespace-nowrap wrap-normal",
+                        )}
+                      >
+                        {mergedLayout === "line" && mergedIdx > 0 ? (
+                          // `line`: a decorative dot before every value but the first.
+                          <span aria-hidden="true" className="me-1">
+                            ·
+                          </span>
+                        ) : null}
+                        {!merged.mergedRender &&
+                        typeof merged.header === "string" ? (
+                          <span className="sr-only">{merged.header}: </span>
+                        ) : null}
+                        {node}
+                      </span>
+                    ))}
                 </span>
               ) : null}
             </TableCell>

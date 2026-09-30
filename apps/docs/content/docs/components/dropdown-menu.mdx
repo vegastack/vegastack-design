@@ -287,6 +287,10 @@ Upstream's file plus `packages/ui/upstream/patches/dropdown-menu.patch`. Every h
   to `document.body`, which the Fullscreen API paints the fullscreen element over; a fullscreen
   player's settings menu rendered invisibly behind it. Leaving `container` unset is upstream's own
   default, so nothing else moves.
+- **OVL-19** — `DropdownMenuContent` is `w-max`, capped at `--available-width`, with a minimum of
+  the larger of `--spacing(32)` and its trigger, in place of upstream's `w-(--anchor-width)
+min-w-32`; `DropdownMenuSubContent`'s `w-auto` becomes `w-max`. A menu is as wide as its
+  longest item, so an item never wraps.
 - **INT-1** — `cursor-default` is removed from the item, the submenu trigger, the checkbox item
   and the radio item, so a menu row shows the hand cursor the one global rule in `base.css` gives
   every `[role^="menuitem"]`.

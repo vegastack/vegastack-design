@@ -644,3 +644,14 @@ test("no a11y violations — open, with description rows", async () => {
     .toBeInTheDocument();
   await expectNoA11yViolations(document.body);
 });
+
+test("the menu is as wide as its longest item, never narrower than its trigger (OVL-19)", async () => {
+  const screen = await render(<Everything />);
+  await userEvent.click(screen.getByRole("button", { name: "Open" }));
+  const popup = slot("content")!;
+  expect(popup.className).toContain("w-max");
+  expect(popup.className).toContain(
+    "min-w-[max(--spacing(32),var(--anchor-width))]",
+  );
+  expect(popup.className).not.toContain("w-(--anchor-width)");
+});

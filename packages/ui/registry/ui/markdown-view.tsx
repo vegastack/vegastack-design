@@ -1,4 +1,4 @@
-// @vegastack markdown-view@0.23.88 sha256-suVQpD1Nvj/D4f/qFIVZ847uPf6G0fPicn0xVtSxZTU=
+// @vegastack markdown-view@0.23.88 sha256-ay3WrxgWQ9i6cIdZpxmdbov9jeCmPSe5MARx9iKqx2w=
 
 import * as React from "react";
 import { Lexer, type Token, type Tokens } from "marked";
@@ -970,6 +970,17 @@ function renderNode(
   }
 }
 
+/**
+ * The `document` heading scale, laid over the shared prose recipe (`headingScale="document"` on
+ * `MarkdownView` and `TextEdit`): a page's headings are clearly bigger than its body, with more
+ * room above than below, the way a document reads (Notion: 1.875 / 1.5 / 1.25em).
+ *
+ * @example
+ * <div className={cn(proseClassName, proseDocumentHeadingsClassName)} />
+ */
+export const proseDocumentHeadingsClassName =
+  "[&_h1]:mt-8 [&_h1]:mb-3 [&_h1]:text-3xl [&_h2]:mt-8 [&_h2]:mb-2 [&_h2]:text-2xl [&_h3]:mt-6 [&_h3]:mb-1 [&_h3]:text-xl [&_h4]:mt-5 [&_h4]:mb-1 [&_h4]:text-base [&_h4]:font-semibold";
+
 /** Props accepted by `MarkdownView`. */
 export interface MarkdownViewProps extends React.ComponentPropsWithRef<"div"> {
   /**
@@ -1017,6 +1028,13 @@ export interface MarkdownViewProps extends React.ComponentPropsWithRef<"div"> {
    */
   headingIds?: boolean;
   /**
+   * The heading sizes. `compact` is the app's type scale (a `#` stops at `text-lg`), right for a
+   * comment, a message or a card. `document` is a page's scale — `#` `text-3xl`, `##` `text-2xl`,
+   * `###` `text-xl`, with more room above a heading than below — for a page read as a document.
+   * @default "compact"
+   */
+  headingScale?: "compact" | "document";
+  /**
    * Where a mention chip links, by kind and id (`[@Q3 plan](mention://page/p1)`). Return `null`
    * for no link. People are never links, and neither is a `restricted:` id.
    * @default undefined
@@ -1063,6 +1081,7 @@ export function MarkdownView({
   allowedImageOrigins = [],
   headingOffset = 0,
   headingIds: withHeadingIds = false,
+  headingScale = "compact",
   mentionHref,
   fileLinkPrefix = "/api/files/",
   className,
@@ -1091,7 +1110,12 @@ export function MarkdownView({
   return (
     <div
       data-slot="markdown-view"
-      className={cn(proseClassName, markdownExtrasClassName, className)}
+      className={cn(
+        proseClassName,
+        markdownExtrasClassName,
+        headingScale === "document" && proseDocumentHeadingsClassName,
+        className,
+      )}
       {...props}
     >
       {render(tree, {
