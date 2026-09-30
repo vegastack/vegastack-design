@@ -1,5 +1,14 @@
 # @vegastack/ui
 
+## 0.23.82
+
+### Patch Changes
+
+- [#437](https://github.com/vegastack/vegastack-design/pull/437) [`aed72d5`](https://github.com/vegastack/vegastack-design/commit/aed72d59fcf9ac781ceb620f0b1fd8bcb3f06cce) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🐛 Dates no longer differ between the server and the browser. `RelativeTime`'s `locale` defaults to `DEFAULT_LOCALE` (`en-US`, now exported from the `date-time` lib) instead of the runtime's, so a server under a non-US `LANG` renders the same text as the browser and the page hydrates cleanly. This covers every DS part that shows a `RelativeTime` (inbox, comments, version list, media card, item, data list, truncated text). `DatePicker`'s display and a comment's "Edited" time use the same default.
+
+- Updated dependencies [[`aed72d5`](https://github.com/vegastack/vegastack-design/commit/aed72d59fcf9ac781ceb620f0b1fd8bcb3f06cce)]:
+  - @vegastack/design@0.7.69
+
 ## 0.23.81
 
 ### Patch Changes

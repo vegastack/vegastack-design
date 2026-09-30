@@ -9,6 +9,20 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.23.82] — September 30, 2026
+
+<!-- assembled from 1 changeset: cb13b4aba494 -->
+
+### 📦 npm
+
+- **`@vegastack/design`** → **`0.7.69`** (was `0.7.68`).
+- The design-system registry (`@vegastack/ui`) bumps 0.23.81 → 0.23.82.
+
+### 🐛 Fixed
+
+- Dates no longer differ between the server and the browser. `RelativeTime`'s `locale` defaults to `DEFAULT_LOCALE` (`en-US`, now exported from the `date-time` lib) instead of the runtime's, so a server under a non-US `LANG` renders the same text as the browser and the page hydrates cleanly. This covers every DS part that shows a `RelativeTime` (inbox, comments, version list, media card, item, data list, truncated text). `DatePicker`'s display and a comment's "Edited" time use the same default.
+  [`aed72d5`](https://github.com/VegaStack/vegastack-design/commit/aed72d5)
+
 ## [0.23.81] — September 30, 2026
 
 <!-- assembled from 2 changesets: 695107572e9c -->
