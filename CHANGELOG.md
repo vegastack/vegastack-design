@@ -9,6 +9,21 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.23.93] — September 30, 2026
+
+<!-- assembled from 1 changeset: 9f839b07002b -->
+
+### 🔧 Changed components
+
+- `base.css` stops the page bouncing under a mouse or trackpad (INT-12): on `pointer: fine`, `html, body` get `overscroll-behavior-y: none`, so the page no longer rubber-bands at its top and bottom edges and an inner scroller at its end no longer chains into the page. Vertical only, so a trackpad two-finger swipe still goes back/forward; touch devices keep pull-to-refresh and the native bounce.
+  [`8825076`](https://github.com/VegaStack/vegastack-design/commit/8825076)
+
+### 📦 npm
+
+- **`@vegastack/design-tokens`** → **`0.7.78`** (was `0.7.56`).
+- **`@vegastack/design`** → **`0.7.78`** (was `0.7.77`).
+- The design-system registry (`@vegastack/ui`) bumps 0.23.92 → 0.23.93.
+
 ## [0.23.92] — September 30, 2026
 
 <!-- assembled from 1 changeset: 290985436235 -->

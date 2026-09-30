@@ -10,6 +10,19 @@ npm package versions are listed per entry. This page is generated from the repo'
 
 {/* CHANGELOG:START — generated from /CHANGELOG.md by tooling/sync-changelog.mjs. DO NOT EDIT. */}
 
+## [0.23.93] — September 30, 2026
+
+### 🔧 Changed components
+
+- `base.css` stops the page bouncing under a mouse or trackpad (INT-12): on `pointer: fine`, `html, body` get `overscroll-behavior-y: none`, so the page no longer rubber-bands at its top and bottom edges and an inner scroller at its end no longer chains into the page. Vertical only, so a trackpad two-finger swipe still goes back/forward; touch devices keep pull-to-refresh and the native bounce.
+  [`8825076`](https://github.com/VegaStack/vegastack-design/commit/8825076)
+
+### 📦 npm
+
+- **`@vegastack/design-tokens`** → **`0.7.78`** (was `0.7.56`).
+- **`@vegastack/design`** → **`0.7.78`** (was `0.7.77`).
+- The design-system registry (`@vegastack/ui`) bumps 0.23.92 → 0.23.93.
+
 ## [0.23.92] — September 30, 2026
 
 ### 🔧 Changed components
