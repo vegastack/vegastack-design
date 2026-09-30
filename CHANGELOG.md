@@ -9,6 +9,20 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.23.87] — September 30, 2026
+
+<!-- assembled from 1 changeset: 20732197dde9 -->
+
+### 📦 npm
+
+- **`@vegastack/design`** → **`0.7.72`** (was `0.7.71`).
+- The design-system registry (`@vegastack/ui`) bumps 0.23.86 → 0.23.87.
+
+### 🐛 Fixed
+
+- `AudioWaveform` fits its bar count to its width (2px a bar, 1px apart), so many `peaks` or a large `bars` in a narrow card never thin to nothing. A comment reopened for editing from the ⋯ menu starts from the host's retained draft (`editDefaultValue`) instead of the stored body; `CommentList` and `CommentThread` pass it through the same way.
+  [`f98f37c`](https://github.com/VegaStack/vegastack-design/commit/f98f37c)
+
 ## [0.23.86] — September 30, 2026
 
 <!-- assembled from 1 changeset: 2e3058f074e6 -->

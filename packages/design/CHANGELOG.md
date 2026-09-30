@@ -1,5 +1,11 @@
 # @vegastack/design
 
+## 0.7.72
+
+### Patch Changes
+
+- [#447](https://github.com/vegastack/vegastack-design/pull/447) [`f98f37c`](https://github.com/vegastack/vegastack-design/commit/f98f37c06416d04d5e2af42d501db1c882f617ce) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🐛 `AudioWaveform` fits its bar count to its width (2px a bar, 1px apart), so many `peaks` or a large `bars` in a narrow card never thin to nothing. A comment reopened for editing from the ⋯ menu starts from the host's retained draft (`editDefaultValue`) instead of the stored body; `CommentList` and `CommentThread` pass it through the same way.
+
 ## 0.7.71
 
 ### Patch Changes
