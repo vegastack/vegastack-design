@@ -1,8 +1,9 @@
-// @vegastack date-picker@0.23.81 sha256-X2lDWteHr5czMrwqBY1R71+7shI7m9cxc7PyNzitIwo=
+// @vegastack date-picker@0.23.81 sha256-xJmoXTuRGjlbpJbQ0p2FDHpt0YivMnN2cW5cEUkiXFk=
 
 "use client";
 
 import * as React from "react";
+import { DEFAULT_LOCALE } from "@/lib/date-time";
 import type { DateRange, DayButton, Matcher } from "react-day-picker";
 import { Calendar as CalendarIcon, X } from "lucide-react";
 import { Field as FieldPrimitive } from "@base-ui/react/field";
@@ -117,7 +118,9 @@ function formatDate(
   options: Intl.DateTimeFormatOptions,
   locale?: string,
 ): string {
-  return new Intl.DateTimeFormat(locale, options).format(date);
+  return new Intl.DateTimeFormat(locale ?? DEFAULT_LOCALE, options).format(
+    date,
+  );
 }
 
 /** Format a `{ from, to }` range, collapsing to a single date when `to` is absent. */
@@ -352,7 +355,7 @@ export interface DatePickerProps {
    * @default { year: 'numeric', month: 'short', day: 'numeric' }
    */
   formatOptions?: Intl.DateTimeFormatOptions;
-  /** BCP-47 locale for formatting (defaults to the runtime locale).
+  /** BCP-47 locale for formatting (defaults to `DEFAULT_LOCALE`, `en-US`, so the server and the browser agree).
    * @default undefined
    */
   locale?: string;
@@ -689,7 +692,7 @@ export interface DateRangePickerProps {
    * @default { year: 'numeric', month: 'short', day: 'numeric' }
    */
   formatOptions?: Intl.DateTimeFormatOptions;
-  /** BCP-47 locale for formatting (defaults to the runtime locale).
+  /** BCP-47 locale for formatting (defaults to `DEFAULT_LOCALE`, `en-US`, so the server and the browser agree).
    * @default undefined
    */
   locale?: string;

@@ -1,8 +1,9 @@
-// @vegastack comments@0.23.81 sha256-bSbgGtf0JeC5wR6KpIiOoYEh5c84gj+4o4s2BYk9qsM=
+// @vegastack comments@0.23.81 sha256-yjevDQfQBbWwkKW4J9AmxOH/hsby280JWyFloCbwyYA=
 
 "use client";
 
 import * as React from "react";
+import { DEFAULT_LOCALE } from "@/lib/date-time";
 import {
   ArrowUp,
   ArrowUpDown,
@@ -296,7 +297,10 @@ export function CommentItem({
                           edited
                         </TooltipTrigger>
                         <TooltipContent>
-                          Edited {new Date(comment.editedAt).toLocaleString()}
+                          Edited{" "}
+                          {new Date(comment.editedAt).toLocaleString(
+                            DEFAULT_LOCALE,
+                          )}
                         </TooltipContent>
                       </Tooltip>
                     </>

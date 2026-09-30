@@ -239,7 +239,9 @@ so it matches every other tooltip. Ignored when `title={false}`.
 
 `locale` localizes what `Intl` words: the `mode="day"` labels and dates and `format="long"`. The
 compact `ago` form (`2h ago`) is the house form everywhere, so a dense column reads the same in
-every locale. Omit `locale` to follow the runtime locale.
+every locale. Without `locale` it formats in `DEFAULT_LOCALE` (`en-US`), never the runtime's: a
+server under another `LANG` then renders the same text as the browser, so the page hydrates
+without a mismatch. Pass the reader's locale explicitly to localize.
 
 <ComponentPreview
   name="relativeTimeLocale"

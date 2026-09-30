@@ -1,4 +1,4 @@
-// @vegastack relative-time@0.23.81 sha256-hUddrm2VFQi6XoZNwoJpqIVpZdjcevKgv8Y48TJ0vJQ=
+// @vegastack relative-time@0.23.81 sha256-+0UZMdg0ybfGFttHvEC8WgUGgI4xMvNRnlI7h7FMBgs=
 
 "use client";
 
@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/tooltip";
 import { useTruncationFocusable } from "@/components/ui/truncated-text";
 import {
+  DEFAULT_LOCALE,
   TIME_ZONE_COOKIE_SCRIPT,
   formatDate,
   formatDateTime,
@@ -254,9 +255,9 @@ export interface RelativeTimeProps extends Omit<
   /**
    * BCP-47 locale(s) for `Intl` formatting: `mode="day"`'s words and dates, `format="long"` and
    * the tooltip. The compact `ago` form ("19m ago") is the house form in every locale. Defaults to
-   * the runtime locale.
-
-   * @default undefined
+   * `DEFAULT_LOCALE` (`en-US`), never the runtime's, so the server and the browser render the same
+   * text.
+   * @default "en-US"
    */
   locale?: string | string[];
   /**
@@ -357,7 +358,7 @@ export function RelativeTime({
   unitStyle,
   now,
   refresh = true,
-  locale,
+  locale = DEFAULT_LOCALE,
   title = true,
   tooltipDelay = TIMINGS.tooltipOpenDelayMs,
   focusable,
