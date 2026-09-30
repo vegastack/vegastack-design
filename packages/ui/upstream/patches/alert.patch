@@ -10,6 +10,8 @@
 #     and description pinned to the text column; `AlertAction` loses `absolute top-2 end-2` for
 #     `row-span-2 self-start` in that column, and below `@md` it drops under the text. Upstream's
 #     `pe-18` reserve goes: an `sm` label over seven characters overlapped the title.
+#     Amended (MK, 2026-09-30): `AlertAction` is a `flex flex-wrap items-center gap-2` row, so two
+#     buttons sit side by side with the button-group gap and wrap when the alert is narrow.
 #   COL-12: `success`, `warning` and `info` variants, written in upstream's own `destructive`
 #     shape (one ink on `bg-card`, a dimmed description). The four status families exist in the
 #     token contract; Alert is where they surface as a banner.
@@ -26,7 +28,7 @@
 #   formatting: the repository formatter (prettier defaults: semicolons, trailing commas)
 #               reflows the file; those hunks carry no decision of their own.
 diff --git a/alert.tsx b/alert.tsx
-index babd454..69c22b9 100644
+index babd454..9d284f8 100644
 --- a/alert.tsx
 +++ b/alert.tsx
 @@ -1,36 +1,49 @@
@@ -126,7 +128,7 @@ index babd454..69c22b9 100644
        data-slot="alert-action"
 -      className={cn("absolute top-2 end-2", className)}
 +      className={cn(
-+        "col-start-1 mt-1.5 group-has-[>svg]/alert:col-start-2 @md/alert:col-start-2 @md/alert:row-span-2 @md/alert:row-start-1 @md/alert:mt-0 @md/alert:self-start @md/alert:group-has-[>svg]/alert:col-start-3",
++        "col-start-1 mt-1.5 flex flex-wrap items-center gap-2 group-has-[>svg]/alert:col-start-2 @md/alert:col-start-2 @md/alert:row-span-2 @md/alert:row-start-1 @md/alert:mt-0 @md/alert:self-start @md/alert:group-has-[>svg]/alert:col-start-3",
 +        className,
 +      )}
        {...props}

@@ -87,7 +87,7 @@
         "whenToUse": "Persistent, in-page status messages — info, success, warning, or error context tied to surrounding content.",
         "whenNotToUse": "Transient feedback after a user action — use a toast instead.",
         "version": "0.23.87",
-        "integrity": "sha256-P5peHx/pZ6AVVqCYPsmOcKTN3vejFt02GmDTvLY7b+M="
+        "integrity": "sha256-b1ZfJXvY99mueflKz/lqH+GnJemDb4VqSX0VcVx6pn0="
       }
     },
     {

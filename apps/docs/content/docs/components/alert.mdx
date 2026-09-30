@@ -122,6 +122,14 @@ own width (a container query), not the viewport's.
 
 <ComponentPreview name="alertActionWidth" file="components/preview/alert.tsx" />
 
+### Two actions
+
+Place two buttons straight inside `AlertAction`; it lays them out in a row with a `gap-2` gap and
+wraps them onto a second line when the alert is too narrow to hold both. There is no need for a
+`ButtonGroup` or a wrapper `div`. Lead with the primary action and keep both the same size.
+
+<ComponentPreview name="alertActions" file="components/preview/alert.tsx" />
+
 ## API Reference
 
 ### Alert
@@ -182,5 +190,7 @@ Upstream's file plus `packages/ui/upstream/patches/alert.patch`. Every hunk:
 - **LAY-15** — `AlertAction` is a grid item in its own top-aligned column beside the title and
   description, and drops below the text when the alert is narrower than `@md` (28rem). Upstream
   positions it `absolute top-2 end-2` and reserves only `pe-18` for it, so an `sm` label over seven
-  characters reaches under the title ([Action placement](#action-placement)).
+  characters reaches under the title ([Action placement](#action-placement)). Its children sit
+  in a wrapping flex row with a `gap-2` gap, so two actions need no wrapper
+  ([Two actions](#two-actions)).
 - **DOC-2** — `cn` is imported from `@vegastack/design`.

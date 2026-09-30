@@ -1,4 +1,4 @@
-// @vegastack alert@0.23.87 sha256-P5peHx/pZ6AVVqCYPsmOcKTN3vejFt02GmDTvLY7b+M=
+// @vegastack alert@0.23.87 sha256-b1ZfJXvY99mueflKz/lqH+GnJemDb4VqSX0VcVx6pn0=
 
 import * as React from "react";
 import { cva, type VariantProps } from "class-variance-authority";
@@ -82,7 +82,7 @@ function AlertAction({ className, ...props }: React.ComponentProps<"div">) {
     <div
       data-slot="alert-action"
       className={cn(
-        "col-start-1 mt-1.5 group-has-[>svg]/alert:col-start-2 @md/alert:col-start-2 @md/alert:row-span-2 @md/alert:row-start-1 @md/alert:mt-0 @md/alert:self-start @md/alert:group-has-[>svg]/alert:col-start-3",
+        "col-start-1 mt-1.5 flex flex-wrap items-center gap-2 group-has-[>svg]/alert:col-start-2 @md/alert:col-start-2 @md/alert:row-span-2 @md/alert:row-start-1 @md/alert:mt-0 @md/alert:self-start @md/alert:group-has-[>svg]/alert:col-start-3",
         className,
       )}
       {...props}
