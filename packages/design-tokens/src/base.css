@@ -14,6 +14,7 @@
      INT-1   the hand cursor, on a wider selector list than shadcn's --pointer rule
      INT-7   touch-action: manipulation and no tap highlight
      INT-12  no page-edge bounce or scroll chaining on fine pointers (vertical only)
+     INT-13  no iOS focus zoom: text entry is 16px at least on a coarse pointer
      OVL-13  body { isolation: isolate } for the portal theme scope
 
    Deleted with the reset: INT-2's `cursor: default` on disabled controls (INT-2 = shadcn, and
@@ -219,7 +220,7 @@
   }
 }
 
-/* INT-9 (ours) — NO iOS FOCUS ZOOM (MK 2026-09-26).
+/* INT-13 (ours) — NO iOS FOCUS ZOOM (MK 2026-09-26).
    iOS Safari zooms the page into any focused text control whose font-size is under 16px, and the
    system's controls are 14px. On a touch pointer every text-entry control renders at 16px at
    least, so Safari never zooms; desktop keeps the 14px density. Deliberately OUTSIDE `@layer
