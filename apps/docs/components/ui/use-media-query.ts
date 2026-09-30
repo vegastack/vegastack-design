@@ -1,4 +1,4 @@
-// @vegastack use-media-query@0.23.84 sha256-exdGT4k4tTm7HpYQ6Y+A5YGZnd5TBFSiE6fdwBguDqY=
+// @vegastack use-media-query@0.23.85 sha256-vg2LAruD2Pgh4WzNzvC/GXUuH1GHKUfPqJ++/WoUqQc=
 
 "use client";
 
