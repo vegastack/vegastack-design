@@ -1,4 +1,4 @@
-// @vegastack audio-player@0.23.79 sha256-X+D3DGotXCWlRePrVD0bFx+OrPBcSjn3vfxy5wrwRCE=
+// @vegastack audio-player@0.23.79 sha256-O0qSk74Sjvvo7u74VED7ikVcsLqkpYdnvAPD4bNJFf0=
 
 "use client";
 
@@ -80,6 +80,25 @@ function samplePeaks(buffer: AudioBuffer, barCount: number): number[] {
     if (rms > max) max = rms;
   }
   return max > 0 ? peaks.map((peak) => peak / max) : peaks;
+}
+
+/** Scale stored peaks (any sign, any range) so the loudest is 1. */
+function normalizePeaks(peaks: readonly number[]): readonly number[] {
+  const loudest = Math.max(...peaks.map((peak) => Math.abs(peak)));
+  return loudest > 0 ? peaks.map((peak) => Math.abs(peak) / loudest) : peaks;
+}
+
+/** Reduce `peaks` to at most `count` bars, each the loudest peak of its bucket. */
+function resamplePeaks(peaks: readonly number[], count: number): number[] {
+  if (peaks.length <= count) return [...peaks];
+  return Array.from({ length: count }, (_, bar) => {
+    const start = Math.floor((bar * peaks.length) / count);
+    const end = Math.max(
+      start + 1,
+      Math.floor(((bar + 1) * peaks.length) / count),
+    );
+    return Math.max(...peaks.slice(start, end));
+  });
 }
 
 // The waveform decodes the file itself only up to this size; the whole file and its samples sit in
@@ -575,11 +594,10 @@ export function AudioPlayer({
     isWaveform && !hasPeaks,
     maxDecodeBytes,
   );
-  const givenPeaks = React.useMemo(() => {
-    if (!peaks?.length) return null;
-    const loudest = Math.max(...peaks.map((peak) => Math.abs(peak)));
-    return loudest > 0 ? peaks.map((peak) => Math.abs(peak) / loudest) : peaks;
-  }, [peaks]);
+  const givenPeaks = React.useMemo(
+    () => (peaks?.length ? normalizePeaks(peaks) : null),
+    [peaks],
+  );
   const waveformPeaks = givenPeaks ?? decoded.peaks;
   // Too big to decode and no peaks given: a plain seek slider rather than a flat, fake waveform.
   const showWaveform = isWaveform && (hasPeaks || !decoded.tooLarge);
@@ -867,6 +885,80 @@ export function AudioPlayer({
       ) : null}
 
       <Announcer />
+    </div>
+  );
+}
+
+/** Props accepted by `AudioWaveform`. */
+export interface AudioWaveformProps extends Omit<
+  React.ComponentPropsWithRef<"div">,
+  "children"
+> {
+  /**
+   * The recording's amplitudes — the same stored `peaks` the player takes (`probeAudio` from
+   * `media-probe`), any count and range; the loudest is drawn full height. Empty draws the flat
+   * placeholder bars.
+   */
+  peaks: readonly number[];
+  /**
+   * The most bars drawn. Longer `peaks` are reduced to this many, each the loudest of its
+   * stretch, so a card-width waveform keeps its gaps.
+   * @default 48
+   */
+  bars?: number;
+}
+
+/**
+ * `AudioWaveform` — a recording's waveform as a still picture: the `waveform` player's bars
+ * (rounded, 1px apart, the loudest full height), in `muted-foreground`, with no playback and no
+ * seek. Decorative (`aria-hidden`) — name the recording beside it. For an audio file's card or
+ * row, where a player would be too much; size it with `className` (it fills its width and is
+ * `h-12` by default).
+ *
+ * @example
+ * <MediaCard
+ *   size="lg"
+ *   title="Site walk-through.m4a"
+ *   image={null}
+ *   fallback={<AudioWaveform peaks={file.peaks} className="h-1/2 px-4" />}
+ *   imageBadge="2:10"
+ * />
+ */
+export function AudioWaveform({
+  peaks,
+  bars = 48,
+  className,
+  ...props
+}: AudioWaveformProps) {
+  const drawn = React.useMemo(
+    () =>
+      peaks.length > 0
+        ? resamplePeaks(normalizePeaks(peaks), Math.max(1, Math.floor(bars)))
+        : Array.from({ length: Math.max(1, Math.floor(bars)) }, () => 0.2),
+    [bars, peaks],
+  );
+  return (
+    <div
+      aria-hidden="true"
+      data-slot="audio-waveform"
+      className={cn(
+        "flex h-12 w-full min-w-0 items-center gap-px overflow-hidden",
+        className,
+      )}
+      {...props}
+    >
+      {/* The bar recipe of `MediaPlayerControls`' waveform seek, so a card and its player match. */}
+      {drawn.map((peak, index) => (
+        <span
+          key={index}
+          className="h-[var(--wave-peak)] min-w-0 flex-1 rounded-full bg-muted-foreground"
+          style={
+            {
+              "--wave-peak": `${Math.round(Math.max(peak, 0.06) * 100)}%`,
+            } as React.CSSProperties
+          }
+        />
+      ))}
     </div>
   );
 }

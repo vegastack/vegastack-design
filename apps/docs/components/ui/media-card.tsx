@@ -1,4 +1,4 @@
-// @vegastack media-card@0.23.79 sha256-btrMff3Azj/WRx26FrHe/bHlN3eijCcoAhDjdMoXFp4=
+// @vegastack media-card@0.23.79 sha256-FVmlEXNPFbloS6bdeNq3+TsqBtoj+FjpnknvHUCusLA=
 
 "use client";
 
@@ -58,6 +58,14 @@ export interface MediaCardProps extends Omit<
    * @default undefined
    */
   imageSizes?: string;
+  /**
+   * A small chip over the image's bottom end — a video's "▶ 1:24", a recording's "2:10". It sits
+   * on a dark scrim with light ink, so it reads over any picture, and takes no pointer events, so
+   * a click on it still opens the card. Shown only when the card has an image area; made for
+   * `size="lg"`.
+   * @default undefined
+   */
+  imageBadge?: React.ReactNode;
   /**
    * What shows when there is no image — the app's brand mark.
    * @default <ImageIcon />
@@ -134,6 +142,7 @@ function CardLink({
  *   meta="8 products · 3 sub-families"
  *   badge={<Badge variant="warning"><TriangleAlert />3 missing specs</Badge>}
  *   timestamp={<RelativeTime date={f.updatedAt} format="suffix" />}
+ *   imageBadge={<><PlayIcon aria-hidden />1:24</>}
  *   actions={<RowActionsMenu label={f.name} actions={actions} />}
  * />
  */
@@ -147,6 +156,7 @@ export function MediaCard({
   imagePlaceholder,
   imageSrcSet,
   imageSizes,
+  imageBadge,
   fallback,
   href,
   linkRender,
@@ -186,6 +196,19 @@ export function MediaCard({
     ) : (
       heading
     );
+  const thumbnail = hasMedia ? (
+    <Thumbnail
+      src={image}
+      srcSet={imageSrcSet}
+      sizes={imageSizes}
+      placeholder={imagePlaceholder}
+      alt=""
+      fallback={fallback}
+      className={cn(
+        lg && "aspect-video h-auto w-full rounded-none [&_svg]:size-8",
+      )}
+    />
+  ) : null;
   const metaLine =
     meta != null || timestamp != null ? (
       <div
@@ -215,17 +238,24 @@ export function MediaCard({
       {...props}
     >
       {hasMedia ? (
-        <Thumbnail
-          src={image}
-          srcSet={imageSrcSet}
-          sizes={imageSizes}
-          placeholder={imagePlaceholder}
-          alt=""
-          fallback={fallback}
-          className={cn(
-            lg && "aspect-video h-auto w-full rounded-none [&_svg]:size-8",
-          )}
-        />
+        imageBadge != null ? (
+          <div
+            data-slot="media-card-media"
+            className={cn("relative flex shrink-0", lg && "w-full")}
+          >
+            {thumbnail}
+            <span
+              data-slot="media-card-image-badge"
+              // `scrim/60`, not the tile scrim's `/40`: small text on `/40` over a light frame
+              // measures under 3:1.
+              className="pointer-events-none absolute end-2 bottom-2 flex items-center gap-1 rounded-sm bg-scrim/60 px-1.5 py-0.5 text-xs font-medium text-scrim-foreground tabular-nums [&_svg]:size-3"
+            >
+              {imageBadge}
+            </span>
+          </div>
+        ) : (
+          thumbnail
+        )
       ) : null}
       <div
         className={cn(

@@ -3,7 +3,11 @@ import { render } from "vitest-browser-react";
 import { expect, test, vi } from "vitest";
 import { userEvent } from "vitest/browser";
 import { expectNoA11yViolations } from "../../test/a11y";
-import { AudioPlayer, type AudioPlayerActions } from "./audio-player";
+import {
+  AudioPlayer,
+  AudioWaveform,
+  type AudioPlayerActions,
+} from "./audio-player";
 
 const SOURCE =
   "data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAESsAACJWAAACABAAZGF0YQAAAAA=";
@@ -901,5 +905,35 @@ test("has no accessibility violations with an error", async () => {
       error="Couldn't load the recording."
     />,
   );
+  await expectNoA11yViolations(screen.container);
+});
+
+test("AudioWaveform draws stored peaks as still, aria-hidden bars", async () => {
+  const peaks = Array.from({ length: 200 }, (_, i) => (i === 57 ? -0.5 : 0.1));
+  const screen = await render(
+    <div style={{ width: 200 }}>
+      <AudioWaveform peaks={peaks} data-testid="wave" />
+      <AudioWaveform peaks={[]} bars={12} />
+    </div>,
+  );
+  const [wave, flat] = screen.container.querySelectorAll<HTMLElement>(
+    '[data-slot="audio-waveform"]',
+  );
+  expect(wave!.getAttribute("aria-hidden")).toBe("true");
+  // 200 peaks reduce to the default 48 bars, the loudest (by magnitude) full height.
+  const bars = [...wave!.querySelectorAll<HTMLElement>("span")];
+  expect(bars).toHaveLength(48);
+  const heights = bars.map((bar) => bar.style.getPropertyValue("--wave-peak"));
+  expect(heights).toContain("100%");
+  expect(heights.filter((h) => h === "20%")).toHaveLength(47);
+  expect(bars[0]!.className).toContain("bg-muted-foreground");
+  // No playback: nothing to press or seek, and no media element.
+  expect(wave!.querySelector("button, input, audio")).toBeNull();
+  // Empty peaks draw the flat placeholder.
+  expect(
+    [...flat!.querySelectorAll<HTMLElement>("span")].map((bar) =>
+      bar.style.getPropertyValue("--wave-peak"),
+    ),
+  ).toEqual(Array(12).fill("20%"));
   await expectNoA11yViolations(screen.container);
 });

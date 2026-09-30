@@ -1,4 +1,4 @@
-// @vegastack folder-tree@0.23.79 sha256-cBZO8+c7UsqDN6mlunKmVjDTTedAlfDHUGZRk+/vrCM=
+// @vegastack folder-tree@0.23.79 sha256-SjQIyzKoBt/HKDmVfkQoYpnRbR+++BryN22nQifyqL8=
 
 "use client";
 
@@ -40,7 +40,11 @@ Everything the tree shows is the host's data: `rootItems` per section, children 
 host can persist them) and the moves (`onMove`, which may be async — the tree shows the new
 place only once the host's data says so). A pointer drag moves an item INTO a folder or a
 section (`useDragInto`: the middle half of a folder row, a 600 ms rest opens a closed one;
-yourself, a descendant or the place it already is are refused). The keyboard path for a move is
+yourself, a descendant or the place it already is are refused, plus the host's `canDropInto`).
+With a `dragScope` the tree shares drags with a `DataList` and `BreadcrumbDropTarget`s naming the
+same scope: list rows drop onto tree folders and section headings, and tree rows onto list folders
+and crumbs — every drag carries the host's own ids. A section heading with an `href` is a link to
+the section's page, with its open/close on a chevron beside it. The keyboard path for a move is
 the host's own "Move…" item in the row menu, typically opening a Move dialog with this same tree
 in `mode="picker"` — folders only, one selected, no menus, no drag.
 
@@ -79,6 +83,13 @@ export interface FolderTreeSection {
   label: string;
   /** A trailing action on the heading — typically a `FolderTreeRowAction` "+" menu. */
   action?: React.ReactNode;
+  /**
+   * Make the heading a link to the section's own page ("Shared" → `/library`). It is marked
+   * active (`aria-current="page"`) when `activeId` is the section's `id`, and its open/close
+   * moves to a chevron button beside it. Ignored in picker mode.
+   * @default undefined
+   */
+  href?: string;
 }
 
 /** A requested move — what `onMove` receives. */
@@ -105,8 +116,15 @@ export interface FolderTreeLabels {
   showAll: (hidden: number) => string;
   /** The disclosure button's name. */
   toggle: (label: string) => string;
+  /** The chevron button of a section heading that is a link (`FolderTreeSection.href`). */
+  toggleSection: (label: string) => string;
   /** Announced after a drop. */
   moved: (label: string, target: string) => string;
+  /**
+   * Names the moved items in `moved` and `moveFailed` when the tree cannot name them: several
+   * rows, or a row dragged in from a list through `dragScope`.
+   */
+  itemCount: (count: number) => string;
   /** Announced when `onMove`'s promise rejects. */
   moveFailed: (label: string) => string;
 }
@@ -118,7 +136,9 @@ const DEFAULT_LABELS: FolderTreeLabels = {
   retry: "Retry",
   showAll: (hidden) => `Show all · ${hidden} more`,
   toggle: (label) => `${label} folder`,
+  toggleSection: (label) => `${label} section`,
   moved: (label, target) => `Moved ${label} to ${target}`,
+  itemCount: (count) => (count === 1 ? "1 item" : `${count} items`),
   moveFailed: (label) => `Couldn't move ${label}`,
 };
 
@@ -200,6 +220,23 @@ export interface FolderTreeProps extends Omit<
    */
   onMove?: (move: FolderTreeMove) => void | Promise<void>;
   /**
+   * Whether a move is allowed, asked after the tree's own rules (an item into itself, its own
+   * descendant, or the place it already sits is refused for every id the tree holds). It is the
+   * only rule for ids the tree does not hold — rows dragged in from a list through `dragScope`,
+   * whose place the tree cannot know. A refused target shows `data-drop-invalid` and takes
+   * nothing.
+   * @default undefined
+   */
+  canDropInto?: (move: FolderTreeMove) => boolean;
+  /**
+   * Share drags with other `useDragInto` users naming the same scope: folders and section
+   * headings take rows and cards dragged from a `DataList` with this `dragScope`, and the tree's
+   * own rows can be dropped on that list's folder rows and on `BreadcrumbDropTarget`s. Every drag
+   * carries the host's node or row ids. Needs `onMove`.
+   * @default undefined
+   */
+  dragScope?: string;
+  /**
    * The most children a folder lists before a "Show all" row.
    * @default 200
    */
@@ -221,7 +258,12 @@ export interface FolderTreeProps extends Omit<
   labels?: Partial<FolderTreeLabels>;
 }
 
-type SectionView = { id: string; label: string; action?: React.ReactNode };
+type SectionView = {
+  id: string;
+  label: string;
+  action?: React.ReactNode;
+  href?: string;
+};
 
 /** One focusable row, in visible order. */
 type NavRow =
@@ -280,6 +322,8 @@ function FolderTree({
   onOpen,
   renderRowActions,
   onMove,
+  canDropInto,
+  dragScope,
   maxChildren = 200,
   onShowAll,
   linkRender,
@@ -456,10 +500,16 @@ function FolderTree({
 
   // ---- roving focus ------------------------------------------------------------------------
 
+  // The home row: the selected folder, the open item, or a linked section heading that is open.
+  const homeId = picker ? selected : activeId;
   const homeKey =
-    (picker ? selected : activeId) !== undefined
-      ? nodeKey((picker ? selected : activeId)!)
-      : undefined;
+    homeId === undefined
+      ? undefined
+      : !picker &&
+          !indexOf.has(nodeKey(homeId)) &&
+          sectionList.some((s) => s.id === homeId && s.href !== undefined)
+        ? sectionKey(homeId)
+        : nodeKey(homeId);
   const nav = useListNav({
     count: rows.length,
     defaultActiveIndex: homeKey ? (indexOf.get(homeKey) ?? 0) : 0,
@@ -599,50 +649,55 @@ function FolderTree({
       if (current === ancestor) return true;
     return false;
   };
-  const describeTarget = (targetKey: string) =>
-    targetKey.startsWith("s:")
-      ? { id: null, section: targetKey.slice(2) }
-      : {
-          id: targetKey.slice(2),
-          section: sectionOf.get(targetKey.slice(2)) ?? "",
-        };
+  // Drag keys are the host's own ids, so a drag carries ids every target in `dragScope`
+  // understands. A section heading's key is private to this tree, so no node id can meet it.
+  const sectionDropPrefix = `folder-tree:${idBase}:section:`;
+  const describeTarget = (targetKey: string): Omit<FolderTreeMove, "ids"> =>
+    targetKey.startsWith(sectionDropPrefix)
+      ? {
+          targetId: null,
+          targetSection: targetKey.slice(sectionDropPrefix.length),
+        }
+      : { targetId: targetKey, targetSection: sectionOf.get(targetKey) ?? "" };
   const into = useDragInto({
     disabled: !draggable,
+    scope: dragScope,
     canDrop: ({ ids, targetKey }) => {
       const target = describeTarget(targetKey);
-      return ids.every((key) => {
-        const id = key.slice(2);
-        if (target.id !== null) {
-          if (byId.get(target.id)?.kind !== "folder") return false;
-          if (target.id === id || isInside(target.id, id)) return false;
-          return parentOf.get(id) !== target.id;
+      const ownRules = ids.every((id) => {
+        // An id the tree does not hold (a row from a list) has no known place here.
+        if (!byId.has(id)) return true;
+        if (target.targetId !== null) {
+          if (target.targetId === id || isInside(target.targetId, id))
+            return false;
+          return parentOf.get(id) !== target.targetId;
         }
         // The top of a section: refused only where the item already sits.
         return !(
-          parentOf.get(id) === null && sectionOf.get(id) === target.section
+          parentOf.get(id) === null &&
+          sectionOf.get(id) === target.targetSection
         );
       });
+      return ownRules && (canDropInto?.({ ids, ...target }) ?? true);
     },
     onHoverExpand: (targetKey) => {
-      if (targetKey.startsWith("s:")) setSectionOpen(targetKey.slice(2), true);
-      else setExpanded(targetKey.slice(2), true);
+      const target = describeTarget(targetKey);
+      if (target.targetId === null) setSectionOpen(target.targetSection, true);
+      else setExpanded(target.targetId, true);
     },
     onDrop: ({ ids, targetKey }) => {
       if (!onMove) return;
       const target = describeTarget(targetKey);
-      const moved = ids.map((key) => key.slice(2));
-      const label = byId.get(moved[0]!)?.label ?? "";
+      const label =
+        (ids.length === 1 ? byId.get(ids[0]!)?.label : undefined) ??
+        labels.itemCount(ids.length);
       const targetLabel =
-        target.id !== null
-          ? (byId.get(target.id)?.label ?? "")
-          : (sectionList.find((s) => s.id === target.section)?.label ??
-            target.section);
+        target.targetId !== null
+          ? (byId.get(target.targetId)?.label ?? "")
+          : (sectionList.find((s) => s.id === target.targetSection)?.label ??
+            target.targetSection);
       announce(labels.moved(label, targetLabel));
-      const result = onMove({
-        ids: moved,
-        targetId: target.id,
-        targetSection: target.section,
-      });
+      const result = onMove({ ids, ...target });
       if (result && typeof result.then === "function")
         result.then(undefined, () => announce(labels.moveFailed(label)));
     },
@@ -686,7 +741,7 @@ function FolderTree({
           <RowContext.Provider value={{ tabIndex: rowTab }}>
             <div
               {...(draggable
-                ? into.getItemProps(key, {
+                ? into.getItemProps(node.id, {
                     drag: true,
                     drop: folder ? "middle" : false,
                   })
@@ -852,6 +907,7 @@ function FolderTree({
         const open = !collapsedSections.includes(section.id);
         const listId = `folder-tree-${idBase}-section-${section.id}`;
         const nodes = rootsFor(section.id);
+        const linked = !picker && section.href !== undefined;
         return (
           <div
             key={section.id}
@@ -863,25 +919,63 @@ function FolderTree({
               <RowContext.Provider value={{ tabIndex: tabIndexOf(key) }}>
                 <div
                   {...(draggable
-                    ? into.getItemProps(key, { drop: "whole" })
+                    ? into.getItemProps(`${sectionDropPrefix}${section.id}`, {
+                        drop: "whole",
+                      })
                     : {})}
                   data-slot="folder-tree-section-heading"
                   data-expanded={open ? "" : undefined}
+                  data-active={
+                    linked && activeId === section.id ? "" : undefined
+                  }
                   className={cn(rowClasses, "ps-1")}
                 >
-                  <RowControl
-                    {...itemProps(key)}
-                    aria-expanded={open}
-                    aria-controls={open ? listId : undefined}
-                    onClick={() => setSectionOpen(section.id, !open)}
-                    className="text-xs font-medium text-muted-foreground"
-                  >
-                    <span className="min-w-0 truncate">{section.label}</span>
-                    <ChevronRightIcon
-                      aria-hidden
-                      className="size-3 shrink-0 opacity-0 transition-[transform,opacity] duration-100 group-hover/folder-tree-row:opacity-100 group-focus-within/folder-tree-row:opacity-100 group-data-expanded/folder-tree-row:rotate-90 rtl:-scale-x-100"
-                    />
-                  </RowControl>
+                  {linked ? (
+                    <>
+                      {/* A linked heading: the link goes to the section's page, and the chevron
+                          beside it opens and closes the list (→/← from the keyboard). */}
+                      <RowControl
+                        {...itemProps(key)}
+                        href={section.href}
+                        linkRender={linkRender}
+                        aria-current={
+                          activeId === section.id ? "page" : undefined
+                        }
+                        className="flex-initial text-xs font-medium text-muted-foreground aria-[current=page]:text-foreground"
+                      >
+                        <span className="min-w-0 truncate">
+                          {section.label}
+                        </span>
+                      </RowControl>
+                      <Button
+                        variant="ghost"
+                        size="icon-xs"
+                        tabIndex={-1}
+                        aria-label={labels.toggleSection(section.label)}
+                        aria-expanded={open}
+                        aria-controls={open ? listId : undefined}
+                        data-slot="folder-tree-section-toggle"
+                        onClick={() => setSectionOpen(section.id, !open)}
+                        className="me-auto text-muted-foreground opacity-0 group-hover/folder-tree-row:opacity-100 group-focus-within/folder-tree-row:opacity-100 hover:bg-transparent aria-expanded:bg-transparent pointer-coarse:opacity-100"
+                      >
+                        <ChevronRightIcon className="size-3 transition-transform duration-100 group-data-expanded/folder-tree-row:rotate-90 rtl:-scale-x-100" />
+                      </Button>
+                    </>
+                  ) : (
+                    <RowControl
+                      {...itemProps(key)}
+                      aria-expanded={open}
+                      aria-controls={open ? listId : undefined}
+                      onClick={() => setSectionOpen(section.id, !open)}
+                      className="text-xs font-medium text-muted-foreground"
+                    >
+                      <span className="min-w-0 truncate">{section.label}</span>
+                      <ChevronRightIcon
+                        aria-hidden
+                        className="size-3 shrink-0 opacity-0 transition-[transform,opacity] duration-100 group-hover/folder-tree-row:opacity-100 group-focus-within/folder-tree-row:opacity-100 group-data-expanded/folder-tree-row:rotate-90 rtl:-scale-x-100"
+                      />
+                    </RowControl>
+                  )}
                   {section.action && !picker ? (
                     <span
                       data-slot="folder-tree-row-actions"

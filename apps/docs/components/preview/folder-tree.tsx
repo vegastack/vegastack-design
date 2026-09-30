@@ -17,6 +17,7 @@ import {
   type FolderTreeNode,
 } from "@/components/ui/folder-tree";
 import { Button } from "@/components/ui/button";
+import { DataList, type DataListColumn } from "@/components/ui/data-list";
 import {
   Dialog,
   DialogClose,
@@ -246,6 +247,120 @@ export function folderTree(): ReactNode {
           )}
           renderRowActions={(node) => <RowMenu node={node} />}
           onMove={library.move}
+        />
+      </div>
+    </Wrapper>
+  );
+}
+
+/**
+ * The tree beside a file list, the way a Drive-style library pairs them: folders only in the
+ * tree, section headings that link to the section's own page, and one `dragScope` shared with the
+ * list — drag a list row onto a tree folder or a section heading, or a tree folder onto a folder
+ * in the list. `canDropInto` refuses a move into the folder an item already sits in.
+ */
+export function folderTreeWithList(): ReactNode {
+  const library = useLibrary();
+  const [expanded, setExpanded] = useState<string[]>(["specs"]);
+  const [open, setOpen] = useState("shared");
+  const openSection = ["shared", "private"].includes(open);
+  const folders = (parent: string | null, section?: string) =>
+    library
+      .children(parent, section)
+      .filter((node) => node.kind === "folder")
+      .map((node) => ({ ...node, href: `#${node.id}` }));
+  const listed = openSection
+    ? library.children(null, open)
+    : library.children(open);
+  const placeOf = (id: string) => library.items.find((item) => item.id === id);
+  const sectionOfFolder = (id: string) => placeOf(id)?.section ?? "shared";
+  /** Whether `targetId` is `id` or sits somewhere inside it. */
+  const within = (targetId: string, id: string) => {
+    for (let at: string | null = targetId; at; at = placeOf(at)?.parent ?? null)
+      if (at === id) return true;
+    return false;
+  };
+  const moveTo = (ids: string[], targetId: string) =>
+    library.move({
+      ids,
+      targetId: ["shared", "private"].includes(targetId) ? null : targetId,
+      targetSection: ["shared", "private"].includes(targetId)
+        ? targetId
+        : sectionOfFolder(targetId),
+    });
+  const columns: DataListColumn<FolderTreeNode>[] = [
+    { key: "label", header: "Name" },
+    {
+      key: "kind",
+      header: "Kind",
+      render: (node) =>
+        node.kind === "folder"
+          ? "Folder"
+          : node.kind === "page"
+            ? "Page"
+            : "File",
+    },
+  ];
+  const follow = (props: object) => (
+    <a
+      {...props}
+      onClick={(event) => {
+        event.preventDefault();
+        const href = (props as { href?: string }).href ?? "";
+        setOpen(href.slice(1));
+      }}
+    />
+  );
+  return (
+    <Wrapper className="flex-col flex-nowrap items-stretch justify-start gap-4 sm:flex-row sm:items-start">
+      <div className="w-full shrink-0 sm:w-56">
+        <FolderTree
+          aria-label="Library"
+          sections={[
+            { id: "shared", label: "Shared", href: "#shared" },
+            { id: "private", label: "Private", href: "#private" },
+          ]}
+          rootItems={{
+            shared: folders(null, "shared"),
+            private: folders(null, "private"),
+          }}
+          childrenOf={Object.fromEntries(
+            library.items
+              .filter((item) => item.kind === "folder")
+              .map((item) => [item.id, folders(item.id)]),
+          )}
+          expanded={expanded}
+          onExpandedChange={setExpanded}
+          activeId={open}
+          linkRender={follow}
+          dragScope="docs-folder-tree"
+          canDropInto={({ ids, targetId, targetSection }) =>
+            ids.every((id) => {
+              const item = placeOf(id);
+              return !(
+                item?.parent === targetId && item?.section === targetSection
+              );
+            })
+          }
+          onMove={library.move}
+        />
+      </div>
+      <div className="w-full min-w-0 flex-1">
+        <DataList<FolderTreeNode>
+          aria-label="Items"
+          columns={columns}
+          data={listed}
+          getRowId={(node) => node.id}
+          getRowLabel={(node) => node.label}
+          getRowHref={(node) => `#${node.id}`}
+          dragScope="docs-folder-tree"
+          canDropOnRow={(node) => node.kind === "folder"}
+          canDropInto={({ ids, targetId }) =>
+            ids.every(
+              (id) => placeOf(id)?.parent !== targetId && !within(targetId, id),
+            )
+          }
+          onDropInto={({ ids, targetId }) => moveTo(ids, targetId)}
         />
       </div>
     </Wrapper>

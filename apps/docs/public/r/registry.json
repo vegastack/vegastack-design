@@ -506,7 +506,7 @@
         "whenToUse": "A single audio asset that needs a compact, branded transport with rewind/forward, a tappable speed control, keyboard shortcuts, and a two-line mobile layout with an optional transcript control; `docked` pins a closable player to the bottom of a scroll column, a function `src` resolves a signed URL on first play, `actionsRef` seeks it from a transcript or chapter list, and `peaks` draws a stored waveform without downloading the file.",
         "whenNotToUse": "Playlists, queue management, waveform editing, audio recording, or a bar of bulk actions over a selection (ActionBar).",
         "version": "0.23.79",
-        "integrity": "sha256-X+D3DGotXCWlRePrVD0bFx+OrPBcSjn3vfxy5wrwRCE="
+        "integrity": "sha256-O0qSk74Sjvvo7u74VED7ikVcsLqkpYdnvAPD4bNJFf0="
       }
     },
     {
@@ -1406,7 +1406,7 @@
         "whenToUse": "A list of records as a table, a card grid or board lanes (view) with typed columns, selection, click-to-sort, loading/empty states, keyset paging through loadMore, rows as links, sections, thumbnails and a row-actions column.",
         "whenNotToUse": "Full-parity grids with grouping/editing/virtualization (DataGrid), or a simple static table (Table).",
         "version": "0.23.79",
-        "integrity": "sha256-VzFKJlOlwu5K3+0FPbBhjSVzNjELpTyBeztKGSR1Wn4="
+        "integrity": "sha256-oNO2keWjSZt+jlUsWeadibZEJSFptRujjlSYQw5Jt3w="
       }
     },
     {
@@ -1498,7 +1498,7 @@
         "whenToUse": "A card per record in a grid (DataList view=\"grid\" renders one per row), or card content on a board.",
         "whenNotToUse": "A record with a long body or its own controls (Card), or a row in a table (DataList).",
         "version": "0.23.79",
-        "integrity": "sha256-btrMff3Azj/WRx26FrHe/bHlN3eijCcoAhDjdMoXFp4="
+        "integrity": "sha256-FVmlEXNPFbloS6bdeNq3+TsqBtoj+FjpnknvHUCusLA="
       }
     },
     {
@@ -15506,7 +15506,7 @@
         "whenToUse": "The navigation pane of a file library or knowledge base — folders, pages and files in sections, with lazy folders, row menus and drag to move; and, in picker mode, the folder list of a Move dialog.",
         "whenNotToUse": "App navigation with fixed links (Sidebar), a flat list of files (AttachmentGroup layout=\"list\" or DataList), or a nested filter editor (FilterBuilder).",
         "version": "0.23.79",
-        "integrity": "sha256-cBZO8+c7UsqDN6mlunKmVjDTTedAlfDHUGZRk+/vrCM="
+        "integrity": "sha256-SjQIyzKoBt/HKDmVfkQoYpnRbR+++BryN22nQifyqL8="
       }
     },
     {

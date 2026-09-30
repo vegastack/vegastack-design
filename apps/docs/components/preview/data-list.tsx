@@ -802,6 +802,23 @@ export function dataListGridLg(): ReactNode {
 }
 
 /**
+ * The grid at `gridDensity="dense"`: a file browser's columns — 2 on a phone, up to 5 on a wide
+ * container.
+ */
+export function dataListGridDense(): ReactNode {
+  return (
+    <Wrapper className="block">
+      <DataList<Family>
+        {...common}
+        view="grid"
+        gridSize="lg"
+        gridDensity="dense"
+      />
+    </Wrapper>
+  );
+}
+
+/**
  * The same rows in the grid and the list, side by side: the warning pill sits beside the title in
  * both, a long title truncates before it, and the title has one weight in both views.
  */

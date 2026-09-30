@@ -6,11 +6,13 @@ import { Wrapper } from "./wrapper";
 import {
   AudioPlayer,
   AudioPlayerProvider,
+  AudioWaveform,
   GlobalAudioPlayer,
   useGlobalPlayer,
   type AudioPlayerActions,
 } from "@/components/ui/audio-player";
 import { Button } from "@/components/ui/button";
+import { MediaCard } from "@/components/ui/media-card";
 
 const SAMPLE_AUDIO = "/preview/media-player-demo.wav";
 // A dynamic clip (varied amplitude) so the waveform shows a real shape; the
@@ -392,6 +394,35 @@ export function audioPlayerDecodeLimit(): ReactNode {
           maxDecodeBytes={1024 * 1024}
         />
       </div>
+    </Wrapper>
+  );
+}
+
+/**
+ * `AudioWaveform` — the stored peaks as a still picture, no player: an audio file's card in a
+ * grid, with its duration over the image. Resampled to 48 bars, so it keeps its gaps at card
+ * width.
+ */
+export function audioPlayerWaveformStill(): ReactNode {
+  return (
+    <Wrapper className="grid max-w-lg grid-cols-2 gap-3">
+      <MediaCard
+        size="lg"
+        href="#site-visit"
+        title="Site visit recording.m4a"
+        meta="Audio · 3 MB"
+        image={null}
+        fallback={<AudioWaveform peaks={STORED_PEAKS} className="h-1/2 px-4" />}
+        imageBadge="2:10"
+      />
+      <MediaCard
+        size="lg"
+        href="#voice-note"
+        title="Voice note.m4a"
+        meta="Audio · no waveform yet"
+        image={null}
+        fallback={<AudioWaveform peaks={[]} className="h-1/2 px-4" />}
+      />
     </Wrapper>
   );
 }

@@ -62,6 +62,23 @@ tree shows the new place once your data says so: `onMove` may be async.
 
 <ComponentPreview name="folderTree" file="components/preview/folder-tree.tsx" />
 
+### With a list
+
+A Drive-style library puts a folders-only tree beside the list of the open folder. Give both the
+same `dragScope` and they share drags: a `DataList` row or card drops onto a tree folder or a
+section heading, and a tree row drops onto a folder row in the list or a `BreadcrumbDropTarget`.
+Every drag carries your own ids. The tree still refuses an item into itself, its own descendant or
+the place it already sits for every id it holds; `canDropInto` adds your rules and is the only
+check for ids it does not hold (files in the list), so refuse a move into the folder a row
+already sits in there. A section with an `href` makes its heading a link to the section's page,
+marked as the open item when `activeId` is the section's `id`; its chevron beside it opens and
+closes the list.
+
+<ComponentPreview
+  name="folderTreeWithList"
+  file="components/preview/folder-tree.tsx"
+/>
+
 ### Row states
 
 A folder opened for the first time calls `loadChildren` and shows a loading row until it
@@ -126,7 +143,11 @@ and needs an `aria-label`.
   keeps `role="tree"` out on purpose: controls inside tree items trap a screen reader.
 - The tree is one tab stop; the active row's ⋯ button is the next. Focus shows as a background
   tint, never a ring.
-- A drop is announced ("Moved Brand to Shared"), and so is a move the host refused.
+- A drop is announced ("Moved Brand to Shared", or "Moved 2 items to Brand" for rows from a list),
+  and so is a move the host refused.
+- A section heading with an `href` is a link (`aria-current="page"` on its own page) with a
+  chevron button named `"<name> section"` beside it, out of the tab order like a folder's; → and ←
+  still open and close it.
 - A loading row carries screen-reader text; a truncated name shows in full on hover.
 
 | Key                              | Action                                                          |

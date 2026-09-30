@@ -74,6 +74,17 @@ so a record's name reads the same in the grid and the list.
   file="components/preview/media-card.tsx"
 />
 
+### Image badge
+
+`imageBadge` puts a small chip over the image's bottom end — a video's "▶ 1:24", a recording's
+"2:10". It sits on a dark scrim with light ink, so it reads over any picture, and takes no pointer
+events, so a click on it still opens the card. It shows only on a card with an image area.
+
+<ComponentPreview
+  name="mediaCardImageBadge"
+  file="components/preview/media-card.tsx"
+/>
+
 ### Blur placeholder
 
 `imagePlaceholder` takes the image's tiny blurred preview as a data URL; it covers the image area
@@ -106,7 +117,8 @@ card's own border for a host that owns the surface, such as a `Board` card.
 - The card is one link, named by its title; the badge, meta line and time are read after it.
 - The ⋯ menu sits above the stretched link, so it is its own tab stop and never follows the link.
   It shows on hover and on keyboard focus, and always on a touch screen.
-- The image is decorative (`alt=""`) because the title names the record.
+- The image is decorative (`alt=""`) because the title names the record. An `imageBadge` is plain
+  text, read before the title's link; keep it short and give an icon in it `aria-hidden`.
 
 | Key                                 | Action                            |
 | ----------------------------------- | --------------------------------- |
