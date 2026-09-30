@@ -9,6 +9,20 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.23.80] — September 30, 2026
+
+<!-- assembled from 1 changeset: a876c6eb0e2a -->
+
+### 🧩 New components
+
+- Library grid and sidebar tree. `FolderTree` takes `dragScope`: its folders and section headings accept rows and cards dragged from a `DataList` in the same scope, and its own rows drop onto that list's folder rows and onto `BreadcrumbDropTarget`s; every drag now carries the host's own ids. `canDropInto` adds the host's rule after the tree's own (and is the only rule for ids the tree does not hold), `FolderTreeSection.href` makes a section heading a link (active when `activeId` is the section's id) with its open/close on a chevron beside it, and the labels gain `toggleSection` and `itemCount`. `DataList` takes `gridDensity="dense"`: 2 columns, then 3, 4 and 5 as the container widens at `gridSize="lg"`. `MediaCard` takes `imageBadge`, a chip over the image's bottom end ("▶ 1:24") that never takes the click. `audio-player` exports `AudioWaveform`, the player's waveform as still, `aria-hidden` bars for cards.
+  [`bdf75c0`](https://github.com/VegaStack/vegastack-design/commit/bdf75c0)
+
+### 📦 npm
+
+- **`@vegastack/design`** → **`0.7.67`** (was `0.7.66`).
+- The design-system registry (`@vegastack/ui`) bumps 0.23.79 → 0.23.80.
+
 ## [0.23.79] — September 30, 2026
 
 <!-- assembled from 1 changeset: 5a063617d4f4 -->
