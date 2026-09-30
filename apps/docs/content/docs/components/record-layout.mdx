@@ -94,6 +94,22 @@ const actions = <MeetingActions … />;
 </RecordLayout>;
 ```
 
+### Details under the preview
+
+With `stack`, the rail never hides: below a 64rem layout width it flows under the main column,
+full width, in ordinary flow — not sticky and with no scroller of its own — so the page keeps one
+scroller and needs no `RecordDetailsSheet`. From 64rem it is the usual sticky rail beside the main
+column. A file page uses it to keep its details in view under the preview.
+
+```tsx
+<RecordLayout stack>
+  <RecordLayoutMain>{preview}</RecordLayoutMain>
+  <RecordLayoutRail aria-label="Details">
+    <PropertyList>…</PropertyList>
+  </RecordLayoutRail>
+</RecordLayout>
+```
+
 ### Tabs, counts and loading
 
 `RecordTabsRow` puts the `TabsList` and the tab's icon actions (`RecordTabsActions`: Copy, Edit) on one row at the main column's width. The rail follows the layout's own width (a container query at 1024px), not the viewport; `useRecordLayoutWide()` gives the same answer to script (`wide`, and the `rail`/`sheet` mount flags), for mounting rail content once. `RecordLayoutPanels` holds the main column's `TabsContent` panels under the tab row (spread
@@ -121,10 +137,16 @@ const actions = <MeetingActions … />;
 
 <ApiTable
   path="../../packages/ui/registry/ui/record-layout.tsx"
+  name="RecordLayoutProps"
+/>
+
+<ApiTable
+  path="../../packages/ui/registry/ui/record-layout.tsx"
   name="RecordDetailsSheetProps"
 />
 
-`RecordLayout`, `RecordLayoutMain` and `RecordLayoutRail` take their element's native props.
+`RecordLayout` takes `stack` and its element's native props; `RecordLayoutMain` and
+`RecordLayoutRail` take their element's native props.
 
 ## Accessibility
 

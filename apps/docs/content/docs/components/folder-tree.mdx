@@ -79,11 +79,21 @@ closes the list.
   file="components/preview/folder-tree.tsx"
 />
 
+### Files from the desktop
+
+`onDropFiles` makes folders (their middle half) and section headings take files dragged in from
+the desktop, with the move's wash and a rest that opens a closed folder. It receives the target —
+`targetId` is `null` for a section heading, the top of `targetSection` — and the entries, dropped
+folders walked with each file's `relativePath`. An outer `useFileDrop` surface leaves that drop
+alone. `onFilesOver` reports the folder (or a heading's section id) the files are over, and `null`
+when they leave. It works without `onMove`, but not in picker mode.
+
 ### Row states
 
 A folder opened for the first time calls `loadChildren` and shows a loading row until it
-resolves; a failure shows "Couldn't load · Retry"; a folder with nothing in it says "Empty" (mark
-one known to be empty with `hasChildren: false` and it never loads). Past `maxChildren` (200 by
+resolves; a failure shows "Couldn't load · Retry"; a folder with nothing in it says "Empty". Mark
+one known to be empty with `hasChildren: false` and it never loads: it has no disclosure (a spacer
+in its place, `data-leaf` on the row) and → does nothing on it. Past `maxChildren` (200 by
 default) a folder ends with a "Show all" row that calls `onShowAll`, or lists the rest in place
 without it. `badge` adds a trailing count.
 
@@ -128,6 +138,13 @@ for a Move dialog, which is also the keyboard path for every drag: put "Move…"
 <ApiTable
   path="../../packages/ui/registry/ui/folder-tree.tsx"
   name="FolderTreeMove"
+/>
+
+### FolderTreeFileDrop
+
+<ApiTable
+  path="../../packages/ui/registry/ui/folder-tree.tsx"
+  name="FolderTreeFileDrop"
 />
 
 ### FolderTreeRowAction

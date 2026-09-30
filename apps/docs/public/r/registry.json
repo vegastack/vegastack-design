@@ -59,7 +59,7 @@
         "whenToUse": "A floating bar of contextual actions tied to transient state — N selected, unsaved changes, a batch operation in flight. The host owns the state; the bar shows status and actions.",
         "whenNotToUse": "Transient outcome notifications (toast), page-level primary actions (PageHeader), or owning selection — the host's list keeps selectedIds.",
         "version": "0.23.80",
-        "integrity": "sha256-kLvACVHiJKbgnguzZPaSqKnqVJ1dtzhP/wnqTSG1l8o="
+        "integrity": "sha256-Wtd/dgYZ4aAY9x/O/o2eXWcUPGdAl5FRapuwmme2+DA="
       }
     },
     {
@@ -209,7 +209,7 @@
         "whenToUse": "The root layout for a dashboard/console app — sidebar + header + main content, shared across every downstream VegaStack app; AppShellPage gives every page one container — the page gutter, rhythm and a prose/default/full width picked per route from one definePageWidths map.",
         "whenNotToUse": "A marketing/docs page with no persistent nav rail, or an app that already owns an equivalent shell — compose Sidebar/PageHeader/Breadcrumb directly instead.",
         "version": "0.23.80",
-        "integrity": "sha256-lAHs8mTmwv8uX/nIj962pR9x5bnR7/NvY2v6i0sAIyA="
+        "integrity": "sha256-N+KRshX/Yam2r94PGA7xv4RzgPLTrV8F72bErXmv4mE="
       }
     },
     {
@@ -241,7 +241,7 @@
         "whenToUse": "A record's page (a meeting, a customer, a deal): the main column with a sticky rail of property and related-work cards on wide screens, and an ⓘ Details sheet on small ones.",
         "whenNotToUse": "A list page (DataList), or a page with no per-record facts — use AppShellPage alone.",
         "version": "0.23.80",
-        "integrity": "sha256-AhJGzZ2iY70PO9zfzO3lBdwRc7gPkWzT81CCtfGhL9U="
+        "integrity": "sha256-aK57iRKxiOpr4k0HdW1pTEXs2X77MzbNZV788X3Q6Ac="
       }
     },
     {
@@ -506,7 +506,7 @@
         "whenToUse": "A single audio asset that needs a compact, branded transport with rewind/forward, a tappable speed control, keyboard shortcuts, and a two-line mobile layout with an optional transcript control; `docked` pins a closable player to the bottom of a scroll column, a function `src` resolves a signed URL on first play, `actionsRef` seeks it from a transcript or chapter list, and `peaks` draws a stored waveform without downloading the file.",
         "whenNotToUse": "Playlists, queue management, waveform editing, audio recording, or a bar of bulk actions over a selection (ActionBar).",
         "version": "0.23.80",
-        "integrity": "sha256-sXl6693Ns2M91CKNQG+hNVL0lYwGiQq1lN5oO9C4gVo="
+        "integrity": "sha256-BXHKm23yf6LUCTNOo45c5z6fU8Kwnr/rNM3nAV0dLYA="
       }
     },
     {
@@ -1406,7 +1406,7 @@
         "whenToUse": "A list of records as a table, a card grid or board lanes (view) with typed columns, selection, click-to-sort, loading/empty states, keyset paging through loadMore, rows as links, sections, thumbnails and a row-actions column.",
         "whenNotToUse": "Full-parity grids with grouping/editing/virtualization (DataGrid), or a simple static table (Table).",
         "version": "0.23.80",
-        "integrity": "sha256-6yyJ88PMqyL0kKh4UNTxd6/dielJqt74YaWw2cBjHjw="
+        "integrity": "sha256-v7qF5J0t8XfqjK2c+Y2ELeYZiShhnJEgF/szqzF2PiM="
       }
     },
     {
@@ -15470,7 +15470,7 @@
         "whenToUse": "Opening stored files full screen from attachment tiles, a product's files or a gallery — images to zoom, PDFs to read, video and audio to play, text, CSV and Markdown to read, Office files as a card (or the app's own parsed preview through loadPreview).",
         "whenNotToUse": "An inline player on a page (VideoPlayer, AudioPlayer), or a general-purpose modal (Dialog).",
         "version": "0.23.80",
-        "integrity": "sha256-olxJuDex31NcvoBOupY3cNwOo0/LmQIc95QnNSmJKWk="
+        "integrity": "sha256-+kuJQ2FIMEOb8z941iKPIr+nsxtkXLMftI0J7leqDn4="
       }
     },
     {
@@ -15506,7 +15506,7 @@
         "whenToUse": "The navigation pane of a file library or knowledge base — folders, pages and files in sections, with lazy folders, row menus and drag to move; and, in picker mode, the folder list of a Move dialog.",
         "whenNotToUse": "App navigation with fixed links (Sidebar), a flat list of files (AttachmentGroup layout=\"list\" or DataList), or a nested filter editor (FilterBuilder).",
         "version": "0.23.80",
-        "integrity": "sha256-LZRnEyzPhrhjNDX0o2VKV2e+nCMdaH7xFonLexJFAQY="
+        "integrity": "sha256-v2ZH8rcPfKk5pBRFmOQ+PPOV15AsWpX7kDunMGWlxwo="
       }
     },
     {
@@ -15774,7 +15774,7 @@
         "whenToUse": "Display user/system-authored markdown — descriptions, comments, activity — as safe token-styled prose.",
         "whenNotToUse": "Editing markdown (use an editor), or when the source needs embedded raw HTML.",
         "version": "0.23.80",
-        "integrity": "sha256-wSS/mhxaIQURR6022s/x5mhz5+Ww175V2Ofv5JrljP0="
+        "integrity": "sha256-JnPmtnrNLTviL9+K2Uw8zUKYhkN5DU6QtGJSjIpfNlw="
       }
     },
     {
@@ -15837,7 +15837,7 @@
         "whenToUse": "You are building a player around your own <audio>/<video> element and want the VegaStack transport, chrome and keyboard map.",
         "whenNotToUse": "A ready-made player — reach for Audio Player or Video Player, which compose this.",
         "version": "0.23.80",
-        "integrity": "sha256-hL9KJrudn3oUddmNmrsRSKTcE1myxBoDS7YBUFScAFE="
+        "integrity": "sha256-4dqrIoT8SP/FsDF12rKUn6izklZ5EZEQzlbPkRRAzR0="
       }
     },
     {
@@ -17542,7 +17542,7 @@
         "whenToUse": "Comments, notes, summaries and documents stored as Markdown (format=\"markdown\") or HTML — with @ mentions, uploads, callouts, toggles, an outline and comment highlights for page editors; in-place editing of a MarkdownView (the read view is the editor until first edited).",
         "whenNotToUse": "Plain single-line input (Input) or collaborative real-time docs (deferred text-edit-collab).",
         "version": "0.23.80",
-        "integrity": "sha256-DTgjzTABdadmObs1wuCHv950yblHFiChKXPzbRzPakQ="
+        "integrity": "sha256-n0CSFQpEnnkeC/2AxnsAmX+MM0OvOsiZnKqPCO7EAT8="
       }
     },
     {
@@ -17888,7 +17888,7 @@
         "whenToUse": "Any reorder-by-drag surface — sortable lists, wrapped tile grids (`columns` for row-aware ↑/↓), board cards, a future bespoke drag surface — where pointer, keyboard move mode, announcements, and server-refusable drops must all work from one API.",
         "whenNotToUse": "File drag-in (use-file-drop), resizing panes (Resizable), or single-axis value dragging (Slider).",
         "version": "0.23.80",
-        "integrity": "sha256-wiUHXoS5ai3k5GZq1GgdI+iR3Rn+YLHzn/2IpDG1Hfw="
+        "integrity": "sha256-uJGSRhvOB9pplJmtve1CMfneRmjTuk50OSSWvHdkHgk="
       }
     },
     {
@@ -17916,7 +17916,7 @@
         "whenToUse": "Any surface that acquires files — a Dropzone, a rich-text composer accepting pasted screenshots, a bespoke drop target — where drag-depth handling, accept matching, and typed rejections should be correct by construction.",
         "whenNotToUse": "Rendering upload state (Attachment) or persisting uploads — acquisition ends at the File[] callback.",
         "version": "0.23.80",
-        "integrity": "sha256-/nfSh7Lj49mSjK515PI1mYZT+qbcVDRyN0QCF3JNoN4="
+        "integrity": "sha256-bQcfEk5HMvcmTx+sEQGt3f59nAyAb+aZLkBUeLsIKfk="
       }
     },
     {
@@ -18122,7 +18122,7 @@
         "whenToUse": "A single video asset that needs a branded frame plus grouped skip controls, mute, and keyboard shortcuts.",
         "whenNotToUse": "Playlists, caption editing, fullscreen-first viewing, or adaptive streaming control surfaces.",
         "version": "0.23.80",
-        "integrity": "sha256-z35AtS90amnsKG3mYOz+pLK8FcJLqkREtLOwP0vxtho="
+        "integrity": "sha256-SJKPfZ+WuJXojaad/uLiwH2PZARFZZVNosHUqWUX6bI="
       }
     },
     {

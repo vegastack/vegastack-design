@@ -170,6 +170,8 @@ export default defineConfig({
       "diff",
       "@atlaskit/pragmatic-drag-and-drop/utils/combine",
       "@atlaskit/pragmatic-drag-and-drop/adapter/element-adapter",
+      "@atlaskit/pragmatic-drag-and-drop/external/adapter",
+      "@atlaskit/pragmatic-drag-and-drop/external/file",
       "@atlaskit/pragmatic-drag-and-drop-hitbox/closest-edge/attach-closest-edge",
       "@atlaskit/pragmatic-drag-and-drop-hitbox/closest-edge/extract-closest-edge",
       // Discovered mid-run when an affected set mounts TextEdit beside issue-detail-01's drag

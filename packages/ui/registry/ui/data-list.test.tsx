@@ -4,6 +4,7 @@ import { userEvent } from "vitest/browser";
 import { expect, test, vi } from "vitest";
 import { expectNoA11yViolations } from "../../test/a11y";
 import { ActionBarButton } from "./action-bar";
+import { useFileDrop } from "./use-file-drop";
 import {
   DataList,
   rowActionsColumn,
@@ -2140,12 +2141,18 @@ test("selectionActions docks a bar with the count, the host's actions and Clear 
   expect(
     bar.querySelector('[data-slot="action-bar-status"]')?.textContent,
   ).toBe("2 selected");
+  // The bar stacks over a docked player, and the list keeps room under its last row for both.
+  expect(bar.className).toContain("var(--dock-inset-bottom,0px)");
+  const spacer = () =>
+    document.querySelector('[data-slot="data-list-selection-spacer"]');
+  expect(spacer()?.className).toContain("var(--dock-inset-bottom,0px)");
   await expectNoA11yViolations(document.body);
 
   await screen.getByRole("button", { name: "Move to Trash" }).click();
   expect(onTrash).toHaveBeenCalledWith(["d1", "d2"]);
   await expect.poll(() => bar.getAttribute("data-active")).toBe("false");
   expect(bar.hasAttribute("inert")).toBe(true);
+  expect(spacer()).toBeNull();
 
   await toggle("Clients");
   await expect.poll(() => bar.getAttribute("data-active")).toBe("true");
@@ -2301,16 +2308,27 @@ test("gridDensity dense sets the file-browser column ladder, loading skeleton in
   const lgDense = classesOf("lg dense");
   expect(lgDense).toEqual(
     expect.arrayContaining([
-      "grid-cols-2",
+      "grid-cols-1",
+      "@xs/data-list:grid-cols-2",
       "@2xl/data-list:grid-cols-3",
       "@5xl/data-list:grid-cols-4",
       "@7xl/data-list:grid-cols-5",
     ]),
   );
-  expect(lgDense).not.toContain("grid-cols-1");
+  expect(lgDense).not.toContain("grid-cols-2");
   expect(classesOf("lg dense loading")).toEqual(
-    expect.arrayContaining(["grid-cols-2", "@7xl/data-list:grid-cols-5"]),
+    expect.arrayContaining([
+      "@xs/data-list:grid-cols-2",
+      "@7xl/data-list:grid-cols-5",
+    ]),
   );
+  // The lg skeleton is the MediaCard lg shape: a 16:9 block and two text lines.
+  const skeletonCard = document.querySelector(
+    '[aria-label="lg dense loading"] [data-slot="data-list-grid-skeleton-card"]',
+  )!;
+  const blocks = skeletonCard.querySelectorAll('[data-slot="skeleton"]');
+  expect(blocks).toHaveLength(3);
+  expect(blocks[0]!.className).toContain("aspect-video");
   expect(classesOf("dense")).toEqual(
     expect.arrayContaining([
       "grid-cols-1",
@@ -2329,4 +2347,63 @@ test("gridDensity dense sets the file-browser column ladder, loading skeleton in
     ]),
   );
   expect(lg.some((c) => c.endsWith("grid-cols-4"))).toBe(false);
+});
+
+/** Drive a desktop file drag (Pragmatic's external adapter) onto the middle of `target`. */
+async function dropFiles(target: HTMLElement, files: File[]) {
+  const dt = new DataTransfer();
+  for (const file of files) dt.items.add(file);
+  const t = target.getBoundingClientRect();
+  const at = {
+    bubbles: true,
+    cancelable: true,
+    dataTransfer: dt,
+    clientX: t.left + t.width / 2,
+    clientY: t.top + t.height / 2,
+  };
+  for (const type of ["dragenter", "dragover"] as const) {
+    target.dispatchEvent(new DragEvent(type, at));
+    await new Promise((r) => setTimeout(r, 60));
+  }
+  target.dispatchEvent(new DragEvent("drop", at));
+  await new Promise((r) => setTimeout(r, 120));
+}
+
+test("onDropFilesOnRow: desktop files dropped on a folder row go to that row, not the outer file-drop surface", async () => {
+  const onRow = vi.fn();
+  const onOver = vi.fn();
+  const onSurface = vi.fn();
+  function Surface() {
+    const drop = useFileDrop({ onFilesAccepted: onSurface });
+    return (
+      <div {...drop.dropProps}>
+        <input {...drop.inputProps} />
+        <DataList<FileRow>
+          aria-label="Files"
+          columns={fileColumns}
+          data={files}
+          getRowId={(r) => r.id}
+          getRowLabel={(r) => r.name}
+          canDropOnRow={(r) => r.kind === "folder"}
+          onDropFilesOnRow={onRow}
+          onFilesOverRow={onOver}
+        />
+      </div>
+    );
+  }
+  await render(<Surface />);
+  const report = new File(["q3"], "report.txt", { type: "text/plain" });
+  await dropFiles(rowOf("f1"), [report]);
+  await expect.poll(() => onRow.mock.calls.length).toBe(1);
+  expect(onRow).toHaveBeenCalledWith("f1", [
+    { file: expect.any(File), relativePath: "report.txt" },
+  ]);
+  expect(onOver.mock.calls).toEqual([["f1"], [null]]);
+  expect(rowOf("f1").hasAttribute("data-drop-over")).toBe(false);
+  expect(onSurface).not.toHaveBeenCalled();
+
+  // A file row is no target: the surface takes that drop.
+  await dropFiles(rowOf("d1"), [report]);
+  await expect.poll(() => onSurface.mock.calls.length).toBe(1);
+  expect(onRow).toHaveBeenCalledTimes(1);
 });

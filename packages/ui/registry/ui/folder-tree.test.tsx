@@ -13,6 +13,7 @@ import {
 import { Breadcrumb, BreadcrumbItem, BreadcrumbList } from "./breadcrumb";
 import { BreadcrumbDropTarget } from "./breadcrumb-cascade";
 import { DataList, type DataListColumn } from "./data-list";
+import { useFileDrop } from "./use-file-drop";
 
 const ROOTS: Record<string, FolderTreeNode[]> = {
   shared: [
@@ -494,4 +495,88 @@ test("a section heading with an href is a link, active on its own page, with a c
   await expect.poll(() => row("Notes")).toBeTruthy();
   await userEvent.keyboard("{ArrowLeft}");
   await expect.poll(() => row("Notes")).toBeUndefined();
+});
+
+test("onDropFiles: desktop files dropped on a folder or a section heading go there, not the outer file-drop surface", async () => {
+  const onDropFiles = vi.fn();
+  const onFilesOver = vi.fn();
+  const onSurface = vi.fn();
+  function Surface() {
+    const drop = useFileDrop({ onFilesAccepted: onSurface });
+    return (
+      <div {...drop.dropProps}>
+        <input {...drop.inputProps} />
+        <Tree onDropFiles={onDropFiles} onFilesOver={onFilesOver} />
+      </div>
+    );
+  }
+  const screen = await render(<Surface />);
+  await expect.poll(() => rowBox("Brand")).toBeTruthy();
+  const dropFiles = async (target: HTMLElement) => {
+    const dt = new DataTransfer();
+    dt.items.add(new File(["logo"], "logo.svg", { type: "image/svg+xml" }));
+    const t = target.getBoundingClientRect();
+    const at = {
+      bubbles: true,
+      cancelable: true,
+      dataTransfer: dt,
+      clientX: t.left + t.width / 2,
+      clientY: t.top + t.height / 2,
+    };
+    for (const type of ["dragenter", "dragover"] as const) {
+      target.dispatchEvent(new DragEvent(type, at));
+      await new Promise((r) => setTimeout(r, 60));
+    }
+    target.dispatchEvent(new DragEvent("drop", at));
+    await new Promise((r) => setTimeout(r, 120));
+  };
+
+  await dropFiles(rowBox("Brand"));
+  await expect.poll(() => onDropFiles.mock.calls.length).toBe(1);
+  expect(onDropFiles).toHaveBeenCalledWith({
+    targetId: "brand",
+    targetSection: "shared",
+    entries: [{ file: expect.any(File), relativePath: "logo.svg" }],
+  });
+  expect(onFilesOver.mock.calls).toEqual([["brand"], [null]]);
+
+  await dropFiles(
+    [
+      ...document.querySelectorAll<HTMLElement>(
+        "[data-slot=folder-tree-section-heading]",
+      ),
+    ][1]!,
+  );
+  await expect.poll(() => onDropFiles.mock.calls.length).toBe(2);
+  expect(onDropFiles.mock.calls[1]![0]).toMatchObject({
+    targetId: null,
+    targetSection: "private",
+  });
+  expect(onSurface).not.toHaveBeenCalled();
+  await expectNoA11yViolations(screen.container);
+});
+
+test("a folder with hasChildren false is a leaf: a spacer for its disclosure, data-leaf, and → does nothing", async () => {
+  const loadChildren = vi.fn(() => Promise.resolve([]));
+  const onExpandedChange = vi.fn();
+  await render(
+    <Tree
+      loadChildren={loadChildren}
+      onExpandedChange={onExpandedChange}
+      rootItems={{
+        shared: [
+          { id: "void", label: "Void", kind: "folder", hasChildren: false },
+        ],
+        private: [],
+      }}
+    />,
+  );
+  const box = rowBox("Void");
+  expect(box.hasAttribute("data-leaf")).toBe(true);
+  expect(box.querySelector("[data-slot=folder-tree-toggle]")).toBeNull();
+  expect(box.querySelector("span.size-6[aria-hidden]")).not.toBeNull();
+  row("Void").focus();
+  await userEvent.keyboard("{ArrowRight}");
+  expect(onExpandedChange).not.toHaveBeenCalled();
+  expect(loadChildren).not.toHaveBeenCalled();
 });

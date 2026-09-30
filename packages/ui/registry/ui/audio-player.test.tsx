@@ -5,9 +5,13 @@ import { userEvent } from "vitest/browser";
 import { expectNoA11yViolations } from "../../test/a11y";
 import {
   AudioPlayer,
+  AudioPlayerProvider,
   AudioWaveform,
+  GlobalAudioPlayer,
+  useGlobalPlayer,
   type AudioPlayerActions,
 } from "./audio-player";
+import { VideoPlayer } from "./video-player";
 
 const SOURCE =
   "data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAESsAACJWAAACABAAZGF0YQAAAAA=";
@@ -936,4 +940,89 @@ test("AudioWaveform draws stored peaks as still, aria-hidden bars", async () => 
     ),
   ).toEqual(Array(12).fill("20%"));
   await expectNoA11yViolations(screen.container);
+});
+
+test("exclusive: starting one player pauses the other playing one; exclusive={false} opts out both ways", async () => {
+  const first = React.createRef<HTMLAudioElement>();
+  const video = React.createRef<HTMLVideoElement>();
+  const free = React.createRef<HTMLAudioElement>();
+  await render(
+    <>
+      <AudioPlayer mediaRef={first} src={SOURCE} label="First" />
+      <VideoPlayer mediaRef={video} src={SOURCE} label="Clip" />
+      <AudioPlayer
+        mediaRef={free}
+        src={SOURCE}
+        label="Free"
+        exclusive={false}
+      />
+    </>,
+  );
+  const media = [first.current!, video.current!, free.current!];
+  const pauses = media.map((element) =>
+    vi.spyOn(element, "pause").mockImplementation(() => {
+      setMediaState(element, { paused: true });
+      element.dispatchEvent(new Event("pause"));
+    }),
+  );
+  const start = (element: HTMLMediaElement) => {
+    setMediaState(element, { paused: false });
+    element.dispatchEvent(new Event("play"));
+  };
+  start(first.current!);
+  start(free.current!);
+  expect(pauses.map((pause) => pause.mock.calls.length)).toEqual([0, 0, 0]);
+  start(video.current!);
+  // The video paused the first player; the opted-out one keeps playing.
+  expect(pauses.map((pause) => pause.mock.calls.length)).toEqual([1, 0, 0]);
+  start(first.current!);
+  expect(pauses.map((pause) => pause.mock.calls.length)).toEqual([1, 1, 0]);
+});
+
+test("GlobalAudioPlayer sets --dock-inset-bottom (its height + 8px) on the AppShell root while open", async () => {
+  function Controls() {
+    const player = useGlobalPlayer();
+    return (
+      <>
+        <button
+          type="button"
+          onClick={() =>
+            player.open(
+              { id: "m1", src: SOURCE, title: "Weekly sync" },
+              { play: false },
+            )
+          }
+        >
+          Open
+        </button>
+        <button type="button" onClick={() => player.close()}>
+          Dismiss
+        </button>
+      </>
+    );
+  }
+  const screen = await render(
+    <div data-slot="app-shell">
+      <AudioPlayerProvider>
+        <Controls />
+        <GlobalAudioPlayer />
+      </AudioPlayerProvider>
+    </div>,
+  );
+  const shell = screen.container.querySelector<HTMLElement>(
+    '[data-slot="app-shell"]',
+  )!;
+  const inset = () => shell.style.getPropertyValue("--dock-inset-bottom");
+  expect(inset()).toBe("");
+  await screen.getByRole("button", { name: "Open" }).click();
+  const pill = await vi.waitFor(() => {
+    const element = shell.querySelector<HTMLElement>(
+      '[data-slot="audio-player"]',
+    );
+    if (!element) throw new Error("no player yet");
+    return element;
+  });
+  await expect.poll(inset).toBe(`${pill.offsetHeight + 8}px`);
+  await screen.getByRole("button", { name: "Dismiss" }).click();
+  await expect.poll(inset).toBe("");
 });

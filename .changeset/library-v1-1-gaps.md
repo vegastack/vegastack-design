@@ -1,0 +1,6 @@
+---
+"@vegastack/ui": patch
+"@vegastack/design": patch
+---
+
+🧩 Library redesign gaps. `AppShellHeader` is a width container (`@container/app-shell-header`), so header tools compact by the header's own width. `FileViewer` takes `actions(item)`: your controls in the top bar before Download, kept at icon size below `sm`. One media plays at a time: starting an `AudioPlayer`, `VideoPlayer`, the global player or a `FileViewer` stage pauses any other that is playing, with `exclusive={false}` to opt out. While open, `GlobalAudioPlayer` sets `--dock-inset-bottom` on the `AppShell` root; `ActionBar` floats above it, and a selecting `DataList` ends with a spacer so its last row and Load more stay reachable. `useDragInto` takes `onDropFiles` and `onFilesOver`: its targets take files dragged in from the desktop (folders walked, with `relativePath`), and an outer `useFileDrop` surface leaves that drop alone. `DataList` passes them through as `onDropFilesOnRow` and `onFilesOverRow`, and `FolderTree` as `onDropFiles` and `onFilesOver`. The dense `lg` grid drops to 1 column below a 20rem container, and the `lg` grid skeleton is the `MediaCard lg` shape (16:9 and two lines). `RecordLayout` takes `stack`: below 64rem the rail flows under the main column, with one scroller.

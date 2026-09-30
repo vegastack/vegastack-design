@@ -68,6 +68,12 @@ Pass `render` when an action needs a different shape (a destructive button, an i
   file="components/preview/action-bar.tsx"
 />
 
+### Over a docked player
+
+The bar sits 16px above the bottom edge plus `--dock-inset-bottom`. `GlobalAudioPlayer` sets that
+on the `AppShell` root while it is open, so the bar floats 8px above the player instead of covering
+it; set it yourself for another bottom dock.
+
 ### Batch progress (pending)
 
 While `pending`, the actions are inert and dimmed but the status stays

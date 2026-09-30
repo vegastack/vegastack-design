@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.23.80 sha256-DTgjzTABdadmObs1wuCHv950yblHFiChKXPzbRzPakQ=
+// @vegastack text-edit@0.23.80 sha256-n0CSFQpEnnkeC/2AxnsAmX+MM0OvOsiZnKqPCO7EAT8=
 
 "use client";
 
@@ -371,12 +371,41 @@ function insertToggle(ed: Editor) {
   ed.view.dispatch(tr.scrollIntoView());
 }
 
+/** The commands that make a block of their own; a table cell holds one line, so it offers none. */
+const BLOCK_COMMANDS: ReadonlySet<TextEditSlashCommand> = new Set([
+  "h1",
+  "h2",
+  "h3",
+  "h4",
+  "bulletList",
+  "orderedList",
+  "taskList",
+  "blockquote",
+  "callout",
+  "toggle",
+  "codeBlock",
+  "table",
+  "divider",
+]);
+
+/** Whether the selection starts inside a table cell (a body or a header cell). */
+function inTableCell(state: EditorState): boolean {
+  const { $from } = state.selection;
+  for (let depth = $from.depth; depth > 0; depth--) {
+    const role = $from.node(depth).type.spec.tableRole;
+    if (role === "cell" || role === "header_cell") return true;
+  }
+  return false;
+}
+
 function filterSlash(
   allowed: readonly TextEditSlashCommand[],
   query: string,
+  inCell = false,
 ): SlashSpec[] {
   const q = query.trim().toLowerCase();
   return allowed
+    .filter((id) => !inCell || !BLOCK_COMMANDS.has(id))
     .map((id) => SLASH[id])
     .filter(
       (spec) =>
@@ -879,7 +908,8 @@ function slashExtension(runtime: SlashRuntime) {
           char: "/",
           allow: () =>
             runtime.allowed.current.length > 0 && !editor.isActive("codeBlock"),
-          items: ({ query }) => filterSlash(runtime.allowed.current, query),
+          items: ({ query, editor: ed }) =>
+            filterSlash(runtime.allowed.current, query, inTableCell(ed.state)),
           command: ({ editor: ed, range, props }) =>
             props.run(ed, range, runtime.open),
           render: () => {
@@ -2895,6 +2925,8 @@ function SelectionMenu({
       code: ed.isActive("code"),
       link: ed.isActive("link"),
       block: currentBlockType(ed),
+      // A cell holds one line: no block to turn it into.
+      cell: inTableCell(ed.state),
     }),
   });
   const close = () => onPanelChange(null);
@@ -2954,22 +2986,26 @@ function SelectionMenu({
           <Toolbar.Separator className="mx-0.5 h-4 w-px bg-border" />
         </>
       ) : null}
-      <Toolbar.Button
-        render={
-          <Button
-            variant="ghost"
-            size="sm"
-            aria-label={`Turn into (${block?.label ?? "Text"})`}
-            aria-haspopup="menu"
-            onClick={() => onPanelChange("turnInto")}
-            className="gap-1 px-2 text-xs"
-          >
-            {block?.label ?? "Text"}
-            <ChevronDown />
-          </Button>
-        }
-      />
-      <Toolbar.Separator className="mx-0.5 h-4 w-px bg-border" />
+      {state?.cell ? null : (
+        <>
+          <Toolbar.Button
+            render={
+              <Button
+                variant="ghost"
+                size="sm"
+                aria-label={`Turn into (${block?.label ?? "Text"})`}
+                aria-haspopup="menu"
+                onClick={() => onPanelChange("turnInto")}
+                className="gap-1 px-2 text-xs"
+              >
+                {block?.label ?? "Text"}
+                <ChevronDown />
+              </Button>
+            }
+          />
+          <Toolbar.Separator className="mx-0.5 h-4 w-px bg-border" />
+        </>
+      )}
       {MARKS.map((mark) => {
         const Icon = mark.icon;
         return (
@@ -4220,6 +4256,9 @@ export function TextEditEditor({
   // The last document the host has — loaded, committed or applied from `value` — so a commit
   // that happens outside an edit session (an upload finishing after blur) knows what changed.
   const committedRef = React.useRef<string | null>(null);
+  // The live document, kept across a rebuild: hidden (React `<Activity>`), Tiptap destroys the
+  // editor, and the one it creates on show would otherwise start from the last-rendered props.
+  const liveDocRef = React.useRef<PMNode | null>(null);
   const commit = React.useCallback(() => {
     const ed = editorRef.current;
     if (!ed || ed.isDestroyed || baselineRef.current === null) return;
@@ -4442,6 +4481,7 @@ export function TextEditEditor({
       },
     },
     onUpdate: ({ editor: ed }) => {
+      liveDocRef.current = ed.state.doc;
       callbacks.current.onValueChange?.(serialize(ed));
     },
   });
@@ -4533,8 +4573,33 @@ export function TextEditEditor({
     [markdown, serialize],
   );
 
+  // Hidden and shown again, the editor is a new one: give it the live document, and treat that as
+  // what the host has (the hide committed it). A value deferred while focused applies now.
+  const shownEditorRef = React.useRef<Editor | null>(null);
+  React.useEffect(() => {
+    if (!editor) return;
+    const previous = shownEditorRef.current;
+    shownEditorRef.current = editor;
+    const live = liveDocRef.current;
+    if (previous && previous !== editor && live) {
+      editor.commands.setContent(live.toJSON(), { emitUpdate: false });
+      committedRef.current = serialize(editor);
+      baselineRef.current = null;
+      const pending = pendingValueRef.current;
+      pendingValueRef.current = undefined;
+      if (pending !== undefined) applyValue(editor, pending);
+    }
+    return () => {
+      if (!editor.isDestroyed) liveDocRef.current = editor.state.doc;
+    };
+  }, [editor, serialize, applyValue]);
+
+  // Only a value that changed is news: a rebuilt editor already holds the live document.
+  const seenValueRef = React.useRef<string | undefined>(undefined);
   React.useEffect(() => {
     if (!editor || value === undefined) return;
+    if (value === seenValueRef.current) return;
+    seenValueRef.current = value;
     if (editor.isFocused) {
       pendingValueRef.current = value;
       return;

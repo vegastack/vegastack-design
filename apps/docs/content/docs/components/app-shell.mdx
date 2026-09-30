@@ -145,6 +145,25 @@ renders a plain `<div>`, because `AppShellContent` is already the `main` landmar
 </AppShellContent>
 ```
 
+### Header tools by width
+
+`AppShellHeader` is an inline-size container named `app-shell-header`, so tools in it compact by
+the header's own width — which counts the sidebar being open or collapsed — with container
+queries: no measuring script and no first-paint flash.
+
+```tsx
+<AppShellHeader
+  actions={
+    <Button size="sm" variant="ghost" aria-label="Share">
+      <ShareIcon />
+      <span className="hidden @2xl/app-shell-header:inline">Share</span>
+    </Button>
+  }
+>
+  …
+</AppShellHeader>
+```
+
 ### Skeleton
 
 `AppShellSkeleton` composes a full loading shell — a sidebar column, a header line, and a

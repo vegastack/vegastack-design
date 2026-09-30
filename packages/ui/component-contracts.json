@@ -7831,6 +7831,7 @@
                 "data-list-grid-root",
                 "data-list-grid-section",
                 "data-list-grid-skeleton",
+                "data-list-grid-skeleton-card",
                 "data-list-head",
                 "data-list-hidden-hint",
                 "data-list-merged",
@@ -7839,6 +7840,7 @@
                 "data-list-row-action",
                 "data-list-section",
                 "data-list-selection-bar",
+                "data-list-selection-spacer",
                 "data-list-sort-hint",
                 "data-list-status",
                 "data-list-thumbnail-cell",
@@ -13023,6 +13025,7 @@
               "name": "data-slot",
               "values": [
                 "file-viewer",
+                "file-viewer-actions",
                 "file-viewer-backdrop",
                 "file-viewer-close",
                 "file-viewer-count",
@@ -13081,6 +13084,15 @@
         },
         {
           "name": "FolderTreeMove",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/folder-tree.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "FolderTreeFileDrop",
           "kind": "interface",
           "source": "packages/ui/registry/ui/folder-tree.tsx",
           "ref": {
@@ -13264,6 +13276,10 @@
             {
               "name": "data-kind",
               "values": []
+            },
+            {
+              "name": "data-leaf",
+              "values": [""]
             },
             {
               "name": "data-mode",
@@ -14897,6 +14913,15 @@
         },
         {
           "name": "useMediaShortcuts",
+          "kind": "hook",
+          "source": "packages/ui/registry/ui/media-player-controls.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "This exported helper is not a rendered component root."
+          }
+        },
+        {
+          "name": "useExclusivePlayback",
           "kind": "hook",
           "source": "packages/ui/registry/ui/media-player-controls.tsx",
           "ref": {
@@ -26987,6 +27012,10 @@
             {
               "name": "data-slot",
               "values": ["record-layout"]
+            },
+            {
+              "name": "data-stack",
+              "values": [""]
             }
           ],
           "cssVariables": []
@@ -31829,6 +31858,24 @@
         },
         {
           "name": "DragIntoMove",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/use-drag-reorder.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "DragIntoFileEntry",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/use-drag-reorder.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "DragIntoFileDrop",
           "kind": "interface",
           "source": "packages/ui/registry/ui/use-drag-reorder.ts",
           "ref": {

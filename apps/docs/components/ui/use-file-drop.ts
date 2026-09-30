@@ -1,4 +1,4 @@
-// @vegastack use-file-drop@0.23.80 sha256-/nfSh7Lj49mSjK515PI1mYZT+qbcVDRyN0QCF3JNoN4=
+// @vegastack use-file-drop@0.23.80 sha256-bQcfEk5HMvcmTx+sEQGt3f59nAyAb+aZLkBUeLsIKfk=
 
 "use client";
 
@@ -38,7 +38,9 @@ What the engine does not own, and this hook adds in the system's vocabulary:
 - the ANNOUNCEMENT payload — accepted/rejected outcomes flow through a polite live
   region the consumer renders;
 - the window-level `dragover`/`drop` `preventDefault` so a drop that misses the
-  target does not navigate the browser away (on by default, opt-out).
+  target does not navigate the browser away (on by default, opt-out);
+- nested targets: a drop a `useDragInto` target inside the surface took (a folder
+  row with `onDropFiles`) is left to it — the innermost target wins.
 
 Deliberately NOT done here:
 - No upload machinery. Presigning, XHR progress, retries, and per-file lifecycle are
@@ -242,6 +244,20 @@ function pasteAccepted(file: File, accept: Accept | undefined): boolean {
   return mimeOk || extOk;
 }
 
+/** Set on a native `drop` a `useDragInto` target took (a registry symbol both hooks share). */
+const FILE_DROP_CLAIMED = Symbol.for("vegastack/file-drop-claimed");
+function wasClaimed(event: unknown): boolean {
+  const native =
+    event && typeof event === "object" && "nativeEvent" in event
+      ? (event as { nativeEvent: unknown }).nativeEvent
+      : event;
+  return Boolean(
+    native &&
+    typeof native === "object" &&
+    (native as { [FILE_DROP_CLAIMED]?: boolean })[FILE_DROP_CLAIMED],
+  );
+}
+
 /**
  * The shared document-level missed-drop guard. Module-scoped and
  * ref-counted: one listener pair serves every mounted hook, armed while ANY
@@ -368,7 +384,11 @@ export function useFileDrop({
     // opt-out). Always off — the ref-counted, Files-scoped guard below owns
     // this concern.
     preventDropOnDocument: false,
-    onDrop: (accepted, rejections) => handleBatch(accepted, rejections),
+    onDrop: (accepted, rejections, event) => {
+      // A drop an inner target took (a `useDragInto` folder row with `onDropFiles`) is not ours.
+      if (wasClaimed(event)) return;
+      handleBatch(accepted, rejections);
+    },
   });
 
   // A missed FILE drop must never navigate the browser away.

@@ -1,4 +1,4 @@
-// @vegastack audio-player@0.23.80 sha256-sXl6693Ns2M91CKNQG+hNVL0lYwGiQq1lN5oO9C4gVo=
+// @vegastack audio-player@0.23.80 sha256-BXHKm23yf6LUCTNOo45c5z6fU8Kwnr/rNM3nAV0dLYA=
 
 "use client";
 
@@ -21,6 +21,7 @@ import {
   formatDefaultTime,
   getMediaDuration,
   type MediaPlayerControlsProps,
+  useExclusivePlayback,
 } from "@/components/ui/media-player-controls";
 import {
   DropdownMenu,
@@ -343,6 +344,13 @@ export interface AudioPlayerProps extends Omit<
    */
   variant?: "default" | "waveform" | "floating";
   /**
+   * One media at a time: starting this player pauses any other DS player that is playing
+   * (`AudioPlayer`, `VideoPlayer`, `GlobalAudioPlayer`, the `FileViewer` stages), and starting one
+   * of those pauses this one. `false` opts out both ways. Nothing resumes by itself.
+   * @default true
+   */
+  exclusive?: boolean;
+  /**
    * Dock the player to the bottom of its scroll column: `position: sticky`
    * with a border, the popover surface and a shadow, padded clear of the
    * bottom safe-area inset. A docked player is a `region` named by `label`.
@@ -479,9 +487,11 @@ export function AudioPlayer({
   actionsRef,
   peaks,
   maxDecodeBytes = DEFAULT_MAX_DECODE_BYTES,
+  exclusive = true,
   ref,
   ...props
 }: AudioPlayerProps) {
+  const exclusiveProps = useExclusivePlayback(exclusive);
   const rootRef = React.useRef<HTMLDivElement | null>(null);
   const internalMediaRef = React.useRef<HTMLAudioElement | null>(null);
   const controlsMediaRef =
@@ -792,6 +802,7 @@ export function AudioPlayer({
 
       <audio
         {...props}
+        {...exclusiveProps}
         ref={setAudioRef}
         src={audioSrc}
         preload={preload}
@@ -1585,6 +1596,11 @@ export interface GlobalAudioPlayerProps {
  * it once, at the end of the main content column; it renders nothing while no
  * recording is open.
  *
+ * While it is open it sets `--dock-inset-bottom` (its height plus 8px) on the
+ * enclosing `AppShell` root (the document root outside one), so what else docks
+ * at the bottom stacks above it: `ActionBar` floats 8px over the pill, and a
+ * selecting `DataList` keeps its last row and Load more clear of both.
+ *
  * @example
  * <GlobalAudioPlayer />
  */
@@ -1600,6 +1616,31 @@ export function GlobalAudioPlayer({
     );
   const { track, close } = player;
   const { actionsRef, pendingRef, setPlaying, setTime, renderLink } = internals;
+
+  // Tell the other bottom-docked surfaces how much room the pill takes.
+  const rootRef = React.useRef<HTMLDivElement | null>(null);
+  React.useLayoutEffect(() => {
+    const element = rootRef.current;
+    if (!track || !element) return;
+    const host =
+      element.closest<HTMLElement>('[data-slot="app-shell"]') ??
+      document.documentElement;
+    const measure = () =>
+      host.style.setProperty(
+        "--dock-inset-bottom",
+        `${element.offsetHeight + 8}px`,
+      );
+    measure();
+    const observer =
+      typeof ResizeObserver === "undefined"
+        ? null
+        : new ResizeObserver(measure);
+    observer?.observe(element);
+    return () => {
+      observer?.disconnect();
+      host.style.removeProperty("--dock-inset-bottom");
+    };
+  }, [track]);
 
   // A newly opened recording starts where `open` asked, once the player has mounted.
   React.useEffect(() => {
@@ -1626,6 +1667,7 @@ export function GlobalAudioPlayer({
   return (
     <AudioPlayer
       key={track.id}
+      ref={rootRef}
       variant="floating"
       src={track.src}
       label={track.label ?? track.title ?? "Recording"}

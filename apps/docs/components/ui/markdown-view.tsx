@@ -1,4 +1,4 @@
-// @vegastack markdown-view@0.23.80 sha256-wSS/mhxaIQURR6022s/x5mhz5+Ww175V2Ofv5JrljP0=
+// @vegastack markdown-view@0.23.80 sha256-JnPmtnrNLTviL9+K2Uw8zUKYhkN5DU6QtGJSjIpfNlw=
 
 import * as React from "react";
 import { Lexer, type Token, type Tokens } from "marked";
@@ -290,13 +290,17 @@ export function headingIds(texts: readonly string[]): string[] {
 
 /* --- markdown → tree --------------------------------------------------------------------------*/
 
-function inline(tokens: Token[] | undefined): DocNode[] {
+/** A `<br>` tag, in any of its spellings: the one raw HTML a table cell renders (its line break). */
+const CELL_BREAK = /^<br\s*\/?>$/i;
+
+/** `cell`: inside a table cell, where `<br>` is GFM's only way to break a line. */
+function inline(tokens: Token[] | undefined, cell = false): DocNode[] {
   const out: DocNode[] = [];
   for (const token of tokens ?? []) {
     const t = token as Tokens.Generic;
     switch (t.type) {
       case "text":
-        if (t.tokens?.length) out.push(...inline(t.tokens));
+        if (t.tokens?.length) out.push(...inline(t.tokens, cell));
         else out.push(decode(t.text));
         break;
       case "escape":
@@ -305,7 +309,7 @@ function inline(tokens: Token[] | undefined): DocNode[] {
       case "strong":
       case "em":
       case "del":
-        out.push(el(t.type, {}, inline(t.tokens)));
+        out.push(el(t.type, {}, inline(t.tokens, cell)));
         break;
       case "codespan":
         out.push(el("code", {}, [t.text]));
@@ -333,7 +337,7 @@ function inline(tokens: Token[] | undefined): DocNode[] {
           el(
             "a",
             { href: decode(t.href), ...(t.title ? { title: t.title } : {}) },
-            inline(t.tokens),
+            inline(t.tokens, cell),
           ),
         );
         break;
@@ -348,14 +352,14 @@ function inline(tokens: Token[] | undefined): DocNode[] {
         );
         break;
       // Raw HTML is shown as the text it is, never parsed (react-markdown's behaviour without
-      // `rehype-raw`).
+      // `rehype-raw`) — except a table cell's `<br>`, its line break.
       case "html":
-        out.push(t.text);
+        out.push(cell && CELL_BREAK.test(t.text.trim()) ? el("br") : t.text);
         break;
       case "checkbox":
         break;
       default:
-        if (t.tokens) out.push(...inline(t.tokens));
+        if (t.tokens) out.push(...inline(t.tokens, cell));
         else if (typeof t.text === "string") out.push(decode(t.text));
     }
   }
@@ -456,7 +460,7 @@ function blocks(tokens: Token[]): DocNode[] {
             "tr",
             {},
             table.header.map((cell) =>
-              el("th", cellAttrs(cell.align), inline(cell.tokens)),
+              el("th", cellAttrs(cell.align), inline(cell.tokens, true)),
             ),
           ),
         ]);
@@ -465,7 +469,7 @@ function blocks(tokens: Token[]): DocNode[] {
             "tr",
             {},
             row.map((cell) =>
-              el("td", cellAttrs(cell.align), inline(cell.tokens)),
+              el("td", cellAttrs(cell.align), inline(cell.tokens, true)),
             ),
           ),
         );

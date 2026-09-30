@@ -1,4 +1,4 @@
-// @vegastack record-layout@0.23.80 sha256-AhJGzZ2iY70PO9zfzO3lBdwRc7gPkWzT81CCtfGhL9U=
+// @vegastack record-layout@0.23.80 sha256-aK57iRKxiOpr4k0HdW1pTEXs2X77MzbNZV788X3Q6Ac=
 
 "use client";
 
@@ -25,8 +25,20 @@ import {
  * `useMediaQuery`) when it holds state that must not be duplicated.
  * ----------------------------------------------------------------------------------------------*/
 
-/** Native container props for `RecordLayout`. */
-export type RecordLayoutProps = React.ComponentPropsWithRef<"div">;
+/** Props for `RecordLayout`. */
+export interface RecordLayoutProps extends React.ComponentPropsWithRef<"div"> {
+  /**
+   * Below the 64rem layout width, flow the rail under the main column instead of hiding it: one
+   * column, the rail full width in ordinary flow — not sticky, no scroller of its own — so the
+   * page has one scroller and `RecordDetailsSheet` is not needed (mount the rail always). From
+   * 64rem it is the normal sticky rail beside the main column.
+   * @default false
+   */
+  stack?: boolean;
+}
+
+/** Whether the enclosing `RecordLayout` stacks (`stack`), read by its main column and rail. */
+const RecordLayoutStackContext = React.createContext(false);
 
 /**
  * `RecordLayout` — the two-column frame. Put `RecordLayoutMain` first and `RecordLayoutRail` second.
@@ -41,17 +53,34 @@ export type RecordLayoutProps = React.ComponentPropsWithRef<"div">;
  *     <Card size="sm">…</Card>
  *   </RecordLayoutRail>
  * </RecordLayout>
+ *
+ * @example
+ * // A file page: the details flow under the preview below 64rem, with one scroller.
+ * <RecordLayout stack>
+ *   <RecordLayoutMain>…the preview…</RecordLayoutMain>
+ *   <RecordLayoutRail aria-label="Details">…</RecordLayoutRail>
+ * </RecordLayout>
  */
-export function RecordLayout({ className, ...props }: RecordLayoutProps) {
+export function RecordLayout({
+  className,
+  stack = false,
+  ...props
+}: RecordLayoutProps) {
   return (
-    <div
-      data-slot="record-layout"
-      className={cn(
-        "@container/record-layout flex min-w-0 items-start gap-8",
-        className,
-      )}
-      {...props}
-    />
+    <RecordLayoutStackContext.Provider value={stack}>
+      <div
+        data-slot="record-layout"
+        data-stack={stack ? "" : undefined}
+        className={cn(
+          "@container/record-layout flex min-w-0 items-start gap-8",
+          // Stacked: the main column takes the whole first line below 64rem, so the rail wraps
+          // under it.
+          stack && "flex-wrap",
+          className,
+        )}
+        {...props}
+      />
+    </RecordLayoutStackContext.Provider>
   );
 }
 
@@ -63,10 +92,15 @@ export function RecordLayoutMain({
   className,
   ...props
 }: RecordLayoutMainProps) {
+  const stack = React.useContext(RecordLayoutStackContext);
   return (
     <div
       data-slot="record-layout-main"
-      className={cn("flex min-w-0 flex-1 flex-col gap-6", className)}
+      className={cn(
+        "flex min-w-0 flex-1 flex-col gap-6",
+        stack && "basis-full @min-[64rem]/record-layout:basis-0",
+        className,
+      )}
       {...props}
     />
   );
@@ -82,7 +116,8 @@ export type RecordLayoutRailProps = React.ComponentPropsWithRef<"aside">;
  * which is the same gap it has at rest, so it never slides under the header —
  * and scrolls on its own when taller than the viewport minus that gap above and below. Set
  * `--record-rail-offset` (default `--spacing(14)`, `AppShellHeader`'s height) to the height of the
- * chrome above the scroll container. Name it with `aria-label`.
+ * chrome above the scroll container. Name it with `aria-label`. In a `RecordLayout stack` it is
+ * shown at every width: below 64rem it flows under the main column, full width, in ordinary flow.
  *
  * @example
  * <RecordLayoutRail aria-label="Details"><Card size="sm">…</Card></RecordLayoutRail>
@@ -91,11 +126,15 @@ export function RecordLayoutRail({
   className,
   ...props
 }: RecordLayoutRailProps) {
+  const stack = React.useContext(RecordLayoutStackContext);
   return (
     <aside
       data-slot="record-layout-rail"
       className={cn(
-        "sticky top-(--record-rail-gap) hidden max-h-[calc(100dvh-var(--record-rail-offset)-2*var(--record-rail-gap))] w-80 shrink-0 flex-col gap-4 self-start overflow-y-auto overscroll-contain [--record-rail-gap:var(--page-gutter,--spacing(8))] [--record-rail-offset:--spacing(14)] @min-[64rem]/record-layout:flex",
+        "[--record-rail-gap:var(--page-gutter,--spacing(8))] [--record-rail-offset:--spacing(14)]",
+        stack
+          ? "flex w-full min-w-0 shrink-0 flex-col gap-4 @min-[64rem]/record-layout:sticky @min-[64rem]/record-layout:top-(--record-rail-gap) @min-[64rem]/record-layout:max-h-[calc(100dvh-var(--record-rail-offset)-2*var(--record-rail-gap))] @min-[64rem]/record-layout:w-80 @min-[64rem]/record-layout:self-start @min-[64rem]/record-layout:overflow-y-auto @min-[64rem]/record-layout:overscroll-contain"
+          : "sticky top-(--record-rail-gap) hidden max-h-[calc(100dvh-var(--record-rail-offset)-2*var(--record-rail-gap))] w-80 shrink-0 flex-col gap-4 self-start overflow-y-auto overscroll-contain @min-[64rem]/record-layout:flex",
         className,
       )}
       {...props}

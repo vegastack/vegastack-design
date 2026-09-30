@@ -1,4 +1,4 @@
-// @vegastack video-player@0.23.80 sha256-z35AtS90amnsKG3mYOz+pLK8FcJLqkREtLOwP0vxtho=
+// @vegastack video-player@0.23.80 sha256-SJKPfZ+WuJXojaad/uLiwH2PZARFZZVNosHUqWUX6bI=
 
 "use client";
 
@@ -10,6 +10,7 @@ import {
   MediaPlayerControls,
   clampTime,
   type MediaPlayerControlsProps,
+  useExclusivePlayback,
   useMediaShortcuts,
 } from "@/components/ui/media-player-controls";
 
@@ -46,6 +47,13 @@ export interface VideoPlayerProps extends Omit<
    * Video source URL.
    */
   src: string;
+  /**
+   * One media at a time: starting this player pauses any other DS player that is playing
+   * (`AudioPlayer`, `VideoPlayer`, `GlobalAudioPlayer`, the `FileViewer` stages), and starting one
+   * of those pauses this one. `false` opts out both ways. Nothing resumes by itself.
+   * @default true
+   */
+  exclusive?: boolean;
   /**
    * An image shown in the frame until playback starts — a poster frame stored with the upload
    * (`probeVideo` grabs one). It also sits behind the "can't play" card.
@@ -216,9 +224,11 @@ export function VideoPlayer({
   poster,
   preload = "metadata",
   playsInline = true,
+  exclusive = true,
   ref,
   ...props
 }: VideoPlayerProps) {
+  const exclusiveProps = useExclusivePlayback(exclusive);
   const internalMediaRef = React.useRef<HTMLVideoElement | null>(null);
   const frameRef = React.useRef<HTMLDivElement | null>(null);
   const keyboardActiveRef = React.useRef(false);
@@ -546,6 +556,7 @@ export function VideoPlayer({
       >
         <video
           {...props}
+          {...exclusiveProps}
           ref={setVideoRef}
           src={videoSrc}
           poster={poster}

@@ -122,6 +122,9 @@ text field (a toolbar search keeps its own select-all) or from a row's ⋯ menu,
 anything is selected: the count (`selectionLabel`), your actions — compose `ActionBarButton` — and a
 "Clear selection" button. Your render gets the selected ids and a `clear()` to call after a bulk
 action. On a phone the bar is capped at the screen width and its actions scroll sideways inside it.
+While the bar is open the list ends with a spacer of the bar's height, its gap and
+`--dock-inset-bottom` (a global audio player under it), so the last row and a Load more stay
+reachable above both.
 
 <ComponentPreview
   name="dataListSelectionBar"
@@ -148,6 +151,13 @@ Dragging a selected row carries the whole selection, and its drag image reads "3
 refused target shows `data-drop-invalid` in the destructive tint; an accepted one washes in the
 primary tint (`data-drop-over`). `onDropInto` receives `{ ids, targetId }` and may return a promise.
 Drag is pointer only: keep a "Move…" row action as the keyboard and touch path.
+
+Files dragged in from the desktop drop onto the same folder rows and cards with
+`onDropFilesOnRow(rowId, entries)`: the row washes as for a move, dropped folders keep their
+structure in each entry's `relativePath`, and an outer `useFileDrop` surface (the canvas's own
+upload drop) leaves that drop alone — the innermost target wins. `onFilesOverRow` reports the row
+the files are over, and `null` when they leave, for naming the folder in your drop hint. Neither
+needs `onDropInto`.
 
 <ComponentPreview
   name="dataListDragInto"
@@ -556,9 +566,10 @@ own grid.
 
 ### Dense grid
 
-`gridDensity="dense"` fits more cards by width, for a file browser: at `gridSize="lg"`, 2 columns
-on a phone, 3 from a 42rem container, 4 from 64rem and 5 from 80rem. The loading skeleton follows
-the same columns.
+`gridDensity="dense"` fits more cards by width, for a file browser: at `gridSize="lg"`, 1 column
+below a 20rem container, 2 from 20rem, 3 from 42rem, 4 from 64rem and 5 from 80rem. The loading
+skeleton follows the same columns, and at `lg` each skeleton card is the `MediaCard lg` shape — a
+16:9 block and two text lines — so nothing jumps when the cards arrive.
 
 <ComponentPreview
   name="dataListGridDense"
