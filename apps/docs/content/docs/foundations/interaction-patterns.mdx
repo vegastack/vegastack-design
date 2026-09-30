@@ -35,6 +35,29 @@ on every re-render.
 - **Everything else** keyboard-focusable gets the one 2px `:focus-visible` outline; text
   fields use the border-tint instead (a raw input can't tell mouse from keyboard).
 
+## The page doesn't bounce under a mouse
+
+On a mouse or trackpad (`pointer: fine`), `base.css` sets `overscroll-behavior-y: none` on `html`
+and `body` (INT-12). The page no longer rubber-bands at its top and bottom edges, and scrolling past
+the end of an inner scroller (a list, a panel, a table) no longer carries on into the page behind it.
+
+- **Vertical only.** Horizontal overscroll is untouched, so a trackpad two-finger swipe still goes
+  back and forward.
+- **Fine pointers only.** Touch devices keep the native bounce and pull-to-refresh.
+- **Nothing to add per component.** Don't restate it on a page or a scroller. An inner scroller that
+  must contain its scroll on touch too still sets `overscroll-contain` / `overscroll-y-contain`
+  itself, as `Combobox`'s list and `Board`'s lanes do.
+
+```css
+/* @vegastack/design-tokens/base.css */
+@media (pointer: fine) {
+  html,
+  body {
+    overscroll-behavior-y: none;
+  }
+}
+```
+
 ## Keyboard affordances are visible
 
 - Shortcut hints render in `Kbd`, and `Kbd` composes **inside** buttons and menu rows

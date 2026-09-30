@@ -13,6 +13,7 @@
      MOT-5   the reduced-motion reset (and the one sanctioned !important)
      INT-1   the hand cursor, on a wider selector list than shadcn's --pointer rule
      INT-7   touch-action: manipulation and no tap highlight
+     INT-12  no page-edge bounce or scroll chaining on fine pointers (vertical only)
      OVL-13  body { isolation: isolate } for the portal theme scope
 
    Deleted with the reset: INT-2's `cursor: default` on disabled controls (INT-2 = shadcn, and
@@ -242,5 +243,19 @@
   [contenteditable="true"],
   [contenteditable=""] {
     font-size: max(16px, 1em);
+  }
+}
+
+/* INT-12 (ours) — NO PAGE BOUNCE ON MOUSE AND TRACKPAD (MK 2026-09-30).
+   On a fine pointer the page's vertical edge no longer rubber-bands, and an inner scroller that
+   hits its end no longer hands the scroll on to the page behind it. VERTICAL ONLY: horizontal
+   overscroll stays `auto`, so a trackpad two-finger swipe still navigates back/forward. GATED TO
+   `pointer: fine`: touch devices keep pull-to-refresh and the native bounce. On both `html` and
+   `body` because which of the two is the root scroller varies by browser. Inner scrollers that
+   want containment on every pointer still set `overscroll-*-contain` themselves. */
+@media (pointer: fine) {
+  html,
+  body {
+    overscroll-behavior-y: none;
   }
 }
