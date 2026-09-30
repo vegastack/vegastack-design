@@ -12,12 +12,12 @@
     "evidencePolicy": "Observed fields come from source, registry metadata, docs, and test topology. Unknown/not-applicable values are explicit; no inferred behavior is presented as verified."
   },
   "expectedCounts": {
-    "totalRegistryItems": 712,
+    "totalRegistryItems": 713,
     "components": 141,
     "animatedIcons": 467,
     "hooks": 13,
     "blocks": 13,
-    "libs": 10,
+    "libs": 11,
     "chartBlocks": 68
   },
   "expectedWaveCounts": {
@@ -5614,15 +5614,6 @@
           }
         },
         {
-          "name": "codeLowlight",
-          "kind": "constant",
-          "source": "packages/ui/registry/ui/code-block.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "The shared lowlight instance, not a component."
-          }
-        },
-        {
           "name": "normalizeCodeLanguage",
           "kind": "function",
           "source": "packages/ui/registry/ui/code-block.tsx",
@@ -5677,7 +5668,10 @@
       },
       "engines": [],
       "docsSlug": "/docs/components/code-block",
-      "registryDependencies": ["@vegastack/copy-button"],
+      "registryDependencies": [
+        "@vegastack/code-highlight",
+        "@vegastack/copy-button"
+      ],
       "npmDependencies": [
         "@vegastack/design-tokens@^0.7.79",
         "@vegastack/design@^0.7.79",
@@ -23924,6 +23918,7 @@
         "@vegastack/button",
         "@vegastack/checkbox",
         "@vegastack/code-block",
+        "@vegastack/code-highlight",
         "@vegastack/command",
         "@vegastack/copy-button",
         "@vegastack/drag-item",
@@ -34680,6 +34675,82 @@
     }
   ],
   "libs": [
+    {
+      "name": "code-highlight",
+      "registryType": "registry:lib",
+      "title": "Code Highlight",
+      "summary": "The one shared lowlight instance (highlight.js common grammars) CodeBlock loads lazily and TextEdit's code block uses — one module so the grammars stay out of the main bundle.",
+      "family": "lib",
+      "wave": "Libs",
+      "sourceFiles": ["packages/ui/registry/lib/code-highlight.ts"],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "A formatting module renders nothing and has no variant surface."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "A formatting module renders nothing and has no size scale."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned motion mechanism observed."
+        }
+      },
+      "engines": [],
+      "registryDependencies": [],
+      "docsSlug": "/docs/guides/components",
+      "states": {
+        "behavior": {
+          "status": "not-applicable",
+          "values": ["not-applicable"],
+          "evidence": "Plain formatting functions; no state machine."
+        },
+        "accessibility": {
+          "status": "not-applicable",
+          "values": ["not-applicable"],
+          "evidence": "No DOM — the components in relative-time own the <time> semantics."
+        },
+        "visual": {
+          "status": "not-applicable",
+          "values": ["not-applicable"],
+          "evidence": "Returns strings; renders nothing."
+        }
+      },
+      "responsive": {
+        "status": "not-applicable",
+        "risks": [],
+        "rationale": "No DOM of its own; consumers own layout."
+      },
+      "npmDependencies": ["lowlight@^3.3.0"],
+      "testFiles": [
+        "packages/ui/registry/ui/code-block.test.tsx",
+        "packages/ui/registry/ui/text-edit.test.tsx"
+      ],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "shared-guide-only",
+        "navigation": "exempt",
+        "preview": "exempt",
+        "vrt": "exempt"
+      },
+      "publicSymbols": [
+        {
+          "name": "codeLowlight",
+          "kind": "constant",
+          "source": "packages/ui/registry/lib/code-highlight.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A lowlight instance, not a component."
+          }
+        }
+      ]
+    },
     {
       "name": "date-time",
       "registryType": "registry:lib",

@@ -457,6 +457,14 @@ function namedByHost(button, sf) {
 // `resizableNested` exclusion).
 const RAW_INTERACTIVE_EXEMPTIONS = new Map([
   [
+    "registry/ui/comments.tsx",
+    {
+      counts: { input: 1 },
+      rationale:
+        "the hidden file-picker bridge the Attach button clicks synchronously in its gesture (the lazy editor may not be mounted yet) — opening a file dialog needs a native <input type=file>; no VegaStack control substitutes for it",
+    },
+  ],
+  [
     "registry/ui/editable-cell.tsx",
     {
       counts: { input: 1, textarea: 1 },

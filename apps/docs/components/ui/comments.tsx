@@ -1,4 +1,4 @@
-// @vegastack comments@0.23.94 sha256-y5Hg0j3wszTAzG6SEVMv4S1BBb4FeS83zQGNq+Ui+tQ=
+// @vegastack comments@0.23.94 sha256-4UTWEKU9hEBIwN8lh1t0++/3bvi22fEvgKJiGXy76U0=
 
 "use client";
 
@@ -574,6 +574,7 @@ function CommentBox({
     if (autoFocus) focusEditor(ref.current);
   }, [autoFocus]);
   const canAttach = !!(onImageUpload || onFileUpload) && !disabled;
+  const fileInput = React.useRef<HTMLInputElement>(null);
   return (
     <div
       ref={ref}
@@ -584,6 +585,7 @@ function CommentBox({
       onKeyDown={
         onEscape
           ? (event) => {
+              // A mention / slash menu's Escape stops propagation, so it only closes the menu.
               if (event.key === "Escape") onEscape();
             }
           : undefined
@@ -626,28 +628,45 @@ function CommentBox({
         >
           {leading}
           {canAttach ? (
-            <Tooltip>
-              <TooltipTrigger
-                render={
-                  <Button
-                    variant="ghost"
-                    size="icon-sm"
-                    data-slot="comment-attach"
-                    aria-label="Attach files"
-                    className={cn(
-                      "rounded-full focus-visible:bg-muted",
-                      TOUCH_TARGET,
-                    )}
-                    // The editor's own picker: picked files upload at the caret through
-                    // its paste/drop upload flow (placeholder, spinner, abort).
-                    onClick={() => handle.current?.pickFiles()}
-                  />
-                }
-              >
-                <Paperclip aria-hidden />
-              </TooltipTrigger>
-              <TooltipContent>Attach files</TooltipContent>
-            </Tooltip>
+            <>
+              <Tooltip>
+                <TooltipTrigger
+                  render={
+                    <Button
+                      variant="ghost"
+                      size="icon-sm"
+                      data-slot="comment-attach"
+                      aria-label="Attach files"
+                      className={cn(
+                        "rounded-full focus-visible:bg-muted",
+                        TOUCH_TARGET,
+                      )}
+                      // A picker of our own, clicked in the gesture (the lazy editor may not be
+                      // in yet); picked files go to the editor's upload flow at the caret.
+                      onClick={() => fileInput.current?.click()}
+                    />
+                  }
+                >
+                  <Paperclip aria-hidden />
+                </TooltipTrigger>
+                <TooltipContent>Attach files</TooltipContent>
+              </Tooltip>
+              <input
+                ref={fileInput}
+                type="file"
+                multiple
+                hidden
+                tabIndex={-1}
+                aria-hidden
+                // The editor's rules: images only unless any file may upload.
+                accept={onFileUpload ? undefined : "image/*"}
+                onChange={(event) => {
+                  const files = Array.from(event.currentTarget.files ?? []);
+                  event.currentTarget.value = "";
+                  if (files.length) handle.current?.uploadFiles(files);
+                }}
+              />
+            </>
           ) : null}
           {actions}
         </div>

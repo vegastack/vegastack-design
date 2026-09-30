@@ -874,10 +874,13 @@
  *
  * lowlight (highlight.js grammars) marks tokens with `.hljs-*` classes; these
  * map them onto the semantic palette, so code reads in both themes with no
- * theme of its own: plain ink, keywords in `chart-5`, names in `info-text`,
- * strings in `brand-text`, numbers and literals in `chart-4`, attributes and
- * variables in `chart-2`, types in `chart-7`, comments muted. Every value is a
- * theme-split token, so the dark half follows `.dark` through the cascade.
+ * theme of its own: plain ink, keywords in `tag-pink-text`, names in
+ * `info-text`, strings in `brand-text`, numbers and literals in
+ * `tag-orange-text`, attributes and variables in `tag-cyan-text`, types in
+ * `tag-lime-text`, comments muted. Only AA text tokens: each clears 4.5:1 on
+ * full `muted` (the darkest code ground in light, lightest in dark) in both
+ * themes. Every value is a theme-split token, so the dark half follows `.dark`
+ * through the cascade.
  * Plain selectors (not utilities), for the same reason as the BrandIcon swap
  * above: a consumer's Tailwind build never scans the component source.
  * ------------------------------------------------------------------------- */
@@ -900,7 +903,7 @@
 .hljs-doctag,
 .hljs-meta .hljs-keyword,
 .hljs-name {
-  color: var(--chart-5);
+  color: var(--tag-pink-text);
 }
 .hljs-title,
 .hljs-title.function_,
@@ -922,7 +925,7 @@
 .hljs-bullet,
 .hljs-built_in,
 .hljs-link {
-  color: var(--chart-4);
+  color: var(--tag-orange-text);
 }
 .hljs-attr,
 .hljs-attribute,
@@ -932,12 +935,12 @@
 .hljs-params,
 .hljs-selector-attr,
 .hljs-selector-pseudo {
-  color: var(--chart-2);
+  color: var(--tag-cyan-text);
 }
 .hljs-type,
 .hljs-title.class_.inherited__,
 .hljs-meta {
-  color: var(--chart-7);
+  color: var(--tag-lime-text);
 }
 .hljs-addition {
   color: var(--success-text);

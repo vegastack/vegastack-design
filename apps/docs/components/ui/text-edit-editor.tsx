@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.23.94 sha256-TWaPM5Slcm//EfuBazdVo8e3N2CvAwjQytGXKfNSNL8=
+// @vegastack text-edit@0.23.94 sha256-jVreV5pI8yQFYM1jhoOIkGfo0Pgsa7eC0GQzJW4KZLE=
 
 "use client";
 
@@ -116,9 +116,9 @@ import {
   codeBlockPreClassName,
   codeBlockSurfaceClassName,
   codeLanguageName,
-  codeLowlight,
   normalizeCodeLanguage,
 } from "@/components/ui/code-block";
+import { codeLowlight } from "@/lib/code-highlight";
 import {
   Command,
   CommandEmpty,
@@ -539,7 +539,12 @@ function CodeLanguagePicker({
  * While editable the language is a searchable picker that writes the fence's info string
  * (```` ```ts ````); read-only it is a label.
  */
-function CodeBlockView({ node, editor, updateAttributes }: ReactNodeViewProps) {
+function CodeBlockView({
+  node,
+  editor,
+  updateAttributes,
+  getPos,
+}: ReactNodeViewProps) {
   const language = (node.attrs.language as string | null) || undefined;
   return (
     <NodeViewWrapper
@@ -554,7 +559,13 @@ function CodeBlockView({ node, editor, updateAttributes }: ReactNodeViewProps) {
             language={language}
             onChange={(next) => {
               updateAttributes({ language: next });
-              editor.commands.focus();
+              // Back into the code block, at its end: the picker took focus out of the editor.
+              const pos = getPos();
+              const end =
+                typeof pos === "number"
+                  ? pos + editor.state.doc.nodeAt(pos)!.nodeSize - 1
+                  : undefined;
+              editor.commands.focus(end);
             }}
           />
         ) : language ? (
@@ -1009,6 +1020,8 @@ function slashExtension(runtime: SlashRuntime) {
                 if (!state) return false;
                 const count = state.items.length;
                 if (event.key === "Escape") {
+                  // Escape only closes the menu: a host's Escape (e.g. cancel a reply) must not see it.
+                  event.stopPropagation();
                   exitSuggestion(editor.view, SLASH_KEY);
                   return true;
                 }
@@ -2062,6 +2075,8 @@ function mentionNode(runtime: EditorRuntime) {
                 const state = runtime.mention.get();
                 if (!state) return false;
                 if (event.key === "Escape") {
+                  // Escape only closes the menu: a host's Escape (e.g. cancel a reply) must not see it.
+                  event.stopPropagation();
                   exitSuggestion(editor.view, MENTION_KEY);
                   return true;
                 }
@@ -2425,14 +2440,50 @@ const RICH_PASTE_TAGS =
   "h1,h2,h3,h4,h5,h6,ul,ol,li,strong,b,em,i,a,table,blockquote,img";
 
 /**
- * The pasted HTML is just a wrapper around its text — a single `pre`/`code`, VS Code's monospace
- * `div`s, or anything without headings, lists, emphasis, links, tables, quotes or images — so the
- * plain-text flavour (e.g. Markdown copied from an editor) is the real content.
+ * The pasted HTML is just a wrapper around its text — a `pre`/`code`, VS Code's monospace `div`s,
+ * or anything without headings, lists, emphasis, links, tables, quotes or images — so the
+ * plain-text flavour is the real content. `"code"` for a pre / monospace wrapper, `"text"` for
+ * another bare wrapper, `null` for rich HTML.
  */
-function isCodeWrapperHtml(html: string) {
-  if (typeof DOMParser === "undefined") return false;
+function codeWrapperKind(html: string): "code" | "text" | null {
+  if (typeof DOMParser === "undefined") return null;
   const body = new DOMParser().parseFromString(html, "text/html").body;
-  return !body.querySelector(RICH_PASTE_TAGS);
+  if (body.querySelector(RICH_PASTE_TAGS)) return null;
+  const mono = body.querySelector(
+    "pre, code, [style*='monospace' i], [style*='white-space: pre' i], [style*='white-space:pre' i]",
+  );
+  return mono ? "code" : "text";
+}
+
+/** Markdown construct kinds the text uses: 2+ kinds, or a heading / list with inline marks, is strong. */
+function strongMarkdown(text: string) {
+  const block = {
+    heading: /(^|\n) {0,3}#{1,6}\s+\S/,
+    list: /(^|\n)\s*([-*+]|\d+[.)])\s+\S/,
+    quote: /(^|\n) {0,3}>\s/,
+    table: /(^|\n)\s*\|.+\|\s*\n\s*\|?\s*:?-{3,}/,
+    fence: /(^|\n) {0,3}(```|~~~)/,
+  };
+  const inline = {
+    emphasis: /\*\*[^*\n]+\*\*|__[^_\n]+__|~~[^~\n]+~~/,
+    link: /!?\[[^\]\n]+\]\([^)\s]+\)/,
+    code: /`[^`\n]+`/,
+  };
+  const has = (r: Record<string, RegExp>) =>
+    Object.values(r).filter((re) => re.test(text)).length;
+  const blocks = has(block);
+  const inlines = has(inline);
+  if (blocks + inlines >= 2) return true;
+  return (block.heading.test(text) || block.list.test(text)) && inlines > 0;
+}
+
+/** Source code rather than prose: many lines ending in `;` `{` `}`, or most lines indented. */
+function looksLikeCode(text: string) {
+  const lines = text.split(/\r?\n/).filter((l) => l.trim());
+  if (lines.length < 2) return false;
+  const codeEnds = lines.filter((l) => /[;{}]\s*$/.test(l)).length;
+  const indented = lines.filter((l) => /^(\t| {2,})/.test(l)).length;
+  return codeEnds / lines.length >= 0.3 || indented / lines.length >= 0.6;
 }
 
 /** Text that is exactly one fenced code block: its language and code. */
@@ -4598,7 +4649,7 @@ export function TextEditEditor({
           if (uploadFiles(files, view.state.selection.from)) return true;
         }
         if (!ed || !text || ed.isActive("codeBlock")) return false;
-        if (plain) {
+        const insertLiteral = () => {
           ed.commands.insertContent(
             text.split(/\r?\n/).map((line) => ({
               type: "paragraph",
@@ -4606,19 +4657,29 @@ export function TextEditEditor({
             })),
           );
           return true;
-        }
-        const html = event.clipboardData?.getData("text/html");
-        if (html && !isCodeWrapperHtml(html)) return false;
-        const fence = singleFence(text);
-        if (fence) {
+        };
+        const insertCode = (code: string, language: string | null = null) => {
           ed.commands.insertContent({
             type: "codeBlock",
-            attrs: { language: fence.language },
-            content: fence.code ? [{ type: "text", text: fence.code }] : [],
+            attrs: { language },
+            content: code ? [{ type: "text", text: code }] : [],
           });
           return true;
-        }
-        if (!looksLikeMarkdown(text)) return false;
+        };
+        if (plain) return insertLiteral();
+        const html = event.clipboardData?.getData("text/html");
+        const wrapper = html ? codeWrapperKind(html) : null;
+        if (html && !wrapper) return false;
+        const fence = singleFence(text);
+        if (fence) return insertCode(fence.code, fence.language);
+        if (wrapper) {
+          // Copied from a code editor: markdown only on strong signals and when it isn't code.
+          if (!strongMarkdown(text) || looksLikeCode(text)) {
+            return wrapper === "code" && /\n./.test(text.trim())
+              ? insertCode(text.replace(/\r\n/g, "\n").replace(/\n+$/, ""))
+              : insertLiteral();
+          }
+        } else if (!looksLikeMarkdown(text)) return false;
         ed.commands.insertContent(text, { contentType: "markdown" });
         return true;
       },

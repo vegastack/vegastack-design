@@ -960,6 +960,27 @@
       }
     },
     {
+      "name": "code-highlight",
+      "type": "registry:lib",
+      "title": "Code Highlight",
+      "description": "The one shared lowlight instance (highlight.js common grammars) CodeBlock loads lazily and TextEdit's code block uses — one module so the grammars stay out of the main bundle.",
+      "categories": ["data"],
+      "dependencies": ["lowlight@^3.3.0"],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "packages/ui/registry/lib/code-highlight.ts",
+          "type": "registry:lib",
+          "target": "@lib/code-highlight.ts"
+        }
+      ],
+      "meta": {
+        "version": "0.23.94",
+        "whenToUse": "Highlighting code with the design system's shared grammars.",
+        "whenNotToUse": "Rendering code — use CodeBlock."
+      }
+    },
+    {
       "name": "code-block",
       "type": "registry:ui",
       "title": "Code Block",
@@ -971,7 +992,10 @@
         "hast-util-to-jsx-runtime@^2.3.6",
         "lowlight@^3.3.0"
       ],
-      "registryDependencies": ["@vegastack/copy-button"],
+      "registryDependencies": [
+        "@vegastack/copy-button",
+        "@vegastack/code-highlight"
+      ],
       "files": [
         {
           "path": "packages/ui/registry/ui/code-block.tsx",
@@ -14234,7 +14258,8 @@
         "@vegastack/text-anchor-doc",
         "@vegastack/toggle",
         "@vegastack/tooltip",
-        "@vegastack/use-file-drop"
+        "@vegastack/use-file-drop",
+        "@vegastack/code-highlight"
       ],
       "files": [
         {

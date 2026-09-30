@@ -1,9 +1,11 @@
-// @vegastack code-block@0.23.94 sha256-R0YebB/SGosLkWOT6FJ6Ai7mhnAcaqky2DJBu2Tj1SA=
+// @vegastack code-block@0.23.94 sha256-j8Bkq+N4xuIDr38raEFHtOuq+hlXiv652OQ5CTtRua8=
+
+"use client";
 
 import * as React from "react";
 import { Fragment, jsx, jsxs } from "react/jsx-runtime";
 import { toJsxRuntime } from "hast-util-to-jsx-runtime";
-import { common, createLowlight } from "lowlight";
+import type { createLowlight } from "lowlight";
 import { CopyButton } from "@/components/ui/copy-button";
 import { cn } from "@vegastack/design";
 
@@ -11,14 +13,23 @@ import { cn } from "@vegastack/design";
  * CodeBlock — a Notion-style code panel: no border and no header bar, a soft `bg-muted/60` ground,
  * 13px mono with relaxed leading that scrolls sideways. On hover or focus inside (always on a
  * coarse pointer) the language shows top-left and a Copy button top-right. Syntax highlighting is
- * lowlight's `common` grammars rendered as React elements (never HTML strings), coloured by the
+ * lowlight's `common` grammars (loaded lazily after mount; plain code renders first) rendered as React elements (never HTML strings), coloured by the
  * token-mapped `.hljs-*` rules in the design tokens' CSS. `MarkdownView` delegates fenced code
- * here and `TextEdit`'s code block wears the same surface and shares `codeLowlight`, so a block
- * reads the same in view and edit mode.
+ * here and `TextEdit`'s code block wears the same surface and shares `codeLowlight`
+ * (`@/lib/code-highlight`), so a block reads the same in view and edit mode.
  * ----------------------------------------------------------------------------------------------*/
 
-/** The one lowlight instance (highlight.js `common` grammars) the view and the editor share. */
-export const codeLowlight = createLowlight(common);
+type Lowlight = ReturnType<typeof createLowlight>;
+
+/** The shared lowlight instance, once `@/lib/code-highlight` has loaded (lazily, after mount). */
+let loadedLowlight: Lowlight | null = null;
+let lowlightPromise: Promise<Lowlight> | null = null;
+function loadLowlight() {
+  lowlightPromise ??= import("@/lib/code-highlight").then(
+    (m) => (loadedLowlight = m.codeLowlight),
+  );
+  return lowlightPromise;
+}
 
 /** The languages a code block offers by name, as `[fence id, display name]`; "" is plain text. */
 export const CODE_LANGUAGES: readonly (readonly [string, string])[] = [
@@ -129,10 +140,14 @@ export function codeLanguageName(language?: string | null): string {
 }
 
 /** `code` highlighted as React elements, or the plain text when the language has no grammar. */
-function highlight(code: string, language: string): React.ReactNode {
-  if (!language || !codeLowlight.registered(language)) return code;
+function highlight(
+  lowlight: Lowlight,
+  code: string,
+  language: string,
+): React.ReactNode {
+  if (!language || !lowlight.registered(language)) return code;
   try {
-    return toJsxRuntime(codeLowlight.highlight(language, code), {
+    return toJsxRuntime(lowlight.highlight(language, code), {
       Fragment,
       jsx,
       jsxs,
@@ -187,8 +202,28 @@ export function CodeBlock({
   ...props
 }: CodeBlockProps) {
   const grammar = normalizeCodeLanguage(language);
+  // Plain code first (server and first client render match); the grammars load after mount.
+  const [lowlight, setLowlight] = React.useState<Lowlight | null>(null);
+  const wantsHighlight = typeof children === "string" && !!grammar;
+  React.useEffect(() => {
+    if (!wantsHighlight) return;
+    if (loadedLowlight) {
+      setLowlight(loadedLowlight);
+      return;
+    }
+    let live = true;
+    loadLowlight().then(
+      (l) => live && setLowlight(l),
+      () => {},
+    );
+    return () => {
+      live = false;
+    };
+  }, [wantsHighlight]);
   const content =
-    typeof children === "string" ? highlight(children, grammar) : children;
+    typeof children === "string" && lowlight
+      ? highlight(lowlight, children, grammar)
+      : children;
   return (
     <figure
       ref={ref}

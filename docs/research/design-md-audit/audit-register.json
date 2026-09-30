@@ -2,14 +2,14 @@
   "schemaVersion": 1,
   "kind": "vegastack-zero-gap-audit-register",
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "0ed8752871d57da218b0c82b3b4315fe387f652d997592e2f9e1cfd6689d75d8",
+  "contractSha256": "9ca89f39831bed56c1513a6d6ba4b2ccb9b730df38bbdeccb4b026454b28b983",
   "expectedCounts": {
-    "totalRegistryItems": 712,
+    "totalRegistryItems": 713,
     "components": 141,
     "animatedIcons": 467,
     "hooks": 13,
     "blocks": 13,
-    "libs": 10,
+    "libs": 11,
     "chartBlocks": 68
   },
   "records": [
@@ -7758,6 +7758,17 @@
         "packages/ui/registry/blocks/chart-tooltip-label-none/chart-tooltip-label-none.tsx"
       ],
       "docsSlug": "/docs/blocks/charts-tooltip",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "code-highlight",
+      "inventoryClass": "lib",
+      "wave": "Libs",
+      "family": "lib",
+      "sourceFiles": [
+        "packages/ui/registry/lib/code-highlight.ts"
+      ],
+      "docsSlug": "/docs/guides/components",
       "contractStatus": "reconciled"
     },
     {

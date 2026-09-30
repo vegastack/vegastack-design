@@ -284,7 +284,7 @@
         "whenToUse": "Discussion on a record's page (a task, a meeting): comments oldest first with the composer at the end.",
         "whenNotToUse": "An activity feed or notifications — use Inbox.",
         "version": "0.23.94",
-        "integrity": "sha256-y5Hg0j3wszTAzG6SEVMv4S1BBb4FeS83zQGNq+Ui+tQ="
+        "integrity": "sha256-4UTWEKU9hEBIwN8lh1t0++/3bvi22fEvgKJiGXy76U0="
       }
     },
     {
@@ -1082,6 +1082,32 @@
       }
     },
     {
+      "name": "code-highlight",
+      "type": "registry:lib",
+      "title": "Code Highlight",
+      "description": "The one shared lowlight instance (highlight.js common grammars) CodeBlock loads lazily and TextEdit's code block uses — one module so the grammars stay out of the main bundle.",
+      "categories": [
+        "data"
+      ],
+      "dependencies": [
+        "lowlight@^3.3.0"
+      ],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "packages/ui/registry/lib/code-highlight.ts",
+          "type": "registry:lib",
+          "target": "@lib/code-highlight.ts"
+        }
+      ],
+      "meta": {
+        "version": "0.23.94",
+        "whenToUse": "Highlighting code with the design system's shared grammars.",
+        "whenNotToUse": "Rendering code — use CodeBlock.",
+        "integrity": "sha256-84RDqT2J4/F/3gC03L1UEmDYEglP1baH7fB7ru2V420="
+      }
+    },
+    {
       "name": "code-block",
       "type": "registry:ui",
       "title": "Code Block",
@@ -1096,7 +1122,8 @@
         "lowlight@^3.3.0"
       ],
       "registryDependencies": [
-        "@vegastack/copy-button"
+        "@vegastack/copy-button",
+        "@vegastack/code-highlight"
       ],
       "files": [
         {
@@ -1109,7 +1136,7 @@
         "whenToUse": "Fenced/source code that deserves a labelled, copyable panel.",
         "whenNotToUse": "Inline code (a mono chip) or terminal output theatre (Terminal).",
         "version": "0.23.94",
-        "integrity": "sha256-R0YebB/SGosLkWOT6FJ6Ai7mhnAcaqky2DJBu2Tj1SA="
+        "integrity": "sha256-j8Bkq+N4xuIDr38raEFHtOuq+hlXiv652OQ5CTtRua8="
       }
     },
     {
@@ -17554,7 +17581,8 @@
         "@vegastack/text-anchor-doc",
         "@vegastack/toggle",
         "@vegastack/tooltip",
-        "@vegastack/use-file-drop"
+        "@vegastack/use-file-drop",
+        "@vegastack/code-highlight"
       ],
       "files": [
         {
@@ -17572,7 +17600,7 @@
         "whenToUse": "Comments, notes, summaries and documents stored as Markdown (format=\"markdown\") or HTML — with @ mentions, uploads, callouts, toggles, an outline and comment highlights for page editors; in-place editing of a MarkdownView (the read view is the editor until first edited).",
         "whenNotToUse": "Plain single-line input (Input) or collaborative real-time docs (deferred text-edit-collab).",
         "version": "0.23.94",
-        "integrity": "sha256-TWaPM5Slcm//EfuBazdVo8e3N2CvAwjQytGXKfNSNL8="
+        "integrity": "sha256-jVreV5pI8yQFYM1jhoOIkGfo0Pgsa7eC0GQzJW4KZLE="
       }
     },
     {
