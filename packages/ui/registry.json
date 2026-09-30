@@ -40,7 +40,11 @@
         "@vegastack/design@^0.7.73",
         "@vegastack/design-tokens@^0.7.56"
       ],
-      "registryDependencies": ["@vegastack/button"],
+      "registryDependencies": [
+        "@vegastack/button",
+        "@vegastack/dropdown-menu",
+        "@vegastack/use-media-query"
+      ],
       "files": [
         {
           "path": "packages/ui/registry/ui/action-bar.tsx",
@@ -12356,12 +12360,14 @@
       "name": "file-viewer",
       "type": "registry:ui",
       "title": "File Viewer",
-      "description": "A full-screen dark overlay for stored files — images with a blur-up, zoom and pan; PDFs rendered page by page with a lazily loaded pdf.js over range requests; video and audio in the system players; the first megabyte of text, CSV (a table) and Markdown; app-parsed previews through loadPreview; a file card with a thumbnail and Download for everything else — paged with arrows, side buttons or a swipe.",
+      "description": "A full-screen dark overlay for stored files — images with a blur-up, zoom and pan; PDFs rendered page by page with a lazily loaded pdf.js over range requests; video and audio in the system players; the first megabyte of text, CSV (a table) and Markdown; Excel workbooks (sheet tabs, the first 500 rows) and Word documents, read by lazily loaded SheetJS and mammoth; app-parsed previews through loadPreview; a file card with a thumbnail and Download for everything else — paged with arrows, side buttons or a swipe.",
       "categories": ["media"],
       "dependencies": [
         "@base-ui/react@^1.6.0",
         "lucide-react@^1.47.0",
         "pdfjs-dist@^6.3.289",
+        "mammoth@1.13.0",
+        "xlsx@https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz",
         "@vegastack/design@^0.7.73",
         "@vegastack/design-tokens@^0.7.56"
       ],
@@ -12374,6 +12380,7 @@
         "@vegastack/markdown-view",
         "@vegastack/spinner",
         "@vegastack/table",
+        "@vegastack/tabs",
         "@vegastack/use-announcer",
         "@vegastack/use-modal-inert",
         "@vegastack/video-player"
@@ -12388,10 +12395,15 @@
           "path": "packages/ui/registry/ui/file-viewer-pdf.tsx",
           "type": "registry:ui",
           "target": "@ui/file-viewer-pdf.tsx"
+        },
+        {
+          "path": "packages/ui/registry/ui/file-viewer-office.ts",
+          "type": "registry:ui",
+          "target": "@ui/file-viewer-office.ts"
         }
       ],
       "meta": {
-        "whenToUse": "Opening stored files full screen from attachment tiles, a product's files or a gallery — images to zoom, PDFs to read, video and audio to play, text, CSV and Markdown to read, Office files as a card (or the app's own parsed preview through loadPreview).",
+        "whenToUse": "Opening stored files full screen from attachment tiles, a product's files or a gallery — images to zoom, PDFs to read, video and audio to play, text, CSV, Markdown, Excel and Word files to read, other Office files as a card (or the app's own parsed preview through loadPreview).",
         "whenNotToUse": "An inline player on a page (VideoPlayer, AudioPlayer), or a general-purpose modal (Dialog).",
         "version": "0.23.88"
       }
@@ -14698,7 +14710,8 @@
       ],
       "registryDependencies": [
         "@vegastack/button",
-        "@vegastack/media-player-controls"
+        "@vegastack/media-player-controls",
+        "@vegastack/use-media-query"
       ],
       "files": [
         {

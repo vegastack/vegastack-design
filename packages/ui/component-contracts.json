@@ -273,6 +273,11 @@
         "globalInputGroups": ["tokens", "shared-runtime"]
       },
       {
+        "file": "packages/ui/test/design-review-geometry.browser.test.tsx",
+        "owners": ["action-bar", "breadcrumb-cascade", "data-list"],
+        "globalInputGroups": ["tokens", "shared-runtime"]
+      },
+      {
         "file": "packages/ui/test/record-chip-geometry.browser.test.tsx",
         "owners": [
           "priority-icon",
@@ -557,6 +562,15 @@
             "status": "not-applicable",
             "rationale": "Type-only exports do not render or accept runtime refs."
           }
+        },
+        {
+          "name": "ActionBarSecondaryAction",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/action-bar.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
         }
       ],
       "variants": {
@@ -606,11 +620,15 @@
       },
       "engines": [],
       "docsSlug": "/docs/components/action-bar",
-      "registryDependencies": ["@vegastack/button"],
+      "registryDependencies": [
+        "@vegastack/button",
+        "@vegastack/dropdown-menu",
+        "@vegastack/use-media-query"
+      ],
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
-        "@vegastack/design@^0.7.73",
-        "@vegastack/design-tokens@^0.7.56"
+        "@vegastack/design-tokens@^0.7.56",
+        "@vegastack/design@^0.7.73"
       ],
       "testFiles": ["packages/ui/registry/ui/action-bar.test.tsx"],
       "coverage": {
@@ -638,6 +656,7 @@
               "values": [
                 "action-bar",
                 "action-bar-actions",
+                "action-bar-more",
                 "action-bar-status"
               ]
             }
@@ -3726,6 +3745,34 @@
             "status": "not-applicable",
             "rationale": "Type-only exports do not render or accept runtime refs."
           }
+        },
+        {
+          "name": "BreadcrumbTrail",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/breadcrumb-cascade.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "nav",
+            "rationale": "Merged onto the Breadcrumb nav root."
+          }
+        },
+        {
+          "name": "BreadcrumbTrailProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/breadcrumb-cascade.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "BreadcrumbTrailStep",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/breadcrumb-cascade.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
         }
       ],
       "variants": {
@@ -3830,6 +3877,35 @@
                 "breadcrumb-siblings-status",
                 "breadcrumb-siblings-trigger"
               ]
+            }
+          ],
+          "cssVariables": []
+        },
+        "BreadcrumbTrail": {
+          "attributes": [
+            {
+              "name": "data-current",
+              "values": [""]
+            },
+            {
+              "name": "data-folded",
+              "values": []
+            },
+            {
+              "name": "data-measure-ellipsis",
+              "values": [""]
+            },
+            {
+              "name": "data-measure-separator",
+              "values": [""]
+            },
+            {
+              "name": "data-measure-step",
+              "values": [""]
+            },
+            {
+              "name": "data-slot",
+              "values": ["breadcrumb-trail", "breadcrumb-trail-folded"]
             }
           ],
           "cssVariables": []
@@ -12850,8 +12926,9 @@
       "family": "media",
       "wave": "Overlays",
       "sourceFiles": [
-        "packages/ui/registry/ui/file-viewer.tsx",
-        "packages/ui/registry/ui/file-viewer-pdf.tsx"
+        "packages/ui/registry/ui/file-viewer-office.ts",
+        "packages/ui/registry/ui/file-viewer-pdf.tsx",
+        "packages/ui/registry/ui/file-viewer.tsx"
       ],
       "publicSymbols": [
         {
@@ -12915,6 +12992,42 @@
           "ref": {
             "status": "not-applicable",
             "rationale": "A pure function; it renders nothing and takes no ref."
+          }
+        },
+        {
+          "name": "OFFICE_MAX_BYTES",
+          "kind": "constant",
+          "source": "packages/ui/registry/ui/file-viewer-office.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A constant; it renders nothing and takes no ref."
+          }
+        },
+        {
+          "name": "OfficeSheet",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/file-viewer-office.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "readWorkbook",
+          "kind": "function",
+          "source": "packages/ui/registry/ui/file-viewer-office.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A function; it renders nothing and takes no ref."
+          }
+        },
+        {
+          "name": "readWordDocument",
+          "kind": "function",
+          "source": "packages/ui/registry/ui/file-viewer-office.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A function; it renders nothing and takes no ref."
           }
         }
       ],
@@ -12998,16 +13111,19 @@
         "@vegastack/markdown-view",
         "@vegastack/spinner",
         "@vegastack/table",
+        "@vegastack/tabs",
         "@vegastack/use-announcer",
         "@vegastack/use-modal-inert",
         "@vegastack/video-player"
       ],
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
-        "lucide-react@^1.47.0",
-        "pdfjs-dist@^6.3.289",
+        "@vegastack/design-tokens@^0.7.56",
         "@vegastack/design@^0.7.73",
-        "@vegastack/design-tokens@^0.7.56"
+        "lucide-react@^1.47.0",
+        "mammoth@1.13.0",
+        "pdfjs-dist@^6.3.289",
+        "xlsx@https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz"
       ],
       "testFiles": ["packages/ui/registry/ui/file-viewer.test.tsx"],
       "coverage": {
@@ -13020,6 +13136,19 @@
       },
       "previewModule": "file-viewer",
       "dataAttributes": {
+        "FileViewerPdf": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": [
+                "file-viewer-pdf",
+                "file-viewer-pdf-page",
+                "file-viewer-pdf-toolbar"
+              ]
+            }
+          ],
+          "cssVariables": []
+        },
         "FileViewer": {
           "attributes": [
             {
@@ -13038,19 +13167,6 @@
                 "file-viewer-header",
                 "file-viewer-stage",
                 "file-viewer-title"
-              ]
-            }
-          ],
-          "cssVariables": []
-        },
-        "FileViewerPdf": {
-          "attributes": [
-            {
-              "name": "data-slot",
-              "values": [
-                "file-viewer-pdf",
-                "file-viewer-pdf-page",
-                "file-viewer-pdf-toolbar"
               ]
             }
           ],
@@ -25215,12 +25331,13 @@
       "docsSlug": "/docs/components/video-player",
       "registryDependencies": [
         "@vegastack/button",
-        "@vegastack/media-player-controls"
+        "@vegastack/media-player-controls",
+        "@vegastack/use-media-query"
       ],
       "npmDependencies": [
-        "lucide-react@^1.47.0",
+        "@vegastack/design-tokens@^0.7.56",
         "@vegastack/design@^0.7.73",
-        "@vegastack/design-tokens@^0.7.56"
+        "lucide-react@^1.47.0"
       ],
       "testFiles": ["packages/ui/registry/ui/video-player.test.tsx"],
       "coverage": {

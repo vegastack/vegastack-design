@@ -1,4 +1,4 @@
-// @vegastack file-kind@0.23.88 sha256-cC6uN3rZkdj5wjZFe6V+8dmW9zqeBKimOR4HzMn8kTc=
+// @vegastack file-kind@0.23.88 sha256-iWVbUX0xS1IA610wgmpT8uXa2wcXsY1Gq0m5lzX2CG0=
 
 import * as React from "react";
 import { cn } from "@vegastack/design";
@@ -172,6 +172,46 @@ const KIND_ICON: Record<FileKind, LucideIcon> = {
   other: FileIcon,
 };
 
+/**
+ * Each kind's ink when a surface colour-codes file types (`tinted`): the four status inks for
+ * the kinds people scan for (PDF red, sheet green, slides amber, document blue), a categorical
+ * chart hue for media, and the muted ink for the rest. Every one clears the 3:1 non-text floor
+ * on the page, a card and `muted`, in both themes.
+ */
+const KIND_TINT: Record<FileKind, string> = {
+  pdf: "text-destructive-text",
+  spreadsheet: "text-success-text",
+  presentation: "text-warning-text",
+  document: "text-info-text",
+  image: "text-chart-2",
+  video: "text-chart-5",
+  audio: "text-chart-7",
+  text: "text-muted-foreground",
+  archive: "text-muted-foreground",
+  code: "text-muted-foreground",
+  other: "text-muted-foreground",
+};
+
+/**
+ * What each kind is called on a card or a label ("Spreadsheet", "PDF").
+ *
+ * @example
+ * FILE_KIND_LABEL[fileKindOf(file.contentType, file.name)]; // "Spreadsheet"
+ */
+export const FILE_KIND_LABEL: Record<FileKind, string> = {
+  image: "Image",
+  pdf: "PDF",
+  video: "Video",
+  audio: "Audio",
+  text: "Text",
+  archive: "Archive",
+  spreadsheet: "Spreadsheet",
+  document: "Document",
+  presentation: "Presentation",
+  code: "Code",
+  other: "File",
+};
+
 /** Props accepted by {@link FileTypeIcon}. */
 export interface FileTypeIconProps extends Omit<LucideProps, "ref" | "name"> {
   /**
@@ -189,6 +229,12 @@ export interface FileTypeIconProps extends Omit<LucideProps, "ref" | "name"> {
    * @default undefined
    */
   kind?: FileKind;
+  /**
+   * Colour the icon by kind (PDF red, sheet green, slides amber, document blue, media in a chart
+   * hue), so a grid or list of files is scannable by type. Off, it is muted.
+   * @default false
+   */
+  tinted?: boolean;
 }
 
 /**
@@ -202,6 +248,7 @@ export function FileTypeIcon({
   contentType,
   name,
   kind,
+  tinted = false,
   className,
   ...props
 }: FileTypeIconProps) {
@@ -211,7 +258,85 @@ export function FileTypeIcon({
     "data-slot": "file-type-icon",
     "data-kind": resolved,
     ...props,
-    className: cn("shrink-0 text-muted-foreground", className),
+    className: cn(
+      "shrink-0",
+      tinted ? KIND_TINT[resolved] : "text-muted-foreground",
+      className,
+    ),
   };
   return React.createElement(KIND_ICON[resolved], attributes);
+}
+
+/** Props accepted by {@link FileKindTile}. */
+export interface FileKindTileProps extends Omit<
+  React.ComponentPropsWithRef<"div">,
+  "children"
+> {
+  /** The file's MIME type. @default undefined */
+  contentType?: string | null;
+  /** The file name, read for its extension when `contentType` does not say. @default undefined */
+  name?: string | null;
+  /** An already-known kind, which skips detection. @default undefined */
+  kind?: FileKind;
+  /**
+   * The label under the icon. `null` hides it.
+   * @default FILE_KIND_LABEL[kind]
+   */
+  label?: React.ReactNode;
+}
+
+/**
+ * `FileKindTile` — the picture for a file with no preview: a large icon in its kind's colour and
+ * the kind's name on the `muted` ground, filling its box. For a card's image area
+ * (`MediaCard`'s `fallback`) or a file page's stage, so a grid of Office files reads by type
+ * instead of as grey boxes. Decorative (`aria-hidden`): the card names the file.
+ *
+ * @example
+ * <MediaCard size="lg" title={file.name} image={file.thumb}
+ *   fallback={<FileKindTile contentType={file.contentType} name={file.name} />} />
+ */
+export function FileKindTile({
+  contentType,
+  name,
+  kind,
+  label,
+  className,
+  ...props
+}: FileKindTileProps) {
+  const resolved = kind ?? fileKindOf(contentType, name);
+  const text = label === undefined ? FILE_KIND_LABEL[resolved] : label;
+  return React.createElement(
+    "div",
+    {
+      "aria-hidden": true,
+      "data-slot": "file-kind-tile",
+      "data-kind": resolved,
+      ...props,
+      className: cn(
+        "flex size-full min-w-0 flex-col items-center justify-center gap-2 bg-muted p-3",
+        className,
+      ),
+    },
+    React.createElement(FileTypeIcon, {
+      kind: resolved,
+      tinted: true,
+      className: "size-10",
+    }),
+    text == null
+      ? null
+      : React.createElement(
+          "span",
+          {
+            "data-slot": "file-kind-tile-label",
+            className: cn(
+              "max-w-full truncate text-xs font-medium",
+              // The status inks are AA-gated as text; the media hues only as graphics.
+              KIND_TINT[resolved].endsWith("-text")
+                ? KIND_TINT[resolved]
+                : "text-muted-foreground",
+            ),
+          },
+          text,
+        ),
+  );
 }

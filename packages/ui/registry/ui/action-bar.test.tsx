@@ -1,7 +1,7 @@
 import * as React from "react";
 import { render } from "vitest-browser-react";
 import { userEvent } from "vitest/browser";
-import { expect, test } from "vitest";
+import { expect, onTestFinished, test, vi } from "vitest";
 import { expectNoA11yViolations } from "../../test/a11y";
 import { ActionBar, ActionBarButton, ActionBarSeparator } from "./action-bar";
 
@@ -216,4 +216,59 @@ test("no a11y violations — open, pending, hidden", async () => {
     </div>,
   );
   await expectNoA11yViolations(screen.container);
+});
+
+/** Answer every media query as `matches(query)` for the rest of the test. */
+function stubMediaQueries(matches: (query: string) => boolean) {
+  const spy = vi.spyOn(window, "matchMedia").mockImplementation(
+    (query: string) =>
+      ({
+        matches: matches(query),
+        media: query,
+        onchange: null,
+        addEventListener() {},
+        removeEventListener() {},
+        addListener() {},
+        removeListener() {},
+        dispatchEvent: () => false,
+      }) as MediaQueryList,
+  );
+  onTestFinished(() => spy.mockRestore());
+}
+
+const SECONDARY = [
+  { label: "Move", onClick: vi.fn() },
+  { label: "Archive", destructive: true },
+];
+
+test("secondaryActions are buttons in the bar on a wide screen", async () => {
+  stubMediaQueries(() => false);
+  const screen = await render(
+    <ActionBar status="2 selected" secondaryActions={SECONDARY}>
+      <ActionBarButton>Share</ActionBarButton>
+    </ActionBar>,
+  );
+  await expect
+    .element(screen.getByRole("button", { name: "Move" }))
+    .toBeInTheDocument();
+  expect(
+    screen.container.querySelector('[aria-label="More actions"]'),
+  ).toBeNull();
+});
+
+test("below sm the secondary actions fold into a ⋯ menu; the primary ones stay", async () => {
+  stubMediaQueries((query) => query.includes("max-width"));
+  const screen = await render(
+    <ActionBar status="2 selected" secondaryActions={SECONDARY}>
+      <ActionBarButton>Share</ActionBarButton>
+    </ActionBar>,
+  );
+  await expect
+    .element(screen.getByRole("button", { name: "Share" }))
+    .toBeInTheDocument();
+  expect(screen.container.textContent).not.toContain("Move");
+  await userEvent.click(screen.getByRole("button", { name: "More actions" }));
+  await userEvent.click(screen.getByRole("menuitem", { name: "Move" }));
+  expect(SECONDARY[0]!.onClick).toHaveBeenCalledTimes(1);
+  await expectNoA11yViolations(document.body);
 });

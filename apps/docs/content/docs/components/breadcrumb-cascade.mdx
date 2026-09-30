@@ -81,7 +81,37 @@ selection.
   file="components/preview/breadcrumb-cascade.tsx"
 />
 
+### One-line trail
+
+`BreadcrumbTrail` renders the whole breadcrumb from `steps` and keeps it on one line. When the
+steps do not fit, the middle ones fold into a "…" menu first — the oldest first, keeping the root
+and the current page's parent — and only then does the current step shorten with an ellipsis. Pass
+`linkRender` for a router link, and `renderStep` to render an earlier step yourself (a
+`BreadcrumbDropTarget`).
+
+```tsx
+<BreadcrumbTrail
+  linkRender={<Link />}
+  steps={[
+    { label: "Library", href: "/library" },
+    { label: "Shared", href: "/library/shared" },
+    { label: "Clients", href: "/library/f/1" },
+    { label: "Quarterly review.docx" },
+  ]}
+/>
+```
+
 ## API Reference
+
+<ApiTable
+  path="../../packages/ui/registry/ui/breadcrumb-cascade.tsx"
+  name="BreadcrumbTrailProps"
+/>
+
+<ApiTable
+  path="../../packages/ui/registry/ui/breadcrumb-cascade.tsx"
+  name="BreadcrumbTrailStep"
+/>
 
 <ApiTable
   path="../../packages/ui/registry/ui/breadcrumb-cascade.tsx"

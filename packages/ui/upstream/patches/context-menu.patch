@@ -1,5 +1,5 @@
 # component: context-menu
-# decisions: A11Y-13, API-19, BRD-1, DOC-1, DOC-2, FRM-4, INT-1, OVL-13
+# decisions: A11Y-13, API-19, BRD-1, DOC-1, DOC-2, FRM-4, INT-1, OVL-13, OVL-19
 # hunks:
 #   OVL-13: the same two hosts `dropdown-menu` has — `ContextMenuContent`'s own portal is scoped
 #     on its Positioner, and the exported `ContextMenuPortal` scopes a `display: contents` wrapper.
@@ -25,8 +25,10 @@
 #   cn: `import { cn } from "cn"` becomes `@vegastack/design` — our npm layer owns `cn` (DOC-2).
 #   formatting: prettier reflow plus the `registry-stamp.mjs` provenance header (DOC-1); no
 #               decision of their own.
+#   OVL-19 (MK 2026-09-30): `ContextMenuContent` takes `w-max max-w-(--available-width)`, so the
+#     menu is as wide as its longest item and an item never wraps near a viewport edge.
 diff --git a/context-menu.tsx b/context-menu.tsx
-index 38eb2fb..b6d9ec6 100644
+index 38eb2fb..2457c3b 100644
 --- a/context-menu.tsx
 +++ b/context-menu.tsx
 @@ -1,18 +1,31 @@
@@ -99,7 +101,7 @@ index 38eb2fb..b6d9ec6 100644
            data-slot="context-menu-content"
 -          className={cn("z-50 max-h-(--available-height) min-w-36 origin-(--transform-origin) overflow-x-hidden overflow-y-auto rounded-lg bg-popover p-1 text-popover-foreground shadow-md ring-1 ring-foreground/10 duration-100 outline-none data-[side=bottom]:slide-in-from-top-2 data-[side=inline-end]:slide-in-from-start-2 data-[side=inline-start]:slide-in-from-end-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95", className )}
 +          className={cn(
-+            "z-50 max-h-(--available-height) min-w-36 origin-(--transform-origin) overflow-x-hidden overflow-y-auto rounded-lg bg-popover p-1 text-popover-foreground shadow-md border border-border duration-100 outline-none data-[side=bottom]:slide-in-from-top-2 data-[side=inline-end]:slide-in-from-start-2 data-[side=inline-start]:slide-in-from-end-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95",
++            "z-50 max-h-(--available-height) w-max max-w-(--available-width) min-w-36 origin-(--transform-origin) overflow-x-hidden overflow-y-auto rounded-lg bg-popover p-1 text-popover-foreground shadow-md border border-border duration-100 outline-none data-[side=bottom]:slide-in-from-top-2 data-[side=inline-end]:slide-in-from-start-2 data-[side=inline-start]:slide-in-from-end-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95",
 +            className,
 +          )}
            {...props}

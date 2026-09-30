@@ -729,7 +729,9 @@ export function createAffectedPlan({
     // respectively, so the seed their source adds is the parent's name. Resolve through the source
     // index before reporting, or the gate fails on a correctly regenerated copy-in.
     const owner =
-      indexes.source.get(`packages/ui/registry/ui/${item}.tsx`) ?? item;
+      indexes.source.get(`packages/ui/registry/ui/${item}.tsx`) ??
+      indexes.source.get(`packages/ui/registry/ui/${item}.ts`) ??
+      item;
     if (!sourceSeeds.has(item) && !sourceSeeds.has(owner))
       errors.push(
         `generated registry item ${item} changed without its canonical source or contract`,

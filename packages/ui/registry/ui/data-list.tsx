@@ -1,4 +1,4 @@
-// @vegastack data-list@0.23.88 sha256-8wljjeFbQSAMO8kRzwN08LacE7omtSdntWApklk80JE=
+// @vegastack data-list@0.23.88 sha256-ZB3dinK8IoZhokBX6Pa2ENQhqID0Dgz8B5k/bXnod80=
 
 "use client";
 
@@ -897,6 +897,15 @@ export interface DataListSection {
 
 const EMPTY_GROUP_STATE: GroupState = {};
 
+/**
+ * A row with keyboard focus inside it. `accent`/50 on a small link measured barely above 1:1, so
+ * the whole row carries the cue: the hover wash (`muted`/50; a stronger fill drops muted text
+ * under AA in light) plus a 2px start-edge bar in `foreground`, painted as a background image on
+ * the first cell — a tint, not a ring or an outline (FOC-13).
+ */
+const FOCUS_ROW_CLASS =
+  "has-[:focus-visible]:bg-muted/50 [&:has(:focus-visible)>:first-child]:bg-[linear-gradient(var(--color-foreground),var(--color-foreground))] [&:has(:focus-visible)>:first-child]:bg-no-repeat [&:has(:focus-visible)>:first-child]:bg-size-[2px_100%] [&:has(:focus-visible)>:first-child]:bg-left rtl:[&:has(:focus-visible)>:first-child]:bg-right";
+
 /** A merged value with nothing to show: nothing, an empty string, or the "—" placeholder. */
 function isEmptyMergedValue(node: React.ReactNode): boolean {
   return (
@@ -1460,6 +1469,10 @@ export function DataList<T>({
           // A highlighted row (`rowProps` → `highlighted`) eases into the accent wash over
           // `TableRow`'s own `transition-colors`; reduced motion drops the ease (global reset).
           highlighted && "bg-accent duration-slow",
+          // Keyboard focus anywhere in the row (FOC-13: a background tint, never a ring): the row
+          // takes the hover wash — the strongest fill muted text keeps AA on — and its first cell
+          // paints a 2px `foreground` edge as a background layer, the part that clears 3:1.
+          FOCUS_ROW_CLASS,
           // Drag into: the carried rows dim, and a target washes in the primary tint (in the
           // destructive tint when it refuses the drop) — `FolderTree`'s own drop vocabulary.
           drag &&

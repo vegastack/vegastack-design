@@ -1,4 +1,4 @@
-// @vegastack file-viewer@0.23.88 sha256-TS02bhaOtmLuxFEFSMkx/oWgeh0d9StBWMHOkZN2nSw=
+// @vegastack file-viewer@0.23.88 sha256-6i+SauB73AEP5WOtrTvGlqgMJHfs04+29+56a9i6jHE=
 
 "use client";
 
@@ -24,6 +24,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAnnouncer } from "@/components/ui/use-announcer";
 import { useModalInert } from "@/components/ui/use-modal-inert";
 import { VideoPlayer } from "@/components/ui/video-player";
@@ -32,7 +33,7 @@ import { FileTypeIcon, fileKindOf, formatBytes } from "@/lib/file-kind";
 /* ---
 `FileViewer` is the full-screen look at a stored file: an image you can zoom and pan, a PDF you
 can scroll page by page, a video or audio file in the system's players, the first megabyte of a
-text, CSV or Markdown file — or, for anything else, a card with its name, size, a preview picture
+text, CSV or Markdown file, an Excel or Word file — or, for anything else, a card with its name, size, a preview picture
 when it has one, and a Download button. It is a controlled overlay over a list of files (`index`
 opens it at one, `null` closes it), so a gallery of `Attachment` tiles, a product's files or a
 message's attachments all open it the same way.
@@ -47,11 +48,15 @@ A video or audio file with a `src` plays on the stage in the system's own `Video
 
 A text, CSV or Markdown file with a `src` is read here — its first 1 MB, with a `Range` request —
 and shown as text, a table (a small built-in CSV parser; the first 500 rows) or rendered
-Markdown. Anything else — an Office file — is the app's to parse: `loadPreview` hands back text,
-a table, HTML or a richer card, and the viewer draws it, so the parser stays an app dependency.
+Markdown. An Excel workbook or a Word `.docx` with a `src` (up to 20 MB) is read by
+`file-viewer-office.ts`, imported the first time one opens, which imports SheetJS or mammoth in
+turn: a workbook shows a tab per sheet over the same table (the first 500 rows of each), a
+document shows mammoth's HTML rebuilt through `MarkdownView`'s allowlist. A larger file, or one
+that fails to read, shows the Download card. Anything else — a slide deck — is the app's to
+parse: `loadPreview` hands back text, a table, a workbook, HTML or a richer card.
 
 Deliberately NOT done here: signing URLs (the caller passes resolved `src`/`pdfSrc`/
-`downloadHref`, and `refreshSrc` renews an expired one), parsing Office formats, syntax
+`downloadHref`, and `refreshSrc` renews an expired one), other Office formats, syntax
 highlighting, and wrap-around paging.
 --- */
 
@@ -113,6 +118,15 @@ export type FileViewerPreview =
     }
   | { kind: "markdown"; markdown: string; truncated?: boolean }
   | { kind: "html"; html: string }
+  | {
+      kind: "workbook";
+      /** Each sheet's rows (the first is the header); at most 500 data rows show per sheet. */
+      sheets: readonly {
+        name: string;
+        rows: readonly (readonly string[])[];
+        totalRows?: number;
+      }[];
+    }
   | { kind: "card"; thumb?: string | null; facts?: readonly string[] };
 
 /** Props accepted by `FileViewer`. */
@@ -154,8 +168,10 @@ type Kind =
   | "table"
   | "markdown"
   | "html"
+  | "workbook"
+  | "word"
   | "card";
-type ReadKind = "text" | "table" | "markdown";
+type ReadKind = "text" | "table" | "markdown" | "workbook" | "word";
 
 /** The first megabyte of a text, CSV or Markdown file is what the viewer reads. */
 const PREVIEW_BYTES = 1024 * 1024;
@@ -169,6 +185,9 @@ const LazyMarkdown = React.lazy(() =>
     default: module.MarkdownView,
   })),
 );
+
+// Excel and Word files load their reader (and, inside it, SheetJS or mammoth) only when one opens.
+const loadOffice = () => import("@/components/ui/file-viewer-office");
 
 const LazyPdf = React.lazy(() =>
   import("@/components/ui/file-viewer-pdf").then((module) => ({
@@ -195,6 +214,19 @@ function readKindOf(item: FileViewerItem): ReadKind | null {
     /^text\/(x-)?(markdown|mdx)$/.test(type)
   )
     return "markdown";
+  if (
+    ["xlsx", "xlsm", "xls", "ods"].includes(extension) ||
+    /^application\/(vnd\.ms-excel|vnd\.openxmlformats-officedocument\.spreadsheetml\.sheet|vnd\.oasis\.opendocument\.spreadsheet)$/.test(
+      type,
+    )
+  )
+    return "workbook";
+  if (
+    extension === "docx" ||
+    type ===
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+  )
+    return "word";
   const kind = fileKindOf(item.contentType, item.name);
   if (kind === "code") return "text";
   if (kind === "text" && extension !== "rtf" && !type.includes("rtf"))
@@ -220,6 +252,8 @@ const KIND_LABEL: Record<Kind, string> = {
   table: "Table",
   markdown: "Document",
   html: "Document",
+  workbook: "Spreadsheet",
+  word: "Document",
   card: "File",
 };
 
@@ -380,12 +414,31 @@ async function readTextHead(
   return { text: text.replace(/\r\n?/g, "\n"), truncated };
 }
 
-/** The built-in preview of a text, CSV or Markdown file. */
+/** The built-in preview of a text, CSV, Markdown, Excel or Word file. */
 async function readPreview(
   item: FileViewerItem,
   kind: ReadKind,
   signal: AbortSignal,
 ): Promise<FileViewerPreview> {
+  if (kind === "workbook") {
+    const office = await loadOffice();
+    const sheets = await office.readWorkbook(
+      item.src ?? "",
+      item.size,
+      signal,
+      TABLE_ROWS,
+    );
+    return { kind: "workbook", sheets };
+  }
+  if (kind === "word") {
+    const office = await loadOffice();
+    const html = await office.readWordDocument(
+      item.src ?? "",
+      item.size,
+      signal,
+    );
+    return { kind: "html", html };
+  }
   const { text, truncated } = await readTextHead(
     item.src ?? "",
     item.size,
@@ -893,10 +946,16 @@ function TableStage({
   item,
   preview,
   onSwipe,
+  before,
+  moreNote,
 }: {
   item: FileViewerItem;
   preview: Extract<FileViewerPreview, { kind: "table" }>;
   onSwipe: (direction: Swipe) => void;
+  /** Above the table — a workbook's sheet tabs. */
+  before?: React.ReactNode;
+  /** The note when rows are cut, in place of the row count. */
+  moreNote?: React.ReactNode;
 }) {
   const [head = [], ...body] = preview.rows;
   const rows = body.slice(0, TABLE_ROWS);
@@ -913,20 +972,28 @@ function TableStage({
   const count = rows.length.toLocaleString();
   const note = !more
     ? null
-    : preview.totalRows && preview.totalRows > rows.length
-      ? `Showing first ${count} of ${preview.totalRows.toLocaleString()} rows`
-      : `Showing first ${count} rows`;
+    : moreNote
+      ? moreNote
+      : preview.totalRows && preview.totalRows > rows.length
+        ? `Showing first ${count} of ${preview.totalRows.toLocaleString()} rows`
+        : `Showing first ${count} rows`;
   if (columns === 0)
     return (
-      <SheetStage item={item} slot="file-viewer-table" onSwipe={onSwipe}>
-        <p className="p-4 text-sm text-muted-foreground">This file is empty.</p>
-      </SheetStage>
+      <>
+        {before}
+        <SheetStage item={item} slot="file-viewer-table" onSwipe={onSwipe}>
+          <p className="p-4 text-sm text-muted-foreground">
+            This file is empty.
+          </p>
+        </SheetStage>
+      </>
     );
   return (
     <div
       data-slot="file-viewer-table"
       className="flex size-full flex-col items-center gap-2 px-4 pb-4 pointer-fine:px-20"
     >
+      {before}
       {/* One named, focusable scroller for both axes, so the header can stick to its top. */}
       <div
         role="region"
@@ -966,6 +1033,68 @@ function TableStage({
       </div>
       {note ? <PreviewNote>{note}</PreviewNote> : null}
     </div>
+  );
+}
+
+/**
+ * A workbook: a tab per sheet above the CSV preview's table, each sheet cut at its first
+ * `TABLE_ROWS` rows with "Showing the first 500 rows · Download".
+ */
+function WorkbookStage({
+  item,
+  preview,
+  onSwipe,
+}: {
+  item: FileViewerItem;
+  preview: Extract<FileViewerPreview, { kind: "workbook" }>;
+  onSwipe: (direction: Swipe) => void;
+}) {
+  const [active, setActive] = React.useState(0);
+  const sheet = preview.sheets[active] ?? preview.sheets[0];
+  const tabs =
+    preview.sheets.length > 1 ? (
+      <Tabs
+        value={active}
+        onValueChange={(value) => setActive(Number(value))}
+        className="w-full max-w-full shrink-0 items-center"
+      >
+        <TabsList
+          data-slot="file-viewer-sheets"
+          aria-label={`Sheets in ${item.name}`}
+          className="max-w-full overflow-x-auto"
+        >
+          {preview.sheets.map((entry, index) => (
+            <TabsTrigger key={index} value={index}>
+              {entry.name}
+            </TabsTrigger>
+          ))}
+        </TabsList>
+      </Tabs>
+    ) : null;
+  return (
+    <TableStage
+      key={active}
+      item={item}
+      preview={{
+        kind: "table",
+        rows: sheet?.rows ?? [],
+        totalRows: sheet?.totalRows,
+      }}
+      onSwipe={onSwipe}
+      before={tabs}
+      moreNote={
+        <>
+          Showing the first {TABLE_ROWS.toLocaleString()} rows ·{" "}
+          <a
+            href={item.downloadHref}
+            download
+            className="font-medium text-foreground underline-offset-4 hover:underline"
+          >
+            Download
+          </a>
+        </>
+      }
+    />
   );
 }
 
@@ -1052,6 +1181,8 @@ function PreviewStage({
       );
     case "table":
       return <TableStage item={item} preview={preview} onSwipe={onSwipe} />;
+    case "workbook":
+      return <WorkbookStage item={item} preview={preview} onSwipe={onSwipe} />;
     case "markdown":
     case "html": {
       const source = preview.kind === "html" ? preview.html : preview.markdown;
@@ -1446,7 +1577,9 @@ export function FileViewer({
                 kind={
                   baseKind === "text" ||
                   baseKind === "table" ||
-                  baseKind === "markdown"
+                  baseKind === "markdown" ||
+                  baseKind === "workbook" ||
+                  baseKind === "word"
                     ? baseKind
                     : "card"
                 }

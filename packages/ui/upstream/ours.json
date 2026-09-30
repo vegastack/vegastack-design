@@ -480,6 +480,11 @@
       "family": "internal",
       "source": "internal part of file-viewer (the lazily loaded pdf.js stage); not listed in extras.md. Operator brief 2026-09-27 — approved by MK 2026-09-27"
     },
+    "file-viewer-office": {
+      "disposition": "keep",
+      "family": "internal",
+      "source": "internal part of file-viewer (the lazily loaded SheetJS and mammoth readers); not listed in extras.md. Regent design review — approved by MK 2026-09-30"
+    },
     "upload-dialog": {
       "disposition": "keep",
       "family": "forms",

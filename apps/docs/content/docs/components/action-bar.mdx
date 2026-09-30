@@ -74,6 +74,25 @@ The bar sits 16px above the bottom edge plus `--dock-inset-bottom`. `GlobalAudio
 on the `AppShell` root while it is open, so the bar floats 8px above the player instead of covering
 it; set it yourself for another bottom dock.
 
+### Secondary actions on a phone
+
+Pass the primary actions as children and the rest as `secondaryActions`. From `sm` up they are
+buttons in the bar; on a phone they fold into a ⋯ menu (`moreLabel`, "More actions"), so the
+primary actions stay visible and the bar never scrolls sideways.
+
+```tsx
+<ActionBar
+  open={count > 0}
+  status={`${count} selected`}
+  secondaryActions={[
+    { label: "Move", onClick: move },
+    { label: "Delete", destructive: true, onClick: remove },
+  ]}
+>
+  <ActionBarButton onClick={share}>Share</ActionBarButton>
+</ActionBar>
+```
+
 ### Batch progress (pending)
 
 While `pending`, the actions are inert and dimmed but the status stays
@@ -91,6 +110,11 @@ readable — a bulk operation in flight should not be re-triggerable.
 <ApiTable
   path="../../packages/ui/registry/ui/action-bar.tsx"
   name="ActionBarProps"
+/>
+
+<ApiTable
+  path="../../packages/ui/registry/ui/action-bar.tsx"
+  name="ActionBarSecondaryAction"
 />
 
 ### ActionBarButton

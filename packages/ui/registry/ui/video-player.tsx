@@ -1,4 +1,4 @@
-// @vegastack video-player@0.23.88 sha256-tIf4KkZVieJ0u3J5/ZWxkfSkAhw2z0kghbmkubATdIY=
+// @vegastack video-player@0.23.88 sha256-ijPUkRVoWAjO8mowASjI6L2YB26AVCdAlh7oLqkvqDE=
 
 "use client";
 
@@ -6,6 +6,7 @@ import * as React from "react";
 import { cn, mergeRefs } from "@vegastack/design";
 import { DownloadIcon } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
+import { useMediaQuery } from "@/components/ui/use-media-query";
 import {
   MediaPlayerControls,
   clampTime,
@@ -155,7 +156,8 @@ export interface VideoPlayerProps extends Omit<
    * Force the overlay controls open (`true`) or closed (`false`), taking the
    * auto hide/reveal out of the loop. Leave it undefined for the default
    * behaviour: reveal on pointer or focus, fade out a second after the pointer
-   * leaves. Use `true` for a kiosk/always-on player — and for a static docs or
+   * leaves; on a coarse pointer (a touch screen, which has no hover) they stay
+   * shown, so the play button is always there. Use `true` for a kiosk/always-on player — and for a static docs or
    * test fixture, which is what lets the contract lane see the chrome at all.
    * @default undefined
    */
@@ -239,9 +241,13 @@ export function VideoPlayer({
   const revealFrameRef = React.useRef<number | null>(null);
   const [controlsRendered, setControlsRendered] = React.useState(false);
   const [autoControlsVisible, setAutoControlsVisible] = React.useState(false);
-  // A `controlsVisible` prop takes the auto hide/reveal out of the loop entirely.
-  const controlsPinned = controlsVisibleProp != null;
-  const controlsVisible = controlsVisibleProp ?? autoControlsVisible;
+  // A touch screen has no hover to reveal the controls, so a coarse pointer keeps them (and the
+  // play button) on screen. A `controlsVisible` prop takes the auto hide/reveal out of the loop
+  // entirely.
+  const coarsePointer = useMediaQuery("(pointer: coarse)");
+  const controlsPinned = controlsVisibleProp != null || coarsePointer;
+  const controlsVisible =
+    controlsVisibleProp ?? (coarsePointer || autoControlsVisible);
   const [isFullscreen, setIsFullscreen] = React.useState(false);
   const controlsMediaRef =
     internalMediaRef as React.RefObject<HTMLMediaElement | null>;
@@ -393,8 +399,12 @@ export function VideoPlayer({
   // Pinned open: mount the overlay up front so it is in the DOM on first paint
   // (a static fixture never receives a pointer or focus event to reveal it).
   React.useEffect(() => {
-    if (controlsVisibleProp === true) setControlsRendered(true);
-  }, [controlsVisibleProp]);
+    if (
+      controlsVisibleProp === true ||
+      (controlsVisibleProp == null && coarsePointer)
+    )
+      setControlsRendered(true);
+  }, [controlsVisibleProp, coarsePointer]);
 
   const handleControlsBlur = React.useCallback(() => {
     scheduleControlsHide();

@@ -1,11 +1,19 @@
-// @vegastack action-bar@0.23.88 sha256-rEIZhxMcSjNt7p8tz88QARitoXCVYnsXy8wCZrZTS8Y=
+// @vegastack action-bar@0.23.88 sha256-/ArpI1KDjQnVjC7J5S1FNokuqsuK/enVAeBfa6A+tJw=
 
 "use client";
 
 import * as React from "react";
 import { Toolbar } from "@base-ui/react/toolbar";
 import { cn } from "@vegastack/design";
+import { EllipsisIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { useMediaQuery } from "@/components/ui/use-media-query";
 
 /* ---
 `ActionBar` exists because three different jobs kept asking for the same object — a
@@ -35,6 +43,22 @@ Stacking: `z-10` — the bar floats over page content and is correctly covered b
 opened from one of its actions, which upstream puts at `z-50`. It stays flat: separation is
 `bg-background` plus the one hairline, not a shadow.
 --- */
+
+/** A secondary action of an `ActionBar` — a button on a wide screen, a ⋯ menu item on a phone. */
+export interface ActionBarSecondaryAction {
+  /** A stable key (defaults to the label when it is a string). */
+  key?: string;
+  /** The action's label. */
+  label: React.ReactNode;
+  /** A leading icon. */
+  icon?: React.ReactNode;
+  /** Called when the action is chosen. */
+  onClick?: () => void;
+  /** Paint it as a destructive action. */
+  destructive?: boolean;
+  /** Disable the action. */
+  disabled?: boolean;
+}
 
 /** Props accepted by `ActionBar`. */
 export interface ActionBarProps extends React.ComponentPropsWithRef<"div"> {
@@ -75,6 +99,18 @@ export interface ActionBarProps extends React.ComponentPropsWithRef<"div"> {
    * @default undefined
    */
   containerRef?: React.RefObject<HTMLElement | null>;
+  /**
+   * Secondary actions, after the `children` (the primary ones). From `sm` up they are buttons in
+   * the bar; below `sm` (a phone) they fold into a ⋯ menu, so the primary actions stay visible and
+   * the bar never scrolls sideways.
+   * @default undefined
+   */
+  secondaryActions?: readonly ActionBarSecondaryAction[];
+  /**
+   * The ⋯ menu trigger's accessible name.
+   * @default "More actions"
+   */
+  moreLabel?: string;
   /**
    * Accessible name for the toolbar.
    * @default "Actions"
@@ -119,6 +155,8 @@ export function ActionBar({
   announcement,
   pending = false,
   containerRef,
+  secondaryActions,
+  moreLabel = "More actions",
   "aria-label": ariaLabel = "Actions",
   className,
   children,
@@ -161,6 +199,8 @@ export function ActionBar({
     };
   }, [containerEl]);
 
+  // Below `sm` the secondary actions fold into the ⋯ menu.
+  const narrow = useMediaQuery("(max-width: 639.98px)");
   const measured = centerX != null;
   const resolvedAnnouncement =
     announcement ?? (typeof status === "string" ? status : undefined);
@@ -216,15 +256,67 @@ export function ActionBar({
         // be re-triggerable from the keyboard either.
         inert={pending || undefined}
         className={cn(
-          // On a phone the bar is capped at the screen width less its margins: the actions
-          // scroll sideways inside it rather than push the bar off screen.
-          // The actions never shrink into each other (a label under its own icon): each keeps its
-          // width and the row scrolls. Put secondary actions in a ⋯ menu to keep it short.
+          // On a phone the bar is capped at the screen width less its margins, and
+          // `secondaryActions` fold into a ⋯ menu so the primary ones fit. The actions never
+          // shrink into each other (a label under its own icon); an over-long set scrolls.
           "flex min-w-0 items-center gap-1 overflow-x-auto *:shrink-0",
           pending && "opacity-50 select-none",
         )}
       >
         {children}
+        {secondaryActions?.length ? (
+          narrow ? (
+            <DropdownMenu>
+              {/* Base UI's pattern: the toolbar item renders the menu trigger. */}
+              <ActionBarButton
+                render={
+                  <DropdownMenuTrigger
+                    data-slot="action-bar-more"
+                    render={
+                      <Button
+                        variant="ghost"
+                        size="icon-sm"
+                        aria-label={moreLabel}
+                      />
+                    }
+                  />
+                }
+              >
+                <EllipsisIcon aria-hidden />
+              </ActionBarButton>
+              <DropdownMenuContent align="end" side="top">
+                {secondaryActions.map((action, index) => (
+                  <DropdownMenuItem
+                    key={action.key ?? secondaryKey(action, index)}
+                    variant={action.destructive ? "destructive" : "default"}
+                    disabled={action.disabled}
+                    onClick={action.onClick}
+                  >
+                    {action.icon}
+                    {action.label}
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          ) : (
+            secondaryActions.map((action, index) => (
+              <ActionBarButton
+                key={action.key ?? secondaryKey(action, index)}
+                disabled={action.disabled}
+                onClick={action.onClick}
+                render={
+                  <Button
+                    variant={action.destructive ? "destructive" : "ghost"}
+                    size="sm"
+                  />
+                }
+              >
+                {action.icon}
+                {action.label}
+              </ActionBarButton>
+            ))
+          )
+        ) : null}
       </Toolbar.Group>
       <span
         role="status"
@@ -236,6 +328,10 @@ export function ActionBar({
       </span>
     </Toolbar.Root>
   );
+}
+
+function secondaryKey(action: ActionBarSecondaryAction, index: number) {
+  return typeof action.label === "string" ? action.label : String(index);
 }
 
 /** Props accepted by `ActionBarButton`. */
