@@ -1,5 +1,14 @@
 # @vegastack/design
 
+## 0.7.79
+
+### Patch Changes
+
+- [#463](https://github.com/vegastack/vegastack-design/pull/463) [`4db7d90`](https://github.com/vegastack/vegastack-design/commit/4db7d907850df02d818814f3f5c2a99e67a92ab9) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 📦 Ships beside `@vegastack/design-tokens` 0.7.79 (the INT-13 comment relabel in `base.css`), so its `@vegastack/design-tokens` range moves with it. No code change.
+
+- Updated dependencies [[`c01c929`](https://github.com/vegastack/vegastack-design/commit/c01c929c434cbbfd21147ab70e10331e30455eda)]:
+  - @vegastack/design-tokens@0.7.79
+
 ## 0.7.78
 
 ### Patch Changes
