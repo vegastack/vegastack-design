@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.23.95 sha256-gRhyaWTORGKJId7KkZLN5pxttAS7xTwdExY9JraVRTQ=
+// @vegastack text-edit@0.23.95 sha256-/X+rbqR4oVoo+4QoIDdGAk3AlZHYjYfgXnmy3bRMVgg=
 
 "use client";
 
@@ -553,6 +553,17 @@ export interface TextEditProps {
    */
   fileLinkPrefix?: string;
   /**
+   * `MarkdownView`'s `fileContentType`, for the read view shown before the editor activates.
+   * @default undefined
+   */
+  fileContentType?: (href: string) => string | null | undefined;
+  /**
+   * The image types a paste, drop or pick inserts inline (through `onImageUpload`); any other
+   * file — an SVG, a HEIC photo — goes to `onFileUpload` and lands as a file chip.
+   * @default ["image/jpeg", "image/png", "image/webp", "image/gif", "image/avif"]
+   */
+  inlineImageTypes?: readonly string[];
+  /**
    * The document's headings (`#`–`####`) with stable ids, after load and 150ms after each change —
    * an outline rail. Setting it mounts the editor at once.
    * @default undefined
@@ -964,6 +975,7 @@ export function TextEdit(props: TextEditProps) {
               mentionImage={props.mentionImage}
               citation={props.citation}
               fileLinkPrefix={props.fileLinkPrefix}
+              fileContentType={props.fileContentType}
               headingIds={props.onOutlineChange !== undefined}
             >
               {source}
