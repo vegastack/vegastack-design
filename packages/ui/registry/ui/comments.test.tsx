@@ -318,3 +318,194 @@ test("CommentList passes mentionHref to each comment, so its mention chips link"
   expect(chip.element().getAttribute("href")).toBe("/tasks/t-42");
   await expectNoA11yViolations(screen.container);
 });
+
+// ---- Drafts -------------------------------------------------------------------------------------
+
+const submitKeys = () =>
+  navigator.platform.startsWith("Mac")
+    ? "{Meta>}{Enter}{/Meta}"
+    : "{Control>}{Enter}{/Control}";
+const endKeys = () =>
+  navigator.platform.startsWith("Mac")
+    ? "{Meta>}{ArrowDown}{/Meta}"
+    : "{Control>}{End}{/Control}";
+
+test("CommentComposer restores a draft from defaultValue, sends it, and starts empty after", async () => {
+  const onSubmit = vi.fn().mockResolvedValue(undefined);
+  const onValueChange = vi.fn();
+  const screen = await render(
+    <CommentComposer
+      defaultValue="Half-written thought"
+      onSubmit={onSubmit}
+      onValueChange={onValueChange}
+    />,
+  );
+  await expect
+    .element(screen.getByRole("textbox", { name: "Comment" }))
+    .toHaveTextContent("Half-written thought");
+  const send = screen.getByRole("button", { name: "Send comment" });
+  await expect.element(send).toBeEnabled();
+  await expectNoA11yViolations(screen.container);
+  await send.click();
+  await vi.waitFor(() =>
+    expect(onSubmit).toHaveBeenCalledWith("Half-written thought"),
+  );
+  await vi.waitFor(() => expect(onValueChange).toHaveBeenLastCalledWith(""));
+  await expect
+    .element(screen.getByRole("textbox", { name: "Comment" }))
+    .not.toHaveTextContent("Half-written thought");
+  await expect.element(send).toBeDisabled();
+});
+
+test('a thread\'s reply box restores a draft unfolded, reports changes, and reports "" after the reply posts', async () => {
+  const onReply = vi.fn().mockResolvedValue(undefined);
+  const onValueChange = vi.fn();
+  const screen = await render(
+    <CommentThread
+      thread={{ id: "t1", root: rootComment, replies: [] }}
+      onReply={onReply}
+      composer={{ defaultValue: "Agreed", onValueChange }}
+    />,
+  );
+  const box = screen.getByRole("textbox", { name: "Reply" });
+  await expect.element(box).toHaveTextContent("Agreed");
+  expect(
+    screen.container.querySelector('[data-slot="comment-box"][data-folded]'),
+  ).toBeNull();
+  const send = screen.getByRole("button", { name: "Send reply" });
+  await expect.element(send).toBeEnabled();
+  await expectNoA11yViolations(screen.container);
+  await userEvent.click(box.element().querySelector("p")!);
+  await userEvent.keyboard(`${endKeys()}, ship it`);
+  await vi.waitFor(() =>
+    expect(onValueChange).toHaveBeenLastCalledWith("Agreed, ship it"),
+  );
+  await userEvent.keyboard(submitKeys());
+  await vi.waitFor(() =>
+    expect(onReply).toHaveBeenCalledWith("Agreed, ship it"),
+  );
+  await vi.waitFor(() => expect(onValueChange).toHaveBeenLastCalledWith(""));
+  await expect
+    .element(screen.getByRole("textbox", { name: "Reply" }))
+    .not.toHaveTextContent("Agreed");
+});
+
+test("composer.posting holds the reply box busy: Send and Cmd/Ctrl+Enter do nothing", async () => {
+  const onReply = vi.fn();
+  const thread = { id: "t1", root: rootComment, replies: [] };
+  const screen = await render(
+    <CommentThread
+      thread={thread}
+      onReply={onReply}
+      composer={{ defaultValue: "Uploading a photo", posting: true }}
+    />,
+  );
+  const send = screen.getByRole("button", { name: "Send reply" });
+  await expect.element(send).toHaveAttribute("data-loading");
+  await expect.element(send).toBeDisabled();
+  (send.element() as HTMLButtonElement).click();
+  const box = screen.getByRole("textbox", { name: "Reply" });
+  await userEvent.click(box.element().querySelector("p")!);
+  await userEvent.keyboard(submitKeys());
+  await new Promise((r) => setTimeout(r, 50));
+  expect(onReply).not.toHaveBeenCalled();
+  await expectNoA11yViolations(screen.container);
+  // The upload finishes: the host clears `posting` and the reply sends.
+  await screen.rerender(
+    <CommentThread
+      thread={thread}
+      onReply={onReply}
+      composer={{ defaultValue: "Uploading a photo", posting: false }}
+    />,
+  );
+  await expect.element(send).toBeEnabled();
+  await send.click();
+  await vi.waitFor(() =>
+    expect(onReply).toHaveBeenCalledWith("Uploading a photo"),
+  );
+});
+
+const editable: CommentData = {
+  id: "e1",
+  author: asha,
+  body: "Hello",
+  createdAt: 0,
+  canEdit: true,
+};
+
+test("onEditValueChange reports the edit box's text, then null on Cancel", async () => {
+  const onEditValueChange = vi.fn();
+  const screen = await render(
+    <ul>
+      <CommentItem
+        editing
+        onEdit={vi.fn()}
+        onEditValueChange={onEditValueChange}
+        comment={editable}
+      />
+    </ul>,
+  );
+  const box = screen.getByRole("textbox", { name: "Edit comment" });
+  await userEvent.click(box.element().querySelector("p")!);
+  await userEvent.keyboard(`${endKeys()} there`);
+  await vi.waitFor(() =>
+    expect(onEditValueChange).toHaveBeenLastCalledWith("e1", "Hello there"),
+  );
+  await expectNoA11yViolations(screen.container);
+  await screen.getByRole("button", { name: "Cancel" }).click();
+  await vi.waitFor(() =>
+    expect(onEditValueChange).toHaveBeenLastCalledWith("e1", null),
+  );
+});
+
+test("onEditValueChange reports null on Escape and after a successful save, through CommentList and CommentThread", async () => {
+  const onEditValueChange = vi.fn();
+  const onEdit = vi.fn().mockResolvedValue(undefined);
+  const list = await render(
+    <CommentList
+      comments={[editable]}
+      onEdit={onEdit}
+      onEditValueChange={onEditValueChange}
+    />,
+  );
+  await userEvent.click(
+    list.getByRole("button", { name: "Actions for comment by Asha Rao" }),
+  );
+  await list.getByRole("menuitem", { name: "Edit" }).click();
+  const box = list.getByRole("textbox", { name: "Edit comment" });
+  await userEvent.click(box.element().querySelector("p")!);
+  await userEvent.keyboard(`${endKeys()}!`);
+  await vi.waitFor(() =>
+    expect(onEditValueChange).toHaveBeenLastCalledWith("e1", "Hello!"),
+  );
+  await userEvent.keyboard(submitKeys());
+  await vi.waitFor(() => expect(onEdit).toHaveBeenCalledWith("e1", "Hello!"));
+  await vi.waitFor(() =>
+    expect(onEditValueChange).toHaveBeenLastCalledWith("e1", null),
+  );
+  list.unmount();
+
+  onEditValueChange.mockClear();
+  const thread = await render(
+    <CommentThread
+      thread={{ id: "t1", root: editable, replies: [] }}
+      onReply={vi.fn()}
+      onEdit={onEdit}
+      onEditValueChange={onEditValueChange}
+    />,
+  );
+  await userEvent.click(
+    thread.getByRole("button", { name: "Actions for comment by Asha Rao" }),
+  );
+  await thread.getByRole("menuitem", { name: "Edit" }).click();
+  const edit = thread.getByRole("textbox", { name: "Edit comment" });
+  await userEvent.click(edit.element().querySelector("p")!);
+  await userEvent.keyboard(`${endKeys()} again`);
+  await vi.waitFor(() =>
+    expect(onEditValueChange).toHaveBeenLastCalledWith("e1", "Hello again"),
+  );
+  await userEvent.keyboard("{Escape}");
+  await vi.waitFor(() =>
+    expect(onEditValueChange).toHaveBeenLastCalledWith("e1", null),
+  );
+});
