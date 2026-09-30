@@ -463,6 +463,28 @@ test("an edit survives a remount: editingId and editDefaultValue restore the box
   await expect.element(screen.getByText("Hello")).toBeVisible();
 });
 
+test("reopening Edit from the menu starts from the retained draft (editDefaultValue), not the body", async () => {
+  const screen = await render(
+    <ul>
+      <CommentItem
+        comment={editable}
+        onEdit={vi.fn()}
+        editDefaultValue="Hello, kept draft"
+      />
+    </ul>,
+  );
+  await userEvent.click(
+    screen.getByRole("button", { name: "Actions for comment by Asha Rao" }),
+  );
+  await screen.getByRole("menuitem", { name: "Edit" }).click();
+  await expect
+    .element(screen.getByRole("textbox", { name: "Edit comment" }))
+    .toHaveTextContent("Hello, kept draft");
+  await expect
+    .element(screen.getByRole("button", { name: "Save" }))
+    .toBeEnabled();
+});
+
 test("onEditValueChange reports the edit box's text, then null on Cancel", async () => {
   const onEditValueChange = vi.fn();
   const screen = await render(

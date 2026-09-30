@@ -1,4 +1,4 @@
-// @vegastack audio-player@0.23.86 sha256-1oZcSxJrltHGoZmxounXyUgUSDAURtHkJURPrcpiAdc=
+// @vegastack audio-player@0.23.86 sha256-ItV7BWxnZTqV1ZMnVRe80DlId4VWqM/hFhQJhKvlpP8=
 
 "use client";
 
@@ -981,7 +981,8 @@ export interface AudioWaveformProps extends Omit<
   peaks: readonly number[];
   /**
    * The most bars drawn. Longer `peaks` are reduced to this many, each the loudest of its
-   * stretch, so a card-width waveform keeps its gaps.
+   * stretch, so a card-width waveform keeps its gaps. Fewer are drawn when the width cannot fit
+   * them at 2px a bar and a 1px gap, so a narrow waveform never thins to nothing.
    * @default 48
    */
   bars?: number;
@@ -1007,17 +1008,39 @@ export function AudioWaveform({
   peaks,
   bars = 48,
   className,
+  ref,
   ...props
 }: AudioWaveformProps) {
+  // How many bars the width fits (2px a bar, 1px apart); unknown until measured.
+  const [fit, setFit] = React.useState<number | null>(null);
+  const observerRef = React.useRef<ResizeObserver | null>(null);
+  const measureRef = React.useCallback((element: HTMLDivElement | null) => {
+    observerRef.current?.disconnect();
+    observerRef.current = null;
+    if (!element || typeof ResizeObserver === "undefined") return;
+    const measure = () => {
+      const width = element.clientWidth;
+      if (width > 0) setFit(Math.max(1, Math.floor((width + 1) / 3)));
+    };
+    measure();
+    observerRef.current = new ResizeObserver(measure);
+    observerRef.current.observe(element);
+  }, []);
+  const setRef = React.useMemo(
+    () => mergeRefs(measureRef, ref),
+    [measureRef, ref],
+  );
+  const count = Math.max(1, Math.min(Math.floor(bars), fit ?? Infinity));
   const drawn = React.useMemo(
     () =>
       peaks.length > 0
-        ? resamplePeaks(normalizePeaks(peaks), Math.max(1, Math.floor(bars)))
-        : Array.from({ length: Math.max(1, Math.floor(bars)) }, () => 0.2),
-    [bars, peaks],
+        ? resamplePeaks(normalizePeaks(peaks), count)
+        : Array.from({ length: count }, () => 0.2),
+    [count, peaks],
   );
   return (
     <div
+      ref={setRef}
       aria-hidden="true"
       data-slot="audio-waveform"
       className={cn(

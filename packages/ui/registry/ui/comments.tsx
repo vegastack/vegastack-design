@@ -1,4 +1,4 @@
-// @vegastack comments@0.23.86 sha256-qU5Ftn+VGQkoF6q3G0ExOIDqaaYJ7+Zcmv3gH7/0Oa0=
+// @vegastack comments@0.23.86 sha256-xSM3jZyzgSUVy7HbhrEk1hJlmx0gOUXsmqu0uwVT0RM=
 
 "use client";
 
@@ -127,9 +127,10 @@ export interface CommentItemProps {
   /** Called when editing starts or ends. @default undefined */
   onEditingChange?: (editing: boolean) => void;
   /**
-   * The edit box's starting text when the item mounts in editing mode — an unsaved edit restored
-   * after a remount. Save stays enabled while it differs from the body. Edit from the ⋯ menu
-   * always starts from the body.
+   * The edit box's starting text whenever editing starts — on mount in editing mode, or from the
+   * ⋯ menu's Edit — so an unsaved edit the host retained comes back. Save stays enabled while it
+   * differs from the body. Pass `undefined` (clear the draft on the `null` from
+   * `onEditValueChange`) to start from the body.
    * @default comment.body
    */
   editDefaultValue?: string;
@@ -196,11 +197,21 @@ export function CommentItem({
     onEditingChange?.(next);
   };
   const [saving, setSaving] = React.useState(false);
-  // What the edit box opens with: a restored edit on mount, the body after the menu's Edit.
+  // What the edit box opens with: the host's retained draft (`editDefaultValue`) when it has one,
+  // else the body — decided each time editing starts, however it starts.
   const [editStart, setEditStart] = React.useState(
     () => editDefaultValue ?? comment.body,
   );
   const [draft, setDraft] = React.useState(editStart);
+  const [wasEditing, setWasEditing] = React.useState(editing);
+  if (editing !== wasEditing) {
+    setWasEditing(editing);
+    if (editing) {
+      const start = editDefaultValue ?? comment.body;
+      setEditStart(start);
+      setDraft(start);
+    }
+  }
   const [error, setError] = React.useState<string | null>(null);
   const [confirmOpen, setConfirmOpen] = React.useState(false);
   const { author } = comment;
@@ -352,13 +363,7 @@ export function CommentItem({
                         </DropdownMenuItem>
                       ) : null}
                       {canEditThis ? (
-                        <DropdownMenuItem
-                          onClick={() => {
-                            setEditStart(comment.body);
-                            setDraft(comment.body);
-                            setEditing(true);
-                          }}
-                        >
+                        <DropdownMenuItem onClick={() => setEditing(true)}>
                           <Pencil aria-hidden />
                           Edit
                         </DropdownMenuItem>
@@ -868,8 +873,8 @@ export interface CommentThreadProps {
   /** Called with the comment whose editing starts, and `null` when it ends. @default undefined */
   onEditingIdChange?: (id: string | null) => void;
   /**
-   * The edit box's starting text for a comment that mounts in editing mode (its
-   * `editDefaultValue`) — an unsaved edit restored after a remount.
+   * The edit box's starting text for a comment whenever its editing starts (its
+   * `editDefaultValue`) — an unsaved edit restored after a remount or a reopen.
    * @default undefined
    */
   editDefaultValue?: (commentId: string) => string | undefined;
@@ -1198,8 +1203,8 @@ export interface CommentListProps {
   /** Called with the comment whose editing starts, and `null` when it ends. @default undefined */
   onEditingIdChange?: (id: string | null) => void;
   /**
-   * The edit box's starting text for a comment that mounts in editing mode (its
-   * `editDefaultValue`) — an unsaved edit restored after a remount.
+   * The edit box's starting text for a comment whenever its editing starts (its
+   * `editDefaultValue`) — an unsaved edit restored after a remount or a reopen.
    * @default undefined
    */
   editDefaultValue?: (commentId: string) => string | undefined;
