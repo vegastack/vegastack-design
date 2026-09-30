@@ -226,6 +226,7 @@
         "lucide-react@^1.47.0"
       ],
       "registryDependencies": [
+        "@vegastack/date-time",
         "@vegastack/alert-dialog",
         "@vegastack/button",
         "@vegastack/dropdown-menu",
@@ -1424,6 +1425,7 @@
         "@vegastack/design-tokens@^0.7.56"
       ],
       "registryDependencies": [
+        "@vegastack/date-time",
         "@vegastack/calendar",
         "@vegastack/popover",
         "@vegastack/button"

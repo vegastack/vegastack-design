@@ -1,4 +1,4 @@
-// @vegastack date-time@0.23.81 sha256-E+J2NzII+uBkvHJmA8rxb2N3dZPiTkPqhsmDZIcSnng=
+// @vegastack date-time@0.23.81 sha256-Q0u3aV78TaQNToaYwc0ND/8SxtvUuQRm4LkCd532FGU=
 
 export type DateInput = Date | string | number;
 
@@ -33,7 +33,14 @@ const WEEK = 7 * DAY;
 const MONTH = 30 * DAY;
 const YEAR = 365 * DAY;
 const NOW_THRESHOLD = 45 * SEC;
-const DEFAULT_LOCALE = "en-US";
+/**
+ * The locale every DS date formatter uses when none is passed: fixed, never the runtime's, so a
+ * server and a browser in different locales render the same text (no hydration mismatch).
+ *
+ * @example
+ * new Intl.DateTimeFormat(locale ?? DEFAULT_LOCALE, options);
+ */
+export const DEFAULT_LOCALE = "en-US";
 
 /** Parse `Date | ISO string | epoch ms` into a `Date`. */
 export function toDate(value: DateInput): Date {

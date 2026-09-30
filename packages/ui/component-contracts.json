@@ -9428,9 +9428,10 @@
       ],
       "docsSlug": "/docs/components/date-picker",
       "registryDependencies": [
+        "@vegastack/button",
         "@vegastack/calendar",
-        "@vegastack/popover",
-        "@vegastack/button"
+        "@vegastack/date-time",
+        "@vegastack/popover"
       ],
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
@@ -27267,6 +27268,7 @@
       "registryDependencies": [
         "@vegastack/alert-dialog",
         "@vegastack/button",
+        "@vegastack/date-time",
         "@vegastack/dropdown-menu",
         "@vegastack/empty",
         "@vegastack/markdown-view",
@@ -34617,6 +34619,15 @@
           "ref": {
             "status": "not-applicable",
             "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "DEFAULT_LOCALE",
+          "kind": "component-constant",
+          "source": "packages/ui/registry/lib/date-time.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "component-constant symbols do not expose a rendered DOM instance or ref contract."
           }
         },
         {

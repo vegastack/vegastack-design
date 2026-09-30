@@ -258,6 +258,7 @@
         "lucide-react@^1.47.0"
       ],
       "registryDependencies": [
+        "@vegastack/date-time",
         "@vegastack/alert-dialog",
         "@vegastack/button",
         "@vegastack/dropdown-menu",
@@ -282,7 +283,7 @@
         "whenToUse": "Discussion on a record's page (a task, a meeting): comments oldest first with the composer at the end.",
         "whenNotToUse": "An activity feed or notifications — use Inbox.",
         "version": "0.23.81",
-        "integrity": "sha256-bSbgGtf0JeC5wR6KpIiOoYEh5c84gj+4o4s2BYk9qsM="
+        "integrity": "sha256-yjevDQfQBbWwkKW4J9AmxOH/hsby280JWyFloCbwyYA="
       }
     },
     {
@@ -1611,6 +1612,7 @@
         "@vegastack/design-tokens@^0.7.56"
       ],
       "registryDependencies": [
+        "@vegastack/date-time",
         "@vegastack/calendar",
         "@vegastack/popover",
         "@vegastack/button"
@@ -1626,7 +1628,7 @@
         "whenToUse": "Selecting a single date or a range (with optional Today/Last-7-days presets) from a popover. size=\"sm\" + variant=\"ghost\" is the inline row tier; clearable adds a clear control that returns focus to the trigger.",
         "whenNotToUse": "Free-form/partial dates (masked Input) or inline-only calendars (use Calendar directly).",
         "version": "0.23.81",
-        "integrity": "sha256-X2lDWteHr5czMrwqBY1R71+7shI7m9cxc7PyNzitIwo="
+        "integrity": "sha256-xJmoXTuRGjlbpJbQ0p2FDHpt0YivMnN2cW5cEUkiXFk="
       }
     },
     {
@@ -1708,7 +1710,7 @@
         "whenToUse": "Any date, time, duration, due label or day grouping shown as text — on the server, in route handlers, emails or client code.",
         "whenNotToUse": "API/JSON output — keep ISO strings there.",
         "version": "0.23.81",
-        "integrity": "sha256-E+J2NzII+uBkvHJmA8rxb2N3dZPiTkPqhsmDZIcSnng="
+        "integrity": "sha256-Q0u3aV78TaQNToaYwc0ND/8SxtvUuQRm4LkCd532FGU="
       }
     },
     {
@@ -16669,7 +16671,7 @@
         "whenToUse": "Any date, time, duration, due label or day grouping shown in UI — pick the function per the Dates & times page's where-to-use table.",
         "whenNotToUse": "API/JSON output — keep ISO strings there.",
         "version": "0.23.81",
-        "integrity": "sha256-hUddrm2VFQi6XoZNwoJpqIVpZdjcevKgv8Y48TJ0vJQ="
+        "integrity": "sha256-+0UZMdg0ybfGFttHvEC8WgUGgI4xMvNRnlI7h7FMBgs="
       }
     },
     {

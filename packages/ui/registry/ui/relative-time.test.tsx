@@ -519,3 +519,72 @@ test("formatDuration long style, formatLongDate and hourOfDay", () => {
     hourOfDay(Date.UTC(2026, 8, 23, 18, 40), { timeZone: "Asia/Kolkata" }),
   ).toBe(0);
 });
+
+/** Run `fn` as if the runtime's own locale were `tag` (a server started with a non-US `LANG`). */
+function withRuntimeLocale<T>(tag: string, fn: () => T): T {
+  const intl = Intl as { -readonly [K in keyof typeof Intl]: (typeof Intl)[K] };
+  const proto = Date.prototype as unknown as {
+    toLocaleString: (
+      this: Date,
+      locale?: string | string[],
+      options?: Intl.DateTimeFormatOptions,
+    ) => string;
+  };
+  const { DateTimeFormat, RelativeTimeFormat } = intl;
+  const toLocaleString = proto.toLocaleString;
+  const pick = (locale?: string | string[]) => locale ?? tag;
+  intl.DateTimeFormat = class extends DateTimeFormat {
+    constructor(
+      locale?: string | string[],
+      options?: Intl.DateTimeFormatOptions,
+    ) {
+      super(pick(locale), options);
+    }
+  } as typeof Intl.DateTimeFormat;
+  intl.RelativeTimeFormat = class extends RelativeTimeFormat {
+    constructor(
+      locale?: string | string[],
+      options?: Intl.RelativeTimeFormatOptions,
+    ) {
+      super(pick(locale), options);
+    }
+  } as typeof Intl.RelativeTimeFormat;
+  proto.toLocaleString = function (locale, options) {
+    return toLocaleString.call(this, pick(locale), options);
+  };
+  try {
+    return fn();
+  } finally {
+    intl.DateTimeFormat = DateTimeFormat;
+    intl.RelativeTimeFormat = RelativeTimeFormat;
+    proto.toLocaleString = toLocaleString;
+  }
+}
+
+test("with no locale, a server under a non-US LANG renders what the browser renders (en-US)", async () => {
+  const element = (
+    <RelativeTime
+      date="2025-09-30T09:00:00.000Z"
+      mode="day"
+      now={NOW}
+      timeZone="UTC"
+      title={false}
+    />
+  );
+  const server = withRuntimeLocale("en-GB", () => renderToString(element));
+  // The stand-in runtime really is en-GB: its own default formats the date differently.
+  expect(
+    withRuntimeLocale("en-GB", () =>
+      new Intl.DateTimeFormat(undefined, {
+        day: "numeric",
+        month: "long",
+        year: "numeric",
+        timeZone: "UTC",
+      }).format(new Date("2025-09-30T09:00:00.000Z")),
+    ),
+  ).toBe("30 September 2025");
+  const screen = await render(element);
+  const client = screen.container.querySelector("time")!.textContent;
+  expect(server).toContain(`>${client}<`);
+  expect(client).toBe("September 30, 2025");
+});
