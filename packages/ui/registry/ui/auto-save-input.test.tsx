@@ -2,7 +2,7 @@ import * as React from "react";
 import { render } from "vitest-browser-react";
 import { expect, test, vi } from "vitest";
 import { expectNoA11yViolations } from "../../test/a11y";
-import { AutoSaveInput } from "./auto-save-input";
+import { AutoSaveIndicator, AutoSaveInput } from "./auto-save-input";
 
 test("renders the initial value and no status icon while idle", async () => {
   const screen = await render(
@@ -428,3 +428,42 @@ test("flipping status twice in quick succession (saving→saved→error) settles
 // every element, and `vs-pop-in`'s `to` state (opacity: 1, scale: 1) already
 // equals each icon's natural resting style. No per-component `motion-reduce:`
 // variant is needed here by design.
+
+test('AutoSaveIndicator variant="icon": one icon per state, labelled for screen readers, box reserved', async () => {
+  const screen = await render(
+    <AutoSaveIndicator variant="icon" status="idle" />,
+  );
+  const region = screen.getByRole("status").element() as HTMLElement;
+  expect(region.getAttribute("data-variant")).toBe("icon");
+  expect(region.textContent).toBe("");
+  expect(region.getAttribute("class")).toContain("size-4");
+
+  await screen.rerender(<AutoSaveIndicator variant="icon" status="saving" />);
+  await expect.element(screen.getByRole("status")).toHaveTextContent("Saving");
+  expect(region.querySelector("svg")).not.toBeNull();
+  expect(region.getAttribute("class")).toContain("size-4");
+
+  await screen.rerender(<AutoSaveIndicator variant="icon" status="saved" />);
+  await expect.element(screen.getByRole("status")).toHaveTextContent("Saved");
+  expect(region.querySelector("svg")!.getAttribute("class")).toContain(
+    "text-success-text",
+  );
+  await expectNoA11yViolations(screen.container);
+
+  // Back to idle: the check stays mounted while it fades out, with no label.
+  await screen.rerender(<AutoSaveIndicator variant="icon" status="idle" />);
+  expect(region.textContent).toBe("");
+  expect(region.querySelector("svg")).not.toBeNull();
+  expect(region.firstElementChild!.getAttribute("class")).toContain(
+    "opacity-0",
+  );
+
+  await screen.rerender(<AutoSaveIndicator variant="icon" status="error" />);
+  await expect
+    .element(screen.getByRole("status"))
+    .toHaveTextContent("Couldn't save");
+  const svg = region.querySelector("svg")!.getAttribute("class")!;
+  expect(svg).toContain("text-destructive-text");
+  expect(svg).toContain("lucide-triangle-alert");
+  expect(svg).not.toContain("motion-shake");
+});

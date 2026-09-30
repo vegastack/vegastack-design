@@ -415,6 +415,26 @@ export function inputGroupTextarea(): ReactNode {
   );
 }
 
+/** FRM-16: beside a textarea an inline addon sits top-aligned, so a status icon lands top-right. */
+export function inputGroupTextareaInlineAddon(): ReactNode {
+  return (
+    <Wrapper className="items-stretch">
+      <div className="mx-auto grid w-full max-w-md gap-4">
+        <InputGroup>
+          <InputGroupTextarea
+            aria-label="About"
+            rows={4}
+            defaultValue="We build cold-chain logistics software."
+          />
+          <InputGroupAddon align="inline-end">
+            <CheckIcon className="text-success-text" aria-label="Saved" />
+          </InputGroupAddon>
+        </InputGroup>
+      </div>
+    </Wrapper>
+  );
+}
+
 export function inputGroupCustomInput(): ReactNode {
   return (
     <Wrapper className="items-stretch">

@@ -406,3 +406,20 @@ fieldWiringTests({
   ),
   find: (screen, name) => screen.getByRole("textbox", { name }),
 });
+
+test("FRM-16: beside a textarea an inline addon is top-aligned, not mid-height", async () => {
+  const screen = await render(
+    <InputGroup>
+      <InputGroupTextarea aria-label="Notes" rows={6} />
+      <InputGroupAddon align="inline-end">
+        <InputGroupText>i</InputGroupText>
+      </InputGroupAddon>
+    </InputGroup>,
+  );
+  const addon = screen.container.querySelector(
+    "[data-slot=input-group-addon]",
+  )!;
+  const cls = addon.getAttribute("class")!;
+  expect(cls).toContain("group-has-[>textarea]/input-group:self-start");
+  expect(cls).toContain("group-has-[>textarea]/input-group:pt-2.5");
+});

@@ -1,4 +1,4 @@
-// @vegastack auto-save-input@0.23.90 sha256-4NwocH2R1JNu7ogUSIDmac97ICl2q1kXwsgQo1Eqb3s=
+// @vegastack auto-save-input@0.23.90 sha256-xm4qE3hVlqgIHi44554gHUHKFkspkxccQGlvucJhzms=
 
 "use client";
 
@@ -505,6 +505,17 @@ const INDICATOR_TEXT: Record<Exclude<AutoSaveFormStatus, "idle">, string> = {
   conflict: "Not saved",
 };
 
+/** What the icon variant says to a screen reader, per status. */
+const INDICATOR_ICON_LABEL: Record<
+  Exclude<AutoSaveFormStatus, "idle">,
+  string
+> = {
+  saving: "Saving",
+  saved: "Saved",
+  error: "Couldn't save",
+  conflict: "Not saved",
+};
+
 /** Props accepted by `AutoSaveIndicator`. */
 export interface AutoSaveIndicatorProps extends Omit<
   React.ComponentPropsWithRef<"span">,
@@ -513,10 +524,20 @@ export interface AutoSaveIndicatorProps extends Omit<
   /** The status to show — `useAutoSave().status`. `idle` shows nothing. */
   status: AutoSaveFormStatus;
   /**
-   * Replaces the default wording per status.
-   * @default { saving: 'Saving…', saved: 'Saved', error: "Couldn't save", conflict: 'Not saved' }
+   * Replaces the default wording per status — the visible line for `text`, the screen-reader
+   * label for `icon`.
+   * @default { saving: 'Saving…', saved: 'Saved', error: "Couldn't save", conflict: 'Not saved' } (icon: 'Saving', 'Saved', "Couldn't save", 'Not saved')
    */
   labels?: Partial<Record<Exclude<AutoSaveFormStatus, "idle">, string>>;
+  /**
+   * `text` — icon and wording, for an action row. `icon` — the icon alone in a fixed 16px box,
+   * for a field's trailing slot (`InputGroupAddon align="inline-end"`, or beside a select): a
+   * muted spinner while saving, a success check once saved (it fades out when the status
+   * returns to `idle`), and a destructive warning triangle on error (warning ink on conflict).
+   * The wording stays as screen-reader text in the live region.
+   * @default 'text'
+   */
+  variant?: "text" | "icon";
 }
 
 /**
@@ -525,16 +546,90 @@ export interface AutoSaveIndicatorProps extends Omit<
  * check once saved, and the `-text` ink with its own icon for an error or a conflict, so
  * colour is never the only cue. It is a polite live region, mounted empty while idle.
  *
+ * `variant="icon"` is the same status as a single icon inside a field: each state pops in
+ * (fade plus a 0.9 → 1 scale, `motion-pop-in`), a saved check fades out over `duration-slow`
+ * when the host clears it, and the 16px box is always reserved so nothing shifts. Reduced
+ * motion collapses every transition (MOT-5).
+ *
  * @example
  * <AutoSaveIndicator status={autosave.status} />
+ * <InputGroupAddon align="inline-end">
+ *   <AutoSaveIndicator variant="icon" status={autosave.status} />
+ * </InputGroupAddon>
  */
 export function AutoSaveIndicator({
   status,
   labels,
+  variant = "text",
   className,
   ref,
   ...props
 }: AutoSaveIndicatorProps) {
+  // The icon variant keeps the last shown state so it can fade out on `idle`.
+  const [last, setLast] = React.useState<Exclude<
+    AutoSaveFormStatus,
+    "idle"
+  > | null>(status === "idle" ? null : status);
+  if (status !== "idle" && status !== last) setLast(status);
+
+  if (variant === "icon") {
+    const shown = status === "idle" ? last : status;
+    const label =
+      status === "idle"
+        ? null
+        : (labels?.[status] ?? INDICATOR_ICON_LABEL[status]);
+    return (
+      <span
+        ref={ref}
+        role="status"
+        aria-live="polite"
+        aria-atomic="true"
+        data-slot="auto-save-indicator"
+        data-variant="icon"
+        data-state={status}
+        className={cn(
+          "inline-flex size-4 shrink-0 items-center justify-center",
+          className,
+        )}
+        {...props}
+      >
+        <span
+          aria-hidden
+          className={cn(
+            "flex size-4 items-center justify-center transition-opacity duration-slow ease-(--motion-ease-exit)",
+            status === "idle" && "opacity-0",
+          )}
+        >
+          {shown === "saving" ? (
+            <Spinner
+              key="saving"
+              className="size-4 text-muted-foreground motion-pop-in"
+              aria-hidden
+              role={undefined}
+              aria-label={undefined}
+            />
+          ) : shown === "saved" ? (
+            <Check
+              key="saved"
+              className="size-4 text-success-text motion-pop-in"
+            />
+          ) : shown === "error" ? (
+            <TriangleAlert
+              key="error"
+              className="size-4 text-destructive-text motion-pop-in"
+            />
+          ) : shown === "conflict" ? (
+            <TriangleAlert
+              key="conflict"
+              className="size-4 text-warning-text motion-pop-in"
+            />
+          ) : null}
+        </span>
+        {label ? <span className="sr-only">{label}</span> : null}
+      </span>
+    );
+  }
+
   const text =
     status === "idle" ? null : (labels?.[status] ?? INDICATOR_TEXT[status]);
   return (
