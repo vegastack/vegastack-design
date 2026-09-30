@@ -1,4 +1,4 @@
-// @vegastack audio-player@0.23.82 sha256-sYXZTN24sb6sj5g4ioJS5KX8EKWhGQimv71+Mc6WZH4=
+// @vegastack audio-player@0.23.82 sha256-uZVx/2OtPMpP4M8gstu3Qx5WR7ibexftevHk1ZNJtM0=
 
 "use client";
 
@@ -351,6 +351,14 @@ export interface AudioPlayerProps extends Omit<
    */
   exclusive?: boolean;
   /**
+   * Render a light play button — and, with `peaks`, the still `AudioWaveform` — until the first
+   * play, then the full controls, with focus moved to their play button. For a list of
+   * recordings, where a full player on every row costs more than it gives. Any play (`mediaRef`,
+   * `actionsRef`, the global keys) mounts the controls too. Not for `floating` or `docked`.
+   * @default false
+   */
+  deferControls?: boolean;
+  /**
    * Dock the player to the bottom of its scroll column: `position: sticky`
    * with a border, the popover surface and a shadow, padded clear of the
    * bottom safe-area inset. A docked player is a `region` named by `label`.
@@ -488,6 +496,7 @@ export function AudioPlayer({
   peaks,
   maxDecodeBytes = DEFAULT_MAX_DECODE_BYTES,
   exclusive = true,
+  deferControls = false,
   ref,
   ...props
 }: AudioPlayerProps) {
@@ -597,11 +606,37 @@ export function AudioPlayer({
     for (const caller of waiting) started.then(caller.resolve, caller.reject);
   }, [audioSrc, ensureSource, isLazy]);
 
+  // ── Deferred controls ────────────────────────────────────────────────────
+  // A light play button stands in for the controls until the first play.
+  const [controlsMounted, setControlsMounted] = React.useState(
+    () => !deferControls || docked || variant === "floating",
+  );
+  const facade = !controlsMounted;
+  const focusControlsRef = React.useRef(false);
+  React.useEffect(() => {
+    const media = internalMediaRef.current;
+    if (!facade || !media) return;
+    const mount = () => setControlsMounted(true);
+    media.addEventListener("play", mount);
+    return () => media.removeEventListener("play", mount);
+  }, [facade]);
+  React.useEffect(() => {
+    if (!controlsMounted || !focusControlsRef.current) return;
+    focusControlsRef.current = false;
+    // Both layouts are in the DOM and CSS shows one: focus the play button that is showing.
+    const buttons = rootRef.current?.querySelectorAll<HTMLElement>(
+      "[data-slot=media-player-actions] button[aria-pressed], [data-slot=media-player-actions-compact] button[aria-pressed]",
+    );
+    [...(buttons ?? [])]
+      .find((button) => button.getClientRects().length > 0)
+      ?.focus();
+  }, [controlsMounted]);
+
   const isWaveform = variant === "waveform";
   const hasPeaks = peaks != null && peaks.length > 0;
   const decoded = useAudioPeaks(
     audioSrc ?? "",
-    isWaveform && !hasPeaks,
+    isWaveform && !hasPeaks && !facade,
     maxDecodeBytes,
   );
   const givenPeaks = React.useMemo(
@@ -859,6 +894,39 @@ export function AudioPlayer({
           closeButton={closeButton}
           loading={showSpinner}
         />
+      ) : facade ? (
+        <div
+          data-slot="audio-player-facade"
+          className="flex min-w-0 items-center gap-2"
+        >
+          <Button
+            variant="ghost"
+            size="icon"
+            aria-label={`Play ${label}`}
+            aria-pressed={false}
+            aria-busy={showSpinner || undefined}
+            onClick={() => {
+              focusControlsRef.current = true;
+              setControlsMounted(true);
+              void internalMediaRef.current?.play().catch(() => {});
+            }}
+            className="shrink-0 rounded-full [&_svg:not([class*='size-'])]:size-5"
+          >
+            {showSpinner ? (
+              <Spinner
+                className="size-5"
+                aria-hidden
+                role={undefined}
+                aria-label={undefined}
+              />
+            ) : (
+              <Play className="fill-current" />
+            )}
+          </Button>
+          {hasPeaks ? (
+            <AudioWaveform peaks={peaks} className="h-8 flex-1" />
+          ) : null}
+        </div>
       ) : (
         <MediaPlayerControls
           mediaRef={controlsMediaRef}
@@ -1386,302 +1454,16 @@ function FloatingTransport({
 }
 
 // ── Global player ────────────────────────────────────────────────────────────
-// One recording that keeps playing while the reader moves between routes. The
-// provider sits in the app shell ABOVE the routes; `GlobalAudioPlayer` renders
-// the floating pill wherever the shell puts it (inside the main content column,
-// so the pill centres on the content, not across a sidebar).
-
-/** The recording the global player is holding. */
-export interface GlobalPlayerTrack {
-  /** Stable id of the recording; opening the same id again seeks instead of reloading. */
-  id: string;
-  /** A URL, or a function resolving a (signed) URL on first play. */
-  src: AudioPlayerProps["src"];
-  /** Visible title in the pill; a link back to `href` when one is given. */
-  title?: string;
-  /** Where the title links — the page the recording belongs to. */
-  href?: string;
-  /** Accessible label of the player. Defaults to `title`, then "Recording". */
-  label?: string;
-  /** Renews an expired signed URL; see `AudioPlayerProps.onSourceExpired`. */
-  onSourceExpired?: () => Promise<string>;
-}
-
-/** Options for `useGlobalPlayer().open` and `.seek`. */
-export interface GlobalPlayerSeekOptions {
-  /** Start (or jump) at this many seconds. */
-  at?: number;
-  /**
-   * Start playing.
-   * @default true
-   */
-  play?: boolean;
-}
-
-/** What `useGlobalPlayer()` returns. */
-export interface GlobalPlayerValue {
-  /** The recording in the player, or `null` when it is closed. */
-  track: GlobalPlayerTrack | null;
-  /** Whether it is playing. */
-  playing: boolean;
-  /** Load `track` into the player (or reuse it when the id matches) and play from `at`. */
-  open(track: GlobalPlayerTrack, opts?: GlobalPlayerSeekOptions): void;
-  /** Jump the open recording to `seconds`; `play` defaults to true. */
-  seek(seconds: number, opts?: { play?: boolean }): void;
-  /** Resume playback. */
-  play(): void;
-  /** Pause playback. */
-  pause(): void;
-  /** Stop and close the player. */
-  close(): void;
-}
-
-/** Props accepted by `AudioPlayerProvider`. */
-export interface AudioPlayerProviderProps {
-  /**
-   * The app shell.
-   * @default undefined
-   */
-  children?: React.ReactNode;
-  /**
-   * Renders the title link — pass your router's link (for example
-   * `(props) => <Link {...props} />`) so the jump back is a client navigation.
-   * @default a plain `<a>`
-   */
-  renderLink?: (props: {
-    href: string;
-    className: string;
-    children: React.ReactNode;
-  }) => React.ReactNode;
-}
-
-interface GlobalPlayerInternals {
-  actionsRef: React.RefObject<AudioPlayerActions | null>;
-  pendingRef: React.RefObject<GlobalPlayerSeekOptions | null>;
-  setPlaying: (playing: boolean) => void;
-  setTime: (seconds: number) => void;
-  renderLink: NonNullable<AudioPlayerProviderProps["renderLink"]>;
-}
-
-const GlobalPlayerContext = React.createContext<GlobalPlayerValue | null>(null);
-const GlobalPlayerTimeContext = React.createContext(0);
-const GlobalPlayerInternalsContext =
-  React.createContext<GlobalPlayerInternals | null>(null);
-
-const defaultRenderLink: NonNullable<AudioPlayerProviderProps["renderLink"]> = (
-  props,
-) => <a {...props} />;
-
-/**
- * `AudioPlayerProvider` — holds one global recording for the whole app. Mount
- * it in the app shell above the routes, render `GlobalAudioPlayer` inside the
- * main content column, and call `useGlobalPlayer().open(track)` from any page.
- * Playback survives route changes because the player lives in the shell.
- *
- * @example
- * <AudioPlayerProvider renderLink={(props) => <Link {...props} />}>
- *   <main className="flex min-h-0 flex-1 flex-col overflow-auto">
- *     {children}
- *     <GlobalAudioPlayer />
- *   </main>
- * </AudioPlayerProvider>
- */
-export function AudioPlayerProvider({
-  children,
-  renderLink = defaultRenderLink,
-}: AudioPlayerProviderProps) {
-  const [track, setTrack] = React.useState<GlobalPlayerTrack | null>(null);
-  const [playing, setPlaying] = React.useState(false);
-  const [time, setTime] = React.useState(0);
-  const actionsRef = React.useRef<AudioPlayerActions | null>(null);
-  const pendingRef = React.useRef<GlobalPlayerSeekOptions | null>(null);
-  const trackRef = React.useRef(track);
-  trackRef.current = track;
-
-  const value = React.useMemo<GlobalPlayerValue>(
-    () => ({
-      track,
-      playing,
-      open(next, opts) {
-        const play = opts?.play ?? true;
-        const current = trackRef.current;
-        if (current && current.id === next.id && actionsRef.current) {
-          if (opts?.at !== undefined)
-            actionsRef.current.seek(opts.at, { play });
-          else if (play) actionsRef.current.play();
-          return;
-        }
-        pendingRef.current = { at: opts?.at, play };
-        setTime(opts?.at ?? 0);
-        setTrack(next);
-      },
-      seek(seconds, opts) {
-        actionsRef.current?.seek(seconds, { play: opts?.play ?? true });
-      },
-      play() {
-        actionsRef.current?.play();
-      },
-      pause() {
-        actionsRef.current?.pause();
-      },
-      close() {
-        actionsRef.current?.pause();
-        setTrack(null);
-        setPlaying(false);
-        setTime(0);
-      },
-    }),
-    [track, playing],
-  );
-
-  const internals = React.useMemo<GlobalPlayerInternals>(
-    () => ({ actionsRef, pendingRef, setPlaying, setTime, renderLink }),
-    [renderLink],
-  );
-
-  return (
-    <GlobalPlayerInternalsContext.Provider value={internals}>
-      <GlobalPlayerContext.Provider value={value}>
-        <GlobalPlayerTimeContext.Provider value={time}>
-          {children}
-        </GlobalPlayerTimeContext.Provider>
-      </GlobalPlayerContext.Provider>
-    </GlobalPlayerInternalsContext.Provider>
-  );
-}
-
-/**
- * `useGlobalPlayer` — open, seek, play, pause and close the app's global
- * recording. Must be called inside `AudioPlayerProvider`.
- *
- * @example
- * const player = useGlobalPlayer();
- * player.open({ id: meeting.id, src: mintUrl, title: meeting.title, href: `/meetings/${meeting.id}` }, { at: 42 });
- */
-export function useGlobalPlayer(): GlobalPlayerValue {
-  const context = React.useContext(GlobalPlayerContext);
-  if (!context)
-    throw new Error("useGlobalPlayer must be used within AudioPlayerProvider.");
-  return context;
-}
-
-/**
- * `useGlobalPlayerTime` — the global player's current position in seconds, in
- * its own context so only the components that follow time re-render on a tick.
- * Feed it to `Transcript`'s `currentTime`.
- *
- * @example
- * const time = useGlobalPlayerTime();
- */
-export function useGlobalPlayerTime(): number {
-  return React.useContext(GlobalPlayerTimeContext);
-}
-
-/** Props accepted by `GlobalAudioPlayer`. */
-export interface GlobalAudioPlayerProps {
-  /**
-   * Classes for the floating pill.
-   * @default undefined
-   */
-  className?: string;
-  /**
-   * Seconds moved by rewind and forward.
-   * @default 10
-   */
-  skipSeconds?: number;
-}
-
-/**
- * `GlobalAudioPlayer` — the floating pill for the provider's recording. Render
- * it once, at the end of the main content column; it renders nothing while no
- * recording is open.
- *
- * While it is open it sets `--dock-inset-bottom` (its height plus 8px) on the
- * enclosing `AppShell` root (the document root outside one), so what else docks
- * at the bottom stacks above it: `ActionBar` floats 8px over the pill, and a
- * selecting `DataList` keeps its last row and Load more clear of both.
- *
- * @example
- * <GlobalAudioPlayer />
- */
-export function GlobalAudioPlayer({
-  className,
-  skipSeconds = 10,
-}: GlobalAudioPlayerProps) {
-  const internals = React.useContext(GlobalPlayerInternalsContext);
-  const player = React.useContext(GlobalPlayerContext);
-  if (!internals || !player)
-    throw new Error(
-      "GlobalAudioPlayer must be used within AudioPlayerProvider.",
-    );
-  const { track, close } = player;
-  const { actionsRef, pendingRef, setPlaying, setTime, renderLink } = internals;
-
-  // Tell the other bottom-docked surfaces how much room the pill takes.
-  const rootRef = React.useRef<HTMLDivElement | null>(null);
-  React.useLayoutEffect(() => {
-    const element = rootRef.current;
-    if (!track || !element) return;
-    const host =
-      element.closest<HTMLElement>('[data-slot="app-shell"]') ??
-      document.documentElement;
-    const measure = () =>
-      host.style.setProperty(
-        "--dock-inset-bottom",
-        `${element.offsetHeight + 8}px`,
-      );
-    measure();
-    const observer =
-      typeof ResizeObserver === "undefined"
-        ? null
-        : new ResizeObserver(measure);
-    observer?.observe(element);
-    return () => {
-      observer?.disconnect();
-      host.style.removeProperty("--dock-inset-bottom");
-    };
-  }, [track]);
-
-  // A newly opened recording starts where `open` asked, once the player has mounted.
-  React.useEffect(() => {
-    if (!track) return;
-    const pending = pendingRef.current;
-    pendingRef.current = null;
-    if (!pending || !actionsRef.current) return;
-    if (pending.at !== undefined)
-      actionsRef.current.seek(pending.at, { play: pending.play });
-    else if (pending.play) actionsRef.current.play();
-  }, [track, actionsRef, pendingRef]);
-
-  if (!track) return null;
-  const title = track.title
-    ? track.href
-      ? renderLink({
-          href: track.href,
-          className: "rounded-sm underline-offset-4 hover:underline",
-          children: track.title,
-        })
-      : track.title
-    : undefined;
-
-  return (
-    <AudioPlayer
-      key={track.id}
-      ref={rootRef}
-      variant="floating"
-      src={track.src}
-      label={track.label ?? track.title ?? "Recording"}
-      title={title}
-      skipSeconds={skipSeconds}
-      onSourceExpired={track.onSourceExpired}
-      actionsRef={actionsRef}
-      onPlayStateChange={setPlaying}
-      onTimeChange={(seconds) => setTime(seconds)}
-      open
-      onOpenChange={(next) => {
-        if (!next) close();
-      }}
-      className={className}
-    />
-  );
-}
+// Lives in `audio-player-global`, which loads this file's UI only once a recording opens; re-exported
+// here so existing imports keep working.
+export {
+  AudioPlayerProvider,
+  GlobalAudioPlayer,
+  useGlobalPlayer,
+  useGlobalPlayerTime,
+  type AudioPlayerProviderProps,
+  type GlobalAudioPlayerProps,
+  type GlobalPlayerSeekOptions,
+  type GlobalPlayerTrack,
+  type GlobalPlayerValue,
+} from "@/components/ui/audio-player-global";

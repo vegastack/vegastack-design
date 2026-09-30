@@ -180,8 +180,12 @@ instead of reloading. The pill's title links back to `href` through `renderLink`
 client navigation. `useGlobalPlayerTime()` reads the position from its own context — feed it to
 `Transcript`'s `currentTime` — and `onSourceExpired` on the track renews an expired signed URL.
 
+Import the provider, the hooks and `GlobalAudioPlayer` from `audio-player-global` in the app shell:
+that module is small and loads the player UI only once a recording opens (`open()` starts the load),
+so routes that never play one ship no player code. `audio-player` re-exports the same names.
+
 ```tsx
-// app shell
+// app shell — import from "@/components/ui/audio-player-global"
 <AudioPlayerProvider renderLink={(props) => <Link {...props} />}>
   <main className="flex min-h-0 flex-1 flex-col overflow-auto">
     {children}
@@ -210,6 +214,22 @@ const track = {
   name="audioPlayerGlobal"
   file="components/preview/audio-player.tsx"
 />
+
+### In a list
+
+`deferControls` renders a light play button — and the still waveform when `peaks` are given — until
+the first play, then the full controls, with focus moved to their play button. Use it for a list of
+recordings, where a full player on every row costs more than it gives. Any play (`mediaRef`,
+`actionsRef`) mounts the controls as well. It does not apply to `floating` or `docked`.
+
+```tsx
+<AudioPlayer
+  src={file.url}
+  label={file.name}
+  peaks={file.peaks}
+  deferControls
+/>
+```
 
 ### One at a time
 

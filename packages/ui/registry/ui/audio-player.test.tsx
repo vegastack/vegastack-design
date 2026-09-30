@@ -5,12 +5,15 @@ import { userEvent } from "vitest/browser";
 import { expectNoA11yViolations } from "../../test/a11y";
 import {
   AudioPlayer,
-  AudioPlayerProvider,
   AudioWaveform,
-  GlobalAudioPlayer,
-  useGlobalPlayer,
   type AudioPlayerActions,
 } from "./audio-player";
+// The global player's own module: the player UI loads only once a recording opens.
+import {
+  AudioPlayerProvider,
+  GlobalAudioPlayer,
+  useGlobalPlayer,
+} from "./audio-player-global";
 import { VideoPlayer } from "./video-player";
 
 const SOURCE =
@@ -1025,4 +1028,46 @@ test("GlobalAudioPlayer sets --dock-inset-bottom (its height + 8px) on the AppSh
   await expect.poll(inset).toBe(`${pill.offsetHeight + 8}px`);
   await screen.getByRole("button", { name: "Dismiss" }).click();
   await expect.poll(inset).toBe("");
+});
+
+test("deferControls: a light play button (and the still waveform) until the first play, then the controls with focus on play", async () => {
+  const mediaRef = React.createRef<HTMLAudioElement>();
+  const screen = await render(
+    <AudioPlayer
+      mediaRef={mediaRef}
+      src={SOURCE}
+      label="Voice note"
+      peaks={[0.2, 0.8, 0.5]}
+      deferControls
+    />,
+  );
+  const root = screen.container;
+  expect(
+    root.querySelector('[data-slot="audio-player-facade"]'),
+  ).not.toBeNull();
+  expect(root.querySelector('[data-slot="audio-waveform"]')).not.toBeNull();
+  expect(
+    root.querySelector('[data-slot="media-player-actions-compact"]'),
+  ).toBeNull();
+  await expectNoA11yViolations(root);
+
+  const media = mediaRef.current!;
+  const play = vi.spyOn(media, "play").mockImplementation(() => {
+    setMediaState(media, { paused: false });
+    media.dispatchEvent(new Event("play"));
+    return Promise.resolve();
+  });
+  await screen.getByRole("button", { name: "Play Voice note" }).click();
+  expect(play).toHaveBeenCalledOnce();
+  await vi.waitFor(() =>
+    expect(
+      root.querySelector('[data-slot="media-player-actions-compact"]'),
+    ).not.toBeNull(),
+  );
+  expect(root.querySelector('[data-slot="audio-player-facade"]')).toBeNull();
+  await vi.waitFor(() =>
+    expect(document.activeElement?.getAttribute("aria-label")).toBe(
+      "Pause Voice note",
+    ),
+  );
 });

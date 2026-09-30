@@ -445,6 +445,11 @@
           "path": "packages/ui/registry/ui/audio-player.tsx",
           "type": "registry:ui",
           "target": "@ui/audio-player.tsx"
+        },
+        {
+          "path": "packages/ui/registry/ui/audio-player-global.tsx",
+          "type": "registry:ui",
+          "target": "@ui/audio-player-global.tsx"
         }
       ],
       "meta": {
