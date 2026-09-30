@@ -9,6 +9,20 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.23.92] — September 30, 2026
+
+<!-- assembled from 1 changeset: 290985436235 -->
+
+### 🔧 Changed components
+
+- `DataList` passes `selectionSecondaryActions` and `selectionMoreLabel` to its selection bar's `ActionBar` (as `secondaryActions` and `moreLabel`). `BreadcrumbTrail` takes `renderCurrent` to render the current step's content, and a step's `itemProps` spread onto its `BreadcrumbItem` (`data-*` attributes, `onDragOver`/`onDrop`).
+  [`4663fa5`](https://github.com/VegaStack/vegastack-design/commit/4663fa5)
+
+### 📦 npm
+
+- **`@vegastack/design`** → **`0.7.77`** (was `0.7.76`).
+- The design-system registry (`@vegastack/ui`) bumps 0.23.91 → 0.23.92.
+
 ## [0.23.91] — September 30, 2026
 
 <!-- assembled from 1 changeset: 731fb11c2f97 -->

@@ -1,4 +1,4 @@
-// @vegastack app-shell@0.23.91 sha256-SpGJTYHpNLWTAjA2J1HNVINwovG/CgG+unNHhSilTu8=
+// @vegastack app-shell@0.23.92 sha256-m7s9Ut43AufKUpwrkAKO0NTG6WZwW98SZXPfxG2ZbdI=
 
 "use client";
 

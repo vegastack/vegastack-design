@@ -1,5 +1,11 @@
 # @vegastack/design
 
+## 0.7.77
+
+### Patch Changes
+
+- [#457](https://github.com/vegastack/vegastack-design/pull/457) [`4663fa5`](https://github.com/vegastack/vegastack-design/commit/4663fa57746d08e91671d1c5e85a5a511139be56) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🔧 `DataList` passes `selectionSecondaryActions` and `selectionMoreLabel` to its selection bar's `ActionBar` (as `secondaryActions` and `moreLabel`). `BreadcrumbTrail` takes `renderCurrent` to render the current step's content, and a step's `itemProps` spread onto its `BreadcrumbItem` (`data-*` attributes, `onDragOver`/`onDrop`).
+
 ## 0.7.76
 
 ### Patch Changes

@@ -4,14 +4,14 @@
   "title": "Aspect Ratio",
   "description": "Constrains its children to a given width-to-height ratio.",
   "dependencies": [
-    "@vegastack/design@^0.7.76",
+    "@vegastack/design@^0.7.77",
     "@vegastack/design-tokens@^0.7.56"
   ],
   "registryDependencies": [],
   "files": [
     {
       "path": "packages/ui/registry/ui/aspect-ratio.tsx",
-      "content": "// @vegastack aspect-ratio@0.23.91 sha256-uQMWQL0yan9KNk5yxB0P2q092Qaebo47/tvZw4Nkorc=\n\nimport { cn } from \"@vegastack/design\";\n\nfunction AspectRatio({\n  ratio,\n  className,\n  ...props\n}: React.ComponentProps<\"div\"> & { ratio: number }) {\n  return (\n    <div\n      data-slot=\"aspect-ratio\"\n      style={\n        {\n          \"--ratio\": ratio,\n        } as React.CSSProperties\n      }\n      className={cn(\"relative aspect-(--ratio)\", className)}\n      {...props}\n    />\n  );\n}\n\nexport { AspectRatio };\n",
+      "content": "// @vegastack aspect-ratio@0.23.92 sha256-3bRSQ84HtI5mw8eVFEosqWGq9iW48KNJnPnub6Ukwrg=\n\nimport { cn } from \"@vegastack/design\";\n\nfunction AspectRatio({\n  ratio,\n  className,\n  ...props\n}: React.ComponentProps<\"div\"> & { ratio: number }) {\n  return (\n    <div\n      data-slot=\"aspect-ratio\"\n      style={\n        {\n          \"--ratio\": ratio,\n        } as React.CSSProperties\n      }\n      className={cn(\"relative aspect-(--ratio)\", className)}\n      {...props}\n    />\n  );\n}\n\nexport { AspectRatio };\n",
       "type": "registry:ui",
       "target": "@ui/aspect-ratio.tsx"
     }
@@ -19,8 +19,8 @@
   "meta": {
     "whenToUse": "Reserve a fixed ratio for media — a video embed, a cover image, a map tile — so the layout does not shift as it loads.",
     "whenNotToUse": "Content whose height must follow its text; use ordinary flow instead.",
-    "version": "0.23.91",
-    "integrity": "sha256-uQMWQL0yan9KNk5yxB0P2q092Qaebo47/tvZw4Nkorc="
+    "version": "0.23.92",
+    "integrity": "sha256-3bRSQ84HtI5mw8eVFEosqWGq9iW48KNJnPnub6Ukwrg="
   },
   "categories": [
     "layout"
