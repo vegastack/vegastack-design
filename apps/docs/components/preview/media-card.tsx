@@ -1,7 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { Lamp, TriangleAlert } from "lucide-react";
+import { Lamp, PlayIcon, TriangleAlert } from "lucide-react";
 import { Wrapper } from "./wrapper";
 import { Badge } from "@/components/ui/badge";
 import { MediaCard } from "@/components/ui/media-card";
@@ -135,6 +135,48 @@ export function mediaCardTitleBadge(): ReactNode {
         meta="6 products · 2 sub-families"
         badge={pill}
         timestamp="5h ago"
+      />
+    </Wrapper>
+  );
+}
+
+/**
+ * `imageBadge`: a chip over the image's bottom end — a video's play mark and duration — that
+ * reads over any picture and never takes the click.
+ */
+export function mediaCardImageBadge(): ReactNode {
+  return (
+    <Wrapper className="grid max-w-lg grid-cols-2 gap-3">
+      <MediaCard
+        size="lg"
+        href="#walkthrough"
+        image={IMG}
+        fallback={<Lamp aria-hidden />}
+        title="Site walk-through.mp4"
+        meta="Video · 24 MB"
+        imageBadge={
+          <>
+            <PlayIcon aria-hidden />
+            1:24
+          </>
+        }
+        actions={
+          <RowActionsMenu label="Site walk-through.mp4" actions={actions} />
+        }
+      />
+      <MediaCard
+        size="lg"
+        href="#install"
+        image={null}
+        fallback={<Lamp aria-hidden />}
+        title="Install briefing.mp4"
+        meta="Video · 8 MB"
+        imageBadge={
+          <>
+            <PlayIcon aria-hidden />
+            0:42
+          </>
+        }
       />
     </Wrapper>
   );

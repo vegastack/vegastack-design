@@ -559,6 +559,14 @@ export interface DataListProps<T> extends Omit<
    */
   gridSize?: "default" | "lg";
   /**
+   * How many cards the grid fits by width. `dense` is a file browser's grid: at `gridSize="lg"`,
+   * 2 columns, 3 from a 42rem container, 4 from 64rem and 5 from 80rem (`default` stops at 3); at
+   * the default size, 1, then 2 from 32rem, 3 from 48rem and 4 from 72rem. The loading skeleton
+   * follows the same columns.
+   * @default "default"
+   */
+  gridDensity?: "default" | "dense";
+  /**
    * Render a row as a card, for the grid and board views. The grid defaults to a `MediaCard`:
    * the first column is the title, the other columns join into its meta line, a `thumbnail`
    * column is its image, `getRowHref` its link and `rowActions` its ⋯ menu. The board defaults
@@ -1069,6 +1077,7 @@ export function DataList<T>({
   views = ["grid", "list"],
   viewStorageKey,
   gridSize = "default",
+  gridDensity = "default",
   renderCard,
   thumbnailFallback,
   onMove,
@@ -1910,9 +1919,13 @@ export function DataList<T>({
   };
   const gridClass = cn(
     "grid grid-cols-1 gap-3",
-    gridSize === "lg"
-      ? "@xl/data-list:grid-cols-2 @5xl/data-list:grid-cols-3"
-      : "@xl/data-list:grid-cols-2 @4xl/data-list:grid-cols-3",
+    gridDensity === "dense"
+      ? gridSize === "lg"
+        ? "grid-cols-2 @2xl/data-list:grid-cols-3 @5xl/data-list:grid-cols-4 @7xl/data-list:grid-cols-5"
+        : "@lg/data-list:grid-cols-2 @3xl/data-list:grid-cols-3 @6xl/data-list:grid-cols-4"
+      : gridSize === "lg"
+        ? "@xl/data-list:grid-cols-2 @5xl/data-list:grid-cols-3"
+        : "@xl/data-list:grid-cols-2 @4xl/data-list:grid-cols-3",
   );
   const selecting = selectable && displayOrder.some((id) => selected.has(id));
   const gridCards = (indexes: number[]) => (

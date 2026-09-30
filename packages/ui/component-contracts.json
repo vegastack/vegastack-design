@@ -2198,6 +2198,25 @@
             "status": "not-applicable",
             "rationale": "GlobalAudioPlayer does not forward a stable public ref."
           }
+        },
+        {
+          "name": "AudioWaveformProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/audio-player.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "AudioWaveform",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/audio-player.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "div",
+            "rationale": "Spread onto the root div."
+          }
         }
       ],
       "variants": {
@@ -2238,7 +2257,8 @@
             "floating",
             "global-player",
             "precomputed-peaks",
-            "decode-limit"
+            "decode-limit",
+            "still-waveform"
           ],
           "evidence": "Observed from media event handlers, rewind/forward transport, the shared useMediaShortcuts map, the mute + volume control, control callbacks (including the optional onTranscriptClick), the two-line narrow layout, and state attributes. DS-77: docked sticky region; open/onOpenChange with inert while hidden and focus returned to the opener on close; loading announced once; error alert with retry; a function src resolved once on first play; actionsRef seek queued until loadedmetadata. A peaks prop draws a stored waveform without fetching the file; without it the waveform decodes only up to maxDecodeBytes and a larger file shows the plain seek slider."
         },
@@ -2352,6 +2372,15 @@
             }
           ],
           "cssVariables": []
+        },
+        "AudioWaveform": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["audio-waveform"]
+            }
+          ],
+          "cssVariables": ["--wave-peak"]
         }
       }
     },
@@ -7663,7 +7692,8 @@
             "dragging",
             "drop-over",
             "drop-invalid",
-            "grid-selected"
+            "grid-selected",
+            "grid-dense"
           ],
           "evidence": "Observed from branches, state attributes, and inline source contract."
         },
@@ -8164,7 +8194,7 @@
       "states": {
         "behavior": {
           "status": "covered",
-          "values": ["link", "plain", "lg", "no-media"],
+          "values": ["link", "plain", "lg", "no-media", "image-badge"],
           "evidence": "packages/ui/registry/ui/media-card.tsx + packages/ui/registry/ui/media-card.test.tsx"
         },
         "accessibility": {
@@ -8223,6 +8253,8 @@
                 "media-card-actions",
                 "media-card-badge",
                 "media-card-heading",
+                "media-card-image-badge",
+                "media-card-media",
                 "media-card-meta",
                 "media-card-title"
               ]
@@ -13140,7 +13172,9 @@
             "drag-invalid",
             "dragging",
             "selected",
-            "section-collapsed"
+            "section-collapsed",
+            "drag-scope",
+            "linked-section"
           ],
           "evidence": "Observed from the row branches (loading, error, empty and Show all status rows), expanded and collapsed sections, data-active, data-dragging, data-drop-over and data-drop-invalid, and picker selection."
         },
@@ -13248,6 +13282,7 @@
                 "folder-tree-row-actions",
                 "folder-tree-section",
                 "folder-tree-section-heading",
+                "folder-tree-section-toggle",
                 "folder-tree-toggle"
               ]
             },

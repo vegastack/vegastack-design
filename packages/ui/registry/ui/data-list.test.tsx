@@ -2258,3 +2258,75 @@ test("without onDropInto rows are not draggable", async () => {
       ?.hasAttribute("draggable"),
   ).toBe(false);
 });
+
+test("gridDensity dense sets the file-browser column ladder, loading skeleton included", async () => {
+  type Tile = { id: string; name: string };
+  const tiles: Tile[] = Array.from({ length: 6 }, (_, i) => ({
+    id: `t${i}`,
+    name: `Tile ${i}`,
+  }));
+  const variants: Record<
+    string,
+    Partial<React.ComponentProps<typeof DataList<Tile>>>
+  > = {
+    "lg dense": { gridSize: "lg", gridDensity: "dense" },
+    "lg dense loading": { gridSize: "lg", gridDensity: "dense", loading: true },
+    dense: { gridDensity: "dense" },
+    lg: { gridSize: "lg" },
+  };
+  await render(
+    <>
+      {Object.entries(variants).map(([label, props]) => (
+        <DataList<Tile>
+          key={label}
+          aria-label={label}
+          columns={[{ key: "name", header: "Name" }]}
+          data={tiles}
+          getRowId={(r) => r.id}
+          view="grid"
+          {...props}
+        />
+      ))}
+    </>,
+  );
+  const classesOf = (label: string) =>
+    document
+      .querySelector(
+        `[data-slot="data-list-grid-root"][aria-label="${label}"]`,
+      )!
+      .querySelector<HTMLElement>(
+        '[data-slot="data-list-grid"], [data-slot="data-list-grid-skeleton"]',
+      )!
+      .className.split(" ");
+  const lgDense = classesOf("lg dense");
+  expect(lgDense).toEqual(
+    expect.arrayContaining([
+      "grid-cols-2",
+      "@2xl/data-list:grid-cols-3",
+      "@5xl/data-list:grid-cols-4",
+      "@7xl/data-list:grid-cols-5",
+    ]),
+  );
+  expect(lgDense).not.toContain("grid-cols-1");
+  expect(classesOf("lg dense loading")).toEqual(
+    expect.arrayContaining(["grid-cols-2", "@7xl/data-list:grid-cols-5"]),
+  );
+  expect(classesOf("dense")).toEqual(
+    expect.arrayContaining([
+      "grid-cols-1",
+      "@lg/data-list:grid-cols-2",
+      "@3xl/data-list:grid-cols-3",
+      "@6xl/data-list:grid-cols-4",
+    ]),
+  );
+  // The default density keeps its ladder: at most three lg columns.
+  const lg = classesOf("lg");
+  expect(lg).toEqual(
+    expect.arrayContaining([
+      "grid-cols-1",
+      "@xl/data-list:grid-cols-2",
+      "@5xl/data-list:grid-cols-3",
+    ]),
+  );
+  expect(lg.some((c) => c.endsWith("grid-cols-4"))).toBe(false);
+});

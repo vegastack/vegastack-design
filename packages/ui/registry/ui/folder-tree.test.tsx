@@ -10,6 +10,9 @@ import {
   type FolderTreeNode,
   type FolderTreeProps,
 } from "./folder-tree";
+import { Breadcrumb, BreadcrumbItem, BreadcrumbList } from "./breadcrumb";
+import { BreadcrumbDropTarget } from "./breadcrumb-cascade";
+import { DataList, type DataListColumn } from "./data-list";
 
 const ROOTS: Record<string, FolderTreeNode[]> = {
   shared: [
@@ -322,4 +325,173 @@ test("a section heading closes and opens its list", async () => {
   await heading.click();
   expect(heading.element().getAttribute("aria-expanded")).toBe("false");
   expect(row("Notes")).toBeUndefined();
+});
+
+type FileRow = { id: string; name: string };
+const FILES: FileRow[] = [
+  { id: "file-1", name: "brief.pdf" },
+  { id: "file-2", name: "notes.md" },
+];
+const FILE_COLUMNS: DataListColumn<FileRow>[] = [
+  { key: "name", header: "Name" },
+];
+
+/** A tree, a list and a crumb sharing one drag scope — the Library's sidebar, canvas and trail. */
+function Library({
+  scope = "x",
+  onMove = () => {},
+  canDropInto,
+  onCrumbDrop = () => {},
+}: {
+  scope?: string;
+  onMove?: FolderTreeProps["onMove"];
+  canDropInto?: FolderTreeProps["canDropInto"];
+  onCrumbDrop?: (move: { ids: string[]; targetId: string }) => void;
+}) {
+  return (
+    <>
+      <Tree dragScope="x" onMove={onMove} canDropInto={canDropInto} />
+      <Breadcrumb>
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbDropTarget
+              href="#root"
+              targetId="root"
+              dragScope="x"
+              onDropInto={onCrumbDrop}
+            >
+              Library
+            </BreadcrumbDropTarget>
+          </BreadcrumbItem>
+        </BreadcrumbList>
+      </Breadcrumb>
+      <DataList<FileRow>
+        aria-label="Files"
+        columns={FILE_COLUMNS}
+        data={FILES}
+        getRowId={(r) => r.id}
+        getRowLabel={(r) => r.name}
+        dragScope={scope}
+        onDropInto={() => {}}
+      />
+    </>
+  );
+}
+
+const listRow = (id: string) =>
+  document.querySelector<HTMLElement>(`[data-row-id="${id}"]`)!;
+
+test("with a dragScope, a DataList row drops onto a tree folder and a section heading", async () => {
+  const onMove = vi.fn();
+  const canDropInto = vi.fn(() => true);
+  await render(<Library onMove={onMove} canDropInto={canDropInto} />);
+  await expect.poll(() => rowBox("Brand")).toBeTruthy();
+
+  await drag(listRow("file-1"), rowBox("Brand"));
+  expect(canDropInto).toHaveBeenCalledWith({
+    ids: ["file-1"],
+    targetId: "brand",
+    targetSection: "shared",
+  });
+  expect(onMove).toHaveBeenCalledWith({
+    ids: ["file-1"],
+    targetId: "brand",
+    targetSection: "shared",
+  });
+  await expect
+    .poll(
+      () =>
+        document.querySelector("[data-slot=folder-tree] [role=status]")
+          ?.textContent,
+    )
+    .toBe("Moved 1 item to Brand");
+
+  onMove.mockClear();
+  await drag(
+    listRow("file-2"),
+    [
+      ...document.querySelectorAll<HTMLElement>(
+        "[data-slot=folder-tree-section-heading]",
+      ),
+    ][1]!,
+  );
+  expect(onMove).toHaveBeenCalledWith({
+    ids: ["file-2"],
+    targetId: null,
+    targetSection: "private",
+  });
+});
+
+test("canDropInto refuses a list row, and a drag from another scope never reaches the tree", async () => {
+  const onMove = vi.fn();
+  await render(<Library onMove={onMove} canDropInto={() => false} />);
+  await expect.poll(() => rowBox("Brand")).toBeTruthy();
+  await drag(listRow("file-1"), rowBox("Brand"));
+  expect(onMove).not.toHaveBeenCalled();
+  // The host's rule applies to the tree's own rows too.
+  await drag(rowBox("Roadmap"), rowBox("Brand"));
+  expect(onMove).not.toHaveBeenCalled();
+});
+
+test("without a shared scope a list row is ignored", async () => {
+  const onMove = vi.fn();
+  await render(<Library scope="elsewhere" onMove={onMove} />);
+  await expect.poll(() => rowBox("Brand")).toBeTruthy();
+  await drag(listRow("file-1"), rowBox("Brand"));
+  expect(onMove).not.toHaveBeenCalled();
+});
+
+test("a tree row dragged onto a BreadcrumbDropTarget in the scope carries its own id", async () => {
+  const onCrumbDrop = vi.fn();
+  const onMove = vi.fn();
+  await render(<Library onMove={onMove} onCrumbDrop={onCrumbDrop} />);
+  await expect.poll(() => rowBox("Roadmap")).toBeTruthy();
+  await drag(
+    rowBox("Roadmap"),
+    document.querySelector<HTMLElement>("[data-drop-target]")!,
+  );
+  expect(onCrumbDrop).toHaveBeenCalledWith({
+    ids: ["roadmap"],
+    targetId: "root",
+  });
+  expect(onMove).not.toHaveBeenCalled();
+});
+
+test("a section heading with an href is a link, active on its own page, with a chevron that opens and closes it", async () => {
+  const screen = await render(
+    <Tree
+      activeId="shared"
+      sections={[
+        { id: "shared", label: "Shared", href: "#shared" },
+        { id: "private", label: "Private", href: "#private" },
+      ]}
+    />,
+  );
+  const shared = screen.getByRole("link", { name: "Shared" });
+  await expect.element(shared).toHaveAttribute("href", "#shared");
+  await expect.element(shared).toHaveAttribute("aria-current", "page");
+  expect(shared.element().tabIndex).toBe(0); // the active heading is the tab stop
+  expect(
+    shared
+      .element()
+      .closest("[data-slot=folder-tree-section-heading]")!
+      .hasAttribute("data-active"),
+  ).toBe(true);
+  const priv = screen.getByRole("link", { name: "Private" });
+  expect(priv.element().getAttribute("aria-current")).toBeNull();
+  await expectNoA11yViolations(screen.container);
+
+  const toggle = screen.getByRole("button", { name: "Private section" });
+  expect(toggle.element().getAttribute("aria-expanded")).toBe("true");
+  expect(toggle.element().tabIndex).toBe(-1);
+  await toggle.click();
+  expect(toggle.element().getAttribute("aria-expanded")).toBe("false");
+  expect(row("Notes")).toBeUndefined();
+
+  // The keyboard still opens and closes it from the link.
+  priv.element().focus();
+  await userEvent.keyboard("{ArrowRight}");
+  await expect.poll(() => row("Notes")).toBeTruthy();
+  await userEvent.keyboard("{ArrowLeft}");
+  await expect.poll(() => row("Notes")).toBeUndefined();
 });

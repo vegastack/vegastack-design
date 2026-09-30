@@ -90,6 +90,29 @@ const { duration, peaks } = await probeAudio(file); // at upload
   file="components/preview/audio-player.tsx"
 />
 
+### Still waveform
+
+`AudioWaveform` draws the same stored peaks as a still picture — the player's bars in
+`muted-foreground`, with no playback and no seek — for an audio file's card in a grid, where a
+player would be too much. It fills its width (`h-12` unless you size it) and reduces long peak
+arrays to `bars` (48) so it keeps its gaps at card width; empty peaks draw flat placeholder bars.
+It is decorative (`aria-hidden`): the card's title names the recording.
+
+```tsx
+<MediaCard
+  size="lg"
+  title={file.name}
+  image={null}
+  fallback={<AudioWaveform peaks={file.peaks} className="h-1/2 px-4" />}
+  imageBadge={formatDuration(file.duration)}
+/>
+```
+
+<ComponentPreview
+  name="audioPlayerWaveformStill"
+  file="components/preview/audio-player.tsx"
+/>
+
 ### Decode limit
 
 Without `peaks`, the waveform variant decodes the file itself only up to `maxDecodeBytes` (20 MB).
@@ -298,6 +321,13 @@ Every `AudioPlayer` prop, auto-generated from its TypeScript types.
 <ApiTable
   path="../../packages/ui/registry/ui/audio-player.tsx"
   name="GlobalAudioPlayerProps"
+/>
+
+### AudioWaveform
+
+<ApiTable
+  path="../../packages/ui/registry/ui/audio-player.tsx"
+  name="AudioWaveformProps"
 />
 
 ### useGlobalPlayer
