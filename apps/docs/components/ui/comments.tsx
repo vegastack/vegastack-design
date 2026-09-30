@@ -1,4 +1,4 @@
-// @vegastack comments@0.23.78 sha256-gNwipjMDGfALYeTKbCYav3A9CM73GH9GQNt2PqYvFQM=
+// @vegastack comments@0.23.78 sha256-gNGpCboccfsqhjm30WwV69pfMBGdyHlT6zLP2Iwr+cw=
 
 "use client";
 
@@ -125,6 +125,12 @@ export interface CommentItemProps {
   editing?: boolean;
   /** Called when editing starts or ends. @default undefined */
   onEditingChange?: (editing: boolean) => void;
+  /**
+   * Called with the comment's id and the edit box's text on every change while editing, and with
+   * `null` when editing ends (the save succeeded, or Cancel/Escape) — e.g. to guard an unsaved
+   * edit. @default undefined
+   */
+  onEditValueChange?: (commentId: string, value: string | null) => void;
   /** Replies, indented under the comment (one level of `CommentItem`s). @default undefined */
   replies?: React.ReactNode;
   /** Pin the relative time's clock (docs, tests). @default undefined */
@@ -166,6 +172,7 @@ export function CommentItem({
   highlighted = false,
   editing: editingProp,
   onEditingChange,
+  onEditValueChange,
   replies,
   now,
   attachments,
@@ -198,6 +205,7 @@ export function CommentItem({
     try {
       await onEdit(comment.id, body);
       setEditing(false);
+      onEditValueChange?.(comment.id, null);
     } catch (e) {
       setError(errorMessage(e, "Couldn't save the comment."));
     } finally {
@@ -208,6 +216,7 @@ export function CommentItem({
   const cancel = () => {
     setError(null);
     setEditing(false);
+    onEditValueChange?.(comment.id, null);
   };
 
   const remove = async () => {
@@ -364,7 +373,10 @@ export function CommentItem({
               autoFocus
               label="Edit comment"
               defaultValue={comment.body}
-              onValueChange={setDraft}
+              onValueChange={(value) => {
+                setDraft(value);
+                onEditValueChange?.(comment.id, value);
+              }}
               onSubmit={(value) => void save(value)}
               onRevert={cancel}
               busy={saving}
@@ -628,6 +640,11 @@ function SendButton({
 export interface CommentComposerProps {
   /** Post the Markdown; the editor clears when it resolves and keeps the text when it rejects. */
   onSubmit: MaybeAsync<[body: string]>;
+  /**
+   * The editor's starting text on mount — e.g. a restored draft; Send is enabled while it is
+   * non-empty. After a successful post the box starts empty. @default undefined
+   */
+  defaultValue?: string;
   /** Placeholder in the empty editor. @default "Add a comment…" */
   placeholder?: string;
   /** Accessible name of the round send button. @default "Send comment" */
@@ -668,6 +685,7 @@ export interface CommentComposerProps {
  */
 export function CommentComposer({
   onSubmit,
+  defaultValue,
   placeholder = "Add a comment…",
   submitLabel = "Send comment",
   attachments,
@@ -686,7 +704,7 @@ export function CommentComposer({
   const [generation, setGeneration] = React.useState(0);
   const [pending, setPending] = React.useState(false);
   const [errorState, setErrorState] = React.useState<string | null>(null);
-  const [body, setBody] = React.useState("");
+  const [body, setBody] = React.useState(defaultValue ?? "");
   const posting = postingProp ?? pending;
   const error = errorProp !== undefined ? errorProp : errorState;
 
@@ -714,6 +732,7 @@ export function CommentComposer({
       <CommentBox
         key={generation}
         label="Comment"
+        defaultValue={generation === 0 ? defaultValue : undefined}
         placeholder={placeholder}
         autoFocus={autoFocus || generation > 0}
         onValueChange={(next) => {
@@ -794,11 +813,20 @@ export interface CommentThreadProps {
   onReactionToggle?: CommentItemProps["onReactionToggle"];
   /** Copy a comment's link. @default undefined */
   onCopyLink?: CommentItemProps["onCopyLink"];
+  /**
+   * An edit box's text on every change, and `null` when that edit ends (see `CommentItem`).
+   * @default undefined
+   */
+  onEditValueChange?: CommentItemProps["onEditValueChange"];
   /** A comment's files, under its body. @default undefined */
   renderAttachments?: (comment: CommentData) => React.ReactNode;
   /**
    * The reply box's options, passed through to its editor — `mentions`, `mentionHref`,
-   * `onImageUpload`, `onFileUpload`, `onUploadError`, `placeholder`, `submitLabel`, `disabled`.
+   * `onImageUpload`, `onFileUpload`, `onUploadError`, `placeholder`, `submitLabel`, `disabled`,
+   * `attachments`; `defaultValue` (the starting text on mount, e.g. a restored draft — the box
+   * opens unfolded and Send is enabled), `onValueChange` (every change, and `""` after a reply
+   * posts) and `posting` (busy, OR'd with the reply's own posting state: Send shows loading and
+   * neither it nor Cmd/Ctrl+Enter sends — e.g. while an upload in the box is running).
    * @default undefined
    */
   composer?: Partial<
@@ -813,6 +841,9 @@ export interface CommentThreadProps {
       | "submitLabel"
       | "disabled"
       | "attachments"
+      | "defaultValue"
+      | "onValueChange"
+      | "posting"
     >
   >;
   /** Pin the relative times' clock (docs, tests). @default undefined */
@@ -846,29 +877,32 @@ export function CommentThread({
   onDelete,
   onReactionToggle,
   onCopyLink,
+  onEditValueChange,
   renderAttachments,
   composer,
   now,
   className,
 }: CommentThreadProps) {
   const [generation, setGeneration] = React.useState(0);
-  const [draft, setDraft] = React.useState("");
-  const [posting, setPosting] = React.useState(false);
+  const [draft, setDraft] = React.useState(composer?.defaultValue ?? "");
+  const [pending, setPending] = React.useState(false);
+  const posting = pending || !!composer?.posting;
   const [error, setError] = React.useState<string | null>(null);
   const { resolved, orphaned, quote, root, replies } = thread;
 
   const reply = async (body: string) => {
     if (!body.trim() || posting) return;
-    setPosting(true);
+    setPending(true);
     setError(null);
     try {
       await onReply(body);
       setGeneration((g) => g + 1);
       setDraft("");
+      composer?.onValueChange?.("");
     } catch (e) {
       setError(errorMessage(e, "Couldn't post the reply."));
     } finally {
-      setPosting(false);
+      setPending(false);
     }
   };
 
@@ -880,6 +914,7 @@ export function CommentThread({
       onDelete={onDelete}
       onReactionToggle={onReactionToggle}
       onCopyLink={onCopyLink}
+      onEditValueChange={onEditValueChange}
       attachments={renderAttachments?.(comment)}
       mentions={composer?.mentions}
       mentionHref={composer?.mentionHref}
@@ -1012,8 +1047,12 @@ export function CommentThread({
             folded
             autoFocus={generation > 0}
             label="Reply"
+            defaultValue={generation === 0 ? composer?.defaultValue : undefined}
             placeholder={composer?.placeholder ?? "Reply…"}
-            onValueChange={setDraft}
+            onValueChange={(value) => {
+              setDraft(value);
+              composer?.onValueChange?.(value);
+            }}
             onSubmit={(value) => void reply(value)}
             busy={posting}
             disabled={composer?.disabled}
@@ -1081,6 +1120,11 @@ export interface CommentListProps {
   onCopyLink?: CommentItemProps["onCopyLink"];
   /** Add or remove the viewer's reaction on a comment. @default undefined */
   onReactionToggle?: CommentItemProps["onReactionToggle"];
+  /**
+   * An edit box's text on every change, and `null` when that edit ends (see `CommentItem`).
+   * @default undefined
+   */
+  onEditValueChange?: CommentItemProps["onEditValueChange"];
   /** Replies under a comment (threads). @default undefined */
   renderReplies?: (comment: CommentData) => React.ReactNode;
   /** Where a mention chip in each comment's body links (see `MarkdownView`'s `mentionHref`). @default undefined */
@@ -1124,6 +1168,7 @@ export function CommentList({
   onDelete,
   onCopyLink,
   onReactionToggle,
+  onEditValueChange,
   renderReplies,
   mentionHref,
   composer,
@@ -1222,6 +1267,7 @@ export function CommentList({
                 onDelete={onDelete}
                 onCopyLink={onCopyLink}
                 onReactionToggle={onReactionToggle}
+                onEditValueChange={onEditValueChange}
                 replies={renderReplies?.(comment)}
                 mentionHref={mentionHref}
                 now={now}

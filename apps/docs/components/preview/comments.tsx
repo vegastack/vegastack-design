@@ -337,6 +337,38 @@ export function commentsThreadCard(): ReactNode {
   );
 }
 
+/**
+ * Restored drafts: a composer and a reply box that open on the text the viewer left
+ * (`defaultValue`), and a reply box held busy by the host while an upload runs (`posting`).
+ */
+export function commentsDrafts(): ReactNode {
+  return (
+    <Demo className="flex max-w-2xl flex-col items-stretch gap-6">
+      <CommentComposer
+        defaultValue="Draft: the customer wants **delivery in October**"
+        onSubmit={() => wait(600)}
+      />
+      <div className="grid gap-4 md:grid-cols-2">
+        <CommentThread
+          now={NOW}
+          thread={{ ...THREAD, replies: [] }}
+          onReply={() => wait(600)}
+          composer={{ defaultValue: "Checking the cable size first" }}
+        />
+        <CommentThread
+          now={NOW}
+          thread={{ ...THREAD, replies: [] }}
+          onReply={() => {}}
+          composer={{
+            defaultValue: "Photo of the panel attached",
+            posting: true,
+          }}
+        />
+      </div>
+    </Demo>
+  );
+}
+
 /** Resolved (who and when, with Reopen), orphaned (its text is gone), and collapsed. */
 export function commentsThreadStates(): ReactNode {
   return (

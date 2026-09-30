@@ -139,6 +139,25 @@ failure.
   file="components/preview/comments.tsx"
 />
 
+### Drafts
+
+`defaultValue` restores text the viewer left behind. On `CommentComposer` the editor opens on it
+with Send enabled, and after a successful post the box starts empty (`onValueChange("")` fires).
+On `CommentThread`, `composer={{ defaultValue }}` opens the reply box unfolded on the draft;
+`composer.onValueChange` reports every change and `""` once the reply posts, and
+`composer.posting` holds the box busy — Send shows its spinner and neither it nor
+
+<kbd>Cmd/Ctrl</kbd>+<kbd>Enter</kbd> sends — while the host finishes an upload
+in the box. An edit draft is reported by `onEditValueChange(commentId, value)`
+on `CommentItem`, `CommentList` and `CommentThread`: the text on every change,
+then `null` when the edit is saved or cancelled. Together they let a host keep
+drafts and warn before unsaved text is lost.
+
+<ComponentPreview
+  name="commentsDrafts"
+  file="components/preview/comments.tsx"
+/>
+
 ### Threads
 
 `CommentThread` is one discussion about a piece of text, the way Google Docs shows it beside the

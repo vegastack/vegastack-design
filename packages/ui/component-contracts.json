@@ -27169,7 +27169,8 @@
             "resolved",
             "orphaned",
             "collapsed",
-            "attachments"
+            "attachments",
+            "draft"
           ],
           "evidence": "packages/ui/registry/ui/comments.tsx + packages/ui/registry/ui/comments.test.tsx"
         },
