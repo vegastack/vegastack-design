@@ -6,7 +6,11 @@ import * as React from "react";
 import type { Editor } from "@tiptap/react";
 import { Field as FieldPrimitive } from "@base-ui/react/field";
 import { cn, mergeRefs, proseClassName } from "@vegastack/design";
-import { MarkdownView, type MentionKind } from "@/components/ui/markdown-view";
+import {
+  MarkdownView,
+  proseDocumentHeadingsClassName,
+  type MentionKind,
+} from "@/components/ui/markdown-view";
 import type { TextAnchor } from "@/lib/text-anchor";
 
 export type { MentionKind } from "@/components/ui/markdown-view";
@@ -463,6 +467,12 @@ export interface TextEditProps {
    */
   variant?: "document" | "boxed";
   /**
+   * The heading sizes, as `MarkdownView`'s `headingScale`: `compact` (the app's scale) or
+   * `document` (a page's: `#` `text-3xl`, `##` `text-2xl`, `###` `text-xl`).
+   * @default "compact"
+   */
+  headingScale?: "compact" | "document";
+  /**
    * Rendered inside the box, after the document — a composer's actions row. Meant for
    * `variant="boxed"`.
    * @default undefined
@@ -646,12 +656,17 @@ export function TextEdit(props: TextEditProps) {
     "aria-invalid": ariaInvalid,
     "aria-describedby": ariaDescribedBy,
     variant = "document",
+    headingScale = "compact",
     children,
     className,
     ref,
     handleRef,
     ...editorProps
   } = props;
+  const surfaceClassName =
+    headingScale === "document"
+      ? cn(editorBaseClassName, proseDocumentHeadingsClassName)
+      : editorBaseClassName;
   // Highlights and an outline need the document model, so they mount the editor at once.
   const eager =
     props.annotations !== undefined || props.onOutlineChange !== undefined;
@@ -785,7 +800,7 @@ export function TextEdit(props: TextEditProps) {
   // editable — `contenteditable`, so a click shows the caret and opens the keyboard at once and the
   // `boxed` focus cue (`:has([contenteditable=true]:focus)`) applies before the editor is there.
   const surface = {
-    className: editorBaseClassName,
+    className: surfaceClassName,
     "data-slot": "text-edit-read",
     "data-focus-cue": boxed ? "border" : "caret",
     role: "textbox",
@@ -923,7 +938,7 @@ export function TextEdit(props: TextEditProps) {
               "aria-invalid": ariaInvalidAttribute,
             }}
             variant={variant}
-            surfaceClassName={editorBaseClassName}
+            surfaceClassName={surfaceClassName}
             hintClassName={slashHintClassName}
             contentClassName={contentClassName}
             contentStyle={contentStyle}

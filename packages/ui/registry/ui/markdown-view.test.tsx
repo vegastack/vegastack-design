@@ -483,3 +483,18 @@ test("headingIds gives every heading a stable id, a repeat suffixed", async () =
     ["setup", "setup-1"],
   );
 });
+
+test("headingScale=\"document\" gives a page's headings a document scale; compact keeps the app's", async () => {
+  const screen = await render(
+    <>
+      <MarkdownView headingScale="document">{"## Scope"}</MarkdownView>
+      <MarkdownView>{"## Notes"}</MarkdownView>
+    </>,
+  );
+  const [doc, compact] = screen.container.querySelectorAll<HTMLElement>(
+    '[data-slot="markdown-view"]',
+  );
+  expect(doc!.className).toContain("[&_h2]:text-2xl");
+  expect(doc!.className).not.toContain("[&_h2]:text-base");
+  expect(compact!.className).toContain("[&_h2]:text-base");
+});

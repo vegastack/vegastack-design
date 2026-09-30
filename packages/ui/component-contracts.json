@@ -14607,6 +14607,15 @@
             "status": "not-applicable",
             "rationale": "A constant; it renders nothing and takes no ref."
           }
+        },
+        {
+          "name": "proseDocumentHeadingsClassName",
+          "kind": "constant",
+          "source": "packages/ui/registry/ui/markdown-view.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A constant; it renders nothing and takes no ref."
+          }
         }
       ],
       "variants": {
@@ -35365,6 +35374,15 @@
       "sourceFiles": ["packages/ui/registry/lib/file-kind.ts"],
       "publicSymbols": [
         {
+          "name": "FILE_KIND_LABEL",
+          "kind": "constant",
+          "source": "packages/ui/registry/lib/file-kind.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A constant; it renders nothing and takes no ref."
+          }
+        },
+        {
           "name": "FileKind",
           "kind": "type",
           "source": "packages/ui/registry/lib/file-kind.ts",
@@ -35416,6 +35434,25 @@
           "ref": {
             "status": "not-applicable",
             "rationale": "Renders a lucide icon element; refs are not part of its contract."
+          }
+        },
+        {
+          "name": "FileKindTile",
+          "kind": "component",
+          "source": "packages/ui/registry/lib/file-kind.ts",
+          "ref": {
+            "status": "observed",
+            "target": "div",
+            "rationale": "Spread onto the root div."
+          }
+        },
+        {
+          "name": "FileKindTileProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/lib/file-kind.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         }
       ],

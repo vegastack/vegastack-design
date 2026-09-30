@@ -184,7 +184,8 @@ export function ActionBar({
         } as React.CSSProperties
       }
       className={cn(
-        "fixed z-10 flex w-fit max-w-[calc(100%-var(--spacing)*8)] items-center gap-2 rounded-lg border border-border bg-background py-1.5 ps-4 pe-2",
+        // Never wider than the viewport (`100vw`, not the containing block), whatever it is centred on.
+        "fixed z-10 flex w-fit max-w-[calc(100vw-var(--spacing)*8)] items-center gap-2 rounded-lg border border-border bg-background py-1.5 ps-4 pe-2 max-sm:ps-3",
         // Pinned to the bottom viewport edge → add the safe-area inset, and stack over whatever
         // docks below it (`GlobalAudioPlayer` sets `--dock-inset-bottom` while it is open).
         "bottom-[calc(var(--spacing)*4+env(safe-area-inset-bottom)+var(--dock-inset-bottom,0px))]",
@@ -217,7 +218,9 @@ export function ActionBar({
         className={cn(
           // On a phone the bar is capped at the screen width less its margins: the actions
           // scroll sideways inside it rather than push the bar off screen.
-          "flex min-w-0 items-center gap-1 overflow-x-auto",
+          // The actions never shrink into each other (a label under its own icon): each keeps its
+          // width and the row scrolls. Put secondary actions in a ⋯ menu to keep it short.
+          "flex min-w-0 items-center gap-1 overflow-x-auto *:shrink-0",
           pending && "opacity-50 select-none",
         )}
       >
