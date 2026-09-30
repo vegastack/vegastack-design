@@ -1,5 +1,16 @@
 # @vegastack/ui
 
+## 0.23.81
+
+### Patch Changes
+
+- [#435](https://github.com/vegastack/vegastack-design/pull/435) [`375e445`](https://github.com/vegastack/vegastack-design/commit/375e4457018d945d2f59c2786944e6a05d350569) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🧩 Library redesign gaps. `AppShellHeader` is a width container (`@container/app-shell-header`), so header tools compact by the header's own width. `FileViewer` takes `actions(item)`: your controls in the top bar before Download, kept at icon size below `sm`. One media plays at a time: starting an `AudioPlayer`, `VideoPlayer`, the global player or a `FileViewer` stage pauses any other that is playing, with `exclusive={false}` to opt out. While open, `GlobalAudioPlayer` sets `--dock-inset-bottom` on the `AppShell` root; `ActionBar` floats above it, and a selecting `DataList` ends with a spacer so its last row and Load more stay reachable. `useDragInto` takes `onDropFiles` and `onFilesOver`: its targets take files dragged in from the desktop (folders walked, with `relativePath`), and an outer `useFileDrop` surface leaves that drop alone. `DataList` passes them through as `onDropFilesOnRow` and `onFilesOverRow`, and `FolderTree` as `onDropFiles` and `onFilesOver`. The dense `lg` grid drops to 1 column below a 20rem container, and the `lg` grid skeleton is the `MediaCard lg` shape (16:9 and two lines). `RecordLayout` takes `stack`: below 64rem the rail flows under the main column, with one scroller. Comments: `CommentItem` takes `editDefaultValue`, and `CommentList` and `CommentThread` take `editingId`, `onEditingIdChange` and `editDefaultValue(commentId)`, so an unsaved edit survives a remount.
+
+- [#435](https://github.com/vegastack/vegastack-design/pull/435) [`375e445`](https://github.com/vegastack/vegastack-design/commit/375e4457018d945d2f59c2786944e6a05d350569) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🐛 `TextEdit` keeps what you typed when it is hidden and shown again (React's `<Activity>`), and image uploads still insert afterwards. It no longer offers block commands (headings, lists, quote, callout, toggle, code block, table, divider) or "Turn into" while the cursor is in a table cell. `MarkdownView` renders `<br>`, `<br/>` and `<br />` inside table cells as line breaks; other raw HTML still shows as text. A `FolderTree` folder with `hasChildren: false` is a leaf: a spacer in place of its disclosure, `data-leaf` on the row, and → does nothing on it.
+
+- Updated dependencies [[`375e445`](https://github.com/vegastack/vegastack-design/commit/375e4457018d945d2f59c2786944e6a05d350569), [`375e445`](https://github.com/vegastack/vegastack-design/commit/375e4457018d945d2f59c2786944e6a05d350569)]:
+  - @vegastack/design@0.7.68
+
 ## 0.23.80
 
 ### Patch Changes
