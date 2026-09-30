@@ -544,7 +544,7 @@
         "whenToUse": "Settings-style fields that save on pause without a Save button — names, slugs, inline fields.",
         "whenNotToUse": "Form submission with a Save button, secrets, or one-time codes.",
         "version": "0.23.94",
-        "integrity": "sha256-UwaImXxhEHjkXAUT0lnDU1h/4FjH2OKmZ9cfqTG/BS0="
+        "integrity": "sha256-a9wdeiyGHsGLdXpXnkFSWse1N8x+WT8CT3sjaICqIFY="
       }
     },
     {

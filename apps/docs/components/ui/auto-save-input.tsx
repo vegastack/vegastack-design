@@ -1,4 +1,4 @@
-// @vegastack auto-save-input@0.23.94 sha256-UwaImXxhEHjkXAUT0lnDU1h/4FjH2OKmZ9cfqTG/BS0=
+// @vegastack auto-save-input@0.23.94 sha256-a9wdeiyGHsGLdXpXnkFSWse1N8x+WT8CT3sjaICqIFY=
 
 "use client";
 
@@ -84,8 +84,8 @@ const statusSlotClasses = "flex size-4 shrink-0 items-center justify-center";
 /**
  * `AutoSaveInput` — an {@link Input} that debounces edits and persists them via
  * an async `onSave(value)`, surfacing the result through a trailing status
- * indicator: a spinning `Loader` while saving, a `text-success-text` `Check` once
- * saved, and a `text-destructive-text` `X` on error. Color is paired with a distinct
+ * indicator: a spinning `Loader` while saving, a muted `Check` once
+ * saved, and a `text-warning-text` `X` on error. Color is paired with a distinct
  * icon and a polite live status so status never relies on color alone.
  *
  * **Presentational only.** The component owns the debounce timer and the
@@ -237,7 +237,7 @@ export function AutoSaveInput({
            * copy-button.tsx for why the draw-in isn't reachable through
            * lucide-react's public Check component (props land on the root svg
            * element, never the generated path), and the same choice is made
-           * here for visual consistency between the two success checks.
+           * here for visual consistency between the two saved checks.
            */}
           {status === "saving" ? (
             <Spinner
@@ -250,13 +250,13 @@ export function AutoSaveInput({
           ) : status === "saved" ? (
             <Check
               key="saved"
-              className="size-4 text-success-text motion-pop-in"
+              className="size-4 text-muted-foreground motion-pop-in"
               aria-hidden
             />
           ) : status === "error" ? (
             <X
               key="error"
-              className="size-4 text-destructive-text motion-pop-in"
+              className="size-4 text-warning-text motion-pop-in"
               aria-hidden
             />
           ) : null}
@@ -532,8 +532,8 @@ export interface AutoSaveIndicatorProps extends Omit<
   /**
    * `text` — icon and wording, for an action row. `icon` — the icon alone in a fixed 16px box,
    * for a field's trailing slot (`InputGroupAddon align="inline-end"`, or beside a select): a
-   * muted spinner while saving, a success check once saved (it fades out when the status
-   * returns to `idle`), and a destructive warning triangle on error (warning ink on conflict).
+   * muted spinner while saving, a muted check once saved (it fades out when the status
+   * returns to `idle`), and a warning-ink triangle on error or conflict.
    * The wording stays as screen-reader text in the live region.
    * @default 'text'
    */
@@ -611,12 +611,12 @@ export function AutoSaveIndicator({
           ) : shown === "saved" ? (
             <Check
               key="saved"
-              className="size-4 text-success-text motion-pop-in"
+              className="size-4 text-muted-foreground motion-pop-in"
             />
           ) : shown === "error" ? (
             <TriangleAlert
               key="error"
-              className="size-4 text-destructive-text motion-pop-in"
+              className="size-4 text-warning-text motion-pop-in"
             />
           ) : shown === "conflict" ? (
             <TriangleAlert
@@ -642,7 +642,7 @@ export function AutoSaveIndicator({
       data-state={status}
       className={cn(
         "inline-flex min-w-0 items-center gap-1.5 text-sm text-muted-foreground",
-        status === "error" && "text-destructive-text",
+        status === "error" && "text-warning-text",
         status === "conflict" && "text-warning-text",
         className,
       )}
