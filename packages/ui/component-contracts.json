@@ -5578,6 +5578,15 @@
           }
         },
         {
+          "name": "codeBlockControlsPadClassName",
+          "kind": "constant",
+          "source": "packages/ui/registry/ui/code-block.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A class string for the room above the code, not a component."
+          }
+        },
+        {
           "name": "codeBlockPreClassName",
           "kind": "constant",
           "source": "packages/ui/registry/ui/code-block.tsx",
