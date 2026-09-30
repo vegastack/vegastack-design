@@ -1,4 +1,4 @@
-// @vegastack data-list-pager@0.23.85 sha256-VlT6//4LhuUELfSHd+W4onrhPSe+I1EpVKIJazdKDIo=
+// @vegastack data-list-pager@0.23.86 sha256-AXbUDecWE7mhe9D3kla0OmutbH2/RfjlcrJybxutEUE=
 
 "use client";
 

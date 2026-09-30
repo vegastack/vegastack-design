@@ -9,6 +9,19 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.23.86] — September 30, 2026
+
+<!-- assembled from 1 changeset: 2e3058f074e6 -->
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.23.85 → 0.23.86.
+
+### 🐛 Fixed
+
+- **RecordChip** — the development-only "`value` is ignored with `person`" warning now fires from a module-level helper instead of reassigning a module variable during render, so the component passes React's `react-hooks/globals` lint rule in consuming apps. Behaviour is unchanged: one warning per page load, none in production. [docs](https://design.vegastack.com/docs/components/record-chip) ·
+  [`d63eb17`](https://github.com/VegaStack/vegastack-design/commit/d63eb17)
+
 ## [0.23.85] — September 30, 2026
 
 <!-- assembled from 1 changeset: 5a9ea10c81cb -->

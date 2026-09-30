@@ -1,5 +1,11 @@
 # @vegastack/ui
 
+## 0.23.86
+
+### Patch Changes
+
+- [#445](https://github.com/vegastack/vegastack-design/pull/445) [`d63eb17`](https://github.com/vegastack/vegastack-design/commit/d63eb17be9640dab77b87a4f3178ac5372f33c1e) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🐛 **RecordChip** — the development-only "`value` is ignored with `person`" warning now fires from a module-level helper instead of reassigning a module variable during render, so the component passes React's `react-hooks/globals` lint rule in consuming apps. Behaviour is unchanged: one warning per page load, none in production. [docs](https://design.vegastack.com/docs/components/record-chip)
+
 ## 0.23.85
 
 ### Patch Changes

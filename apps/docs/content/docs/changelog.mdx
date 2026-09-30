@@ -10,6 +10,17 @@ npm package versions are listed per entry. This page is generated from the repo'
 
 {/* CHANGELOG:START — generated from /CHANGELOG.md by tooling/sync-changelog.mjs. DO NOT EDIT. */}
 
+## [0.23.86] — September 30, 2026
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.23.85 → 0.23.86.
+
+### 🐛 Fixed
+
+- **RecordChip** — the development-only "`value` is ignored with `person`" warning now fires from a module-level helper instead of reassigning a module variable during render, so the component passes React's `react-hooks/globals` lint rule in consuming apps. Behaviour is unchanged: one warning per page load, none in production. [docs](/docs/components/record-chip) ·
+  [`d63eb17`](https://github.com/VegaStack/vegastack-design/commit/d63eb17)
+
 ## [0.23.85] — September 30, 2026
 
 ### 📦 npm
