@@ -1071,3 +1071,19 @@ test("deferControls: a light play button (and the still waveform) until the firs
     ),
   );
 });
+
+test("AudioWaveform fits its bars to the width: 200 peaks in 60px draw at most 20 bars", async () => {
+  const peaks = Array.from({ length: 200 }, (_, i) => (i % 10) / 10);
+  const screen = await render(
+    <div style={{ width: 60 }}>
+      <AudioWaveform peaks={peaks} bars={200} />
+    </div>,
+  );
+  const wave = screen.container.querySelector<HTMLElement>(
+    '[data-slot="audio-waveform"]',
+  )!;
+  await vi.waitFor(() =>
+    expect(wave.querySelectorAll("span").length).toBeLessThanOrEqual(20),
+  );
+  expect(wave.querySelectorAll("span").length).toBeGreaterThan(0);
+});
