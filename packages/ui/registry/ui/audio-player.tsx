@@ -1,4 +1,4 @@
-// @vegastack audio-player@0.23.81 sha256-e8fP6yjAO0Zq04WJigOVgNY3+NliWwTHOtg80v6F/A8=
+// @vegastack audio-player@0.23.82 sha256-sYXZTN24sb6sj5g4ioJS5KX8EKWhGQimv71+Mc6WZH4=
 
 "use client";
 
