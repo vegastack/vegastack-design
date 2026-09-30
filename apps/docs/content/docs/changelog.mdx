@@ -10,6 +10,18 @@ npm package versions are listed per entry. This page is generated from the repo'
 
 {/* CHANGELOG:START — generated from /CHANGELOG.md by tooling/sync-changelog.mjs. DO NOT EDIT. */}
 
+## [0.23.90] — September 30, 2026
+
+### 🧩 New components
+
+- `MarkdownView` takes `citation`: a `[[n]]` marker (n = 1–999) renders as a small superscript `n` — a muted pill button named by the source's `label` that opens its `content` on hover, keyboard focus or a long press and calls `onSelect` on a click or tap. A marker without a source, every marker without the prop, and markers in code or link text stay literal. `TextEdit` passes `citation` to its read view, where pressing a marker never starts editing. `Transcript` takes `reveal={{ id, key }}`: the row scrolls to centre, takes the accent wash for a moment, and following pauses.
+  [`b688b9e`](https://github.com/VegaStack/vegastack-design/commit/b688b9e)
+
+### 📦 npm
+
+- **`@vegastack/design`** → **`0.7.75`** (was `0.7.74`).
+- The design-system registry (`@vegastack/ui`) bumps 0.23.89 → 0.23.90.
+
 ## [0.23.89] — September 30, 2026
 
 ### 🔧 Changed components

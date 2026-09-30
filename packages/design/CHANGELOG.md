@@ -1,5 +1,11 @@
 # @vegastack/design
 
+## 0.7.75
+
+### Patch Changes
+
+- [#453](https://github.com/vegastack/vegastack-design/pull/453) [`b688b9e`](https://github.com/vegastack/vegastack-design/commit/b688b9ef47622054e85a4aeadc194a9f02108445) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🧩 `MarkdownView` takes `citation`: a `[[n]]` marker (n = 1–999) renders as a small superscript `n` — a muted pill button named by the source's `label` that opens its `content` on hover, keyboard focus or a long press and calls `onSelect` on a click or tap. A marker without a source, every marker without the prop, and markers in code or link text stay literal. `TextEdit` passes `citation` to its read view, where pressing a marker never starts editing. `Transcript` takes `reveal={{ id, key }}`: the row scrolls to centre, takes the accent wash for a moment, and following pauses.
+
 ## 0.7.74
 
 ### Patch Changes

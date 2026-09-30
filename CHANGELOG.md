@@ -9,6 +9,20 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.23.90] — September 30, 2026
+
+<!-- assembled from 1 changeset: 28195f7f65c3 -->
+
+### 🧩 New components
+
+- `MarkdownView` takes `citation`: a `[[n]]` marker (n = 1–999) renders as a small superscript `n` — a muted pill button named by the source's `label` that opens its `content` on hover, keyboard focus or a long press and calls `onSelect` on a click or tap. A marker without a source, every marker without the prop, and markers in code or link text stay literal. `TextEdit` passes `citation` to its read view, where pressing a marker never starts editing. `Transcript` takes `reveal={{ id, key }}`: the row scrolls to centre, takes the accent wash for a moment, and following pauses.
+  [`b688b9e`](https://github.com/VegaStack/vegastack-design/commit/b688b9e)
+
+### 📦 npm
+
+- **`@vegastack/design`** → **`0.7.75`** (was `0.7.74`).
+- The design-system registry (`@vegastack/ui`) bumps 0.23.89 → 0.23.90.
+
 ## [0.23.89] — September 30, 2026
 
 <!-- assembled from 1 changeset: ced4c4883c28 -->
