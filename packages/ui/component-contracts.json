@@ -5550,6 +5550,15 @@
       "sourceFiles": ["packages/ui/registry/ui/code-block.tsx"],
       "publicSymbols": [
         {
+          "name": "CODE_LANGUAGES",
+          "kind": "constant",
+          "source": "packages/ui/registry/ui/code-block.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "The language list (fence id, display name) the code block offers, not a component."
+          }
+        },
+        {
           "name": "CodeBlock",
           "kind": "component",
           "source": "packages/ui/registry/ui/code-block.tsx",
@@ -5560,12 +5569,66 @@
           }
         },
         {
+          "name": "codeBlockControlClassName",
+          "kind": "constant",
+          "source": "packages/ui/registry/ui/code-block.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A class string for the hover controls, not a component."
+          }
+        },
+        {
+          "name": "codeBlockPreClassName",
+          "kind": "constant",
+          "source": "packages/ui/registry/ui/code-block.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A class string for the code panel, not a component."
+          }
+        },
+        {
           "name": "CodeBlockProps",
           "kind": "interface",
           "source": "packages/ui/registry/ui/code-block.tsx",
           "ref": {
             "status": "not-applicable",
             "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "codeBlockSurfaceClassName",
+          "kind": "constant",
+          "source": "packages/ui/registry/ui/code-block.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A class string for the code surface, not a component."
+          }
+        },
+        {
+          "name": "codeLanguageName",
+          "kind": "function",
+          "source": "packages/ui/registry/ui/code-block.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A pure function; it renders nothing and takes no ref."
+          }
+        },
+        {
+          "name": "codeLowlight",
+          "kind": "constant",
+          "source": "packages/ui/registry/ui/code-block.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "The shared lowlight instance, not a component."
+          }
+        },
+        {
+          "name": "normalizeCodeLanguage",
+          "kind": "function",
+          "source": "packages/ui/registry/ui/code-block.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A pure function; it renders nothing and takes no ref."
           }
         }
       ],
@@ -5616,8 +5679,10 @@
       "docsSlug": "/docs/components/code-block",
       "registryDependencies": ["@vegastack/copy-button"],
       "npmDependencies": [
+        "@vegastack/design-tokens@^0.7.79",
         "@vegastack/design@^0.7.79",
-        "@vegastack/design-tokens@^0.7.79"
+        "hast-util-to-jsx-runtime@^2.3.6",
+        "lowlight@^3.3.0"
       ],
       "testFiles": ["packages/ui/registry/ui/code-block.test.tsx"],
       "coverage": {
@@ -14871,7 +14936,7 @@
             },
             {
               "name": "data-slot",
-              "values": ["mention-chip"]
+              "values": ["mention-chip", "mention-chip-avatar"]
             }
           ],
           "cssVariables": []
@@ -23858,13 +23923,15 @@
       "registryDependencies": [
         "@vegastack/button",
         "@vegastack/checkbox",
+        "@vegastack/code-block",
+        "@vegastack/command",
         "@vegastack/copy-button",
         "@vegastack/drag-item",
         "@vegastack/dropdown-menu",
         "@vegastack/file-kind",
         "@vegastack/input",
         "@vegastack/markdown-view",
-        "@vegastack/native-select",
+        "@vegastack/popover",
         "@vegastack/text-anchor",
         "@vegastack/text-anchor-doc",
         "@vegastack/toggle",
@@ -23873,6 +23940,7 @@
       ],
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
+        "@tiptap/extension-code-block-lowlight@^3",
         "@tiptap/extension-code-block@^3",
         "@tiptap/extension-image@^3",
         "@tiptap/extension-list@^3",
@@ -23886,6 +23954,8 @@
         "@tiptap/suggestion@^3",
         "@vegastack/design-tokens@^0.7.79",
         "@vegastack/design@^0.7.79",
+        "highlight.js@^11.11.1",
+        "lowlight@^3.3.0",
         "lucide-react@^1.47.0"
       ],
       "testFiles": ["packages/ui/registry/ui/text-edit.test.tsx"],
@@ -27449,7 +27519,6 @@
         "@vegastack/button",
         "@vegastack/date-time",
         "@vegastack/dropdown-menu",
-        "@vegastack/empty",
         "@vegastack/markdown-view",
         "@vegastack/person-avatar",
         "@vegastack/reactions",
@@ -27504,7 +27573,7 @@
           "attributes": [
             {
               "name": "data-slot",
-              "values": ["comment-composer"]
+              "values": ["comment-composer", "comment-composer-replying"]
             }
           ],
           "cssVariables": []
@@ -27546,7 +27615,7 @@
           "attributes": [
             {
               "name": "data-slot",
-              "values": ["comment-list"]
+              "values": ["comment-list", "comment-list-empty"]
             }
           ],
           "cssVariables": []

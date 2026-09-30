@@ -264,7 +264,6 @@
         "@vegastack/alert-dialog",
         "@vegastack/button",
         "@vegastack/dropdown-menu",
-        "@vegastack/empty",
         "@vegastack/markdown-view",
         "@vegastack/person-avatar",
         "@vegastack/reactions",
@@ -285,7 +284,7 @@
         "whenToUse": "Discussion on a record's page (a task, a meeting): comments oldest first with the composer at the end.",
         "whenNotToUse": "An activity feed or notifications — use Inbox.",
         "version": "0.23.94",
-        "integrity": "sha256-K7k/iCl/DUzdMbzNnes6CtKosnlU4edGYI5jEExOGQs="
+        "integrity": "sha256-y5Hg0j3wszTAzG6SEVMv4S1BBb4FeS83zQGNq+Ui+tQ="
       }
     },
     {
@@ -1092,7 +1091,9 @@
       ],
       "dependencies": [
         "@vegastack/design@^0.7.79",
-        "@vegastack/design-tokens@^0.7.79"
+        "@vegastack/design-tokens@^0.7.79",
+        "hast-util-to-jsx-runtime@^2.3.6",
+        "lowlight@^3.3.0"
       ],
       "registryDependencies": [
         "@vegastack/copy-button"
@@ -1108,7 +1109,7 @@
         "whenToUse": "Fenced/source code that deserves a labelled, copyable panel.",
         "whenNotToUse": "Inline code (a mono chip) or terminal output theatre (Terminal).",
         "version": "0.23.94",
-        "integrity": "sha256-iENDoA7kOiZBB82GNFiqSVmw/Z/41W2nmzedmh5ILrE="
+        "integrity": "sha256-R0YebB/SGosLkWOT6FJ6Ai7mhnAcaqky2DJBu2Tj1SA="
       }
     },
     {
@@ -1741,7 +1742,7 @@
         "whenToUse": "Building a drag surface on use-drag-reorder — spread it onto the element carrying the hook`s getItemProps() attributes.",
         "whenNotToUse": "File drag-in (use-file-drop) or any surface that does not use the reorder hook.",
         "version": "0.23.94",
-        "integrity": "sha256-bkocwI3Xvq6ALduDJCpO88jApbI9/jHlWdYxG5zYrPk="
+        "integrity": "sha256-HOhKa9UMLYL2XdEOl0paK9Pz/l/M8I5WXp9b1bmFUVo="
       }
     },
     {
@@ -15798,7 +15799,7 @@
         "whenToUse": "Display user/system-authored markdown — descriptions, comments, activity — as safe token-styled prose.",
         "whenNotToUse": "Editing markdown (use an editor), or when the source needs embedded raw HTML.",
         "version": "0.23.94",
-        "integrity": "sha256-KRkD5xlDxLspa1tQyu5F9qRUDww+VLMODlHhX5nQYjs="
+        "integrity": "sha256-x69ENesto4rIb1hHlni3aA+47V+6z3Ycku+aAftLlAw="
       }
     },
     {
@@ -17524,6 +17525,9 @@
         "@tiptap/markdown@^3",
         "@tiptap/pm@^3",
         "@tiptap/extension-code-block@^3",
+        "@tiptap/extension-code-block-lowlight@^3",
+        "lowlight@^3.3.0",
+        "highlight.js@^11.11.1",
         "@tiptap/extension-image@^3",
         "@tiptap/extension-list@^3",
         "@tiptap/extension-paragraph@^3",
@@ -17537,13 +17541,15 @@
       "registryDependencies": [
         "@vegastack/button",
         "@vegastack/checkbox",
+        "@vegastack/code-block",
+        "@vegastack/command",
         "@vegastack/copy-button",
         "@vegastack/drag-item",
         "@vegastack/dropdown-menu",
         "@vegastack/file-kind",
         "@vegastack/input",
         "@vegastack/markdown-view",
-        "@vegastack/native-select",
+        "@vegastack/popover",
         "@vegastack/text-anchor",
         "@vegastack/text-anchor-doc",
         "@vegastack/toggle",
@@ -17566,7 +17572,7 @@
         "whenToUse": "Comments, notes, summaries and documents stored as Markdown (format=\"markdown\") or HTML — with @ mentions, uploads, callouts, toggles, an outline and comment highlights for page editors; in-place editing of a MarkdownView (the read view is the editor until first edited).",
         "whenNotToUse": "Plain single-line input (Input) or collaborative real-time docs (deferred text-edit-collab).",
         "version": "0.23.94",
-        "integrity": "sha256-m2seArylkFGw72TqS1ePji+VlUdoG8hgfcIqdsS9Umg="
+        "integrity": "sha256-TWaPM5Slcm//EfuBazdVo8e3N2CvAwjQytGXKfNSNL8="
       }
     },
     {

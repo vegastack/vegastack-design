@@ -234,7 +234,6 @@
         "@vegastack/alert-dialog",
         "@vegastack/button",
         "@vegastack/dropdown-menu",
-        "@vegastack/empty",
         "@vegastack/markdown-view",
         "@vegastack/person-avatar",
         "@vegastack/reactions",
@@ -968,7 +967,9 @@
       "categories": ["display"],
       "dependencies": [
         "@vegastack/design@^0.7.79",
-        "@vegastack/design-tokens@^0.7.79"
+        "@vegastack/design-tokens@^0.7.79",
+        "hast-util-to-jsx-runtime@^2.3.6",
+        "lowlight@^3.3.0"
       ],
       "registryDependencies": ["@vegastack/copy-button"],
       "files": [
@@ -14204,6 +14205,9 @@
         "@tiptap/markdown@^3",
         "@tiptap/pm@^3",
         "@tiptap/extension-code-block@^3",
+        "@tiptap/extension-code-block-lowlight@^3",
+        "lowlight@^3.3.0",
+        "highlight.js@^11.11.1",
         "@tiptap/extension-image@^3",
         "@tiptap/extension-list@^3",
         "@tiptap/extension-paragraph@^3",
@@ -14217,13 +14221,15 @@
       "registryDependencies": [
         "@vegastack/button",
         "@vegastack/checkbox",
+        "@vegastack/code-block",
+        "@vegastack/command",
         "@vegastack/copy-button",
         "@vegastack/drag-item",
         "@vegastack/dropdown-menu",
         "@vegastack/file-kind",
         "@vegastack/input",
         "@vegastack/markdown-view",
-        "@vegastack/native-select",
+        "@vegastack/popover",
         "@vegastack/text-anchor",
         "@vegastack/text-anchor-doc",
         "@vegastack/toggle",

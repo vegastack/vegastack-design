@@ -11,7 +11,7 @@ test("every drop edge the hook can write has a hairline: top, bottom, left and r
       `data-[drop-edge=${edge}]:before:absolute`,
     );
     expect(dragItemClasses).toContain(
-      `data-[drop-edge=${edge}]:before:bg-border`,
+      `data-[drop-edge=${edge}]:before:bg-info`,
     );
   }
   // Horizontal edges are vertical lines in the gap beside the item.
@@ -29,6 +29,6 @@ test("the containing block, lift dim and pending shimmer stay in the recipe", ()
 });
 
 test("the drop indicator is the standard border colour, the same token everywhere", () => {
-  expect(dropIndicatorClasses).toBe("bg-border");
+  expect(dropIndicatorClasses).toBe("bg-info");
   expect(dragItemClasses).not.toContain("bg-primary");
 });

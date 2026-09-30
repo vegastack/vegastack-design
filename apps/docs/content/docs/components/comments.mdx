@@ -38,16 +38,19 @@ import {
 `CommentList` is a record's discussion: an `h2` "Comments" with the count and, when `onOrderChange`
 is set, an "Oldest first" / "Newest first" toggle; "Load earlier" when older comments exist; the
 comments; and the composer at the end. Pass `comments` oldest first; `order="newest"` reverses
-them. With no comments, the empty state offers "Add a comment", which reveals the composer and
-focuses it.
+them. With no comments, a muted "No comments yet" line sits right above the composer.
 
 `CommentComposer` is a light box — [`TextEdit`](/docs/components/text-edit)'s `boxed` variant on a
 near-transparent fill, with a hairline border that darkens subtly with an ease while the editor
-holds focus and no fill change — whose editor grows with its text to about twelve lines
-and then scrolls inside. Its placeholder is "Add a comment…". A round ↑ send button sits at the
-bottom right (a quiet grey disc while there is nothing to send; Cmd/Ctrl+Enter also sends) and an
-optional `attachments` slot at the bottom left. No avatar sits beside it. Editing a comment uses the same box,
-compact: a round ↑ Save (disabled while empty or unchanged) and a ghost × Cancel, both with
+holds focus and no fill change — one line and 32px tall at rest, whose editor grows with its text to
+about twelve lines and then scrolls inside. Its placeholder is "Add a comment…". A round ↑ send
+button sits inline at the end of the box, pinned to the bottom line as the text grows (a quiet grey
+disc while there is nothing to send; Cmd/Ctrl+Enter also sends); a round paperclip attach button sits
+before it whenever `onImageUpload` or `onFileUpload` is set, opening the file picker (the files
+upload through the editor's own flow), and the optional `attachments` slot before that. On a touch
+screen both buttons get a 40px target. `replyingTo={{ name }}` shows "Replying to name ×" above the
+box and the "Write a reply…" placeholder; × or Esc calls `onCancelReply` and keeps the text. No
+avatar sits beside it. Editing a comment uses the same box: a round ↑ Save (disabled while empty or unchanged) and a ghost × Cancel, both with
 tooltips; Cmd/Ctrl+Enter saves and Esc cancels. The parts take data and
 callbacks and keep only transient UI state. A callback that returns a promise drives the saving or
 posting state. If the promise rejects, its message appears under the editor. Bodies are Markdown,
@@ -57,7 +60,9 @@ them. Times read in the compact form — "now", "19m ago", "3h ago" — with the
 
 Each comment sits in its own card — the composer's surface (`bg-muted/30`), a hairline
 `border-border` and `rounded-xl` — and so do a deleted comment's placeholder and a comment being
-edited (the editor sits straight in the card, with no box inside the box). The card's border never
+edited (the editor sits straight in the card, with no box inside the box). Replies are rows inside
+their comment's card, flush with it: the same 28px avatar and name column, the body under the name.
+A long name truncates. The card's border never
 changes on hover or focus. Its hover actions sit at the card's top-right: the add-reaction button
 and the ⋯ button, identical ghost `icon-sm` buttons, shown on hover or focus inside the comment,
 kept while their popup is open, and always shown on touch screens.
@@ -81,8 +86,7 @@ joins the hover actions, Slack style.
 
 ### Empty
 
-"Add a comment" reveals the composer and focuses it. Once comments exist, the composer is always
-shown.
+A muted "No comments yet" line with the composer directly under it.
 
 <ComponentPreview name="commentsEmpty" file="components/preview/comments.tsx" />
 
@@ -143,7 +147,7 @@ failure.
 
 `defaultValue` restores text the viewer left behind. On `CommentComposer` the editor opens on it
 with Send enabled, and after a successful post the box starts empty (`onValueChange("")` fires).
-On `CommentThread`, `composer={{ defaultValue }}` opens the reply box unfolded on the draft;
+On `CommentThread`, `composer={{ defaultValue }}` opens the reply box on the draft;
 `composer.onValueChange` reports every change and `""` once the reply posts, and
 `composer.posting` holds the box busy — Send shows its spinner and neither it nor
 
@@ -169,7 +173,7 @@ keeps its own editing state, as before.
 
 `CommentThread` is one discussion about a piece of text, the way Google Docs shows it beside the
 page: the quoted words (a button when `onQuoteClick` is set, to find the highlight), the first
-comment, its replies, and a one-line "Reply…" box whose send button appears once it is focused
+comment, its replies, and the one-line "Write a reply…" box
 (<kbd>Cmd/Ctrl</kbd>+<kbd>Enter</kbd> sends; the box clears when `onReply` resolves and keeps the
 text when it rejects). ✓ in the header calls `onResolve`. Pass `composer` to give the reply box
 `mentions`, `mentionHref` and uploads, and `renderAttachments` to show each comment's files.

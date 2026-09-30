@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.23.94 sha256-m2seArylkFGw72TqS1ePji+VlUdoG8hgfcIqdsS9Umg=
+// @vegastack text-edit@0.23.94 sha256-TWaPM5Slcm//EfuBazdVo8e3N2CvAwjQytGXKfNSNL8=
 
 "use client";
 
@@ -15,6 +15,7 @@ import {
   ReactNodeViewRenderer,
   ReactWidgetRenderer,
   mergeAttributes,
+  textblockTypeInputRule,
   type Editor,
   type JSONContent,
   type Range,
@@ -23,7 +24,7 @@ import {
 import { BubbleMenu } from "@tiptap/react/menus";
 import StarterKit from "@tiptap/starter-kit";
 import { Markdown } from "@tiptap/markdown";
-import { CodeBlock as CodeBlockNode } from "@tiptap/extension-code-block";
+import { CodeBlockLowlight } from "@tiptap/extension-code-block-lowlight";
 import { Image } from "@tiptap/extension-image";
 import { Paragraph } from "@tiptap/extension-paragraph";
 import { TaskItem, TaskList } from "@tiptap/extension-list";
@@ -110,6 +111,27 @@ import { dropIndicatorClasses } from "@/lib/drag-item";
 import { Checkbox } from "@/components/ui/checkbox";
 import { CopyButton } from "@/components/ui/copy-button";
 import {
+  CODE_LANGUAGES,
+  codeBlockControlClassName,
+  codeBlockPreClassName,
+  codeBlockSurfaceClassName,
+  codeLanguageName,
+  codeLowlight,
+  normalizeCodeLanguage,
+} from "@/components/ui/code-block";
+import {
+  Command,
+  CommandEmpty,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
   DropdownMenuContent,
@@ -118,10 +140,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
-import {
-  NativeSelect,
-  NativeSelectOption,
-} from "@/components/ui/native-select";
 import { Toggle } from "@/components/ui/toggle";
 import {
   Tooltip,
@@ -446,81 +464,120 @@ function TaskItemView({ node, updateAttributes, editor }: ReactNodeViewProps) {
   );
 }
 
-/** The languages the code block's selector offers; any other fence language is kept as-is. */
-const CODE_LANGUAGES = [
-  "bash",
-  "css",
-  "diff",
-  "go",
-  "html",
-  "java",
-  "javascript",
-  "json",
-  "jsx",
-  "markdown",
-  "python",
-  "ruby",
-  "rust",
-  "sql",
-  "swift",
-  "tsx",
-  "typescript",
-  "yaml",
-] as const;
+/**
+ * The code block's language picker (top-left on hover): a ghost button with the language's display
+ * name that opens a searchable list, "Plain text" first. Picking writes the fence's info string.
+ */
+function CodeLanguagePicker({
+  language,
+  onChange,
+}: {
+  language: string | undefined;
+  onChange: (language: string | null) => void;
+}) {
+  const [open, setOpen] = React.useState(false);
+  const current = normalizeCodeLanguage(language);
+  const known = CODE_LANGUAGES.some(([id]) => id === current);
+  const options =
+    language && !known
+      ? [[language, language] as const, ...CODE_LANGUAGES]
+      : CODE_LANGUAGES;
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger
+        render={
+          <Button
+            variant="ghost"
+            size="xs"
+            data-slot="code-block-language"
+            aria-label={`Code language: ${codeLanguageName(language)}`}
+            className={cn(
+              codeBlockControlClassName,
+              "start-1.5 text-muted-foreground",
+            )}
+          />
+        }
+      >
+        {codeLanguageName(language)}
+        <ChevronDown aria-hidden />
+      </PopoverTrigger>
+      <PopoverContent
+        align="start"
+        data-text-edit-menu=""
+        className="w-56 gap-0 p-0"
+      >
+        <Command>
+          <CommandInput placeholder="Search languages…" />
+          <CommandList>
+            <CommandEmpty>No language found.</CommandEmpty>
+            {options.map(([id, name]) => (
+              <CommandItem
+                key={id || "plain"}
+                value={`${name} ${id}`}
+                data-checked={
+                  (known ? id === current : id === language) || undefined
+                }
+                onSelect={() => {
+                  setOpen(false);
+                  onChange(id || null);
+                }}
+              >
+                {name}
+              </CommandItem>
+            ))}
+          </CommandList>
+        </Command>
+      </PopoverContent>
+    </Popover>
+  );
+}
 
 /**
- * Code block node view: the `CodeBlock` surface (header with language and copy, sunken panel), so
- * a fenced block is the same box in edit mode as `MarkdownView` renders in view mode. While
- * editable, the language is a native select — it writes the fence's info string (```` ```ts ````).
+ * Code block node view: `CodeBlock`'s Notion-style surface (no border or header bar; the language
+ * top-left and Copy top-right on hover), so a fenced block is the same box in edit mode as
+ * `MarkdownView` renders in view mode. Highlighting is the lowlight extension's decorations.
+ * While editable the language is a searchable picker that writes the fence's info string
+ * (```` ```ts ````); read-only it is a label.
  */
 function CodeBlockView({ node, editor, updateAttributes }: ReactNodeViewProps) {
   const language = (node.attrs.language as string | null) || undefined;
-  const options =
-    language && !(CODE_LANGUAGES as readonly string[]).includes(language)
-      ? [language, ...CODE_LANGUAGES]
-      : CODE_LANGUAGES;
   return (
     <NodeViewWrapper
       as="figure"
       data-slot="code-block"
       data-language={language}
-      className="my-2 w-full min-w-0 max-w-full overflow-hidden rounded-lg border border-border bg-muted text-foreground"
+      className={cn(codeBlockSurfaceClassName, "my-2")}
     >
-      <figcaption
-        data-slot="code-block-header"
-        contentEditable={false}
-        className="flex items-center justify-between gap-2 border-b border-border px-3 py-1.5 select-none"
-      >
+      <div contentEditable={false} className="select-none">
         {editor.isEditable ? (
-          <NativeSelect
-            size="sm"
-            aria-label="Code language"
-            value={language ?? ""}
-            onChange={(event) => {
-              updateAttributes({ language: event.target.value || null });
+          <CodeLanguagePicker
+            language={language}
+            onChange={(next) => {
+              updateAttributes({ language: next });
               editor.commands.focus();
             }}
+          />
+        ) : language ? (
+          <span
+            data-slot="code-block-header"
+            className={cn(
+              codeBlockControlClassName,
+              "start-2 flex h-7 items-center px-2 text-xs text-muted-foreground",
+            )}
           >
-            <NativeSelectOption value="">Plain text</NativeSelectOption>
-            {options.map((option) => (
-              <NativeSelectOption key={option} value={option}>
-                {option}
-              </NativeSelectOption>
-            ))}
-          </NativeSelect>
-        ) : (
-          <span className="font-mono text-xs text-muted-foreground">
-            {language ?? "code"}
+            {codeLanguageName(language)}
           </span>
-        )}
+        ) : null}
         <CopyButton
           value={node.textContent}
-          size="icon-xs"
+          size="sm"
           variant="ghost"
-          copyLabel={`Copy ${language ?? "code"}`}
+          showLabel
+          copyLabel="Copy"
+          className={cn(codeBlockControlClassName, "end-1.5")}
         />
-      </figcaption>
-      <pre data-slot="code-block-pre" className="overflow-x-auto p-4 text-sm">
+      </div>
+      <pre data-slot="code-block-pre" className={codeBlockPreClassName}>
         <NodeViewContent<"code"> as="code" className="font-mono" />
       </pre>
     </NodeViewWrapper>
@@ -539,10 +596,28 @@ const TaskItemWithView = TaskItem.extend({
   },
 });
 
-const CodeBlockWithView = CodeBlockNode.extend({
+/**
+ * Code blocks: lowlight highlighting (the shared `codeLowlight`), Tab / Shift-Tab indent inside
+ * the block, triple Enter or ArrowDown at the end leaves it, and ```` ```lang ```` (or `~~~lang`)
+ * plus a space starts one — any fence language, `c++` and `objective-c` included.
+ */
+const CodeBlockWithView = CodeBlockLowlight.extend({
   addNodeView() {
     return ReactNodeViewRenderer(CodeBlockView);
   },
+  addInputRules() {
+    return [/^```([\w+#.-]+)?[\s\n]$/, /^~~~([\w+#.-]+)?[\s\n]$/].map((find) =>
+      textblockTypeInputRule({
+        find,
+        type: this.type,
+        getAttributes: (match) => ({ language: match[1] ?? null }),
+      }),
+    );
+  },
+}).configure({
+  lowlight: codeLowlight,
+  enableTabIndentation: true,
+  tabSize: 2,
 });
 
 /* ------------------------------------------------------------------------------------------------
@@ -1746,11 +1821,13 @@ function MentionMenu({
                     data-slot="text-edit-mention-item"
                     onMouseEnter={() => onHover(at)}
                     onClick={() => state.command(option)}
-                    className="flex cursor-default items-center gap-2 rounded-sm px-2 py-1.5 text-sm select-none data-selected:bg-muted [&_svg]:size-4 [&_svg]:shrink-0 [&_svg]:text-muted-foreground"
+                    className="flex cursor-default items-center gap-2 rounded-sm px-2 py-1.5 text-sm select-none data-selected:bg-muted [&_svg]:size-4 [&_svg]:shrink-0 [&_svg]:text-muted-foreground [&_[data-tinted]_svg]:size-3.5 [&_[data-tinted]_svg]:text-info-text"
                   >
                     <span
                       aria-hidden
-                      className="flex size-4 shrink-0 items-center justify-center"
+                      data-slot="text-edit-mention-icon"
+                      data-tinted={option.icon ? undefined : ""}
+                      className="flex size-5 shrink-0 items-center justify-center overflow-hidden rounded-sm data-tinted:bg-info/10"
                     >
                       {option.icon ?? <Icon />}
                     </span>
@@ -1788,6 +1865,7 @@ const MENTION_ICON: Record<MentionKind, React.ComponentType> = {
 /** What the extensions read from the component; refs, so the extensions are built once. */
 interface EditorRuntime {
   mentionHref: React.RefObject<TextEditProps["mentionHref"]>;
+  mentionImage: React.RefObject<TextEditProps["mentionImage"]>;
   fileLinkPrefix: React.RefObject<string>;
   mention: {
     enabled: () => boolean;
@@ -1823,6 +1901,9 @@ function mentionView(runtime: EditorRuntime) {
           kind={kind}
           id={id}
           label={label}
+          image={
+            kind === "user" ? runtime.mentionImage.current?.(id) : undefined
+          }
           title={href ? `${label} — ⌘-click to open` : undefined}
         />
       </NodeViewWrapper>
@@ -2337,6 +2418,28 @@ function looksLikeMarkdown(text: string) {
   return /(^|\n)\s{0,3}(#{1,6}\s|[-*+]\s|\d+[.)]\s|>\s|```|\|.+\||-{3,}\s*$)|\*\*[^*]+\*\*|__[^_]+__|~~[^~]+~~|`[^`\n]+`|!?\[[^\]]*\]\([^)]+\)/.test(
     text,
   );
+}
+
+/** Tags that make pasted HTML rich: with none of them it is only a wrapper around code or text. */
+const RICH_PASTE_TAGS =
+  "h1,h2,h3,h4,h5,h6,ul,ol,li,strong,b,em,i,a,table,blockquote,img";
+
+/**
+ * The pasted HTML is just a wrapper around its text — a single `pre`/`code`, VS Code's monospace
+ * `div`s, or anything without headings, lists, emphasis, links, tables, quotes or images — so the
+ * plain-text flavour (e.g. Markdown copied from an editor) is the real content.
+ */
+function isCodeWrapperHtml(html: string) {
+  if (typeof DOMParser === "undefined") return false;
+  const body = new DOMParser().parseFromString(html, "text/html").body;
+  return !body.querySelector(RICH_PASTE_TAGS);
+}
+
+/** Text that is exactly one fenced code block: its language and code. */
+function singleFence(text: string) {
+  const match = /^\s*(`{3,}|~{3,})([^\n`]*)\n([\s\S]*?)\n?\1\s*$/.exec(text);
+  if (!match || match[3]!.includes(match[1]!)) return null;
+  return { language: match[2]!.trim() || null, code: match[3]! };
 }
 
 /** Strip what the schema would drop anyway, before it is parsed: scripts, styles, handlers, `javascript:`. */
@@ -3127,37 +3230,46 @@ function startDrag(
 }
 
 const GRIP =
-  "fixed z-50 flex cursor-grab touch-none items-center justify-center rounded-sm text-muted-foreground/70 hover:bg-muted hover:text-foreground active:cursor-grabbing data-popup-open:bg-muted data-popup-open:text-foreground [&_svg]:size-3.5";
+  "fixed z-50 flex cursor-grab touch-none items-center justify-center rounded-sm text-muted-foreground/70 hover:bg-muted hover:text-foreground active:cursor-grabbing data-popup-open:bg-muted data-popup-open:text-foreground [&_svg]:size-4 [&_svg]:shrink-0";
 /** A row or column grip: a small pill on the table's inner edge, over the cell padding. */
 const LINE_GRIP =
   "fixed z-50 flex cursor-grab touch-none items-center justify-center rounded-sm border border-border bg-background text-muted-foreground hover:bg-muted hover:text-foreground active:cursor-grabbing data-popup-open:bg-muted data-popup-open:text-foreground [&_svg]:size-3";
 /** Notion's "+" bars below and beside a table. */
 const ADD_BAR =
   "fixed z-50 size-auto min-w-0 rounded-sm bg-muted/50 text-muted-foreground/70 hover:bg-muted hover:text-foreground [&_svg]:size-3";
-// The drop line's ink is the shared reorder token (`drag-item`), the same as SortableList's.
+// The drop line's ink is the shared reorder token (`drag-item`, info blue), the same as
+// SortableList's: a 2px rounded line.
 const DROP_LINE = cn(
   "pointer-events-none fixed z-50 rounded-full",
   dropIndicatorClasses,
 );
-/** The block grip's width and its start offset from the text (width + a 3px gap). */
-const HANDLE_WIDTH = 10;
-const HANDLE_GUTTER = HANDLE_WIDTH + 3;
+/** The block grip's width (its 16px icon's own box) and its start offset from the text (+ 4px). */
+const HANDLE_WIDTH = 16;
+const HANDLE_GUTTER = HANDLE_WIDTH + 4;
+/** How far the grip and the drop line stay inside the frame's edge. */
+const FRAME_INSET = 6;
 /** The containers whose padding the block grip stays inside. */
 const HANDLE_FRAME =
   '[data-slot="dialog-content"],[data-slot="sheet-content"],[data-slot="drawer-content"],[data-slot="popover-content"],[data-slot="card"]';
 
+/** The frame the block grip and the drop line stay inside: a boxed editor's border, else a Dialog, Sheet, Popover or Card. */
+function handleFrame(editor: Editor) {
+  return (
+    editor.view.dom.closest('[data-slot="text-edit"][data-variant="boxed"]') ??
+    editor.view.dom.closest(HANDLE_FRAME)
+  );
+}
+
 /**
- * The block grip's left edge for a block starting at `left`: 3px before the text (clearing a list
- * marker), which fits the 16px padding of a Dialog, Sheet, Popover or Card, clamped inside that
- * frame (a boxed editor's own border first) when the padding is narrower.
+ * The block grip's left edge for a block starting at `left`: 4px before the text (clearing a list
+ * marker), clamped `FRAME_INSET` inside the frame (see `handleFrame`) when its padding is
+ * narrower, so the grip never sits on the frame's edge.
  */
 function handleLeft(editor: Editor, left: number) {
-  const frame =
-    editor.view.dom.closest('[data-slot="text-edit"][data-variant="boxed"]') ??
-    editor.view.dom.closest(HANDLE_FRAME);
+  const frame = handleFrame(editor);
   return Math.max(
     left - HANDLE_GUTTER,
-    frame ? frame.getBoundingClientRect().left + 2 : -Infinity,
+    frame ? frame.getBoundingClientRect().left + FRAME_INSET : -Infinity,
   );
 }
 
@@ -3232,8 +3344,17 @@ function startBlockDrag(
   const rects = siblings.map(
     (sibling) => sibling.dom?.getBoundingClientRect() ?? new DOMRect(),
   );
-  const left = Math.min(...rects.map((rect) => rect.left));
-  const right = Math.max(...rects.map((rect) => rect.right));
+  // The line is inset from the blocks' own edges, and kept inside the frame, so it never touches
+  // a section's or card's edge.
+  const frame = handleFrame(editor)?.getBoundingClientRect();
+  const left = Math.max(
+    Math.min(...rects.map((rect) => rect.left)) + 4,
+    frame ? frame.left + FRAME_INSET : -Infinity,
+  );
+  const right = Math.min(
+    Math.max(...rects.map((rect) => rect.right)) - 4,
+    frame ? frame.right - FRAME_INSET : Infinity,
+  );
   let slot = -1;
   // Synchronous (tiptap's `focus()` waits a frame): the edit session opens before the move.
   editor.view.focus();
@@ -4003,6 +4124,7 @@ export function TextEditEditor({
   variant = "document",
   mentions,
   mentionHref,
+  mentionImage,
   onImageUpload,
   onFileUpload,
   onUploadError,
@@ -4094,6 +4216,8 @@ export function TextEditEditor({
   slashRef.current = allowedSlash;
   const mentionHrefRef = React.useRef(mentionHref);
   mentionHrefRef.current = mentionHref;
+  const mentionImageRef = React.useRef(mentionImage);
+  mentionImageRef.current = mentionImage;
   const fileLinkPrefixRef = React.useRef(fileLinkPrefix);
   fileLinkPrefixRef.current = fileLinkPrefix;
 
@@ -4184,6 +4308,7 @@ export function TextEditEditor({
       },
       {
         mentionHref: mentionHrefRef,
+        mentionImage: mentionImageRef,
         fileLinkPrefix: fileLinkPrefixRef,
         mention: {
           enabled: () => Boolean(callbacks.current.mentions?.kinds.length),
@@ -4392,6 +4517,9 @@ export function TextEditEditor({
     };
   }, []);
 
+  /** Set by Mod-Shift-V: the next paste is plain text. */
+  const plainPasteRef = React.useRef(false);
+
   /** Upload each file at `pos`; true when at least one had somewhere to go. */
   const uploadFiles = React.useCallback(
     (files: readonly File[], pos: number) => {
@@ -4436,6 +4564,12 @@ export function TextEditEditor({
           } else revert();
           return true;
         }
+        if (mod && event.shiftKey && event.key.toLowerCase() === "v") {
+          // Paste as plain text: the paste that follows inserts the text literally.
+          plainPasteRef.current = true;
+          setTimeout(() => (plainPasteRef.current = false), 1000);
+          return false;
+        }
         if (mod && !event.shiftKey && event.key.toLowerCase() === "k") {
           event.preventDefault();
           // The editor's ⌘K is the link panel; an app's own ⌘K palette must not open too.
@@ -4449,23 +4583,42 @@ export function TextEditEditor({
       // Markdown pasted as plain text is parsed, not inserted verbatim. A bare URL is left to the
       // link extension, which turns it into a link over the selection. Pasted files (a
       // screenshot) upload, when the host takes uploads.
+      // Markdown in the plain-text flavour is parsed even beside HTML that only wraps it (a code
+      // editor's copy); real rich HTML still pastes rich. One fenced block becomes a code block.
+      // Inside a code block everything stays literal; Mod-Shift-V pastes as plain text.
       handlePaste: (view, event) => {
         const ed = editorRef.current;
         const files = Array.from(event.clipboardData?.files ?? []);
         const text = event.clipboardData?.getData("text/plain");
+        const plain = plainPasteRef.current;
+        plainPasteRef.current = false;
         if (ed && files.length > 0 && !text) {
           const { from, to } = view.state.selection;
           if (from !== to) view.dispatch(view.state.tr.deleteSelection());
           if (uploadFiles(files, view.state.selection.from)) return true;
         }
-        if (
-          !ed ||
-          !text ||
-          event.clipboardData?.getData("text/html") ||
-          ed.isActive("codeBlock") ||
-          !looksLikeMarkdown(text)
-        )
-          return false;
+        if (!ed || !text || ed.isActive("codeBlock")) return false;
+        if (plain) {
+          ed.commands.insertContent(
+            text.split(/\r?\n/).map((line) => ({
+              type: "paragraph",
+              content: line ? [{ type: "text", text: line }] : [],
+            })),
+          );
+          return true;
+        }
+        const html = event.clipboardData?.getData("text/html");
+        if (html && !isCodeWrapperHtml(html)) return false;
+        const fence = singleFence(text);
+        if (fence) {
+          ed.commands.insertContent({
+            type: "codeBlock",
+            attrs: { language: fence.language },
+            content: fence.code ? [{ type: "text", text: fence.code }] : [],
+          });
+          return true;
+        }
+        if (!looksLikeMarkdown(text)) return false;
         ed.commands.insertContent(text, { contentType: "markdown" });
         return true;
       },
@@ -4824,6 +4977,12 @@ export function TextEditEditor({
       },
       getAnchorForSelection,
       markSaved,
+      uploadFiles: (files: readonly File[]) => {
+        const ed = editorRef.current;
+        if (!ed || ed.isDestroyed) return;
+        uploadFiles(files, ed.state.selection.from);
+      },
+      pickFiles: () => pickRef.current?.(),
       pulseAnnotation: (id: string) => {
         const ed = editorRef.current;
         if (!ed || ed.isDestroyed) return;
@@ -4849,7 +5008,7 @@ export function TextEditEditor({
         }, 3000);
       },
     }),
-    [commitNow, getAnchorForSelection, markSaved, rootRef],
+    [commitNow, getAnchorForSelection, markSaved, rootRef, uploadFiles],
   );
 
   const canComment = Boolean(onCreateAnnotation);
