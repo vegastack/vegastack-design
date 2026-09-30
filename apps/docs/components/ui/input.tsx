@@ -1,4 +1,4 @@
-// @vegastack input@0.23.87 sha256-oe86BGPEqu1FGXljVrwCxgt0rOezOw2Ez690mHLzv7A=
+// @vegastack input@0.23.88 sha256-JZSTWV8wYa0KD4IXXoBC7TGzIU+6uOsMe5I9P4HJe2w=
 
 import * as React from "react";
 import { Input as InputPrimitive } from "@base-ui/react/input";

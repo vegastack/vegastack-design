@@ -9,6 +9,20 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.23.88] — September 30, 2026
+
+<!-- assembled from 1 changeset: 8e671393b8fc -->
+
+### 🔧 Changed components
+
+- `AlertAction` now lays its children out in a wrapping flex row with a `gap-2` gap, so two buttons (a "Resend invite" beside a "Revoke invite", say) go straight inside it with no `ButtonGroup` or wrapper `div`, and wrap onto a second line when the alert is narrow. The Alert docs gain a Two actions example.
+  [`552698a`](https://github.com/VegaStack/vegastack-design/commit/552698a)
+
+### 📦 npm
+
+- **`@vegastack/design`** → **`0.7.73`** (was `0.7.72`).
+- The design-system registry (`@vegastack/ui`) bumps 0.23.87 → 0.23.88.
+
 ## [0.23.87] — September 30, 2026
 
 <!-- assembled from 1 changeset: 20732197dde9 -->

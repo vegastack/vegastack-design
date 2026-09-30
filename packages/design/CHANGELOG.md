@@ -1,5 +1,11 @@
 # @vegastack/design
 
+## 0.7.73
+
+### Patch Changes
+
+- [#449](https://github.com/vegastack/vegastack-design/pull/449) [`552698a`](https://github.com/vegastack/vegastack-design/commit/552698a46b0c3cd730a733ba8927306ad2635f65) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🔧 `AlertAction` now lays its children out in a wrapping flex row with a `gap-2` gap, so two buttons (a "Resend invite" beside a "Revoke invite", say) go straight inside it with no `ButtonGroup` or wrapper `div`, and wrap onto a second line when the alert is narrow. The Alert docs gain a Two actions example.
+
 ## 0.7.72
 
 ### Patch Changes
