@@ -1,4 +1,4 @@
-// @vegastack comments@0.23.95 sha256-AYqESvmlSNf6FUV9P5ErTuztAoFtUfZG7Vzp8eGatZw=
+// @vegastack comments@0.23.95 sha256-Pl3yibtLO8/tuy5c39UFv4uC+atdT69eetnbJDGUMg0=
 
 "use client";
 
@@ -1362,6 +1362,8 @@ export interface CommentListProps {
   editDefaultValue?: (commentId: string) => string | undefined;
   /** Replies under a comment (threads). @default undefined */
   renderReplies?: (comment: CommentData) => React.ReactNode;
+  /** A comment's files, under its body (its `attachments`). @default undefined */
+  renderAttachments?: (comment: CommentData) => React.ReactNode;
   /** Where a mention chip in each comment's body links (see `MarkdownView`'s `mentionHref`). @default undefined */
   mentionHref?: CommentItemProps["mentionHref"];
   /** A person mention's avatar URL in each body (see `MarkdownView`'s `mentionImage`). @default undefined */
@@ -1412,6 +1414,7 @@ export function CommentList({
   onEditingIdChange,
   editDefaultValue,
   renderReplies,
+  renderAttachments,
   mentionHref,
   mentionImage,
   fileContentType,
@@ -1504,6 +1507,7 @@ export function CommentList({
                 onEditValueChange={onEditValueChange}
                 {...editingProps(comment.id)}
                 replies={renderReplies?.(comment)}
+                attachments={renderAttachments?.(comment)}
                 mentionHref={mentionHref}
                 mentionImage={mentionImage}
                 fileContentType={fileContentType}
