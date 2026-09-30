@@ -433,6 +433,36 @@ const editable: CommentData = {
   canEdit: true,
 };
 
+test("an edit survives a remount: editingId and editDefaultValue restore the box, and Save is enabled", async () => {
+  const onEditingIdChange = vi.fn();
+  function Host() {
+    const [editingId, setEditingId] = React.useState<string | null>("e1");
+    return (
+      <CommentList
+        comments={[editable]}
+        onEdit={vi.fn()}
+        editingId={editingId}
+        onEditingIdChange={(id) => {
+          onEditingIdChange(id);
+          setEditingId(id);
+        }}
+        editDefaultValue={(id) => (id === "e1" ? "Hello, restored" : undefined)}
+      />
+    );
+  }
+  const screen = await render(<Host />);
+  const box = screen.getByRole("textbox", { name: "Edit comment" });
+  await expect.element(box).toHaveTextContent("Hello, restored");
+  await expect
+    .element(screen.getByRole("button", { name: "Save" }))
+    .toBeEnabled();
+  await userEvent.keyboard("{Escape}");
+  await vi.waitFor(() =>
+    expect(onEditingIdChange).toHaveBeenLastCalledWith(null),
+  );
+  await expect.element(screen.getByText("Hello")).toBeVisible();
+});
+
 test("onEditValueChange reports the edit box's text, then null on Cancel", async () => {
   const onEditValueChange = vi.fn();
   const screen = await render(
