@@ -9,6 +9,20 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.23.84] — September 30, 2026
+
+<!-- assembled from 1 changeset: b50aa444b38e -->
+
+### 📦 npm
+
+- **`@vegastack/design`** → **`0.7.71`** (was `0.7.70`).
+- The design-system registry (`@vegastack/ui`) bumps 0.23.83 → 0.23.84.
+
+### 🐛 Fixed
+
+- A sidebar item's `showOnHover` action no longer overlaps its count. `SidebarMenuAction` now writes the `data-show-on-hover` attribute the badge swap selects on — Base UI lower-cases state keys, so it had only ever written `data-showonhover` and the API-33 swap never engaged. At rest the count shows; on hover, keyboard focus or while the action's menu is open the action takes the count's place, with no layout shift or motion. Touch keeps both side by side: below `md`, and now also on a coarse pointer at any width, the action stays visible and the count sits just before it.
+  [`ceb5c59`](https://github.com/VegaStack/vegastack-design/commit/ceb5c59)
+
 ## [0.23.83] — September 30, 2026
 
 <!-- assembled from 1 changeset: d30ce1c7945c -->
