@@ -578,10 +578,17 @@ reserve. When the panel collapses to icons, the `tooltip` carries the count too.
 ### Count with a hover action
 
 A row can carry both a count and a quick action in the same spot. Add a
-`SidebarMenuAction showOnHover` beside a `badge`: at rest the count shows; while the row is hovered,
-holds keyboard focus, or the action's menu is open, the count hides and the action takes its place,
-with no layout shift and no motion. On touch (below `md`) there is no hover, so the action stays
-visible and the count sits just before it. Name the action with `aria-label`.
+`SidebarMenuAction showOnHover` beside a `badge` and the two share one slot:
+
+- **Rest** — the count shows; the action is hidden.
+- **Hover, focus or open menu** — while the row is hovered, holds keyboard focus, or the action's
+  menu is open, the count hides and the action shows in exactly its place. Leaving the row brings the
+  count back. There is no layout shift and no motion.
+- **Touch** — below `md`, or on a coarse pointer at any width, there is no hover, so the action stays
+  visible and the count sits just before it, side by side; the label truncates short of both.
+
+This works for any item with a badge and a `showOnHover` action. Name the action with `aria-label`.
+Hover the Tasks row in the preview to see the swap; narrow the window to see the touch layout.
 
 ```tsx
 <SidebarMenuItem>
