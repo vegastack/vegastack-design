@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.23.89 sha256-WQxe11tmY8XfQCOeRith2mVU16YMV+qMpdol+yzr2mE=
+// @vegastack text-edit@0.23.89 sha256-Eue4A/F4fGhqtSMlFFA1IqsItev94KGp1UpT+sgFMJ4=
 
 "use client";
 
@@ -9,6 +9,7 @@ import { cn, mergeRefs, proseClassName } from "@vegastack/design";
 import {
   MarkdownView,
   proseDocumentHeadingsClassName,
+  type MarkdownCitation,
   type MentionKind,
 } from "@/components/ui/markdown-view";
 import type { TextAnchor } from "@/lib/text-anchor";
@@ -500,6 +501,13 @@ export interface TextEditProps {
    */
   mentionHref?: (kind: MentionKind, id: string) => string | null;
   /**
+   * `MarkdownView`'s `citation`, for the read view shown before the editor activates: a `[[n]]`
+   * marker renders as a superscript citation, and clicking it is the citation's, never an edit.
+   * In the editor the markers stay plain `[[n]]` text.
+   * @default undefined
+   */
+  citation?: (n: number) => MarkdownCitation | null | undefined;
+  /**
    * Upload an image pasted, dropped or picked (the image panel's Upload, the slash menu's Image).
    * It shows dimmed under a spinner until the promise resolves with its URL, then commits — even
    * after focus has left. A rejection removes it and calls `onUploadError`.
@@ -818,7 +826,7 @@ export function TextEdit(props: TextEditProps) {
     suppressContentEditableWarning: true,
     translate: "no" as const,
     onMouseDown: (event: React.MouseEvent) => {
-      if (event.button !== 0) return;
+      if (event.button !== 0 || isCitation(event.target)) return;
       activate({
         x: event.clientX,
         y: event.clientY,
@@ -827,7 +835,9 @@ export function TextEdit(props: TextEditProps) {
         ),
       });
     },
-    onFocus: () => activate("start"),
+    onFocus: (event: React.FocusEvent) => {
+      if (!isCitation(event.target)) activate("start");
+    },
     ref: guardReadView,
     onPaste: (event: React.ClipboardEvent) => event.preventDefault(),
     onDrop: (event: React.DragEvent) => event.preventDefault(),
@@ -910,6 +920,7 @@ export function TextEdit(props: TextEditProps) {
               // The editor shows every image; so does the view that stands in for it.
               allowedImageOrigins={ALL_ORIGINS}
               mentionHref={props.mentionHref}
+              citation={props.citation}
               fileLinkPrefix={props.fileLinkPrefix}
               headingIds={props.onOutlineChange !== undefined}
             >
@@ -955,3 +966,7 @@ export function TextEdit(props: TextEditProps) {
 }
 
 const ALL_ORIGINS = ["*"] as const;
+
+/** A citation marker in the read view: its press and focus belong to it, not to editing. */
+const isCitation = (target: EventTarget) =>
+  Boolean((target as Element).closest?.("[data-slot=markdown-citation]"));

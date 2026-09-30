@@ -485,6 +485,11 @@
       "family": "internal",
       "source": "internal part of file-viewer (the lazily loaded SheetJS and mammoth readers); not listed in extras.md. Regent design review — approved by MK 2026-09-30"
     },
+    "markdown-citation": {
+      "disposition": "keep",
+      "family": "internal",
+      "source": "internal part of markdown-view (the client-side citation marker and its popover, apart so MarkdownView stays server-safe); not listed in extras.md. Operator brief 2026-09-30 (Regent summary citations)"
+    },
     "upload-dialog": {
       "disposition": "keep",
       "family": "forms",

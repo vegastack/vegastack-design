@@ -181,11 +181,45 @@ The constructs `TextEdit`'s Markdown carries beyond GFM render here too, still s
 `parseMentionLink(source)` reads a mention at the start of a string and `mentionMarkdown(kind, id,
 label)` writes one exactly as `TextEdit` does (the label escapes `\`, `[` and `]`).
 
+### Citations
+
+A summary cites its sources with `[[n]]` markers (n = 1–999). With `citation`, each marker whose
+`n` the function answers for renders as a small superscript `n`: a button named by `label` that
+opens `content` (a quote, who said it, when) on hover, keyboard focus or a long press, and calls
+`onSelect` on a click or tap — play the recording from there. Without `onSelect`, a tap opens
+`content`. A marker the function returns `null` for, and every marker without the prop, stays
+literal text, and so does one inside a code span, fenced code or link text. The marker is a
+client component, so pass `citation` from one.
+
+<ComponentPreview
+  name="markdownViewCitations"
+  file="components/preview/markdown-view.tsx"
+/>
+
+```tsx
+<MarkdownView
+  citation={(n) =>
+    sources[n] && {
+      label: `Source ${n}`,
+      content: sources[n].quote,
+      onSelect: () => player.seek(sources[n].start),
+    }
+  }
+>
+  {summary}
+</MarkdownView>
+```
+
 ## API Reference
 
 <ApiTable
   path="../../packages/ui/registry/ui/markdown-view.tsx"
   name="MarkdownViewProps"
+/>
+
+<ApiTable
+  path="../../packages/ui/registry/ui/markdown-citation.tsx"
+  name="MarkdownCitation"
 />
 
 <ApiTable
@@ -219,6 +253,9 @@ label)` writes one exactly as `TextEdit` does (the label escapes `\`, `[` and `]
 | ---------------- | ---------------------------------------------------- |
 | <kbd>Tab</kbd>   | Move focus through rendered links in document order. |
 | <kbd>Enter</kbd> | Follow the focused link.                             |
+
+A citation marker is a button named by its `label` ("Source 3"); keyboard focus opens its source
+without moving focus, and <kbd>Enter</kbd> selects it.
 
 <StatesTested name="markdown-view" />
 

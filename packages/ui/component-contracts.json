@@ -14631,7 +14631,10 @@
       "since": "0.1.0",
       "family": "data-display",
       "wave": "Content/marketing",
-      "sourceFiles": ["packages/ui/registry/ui/markdown-view.tsx"],
+      "sourceFiles": [
+        "packages/ui/registry/ui/markdown-citation.tsx",
+        "packages/ui/registry/ui/markdown-view.tsx"
+      ],
       "publicSymbols": [
         {
           "name": "MarkdownView",
@@ -14732,6 +14735,33 @@
             "status": "not-applicable",
             "rationale": "A constant; it renders nothing and takes no ref."
           }
+        },
+        {
+          "name": "MarkdownCitationMarker",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/markdown-citation.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "MarkdownCitationMarker renders a superscript citation inside prose from a [[n]] marker; it takes no ref."
+          }
+        },
+        {
+          "name": "MarkdownCitationMarkerProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/markdown-citation.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "MarkdownCitation",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/markdown-citation.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
         }
       ],
       "variants": {
@@ -14789,9 +14819,11 @@
       ],
       "docsSlug": "/docs/components/markdown-view",
       "registryDependencies": [
+        "@vegastack/button",
         "@vegastack/checkbox",
         "@vegastack/code-block",
-        "@vegastack/file-kind"
+        "@vegastack/file-kind",
+        "@vegastack/popover"
       ],
       "npmDependencies": [
         "marked@^17.0.1",
@@ -14810,6 +14842,19 @@
       },
       "previewModule": "markdown-view",
       "dataAttributes": {
+        "MarkdownCitationMarker": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": [
+                "markdown-citation",
+                "markdown-citation-content",
+                "markdown-citation-trigger"
+              ]
+            }
+          ],
+          "cssVariables": []
+        },
         "MentionChip": {
           "attributes": [
             {

@@ -1,4 +1,4 @@
-// @vegastack markdown-view@0.23.89 sha256-TZOTCeHBwk/IPzGwq9v0r9xKRTGFWoK2Ir6J3bH5PmU=
+// @vegastack markdown-view@0.23.89 sha256-vgUV+Y0s1tyP4i5wyiF7F4xojtxQiaoQeO2Bupm7ZRI=
 
 import * as React from "react";
 import { Lexer, type Token, type Tokens } from "marked";
@@ -18,6 +18,13 @@ import { Checkbox } from "@/components/ui/checkbox";
 // this alias on `add`, and vitest/tsconfig map `@/components/ui/*` → `registry/ui/*`.
 import { CodeBlock } from "@/components/ui/code-block";
 import { FileTypeIcon } from "@/lib/file-kind";
+// The one client leaf: a citation marker's popover. Imported only when `citation` answers.
+import {
+  MarkdownCitationMarker,
+  type MarkdownCitation,
+} from "@/components/ui/markdown-citation";
+
+export type { MarkdownCitation } from "@/components/ui/markdown-citation";
 
 /* ------------------------------------------------------------------------------------------------
  * The document tree
@@ -506,6 +513,50 @@ function blocks(tokens: Token[]): DocNode[] {
   return out;
 }
 
+/** `[[n]]`, n = 1–999: a summary's citation marker. */
+const CITATION_MARKER = /\[\[([1-9]\d{0,2})\]\]/g;
+
+/** Elements whose text never carries a citation: code, link text, chips. */
+const CITATION_OPAQUE = new Set(["code", "pre", "a", "mention"]);
+
+/**
+ * Split every `[[n]]` in the tree's running text into a `citation` node. The node keeps the literal
+ * marker as its text, so `textOf` and heading ids read exactly what was written.
+ */
+function withCitations(nodes: DocNode[]): DocNode[] {
+  const out: DocNode[] = [];
+  for (const node of nodes) {
+    if (typeof node !== "string") {
+      if (!CITATION_OPAQUE.has(node.tag))
+        node.children = withCitations(node.children);
+      out.push(node);
+      continue;
+    }
+    let cursor = 0;
+    for (const match of node.matchAll(CITATION_MARKER)) {
+      if (match.index > cursor) out.push(node.slice(cursor, match.index));
+      // A marker straight after another (`[[2]][[3]]`) keeps its distance, so neither 24px hit
+      // area covers its neighbour's (WCAG 2.5.8).
+      const previous = out[out.length - 1];
+      const adjacent =
+        match.index === cursor &&
+        typeof previous !== "string" &&
+        previous?.tag === "citation";
+      out.push(
+        el(
+          "citation",
+          { n: match[1]!, ...(adjacent ? { adjacent: "" } : {}) },
+          [match[0]],
+        ),
+      );
+      cursor = match.index + match[0].length;
+    }
+    if (cursor === 0) out.push(node);
+    else if (cursor < node.length) out.push(node.slice(cursor));
+  }
+  return out;
+}
+
 function fromMarkdown(source: string): DocNode[] {
   return blocks(Lexer.lex(source, { gfm: true }));
 }
@@ -723,6 +774,7 @@ interface RenderContext {
   headingOffset: number;
   mentionHref?: (kind: MentionKind, id: string) => string | null;
   fileLinkPrefix: string;
+  citation?: (n: number) => MarkdownCitation | null | undefined;
 }
 
 const TEXT_ALIGN = new Set(["left", "right", "center"]);
@@ -766,6 +818,21 @@ function renderNode(
   }
 
   switch (tag) {
+    case "citation": {
+      const n = Number(attrs.n);
+      const source = ctx.citation?.(n);
+      if (!source) return textOf(node);
+      return (
+        <MarkdownCitationMarker
+          key={key}
+          n={n}
+          className={attrs.adjacent !== undefined ? "ms-2.5" : undefined}
+          label={source.label}
+          content={source.content}
+          onSelect={source.onSelect}
+        />
+      );
+    }
     case "mention": {
       const kind = attrs.kind as MentionKind;
       return (
@@ -1046,6 +1113,14 @@ export interface MarkdownViewProps extends React.ComponentPropsWithRef<"div"> {
    * @default "/api/files/"
    */
   fileLinkPrefix?: string;
+  /**
+   * When set, a `[[n]]` marker (n = 1–999) in text renders as a small superscript citation `n`
+   * built from what this returns; `null`/`undefined` for an n leaves the literal text. Without the
+   * prop markers stay literal text. Never inside code spans, fenced code or link text. Markdown
+   * only. The marker is a client component, so pass this from a client component.
+   * @default undefined
+   */
+  citation?: (n: number) => MarkdownCitation | null | undefined;
 }
 
 /**
@@ -1073,6 +1148,12 @@ export interface MarkdownViewProps extends React.ComponentPropsWithRef<"div"> {
  * @example
  * // From a data field
  * <MarkdownView content={task.description} />
+ *
+ * @example
+ * // Citation markers: `[[2]]` becomes a superscript 2 that seeks the recording
+ * <MarkdownView citation={(n) => sources[n] && { label: `Source ${n}`, content: sources[n].quote, onSelect: () => seek(sources[n].at) }}>
+ *   {summary}
+ * </MarkdownView>
  */
 export function MarkdownView({
   children,
@@ -1084,6 +1165,7 @@ export function MarkdownView({
   headingScale = "compact",
   mentionHref,
   fileLinkPrefix = "/api/files/",
+  citation,
   className,
   ...props
 }: MarkdownViewProps) {
@@ -1091,7 +1173,8 @@ export function MarkdownView({
 
   if (!source.trim()) return null;
 
-  const tree = format === "html" ? fromHtml(source) : fromMarkdown(source);
+  const parsed = format === "html" ? fromHtml(source) : fromMarkdown(source);
+  const tree = citation && format !== "html" ? withCitations(parsed) : parsed;
   if (withHeadingIds) {
     const headings: El[] = [];
     const walk = (nodes: DocNode[]) => {
@@ -1123,6 +1206,7 @@ export function MarkdownView({
         headingOffset: Math.trunc(headingOffset),
         mentionHref,
         fileLinkPrefix,
+        citation,
       })}
     </div>
   );

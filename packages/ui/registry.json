@@ -12667,13 +12667,20 @@
       "registryDependencies": [
         "@vegastack/checkbox",
         "@vegastack/code-block",
-        "@vegastack/file-kind"
+        "@vegastack/file-kind",
+        "@vegastack/button",
+        "@vegastack/popover"
       ],
       "files": [
         {
           "path": "packages/ui/registry/ui/markdown-view.tsx",
           "type": "registry:ui",
           "target": "@ui/markdown-view.tsx"
+        },
+        {
+          "path": "packages/ui/registry/ui/markdown-citation.tsx",
+          "type": "registry:ui",
+          "target": "@ui/markdown-citation.tsx"
         }
       ],
       "meta": {

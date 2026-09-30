@@ -56,6 +56,10 @@ invisible: the read view is `contenteditable` with the editor's role, label and 
 looks, focuses and opens the keyboard exactly like the editor. `readOnly` and `disabled` never load
 the editor at all.
 
+`citation` is [`MarkdownView`](/docs/components/markdown-view)'s: in the read view a `[[n]]`
+marker renders as a superscript citation, and pressing or focusing one is the citation's — it
+never starts editing. In the editor the markers are plain `[[n]]` text.
+
 Once the editor has loaded on a page, every `TextEdit` mounted afterwards swaps it in straight
 away. To load it ahead of a first edit — a "New task" dialog about to open — call
 `preloadTextEdit()`:

@@ -1,4 +1,4 @@
-// @vegastack transcript@0.23.89 sha256-y6+f4IXPvBugg2KhlpjTJZf0CfslOzx4FMJAAPIAoe0=
+// @vegastack transcript@0.23.89 sha256-pHUum/bPIXygNCjTo1bbKX8Zy4b7WFl0Wmw5uys3sNI=
 
 "use client";
 
@@ -168,6 +168,14 @@ export interface TranscriptProps extends Omit<
    * @default "Back to current line"
    */
   backLabel?: string;
+  /**
+   * A segment to point at (a summary citation's source). Whenever `id` or `key` changes the row is
+   * scrolled to centre (mounted first if progressive mounting has not reached it) and washed in the
+   * accent tint for a moment, and follow pauses until the reader resumes it — so a seek to just
+   * before the line does not pull the list away. Bump `key` to reveal the same line again.
+   * @default undefined
+   */
+  reveal?: { id: string; key: number };
   /** Names the scrollable transcript region. */
   "aria-label": string;
   /** `TranscriptSearch` (optional) and `TranscriptList`. */
@@ -361,6 +369,8 @@ interface TranscriptContextValue {
   matchIndex: number;
   setMatchIndex: (next: number) => void;
   seek: ((seconds: number) => void) | null;
+  /** The row being revealed, washed in the accent tint for a moment. */
+  flashId: string | null;
   speakerName: (id: string) => string;
   /** Speaker ids in order of first appearance. */
   speakers: string[];
@@ -425,6 +435,34 @@ function TranscriptFollow({
   return null;
 }
 
+/** How long a revealed row keeps the accent wash. */
+const REVEAL_FLASH_MS = 1600;
+
+/** Scrolls a revealed row to centre and pauses follow. Renders nothing. */
+function TranscriptReveal({
+  reveal,
+  setFollowing,
+  onFlash,
+}: {
+  reveal: { id: string; key: number } | undefined;
+  setFollowing: (next: boolean) => void;
+  onFlash: (id: string) => void;
+}) {
+  const { scrollToMessage } = useMessageScroller();
+  const behavior = useJumpBehavior();
+  const id = reveal?.id;
+  const key = reveal?.key;
+  React.useEffect(() => {
+    if (id === undefined) return;
+    setFollowing(false);
+    scrollToMessage(id, { align: "center", behavior });
+    onFlash(id);
+    // Only a new id or key reveals; the callbacks are stable.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id, key]);
+  return null;
+}
+
 // ── Transcript ────────────────────────────────────────────────────────────────────────────────
 
 /**
@@ -465,6 +503,7 @@ export function Transcript({
   loadingLabel = "Loading transcript…",
   emptyState,
   backLabel = "Back to current line",
+  reveal,
   "aria-label": label,
   className,
   children,
@@ -562,9 +601,26 @@ export function Transcript({
   const currentMatchSegment = matches[matchIndex]
     ? segments.findIndex((segment) => segment.id === matches[matchIndex]!.id)
     : -1;
+  const revealIndex = reveal
+    ? segments.findIndex((segment) => segment.id === reveal.id)
+    : -1;
   const renderedCount = Math.min(
     segments.length,
-    Math.max(grown, activeIndex + 1, currentMatchSegment + 1),
+    Math.max(grown, activeIndex + 1, currentMatchSegment + 1, revealIndex + 1),
+  );
+
+  const [flashId, setFlashId] = React.useState<string | null>(null);
+  const flashTimer = React.useRef<ReturnType<typeof setTimeout> | null>(null);
+  const flash = React.useCallback((id: string) => {
+    if (flashTimer.current) clearTimeout(flashTimer.current);
+    setFlashId(id);
+    flashTimer.current = setTimeout(() => setFlashId(null), REVEAL_FLASH_MS);
+  }, []);
+  React.useEffect(
+    () => () => {
+      if (flashTimer.current) clearTimeout(flashTimer.current);
+    },
+    [],
   );
   React.useEffect(() => {
     if (grown >= segments.length) return;
@@ -606,6 +662,7 @@ export function Transcript({
       matchIndex,
       setMatchIndex,
       seek,
+      flashId,
       speakerName,
       speakers,
       speakerDot,
@@ -635,6 +692,7 @@ export function Transcript({
       matchIndex,
       setMatchIndex,
       seek,
+      flashId,
       speakerName,
       speakers,
       speakerDot,
@@ -665,6 +723,11 @@ export function Transcript({
           <Announcer />
         </div>
         <TranscriptFollow activeId={activeId} following={following} />
+        <TranscriptReveal
+          reveal={reveal}
+          setFollowing={setFollowing}
+          onFlash={flash}
+        />
       </TranscriptContext.Provider>
     </MessageScrollerProvider>
   );
@@ -714,6 +777,8 @@ interface RowProps {
   time: string;
   seekName: string;
   seek: ((seconds: number) => void) | null;
+  /** Washed in the accent tint: the row a `reveal` pointed at. */
+  flashed: boolean;
   needle: string;
   currentOccurrence: number;
   nowPlayingLabel: string;
@@ -730,6 +795,7 @@ const TranscriptRow = React.memo(function TranscriptRow({
   time,
   seekName,
   seek,
+  flashed,
   needle,
   currentOccurrence,
   nowPlayingLabel,
@@ -743,6 +809,7 @@ const TranscriptRow = React.memo(function TranscriptRow({
       role="listitem"
       data-slot="transcript-segment"
       aria-current={active ? "true" : undefined}
+      highlighted={flashed}
       className="flex-nowrap items-start [content-visibility:visible] aria-[current=true]:bg-muted"
       render={<MessageScrollerItem messageId={segment.id} />}
     >
@@ -867,6 +934,7 @@ export function TranscriptList({
     matchIndex,
     query,
     seek,
+    flashId,
     speakerName,
     speakerDot,
     onSpeakerRename,
@@ -898,6 +966,7 @@ export function TranscriptList({
             time={time}
             seekName={seekLabel(time)}
             seek={seek}
+            flashed={flashId === segment.id}
             needle={query}
             currentOccurrence={
               current?.id === segment.id ? current.occurrence : -1
@@ -917,6 +986,7 @@ export function TranscriptList({
       speakerDot,
       seekLabel,
       seek,
+      flashId,
       query,
       current,
       nowPlayingLabel,
