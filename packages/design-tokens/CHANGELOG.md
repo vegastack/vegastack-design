@@ -1,5 +1,11 @@
 # @vegastack/design-tokens
 
+## 0.7.79
+
+### Patch Changes
+
+- [#461](https://github.com/vegastack/vegastack-design/pull/461) [`c01c929`](https://github.com/vegastack/vegastack-design/commit/c01c929c434cbbfd21147ab70e10331e30455eda) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 📚 `base.css`: the no-iOS-focus-zoom rule now names its own register row, INT-13 (MK 2026-09-26), instead of INT-9 (the grab-cursor decision), and the file's header list includes it. Comment only; no CSS change.
+
 ## 0.7.78
 
 ### Patch Changes

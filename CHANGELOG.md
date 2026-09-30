@@ -9,6 +9,21 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.23.94] — October 1, 2026
+
+<!-- assembled from 2 changesets: f69e6e5c70cd -->
+
+### 📦 npm
+
+- Ships beside `@vegastack/design-tokens` 0.7.79 (the INT-13 comment relabel in `base.css`), so its `@vegastack/design-tokens` range moves with it. No code change.
+  [`4db7d90`](https://github.com/VegaStack/vegastack-design/commit/4db7d90)
+- The design-system registry (`@vegastack/ui`) bumps 0.23.93 → 0.23.94.
+
+### 📚 Docs
+
+- `base.css`: the no-iOS-focus-zoom rule now names its own register row, INT-13 (MK 2026-09-26), instead of INT-9 (the grab-cursor decision), and the file's header list includes it. Comment only; no CSS change.
+  [`c01c929`](https://github.com/VegaStack/vegastack-design/commit/c01c929)
+
 ## [0.23.93] — September 30, 2026
 
 <!-- assembled from 1 changeset: 9f839b07002b -->

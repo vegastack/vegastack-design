@@ -1,4 +1,4 @@
-// @vegastack property-list@0.23.93 sha256-OXOpBUQ+7bnb+XD8v4YXhFTDqH2QaayJAZ1Wwvetvmo=
+// @vegastack property-list@0.23.94 sha256-DK+8PFvcNGCmH9y+cc1t4f39+bf2b2OkNjnXcZITKY8=
 
 import * as React from "react";
 import { cn } from "@vegastack/design";
