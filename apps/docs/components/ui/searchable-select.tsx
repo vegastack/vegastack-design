@@ -1,4 +1,4 @@
-// @vegastack searchable-select@0.23.84 sha256-kO63OV5ZIYzPwIx+O8NX1o2uJRByx4TkOhhbkmusOFI=
+// @vegastack searchable-select@0.23.84 sha256-1uu26oldO4bMLAAmt3L79RFYOJcQsfo4zLXzoEbg1bs=
 
 "use client";
 
@@ -26,6 +26,18 @@ import { LoadMore, type LoadMoreState } from "@/components/ui/load-more";
 import { PersonAvatar, type Person } from "@/components/ui/person-avatar";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Spinner } from "@/components/ui/spinner";
+
+// Bundlers replace `process.env.NODE_ENV` at build time; declared here so consumers without
+// @types/node still type-check the dev-only warning below.
+declare const process: { env: { NODE_ENV?: string } };
+
+const warned = new Set<string>();
+/** Logs a development-only warning, once per message for the life of the page. */
+function warnOnce(message: string) {
+  if (process.env.NODE_ENV === "production" || warned.has(message)) return;
+  warned.add(message);
+  console.warn(message);
+}
 
 /* ------------------------------------------------------------------------------------------------
  * SearchableSelect — the ONE "Select-shaped Combobox" preset: a full-width trigger that reads like
@@ -86,14 +98,17 @@ export interface SearchableSelectProps<
    */
   itemToDescription?: (item: Item) => string | undefined;
   /**
-   * The standard person option: a second, smaller muted line beside the name — an email. The
+   * The person contract, part one: a second, smaller muted line under the name — an email. With
+   * it (or `itemToAvatar`) each row is drawn as ONE `PersonOption` — avatar, the
+   * `itemToStringLabel` name, then this email — and `renderItem`/`renderValue` are not used. The
    * local search matches it as well as `itemToStringLabel`.
    * @default undefined
    */
   itemToSecondaryLabel?: (item: Item) => string | undefined;
   /**
-   * The person an option stands for: each row (and a single selection on the trigger) leads with
-   * their `PersonAvatar` — the photo, else initials on their hue.
+   * The person contract, part two: the person an option stands for. Each row (and a single
+   * selection on the trigger) leads with their `PersonAvatar` — the photo, else initials on their
+   * hue — drawn once by the component; never return a `PersonOption` from `renderItem` as well.
    * @default undefined
    */
   itemToAvatar?: (item: Item) => Person | undefined;
@@ -187,10 +202,16 @@ export interface SearchableSelectProps<
   itemToStringLabel: (item: Item) => string;
   /** A stable React key for an item. */
   itemToKey: (item: Item) => string;
-  /** Renders one row of the list. */
-  renderItem: (item: Item) => React.ReactNode;
-  /** Renders the selected item on the trigger. Defaults to {@link SearchableSelectProps.renderItem}.
-   * @default undefined
+  /**
+   * Renders one row of the list. Not used with the person contract (`itemToSecondaryLabel` /
+   * `itemToAvatar`), which draws the row itself; passing both warns in development.
+   * @default itemToStringLabel
+   */
+  renderItem?: (item: Item) => React.ReactNode;
+  /**
+   * Renders the selected item on the trigger. Not used with the person contract, whose trigger
+   * reads the avatar and the `itemToStringLabel` name; passing both warns in development.
+   * @default renderItem
    */
   renderValue?: (item: Item) => React.ReactNode;
   /** Shown on the trigger when nothing is selected.
@@ -328,10 +349,21 @@ export interface SearchableSelectProps<
  *   onValueChange={setProject}
  *   itemToKey={(p) => p.id}
  *   itemToStringLabel={(p) => p.name}
- *   renderItem={(p) => p.name}
  *   searchLabel="Search projects"
  *   placeholder="Select project"
  *   clearable
+ * />
+ *
+ * People — the person contract; the component draws avatar, name and email once:
+ * <SearchableSelect
+ *   items={people}
+ *   value={owner}
+ *   onValueChange={setOwner}
+ *   itemToKey={(p) => p.id}
+ *   itemToStringLabel={(p) => p.name}
+ *   itemToSecondaryLabel={(p) => p.email}
+ *   itemToAvatar={(p) => p}
+ *   searchLabel="Search people"
  * />
  */
 export function SearchableSelect<
@@ -390,7 +422,27 @@ export function SearchableSelect<
   ref,
   rootRef,
 }: SearchableSelectProps<Item, Multiple>) {
-  const face = renderValue ?? renderItem;
+  // The person contract draws the row and the trigger itself — avatar, the plain name, the
+  // email, each exactly once — so a custom row or face is never stacked on top of it.
+  const isPerson =
+    itemToSecondaryLabel !== undefined || itemToAvatar !== undefined;
+  const conflict = isPerson
+    ? [renderItem && "`renderItem`", renderValue && "`renderValue`"]
+        .filter(Boolean)
+        .join(" and ")
+    : "";
+  React.useEffect(() => {
+    if (conflict)
+      warnOnce(
+        `SearchableSelect: ${conflict} ignored — the person contract (\`itemToSecondaryLabel\` / \`itemToAvatar\`) draws the avatar, the \`itemToStringLabel\` name and the email once. Remove the custom renderer.`,
+      );
+  }, [conflict]);
+  const rowName = isPerson
+    ? itemToStringLabel
+    : (renderItem ?? itemToStringLabel);
+  const face = isPerson
+    ? itemToStringLabel
+    : (renderValue ?? renderItem ?? itemToStringLabel);
   const isMultiple = multiple === true;
   const value = (valueProp ?? (isMultiple ? [] : null)) as Item | Item[] | null;
   const selectedList: Item[] = isMultiple
@@ -457,17 +509,16 @@ export function SearchableSelect<
     const description = reason ?? itemToDescription?.(item);
     const secondary = itemToSecondaryLabel?.(item);
     const person = itemToAvatar?.(item);
-    const main =
-      secondary !== undefined || person ? (
-        <PersonOption
-          name={renderItem(item)}
-          email={secondary}
-          avatar={person ? <PersonAvatar person={person} /> : undefined}
-          badge={itemToBadge?.(item)}
-        />
-      ) : (
-        renderItem(item)
-      );
+    const main = isPerson ? (
+      <PersonOption
+        name={rowName(item)}
+        email={secondary}
+        avatar={person ? <PersonAvatar person={person} /> : undefined}
+        badge={itemToBadge?.(item)}
+      />
+    ) : (
+      rowName(item)
+    );
     return (
       <ComboboxItem
         key={itemToKey(item)}
@@ -777,9 +828,9 @@ export function PersonBadge({ badge }: { badge?: React.ReactNode }) {
 /**
  * `PersonOption` — the standard person row wherever people are listed (pickers, menus, submenus
  * such as "Assign ›"): an avatar (`PersonAvatar`), then the name on the first line and a smaller muted email on
- * the second — stacked, never inline. `SearchableSelect` and `FilterBarFacet` draw it for you
- * from `itemToSecondaryLabel` and `itemToAvatar`; use it directly inside a custom `renderItem` or a
- * `DropdownMenuItem`. Give the popup that lists people at least `min-w-72` (a `RowActionItem`
+ * the second — stacked, never inline. `SearchableSelect` and `FilterBarFacet` draw it for you,
+ * once, from `itemToSecondaryLabel` and `itemToAvatar` — never return it from their `renderItem`.
+ * Use it directly in a `DropdownMenuItem` or a list of your own. Give the popup that lists people at least `min-w-72` (a `RowActionItem`
  * `submenu` and a `SearchableSelect` with `itemToSecondaryLabel` do this themselves).
  *
  * `badge` adds a status after the name ("Inactive").

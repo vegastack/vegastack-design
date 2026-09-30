@@ -1,4 +1,4 @@
-// @vegastack record-chip@0.23.84 sha256-sp/kxhOPnr4fpU884qDCZGoxbZIzbUuTkqJY2+NP130=
+// @vegastack record-chip@0.23.84 sha256-dXyAkcpax7L0jyqfu9Tg3H7PbKhLpeRZq13S+tQ5Mck=
 
 import * as React from "react";
 import { ArrowUpRight, ChevronDown } from "lucide-react";
@@ -8,6 +8,12 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { PersonAvatar, type Person } from "@/components/ui/person-avatar";
 import { PopoverContent } from "@/components/ui/popover";
+
+// Bundlers replace `process.env.NODE_ENV` at build time; declared here so consumers without
+// @types/node still type-check the dev-only warning below.
+declare const process: { env: { NODE_ENV?: string } };
+
+let warnedPersonValue = false;
 
 /** Props accepted by `RecordChip`. */
 export interface RecordChipProps extends Omit<
@@ -27,7 +33,8 @@ export interface RecordChipProps extends Omit<
   variant?: "default" | "ghost";
   /**
    * A person value: a 20px avatar (initials when there is no image) before the name, and a
-   * `badge` such as "Inactive" after it. Sets the value to the person's name.
+   * `badge` such as "Inactive" after it. Sets the value to the person's name — the person wins
+   * over `value`, which is not used (passing both warns in development).
    * @default undefined
    */
   person?: RecordChipPerson | null;
@@ -203,6 +210,17 @@ export function RecordChip({
   ...props
 }: RecordChipProps) {
   const value = person ? person.name : valueProp;
+  if (
+    person &&
+    valueProp !== undefined &&
+    !warnedPersonValue &&
+    process.env.NODE_ENV !== "production"
+  ) {
+    warnedPersonValue = true;
+    console.warn(
+      "RecordChip: `value` is ignored with `person`, which draws the avatar and the name once. Remove `value`.",
+    );
+  }
   const hasValue = value != null && value !== false && value !== "";
   const showLink = hasValue && href !== undefined;
   const ghost = variant === "ghost";

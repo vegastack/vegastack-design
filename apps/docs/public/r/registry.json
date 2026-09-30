@@ -2243,7 +2243,7 @@
         "whenToUse": "Filter toolbars for lists/tables — 'Label: value' chips that edit in place, facets on SearchableSelect, an Add-filter menu and a settled search, at the end or first.",
         "whenNotToUse": "A single search box (Input), value selection (Select), or unrelated row actions.",
         "version": "0.23.84",
-        "integrity": "sha256-SQp7a5owcFylNGeZcp0gb3UV7TosBumwJiIMIhwAEhI="
+        "integrity": "sha256-cmL0WX3eH3UYm/eK25ML8dS9rwbCDsOqgbJck5eSSvA="
       }
     },
     {
@@ -16034,7 +16034,7 @@
         "whenToUse": "Linking a record to another one in its header — a meeting's customer or project — with a picker and a jump to the linked record.",
         "whenNotToUse": "A free-form tag (Chip) or a form field with a label (Combobox, Select).",
         "version": "0.23.84",
-        "integrity": "sha256-sp/kxhOPnr4fpU884qDCZGoxbZIzbUuTkqJY2+NP130="
+        "integrity": "sha256-dXyAkcpax7L0jyqfu9Tg3H7PbKhLpeRZq13S+tQ5Mck="
       }
     },
     {
@@ -16770,7 +16770,7 @@
         "whenToUse": "A Select-shaped searchable picker: one or several values, option descriptions and disabled reasons, and server search with paging (remote + useAsyncSearch).",
         "whenNotToUse": "A short fixed option set (Select), free text with suggestions (Combobox directly), or multi-select (Combobox with chips).",
         "version": "0.23.84",
-        "integrity": "sha256-kO63OV5ZIYzPwIx+O8NX1o2uJRByx4TkOhhbkmusOFI="
+        "integrity": "sha256-1uu26oldO4bMLAAmt3L79RFYOJcQsfo4zLXzoEbg1bs="
       }
     },
     {

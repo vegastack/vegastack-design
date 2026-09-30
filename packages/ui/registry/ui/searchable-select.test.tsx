@@ -4,9 +4,11 @@ import { expect, test, vi } from "vitest";
 import { userEvent } from "vitest/browser";
 import { expectNoA11yViolations } from "../../test/a11y";
 import {
+  PersonOption,
   SearchableSelect,
   type SearchableSelectProps,
 } from "./searchable-select";
+import { PersonAvatar } from "./person-avatar";
 import { Field, FieldDescription, FieldError, FieldLabel } from "./field";
 
 interface Project {
@@ -469,4 +471,92 @@ test("groupBy renders headings (DS-38)", async () => {
   await expect
     .element(screen.getByRole("group", { name: "Team" }))
     .toBeInTheDocument();
+});
+
+/* The person contract — avatar, name and email drawn once per option and once on the trigger */
+
+interface Member {
+  id: string;
+  name: string;
+  email: string;
+}
+
+const MEMBERS: Member[] = [
+  { id: "asha", name: "Asha Rao", email: "asha@acme.com" },
+  { id: "lena", name: "Lena Ortiz", email: "lena@acme.com" },
+];
+
+function PeoplePicker(props: Partial<SearchableSelectProps<Member>>) {
+  return (
+    <SearchableSelect<Member>
+      items={MEMBERS}
+      value={MEMBERS[0]!}
+      itemToKey={(p) => p.id}
+      itemToStringLabel={(p) => p.name}
+      itemToSecondaryLabel={(p) => p.email}
+      itemToAvatar={(p) => ({ name: p.name })}
+      aria-label="Owner"
+      searchLabel="Search people"
+      {...(props as Record<string, unknown>)}
+    />
+  );
+}
+
+/** Asserts one avatar and one email in every option, and one avatar and no email on the trigger. */
+async function expectSinglePersonFaces() {
+  const trigger = document.querySelector('[role="combobox"]')!;
+  expect(trigger.querySelectorAll('[data-slot="avatar"]')).toHaveLength(1);
+  expect(trigger.textContent!.split("Asha Rao")).toHaveLength(2);
+  expect(trigger.textContent).not.toContain("asha@acme.com");
+  await expect
+    .poll(() => document.querySelectorAll('[role="option"]').length)
+    .toBe(2);
+  for (const [i, option] of document
+    .querySelectorAll('[role="option"]')
+    .entries()) {
+    const member = MEMBERS[i]!;
+    expect(option.querySelectorAll('[data-slot="avatar"]')).toHaveLength(1);
+    expect(option.querySelectorAll('[data-slot="person-option"]')).toHaveLength(
+      1,
+    );
+    expect(option.textContent!.split(member.email)).toHaveLength(2);
+    expect(option.textContent!.split(member.name)).toHaveLength(2);
+  }
+}
+
+test("person contract: one avatar and one email per option, one avatar on the trigger", async () => {
+  const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+  const screen = await render(<PeoplePicker />);
+  await screen.getByRole("combobox").click();
+  await expectSinglePersonFaces();
+  expect(warn).not.toHaveBeenCalled();
+  warn.mockRestore();
+});
+
+test("person contract wins over a custom renderItem/renderValue — never stacked, warned once in development", async () => {
+  const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+  const stacked = (p: Member) => (
+    <PersonOption
+      name={p.name}
+      email={p.email}
+      avatar={<PersonAvatar person={{ name: p.name }} />}
+    />
+  );
+  const screen = await render(
+    <PeoplePicker renderItem={stacked} renderValue={stacked} />,
+  );
+  await screen.rerender(
+    <PeoplePicker renderItem={stacked} renderValue={stacked} />,
+  );
+  await screen.getByRole("combobox").click();
+  await expectSinglePersonFaces();
+  expect(warn).toHaveBeenCalledTimes(1);
+  expect(warn.mock.calls[0]![0]).toMatch(/renderItem.*renderValue.*ignored/);
+  warn.mockRestore();
+});
+
+test("no a11y violations — person options, open", async () => {
+  const screen = await render(<PeoplePicker />);
+  await screen.getByRole("combobox").click();
+  await expectNoA11yViolations(document.body);
 });
