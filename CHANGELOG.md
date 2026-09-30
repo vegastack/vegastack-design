@@ -9,6 +9,20 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.23.96] — October 1, 2026
+
+<!-- assembled from 1 changeset: a2979c091e09 -->
+
+### 🔧 Changed components
+
+- File chips, inline images and comment files. `MarkdownView` and `TextEdit` take `fileContentType(href)` so a file chip's icon follows the file's content type when the host knows it, not only the name's extension. `TextEdit` takes `inlineImageTypes` (default JPEG, PNG, WebP, GIF and AVIF): a pasted, dropped or picked file of another type — an SVG, a HEIC photo — goes to `onFileUpload` and lands as a file chip instead of an inline image. `CommentComposer` (and `CommentThread`'s `composer`) take `onAttachFiles`, which receives the attach button's files instead of inserting them into the text (pasted and dropped images stay inline), and `files`, shown over the box for the draft's attached files and their upload progress; `mentionImage` reaches the comment boxes and bodies, and `CommentItem`, `CommentThread` and `CommentList` pass `fileContentType` to each body; `CommentList` takes `renderAttachments`.
+  [`b15a39b`](https://github.com/VegaStack/vegastack-design/commit/b15a39b)
+
+### 📦 npm
+
+- **`@vegastack/design`** → **`0.7.81`** (was `0.7.80`).
+- The design-system registry (`@vegastack/ui`) bumps 0.23.95 → 0.23.96.
+
 ## [0.23.95] — October 1, 2026
 
 <!-- assembled from 1 changeset: 6717a193b1b0 -->
