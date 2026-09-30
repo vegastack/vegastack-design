@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.23.95 sha256-gRhyaWTORGKJId7KkZLN5pxttAS7xTwdExY9JraVRTQ=
+// @vegastack text-edit@0.23.95 sha256-/X+rbqR4oVoo+4QoIDdGAk3AlZHYjYfgXnmy3bRMVgg=
 
 "use client";
 
@@ -4095,6 +4095,15 @@ const appendToBody = () => document.body;
  * TextEdit
  * ----------------------------------------------------------------------------------------------*/
 
+/** The image types a browser shows everywhere: inline by default; others land as file chips. */
+const INLINE_IMAGE_TYPES = [
+  "image/jpeg",
+  "image/png",
+  "image/webp",
+  "image/gif",
+  "image/avif",
+] as const;
+
 /**
  * Props `TextEdit` hands the editor once it loads: its own behaviour props, plus what the light
  * shell already resolved (ARIA from an enclosing `Field`, the surface classes, the content box).
@@ -4180,6 +4189,7 @@ export function TextEditEditor({
   onFileUpload,
   onUploadError,
   fileLinkPrefix = "/api/files/",
+  inlineImageTypes = INLINE_IMAGE_TYPES,
   onOutlineChange,
   annotations,
   activeAnnotationId = null,
@@ -4269,6 +4279,8 @@ export function TextEditEditor({
   mentionHrefRef.current = mentionHref;
   const mentionImageRef = React.useRef(mentionImage);
   mentionImageRef.current = mentionImage;
+  const inlineImageTypesRef = React.useRef(inlineImageTypes);
+  inlineImageTypesRef.current = inlineImageTypes;
   const fileLinkPrefixRef = React.useRef(fileLinkPrefix);
   fileLinkPrefixRef.current = fileLinkPrefix;
 
@@ -4493,7 +4505,9 @@ export function TextEditEditor({
   const startUpload = React.useCallback(
     (file: File, pos: number): boolean => {
       const ed = editorRef.current;
-      const image = file.type.startsWith("image/");
+      const image = inlineImageTypesRef.current.includes(
+        file.type.split(";")[0]!.trim().toLowerCase(),
+      );
       const { onImageUpload: uploadImage, onFileUpload: uploadFile } =
         callbacks.current;
       if (!ed || ed.isDestroyed || (image ? !uploadImage : !uploadFile))

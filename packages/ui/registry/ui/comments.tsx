@@ -1,4 +1,4 @@
-// @vegastack comments@0.23.95 sha256-+UO66E4KQKmIJg1y5rvGYDF+4gXsD0mDIuyOSWixJxE=
+// @vegastack comments@0.23.95 sha256-Pl3yibtLO8/tuy5c39UFv4uC+atdT69eetnbJDGUMg0=
 
 "use client";
 
@@ -149,6 +149,10 @@ export interface CommentItemProps {
   mentions?: TextEditProps["mentions"];
   /** Where a mention chip in the body links (see `MarkdownView`'s `mentionHref`). @default undefined */
   mentionHref?: TextEditProps["mentionHref"];
+  /** A person mention's avatar URL (see `MarkdownView`'s `mentionImage`). @default undefined */
+  mentionImage?: TextEditProps["mentionImage"];
+  /** A file chip's content type by href (see `MarkdownView`'s `fileContentType`). @default undefined */
+  fileContentType?: TextEditProps["fileContentType"];
   /** Classes for the item. @default undefined */
   className?: string;
 }
@@ -184,6 +188,8 @@ export function CommentItem({
   attachments,
   mentions,
   mentionHref,
+  mentionImage,
+  fileContentType,
   className,
 }: CommentItemProps) {
   const [editingState, setEditingState] = React.useState(editingProp ?? false);
@@ -407,6 +413,7 @@ export function CommentItem({
               busy={saving}
               mentions={mentions}
               mentionHref={mentionHref}
+              mentionImage={mentionImage}
               actions={
                 <>
                   <Tooltip>
@@ -445,7 +452,12 @@ export function CommentItem({
               }
             />
           ) : (
-            <MarkdownView className="text-sm" mentionHref={mentionHref}>
+            <MarkdownView
+              className="text-sm"
+              mentionHref={mentionHref}
+              mentionImage={mentionImage}
+              fileContentType={fileContentType}
+            >
               {comment.body}
             </MarkdownView>
           )}
@@ -531,9 +543,14 @@ interface CommentBoxProps {
   actions: React.ReactNode;
   mentions?: TextEditProps["mentions"];
   mentionHref?: TextEditProps["mentionHref"];
+  mentionImage?: TextEditProps["mentionImage"];
   onImageUpload?: TextEditProps["onImageUpload"];
   onFileUpload?: TextEditProps["onFileUpload"];
   onUploadError?: TextEditProps["onUploadError"];
+  /** Files picked with the attach button go here instead of into the text. */
+  onAttachFiles?: (files: File[]) => void;
+  /** Over the box: the draft's attached files (cards with their upload progress). */
+  files?: React.ReactNode;
 }
 
 /**
@@ -564,16 +581,20 @@ function CommentBox({
   actions,
   mentions,
   mentionHref,
+  mentionImage,
   onImageUpload,
   onFileUpload,
   onUploadError,
+  onAttachFiles,
+  files,
 }: CommentBoxProps) {
   const ref = React.useRef<HTMLDivElement>(null);
   const handle = React.useRef<TextEditHandle>(null);
   React.useEffect(() => {
     if (autoFocus) focusEditor(ref.current);
   }, [autoFocus]);
-  const canAttach = !!(onImageUpload || onFileUpload) && !disabled;
+  const canAttach =
+    !!(onImageUpload || onFileUpload || onAttachFiles) && !disabled;
   const fileInput = React.useRef<HTMLInputElement>(null);
   return (
     <div
@@ -581,7 +602,7 @@ function CommentBox({
       data-slot="comment-box"
       data-bare={bare ? "" : undefined}
       aria-invalid={invalid || undefined}
-      className="min-w-0"
+      className="flex min-w-0 flex-col gap-1.5"
       onKeyDown={
         onEscape
           ? (event) => {
@@ -591,6 +612,11 @@ function CommentBox({
           : undefined
       }
     >
+      {files ? (
+        <div data-slot="comment-box-files" className="min-w-0">
+          {files}
+        </div>
+      ) : null}
       <TextEdit
         variant="boxed"
         handleRef={handle}
@@ -618,6 +644,7 @@ function CommentBox({
         aria-invalid={invalid ? true : undefined}
         mentions={mentions}
         mentionHref={mentionHref}
+        mentionImage={mentionImage}
         onImageUpload={onImageUpload}
         onFileUpload={onFileUpload}
         onUploadError={onUploadError}
@@ -659,11 +686,13 @@ function CommentBox({
                 tabIndex={-1}
                 aria-hidden
                 // The editor's rules: images only unless any file may upload.
-                accept={onFileUpload ? undefined : "image/*"}
+                accept={onFileUpload || onAttachFiles ? undefined : "image/*"}
                 onChange={(event) => {
-                  const files = Array.from(event.currentTarget.files ?? []);
+                  const picked = Array.from(event.currentTarget.files ?? []);
                   event.currentTarget.value = "";
-                  if (files.length) handle.current?.uploadFiles(files);
+                  if (!picked.length) return;
+                  if (onAttachFiles) onAttachFiles(picked);
+                  else handle.current?.uploadFiles(picked);
                 }}
               />
             </>
@@ -761,6 +790,16 @@ export interface CommentComposerProps {
   onFileUpload?: TextEditProps["onFileUpload"];
   /** Called when an upload rejects. @default undefined */
   onUploadError?: TextEditProps["onUploadError"];
+  /** A person mention's avatar URL (see `TextEdit`'s `mentionImage`). @default undefined */
+  mentionImage?: TextEditProps["mentionImage"];
+  /**
+   * Files picked with the attach button go here instead of into the text (pasted and dropped
+   * images still land inline) — for a comment whose files show as cards under its body. Shows the
+   * attach button on its own. @default undefined
+   */
+  onAttachFiles?: (files: File[]) => void;
+  /** Over the box: the draft's attached files, e.g. cards with their upload progress. @default undefined */
+  files?: React.ReactNode;
   /** Classes for the composer. @default undefined */
   className?: string;
 }
@@ -791,6 +830,9 @@ export function CommentComposer({
   onImageUpload,
   onFileUpload,
   onUploadError,
+  mentionImage,
+  onAttachFiles,
+  files,
   className,
 }: CommentComposerProps) {
   const [generation, setGeneration] = React.useState(0);
@@ -866,9 +908,12 @@ export function CommentComposer({
         leading={attachments}
         mentions={mentions}
         mentionHref={mentionHref}
+        mentionImage={mentionImage}
         onImageUpload={onImageUpload}
         onFileUpload={onFileUpload}
         onUploadError={onUploadError}
+        onAttachFiles={onAttachFiles}
+        files={files}
         actions={
           <SendButton
             label={submitLabel ?? (replyingTo ? "Send reply" : "Send comment")}
@@ -978,9 +1023,11 @@ export interface CommentThreadProps {
   editDefaultValue?: (commentId: string) => string | undefined;
   /** A comment's files, under its body. @default undefined */
   renderAttachments?: (comment: CommentData) => React.ReactNode;
+  /** A file chip's content type by href (see `MarkdownView`'s `fileContentType`). @default undefined */
+  fileContentType?: TextEditProps["fileContentType"];
   /**
    * The reply box's options, passed through to its editor — `mentions`, `mentionHref`,
-   * `onImageUpload`, `onFileUpload`, `onUploadError`, `placeholder`, `submitLabel`, `disabled`,
+   * `mentionImage`, `onImageUpload`, `onFileUpload`, `onUploadError`, `onAttachFiles`, `files`, `placeholder`, `submitLabel`, `disabled`,
    * `attachments`; `defaultValue` (the starting text on mount, e.g. a restored draft —
    * Send is enabled), `onValueChange` (every change, and `""` after a reply
    * posts) and `posting` (busy, OR'd with the reply's own posting state: Send shows loading and
@@ -995,6 +1042,9 @@ export interface CommentThreadProps {
       | "onImageUpload"
       | "onFileUpload"
       | "onUploadError"
+      | "mentionImage"
+      | "onAttachFiles"
+      | "files"
       | "placeholder"
       | "submitLabel"
       | "disabled"
@@ -1040,6 +1090,7 @@ export function CommentThread({
   onEditingIdChange,
   editDefaultValue,
   renderAttachments,
+  fileContentType,
   composer,
   now,
   className,
@@ -1085,6 +1136,8 @@ export function CommentThread({
       attachments={renderAttachments?.(comment)}
       mentions={composer?.mentions}
       mentionHref={composer?.mentionHref}
+      mentionImage={composer?.mentionImage}
+      fileContentType={fileContentType}
       now={now}
     />
   );
@@ -1225,9 +1278,12 @@ export function CommentThread({
             leading={composer?.attachments}
             mentions={composer?.mentions}
             mentionHref={composer?.mentionHref}
+            mentionImage={composer?.mentionImage}
             onImageUpload={composer?.onImageUpload}
             onFileUpload={composer?.onFileUpload}
             onUploadError={composer?.onUploadError}
+            onAttachFiles={composer?.onAttachFiles}
+            files={composer?.files}
             actions={
               <SendButton
                 label={composer?.submitLabel ?? "Send reply"}
@@ -1306,8 +1362,14 @@ export interface CommentListProps {
   editDefaultValue?: (commentId: string) => string | undefined;
   /** Replies under a comment (threads). @default undefined */
   renderReplies?: (comment: CommentData) => React.ReactNode;
+  /** A comment's files, under its body (its `attachments`). @default undefined */
+  renderAttachments?: (comment: CommentData) => React.ReactNode;
   /** Where a mention chip in each comment's body links (see `MarkdownView`'s `mentionHref`). @default undefined */
   mentionHref?: CommentItemProps["mentionHref"];
+  /** A person mention's avatar URL in each body (see `MarkdownView`'s `mentionImage`). @default undefined */
+  mentionImage?: CommentItemProps["mentionImage"];
+  /** A file chip's content type by href (see `MarkdownView`'s `fileContentType`). @default undefined */
+  fileContentType?: CommentItemProps["fileContentType"];
   /**
    * The composer, at the section's end — with no comments, directly under the "No comments yet"
    * line.
@@ -1352,7 +1414,10 @@ export function CommentList({
   onEditingIdChange,
   editDefaultValue,
   renderReplies,
+  renderAttachments,
   mentionHref,
+  mentionImage,
+  fileContentType,
   composer,
   emptyText = "No comments yet",
   now,
@@ -1442,7 +1507,10 @@ export function CommentList({
                 onEditValueChange={onEditValueChange}
                 {...editingProps(comment.id)}
                 replies={renderReplies?.(comment)}
+                attachments={renderAttachments?.(comment)}
                 mentionHref={mentionHref}
+                mentionImage={mentionImage}
+                fileContentType={fileContentType}
                 now={now}
               />
             ))}

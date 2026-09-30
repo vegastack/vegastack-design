@@ -1,4 +1,4 @@
-// @vegastack markdown-view@0.23.95 sha256-E6NgWT1tTwDkBfYQLeEi8mu3asatTYx+2emSx5Ih4AE=
+// @vegastack markdown-view@0.23.95 sha256-WkwfmX8d+lLkKNXMYCKRXmjZX8eHeyFoRyYnGDmNKHc=
 
 import * as React from "react";
 import { Lexer, type Token, type Tokens } from "marked";
@@ -798,6 +798,7 @@ interface RenderContext {
   mentionHref?: (kind: MentionKind, id: string) => string | null;
   mentionImage?: (id: string) => string | null | undefined;
   fileLinkPrefix: string;
+  fileContentType?: (href: string) => string | null | undefined;
   citation?: (n: number) => MarkdownCitation | null | undefined;
 }
 
@@ -901,7 +902,10 @@ function renderNode(
             data-slot="file-chip"
             className={FILE_CHIP}
           >
-            <FileTypeIcon name={name} />
+            <FileTypeIcon
+              contentType={ctx.fileContentType?.(href)}
+              name={name}
+            />
             {children()}
           </a>
         );
@@ -1146,6 +1150,12 @@ export interface MarkdownViewProps extends React.ComponentPropsWithRef<"div"> {
    */
   fileLinkPrefix?: string;
   /**
+   * A file chip's content type, by its href, when the host knows it (a comment's own files): the
+   * chip's icon then follows the type, not only the name's extension.
+   * @default undefined
+   */
+  fileContentType?: (href: string) => string | null | undefined;
+  /**
    * When set, a `[[n]]` marker (n = 1–999) in text renders as a small superscript citation `n`
    * built from what this returns; `null`/`undefined` for an n leaves the literal text. Without the
    * prop markers stay literal text. Never inside code spans, fenced code or link text. Markdown
@@ -1198,6 +1208,7 @@ export function MarkdownView({
   mentionHref,
   mentionImage,
   fileLinkPrefix = "/api/files/",
+  fileContentType,
   citation,
   className,
   ...props
@@ -1240,6 +1251,7 @@ export function MarkdownView({
         mentionHref,
         mentionImage,
         fileLinkPrefix,
+        fileContentType,
         citation,
       })}
     </div>

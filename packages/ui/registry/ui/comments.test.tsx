@@ -331,6 +331,28 @@ const endKeys = () =>
     ? "{Meta>}{ArrowDown}{/Meta}"
     : "{Control>}{End}{/Control}";
 
+test("CommentComposer onAttachFiles takes the attach button's files and shows files over the box", async () => {
+  const onAttachFiles = vi.fn();
+  const screen = await render(
+    <CommentComposer
+      onSubmit={() => {}}
+      onAttachFiles={onAttachFiles}
+      files={<p>spec.pdf 40%</p>}
+    />,
+  );
+  expect(
+    screen.container.querySelector('[data-slot="comment-box-files"]')
+      ?.textContent,
+  ).toBe("spec.pdf 40%");
+  const input = screen.container.querySelector<HTMLInputElement>(
+    '[data-slot="comment-box"] input[type="file"]',
+  )!;
+  expect(input.accept).toBe("");
+  const file = new File(["x"], "spec.pdf", { type: "application/pdf" });
+  await userEvent.upload(input, file);
+  expect(onAttachFiles).toHaveBeenCalledWith([file]);
+});
+
 test("CommentComposer restores a draft from defaultValue, sends it, and starts empty after", async () => {
   const onSubmit = vi.fn().mockResolvedValue(undefined);
   const onValueChange = vi.fn();
