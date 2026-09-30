@@ -111,6 +111,10 @@ const RUNTIME_VARIABLES = new Set([
   // reads it with its own fallback to stick one gutter below the header. Viewport-responsive, so
   // it is a shell variable rather than a theme token.
   "--page-gutter",
+  // The bottom dock inset: `GlobalAudioPlayer` writes it onto the `AppShell` root (inline style,
+  // the measured pill height plus 8px) while it is open, and `ActionBar` and a selecting
+  // `DataList` read it with a `0px` fallback to stack above the player.
+  "--dock-inset-bottom",
 ]);
 
 // Chart series colours are CONSUMER data: `chart.tsx` writes `--color-<seriesKey>` from the

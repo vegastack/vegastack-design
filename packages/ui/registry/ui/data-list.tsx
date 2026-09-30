@@ -1,4 +1,4 @@
-// @vegastack data-list@0.23.80 sha256-6yyJ88PMqyL0kKh4UNTxd6/dielJqt74YaWw2cBjHjw=
+// @vegastack data-list@0.23.80 sha256-v7qF5J0t8XfqjK2c+Y2ELeYZiShhnJEgF/szqzF2PiM=
 
 "use client";
 
@@ -57,6 +57,7 @@ import { Thumbnail } from "@/components/ui/thumbnail";
 import { ViewToggle, type ListView } from "@/components/ui/view-toggle";
 import {
   useDragInto,
+  type DragIntoFileEntry,
   type DragReorderMove,
 } from "@/components/ui/use-drag-reorder";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -284,7 +285,10 @@ export interface DataListProps<T> extends Omit<
    * The actions for the current selection. When set, an `ActionBar` docks at the bottom of the
    * screen, centred over the list, while anything is selected: the count, these actions (compose
    * `ActionBarButton`), and "Clear selection". On a narrow screen the actions scroll sideways
-   * instead of overflowing. `clear` empties the selection — call it after a bulk action.
+   * instead of overflowing. `clear` empties the selection — call it after a bulk action. While
+   * the bar is open the list ends with a spacer of the bar's height and gap plus
+   * `--dock-inset-bottom` (a `GlobalAudioPlayer` under it), so the last row and a Load more stay
+   * reachable.
    * @default undefined
    */
   selectionActions?: (
@@ -326,6 +330,19 @@ export interface DataListProps<T> extends Omit<
    * @default undefined
    */
   canDropOnRow?: (row: T) => boolean;
+  /**
+   * Desktop files dropped on a folder row or card (one `canDropOnRow` accepts): the row takes
+   * them — the same wash as a row drag — and an outer `useFileDrop` surface does not. Folders
+   * dropped keep their structure in each entry's `relativePath`. Works without `onDropInto`.
+   * @default undefined
+   */
+  onDropFilesOnRow?: (rowId: string, entries: DragIntoFileEntry[]) => void;
+  /**
+   * Called with the folder row desktop files are over, and `null` when they leave it — to name
+   * the destination in the host's drop hint.
+   * @default undefined
+   */
+  onFilesOverRow?: (rowId: string | null) => void;
   /**
    * Share the drag with drop targets outside the list (`BreadcrumbDropTarget`, a tree using
    * `useDragInto`) that name the same scope.
@@ -560,9 +577,10 @@ export interface DataListProps<T> extends Omit<
   gridSize?: "default" | "lg";
   /**
    * How many cards the grid fits by width. `dense` is a file browser's grid: at `gridSize="lg"`,
-   * 2 columns, 3 from a 42rem container, 4 from 64rem and 5 from 80rem (`default` stops at 3); at
-   * the default size, 1, then 2 from 32rem, 3 from 48rem and 4 from 72rem. The loading skeleton
-   * follows the same columns.
+   * 1 column below a 20rem container, 2 from 20rem, 3 from 42rem, 4 from 64rem and 5 from 80rem
+   * (`default` stops at 3); at the default size, 1, then 2 from 32rem, 3 from 48rem and 4 from
+   * 72rem. The loading skeleton follows the same columns, and at `lg` each skeleton is the
+   * `MediaCard lg` shape: a 16:9 block and two text lines.
    * @default "default"
    */
   gridDensity?: "default" | "dense";
@@ -1043,6 +1061,8 @@ export function DataList<T>({
   onDropInto,
   canDropInto,
   canDropOnRow,
+  onDropFilesOnRow,
+  onFilesOverRow,
   dragScope,
   dragItemsLabel = (count) => (count === 1 ? "1 item" : `${count} items`),
   sort,
@@ -1704,8 +1724,9 @@ export function DataList<T>({
     const index = rowIds.indexOf(id);
     return index >= 0 && getRowLabel ? getRowLabel(data[index]!) : undefined;
   };
+  const fileDrops = onDropFilesOnRow !== undefined;
   const into = useDragInto({
-    disabled: !draggable,
+    disabled: !draggable && !fileDrops,
     scope: dragScope,
     getDragIds: (id) =>
       selectable && selected.has(id)
@@ -1727,11 +1748,15 @@ export function DataList<T>({
     onDrop: ({ ids, targetKey }) => {
       void onDropInto?.({ ids, targetId: targetKey });
     },
+    onDropFiles: fileDrops
+      ? ({ targetKey, entries }) => onDropFilesOnRow?.(targetKey, entries)
+      : undefined,
+    onFilesOver: onFilesOverRow,
   });
   const dragProps = (id: string, row: T) =>
-    draggable
+    draggable || fileDrops
       ? into.getItemProps(id, {
-          drag: true,
+          drag: draggable,
           drop: canDropOnRow?.(row) ? "whole" : false,
         })
       : undefined;
@@ -1921,7 +1946,7 @@ export function DataList<T>({
     "grid grid-cols-1 gap-3",
     gridDensity === "dense"
       ? gridSize === "lg"
-        ? "grid-cols-2 @2xl/data-list:grid-cols-3 @5xl/data-list:grid-cols-4 @7xl/data-list:grid-cols-5"
+        ? "grid-cols-1 @xs/data-list:grid-cols-2 @2xl/data-list:grid-cols-3 @5xl/data-list:grid-cols-4 @7xl/data-list:grid-cols-5"
         : "@lg/data-list:grid-cols-2 @3xl/data-list:grid-cols-3 @6xl/data-list:grid-cols-4"
       : gridSize === "lg"
         ? "@xl/data-list:grid-cols-2 @5xl/data-list:grid-cols-3"
@@ -2008,15 +2033,25 @@ export function DataList<T>({
       {loadingStatus}
       {loading ? (
         <div className={gridClass} data-slot="data-list-grid-skeleton">
-          {Array.from({ length: loadingRows }, (_, i) => (
-            <Skeleton
-              key={i}
-              className={cn(
-                "rounded-lg",
-                gridSize === "lg" ? "aspect-[4/3]" : "h-16",
-              )}
-            />
-          ))}
+          {Array.from({ length: loadingRows }, (_, i) =>
+            gridSize === "lg" ? (
+              // The `MediaCard lg` shape — a 16:9 image and two text lines — so nothing jumps
+              // when the cards arrive.
+              <div
+                key={i}
+                data-slot="data-list-grid-skeleton-card"
+                className="flex min-w-0 flex-col overflow-hidden rounded-lg border border-border"
+              >
+                <Skeleton className="aspect-video w-full rounded-none" />
+                <div className="flex flex-col gap-1 p-3">
+                  <Skeleton className="my-0.5 h-4 w-3/4" />
+                  <Skeleton className="my-0.5 h-3 w-1/2" />
+                </div>
+              </div>
+            ) : (
+              <Skeleton key={i} className="h-16 rounded-lg" />
+            ),
+          )}
         </div>
       ) : data.length === 0 ? (
         emptyContent
@@ -2177,6 +2212,15 @@ export function DataList<T>({
           : table}
       {loadMore ? <LoadMore {...loadMore} /> : null}
       {footer != null ? <div data-slot="data-list-footer">{footer}</div> : null}
+      {selectionBar && selectionCount > 0 ? (
+        // Room for the selection bar and whatever docks under it (`--dock-inset-bottom`), so the
+        // last row and a Load more stay reachable above them.
+        <div
+          aria-hidden
+          data-slot="data-list-selection-spacer"
+          className="h-[calc(var(--spacing)*12+env(safe-area-inset-bottom)+var(--dock-inset-bottom,0px))] shrink-0"
+        />
+      ) : null}
       {selectionBar}
     </div>
   );

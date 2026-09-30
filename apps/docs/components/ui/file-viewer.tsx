@@ -1,4 +1,4 @@
-// @vegastack file-viewer@0.23.80 sha256-olxJuDex31NcvoBOupY3cNwOo0/LmQIc95QnNSmJKWk=
+// @vegastack file-viewer@0.23.80 sha256-+kuJQ2FIMEOb8z941iKPIr+nsxtkXLMftI0J7leqDn4=
 
 "use client";
 
@@ -136,6 +136,13 @@ export interface FileViewerProps {
     item: FileViewerItem,
     options: { signal: AbortSignal },
   ) => Promise<FileViewerPreview | null | undefined>;
+  /**
+   * Extra top-bar controls for the open file, placed before Download — a "Details" button that
+   * opens the file's page, say. Pass ghost `Button`s with an icon, a `<span>` label and an
+   * `aria-label`: below `sm` the viewer keeps them at icon size (the label is visually hidden).
+   * @default undefined
+   */
+  actions?: (item: FileViewerItem) => React.ReactNode;
 }
 
 type Kind =
@@ -1210,6 +1217,7 @@ export function FileViewer({
   onIndexChange,
   onOpenChange,
   loadPreview,
+  actions,
 }: FileViewerProps) {
   const open = index !== null && items.length > 0;
   // Keep showing the last file while the close animation runs, after `index` became null.
@@ -1364,6 +1372,14 @@ export function FileViewer({
                 </span>
               ) : null}
             </div>
+            {actions ? (
+              <div
+                data-slot="file-viewer-actions"
+                className="flex shrink-0 items-center gap-1 [&_[data-slot=button]]:text-foreground max-sm:[&_[data-slot=button]]:aspect-square max-sm:[&_[data-slot=button]]:px-0 max-sm:[&_[data-slot=button]>span]:sr-only"
+              >
+                {actions(item)}
+              </div>
+            ) : null}
             {/* A real link, so it reads as one and the browser downloads it natively. */}
             <a
               href={item.downloadHref}

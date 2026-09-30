@@ -212,6 +212,36 @@ test("renders GFM tables, strikethrough, and task lists", async () => {
   expect(tick!.className).toContain("inline-flex");
 });
 
+test("a table cell's <br>, <br/> and <br /> are line breaks; elsewhere raw HTML stays text", async () => {
+  const md = [
+    "| Head<br>line | B |",
+    "| - | - |",
+    "| one<br>two | three<br/>four |",
+    "| five<br />six | <b>bold</b> |",
+    "",
+    "Outside<br>a cell",
+  ].join("\n");
+  const screen = await render(<MarkdownView>{md}</MarkdownView>);
+  const { container } = screen;
+  const cells = [...container.querySelectorAll("th, td")];
+  for (const [index, text] of [
+    [0, "Headline"],
+    [2, "onetwo"],
+    [3, "threefour"],
+    [4, "fivesix"],
+  ] as const) {
+    expect(cells[index]!.querySelectorAll("br")).toHaveLength(1);
+    expect(cells[index]!.textContent).toBe(text);
+  }
+  // Only `<br>` is let through in a cell: any other tag is still its text.
+  expect(cells[5]!.querySelector("b")).toBeNull();
+  expect(cells[5]!.textContent).toBe("<b>bold</b>");
+  // Outside a table, `<br>` is still shown as the text it is.
+  const paragraph = container.querySelector("p")!;
+  expect(paragraph.querySelector("br")).toBeNull();
+  expect(paragraph.textContent).toBe("Outside<br>a cell");
+});
+
 test("accepts markdown via the content prop", async () => {
   const screen = await render(<MarkdownView content="**bold via content**" />);
   const strong = screen.container.querySelector("strong");

@@ -211,6 +211,16 @@ const track = {
   file="components/preview/audio-player.tsx"
 />
 
+### One at a time
+
+Starting a player pauses any other that is playing — `AudioPlayer`, `VideoPlayer`, the global
+player and the `FileViewer` stages alike — and nothing resumes by itself. `exclusive={false}` opts a
+player out both ways (a preview that may play under another).
+
+While the global player is open it sets `--dock-inset-bottom` (its height plus 8px) on the
+`AppShell` root, so an `ActionBar` — a list's selection bar — floats 8px above the pill instead of
+on it, and a selecting `DataList` keeps its last row clear of both.
+
 ### Lazy source
 
 `src` also takes a function that resolves a URL, for a short-lived signed URL you only want to

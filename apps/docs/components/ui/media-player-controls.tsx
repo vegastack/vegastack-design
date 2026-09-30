@@ -1,4 +1,4 @@
-// @vegastack media-player-controls@0.23.80 sha256-hL9KJrudn3oUddmNmrsRSKTcE1myxBoDS7YBUFScAFE=
+// @vegastack media-player-controls@0.23.80 sha256-4dqrIoT8SP/FsDF12rKUn6izklZ5EZEQzlbPkRRAzR0=
 
 "use client";
 
@@ -154,6 +154,48 @@ const MEDIA_OVERLAY_CHROME_CLASS = cn(
  */
 const MEDIA_INSET_FOCUS_CLASS =
   "focus-visible:-outline-offset-2 [&_*:focus-visible]:-outline-offset-2";
+
+/** The attribute an `<audio>`/`<video>` carries while it plays exclusively. */
+const EXCLUSIVE_ATTRIBUTE = "data-exclusive-playback";
+let exclusiveListening = false;
+
+/** Starting one exclusive media element pauses every other one that is playing. */
+function pauseOthers(event: Event) {
+  const media = event.target;
+  if (
+    !(media instanceof HTMLMediaElement) ||
+    !media.hasAttribute(EXCLUSIVE_ATTRIBUTE)
+  )
+    return;
+  for (const other of document.querySelectorAll<HTMLMediaElement>(
+    `audio[${EXCLUSIVE_ATTRIBUTE}], video[${EXCLUSIVE_ATTRIBUTE}]`,
+  ))
+    if (other !== media && !other.paused) other.pause();
+}
+
+/**
+ * `useExclusivePlayback` — one media at a time. Spread the returned props onto an `<audio>` or
+ * `<video>`: while `exclusive`, starting it pauses any other DS player that is playing
+ * (`AudioPlayer`, `VideoPlayer`, `GlobalAudioPlayer`, the `FileViewer` stages). Nothing resumes by
+ * itself. `AudioPlayer` and `VideoPlayer` already do this; one listener serves the page.
+ *
+ * @example
+ * const exclusiveProps = useExclusivePlayback(exclusive);
+ * <audio {...exclusiveProps} src={src} />
+ */
+export function useExclusivePlayback(exclusive = true): {
+  "data-exclusive-playback": "" | undefined;
+} {
+  React.useEffect(() => {
+    if (!exclusive || exclusiveListening) return;
+    exclusiveListening = true;
+    // `play` does not bubble; the capture phase sees it for every element in the document.
+    document.addEventListener("play", pauseOthers, true);
+  }, [exclusive]);
+  return { [EXCLUSIVE_ATTRIBUTE]: exclusive ? "" : undefined } as {
+    "data-exclusive-playback": "" | undefined;
+  };
+}
 
 /** Duration in seconds, or `0` while the media element has not reported a finite one. */
 export function getMediaDuration(media: HTMLMediaElement | null): number {

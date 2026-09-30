@@ -1,4 +1,4 @@
-// @vegastack comments@0.23.80 sha256-ShdIbS/e6bZTXXom3U20X82thK75j7PNtYykQHTgL2M=
+// @vegastack comments@0.23.80 sha256-huAF+YCtzIMNTYFGA0doUU0Mjr8FGV5duB6iymT1Heg=
 
 "use client";
 
@@ -126,6 +126,13 @@ export interface CommentItemProps {
   /** Called when editing starts or ends. @default undefined */
   onEditingChange?: (editing: boolean) => void;
   /**
+   * The edit box's starting text when the item mounts in editing mode — an unsaved edit restored
+   * after a remount. Save stays enabled while it differs from the body. Edit from the ⋯ menu
+   * always starts from the body.
+   * @default comment.body
+   */
+  editDefaultValue?: string;
+  /**
    * Called with the comment's id and the edit box's text on every change while editing, and with
    * `null` when editing ends (the save succeeded, or Cancel/Escape) — e.g. to guard an unsaved
    * edit. @default undefined
@@ -172,6 +179,7 @@ export function CommentItem({
   highlighted = false,
   editing: editingProp,
   onEditingChange,
+  editDefaultValue,
   onEditValueChange,
   replies,
   now,
@@ -187,7 +195,11 @@ export function CommentItem({
     onEditingChange?.(next);
   };
   const [saving, setSaving] = React.useState(false);
-  const [draft, setDraft] = React.useState(comment.body);
+  // What the edit box opens with: a restored edit on mount, the body after the menu's Edit.
+  const [editStart, setEditStart] = React.useState(
+    () => editDefaultValue ?? comment.body,
+  );
+  const [draft, setDraft] = React.useState(editStart);
   const [error, setError] = React.useState<string | null>(null);
   const [confirmOpen, setConfirmOpen] = React.useState(false);
   const { author } = comment;
@@ -338,6 +350,7 @@ export function CommentItem({
                       {canEditThis ? (
                         <DropdownMenuItem
                           onClick={() => {
+                            setEditStart(comment.body);
                             setDraft(comment.body);
                             setEditing(true);
                           }}
@@ -372,7 +385,7 @@ export function CommentItem({
               bare
               autoFocus
               label="Edit comment"
-              defaultValue={comment.body}
+              defaultValue={editStart}
               onValueChange={(value) => {
                 setDraft(value);
                 onEditValueChange?.(comment.id, value);
@@ -771,6 +784,30 @@ export function CommentComposer({
  * CommentThread
  * ----------------------------------------------------------------------------------------------*/
 
+/** A list's `editingId` / `onEditingIdChange` / `editDefaultValue` as one item's props. */
+function editingPropsFor(
+  editingId: string | null | undefined,
+  onEditingIdChange: ((id: string | null) => void) | undefined,
+  editDefaultValue: ((commentId: string) => string | undefined) | undefined,
+) {
+  return (
+    id: string,
+  ): Pick<
+    CommentItemProps,
+    "editing" | "onEditingChange" | "editDefaultValue"
+  > => ({
+    editing:
+      onEditingIdChange || editingId != null ? editingId === id : undefined,
+    onEditingChange: onEditingIdChange
+      ? (editing) => {
+          if (editing) onEditingIdChange(id);
+          else if (editingId === id) onEditingIdChange(null);
+        }
+      : undefined,
+    editDefaultValue: editDefaultValue?.(id),
+  });
+}
+
 /** One thread, as `CommentThread` shows it: an optional quote, the first comment and its replies. */
 export interface CommentThreadData {
   /** Stable id — the thread's root comment id, or the host's own. */
@@ -818,6 +855,20 @@ export interface CommentThreadProps {
    * @default undefined
    */
   onEditValueChange?: CommentItemProps["onEditValueChange"];
+  /**
+   * The comment being edited. Controlled when `onEditingIdChange` is set; otherwise it only picks
+   * the comment that mounts in editing mode, and each comment keeps its own editing state.
+   * @default undefined
+   */
+  editingId?: string | null;
+  /** Called with the comment whose editing starts, and `null` when it ends. @default undefined */
+  onEditingIdChange?: (id: string | null) => void;
+  /**
+   * The edit box's starting text for a comment that mounts in editing mode (its
+   * `editDefaultValue`) — an unsaved edit restored after a remount.
+   * @default undefined
+   */
+  editDefaultValue?: (commentId: string) => string | undefined;
   /** A comment's files, under its body. @default undefined */
   renderAttachments?: (comment: CommentData) => React.ReactNode;
   /**
@@ -878,11 +929,19 @@ export function CommentThread({
   onReactionToggle,
   onCopyLink,
   onEditValueChange,
+  editingId,
+  onEditingIdChange,
+  editDefaultValue,
   renderAttachments,
   composer,
   now,
   className,
 }: CommentThreadProps) {
+  const editingProps = editingPropsFor(
+    editingId,
+    onEditingIdChange,
+    editDefaultValue,
+  );
   const [generation, setGeneration] = React.useState(0);
   const [draft, setDraft] = React.useState(composer?.defaultValue ?? "");
   const [pending, setPending] = React.useState(false);
@@ -915,6 +974,7 @@ export function CommentThread({
       onReactionToggle={onReactionToggle}
       onCopyLink={onCopyLink}
       onEditValueChange={onEditValueChange}
+      {...editingProps(comment.id)}
       attachments={renderAttachments?.(comment)}
       mentions={composer?.mentions}
       mentionHref={composer?.mentionHref}
@@ -1125,6 +1185,20 @@ export interface CommentListProps {
    * @default undefined
    */
   onEditValueChange?: CommentItemProps["onEditValueChange"];
+  /**
+   * The comment being edited. Controlled when `onEditingIdChange` is set; otherwise it only picks
+   * the comment that mounts in editing mode, and each comment keeps its own editing state.
+   * @default undefined
+   */
+  editingId?: string | null;
+  /** Called with the comment whose editing starts, and `null` when it ends. @default undefined */
+  onEditingIdChange?: (id: string | null) => void;
+  /**
+   * The edit box's starting text for a comment that mounts in editing mode (its
+   * `editDefaultValue`) — an unsaved edit restored after a remount.
+   * @default undefined
+   */
+  editDefaultValue?: (commentId: string) => string | undefined;
   /** Replies under a comment (threads). @default undefined */
   renderReplies?: (comment: CommentData) => React.ReactNode;
   /** Where a mention chip in each comment's body links (see `MarkdownView`'s `mentionHref`). @default undefined */
@@ -1169,6 +1243,9 @@ export function CommentList({
   onCopyLink,
   onReactionToggle,
   onEditValueChange,
+  editingId,
+  onEditingIdChange,
+  editDefaultValue,
   renderReplies,
   mentionHref,
   composer,
@@ -1176,6 +1253,11 @@ export function CommentList({
   now,
   className,
 }: CommentListProps) {
+  const editingProps = editingPropsFor(
+    editingId,
+    onEditingIdChange,
+    editDefaultValue,
+  );
   const headingId = React.useId();
   const composerRef = React.useRef<HTMLDivElement>(null);
   const [adding, setAdding] = React.useState(false);
@@ -1268,6 +1350,7 @@ export function CommentList({
                 onCopyLink={onCopyLink}
                 onReactionToggle={onReactionToggle}
                 onEditValueChange={onEditValueChange}
+                {...editingProps(comment.id)}
                 replies={renderReplies?.(comment)}
                 mentionHref={mentionHref}
                 now={now}

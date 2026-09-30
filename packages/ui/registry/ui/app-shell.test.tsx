@@ -238,6 +238,14 @@ test("header renders the trigger, the actions slot, and a min-w-0 middle slot", 
   expect(actionsSlot).toHaveTextContent("New agent");
 });
 
+test("header is the named app-shell-header width container, so its tools compact by its own width", async () => {
+  const screen = await render(<Demo />);
+  const header = screen.container.querySelector<HTMLElement>(
+    '[data-slot="app-shell-header"]',
+  )!;
+  expect(header.className).toContain("@container/app-shell-header");
+});
+
 test("header omits the actions slot entirely when no actions are passed", async () => {
   const screen = await render(
     <AppShell>

@@ -119,6 +119,34 @@ where playback stopped; an audio item with stored `peaks` plays in the waveform 
   file="components/preview/file-viewer.tsx"
 />
 
+### Top-bar actions
+
+`actions` renders your controls for the open file in the top bar, before Download — a "Details"
+button that closes the viewer and opens the file's page, say. It gets the open item. Pass ghost
+`Button`s with an icon, a `span` label and an `aria-label`: below `sm` the viewer keeps them at icon
+size and the label is visually hidden. A video or audio file playing here pauses any other player
+on the page, and starting one elsewhere pauses it.
+
+```tsx
+<FileViewer
+  items={files}
+  index={index}
+  onIndexChange={setIndex}
+  onOpenChange={(open) => !open && setIndex(null)}
+  actions={(item) => (
+    <Button
+      variant="ghost"
+      size="sm"
+      aria-label="Details"
+      onClick={() => openPage(item.id)}
+    >
+      <InfoIcon />
+      <span>Details</span>
+    </Button>
+  )}
+/>
+```
+
 ### Text and code
 
 A text or code file with a `src` (`.txt`, `.log`, `.json`, `.yaml`, `.xml`, source files) shows

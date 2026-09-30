@@ -1,4 +1,4 @@
-// @vegastack action-bar@0.23.80 sha256-kLvACVHiJKbgnguzZPaSqKnqVJ1dtzhP/wnqTSG1l8o=
+// @vegastack action-bar@0.23.80 sha256-Wtd/dgYZ4aAY9x/O/o2eXWcUPGdAl5FRapuwmme2+DA=
 
 "use client";
 
@@ -26,6 +26,10 @@ mis-centres against a sidebar). Pass `containerRef` to centre over a measured co
 instead: the bar tracks that element's box via ResizeObserver and positions off a
 unitless CSS custom property (`--action-bar-x`, consumed as `calc(var(--action-bar-x) *
 1px)`), so inline style stays custom-properties-only.
+
+Docking: the bar sits 16px above the bottom edge, plus `--dock-inset-bottom` when something else
+docks there — `GlobalAudioPlayer` sets it on the `AppShell` root while it is open — so the bar
+floats over the player instead of on it.
 
 Stacking: `z-10` — the bar floats over page content and is correctly covered by any dialog
 opened from one of its actions, which upstream puts at `z-50`. It stays flat: separation is
@@ -181,8 +185,9 @@ export function ActionBar({
       }
       className={cn(
         "fixed z-10 flex w-fit max-w-[calc(100%-var(--spacing)*8)] items-center gap-2 rounded-lg border border-border bg-background py-1.5 ps-4 pe-2",
-        // Pinned to the bottom viewport edge → add the safe-area inset.
-        "bottom-[calc(var(--spacing)*4+env(safe-area-inset-bottom))]",
+        // Pinned to the bottom viewport edge → add the safe-area inset, and stack over whatever
+        // docks below it (`GlobalAudioPlayer` sets `--dock-inset-bottom` while it is open).
+        "bottom-[calc(var(--spacing)*4+env(safe-area-inset-bottom)+var(--dock-inset-bottom,0px))]",
         measured
           ? "start-[calc(var(--action-bar-x)*1px)] -translate-x-1/2 rtl:translate-x-1/2"
           : "inset-x-0 mx-auto",
@@ -190,7 +195,7 @@ export function ActionBar({
         // `ease-emphasized`, 100ms out on `ease-exit`, translate + fade and no scale. Only the
         // DISTANCE is stated here — the bar clears its own height plus the bottom gap and the
         // safe-area inset — because that is the one part of a dock that is geometry, not grammar.
-        "data-[active=true]:motion-dock-in data-[active=true]:translate-y-0 data-[active=false]:motion-dock-out data-[active=false]:translate-y-[calc(100%+var(--spacing)*4+env(safe-area-inset-bottom))]",
+        "data-[active=true]:motion-dock-in data-[active=true]:translate-y-0 data-[active=false]:motion-dock-out data-[active=false]:translate-y-[calc(100%+var(--spacing)*4+env(safe-area-inset-bottom)+var(--dock-inset-bottom,0px))]",
         className,
       )}
       {...props}

@@ -153,6 +153,13 @@ on `CommentItem`, `CommentList` and `CommentThread`: the text on every change,
 then `null` when the edit is saved or cancelled. Together they let a host keep
 drafts and warn before unsaved text is lost.
 
+To bring an edit back after a remount (a route hidden and shown again), control which comment is
+being edited with `editingId` and `onEditingIdChange` on `CommentList` or `CommentThread`, and hand
+the saved text back through `editDefaultValue(commentId)`: that comment mounts in editing mode with
+its box on the restored text, and Save is enabled while it differs from the body. On a single
+`CommentItem` the same text is its `editDefaultValue`. Without `onEditingIdChange` each comment
+keeps its own editing state, as before.
+
 <ComponentPreview
   name="commentsDrafts"
   file="components/preview/comments.tsx"

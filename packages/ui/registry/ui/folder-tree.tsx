@@ -1,4 +1,4 @@
-// @vegastack folder-tree@0.23.80 sha256-LZRnEyzPhrhjNDX0o2VKV2e+nCMdaH7xFonLexJFAQY=
+// @vegastack folder-tree@0.23.80 sha256-v2ZH8rcPfKk5pBRFmOQ+PPOV15AsWpX7kDunMGWlxwo=
 
 "use client";
 
@@ -16,7 +16,10 @@ import {
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useAnnouncer } from "@/components/ui/use-announcer";
-import { useDragInto } from "@/components/ui/use-drag-reorder";
+import {
+  useDragInto,
+  type DragIntoFileEntry,
+} from "@/components/ui/use-drag-reorder";
 import { useListNav } from "@/components/ui/use-list-nav";
 import { FileTypeIcon } from "@/lib/file-kind";
 
@@ -67,7 +70,10 @@ export interface FolderTreeNode {
   icon?: React.ReactNode;
   /** Where the row links. Without it the row is a button that calls `onOpen`. */
   href?: string;
-  /** `false` marks a folder known to be empty: it shows "Empty" without calling `loadChildren`. */
+  /**
+   * `false` marks a folder known to be empty: it never calls `loadChildren`, shows a spacer in
+   * place of its disclosure (the row carries `data-leaf`), and → does nothing on it.
+   */
   hasChildren?: boolean;
   /** A file's MIME type, for its icon. */
   contentType?: string;
@@ -100,6 +106,16 @@ export interface FolderTreeMove {
   targetId: string | null;
   /** The section of the target. */
   targetSection: string;
+}
+
+/** Desktop files dropped on the tree — what `onDropFiles` receives. */
+export interface FolderTreeFileDrop {
+  /** The folder they drop into, or `null` for the top of `targetSection`. */
+  targetId: string | null;
+  /** The section of the target. */
+  targetSection: string;
+  /** Every dropped file, with its path inside the drop. */
+  entries: DragIntoFileEntry[];
 }
 
 /** Every string the tree renders or announces. */
@@ -237,6 +253,20 @@ export interface FolderTreeProps extends Omit<
    */
   dragScope?: string;
   /**
+   * Desktop files dropped on a folder (its middle half) or a section heading (`targetId`
+   * `null`, the top of `targetSection`): the target washes as for a move, a rest opens a closed
+   * folder, and an outer `useFileDrop` surface does not take the drop. Folders dropped keep their
+   * structure in each entry's `relativePath`. Works without `onMove`; not in picker mode.
+   * @default undefined
+   */
+  onDropFiles?: (drop: FolderTreeFileDrop) => void;
+  /**
+   * Called with the folder desktop files are over (a section heading reports its section id), and
+   * `null` when they leave it — to name the destination in the host's drop hint.
+   * @default undefined
+   */
+  onFilesOver?: (id: string | null) => void;
+  /**
    * The most children a folder lists before a "Show all" row.
    * @default 200
    */
@@ -324,6 +354,8 @@ function FolderTree({
   onMove,
   canDropInto,
   dragScope,
+  onDropFiles,
+  onFilesOver,
   maxChildren = 200,
   onShowAll,
   linkRender,
@@ -570,7 +602,11 @@ function FolderTree({
           setSectionOpen(row.section.id, true);
         else if (rows[indexOf.get(key)! + 1])
           nav.focusIndex(indexOf.get(key)! + 1);
-      } else if (row.type === "node" && row.node.kind === "folder") {
+      } else if (
+        row.type === "node" &&
+        row.node.kind === "folder" &&
+        row.node.hasChildren !== false
+      ) {
         if (!expandedSet.has(row.node.id)) setExpanded(row.node.id, true);
         else {
           const next = rows[indexOf.get(key)! + 1];
@@ -588,6 +624,7 @@ function FolderTree({
       } else if (
         row.type === "node" &&
         row.node.kind === "folder" &&
+        row.node.hasChildren !== false &&
         expandedSet.has(row.node.id)
       )
         setExpanded(row.node.id, false);
@@ -603,6 +640,7 @@ function FolderTree({
           other.parentKey === row.parentKey &&
           other.section === row.section &&
           other.node.kind === "folder" &&
+          other.node.hasChildren !== false &&
           !expandedSet.has(other.node.id),
       );
       if (siblings.length)
@@ -659,8 +697,10 @@ function FolderTree({
           targetSection: targetKey.slice(sectionDropPrefix.length),
         }
       : { targetId: targetKey, targetSection: sectionOf.get(targetKey) ?? "" };
+  const fileDrops = !picker && onDropFiles !== undefined;
+  const dropTargets = draggable || fileDrops;
   const into = useDragInto({
-    disabled: !draggable,
+    disabled: !dropTargets,
     scope: dragScope,
     canDrop: ({ ids, targetKey }) => {
       const target = describeTarget(targetKey);
@@ -701,6 +741,19 @@ function FolderTree({
       if (result && typeof result.then === "function")
         result.then(undefined, () => announce(labels.moveFailed(label)));
     },
+    onDropFiles: fileDrops
+      ? ({ targetKey, entries }) =>
+          onDropFiles?.({ ...describeTarget(targetKey), entries })
+      : undefined,
+    onFilesOver: onFilesOver
+      ? (targetKey) =>
+          onFilesOver(
+            targetKey === null
+              ? null
+              : (describeTarget(targetKey).targetId ??
+                  describeTarget(targetKey).targetSection),
+          )
+      : undefined,
   });
 
   // ---- render ------------------------------------------------------------------------------
@@ -731,7 +784,9 @@ function FolderTree({
     for (const node of capped ? nodes.slice(0, maxChildren) : nodes) {
       const key = nodeKey(node.id);
       const folder = node.kind === "folder";
-      const open = folder && expandedSet.has(node.id);
+      // A folder known to be empty has nothing to disclose.
+      const leaf = folder && node.hasChildren === false;
+      const open = folder && !leaf && expandedSet.has(node.id);
       const children = childrenFor(node);
       const listId = `folder-tree-${idBase}-${node.id}`;
       const rowTab = tabIndexOf(key);
@@ -740,20 +795,21 @@ function FolderTree({
         <li key={key} data-slot="folder-tree-item">
           <RowContext.Provider value={{ tabIndex: rowTab }}>
             <div
-              {...(draggable
+              {...(dropTargets
                 ? into.getItemProps(node.id, {
-                    drag: true,
+                    drag: draggable,
                     drop: folder ? "middle" : false,
                   })
                 : {})}
               data-slot="folder-tree-row"
               data-kind={node.kind}
+              data-leaf={leaf ? "" : undefined}
               data-active={active ? "" : undefined}
               data-expanded={open ? "" : undefined}
               style={{ "--folder-tree-depth": depth } as React.CSSProperties}
               className={rowClasses}
             >
-              {folder ? (
+              {folder && !leaf ? (
                 <Button
                   variant="ghost"
                   size="icon-xs"
@@ -918,7 +974,7 @@ function FolderTree({
             {headed ? (
               <RowContext.Provider value={{ tabIndex: tabIndexOf(key) }}>
                 <div
-                  {...(draggable
+                  {...(dropTargets
                     ? into.getItemProps(`${sectionDropPrefix}${section.id}`, {
                         drop: "whole",
                       })

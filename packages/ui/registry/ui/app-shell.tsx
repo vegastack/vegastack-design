@@ -1,4 +1,4 @@
-// @vegastack app-shell@0.23.80 sha256-lAHs8mTmwv8uX/nIj962pR9x5bnR7/NvY2v6i0sAIyA=
+// @vegastack app-shell@0.23.80 sha256-N+KRshX/Yam2r94PGA7xv4RzgPLTrV8F72bErXmv4mE=
 
 "use client";
 
@@ -240,6 +240,11 @@ export interface AppShellHeaderProps extends React.ComponentProps<"header"> {
  * yourself with `BreadcrumbEllipsis`, or use `PageHeader`'s `TruncatedText`-backed title — don't
  * let raw, unbounded text wrap the header onto a second line.
  *
+ * **A width container.** The header is an inline-size container named `app-shell-header`, so
+ * its tools can compact by the header's own width — which counts the sidebar's state — with
+ * container queries instead of a JS measure or a viewport breakpoint:
+ * `hidden @2xl/app-shell-header:inline-flex`.
+ *
  * @example
  * <AppShellHeader actions={<Button size="sm">New agent</Button>}>
  *   <Breadcrumb>
@@ -257,7 +262,7 @@ export function AppShellHeader({
     <header
       data-slot="app-shell-header"
       className={cn(
-        "flex h-14 shrink-0 items-center gap-2 border-b border-border bg-background px-(--page-gutter)",
+        "@container/app-shell-header flex h-14 shrink-0 items-center gap-2 border-b border-border bg-background px-(--page-gutter)",
         pageGutterClasses,
         className,
       )}

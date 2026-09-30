@@ -9,6 +9,8 @@ import {
   type FileViewerItem,
   type FileViewerProps,
 } from "./file-viewer";
+import { Button } from "./button";
+import { InfoIcon } from "lucide-react";
 
 const PIXEL =
   "data:image/svg+xml;utf8," +
@@ -64,6 +66,38 @@ test("renders a dialog named by the file, with the count, download and close", a
   await expect
     .element(screen.getByRole("button", { name: "Close" }))
     .toBeVisible();
+  await expectNoA11yViolations(document.body);
+});
+
+test("actions: host controls for the open file sit before Download and receive the item", async () => {
+  const opened: string[] = [];
+  const screen = await render(
+    <FileViewer
+      items={ITEMS}
+      index={1}
+      onIndexChange={() => {}}
+      onOpenChange={() => {}}
+      actions={(item) => (
+        <Button
+          variant="ghost"
+          size="sm"
+          aria-label="Details"
+          onClick={() => opened.push(item.id)}
+        >
+          <InfoIcon />
+          <span>Details</span>
+        </Button>
+      )}
+    />,
+  );
+  const details = screen.getByRole("button", { name: "Details" });
+  await expect.element(details).toBeVisible();
+  const slot = details.element().closest('[data-slot="file-viewer-actions"]')!;
+  expect(slot.nextElementSibling?.getAttribute("data-slot")).toBe(
+    "file-viewer-download",
+  );
+  (details.element() as HTMLElement).click();
+  expect(opened).toEqual([ITEMS[1]!.id]);
   await expectNoA11yViolations(document.body);
 });
 

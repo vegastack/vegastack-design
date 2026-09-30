@@ -2171,3 +2171,98 @@ test("annotation counts: the pill never reaches the document, its Markdown, the 
   expect(data.getData("text/html")).not.toContain("comment");
   await expectNoA11yViolations(screen.container);
 });
+
+// ---- Hidden and shown again; table cells take no block commands ------------------------------
+
+test("hidden and shown again (React Activity): the live document survives, and an upload still lands", async () => {
+  const onImageUpload = vi.fn(async () => ({ src: "/api/files/f2" }));
+  const onCommit = vi.fn();
+  function Harness() {
+    const [shown, setShown] = React.useState(true);
+    return (
+      <>
+        <button type="button" onClick={() => setShown((next) => !next)}>
+          Switch
+        </button>
+        <React.Activity mode={shown ? "visible" : "hidden"}>
+          <TextEdit
+            format="markdown"
+            aria-label="Notes"
+            defaultValue="Start"
+            onImageUpload={onImageUpload}
+            onCommit={onCommit}
+          />
+        </React.Activity>
+      </>
+    );
+  }
+  const screen = await render(<Harness />);
+  const editorOf = () =>
+    screen.container.querySelector<HTMLElement>(".ProseMirror");
+  await vi.waitFor(() => expect(editorOf()).not.toBeNull());
+  await new Promise((resolve) => setTimeout(resolve, 50));
+  await userEvent.click(editorOf()!);
+  await userEvent.keyboard(`${END} typed`);
+  await vi.waitFor(() => expect(editorOf()!.textContent).toBe("Start typed"));
+
+  // Hidden long enough for Tiptap to destroy the editor, then shown: it is rebuilt.
+  const first = editorOf();
+  await screen.getByRole("button", { name: "Switch" }).click();
+  await new Promise((resolve) => setTimeout(resolve, 100));
+  await screen.getByRole("button", { name: "Switch" }).click();
+  await vi.waitFor(() => {
+    expect(editorOf()).not.toBeNull();
+    expect(editorOf()).not.toBe(first);
+  });
+  await vi.waitFor(() => expect(editorOf()!.textContent).toBe("Start typed"));
+
+  await userEvent.click(editorOf()!);
+  await userEvent.keyboard(END);
+  pasteFiles(editorOf()!, [png()]);
+  await vi.waitFor(() =>
+    expect(editorOf()!.querySelector("img")?.getAttribute("src")).toBe(
+      "/api/files/f2",
+    ),
+  );
+  await vi.waitFor(() =>
+    expect(onCommit).toHaveBeenLastCalledWith("Start typed![](/api/files/f2)"),
+  );
+});
+
+test("inside a table cell the slash menu and Turn into offer no block commands", async () => {
+  const screen = await markdownEditor({ defaultValue: TABLE });
+  const box = screen.getByRole("textbox", { name: "Notes" }).element();
+  await userEvent.click(box.querySelectorAll("td")[0]!);
+  await userEvent.keyboard(`{End} /`);
+  await vi.waitFor(() => expect(slashMenu()).not.toBeNull());
+  const labels = [
+    ...slashMenu()!.querySelectorAll('[data-slot="text-edit-slash-item"]'),
+  ].map((item) => item.textContent ?? "");
+  for (const label of ["Text", "Image", "Link"])
+    expect(labels.some((text) => text.startsWith(label))).toBe(true);
+  for (const label of [
+    "Heading",
+    "Bullet list",
+    "Numbered list",
+    "Checklist",
+    "Quote",
+    "Callout",
+    "Toggle",
+    "Code block",
+    "Table",
+    "Divider",
+  ])
+    expect(labels.some((text) => text.startsWith(label))).toBe(false);
+  await userEvent.keyboard("{Escape}");
+  await vi.waitFor(() => expect(slashMenu()).toBeNull());
+
+  // A selection in a cell: the bubble menu keeps its marks but has no Turn into.
+  selectText(box.querySelectorAll("td")[1]!, "2");
+  await vi.waitFor(() =>
+    expect(
+      document.querySelector('[data-slot="text-edit-bubble-menu"]'),
+    ).not.toBeNull(),
+  );
+  expect(document.querySelector('[aria-label^="Turn into"]')).toBeNull();
+  expect(document.querySelector('[aria-label="Bold"]')).not.toBeNull();
+});

@@ -53,6 +53,12 @@ Use `title` and `description` when a video needs a visible name or supporting co
   file="components/preview/video-player.tsx"
 />
 
+### One at a time
+
+Starting the video pauses any other DS player that is playing — an `AudioPlayer`, the global
+player, the `FileViewer` stage — and starting one of them pauses the video. Nothing resumes by
+itself. `exclusive={false}` opts it out both ways.
+
 ### Aspect ratio
 
 `aspectRatio="video"` reserves a 16:9 frame. Use `square` for square media or `auto`

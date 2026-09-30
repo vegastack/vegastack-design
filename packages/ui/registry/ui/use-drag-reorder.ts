@@ -1,4 +1,4 @@
-// @vegastack use-drag-reorder@0.23.80 sha256-wiUHXoS5ai3k5GZq1GgdI+iR3Rn+YLHzn/2IpDG1Hfw=
+// @vegastack use-drag-reorder@0.23.80 sha256-uJGSRhvOB9pplJmtve1CMfneRmjTuk50OSSWvHdkHgk=
 
 "use client";
 
@@ -12,6 +12,8 @@ import {
   dropTargetForElements,
   monitorForElements,
 } from "@atlaskit/pragmatic-drag-and-drop/adapter/element-adapter";
+import { dropTargetForExternal } from "@atlaskit/pragmatic-drag-and-drop/external/adapter";
+import { containsFiles } from "@atlaskit/pragmatic-drag-and-drop/external/file";
 import { combine } from "@atlaskit/pragmatic-drag-and-drop/utils/combine";
 import { preserveOffsetOnSource } from "@atlaskit/pragmatic-drag-and-drop/element/preserve-offset-on-source";
 import { setCustomNativeDragPreview } from "@atlaskit/pragmatic-drag-and-drop/element/set-custom-native-drag-preview";
@@ -1210,6 +1212,89 @@ export interface DragIntoMove {
   targetKey: string;
 }
 
+/**
+ * One desktop file dropped on a `useDragInto` target, with its path inside the drop — the same
+ * shape as `use-file-drop`'s `FileDropEntry`, so one upload callback serves both.
+ */
+export interface DragIntoFileEntry {
+  /** The dropped file. */
+  file: File;
+  /**
+   * Its path relative to the drop: `"a/c/d.png"` for a file inside a dropped folder `a`, the bare
+   * name for a loose file. Forward slashes, no leading `/`.
+   */
+  relativePath: string;
+}
+
+/** Desktop files dropped on a target — the payload `useDragInto`'s `onDropFiles` receives. */
+export interface DragIntoFileDrop {
+  /** The key of the target the files were dropped on. */
+  targetKey: string;
+  /** Every dropped file, folders walked. */
+  entries: DragIntoFileEntry[];
+}
+
+/**
+ * Marks a native `drop` a `useDragInto` target took, so an outer `useFileDrop` surface ignores it
+ * (a registry symbol: the two hooks share it without importing each other).
+ */
+const FILE_DROP_CLAIMED = Symbol.for("vegastack/file-drop-claimed");
+
+/** Read a file entry. */
+function fileOf(entry: FileSystemFileEntry): Promise<File> {
+  return new Promise((resolve, reject) => entry.file(resolve, reject));
+}
+
+/** Every entry of a directory (`readEntries` returns them in batches). */
+async function childrenOf(
+  entry: FileSystemDirectoryEntry,
+): Promise<FileSystemEntry[]> {
+  const reader = entry.createReader();
+  const out: FileSystemEntry[] = [];
+  for (;;) {
+    const batch = await new Promise<FileSystemEntry[]>((resolve, reject) =>
+      reader.readEntries(resolve, reject),
+    );
+    if (batch.length === 0) return out;
+    out.push(...batch);
+  }
+}
+
+/**
+ * The dropped files with their paths, folders walked. The entries are taken synchronously — a
+ * drop's items are gone once its event ends — and read afterwards.
+ */
+function readDroppedEntries(
+  items: readonly DataTransferItem[],
+): Promise<DragIntoFileEntry[]> {
+  const roots = items
+    .filter((item) => item.kind === "file")
+    .map((item) => ({
+      entry: item.webkitGetAsEntry?.() ?? null,
+      file: item.getAsFile(),
+    }));
+  const walk = async (entry: FileSystemEntry): Promise<DragIntoFileEntry[]> => {
+    if (entry.isFile) {
+      const file = await fileOf(entry as FileSystemFileEntry);
+      return [
+        { file, relativePath: entry.fullPath.replace(/^\/+/, "") || file.name },
+      ];
+    }
+    if (!entry.isDirectory) return [];
+    const nested = await Promise.all(
+      (await childrenOf(entry as FileSystemDirectoryEntry)).map(walk),
+    );
+    return nested.flat();
+  };
+  return Promise.all(
+    roots.map(({ entry, file }) =>
+      entry
+        ? walk(entry)
+        : Promise.resolve(file ? [{ file, relativePath: file.name }] : []),
+    ),
+  ).then((lists) => lists.flat());
+}
+
 /** The ids a `useDragInto` source carries (older sources carry only `id`). */
 function idsOf(data: Record<string | symbol, unknown>): string[] {
   return Array.isArray(data.ids) ? data.ids.map(String) : [String(data.id)];
@@ -1260,6 +1345,20 @@ export interface UseDragIntoOptions {
    * @default undefined
    */
   getDragPreviewLabel?: (ids: string[]) => string | undefined;
+  /**
+   * Desktop files dropped on a target. With it every drop target also takes files dragged in from
+   * the desktop — the same zone, `data-drop-over` wash and hover-expand as an item drag — and
+   * folders keep their structure in each entry's `relativePath`. The innermost target takes the
+   * drop: an outer `useFileDrop` surface ignores it.
+   * @default undefined
+   */
+  onDropFiles?: (drop: DragIntoFileDrop) => void;
+  /**
+   * Called with the target desktop files are over (inside its zone), and `null` when they leave
+   * it or drop — for naming the destination in the host's own drop hint.
+   * @default undefined
+   */
+  onFilesOver?: (targetKey: string | null) => void;
 }
 
 /** What {@link useDragInto} returns. */
@@ -1287,7 +1386,8 @@ export interface UseDragIntoReturn {
  * `useDragInto` — drag an item INTO a target, the move a folder tree makes. Pointer only, on the
  * same Pragmatic engine as `useDragReorder`; a target takes a drop in its middle half, an invalid
  * target shows `data-drop-invalid` and refuses, and resting on a target calls `onHoverExpand`.
- * The keyboard path is the host's "Move…" menu: there is no order to step through.
+ * The keyboard path is the host's "Move…" menu: there is no order to step through. With
+ * `onDropFiles` the targets also take files dragged in from the desktop.
  *
  * @example
  * const into = useDragInto({
@@ -1306,6 +1406,8 @@ export function useDragInto({
   scope,
   getDragIds,
   getDragPreviewLabel,
+  onDropFiles,
+  onFilesOver,
 }: UseDragIntoOptions): UseDragIntoReturn {
   const [draggingId, setDraggingId] = React.useState<string | null>(null);
   const [over, setOver] = React.useState<{
@@ -1319,6 +1421,8 @@ export function useDragInto({
     disabled,
     getDragIds,
     getDragPreviewLabel,
+    onDropFiles,
+    onFilesOver,
   });
   latest.current = {
     onDrop,
@@ -1327,7 +1431,16 @@ export function useDragInto({
     disabled,
     getDragIds,
     getDragPreviewLabel,
+    onDropFiles,
+    onFilesOver,
   };
+  // The target desktop files are over, reported through `onFilesOver` on every change.
+  const filesOverRef = React.useRef<string | null>(null);
+  const setFilesOver = React.useCallback((key: string | null) => {
+    if (filesOverRef.current === key) return;
+    filesOverRef.current = key;
+    latest.current.onFilesOver?.(key);
+  }, []);
   const delayRef = React.useRef(hoverExpandDelay);
   delayRef.current = hoverExpandDelay;
   const instanceToken = React.useRef<symbol | null>(null);
@@ -1481,10 +1594,70 @@ export function useDragInto({
             },
           }),
         );
+        // Desktop files: the same zone and wash, taken by the innermost target only.
+        let claimed = false;
+        const readFiles = (location: {
+          current: {
+            input: { clientY: number };
+            dropTargets: ReadonlyArray<{ element: Element }>;
+          };
+        }) => {
+          const rect = element.getBoundingClientRect();
+          const y = location.current.input.clientY - rect.top;
+          return (
+            location.current.dropTargets[0]?.element === element &&
+            (drop === "whole" ||
+              (y >= rect.height * 0.25 && y <= rect.height * 0.75))
+          );
+        };
+        const trackFiles = (inside: boolean) => {
+          track(inside, true);
+          if (inside) setFilesOver(key);
+          else if (filesOverRef.current === key) setFilesOver(null);
+        };
+        parts.push(
+          dropTargetForExternal({
+            element,
+            canDrop: ({ source }) =>
+              !latest.current.disabled &&
+              latest.current.onDropFiles !== undefined &&
+              containsFiles({ source }),
+            onDragEnter: ({ location }) => trackFiles(readFiles(location)),
+            onDrag: ({ location }) => trackFiles(readFiles(location)),
+            onDragLeave: () => {
+              setOver((prev) => (prev?.key === key ? null : prev));
+              if (hoverTimer.current?.key === key) clearHover();
+              if (filesOverRef.current === key) setFilesOver(null);
+            },
+            onDrop: ({ source, location }) => {
+              const inside = readFiles(location);
+              setOver((prev) => (prev?.key === key ? null : prev));
+              clearHover();
+              if (filesOverRef.current === key) setFilesOver(null);
+              const handler = latest.current.onDropFiles;
+              if (!inside || !handler) return;
+              // The native `drop` reaches this element after Pragmatic's window listener: mark
+              // it there, so an outer file-drop surface leaves it alone.
+              claimed = true;
+              void readDroppedEntries(source.items).then((entries) => {
+                if (entries.length > 0) handler({ targetKey: key, entries });
+              });
+            },
+          }),
+        );
+        const markClaimed = (event: DragEvent) => {
+          if (!claimed) return;
+          claimed = false;
+          (event as DragEvent & { [FILE_DROP_CLAIMED]?: boolean })[
+            FILE_DROP_CLAIMED
+          ] = true;
+        };
+        element.addEventListener("drop", markClaimed);
+        parts.push(() => element.removeEventListener("drop", markClaimed));
       }
       return combine(...parts);
     },
-    [clearHover],
+    [clearHover, setFilesOver],
   );
 
   const getItemProps = React.useCallback(

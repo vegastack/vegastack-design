@@ -381,7 +381,13 @@ export function folderTreeStates(): ReactNode {
   const roots: FolderTreeNode[] = [
     { id: "loading", label: "Loading folder", kind: "folder" },
     { id: "failed", label: "Offline folder", kind: "folder" },
-    { id: "empty", label: "Empty folder", kind: "folder", hasChildren: false },
+    { id: "empty", label: "Empty folder", kind: "folder" },
+    {
+      id: "known-empty",
+      label: "Known empty",
+      kind: "folder",
+      hasChildren: false,
+    },
     { id: "long", label: "Photos", kind: "folder", badge: 240 },
   ];
   const photos = Array.from({ length: 8 }, (_, i) => ({
@@ -397,7 +403,7 @@ export function folderTreeStates(): ReactNode {
         <FolderTree
           aria-label="Row states"
           rootItems={{ root: roots }}
-          childrenOf={{ long: photos }}
+          childrenOf={{ long: photos, empty: [] }}
           loadChildren={(id) =>
             id === "failed"
               ? Promise.reject(new Error("offline"))
