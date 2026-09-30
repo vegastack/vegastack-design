@@ -220,6 +220,7 @@
     "API-23": ["toggle-group"],
     "A11Y-19": ["checkbox"],
     "FRM-15": ["checkbox", "radio-group"],
+    "FRM-16": ["input-group"],
     "API-22": ["card", "empty"],
     "A11Y-22": ["scroll-area"],
     "A11Y-17": ["sidebar"],

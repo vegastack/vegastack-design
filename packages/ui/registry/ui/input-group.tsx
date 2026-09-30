@@ -1,4 +1,4 @@
-// @vegastack input-group@0.23.90 sha256-LsMa4OWZ9dp1xswM+jahx6vMh50+C0jTtfheG6UoXS4=
+// @vegastack input-group@0.23.90 sha256-LaYp69SjxVm14XjM8woQus/PyC3cmy4bBuesolbkuUk=
 
 "use client";
 
@@ -31,9 +31,9 @@ const inputGroupAddonVariants = cva(
     variants: {
       align: {
         "inline-start":
-          "order-first ps-2 has-[>button]:ms-[-0.3rem] has-[>kbd]:ms-[-0.15rem]",
+          "order-first ps-2 has-[>button]:ms-[-0.3rem] has-[>kbd]:ms-[-0.15rem] group-has-[>textarea]/input-group:self-start group-has-[>textarea]/input-group:pt-2.5",
         "inline-end":
-          "order-last pe-2 has-[>button]:me-[-0.3rem] has-[>kbd]:me-[-0.15rem]",
+          "order-last pe-2 has-[>button]:me-[-0.3rem] has-[>kbd]:me-[-0.15rem] group-has-[>textarea]/input-group:self-start group-has-[>textarea]/input-group:pt-2.5",
         "block-start":
           "order-first w-full justify-start px-2.5 pt-2 group-has-[>input]/input-group:pt-2 [.border-b]:pb-2",
         "block-end":

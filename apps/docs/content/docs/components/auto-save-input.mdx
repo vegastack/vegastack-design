@@ -105,6 +105,22 @@ conflict ("Not saved"). It is a polite live region, empty while idle.
   file="components/preview/auto-save-input.tsx"
 />
 
+### Icon only
+
+`variant="icon"` is the same status as one 16px icon for a field's trailing slot — an
+`InputGroupAddon align="inline-end"` on an input or textarea, or beside a select: a muted
+spinner while saving, a `text-success-text` check once saved, a `text-destructive-text`
+warning triangle when the save failed (`text-warning-text` on a conflict). Each state pops in
+(a fade and a 0.9 → 1 scale on the motion tokens), the check fades out over `duration-slow`
+when the status returns to `idle`, and the box is always reserved, so nothing shifts. The
+wording ("Saving", "Saved", "Couldn't save") stays as screen-reader text in the live region;
+reduced motion swaps instantly.
+
+<ComponentPreview
+  name="autoSaveIndicatorIcon"
+  file="components/preview/auto-save-input.tsx"
+/>
+
 ### A whole form (useAutoSave)
 
 `useAutoSave` saves a form object rather than one field: debounced (600ms), only the changed

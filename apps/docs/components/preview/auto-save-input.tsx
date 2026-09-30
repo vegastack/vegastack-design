@@ -8,7 +8,13 @@ import {
   AutoSaveIndicator,
   AutoSaveInput,
   useAutoSave,
+  type AutoSaveFormStatus,
 } from "@/components/ui/auto-save-input";
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupInput,
+} from "@/components/ui/input-group";
 import { Field, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 
@@ -201,6 +207,53 @@ export function autoSaveIndicatorStates(): ReactNode {
       <AutoSaveIndicator status="saved" />
       <AutoSaveIndicator status="error" />
       <AutoSaveIndicator status="conflict" />
+    </Wrapper>
+  );
+}
+
+/**
+ * `variant="icon"`: every status as the icon alone, then a live field that walks the lifecycle —
+ * each state pops in (fade + 0.9 → 1 scale), Saved fades out when it clears, Failed stays.
+ */
+export function autoSaveIndicatorIcon(): ReactNode {
+  const [status, setStatus] = useState<AutoSaveFormStatus>("idle");
+  const run = async (fail: boolean) => {
+    setStatus("saving");
+    await wait(900);
+    if (fail) return setStatus("error");
+    setStatus("saved");
+    await wait(2000);
+    setStatus("idle");
+  };
+  return (
+    <Wrapper className="flex-col items-stretch gap-6">
+      <div className="flex flex-wrap items-center gap-6">
+        {(["saving", "saved", "error", "conflict"] as const).map((s) => (
+          <span
+            key={s}
+            className="flex items-center gap-2 text-sm text-muted-foreground"
+          >
+            <AutoSaveIndicator variant="icon" status={s} />
+            {s}
+          </span>
+        ))}
+      </div>
+      <div className="mx-auto grid w-full max-w-sm gap-3">
+        <InputGroup>
+          <InputGroupInput aria-label="Workspace name" defaultValue="Orbit" />
+          <InputGroupAddon align="inline-end">
+            <AutoSaveIndicator variant="icon" status={status} />
+          </InputGroupAddon>
+        </InputGroup>
+        <div className="flex gap-2">
+          <Button variant="outline" size="sm" onClick={() => void run(false)}>
+            Save
+          </Button>
+          <Button variant="outline" size="sm" onClick={() => void run(true)}>
+            Save and fail
+          </Button>
+        </div>
+      </div>
     </Wrapper>
   );
 }

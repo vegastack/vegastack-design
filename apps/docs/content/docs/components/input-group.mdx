@@ -128,6 +128,17 @@ A `Spinner` addon reports work in flight without moving the control.
   file="components/preview/input-group.tsx"
 />
 
+### Textarea with an inline addon
+
+Beside a textarea, an `inline-start` or `inline-end` addon sits at the top, level with the
+first line, rather than at the textarea's middle — the corner a status icon such as
+`AutoSaveIndicator variant="icon"` belongs in (FRM-16).
+
+<ComponentPreview
+  name="inputGroupTextareaInlineAddon"
+  file="components/preview/input-group.tsx"
+/>
+
 ### Custom Input
 
 Put `data-slot="input-group-control"` on any control and the group picks up its focus and invalid
@@ -200,6 +211,9 @@ Upstream's file plus `packages/ui/upstream/patches/input-group.patch`. Every hun
   `has-[[data-slot=input-group-control]:focus-visible]:border-ring` plus `ring-3 ring-ring/50`
   is removed, and the group gains `data-field-group`, which the forced-colours fallback keys on.
   There is no ring and no glow.
+- **FRM-16** — the `inline-start` and `inline-end` addons add
+  `group-has-[>textarea]/input-group:self-start` and `pt-2.5`, so beside a textarea they sit
+  level with the first line instead of the textarea's middle.
 - **FOC-14** — the invalid border is `has-[[data-slot][aria-invalid=true]]:border-destructive`,
   held in every state, focused or not; the `has-aria-invalid` halo rings go with it.
 - **FOC-14 text-entry exception (MK 2026-09-27)** — the group adds

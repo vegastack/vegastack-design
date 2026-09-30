@@ -1,5 +1,5 @@
 # component: input-group
-# decisions: API-26, DOC-1, DOC-2, FOC-1, FOC-3, FOC-5, FOC-6, FOC-14
+# decisions: API-26, DOC-1, DOC-2, FOC-1, FOC-3, FOC-5, FOC-6, FOC-14, FRM-16
 # hunks:
 #   FOC-1, FOC-3, FOC-6: the group's `has-[[data-slot=input-group-control]:focus-visible]:border-ring`
 #     plus `ring-3 ring-ring/50` becomes `has-[[data-slot=input-group-control]:focus]:border-ring/70`
@@ -29,8 +29,11 @@
 #     tint — and shows focus as a subtle darker border that eases in: `has-[input:focus,textarea:focus]:not-has-aria-invalid:border-ring/40` on the GROUP (the popup search row and the command input included; an addon button's focus keeps the tint),
 #     with `transition-[color,background-color,border-color] duration-150 ease-out`. The
 #     `not-…invalid` guard keeps an invalid field's destructive border in every state.
+#   FRM-16 (MK 2026-09-30): the `inline-start`/`inline-end` addon variants add
+#     `group-has-[>textarea]/input-group:self-start` and `…:pt-2.5`, so beside a textarea the addon
+#     sits top-aligned with the first line (the in-field autosave icon's top-right corner).
 diff --git a/input-group.tsx b/input-group.tsx
-index 2e3e7cd..a557387 100644
+index 2e3e7cd..fb45101 100644
 --- a/input-group.tsx
 +++ b/input-group.tsx
 @@ -1,25 +1,26 @@
@@ -70,6 +73,18 @@ index 2e3e7cd..a557387 100644
  }
  
  const inputGroupAddonVariants = cva(
+@@ -28,9 +29,9 @@ const inputGroupAddonVariants = cva(
+     variants: {
+       align: {
+         "inline-start":
+-          "order-first ps-2 has-[>button]:ms-[-0.3rem] has-[>kbd]:ms-[-0.15rem]",
++          "order-first ps-2 has-[>button]:ms-[-0.3rem] has-[>kbd]:ms-[-0.15rem] group-has-[>textarea]/input-group:self-start group-has-[>textarea]/input-group:pt-2.5",
+         "inline-end":
+-          "order-last pe-2 has-[>button]:me-[-0.3rem] has-[>kbd]:me-[-0.15rem]",
++          "order-last pe-2 has-[>button]:me-[-0.3rem] has-[>kbd]:me-[-0.15rem] group-has-[>textarea]/input-group:self-start group-has-[>textarea]/input-group:pt-2.5",
+         "block-start":
+           "order-first w-full justify-start px-2.5 pt-2 group-has-[>input]/input-group:pt-2 [.border-b]:pb-2",
+         "block-end":
 @@ -40,8 +41,8 @@ const inputGroupAddonVariants = cva(
      defaultVariants: {
        align: "inline-start",
