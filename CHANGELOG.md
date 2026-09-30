@@ -9,6 +9,20 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.23.97] — October 1, 2026
+
+<!-- assembled from 1 changeset: aa85a8aac204 -->
+
+### 🔧 Changed components
+
+- Comment boxes and code blocks. A code block's language label and Copy button get their own room above the code (`codeBlockControlsPadClassName`) instead of covering the first line, in `CodeBlock` and in `TextEdit`. `TextEdit` takes `slashHint` (default on); comment boxes turn it off, so "Add a comment…" and "Write a reply…" stay while focused instead of "Type / for commands". A press on a `TextEdit` box's padding before its editor has loaded now focuses the read view, so text typed while the editor loads is kept and replayed with the caret at its end.
+  [`ba00a25`](https://github.com/VegaStack/vegastack-design/commit/ba00a25)
+
+### 📦 npm
+
+- **`@vegastack/design`** → **`0.7.82`** (was `0.7.81`).
+- The design-system registry (`@vegastack/ui`) bumps 0.23.96 → 0.23.97.
+
 ## [0.23.96] — October 1, 2026
 
 <!-- assembled from 1 changeset: a2979c091e09 -->
