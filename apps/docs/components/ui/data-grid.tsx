@@ -1,4 +1,4 @@
-// @vegastack data-grid@0.23.90 sha256-E82+Dmto1PSp0ueX3VKoMnTVYwn/u0RYnlMWqKuYHR4=
+// @vegastack data-grid@0.23.91 sha256-LePMyjDFK5iXwqa7TWnQ291HWTD80tnUklaysNt1tfI=
 
 "use client";
 
