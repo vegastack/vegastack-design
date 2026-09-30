@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "kind": "vegastack-zero-gap-audit-register",
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "78bd841ac641d5a3c000d7486b698bdcc33f125a92e1c33f2d0afdcfd392277e",
+  "contractSha256": "ff79e53ddd8a42932232d365871b7389ff188367f1ba9c07ae23ad59746c997c",
   "expectedCounts": {
     "totalRegistryItems": 712,
     "components": 141,
@@ -118,6 +118,7 @@
       "wave": "Content/marketing",
       "family": "media",
       "sourceFiles": [
+        "packages/ui/registry/ui/audio-player-global.tsx",
         "packages/ui/registry/ui/audio-player.tsx"
       ],
       "docsSlug": "/docs/components/audio-player",
