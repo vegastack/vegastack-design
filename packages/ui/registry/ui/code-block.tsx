@@ -1,4 +1,4 @@
-// @vegastack code-block@0.23.96 sha256-WPTIRi8FaLFRGuCSdxH3JzJpWfWBgxPOumgdMTD/EX8=
+// @vegastack code-block@0.23.96 sha256-P1/DINs9rQ+gjSIaGEoP0dRU8TbAXIuVd0YTkrQWEaw=
 
 "use client";
 
@@ -165,6 +165,8 @@ function highlight(
 export const codeBlockSurfaceClassName =
   "group/code-block relative w-full min-w-0 max-w-full rounded-lg bg-muted/60 text-foreground";
 export const codeBlockPreClassName = "hljs overflow-x-auto px-4 py-3 font-mono";
+/** Room above the code for the hover controls, so the language label and Copy never cover line one. */
+export const codeBlockControlsPadClassName = "pt-9";
 /** The hover controls: hidden until the block is hovered or holds focus; always on touch. */
 export const codeBlockControlClassName =
   "absolute top-1.5 z-10 opacity-0 transition-opacity group-hover/code-block:opacity-100 group-focus-within/code-block:opacity-100 focus-visible:opacity-100 data-popup-open:opacity-100 pointer-coarse:opacity-100";
@@ -253,7 +255,13 @@ export function CodeBlock({
           className={cn(codeBlockControlClassName, "end-1.5")}
         />
       ) : null}
-      <pre data-slot="code-block-pre" className={codeBlockPreClassName}>
+      <pre
+        data-slot="code-block-pre"
+        className={cn(
+          codeBlockPreClassName,
+          (language || copyValue != null) && codeBlockControlsPadClassName,
+        )}
+      >
         <code className="font-mono">{content}</code>
       </pre>
     </figure>

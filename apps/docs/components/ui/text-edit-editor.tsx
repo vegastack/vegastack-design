@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.23.96 sha256-6gDg91urUxT4sIDpFm0V6frhyeGYjXJtJ6DblLPQ3TQ=
+// @vegastack text-edit@0.23.96 sha256-Y79LuCBRhcu45RoQ4QIDx8B2t1dv1fmm/2QLhpZoHfk=
 
 "use client";
 
@@ -113,6 +113,7 @@ import { CopyButton } from "@/components/ui/copy-button";
 import {
   CODE_LANGUAGES,
   codeBlockControlClassName,
+  codeBlockControlsPadClassName,
   codeBlockPreClassName,
   codeBlockSurfaceClassName,
   codeLanguageName,
@@ -588,7 +589,10 @@ function CodeBlockView({
           className={cn(codeBlockControlClassName, "end-1.5")}
         />
       </div>
-      <pre data-slot="code-block-pre" className={codeBlockPreClassName}>
+      <pre
+        data-slot="code-block-pre"
+        className={cn(codeBlockPreClassName, codeBlockControlsPadClassName)}
+      >
         <NodeViewContent<"code"> as="code" className="font-mono" />
       </pre>
     </NodeViewWrapper>
