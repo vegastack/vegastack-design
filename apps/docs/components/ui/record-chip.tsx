@@ -1,4 +1,4 @@
-// @vegastack record-chip@0.23.85 sha256-d2LcHDOwtD4XP0mFxWsDSe/rvlz2Mn2YTAHlSp9g0FQ=
+// @vegastack record-chip@0.23.85 sha256-QDyNRtuuu2zGmiiJHBrYBpdAOhUPAeCmdBikgpBAVjM=
 
 import * as React from "react";
 import { ArrowUpRight, ChevronDown } from "lucide-react";
@@ -14,6 +14,16 @@ import { PopoverContent } from "@/components/ui/popover";
 declare const process: { env: { NODE_ENV?: string } };
 
 let warnedPersonValue = false;
+
+/** Warns once per page load that `value` is ignored beside `person` (development only). Module
+ * scope, not render: a component must not reassign a module-level variable. */
+function warnPersonValueOnce() {
+  if (warnedPersonValue || process.env.NODE_ENV === "production") return;
+  warnedPersonValue = true;
+  console.warn(
+    "RecordChip: `value` is ignored with `person`, which draws the avatar and the name once. Remove `value`.",
+  );
+}
 
 /** Props accepted by `RecordChip`. */
 export interface RecordChipProps extends Omit<
@@ -210,17 +220,7 @@ export function RecordChip({
   ...props
 }: RecordChipProps) {
   const value = person ? person.name : valueProp;
-  if (
-    person &&
-    valueProp !== undefined &&
-    !warnedPersonValue &&
-    process.env.NODE_ENV !== "production"
-  ) {
-    warnedPersonValue = true;
-    console.warn(
-      "RecordChip: `value` is ignored with `person`, which draws the avatar and the name once. Remove `value`.",
-    );
-  }
+  if (person && valueProp !== undefined) warnPersonValueOnce();
   const hasValue = value != null && value !== false && value !== "";
   const showLink = hasValue && href !== undefined;
   const ghost = variant === "ghost";

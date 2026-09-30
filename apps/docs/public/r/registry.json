@@ -16034,7 +16034,7 @@
         "whenToUse": "Linking a record to another one in its header — a meeting's customer or project — with a picker and a jump to the linked record.",
         "whenNotToUse": "A free-form tag (Chip) or a form field with a label (Combobox, Select).",
         "version": "0.23.85",
-        "integrity": "sha256-d2LcHDOwtD4XP0mFxWsDSe/rvlz2Mn2YTAHlSp9g0FQ="
+        "integrity": "sha256-QDyNRtuuu2zGmiiJHBrYBpdAOhUPAeCmdBikgpBAVjM="
       }
     },
     {
