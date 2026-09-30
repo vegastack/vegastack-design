@@ -779,7 +779,7 @@
         "whenToUse": "A file browser's trail: drop rows onto a parent folder's crumb, or jump to a sibling folder from a segment's menu.",
         "whenNotToUse": "A plain location trail (Breadcrumb alone), or primary navigation.",
         "version": "0.23.91",
-        "integrity": "sha256-EoLUZgIXI/wueuo9L3My3jkUv2hQhPL1SWxNp9kMso4="
+        "integrity": "sha256-OR7a2e7N9Rp12ubK7m1XNvaTCHazZeCWX1tdnl1ly7k="
       }
     },
     {
@@ -1414,7 +1414,7 @@
         "whenToUse": "A list of records as a table, a card grid or board lanes (view) with typed columns, selection, click-to-sort, loading/empty states, keyset paging through loadMore, rows as links, sections, thumbnails and a row-actions column.",
         "whenNotToUse": "Full-parity grids with grouping/editing/virtualization (DataGrid), or a simple static table (Table).",
         "version": "0.23.91",
-        "integrity": "sha256-pgsBzAjXvCOT9AKukSkncjmTDl1fkt5HCgoyODaD09A="
+        "integrity": "sha256-j0W1vQB/TA9BXchs3kiMkQudEqKAfAyqTf5EISYiQLs="
       }
     },
     {

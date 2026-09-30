@@ -2197,6 +2197,33 @@ test("selectionActions docks a bar with the count, the host's actions and Clear 
   await expect.poll(checkedNames).toEqual([]);
 });
 
+test("the selection bar passes secondaryActions and moreLabel through to ActionBar", async () => {
+  const onArchive = vi.fn();
+  const screen = await render(
+    <Files
+      initial={["d1"]}
+      selectionActions={() => <ActionBarButton>Move</ActionBarButton>}
+      selectionSecondaryActions={[{ label: "Archive", onClick: onArchive }]}
+      selectionMoreLabel="More for selection"
+    />,
+  );
+  const bar = document.querySelector<HTMLElement>(
+    '[data-slot="data-list-selection-bar"]',
+  )!;
+  const more = bar.querySelector('[aria-label="More for selection"]');
+  const archive = [...bar.querySelectorAll("button")].find(
+    (b) => b.textContent === "Archive",
+  );
+  expect(more !== null || archive !== undefined).toBe(true);
+  if (archive) {
+    archive.click();
+  } else {
+    await screen.getByRole("button", { name: "More for selection" }).click();
+    await screen.getByRole("menuitem", { name: "Archive" }).click();
+  }
+  expect(onArchive).toHaveBeenCalledTimes(1);
+});
+
 test("the grid view carries the same checkboxes, ranges and selected state", async () => {
   await render(<Files view="grid" onViewChange={() => {}} initial={["f2"]} />);
   const items = document.querySelectorAll('[data-slot="data-list-grid-item"]');

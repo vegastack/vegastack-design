@@ -14,6 +14,7 @@ import {
 import {
   BreadcrumbDropTarget,
   BreadcrumbSiblings,
+  BreadcrumbTrail,
   type BreadcrumbSibling,
 } from "./breadcrumb-cascade";
 import { DataList, type DataListColumn } from "./data-list";
@@ -288,4 +289,33 @@ test("BreadcrumbDropTarget shows the drop state while a drag is over it", async 
   crumb().dispatchEvent(new DragEvent("dragover", at));
   await expect.poll(() => crumb().hasAttribute("data-drop-invalid")).toBe(true);
   rowOf("d1").dispatchEvent(new DragEvent("dragend", at));
+});
+
+test("BreadcrumbTrail spreads a step's itemProps and renders the current step with renderCurrent", async () => {
+  const onDrop = vi.fn();
+  await render(
+    <BreadcrumbTrail
+      steps={[
+        { label: "Library", href: "/library" },
+        {
+          label: "Clients",
+          href: "/library/f/1",
+          itemProps: { "data-drop-id": "1", onDrop, className: "x-step" },
+        },
+        { label: "Brief.docx" },
+      ]}
+      renderCurrent={(step) => <span data-testid="current">{step.label}!</span>}
+    />,
+  );
+  const item = document.querySelector<HTMLElement>('[data-drop-id="1"]')!;
+  expect(item.className).toContain("x-step");
+  expect(item.className).toContain("whitespace-nowrap");
+  item.dispatchEvent(new Event("drop", { bubbles: true }));
+  expect(onDrop).toHaveBeenCalledTimes(1);
+  expect(document.querySelector('[data-testid="current"]')?.textContent).toBe(
+    "Brief.docx!",
+  );
+  expect(
+    document.querySelector('[data-current] [data-testid="current"]'),
+  ).not.toBeNull();
 });
