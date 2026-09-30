@@ -774,8 +774,8 @@ All four scripts under `tooling/upstream/` carry a `--self-test` that observes t
 
 ## What we add — the one hundred exceptions
 
-`docs/plans/2026-09-18-shadcn-reset/decisions.md` is the register: 216 rows, 108 resolved as
-**shadcn** (upstream ships unchanged) and 108 as **ours**. `packages/ui/upstream/decisions.json` is
+`docs/plans/2026-09-18-shadcn-reset/decisions.md` is the register: 217 rows, 108 resolved as
+**shadcn** (upstream ships unchanged) and 109 as **ours**. `packages/ui/upstream/decisions.json` is
 its machine copy and the only thing a gate reads; `packages/ui/upstream/exception-map.json` records
 which shared component each exception is assigned to. Re-opening a row is MK's decision. The ninety-eight
 group into six themes.
@@ -823,7 +823,7 @@ glow and is accepted; the structural self-test observes both halves.
 
 ### 2. Cursor and touch
 
-`INT-1 · INT-7 · INT-9 · INT-11`
+`INT-1 · INT-7 · INT-9 · INT-11 · INT-12`
 
 A global `cursor: pointer` on every control, delivered by upstream's own `--pointer` flag plus a
 wider selector list (INT-1) — which also means upstream's explicit `cursor-default` on menu, select
@@ -833,7 +833,10 @@ drag can actually start — never under `readOnly`, `dragDisabled`, or below the
 "Move to…" menu is the only path (INT-9). A global shortcut ignores an editable target (input,
 textarea, select, contenteditable) and an event already `defaultPrevented`, and can be switched off:
 the sidebar's Mod+B reads `isEditableTarget` from `use-platform` and takes `keyboardShortcut`
-(default `"b"`, `false` disables it) (INT-11).
+(default `"b"`, `false` disables it) (INT-11). On a mouse or trackpad (`pointer: fine`) the page never
+rubber-bands at its vertical edge and an inner scroller at its end does not chain into the page
+(`overscroll-behavior-y: none` on `html, body`); horizontal stays free for swipe back/forward, and
+touch keeps pull-to-refresh (INT-12).
 
 Note what is **not** here, because it used to be: there is no disabled-cursor rule (INT-2 is
 shadcn), no press translate of our own (INT-3 is shadcn — upstream's own `translate-y-px` ships),
