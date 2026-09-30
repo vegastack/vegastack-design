@@ -9,6 +9,20 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.23.79] — September 30, 2026
+
+<!-- assembled from 1 changeset: 5a063617d4f4 -->
+
+### 🔧 Changed components
+
+- Comments keep drafts. `CommentComposer` takes `defaultValue`, the editor's starting text (Send is enabled while it is non-empty; the box starts empty after a post). `CommentThread`'s `composer` passes `defaultValue` (the reply box opens unfolded on it), `onValueChange` (every change, and `""` after a reply posts) and `posting` (busy, OR'd with the reply's own state: Send and Cmd/Ctrl+Enter do nothing, e.g. while an upload runs). `CommentItem`, `CommentList` and `CommentThread` take `onEditValueChange(commentId, value)`, called with the edit box's text on every change and with `null` when the edit is saved or cancelled, so a host can guard unsaved edits.
+  [`c478509`](https://github.com/VegaStack/vegastack-design/commit/c478509)
+
+### 📦 npm
+
+- **`@vegastack/design`** → **`0.7.66`** (was `0.7.65`).
+- The design-system registry (`@vegastack/ui`) bumps 0.23.78 → 0.23.79.
+
 ## [0.23.78] — September 30, 2026
 
 <!-- assembled from 1 changeset: 515ff9c7a194 -->

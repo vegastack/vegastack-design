@@ -1,4 +1,4 @@
-// @vegastack person-hover-card@0.23.78 sha256-wj+8BjRLHKV6bJF6bmP6Ogu4MEKf4kqJtg8NHvlDXQc=
+// @vegastack person-hover-card@0.23.79 sha256-S3XDFIZo/Hq7+26KeULu3fEl/voh6LTPQ8BgzlPWny4=
 
 "use client";
 
