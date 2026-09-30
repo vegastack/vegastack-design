@@ -1,4 +1,4 @@
-// @vegastack comments@0.23.96 sha256-tMK+LNsEWyql9dxlQp7hRy595ujL6+LF2DE93dePOXw=
+// @vegastack comments@0.23.96 sha256-AWa6Ex3uIdyN+wWNucsUiRiAx8+eXKhFHS6scXJ0wa8=
 
 "use client";
 
@@ -629,6 +629,7 @@ function CommentBox({
         )}
         format="markdown"
         slashCommands={TEXT_EDIT_COMPACT_SLASH_COMMANDS}
+        slashHint={false}
         defaultValue={defaultValue}
         placeholder={placeholder}
         aria-label={label}

@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.23.96 sha256-6gDg91urUxT4sIDpFm0V6frhyeGYjXJtJ6DblLPQ3TQ=
+// @vegastack text-edit@0.23.96 sha256-Y79LuCBRhcu45RoQ4QIDx8B2t1dv1fmm/2QLhpZoHfk=
 
 "use client";
 
@@ -384,6 +384,12 @@ export interface TextEditProps {
    */
   slashCommands?: readonly TextEditSlashCommand[];
   /**
+   * Whether the placeholder yields to the "Type / for commands" hint while focused and empty.
+   * Off keeps the placeholder (a comment box's "Add a comment…") in every state.
+   * @default true
+   */
+  slashHint?: boolean;
+  /**
    * Show the hover chrome: the ⋮⋮ drag handle beside the hovered block, and a table's row and
    * column grips (menus, drag to reorder), corner grip and "+" bars. Turn it off where the editor
    * sits in a tight box (comments). ⌘⇧↑ / ⌘⇧↓ move blocks and Tab / ⇧Tab move between cells either way.
@@ -680,6 +686,7 @@ export function TextEdit(props: TextEditProps) {
     defaultValue = "",
     placeholder,
     slashCommands = TEXT_EDIT_SLASH_COMMANDS,
+    slashHint = true,
     saving = false,
     readOnly = false,
     disabled: disabledProp = false,
@@ -729,6 +736,15 @@ export function TextEdit(props: TextEditProps) {
     if (!editable) return;
     intentRef.current ??= intent;
     setActive(true);
+  };
+  // A press outside the read view (the box's padding, the blank content area) is cancelled so the
+  // caret lands by intent — but focus still has to go somewhere that keeps keystrokes: the read
+  // view, whose typed text is replayed into the editor once it is in.
+  const activateAndHold = (intent: Intent) => {
+    activate(intent);
+    rootRef.current
+      ?.querySelector<HTMLElement>("[data-slot=text-edit-read]")
+      ?.focus({ preventScroll: true });
   };
   // The editor is already loaded (it was used on this page before), or the host needs it now:
   // mount it straight away.
@@ -930,7 +946,7 @@ export function TextEdit(props: TextEditProps) {
               event.preventDefault();
               if (editorRef.current && ready)
                 editorRef.current.commands.focus("end");
-              else activate("end");
+              else activateAndHold("end");
             }
           : undefined
       }
@@ -951,7 +967,7 @@ export function TextEdit(props: TextEditProps) {
           onMouseDown={(event) => {
             if (!editable || event.target !== event.currentTarget) return;
             event.preventDefault();
-            activate("end");
+            activateAndHold("end");
           }}
           className={contentClassName}
           style={contentStyle}
@@ -1004,7 +1020,7 @@ export function TextEdit(props: TextEditProps) {
             }}
             variant={variant}
             surfaceClassName={surfaceClassName}
-            hintClassName={slashHintClassName}
+            hintClassName={slashHint ? slashHintClassName : ""}
             contentClassName={contentClassName}
             contentStyle={contentStyle}
             rootRef={rootRef}
