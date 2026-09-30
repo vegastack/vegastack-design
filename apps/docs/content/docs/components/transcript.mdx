@@ -87,6 +87,15 @@ The transcript follows the playing line until you scroll it yourself.
   file="components/preview/transcript.tsx"
 />
 
+To point at one line — the source a summary's citation marker names — pass `reveal={{ id, key }}`.
+Each new `id` or `key` scrolls that row to the centre (mounting it first on a long transcript),
+washes it in the accent tint for a moment, and pauses following, so seeking the player to just
+before the line does not pull the list away. Bump `key` to reveal the same line again.
+
+```tsx
+<Transcript reveal={{ id: source.segmentId, key: revealCount }} … />
+```
+
 ### Search
 
 `TranscriptSearch` wraps each match in `<mark>`. Enter and Shift+Enter, or the

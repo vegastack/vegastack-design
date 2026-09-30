@@ -368,6 +368,24 @@ test("controlled follow={false} never scrolls on time updates", async () => {
     .toBeInTheDocument();
 });
 
+test("reveal centres the row, washes it in the accent tint and pauses follow", async () => {
+  const onFollowChange = vi.fn();
+  const screen = await render(
+    <Harness
+      segments={long}
+      currentTime={0}
+      batchSize={10}
+      onFollowChange={onFollowChange}
+      reveal={{ id: "s30", key: 1 }}
+    />,
+  );
+  await expect.poll(() => inView(screen.container, "s30")).toBe(true);
+  expect(rowOf(screen.container, "s30").hasAttribute("data-highlighted")).toBe(
+    true,
+  );
+  expect(onFollowChange).toHaveBeenLastCalledWith(false);
+});
+
 test("backLabel renames the back button", async () => {
   const screen = await render(
     <Harness

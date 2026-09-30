@@ -209,3 +209,47 @@ export function markdownViewLibrary(): ReactNode {
     </Wrapper>
   );
 }
+
+const CITED = `## Decisions
+
+- Ship the pricing page on Friday [[1]]
+- Keep the free tier, capped at three seats [[2]][[3]]
+- Revisit the enterprise quote after legal's review [[9]]`;
+
+const SOURCES: Record<number, { who: string; at: string; quote: string }> = {
+  1: { who: "Asha Rao", at: "04:12", quote: "Let's just ship it Friday." },
+  2: { who: "Raj Patel", at: "11:40", quote: "The free tier stays." },
+  3: { who: "Asha Rao", at: "12:05", quote: "Three seats, no more." },
+};
+
+/**
+ * Citation markers: `[[n]]` renders as a superscript `n` whose popover shows the quote on hover,
+ * focus or a long press, and whose click would seek the recording. `[[9]]` has no source, so it
+ * stays literal text.
+ */
+export function markdownViewCitations(): ReactNode {
+  return (
+    <Wrapper className="block">
+      <MarkdownView
+        citation={(n) => {
+          const source = SOURCES[n];
+          if (!source) return null;
+          return {
+            label: `Source ${n}`,
+            content: (
+              <span className="flex flex-col gap-1">
+                <span>“{source.quote}”</span>
+                <span className="text-xs text-muted-foreground">
+                  {source.who} · {source.at}
+                </span>
+              </span>
+            ),
+            onSelect: () => {},
+          };
+        }}
+      >
+        {CITED}
+      </MarkdownView>
+    </Wrapper>
+  );
+}

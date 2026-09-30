@@ -498,3 +498,25 @@ test("headingScale=\"document\" gives a page's headings a document scale; compac
   expect(doc!.className).not.toContain("[&_h2]:text-base");
   expect(compact!.className).toContain("[&_h2]:text-base");
 });
+
+test("citation turns [[n]] into a named marker; without it, and in code, the text stays", async () => {
+  const selected: number[] = [];
+  const screen = await render(
+    <MarkdownView
+      citation={(n) =>
+        n === 2 ? { label: "Source 2", onSelect: () => selected.push(n) } : null
+      }
+    >
+      {"Ship Friday [[2]] and [[3]], not `[[2]]`."}
+    </MarkdownView>,
+  );
+  await screen.getByRole("button", { name: "Source 2" }).click();
+  expect(selected).toEqual([2]);
+  const text = screen.container.textContent;
+  expect(text).toContain("[[3]]");
+  expect(screen.container.querySelector("code")?.textContent).toBe("[[2]]");
+  const plain = await render(
+    <MarkdownView>{"Ship Friday [[2]]"}</MarkdownView>,
+  );
+  expect(plain.container.textContent).toBe("Ship Friday [[2]]");
+});
