@@ -62,6 +62,15 @@ test("the triggers carry the count, rows are links, and mark-all announces once"
   await expect
     .element(sheet.getByText("You’re all caught up").first())
     .toBeInTheDocument();
+  (
+    sheet.getByRole("button", { name: "Requests 1" }).element() as HTMLElement
+  ).click();
+  await expect
+    .element(sheet.getByRole("link", { name: /Raj Patel assigned you/ }))
+    .toBeInTheDocument();
+  await expect
+    .element(sheet.getByRole("link", { name: /Weekly sync with Skyline/ }))
+    .not.toBeInTheDocument();
 
   await userEvent.keyboard("{Escape}");
   await expect.poll(() => document.activeElement).toBe(rowElement);

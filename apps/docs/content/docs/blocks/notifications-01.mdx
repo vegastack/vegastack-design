@@ -41,7 +41,8 @@ to whichever trigger opened it.
   `showOverlay={false}` on desktop, full screen on a phone); the block uses a plain right sheet.
 - **Header** — `InboxMarkAllRead` (✓✓, shown while anything is unread) and `InboxMenuAction` (⋯)
   for settings. "Mark all read" is announced once through `useAnnouncer`: "Marked all read".
-- **Filters** — `InboxFilters`: All | Unread chips, the unread count on Unread.
+- **Filters** — `InboxFilters`: All | Unread chips, the unread count on Unread, and a Requests chip
+  (`extra`) for rows that ask for a decision, with its count.
 - **Day groups** — `groupByDay` from `date-time` buckets rows into Today, Yesterday, This week,
   Last week and Earlier, each an `InboxGroup` whose label sticks within the scroll area — no
   dividers around it, just space (16px above, 6px below); rows keep a 1px divider between them.

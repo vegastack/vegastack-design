@@ -50,3 +50,33 @@ test("the error state offers Try again", async () => {
   await screen.getByRole("button", { name: "Try again" }).click();
   expect(onRetry).toHaveBeenCalledOnce();
 });
+
+test("InboxFilters: extra chips follow All and Unread, with their counts", async () => {
+  const onValueChange = vi.fn();
+  const screen = await render(
+    <InboxFilters
+      value="requests"
+      onValueChange={onValueChange}
+      unreadCount={3}
+      extra={[
+        { value: "requests", label: "Requests", count: 2 },
+        { value: "mentions", label: "Mentions" },
+      ]}
+    />,
+  );
+  const group = screen.getByRole("group", { name: "Show" });
+  const chips = Array.from(
+    group.element().querySelectorAll("button"),
+    (chip) => chip.textContent,
+  );
+  expect(chips).toEqual(["All", "Unread 3", "Requests 2", "Mentions"]);
+  await expect
+    .element(group.getByRole("button", { name: "Requests 2" }))
+    .toHaveAttribute("aria-pressed", "true");
+  await expect
+    .element(group.getByRole("button", { name: "All" }))
+    .toHaveAttribute("aria-pressed", "false");
+  await group.getByRole("button", { name: "Mentions" }).click();
+  expect(onValueChange).toHaveBeenCalledWith("mentions");
+  await expectNoA11yViolations(screen.container, ["color-contrast"]);
+});

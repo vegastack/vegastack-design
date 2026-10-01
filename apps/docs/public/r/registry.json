@@ -16295,7 +16295,7 @@
         "whenToUse": "The notifications panel: a feed of person and system events the user reads, acts on and marks read. Put it in a Sheet, Popover or docked panel.",
         "whenNotToUse": "Toasts for transient confirmations, an activity log on a record (Timeline), or a bare unread count (NotificationBell).",
         "version": "0.23.112",
-        "integrity": "sha256-6m3NHINguV6eja7S+1PugAyXSMFf3JTSMQ3vWc4rkvw="
+        "integrity": "sha256-PTtS6V77A6vqNDo6mpIUSOb7OOVKktiAemk2lwjOVng="
       }
     },
     {
@@ -21091,7 +21091,7 @@
         "whenToUse": "Your app's notification inbox, opened from the shell — copy it once and wire the rows, Mark all read and paging to your API.",
         "whenNotToUse": "A single transient message — use a toast; an activity history on a record — use Timeline.",
         "version": "0.23.112",
-        "integrity": "sha256-kWiTNmqxRzcWF7TyDKOuUUcECGuWJKAVQaajEnYfiWU="
+        "integrity": "sha256-0jhaz9wGC8SEVIb/bjvrNgEFluAmHr2xDnpn/V4Wyoo="
       }
     },
     {

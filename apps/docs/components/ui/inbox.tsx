@@ -1,4 +1,4 @@
-// @vegastack inbox@0.23.112 sha256-6m3NHINguV6eja7S+1PugAyXSMFf3JTSMQ3vWc4rkvw=
+// @vegastack inbox@0.23.112 sha256-PTtS6V77A6vqNDo6mpIUSOb7OOVKktiAemk2lwjOVng=
 
 "use client";
 
@@ -306,8 +306,27 @@ export function InboxMarkAllRead(
 
 /* ---------------------------------------------------------------- filters */
 
-/** Which rows the Inbox shows. */
-export type InboxFilter = "all" | "unread";
+/** Which rows the Inbox shows: the built-in `all` and `unread`, or an app-defined `extra` value. */
+export type InboxFilter = "all" | "unread" | (string & {});
+
+/** One app-defined chip after All and Unread, such as Requests. */
+export interface InboxFilterOption {
+  /** The value `onValueChange` receives; must not be `all` or `unread`. */
+  value: string;
+  /** The chip's label. */
+  label: string;
+  /** A count shown on the chip; 0 or unset hides it. @default undefined */
+  count?: number;
+}
+
+function FilterCount({ count }: { count?: number }) {
+  if (!count || count <= 0) return null;
+  return (
+    <span className="tabular-nums opacity-80">
+      {count > 99 ? "99+" : count}
+    </span>
+  );
+}
 
 /** Props for {@link InboxFilters}. */
 export interface InboxFiltersProps {
@@ -320,25 +339,39 @@ export interface InboxFiltersProps {
    * @default 0
    */
   unreadCount?: number;
+  /**
+   * App-defined chips after All and Unread, each with an optional count — e.g.
+   * `[{ value: "requests", label: "Requests", count: 2 }]`.
+   * @default []
+   */
+  extra?: readonly InboxFilterOption[];
   /** @default undefined */
   className?: string;
 }
 
 /**
- * The All | Unread chips under the title, with the count on Unread.
+ * The All | Unread chips under the title, with the count on Unread, then any `extra` chips the
+ * app defines (each with its own count).
  *
  * @example
- * <InboxFilters value={view} onValueChange={setView} unreadCount={3} />
+ * <InboxFilters
+ *   value={view}
+ *   onValueChange={setView}
+ *   unreadCount={3}
+ *   extra={[{ value: "requests", label: "Requests", count: 2 }]}
+ * />
  */
 export function InboxFilters({
   value,
   onValueChange,
   unreadCount = 0,
+  extra = [],
   className,
 }: InboxFiltersProps) {
-  const chips: { value: InboxFilter; label: string }[] = [
+  const chips: InboxFilterOption[] = [
     { value: "all", label: "All" },
-    { value: "unread", label: "Unread" },
+    { value: "unread", label: "Unread", count: unreadCount },
+    ...extra,
   ];
   return (
     <div
@@ -358,11 +391,9 @@ export function InboxFilters({
             className="rounded-full px-2.5"
           >
             {chip.label}
-            {chip.value === "unread" && unreadCount > 0 ? (
-              <span className="tabular-nums opacity-80">
-                {unreadCount > 99 ? "99+" : unreadCount}
-              </span>
-            ) : null}
+            {/* A space so the name reads "Requests 2"; flex drops it visually. */}
+            {chip.count ? " " : null}
+            <FilterCount count={chip.count} />
           </Button>
         );
       })}
