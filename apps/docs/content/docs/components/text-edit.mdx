@@ -373,19 +373,23 @@ files are ignored.
 
 ### Images
 
-An image works like Notion's. Hover it (or tap it on touch) for a ⋯ menu at its top-right:
-**Open** shows it in the `FileViewer`, paging through every image in the document (a double-click
-does the same); **Download**; **Copy link** for an `http(s)` image; and **Remove image**, which
-
-<kbd>Cmd/Ctrl</kbd>+<kbd>Z</kbd> undoes. Its corner and side handles resize it
+An image works like Notion's. Hover it (or tap it on touch) for a small blurred toolbar at its
+top-right: **Open** shows it in the `FileViewer`, paging through every image in the document (a
+double-click does the same); **Download**; **Copy link**; and a ⋯ menu with **Replace** (the image
+panel, whose upload or link takes its place) and **Delete** (<kbd>Cmd/Ctrl</kbd>+<kbd>Z</kbd>
+undoes). Selected, it shows a thin outline at the same `rounded-lg` radius, and pill handles on its
+left and right edges resize it
 with the aspect ratio kept — Tiptap's own `ResizableNodeView`, from 48px up to
 the width left of the image — and while dragging, guides mark a quarter, a half,
 three quarters and the full width, snapping within 8px. The width is part of the
 document: `![alt|320](src)` in Markdown (the Obsidian convention, which
 `MarkdownView` reads and other renderers show as a plain image) and
 `width="320"` in HTML. `readOnly` documents and posted comments open their
-images in the viewer on a click and have no handles or Remove; wrap any other
+images in the viewer on a click and have no handles or Delete; wrap any other
 `MarkdownView` in `ImageViewerScope` for the same.
+
+A file chip (a link under `fileLinkPrefix`) opens in the same `FileViewer` on a double-click, or
+from **Open** in its link panel; a file the viewer cannot render shows its name and a download.
 
 <ComponentPreview
   name="textEditImages"

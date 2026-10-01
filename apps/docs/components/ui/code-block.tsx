@@ -1,4 +1,4 @@
-// @vegastack code-block@0.23.102 sha256-M9rTM2+blnSHWc4PL41td4i93z8CfkfgzWoJY02kxww=
+// @vegastack code-block@0.23.102 sha256-Gasb88ZMGjFVLMKwHOTZhw7FiatB+HnxzJbMhAc8szk=
 
 "use client";
 
@@ -165,11 +165,18 @@ function highlight(
 export const codeBlockSurfaceClassName =
   "group/code-block relative w-full min-w-0 max-w-full rounded-lg bg-muted/60 text-foreground";
 /**
- * The code panel: `white-space: pre` (or `pre-wrap` when `data-wrap` is set) is scoped under the
- * block's `figure` so it outranks ProseMirror's own `.ProseMirror pre { white-space: pre-wrap }`.
+ * The code panel. Its `white-space` is an inline style (`codeBlockWrapStyle`): it must outrank
+ * ProseMirror's own `.ProseMirror pre { white-space: pre-wrap }` in the editor.
  */
 export const codeBlockPreClassName =
-  "hljs overflow-x-auto overscroll-x-contain px-4 py-3 font-mono scrollbar-thin [scrollbar-color:var(--border)_transparent] [[data-slot=code-block]_&]:whitespace-pre [[data-slot=code-block]_&[data-wrap]]:whitespace-pre-wrap data-wrap:wrap-anywhere";
+  "hljs overflow-x-auto overscroll-x-contain px-4 py-3 font-mono scrollbar-thin [scrollbar-color:var(--border)_transparent]";
+/** `white-space` for a code panel: `pre` scrolls sideways inside the block, `pre-wrap` wraps. */
+export function codeBlockWrapStyle(wrap: boolean): React.CSSProperties {
+  return wrap
+    ? { whiteSpace: "pre-wrap", overflowWrap: "anywhere" }
+    : { whiteSpace: "pre", overflowWrap: "normal" };
+}
+
 /** Room above the code for the controls, so the language label and the icons never cover line one. */
 export const codeBlockControlsPadClassName = "pt-9";
 /** The controls (language top-left, icon buttons top-right): always shown, above the code. */
@@ -300,6 +307,7 @@ export function CodeBlock({
       <pre
         data-slot="code-block-pre"
         data-wrap={wrap ? "" : undefined}
+        style={codeBlockWrapStyle(wrap)}
         className={cn(
           codeBlockPreClassName,
           (language || copyValue != null) && codeBlockControlsPadClassName,

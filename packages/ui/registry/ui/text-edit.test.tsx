@@ -2307,7 +2307,7 @@ test("inside a table cell the slash menu and Turn into offer no block commands",
 const PIXEL =
   "data:image/svg+xml,%3Csvg%20xmlns=%22http://www.w3.org/2000/svg%22%20width=%22400%22%20height=%22200%22/%3E";
 
-test("image: dragging a corner handle resizes it and stores the width in the Markdown", async () => {
+test("image: dragging a side handle resizes it and stores the width in the Markdown", async () => {
   const onValueChange = vi.fn();
   const screen = await markdownEditor({
     defaultValue: `![Chart|200](${PIXEL})`,
@@ -2316,9 +2316,7 @@ test("image: dragging a corner handle resizes it and stores the width in the Mar
   const node = screen.container.querySelector<HTMLElement>(
     "[data-slot=text-edit-image-node]",
   )!;
-  const handle = node.querySelector<HTMLElement>(
-    "[data-resize-handle=bottom-right]",
-  )!;
+  const handle = node.querySelector<HTMLElement>("[data-resize-handle=right]")!;
   const start = handle.getBoundingClientRect();
   handle.dispatchEvent(
     new MouseEvent("mousedown", {
@@ -2343,12 +2341,12 @@ test("image: dragging a corner handle resizes it and stores the width in the Mar
   ).toHaveLength(0);
 });
 
-test("image: the ⋯ menu removes the image, and undo brings it back", async () => {
+test("image: ⋯ Delete removes the image, and undo brings it back", async () => {
   const onValueChange = vi.fn();
   const md = `Before ![Chart](${PIXEL})`;
   const screen = await markdownEditor({ defaultValue: md, onValueChange });
-  await screen.getByRole("button", { name: "Image actions" }).click();
-  await screen.getByRole("menuitem", { name: "Remove image" }).click();
+  await screen.getByRole("button", { name: "More image actions" }).click();
+  await screen.getByRole("menuitem", { name: "Delete" }).click();
   await vi.waitFor(() => expect(lastValue(onValueChange)).toBe("Before"));
   await userEvent.keyboard("{ControlOrMeta>}z{/ControlOrMeta}");
   await vi.waitFor(() => expect(lastValue(onValueChange)).toBe(md));
@@ -2358,8 +2356,7 @@ test("image: Open shows it in the file viewer", async () => {
   const screen = await markdownEditor({
     defaultValue: `![Chart](${PIXEL})`,
   });
-  await screen.getByRole("button", { name: "Image actions" }).click();
-  await screen.getByRole("menuitem", { name: "Open" }).click();
+  await screen.getByRole("button", { name: "Open" }).click();
   await vi.waitFor(() =>
     expect(document.querySelector("[role=dialog]")?.textContent).toContain(
       "Chart",
@@ -2457,6 +2454,25 @@ test("code wrap, open toggles and every callout tone round-trip through markdown
   await vi.waitFor(() =>
     expect(lastValue(onValueChange)).toContain(
       "<details><summary>Open</summary>",
+    ),
+  );
+});
+
+test("file chip: a double-click opens the file in the viewer", async () => {
+  const screen = await markdownEditor({
+    defaultValue: "See [data.csv](/api/files/abc/download)",
+  });
+  const chip = await vi.waitFor(() => {
+    const found = screen.container.querySelector<HTMLElement>(
+      ".tiptap a[data-slot=file-chip]",
+    );
+    expect(found).not.toBeNull();
+    return found!;
+  });
+  await userEvent.dblClick(chip);
+  await vi.waitFor(() =>
+    expect(document.querySelector("[role=dialog]")?.textContent).toContain(
+      "data.csv",
     ),
   );
 });

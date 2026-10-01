@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.23.102 sha256-PS/VTAe7d9KMxtBq3maSh8y69V1zRlWewk1QFnZUd98=
+// @vegastack text-edit@0.23.102 sha256-4CFNcmdMfZ4qinC2blcahlaMSrt2S0GkW0wsL8t7T7k=
 
 "use client";
 
@@ -227,7 +227,7 @@ const editorBaseClassName = cn(
   // shows its outline instead (the image node view).
   "[&_.ProseMirror-selectednode:not([data-slot=text-edit-image-node])]:rounded-sm [&_.ProseMirror-selectednode:not([data-slot=text-edit-image-node])]:bg-accent",
   // An empty toggle title or body shows its hint (the Placeholder extension's `is-empty`).
-  "[&_[data-slot=toggle-content]>.is-empty]:before:pointer-events-none [&_[data-slot=toggle-content]>.is-empty]:before:float-start [&_[data-slot=toggle-content]>.is-empty]:before:h-0 [&_[data-slot=toggle-content]>.is-empty]:before:text-muted-foreground/60 [&_[data-slot=toggle-content]>[data-slot=toggle-summary].is-empty]:before:content-[attr(data-placeholder)] [&_[data-slot=toggle-content]>p.is-empty]:before:content-['Empty_toggle._Type_or_press_/_for_commands']",
+  "[&_[data-slot=toggle-content]>[data-node-view-content-react]>.is-empty]:before:pointer-events-none [&_[data-slot=toggle-content]>[data-node-view-content-react]>.is-empty]:before:float-start [&_[data-slot=toggle-content]>[data-node-view-content-react]>.is-empty]:before:h-0 [&_[data-slot=toggle-content]>[data-node-view-content-react]>.is-empty]:before:text-muted-foreground/60 [&_[data-slot=toggle-content]>[data-node-view-content-react]>[data-slot=toggle-summary].is-empty]:before:content-[attr(data-placeholder)] [&_[data-slot=toggle-content]>[data-node-view-content-react]>p.is-empty]:before:content-['Empty_toggle._Type_or_press_/_for_commands']",
 );
 
 /** While focused and empty, the placeholder yields to the slash hint. */
@@ -407,6 +407,10 @@ function useImageViewer(root: React.RefObject<HTMLElement | null>) {
     },
     [root],
   );
+  /** Show one file (a file chip) in the viewer: rendered when it can be, else its info and download. */
+  const openFile = React.useCallback((item: FileViewerItem) => {
+    setViewer({ items: [item], index: 0 });
+  }, []);
   const element = viewer ? (
     // Stays mounted once used, so closing plays the viewer's own exit.
     <React.Suspense fallback={null}>
@@ -423,7 +427,22 @@ function useImageViewer(root: React.RefObject<HTMLElement | null>) {
       />
     </React.Suspense>
   ) : null;
-  return { open, element };
+  return { open, openFile, element };
+}
+
+/** A file chip's link as a `FileViewer` item. */
+function fileItem(
+  href: string,
+  name: string,
+  contentType: string | null | undefined,
+): FileViewerItem {
+  return {
+    id: href,
+    name: name || "File",
+    contentType: contentType || "application/octet-stream",
+    src: href,
+    downloadHref: href,
+  };
 }
 
 /** The read view's image under an event, unless it sits inside a link (the link wins). */
@@ -1232,6 +1251,11 @@ export function TextEdit(props: TextEditProps) {
             onReady={onReady}
             editorHandle={editorHandle}
             onOpenImage={imageViewer.open}
+            onOpenFile={(href: string, name: string) =>
+              imageViewer.openFile(
+                fileItem(href, name, props.fileContentType?.(href)),
+              )
+            }
           />
         </React.Suspense>
       ) : null}
