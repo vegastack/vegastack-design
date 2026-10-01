@@ -9,6 +9,20 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.23.108] — October 1, 2026
+
+<!-- assembled from 1 changeset: dc8a857d0f04 -->
+
+### 📦 npm
+
+- **`@vegastack/design`** → **`0.7.93`** (was `0.7.92`).
+- The design-system registry (`@vegastack/ui`) bumps 0.23.107 → 0.23.108.
+
+### 🐛 Fixed
+
+- TextEdit type-checks against Tiptap 3.31.4: the paragraph parser no longer calls `Paragraph.config.parseMarkdown` (whose `this` type changed), it builds the paragraph itself.
+  [`c367765`](https://github.com/VegaStack/vegastack-design/commit/c367765)
+
 ## [0.23.107] — October 1, 2026
 
 <!-- assembled from 1 changeset: eec6c8e6b23f -->
