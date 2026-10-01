@@ -1,5 +1,11 @@
 # @vegastack/design
 
+## 0.7.94
+
+### Patch Changes
+
+- [#494](https://github.com/vegastack/vegastack-design/pull/494) [`04a041e`](https://github.com/vegastack/vegastack-design/commit/04a041e4c33e96c02ca2670a7aea8d2e3ef5e952) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🐛 TextEdit composer is 32px at rest (the editor surface's 24px minimum no longer adds 4px) and an empty `footer` takes no room; a click on an image selects it.
+
 ## 0.7.93
 
 ### Patch Changes
