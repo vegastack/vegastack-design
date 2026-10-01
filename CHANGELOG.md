@@ -9,6 +9,20 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.23.102] — October 1, 2026
+
+<!-- assembled from 1 changeset: c3366cc88257 -->
+
+### 🧩 New components
+
+- New `InlineChip`: the one inline reference — a person, page, file, task, meeting, customer or project — for `TextEdit`, `MarkdownView` and `Comments`. It is an inline box on the text's baseline (no more label riding above the line), sized by the surrounding text with a 1em icon, tinted per kind from the tag hues, and wraps cleanly. A person chip shows its photo and previews avatar, name and email on hover or focus; other chips open on click (`onOpen`, e.g. a file in `FileViewer`, else `href`), ⌘/Ctrl-click opens a new tab, and `preview` adds a small hover card (`InlineChipPreview`). `InlineChipProvider` resolves `href`, `person`, `preview` and `onOpen` for every chip below it. `MentionChip` and file links now render through it, and mentions gain the `meeting`, `customer` and `project` kinds.
+  [`610784a`](https://github.com/VegaStack/vegastack-design/commit/610784a)
+
+### 📦 npm
+
+- **`@vegastack/design`** → **`0.7.87`** (was `0.7.86`).
+- The design-system registry (`@vegastack/ui`) bumps 0.23.101 → 0.23.102.
+
 ## [0.23.101] — October 1, 2026
 
 <!-- assembled from 2 changesets: 7454cbfd1bb2 -->

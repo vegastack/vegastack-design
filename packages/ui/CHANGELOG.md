@@ -1,5 +1,14 @@
 # @vegastack/ui
 
+## 0.23.102
+
+### Patch Changes
+
+- [#475](https://github.com/vegastack/vegastack-design/pull/475) [`610784a`](https://github.com/vegastack/vegastack-design/commit/610784ac161fbf05b2345c307dea8dd2afed78c9) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🧩 New `InlineChip`: the one inline reference — a person, page, file, task, meeting, customer or project — for `TextEdit`, `MarkdownView` and `Comments`. It is an inline box on the text's baseline (no more label riding above the line), sized by the surrounding text with a 1em icon, tinted per kind from the tag hues, and wraps cleanly. A person chip shows its photo and previews avatar, name and email on hover or focus; other chips open on click (`onOpen`, e.g. a file in `FileViewer`, else `href`), ⌘/Ctrl-click opens a new tab, and `preview` adds a small hover card (`InlineChipPreview`). `InlineChipProvider` resolves `href`, `person`, `preview` and `onOpen` for every chip below it. `MentionChip` and file links now render through it, and mentions gain the `meeting`, `customer` and `project` kinds.
+
+- Updated dependencies [[`610784a`](https://github.com/vegastack/vegastack-design/commit/610784ac161fbf05b2345c307dea8dd2afed78c9)]:
+  - @vegastack/design@0.7.87
+
 ## 0.23.101
 
 ### Patch Changes
