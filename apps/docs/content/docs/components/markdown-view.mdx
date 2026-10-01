@@ -50,6 +50,11 @@ remote images send no referrer:
 </MarkdownView>
 ```
 
+An image's width set by resizing it in `TextEdit` travels in its alt text — `![Diagram|320](src)`
+renders 320px wide (never wider than the text column) with the alt "Diagram"; `parseImageAlt` and
+`imageMarkdown` read and write that form. To open images in the `FileViewer` on a click, wrap the
+view in `TextEdit`'s `ImageViewerScope`.
+
 ## Anatomy
 
 <Anatomy name="markdown-view" />

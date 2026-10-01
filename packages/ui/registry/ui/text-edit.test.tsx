@@ -854,6 +854,7 @@ const moreMarkdownFixtures: [string, string][] = [
     "| Name | Role |\n| ---- | ---- |\n| Ada  | Eng  |\n| Bo   | PM   |",
   ],
   ["an image with alt text", "![A chart](https://example.com/chart.png)"],
+  ["a resized image", "![A chart|320](https://example.com/chart.png)"],
   ["a code block with a language", "```python\nprint(1)\n```"],
   [
     "a link and marks together",
@@ -2279,4 +2280,117 @@ test("inside a table cell the slash menu and Turn into offer no block commands",
   );
   expect(document.querySelector('[aria-label^="Turn into"]')).toBeNull();
   expect(document.querySelector('[aria-label="Bold"]')).not.toBeNull();
+});
+
+// ---- Images: resize, the ⋯ menu, the viewer --------------------------------------------------
+
+const PIXEL =
+  "data:image/svg+xml,%3Csvg%20xmlns=%22http://www.w3.org/2000/svg%22%20width=%22400%22%20height=%22200%22/%3E";
+
+test("image: dragging a corner handle resizes it and stores the width in the Markdown", async () => {
+  const onValueChange = vi.fn();
+  const screen = await markdownEditor({
+    defaultValue: `![Chart|200](${PIXEL})`,
+    onValueChange,
+  });
+  const node = screen.container.querySelector<HTMLElement>(
+    "[data-slot=text-edit-image-node]",
+  )!;
+  const handle = node.querySelector<HTMLElement>(
+    "[data-resize-handle=bottom-right]",
+  )!;
+  const start = handle.getBoundingClientRect();
+  handle.dispatchEvent(
+    new MouseEvent("mousedown", {
+      bubbles: true,
+      cancelable: true,
+      clientX: start.x,
+      clientY: start.y,
+    }),
+  );
+  expect(
+    screen.container.querySelectorAll("[data-slot=text-edit-image-guide]"),
+  ).toHaveLength(4);
+  document.dispatchEvent(
+    new MouseEvent("mousemove", { clientX: start.x + 61, clientY: start.y }),
+  );
+  document.dispatchEvent(new MouseEvent("mouseup"));
+  await vi.waitFor(() =>
+    expect(lastValue(onValueChange)).toBe(`![Chart|261](${PIXEL})`),
+  );
+  expect(
+    screen.container.querySelectorAll("[data-slot=text-edit-image-guide]"),
+  ).toHaveLength(0);
+});
+
+test("image: the ⋯ menu removes the image, and undo brings it back", async () => {
+  const onValueChange = vi.fn();
+  const md = `Before ![Chart](${PIXEL})`;
+  const screen = await markdownEditor({ defaultValue: md, onValueChange });
+  await screen.getByRole("button", { name: "Image actions" }).click();
+  await screen.getByRole("menuitem", { name: "Remove image" }).click();
+  await vi.waitFor(() => expect(lastValue(onValueChange)).toBe("Before"));
+  await userEvent.keyboard("{ControlOrMeta>}z{/ControlOrMeta}");
+  await vi.waitFor(() => expect(lastValue(onValueChange)).toBe(md));
+});
+
+test("image: Open shows it in the file viewer; read-only images open on a click", async () => {
+  const screen = await markdownEditor({
+    defaultValue: `![Chart](${PIXEL})`,
+  });
+  await screen.getByRole("button", { name: "Image actions" }).click();
+  await screen.getByRole("menuitem", { name: "Open" }).click();
+  await vi.waitFor(() =>
+    expect(document.querySelector("[role=dialog]")?.textContent).toContain(
+      "Chart",
+    ),
+  );
+  screen.unmount();
+
+  const view = await render(
+    <TextEdit
+      format="markdown"
+      readOnly
+      defaultValue="![Diagram|120](/diagram.png)"
+      aria-label="Doc"
+    />,
+  );
+  const image = view.getByRole("button", { name: "Open image: Diagram" });
+  expect(image.element().getAttribute("width")).toBe("120");
+  await image.click();
+  await vi.waitFor(() =>
+    expect(document.querySelector("[role=dialog]")?.textContent).toContain(
+      "Diagram",
+    ),
+  );
+});
+
+test("image: its corner radius is the same at rest, selected and while resizing", async () => {
+  const sheet = document.createElement("style");
+  sheet.textContent = geometryCss;
+  document.head.append(sheet);
+  onTestFinished(() => sheet.remove());
+  const screen = await markdownEditor({
+    defaultValue: `![Chart|200](${PIXEL})`,
+  });
+  const node = screen.container.querySelector<HTMLElement>(
+    "[data-slot=text-edit-image-node]",
+  )!;
+  const image = node.querySelector("img")!;
+  const wrapper = node.querySelector<HTMLElement>("[data-resize-wrapper]")!;
+  const rest = getComputedStyle(image).borderRadius;
+  expect(rest).not.toBe("0px");
+  expect(getComputedStyle(wrapper).borderRadius).toBe(rest);
+  await userEvent.click(image);
+  await vi.waitFor(() =>
+    expect(node.classList.contains("ProseMirror-selectednode")).toBe(true),
+  );
+  expect(getComputedStyle(image).borderRadius).toBe(rest);
+  expect(getComputedStyle(node).backgroundColor).toBe("rgba(0, 0, 0, 0)");
+  const handle = node.querySelector<HTMLElement>("[data-resize-handle=right]")!;
+  handle.dispatchEvent(
+    new MouseEvent("mousedown", { bubbles: true, cancelable: true }),
+  );
+  expect(getComputedStyle(image).borderRadius).toBe(rest);
+  document.dispatchEvent(new MouseEvent("mouseup"));
 });

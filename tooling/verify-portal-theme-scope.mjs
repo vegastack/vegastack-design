@@ -79,8 +79,13 @@ const EXPECTED_HOSTS = new Map([
   // TextEdit's slash menu follows the caret, not an anchor element, and must keep focus (and the
   // caret) in the editor — no Base UI popup fits, so it is a raw `createPortal` to `<body>` of a
   // `position: fixed` listbox. `SlashMenu` receives `useInternalThemeScope()` and attaches it to
-  // the listbox itself, the element rendered inside the portal.
-  ["packages/ui/registry/ui/text-edit-editor.tsx", ["createPortal"]],
+  // the listbox itself, the element rendered inside the portal. The second is each image's ⋯ menu
+  // trigger, portaled into its node view's slot INSIDE the editor (never `<body>`), so it stays in
+  // the theme subtree; its menu popup is a scoped `DropdownMenuContent`.
+  [
+    "packages/ui/registry/ui/text-edit-editor.tsx",
+    ["createPortal", "createPortal"],
+  ],
   // TemplateEditor's placeholder picker is the same shape as TextEdit's slash menu: a caret-anchored
   // `position: fixed` listbox that must keep focus in the editor, portaled to `<body>` inside a
   // `contents` wrapper carrying `useInternalThemeScope()`.

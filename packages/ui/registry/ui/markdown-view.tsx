@@ -1,4 +1,4 @@
-// @vegastack markdown-view@0.23.98 sha256-UEl85xBe+sH/NGW/t4iYu8uNmrQ166gH3dZM/0liYPs=
+// @vegastack markdown-view@0.23.98 sha256-fZn94a4MDXxqWBPmspaZ9RL6CiFTLIJXnjAsCSWHcbA=
 
 import * as React from "react";
 import { Lexer, type Token, type Tokens } from "marked";
@@ -662,6 +662,7 @@ const HTML_ATTRS = new Set([
   "checked",
   "data-type",
   "data-checked",
+  "width",
 ]);
 
 function htmlAttrs(source: string): Record<string, string> {
@@ -931,7 +932,9 @@ function renderNode(
     }
     case "img": {
       const src = safeUrl(attrs.src ?? "");
-      const alt = attrs.alt ?? "";
+      // A width set by resizing in `TextEdit`: `![alt|320](src)` in markdown, `width` in HTML.
+      const sized = parseImageAlt(attrs.alt ?? "");
+      const alt = sized.alt;
       if (!imageSourceAllowed(src, ctx.images)) {
         return (
           <span
@@ -949,13 +952,17 @@ function renderNode(
       } catch {
         // Relative URL: the browser will load it from the embedding application's own origin.
       }
+      const width =
+        sized.width ?? (Number.parseInt(attrs.width ?? "", 10) || undefined);
       return (
         // Plain <img>: registry source is framework-agnostic (no next/image dependency). Frame and
         // rhythm come from `prose.img` on the root.
         <img
           key={key}
+          data-slot="markdown-image"
           src={src}
           alt={alt}
+          width={width}
           title={attrs.title}
           loading="lazy"
           decoding="async"
@@ -1163,6 +1170,44 @@ export interface MarkdownViewProps extends React.ComponentPropsWithRef<"div"> {
    * @default undefined
    */
   citation?: (n: number) => MarkdownCitation | null | undefined;
+}
+
+/**
+ * `parseImageAlt` — split an image's markdown alt text into the text and the width `TextEdit`
+ * stores after a resize: `![Diagram|320](src)` is alt "Diagram", width 320 (the Obsidian
+ * convention, so other renderers still show the image).
+ *
+ * @example
+ * parseImageAlt("Diagram|320"); // { alt: "Diagram", width: 320 }
+ */
+export function parseImageAlt(text: string): { alt: string; width?: number } {
+  const match = /^(.*)\|(\d{1,5})$/s.exec(text);
+  if (!match) return { alt: text };
+  const width = Number(match[2]);
+  return width > 0 ? { alt: match[1]!, width } : { alt: match[1]! };
+}
+
+/**
+ * `imageMarkdown` — an image as markdown, its width (when set) kept in the alt text as
+ * `parseImageAlt` reads it.
+ *
+ * @example
+ * imageMarkdown({ src: "/a.png", alt: "Diagram", width: 320 }); // "![Diagram|320](/a.png)"
+ */
+export function imageMarkdown({
+  src,
+  alt,
+  title,
+  width,
+}: {
+  src: string;
+  alt?: string | null;
+  title?: string | null;
+  width?: number | null;
+}): string {
+  // As Tiptap's own image serializer, plus the width.
+  const text = `${alt ?? ""}${width ? `|${Math.round(width)}` : ""}`;
+  return title ? `![${text}](${src} "${title}")` : `![${text}](${src})`;
 }
 
 /**

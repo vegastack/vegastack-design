@@ -14250,6 +14250,7 @@
         "@vegastack/drag-item",
         "@vegastack/dropdown-menu",
         "@vegastack/file-kind",
+        "@vegastack/file-viewer",
         "@vegastack/input",
         "@vegastack/markdown-view",
         "@vegastack/popover",

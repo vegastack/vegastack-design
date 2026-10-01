@@ -591,6 +591,27 @@ export function textEditUploads(): ReactNode {
 }
 
 /**
+ * Images — hover one for its ⋯ menu (Open, Download, Copy link, Remove image); drag a corner or a
+ * side to resize it (the width snaps to a quarter, half, three quarters or the full width, and is
+ * kept in the Markdown as `![alt|width](src)`); double-click to open it in the file viewer.
+ */
+export function textEditImages(): ReactNode {
+  const [markdown, setMarkdown] = useState(
+    "A site photo, resized:\n\n![Ridge at dusk|240](/preview/landscape.svg)\n\nAnd the full-size one: ![Valley](/preview/landscape.svg)",
+  );
+  return (
+    <Wrapper className="flex-col items-stretch">
+      <TextEdit
+        format="markdown"
+        value={markdown}
+        onValueChange={setMarkdown}
+        aria-label="Notes with images"
+      />
+    </Wrapper>
+  );
+}
+
+/**
  * Callouts and toggles — `> [!NOTE]` / `[!TIP]` / `[!WARNING]` and `<details>`, from the slash
  * menu. Click a callout's icon to change its tone.
  */
