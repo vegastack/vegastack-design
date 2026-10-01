@@ -206,7 +206,7 @@ test("composer: 32px at rest, like Input, with an empty footer taking no room", 
         format="markdown"
         placeholder="Add a comment…"
         aria-label="Comment"
-        actions={<button type="button" style={{ width: 28, height: 28 }} />}
+        actions={<button type="button" style={{ width: 24, height: 24 }} />}
         footer={<div />}
       />
     </div>,
@@ -218,4 +218,11 @@ test("composer: 32px at rest, like Input, with an empty footer taking no room", 
     expect(root.querySelector(".ProseMirror")).not.toBeNull(),
   );
   expect(root.getBoundingClientRect().height).toBe(32);
+  // The control sits 4px in from the border on the right and at the bottom, off the corner.
+  const outer = root.getBoundingClientRect();
+  const control = root
+    .querySelector("[data-slot=text-edit-actions] button")!
+    .getBoundingClientRect();
+  expect(outer.right - control.right).toBe(4);
+  expect(outer.bottom - control.bottom).toBe(4);
 });
