@@ -77,6 +77,8 @@ describe("affected component closure", () => {
       "comments",
       "dropzone",
       "file-viewer",
+      // inline-chip's preview renders mentions through a MarkdownView.
+      "inline-chip",
       "issue-detail-01",
       "library-01",
       "markdown-view",

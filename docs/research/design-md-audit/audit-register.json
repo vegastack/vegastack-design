@@ -2,10 +2,10 @@
   "schemaVersion": 1,
   "kind": "vegastack-zero-gap-audit-register",
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "21ab9d574cf1fc3ccba82dacccbe248fd8ffbb2e04b4db3affc6f4ac682fdd67",
+  "contractSha256": "fc905fa9cbfb1087fbf125f50badcd5e6e26e5d17176635d5d110ca6cec9789c",
   "expectedCounts": {
-    "totalRegistryItems": 713,
-    "components": 141,
+    "totalRegistryItems": 714,
+    "components": 142,
     "animatedIcons": 467,
     "hooks": 13,
     "blocks": 13,
@@ -784,6 +784,17 @@
         "packages/ui/registry/ui/label.tsx"
       ],
       "docsSlug": "/docs/components/label",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "inline-chip",
+      "inventoryClass": "component",
+      "wave": "Content/marketing",
+      "family": "data-display",
+      "sourceFiles": [
+        "packages/ui/registry/ui/inline-chip.tsx"
+      ],
+      "docsSlug": "/docs/components/inline-chip",
       "contractStatus": "reconciled"
     },
     {

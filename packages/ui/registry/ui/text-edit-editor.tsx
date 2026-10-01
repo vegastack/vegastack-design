@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.23.101 sha256-q8YvNZ4IKHXGdO3dUQlMt785y6beFeU7AT3iu1a4fx8=
+// @vegastack text-edit@0.23.101 sha256-wnkePglfE7dnifZAnxC4ZSkl5c7lqSCBDnLHWCcuHgw=
 
 "use client";
 
@@ -68,7 +68,10 @@ import {
   BetweenVerticalStart,
   Bold,
   ChevronDown,
+  Building2,
+  CalendarDays,
   CircleCheck,
+  FolderKanban,
   Code,
   Copy,
   Download,
@@ -163,6 +166,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { InlineChip } from "@/components/ui/inline-chip";
 import { Alert } from "@/components/ui/alert";
 import {
   CALLOUT_STYLE,
@@ -170,7 +174,6 @@ import {
   MEDIA_AUDIO_CLASS,
   MEDIA_BLOCK,
   MEDIA_VIDEO_CLASS,
-  MentionChip,
   calloutClassName,
   calloutContentClassName,
   headingIds,
@@ -1204,7 +1207,7 @@ function FileChipIcon({ name }: { name: string }) {
   return (
     <FileTypeIcon
       name={name}
-      className="me-1 inline size-3.5 align-text-bottom"
+      className="me-1 inline size-[1em] align-[-0.125em] opacity-70"
     />
   );
 }
@@ -1831,6 +1834,9 @@ const MENTION_GROUPS: readonly { kind: MentionKind; label: string }[] = [
   { kind: "page", label: "Pages" },
   { kind: "file", label: "Files" },
   { kind: "task", label: "Tasks" },
+  { kind: "meeting", label: "Meetings" },
+  { kind: "customer", label: "Customers" },
+  { kind: "project", label: "Projects" },
 ];
 
 interface MentionMenuState {
@@ -1987,6 +1993,9 @@ const MENTION_ICON: Record<MentionKind, React.ComponentType> = {
   page: FileText,
   file: FileIcon,
   task: CircleCheck,
+  meeting: CalendarDays,
+  customer: Building2,
+  project: FolderKanban,
 };
 
 /* ------------------------------------------------------------------------------------------------
@@ -2393,7 +2402,10 @@ interface EditorRuntime {
   };
 }
 
-/** A mention chip's node view: the shared `MentionChip`; ⌘/Ctrl-click opens its target. */
+/**
+ * A mention chip's node view: the shared `InlineChip` (hover card from the nearest
+ * `InlineChipProvider`); a click places the caret, ⌘/Ctrl-click opens its target in a new tab.
+ */
 function mentionView(runtime: EditorRuntime) {
   return function MentionView({ node }: ReactNodeViewProps) {
     const { kind, id, label } = node.attrs as {
@@ -2401,28 +2413,19 @@ function mentionView(runtime: EditorRuntime) {
       id: string;
       label: string;
     };
-    const href =
-      kind === "user" || id.startsWith("restricted:")
-        ? null
-        : (runtime.mentionHref.current?.(kind, id) ?? null);
+    const hrefFor = runtime.mentionHref.current;
     return (
-      <NodeViewWrapper
-        as="span"
-        className="inline"
-        onClick={(event: React.MouseEvent) => {
-          if (!href || !(event.metaKey || event.ctrlKey)) return;
-          event.preventDefault();
-          window.open(href, "_blank", "noopener,noreferrer");
-        }}
-      >
-        <MentionChip
+      <NodeViewWrapper as="span" className="inline">
+        <InlineChip
           kind={kind}
-          id={id}
+          targetId={id}
           label={label}
+          openOn="modifier"
+          href={hrefFor ? hrefFor(kind, id) : undefined}
           image={
             kind === "user" ? runtime.mentionImage.current?.(id) : undefined
           }
-          title={href ? `${label} — ⌘-click to open` : undefined}
+          title={kind === "user" ? undefined : `${label} — ⌘-click to open`}
         />
       </NodeViewWrapper>
     );

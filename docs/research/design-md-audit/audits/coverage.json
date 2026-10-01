@@ -1,14 +1,14 @@
 {
   "schemaVersion": 1,
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "21ab9d574cf1fc3ccba82dacccbe248fd8ffbb2e04b4db3affc6f4ac682fdd67",
+  "contractSha256": "fc905fa9cbfb1087fbf125f50badcd5e6e26e5d17176635d5d110ca6cec9789c",
   "inventory": {
-    "expected": 713,
-    "actual": 713,
-    "unique": 713
+    "expected": 714,
+    "actual": 714,
+    "unique": 714
   },
   "classes": {
-    "components": 141,
+    "components": 142,
     "animatedIcons": 467,
     "hooks": 13,
     "blocks": 13,
@@ -163,8 +163,8 @@
       ]
     },
     "Content/marketing": {
-      "expected": 14,
-      "actual": 14,
+      "expected": 15,
+      "actual": 15,
       "members": [
         "alert",
         "announcement-banner",
@@ -172,6 +172,7 @@
         "code-block",
         "empty",
         "image",
+        "inline-chip",
         "item",
         "markdown-view",
         "media-player-controls",
@@ -785,7 +786,7 @@
       ]
     }
   },
-  "componentRoutes": 138,
+  "componentRoutes": 139,
   "blockRoutes": 20,
   "modeledExemptions": 3
 }

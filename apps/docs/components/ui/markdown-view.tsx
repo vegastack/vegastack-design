@@ -1,18 +1,14 @@
-// @vegastack markdown-view@0.23.101 sha256-1A4qS7u1wpZY8ZZe+h/5pIyajx57Wa1GT7QcTOYeln4=
+// @vegastack markdown-view@0.23.101 sha256-G0HqdhTNqGEUM7ZQWmzpaG+CaN4WoaPXoUwwasAdVwY=
 
 import * as React from "react";
 import { Lexer, type Token, type Tokens } from "marked";
 import {
-  CircleCheck,
-  File,
-  FileText,
   Info,
   ChevronRight,
   Lightbulb,
   MessageSquareWarning,
   OctagonAlert,
   TriangleAlert,
-  UserRound,
   type LucideIcon,
 } from "lucide-react";
 import { cn, proseClassName } from "@vegastack/design";
@@ -21,7 +17,11 @@ import { Checkbox } from "@/components/ui/checkbox";
 // `CodeBlock` owns the fenced-code surface (header + copy + sunken mono panel); shadcn rewrites
 // this alias on `add`, and vitest/tsconfig map `@/components/ui/*` → `registry/ui/*`.
 import { CodeBlock, parseCodeFenceInfo } from "@/components/ui/code-block";
-import { FileTypeIcon } from "@/lib/file-kind";
+import {
+  InlineChip,
+  type InlineChipKind,
+  type InlineChipProps,
+} from "@/components/ui/inline-chip";
 // The one client leaf: a citation marker's popover. Imported only when `citation` answers.
 import {
   MarkdownCitationMarker,
@@ -112,7 +112,7 @@ function decode(text: string): string {
  * ----------------------------------------------------------------------------------------------*/
 
 /** What a mention points at. */
-export type MentionKind = "user" | "page" | "file" | "task";
+export type MentionKind = InlineChipKind;
 
 /** The tones a callout takes — GitHub's alert set (`> [!NOTE]`, `[!TIP]`, `[!IMPORTANT]`, …). */
 export type CalloutTone = "note" | "tip" | "important" | "warning" | "caution";
@@ -161,7 +161,7 @@ export const calloutClassName = "my-2 grid-cols-[auto_1fr] gap-x-2 px-3 py-2";
  * with a backslash; the id has no whitespace or parentheses.
  */
 const MENTION_LINK =
-  /^\[@((?:[^\\[\]\n]|\\[^\n])*)\]\(mention:\/\/(user|page|file|task)\/([^\s()]+)\)/;
+  /^\[@((?:[^\\[\]\n]|\\[^\n])*)\]\(mention:\/\/(user|page|file|task|meeting|customer|project)\/([^\s()]+)\)/;
 
 /**
  * Read a mention link — `[@<label>](mention://<kind>/<id>)` — at the start of `source`, the shape
@@ -200,111 +200,23 @@ export function mentionMarkdown(
   return `[@${text}](mention://${kind}/${id})`;
 }
 
-/** A mention whose target the reader may not open: the app keeps the real id after the colon. */
-const isRestricted = (id: string) => id.startsWith("restricted:");
-
-const MENTION_ICONS: Record<MentionKind, LucideIcon> = {
-  user: UserRound,
-  page: FileText,
-  file: File,
-  task: CircleCheck,
-};
-
-// A file chip: inline, not flex — it sits in a sentence, wraps with it (`box-decoration-clone`
-// keeps its ground on both lines), and stays an inline target WCAG 2.2 §2.5.8 exempts from the
-// 24px size.
-const FILE_CHIP =
-  "rounded-sm bg-muted box-decoration-clone px-1 font-medium text-foreground [&_svg]:me-1 [&_svg]:inline [&_svg]:size-3.5 [&_svg]:align-text-bottom [&_svg]:text-muted-foreground";
-
-// An inline-flex chip on the info tint: the icon (or a person's 16px avatar) centred on the name;
-// a restricted chip is muted. A `before:` hit area lifts the 20px line to a 24px+ target.
-const CHIP =
-  "relative before:absolute before:inset-x-0 before:-inset-y-1 before:content-[''] inline-flex max-w-full items-center gap-1 rounded-sm bg-info/10 px-1 align-baseline font-medium text-info-text [&_svg]:size-3.5 [&_svg]:shrink-0 [&_svg]:text-info-text data-restricted:bg-muted data-restricted:text-muted-foreground data-restricted:[&_svg]:text-muted-foreground";
-
 /** Props accepted by `MentionChip`. */
-export interface MentionChipProps extends React.ComponentPropsWithRef<"span"> {
-  /** What the mention points at; picks the icon. */
-  kind: MentionKind;
+export interface MentionChipProps extends Omit<InlineChipProps, "targetId"> {
   /** The target's id. An id starting with `restricted:` renders a muted chip that is never a link. */
   id: string;
-  /** The name shown on the chip. */
-  label: string;
-  /**
-   * Where the chip links. People are never links, and neither is a restricted target.
-   * @default undefined
-   */
-  href?: string | null;
-  /**
-   * A person's avatar URL: a `user` chip shows it (16px, round) in place of the person icon.
-   * @default undefined
-   */
-  image?: string | null;
 }
 
 /**
  * `MentionChip` — the chip a `@` mention renders as, in `MarkdownView` and inside `TextEdit`: an
- * icon for its kind (person, page, file, task) and the target's name, a link when `href` is given.
- * An id starting with `restricted:` is a target the reader may not open: a muted chip, never a
- * link.
+ * `InlineChip` keyed by the mention's id (the nearest `InlineChipProvider` links, opens and
+ * previews it). An id starting with `restricted:` is a target the reader may not open: a muted
+ * chip, never a link.
  *
  * @example
  * <MentionChip kind="page" id="p1" label="Q3 plan" href="/library/p1" />
  */
-export function MentionChip({
-  kind,
-  id,
-  label,
-  href,
-  image,
-  className,
-  ...props
-}: MentionChipProps) {
-  const restricted = isRestricted(id);
-  const Icon = MENTION_ICONS[kind] ?? File;
-  const link = href && !restricted && kind !== "user" ? safeUrl(href) : "";
-  const avatar = kind === "user" && !restricted && image ? safeUrl(image) : "";
-  const body = (
-    <>
-      {avatar ? (
-        // Plain <img>: registry source is framework-agnostic (no next/image dependency).
-        <img
-          src={avatar}
-          alt=""
-          aria-hidden
-          data-slot="mention-chip-avatar"
-          className="size-4 shrink-0 rounded-full object-cover"
-        />
-      ) : kind === "file" ? (
-        <FileTypeIcon name={label} />
-      ) : (
-        <Icon aria-hidden />
-      )}
-      <span className="min-w-0 truncate">{label}</span>
-    </>
-  );
-  const chipClassName = cn(CHIP, className);
-  return link ? (
-    <a
-      data-slot="mention-chip"
-      data-kind={kind}
-      data-restricted={restricted ? "" : undefined}
-      href={link}
-      title={props.title}
-      className={chipClassName}
-    >
-      {body}
-    </a>
-  ) : (
-    <span
-      data-slot="mention-chip"
-      data-kind={kind}
-      data-restricted={restricted ? "" : undefined}
-      {...props}
-      className={chipClassName}
-    >
-      {body}
-    </span>
-  );
+export function MentionChip({ id, ...props }: MentionChipProps) {
+  return <InlineChip targetId={id} {...props} />;
 }
 
 /**
@@ -313,8 +225,11 @@ export function MentionChip({
  * restates them at higher specificity. `MarkdownView` and `TextEdit`'s editor both wear it.
  */
 export const markdownExtrasClassName = cn(
-  "[&_[data-slot=mention-chip]]:no-underline [&_[data-slot=mention-chip]]:text-info-text [&_[data-slot=mention-chip][data-restricted]]:text-muted-foreground",
-  "[&_[data-slot=file-chip]]:rounded-sm [&_[data-slot=file-chip]]:bg-muted [&_[data-slot=file-chip]]:px-1 [&_[data-slot=file-chip]]:font-medium [&_[data-slot=file-chip]]:no-underline [&_[data-slot=file-chip]]:text-foreground [&_a[data-slot=file-chip]:hover]:bg-accent [&_[data-slot=mention-chip]:not([data-restricted]):hover]:bg-info/15",
+  // A chip that is an `<a>` keeps its own ink and no underline (`inlineChipProseClassName`, restated
+  // here because a constant imported from a client module is a reference on the server).
+  "[&_[data-slot=inline-chip]]:no-underline [&_[data-slot=inline-chip][data-interactive]:hover]:underline",
+  // TextEdit's file links are link marks, not chips: the same ground, ink, padding and radius.
+  "[&_[data-slot=file-chip]]:box-decoration-clone [&_[data-slot=file-chip]]:rounded-sm [&_[data-slot=file-chip]]:bg-muted [&_[data-slot=file-chip]]:px-1 [&_[data-slot=file-chip]]:py-px [&_[data-slot=file-chip]]:font-medium [&_[data-slot=file-chip]]:no-underline [&_[data-slot=file-chip]]:text-foreground",
   "[&_details]:my-2 [&_summary]:flex [&_summary]:cursor-pointer [&_summary]:list-none [&_summary]:items-center [&_summary]:gap-1 [&_summary]:py-0.5 [&_summary]:font-medium [&_summary::-webkit-details-marker]:hidden [&_details>:not(summary)]:ms-6",
   "[&_[data-slot=toggle-icon]]:size-5 [&_[data-slot=toggle-icon]]:shrink-0 [&_[data-slot=toggle-icon]]:rounded-sm [&_[data-slot=toggle-icon]]:p-0.5 [&_[data-slot=toggle-icon]]:text-muted-foreground [&_[data-slot=toggle-icon]]:transition-transform [&_summary:hover_[data-slot=toggle-icon]]:bg-muted [&_summary:hover_[data-slot=toggle-icon]]:text-foreground [&_details[open]>summary>[data-slot=toggle-icon]]:rotate-90 rtl:[&_[data-slot=toggle-icon]]:-scale-x-100",
 );
@@ -926,12 +841,15 @@ function renderNode(
     case "mention": {
       const kind = attrs.kind as MentionKind;
       return (
-        <MentionChip
+        <InlineChip
           key={key}
           kind={kind}
-          id={attrs.id ?? ""}
+          targetId={attrs.id ?? ""}
           label={attrs.label ?? ""}
-          href={ctx.mentionHref?.(kind, attrs.id ?? "")}
+          // The view's own props win over the provider's only when the host passed them.
+          href={
+            ctx.mentionHref ? ctx.mentionHref(kind, attrs.id ?? "") : undefined
+          }
           image={
             kind === "user" ? ctx.mentionImage?.(attrs.id ?? "") : undefined
           }
@@ -965,19 +883,15 @@ function renderNode(
         const name = textOf(node);
 
         return (
-          <a
+          <InlineChip
             key={key}
+            kind="file"
+            targetId={href}
             href={href}
+            label={name}
             title={attrs.title}
-            data-slot="file-chip"
-            className={FILE_CHIP}
-          >
-            <FileTypeIcon
-              contentType={ctx.fileContentType?.(href)}
-              name={name}
-            />
-            {children()}
-          </a>
+            contentType={ctx.fileContentType?.(href)}
+          />
         );
       }
       const external = /^https?:\/\//i.test(href);

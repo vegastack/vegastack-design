@@ -578,7 +578,7 @@ const expectedWaves = {
   "Navigation/layout": 21,
   Overlays: 15,
   "Data display": 26,
-  "Content/marketing": 14,
+  "Content/marketing": 15,
   "AI/chat": 8,
   // Not a browse group: components other components install, with no page of their own. See
   // `isSharedGuideOnly` below — every member of this wave must carry that whole shape.
@@ -737,6 +737,7 @@ const expectedComponentWaveMembers = {
     "code-block",
     "empty",
     "image",
+    "inline-chip",
     "item",
     "markdown-view",
     "media-player-controls",
