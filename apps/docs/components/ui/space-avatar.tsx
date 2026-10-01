@@ -1,4 +1,4 @@
-// @vegastack space-avatar@0.23.113 sha256-Uzy7QmR4egqBEZlMpJ7PnnHUouru4SsSuveDqTtkFv4=
+// @vegastack space-avatar@0.23.114 sha256-WvYvaGh3ogOKgRzmbwKNkt4i2gg4YJ6kErGwnLp9zEE=
 
 import * as React from "react";
 import { LockIcon } from "lucide-react";

@@ -9,6 +9,20 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.23.114] — October 2, 2026
+
+<!-- assembled from 1 changeset: ec1d1f05093d -->
+
+### 🔧 Changed components
+
+- `board` and `data-list`: new `canMoveItem` prop locks single items — a view-only record in an editable view. On `Board`, `canMoveItem(item)` returning `false` means the card cannot be picked up by pointer, touch or Space, keeps the default cursor (no `cursor-grab`), carries `data-move-locked` and drops the "Draggable card" role description; it still focuses, opens, keeps its ⋯ actions, and other cards move around it. On `DataList`, `canMoveItem(row)` makes that row (and grid card) no drag source with `data-move-locked`, leaves it out of a dragged selection, keeps it openable and a drop target, and passes through to the board view. The docs gain a "Locked cards" board example and a locked row in the drag-into example.
+  [`992e9f3`](https://github.com/VegaStack/vegastack-design/commit/992e9f3)
+
+### 📦 npm
+
+- **`@vegastack/design`** → **`0.7.99`** (was `0.7.98`).
+- The design-system registry (`@vegastack/ui`) bumps 0.23.113 → 0.23.114.
+
 ## [0.23.113] — October 2, 2026
 
 <!-- assembled from 2 changesets: dc9ba22980e2 -->
