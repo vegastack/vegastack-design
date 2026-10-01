@@ -853,8 +853,14 @@ const moreMarkdownFixtures: [string, string][] = [
     "a GFM table",
     "| Name | Role |\n| ---- | ---- |\n| Ada  | Eng  |\n| Bo   | PM   |",
   ],
-  ["an image with alt text", "![A chart](https://example.com/chart.png)"],
-  ["a resized image", "![A chart|320](https://example.com/chart.png)"],
+  [
+    "an image with alt text",
+    "Intro\n\n![A chart](https://example.com/chart.png)\n\nAfter",
+  ],
+  [
+    "a resized image",
+    "Intro\n\n![A chart|320](https://example.com/chart.png)\n\nAfter",
+  ],
   ["a code block with a language", "```python\nprint(1)\n```"],
   [
     "a link and marks together",
@@ -883,7 +889,7 @@ const moreMarkdownFixtures: [string, string][] = [
     "a toggle holding a nested list",
     "<details><summary>Wiring</summary>\n\n- red\n- black\n  - earth\n\n</details>",
   ],
-  ["an uploaded image", "![](/api/files/f1)"],
+  ["an uploaded image", "Intro\n\n![](/api/files/f1)\n\nAfter"],
   ["a file link", "Attached [report.pdf](/api/files/f2/download)"],
 ];
 
@@ -1609,7 +1615,7 @@ test("uploads: a pasted image shows the uploading overlay, then its final src â€
 
   land({ src: "/api/files/f1" });
   await vi.waitFor(() =>
-    expect(onCommit).toHaveBeenLastCalledWith("Before![](/api/files/f1)"),
+    expect(onCommit).toHaveBeenLastCalledWith("Before\n\n![](/api/files/f1)"),
   );
   expect(box.element().querySelector("[data-uploading]")).toBeNull();
   expect(box.element().querySelector("img")?.getAttribute("src")).toBe(
@@ -2260,7 +2266,9 @@ test("hidden and shown again (React Activity): the live document survives, and a
     ),
   );
   await vi.waitFor(() =>
-    expect(onCommit).toHaveBeenLastCalledWith("Start typed![](/api/files/f2)"),
+    expect(onCommit).toHaveBeenLastCalledWith(
+      "Start typed\n\n![](/api/files/f2)",
+    ),
   );
 });
 
@@ -2343,7 +2351,7 @@ test("image: dragging a side handle resizes it and stores the width in the Markd
 
 test("image: â‹¯ Delete removes the image, and undo brings it back", async () => {
   const onValueChange = vi.fn();
-  const md = `Before ![Chart](${PIXEL})`;
+  const md = `Before\n\n![Chart](${PIXEL})`;
   const screen = await markdownEditor({ defaultValue: md, onValueChange });
   await screen.getByRole("button", { name: "More image actions" }).click();
   await screen.getByRole("menuitem", { name: "Delete" }).click();
@@ -2475,4 +2483,18 @@ test("file chip: a double-click opens the file in the viewer", async () => {
       "data.csv",
     ),
   );
+});
+
+test("images are blocks: an inline image is lifted out of its paragraph", async () => {
+  const onValueChange = vi.fn();
+  const screen = await markdownEditor({
+    defaultValue: "Before ![Chart](/api/files/f1) after",
+    onValueChange,
+  });
+  const box = screen.getByRole("textbox", { name: "Notes" }).element();
+  await vi.waitFor(() =>
+    expect(box.querySelector("p [data-slot=text-edit-image-node]")).toBeNull(),
+  );
+  expect(box.querySelectorAll("p")).toHaveLength(2);
+  expect(box.querySelector("[data-slot=text-edit-image-node]")).not.toBeNull();
 });

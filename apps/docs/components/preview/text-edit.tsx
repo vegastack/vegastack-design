@@ -2,6 +2,7 @@
 
 import { useRef, useState, type ReactNode } from "react";
 import dynamic from "next/dynamic";
+import { ArrowUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/components/ui/toast";
 import { MarkdownView } from "@/components/ui/markdown-view";
@@ -135,6 +136,32 @@ export function textEditBoxed(): ReactNode {
           <Button size="sm">Comment</Button>
         </div>
       </TextEdit>
+    </Wrapper>
+  );
+}
+
+/**
+ * `variant="composer"` — an `Input`-looking box that grows line by line (to about ten lines, then
+ * scrolls), the actions pinned bottom-right and file cards in the footer.
+ */
+export function textEditComposer(): ReactNode {
+  return (
+    <Wrapper className="flex-col items-stretch">
+      <TextEdit
+        variant="composer"
+        format="markdown"
+        placeholder="Add a comment…"
+        aria-label="Comment"
+        actions={
+          <Button
+            size="icon-sm"
+            aria-label="Send comment"
+            className="rounded-full"
+          >
+            <ArrowUp aria-hidden />
+          </Button>
+        }
+      />
     </Wrapper>
   );
 }

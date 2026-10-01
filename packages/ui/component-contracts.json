@@ -24374,7 +24374,12 @@
             },
             {
               "name": "data-slot",
-              "values": ["text-edit", "text-edit-content"]
+              "values": [
+                "text-edit",
+                "text-edit-actions",
+                "text-edit-content",
+                "text-edit-footer"
+              ]
             },
             {
               "name": "data-variant",
