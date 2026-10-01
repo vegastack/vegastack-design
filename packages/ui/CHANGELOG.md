@@ -1,5 +1,14 @@
 # @vegastack/ui
 
+## 0.23.98
+
+### Patch Changes
+
+- [#471](https://github.com/vegastack/vegastack-design/pull/471) [`c8965a5`](https://github.com/vegastack/vegastack-design/commit/c8965a5f39e102fed5df1c4fc0f356b4804d1923) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🔧 Comments. The comment and reply boxes take the `Input` radius (`rounded-lg`) instead of a near-pill `rounded-xl`. `CommentList` shows no "No comments yet" line by default — the composer alone; `emptyText` still adds one. Delete in a comment's ⋯ menu calls `onDelete` at once, without a confirmation dialog (hosts offer Undo). A box's `files` (the draft's attached files) now render inside the box at its bottom, under the text, as the same cards a posted comment shows — not above the box; with `onAttachFiles`, pasted or dropped files join them instead of going into the text. `CommentComposer` and `CommentThread`'s `composer` take `hasFiles`: a draft with attached files can be sent without text. Reaction pills are lighter: a soft hairline border with no fill, and a light primary tint when reacted, in both themes.
+
+- Updated dependencies [[`c8965a5`](https://github.com/vegastack/vegastack-design/commit/c8965a5f39e102fed5df1c4fc0f356b4804d1923)]:
+  - @vegastack/design@0.7.83
+
 ## 0.23.97
 
 ### Patch Changes
