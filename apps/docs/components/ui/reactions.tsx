@@ -1,4 +1,4 @@
-// @vegastack reactions@0.23.97 sha256-MCtY5Y9Y/hNWnrZgLV0T+dax/2ZHmlyjSItXp/+vheY=
+// @vegastack reactions@0.23.97 sha256-ubvjkPsExcnuGkv/+XTmtRGb9E0CVknsxBYPOJdxKqs=
 
 "use client";
 
@@ -165,7 +165,10 @@ function ReactionPill({
               reaction.reacted ? "remove your reaction" : "react"
             }`}
             onClick={() => void toggle()}
-            className="rounded-full tabular-nums data-[reacted]:border-primary/40 data-[reacted]:bg-primary/10 data-[reacted]:hover:bg-primary/15"
+            className={cn(
+              "rounded-full border-border/60 bg-transparent tabular-nums shadow-none hover:bg-muted/60 dark:border-border/60 dark:bg-transparent dark:hover:bg-muted/40",
+              "data-[reacted]:border-primary/25 data-[reacted]:bg-primary/8 data-[reacted]:hover:bg-primary/12 dark:data-[reacted]:border-primary/30 dark:data-[reacted]:bg-primary/12 dark:data-[reacted]:hover:bg-primary/16",
+            )}
           />
         }
       >
