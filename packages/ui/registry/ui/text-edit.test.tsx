@@ -2334,7 +2334,7 @@ test("image: the ⋯ menu removes the image, and undo brings it back", async () 
   await vi.waitFor(() => expect(lastValue(onValueChange)).toBe(md));
 });
 
-test("image: Open shows it in the file viewer; read-only images open on a click", async () => {
+test("image: Open shows it in the file viewer", async () => {
   const screen = await markdownEditor({
     defaultValue: `![Chart](${PIXEL})`,
   });
@@ -2345,8 +2345,13 @@ test("image: Open shows it in the file viewer; read-only images open on a click"
       "Chart",
     ),
   );
-  screen.unmount();
+  await userEvent.keyboard("{Escape}");
+  await vi.waitFor(() =>
+    expect(document.querySelector("[role=dialog]")).toBeNull(),
+  );
+});
 
+test("image: a read-only document opens its images on a click", async () => {
   const view = await render(
     <TextEdit
       format="markdown"
@@ -2362,6 +2367,10 @@ test("image: Open shows it in the file viewer; read-only images open on a click"
     expect(document.querySelector("[role=dialog]")?.textContent).toContain(
       "Diagram",
     ),
+  );
+  await userEvent.keyboard("{Escape}");
+  await vi.waitFor(() =>
+    expect(document.querySelector("[role=dialog]")).toBeNull(),
   );
 });
 
