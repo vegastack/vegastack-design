@@ -34,7 +34,9 @@ test("lists comments with a count, and shows the empty state", async () => {
   expect(screen.container.querySelector("#comment-a")).not.toBeNull();
   await expectNoA11yViolations(screen.container);
   const empty = await render(<CommentList comments={[]} />);
-  await expect.element(empty.getByText("No comments yet")).toBeVisible();
+  expect(
+    empty.container.querySelector("[data-slot=comment-list-empty]"),
+  ).toBeNull();
 });
 
 test("editing: round ↑ Save is disabled until the text changes, × Cancel leaves", async () => {

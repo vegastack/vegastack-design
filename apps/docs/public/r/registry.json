@@ -261,7 +261,6 @@
       ],
       "registryDependencies": [
         "@vegastack/date-time",
-        "@vegastack/alert-dialog",
         "@vegastack/button",
         "@vegastack/dropdown-menu",
         "@vegastack/markdown-view",
@@ -284,7 +283,7 @@
         "whenToUse": "Discussion on a record's page (a task, a meeting): comments oldest first with the composer at the end.",
         "whenNotToUse": "An activity feed or notifications — use Inbox.",
         "version": "0.23.97",
-        "integrity": "sha256-zwBnbVNl0RWzLs2cNdoYWMJBlAKLi0+/1/KrGFth43k="
+        "integrity": "sha256-LJMTADtU+fYAnsBJQLY0khotpTddpzXCvjax6OfVRRA="
       }
     },
     {
