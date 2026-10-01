@@ -1,4 +1,4 @@
-// @vegastack comments@0.23.97 sha256-ohAiWYwo6zTCvlB6+4zzb7bu28M2D9CTsuegIXjNx70=
+// @vegastack comments@0.23.97 sha256-zcotfBZdTpSdRga/5EnQBBsJJzY74drkRApwDoDdlnM=
 
 "use client";
 
@@ -518,7 +518,7 @@ interface CommentBoxProps {
   onImageUpload?: TextEditProps["onImageUpload"];
   onFileUpload?: TextEditProps["onFileUpload"];
   onUploadError?: TextEditProps["onUploadError"];
-  /** Files picked with the attach button go here instead of into the text. */
+  /** Files picked with the attach button, pasted or dropped go here instead of into the text. */
   onAttachFiles?: (files: File[]) => void;
   /** Inside the box, over the text: the draft's attached files (cards with their upload progress). */
   files?: React.ReactNode;
@@ -574,6 +574,30 @@ function CommentBox({
       data-bare={bare ? "" : undefined}
       aria-invalid={invalid || undefined}
       className="flex min-w-0 flex-col gap-1.5"
+      // With `onAttachFiles`, pasted or dropped files join the box's attached files (the same
+      // tray as the paperclip) instead of going into the text.
+      onPasteCapture={
+        onAttachFiles && !disabled
+          ? (event) => {
+              const picked = Array.from(event.clipboardData?.files ?? []);
+              if (!picked.length) return;
+              event.preventDefault();
+              event.stopPropagation();
+              onAttachFiles(picked);
+            }
+          : undefined
+      }
+      onDropCapture={
+        onAttachFiles && !disabled
+          ? (event) => {
+              const picked = Array.from(event.dataTransfer?.files ?? []);
+              if (!picked.length) return;
+              event.preventDefault();
+              event.stopPropagation();
+              onAttachFiles(picked);
+            }
+          : undefined
+      }
       onKeyDown={
         onEscape
           ? (event) => {
