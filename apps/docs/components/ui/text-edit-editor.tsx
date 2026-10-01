@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.23.100 sha256-qONbbj1i+HLoOd6YJWl/6AgmhoyPRuob/pyIVnXywNo=
+// @vegastack text-edit@0.23.100 sha256-3KCjuvb6S9jD0us85PYLJpRhs7/b0Hiutgysp+K6DZ8=
 
 "use client";
 
@@ -2537,7 +2537,7 @@ function CalloutView({ node, editor, updateAttributes }: ReactNodeViewProps) {
                   contentEditable={false}
                   aria-label={`Callout type: ${style.label}`}
                   onMouseDown={(event) => event.preventDefault()}
-                  className="-my-0.5 -ms-1 size-5 text-current [&_svg]:text-current"
+                  className="-my-1 -ms-1.5 text-current [&_svg]:size-4 [&_svg]:text-current"
                 />
               }
             >
