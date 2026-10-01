@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.23.106 sha256-ArPFUcPmuyfxFDVPcUdW4ZW/JvZOdpa1HNMk3Re2OpE=
+// @vegastack text-edit@0.23.106 sha256-rVJud/5y6bzXN0vUwxcofXvVn3shEtOJKFSr4ACpg1o=
 
 "use client";
 
@@ -637,7 +637,7 @@ function CodeBlockView({
             data-slot="code-block-header"
             className={cn(
               codeBlockControlClassName,
-              "start-2 flex h-7 items-center px-2 text-xs text-muted-foreground",
+              "start-1.5 flex h-7 items-center border border-transparent px-2 text-xs text-muted-foreground",
             )}
           >
             {codeLanguageName(language)}
@@ -2766,7 +2766,7 @@ function CalloutView({ node, editor, updateAttributes }: ReactNodeViewProps) {
                   aria-label={`Callout type: ${style.label}`}
                   onMouseDown={(event) => event.preventDefault()}
                   // One text line tall (20px, the Alert's line), so the icon sits centred on it.
-                  className={cn("-my-0.5 -ms-1.5 size-6", style.washClassName)}
+                  className={cn("-mx-1 -my-0.5 size-6", style.washClassName)}
                 />
               }
             >

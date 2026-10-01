@@ -1,4 +1,4 @@
-// @vegastack code-block@0.23.106 sha256-vakhFO2GYzL51AVGSS/Bta2m11r3nEeK9JzlkKHStf0=
+// @vegastack code-block@0.23.106 sha256-w6U2gEDVuOucKVbN06Mb0UdssbCjSPP5GICR3VdeUb4=
 
 "use client";
 
@@ -285,7 +285,7 @@ export function CodeBlock({
           data-slot="code-block-header"
           className={cn(
             codeBlockControlClassName,
-            "start-2 flex h-7 items-center px-2 text-xs text-muted-foreground select-none",
+            "start-1.5 flex h-7 items-center border border-transparent px-2 text-xs text-muted-foreground select-none",
           )}
         >
           {codeLanguageName(language)}
