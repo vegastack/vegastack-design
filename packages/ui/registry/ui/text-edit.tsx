@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.23.109 sha256-OzCsc6BIin31IwQRLQIqhoHkmu+NsjiX0GTFyX1ePu0=
+// @vegastack text-edit@0.23.109 sha256-3lSceKe6LVzd1PDesFgnIX3ey+eML3bMW9EXXQEn6Hk=
 
 "use client";
 
@@ -231,21 +231,23 @@ const editorBaseClassName = cn(
 );
 
 /*
- * `variant="composer"` — `Input`'s box (32px: a 1px border around a 28px row; `ps-2.5`, 14px type
- * from md, 16px on a phone) as a two-column grid: the text, then the actions. One line of text is
- * exactly the 28px row (2px + the 24px textbox, whose 20px line is centred in it from md), so the 28px
- * controls sit centred on it, and as the text grows they stay on the last line (`self-end`). The
- * text scrolls inside past about ten lines; the footer spans both columns under it.
+ * `variant="composer"` — `Input`'s box (32px: a 1px border around a 28px row; 14px type from md,
+ * 16px on a phone) on a light fill, as a grid: the leading controls (attach), the text, the actions
+ * (Send), 6px in from either side (10px before the text when nothing leads). One line of text is
+ * exactly the 28px row (2px + the 24px textbox, whose 20px line is centred in it from md), so the
+ * 28px controls sit centred on it, and as the text grows they stay on the last line (`self-end`).
+ * The text scrolls inside past about ten lines; the footer spans the row under it.
  */
-const COMPOSER_ROOT =
-  "grid min-h-8 grid-cols-[minmax(0,1fr)_auto] items-end gap-x-1 py-px ps-2.5 pe-px";
+const COMPOSER_ROOT = "grid min-h-8 items-end gap-x-1 bg-muted/30 py-px pe-1.5";
+const COMPOSER_LEADING =
+  "col-start-1 row-start-1 flex shrink-0 items-center gap-1 self-end";
 const COMPOSER_CONTENT =
-  "col-start-1 row-start-1 max-h-[calc(10*1.5rem+0.25rem)] overflow-y-auto py-0.5 md:max-h-[calc(10*1.25rem+0.5rem)] [&>*]:py-0 [&>*]:text-base [&>*]:leading-6 md:[&>*]:text-sm md:[&>*]:leading-5 md:[&_[role=textbox]]:py-0.5 [&>*>*:first-child]:mt-0 [&>*>*:last-child]:mb-0";
+  "row-start-1 max-h-[calc(10*1.5rem+0.25rem)] overflow-y-auto py-0.5 md:max-h-[calc(10*1.25rem+0.5rem)] [&>*]:py-0 [&>*]:text-base [&>*]:leading-6 md:[&>*]:text-sm md:[&>*]:leading-5 md:[&_[role=textbox]]:py-0.5 [&>*>*:first-child]:mt-0 [&>*>*:last-child]:mb-0";
 const COMPOSER_ACTIONS =
-  "col-start-2 row-start-1 flex shrink-0 items-center gap-1 self-end";
+  "row-start-1 flex shrink-0 items-center gap-1 self-end";
 // An empty footer (a host passing a wrapper with no files in it) takes no room.
 const COMPOSER_FOOTER =
-  "col-span-2 row-start-2 min-w-0 pe-1.5 pt-1 pb-1.5 has-[>:only-child:empty]:hidden";
+  "col-span-full row-start-2 min-w-0 pt-1 pb-1.5 has-[>:only-child:empty]:hidden";
 
 /** While focused and empty, the placeholder yields to the slash hint. */
 const slashHintClassName =
@@ -722,7 +724,12 @@ export interface TextEditProps {
    */
   variant?: "document" | "boxed" | "composer";
   /**
-   * `variant="composer"`: the trailing controls (attach, Send), bottom-right.
+   * `variant="composer"`: the leading controls (attach), bottom-left.
+   * @default undefined
+   */
+  leading?: React.ReactNode;
+  /**
+   * `variant="composer"`: the trailing controls (Send), bottom-right.
    * @default undefined
    */
   actions?: React.ReactNode;
@@ -946,6 +953,7 @@ export function TextEdit(props: TextEditProps) {
     "aria-describedby": ariaDescribedBy,
     variant = "document",
     headingScale = "compact",
+    leading,
     actions,
     footer,
     children,
@@ -1123,6 +1131,7 @@ export function TextEdit(props: TextEditProps) {
     minCss != null && "min-h-[var(--te-min-h)]",
     maxCss != null && "max-h-[var(--te-max-h)] overflow-y-auto",
     composer && COMPOSER_CONTENT,
+    composer && (leading ? "col-start-2" : "col-start-1"),
   );
 
   // Nothing edits the read view itself (React owns its DOM): every native edit is cancelled, and
@@ -1203,6 +1212,10 @@ export function TextEdit(props: TextEditProps) {
           "rounded-lg border border-input transition-[color,background-color,border-color] duration-150 ease-out has-[[contenteditable=true]:focus]:not-data-invalid:border-ring/40 data-invalid:border-destructive dark:bg-input/30 dark:data-invalid:border-destructive/50",
         boxed && !composer && "px-2.5 py-2",
         composer && COMPOSER_ROOT,
+        composer &&
+          (leading
+            ? "grid-cols-[auto_minmax(0,1fr)_auto] ps-1.5"
+            : "grid-cols-[minmax(0,1fr)_auto] ps-2.5"),
         editable && "cursor-text",
         !editable && "[&_img[data-viewer]]:cursor-zoom-in",
         disabled && "opacity-50",
@@ -1312,8 +1325,19 @@ export function TextEdit(props: TextEditProps) {
           />
         </React.Suspense>
       ) : null}
+      {composer && leading ? (
+        <div data-slot="text-edit-leading" className={COMPOSER_LEADING}>
+          {leading}
+        </div>
+      ) : null}
       {composer && actions ? (
-        <div data-slot="text-edit-actions" className={COMPOSER_ACTIONS}>
+        <div
+          data-slot="text-edit-actions"
+          className={cn(
+            COMPOSER_ACTIONS,
+            leading ? "col-start-3" : "col-start-2",
+          )}
+        >
           {actions}
         </div>
       ) : null}

@@ -240,7 +240,10 @@
         "@vegastack/searchable-select",
         "@vegastack/skeleton",
         "@vegastack/text-edit",
-        "@vegastack/tooltip"
+        "@vegastack/tooltip",
+        "@vegastack/attachment",
+        "@vegastack/file-viewer",
+        "@vegastack/spinner"
       ],
       "files": [
         {
@@ -12690,7 +12693,8 @@
       "registryDependencies": [
         "@vegastack/file-kind",
         "@vegastack/hover-card",
-        "@vegastack/person-avatar"
+        "@vegastack/person-avatar",
+        "@vegastack/avatar"
       ],
       "files": [
         {

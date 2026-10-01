@@ -1,4 +1,4 @@
-// @vegastack inline-chip@0.23.109 sha256-sdwG+aPeMJHCiaa+j2kuOlTmEyW25YZimVXpgXT9Tic=
+// @vegastack inline-chip@0.23.109 sha256-4m48R+ZZgteSjqGZmtJ2OIeJR5l6TfNRDxML22lS4vI=
 
 "use client";
 
@@ -15,6 +15,7 @@ import {
 import { cn } from "@vegastack/design";
 import { FileTypeIcon } from "@/lib/file-kind";
 import { PersonAvatar } from "@/components/ui/person-avatar";
+import type { AvatarHue } from "@/components/ui/avatar";
 import {
   HoverCard,
   HoverCardContent,
@@ -53,8 +54,20 @@ export interface InlineChipPerson {
   name: string;
   /** Their email, under the name in the hover card. @default undefined */
   email?: string | null;
-  /** Their photo: the chip shows it in place of the person icon. @default undefined */
+  /**
+   * Their photo, small (the chip's 18px avatar — pass the app's small image variant). @default undefined
+   */
   image?: string | null;
+  /**
+   * Their photo for the hover card's larger avatar (the app's larger variant); falls back to
+   * `image`. @default undefined
+   */
+  cardImage?: string | null;
+  /**
+   * Their colour behind their initials, as on every `PersonAvatar` (comment avatars included).
+   * @default undefined
+   */
+  hue?: AvatarHue | null;
 }
 
 /** What a chip opens: passed to `onOpen`. */
@@ -341,24 +354,31 @@ export function InlineChip({
   };
 
   const KindIcon = KIND_ICON[kind];
-  const lead = photo ? (
-    <PersonAvatar
-      person={{ name: person?.name ?? label, image: photo }}
-      size="sm"
-      aria-hidden
-      data-slot="inline-chip-avatar"
-      className="me-1 inline-flex size-[1.125em] data-[size=sm]:size-[1.125em] align-middle after:hidden"
-    />
-  ) : kind === "file" ? (
-    <FileTypeIcon
-      contentType={contentType}
-      name={label}
-      data-slot="inline-chip-icon"
-      className={cn(ICON, "text-current")}
-    />
-  ) : (
-    <KindIcon aria-hidden data-slot="inline-chip-icon" className={ICON} />
-  );
+  // A person chip leads with their avatar — the photo, else their initials on their colour — as
+  // a comment's avatar does; other chips with a photo show it too.
+  const lead =
+    photo || person ? (
+      <PersonAvatar
+        person={{
+          name: person?.name ?? label,
+          image: photo || null,
+          hue: person?.hue ?? null,
+        }}
+        size="sm"
+        aria-hidden
+        data-slot="inline-chip-avatar"
+        className="me-1 inline-flex size-[1.125em] align-middle select-none after:hidden data-[size=sm]:size-[1.125em]"
+      />
+    ) : kind === "file" ? (
+      <FileTypeIcon
+        contentType={contentType}
+        name={label}
+        data-slot="inline-chip-icon"
+        className={cn(ICON, "text-current")}
+      />
+    ) : (
+      <KindIcon aria-hidden data-slot="inline-chip-icon" className={ICON} />
+    );
 
   const shared = {
     "data-slot": "inline-chip",
@@ -423,7 +443,10 @@ export function InlineChip({
         person={{
           name: person.name,
           email: person.email,
-          image: photo || null,
+          image: restricted
+            ? null
+            : safeUrl(person.cardImage ?? "") || photo || null,
+          hue: person.hue ?? null,
         }}
         size="default"
       />
