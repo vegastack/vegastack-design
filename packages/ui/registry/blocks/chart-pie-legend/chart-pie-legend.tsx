@@ -1,4 +1,4 @@
-// @vegastack chart-pie-legend@0.23.111 sha256-GUEr6ALTuQ5HcmpV939C5jMchxyVdlQHyFDjVODzxpg=
+// @vegastack chart-pie-legend@0.23.112 sha256-84PjauRGz7ASLqdSb3oSXpqR+P7UY0W/0hQxvbIGOR8=
 
 "use client";
 
