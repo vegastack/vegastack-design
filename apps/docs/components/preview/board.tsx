@@ -573,3 +573,40 @@ export function boardReadOnly(): ReactNode {
     </Wrapper>
   );
 }
+
+/**
+ * `canMoveItem` locks single cards: "Globex expansion" is a view-only record — it opens and keeps
+ * the default cursor, but no pointer, touch or Space pick-up lifts it. The other cards still move.
+ */
+export function boardLockedCard(): ReactNode {
+  const [columns, setColumns] = useState<BoardColumn<Deal>[]>(
+    INITIAL.slice(0, 3),
+  );
+  return (
+    <Wrapper className="block">
+      <Board<Deal>
+        height="26rem"
+        aria-label="Deals with a view-only card"
+        columns={columns}
+        getItemId={(deal) => deal.id}
+        getItemLabel={(deal) => deal.name}
+        canMoveItem={(deal) => deal.id !== "d2"}
+        renderCard={(deal) =>
+          deal.id === "d2" ? (
+            <BoardCard
+              surface={false}
+              title={deal.name}
+              context={`${deal.amount} · View only`}
+            />
+          ) : (
+            dealCard(deal)
+          )
+        }
+        onCardActivate={() => {}}
+        onMove={({ id, to }) =>
+          setColumns((prev) => applyMove(prev, id, to.container, to.index))
+        }
+      />
+    </Wrapper>
+  );
+}

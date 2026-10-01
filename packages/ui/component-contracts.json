@@ -3284,6 +3284,10 @@
               "values": [""]
             },
             {
+              "name": "data-move-locked",
+              "values": [""]
+            },
+            {
               "name": "data-read-only",
               "values": [""]
             },
