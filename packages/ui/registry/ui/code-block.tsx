@@ -1,4 +1,4 @@
-// @vegastack code-block@0.23.97 sha256-BR3UQNKgtJjs8xhko63g8sw4e6k8J90rw4gFC2BmFnk=
+// @vegastack code-block@0.23.98 sha256-aO2lmCRlon8+82XLrBLNzOtyHxMhkLB6V5pvh5KRNtk=
 
 "use client";
 
