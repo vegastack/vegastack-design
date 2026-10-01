@@ -1,5 +1,14 @@
 # @vegastack/ui
 
+## 0.23.99
+
+### Patch Changes
+
+- [#472](https://github.com/vegastack/vegastack-design/pull/472) [`ec194c9`](https://github.com/vegastack/vegastack-design/commit/ec194c98d092f8c5a4af06c75b79edf889495bf2) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🔧 `TextEdit` images resize with Tiptap's `ResizableNodeView` (corner and side handles, aspect kept, snap guides at ¼ ½ ¾ and full width, touch included), keep their width in Markdown as `![alt|320](src)` and in HTML as `width`, and carry a ⋯ menu — Open, Download, Copy link, Remove image. Open, a double-click, and a click on an image in a read-only document or a posted comment show it in the `FileViewer`, paging through the document's images; `ImageViewerScope` does the same around any `MarkdownView`, which now renders the stored width.
+
+- Updated dependencies [[`ec194c9`](https://github.com/vegastack/vegastack-design/commit/ec194c98d092f8c5a4af06c75b79edf889495bf2)]:
+  - @vegastack/design@0.7.84
+
 ## 0.23.98
 
 ### Patch Changes
