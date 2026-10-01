@@ -108,9 +108,9 @@ export const prose = {
 
   // Inline code is a chip. Code inside a `pre` is not: it inherits the panel's ground, so the chip
   // is undone at higher specificity (`[&_pre_code]` is (0,1,2) against the chip's (0,1,1)).
-  // Tinted orange (the syntax palette's literal colour) so inline code reads apart from prose in
-  // both themes: `tag-orange-text` on `tag-orange-subtle` clears AA (≈5:1 light, ≈7:1 dark).
-  code: "[&_code]:rounded-sm [&_code]:bg-tag-orange-subtle [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:font-mono [&_code]:text-sm [&_code]:text-tag-orange-text",
+  // Slack/Notion: a neutral grey chip with orange text (the syntax palette's literal colour), so
+  // inline code reads apart from prose in both themes; `tag-orange-text` on `muted` clears AA.
+  code: "[&_code]:rounded-sm [&_code]:bg-muted [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:font-mono [&_code]:text-sm [&_code]:text-tag-orange-text",
   // A bare `<pre>` wears `CodeBlock`'s surface — the same sunken panel, one vocabulary (B4-09).
   // `CodeBlock`'s own `pre` is excluded: it already sits inside a `figure` carrying the border,
   // radius and ground, and re-applying them here would draw a second panel inside the first.

@@ -1,10 +1,10 @@
-// @vegastack markdown-view@0.23.104 sha256-pGmVIug1dbyU/pdRkmPtmDBpsGRIKYPD/BNx8tTGRck=
+// @vegastack markdown-view@0.23.104 sha256-bx9u1fvGmqd1h659Tml9XmdO+gPu71TqOcjjgX3EBVM=
 
 import * as React from "react";
 import { Lexer, type Token, type Tokens } from "marked";
 import {
   Info,
-  ChevronRight,
+  Play,
   Lightbulb,
   MessageSquareWarning,
   OctagonAlert,
@@ -136,17 +136,47 @@ export const CALLOUT_STYLE: Record<
     variant: "default" | "info" | "success" | "warning" | "destructive";
     icon: LucideIcon;
     label: string;
+    /** The tone's icon colour (the tone menu, the editor's tone button). */
+    iconClassName: string;
+    /** The tone button's hover and open wash. */
+    washClassName: string;
   }
 > = {
-  note: { variant: "info", icon: Info, label: "Note" },
-  tip: { variant: "success", icon: Lightbulb, label: "Tip" },
+  note: {
+    variant: "info",
+    icon: Info,
+    label: "Note",
+    iconClassName: "text-info-text",
+    washClassName: "hover:bg-info/10 aria-expanded:bg-info/10",
+  },
+  tip: {
+    variant: "success",
+    icon: Lightbulb,
+    label: "Tip",
+    iconClassName: "text-success-text",
+    washClassName: "hover:bg-success/10 aria-expanded:bg-success/10",
+  },
   important: {
     variant: "default",
     icon: MessageSquareWarning,
     label: "Important",
+    iconClassName: "text-foreground",
+    washClassName: "hover:bg-muted aria-expanded:bg-muted",
   },
-  warning: { variant: "warning", icon: TriangleAlert, label: "Warning" },
-  caution: { variant: "destructive", icon: OctagonAlert, label: "Caution" },
+  warning: {
+    variant: "warning",
+    icon: TriangleAlert,
+    label: "Warning",
+    iconClassName: "text-warning-text",
+    washClassName: "hover:bg-warning/10 aria-expanded:bg-warning/10",
+  },
+  caution: {
+    variant: "destructive",
+    icon: OctagonAlert,
+    label: "Caution",
+    iconClassName: "text-destructive-text",
+    washClassName: "hover:bg-destructive/10 aria-expanded:bg-destructive/10",
+  },
 };
 
 /** The callout's blocks: the Alert's description (its tone colour), first/last margins dropped. */
@@ -231,7 +261,7 @@ export const markdownExtrasClassName = cn(
   // TextEdit's file links are link marks, not chips: the same ground, ink, padding and radius.
   "[&_[data-slot=file-chip]]:box-decoration-clone [&_[data-slot=file-chip]]:rounded-sm [&_[data-slot=file-chip]]:bg-muted [&_[data-slot=file-chip]]:px-1 [&_[data-slot=file-chip]]:py-px [&_[data-slot=file-chip]]:font-medium [&_[data-slot=file-chip]]:no-underline [&_[data-slot=file-chip]]:text-foreground",
   "[&_details]:my-2 [&_summary]:flex [&_summary]:cursor-pointer [&_summary]:list-none [&_summary]:items-center [&_summary]:gap-1 [&_summary]:py-0.5 [&_summary]:font-medium [&_summary::-webkit-details-marker]:hidden [&_details>:not(summary)]:ms-6",
-  "[&_[data-slot=toggle-icon]]:size-5 [&_[data-slot=toggle-icon]]:shrink-0 [&_[data-slot=toggle-icon]]:rounded-sm [&_[data-slot=toggle-icon]]:p-0.5 [&_[data-slot=toggle-icon]]:text-muted-foreground [&_[data-slot=toggle-icon]]:transition-transform [&_summary:hover_[data-slot=toggle-icon]]:bg-muted [&_summary:hover_[data-slot=toggle-icon]]:text-foreground [&_details[open]>summary>[data-slot=toggle-icon]]:rotate-90 rtl:[&_[data-slot=toggle-icon]]:-scale-x-100",
+  "[&_[data-slot=toggle-icon]]:size-5 [&_[data-slot=toggle-icon]]:shrink-0 [&_[data-slot=toggle-icon]]:rounded-sm [&_[data-slot=toggle-icon]]:p-1 [&_[data-slot=toggle-icon]]:fill-current [&_[data-slot=toggle-icon]]:text-muted-foreground [&_[data-slot=toggle-icon]]:transition-transform [&_[data-slot=toggle-icon]]:duration-150 [&_summary:hover_[data-slot=toggle-icon]]:bg-muted [&_summary:hover_[data-slot=toggle-icon]]:text-foreground [&_details[open]>summary>[data-slot=toggle-icon]]:rotate-90 rtl:[&_[data-slot=toggle-icon]]:-scale-x-100",
 );
 
 /** `> [!NOTE]` / `[!TIP]` / `[!IMPORTANT]` / `[!WARNING]` / `[!CAUTION]` — a callout's first line. */
@@ -1088,7 +1118,7 @@ function renderNode(
       // A real chevron (the native marker is hidden): right when closed, down when open.
       return (
         <summary key={key} data-slot="toggle-summary">
-          <ChevronRight aria-hidden data-slot="toggle-icon" />
+          <Play aria-hidden data-slot="toggle-icon" />
           {children()}
         </summary>
       );

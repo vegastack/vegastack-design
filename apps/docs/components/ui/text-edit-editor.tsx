@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.23.104 sha256-rhuA/4B6bTHuvfyOJDUItX1k9fFq41ce6BWox73n42A=
+// @vegastack text-edit@0.23.104 sha256-EeasThU9WHL51MqBjzHpgJpLkYAI2IqdK6XNopwhlHk=
 
 "use client";
 
@@ -99,6 +99,7 @@ import {
   Minus,
   PanelLeft,
   PanelTop,
+  Play,
   Pilcrow,
   Plus,
   Quote,
@@ -2764,11 +2765,15 @@ function CalloutView({ node, editor, updateAttributes }: ReactNodeViewProps) {
                   contentEditable={false}
                   aria-label={`Callout type: ${style.label}`}
                   onMouseDown={(event) => event.preventDefault()}
-                  className="-my-1 -ms-1.5 text-current hover:text-current"
+                  // One text line tall (20px, the Alert's line), so the icon sits centred on it.
+                  className={cn("-my-0.5 -ms-1.5 size-6", style.washClassName)}
                 />
               }
             >
-              <Icon data-icon-tone="" className="size-4" />
+              <Icon
+                data-icon-tone=""
+                className={cn("size-4", style.iconClassName)}
+              />
             </DropdownMenuTrigger>
             <DropdownMenuContent align="start" data-text-edit-menu="">
               {CALLOUT_TONES.map((option) => {
@@ -2779,7 +2784,10 @@ function CalloutView({ node, editor, updateAttributes }: ReactNodeViewProps) {
                     checked={option === tone}
                     onClick={() => updateAttributes({ tone: option })}
                   >
-                    <OptionIcon />
+                    <OptionIcon
+                      data-icon-tone=""
+                      className={CALLOUT_STYLE[option].iconClassName}
+                    />
                     {CALLOUT_STYLE[option].label}
                   </DropdownMenuCheckboxItem>
                 );
@@ -2922,9 +2930,10 @@ function ToggleView({ node, editor, getPos }: ReactNodeViewProps) {
         // Keep the caret where it is: a click must not move the selection or blur the editor.
         onMouseDown={(event) => event.preventDefault()}
         onClick={flip}
-        className="absolute start-0 top-0 cursor-pointer text-muted-foreground select-none [&_svg]:transition-transform group-not-data-open/toggle:[&_svg]:-rotate-90 rtl:group-not-data-open/toggle:[&_svg]:rotate-90"
+        // Notion's triangle: ▶ closed, turning 90° to ▼ open.
+        className="absolute start-0 top-0 cursor-pointer text-muted-foreground select-none hover:text-foreground [&_svg]:transition-transform [&_svg]:duration-150 group-data-open/toggle:[&_svg]:rotate-90 rtl:[&_svg]:-scale-x-100"
       >
-        <ChevronDown aria-hidden className="size-4" />
+        <Play aria-hidden className="size-3 fill-current" />
       </Button>
       <NodeViewContent data-slot="toggle-content" className="min-w-0" />
     </NodeViewWrapper>
