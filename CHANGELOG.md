@@ -9,6 +9,20 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.23.99] — October 1, 2026
+
+<!-- assembled from 1 changeset: b86a55307712 -->
+
+### 🔧 Changed components
+
+- `TextEdit` images resize with Tiptap's `ResizableNodeView` (corner and side handles, aspect kept, snap guides at ¼ ½ ¾ and full width, touch included), keep their width in Markdown as `![alt|320](src)` and in HTML as `width`, and carry a ⋯ menu — Open, Download, Copy link, Remove image. Open, a double-click, and a click on an image in a read-only document or a posted comment show it in the `FileViewer`, paging through the document's images; `ImageViewerScope` does the same around any `MarkdownView`, which now renders the stored width.
+  [`ec194c9`](https://github.com/VegaStack/vegastack-design/commit/ec194c9)
+
+### 📦 npm
+
+- **`@vegastack/design`** → **`0.7.84`** (was `0.7.83`).
+- The design-system registry (`@vegastack/ui`) bumps 0.23.98 → 0.23.99.
+
 ## [0.23.98] — October 1, 2026
 
 <!-- assembled from 1 changeset: cbb89949a513 -->
