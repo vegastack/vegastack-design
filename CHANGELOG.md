@@ -9,6 +9,25 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.23.101] — October 1, 2026
+
+<!-- assembled from 2 changesets: 7454cbfd1bb2 -->
+
+### 🔧 Changed components
+
+- TextEdit blocks and media. Code blocks always show the language picker and get icon-only wrap and copy buttons (a check confirms the copy); wrap is saved after the language in the fence info string (`ts wrap`) and `CodeBlock` takes `wrap`; unwrapped lines scroll inside the block with a thin scrollbar. Editor tables use a fixed layout, so typing wraps inside the cell. Toggles get a clickable chevron that opens and closes them (saved as `<details open>`), with hints in an empty title or body; `MarkdownView` draws the same chevron. New video and audio blocks (`<video src>` / `<audio src>`, native players, also in `MarkdownView`); a dropped video or audio file lands as one. The slash menu's Image, Video, Audio and File open an insert panel with Upload and Link tabs.
+  [`35824b2`](https://github.com/VegaStack/vegastack-design/commit/35824b2)
+
+### 📦 npm
+
+- **`@vegastack/design`** → **`0.7.86`** (was `0.7.85`).
+- The design-system registry (`@vegastack/ui`) bumps 0.23.100 → 0.23.101.
+
+### 🐛 Fixed
+
+- TextEdit menus and callouts. The slash menu has one active item that the pointer and ↑/↓ share (pointer cursor on items), scrolls it into view inside the list only, and lists commands in one canonical order wherever a subset is passed (comments and full editors match). The selection, link and image menus open just above the caret or selection without page scroll jumps. Callouts render as `Alert`s in the editor and in `MarkdownView` and gain GitHub's `[!IMPORTANT]` and `[!CAUTION]`; the tone icon opens a menu. Inline code in prose is tinted orange (`tag-orange-text` on `tag-orange-subtle`).
+  [`b2d18f3`](https://github.com/VegaStack/vegastack-design/commit/b2d18f3)
+
 ## [0.23.100] — October 1, 2026
 
 <!-- assembled from 1 changeset: 5d36f32da758 -->
