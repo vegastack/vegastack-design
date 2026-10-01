@@ -1,4 +1,4 @@
-// @vegastack comments@0.23.97 sha256-LJMTADtU+fYAnsBJQLY0khotpTddpzXCvjax6OfVRRA=
+// @vegastack comments@0.23.97 sha256-ohAiWYwo6zTCvlB6+4zzb7bu28M2D9CTsuegIXjNx70=
 
 "use client";
 
@@ -520,7 +520,7 @@ interface CommentBoxProps {
   onUploadError?: TextEditProps["onUploadError"];
   /** Files picked with the attach button go here instead of into the text. */
   onAttachFiles?: (files: File[]) => void;
-  /** Over the box: the draft's attached files (cards with their upload progress). */
+  /** Inside the box, over the text: the draft's attached files (cards with their upload progress). */
   files?: React.ReactNode;
 }
 
@@ -583,16 +583,11 @@ function CommentBox({
           : undefined
       }
     >
-      {files ? (
-        <div data-slot="comment-box-files" className="min-w-0">
-          {files}
-        </div>
-      ) : null}
       <TextEdit
         variant="boxed"
         handleRef={handle}
         className={cn(
-          "flex min-h-8 items-end gap-1 rounded-lg border-border bg-muted/30 py-px ps-3 pe-px dark:bg-muted/30",
+          "flex min-h-8 flex-wrap items-end gap-1 rounded-lg border-border bg-muted/30 py-px ps-3 pe-px dark:bg-muted/30",
           // The text column fills the row and centres a single line against the 28px controls.
           "[&_[data-slot=text-edit-content]]:flex-1 [&_[data-slot=text-edit-content]]:self-center [&_[data-slot=text-edit-content]]:py-0.5 [&_.tiptap]:py-0.5",
           bare &&
@@ -621,6 +616,15 @@ function CommentBox({
         onFileUpload={onFileUpload}
         onUploadError={onUploadError}
       >
+        {files ? (
+          // Inside the box, over the text: the draft's files are part of what Send posts.
+          <div
+            data-slot="comment-box-files"
+            className="order-first min-w-0 basis-full pt-1.5 pe-1.5"
+          >
+            {files}
+          </div>
+        ) : null}
         <div
           data-slot="comment-box-actions"
           className="flex shrink-0 items-center gap-1"
@@ -770,7 +774,7 @@ export interface CommentComposerProps {
    * attach button on its own. @default undefined
    */
   onAttachFiles?: (files: File[]) => void;
-  /** Over the box: the draft's attached files, e.g. cards with their upload progress. @default undefined */
+  /** Inside the box, over the text: the draft's attached files, e.g. cards with their upload progress. @default undefined */
   files?: React.ReactNode;
   /** The draft carries files (`files`): Send is enabled and posts with no text. @default false */
   hasFiles?: boolean;
