@@ -9,6 +9,20 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.23.100] — October 1, 2026
+
+<!-- assembled from 1 changeset: 5d36f32da758 -->
+
+### 🔧 Changed components
+
+- Comment boxes. One line of text is exactly the controls' height, so a comment or reply box stays the `Input` height (32px) whether focused or not — no extra space when the editor loads — with the `Input` type size (16px on a phone, 14px from md); the attach and send buttons stay on the last line as the text grows. The paperclip is muted, so Send carries the emphasis.
+  [`47bbd1c`](https://github.com/VegaStack/vegastack-design/commit/47bbd1c)
+
+### 📦 npm
+
+- **`@vegastack/design`** → **`0.7.85`** (was `0.7.84`).
+- The design-system registry (`@vegastack/ui`) bumps 0.23.99 → 0.23.100.
+
 ## [0.23.99] — October 1, 2026
 
 <!-- assembled from 1 changeset: b86a55307712 -->
