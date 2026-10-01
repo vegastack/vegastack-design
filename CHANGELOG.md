@@ -9,6 +9,20 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.23.109] — October 1, 2026
+
+<!-- assembled from 1 changeset: b8b5552b0428 -->
+
+### 📦 npm
+
+- **`@vegastack/design`** → **`0.7.94`** (was `0.7.93`).
+- The design-system registry (`@vegastack/ui`) bumps 0.23.108 → 0.23.109.
+
+### 🐛 Fixed
+
+- TextEdit composer is 32px at rest (the editor surface's 24px minimum no longer adds 4px) and an empty `footer` takes no room; a click on an image selects it.
+  [`04a041e`](https://github.com/VegaStack/vegastack-design/commit/04a041e)
+
 ## [0.23.108] — October 1, 2026
 
 <!-- assembled from 1 changeset: dc8a857d0f04 -->
