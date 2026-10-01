@@ -1,4 +1,4 @@
-// @vegastack template-editor@0.23.104 sha256-9R/uimR+cUWbg5zQUTpwrmBga2veSuwl7vDkCAzApWM=
+// @vegastack template-editor@0.23.105 sha256-jgSpYfS9GinKFYos87F3luO+xCF7DET0ddSFNKK+yu0=
 
 "use client";
 

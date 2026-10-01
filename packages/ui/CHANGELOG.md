@@ -1,5 +1,14 @@
 # @vegastack/ui
 
+## 0.23.105
+
+### Patch Changes
+
+- [#486](https://github.com/vegastack/vegastack-design/pull/486) [`3a257c9`](https://github.com/vegastack/vegastack-design/commit/3a257c9de7f38f0161af70eb1c4db383f42500a0) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🔧 TextEdit polish. Inline code keeps a neutral `muted` chip with orange (`tag-orange-text`) text, Slack/Notion-style, in every markdown surface. The callout tone menu shows each icon in its tone colour; the callout's tone button is centred on the first text line, keeps its tone colour while pressed or open, and takes a light tone-tinted hover wash. Toggles use Notion's filled triangle (▶, turning to ▼ in 150ms) in a muted icon button with a hover wash, here and in `MarkdownView`.
+
+- Updated dependencies [[`3a257c9`](https://github.com/vegastack/vegastack-design/commit/3a257c9de7f38f0161af70eb1c4db383f42500a0)]:
+  - @vegastack/design@0.7.90
+
 ## 0.23.104
 
 ### Patch Changes

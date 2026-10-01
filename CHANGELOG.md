@@ -9,6 +9,20 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.23.105] — October 1, 2026
+
+<!-- assembled from 1 changeset: 658a6bf09b8e -->
+
+### 🔧 Changed components
+
+- TextEdit polish. Inline code keeps a neutral `muted` chip with orange (`tag-orange-text`) text, Slack/Notion-style, in every markdown surface. The callout tone menu shows each icon in its tone colour; the callout's tone button is centred on the first text line, keeps its tone colour while pressed or open, and takes a light tone-tinted hover wash. Toggles use Notion's filled triangle (▶, turning to ▼ in 150ms) in a muted icon button with a hover wash, here and in `MarkdownView`.
+  [`3a257c9`](https://github.com/VegaStack/vegastack-design/commit/3a257c9)
+
+### 📦 npm
+
+- **`@vegastack/design`** → **`0.7.90`** (was `0.7.89`).
+- The design-system registry (`@vegastack/ui`) bumps 0.23.104 → 0.23.105.
+
 ## [0.23.104] — October 1, 2026
 
 <!-- assembled from 1 changeset: c3172c9763c7 -->
