@@ -1,4 +1,4 @@
-// @vegastack data-list@0.23.110 sha256-XGLvqM/uReiTTv2MJ+aBuGSzzPo/Izqmp3PWB428r3E=
+// @vegastack data-list@0.23.111 sha256-+nzvktztlZL+xVvuttON8biitNuEq0CdH2F0mj9KKfs=
 
 "use client";
 
