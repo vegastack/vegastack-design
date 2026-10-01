@@ -1,4 +1,4 @@
-// @vegastack use-mobile@0.23.105 sha256-WNjjtMmp24v0VOI0CYamWhU8Zn8zgIgw3WZixW5/2oM=
+// @vegastack use-mobile@0.23.106 sha256-Nl7zrgn41BDofJIS557FEos6rTT8XvEj4CAdQjqBbGE=
 
 "use client";
 

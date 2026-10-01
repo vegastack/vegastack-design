@@ -10,6 +10,18 @@ npm package versions are listed per entry. This page is generated from the repo'
 
 {/* CHANGELOG:START — generated from /CHANGELOG.md by tooling/sync-changelog.mjs. DO NOT EDIT. */}
 
+## [0.23.106] — October 1, 2026
+
+### 📦 npm
+
+- **`@vegastack/design`** → **`0.7.91`** (was `0.7.90`).
+- The design-system registry (`@vegastack/ui`) bumps 0.23.105 → 0.23.106.
+
+### 🐛 Fixed
+
+- TextEdit swap. A `variant="composer"` box mounts its editor at once (it is an input — no read view to click through first), and every editable `TextEdit` fetches the editor when the page goes idle, so the first click swaps it in immediately. A new browser test holds the read view and the editor to the same first-line position, height and caret start (within half a pixel) for documents and composers, empty and with text.
+  [`a7fdd5a`](https://github.com/VegaStack/vegastack-design/commit/a7fdd5a)
+
 ## [0.23.105] — October 1, 2026
 
 ### 🔧 Changed components
