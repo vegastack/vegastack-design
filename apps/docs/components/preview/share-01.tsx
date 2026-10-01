@@ -59,3 +59,15 @@ export function share01ReadOnly(): ReactNode {
     </Wrapper>
   );
 }
+
+/** General access's level as text for a manager, who can still change the mode. */
+export function share01GeneralLevelReadOnly(): ReactNode {
+  return (
+    <Wrapper>
+      <ShareDemo
+        triggerLabel="Share (fixed space level)"
+        generalLevelReadOnly
+      />
+    </Wrapper>
+  );
+}
