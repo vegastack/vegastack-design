@@ -1,4 +1,4 @@
-// @vegastack markdown-view@0.23.106 sha256-F99xAPqz4T1wDZucETzP51x8iekBqZ16pwjqZ/m/w1Q=
+// @vegastack markdown-view@0.23.106 sha256-2ujkYMqlbZcw+tXgGT2U3l7ryVoAowgwBU1H0tI6624=
 
 import * as React from "react";
 import { Lexer, type Token, type Tokens } from "marked";
@@ -184,7 +184,8 @@ export const calloutContentClassName =
   "col-start-2 min-w-0 text-pretty [&>:first-child]:mt-0 [&>:last-child]:mb-0 [&_[data-node-view-content-react]>:first-child]:mt-0 [&_[data-node-view-content-react]>:last-child]:mb-0";
 
 /** The Alert grid for a callout: icon (or the editor's tone button) in the gutter, blocks beside it. */
-export const calloutClassName = "my-2 grid-cols-[auto_1fr] gap-x-2";
+export const calloutClassName =
+  "my-2 grid-cols-[auto_1fr] gap-x-2 *:[svg]:row-span-1";
 
 /**
  * `[@<label>](mention://<kind>/<id>)` at the start of a string. The label escapes `\`, `[` and `]`

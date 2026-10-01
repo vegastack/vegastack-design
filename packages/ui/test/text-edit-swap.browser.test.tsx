@@ -94,3 +94,105 @@ test.each(CASES)(
       ).toBeLessThanOrEqual(0.5);
   },
 );
+
+const RICH = [
+  "# Heading one",
+  "",
+  "A paragraph with `inline code`, **bold** and a [link](https://example.com).",
+  "",
+  "- first item",
+  "- second item",
+  "",
+  "1. one",
+  "2. two",
+  "",
+  "- [ ] a task",
+  "- [x] done task",
+  "",
+  "> A quote line.",
+  "",
+  "> [!WARNING]",
+  "> A warning callout.",
+  "",
+  "```ts",
+  "const a = 1;",
+  "```",
+  "",
+  "| A | B |",
+  "| --- | --- |",
+  "| one | two |",
+  "",
+  "<details open><summary>Toggle title</summary>",
+  "",
+  "Toggle body",
+  "",
+  "</details>",
+  "",
+  "See [data.csv](/api/files/f1/download) here.",
+  "",
+  "---",
+  "",
+  "End paragraph.",
+].join("\n");
+
+test("a rich document: every block sits where the read view put it", async () => {
+  await preloadTextEdit();
+  const shared = { format: "markdown" as const, defaultValue: RICH };
+  const screen = await render(
+    <div style={{ width: 640 }}>
+      <div data-twin="read">
+        <TextEdit {...shared} readOnly aria-label="Read" />
+      </div>
+      <div data-twin="edit">
+        <TextEdit {...shared} aria-label="Edit" />
+      </div>
+    </div>,
+  );
+  const read = screen.container.querySelector<HTMLElement>(
+    "[data-twin=read] [data-slot=text-edit]",
+  )!;
+  const edit = screen.container.querySelector<HTMLElement>(
+    "[data-twin=edit] [data-slot=text-edit]",
+  )!;
+  await vi.waitFor(() =>
+    expect(edit.querySelector(".ProseMirror")).not.toBeNull(),
+  );
+  // Let the code highlighting and the node views settle.
+  await new Promise((resolve) => setTimeout(resolve, 300));
+  const blocks = (root: HTMLElement) => {
+    const surface = root.querySelector(
+      ".ProseMirror, [data-slot=text-edit-read]",
+    )!;
+    const origin = root.getBoundingClientRect();
+    return [...surface.children]
+      .filter((child) => child.getBoundingClientRect().height > 0)
+      .map((child) => {
+        const rect = child.getBoundingClientRect();
+        // The first character's left edge: text inside a block lines up too, not only the box.
+        const walker = document.createTreeWalker(child, NodeFilter.SHOW_TEXT);
+        let text = walker.nextNode();
+        while (text && !text.textContent?.trim()) text = walker.nextNode();
+        let tx = -1;
+        if (text) {
+          const range = document.createRange();
+          const at = text.textContent!.search(/\S/);
+          range.setStart(text, at);
+          range.setEnd(text, at + 1);
+          tx = Math.round((range.getBoundingClientRect().x - origin.x) * 2) / 2;
+        }
+        return {
+          tx,
+          tag: child.tagName.toLowerCase(),
+          slot: child.getAttribute("data-slot") ?? "",
+          y: Math.round((rect.y - origin.y) * 2) / 2,
+          h: Math.round(rect.height * 2) / 2,
+          x: Math.round((rect.x - origin.x) * 2) / 2,
+        };
+      });
+  };
+  const a = blocks(read);
+  const b = blocks(edit);
+  const lines = (list: typeof a) =>
+    list.map((each) => `${each.y} +${each.h} @${each.x} t${each.tx}`);
+  expect(lines(b)).toEqual(lines(a));
+});
