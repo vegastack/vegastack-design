@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.23.105 sha256-h9H/98R079+TWU4FRSkJrGKp3oapL3dfIStjK09ILyo=
+// @vegastack text-edit@0.23.105 sha256-iOGTAKfYKLmAYH2ukdeBLs6GKLwyOts/usK+DSepwFc=
 
 "use client";
 
@@ -957,9 +957,12 @@ export function TextEdit(props: TextEditProps) {
       ? cn(editorBaseClassName, proseDocumentHeadingsClassName)
       : editorBaseClassName;
   // Highlights and an outline need the document model, so they mount the editor at once.
-  const eager =
-    props.annotations !== undefined || props.onOutlineChange !== undefined;
   const composer = variant === "composer";
+  // A composer is an input: its editor mounts at once, never waiting for a click.
+  const eager =
+    props.annotations !== undefined ||
+    props.onOutlineChange !== undefined ||
+    composer;
   const boxed = variant === "boxed" || composer;
   const [field, setField] = React.useState<FieldAria>({});
   const disabled = disabledProp || field.disabled === true;
@@ -1003,6 +1006,19 @@ export function TextEdit(props: TextEditProps) {
   React.useEffect(() => {
     if ((editorLoaded && editable) || eager) setActive(true);
   }, [editable, eager]);
+  // An editable document on screen fetches the editor when the page is idle, so the first click
+  // swaps it in at once.
+  React.useEffect(() => {
+    if (!editable || editorLoaded) return;
+    if (typeof window.requestIdleCallback === "function") {
+      const handle = window.requestIdleCallback(prefetchEditor, {
+        timeout: 2000,
+      });
+      return () => window.cancelIdleCallback(handle);
+    }
+    const timer = setTimeout(prefetchEditor, 300);
+    return () => clearTimeout(timer);
+  }, [editable]);
   const onReady = React.useCallback((editor: Editor) => {
     editorRef.current = editor;
     setReady(true);
