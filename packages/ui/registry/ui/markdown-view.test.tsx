@@ -150,12 +150,12 @@ test("MarkdownView and TextEdit wear the identical prose recipe", async () => {
       "[&_.ProseMirror-selectednode:not([data-slot=text-edit-image-node])]:rounded-sm",
       "[&_.ProseMirror-selectednode:not([data-slot=text-edit-image-node])]:bg-accent",
       "[&_table]:table-fixed",
-      "[&_[data-slot=toggle-content]>.is-empty]:before:pointer-events-none",
-      "[&_[data-slot=toggle-content]>.is-empty]:before:float-start",
-      "[&_[data-slot=toggle-content]>.is-empty]:before:h-0",
-      "[&_[data-slot=toggle-content]>.is-empty]:before:text-muted-foreground/60",
-      "[&_[data-slot=toggle-content]>[data-slot=toggle-summary].is-empty]:before:content-[attr(data-placeholder)]",
-      "[&_[data-slot=toggle-content]>p.is-empty]:before:content-['Empty_toggle._Type_or_press_/_for_commands']",
+      "[&_[data-slot=toggle-content]>[data-node-view-content-react]>.is-empty]:before:pointer-events-none",
+      "[&_[data-slot=toggle-content]>[data-node-view-content-react]>.is-empty]:before:float-start",
+      "[&_[data-slot=toggle-content]>[data-node-view-content-react]>.is-empty]:before:h-0",
+      "[&_[data-slot=toggle-content]>[data-node-view-content-react]>.is-empty]:before:text-muted-foreground/60",
+      "[&_[data-slot=toggle-content]>[data-node-view-content-react]>[data-slot=toggle-summary].is-empty]:before:content-[attr(data-placeholder)]",
+      "[&_[data-slot=toggle-content]>[data-node-view-content-react]>p.is-empty]:before:content-['Empty_toggle._Type_or_press_/_for_commands']",
     ].sort(),
   );
 

@@ -5658,6 +5658,15 @@
             "status": "not-applicable",
             "rationale": "A pure function; it renders nothing and takes no ref."
           }
+        },
+        {
+          "name": "codeBlockWrapStyle",
+          "kind": "function",
+          "source": "packages/ui/registry/ui/code-block.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A pure function; it renders nothing and takes no ref."
+          }
         }
       ],
       "variants": {

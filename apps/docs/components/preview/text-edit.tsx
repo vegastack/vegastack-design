@@ -591,8 +591,8 @@ export function textEditUploads(): ReactNode {
 }
 
 /**
- * Images — hover one for its ⋯ menu (Open, Download, Copy link, Remove image); drag a corner or a
- * side to resize it (the width snaps to a quarter, half, three quarters or the full width, and is
+ * Images — hover one for its toolbar (Open, Download, Copy link, ⋯ Replace / Delete); drag a side
+ * handle to resize it (the width snaps to a quarter, half, three quarters or the full width, and is
  * kept in the Markdown as `![alt|width](src)`); double-click to open it in the file viewer.
  */
 export function textEditImages(): ReactNode {

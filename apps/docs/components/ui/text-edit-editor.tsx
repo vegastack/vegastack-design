@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.23.102 sha256-PS/VTAe7d9KMxtBq3maSh8y69V1zRlWewk1QFnZUd98=
+// @vegastack text-edit@0.23.102 sha256-4CFNcmdMfZ4qinC2blcahlaMSrt2S0GkW0wsL8t7T7k=
 
 "use client";
 
@@ -76,6 +76,7 @@ import {
   Copy,
   Download,
   Ellipsis,
+  Replace,
   Eraser,
   ExternalLink,
   File as FileIcon,
@@ -127,6 +128,7 @@ import {
   codeBlockControlsPadClassName,
   codeBlockPreClassName,
   codeBlockSurfaceClassName,
+  codeBlockWrapStyle,
   codeLanguageName,
   normalizeCodeLanguage,
 } from "@/components/ui/code-block";
@@ -167,7 +169,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { InlineChip } from "@/components/ui/inline-chip";
-import { Alert } from "@/components/ui/alert";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import {
   CALLOUT_STYLE,
   CALLOUT_TONES,
@@ -670,9 +672,15 @@ function CodeBlockView({
       <pre
         data-slot="code-block-pre"
         data-wrap={wrap ? "" : undefined}
+        style={codeBlockWrapStyle(wrap)}
         className={cn(codeBlockPreClassName, codeBlockControlsPadClassName)}
       >
-        <NodeViewContent<"code"> as="code" className="font-mono" />
+        {/* Tiptap writes `white-space: pre-wrap` on the content element; it inherits the pre's. */}
+        <NodeViewContent<"code">
+          as="code"
+          className="font-mono"
+          style={{ whiteSpace: "inherit" }}
+        />
       </pre>
     </NodeViewWrapper>
   );
@@ -1955,11 +1963,14 @@ function MentionMenu({
                     key={`${option.kind}:${option.id}`}
                     role="option"
                     aria-selected={selected}
-                    data-selected={selected ? "" : undefined}
+                    data-selected={selected ? "true" : undefined}
                     data-slot="text-edit-mention-item"
                     onMouseEnter={() => onHover(at)}
                     onClick={() => state.command(option)}
-                    className="flex cursor-default items-center gap-2 rounded-sm px-2 py-1.5 text-sm select-none data-selected:bg-muted [&_svg]:size-4 [&_svg]:shrink-0 [&_svg]:text-muted-foreground [&_[data-tinted]_svg]:size-3.5 [&_[data-tinted]_svg]:text-info-text"
+                    className={cn(
+                      MENU_ITEM,
+                      "[&_[data-tinted]_svg]:size-3.5 [&_[data-tinted]_svg]:text-info-text",
+                    )}
                   >
                     <span
                       aria-hidden
@@ -2044,21 +2055,22 @@ const IMAGE_SNAP = 8;
 /** The guides: a quarter, a half, three quarters and the full width left of the image. */
 const IMAGE_GUIDES = [0.25, 0.5, 0.75, 1] as const;
 
+// The image keeps one radius (`rounded-lg`, the media radius) at rest, hovered, selected and while
+// resizing; the selection is a thin primary outline hugging it (no frame, no extra spacing).
 const IMAGE_CONTAINER =
-  "group/image relative max-w-full align-bottom [&_img]:my-0 [&_img]:block [&_img]:max-w-full";
+  "group/image relative max-w-full align-bottom leading-none [&_img]:block [&_img]:max-w-full [&_img]:rounded-lg";
 const IMAGE_WRAPPER =
-  "max-w-full rounded-lg in-[.ProseMirror-selectednode]:outline-2 in-[.ProseMirror-selectednode]:outline-primary";
-// Corners: a dot on the corner; sides: a bar centred on the edge. Shown on hover, while selected
-// (a tap on touch) and while resizing; never in a read-only editor.
+  "max-w-full rounded-lg outline-offset-0 in-[.ProseMirror-selectednode]:outline-2 in-[.ProseMirror-selectednode]:outline-primary group-data-[resize-state=true]/image:outline-2 group-data-[resize-state=true]/image:outline-primary";
+// Notion-style side handles: a pill bar inside the left and right edges, shown on hover, while
+// selected (a tap on touch) and while resizing; never in a read-only editor.
 const IMAGE_HANDLE = cn(
-  "z-10 touch-none opacity-0 transition-opacity duration-150 group-hover/image:opacity-100 group-data-[resize-state=true]/image:opacity-100 in-[.ProseMirror-selectednode]:opacity-100 in-[[contenteditable=false]]:hidden",
-  "data-[resize-handle*=-]:size-3 data-[resize-handle*=-]:rounded-full data-[resize-handle*=-]:border-2 data-[resize-handle*=-]:border-primary data-[resize-handle*=-]:bg-background pointer-coarse:data-[resize-handle*=-]:size-5",
-  "data-[resize-handle=top-left]:-translate-1/2 data-[resize-handle=top-left]:cursor-nwse-resize data-[resize-handle=bottom-right]:translate-1/2 data-[resize-handle=bottom-right]:cursor-nwse-resize data-[resize-handle=top-right]:translate-x-1/2 data-[resize-handle=top-right]:-translate-y-1/2 data-[resize-handle=top-right]:cursor-nesw-resize data-[resize-handle=bottom-left]:-translate-x-1/2 data-[resize-handle=bottom-left]:translate-y-1/2 data-[resize-handle=bottom-left]:cursor-nesw-resize",
-  "data-[resize-handle=left]:w-3 data-[resize-handle=right]:w-3 data-[resize-handle=left]:-translate-x-1/2 data-[resize-handle=right]:translate-x-1/2 data-[resize-handle=left]:cursor-ew-resize data-[resize-handle=right]:cursor-ew-resize pointer-coarse:data-[resize-handle=left]:w-5 pointer-coarse:data-[resize-handle=right]:w-5",
-  "data-[resize-handle=left]:after:absolute data-[resize-handle=right]:after:absolute data-[resize-handle=left]:after:inset-x-1 data-[resize-handle=right]:after:inset-x-1 data-[resize-handle=left]:after:top-1/2 data-[resize-handle=right]:after:top-1/2 data-[resize-handle=left]:after:h-8 data-[resize-handle=right]:after:h-8 data-[resize-handle=left]:after:max-h-[50%] data-[resize-handle=right]:after:max-h-[50%] data-[resize-handle=left]:after:-translate-y-1/2 data-[resize-handle=right]:after:-translate-y-1/2 data-[resize-handle=left]:after:rounded-full data-[resize-handle=right]:after:rounded-full data-[resize-handle=left]:after:border data-[resize-handle=right]:after:border data-[resize-handle=left]:after:border-background data-[resize-handle=right]:after:border-background data-[resize-handle=left]:after:bg-primary data-[resize-handle=right]:after:bg-primary",
+  "z-10 w-4 touch-none opacity-0 transition-opacity duration-150 group-hover/image:opacity-100 group-data-[resize-state=true]/image:opacity-100 in-[.ProseMirror-selectednode]:opacity-100 in-[.ProseMirror[contenteditable=false]]:hidden pointer-coarse:w-6",
+  "data-[resize-handle=left]:cursor-ew-resize data-[resize-handle=right]:cursor-ew-resize",
+  "after:absolute after:inset-x-1.5 after:top-1/2 after:h-10 after:max-h-[60%] after:-translate-y-1/2 after:rounded-full after:border after:border-background/80 after:bg-foreground/60 after:shadow-sm pointer-coarse:after:inset-x-2",
 );
+/** The hover toolbar's frame: top-right on the image, a blurred translucent pill. */
 const IMAGE_MENU_SLOT =
-  "absolute end-1.5 top-1.5 z-10 opacity-0 transition-opacity duration-150 group-hover/image:opacity-100 focus-within:opacity-100 has-data-popup-open:opacity-100 in-[.ProseMirror-selectednode]:opacity-100 group-data-[resize-state=true]/image:hidden";
+  "absolute end-2 top-2 z-20 flex items-center gap-0.5 rounded-md border border-border bg-background/70 p-0.5 shadow-sm backdrop-blur-sm opacity-0 transition-opacity duration-150 group-hover/image:opacity-100 focus-within:opacity-100 has-data-popup-open:opacity-100 in-[.ProseMirror-selectednode]:opacity-100 group-data-[resize-state=true]/image:hidden empty:hidden";
 const IMAGE_SIZE_LABEL =
   "pointer-events-none absolute bottom-1.5 start-1/2 z-10 hidden -translate-x-1/2 rounded-md bg-popover px-1.5 py-0.5 text-xs text-popover-foreground tabular-nums shadow-sm border border-border group-data-[resize-state=true]/image:block";
 const IMAGE_GUIDE =
@@ -2112,6 +2124,8 @@ function imageNode(runtime: ImageRuntime) {
       return ({ node, getPos, editor }) => {
         const image = document.createElement("img");
         image.draggable = false;
+        // The prose recipe's image margin would pad the frame above and below.
+        image.style.margin = "0";
         const sync = (next: PMNode) => {
           const { src, alt, title, width } = next.attrs as {
             src: string | null;
@@ -2208,14 +2222,7 @@ function imageNode(runtime: ImageRuntime) {
             return true;
           },
           options: {
-            directions: [
-              "top-left",
-              "top-right",
-              "bottom-left",
-              "bottom-right",
-              "left",
-              "right",
-            ],
+            directions: ["left", "right"],
             min: { width: IMAGE_MIN_WIDTH },
             preserveAspectRatio: true,
             className: {
@@ -2272,17 +2279,23 @@ function imageNode(runtime: ImageRuntime) {
   });
 }
 
-/** The ⋯ menu on each image: Open, Download, Copy link and — while editable — Remove image. */
+/**
+ * Each image's hover toolbar (top-right, blurred): Open, Download, Copy link, and — while
+ * editable — a ⋯ menu with Replace and Delete.
+ */
 function ImageMenus({
   editor,
   slots,
   editable,
   onOpen,
+  onReplace,
 }: {
   editor: Editor;
   slots: ImageSlots;
   editable: boolean;
   onOpen?: (image: HTMLImageElement) => void;
+  /** Select the image and open the image panel, whose insert replaces it. */
+  onReplace?: (pos: number) => void;
 }) {
   const mounted = React.useSyncExternalStore(
     slots.subscribe,
@@ -2296,10 +2309,32 @@ function ImageMenus({
         slot={slot}
         editable={editable}
         onOpen={onOpen}
+        onReplace={onReplace}
       />,
       slot.host,
       String(index),
     ),
+  );
+}
+
+function ImageToolButton({
+  label,
+  children,
+  ...props
+}: React.ComponentProps<typeof Button> & { label: string }) {
+  return (
+    <MenuTip label={label}>
+      <Button
+        type="button"
+        variant="ghost"
+        size="icon-xs"
+        aria-label={label}
+        onMouseDown={(event) => event.preventDefault()}
+        {...props}
+      >
+        {children}
+      </Button>
+    </MenuTip>
   );
 }
 
@@ -2308,59 +2343,78 @@ function ImageMenu({
   slot,
   editable,
   onOpen,
+  onReplace,
 }: {
   editor: Editor;
   slot: ImageSlot;
   editable: boolean;
   onOpen?: (image: HTMLImageElement) => void;
+  onReplace?: (pos: number) => void;
 }) {
   const src = slot.image.currentSrc || slot.image.src;
   // A link worth copying: a real URL, not an upload's local preview.
-  const shareable = /^https?:/i.test(src);
+  const shareable = /^(https?:|\/)/i.test(slot.image.getAttribute("src") ?? "");
+  const absolute = React.useMemo(() => {
+    try {
+      return new URL(src, document.baseURI).href;
+    } catch {
+      return src;
+    }
+  }, [src]);
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger
+    <>
+      {onOpen ? (
+        <ImageToolButton label="Open" onClick={() => onOpen(slot.image)}>
+          <Maximize2 />
+        </ImageToolButton>
+      ) : null}
+      <ImageToolButton
+        label="Download"
         render={
-          <Button
-            variant="secondary"
-            size="icon-xs"
-            aria-label="Image actions"
-            className="shadow-sm"
-          />
+          <a href={src} download target="_blank" rel="noopener noreferrer" />
         }
+        nativeButton={false}
       >
-        <Ellipsis />
-      </DropdownMenuTrigger>
-      <DropdownMenuContent
-        data-text-edit-menu=""
-        align="end"
-        className="w-auto min-w-40"
-      >
-        {onOpen ? (
-          <DropdownMenuItem onClick={() => onOpen(slot.image)}>
-            <Maximize2 />
-            Open
-          </DropdownMenuItem>
-        ) : null}
-        <DropdownMenuItem
-          render={
-            <a href={src} download target="_blank" rel="noopener noreferrer" />
-          }
+        <Download />
+      </ImageToolButton>
+      {shareable ? (
+        <ImageToolButton
+          label="Copy link"
+          onClick={() => void navigator.clipboard?.writeText(absolute)}
         >
-          <Download />
-          Download
-        </DropdownMenuItem>
-        {shareable ? (
-          <DropdownMenuItem
-            onClick={() => void navigator.clipboard?.writeText(src)}
+          <LinkIcon />
+        </ImageToolButton>
+      ) : null}
+      {editable ? (
+        <DropdownMenu>
+          <DropdownMenuTrigger
+            render={
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon-xs"
+                aria-label="More image actions"
+              />
+            }
           >
-            <LinkIcon />
-            Copy link
-          </DropdownMenuItem>
-        ) : null}
-        {editable ? (
-          <>
-            <DropdownMenuSeparator />
+            <Ellipsis />
+          </DropdownMenuTrigger>
+          <DropdownMenuContent
+            data-text-edit-menu=""
+            align="end"
+            className="w-auto min-w-40"
+          >
+            {onReplace ? (
+              <DropdownMenuItem
+                onClick={() => {
+                  const pos = slot.getPos();
+                  if (pos !== undefined) onReplace(pos);
+                }}
+              >
+                <Replace />
+                Replace
+              </DropdownMenuItem>
+            ) : null}
             <DropdownMenuItem
               variant="destructive"
               onClick={() => {
@@ -2375,12 +2429,12 @@ function ImageMenu({
               }}
             >
               <Trash2 />
-              Remove image
+              Delete
             </DropdownMenuItem>
-          </>
-        ) : null}
-      </DropdownMenuContent>
-    </DropdownMenu>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      ) : null}
+    </>
   );
 }
 
@@ -2644,11 +2698,11 @@ function CalloutView({ node, editor, updateAttributes }: ReactNodeViewProps) {
                   contentEditable={false}
                   aria-label={`Callout type: ${style.label}`}
                   onMouseDown={(event) => event.preventDefault()}
-                  className="-my-1 -ms-1.5 text-current [&_svg]:size-4 [&_svg]:text-current"
+                  className="-my-1 -ms-1.5 text-current hover:text-current"
                 />
               }
             >
-              <Icon />
+              <Icon data-icon-tone="" className="size-4" />
             </DropdownMenuTrigger>
             <DropdownMenuContent align="start" data-text-edit-menu="">
               {CALLOUT_TONES.map((option) => {
@@ -2669,10 +2723,9 @@ function CalloutView({ node, editor, updateAttributes }: ReactNodeViewProps) {
         ) : (
           <Icon aria-hidden />
         )}
-        <NodeViewContent
-          data-slot="callout-content"
-          className={calloutContentClassName}
-        />
+        <AlertDescription className={calloutContentClassName}>
+          <NodeViewContent data-slot="callout-content" className="min-w-0" />
+        </AlertDescription>
       </Alert>
     </NodeViewWrapper>
   );
@@ -2788,7 +2841,9 @@ function ToggleView({ node, editor, getPos }: ReactNodeViewProps) {
     <NodeViewWrapper
       data-slot="toggle"
       data-open={open ? "" : undefined}
-      className="group/toggle relative my-2 ps-6"
+      // The body hides when closed. Tiptap's React content box nests the blocks one level down
+      // (`[data-node-view-content-react]`), so the rules reach the summary's siblings, not children.
+      className="group/toggle relative my-2 ps-6 [&_[data-slot=toggle-summary]]:min-h-6 [&_[data-slot=toggle-summary]]:py-0.5 [&_[data-slot=toggle-summary]]:font-medium [&:not([data-open])_[data-slot=toggle-summary]~*]:hidden"
     >
       <Button
         type="button"
@@ -2805,10 +2860,7 @@ function ToggleView({ node, editor, getPos }: ReactNodeViewProps) {
       >
         <ChevronDown aria-hidden className="size-4" />
       </Button>
-      <NodeViewContent
-        data-slot="toggle-content"
-        className="[&>[data-slot=toggle-summary]]:min-h-6 [&>[data-slot=toggle-summary]]:py-0.5 [&>[data-slot=toggle-summary]]:font-medium group-not-data-open/toggle:[&>:not([data-slot=toggle-summary])]:hidden"
-      />
+      <NodeViewContent data-slot="toggle-content" className="min-w-0" />
     </NodeViewWrapper>
   );
 }
@@ -2976,7 +3028,7 @@ function MediaView({ node, selected }: ReactNodeViewProps) {
       data-slot={`text-edit-${kind}`}
       data-drag-handle=""
       contentEditable={false}
-      data-selected={selected ? "" : undefined}
+      data-selected={selected ? "true" : undefined}
       className="my-2 rounded-lg"
     >
       {kind === "video" ? (
@@ -3209,6 +3261,17 @@ function normalizeHref(raw: string) {
  * Styling
  * ----------------------------------------------------------------------------------------------*/
 
+/**
+ * A menu item in the editor's own listbox menus (slash, mention): `DropdownMenuItem`'s exact
+ * vocabulary — radius, padding, gap, the `accent` highlight and icon colours — keyed to the
+ * active index (`data-selected`) instead of DOM focus, since focus stays in the editor.
+ */
+const MENU_ITEM =
+  "group/menu-item relative flex cursor-pointer items-center gap-1.5 rounded-md px-1.5 py-1 text-sm outline-hidden select-none data-selected:bg-accent data-selected:text-accent-foreground [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 [&_svg:not([class*='text-'])]:text-muted-foreground data-selected:[&_svg:not([class*='text-'])]:text-accent-foreground";
+/** `DropdownMenuShortcut`'s look, following the item's highlight. */
+const MENU_SHORTCUT =
+  "ms-auto text-xs tracking-widest text-muted-foreground group-data-selected/menu-item:text-accent-foreground";
+
 const MENU_SURFACE =
   "z-50 rounded-lg border border-border bg-popover p-1 text-popover-foreground shadow-md";
 
@@ -3312,7 +3375,7 @@ function SlashMenu({
               key={spec.id}
               role="option"
               aria-selected={selected}
-              data-selected={selected ? "" : undefined}
+              data-selected={selected ? "true" : undefined}
               data-slot="text-edit-slash-item"
               // Mouse movement (not enter: a keyboard scroll slides items under a still pointer)
               // moves the one active index the arrow keys also move.
@@ -3320,14 +3383,12 @@ function SlashMenu({
                 if (!selected) onHover(index);
               }}
               onClick={() => state.command(spec)}
-              className="flex cursor-pointer items-center gap-2 rounded-sm px-2 py-1.5 text-sm select-none data-selected:bg-muted data-selected:text-foreground [&_svg]:size-4 [&_svg]:shrink-0 [&_svg]:text-muted-foreground data-selected:[&_svg]:text-foreground"
+              className={MENU_ITEM}
             >
               <Icon />
               <span className="flex-1">{spec.label}</span>
               {spec.hint ? (
-                <span className="font-mono text-xs text-muted-foreground">
-                  {spec.hint}
-                </span>
+                <span className={MENU_SHORTCUT}>{spec.hint}</span>
               ) : null}
             </div>
           );
@@ -3533,10 +3594,13 @@ function LinkPanel({
   editor,
   onClose,
   onLeave,
+  onOpenFile,
 }: {
   editor: Editor;
   onClose: () => void;
   onLeave: (next: EventTarget | null) => void;
+  /** Open a file link in the viewer; false when `href` is not a file link. */
+  onOpenFile?: (href: string) => boolean;
 }) {
   const current = (editor.getAttributes("link").href as string) ?? "";
   const [href, setHref] = React.useState(current);
@@ -3587,9 +3651,11 @@ function LinkPanel({
               size="icon-sm"
               variant="ghost"
               aria-label="Open link"
-              onClick={() =>
-                window.open(current, "_blank", "noopener,noreferrer")
-              }
+              onClick={() => {
+                // A file link opens in the viewer; any other link in a new tab.
+                if (onOpenFile?.(current)) return;
+                window.open(current, "_blank", "noopener,noreferrer");
+              }}
             >
               <ExternalLink />
             </Button>
@@ -3842,6 +3908,7 @@ function SelectionMenu({
   onLeave,
   onUpload,
   onComment,
+  onOpenFile,
 }: {
   editor: Editor;
   panel: Panel | null;
@@ -3849,6 +3916,8 @@ function SelectionMenu({
   onLeave: (next: EventTarget | null) => void;
   /** Upload files as each kind, where the host takes that kind of upload. */
   onUpload?: Partial<Record<MediaKind, (files: File[]) => void>>;
+  /** Open a file link in the viewer; false when it is not a file link. */
+  onOpenFile?: (href: string) => boolean;
   /** Start a comment on the selection; absent when the host takes no comments. */
   onComment?: () => void;
 }) {
@@ -3868,7 +3937,14 @@ function SelectionMenu({
   const close = () => onPanelChange(null);
 
   if (panel === "link")
-    return <LinkPanel editor={editor} onClose={close} onLeave={onLeave} />;
+    return (
+      <LinkPanel
+        editor={editor}
+        onClose={close}
+        onLeave={onLeave}
+        onOpenFile={onOpenFile}
+      />
+    );
   if (
     panel === "image" ||
     panel === "video" ||
@@ -4947,6 +5023,12 @@ export interface TextEditEditorProps extends Omit<
    * @default undefined
    */
   onOpenImage?: (image: HTMLImageElement) => void;
+  /**
+   * Show a file chip's file in the shell's `FileViewer` (a double-click on the chip, or Open in
+   * the link panel).
+   * @default undefined
+   */
+  onOpenFile?: (href: string, name: string) => void;
 }
 
 /**
@@ -5004,6 +5086,7 @@ export function TextEditEditor({
   onReady,
   editorHandle,
   onOpenImage,
+  onOpenFile,
 }: TextEditEditorProps) {
   const boxed = variant === "boxed";
   const editable = !readOnly && !disabled;
@@ -5152,6 +5235,18 @@ export function TextEditEditor({
 
   const openImageRef = React.useRef(onOpenImage);
   openImageRef.current = onOpenImage;
+  const openFileRef = React.useRef(onOpenFile);
+  openFileRef.current = onOpenFile;
+  const openFileLink = React.useCallback((href: string) => {
+    const open = openFileRef.current;
+    const prefix = fileLinkPrefixRef.current;
+    if (!open || !prefix || !href.startsWith(prefix)) return false;
+    const chip = editorRef.current?.view.dom.querySelector<HTMLAnchorElement>(
+      `a[href="${CSS.escape(href)}"]`,
+    );
+    open(href, chip?.textContent ?? "");
+    return true;
+  }, []);
   const [imageSlots] = React.useState(() => new ImageSlots());
 
   // Built once: the editor is never recreated by a re-render.
@@ -5410,6 +5505,13 @@ export function TextEditEditor({
     const at = (as: MediaKind) => (files: File[]) => {
       const ed = editorRef.current;
       if (!ed || ed.isDestroyed) return;
+      // A selected image (the image's Replace) gives way to the upload.
+      const { selection } = ed.state;
+      if (
+        selection instanceof NodeSelection &&
+        selection.node.type.name === "image"
+      )
+        ed.view.dispatch(ed.state.tr.deleteSelection());
       uploadFiles(files, ed.state.selection.from, as);
     };
     const uploads: Partial<Record<MediaKind, (files: File[]) => void>> = {};
@@ -5430,6 +5532,19 @@ export function TextEditEditor({
     immediatelyRender: false,
     editorProps: {
       attributes: editorAttributes,
+      handleDOMEvents: {
+        // A double-click on a file chip opens the file in the viewer.
+        dblclick: (_view, event) => {
+          const chip = (event.target as Element).closest?.<HTMLAnchorElement>(
+            "a[data-slot=file-chip]",
+          );
+          const open = openFileRef.current;
+          if (!chip || !open) return false;
+          event.preventDefault();
+          open(chip.getAttribute("href") ?? "", chip.textContent ?? "");
+          return true;
+        },
+      },
       handleKeyDown: (view, event) => {
         // The slash and mention menus own Enter, arrows and Escape while open.
         if (SLASH_KEY.getState(view.state)?.active) return false;
@@ -5975,6 +6090,7 @@ export function TextEditEditor({
             onPanelChange={setPanel}
             onLeave={leave}
             onUpload={editable ? panelUploads : undefined}
+            onOpenFile={openFileLink}
             onComment={canComment ? comment : undefined}
           />
         </BubbleMenu>
@@ -6011,6 +6127,14 @@ export function TextEditEditor({
           slots={imageSlots}
           editable={editable}
           onOpen={onOpenImage}
+          onReplace={
+            editable
+              ? (pos) => {
+                  editor.chain().focus().setNodeSelection(pos).run();
+                  setPanel("image");
+                }
+              : undefined
+          }
         />
       ) : null}
       {canUpload && editable ? (

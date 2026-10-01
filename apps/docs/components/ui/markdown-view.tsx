@@ -1,4 +1,4 @@
-// @vegastack markdown-view@0.23.102 sha256-5XogOpQqTv4EsZzXZY7SpZw4K3PniJAnCerFUZrEKNE=
+// @vegastack markdown-view@0.23.102 sha256-sOxX5btGeEnn4L8R+GafAnvEEgmk8O0BoYaMnZGZhrU=
 
 import * as React from "react";
 import { Lexer, type Token, type Tokens } from "marked";
@@ -12,7 +12,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { cn, proseClassName } from "@vegastack/design";
-import { Alert } from "@/components/ui/alert";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Checkbox } from "@/components/ui/checkbox";
 // `CodeBlock` owns the fenced-code surface (header + copy + sunken mono panel); shadcn rewrites
 // this alias on `add`, and vitest/tsconfig map `@/components/ui/*` → `registry/ui/*`.
@@ -149,12 +149,12 @@ export const CALLOUT_STYLE: Record<
   caution: { variant: "destructive", icon: OctagonAlert, label: "Caution" },
 };
 
-/** The callout's blocks: the Alert's second column, in body colour, its first/last margins dropped. */
+/** The callout's blocks: the Alert's description (its tone colour), first/last margins dropped. */
 export const calloutContentClassName =
-  "col-start-2 min-w-0 text-foreground [&>:first-child]:mt-0 [&>:last-child]:mb-0";
+  "col-start-2 min-w-0 text-pretty [&>:first-child]:mt-0 [&>:last-child]:mb-0 [&_[data-node-view-content-react]>:first-child]:mt-0 [&_[data-node-view-content-react]>:last-child]:mb-0";
 
 /** The Alert grid for a callout: icon (or the editor's tone button) in the gutter, blocks beside it. */
-export const calloutClassName = "my-2 grid-cols-[auto_1fr] gap-x-2 px-3 py-2";
+export const calloutClassName = "my-2 grid-cols-[auto_1fr] gap-x-2";
 
 /**
  * `[@<label>](mention://<kind>/<id>)` at the start of a string. The label escapes `\`, `[` and `]`
@@ -871,9 +871,9 @@ function renderNode(
           className={calloutClassName}
         >
           <Icon aria-hidden />
-          <div data-slot="callout-content" className={calloutContentClassName}>
+          <AlertDescription className={calloutContentClassName}>
             {children()}
-          </div>
+          </AlertDescription>
         </Alert>
       );
     }
