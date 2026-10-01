@@ -27519,7 +27519,6 @@
       "engines": [],
       "docsSlug": "/docs/components/comments",
       "registryDependencies": [
-        "@vegastack/alert-dialog",
         "@vegastack/button",
         "@vegastack/date-time",
         "@vegastack/dropdown-menu",
