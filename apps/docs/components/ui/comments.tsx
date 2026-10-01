@@ -1,4 +1,4 @@
-// @vegastack comments@0.23.103 sha256-D0zMi+Y1c1ncBZINk6DQP4Veb0Yo3rxDHGp3cyiA2xs=
+// @vegastack comments@0.23.103 sha256-oD2Tzp4dQsF6CzR/hWeoHXAgM835ncOfBSFaThBDQkE=
 
 "use client";
 
@@ -485,10 +485,9 @@ export function CommentItem({
 }
 
 /* ------------------------------------------------------------------------------------------------
- * CommentBox — the light editor box the composer and in-place edit share: `TextEdit`'s `boxed`
- * variant on a near-transparent fill (`bg-muted/30`) with a hairline border that darkens subtly
- * with an ease while the editor holds focus (text entry's border cue), no fill change, growing to
- * about twelve lines before it scrolls inside
+ * CommentBox — the editor box the composer and in-place edit share: `TextEdit`'s `composer`
+ * variant, which looks exactly like `Input` at rest and grows line by line to about ten lines
+ * before it scrolls inside, the attach and Send controls pinned bottom-right
  * ----------------------------------------------------------------------------------------------*/
 
 /** Focus the editable surface inside `root`, retrying for a few frames while the editor mounts. */
@@ -612,16 +611,12 @@ function CommentBox({
       }
     >
       <TextEdit
-        variant="boxed"
+        variant="composer"
         handleRef={handle}
         className={cn(
-          "flex min-h-8 flex-wrap items-end gap-1 rounded-lg border-border bg-muted/30 py-px ps-3 pe-px dark:bg-muted/30",
-          // The text column fills the row; one line of it is exactly the 28px controls' height, so
-          // the box is the `Input` height (32px) at rest, focused or not, and the controls stay on
-          // the last line as the text grows. The `Input` type size: 16px on a phone, 14px from md.
-          "[&_[data-slot=text-edit-content]]:flex-1 [&_[data-slot=text-edit-content]]:self-end [&_[data-slot=text-edit-content]]:py-0.5 [&_[data-slot=text-edit-content]]:text-base [&_[data-slot=text-edit-content]]:leading-6 md:[&_[data-slot=text-edit-content]]:py-1 md:[&_[data-slot=text-edit-content]]:text-sm md:[&_[data-slot=text-edit-content]]:leading-5 [&_.tiptap]:py-0",
+          // Inside a comment card (edit mode) the card draws the surface and border.
           bare &&
-            "rounded-none border-0 bg-transparent p-0 dark:bg-transparent",
+            "rounded-none border-0 bg-transparent ps-0 pe-0 dark:bg-transparent",
         )}
         format="markdown"
         slashCommands={TEXT_EDIT_COMPACT_SLASH_COMMANDS}
@@ -636,8 +631,6 @@ function CommentBox({
         saving={busy}
         disabled={disabled}
         dragHandles={false}
-        // About twelve lines of body text, then it scrolls inside the box.
-        maxHeight="15rem"
         aria-invalid={invalid ? true : undefined}
         mentions={mentions}
         mentionHref={mentionHref}
@@ -645,67 +638,63 @@ function CommentBox({
         onImageUpload={onImageUpload}
         onFileUpload={onFileUpload}
         onUploadError={onUploadError}
-      >
-        {files ? (
-          // Inside the box at its bottom, under the text: the draft's files are part of what Send posts.
+        // Inside the box at its bottom, under the text: the draft's files are part of what Send posts.
+        footer={
+          files ? <div data-slot="comment-box-files">{files}</div> : undefined
+        }
+        actions={
           <div
-            data-slot="comment-box-files"
-            className="order-last min-w-0 basis-full pe-1.5 pb-1.5"
+            data-slot="comment-box-actions"
+            className="flex shrink-0 items-center gap-1"
           >
-            {files}
+            {leading}
+            {canAttach ? (
+              <>
+                <Tooltip>
+                  <TooltipTrigger
+                    render={
+                      <Button
+                        variant="ghost"
+                        size="icon-sm"
+                        data-slot="comment-attach"
+                        aria-label="Attach files"
+                        className={cn(
+                          "rounded-full text-muted-foreground hover:text-foreground focus-visible:bg-muted",
+                          TOUCH_TARGET,
+                        )}
+                        // A picker of our own, clicked in the gesture (the lazy editor may not be
+                        // in yet); picked files go to the editor's upload flow at the caret.
+                        onClick={() => fileInput.current?.click()}
+                      />
+                    }
+                  >
+                    <Paperclip aria-hidden />
+                  </TooltipTrigger>
+                  <TooltipContent>Attach files</TooltipContent>
+                </Tooltip>
+                <input
+                  ref={fileInput}
+                  type="file"
+                  multiple
+                  hidden
+                  tabIndex={-1}
+                  aria-hidden
+                  // The editor's rules: images only unless any file may upload.
+                  accept={onFileUpload || onAttachFiles ? undefined : "image/*"}
+                  onChange={(event) => {
+                    const picked = Array.from(event.currentTarget.files ?? []);
+                    event.currentTarget.value = "";
+                    if (!picked.length) return;
+                    if (onAttachFiles) onAttachFiles(picked);
+                    else handle.current?.uploadFiles(picked);
+                  }}
+                />
+              </>
+            ) : null}
+            {actions}
           </div>
-        ) : null}
-        <div
-          data-slot="comment-box-actions"
-          className="flex shrink-0 items-center gap-1"
-        >
-          {leading}
-          {canAttach ? (
-            <>
-              <Tooltip>
-                <TooltipTrigger
-                  render={
-                    <Button
-                      variant="ghost"
-                      size="icon-sm"
-                      data-slot="comment-attach"
-                      aria-label="Attach files"
-                      className={cn(
-                        "rounded-full text-muted-foreground hover:text-foreground focus-visible:bg-muted",
-                        TOUCH_TARGET,
-                      )}
-                      // A picker of our own, clicked in the gesture (the lazy editor may not be
-                      // in yet); picked files go to the editor's upload flow at the caret.
-                      onClick={() => fileInput.current?.click()}
-                    />
-                  }
-                >
-                  <Paperclip aria-hidden />
-                </TooltipTrigger>
-                <TooltipContent>Attach files</TooltipContent>
-              </Tooltip>
-              <input
-                ref={fileInput}
-                type="file"
-                multiple
-                hidden
-                tabIndex={-1}
-                aria-hidden
-                // The editor's rules: images only unless any file may upload.
-                accept={onFileUpload || onAttachFiles ? undefined : "image/*"}
-                onChange={(event) => {
-                  const picked = Array.from(event.currentTarget.files ?? []);
-                  event.currentTarget.value = "";
-                  if (!picked.length) return;
-                  if (onAttachFiles) onAttachFiles(picked);
-                  else handle.current?.uploadFiles(picked);
-                }}
-              />
-            </>
-          ) : null}
-          {actions}
-        </div>
-      </TextEdit>
+        }
+      />
     </div>
   );
 }

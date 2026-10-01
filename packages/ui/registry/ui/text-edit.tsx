@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.23.103 sha256-tTDhK28KD2BCcleG3RSHrTjTUJNNia/q07xAQ3MHs/Q=
+// @vegastack text-edit@0.23.103 sha256-+6QvQT1lRYtAkZC4gQIbaxxU8DqC8EEgh7NF18EuGIk=
 
 "use client";
 
@@ -229,6 +229,21 @@ const editorBaseClassName = cn(
   // An empty toggle title or body shows its hint (the Placeholder extension's `is-empty`).
   "[&_[data-slot=toggle-content]>[data-node-view-content-react]>.is-empty]:before:pointer-events-none [&_[data-slot=toggle-content]>[data-node-view-content-react]>.is-empty]:before:float-start [&_[data-slot=toggle-content]>[data-node-view-content-react]>.is-empty]:before:h-0 [&_[data-slot=toggle-content]>[data-node-view-content-react]>.is-empty]:before:text-muted-foreground/60 [&_[data-slot=toggle-content]>[data-node-view-content-react]>[data-slot=toggle-summary].is-empty]:before:content-[attr(data-placeholder)] [&_[data-slot=toggle-content]>[data-node-view-content-react]>p.is-empty]:before:content-['Empty_toggle._Type_or_press_/_for_commands']",
 );
+
+/*
+ * `variant="composer"` — `Input`'s box (32px: a 1px border around a 28px row; `ps-2.5`, 14px type
+ * from md, 16px on a phone) as a two-column grid: the text, then the actions. One line of text is
+ * exactly the 28px row (20px line + 4px above and below; 24px + 2px on a phone), so the 28px
+ * controls sit centred on it, and as the text grows they stay on the last line (`self-end`). The
+ * text scrolls inside past about ten lines; the footer spans both columns under it.
+ */
+const COMPOSER_ROOT =
+  "grid min-h-8 grid-cols-[minmax(0,1fr)_auto] items-end gap-x-1 py-px ps-2.5 pe-px";
+const COMPOSER_CONTENT =
+  "col-start-1 row-start-1 max-h-[calc(10*1.5rem+0.25rem)] overflow-y-auto py-0.5 md:max-h-[calc(10*1.25rem+0.5rem)] md:py-1 [&>*]:py-0 [&>*]:text-base [&>*]:leading-6 md:[&>*]:text-sm md:[&>*]:leading-5 [&>*>*:first-child]:mt-0 [&>*>*:last-child]:mb-0";
+const COMPOSER_ACTIONS =
+  "col-start-2 row-start-1 flex shrink-0 items-center gap-1 self-end";
+const COMPOSER_FOOTER = "col-span-2 row-start-2 min-w-0 pe-1.5 pt-1 pb-1.5";
 
 /** While focused and empty, the placeholder yields to the slash hint. */
 const slashHintClassName =
@@ -697,9 +712,23 @@ export interface TextEditProps {
    * cue. `boxed` frames the editor in a bordered field (a comment composer): the border darkens
    * subtly with a 150ms ease while the editor holds focus, an invalid box keeps its destructive
    * border, and a click anywhere in the box starts editing. Neither mode paints a focus fill.
+   * `composer` is a comment box that looks exactly like `Input` at rest (32px, its border, radius,
+   * padding, type and focus cue) and grows line by line to about ten lines, then scrolls inside;
+   * `actions` sit at its end on the first line and stay pinned bottom-right as the text wraps, and
+   * `footer` (pending file cards) renders inside the box under the text.
    * @default "document"
    */
-  variant?: "document" | "boxed";
+  variant?: "document" | "boxed" | "composer";
+  /**
+   * `variant="composer"`: the trailing controls (attach, Send), bottom-right.
+   * @default undefined
+   */
+  actions?: React.ReactNode;
+  /**
+   * `variant="composer"`: content inside the box under the text (the draft's file cards).
+   * @default undefined
+   */
+  footer?: React.ReactNode;
   /**
    * The heading sizes, as `MarkdownView`'s `headingScale`: `compact` (the app's scale) or
    * `document` (a page's: `#` `text-3xl`, `##` `text-2xl`, `###` `text-xl`).
@@ -915,6 +944,8 @@ export function TextEdit(props: TextEditProps) {
     "aria-describedby": ariaDescribedBy,
     variant = "document",
     headingScale = "compact",
+    actions,
+    footer,
     children,
     className,
     ref,
@@ -928,7 +959,8 @@ export function TextEdit(props: TextEditProps) {
   // Highlights and an outline need the document model, so they mount the editor at once.
   const eager =
     props.annotations !== undefined || props.onOutlineChange !== undefined;
-  const boxed = variant === "boxed";
+  const composer = variant === "composer";
+  const boxed = variant === "boxed" || composer;
   const [field, setField] = React.useState<FieldAria>({});
   const disabled = disabledProp || field.disabled === true;
   const editable = !readOnly && !disabled;
@@ -1072,6 +1104,7 @@ export function TextEdit(props: TextEditProps) {
     "relative min-w-0 max-w-full",
     minCss != null && "min-h-[var(--te-min-h)]",
     maxCss != null && "max-h-[var(--te-max-h)] overflow-y-auto",
+    composer && COMPOSER_CONTENT,
   );
 
   // Nothing edits the read view itself (React owns its DOM): every native edit is cancelled, and
@@ -1149,7 +1182,9 @@ export function TextEdit(props: TextEditProps) {
         // `boxed`: text entry's border cue (FOC-3) — a subtle darker border that eases in while
         // the editor holds focus, never a fill; an invalid box keeps its destructive border.
         boxed &&
-          "rounded-lg border border-input px-2.5 py-2 transition-[color,background-color,border-color] duration-150 ease-out has-[[contenteditable=true]:focus]:not-data-invalid:border-ring/40 data-invalid:border-destructive dark:bg-input/30 dark:data-invalid:border-destructive/50",
+          "rounded-lg border border-input transition-[color,background-color,border-color] duration-150 ease-out has-[[contenteditable=true]:focus]:not-data-invalid:border-ring/40 data-invalid:border-destructive dark:bg-input/30 dark:data-invalid:border-destructive/50",
+        boxed && !composer && "px-2.5 py-2",
+        composer && COMPOSER_ROOT,
         editable && "cursor-text",
         !editable && "[&_img[data-viewer]]:cursor-zoom-in",
         disabled && "opacity-50",
@@ -1258,6 +1293,16 @@ export function TextEdit(props: TextEditProps) {
             }
           />
         </React.Suspense>
+      ) : null}
+      {composer && actions ? (
+        <div data-slot="text-edit-actions" className={COMPOSER_ACTIONS}>
+          {actions}
+        </div>
+      ) : null}
+      {composer && footer ? (
+        <div data-slot="text-edit-footer" className={COMPOSER_FOOTER}>
+          {footer}
+        </div>
       ) : null}
       {children}
       {imageViewer.element}

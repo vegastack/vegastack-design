@@ -296,6 +296,19 @@ replaces it.
   file="components/preview/text-edit.tsx"
 />
 
+#### Composer
+
+`variant="composer"` is a comment box: at rest it is exactly an `Input` — 32px, its border,
+radius, padding, type size and focus cue — and it grows line by line with the text to about ten
+lines, then scrolls inside, with no jump on focus. `actions` sit at the end of the first line,
+centred on it, and stay pinned bottom-right as the text wraps; `footer` renders inside the box
+under the text (a draft's file cards). `CommentComposer` and replies are built on it.
+
+<ComponentPreview
+  name="textEditComposer"
+  file="components/preview/text-edit.tsx"
+/>
+
 ### Editing patterns
 
 An empty editor with a faint placeholder ("Add a description…"; focused, it reads "Type / for commands"), a `readOnly`

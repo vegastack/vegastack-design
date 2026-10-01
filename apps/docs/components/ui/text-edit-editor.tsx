@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.23.103 sha256-tTDhK28KD2BCcleG3RSHrTjTUJNNia/q07xAQ3MHs/Q=
+// @vegastack text-edit@0.23.103 sha256-+6QvQT1lRYtAkZC4gQIbaxxU8DqC8EEgh7NF18EuGIk=
 
 "use client";
 
@@ -1191,22 +1191,79 @@ const Shortcuts = Extension.create({
 });
 
 /**
- * Images are inline (GFM's `![]()` sits in a paragraph, mid-sentence or alone), so a paragraph
- * holding only an image stays a paragraph. Tiptap's default unwraps it into a block image, which is
- * invalid under an inline schema and broke the caret and the round trip.
+ * Images are blocks — one image per block, on its own line in markdown (`![alt|w](src)`). GFM
+ * puts an image inside a paragraph (mid-sentence or alone), so loading lifts each one out: the
+ * paragraph splits around it, its text stays paragraphs, the image becomes a block between them.
  */
-const ParagraphKeepingImages = Paragraph.extend({
+const ParagraphLiftingImages = Paragraph.extend({
   parseMarkdown: (token, helpers) => {
-    const tokens = token.tokens ?? [];
-    if (tokens.length === 1 && tokens[0]?.type === "image")
-      return helpers.createNode(
-        "paragraph",
-        undefined,
-        helpers.parseInline(tokens),
-      );
-    return Paragraph.config.parseMarkdown!(token, helpers);
+    const tokens = (token.tokens ?? []) as { type: string; raw?: string }[];
+    if (!tokens.some((each) => each.type === "image"))
+      return Paragraph.config.parseMarkdown!(token, helpers);
+    const out: JSONContent[] = [];
+    let run: typeof tokens = [];
+    // The space next to a lifted image belonged to the sentence it sat in, not to the paragraph.
+    const trim = (
+      each: { type: string; raw?: string; text?: string },
+      end: boolean,
+    ) =>
+      each.type === "text"
+        ? {
+            ...each,
+            raw: end ? each.raw?.trimEnd() : each.raw?.trimStart(),
+            text: end ? each.text?.trimEnd() : each.text?.trimStart(),
+          }
+        : each;
+    const flush = () => {
+      if (run.length) {
+        run[0] = trim(run[0]!, false);
+        run[run.length - 1] = trim(run[run.length - 1]!, true);
+      }
+      // A run of only whitespace or line breaks between images leaves no paragraph behind.
+      const text = run.map((each) => each.raw ?? "").join("");
+      if (text.trim())
+        out.push(
+          helpers.createNode(
+            "paragraph",
+            undefined,
+            helpers.parseInline(run as never),
+          ),
+        );
+      run = [];
+    };
+    for (const each of tokens) {
+      if (each.type !== "image") {
+        run.push(each);
+        continue;
+      }
+      flush();
+      out.push(...helpers.parseInline([each] as never));
+    }
+    flush();
+    return out;
   },
 });
+
+/**
+ * Where a block (an image, a video, an audio clip) lands for a caret at `pos`: in place of an empty
+ * paragraph, else right after the caret's block — never splitting the text it sits in.
+ */
+function blockInsertRange(
+  state: EditorState,
+  pos: number,
+): { from: number; to: number } {
+  const $pos = state.doc.resolve(
+    Math.min(Math.max(pos, 0), state.doc.content.size),
+  );
+  for (let depth = $pos.depth; depth > 0; depth--) {
+    const node = $pos.node(depth);
+    if (!node.isTextblock) continue;
+    if (node.content.size === 0)
+      return { from: $pos.before(depth), to: $pos.after(depth) };
+    return { from: $pos.after(depth), to: $pos.after(depth) };
+  }
+  return { from: pos, to: pos };
+}
 
 /* --- file chips --------------------------------------------------------------------------------*/
 
@@ -2058,19 +2115,19 @@ const IMAGE_GUIDES = [0.25, 0.5, 0.75, 1] as const;
 // The image keeps one radius (`rounded-lg`, the media radius) at rest, hovered, selected and while
 // resizing; the selection is a thin primary outline hugging it (no frame, no extra spacing).
 const IMAGE_CONTAINER =
-  "group/image relative max-w-full align-bottom leading-none [&_img]:block [&_img]:max-w-full [&_img]:rounded-lg";
+  "group/image relative my-2 max-w-full leading-none [&_img]:block [&_img]:max-w-full [&_img]:rounded-lg";
 const IMAGE_WRAPPER =
-  "max-w-full rounded-lg outline-offset-0 in-[.ProseMirror-selectednode]:outline-2 in-[.ProseMirror-selectednode]:outline-primary group-data-[resize-state=true]/image:outline-2 group-data-[resize-state=true]/image:outline-primary";
+  "max-w-full rounded-lg outline-offset-0 in-[.ProseMirror-selectednode]:outline-2 in-[.ProseMirror-selectednode]:outline-info group-data-[resize-state=true]/image:outline-2 group-data-[resize-state=true]/image:outline-info";
 // Notion-style side handles: a pill bar inside the left and right edges, shown on hover, while
 // selected (a tap on touch) and while resizing; never in a read-only editor.
 const IMAGE_HANDLE = cn(
   "z-10 w-4 touch-none opacity-0 transition-opacity duration-150 group-hover/image:opacity-100 group-data-[resize-state=true]/image:opacity-100 in-[.ProseMirror-selectednode]:opacity-100 in-[.ProseMirror[contenteditable=false]]:hidden pointer-coarse:w-6",
   "data-[resize-handle=left]:cursor-ew-resize data-[resize-handle=right]:cursor-ew-resize",
-  "after:absolute after:inset-x-1.5 after:top-1/2 after:h-10 after:max-h-[60%] after:-translate-y-1/2 after:rounded-full after:border after:border-background/80 after:bg-foreground/60 after:shadow-sm pointer-coarse:after:inset-x-2",
+  "after:absolute after:inset-x-1.5 after:top-1/2 after:h-10 after:max-h-[60%] after:-translate-y-1/2 after:rounded-full after:border after:border-background after:bg-info after:shadow-sm pointer-coarse:after:inset-x-2",
 );
 /** The hover toolbar's frame: top-right on the image, a blurred translucent pill. */
 const IMAGE_MENU_SLOT =
-  "absolute end-2 top-2 z-20 flex items-center gap-0.5 rounded-md border border-border bg-background/70 p-0.5 shadow-sm backdrop-blur-sm opacity-0 transition-opacity duration-150 group-hover/image:opacity-100 focus-within:opacity-100 has-data-popup-open:opacity-100 in-[.ProseMirror-selectednode]:opacity-100 group-data-[resize-state=true]/image:hidden empty:hidden";
+  "absolute end-2 top-2 z-20 flex items-center gap-0.5 rounded-md border border-border bg-background/70 p-0.5 shadow-sm backdrop-blur-sm opacity-0 transition-opacity duration-150 group-hover/image:opacity-100 focus-within:opacity-100 has-data-popup-open:opacity-100 in-[.ProseMirror-selectednode]:opacity-100 group-data-[resize-state=true]/image:hidden empty:hidden data-narrow:hidden";
 const IMAGE_SIZE_LABEL =
   "pointer-events-none absolute bottom-1.5 start-1/2 z-10 hidden -translate-x-1/2 rounded-md bg-popover px-1.5 py-0.5 text-xs text-popover-foreground tabular-nums shadow-sm border border-border group-data-[resize-state=true]/image:block";
 const IMAGE_GUIDE =
@@ -2256,6 +2313,14 @@ function imageNode(runtime: ImageRuntime) {
         host.dataset.slot = "text-edit-image-menu";
         wrapper.append(sizeLabel, host);
         const remove = runtime.slots.add({ host, image, getPos });
+        // An image narrower than its toolbar shows none (a double-click still opens it).
+        const narrow =
+          typeof ResizeObserver === "undefined"
+            ? null
+            : new ResizeObserver(() =>
+                host.toggleAttribute("data-narrow", image.clientWidth < 160),
+              );
+        narrow?.observe(image);
 
         image.addEventListener("dblclick", (event) => {
           event.preventDefault();
@@ -2270,6 +2335,7 @@ function imageNode(runtime: ImageRuntime) {
             mutation.type !== "selection",
           destroy: () => {
             clearGuides();
+            narrow?.disconnect();
             remove();
             destroy();
           },
@@ -3128,6 +3194,8 @@ function buildExtensions(
       underline: false,
       // A trailing empty paragraph would add a line edit mode has and view mode does not.
       trailingNode: false,
+      // Dragging an image (or any block) shows the block handle's drop line: 2px, info blue.
+      dropcursor: { color: false, width: 2, class: "rounded-full bg-info" },
       link: {
         openOnClick: false,
         autolink: true,
@@ -3137,7 +3205,7 @@ function buildExtensions(
         HTMLAttributes: LINK_ATTRIBUTES,
       },
     }),
-    ParagraphKeepingImages,
+    ParagraphLiftingImages,
     CodeBlockWithView,
     TaskList,
     TaskItemWithView.configure({ nested: true }),
@@ -3148,7 +3216,7 @@ function buildExtensions(
       table: { resizable: true, renderWrapper: true, cellMinWidth: 100 },
     }),
     // Inline, like GFM's `![]()` inside a paragraph, so an image sits where view mode puts it.
-    imageNode(imageRuntime).configure({ inline: true }),
+    imageNode(imageRuntime).configure({ inline: false }),
     Placeholder.configure({
       // Nested nodes too, so an empty toggle title or body gets its own hint.
       includeChildren: true,
@@ -3761,10 +3829,16 @@ function MediaPanel({
         : kind === "image"
           ? { type: "image", attrs: { src: safe, alt: null } }
           : { type: kind, attrs: { src: safe } };
+    const { selection } = editor.state;
+    // A selected image (its Replace) is replaced; otherwise a block lands after the caret's block.
+    const target =
+      kind === "file" || selection instanceof NodeSelection
+        ? { from: selection.from, to: selection.to }
+        : blockInsertRange(editor.state, selection.from);
     editor
       .chain()
       .focus(undefined, { scrollIntoView: false })
-      .insertContent(content)
+      .insertContentAt(target, content)
       .run();
     onClose();
   };
@@ -4171,8 +4245,9 @@ const HANDLE_FRAME =
 /** The frame the block grip and the drop line stay inside: a boxed editor's border, else a Dialog, Sheet, Popover or Card. */
 function handleFrame(editor: Editor) {
   return (
-    editor.view.dom.closest('[data-slot="text-edit"][data-variant="boxed"]') ??
-    editor.view.dom.closest(HANDLE_FRAME)
+    editor.view.dom.closest(
+      '[data-slot="text-edit"]:is([data-variant="boxed"],[data-variant="composer"])',
+    ) ?? editor.view.dom.closest(HANDLE_FRAME)
   );
 }
 
@@ -5088,7 +5163,7 @@ export function TextEditEditor({
   onOpenImage,
   onOpenFile,
 }: TextEditEditorProps) {
-  const boxed = variant === "boxed";
+  const boxed = variant === "boxed" || variant === "composer";
   const editable = !readOnly && !disabled;
   // Fixed at creation: the parser is chosen once.
   const [markdown] = React.useState(format === "markdown");
@@ -5432,7 +5507,14 @@ export function TextEditEditor({
           } satisfies UploadMeta),
         );
         if (at === null) return;
-        current.chain().insertContentAt(at, content).run();
+        // An image, video or audio clip is a block of its own: after the block it was dropped in.
+        current
+          .chain()
+          .insertContentAt(
+            content.type === "text" ? at : blockInsertRange(current.state, at),
+            content,
+          )
+          .run();
         commitNow();
       };
       const drop = (error: unknown) => {

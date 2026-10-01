@@ -1,4 +1,4 @@
-// @vegastack markdown-view@0.23.103 sha256-PDfdgTQsIVxerT/B+OpP6p+MKlt6n125Q0jVpeAnqEw=
+// @vegastack markdown-view@0.23.103 sha256-XiCHWKxsnWNjKndg/k5/SLJJ46N/ZYzh1hfXfVaW+2o=
 
 import * as React from "react";
 import { Lexer, type Token, type Tokens } from "marked";
@@ -403,6 +403,32 @@ function blocks(tokens: Token[]): DocNode[] {
         const media = MEDIA_BLOCK.exec(String(t.raw ?? "").trim());
         if (media) {
           out.push(el(media[1]!, { src: decode(media[2]!) }));
+          break;
+        }
+        // Images are blocks (as in TextEdit): each one gets a paragraph of its own, the text
+        // around it stays in paragraphs before and after.
+        const parts = t.tokens ?? [];
+        if (parts.some((part) => part.type === "image") && parts.length > 1) {
+          let run: Token[] = [];
+          const flush = () => {
+            if (
+              run
+                .map((part) => part.raw ?? "")
+                .join("")
+                .trim()
+            )
+              out.push(el("p", {}, inline(run)));
+            run = [];
+          };
+          for (const part of parts) {
+            if (part.type !== "image") {
+              run.push(part);
+              continue;
+            }
+            flush();
+            out.push(el("p", {}, inline([part])));
+          }
+          flush();
           break;
         }
         out.push(el("p", {}, inline(t.tokens)));

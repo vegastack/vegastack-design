@@ -41,10 +41,7 @@ comments; and the composer at the end. Pass `comments` oldest first; `order="new
 them. With no comments, the composer sits right under the heading — no empty-state line (pass
 `emptyText` for one).
 
-`CommentComposer` is a light box — [`TextEdit`](/docs/components/text-edit)'s `boxed` variant on a
-near-transparent fill, with a hairline border that darkens subtly with an ease while the editor
-holds focus and no fill change — one line and 32px tall at rest — the `Input` height, radius (`rounded-lg`) and type size, whether focused or not — whose editor grows with its text to
-about twelve lines and then scrolls inside. Its placeholder is "Add a comment…". A round ↑ send
+`CommentComposer` is [`TextEdit`](/docs/components/text-edit)'s `composer` variant: at rest exactly an `Input` (32px, its border, radius, padding, type size and focus cue), growing line by line with its text to about ten lines and then scrolling inside, with no jump on focus. Its placeholder is "Add a comment…". A round ↑ send
 button sits inline at the end of the box, pinned to the bottom line as the text grows (a quiet grey
 disc while there is nothing to send; Cmd/Ctrl+Enter also sends); a muted round paperclip attach button sits
 before it whenever `onImageUpload` or `onFileUpload` is set, opening the file picker (the files
