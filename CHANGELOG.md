@@ -9,6 +9,20 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.23.103] — October 1, 2026
+
+<!-- assembled from 1 changeset: f94b94fe6499 -->
+
+### 📦 npm
+
+- **`@vegastack/design`** → **`0.7.88`** (was `0.7.87`).
+- The design-system registry (`@vegastack/ui`) bumps 0.23.102 → 0.23.103.
+
+### 🐛 Fixed
+
+- TextEdit fixes from a live check. Slash and mention menu items use `DropdownMenuItem`'s look (accent highlight, radius, padding, shortcut text), and the active item is marked `data-selected="true"` so apps that map the variant to `="true"` show it. Callouts render their text as the `Alert`'s description, in the tone colour, with the tone icon in colour. Code blocks scroll unwrapped lines sideways in the editor too (Tiptap's content element no longer forces `pre-wrap`). A closed toggle hides only its body, not its title. Images: a thin outline at the image's own radius when selected, Notion-style side handles only, no extra spacing, and a blurred hover toolbar (Open, Download, Copy link, ⋯ Replace / Delete). A file chip opens in the `FileViewer` on a double-click or from the link panel's Open.
+  [`e69fa24`](https://github.com/VegaStack/vegastack-design/commit/e69fa24)
+
 ## [0.23.102] — October 1, 2026
 
 <!-- assembled from 1 changeset: c3366cc88257 -->
