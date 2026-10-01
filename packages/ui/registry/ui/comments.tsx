@@ -1,4 +1,4 @@
-// @vegastack comments@0.23.110 sha256-HAUkupO2UUfCbOPTK5DaSDhJmn3Y7WnC/M0om3T8DYw=
+// @vegastack comments@0.23.110 sha256-zgcCJB13oFt0PBomBV+GwckByx5olLrvuD9QbLUSUn8=
 
 "use client";
 
@@ -415,7 +415,7 @@ export function CommentItem({
                       render={
                         <Button
                           variant="ghost"
-                          size="icon-sm"
+                          size="icon-xs"
                           className={cn("rounded-full", TOUCH_TARGET)}
                           aria-label="Cancel"
                           onClick={cancel}
@@ -635,6 +635,8 @@ interface CommentBoxProps {
   onAttachFiles?: (files: File[]) => void;
   /** Inside the box at its bottom, under the text: the draft's attached files (cards with their upload progress). */
   files?: React.ReactNode;
+  /** Two lines tall at rest (a record's new-comment box); replies stay one line. */
+  twoLines?: boolean;
 }
 
 /**
@@ -671,6 +673,7 @@ function CommentBox({
   onUploadError,
   onAttachFiles,
   files,
+  twoLines,
 }: CommentBoxProps) {
   const ref = React.useRef<HTMLDivElement>(null);
   const handle = React.useRef<TextEditHandle>(null);
@@ -741,6 +744,8 @@ function CommentBox({
         saving={busy}
         disabled={disabled}
         dragHandles={false}
+        // Two 20px lines and the textbox's 2px top and bottom.
+        minHeight={twoLines ? "2.75rem" : undefined}
         aria-invalid={invalid ? true : undefined}
         mentions={mentions}
         mentionHref={mentionHref}
@@ -768,7 +773,7 @@ function CommentBox({
                       render={
                         <Button
                           variant="ghost"
-                          size="icon-sm"
+                          size="icon-xs"
                           data-slot="comment-attach"
                           aria-label="Attach files"
                           className={cn(
@@ -843,7 +848,7 @@ function SendButton({
   const idle = disabled && !loading;
   return (
     <Button
-      size="icon-sm"
+      size="icon-xs"
       variant={idle ? "secondary" : "default"}
       aria-label={label}
       loading={loading}
@@ -1013,6 +1018,8 @@ export function CommentComposer({
       ) : null}
       <CommentBox
         key={generation}
+        // A record's new comment box reserves two lines; a reply stays one line at rest.
+        twoLines={!replyingTo}
         label={replyingTo ? "Reply" : "Comment"}
         defaultValue={generation === 0 ? defaultValue : undefined}
         placeholder={

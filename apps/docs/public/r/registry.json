@@ -286,7 +286,7 @@
         "whenToUse": "Discussion on a record's page (a task, a meeting): comments oldest first with the composer at the end.",
         "whenNotToUse": "An activity feed or notifications — use Inbox.",
         "version": "0.23.110",
-        "integrity": "sha256-HAUkupO2UUfCbOPTK5DaSDhJmn3Y7WnC/M0om3T8DYw="
+        "integrity": "sha256-zgcCJB13oFt0PBomBV+GwckByx5olLrvuD9QbLUSUn8="
       }
     },
     {
@@ -17642,7 +17642,7 @@
         "whenToUse": "Comments, notes, summaries and documents stored as Markdown (format=\"markdown\") or HTML — with @ mentions, uploads, callouts, toggles, an outline and comment highlights for page editors; in-place editing of a MarkdownView (the read view is the editor until first edited).",
         "whenNotToUse": "Plain single-line input (Input) or collaborative real-time docs (deferred text-edit-collab).",
         "version": "0.23.110",
-        "integrity": "sha256-c0DD/Hz1q9nT6i2yuI1GpGL6vr6eFT0OL3YHxVDr1ro="
+        "integrity": "sha256-cmnk1DuCSKdQiPoQkHr69pUxsOPnqXgNlycySV3ZTR8="
       }
     },
     {

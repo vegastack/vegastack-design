@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.23.110 sha256-c0DD/Hz1q9nT6i2yuI1GpGL6vr6eFT0OL3YHxVDr1ro=
+// @vegastack text-edit@0.23.110 sha256-cmnk1DuCSKdQiPoQkHr69pUxsOPnqXgNlycySV3ZTR8=
 
 "use client";
 
@@ -231,23 +231,23 @@ const editorBaseClassName = cn(
 );
 
 /*
- * `variant="composer"` — `Input`'s box (32px: a 1px border around a 28px row; 14px type from md,
- * 16px on a phone) on a light fill, as a grid: the leading controls (attach), the text, the actions
- * (Send), 6px in from either side (10px before the text when nothing leads). One line of text is
- * exactly the 28px row (2px + the 24px textbox, whose 20px line is centred in it from md), so the
- * 28px controls sit centred on it, and as the text grows they stay on the last line (`self-end`).
+ * `variant="composer"` — `Input`'s box (32px: a 1px border, 3px of padding and a 24px row; 14px
+ * type from md, 16px on a phone) on a light fill, as a grid: the leading controls (attach), the
+ * text, the actions (Send). The 24px controls sit 4px in from the border on every side — never on
+ * the corners — centred on a single line and pinned to the last line as the text grows
+ * (`self-end`); the text starts 8px in when nothing leads. One line of text is exactly the 24px row.
  * The text scrolls inside past about ten lines; the footer spans the row under it.
  */
-const COMPOSER_ROOT = "grid min-h-8 items-end gap-x-1 bg-muted/30 py-px pe-1.5";
+const COMPOSER_ROOT = "grid min-h-8 items-end gap-x-1 bg-muted/30 p-[3px]";
 const COMPOSER_LEADING =
   "col-start-1 row-start-1 flex shrink-0 items-center gap-1 self-end";
 const COMPOSER_CONTENT =
-  "row-start-1 max-h-[calc(10*1.5rem+0.25rem)] overflow-y-auto py-0.5 md:max-h-[calc(10*1.25rem+0.5rem)] [&>*]:py-0 [&>*]:text-base [&>*]:leading-6 md:[&>*]:text-sm md:[&>*]:leading-5 md:[&_[role=textbox]]:py-0.5 [&>*>*:first-child]:mt-0 [&>*>*:last-child]:mb-0";
+  "row-start-1 max-h-[calc(10*1.5rem)] overflow-y-auto md:max-h-[calc(10*1.25rem+0.25rem)] [&>*]:py-0 [&>*]:text-base [&>*]:leading-6 md:[&>*]:text-sm md:[&>*]:leading-5 md:[&_[role=textbox]]:py-0.5 [&>*>*:first-child]:mt-0 [&>*>*:last-child]:mb-0";
 const COMPOSER_ACTIONS =
   "row-start-1 flex shrink-0 items-center gap-1 self-end";
 // An empty footer (a host passing a wrapper with no files in it) takes no room.
 const COMPOSER_FOOTER =
-  "col-span-full row-start-2 min-w-0 pt-1 pb-1.5 has-[>:only-child:empty]:hidden";
+  "col-span-full row-start-2 min-w-0 px-1 pt-1 pb-1 has-[>:only-child:empty]:hidden";
 
 /** While focused and empty, the placeholder yields to the slash hint. */
 const slashHintClassName =
@@ -1214,8 +1214,8 @@ export function TextEdit(props: TextEditProps) {
         composer && COMPOSER_ROOT,
         composer &&
           (leading
-            ? "grid-cols-[auto_minmax(0,1fr)_auto] ps-1.5"
-            : "grid-cols-[minmax(0,1fr)_auto] ps-2.5"),
+            ? "grid-cols-[auto_minmax(0,1fr)_auto]"
+            : "grid-cols-[minmax(0,1fr)_auto] ps-[7px]"),
         editable && "cursor-text",
         !editable && "[&_img[data-viewer]]:cursor-zoom-in",
         disabled && "opacity-50",
