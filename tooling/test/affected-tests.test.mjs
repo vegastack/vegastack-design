@@ -112,6 +112,8 @@ describe("affected component closure", () => {
       "library-01",
       "markdown-view",
       "page-editor-01",
+      // share-01's public link and footer copy with CopyButton.
+      "share-01",
       // status-pages-01's error page copies its reference with CopyButton (DS-60).
       "status-pages-01",
       "terminal",

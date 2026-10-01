@@ -1,8 +1,10 @@
-// @vegastack person-avatar@0.23.111 sha256-7FgYeEbNppj3S4NR3jcisV8DOhkEE+gxYdtCDJXkq68=
+// @vegastack person-avatar@0.23.111 sha256-PKJ5ourHmjcGZAoeSdAk8gtFnpIB2uuJ04bXY8jDyJE=
 
 "use client";
 
 import * as React from "react";
+import { UsersRound } from "lucide-react";
+import { cn } from "@vegastack/design";
 import { Avatar, AvatarFallback, type AvatarHue } from "@/components/ui/avatar";
 
 /* ------------------------------------------------------------------------------------------------
@@ -11,6 +13,8 @@ import { Avatar, AvatarFallback, type AvatarHue } from "@/components/ui/avatar";
  * (PersonHoverCard, RecordChip, BoardCard, Inbox, Comments, RecordAside, SearchableSelect's person
  * rows, AvatarPicker) composes it, so a person reads the same everywhere. Initials follow the one
  * rule in `personInitials`, exported here for anything else that shows a person's initials.
+ * A team (`kind: "team"`) is drawn as a rounded-square tile with the team icon on its hue — never
+ * initials — so a team reads as a group wherever people and teams are listed together.
  * ----------------------------------------------------------------------------------------------*/
 
 /** The first `n` characters of a string, by code point, so an emoji or accent is never split. */
@@ -46,6 +50,8 @@ export interface Person {
   hue?: AvatarHue | null;
   /** A status after the name, such as "Inactive" — a string is a small muted outline badge. @default undefined */
   badge?: React.ReactNode;
+  /** A person, or a team of people — a team is a rounded-square tile with the team icon on its hue. @default "person" */
+  kind?: "person" | "team";
 }
 
 /** Props for `PersonAvatar`. */
@@ -54,9 +60,11 @@ export interface PersonAvatarProps extends Omit<
   "children" | "size"
 > {
   /** The person. */
-  person: Pick<Person, "name" | "email" | "image" | "hue">;
+  person: Pick<Person, "name" | "email" | "image" | "hue" | "kind">;
   /** Avatar size. @default "sm" */
   size?: "sm" | "default" | "lg";
+  /** Draw a person or a team; overrides `person.kind`. @default person.kind ?? "person" */
+  kind?: "person" | "team";
 }
 
 /**
@@ -68,14 +76,21 @@ export interface PersonAvatarProps extends Omit<
  * `<img>` only after a JS loader reports it loaded, which is what made every photo start as
  * initials.) The initials stay underneath until the photo has loaded, and come back if it fails.
  *
+ * A team (`kind="team"`, or `person.kind`) is a rounded-square tile with the `UsersRound` icon on
+ * its hue, and no photo or initials.
+ *
  * @example <PersonAvatar person={{ name: "Asha Rao", hue: "blue" }} />
+ * @example <PersonAvatar person={{ name: "Sales", kind: "team", hue: "green" }} />
  */
 export function PersonAvatar({
   person,
   size = "sm",
+  kind,
+  className,
   ...props
 }: PersonAvatarProps) {
-  const src = person.image || undefined;
+  const team = (kind ?? person.kind) === "team";
+  const src = team ? undefined : person.image || undefined;
   // Keyed by `src`, so a new photo starts over: a failure or a load of the old one never sticks.
   const [loaded, setLoaded] = React.useState<string | null>(null);
   const [failed, setFailed] = React.useState<string | null>(null);
@@ -93,8 +108,26 @@ export function PersonAvatar({
   const showImage = src !== undefined && failed !== src;
   const imageLoaded = showImage && loaded === src;
 
+  if (team) {
+    return (
+      <Avatar
+        size={size}
+        data-kind="team"
+        className={cn("rounded-md after:rounded-md", className)}
+        {...props}
+      >
+        <AvatarFallback hue={person.hue ?? undefined} className="rounded-md">
+          <UsersRound
+            aria-hidden
+            className="size-4 group-data-[size=lg]/avatar:size-5 group-data-[size=sm]/avatar:size-3.5"
+          />
+        </AvatarFallback>
+      </Avatar>
+    );
+  }
+
   return (
-    <Avatar size={size} {...props}>
+    <Avatar size={size} className={className} {...props}>
       {imageLoaded ? null : (
         <AvatarFallback hue={person.hue ?? undefined}>
           {personInitials(person.name, person.email)}

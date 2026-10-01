@@ -1,4 +1,4 @@
-// @vegastack person-hover-card@0.23.111 sha256-10FN06JXBp/EX0WvLy/uvIggX2SyhRaJhQuEIvkP398=
+// @vegastack person-hover-card@0.23.111 sha256-3nydOydSLZMItUNhhoKiiWveyDjkiiIANr9cv2xfJSU=
 
 "use client";
 
@@ -26,7 +26,8 @@ import {
  * PersonHoverCard — a person behind an avatar: hover or focus (tap on touch) opens a card with a
  * 32px avatar (`PersonAvatar`: the photo, else initials on the person's hue) with the name and a muted email stacked beside it. AvatarStack stacks up to `max` of them (the Avatar
  * group recipe) with the rest behind a "+N" that opens the same rows in a list. A person without
- * an account (a free-text participant) shows initials and just the name.
+ * an account (a free-text participant) shows initials and just the name. A team (`kind: "team"`)
+ * stacks and lists the same way, drawn as its rounded-square team tile.
  * ----------------------------------------------------------------------------------------------*/
 
 /** A person — re-exported from `person-avatar`, their home, for existing imports. */
@@ -116,7 +117,10 @@ export function PersonHoverCard({
             variant="ghost"
             size="icon-sm"
             aria-label={person.name}
-            className={cn("rounded-full", className)}
+            className={cn(
+              person.kind === "team" ? "rounded-md" : "rounded-full",
+              className,
+            )}
             onClick={() => setOpen((o) => !o)}
           />
         }
@@ -181,7 +185,14 @@ export function AvatarStack({
           {shown.map((p, i) => (
             <HoverCard key={`${p.name}-${i}`}>
               <HoverCardTrigger
-                render={<span className="inline-flex rounded-full" />}
+                render={
+                  <span
+                    className={cn(
+                      "inline-flex",
+                      p.kind === "team" ? "rounded-md" : "rounded-full",
+                    )}
+                  />
+                }
               >
                 <PersonAvatar person={p} className="ring-2 ring-background" />
               </HoverCardTrigger>

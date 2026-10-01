@@ -543,6 +543,24 @@
       "family": "display",
       "source": "Operator request 2026-10-01 (Regent: one inline chip for mentions and file links everywhere) — standing approval MK 2026-09-30",
       "rationale": "Upstream ships no inline mention chip. An inline (not inline-flex) box on the text baseline, tinted by kind from the tag hues, composing our hover-card, person-avatar and file-kind; no patch."
+    },
+    "space-avatar": {
+      "disposition": "keep",
+      "family": "data",
+      "source": "Operator brief 2026-10-01 (Regent access, spaces and sharing — Phase DS, implementation.md §4) — approved by MK 2026-10-01 (A11: DS patch releases approved)",
+      "rationale": "Upstream ships no space tile. A rounded-square composition of upstream avatar (its AvatarFallback hue, API-32) with a lucide lock, plus SpaceOption, the space twin of PersonOption; no patch."
+    },
+    "people-input": {
+      "disposition": "keep",
+      "family": "form",
+      "source": "Operator brief 2026-10-01 (Regent access, spaces and sharing — Phase DS, implementation.md §4) — approved by MK 2026-10-01 (A11: DS patch releases approved)",
+      "rationale": "Upstream ships no people picker. A fixed composition of upstream combobox's chips parts, person-avatar, searchable-select's PersonOption and use-async-search; no patch."
+    },
+    "permission-menu": {
+      "disposition": "keep",
+      "family": "overlay",
+      "source": "Operator brief 2026-10-01 (Regent access, spaces and sharing — Phase DS, implementation.md §4) — approved by MK 2026-10-01 (A11: DS patch releases approved)",
+      "rationale": "Upstream ships no access-level menu. A recipe over upstream dropdown-menu (radio items with ItemTitle + ItemDescription, API-19) and button, with a read-only text mode; no patch."
     }
   }
 }

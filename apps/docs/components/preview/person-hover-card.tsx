@@ -111,3 +111,20 @@ export function personHoverCardAvatar(): ReactNode {
     </Wrapper>
   );
 }
+
+/** A team stacks and lists with the people, drawn as its rounded-square team tile. */
+export function personHoverCardTeam(): ReactNode {
+  const shared: Person[] = [
+    { name: "Manoj Kumar", email: "manoj@acme.com", hue: "blue" },
+    { name: "Priya Shah", email: "priya@acme.com", hue: "green" },
+    { name: "Sales", email: "8 members", kind: "team", hue: "green" },
+    { name: "Field engineers", email: "6 members", kind: "team", hue: "cyan" },
+  ];
+  return (
+    <Wrapper>
+      <AvatarStack people={shared} label="Shared with" />
+      <PersonAvatar size="lg" person={shared[2]!} />
+      <PersonCard person={shared[3]!} />
+    </Wrapper>
+  );
+}

@@ -574,10 +574,10 @@ assert(
 
 const expectedWaves = {
   "Core controls": 24,
-  "Forms/editing": 30,
+  "Forms/editing": 31,
   "Navigation/layout": 21,
-  Overlays: 15,
-  "Data display": 26,
+  Overlays: 16,
+  "Data display": 27,
   "Content/marketing": 15,
   "AI/chat": 8,
   // Not a browse group: components other components install, with no page of their own. See
@@ -650,6 +650,7 @@ const expectedComponentWaveMembers = {
     "native-select",
     "number-field",
     "password-input",
+    "people-input",
     "record-chip",
     "region-select",
     "search-input",
@@ -695,6 +696,7 @@ const expectedComponentWaveMembers = {
     "emoji-picker",
     "file-viewer",
     "hover-card",
+    "permission-menu",
     "popover",
     "provider",
     "sheet",
@@ -724,6 +726,7 @@ const expectedComponentWaveMembers = {
     "reactions",
     "record-aside",
     "record-list",
+    "space-avatar",
     "stat",
     "table",
     "thumbnail",
