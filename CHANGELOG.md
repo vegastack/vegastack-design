@@ -9,6 +9,20 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.23.107] — October 1, 2026
+
+<!-- assembled from 1 changeset: eec6c8e6b23f -->
+
+### 📦 npm
+
+- **`@vegastack/design`** → **`0.7.92`** (was `0.7.91`).
+- The design-system registry (`@vegastack/ui`) bumps 0.23.106 → 0.23.107.
+
+### 🐛 Fixed
+
+- TextEdit read view and editor are pixel-identical. A callout lays out in one row with its icon at the same x in both (the read icon no longer spans two rows; the editor's tone button takes the icon's 16px column), and a read-only code block's language label sits where the editor's picker does. The swap browser test now compares every block of a rich document (headings, lists, tasks, quote, callout, code, table, toggle, file chip, rule) — position, height and first-character x — between the read view and the editor.
+  [`cc31e7f`](https://github.com/VegaStack/vegastack-design/commit/cc31e7f)
+
 ## [0.23.106] — October 1, 2026
 
 <!-- assembled from 1 changeset: 86c6a3c290d3 -->
