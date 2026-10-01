@@ -1,4 +1,4 @@
-// @vegastack markdown-view@0.23.100 sha256-yK5jPd7Iwz7JVTvVEd97FOaUXCaQDG5eF/7m/FJr5X0=
+// @vegastack markdown-view@0.23.100 sha256-Fu2ZunDHKHNVsj3kMbThZqL7AhiIXzWWSpzGidN39Ao=
 
 import * as React from "react";
 import { Lexer, type Token, type Tokens } from "marked";
@@ -8,11 +8,14 @@ import {
   FileText,
   Info,
   Lightbulb,
+  MessageSquareWarning,
+  OctagonAlert,
   TriangleAlert,
   UserRound,
   type LucideIcon,
 } from "lucide-react";
 import { cn, proseClassName } from "@vegastack/design";
+import { Alert } from "@/components/ui/alert";
 import { Checkbox } from "@/components/ui/checkbox";
 // `CodeBlock` owns the fenced-code surface (header + copy + sunken mono panel); shadcn rewrites
 // this alias on `add`, and vitest/tsconfig map `@/components/ui/*` → `registry/ui/*`.
@@ -110,8 +113,47 @@ function decode(text: string): string {
 /** What a mention points at. */
 export type MentionKind = "user" | "page" | "file" | "task";
 
-/** The tones a callout (`> [!NOTE]`) takes. */
-export type CalloutTone = "note" | "tip" | "warning";
+/** The tones a callout takes — GitHub's alert set (`> [!NOTE]`, `[!TIP]`, `[!IMPORTANT]`, …). */
+export type CalloutTone = "note" | "tip" | "important" | "warning" | "caution";
+
+/** Every callout tone, in GitHub's order. */
+export const CALLOUT_TONES: readonly CalloutTone[] = [
+  "note",
+  "tip",
+  "important",
+  "warning",
+  "caution",
+];
+
+/**
+ * A callout is an `Alert`: the tone picks the alert variant (note → info, tip → success,
+ * important → default, warning → warning, caution → destructive), the icon and the label.
+ */
+export const CALLOUT_STYLE: Record<
+  CalloutTone,
+  {
+    variant: "default" | "info" | "success" | "warning" | "destructive";
+    icon: LucideIcon;
+    label: string;
+  }
+> = {
+  note: { variant: "info", icon: Info, label: "Note" },
+  tip: { variant: "success", icon: Lightbulb, label: "Tip" },
+  important: {
+    variant: "default",
+    icon: MessageSquareWarning,
+    label: "Important",
+  },
+  warning: { variant: "warning", icon: TriangleAlert, label: "Warning" },
+  caution: { variant: "destructive", icon: OctagonAlert, label: "Caution" },
+};
+
+/** The callout's blocks: the Alert's second column, in body colour, its first/last margins dropped. */
+export const calloutContentClassName =
+  "col-start-2 min-w-0 text-foreground [&>:first-child]:mt-0 [&>:last-child]:mb-0";
+
+/** The Alert grid for a callout: icon (or the editor's tone button) in the gutter, blocks beside it. */
+export const calloutClassName = "my-2 grid-cols-[auto_1fr] gap-x-2 px-3 py-2";
 
 /**
  * `[@<label>](mention://<kind>/<id>)` at the start of a string. The label escapes `\`, `[` and `]`
@@ -272,25 +314,12 @@ export function MentionChip({
 export const markdownExtrasClassName = cn(
   "[&_[data-slot=mention-chip]]:no-underline [&_[data-slot=mention-chip]]:text-info-text [&_[data-slot=mention-chip][data-restricted]]:text-muted-foreground",
   "[&_[data-slot=file-chip]]:rounded-sm [&_[data-slot=file-chip]]:bg-muted [&_[data-slot=file-chip]]:px-1 [&_[data-slot=file-chip]]:font-medium [&_[data-slot=file-chip]]:no-underline [&_[data-slot=file-chip]]:text-foreground [&_a[data-slot=file-chip]:hover]:bg-accent [&_[data-slot=mention-chip]:not([data-restricted]):hover]:bg-info/15",
-  "[&_[data-slot=callout]]:my-2 [&_[data-slot=callout]]:grid [&_[data-slot=callout]]:grid-cols-[auto_1fr] [&_[data-slot=callout]]:gap-x-2 [&_[data-slot=callout]]:rounded-lg [&_[data-slot=callout]]:border [&_[data-slot=callout]]:border-border [&_[data-slot=callout]]:bg-card [&_[data-slot=callout]]:px-3 [&_[data-slot=callout]]:py-2",
-  "[&_[data-slot=callout]>svg]:mt-0.5 [&_[data-slot=callout]>svg]:size-4 [&_[data-slot=callout][data-tone=note]>svg]:text-info-text [&_[data-slot=callout][data-tone=tip]>svg]:text-success-text [&_[data-slot=callout][data-tone=warning]>svg]:text-warning-text [&_[data-slot=callout-content]]:min-w-0",
   "[&_details]:my-2 [&_summary]:cursor-pointer [&_summary]:py-0.5 [&_summary]:font-medium [&_details>:not(summary)]:ms-5 [&_[data-slot=toggle-content]]:ms-5",
 );
 
-const CALLOUT_ICONS: Record<CalloutTone, LucideIcon> = {
-  note: Info,
-  tip: Lightbulb,
-  warning: TriangleAlert,
-};
-
-const CALLOUT_LABELS: Record<CalloutTone, string> = {
-  note: "Note",
-  tip: "Tip",
-  warning: "Warning",
-};
-
-/** `> [!NOTE]` / `[!TIP]` / `[!WARNING]` — the first line of a callout's quote. */
-const CALLOUT_MARKER = /^\[!(NOTE|TIP|WARNING)\][ \t]*(?:\n|$)/;
+/** `> [!NOTE]` / `[!TIP]` / `[!IMPORTANT]` / `[!WARNING]` / `[!CAUTION]` — a callout's first line. */
+const CALLOUT_MARKER =
+  /^\[!(NOTE|TIP|IMPORTANT|WARNING|CAUTION)\][ \t]*(?:\n|$)/i;
 
 /** `<details><summary>Title</summary>` — the opening line of a toggle. */
 const TOGGLE_OPEN = /^<details>[ \t]*<summary>([^\n]*?)<\/summary>[ \t]*$/;
@@ -876,18 +905,23 @@ function renderNode(
     }
     case "callout": {
       const tone = (attrs.tone ?? "note") as CalloutTone;
-      const Icon = CALLOUT_ICONS[tone] ?? Info;
+      const style = CALLOUT_STYLE[tone] ?? CALLOUT_STYLE.note;
+      const Icon = style.icon;
       return (
-        <div
+        <Alert
           key={key}
+          variant={style.variant}
           role="note"
-          aria-label={CALLOUT_LABELS[tone]}
+          aria-label={style.label}
           data-slot="callout"
           data-tone={tone}
+          className={calloutClassName}
         >
           <Icon aria-hidden />
-          <div data-slot="callout-content">{children()}</div>
-        </div>
+          <div data-slot="callout-content" className={calloutContentClassName}>
+            {children()}
+          </div>
+        </Alert>
       );
     }
     case "a": {

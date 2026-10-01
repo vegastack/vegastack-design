@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.23.100 sha256-Ji3gJRleka3uxLbYrzL1FFuub0jBA4JgdXxW/cuUakM=
+// @vegastack text-edit@0.23.100 sha256-qONbbj1i+HLoOd6YJWl/6AgmhoyPRuob/pyIVnXywNo=
 
 "use client";
 
@@ -86,7 +86,6 @@ import {
   Image as ImageIcon,
   Info,
   Italic,
-  Lightbulb,
   Link as LinkIcon,
   List,
   ListOrdered,
@@ -104,7 +103,6 @@ import {
   Strikethrough,
   Table as TableIcon,
   Trash2,
-  TriangleAlert,
   Upload,
   UserRound,
 } from "lucide-react";
@@ -151,8 +149,13 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { Alert } from "@/components/ui/alert";
 import {
+  CALLOUT_STYLE,
+  CALLOUT_TONES,
   MentionChip,
+  calloutClassName,
+  calloutContentClassName,
   headingIds,
   imageMarkdown,
   markdownExtrasClassName,
@@ -429,8 +432,10 @@ function filterSlash(
   inCell = false,
 ): SlashSpec[] {
   const q = query.trim().toLowerCase();
-  return allowed
-    .filter((id) => !inCell || !BLOCK_COMMANDS.has(id))
+  // One menu everywhere: the canonical order, whatever order the host's subset lists.
+  const wanted = new Set(allowed);
+  return (Object.keys(SLASH) as TextEditSlashCommand[])
+    .filter((id) => wanted.has(id) && (!inCell || !BLOCK_COMMANDS.has(id)))
     .map((id) => SLASH[id])
     .filter(
       (spec) =>
@@ -2503,63 +2508,74 @@ function mentionNode(runtime: EditorRuntime) {
   });
 }
 
-const CALLOUT_TONES: readonly CalloutTone[] = ["note", "tip", "warning"];
-const CALLOUT_ICON: Record<CalloutTone, React.ComponentType> = {
-  note: Info,
-  tip: Lightbulb,
-  warning: TriangleAlert,
-};
-const CALLOUT_NAME: Record<CalloutTone, string> = {
-  note: "Note",
-  tip: "Tip",
-  warning: "Warning",
-};
-
-/** A callout's node view: the tone icon (a button that cycles the tone while editable) and its blocks. */
+/**
+ * A callout's node view: the DS `Alert` for its tone. While editable the tone icon is a menu
+ * button that switches the tone; read-only it is the plain icon, as `MarkdownView` renders it.
+ */
 function CalloutView({ node, editor, updateAttributes }: ReactNodeViewProps) {
   const tone = (node.attrs.tone as CalloutTone) ?? "note";
-  const Icon = CALLOUT_ICON[tone] ?? Info;
+  const style = CALLOUT_STYLE[tone] ?? CALLOUT_STYLE.note;
+  const Icon = style.icon;
   return (
-    <NodeViewWrapper
-      role="note"
-      aria-label={CALLOUT_NAME[tone]}
-      data-slot="callout"
-      data-tone={tone}
-    >
-      {editor.isEditable ? (
-        <Button
-          type="button"
-          size="icon-xs"
-          variant="ghost"
-          contentEditable={false}
-          aria-label={`Callout type: ${CALLOUT_NAME[tone]}`}
-          title="Change callout type"
-          onMouseDown={(event) => event.preventDefault()}
-          onClick={() =>
-            updateAttributes({
-              tone: CALLOUT_TONES[
-                (CALLOUT_TONES.indexOf(tone) + 1) % CALLOUT_TONES.length
-              ],
-            })
-          }
-          className="-my-1 -ms-1.5 size-6 [&_svg]:text-current"
-          data-tone={tone}
-        >
-          <Icon />
-        </Button>
-      ) : (
-        <Icon aria-hidden />
-      )}
-      <NodeViewContent data-slot="callout-content" />
+    <NodeViewWrapper as="div" className="contents">
+      <Alert
+        variant={style.variant}
+        role="note"
+        aria-label={style.label}
+        data-slot="callout"
+        data-tone={tone}
+        className={calloutClassName}
+      >
+        {editor.isEditable ? (
+          <DropdownMenu>
+            <DropdownMenuTrigger
+              render={
+                <Button
+                  type="button"
+                  size="icon-xs"
+                  variant="ghost"
+                  contentEditable={false}
+                  aria-label={`Callout type: ${style.label}`}
+                  onMouseDown={(event) => event.preventDefault()}
+                  className="-my-0.5 -ms-1 size-5 text-current [&_svg]:text-current"
+                />
+              }
+            >
+              <Icon />
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start" data-text-edit-menu="">
+              {CALLOUT_TONES.map((option) => {
+                const OptionIcon = CALLOUT_STYLE[option].icon;
+                return (
+                  <DropdownMenuCheckboxItem
+                    key={option}
+                    checked={option === tone}
+                    onClick={() => updateAttributes({ tone: option })}
+                  >
+                    <OptionIcon />
+                    {CALLOUT_STYLE[option].label}
+                  </DropdownMenuCheckboxItem>
+                );
+              })}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        ) : (
+          <Icon aria-hidden />
+        )}
+        <NodeViewContent
+          data-slot="callout-content"
+          className={calloutContentClassName}
+        />
+      </Alert>
     </NodeViewWrapper>
   );
 }
 
 /** `> [!NOTE]` … — the callout's quote lines, from the start of `src`. */
 const CALLOUT_BLOCK =
-  /^> \[!(NOTE|TIP|WARNING)\][ \t]*(?:\n|$)((?:>[^\n]*(?:\n|$))*)/;
+  /^> \[!(NOTE|TIP|IMPORTANT|WARNING|CAUTION)\][ \t]*(?:\n|$)((?:>[^\n]*(?:\n|$))*)/i;
 
-/** Callout — GitHub's alert syntax (`> [!NOTE]`, `[!TIP]`, `[!WARNING]`) around its blocks. */
+/** Callout — GitHub's alert syntax (`> [!NOTE]`, `[!TIP]`, `[!IMPORTANT]`, `[!WARNING]`, `[!CAUTION]`) around its blocks. */
 const Callout = TiptapNode.create({
   name: "callout",
   group: "block",
@@ -2594,7 +2610,9 @@ const Callout = TiptapNode.create({
     name: "callout",
     level: "block",
     start: (src: string) => {
-      const match = /^> \[!(?:NOTE|TIP|WARNING)\]/m.exec(src);
+      const match = /^> \[!(?:NOTE|TIP|IMPORTANT|WARNING|CAUTION)\]/im.exec(
+        src,
+      );
       return match ? match.index : -1;
     },
     tokenize: (src: string, _tokens, lexer) => {
@@ -2952,10 +2970,16 @@ function SlashMenu({
   onHover: (index: number) => void;
 }) {
   const listRef = React.useRef<HTMLDivElement | null>(null);
+  // The active item scrolls into view inside the list only — never the page (no `scrollIntoView`).
   React.useEffect(() => {
-    listRef.current
-      ?.querySelector("[data-selected]")
-      ?.scrollIntoView({ block: "nearest" });
+    const list = listRef.current;
+    const item = list?.querySelector<HTMLElement>("[data-selected]");
+    if (!list || !item) return;
+    const top = item.offsetTop;
+    const bottom = top + item.offsetHeight;
+    if (top < list.scrollTop) list.scrollTop = top - 4;
+    else if (bottom > list.scrollTop + list.clientHeight)
+      list.scrollTop = bottom - list.clientHeight + 4;
   }, [state.index]);
   if (!state.rect || typeof window === "undefined") return null;
   // Floating-UI's flip + shift, by hand: below the caret unless it would not fit and above has
@@ -2992,7 +3016,10 @@ function SlashMenu({
       style={style}
       // Keep focus (and the caret) in the editor.
       onMouseDown={(event) => event.preventDefault()}
-      className={cn(MENU_SURFACE, "w-60 overflow-y-auto")}
+      className={cn(
+        MENU_SURFACE,
+        "relative w-60 overflow-y-auto overscroll-contain",
+      )}
     >
       {state.items.length === 0 ? (
         <div className="px-2 py-1.5 text-sm text-muted-foreground">
@@ -3009,9 +3036,13 @@ function SlashMenu({
               aria-selected={selected}
               data-selected={selected ? "" : undefined}
               data-slot="text-edit-slash-item"
-              onMouseEnter={() => onHover(index)}
+              // Mouse movement (not enter: a keyboard scroll slides items under a still pointer)
+              // moves the one active index the arrow keys also move.
+              onMouseMove={() => {
+                if (!selected) onHover(index);
+              }}
               onClick={() => state.command(spec)}
-              className="flex cursor-default items-center gap-2 rounded-sm px-2 py-1.5 text-sm select-none data-selected:bg-muted [&_svg]:size-4 [&_svg]:shrink-0 [&_svg]:text-muted-foreground"
+              className="flex cursor-pointer items-center gap-2 rounded-sm px-2 py-1.5 text-sm select-none data-selected:bg-muted data-selected:text-foreground [&_svg]:size-4 [&_svg]:shrink-0 [&_svg]:text-muted-foreground data-selected:[&_svg]:text-foreground"
             >
               <Icon />
               <span className="flex-1">{spec.label}</span>
@@ -3184,7 +3215,10 @@ function useFocusOnShow<T extends HTMLElement>(
     let tries = 0;
     const tick = () => {
       const target = ref.current && pickRef.current(ref.current);
-      if (target?.isConnected && ref.current?.closest("body")) target.focus();
+      // `preventScroll`: the menu is attached a frame before Floating UI places it, and a plain
+      // focus would scroll the page to wherever it sits for that frame.
+      if (target?.isConnected && ref.current?.closest("body"))
+        target.focus({ preventScroll: true });
       else if (tries++ < 10) frame = requestAnimationFrame(tick);
     };
     frame = requestAnimationFrame(tick);
@@ -3401,7 +3435,9 @@ function TurnIntoPanel({
   const current = currentBlockType(editor);
   const listRef = React.useRef<HTMLDivElement>(null);
   React.useEffect(() => {
-    listRef.current?.querySelector<HTMLElement>("[aria-checked=true]")?.focus();
+    listRef.current
+      ?.querySelector<HTMLElement>("[aria-checked=true]")
+      ?.focus({ preventScroll: true });
   }, []);
   return (
     <div
@@ -5503,7 +5539,7 @@ export function TextEditEditor({
   const themeScope = useInternalThemeScope();
   // Floating UI inside the bubble menus: fixed to the viewport, flipped and shifted into view.
   const bubbleOptions = React.useMemo(
-    () => ({ ...FLOATING, placement: "top-start" as const }),
+    () => ({ ...FLOATING, placement: "top" as const }),
     [],
   );
   const showBubble = React.useCallback(
@@ -5527,9 +5563,16 @@ export function TextEditEditor({
       from: state.selection.from,
       to: state.selection.to,
     };
+    const show = showBubble(args);
     editor.view.dispatch(
-      state.tr.setMeta(menuKeys.bubble, showBubble(args) ? "show" : "hide"),
+      state.tr.setMeta(menuKeys.bubble, show ? "show" : "hide"),
     );
+    // The plugin's "show" positions before it attaches (a no-op while hidden): place it now that
+    // it is attached, so it opens at the caret rather than wherever it last sat (or the page top).
+    if (show)
+      editor.view.dispatch(
+        editor.state.tr.setMeta(menuKeys.bubble, "updatePosition"),
+      );
   }, [editor, panel, menuKeys, showBubble]);
 
   return (

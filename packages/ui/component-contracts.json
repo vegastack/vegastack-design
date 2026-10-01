@@ -14852,6 +14852,42 @@
             "status": "not-applicable",
             "rationale": "A pure function; it renders nothing and takes no ref."
           }
+        },
+        {
+          "name": "CALLOUT_STYLE",
+          "kind": "constant",
+          "source": "packages/ui/registry/ui/markdown-view.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A constant export does not render or accept a runtime ref."
+          }
+        },
+        {
+          "name": "CALLOUT_TONES",
+          "kind": "constant",
+          "source": "packages/ui/registry/ui/markdown-view.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A constant export does not render or accept a runtime ref."
+          }
+        },
+        {
+          "name": "calloutClassName",
+          "kind": "constant",
+          "source": "packages/ui/registry/ui/markdown-view.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A constant export does not render or accept a runtime ref."
+          }
+        },
+        {
+          "name": "calloutContentClassName",
+          "kind": "constant",
+          "source": "packages/ui/registry/ui/markdown-view.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A constant export does not render or accept a runtime ref."
+          }
         }
       ],
       "variants": {
@@ -14909,6 +14945,7 @@
       ],
       "docsSlug": "/docs/components/markdown-view",
       "registryDependencies": [
+        "@vegastack/alert",
         "@vegastack/button",
         "@vegastack/checkbox",
         "@vegastack/code-block",
@@ -23961,6 +23998,7 @@
       ],
       "docsSlug": "/docs/components/text-edit",
       "registryDependencies": [
+        "@vegastack/alert",
         "@vegastack/button",
         "@vegastack/checkbox",
         "@vegastack/code-block",

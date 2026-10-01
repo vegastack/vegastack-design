@@ -393,8 +393,10 @@ images in the viewer on a click and have no handles or Remove; wrap any other
 
 ### Callouts and toggles
 
-The slash menu's Callout wraps the block in GitHub's alert syntax — `> [!NOTE]`, `> [!TIP]` or
-`> [!WARNING]`; click the callout's icon to change its tone. Toggle inserts
+The slash menu's Callout wraps the block in GitHub's alert syntax — `> [!NOTE]`, `> [!TIP]`,
+`> [!IMPORTANT]`, `> [!WARNING]` or `> [!CAUTION]` — and renders it as an `Alert` (info, success,
+default, warning and destructive), here and in `MarkdownView`; click the callout's icon to pick its
+tone. Toggle inserts
 `<details><summary>Title</summary>` around its blocks: open while editing, collapsed in
 `MarkdownView`. <kbd>Enter</kbd> in a toggle's title moves into its body.
 
@@ -534,8 +536,8 @@ fires it with the current value. It's presentational only: the **host** decides 
   (People, Pages, Files, Tasks); focus stays in the textbox, as with the slash menu. A chip reads
   as its name.
 - An upload placeholder is a `role="status"` named “Uploading” and the file’s name.
-- A callout is a `role="note"` named by its tone; while editable its icon is a button, “Callout
-  type: Note”, that changes the tone.
+- A callout is a `role="note"` named by its tone; while editable its icon is a menu button,
+  “Callout type: Note”, that picks the tone.
 - Comment highlights are decorations with a dashed underline. With `onAnnotationClick`, a read-only
   highlight is a `role="button"` tab stop named by `annotationLabel` (“Comment on “…””): one per
   highlight, on its first text span, the rest of its text hidden from assistive tech because the

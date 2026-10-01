@@ -612,12 +612,13 @@ export function textEditImages(): ReactNode {
 }
 
 /**
- * Callouts and toggles — `> [!NOTE]` / `[!TIP]` / `[!WARNING]` and `<details>`, from the slash
- * menu. Click a callout's icon to change its tone.
+ * Callouts and toggles — GitHub's alerts (`> [!NOTE]`, `[!TIP]`, `[!IMPORTANT]`, `[!WARNING]`,
+ * `[!CAUTION]`) as `Alert`s, and `<details>`, from the slash menu. Click a callout's icon to change
+ * its tone.
  */
 export function textEditCallouts(): ReactNode {
   const [markdown, setMarkdown] = useState(
-    "> [!TIP]\n> Use a 25 A breaker for the kitchen circuit.\n\n> [!WARNING]\n> Isolate the supply before opening the panel.\n\n<details><summary>Wiring colours</summary>\n\n- Brown: live\n- Blue: neutral\n\n</details>",
+    "> [!NOTE]\n> The survey is booked for `09:30` on Monday.\n\n> [!TIP]\n> Use a 25 A breaker for the kitchen circuit.\n\n> [!IMPORTANT]\n> The client signs off each room before tiling.\n\n> [!WARNING]\n> Isolate the supply before opening the panel.\n\n> [!CAUTION]\n> Never work on a live circuit.\n\n<details><summary>Wiring colours</summary>\n\n- Brown: live\n- Blue: neutral\n\n</details>",
   );
   return (
     <Wrapper className="flex-col items-stretch">
