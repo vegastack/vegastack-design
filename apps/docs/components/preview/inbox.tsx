@@ -208,3 +208,16 @@ export function inboxLoading(): ReactNode {
     </Frame>
   );
 }
+
+/** An app-defined Requests chip after All and Unread, with its own count. */
+export function inboxFiltersExtra(): ReactNode {
+  const [view, setView] = useState<InboxFilter>("requests");
+  return (
+    <InboxFilters
+      value={view}
+      onValueChange={setView}
+      unreadCount={3}
+      extra={[{ value: "requests", label: "Requests", count: 2 }]}
+    />
+  );
+}

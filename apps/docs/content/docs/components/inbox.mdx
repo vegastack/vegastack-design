@@ -71,7 +71,8 @@ import {
 - `Inbox` — the frame: title, header actions (`InboxMarkAllRead`, `InboxMenuAction`, any
   `InboxHeaderAction`), the ✕ when `onClose` is set, the `filters` row, a scrolling body and a `footer`
   — or, with `onLoadMore`, the infinite-scroll end.
-- `InboxFilters` — the All | Unread chips, with the count on Unread.
+- `InboxFilters` — the All | Unread chips, with the count on Unread, then any app-defined `extra`
+  chips (Requests, Mentions), each with its own count.
 - `InboxGroup` — a label that sticks within the scroll area, with no divider above or below it
   (16px above, except on the first group; 6px below), over a list it names. `InboxList` is the ungrouped list.
 - `InboxItem` — one row. Title 14px regular — foreground when unread, muted once read — with the actor and
@@ -105,6 +106,26 @@ ends the list on "You’re all caught up".
 
 <ComponentPreview
   name="inboxLoadMoreError"
+  file="components/preview/inbox.tsx"
+/>
+
+### Extra filters
+
+`extra` adds app-defined chips after All and Unread — each `{ value, label, count? }` — so an inbox
+can offer All · Unread 3 · Requests 2 without a second control. `onValueChange` receives the chip's
+`value`; filtering the rows stays with the app.
+
+```tsx
+<InboxFilters
+  value={view}
+  onValueChange={setView}
+  unreadCount={3}
+  extra={[{ value: "requests", label: "Requests", count: 2 }]}
+/>
+```
+
+<ComponentPreview
+  name="inboxFiltersExtra"
   file="components/preview/inbox.tsx"
 />
 

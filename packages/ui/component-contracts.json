@@ -17246,6 +17246,15 @@
           }
         },
         {
+          "name": "InboxFilterOption",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/inbox.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
           "name": "InboxFiltersProps",
           "kind": "interface",
           "source": "packages/ui/registry/ui/inbox.tsx",

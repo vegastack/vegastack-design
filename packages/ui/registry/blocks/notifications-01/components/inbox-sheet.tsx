@@ -1,4 +1,4 @@
-// @vegastack notifications-01@0.23.112 sha256-kWiTNmqxRzcWF7TyDKOuUUcECGuWJKAVQaajEnYfiWU=
+// @vegastack notifications-01@0.23.112 sha256-0jhaz9wGC8SEVIb/bjvrNgEFluAmHr2xDnpn/V4Wyoo=
 
 "use client";
 
@@ -187,8 +187,13 @@ export function InboxSheet({
   const { announce, Announcer } = useAnnouncer();
 
   const unread = notifications.filter((n) => n.unread).length;
+  const requests = notifications.filter((n) => n.decision).length;
   const visible =
-    view === "unread" ? notifications.filter((n) => n.unread) : notifications;
+    view === "unread"
+      ? notifications.filter((n) => n.unread)
+      : view === "requests"
+        ? notifications.filter((n) => n.decision)
+        : notifications;
 
   let body: React.ReactNode;
   if (loading) {
@@ -205,6 +210,11 @@ export function InboxSheet({
     body =
       view === "unread" ? (
         <InboxEmpty title="You’re all caught up" />
+      ) : view === "requests" ? (
+        <InboxEmpty
+          title="No requests"
+          description="Approvals waiting on you show up here."
+        />
       ) : (
         <InboxEmpty
           title="No notifications"
@@ -269,6 +279,9 @@ export function InboxSheet({
               value={view}
               onValueChange={setView}
               unreadCount={unread}
+              extra={[
+                { value: "requests", label: "Requests", count: requests },
+              ]}
             />
           }
         >
