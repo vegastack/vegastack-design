@@ -6,6 +6,7 @@ import { expectNoA11yViolations } from "../../../test/a11y";
 import "../../../test/stacking.css";
 import Share01Page from "./page";
 import { ShareDemo } from "./components/share-demo";
+import { ShareDialog } from "./components/share-dialog";
 
 afterEach(async () => {
   await page.viewport(414, 896);
@@ -134,4 +135,74 @@ test("share-01 is a bottom Sheet on a phone", async () => {
     ).not.toBeNull(),
   );
   await expectNoA11yViolations(document.body, ["color-contrast"]);
+});
+
+const LEVELS = [
+  { value: "edit", label: "Can edit" },
+  { value: "view", label: "Can view" },
+];
+const PRIYA = { id: "u2", name: "Priya Shah", email: "priya@acme.com" };
+const LENA = { id: "u5", name: "Lena Ortiz", email: "lena@acme.com" };
+const OMAR = { id: "u6", name: "Omar Haddad", email: "omar@acme.com" };
+
+test("share-01 generalLevelReadOnly: the level is text, the mode stays a select", async () => {
+  await page.viewport(1280, 900);
+  const screen = await render(<ShareDemo defaultOpen generalLevelReadOnly />);
+  const dialog = screen.getByRole("dialog", { name: "Share" });
+  await expect
+    .element(dialog.getByRole("combobox", { name: "General access" }))
+    .toBeEnabled();
+  await expect
+    .element(
+      dialog.getByRole("button", {
+        name: "Everyone in Sales's access: Can edit",
+      }),
+    )
+    .not.toBeInTheDocument();
+  await expect
+    .element(
+      dialog.getByRole("button", { name: "Anand Iyer's access: Can view" }),
+    )
+    .toBeVisible();
+  await expectNoA11yViolations(document.body, ["color-contrast"]);
+});
+
+test("share-01 defaultInvitees is reactive and keeps edits until it changes", async () => {
+  await page.viewport(1280, 900);
+  const props = {
+    open: true,
+    levels: LEVELS,
+    people: [],
+    search: () => Promise.resolve([PRIYA, LENA, OMAR]),
+  };
+  const chip = (name: string) =>
+    screen
+      .getByRole("dialog", { name: "Share" })
+      .getByRole("button", { name: `Remove ${name}` });
+  const screen = await render(<ShareDialog {...props} defaultInvitees={[]} />);
+  const dialog = screen.getByRole("dialog", { name: "Share" });
+  await expect.element(dialog.getByText("People with access")).toBeVisible();
+
+  // The prop changes: the chips follow it and the dialog is in invite mode.
+  await screen.rerender(<ShareDialog {...props} defaultInvitees={[PRIYA]} />);
+  await expect.element(chip("Priya Shah")).toBeVisible();
+  await expect
+    .element(dialog.getByRole("checkbox", { name: "Notify people" }))
+    .toBeVisible();
+
+  // A new array with the same people is not a change; the viewer's edit stays.
+  await dialog
+    .getByRole("combobox", { name: "Add people or teams" })
+    .fill("Lena");
+  await screen.getByRole("option", { name: /Lena Ortiz/ }).click();
+  await expect.element(chip("Lena Ortiz")).toBeVisible();
+  await screen.rerender(<ShareDialog {...props} defaultInvitees={[PRIYA]} />);
+  await expect.element(chip("Lena Ortiz")).toBeVisible();
+  await expect.element(chip("Priya Shah")).toBeVisible();
+
+  // A different prop replaces them.
+  await screen.rerender(<ShareDialog {...props} defaultInvitees={[OMAR]} />);
+  await expect.element(chip("Omar Haddad")).toBeVisible();
+  await expect.element(chip("Priya Shah")).not.toBeInTheDocument();
+  await expect.element(chip("Lena Ortiz")).not.toBeInTheDocument();
 });

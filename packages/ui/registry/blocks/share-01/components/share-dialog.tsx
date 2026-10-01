@@ -1,4 +1,4 @@
-// @vegastack share-01@0.23.112 sha256-2nYI4fWzDNuizSRZ0H+WkRLgFvcPAG6IB47ii4AlLas=
+// @vegastack share-01@0.23.112 sha256-G6DzOzZsGnQZUrDCW6LQYEzM8/uLfv1bydkoOgS75bI=
 
 "use client";
 
@@ -209,7 +209,11 @@ export interface ShareDialogProps {
   loading?: boolean;
   /** Finds people and teams to invite — `PeopleInput`'s `search`. Omit to hide the invite row. @default undefined */
   search?: PeopleInputProps["search"];
-  /** People and teams already chosen to invite when the dialog mounts — it opens in invite mode. @default [] */
+  /**
+   * People and teams already chosen to invite — the dialog opens in invite mode. Reactive: when it
+   * changes (compared by id), the chips are replaced with it; edits made since the last change stay
+   * until then. @default []
+   */
   defaultInvitees?: PeopleInputOption[];
   /** The level an invite starts at. @default the last of `levels` */
   defaultInviteLevel?: string;
@@ -223,6 +227,8 @@ export interface ShareDialogProps {
   generalAccess?: ShareGeneralAccess;
   /** The levels a whole space may get. @default levels */
   generalLevels?: readonly PermissionMenuOption[];
+  /** General access's level shows as text even for a manager, who can still change the mode. @default false */
+  generalLevelReadOnly?: boolean;
   /** Changes General access. @default undefined */
   onGeneralAccessChange?: (next: {
     mode: "space" | "invited";
@@ -302,6 +308,7 @@ export function ShareDialog({
   onRemove,
   generalAccess,
   generalLevels = levels,
+  generalLevelReadOnly = false,
   onGeneralAccessChange,
   publicLinkAvailable = true,
   publicLink = null,
@@ -326,6 +333,17 @@ export function ShareDialog({
 
   const [invitees, setInvitees] =
     React.useState<PeopleInputOption[]>(defaultInvitees);
+  // Re-sync the chips when `defaultInvitees` changes — by ids, so a fresh array with the same
+  // people each render is not a change and never clobbers what the viewer has edited since.
+  const defaultInviteesKey = defaultInvitees
+    .map((option) => option.id)
+    .join("\u0000");
+  const [syncedInviteesKey, setSyncedInviteesKey] =
+    React.useState(defaultInviteesKey);
+  if (syncedInviteesKey !== defaultInviteesKey) {
+    setSyncedInviteesKey(defaultInviteesKey);
+    setInvitees(defaultInvitees);
+  }
   const [inviteLevel, setInviteLevel] = React.useState(
     defaultInviteLevel ?? levels.at(-1)?.value ?? "",
   );
@@ -518,7 +536,7 @@ export function ShareDialog({
           <PermissionMenu
             value={generalAccess.level}
             options={generalLevels}
-            readOnly={!canManage}
+            readOnly={!canManage || generalLevelReadOnly}
             onValueChange={(level) =>
               onGeneralAccessChange?.({ mode: "space", level })
             }
@@ -636,7 +654,7 @@ export function ShareDialog({
   ) : null;
 
   const body = (
-    <div data-slot="share-dialog-body" className="flex flex-col gap-5 pb-1">
+    <div data-slot="share-dialog-body" className="flex flex-col gap-4 pb-1">
       {inviteRow}
       {inviteMode ? (
         inviteSection

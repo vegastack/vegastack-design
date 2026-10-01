@@ -1,4 +1,4 @@
-// @vegastack share-01@0.23.112 sha256-2nYI4fWzDNuizSRZ0H+WkRLgFvcPAG6IB47ii4AlLas=
+// @vegastack share-01@0.23.112 sha256-G6DzOzZsGnQZUrDCW6LQYEzM8/uLfv1bydkoOgS75bI=
 
 "use client";
 
@@ -104,6 +104,8 @@ export interface ShareDemoProps {
   readOnly?: boolean;
   /** Start with these people chosen to invite (invite mode). @default undefined */
   invitees?: PeopleInputOption[];
+  /** General access's level as text; the mode stays a select. @default false */
+  generalLevelReadOnly?: boolean;
   /** Start open. @default false */
   defaultOpen?: boolean;
   /** The trigger's label. @default "Share" */
@@ -120,6 +122,7 @@ export function ShareDemo({
   publicLinkOn = false,
   readOnly = false,
   invitees,
+  generalLevelReadOnly = false,
   defaultOpen = false,
   triggerLabel = "Share",
 }: ShareDemoProps) {
@@ -158,6 +161,7 @@ export function ShareDemo({
         setPeople((current) => current.filter((entry) => entry.id !== id))
       }
       generalAccess={general}
+      generalLevelReadOnly={generalLevelReadOnly}
       onGeneralAccessChange={(next) => setGeneral((g) => ({ ...g, ...next }))}
       publicLink={link}
       onCreatePublicLink={() => {

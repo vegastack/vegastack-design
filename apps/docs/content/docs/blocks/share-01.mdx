@@ -38,6 +38,19 @@ Once a chip is chosen the dialog switches to the invite: one access level for th
 
 <ComponentPreview name="share01Invite" />
 
+`defaultInvitees` is reactive: when it changes (compared by id), the chips are replaced with it, so
+a "Share with Priya" prompt can open the mounted dialog with Priya already chosen. Chips the viewer
+adds or removes afterwards stay until the prop changes again.
+
+```tsx
+<ShareDialog
+  open={open}
+  onOpenChange={setOpen}
+  defaultInvitees={suggested ? [suggested] : []}
+  {...rest}
+/>
+```
+
 ### Public link on
 
 "Copy public link" turns the link on (`onCreatePublicLink`; return the URL and it is copied). While
@@ -53,6 +66,18 @@ link to copy (or "Off").
 
 <ComponentPreview name="share01ReadOnly" />
 
+### Fixed general access level
+
+`generalLevelReadOnly`: the space's level shows as text while a manager can still switch between
+"Everyone in ‹space›" and "Only people invited" — for when the space, not the item, owns that
+level.
+
+```tsx
+<ShareDialog generalAccess={general} generalLevelReadOnly {...rest} />
+```
+
+<ComponentPreview name="share01GeneralLevelReadOnly" />
+
 ## Anatomy
 
 - **Invite row**: `PeopleInput` with the host's `search`.
@@ -62,7 +87,7 @@ link to copy (or "Off").
   reason ("Creator", "Assignee", "Manager of Priya", "via Sales team"), and `PermissionMenu`
   (`readOnly` for built-in rows, Remove access with `onRemove`). `loading` shows skeleton rows.
 - **General access**: `SpaceAvatar`, a ghost `Select` ("Everyone in ‹space›" / "Only people
-  invited") with a muted hint, and the space's level.
+  invited") with a muted hint, and the space's level (text when `generalLevelReadOnly`).
 - **Anyone with the link**: off — "Off" and "Copy public link"; on — `InputGroup` with the URL,
   `CopyButton` and a Reset button in a `Tooltip`, an Expires `Select`, and "Stop sharing".
   `publicLinkPending` holds these controls while a change runs.
