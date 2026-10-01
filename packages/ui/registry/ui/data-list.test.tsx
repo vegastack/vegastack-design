@@ -2320,6 +2320,33 @@ test("onDropInto: rows drag onto folder rows; a selected row carries the selecti
   expect(onDropInto).not.toHaveBeenCalled();
 });
 
+test("canMoveItem locks a row: no drag source, left out of a dragged selection, still a link", async () => {
+  const onDropInto = vi.fn();
+  await render(
+    <Files
+      initial={["d2", "d3"]}
+      onDropInto={onDropInto}
+      canDropOnRow={(r) => r.kind === "folder"}
+      canMoveItem={(r) => r.id !== "d2"}
+    />,
+  );
+  expect(rowOf("d2").hasAttribute("draggable")).toBe(false);
+  expect(rowOf("d2").hasAttribute("data-move-locked")).toBe(true);
+  expect(rowOf("d3").getAttribute("draggable")).toBe("true");
+  expect(rowOf("d3").hasAttribute("data-move-locked")).toBe(false);
+  // The locked row still opens.
+  expect(
+    rowOf("d2")
+      .querySelector('[data-slot="data-list-row-link"]')
+      ?.getAttribute("href"),
+  ).toBe("#d2");
+  await dragTo(rowOf("d2"), rowOf("f1"));
+  expect(onDropInto).not.toHaveBeenCalled();
+  await dragTo(rowOf("d3"), rowOf("f1"));
+  expect(onDropInto).toHaveBeenLastCalledWith({ ids: ["d3"], targetId: "f1" });
+  await expectNoA11yViolations(document.body);
+});
+
 test("without onDropInto rows are not draggable", async () => {
   await render(<Files />);
   expect(rowOf("d1").hasAttribute("draggable")).toBe(false);

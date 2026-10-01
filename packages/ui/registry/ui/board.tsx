@@ -1,4 +1,4 @@
-// @vegastack board@0.23.113 sha256-02nHgHDAIloLdS8dnHjn7fB+vnCJ2OXw/lnHPdbV99g=
+// @vegastack board@0.23.113 sha256-2YH/tV23QIWggEPDA7aEQVw9mUAJTUcZLyPWUvLjLto=
 
 "use client";
 
@@ -76,7 +76,8 @@ transition and the tilt — the card still follows the pointer.
 
 Keyboard. Space picks the focused card up, the arrows move it (↑/↓ within the lane, ←/→ across),
 Space drops it and Escape puts it back — nothing is committed until the drop, and every step is
-announced. `M` opens the card's ⋯ menu (its own actions — the menu lists no Move items).
+announced. `canMoveItem` locks single cards (view-only records): they open but never lift.
+`M` opens the card's ⋯ menu (its own actions — the menu lists no Move items).
 
 Moves are optimistic: the card lands at once, `onMove` runs, and when its promise rejects the card
 snaps back, the rejection is announced and an error toast says so (the app mounts `Toaster`).
@@ -331,6 +332,14 @@ export interface BoardProps<T> {
    */
   readOnly?: boolean;
   /**
+   * Whether one card can move — `readOnly` for a single card (a view-only record on an editable
+   * board). A card answering `false` cannot be picked up by pointer, touch or Space, keeps the
+   * default cursor and is not announced as draggable; it still opens, keeps its ⋯ actions and
+   * stays in roving focus. Other cards still move around it.
+   * @default undefined (every card can move)
+   */
+  canMoveItem?: (item: T) => boolean;
+  /**
    * Accessible name for the board.
    * @default "Board"
    */
@@ -522,6 +531,7 @@ export function Board<T>({
   renderColumnAction,
   dragDisabled = false,
   readOnly: boardReadOnly = false,
+  canMoveItem,
   "aria-label": ariaLabel = "Board",
   className,
   ref,
@@ -584,6 +594,15 @@ export function Board<T>({
     return map;
   }, [columns, getItemId]);
   const columnsById = new Map(columns.map((column) => [column.id, column]));
+  /** A card can move unless its lane is read-only or the host locked it (`canMoveItem`). */
+  const isMovable = (id: string) => {
+    const entry = itemsById.get(id);
+    return (
+      entry !== undefined &&
+      !isReadOnly(entry.column) &&
+      (canMoveItem?.(entry.item) ?? true)
+    );
+  };
 
   // An optimistic move holds until the host's data changes (it applied the move, or something
   // newer arrived) or the move is rejected.
@@ -742,8 +761,7 @@ export function Board<T>({
     onStart: (id, element, point) => {
       if (liftedRef.current) return false;
       const from = positionIn(listsRef.current, id);
-      const owner = itemsById.get(id)?.column;
-      if (!from || !owner || isReadOnly(owner)) return false;
+      if (!from || !isMovable(id)) return false;
       const rect = element.getBoundingClientRect();
       dragGeometry.current = {
         offsetX: point.x - rect.left,
@@ -1039,7 +1057,7 @@ export function Board<T>({
         break;
       case " ":
         event.preventDefault();
-        if (!isReadOnly(column) && !lifted) liftCard(id);
+        if (!lifted && isMovable(id)) liftCard(id);
         break;
       case "ArrowDown":
       case "ArrowUp": {
@@ -1175,10 +1193,10 @@ export function Board<T>({
     const entry = itemsById.get(id);
     if (!entry) return null;
     const { item } = entry;
-    const readOnly = isReadOnly(column);
+    const movable = isMovable(id);
     const itemActions = getItemActions?.(item) ?? [];
     const href = getItemHref?.(item);
-    const canDrag = !dragDisabled && !readOnly;
+    const canDrag = !dragDisabled && movable;
     const hasMenu = itemActions.length > 0;
     const isLifted = lifted?.id === id;
     const label = getItemLabel?.(item);
@@ -1193,6 +1211,7 @@ export function Board<T>({
         data-lane={column.id}
         data-lifted={isLifted ? "" : undefined}
         data-drag-pending={pendingIds.has(id) ? "" : undefined}
+        data-move-locked={movable ? undefined : ""}
         {...(canDrag ? pointerDrag.getSourceProps(id) : {})}
         className={cn(
           cardClasses,

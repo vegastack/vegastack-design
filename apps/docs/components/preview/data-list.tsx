@@ -1511,7 +1511,7 @@ export function dataListGridSelection(): ReactNode {
 /**
  * Drag rows onto a folder row, or onto a breadcrumb in the same `dragScope`; a selected row
  * carries the whole selection. A folder refuses itself, and the crumb of the folder already open
- * refuses everything.
+ * refuses everything. "Budget.xlsx" is view-only (`canMoveItem`): it opens but never drags.
  */
 export function dataListDragInto(): ReactNode {
   const [rows, setRows] = React.useState(LIBRARY);
@@ -1559,6 +1559,7 @@ export function dataListDragInto(): ReactNode {
         onSelectionChange={setSelected}
         dragScope="docs-library"
         canDropOnRow={(r) => r.kind === "folder"}
+        canMoveItem={(r) => r.id !== "budget"}
         onDropInto={move}
       />
       <p className="text-xs text-muted-foreground" role="status">

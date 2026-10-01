@@ -407,3 +407,55 @@ test("no a11y violations — board at rest, and with a card picked up", async ()
   await userEvent.keyboard(" ");
   await expectNoA11yViolations(screen.container);
 });
+
+test("canMoveItem locks one card: no pointer drag, no Space pick-up, still opens", async () => {
+  const onCardActivate = vi.fn();
+  const onMove = vi.fn();
+  const screen = await render(
+    <Controlled
+      onMove={onMove}
+      onCardActivate={onCardActivate}
+      canMoveItem={(deal) => deal.id !== "d1"}
+      getItemActions={() => [{ label: "Open", onSelect: () => {} }]}
+    />,
+  );
+  const locked = document.querySelector<HTMLElement>(
+    '[data-board-card-id="d1"]',
+  )!;
+  const free = document.querySelector<HTMLElement>(
+    '[data-board-card-id="d2"]',
+  )!;
+  // Pointer: the default cursor and no drag source; the movable card keeps both.
+  expect(locked.hasAttribute("data-move-locked")).toBe(true);
+  expect(locked.className).not.toContain("cursor-grab");
+  expect(free.className).toContain("cursor-grab");
+  expect(free.hasAttribute("data-move-locked")).toBe(false);
+  // A11y: no "draggable" role description on the locked card only.
+  expect(surface("d1").getAttribute("aria-roledescription")).toBeNull();
+  expect(surface("d2").getAttribute("aria-roledescription")).toBe(
+    "Draggable card",
+  );
+  // Keyboard: Space does not lift it, and the arrows only browse.
+  surface("d1").focus();
+  await userEvent.keyboard(" ");
+  expect(announcement()).not.toContain("Picked up");
+  expect(surface("d1").getAttribute("aria-pressed")).toBe("false");
+  await userEvent.keyboard("{ArrowDown}");
+  expect(document.activeElement).toBe(surface("d2"));
+  expect(onMove).not.toHaveBeenCalled();
+  expect(laneCards("lead")).toEqual(["d1", "d2"]);
+  // It still opens and keeps its menu.
+  surface("d1").focus();
+  await userEvent.keyboard("{Enter}");
+  expect(onCardActivate).toHaveBeenCalledWith({ id: "d1", name: "Acme" });
+  await userEvent.keyboard("m");
+  await expect
+    .element(page.getByRole("menuitem", { name: "Open" }))
+    .toBeInTheDocument();
+  await userEvent.keyboard("{Escape}");
+  // The other cards still move around it.
+  surface("d2").focus();
+  await userEvent.keyboard(" {ArrowUp} ");
+  expect(onMove).toHaveBeenCalledWith("d2", "lead", 0);
+  await expectNoA11yViolations(screen.container);
+});
