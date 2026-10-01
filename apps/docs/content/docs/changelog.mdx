@@ -10,6 +10,18 @@ npm package versions are listed per entry. This page is generated from the repo'
 
 {/* CHANGELOG:START — generated from /CHANGELOG.md by tooling/sync-changelog.mjs. DO NOT EDIT. */}
 
+## [0.23.111] — October 1, 2026
+
+### 📦 npm
+
+- **`@vegastack/design`** → **`0.7.96`** (was `0.7.95`).
+- The design-system registry (`@vegastack/ui`) bumps 0.23.110 → 0.23.111.
+
+### 🐛 Fixed
+
+- Composer controls never touch the border: the paperclip and Send are 24px and sit 4px in from the border on every side (still 32px tall at rest, pinned to the last line as it grows). A record's new-comment box (`CommentComposer` without `replyingTo`) reserves two lines at rest; reply boxes stay one line.
+  [`1dbc57e`](https://github.com/VegaStack/vegastack-design/commit/1dbc57e)
+
 ## [0.23.110] — October 1, 2026
 
 ### 🔧 Changed components

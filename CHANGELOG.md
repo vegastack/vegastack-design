@@ -9,6 +9,20 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.23.111] — October 1, 2026
+
+<!-- assembled from 1 changeset: 8c437a5c6a6d -->
+
+### 📦 npm
+
+- **`@vegastack/design`** → **`0.7.96`** (was `0.7.95`).
+- The design-system registry (`@vegastack/ui`) bumps 0.23.110 → 0.23.111.
+
+### 🐛 Fixed
+
+- Composer controls never touch the border: the paperclip and Send are 24px and sit 4px in from the border on every side (still 32px tall at rest, pinned to the last line as it grows). A record's new-comment box (`CommentComposer` without `replyingTo`) reserves two lines at rest; reply boxes stay one line.
+  [`1dbc57e`](https://github.com/VegaStack/vegastack-design/commit/1dbc57e)
+
 ## [0.23.110] — October 1, 2026
 
 <!-- assembled from 1 changeset: 5d67058ddc37 -->

@@ -1,5 +1,14 @@
 # @vegastack/ui
 
+## 0.23.111
+
+### Patch Changes
+
+- [#498](https://github.com/vegastack/vegastack-design/pull/498) [`1dbc57e`](https://github.com/vegastack/vegastack-design/commit/1dbc57e457e3ec9663582177a4a69cdfee6a894a) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🐛 Composer controls never touch the border: the paperclip and Send are 24px and sit 4px in from the border on every side (still 32px tall at rest, pinned to the last line as it grows). A record's new-comment box (`CommentComposer` without `replyingTo`) reserves two lines at rest; reply boxes stay one line.
+
+- Updated dependencies [[`1dbc57e`](https://github.com/vegastack/vegastack-design/commit/1dbc57e457e3ec9663582177a4a69cdfee6a894a)]:
+  - @vegastack/design@0.7.96
+
 ## 0.23.110
 
 ### Patch Changes
