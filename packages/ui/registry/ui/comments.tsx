@@ -1,4 +1,4 @@
-// @vegastack comments@0.23.99 sha256-O85pAlW3iX+FmUx8VCLRAifjZnhrDzYCGxqMwdg5tlE=
+// @vegastack comments@0.23.99 sha256-jVQ6yfoc68S+Q409nlU7r58RqpIe05RT/wST00beIXA=
 
 "use client";
 
@@ -616,8 +616,10 @@ function CommentBox({
         handleRef={handle}
         className={cn(
           "flex min-h-8 flex-wrap items-end gap-1 rounded-lg border-border bg-muted/30 py-px ps-3 pe-px dark:bg-muted/30",
-          // The text column fills the row and centres a single line against the 28px controls.
-          "[&_[data-slot=text-edit-content]]:flex-1 [&_[data-slot=text-edit-content]]:self-center [&_[data-slot=text-edit-content]]:py-0.5 [&_.tiptap]:py-0.5",
+          // The text column fills the row; one line of it is exactly the 28px controls' height, so
+          // the box is the `Input` height (32px) at rest, focused or not, and the controls stay on
+          // the last line as the text grows. The `Input` type size: 16px on a phone, 14px from md.
+          "[&_[data-slot=text-edit-content]]:flex-1 [&_[data-slot=text-edit-content]]:self-end [&_[data-slot=text-edit-content]]:py-0.5 [&_[data-slot=text-edit-content]]:text-base [&_[data-slot=text-edit-content]]:leading-6 md:[&_[data-slot=text-edit-content]]:py-1 md:[&_[data-slot=text-edit-content]]:text-sm md:[&_[data-slot=text-edit-content]]:leading-5 [&_.tiptap]:py-0",
           bare &&
             "rounded-none border-0 bg-transparent p-0 dark:bg-transparent",
         )}
@@ -669,7 +671,7 @@ function CommentBox({
                       data-slot="comment-attach"
                       aria-label="Attach files"
                       className={cn(
-                        "rounded-full focus-visible:bg-muted",
+                        "rounded-full text-muted-foreground hover:text-foreground focus-visible:bg-muted",
                         TOUCH_TARGET,
                       )}
                       // A picker of our own, clicked in the gesture (the lazy editor may not be
