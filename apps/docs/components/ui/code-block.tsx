@@ -1,4 +1,4 @@
-// @vegastack code-block@0.23.100 sha256-uwvld89kmrpn4tTdkfvCIHUK4pNweDcPUO6g6f8e1EA=
+// @vegastack code-block@0.23.100 sha256-Z0cqDn5/lca39Rf3i3KQMrVAi/3IlswKvWotdWmdF3A=
 
 "use client";
 
@@ -164,12 +164,45 @@ function highlight(
  */
 export const codeBlockSurfaceClassName =
   "group/code-block relative w-full min-w-0 max-w-full rounded-lg bg-muted/60 text-foreground";
-export const codeBlockPreClassName = "hljs overflow-x-auto px-4 py-3 font-mono";
-/** Room above the code for the hover controls, so the language label and Copy never cover line one. */
+/**
+ * The code panel: `white-space: pre` (or `pre-wrap` when `data-wrap` is set) is scoped under the
+ * block's `figure` so it outranks ProseMirror's own `.ProseMirror pre { white-space: pre-wrap }`.
+ */
+export const codeBlockPreClassName =
+  "hljs overflow-x-auto overscroll-x-contain px-4 py-3 font-mono scrollbar-thin [scrollbar-color:var(--border)_transparent] [[data-slot=code-block]_&]:whitespace-pre [[data-slot=code-block]_&[data-wrap]]:whitespace-pre-wrap data-wrap:wrap-anywhere";
+/** Room above the code for the controls, so the language label and the icons never cover line one. */
 export const codeBlockControlsPadClassName = "pt-9";
-/** The hover controls: hidden until the block is hovered or holds focus; always on touch. */
-export const codeBlockControlClassName =
-  "absolute top-1.5 z-10 opacity-0 transition-opacity group-hover/code-block:opacity-100 group-focus-within/code-block:opacity-100 focus-visible:opacity-100 data-popup-open:opacity-100 pointer-coarse:opacity-100";
+/** The controls (language top-left, icon buttons top-right): always shown, above the code. */
+export const codeBlockControlClassName = "absolute top-1.5 z-10";
+/** The top-right icon row: wrap and copy. */
+export const codeBlockActionsClassName =
+  "absolute end-1.5 top-1.5 z-10 flex items-center gap-0.5";
+
+/**
+ * A fence info string split into its language and the `wrap` flag TextEdit writes after it
+ * (```` ```ts wrap ````; plain text that wraps is ```` ```text wrap ````).
+ *
+ * @example
+ * parseCodeFenceInfo("ts wrap"); // { language: "ts", wrap: true }
+ */
+export function parseCodeFenceInfo(info?: string | null): {
+  language: string | undefined;
+  wrap: boolean;
+} {
+  const words = (info ?? "").trim().split(/\s+/).filter(Boolean);
+  const wrap = words.slice(1).includes("wrap");
+  return { language: words[0] || undefined, wrap };
+}
+
+/** The fence info string for a language and wrap flag — the inverse of `parseCodeFenceInfo`. */
+export function codeFenceInfo(
+  language: string | null | undefined,
+  wrap: boolean,
+) {
+  const lang = (language ?? "").trim();
+  if (!wrap) return lang;
+  return `${lang || "text"} wrap`;
+}
 
 /** Props accepted by `CodeBlock`. */
 export interface CodeBlockProps extends React.ComponentPropsWithRef<"figure"> {
@@ -181,8 +214,13 @@ export interface CodeBlockProps extends React.ComponentPropsWithRef<"figure"> {
   language?: string;
   /** When set, a Copy button for this raw source shows top-right on hover. @default undefined */
   copyValue?: string;
-  /** The copy control's label (shown, and its accessible name). @default "Copy" */
+  /** The copy control's accessible name (an icon button). @default "Copy" */
   copyLabel?: string;
+  /**
+   * Wrap long lines instead of scrolling them sideways inside the block.
+   * @default false
+   */
+  wrap?: boolean;
 }
 
 /**
@@ -199,6 +237,7 @@ export function CodeBlock({
   language,
   copyValue,
   copyLabel,
+  wrap = false,
   children,
   ref,
   ...props
@@ -246,17 +285,21 @@ export function CodeBlock({
         </figcaption>
       ) : null}
       {copyValue != null ? (
-        <CopyButton
-          value={copyValue}
-          size="sm"
-          variant="ghost"
-          showLabel
-          copyLabel={copyLabel ?? "Copy"}
-          className={cn(codeBlockControlClassName, "end-1.5")}
-        />
+        <div
+          data-slot="code-block-actions"
+          className={codeBlockActionsClassName}
+        >
+          <CopyButton
+            value={copyValue}
+            size="icon-xs"
+            variant="ghost"
+            copyLabel={copyLabel ?? "Copy"}
+          />
+        </div>
       ) : null}
       <pre
         data-slot="code-block-pre"
+        data-wrap={wrap ? "" : undefined}
         className={cn(
           codeBlockPreClassName,
           (language || copyValue != null) && codeBlockControlsPadClassName,

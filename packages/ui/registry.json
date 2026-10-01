@@ -12693,7 +12693,8 @@
         "@vegastack/code-block",
         "@vegastack/file-kind",
         "@vegastack/button",
-        "@vegastack/popover"
+        "@vegastack/popover",
+        "@vegastack/alert"
       ],
       "files": [
         {
@@ -14259,7 +14260,11 @@
         "@vegastack/toggle",
         "@vegastack/tooltip",
         "@vegastack/use-file-drop",
-        "@vegastack/code-highlight"
+        "@vegastack/code-highlight",
+        "@vegastack/alert",
+        "@vegastack/dropzone",
+        "@vegastack/empty",
+        "@vegastack/tabs"
       ],
       "files": [
         {

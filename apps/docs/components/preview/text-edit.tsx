@@ -612,12 +612,13 @@ export function textEditImages(): ReactNode {
 }
 
 /**
- * Callouts and toggles — `> [!NOTE]` / `[!TIP]` / `[!WARNING]` and `<details>`, from the slash
- * menu. Click a callout's icon to change its tone.
+ * Callouts and toggles — GitHub's alerts (`> [!NOTE]`, `[!TIP]`, `[!IMPORTANT]`, `[!WARNING]`,
+ * `[!CAUTION]`) as `Alert`s, and `<details>`, from the slash menu. Click a callout's icon to change
+ * its tone.
  */
 export function textEditCallouts(): ReactNode {
   const [markdown, setMarkdown] = useState(
-    "> [!TIP]\n> Use a 25 A breaker for the kitchen circuit.\n\n> [!WARNING]\n> Isolate the supply before opening the panel.\n\n<details><summary>Wiring colours</summary>\n\n- Brown: live\n- Blue: neutral\n\n</details>",
+    "> [!NOTE]\n> The survey is booked for `09:30` on Monday.\n\n> [!TIP]\n> Use a 25 A breaker for the kitchen circuit.\n\n> [!IMPORTANT]\n> The client signs off each room before tiling.\n\n> [!WARNING]\n> Isolate the supply before opening the panel.\n\n> [!CAUTION]\n> Never work on a live circuit.\n\n<details><summary>Wiring colours</summary>\n\n- Brown: live\n- Blue: neutral\n\n</details>",
   );
   return (
     <Wrapper className="flex-col items-stretch">
@@ -626,6 +627,54 @@ export function textEditCallouts(): ReactNode {
         value={markdown}
         onValueChange={setMarkdown}
         aria-label="Notes with callouts"
+      />
+      <pre className="min-w-0 overflow-x-auto rounded-md bg-muted p-3 font-mono text-xs break-all whitespace-pre-wrap">
+        {markdown}
+      </pre>
+    </Wrapper>
+  );
+}
+
+/**
+ * Blocks — a code block with its language and the wrap icon (saved as ```` ```ts wrap ````), a
+ * fixed-layout table, a toggle with its chevron (`<details open>`), and video and audio blocks
+ * (`<video src>` / `<audio src>`). The slash menu's Image, Video, Audio and File open an insert
+ * panel: Upload (with an upload handler) and Link tabs.
+ */
+export function textEditBlocks(): ReactNode {
+  const [markdown, setMarkdown] = useState(
+    [
+      "```ts wrap",
+      'const greeting = "A long line that wraps inside the block instead of scrolling sideways, because the wrap icon is on.";',
+      "```",
+      "",
+      "```bash",
+      "pnpm dlx shadcn@latest add @vegastack/text-edit --overwrite --yes # long lines scroll inside the block",
+      "```",
+      "",
+      "| Room | Notes | Owner |",
+      "| --- | --- | --- |",
+      "| Kitchen | Typing a long note here wraps inside the column. | Asha |",
+      "",
+      "<details open><summary>Site checklist</summary>",
+      "",
+      "- Isolate the supply",
+      "- Photograph the panel",
+      "",
+      "</details>",
+      "",
+      '<video src="https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4"></video>',
+      "",
+      '<audio src="https://interactive-examples.mdn.mozilla.net/media/cc0-audio/t-rex-roar.mp3"></audio>',
+    ].join("\n"),
+  );
+  return (
+    <Wrapper className="flex-col items-stretch">
+      <TextEdit
+        format="markdown"
+        value={markdown}
+        onValueChange={setMarkdown}
+        aria-label="Notes with blocks"
       />
       <pre className="min-w-0 overflow-x-auto rounded-md bg-muted p-3 font-mono text-xs break-all whitespace-pre-wrap">
         {markdown}

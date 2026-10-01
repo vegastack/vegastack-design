@@ -1135,7 +1135,7 @@
         "whenToUse": "Fenced/source code that deserves a labelled, copyable panel.",
         "whenNotToUse": "Inline code (a mono chip) or terminal output theatre (Terminal).",
         "version": "0.23.100",
-        "integrity": "sha256-uwvld89kmrpn4tTdkfvCIHUK4pNweDcPUO6g6f8e1EA="
+        "integrity": "sha256-Z0cqDn5/lca39Rf3i3KQMrVAi/3IlswKvWotdWmdF3A="
       }
     },
     {
@@ -15807,7 +15807,8 @@
         "@vegastack/code-block",
         "@vegastack/file-kind",
         "@vegastack/button",
-        "@vegastack/popover"
+        "@vegastack/popover",
+        "@vegastack/alert"
       ],
       "files": [
         {
@@ -15825,7 +15826,7 @@
         "whenToUse": "Display user/system-authored markdown — descriptions, comments, activity — as safe token-styled prose.",
         "whenNotToUse": "Editing markdown (use an editor), or when the source needs embedded raw HTML.",
         "version": "0.23.100",
-        "integrity": "sha256-yK5jPd7Iwz7JVTvVEd97FOaUXCaQDG5eF/7m/FJr5X0="
+        "integrity": "sha256-AR0RbzMKwj+u/cVMGBR4Z7Yiat3xzQJDqy9lOQzv/MA="
       }
     },
     {
@@ -17582,7 +17583,11 @@
         "@vegastack/toggle",
         "@vegastack/tooltip",
         "@vegastack/use-file-drop",
-        "@vegastack/code-highlight"
+        "@vegastack/code-highlight",
+        "@vegastack/alert",
+        "@vegastack/dropzone",
+        "@vegastack/empty",
+        "@vegastack/tabs"
       ],
       "files": [
         {
@@ -17600,7 +17605,7 @@
         "whenToUse": "Comments, notes, summaries and documents stored as Markdown (format=\"markdown\") or HTML — with @ mentions, uploads, callouts, toggles, an outline and comment highlights for page editors; in-place editing of a MarkdownView (the read view is the editor until first edited).",
         "whenNotToUse": "Plain single-line input (Input) or collaborative real-time docs (deferred text-edit-collab).",
         "version": "0.23.100",
-        "integrity": "sha256-Ji3gJRleka3uxLbYrzL1FFuub0jBA4JgdXxW/cuUakM="
+        "integrity": "sha256-Hfe6PqjsLCPu/t68DAU1bS5ni8Ld4mbolGfIx5k7gdw="
       }
     },
     {
