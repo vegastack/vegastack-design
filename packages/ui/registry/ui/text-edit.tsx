@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.23.108 sha256-3JTMDE//Xddr6YuXzgt41Vo/tu7rtpWXH/j55xm/YAI=
+// @vegastack text-edit@0.23.108 sha256-KSe1OQp02phZpV45pMWX/vEpFFj+oh9sBltBmAtANOU=
 
 "use client";
 
@@ -233,14 +233,14 @@ const editorBaseClassName = cn(
 /*
  * `variant="composer"` — `Input`'s box (32px: a 1px border around a 28px row; `ps-2.5`, 14px type
  * from md, 16px on a phone) as a two-column grid: the text, then the actions. One line of text is
- * exactly the 28px row (20px line + 4px above and below; 24px + 2px on a phone), so the 28px
+ * exactly the 28px row (2px + the 24px textbox, whose 20px line is centred in it from md), so the 28px
  * controls sit centred on it, and as the text grows they stay on the last line (`self-end`). The
  * text scrolls inside past about ten lines; the footer spans both columns under it.
  */
 const COMPOSER_ROOT =
   "grid min-h-8 grid-cols-[minmax(0,1fr)_auto] items-end gap-x-1 py-px ps-2.5 pe-px";
 const COMPOSER_CONTENT =
-  "col-start-1 row-start-1 max-h-[calc(10*1.5rem+0.25rem)] overflow-y-auto py-0.5 md:max-h-[calc(10*1.25rem+0.5rem)] md:py-1 [&>*]:py-0 [&>*]:text-base [&>*]:leading-6 md:[&>*]:text-sm md:[&>*]:leading-5 [&_[role=textbox]]:min-h-0 [&>*>*:first-child]:mt-0 [&>*>*:last-child]:mb-0";
+  "col-start-1 row-start-1 max-h-[calc(10*1.5rem+0.25rem)] overflow-y-auto py-0.5 md:max-h-[calc(10*1.25rem+0.5rem)] [&>*]:py-0 [&>*]:text-base [&>*]:leading-6 md:[&>*]:text-sm md:[&>*]:leading-5 md:[&_[role=textbox]]:py-0.5 [&>*>*:first-child]:mt-0 [&>*>*:last-child]:mb-0";
 const COMPOSER_ACTIONS =
   "col-start-2 row-start-1 flex shrink-0 items-center gap-1 self-end";
 // An empty footer (a host passing a wrapper with no files in it) takes no room.
