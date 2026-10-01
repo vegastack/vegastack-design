@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.23.107 sha256-2DRi5OLhI3CNB8b2zXMe0zrZvYW/tDHf/fBf61/DG8A=
+// @vegastack text-edit@0.23.107 sha256-MzUOn9sOsoRDlz3aDEIeG6GitWrjELfY1L4JIiiFHSo=
 
 "use client";
 
@@ -1199,8 +1199,19 @@ const Shortcuts = Extension.create({
 const ParagraphLiftingImages = Paragraph.extend({
   parseMarkdown: (token, helpers) => {
     const tokens = (token.tokens ?? []) as { type: string; raw?: string }[];
-    if (!tokens.some((each) => each.type === "image"))
-      return Paragraph.config.parseMarkdown!(token, helpers);
+    // No image: a plain paragraph, as Tiptap's own parser makes it (a lone `&nbsp;` is an empty
+    // paragraph). Written out, not delegated: `Paragraph.config.parseMarkdown`'s `this` type
+    // differs between Tiptap releases.
+    if (!tokens.some((each) => each.type === "image")) {
+      const content = helpers.parseInline(tokens as never);
+      const only = content.length === 1 ? content[0] : null;
+      if (
+        only?.type === "text" &&
+        (only.text === "\u00A0" || only.text === "&nbsp;")
+      )
+        return helpers.createNode("paragraph", undefined, []);
+      return helpers.createNode("paragraph", undefined, content);
+    }
     const out: JSONContent[] = [];
     let run: typeof tokens = [];
     // The space next to a lifted image belonged to the sentence it sat in, not to the paragraph.
