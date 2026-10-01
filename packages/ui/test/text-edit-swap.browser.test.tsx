@@ -196,3 +196,26 @@ test("a rich document: every block sits where the read view put it", async () =>
     list.map((each) => `${each.y} +${each.h} @${each.x} t${each.tx}`);
   expect(lines(b)).toEqual(lines(a));
 });
+
+test("composer: 32px at rest, like Input, with an empty footer taking no room", async () => {
+  await preloadTextEdit();
+  const screen = await render(
+    <div style={{ width: 480 }}>
+      <TextEdit
+        variant="composer"
+        format="markdown"
+        placeholder="Add a comment…"
+        aria-label="Comment"
+        actions={<button type="button" style={{ width: 28, height: 28 }} />}
+        footer={<div />}
+      />
+    </div>,
+  );
+  const root = screen.container.querySelector<HTMLElement>(
+    "[data-slot=text-edit]",
+  )!;
+  await vi.waitFor(() =>
+    expect(root.querySelector(".ProseMirror")).not.toBeNull(),
+  );
+  expect(root.getBoundingClientRect().height).toBe(32);
+});

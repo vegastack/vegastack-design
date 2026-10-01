@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.23.108 sha256-WHxS6CDpFkY35Eno4aCSEDXhcXc2ES6kzrvowANK3fQ=
+// @vegastack text-edit@0.23.108 sha256-3JTMDE//Xddr6YuXzgt41Vo/tu7rtpWXH/j55xm/YAI=
 
 "use client";
 
@@ -2333,6 +2333,20 @@ function imageNode(runtime: ImageRuntime) {
                 host.toggleAttribute("data-narrow", image.clientWidth < 160),
               );
         narrow?.observe(image);
+
+        // A click selects the image (Notion): the ring, the handles and the toolbar follow.
+        wrapper.addEventListener("click", (event) => {
+          const target = event.target as Element;
+          if (
+            !editor.isEditable ||
+            target.closest?.(
+              "[data-resize-handle],[data-slot=text-edit-image-menu]",
+            )
+          )
+            return;
+          const pos = getPos();
+          if (typeof pos === "number") editor.commands.setNodeSelection(pos);
+        });
 
         image.addEventListener("dblclick", (event) => {
           event.preventDefault();
