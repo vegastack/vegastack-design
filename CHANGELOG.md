@@ -9,6 +9,22 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.23.113] — October 2, 2026
+
+<!-- assembled from 2 changesets: dc9ba22980e2 -->
+
+### 🔧 Changed components
+
+- `InboxFilters` gains `extra`: app-defined chips after All and Unread, each `{ value, label, count? }` (new `InboxFilterOption` type; `InboxFilter` widens to accept their values), so an inbox shows All · Unread 3 · Requests 2 without a second control. A chip's count is now separated by a space in its accessible name ("Unread 3"). `notifications-01` adds a Requests chip for rows that ask for a decision.
+  [`cce47ed`](https://github.com/VegaStack/vegastack-design/commit/cce47ed)
+- `share-01`: new `generalLevelReadOnly` prop on `ShareDialog` shows General access's level as text while a manager can still switch between "Everyone in ‹space›" and "Only people invited". `defaultInvitees` is now reactive — when it changes (compared by id) the invite chips follow it, so a "Share with Priya" prompt can open the mounted dialog with Priya chosen; chips the viewer edits stay until the prop changes again. The dialog body's section gap moves from the off-scale `gap-5` to `gap-4`.
+  [`b19f577`](https://github.com/VegaStack/vegastack-design/commit/b19f577)
+
+### 📦 npm
+
+- **`@vegastack/design`** → **`0.7.98`** (was `0.7.97`).
+- The design-system registry (`@vegastack/ui`) bumps 0.23.112 → 0.23.113.
+
 ## [0.23.112] — October 1, 2026
 
 <!-- assembled from 1 changeset: 7bf5df86e543 -->
