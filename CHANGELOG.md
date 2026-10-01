@@ -9,6 +9,20 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.23.104] — October 1, 2026
+
+<!-- assembled from 1 changeset: c3172c9763c7 -->
+
+### 🔧 Changed components
+
+- TextEdit: images are blocks and a composer variant. An image is a block of its own (still `![alt|width](src)` in markdown; an image inside a paragraph is lifted into its own block on load, and `MarkdownView` shows it the same way). Dragging an image moves it between blocks with the block drop line (2px, info blue); pasted, dropped or inserted images, videos and audio land after the current block. A selected image has a 2px info-blue ring at its radius and handles in the same colour, with no ring on hover. New `variant="composer"` with `actions` and `footer`: a box that looks exactly like `Input` at rest, grows line by line to about ten lines then scrolls, actions pinned bottom-right, file cards under the text. `CommentComposer`, replies and in-place edits use it; the old composer styles are gone.
+  [`c9140ce`](https://github.com/VegaStack/vegastack-design/commit/c9140ce)
+
+### 📦 npm
+
+- **`@vegastack/design`** → **`0.7.89`** (was `0.7.88`).
+- The design-system registry (`@vegastack/ui`) bumps 0.23.103 → 0.23.104.
+
 ## [0.23.103] — October 1, 2026
 
 <!-- assembled from 1 changeset: f94b94fe6499 -->
