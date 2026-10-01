@@ -912,7 +912,8 @@ test.each(moreMarkdownFixtures)(
     // (selecting it) or a table cell's padding, and Cmd+ArrowDown does not leave a table cell.
     const blocks = box.element().querySelectorAll("p, h4, li p, td p, code");
     const last = blocks[blocks.length - 1]!;
-    await userEvent.click(box);
+    // Click the text block itself: the box's centre can be an image, which a click selects.
+    await userEvent.click(last);
     const range = document.createRange();
     range.selectNodeContents(last);
     range.collapse(false);
