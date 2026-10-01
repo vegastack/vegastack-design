@@ -1,4 +1,4 @@
-// @vegastack markdown-view@0.23.100 sha256-lOyQ2rJ6UF7SvKIbs08BrvwqA1qUmZC2gRThlGUvLTY=
+// @vegastack markdown-view@0.23.100 sha256-AR0RbzMKwj+u/cVMGBR4Z7Yiat3xzQJDqy9lOQzv/MA=
 
 import * as React from "react";
 import { Lexer, type Token, type Tokens } from "marked";
@@ -316,7 +316,7 @@ export const markdownExtrasClassName = cn(
   "[&_[data-slot=mention-chip]]:no-underline [&_[data-slot=mention-chip]]:text-info-text [&_[data-slot=mention-chip][data-restricted]]:text-muted-foreground",
   "[&_[data-slot=file-chip]]:rounded-sm [&_[data-slot=file-chip]]:bg-muted [&_[data-slot=file-chip]]:px-1 [&_[data-slot=file-chip]]:font-medium [&_[data-slot=file-chip]]:no-underline [&_[data-slot=file-chip]]:text-foreground [&_a[data-slot=file-chip]:hover]:bg-accent [&_[data-slot=mention-chip]:not([data-restricted]):hover]:bg-info/15",
   "[&_details]:my-2 [&_summary]:flex [&_summary]:cursor-pointer [&_summary]:list-none [&_summary]:items-center [&_summary]:gap-1 [&_summary]:py-0.5 [&_summary]:font-medium [&_summary::-webkit-details-marker]:hidden [&_details>:not(summary)]:ms-6",
-  "[&_[data-slot=toggle-chevron]]:size-5 [&_[data-slot=toggle-chevron]]:shrink-0 [&_[data-slot=toggle-chevron]]:rounded-sm [&_[data-slot=toggle-chevron]]:p-0.5 [&_[data-slot=toggle-chevron]]:text-muted-foreground [&_[data-slot=toggle-chevron]]:transition-transform [&_summary:hover_[data-slot=toggle-chevron]]:bg-muted [&_summary:hover_[data-slot=toggle-chevron]]:text-foreground [&_details[open]>summary>[data-slot=toggle-chevron]]:rotate-90 rtl:[&_[data-slot=toggle-chevron]]:-scale-x-100",
+  "[&_[data-slot=toggle-icon]]:size-5 [&_[data-slot=toggle-icon]]:shrink-0 [&_[data-slot=toggle-icon]]:rounded-sm [&_[data-slot=toggle-icon]]:p-0.5 [&_[data-slot=toggle-icon]]:text-muted-foreground [&_[data-slot=toggle-icon]]:transition-transform [&_summary:hover_[data-slot=toggle-icon]]:bg-muted [&_summary:hover_[data-slot=toggle-icon]]:text-foreground [&_details[open]>summary>[data-slot=toggle-icon]]:rotate-90 rtl:[&_[data-slot=toggle-icon]]:-scale-x-100",
 );
 
 /** `> [!NOTE]` / `[!TIP]` / `[!IMPORTANT]` / `[!WARNING]` / `[!CAUTION]` — a callout's first line. */
@@ -1148,7 +1148,7 @@ function renderNode(
       // A real chevron (the native marker is hidden): right when closed, down when open.
       return (
         <summary key={key} data-slot="toggle-summary">
-          <ChevronRight aria-hidden data-slot="toggle-chevron" />
+          <ChevronRight aria-hidden data-slot="toggle-icon" />
           {children()}
         </summary>
       );
