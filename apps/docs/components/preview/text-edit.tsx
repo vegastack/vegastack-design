@@ -635,6 +635,54 @@ export function textEditCallouts(): ReactNode {
   );
 }
 
+/**
+ * Blocks — a code block with its language and the wrap icon (saved as ```` ```ts wrap ````), a
+ * fixed-layout table, a toggle with its chevron (`<details open>`), and video and audio blocks
+ * (`<video src>` / `<audio src>`). The slash menu's Image, Video, Audio and File open an insert
+ * panel: Upload (with an upload handler) and Link tabs.
+ */
+export function textEditBlocks(): ReactNode {
+  const [markdown, setMarkdown] = useState(
+    [
+      "```ts wrap",
+      'const greeting = "A long line that wraps inside the block instead of scrolling sideways, because the wrap icon is on.";',
+      "```",
+      "",
+      "```bash",
+      "pnpm dlx shadcn@latest add @vegastack/text-edit --overwrite --yes # long lines scroll inside the block",
+      "```",
+      "",
+      "| Room | Notes | Owner |",
+      "| --- | --- | --- |",
+      "| Kitchen | Typing a long note here wraps inside the column. | Asha |",
+      "",
+      "<details open><summary>Site checklist</summary>",
+      "",
+      "- Isolate the supply",
+      "- Photograph the panel",
+      "",
+      "</details>",
+      "",
+      '<video src="https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4"></video>',
+      "",
+      '<audio src="https://interactive-examples.mdn.mozilla.net/media/cc0-audio/t-rex-roar.mp3"></audio>',
+    ].join("\n"),
+  );
+  return (
+    <Wrapper className="flex-col items-stretch">
+      <TextEdit
+        format="markdown"
+        value={markdown}
+        onValueChange={setMarkdown}
+        aria-label="Notes with blocks"
+      />
+      <pre className="min-w-0 overflow-x-auto rounded-md bg-muted p-3 font-mono text-xs break-all whitespace-pre-wrap">
+        {markdown}
+      </pre>
+    </Wrapper>
+  );
+}
+
 /** Outline — `onOutlineChange` feeds a rail; `handleRef.scrollToHeading` jumps to a heading. */
 export function textEditOutline(): ReactNode {
   const handle = useRef<TextEditHandle>(null);

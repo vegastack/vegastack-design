@@ -14261,7 +14261,10 @@
         "@vegastack/tooltip",
         "@vegastack/use-file-drop",
         "@vegastack/code-highlight",
-        "@vegastack/alert"
+        "@vegastack/alert",
+        "@vegastack/dropzone",
+        "@vegastack/empty",
+        "@vegastack/tabs"
       ],
       "files": [
         {

@@ -944,7 +944,7 @@ test("slash menu offers every block, and Table inserts a GFM table", async () =>
   );
 });
 
-test("slash menu Image inserts an image with its alt text", async () => {
+test("slash menu Image, Video and Audio insert from a link", async () => {
   const onValueChange = vi.fn();
   const screen = await markdownEditor({ onValueChange });
   await screen.getByRole("textbox", { name: "Notes" }).click();
@@ -952,13 +952,33 @@ test("slash menu Image inserts an image with its alt text", async () => {
   await vi.waitFor(() =>
     expect(document.querySelector('[aria-label="Image URL"]')).not.toBeNull(),
   );
-  await userEvent.keyboard("example.com/cat.png");
-  await userEvent.click(document.querySelector('[aria-label="Alt text"]')!);
-  await userEvent.keyboard("A cat{Enter}");
+  await userEvent.keyboard("example.com/cat.png{Enter}");
   await vi.waitFor(() =>
-    expect(lastValue(onValueChange)).toBe(
-      "![A cat](https://example.com/cat.png)",
+    expect(lastValue(onValueChange)).toBe("![](https://example.com/cat.png)"),
+  );
+  await userEvent.keyboard("{Enter}/video{Enter}");
+  await vi.waitFor(() =>
+    expect(document.querySelector('[aria-label="Video URL"]')).not.toBeNull(),
+  );
+  await userEvent.keyboard("/files/clip.mp4{Enter}");
+  await vi.waitFor(() =>
+    expect(lastValue(onValueChange)).toContain(
+      '<video src="/files/clip.mp4"></video>',
     ),
+  );
+});
+
+test("video and audio blocks round-trip and render native players", async () => {
+  const source =
+    '<video src="/files/clip.mp4"></video>\n\n<audio src="/files/note.mp3"></audio>';
+  const onValueChange = vi.fn();
+  const screen = await markdownEditor({ onValueChange, defaultValue: source });
+  await screen.getByRole("textbox", { name: "Notes" }).click();
+  await vi.waitFor(() =>
+    expect(document.querySelector(".tiptap video")).not.toBeNull(),
+  );
+  expect(document.querySelector(".tiptap audio")?.getAttribute("src")).toBe(
+    "/files/note.mp3",
   );
 });
 
@@ -2402,4 +2422,41 @@ test("image: its corner radius is the same at rest, selected and while resizing"
   );
   expect(getComputedStyle(image).borderRadius).toBe(rest);
   document.dispatchEvent(new MouseEvent("mouseup"));
+});
+
+test("code wrap, open toggles and every callout tone round-trip through markdown", async () => {
+  const source = [
+    "```ts wrap\nconst a = 1;\n```",
+    "```text wrap\nplain\n```",
+    "<details open><summary>Open</summary>\n\nBody\n\n</details>",
+    "> [!IMPORTANT]\n> Read this.",
+    "> [!CAUTION]\n> Careful.",
+  ].join("\n\n");
+  const onValueChange = vi.fn();
+  const screen = await markdownEditor({ onValueChange, defaultValue: source });
+  const box = screen.getByRole("textbox", { name: "Notes" }).element();
+  await vi.waitFor(() =>
+    expect(box.querySelectorAll("pre[data-wrap]")).toHaveLength(2),
+  );
+  expect(
+    box.querySelector('[data-slot="toggle"]')?.hasAttribute("data-open"),
+  ).toBe(true);
+  // The wrap icon turns wrapping off: the fence loses its flag.
+  await userEvent.click(
+    box.querySelector<HTMLElement>('[data-slot="code-block-wrap"]')!,
+  );
+  await vi.waitFor(() =>
+    expect(lastValue(onValueChange)).toBe(
+      source.replace("```ts wrap", "```ts"),
+    ),
+  );
+  // The chevron closes the toggle: `<details>` without `open`.
+  await userEvent.click(
+    box.querySelector<HTMLElement>('[data-slot="toggle-chevron"]')!,
+  );
+  await vi.waitFor(() =>
+    expect(lastValue(onValueChange)).toContain(
+      "<details><summary>Open</summary>",
+    ),
+  );
 });

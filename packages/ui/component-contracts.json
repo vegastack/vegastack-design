@@ -5630,6 +5630,33 @@
             "status": "not-applicable",
             "rationale": "A pure function; it renders nothing and takes no ref."
           }
+        },
+        {
+          "name": "codeBlockActionsClassName",
+          "kind": "constant",
+          "source": "packages/ui/registry/ui/code-block.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A constant export does not render or accept a runtime ref."
+          }
+        },
+        {
+          "name": "codeFenceInfo",
+          "kind": "function",
+          "source": "packages/ui/registry/ui/code-block.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A pure function; it renders nothing and takes no ref."
+          }
+        },
+        {
+          "name": "parseCodeFenceInfo",
+          "kind": "function",
+          "source": "packages/ui/registry/ui/code-block.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A pure function; it renders nothing and takes no ref."
+          }
         }
       ],
       "variants": {
@@ -5706,7 +5733,16 @@
             },
             {
               "name": "data-slot",
-              "values": ["code-block", "code-block-header", "code-block-pre"]
+              "values": [
+                "code-block",
+                "code-block-actions",
+                "code-block-header",
+                "code-block-pre"
+              ]
+            },
+            {
+              "name": "data-wrap",
+              "values": [""]
             }
           ],
           "cssVariables": []
@@ -14888,6 +14924,33 @@
             "status": "not-applicable",
             "rationale": "A constant export does not render or accept a runtime ref."
           }
+        },
+        {
+          "name": "MEDIA_AUDIO_CLASS",
+          "kind": "constant",
+          "source": "packages/ui/registry/ui/markdown-view.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A constant export does not render or accept a runtime ref."
+          }
+        },
+        {
+          "name": "MEDIA_BLOCK",
+          "kind": "constant",
+          "source": "packages/ui/registry/ui/markdown-view.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A constant export does not render or accept a runtime ref."
+          }
+        },
+        {
+          "name": "MEDIA_VIDEO_CLASS",
+          "kind": "constant",
+          "source": "packages/ui/registry/ui/markdown-view.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A constant export does not render or accept a runtime ref."
+          }
         }
       ],
       "variants": {
@@ -24007,11 +24070,14 @@
         "@vegastack/copy-button",
         "@vegastack/drag-item",
         "@vegastack/dropdown-menu",
+        "@vegastack/dropzone",
+        "@vegastack/empty",
         "@vegastack/file-kind",
         "@vegastack/file-viewer",
         "@vegastack/input",
         "@vegastack/markdown-view",
         "@vegastack/popover",
+        "@vegastack/tabs",
         "@vegastack/text-anchor",
         "@vegastack/text-anchor-doc",
         "@vegastack/toggle",

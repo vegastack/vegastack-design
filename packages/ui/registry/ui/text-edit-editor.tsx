@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.23.100 sha256-3KCjuvb6S9jD0us85PYLJpRhs7/b0Hiutgysp+K6DZ8=
+// @vegastack text-edit@0.23.100 sha256-Hfe6PqjsLCPu/t68DAU1bS5ni8Ld4mbolGfIx5k7gdw=
 
 "use client";
 
@@ -105,6 +105,9 @@ import {
   Trash2,
   Upload,
   UserRound,
+  WrapText,
+  Film,
+  AudioLines,
 } from "lucide-react";
 import { cn } from "@vegastack/design";
 import { useInternalThemeScope } from "@vegastack/design/theme-scope";
@@ -114,7 +117,10 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { CopyButton } from "@/components/ui/copy-button";
 import {
   CODE_LANGUAGES,
+  codeBlockActionsClassName,
   codeBlockControlClassName,
+  codeFenceInfo,
+  parseCodeFenceInfo,
   codeBlockControlsPadClassName,
   codeBlockPreClassName,
   codeBlockSurfaceClassName,
@@ -143,6 +149,14 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
+import { Dropzone } from "@/components/ui/dropzone";
+import {
+  Empty,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+} from "@/components/ui/empty";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Toggle } from "@/components/ui/toggle";
 import {
   Tooltip,
@@ -153,6 +167,9 @@ import { Alert } from "@/components/ui/alert";
 import {
   CALLOUT_STYLE,
   CALLOUT_TONES,
+  MEDIA_AUDIO_CLASS,
+  MEDIA_BLOCK,
+  MEDIA_VIDEO_CLASS,
   MentionChip,
   calloutClassName,
   calloutContentClassName,
@@ -199,7 +216,10 @@ import type {
  * A floating panel the editor can open at the caret or over a selection. `file` opens no panel:
  * it opens the file picker (the slash menu's File).
  */
-type Panel = "link" | "image" | "turnInto" | "file";
+type Panel = "link" | "image" | "video" | "audio" | "file" | "turnInto";
+
+/** What an insert panel (or an upload) puts in the document. */
+type MediaKind = "image" | "video" | "audio" | "file";
 
 interface SlashSpec {
   id: TextEditSlashCommand;
@@ -343,6 +363,26 @@ const SLASH: Record<TextEditSlashCommand, SlashSpec> = {
       open("image");
     },
   },
+  video: {
+    id: "video",
+    label: "Video",
+    keywords: "movie clip mp4 webm recording",
+    icon: Film,
+    run: (ed, range, open) => {
+      ed.chain().focus().deleteRange(range).run();
+      open("video");
+    },
+  },
+  audio: {
+    id: "audio",
+    label: "Audio",
+    keywords: "sound music voice recording mp3",
+    icon: AudioLines,
+    run: (ed, range, open) => {
+      ed.chain().focus().deleteRange(range).run();
+      open("audio");
+    },
+  },
   file: {
     id: "file",
     label: "File",
@@ -477,7 +517,7 @@ function TaskItemView({ node, updateAttributes, editor }: ReactNodeViewProps) {
 }
 
 /**
- * The code block's language picker (top-left on hover): a ghost button with the language's display
+ * The code block's language picker (top-left, always shown): a ghost button with the language's display
  * name that opens a searchable list, "Plain text" first. Picking writes the fence's info string.
  */
 function CodeLanguagePicker({
@@ -546,10 +586,11 @@ function CodeLanguagePicker({
 
 /**
  * Code block node view: `CodeBlock`'s Notion-style surface (no border or header bar; the language
- * top-left and Copy top-right on hover), so a fenced block is the same box in edit mode as
+ * top-left, the wrap and copy icons top-right), so a fenced block is the same box in edit mode as
  * `MarkdownView` renders in view mode. Highlighting is the lowlight extension's decorations.
  * While editable the language is a searchable picker that writes the fence's info string
- * (```` ```ts ````); read-only it is a label.
+ * (```` ```ts ````) and the wrap icon toggles the saved `wrap` attribute (```` ```ts wrap ````);
+ * read-only the language is a label. Unwrapped lines scroll sideways inside the block only.
  */
 function CodeBlockView({
   node,
@@ -558,11 +599,22 @@ function CodeBlockView({
   getPos,
 }: ReactNodeViewProps) {
   const language = (node.attrs.language as string | null) || undefined;
+  const wrap = Boolean(node.attrs.wrap);
+  const backIn = () => {
+    // Back into the code block, at its end: a control took focus out of the editor.
+    const pos = getPos();
+    const end =
+      typeof pos === "number"
+        ? pos + editor.state.doc.nodeAt(pos)!.nodeSize - 1
+        : undefined;
+    editor.commands.focus(end, { scrollIntoView: false });
+  };
   return (
     <NodeViewWrapper
       as="figure"
       data-slot="code-block"
       data-language={language}
+      data-wrap={wrap ? "" : undefined}
       className={cn(codeBlockSurfaceClassName, "my-2")}
     >
       <div contentEditable={false} className="select-none">
@@ -571,13 +623,7 @@ function CodeBlockView({
             language={language}
             onChange={(next) => {
               updateAttributes({ language: next });
-              // Back into the code block, at its end: the picker took focus out of the editor.
-              const pos = getPos();
-              const end =
-                typeof pos === "number"
-                  ? pos + editor.state.doc.nodeAt(pos)!.nodeSize - 1
-                  : undefined;
-              editor.commands.focus(end);
+              backIn();
             }}
           />
         ) : language ? (
@@ -591,17 +637,36 @@ function CodeBlockView({
             {codeLanguageName(language)}
           </span>
         ) : null}
-        <CopyButton
-          value={node.textContent}
-          size="sm"
-          variant="ghost"
-          showLabel
-          copyLabel="Copy"
-          className={cn(codeBlockControlClassName, "end-1.5")}
-        />
+        <div
+          data-slot="code-block-actions"
+          className={codeBlockActionsClassName}
+        >
+          {editor.isEditable ? (
+            <MenuTip label={wrap ? "Don't wrap lines" : "Wrap lines"}>
+              <Toggle
+                size="sm"
+                pressed={wrap}
+                aria-label="Wrap lines"
+                data-slot="code-block-wrap"
+                onMouseDown={(event) => event.preventDefault()}
+                onPressedChange={(next) => updateAttributes({ wrap: next })}
+                className="size-6 min-w-6 px-0 text-muted-foreground"
+              >
+                <WrapText />
+              </Toggle>
+            </MenuTip>
+          ) : null}
+          <CopyButton
+            value={node.textContent}
+            size="icon-xs"
+            variant="ghost"
+            copyLabel="Copy code"
+          />
+        </div>
       </div>
       <pre
         data-slot="code-block-pre"
+        data-wrap={wrap ? "" : undefined}
         className={cn(codeBlockPreClassName, codeBlockControlsPadClassName)}
       >
         <NodeViewContent<"code"> as="code" className="font-mono" />
@@ -628,6 +693,45 @@ const TaskItemWithView = TaskItem.extend({
  * plus a space starts one — any fence language, `c++` and `objective-c` included.
  */
 const CodeBlockWithView = CodeBlockLowlight.extend({
+  addAttributes() {
+    return {
+      ...this.parent?.(),
+      // Long lines wrap instead of scrolling: saved as ```` ```ts wrap ```` (default: no wrap).
+      wrap: {
+        default: false,
+        parseHTML: (element) => element.hasAttribute("data-wrap"),
+        renderHTML: (attrs) => (attrs.wrap ? { "data-wrap": "" } : {}),
+      },
+    };
+  },
+  parseMarkdown: (token, helpers) => {
+    if (
+      token.raw?.startsWith("```") === false &&
+      token.raw?.startsWith("~~~") === false &&
+      token.codeBlockStyle !== "indented"
+    )
+      return [];
+    const { language, wrap } = parseCodeFenceInfo(token.lang as string);
+    return helpers.createNode(
+      "codeBlock",
+      { language: language ?? null, wrap },
+      token.text ? [helpers.createTextNode(token.text)] : [],
+    );
+  },
+  renderMarkdown: (node, helpers) => {
+    const info = codeFenceInfo(
+      node.attrs?.language as string | null,
+      Boolean(node.attrs?.wrap),
+    );
+    const body = node.content ? helpers.renderChildren(node.content) : "";
+    // A fence longer than any backtick run inside the code, so the block cannot close early.
+    const longest = Math.max(
+      2,
+      ...[...body.matchAll(/`+/g)].map((match) => match[0].length),
+    );
+    const fence = "`".repeat(longest + 1);
+    return `${fence}${info}\n${body}\n${fence}`;
+  },
   addNodeView() {
     return ReactNodeViewRenderer(CodeBlockView);
   },
@@ -2655,20 +2759,52 @@ const Callout = TiptapNode.create({
   },
 });
 
-/** A toggle's node view: a chevron in the gutter, then its summary and body (always open while editing). */
-function ToggleView() {
+/**
+ * A toggle's node view, Notion-style: a real chevron button in the gutter (hover wash, pointer,
+ * a 24px target that works on touch) that opens and closes the toggle; closed, only the title
+ * line shows. The open state is the node's `open` attribute (`<details open>` in markdown).
+ */
+function ToggleView({ node, editor, getPos }: ReactNodeViewProps) {
+  const open = node.attrs.open !== false;
+  const flip = () => {
+    const pos = getPos();
+    if (typeof pos !== "number") return;
+    const { state } = editor;
+    const tr = state.tr.setNodeAttribute(pos, "open", !open);
+    // Closing with the caret in the hidden body: move it to the end of the title line.
+    const summaryEnd = pos + 1 + node.firstChild!.nodeSize - 1;
+    if (
+      open &&
+      state.selection.from > summaryEnd &&
+      state.selection.to < pos + node.nodeSize
+    )
+      tr.setSelection(TextSelection.create(tr.doc, summaryEnd));
+    editor.view.dispatch(tr);
+  };
   return (
-    <NodeViewWrapper data-slot="toggle" className="relative my-2 ps-5">
-      <span
-        aria-hidden
+    <NodeViewWrapper
+      data-slot="toggle"
+      data-open={open ? "" : undefined}
+      className="group/toggle relative my-2 ps-6"
+    >
+      <Button
+        type="button"
+        variant="ghost"
+        size="icon-xs"
         contentEditable={false}
-        className="pointer-events-none absolute start-0 top-0.5 text-muted-foreground [&_svg]:size-4"
+        aria-expanded={open}
+        aria-label={open ? "Collapse toggle" : "Expand toggle"}
+        data-slot="toggle-chevron"
+        // Keep the caret where it is: a click must not move the selection or blur the editor.
+        onMouseDown={(event) => event.preventDefault()}
+        onClick={flip}
+        className="absolute start-0 top-0 cursor-pointer text-muted-foreground select-none [&_svg]:transition-transform group-not-data-open/toggle:[&_svg]:-rotate-90 rtl:group-not-data-open/toggle:[&_svg]:rotate-90"
       >
-        <ChevronDown />
-      </span>
+        <ChevronDown aria-hidden className="size-4" />
+      </Button>
       <NodeViewContent
         data-slot="toggle-content"
-        className="[&>[data-slot=toggle-summary]]:font-medium"
+        className="[&>[data-slot=toggle-summary]]:min-h-6 [&>[data-slot=toggle-summary]]:py-0.5 [&>[data-slot=toggle-summary]]:font-medium group-not-data-open/toggle:[&>:not([data-slot=toggle-summary])]:hidden"
       />
     </NodeViewWrapper>
   );
@@ -2683,23 +2819,36 @@ const ToggleNode = TiptapNode.create({
   group: "block",
   content: "toggleSummary block+",
   defining: true,
+  addAttributes() {
+    return {
+      // Open or closed; saved as `<details open>` so the reader sees what the author left.
+      open: {
+        default: true,
+        parseHTML: (element) =>
+          element.hasAttribute("open") || element.hasAttribute("data-open"),
+        renderHTML: (attrs) => (attrs.open ? { open: "" } : {}),
+      },
+    };
+  },
   parseHTML() {
     return [{ tag: "details" }, { tag: "div[data-slot=toggle]" }];
   },
   renderHTML({ HTMLAttributes }) {
-    return ["details", mergeAttributes({ open: "" }, HTMLAttributes), 0];
+    return ["details", HTMLAttributes, 0];
   },
   markdownTokenName: "toggle",
   markdownTokenizer: {
     name: "toggle",
     level: "block",
     start: (src: string) => {
-      const match = /^<details>/m.exec(src);
+      const match = /^<details(?: open)?>/m.exec(src);
       return match ? match.index : -1;
     },
     tokenize: (src: string, _tokens, lexer) => {
       const open =
-        /^<details>[ \t]*<summary>([^\n]*?)<\/summary>[ \t]*(?:\n|$)/.exec(src);
+        /^<details( open)?>[ \t]*<summary>([^\n]*?)<\/summary>[ \t]*(?:\n|$)/.exec(
+          src,
+        );
       if (!open) return undefined;
       // The matching `</details>` line, nested toggles counted.
       let depth = 1;
@@ -2710,7 +2859,7 @@ const ToggleNode = TiptapNode.create({
         const next = src.indexOf("\n", at);
         const lineEnd = next === -1 ? src.length : next;
         const line = src.slice(at, lineEnd);
-        if (/^<details>/.test(line)) depth++;
+        if (/^<details(?: open)?>/.test(line)) depth++;
         else if (/^<\/details>[ \t]*$/.test(line) && --depth === 0) {
           bodyEnd = at;
           end = next === -1 ? lineEnd : lineEnd + 1;
@@ -2723,14 +2872,15 @@ const ToggleNode = TiptapNode.create({
       return {
         type: "toggle",
         raw: src.slice(0, end),
-        summary: lexer.inlineTokens(open[1]!),
+        open: Boolean(open[1]),
+        summary: lexer.inlineTokens(open[2]!),
         tokens: body ? lexer.blockTokens(body) : [],
       };
     },
   },
   parseMarkdown: (token, helpers) => {
     const body = helpers.parseChildren(token.tokens ?? []);
-    return helpers.createNode("toggle", undefined, [
+    return helpers.createNode("toggle", { open: Boolean(token.open) }, [
       helpers.createNode(
         "toggleSummary",
         undefined,
@@ -2751,7 +2901,8 @@ const ToggleNode = TiptapNode.create({
           helpers.renderChildren([child]),
       )
       .join("\n\n");
-    return `<details><summary>${title}</summary>\n\n${blocks}\n\n</details>`;
+    const tag = node.attrs?.open ? "<details open>" : "<details>";
+    return `${tag}<summary>${title}</summary>\n\n${blocks}\n\n</details>`;
   },
   addNodeView() {
     return ReactNodeViewRenderer(ToggleView);
@@ -2763,6 +2914,10 @@ const ToggleNode = TiptapNode.create({
       if ($from.parent.type.name !== "toggleSummary") return false;
       const after = $from.after();
       const tr = this.editor.state.tr;
+      // A closed toggle opens: its body is where the caret goes.
+      const toggle = $from.node($from.depth - 1);
+      if (toggle.type.name === "toggle" && toggle.attrs.open === false)
+        tr.setNodeAttribute($from.before($from.depth - 1), "open", true);
       tr.setSelection(TextSelection.near(tr.doc.resolve(after + 1)));
       this.editor.view.dispatch(tr.scrollIntoView());
       return true;
@@ -2787,6 +2942,117 @@ const ToggleSummary = TiptapNode.create({
     ];
   },
 });
+
+/** The video and audio types a drop, paste or pick lands as a player (through `onFileUpload`). */
+const INLINE_VIDEO_TYPES = [
+  "video/mp4",
+  "video/webm",
+  "video/ogg",
+  "video/quicktime",
+];
+const INLINE_AUDIO_TYPES = [
+  "audio/mpeg",
+  "audio/mp3",
+  "audio/mp4",
+  "audio/x-m4a",
+  "audio/aac",
+  "audio/wav",
+  "audio/x-wav",
+  "audio/wave",
+  "audio/ogg",
+  "audio/webm",
+  "audio/flac",
+];
+
+/** A video or audio block's node view: the native player, selectable and draggable as a block. */
+function MediaView({ node, selected }: ReactNodeViewProps) {
+  const kind = node.type.name as "video" | "audio";
+  const src = node.attrs.src as string;
+  return (
+    <NodeViewWrapper
+      data-slot={`text-edit-${kind}`}
+      data-drag-handle=""
+      contentEditable={false}
+      data-selected={selected ? "" : undefined}
+      className="my-2 rounded-lg"
+    >
+      {kind === "video" ? (
+        <video
+          src={src}
+          controls
+          preload="metadata"
+          playsInline
+          className={MEDIA_VIDEO_CLASS}
+        />
+      ) : (
+        <audio
+          src={src}
+          controls
+          preload="metadata"
+          className={MEDIA_AUDIO_CLASS}
+        />
+      )}
+    </NodeViewWrapper>
+  );
+}
+
+/**
+ * Video and audio blocks — `<video src="…"></video>` / `<audio src="…"></audio>` on a line of their
+ * own, the HTML GitHub renders too. `MarkdownView` renders the same native player.
+ */
+function mediaNode(name: "video" | "audio") {
+  return TiptapNode.create({
+    name,
+    group: "block",
+    atom: true,
+    draggable: true,
+    selectable: true,
+    addAttributes() {
+      return {
+        src: {
+          default: null,
+          parseHTML: (element) => element.getAttribute("src"),
+        },
+      };
+    },
+    parseHTML() {
+      return [{ tag: `${name}[src]` }];
+    },
+    renderHTML({ HTMLAttributes }) {
+      return [
+        name,
+        mergeAttributes({ controls: "", preload: "metadata" }, HTMLAttributes),
+      ];
+    },
+    markdownTokenName: name,
+    markdownTokenizer: {
+      name,
+      level: "block",
+      start: (src: string) => {
+        const match = new RegExp(`^<${name}\\b`, "m").exec(src);
+        return match ? match.index : -1;
+      },
+      tokenize: (src: string) => {
+        const line = /^[^\n]*(?:\n|$)/.exec(src)![0];
+        const match = MEDIA_BLOCK.exec(line.replace(/\n$/, ""));
+        if (!match || match[1] !== name) return undefined;
+        return { type: name, raw: line, src: match[2] };
+      },
+    },
+    parseMarkdown: (token, helpers) =>
+      helpers.createNode(name, { src: token.src ?? null }),
+    renderMarkdown: (node) => {
+      const src = String(node.attrs?.src ?? "").replace(/"/g, "%22");
+      return `<${name} src="${src}"></${name}>`;
+    },
+    addNodeView() {
+      return ReactNodeViewRenderer(MediaView);
+    },
+  });
+}
+
+const VideoNode = mediaNode("video");
+const AudioNode = mediaNode("audio");
 
 const LINK_ATTRIBUTES = {
   rel: "noopener noreferrer",
@@ -2824,11 +3090,18 @@ function buildExtensions(
     // Columns resize by dragging their border (a session-only width in markdown, which has no
     // column widths; kept as `colwidth` in HTML).
     TableKit.configure({
-      table: { resizable: true, renderWrapper: true, cellMinWidth: 48 },
+      table: { resizable: true, renderWrapper: true, cellMinWidth: 100 },
     }),
     // Inline, like GFM's `![]()` inside a paragraph, so an image sits where view mode puts it.
     imageNode(imageRuntime).configure({ inline: true }),
-    Placeholder.configure({ placeholder: () => placeholder.current ?? "" }),
+    Placeholder.configure({
+      // Nested nodes too, so an empty toggle title or body gets its own hint.
+      includeChildren: true,
+      placeholder: ({ node }) =>
+        node.type.name === "toggleSummary"
+          ? "Toggle"
+          : (placeholder.current ?? ""),
+    }),
     Markdown,
     Shortcuts,
     slashExtension(runtime),
@@ -2836,6 +3109,8 @@ function buildExtensions(
     Callout,
     ToggleNode,
     ToggleSummary,
+    VideoNode,
+    AudioNode,
     fileChips(editorRuntime),
     HeadingIds,
     annotationsExtension(annotationRuntime),
@@ -2936,7 +3211,7 @@ const MENU_SURFACE =
 
 /** Every floating part of the editor — focus moving into one of them stays in the edit session. */
 const FLOATING_SLOTS =
-  "[data-slot=text-edit-bubble-menu],[data-slot=text-edit-link],[data-slot=text-edit-image],[data-slot=text-edit-turn-into],[data-slot=text-edit-slash-menu],[data-slot=text-edit-mention-menu],[data-slot=text-edit-table-grip],[data-slot=text-edit-table-add],[data-text-edit-menu]";
+  "[data-slot=text-edit-bubble-menu],[data-slot=text-edit-link],[data-slot=text-edit-image],[data-slot=text-edit-media],[data-slot=text-edit-turn-into],[data-slot=text-edit-slash-menu],[data-slot=text-edit-mention-menu],[data-slot=text-edit-table-grip],[data-slot=text-edit-table-add],[data-text-edit-menu]";
 
 /**
  * The one portal every floating part renders through (slash menu, drag handle, table grips and
@@ -3234,6 +3509,8 @@ function panelBlur(
 ) {
   return (event: React.FocusEvent<HTMLElement>) => {
     if (event.currentTarget.contains(event.relatedTarget as Node)) return;
+    // The window lost focus (a file picker opened, another app): the panel stays.
+    if (!document.hasFocus()) return;
     onClose();
     onLeave(event.relatedTarget);
   };
@@ -3339,87 +3616,155 @@ function LinkPanel({
   );
 }
 
-function ImagePanel({
+const MEDIA_PANEL: Record<
+  MediaKind,
+  { label: string; accept: Record<string, string[]>; drop: string; url: string }
+> = {
+  image: {
+    label: "image",
+    accept: { "image/*": [] },
+    drop: "Drop an image, or click to choose one",
+    url: "Paste an image link",
+  },
+  video: {
+    label: "video",
+    accept: { "video/*": [] },
+    drop: "Drop a video, or click to choose one",
+    url: "Paste a video link (MP4, WebM)",
+  },
+  audio: {
+    label: "audio",
+    accept: { "audio/*": [] },
+    drop: "Drop an audio file, or click to choose one",
+    url: "Paste an audio link (MP3, M4A, WAV)",
+  },
+  file: {
+    label: "file",
+    accept: {},
+    drop: "Drop a file, or click to choose one",
+    url: "Paste a file link",
+  },
+};
+
+/**
+ * The insert panel for an image, a video, an audio clip or a file: `Tabs` (line) with **Upload**
+ * — a dropzone that uploads through the host and lands the block at the caret — and **Link** — a
+ * URL and Insert. Without an upload handler for the kind, only the link form shows.
+ */
+function MediaPanel({
   editor,
+  kind,
   onClose,
   onLeave,
   onUpload,
 }: {
   editor: Editor;
+  kind: MediaKind;
   onClose: () => void;
   onLeave: (next: EventTarget | null) => void;
-  /** Open the file picker for an image upload; absent when the host takes no uploads. */
-  onUpload?: () => void;
+  /** Upload picked or dropped files as this kind; absent when the host takes no such uploads. */
+  onUpload?: (files: File[]) => void;
 }) {
+  const copy = MEDIA_PANEL[kind];
+  const [tab, setTab] = React.useState<"upload" | "link">(
+    onUpload ? "upload" : "link",
+  );
   const [src, setSrc] = React.useState("");
-  const [alt, setAlt] = React.useState("");
-  const formRef = useFocusOnShow<HTMLFormElement>((root) =>
-    root.querySelector("input"),
+  const rootRef = useFocusOnShow<HTMLDivElement>((root) =>
+    root.querySelector<HTMLElement>(
+      "[data-slot=dropzone], input:not([type=file])",
+    ),
   );
   const insert = (event: React.FormEvent) => {
     event.preventDefault();
     const url = src.trim();
     if (!url) return;
     const safe = /^(https?:|\/)/i.test(url) ? url : `https://${url}`;
+    const content: JSONContent =
+      kind === "file"
+        ? {
+            type: "text",
+            text: decodeURIComponent(
+              safe.split(/[?#]/)[0]!.split("/").filter(Boolean).pop() ?? safe,
+            ),
+            marks: [{ type: "link", attrs: { href: safe } }],
+          }
+        : kind === "image"
+          ? { type: "image", attrs: { src: safe, alt: null } }
+          : { type: kind, attrs: { src: safe } };
     editor
       .chain()
-      .focus()
-      .insertContent({
-        type: "image",
-        attrs: { src: safe, alt: alt.trim() || null },
-      })
+      .focus(undefined, { scrollIntoView: false })
+      .insertContent(content)
       .run();
     onClose();
   };
+  const link = (
+    <form onSubmit={insert} className="flex items-center gap-1">
+      <Input
+        aria-label={`${copy.label[0]!.toUpperCase()}${copy.label.slice(1)} URL`}
+        placeholder={copy.url}
+        value={src}
+        onChange={(event) => setSrc(event.target.value)}
+        size="sm"
+        className="min-w-0 flex-1"
+      />
+      <Button type="submit" size="sm" disabled={!src.trim()}>
+        Insert
+      </Button>
+    </form>
+  );
   return (
-    <form
-      ref={formRef}
-      data-slot="text-edit-image"
-      aria-label="Insert image"
-      onSubmit={insert}
+    <div
+      ref={rootRef}
+      data-slot={`text-edit-${kind === "image" ? "image" : "media"}`}
+      role="dialog"
+      aria-label={`Insert ${copy.label}`}
       onBlur={panelBlur(onClose, onLeave)}
       onKeyDown={escapeTo(editor, onClose)}
       className={cn(
         MENU_SURFACE,
-        "flex w-80 max-w-[calc(100vw-1rem)] flex-col gap-1",
+        "flex w-80 max-w-[calc(100vw-1rem)] flex-col p-2",
       )}
     >
       {onUpload ? (
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          onClick={() => {
-            onClose();
-            onUpload();
-          }}
-          className="justify-start"
+        <Tabs
+          value={tab}
+          onValueChange={(next) => setTab(next as "upload" | "link")}
         >
-          <Upload />
-          Upload image
-        </Button>
-      ) : null}
-      <Input
-        aria-label="Image URL"
-        placeholder={onUpload ? "Or paste an image URL" : "Image URL"}
-        value={src}
-        onChange={(event) => setSrc(event.target.value)}
-        size="sm"
-      />
-      <div className="flex items-center gap-1">
-        <Input
-          aria-label="Alt text"
-          placeholder="Alt text (describe the image)"
-          value={alt}
-          onChange={(event) => setAlt(event.target.value)}
-          size="sm"
-          className="min-w-0 flex-1"
-        />
-        <Button type="submit" size="sm" disabled={!src.trim()}>
-          Insert
-        </Button>
-      </div>
-    </form>
+          <TabsList variant="line">
+            <TabsTrigger value="upload">Upload</TabsTrigger>
+            <TabsTrigger value="link">Link</TabsTrigger>
+          </TabsList>
+          <TabsContent value="upload">
+            <Dropzone
+              accept={copy.accept}
+              multiple={false}
+              paste={false}
+              preventWindowDrop={false}
+              aria-label={`Upload ${copy.label}`}
+              onFilesAccepted={(files) => {
+                if (!files.length) return;
+                onClose();
+                onUpload(files);
+              }}
+            >
+              <Empty size="sm" className="border">
+                <EmptyHeader>
+                  <EmptyMedia variant="icon">
+                    <Upload />
+                  </EmptyMedia>
+                  <EmptyDescription>{copy.drop}</EmptyDescription>
+                </EmptyHeader>
+              </Empty>
+            </Dropzone>
+          </TabsContent>
+          <TabsContent value="link">{link}</TabsContent>
+        </Tabs>
+      ) : (
+        link
+      )}
+    </div>
   );
 }
 
@@ -3492,14 +3837,15 @@ function SelectionMenu({
   panel,
   onPanelChange,
   onLeave,
-  onUploadImage,
+  onUpload,
   onComment,
 }: {
   editor: Editor;
   panel: Panel | null;
   onPanelChange: (panel: Panel | null) => void;
   onLeave: (next: EventTarget | null) => void;
-  onUploadImage?: () => void;
+  /** Upload files as each kind, where the host takes that kind of upload. */
+  onUpload?: Partial<Record<MediaKind, (files: File[]) => void>>;
   /** Start a comment on the selection; absent when the host takes no comments. */
   onComment?: () => void;
 }) {
@@ -3520,13 +3866,20 @@ function SelectionMenu({
 
   if (panel === "link")
     return <LinkPanel editor={editor} onClose={close} onLeave={onLeave} />;
-  if (panel === "image")
+  if (
+    panel === "image" ||
+    panel === "video" ||
+    panel === "audio" ||
+    panel === "file"
+  )
     return (
-      <ImagePanel
+      <MediaPanel
+        key={panel}
         editor={editor}
+        kind={panel}
         onClose={close}
         onLeave={onLeave}
-        onUpload={onUploadImage}
+        onUpload={onUpload?.[panel]}
       />
     );
   if (panel === "turnInto")
@@ -4791,8 +5144,7 @@ export function TextEditEditor({
   );
   const pickRef = React.useRef<(() => void) | null>(null);
   const openPanel = React.useCallback((next: Panel | null) => {
-    if (next === "file") pickRef.current?.();
-    else setPanel(next);
+    setPanel(next);
   }, []);
 
   const openImageRef = React.useRef(onOpenImage);
@@ -4947,11 +5299,19 @@ export function TextEditEditor({
 
   /** Upload `file` into the document at `pos`: a placeholder now, the image or link on success. */
   const startUpload = React.useCallback(
-    (file: File, pos: number): boolean => {
+    (file: File, pos: number, as?: MediaKind): boolean => {
       const ed = editorRef.current;
-      const image = inlineImageTypesRef.current.includes(
-        file.type.split(";")[0]!.trim().toLowerCase(),
-      );
+      const type = file.type.split(";")[0]!.trim().toLowerCase();
+      const kind: MediaKind =
+        as ??
+        (inlineImageTypesRef.current.includes(type)
+          ? "image"
+          : INLINE_VIDEO_TYPES.includes(type)
+            ? "video"
+            : INLINE_AUDIO_TYPES.includes(type)
+              ? "audio"
+              : "file");
+      const image = kind === "image";
       const { onImageUpload: uploadImage, onFileUpload: uploadFile } =
         callbacks.current;
       if (!ed || ed.isDestroyed || (image ? !uploadImage : !uploadFile))
@@ -5002,11 +5362,15 @@ export function TextEditEditor({
               }),
             )
           : uploadFile!(file, { signal: controller.signal }).then((result) =>
-              land({
-                type: "text",
-                text: result.name,
-                marks: [{ type: "link", attrs: { href: result.href } }],
-              }),
+              land(
+                kind === "video" || kind === "audio"
+                  ? { type: kind, attrs: { src: result.href } }
+                  : {
+                      type: "text",
+                      text: result.name,
+                      marks: [{ type: "link", attrs: { href: result.href } }],
+                    },
+              ),
             )
       )
         .catch(drop)
@@ -5031,13 +5395,29 @@ export function TextEditEditor({
 
   /** Upload each file at `pos`; true when at least one had somewhere to go. */
   const uploadFiles = React.useCallback(
-    (files: readonly File[], pos: number) => {
+    (files: readonly File[], pos: number, as?: MediaKind) => {
       let started = false;
-      for (const file of files) started = startUpload(file, pos) || started;
+      for (const file of files) started = startUpload(file, pos, as) || started;
       return started;
     },
     [startUpload],
   );
+  // The insert panels' Upload tabs: each kind the host can take, landing at the caret.
+  const panelUploads = React.useMemo(() => {
+    const at = (as: MediaKind) => (files: File[]) => {
+      const ed = editorRef.current;
+      if (!ed || ed.isDestroyed) return;
+      uploadFiles(files, ed.state.selection.from, as);
+    };
+    const uploads: Partial<Record<MediaKind, (files: File[]) => void>> = {};
+    if (onImageUpload) uploads.image = at("image");
+    if (onFileUpload) {
+      uploads.video = at("video");
+      uploads.audio = at("audio");
+      uploads.file = at("file");
+    }
+    return uploads;
+  }, [onImageUpload, onFileUpload, uploadFiles]);
 
   const editor = useEditor({
     extensions,
@@ -5591,9 +5971,7 @@ export function TextEditEditor({
             panel={panel}
             onPanelChange={setPanel}
             onLeave={leave}
-            onUploadImage={
-              onImageUpload && editable ? () => openPanel("file") : undefined
-            }
+            onUpload={editable ? panelUploads : undefined}
             onComment={canComment ? comment : undefined}
           />
         </BubbleMenu>

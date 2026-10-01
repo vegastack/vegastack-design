@@ -1,4 +1,4 @@
-// @vegastack markdown-view@0.23.100 sha256-Fu2ZunDHKHNVsj3kMbThZqL7AhiIXzWWSpzGidN39Ao=
+// @vegastack markdown-view@0.23.100 sha256-lOyQ2rJ6UF7SvKIbs08BrvwqA1qUmZC2gRThlGUvLTY=
 
 import * as React from "react";
 import { Lexer, type Token, type Tokens } from "marked";
@@ -7,6 +7,7 @@ import {
   File,
   FileText,
   Info,
+  ChevronRight,
   Lightbulb,
   MessageSquareWarning,
   OctagonAlert,
@@ -19,7 +20,7 @@ import { Alert } from "@/components/ui/alert";
 import { Checkbox } from "@/components/ui/checkbox";
 // `CodeBlock` owns the fenced-code surface (header + copy + sunken mono panel); shadcn rewrites
 // this alias on `add`, and vitest/tsconfig map `@/components/ui/*` → `registry/ui/*`.
-import { CodeBlock } from "@/components/ui/code-block";
+import { CodeBlock, parseCodeFenceInfo } from "@/components/ui/code-block";
 import { FileTypeIcon } from "@/lib/file-kind";
 // The one client leaf: a citation marker's popover. Imported only when `citation` answers.
 import {
@@ -314,15 +315,30 @@ export function MentionChip({
 export const markdownExtrasClassName = cn(
   "[&_[data-slot=mention-chip]]:no-underline [&_[data-slot=mention-chip]]:text-info-text [&_[data-slot=mention-chip][data-restricted]]:text-muted-foreground",
   "[&_[data-slot=file-chip]]:rounded-sm [&_[data-slot=file-chip]]:bg-muted [&_[data-slot=file-chip]]:px-1 [&_[data-slot=file-chip]]:font-medium [&_[data-slot=file-chip]]:no-underline [&_[data-slot=file-chip]]:text-foreground [&_a[data-slot=file-chip]:hover]:bg-accent [&_[data-slot=mention-chip]:not([data-restricted]):hover]:bg-info/15",
-  "[&_details]:my-2 [&_summary]:cursor-pointer [&_summary]:py-0.5 [&_summary]:font-medium [&_details>:not(summary)]:ms-5 [&_[data-slot=toggle-content]]:ms-5",
+  "[&_details]:my-2 [&_summary]:flex [&_summary]:cursor-pointer [&_summary]:list-none [&_summary]:items-center [&_summary]:gap-1 [&_summary]:py-0.5 [&_summary]:font-medium [&_summary::-webkit-details-marker]:hidden [&_details>:not(summary)]:ms-6",
+  "[&_[data-slot=toggle-chevron]]:size-5 [&_[data-slot=toggle-chevron]]:shrink-0 [&_[data-slot=toggle-chevron]]:rounded-sm [&_[data-slot=toggle-chevron]]:p-0.5 [&_[data-slot=toggle-chevron]]:text-muted-foreground [&_[data-slot=toggle-chevron]]:transition-transform [&_summary:hover_[data-slot=toggle-chevron]]:bg-muted [&_summary:hover_[data-slot=toggle-chevron]]:text-foreground [&_details[open]>summary>[data-slot=toggle-chevron]]:rotate-90 rtl:[&_[data-slot=toggle-chevron]]:-scale-x-100",
 );
 
 /** `> [!NOTE]` / `[!TIP]` / `[!IMPORTANT]` / `[!WARNING]` / `[!CAUTION]` — a callout's first line. */
+/** A video block: full width up to its natural size, rounded like an image. */
+export const MEDIA_VIDEO_CLASS =
+  "my-2 block aspect-video h-auto w-full max-w-full rounded-lg border border-border bg-muted";
+/** An audio block: the native player, full width. */
+export const MEDIA_AUDIO_CLASS = "my-2 block w-full max-w-full";
+
 const CALLOUT_MARKER =
   /^\[!(NOTE|TIP|IMPORTANT|WARNING|CAUTION)\][ \t]*(?:\n|$)/i;
 
 /** `<details><summary>Title</summary>` — the opening line of a toggle. */
-const TOGGLE_OPEN = /^<details>[ \t]*<summary>([^\n]*?)<\/summary>[ \t]*$/;
+const TOGGLE_OPEN =
+  /^<details( open)?>[ \t]*<summary>([^\n]*?)<\/summary>[ \t]*$/;
+
+/**
+ * `<video src="…"></video>` / `<audio src="…"></audio>` on a line of its own — TextEdit's video and
+ * audio blocks. Only the `src` is read; any other attribute is ignored.
+ */
+export const MEDIA_BLOCK =
+  /^<(video|audio)\b[^>\n]*?\ssrc="([^"\n]+)"[^>\n]*>[ \t]*<\/\1>[ \t]*$/;
 const TOGGLE_CLOSE = /^<\/details>[ \t]*$/;
 
 /**
@@ -467,20 +483,34 @@ function blocks(tokens: Token[]): DocNode[] {
       case "heading":
         out.push(el(`h${t.depth}`, {}, inline(t.tokens)));
         break;
-      case "paragraph":
+      case "paragraph": {
+        // A media line marked reads as an inline-HTML paragraph: a video or audio block.
+        const media = MEDIA_BLOCK.exec(String(t.raw ?? "").trim());
+        if (media) {
+          out.push(el(media[1]!, { src: decode(media[2]!) }));
+          break;
+        }
         out.push(el("p", {}, inline(t.tokens)));
         break;
+      }
       // A tight list item's text: inline content with no paragraph around it.
       case "text":
         out.push(...inline(t.tokens?.length ? t.tokens : [t as Token]));
         break;
-      case "code":
+      case "code": {
+        // The info string is the language, then TextEdit's `wrap` flag (```` ```ts wrap ````).
+        const info = parseCodeFenceInfo(t.lang);
         out.push(
-          el("pre", {}, [
-            el("code", t.lang ? { class: `language-${t.lang}` } : {}, [t.text]),
+          el("pre", info.wrap ? { "data-wrap": "" } : {}, [
+            el(
+              "code",
+              info.language ? { class: `language-${info.language}` } : {},
+              [t.text],
+            ),
           ]),
         );
         break;
+      }
       case "blockquote": {
         // GitHub's alert syntax: `> [!TIP]` on the first line makes the quote a callout.
         const marker = CALLOUT_MARKER.exec(t.text ?? "");
@@ -538,15 +568,20 @@ function blocks(tokens: Token[]): DocNode[] {
         break;
       }
       case "html": {
+        const media = MEDIA_BLOCK.exec(String(t.text).trim());
+        if (media) {
+          out.push(el(media[1]!, { src: decode(media[2]!) }));
+          break;
+        }
         const open = TOGGLE_OPEN.exec(String(t.text).trim());
         const close = open ? toggleClose(tokens, index) : -1;
         if (open && close !== -1) {
           out.push(
-            el("details", {}, [
+            el("details", open[1] ? { open: "" } : {}, [
               el(
                 "summary",
                 {},
-                inline(Lexer.lexInline(open[1]!, { gfm: true })),
+                inline(Lexer.lexInline(open[2]!, { gfm: true })),
               ),
               ...blocks(tokens.slice(index + 1, close)),
             ]),
@@ -1013,6 +1048,7 @@ function renderNode(
           key={key}
           language={language}
           copyValue={raw || undefined}
+          wrap={attrs["data-wrap"] !== undefined}
           className="my-2"
         >
           {raw}
@@ -1102,6 +1138,54 @@ function renderNode(
     }
     case "code":
       return <code key={key}>{children()}</code>;
+    case "details":
+      return (
+        <details key={key} open={attrs.open !== undefined || undefined}>
+          {children()}
+        </details>
+      );
+    case "summary":
+      // A real chevron (the native marker is hidden): right when closed, down when open.
+      return (
+        <summary key={key} data-slot="toggle-summary">
+          <ChevronRight aria-hidden data-slot="toggle-chevron" />
+          {children()}
+        </summary>
+      );
+    case "video":
+    case "audio": {
+      const src = safeUrl(attrs.src ?? "");
+      if (!imageSourceAllowed(src, ctx.images))
+        return (
+          <span
+            key={key}
+            data-slot="markdown-image-blocked"
+            className="my-2 block rounded-lg border border-border bg-muted px-3 py-2 text-muted-foreground"
+          >
+            {tag === "video" ? "Remote video blocked" : "Remote audio blocked"}
+          </span>
+        );
+      return tag === "video" ? (
+        <video
+          key={key}
+          src={src}
+          controls
+          preload="metadata"
+          playsInline
+          data-slot="markdown-video"
+          className={MEDIA_VIDEO_CLASS}
+        />
+      ) : (
+        <audio
+          key={key}
+          src={src}
+          controls
+          preload="metadata"
+          data-slot="markdown-audio"
+          className={MEDIA_AUDIO_CLASS}
+        />
+      );
+    }
     default:
       return VOID_TAGS.has(tag)
         ? React.createElement(tag, { key })

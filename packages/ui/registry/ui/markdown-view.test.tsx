@@ -149,6 +149,13 @@ test("MarkdownView and TextEdit wear the identical prose recipe", async () => {
       "[&.resize-cursor]:cursor-col-resize",
       "[&_.ProseMirror-selectednode:not([data-slot=text-edit-image-node])]:rounded-sm",
       "[&_.ProseMirror-selectednode:not([data-slot=text-edit-image-node])]:bg-accent",
+      "[&_table]:table-fixed",
+      "[&_[data-slot=toggle-content]>.is-empty]:before:pointer-events-none",
+      "[&_[data-slot=toggle-content]>.is-empty]:before:float-start",
+      "[&_[data-slot=toggle-content]>.is-empty]:before:h-0",
+      "[&_[data-slot=toggle-content]>.is-empty]:before:text-muted-foreground/60",
+      "[&_[data-slot=toggle-content]>[data-slot=toggle-summary].is-empty]:before:content-[attr(data-placeholder)]",
+      "[&_[data-slot=toggle-content]>p.is-empty]:before:content-['Empty_toggle._Type_or_press_/_for_commands']",
     ].sort(),
   );
 
@@ -519,4 +526,34 @@ test("citation turns [[n]] into a named marker; without it, and in code, the tex
     <MarkdownView>{"Ship Friday [[2]]"}</MarkdownView>,
   );
   expect(plain.container.textContent).toBe("Ship Friday [[2]]");
+});
+
+test("video, audio, wrapped code, open toggles and alert callouts", async () => {
+  const screen = await render(
+    <MarkdownView>
+      {[
+        '<video src="/files/clip.mp4"></video>',
+        '<audio src="https://evil.example/a.mp3"></audio>',
+        "```ts wrap\nconst a = 1;\n```",
+        "<details open><summary>Open</summary>\n\nBody\n\n</details>",
+        "> [!CAUTION]\n> Careful.",
+      ].join("\n\n")}
+    </MarkdownView>,
+  );
+  const root = screen.container;
+  expect(root.querySelector("video")?.getAttribute("src")).toBe(
+    "/files/clip.mp4",
+  );
+  // A remote origin outside `images` is blocked, as an image is.
+  expect(root.querySelector("audio")).toBeNull();
+  expect(
+    root
+      .querySelector('[data-slot="code-block"]')
+      ?.getAttribute("data-language"),
+  ).toBe("ts");
+  expect(root.querySelector("pre[data-wrap]")).not.toBeNull();
+  expect(root.querySelector("details")?.open).toBe(true);
+  const callout = root.querySelector('[data-slot="callout"]')!;
+  expect(callout.getAttribute("data-tone")).toBe("caution");
+  expect(callout.getAttribute("role")).toBe("note");
 });

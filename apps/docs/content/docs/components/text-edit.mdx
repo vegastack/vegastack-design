@@ -356,12 +356,13 @@ edit never loses the mention.
 
 ### Uploads
 
-`onImageUpload(file, { signal })` takes images pasted, dropped, or picked with the image panel's
-**Upload** (the slash menu's Image). The image shows dimmed under a spinner until the promise
+`onImageUpload(file, { signal })` takes images pasted, dropped, or picked in the image panel's
+**Upload** tab (the slash menu's Image). The image shows dimmed under a spinner until the promise
 resolves with `{ src }`, then lands in the document and commits — `onValueChange` and `onCommit`
 both fire, even when focus has already left. A rejection removes the placeholder and calls
 `onUploadError(file, error)`. `onFileUpload(file, { signal })` does the same for any other file
-(dropped, pasted, or the slash menu's File) and inserts `[name](href)`; a link whose href starts
+(dropped, pasted, or the Upload tab of the slash menu's File, Video or Audio) and inserts
+`[name](href)` — or a video or audio block for a playable video or audio type; a link whose href starts
 with `fileLinkPrefix` (default `/api/files/`) shows as a file chip. Without `onFileUpload`, other
 files are ignored.
 
@@ -402,6 +403,26 @@ tone. Toggle inserts
 
 <ComponentPreview
   name="textEditCallouts"
+  file="components/preview/text-edit.tsx"
+/>
+
+### Code, tables, toggles, video and audio
+
+A code block shows its language picker top-left and two icons top-right: wrap lines and copy (a
+check confirms the copy). Wrapping is saved with the block, after the language in the fence's info
+string (` ```ts wrap `; plain text that wraps is ` ```text wrap `); unwrapped lines
+scroll sideways inside the block only. Tables use a fixed layout, so typing in one column wraps in
+its cell instead of pushing the others right; drag a column border to resize it. A toggle's
+chevron opens and closes it (`<details open>` keeps it open for the reader); an empty title or body
+shows a hint. Video and audio are blocks of their own — `<video src="…"></video>` and
+`<audio src="…"></audio>` on a line — with the browser's native player, here and in
+`MarkdownView`. The slash menu's Image, Video, Audio and File open an insert panel with **Upload**
+(a dropzone, when the host takes that upload: `onImageUpload` for images, `onFileUpload` for the
+rest) and **Link** (a URL and Insert) tabs. A dropped or pasted video or audio file lands as a
+player.
+
+<ComponentPreview
+  name="textEditBlocks"
   file="components/preview/text-edit.tsx"
 />
 

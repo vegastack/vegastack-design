@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.23.100 sha256-3KCjuvb6S9jD0us85PYLJpRhs7/b0Hiutgysp+K6DZ8=
+// @vegastack text-edit@0.23.100 sha256-Hfe6PqjsLCPu/t68DAU1bS5ni8Ld4mbolGfIx5k7gdw=
 
 "use client";
 
@@ -38,6 +38,8 @@ export type TextEditSlashCommand =
   | "codeBlock"
   | "table"
   | "image"
+  | "video"
+  | "audio"
   | "file"
   | "divider"
   | "link";
@@ -61,6 +63,8 @@ export const TEXT_EDIT_SLASH_COMMANDS: readonly TextEditSlashCommand[] = [
   "codeBlock",
   "table",
   "image",
+  "video",
+  "audio",
   "file",
   "divider",
   "link",
@@ -213,12 +217,17 @@ const editorBaseClassName = cn(
   "tiptap min-h-6 min-w-0 max-w-full outline-none",
   "[&_p.is-editor-empty:first-child]:before:pointer-events-none [&_p.is-editor-empty:first-child]:before:float-start [&_p.is-editor-empty:first-child]:before:h-0 [&_p.is-editor-empty:first-child]:before:text-muted-foreground/60 [&_p.is-editor-empty:first-child]:before:content-[attr(data-placeholder)]",
   "[&_.tableWrapper]:my-2 [&_.tableWrapper]:w-full [&_.tableWrapper]:max-w-full [&_.tableWrapper]:overflow-x-auto [&_.selectedCell]:bg-accent",
+  // Fixed layout: columns keep their width (equal, or as resized) while you type, and text wraps
+  // inside its cell instead of pushing the other columns right.
+  "[&_table]:table-fixed",
   // Column resizing (editable only): a thin primary line on the hovered column border, and the
   // resize cursor while the pointer is on it.
   "[&_td]:relative [&_th]:relative [&_.column-resize-handle]:pointer-events-none [&_.column-resize-handle]:absolute [&_.column-resize-handle]:-inset-y-px [&_.column-resize-handle]:-end-px [&_.column-resize-handle]:w-0.5 [&_.column-resize-handle]:bg-primary/50 [&.resize-cursor]:cursor-col-resize",
   // A selected atom (a mention, a divider) gets a tint; a selected image keeps its own radius and
   // shows its outline instead (the image node view).
   "[&_.ProseMirror-selectednode:not([data-slot=text-edit-image-node])]:rounded-sm [&_.ProseMirror-selectednode:not([data-slot=text-edit-image-node])]:bg-accent",
+  // An empty toggle title or body shows its hint (the Placeholder extension's `is-empty`).
+  "[&_[data-slot=toggle-content]>.is-empty]:before:pointer-events-none [&_[data-slot=toggle-content]>.is-empty]:before:float-start [&_[data-slot=toggle-content]>.is-empty]:before:h-0 [&_[data-slot=toggle-content]>.is-empty]:before:text-muted-foreground/60 [&_[data-slot=toggle-content]>[data-slot=toggle-summary].is-empty]:before:content-[attr(data-placeholder)] [&_[data-slot=toggle-content]>p.is-empty]:before:content-['Empty_toggle._Type_or_press_/_for_commands']",
 );
 
 /** While focused and empty, the placeholder yields to the slash hint. */

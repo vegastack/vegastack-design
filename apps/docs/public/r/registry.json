@@ -1135,7 +1135,7 @@
         "whenToUse": "Fenced/source code that deserves a labelled, copyable panel.",
         "whenNotToUse": "Inline code (a mono chip) or terminal output theatre (Terminal).",
         "version": "0.23.100",
-        "integrity": "sha256-uwvld89kmrpn4tTdkfvCIHUK4pNweDcPUO6g6f8e1EA="
+        "integrity": "sha256-Z0cqDn5/lca39Rf3i3KQMrVAi/3IlswKvWotdWmdF3A="
       }
     },
     {
@@ -15826,7 +15826,7 @@
         "whenToUse": "Display user/system-authored markdown — descriptions, comments, activity — as safe token-styled prose.",
         "whenNotToUse": "Editing markdown (use an editor), or when the source needs embedded raw HTML.",
         "version": "0.23.100",
-        "integrity": "sha256-Fu2ZunDHKHNVsj3kMbThZqL7AhiIXzWWSpzGidN39Ao="
+        "integrity": "sha256-lOyQ2rJ6UF7SvKIbs08BrvwqA1qUmZC2gRThlGUvLTY="
       }
     },
     {
@@ -17584,7 +17584,10 @@
         "@vegastack/tooltip",
         "@vegastack/use-file-drop",
         "@vegastack/code-highlight",
-        "@vegastack/alert"
+        "@vegastack/alert",
+        "@vegastack/dropzone",
+        "@vegastack/empty",
+        "@vegastack/tabs"
       ],
       "files": [
         {
@@ -17602,7 +17605,7 @@
         "whenToUse": "Comments, notes, summaries and documents stored as Markdown (format=\"markdown\") or HTML — with @ mentions, uploads, callouts, toggles, an outline and comment highlights for page editors; in-place editing of a MarkdownView (the read view is the editor until first edited).",
         "whenNotToUse": "Plain single-line input (Input) or collaborative real-time docs (deferred text-edit-collab).",
         "version": "0.23.100",
-        "integrity": "sha256-3KCjuvb6S9jD0us85PYLJpRhs7/b0Hiutgysp+K6DZ8="
+        "integrity": "sha256-Hfe6PqjsLCPu/t68DAU1bS5ni8Ld4mbolGfIx5k7gdw="
       }
     },
     {
