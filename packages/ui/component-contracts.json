@@ -14834,6 +14834,24 @@
             "status": "not-applicable",
             "rationale": "Type-only exports do not render or accept runtime refs."
           }
+        },
+        {
+          "name": "parseImageAlt",
+          "kind": "function",
+          "source": "packages/ui/registry/ui/markdown-view.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A pure function; it renders nothing and takes no ref."
+          }
+        },
+        {
+          "name": "imageMarkdown",
+          "kind": "function",
+          "source": "packages/ui/registry/ui/markdown-view.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A pure function; it renders nothing and takes no ref."
+          }
         }
       ],
       "variants": {
@@ -23845,6 +23863,25 @@
             "status": "not-applicable",
             "rationale": "Type-only exports do not render or accept runtime refs."
           }
+        },
+        {
+          "name": "ImageViewerScope",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/text-edit.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "div",
+            "rationale": "Source forwards the ref to this JSX/Base UI render target."
+          }
+        },
+        {
+          "name": "ImageViewerScopeProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/text-edit.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
         }
       ],
       "variants": {
@@ -23933,6 +23970,7 @@
         "@vegastack/drag-item",
         "@vegastack/dropdown-menu",
         "@vegastack/file-kind",
+        "@vegastack/file-viewer",
         "@vegastack/input",
         "@vegastack/markdown-view",
         "@vegastack/popover",
@@ -23973,6 +24011,15 @@
       },
       "previewModule": "text-edit",
       "dataAttributes": {
+        "ImageViewerScope": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["image-viewer-scope"]
+            }
+          ],
+          "cssVariables": []
+        },
         "TextEdit": {
           "attributes": [
             {

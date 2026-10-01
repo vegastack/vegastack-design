@@ -370,6 +370,27 @@ files are ignored.
   file="components/preview/text-edit.tsx"
 />
 
+### Images
+
+An image works like Notion's. Hover it (or tap it on touch) for a ⋯ menu at its top-right:
+**Open** shows it in the `FileViewer`, paging through every image in the document (a double-click
+does the same); **Download**; **Copy link** for an `http(s)` image; and **Remove image**, which
+
+<kbd>Cmd/Ctrl</kbd>+<kbd>Z</kbd> undoes. Its corner and side handles resize it
+with the aspect ratio kept — Tiptap's own `ResizableNodeView`, from 48px up to
+the width left of the image — and while dragging, guides mark a quarter, a half,
+three quarters and the full width, snapping within 8px. The width is part of the
+document: `![alt|320](src)` in Markdown (the Obsidian convention, which
+`MarkdownView` reads and other renderers show as a plain image) and
+`width="320"` in HTML. `readOnly` documents and posted comments open their
+images in the viewer on a click and have no handles or Remove; wrap any other
+`MarkdownView` in `ImageViewerScope` for the same.
+
+<ComponentPreview
+  name="textEditImages"
+  file="components/preview/text-edit.tsx"
+/>
+
 ### Callouts and toggles
 
 The slash menu's Callout wraps the block in GitHub's alert syntax — `> [!NOTE]`, `> [!TIP]` or
@@ -489,6 +510,13 @@ fires it with the current value. It's presentational only: the **host** decides 
 <ApiTable
   path="../../packages/ui/registry/ui/text-edit.tsx"
   name="TextEditProps"
+/>
+
+`ImageViewerScope` takes a `div`'s props plus:
+
+<ApiTable
+  path="../../packages/ui/registry/ui/text-edit.tsx"
+  name="ImageViewerScopeProps"
 />
 
 ## Accessibility

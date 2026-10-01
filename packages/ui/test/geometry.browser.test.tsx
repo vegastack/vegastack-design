@@ -304,6 +304,7 @@ const DYNAMIC_DOM: Record<string, string> = {
   htmlTables: ".ProseMirror[contenteditable]",
   textEditMentions: ".ProseMirror[contenteditable]",
   textEditUploads: ".ProseMirror[contenteditable]",
+  textEditImages: ".ProseMirror[contenteditable]",
   textEditCallouts: ".ProseMirror[contenteditable]",
   textEditOutline: ".ProseMirror[contenteditable]",
   textEditAnnotations: ".ProseMirror[contenteditable]",

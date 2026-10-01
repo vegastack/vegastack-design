@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.23.98 sha256-c+VRa+3ciMS2ARw8bEQ4q2Kh99DeOJtTyQ1hOqMOEds=
+// @vegastack text-edit@0.23.98 sha256-MMsLXFPS6r+1ZVP191EJn7PdVGFMuUPOnstraI40nS8=
 
 "use client";
 
@@ -14,6 +14,7 @@ import {
   NodeViewWrapper,
   ReactNodeViewRenderer,
   ReactWidgetRenderer,
+  ResizableNodeView,
   mergeAttributes,
   textblockTypeInputRule,
   type Editor,
@@ -70,6 +71,8 @@ import {
   CircleCheck,
   Code,
   Copy,
+  Download,
+  Ellipsis,
   Eraser,
   ExternalLink,
   File as FileIcon,
@@ -87,6 +90,7 @@ import {
   Link as LinkIcon,
   List,
   ListOrdered,
+  Maximize2,
   ListTodo,
   MessageSquarePlus,
   Minus,
@@ -150,8 +154,10 @@ import {
 import {
   MentionChip,
   headingIds,
+  imageMarkdown,
   markdownExtrasClassName,
   mentionMarkdown,
+  parseImageAlt,
   parseMentionLink,
   type CalloutTone,
   type MentionKind,
@@ -1875,6 +1881,392 @@ const MENTION_ICON: Record<MentionKind, React.ComponentType> = {
 };
 
 /* ------------------------------------------------------------------------------------------------
+ * Images — Tiptap's `ResizableNodeView` (the official Image extension's resize), with a width that
+ * round-trips through Markdown (`![alt|320](src)`) and HTML (`width`), snap guides while dragging,
+ * and a ⋯ menu the editor renders into each image (Open, Download, Copy link, Remove image).
+ * ----------------------------------------------------------------------------------------------*/
+
+/** One image node view's menu slot, rendered into by `ImageMenus`. */
+interface ImageSlot {
+  host: HTMLElement;
+  image: HTMLImageElement;
+  getPos: () => number | undefined;
+}
+
+/** The mounted image node views; `ImageMenus` subscribes. */
+class ImageSlots {
+  private slots: ImageSlot[] = [];
+  private listeners = new Set<() => void>();
+  add(slot: ImageSlot) {
+    this.slots = [...this.slots, slot];
+    this.emit();
+    return () => {
+      this.slots = this.slots.filter((each) => each !== slot);
+      this.emit();
+    };
+  }
+  subscribe = (listener: () => void) => {
+    this.listeners.add(listener);
+    return () => void this.listeners.delete(listener);
+  };
+  get = () => this.slots;
+  private emit() {
+    for (const listener of this.listeners) listener();
+  }
+}
+
+interface ImageRuntime {
+  slots: ImageSlots;
+  open: React.RefObject<((image: HTMLImageElement) => void) | undefined>;
+}
+
+const IMAGE_MIN_WIDTH = 48;
+/** How close (px) a dragged width comes to a guide before it snaps to it. */
+const IMAGE_SNAP = 8;
+/** The guides: a quarter, a half, three quarters and the full width left of the image. */
+const IMAGE_GUIDES = [0.25, 0.5, 0.75, 1] as const;
+
+const IMAGE_CONTAINER =
+  "group/image relative max-w-full align-bottom [&_img]:my-0 [&_img]:block [&_img]:max-w-full";
+const IMAGE_WRAPPER =
+  "max-w-full rounded-lg in-[.ProseMirror-selectednode]:outline-2 in-[.ProseMirror-selectednode]:outline-primary";
+// Corners: a dot on the corner; sides: a bar centred on the edge. Shown on hover, while selected
+// (a tap on touch) and while resizing; never in a read-only editor.
+const IMAGE_HANDLE = cn(
+  "z-10 touch-none opacity-0 transition-opacity duration-150 group-hover/image:opacity-100 group-data-[resize-state=true]/image:opacity-100 in-[.ProseMirror-selectednode]:opacity-100 in-[[contenteditable=false]]:hidden",
+  "data-[resize-handle*=-]:size-3 data-[resize-handle*=-]:rounded-full data-[resize-handle*=-]:border-2 data-[resize-handle*=-]:border-primary data-[resize-handle*=-]:bg-background pointer-coarse:data-[resize-handle*=-]:size-5",
+  "data-[resize-handle=top-left]:-translate-1/2 data-[resize-handle=top-left]:cursor-nwse-resize data-[resize-handle=bottom-right]:translate-1/2 data-[resize-handle=bottom-right]:cursor-nwse-resize data-[resize-handle=top-right]:translate-x-1/2 data-[resize-handle=top-right]:-translate-y-1/2 data-[resize-handle=top-right]:cursor-nesw-resize data-[resize-handle=bottom-left]:-translate-x-1/2 data-[resize-handle=bottom-left]:translate-y-1/2 data-[resize-handle=bottom-left]:cursor-nesw-resize",
+  "data-[resize-handle=left]:w-3 data-[resize-handle=right]:w-3 data-[resize-handle=left]:-translate-x-1/2 data-[resize-handle=right]:translate-x-1/2 data-[resize-handle=left]:cursor-ew-resize data-[resize-handle=right]:cursor-ew-resize pointer-coarse:data-[resize-handle=left]:w-5 pointer-coarse:data-[resize-handle=right]:w-5",
+  "data-[resize-handle=left]:after:absolute data-[resize-handle=right]:after:absolute data-[resize-handle=left]:after:inset-x-1 data-[resize-handle=right]:after:inset-x-1 data-[resize-handle=left]:after:top-1/2 data-[resize-handle=right]:after:top-1/2 data-[resize-handle=left]:after:h-8 data-[resize-handle=right]:after:h-8 data-[resize-handle=left]:after:max-h-[50%] data-[resize-handle=right]:after:max-h-[50%] data-[resize-handle=left]:after:-translate-y-1/2 data-[resize-handle=right]:after:-translate-y-1/2 data-[resize-handle=left]:after:rounded-full data-[resize-handle=right]:after:rounded-full data-[resize-handle=left]:after:border data-[resize-handle=right]:after:border data-[resize-handle=left]:after:border-background data-[resize-handle=right]:after:border-background data-[resize-handle=left]:after:bg-primary data-[resize-handle=right]:after:bg-primary",
+);
+const IMAGE_MENU_SLOT =
+  "absolute end-1.5 top-1.5 z-10 opacity-0 transition-opacity duration-150 group-hover/image:opacity-100 focus-within:opacity-100 has-data-popup-open:opacity-100 in-[.ProseMirror-selectednode]:opacity-100 group-data-[resize-state=true]/image:hidden";
+const IMAGE_SIZE_LABEL =
+  "pointer-events-none absolute bottom-1.5 start-1/2 z-10 hidden -translate-x-1/2 rounded-md bg-popover px-1.5 py-0.5 text-xs text-popover-foreground tabular-nums shadow-sm border border-border group-data-[resize-state=true]/image:block";
+const IMAGE_GUIDE =
+  "pointer-events-none absolute top-0 bottom-0 z-10 w-0 border-s border-dashed border-border data-active:border-solid data-active:border-primary";
+
+/** The editor's content box: the snap guides' layer. */
+function guideLayer(editor: Editor): HTMLElement | null {
+  return editor.view.dom.closest<HTMLElement>("[data-slot=text-edit-content]");
+}
+
+function readWidth(element: HTMLElement): number | null {
+  const width = Number.parseInt(
+    element.getAttribute("width") ?? element.style.width ?? "",
+    10,
+  );
+  return width > 0 ? width : null;
+}
+
+function imageNode(runtime: ImageRuntime) {
+  return Image.extend({
+    addAttributes() {
+      return {
+        ...this.parent?.(),
+        width: {
+          default: null,
+          parseHTML: readWidth,
+          renderHTML: (attributes) =>
+            attributes.width ? { width: attributes.width } : {},
+        },
+        // The width alone sizes an image; its height follows the aspect ratio.
+        height: { default: null, rendered: false },
+      };
+    },
+    parseMarkdown: (token, helpers) => {
+      const { alt, width } = parseImageAlt(token.text ?? "");
+      return helpers.createNode("image", {
+        src: token.href,
+        title: token.title ?? null,
+        alt,
+        width: width ?? null,
+      });
+    },
+    renderMarkdown: (node) =>
+      imageMarkdown({
+        src: node.attrs?.src ?? "",
+        alt: node.attrs?.alt,
+        title: node.attrs?.title,
+        width: node.attrs?.width,
+      }),
+    addNodeView() {
+      return ({ node, getPos, editor }) => {
+        const image = document.createElement("img");
+        image.draggable = false;
+        const sync = (next: PMNode) => {
+          const { src, alt, title, width } = next.attrs as {
+            src: string | null;
+            alt: string | null;
+            title: string | null;
+            width: number | null;
+          };
+          if (src) {
+            if (image.getAttribute("src") !== src) image.src = src;
+          } else image.removeAttribute("src");
+          image.alt = alt ?? "";
+          if (title) image.title = title;
+          else image.removeAttribute("title");
+          image.style.width = width ? `${width}px` : "";
+          image.style.height = "";
+        };
+        sync(node);
+
+        // Snap guides, drawn in the content box while a handle is dragged.
+        let guides: HTMLElement[] = [];
+        let available = Number.POSITIVE_INFINITY;
+        const clearGuides = () => {
+          for (const guide of guides) guide.remove();
+          guides = [];
+        };
+        const startGuides = () => {
+          clearGuides();
+          const layer = guideLayer(editor);
+          const content = editor.view.dom.getBoundingClientRect();
+          const left = image.getBoundingClientRect().left;
+          const style = getComputedStyle(editor.view.dom);
+          available = Math.max(
+            IMAGE_MIN_WIDTH,
+            content.right - Number.parseFloat(style.paddingRight || "0") - left,
+          );
+          view.maxSize = { width: available };
+          if (!layer) return;
+          const origin = layer.getBoundingClientRect().left - layer.scrollLeft;
+          guides = IMAGE_GUIDES.map((fraction) => {
+            const guide = document.createElement("div");
+            guide.className = IMAGE_GUIDE;
+            guide.dataset.slot = "text-edit-image-guide";
+            guide.style.left = `${left - origin + fraction * available}px`;
+            layer.append(guide);
+            return guide;
+          });
+        };
+
+        const sizeLabel = document.createElement("span");
+        sizeLabel.className = IMAGE_SIZE_LABEL;
+        sizeLabel.dataset.slot = "text-edit-image-size";
+
+        const view = new ResizableNodeView({
+          element: image,
+          editor,
+          node,
+          getPos,
+          onResize: (width) => {
+            let next = width;
+            let snapped = -1;
+            IMAGE_GUIDES.forEach((fraction, index) => {
+              const target = Math.round(fraction * available);
+              if (Math.abs(width - target) <= IMAGE_SNAP) {
+                next = target;
+                snapped = index;
+              }
+            });
+            image.style.width = `${next}px`;
+            image.style.height = "";
+            guides.forEach((guide, index) =>
+              guide.toggleAttribute("data-active", index === snapped),
+            );
+            sizeLabel.textContent =
+              snapped === -1
+                ? `${Math.round(next)} px`
+                : `${Math.round(next)} px · ${IMAGE_GUIDES[snapped]! * 100}%`;
+          },
+          onCommit: (width) => {
+            clearGuides();
+            image.style.height = "";
+            const pos = getPos();
+            if (pos === undefined) return;
+            const next = Math.round(width);
+            if (next === view.node.attrs.width) return;
+            editor
+              .chain()
+              .setNodeSelection(pos)
+              .updateAttributes("image", { width: next, height: null })
+              .run();
+          },
+          onUpdate: (next) => {
+            if (next.type !== node.type) return false;
+            sync(next);
+            return true;
+          },
+          options: {
+            directions: [
+              "top-left",
+              "top-right",
+              "bottom-left",
+              "bottom-right",
+              "left",
+              "right",
+            ],
+            min: { width: IMAGE_MIN_WIDTH },
+            preserveAspectRatio: true,
+            className: {
+              container: IMAGE_CONTAINER,
+              wrapper: IMAGE_WRAPPER,
+              handle: IMAGE_HANDLE,
+            },
+          },
+        });
+        view.dom.dataset.slot = "text-edit-image-node";
+
+        // Tiptap ends a resize on `mouseup` only: end a touch drag the same way. The guides and
+        // the maximum width are measured as a drag starts.
+        const wrapper = view.wrapper as HTMLElement;
+        const onStart = (event: Event) => {
+          if (!(event.target as Element).closest?.("[data-resize-handle]"))
+            return;
+          startGuides();
+          if (event.type === "touchstart") {
+            const end = () => document.dispatchEvent(new MouseEvent("mouseup"));
+            document.addEventListener("touchend", end, { once: true });
+            document.addEventListener("touchcancel", end, { once: true });
+          }
+        };
+        wrapper.addEventListener("mousedown", onStart, true);
+        wrapper.addEventListener("touchstart", onStart, true);
+
+        const host = document.createElement("span");
+        host.className = IMAGE_MENU_SLOT;
+        host.contentEditable = "false";
+        host.dataset.slot = "text-edit-image-menu";
+        wrapper.append(sizeLabel, host);
+        const remove = runtime.slots.add({ host, image, getPos });
+
+        image.addEventListener("dblclick", (event) => {
+          event.preventDefault();
+          runtime.open.current?.(image);
+        });
+
+        const destroy = view.destroy.bind(view);
+        return Object.assign(view, {
+          // The menu and its popup are React's: ProseMirror leaves their events alone.
+          stopEvent: (event: Event) => host.contains(event.target as Node),
+          ignoreMutation: (mutation: { type: string }) =>
+            mutation.type !== "selection",
+          destroy: () => {
+            clearGuides();
+            remove();
+            destroy();
+          },
+        });
+      };
+    },
+  });
+}
+
+/** The ⋯ menu on each image: Open, Download, Copy link and — while editable — Remove image. */
+function ImageMenus({
+  editor,
+  slots,
+  editable,
+  onOpen,
+}: {
+  editor: Editor;
+  slots: ImageSlots;
+  editable: boolean;
+  onOpen?: (image: HTMLImageElement) => void;
+}) {
+  const mounted = React.useSyncExternalStore(
+    slots.subscribe,
+    slots.get,
+    slots.get,
+  );
+  return mounted.map((slot, index) =>
+    createPortal(
+      <ImageMenu
+        editor={editor}
+        slot={slot}
+        editable={editable}
+        onOpen={onOpen}
+      />,
+      slot.host,
+      String(index),
+    ),
+  );
+}
+
+function ImageMenu({
+  editor,
+  slot,
+  editable,
+  onOpen,
+}: {
+  editor: Editor;
+  slot: ImageSlot;
+  editable: boolean;
+  onOpen?: (image: HTMLImageElement) => void;
+}) {
+  const src = slot.image.currentSrc || slot.image.src;
+  // A link worth copying: a real URL, not an upload's local preview.
+  const shareable = /^https?:/i.test(src);
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger
+        render={
+          <Button
+            variant="secondary"
+            size="icon-xs"
+            aria-label="Image actions"
+            className="shadow-sm"
+          />
+        }
+      >
+        <Ellipsis />
+      </DropdownMenuTrigger>
+      <DropdownMenuContent
+        data-text-edit-menu=""
+        align="end"
+        className="w-auto min-w-40"
+      >
+        {onOpen ? (
+          <DropdownMenuItem onClick={() => onOpen(slot.image)}>
+            <Maximize2 />
+            Open
+          </DropdownMenuItem>
+        ) : null}
+        <DropdownMenuItem
+          render={
+            <a href={src} download target="_blank" rel="noopener noreferrer" />
+          }
+        >
+          <Download />
+          Download
+        </DropdownMenuItem>
+        {shareable ? (
+          <DropdownMenuItem
+            onClick={() => void navigator.clipboard?.writeText(src)}
+          >
+            <LinkIcon />
+            Copy link
+          </DropdownMenuItem>
+        ) : null}
+        {editable ? (
+          <>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem
+              variant="destructive"
+              onClick={() => {
+                const pos = slot.getPos();
+                if (pos === undefined) return;
+                editor
+                  .chain()
+                  .focus()
+                  .setNodeSelection(pos)
+                  .deleteSelection()
+                  .run();
+              }}
+            >
+              <Trash2 />
+              Remove image
+            </DropdownMenuItem>
+          </>
+        ) : null}
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+}
+
+/* ------------------------------------------------------------------------------------------------
  * Library constructs — mentions, callouts, toggles, file chips, heading ids, comment highlights and
  * uploads. Every one round-trips through Markdown exactly; decorations never touch the document.
  * ----------------------------------------------------------------------------------------------*/
@@ -2388,6 +2780,7 @@ function buildExtensions(
   runtime: SlashRuntime,
   editorRuntime: EditorRuntime,
   annotationRuntime: Parameters<typeof annotationsExtension>[0],
+  imageRuntime: ImageRuntime,
 ) {
   return [
     StarterKit.configure({
@@ -2416,7 +2809,7 @@ function buildExtensions(
       table: { resizable: true, renderWrapper: true, cellMinWidth: 48 },
     }),
     // Inline, like GFM's `![]()` inside a paragraph, so an image sits where view mode puts it.
-    Image.configure({ inline: true }),
+    imageNode(imageRuntime).configure({ inline: true }),
     Placeholder.configure({ placeholder: () => placeholder.current ?? "" }),
     Markdown,
     Shortcuts,
@@ -4157,6 +4550,11 @@ export interface TextEditEditorProps extends Omit<
    * @default undefined
    */
   editorHandle?: React.RefObject<TextEditHandle | null>;
+  /**
+   * Show an image in the shell's `FileViewer` (an image's Open, or a double-click on it).
+   * @default undefined
+   */
+  onOpenImage?: (image: HTMLImageElement) => void;
 }
 
 /**
@@ -4213,6 +4611,7 @@ export function TextEditEditor({
   hidden = false,
   onReady,
   editorHandle,
+  onOpenImage,
 }: TextEditEditorProps) {
   const boxed = variant === "boxed";
   const editable = !readOnly && !disabled;
@@ -4360,6 +4759,10 @@ export function TextEditEditor({
     else setPanel(next);
   }, []);
 
+  const openImageRef = React.useRef(onOpenImage);
+  openImageRef.current = onOpenImage;
+  const [imageSlots] = React.useState(() => new ImageSlots());
+
   // Built once: the editor is never recreated by a re-render.
   const [extensions] = React.useState(() =>
     buildExtensions(
@@ -4392,6 +4795,7 @@ export function TextEditEditor({
         onHover: (id) => callbacks.current.onAnnotationHover?.(id),
         canOpen: () => Boolean(callbacks.current.onAnnotationClick),
       },
+      { slots: imageSlots, open: openImageRef },
     ),
   );
 
@@ -5176,6 +5580,14 @@ export function TextEditEditor({
           <BlockHandle editor={editor} />
           <TableControls editor={editor} markdown={markdown} />
         </>
+      ) : null}
+      {editor ? (
+        <ImageMenus
+          editor={editor}
+          slots={imageSlots}
+          editable={editable}
+          onOpen={onOpenImage}
+        />
       ) : null}
       {canUpload && editable ? (
         <>

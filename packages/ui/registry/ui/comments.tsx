@@ -1,4 +1,4 @@
-// @vegastack comments@0.23.98 sha256-jInAYnGxsW6d3jbxE3M5IQxRv8AE4agWYxWOEnPe8y8=
+// @vegastack comments@0.23.98 sha256-PGZMNBVCUbp3RbOvEbbabFZU78ptl+CKLdXdlKHfnb8=
 
 "use client";
 
@@ -37,6 +37,7 @@ import { RelativeTime } from "@/components/ui/relative-time";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   TEXT_EDIT_COMPACT_SLASH_COMMANDS,
+  ImageViewerScope,
   TextEdit,
   type TextEditHandle,
   type TextEditProps,
@@ -439,14 +440,17 @@ export function CommentItem({
               }
             />
           ) : (
-            <MarkdownView
-              className="text-sm"
-              mentionHref={mentionHref}
-              mentionImage={mentionImage}
-              fileContentType={fileContentType}
-            >
-              {comment.body}
-            </MarkdownView>
+            // A posted comment's images open in the `FileViewer`.
+            <ImageViewerScope>
+              <MarkdownView
+                className="text-sm"
+                mentionHref={mentionHref}
+                mentionImage={mentionImage}
+                fileContentType={fileContentType}
+              >
+                {comment.body}
+              </MarkdownView>
+            </ImageViewerScope>
           )}
           {!comment.deleted && !editing && attachments ? (
             <div data-slot="comment-attachments" className="mt-1 min-w-0">

@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.23.98 sha256-c+VRa+3ciMS2ARw8bEQ4q2Kh99DeOJtTyQ1hOqMOEds=
+// @vegastack text-edit@0.23.98 sha256-MMsLXFPS6r+1ZVP191EJn7PdVGFMuUPOnstraI40nS8=
 
 "use client";
 
@@ -12,6 +12,7 @@ import {
   type MarkdownCitation,
   type MentionKind,
 } from "@/components/ui/markdown-view";
+import type { FileViewerItem } from "@/components/ui/file-viewer";
 import type { TextAnchor } from "@/lib/text-anchor";
 
 export type { MentionKind } from "@/components/ui/markdown-view";
@@ -215,7 +216,9 @@ const editorBaseClassName = cn(
   // Column resizing (editable only): a thin primary line on the hovered column border, and the
   // resize cursor while the pointer is on it.
   "[&_td]:relative [&_th]:relative [&_.column-resize-handle]:pointer-events-none [&_.column-resize-handle]:absolute [&_.column-resize-handle]:-inset-y-px [&_.column-resize-handle]:-end-px [&_.column-resize-handle]:w-0.5 [&_.column-resize-handle]:bg-primary/50 [&.resize-cursor]:cursor-col-resize",
-  "[&_.ProseMirror-selectednode]:rounded-sm [&_.ProseMirror-selectednode]:bg-accent",
+  // A selected atom (a mention, a divider) gets a tint; a selected image keeps its own radius and
+  // shows its outline instead (the image node view).
+  "[&_.ProseMirror-selectednode:not([data-slot=text-edit-image-node])]:rounded-sm [&_.ProseMirror-selectednode:not([data-slot=text-edit-image-node])]:bg-accent",
 );
 
 /** While focused and empty, the placeholder yields to the slash hint. */
@@ -329,6 +332,190 @@ const LazyEditor = React.lazy(() =>
   loadEditor().then((module) => ({ default: module.TextEditEditor })),
 );
 
+/* ------------------------------------------------------------------------------------------------
+ * Images in the viewer
+ * ----------------------------------------------------------------------------------------------*/
+
+const LazyFileViewer = React.lazy(() =>
+  import("@/components/ui/file-viewer").then((module) => ({
+    default: module.FileViewer,
+  })),
+);
+
+/** Every image of a document — the read view's and the editor's — in reading order. */
+const DOCUMENT_IMAGES =
+  "img[data-slot=markdown-image],[data-slot=text-edit-image-node] img";
+
+const IMAGE_TYPES: Record<string, string> = {
+  avif: "image/avif",
+  gif: "image/gif",
+  jpeg: "image/jpeg",
+  jpg: "image/jpeg",
+  png: "image/png",
+  svg: "image/svg+xml",
+  webp: "image/webp",
+};
+
+/** One document image as a `FileViewer` item: named by its alt text, else its file name. */
+function imageItem(image: HTMLImageElement, index: number): FileViewerItem {
+  const src = image.currentSrc || image.src;
+  let file = "";
+  try {
+    file = decodeURIComponent(
+      new URL(src, document.baseURI).pathname.split("/").pop() ?? "",
+    );
+  } catch {
+    // An unparsable URL: name it by its alt text or "Image".
+  }
+  const extension = /\.([a-z0-9]+)$/i.exec(file)?.[1]?.toLowerCase() ?? "";
+  return {
+    id: `${index}:${src}`,
+    name: image.alt || file || "Image",
+    contentType: IMAGE_TYPES[extension] ?? "image/*",
+    src,
+    downloadHref: src,
+  };
+}
+
+/**
+ * The document image viewer: `open(image)` shows that image in the `FileViewer`, paging through
+ * every image inside `root`.
+ */
+function useImageViewer(root: React.RefObject<HTMLElement | null>) {
+  const [viewer, setViewer] = React.useState<{
+    items: FileViewerItem[];
+    index: number | null;
+  } | null>(null);
+  const open = React.useCallback(
+    (image: HTMLImageElement) => {
+      const images = [
+        ...(root.current?.querySelectorAll<HTMLImageElement>(DOCUMENT_IMAGES) ??
+          []),
+      ].filter((each) => each.currentSrc || each.src);
+      const index = images.indexOf(image);
+      if (index === -1) return;
+      setViewer({ items: images.map(imageItem), index });
+    },
+    [root],
+  );
+  const element = viewer ? (
+    // Stays mounted once used, so closing plays the viewer's own exit.
+    <React.Suspense fallback={null}>
+      <LazyFileViewer
+        items={viewer.items}
+        index={viewer.index}
+        onIndexChange={(index) =>
+          setViewer((current) => current && { ...current, index })
+        }
+        onOpenChange={(next) => {
+          if (!next)
+            setViewer((current) => current && { ...current, index: null });
+        }}
+      />
+    </React.Suspense>
+  ) : null;
+  return { open, element };
+}
+
+/** The read view's image under an event, unless it sits inside a link (the link wins). */
+function readImage(target: EventTarget): HTMLImageElement | null {
+  const image = (target as Element).closest?.<HTMLImageElement>(
+    "img[data-slot=markdown-image]",
+  );
+  return image && !image.closest("a") ? image : null;
+}
+
+/** Click or Enter/Space on a read-view image opens it; images become buttons for the keyboard. */
+function useReadImages(
+  root: React.RefObject<HTMLElement | null>,
+  enabled: boolean,
+  open: (image: HTMLImageElement) => void,
+) {
+  React.useEffect(() => {
+    if (!enabled) return;
+    for (const image of root.current?.querySelectorAll<HTMLImageElement>(
+      "img[data-slot=markdown-image]",
+    ) ?? []) {
+      if (image.closest("a") || image.hasAttribute("data-viewer")) continue;
+      image.setAttribute("data-viewer", "");
+      image.tabIndex = 0;
+      image.setAttribute("role", "button");
+      image.setAttribute(
+        "aria-label",
+        image.alt ? `Open image: ${image.alt}` : "Open image",
+      );
+    }
+  });
+  return {
+    onClick: (event: React.MouseEvent) => {
+      const image = enabled ? readImage(event.target) : null;
+      if (!image) return;
+      event.preventDefault();
+      open(image);
+    },
+    onKeyDown: (event: React.KeyboardEvent) => {
+      if (event.key !== "Enter" && event.key !== " ") return;
+      const image = enabled ? readImage(event.target) : null;
+      if (!image || event.target !== image) return;
+      event.preventDefault();
+      open(image);
+    },
+  };
+}
+
+/** Props accepted by `ImageViewerScope`. */
+export interface ImageViewerScopeProps extends React.ComponentProps<"div"> {
+  /**
+   * Leave the images as plain pictures.
+   * @default false
+   */
+  disabled?: boolean;
+}
+
+/**
+ * `ImageViewerScope` — wrap a `MarkdownView` (a posted comment, a summary) so a click on one of
+ * its images opens it in the `FileViewer`, paging through every image inside. `TextEdit` and
+ * `CommentThread` already do this for their own documents.
+ *
+ * @example
+ * <ImageViewerScope>
+ *   <MarkdownView>{summary}</MarkdownView>
+ * </ImageViewerScope>
+ */
+export function ImageViewerScope({
+  disabled = false,
+  className,
+  children,
+  onClick,
+  onKeyDown,
+  ref,
+  ...props
+}: ImageViewerScopeProps) {
+  const rootRef = React.useRef<HTMLDivElement | null>(null);
+  const setRootRef = React.useMemo(() => mergeRefs(rootRef, ref), [ref]);
+  const viewer = useImageViewer(rootRef);
+  const handlers = useReadImages(rootRef, !disabled, viewer.open);
+  return (
+    <div
+      ref={setRootRef}
+      data-slot="image-viewer-scope"
+      className={cn("min-w-0 [&_img[data-viewer]]:cursor-zoom-in", className)}
+      onClick={(event) => {
+        onClick?.(event);
+        if (!event.defaultPrevented) handlers.onClick(event);
+      }}
+      onKeyDown={(event) => {
+        onKeyDown?.(event);
+        if (!event.defaultPrevented) handlers.onKeyDown(event);
+      }}
+      {...props}
+    >
+      {children}
+      {viewer.element}
+    </div>
+  );
+}
+
 /** Where the caret goes once the editor is in: the clicked point, or an end of the document. */
 type Intent = { x: number; y: number; checkbox: boolean } | "start" | "end";
 
@@ -435,7 +622,8 @@ export interface TextEditProps {
    */
   saving?: boolean;
   /**
-   * Render the document without letting it be edited; the surface reports `aria-readonly`.
+   * Render the document without letting it be edited; the surface reports `aria-readonly`. Its
+   * images still open in the `FileViewer` on a click.
    * @default false
    */
   readOnly?: boolean;
@@ -731,6 +919,10 @@ export function TextEdit(props: TextEditProps) {
   const typedRef = React.useRef("");
   const rootRef = React.useRef<HTMLDivElement | null>(null);
   const setRootRef = React.useMemo(() => mergeRefs(rootRef, ref), [ref]);
+  // Images open in the `FileViewer`: from the read view while it cannot edit (a click there starts
+  // editing otherwise), and from the editor's image menu or a double-click.
+  const imageViewer = useImageViewer(rootRef);
+  const readImages = useReadImages(rootRef, !editable, imageViewer.open);
 
   const activate = (intent: Intent) => {
     if (!editable) return;
@@ -931,9 +1123,12 @@ export function TextEdit(props: TextEditProps) {
         boxed &&
           "rounded-lg border border-input px-2.5 py-2 transition-[color,background-color,border-color] duration-150 ease-out has-[[contenteditable=true]:focus]:not-data-invalid:border-ring/40 data-invalid:border-destructive dark:bg-input/30 dark:data-invalid:border-destructive/50",
         editable && "cursor-text",
+        !editable && "[&_img[data-viewer]]:cursor-zoom-in",
         disabled && "opacity-50",
         className,
       )}
+      onClick={readImages.onClick}
+      onKeyDown={readImages.onKeyDown}
       // Intent: fetch the editor before the click lands.
       onPointerEnter={editable ? prefetchEditor : undefined}
       onTouchStart={editable ? prefetchEditor : undefined}
@@ -1027,10 +1222,12 @@ export function TextEdit(props: TextEditProps) {
             hidden={!ready}
             onReady={onReady}
             editorHandle={editorHandle}
+            onOpenImage={imageViewer.open}
           />
         </React.Suspense>
       ) : null}
       {children}
+      {imageViewer.element}
     </div>
   );
 }
