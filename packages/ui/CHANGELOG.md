@@ -1,5 +1,14 @@
 # @vegastack/ui
 
+## 0.23.100
+
+### Patch Changes
+
+- [#476](https://github.com/vegastack/vegastack-design/pull/476) [`47bbd1c`](https://github.com/vegastack/vegastack-design/commit/47bbd1cc53f33d75579fb8183b92ff0387ed40c9) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🔧 Comment boxes. One line of text is exactly the controls' height, so a comment or reply box stays the `Input` height (32px) whether focused or not — no extra space when the editor loads — with the `Input` type size (16px on a phone, 14px from md); the attach and send buttons stay on the last line as the text grows. The paperclip is muted, so Send carries the emphasis.
+
+- Updated dependencies [[`47bbd1c`](https://github.com/vegastack/vegastack-design/commit/47bbd1cc53f33d75579fb8183b92ff0387ed40c9)]:
+  - @vegastack/design@0.7.85
+
 ## 0.23.99
 
 ### Patch Changes
