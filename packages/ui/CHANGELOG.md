@@ -1,5 +1,14 @@
 # @vegastack/ui
 
+## 0.23.108
+
+### Patch Changes
+
+- [#492](https://github.com/vegastack/vegastack-design/pull/492) [`c367765`](https://github.com/vegastack/vegastack-design/commit/c367765ae54e8c47ffb62e3e00d5b3705948eb15) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🐛 TextEdit type-checks against Tiptap 3.31.4: the paragraph parser no longer calls `Paragraph.config.parseMarkdown` (whose `this` type changed), it builds the paragraph itself.
+
+- Updated dependencies [[`c367765`](https://github.com/vegastack/vegastack-design/commit/c367765ae54e8c47ffb62e3e00d5b3705948eb15)]:
+  - @vegastack/design@0.7.93
+
 ## 0.23.107
 
 ### Patch Changes
