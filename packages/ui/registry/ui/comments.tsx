@@ -1,4 +1,4 @@
-// @vegastack comments@0.23.109 sha256-NVTmGBozsMX2Q95fHZij/80/QhxqHpPhJLaBHaddoYE=
+// @vegastack comments@0.23.109 sha256-dLWWBO3VAQIiB0mZULnWD/J7EJ3twCRMN8mwhmY34Pw=
 
 "use client";
 
@@ -18,6 +18,9 @@ import {
 } from "lucide-react";
 import { cn } from "@vegastack/design";
 import { Button } from "@/components/ui/button";
+import { Attachment } from "@/components/ui/attachment";
+import type { FileViewerItem } from "@/components/ui/file-viewer";
+import { Spinner } from "@/components/ui/spinner";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -258,23 +261,26 @@ export function CommentItem({
         // `rounded-xl`), holding the comment and its replies as rows. A reply is a row of its
         // parent's card, not a card of its own. The border never changes on hover, focus or edit
         // (FOC-14); only a `#comment-<id>` highlight tints a row.
-        "flex min-w-0 scroll-mt-24 flex-col overflow-hidden rounded-xl border border-border bg-muted/30",
-        "in-data-[slot=comment-replies]:overflow-visible in-data-[slot=comment-replies]:rounded-none in-data-[slot=comment-replies]:border-0 in-data-[slot=comment-replies]:bg-transparent",
+        // Spec (web and mobile): the thread card has a 1px border, a light fill and 4px padding.
+        "flex min-w-0 scroll-mt-24 flex-col overflow-hidden rounded-xl border border-border bg-muted/30 p-1",
+        "in-data-[slot=comment-replies]:overflow-visible in-data-[slot=comment-replies]:rounded-none in-data-[slot=comment-replies]:border-0 in-data-[slot=comment-replies]:bg-transparent in-data-[slot=comment-replies]:p-0",
         className,
       )}
     >
       <div
         data-slot="comment-card"
         data-highlighted={highlighted ? "" : undefined}
-        className="group/comment flex min-w-0 gap-2.5 px-3 py-2.5 transition-colors data-[highlighted]:bg-accent"
+        // A 24px avatar, 8px to the name; 6px above and below, so two comments sit 12px apart.
+        className="group/comment flex min-w-0 gap-2 rounded-lg px-2 py-1.5 transition-colors data-[highlighted]:bg-accent"
       >
         {comment.deleted ? (
-          <span aria-hidden className="size-7 shrink-0 rounded-full bg-muted" />
+          <span aria-hidden className="size-6 shrink-0 rounded-full bg-muted" />
         ) : (
-          <PersonAvatar person={author} className="data-[size=sm]:size-7" />
+          <PersonAvatar person={author} className="data-[size=sm]:size-6" />
         )}
+        {/* 4px from the name row to the body (or to the files when there is no text). */}
         <div className="flex min-w-0 flex-1 flex-col gap-1">
-          <div className="flex min-h-7 min-w-0 items-center gap-2">
+          <div className="flex min-h-6 min-w-0 items-center gap-2">
             {comment.deleted ? (
               <span className="text-sm text-muted-foreground italic">
                 Comment deleted
@@ -439,7 +445,7 @@ export function CommentItem({
                 </>
               }
             />
-          ) : (
+          ) : !comment.body.trim() ? null : (
             // A posted comment's images open in the `FileViewer`.
             <ImageViewerScope>
               <MarkdownView
@@ -453,7 +459,11 @@ export function CommentItem({
             </ImageViewerScope>
           )}
           {!comment.deleted && !editing && attachments ? (
-            <div data-slot="comment-attachments" className="mt-1 min-w-0">
+            // 6px under the body (the column's 4px + 2px); 4px under the name row with no body.
+            <div
+              data-slot="comment-attachments"
+              className={cn("min-w-0", comment.body.trim() && "mt-0.5")}
+            >
               {attachments}
             </div>
           ) : null}
@@ -481,6 +491,106 @@ export function CommentItem({
         </ul>
       ) : null}
     </li>
+  );
+}
+
+/* ------------------------------------------------------------------------------------------------
+ * CommentMedia — a comment's (or a draft's) images, shown as the images themselves
+ * ----------------------------------------------------------------------------------------------*/
+
+/** One image `CommentMedia` shows. */
+export interface CommentMediaItem {
+  /** A stable key. */
+  key: string;
+  /** The image to show (a thumbnail, or the picked file's local preview while it uploads). */
+  src: string;
+  /** The file's name: the image's alt text and its open button's name. */
+  name: string;
+  /**
+   * The file for the `FileViewer`: a click opens it, paging through every file in the enclosing
+   * `AttachmentPreview` (wrap a comment's or a task's files in one). @default undefined
+   */
+  file?: FileViewerItem;
+  /** The intrinsic size, to reserve the box before the image decodes. @default undefined */
+  width?: number | null;
+  height?: number | null;
+  /** Upload state: `uploading`/`processing` dim it under a spinner. @default "done" */
+  state?: "uploading" | "processing" | "error" | "done";
+  /** Show a × that takes it off a draft. @default undefined */
+  onRemove?: () => void;
+}
+
+/**
+ * `CommentMedia` — a wrapping row of rounded image previews, each at most 200px tall in its own
+ * aspect ratio; a click opens the `FileViewer`. A comment's posted images and a draft's pasted or
+ * picked ones look the same (the draft's dim under a spinner while they upload, with a × to take
+ * them off). Other files stay `Attachment` cards beside it.
+ *
+ * @example
+ * <AttachmentPreview>
+ *   <CommentMedia items={images} />
+ *   <AttachmentGroup>{otherCards}</AttachmentGroup>
+ * </AttachmentPreview>
+ */
+export function CommentMedia({
+  items,
+  className,
+}: {
+  items: readonly CommentMediaItem[];
+  /** Classes for the row. @default undefined */
+  className?: string;
+}) {
+  if (items.length === 0) return null;
+  return (
+    <div
+      role="list"
+      data-slot="comment-media"
+      className={cn("flex min-w-0 flex-wrap gap-1.5", className)}
+    >
+      {items.map((item) => {
+        const busy = item.state === "uploading" || item.state === "processing";
+        return (
+          <Attachment
+            key={item.key}
+            role="listitem"
+            file={item.file}
+            state={item.state ?? "done"}
+            data-slot="comment-media-item"
+            className="max-w-full overflow-hidden rounded-lg border-border bg-transparent p-0 has-[>a,>button]:hover:bg-transparent"
+          >
+            <img
+              src={item.src}
+              alt={item.name}
+              width={item.width ?? undefined}
+              height={item.height ?? undefined}
+              loading="lazy"
+              decoding="async"
+              className={cn(
+                "block h-auto max-h-50 w-auto max-w-full object-contain",
+                busy && "opacity-60",
+              )}
+            />
+            {busy ? (
+              <span className="pointer-events-none absolute inset-0 grid place-items-center">
+                <Spinner className="size-5" />
+              </span>
+            ) : null}
+            {item.onRemove ? (
+              <Button
+                type="button"
+                variant="secondary"
+                size="icon-xs"
+                aria-label={`Remove ${item.name}`}
+                onClick={item.onRemove}
+                className="absolute end-1 top-1 z-10 rounded-full shadow-sm"
+              >
+                <X aria-hidden />
+              </Button>
+            ) : null}
+          </Attachment>
+        );
+      })}
+    </div>
   );
 }
 
@@ -642,55 +752,70 @@ function CommentBox({
         footer={
           files ? <div data-slot="comment-box-files">{files}</div> : undefined
         }
+        // Mobile's layout: the paperclip on the left, the text, Send on the right — both centred
+        // on the single line and pinned to the bottom row as the text grows.
+        leading={
+          leading || canAttach ? (
+            <div
+              data-slot="comment-box-leading"
+              className="flex shrink-0 items-center gap-1"
+            >
+              {leading}
+              {canAttach ? (
+                <>
+                  <Tooltip>
+                    <TooltipTrigger
+                      render={
+                        <Button
+                          variant="ghost"
+                          size="icon-sm"
+                          data-slot="comment-attach"
+                          aria-label="Attach files"
+                          className={cn(
+                            "rounded-full text-muted-foreground hover:text-foreground focus-visible:bg-muted",
+                            TOUCH_TARGET,
+                          )}
+                          // A picker of our own, clicked in the gesture (the lazy editor may not be
+                          // in yet); picked files go to the editor's upload flow at the caret.
+                          onClick={() => fileInput.current?.click()}
+                        />
+                      }
+                    >
+                      <Paperclip aria-hidden />
+                    </TooltipTrigger>
+                    <TooltipContent>Attach files</TooltipContent>
+                  </Tooltip>
+                  <input
+                    ref={fileInput}
+                    type="file"
+                    multiple
+                    hidden
+                    tabIndex={-1}
+                    aria-hidden
+                    // The editor's rules: images only unless any file may upload.
+                    accept={
+                      onFileUpload || onAttachFiles ? undefined : "image/*"
+                    }
+                    onChange={(event) => {
+                      const picked = Array.from(
+                        event.currentTarget.files ?? [],
+                      );
+                      event.currentTarget.value = "";
+                      if (!picked.length) return;
+                      if (onAttachFiles) onAttachFiles(picked);
+                      else handle.current?.uploadFiles(picked);
+                    }}
+                  />
+                </>
+              ) : null}
+            </div>
+          ) : undefined
+        }
         actions={
           <div
             data-slot="comment-box-actions"
             className="flex shrink-0 items-center gap-1"
           >
-            {leading}
-            {canAttach ? (
-              <>
-                <Tooltip>
-                  <TooltipTrigger
-                    render={
-                      <Button
-                        variant="ghost"
-                        size="icon-sm"
-                        data-slot="comment-attach"
-                        aria-label="Attach files"
-                        className={cn(
-                          "rounded-full text-muted-foreground hover:text-foreground focus-visible:bg-muted",
-                          TOUCH_TARGET,
-                        )}
-                        // A picker of our own, clicked in the gesture (the lazy editor may not be
-                        // in yet); picked files go to the editor's upload flow at the caret.
-                        onClick={() => fileInput.current?.click()}
-                      />
-                    }
-                  >
-                    <Paperclip aria-hidden />
-                  </TooltipTrigger>
-                  <TooltipContent>Attach files</TooltipContent>
-                </Tooltip>
-                <input
-                  ref={fileInput}
-                  type="file"
-                  multiple
-                  hidden
-                  tabIndex={-1}
-                  aria-hidden
-                  // The editor's rules: images only unless any file may upload.
-                  accept={onFileUpload || onAttachFiles ? undefined : "image/*"}
-                  onChange={(event) => {
-                    const picked = Array.from(event.currentTarget.files ?? []);
-                    event.currentTarget.value = "";
-                    if (!picked.length) return;
-                    if (onAttachFiles) onAttachFiles(picked);
-                    else handle.current?.uploadFiles(picked);
-                  }}
-                />
-              </>
-            ) : null}
             {actions}
           </div>
         }
@@ -1153,14 +1278,15 @@ export function CommentThread({
       className={cn(
         // Comments inside a thread sit flat on the thread's card: the root restates the item
         // card's surface at higher specificity (a descendant rule beats its own classes).
-        "flex min-w-0 flex-col gap-2 rounded-xl border border-border bg-card p-3 text-card-foreground transition-shadow duration-150 data-active:shadow-md",
-        "[&_[data-slot=comment-item]]:overflow-visible [&_[data-slot=comment-item]]:rounded-none [&_[data-slot=comment-item]]:border-0 [&_[data-slot=comment-item]]:bg-transparent [&_[data-slot=comment-card]]:p-0",
+        // Spec (web and mobile): a 1px border, a light fill, 4px padding; its comments are rows.
+        "flex min-w-0 flex-col gap-1 rounded-xl border border-border bg-muted/30 p-1 text-card-foreground transition-shadow duration-150 data-active:shadow-md",
+        "[&_[data-slot=comment-item]]:overflow-visible [&_[data-slot=comment-item]]:rounded-none [&_[data-slot=comment-item]]:border-0 [&_[data-slot=comment-item]]:bg-transparent [&_[data-slot=comment-item]]:p-0",
         className,
       )}
     >
       <div
         data-slot="comment-thread-header"
-        className="flex min-w-0 items-start gap-2"
+        className="flex min-w-0 items-start gap-2 px-2 pt-1"
       >
         <div className="min-w-0 flex-1">
           {orphaned ? (
@@ -1232,11 +1358,11 @@ export function CommentThread({
           </Tooltip>
         ) : null}
       </div>
-      <ul data-slot="comment-thread-comments" className="flex flex-col gap-3">
+      <ul data-slot="comment-thread-comments" className="flex flex-col">
         {item(root)}
         {collapsed && replies.length > 0 ? (
           <>
-            <li data-slot="comment-thread-more">
+            <li data-slot="comment-thread-more" className="px-2">
               {onExpand ? (
                 <Button
                   variant="link"

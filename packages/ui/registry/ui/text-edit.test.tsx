@@ -1566,9 +1566,10 @@ test("mentions: @as searches once after the debounce, Enter inserts a chip, Back
   );
   expect(mentionMenu()).toBeNull();
   const box = screen.getByRole("textbox", { name: "Notes" }).element();
-  expect(box.querySelector('[data-slot="inline-chip"]')?.textContent).toBe(
-    "Asha Rao",
-  );
+  // The chip: the person's avatar (initials on their colour), then their name.
+  const chip = box.querySelector('[data-slot="inline-chip"]')!;
+  expect(chip.querySelector('[data-slot="inline-chip-avatar"]')).not.toBeNull();
+  expect(chip.textContent).toMatch(/Asha Rao$/);
 
   // The trailing space, then the whole chip.
   await userEvent.keyboard("{Backspace}{Backspace}");

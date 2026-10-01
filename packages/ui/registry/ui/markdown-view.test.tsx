@@ -405,11 +405,14 @@ test("mentions render as chips: a page links through mentionHref, a person and a
       '[data-slot="inline-chip"]',
     ),
   ];
-  expect(chips.map((chip) => chip.textContent)).toEqual([
-    "Asha Rao",
-    "Q3 plan",
-    "Private page",
-  ]);
+  // A person's chip leads with their avatar (initials on their colour, unselectable); the label
+  // is the rest.
+  const labelOf = (chip: HTMLElement) =>
+    (chip.textContent ?? "").slice(
+      chip.querySelector('[data-slot="inline-chip-avatar"]')?.textContent
+        ?.length ?? 0,
+    );
+  expect(chips.map(labelOf)).toEqual(["Asha Rao", "Q3 plan", "Private page"]);
   expect(chips.map((chip) => chip.tagName)).toEqual(["SPAN", "A", "SPAN"]);
   expect(chips[1]).toHaveAttribute("href", "/go/page/p1");
   expect(chips[2]).toHaveAttribute("data-restricted", "");

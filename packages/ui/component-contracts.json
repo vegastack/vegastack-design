@@ -14944,6 +14944,7 @@
       "engines": [],
       "docsSlug": "/docs/components/inline-chip",
       "registryDependencies": [
+        "@vegastack/avatar",
         "@vegastack/file-kind",
         "@vegastack/hover-card",
         "@vegastack/person-avatar"
@@ -24383,7 +24384,8 @@
                 "text-edit",
                 "text-edit-actions",
                 "text-edit-content",
-                "text-edit-footer"
+                "text-edit-footer",
+                "text-edit-leading"
               ]
             },
             {
@@ -27848,6 +27850,24 @@
             "status": "not-applicable",
             "rationale": "Type-only exports do not render or accept runtime refs."
           }
+        },
+        {
+          "name": "CommentMedia",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/comments.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "CommentMedia renders a list of image tiles; it takes no ref."
+          }
+        },
+        {
+          "name": "CommentMediaItem",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/comments.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
         }
       ],
       "variants": {
@@ -27910,15 +27930,18 @@
       "engines": [],
       "docsSlug": "/docs/components/comments",
       "registryDependencies": [
+        "@vegastack/attachment",
         "@vegastack/button",
         "@vegastack/date-time",
         "@vegastack/dropdown-menu",
+        "@vegastack/file-viewer",
         "@vegastack/markdown-view",
         "@vegastack/person-avatar",
         "@vegastack/reactions",
         "@vegastack/relative-time",
         "@vegastack/searchable-select",
         "@vegastack/skeleton",
+        "@vegastack/spinner",
         "@vegastack/text-edit",
         "@vegastack/tooltip"
       ],
@@ -27959,6 +27982,15 @@
                 "comment-item",
                 "comment-replies"
               ]
+            }
+          ],
+          "cssVariables": []
+        },
+        "CommentMedia": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["comment-media", "comment-media-item"]
             }
           ],
           "cssVariables": []

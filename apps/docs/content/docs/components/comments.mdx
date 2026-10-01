@@ -41,11 +41,14 @@ comments; and the composer at the end. Pass `comments` oldest first; `order="new
 them. With no comments, the composer sits right under the heading — no empty-state line (pass
 `emptyText` for one).
 
-`CommentComposer` is [`TextEdit`](/docs/components/text-edit)'s `composer` variant: at rest exactly an `Input` (32px, its border, radius, padding, type size and focus cue), growing line by line with its text to about ten lines and then scrolling inside, with no jump on focus. Its placeholder is "Add a comment…". A round ↑ send
-button sits inline at the end of the box, pinned to the bottom line as the text grows (a quiet grey
-disc while there is nothing to send; Cmd/Ctrl+Enter also sends); a muted round paperclip attach button sits
-before it whenever `onImageUpload` or `onFileUpload` is set, opening the file picker (the files
-upload through the editor's own flow), and the optional `attachments` slot before that. On a touch
+`CommentComposer` is [`TextEdit`](/docs/components/text-edit)'s `composer` variant, laid out as on
+mobile: at rest exactly an `Input` (32px, its border, radius, type size and focus cue) on a light
+fill, with a muted round paperclip on the LEFT (whenever `onImageUpload`, `onFileUpload` or
+`onAttachFiles` is set — after the optional `attachments` slot), the text in the middle and a round
+↑ Send on the RIGHT, both centred on the single line and 6px in from the box's edges. It grows line
+by line to about ten lines and then scrolls inside, with no jump on focus; the paperclip and Send
+stay pinned to the bottom row. Its placeholder is "Add a comment…"; Send is a quiet grey disc while
+there is nothing to send, and Cmd/Ctrl+Enter also sends. On a touch
 screen both buttons get a 40px target. `replyingTo={{ name }}` shows "Replying to name ×" above the
 box and the "Write a reply…" placeholder; × or Esc calls `onCancelReply` and keeps the text.
 The `files` slot renders inside the box at its bottom, under the text — a draft's attached files (pending cards with progress and ×) are part of what Send posts. With `onAttachFiles`, files pasted or dropped on the box join that tray too, instead of going into the text. With `hasFiles` (the draft carries finished files), Send is enabled and posts
@@ -58,10 +61,17 @@ edited with `TextEdit` (no toolbar; a reduced slash menu; no drag handles) and r
 `MarkdownView`. The editor's bubble menu and link input float in a portal, so the box never clips
 them. Times read in the compact form — "now", "19m ago", "3h ago" — with the exact time on hover.
 
-Each comment sits in its own card — the composer's surface (`bg-muted/30`), a hairline
-`border-border` and `rounded-xl` — and so do a deleted comment's placeholder and a comment being
-edited (the editor sits straight in the card, with no box inside the box). Replies are rows inside
-their comment's card, flush with it: the same 28px avatar and name column, the body under the name.
+Each comment sits in its own card — a light fill (`bg-muted/30`), a 1px `border-border`,
+`rounded-xl` and 4px padding — and so do a deleted comment's placeholder and a comment being edited
+(the editor sits straight in the card, with no box inside the box). Replies are rows inside their
+comment's card. The spacing, identical on web and mobile: a 24px avatar, 8px to the name; 4px from
+the name row to the body (or to the files when there is no text); 6px from the body to the files;
+12px between comments and between threads. A comment's images show as the images themselves —
+`CommentMedia`, a wrapping row of rounded previews at most 200px tall in their own aspect ratio,
+opening the `FileViewer` (wrap a comment's or a task's files in one `AttachmentPreview` to page
+through them all); a draft's pasted or picked images look the same, dimmed under a spinner while
+they upload. Other files are compact `Attachment` cards. Reaction pills always have a light border,
+with a soft tint when the viewer reacted.
 A long name truncates. The card's border never
 changes on hover or focus. Its hover actions sit at the card's top-right: the add-reaction button
 and the ⋯ button, identical ghost `icon-sm` buttons, shown on hover or focus inside the comment,

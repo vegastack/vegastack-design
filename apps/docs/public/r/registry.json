@@ -270,7 +270,10 @@
         "@vegastack/searchable-select",
         "@vegastack/skeleton",
         "@vegastack/text-edit",
-        "@vegastack/tooltip"
+        "@vegastack/tooltip",
+        "@vegastack/attachment",
+        "@vegastack/file-viewer",
+        "@vegastack/spinner"
       ],
       "files": [
         {
@@ -283,7 +286,7 @@
         "whenToUse": "Discussion on a record's page (a task, a meeting): comments oldest first with the composer at the end.",
         "whenNotToUse": "An activity feed or notifications — use Inbox.",
         "version": "0.23.109",
-        "integrity": "sha256-NVTmGBozsMX2Q95fHZij/80/QhxqHpPhJLaBHaddoYE="
+        "integrity": "sha256-dLWWBO3VAQIiB0mZULnWD/J7EJ3twCRMN8mwhmY34Pw="
       }
     },
     {
@@ -409,7 +412,7 @@
         "whenToUse": "Letting people react to a comment, message or post with emoji.",
         "whenNotToUse": "A single like or rating — use a toggle button.",
         "version": "0.23.109",
-        "integrity": "sha256-uepLYqmFJ/f1558oL4CHlKAZ4flTzy98itY5Jj95qtU="
+        "integrity": "sha256-YmAdu7aqOfhgjtT3r0DaZaW3okTTnuKfXzw4nA6nHSA="
       }
     },
     {
@@ -15804,7 +15807,8 @@
       "registryDependencies": [
         "@vegastack/file-kind",
         "@vegastack/hover-card",
-        "@vegastack/person-avatar"
+        "@vegastack/person-avatar",
+        "@vegastack/avatar"
       ],
       "files": [
         {
@@ -15817,7 +15821,7 @@
         "whenToUse": "A mention or a file link inside text — an editor, a Markdown body, a comment — that should read as part of the sentence and open or preview its target.",
         "whenNotToUse": "A record's property value or a picker (RecordChip), a removable token in an input (Chip), or a status label (Badge).",
         "version": "0.23.109",
-        "integrity": "sha256-sdwG+aPeMJHCiaa+j2kuOlTmEyW25YZimVXpgXT9Tic="
+        "integrity": "sha256-oZ7U9E58dp3Tq7nBrSOkSerugX1eYEm7+rYmqZcIFmI="
       }
     },
     {
@@ -17638,7 +17642,7 @@
         "whenToUse": "Comments, notes, summaries and documents stored as Markdown (format=\"markdown\") or HTML — with @ mentions, uploads, callouts, toggles, an outline and comment highlights for page editors; in-place editing of a MarkdownView (the read view is the editor until first edited).",
         "whenNotToUse": "Plain single-line input (Input) or collaborative real-time docs (deferred text-edit-collab).",
         "version": "0.23.109",
-        "integrity": "sha256-OzCsc6BIin31IwQRLQIqhoHkmu+NsjiX0GTFyX1ePu0="
+        "integrity": "sha256-3lSceKe6LVzd1PDesFgnIX3ey+eML3bMW9EXXQEn6Hk="
       }
     },
     {
