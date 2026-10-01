@@ -152,6 +152,11 @@ refused target shows `data-drop-invalid` in the destructive tint; an accepted on
 primary tint (`data-drop-over`). `onDropInto` receives `{ ids, targetId }` and may return a promise.
 Drag is pointer only: keep a "Move…" row action as the keyboard and touch path.
 
+`canMoveItem(row)` locks single rows — a view-only record (here "Budget.xlsx"). A row it answers
+`false` for is no drag source and carries `data-move-locked`; a dragged selection leaves it behind,
+and it still opens and can still take drops. On the board view it is the `Board`'s own
+`canMoveItem`: a locked card that neither drags nor lifts with <kbd>Space</kbd>.
+
 Files dragged in from the desktop drop onto the same folder rows and cards with
 `onDropFilesOnRow(rowId, entries)`: the row washes as for a move, dropped folders keep their
 structure in each entry's `relativePath`, and an outer `useFileDrop` surface (the canvas's own

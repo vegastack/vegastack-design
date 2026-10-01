@@ -1,4 +1,4 @@
-// @vegastack data-list@0.23.113 sha256-f4XBDKFnbULEZdxPyRu1AnkhcNDaYvNNB2tzzMRTmmQ=
+// @vegastack data-list@0.23.113 sha256-7BlhKaX1mqoShcHENc7Gqopomma9Zxa5DHw5dspAc0s=
 
 "use client";
 
@@ -342,6 +342,15 @@ export interface DataListProps<T> extends Omit<
    * @default undefined
    */
   canDropOnRow?: (row: T) => boolean;
+  /**
+   * Whether one row can move — a view-only record. A row answering `false` is no drag source
+   * (rows and grid cards, so the pointer never picks it up), is left out of a dragged selection,
+   * carries `data-move-locked`, and on the board view is a locked card (no pointer, touch or
+   * Space pick-up, no "Draggable card" role description). It still opens, keeps its actions and
+   * can still be a drop target.
+   * @default undefined (every row can move)
+   */
+  canMoveItem?: (row: T) => boolean;
   /**
    * Desktop files dropped on a folder row or card (one `canDropOnRow` accepts): the row takes
    * them — the same wash as a row drag — and an outer `useFileDrop` surface does not. Folders
@@ -1098,6 +1107,7 @@ export function DataList<T>({
   onDropFilesOnRow,
   onFilesOverRow,
   dragScope,
+  canMoveItem,
   dragItemsLabel = (count) => (count === 1 ? "1 item" : `${count} items`),
   sort,
   onSortChange,
@@ -1772,6 +1782,7 @@ export function DataList<T>({
 
   // ---- drag rows INTO targets ---------------------------------------------------------------
   const draggable = onDropInto !== undefined;
+  const rowMovable = (row: T) => canMoveItem?.(row) ?? true;
   const labelOfId = (id: string) => {
     const index = rowIds.indexOf(id);
     return index >= 0 && getRowLabel ? getRowLabel(data[index]!) : undefined;
@@ -1780,10 +1791,13 @@ export function DataList<T>({
   const into = useDragInto({
     disabled: !draggable && !fileDrops,
     scope: dragScope,
+    // A dragged selection carries only its movable rows (`canMoveItem`).
     getDragIds: (id) =>
       selectable && selected.has(id)
         ? [
-            ...rowIds.filter((rowId) => selected.has(rowId)),
+            ...rowIds.filter(
+              (rowId, index) => selected.has(rowId) && rowMovable(data[index]!),
+            ),
             ...[...selected].filter((rowId) => !rowIds.includes(rowId)),
           ]
         : [id],
@@ -1805,13 +1819,17 @@ export function DataList<T>({
       : undefined,
     onFilesOver: onFilesOverRow,
   });
-  const dragProps = (id: string, row: T) =>
-    draggable || fileDrops
-      ? into.getItemProps(id, {
-          drag: draggable,
-          drop: canDropOnRow?.(row) ? "whole" : false,
-        })
-      : undefined;
+  const dragProps = (id: string, row: T) => {
+    if (!draggable && !fileDrops) return undefined;
+    const movable = rowMovable(row);
+    return {
+      ...into.getItemProps(id, {
+        drag: draggable && movable,
+        drop: canDropOnRow?.(row) ? "whole" : false,
+      }),
+      "data-move-locked": draggable && !movable ? ("" as const) : undefined,
+    };
+  };
   // A row link's own native drag (its URL) would win over the row's.
   const cardLinkRender = draggable
     ? React.cloneElement(rowLinkRender ?? <a />, { draggable: false })
@@ -2179,6 +2197,7 @@ export function DataList<T>({
             : undefined
         }
         readOnly={!onMove}
+        canMoveItem={canMoveItem}
         onAdd={onAddToSection}
         addLabel={addLabel}
         collapsedColumns={collapsedSections}
