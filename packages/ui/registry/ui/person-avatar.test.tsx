@@ -34,3 +34,23 @@ test("personInitials: first and last word, two letters of one word, else the ema
   expect(personInitials("", "ops@acme.com")).toBe("OP");
   expect(personInitials("   ")).toBe("");
 });
+
+test("a team is a rounded-square tile with the team icon on its hue, never initials", async () => {
+  const screen = await render(
+    <div className="flex gap-2">
+      <PersonAvatar person={{ name: "Sales", kind: "team", hue: "green" }} />
+      <PersonAvatar person={{ name: "Ops" }} kind="team" size="lg" />
+    </div>,
+  );
+  const tiles = screen.container.querySelectorAll<HTMLElement>(
+    '[data-slot="avatar"][data-kind="team"]',
+  );
+  expect(tiles).toHaveLength(2);
+  expect(tiles[0]!.className).toContain("rounded-md");
+  const tile = fallback(tiles[0]!);
+  expect(tile.textContent).toBe("");
+  expect(tile.dataset.hue).toBe("green");
+  expect(tile.querySelector("svg.lucide-users-round")).not.toBeNull();
+  expect(fallback(tiles[1]!).dataset.hue).toBeUndefined();
+  await expectNoA11yViolations(screen.container);
+});

@@ -1,0 +1,85 @@
+---
+title: share-01
+description: A Share dialog that invites people and teams at one level, shows who has access and why, sets general access, and offers a public link.
+audience: public
+registry: share-01
+preview: share01Demo
+---
+
+## What it is
+
+The Share surface for one record, page or meeting. Every row, level and link comes in through
+props and every change goes out through a callback, so the same dialog serves tasks, meetings and
+pages. It is a `Dialog` (size `default`) from the 768px mobile breakpoint up and a bottom `Sheet`
+below it, with the same sections in both. It is a **block**: you pull it once with `shadcn add`,
+and then you own it. `ShareDemo` wires it to sample state.
+
+## Install
+
+```npm
+npx shadcn@latest add @vegastack/share-01
+```
+
+<RegistryInstallCallout />
+
+This installs the block's own files plus the components it composes: `button`, `checkbox`,
+`copy-button`, `dialog`, `input-group`, `people-input`, `permission-menu`, `person-avatar`,
+`select`, `sheet`, `skeleton`, `space-avatar`, `textarea`, `tooltip`, `use-mobile`.
+
+## Preview
+
+<ComponentPreview name="share01Demo" />
+
+### Invite mode
+
+Once a chip is chosen the dialog switches to the invite: one access level for the whole batch
+(`PermissionMenu`), **Notify people** (on by default), an optional message, and Cancel / Share.
+`onInvite` receives `{ invitees, level, notify, message }`, and the chips clear when it resolves.
+
+<ComponentPreview name="share01Invite" />
+
+### Public link on
+
+"Copy public link" turns the link on (`onCreatePublicLink`; return the URL and it is copied). While
+it is on: the URL with Copy and a Reset button (its tooltip says the current link stops working),
+an Expires select (Never, 1 day, 7 days, 30 days) and **Stop sharing**.
+
+<ComponentPreview name="share01PublicLink" />
+
+### Read-only viewer
+
+`canManage={false}`: no invite row, every level as text, general access as text, and the public
+link to copy (or "Off").
+
+<ComponentPreview name="share01ReadOnly" />
+
+## Anatomy
+
+- **Invite row**: `PeopleInput` with the host's `search`.
+- **Invite mode**: `Checkbox` "Notify people", `PermissionMenu` for the batch, `Textarea`, footer
+  Cancel / Share (`loading` while `onInvite` runs).
+- **People with access**: `PersonAvatar` (people and teams), the name with "(you)", a muted
+  reason ("Creator", "Assignee", "Manager of Priya", "via Sales team"), and `PermissionMenu`
+  (`readOnly` for built-in rows, Remove access with `onRemove`). `loading` shows skeleton rows.
+- **General access**: `SpaceAvatar`, a ghost `Select` ("Everyone in ‹space›" / "Only people
+  invited") with a muted hint, and the space's level.
+- **Anyone with the link**: off — "Off" and "Copy public link"; on — `InputGroup` with the URL,
+  `CopyButton` and a Reset button in a `Tooltip`, an Expires `Select`, and "Stop sharing".
+  `publicLinkPending` holds these controls while a change runs.
+- **Footer**: the note (`footerNote`, e.g. "Admins can view this space."), Copy link (`linkUrl`)
+  on the left and Done on the right. Every string is in `labels`.
+
+## Files
+
+| File                                   | Registry type        | Target                                     |
+| -------------------------------------- | -------------------- | ------------------------------------------ |
+| `share-01/components/share-dialog.tsx` | `registry:component` | `app/share-01/components/share-dialog.tsx` |
+| `share-01/components/share-demo.tsx`   | `registry:component` | `app/share-01/components/share-demo.tsx`   |
+| `share-01/page.tsx`                    | `registry:page`      | `app/share-01/page.tsx`                    |
+
+## Do / Don't
+
+<DoDont
+  do="Compute each row's reason and readOnly on the server from how the person has access."
+  dont="Let the dialog decide access — it only shows the rows and reports changes."
+/>

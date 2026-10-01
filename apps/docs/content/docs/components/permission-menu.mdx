@@ -1,0 +1,107 @@
+---
+title: Permission Menu
+description: An access level on a sharing row — levels with one-line descriptions and a check, optional Remove access, and read-only text.
+audience: public
+registry: permission-menu
+status: stable
+since: 0.23.112
+a11y: menu button; radio items with descriptions; Esc closes
+preview: permissionMenu
+---
+
+## Install
+
+<InstallSteps name="permission-menu" />
+
+## Usage
+
+```tsx
+import { PermissionMenu } from "@/components/ui/permission-menu";
+
+<PermissionMenu
+  value={entry.level}
+  options={LEVELS}
+  onValueChange={(level) => setLevel(entry.id, level)}
+  onRemove={() => removeAccess(entry.id)}
+  aria-label={`${entry.name}'s access: ${label}`}
+/>;
+```
+
+The last control on a sharing row. The trigger is a ghost button reading the current level and a
+chevron; the menu lists each level with a one-line muted description and a check on the current
+one. With `onRemove`, a separator and a destructive "Remove access" end the menu. A built-in row —
+the creator, an assignee, a manager — is `readOnly`: the level as plain muted text, no menu.
+
+<ComponentPreview
+  name="permissionMenu"
+  file="components/preview/permission-menu.tsx"
+/>
+
+## Scope
+
+- Owns: the trigger, the level list with descriptions and the check, Remove access, the read-only
+  text.
+- Does not own: what a level means or saving it — `onValueChange` and `onRemove` are the host's.
+- Compose with: `PersonAvatar` and `PeopleInput` in a share dialog (`share-01`).
+
+## Examples
+
+### Plain levels
+
+Without descriptions the menu is a plain radio list; `size="default"` takes the 32px tier.
+
+<ComponentPreview
+  name="permissionMenuPlain"
+  file="components/preview/permission-menu.tsx"
+/>
+
+### Read-only and disabled
+
+`readOnly` for a built-in row; `disabled` while a change saves.
+
+<ComponentPreview
+  name="permissionMenuReadOnly"
+  file="components/preview/permission-menu.tsx"
+/>
+
+## API Reference
+
+<ApiTable
+  path="../../packages/ui/registry/ui/permission-menu.tsx"
+  name="PermissionMenuProps"
+/>
+
+### PermissionMenuOption
+
+<ApiTable
+  path="../../packages/ui/registry/ui/permission-menu.tsx"
+  name="PermissionMenuOption"
+/>
+
+## Accessibility
+
+- The trigger is a menu button. In a list of rows every trigger reads "Can edit", so give each an
+  `aria-label` that names the row and keeps the visible level: "Priya's access: Can edit".
+- Levels are radio items (`menuitemradio`, `aria-checked`), and each description is the item's
+  accessible description rather than part of its name.
+- Read-only text is not focusable.
+
+| Key                                 | Action                          |
+| ----------------------------------- | ------------------------------- |
+| <kbd>Enter</kbd> / <kbd>Space</kbd> | Open the menu; choose the level |
+| <kbd>↑</kbd> / <kbd>↓</kbd>         | Move between levels             |
+| <kbd>Esc</kbd>                      | Close without changing          |
+
+<StatesTested name="permission-menu" />
+
+## Do / Don't
+
+<DoDont
+  do="Give each level a one-line description that says what it allows."
+  dont="Explain levels in a tooltip on the trigger — the menu is where the choice is made."
+/>
+
+<DoDont
+  do="Show built-in access (creator, assignee, manager) as readOnly with the reason beside the name."
+  dont="Offer Remove access on a row whose access comes from a role the dialog cannot change."
+/>

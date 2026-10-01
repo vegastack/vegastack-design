@@ -12,20 +12,20 @@
     "evidencePolicy": "Observed fields come from source, registry metadata, docs, and test topology. Unknown/not-applicable values are explicit; no inferred behavior is presented as verified."
   },
   "expectedCounts": {
-    "totalRegistryItems": 714,
-    "components": 142,
+    "totalRegistryItems": 718,
+    "components": 145,
     "animatedIcons": 467,
     "hooks": 13,
-    "blocks": 13,
+    "blocks": 14,
     "libs": 11,
     "chartBlocks": 68
   },
   "expectedWaveCounts": {
     "Core controls": 24,
-    "Forms/editing": 30,
+    "Forms/editing": 31,
     "Navigation/layout": 21,
-    "Overlays": 15,
-    "Data display": 26,
+    "Overlays": 16,
+    "Data display": 27,
     "Content/marketing": 15,
     "Shared internals": 3,
     "AI/chat": 8,
@@ -80,6 +80,7 @@
       "native-select",
       "number-field",
       "password-input",
+      "people-input",
       "record-chip",
       "region-select",
       "search-input",
@@ -116,21 +117,22 @@
       "table-of-contents"
     ],
     "Overlays": [
-      "alert-dialog",
-      "dialog",
-      "sheet",
-      "popover",
-      "hover-card",
-      "tooltip",
-      "dropdown-menu",
-      "context-menu",
-      "emoji-picker",
-      "toast",
-      "provider",
       "action-bar",
-      "shortcut-overlay",
+      "alert-dialog",
+      "context-menu",
+      "dialog",
       "drawer",
-      "file-viewer"
+      "dropdown-menu",
+      "emoji-picker",
+      "file-viewer",
+      "hover-card",
+      "permission-menu",
+      "popover",
+      "provider",
+      "sheet",
+      "shortcut-overlay",
+      "toast",
+      "tooltip"
     ],
     "Data display": [
       "board-card",
@@ -138,27 +140,28 @@
       "carousel",
       "chart",
       "chip",
+      "comment-margin",
+      "comments",
       "data-grid",
       "data-list",
       "data-list-pager",
+      "diff-view",
       "inbox",
       "load-more",
       "media-card",
       "meta-line",
+      "person-hover-card",
       "property-list",
+      "reactions",
+      "record-aside",
+      "record-list",
+      "space-avatar",
       "stat",
       "table",
       "thumbnail",
       "timeline",
-      "view-toggle",
-      "record-aside",
-      "person-hover-card",
-      "comments",
-      "reactions",
-      "record-list",
-      "comment-margin",
       "version-list",
-      "diff-view"
+      "view-toggle"
     ],
     "Content/marketing": [
       "alert",
@@ -29146,7 +29149,7 @@
       "states": {
         "behavior": {
           "status": "covered",
-          "values": ["stack", "overflow", "hover-card"],
+          "values": ["stack", "overflow", "hover-card", "team"],
           "evidence": "packages/ui/registry/ui/person-hover-card.tsx + packages/ui/registry/ui/person-hover-card.test.tsx"
         },
         "accessibility": {
@@ -29272,9 +29275,14 @@
         }
       ],
       "variants": {
-        "status": "not-applicable-or-inherited",
-        "dimensions": [],
-        "rationale": "Composes Avatar; the person's hue is data, not a variant axis."
+        "status": "observed",
+        "dimensions": [
+          {
+            "name": "kind",
+            "values": ["person", "team"]
+          }
+        ],
+        "rationale": "A person is the photo or initials on a circle; a team is the team icon on a rounded square. The hue is data, not a variant axis."
       },
       "sizes": {
         "status": "not-applicable-or-inherited",
@@ -29284,7 +29292,7 @@
       "states": {
         "behavior": {
           "status": "covered",
-          "values": ["image", "initials", "hue"],
+          "values": ["image", "initials", "hue", "team"],
           "evidence": "packages/ui/registry/ui/person-avatar.tsx + packages/ui/registry/ui/person-avatar.test.tsx"
         },
         "accessibility": {
@@ -29294,7 +29302,7 @@
         },
         "visual": {
           "status": "observed",
-          "values": ["default", "hue"],
+          "values": ["default", "hue", "team"],
           "evidence": "packages/ui/registry/ui/person-avatar.tsx"
         }
       },
@@ -29315,8 +29323,9 @@
       "docsSlug": "/docs/guides/components",
       "registryDependencies": ["@vegastack/avatar"],
       "npmDependencies": [
+        "@vegastack/design-tokens@^0.7.80",
         "@vegastack/design@^0.7.96",
-        "@vegastack/design-tokens@^0.7.80"
+        "lucide-react@^1.47.0"
       ],
       "testFiles": ["packages/ui/registry/ui/person-avatar.test.tsx"],
       "coverage": {
@@ -29331,8 +29340,455 @@
         "PersonAvatar": {
           "attributes": [
             {
+              "name": "data-kind",
+              "values": ["team"]
+            },
+            {
               "name": "data-slot",
               "values": ["avatar-image"]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
+    },
+    {
+      "name": "space-avatar",
+      "registryType": "registry:ui",
+      "title": "Space Avatar",
+      "summary": "A space's tile — its icon or first initial on its hue, a corner lock when private, the lock itself for a personal space — plus SpaceOption, the space row for pickers and menus.",
+      "status": "stable",
+      "since": "0.23.112",
+      "family": "data",
+      "wave": "Data display",
+      "sourceFiles": ["packages/ui/registry/ui/space-avatar.tsx"],
+      "publicSymbols": [
+        {
+          "name": "SpaceAvatar",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/space-avatar.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "span",
+            "rationale": "Props and ref spread onto the root span."
+          }
+        },
+        {
+          "name": "SpaceAvatarProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/space-avatar.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "Space",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/space-avatar.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "SpaceOption",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/space-avatar.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A presentational row composed into a host's item; it takes no ref."
+          }
+        },
+        {
+          "name": "SpaceOptionProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/space-avatar.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        }
+      ],
+      "variants": {
+        "status": "observed",
+        "dimensions": [
+          {
+            "name": "access",
+            "values": ["open", "private", "personal"]
+          }
+        ],
+        "rationale": "The space's access picks the corner lock (private) or the lock tile (personal)."
+      },
+      "sizes": {
+        "status": "observed",
+        "dimensions": [
+          {
+            "name": "size",
+            "values": ["xs", "sm", "default", "lg"]
+          }
+        ],
+        "rationale": "20, 24, 32 and 40px tiles; the lock and icon scale with them."
+      },
+      "states": {
+        "behavior": {
+          "status": "covered",
+          "values": ["initial", "icon", "hue", "private", "personal"],
+          "evidence": "packages/ui/registry/ui/space-avatar.tsx + packages/ui/registry/ui/space-avatar.test.tsx"
+        },
+        "accessibility": {
+          "status": "covered",
+          "values": [
+            "decorative",
+            "labelled-image",
+            "browser-accessibility-test"
+          ],
+          "evidence": "packages/ui/registry/ui/space-avatar.test.tsx"
+        },
+        "visual": {
+          "status": "observed",
+          "values": ["default", "hue", "private", "personal"],
+          "evidence": "packages/ui/registry/ui/space-avatar.tsx"
+        }
+      },
+      "responsive": {
+        "status": "not-applicable",
+        "risks": [],
+        "rationale": "A fixed-size tile; its host owns layout."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned motion."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/space-avatar",
+      "registryDependencies": ["@vegastack/avatar", "@vegastack/badge"],
+      "npmDependencies": [
+        "@vegastack/design-tokens@^0.7.80",
+        "@vegastack/design@^0.7.96",
+        "lucide-react@^1.47.0"
+      ],
+      "testFiles": ["packages/ui/registry/ui/space-avatar.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required"
+      },
+      "previewModule": "space-avatar",
+      "dataAttributes": {
+        "SpaceAvatar": {
+          "attributes": [
+            {
+              "name": "data-access",
+              "values": []
+            },
+            {
+              "name": "data-size",
+              "values": []
+            },
+            {
+              "name": "data-slot",
+              "values": ["space-avatar", "space-avatar-lock"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "SpaceOption": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["space-option", "space-option-badge"]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
+    },
+    {
+      "name": "people-input",
+      "registryType": "registry:ui",
+      "title": "People Input",
+      "summary": "Add people or teams as removable chips, searched as you type — a Combobox chips field over the host's async search, listing PersonOption rows with person and team avatars.",
+      "status": "stable",
+      "since": "0.23.112",
+      "family": "form",
+      "wave": "Forms/editing",
+      "sourceFiles": ["packages/ui/registry/ui/people-input.tsx"],
+      "publicSymbols": [
+        {
+          "name": "PeopleInput",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/people-input.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A Combobox composition; the chips field and its input are Base UI's, and it forwards no ref of its own."
+          }
+        },
+        {
+          "name": "PeopleInputProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/people-input.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "PeopleInputOption",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/people-input.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "One chips field; people and teams differ by data (kind), not by a variant axis."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "Combobox chips' own height; the field grows as chips wrap."
+      },
+      "states": {
+        "behavior": {
+          "status": "covered",
+          "values": [
+            "empty",
+            "searching",
+            "results",
+            "no-results",
+            "error",
+            "chips",
+            "remove",
+            "backspace-remove",
+            "disabled",
+            "in-dialog",
+            "in-sheet"
+          ],
+          "evidence": "packages/ui/registry/ui/people-input.tsx + packages/ui/registry/ui/people-input.test.tsx"
+        },
+        "accessibility": {
+          "status": "covered",
+          "values": ["labeled", "keyboard", "browser-accessibility-test"],
+          "evidence": "packages/ui/registry/ui/people-input.test.tsx"
+        },
+        "visual": {
+          "status": "observed",
+          "values": ["default", "focus", "open", "chips"],
+          "evidence": "packages/ui/registry/ui/people-input.tsx"
+        }
+      },
+      "responsive": {
+        "status": "modeled",
+        "risks": ["responsive-or-container-layout"],
+        "rationale": "The chips field is w-full and wraps; the popup is anchored to the field's width and clamped to the viewport."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned motion; the popup's transitions are Combobox's."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/people-input",
+      "registryDependencies": [
+        "@vegastack/button",
+        "@vegastack/combobox",
+        "@vegastack/person-avatar",
+        "@vegastack/searchable-select",
+        "@vegastack/spinner",
+        "@vegastack/use-async-search"
+      ],
+      "npmDependencies": [
+        "@base-ui/react@^1.6.0",
+        "@vegastack/design-tokens@^0.7.80",
+        "@vegastack/design@^0.7.96",
+        "lucide-react@^1.47.0"
+      ],
+      "testFiles": ["packages/ui/registry/ui/people-input.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required"
+      },
+      "previewModule": "people-input",
+      "dataAttributes": {
+        "PeopleInput": {
+          "attributes": [
+            {
+              "name": "data-kind",
+              "values": ["person"]
+            },
+            {
+              "name": "data-people-input",
+              "values": [""]
+            },
+            {
+              "name": "data-slot",
+              "values": ["people-input-chip-remove"]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
+    },
+    {
+      "name": "permission-menu",
+      "registryType": "registry:ui",
+      "title": "Permission Menu",
+      "summary": "An access level on a sharing row — a ghost trigger reading the level, a menu of levels with one-line descriptions and a check on the current one, an optional destructive Remove access, and a read-only text mode for built-in rows.",
+      "status": "stable",
+      "since": "0.23.112",
+      "family": "overlay",
+      "wave": "Overlays",
+      "sourceFiles": ["packages/ui/registry/ui/permission-menu.tsx"],
+      "publicSymbols": [
+        {
+          "name": "PermissionMenu",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/permission-menu.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A DropdownMenu recipe; the trigger is DropdownMenuTrigger's Button and it forwards no ref of its own."
+          }
+        },
+        {
+          "name": "PermissionMenuProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/permission-menu.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "PermissionMenuOption",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/permission-menu.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        }
+      ],
+      "variants": {
+        "status": "observed",
+        "dimensions": [
+          {
+            "name": "readOnly",
+            "values": ["false", "true"]
+          }
+        ],
+        "rationale": "A menu, or the level as plain muted text for a built-in row."
+      },
+      "sizes": {
+        "status": "observed",
+        "dimensions": [
+          {
+            "name": "size",
+            "values": ["sm", "default"]
+          }
+        ],
+        "rationale": "Button's sm and default tiers for the trigger."
+      },
+      "states": {
+        "behavior": {
+          "status": "covered",
+          "values": [
+            "closed",
+            "open",
+            "checked",
+            "described",
+            "remove",
+            "read-only",
+            "disabled"
+          ],
+          "evidence": "packages/ui/registry/ui/permission-menu.tsx + packages/ui/registry/ui/permission-menu.test.tsx"
+        },
+        "accessibility": {
+          "status": "covered",
+          "values": ["labeled", "keyboard", "browser-accessibility-test"],
+          "evidence": "packages/ui/registry/ui/permission-menu.test.tsx"
+        },
+        "visual": {
+          "status": "observed",
+          "values": ["default", "hover", "focus", "open", "read-only"],
+          "evidence": "packages/ui/registry/ui/permission-menu.tsx"
+        }
+      },
+      "responsive": {
+        "status": "not-applicable",
+        "risks": [],
+        "rationale": "A shrink-0 trigger at the end of a row; the menu is clamped to the viewport by DropdownMenu."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned motion; the menu's transitions are DropdownMenu's."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/permission-menu",
+      "registryDependencies": [
+        "@vegastack/button",
+        "@vegastack/dropdown-menu",
+        "@vegastack/item"
+      ],
+      "npmDependencies": [
+        "@vegastack/design-tokens@^0.7.80",
+        "@vegastack/design@^0.7.96",
+        "lucide-react@^1.47.0"
+      ],
+      "testFiles": ["packages/ui/registry/ui/permission-menu.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required"
+      },
+      "previewModule": "permission-menu",
+      "dataAttributes": {
+        "PermissionMenu": {
+          "attributes": [
+            {
+              "name": "data-icon",
+              "values": ["inline-end"]
+            },
+            {
+              "name": "data-permission-menu",
+              "values": [""]
+            },
+            {
+              "name": "data-permission-menu-remove",
+              "values": [""]
+            },
+            {
+              "name": "data-readonly",
+              "values": [""]
+            },
+            {
+              "name": "data-slot",
+              "values": ["permission-menu", "permission-menu-chevron"]
             }
           ],
           "cssVariables": []
@@ -35067,6 +35523,201 @@
         "vrt": "required"
       },
       "previewModule": "status-pages-01"
+    },
+    {
+      "name": "share-01",
+      "registryType": "registry:block",
+      "title": "Share 01",
+      "summary": "A Share dialog for one item — invite people and teams with one access level, people with access and why, general access in the item's space, and a view-only public link; a Dialog on wide screens, a bottom Sheet on phones.",
+      "family": "starter-block",
+      "wave": "Block",
+      "sourceFiles": [
+        "packages/ui/registry/blocks/share-01/components/share-demo.tsx",
+        "packages/ui/registry/blocks/share-01/components/share-dialog.tsx",
+        "packages/ui/registry/blocks/share-01/page.tsx"
+      ],
+      "publicSymbols": [
+        {
+          "name": "Page",
+          "kind": "component",
+          "source": "packages/ui/registry/blocks/share-01/page.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A block part is a composition, not an API: Page forwards no ref of its own, and its internals are not part of any published surface."
+          }
+        },
+        {
+          "name": "ShareDemo",
+          "kind": "component",
+          "source": "packages/ui/registry/blocks/share-01/components/share-demo.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A block part is a composition, not an API: ShareDemo forwards no ref of its own, and its internals are not part of any published surface."
+          }
+        },
+        {
+          "name": "ShareDemoProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/blocks/share-01/components/share-demo.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "ShareDialog",
+          "kind": "component",
+          "source": "packages/ui/registry/blocks/share-01/components/share-dialog.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A block part is a composition, not an API: ShareDialog forwards no ref of its own, and its internals are not part of any published surface."
+          }
+        },
+        {
+          "name": "ShareDialogLabels",
+          "kind": "interface",
+          "source": "packages/ui/registry/blocks/share-01/components/share-dialog.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "ShareDialogProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/blocks/share-01/components/share-dialog.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "ShareEntry",
+          "kind": "interface",
+          "source": "packages/ui/registry/blocks/share-01/components/share-dialog.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "ShareGeneralAccess",
+          "kind": "interface",
+          "source": "packages/ui/registry/blocks/share-01/components/share-dialog.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "ShareInvite",
+          "kind": "interface",
+          "source": "packages/ui/registry/blocks/share-01/components/share-dialog.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "ShareLinkExpiry",
+          "kind": "interface",
+          "source": "packages/ui/registry/blocks/share-01/components/share-dialog.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "SharePublicLink",
+          "kind": "interface",
+          "source": "packages/ui/registry/blocks/share-01/components/share-dialog.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "A block is a copy-once composition with no prop surface of its own; every variant it shows belongs to a component it composes."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "Sizing is the page layout's, and the composed components own their own scales."
+      },
+      "states": {
+        "behavior": {
+          "status": "observed",
+          "values": [
+            "default",
+            "invite",
+            "public-link-on",
+            "read-only",
+            "loading",
+            "sheet"
+          ],
+          "evidence": "Observed from the block's own branches and the state its parts carry."
+        },
+        "accessibility": {
+          "status": "covered",
+          "values": ["semantic-html", "browser-accessibility-test"],
+          "evidence": "packages/ui/registry/blocks/share-01/components/share-dialog.tsx + packages/ui/registry/blocks/share-01/share-01.test.tsx"
+        },
+        "visual": {
+          "status": "observed",
+          "values": ["default", "hover", "focus"],
+          "evidence": "Observed from the token classes the composition carries."
+        }
+      },
+      "responsive": {
+        "status": "modeled",
+        "risks": ["responsive-or-container-layout", "mobile-or-touch-mode"],
+        "rationale": "A Dialog from the 768px mobile breakpoint up and a bottom Sheet below it (useIsMobile), the same sections in both; checked at 1280x900 and 390x844."
+      },
+      "motion": {
+        "status": "modeled",
+        "mechanisms": ["the composed components' own transitions"],
+        "reducedMotion": {
+          "status": "covered",
+          "rationale": "The global reduced-motion reset in base.css neutralises every transition the composition inherits (MOT-5); the block adds none of its own."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/blocks/share-01",
+      "registryDependencies": [
+        "@vegastack/button",
+        "@vegastack/checkbox",
+        "@vegastack/copy-button",
+        "@vegastack/dialog",
+        "@vegastack/input-group",
+        "@vegastack/people-input",
+        "@vegastack/permission-menu",
+        "@vegastack/person-avatar",
+        "@vegastack/select",
+        "@vegastack/sheet",
+        "@vegastack/skeleton",
+        "@vegastack/space-avatar",
+        "@vegastack/textarea",
+        "@vegastack/tooltip",
+        "@vegastack/use-mobile"
+      ],
+      "npmDependencies": [
+        "lucide-react@^1.47.0",
+        "@vegastack/design-tokens@^0.7.80"
+      ],
+      "testFiles": ["packages/ui/registry/blocks/share-01/share-01.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required"
+      },
+      "previewModule": "share-01",
+      "dataAttributes": {}
     }
   ],
   "modeledExemptions": [

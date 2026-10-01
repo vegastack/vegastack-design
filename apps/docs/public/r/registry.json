@@ -16568,7 +16568,106 @@
         "whenToUse": "Show the people on a record (participants, watchers, a team) as stacked avatars, each previewing the person on hover, focus or tap.",
         "whenNotToUse": "A picker of people (SearchableSelect) or a full member list (DataList).",
         "version": "0.23.111",
-        "integrity": "sha256-10FN06JXBp/EX0WvLy/uvIggX2SyhRaJhQuEIvkP398="
+        "integrity": "sha256-3nydOydSLZMItUNhhoKiiWveyDjkiiIANr9cv2xfJSU="
+      }
+    },
+    {
+      "name": "space-avatar",
+      "type": "registry:ui",
+      "title": "Space Avatar",
+      "description": "A space's tile — its icon or first initial on its hue, a corner lock when private, the lock itself for a personal space — plus SpaceOption, the space row for pickers and menus.",
+      "categories": [
+        "data"
+      ],
+      "dependencies": [
+        "lucide-react@^1.47.0",
+        "@vegastack/design@^0.7.96",
+        "@vegastack/design-tokens@^0.7.80"
+      ],
+      "registryDependencies": [
+        "@vegastack/avatar",
+        "@vegastack/badge"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/space-avatar.tsx",
+          "type": "registry:ui",
+          "target": "@ui/space-avatar.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "Any place a space is drawn or listed: the sidebar, a space picker, a Move to… menu, a share dialog's general access row.",
+        "whenNotToUse": "A person or team (PersonAvatar), or a record image (Thumbnail).",
+        "version": "0.23.111",
+        "integrity": "sha256-ImFn/tOQk5gsLOt06kopPMlhg4p0a0jH+ocWtOs268Y="
+      }
+    },
+    {
+      "name": "people-input",
+      "type": "registry:ui",
+      "title": "People Input",
+      "description": "Add people or teams as removable chips, searched as you type — a Combobox chips field over the host's async search, listing PersonOption rows with person and team avatars.",
+      "categories": [
+        "form"
+      ],
+      "dependencies": [
+        "@base-ui/react@^1.6.0",
+        "lucide-react@^1.47.0",
+        "@vegastack/design@^0.7.96",
+        "@vegastack/design-tokens@^0.7.80"
+      ],
+      "registryDependencies": [
+        "@vegastack/button",
+        "@vegastack/combobox",
+        "@vegastack/person-avatar",
+        "@vegastack/searchable-select",
+        "@vegastack/spinner",
+        "@vegastack/use-async-search"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/people-input.tsx",
+          "type": "registry:ui",
+          "target": "@ui/people-input.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "Invite or add several people and teams at once from a directory search — a share dialog, adding members to a space or team.",
+        "whenNotToUse": "Pick one person (SearchableSelect with itemToAvatar), or type free-form tokens such as emails (ChipInput).",
+        "version": "0.23.111",
+        "integrity": "sha256-SPdU+S78zzF6oF2N5YWMR0F5/FbVPUivvT20zJT67VI="
+      }
+    },
+    {
+      "name": "permission-menu",
+      "type": "registry:ui",
+      "title": "Permission Menu",
+      "description": "An access level on a sharing row — a ghost trigger reading the level, a menu of levels with one-line descriptions and a check on the current one, an optional destructive Remove access, and a read-only text mode for built-in rows.",
+      "categories": [
+        "overlay"
+      ],
+      "dependencies": [
+        "lucide-react@^1.47.0",
+        "@vegastack/design@^0.7.96",
+        "@vegastack/design-tokens@^0.7.80"
+      ],
+      "registryDependencies": [
+        "@vegastack/button",
+        "@vegastack/dropdown-menu",
+        "@vegastack/item"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/permission-menu.tsx",
+          "type": "registry:ui",
+          "target": "@ui/permission-menu.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "Choose or show the access level of one person, team or group on a sharing or membership row.",
+        "whenNotToUse": "A form field choosing a value (Select), or a row's general actions (DropdownMenu or RowActionMenu).",
+        "version": "0.23.111",
+        "integrity": "sha256-3O2WeHFRUC9BYw1e+AAnapPhwX96v8kdhsXSLoZZYHc="
       }
     },
     {
@@ -16581,7 +16680,8 @@
       ],
       "dependencies": [
         "@vegastack/design@^0.7.96",
-        "@vegastack/design-tokens@^0.7.80"
+        "@vegastack/design-tokens@^0.7.80",
+        "lucide-react@^1.47.0"
       ],
       "registryDependencies": [
         "@vegastack/avatar"
@@ -16595,9 +16695,9 @@
       ],
       "meta": {
         "whenToUse": "Any avatar that stands for a person: rows, chips, cards, menus, comments and the user menu.",
-        "whenNotToUse": "An organisation or record image (Thumbnail) or a non-person avatar composition (Avatar).",
+        "whenNotToUse": "An organisation or record image (Thumbnail), a space (SpaceAvatar), or a non-person avatar composition (Avatar).",
         "version": "0.23.111",
-        "integrity": "sha256-7FgYeEbNppj3S4NR3jcisV8DOhkEE+gxYdtCDJXkq68="
+        "integrity": "sha256-PKJ5ourHmjcGZAoeSdAk8gtFnpIB2uuJ04bXY8jDyJE="
       }
     },
     {
@@ -18411,6 +18511,60 @@
         "whenNotToUse": "A record page with properties and a comments section — use issue-detail-01.",
         "version": "0.23.111",
         "integrity": "sha256-kbLJyOWUv8cA3mJ8wy8IWCmtBBdavcpnY2Y432Gi8TM="
+      }
+    },
+    {
+      "name": "share-01",
+      "type": "registry:block",
+      "title": "Share 01",
+      "description": "A Share dialog for one item — invite people and teams with one access level, people with access and why, general access in the item's space, and a view-only public link; a Dialog on wide screens, a bottom Sheet on phones.",
+      "categories": [
+        "sharing",
+        "access"
+      ],
+      "dependencies": [
+        "lucide-react@^1.47.0",
+        "@vegastack/design-tokens@^0.7.80"
+      ],
+      "registryDependencies": [
+        "@vegastack/button",
+        "@vegastack/checkbox",
+        "@vegastack/copy-button",
+        "@vegastack/dialog",
+        "@vegastack/input-group",
+        "@vegastack/people-input",
+        "@vegastack/permission-menu",
+        "@vegastack/person-avatar",
+        "@vegastack/select",
+        "@vegastack/sheet",
+        "@vegastack/skeleton",
+        "@vegastack/space-avatar",
+        "@vegastack/textarea",
+        "@vegastack/tooltip",
+        "@vegastack/use-mobile"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/registry/blocks/share-01/components/share-dialog.tsx",
+          "type": "registry:component",
+          "target": "app/share-01/components/share-dialog.tsx"
+        },
+        {
+          "path": "packages/ui/registry/blocks/share-01/components/share-demo.tsx",
+          "type": "registry:component",
+          "target": "app/share-01/components/share-demo.tsx"
+        },
+        {
+          "path": "packages/ui/registry/blocks/share-01/page.tsx",
+          "type": "registry:page",
+          "target": "app/share-01/page.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "Share a record, page or meeting with people and teams, set its general access and turn a public link on or off.",
+        "whenNotToUse": "Manage a space's or team's members as a page — compose DataList with PeopleInput and PermissionMenu.",
+        "version": "0.23.111",
+        "integrity": "sha256-4mjWpy9wUts0gz3zKMxvlwTENeN0+ErcNk6Bzbo9TYM="
       }
     },
     {

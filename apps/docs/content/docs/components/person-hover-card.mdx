@@ -77,6 +77,18 @@ Avatar's own — `sm` (the default), `default` and `lg` — and the photo never 
   file="components/preview/person-hover-card.tsx"
 />
 
+### Teams
+
+A person with `kind: "team"` is a team: `PersonAvatar` draws it as a rounded-square tile with the
+team icon on its hue — never initials or a photo — and `AvatarStack`, its hover previews and its
+list show teams beside people the same way. Use the muted line (`email`) for something like
+"8 members".
+
+<ComponentPreview
+  name="personHoverCardTeam"
+  file="components/preview/person-hover-card.tsx"
+/>
+
 ### Inactive member
 
 `badge` on the person puts a status right after the name — a string such as "Inactive" is a small
