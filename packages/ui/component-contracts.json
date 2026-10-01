@@ -279,6 +279,11 @@
         "globalInputGroups": ["tokens", "shared-runtime"]
       },
       {
+        "file": "packages/ui/test/text-edit-swap.browser.test.tsx",
+        "owners": ["text-edit", "markdown-view"],
+        "globalInputGroups": ["tokens", "shared-runtime"]
+      },
+      {
         "file": "packages/ui/test/record-chip-geometry.browser.test.tsx",
         "owners": [
           "priority-icon",
