@@ -1,4 +1,4 @@
-// @vegastack comments@0.23.97 sha256-zwBnbVNl0RWzLs2cNdoYWMJBlAKLi0+/1/KrGFth43k=
+// @vegastack comments@0.23.97 sha256-kdK0NI3TxeA9auakf3Jh4UuZUd6K6rYthwaYEAbzEfU=
 
 "use client";
 
@@ -17,16 +17,6 @@ import {
   X,
 } from "lucide-react";
 import { cn } from "@vegastack/design";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -59,8 +49,7 @@ import {
 
 /* ------------------------------------------------------------------------------------------------
  * Comments — a record's discussion: `CommentList` (heading with a count and an Oldest / Newest
- * first toggle, "Load earlier", skeleton and a one-line "No comments yet" with the composer under
- * it), `CommentItem` (avatar, name, relative time, "edited", a ⋯ menu with Copy link / Edit
+ * first toggle, "Load earlier", skeleton, and with no comments just the composer), `CommentItem` (avatar, name, relative time, "edited", a ⋯ menu with Copy link / Edit
  * / Delete, in-place editing in a compact box, a `#comment-<id>` highlight and a replies slot) and
  * Slack-style reactions under the body (pills, and an add-reaction button in the hover actions),
  * `CommentComposer` (a light, near-transparent box with a round send button; Cmd/Ctrl+Enter sends). The
@@ -107,7 +96,7 @@ export interface CommentItemProps {
   comment: CommentData;
   /** Save an edit: called with the comment's id and the new Markdown. @default undefined */
   onEdit?: MaybeAsync<[id: string, body: string]>;
-  /** Delete after the viewer confirms. @default undefined */
+  /** Delete at once (no confirm dialog — the host offers Undo, e.g. in a toast). @default undefined */
   onDelete?: MaybeAsync<[id: string]>;
   /** Copy a link to the comment; the menu shows Copy link when set. @default undefined */
   onCopyLink?: (id: string) => void;
@@ -215,7 +204,6 @@ export function CommentItem({
     }
   }
   const [error, setError] = React.useState<string | null>(null);
-  const [confirmOpen, setConfirmOpen] = React.useState(false);
   const { author } = comment;
   const reactions = comment.reactions?.filter((r) => r.count > 0) ?? [];
   const toggleReaction = onReactionToggle
@@ -246,7 +234,6 @@ export function CommentItem({
   };
 
   const remove = async () => {
-    setConfirmOpen(false);
     setError(null);
     try {
       await onDelete?.(comment.id);
@@ -385,7 +372,7 @@ export function CommentItem({
                           ) : null}
                           <DropdownMenuItem
                             variant="destructive"
-                            onClick={() => setConfirmOpen(true)}
+                            onClick={() => void remove()}
                           >
                             <Trash2 aria-hidden />
                             Delete
@@ -489,22 +476,6 @@ export function CommentItem({
           {replies}
         </ul>
       ) : null}
-      <AlertDialog open={confirmOpen} onOpenChange={setConfirmOpen}>
-        <AlertDialogContent size="sm">
-          <AlertDialogHeader>
-            <AlertDialogTitle>Delete comment?</AlertDialogTitle>
-            <AlertDialogDescription>
-              This comment will be removed for everyone.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction variant="destructive" onClick={remove}>
-              Delete
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
     </li>
   );
 }
@@ -547,9 +518,9 @@ interface CommentBoxProps {
   onImageUpload?: TextEditProps["onImageUpload"];
   onFileUpload?: TextEditProps["onFileUpload"];
   onUploadError?: TextEditProps["onUploadError"];
-  /** Files picked with the attach button go here instead of into the text. */
+  /** Files picked with the attach button, pasted or dropped go here instead of into the text. */
   onAttachFiles?: (files: File[]) => void;
-  /** Over the box: the draft's attached files (cards with their upload progress). */
+  /** Inside the box at its bottom, under the text: the draft's attached files (cards with their upload progress). */
   files?: React.ReactNode;
 }
 
@@ -603,6 +574,30 @@ function CommentBox({
       data-bare={bare ? "" : undefined}
       aria-invalid={invalid || undefined}
       className="flex min-w-0 flex-col gap-1.5"
+      // With `onAttachFiles`, pasted or dropped files join the box's attached files (the same
+      // tray as the paperclip) instead of going into the text.
+      onPasteCapture={
+        onAttachFiles && !disabled
+          ? (event) => {
+              const picked = Array.from(event.clipboardData?.files ?? []);
+              if (!picked.length) return;
+              event.preventDefault();
+              event.stopPropagation();
+              onAttachFiles(picked);
+            }
+          : undefined
+      }
+      onDropCapture={
+        onAttachFiles && !disabled
+          ? (event) => {
+              const picked = Array.from(event.dataTransfer?.files ?? []);
+              if (!picked.length) return;
+              event.preventDefault();
+              event.stopPropagation();
+              onAttachFiles(picked);
+            }
+          : undefined
+      }
       onKeyDown={
         onEscape
           ? (event) => {
@@ -612,16 +607,11 @@ function CommentBox({
           : undefined
       }
     >
-      {files ? (
-        <div data-slot="comment-box-files" className="min-w-0">
-          {files}
-        </div>
-      ) : null}
       <TextEdit
         variant="boxed"
         handleRef={handle}
         className={cn(
-          "flex min-h-8 items-end gap-1 rounded-xl border-border bg-muted/30 py-px ps-3 pe-px dark:bg-muted/30",
+          "flex min-h-8 flex-wrap items-end gap-1 rounded-lg border-border bg-muted/30 py-px ps-3 pe-px dark:bg-muted/30",
           // The text column fills the row and centres a single line against the 28px controls.
           "[&_[data-slot=text-edit-content]]:flex-1 [&_[data-slot=text-edit-content]]:self-center [&_[data-slot=text-edit-content]]:py-0.5 [&_.tiptap]:py-0.5",
           bare &&
@@ -650,6 +640,15 @@ function CommentBox({
         onFileUpload={onFileUpload}
         onUploadError={onUploadError}
       >
+        {files ? (
+          // Inside the box at its bottom, under the text: the draft's files are part of what Send posts.
+          <div
+            data-slot="comment-box-files"
+            className="order-last min-w-0 basis-full pe-1.5 pb-1.5"
+          >
+            {files}
+          </div>
+        ) : null}
         <div
           data-slot="comment-box-actions"
           className="flex shrink-0 items-center gap-1"
@@ -799,8 +798,10 @@ export interface CommentComposerProps {
    * attach button on its own. @default undefined
    */
   onAttachFiles?: (files: File[]) => void;
-  /** Over the box: the draft's attached files, e.g. cards with their upload progress. @default undefined */
+  /** Inside the box at its bottom, under the text: the draft's attached files, e.g. cards with their upload progress. @default undefined */
   files?: React.ReactNode;
+  /** The draft carries files (`files`): Send is enabled and posts with no text. @default false */
+  hasFiles?: boolean;
   /** Classes for the composer. @default undefined */
   className?: string;
 }
@@ -834,6 +835,7 @@ export function CommentComposer({
   mentionImage,
   onAttachFiles,
   files,
+  hasFiles = false,
   className,
 }: CommentComposerProps) {
   const [generation, setGeneration] = React.useState(0);
@@ -844,7 +846,7 @@ export function CommentComposer({
   const error = errorProp !== undefined ? errorProp : errorState;
 
   const submit = async (value: string) => {
-    if (!value.trim() || posting) return;
+    if ((!value.trim() && !hasFiles) || posting) return;
     setPending(true);
     setErrorState(null);
     try {
@@ -919,7 +921,7 @@ export function CommentComposer({
           <SendButton
             label={submitLabel ?? (replyingTo ? "Send reply" : "Send comment")}
             loading={posting}
-            disabled={disabled || !body.trim()}
+            disabled={disabled || (!body.trim() && !hasFiles)}
             onClick={() => void submit(body)}
           />
         }
@@ -1046,6 +1048,7 @@ export interface CommentThreadProps {
       | "mentionImage"
       | "onAttachFiles"
       | "files"
+      | "hasFiles"
       | "placeholder"
       | "submitLabel"
       | "disabled"
@@ -1109,7 +1112,7 @@ export function CommentThread({
   const { resolved, orphaned, quote, root, replies } = thread;
 
   const reply = async (body: string) => {
-    if (!body.trim() || posting) return;
+    if ((!body.trim() && !composer?.hasFiles) || posting) return;
     setPending(true);
     setError(null);
     try {
@@ -1289,7 +1292,9 @@ export function CommentThread({
               <SendButton
                 label={composer?.submitLabel ?? "Send reply"}
                 loading={posting}
-                disabled={!!composer?.disabled || !draft.trim()}
+                disabled={
+                  !!composer?.disabled || (!draft.trim() && !composer?.hasFiles)
+                }
                 onClick={() => void reply(draft)}
               />
             }
@@ -1372,12 +1377,11 @@ export interface CommentListProps {
   /** A file chip's content type by href (see `MarkdownView`'s `fileContentType`). @default undefined */
   fileContentType?: CommentItemProps["fileContentType"];
   /**
-   * The composer, at the section's end — with no comments, directly under the "No comments yet"
-   * line.
+   * The composer, at the section's end — with no comments, right under the heading.
    * @default undefined
    */
   composer?: React.ReactNode;
-  /** The empty state's text. @default "No comments yet" */
+  /** A muted line shown while there are no comments; none by default (the composer is enough). @default undefined */
   emptyText?: string;
   /** Pin the relative times' clock (docs, tests). @default undefined */
   now?: number;
@@ -1388,7 +1392,7 @@ export interface CommentListProps {
 /**
  * `CommentList` — a record's comments section: "Comments" with a count and an Oldest / Newest
  * first toggle, "Load earlier", the comments, and the composer at the end. A skeleton while
- * loading; with none, a muted "No comments yet" line with the composer right under it.
+ * loading; with none, just the composer (or `emptyText` over it).
  *
  * @example
  * <CommentList comments={comments} order={order} onOrderChange={setOrder}
@@ -1420,7 +1424,7 @@ export function CommentList({
   mentionImage,
   fileContentType,
   composer,
-  emptyText = "No comments yet",
+  emptyText,
   now,
   className,
 }: CommentListProps) {
@@ -1486,12 +1490,14 @@ export function CommentList({
       {loading ? (
         <CommentListSkeleton />
       ) : empty ? (
-        <p
-          data-slot="comment-list-empty"
-          className="text-sm text-muted-foreground"
-        >
-          {emptyText}
-        </p>
+        emptyText ? (
+          <p
+            data-slot="comment-list-empty"
+            className="text-sm text-muted-foreground"
+          >
+            {emptyText}
+          </p>
+        ) : null
       ) : (
         <>
           {order === "oldest" ? loadEarlier : null}

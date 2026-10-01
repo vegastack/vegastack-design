@@ -5,7 +5,7 @@ audience: public
 registry: comments
 status: stable
 since: 0.23.30
-a11y: labelled section, comment list, delete confirmation
+a11y: labelled section, comment list
 preview: comments
 ---
 
@@ -38,18 +38,21 @@ import {
 `CommentList` is a record's discussion: an `h2` "Comments" with the count and, when `onOrderChange`
 is set, an "Oldest first" / "Newest first" toggle; "Load earlier" when older comments exist; the
 comments; and the composer at the end. Pass `comments` oldest first; `order="newest"` reverses
-them. With no comments, a muted "No comments yet" line sits right above the composer.
+them. With no comments, the composer sits right under the heading — no empty-state line (pass
+`emptyText` for one).
 
 `CommentComposer` is a light box — [`TextEdit`](/docs/components/text-edit)'s `boxed` variant on a
 near-transparent fill, with a hairline border that darkens subtly with an ease while the editor
-holds focus and no fill change — one line and 32px tall at rest, whose editor grows with its text to
+holds focus and no fill change — one line and 32px tall at rest, with the `Input` radius (`rounded-lg`), whose editor grows with its text to
 about twelve lines and then scrolls inside. Its placeholder is "Add a comment…". A round ↑ send
 button sits inline at the end of the box, pinned to the bottom line as the text grows (a quiet grey
 disc while there is nothing to send; Cmd/Ctrl+Enter also sends); a round paperclip attach button sits
 before it whenever `onImageUpload` or `onFileUpload` is set, opening the file picker (the files
 upload through the editor's own flow), and the optional `attachments` slot before that. On a touch
 screen both buttons get a 40px target. `replyingTo={{ name }}` shows "Replying to name ×" above the
-box and the "Write a reply…" placeholder; × or Esc calls `onCancelReply` and keeps the text. No
+box and the "Write a reply…" placeholder; × or Esc calls `onCancelReply` and keeps the text.
+The `files` slot renders inside the box at its bottom, under the text — a draft's attached files (pending cards with progress and ×) are part of what Send posts. With `onAttachFiles`, files pasted or dropped on the box join that tray too, instead of going into the text. With `hasFiles` (the draft carries finished files), Send is enabled and posts
+with no text; `CommentThread`'s `composer` takes it too. No
 avatar sits beside it. Editing a comment uses the same box: a round ↑ Save (disabled while empty or unchanged) and a ghost × Cancel, both with
 tooltips; Cmd/Ctrl+Enter saves and Esc cancels. The parts take data and
 callbacks and keep only transient UI state. A callback that returns a promise drives the saving or
@@ -70,7 +73,8 @@ kept while their popup is open, and always shown on touch screens.
 Each comment is anchored at `#comment-<id>`. Pass that id as `highlightedId` to tint it and scroll
 it into view. The ⋯ menu is sized to its content and shows Copy link (a link icon) when `onCopyLink`
 is set, and Edit (a pencil) or Delete (a destructive trash can) when the comment's `canEdit` or
-`canDelete` allows them. Delete asks for confirmation first.
+`canDelete` allows them. Delete calls `onDelete` at once, with no confirmation dialog: the host
+removes the comment and offers Undo (a toast), which keeps a slip recoverable without a modal.
 
 Reactions come from each comment's `reactions` and show as [`Reactions`](/docs/components/reactions)
 pills under the body. With `onReactionToggle`, a pill click toggles and an "Add reaction" button
@@ -86,7 +90,7 @@ joins the hover actions, Slack style.
 
 ### Empty
 
-A muted "No comments yet" line with the composer directly under it.
+No comments: just the composer.
 
 <ComponentPreview name="commentsEmpty" file="components/preview/comments.tsx" />
 

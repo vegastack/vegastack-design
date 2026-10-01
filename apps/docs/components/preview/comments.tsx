@@ -158,7 +158,7 @@ export function commentsComposer(): ReactNode {
   );
 }
 
-/** No comments yet. */
+/** No comments: just the composer. */
 export function commentsEmpty(): ReactNode {
   return (
     <Demo>

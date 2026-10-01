@@ -231,7 +231,6 @@
       ],
       "registryDependencies": [
         "@vegastack/date-time",
-        "@vegastack/alert-dialog",
         "@vegastack/button",
         "@vegastack/dropdown-menu",
         "@vegastack/markdown-view",
