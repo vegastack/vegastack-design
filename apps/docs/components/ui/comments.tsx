@@ -1,4 +1,4 @@
-// @vegastack comments@0.23.97 sha256-zcotfBZdTpSdRga/5EnQBBsJJzY74drkRApwDoDdlnM=
+// @vegastack comments@0.23.97 sha256-kdK0NI3TxeA9auakf3Jh4UuZUd6K6rYthwaYEAbzEfU=
 
 "use client";
 
@@ -520,7 +520,7 @@ interface CommentBoxProps {
   onUploadError?: TextEditProps["onUploadError"];
   /** Files picked with the attach button, pasted or dropped go here instead of into the text. */
   onAttachFiles?: (files: File[]) => void;
-  /** Inside the box, over the text: the draft's attached files (cards with their upload progress). */
+  /** Inside the box at its bottom, under the text: the draft's attached files (cards with their upload progress). */
   files?: React.ReactNode;
 }
 
@@ -641,10 +641,10 @@ function CommentBox({
         onUploadError={onUploadError}
       >
         {files ? (
-          // Inside the box, over the text: the draft's files are part of what Send posts.
+          // Inside the box at its bottom, under the text: the draft's files are part of what Send posts.
           <div
             data-slot="comment-box-files"
-            className="order-first min-w-0 basis-full pt-1.5 pe-1.5"
+            className="order-last min-w-0 basis-full pe-1.5 pb-1.5"
           >
             {files}
           </div>
@@ -798,7 +798,7 @@ export interface CommentComposerProps {
    * attach button on its own. @default undefined
    */
   onAttachFiles?: (files: File[]) => void;
-  /** Inside the box, over the text: the draft's attached files, e.g. cards with their upload progress. @default undefined */
+  /** Inside the box at its bottom, under the text: the draft's attached files, e.g. cards with their upload progress. @default undefined */
   files?: React.ReactNode;
   /** The draft carries files (`files`): Send is enabled and posts with no text. @default false */
   hasFiles?: boolean;

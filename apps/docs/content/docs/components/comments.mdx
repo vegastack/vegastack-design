@@ -51,7 +51,7 @@ before it whenever `onImageUpload` or `onFileUpload` is set, opening the file pi
 upload through the editor's own flow), and the optional `attachments` slot before that. On a touch
 screen both buttons get a 40px target. `replyingTo={{ name }}` shows "Replying to name ×" above the
 box and the "Write a reply…" placeholder; × or Esc calls `onCancelReply` and keeps the text.
-The `files` slot renders inside the box, over the text — a draft's attached files (pending cards with progress and ×) are part of what Send posts. With `onAttachFiles`, files pasted or dropped on the box join that tray too, instead of going into the text. With `hasFiles` (the draft carries finished files), Send is enabled and posts
+The `files` slot renders inside the box at its bottom, under the text — a draft's attached files (pending cards with progress and ×) are part of what Send posts. With `onAttachFiles`, files pasted or dropped on the box join that tray too, instead of going into the text. With `hasFiles` (the draft carries finished files), Send is enabled and posts
 with no text; `CommentThread`'s `composer` takes it too. No
 avatar sits beside it. Editing a comment uses the same box: a round ↑ Save (disabled while empty or unchanged) and a ghost × Cancel, both with
 tooltips; Cmd/Ctrl+Enter saves and Esc cancels. The parts take data and
