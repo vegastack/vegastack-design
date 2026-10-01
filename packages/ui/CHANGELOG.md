@@ -1,5 +1,16 @@
 # @vegastack/ui
 
+## 0.23.113
+
+### Patch Changes
+
+- [#504](https://github.com/vegastack/vegastack-design/pull/504) [`cce47ed`](https://github.com/vegastack/vegastack-design/commit/cce47ed455fcc6cacbc1a286b4de7718d400a9b8) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🔧 `InboxFilters` gains `extra`: app-defined chips after All and Unread, each `{ value, label, count? }` (new `InboxFilterOption` type; `InboxFilter` widens to accept their values), so an inbox shows All · Unread 3 · Requests 2 without a second control. A chip's count is now separated by a space in its accessible name ("Unread 3"). `notifications-01` adds a Requests chip for rows that ask for a decision.
+
+- [#502](https://github.com/vegastack/vegastack-design/pull/502) [`b19f577`](https://github.com/vegastack/vegastack-design/commit/b19f57737ea76d540bb987e85fe17266c975b5e1) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🔧 `share-01`: new `generalLevelReadOnly` prop on `ShareDialog` shows General access's level as text while a manager can still switch between "Everyone in ‹space›" and "Only people invited". `defaultInvitees` is now reactive — when it changes (compared by id) the invite chips follow it, so a "Share with Priya" prompt can open the mounted dialog with Priya chosen; chips the viewer edits stay until the prop changes again. The dialog body's section gap moves from the off-scale `gap-5` to `gap-4`.
+
+- Updated dependencies [[`cce47ed`](https://github.com/vegastack/vegastack-design/commit/cce47ed455fcc6cacbc1a286b4de7718d400a9b8), [`b19f577`](https://github.com/vegastack/vegastack-design/commit/b19f57737ea76d540bb987e85fe17266c975b5e1)]:
+  - @vegastack/design@0.7.98
+
 ## 0.23.112
 
 ### Patch Changes
