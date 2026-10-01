@@ -12,8 +12,8 @@
     "evidencePolicy": "Observed fields come from source, registry metadata, docs, and test topology. Unknown/not-applicable values are explicit; no inferred behavior is presented as verified."
   },
   "expectedCounts": {
-    "totalRegistryItems": 713,
-    "components": 141,
+    "totalRegistryItems": 714,
+    "components": 142,
     "animatedIcons": 467,
     "hooks": 13,
     "blocks": 13,
@@ -26,7 +26,7 @@
     "Navigation/layout": 21,
     "Overlays": 15,
     "Data display": 26,
-    "Content/marketing": 14,
+    "Content/marketing": 15,
     "Shared internals": 3,
     "AI/chat": 8,
     "Hooks": 13,
@@ -168,6 +168,7 @@
       "empty",
       "image",
       "item",
+      "inline-chip",
       "markdown-view",
       "media-player-controls",
       "page-header",
@@ -14731,6 +14732,242 @@
       }
     },
     {
+      "name": "inline-chip",
+      "registryType": "registry:ui",
+      "title": "Inline Chip",
+      "summary": "The one inline reference in running text — a person, page, file, task, meeting, customer or project — on the text's baseline at its size, tinted by kind; a person previews avatar, name and email on hover, the rest open on click with ⌘-click for a new tab.",
+      "status": "stable",
+      "since": "0.23.102",
+      "family": "data-display",
+      "wave": "Content/marketing",
+      "sourceFiles": ["packages/ui/registry/ui/inline-chip.tsx"],
+      "publicSymbols": [
+        {
+          "name": "InlineChip",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/inline-chip.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "span",
+            "rationale": "Props and ref spread onto the rendered chip (a span, or an anchor when it links)."
+          }
+        },
+        {
+          "name": "InlineChipProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/inline-chip.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "InlineChipKind",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/inline-chip.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "InlineChipPerson",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/inline-chip.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "InlineChipTarget",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/inline-chip.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "InlineChipResolver",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/inline-chip.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "InlineChipProvider",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/inline-chip.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A context provider; it renders no element and takes no ref."
+          }
+        },
+        {
+          "name": "useInlineChipResolver",
+          "kind": "hook",
+          "source": "packages/ui/registry/ui/inline-chip.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A hook; it renders nothing and takes no ref."
+          }
+        },
+        {
+          "name": "InlineChipPreview",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/inline-chip.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A fragment of two spans for a hover card's body; it takes no ref."
+          }
+        },
+        {
+          "name": "InlineChipPreviewProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/inline-chip.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "inlineChipClassName",
+          "kind": "function",
+          "source": "packages/ui/registry/ui/inline-chip.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A pure function; it renders nothing and takes no ref."
+          }
+        },
+        {
+          "name": "inlineChipProseClassName",
+          "kind": "constant",
+          "source": "packages/ui/registry/ui/inline-chip.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A constant; it renders nothing and takes no ref."
+          }
+        },
+        {
+          "name": "INLINE_CHIP_KINDS",
+          "kind": "constant",
+          "source": "packages/ui/registry/ui/inline-chip.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A constant; it renders nothing and takes no ref."
+          }
+        },
+        {
+          "name": "INLINE_CHIP_KIND_LABEL",
+          "kind": "constant",
+          "source": "packages/ui/registry/ui/inline-chip.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A constant; it renders nothing and takes no ref."
+          }
+        }
+      ],
+      "variants": {
+        "status": "observed",
+        "dimensions": [
+          {
+            "name": "kind",
+            "values": [
+              "user",
+              "page",
+              "file",
+              "task",
+              "meeting",
+              "customer",
+              "project"
+            ]
+          }
+        ],
+        "rationale": "The kind picks the icon and the tag-hue tint."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "Inherits the surrounding text's size and line height; the icon is 1em."
+      },
+      "states": {
+        "behavior": {
+          "status": "covered",
+          "values": ["default", "link", "open", "restricted", "hover-card"],
+          "evidence": "packages/ui/registry/ui/inline-chip.tsx + packages/ui/registry/ui/inline-chip.test.tsx"
+        },
+        "accessibility": {
+          "status": "covered",
+          "values": [
+            "browser-accessibility-test",
+            "keyboard-open",
+            "focus-preview"
+          ],
+          "evidence": "packages/ui/registry/ui/inline-chip.test.tsx"
+        },
+        "visual": {
+          "status": "observed",
+          "values": ["default", "hover", "focus", "restricted"],
+          "evidence": "packages/ui/registry/ui/inline-chip.tsx"
+        }
+      },
+      "responsive": {
+        "status": "modeled",
+        "risks": ["responsive-or-container-layout"],
+        "rationale": "An inline box that wraps with its line; box-decoration-clone keeps the ground on each line."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned motion; the hover card's transitions are HoverCard's."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/inline-chip",
+      "registryDependencies": [
+        "@vegastack/file-kind",
+        "@vegastack/hover-card",
+        "@vegastack/person-avatar"
+      ],
+      "npmDependencies": [
+        "@vegastack/design-tokens@^0.7.80",
+        "@vegastack/design@^0.7.82",
+        "lucide-react@^1.47.0"
+      ],
+      "testFiles": ["packages/ui/registry/ui/inline-chip.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required"
+      },
+      "previewModule": "inline-chip",
+      "dataAttributes": {
+        "InlineChip": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": [
+                "inline-chip-avatar",
+                "inline-chip-icon",
+                "inline-chip-label",
+                "inline-chip-person",
+                "inline-chip-preview"
+              ]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
+    },
+    {
       "name": "markdown-view",
       "registryType": "registry:ui",
       "title": "Markdown View",
@@ -15012,7 +15249,7 @@
         "@vegastack/button",
         "@vegastack/checkbox",
         "@vegastack/code-block",
-        "@vegastack/file-kind",
+        "@vegastack/inline-chip",
         "@vegastack/popover"
       ],
       "npmDependencies": [
@@ -15041,23 +15278,6 @@
                 "markdown-citation-content",
                 "markdown-citation-trigger"
               ]
-            }
-          ],
-          "cssVariables": []
-        },
-        "MentionChip": {
-          "attributes": [
-            {
-              "name": "data-kind",
-              "values": []
-            },
-            {
-              "name": "data-restricted",
-              "values": [""]
-            },
-            {
-              "name": "data-slot",
-              "values": ["mention-chip", "mention-chip-avatar"]
             }
           ],
           "cssVariables": []
@@ -24074,6 +24294,7 @@
         "@vegastack/empty",
         "@vegastack/file-kind",
         "@vegastack/file-viewer",
+        "@vegastack/inline-chip",
         "@vegastack/input",
         "@vegastack/markdown-view",
         "@vegastack/popover",

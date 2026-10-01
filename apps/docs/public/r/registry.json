@@ -15789,6 +15789,38 @@
       }
     },
     {
+      "name": "inline-chip",
+      "type": "registry:ui",
+      "title": "Inline Chip",
+      "description": "The one inline reference in running text — a person, page, file, task, meeting, customer or project — on the text's baseline at its size, tinted by kind; a person previews avatar, name and email on hover, the rest open on click with ⌘-click for a new tab.",
+      "categories": [
+        "data-display"
+      ],
+      "dependencies": [
+        "lucide-react@^1.47.0",
+        "@vegastack/design@^0.7.82",
+        "@vegastack/design-tokens@^0.7.80"
+      ],
+      "registryDependencies": [
+        "@vegastack/file-kind",
+        "@vegastack/hover-card",
+        "@vegastack/person-avatar"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/inline-chip.tsx",
+          "type": "registry:ui",
+          "target": "@ui/inline-chip.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "A mention or a file link inside text — an editor, a Markdown body, a comment — that should read as part of the sentence and open or preview its target.",
+        "whenNotToUse": "A record's property value or a picker (RecordChip), a removable token in an input (Chip), or a status label (Badge).",
+        "version": "0.23.97",
+        "integrity": "sha256-Hx2Ze/gnU1E23J66qnDhZ/2FguJG3LUG5226XO46LPI="
+      }
+    },
+    {
       "name": "markdown-view",
       "type": "registry:ui",
       "title": "Markdown View",
@@ -15805,7 +15837,7 @@
       "registryDependencies": [
         "@vegastack/checkbox",
         "@vegastack/code-block",
-        "@vegastack/file-kind",
+        "@vegastack/inline-chip",
         "@vegastack/button",
         "@vegastack/popover",
         "@vegastack/alert"
@@ -15826,7 +15858,7 @@
         "whenToUse": "Display user/system-authored markdown — descriptions, comments, activity — as safe token-styled prose.",
         "whenNotToUse": "Editing markdown (use an editor), or when the source needs embedded raw HTML.",
         "version": "0.23.101",
-        "integrity": "sha256-1A4qS7u1wpZY8ZZe+h/5pIyajx57Wa1GT7QcTOYeln4="
+        "integrity": "sha256-G0HqdhTNqGEUM7ZQWmzpaG+CaN4WoaPXoUwwasAdVwY="
       }
     },
     {
@@ -17575,6 +17607,7 @@
         "@vegastack/dropdown-menu",
         "@vegastack/file-kind",
         "@vegastack/file-viewer",
+        "@vegastack/inline-chip",
         "@vegastack/input",
         "@vegastack/markdown-view",
         "@vegastack/popover",
@@ -17605,7 +17638,7 @@
         "whenToUse": "Comments, notes, summaries and documents stored as Markdown (format=\"markdown\") or HTML — with @ mentions, uploads, callouts, toggles, an outline and comment highlights for page editors; in-place editing of a MarkdownView (the read view is the editor until first edited).",
         "whenNotToUse": "Plain single-line input (Input) or collaborative real-time docs (deferred text-edit-collab).",
         "version": "0.23.101",
-        "integrity": "sha256-q8YvNZ4IKHXGdO3dUQlMt785y6beFeU7AT3iu1a4fx8="
+        "integrity": "sha256-wnkePglfE7dnifZAnxC4ZSkl5c7lqSCBDnLHWCcuHgw="
       }
     },
     {

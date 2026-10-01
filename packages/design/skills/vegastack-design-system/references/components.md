@@ -3,7 +3,7 @@
 <!-- GENERATED — do not hand-edit. Regenerated from the design system's component contract,
      which is the authority for membership and counts. -->
 
-**141 components**, plus 467 animated-icon items, 13 hooks (`use-animation-replay`, `use-announcer`, `use-async-search`, `use-drag-reorder`, `use-file-drop`, `use-inline-edit`, `use-list-nav`, `use-media-query`, `use-mobile`, `use-modal-inert`, `use-overflow`, `use-platform`, `use-tabs-swipe`), 13 starter blocks (`app-shell-01`, `board-01`, `issue-detail-01`, `page-editor-01`, `command-search-01`, `list-page-01`, `library-01`, `login-01`, `notifications-01`, `review-split-01`, `settings-01`, `settings-02`, `status-pages-01`), 68 chart blocks across 7 families, and 11 data libs (`code-highlight`, `date-time`, `geo-data`, `emoji-data`, `drag-item`, `text-anchor`, `text-anchor-doc`, `file-kind`, `media-probe`, `page-layout`, `tile-overlay`) — 713 registry items in total.
+**142 components**, plus 467 animated-icon items, 13 hooks (`use-animation-replay`, `use-announcer`, `use-async-search`, `use-drag-reorder`, `use-file-drop`, `use-inline-edit`, `use-list-nav`, `use-media-query`, `use-mobile`, `use-modal-inert`, `use-overflow`, `use-platform`, `use-tabs-swipe`), 13 starter blocks (`app-shell-01`, `board-01`, `issue-detail-01`, `page-editor-01`, `command-search-01`, `list-page-01`, `library-01`, `login-01`, `notifications-01`, `review-split-01`, `settings-01`, `settings-02`, `status-pages-01`), 68 chart blocks across 7 families, and 11 data libs (`code-highlight`, `date-time`, `geo-data`, `emoji-data`, `drag-item`, `text-anchor`, `text-anchor-doc`, `file-kind`, `media-probe`, `page-layout`, `tile-overlay`) — 714 registry items in total.
 
 Install any of them with `shadcn add @vegastack/<name>`. Animated icons install as
 `@vegastack/icon-<name>`; the bare name is reserved for components, so a component whose name
@@ -73,6 +73,7 @@ starts with `icon-` is a component and never an icon.
 - **`chart`** — A themed Recharts wrapper — a ChartConfig that maps each series to a colour and a label, a bordered tooltip and legend, and Recharts' own built-in keyboard + screen-reader layer.
 - **`collapsible`** — An interactive component which expands and collapses a panel, with an animated height and a trigger you supply.
 - **`empty`** — A zero-data placeholder — always an icon (the icon prop, Inbox by default), title, description and a content slot, with a compact sm size for inline empties. The one empty-state markup: DataList's emptyState and noResults (SearchX, "No matches", Clear filters) are built on it.
+- **`inline-chip`** — The one inline reference in running text — a person, page, file, task, meeting, customer or project — on the text's baseline at its size, tinted by kind; a person previews avatar, name and email on hover, the rest open on click with ⌘-click for a new tab.
 - **`item`** — A composable row for list and feed content — media, title, description, actions — with a highlighted flash for a just-changed row.
 - **`kbd`** — A keyboard-key chip, and a group that lays several of them out inline.
 - **`markdown-view`** — Render a markdown string to safe, token-styled HTML — headings (with optional ids), lists, code, blockquotes, links, GFM tables, mention and file chips, callouts and toggles — XSS-safe, no raw HTML.

@@ -1559,7 +1559,7 @@ test("mentions: @as searches once after the debounce, Enter inserts a chip, Back
   );
   expect(mentionMenu()).toBeNull();
   const box = screen.getByRole("textbox", { name: "Notes" }).element();
-  expect(box.querySelector('[data-slot="mention-chip"]')?.textContent).toBe(
+  expect(box.querySelector('[data-slot="inline-chip"]')?.textContent).toBe(
     "Asha Rao",
   );
 

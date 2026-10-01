@@ -12677,6 +12677,35 @@
       }
     },
     {
+      "name": "inline-chip",
+      "type": "registry:ui",
+      "title": "Inline Chip",
+      "description": "The one inline reference in running text — a person, page, file, task, meeting, customer or project — on the text's baseline at its size, tinted by kind; a person previews avatar, name and email on hover, the rest open on click with ⌘-click for a new tab.",
+      "categories": ["data-display"],
+      "dependencies": [
+        "lucide-react@^1.47.0",
+        "@vegastack/design@^0.7.82",
+        "@vegastack/design-tokens@^0.7.80"
+      ],
+      "registryDependencies": [
+        "@vegastack/file-kind",
+        "@vegastack/hover-card",
+        "@vegastack/person-avatar"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/inline-chip.tsx",
+          "type": "registry:ui",
+          "target": "@ui/inline-chip.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "A mention or a file link inside text — an editor, a Markdown body, a comment — that should read as part of the sentence and open or preview its target.",
+        "whenNotToUse": "A record's property value or a picker (RecordChip), a removable token in an input (Chip), or a status label (Badge).",
+        "version": "0.23.97"
+      }
+    },
+    {
       "name": "markdown-view",
       "type": "registry:ui",
       "title": "Markdown View",
@@ -12691,7 +12720,7 @@
       "registryDependencies": [
         "@vegastack/checkbox",
         "@vegastack/code-block",
-        "@vegastack/file-kind",
+        "@vegastack/inline-chip",
         "@vegastack/button",
         "@vegastack/popover",
         "@vegastack/alert"
@@ -14252,6 +14281,7 @@
         "@vegastack/dropdown-menu",
         "@vegastack/file-kind",
         "@vegastack/file-viewer",
+        "@vegastack/inline-chip",
         "@vegastack/input",
         "@vegastack/markdown-view",
         "@vegastack/popover",

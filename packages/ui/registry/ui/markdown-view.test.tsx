@@ -402,7 +402,7 @@ test("mentions render as chips: a page links through mentionHref, a person and a
   );
   const chips = [
     ...screen.container.querySelectorAll<HTMLElement>(
-      '[data-slot="mention-chip"]',
+      '[data-slot="inline-chip"]',
     ),
   ];
   expect(chips.map((chip) => chip.textContent)).toEqual([
@@ -427,7 +427,7 @@ test("a mention label keeps escaped brackets, and mentionMarkdown writes what pa
   });
   const screen = await render(<MarkdownView>{`See ${md}`}</MarkdownView>);
   expect(
-    screen.container.querySelector('[data-slot="mention-chip"]')?.textContent,
+    screen.container.querySelector('[data-slot="inline-chip"]')?.textContent,
   ).toBe("Plan [draft] \\ v2");
 });
 
@@ -439,7 +439,9 @@ test("a link under fileLinkPrefix renders as a file chip; javascript: links are 
       }
     </MarkdownView>,
   );
-  const chip = screen.container.querySelector('[data-slot="file-chip"]');
+  const chip = screen.container.querySelector(
+    '[data-slot="inline-chip"][data-kind="file"]',
+  );
   expect(chip?.tagName).toBe("A");
   expect(chip).toHaveAttribute("href", "/api/files/f2/download");
   expect(chip?.textContent).toBe("report.pdf");

@@ -1232,6 +1232,13 @@ for (const [name, fixture] of FIXTURES) {
           getComputedStyle(control).display === "inline"
         )
           continue;
+        // An InlineChip (a mention or file link that opens or previews) is a target in a block
+        // of text by design: an inline box on the text's baseline, wrapping with its line.
+        if (
+          control.getAttribute("data-slot") === "inline-chip" &&
+          getComputedStyle(control).display === "inline"
+        )
+          continue;
 
         // A tab PANEL is not a target. It matches `INTERACTIVE_SELECTOR` only through
         // `[tabindex="0"]`, which Base UI puts there for the APG reason — a panel whose content

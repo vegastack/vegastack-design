@@ -1,0 +1,141 @@
+---
+title: Inline Chip
+description: The one inline reference in running text — a person, page, file, task, meeting, customer or project — on the text's baseline, tinted by kind.
+audience: public
+registry: inline-chip
+status: stable
+since: 0.23.102
+a11y: link or button; card on focus; ⌘-click opens a tab
+preview: inlineChip
+---
+
+## Install
+
+<InstallSteps name="inline-chip" />
+
+## Usage
+
+```tsx
+import { InlineChip, InlineChipProvider } from "@/components/ui/inline-chip";
+
+<InlineChipProvider
+  value={{
+    href: (kind, id) => routes[kind]?.(id) ?? null,
+    person: (id) => members.get(id),
+    onOpen: (target) =>
+      target.kind === "file" ? openViewer(target.href) : false,
+  }}
+>
+  <InlineChip kind="task" targetId="T-42" label="Ship the checklist" />
+</InlineChipProvider>;
+```
+
+Every `@` mention and file link in the system renders as this chip — in `TextEdit`'s editor, in
+`MarkdownView` and in `Comments` — so one `InlineChipProvider` near the app root tells all of them
+where a chip links, who a person is, what a hover card previews and what a click opens. A chip's
+own props win over the provider.
+
+<ComponentPreview name="inlineChip" file="components/preview/inline-chip.tsx" />
+
+## Scope
+
+- Owns: the chip's look (icon, tint and baseline alignment), its link or button semantics, ⌘-click,
+  and the hover card (a person's avatar, name and email, or the host's preview).
+- Does not own: resolving ids, routing, or the file viewer — the host passes `href`, `person`,
+  `preview` and `onOpen`, directly or through `InlineChipProvider`.
+- Compose with: `MarkdownView` and `TextEdit` (both render mentions and file links as this chip),
+  `FileViewer` (open a file chip in it from `onOpen`).
+
+## Anatomy
+
+<Anatomy name="inline-chip" />
+
+## Examples
+
+### Headings, lists and wrapping
+
+The chip is an inline box, not an inline-flex one: its label is ordinary text on the line's
+baseline, its icon a 1em glyph, so it takes the size of a heading or a list item and wraps with its
+line, the tint continuing on each line.
+
+<ComponentPreview
+  name="inlineChipContexts"
+  file="components/preview/inline-chip.tsx"
+/>
+
+### Photo and restricted
+
+A person with a known photo shows it in place of the person icon. An id starting with
+`restricted:` (or `restricted`) is a target the reader may not open: muted, never a link.
+
+<ComponentPreview
+  name="inlineChipStates"
+  file="components/preview/inline-chip.tsx"
+/>
+
+### In Markdown
+
+`[@label](mention://kind/id)` and a link under `fileLinkPrefix` both render as this chip.
+
+<ComponentPreview
+  name="inlineChipMarkdown"
+  file="components/preview/inline-chip.tsx"
+/>
+
+### Kinds
+
+| Kind       | Icon             | Ground                | Ink                 | Click                     |
+| ---------- | ---------------- | --------------------- | ------------------- | ------------------------- |
+| `user`     | photo, else user | `--tag-blue-subtle`   | `--tag-blue-text`   | none; hover card          |
+| `page`     | file-text        | `--muted`             | `--foreground`      | `onOpen`, else `href`     |
+| `file`     | the file's type  | `--muted`             | `--foreground`      | `onOpen` (viewer), `href` |
+| `task`     | circle-check     | `--tag-green-subtle`  | `--tag-green-text`  | `onOpen`, else `href`     |
+| `meeting`  | calendar-days    | `--tag-orange-subtle` | `--tag-orange-text` | `onOpen`, else `href`     |
+| `customer` | building-2       | `--tag-purple-subtle` | `--tag-purple-text` | `onOpen`, else `href`     |
+| `project`  | folder-kanban    | `--tag-cyan-subtle`   | `--tag-cyan-text`   | `onOpen`, else `href`     |
+
+## API Reference
+
+<ApiTable
+  path="../../packages/ui/registry/ui/inline-chip.tsx"
+  name="InlineChipProps"
+/>
+
+<ApiTable
+  path="../../packages/ui/registry/ui/inline-chip.tsx"
+  name="InlineChipResolver"
+/>
+
+<ApiTable
+  path="../../packages/ui/registry/ui/inline-chip.tsx"
+  name="InlineChipPerson"
+/>
+
+<ApiTable
+  path="../../packages/ui/registry/ui/inline-chip.tsx"
+  name="InlineChipPreviewProps"
+/>
+
+## Accessibility
+
+- A chip with an `href` is a link; one that only opens (`onOpen`) is a button (`role="button"`,
+  <kbd>Enter</kbd> / <kbd>Space</kbd>). A person chip is a tab stop so its hover
+  card opens on focus as well as hover. The icon is hidden from assistive
+  technology — the label names the chip.
+- ⌘/Ctrl-click (and middle-click) on a linked chip opens it in a new tab. Inside an editor
+  (`openOn="modifier"`) a plain click places the caret and only ⌘/Ctrl-click opens.
+- The hit area reaches 24px tall without changing the line's height.
+
+| Key                                 | Action                         |
+| ----------------------------------- | ------------------------------ |
+| <kbd>Tab</kbd>                      | Focus the chip; opens its card |
+| <kbd>Enter</kbd> / <kbd>Space</kbd> | Open the chip's target         |
+
+<StatesTested name="inline-chip" />
+
+## Do / Don't
+
+<DoDont
+  do="Wrap the app in one InlineChipProvider so editor, Markdown and comments chips all link and preview the same way."
+  dont="Draw a local mention or file pill in app code — every inline reference is this chip."
+/>
