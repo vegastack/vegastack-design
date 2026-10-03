@@ -1,4 +1,4 @@
-// @vegastack status-pages-01@0.23.115 sha256-4DTH2EdSgUMdbqiw0j+RVmGxqEcD5ygBMUA1hLMNE6k=
+// @vegastack status-pages-01@0.23.116 sha256-4eJ2nvGsG/zHky6feDQ/0TYd5o0cHTwSdVXaoTCfxfc=
 
 import { Lock } from "lucide-react";
 
