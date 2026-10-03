@@ -64,7 +64,9 @@ public URL, **Copy public link**, a Reset button (its tooltip says the current l
 an Expires select (Never, 1 day, 7 days, 30 days) and **Stop publishing**, which — like turning the
 switch off — asks for confirmation before calling `onStopPublicLink`. A viewer who cannot manage
 sees the URL and Copy public link while it is published, and "Not published" otherwise. Pass
-`defaultTab="publish"` when the dialog opens from a "Published" indicator.
+`defaultTab="publish"` when the dialog opens from a "Published" indicator. While published, the
+Share tab also carries a one-line notice — a globe, "Published to the web" and a **Manage** link
+that switches to the Publish tab.
 
 <ComponentPreview name="share01PublicLink" />
 
@@ -81,6 +83,15 @@ When the item's space is personal (`generalAccess.space.access === "personal"`),
 "My space · Only you and the people above", with no mode or level to change.
 
 <ComponentPreview name="share01MySpace" />
+
+### A space the viewer cannot see
+
+Pass `generalAccess.space: null` with `spaceHint` — `{ kind: "personal", ownerName }` or
+`{ kind: "private" }` — and the row is a plain statement, "In Priya's My space" (person-with-lock)
+or "In a private space" (lock), with no mode select and no level. The hint names a kind of space,
+never the space.
+
+<ComponentPreview name="share01HiddenSpace" />
 
 ### Fixed space access level
 
@@ -108,7 +119,9 @@ level.
   skeleton rows.
 - **Space access**: `SpaceAvatar`, a ghost `Select` ("Everyone in ‹space›" / "Only people
   invited") with a muted hint, and the space's level chip (text when `generalLevelReadOnly`); a
-  personal space reads "My space · Only you and the people above".
+  personal space reads "My space · Only you and the people above", and a space the viewer cannot
+  see reads from `spaceHint`.
+- **Published notice** (Share tab, while published): a globe, "Published to the web" and Manage.
 - **Publish tab**: the "Publish to the web" `Switch`; while published, `InputGroup` with the URL
   and a Reset button in a `Tooltip`, Copy public link, an Expires `Select`, and Stop publishing
   (confirmed in an `AlertDialog`). `publicLinkPending` holds these controls while a change runs.

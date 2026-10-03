@@ -55,6 +55,18 @@ export function share01PublicLink(): ReactNode {
   );
 }
 
+/** An item in a space the viewer cannot see: the row is a statement from `spaceHint`. */
+export function share01HiddenSpace(): ReactNode {
+  return (
+    <Wrapper>
+      <ShareDemo
+        triggerLabel="Share (someone's My space)"
+        hiddenSpace={{ kind: "personal", ownerName: "Priya" }}
+      />
+    </Wrapper>
+  );
+}
+
 /** An item in the viewer's own My space: no space level, "Only you and the people above". */
 export function share01MySpace(): ReactNode {
   return (

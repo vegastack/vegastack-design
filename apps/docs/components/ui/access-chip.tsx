@@ -1,4 +1,4 @@
-// @vegastack access-chip@0.23.115 sha256-hfdR0Wg/rXyge7Rtvw72SoQji1v6ZHONKRS4feR4YvE=
+// @vegastack access-chip@0.23.115 sha256-6DERrFXFlmsg9gdWYHjmCfTBCZ6ERpFMWbA2qlsaTus=
 
 "use client";
 
@@ -11,57 +11,58 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { SpaceAvatar, type Space } from "@/components/ui/space-avatar";
+import {
+  SpaceAvatar,
+  SpaceHintIcon,
+  spaceHintLabel,
+  type Space,
+  type SpaceHint,
+} from "@/components/ui/space-avatar";
 
 /* ------------------------------------------------------------------------------------------------
  * AccessChip — how far one record reaches, as ONE control in its header: the space's tile and name
- * (everyone in that space), a lock and "Only invited", or a person-with-lock and "My space"; a small
- * globe when it is also published to the web. It is a real button — it opens Share — with the full
- * sentence in a tooltip, so it replaces a row of bare, unfocusable access glyphs.
+ * (everyone in that space), a lock and "Only invited", a person-with-lock and "My space", or — for a
+ * space the viewer cannot see — "Priya's My space" or "Private space"; a small globe when it is
+ * also published to the web. It is a real button — it opens Share — with the full sentence in a
+ * tooltip, so it replaces a row of bare, unfocusable access glyphs.
  * ----------------------------------------------------------------------------------------------*/
 
 /** Who can open the record. */
 export type AccessChipAccess =
-  | {
-      /** Everyone in `space` can open it. */
-      kind: "space";
-      /** The record's space. */
-      space: Space;
-    }
-  | {
-      /** Only the people it was shared with. */
-      kind: "invited";
-    }
-  | {
-      /** It lives in the viewer's own My space. */
-      kind: "personal";
-    };
+  /** Everyone in `space` can open it. */
+  | { kind: "space"; space: Space }
+  /** Only the people it was shared with. */
+  | { kind: "invited" }
+  /** It lives in the viewer's own My space. */
+  | { kind: "personal" }
+  /** It lives in a space the viewer cannot see; `hint` says which kind, never which one. */
+  | { kind: "hidden"; hint: SpaceHint };
 
-/** Every string `AccessChip` renders. */
-export interface AccessChipLabels {
-  invited: string;
-  personal: string;
-  published: string;
-  /** The tooltip sentence; also the accessible description. */
-  sentence: (access: AccessChipAccess, published: boolean) => string;
+/** The chip's name and its tooltip sentence for one reach. */
+function describe(access: AccessChipAccess): { name: string; who: string } {
+  switch (access.kind) {
+    case "space":
+      return {
+        name: access.space.name,
+        who: `Everyone in ${access.space.name} can open it`,
+      };
+    case "invited":
+      return { name: "Only invited", who: "Only people invited can open it" };
+    case "personal":
+      return {
+        name: "My space",
+        who: "In My space: only you and the people you share with can open it",
+      };
+    case "hidden":
+      return {
+        name: spaceHintLabel(access.hint),
+        who:
+          access.hint.kind === "personal"
+            ? `In ${access.hint.ownerName}'s My space: they and the people they share with can open it`
+            : "Members of a private space can open it",
+      };
+  }
 }
-
-const defaultLabels: AccessChipLabels = {
-  invited: "Only invited",
-  personal: "My space",
-  published: "Published",
-  sentence: (access, published) => {
-    const who =
-      access.kind === "space"
-        ? `Everyone in ${access.space.name} can open it`
-        : access.kind === "invited"
-          ? "Only people invited can open it"
-          : "In My space: only you and the people you share with can open it";
-    return published
-      ? `${who}. Anyone with the public link can view it.`
-      : `${who}.`;
-  },
-};
 
 /** Props for `AccessChip`. */
 export interface AccessChipProps extends Omit<
@@ -74,8 +75,6 @@ export interface AccessChipProps extends Omit<
   published?: boolean;
   /** Only the glyph (and the globe), for a narrow header; the name moves into the accessible label. @default false */
   iconOnly?: boolean;
-  /** Override any rendered string. @default {} */
-  labels?: Partial<AccessChipLabels>;
 }
 
 /**
@@ -83,27 +82,28 @@ export interface AccessChipProps extends Omit<
  *
  * @example
  * <AccessChip access={{ kind: "space", space }} published={!!publicLink} onClick={share.show} />
- * <AccessChip access={{ kind: "personal" }} iconOnly onClick={share.show} />
+ * <AccessChip access={{ kind: "hidden", hint: { kind: "private" } }} iconOnly onClick={share.show} />
  */
 export function AccessChip({
   access,
   published = false,
   iconOnly = false,
-  labels: labelsProp,
   className,
   ...props
 }: AccessChipProps) {
-  const labels = { ...defaultLabels, ...labelsProp };
-  const name =
-    access.kind === "space"
-      ? access.space.name
-      : access.kind === "invited"
-        ? labels.invited
-        : labels.personal;
-  const sentence = labels.sentence(access, published);
+  const { name, who } = describe(access);
+  const sentence = published
+    ? `${who}. Anyone with the public link can view it.`
+    : `${who}.`;
   const glyph =
     access.kind === "space" ? (
       <SpaceAvatar space={access.space} size="2xs" showLock={false} />
+    ) : access.kind === "hidden" ? (
+      <SpaceHintIcon
+        hint={access.hint}
+        aria-hidden
+        data-slot="access-chip-icon"
+      />
     ) : access.kind === "invited" ? (
       <LockIcon aria-hidden data-slot="access-chip-icon" />
     ) : (
@@ -120,12 +120,11 @@ export function AccessChip({
             data-slot="access-chip"
             data-access={access.kind}
             data-published={published ? "" : undefined}
-            aria-label={`${name}${published ? `, ${labels.published}` : ""}`}
+            aria-label={published ? `${name}, Published` : name}
             aria-description={sentence}
             className={cn(
               "max-w-60 min-w-0 gap-1.5 rounded-md text-sm font-normal text-foreground",
-              !iconOnly && "px-2",
-              iconOnly && "relative",
+              iconOnly ? "relative" : "px-2",
               className,
             )}
             {...props}

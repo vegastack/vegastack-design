@@ -665,3 +665,33 @@ test("no a11y violations — high-priority toast", async () => {
   // rule still runs, and every other toast state is audited with no exemption at all.
   await expectNoA11yViolations(document.body);
 });
+
+test("data.actions renders two actions after the text with the type icon kept; each closes once taken", async () => {
+  const { manager, ui } = host();
+  await render(ui);
+  const view = vi.fn();
+  const move = vi.fn();
+  manager.add({
+    type: "success",
+    title: "Created in General",
+    actionProps: { children: "Ignored" },
+    data: {
+      actions: [
+        { label: "View", onClick: view },
+        { label: "Move", onClick: move },
+      ],
+    },
+  });
+  await waitForToast("Created in General");
+  const el = toastEl("Created in General")!;
+  const buttons = Array.from(
+    el.querySelectorAll<HTMLElement>('[data-slot="toast-action"]'),
+  );
+  expect(buttons.map((b) => b.textContent)).toEqual(["View", "Move"]);
+  expect(el.querySelector('[data-slot="toast-icon"] svg')).not.toBeNull();
+  await expectNoA11yViolations(document.body, ["color-contrast"]);
+  await userEvent.click(buttons[1]!);
+  expect(move).toHaveBeenCalledTimes(1);
+  expect(view).not.toHaveBeenCalled();
+  await expect.poll(() => toastEl("Created in General")).toBeUndefined();
+});

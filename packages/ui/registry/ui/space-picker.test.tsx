@@ -68,3 +68,24 @@ test("placement=title sizes the chip for a dialog title", async () => {
     .element(screen.getByRole("button", { name: "Space: General" }))
     .toHaveAttribute("data-size", "title");
 });
+
+test("a read-only chip for a hidden space shows the hint's words and glyph", async () => {
+  const screen = await render(
+    <>
+      <SpaceChip
+        readOnly
+        size="xs"
+        space={null}
+        hint={{ kind: "personal", ownerName: "Priya" }}
+      />
+      <SpaceChip readOnly size="xs" space={null} hint={{ kind: "private" }} />
+    </>,
+  );
+  const chips = screen.container.querySelectorAll('[data-slot="space-chip"]');
+  expect(chips[0]!.textContent).toBe("Priya's My space");
+  expect(chips[0]!.querySelector("svg")?.getAttribute("class")).toContain(
+    "lucide-user-lock",
+  );
+  expect(chips[1]!.textContent).toBe("Private space");
+  await expectNoA11yViolations(screen.container);
+});

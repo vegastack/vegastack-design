@@ -310,3 +310,27 @@ test("draws no focus ring", async () => {
   const html = document.querySelector('[data-slot="emoji-picker"]')!.outerHTML;
   expect(html).not.toMatch(/ring-3|focus-visible:ring/);
 });
+
+test("footer renders under the grid inside the panel", async () => {
+  const onRemove = vi.fn();
+  const screen = await render(
+    <EmojiPicker
+      onValueChange={() => {}}
+      footer={
+        <button type="button" onClick={onRemove}>
+          Remove icon
+        </button>
+      }
+    />,
+  );
+  await screen.getByRole("button", { name: "Pick an emoji" }).click();
+  const footer = await vi.waitUntil(() =>
+    document.querySelector(
+      '[data-slot="emoji-picker"] [data-slot="emoji-picker-footer"]',
+    ),
+  );
+  await screen.getByRole("button", { name: "Remove icon" }).click();
+  expect(onRemove).toHaveBeenCalledTimes(1);
+  expect(footer.textContent).toBe("Remove icon");
+  await expectNoA11yViolations(document.body);
+});

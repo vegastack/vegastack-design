@@ -18,6 +18,13 @@ export function accessChip(): ReactNode {
       <AccessChip access={{ kind: "personal" }} />
       <AccessChip
         access={{
+          kind: "hidden",
+          hint: { kind: "personal", ownerName: "Priya" },
+        }}
+      />
+      <AccessChip access={{ kind: "hidden", hint: { kind: "private" } }} />
+      <AccessChip
+        access={{
           kind: "space",
           space: { name: "General", access: "open", hue: "blue" },
         }}

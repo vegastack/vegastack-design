@@ -11506,6 +11506,7 @@
                 "emoji-picker",
                 "emoji-picker-categories",
                 "emoji-picker-empty",
+                "emoji-picker-footer",
                 "emoji-picker-grid",
                 "emoji-picker-item",
                 "emoji-picker-quick",
@@ -24922,6 +24923,24 @@
             "target": "none",
             "rationale": "Not a component — no ref to forward."
           }
+        },
+        {
+          "name": "ToastActionItem",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/toast.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "ToastData",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/toast.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
         }
       ],
       "variants": {
@@ -29502,6 +29521,33 @@
             "status": "not-applicable",
             "rationale": "No stable public ref target is forwarded by SpaceIcon in packages/ui/registry/ui/space-avatar.tsx; incidental internal nodes are not part of its API."
           }
+        },
+        {
+          "name": "SpaceHint",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/space-avatar.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "SpaceHintIcon",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/space-avatar.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "No stable public ref target is forwarded by SpaceHintIcon in packages/ui/registry/ui/space-avatar.tsx; incidental internal nodes are not part of its API."
+          }
+        },
+        {
+          "name": "spaceHintLabel",
+          "kind": "function",
+          "source": "packages/ui/registry/ui/space-avatar.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "This exported helper is not a rendered component root."
+          }
         }
       ],
       "variants": {
@@ -30161,15 +30207,6 @@
           }
         },
         {
-          "name": "SpacePickerLabels",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/space-picker.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
           "name": "SpacePickerProps",
           "kind": "interface",
           "source": "packages/ui/registry/ui/space-picker.tsx",
@@ -30208,7 +30245,8 @@
             "disabled-reason",
             "filtered",
             "empty",
-            "read-only"
+            "read-only",
+            "hidden-space"
           ],
           "evidence": "packages/ui/registry/ui/space-picker.tsx + packages/ui/registry/ui/space-picker.test.tsx"
         },
@@ -30280,11 +30318,7 @@
             },
             {
               "name": "data-slot",
-              "values": [
-                "space-chip",
-                "space-chip-avatar",
-                "space-chip-chevron"
-              ]
+              "values": ["space-chip", "space-chip-chevron", "space-chip-icon"]
             }
           ],
           "cssVariables": []
@@ -30308,7 +30342,7 @@
       "name": "access-chip",
       "registryType": "registry:ui",
       "title": "Access Chip",
-      "summary": "How far one record reaches as one focusable chip: the space tile and name, a lock and Only invited, or My space — with a globe when published and the full sentence in a tooltip. Clicking opens Share.",
+      "summary": "How far one record reaches as one focusable chip: the space tile and name, a lock and Only invited, My space, or a space the viewer cannot see (someone's My space, a private space) — with a globe when published and the full sentence in a tooltip. Clicking opens Share.",
       "status": "stable",
       "since": "0.23.116",
       "family": "overlay",
@@ -30334,15 +30368,6 @@
           }
         },
         {
-          "name": "AccessChipLabels",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/access-chip.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
           "name": "AccessChipAccess",
           "kind": "type",
           "source": "packages/ui/registry/ui/access-chip.tsx",
@@ -30357,7 +30382,7 @@
         "dimensions": [
           {
             "name": "access",
-            "values": ["space", "invited", "personal"]
+            "values": ["space", "invited", "personal", "hidden"]
           },
           {
             "name": "iconOnly",
@@ -30374,7 +30399,13 @@
       "states": {
         "behavior": {
           "status": "covered",
-          "values": ["default", "published", "icon-only", "tooltip"],
+          "values": [
+            "default",
+            "published",
+            "icon-only",
+            "tooltip",
+            "hidden-space"
+          ],
           "evidence": "packages/ui/registry/ui/access-chip.tsx + packages/ui/registry/ui/access-chip.test.tsx"
         },
         "accessibility": {

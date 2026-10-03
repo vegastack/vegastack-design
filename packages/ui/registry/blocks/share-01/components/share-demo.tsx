@@ -1,10 +1,11 @@
-// @vegastack share-01@0.23.115 sha256-JOkHle8vldYvDllD9Cl2jEkrfbUCjKobxrXG2o9Ur9U=
+// @vegastack share-01@0.23.115 sha256-jOHJ7EIpz4fxB6HHd78ehKGKGQlQye0FetaXkeWKgig=
 
 "use client";
 
 import * as React from "react";
 import { Button } from "@/components/ui/button";
 import type { PeopleInputOption } from "@/components/ui/people-input";
+import type { SpaceHint } from "@/components/ui/space-avatar";
 import {
   ShareDialog,
   type ShareDialogProps,
@@ -114,6 +115,8 @@ export interface ShareDemoProps {
   defaultTab?: "share" | "publish";
   /** The item lives in the viewer's own My space. @default false */
   personal?: boolean;
+  /** The item lives in a space the viewer cannot see, of this kind. @default undefined */
+  hiddenSpace?: SpaceHint;
 }
 
 /**
@@ -131,12 +134,15 @@ export function ShareDemo({
   triggerLabel = "Share",
   defaultTab = "share",
   personal = false,
+  hiddenSpace,
 }: ShareDemoProps) {
   const [people, setPeople] = React.useState(PEOPLE);
   const [general, setGeneral] = React.useState<ShareGeneralAccess>(
-    personal
-      ? { ...GENERAL, space: { name: "My space", access: "personal" } }
-      : GENERAL,
+    hiddenSpace
+      ? { ...GENERAL, space: null, spaceHint: hiddenSpace }
+      : personal
+        ? { ...GENERAL, space: { name: "My space", access: "personal" } }
+        : GENERAL,
   );
   const [link, setLink] = React.useState<SharePublicLink | null>(
     publicLinkOn

@@ -13519,7 +13519,7 @@
       "name": "access-chip",
       "type": "registry:ui",
       "title": "Access Chip",
-      "description": "How far one record reaches as one focusable chip: the space tile and name, a lock and Only invited, or My space — with a globe when published and the full sentence in a tooltip. Clicking opens Share.",
+      "description": "How far one record reaches as one focusable chip: the space tile and name, a lock and Only invited, My space, or a space the viewer cannot see (someone's My space, a private space) — with a globe when published and the full sentence in a tooltip. Clicking opens Share.",
       "categories": ["overlay"],
       "dependencies": [
         "lucide-react@^1.47.0",

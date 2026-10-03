@@ -188,3 +188,39 @@ export function emojiPickerNoRecents(): ReactNode {
     </Wrapper>
   );
 }
+
+/**
+ * A footer row inside the panel — "Remove icon" for a space or page icon. The host's control
+ * closes the picker through `open` / `onOpenChange`.
+ */
+export function emojiPickerFooter(): ReactNode {
+  const [icon, setIcon] = React.useState<string | null>("🚀");
+  const [open, setOpen] = React.useState(false);
+  return (
+    <Wrapper>
+      <EmojiPicker
+        open={open}
+        onOpenChange={setOpen}
+        onValueChange={setIcon}
+        trigger={
+          <Button variant="outline" aria-label="Change icon">
+            {icon ?? "No icon"}
+          </Button>
+        }
+        footer={
+          <Button
+            variant="ghost"
+            size="sm"
+            disabled={icon === null}
+            onClick={() => {
+              setIcon(null);
+              setOpen(false);
+            }}
+          >
+            Remove icon
+          </Button>
+        }
+      />
+    </Wrapper>
+  );
+}

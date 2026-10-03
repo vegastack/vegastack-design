@@ -22,9 +22,11 @@ import { AccessChip } from "@/components/ui/access-chip";
   access={
     record.mode === "invited"
       ? { kind: "invited" }
-      : record.space.access === "personal"
-        ? { kind: "personal" }
-        : { kind: "space", space: record.space }
+      : !record.space
+        ? { kind: "hidden", hint: record.spaceHint }
+        : record.space.access === "personal"
+          ? { kind: "personal" }
+          : { kind: "space", space: record.space }
   }
   published={record.publicLink !== null}
   onClick={share.show}
@@ -33,7 +35,9 @@ import { AccessChip } from "@/components/ui/access-chip";
 
 One chip in a record's header replaces a row of bare access glyphs. It shows the space's tile and
 name (everyone in that space can open it), a lock and "Only invited", or a person-with-lock and "My
-space", and a small globe when the record is published to the web. It is a real button that opens
+space". For a space the viewer cannot see, `{ kind: "hidden", hint }` shows "Priya's My space"
+(person-with-lock) or "Private space" (lock) — the `SpaceHint` names a kind of space, never the
+space. A small globe joins any of them when the record is published to the web. It is a real button that opens
 Share, with the full sentence in a tooltip on hover and focus.
 
 <ComponentPreview name="accessChip" file="components/preview/access-chip.tsx" />

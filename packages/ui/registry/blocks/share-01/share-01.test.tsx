@@ -245,3 +245,42 @@ test("share-01 defaultInvitees is reactive and keeps edits until it changes", as
   await expect.element(chip("Priya Shah")).not.toBeInTheDocument();
   await expect.element(chip("Lena Ortiz")).not.toBeInTheDocument();
 });
+
+test("share-01 while published: the Share tab says so in one line, and Manage opens Publish", async () => {
+  await page.viewport(1280, 900);
+  const screen = await render(<ShareDemo defaultOpen publicLinkOn />);
+  const dialog = screen.getByRole("dialog", { name: "Share" });
+  await expect.element(dialog.getByText("Published to the web")).toBeVisible();
+  await dialog.getByRole("button", { name: "Manage" }).click();
+  await expect
+    .element(dialog.getByRole("tab", { name: "Publish" }))
+    .toHaveAttribute("aria-selected", "true");
+  await expect
+    .element(dialog.getByRole("textbox", { name: "Public link" }))
+    .toBeVisible();
+});
+
+test("share-01 a space the viewer cannot see is a plain statement: no mode, no level", async () => {
+  await page.viewport(1280, 900);
+  const screen = await render(
+    <ShareDemo
+      defaultOpen
+      hiddenSpace={{ kind: "personal", ownerName: "Priya" }}
+    />,
+  );
+  const dialog = screen.getByRole("dialog", { name: "Share" });
+  await expect
+    .poll(
+      () => document.querySelector('[data-slot="share-general"]')?.textContent,
+    )
+    .toContain("In Priya's My space");
+  await expect
+    .element(dialog.getByRole("combobox", { name: "Space access" }))
+    .not.toBeInTheDocument();
+  expect(
+    document.querySelector(
+      '[data-slot="share-general"] [data-permission-menu]',
+    ),
+  ).toBeNull();
+  await expectNoA11yViolations(document.body, ["color-contrast"]);
+});

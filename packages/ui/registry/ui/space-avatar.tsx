@@ -1,4 +1,4 @@
-// @vegastack space-avatar@0.23.115 sha256-HsnfpCMfg4khEq7XHHEzGwDb8c/CvfPrhMdmdtPhNho=
+// @vegastack space-avatar@0.23.115 sha256-eYgaks0+FcvmG7U54cL/Lffr3rq+wlVyOCpCypqO0Zs=
 
 import * as React from "react";
 import { Layers, LockIcon, UserLock } from "lucide-react";
@@ -25,6 +25,42 @@ import { Badge } from "@/components/ui/badge";
  * @example <SpaceIcon aria-hidden className="size-4" />
  */
 export const SpaceIcon = Layers;
+
+/**
+ * Which kind of space holds a record the viewer can open but whose space they cannot see: someone
+ * else's My space (named by its owner), or a private team space (never named). It carries no name
+ * or id of the space itself.
+ */
+export type SpaceHint =
+  { kind: "personal"; ownerName: string } | { kind: "private" };
+
+/**
+ * `spaceHintLabel` — the words for a hidden space: "Priya's My space", or "Private space".
+ *
+ * @example spaceHintLabel({ kind: "personal", ownerName: "Priya" }); // "Priya's My space"
+ */
+export function spaceHintLabel(hint: SpaceHint): string {
+  return hint.kind === "personal"
+    ? `${hint.ownerName}'s My space`
+    : "Private space";
+}
+
+/**
+ * `SpaceHintIcon` — the glyph for a hidden space: a person-with-lock for someone's My space, a
+ * lock for a private space.
+ *
+ * @example <SpaceHintIcon hint={hint} aria-hidden className="size-3.5" />
+ */
+export function SpaceHintIcon({
+  hint,
+  ...props
+}: { hint: SpaceHint } & React.ComponentProps<typeof LockIcon>) {
+  return hint.kind === "personal" ? (
+    <UserLock {...props} />
+  ) : (
+    <LockIcon {...props} />
+  );
+}
 
 /** A space shown by `SpaceAvatar` and `SpaceOption`. */
 export interface Space {

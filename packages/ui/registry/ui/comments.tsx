@@ -1,4 +1,4 @@
-// @vegastack comments@0.23.115 sha256-HrjtmOFTSKzVbhiP7wPUBh71E83LQSgTGYDX8SLnkUk=
+// @vegastack comments@0.23.115 sha256-rBIpvA5pPZqn6BWjrcC/6grLmSh/YqHlt5Q4hdD6U5w=
 
 "use client";
 
@@ -631,7 +631,8 @@ interface CommentBoxProps {
   autoFocus?: boolean;
   /** Inside a comment card (edit mode): the card already draws the surface and border. */
   bare?: boolean;
-  leading?: React.ReactNode;
+  /** The host's extra controls, first in the end-of-line group before attach and Send. */
+  extraActions?: React.ReactNode;
   actions: React.ReactNode;
   mentions?: TextEditProps["mentions"];
   mentionHref?: TextEditProps["mentionHref"];
@@ -671,7 +672,7 @@ function CommentBox({
   invalid,
   autoFocus,
   bare,
-  leading,
+  extraActions,
   actions,
   mentions,
   mentionHref,
@@ -772,7 +773,7 @@ function CommentBox({
             data-slot="comment-box-actions"
             className="flex shrink-0 items-center gap-1"
           >
-            {leading}
+            {extraActions}
             {canAttach ? (
               <>
                 <Tooltip>
@@ -1030,7 +1031,7 @@ export function CommentComposer({
         busy={posting}
         disabled={disabled}
         invalid={!!error}
-        leading={attachments}
+        extraActions={attachments}
         mentions={mentions}
         mentionHref={mentionHref}
         mentionImage={mentionImage}
@@ -1408,7 +1409,7 @@ export function CommentThread({
             busy={posting}
             disabled={composer?.disabled}
             invalid={!!error}
-            leading={composer?.attachments}
+            extraActions={composer?.attachments}
             mentions={composer?.mentions}
             mentionHref={composer?.mentionHref}
             mentionImage={composer?.mentionImage}

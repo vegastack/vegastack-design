@@ -1,4 +1,4 @@
-// @vegastack share-01@0.23.115 sha256-JOkHle8vldYvDllD9Cl2jEkrfbUCjKobxrXG2o9Ur9U=
+// @vegastack share-01@0.23.115 sha256-jOHJ7EIpz4fxB6HHd78ehKGKGQlQye0FetaXkeWKgig=
 
 "use client";
 
@@ -59,7 +59,12 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
-import { SpaceAvatar, type Space } from "@/components/ui/space-avatar";
+import {
+  SpaceAvatar,
+  SpaceHintIcon,
+  type Space,
+  type SpaceHint,
+} from "@/components/ui/space-avatar";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
@@ -134,10 +139,17 @@ export interface SharePublicLink {
 /** Who in the item's space can open it. */
 export interface ShareGeneralAccess {
   /**
-   * The item's space. A personal space (`access: "personal"`) reads "My space · Only you and the
-   * people above", with no mode or level to change. `null` when the viewer cannot see the space.
+   * The item's space. The viewer's own personal space (`access: "personal"`) reads "My space ·
+   * Only you and the people above", with no mode or level to change. `null` when the viewer
+   * cannot see the space — then `spaceHint` says which kind it is.
    */
   space?: Space | null;
+  /**
+   * With `space: null`: which kind of space the viewer cannot see holds the item. The row is a
+   * plain statement — "In Priya's My space" or "In a private space" — with no mode or level.
+   * @default { kind: "private" }
+   */
+  spaceHint?: SpaceHint | null;
   /** `space` — everyone in the space; `invited` — only people invited. */
   mode: "space" | "invited";
   /** The space members' level while `mode` is `space` — one of `generalLevels`. */
@@ -153,7 +165,6 @@ export interface ShareDialogLabels {
   notify: string;
   messagePlaceholder: string;
   cancel: string;
-  share: string;
   peopleHeading: string;
   you: string;
   levelFor: (name: string, level: string) => string;
@@ -161,9 +172,6 @@ export interface ShareDialogLabels {
   everyoneIn: (space: string) => string;
   onlyInvited: string;
   generalHint: (mode: "space" | "invited", space: string) => string;
-  publicSection: string;
-  publicHeading: string;
-  publicOff: string;
   publicHint: string;
   copyPublicLink: string;
   publicLinkField: string;
@@ -171,12 +179,8 @@ export interface ShareDialogLabels {
   resetLinkHint: string;
   expires: string;
   expiry: Record<ShareLinkExpiry, string>;
-  /** @deprecated The Publish tab's switch and "Stop publishing" replace it. */
-  stopSharing: string;
   copyLink: string;
   copied: string;
-  /** @deprecated The dialog has no Done button; × and Escape close it. */
-  done: string;
   /** The Share tab. */
   shareTab: string;
   /** The Publish tab. */
@@ -189,8 +193,12 @@ export interface ShareDialogLabels {
   mySpace: string;
   /** A personal space's row hint. */
   mySpaceHint: string;
-  /** The space row's name when the viewer cannot see the space. */
-  unknownSpace: string;
+  /** The space row for a space the viewer cannot see: "In Priya's My space". */
+  hiddenSpace: (hint: SpaceHint) => string;
+  /** The Share tab's notice while the item is published. */
+  publishedNotice: string;
+  /** The notice's link to the Publish tab. */
+  managePublishing: string;
   /** The Publish switch's label. */
   publishHeading: string;
   /** The Publish switch's hint while off. */
@@ -215,7 +223,6 @@ const defaultLabels: ShareDialogLabels = {
   notify: "Notify people",
   messagePlaceholder: "Add a message (optional)",
   cancel: "Cancel",
-  share: "Share",
   peopleHeading: "People with access",
   you: "(you)",
   levelFor: (name, level) => `${name}'s access: ${level}`,
@@ -226,9 +233,6 @@ const defaultLabels: ShareDialogLabels = {
     mode === "space"
       ? `Members of ${space} can find and open it`
       : "Only people with access can open it",
-  publicSection: "Public link",
-  publicHeading: "Anyone with the link",
-  publicOff: "Off",
   publicHint: "Anyone with the link can view, without signing in",
   copyPublicLink: "Copy public link",
   publicLinkField: "Public link",
@@ -236,17 +240,20 @@ const defaultLabels: ShareDialogLabels = {
   resetLinkHint: "Reset link — the current link stops working",
   expires: "Expires",
   expiry: { never: "Never", "1d": "1 day", "7d": "7 days", "30d": "30 days" },
-  stopSharing: "Stop sharing",
   copyLink: "Copy link",
   copied: "Copied",
-  done: "Done",
   shareTab: "Share",
   publishTab: "Publish",
   invite: "Invite",
   copyLinkHint: "Only people with access can open it",
   mySpace: "My space",
   mySpaceHint: "Only you and the people above",
-  unknownSpace: "This space",
+  hiddenSpace: (hint) =>
+    hint.kind === "personal"
+      ? `In ${hint.ownerName}'s My space`
+      : "In a private space",
+  publishedNotice: "Published to the web",
+  managePublishing: "Manage",
   publishHeading: "Publish to the web",
   publishHintOff: "Off — only people with access can open it",
   notPublished: "Not published",
@@ -602,88 +609,128 @@ export function ShareDialog({
   );
 
   const space = generalAccess?.space ?? null;
-  const spaceName = space?.name ?? labels.unknownSpace;
-  const personalSpace = space?.access === "personal";
-  const generalSection = generalAccess ? (
+  // A statement, not a control: the viewer's own My space, or a space they cannot see.
+  const statement: { tile: React.ReactNode; text: React.ReactNode } | null =
+    !generalAccess
+      ? null
+      : !space
+        ? {
+            tile: (
+              <SpaceHintIcon
+                hint={generalAccess.spaceHint ?? { kind: "private" }}
+              />
+            ),
+            text: labels.hiddenSpace(
+              generalAccess.spaceHint ?? { kind: "private" },
+            ),
+          }
+        : space.access === "personal"
+          ? {
+              tile: <UserLock />,
+              text: (
+                <>
+                  {labels.mySpace}
+                  <span className="text-muted-foreground">
+                    {" · "}
+                    {labels.mySpaceHint}
+                  </span>
+                </>
+              ),
+            }
+          : null;
+  const generalSection = !generalAccess ? null : (
     <section data-slot="share-general" className="flex flex-col gap-2">
       <SectionHeading>{labels.generalHeading}</SectionHeading>
-      <div className="flex min-w-0 items-center gap-2">
-        {space && !personalSpace ? (
-          <SpaceAvatar space={space} size="default" />
-        ) : (
-          <IconTile>
-            <UserLock />
-          </IconTile>
-        )}
-        <div className="flex min-w-0 flex-1 flex-col items-start">
-          {personalSpace ? (
-            <span className="truncate text-sm">
-              {labels.mySpace}
-              <span className="text-muted-foreground">
-                {" · "}
-                {labels.mySpaceHint}
-              </span>
-            </span>
-          ) : canManage ? (
-            <Select
-              items={[
-                { value: "space", label: labels.everyoneIn(spaceName) },
-                { value: "invited", label: labels.onlyInvited },
-              ]}
-              value={generalAccess.mode}
-              onValueChange={(mode) =>
-                onGeneralAccessChange?.({
-                  mode: mode as "space" | "invited",
-                  level: generalAccess.level,
-                })
-              }
-            >
-              <SelectTrigger
-                variant="ghost"
-                size="sm"
-                aria-label={labels.generalHeading}
-                className="-ms-2.5 w-auto max-w-full text-sm"
-              >
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="space">
-                  {labels.everyoneIn(spaceName)}
-                </SelectItem>
-                <SelectItem value="invited">{labels.onlyInvited}</SelectItem>
-              </SelectContent>
-            </Select>
-          ) : (
-            <span className="truncate text-sm">
-              {generalAccess.mode === "space"
-                ? labels.everyoneIn(spaceName)
-                : labels.onlyInvited}
-            </span>
-          )}
-          {personalSpace ? null : (
-            <span className="truncate text-xs text-muted-foreground">
-              {labels.generalHint(generalAccess.mode, spaceName)}
-            </span>
-          )}
+      {statement ? (
+        <div className="flex min-w-0 items-center gap-2">
+          <IconTile>{statement.tile}</IconTile>
+          <span className="min-w-0 flex-1 truncate text-sm">
+            {statement.text}
+          </span>
         </div>
-        {generalAccess.mode === "space" && !personalSpace ? (
-          <PermissionMenu
-            variant="chip"
-            value={generalAccess.level}
-            options={generalLevels}
-            readOnly={!canManage || generalLevelReadOnly}
-            onValueChange={(level) =>
-              onGeneralAccessChange?.({ mode: "space", level })
-            }
-            aria-label={labels.levelFor(
-              labels.everyoneIn(spaceName),
-              levelLabel(generalAccess.level, generalLevels),
+      ) : space ? (
+        <div className="flex min-w-0 items-center gap-2">
+          <SpaceAvatar space={space} size="default" />
+          <div className="flex min-w-0 flex-1 flex-col items-start">
+            {canManage ? (
+              <Select
+                items={[
+                  { value: "space", label: labels.everyoneIn(space.name) },
+                  { value: "invited", label: labels.onlyInvited },
+                ]}
+                value={generalAccess.mode}
+                onValueChange={(mode) =>
+                  onGeneralAccessChange?.({
+                    mode: mode as "space" | "invited",
+                    level: generalAccess.level,
+                  })
+                }
+              >
+                <SelectTrigger
+                  variant="ghost"
+                  size="sm"
+                  aria-label={labels.generalHeading}
+                  className="-ms-2.5 w-auto max-w-full text-sm"
+                >
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="space">
+                    {labels.everyoneIn(space.name)}
+                  </SelectItem>
+                  <SelectItem value="invited">{labels.onlyInvited}</SelectItem>
+                </SelectContent>
+              </Select>
+            ) : (
+              <span className="truncate text-sm">
+                {generalAccess.mode === "space"
+                  ? labels.everyoneIn(space.name)
+                  : labels.onlyInvited}
+              </span>
             )}
-          />
-        ) : null}
-      </div>
+            <span className="truncate text-xs text-muted-foreground">
+              {labels.generalHint(generalAccess.mode, space.name)}
+            </span>
+          </div>
+          {generalAccess.mode === "space" ? (
+            <PermissionMenu
+              variant="chip"
+              value={generalAccess.level}
+              options={generalLevels}
+              readOnly={!canManage || generalLevelReadOnly}
+              onValueChange={(level) =>
+                onGeneralAccessChange?.({ mode: "space", level })
+              }
+              aria-label={labels.levelFor(
+                labels.everyoneIn(space.name),
+                levelLabel(generalAccess.level, generalLevels),
+              )}
+            />
+          ) : null}
+        </div>
+      ) : null}
     </section>
-  ) : null;
+  );
+
+  // While published, the Share tab says so in one line, with a way to the Publish tab.
+  const publishedNotice =
+    publicLinkAvailable && publicLink ? (
+      <p
+        data-slot="share-published-notice"
+        className="flex min-w-0 items-center gap-2 text-sm text-muted-foreground"
+      >
+        <GlobeIcon aria-hidden className="size-4 shrink-0" />
+        <span className="min-w-0 truncate">{labels.publishedNotice}</span>
+        <Button
+          variant="link"
+          size="xs"
+          className="ms-auto h-auto shrink-0 px-0"
+          onClick={() => setTab("publish")}
+        >
+          {labels.managePublishing}
+        </Button>
+      </p>
+    ) : null;
 
   const shareBody = (
     <div data-slot="share-dialog-body" className="flex flex-col gap-4 pb-1">
@@ -694,6 +741,7 @@ export function ShareDialog({
         <>
           {peopleSection}
           {generalSection}
+          {publishedNotice}
           {footerNote ? (
             <p className="text-xs text-muted-foreground">{footerNote}</p>
           ) : null}

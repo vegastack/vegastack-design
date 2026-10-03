@@ -16,7 +16,8 @@ import {
   LoaderIcon,
 } from "lucide-react";
 
-const toast = ToastPrimitive.createToastManager();
+// Typed with `ToastData`, so `toast.add({ data: { actions, keepOpen, render } })` is checked.
+const toast = ToastPrimitive.createToastManager<ToastData>();
 
 // A11Y-9: what is hidden from assistive technology must not be reachable by keyboard. Base UI keeps
 // a `priority: "high"` toast `aria-hidden` for as long as the viewport is unfocused — it announces a
@@ -131,10 +132,25 @@ const toastVariants = cva(
  * toast — stacking, swipe-to-dismiss, `Escape` and the viewport's live region all still apply —
  * instead of opting out of them.
  */
-type ToastCustomData = {
+type ToastData = {
   render?: (toast: ToastPrimitive.Root.ToastObject) => React.ReactNode;
+  /**
+   * Up to two actions, drawn after the text with the type's normal icon — "View" and "Move", say.
+   * Each closes the toast when clicked (the action is taken) unless `keepOpen` is set. Takes the
+   * place of `actionProps`, which stays the one-action form.
+   */
+  actions?:
+    readonly [ToastActionItem] | readonly [ToastActionItem, ToastActionItem];
   /** Keep the toast up after its action runs. By default the action closes it: the action is taken. */
   keepOpen?: boolean;
+};
+
+/** One button of a toast's `data.actions`. */
+type ToastActionItem = {
+  /** The button's text, and its accessible name. */
+  label: React.ReactNode;
+  /** Runs when the button is pressed; the toast then closes unless `data.keepOpen`. */
+  onClick: () => void;
 };
 
 // OVL-17: the manager of the `ToastProvider` mounted above, if any. A `Toaster` given the same
@@ -374,6 +390,34 @@ function ToastIcon({ type }: { type: string | undefined }) {
   );
 }
 
+/** OVL-15: the buttons of `data.actions`, in order, each closing its toast once taken. */
+function ToastActionButtons({
+  actions,
+  onTaken,
+}: {
+  actions: NonNullable<ToastData["actions"]>;
+  onTaken: () => void;
+}) {
+  const hiddenFromAt = React.useContext(ToastHiddenFromAtContext);
+  return actions.map((action, index) => (
+    <Button
+      key={index}
+      variant="outline"
+      size="sm"
+      data-slot="toast-action"
+      // A11Y-9: out of the tab order while the toast around it is `aria-hidden`.
+      tabIndex={hiddenFromAt ? -1 : 0}
+      className="shrink-0"
+      onClick={() => {
+        action.onClick();
+        onTaken();
+      }}
+    >
+      {action.label}
+    </Button>
+  ));
+}
+
 function ToastList({
   anchor,
   swipeDirection,
@@ -384,7 +428,12 @@ function ToastList({
   return toasts.map((toastItem) => {
     // OVL-15: a toast carrying `data.render` owns its own body; everything around it — the surface,
     // the stack, the swipe and the live region — is unchanged.
-    const custom = (toastItem.data as ToastCustomData | undefined)?.render;
+    const data = toastItem.data as ToastData | undefined;
+    const custom = data?.render;
+    // The action is taken, so its toast goes; `data.keepOpen` opts out.
+    const taken = () => {
+      if (!data?.keepOpen) close(toastItem.id);
+    };
 
     return (
       <Toast
@@ -403,15 +452,11 @@ function ToastList({
                 <ToastTitle />
                 <ToastDescription />
               </div>
-              <ToastAction
-                // The action is taken, so its toast goes; `data.keepOpen` opts out.
-                onClick={() => {
-                  if (
-                    !(toastItem.data as ToastCustomData | undefined)?.keepOpen
-                  )
-                    close(toastItem.id);
-                }}
-              />
+              {data?.actions?.length ? (
+                <ToastActionButtons actions={data.actions} onTaken={taken} />
+              ) : (
+                <ToastAction onClick={taken} />
+              )}
               <ToastClose />
             </>
           )}
@@ -491,5 +536,7 @@ export {
   createToastManager,
   toast,
   useToastManager,
+  type ToastActionItem,
+  type ToastData,
   type ToastPosition,
 };
