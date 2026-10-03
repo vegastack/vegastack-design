@@ -1,5 +1,5 @@
 import { render } from "vitest-browser-react";
-import { page } from "vitest/browser";
+import { page, userEvent } from "vitest/browser";
 import { afterEach, expect, test, vi } from "vitest";
 
 import { expectNoA11yViolations } from "../../../test/a11y";
@@ -251,10 +251,14 @@ test("share-01 while published: the Share tab says so in one line, and Manage op
   const screen = await render(<ShareDemo defaultOpen publicLinkOn />);
   const dialog = screen.getByRole("dialog", { name: "Share" });
   await expect.element(dialog.getByText("Published to the web")).toBeVisible();
-  await dialog.getByRole("button", { name: "Manage" }).click();
-  await expect
-    .element(dialog.getByRole("tab", { name: "Publish" }))
-    .toHaveAttribute("aria-selected", "true");
+  // Keyboard activation: focus must not fall to <body> when Manage unmounts.
+  (
+    dialog.getByRole("button", { name: "Manage" }).element() as HTMLElement
+  ).focus();
+  await userEvent.keyboard("{Enter}");
+  const publishTab = dialog.getByRole("tab", { name: "Publish" });
+  await expect.element(publishTab).toHaveAttribute("aria-selected", "true");
+  expect(document.activeElement).toBe(publishTab.element());
   await expect
     .element(dialog.getByRole("textbox", { name: "Public link" }))
     .toBeVisible();

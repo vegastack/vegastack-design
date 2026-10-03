@@ -1,4 +1,4 @@
-// @vegastack share-01@0.23.115 sha256-jOHJ7EIpz4fxB6HHd78ehKGKGQlQye0FetaXkeWKgig=
+// @vegastack share-01@0.23.115 sha256-29P8rFv4LzyFGM3SfKEUKqBb1keidpzITQDXUPwZI40=
 
 "use client";
 
@@ -444,6 +444,7 @@ export function ShareDialog({
   const [inviting, setInviting] = React.useState(false);
   const [confirmStop, setConfirmStop] = React.useState(false);
   const publishLabelId = React.useId();
+  const publishTabRef = React.useRef<HTMLButtonElement>(null);
   const inviteMode = canManage && invitees.length > 0;
 
   const resetInvite = () => {
@@ -725,7 +726,11 @@ export function ShareDialog({
           variant="link"
           size="xs"
           className="ms-auto h-auto shrink-0 px-0"
-          onClick={() => setTab("publish")}
+          onClick={() => {
+            // Manage unmounts with the Share tab: hand focus to the Publish trigger first.
+            publishTabRef.current?.focus();
+            setTab("publish");
+          }}
         >
           {labels.managePublishing}
         </Button>
@@ -930,7 +935,11 @@ export function ShareDialog({
               <TabsTrigger value="share" className="flex-none">
                 {labels.shareTab}
               </TabsTrigger>
-              <TabsTrigger value="publish" className="flex-none">
+              <TabsTrigger
+                ref={publishTabRef}
+                value="publish"
+                className="flex-none"
+              >
                 {labels.publishTab}
                 {publicLink ? (
                   <GlobeIcon

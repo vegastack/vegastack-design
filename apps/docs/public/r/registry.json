@@ -18695,7 +18695,7 @@
         "whenToUse": "Share a record, page or meeting with people and teams, set its general access and turn a public link on or off.",
         "whenNotToUse": "Manage a space's or team's members as a page — compose DataList with PeopleInput and PermissionMenu.",
         "version": "0.23.115",
-        "integrity": "sha256-jOHJ7EIpz4fxB6HHd78ehKGKGQlQye0FetaXkeWKgig="
+        "integrity": "sha256-29P8rFv4LzyFGM3SfKEUKqBb1keidpzITQDXUPwZI40="
       }
     },
     {
