@@ -1,4 +1,4 @@
-// @vegastack skeleton@0.23.118 sha256-5LcsDs4/SgXU5tDCfOTO1NozDRhphUXddYIhOGL2cEs=
+// @vegastack skeleton@0.23.119 sha256-q636OeaSJP49VkIHH1jDWrgG0/HAnXW7znPpJY02XvE=
 
 import { cn } from "@vegastack/design";
 
