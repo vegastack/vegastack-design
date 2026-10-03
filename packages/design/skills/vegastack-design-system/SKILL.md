@@ -357,6 +357,7 @@ contract.
   `useTimeZone()` on the client; render `TimeZoneScript` + `TimeZoneProvider` once at the root).
   Pass a serialized request timestamp as `TimeZoneProvider.referenceNow`; groups, due badges and
   picker presets read the same live epoch clock via `useDateTimeNow()` from `relative-time`.
+  `DateTime` and `DueLabel` share it too; explicit `DateTime.options.now` stays controlled.
   It is `undefined` during SSR without that reference; render affected date content pending rather
   than reading a separate render-time clock. API/JSON output stays ISO.
 

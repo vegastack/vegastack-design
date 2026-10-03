@@ -145,8 +145,10 @@ groups are dropped). Each group has a stable `key` and a `label`.
 
 ### Components
 
-`<RelativeTime>` auto-refreshes; `<DateTime>`, `<Duration>` and `<DueLabel>` render once. Each
-shows the absolute time in a hover tooltip unless `title={false}`.
+`<RelativeTime>`, `<DateTime>` and `<DueLabel>` follow the shared live clock; explicit
+`RelativeTime.now` and `DateTime.options.now` stay controlled, and `RelativeTime.refresh={false}`
+keeps its initial reference. These date components show the absolute time in a hover tooltip unless
+`title={false}`. `<Duration>` formats the supplied length without a live clock or absolute-time tooltip.
 
 <ComponentPreview
   name="dateTimeComponents"
@@ -175,7 +177,9 @@ const timeZone = getTimeZone(
 
 <body>
   <TimeZoneScript />
-  <TimeZoneProvider timeZone={timeZone}>{children}</TimeZoneProvider>
+  <TimeZoneProvider timeZone={timeZone} referenceNow={Date.now()}>
+    {children}
+  </TimeZoneProvider>
 </body>;
 ```
 
@@ -304,7 +308,11 @@ import { DateTime, useDateTimeNow } from "@/components/ui/relative-time";
 
 export function CurrentTime() {
   const nowMs = useDateTimeNow();
-  return nowMs === undefined ? <span>…</span> : <DateTime date={nowMs} />;
+  return nowMs === undefined ? (
+    <span>…</span>
+  ) : (
+    <DateTime date={nowMs} variant="time" />
+  );
 }
 ```
 
@@ -345,6 +353,13 @@ Pass a serialized request timestamp as `TimeZoneProvider.referenceNow` to render
 identically on the server and the hydration render. The shared clock then updates live labels.
 Without that reference, only the date label shows `…` until the browser clock is available.
 `now` remains a controlled clock, and `refresh={false}` keeps its initial reference.
+
+`DateTime` and `DueLabel` use the same request/live reference, so calendar words and due tones
+update across midnight in the effective zone. `DateTime.options.now` is an explicit controlled
+reference; `absolute`, `relativeDay` and other formatting choices retain their meanings.
+Without a request reference, only affected date content shows `…` until hydration. These
+components do not suppress hydration mismatches; absolute tooltip labels retain their full date,
+time and zone.
 
 ## Accessibility
 

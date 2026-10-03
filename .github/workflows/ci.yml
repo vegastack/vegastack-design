@@ -66,3 +66,6 @@ jobs:
             git status --short
             exit 1
           }
+      - name: Report unexpected native browser crashes
+        if: always()
+        run: node tooling/report-native-crashes.mjs

@@ -207,6 +207,14 @@ export default defineConfig({
       // `colorScheme` is likewise left at Playwright's default (light), which is the single
       // scheme the geometry lane asserts; nothing there applies the `.dark` class.
       provider: playwright({
+        // The pinned headless-shell renderer reproducibly SIGSEGVs after passing tests on
+        // Linux. Use Playwright's supported full Chromium headless channel instead; the
+        // same pinned image already ships it. Other manual engines keep their own launch.
+        launchOptions:
+          !process.env.VEGASTACK_BROWSER_ENGINE ||
+          process.env.VEGASTACK_BROWSER_ENGINE === "chromium"
+            ? { channel: "chromium" }
+            : undefined,
         contextOptions: {
           locale: "en-US",
         },

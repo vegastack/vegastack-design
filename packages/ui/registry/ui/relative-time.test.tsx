@@ -6,6 +6,8 @@ import { expect, test, vi } from "vitest";
 import { expectNoA11yViolations } from "../../test/a11y";
 import { TooltipProvider } from "./tooltip";
 import {
+  DateTime,
+  DueLabel,
   RelativeTime,
   TimeZoneProvider,
   useDateTimeNow,
@@ -644,4 +646,91 @@ test("shared clock without a request reference has an explicit SSR pending state
     return <span>{useDateTimeNow() ?? "pending"}</span>;
   }
   expect(renderToString(<Clock />)).toBe("<span>pending</span>");
+});
+
+test("DateTime and DueLabel use the request reference even if rendering crosses midnight", () => {
+  const reference = Date.parse("2026-10-03T18:29:55Z");
+  vi.useFakeTimers({ toFake: ["Date"] });
+  vi.setSystemTime(reference + 10_000);
+  try {
+    const markup = renderToString(
+      <TimeZoneProvider timeZone="Asia/Kolkata" referenceNow={reference}>
+        <DateTime date="2026-10-03T12:00:00Z" title={false} />
+        <DueLabel date="2026-10-03T12:00:00Z" title={false} />
+      </TimeZoneProvider>,
+    );
+    expect(markup).toContain(">Today</time>");
+    expect(markup).toContain(">Due today</time>");
+  } finally {
+    vi.useRealTimers();
+  }
+});
+
+test("DateTime and DueLabel hydrate and update together across the effective-zone day boundary", async () => {
+  const reference = Date.parse("2026-10-03T18:29:55Z");
+  vi.useFakeTimers({ toFake: ["Date", "setInterval", "clearInterval"] });
+  vi.setSystemTime(reference);
+  const container = document.createElement("div");
+  document.body.append(container);
+  const errors: unknown[] = [];
+  const element = (
+    <TimeZoneProvider timeZone="Asia/Kolkata" referenceNow={reference}>
+      <DateTime
+        date="2026-10-03T12:00:00Z"
+        title={false}
+        data-testid="live-date"
+      />
+      <DateTime
+        date="2026-10-03T12:00:00Z"
+        title={false}
+        options={{ now: reference }}
+        data-testid="fixed-date"
+      />
+      <DateTime
+        date="2026-10-03T12:00:00Z"
+        title={false}
+        options={{ absolute: true }}
+        data-testid="absolute-date"
+      />
+      <DueLabel date="2026-10-03T12:00:00Z" title={false} />
+    </TimeZoneProvider>
+  );
+  container.innerHTML = renderToString(element);
+  let hydrated: ReturnType<typeof hydrateRoot> | undefined;
+  try {
+    await React.act(async () => {
+      hydrated = hydrateRoot(container, element, {
+        onRecoverableError: (error) => errors.push(error),
+      });
+    });
+    expect(
+      container.querySelector('[data-testid="live-date"]')?.textContent,
+    ).toBe("Today");
+    await React.act(async () => {
+      await vi.advanceTimersByTimeAsync(10_000);
+    });
+    expect(
+      container.querySelector('[data-testid="live-date"]')?.textContent,
+    ).toBe("Yesterday");
+    expect(
+      container.querySelector('[data-testid="fixed-date"]')?.textContent,
+    ).toBe("Today");
+    expect(
+      container.querySelector('[data-testid="absolute-date"]')?.textContent,
+    ).toBe("Oct 3");
+    expect(
+      container.querySelector('[data-slot="due-label"]')?.textContent,
+    ).toBe("Overdue 1d");
+    expect(
+      container
+        .querySelector('[data-slot="due-label"]')
+        ?.getAttribute("data-tone"),
+    ).toBe("overdue");
+    expect(errors).toEqual([]);
+    expect(vi.getTimerCount()).toBe(1);
+  } finally {
+    await React.act(async () => hydrated?.unmount());
+    container.remove();
+    vi.useRealTimers();
+  }
 });

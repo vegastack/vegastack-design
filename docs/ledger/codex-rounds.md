@@ -880,3 +880,7 @@ Independent Codex CLI review of the audit-only patch against the preserved publi
 ## Regent date integration — 2026-10-03 — clean scoped contract review
 
 The newly approved `DateRangeFilter.today` forwarding and `useDateTimeNow()` shared-clock export were reviewed separately from the completed audit. The reviewer confirmed the caller's calendar-date convention, request-reference hydration, shared timer, controlled clock behavior and documented public-symbol contract; no actionable finding. Focused checks passed 86/86. See the Regent completion ledger's scoped integration section.
+
+## Regent date rollover / CI native failure — 2026-10-03 — scoped review
+
+Independent review found no blocking runtime or metadata-privacy issue in DateTime/DueLabel's shared-clock integration, the supported Chromium channel selection or bounded native-crash metadata reporting. One low documentation mismatch (“render once”) was corrected. The reviewer retained the explicit requirement for exact-head Linux CI to establish native-crash elimination; raw core memory was not accessed in review. See the completion ledger for focused tests and the evidence boundary.

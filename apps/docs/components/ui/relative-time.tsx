@@ -1,4 +1,4 @@
-// @vegastack relative-time@0.23.114 sha256-SGRUPAGvI3T9apeJd+RkOmkTsGSdafd/cplKlg/v3WM=
+// @vegastack relative-time@0.23.114 sha256-k8d8zx3/QsZa7WmSoT6HCRtW8O5F2Tl/a5DVBiGocgc=
 
 "use client";
 
@@ -536,6 +536,7 @@ export interface DateTimeProps extends Omit<
   variant?: "date" | "datetime" | "time";
   /**
    * Extra formatter options (`looseFuture`, `absolute`, `separator`, `withYear`…).
+   * An explicit `options.now` controls the reference; otherwise the provider/shared clock is live.
    * @default undefined
    */
   options?: FormatDateOptions & FormatDateTimeOptions;
@@ -556,7 +557,7 @@ export interface DateTimeProps extends Omit<
 
 /**
  * `DateTime` — a calendar date or date-time in the house format, as a semantic `<time>`, with the
- * absolute time in a hover Tooltip.
+ * absolute time in a hover Tooltip. Uses the shared request/live clock unless `options.now` is set.
  *
  * @example
  * <DateTime date={task.createdAt} />                   // "Sep 25"
@@ -577,20 +578,23 @@ export function DateTime({
   const timeZone = timeZoneProp ?? contextZone;
   const target = toDate(date);
   const valid = !Number.isNaN(target.getTime());
-  const opts = { ...options, timeZone };
+  const clock = useDateTimeClock(options?.now === undefined);
+  const referenceNow = options?.now ?? clock;
+  const opts = { ...options, timeZone, now: referenceNow };
   const label = !valid
     ? ""
-    : variant === "time"
-      ? formatTimeOfDay(target, opts)
-      : variant === "datetime"
-        ? formatDateTime(target, opts)
-        : formatDate(target, opts);
+    : referenceNow === undefined
+      ? "…"
+      : variant === "time"
+        ? formatTimeOfDay(target, opts)
+        : variant === "datetime"
+          ? formatDateTime(target, opts)
+          : formatDate(target, opts);
   const el = (
     <time
       data-slot="date-time"
       data-variant={variant}
       dateTime={valid ? target.toISOString() : undefined}
-      suppressHydrationWarning
       tabIndex={title && valid && isFocusable ? 0 : undefined}
       className={cn(title && valid && TRIGGER_BOX, className)}
       {...props}
@@ -684,6 +688,7 @@ export interface DueLabelProps extends Omit<
 /**
  * `DueLabel` — "Overdue 2d", "Due today", "Due tomorrow", "Due in 3d", "Due Sep 30", coloured by
  * tone. The tone is on `data-tone` for your own styling; `formatDueLabel` returns it too.
+ * The shared request/live clock keeps the label and tone current across midnight in the viewer zone.
  *
  * @example
  * <DueLabel date={task.dueAt} /> // "Overdue 2d" in destructive ink
@@ -702,13 +707,17 @@ export function DueLabel({
   const timeZone = timeZoneProp ?? contextZone;
   const target = toDate(date);
   const valid = !Number.isNaN(target.getTime());
-  const { label, tone } = formatDueLabel(target, { timeZone });
+  const now = useDateTimeNow();
+  const { label, tone }: { label: string; tone: DueTone } = !valid
+    ? { label: "", tone: "normal" }
+    : now === undefined
+      ? { label: "…", tone: "normal" }
+      : formatDueLabel(target, { timeZone, now });
   const el = (
     <time
       data-slot="due-label"
       data-tone={tone}
       dateTime={valid ? target.toISOString() : undefined}
-      suppressHydrationWarning
       tabIndex={title && valid && isFocusable ? 0 : undefined}
       className={cn(
         title && valid && TRIGGER_BOX,
