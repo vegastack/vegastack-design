@@ -1697,6 +1697,10 @@
         "AppShellSection": {
           "attributes": [
             {
+              "name": "data-align",
+              "values": []
+            },
+            {
               "name": "data-measure",
               "values": []
             },

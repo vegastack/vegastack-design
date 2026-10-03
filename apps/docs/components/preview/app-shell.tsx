@@ -344,3 +344,27 @@ export function appShellSectionMeasure(): ReactNode {
     </Wrapper>
   );
 }
+
+/**
+ * `align="center"`: the same 720px column centred in the page under the full-width header, like a
+ * settings page (`AppShellPage size="prose"`).
+ */
+export function appShellSectionCentered(): ReactNode {
+  return (
+    <Wrapper className="block h-104 overflow-hidden bg-muted p-0">
+      <AppShellContent landmark="region" aria-label="Page content">
+        <AppShellPage>
+          <PageHeader title="Product" description="A space's settings tab." />
+          <AppShellSection measure="prose" align="center">
+            <section className="flex flex-col gap-3 rounded-xl border bg-card p-4">
+              <h2 className="text-sm font-medium">Name</h2>
+              <p className="text-sm text-muted-foreground">
+                The section caps at 720px and sits in the middle of the page.
+              </p>
+            </section>
+          </AppShellSection>
+        </AppShellPage>
+      </AppShellContent>
+    </Wrapper>
+  );
+}
