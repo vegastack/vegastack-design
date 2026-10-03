@@ -1,5 +1,14 @@
 # @vegastack/ui
 
+## 0.23.117
+
+### Patch Changes
+
+- [#512](https://github.com/vegastack/vegastack-design/pull/512) [`f05e02b`](https://github.com/vegastack/vegastack-design/commit/f05e02bfc4dbb6e30d90b69581398f728e7c60e0) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🐛 Keep the share-01 dialog the same height when switching between its Share and Publish tabs. Both panels stay mounted in one grid cell, with the inactive one invisible and inert, and the Share tab's footer keeps its space on the Publish tab. The dialog and the phone sheet are as tall as the taller panel, whether the people list is long or empty.
+
+- Updated dependencies [[`f05e02b`](https://github.com/vegastack/vegastack-design/commit/f05e02bfc4dbb6e30d90b69581398f728e7c60e0)]:
+  - @vegastack/design@0.7.102
+
 ## 0.23.116
 
 ### Patch Changes
