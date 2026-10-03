@@ -1,4 +1,4 @@
-// @vegastack data-list@0.23.114 sha256-tO1mQ3pvmhpOPjdLa320uMJHew3W5Tgt+aYy/LZYZwI=
+// @vegastack data-list@0.23.114 sha256-SyPsBaVgv/0gD4ir2m5SLEq2HY3nvYmYgH0ghCr3l00=
 
 "use client";
 
@@ -1991,6 +1991,23 @@ export function DataList<T>({
         className={
           !onBoard && selectable && gridSize !== "lg" ? "ps-9" : undefined
         }
+        role={!getRowHref?.(row) && onRowClick ? "button" : undefined}
+        tabIndex={!getRowHref?.(row) && onRowClick ? 0 : undefined}
+        onClick={(event) => {
+          if (!getRowHref?.(row) && !isFromInteractiveDescendant(event))
+            onRowClick?.(row, index);
+        }}
+        onKeyDown={(event) => {
+          if (
+            event.target === event.currentTarget &&
+            !getRowHref?.(row) &&
+            onRowClick &&
+            (event.key === "Enter" || event.key === " ")
+          ) {
+            event.preventDefault();
+            onRowClick(row, index);
+          }
+        }}
         href={onBoard ? undefined : getRowHref?.(row)}
         linkRender={onBoard ? rowLinkRender : cardLinkRender}
         image={thumb ? thumb.src : undefined}

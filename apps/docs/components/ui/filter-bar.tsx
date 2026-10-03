@@ -1,4 +1,4 @@
-// @vegastack filter-bar@0.23.114 sha256-ExQc9Z1MzjiX7hD86TWhh0Ue0B7lGW01xISW2OLAnDk=
+// @vegastack filter-bar@0.23.114 sha256-ZKrmylw05vGHKMbrg588RCfTvQojeeodex/vUfyL3jU=
 
 "use client";
 
@@ -1076,7 +1076,10 @@ export function FilterBarFacet<
             aria-label={clearLabel}
             data-slot="filter-bar-facet-clear"
             className="absolute inset-y-0 end-0.5 my-auto size-6 rounded-sm text-muted-foreground hover:bg-foreground/10 hover:text-foreground active:not-aria-[haspopup]:translate-y-0"
-            onClick={clear}
+            disabled={select.disabled}
+            onClick={() => {
+              if (!select.disabled) clear();
+            }}
           >
             <X aria-hidden className="size-3.5" />
           </Button>
@@ -1096,7 +1099,10 @@ export function FilterBarFacet<
           aria-label={removeLabel}
           data-slot="filter-bar-facet-remove"
           className="active:not-aria-[haspopup]:translate-y-0"
-          onClick={onRemove}
+          disabled={select.disabled}
+          onClick={() => {
+            if (!select.disabled) onRemove?.();
+          }}
         >
           <X aria-hidden />
         </Button>
@@ -1152,7 +1158,7 @@ export interface DateRangeFilterProps {
    */
   presetLabels?: Partial<Record<DateRangeFilterPreset, string>>;
   /**
-   * "Today", for the presets and the label's year rule.
+   * "Today", for the presets, the custom calendar highlight and the label's year rule.
    * @default new Date()
    */
   now?: Date;
@@ -1331,6 +1337,7 @@ export function DateRangeFilter({
                   selected={draft}
                   onSelect={setDraft}
                   defaultMonth={draft?.from ?? now}
+                  today={now}
                   autoFocus
                 />
               </React.Suspense>

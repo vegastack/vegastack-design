@@ -34,7 +34,7 @@
 // could not produce a verdict at all.
 
 import assert from "node:assert/strict";
-import { spawn, spawnSync } from "node:child_process";
+import { spawn } from "node:child_process";
 import { existsSync } from "node:fs";
 import { createServer } from "node:net";
 import { join } from "node:path";
@@ -78,16 +78,15 @@ for (let index = 2; index < process.argv.length; index += 1) {
 // Lifted from the deleted `tooling/contracts-run.mjs`, defects and all already paid for:
 // an OS-assigned free port so two runs cannot collide, `detached: true` so the `serve` GRANDCHILD
 // dies with its `pnpm` parent (killing the wrapper alone orphaned three listening servers), and an
-// `lsof -sTCP:LISTEN` sweep that must filter on LISTEN — without it the sweep matched this very
-// process's polling socket and SIGKILLed the runner after a clean pass.
+// cleanup never signals an arbitrary listener found by port number.
 
 /** An OS-assigned free port. A fixed port collides with a parallel run or an orphaned server. */
-function reservePort() {
+function reservePort(requested = 0) {
   return new Promise((resolveWith, rejectWith) => {
     const probe = createServer();
     probe.unref();
     probe.on("error", rejectWith);
-    probe.listen(0, "127.0.0.1", () => {
+    probe.listen(requested, "127.0.0.1", () => {
       const { port } = probe.address();
       probe.close(() => resolveWith(port));
     });
@@ -108,11 +107,17 @@ async function assertEventually(read, message, timeoutMs = 2_000) {
 async function waitForServer(port, timeoutMs = 60_000) {
   const deadline = Date.now() + timeoutMs;
   while (Date.now() < deadline) {
+    if (serverClosed) return false;
     try {
       const response = await fetch(`http://127.0.0.1:${port}/`, {
         signal: AbortSignal.timeout(3_000),
       });
-      if (response.ok || response.status === 404) return true;
+      if (
+        serverReady &&
+        !serverClosed &&
+        (response.ok || response.status === 404)
+      )
+        return true;
     } catch {
       // Not listening yet.
     }
@@ -123,7 +128,7 @@ async function waitForServer(port, timeoutMs = 60_000) {
 
 let server = null;
 let serverClosed = false;
-let servingPort = null;
+let serverReady = false;
 
 function reapServer() {
   if (server && !serverClosed && server.pid) {
@@ -134,25 +139,6 @@ function reapServer() {
       // Already gone, or the group was never created.
     }
   }
-  if (servingPort === null) return;
-  try {
-    const listening = spawnSync(
-      "lsof",
-      ["-ti", `tcp:${servingPort}`, "-sTCP:LISTEN"],
-      { encoding: "utf8" },
-    );
-    for (const pid of (listening.stdout ?? "").split("\n").filter(Boolean)) {
-      const target = Number(pid);
-      if (!Number.isInteger(target) || target === process.pid) continue;
-      try {
-        process.kill(target, "SIGKILL");
-      } catch {
-        // Not ours any more, or already exited.
-      }
-    }
-  } catch {
-    // lsof unavailable — the group kill above is the primary mechanism.
-  }
 }
 process.on("exit", reapServer);
 for (const signal of ["SIGINT", "SIGTERM"])
@@ -162,12 +148,27 @@ for (const signal of ["SIGINT", "SIGTERM"])
   });
 
 async function startServer() {
-  const port = options.port ?? (await reservePort());
-  servingPort = port;
-  server = spawn("pnpm", ["exec", "serve", "out", "-l", String(port)], {
-    cwd: DOCS,
-    stdio: "ignore",
-    detached: true,
+  const port = await reservePort(options.port ?? 0);
+  server = spawn(
+    "pnpm",
+    ["exec", "serve", "out", "--no-port-switching", "-l", String(port)],
+    {
+      cwd: DOCS,
+      stdio: ["ignore", "pipe", "pipe"],
+      detached: true,
+    },
+  );
+  let startupOutput = "";
+  server.stdout.on("data", (chunk) => {
+    startupOutput = (startupOutput + chunk.toString()).slice(-4096);
+    if (
+      startupOutput.includes("Accepting connections") &&
+      startupOutput.includes(`:${port}`)
+    )
+      serverReady = true;
+  });
+  server.on("error", () => {
+    serverClosed = true;
   });
   server.on("exit", () => {
     serverClosed = true;
@@ -311,7 +312,11 @@ const ASSERTIONS = [
       );
 
       await page.keyboard.press("Escape");
-      await dialog.waitFor({ state: "hidden", timeout: 5_000 });
+      await assertEventually(
+        () => dialog.isHidden(),
+        "Escape did not close the fullscreen dialog",
+        5_000,
+      );
       // A leaked `aria-hidden` silences the whole page, so release is asserted too.
       assert.deepEqual(await isolation(), { ariaHidden: false, marked: false });
       await assertEventually(
@@ -325,6 +330,7 @@ const ASSERTIONS = [
     defects: [
       {
         name: "the background is not hidden from assistive tech",
+        expected: /not hidden from assistive tech/,
         phase: "afterOpen",
         apply: (page) =>
           page.evaluate(() => {
@@ -338,6 +344,7 @@ const ASSERTIONS = [
       },
       {
         name: "native inert is removed from the outside roots",
+        expected: /native inert ancestor/,
         phase: "afterOpen",
         apply: (page) =>
           page.evaluate(() => {
@@ -357,6 +364,7 @@ const ASSERTIONS = [
       },
       {
         name: "Escape no longer reaches the dialog",
+        expected: /Escape/,
         phase: "afterOpen",
         apply: (page) =>
           page.evaluate(() => {
@@ -406,6 +414,7 @@ const ASSERTIONS = [
     defects: [
       {
         name: "the skip link is removed, so Tab lands in the chrome",
+        expected: /first tab stop/,
         phase: "before",
         apply: (page) =>
           // Hiding the link through a persistent rule models its absence without racing Next's
@@ -415,13 +424,17 @@ const ASSERTIONS = [
           addStyle(page, "a[href='#content'] { display: none !important; }"),
       },
       {
-        name: "the skip link targets an anchor that does not exist",
+        name: "the skip link target anchor is removed",
+        expected: /does not exist/,
         phase: "before",
         apply: (page) =>
           page.evaluate(() => {
-            document
-              .querySelector("a[href='#content']")
-              ?.setAttribute("href", "#nowhere");
+            const target = document.querySelector("#content");
+            if (!target)
+              throw new Error(
+                "Cannot inject missing target: #content was absent",
+              );
+            target.removeAttribute("id");
           }),
       },
     ],
@@ -503,6 +516,7 @@ const ASSERTIONS = [
         // The exact regression: the trailing enumeration back on at 320px, which is what the
         // banner shipped before 2026-09-22 and what a future copy edit would reintroduce.
         name: "the full notice is shown at 320px, so it overflows its fixed-height box",
+        expected: /banner.s content/,
         phase: "narrow",
         apply: (page) =>
           addStyle(page, "#registry-auth span { display: inline !important; }"),
@@ -529,6 +543,7 @@ const ASSERTIONS = [
     defects: [
       {
         name: "a nameless focusable <div> is reachable by Tab",
+        expected: /roleless focusable/,
         phase: "before",
         apply: (page) =>
           page.evaluate(() => {
@@ -571,8 +586,8 @@ async function runOnce(assertion, route, defect) {
   const ctx = {
     async inject(phase) {
       if (defect && defect.phase === phase && !applied.has(defect)) {
-        applied.add(defect);
         await defect.apply(page);
+        applied.add(defect);
       }
     },
   };
@@ -593,6 +608,14 @@ async function runOnce(assertion, route, defect) {
       );
     return null;
   } catch (error) {
+    if (
+      defect &&
+      (!applied.has(defect) ||
+        error.code !== "ERR_ASSERTION" ||
+        !defect.expected.test(error.message))
+    ) {
+      error.invalidRejection = true;
+    }
     return error;
   } finally {
     await page.close();
@@ -609,15 +632,16 @@ if (options.selfTest) {
   for (const assertion of ASSERTIONS) {
     for (const defect of assertion.defects) {
       const route = assertion.routes[0];
-      const error = await runOnce(assertion, route, defect);
-      if (error) {
+      const control = await runOnce(assertion, route, null);
+      const error = control ?? (await runOnce(assertion, route, defect));
+      if (!control && error && !error.invalidRejection) {
         console.log(
           `  ✓ ${assertion.id} ${route} rejects "${defect.name}"\n      ${String(error.message).split("\n")[0].slice(0, 160)}`,
         );
       } else {
         failures += 1;
         console.error(
-          `  ✗ ${assertion.id} ${route} PASSED with "${defect.name}" injected — the assertion is fail-open`,
+          `  ✗ ${assertion.id} ${route}: failed to prove "${defect.name}" — ${control ? "clean control failed" : error ? "setup/injection or unexpected assertion failure" : "injected defect was accepted"}${error ? `: ${error.message}` : ""}`,
         );
       }
     }

@@ -74,7 +74,7 @@
 
      Text entry (FOC-3) — text inputs, textarea, and the bordered field GROUPS that frame one
      (InputGroup, NumberField, ChipInput, the combobox chips, the panel search row) — takes NO fill
-     at all: it is excluded below, and its focus cue is a subtle darker border (`border-ring/40`)
+     at all: it is excluded below, and its focus cue is a subtle darker border (`border-ring/50`)
      that eases in over 150ms, written on the component that draws the border (the group, not the
      control inside it, which has no border and no fill). An invalid field keeps its destructive
      border in every state; focus never replaces it. The one caret-only surface is a contenteditable

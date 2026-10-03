@@ -654,6 +654,7 @@ const FILES: (FileViewerItem & { meta: string; icon?: LucideIcon })[] = [
 function FileTile({
   file,
   actions = true,
+  children,
   ...props
 }: {
   file: (typeof FILES)[number];
@@ -662,6 +663,7 @@ function FileTile({
   const Icon = file.icon;
   return (
     <Attachment orientation="vertical" file={file} {...props}>
+      {children}
       <AttachmentMedia variant={Icon ? "icon" : "image"}>
         {Icon ? <Icon /> : <img src={file.src ?? ""} alt={file.name} />}
       </AttachmentMedia>

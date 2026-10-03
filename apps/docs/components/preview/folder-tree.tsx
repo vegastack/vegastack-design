@@ -136,6 +136,22 @@ const withHref = (item: Item): FolderTreeNode => ({
   hasChildren: item.kind === "folder" ? undefined : false,
 });
 
+function canMoveInto(
+  items: Item[],
+  ids: readonly string[],
+  targetId: string | null,
+) {
+  const visited = new Set<string>();
+  for (let at = targetId; at !== null;) {
+    if (ids.includes(at) || visited.has(at)) return false;
+    visited.add(at);
+    const target = items.find((item) => item.id === at);
+    if (!target || target.kind !== "folder") return false;
+    at = target.parent;
+  }
+  return true;
+}
+
 function useLibrary() {
   const [items, setItems] = useState(LIBRARY);
   const children = (parent: string | null, section?: string) =>
@@ -155,11 +171,13 @@ function useLibrary() {
       .map(withHref);
   const move = ({ ids, targetId, targetSection }: FolderTreeMove) =>
     setItems((prev) =>
-      prev.map((item) =>
-        ids.includes(item.id)
-          ? { ...item, parent: targetId, section: targetSection }
-          : item,
-      ),
+      !canMoveInto(prev, ids, targetId)
+        ? prev
+        : prev.map((item) =>
+            ids.includes(item.id)
+              ? { ...item, parent: targetId, section: targetSection }
+              : item,
+          ),
     );
   return { items, children, move };
 }
@@ -275,11 +293,8 @@ export function folderTreeWithList(): ReactNode {
   const placeOf = (id: string) => library.items.find((item) => item.id === id);
   const sectionOfFolder = (id: string) => placeOf(id)?.section ?? "shared";
   /** Whether `targetId` is `id` or sits somewhere inside it. */
-  const within = (targetId: string, id: string) => {
-    for (let at: string | null = targetId; at; at = placeOf(at)?.parent ?? null)
-      if (at === id) return true;
-    return false;
-  };
+  const within = (targetId: string, id: string) =>
+    !canMoveInto(library.items, [id], targetId);
   const moveTo = (ids: string[], targetId: string) =>
     library.move({
       ids,
@@ -429,7 +444,13 @@ export function folderTreePicker(): ReactNode {
   const [expanded, setExpanded] = useState<string[]>(["specs"]);
   const [treeExpanded, setTreeExpanded] = useState<string[]>([]);
   const folders = (parent: string | null, section?: string) =>
-    library.children(parent, section).filter((node) => node.kind === "folder");
+    library
+      .children(parent, section)
+      .filter(
+        (node) =>
+          node.kind === "folder" &&
+          (!moving || canMoveInto(library.items, [moving.id], node.id)),
+      );
   return (
     <Wrapper className="block">
       <div className="mx-auto w-full max-w-64">
@@ -488,9 +509,18 @@ export function folderTreePicker(): ReactNode {
               Cancel
             </DialogClose>
             <Button
-              disabled={!target || !moving}
+              disabled={
+                !target ||
+                !moving ||
+                !canMoveInto(library.items, [moving.id], target)
+              }
               onClick={() => {
-                if (!moving || !target) return;
+                if (
+                  !moving ||
+                  !target ||
+                  !canMoveInto(library.items, [moving.id], target)
+                )
+                  return;
                 const section =
                   library.items.find((item) => item.id === target)?.section ??
                   "shared";

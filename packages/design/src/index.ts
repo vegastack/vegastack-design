@@ -125,7 +125,7 @@ export { prose, proseClassName, type ProseElement } from "./prose";
  * (only ref objects the caller already holds), so it is server-safe like `cn`.
  *
  * **Not memoized.** Calling it produces a NEW function every time, and React detaches a
- * changed ref callback (calls it with `null`) and reattaches it on every render. Wrap the
+ * changed ref callback (runs its cleanup; legacy callbacks receive `null`) and reattaches it on every render. Wrap the
  * CALL at the call site when the inputs are stable:
  *
  * @example
@@ -144,13 +144,31 @@ export function mergeRefs<T>(
   ...refs: Array<React.Ref<T> | null | undefined>
 ): React.RefCallback<T> {
   return (node: T | null) => {
-    for (const ref of refs) {
-      if (ref == null) continue;
+    const cleanups = refs.map((ref) => {
+      if (ref == null) return undefined;
       if (typeof ref === "function") {
-        ref(node);
-      } else {
-        (ref as React.RefObject<T | null>).current = node;
+        const cleanup = ref(node);
+        return typeof cleanup === "function" ? cleanup : () => ref(null);
       }
-    }
+      (ref as React.RefObject<T | null>).current = node;
+      return () => {
+        (ref as React.RefObject<T | null>).current = null;
+      };
+    });
+    let cleaned = false;
+    return () => {
+      if (cleaned) return;
+      cleaned = true;
+      const errors: unknown[] = [];
+      for (const cleanup of cleanups) {
+        try {
+          cleanup?.();
+        } catch (error) {
+          errors.push(error);
+        }
+      }
+      if (errors.length)
+        throw new AggregateError(errors, "Merged ref cleanup failed");
+    };
   };
 }

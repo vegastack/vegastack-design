@@ -18,14 +18,15 @@ the icon runtime, the Tailwind v4 preset, and the `vegastack-design` CLI.
 
 **Invoking the CLI.** The bin is `vegastack-design` but the package is `@vegastack/design`, so a
 bare `npx vegastack-design …` in a project that does not already have it installed would try to
-fetch an unrelated, unscoped package from npm. Use one of these instead — the first once it is a
-local dependency (it resolves from `node_modules` and never contacts the registry), the second for a
-standalone one-off:
+fetch an unrelated, unscoped package from npm. Use the installed CLI so the project's lockfile
+selects its approved version:
 
 ```bash
 pnpm exec vegastack-design <command>
-npx --package=@vegastack/design vegastack-design <command>
 ```
+
+A standalone invocation must explicitly pin an approved `@vegastack/design` version; do not
+resolve a different verifier version during the preflight/install/post-write sequence.
 
 `@vegastack/ui` is private and is never installed downstream — components arrive by copy-in.
 
@@ -52,11 +53,50 @@ inside the published builds — the icon runtime, and the compiled Toaster (its 
 and status-tint classes live in `@vegastack/ui/dist`, and Tailwind has to be told to generate them).
 Your own application and component source is scanned by Tailwind as usual.
 
-## 3. Wrap the app root in the provider
+## 3. Configure registry access
+
+Components come from a private registry behind Cloudflare Access service tokens.
+
+If the project has no `components.json` yet, create one first — pick the **base** style, never
+`radix`, because VegaStack components are Base UI:
 
 ```bash
-npx shadcn@latest add @vegastack/provider
+pnpm dlx shadcn@4.21.0 init --base base
 ```
+
+Then add the registry block to `components.json`:
+
+```json
+{
+  "registries": {
+    "@vegastack": {
+      "url": "https://design.vegastack.com/r/{name}.json",
+      "headers": {
+        "CF-Access-Client-Id": "${CF_ACCESS_CLIENT_ID}",
+        "CF-Access-Client-Secret": "${CF_ACCESS_CLIENT_SECRET}"
+      }
+    }
+  }
+}
+```
+
+Store credentials in your secret manager or ignored `.env.local`. The installed verifier loads
+only `CF_ACCESS_CLIENT_ID` and `CF_ACCESS_CLIENT_SECRET` from `.env` then `.env.local`; an existing
+process value wins. Registry origin and signer overrides are accepted only from the operator's
+process environment, never a checkout-local dotenv file. Do not source the whole dotenv file.
+
+Configure this registry before the first provider/component add. Inspect before writing anything:
+
+```bash
+pnpm dlx shadcn@4.21.0 add @vegastack/button --dry-run
+```
+
+External and client projects are **tokenless** — components are copied in during development, and
+the shipped application holds zero VegaStack credentials.
+
+## 4. Wrap the app root in the provider
+
+Install `provider` using the complete fail-closed procedure in step 5 before adding this wrapper.
 
 This copies `VegaStackProvider` and `useVegaStackTheme` into your project, composing the `toast`
 Toaster item.
@@ -80,8 +120,7 @@ putting `className="isolate"` on your `<body>` yourself. Without it, popups can 
 chrome or mis-position in stacking-context-heavy layouts.
 
 **Stop iOS focus zoom.** iOS Safari zooms into any focused field under 16px. `base.css` renders
-text-entry controls at 16px on touch pointers, and the viewport should cap the scale as well, which
-stops focus zoom while pinch-zoom keeps working on iOS. In Next.js, in the root layout:
+text-entry controls at 16px on touch pointers. Keep zoom unrestricted; do not add a maximum-scale cap. In Next.js, in the root layout:
 
 ```tsx
 import type { Viewport } from "next";
@@ -89,45 +128,8 @@ import type { Viewport } from "next";
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  maximumScale: 1,
 };
 ```
-
-## 4. Configure registry access
-
-Components come from a private registry behind Cloudflare Access service tokens.
-
-If the project has no `components.json` yet, create one first — pick the **base** style, never
-`radix`, because VegaStack components are Base UI:
-
-```bash
-pnpm dlx shadcn@latest init --base base
-```
-
-Then add the registry block to `components.json`:
-
-```json
-{
-  "registries": {
-    "@vegastack": {
-      "url": "https://design.vegastack.com/r/{name}.json",
-      "headers": {
-        "CF-Access-Client-Id": "${CF_ACCESS_CLIENT_ID}",
-        "CF-Access-Client-Secret": "${CF_ACCESS_CLIENT_SECRET}"
-      }
-    }
-  }
-}
-```
-
-Put the credentials in `.env.local`. Inspect before writing anything:
-
-```bash
-pnpm dlx shadcn@latest add @vegastack/button --dry-run
-```
-
-External and client projects are **tokenless** — components are copied in during development, and
-the shipped application holds zero VegaStack credentials.
 
 ## 5. Add a component (fail-closed, three steps)
 
@@ -140,16 +142,16 @@ a time-of-check/time-of-use gap, because `shadcn add` re-fetches the item after 
 DIR="$(mktemp -d "${TMPDIR:-/tmp}/vegastack-verify.XXXXXX")"; ITEM="$DIR/button.json"
 
 # 1) PRE-WRITE — verify signature + hash, and save the trusted bytes for step 3.
-npx --package=@vegastack/design vegastack-design verify --save "$ITEM" button
+pnpm exec vegastack-design verify --save "$ITEM" button
 
 # Retain the verified digest in the parent shell BEFORE shadcn or dependency code runs.
 EXPECTED="$(node -e 'process.stdout.write(JSON.parse(require("node:fs").readFileSync(process.argv[1],"utf8")).meta.integrity)' "$ITEM")"
 
 # 2) COPY-IN — shadcn writes the files, rewriting import aliases per your components.json.
-pnpm dlx shadcn@latest add @vegastack/button
+pnpm dlx shadcn@4.21.0 add @vegastack/button
 
 # 3) POST-WRITE — prove the copied files match the SAVED item. Exits 1 on any tampering.
-npx --package=@vegastack/design vegastack-design verify \
+pnpm exec vegastack-design verify \
   --post-write --item "$ITEM" --expected-integrity "$EXPECTED" --target-dir .
 ```
 
@@ -176,7 +178,7 @@ Never override a `--color-*` variable — that is the build-inlined bridge, not 
 Copy-in means no automatic updates.
 
 ```bash
-npx --package=@vegastack/design vegastack-design check-updates    # ⬆ update · ≈ drift · ✓ up to date
+pnpm exec vegastack-design check-updates    # ⬆ update · ≈ drift · ✓ up to date
 ```
 
 Then per stale component: `shadcn add @vegastack/<name> --diff` to review, `--overwrite` to apply,
@@ -190,7 +192,7 @@ Add the Renovate preset `github>VegaStack/renovate-config` so additive token bum
 If this project's agents do not already have them:
 
 ```bash
-npx --package=@vegastack/design vegastack-design skills install
+pnpm exec vegastack-design skills install
 ```
 
 Writes the public VegaStack skills into `.claude/skills/` and `.agents/skills/`.

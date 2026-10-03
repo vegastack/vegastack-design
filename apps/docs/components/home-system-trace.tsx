@@ -259,7 +259,7 @@ function TracePanel({ trace }: { trace: Trace }) {
         </div>
         <Link
           href={data.docs}
-          className="group flex items-center justify-between gap-3 border-t border-border px-5 py-4 text-sm font-medium text-foreground hover:bg-muted/(40%) active:bg-muted/(60%) sm:border-t-0"
+          className="group flex items-center justify-between gap-3 border-t border-border px-5 py-4 text-sm font-medium text-foreground hover:bg-muted/40 active:bg-muted/60 sm:border-t-0"
         >
           Open {data.label} documentation
           <Icon

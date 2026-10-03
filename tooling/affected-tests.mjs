@@ -479,7 +479,7 @@ function broadGroupForPath(path) {
     return "test-infrastructure";
   if (
     DEPENDENCY_FILES.has(path) ||
-    /^(?:apps|packages)\/[^/]+\/package\.json$/.test(path)
+    /^(?:apps|packages|config)\/[^/]+\/package\.json$/.test(path)
   )
     return "dependencies";
   return null;

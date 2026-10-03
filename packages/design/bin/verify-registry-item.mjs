@@ -64,12 +64,35 @@ import {
   writeFileSync,
 } from "node:fs";
 import { tmpdir } from "node:os";
+import { parseEnv } from "node:util";
 import { pathToFileURL } from "node:url";
 import { join, resolve, basename, relative, isAbsolute, sep } from "node:path";
 import { createHash } from "node:crypto";
 import tsconfigPaths from "tsconfig-paths";
 
 const { loadConfig: loadTsconfigPaths } = tsconfigPaths;
+
+/** Load credential values only; checkout-local files never control trust anchors. */
+export function loadRegistryCredentials(cwd, env = process.env) {
+  const loaded = {};
+  for (const name of [".env", ".env.local"]) {
+    let contents;
+    try {
+      contents = readFileSync(join(cwd, name), "utf8");
+    } catch (error) {
+      if (error.code === "ENOENT") continue;
+      throw error;
+    }
+    const values = parseEnv(contents);
+    for (const key of ["CF_ACCESS_CLIENT_ID", "CF_ACCESS_CLIENT_SECRET"]) {
+      if (values[key] !== undefined) loaded[key] = values[key];
+    }
+  }
+  for (const [key, value] of Object.entries(loaded)) {
+    if (env[key] === undefined) env[key] = value;
+  }
+  return env;
+}
 
 // ── canonical item hash (INLINED from tooling/registry-hash.mjs — keep IDENTICAL) ──
 // Covers the WHOLE item (not just file content); meta.integrity is excluded so the hash
@@ -947,6 +970,7 @@ if (import.meta.url === pathToFileURL(process.argv[1] ?? "").href) {
       /\/$/,
       "",
     );
+    loadRegistryCredentials(process.cwd());
     const headers = requestHeaders();
 
     const tempDir = mkdtempSync(join(tmpdir(), "vegastack-verify-"));

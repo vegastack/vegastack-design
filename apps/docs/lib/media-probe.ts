@@ -1,4 +1,4 @@
-// @vegastack media-probe@0.23.114 sha256-z7UMgllXnSxEEAcejF3jpMRBAA/Dls/q1Q46uQEBUNA=
+// @vegastack media-probe@0.23.114 sha256-idyBFTpVlMTrA5D7pPYNmZb21Q74WwjdCA0a86lqigM=
 
 /* ---
 `media-probe` reads what an upload screen wants to store beside a file, in the browser, before
@@ -293,7 +293,12 @@ export async function extractPptxThumbnail(file: Blob): Promise<Blob | null> {
     const directorySize = tail.getUint32(end + 12, true);
     const directoryStart = tail.getUint32(end + 16, true);
     // 0xffffffff marks a ZIP64 archive — not an Office file anyone uploads.
-    if (directoryStart === 0xffffffff) return null;
+    if (
+      directoryStart === 0xffffffff ||
+      directorySize > MAX_THUMBNAIL_BYTES ||
+      directoryStart + directorySize > tailStart + end
+    )
+      return null;
     const directory = await view(
       file,
       directoryStart,
@@ -309,6 +314,11 @@ export async function extractPptxThumbnail(file: Blob): Promise<Blob | null> {
       const extraLength = directory.getUint16(at + 30, true);
       const commentLength = directory.getUint16(at + 32, true);
       const localStart = directory.getUint32(at + 42, true);
+      if (
+        at + 46 + nameLength + extraLength + commentLength >
+        directory.byteLength
+      )
+        return null;
       const name = names.decode(
         new Uint8Array(
           directory.buffer,
@@ -323,18 +333,38 @@ export async function extractPptxThumbnail(file: Blob): Promise<Blob | null> {
         return null;
       const type =
         match[1]!.toLowerCase() === "png" ? "image/png" : "image/jpeg";
+      if (localStart + 30 > directoryStart) return null;
       const local = await view(file, localStart, localStart + 30);
       if (local.getUint32(0, true) !== ZIP_LOCAL) return null;
       const dataStart =
         localStart + 30 + local.getUint16(26, true) + local.getUint16(28, true);
+      if (dataStart + compressedSize > directoryStart) return null;
       const data = file.slice(dataStart, dataStart + compressedSize);
-      if (method === 0) return new Blob([data], { type });
+      if (method === 0)
+        return compressedSize === size ? new Blob([data], { type }) : null;
       if (method !== 8 || typeof DecompressionStream === "undefined")
         return null;
-      const inflated = await new Response(
-        data.stream().pipeThrough(new DecompressionStream("deflate-raw")),
-      ).blob();
-      return new Blob([inflated], { type });
+      const reader = data
+        .stream()
+        .pipeThrough(new DecompressionStream("deflate-raw"))
+        .getReader();
+      const chunks: Uint8Array<ArrayBuffer>[] = [];
+      let observed = 0;
+      try {
+        for (;;) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          observed += value.byteLength;
+          if (observed > MAX_THUMBNAIL_BYTES || observed > size) {
+            await reader.cancel();
+            return null;
+          }
+          chunks.push(new Uint8Array(value));
+        }
+      } finally {
+        reader.releaseLock();
+      }
+      return observed === size ? new Blob(chunks, { type }) : null;
     }
     return null;
   } catch {

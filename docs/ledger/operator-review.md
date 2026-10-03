@@ -3009,3 +3009,7 @@ the `Sidebar`'s.
 - **CommandLoading's default copy is "Searching…"** (the brief's text); VOI-1 is unchanged.
 - **Data-slot renames in a patch.** `notification-bell-dot`, `row-action`, `row-actions-trigger` broke
   the slot canon and shipped one release ago; renamed with a migration line rather than carried.
+
+## 2026-10-03 — Approved Regent audit implementation choices
+
+Under the operator's explicit handoff, pending board moves are serialized; relative timestamps use an optional request reference plus one shared live clock; existing text-entry border opacity moves from 40% to 50% after 40% and 45% failed the unchanged 3:1 gate. No ordinary ring or new dependency was introduced. The unpublished local verification path uses the existing hash-only/saved-byte contract and makes no signature-provenance claim. Existing maintenance/governance hunks remain uncommitted, and all main/publication steps remain reserved. [Completion and evidence](2026-10-03-regent-audit-completion.md).

@@ -1,4 +1,4 @@
-// @vegastack board@0.23.114 sha256-fnxG3UCWeddNjAuHWI2InG+EqSyNkq3tvti+tgnD2u4=
+// @vegastack board@0.23.114 sha256-EZCv4G7F9jfywSz0zrYeoJEohNljYBks/2TQGWGyg98=
 
 "use client";
 
@@ -595,9 +595,11 @@ export function Board<T>({
   }, [columns, getItemId]);
   const columnsById = new Map(columns.map((column) => [column.id, column]));
   /** A card can move unless its lane is read-only or the host locked it (`canMoveItem`). */
+  const movePending = React.useRef(false);
   const isMovable = (id: string) => {
     const entry = itemsById.get(id);
     return (
+      !movePending.current &&
       entry !== undefined &&
       !isReadOnly(entry.column) &&
       (canMoveItem?.(entry.item) ?? true)
@@ -630,6 +632,8 @@ export function Board<T>({
   };
 
   const commitMove = (move: DragReorderMove) => {
+    const destination = columnsById.get(move.to.container);
+    if (!isMovable(move.id) || !destination || !canReceive(destination)) return;
     if (
       move.from.container === move.to.container &&
       move.from.index === move.to.index
@@ -644,20 +648,26 @@ export function Board<T>({
         ? `Moved ${label} to position ${move.to.index + 1} of ${count}`
         : `Moved ${label} to ${laneLabelById(move.to.container)}, position ${move.to.index + 1} of ${count}`,
     );
+    movePending.current = true;
     let result: void | Promise<void>;
     try {
       result = onMove(move);
     } catch (error) {
       result = Promise.reject(error);
     }
-    if (result == null || typeof result.then !== "function") return;
+    if (result == null || typeof result.then !== "function") {
+      movePending.current = false;
+      return;
+    }
     setPendingIds((prev) => new Set(prev).add(move.id));
-    const settle = () =>
+    const settle = () => {
+      movePending.current = false;
       setPendingIds((prev) => {
         const nextSet = new Set(prev);
         nextSet.delete(move.id);
         return nextSet;
       });
+    };
     result.then(settle, (error: unknown) => {
       settle();
       setOptimistic(null);
@@ -673,6 +683,9 @@ export function Board<T>({
     });
   };
 
+  const commitMoveRef = React.useRef(commitMove);
+  commitMoveRef.current = commitMove;
+
   // ---- keyboard move (a ghost position, committed on drop) ------------------------------------
   const [lifted, setLifted] = React.useState<{
     id: string;
@@ -681,6 +694,17 @@ export function Board<T>({
   } | null>(null);
   const liftedRef = React.useRef(lifted);
   liftedRef.current = lifted;
+  React.useEffect(() => {
+    if (
+      lifted &&
+      (!isMovable(lifted.id) ||
+        !columnsById.has(lifted.to.container) ||
+        !canReceive(columnsById.get(lifted.to.container)!))
+    ) {
+      setLifted(null);
+      announce("Move cancelled — permissions changed");
+    }
+  });
 
   // ---- pointer drag ---------------------------------------------------------------------------
   const [drag, setDrag] = React.useState<{
@@ -826,7 +850,7 @@ export function Board<T>({
         setSettling(false);
         setDrag(null);
         if (target)
-          commitMove({
+          commitMoveRef.current({
             id: current.id,
             from: current.from,
             to: target,
@@ -965,7 +989,7 @@ export function Board<T>({
       );
       return;
     }
-    commitMove({ ...current, input: "keyboard" });
+    commitMoveRef.current({ ...current, input: "keyboard" });
   };
   const cancelLifted = () => {
     const current = liftedRef.current;

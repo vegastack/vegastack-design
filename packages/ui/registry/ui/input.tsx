@@ -1,4 +1,4 @@
-// @vegastack input@0.23.114 sha256-dgsz5u0Yd8Apwv5+YyFhDtAy86nOw0XVixF7G1lR1RI=
+// @vegastack input@0.23.114 sha256-XecxXWayw4LFcKZyaIOazibl/eMJGSW95qTg4PrAjtU=
 
 import * as React from "react";
 import { Input as InputPrimitive } from "@base-ui/react/input";
@@ -11,7 +11,7 @@ const inputVariants = cva(
     variants: {
       variant: {
         default:
-          "rounded-lg border border-input bg-transparent focus:not-aria-invalid:not-[[type=file]]:border-ring/40 disabled:bg-input/50 aria-invalid:border-destructive dark:bg-input/30 dark:disabled:bg-input/80 dark:aria-invalid:border-destructive/50",
+          "rounded-lg border border-input bg-transparent focus:not-aria-invalid:not-[[type=file]]:border-ring/50 disabled:bg-input/50 aria-invalid:border-destructive dark:bg-input/30 dark:disabled:bg-input/80 dark:aria-invalid:border-destructive/50",
         // A borderless, transparent field for a big title (Linear's issue title). No box and no fill
         // in any state — rest, hover, focus (text entry takes no tint, FOC-3): the text cursor marks
         // it editable and the caret is the focus cue. An invalid title turns its placeholder
@@ -40,7 +40,7 @@ type InputProps = Omit<React.ComponentProps<"input">, "size"> &
 /**
  * `Input` — a single-line text field.
  *
- * - `variant="default"`: the bordered field; focus darkens the border subtly (`border-ring/40`,
+ * - `variant="default"`: the bordered field; focus darkens the border subtly (`border-ring/50`,
  *   150ms ease-out) and paints no fill; an invalid field keeps its destructive border focused or not.
  * - `variant="ghost"`: borderless and transparent, for a title you type straight onto the page.
  * - `size`: `sm` (28px), `default` (32px), `lg` (heading size — pair with `ghost` for a big title).

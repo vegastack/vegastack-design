@@ -108,10 +108,10 @@ the two controls are the chevrons alone while `aria-label` keeps their names.
 
 ### Next.js
 
-`PaginationLink` renders the anchor itself and spreads the props you give it onto that anchor, so a
-Next.js app passes `next/link`'s props — `href`, `prefetch`, `scroll`, `onClick` — to
-`PaginationLink` directly. No edit to `pagination.tsx` is needed. This site has no router, so the
-example below is the plain anchor the component builds by default.
+`PaginationLink` renders a native anchor and accepts native anchor props. It does not accept
+Next-only `prefetch` or `scroll`. For client routing, compose `next/link` inside `PaginationItem`
+and apply the same `buttonVariants` recipe; mark the current page with `aria-current="page"`.
+Keep `PaginationLink` for ordinary href navigation, as in this plain-anchor example.
 
 <ComponentPreview
   name="paginationNextJs"

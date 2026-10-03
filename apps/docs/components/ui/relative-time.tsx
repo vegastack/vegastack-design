@@ -1,4 +1,4 @@
-// @vegastack relative-time@0.23.114 sha256-40Pu3wRRgl3V7f8fU8wfXSEtrSmFhliXSpvnnmz0OfU=
+// @vegastack relative-time@0.23.114 sha256-k8d8zx3/QsZa7WmSoT6HCRtW8O5F2Tl/a5DVBiGocgc=
 
 "use client";
 
@@ -31,6 +31,54 @@ import {
 /** The viewer's IANA zone, provided once at the root. */
 const TimeZoneContext = React.createContext<string | undefined>(undefined);
 
+const ReferenceClockContext = React.createContext<number | undefined>(
+  undefined,
+);
+let liveClock = 0;
+let clockTimer: ReturnType<typeof setInterval> | undefined;
+const clockListeners = new Set<() => void>();
+function subscribeClock(listener: () => void) {
+  clockListeners.add(listener);
+  liveClock = Date.now();
+  if (!clockTimer)
+    clockTimer = setInterval(() => {
+      liveClock = Date.now();
+      for (const notify of clockListeners) notify();
+    }, 10_000);
+  return () => {
+    clockListeners.delete(listener);
+    if (clockListeners.size === 0) {
+      clearInterval(clockTimer);
+      clockTimer = undefined;
+    }
+  };
+}
+const noClockSubscription = () => () => {};
+
+/** Subscribe to the existing shared clock; controlled timestamps may stand the subscription down. */
+function useDateTimeClock(enabled: boolean): number | undefined {
+  const referenceNow = React.useContext(ReferenceClockContext);
+  return React.useSyncExternalStore(
+    enabled ? subscribeClock : noClockSubscription,
+    () => liveClock || referenceNow,
+    () => referenceNow,
+  );
+}
+
+/**
+ * The shared live reference instant as epoch milliseconds. SSR and hydration use
+ * `TimeZoneProvider.referenceNow`; without it, the value is undefined until the browser
+ * subscribes. Grouping, badges and date-picker presets can follow the same clock as RelativeTime
+ * without creating another timer. The instant is zone-independent; format in the effective zone.
+ *
+ * @example
+ * const now = useDateTimeNow();
+ * return now === undefined ? null : <RelativeTime date={updatedAt} now={now} />;
+ */
+export function useDateTimeNow(): number | undefined {
+  return useDateTimeClock(true);
+}
+
 /**
  * `TimeZoneProvider` — hand every date component (and `useTimeZone`) the viewer's zone. On the
  * server, read it with `getTimeZone(cookies().get("tz")?.value, config.orgTimeZone)`.
@@ -40,14 +88,19 @@ const TimeZoneContext = React.createContext<string | undefined>(undefined);
  */
 export function TimeZoneProvider({
   timeZone,
+  referenceNow,
   children,
 }: {
   timeZone: string;
+  /** Request timestamp serialized with the page, for stable relative SSR and hydration. */
+  referenceNow?: number;
   children: React.ReactNode;
 }) {
   return (
     <TimeZoneContext.Provider value={timeZone}>
-      {children}
+      <ReferenceClockContext.Provider value={referenceNow}>
+        {children}
+      </ReferenceClockContext.Provider>
     </TimeZoneContext.Provider>
   );
 }
@@ -181,40 +234,6 @@ function capitalizeFirst(
   return text.charAt(0).toLocaleUpperCase(locale) + text.slice(1);
 }
 
-/**
- * The label rendered on the server and on the hydration render of an uncontrolled
- * instance: an absolute medium-form date (`"Mar 15, 2025"`).
- *
- * WHY (audit B2-05): a relative label needs `Date.now()`, which the server cannot
- * reproduce, so the previous build rendered an empty string until hydration — a
- * visible pop and a layout shift on every row of a list. This is derived from the
- * target instant ALONE, so the server HTML and the client's first render agree
- * byte-for-byte and the swap to the relative label is a text change inside a box
- * that already has the right size.
- */
-function formatAbsolute(
-  target: Date,
-  locale: string | string[] | undefined,
-  timeZone: string | undefined,
-): string {
-  return new Intl.DateTimeFormat(locale, {
-    dateStyle: "medium",
-    timeZone,
-  }).format(target);
-}
-
-/**
- * Refresh cadence (ms) for a live timestamp, by age. Recent timestamps tick
- * faster (where the displayed value changes often), older ones slower.
- * `0` disables the timer.
- */
-function tickInterval(deltaMs: number): number {
-  const abs = Math.abs(deltaMs);
-  if (abs < MS.hour) return 10_000; // < 1 hour: every 10s
-  if (abs < MS.day) return 60_000; // < 1 day:  every 1min
-  return 0; // ≥ 1 day: static, no timer needed
-}
-
 /** Props accepted by `RelativeTime`. */
 export interface RelativeTimeProps extends Omit<
   React.ComponentPropsWithRef<"time">,
@@ -247,8 +266,8 @@ export interface RelativeTimeProps extends Omit<
    */
   now?: number;
   /**
-   * Auto-refresh the displayed value on a timer while the date is recent (faster
-   * near "now", off once it is a day old). Ignored when `now` is provided.
+   * Auto-refresh from the shared ten-second clock. No per-row timer is created.
+   * Ignored when `now` is provided.
    * @default true
    */
   refresh?: boolean;
@@ -328,15 +347,14 @@ export interface RelativeTimeProps extends Omit<
  * `"yesterday"`, else an absolute date).
  *
  * Renders a semantic `<time dateTime>` so the machine-readable ISO timestamp is
- * always present. Self-updating: while the date is recent it refreshes on a timer
- * (off once it is a day old), and an absolute date-time is revealed in a Tooltip
+ * always present. Self-updating from one shared ten-second clock, including calendar-day rollover;
+ * an absolute date-time is revealed in a Tooltip
  * by default. Purely presentational — text inherits color from its context.
  *
- * An uncontrolled instance renders the ABSOLUTE date (`"Mar 15, 2025"`) on the
- * server and on the hydration render, then swaps to the relative label once the
- * client clock is available. There is no empty frame and no layout jump — the
- * previous build rendered `""` until mount (audit B2-05). Pass `now` to make the
- * output fully deterministic and skip the swap entirely.
+ * Supply `TimeZoneProvider.referenceNow` from the request to render the same relative
+ * label on the server and during hydration. A shared live clock then keeps it fresh.
+ * Without a request clock, only this date content shows a placeholder until hydration.
+ * Pass `now` for a fully controlled, deterministic clock.
  *
  * @example
  * <RelativeTime date={comment.createdAt} />            // "2h ago"
@@ -381,12 +399,15 @@ export function RelativeTime({
   // When `now` is provided the output is deterministic (no clock, no timer).
   const isControlled = now !== undefined;
 
-  // Uncontrolled live time cannot be reproduced by the server at hydration.
-  // Both sides start from the deterministic ABSOLUTE date (see `formatAbsolute`),
-  // then the live relative label lands after mount. Controlled `now` output is
-  // server-renderable as-is and never swaps.
-  const [hydrated, setHydrated] = React.useState(isControlled);
-  const [clock, setClock] = React.useState(() => now ?? 0);
+  const referenceNow = React.useContext(ReferenceClockContext);
+  const [initialClock, setInitialClock] = React.useState(
+    () => referenceNow ?? 0,
+  );
+  const clock =
+    useDateTimeClock(!isControlled && (refresh || !initialClock)) ?? 0;
+  React.useEffect(() => {
+    if (!refresh && !initialClock && clock) setInitialClock(clock);
+  }, [refresh, initialClock, clock]);
 
   // `mode="day"`'s "today" / "yesterday" / "tomorrow" words.
   const rtf = React.useMemo(
@@ -395,35 +416,15 @@ export function RelativeTime({
   );
   const agoStyle = format ?? (unitStyle === "long" ? "long" : "suffix");
 
-  React.useEffect(() => {
-    if (isControlled) return;
-    setClock(Date.now());
-    setHydrated(true);
-    if (!refresh) return;
-    // Resync clock on mount + reschedule adaptive tick. (set-state-in-effect is
-    // intentional here; the rule is not enabled in @vegastack/eslint-config.)
-    let timerId: ReturnType<typeof setTimeout>;
-    const schedule = () => {
-      const interval = tickInterval(targetMs - Date.now());
-      if (interval === 0) return; // old enough that the value no longer changes
-      timerId = setTimeout(() => {
-        setClock(Date.now());
-        schedule();
-      }, interval);
-    };
-    schedule();
-    return () => clearTimeout(timerId);
-  }, [isControlled, refresh, targetMs]);
-
-  const nowMs = isControlled ? now : clock;
+  const nowMs = isControlled ? now : refresh ? clock : initialClock || clock;
   const nowDate = React.useMemo(() => new Date(nowMs), [nowMs]);
 
   const isValid = !Number.isNaN(targetMs);
-  const isPendingHydration = !isControlled && !hydrated;
+  const isPendingHydration = !isControlled && !nowMs;
   const label = !isValid
     ? ""
     : isPendingHydration
-      ? formatAbsolute(target, locale, timeZone)
+      ? "…"
       : mode === "day"
         ? formatDay(
             target,
@@ -535,6 +536,7 @@ export interface DateTimeProps extends Omit<
   variant?: "date" | "datetime" | "time";
   /**
    * Extra formatter options (`looseFuture`, `absolute`, `separator`, `withYear`…).
+   * An explicit `options.now` controls the reference; otherwise the provider/shared clock is live.
    * @default undefined
    */
   options?: FormatDateOptions & FormatDateTimeOptions;
@@ -555,7 +557,7 @@ export interface DateTimeProps extends Omit<
 
 /**
  * `DateTime` — a calendar date or date-time in the house format, as a semantic `<time>`, with the
- * absolute time in a hover Tooltip.
+ * absolute time in a hover Tooltip. Uses the shared request/live clock unless `options.now` is set.
  *
  * @example
  * <DateTime date={task.createdAt} />                   // "Sep 25"
@@ -576,20 +578,23 @@ export function DateTime({
   const timeZone = timeZoneProp ?? contextZone;
   const target = toDate(date);
   const valid = !Number.isNaN(target.getTime());
-  const opts = { ...options, timeZone };
+  const clock = useDateTimeClock(options?.now === undefined);
+  const referenceNow = options?.now ?? clock;
+  const opts = { ...options, timeZone, now: referenceNow };
   const label = !valid
     ? ""
-    : variant === "time"
-      ? formatTimeOfDay(target, opts)
-      : variant === "datetime"
-        ? formatDateTime(target, opts)
-        : formatDate(target, opts);
+    : referenceNow === undefined
+      ? "…"
+      : variant === "time"
+        ? formatTimeOfDay(target, opts)
+        : variant === "datetime"
+          ? formatDateTime(target, opts)
+          : formatDate(target, opts);
   const el = (
     <time
       data-slot="date-time"
       data-variant={variant}
       dateTime={valid ? target.toISOString() : undefined}
-      suppressHydrationWarning
       tabIndex={title && valid && isFocusable ? 0 : undefined}
       className={cn(title && valid && TRIGGER_BOX, className)}
       {...props}
@@ -683,6 +688,7 @@ export interface DueLabelProps extends Omit<
 /**
  * `DueLabel` — "Overdue 2d", "Due today", "Due tomorrow", "Due in 3d", "Due Sep 30", coloured by
  * tone. The tone is on `data-tone` for your own styling; `formatDueLabel` returns it too.
+ * The shared request/live clock keeps the label and tone current across midnight in the viewer zone.
  *
  * @example
  * <DueLabel date={task.dueAt} /> // "Overdue 2d" in destructive ink
@@ -701,13 +707,17 @@ export function DueLabel({
   const timeZone = timeZoneProp ?? contextZone;
   const target = toDate(date);
   const valid = !Number.isNaN(target.getTime());
-  const { label, tone } = formatDueLabel(target, { timeZone });
+  const now = useDateTimeNow();
+  const { label, tone }: { label: string; tone: DueTone } = !valid
+    ? { label: "", tone: "normal" }
+    : now === undefined
+      ? { label: "…", tone: "normal" }
+      : formatDueLabel(target, { timeZone, now });
   const el = (
     <time
       data-slot="due-label"
       data-tone={tone}
       dateTime={valid ? target.toISOString() : undefined}
-      suppressHydrationWarning
       tabIndex={title && valid && isFocusable ? 0 : undefined}
       className={cn(
         title && valid && TRIGGER_BOX,

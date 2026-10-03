@@ -142,7 +142,7 @@ const RULES = [
   // FOC-14 (ours, MK 2026-09-26; text-entry exception MK 2026-09-27) — a border never changes
   // colour on focus or while active. The one focus cue is base.css's background tint (FOC-13) —
   // EXCEPT text entry, whose cue is a subtle darker border and no fill. That exception is exactly
-  // one class shape (`…:border-ring/40`) in exactly the files in TEXT_ENTRY_FOCUS_BORDER_FILES
+  // one class shape (`…:border-ring/50`) in exactly the files in TEXT_ENTRY_FOCUS_BORDER_FILES
   // below; anywhere else, and any other colour there, still fails. So any class token whose variant chain names focus
   // (`focus:`, `focus-visible:`, `focus-within:`, `not-focus:`, `has-[…:focus]:`, `data-focused:`)
   // or an open popup (`data-popup-open:`) and ends in a border COLOUR is rejected — including the
@@ -153,7 +153,7 @@ const RULES = [
   {
     id: "no-focus-border",
     re: /(?<![\w-])[^\s"'`{}]*(?:focus|data-focused|popup-open)[^\s"'`{}]*:border-(?!border\b|0\b|[248]\b|[xytbselr]\b|[xytbselr]-[0248]\b|solid\b|dashed\b|dotted\b|double\b|none\b|hidden\b)[a-z]/g,
-    msg: "focus border (FOC-14): a border never changes colour on focus or while active — base.css's background tint is the focus cue, and an invalid border holds in every state (no `not-focus:` guard). No focus:/focus-visible:/focus-within:/has-[…:focus]:/data-focused:/data-popup-open: border colour. The one exception is text entry's `…:border-ring/40` in the TEXT_ENTRY_FOCUS_BORDER_FILES components",
+    msg: "focus border (FOC-14): a border never changes colour on focus or while active — base.css's background tint is the focus cue, and an invalid border holds in every state (no `not-focus:` guard). No focus:/focus-visible:/focus-within:/has-[…:focus]:/data-focused:/data-popup-open: border colour. The one exception is text entry's `…:border-ring/50` in the TEXT_ENTRY_FOCUS_BORDER_FILES components",
   },
   // BRD-1 (ours since MK 2026-09-23) — a surface separates with a real 1px `border border-border`,
   // never shadcn's `ring-1 ring-foreground/10` box-shadow outline. The reset had taken upstream's
@@ -271,7 +271,7 @@ const RULES = [
 // that frame one, and TextEdit's `boxed` variant show focus as a subtle darker border that eases
 // in, and no fill. Keyed by the file's REPO PATH tail (the canonical registry file and its docs
 // copy-in share `ui/<name>.tsx`), and the ONLY class token it lets through is one ending in
-// `:border-ring/40` — any other focus border colour in these files still fails.
+// `:border-ring/50` — any other focus border colour in these files still fails.
 const TEXT_ENTRY_FOCUS_BORDER_FILES = [
   "ui/input.tsx",
   "ui/textarea.tsx",
@@ -282,7 +282,7 @@ const TEXT_ENTRY_FOCUS_BORDER_FILES = [
   "ui/text-edit.tsx",
   "ui/template-editor.tsx",
 ];
-const TEXT_ENTRY_FOCUS_BORDER = /:border-ring\/40$/;
+const TEXT_ENTRY_FOCUS_BORDER = /:border-ring\/50$/;
 const isTextEntryFocusBorderFile = (file) => {
   const path = file.replaceAll("\\", "/");
   return TEXT_ENTRY_FOCUS_BORDER_FILES.some((tail) =>

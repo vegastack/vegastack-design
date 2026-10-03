@@ -14,8 +14,8 @@ generated:
       sha256: "6ecea2bf4a2bf6783d1f53da37057218b37d209be9d7aa6d69b569c813fd24d8"
     config:
       path: "tooling/design-md.config.mjs"
-      bytes: 3050
-      sha256: "007c1c983158ab75c4e4c708fd1c79d43eee7e639a9f12bea138d71598f3f295"
+      bytes: 3145
+      sha256: "5c77cb2d1492730e770c77af7ce142768b9e4f806e66a7fc8cb95a1c26ccca19"
     primitives:
       path: "packages/design-tokens/tokens/primitives.tokens.json"
       bytes: 2974
@@ -664,12 +664,13 @@ recipes:
   button-secondary:
     background: "{secondary}"
     foreground: "{secondary-foreground}"
-    hover: "{accent}"
+    hover: "color-mix(in oklch, {secondary}, {foreground} 5%)"
     radius: "{radius}"
     typography: "text-sm/500"
   button-destructive:
-    background: "{destructive}"
-    foreground: "{destructive-foreground}"
+    background: "{destructive}/10 (dark: /20)"
+    foreground: "{destructive-text}"
+    hover: "{destructive}/20 (dark: /30)"
     radius: "{radius}"
     typography: "text-sm/500"
   input:
@@ -801,12 +802,12 @@ every wrapper, keeps its resting `border-border`/`border-input` in every state �
 Input, Textarea, the Questionnaire answer, the InputOTP active slot, the bordered field groups that
 frame a text control (InputGroup and everything built on it: NumberField, ChipInput, Combobox,
 Command, the popup search rows; the combobox chips; the PanelSearch row) and TextEdit's `boxed`
-variant (the comment composer) — shows focus as `border-ring/40` easing in over
+variant (the comment composer) — shows focus as `border-ring/50` easing in over
 `duration-150 ease-out`, on the element that draws the border (the group, never the control inside
 it), and no background change at all. Invalid shows its destructive border in every state, focused
 or not: the focus class carries a `not-…invalid` guard, so focus never replaces it; never a ring.
 `design-lint`'s **`no-focus-border`** rejects a focus-variant border colour in the registry except
-the one text-entry shape (`…:border-ring/40`) in the named text-entry files, and the geometry
+the one text-entry shape (`…:border-ring/50`) in the named text-entry files, and the geometry
 lane's focus sweep fails a non-text control whose border colour moves, a text-entry control whose
 background moves or whose border does not, and an invalid field whose border moves on focus. A forced-colours block restores
 `outline: 2px solid Highlight` on every focused element, because forced colours drop the tint and

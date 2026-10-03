@@ -1075,3 +1075,63 @@ test("auto-save edit: ‹ … Saved Done ›, and Done becomes the finish on the
     "multi-step-form-next:Done",
   ]);
 });
+
+test("intentional URL steps push history and sealed IDs survive remount", async () => {
+  const steps = BASIC.map((step) => ({ ...step, lock: step.id === "account" }));
+  const push = vi.spyOn(window.history, "pushState");
+  try {
+    const first = await render(
+      <Wizard steps={steps} persistKey="locked" urlSync />,
+    );
+    await userEvent.click(next(first.container));
+    await vi.waitFor(() => expect(window.location.hash).toBe("#step=billing"));
+    expect(push).toHaveBeenCalledWith(null, "", "#step=billing");
+    await first.unmount();
+    const second = await render(<Wizard steps={steps} persistKey="locked" />);
+    await vi.waitFor(() =>
+      expect(second.container.textContent).toContain("Billing body"),
+    );
+    expect(isDisabled(back(second.container))).toBe(true);
+  } finally {
+    push.mockRestore();
+  }
+});
+
+test("removing the controlled current step cannot reopen a sealed predecessor", async () => {
+  const locked = BASIC.map((step) => ({
+    ...step,
+    lock: step.id === "account",
+  }));
+  const change = vi.fn();
+  const screen = await render(
+    <Wizard steps={locked} step="account" onStepChange={change} />,
+  );
+  await userEvent.click(next(screen.container));
+  await screen.rerender(
+    <Wizard steps={locked} step="billing" onStepChange={change} />,
+  );
+  await screen.rerender(
+    <Wizard
+      steps={locked.map((step) => ({ ...step, when: step.id !== "billing" }))}
+      step="billing"
+      onStepChange={change}
+    />,
+  );
+  expect(screen.container.textContent).toContain("Review body");
+  expect(screen.container.textContent).not.toContain("Account body");
+  expect(change).toHaveBeenLastCalledWith("review", { replace: true });
+});
+
+test("URL synchronization follows real browser Back and Forward", async () => {
+  const screen = await render(<Wizard urlSync />);
+  await userEvent.click(next(screen.container));
+  await vi.waitFor(() => expect(window.location.hash).toBe("#step=billing"));
+  window.history.back();
+  await vi.waitFor(() =>
+    expect(screen.container.textContent).toContain("Account body"),
+  );
+  window.history.forward();
+  await vi.waitFor(() =>
+    expect(screen.container.textContent).toContain("Billing body"),
+  );
+});

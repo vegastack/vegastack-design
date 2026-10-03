@@ -19689,6 +19689,15 @@
           }
         },
         {
+          "name": "useDateTimeNow",
+          "kind": "hook",
+          "source": "packages/ui/registry/ui/relative-time.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A hook renders nothing and accepts no ref."
+          }
+        },
+        {
           "name": "useTimeZone",
           "kind": "hook",
           "source": "packages/ui/registry/ui/relative-time.tsx",
@@ -28294,7 +28303,7 @@
             },
             {
               "name": "data-selected",
-              "values": [""]
+              "values": ["true"]
             },
             {
               "name": "data-slot",
@@ -29837,7 +29846,7 @@
         "dimensions": [
           {
             "name": "size",
-            "values": ["number or CSS length (default var(--icon-default))"],
+            "values": ["number or CSS length (default 1rem)"],
             "evidence": "Generator-normalized icon props and SVG width/height contract."
           }
         ]

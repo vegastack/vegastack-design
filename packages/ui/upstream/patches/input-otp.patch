@@ -21,7 +21,7 @@
 #     with `transition-[color,background-color,border-color] duration-150 ease-out`. The
 #     `not-…invalid` guard keeps an invalid field's destructive border in every state.
 diff --git a/input-otp.tsx b/input-otp.tsx
-index 401d035..0a0bbed 100644
+index 401d035..ffcc038 100644
 --- a/input-otp.tsx
 +++ b/input-otp.tsx
 @@ -1,29 +1,29 @@
@@ -97,7 +97,7 @@ index 401d035..0a0bbed 100644
        className={cn(
 -        "relative flex size-8 items-center justify-center border-y border-e border-input text-sm transition-all outline-none first:rounded-s-lg first:border-s last:rounded-e-lg aria-invalid:border-destructive data-[active=true]:z-10 data-[active=true]:border-ring data-[active=true]:ring-3 data-[active=true]:ring-ring/50 data-[active=true]:aria-invalid:border-destructive data-[active=true]:aria-invalid:ring-destructive/20 dark:bg-input/30 dark:data-[active=true]:aria-invalid:ring-destructive/40",
 -        className
-+        "relative flex size-8 items-center justify-center border-y border-e border-input text-sm transition-[color,background-color,border-color] duration-150 ease-out outline-none first:rounded-s-lg first:border-s last:rounded-e-lg aria-invalid:border-destructive data-[active=true]:z-10 data-[active=true]:not-aria-invalid:border-ring/40 dark:bg-input/30",
++        "relative flex size-8 items-center justify-center border-y border-e border-input text-sm transition-[color,background-color,border-color] duration-150 ease-out outline-none first:rounded-s-lg first:border-s last:rounded-e-lg aria-invalid:border-destructive data-[active=true]:z-10 data-[active=true]:not-aria-invalid:border-ring/50 dark:bg-input/30",
 +        className,
        )}
        {...props}

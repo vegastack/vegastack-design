@@ -156,3 +156,18 @@ describe("extractPptxThumbnail", () => {
     expect(await extractPptxThumbnail(new Blob(["not a zip"]))).toBeNull();
   });
 });
+
+it("rejects observed inflate output exceeding the forged declared thumbnail size", async () => {
+  const file = await zip([
+    {
+      name: "docProps/thumbnail.jpeg",
+      data: new Uint8Array(1024 * 1024),
+      deflate: true,
+    },
+  ]);
+  const bytes = await file.arrayBuffer();
+  const view = new DataView(bytes);
+  const directory = view.getUint32(bytes.byteLength - 6, true);
+  view.setUint32(directory + 24, 1, true);
+  expect(await extractPptxThumbnail(new Blob([bytes]))).toBeNull();
+});

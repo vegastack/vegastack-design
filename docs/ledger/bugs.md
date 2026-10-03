@@ -3086,3 +3086,7 @@ changed for any of these test repairs.
   the page and split React. The config's own comment says a new engine belongs in that list "on the
   day it is added".
 - **Fix.** The five entries are listed; a cold run is green.
+
+## 2026-10-03 — Regent audit packages A16–A20 and shared date/comment extensions
+
+Canonical runtime, local-tool safety, generated guidance and docs-demo defects were corrected together with regenerated outputs. Root-cause groups, finding IDs and actual checks are recorded once in [the completion ledger](2026-10-03-regent-audit-completion.md). Independent review's additional audio-generation and sealed-step findings were fixed and re-reviewed. Implementation is prepared; Regent consumption and any main/public release remain separate states.

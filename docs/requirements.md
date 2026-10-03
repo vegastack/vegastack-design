@@ -19,8 +19,10 @@
 > component APIs and the component inventory was re-decided on that plan's register and upstream's
 > answer won wherever no row says **ours**. Concretely: `IconButton` (§ Actions) is retired in favour
 > of `Button size="icon"`, the `no-font-bold` typography rule is gone, and the ten marketing
-> components were deleted outright. **§ 3 (hybrid distribution) and the registry/auth topology are
-> still current**; `../AGENTS.md` and `../design.md` are the live contract.
+> components were deleted outright. **The hybrid distribution decision remains current.** The
+> original auth topology below is historical: current non-registry routes are anonymous,
+> `/internal/*` is unlisted/noindex, and `/r/*` alone requires Service Auth. `../AGENTS.md` and
+> `../design.md` are the live contract.
 
 ---
 

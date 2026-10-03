@@ -206,7 +206,7 @@ test("FOC-1/FOC-6: no slot carries a focus glow", async () => {
 test("FOC-3/FOC-14: the active slot darkens its border subtly (text entry), never a fill", async () => {
   const screen = await render(<Six />);
   expect(slotClasses(screen)).toContain(
-    "data-[active=true]:not-aria-invalid:border-ring/40",
+    "data-[active=true]:not-aria-invalid:border-ring/50",
   );
   expect(slotClasses(screen)).not.toMatch(/data-\[active=true\]:bg-/);
   expect(slotClasses(screen)).toContain("ease-out");

@@ -1087,3 +1087,69 @@ test("AudioWaveform fits its bars to the width: 200 peaks in 60px draw at most 2
   );
   expect(wave.querySelectorAll("span").length).toBeGreaterThan(0);
 });
+
+test("closing retained lazy playback rejects queued play and ignores late resolution", async () => {
+  let resolveSource!: (url: string) => void;
+  const mediaRef = React.createRef<HTMLAudioElement>();
+  const src = () =>
+    new Promise<string>((resolve) => {
+      resolveSource = resolve;
+    });
+  const screen = await render(
+    <AudioPlayer
+      label="Deferred"
+      src={src}
+      mediaRef={mediaRef}
+      onOpenChange={() => {}}
+    />,
+  );
+  const audio = mediaRef.current!;
+  const outcome = audio.play().then(
+    () => "played",
+    (error: DOMException) => error.name,
+  );
+  await userEvent.click(screen.getByRole("button", { name: "Close player" }));
+  expect(await outcome).toBe("AbortError");
+  resolveSource(SOURCE);
+  await new Promise((resolve) => setTimeout(resolve, 0));
+  expect(audio.hasAttribute("src")).toBe(false);
+  expect(audio.paused).toBe(true);
+});
+
+test("a cancelled lazy request's late rejection cannot cancel a newer play", async () => {
+  let rejectFirst!: (error: Error) => void;
+  let resolveSecond!: (url: string) => void;
+  const src = vi
+    .fn()
+    .mockImplementationOnce(
+      () =>
+        new Promise((_, reject) => {
+          rejectFirst = reject;
+        }),
+    )
+    .mockImplementationOnce(
+      () =>
+        new Promise<string>((resolve) => {
+          resolveSecond = resolve;
+        }),
+    );
+  const nativePlay = vi
+    .spyOn(HTMLMediaElement.prototype, "play")
+    .mockResolvedValue();
+  const mediaRef = React.createRef<HTMLAudioElement>();
+  try {
+    await render(<AudioPlayer label="Replay" src={src} mediaRef={mediaRef} />);
+    const first = mediaRef
+      .current!.play()
+      .catch((error: DOMException) => error.name);
+    mediaRef.current!.pause();
+    expect(await first).toBe("AbortError");
+    const second = mediaRef.current!.play();
+    rejectFirst(new Error("late rejection"));
+    resolveSecond(SOURCE);
+    await second;
+    expect(nativePlay).toHaveBeenCalledOnce();
+  } finally {
+    nativePlay.mockRestore();
+  }
+});

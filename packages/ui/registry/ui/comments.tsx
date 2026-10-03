@@ -1,4 +1,4 @@
-// @vegastack comments@0.23.114 sha256-KY7cJI9xtGnquSW9i7hKk+khkDWkJ/bzR9DdcdaRuXw=
+// @vegastack comments@0.23.114 sha256-4j4CH9GHkJEWCHLFEwlp4HgGwsFOJCRd2drqprNFsxQ=
 
 "use client";
 
@@ -186,7 +186,15 @@ export function CommentItem({
   className,
 }: CommentItemProps) {
   const [editingState, setEditingState] = React.useState(editingProp ?? false);
-  const editing = onEditingChange ? !!editingProp : editingState;
+  const canEditThis = !!onEdit && !!comment.canEdit && !comment.deleted;
+  const editingRequested = onEditingChange ? !!editingProp : editingState;
+  const editing = canEditThis && editingRequested;
+  React.useEffect(() => {
+    if (!canEditThis && editingRequested) {
+      setEditingState(false);
+      onEditingChange?.(false);
+    }
+  }, [canEditThis, editingRequested, onEditingChange]);
   const setEditing = (next: boolean) => {
     setEditingState(next);
     onEditingChange?.(next);
@@ -216,7 +224,7 @@ export function CommentItem({
   const canReact = !!toggleReaction && !comment.deleted && !editing;
 
   const save = async (body: string) => {
-    if (!onEdit || !body.trim()) return;
+    if (!onEdit || !canEditThis || !body.trim() || saving) return;
     if (body.trim() === comment.body.trim()) return cancel();
     setSaving(true);
     setError(null);
@@ -238,6 +246,7 @@ export function CommentItem({
   };
 
   const remove = async () => {
+    if (!onDelete || !comment.canDelete || comment.deleted) return;
     setError(null);
     try {
       await onDelete?.(comment.id);
@@ -247,7 +256,6 @@ export function CommentItem({
   };
 
   const canCopy = !!onCopyLink && !comment.deleted;
-  const canEditThis = !!onEdit && !!comment.canEdit && !comment.deleted;
   const canDeleteThis = !!onDelete && !!comment.canDelete && !comment.deleted;
   const hasMenu = (canCopy || canEditThis || canDeleteThis) && !editing;
 
@@ -1110,8 +1118,8 @@ export interface CommentThreadData {
 export interface CommentThreadProps {
   /** The thread. */
   thread: CommentThreadData;
-  /** Post a reply; the box clears when it resolves and keeps the text when it rejects. */
-  onReply: MaybeAsync<[body: string]>;
+  /** Post a reply; omit to show the thread without a composer. The box clears on success and keeps text on failure. @default undefined */
+  onReply?: MaybeAsync<[body: string]>;
   /** Resolve the thread; the header shows a ✓ button when set. @default undefined */
   onResolve?: () => void | Promise<unknown>;
   /** Reopen a resolved thread; the resolved header shows Reopen when set. @default undefined */
@@ -1239,7 +1247,13 @@ export function CommentThread({
   const { resolved, orphaned, quote, root, replies } = thread;
 
   const reply = async (body: string) => {
-    if ((!body.trim() && !composer?.hasFiles) || posting) return;
+    if (
+      !onReply ||
+      composer?.disabled ||
+      (!body.trim() && !composer?.hasFiles) ||
+      posting
+    )
+      return;
     setPending(true);
     setError(null);
     try {
@@ -1391,7 +1405,7 @@ export function CommentThread({
           replies.map(item)
         )}
       </ul>
-      {collapsed ? null : (
+      {collapsed || !onReply ? null : (
         <div data-slot="comment-thread-reply" className="flex flex-col gap-1.5">
           <CommentBox
             key={generation}

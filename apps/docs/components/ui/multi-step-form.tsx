@@ -1,4 +1,4 @@
-// @vegastack multi-step-form@0.23.114 sha256-wBguehVngBiqkCCJAV4LootZJQB3cCdLO8hHGqx1sP8=
+// @vegastack multi-step-form@0.23.114 sha256-8FKC/ld57nBfiMnc8saxPe8dzKDFRl25BK853qfGqGw=
 
 "use client";
 
@@ -523,7 +523,13 @@ export function MultiStepForm({
   const [failedId, setFailedId] = React.useState<string | null>(null);
   const [pending, setPending] = React.useState(false);
   const [refusal, setRefusal] = React.useState<ResolvedRefusal | null>(null);
-  const [sealedIndex, setSealedIndex] = React.useState(-1);
+  const [sealedIds, setSealedIds] = React.useState<ReadonlySet<string>>(
+    () => new Set(),
+  );
+  const sealedIndex = visible.reduce(
+    (last, step, index) => (sealedIds.has(step.id) ? index : last),
+    -1,
+  );
   const [uncontrolledStep, setUncontrolledStep] = React.useState<
     string | undefined
   >(defaultStep);
@@ -562,7 +568,12 @@ export function MultiStepForm({
   // Clamp to the furthest step the flow will admit. A pasted link, a restored session and a
   // conditional step vanishing under the current position all land here.
   const currentIndex = (() => {
-    if (requestedIndex === -1) return 0;
+    if (requestedIndex === -1) {
+      for (let index = sealedIndex + 1; index < visible.length; index++) {
+        if (reachable(index)) return index;
+      }
+      return -1;
+    }
     if (reachable(requestedIndex) && requestedIndex > sealedIndex) {
       return requestedIndex;
     }
@@ -576,9 +587,13 @@ export function MultiStepForm({
   const isFirst = currentIndex === 0;
   const isLast = currentIndex === visible.length - 1;
 
+  const historyIntent = React.useRef<{ id: string; replace: boolean } | null>(
+    null,
+  );
   const setCurrent = React.useCallback(
     (id: string, replace = false) => {
       if (controlledStep === undefined) setUncontrolledStep(id);
+      historyIntent.current = { id, replace };
       onStepChange?.(id, { replace });
     },
     [controlledStep, onStepChange],
@@ -609,8 +624,27 @@ export function MultiStepForm({
     const raw = readStored(persistKey);
     if (!raw) return;
     try {
-      const saved = JSON.parse(raw) as { step?: string; passed?: string[] };
-      if (Array.isArray(saved.passed)) setPassed(new Set(saved.passed));
+      const saved = JSON.parse(raw) as {
+        step?: string;
+        passed?: string[];
+        sealed?: string[];
+      };
+      if (Array.isArray(saved.passed)) {
+        setPassed(new Set(saved.passed.filter((id) => typeof id === "string")));
+        // Old snapshots did not store locks: derive them from passed locking steps.
+        const lastLock = visible.reduce(
+          (last, step, index) =>
+            step.lock && saved.passed!.includes(step.id) ? index : last,
+          -1,
+        );
+        setSealedIds(
+          new Set(
+            Array.isArray(saved.sealed)
+              ? saved.sealed.filter((id) => typeof id === "string")
+              : visible.slice(0, lastLock + 1).map((step) => step.id),
+          ),
+        );
+      }
       // The step is applied as a REQUEST — the clamp above still has the final say, so a
       // saved position whose prerequisites no longer hold cannot reopen a gated step.
       if (saved.step && controlledStep === undefined) {
@@ -625,9 +659,13 @@ export function MultiStepForm({
     if (!persistKey || !current) return;
     writeStored(
       persistKey,
-      JSON.stringify({ step: current.id, passed: [...passed] }),
+      JSON.stringify({
+        step: current.id,
+        passed: [...passed],
+        sealed: [...sealedIds],
+      }),
     );
-  }, [persistKey, current, passed]);
+  }, [persistKey, current, passed, sealedIds]);
 
   /* ------------------------------------------------------------- url sync */
 
@@ -656,7 +694,11 @@ export function MultiStepForm({
     // Only write when the clamp settled somewhere else, so a forged or stale hash is
     // corrected in the bar rather than silently disagreeing with what is on screen.
     if (window.location.hash !== next) {
-      window.history.replaceState(null, "", next);
+      const intent = historyIntent.current;
+      if (intent?.id === current.id && !intent.replace)
+        window.history.pushState(null, "", next);
+      else window.history.replaceState(null, "", next);
+      historyIntent.current = null;
     }
   }, [urlSync, current]);
 
@@ -708,7 +750,14 @@ export function MultiStepForm({
           next.delete(current.id);
           return next;
         });
-        if (current.lock) setSealedIndex(currentIndex);
+        if (current.lock)
+          setSealedIds(
+            (previous) =>
+              new Set([
+                ...previous,
+                ...visible.slice(0, currentIndex + 1).map((step) => step.id),
+              ]),
+          );
         if (isLast) onComplete?.();
         else setCurrent(visible[currentIndex + 1]!.id);
       };
@@ -864,7 +913,7 @@ export function MultiStepForm({
   const resolvedOverview = usesSectionList && (overview ?? everySatisfied);
 
   const canGoBack = !isFirst && !pending && currentIndex - 1 > sealedIndex;
-  const canGoNext = !pending && current?.canGoNext !== false;
+  const canGoNext = !!current && !pending && current.canGoNext !== false;
 
   const context: MultiStepFormContextValue = {
     steps: visible,

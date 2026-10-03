@@ -98,7 +98,7 @@ test("FOC-3/FOC-14: focus darkens the border subtly with an ease, with outline-h
   const classes = classesOf(screen);
   // Text entry's one focus cue: a subtle darker border, guarded so invalid wins, eased in.
   expect(classes.match(/\S*focus\S*:border-\S+/g)).toEqual([
-    "focus:not-aria-invalid:border-ring/40",
+    "focus:not-aria-invalid:border-ring/50",
   ]);
   expect(classes).toContain("duration-150");
   expect(classes).toContain("ease-out");

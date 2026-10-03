@@ -20,8 +20,15 @@ export function getInstallSteps(name: string): InstallStep[] {
   const item = getRegistryItem(name);
   const steps: InstallStep[] = [
     {
-      text: `Add \`${item.title}\` from the VegaStack registry. The CLI verifies the item's integrity hash before writing it.`,
-      command: `pnpm dlx shadcn@latest add @vegastack/${item.name}`,
+      text: `Configure registry credentials first using the Quickstart. Before copying this item or any transitive registry dependency, verify the signed manifest and save the exact bytes for \`${item.title}\` before installation. Retain the digest printed by this command.`,
+      command: `pnpm exec vegastack-design verify ${item.name}`,
+    },
+    {
+      text: "Install with the pinned shadcn CLI. Bare shadcn does not verify VegaStack signature or integrity.",
+      command: `pnpm dlx shadcn@4.21.0 add @vegastack/${item.name}`,
+    },
+    {
+      text: "Run the exact offline --post-write command printed by the preflight, using its saved item path and independently retained --expected-integrity digest. Use the saved preflight for every transitive registry dependency too; stop on any mismatch before using the components.",
     },
   ];
   const registryDependencies = item.registryDependencies ?? [];

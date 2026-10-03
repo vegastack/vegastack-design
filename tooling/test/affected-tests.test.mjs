@@ -444,3 +444,10 @@ it("extracts preview fixture functions without executing the module", () => {
     exportedPreviewFixtures("apps/docs/components/preview/code-block.tsx"),
   ).toEqual(["codeBlock", "codeBlockOverflow"]);
 });
+
+it("workspace configuration package manifests select dependency contracts", () => {
+  const result = plan(change("config/eslint-config/package.json"));
+  expect(result.errors).toEqual([]);
+  expect(result.broadImpactGroups).toContain("dependencies");
+  expect(result.crossCuttingTestFiles.length).toBeGreaterThan(0);
+});

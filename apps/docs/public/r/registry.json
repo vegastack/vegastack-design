@@ -286,7 +286,7 @@
         "whenToUse": "Discussion on a record's page (a task, a meeting): comments oldest first with the composer at the end.",
         "whenNotToUse": "An activity feed or notifications — use Inbox.",
         "version": "0.23.114",
-        "integrity": "sha256-KY7cJI9xtGnquSW9i7hKk+khkDWkJ/bzR9DdcdaRuXw="
+        "integrity": "sha256-4j4CH9GHkJEWCHLFEwlp4HgGwsFOJCRd2drqprNFsxQ="
       }
     },
     {
@@ -349,7 +349,7 @@
         "whenToUse": "A page's version history beside a DiffView, in a sheet.",
         "whenNotToUse": "An activity feed (Timeline) or a list of records (DataList).",
         "version": "0.23.114",
-        "integrity": "sha256-rCyk1Ed0SQZILwkxR86hcG+bKZiY32c5N9poWkv0oUw="
+        "integrity": "sha256-r+GJrenRlUStlsFBr0WdneIp7yhj7cdDEkwHriGLJ9s="
       }
     },
     {
@@ -515,7 +515,7 @@
         "whenToUse": "A single audio asset that needs a compact, branded transport with rewind/forward, a tappable speed control, keyboard shortcuts, and a two-line mobile layout with an optional transcript control; `docked` pins a closable player to the bottom of a scroll column, a function `src` resolves a signed URL on first play, `actionsRef` seeks it from a transcript or chapter list, and `peaks` draws a stored waveform without downloading the file.",
         "whenNotToUse": "Playlists, queue management, waveform editing, audio recording, or a bar of bulk actions over a selection (ActionBar).",
         "version": "0.23.114",
-        "integrity": "sha256-8jh6rboGVBxskM4qB0iCKpUfoFeKuhZsyfVk+0fq4I0="
+        "integrity": "sha256-k6yOPywR6Q06o2kQbvvofYtLXsKFAfxFXSc0FJZHrQo="
       }
     },
     {
@@ -682,7 +682,7 @@
         "whenToUse": "Cross-column card movement — pipelines, kanban, staged workflows — where the host owns ordering and the move can be refused by a server gate; lanes may be partially loaded (count shows the total) and cards may be links to their records.",
         "whenNotToUse": "Single-list reordering (sortable-list), tabular data (data-list/data-grid), or static column layouts with no movement (plain Cards in a flex row).",
         "version": "0.23.114",
-        "integrity": "sha256-fnxG3UCWeddNjAuHWI2InG+EqSyNkq3tvti+tgnD2u4="
+        "integrity": "sha256-EZCv4G7F9jfywSz0zrYeoJEohNljYBks/2TQGWGyg98="
       }
     },
     {
@@ -1138,7 +1138,7 @@
         "whenToUse": "Fenced/source code that deserves a labelled, copyable panel.",
         "whenNotToUse": "Inline code (a mono chip) or terminal output theatre (Terminal).",
         "version": "0.23.114",
-        "integrity": "sha256-qHQFYRibpzjr+1//qLuXpySITYG1MOLv+usuUlvca3E="
+        "integrity": "sha256-kMOJZA6gEcfI/A9lD6Zh5/lgL6DHf+RgBChJ+h5SAjc="
       }
     },
     {
@@ -1230,7 +1230,7 @@
         "whenToUse": "Choosing from a large or dynamic set that benefits from typing to narrow it down — searchable pickers, tag/label multi-select, async-loaded results. A two-line option composes ItemTitle + ItemDescription, and the description is the option's accessible description.",
         "whenNotToUse": "A small, fixed set with no need to search (Select), boolean on/off (Switch), or a few always-visible options (radios/checkboxes).",
         "version": "0.23.114",
-        "integrity": "sha256-K8nKVl+k1A4FxBphV2sJvk+YNpCyfCbEBQuvrmLEOQw="
+        "integrity": "sha256-7wN7YuGKKDAolhRuAojM+A01t1sfZ3BfaiWz856ValQ="
       }
     },
     {
@@ -1399,7 +1399,7 @@
         "whenToUse": "Record tables that need grouping, inline cell editing, multi-key sort, column management, or 10k+ rows via virtualization — the CRM pipeline-table tier.",
         "whenNotToUse": "Simple presentational record lists — DataList is lighter and still the right default; kanban views (Board).",
         "version": "0.23.114",
-        "integrity": "sha256-eXXDUXsdfyqY8RZzrIasGn1E5ryDcjLHBV3kohW3Z+M="
+        "integrity": "sha256-zD8jfflgs//y3znBoJeLGgzbK8rDEYv7UX2TRriaL8s="
       }
     },
     {
@@ -1444,7 +1444,7 @@
         "whenToUse": "A list of records as a table, a card grid or board lanes (view) with typed columns, selection, click-to-sort, loading/empty states, keyset paging through loadMore, rows as links, sections, thumbnails and a row-actions column.",
         "whenNotToUse": "Full-parity grids with grouping/editing/virtualization (DataGrid), or a simple static table (Table).",
         "version": "0.23.114",
-        "integrity": "sha256-tO1mQ3pvmhpOPjdLa320uMJHew3W5Tgt+aYy/LZYZwI="
+        "integrity": "sha256-SyPsBaVgv/0gD4ir2m5SLEq2HY3nvYmYgH0ghCr3l00="
       }
     },
     {
@@ -1848,7 +1848,7 @@
         "whenToUse": "Any file surface that shows a size, picks an icon for a file, or branches on what kind of file it holds.",
         "whenNotToUse": "Previewing a file (FileViewer) or acquiring one (use-file-drop).",
         "version": "0.23.114",
-        "integrity": "sha256-4GR6ohwQSXn6UNgHBOX+Kva9d/4k6RG1ZXHC8GDMcr4="
+        "integrity": "sha256-TqEs8DAcI7yFya+Efo6nUcviQUiFcl+ppGmlelRrhOM="
       }
     },
     {
@@ -1872,7 +1872,7 @@
         "whenToUse": "An upload flow that stores a video's poster and duration, an audio file's waveform peaks, or an Office file's preview picture beside the original, so grids, players and FileViewer show them without re-reading the file.",
         "whenNotToUse": "Server code (it needs a browser), or parsing Office content (a sheet or a slide) — that is the app's parser, returned through FileViewer's loadPreview.",
         "version": "0.23.114",
-        "integrity": "sha256-z7UMgllXnSxEEAcejF3jpMRBAA/Dls/q1Q46uQEBUNA="
+        "integrity": "sha256-idyBFTpVlMTrA5D7pPYNmZb21Q74WwjdCA0a86lqigM="
       }
     },
     {
@@ -2148,7 +2148,7 @@
         "whenToUse": "Installed automatically with EmojiPicker or ShortcutOverlay; import it directly when building another popup that filters its own contents.",
         "whenNotToUse": "A standalone search field on a page — that is Input, or InputGroup with a leading addon. A command palette is Command, which brings its own input.",
         "version": "0.23.114",
-        "integrity": "sha256-6vW2e4P2C1/WAQUHTQUowIVRmDEI+uvLrRP1LOh0FaU="
+        "integrity": "sha256-oCB9+3ARDA1CxYx0tVPpIzuxXq52P4Zjkq+3YCOnAT4="
       }
     },
     {
@@ -2275,7 +2275,7 @@
         "whenToUse": "Filter toolbars for lists/tables — 'Label: value' chips that edit in place, facets on SearchableSelect, an Add-filter menu and a settled search, at the end or first.",
         "whenNotToUse": "A single search box (Input), value selection (Select), or unrelated row actions.",
         "version": "0.23.114",
-        "integrity": "sha256-ExQc9Z1MzjiX7hD86TWhh0Ue0B7lGW01xISW2OLAnDk="
+        "integrity": "sha256-ZKrmylw05vGHKMbrg588RCfTvQojeeodex/vUfyL3jU="
       }
     },
     {
@@ -15641,7 +15641,7 @@
         "whenToUse": "Single-line text entry — email, password, search, URL/slug with a domain prefix, numbers, etc.",
         "whenNotToUse": "Multi-line text (use a textarea) or choosing from fixed options (use a select/radio).",
         "version": "0.23.114",
-        "integrity": "sha256-dgsz5u0Yd8Apwv5+YyFhDtAy86nOw0XVixF7G1lR1RI="
+        "integrity": "sha256-XecxXWayw4LFcKZyaIOazibl/eMJGSW95qTg4PrAjtU="
       }
     },
     {
@@ -15673,7 +15673,7 @@
         "whenToUse": "A text control that needs an affordance on the same surface — a search icon, a currency prefix, a reveal button, a character counter.",
         "whenNotToUse": "A control whose affordance belongs outside the field — use a Field description or a ButtonGroup.",
         "version": "0.23.114",
-        "integrity": "sha256-9acC/OLjcHVyxUx9SEjqMZOYTVDw1fL4+PxZMwlDbqA="
+        "integrity": "sha256-40OUq0i4MkIt8AhRS7IanhCVrQ9TXx6YFwqB/vwcqDo="
       }
     },
     {
@@ -15702,7 +15702,7 @@
         "whenToUse": "Entering a short verification code — 2FA, email confirmation, a device-pairing PIN.",
         "whenNotToUse": "Any value longer than a handful of characters, or one the user may not know the length of — use an Input.",
         "version": "0.23.114",
-        "integrity": "sha256-YdXbXBZ9lm5qECWmVW54HIkZyA/41+TINyFLM0Og2VU="
+        "integrity": "sha256-nk+EB9/zoupQhsT5N8jZbAxhubRnLbEHwHj+dhBuGI4="
       }
     },
     {
@@ -15862,7 +15862,7 @@
         "whenToUse": "Display user/system-authored markdown — descriptions, comments, activity — as safe token-styled prose.",
         "whenNotToUse": "Editing markdown (use an editor), or when the source needs embedded raw HTML.",
         "version": "0.23.114",
-        "integrity": "sha256-kFX2pVEWO4cv8nTGRxUwMYqMqtxORi8fLHmE3orXV9I="
+        "integrity": "sha256-h9qZqsqx8GXR8Mw+DF1X6CMMXHY6scGe14rUA7f96ao="
       }
     },
     {
@@ -16507,7 +16507,7 @@
         "whenToUse": "An onboarding, survey or intake flow that asks one question at a time, validates each answer, and can be resumed.",
         "whenNotToUse": "A conventional form where every field is visible at once — compose Field with the form primitives instead.",
         "version": "0.23.114",
-        "integrity": "sha256-Gims/3Z7fOA/ZK0Wo3fRpjISSGE0CozgujWDqtEIBIg="
+        "integrity": "sha256-Z1ch/3euRtzTRBPo4m4deaSMjLJE35zut6btnSPvIAI="
       }
     },
     {
@@ -16857,7 +16857,7 @@
         "whenToUse": "Any date, time, duration, due label or day grouping shown in UI — pick the function per the Dates & times page's where-to-use table.",
         "whenNotToUse": "API/JSON output — keep ISO strings there.",
         "version": "0.23.114",
-        "integrity": "sha256-40Pu3wRRgl3V7f8fU8wfXSEtrSmFhliXSpvnnmz0OfU="
+        "integrity": "sha256-k8d8zx3/QsZa7WmSoT6HCRtW8O5F2Tl/a5DVBiGocgc="
       }
     },
     {
@@ -17478,7 +17478,7 @@
         "whenToUse": "A process a person drives across several screens — signup, checkout, an import wizard, a multi-section record editor — where steps can branch, an advance can be refused, and a committed step must not be walked back into.",
         "whenNotToUse": "Progress the system drives and a person only reads (Stepper alone), free navigation between peer views (Tabs), or one question at a time (Questionnaire).",
         "version": "0.23.114",
-        "integrity": "sha256-wBguehVngBiqkCCJAV4LootZJQB3cCdLO8hHGqx1sP8="
+        "integrity": "sha256-8FKC/ld57nBfiMnc8saxPe8dzKDFRl25BK853qfGqGw="
       }
     },
     {
@@ -17670,7 +17670,7 @@
         "whenToUse": "Marketing or description text built from spec placeholders (\"Recessed @Power downlight with @Efficacy…\"), stored as {{id}} tokens a renderer fills in.",
         "whenNotToUse": "Formatted rich text (TextEdit), plain text with no placeholders (Textarea), or a single-line value (Input).",
         "version": "0.23.114",
-        "integrity": "sha256-0sL7HLZLL00eHI/zW8QxLkFshY0NONDV6lnSJ8RdhT0="
+        "integrity": "sha256-/nZzCpLC0+QNjkEza+okrImWiVy8EVTBRbeRUXNENM4="
       }
     },
     {
@@ -17742,7 +17742,7 @@
         "whenToUse": "Comments, notes, summaries and documents stored as Markdown (format=\"markdown\") or HTML — with @ mentions, uploads, callouts, toggles, an outline and comment highlights for page editors; in-place editing of a MarkdownView (the read view is the editor until first edited).",
         "whenNotToUse": "Plain single-line input (Input) or collaborative real-time docs (deferred text-edit-collab).",
         "version": "0.23.114",
-        "integrity": "sha256-tkDwUJBo63sQOREroremjRckp40f3WGAdCiGGfNtRwQ="
+        "integrity": "sha256-4b0gP7aUNkvOT2RvPclUOwwFu461OXmonP8oeCPrWOc="
       }
     },
     {
@@ -17770,7 +17770,7 @@
         "whenToUse": "Multi-line free text — descriptions, comments, messages, notes.",
         "whenNotToUse": "Single-line entry (input), rich text (editor), or fixed options (select).",
         "version": "0.23.114",
-        "integrity": "sha256-OdqSA1lHBMTJl95+P+ycx5dKH/zBg4AKAT2IVC7vEc8="
+        "integrity": "sha256-c/IGNn6EAK/Y1EyBlI3r9+3mKLih2hg0F2yzwQ9LXAE="
       }
     },
     {

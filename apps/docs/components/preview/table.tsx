@@ -77,6 +77,18 @@ const invoices = [
   },
 ];
 
+function invoiceTotal(rows: typeof invoices) {
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+  }).format(
+    rows.reduce(
+      (sum, row) => sum + Number(row.totalAmount.replace(/[$,]/g, "")),
+      0,
+    ),
+  );
+}
+
 export function table(): ReactNode {
   return (
     <Wrapper className="block">
@@ -105,7 +117,9 @@ export function table(): ReactNode {
         <TableFooter>
           <TableRow>
             <TableCell colSpan={3}>Total</TableCell>
-            <TableCell className="text-right">$2,500.00</TableCell>
+            <TableCell className="text-right">
+              {invoiceTotal(invoices)}
+            </TableCell>
           </TableRow>
         </TableFooter>
       </Table>
@@ -172,7 +186,9 @@ export function tableFooter(): ReactNode {
         <TableFooter>
           <TableRow>
             <TableCell colSpan={3}>Total</TableCell>
-            <TableCell className="text-right">$2,500.00</TableCell>
+            <TableCell className="text-right">
+              {invoiceTotal(invoices.slice(0, 3))}
+            </TableCell>
           </TableRow>
         </TableFooter>
       </Table>
@@ -417,7 +433,9 @@ export function tableRtl(): ReactNode {
           <TableFooter>
             <TableRow>
               <TableCell colSpan={3}>{arabic.total}</TableCell>
-              <TableCell className="text-right">$2,500.00</TableCell>
+              <TableCell className="text-right">
+                {invoiceTotal(invoices)}
+              </TableCell>
             </TableRow>
           </TableFooter>
         </Table>

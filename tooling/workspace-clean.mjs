@@ -36,6 +36,7 @@ import {
   existsSync,
   lstatSync,
   readdirSync,
+  realpathSync,
   readFileSync,
   rmSync,
   statSync,
@@ -150,6 +151,22 @@ function assertRemovable(root, path) {
     throw new Error(
       `workspace-clean: refusing to remove ${absolute} — outside the repository root ${root}`,
     );
+  // Reject symlink ancestors (including a symlink at the target) before any traversal.
+  const physicalRoot = realpathSync(root);
+  let ancestor = root;
+  for (const segment of rel.split(sep)) {
+    ancestor = join(ancestor, segment);
+    if (!existsSync(ancestor)) break;
+    if (lstatSync(ancestor).isSymbolicLink())
+      throw new Error(
+        `workspace-clean: refusing symlink traversal at ${ancestor}`,
+      );
+    const physical = realpathSync(ancestor);
+    if (!physical.startsWith(physicalRoot + sep))
+      throw new Error(
+        `workspace-clean: physical path escapes root: ${ancestor}`,
+      );
+  }
   for (const segment of rel.split(sep)) {
     if (FORBIDDEN_SEGMENTS.has(segment))
       throw new Error(
@@ -395,8 +412,11 @@ function collectStalePlaywrightBrowsers(root) {
     // suite is currently using as stale, and `--weekly` would have deleted it. Sidecars (ffmpeg,
     // winldd) are listed in the same array and are matched the same way.
     current = new Set(
-      registry.browsers.map(
-        (browser) => `${normalizeBuildName(browser.name)}-${browser.revision}`,
+      registry.browsers.flatMap((browser) =>
+        [
+          browser.revision,
+          ...Object.values(browser.revisionOverrides ?? {}),
+        ].map((revision) => `${normalizeBuildName(browser.name)}-${revision}`),
       ),
     );
   } catch (error) {
@@ -430,7 +450,7 @@ function main(argv = process.argv.slice(2)) {
   // `--dry-run` wins over any mode; with no mode at all the default is report-only.
   const dryRun = args.dryRun || mode === "report";
 
-  /** @type {{path: string, size: number}[]} */
+  /** @type {{path: string, size: number, boundary: string, trackedCheck: boolean}[]} */
   const planned = [];
   /** @type {{path: string, reason: string}[]} */
   const refusals = [];
@@ -454,7 +474,12 @@ function main(argv = process.argv.slice(2)) {
       });
       return;
     }
-    planned.push({ path, size: sizeOf(path) });
+    planned.push({
+      path,
+      size: sizeOf(path),
+      boundary: root,
+      trackedCheck: true,
+    });
   };
 
   for (const path of collectAfterRun(root)) add(path);
@@ -476,7 +501,13 @@ function main(argv = process.argv.slice(2)) {
     for (const path of browsers.targets) {
       // Outside the repository root by construction, so assertRemovable does not apply. The name
       // pattern and the browsers.json cross-check above are what bound this one.
-      planned.push({ path, size: sizeOf(path) });
+      assertRemovable(browsers.cache, path);
+      planned.push({
+        path,
+        size: sizeOf(path),
+        boundary: browsers.cache,
+        trackedCheck: false,
+      });
     }
   }
 
@@ -501,6 +532,12 @@ function main(argv = process.argv.slice(2)) {
   let removed = 0;
   for (const item of planned) {
     try {
+      assertRemovable(item.boundary, item.path);
+      if (
+        item.trackedCheck &&
+        trackedState(root, item.path).state !== "untracked"
+      )
+        throw new Error("path is no longer proven untracked");
       rmSync(item.path, { recursive: true, force: true });
       removed += 1;
     } catch (error) {

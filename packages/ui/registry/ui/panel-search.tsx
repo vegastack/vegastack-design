@@ -1,4 +1,4 @@
-// @vegastack panel-search@0.23.114 sha256-6vW2e4P2C1/WAQUHTQUowIVRmDEI+uvLrRP1LOh0FaU=
+// @vegastack panel-search@0.23.114 sha256-oCB9+3ARDA1CxYx0tVPpIzuxXq52P4Zjkq+3YCOnAT4=
 
 "use client";
 
@@ -59,7 +59,7 @@ export function PanelSearch({
       data-slot="panel-search"
       data-field-group=""
       className={cn(
-        "sticky top-0 z-10 flex h-8 items-center gap-2 border-b border-border bg-popover px-3 transition-[color,background-color,border-color] duration-150 ease-out has-[input:focus]:border-ring/40",
+        "sticky top-0 z-10 flex h-8 items-center gap-2 border-b border-border bg-popover px-3 transition-[color,background-color,border-color] duration-150 ease-out has-[input:focus]:border-ring/50",
         className,
       )}
       {...props}

@@ -8,6 +8,7 @@ import { page, userEvent } from "vitest/browser";
 import { Flag } from "lucide-react";
 import { expectNoA11yViolations } from "../../test/a11y";
 import {
+  DateRangeFilter,
   FilterBar,
   FilterBarFacet,
   FilterChip,
@@ -982,4 +983,34 @@ test("an add option with an editor opens it on the new chip (DS-36)", async () =
   await expect
     .element(screen.getByText("Status editor"))
     .not.toBeInTheDocument();
+});
+
+test("the custom date range calendar highlights the caller's explicit today", async () => {
+  const now = new Date(2026, 0, 12, 12);
+  const screen = await render(
+    <DateRangeFilter
+      label="Created"
+      now={now}
+      value={{
+        from: new Date(2026, 0, 10),
+        to: new Date(2026, 0, 11),
+        preset: "custom",
+      }}
+      onValueChange={() => {}}
+    />,
+  );
+  (
+    screen.container.querySelector(
+      '[data-slot="date-range-filter-trigger"]',
+    ) as HTMLButtonElement
+  ).click();
+  await expect
+    .poll(() =>
+      document
+        .querySelector(
+          '[data-slot="date-range-filter-content"] [data-today="true"]',
+        )
+        ?.getAttribute("data-day"),
+    )
+    .toBe("2026-01-12");
 });

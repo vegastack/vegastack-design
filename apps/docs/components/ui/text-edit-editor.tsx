@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.23.114 sha256-tkDwUJBo63sQOREroremjRckp40f3WGAdCiGGfNtRwQ=
+// @vegastack text-edit@0.23.114 sha256-4b0gP7aUNkvOT2RvPclUOwwFu461OXmonP8oeCPrWOc=
 
 "use client";
 
@@ -5715,7 +5715,15 @@ export function TextEditEditor({
         const text = event.clipboardData?.getData("text/plain");
         const plain = plainPasteRef.current;
         plainPasteRef.current = false;
-        if (ed && files.length > 0 && !text) {
+        const supported = files.some((file) =>
+          inlineImageTypesRef.current.includes(
+            file.type.split(";")[0]!.trim().toLowerCase(),
+          )
+            ? Boolean(callbacks.current.onImageUpload)
+            : Boolean(callbacks.current.onFileUpload),
+        );
+        if (ed && files.length > 0 && !text && !supported) return true;
+        if (ed && !ed.isDestroyed && supported && !text) {
           const { from, to } = view.state.selection;
           if (from !== to) view.dispatch(view.state.tr.deleteSelection());
           if (uploadFiles(files, view.state.selection.from)) return true;

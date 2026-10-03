@@ -554,49 +554,37 @@ test("Accessibility: `accessibilityLayer` makes the plot surface a keyboard-reac
   expect(surface.getAttribute("tabindex")).toBe("0");
 });
 
-test("FOC-1: the KEYBOARD-FOCUSED plot surface actually PAINTS the global outline", async () => {
-  // The measurement the patch header promises. `outline-hidden` compiles to
-  // `--tw-outline-style: none` ON the focused element, so an unscoped reset leaves every class
-  // string looking right while the ring resolves to `outline-style: none`. Only a computed style
-  // can tell the two apart — which is why this test compiles CSS.
-  const screen = await render(<FullChart />);
-  const surface = await surfaceOf(screen.container);
+test.each(["light", "dark"])(
+  "FOC-13: keyboard plot focus paints the no-ring tint in %s",
+  async (theme) => {
+    const screen = await render(
+      <div
+        className={`${theme === "dark" ? "dark " : ""}bg-background text-foreground`}
+      >
+        <FullChart />
+      </div>,
+    );
+    const surface = await surfaceOf(screen.container);
+    const resting = getComputedStyle(surface).backgroundImage;
+    await userEvent.tab();
+    expect(document.activeElement).toBe(surface);
+    await expect
+      .poll(() => getComputedStyle(surface).backgroundImage)
+      .not.toBe(resting);
+    expect(getComputedStyle(surface).outlineStyle).toBe("none");
+    expect(getComputedStyle(surface).boxShadow).not.toMatch(/ 3px/);
+  },
+);
 
-  // At rest, upstream's reset still applies — that is all it was ever for.
-  await expect.poll(() => getComputedStyle(surface).outlineStyle).toBe("none");
-
-  await userEvent.tab();
-  expect(document.activeElement).toBe(surface);
-
-  // Polled, not read once: Chromium resolves the winning `outline-*` declarations on the next
-  // style recalc, so the first synchronous read after the Tab can still report the initial value
-  // (measured 2026-09-18 — `outline-offset` reads `0px` immediately and `-2px` one frame later).
-  await expect
-    .poll(() => {
-      const style = getComputedStyle(surface);
-      return {
-        outlineStyle: style.outlineStyle,
-        width: Number.parseFloat(style.outlineWidth),
-        transparent: isTransparent(style.outlineColor),
-      };
-    })
-    // An AUTHORED outline: the user agent's own ring (`auto`) is not an affordance this system
-    // ships, and `none` is the defect FOC-1 fixes.
-    .toEqual({ outlineStyle: "solid", width: 2, transparent: false });
-});
-
-test("FOC-9: the focused surface's outline is INSET, so it is not clipped by the plot edge", async () => {
+test("FOC-9: the forced-colors outline offset remains inset", async () => {
   const screen = await render(<FullChart />);
   const surface = await surfaceOf(screen.container);
   await userEvent.tab();
   expect(document.activeElement).toBe(surface);
-  // `base.css` ships `outline-offset: 1px`; FOC-9 is the one permitted local deviation and it
-  // moves the OFFSET only — width and colour stay global.
   await expect
     .poll(() => Number.parseFloat(getComputedStyle(surface).outlineOffset))
     .toBeLessThan(0);
-  const focused = getComputedStyle(surface);
-  expect(Number.parseFloat(focused.outlineWidth)).toBe(2);
+  expect(getComputedStyle(surface).outlineStyle).toBe("none");
 });
 
 test("FOC-1/FOC-6: no focus-ring glow survives anywhere in a rendered chart", async () => {

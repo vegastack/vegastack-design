@@ -872,3 +872,15 @@ place to put focus; the D1 B5–B8/B10–B22 low-severity list the #137/#138 bri
 written down anywhere, so there is nothing to work from.
 
 **No prior-round finding was re-raised.**
+
+## Regent audit — 2026-10-03 — two rounds, final verdict: addressed
+
+Independent Codex CLI review of the audit-only patch against the preserved published-base maintenance tree found two medium runtime issues (stale lazy-audio rejection affecting a newer request; missing wizard step bypassing sealed-state clamping), missing consequential interaction acceptance and one stale refresh description. The runtime fixes, actual hydration/live-clock, pointer-settle revocation, virtual keyboard navigation and real browser history proofs addressed every finding. Scoped round two reported no new actionable defect. The later final static run passed. See [the compact completion record](2026-10-03-regent-audit-completion.md) for exact scope, raw-failure reconciliation, preserved dirt and release boundaries.
+
+## Regent date integration — 2026-10-03 — clean scoped contract review
+
+The newly approved `DateRangeFilter.today` forwarding and `useDateTimeNow()` shared-clock export were reviewed separately from the completed audit. The reviewer confirmed the caller's calendar-date convention, request-reference hydration, shared timer, controlled clock behavior and documented public-symbol contract; no actionable finding. Focused checks passed 86/86. See the Regent completion ledger's scoped integration section.
+
+## Regent date rollover / CI native failure — 2026-10-03 — scoped review
+
+Independent review found no blocking runtime or metadata-privacy issue in DateTime/DueLabel's shared-clock integration, the supported Chromium channel selection or bounded native-crash metadata reporting. One low documentation mismatch (“render once”) was corrected. The reviewer retained the explicit requirement for exact-head Linux CI to establish native-crash elimination; raw core memory was not accessed in review. See the completion ledger for focused tests and the evidence boundary.

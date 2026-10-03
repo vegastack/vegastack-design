@@ -560,7 +560,7 @@ test("onEditValueChange reports null on Escape and after a successful save, thro
   await vi.waitFor(() =>
     expect(onEditValueChange).toHaveBeenLastCalledWith("e1", null),
   );
-  list.unmount();
+  await list.unmount();
 
   onEditValueChange.mockClear();
   const thread = await render(
@@ -585,4 +585,31 @@ test("onEditValueChange reports null on Escape and after a successful save, thro
   await vi.waitFor(() =>
     expect(onEditValueChange).toHaveBeenLastCalledWith("e1", null),
   );
+});
+
+test("read-only threads retain replies and close an editor when permission disappears", async () => {
+  const thread = {
+    id: "readonly",
+    root: { ...rootComment, canEdit: true },
+    replies: [{ ...rootComment, id: "reply", body: "Existing reply" }],
+  };
+  const screen = await render(
+    <CommentThread thread={thread} onReply={vi.fn()} onEdit={vi.fn()} />,
+  );
+  await expect.element(screen.getByText("Existing reply")).toBeVisible();
+  await userEvent.click(
+    screen.getByRole("button", { name: "Actions for comment by Asha Rao" }),
+  );
+  await screen.getByRole("menuitem", { name: "Edit" }).click();
+  await expect
+    .element(screen.getByRole("textbox", { name: "Edit comment" }))
+    .toBeVisible();
+  await screen.rerender(<CommentThread thread={thread} />);
+  expect(
+    screen.container.querySelector('[data-slot="comment-thread-reply"]'),
+  ).toBeNull();
+  expect(screen.container.querySelector('[contenteditable="true"]')).toBeNull();
+  await expect
+    .poll(() => screen.container.textContent)
+    .toContain("Existing reply");
 });
