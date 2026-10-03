@@ -1,4 +1,4 @@
-// @vegastack chart-pie-label-list@0.23.117 sha256-hbpma3J9M2kuXECvv/PiMyA/uq56YOMHPDI9r+ghwi8=
+// @vegastack chart-pie-label-list@0.23.118 sha256-YtQSnZUIJTXYLqYQWfzDlJUGIaVfSg5fcKYHyvzUzdA=
 
 "use client";
 

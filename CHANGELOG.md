@@ -9,6 +9,20 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.23.118] — October 4, 2026
+
+<!-- assembled from 1 changeset: 56296cb25b35 -->
+
+### 📦 npm
+
+- **`@vegastack/design`** → **`0.7.103`** (was `0.7.102`).
+- The design-system registry (`@vegastack/ui`) bumps 0.23.117 → 0.23.118.
+
+### 🐛 Fixed
+
+- Align share-01's Share and Publish tabs with the dialog's content edge. The underline and the label of the first tab now start where the title and the rows below start, in the Dialog (they sat 4px and 10px in) and in the phone sheet (they sat 12px and 6px outside the 16px content inset). The tabs drop the line list's padding and the trigger's inline padding, sit 16px apart, and take the sheet's 16px inset.
+  [`28b06eb`](https://github.com/VegaStack/vegastack-design/commit/28b06eb)
+
 ## [0.23.117] — October 3, 2026
 
 <!-- assembled from 1 changeset: d5ed953ebec8 -->
