@@ -9,6 +9,38 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.23.115] — October 3, 2026
+
+<!-- assembled from 3 changesets: d025a5aae045 -->
+
+### 📦 npm
+
+- **`@vegastack/design`** → **`0.7.100`** (was `0.7.99`).
+- The design-system registry (`@vegastack/ui`) bumps 0.23.114 → 0.23.115.
+
+### 🐛 Fixed
+
+- Preserve permissions, editor content and interaction state across asynchronous work, and make design verification report the behavior it actually checks.
+
+  - Guard board drops, serialize pending moves, cancel lazy playback, retain wizard locks and support keyboard activation of grid cards and virtualized cells.
+  - Normalize image URLs, bound thumbnail inflation, preserve unsupported paste selections and honor React callback-ref cleanup.
+  - Render relative timestamps from a shared request reference and live clock; hide unavailable comment composers without hiding replies.
+  - Preserve no-ring focus while raising the existing text-entry border tint to the first standard opacity that passes the unchanged contrast threshold.
+  - Protect cleanup and idempotency checks, verify negative-test identity, load credential-only dotenv values and correct generated installation/API/example guidance and docs demos.
+    [`7152602`](https://github.com/VegaStack/vegastack-design/commit/7152602)
+
+- Keep calendar dates and due labels live across viewer midnight, with stable request-time hydration.
+
+  - DateTime and DueLabel use the existing shared clock; explicit DateTime options.now stays controlled and formatting/tooltip choices remain intact.
+  - Use the bundled full Chromium headless channel for component verification after repeated legacy headless renderer crashes. CI retains native failures and reports only process/signal metadata, never memory contents.
+    [`7152602`](https://github.com/VegaStack/vegastack-design/commit/7152602)
+
+- Keep date-picker Today highlighting and application date groups on the shared viewer clock.
+
+  - DateRangeFilter forwards its explicit calendar-day reference to the custom Calendar.
+  - Export useDateTimeNow from the relative-time registry item for groups, badges and picker presets, preserving serialized SSR references and one shared live timer.
+    [`7152602`](https://github.com/VegaStack/vegastack-design/commit/7152602)
+
 ## [0.23.114] — October 2, 2026
 
 <!-- assembled from 1 changeset: ec1d1f05093d -->
