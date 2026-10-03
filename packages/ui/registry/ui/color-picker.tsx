@@ -1,9 +1,9 @@
-// @vegastack color-picker@0.23.115 sha256-N/k7fFmz+lXcL6s8oCWI+FRN8bmfRZ2NSeZEMMcd1so=
+// @vegastack color-picker@0.23.115 sha256-5JOyW/wfPpGMVje9dPInS1AvPw+cBZkCz3kCQim2j8o=
 
 "use client";
 
 import * as React from "react";
-import { Check } from "lucide-react";
+import { Ban, Check } from "lucide-react";
 import { cn } from "@vegastack/design";
 import {
   Popover,
@@ -80,6 +80,24 @@ export const DEFAULT_COLORS: readonly ColorOption[] = [
   { name: "rose", label: "Rose", color: "var(--color-chart-6)" },
 ] as const;
 
+/**
+ * The ten tag hues as a palette — the same `--tag-*` colours `Chip`, `Avatar` and `SpaceAvatar`
+ * draw with, so a picked hue is exactly the hue a tile or chip shows. Each `name` is the hue's
+ * value (`"blue"`, `"cyan"`, …), ready to store as an `AvatarHue` / `ChipHue`.
+ */
+export const HUE_COLORS: readonly ColorOption[] = [
+  { name: "blue", label: "Blue", color: "var(--tag-blue)" },
+  { name: "cyan", label: "Cyan", color: "var(--tag-cyan)" },
+  { name: "green", label: "Green", color: "var(--tag-green)" },
+  { name: "lime", label: "Lime", color: "var(--tag-lime)" },
+  { name: "yellow", label: "Yellow", color: "var(--tag-yellow)" },
+  { name: "orange", label: "Orange", color: "var(--tag-orange)" },
+  { name: "red", label: "Red", color: "var(--tag-red)" },
+  { name: "pink", label: "Pink", color: "var(--tag-pink)" },
+  { name: "magenta", label: "Magenta", color: "var(--tag-magenta)" },
+  { name: "purple", label: "Purple", color: "var(--tag-purple)" },
+] as const;
+
 /** Props accepted by `ColorPicker`. */
 export interface ColorPickerProps {
   /**
@@ -105,6 +123,23 @@ export interface ColorPickerProps {
    * @default 7
    */
   columns?: number;
+  /**
+   * `popover` — a swatch trigger that opens the grid. `inline` — the swatch grid itself, in the
+   * page (a settings row), with no trigger.
+   * @default "popover"
+   */
+  variant?: "popover" | "inline";
+  /**
+   * Adds a first "None" swatch that clears the colour; it is selected while `value` matches no
+   * option. Omit for no None swatch.
+   * @default undefined
+   */
+  onClear?: () => void;
+  /**
+   * The None swatch's accessible name.
+   * @default "None"
+   */
+  clearLabel?: string;
   /**
    * Disables the trigger and every swatch.
    * @default false
@@ -145,15 +180,22 @@ export interface ColorPickerProps {
  * starts on the current `value` (falling back to the first swatch), and clicking or focusing a
  * swatch updates it — click selection itself is unchanged.
  *
+ * `variant="inline"` renders the grid in place (no popover), and `onClear` adds a "None" swatch —
+ * with `colors={HUE_COLORS}` that is the hue row of a space or tag settings form.
+ *
  * @example
  * const [color, setColor] = React.useState('blue');
  * <ColorPicker value={color} onValueChange={setColor} />
+ * <ColorPicker variant="inline" colors={HUE_COLORS} columns={11} value={hue} onValueChange={setHue} onClear={() => setHue(undefined)} />
  */
 export function ColorPicker({
   value,
   onValueChange,
   colors = DEFAULT_COLORS,
   columns = 7,
+  variant = "popover",
+  onClear,
+  clearLabel = "None",
   disabled = false,
   className,
   "aria-label": ariaLabel = "Pick a color",
@@ -163,29 +205,119 @@ export function ColorPicker({
   const columnCount = Number.isFinite(columns)
     ? Math.max(1, Math.floor(columns))
     : 1;
+  // The None swatch, when there is one, is index 0 and every colour shifts by one.
+  const offset = onClear ? 1 : 0;
+  const count = colors.length + offset;
 
   // Roving tabindex via the shared `useListNav` hook: exactly one swatch is in the tab order
   // (`tabIndex 0`) at a time — the rest are `-1` — so Tab only stops once on the swatch group.
   // Arrow keys move the "active" index (and DOM focus) around the grid, RTL-aware; click
   // selection is unchanged. The active index STARTS on the color selected at mount (falling back
-  // to the first swatch); it does not re-track later `value` changes — focusing a swatch or
-  // arrowing moves it from there. Home/End keep the shipped whole-grid jump — the hook's
-  // `homeEndScope` default — with only ~13 single-row-wrapped swatches by default; pass
-  // `homeEndScope: "row"` instead if a future palette renders many rows.
-  const selectedIndex = Math.max(
-    0,
-    colors.findIndex((c) => c.name === value),
-  );
+  // to the first swatch); it does not re-track later `value` changes.
+  const selectedIndex = selected ? colors.indexOf(selected) + offset : 0;
   const {
     setActiveIndex,
     handleKeyDown: handleGridKeyDown,
     getItemProps,
   } = useListNav({
-    count: colors.length,
+    count,
     columns: columnCount,
     defaultActiveIndex: selectedIndex,
     disabled,
   });
+
+  const grid = (
+    <div
+      role="group"
+      aria-label={variant === "inline" ? ariaLabel : "Colors"}
+      data-slot={variant === "inline" ? "color-picker" : undefined}
+      data-variant={variant}
+      onKeyDown={handleGridKeyDown}
+      // Grid column count is dynamic (driven by `columns`). The inline style sets ONLY a CSS
+      // custom property (`--swatch-cols`); the arbitrary-value class consumes it as the grid
+      // template — so no direct visual property is set inline, which is what keeps this
+      // clear of the inline-style ban.
+      className={cn(
+        "grid w-fit gap-1.5 grid-cols-[repeat(var(--swatch-cols),minmax(0,1fr))]",
+        variant === "inline" && className,
+      )}
+      style={{ ["--swatch-cols"]: String(columnCount) } as React.CSSProperties}
+    >
+      {onClear ? (
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon-sm"
+          disabled={disabled}
+          aria-label={clearLabel}
+          aria-pressed={!selected}
+          title={clearLabel}
+          {...getItemProps(0)}
+          onClick={() => {
+            setActiveIndex(0);
+            onClear();
+          }}
+          className="rounded-full hover:bg-transparent"
+        >
+          <span
+            data-slot="color-picker-swatch"
+            data-none=""
+            className={cn(
+              "flex size-5 items-center justify-center rounded-full border border-border bg-background text-muted-foreground",
+              !selected && "border-primary text-foreground",
+            )}
+          >
+            <Ban className="size-3" aria-hidden />
+          </span>
+        </Button>
+      ) : null}
+      {colors.map((color, i) => {
+        const index = i + offset;
+        const isSelected = color.name === value;
+        return (
+          <Button
+            key={color.name}
+            type="button"
+            variant="ghost"
+            size="icon-sm"
+            disabled={disabled}
+            aria-label={color.label}
+            aria-pressed={isSelected}
+            title={color.label}
+            // Roving tabindex, registration ref, and focus sync from the shared hook.
+            {...getItemProps(index)}
+            onClick={() => {
+              setActiveIndex(index);
+              onValueChange?.(color.name);
+            }}
+            className="rounded-full hover:bg-transparent"
+          >
+            <span
+              data-slot="color-picker-swatch"
+              className={cn(
+                "flex size-5 items-center justify-center rounded-full border border-border bg-clip-padding",
+                // Selected swatch reads its state through the primary border (selection = primary ink).
+                isSelected && "border-primary",
+              )}
+              // Dynamic user color — the sanctioned inline-style exception (see file header).
+              style={{ backgroundColor: color.color }}
+            >
+              {isSelected ? (
+                <span
+                  data-slot="color-picker-check"
+                  className="flex size-3.5 items-center justify-center rounded-full bg-background text-foreground"
+                >
+                  <Check className="size-3" aria-hidden />
+                </span>
+              ) : null}
+            </span>
+          </Button>
+        );
+      })}
+    </div>
+  );
+
+  if (variant === "inline") return grid;
 
   return (
     <Popover>
@@ -216,62 +348,7 @@ export function ColorPicker({
         align="start"
         className="w-auto p-2"
       >
-        <div
-          role="group"
-          aria-label="Colors"
-          onKeyDown={handleGridKeyDown}
-          // Grid column count is dynamic (driven by `columns`). The inline style sets ONLY a CSS
-          // custom property (`--swatch-cols`); the arbitrary-value class consumes it as the grid
-          // template — so no direct visual property is set inline, which is what keeps this
-          // clear of the inline-style ban.
-          className="grid gap-1.5 grid-cols-[repeat(var(--swatch-cols),minmax(0,1fr))]"
-          style={
-            { ["--swatch-cols"]: String(columnCount) } as React.CSSProperties
-          }
-        >
-          {colors.map((color, index) => {
-            const isSelected = color.name === value;
-            return (
-              <Button
-                key={color.name}
-                type="button"
-                variant="ghost"
-                size="icon-sm"
-                disabled={disabled}
-                aria-label={color.label}
-                aria-pressed={isSelected}
-                title={color.label}
-                // Roving tabindex, registration ref, and focus sync from the shared hook.
-                {...getItemProps(index)}
-                onClick={() => {
-                  setActiveIndex(index);
-                  onValueChange?.(color.name);
-                }}
-                className="rounded-full hover:bg-transparent"
-              >
-                <span
-                  data-slot="color-picker-swatch"
-                  className={cn(
-                    "flex size-5 items-center justify-center rounded-full border border-border bg-clip-padding",
-                    // Selected swatch reads its state through the primary border (selection = primary ink).
-                    isSelected && "border-primary",
-                  )}
-                  // Dynamic user color — the sanctioned inline-style exception (see file header).
-                  style={{ backgroundColor: color.color }}
-                >
-                  {isSelected ? (
-                    <span
-                      data-slot="color-picker-check"
-                      className="flex size-3.5 items-center justify-center rounded-full bg-background text-foreground"
-                    >
-                      <Check className="size-3" aria-hidden />
-                    </span>
-                  ) : null}
-                </span>
-              </Button>
-            );
-          })}
-        </div>
+        {grid}
       </PopoverContent>
     </Popover>
   );

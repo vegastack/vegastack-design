@@ -1,4 +1,4 @@
-// @vegastack sidebar@0.23.115 sha256-DnAUQQqZ3tecQYixItYsJhdEUkDE3z3PHhYe2JF9WUs=
+// @vegastack sidebar@0.23.115 sha256-ZMecdnqUSZFnjTN729Q1r1BdY5oAAZPFdnRZPgSk+dQ=
 
 "use client";
 
@@ -486,7 +486,7 @@ function SidebarGroup({ className, ...props }: React.ComponentProps<"div">) {
       data-slot="sidebar-group"
       data-sidebar="group"
       className={cn(
-        "relative flex w-full min-w-0 flex-col px-2 py-1",
+        "group/sidebar-group relative flex w-full min-w-0 flex-col px-2 py-1",
         className,
       )}
       {...props}
@@ -521,16 +521,23 @@ function SidebarGroupLabel({
 function SidebarGroupAction({
   className,
   render,
+  showOnHover = false,
   ...props
-}: useRender.ComponentProps<"button"> & React.ComponentProps<"button">) {
+}: useRender.ComponentProps<"button"> &
+  React.ComponentProps<"button"> & {
+    showOnHover?: boolean;
+  }) {
   return useRender({
     defaultTagName: "button",
     props: mergeProps<"button">(
       {
         className: cn(
           "absolute top-2.5 end-3 flex aspect-square w-5 items-center justify-center rounded-md p-0 text-sidebar-foreground ring-sidebar-ring transition-transform group-data-[collapsible=icon]:hidden after:absolute after:-inset-2 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground [&>svg]:size-4 [&>svg]:shrink-0",
+          showOnHover &&
+            "group-focus-within/sidebar-group:opacity-100 group-hover/sidebar-group:opacity-100 aria-expanded:opacity-100 md:opacity-0 pointer-coarse:opacity-100",
           className,
         ),
+        ...(showOnHover ? { "data-show-on-hover": "" } : {}),
       },
       props,
     ),
@@ -538,6 +545,7 @@ function SidebarGroupAction({
     state: {
       slot: "sidebar-group-action",
       sidebar: "group-action",
+      showOnHover,
     },
   });
 }

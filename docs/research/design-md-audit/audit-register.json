@@ -2,10 +2,10 @@
   "schemaVersion": 1,
   "kind": "vegastack-zero-gap-audit-register",
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "742e64356b4eb4c09ea4ba14e81675d812c9ca61ab103a4b1d1925b22fcda32b",
+  "contractSha256": "76474bd19ce72cb8c165b04b87d13e44c551c163c8f95c500896e1594d4ab1cb",
   "expectedCounts": {
-    "totalRegistryItems": 718,
-    "components": 145,
+    "totalRegistryItems": 722,
+    "components": 149,
     "animatedIcons": 467,
     "hooks": 13,
     "blocks": 14,
@@ -1613,6 +1613,50 @@
         "packages/ui/registry/ui/permission-menu.tsx"
       ],
       "docsSlug": "/docs/components/permission-menu",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "responsive-dialog",
+      "inventoryClass": "component",
+      "wave": "Overlays",
+      "family": "overlay",
+      "sourceFiles": [
+        "packages/ui/registry/ui/responsive-dialog.tsx"
+      ],
+      "docsSlug": "/docs/components/responsive-dialog",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "space-picker",
+      "inventoryClass": "component",
+      "wave": "Forms/editing",
+      "family": "form",
+      "sourceFiles": [
+        "packages/ui/registry/ui/space-picker.tsx"
+      ],
+      "docsSlug": "/docs/components/space-picker",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "access-chip",
+      "inventoryClass": "component",
+      "wave": "Overlays",
+      "family": "overlay",
+      "sourceFiles": [
+        "packages/ui/registry/ui/access-chip.tsx"
+      ],
+      "docsSlug": "/docs/components/access-chip",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "choice-card",
+      "inventoryClass": "component",
+      "wave": "Forms/editing",
+      "family": "form",
+      "sourceFiles": [
+        "packages/ui/registry/ui/choice-card.tsx"
+      ],
+      "docsSlug": "/docs/components/choice-card",
       "contractStatus": "reconciled"
     },
     {

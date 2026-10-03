@@ -145,6 +145,17 @@ renders a plain `<div>`, because `AppShellContent` is already the `main` landmar
 </AppShellContent>
 ```
 
+### Section measure
+
+`AppShellSection` holds one region of a page at its own measure. `measure="prose"` caps it at 720px
+and keeps it at the page's **start**, not centred — a settings tab under a default-width header and
+tabs — with no `max-w-*` of its own; `full` (the default) takes the page's width.
+
+<ComponentPreview
+  name="appShellSectionMeasure"
+  file="components/preview/app-shell.tsx"
+/>
+
 ### Header tools by width
 
 `AppShellHeader` is an inline-size container named `app-shell-header`, so tools in it compact by
@@ -289,6 +300,13 @@ export function AppFrame({ children }: { children: React.ReactNode }) {
 <ApiTable
   path="../../packages/ui/registry/ui/app-shell.tsx"
   name="AppShellPageProps"
+/>
+
+### AppShellSection
+
+<ApiTable
+  path="../../packages/ui/registry/ui/app-shell.tsx"
+  name="AppShellSectionProps"
 />
 
 ### AppShellSkeleton

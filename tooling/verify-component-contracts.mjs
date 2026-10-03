@@ -574,9 +574,9 @@ assert(
 
 const expectedWaves = {
   "Core controls": 24,
-  "Forms/editing": 31,
+  "Forms/editing": 33,
   "Navigation/layout": 21,
-  Overlays: 16,
+  Overlays: 18,
   "Data display": 27,
   "Content/marketing": 15,
   "AI/chat": 8,
@@ -635,6 +635,7 @@ const expectedComponentWaveMembers = {
     "avatar-picker",
     "calendar",
     "chip-input",
+    "choice-card",
     "color-picker",
     "combobox",
     "country-select",
@@ -658,6 +659,7 @@ const expectedComponentWaveMembers = {
     "select",
     "settings-row",
     "sortable-list",
+    "space-picker",
     "tag-group",
     "template-editor",
     "text-edit",
@@ -687,6 +689,7 @@ const expectedComponentWaveMembers = {
     "tabs",
   ],
   Overlays: [
+    "access-chip",
     "action-bar",
     "alert-dialog",
     "context-menu",
@@ -699,6 +702,7 @@ const expectedComponentWaveMembers = {
     "permission-menu",
     "popover",
     "provider",
+    "responsive-dialog",
     "sheet",
     "shortcut-overlay",
     "toast",

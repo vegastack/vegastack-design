@@ -112,10 +112,17 @@ its own `overflow-y-auto` element so the header stays in view.
 
 ### Size
 
-`size` on `DialogContent` steps the width cap from the `sm` breakpoint up: `sm` (`max-w-xs`),
-`default` (`max-w-sm`, upstream's width), `lg` (`max-w-2xl`) and `xl` (`max-w-5xl`), for a bulk-edit
-table or an attribute editor. The value is published as `data-size`, the same axis
-`AlertDialogContent` carries. Below `sm` every size fills the viewport less a 1rem gutter.
+`size` on `DialogContent` steps the width cap from the `sm` breakpoint up. The value is published
+as `data-size`, the same axis `AlertDialogContent` carries. Below `sm` every size fills the viewport
+less a 1rem gutter.
+
+| Size      | Cap                  | Use it for                                                      |
+| --------- | -------------------- | --------------------------------------------------------------- |
+| `sm`      | `max-w-xs` (320px)   | A one-field prompt                                              |
+| `default` | `max-w-sm` (384px)   | A short form or a confirmation with a little context            |
+| `md`      | `max-w-lg` (512px)   | Share and settings dialogs: people rows with a level menu, tabs |
+| `lg`      | `max-w-2xl` (672px)  | A two-column form, a long create flow                           |
+| `xl`      | `max-w-5xl` (1024px) | A bulk-edit table or an attribute editor                        |
 
 <ComponentPreview name="dialogSizes" file="components/preview/dialog.tsx" />
 
@@ -210,10 +217,11 @@ Upstream's file plus `packages/ui/upstream/patches/dialog.patch`. Every hunk:
 - **BRD-1** — `DialogContent` draws a real 1px `border border-border` instead of upstream's
   `ring-1 ring-foreground/10` box-shadow outline. A border survives forced colours and matches
   [Elevation](/docs/foundations/elevation); nothing else about the surface moves.
-- **OVL-16** — `DialogContent` takes `size?: "sm" | "default" | "lg" | "xl"` (default `"default"`)
-  and reflects it as `data-size`, the axis `AlertDialogContent` already carries. `default` keeps
-  upstream's `sm:max-w-sm` unconditionally; `sm`, `lg` and `xl` step it to `max-w-xs`, `max-w-2xl`
-  and `max-w-5xl` through `data-[size=…]`. Approved by MK 23-09-2026 for a consumer gap.
+- **OVL-16** — `DialogContent` takes `size?: "sm" | "default" | "md" | "lg" | "xl"` (default
+  `"default"`) and reflects it as `data-size`, the axis `AlertDialogContent` already carries.
+  `default` keeps upstream's `sm:max-w-sm` unconditionally; `sm`, `md`, `lg` and `xl` step it to
+  `max-w-xs`, `max-w-lg`, `max-w-2xl` and `max-w-5xl` through `data-[size=…]`. Approved by MK
+  23-09-2026 for a consumer gap; `md` added 03-10-2026 for share and settings dialogs.
 - **OVL-18** — `DialogFooter` drops upstream's `-mx-4 -mb-4 rounded-b-xl border-t bg-muted/50 p-4`
   band: it is as plain as the header, right-aligned from `sm` and stacked below it. Its opt-in close
   is `variant="secondary"`. MK, 2026-09-25.

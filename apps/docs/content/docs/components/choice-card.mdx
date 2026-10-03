@@ -1,0 +1,89 @@
+---
+title: Choice Card
+description: Radio options drawn as cards — icon, title, description — two across from @sm.
+audience: public
+registry: choice-card
+status: stable
+since: 0.23.116
+a11y: radio group; each card labels its radio; arrows move
+preview: choiceCard
+---
+
+## Install
+
+<InstallSteps name="choice-card" />
+
+## Usage
+
+```tsx
+import { ChoiceCard, ChoiceCardGroup } from "@/components/ui/choice-card";
+
+<ChoiceCardGroup aria-label="Access" value={access} onValueChange={setAccess}>
+  <ChoiceCard
+    value="open"
+    icon={<Globe />}
+    title="Open"
+    description="Everyone can find and join"
+  />
+  <ChoiceCard
+    value="private"
+    icon={<Lock />}
+    title="Private"
+    description="Only members can find and open it"
+  />
+</ChoiceCardGroup>;
+```
+
+A thin wrapper over the documented Field choice-card pattern (`FieldLabel` around a horizontal
+`Field` with a `RadioGroupItem`): the look, the hover and the checked tint are Field's and
+RadioGroup's own. The group lays the cards out two across once its own container is `@sm` wide, and
+stacks them below that.
+
+<ComponentPreview name="choiceCard" file="components/preview/choice-card.tsx" />
+
+## Scope
+
+- Owns: the card layout and the two-across grid.
+- Does not own: the radio behaviour (RadioGroup) or the card surface (Field).
+- Compose with: `SettingsRow` (a stacked row), forms.
+
+## Anatomy
+
+<Anatomy name="choice-card" />
+
+## Examples
+
+### Disabled option
+
+<ComponentPreview
+  name="choiceCardDisabled"
+  file="components/preview/choice-card.tsx"
+/>
+
+## API Reference
+
+<ApiTable
+  path="../../packages/ui/registry/ui/choice-card.tsx"
+  name="ChoiceCardProps"
+/>
+
+`ChoiceCardGroup` takes `RadioGroup`'s props (`value`, `defaultValue`, `onValueChange`, `disabled`).
+
+## Accessibility
+
+- A radio group: name it with `aria-label` or `aria-labelledby`. Each card is its radio's label, so
+  the title and description are the radio's name.
+
+| Key                         | Action                    |
+| --------------------------- | ------------------------- |
+| <kbd>Tab</kbd>              | Into and out of the group |
+| <kbd>↑</kbd> / <kbd>↓</kbd> | Move and choose           |
+
+<StatesTested name="choice-card" />
+
+## Do / Don't
+
+<DoDont
+  do="Use choice cards for two to four options that each need a sentence."
+  dont="Use them for long lists or one-word options — use RadioGroup, Select or ToggleGroup."
+/>

@@ -3,7 +3,7 @@
 <!-- GENERATED — do not hand-edit. Regenerated from the design system's component contract,
      which is the authority for membership and counts. -->
 
-**145 components**, plus 467 animated-icon items, 13 hooks (`use-animation-replay`, `use-announcer`, `use-async-search`, `use-drag-reorder`, `use-file-drop`, `use-inline-edit`, `use-list-nav`, `use-media-query`, `use-mobile`, `use-modal-inert`, `use-overflow`, `use-platform`, `use-tabs-swipe`), 14 starter blocks (`app-shell-01`, `board-01`, `issue-detail-01`, `page-editor-01`, `command-search-01`, `list-page-01`, `library-01`, `login-01`, `notifications-01`, `review-split-01`, `settings-01`, `settings-02`, `status-pages-01`, `share-01`), 68 chart blocks across 7 families, and 11 data libs (`code-highlight`, `date-time`, `geo-data`, `emoji-data`, `drag-item`, `text-anchor`, `text-anchor-doc`, `file-kind`, `media-probe`, `page-layout`, `tile-overlay`) — 718 registry items in total.
+**149 components**, plus 467 animated-icon items, 13 hooks (`use-animation-replay`, `use-announcer`, `use-async-search`, `use-drag-reorder`, `use-file-drop`, `use-inline-edit`, `use-list-nav`, `use-media-query`, `use-mobile`, `use-modal-inert`, `use-overflow`, `use-platform`, `use-tabs-swipe`), 14 starter blocks (`app-shell-01`, `board-01`, `issue-detail-01`, `page-editor-01`, `command-search-01`, `list-page-01`, `library-01`, `login-01`, `notifications-01`, `review-split-01`, `settings-01`, `settings-02`, `status-pages-01`, `share-01`), 68 chart blocks across 7 families, and 11 data libs (`code-highlight`, `date-time`, `geo-data`, `emoji-data`, `drag-item`, `text-anchor`, `text-anchor-doc`, `file-kind`, `media-probe`, `page-layout`, `tile-overlay`) — 722 registry items in total.
 
 Install any of them with `shadcn add @vegastack/<name>`. Animated icons install as
 `@vegastack/icon-<name>`; the bare name is reserved for components, so a component whose name
@@ -23,6 +23,7 @@ starts with `icon-` is a component and never an icon.
 - **`calendar`** — A date-field calendar on React DayPicker — single, multiple and range selection.
 - **`checkbox`** — A binary (or indeterminate) toggle on Base UI Checkbox, with a 24px invisible hit area (A11Y-2).
 - **`chip-input`** — Free-token entry field — Enter/comma/paste commits chips, Backspace removes, per-chip validation marks invalid entries instead of dropping them. InputGroup field chrome + real Tag chips.
+- **`choice-card`** — A radio option drawn as a card — icon, title, description and the radio — in a group that is two across from @sm and stacked below. A thin wrapper over the Field choice-card pattern.
 - **`color-picker`** — A swatch-triggered popover presenting a grid of preset colors — pick one, fire onValueChange, mark the selection.
 - **`combobox`** — A filterable listbox behind a text input — grouped items, an announced empty state and a chips mode.
 - **`country-select`** — A searchable country picker returning the ISO 3166-1 alpha-2 code, with flag + name. A thin wrapper over SearchableSelect fed by the geo-data item.
@@ -47,6 +48,7 @@ starts with `icon-` is a component and never an icon.
 - **`searchable-select`** — The Select-shaped Combobox preset: a full-width trigger, an in-panel search field, a tick on the selected row (matched by key, so async options tick too), a standard person option (name plus muted email, both searched) and an optional clear control. Single or multiple, controlled through value/onValueChange.
 - **`select`** — A dropdown for one value — trigger, grouped scrollable popup and item-aligned positioning.
 - **`slider`** — A number or range over a continuous track — horizontal or vertical, any number of thumbs.
+- **`space-picker`** — SpaceChip — a space as a quiet property chip (tile, name, chevron) — and SpacePicker, that chip opening a searchable list of spaces with My space first, a check on the current one and disabled rows that say why.
 - **`switch`** — An on/off toggle for instant settings — two sizes and a 24px invisible hit area (A11Y-2).
 - **`textarea`** — A styled native textarea that grows with its content; focus darkens its border subtly with an ease and paints no fill.
 
@@ -108,6 +110,7 @@ starts with `icon-` is a component and never an icon.
 
 ## Overlay
 
+- **`access-chip`** — How far one record reaches as one focusable chip: the space tile and name, a lock and Only invited, or My space — with a globe when published and the full sentence in a tooltip. Clicking opens Share.
 - **`alert-dialog`** — A modal that interrupts for a decision — an optional media slot, two sizes and an action/cancel footer.
 - **`context-menu`** — The same menu vocabulary opened by right-click, positioned at the pointer.
 - **`dialog`** — A modal overlay — backdrop, centred popup, a plain right-aligned footer and an optional close button; opens onto the first field or the popup, never the close ×.
@@ -117,6 +120,7 @@ starts with `icon-` is a component and never an icon.
 - **`panel-search`** — The sticky, box-free search row a filtering popup puts at the top of its panel (decision OVL-11) — shared by EmojiPicker and ShortcutOverlay.
 - **`permission-menu`** — An access level on a sharing row — a ghost trigger reading the level, a menu of levels with one-line descriptions and a check on the current one, an optional destructive Remove access, and a read-only text mode for built-in rows.
 - **`popover`** — An anchored, dismissible surface for secondary content, with a header, title and description.
+- **`responsive-dialog`** — One overlay API that is a centred Dialog from 768px up and a bottom Sheet with a drag handle and a safe-area footer below it — the same header, body and footer in both.
 - **`sheet`** — A panel that slides in from any edge — Dialog semantics with a side, a header and a footer; opens onto the first field, never the close ×; a left sheet can dock beside the sidebar rail (beside).
 - **`shortcut-overlay`** — The ?-triggered dialog listing keyboard shortcuts, rendered from a declaration registry (keys, label, category, when) — grouped, filterable, platform-aware via use-platform + Kbd.
 - **`tooltip`** — A floating label on hover or focus, portaled inside the theme scope (OVL-13).

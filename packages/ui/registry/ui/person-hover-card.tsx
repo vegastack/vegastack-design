@@ -1,4 +1,4 @@
-// @vegastack person-hover-card@0.23.115 sha256-1bXNknas+R94crR4tbX0N1dc3UitWnSuH+h5XfU2h1c=
+// @vegastack person-hover-card@0.23.115 sha256-uL4zDsEJSHqMNgp6cIU9hyGL/s0UUCY5zf8RBUcHYJI=
 
 "use client";
 
@@ -143,8 +143,19 @@ export interface AvatarStackProps {
    * @default 5
    */
   max?: number;
+  /**
+   * The total number of people, when `people` is only the first page of them (a space with 14
+   * members, 5 loaded). "+N" counts from it, so the stack and its count always agree.
+   * @default people.length
+   */
+  total?: number;
   /** The group's accessible name. @default "People" */
   label?: string;
+  /**
+   * A footer action in the list popover, such as "Manage access" that opens the Share dialog.
+   * @default undefined
+   */
+  footer?: React.ReactNode;
   /** Classes for the group. @default undefined */
   className?: string;
 }
@@ -161,11 +172,14 @@ export interface AvatarStackProps {
 export function AvatarStack({
   people,
   max = 5,
+  total,
   label = "People",
+  footer,
   className,
 }: AvatarStackProps) {
   const shown = people.slice(0, max);
-  const rest = people.length - shown.length;
+  const count = Math.max(total ?? people.length, people.length);
+  const rest = count - shown.length;
   return (
     <Popover>
       <PopoverTrigger
@@ -173,7 +187,9 @@ export function AvatarStack({
           <Button
             variant="ghost"
             data-slot="avatar-stack"
-            aria-label={`${label}: ${people.map((p) => p.name).join(", ")}`}
+            aria-label={`${label}: ${people.map((p) => p.name).join(", ")}${
+              count > people.length ? ` and ${count - people.length} more` : ""
+            }`}
             className={cn(
               "h-auto rounded-full p-0.5 active:not-aria-[haspopup]:translate-y-0",
               className,
@@ -181,7 +197,9 @@ export function AvatarStack({
           />
         }
       >
-        <AvatarGroup aria-hidden>
+        {/* A 4px overlap (not upstream's 8px): each 24px avatar keeps 20px visible, so two
+            initials are never cut by the next avatar. */}
+        <AvatarGroup aria-hidden className="-space-x-1">
           {shown.map((p, i) => (
             <HoverCard key={`${p.name}-${i}`}>
               <HoverCardTrigger
@@ -212,6 +230,19 @@ export function AvatarStack({
             </li>
           ))}
         </ul>
+        {count > people.length ? (
+          <p className="px-1 pt-2 text-xs text-muted-foreground">
+            and {count - people.length} more
+          </p>
+        ) : null}
+        {footer != null ? (
+          <div
+            data-slot="avatar-stack-footer"
+            className="-mx-2 -mb-2 mt-2 border-t border-border p-1"
+          >
+            {footer}
+          </div>
+        ) : null}
       </PopoverContent>
     </Popover>
   );

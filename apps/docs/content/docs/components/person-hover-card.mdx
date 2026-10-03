@@ -100,6 +100,17 @@ table's person cell, compose `PersonAvatar` with the name and `PersonBadge`.
   file="components/preview/person-hover-card.tsx"
 />
 
+### Partial lists and a footer
+
+When only the first page of people is loaded, pass `total`: "+N" and the list's "and N more" count
+from it, so the stack never shows two avatars for fourteen members. `footer` ends the list popover
+with an action such as "Manage access". The avatars overlap by 4px, so two initials are never cut.
+
+<ComponentPreview
+  name="personHoverCardTotal"
+  file="components/preview/person-hover-card.tsx"
+/>
+
 ## API Reference
 
 ### AvatarStack

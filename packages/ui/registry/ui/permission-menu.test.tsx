@@ -90,3 +90,72 @@ test("readOnly is plain muted text with no menu", async () => {
   await expect.element(screen.getByRole("button")).not.toBeInTheDocument();
   await expectNoA11yViolations(screen.container);
 });
+
+const LEVEL_OPTIONS = [
+  {
+    value: "full",
+    label: "Full access",
+    description: "Edit, share and delete, and change who else has access to it",
+  },
+  { value: "edit", label: "Can edit", description: "Edit and comment" },
+];
+
+test("variants: chip is a 28px ghost chip with a chevron, outline is a bordered 32px control", async () => {
+  const screen = await render(
+    <>
+      <PermissionMenu
+        variant="chip"
+        value="edit"
+        options={LEVEL_OPTIONS}
+        aria-label="Chip"
+      />
+      <PermissionMenu
+        variant="outline"
+        value="edit"
+        options={LEVEL_OPTIONS}
+        aria-label="Outline"
+      />
+    </>,
+  );
+  const chip = screen.getByRole("button", { name: "Chip" }).element();
+  const outline = screen.getByRole("button", { name: "Outline" }).element();
+  expect(chip.getAttribute("data-variant")).toBe("chip");
+  expect(chip.className).toContain("h-7");
+  expect(
+    chip.querySelector('[data-slot="permission-menu-chevron"]'),
+  ).not.toBeNull();
+  expect(outline.className).toContain("h-8");
+  expect(outline.className).toContain("border-border");
+  await (outline as HTMLElement).click();
+  const description = await vi.waitUntil(() =>
+    document.querySelector('[data-slot="item-description"]'),
+  );
+  expect(description.className).toContain("line-clamp-2");
+  await expectNoA11yViolations(document.body);
+});
+
+test("locked shows a lock and the level, stays a tab stop, names the reason and opens no menu", async () => {
+  const screen = await render(
+    <PermissionMenu
+      variant="chip"
+      value="full"
+      options={LEVEL_OPTIONS}
+      locked
+      lockedReason="Set by role: Creator"
+      aria-label="Asha's access: Full access"
+    />,
+  );
+  const locked = screen.getByRole("button", {
+    name: "Asha's access: Full access, Set by role: Creator",
+  });
+  await expect.element(locked).toBeVisible();
+  expect(
+    locked.element().querySelector('[data-slot="permission-menu-lock"]'),
+  ).not.toBeNull();
+  await userEvent.tab();
+  expect(document.activeElement).toBe(locked.element());
+  await expect.element(screen.getByText("Set by role: Creator")).toBeVisible();
+  await userEvent.keyboard("{Enter}");
+  expect(document.querySelector('[role="menu"]')).toBeNull();
+  await expectNoA11yViolations(document.body);
+});

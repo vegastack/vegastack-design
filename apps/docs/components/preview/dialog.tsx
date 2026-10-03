@@ -223,7 +223,7 @@ export function dialogSizes(): ReactNode {
   return (
     <Wrapper>
       <div className="flex flex-wrap gap-2">
-        {(["sm", "default", "lg", "xl"] as const).map((size) => (
+        {(["sm", "default", "md", "lg", "xl"] as const).map((size) => (
           <Dialog key={size}>
             <DialogTrigger render={<Button variant="outline" />}>
               {size}

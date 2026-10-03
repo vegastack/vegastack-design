@@ -1,4 +1,4 @@
-// @vegastack app-shell@0.23.115 sha256-0AovEklYeHjTtH6u7dReQ6z1lRq5SggBUD//Xf76lro=
+// @vegastack app-shell@0.23.115 sha256-iGCAdCT+nyJx2rSUt8horNq7OxWGTgrWtrR9ITNFF3w=
 
 "use client";
 
@@ -456,6 +456,49 @@ export function AppShellPage({
       data-slot="app-shell-page"
       data-size={width}
       className={cn(appShellPageVariants({ size: width }), className)}
+      {...props}
+    />
+  );
+}
+
+/** Props accepted by `AppShellSection`. */
+export interface AppShellSectionProps extends React.ComponentProps<"section"> {
+  /**
+   * The section's measure inside the page. `prose` caps it at 720px (45rem) and keeps it at the
+   * page's START edge, under a wider header — a settings tab under a 1280px page header. `full`
+   * takes the page's whole width.
+   * @default 'full'
+   */
+  measure?: "prose" | "full";
+}
+
+/**
+ * `AppShellSection` — one region of an `AppShellPage` with its own measure. A page whose header
+ * and tabs run at the default width can hold a settings column at `measure="prose"` — aligned to
+ * the page's start, not centred — with no `max-w-*` class of its own.
+ *
+ * @example
+ * <AppShellPage>
+ *   <PageHeader title="Product" tabs={tabs} />
+ *   <AppShellSection measure="prose">
+ *     <SettingsSection title="General">…</SettingsSection>
+ *   </AppShellSection>
+ * </AppShellPage>
+ */
+export function AppShellSection({
+  measure = "full",
+  className,
+  ...props
+}: AppShellSectionProps) {
+  return (
+    <section
+      data-slot="app-shell-section"
+      data-measure={measure}
+      className={cn(
+        "flex w-full min-w-0 flex-col gap-6",
+        measure === "prose" && "max-w-[45rem]",
+        className,
+      )}
       {...props}
     />
   );

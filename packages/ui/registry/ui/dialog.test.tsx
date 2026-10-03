@@ -408,6 +408,7 @@ test("OVL-16: size defaults to default and keeps upstream's unconditional sm cap
 
 for (const [size, cap] of [
   ["sm", "data-[size=sm]:sm:max-w-xs"],
+  ["md", "data-[size=md]:sm:max-w-lg"],
   ["lg", "data-[size=lg]:sm:max-w-2xl"],
   ["xl", "data-[size=xl]:sm:max-w-5xl"],
 ] as const) {

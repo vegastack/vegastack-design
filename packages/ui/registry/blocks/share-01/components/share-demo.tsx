@@ -1,4 +1,4 @@
-// @vegastack share-01@0.23.115 sha256-UJjwzEKmg9Y2K3nxA8BFtMbQ+rxuQ4Bs0KlemKg4qkM=
+// @vegastack share-01@0.23.115 sha256-JOkHle8vldYvDllD9Cl2jEkrfbUCjKobxrXG2o9Ur9U=
 
 "use client";
 
@@ -110,6 +110,10 @@ export interface ShareDemoProps {
   defaultOpen?: boolean;
   /** The trigger's label. @default "Share" */
   triggerLabel?: string;
+  /** The tab it opens on. @default "share" */
+  defaultTab?: "share" | "publish";
+  /** The item lives in the viewer's own My space. @default false */
+  personal?: boolean;
 }
 
 /**
@@ -125,9 +129,15 @@ export function ShareDemo({
   generalLevelReadOnly = false,
   defaultOpen = false,
   triggerLabel = "Share",
+  defaultTab = "share",
+  personal = false,
 }: ShareDemoProps) {
   const [people, setPeople] = React.useState(PEOPLE);
-  const [general, setGeneral] = React.useState(GENERAL);
+  const [general, setGeneral] = React.useState<ShareGeneralAccess>(
+    personal
+      ? { ...GENERAL, space: { name: "My space", access: "personal" } }
+      : GENERAL,
+  );
   const [link, setLink] = React.useState<SharePublicLink | null>(
     publicLinkOn
       ? { url: "https://app.acme.com/s/k3J9xQ2", expires: "7d" }
@@ -143,6 +153,7 @@ export function ShareDemo({
   return (
     <ShareDialog
       defaultOpen={defaultOpen}
+      defaultTab={defaultTab}
       trigger={<Button variant="outline">{triggerLabel}</Button>}
       levels={LEVELS}
       people={people}
@@ -164,11 +175,9 @@ export function ShareDemo({
       generalLevelReadOnly={generalLevelReadOnly}
       onGeneralAccessChange={(next) => setGeneral((g) => ({ ...g, ...next }))}
       publicLink={link}
-      onCreatePublicLink={() => {
-        const url = "https://app.acme.com/s/k3J9xQ2";
-        setLink({ url, expires: "never" });
-        return url;
-      }}
+      onCreatePublicLink={() =>
+        setLink({ url: "https://app.acme.com/s/k3J9xQ2", expires: "never" })
+      }
       onResetPublicLink={() =>
         setLink((current) =>
           current

@@ -3,7 +3,11 @@
 import { useState, type ReactNode } from "react";
 import { Wrapper } from "./wrapper";
 // Copied INTO apps/docs via `shadcn add @vegastack/color-picker` (dogfoods the registry) → auto-scanned.
-import { ColorPicker, type ColorOption } from "@/components/ui/color-picker";
+import {
+  ColorPicker,
+  HUE_COLORS,
+  type ColorOption,
+} from "@/components/ui/color-picker";
 
 /**
  * Interactive — click the `rounded-md` trigger to open the swatch grid. The chosen
@@ -95,6 +99,24 @@ export function colorPickerColumns(): ReactNode {
         onValueChange={setColor}
         columns={12}
         aria-label="12-column palette"
+      />
+    </Wrapper>
+  );
+}
+
+/** The ten tag hues, inline in the page, with a None swatch — a space's or a tag's colour row. */
+export function colorPickerHues(): ReactNode {
+  const [hue, setHue] = useState<string | undefined>("purple");
+  return (
+    <Wrapper>
+      <ColorPicker
+        variant="inline"
+        colors={HUE_COLORS}
+        columns={6}
+        value={hue}
+        onValueChange={setHue}
+        onClear={() => setHue(undefined)}
+        aria-label="Space colour"
       />
     </Wrapper>
   );

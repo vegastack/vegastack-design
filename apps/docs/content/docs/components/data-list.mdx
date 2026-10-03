@@ -349,7 +349,10 @@ The `noResults` state, from a search with a Clear filters action:
 />
 
 Pass `emptyState` to fully replace the built-in node — for a filtered "no results" message with its own
-icon and actions, for example:
+icon and actions, for example. **The list's own empty state is the only empty state inside a list**:
+pass `empty` (or `emptyState`) rather than putting a bordered `Empty` in or above the table, and give
+it one call to action. The empty row keeps an 8px inset (`p-2`), so a custom node never touches the
+header row above it.
 
 <ComponentPreview
   name="dataListCustomEmpty"

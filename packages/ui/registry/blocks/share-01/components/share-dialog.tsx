@@ -1,28 +1,37 @@
-// @vegastack share-01@0.23.115 sha256-UJjwzEKmg9Y2K3nxA8BFtMbQ+rxuQ4Bs0KlemKg4qkM=
+// @vegastack share-01@0.23.115 sha256-JOkHle8vldYvDllD9Cl2jEkrfbUCjKobxrXG2o9Ur9U=
 
 "use client";
 
 import * as React from "react";
-import { GlobeIcon, RotateCcwIcon } from "lucide-react";
+import { GlobeIcon, RotateCcwIcon, UserLock } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { CopyButton } from "@/components/ui/copy-button";
-import {
-  Dialog,
-  DialogBody,
-  DialogClose,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
 import {
   InputGroup,
   InputGroupAddon,
   InputGroupButton,
   InputGroupInput,
 } from "@/components/ui/input-group";
+import {
+  Item,
+  ItemActions,
+  ItemContent,
+  ItemDescription,
+  ItemGroup,
+  ItemMedia,
+  ItemTitle,
+} from "@/components/ui/item";
 import {
   PeopleInput,
   type PeopleInputOption,
@@ -34,42 +43,45 @@ import {
 } from "@/components/ui/permission-menu";
 import { PersonAvatar, type Person } from "@/components/ui/person-avatar";
 import {
+  ResponsiveDialog,
+  ResponsiveDialogBody,
+  ResponsiveDialogContent,
+  ResponsiveDialogFooter,
+  ResponsiveDialogHeader,
+  ResponsiveDialogTitle,
+  ResponsiveDialogTrigger,
+} from "@/components/ui/responsive-dialog";
+import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  Sheet,
-  SheetBody,
-  SheetClose,
-  SheetContent,
-  SheetFooter,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from "@/components/ui/sheet";
 import { Skeleton } from "@/components/ui/skeleton";
 import { SpaceAvatar, type Space } from "@/components/ui/space-avatar";
+import { Switch } from "@/components/ui/switch";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { useIsMobile } from "@/components/ui/use-mobile";
 
 /* ------------------------------------------------------------------------------------------------
  * ShareDialog — the Share surface for one item, data-agnostic: every row, level and link comes
- * in through props and every change goes out through a callback. A Dialog on wide screens and a
- * bottom Sheet below the mobile breakpoint, with the same sections in both:
+ * in through props and every change goes out through a callback. A `ResponsiveDialog` (`md`, 512px)
+ * on wide screens and a bottom sheet on phones, with two tabs:
  *
- *   invite row (PeopleInput) → while chips exist: one access level for the whole batch, Notify,
- *   an optional message, Cancel / Share; otherwise: People with access (avatar, name, the reason
- *   they have it, a PermissionMenu — built-in rows read-only), General access (the item's space),
- *   Anyone with the link (off → "Copy public link"; on → the URL, copy, reset, expiry, Stop
- *   sharing), a footer note, and Copy link / Done.
+ *   Share — an invite row (PeopleInput + the level for the batch + Invite; while chips exist,
+ *   Notify and an optional message), People with access (each level a chip menu; built-in rows
+ *   locked with the reason in a tooltip), Space access, and a footer "Copy link" for the item's
+ *   own (signed-in) link.
+ *
+ *   Publish — a "Publish to the web" switch, off by default. Turning it on is the ONLY way the item
+ *   is published: no Copy button ever publishes. While on: the public URL, "Copy public link",
+ *   Reset, Expires and "Stop publishing" (confirmed).
  * ----------------------------------------------------------------------------------------------*/
 
 /** One row of "People with access". */
@@ -82,8 +94,16 @@ export interface ShareEntry {
   reason?: React.ReactNode;
   /** Their access level — one of `levels`. */
   level: string;
-  /** A built-in row (creator, assignee, manager): the level is shown, never changed. @default false */
+  /**
+   * A built-in row (creator, assignee, manager): the level is shown with a lock, never changed.
+   * @default false
+   */
   readOnly?: boolean;
+  /**
+   * Why a built-in (`readOnly`) row's level cannot change, in its tooltip — e.g. "Set by role:
+   * Creator". @default "Set by role: {reason}" when `reason` is a string
+   */
+  lockedReason?: React.ReactNode;
   /** This row is the viewer; "(you)" follows the name. @default false */
   you?: boolean;
 }
@@ -113,8 +133,11 @@ export interface SharePublicLink {
 
 /** Who in the item's space can open it. */
 export interface ShareGeneralAccess {
-  /** The item's space. */
-  space: Space;
+  /**
+   * The item's space. A personal space (`access: "personal"`) reads "My space · Only you and the
+   * people above", with no mode or level to change. `null` when the viewer cannot see the space.
+   */
+  space?: Space | null;
   /** `space` — everyone in the space; `invited` — only people invited. */
   mode: "space" | "invited";
   /** The space members' level while `mode` is `space` — one of `generalLevels`. */
@@ -148,10 +171,40 @@ export interface ShareDialogLabels {
   resetLinkHint: string;
   expires: string;
   expiry: Record<ShareLinkExpiry, string>;
+  /** @deprecated The Publish tab's switch and "Stop publishing" replace it. */
   stopSharing: string;
   copyLink: string;
   copied: string;
+  /** @deprecated The dialog has no Done button; × and Escape close it. */
   done: string;
+  /** The Share tab. */
+  shareTab: string;
+  /** The Publish tab. */
+  publishTab: string;
+  /** The invite row's button. */
+  invite: string;
+  /** The hint beside the footer's Copy link. */
+  copyLinkHint: string;
+  /** A personal space's row: "My space". */
+  mySpace: string;
+  /** A personal space's row hint. */
+  mySpaceHint: string;
+  /** The space row's name when the viewer cannot see the space. */
+  unknownSpace: string;
+  /** The Publish switch's label. */
+  publishHeading: string;
+  /** The Publish switch's hint while off. */
+  publishHintOff: string;
+  /** The Publish tab's text for a viewer who cannot publish, while it is off. */
+  notPublished: string;
+  /** The button that turns publishing off. */
+  stopPublishing: string;
+  /** The stop-publishing confirmation's title. */
+  stopPublishingTitle: string;
+  /** The stop-publishing confirmation's body. */
+  stopPublishingBody: string;
+  /** A locked built-in row's tooltip, from its reason. */
+  lockedReason: (reason: string) => string;
 }
 
 const defaultLabels: ShareDialogLabels = {
@@ -166,7 +219,7 @@ const defaultLabels: ShareDialogLabels = {
   peopleHeading: "People with access",
   you: "(you)",
   levelFor: (name, level) => `${name}'s access: ${level}`,
-  generalHeading: "General access",
+  generalHeading: "Space access",
   everyoneIn: (space) => `Everyone in ${space}`,
   onlyInvited: "Only people invited",
   generalHint: (mode, space) =>
@@ -187,6 +240,21 @@ const defaultLabels: ShareDialogLabels = {
   copyLink: "Copy link",
   copied: "Copied",
   done: "Done",
+  shareTab: "Share",
+  publishTab: "Publish",
+  invite: "Invite",
+  copyLinkHint: "Only people with access can open it",
+  mySpace: "My space",
+  mySpaceHint: "Only you and the people above",
+  unknownSpace: "This space",
+  publishHeading: "Publish to the web",
+  publishHintOff: "Off — only people with access can open it",
+  notPublished: "Not published",
+  stopPublishing: "Stop publishing",
+  stopPublishingTitle: "Stop publishing?",
+  stopPublishingBody:
+    "The public link stops working at once. People with access can still open it.",
+  lockedReason: (reason) => `Set by role: ${reason}`,
 };
 
 /** Props for `ShareDialog`. */
@@ -217,8 +285,11 @@ export interface ShareDialogProps {
   defaultInvitees?: PeopleInputOption[];
   /** The level an invite starts at. @default the last of `levels` */
   defaultInviteLevel?: string;
-  /** Sends an invite; the chips clear when it resolves. @default undefined */
-  onInvite?: (invite: ShareInvite) => void | Promise<void>;
+  /**
+   * Sends an invite; the chips clear when it resolves. Resolve `false` (or reject) to keep them
+   * for a retry — the host shows its own error. @default undefined
+   */
+  onInvite?: (invite: ShareInvite) => void | boolean | Promise<void | boolean>;
   /** Changes one row's level. @default undefined */
   onLevelChange?: (id: string, level: string) => void;
   /** Removes one row's access; adds "Remove access" to its menu. @default undefined */
@@ -238,7 +309,10 @@ export interface ShareDialogProps {
   publicLinkAvailable?: boolean;
   /** The public link while it is on; `null` while it is off. @default null */
   publicLink?: SharePublicLink | null;
-  /** Turns the public link on; return its URL and it is copied. @default undefined */
+  /**
+   * Turns the public link on — called ONLY by the Publish tab's switch, never by a Copy button.
+   * A returned URL is ignored (nothing is copied as a side effect). @default undefined
+   */
   onCreatePublicLink?: () => Promise<string | void> | string | void;
   /** Replaces the public link with a new one. @default undefined */
   onResetPublicLink?: () => void | Promise<void>;
@@ -254,6 +328,8 @@ export interface ShareDialogProps {
   footerNote?: React.ReactNode;
   /** Override any rendered string. @default {} */
   labels?: Partial<ShareDialogLabels>;
+  /** The tab the dialog opens on — `publish` when opened from a "Published" indicator. @default "share" */
+  defaultTab?: "share" | "publish";
 }
 
 const EXPIRIES: readonly ShareLinkExpiry[] = ["never", "1d", "7d", "30d"];
@@ -277,8 +353,8 @@ function IconTile({ children }: { children: React.ReactNode }) {
 }
 
 /**
- * `ShareDialog` — share one item with people and teams, set who in its space can open it, and
- * turn its public link on or off.
+ * `ShareDialog` — share one item with people and teams, see who in its space can open it, and
+ * publish it to the web from its own tab.
  *
  * @example
  * <ShareDialog
@@ -289,6 +365,8 @@ function IconTile({ children }: { children: React.ReactNode }) {
  *   onInvite={invite}
  *   onLevelChange={setLevel}
  *   onRemove={removeAccess}
+ *   onCreatePublicLink={publish}
+ *   defaultTab="share"
  * />
  */
 export function ShareDialog({
@@ -320,9 +398,9 @@ export function ShareDialog({
   linkUrl,
   footerNote,
   labels: labelsProp,
+  defaultTab = "share",
 }: ShareDialogProps) {
   const labels = { ...defaultLabels, ...labelsProp };
-  const mobile = useIsMobile();
 
   const [openState, setOpenState] = React.useState(defaultOpen);
   const open = openProp ?? openState;
@@ -330,6 +408,13 @@ export function ShareDialog({
     setOpenState(next);
     onOpenChange?.(next);
   };
+  const [tab, setTab] = React.useState<"share" | "publish">(defaultTab);
+  // Each opening starts on the tab the caller asked for.
+  const [wasOpen, setWasOpen] = React.useState(open);
+  if (wasOpen !== open) {
+    setWasOpen(open);
+    if (open) setTab(defaultTab);
+  }
 
   const [invitees, setInvitees] =
     React.useState<PeopleInputOption[]>(defaultInvitees);
@@ -350,6 +435,8 @@ export function ShareDialog({
   const [notify, setNotify] = React.useState(true);
   const [message, setMessage] = React.useState("");
   const [inviting, setInviting] = React.useState(false);
+  const [confirmStop, setConfirmStop] = React.useState(false);
+  const publishLabelId = React.useId();
   const inviteMode = canManage && invitees.length > 0;
 
   const resetInvite = () => {
@@ -359,60 +446,75 @@ export function ShareDialog({
   };
 
   const sendInvite = async () => {
-    if (!onInvite) return;
+    if (!onInvite || invitees.length === 0) return;
     setInviting(true);
     try {
-      await onInvite({ invitees, level: inviteLevel, notify, message });
-      resetInvite();
+      const saved = await onInvite({
+        invitees,
+        level: inviteLevel,
+        notify,
+        message,
+      });
+      if (saved !== false) resetInvite();
+    } catch {
+      // The host reports the error; the chips stay for a retry.
     } finally {
       setInviting(false);
-    }
-  };
-
-  const createPublicLink = async () => {
-    const url = await onCreatePublicLink?.();
-    if (typeof url === "string") {
-      try {
-        await navigator.clipboard.writeText(url);
-      } catch {
-        // The link is on either way; the field below now offers its own Copy.
-      }
     }
   };
 
   const levelLabel = (value: string, options = levels) =>
     options.find((option) => option.value === value)?.label ?? value;
 
+  // ---- Share tab --------------------------------------------------------------------------------
+
   const inviteRow =
     canManage && search ? (
-      <PeopleInput
-        value={invitees}
-        onValueChange={setInvitees}
-        search={search}
-        placeholder={labels.invitePlaceholder}
-        emptyText={labels.inviteEmpty}
-        aria-label={labels.invitePlaceholder.replace(/…$/, "")}
-        disabled={inviting}
-      />
+      <div
+        data-slot="share-invite-row"
+        className="flex flex-col gap-2 @md/share:flex-row @md/share:items-start"
+      >
+        <div className="min-w-0 flex-1">
+          <PeopleInput
+            value={invitees}
+            onValueChange={setInvitees}
+            search={search}
+            placeholder={labels.invitePlaceholder}
+            emptyText={labels.inviteEmpty}
+            aria-label={labels.invitePlaceholder.replace(/…$/, "")}
+            disabled={inviting}
+          />
+        </div>
+        <div className="flex shrink-0 items-center gap-2">
+          <PermissionMenu
+            variant="outline"
+            value={inviteLevel}
+            options={levels}
+            onValueChange={setInviteLevel}
+            disabled={inviting}
+            aria-label={labels.inviteLevel(levelLabel(inviteLevel))}
+            className="flex-1 @md/share:flex-none"
+          />
+          <Button
+            onClick={sendInvite}
+            loading={inviting}
+            disabled={invitees.length === 0}
+          >
+            {labels.invite}
+          </Button>
+        </div>
+      </div>
     ) : null;
 
   const inviteSection = (
     <div data-slot="share-invite" className="flex flex-col gap-3">
-      <div className="flex items-center justify-between gap-2">
-        <label className="flex items-center gap-2 text-sm">
-          <Checkbox
-            checked={notify}
-            onCheckedChange={(checked) => setNotify(checked === true)}
-          />
-          {labels.notify}
-        </label>
-        <PermissionMenu
-          value={inviteLevel}
-          options={levels}
-          onValueChange={setInviteLevel}
-          aria-label={labels.inviteLevel(levelLabel(inviteLevel))}
+      <label className="flex items-center gap-2 text-sm">
+        <Checkbox
+          checked={notify}
+          onCheckedChange={(checked) => setNotify(checked === true)}
         />
-      </div>
+        {labels.notify}
+      </label>
       {notify ? (
         <Textarea
           value={message}
@@ -441,61 +543,91 @@ export function ShareDialog({
           ))}
         </ul>
       ) : (
-        <ul className="flex flex-col">
+        <ItemGroup className="gap-0">
           {people.map((entry) => {
             const label = levelLabel(entry.level);
+            const locked = canManage && entry.readOnly;
             return (
-              <li
+              <Item
                 key={entry.id}
+                size="xs"
                 data-slot="share-person"
-                className="flex min-w-0 items-center gap-2 py-1.5"
+                className="px-0"
               >
-                <PersonAvatar person={entry.person} size="default" />
-                <div className="flex min-w-0 flex-1 flex-col">
-                  <span className="truncate text-sm">
-                    {entry.person.name}
-                    {entry.you ? (
-                      <span className="text-muted-foreground">
-                        {" "}
-                        {labels.you}
-                      </span>
-                    ) : null}
-                  </span>
-                  {entry.reason != null ? (
-                    <span className="truncate text-xs text-muted-foreground">
-                      {entry.reason}
+                <ItemMedia>
+                  <PersonAvatar person={entry.person} size="default" />
+                </ItemMedia>
+                <ItemContent className="min-w-0 gap-0">
+                  <ItemTitle className="w-full font-normal">
+                    <span className="truncate">
+                      {entry.person.name}
+                      {entry.you ? (
+                        <span className="text-muted-foreground">
+                          {" "}
+                          {labels.you}
+                        </span>
+                      ) : null}
                     </span>
+                  </ItemTitle>
+                  {entry.reason != null ? (
+                    <ItemDescription className="truncate text-xs">
+                      {entry.reason}
+                    </ItemDescription>
                   ) : null}
-                </div>
-                <PermissionMenu
-                  value={entry.level}
-                  options={levels}
-                  readOnly={!canManage || entry.readOnly}
-                  onValueChange={(level) => onLevelChange?.(entry.id, level)}
-                  onRemove={onRemove ? () => onRemove(entry.id) : undefined}
-                  aria-label={labels.levelFor(entry.person.name, label)}
-                />
-              </li>
+                </ItemContent>
+                <ItemActions>
+                  <PermissionMenu
+                    variant="chip"
+                    value={entry.level}
+                    options={levels}
+                    readOnly={!canManage}
+                    locked={locked}
+                    lockedReason={
+                      entry.lockedReason ??
+                      (typeof entry.reason === "string"
+                        ? labels.lockedReason(entry.reason)
+                        : undefined)
+                    }
+                    onValueChange={(level) => onLevelChange?.(entry.id, level)}
+                    onRemove={onRemove ? () => onRemove(entry.id) : undefined}
+                    aria-label={labels.levelFor(entry.person.name, label)}
+                  />
+                </ItemActions>
+              </Item>
             );
           })}
-        </ul>
+        </ItemGroup>
       )}
     </section>
   );
 
+  const space = generalAccess?.space ?? null;
+  const spaceName = space?.name ?? labels.unknownSpace;
+  const personalSpace = space?.access === "personal";
   const generalSection = generalAccess ? (
     <section data-slot="share-general" className="flex flex-col gap-2">
       <SectionHeading>{labels.generalHeading}</SectionHeading>
       <div className="flex min-w-0 items-center gap-2">
-        <SpaceAvatar space={generalAccess.space} size="default" />
+        {space && !personalSpace ? (
+          <SpaceAvatar space={space} size="default" />
+        ) : (
+          <IconTile>
+            <UserLock />
+          </IconTile>
+        )}
         <div className="flex min-w-0 flex-1 flex-col items-start">
-          {canManage ? (
+          {personalSpace ? (
+            <span className="truncate text-sm">
+              {labels.mySpace}
+              <span className="text-muted-foreground">
+                {" · "}
+                {labels.mySpaceHint}
+              </span>
+            </span>
+          ) : canManage ? (
             <Select
               items={[
-                {
-                  value: "space",
-                  label: labels.everyoneIn(generalAccess.space.name),
-                },
+                { value: "space", label: labels.everyoneIn(spaceName) },
                 { value: "invited", label: labels.onlyInvited },
               ]}
               value={generalAccess.mode}
@@ -510,13 +642,13 @@ export function ShareDialog({
                 variant="ghost"
                 size="sm"
                 aria-label={labels.generalHeading}
-                className="-ms-2.5 w-auto max-w-full"
+                className="-ms-2.5 w-auto max-w-full text-sm"
               >
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="space">
-                  {labels.everyoneIn(generalAccess.space.name)}
+                  {labels.everyoneIn(spaceName)}
                 </SelectItem>
                 <SelectItem value="invited">{labels.onlyInvited}</SelectItem>
               </SelectContent>
@@ -524,16 +656,19 @@ export function ShareDialog({
           ) : (
             <span className="truncate text-sm">
               {generalAccess.mode === "space"
-                ? labels.everyoneIn(generalAccess.space.name)
+                ? labels.everyoneIn(spaceName)
                 : labels.onlyInvited}
             </span>
           )}
-          <span className="truncate text-xs text-muted-foreground">
-            {labels.generalHint(generalAccess.mode, generalAccess.space.name)}
-          </span>
+          {personalSpace ? null : (
+            <span className="truncate text-xs text-muted-foreground">
+              {labels.generalHint(generalAccess.mode, spaceName)}
+            </span>
+          )}
         </div>
-        {generalAccess.mode === "space" ? (
+        {generalAccess.mode === "space" && !personalSpace ? (
           <PermissionMenu
+            variant="chip"
             value={generalAccess.level}
             options={generalLevels}
             readOnly={!canManage || generalLevelReadOnly}
@@ -541,7 +676,7 @@ export function ShareDialog({
               onGeneralAccessChange?.({ mode: "space", level })
             }
             aria-label={labels.levelFor(
-              labels.everyoneIn(generalAccess.space.name),
+              labels.everyoneIn(spaceName),
               levelLabel(generalAccess.level, generalLevels),
             )}
           />
@@ -550,65 +685,94 @@ export function ShareDialog({
     </section>
   ) : null;
 
-  const publicSection = publicLinkAvailable ? (
-    <section data-slot="share-public-link" className="flex flex-col gap-2">
-      <SectionHeading>{labels.publicSection}</SectionHeading>
+  const shareBody = (
+    <div data-slot="share-dialog-body" className="flex flex-col gap-4 pb-1">
+      {inviteRow}
+      {inviteMode ? (
+        inviteSection
+      ) : (
+        <>
+          {peopleSection}
+          {generalSection}
+          {footerNote ? (
+            <p className="text-xs text-muted-foreground">{footerNote}</p>
+          ) : null}
+        </>
+      )}
+    </div>
+  );
+
+  // ---- Publish tab ------------------------------------------------------------------------------
+
+  const publishBody = (
+    <div data-slot="share-public-link" className="flex flex-col gap-3 pb-1">
       <div className="flex min-w-0 items-center gap-2">
         <IconTile>
           <GlobeIcon />
         </IconTile>
         <div className="flex min-w-0 flex-1 flex-col">
-          <span className="truncate text-sm">{labels.publicHeading}</span>
+          <span id={publishLabelId} className="truncate text-sm">
+            {labels.publishHeading}
+          </span>
           <span className="truncate text-xs text-muted-foreground">
-            {publicLink ? labels.publicHint : labels.publicOff}
+            {publicLink
+              ? labels.publicHint
+              : canManage
+                ? labels.publishHintOff
+                : labels.notPublished}
           </span>
         </div>
-        {!publicLink && canManage ? (
-          <Button
-            variant="outline"
-            size="sm"
-            loading={publicLinkPending}
-            onClick={createPublicLink}
-          >
-            {labels.copyPublicLink}
-          </Button>
+        {canManage ? (
+          <Switch
+            aria-labelledby={publishLabelId}
+            checked={publicLink !== null}
+            disabled={publicLinkPending}
+            onCheckedChange={(checked) => {
+              if (checked) void onCreatePublicLink?.();
+              else setConfirmStop(true);
+            }}
+          />
         ) : null}
       </div>
       {publicLink ? (
-        <div className="flex flex-col gap-2">
-          <InputGroup>
-            <InputGroupInput
-              readOnly
-              value={publicLink.url}
-              aria-label={labels.publicLinkField}
-              onFocus={(event) => event.currentTarget.select()}
-            />
-            <InputGroupAddon align="inline-end">
-              <CopyButton
+        <div className="flex flex-col gap-3">
+          <div className="flex min-w-0 items-center gap-2">
+            <InputGroup className="min-w-0 flex-1">
+              <InputGroupInput
+                readOnly
                 value={publicLink.url}
-                size="icon-xs"
-                copyLabel={labels.copyPublicLink}
-                copiedLabel={labels.copied}
+                aria-label={labels.publicLinkField}
+                onFocus={(event) => event.currentTarget.select()}
               />
               {canManage ? (
-                <Tooltip>
-                  <TooltipTrigger
-                    render={
-                      <InputGroupButton
-                        size="icon-xs"
-                        aria-label={labels.resetLink}
-                        disabled={publicLinkPending}
-                        onClick={() => onResetPublicLink?.()}
-                      />
-                    }
-                  >
-                    <RotateCcwIcon />
-                  </TooltipTrigger>
-                  <TooltipContent>{labels.resetLinkHint}</TooltipContent>
-                </Tooltip>
+                <InputGroupAddon align="inline-end">
+                  <Tooltip>
+                    <TooltipTrigger
+                      render={
+                        <InputGroupButton
+                          size="icon-xs"
+                          aria-label={labels.resetLink}
+                          disabled={publicLinkPending}
+                          onClick={() => onResetPublicLink?.()}
+                        />
+                      }
+                    >
+                      <RotateCcwIcon />
+                    </TooltipTrigger>
+                    <TooltipContent>{labels.resetLinkHint}</TooltipContent>
+                  </Tooltip>
+                </InputGroupAddon>
               ) : null}
-            </InputGroupAddon>
-          </InputGroup>
+            </InputGroup>
+            <CopyButton
+              value={publicLink.url}
+              showLabel
+              variant="outline"
+              size="default"
+              copyLabel={labels.copyPublicLink}
+              copiedLabel={labels.copied}
+            />
+          </div>
           {canManage ? (
             <div className="flex flex-wrap items-center justify-between gap-2">
               <div className="flex items-center gap-2">
@@ -641,90 +805,106 @@ export function ShareDialog({
               <Button
                 variant="destructive"
                 size="sm"
-                loading={publicLinkPending}
-                onClick={() => onStopPublicLink?.()}
+                disabled={publicLinkPending}
+                onClick={() => setConfirmStop(true)}
               >
-                {labels.stopSharing}
+                {labels.stopPublishing}
               </Button>
             </div>
           ) : null}
         </div>
       ) : null}
-    </section>
-  ) : null;
-
-  const body = (
-    <div data-slot="share-dialog-body" className="flex flex-col gap-4 pb-1">
-      {inviteRow}
-      {inviteMode ? (
-        inviteSection
-      ) : (
-        <>
-          {peopleSection}
-          {generalSection}
-          {publicSection}
-          {footerNote ? (
-            <p className="text-xs text-muted-foreground">{footerNote}</p>
-          ) : null}
-        </>
-      )}
+      <AlertDialog open={confirmStop} onOpenChange={setConfirmStop}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{labels.stopPublishingTitle}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {labels.stopPublishingBody}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>{labels.cancel}</AlertDialogCancel>
+            <AlertDialogAction
+              variant="destructive"
+              onClick={() => {
+                setConfirmStop(false);
+                void onStopPublicLink?.();
+              }}
+            >
+              {labels.stopPublishing}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 
-  const Close = mobile ? SheetClose : DialogClose;
-  const footer = inviteMode ? (
-    <>
-      <Button variant="secondary" onClick={resetInvite} disabled={inviting}>
-        {labels.cancel}
-      </Button>
-      <Button onClick={sendInvite} loading={inviting}>
-        {labels.share}
-      </Button>
-    </>
-  ) : (
-    <>
-      {linkUrl ? (
-        <CopyButton
-          value={linkUrl}
-          showLabel
-          variant="outline"
-          size="default"
-          copyLabel={labels.copyLink}
-          copiedLabel={labels.copied}
-          className="sm:me-auto"
-        />
-      ) : null}
-      <Close render={<Button />}>{labels.done}</Close>
-    </>
-  );
-
-  if (mobile) {
-    return (
-      <Sheet open={open} onOpenChange={setOpen}>
-        {trigger ? <SheetTrigger render={trigger} /> : null}
-        <SheetContent side="bottom" data-share-dialog="">
-          <SheetHeader className="pb-0">
-            <SheetTitle>{labels.title}</SheetTitle>
-          </SheetHeader>
-          <SheetBody>{body}</SheetBody>
-          <SheetFooter className="pt-0 pb-[calc(var(--spacing)*4+env(safe-area-inset-bottom))] *:data-[slot=copy-button]:me-auto">
-            {footer}
-          </SheetFooter>
-        </SheetContent>
-      </Sheet>
-    );
-  }
+  const footer =
+    tab === "share" ? (
+      inviteMode ? (
+        <Button variant="secondary" onClick={resetInvite} disabled={inviting}>
+          {labels.cancel}
+        </Button>
+      ) : linkUrl ? (
+        <div
+          data-slot="share-copy-link"
+          className="flex w-full flex-wrap items-center justify-between gap-2"
+        >
+          <span className="text-xs text-muted-foreground">
+            {labels.copyLinkHint}
+          </span>
+          <CopyButton
+            value={linkUrl}
+            showLabel
+            variant="outline"
+            size="default"
+            copyLabel={labels.copyLink}
+            copiedLabel={labels.copied}
+          />
+        </div>
+      ) : null
+    ) : null;
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      {trigger ? <DialogTrigger render={trigger} /> : null}
-      <DialogContent data-share-dialog="">
-        <DialogHeader>
-          <DialogTitle>{labels.title}</DialogTitle>
-        </DialogHeader>
-        <DialogBody>{body}</DialogBody>
-        <DialogFooter>{footer}</DialogFooter>
-      </DialogContent>
-    </Dialog>
+    <ResponsiveDialog open={open} onOpenChange={setOpen}>
+      {trigger ? <ResponsiveDialogTrigger render={trigger} /> : null}
+      <ResponsiveDialogContent size="md" data-share-dialog="">
+        <ResponsiveDialogHeader>
+          <ResponsiveDialogTitle>{labels.title}</ResponsiveDialogTitle>
+        </ResponsiveDialogHeader>
+        <Tabs
+          value={tab}
+          onValueChange={(next) => setTab(next as "share" | "publish")}
+          className="@container/share flex min-h-0 flex-1 flex-col gap-4"
+        >
+          {publicLinkAvailable ? (
+            <TabsList variant="line" className="-mt-1 w-full justify-start">
+              <TabsTrigger value="share" className="flex-none">
+                {labels.shareTab}
+              </TabsTrigger>
+              <TabsTrigger value="publish" className="flex-none">
+                {labels.publishTab}
+                {publicLink ? (
+                  <GlobeIcon
+                    aria-hidden
+                    data-slot="share-published-dot"
+                    className="size-3 text-muted-foreground"
+                  />
+                ) : null}
+              </TabsTrigger>
+            </TabsList>
+          ) : null}
+          <ResponsiveDialogBody>
+            <TabsContent value="share">{shareBody}</TabsContent>
+            {publicLinkAvailable ? (
+              <TabsContent value="publish">{publishBody}</TabsContent>
+            ) : null}
+          </ResponsiveDialogBody>
+        </Tabs>
+        {footer ? (
+          <ResponsiveDialogFooter>{footer}</ResponsiveDialogFooter>
+        ) : null}
+      </ResponsiveDialogContent>
+    </ResponsiveDialog>
   );
 }

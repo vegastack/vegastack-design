@@ -1,6 +1,6 @@
 ---
 title: share-01
-description: A Share dialog that invites people and teams at one level, shows who has access and why, sets general access, and offers a public link.
+description: A Share dialog with Share and Publish tabs — invite people and teams, see who has access and why, and publish to the web only with an explicit switch.
 audience: public
 registry: share-01
 preview: share01Demo
@@ -10,8 +10,9 @@ preview: share01Demo
 
 The Share surface for one record, page or meeting. Every row, level and link comes in through
 props and every change goes out through a callback, so the same dialog serves tasks, meetings and
-pages. It is a `Dialog` (size `default`) from the 768px mobile breakpoint up and a bottom `Sheet`
-below it, with the same sections in both. It is a **block**: you pull it once with `shadcn add`,
+pages. It is a `ResponsiveDialog` — a `Dialog` (size `md`, 512px) from 768px up and a bottom sheet
+below it — titled "Share", with two line tabs: **Share** and **Publish**. Close it with × or
+Escape; there is no Done button. It is a **block**: you pull it once with `shadcn add`,
 and then you own it. `ShareDemo` wires it to sample state.
 
 ## Install
@@ -22,9 +23,10 @@ npx shadcn@latest add @vegastack/share-01
 
 <RegistryInstallCallout />
 
-This installs the block's own files plus the components it composes: `button`, `checkbox`,
-`copy-button`, `dialog`, `input-group`, `people-input`, `permission-menu`, `person-avatar`,
-`select`, `sheet`, `skeleton`, `space-avatar`, `textarea`, `tooltip`, `use-mobile`.
+This installs the block's own files plus the components it composes: `alert-dialog`, `button`,
+`checkbox`, `copy-button`, `input-group`, `item`, `people-input`, `permission-menu`,
+`person-avatar`, `responsive-dialog`, `select`, `skeleton`, `space-avatar`, `switch`, `tabs`,
+`textarea`, `tooltip`.
 
 ## Preview
 
@@ -32,9 +34,11 @@ This installs the block's own files plus the components it composes: `button`, `
 
 ### Invite mode
 
-Once a chip is chosen the dialog switches to the invite: one access level for the whole batch
-(`PermissionMenu`), **Notify people** (on by default), an optional message, and Cancel / Share.
-`onInvite` receives `{ invitees, level, notify, message }`, and the chips clear when it resolves.
+The invite row is `PeopleInput`, the level for the whole batch (`PermissionMenu variant="outline"`)
+and **Invite**. Once a chip is chosen the tab shows **Notify people** (on by default) and an
+optional message, with Cancel in the footer. `onInvite` receives
+`{ invitees, level, notify, message }`; the chips clear when it resolves, and stay for a retry when
+it resolves `false` or rejects.
 
 <ComponentPreview name="share01Invite" />
 
@@ -51,22 +55,34 @@ adds or removes afterwards stay until the prop changes again.
 />
 ```
 
-### Public link on
+### Publish
 
-"Copy public link" turns the link on (`onCreatePublicLink`; return the URL and it is copied). While
-it is on: the URL with Copy and a Reset button (its tooltip says the current link stops working),
-an Expires select (Never, 1 day, 7 days, 30 days) and **Stop sharing**.
+**Copying never publishes.** The Share tab's footer is **Copy link** — the item's own link, which
+only people with access can open. Publishing lives in the Publish tab: a "Publish to the web"
+switch, off by default, is the only control that calls `onCreatePublicLink`. While published: the
+public URL, **Copy public link**, a Reset button (its tooltip says the current link stops working),
+an Expires select (Never, 1 day, 7 days, 30 days) and **Stop publishing**, which — like turning the
+switch off — asks for confirmation before calling `onStopPublicLink`. A viewer who cannot manage
+sees the URL and Copy public link while it is published, and "Not published" otherwise. Pass
+`defaultTab="publish"` when the dialog opens from a "Published" indicator.
 
 <ComponentPreview name="share01PublicLink" />
 
 ### Read-only viewer
 
-`canManage={false}`: no invite row, every level as text, general access as text, and the public
-link to copy (or "Off").
+`canManage={false}`: no invite row, every level as text, space access as text, and on the Publish
+tab the public link to copy (or "Not published").
 
 <ComponentPreview name="share01ReadOnly" />
 
-### Fixed general access level
+### My space
+
+When the item's space is personal (`generalAccess.space.access === "personal"`), the space row reads
+"My space · Only you and the people above", with no mode or level to change.
+
+<ComponentPreview name="share01MySpace" />
+
+### Fixed space access level
 
 `generalLevelReadOnly`: the space's level shows as text while a manager can still switch between
 "Everyone in ‹space›" and "Only people invited" — for when the space, not the item, owns that
@@ -80,19 +96,25 @@ level.
 
 ## Anatomy
 
-- **Invite row**: `PeopleInput` with the host's `search`.
-- **Invite mode**: `Checkbox` "Notify people", `PermissionMenu` for the batch, `Textarea`, footer
-  Cancel / Share (`loading` while `onInvite` runs).
-- **People with access**: `PersonAvatar` (people and teams), the name with "(you)", a muted
-  reason ("Creator", "Assignee", "Manager of Priya", "via Sales team"), and `PermissionMenu`
-  (`readOnly` for built-in rows, Remove access with `onRemove`). `loading` shows skeleton rows.
-- **General access**: `SpaceAvatar`, a ghost `Select` ("Everyone in ‹space›" / "Only people
-  invited") with a muted hint, and the space's level (text when `generalLevelReadOnly`).
-- **Anyone with the link**: off — "Off" and "Copy public link"; on — `InputGroup` with the URL,
-  `CopyButton` and a Reset button in a `Tooltip`, an Expires `Select`, and "Stop sharing".
-  `publicLinkPending` holds these controls while a change runs.
-- **Footer**: the note (`footerNote`, e.g. "Admins can view this space."), Copy link (`linkUrl`)
-  on the left and Done on the right. Every string is in `labels`.
+- **Tabs**: `Tabs variant="line"` — Share, Publish (a small globe while published). Without
+  `publicLinkAvailable` there is no Publish tab and no tab list.
+- **Invite row**: `PeopleInput` with the host's `search`, `PermissionMenu variant="outline"` for
+  the batch, and Invite (`loading` while `onInvite` runs).
+- **Invite mode**: `Checkbox` "Notify people", `Textarea`, footer Cancel.
+- **People with access**: `Item` rows — `PersonAvatar` (people and teams), the name with "(you)", a
+  muted reason ("Creator", "Assignee", "Manager of Priya", "via Sales team"), and
+  `PermissionMenu variant="chip"`. A built-in (`readOnly`) row is `locked`, with `lockedReason`
+  (default "Set by role: ‹reason›") in its tooltip; `onRemove` adds Remove access. `loading` shows
+  skeleton rows.
+- **Space access**: `SpaceAvatar`, a ghost `Select` ("Everyone in ‹space›" / "Only people
+  invited") with a muted hint, and the space's level chip (text when `generalLevelReadOnly`); a
+  personal space reads "My space · Only you and the people above".
+- **Publish tab**: the "Publish to the web" `Switch`; while published, `InputGroup` with the URL
+  and a Reset button in a `Tooltip`, Copy public link, an Expires `Select`, and Stop publishing
+  (confirmed in an `AlertDialog`). `publicLinkPending` holds these controls while a change runs.
+- **Footer** (Share tab): "Only people with access can open it" and Copy link (`linkUrl`). The note
+  (`footerNote`, e.g. "Admins can view this space.") sits at the end of the tab. Every string is
+  in `labels`.
 
 ## Files
 

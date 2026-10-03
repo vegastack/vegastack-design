@@ -46,11 +46,12 @@ comments; and the composer at the end. Pass `comments` oldest first; `order="new
 them. With no comments, the composer sits right under the heading — no empty-state line (pass
 `emptyText` for one).
 
-`CommentComposer` is [`TextEdit`](/docs/components/text-edit)'s `composer` variant, laid out as on
-mobile: at rest exactly an `Input` (32px, its border, radius, type size and focus cue) on a light
-fill, with a muted round paperclip on the LEFT (whenever `onImageUpload`, `onFileUpload` or
-`onAttachFiles` is set — after the optional `attachments` slot), the text in the middle and a round
-↑ Send on the RIGHT, both centred on the single line and 6px in from the box's edges. It grows line
+`CommentComposer` is [`TextEdit`](/docs/components/text-edit)'s `composer` variant, laid out the
+same on web and mobile: at rest exactly an `Input` (32px, its border, radius, type size and focus
+cue) on a light fill. The text starts at the box's own padding, and attach and Send sit together on
+the RIGHT — the optional `attachments` slot, then a muted round paperclip (whenever `onImageUpload`,
+`onFileUpload` or `onAttachFiles` is set), then a round ↑ Send of the same size — centred on the
+single line and 6px in from the box's edge. It grows line
 by line to about ten lines and then scrolls inside, with no jump on focus; the paperclip and Send
 stay pinned to the bottom row. Its placeholder is "Add a comment…"; Send is a quiet grey disc while
 there is nothing to send, and Cmd/Ctrl+Enter also sends. On a touch

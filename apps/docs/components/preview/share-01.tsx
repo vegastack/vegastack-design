@@ -42,11 +42,24 @@ export function share01Invite(): ReactNode {
   );
 }
 
-/** The public link on: the URL with copy and reset, the expiry, and Stop sharing. */
+/** The Publish tab with the item published: the URL, Copy public link, reset, expiry, Stop publishing. */
 export function share01PublicLink(): ReactNode {
   return (
     <Wrapper>
-      <ShareDemo triggerLabel="Share (public link on)" publicLinkOn />
+      <ShareDemo
+        triggerLabel="Share (published)"
+        publicLinkOn
+        defaultTab="publish"
+      />
+    </Wrapper>
+  );
+}
+
+/** An item in the viewer's own My space: no space level, "Only you and the people above". */
+export function share01MySpace(): ReactNode {
+  return (
+    <Wrapper>
+      <ShareDemo triggerLabel="Share (My space)" personal />
     </Wrapper>
   );
 }

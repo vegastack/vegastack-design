@@ -2296,3 +2296,34 @@ test("no a11y violations — mobile sheet open", async () => {
   // The Sheet portals to <body>, so audit the whole document.
   await expectNoA11yViolations(document.body);
 });
+
+test("API-33: SidebarGroupAction showOnHover stays hidden until its group is hovered or holds focus", async () => {
+  const screen = await render(
+    <StaticPanel>
+      <SidebarGroup>
+        <SidebarGroupLabel>Spaces</SidebarGroupLabel>
+        <SidebarGroupAction showOnHover aria-label="New space">
+          <Plus />
+        </SidebarGroupAction>
+        <SidebarGroupContent>
+          <SidebarMenu>
+            <SidebarMenuItem>
+              <SidebarMenuButton>General</SidebarMenuButton>
+            </SidebarMenuItem>
+          </SidebarMenu>
+        </SidebarGroupContent>
+      </SidebarGroup>
+    </StaticPanel>,
+  );
+  const action = slot(screen.container, "sidebar-group-action") as HTMLElement;
+  expect(action.hasAttribute("data-show-on-hover")).toBe(true);
+  expect(Number(getComputedStyle(action).opacity)).toBe(0);
+  await userEvent.hover(slot(screen.container, "sidebar-group") as HTMLElement);
+  await expect.poll(() => Number(getComputedStyle(action).opacity)).toBe(1);
+  await userEvent.unhover(
+    slot(screen.container, "sidebar-group") as HTMLElement,
+  );
+  await expect.poll(() => Number(getComputedStyle(action).opacity)).toBe(0);
+  action.focus();
+  await expect.poll(() => Number(getComputedStyle(action).opacity)).toBe(1);
+});

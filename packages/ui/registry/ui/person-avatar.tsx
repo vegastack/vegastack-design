@@ -1,4 +1,4 @@
-// @vegastack person-avatar@0.23.115 sha256-NOW1s+uqOq/DScRgxV4XJrprxofkMonWt6o/M9jKl4c=
+// @vegastack person-avatar@0.23.115 sha256-bimZqtY7AwWA5MuX5hLUWbgHXTEwwYLKmEl/gW6YZ/8=
 
 "use client";
 
@@ -25,14 +25,19 @@ function head(value: string, n: number): string {
 /**
  * `personInitials` — the one initials rule for a person, on the trimmed name: the first letters of
  * the first and last words ("Asha K Rao" → "AR"); one word → its first two letters ("Asha" → "AS");
- * no name → the email's first two characters; always uppercase.
+ * no name → the email's first two characters; punctuation is skipped; always uppercase.
  *
  * @example
  * personInitials("Asha Rao"); // "AR"
  * personInitials("", "ops@acme.com"); // "OP"
  */
 export function personInitials(name: string, email?: string | null): string {
-  const words = name.trim().split(/\s+/).filter(Boolean);
+  // Letters and digits only: "D. Rao" → "DR", "Farid (contractor)" → "FC", never "D." or "F(".
+  const words = name
+    .trim()
+    .split(/\s+/)
+    .map((word) => word.replace(/[^\p{L}\p{N}]/gu, ""))
+    .filter(Boolean);
   if (words.length === 0) return head((email ?? "").trim(), 2).toUpperCase();
   if (words.length === 1) return head(words[0]!, 2).toUpperCase();
   return (head(words[0]!, 1) + head(words.at(-1)!, 1)).toUpperCase();

@@ -4,7 +4,7 @@ import { expect, test } from "vitest";
 import { Building2 } from "lucide-react";
 import { expectNoA11yViolations } from "../../test/a11y";
 import "../../test/contrast.css";
-import { SpaceAvatar, SpaceOption } from "./space-avatar";
+import { SpaceAvatar, SpaceIcon, SpaceOption } from "./space-avatar";
 
 const tile = (c: Element) =>
   c.querySelector<HTMLElement>('[data-slot="avatar-fallback"]')!;
@@ -45,7 +45,7 @@ test("an icon replaces the initial; a private space wears a corner lock", async 
   ).not.toBeNull();
 });
 
-test("a personal space is the lock itself on the muted tile", async () => {
+test("a personal space is a person-with-lock glyph on the muted tile", async () => {
   const screen = await render(
     <SpaceAvatar
       aria-label="Private"
@@ -54,7 +54,7 @@ test("a personal space is the lock itself on the muted tile", async () => {
   );
   const root = screen.getByRole("img", { name: "Private" }).element();
   expect(tile(root).dataset.hue).toBeUndefined();
-  expect(tile(root).querySelector("svg.lucide-lock")).not.toBeNull();
+  expect(tile(root).querySelector("svg.lucide-user-lock")).not.toBeNull();
   expect(root.querySelector('[data-slot="space-avatar-lock"]')).toBeNull();
   await expectNoA11yViolations(screen.container);
 });
@@ -90,5 +90,38 @@ test("SpaceOption stacks the name over a muted line, with a badge", async () => 
   await expect
     .element(screen.getByText("Joined"))
     .toHaveAttribute("data-slot", "space-option-badge");
+  await expectNoA11yViolations(screen.container);
+});
+
+test("2xs is a 16px tile for sidebar rows, with no corner lock; showLock={false} hides it at any size", async () => {
+  const screen = await render(
+    <>
+      <SpaceAvatar
+        size="2xs"
+        space={{ name: "Sales", access: "private", hue: "green" }}
+      />
+      <SpaceAvatar
+        showLock={false}
+        space={{ name: "Ops", access: "private" }}
+      />
+      <SpaceAvatar space={{ name: "Mine", access: "personal" }} />
+      <SpaceIcon aria-hidden data-testid="space-icon" />
+    </>,
+  );
+  const tiles = screen.container.querySelectorAll('[data-slot="space-avatar"]');
+  expect(tiles[0]!.getAttribute("data-size")).toBe("2xs");
+  expect(tiles[0]!.querySelector('[data-slot="avatar"]')!.className).toContain(
+    "size-4",
+  );
+  expect(tiles[0]!.querySelector('[data-slot="space-avatar-lock"]')).toBeNull();
+  expect(tiles[1]!.querySelector('[data-slot="space-avatar-lock"]')).toBeNull();
+  expect(tiles[2]!.querySelector("svg")?.getAttribute("class")).toContain(
+    "lucide-user-lock",
+  );
+  expect(
+    screen.container
+      .querySelector('[data-testid="space-icon"]')
+      ?.getAttribute("class"),
+  ).toContain("lucide-layers");
   await expectNoA11yViolations(screen.container);
 });

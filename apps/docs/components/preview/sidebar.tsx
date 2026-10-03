@@ -2,6 +2,7 @@
 
 import { useState, type CSSProperties, type ReactNode } from "react";
 import { Wrapper } from "./wrapper";
+import { SpaceAvatar } from "@/components/ui/space-avatar";
 import {
   BadgeCheck,
   Bot,
@@ -623,6 +624,62 @@ export function sidebarGroup(): ReactNode {
                 </CollapsibleContent>
               </SidebarGroup>
             </Collapsible>
+          </SidebarContent>
+        </Sidebar>
+      </SidebarProvider>
+    </Wrapper>
+  );
+}
+
+const SPACE_ROWS = [
+  { name: "General", hue: "blue", access: "open" },
+  { name: "Product", hue: "purple", access: "open" },
+  { name: "Sales", hue: "green", access: "private" },
+] as const;
+
+/**
+ * A group with an action and no collapse: "+" appears when the group is hovered or focused (always
+ * on touch), and each space's 16px `2xs` tile sits in the row's icon slot like any nav icon.
+ */
+export function sidebarGroupActionOnHover(): ReactNode {
+  return (
+    <Wrapper className="block h-64 overflow-hidden p-0">
+      <SidebarProvider className="h-full min-h-0">
+        <Sidebar collapsible="none" className="h-full border-e">
+          <SidebarContent>
+            <SidebarGroup>
+              <SidebarGroupLabel>Work</SidebarGroupLabel>
+              <SidebarGroupContent>
+                <SidebarMenu>
+                  {NAV.slice(0, 2).map((item) => (
+                    <SidebarMenuItem key={item.key}>
+                      <SidebarMenuButton>
+                        <item.icon />
+                        <span>{item.title}</span>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  ))}
+                </SidebarMenu>
+              </SidebarGroupContent>
+            </SidebarGroup>
+            <SidebarGroup>
+              <SidebarGroupLabel>Spaces</SidebarGroupLabel>
+              <SidebarGroupAction showOnHover aria-label="New space">
+                <Plus />
+              </SidebarGroupAction>
+              <SidebarGroupContent>
+                <SidebarMenu>
+                  {SPACE_ROWS.map((space) => (
+                    <SidebarMenuItem key={space.name}>
+                      <SidebarMenuButton>
+                        <SpaceAvatar size="2xs" space={space} />
+                        <span>{space.name}</span>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  ))}
+                </SidebarMenu>
+              </SidebarGroupContent>
+            </SidebarGroup>
           </SidebarContent>
         </Sidebar>
       </SidebarProvider>

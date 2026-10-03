@@ -1036,8 +1036,8 @@ for (const theme of ["light", "dark"] as const) {
   });
 
   // settings-01's unit suite runs unstyled and skips `color-contrast`; this is its compiled pass:
-  // the page at rest, with the save bar docked after a change, and the delete confirmation.
-  test(`settings-01 passes WCAG AA at rest, dirty, and confirming — ${theme} theme`, async () => {
+  // the page at rest, with a field's "Saved" status after an autosave, and the delete confirmation.
+  test(`settings-01 passes WCAG AA at rest, saved, and confirming — ${theme} theme`, async () => {
     // The confirmation portals out of the themed wrapper, so the root carries the theme too.
     if (theme === "dark") document.documentElement.classList.add("dark");
     const screen = await render(themed(theme, 1200, <Settings01Page />));
@@ -1047,10 +1047,10 @@ for (const theme of ["light", "dark"] as const) {
     const rest = await contrastViolations(screen.container);
 
     await userEvent.fill(
-      screen.getByRole("textbox", { name: "Workspace name" }),
-      "Acme Robotics",
+      screen.getByRole("textbox", { name: "Description" }),
+      "Support automation, everywhere.",
     );
-    await settledOverlay('[data-slot="action-bar"][data-active="true"]');
+    await expect.element(screen.getByText("Saved").first()).toBeInTheDocument();
     const dirty = await contrastViolations(screen.container);
 
     await userEvent.click(

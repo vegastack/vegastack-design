@@ -66,11 +66,22 @@ the end of an inner scroller (a list, a panel, a table) no longer carries on int
   (`↑ ↓ Navigate`), the primary action right. Upstream's `command` ships no footer part — compose
   one under `CommandList` with `Kbd`.
 
-## Dirty-state save model
+## Settings save model
 
-A surface with unsaved shared changes (a saved view, a settings panel) surfaces an explicit
-**Discard / Save** pair rather than auto-saving silently — the user owns when a change becomes
-everyone's. (The `data-grid` view bar is the canonical case.)
+**Settings fields autosave.** Text saves after a short debounce (about 800ms) and on blur; pickers,
+switches and swatches save at once. Each field shows its own quiet status inline
+(`AutoSaveIndicator variant="icon"`, or `AutoSaveInput`), and a failed save rolls the value back
+and raises a toast with **Retry**. Validate inline (a required name, a length limit) before saving.
+
+**Consequential changes confirm first** — anything that changes who can see something or removes
+it (making a space private, archiving, deleting, transferring ownership) opens an `AlertDialog`
+that says what will happen ("3 people who aren't members will lose access") and saves only on its
+confirm button, which repeats the verb.
+
+**Explicit Discard / Save is the exception**: a multi-field draft that must apply together — a
+wizard step, a saved view's filter set (the `data-grid` view bar), a form whose fields only make
+sense as a whole. There the user owns when the change becomes everyone's, and an `ActionBar` shows
+"Unsaved changes" with Discard / Save.
 
 ## Progressive disclosure
 

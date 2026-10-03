@@ -106,6 +106,19 @@ Pass `colors` to render your own curated set — here a 3-color tag palette in a
   file="components/preview/color-picker.tsx"
 />
 
+### Hue palette, inline
+
+`HUE_COLORS` is the ten tag hues — the exact colours `Chip`, `Avatar` and `SpaceAvatar` draw — so
+the stored value (`"blue"`, `"purple"`…) is a hue those components take. `variant="inline"` renders
+the swatches in the page with no trigger, and `onClear` adds a first "None" swatch, selected while
+`value` matches no hue. Pick `columns` so the row fits its container (six wraps the eleven swatches
+onto two rows at a phone's width).
+
+<ComponentPreview
+  name="colorPickerHues"
+  file="components/preview/color-picker.tsx"
+/>
+
 ### Columns
 
 `columns` sets the swatch-grid width (default `7`), driving the dynamic `--swatch-cols` grid

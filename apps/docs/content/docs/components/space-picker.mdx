@@ -1,0 +1,110 @@
+---
+title: Space Picker
+description: SpaceChip shows which space a record lives in; SpacePicker chooses it from a searchable list.
+audience: public
+registry: space-picker
+status: stable
+since: 0.23.116
+a11y: filterable listbox; disabled rows say why; Esc closes
+preview: spacePicker
+---
+
+## Install
+
+<InstallSteps name="space-picker" />
+
+## Usage
+
+```tsx
+import { SpacePicker } from "@/components/ui/space-picker";
+
+<DialogTitle className="flex items-center gap-1">
+  <SpacePicker
+    placement="title"
+    spaces={writableSpaces}
+    value={spaceId}
+    onValueChange={setSpaceId}
+  />
+  <span aria-hidden className="text-muted-foreground">
+    ›
+  </span>
+  <span>New task</span>
+</DialogTitle>;
+```
+
+`SpaceChip` is a space as a quiet property chip: its tile, its name and a ▾, tinted on hover.
+`SpacePicker` is that chip opening a searchable list of the spaces you pass: "My space" first,
+then "Spaces", a check on the current one, and a disabled row that says why it cannot be chosen.
+`placement="title"` sizes the chip for a dialog title — `[▣ General ▾] › New task`; `field` sizes it
+for a form or a property row.
+
+<ComponentPreview
+  name="spacePicker"
+  file="components/preview/space-picker.tsx"
+/>
+
+## Scope
+
+- Owns: the chip, the list, search, the groups, the check and disabled reasons.
+- Does not own: which spaces a person may add to, or the default space — pass `spaces` and `value`.
+- Compose with: `SpaceAvatar` (it draws every tile) and `Dialog` titles.
+
+## Anatomy
+
+<Anatomy name="space-picker" />
+
+## Examples
+
+### In a form, and read-only on a card
+
+`readOnly` (often `size="xs"`) shows where a record lives without offering a change: plain text, no
+▾, no tab stop.
+
+<ComponentPreview
+  name="spacePickerField"
+  file="components/preview/space-picker.tsx"
+/>
+
+## API Reference
+
+<ApiTable
+  path="../../packages/ui/registry/ui/space-picker.tsx"
+  name="SpacePickerProps"
+/>
+
+### SpacePickerItem
+
+<ApiTable
+  path="../../packages/ui/registry/ui/space-picker.tsx"
+  name="SpacePickerItem"
+/>
+
+### SpaceChip
+
+<ApiTable
+  path="../../packages/ui/registry/ui/space-picker.tsx"
+  name="SpaceChipProps"
+/>
+
+## Accessibility
+
+- The chip is a button named "Space: General" (`labels.trigger` sets the prefix), so a title that
+  holds it still reads in order.
+- The list is a filterable listbox; the current space is checked, and a disabled row's reason is
+  its visible second line.
+
+| Key                                 | Action                      |
+| ----------------------------------- | --------------------------- |
+| <kbd>Enter</kbd> / <kbd>Space</kbd> | Open the list; pick a space |
+| Typing                              | Filter the list             |
+| <kbd>↑</kbd> / <kbd>↓</kbd>         | Move between spaces         |
+| <kbd>Esc</kbd>                      | Close without changing      |
+
+<StatesTested name="space-picker" />
+
+## Do / Don't
+
+<DoDont
+  do="List only the spaces the person can add to, and say why a visible one is disabled."
+  dont="Put the space in a form field below the title when the dialog creates something in a space."
+/>
