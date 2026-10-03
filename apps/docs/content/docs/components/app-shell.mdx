@@ -147,12 +147,30 @@ renders a plain `<div>`, because `AppShellContent` is already the `main` landmar
 
 ### Section measure
 
-`AppShellSection` holds one region of a page at its own measure. `measure="prose"` caps it at 720px
-and keeps it at the page's **start**, not centred — a settings tab under a default-width header and
-tabs — with no `max-w-*` of its own; `full` (the default) takes the page's width.
+`AppShellSection` holds one region of a page at its own measure, with no `max-w-*` of its own.
+`measure="prose"` caps it at 720px — a settings tab under a default-width header and tabs — and
+`full` (the default) takes the page's width. `align` places a prose section: `start` (the default)
+keeps it under the header's start edge.
 
 <ComponentPreview
   name="appShellSectionMeasure"
+  file="components/preview/app-shell.tsx"
+/>
+
+`align="center"` centres it in the page, so a settings tab reads like a settings page
+(`AppShellPage size="prose"`). `align` is ignored at `full`.
+
+```tsx
+<AppShellPage>
+  <PageHeader title="Product" tabs={tabs} />
+  <AppShellSection measure="prose" align="center">
+    <SpaceSettings />
+  </AppShellSection>
+</AppShellPage>
+```
+
+<ComponentPreview
+  name="appShellSectionCentered"
   file="components/preview/app-shell.tsx"
 />
 

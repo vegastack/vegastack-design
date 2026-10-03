@@ -627,3 +627,21 @@ test("AppShellSection measure=prose caps the section at 45rem at the page's star
   expect(full.dataset.measure).toBe("full");
   await expectNoA11yViolations(screen.container);
 });
+
+test("AppShellSection align=center centres a prose section; align is ignored at full", async () => {
+  const screen = await render(
+    <>
+      <AppShellSection measure="prose" align="center" data-testid="centre" />
+      <AppShellSection align="center" data-testid="full" />
+    </>,
+  );
+  const centre = screen.container.querySelector<HTMLElement>(
+    '[data-testid="centre"]',
+  )!;
+  const full = screen.container.querySelector<HTMLElement>(
+    '[data-testid="full"]',
+  )!;
+  expect(centre.dataset.align).toBe("center");
+  expect(centre.className).toContain("mx-auto");
+  expect(full.className).not.toContain("mx-auto");
+});

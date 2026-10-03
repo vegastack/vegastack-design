@@ -38,6 +38,7 @@ import {
   AppShellContent,
   AppShellHeader,
   AppShellPage,
+  AppShellSection,
 } from "../registry/ui/app-shell";
 import {
   RecordLayout,
@@ -3911,6 +3912,48 @@ test("app-shell-page-320: the page container caps its measure; a long wrapping c
   expect(getComputedStyle(container).paddingInlineStart).toBe("16px");
   expect(getComputedStyle(container).paddingTop).toBe("16px");
   expect(document.documentElement.scrollWidth).toBeLessThanOrEqual(320);
+});
+
+test("app-shell-section: a centred prose section shares the page's centre; start keeps its start edge", async () => {
+  await page.viewport(1280, 900);
+  try {
+    const screen = await render(
+      <div style={{ width: "1400px" }}>
+        <AppShellPage>
+          <AppShellSection measure="prose" align="center">
+            centre
+          </AppShellSection>
+          <AppShellSection measure="prose">start</AppShellSection>
+          <AppShellSection measure="full" align="center">
+            full
+          </AppShellSection>
+        </AppShellPage>
+      </div>,
+    );
+    const pageEl = screen.container.querySelector<HTMLElement>(
+      '[data-slot="app-shell-page"]',
+    )!;
+    const [centred, start, full] = [
+      ...screen.container.querySelectorAll<HTMLElement>(
+        '[data-slot="app-shell-section"]',
+      ),
+    ] as [HTMLElement, HTMLElement, HTMLElement];
+    const box = pageEl.getBoundingClientRect();
+    const gutter = Number.parseFloat(
+      getComputedStyle(pageEl).paddingInlineStart,
+    );
+    const mid = (r: DOMRect) => r.left + r.width / 2;
+    expect(centred.getBoundingClientRect().width).toBe(720);
+    expect(
+      Math.abs(mid(centred.getBoundingClientRect()) - mid(box)),
+    ).toBeLessThan(1);
+    expect(start.getBoundingClientRect().left).toBe(box.left + gutter);
+    // `align` is ignored at `full`: the section takes the page's whole content width.
+    expect(full.getBoundingClientRect().width).toBe(box.width - 2 * gutter);
+    await screen.unmount();
+  } finally {
+    await page.viewport(320, 812);
+  }
 });
 
 /**
