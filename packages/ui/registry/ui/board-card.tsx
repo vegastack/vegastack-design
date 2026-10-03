@@ -1,4 +1,4 @@
-// @vegastack board-card@0.23.116 sha256-KgrYTlngYcvTd5v6E1jWqDr/87PjV62Gmq3m3eiCMO0=
+// @vegastack board-card@0.23.117 sha256-eJE/evKwOl/Go5AVNrf+bEuHSDSwT8iRpb47XlKawhc=
 
 "use client";
 
