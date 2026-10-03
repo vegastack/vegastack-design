@@ -375,3 +375,38 @@ test("share-01 a scrolled people list does not carry its scroll into Publish", a
   expect(toggle.top).toBeGreaterThanOrEqual(frame.top);
   expect(toggle.bottom).toBeLessThanOrEqual(frame.bottom);
 });
+
+for (const [label, width, title, body] of [
+  ["Dialog", 1280, "dialog-title", "dialog-body"],
+  ["phone sheet", 390, "sheet-title", "sheet-body"],
+] as const) {
+  test(`share-01 tab underline and label start on the content edge (${label})`, async () => {
+    await page.viewport(width, 900);
+    await render(<ShareDemo defaultOpen />);
+    const edge = await vi.waitUntil(() =>
+      document.querySelector<HTMLElement>(`[data-slot="${title}"]`),
+    );
+    await new Promise((resolve) => setTimeout(resolve, 300));
+    const left = edge.getBoundingClientRect().left;
+    const tab = document.querySelector<HTMLElement>(
+      '[data-slot="tabs-trigger"]',
+    )!;
+    const tabStyle = getComputedStyle(tab);
+    // The underline is the trigger's `::after`, inset-x-0 of its padding box.
+    const underline =
+      tab.getBoundingClientRect().left +
+      Number.parseFloat(tabStyle.borderLeftWidth);
+    const text = document.createRange();
+    text.selectNodeContents(tab);
+    const content = document
+      .querySelector<HTMLElement>(
+        `[data-slot="${body}"] [data-slot="share-people"]`,
+      )!
+      .getBoundingClientRect().left;
+    expect(Math.round(underline)).toBe(Math.round(left));
+    expect(Math.round(text.getBoundingClientRect().left)).toBe(
+      Math.round(left),
+    );
+    expect(Math.round(content)).toBe(Math.round(left));
+  });
+}

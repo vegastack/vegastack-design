@@ -1,4 +1,4 @@
-// @vegastack share-01@0.23.117 sha256-1+9uHllpUDTQxB9Yp+OaQ/v7dw/Abkf7POtiTVADXxI=
+// @vegastack share-01@0.23.117 sha256-iHDcogmWtB4m1WohZjgwKNpirM6MtmXcvBvCr00YDl4=
 
 "use client";
 
@@ -338,6 +338,9 @@ export interface ShareDialogProps {
   /** The tab the dialog opens on — `publish` when opened from a "Published" indicator. @default "share" */
   defaultTab?: "share" | "publish";
 }
+
+/** A line tab whose underline and label both start where the dialog's content does. */
+const LINE_TAB = "flex-none border-x-0 px-0";
 
 const EXPIRIES: readonly ShareLinkExpiry[] = ["never", "1d", "7d", "30d"];
 
@@ -936,14 +939,22 @@ export function ShareDialog({
           className="@container/share flex min-h-0 flex-1 flex-col gap-4"
         >
           {publicLinkAvailable ? (
-            <TabsList variant="line" className="-mt-1 w-full justify-start">
-              <TabsTrigger value="share" className="flex-none">
+            // Upstream's line list pads its triggers 3px + 1px border + 6px in from the list edge.
+            // Here the underline and the label start ON the content edge, like the title and the
+            // rows below: no list padding, no trigger padding, a 16px gap between the tabs. The
+            // phone sheet's content has no padding of its own, so the list takes the 16px inset
+            // its header and body carry.
+            <TabsList
+              variant="line"
+              className="-mt-1 justify-start gap-4 px-0 in-data-[slot=sheet-content]:mx-4"
+            >
+              <TabsTrigger value="share" className={LINE_TAB}>
                 {labels.shareTab}
               </TabsTrigger>
               <TabsTrigger
                 ref={publishTabRef}
                 value="publish"
-                className="flex-none"
+                className={LINE_TAB}
               >
                 {labels.publishTab}
                 {publicLink ? (
