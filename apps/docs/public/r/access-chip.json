@@ -1,0 +1,34 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "access-chip",
+  "title": "Access Chip",
+  "description": "How far one record reaches as one focusable chip: the space tile and name, a lock and Only invited, or My space — with a globe when published and the full sentence in a tooltip. Clicking opens Share.",
+  "dependencies": [
+    "lucide-react@^1.47.0",
+    "@vegastack/design@^0.7.100",
+    "@vegastack/design-tokens@^0.7.80"
+  ],
+  "registryDependencies": [
+    "@vegastack/button",
+    "@vegastack/space-avatar",
+    "@vegastack/tooltip"
+  ],
+  "files": [
+    {
+      "path": "packages/ui/registry/ui/access-chip.tsx",
+      "content": "// @vegastack access-chip@0.23.115 sha256-hfdR0Wg/rXyge7Rtvw72SoQji1v6ZHONKRS4feR4YvE=\n\n\"use client\";\n\nimport * as React from \"react\";\nimport { GlobeIcon, LockIcon, UserLock } from \"lucide-react\";\nimport { cn } from \"@vegastack/design\";\nimport { Button } from \"@/components/ui/button\";\nimport {\n  Tooltip,\n  TooltipContent,\n  TooltipTrigger,\n} from \"@/components/ui/tooltip\";\nimport { SpaceAvatar, type Space } from \"@/components/ui/space-avatar\";\n\n/* ------------------------------------------------------------------------------------------------\n * AccessChip — how far one record reaches, as ONE control in its header: the space's tile and name\n * (everyone in that space), a lock and \"Only invited\", or a person-with-lock and \"My space\"; a small\n * globe when it is also published to the web. It is a real button — it opens Share — with the full\n * sentence in a tooltip, so it replaces a row of bare, unfocusable access glyphs.\n * ----------------------------------------------------------------------------------------------*/\n\n/** Who can open the record. */\nexport type AccessChipAccess =\n  | {\n      /** Everyone in `space` can open it. */\n      kind: \"space\";\n      /** The record's space. */\n      space: Space;\n    }\n  | {\n      /** Only the people it was shared with. */\n      kind: \"invited\";\n    }\n  | {\n      /** It lives in the viewer's own My space. */\n      kind: \"personal\";\n    };\n\n/** Every string `AccessChip` renders. */\nexport interface AccessChipLabels {\n  invited: string;\n  personal: string;\n  published: string;\n  /** The tooltip sentence; also the accessible description. */\n  sentence: (access: AccessChipAccess, published: boolean) => string;\n}\n\nconst defaultLabels: AccessChipLabels = {\n  invited: \"Only invited\",\n  personal: \"My space\",\n  published: \"Published\",\n  sentence: (access, published) => {\n    const who =\n      access.kind === \"space\"\n        ? `Everyone in ${access.space.name} can open it`\n        : access.kind === \"invited\"\n          ? \"Only people invited can open it\"\n          : \"In My space: only you and the people you share with can open it\";\n    return published\n      ? `${who}. Anyone with the public link can view it.`\n      : `${who}.`;\n  },\n};\n\n/** Props for `AccessChip`. */\nexport interface AccessChipProps extends Omit<\n  React.ComponentPropsWithRef<typeof Button>,\n  \"children\" | \"variant\" | \"size\"\n> {\n  /** Who can open the record. */\n  access: AccessChipAccess;\n  /** A public link is live; a small globe joins the chip. @default false */\n  published?: boolean;\n  /** Only the glyph (and the globe), for a narrow header; the name moves into the accessible label. @default false */\n  iconOnly?: boolean;\n  /** Override any rendered string. @default {} */\n  labels?: Partial<AccessChipLabels>;\n}\n\n/**\n * `AccessChip` — the record's reach as one focusable chip; `onClick` opens Share.\n *\n * @example\n * <AccessChip access={{ kind: \"space\", space }} published={!!publicLink} onClick={share.show} />\n * <AccessChip access={{ kind: \"personal\" }} iconOnly onClick={share.show} />\n */\nexport function AccessChip({\n  access,\n  published = false,\n  iconOnly = false,\n  labels: labelsProp,\n  className,\n  ...props\n}: AccessChipProps) {\n  const labels = { ...defaultLabels, ...labelsProp };\n  const name =\n    access.kind === \"space\"\n      ? access.space.name\n      : access.kind === \"invited\"\n        ? labels.invited\n        : labels.personal;\n  const sentence = labels.sentence(access, published);\n  const glyph =\n    access.kind === \"space\" ? (\n      <SpaceAvatar space={access.space} size=\"2xs\" showLock={false} />\n    ) : access.kind === \"invited\" ? (\n      <LockIcon aria-hidden data-slot=\"access-chip-icon\" />\n    ) : (\n      <UserLock aria-hidden data-slot=\"access-chip-icon\" />\n    );\n\n  return (\n    <Tooltip>\n      <TooltipTrigger\n        render={\n          <Button\n            variant=\"ghost\"\n            size={iconOnly ? \"icon-sm\" : \"sm\"}\n            data-slot=\"access-chip\"\n            data-access={access.kind}\n            data-published={published ? \"\" : undefined}\n            aria-label={`${name}${published ? `, ${labels.published}` : \"\"}`}\n            aria-description={sentence}\n            className={cn(\n              \"max-w-60 min-w-0 gap-1.5 rounded-md text-sm font-normal text-foreground\",\n              !iconOnly && \"px-2\",\n              iconOnly && \"relative\",\n              className,\n            )}\n            {...props}\n          />\n        }\n      >\n        {glyph}\n        {iconOnly ? null : <span className=\"min-w-0 truncate\">{name}</span>}\n        {published ? (\n          <GlobeIcon\n            aria-hidden\n            data-slot=\"access-chip-published\"\n            className={cn(\n              \"size-3 text-muted-foreground\",\n              iconOnly &&\n                \"absolute end-0.5 bottom-0.5 rounded-full bg-background\",\n            )}\n          />\n        ) : null}\n      </TooltipTrigger>\n      <TooltipContent>{sentence}</TooltipContent>\n    </Tooltip>\n  );\n}\n",
+      "type": "registry:ui",
+      "target": "@ui/access-chip.tsx"
+    }
+  ],
+  "meta": {
+    "whenToUse": "A record header that shows who can open the record and opens Share.",
+    "whenNotToUse": "Changing access inline (PermissionMenu) or listing people (AvatarStack).",
+    "version": "0.23.115",
+    "integrity": "sha256-hfdR0Wg/rXyge7Rtvw72SoQji1v6ZHONKRS4feR4YvE="
+  },
+  "categories": [
+    "overlay"
+  ],
+  "type": "registry:ui"
+}

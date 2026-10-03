@@ -1,4 +1,4 @@
-// @vegastack multi-step-form@0.23.115 sha256-llJTrt27PCs6KsO+qscCjY5f9DhCSMQ55lzC5zfbcAs=
+// @vegastack multi-step-form@0.23.115 sha256-uW7Xd5q9YKAfZst6PsgCj1qQC6BEH4gIGf99QMbOMRg=
 
 "use client";
 
@@ -572,7 +572,8 @@ export function MultiStepForm({
       for (let index = sealedIndex + 1; index < visible.length; index++) {
         if (reachable(index)) return index;
       }
-      return -1;
+      // Never -1: fall back to the last unsealed step, else the first.
+      return Math.max(0, Math.min(sealedIndex + 1, visible.length - 1));
     }
     if (reachable(requestedIndex) && requestedIndex > sealedIndex) {
       return requestedIndex;

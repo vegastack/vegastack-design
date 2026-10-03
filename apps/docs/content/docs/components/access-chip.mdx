@@ -1,0 +1,82 @@
+---
+title: Access Chip
+description: How far one record reaches, as one focusable chip that opens Share.
+audience: public
+registry: access-chip
+status: stable
+since: 0.23.116
+a11y: a button named by its reach; the sentence describes it
+preview: accessChip
+---
+
+## Install
+
+<InstallSteps name="access-chip" />
+
+## Usage
+
+```tsx
+import { AccessChip } from "@/components/ui/access-chip";
+
+<AccessChip
+  access={
+    record.mode === "invited"
+      ? { kind: "invited" }
+      : record.space.access === "personal"
+        ? { kind: "personal" }
+        : { kind: "space", space: record.space }
+  }
+  published={record.publicLink !== null}
+  onClick={share.show}
+/>;
+```
+
+One chip in a record's header replaces a row of bare access glyphs. It shows the space's tile and
+name (everyone in that space can open it), a lock and "Only invited", or a person-with-lock and "My
+space", and a small globe when the record is published to the web. It is a real button that opens
+Share, with the full sentence in a tooltip on hover and focus.
+
+<ComponentPreview name="accessChip" file="components/preview/access-chip.tsx" />
+
+## Scope
+
+- Owns: the glyph, the name, the published globe and the sentence.
+- Does not own: opening Share — `onClick` is the host's — or deciding the reach.
+- Compose with: `AvatarStack` beside it, and `share-01`.
+
+## Examples
+
+### Icon only
+
+For a narrow header: the glyph alone, the name in the accessible label.
+
+<ComponentPreview
+  name="accessChipIconOnly"
+  file="components/preview/access-chip.tsx"
+/>
+
+## API Reference
+
+<ApiTable
+  path="../../packages/ui/registry/ui/access-chip.tsx"
+  name="AccessChipProps"
+/>
+
+## Accessibility
+
+- A button named by the reach ("Product", "Only invited", "My space", plus ", Published"); the full
+  sentence is its accessible description and its tooltip.
+- Keyboard reachable, unlike a decorative icon.
+
+| Key                                 | Action     |
+| ----------------------------------- | ---------- |
+| <kbd>Enter</kbd> / <kbd>Space</kbd> | Open Share |
+
+<StatesTested name="access-chip" />
+
+## Do / Don't
+
+<DoDont
+  do="Show one access chip per record header, and let it open Share."
+  dont="Show separate lock, space and globe icons that nobody can focus or click."
+/>

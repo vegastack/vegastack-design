@@ -17,48 +17,28 @@ import Settings01Page from "./page";
 test("settings-01 renders its composition", async () => {
   const screen = await render(<Settings01Page />);
   await expect
-    .element(screen.getByText("Save changes").first())
+    .element(screen.getByRole("textbox", { name: "Workspace name" }))
     .toBeInTheDocument();
 });
 
 test("settings-01 is axe-clean", async () => {
   const screen = await render(<Settings01Page />);
   await expect
-    .element(screen.getByText("Save changes").first())
+    .element(screen.getByRole("textbox", { name: "Workspace name" }))
     .toBeInTheDocument();
   // Unstyled: the fast browser suite mounts without the compiled token theme, so axe's contrast
   // maths would read unresolved custom properties (see test/a11y.ts).
   await expectNoA11yViolations(document.body, ["color-contrast"]);
 });
 
-test("the save bar appears only after a change, and Discard restores", async () => {
+test("fields autosave: no save bar, and a change reports Saved", async () => {
   const screen = await render(<Settings01Page />);
-  expect(
-    screen.container.querySelector(
-      '[data-slot="action-bar"][data-active="true"]',
-    ),
-  ).toBeNull();
+  expect(screen.container.querySelector('[data-slot="action-bar"]')).toBeNull();
   await userEvent.fill(
-    screen.getByRole("textbox", { name: "Workspace name" }),
-    "Acme Robotics",
+    screen.getByRole("textbox", { name: "Description" }),
+    "Support automation, everywhere.",
   );
-  await expect
-    .element(screen.getByText("Unsaved changes").first())
-    .toBeVisible();
-  expect(
-    screen.container.querySelector(
-      '[data-slot="action-bar"][data-active="true"]',
-    ),
-  ).not.toBeNull();
-  await userEvent.click(screen.getByRole("button", { name: "Discard" }));
-  await expect
-    .element(screen.getByRole("textbox", { name: "Workspace name" }))
-    .toHaveValue("Acme");
-  expect(
-    screen.container.querySelector(
-      '[data-slot="action-bar"][data-active="true"]',
-    ),
-  ).toBeNull();
+  await expect.element(screen.getByText("Saved").first()).toBeInTheDocument();
 });
 
 test("one h1, from PageHeader", async () => {

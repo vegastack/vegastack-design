@@ -12,40 +12,49 @@ afterEach(async () => {
   await page.viewport(414, 896);
 });
 
-test("share-01 opens a Dialog with people, general access and the public link", async () => {
+test("share-01 opens an md Dialog with Share and Publish tabs, people and space access", async () => {
   await page.viewport(1280, 900);
   const screen = await render(<Share01Page />);
   await screen.getByRole("button", { name: "Share" }).click();
   const dialog = screen.getByRole("dialog", { name: "Share" });
   await expect.element(dialog).toBeVisible();
-  expect(document.querySelector('[data-slot="dialog-content"]')).not.toBeNull();
+  expect(
+    document.querySelector('[data-slot="dialog-content"][data-size="md"]'),
+  ).not.toBeNull();
+  await expect
+    .element(dialog.getByRole("tab", { name: "Share" }))
+    .toHaveAttribute("aria-selected", "true");
+  await expect
+    .element(dialog.getByRole("tab", { name: "Publish" }))
+    .toBeVisible();
   await expect
     .element(dialog.getByRole("combobox", { name: "Add people or teams" }))
     .toBeVisible();
   await expect.element(dialog.getByText("Manager of Priya")).toBeVisible();
-  // Built-in rows are read-only; a shared row has a menu.
-  await expect
-    .element(
-      dialog.getByRole("button", { name: "Manoj Kumar's access: Full access" }),
-    )
-    .not.toBeInTheDocument();
+  // Built-in rows are locked (still a tab stop, with the reason); a shared row has a menu.
+  const locked = dialog.element().querySelector("[data-locked]");
+  expect(locked).not.toBeNull();
   await expect
     .element(
       dialog.getByRole("button", { name: "Anand Iyer's access: Can view" }),
     )
     .toBeVisible();
   expect(
-    dialog.getByRole("combobox", { name: "General access" }).element()
+    dialog.getByRole("combobox", { name: "Space access" }).element()
       .textContent,
   ).toContain("Everyone in Sales");
+  // The Share tab copies the item's own link and never offers a public copy.
+  await expect
+    .element(dialog.getByRole("button", { name: "Copy link" }))
+    .toBeVisible();
   await expect
     .element(dialog.getByRole("button", { name: "Copy public link" }))
-    .toBeVisible();
-  await expect
-    .element(dialog.getByText("Admins can view this space."))
-    .toBeVisible();
+    .not.toBeInTheDocument();
   await expect
     .element(dialog.getByRole("button", { name: "Done" }))
+    .not.toBeInTheDocument();
+  await expect
+    .element(dialog.getByText("Admins can view this space."))
     .toBeVisible();
   await expectNoA11yViolations(document.body, ["color-contrast"]);
 
@@ -56,7 +65,7 @@ test("share-01 opens a Dialog with people, general access and the public link", 
   await expect.element(dialog.getByText("Anand Iyer")).not.toBeInTheDocument();
 });
 
-test("share-01 invite mode: one level for the batch, Notify on, a message, Share adds them", async () => {
+test("share-01 invite mode: the level beside the input, Notify on, a message, Invite adds them", async () => {
   await page.viewport(1280, 900);
   const screen = await render(
     <ShareDemo
@@ -80,47 +89,77 @@ test("share-01 invite mode: one level for the batch, Notify on, a message, Share
     .element(dialog.getByText("People with access"))
     .not.toBeInTheDocument();
   await expectNoA11yViolations(document.body, ["color-contrast"]);
-  await screen.getByRole("button", { name: "Share", exact: true }).click();
+  await dialog.getByRole("button", { name: "Invite", exact: true }).click();
   await expect.element(dialog.getByText("People with access")).toBeVisible();
   await expect.element(dialog.getByText("Lena Ortiz")).toBeVisible();
 });
 
-test("share-01 public link on: the URL, copy, reset with a tooltip, expiry and Stop sharing", async () => {
+test("share-01 Publish: only the switch publishes; then copy, reset, expiry and a confirmed stop", async () => {
   await page.viewport(1280, 900);
-  const screen = await render(<ShareDemo defaultOpen publicLinkOn />);
+  const screen = await render(<ShareDemo defaultOpen defaultTab="publish" />);
   const dialog = screen.getByRole("dialog", { name: "Share" });
+  const toggle = dialog.getByRole("switch", { name: "Publish to the web" });
+  await expect.element(toggle).not.toBeChecked();
+  await expect
+    .element(dialog.getByRole("button", { name: "Copy public link" }))
+    .not.toBeInTheDocument();
+  await toggle.click();
   await expect
     .element(dialog.getByRole("textbox", { name: "Public link" }))
     .toHaveValue("https://app.acme.com/s/k3J9xQ2");
   await expect
     .element(dialog.getByRole("button", { name: "Copy public link" }))
     .toBeVisible();
-  expect(
-    dialog.getByRole("combobox", { name: "Expires" }).element().textContent,
-  ).toContain("7 days");
   await expectNoA11yViolations(document.body, ["color-contrast"]);
   await dialog.getByRole("button", { name: "Reset link" }).click();
   await expect
     .element(dialog.getByRole("textbox", { name: "Public link" }))
     .toHaveValue("https://app.acme.com/s/Pw7mT4c");
-  await dialog.getByRole("button", { name: "Stop sharing" }).click();
-  await expect.element(dialog.getByText("Off", { exact: true })).toBeVisible();
+  await dialog.getByRole("button", { name: "Stop publishing" }).click();
+  const confirm = screen.getByRole("alertdialog", { name: "Stop publishing?" });
+  await expect.element(confirm).toBeVisible();
+  await confirm.getByRole("button", { name: "Stop publishing" }).click();
+  await expect
+    .element(dialog.getByRole("textbox", { name: "Public link" }))
+    .not.toBeInTheDocument();
+  await expect.element(toggle).not.toBeChecked();
 });
 
-test("share-01 read-only viewer: no invite row and no menus", async () => {
+test("share-01 a My space item reads My space, with no space level to change", async () => {
   await page.viewport(1280, 900);
-  const screen = await render(<ShareDemo defaultOpen readOnly publicLinkOn />);
+  const screen = await render(<ShareDemo defaultOpen personal />);
   const dialog = screen.getByRole("dialog", { name: "Share" });
-  await expect.element(dialog.getByText("Anand Iyer")).toBeVisible();
+  await expect
+    .poll(
+      () => document.querySelector('[data-slot="share-general"]')?.textContent,
+    )
+    .toContain("My space · Only you and the people above");
+  await expect
+    .element(dialog.getByRole("combobox", { name: "Space access" }))
+    .not.toBeInTheDocument();
+  await expect.element(dialog.getByText(/Everyone in/)).not.toBeInTheDocument();
+});
+
+test("share-01 read-only viewer: no invite row, no menus, the published link to copy", async () => {
+  await page.viewport(1280, 900);
+  const screen = await render(
+    <ShareDemo defaultOpen readOnly publicLinkOn defaultTab="publish" />,
+  );
+  const dialog = screen.getByRole("dialog", { name: "Share" });
   expect(dialog.element().querySelector("[data-people-input]")).toBeNull();
   expect(dialog.element().querySelector("[data-permission-menu]")).toBeNull();
   await expect
-    .element(dialog.getByRole("button", { name: "Stop sharing" }))
+    .element(dialog.getByRole("switch", { name: "Publish to the web" }))
+    .not.toBeInTheDocument();
+  await expect
+    .element(dialog.getByRole("button", { name: "Stop publishing" }))
     .not.toBeInTheDocument();
   await expect
     .element(dialog.getByRole("button", { name: "Copy public link" }))
     .toBeVisible();
   await expectNoA11yViolations(document.body, ["color-contrast"]);
+  await dialog.getByRole("tab", { name: "Share" }).click();
+  await expect.element(dialog.getByText("Anand Iyer")).toBeVisible();
 });
 
 test("share-01 is a bottom Sheet on a phone", async () => {
@@ -150,7 +189,7 @@ test("share-01 generalLevelReadOnly: the level is text, the mode stays a select"
   const screen = await render(<ShareDemo defaultOpen generalLevelReadOnly />);
   const dialog = screen.getByRole("dialog", { name: "Share" });
   await expect
-    .element(dialog.getByRole("combobox", { name: "General access" }))
+    .element(dialog.getByRole("combobox", { name: "Space access" }))
     .toBeEnabled();
   await expect
     .element(

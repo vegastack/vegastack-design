@@ -12,8 +12,8 @@
     "evidencePolicy": "Observed fields come from source, registry metadata, docs, and test topology. Unknown/not-applicable values are explicit; no inferred behavior is presented as verified."
   },
   "expectedCounts": {
-    "totalRegistryItems": 718,
-    "components": 145,
+    "totalRegistryItems": 722,
+    "components": 149,
     "animatedIcons": 467,
     "hooks": 13,
     "blocks": 14,
@@ -22,9 +22,9 @@
   },
   "expectedWaveCounts": {
     "Core controls": 24,
-    "Forms/editing": 31,
+    "Forms/editing": 33,
     "Navigation/layout": 21,
-    "Overlays": 16,
+    "Overlays": 18,
     "Data display": 27,
     "Content/marketing": 15,
     "Shared internals": 3,
@@ -65,6 +65,7 @@
       "avatar-picker",
       "calendar",
       "chip-input",
+      "choice-card",
       "color-picker",
       "combobox",
       "country-select",
@@ -88,6 +89,7 @@
       "select",
       "settings-row",
       "sortable-list",
+      "space-picker",
       "tag-group",
       "template-editor",
       "text-edit",
@@ -117,6 +119,7 @@
       "table-of-contents"
     ],
     "Overlays": [
+      "access-chip",
       "action-bar",
       "alert-dialog",
       "context-menu",
@@ -129,6 +132,7 @@
       "permission-menu",
       "popover",
       "provider",
+      "responsive-dialog",
       "sheet",
       "shortcut-overlay",
       "toast",
@@ -1533,6 +1537,24 @@
             "status": "not-applicable",
             "rationale": "component-constant symbols do not expose a rendered DOM instance or ref contract."
           }
+        },
+        {
+          "name": "AppShellSection",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/app-shell.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "No stable public ref target is forwarded by AppShellSection in packages/ui/registry/ui/app-shell.tsx; incidental internal nodes are not part of its API."
+          }
+        },
+        {
+          "name": "AppShellSectionProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/app-shell.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
         }
       ],
       "variants": {
@@ -1668,6 +1690,19 @@
             {
               "name": "data-slot",
               "values": ["app-shell-page"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "AppShellSection": {
+          "attributes": [
+            {
+              "name": "data-measure",
+              "values": []
+            },
+            {
+              "name": "data-slot",
+              "values": ["app-shell-section"]
             }
           ],
           "cssVariables": []
@@ -5951,6 +5986,15 @@
             "status": "not-applicable",
             "rationale": "component-constant symbols do not expose a rendered DOM instance or ref contract."
           }
+        },
+        {
+          "name": "HUE_COLORS",
+          "kind": "constant",
+          "source": "packages/ui/registry/ui/color-picker.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A constant value; it renders nothing and takes no ref."
+          }
         }
       ],
       "variants": {
@@ -6028,12 +6072,20 @@
         "ColorPicker": {
           "attributes": [
             {
+              "name": "data-none",
+              "values": [""]
+            },
+            {
               "name": "data-slot",
               "values": [
                 "color-picker",
                 "color-picker-check",
                 "color-picker-swatch"
               ]
+            },
+            {
+              "name": "data-variant",
+              "values": []
             }
           ],
           "cssVariables": ["--swatch-cols"]
@@ -9565,6 +9617,15 @@
             "status": "not-applicable",
             "rationale": "re-export symbols do not expose a rendered DOM instance or ref contract."
           }
+        },
+        {
+          "name": "DatePresetOptions",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/date-picker.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
         }
       ],
       "variants": {
@@ -9641,7 +9702,8 @@
         "@vegastack/button",
         "@vegastack/calendar",
         "@vegastack/date-time",
-        "@vegastack/popover"
+        "@vegastack/popover",
+        "@vegastack/relative-time"
       ],
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
@@ -24341,6 +24403,7 @@
         "@vegastack/tabs",
         "@vegastack/text-anchor",
         "@vegastack/text-anchor-doc",
+        "@vegastack/toast",
         "@vegastack/toggle",
         "@vegastack/tooltip",
         "@vegastack/use-file-drop"
@@ -29241,7 +29304,7 @@
           "attributes": [
             {
               "name": "data-slot",
-              "values": ["avatar-stack"]
+              "values": ["avatar-stack", "avatar-stack-footer"]
             }
           ],
           "cssVariables": []
@@ -29429,6 +29492,15 @@
           "ref": {
             "status": "not-applicable",
             "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "SpaceIcon",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/space-avatar.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "No stable public ref target is forwarded by SpaceIcon in packages/ui/registry/ui/space-avatar.tsx; incidental internal nodes are not part of its API."
           }
         }
       ],
@@ -29772,7 +29844,8 @@
       "registryDependencies": [
         "@vegastack/button",
         "@vegastack/dropdown-menu",
-        "@vegastack/item"
+        "@vegastack/item",
+        "@vegastack/tooltip"
       ],
       "npmDependencies": [
         "@vegastack/design-tokens@^0.7.80",
@@ -29794,7 +29867,11 @@
           "attributes": [
             {
               "name": "data-icon",
-              "values": ["inline-end"]
+              "values": ["inline-end", "inline-start"]
+            },
+            {
+              "name": "data-locked",
+              "values": [""]
             },
             {
               "name": "data-permission-menu",
@@ -29810,7 +29887,690 @@
             },
             {
               "name": "data-slot",
-              "values": ["permission-menu", "permission-menu-chevron"]
+              "values": [
+                "permission-menu",
+                "permission-menu-chevron",
+                "permission-menu-lock"
+              ]
+            },
+            {
+              "name": "data-variant",
+              "values": []
+            }
+          ],
+          "cssVariables": []
+        }
+      }
+    },
+    {
+      "name": "responsive-dialog",
+      "registryType": "registry:ui",
+      "title": "Responsive Dialog",
+      "summary": "One overlay API that is a centred Dialog from 768px up and a bottom Sheet with a drag handle and a safe-area footer below it — the same header, body and footer in both.",
+      "status": "stable",
+      "since": "0.23.116",
+      "family": "overlay",
+      "wave": "Overlays",
+      "sourceFiles": ["packages/ui/registry/ui/responsive-dialog.tsx"],
+      "publicSymbols": [
+        {
+          "name": "ResponsiveDialog",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/responsive-dialog.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A composition; it forwards no ref of its own."
+          }
+        },
+        {
+          "name": "ResponsiveDialogTrigger",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/responsive-dialog.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A composition; it forwards no ref of its own."
+          }
+        },
+        {
+          "name": "ResponsiveDialogClose",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/responsive-dialog.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A composition; it forwards no ref of its own."
+          }
+        },
+        {
+          "name": "ResponsiveDialogContent",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/responsive-dialog.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A composition; it forwards no ref of its own."
+          }
+        },
+        {
+          "name": "ResponsiveDialogHeader",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/responsive-dialog.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A composition; it forwards no ref of its own."
+          }
+        },
+        {
+          "name": "ResponsiveDialogTitle",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/responsive-dialog.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A composition; it forwards no ref of its own."
+          }
+        },
+        {
+          "name": "ResponsiveDialogDescription",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/responsive-dialog.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A composition; it forwards no ref of its own."
+          }
+        },
+        {
+          "name": "ResponsiveDialogBody",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/responsive-dialog.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A composition; it forwards no ref of its own."
+          }
+        },
+        {
+          "name": "ResponsiveDialogFooter",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/responsive-dialog.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A composition; it forwards no ref of its own."
+          }
+        },
+        {
+          "name": "ResponsiveDialogProps",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/responsive-dialog.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "ResponsiveDialogTriggerProps",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/responsive-dialog.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "ResponsiveDialogCloseProps",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/responsive-dialog.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "ResponsiveDialogContentProps",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/responsive-dialog.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        }
+      ],
+      "variants": {
+        "status": "observed",
+        "dimensions": [
+          {
+            "name": "form",
+            "values": ["dialog", "sheet"]
+          }
+        ],
+        "rationale": "A Dialog from the breakpoint up, a bottom Sheet below it."
+      },
+      "sizes": {
+        "status": "not-applicable",
+        "dimensions": [],
+        "rationale": "No size axis of its own."
+      },
+      "states": {
+        "behavior": {
+          "status": "covered",
+          "values": ["closed", "open", "dialog", "sheet", "escape-closes"],
+          "evidence": "packages/ui/registry/ui/responsive-dialog.tsx + packages/ui/registry/ui/responsive-dialog.test.tsx"
+        },
+        "accessibility": {
+          "status": "covered",
+          "values": ["labeled", "keyboard", "browser-accessibility-test"],
+          "evidence": "packages/ui/registry/ui/responsive-dialog.test.tsx"
+        },
+        "visual": {
+          "status": "observed",
+          "values": ["default", "hover", "focus"],
+          "evidence": "packages/ui/registry/ui/responsive-dialog.tsx"
+        }
+      },
+      "responsive": {
+        "status": "covered",
+        "risks": ["viewport-breakpoint"],
+        "rationale": "useIsMobile swaps Dialog and a bottom Sheet at 768px; tested at both widths."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned motion; overlays carry their own transitions."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/responsive-dialog",
+      "registryDependencies": [
+        "@vegastack/dialog",
+        "@vegastack/sheet",
+        "@vegastack/use-mobile"
+      ],
+      "npmDependencies": [
+        "@vegastack/design-tokens@^0.7.80",
+        "@vegastack/design@^0.7.100"
+      ],
+      "testFiles": ["packages/ui/registry/ui/responsive-dialog.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required"
+      },
+      "previewModule": "responsive-dialog",
+      "dataAttributes": {
+        "ResponsiveDialogContent": {
+          "attributes": [
+            {
+              "name": "data-responsive-dialog",
+              "values": [""]
+            },
+            {
+              "name": "data-slot",
+              "values": ["responsive-dialog-handle"]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
+    },
+    {
+      "name": "space-picker",
+      "registryType": "registry:ui",
+      "title": "Space Picker",
+      "summary": "SpaceChip — a space as a quiet property chip (tile, name, chevron) — and SpacePicker, that chip opening a searchable list of spaces with My space first, a check on the current one and disabled rows that say why.",
+      "status": "stable",
+      "since": "0.23.116",
+      "family": "form",
+      "wave": "Forms/editing",
+      "sourceFiles": ["packages/ui/registry/ui/space-picker.tsx"],
+      "publicSymbols": [
+        {
+          "name": "SpaceChip",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/space-picker.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A composition; it forwards no ref of its own."
+          }
+        },
+        {
+          "name": "SpacePicker",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/space-picker.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A composition; it forwards no ref of its own."
+          }
+        },
+        {
+          "name": "SpaceChipProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/space-picker.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "SpacePickerItem",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/space-picker.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "SpacePickerLabels",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/space-picker.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "SpacePickerProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/space-picker.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        }
+      ],
+      "variants": {
+        "status": "observed",
+        "dimensions": [
+          {
+            "name": "placement",
+            "values": ["title", "field"]
+          },
+          {
+            "name": "readOnly",
+            "values": ["false", "true"]
+          }
+        ],
+        "rationale": "A title-sized or field-sized chip; a read-only chip shows without offering a change."
+      },
+      "sizes": {
+        "status": "not-applicable",
+        "dimensions": [],
+        "rationale": "No size axis of its own."
+      },
+      "states": {
+        "behavior": {
+          "status": "covered",
+          "values": [
+            "closed",
+            "open",
+            "checked",
+            "disabled-reason",
+            "filtered",
+            "empty",
+            "read-only"
+          ],
+          "evidence": "packages/ui/registry/ui/space-picker.tsx + packages/ui/registry/ui/space-picker.test.tsx"
+        },
+        "accessibility": {
+          "status": "covered",
+          "values": ["labeled", "keyboard", "browser-accessibility-test"],
+          "evidence": "packages/ui/registry/ui/space-picker.test.tsx"
+        },
+        "visual": {
+          "status": "observed",
+          "values": ["default", "hover", "focus"],
+          "evidence": "packages/ui/registry/ui/space-picker.tsx"
+        }
+      },
+      "responsive": {
+        "status": "not-applicable",
+        "risks": [],
+        "rationale": "A shrink-wrapped control."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned motion; overlays carry their own transitions."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/space-picker",
+      "registryDependencies": [
+        "@vegastack/button",
+        "@vegastack/command",
+        "@vegastack/popover",
+        "@vegastack/space-avatar"
+      ],
+      "npmDependencies": [
+        "@vegastack/design-tokens@^0.7.80",
+        "@vegastack/design@^0.7.100",
+        "lucide-react@^1.47.0"
+      ],
+      "testFiles": ["packages/ui/registry/ui/space-picker.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required"
+      },
+      "previewModule": "space-picker",
+      "dataAttributes": {
+        "SpaceChip": {
+          "attributes": [
+            {
+              "name": "data-empty",
+              "values": [""]
+            },
+            {
+              "name": "data-icon",
+              "values": ["inline-end"]
+            },
+            {
+              "name": "data-readonly",
+              "values": [""]
+            },
+            {
+              "name": "data-size",
+              "values": []
+            },
+            {
+              "name": "data-slot",
+              "values": [
+                "space-chip",
+                "space-chip-avatar",
+                "space-chip-chevron"
+              ]
+            }
+          ],
+          "cssVariables": []
+        },
+        "SpacePicker": {
+          "attributes": [
+            {
+              "name": "data-checked",
+              "values": ["true"]
+            },
+            {
+              "name": "data-slot",
+              "values": ["space-picker", "space-picker-item"]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
+    },
+    {
+      "name": "access-chip",
+      "registryType": "registry:ui",
+      "title": "Access Chip",
+      "summary": "How far one record reaches as one focusable chip: the space tile and name, a lock and Only invited, or My space — with a globe when published and the full sentence in a tooltip. Clicking opens Share.",
+      "status": "stable",
+      "since": "0.23.116",
+      "family": "overlay",
+      "wave": "Overlays",
+      "sourceFiles": ["packages/ui/registry/ui/access-chip.tsx"],
+      "publicSymbols": [
+        {
+          "name": "AccessChip",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/access-chip.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A composition; it forwards no ref of its own."
+          }
+        },
+        {
+          "name": "AccessChipProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/access-chip.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "AccessChipLabels",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/access-chip.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "AccessChipAccess",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/access-chip.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        }
+      ],
+      "variants": {
+        "status": "observed",
+        "dimensions": [
+          {
+            "name": "access",
+            "values": ["space", "invited", "personal"]
+          },
+          {
+            "name": "iconOnly",
+            "values": ["false", "true"]
+          }
+        ],
+        "rationale": "One glyph per reach, with or without its name."
+      },
+      "sizes": {
+        "status": "not-applicable",
+        "dimensions": [],
+        "rationale": "No size axis of its own."
+      },
+      "states": {
+        "behavior": {
+          "status": "covered",
+          "values": ["default", "published", "icon-only", "tooltip"],
+          "evidence": "packages/ui/registry/ui/access-chip.tsx + packages/ui/registry/ui/access-chip.test.tsx"
+        },
+        "accessibility": {
+          "status": "covered",
+          "values": ["labeled", "keyboard", "browser-accessibility-test"],
+          "evidence": "packages/ui/registry/ui/access-chip.test.tsx"
+        },
+        "visual": {
+          "status": "observed",
+          "values": ["default", "hover", "focus"],
+          "evidence": "packages/ui/registry/ui/access-chip.tsx"
+        }
+      },
+      "responsive": {
+        "status": "not-applicable",
+        "risks": [],
+        "rationale": "A shrink-wrapped control."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned motion; overlays carry their own transitions."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/access-chip",
+      "registryDependencies": [
+        "@vegastack/button",
+        "@vegastack/space-avatar",
+        "@vegastack/tooltip"
+      ],
+      "npmDependencies": [
+        "@vegastack/design-tokens@^0.7.80",
+        "@vegastack/design@^0.7.100",
+        "lucide-react@^1.47.0"
+      ],
+      "testFiles": ["packages/ui/registry/ui/access-chip.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required"
+      },
+      "previewModule": "access-chip",
+      "dataAttributes": {
+        "AccessChip": {
+          "attributes": [
+            {
+              "name": "data-access",
+              "values": []
+            },
+            {
+              "name": "data-published",
+              "values": [""]
+            },
+            {
+              "name": "data-slot",
+              "values": [
+                "access-chip",
+                "access-chip-icon",
+                "access-chip-published"
+              ]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
+    },
+    {
+      "name": "choice-card",
+      "registryType": "registry:ui",
+      "title": "Choice Card",
+      "summary": "A radio option drawn as a card — icon, title, description and the radio — in a group that is two across from @sm and stacked below. A thin wrapper over the Field choice-card pattern.",
+      "status": "stable",
+      "since": "0.23.116",
+      "family": "form",
+      "wave": "Forms/editing",
+      "sourceFiles": ["packages/ui/registry/ui/choice-card.tsx"],
+      "publicSymbols": [
+        {
+          "name": "ChoiceCardGroup",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/choice-card.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A composition; it forwards no ref of its own."
+          }
+        },
+        {
+          "name": "ChoiceCard",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/choice-card.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A composition; it forwards no ref of its own."
+          }
+        },
+        {
+          "name": "ChoiceCardGroupProps",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/choice-card.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "ChoiceCardProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/choice-card.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable",
+        "dimensions": [],
+        "rationale": "One card look; the checked tint is RadioGroup and Field state."
+      },
+      "sizes": {
+        "status": "not-applicable",
+        "dimensions": [],
+        "rationale": "No size axis of its own."
+      },
+      "states": {
+        "behavior": {
+          "status": "covered",
+          "values": ["unchecked", "checked", "disabled", "keyboard"],
+          "evidence": "packages/ui/registry/ui/choice-card.tsx + packages/ui/registry/ui/choice-card.test.tsx"
+        },
+        "accessibility": {
+          "status": "covered",
+          "values": ["labeled", "keyboard", "browser-accessibility-test"],
+          "evidence": "packages/ui/registry/ui/choice-card.test.tsx"
+        },
+        "visual": {
+          "status": "observed",
+          "values": ["default", "hover", "focus"],
+          "evidence": "packages/ui/registry/ui/choice-card.tsx"
+        }
+      },
+      "responsive": {
+        "status": "covered",
+        "risks": ["container-query"],
+        "rationale": "Two across from @sm of its own container, stacked below."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned motion; overlays carry their own transitions."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/choice-card",
+      "registryDependencies": ["@vegastack/field", "@vegastack/radio-group"],
+      "npmDependencies": [
+        "@vegastack/design-tokens@^0.7.80",
+        "@vegastack/design@^0.7.100"
+      ],
+      "testFiles": ["packages/ui/registry/ui/choice-card.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required"
+      },
+      "previewModule": "choice-card",
+      "dataAttributes": {
+        "ChoiceCardGroup": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["choice-card-group", "choice-card-group-container"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "ChoiceCard": {
+          "attributes": [
+            {
+              "name": "data-disabled",
+              "values": ["true"]
+            },
+            {
+              "name": "data-slot",
+              "values": ["choice-card", "choice-card-icon"]
             }
           ],
           "cssVariables": []
@@ -35285,17 +36045,17 @@
       "engines": [],
       "docsSlug": "/docs/blocks/settings-01",
       "registryDependencies": [
+        "@vegastack/alert-dialog",
+        "@vegastack/app-shell",
+        "@vegastack/auto-save-input",
         "@vegastack/button",
         "@vegastack/field",
         "@vegastack/input",
         "@vegastack/native-select",
+        "@vegastack/page-header",
         "@vegastack/settings-row",
         "@vegastack/switch",
-        "@vegastack/textarea",
-        "@vegastack/action-bar",
-        "@vegastack/alert-dialog",
-        "@vegastack/app-shell",
-        "@vegastack/page-header"
+        "@vegastack/textarea"
       ],
       "npmDependencies": ["@vegastack/design-tokens@^0.7.80"],
       "testFiles": [
@@ -35709,21 +36469,23 @@
       "engines": [],
       "docsSlug": "/docs/blocks/share-01",
       "registryDependencies": [
+        "@vegastack/alert-dialog",
         "@vegastack/button",
         "@vegastack/checkbox",
         "@vegastack/copy-button",
-        "@vegastack/dialog",
         "@vegastack/input-group",
+        "@vegastack/item",
         "@vegastack/people-input",
         "@vegastack/permission-menu",
         "@vegastack/person-avatar",
+        "@vegastack/responsive-dialog",
         "@vegastack/select",
-        "@vegastack/sheet",
         "@vegastack/skeleton",
         "@vegastack/space-avatar",
+        "@vegastack/switch",
+        "@vegastack/tabs",
         "@vegastack/textarea",
-        "@vegastack/tooltip",
-        "@vegastack/use-mobile"
+        "@vegastack/tooltip"
       ],
       "npmDependencies": [
         "lucide-react@^1.47.0",
@@ -36150,6 +36912,15 @@
           "ref": {
             "status": "not-applicable",
             "rationale": "component-constant symbols do not expose a rendered DOM instance or ref contract."
+          }
+        },
+        {
+          "name": "zonedToday",
+          "kind": "function",
+          "source": "packages/ui/registry/lib/date-time.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "This exported helper is not a rendered component root."
           }
         }
       ],

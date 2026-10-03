@@ -1,4 +1,4 @@
-// @vegastack dialog@0.23.115 sha256-+XCC6uf9PRXT5omOtTMfq3yjm6JJszSu9GBdyZ2vqCs=
+// @vegastack dialog@0.23.115 sha256-fuM2WXb86+5zlvmxuWGorzBFH1OEtSgKIyiSB6Pjr28=
 
 "use client";
 
@@ -80,7 +80,7 @@ function DialogContent({
   ...props
 }: DialogPrimitive.Popup.Props & {
   showCloseButton?: boolean;
-  size?: "sm" | "default" | "lg" | "xl";
+  size?: "sm" | "default" | "md" | "lg" | "xl";
   closeLabel?: string;
 }) {
   const modal = React.useContext(DialogModalContext);
@@ -103,7 +103,7 @@ function DialogContent({
         data-slot="dialog-content"
         data-size={size}
         className={cn(
-          "fixed top-1/2 start-1/2 z-50 grid w-full max-w-[calc(100%-2rem)] -translate-x-1/2 rtl:translate-x-1/2 -translate-y-1/2 gap-4 rounded-xl bg-popover p-4 text-sm text-popover-foreground border border-border duration-100 outline-none sm:max-w-sm data-[size=sm]:sm:max-w-xs data-[size=lg]:sm:max-w-2xl data-[size=xl]:sm:max-w-5xl has-data-[slot=dialog-body]:flex has-data-[slot=dialog-body]:max-h-[calc(100%-2rem)] has-data-[slot=dialog-body]:flex-col data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95",
+          "fixed top-1/2 start-1/2 z-50 grid w-full max-w-[calc(100%-2rem)] -translate-x-1/2 rtl:translate-x-1/2 -translate-y-1/2 gap-4 rounded-xl bg-popover p-4 text-sm text-popover-foreground border border-border duration-100 outline-none sm:max-w-sm data-[size=sm]:sm:max-w-xs data-[size=md]:sm:max-w-lg data-[size=lg]:sm:max-w-2xl data-[size=xl]:sm:max-w-5xl has-data-[slot=dialog-body]:flex has-data-[slot=dialog-body]:max-h-[calc(100%-2rem)] has-data-[slot=dialog-body]:flex-col data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95",
           className,
         )}
         {...props}

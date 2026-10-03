@@ -1,6 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
+import { Button } from "@/components/ui/button";
 import { Wrapper } from "./wrapper";
 import { PersonAvatar, type Person } from "@/components/ui/person-avatar";
 import {
@@ -125,6 +126,25 @@ export function personHoverCardTeam(): ReactNode {
       <AvatarStack people={shared} label="Shared with" />
       <PersonAvatar size="lg" person={shared[2]!} />
       <PersonCard person={shared[3]!} />
+    </Wrapper>
+  );
+}
+
+/** Five of fourteen members loaded: `total` keeps "+N" honest; `footer` ends the list with an action. */
+export function personHoverCardTotal(): ReactNode {
+  return (
+    <Wrapper>
+      <AvatarStack
+        people={PEOPLE.slice(0, 5)}
+        total={14}
+        max={3}
+        label="Members"
+        footer={
+          <Button variant="ghost" size="sm" className="w-full justify-start">
+            Manage access
+          </Button>
+        }
+      />
     </Wrapper>
   );
 }

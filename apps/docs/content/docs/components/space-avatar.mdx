@@ -30,8 +30,13 @@ import { SpaceAvatar, SpaceOption } from "@/components/ui/space-avatar";
 A space is drawn one way everywhere — the sidebar, a space picker, a Move to… menu, a share
 dialog's general access row: a rounded-square tile (a person is a circle) with the space's `icon`,
 else its first initial, on its `hue` (one of the ten tag hues). A `private` space wears a small lock
-at its corner; a `personal` space — one person's own Private area — is the lock itself on the muted
-tile.
+at its corner; a `personal` space — one person's own "My space" — is a person-with-lock glyph
+(`UserLock`) on the muted tile. Pass `showLock={false}` to hide the corner lock where it would
+crowd (inside a picker trigger).
+
+**The space glyph.** `SpaceIcon` (lucide `Layers`) is the one glyph for the concept of a space —
+"Move to…", a picker's empty state, a placeholder chip. `Compass` means only "Browse spaces", and a
+folder never means a space (it is a project).
 
 <ComponentPreview
   name="spaceAvatar"
@@ -54,11 +59,19 @@ tile.
 
 ### Sizes
 
-`xs` (20px, a sidebar row), `sm` (24px, the default), `default` (32px) and `lg` (40px). The lock and
-the icon scale with the tile.
+`2xs` (16px), `xs` (20px), `sm` (24px, the default), `default` (32px) and `lg` (40px). The lock and
+the icon scale with the tile. **Use `2xs` in a `SidebarMenuButton` row**: it fills the row's 16px
+icon slot, so space rows line up with the nav icons around them (it draws no corner lock).
 
 <ComponentPreview
   name="spaceAvatarSizes"
+  file="components/preview/space-avatar.tsx"
+/>
+
+### Space icon
+
+<ComponentPreview
+  name="spaceAvatarIcon"
   file="components/preview/space-avatar.tsx"
 />
 

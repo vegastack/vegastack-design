@@ -1,4 +1,4 @@
-// @vegastack data-table-parts@0.23.115 sha256-4ExKM11tuBWnWf3BhzrUjj4Kb8BaNXJCntFo9uYUb0g=
+// @vegastack data-table-parts@0.23.115 sha256-/DhVOxzgL153qF1HS4b6ufyFEu6QS9ZrxvXC2/QZazE=
 
 "use client";
 
@@ -917,7 +917,8 @@ export function EmptyRow({
 }: EmptyRowProps) {
   return (
     <TableRow data-slot={slot} className="hover:bg-transparent">
-      <TableCell colSpan={colSpan} className="min-w-0 p-0">
+      {/* `p-2`: a custom empty node never touches the header row above it. */}
+      <TableCell colSpan={colSpan} className="min-w-0 p-2">
         {children ?? (
           <Empty icon={<Inbox aria-hidden />}>
             <EmptyHeader>

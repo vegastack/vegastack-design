@@ -576,7 +576,10 @@ test.each(["light", "dark"])(
   },
 );
 
-test("FOC-9: the forced-colors outline offset remains inset", async () => {
+// This does not emulate forced colours (the browser lane has no media emulation): it pins the two
+// halves that make the forced-colours outline correct — the offset stays INSET, so a restored
+// outline draws inside the surface, and normal mode still paints no outline at all.
+test("FOC-9: the focused surface keeps an inset outline offset and paints no outline", async () => {
   const screen = await render(<FullChart />);
   const surface = await surfaceOf(screen.container);
   await userEvent.tab();

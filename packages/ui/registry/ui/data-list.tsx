@@ -1,4 +1,4 @@
-// @vegastack data-list@0.23.115 sha256-GfC13U3N2k4BP45gbSVbVm7GBoCjl0D4DSfIFHRCeOA=
+// @vegastack data-list@0.23.115 sha256-ArVKGBc8puluYgcMApHGUBetZ6Ol+M5gfBo4TeAOdsk=
 
 "use client";
 
@@ -1966,6 +1966,10 @@ export function DataList<T>({
       </React.Fragment>
     ));
   };
+  /** Whether a card renders controls of its own: row actions, or an `interactive` column. */
+  const cardHasControls = (onBoard: boolean) =>
+    (!onBoard && Boolean(rowActions)) ||
+    columns.some((column) => column.interactive === true);
   const defaultCard = (row: T, index: number, onBoard: boolean) => {
     const first = columns[0];
     const id = rowIds[index]!;
@@ -1991,7 +1995,22 @@ export function DataList<T>({
         className={
           !onBoard && selectable && gridSize !== "lg" ? "ps-9" : undefined
         }
-        role={!getRowHref?.(row) && onRowClick ? "button" : undefined}
+        // A card that wraps its own controls (the row-actions menu, or an `interactive` column's
+        // button or link) cannot be a `button` — that nests interactive content (axe
+        // `nested-interactive`). It stays a keyboard-reachable, labelled group that Enter/Space
+        // still activates.
+        role={
+          !getRowHref?.(row) && onRowClick
+            ? cardHasControls(onBoard)
+              ? "group"
+              : "button"
+            : undefined
+        }
+        aria-label={
+          !getRowHref?.(row) && onRowClick && cardHasControls(onBoard)
+            ? getRowLabel?.(row)
+            : undefined
+        }
         tabIndex={!getRowHref?.(row) && onRowClick ? 0 : undefined}
         onClick={(event) => {
           if (!getRowHref?.(row) && !isFromInteractiveDescendant(event))

@@ -75,7 +75,7 @@ that catch bugs nobody can see in review.
    `border-input` in every state; the focus cue is `base.css`'s background tint. **The one
    exemption is text entry (MK 2026-09-27)**: in `TEXT_ENTRY_FOCUS_BORDER_FILES` (input, textarea,
    input-group, combobox, panel-search, questionnaire, text-edit) a token ending in
-   `:border-ring/40` passes — that exact shape only, any other colour there still fails. Invalid
+   `:border-ring/50` passes — that exact shape only, any other colour there still fails. Invalid
    holds its destructive border in every state, so the old `not-focus:` / `not-focus-within:` /
    `not-data-[active=true]:` guards are rejected too (the text-entry class carries a
    `not-…invalid` guard instead). Width, side and style utilities (`focus:border`, `border-0`,

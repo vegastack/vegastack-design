@@ -1,18 +1,30 @@
-// @vegastack space-avatar@0.23.115 sha256-R0GblFo3cPKT6Y0lRqecXAefWyTlnEuUrkrqJ8lVvDg=
+// @vegastack space-avatar@0.23.115 sha256-HsnfpCMfg4khEq7XHHEzGwDb8c/CvfPrhMdmdtPhNho=
 
 import * as React from "react";
-import { LockIcon } from "lucide-react";
+import { Layers, LockIcon, UserLock } from "lucide-react";
 import { cn } from "@vegastack/design";
 import { Avatar, AvatarFallback, type AvatarHue } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 
 /* ------------------------------------------------------------------------------------------------
  * SpaceAvatar — the ONE way a space (a workspace area that holds items, such as General, Sales or
- * a person's own Private) is drawn: a rounded-square tile, the space's icon or its first initial,
- * on the space's hue. A private space wears a small lock at its corner; a personal space (one
- * person's own Private area) is the lock itself on the muted tile. SpaceOption is the row that
- * lists a space in pickers and menus, the space twin of PersonOption.
+ * a person's own "My space") is drawn: a rounded-square tile, the space's icon or its first
+ * initial, on the space's hue. A private space wears a small lock at its corner; a personal space
+ * (one person's own My space) is a person-with-lock glyph on the muted tile. SpaceOption is the
+ * row that lists a space in pickers and menus, the space twin of PersonOption.
+ *
+ * `SpaceIcon` (lucide `Layers`) is the one glyph for the CONCEPT of a space — "Move to…", a space
+ * picker's empty state, a placeholder chip. `Compass` is only "Browse spaces"; a folder never means
+ * a space (it is a project).
  * ----------------------------------------------------------------------------------------------*/
+
+/**
+ * `SpaceIcon` — the generic glyph for "a space" (lucide `Layers`). Use it wherever the concept is
+ * shown without a particular space: "Move to…", picker empty states, placeholders.
+ *
+ * @example <SpaceIcon aria-hidden className="size-4" />
+ */
+export const SpaceIcon = Layers;
 
 /** A space shown by `SpaceAvatar` and `SpaceOption`. */
 export interface Space {
@@ -24,7 +36,7 @@ export interface Space {
   hue?: AvatarHue | null;
   /**
    * Who can open it. `open` — anyone in the workspace; `private` — members only (a lock at the
-   * corner); `personal` — one person's own Private area (the lock is the tile).
+   * corner); `personal` — one person's own My space (a person-with-lock glyph is the tile).
    */
   access: "open" | "private" | "personal";
 }
@@ -36,11 +48,18 @@ export interface SpaceAvatarProps extends Omit<
 > {
   /** The space. */
   space: Space;
-  /** Tile size: 20, 24, 32 or 40px. @default "sm" */
-  size?: "xs" | "sm" | "default" | "lg";
+  /**
+   * Tile size: 16, 20, 24, 32 or 40px. `2xs` (16px) sits in a `SidebarMenuButton` row's icon slot,
+   * so space rows line up with the 16px nav icons around them; it draws no corner lock.
+   * @default "sm"
+   */
+  size?: "2xs" | "xs" | "sm" | "default" | "lg";
+  /** Draw the corner lock on a `private` space. Off inside a picker trigger or a dense row. @default true */
+  showLock?: boolean;
 }
 
 const ICON_SIZE = {
+  "2xs": "[&_svg]:size-2.5",
   xs: "[&_svg]:size-3",
   sm: "[&_svg]:size-3.5",
   default: "[&_svg]:size-4",
@@ -62,9 +81,11 @@ function spaceInitial(name: string): string {
 export function SpaceAvatar({
   space,
   size = "sm",
+  showLock = true,
   className,
   ...props
 }: SpaceAvatarProps) {
+  const tiny = size === "2xs" || size === "xs";
   const personal = space.access === "personal";
   const labelled = props["aria-label"] != null;
   return (
@@ -78,10 +99,11 @@ export function SpaceAvatar({
       {...props}
     >
       <Avatar
-        size={size === "xs" ? "sm" : size}
+        size={tiny ? "sm" : size}
         className={cn(
           "rounded-md after:rounded-md",
           size === "xs" && "data-[size=sm]:size-5",
+          size === "2xs" && "rounded-sm after:rounded-sm data-[size=sm]:size-4",
         )}
       >
         <AvatarFallback
@@ -89,18 +111,19 @@ export function SpaceAvatar({
           className={cn(
             "rounded-md font-medium",
             size === "lg" && "text-sm",
+            size === "2xs" && "rounded-sm text-xs leading-none",
             ICON_SIZE[size],
           )}
         >
-          {personal ? <LockIcon /> : (space.icon ?? spaceInitial(space.name))}
+          {personal ? <UserLock /> : (space.icon ?? spaceInitial(space.name))}
         </AvatarFallback>
       </Avatar>
-      {space.access === "private" ? (
+      {space.access === "private" && showLock && size !== "2xs" ? (
         <span
           data-slot="space-avatar-lock"
           className={cn(
             "absolute -end-1 -bottom-1 flex items-center justify-center rounded-full bg-background text-muted-foreground",
-            size === "xs" || size === "sm"
+            tiny || size === "sm"
               ? "size-3 [&_svg]:size-2"
               : "size-4 [&_svg]:size-2.5",
           )}

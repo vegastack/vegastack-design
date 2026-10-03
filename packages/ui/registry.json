@@ -1464,7 +1464,8 @@
         "@vegastack/date-time",
         "@vegastack/calendar",
         "@vegastack/popover",
-        "@vegastack/button"
+        "@vegastack/button",
+        "@vegastack/relative-time"
       ],
       "files": [
         {
@@ -13440,7 +13441,8 @@
       "registryDependencies": [
         "@vegastack/button",
         "@vegastack/dropdown-menu",
-        "@vegastack/item"
+        "@vegastack/item",
+        "@vegastack/tooltip"
       ],
       "files": [
         {
@@ -13452,6 +13454,117 @@
       "meta": {
         "whenToUse": "Choose or show the access level of one person, team or group on a sharing or membership row.",
         "whenNotToUse": "A form field choosing a value (Select), or a row's general actions (DropdownMenu or RowActionMenu).",
+        "version": "0.23.115"
+      }
+    },
+    {
+      "name": "responsive-dialog",
+      "type": "registry:ui",
+      "title": "Responsive Dialog",
+      "description": "One overlay API that is a centred Dialog from 768px up and a bottom Sheet with a drag handle and a safe-area footer below it — the same header, body and footer in both.",
+      "categories": ["overlay"],
+      "dependencies": [
+        "@vegastack/design@^0.7.100",
+        "@vegastack/design-tokens@^0.7.80"
+      ],
+      "registryDependencies": [
+        "@vegastack/dialog",
+        "@vegastack/sheet",
+        "@vegastack/use-mobile"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/responsive-dialog.tsx",
+          "type": "registry:ui",
+          "target": "@ui/responsive-dialog.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "A dialog that must also work on a phone: share, members, move, create flows.",
+        "whenNotToUse": "A desktop-only modal (Dialog) or a side panel (Sheet).",
+        "version": "0.23.115"
+      }
+    },
+    {
+      "name": "space-picker",
+      "type": "registry:ui",
+      "title": "Space Picker",
+      "description": "SpaceChip — a space as a quiet property chip (tile, name, chevron) — and SpacePicker, that chip opening a searchable list of spaces with My space first, a check on the current one and disabled rows that say why.",
+      "categories": ["form"],
+      "dependencies": [
+        "lucide-react@^1.47.0",
+        "@vegastack/design@^0.7.100",
+        "@vegastack/design-tokens@^0.7.80"
+      ],
+      "registryDependencies": [
+        "@vegastack/button",
+        "@vegastack/command",
+        "@vegastack/popover",
+        "@vegastack/space-avatar"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/space-picker.tsx",
+          "type": "registry:ui",
+          "target": "@ui/space-picker.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "Choosing or showing which space a record lives in, in a create dialog title or a property row.",
+        "whenNotToUse": "Choosing anything that is not a space (SearchableSelect, Combobox).",
+        "version": "0.23.115"
+      }
+    },
+    {
+      "name": "access-chip",
+      "type": "registry:ui",
+      "title": "Access Chip",
+      "description": "How far one record reaches as one focusable chip: the space tile and name, a lock and Only invited, or My space — with a globe when published and the full sentence in a tooltip. Clicking opens Share.",
+      "categories": ["overlay"],
+      "dependencies": [
+        "lucide-react@^1.47.0",
+        "@vegastack/design@^0.7.100",
+        "@vegastack/design-tokens@^0.7.80"
+      ],
+      "registryDependencies": [
+        "@vegastack/button",
+        "@vegastack/space-avatar",
+        "@vegastack/tooltip"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/access-chip.tsx",
+          "type": "registry:ui",
+          "target": "@ui/access-chip.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "A record header that shows who can open the record and opens Share.",
+        "whenNotToUse": "Changing access inline (PermissionMenu) or listing people (AvatarStack).",
+        "version": "0.23.115"
+      }
+    },
+    {
+      "name": "choice-card",
+      "type": "registry:ui",
+      "title": "Choice Card",
+      "description": "A radio option drawn as a card — icon, title, description and the radio — in a group that is two across from @sm and stacked below. A thin wrapper over the Field choice-card pattern.",
+      "categories": ["form"],
+      "dependencies": [
+        "@vegastack/design@^0.7.100",
+        "@vegastack/design-tokens@^0.7.80"
+      ],
+      "registryDependencies": ["@vegastack/field", "@vegastack/radio-group"],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/choice-card.tsx",
+          "type": "registry:ui",
+          "target": "@ui/choice-card.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "Two to four mutually exclusive options that each need a sentence, such as Open / Private access.",
+        "whenNotToUse": "Many options or short labels (RadioGroup, Select, ToggleGroup).",
         "version": "0.23.115"
       }
     },
@@ -14386,7 +14499,8 @@
         "@vegastack/alert",
         "@vegastack/dropzone",
         "@vegastack/empty",
-        "@vegastack/tabs"
+        "@vegastack/tabs",
+        "@vegastack/toast"
       ],
       "files": [
         {
@@ -15076,18 +15190,20 @@
         "@vegastack/button",
         "@vegastack/checkbox",
         "@vegastack/copy-button",
-        "@vegastack/dialog",
         "@vegastack/input-group",
         "@vegastack/people-input",
         "@vegastack/permission-menu",
         "@vegastack/person-avatar",
         "@vegastack/select",
-        "@vegastack/sheet",
         "@vegastack/skeleton",
         "@vegastack/space-avatar",
         "@vegastack/textarea",
         "@vegastack/tooltip",
-        "@vegastack/use-mobile"
+        "@vegastack/alert-dialog",
+        "@vegastack/item",
+        "@vegastack/responsive-dialog",
+        "@vegastack/switch",
+        "@vegastack/tabs"
       ],
       "files": [
         {
@@ -16820,10 +16936,10 @@
         "@vegastack/settings-row",
         "@vegastack/switch",
         "@vegastack/textarea",
-        "@vegastack/action-bar",
         "@vegastack/alert-dialog",
         "@vegastack/app-shell",
-        "@vegastack/page-header"
+        "@vegastack/page-header",
+        "@vegastack/auto-save-input"
       ],
       "files": [
         {

@@ -1,0 +1,106 @@
+---
+title: Responsive Dialog
+description: One overlay API — a centred Dialog from 768px up, a bottom sheet with a drag handle below it.
+audience: public
+registry: responsive-dialog
+status: stable
+since: 0.23.116
+a11y: dialog in both forms; focus trapped; Esc closes
+preview: responsiveDialog
+---
+
+## Install
+
+<InstallSteps name="responsive-dialog" />
+
+## Usage
+
+```tsx
+import {
+  ResponsiveDialog,
+  ResponsiveDialogBody,
+  ResponsiveDialogContent,
+  ResponsiveDialogFooter,
+  ResponsiveDialogHeader,
+  ResponsiveDialogTitle,
+} from "@/components/ui/responsive-dialog";
+
+<ResponsiveDialog open={open} onOpenChange={setOpen}>
+  <ResponsiveDialogContent size="md">
+    <ResponsiveDialogHeader>
+      <ResponsiveDialogTitle>Members · Product</ResponsiveDialogTitle>
+    </ResponsiveDialogHeader>
+    <ResponsiveDialogBody>{list}</ResponsiveDialogBody>
+    <ResponsiveDialogFooter>
+      <Button>Add</Button>
+    </ResponsiveDialogFooter>
+  </ResponsiveDialogContent>
+</ResponsiveDialog>;
+```
+
+Write the dialog once. From 768px up it is a `Dialog` of the `size` you pass (`md` for share,
+members and settings dialogs); below that it is a bottom `Sheet`: full width, as tall as its content
+up to 85% of the screen, a drag handle at the top, the same header and body, and a footer that stays
+at the bottom and clears the home indicator. The consumer writes no `useIsMobile` branch and no
+layout code. The form follows the viewport while the dialog is closed and is **locked while it is
+open**: resizing across the breakpoint never closes it or resets what is inside it, and the other
+form applies the next time it opens.
+
+<ComponentPreview
+  name="responsiveDialog"
+  file="components/preview/responsive-dialog.tsx"
+/>
+
+## Scope
+
+- Owns: the switch between `Dialog` and a bottom `Sheet`, the handle and the safe-area footer.
+- Does not own: the dialog's content, its sizes (they are `Dialog`'s) or the sheet's motion (it is
+  `Sheet`'s).
+- Compose with: anything a `Dialog` holds — `share-01` uses it for Share.
+
+## Anatomy
+
+<Anatomy name="responsive-dialog" />
+
+## Examples
+
+### Sizes
+
+`size` sizes the dialog form only; the phone sheet is always full width.
+
+<ComponentPreview
+  name="responsiveDialogSizes"
+  file="components/preview/responsive-dialog.tsx"
+/>
+
+## API Reference
+
+<ApiTable
+  path="../../packages/ui/registry/ui/responsive-dialog.tsx"
+  name="ResponsiveDialogProps"
+/>
+
+`ResponsiveDialogContent` takes `DialogContent`'s props (`size`, `showCloseButton`, `closeLabel`).
+`ResponsiveDialogTrigger`, `ResponsiveDialogClose`, `ResponsiveDialogHeader`,
+`ResponsiveDialogTitle`, `ResponsiveDialogDescription`, `ResponsiveDialogBody` and
+`ResponsiveDialogFooter` add no props of their own — each takes its `Dialog` part's props.
+
+## Accessibility
+
+- Both forms are Base UI Dialog: `role="dialog"` with `aria-modal`, named by the title, focus
+  trapped inside and returned to the trigger.
+- The drag handle is decorative (`aria-hidden`); the sheet closes with Escape, its × or a Close.
+
+| Key            | Action                               |
+| -------------- | ------------------------------------ |
+| <kbd>Tab</kbd> | Move between controls inside         |
+| <kbd>Esc</kbd> | Close and return focus to the opener |
+
+<StatesTested name="responsive-dialog" />
+
+## Do / Don't
+
+<DoDont
+  do="Use it for any dialog a phone user can open: share, members, move, create."
+  dont="Branch on useIsMobile to mount a Dialog or a Sheet yourself."
+/>

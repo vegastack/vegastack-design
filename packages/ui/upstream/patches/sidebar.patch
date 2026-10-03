@@ -7,7 +7,10 @@
 #     pointer the badge hides while the item is hovered or holds focus or the action is expanded;
 #     on touch (below `md`, or a coarse pointer at any width) the action stays visible, the badge
 #     moves to `end-7` beside it, and `SidebarMenuButton` reserves `pe-14` for both (MK,
-#     2026-09-27; coarse pointer 2026-09-30).
+#     2026-09-27; coarse pointer 2026-09-30). `SidebarGroupAction` takes the same `showOnHover`
+#     (MK, 03-10-2026): hidden from `md` up on a fine pointer until its `SidebarGroup` is hovered
+#     or holds focus (the group gains the `group/sidebar-group` name for it), always shown on
+#     touch, and it writes the same explicit `data-show-on-hover`.
 #   API-29: `SidebarMenuButton` styles its own open state — `aria-expanded:` and
 #     `data-popup-open:` take the `sidebar-accent` fill and ink — so a menu trigger such as the
 #     user menu needs no className (MK, 2026-09-25).
@@ -85,7 +88,7 @@
 #               reflows the file, and `registry-stamp.mjs` writes the provenance header the
 #               three-copy model needs (DOC-1); those hunks carry no decision of their own.
 diff --git a/sidebar.tsx b/sidebar.tsx
-index cbcc413..254a3a7 100644
+index cbcc413..cc353c9 100644
 --- a/sidebar.tsx
 +++ b/sidebar.tsx
 @@ -1,117 +1,207 @@
@@ -608,7 +611,7 @@ index cbcc413..254a3a7 100644
        data-sidebar="group"
 -      className={cn("relative flex w-full min-w-0 flex-col p-2", className)}
 +      className={cn(
-+        "relative flex w-full min-w-0 flex-col px-2 py-1",
++        "group/sidebar-group relative flex w-full min-w-0 flex-col px-2 py-1",
 +        className,
 +      )}
        {...props}
@@ -618,7 +621,7 @@ index cbcc413..254a3a7 100644
  }
  
  function SidebarGroupLabel({
-@@ -400,18 +502,18 @@ function SidebarGroupLabel({
+@@ -400,42 +502,50 @@ function SidebarGroupLabel({
      props: mergeProps<"div">(
        {
          className: cn(
@@ -641,15 +644,28 @@ index cbcc413..254a3a7 100644
  }
  
  function SidebarGroupAction({
-@@ -424,18 +526,18 @@ function SidebarGroupAction({
+   className,
+   render,
++  showOnHover = false,
+   ...props
+-}: useRender.ComponentProps<"button"> & React.ComponentProps<"button">) {
++}: useRender.ComponentProps<"button"> &
++  React.ComponentProps<"button"> & {
++    showOnHover?: boolean;
++  }) {
+   return useRender({
+     defaultTagName: "button",
      props: mergeProps<"button">(
        {
          className: cn(
 -          "absolute top-3.5 end-3 flex aspect-square w-5 items-center justify-center rounded-md p-0 text-sidebar-foreground ring-sidebar-ring outline-hidden transition-transform group-data-[collapsible=icon]:hidden after:absolute after:-inset-2 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 md:after:hidden [&>svg]:size-4 [&>svg]:shrink-0",
 -          className
 +          "absolute top-2.5 end-3 flex aspect-square w-5 items-center justify-center rounded-md p-0 text-sidebar-foreground ring-sidebar-ring transition-transform group-data-[collapsible=icon]:hidden after:absolute after:-inset-2 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground [&>svg]:size-4 [&>svg]:shrink-0",
++          showOnHover &&
++            "group-focus-within/sidebar-group:opacity-100 group-hover/sidebar-group:opacity-100 aria-expanded:opacity-100 md:opacity-0 pointer-coarse:opacity-100",
 +          className,
          ),
++        ...(showOnHover ? { "data-show-on-hover": "" } : {}),
        },
 -      props
 +      props,
@@ -658,13 +674,14 @@ index cbcc413..254a3a7 100644
      state: {
        slot: "sidebar-group-action",
        sidebar: "group-action",
++      showOnHover,
      },
 -  })
 +  });
  }
  
  function SidebarGroupContent({
-@@ -449,7 +551,7 @@ function SidebarGroupContent({
+@@ -449,7 +559,7 @@ function SidebarGroupContent({
        className={cn("w-full text-sm", className)}
        {...props}
      />
@@ -673,7 +690,7 @@ index cbcc413..254a3a7 100644
  }
  
  function SidebarMenu({ className, ...props }: React.ComponentProps<"ul">) {
-@@ -457,10 +559,10 @@ function SidebarMenu({ className, ...props }: React.ComponentProps<"ul">) {
+@@ -457,10 +567,10 @@ function SidebarMenu({ className, ...props }: React.ComponentProps<"ul">) {
      <ul
        data-slot="sidebar-menu"
        data-sidebar="menu"
@@ -686,7 +703,7 @@ index cbcc413..254a3a7 100644
  }
  
  function SidebarMenuItem({ className, ...props }: React.ComponentProps<"li">) {
-@@ -471,11 +573,11 @@ function SidebarMenuItem({ className, ...props }: React.ComponentProps<"li">) {
+@@ -471,11 +581,11 @@ function SidebarMenuItem({ className, ...props }: React.ComponentProps<"li">) {
        className={cn("group/menu-item relative", className)}
        {...props}
      />
@@ -700,7 +717,7 @@ index cbcc413..254a3a7 100644
    {
      variants: {
        variant: {
-@@ -493,8 +595,8 @@ const sidebarMenuButtonVariants = cva(
+@@ -493,8 +603,8 @@ const sidebarMenuButtonVariants = cva(
        variant: "default",
        size: "default",
      },
@@ -711,7 +728,7 @@ index cbcc413..254a3a7 100644
  
  function SidebarMenuButton({
    render,
-@@ -502,21 +604,45 @@ function SidebarMenuButton({
+@@ -502,21 +612,45 @@ function SidebarMenuButton({
    variant = "default",
    size = "default",
    tooltip,
@@ -762,7 +779,7 @@ index cbcc413..254a3a7 100644
      ),
      render: !tooltip ? render : <TooltipTrigger render={render} />,
      state: {
-@@ -525,29 +651,59 @@ function SidebarMenuButton({
+@@ -525,29 +659,59 @@ function SidebarMenuButton({
        size,
        active: isActive,
      },
@@ -835,7 +852,7 @@ index cbcc413..254a3a7 100644
  }
  
  function SidebarMenuAction({
-@@ -557,27 +713,31 @@ function SidebarMenuAction({
+@@ -557,27 +721,31 @@ function SidebarMenuAction({
    ...props
  }: useRender.ComponentProps<"button"> &
    React.ComponentProps<"button"> & {
@@ -873,7 +890,7 @@ index cbcc413..254a3a7 100644
  }
  
  function SidebarMenuBadge({
-@@ -588,26 +748,32 @@ function SidebarMenuBadge({
+@@ -588,26 +756,32 @@ function SidebarMenuBadge({
      <div
        data-slot="sidebar-menu-badge"
        data-sidebar="menu-badge"
@@ -914,7 +931,7 @@ index cbcc413..254a3a7 100644
  
    return (
      <div
-@@ -632,7 +798,7 @@ function SidebarMenuSkeleton({
+@@ -632,7 +806,7 @@ function SidebarMenuSkeleton({
          }
        />
      </div>
@@ -923,7 +940,7 @@ index cbcc413..254a3a7 100644
  }
  
  function SidebarMenuSub({ className, ...props }: React.ComponentProps<"ul">) {
-@@ -642,11 +808,11 @@ function SidebarMenuSub({ className, ...props }: React.ComponentProps<"ul">) {
+@@ -642,11 +816,11 @@ function SidebarMenuSub({ className, ...props }: React.ComponentProps<"ul">) {
        data-sidebar="menu-sub"
        className={cn(
          "mx-3.5 flex min-w-0 translate-x-px rtl:-translate-x-px flex-col gap-1 border-s border-sidebar-border px-2.5 py-0.5 group-data-[collapsible=icon]:hidden",
@@ -937,7 +954,7 @@ index cbcc413..254a3a7 100644
  }
  
  function SidebarMenuSubItem({
-@@ -660,7 +826,7 @@ function SidebarMenuSubItem({
+@@ -660,7 +834,7 @@ function SidebarMenuSubItem({
        className={cn("group/menu-sub-item relative", className)}
        {...props}
      />
@@ -946,7 +963,7 @@ index cbcc413..254a3a7 100644
  }
  
  function SidebarMenuSubButton({
-@@ -671,19 +837,19 @@ function SidebarMenuSubButton({
+@@ -671,19 +845,19 @@ function SidebarMenuSubButton({
    ...props
  }: useRender.ComponentProps<"a"> &
    React.ComponentProps<"a"> & {
@@ -971,7 +988,7 @@ index cbcc413..254a3a7 100644
      ),
      render,
      state: {
-@@ -692,7 +858,7 @@ function SidebarMenuSubButton({
+@@ -692,7 +866,7 @@ function SidebarMenuSubButton({
        size,
        active: isActive,
      },
@@ -980,7 +997,7 @@ index cbcc413..254a3a7 100644
  }
  
  export {
-@@ -718,6 +884,8 @@ export {
+@@ -718,6 +892,8 @@ export {
    SidebarProvider,
    SidebarRail,
    SidebarSeparator,

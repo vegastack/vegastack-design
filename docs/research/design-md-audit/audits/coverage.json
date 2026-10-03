@@ -1,14 +1,14 @@
 {
   "schemaVersion": 1,
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "742e64356b4eb4c09ea4ba14e81675d812c9ca61ab103a4b1d1925b22fcda32b",
+  "contractSha256": "76474bd19ce72cb8c165b04b87d13e44c551c163c8f95c500896e1594d4ab1cb",
   "inventory": {
-    "expected": 718,
-    "actual": 718,
-    "unique": 718
+    "expected": 722,
+    "actual": 722,
+    "unique": 722
   },
   "classes": {
-    "components": 145,
+    "components": 149,
     "animatedIcons": 467,
     "hooks": 13,
     "blocks": 14,
@@ -47,13 +47,14 @@
       ]
     },
     "Forms/editing": {
-      "expected": 31,
-      "actual": 31,
+      "expected": 33,
+      "actual": 33,
       "members": [
         "auto-save-input",
         "avatar-picker",
         "calendar",
         "chip-input",
+        "choice-card",
         "color-picker",
         "combobox",
         "country-select",
@@ -77,6 +78,7 @@
         "select",
         "settings-row",
         "sortable-list",
+        "space-picker",
         "tag-group",
         "template-editor",
         "text-edit",
@@ -111,9 +113,10 @@
       ]
     },
     "Overlays": {
-      "expected": 16,
-      "actual": 16,
+      "expected": 18,
+      "actual": 18,
       "members": [
+        "access-chip",
         "action-bar",
         "alert-dialog",
         "context-menu",
@@ -126,6 +129,7 @@
         "permission-menu",
         "popover",
         "provider",
+        "responsive-dialog",
         "sheet",
         "shortcut-overlay",
         "toast",
@@ -790,7 +794,7 @@
       ]
     }
   },
-  "componentRoutes": 142,
+  "componentRoutes": 146,
   "blockRoutes": 21,
   "modeledExemptions": 3
 }

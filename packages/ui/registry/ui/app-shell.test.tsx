@@ -9,6 +9,7 @@ import {
   AppShellContent,
   AppShellHeader,
   AppShellPage,
+  AppShellSection,
   AppShellSidebar,
   AppShellSkeleton,
   pageGutterClasses,
@@ -599,5 +600,30 @@ test("no a11y violations — page container in the shell", async () => {
       </div>
     </AppShell>,
   );
+  await expectNoA11yViolations(screen.container);
+});
+
+test("AppShellSection measure=prose caps the section at 45rem at the page's start; full takes the width", async () => {
+  const screen = await render(
+    <div style={{ width: 1200 }}>
+      <AppShellSection measure="prose" data-testid="prose">
+        <p>Settings</p>
+      </AppShellSection>
+      <AppShellSection data-testid="full">
+        <p>List</p>
+      </AppShellSection>
+    </div>,
+  );
+  const prose = screen.container.querySelector<HTMLElement>(
+    '[data-testid="prose"]',
+  )!;
+  const full = screen.container.querySelector<HTMLElement>(
+    '[data-testid="full"]',
+  )!;
+  expect(prose.dataset.slot).toBe("app-shell-section");
+  expect(prose.dataset.measure).toBe("prose");
+  expect(prose.className).toContain("max-w-[45rem]");
+  expect(prose.className).not.toContain("mx-auto");
+  expect(full.dataset.measure).toBe("full");
   await expectNoA11yViolations(screen.container);
 });

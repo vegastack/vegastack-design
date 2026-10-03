@@ -5,6 +5,8 @@ import type { ReactNode } from "react";
 import { Wrapper } from "./wrapper";
 import { PermissionMenu } from "@/components/ui/permission-menu";
 import { PersonAvatar } from "@/components/ui/person-avatar";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
 const LEVELS = [
   {
@@ -66,6 +68,61 @@ export function permissionMenuReadOnly(): ReactNode {
     <Wrapper>
       <PermissionMenu value="full" options={LEVELS} readOnly />
       <PermissionMenu value="edit" options={LEVELS} disabled />
+    </Wrapper>
+  );
+}
+
+/** The three trigger looks side by side with an Input and a Button: chip 28px, outline 32px. */
+export function permissionMenuVariants(): ReactNode {
+  const [a, setA] = React.useState("edit");
+  const [b, setB] = React.useState("view");
+  return (
+    <Wrapper className="flex-col items-stretch">
+      <div className="mx-auto flex w-full max-w-md items-center gap-2">
+        <Input aria-label="Add people" placeholder="Add people…" />
+        <PermissionMenu
+          variant="outline"
+          value={b}
+          options={LEVELS}
+          onValueChange={setB}
+          aria-label="Access for new people"
+        />
+        <Button>Invite</Button>
+      </div>
+      <div className="mx-auto flex w-full max-w-md items-center justify-between gap-2">
+        <span className="text-sm">Priya Shah</span>
+        <PermissionMenu
+          variant="chip"
+          value={a}
+          options={LEVELS}
+          onValueChange={setA}
+          aria-label="Priya Shah's access"
+        />
+      </div>
+    </Wrapper>
+  );
+}
+
+/** A built-in row: locked, a tab stop, the reason on hover and focus. */
+export function permissionMenuLocked(): ReactNode {
+  return (
+    <Wrapper>
+      <PermissionMenu
+        variant="chip"
+        value="full"
+        options={LEVELS}
+        locked
+        lockedReason="Set by role: Creator"
+        aria-label="Manoj Kumar's access: Full access"
+      />
+      <PermissionMenu
+        variant="chip"
+        value="edit"
+        options={LEVELS}
+        locked
+        lockedReason="Set by role: Assignee"
+        aria-label="Kavya Nair's access: Can edit"
+      />
     </Wrapper>
   );
 }

@@ -592,7 +592,7 @@ function tintCarriers(control: Element): Element[] {
   }
   // An OTP field's tint lands on the ACTIVE SLOT, which is a SIBLING of the hidden input rather
   // than an ancestor of it: one input drives every slot, and the slot the caret is in carries
-  // `data-active` and with it `border-ring/40`. Walking ancestors can never see that, so the
+  // `data-active` and with it `border-ring/50`. Walking ancestors can never see that, so the
   // slots of the control's own container join the carrier set.
   if (control.matches('[data-slot="input-otp"]')) {
     const container =

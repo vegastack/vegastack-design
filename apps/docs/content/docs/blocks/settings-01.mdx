@@ -1,6 +1,6 @@
 ---
 title: settings-01
-description: A settings page with a PageHeader, SettingsRow sections, an ActionBar save bar once something changed, and a confirmed delete.
+description: A settings page with a PageHeader and SettingsRow sections whose fields autosave, and a confirmed delete.
 audience: public
 registry: settings-01
 preview: settings01Demo
@@ -8,7 +8,7 @@ preview: settings01Demo
 
 ## What it is
 
-A settings page — PageHeader over grouped SettingsRow sections, an ActionBar save bar that appears once something changed, and a confirmed delete. It is a **block**: you pull it once with `shadcn add`, and then you own it —
+A settings page — PageHeader over grouped SettingsRow sections whose fields autosave (text after a short debounce, pickers and switches at once, each with a quiet inline status), and a delete confirmed in an AlertDialog. It follows the [settings save model](/docs/foundations/interaction-patterns#settings-save-model): no save bar; explicit Discard / Save only for drafts that must apply together. It is a **block**: you pull it once with `shadcn add`, and then you own it —
 nothing re-pulls it and no integrity hash tracks your edits, unlike the components it composes.
 
 ## Install

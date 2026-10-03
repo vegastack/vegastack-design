@@ -30,7 +30,9 @@ import { PermissionMenu } from "@/components/ui/permission-menu";
 The last control on a sharing row. The trigger is a ghost button reading the current level and a
 chevron; the menu lists each level with a one-line muted description and a check on the current
 one. With `onRemove`, a separator and a destructive "Remove access" end the menu. A built-in row —
-the creator, an assignee, a manager — is `readOnly`: the level as plain muted text, no menu.
+the creator, an assignee, a manager — is `locked`: a small lock and the level, still a tab stop,
+with `lockedReason` ("Set by role: Creator") in a tooltip. `readOnly` is plain muted text with no
+tab stop, for a viewer who can change nothing. Descriptions wrap to two lines in an 18rem menu.
 
 <ComponentPreview
   name="permissionMenu"
@@ -52,6 +54,25 @@ Without descriptions the menu is a plain radio list; `size="default"` takes the 
 
 <ComponentPreview
   name="permissionMenuPlain"
+  file="components/preview/permission-menu.tsx"
+/>
+
+### Variants
+
+`variant="chip"` (28px) is the people-row control: body-ink text, the tint on hover and a ▾ that is
+always drawn. `variant="outline"` is a bordered 32px control that lines up with `Input`,
+`PeopleInput` and `Button` in a form row. The default `size` follows the variant (`outline` →
+`default`, the rest → `sm`). `ghost` stays the quiet original.
+
+<ComponentPreview
+  name="permissionMenuVariants"
+  file="components/preview/permission-menu.tsx"
+/>
+
+### Locked
+
+<ComponentPreview
+  name="permissionMenuLocked"
   file="components/preview/permission-menu.tsx"
 />
 
@@ -84,7 +105,8 @@ Without descriptions the menu is a plain radio list; `size="default"` takes the 
   `aria-label` that names the row and keeps the visible level: "Priya's access: Can edit".
 - Levels are radio items (`menuitemradio`, `aria-checked`), and each description is the item's
   accessible description rather than part of its name.
-- Read-only text is not focusable.
+- Read-only text is not focusable. A locked level is a focusable, `aria-disabled` button named by
+  the level and its reason, so the tooltip is reachable from the keyboard.
 
 | Key                                 | Action                          |
 | ----------------------------------- | ------------------------------- |
@@ -102,6 +124,6 @@ Without descriptions the menu is a plain radio list; `size="default"` takes the 
 />
 
 <DoDont
-  do="Show built-in access (creator, assignee, manager) as readOnly with the reason beside the name."
+  do="Show built-in access (creator, assignee, manager) as locked, with the reason in lockedReason."
   dont="Offer Remove access on a row whose access comes from a role the dialog cannot change."
 />

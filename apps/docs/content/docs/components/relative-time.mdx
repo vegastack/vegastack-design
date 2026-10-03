@@ -18,8 +18,9 @@ preview: relativeTime
 For stable relative text from the first render, pass a request timestamp with the timezone:
 `<TimeZoneProvider timeZone={zone} referenceNow={requestNow}>`. Serialize the same numeric
 `requestNow` into the client tree. Uncontrolled timestamps then share one live clock; passing
-`now` directly remains a controlled clock. Without a request reference, only the date content
-shows a short placeholder until hydration, never an absolute-to-relative format swap.
+`now` directly remains a controlled clock. Without a request reference, the server renders a
+clock-free absolute date ("Sep 25", "Sep 25 · 2:30 PM", "Due Sep 30"), so crawlers and no-JS HTML
+keep the date; the browser then switches to the relative words.
 
 ```tsx
 import {
@@ -147,7 +148,7 @@ groups are dropped). Each group has a stable `key` and a `label`.
 
 `<RelativeTime>`, `<DateTime>` and `<DueLabel>` follow the shared live clock; explicit
 `RelativeTime.now` and `DateTime.options.now` stay controlled, and `RelativeTime.refresh={false}`
-keeps its initial reference. These date components show the absolute time in a hover tooltip unless
+freezes at the moment it mounts. These date components show the absolute time in a hover tooltip unless
 `title={false}`. `<Duration>` formats the supplied length without a live clock or absolute-time tooltip.
 
 <ComponentPreview
@@ -293,8 +294,11 @@ the absolute date shown beyond yesterday and tomorrow — `{ day: "numeric", mon
 
 ### Live updates
 
-When `now` is left unset, timestamps subscribe to one shared ten-second clock.
-Older labels keep updating across calendar-day rollover without allocating per-row timers. The example below is intentionally **live** — it seeds a timestamp
+When `now` is left unset, timestamps subscribe to one shared ten-second clock, and each one
+re-renders only when its own label can change: every tick within an hour of now, once a minute
+within a day, and on quarter-hour boundaries beyond that (every real zone offset is a multiple of
+15 minutes, so day words still flip at the viewer's midnight). A time of day and an `absolute` date
+never subscribe. No per-row timers are allocated. The example below is intentionally **live** — it seeds a timestamp
 30s in the past and climbs as you watch. Pass `refresh={false}` to opt out.
 
 Application groups, due badges and date-picker presets can share that same clock through
@@ -351,14 +355,15 @@ Switch the formatting mode and the instant being rendered, then copy the generat
 
 Pass a serialized request timestamp as `TimeZoneProvider.referenceNow` to render relative text
 identically on the server and the hydration render. The shared clock then updates live labels.
-Without that reference, only the date label shows `…` until the browser clock is available.
-`now` remains a controlled clock, and `refresh={false}` keeps its initial reference.
+Without that reference, the server renders the clock-free absolute date and the browser
+replaces it with the relative label. `now` remains a controlled clock, and `refresh={false}`
+freezes at mount time, never at an older request reference.
 
 `DateTime` and `DueLabel` use the same request/live reference, so calendar words and due tones
 update across midnight in the effective zone. `DateTime.options.now` is an explicit controlled
 reference; `absolute`, `relativeDay` and other formatting choices retain their meanings.
-Without a request reference, only affected date content shows `…` until hydration. These
-components do not suppress hydration mismatches; absolute tooltip labels retain their full date,
+Without a request reference, they render the clock-free absolute date (a time of day and an
+`absolute` date are exact on the server). These components do not suppress hydration mismatches; absolute tooltip labels retain their full date,
 time and zone.
 
 ## Accessibility

@@ -540,3 +540,29 @@ test("pointer drop rechecks permission after its settling animation", async () =
     hit.mockRestore();
   }
 });
+
+test("a card in a droppable:false lane can be lifted, reordered and moved out by keyboard", async () => {
+  const onMove = vi.fn();
+  const initial = makeColumns().map((column) =>
+    column.id === "parked"
+      ? {
+          ...column,
+          items: [
+            { id: "p1", name: "Umbrella" },
+            { id: "p2", name: "Hooli" },
+          ],
+        }
+      : column,
+  );
+  await render(<Controlled onMove={onMove} initial={initial} />);
+  surface("p2").focus();
+  await userEvent.keyboard(" ");
+  expect(announcement()).not.toContain("Move cancelled");
+  await userEvent.keyboard("{ArrowUp} ");
+  expect(onMove).toHaveBeenLastCalledWith("p2", "parked", 0);
+  await expect.poll(() => laneCards("parked")).toEqual(["p2", "p1"]);
+  surface("p1").focus();
+  await userEvent.keyboard(" {ArrowLeft} ");
+  expect(onMove).toHaveBeenLastCalledWith("p1", "won", 1);
+  await expect.poll(() => laneCards("won")).toEqual(["d3", "p1"]);
+});

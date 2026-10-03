@@ -561,6 +561,30 @@
       "family": "overlay",
       "source": "Operator brief 2026-10-01 (Regent access, spaces and sharing — Phase DS, implementation.md §4) — approved by MK 2026-10-01 (A11: DS patch releases approved)",
       "rationale": "Upstream ships no access-level menu. A recipe over upstream dropdown-menu (radio items with ItemTitle + ItemDescription, API-19) and button, with a read-only text mode; no patch."
+    },
+    "responsive-dialog": {
+      "disposition": "keep",
+      "family": "overlay",
+      "source": "Operator brief 2026-10-03 (Regent spaces UX, implementation-plan.md §5 D2/D5/D7/D9) — approved by MK 2026-10-03 (go-dark mandate)",
+      "rationale": "Upstream ships Dialog and Sheet but no switch between them. A recipe over upstream dialog and sheet with use-mobile; no patch."
+    },
+    "space-picker": {
+      "disposition": "keep",
+      "family": "form",
+      "source": "Operator brief 2026-10-03 (Regent spaces UX, implementation-plan.md §5 D2/D5/D7/D9) — approved by MK 2026-10-03 (go-dark mandate)",
+      "rationale": "Upstream has no space concept. A recipe over upstream command, popover and button plus our space-avatar; no patch."
+    },
+    "access-chip": {
+      "disposition": "keep",
+      "family": "overlay",
+      "source": "Operator brief 2026-10-03 (Regent spaces UX, implementation-plan.md §5 D2/D5/D7/D9) — approved by MK 2026-10-03 (go-dark mandate)",
+      "rationale": "Upstream has no access indicator. A recipe over upstream button and tooltip plus our space-avatar; no patch."
+    },
+    "choice-card": {
+      "disposition": "keep",
+      "family": "form",
+      "source": "Operator brief 2026-10-03 (Regent spaces UX, implementation-plan.md §5 D2/D5/D7/D9) — approved by MK 2026-10-03 (go-dark mandate)",
+      "rationale": "Upstream documents the choice card as a Field composition, not a component. A thin wrapper over upstream field and radio-group; no patch."
     }
   }
 }

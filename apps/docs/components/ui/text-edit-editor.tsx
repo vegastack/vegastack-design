@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.23.115 sha256-rWJqQej/IbSQVy5iw3/TGGKtkegr+nwZZebkF2zRKx4=
+// @vegastack text-edit@0.23.115 sha256-Y9A21XTGMj8KHTS8P9jy7V4rQC1KukYaaY5GIiGhr24=
 
 "use client";
 
@@ -171,6 +171,7 @@ import {
 } from "@/components/ui/tooltip";
 import { InlineChip } from "@/components/ui/inline-chip";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { toast } from "@/components/ui/toast";
 import {
   CALLOUT_STYLE,
   CALLOUT_TONES,
@@ -5722,7 +5723,16 @@ export function TextEditEditor({
             ? Boolean(callbacks.current.onImageUpload)
             : Boolean(callbacks.current.onFileUpload),
         );
-        if (ed && files.length > 0 && !text && !supported) return true;
+        if (ed && files.length > 0 && !text && !supported) {
+          // Keep the selection, but say why nothing happened.
+          toast.add({
+            title:
+              files.length === 1
+                ? "This file can't be pasted here"
+                : "These files can't be pasted here",
+          });
+          return true;
+        }
         if (ed && !ed.isDestroyed && supported && !text) {
           const { from, to } = view.state.selection;
           if (from !== to) view.dispatch(view.state.tr.deleteSelection());

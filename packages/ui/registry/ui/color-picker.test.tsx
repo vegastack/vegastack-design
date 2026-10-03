@@ -3,7 +3,7 @@ import { render } from "vitest-browser-react";
 import { userEvent } from "vitest/browser";
 import { expect, test, vi } from "vitest";
 import { expectNoA11yViolations } from "../../test/a11y";
-import { ColorPicker, DEFAULT_COLORS } from "./color-picker";
+import { ColorPicker, DEFAULT_COLORS, HUE_COLORS } from "./color-picker";
 
 test("renders a trigger with an accessible name", async () => {
   const screen = await render(
@@ -180,4 +180,31 @@ test("forwards ref to the trigger button", async () => {
   const ref = React.createRef<HTMLButtonElement>();
   await render(<ColorPicker ref={ref} value="blue" />);
   expect(ref.current).toBeInstanceOf(HTMLButtonElement);
+});
+
+test("inline hue palette with a None swatch: no popover, None clears, a hue picks", async () => {
+  const onValueChange = vi.fn();
+  const onClear = vi.fn();
+  const screen = await render(
+    <ColorPicker
+      variant="inline"
+      colors={HUE_COLORS}
+      columns={11}
+      value="blue"
+      onValueChange={onValueChange}
+      onClear={onClear}
+      aria-label="Space colour"
+    />,
+  );
+  const group = screen.getByRole("group", { name: "Space colour" });
+  await expect.element(group).toBeVisible();
+  expect(group.element().querySelectorAll("button")).toHaveLength(11);
+  await expect
+    .element(screen.getByRole("button", { name: "Blue" }))
+    .toHaveAttribute("aria-pressed", "true");
+  await screen.getByRole("button", { name: "None" }).click();
+  expect(onClear).toHaveBeenCalledTimes(1);
+  await screen.getByRole("button", { name: "Purple" }).click();
+  expect(onValueChange).toHaveBeenCalledWith("purple");
+  await expectNoA11yViolations(screen.container);
 });

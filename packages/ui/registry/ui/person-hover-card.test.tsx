@@ -43,3 +43,29 @@ test("stacks a team as its tile and lists it with the people", async () => {
   ).not.toBeNull();
   await expectNoA11yViolations(screen.container);
 });
+
+test("AvatarStack counts from total, overlaps by 4px and ends its list with a footer", async () => {
+  const screen = await render(
+    <AvatarStack
+      people={[{ name: "Kavya Iyer" }, { name: "D. Rao" }]}
+      total={14}
+      max={2}
+      label="Members"
+      footer={<button type="button">Manage access</button>}
+    />,
+  );
+  expect(
+    screen.container.querySelector('[data-slot="avatar-group-count"]')
+      ?.textContent,
+  ).toBe("+12");
+  expect(
+    screen.container.querySelector('[data-slot="avatar-group"]')?.className,
+  ).toContain("-space-x-1");
+  expect(screen.container.textContent).toContain("DR");
+  const stack = screen.getByRole("button", { name: /Members: .* and 12 more/ });
+  await stack.click();
+  await expect
+    .element(screen.getByRole("button", { name: "Manage access" }))
+    .toBeVisible();
+  await expectNoA11yViolations(document.body);
+});

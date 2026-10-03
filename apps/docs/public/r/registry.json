@@ -211,7 +211,7 @@
         "whenToUse": "The root layout for a dashboard/console app — sidebar + header + main content, shared across every downstream VegaStack app; AppShellPage gives every page one container — the page gutter, rhythm and a prose/default/full width picked per route from one definePageWidths map.",
         "whenNotToUse": "A marketing/docs page with no persistent nav rail, or an app that already owns an equivalent shell — compose Sidebar/PageHeader/Breadcrumb directly instead.",
         "version": "0.23.115",
-        "integrity": "sha256-0AovEklYeHjTtH6u7dReQ6z1lRq5SggBUD//Xf76lro="
+        "integrity": "sha256-iGCAdCT+nyJx2rSUt8horNq7OxWGTgrWtrR9ITNFF3w="
       }
     },
     {
@@ -286,7 +286,7 @@
         "whenToUse": "Discussion on a record's page (a task, a meeting): comments oldest first with the composer at the end.",
         "whenNotToUse": "An activity feed or notifications — use Inbox.",
         "version": "0.23.115",
-        "integrity": "sha256-AInaBmSs1QQoldVoYsN+aRhqKrRPP/yFniCUY8e+OnI="
+        "integrity": "sha256-HrjtmOFTSKzVbhiP7wPUBh71E83LQSgTGYDX8SLnkUk="
       }
     },
     {
@@ -682,7 +682,7 @@
         "whenToUse": "Cross-column card movement — pipelines, kanban, staged workflows — where the host owns ordering and the move can be refused by a server gate; lanes may be partially loaded (count shows the total) and cards may be links to their records.",
         "whenNotToUse": "Single-list reordering (sortable-list), tabular data (data-list/data-grid), or static column layouts with no movement (plain Cards in a flex row).",
         "version": "0.23.115",
-        "integrity": "sha256-55jBzSErH6YdUQWLKFi2wgBHJZRXmrrP2+Z+WXEm8xM="
+        "integrity": "sha256-clMlsuRslmhqnbBxscOcoenWXakL1sRCRzfk8QZQVTc="
       }
     },
     {
@@ -1197,7 +1197,7 @@
         "whenToUse": "Pick a single color from a small curated set — labels, tags, calendar categories.",
         "whenNotToUse": "Full-spectrum hue/saturation/alpha selection.",
         "version": "0.23.115",
-        "integrity": "sha256-N/k7fFmz+lXcL6s8oCWI+FRN8bmfRZ2NSeZEMMcd1so="
+        "integrity": "sha256-5JOyW/wfPpGMVje9dPInS1AvPw+cBZkCz3kCQim2j8o="
       }
     },
     {
@@ -1399,7 +1399,7 @@
         "whenToUse": "Record tables that need grouping, inline cell editing, multi-key sort, column management, or 10k+ rows via virtualization — the CRM pipeline-table tier.",
         "whenNotToUse": "Simple presentational record lists — DataList is lighter and still the right default; kanban views (Board).",
         "version": "0.23.115",
-        "integrity": "sha256-yE7wgXsFCsK/q/YbxpJxkGJ01466f9XMmz5oJsrZepk="
+        "integrity": "sha256-H/K49dWavo96gNxQjgh9ybJRtLQxP56osIH5XRWRglA="
       }
     },
     {
@@ -1444,7 +1444,7 @@
         "whenToUse": "A list of records as a table, a card grid or board lanes (view) with typed columns, selection, click-to-sort, loading/empty states, keyset paging through loadMore, rows as links, sections, thumbnails and a row-actions column.",
         "whenNotToUse": "Full-parity grids with grouping/editing/virtualization (DataGrid), or a simple static table (Table).",
         "version": "0.23.115",
-        "integrity": "sha256-GfC13U3N2k4BP45gbSVbVm7GBoCjl0D4DSfIFHRCeOA="
+        "integrity": "sha256-ArVKGBc8puluYgcMApHGUBetZ6Ol+M5gfBo4TeAOdsk="
       }
     },
     {
@@ -1630,7 +1630,7 @@
         "whenToUse": "Installed automatically with DataList or DataGrid; import it directly when building a bespoke table that should share their sort header, selection cells and column rules.",
         "whenNotToUse": "A plain presentational table (Table alone), or as a table component in its own right — these are parts, not a renderer.",
         "version": "0.23.115",
-        "integrity": "sha256-4ExKM11tuBWnWf3BhzrUjj4Kb8BaNXJCntFo9uYUb0g="
+        "integrity": "sha256-/DhVOxzgL153qF1HS4b6ufyFEu6QS9ZrxvXC2/QZazE="
       }
     },
     {
@@ -1652,7 +1652,8 @@
         "@vegastack/date-time",
         "@vegastack/calendar",
         "@vegastack/popover",
-        "@vegastack/button"
+        "@vegastack/button",
+        "@vegastack/relative-time"
       ],
       "files": [
         {
@@ -1665,7 +1666,7 @@
         "whenToUse": "Selecting a single date or a range (with optional Today/Last-7-days presets) from a popover. size=\"sm\" + variant=\"ghost\" is the inline row tier; clearable adds a clear control that returns focus to the trigger.",
         "whenNotToUse": "Free-form/partial dates (masked Input) or inline-only calendars (use Calendar directly).",
         "version": "0.23.115",
-        "integrity": "sha256-fU8SZ5lk7axVeHhGKBpf/avpxxbKF0NiD0iQJUd+X5g="
+        "integrity": "sha256-GxqMGNW4pnMOUcuidr0z5Sf1LzAZReULTehc94/0HrM="
       }
     },
     {
@@ -1697,7 +1698,7 @@
         "whenToUse": "Modal interactions requiring full attention — confirmations, focused forms, destructive-action prompts. size sm/default/lg/xl steps the width; put long content in DialogBody so the header and footer stay in view.",
         "whenNotToUse": "Non-blocking feedback (Toast), inline contextual content (Popover/Tooltip), or a swipeable bottom panel (Drawer).",
         "version": "0.23.115",
-        "integrity": "sha256-+XCC6uf9PRXT5omOtTMfq3yjm6JJszSu9GBdyZ2vqCs="
+        "integrity": "sha256-fuM2WXb86+5zlvmxuWGorzBFH1OEtSgKIyiSB6Pjr28="
       }
     },
     {
@@ -1747,7 +1748,7 @@
         "whenToUse": "Any date, time, duration, due label or day grouping shown as text — on the server, in route handlers, emails or client code.",
         "whenNotToUse": "API/JSON output — keep ISO strings there.",
         "version": "0.23.115",
-        "integrity": "sha256-JFcUU/Rk3y4fBKEX7s9xafQLg4St+dAJMVJKJDvZp+c="
+        "integrity": "sha256-OcdLYTpd1L3AbJlzx8RJOg+bZODMWTrV6QN4Y7R4Njc="
       }
     },
     {
@@ -16568,7 +16569,7 @@
         "whenToUse": "Show the people on a record (participants, watchers, a team) as stacked avatars, each previewing the person on hover, focus or tap.",
         "whenNotToUse": "A picker of people (SearchableSelect) or a full member list (DataList).",
         "version": "0.23.115",
-        "integrity": "sha256-1bXNknas+R94crR4tbX0N1dc3UitWnSuH+h5XfU2h1c="
+        "integrity": "sha256-uL4zDsEJSHqMNgp6cIU9hyGL/s0UUCY5zf8RBUcHYJI="
       }
     },
     {
@@ -16599,7 +16600,7 @@
         "whenToUse": "Any place a space is drawn or listed: the sidebar, a space picker, a Move to… menu, a share dialog's general access row.",
         "whenNotToUse": "A person or team (PersonAvatar), or a record image (Thumbnail).",
         "version": "0.23.115",
-        "integrity": "sha256-R0GblFo3cPKT6Y0lRqecXAefWyTlnEuUrkrqJ8lVvDg="
+        "integrity": "sha256-HsnfpCMfg4khEq7XHHEzGwDb8c/CvfPrhMdmdtPhNho="
       }
     },
     {
@@ -16654,7 +16655,8 @@
       "registryDependencies": [
         "@vegastack/button",
         "@vegastack/dropdown-menu",
-        "@vegastack/item"
+        "@vegastack/item",
+        "@vegastack/tooltip"
       ],
       "files": [
         {
@@ -16667,7 +16669,133 @@
         "whenToUse": "Choose or show the access level of one person, team or group on a sharing or membership row.",
         "whenNotToUse": "A form field choosing a value (Select), or a row's general actions (DropdownMenu or RowActionMenu).",
         "version": "0.23.115",
-        "integrity": "sha256-e8BbbWjVNvIyXoLrqlG2e7NWym18bf9rSKfPbCxb9to="
+        "integrity": "sha256-BV2wll94vO334sXChb7YB6G8OGvaueMSgIjQabdm8vc="
+      }
+    },
+    {
+      "name": "responsive-dialog",
+      "type": "registry:ui",
+      "title": "Responsive Dialog",
+      "description": "One overlay API that is a centred Dialog from 768px up and a bottom Sheet with a drag handle and a safe-area footer below it — the same header, body and footer in both.",
+      "categories": [
+        "overlay"
+      ],
+      "dependencies": [
+        "@vegastack/design@^0.7.100",
+        "@vegastack/design-tokens@^0.7.80"
+      ],
+      "registryDependencies": [
+        "@vegastack/dialog",
+        "@vegastack/sheet",
+        "@vegastack/use-mobile"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/responsive-dialog.tsx",
+          "type": "registry:ui",
+          "target": "@ui/responsive-dialog.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "A dialog that must also work on a phone: share, members, move, create flows.",
+        "whenNotToUse": "A desktop-only modal (Dialog) or a side panel (Sheet).",
+        "version": "0.23.115",
+        "integrity": "sha256-yXS4HqLx7wLfUJK4GTBNjVDkgE1SLzww7b4d1IJ/jsw="
+      }
+    },
+    {
+      "name": "space-picker",
+      "type": "registry:ui",
+      "title": "Space Picker",
+      "description": "SpaceChip — a space as a quiet property chip (tile, name, chevron) — and SpacePicker, that chip opening a searchable list of spaces with My space first, a check on the current one and disabled rows that say why.",
+      "categories": [
+        "form"
+      ],
+      "dependencies": [
+        "lucide-react@^1.47.0",
+        "@vegastack/design@^0.7.100",
+        "@vegastack/design-tokens@^0.7.80"
+      ],
+      "registryDependencies": [
+        "@vegastack/button",
+        "@vegastack/command",
+        "@vegastack/popover",
+        "@vegastack/space-avatar"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/space-picker.tsx",
+          "type": "registry:ui",
+          "target": "@ui/space-picker.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "Choosing or showing which space a record lives in, in a create dialog title or a property row.",
+        "whenNotToUse": "Choosing anything that is not a space (SearchableSelect, Combobox).",
+        "version": "0.23.115",
+        "integrity": "sha256-qLnHhksS4MRNIHeNEAV8uhkyfccq+elZlZiqWisKM9w="
+      }
+    },
+    {
+      "name": "access-chip",
+      "type": "registry:ui",
+      "title": "Access Chip",
+      "description": "How far one record reaches as one focusable chip: the space tile and name, a lock and Only invited, or My space — with a globe when published and the full sentence in a tooltip. Clicking opens Share.",
+      "categories": [
+        "overlay"
+      ],
+      "dependencies": [
+        "lucide-react@^1.47.0",
+        "@vegastack/design@^0.7.100",
+        "@vegastack/design-tokens@^0.7.80"
+      ],
+      "registryDependencies": [
+        "@vegastack/button",
+        "@vegastack/space-avatar",
+        "@vegastack/tooltip"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/access-chip.tsx",
+          "type": "registry:ui",
+          "target": "@ui/access-chip.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "A record header that shows who can open the record and opens Share.",
+        "whenNotToUse": "Changing access inline (PermissionMenu) or listing people (AvatarStack).",
+        "version": "0.23.115",
+        "integrity": "sha256-hfdR0Wg/rXyge7Rtvw72SoQji1v6ZHONKRS4feR4YvE="
+      }
+    },
+    {
+      "name": "choice-card",
+      "type": "registry:ui",
+      "title": "Choice Card",
+      "description": "A radio option drawn as a card — icon, title, description and the radio — in a group that is two across from @sm and stacked below. A thin wrapper over the Field choice-card pattern.",
+      "categories": [
+        "form"
+      ],
+      "dependencies": [
+        "@vegastack/design@^0.7.100",
+        "@vegastack/design-tokens@^0.7.80"
+      ],
+      "registryDependencies": [
+        "@vegastack/field",
+        "@vegastack/radio-group"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/choice-card.tsx",
+          "type": "registry:ui",
+          "target": "@ui/choice-card.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "Two to four mutually exclusive options that each need a sentence, such as Open / Private access.",
+        "whenNotToUse": "Many options or short labels (RadioGroup, Select, ToggleGroup).",
+        "version": "0.23.115",
+        "integrity": "sha256-HXgRgjf2IJUjaydgM6ifckn9W23PR8BC461OKLspZ14="
       }
     },
     {
@@ -16697,7 +16825,7 @@
         "whenToUse": "Any avatar that stands for a person: rows, chips, cards, menus, comments and the user menu.",
         "whenNotToUse": "An organisation or record image (Thumbnail), a space (SpaceAvatar), or a non-person avatar composition (Avatar).",
         "version": "0.23.115",
-        "integrity": "sha256-NOW1s+uqOq/DScRgxV4XJrprxofkMonWt6o/M9jKl4c="
+        "integrity": "sha256-bimZqtY7AwWA5MuX5hLUWbgHXTEwwYLKmEl/gW6YZ/8="
       }
     },
     {
@@ -16857,7 +16985,7 @@
         "whenToUse": "Any date, time, duration, due label or day grouping shown in UI — pick the function per the Dates & times page's where-to-use table.",
         "whenNotToUse": "API/JSON output — keep ISO strings there.",
         "version": "0.23.115",
-        "integrity": "sha256-voAEoL49PK6HLM6OMCaEduqM4y2jn5P2UxFbmNo+ifQ="
+        "integrity": "sha256-57TiQ0SLPtDZV+LvEYhoNYBiKerQfpa5xUcY+Oa3bPo="
       }
     },
     {
@@ -17204,7 +17332,7 @@
         "whenToUse": "Primary app navigation in a dashboard/console shell — collapsible rail with grouped items.",
         "whenNotToUse": "A few top-level links (horizontal nav) or transient small-viewport nav (Sheet).",
         "version": "0.23.115",
-        "integrity": "sha256-DnAUQQqZ3tecQYixItYsJhdEUkDE3z3PHhYe2JF9WUs="
+        "integrity": "sha256-ZMecdnqUSZFnjTN729Q1r1BdY5oAAZPFdnRZPgSk+dQ="
       }
     },
     {
@@ -17478,7 +17606,7 @@
         "whenToUse": "A process a person drives across several screens — signup, checkout, an import wizard, a multi-section record editor — where steps can branch, an advance can be refused, and a committed step must not be walked back into.",
         "whenNotToUse": "Progress the system drives and a person only reads (Stepper alone), free navigation between peer views (Tabs), or one question at a time (Questionnaire).",
         "version": "0.23.115",
-        "integrity": "sha256-llJTrt27PCs6KsO+qscCjY5f9DhCSMQ55lzC5zfbcAs="
+        "integrity": "sha256-uW7Xd5q9YKAfZst6PsgCj1qQC6BEH4gIGf99QMbOMRg="
       }
     },
     {
@@ -17724,7 +17852,8 @@
         "@vegastack/alert",
         "@vegastack/dropzone",
         "@vegastack/empty",
-        "@vegastack/tabs"
+        "@vegastack/tabs",
+        "@vegastack/toast"
       ],
       "files": [
         {
@@ -17742,7 +17871,7 @@
         "whenToUse": "Comments, notes, summaries and documents stored as Markdown (format=\"markdown\") or HTML — with @ mentions, uploads, callouts, toggles, an outline and comment highlights for page editors; in-place editing of a MarkdownView (the read view is the editor until first edited).",
         "whenNotToUse": "Plain single-line input (Input) or collaborative real-time docs (deferred text-edit-collab).",
         "version": "0.23.115",
-        "integrity": "sha256-rWJqQej/IbSQVy5iw3/TGGKtkegr+nwZZebkF2zRKx4="
+        "integrity": "sha256-Y9A21XTGMj8KHTS8P9jy7V4rQC1KukYaaY5GIiGhr24="
       }
     },
     {
@@ -18530,18 +18659,20 @@
         "@vegastack/button",
         "@vegastack/checkbox",
         "@vegastack/copy-button",
-        "@vegastack/dialog",
         "@vegastack/input-group",
         "@vegastack/people-input",
         "@vegastack/permission-menu",
         "@vegastack/person-avatar",
         "@vegastack/select",
-        "@vegastack/sheet",
         "@vegastack/skeleton",
         "@vegastack/space-avatar",
         "@vegastack/textarea",
         "@vegastack/tooltip",
-        "@vegastack/use-mobile"
+        "@vegastack/alert-dialog",
+        "@vegastack/item",
+        "@vegastack/responsive-dialog",
+        "@vegastack/switch",
+        "@vegastack/tabs"
       ],
       "files": [
         {
@@ -18564,7 +18695,7 @@
         "whenToUse": "Share a record, page or meeting with people and teams, set its general access and turn a public link on or off.",
         "whenNotToUse": "Manage a space's or team's members as a page — compose DataList with PeopleInput and PermissionMenu.",
         "version": "0.23.115",
-        "integrity": "sha256-UJjwzEKmg9Y2K3nxA8BFtMbQ+rxuQ4Bs0KlemKg4qkM="
+        "integrity": "sha256-JOkHle8vldYvDllD9Cl2jEkrfbUCjKobxrXG2o9Ur9U="
       }
     },
     {
@@ -20793,10 +20924,10 @@
         "@vegastack/settings-row",
         "@vegastack/switch",
         "@vegastack/textarea",
-        "@vegastack/action-bar",
         "@vegastack/alert-dialog",
         "@vegastack/app-shell",
-        "@vegastack/page-header"
+        "@vegastack/page-header",
+        "@vegastack/auto-save-input"
       ],
       "files": [
         {
@@ -20809,7 +20940,7 @@
         "whenToUse": "Starting a preferences, profile or workspace-settings route — copy it once and wire each row to your own state.",
         "whenNotToUse": "One setting inside another page — compose settings-row directly.",
         "version": "0.23.115",
-        "integrity": "sha256-8I0qaptET5N+lqBlmcFPaf2WZORh9wuT5qaA6osVsrs="
+        "integrity": "sha256-b/LOs5I7GVbM8/QBZW8e1OkG7Y1nI+ssgfK80i73xUs="
       }
     },
     {

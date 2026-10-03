@@ -1,4 +1,4 @@
-// @vegastack relative-time@0.23.115 sha256-voAEoL49PK6HLM6OMCaEduqM4y2jn5P2UxFbmNo+ifQ=
+// @vegastack relative-time@0.23.115 sha256-57TiQ0SLPtDZV+LvEYhoNYBiKerQfpa5xUcY+Oa3bPo=
 
 "use client";
 
@@ -37,6 +37,7 @@ const ReferenceClockContext = React.createContext<number | undefined>(
 let liveClock = 0;
 let clockTimer: ReturnType<typeof setInterval> | undefined;
 const clockListeners = new Set<() => void>();
+const CLOCK_TICK = 10_000;
 function subscribeClock(listener: () => void) {
   clockListeners.add(listener);
   liveClock = Date.now();
@@ -44,25 +45,94 @@ function subscribeClock(listener: () => void) {
     clockTimer = setInterval(() => {
       liveClock = Date.now();
       for (const notify of clockListeners) notify();
-    }, 10_000);
+    }, CLOCK_TICK);
   return () => {
     clockListeners.delete(listener);
     if (clockListeners.size === 0) {
       clearInterval(clockTimer);
       clockTimer = undefined;
+      // A later mount must not render its first frame from this stale epoch.
+      liveClock = 0;
     }
   };
 }
 const noClockSubscription = () => () => {};
 
-/** Subscribe to the existing shared clock; controlled timestamps may stand the subscription down. */
-function useDateTimeClock(enabled: boolean): number | undefined {
-  const referenceNow = React.useContext(ReferenceClockContext);
+/**
+ * The client clock as one render reads it. While no timer runs, a fresh instant is cached for one
+ * tick, so a component mounted after every other date left still starts from the real time (and
+ * repeated `getSnapshot` calls inside one render agree).
+ */
+function readClock(): number {
+  if (clockListeners.size === 0) {
+    const now = Date.now();
+    if (!liveClock || now - liveClock >= CLOCK_TICK) liveClock = now;
+  }
+  return liveClock;
+}
+
+/** How coarse a label's clock may be: seconds-level near now, quarter-hours for day-level labels. */
+const MINUTE = 60_000;
+const HOUR = 60 * MINUTE;
+function clockGranularity(distance: number | undefined): number {
+  if (distance === undefined) return CLOCK_TICK;
+  if (distance < HOUR) return CLOCK_TICK;
+  if (distance < 24 * HOUR) return MINUTE;
+  return 15 * MINUTE;
+}
+
+/** `false` on the server and during hydration, `true` from the first client render after it. */
+function useHydrated(): boolean {
   return React.useSyncExternalStore(
+    noClockSubscription,
+    () => true,
+    () => false,
+  );
+}
+
+/**
+ * The instant to format against: `TimeZoneProvider.referenceNow` on the server and during
+ * hydration (so both renders agree), the live clock after it. Controlled timestamps may stand
+ * the subscription down. `granularity` only decides how OFTEN a label re-renders — a label that
+ * can only change once a minute (or a quarter hour) wakes on that boundary rather than on every
+ * ten-second tick — while the label itself is always formatted against the real instant.
+ */
+function useDateTimeClock(
+  enabled: boolean,
+  granularity: number = CLOCK_TICK,
+): number | undefined {
+  const referenceNow = React.useContext(ReferenceClockContext);
+  const hydrated = useHydrated();
+  React.useSyncExternalStore(
     enabled ? subscribeClock : noClockSubscription,
-    () => liveClock || referenceNow,
+    () => {
+      const now = readClock();
+      return granularity > CLOCK_TICK
+        ? Math.floor(now / granularity) * granularity
+        : now;
+    },
     () => referenceNow,
   );
+  return hydrated ? readClock() : referenceNow;
+}
+
+/**
+ * The clock-free form of a timestamp, for a server render with no `referenceNow`: an absolute
+ * date (no Today/Yesterday words, no year decision), so crawler and no-JS HTML still carry the
+ * date. With no explicit or provider zone it formats in UTC on BOTH the server and the hydration
+ * render — a runtime's own zone would differ between them (Oct 3 on a UTC server, Oct 2 in Los
+ * Angeles) — and the browser's local zone takes over once hydrated.
+ */
+function clockFreeLabel(
+  target: Date,
+  variant: "date" | "datetime" | "time",
+  options: FormatDateOptions & FormatDateTimeOptions,
+): string {
+  const opts = { ...options, timeZone: options.timeZone ?? "UTC", now: target };
+  if (variant === "time") return formatTimeOfDay(target, opts);
+  if (variant === "datetime")
+    return formatDateTime(target, { ...opts, relativeDay: false });
+  return formatDate(target, { ...opts, absolute: true });
 }
 
 /**
@@ -400,14 +470,25 @@ export function RelativeTime({
   const isControlled = now !== undefined;
 
   const referenceNow = React.useContext(ReferenceClockContext);
-  const [initialClock, setInitialClock] = React.useState(
-    () => referenceNow ?? 0,
-  );
-  const clock =
-    useDateTimeClock(!isControlled && (refresh || !initialClock)) ?? 0;
+  // `refresh={false}` freezes at MOUNT time, not at the provider's (possibly hours-old) request
+  // instant: the reference only carries the server render and hydration.
+  const [mountedAt, setMountedAt] = React.useState<number | undefined>();
   React.useEffect(() => {
-    if (!refresh && !initialClock && clock) setInitialClock(clock);
-  }, [refresh, initialClock, clock]);
+    if (!isControlled && !refresh) setMountedAt(Date.now());
+  }, [isControlled, refresh]);
+  // The cadence follows the LIVE distance once hydrated: a future instant that started hours away
+  // still ticks every ten seconds as it arrives.
+  const hydrated = useHydrated();
+  const base = hydrated ? readClock() : referenceNow;
+  const distance =
+    Number.isNaN(targetMs) || base === undefined
+      ? undefined
+      : Math.abs(targetMs - base);
+  const clock =
+    useDateTimeClock(
+      !isControlled && refresh,
+      mode === "day" ? 15 * MINUTE : clockGranularity(distance),
+    ) ?? 0;
 
   // `mode="day"`'s "today" / "yesterday" / "tomorrow" words.
   const rtf = React.useMemo(
@@ -416,7 +497,11 @@ export function RelativeTime({
   );
   const agoStyle = format ?? (unitStyle === "long" ? "long" : "suffix");
 
-  const nowMs = isControlled ? now : refresh ? clock : initialClock || clock;
+  const nowMs = isControlled
+    ? now
+    : refresh
+      ? clock
+      : (mountedAt ?? referenceNow ?? 0);
   const nowDate = React.useMemo(() => new Date(nowMs), [nowMs]);
 
   const isValid = !Number.isNaN(targetMs);
@@ -424,7 +509,10 @@ export function RelativeTime({
   const label = !isValid
     ? ""
     : isPendingHydration
-      ? "…"
+      ? clockFreeLabel(target, withTime ? "datetime" : "date", {
+          timeZone,
+          locale: Array.isArray(locale) ? locale[0] : locale,
+        })
       : mode === "day"
         ? formatDay(
             target,
@@ -578,13 +666,17 @@ export function DateTime({
   const timeZone = timeZoneProp ?? contextZone;
   const target = toDate(date);
   const valid = !Number.isNaN(target.getTime());
-  const clock = useDateTimeClock(options?.now === undefined);
+  // A time of day and an `absolute` date never need a clock; the rest re-render at most every
+  // quarter hour (their words change at midnight, their year on New Year's).
+  const needsClock =
+    options?.now === undefined && variant !== "time" && !options?.absolute;
+  const clock = useDateTimeClock(needsClock, 15 * 60_000);
   const referenceNow = options?.now ?? clock;
   const opts = { ...options, timeZone, now: referenceNow };
   const label = !valid
     ? ""
     : referenceNow === undefined
-      ? "…"
+      ? clockFreeLabel(target, variant, opts)
       : variant === "time"
         ? formatTimeOfDay(target, opts)
         : variant === "datetime"
@@ -707,11 +799,15 @@ export function DueLabel({
   const timeZone = timeZoneProp ?? contextZone;
   const target = toDate(date);
   const valid = !Number.isNaN(target.getTime());
-  const now = useDateTimeNow();
+  // Due labels change at the viewer's midnight, so a quarter-hour bucket is fine-grained enough.
+  const now = useDateTimeClock(true, 15 * 60_000);
   const { label, tone }: { label: string; tone: DueTone } = !valid
     ? { label: "", tone: "normal" }
     : now === undefined
-      ? { label: "…", tone: "normal" }
+      ? {
+          label: `Due ${clockFreeLabel(target, "date", { timeZone })}`,
+          tone: "normal",
+        }
       : formatDueLabel(target, { timeZone, now });
   const el = (
     <time

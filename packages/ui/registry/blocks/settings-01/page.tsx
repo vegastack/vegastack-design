@@ -1,10 +1,9 @@
-// @vegastack settings-01@0.23.115 sha256-8I0qaptET5N+lqBlmcFPaf2WZORh9wuT5qaA6osVsrs=
+// @vegastack settings-01@0.23.115 sha256-b/LOs5I7GVbM8/QBZW8e1OkG7Y1nI+ssgfK80i73xUs=
 
 "use client";
 
 import * as React from "react";
 
-import { ActionBar, ActionBarButton } from "@/components/ui/action-bar";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -17,6 +16,11 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { AppShellPage } from "@/components/ui/app-shell";
+import {
+  AutoSaveIndicator,
+  AutoSaveInput,
+  useAutoSave,
+} from "@/components/ui/auto-save-input";
 import { Button } from "@/components/ui/button";
 import { Field, FieldDescription, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
@@ -33,125 +37,135 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 
+/** Sample persistence: resolves after a short delay. Replace with your own mutation. */
+const save = () => new Promise<void>((resolve) => setTimeout(resolve, 400));
+
 /**
  * `settings-01` — the settings starter page and the conforming reference for a settings screen:
- * an `AppShellPage size="prose"` with a `PageHeader`, three `SettingsSection` groups of
- * `SettingsRow`s over full-width `Field` controls, an `ActionBar` save bar that appears only once
- * something changed, and a destructive action confirmed in an `AlertDialog` whose confirm button
- * repeats the verb.
+ * an `AppShellPage size="prose"` with a `PageHeader` and three `SettingsSection` groups of
+ * `SettingsRow`s. **Every field autosaves** — text after a short debounce (`AutoSaveInput`,
+ * `useAutoSave`), pickers and switches at once — each with its own quiet status; there is no save
+ * bar. A consequential action (delete) confirms in an `AlertDialog` whose confirm button repeats
+ * the verb.
  *
- * Every control is uncontrolled sample state: the form tracks only whether it is dirty, and
- * Discard remounts it to its defaults. Wire each row to your own state (and Save to your own
- * mutation) once it is installed.
+ * Persistence is a sample `save()` that resolves after a short delay. Wire each field to your own
+ * mutation, and on a failed save roll the value back and show a toast with Retry.
  *
  * @example
  * // app/settings/page.tsx, straight after `shadcn add @vegastack/settings-01`
  * export { default } from "./page";
  */
 export default function Page() {
-  const contentRef = React.useRef<HTMLDivElement>(null);
-  const [dirty, setDirty] = React.useState(false);
-  const [version, setVersion] = React.useState(0);
-  const discard = () => {
-    setVersion((v) => v + 1);
-    setDirty(false);
-  };
+  const [description, setDescription] = React.useState(
+    "Support automation for the Acme platform.",
+  );
+  const descriptionSave = useAutoSave({
+    value: { description },
+    onSave: save,
+    delay: 800,
+  });
+  const [role, setRole] = React.useState("member");
+  const roleSave = useAutoSave({ value: { role }, onSave: save, delay: 0 });
 
   return (
-    <AppShellPage size="prose" ref={contentRef} className="pb-24">
+    <AppShellPage size="prose">
       <PageHeader
         title="Settings"
-        description="Workspace preferences for everyone on the Acme team."
+        description="Workspace preferences for everyone on the Acme team. Changes save as you go."
       />
 
-      <form
-        key={version}
-        className="flex flex-col gap-8"
-        onChange={() => setDirty(true)}
-        onSubmit={(event) => {
-          event.preventDefault();
-          setDirty(false);
-        }}
+      <SettingsSection
+        titleAs="h2"
+        title="Workspace"
+        description="How this workspace is named and described across the product."
       >
-        <SettingsSection
-          titleAs="h2"
-          title="Workspace"
-          description="How this workspace is named and described across the product."
-        >
-          <SettingsCard>
-            <SettingsRow
-              label="Workspace name"
-              description="Shown in the sidebar and on every invitation."
-              controlId="workspace-name"
-            >
-              <Input id="workspace-name" defaultValue="Acme" />
-            </SettingsRow>
-            <SettingsRow
-              label="Description"
-              description="A sentence teammates see when they join."
-              controlId="workspace-description"
-            >
+        <SettingsCard>
+          <SettingsRow
+            label="Workspace name"
+            description="Shown in the sidebar and on every invitation."
+            controlId="workspace-name"
+          >
+            <AutoSaveInput
+              id="workspace-name"
+              defaultValue="Acme"
+              onSave={save}
+              validate={(value) => value.trim().length > 0}
+            />
+          </SettingsRow>
+          <SettingsRow
+            label="Description"
+            description="A sentence teammates see when they join."
+            controlId="workspace-description"
+          >
+            <Field>
               <Textarea
                 id="workspace-description"
                 rows={2}
-                defaultValue="Support automation for the Acme platform."
+                value={description}
+                onChange={(event) => setDescription(event.target.value)}
+                onBlur={() => void descriptionSave.flush()}
               />
-            </SettingsRow>
-            <SettingsRow
-              label="Default role"
-              description="The role a new member starts with."
-              controlId="workspace-role"
-            >
-              <NativeSelect id="workspace-role" defaultValue="member">
+              <AutoSaveIndicator status={descriptionSave.status} />
+            </Field>
+          </SettingsRow>
+          <SettingsRow
+            label="Default role"
+            description="The role a new member starts with."
+            controlId="workspace-role"
+          >
+            <div className="flex items-center gap-2">
+              <NativeSelect
+                id="workspace-role"
+                value={role}
+                onChange={(event) => setRole(event.target.value)}
+              >
                 <NativeSelectOption value="viewer">Viewer</NativeSelectOption>
                 <NativeSelectOption value="member">Member</NativeSelectOption>
                 <NativeSelectOption value="admin">Admin</NativeSelectOption>
               </NativeSelect>
-            </SettingsRow>
-          </SettingsCard>
-        </SettingsSection>
+              <AutoSaveIndicator variant="icon" status={roleSave.status} />
+            </div>
+          </SettingsRow>
+        </SettingsCard>
+      </SettingsSection>
 
-        <SettingsSection
-          titleAs="h2"
-          title="Notifications"
-          description="Choose what Acme sends you and where."
-        >
-          <SettingsCard>
-            <SettingsRow
-              label="Agent failures"
-              description="Email the workspace owners when a run fails twice."
-              controlId="notify-failures"
-            >
-              <Switch
-                id="notify-failures"
-                defaultChecked
-                onCheckedChange={() => setDirty(true)}
-              />
-            </SettingsRow>
-            <SettingsRow
-              label="Weekly summary"
-              description="A Monday digest of runs, escalations and spend."
-              controlId="notify-summary"
-            >
-              <Switch
-                id="notify-summary"
-                defaultChecked
-                onCheckedChange={() => setDirty(true)}
-              />
-            </SettingsRow>
-            <SettingsRow
-              label="Product updates"
-              description="Occasional notes about what shipped."
-              controlId="notify-product"
-            >
-              <Switch
-                id="notify-product"
-                onCheckedChange={() => setDirty(true)}
-              />
-            </SettingsRow>
-          </SettingsCard>
-        </SettingsSection>
-      </form>
+      <SettingsSection
+        titleAs="h2"
+        title="Notifications"
+        description="Choose what Acme sends you and where."
+      >
+        <SettingsCard>
+          <SettingsRow
+            label="Agent failures"
+            description="Email the workspace owners when a run fails twice."
+            controlId="notify-failures"
+          >
+            <Switch
+              id="notify-failures"
+              defaultChecked
+              onCheckedChange={() => void save()}
+            />
+          </SettingsRow>
+          <SettingsRow
+            label="Weekly summary"
+            description="A Monday digest of runs, escalations and spend."
+            controlId="notify-summary"
+          >
+            <Switch
+              id="notify-summary"
+              defaultChecked
+              onCheckedChange={() => void save()}
+            />
+          </SettingsRow>
+          <SettingsRow
+            label="Product updates"
+            description="Occasional notes about what shipped."
+            controlId="notify-product"
+          >
+            <Switch id="notify-product" onCheckedChange={() => void save()} />
+          </SettingsRow>
+        </SettingsCard>
+      </SettingsSection>
 
       <SettingsSection
         titleAs="h2"
@@ -203,25 +217,6 @@ export default function Page() {
           </SettingsRow>
         </SettingsCard>
       </SettingsSection>
-
-      <ActionBar
-        open={dirty}
-        status="Unsaved changes"
-        containerRef={contentRef}
-      >
-        <ActionBarButton
-          render={<Button variant="ghost" size="sm" />}
-          onClick={discard}
-        >
-          Discard
-        </ActionBarButton>
-        <ActionBarButton
-          render={<Button size="sm" />}
-          onClick={() => setDirty(false)}
-        >
-          Save changes
-        </ActionBarButton>
-      </ActionBar>
     </AppShellPage>
   );
 }

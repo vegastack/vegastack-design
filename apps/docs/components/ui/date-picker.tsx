@@ -1,9 +1,9 @@
-// @vegastack date-picker@0.23.115 sha256-fU8SZ5lk7axVeHhGKBpf/avpxxbKF0NiD0iQJUd+X5g=
+// @vegastack date-picker@0.23.115 sha256-GxqMGNW4pnMOUcuidr0z5Sf1LzAZReULTehc94/0HrM=
 
 "use client";
 
 import * as React from "react";
-import { DEFAULT_LOCALE } from "@/lib/date-time";
+import { DEFAULT_LOCALE, zonedToday } from "@/lib/date-time";
 import type { DateRange, DayButton, Matcher } from "react-day-picker";
 import { Calendar as CalendarIcon, X } from "lucide-react";
 import { Field as FieldPrimitive } from "@base-ui/react/field";
@@ -15,6 +15,7 @@ import {
   PopoverTrigger,
   PopoverContent,
 } from "@/components/ui/popover";
+import { useTimeZone } from "@/components/ui/relative-time";
 
 /* ------------------------------------------------------------------------------------------------
  * DatePicker — single-date and range date selection, composed from upstream `Calendar`, `Popover`
@@ -274,27 +275,60 @@ function isRangeDisabled(
     : false;
 }
 
+/** Options for the default preset factories. */
+export interface DatePresetOptions {
+  /** IANA zone whose calendar day is "today" — pass `useTimeZone()`. @default the runtime zone */
+  timeZone?: string;
+}
+
 /**
  * `defaultDatePresets` — Today / Tomorrow. Pass your own `presets` to override; this is a sensible
- * starting set for due-date style pickers.
+ * starting set for due-date style pickers. "Today" is the calendar day in `options.timeZone`.
  */
-export function defaultDatePresets(now: Date = new Date()): DatePreset[] {
+export function defaultDatePresets(
+  now: Date = new Date(),
+  options: DatePresetOptions = {},
+): DatePreset[] {
+  const today = zonedToday(now, options.timeZone);
   return [
-    { label: "Today", date: startOfDay(now) },
-    { label: "Tomorrow", date: addDays(now, 1) },
+    { label: "Today", date: today },
+    { label: "Tomorrow", date: addDays(today, 1) },
   ];
 }
 
 /**
  * `defaultRangePresets` — Today / Last 7 days / Last 30 days. Pass your own `presets` to override.
+ * "Today" is the calendar day in `options.timeZone`.
  */
-export function defaultRangePresets(now: Date = new Date()): DateRangePreset[] {
-  const today = startOfDay(now);
+export function defaultRangePresets(
+  now: Date = new Date(),
+  options: DatePresetOptions = {},
+): DateRangePreset[] {
+  const today = zonedToday(now, options.timeZone);
   return [
     { label: "Today", range: { from: today, to: today } },
-    { label: "Last 7 days", range: { from: addDays(now, -6), to: today } },
-    { label: "Last 30 days", range: { from: addDays(now, -29), to: today } },
+    { label: "Last 7 days", range: { from: addDays(today, -6), to: today } },
+    { label: "Last 30 days", range: { from: addDays(today, -29), to: today } },
   ];
+}
+
+/**
+ * The day the grid marks as today: the provider zone's calendar day, computed when the popup
+ * opens. A `calendarProps.today` or `calendarProps.timeZone` wins — the engine then decides.
+ */
+function useZonedToday(
+  open: boolean,
+  calendarProps: { today?: Date; timeZone?: string },
+): Date | undefined {
+  const zone = useTimeZone();
+  const explicit = calendarProps.today;
+  const engineZone = calendarProps.timeZone;
+  return React.useMemo(
+    () =>
+      explicit ??
+      (!open || engineZone || !zone ? undefined : zonedToday(Date.now(), zone)),
+    [open, explicit, engineZone, zone],
+  );
 }
 
 /**
@@ -510,6 +544,7 @@ export function DatePicker({
     autoFocus = true,
     ...calendarRestProps
   } = calendarProps ?? {};
+  const today = useZonedToday(open, calendarRestProps);
 
   const handleSelect = (date: Date | undefined) => {
     onValueChange?.(date);
@@ -621,10 +656,11 @@ export function DatePicker({
                   POPUP_CALENDAR_CLASSES,
                   calendarRestProps.className,
                 )}
+                today={today}
                 mode="single"
                 selected={value}
                 onSelect={handleSelect}
-                defaultMonth={defaultMonth ?? value}
+                defaultMonth={defaultMonth ?? value ?? today}
                 disabled={disabledDates}
                 autoFocus={autoFocus}
               />
@@ -799,6 +835,7 @@ export function DateRangePicker({
     autoFocus = true,
     ...calendarRestProps
   } = calendarProps ?? {};
+  const today = useZonedToday(open, calendarRestProps);
 
   const handleOpenChange = (nextOpen: boolean) => {
     rangeSelectionStartedRef.current = false;
@@ -904,10 +941,11 @@ export function DateRangePicker({
                   POPUP_CALENDAR_CLASSES,
                   calendarRestProps.className,
                 )}
+                today={today}
                 mode="range"
                 selected={value}
                 onSelect={handleSelect}
-                defaultMonth={defaultMonth ?? value?.from}
+                defaultMonth={defaultMonth ?? value?.from ?? today}
                 numberOfMonths={numberOfMonths ?? calendarNumberOfMonths ?? 2}
                 disabled={disabledDates}
                 autoFocus={autoFocus}

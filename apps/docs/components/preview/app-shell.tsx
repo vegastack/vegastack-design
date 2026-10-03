@@ -9,6 +9,7 @@ import {
   AppShellContent,
   AppShellHeader,
   AppShellPage,
+  AppShellSection,
   AppShellSidebar,
   AppShellSkeleton,
 } from "@/components/ui/app-shell";
@@ -314,6 +315,30 @@ export function appShellPage(): ReactNode {
               as every other page.
             </p>
           </section>
+        </AppShellPage>
+      </AppShellContent>
+    </Wrapper>
+  );
+}
+
+/**
+ * A page at the default width whose settings column is `prose` (720px), aligned to the page's
+ * start under the 1280px header and tabs — no `max-w-*` of its own.
+ */
+export function appShellSectionMeasure(): ReactNode {
+  return (
+    <Wrapper className="block h-104 overflow-hidden bg-muted p-0">
+      <AppShellContent landmark="region" aria-label="Page content">
+        <AppShellPage>
+          <PageHeader title="Product" description="A space's settings tab." />
+          <AppShellSection measure="prose">
+            <section className="flex flex-col gap-3 rounded-xl border bg-card p-4">
+              <h2 className="text-sm font-medium">Name</h2>
+              <p className="text-sm text-muted-foreground">
+                The section caps at 720px and starts where the header starts.
+              </p>
+            </section>
+          </AppShellSection>
         </AppShellPage>
       </AppShellContent>
     </Wrapper>

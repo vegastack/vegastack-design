@@ -613,3 +613,21 @@ test("read-only threads retain replies and close an editor when permission disap
     .poll(() => screen.container.textContent)
     .toContain("Existing reply");
 });
+
+test("the attach button sits beside Send at the end of the box, not before the text", async () => {
+  const screen = await render(
+    <CommentComposer onSubmit={() => {}} onAttachFiles={() => {}} />,
+  );
+  const actions = await vi.waitUntil(() =>
+    screen.container.querySelector('[data-slot="comment-box-actions"]'),
+  );
+  const attach = actions.querySelector('[data-slot="comment-attach"]');
+  expect(attach).not.toBeNull();
+  const buttons = Array.from(actions.querySelectorAll("button"));
+  expect(buttons.indexOf(attach as HTMLButtonElement)).toBeLessThan(
+    buttons.length - 1,
+  );
+  expect(
+    screen.container.querySelector('[data-slot="comment-box-leading"]'),
+  ).toBeNull();
+});

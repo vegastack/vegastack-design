@@ -42,11 +42,36 @@ test("request reference clock server-renders relative content without an absolut
   expect(markup).toMatch(/datetime="2026-01-15T10:00:00\.000Z"/i);
 });
 
-test("without a request clock only date content waits for hydration", () => {
+test("without a request clock the server renders a clock-free absolute date, never a placeholder", () => {
   const markup = renderToString(
-    <RelativeTime date={ms(-1000)} title={false} />,
+    <>
+      <RelativeTime date={ms(-1000)} title={false} timeZone="UTC" />
+      <DateTime date={ms(-1000)} title={false} timeZone="UTC" />
+      <DateTime
+        date={ms(-1000)}
+        variant="datetime"
+        title={false}
+        timeZone="UTC"
+      />
+      <DateTime date={ms(-1000)} variant="time" title={false} timeZone="UTC" />
+      <DueLabel date={ms(5 * 86_400_000)} title={false} timeZone="UTC" />
+    </>,
   );
-  expect(markup).toContain(">…</time>");
+  expect(markup).not.toContain("…");
+  expect(markup).toContain(">Jan 15</time>");
+  expect(markup).toContain(">Jan 15 · 11:59 AM</time>");
+  expect(markup).toContain(">11:59 AM</time>");
+  expect(markup).toContain(">Due Jan 20</time>");
+});
+
+test("refresh={false} freezes at mount time, not at an old request reference", async () => {
+  const stale = Date.now() - 3 * 3_600_000;
+  const screen = await render(
+    <TimeZoneProvider timeZone="UTC" referenceNow={stale}>
+      <RelativeTime date={Date.now() - 60_000} refresh={false} title={false} />
+    </TimeZoneProvider>,
+  );
+  await expect.element(screen.getByText("1m ago")).toBeInTheDocument();
 });
 
 test("a controlled `now` server-renders the relative label with no swap", () => {
@@ -728,6 +753,49 @@ test("DateTime and DueLabel hydrate and update together across the effective-zon
     ).toBe("overdue");
     expect(errors).toEqual([]);
     expect(vi.getTimerCount()).toBe(1);
+  } finally {
+    await React.act(async () => hydrated?.unmount());
+    container.remove();
+    vi.useRealTimers();
+  }
+});
+
+test("without any zone the server fallback formats in UTC, so every runtime renders the same HTML", () => {
+  const markup = renderToString(
+    <>
+      <DateTime date="2026-10-03T00:30:00Z" title={false} />
+      <DueLabel date="2026-10-03T00:30:00Z" title={false} />
+    </>,
+  );
+  expect(markup).toContain(">Oct 3</time>");
+  expect(markup).toContain(">Due Oct 3</time>");
+});
+
+test("after hydration a stale request reference neither sets the cadence nor the formatted instant", async () => {
+  const reference = Date.parse("2026-10-02T00:00:00Z");
+  const current = Date.parse("2026-10-03T01:14:00Z");
+  vi.useFakeTimers({ toFake: ["Date", "setInterval", "clearInterval"] });
+  vi.setSystemTime(current);
+  const container = document.createElement("div");
+  document.body.append(container);
+  const element = (
+    <TimeZoneProvider timeZone="UTC" referenceNow={reference}>
+      <RelativeTime date={current + 5 * 60_000} title={false} />
+    </TimeZoneProvider>
+  );
+  container.innerHTML = renderToString(element);
+  let hydrated: ReturnType<typeof hydrateRoot> | undefined;
+  try {
+    await React.act(async () => {
+      hydrated = hydrateRoot(container, element, {
+        onRecoverableError: () => {},
+      });
+    });
+    expect(container.textContent).toBe("in 5m");
+    await React.act(async () => {
+      await vi.advanceTimersByTimeAsync(5 * 60_000);
+    });
+    expect(container.textContent).toBe("now");
   } finally {
     await React.act(async () => hydrated?.unmount());
     container.remove();
