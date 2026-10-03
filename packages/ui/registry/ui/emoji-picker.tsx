@@ -1,4 +1,4 @@
-// @vegastack emoji-picker@0.23.115 sha256-vxuyREr/+a/RiPFUVDseJhV16yRFb0I2PNL05wf+FpQ=
+// @vegastack emoji-picker@0.23.115 sha256-tKhrm3hlfPMLg3FNRV05Xbe//+YnxYa5Ylv+Ddkakrs=
 
 "use client";
 
@@ -194,6 +194,12 @@ export interface EmojiPickerProps {
    * @default "start"
    */
   align?: React.ComponentProps<typeof PopoverContent>["align"];
+  /**
+   * A row at the bottom of the panel, under a divider — "Remove icon", say. Its controls are
+   * the host's; close the picker from them with `open` / `onOpenChange` when they act.
+   * @default undefined
+   */
+  footer?: React.ReactNode;
   /** Extra classes for the popover panel.
    * @default undefined
    */
@@ -218,6 +224,7 @@ export interface EmojiPickerProps {
  *
  * @example
  * <EmojiPicker onValueChange={(emoji) => insert(emoji)} />
+ * <EmojiPicker onValueChange={setIcon} footer={<Button variant="ghost" size="sm" onClick={clear}>Remove icon</Button>} />
  */
 export function EmojiPicker({
   onValueChange,
@@ -232,6 +239,7 @@ export function EmojiPicker({
   closeOnSelect = true,
   side = "bottom",
   align = "start",
+  footer,
   className,
   ref,
 }: EmojiPickerProps) {
@@ -502,6 +510,14 @@ export function EmojiPicker({
               </Empty>
             )}
           </div>
+          {footer != null ? (
+            <div
+              data-slot="emoji-picker-footer"
+              className="flex items-center gap-2 border-t border-border p-1"
+            >
+              {footer}
+            </div>
+          ) : null}
         </div>
       </PopoverContent>
     </Popover>

@@ -43,3 +43,36 @@ test("invited, personal and icon-only forms", async () => {
   expect(personal.element().textContent).toBe("");
   await expectNoA11yViolations(screen.container);
 });
+
+test("a hidden space shows its kind, never its name: someone's My space or a private space", async () => {
+  const screen = await render(
+    <>
+      <AccessChip
+        access={{
+          kind: "hidden",
+          hint: { kind: "personal", ownerName: "Priya" },
+        }}
+      />
+      <AccessChip
+        access={{ kind: "hidden", hint: { kind: "private" } }}
+        published
+      />
+    </>,
+  );
+  const mine = screen.getByRole("button", { name: "Priya's My space" });
+  await expect.element(mine).toBeVisible();
+  expect(mine.element().querySelector("svg")?.getAttribute("class")).toContain(
+    "lucide-user-lock",
+  );
+  const priv = screen.getByRole("button", { name: "Private space, Published" });
+  expect(priv.element().getAttribute("aria-description")).toBe(
+    "Members of a private space can open it. Anyone with the public link can view it.",
+  );
+  expect(
+    priv
+      .element()
+      .querySelector('[data-slot="access-chip-icon"]')
+      ?.getAttribute("class"),
+  ).toContain("lucide-lock");
+  await expectNoA11yViolations(screen.container);
+});

@@ -16,6 +16,7 @@ import {
   Toaster,
   createToastManager,
   useToastManager,
+  type ToastData,
   type ToastPosition,
 } from "@/components/ui/toast";
 
@@ -28,6 +29,7 @@ import {
 const demoToast = createToastManager();
 const typesToast = createToastManager();
 const actionToast = createToastManager();
+const actionsToast = createToastManager();
 const promiseToast = createToastManager();
 const positionToast = createToastManager();
 const anchoredToast = createToastManager();
@@ -123,15 +125,11 @@ export function toastTypes(): ReactNode {
 
 export function toastAction(): ReactNode {
   function showToast() {
-    const id = actionToast.add({
+    // The action closes its toast once taken; no `close` call needed.
+    actionToast.add({
       title: "Event created",
       description: "Sunday, December 3 at 9:00 AM",
-      actionProps: {
-        children: "Undo",
-        onClick() {
-          actionToast.close(id);
-        },
-      },
+      actionProps: { children: "Undo", onClick() {} },
     });
   }
 
@@ -140,6 +138,32 @@ export function toastAction(): ReactNode {
       <Toaster toastManager={actionToast}>
         <Button variant="outline" onClick={showToast}>
           Create Event
+        </Button>
+      </Toaster>
+    </Wrapper>
+  );
+}
+
+/** Two actions, with the type's own icon: `data.actions` (at most two). */
+export function toastActions(): ReactNode {
+  function showToast() {
+    actionsToast.add<ToastData>({
+      type: "success",
+      title: "Created in General",
+      data: {
+        actions: [
+          { label: "View", onClick() {} },
+          { label: "Move", onClick() {} },
+        ],
+      },
+    });
+  }
+
+  return (
+    <Wrapper>
+      <Toaster toastManager={actionsToast}>
+        <Button variant="outline" onClick={showToast}>
+          Create task
         </Button>
       </Toaster>
     </Wrapper>

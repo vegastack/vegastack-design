@@ -38,6 +38,11 @@ crowd (inside a picker trigger).
 "Move to…", a picker's empty state, a placeholder chip. `Compass` means only "Browse spaces", and a
 folder never means a space (it is a project).
 
+**A space the viewer cannot see.** A record can be visible while its space is not. `SpaceHint`
+(`{ kind: "personal", ownerName }` or `{ kind: "private" }`) names the kind of space, never the
+space; `spaceHintLabel(hint)` gives "Priya's My space" or "Private space", and `SpaceHintIcon` the
+matching person-with-lock or lock. `SpaceChip`, `AccessChip` and `share-01` take the same hint.
+
 <ComponentPreview
   name="spaceAvatar"
   file="components/preview/space-avatar.tsx"

@@ -286,7 +286,7 @@
         "whenToUse": "Discussion on a record's page (a task, a meeting): comments oldest first with the composer at the end.",
         "whenNotToUse": "An activity feed or notifications — use Inbox.",
         "version": "0.23.115",
-        "integrity": "sha256-HrjtmOFTSKzVbhiP7wPUBh71E83LQSgTGYDX8SLnkUk="
+        "integrity": "sha256-rBIpvA5pPZqn6BWjrcC/6grLmSh/YqHlt5Q4hdD6U5w="
       }
     },
     {
@@ -2120,7 +2120,7 @@
         "whenToUse": "Lightweight emoji insertion — reactions, comments, status, icon selection.",
         "whenNotToUse": "A complete Unicode emoji browser — extend the embedded set or use a library.",
         "version": "0.23.115",
-        "integrity": "sha256-vxuyREr/+a/RiPFUVDseJhV16yRFb0I2PNL05wf+FpQ="
+        "integrity": "sha256-tKhrm3hlfPMLg3FNRV05Xbe//+YnxYa5Ylv+Ddkakrs="
       }
     },
     {
@@ -16600,7 +16600,7 @@
         "whenToUse": "Any place a space is drawn or listed: the sidebar, a space picker, a Move to… menu, a share dialog's general access row.",
         "whenNotToUse": "A person or team (PersonAvatar), or a record image (Thumbnail).",
         "version": "0.23.115",
-        "integrity": "sha256-HsnfpCMfg4khEq7XHHEzGwDb8c/CvfPrhMdmdtPhNho="
+        "integrity": "sha256-eYgaks0+FcvmG7U54cL/Lffr3rq+wlVyOCpCypqO0Zs="
       }
     },
     {
@@ -16733,14 +16733,14 @@
         "whenToUse": "Choosing or showing which space a record lives in, in a create dialog title or a property row.",
         "whenNotToUse": "Choosing anything that is not a space (SearchableSelect, Combobox).",
         "version": "0.23.115",
-        "integrity": "sha256-qLnHhksS4MRNIHeNEAV8uhkyfccq+elZlZiqWisKM9w="
+        "integrity": "sha256-Qk2xYOWy8gOjdPSbXIcVeiNBpIkyLwZvgh8SDZoRoNo="
       }
     },
     {
       "name": "access-chip",
       "type": "registry:ui",
       "title": "Access Chip",
-      "description": "How far one record reaches as one focusable chip: the space tile and name, a lock and Only invited, or My space — with a globe when published and the full sentence in a tooltip. Clicking opens Share.",
+      "description": "How far one record reaches as one focusable chip: the space tile and name, a lock and Only invited, My space, or a space the viewer cannot see (someone's My space, a private space) — with a globe when published and the full sentence in a tooltip. Clicking opens Share.",
       "categories": [
         "overlay"
       ],
@@ -16765,7 +16765,7 @@
         "whenToUse": "A record header that shows who can open the record and opens Share.",
         "whenNotToUse": "Changing access inline (PermissionMenu) or listing people (AvatarStack).",
         "version": "0.23.115",
-        "integrity": "sha256-hfdR0Wg/rXyge7Rtvw72SoQji1v6ZHONKRS4feR4YvE="
+        "integrity": "sha256-6DERrFXFlmsg9gdWYHjmCfTBCZ6ERpFMWbA2qlsaTus="
       }
     },
     {
@@ -17959,7 +17959,7 @@
         "whenToUse": "Brief confirmations of an action — 'Saved', 'Copied', 'Invitation sent' — and the loading → success/error arc of an async one.",
         "whenNotToUse": "Errors the user must resolve, destructive confirmations, or essential info — use inline copy or a Dialog.",
         "version": "0.23.115",
-        "integrity": "sha256-XwtKcsbWuqM6z+vdgzKzU9b0AlVH3BGTgJn73D2bokI="
+        "integrity": "sha256-peQdW3pr4MwadgKFSCFono0zeO3riHb2/TG2BVffT8c="
       }
     },
     {
@@ -18695,7 +18695,7 @@
         "whenToUse": "Share a record, page or meeting with people and teams, set its general access and turn a public link on or off.",
         "whenNotToUse": "Manage a space's or team's members as a page — compose DataList with PeopleInput and PermissionMenu.",
         "version": "0.23.115",
-        "integrity": "sha256-JOkHle8vldYvDllD9Cl2jEkrfbUCjKobxrXG2o9Ur9U="
+        "integrity": "sha256-29P8rFv4LzyFGM3SfKEUKqBb1keidpzITQDXUPwZI40="
       }
     },
     {

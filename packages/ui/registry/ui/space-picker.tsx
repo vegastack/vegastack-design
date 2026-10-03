@@ -1,4 +1,4 @@
-// @vegastack space-picker@0.23.115 sha256-qLnHhksS4MRNIHeNEAV8uhkyfccq+elZlZiqWisKM9w=
+// @vegastack space-picker@0.23.115 sha256-Qk2xYOWy8gOjdPSbXIcVeiNBpIkyLwZvgh8SDZoRoNo=
 
 "use client";
 
@@ -21,9 +21,12 @@ import {
 } from "@/components/ui/popover";
 import {
   SpaceAvatar,
+  SpaceHintIcon,
   SpaceIcon,
   SpaceOption,
+  spaceHintLabel,
   type Space,
+  type SpaceHint,
 } from "@/components/ui/space-avatar";
 
 /* ------------------------------------------------------------------------------------------------
@@ -31,7 +34,8 @@ import {
  *
  * `SpaceChip` is the quiet property chip: the space's tile, its name and a ▾, tinted on hover (the
  * RecordChip ghost look). `readOnly` is the same chip as plain text, for a card that only shows
- * where something lives.
+ * where something lives — including a space the viewer cannot see (`hint`: "Priya's My space",
+ * "Private space").
  *
  * `SpacePicker` is that chip opening a searchable list of the spaces given: "My space" first, then
  * "Spaces", a check on the current one, and a disabled row that says why ("You can't add here").
@@ -44,8 +48,13 @@ export interface SpaceChipProps extends Omit<
   React.ComponentPropsWithRef<"button">,
   "children"
 > {
-  /** The space shown; empty shows `placeholder` with the generic space glyph. @default undefined */
+  /** The space shown; empty shows `hint`, else `placeholder` with the generic space glyph. @default undefined */
   space?: Space | null;
+  /**
+   * With no `space`: which kind of space the viewer cannot see holds the record — shows "Priya's
+   * My space" or "Private space" with its glyph. @default undefined
+   */
+  hint?: SpaceHint | null;
   /** Shown while there is no space. @default "Choose a space" */
   placeholder?: React.ReactNode;
   /**
@@ -64,10 +73,11 @@ export interface SpaceChipProps extends Omit<
  *
  * @example
  * <SpaceChip space={{ name: "General", access: "open", hue: "blue" }} />
- * <SpaceChip size="xs" readOnly space={task.space} />
+ * <SpaceChip size="xs" readOnly space={task.space} hint={task.spaceHint} />
  */
 export function SpaceChip({
   space,
+  hint,
   placeholder = "Choose a space",
   size = "sm",
   readOnly = false,
@@ -81,16 +91,23 @@ export function SpaceChip({
       size={size === "xs" ? "2xs" : "xs"}
       showLock={false}
     />
+  ) : hint ? (
+    <SpaceHintIcon
+      hint={hint}
+      aria-hidden
+      data-slot="space-chip-icon"
+      className="text-muted-foreground"
+    />
   ) : (
     <SpaceIcon
       aria-hidden
-      data-slot="space-chip-avatar"
+      data-slot="space-chip-icon"
       className="text-muted-foreground"
     />
   );
   const name = (
     <span className={cn("min-w-0 truncate", !space && "text-muted-foreground")}>
-      {space ? space.name : placeholder}
+      {space ? space.name : hint ? spaceHintLabel(hint) : placeholder}
     </span>
   );
 
@@ -155,28 +172,6 @@ export interface SpacePickerItem {
   disabled?: boolean | string;
 }
 
-/** Every string `SpacePicker` renders. */
-export interface SpacePickerLabels {
-  /** The trigger's accessible-name prefix: "Space: General". */
-  trigger: string;
-  /** The search field's placeholder. */
-  search: string;
-  /** No space matches the search, or none were given. */
-  empty: string;
-  /** The heading over personal spaces. */
-  personal: string;
-  /** The heading over every other space. */
-  spaces: string;
-}
-
-const defaultLabels: SpacePickerLabels = {
-  trigger: "Space",
-  search: "Find a space…",
-  empty: "No spaces found",
-  personal: "My space",
-  spaces: "Spaces",
-};
-
 /** Props for `SpacePicker`. */
 export interface SpacePickerProps {
   /** The spaces to offer, in order; personal spaces are listed first, under "My space". */
@@ -199,8 +194,6 @@ export interface SpacePickerProps {
   open?: boolean;
   /** Called when the list opens or closes. @default undefined */
   onOpenChange?: (open: boolean) => void;
-  /** Override any rendered string. @default {} */
-  labels?: Partial<SpacePickerLabels>;
   /** Classes for the chip. @default undefined */
   className?: string;
 }
@@ -225,10 +218,8 @@ export function SpacePicker({
   disabled = false,
   open: openProp,
   onOpenChange,
-  labels: labelsProp,
   className,
 }: SpacePickerProps) {
-  const labels = { ...defaultLabels, ...labelsProp };
   const [openState, setOpenState] = React.useState(false);
   const open = openProp ?? openState;
   const setOpen = (next: boolean) => {
@@ -271,7 +262,7 @@ export function SpacePicker({
             space={current?.space}
             placeholder={placeholder}
             size={placement === "title" ? "title" : "sm"}
-            aria-label={`${labels.trigger}: ${current?.space.name ?? labels.empty}`}
+            aria-label={`Space: ${current?.space.name ?? "none chosen"}`}
             className={className}
           />
         }
@@ -282,26 +273,21 @@ export function SpacePicker({
         className="w-72 gap-0 p-0"
       >
         <Command>
-          <CommandInput
-            placeholder={labels.search}
-            aria-label={labels.search}
-          />
+          <CommandInput placeholder="Find a space…" aria-label="Find a space" />
           <CommandList>
             <CommandEmpty>
               <span className="flex flex-col items-center gap-2 text-muted-foreground">
                 <SpaceIcon aria-hidden className="size-4" />
-                {labels.empty}
+                No spaces found
               </span>
             </CommandEmpty>
             {personal.length > 0 ? (
-              <CommandGroup heading={labels.personal}>
+              <CommandGroup heading="My space">
                 {personal.map(row)}
               </CommandGroup>
             ) : null}
             {shared.length > 0 ? (
-              <CommandGroup heading={labels.spaces}>
-                {shared.map(row)}
-              </CommandGroup>
+              <CommandGroup heading="Spaces">{shared.map(row)}</CommandGroup>
             ) : null}
           </CommandList>
         </Command>

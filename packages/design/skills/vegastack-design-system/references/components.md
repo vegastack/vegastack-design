@@ -110,7 +110,7 @@ starts with `icon-` is a component and never an icon.
 
 ## Overlay
 
-- **`access-chip`** — How far one record reaches as one focusable chip: the space tile and name, a lock and Only invited, or My space — with a globe when published and the full sentence in a tooltip. Clicking opens Share.
+- **`access-chip`** — How far one record reaches as one focusable chip: the space tile and name, a lock and Only invited, My space, or a space the viewer cannot see (someone's My space, a private space) — with a globe when published and the full sentence in a tooltip. Clicking opens Share.
 - **`alert-dialog`** — A modal that interrupts for a decision — an optional media slot, two sizes and an action/cancel footer.
 - **`context-menu`** — The same menu vocabulary opened by right-click, positioned at the pointer.
 - **`dialog`** — A modal overlay — backdrop, centred popup, a plain right-aligned footer and an optional close button; opens onto the first field or the popup, never the close ×.

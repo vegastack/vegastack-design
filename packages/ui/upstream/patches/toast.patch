@@ -84,6 +84,10 @@
 #     (c) CUSTOM BODY. A toast carrying `data.render` renders that instead of the default row,
 #         still inside `ToastContent` and a real `Toast` — so it keeps the stack, the swipe,
 #         `Escape` and the viewport's live region rather than opting out of them.
+#     (d) TWO ACTIONS. `data.actions` (a one- or two-item tuple of `{ label, onClick }`, typed as
+#         `ToastData`) renders up to two outline buttons after the text, with the type icon kept,
+#         each closing its toast once taken unless `data.keepOpen` — so a second action no longer
+#         needs a hand-rendered `data.render` body (MK, 03-10-2026).
 #     The `z-60` band the viewport and positioner take is the same row: it is one band above the
 #     single `z-50` overlay band, so a toast fired while a Dialog is open is visible instead of
 #     behind its scrim. OVL-2 is untouched — nothing else leaves `z-50` — and `z-60` is a plain
@@ -91,10 +95,10 @@
 #   formatting: prettier reflow plus the `registry-stamp.mjs` provenance header (DOC-1); no
 #               decision of their own.
 diff --git a/toast.tsx b/toast.tsx
-index 325d01b..cf7ea5c 100644
+index 325d01b..8e98bfb 100644
 --- a/toast.tsx
 +++ b/toast.tsx
-@@ -1,60 +1,249 @@
+@@ -1,60 +1,265 @@
 -"use client"
 +"use client";
  
@@ -120,7 +124,8 @@ index 325d01b..cf7ea5c 100644
 +} from "lucide-react";
  
 -const toast = ToastPrimitive.createToastManager()
-+const toast = ToastPrimitive.createToastManager();
++// Typed with `ToastData`, so `toast.add({ data: { actions, keepOpen, render } })` is checked.
++const toast = ToastPrimitive.createToastManager<ToastData>();
  
 -function ToastProvider({ ...props }: ToastPrimitive.Provider.Props) {
 -  return <ToastPrimitive.Provider {...props} />
@@ -237,10 +242,25 @@ index 325d01b..cf7ea5c 100644
 + * toast — stacking, swipe-to-dismiss, `Escape` and the viewport's live region all still apply —
 + * instead of opting out of them.
 + */
-+type ToastCustomData = {
++type ToastData = {
 +  render?: (toast: ToastPrimitive.Root.ToastObject) => React.ReactNode;
++  /**
++   * Up to two actions, drawn after the text with the type's normal icon — "View" and "Move", say.
++   * Each closes the toast when clicked (the action is taken) unless `keepOpen` is set. Takes the
++   * place of `actionProps`, which stays the one-action form.
++   */
++  actions?:
++    readonly [ToastActionItem] | readonly [ToastActionItem, ToastActionItem];
 +  /** Keep the toast up after its action runs. By default the action closes it: the action is taken. */
 +  keepOpen?: boolean;
++};
++
++/** One button of a toast's `data.actions`. */
++type ToastActionItem = {
++  /** The button's text, and its accessible name. */
++  label: React.ReactNode;
++  /** Runs when the button is pressed; the toast then closes unless `data.keepOpen`. */
++  onClick: () => void;
 +};
 +
 +// OVL-17: the manager of the `ToastProvider` mounted above, if any. A `Toaster` given the same
@@ -287,13 +307,11 @@ index 325d01b..cf7ea5c 100644
 -      )}
 +      data-position={position ?? "bottom-end"}
 +      className={cn(toastViewportVariants({ position }), className)}
-       {...props}
-     />
--  )
++      {...props}
++    />
 +  );
- }
- 
--function Toast({ className, ...props }: ToastPrimitive.Root.Props) {
++}
++
 +/**
 + * OVL-15: `ToastPositioner` — the anchored-toast wrapper. Base UI can position a toast against an
 + * element instead of stacking it in the corner; pass `positionerProps` on the `add()` call and
@@ -320,11 +338,13 @@ index 325d01b..cf7ea5c 100644
 +    <ToastPrimitive.Arrow
 +      data-slot="toast-arrow"
 +      className={cn("text-current", className)}
-+      {...props}
-+    />
+       {...props}
+     />
+-  )
 +  );
-+}
-+
+ }
+ 
+-function Toast({ className, ...props }: ToastPrimitive.Root.Props) {
 +function Toast({
 +  className,
 +  render,
@@ -381,7 +401,7 @@ index 325d01b..cf7ea5c 100644
  }
  
  function ToastContent({ className, ...props }: ToastPrimitive.Content.Props) {
-@@ -62,12 +251,12 @@ function ToastContent({ className, ...props }: ToastPrimitive.Content.Props) {
+@@ -62,12 +267,12 @@ function ToastContent({ className, ...props }: ToastPrimitive.Content.Props) {
      <ToastPrimitive.Content
        data-slot="toast-content"
        className={cn(
@@ -397,7 +417,7 @@ index 325d01b..cf7ea5c 100644
  }
  
  function ToastTitle({ className, ...props }: ToastPrimitive.Title.Props) {
-@@ -77,7 +266,7 @@ function ToastTitle({ className, ...props }: ToastPrimitive.Title.Props) {
+@@ -77,7 +282,7 @@ function ToastTitle({ className, ...props }: ToastPrimitive.Title.Props) {
        className={cn("text-sm font-medium", className)}
        {...props}
      />
@@ -406,7 +426,7 @@ index 325d01b..cf7ea5c 100644
  }
  
  function ToastDescription({
-@@ -87,10 +276,16 @@ function ToastDescription({
+@@ -87,10 +292,16 @@ function ToastDescription({
    return (
      <ToastPrimitive.Description
        data-slot="toast-description"
@@ -425,7 +445,7 @@ index 325d01b..cf7ea5c 100644
  }
  
  function ToastAction({
-@@ -98,14 +293,18 @@ function ToastAction({
+@@ -98,14 +309,18 @@ function ToastAction({
    render = <Button variant="outline" size="sm" />,
    ...props
  }: ToastPrimitive.Action.Props) {
@@ -445,7 +465,7 @@ index 325d01b..cf7ea5c 100644
  }
  
  function ToastClose({
-@@ -114,59 +313,55 @@ function ToastClose({
+@@ -114,59 +329,55 @@ function ToastClose({
    render = <Button variant="ghost" size="icon-sm" />,
    ...props
  }: ToastPrimitive.Close.Props) {
@@ -521,12 +541,40 @@ index 325d01b..cf7ea5c 100644
    }
  
    return (
-@@ -176,59 +371,125 @@ function ToastIcon({ type }: { type: string | undefined }) {
+@@ -176,59 +387,156 @@ function ToastIcon({ type }: { type: string | undefined }) {
      >
        {icon}
      </span>
 -  )
 +  );
++}
++
++/** OVL-15: the buttons of `data.actions`, in order, each closing its toast once taken. */
++function ToastActionButtons({
++  actions,
++  onTaken,
++}: {
++  actions: NonNullable<ToastData["actions"]>;
++  onTaken: () => void;
++}) {
++  const hiddenFromAt = React.useContext(ToastHiddenFromAtContext);
++  return actions.map((action, index) => (
++    <Button
++      key={index}
++      variant="outline"
++      size="sm"
++      data-slot="toast-action"
++      // A11Y-9: out of the tab order while the toast around it is `aria-hidden`.
++      tabIndex={hiddenFromAt ? -1 : 0}
++      className="shrink-0"
++      onClick={() => {
++        action.onClick();
++        onTaken();
++      }}
++    >
++      {action.label}
++    </Button>
++  ));
  }
  
 -function ToastList() {
@@ -555,7 +603,12 @@ index 325d01b..cf7ea5c 100644
 +  return toasts.map((toastItem) => {
 +    // OVL-15: a toast carrying `data.render` owns its own body; everything around it — the surface,
 +    // the stack, the swipe and the live region — is unchanged.
-+    const custom = (toastItem.data as ToastCustomData | undefined)?.render;
++    const data = toastItem.data as ToastData | undefined;
++    const custom = data?.render;
++    // The action is taken, so its toast goes; `data.keepOpen` opts out.
++    const taken = () => {
++      if (!data?.keepOpen) close(toastItem.id);
++    };
 +
 +    return (
 +      <Toast
@@ -574,15 +627,11 @@ index 325d01b..cf7ea5c 100644
 +                <ToastTitle />
 +                <ToastDescription />
 +              </div>
-+              <ToastAction
-+                // The action is taken, so its toast goes; `data.keepOpen` opts out.
-+                onClick={() => {
-+                  if (
-+                    !(toastItem.data as ToastCustomData | undefined)?.keepOpen
-+                  )
-+                    close(toastItem.id);
-+                }}
-+              />
++              {data?.actions?.length ? (
++                <ToastActionButtons actions={data.actions} onTaken={taken} />
++              ) : (
++                <ToastAction onClick={taken} />
++              )}
 +              <ToastClose />
 +            </>
 +          )}
@@ -672,5 +721,7 @@ index 325d01b..cf7ea5c 100644
    toast,
    useToastManager,
 -}
++  type ToastActionItem,
++  type ToastData,
 +  type ToastPosition,
 +};

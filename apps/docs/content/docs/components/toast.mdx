@@ -67,6 +67,28 @@ toast.add({
 
 <ComponentPreview name="toastAction" file="components/preview/toast.tsx" />
 
+**Two actions.** For a second action — "View" and "Move" after a create — pass `data.actions`, a
+one- or two-item array of `{ label, onClick }` — the `toast` manager's `data` is typed as
+`ToastData`, so a third item is a type error. The buttons follow the text,
+the type's icon stays, and each closes the toast once taken (`data.keepOpen` opts out). Never more
+than two: a third choice belongs in the page, not in a notification. It replaces `actionProps`
+when both are given.
+
+```tsx
+toast.add({
+  type: "success",
+  title: "Created in General",
+  data: {
+    actions: [
+      { label: "View", onClick: () => open(task) },
+      { label: "Move", onClick: () => move(task) },
+    ],
+  },
+});
+```
+
+<ComponentPreview name="toastActions" file="components/preview/toast.tsx" />
+
 One action, one toast. When the same action repeats while its toast is still up — a second "Task
 done" before the first times out — rewrite the live toast with `toast.update(id, …)` instead of
 stacking another; every `toast.add` in the app lands in the one queue, so a stack of copies is what
@@ -115,7 +137,8 @@ caused it (OVL-15). Compose the parts yourself and pass the anchor through `posi
 
 A toast carrying `data.render` draws its own body and keeps everything around it: the surface, the
 stack, swipe-to-dismiss, `Escape` and the viewport's live region (OVL-15). Reach for it when a
-notification needs an avatar, a thumbnail or a second action — not to escape the toast contract.
+notification needs an avatar or a thumbnail — not for a second action (`data.actions`), and not to
+escape the toast contract.
 
 ```tsx
 toast.add({
@@ -237,7 +260,7 @@ focus-visible:ring-[3px] focus-visible:ring-ring/50` halo goes; dropping `outlin
   parts that are not arithmetic). `ToastPositioner` and `ToastArrow` wrap the two Base UI parts
   upstream wraps neither of; the corner-stack recipe moves into the `anchor` variant so a root
   inside a positioner emits none of it, which `Toast` resolves from context rather than from a
-  prop — an anchored composition needs no className of its own. A toast carrying `data.render` owns its body. The viewport and the
+  prop — an anchored composition needs no className of its own. A toast carrying `data.render` owns its body, and `data.actions` draws up to two action buttons with the type icon kept. The viewport and the
   positioner take a `z-60` band, one above the shared `z-50` overlay band — OVL-2 is untouched, and
   `z-60` is plain Tailwind, so no `--z-*` token returns.
 - **COL-23** — `ToastDescription` gains `first:text-popover-foreground`. Base UI renders

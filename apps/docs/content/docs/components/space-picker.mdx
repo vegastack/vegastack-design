@@ -58,7 +58,9 @@ for a form or a property row.
 ### In a form, and read-only on a card
 
 `readOnly` (often `size="xs"`) shows where a record lives without offering a change: plain text, no
-▾, no tab stop.
+▾, no tab stop. For a space the viewer cannot see, pass `space={null}` and a `hint` —
+`{ kind: "personal", ownerName }` reads "Priya's My space" with a person-with-lock, `{ kind:
+"private" }` reads "Private space" with a lock. The hint never names the space itself.
 
 <ComponentPreview
   name="spacePickerField"
@@ -88,7 +90,7 @@ for a form or a property row.
 
 ## Accessibility
 
-- The chip is a button named "Space: General" (`labels.trigger` sets the prefix), so a title that
+- The chip is a button named "Space: General" ("Space: none chosen" while empty), so a title that
   holds it still reads in order.
 - The list is a filterable listbox; the current space is checked, and a disabled row's reason is
   its visible second line.
