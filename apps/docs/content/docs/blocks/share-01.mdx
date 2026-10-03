@@ -12,7 +12,9 @@ The Share surface for one record, page or meeting. Every row, level and link com
 props and every change goes out through a callback, so the same dialog serves tasks, meetings and
 pages. It is a `ResponsiveDialog` — a `Dialog` (size `md`, 512px) from 768px up and a bottom sheet
 below it — titled "Share", with two line tabs: **Share** and **Publish**. Close it with × or
-Escape; there is no Done button. It is a **block**: you pull it once with `shadcn add`,
+Escape; there is no Done button. Both tab panels stay mounted in one grid cell (the inactive one invisible and inert) and the
+footer keeps its box on either tab, so switching tabs never changes the dialog's or the sheet's
+height. It is a **block**: you pull it once with `shadcn add`,
 and then you own it. `ShareDemo` wires it to sample state.
 
 ## Install

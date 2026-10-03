@@ -288,3 +288,90 @@ test("share-01 a space the viewer cannot see is a plain statement: no mode, no l
   ).toBeNull();
   await expectNoA11yViolations(document.body, ["color-contrast"]);
 });
+
+for (const [label, width, slot] of [
+  ["Dialog", 1280, "dialog-content"],
+  ["phone sheet", 390, "sheet-content"],
+] as const) {
+  test(`share-01 keeps one height across tabs (${label}), with a long or an empty people list`, async () => {
+    await page.viewport(width, 900);
+    // Layout height, not the box on screen: the open animation scales the popup.
+    const height = () =>
+      document.querySelector<HTMLElement>(`[data-slot="${slot}"]`)!
+        .offsetHeight;
+    const switchTo = async (name: string) => {
+      await page.getByRole("tab", { name }).click();
+      await expect
+        .element(page.getByRole("tab", { name }))
+        .toHaveAttribute("aria-selected", "true");
+    };
+    // A long people list (Share is the taller panel) …
+    const long = await render(<ShareDemo defaultOpen />);
+    await vi.waitFor(() =>
+      expect(document.querySelector(`[data-slot="${slot}"]`)).not.toBeNull(),
+    );
+    const shareHeight = height();
+    await switchTo("Publish");
+    expect(height()).toBe(shareHeight);
+    // The inactive panel is out of the accessibility tree and the tab order.
+    expect(
+      document.querySelector('[data-slot="share-people"]')!.closest("[inert]"),
+    ).not.toBeNull();
+    await switchTo("Share");
+    expect(height()).toBe(shareHeight);
+    await long.unmount();
+
+    // … and an empty one with the item published (Publish is the taller panel).
+    await render(
+      <ShareDialog
+        open
+        levels={[{ value: "view", label: "Can view" }]}
+        people={[]}
+        publicLink={{ url: "https://app.acme.com/s/k3J9xQ2", expires: "7d" }}
+        linkUrl="https://app.acme.com/tasks/REG-142"
+      />,
+    );
+    await vi.waitFor(() =>
+      expect(document.querySelector(`[data-slot="${slot}"]`)).not.toBeNull(),
+    );
+    const emptyHeight = height();
+    await switchTo("Publish");
+    expect(height()).toBe(emptyHeight);
+    await expectNoA11yViolations(document.body, ["color-contrast"]);
+  });
+}
+
+test("share-01 a scrolled people list does not carry its scroll into Publish", async () => {
+  await page.viewport(1280, 520);
+  const people = Array.from({ length: 40 }, (_, i) => ({
+    id: `p${i}`,
+    person: { name: `Person ${i + 1}` },
+    level: "view",
+  }));
+  await render(
+    <ShareDialog
+      open
+      levels={[{ value: "view", label: "Can view" }]}
+      people={people}
+      linkUrl="https://app.acme.com/tasks/REG-142"
+    />,
+  );
+  const body = await vi.waitUntil(() =>
+    document.querySelector<HTMLElement>('[data-slot="dialog-body"]'),
+  );
+  await vi.waitFor(() =>
+    expect(body.scrollHeight).toBeGreaterThan(body.clientHeight),
+  );
+  body.scrollTo({ top: body.scrollHeight });
+  await vi.waitFor(() => expect(body.scrollTop).toBeGreaterThan(0));
+  await page.getByRole("tab", { name: "Publish" }).click();
+  await vi.waitFor(() => expect(body.scrollTop).toBe(0));
+  const toggleLocator = page.getByRole("switch", {
+    name: "Publish to the web",
+  });
+  await expect.element(toggleLocator).toBeVisible();
+  const toggle = toggleLocator.element().getBoundingClientRect();
+  const frame = body.getBoundingClientRect();
+  expect(toggle.top).toBeGreaterThanOrEqual(frame.top);
+  expect(toggle.bottom).toBeLessThanOrEqual(frame.bottom);
+});
