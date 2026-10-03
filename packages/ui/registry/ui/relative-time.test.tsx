@@ -5,7 +5,11 @@ import { render } from "vitest-browser-react";
 import { expect, test, vi } from "vitest";
 import { expectNoA11yViolations } from "../../test/a11y";
 import { TooltipProvider } from "./tooltip";
-import { RelativeTime, TimeZoneProvider } from "./relative-time";
+import {
+  RelativeTime,
+  TimeZoneProvider,
+  useDateTimeNow,
+} from "./relative-time";
 import { formatDuration, formatLongDate, hourOfDay } from "../lib/date-time";
 
 /**
@@ -601,14 +605,19 @@ test("request reference hydrates without errors and the shared clock continues t
   const container = document.createElement("div");
   document.body.append(container);
   const errors: unknown[] = [];
+  function GroupClock() {
+    const now = useDateTimeNow();
+    return <span data-testid="shared-clock">{now ?? "pending"}</span>;
+  }
   const element = (
     <TimeZoneProvider timeZone="UTC" referenceNow={NOW}>
       <RelativeTime date={NOW - 50_000} title={false} />
       <RelativeTime date={NOW - 50_000} title={false} />
+      <GroupClock />
     </TimeZoneProvider>
   );
   container.innerHTML = renderToString(element);
-  expect(container.textContent).toBe("50s ago50s ago");
+  expect(container.textContent).toBe(`50s ago50s ago${NOW}`);
   let hydrated: ReturnType<typeof hydrateRoot> | undefined;
   try {
     await React.act(async () => {
@@ -616,11 +625,11 @@ test("request reference hydrates without errors and the shared clock continues t
         onRecoverableError: (error) => errors.push(error),
       });
     });
-    expect(container.textContent).toBe("50s ago50s ago");
+    expect(container.textContent).toBe(`50s ago50s ago${NOW}`);
     await React.act(async () => {
       await vi.advanceTimersByTimeAsync(20_000);
     });
-    expect(container.textContent).toBe("1m ago1m ago");
+    expect(container.textContent).toBe(`1m ago1m ago${NOW + 20_000}`);
     expect(errors).toEqual([]);
     expect(vi.getTimerCount()).toBe(1);
   } finally {
@@ -628,4 +637,11 @@ test("request reference hydrates without errors and the shared clock continues t
     container.remove();
     vi.useRealTimers();
   }
+});
+
+test("shared clock without a request reference has an explicit SSR pending state", () => {
+  function Clock() {
+    return <span>{useDateTimeNow() ?? "pending"}</span>;
+  }
+  expect(renderToString(<Clock />)).toBe("<span>pending</span>");
 });

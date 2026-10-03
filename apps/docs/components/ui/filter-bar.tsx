@@ -1,4 +1,4 @@
-// @vegastack filter-bar@0.23.114 sha256-LCbKOAWYaWl28UVgwS5amFODunjxDhvfujrDHBtWUUA=
+// @vegastack filter-bar@0.23.114 sha256-ZKrmylw05vGHKMbrg588RCfTvQojeeodex/vUfyL3jU=
 
 "use client";
 
@@ -1158,7 +1158,7 @@ export interface DateRangeFilterProps {
    */
   presetLabels?: Partial<Record<DateRangeFilterPreset, string>>;
   /**
-   * "Today", for the presets and the label's year rule.
+   * "Today", for the presets, the custom calendar highlight and the label's year rule.
    * @default new Date()
    */
   now?: Date;
@@ -1337,6 +1337,7 @@ export function DateRangeFilter({
                   selected={draft}
                   onSelect={setDraft}
                   defaultMonth={draft?.from ?? now}
+                  today={now}
                   autoFocus
                 />
               </React.Suspense>

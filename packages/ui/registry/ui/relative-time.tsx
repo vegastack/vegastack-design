@@ -1,4 +1,4 @@
-// @vegastack relative-time@0.23.114 sha256-9U+TyqI0rAEzJH/OFqc6zj8xCGGT8/hV1rKE5Q2lqpI=
+// @vegastack relative-time@0.23.114 sha256-SGRUPAGvI3T9apeJd+RkOmkTsGSdafd/cplKlg/v3WM=
 
 "use client";
 
@@ -54,6 +54,30 @@ function subscribeClock(listener: () => void) {
   };
 }
 const noClockSubscription = () => () => {};
+
+/** Subscribe to the existing shared clock; controlled timestamps may stand the subscription down. */
+function useDateTimeClock(enabled: boolean): number | undefined {
+  const referenceNow = React.useContext(ReferenceClockContext);
+  return React.useSyncExternalStore(
+    enabled ? subscribeClock : noClockSubscription,
+    () => liveClock || referenceNow,
+    () => referenceNow,
+  );
+}
+
+/**
+ * The shared live reference instant as epoch milliseconds. SSR and hydration use
+ * `TimeZoneProvider.referenceNow`; without it, the value is undefined until the browser
+ * subscribes. Grouping, badges and date-picker presets can follow the same clock as RelativeTime
+ * without creating another timer. The instant is zone-independent; format in the effective zone.
+ *
+ * @example
+ * const now = useDateTimeNow();
+ * return now === undefined ? null : <RelativeTime date={updatedAt} now={now} />;
+ */
+export function useDateTimeNow(): number | undefined {
+  return useDateTimeClock(true);
+}
 
 /**
  * `TimeZoneProvider` — hand every date component (and `useTimeZone`) the viewer's zone. On the
@@ -379,13 +403,8 @@ export function RelativeTime({
   const [initialClock, setInitialClock] = React.useState(
     () => referenceNow ?? 0,
   );
-  const clock = React.useSyncExternalStore(
-    !isControlled && (refresh || !initialClock)
-      ? subscribeClock
-      : noClockSubscription,
-    () => liveClock || referenceNow || 0,
-    () => referenceNow ?? 0,
-  );
+  const clock =
+    useDateTimeClock(!isControlled && (refresh || !initialClock)) ?? 0;
   React.useEffect(() => {
     if (!refresh && !initialClock && clock) setInitialClock(clock);
   }, [refresh, initialClock, clock]);

@@ -19689,6 +19689,15 @@
           }
         },
         {
+          "name": "useDateTimeNow",
+          "kind": "hook",
+          "source": "packages/ui/registry/ui/relative-time.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A hook renders nothing and accepts no ref."
+          }
+        },
+        {
           "name": "useTimeZone",
           "kind": "hook",
           "source": "packages/ui/registry/ui/relative-time.tsx",

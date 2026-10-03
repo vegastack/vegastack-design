@@ -293,6 +293,24 @@ When `now` is left unset, timestamps subscribe to one shared ten-second clock.
 Older labels keep updating across calendar-day rollover without allocating per-row timers. The example below is intentionally **live** — it seeds a timestamp
 30s in the past and climbs as you watch. Pass `refresh={false}` to opt out.
 
+Application groups, due badges and date-picker presets can share that same clock through
+`useDateTimeNow()`, exported by this registry item. It returns epoch milliseconds, or `undefined`
+until hydration when no request reference was provided. With `TimeZoneProvider.referenceNow`,
+server output and the hydration render receive the same reference. Keep a placeholder for a
+missing reference; do not replace it with a separate `Date.now()` during rendering.
+
+```tsx
+import { DateTime, useDateTimeNow } from "@/components/ui/relative-time";
+
+export function CurrentTime() {
+  const nowMs = useDateTimeNow();
+  return nowMs === undefined ? <span>…</span> : <DateTime date={nowMs} />;
+}
+```
+
+Format the instant in the viewer's effective zone. The hook and uncontrolled `RelativeTime`
+instances share one timer; a `RelativeTime now={...}` remains controlled.
+
 <ComponentPreview
   name="relativeTimeLive"
   file="components/preview/relative-time.tsx"

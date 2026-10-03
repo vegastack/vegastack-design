@@ -876,3 +876,7 @@ written down anywhere, so there is nothing to work from.
 ## Regent audit — 2026-10-03 — two rounds, final verdict: addressed
 
 Independent Codex CLI review of the audit-only patch against the preserved published-base maintenance tree found two medium runtime issues (stale lazy-audio rejection affecting a newer request; missing wizard step bypassing sealed-state clamping), missing consequential interaction acceptance and one stale refresh description. The runtime fixes, actual hydration/live-clock, pointer-settle revocation, virtual keyboard navigation and real browser history proofs addressed every finding. Scoped round two reported no new actionable defect. The later final static run passed. See [the compact completion record](2026-10-03-regent-audit-completion.md) for exact scope, raw-failure reconciliation, preserved dirt and release boundaries.
+
+## Regent date integration — 2026-10-03 — clean scoped contract review
+
+The newly approved `DateRangeFilter.today` forwarding and `useDateTimeNow()` shared-clock export were reviewed separately from the completed audit. The reviewer confirmed the caller's calendar-date convention, request-reference hydration, shared timer, controlled clock behavior and documented public-symbol contract; no actionable finding. Focused checks passed 86/86. See the Regent completion ledger's scoped integration section.

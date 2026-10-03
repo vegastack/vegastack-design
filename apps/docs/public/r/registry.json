@@ -2275,7 +2275,7 @@
         "whenToUse": "Filter toolbars for lists/tables — 'Label: value' chips that edit in place, facets on SearchableSelect, an Add-filter menu and a settled search, at the end or first.",
         "whenNotToUse": "A single search box (Input), value selection (Select), or unrelated row actions.",
         "version": "0.23.114",
-        "integrity": "sha256-LCbKOAWYaWl28UVgwS5amFODunjxDhvfujrDHBtWUUA="
+        "integrity": "sha256-ZKrmylw05vGHKMbrg588RCfTvQojeeodex/vUfyL3jU="
       }
     },
     {
@@ -16857,7 +16857,7 @@
         "whenToUse": "Any date, time, duration, due label or day grouping shown in UI — pick the function per the Dates & times page's where-to-use table.",
         "whenNotToUse": "API/JSON output — keep ISO strings there.",
         "version": "0.23.114",
-        "integrity": "sha256-9U+TyqI0rAEzJH/OFqc6zj8xCGGT8/hV1rKE5Q2lqpI="
+        "integrity": "sha256-SGRUPAGvI3T9apeJd+RkOmkTsGSdafd/cplKlg/v3WM="
       }
     },
     {

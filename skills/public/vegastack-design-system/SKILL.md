@@ -355,7 +355,10 @@ contract.
   players); schedules → `formatDateRange` / `formatTimeOfDay`; feed/inbox headers → `groupByDay`.
   Pass the viewer's `timeZone` (the `tz` cookie via `getTimeZone(cookie, orgZone)` on the server,
   `useTimeZone()` on the client; render `TimeZoneScript` + `TimeZoneProvider` once at the root).
-  API/JSON output stays ISO.
+  Pass a serialized request timestamp as `TimeZoneProvider.referenceNow`; groups, due badges and
+  picker presets read the same live epoch clock via `useDateTimeNow()` from `relative-time`.
+  It is `undefined` during SSR without that reference; render affected date content pending rather
+  than reading a separate render-time clock. API/JSON output stays ISO.
 
 ## Do / Don't
 
