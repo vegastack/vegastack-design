@@ -7,8 +7,8 @@
  *
  *   FOC-1 / FOC-6 — `BubbleContent` drops upstream's `[button,a]:outline-none` and its
  *     `focus-visible:ring-3 ring-ring/50` halo, so an interactive bubble takes `base.css`'s one
- *     2px `:focus-visible` outline. "The class is gone" is a paraphrase; "focus lands and paints a
- *     >= 2px SOLID outline, and nothing paints a 3px box-shadow spread" is the claim.
+ *     `:focus-visible` background tint. Real keyboard focus must change the compiled background
+ *     while no ordinary outline or 3px box-shadow glow is painted.
  *   FOC-6 — `bubbleReactionsVariants` swaps upstream's RESTING `ring-3 ring-card` for
  *     `outline-3 outline-card`. The band has to still BE 3px, or the exception traded a defect for
  *     a regression. Only a computed `outline-width` can say so.
@@ -602,28 +602,40 @@ test("Popover: a control in the reactions row opens the failure detail on demand
 
 /* ── the exceptions the patch implements ────────────────────────────────────────────────────── */
 
-test("FOC-1/FOC-6: keyboard focus on an interactive bubble paints the design system's own outline", async () => {
-  const screen = await render(
-    <Bubble variant="tinted" align="end">
-      <BubbleContent render={<button type="button" />}>
-        I forgot my password
-      </BubbleContent>
-    </Bubble>,
-  );
-  // Real keyboard focus, not `element.focus()`: Chromium's `:focus-visible` heuristic is sensitive
-  // to what the last interaction was.
-  await userEvent.tab();
-  const focused = document.activeElement as HTMLElement;
-  expect(focused.dataset.slot).toBe("bubble-content");
-  const style = getComputedStyle(focused);
-  // `auto` would be the USER AGENT's ring — accepting it is how a focus check becomes unfalsifiable,
-  // and upstream's `[button,a]:outline-none` would have reported `none` here.
-  expect(style.outlineStyle).toBe("solid");
-  expect(Number.parseFloat(style.outlineWidth)).toBeGreaterThanOrEqual(2);
-  // The halo upstream drew instead would show up here as a 3px box-shadow spread. Nothing paints one.
-  expect(style.boxShadow).not.toMatch(/ 3px/);
-  expect(slot(screen.container, "bubble-content")).toBe(focused);
-});
+test.each(["light", "dark"])(
+  "FOC-13: keyboard focus paints the no-ring tint in %s",
+  async (theme) => {
+    const screen = await render(
+      <div
+        className={`${theme === "dark" ? "dark " : ""}bg-background text-foreground`}
+      >
+        <Bubble variant="tinted" align="end">
+          <BubbleContent render={<button type="button" />}>
+            I forgot my password
+          </BubbleContent>
+        </Bubble>
+      </div>,
+    );
+    const resting = getComputedStyle(
+      slot(screen.container, "bubble-content")!,
+    ).backgroundImage;
+    // Real keyboard focus, not `element.focus()`: Chromium's `:focus-visible` heuristic is sensitive
+    // to what the last interaction was.
+    await userEvent.tab();
+    const focused = document.activeElement as HTMLElement;
+    expect(focused.dataset.slot).toBe("bubble-content");
+    const style = getComputedStyle(focused);
+    // `auto` would be the USER AGENT's ring — accepting it is how a focus check becomes unfalsifiable,
+    // and upstream's `[button,a]:outline-none` would have reported `none` here.
+    expect(style.outlineStyle).toBe("none");
+    await expect
+      .poll(() => getComputedStyle(focused).backgroundImage)
+      .not.toBe(resting);
+    // The halo upstream drew instead would show up here as a 3px box-shadow spread. Nothing paints one.
+    expect(style.boxShadow).not.toMatch(/ 3px/);
+    expect(slot(screen.container, "bubble-content")).toBe(focused);
+  },
+);
 
 test("FOC-6: the resting reactions chip paints a 3px OUTLINE band, not a ring", async () => {
   const screen = await render(

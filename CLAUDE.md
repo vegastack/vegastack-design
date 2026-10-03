@@ -12,14 +12,10 @@ Claude-specific notes:
   `skills/public/`. Invoke by directory name: `/component`, `/review`, `/ship`.
   A new skill needs symlinks in **both** `.claude/skills/` and `.agents/skills/` (Codex reads the
   latter) — `tooling/skill-lint.mjs` fails closed if either is missing or stale.
-- **There is one verification command, and no session hooks.** `pnpm verify` — typecheck, lint,
-  `design:verify`, the `@vegastack/ui` browser suite, and the `@vegastack/design` CLI tests — is what
-  a developer runs, what `ci.yml` runs on a pull request, and what `release.yml` and `deploy.yml` run
-  before anything outward (`deploy.yml` adds `pnpm verify:release`). A failure presents as one report
-  in ordinary terminal output: the run prints each stage as it starts and ends with
-  `verify: FAILED at <stage>`, so the failing stage is named and reproducing it is re-running that
-  one stage. `.claude/settings.json` runs no session hooks, because there is no gate report to
-  inject. Load the `review` skill to classify a failure at its root, and never self-clear one.
+- **Verification follows AGENTS.md § Verification — owned boundaries.** PRs run
+  `pnpm verify:static` and deterministic affected Chromium; `pnpm verify:distribution`
+  proves docs/registry consumption without repeating the component suite. There is no
+  `verify:release` command. Read the named failing stage before rerunning it.
 - **Creating a top-level skills directory that did not exist at session start requires a restart**
   before Claude Code watches it. Edits to an existing skill are picked up live.
 

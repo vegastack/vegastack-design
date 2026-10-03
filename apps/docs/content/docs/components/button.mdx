@@ -132,7 +132,7 @@ its accessible name survives (A11Y-12).
 
 - Renders a native `<button>` through Base UI's Button; <kbd>Enter</kbd> and <kbd>Space</kbd>
   activate it.
-- On `:focus-visible` the global 2px outline in `base.css` applies (FOC-1). The component carries no
+- On `:focus-visible` the global background tint in `base.css` applies (FOC-1). The component carries no
   focus ring, no `ring-3` glow and no `outline-none` of its own (FOC-6).
 - `disabled` renders `aria-disabled` rather than the native attribute, so the control keeps its
   pointer events and a Tooltip can explain why it is unavailable (FRM-4). Base UI still suppresses
@@ -157,7 +157,7 @@ Upstream's file plus `packages/ui/upstream/patches/button.patch`. Every hunk:
 - **API-29** — the root writes `data-variant`, so a tinted container (a status Alert) can give its
   non-primary buttons a variant-aware hover.
 - **FOC-1, FOC-6** — the `focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50`
-  glow and the `outline-none` that suppressed the global outline are removed.
+  glow and the `outline-none` that suppressed the global focus treatment are removed.
 - **FOC-14** — the invalid tint stays upstream's `aria-invalid:border-destructive`, held in every
   state, focused or not (FOC-14 retired FOC-5's `not-focus:` guard); the `aria-invalid` glow rings
   go with FOC-6.

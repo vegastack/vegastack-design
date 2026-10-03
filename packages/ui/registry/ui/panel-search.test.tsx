@@ -59,7 +59,7 @@ test("FOC-3/FOC-14: focus inside the row darkens the row's hairline, and paints 
   const row = document.querySelector('[data-slot="panel-search"]')!;
   expect(row.hasAttribute("data-field-group")).toBe(true);
   expect(row.className.match(/\S*focus\S*:border-\S+/g)).toEqual([
-    "has-[input:focus]:border-ring/40",
+    "has-[input:focus]:border-ring/50",
   ]);
 
   const field = page.getByRole("searchbox", { name: "Filter items" });

@@ -142,7 +142,7 @@ export function bubbleFeatures(): ReactNode {
             <span>👏</span>
           </BubbleReactions>
         </Bubble>
-        {/* Polymorphic content via `render` — a real button, with the global focus outline. */}
+        {/* Polymorphic content via `render` — a real button, with the global no-ring focus tint. */}
         <Bubble variant="tinted" align="end">
           <BubbleContent
             render={

@@ -48,14 +48,15 @@ export const designMdConfig = {
     "button-secondary": {
       background: "{secondary}",
       foreground: "{secondary-foreground}",
-      hover: "{accent}",
+      hover: "color-mix(in oklch, {secondary}, {foreground} 5%)",
       radius: "{radius}",
       typography: "text-sm/500",
     },
     // shadcn's destructive Button is SOFT: a 10% wash of the fill under the fill used as ink.
     "button-destructive": {
-      background: "{destructive}",
-      foreground: "{destructive-foreground}",
+      background: "{destructive}/10 (dark: /20)",
+      foreground: "{destructive-text}",
+      hover: "{destructive}/20 (dark: /30)",
       radius: "{radius}",
       typography: "text-sm/500",
     },

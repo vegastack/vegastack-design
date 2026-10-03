@@ -15,6 +15,12 @@ preview: relativeTime
 
 ## Usage
 
+For stable relative text from the first render, pass a request timestamp with the timezone:
+`<TimeZoneProvider timeZone={zone} referenceNow={requestNow}>`. Serialize the same numeric
+`requestNow` into the client tree. Uncontrolled timestamps then share one live clock; passing
+`now` directly remains a controlled clock. Without a request reference, only the date content
+shows a short placeholder until hydration, never an absolute-to-relative format swap.
+
 ```tsx
 import {
   DateTime,
@@ -283,9 +289,8 @@ the absolute date shown beyond yesterday and tomorrow — `{ day: "numeric", mon
 
 ### Live updates
 
-While the date is recent and `now` is left unset, the component reads the live clock
-and refreshes on an adaptive timer (every 10s under an hour old, every minute under a
-day, then static). The example below is intentionally **live** — it seeds a timestamp
+When `now` is left unset, timestamps subscribe to one shared ten-second clock.
+Older labels keep updating across calendar-day rollover without allocating per-row timers. The example below is intentionally **live** — it seeds a timestamp
 30s in the past and climbs as you watch. Pass `refresh={false}` to opt out.
 
 <ComponentPreview
@@ -318,14 +323,10 @@ Switch the formatting mode and the instant being rendered, then copy the generat
 
 ### Server rendering
 
-An uncontrolled instance renders the **absolute** date (`"Mar 15, 2025"`) on the server and
-on the hydration render, then swaps to the relative label once the client clock exists.
-There is no empty frame and no layout jump.
-
-The reason it cannot simply render the relative label is that `"2h ago"` needs
-`Date.now()`, which the server cannot reproduce — so the two renders would disagree and
-React would warn. Deriving the first paint from the target instant alone keeps both sides
-byte-identical. Pass `now` to make the output fully deterministic and skip the swap.
+Pass a serialized request timestamp as `TimeZoneProvider.referenceNow` to render relative text
+identically on the server and the hydration render. The shared clock then updates live labels.
+Without that reference, only the date label shows `…` until the browser clock is available.
+`now` remains a controlled clock, and `refresh={false}` keeps its initial reference.
 
 ## Accessibility
 

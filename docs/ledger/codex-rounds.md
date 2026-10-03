@@ -872,3 +872,7 @@ place to put focus; the D1 B5–B8/B10–B22 low-severity list the #137/#138 bri
 written down anywhere, so there is nothing to work from.
 
 **No prior-round finding was re-raised.**
+
+## Regent audit — 2026-10-03 — two rounds, final verdict: addressed
+
+Independent Codex CLI review of the audit-only patch against the preserved published-base maintenance tree found two medium runtime issues (stale lazy-audio rejection affecting a newer request; missing wizard step bypassing sealed-state clamping), missing consequential interaction acceptance and one stale refresh description. The runtime fixes, actual hydration/live-clock, pointer-settle revocation, virtual keyboard navigation and real browser history proofs addressed every finding. Scoped round two reported no new actionable defect. The later final static run passed. See [the compact completion record](2026-10-03-regent-audit-completion.md) for exact scope, raw-failure reconciliation, preserved dirt and release boundaries.

@@ -34,8 +34,7 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  // Stops iOS Safari's focus zoom on inputs; pinch-zoom still works on iOS.
-  maximumScale: 1,
+  // Extend into safe areas without restricting page zoom.
   viewportFit: "cover",
   themeColor: [
     // eslint-disable-next-line no-restricted-syntax -- literal required, see comment above

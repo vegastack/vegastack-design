@@ -15,6 +15,11 @@ preview: comments
 
 ## Usage
 
+Omit `CommentThread.onReply` when the viewer cannot comment: existing replies remain visible,
+while the reply composer is hidden. Omit edit/delete/reaction callbacks according to the returned
+record capabilities. An open edit returns to read mode if edit permission is removed; server
+handlers must still enforce current permission at commit.
+
 ```tsx
 import {
   CommentComposer,

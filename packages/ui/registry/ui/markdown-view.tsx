@@ -1,4 +1,4 @@
-// @vegastack markdown-view@0.23.114 sha256-kFX2pVEWO4cv8nTGRxUwMYqMqtxORi8fLHmE3orXV9I=
+// @vegastack markdown-view@0.23.114 sha256-h9qZqsqx8GXR8Mw+DF1X6CMMXHY6scGe14rUA7f96ao=
 
 import * as React from "react";
 import { Lexer, type Token, type Tokens } from "marked";
@@ -817,15 +817,22 @@ function normalizeAllowedImageOrigins(origins: readonly string[]) {
 function imageSourceAllowed(src: string, allowed: ReadonlySet<string>) {
   if (!src) return false;
   try {
-    const url = new URL(src);
+    const base = new URL("https://relative-image.invalid/");
+    const url = new URL(src, base);
+    // A truly relative path inherits either base. Absolute/network-path URLs must not
+    // gain local status by naming our fixed sentinel origin explicitly.
+    const relative =
+      url.origin === base.origin &&
+      new URL(src, "https://other-relative-image.invalid/").origin ===
+        "https://other-relative-image.invalid";
     return (
       ["http:", "https:"].includes(url.protocol) &&
-      (allowed.has(url.origin) || allowed.has("*"))
+      !url.username &&
+      !url.password &&
+      (relative || allowed.has(url.origin) || allowed.has("*"))
     );
   } catch {
-    // Relative paths stay on the embedding application's origin. Protocol-relative URLs are
-    // external despite parsing as relative without a base, so keep them blocked.
-    return !src.startsWith("//") && !/^[a-z][a-z0-9+.-]*:/i.test(src);
+    return false;
   }
 }
 
@@ -986,12 +993,9 @@ function renderNode(
           </span>
         );
       }
-      let remote = false;
-      try {
-        remote = Boolean(new URL(src));
-      } catch {
-        // Relative URL: the browser will load it from the embedding application's own origin.
-      }
+      const remote =
+        new URL(src, "https://relative-image.invalid/").origin ===
+        new URL(src, "https://other-relative-image.invalid/").origin;
       const width =
         sized.width ?? (Number.parseInt(attrs.width ?? "", 10) || undefined);
       return (

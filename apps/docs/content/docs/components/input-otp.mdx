@@ -158,7 +158,7 @@ mirrors with `first:rounded-s-lg` / `last:rounded-e-lg`.
 
 - One real `<input>` holds the value and the focus; the slots are `<div>`s that mirror its state.
   That is what makes paste, autofill and the mobile code suggestion work.
-- The active slot is marked with `data-active`, which darkens its border subtly (`border-ring/40`,
+- The active slot is marked with `data-active`, which darkens its border subtly (`border-ring/50`,
   easing in over 150ms) — the same cue the rest of the text-entry family shows on focus (FOC-3,
   and FOC-14's text-entry exception, MK 2026-09-27). No slot changes its background, an invalid
   slot keeps its destructive border while active, and there is no ring anywhere (FOC-6). The hidden input
@@ -185,7 +185,7 @@ Upstream's file plus `packages/ui/upstream/patches/input-otp.patch`. Every hunk:
   the active slot included; the group's `has-aria-invalid` halo rings are removed and its invalid
   border is `has-aria-invalid:border-destructive`.
 - **FOC-14 text-entry exception (MK 2026-09-27)** — the active slot takes
-  `data-[active=true]:not-aria-invalid:border-ring/40`, replacing its old `bg-accent/50` fill, with
+  `data-[active=true]:not-aria-invalid:border-ring/50`, replacing its old `bg-accent/50` fill, with
   `transition-[color,background-color,border-color] duration-150 ease-out`: a subtle darker border
   that eases in, and no fill. The `not-aria-invalid` guard keeps the destructive border.
 - **DOC-2** — `cn` is imported from `@vegastack/design`.

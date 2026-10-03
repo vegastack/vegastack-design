@@ -459,3 +459,84 @@ test("canMoveItem locks one card: no pointer drag, no Space pick-up, still opens
   expect(onMove).toHaveBeenCalledWith("d2", "lead", 0);
   await expectNoA11yViolations(screen.container);
 });
+
+test("revoking a lifted card cancels drop and pending moves serialize later lifts", async () => {
+  const onMove = vi.fn();
+  const screen = await render(
+    <Controlled onMove={onMove} canMoveItem={() => true} />,
+  );
+  surface("d1").focus();
+  await userEvent.keyboard(" {ArrowRight}");
+  await screen.rerender(
+    <Controlled onMove={onMove} canMoveItem={() => false} />,
+  );
+  await userEvent.keyboard(" ");
+  expect(onMove).not.toHaveBeenCalled();
+  expect(laneCards("lead")).toEqual(["d1", "d2"]);
+  let reject!: (error: Error) => void;
+  await screen.rerender(
+    <Controlled
+      onMove={onMove}
+      gate={() =>
+        new Promise((_, fail) => {
+          reject = fail;
+        })
+      }
+    />,
+  );
+  surface("d1").focus();
+  await userEvent.keyboard(" {ArrowRight} ");
+  expect(onMove).toHaveBeenCalledTimes(1);
+  surface("d2").focus();
+  await userEvent.keyboard(" {ArrowRight} ");
+  expect(onMove).toHaveBeenCalledTimes(1);
+  reject(new Error("refused"));
+  await expect.poll(() => laneCards("lead")).toEqual(["d1", "d2"]);
+});
+
+test("pointer drop rechecks permission after its settling animation", async () => {
+  const onMove = vi.fn();
+  const screen = await render(
+    <Controlled onMove={onMove} canMoveItem={() => true} />,
+  );
+  const destination = screen.container.querySelector(
+    '[data-board-lane="won"]',
+  )!;
+  const hit = vi
+    .spyOn(document, "elementFromPoint")
+    .mockReturnValue(destination);
+  const pointer = (type: string, target: EventTarget, x: number) =>
+    target.dispatchEvent(
+      new PointerEvent(type, {
+        bubbles: true,
+        pointerId: 77,
+        pointerType: "mouse",
+        button: 0,
+        clientX: x,
+        clientY: 10,
+      }),
+    );
+  try {
+    pointer("pointerdown", surface("d1"), 10);
+    pointer("pointermove", window, 40);
+    await expect
+      .poll(() =>
+        screen.container.querySelector('[data-slot="board-drag-overlay"]'),
+      )
+      .not.toBeNull();
+    await expect
+      .poll(() =>
+        destination.querySelector('[data-slot="board-card-placeholder"]'),
+      )
+      .not.toBeNull();
+    pointer("pointerup", window, 40);
+    await screen.rerender(
+      <Controlled onMove={onMove} canMoveItem={() => false} />,
+    );
+    await new Promise((resolve) => setTimeout(resolve, 220));
+    expect(onMove).not.toHaveBeenCalled();
+    expect(laneCards("lead")).toEqual(["d1", "d2"]);
+  } finally {
+    hit.mockRestore();
+  }
+});

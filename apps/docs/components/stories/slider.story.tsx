@@ -13,7 +13,7 @@ export const story = defineStory({
     {
       variant: "Default",
       initial: {
-        defaultValue: 40,
+        defaultValue: [40],
         "aria-label": "Volume",
       },
     },

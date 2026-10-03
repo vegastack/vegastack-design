@@ -394,7 +394,7 @@ test("FOC-1/FOC-3/FOC-6/FOC-14: the chips field is a field group whose border da
   ) as HTMLElement;
   expect(chips.hasAttribute("data-field-group")).toBe(true);
   expect(chips.className.match(/\S*focus\S*:border-\S+/g)).toEqual([
-    "has-[input:focus]:not-has-aria-invalid:border-ring/40",
+    "has-[input:focus]:not-has-aria-invalid:border-ring/50",
   ]);
   expect(chips.className).not.toMatch(/ring-3|ring-\[3px\]|ring-ring\/\d+/);
   const chipInput = screen.container.querySelector(

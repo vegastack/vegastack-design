@@ -1,4 +1,4 @@
-// @vegastack data-grid@0.23.114 sha256-eXXDUXsdfyqY8RZzrIasGn1E5ryDcjLHBV3kohW3Z+M=
+// @vegastack data-grid@0.23.114 sha256-zD8jfflgs//y3znBoJeLGgzbK8rDEYv7UX2TRriaL8s=
 
 "use client";
 
@@ -657,8 +657,18 @@ export function DataGrid<T>({
   // The roving coordinate is CLAMPED against what is actually rendered: if
   // the active column is hidden or the data shrinks, the tab stop must land
   // on a real cell — otherwise the grid body becomes keyboard-unreachable.
+  const virtualItems = canVirtualize ? rowVirtualizer.getVirtualItems() : [];
+  const boundedRow = Math.max(
+    0,
+    Math.min(activeCell.row, flatVisibleRows.length - 1),
+  );
   const clampedActive = {
-    row: Math.max(0, Math.min(activeCell.row, flatVisibleRows.length - 1)),
+    row:
+      canVirtualize &&
+      virtualItems.length > 0 &&
+      !virtualItems.some((item) => item.index === boundedRow)
+        ? virtualItems[0]!.index
+        : boundedRow,
     col: Math.max(0, Math.min(activeCell.col, colCount - 1)),
   };
   const [editingCell, setEditingCell] = React.useState<{
@@ -666,6 +676,7 @@ export function DataGrid<T>({
     key: string;
   } | null>(null);
   const { announce, Announcer } = useAnnouncer();
+  const pendingFocus = React.useRef<string | null>(null);
   const cellRefs = React.useRef(new Map<string, HTMLElement>());
   const cellKey = (row: number, col: number) => `${row}:${col}`;
   const loadMoreFired = React.useRef(false);
@@ -680,9 +691,15 @@ export function DataGrid<T>({
       const clampedRow = Math.max(0, Math.min(row, maxRow));
       const clampedCol = Math.max(0, Math.min(col, colCount - 1));
       setActiveCell({ row: clampedRow, col: clampedCol });
-      cellRefs.current.get(cellKey(clampedRow, clampedCol))?.focus();
+      const key = cellKey(clampedRow, clampedCol);
+      const mounted = cellRefs.current.get(key);
+      if (mounted) mounted.focus();
+      else if (canVirtualize) {
+        pendingFocus.current = key;
+        rowVirtualizer.scrollToIndex(clampedRow, { align: "auto" });
+      }
     },
-    [flatVisibleRows.length, colCount],
+    [flatVisibleRows.length, colCount, canVirtualize, rowVirtualizer],
   );
 
   const columnAt = (col: number): DataGridColumn<T> | undefined =>
@@ -831,8 +848,14 @@ export function DataGrid<T>({
               clampedActive.row === rowIndex && clampedActive.col === 0 ? 0 : -1
             }
             ref={(node: HTMLTableCellElement | null) => {
-              if (node) cellRefs.current.set(cellKey(rowIndex, 0), node);
-              else cellRefs.current.delete(cellKey(rowIndex, 0));
+              if (node) {
+                const key = cellKey(rowIndex, 0);
+                cellRefs.current.set(key, node);
+                if (pendingFocus.current === key) {
+                  pendingFocus.current = null;
+                  node.focus();
+                }
+              } else cellRefs.current.delete(cellKey(rowIndex, 0));
             }}
             onFocus={() => setActiveCell({ row: rowIndex, col: 0 })}
             className="focus-visible:-outline-offset-2"
@@ -857,8 +880,14 @@ export function DataGrid<T>({
               data-slot="data-grid-cell"
               tabIndex={isActive ? 0 : -1}
               ref={(node: HTMLElement | null) => {
-                if (node) cellRefs.current.set(cellKey(rowIndex, col), node);
-                else cellRefs.current.delete(cellKey(rowIndex, col));
+                if (node) {
+                  const key = cellKey(rowIndex, col);
+                  cellRefs.current.set(key, node);
+                  if (pendingFocus.current === key) {
+                    pendingFocus.current = null;
+                    node.focus();
+                  }
+                } else cellRefs.current.delete(cellKey(rowIndex, col));
               }}
               onFocus={(event) => {
                 if (event.target === event.currentTarget)
@@ -979,7 +1008,6 @@ export function DataGrid<T>({
   const sortSummary = offscreenSortSummary(activeSort, ordered, visibleColumns);
 
   const colSpan = colCount;
-  const virtualItems = canVirtualize ? rowVirtualizer.getVirtualItems() : [];
   const totalSize = canVirtualize ? rowVirtualizer.getTotalSize() : 0;
 
   return (

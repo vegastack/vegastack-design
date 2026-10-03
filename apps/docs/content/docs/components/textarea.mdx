@@ -71,7 +71,7 @@ extra work.
 ### States
 
 Rest, filled, invalid and disabled in one frame. Click or Tab into a textarea to see the focus state:
-the border darkens subtly (`border-ring/40`) over 150ms and no fill is painted; the invalid one keeps
+the border darkens subtly (`border-ring/50`) over 150ms and no fill is painted; the invalid one keeps
 its destructive border while focused.
 
 <ComponentPreview
@@ -92,7 +92,7 @@ Try the starting height with the disabled and invalid states, then copy the gene
 ## Accessibility
 
 - Renders a native `<textarea>`, so the platform owns selection, IME composition and spellcheck.
-- Focus is a **subtle darker border** (`border-ring/40`, easing in over 150ms), not a ring, and no
+- Focus is a **subtle darker border** (`border-ring/50`, easing in over 150ms), not a ring, and no
   background change — text entry is the one exception to FOC-14's fixed border (MK 2026-09-27);
   the global outline is suppressed with `outline-hidden` (FOC-8). It fires on `:focus`, for mouse
   and keyboard alike, because a text field cannot tell them apart and both need the caret located.
@@ -122,7 +122,7 @@ focus-visible:ring-ring/50` becomes `outline-hidden`, with no ring and no glow. 
 - **FOC-14** — the invalid border is `aria-invalid:border-destructive` (and its dark counterpart),
   held in every state, focused or not; the `aria-invalid` halo rings are removed with the rest.
 - **FOC-14 text-entry exception (MK 2026-09-27)** — the textarea adds
-  `focus:not-aria-invalid:border-ring/40` with
+  `focus:not-aria-invalid:border-ring/50` with
   `transition-[color,background-color,border-color] duration-150 ease-out`: a subtle darker border
   that eases in, and no fill (`base.css` excludes `textarea` from the background tint). The
   `not-aria-invalid` guard keeps the destructive border.

@@ -25,7 +25,9 @@
 //   Command substitution swallows git's own exit code, so a git that FAILED reads as a clean tree.
 //   Every git invocation here is checked.
 
-import { readFileSync, writeFileSync } from "node:fs";
+import { readFileSync, writeFileSync, lstatSync, readlinkSync } from "node:fs";
+import { createHash } from "node:crypto";
+import { resolve } from "node:path";
 import { spawnSync } from "node:child_process";
 
 function porcelain() {
@@ -38,9 +40,42 @@ function porcelain() {
     );
     process.exit(1);
   }
-  // Sorted so the comparison is order-independent; git's ordering is stable in practice but the
-  // whole point of this file is not to rely on "in practice".
-  return result.stdout.split("\n").filter(Boolean).sort();
+  const listed = spawnSync(
+    "git",
+    ["ls-files", "--cached", "--others", "--exclude-standard", "-z"],
+    { encoding: "utf8" },
+  );
+  const index = spawnSync("git", ["ls-files", "--stage", "-z"], {
+    encoding: "utf8",
+  });
+  if (listed.status !== 0 || index.status !== 0)
+    throw new Error("Cannot snapshot git file/index state");
+  const entries = [
+    ...new Set(listed.stdout.split("\0").filter(Boolean)),
+  ].filter(
+    (path) => resolve(path) !== resolve(snapshotPath ?? againstPath ?? ".git"),
+  );
+  const hashes = entries.map((path) => {
+    try {
+      const stat = lstatSync(path);
+      const bytes = stat.isSymbolicLink()
+        ? readlinkSync(path)
+        : stat.isFile()
+          ? readFileSync(path)
+          : "directory";
+      return `${path} ${stat.mode} ${createHash("sha256").update(bytes).digest("hex")}`;
+    } catch (error) {
+      if (error.code !== "ENOENT") throw error;
+      return `${path} missing`;
+    }
+  });
+  return [
+    ...hashes,
+    ...index.stdout
+      .split("\0")
+      .filter(Boolean)
+      .map((entry) => `index ${entry}`),
+  ].sort();
 }
 
 const args = process.argv.slice(2);
@@ -59,23 +94,36 @@ const label =
 
 if (snapshotPath) {
   const lines = porcelain();
-  writeFileSync(snapshotPath, `${lines.join("\n")}\n`);
+  writeFileSync(snapshotPath, JSON.stringify(lines));
   console.log(
     lines.length === 0
       ? `assert-clean-tree: baseline recorded — ${label} is clean`
-      : `assert-clean-tree: baseline recorded — ${lines.length} pre-existing dirty path(s) in ${label}, which will NOT be counted as drift`,
+      : `assert-clean-tree: baseline recorded — ${lines.length} baseline state entries in ${label}, whose unchanged content will NOT be counted as drift`,
   );
   process.exit(0);
 }
 
-const now = porcelain();
+const now = againstPath
+  ? porcelain()
+  : (() => {
+      const result = spawnSync("git", ["status", "--porcelain"], {
+        encoding: "utf8",
+      });
+      if (result.status !== 0) throw new Error("Cannot read git status");
+      return result.stdout.split("\n").filter(Boolean);
+    })();
 
 // No baseline (or an unreadable one) means the strict reading: the tree must be clean. That is the
 // right default for a caller that did not opt in, and it is what CI effectively asserts anyway.
 let baseline = null;
 if (againstPath) {
   try {
-    baseline = readFileSync(againstPath, "utf8").split("\n").filter(Boolean);
+    baseline = JSON.parse(readFileSync(againstPath, "utf8"));
+    if (
+      !Array.isArray(baseline) ||
+      baseline.some((entry) => typeof entry !== "string")
+    )
+      throw new Error("Invalid snapshot");
   } catch (error) {
     console.error(
       `assert-clean-tree: could not read the baseline at ${againstPath} (${error.code ?? error.message}) — ` +
@@ -95,7 +143,7 @@ if (introduced.length > 0 || resolved.length > 0) {
     console.error(`  - ${line} (was dirty, now is not)`);
   if (before.size > 0)
     console.error(
-      `\nassert-clean-tree: ${before.size} pre-existing dirty path(s) were ignored; the lines above are the change.`,
+      `\nassert-clean-tree: ${before.size} baseline state entries were ignored; the lines above are the change.`,
     );
   process.exit(1);
 }
@@ -103,5 +151,5 @@ if (introduced.length > 0 || resolved.length > 0) {
 console.log(
   before.size === 0
     ? `assert-clean-tree: ${label} is clean`
-    : `assert-clean-tree: ${label} is unchanged (${before.size} pre-existing dirty path(s) ignored)`,
+    : `assert-clean-tree: ${label} is unchanged (${before.size} baseline state entries ignored)`,
 );

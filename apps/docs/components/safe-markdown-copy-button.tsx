@@ -20,7 +20,7 @@ export function SafeMarkdownCopyButton({
       type="button"
       variant="secondary"
       size="sm"
-      className="gap-2 [&_svg]:size-(size-3.5)"
+      className="gap-2 [&_svg]:size-3.5"
       disabled={status === "loading"}
       aria-busy={status === "loading"}
       onClick={() => copy()}

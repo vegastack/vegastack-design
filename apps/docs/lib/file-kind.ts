@@ -1,4 +1,4 @@
-// @vegastack file-kind@0.23.114 sha256-4GR6ohwQSXn6UNgHBOX+Kva9d/4k6RG1ZXHC8GDMcr4=
+// @vegastack file-kind@0.23.114 sha256-TqEs8DAcI7yFya+Efo6nUcviQUiFcl+ppGmlelRrhOM=
 
 import * as React from "react";
 import { cn } from "@vegastack/design";
@@ -133,7 +133,10 @@ function kindOfType(type: string): FileKind | null {
 function kindOfName(name: string | null | undefined): FileKind | null {
   const dot = name ? name.lastIndexOf(".") : -1;
   if (!name || dot <= 0 || dot >= name.length - 1) return null;
-  return EXTENSION_KIND[name.slice(dot + 1).toLowerCase()] ?? null;
+  const extension = name.slice(dot + 1).toLowerCase();
+  return Object.hasOwn(EXTENSION_KIND, extension)
+    ? EXTENSION_KIND[extension]!
+    : null;
 }
 
 /**

@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.23.114 sha256-tkDwUJBo63sQOREroremjRckp40f3WGAdCiGGfNtRwQ=
+// @vegastack text-edit@0.23.114 sha256-4b0gP7aUNkvOT2RvPclUOwwFu461OXmonP8oeCPrWOc=
 
 "use client";
 
@@ -1209,7 +1209,7 @@ export function TextEdit(props: TextEditProps) {
         // `boxed`: text entry's border cue (FOC-3) — a subtle darker border that eases in while
         // the editor holds focus, never a fill; an invalid box keeps its destructive border.
         boxed &&
-          "rounded-lg border border-input transition-[color,background-color,border-color] duration-150 ease-out has-[[contenteditable=true]:focus]:not-data-invalid:border-ring/40 data-invalid:border-destructive dark:bg-input/30 dark:data-invalid:border-destructive/50",
+          "rounded-lg border border-input transition-[color,background-color,border-color] duration-150 ease-out has-[[contenteditable=true]:focus]:not-data-invalid:border-ring/50 data-invalid:border-destructive dark:bg-input/30 dark:data-invalid:border-destructive/50",
         boxed && !composer && "px-2.5 py-2",
         composer && COMPOSER_ROOT,
         composer &&

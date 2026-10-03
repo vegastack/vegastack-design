@@ -139,8 +139,8 @@ an item, plus `className`, `ref` and `render` everywhere.
   roving focus from the pattern, so every trigger is its own tab stop.
 - A disabled item's trigger is `aria-disabled`, not natively `disabled`, and keeps its pointer
   events (FRM-4) — it stays reachable and hoverable so the reason can be explained in place.
-- Focus is the global 2px `:focus-visible` outline from `base.css`; there is no ring glow on a
-  trigger, and nothing suppresses the outline.
+- Focus is the global `:focus-visible` background tint from `base.css`; there is no ring glow on a
+  trigger, and forced colors retain their separate outline.
 - The chevrons are decoration: they are swapped by an `aria-expanded` variant and never carry the
   state on their own.
 
@@ -159,7 +159,7 @@ Upstream's file plus `packages/ui/upstream/patches/accordion.patch`. Every hunk:
 
 - **FOC-1, FOC-6** — `outline-none focus-visible:border-ring focus-visible:ring-3
 focus-visible:ring-ring/50 focus-visible:after:border-ring` goes from `AccordionTrigger`.
-  `base.css` owns the one 2px `:focus-visible` outline and `outline-none` would suppress it.
+  `base.css` owns the no-ring focus tint and a separate forced-colors outline.
 - **FRM-4** — `aria-disabled:pointer-events-none` is dropped, so a disabled section header stays
   hoverable and a Tooltip can explain why it is unavailable. The opacity half stays.
 - **DOC-2** — `import { cn } from "cn"` becomes `@vegastack/design`; our npm layer owns `cn`.

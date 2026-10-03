@@ -27,7 +27,7 @@
 #     with `transition-[color,background-color,border-color] duration-150 ease-out`. The
 #     `not-…invalid` guard keeps an invalid field's destructive border in every state.
 diff --git a/input.tsx b/input.tsx
-index 7c4ab5a..ff69045 100644
+index 7c4ab5a..126588d 100644
 --- a/input.tsx
 +++ b/input.tsx
 @@ -1,19 +1,62 @@
@@ -46,7 +46,7 @@ index 7c4ab5a..ff69045 100644
 +    variants: {
 +      variant: {
 +        default:
-+          "rounded-lg border border-input bg-transparent focus:not-aria-invalid:not-[[type=file]]:border-ring/40 disabled:bg-input/50 aria-invalid:border-destructive dark:bg-input/30 dark:disabled:bg-input/80 dark:aria-invalid:border-destructive/50",
++          "rounded-lg border border-input bg-transparent focus:not-aria-invalid:not-[[type=file]]:border-ring/50 disabled:bg-input/50 aria-invalid:border-destructive dark:bg-input/30 dark:disabled:bg-input/80 dark:aria-invalid:border-destructive/50",
 +        // A borderless, transparent field for a big title (Linear's issue title). No box and no fill
 +        // in any state — rest, hover, focus (text entry takes no tint, FOC-3): the text cursor marks
 +        // it editable and the caret is the focus cue. An invalid title turns its placeholder
@@ -75,7 +75,7 @@ index 7c4ab5a..ff69045 100644
 +/**
 + * `Input` — a single-line text field.
 + *
-+ * - `variant="default"`: the bordered field; focus darkens the border subtly (`border-ring/40`,
++ * - `variant="default"`: the bordered field; focus darkens the border subtly (`border-ring/50`,
 + *   150ms ease-out) and paints no fill; an invalid field keeps its destructive border focused or not.
 + * - `variant="ghost"`: borderless and transparent, for a title you type straight onto the page.
 + * - `size`: `sm` (28px), `default` (32px), `lg` (heading size — pair with `ghost` for a big title).

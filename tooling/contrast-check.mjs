@@ -82,12 +82,20 @@ const STATUS_TEXT_SURFACES = ["background", "card", "popover"];
 // its own tint in the rendered axe lane (2026-09-18), which is why the `-text` role exists.
 const STATUS_TINT_ALPHAS = [0.1, 0.2, 0.3];
 
-// Non-text UI parts (1.4.11): the focus ring (FOC-1/FOC-2 make it the ONLY focus affordance in the
-// system) and `primary`, which carries switch/checkbox/radio/tab/slider selection.
+// Non-text UI parts (1.4.11): the ring token (used by text-entry borders; ordinary controls use the no-ring tint) and `primary`, which carries switch/checkbox/radio/tab/slider selection.
 const NONTEXT = ["ring", "primary"];
-// FOC-3: text entry tints its BORDER with the ring at 70% rather than painting the outline, because
+// FOC-3: text entry tints its BORDER with the ring at its canonical opacity rather than painting the outline, because
 // a raw text field cannot tell a mouse click from a Tab. FOC-10 gates that composite.
-const FOCUS_TINT_ALPHA = 0.7;
+// Read the canonical utility instead of independently remembering its opacity. Browser tests
+// additionally check that the compiled focus state uses this utility in both themes.
+const focusSource = readFileSync(
+  new URL("../packages/ui/registry/ui/input.tsx", import.meta.url),
+  "utf8",
+);
+const focusAlpha = focusSource.match(/focus:[^"\s]*:border-ring\/(\d+)/)?.[1];
+if (!focusAlpha)
+  throw new Error("Cannot determine text-entry focus border opacity");
+const FOCUS_TINT_ALPHA = Number(focusAlpha) / 100;
 
 // Markers only ever sit on resting surfaces — nobody draws a chart or a status dot on a hovered row.
 const MARKERS = ["brand", "chart-single"];
@@ -356,7 +364,7 @@ export function checkTheme(css) {
     // 4b. TEXT-ENTRY FOCUS BORDER (FOC-3 + FOC-10, WCAG 1.4.11 >= 3:1).
     //     No text-entry control ever renders the ring SOLID: a text field cannot tell mouse from
     //     keyboard, so it carries `outline-hidden` and signals focus with `focus:border-ring/70` —
-    //     the ring COMPOSITED at 70%. That composite is the entire focus affordance of every Input,
+    //     the ring COMPOSITED at the canonical utility opacity. That composite is the entire focus affordance of every Input,
     //     Textarea, Field control, OTP slot, Select trigger, Combobox input, input group and
     //     TextEdit in the system, so it is measured rather than inferred from the solid token.
     {

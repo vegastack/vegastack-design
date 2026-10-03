@@ -14,6 +14,7 @@ import {
   mkdtempSync,
   rmSync,
   writeFileSync,
+  symlinkSync,
 } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
@@ -272,4 +273,56 @@ describe("safety", () => {
     );
     expect(normalizeBuildName("chromium")).toBe("chromium");
   });
+});
+
+it("refuses an ancestor symlink and preserves the outside sentinel", () => {
+  const outside = mkdtempSync(join(tmpdir(), "workspace-outside-"));
+  try {
+    touch(join(outside, "ui/.vitest/sentinel"));
+    rmSync(join(root, "packages"), { recursive: true });
+    symlinkSync(outside, join(root, "packages"), "dir");
+    expect(() => run(["--after-run"])).toThrow();
+    expect(existsSync(join(outside, "ui/.vitest/sentinel"))).toBe(true);
+  } finally {
+    rmSync(outside, { recursive: true, force: true });
+  }
+});
+
+it("weekly dry-run and deletion preserve every pinned platform revision", () => {
+  const cache = join(root, "browser-cache");
+  for (const revision of ["2251", "2359", "1000"])
+    touch(join(cache, `webkit-${revision}`, "sentinel"));
+  for (const name of ["playwright", "playwright-core"]) {
+    touch(join(root, `node_modules/${name}/index.js`));
+    writeFileSync(
+      join(root, `node_modules/${name}/package.json`),
+      JSON.stringify({ name, main: "index.js" }),
+    );
+  }
+  writeFileSync(
+    join(root, "node_modules/playwright-core/browsers.json"),
+    JSON.stringify({
+      browsers: [
+        {
+          name: "webkit",
+          revision: "2359",
+          revisionOverrides: { mac14: "2251" },
+        },
+      ],
+    }),
+  );
+  git(root, ["init"]);
+  const invoke = (...args) =>
+    execFileSync("node", [SCRIPT, "--root", root, "--weekly", ...args], {
+      encoding: "utf8",
+      env: { ...process.env, PLAYWRIGHT_BROWSERS_PATH: cache },
+    });
+  const preview = invoke("--dry-run");
+  expect(preview).toContain("webkit-1000");
+  expect(preview).not.toContain("webkit-2251");
+  expect(existsSync(join(cache, "webkit-1000/sentinel"))).toBe(true);
+  invoke();
+  expect(existsSync(join(cache, "webkit-1000"))).toBe(false);
+  for (const revision of ["2251", "2359"])
+    expect(existsSync(join(cache, `webkit-${revision}/sentinel`))).toBe(true);
 });

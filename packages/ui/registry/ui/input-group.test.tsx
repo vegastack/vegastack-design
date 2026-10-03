@@ -250,7 +250,7 @@ test("FOC-3/FOC-14: the GROUP is a field group and darkens its border subtly whi
   // Scoped to a TEXT control (an addon button's focus takes the tint, not the border) and guarded
   // so an invalid group keeps its destructive border.
   expect(groupClasses(screen).match(/\S*focus\S*:border-\S+/g)).toEqual([
-    "has-[input:focus,textarea:focus]:not-has-aria-invalid:border-ring/40",
+    "has-[input:focus,textarea:focus]:not-has-aria-invalid:border-ring/50",
   ]);
   expect(groupClasses(screen)).toContain("ease-out");
 });

@@ -28294,7 +28294,7 @@
             },
             {
               "name": "data-selected",
-              "values": [""]
+              "values": ["true"]
             },
             {
               "name": "data-slot",
@@ -29837,7 +29837,7 @@
         "dimensions": [
           {
             "name": "size",
-            "values": ["number or CSS length (default var(--icon-default))"],
+            "values": ["number or CSS length (default 1rem)"],
             "evidence": "Generator-normalized icon props and SVG width/height contract."
           }
         ]

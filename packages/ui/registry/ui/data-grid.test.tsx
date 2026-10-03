@@ -394,7 +394,7 @@ test("virtualize windows the rows inside the fixed-height viewport", async () =>
   // scroll container actually constrains (the style-mirror technique).
   const style = document.createElement("style");
   style.textContent =
-    '[data-slot="table-container"] { max-height: 240px; overflow-y: auto; display: block; }';
+    '[data-slot="data-grid-scroll"] { max-height: 240px; overflow-y: auto; display: block; } [data-slot="data-grid-virtual-pad"] { height: calc(var(--data-grid-virtual-pad) * 1px); }';
   document.head.appendChild(style);
   await render(
     <DataGrid
@@ -1127,4 +1127,63 @@ test("a group row shows its count as the shared muted count (DS-34)", async () =
   await expect
     .element(screen.getByRole("button", { name: "Open, 2 rows" }))
     .toBeInTheDocument();
+});
+
+test("virtualized keyboard edges mount and focus targets, retaining one tab stop after sort/filter", async () => {
+  const many: Deal[] = Array.from({ length: 200 }, (_, index) => ({
+    id: `v${index}`,
+    name: `Row ${index}`,
+    stage: "Open",
+    amount: index,
+  }));
+  const style = document.createElement("style");
+  style.textContent =
+    '[data-slot="data-grid-scroll"] { max-height: 240px; overflow-y: auto; display: block; } [data-slot="data-grid-virtual-pad"] { height: calc(var(--data-grid-virtual-pad) * 1px); }';
+  document.head.append(style);
+  const grid = (data: Deal[]) => (
+    <DataGrid
+      aria-label="Virtual navigation"
+      columns={columns()}
+      data={data}
+      getRowId={(row) => row.id}
+      virtualize
+      maxHeight="240px"
+    />
+  );
+  try {
+    const screen = await render(grid(many));
+    screen.container
+      .querySelector<HTMLElement>('[role="gridcell"][tabindex="0"]')!
+      .focus();
+    await userEvent.keyboard("{Control>}{End}{/Control}");
+    await expect
+      .poll(() =>
+        document.activeElement
+          ?.closest('[data-slot="data-grid-row"]')
+          ?.getAttribute("aria-rowindex"),
+      )
+      .toBe("201");
+    await userEvent.keyboard("{Control>}{Home}{/Control}");
+    await expect
+      .poll(() =>
+        document.activeElement
+          ?.closest('[data-slot="data-grid-row"]')
+          ?.getAttribute("aria-rowindex"),
+      )
+      .toBe("2");
+    await screen.getByRole("button", { name: /Amount/ }).click();
+    expect(
+      screen.container.querySelectorAll('[role="gridcell"][tabindex="0"]'),
+    ).toHaveLength(1);
+    await screen.rerender(grid(many.slice(0, 3)));
+    await expect
+      .poll(
+        () =>
+          screen.container.querySelectorAll('[role="gridcell"][tabindex="0"]')
+            .length,
+      )
+      .toBe(1);
+  } finally {
+    style.remove();
+  }
 });

@@ -79,12 +79,10 @@ link` (upstream's set, verbatim). `destructive` is a soft tint, not a solid red 
   need a search field (it is the preset `country-select` and `region-select` are built from — reach
   for it before composing `combobox` by hand); **`combobox`** directly only for free text,
   suggestions or multi-select chips.
-- **One view-switch rule.** A form value is a **`radio-group`**. An immediate view or scope switch
-  over the same content (Mine | Team, All | Unread, Grid | List) is a single-select
-  **`toggle-group`** that always keeps one item pressed — `deselectable={false}` — with
-  `spacing={0}` for 2–5 options inline (`wrap` when they can outgrow the row). Swapping in-page regions is
-  **`tabs`**; moving between URLs is navigation — links, not `tabs` (a route-tabs recipe is
-  not shipped yet).
+- **One view-switch rule.** Form choices use `radio-group`; toolbar scope switches use default
+  `Tabs`, and Grid | List | Board uses `ViewToggle` (which composes Tabs). `ToggleGroup` is for
+  pressed action/value choices. URL navigation uses links and the route-tabs recipe.
+
 - **Empty is tiered** — nothing yet, no matches ("Clear filters"), couldn't load (`role="alert"`,
   "Try again"), blocked. Pick the tier from the empty-state foundation
   (<https://design.vegastack.com/docs/foundations/empty-states>); never leave a region blank.
@@ -243,7 +241,7 @@ on shadcn's `neutral` base. Always use the utility, never a raw value.
 | Fill     | `bg-primary` (solid action, every checked control) · `bg-secondary` (soft) · `bg-muted` (well, track, skeleton) · `bg-accent` (hover)                                                                               |
 | Text     | `text-foreground` · `text-muted-foreground` · `text-{primary,secondary,accent,card,popover}-foreground`                                                                                                             |
 | Status   | `bg-{destructive,success,warning,info}` · `-foreground` (ink ON the fill) · `-text` (ink on the page or on the family's own tint)                                                                                   |
-| Border   | `border-border` · `border-input` — there are no rings; focus is a global background tint (Tabs alone keep a ring)                                                                                                   |
+| Border   | `border-border` · `border-input` — there are no rings; focus is a global background tint (Tabs included)                                                                                                            |
 | Radius   | `rounded-{sm,md,lg,xl,2xl}` — all derived from the single `--radius`                                                                                                                                                |
 | Type     | Tailwind's own `text-{xs…7xl}`. `text-sm` is 14px, `text-base` is 16px. Line-height and letter-spacing above `text-base` come from the theme — never write `tracking-*`, an arbitrary `text-[13px]`, or `uppercase` |
 | Font     | `font-sans` `font-mono` `font-serif` `font-heading`                                                                                                                                                                 |
@@ -290,10 +288,10 @@ heading down `n` levels (capped at h6) so the outline never skips back up.
 
 **Markdown is read with `MarkdownView` and edited with `TextEdit format="markdown"`** — never a
 textarea, a local prose class, or a hand-rolled editor. For in-place editing, swap the view for
-`<TextEdit format="markdown" variant="ghost" onSave onCancel />`: ghost is borderless with no inset,
-so the text does not move, and Save/Cancel sit at the toolbar's end (⌘/Ctrl+Enter saves, Esc
-cancels). Pick `toolbar="minimal"` for comments, `"standard"` (default) for notes and summaries,
-`"full"` for documents; the schema follows the toolbar. Keep `variant="outline"` inside forms.
+`<TextEdit format="markdown" variant="document" onCommit={save} />` for inline document editing.
+Use `variant="boxed"` inside forms and `variant="composer"` for submission composers.
+Commit through `onCommit`; `onRevert` observes a revert. The editor owns its contextual toolbar;
+there are no `toolbar`, `onSave` or `onCancel` props.
 
 `muted`, `accent` and `secondary` share one value in this base, and all three are kept: name the one
 whose ROLE you mean, so a consumer can retune one without moving the others.

@@ -1,4 +1,4 @@
-// @vegastack code-block@0.23.114 sha256-qHQFYRibpzjr+1//qLuXpySITYG1MOLv+usuUlvca3E=
+// @vegastack code-block@0.23.114 sha256-kMOJZA6gEcfI/A9lD6Zh5/lgL6DHf+RgBChJ+h5SAjc=
 
 "use client";
 
@@ -124,7 +124,7 @@ const LANGUAGE_ALIASES: Record<string, string> = {
  */
 export function normalizeCodeLanguage(language?: string | null): string {
   const id = (language ?? "").trim().split(/\s+/)[0]!.toLowerCase();
-  return LANGUAGE_ALIASES[id] ?? id;
+  return Object.hasOwn(LANGUAGE_ALIASES, id) ? LANGUAGE_ALIASES[id]! : id;
 }
 
 /**
@@ -145,7 +145,7 @@ function highlight(
   code: string,
   language: string,
 ): React.ReactNode {
-  if (!language || !lowlight.registered(language)) return code;
+  if (!language || !lowlight.listLanguages().includes(language)) return code;
   try {
     return toJsxRuntime(lowlight.highlight(language, code), {
       Fragment,

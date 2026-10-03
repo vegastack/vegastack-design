@@ -54,7 +54,7 @@ function presentType(type: string, required: boolean) {
   if (required) return type;
   return type
     .split(" | ")
-    .filter((member) => member !== "undefined" && member !== "null")
+    .filter((member) => member !== "undefined")
     .join(" | ");
 }
 

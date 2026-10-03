@@ -2500,3 +2500,17 @@ test("images are blocks: an inline image is lifted out of its paragraph", async 
   expect(box.querySelectorAll("p")).toHaveLength(2);
   expect(box.querySelector("[data-slot=text-edit-image-node]")).not.toBeNull();
 });
+
+test("unsupported file paste preserves the selected document text", async () => {
+  const onCommit = vi.fn();
+  const screen = await markdownEditor({
+    defaultValue: "Keep this text",
+    onCommit,
+  });
+  const box = screen.getByRole("textbox", { name: "Notes" }).element();
+  await selectAllOf(box);
+  pasteFiles(box, [png()]);
+  expect(box.textContent).toBe("Keep this text");
+  expect(window.getSelection()?.toString()).toBe("Keep this text");
+  expect(onCommit).not.toHaveBeenCalled();
+});

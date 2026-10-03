@@ -1,4 +1,4 @@
-// @vegastack questionnaire@0.23.114 sha256-Gims/3Z7fOA/ZK0Wo3fRpjISSGE0CozgujWDqtEIBIg=
+// @vegastack questionnaire@0.23.114 sha256-Z1ch/3euRtzTRBPo4m4deaSMjLJE35zut6btnSPvIAI=
 
 "use client";
 
@@ -188,7 +188,7 @@ function QuestionnaireInput({
           // An invalid answer keeps its destructive border in every state.
           // FRM-4: `disabled:pointer-events-none` is dropped, so a disabled answer field stays
           // hoverable and a Tooltip can explain it.
-          "h-8 min-h-11 w-full min-w-0 rounded-lg border border-input bg-transparent px-2.5 py-1 text-base transition-[color,background-color,border-color] duration-150 ease-out outline-hidden focus:not-aria-invalid:border-ring/40 disabled:cursor-not-allowed disabled:bg-input/50 disabled:opacity-50 aria-invalid:border-destructive sm:min-h-0 md:text-sm dark:bg-input/30 dark:disabled:bg-input/80 dark:aria-invalid:border-destructive/50",
+          "h-8 min-h-11 w-full min-w-0 rounded-lg border border-input bg-transparent px-2.5 py-1 text-base transition-[color,background-color,border-color] duration-150 ease-out outline-hidden focus:not-aria-invalid:border-ring/50 disabled:cursor-not-allowed disabled:bg-input/50 disabled:opacity-50 aria-invalid:border-destructive sm:min-h-0 md:text-sm dark:bg-input/30 dark:disabled:bg-input/80 dark:aria-invalid:border-destructive/50",
           "selection:bg-primary selection:text-primary-foreground placeholder:text-muted-foreground",
           className,
         )}

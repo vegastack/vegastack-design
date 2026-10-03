@@ -32,11 +32,11 @@ export function dialog(): ReactNode {
   return (
     <Wrapper>
       <Dialog>
-        <form>
-          <DialogTrigger render={<Button variant="outline" />}>
-            Open Dialog
-          </DialogTrigger>
-          <DialogContent className="sm:max-w-sm">
+        <DialogTrigger render={<Button variant="outline" />}>
+          Open Dialog
+        </DialogTrigger>
+        <DialogContent className="sm:max-w-sm">
+          <form onSubmit={(event) => event.preventDefault()}>
             <DialogHeader>
               <DialogTitle>Edit profile</DialogTitle>
               <DialogDescription>
@@ -68,8 +68,8 @@ export function dialog(): ReactNode {
               </DialogClose>
               <Button type="submit">Save changes</Button>
             </DialogFooter>
-          </DialogContent>
-        </form>
+          </form>
+        </DialogContent>
       </Dialog>
     </Wrapper>
   );

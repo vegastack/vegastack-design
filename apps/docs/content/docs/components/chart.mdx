@@ -144,9 +144,7 @@ const chartConfig = {
   desktop: {
     label: "Desktop",
     icon: Monitor,
-    // A colour in any CSS form, most often a chart token…
-    color: "var(--chart-1)",
-    // …OR a theme object with `light` and `dark` keys, instead of `color`.
+    // Theme-specific colours; omit `color` when providing `theme`.
     theme: {
       light: "var(--chart-1)",
       dark: "var(--chart-3)",

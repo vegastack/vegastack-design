@@ -223,7 +223,7 @@ muted row above the list.
 ### States
 
 The closed input's rest, invalid and disabled chrome. Click or Tab into the field to see the focus
-state: the field's border darkens subtly (`border-ring/40`) over 150ms and nothing fills; the invalid
+state: the field's border darkens subtly (`border-ring/50`) over 150ms and nothing fills; the invalid
 field keeps its destructive border while focused.
 
 <ComponentPreview
@@ -261,7 +261,7 @@ UI part accepts.
   stays mounted with zero height rather than `display: none` (A11Y-3, A11Y-4) — a region the
   platform never observed is a region it never announces.
 - Focus shows on the **group**: while the input inside `InputGroup` or `ComboboxChips` has focus,
-  the group's border darkens subtly (`border-ring/40`, easing in over 150ms) and no background
+  the group's border darkens subtly (`border-ring/50`, easing in over 150ms) and no background
   changes — text entry's exception to FOC-14 (MK 2026-09-27). An invalid field keeps its
   destructive border while focused, and there is no ring. The popup's search row follows the same
   rule. Rows, chips and the toggle keep the global background tint.
@@ -299,7 +299,7 @@ Upstream's file plus `packages/ui/upstream/patches/combobox.patch`. Every hunk:
 - **FOC-14** — the chips field's invalid border is `has-aria-invalid:border-destructive` (and its
   dark counterpart), held in every state, focused or not; the `has-aria-invalid` halo rings are removed.
 - **FOC-14 text-entry exception (MK 2026-09-27)** — the chips field adds
-  `has-[input:focus]:not-has-aria-invalid:border-ring/40` with
+  `has-[input:focus]:not-has-aria-invalid:border-ring/50` with
   `transition-[color,background-color,border-color] duration-150 ease-out`: a subtle darker border
   that eases in while its input has focus, and no fill (`base.css` excludes text inputs from the
   background tint). The `not-has-aria-invalid` guard keeps the destructive border. The single-line

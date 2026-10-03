@@ -17,6 +17,8 @@ import { story } from "@/components/stories/audio-player.story";
 
 ## Usage
 
+Closing or pausing cancels queued lazy playback and seeks. Late source resolution cannot resume a cancelled request.
+
 ```tsx
 import { AudioPlayer } from "@/components/ui/audio-player";
 

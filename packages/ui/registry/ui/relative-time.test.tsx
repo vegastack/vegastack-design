@@ -1,10 +1,11 @@
 import * as React from "react";
 import { renderToString } from "react-dom/server";
+import { hydrateRoot } from "react-dom/client";
 import { render } from "vitest-browser-react";
 import { expect, test, vi } from "vitest";
 import { expectNoA11yViolations } from "../../test/a11y";
 import { TooltipProvider } from "./tooltip";
-import { RelativeTime } from "./relative-time";
+import { RelativeTime, TimeZoneProvider } from "./relative-time";
 import { formatDuration, formatLongDate, hourOfDay } from "../lib/date-time";
 
 /**
@@ -25,20 +26,21 @@ async function openTooltip(container: Element) {
 const NOW = Date.UTC(2026, 0, 15, 12, 0, 0); // 2026-01-15T12:00:00Z
 const ms = (n: number) => NOW + n;
 
-test("server-renders the absolute date, never an empty placeholder (B2-05)", () => {
+test("request reference clock server-renders relative content without an absolute fallback", () => {
   const markup = renderToString(
-    <RelativeTime date="2026-01-15T10:00:00.000Z" title={false} />,
+    <TimeZoneProvider timeZone="UTC" referenceNow={NOW}>
+      <RelativeTime date="2026-01-15T10:00:00.000Z" title={false} />
+    </TimeZoneProvider>,
   );
-  // The pre-hydration frame is a real, readable date — not a blank element the
-  // client fills in later, and not an `aria-busy` placeholder.
-  const absolute = new Intl.DateTimeFormat(undefined, {
-    dateStyle: "medium",
-  }).format(new Date("2026-01-15T10:00:00.000Z"));
-  expect(markup).toContain(absolute);
-  expect(markup).not.toContain("aria-busy");
-  expect(markup).not.toMatch(/><\/time>/);
-  // The machine-readable instant is present from the very first byte.
+  expect(markup).toContain("2h ago");
   expect(markup).toMatch(/datetime="2026-01-15T10:00:00\.000Z"/i);
+});
+
+test("without a request clock only date content waits for hydration", () => {
+  const markup = renderToString(
+    <RelativeTime date={ms(-1000)} title={false} />,
+  );
+  expect(markup).toContain(">…</time>");
 });
 
 test("a controlled `now` server-renders the relative label with no swap", () => {
@@ -432,20 +434,24 @@ test("DS-11: the server render and the client render print the same text in a zo
   expect(markup).toContain(`>${client}</time>`);
 });
 
-test("DS-11: an uncontrolled server render formats its absolute date in the zone", () => {
-  const markup = renderToString(
-    <RelativeTime date={ZONE_DATE} timeZone="Asia/Kolkata" locale="en-US" />,
-  );
-  // 17:00 UTC on 22 Sep is 22:30 on 22 Sep in IST, and 05:00 on 23 Sep in Auckland (NZST, UTC+12).
-  expect(markup).toContain("Sep 22, 2026");
-  const auckland = renderToString(
-    <RelativeTime
-      date={ZONE_DATE}
-      timeZone="Pacific/Auckland"
-      locale="en-US"
-    />,
-  );
-  expect(auckland).toContain("Sep 23, 2026");
+test("request reference clocks preserve calendar-relative SSR in each zone", () => {
+  for (const timeZone of ["Asia/Kolkata", "Pacific/Auckland"]) {
+    const markup = renderToString(
+      <TimeZoneProvider timeZone={timeZone} referenceNow={ZONE_NOW}>
+        <RelativeTime date={ZONE_DATE} mode="day" title={false} />
+      </TimeZoneProvider>,
+    );
+    const controlled = renderToString(
+      <RelativeTime
+        date={ZONE_DATE}
+        mode="day"
+        title={false}
+        timeZone={timeZone}
+        now={ZONE_NOW}
+      />,
+    );
+    expect(markup).toBe(controlled);
+  }
 });
 
 test("DS-11: a plain label is inline text; only a tooltip trigger owns the 24px box", async () => {
@@ -587,4 +593,39 @@ test("with no locale, a server under a non-US LANG renders what the browser rend
   const client = screen.container.querySelector("time")!.textContent;
   expect(server).toContain(`>${client}<`);
   expect(client).toBe("September 30, 2025");
+});
+
+test("request reference hydrates without errors and the shared clock continues ticking", async () => {
+  vi.useFakeTimers({ toFake: ["Date", "setInterval", "clearInterval"] });
+  vi.setSystemTime(NOW);
+  const container = document.createElement("div");
+  document.body.append(container);
+  const errors: unknown[] = [];
+  const element = (
+    <TimeZoneProvider timeZone="UTC" referenceNow={NOW}>
+      <RelativeTime date={NOW - 50_000} title={false} />
+      <RelativeTime date={NOW - 50_000} title={false} />
+    </TimeZoneProvider>
+  );
+  container.innerHTML = renderToString(element);
+  expect(container.textContent).toBe("50s ago50s ago");
+  let hydrated: ReturnType<typeof hydrateRoot> | undefined;
+  try {
+    await React.act(async () => {
+      hydrated = hydrateRoot(container, element, {
+        onRecoverableError: (error) => errors.push(error),
+      });
+    });
+    expect(container.textContent).toBe("50s ago50s ago");
+    await React.act(async () => {
+      await vi.advanceTimersByTimeAsync(20_000);
+    });
+    expect(container.textContent).toBe("1m ago1m ago");
+    expect(errors).toEqual([]);
+    expect(vi.getTimerCount()).toBe(1);
+  } finally {
+    await React.act(async () => hydrated?.unmount());
+    container.remove();
+    vi.useRealTimers();
+  }
 });

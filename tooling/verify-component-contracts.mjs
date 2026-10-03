@@ -1210,9 +1210,9 @@ assert(
 );
 assert(
   sharedIcon?.sizes?.dimensions?.some((dimension) =>
-    dimension.values?.some((value) => value.includes("var(--icon-default)")),
+    dimension.values?.some((value) => value.includes("1rem")),
   ),
-  "animated icons must model the tokenized default size",
+  "animated icons must model the runtime default size (1rem)",
 );
 sameStrings(
   sharedIcon?.registryDependencies ?? [],

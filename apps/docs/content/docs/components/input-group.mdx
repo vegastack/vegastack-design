@@ -162,7 +162,7 @@ the whole group.
 ### States
 
 The group's rest, invalid and disabled chrome. Click or Tab into a field to see the focus state: the
-group's border darkens subtly (`border-ring/40`) over 150ms and nothing fills; the invalid group
+group's border darkens subtly (`border-ring/50`) over 150ms and nothing fills; the invalid group
 keeps its destructive border while focused.
 
 <ComponentPreview
@@ -185,7 +185,7 @@ own — each accepts everything the underlying element accepts.
   the control's job, exactly as for a bare `Input`.
 - Clicking an addon focuses the control, unless the click landed on a button inside it.
 - The **group** carries the focus affordance: while its input or textarea has focus, the group's
-  border darkens subtly (`border-ring/40`, easing in over 150ms) — text entry's exception to FOC-14
+  border darkens subtly (`border-ring/50`, easing in over 150ms) — text entry's exception to FOC-14
   (MK 2026-09-27). No background changes, on the group or on the control inside it (which has no
   border and no fill), and there is no ring anywhere. An invalid group keeps its destructive border
   while focused. An addon button is a button: its own focus keeps the global background tint.
@@ -217,7 +217,7 @@ Upstream's file plus `packages/ui/upstream/patches/input-group.patch`. Every hun
 - **FOC-14** — the invalid border is `has-[[data-slot][aria-invalid=true]]:border-destructive`,
   held in every state, focused or not; the `has-aria-invalid` halo rings go with it.
 - **FOC-14 text-entry exception (MK 2026-09-27)** — the group adds
-  `has-[input:focus,textarea:focus]:not-has-aria-invalid:border-ring/40` with
+  `has-[input:focus,textarea:focus]:not-has-aria-invalid:border-ring/50` with
   `transition-[color,background-color,border-color] duration-150 ease-out`: a subtle darker border
   on the GROUP that eases in while its control has focus — `[data-slot=command-input]` and the
   popup search rows included — and no fill anywhere (`base.css` excludes text inputs and `textarea`

@@ -1,4 +1,4 @@
-// @vegastack version-list@0.23.114 sha256-rCyk1Ed0SQZILwkxR86hcG+bKZiY32c5N9poWkv0oUw=
+// @vegastack version-list@0.23.114 sha256-r+GJrenRlUStlsFBr0WdneIp7yhj7cdDEkwHriGLJ9s=
 
 "use client";
 
@@ -164,7 +164,7 @@ export function VersionList({
                 role="option"
                 aria-selected={selected}
                 data-slot="version-list-item"
-                data-selected={selected ? "" : undefined}
+                data-selected={selected ? "true" : undefined}
                 data-kind={version.kind}
                 tabIndex={item.tabIndex}
                 ref={item.ref}

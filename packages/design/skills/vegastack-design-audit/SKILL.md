@@ -83,7 +83,7 @@ rg -n '(focus|focus-visible|focus-within|data-focused|popup-open)[^ "]*:border-(
 - **a focus border** — a border colour under a focus or open-popup variant (`focus:border-ring/70`,
   `focus-within:border-ring`, `data-popup-open:border-input`, `not-focus:aria-invalid:…`) in app
   code. A border never changes colour on focus or while active (FOC-14) — the DS's own text-entry
-  components are the one exception (a subtle `border-ring/40` focus border, no fill) and carry it
+  components are the one exception (a subtle `border-ring/50` focus border, no fill) and carry it
   themselves; only an invalid field's destructive border shows, in every state. **error**
 - a status FILL used as a text ink on that family's own tint — `bg-destructive/10 text-destructive`
   measures 3.98:1. The readable half is `text-destructive-text`. **error**

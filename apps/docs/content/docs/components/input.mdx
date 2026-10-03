@@ -137,7 +137,7 @@ any extra work.
 ### States
 
 Rest, filled, invalid and disabled in one frame. Click or Tab into a field to see the focus state: the
-border darkens subtly (`border-ring/40`) over 150ms and no fill is painted; the invalid field keeps
+border darkens subtly (`border-ring/50`) over 150ms and no fill is painted; the invalid field keeps
 its destructive border while focused.
 
 <ComponentPreview name="inputStates" file="components/preview/input.tsx" />
@@ -156,7 +156,7 @@ Try every type with the disabled and invalid states, then copy the generated JSX
 
 - Renders Base UI's Input, which is a native `<input>` wired to the surrounding `Field`, so the
   platform owns selection, IME composition and autofill.
-- Focus is a **subtle darker border** (`border-ring/40`, easing in over 150ms), not a ring, and no
+- Focus is a **subtle darker border** (`border-ring/50`, easing in over 150ms), not a ring, and no
   background change — text entry is the one exception to FOC-14's fixed border (MK 2026-09-27);
   the global outline is suppressed with `outline-hidden` (FOC-8). It fires on `:focus`, for mouse
   and keyboard alike, because a text field cannot tell them apart and both need the caret located.
@@ -185,7 +185,7 @@ focus-visible:ring-ring/50` becomes `outline-hidden`, with no ring and no glow. 
 - **FOC-14** — the invalid border is `aria-invalid:border-destructive` (and its dark counterpart),
   held in every state, focused or not; the `aria-invalid` halo rings are removed with the rest.
 - **FOC-14 text-entry exception (MK 2026-09-27)** — the default variant adds
-  `focus:not-aria-invalid:not-[[type=file]]:border-ring/40` with
+  `focus:not-aria-invalid:not-[[type=file]]:border-ring/50` with
   `transition-[color,background-color,border-color] duration-150 ease-out`: a subtle darker border
   that eases in, and no fill (`base.css` excludes text inputs from the background tint). The
   `not-aria-invalid` guard keeps the destructive border; a file input is a button and keeps the

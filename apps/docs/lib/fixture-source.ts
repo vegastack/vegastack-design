@@ -21,43 +21,95 @@ const PREVIEW_FIXTURE_FILE = /^components\/preview\//;
 export function readFixtureSource(file: string, name: string): string {
   const source = readFileSync(file, "utf8");
   if (!PREVIEW_FIXTURE_FILE.test(file)) return source;
-  const ast = ts.createSourceFile(
-    file,
-    source,
-    ts.ScriptTarget.Latest,
-    true,
-    ts.ScriptKind.TSX,
-  );
-
-  const imports: string[] = [];
-  let fixture: string | undefined;
-  for (const statement of ast.statements) {
-    if (ts.isImportDeclaration(statement)) {
-      const specifier = statement.moduleSpecifier.getText(ast).slice(1, -1);
-      // The demo `Wrapper` is docs-site chrome, not part of the example.
-      if (specifier === "./wrapper") continue;
-      imports.push(statement.getText(ast));
-      continue;
-    }
-    if (
+  const program = ts.createProgram([file], {
+    target: ts.ScriptTarget.Latest,
+    jsx: ts.JsxEmit.ReactJSX,
+    noResolve: true,
+    noLib: true,
+    skipLibCheck: true,
+  });
+  const ast = program.getSourceFile(file)!;
+  const checker = program.getTypeChecker();
+  const fixtureNode = ast.statements.find(
+    (statement): statement is ts.FunctionDeclaration =>
       ts.isFunctionDeclaration(statement) &&
       statement.name?.text === name &&
-      statement.modifiers?.some(
+      !!statement.modifiers?.some(
         (modifier) => modifier.kind === ts.SyntaxKind.ExportKeyword,
-      )
-    ) {
-      fixture = unwrapDemoFrame(statement, ast);
-    }
-  }
-
+      ),
+  );
+  const fixture = fixtureNode && unwrapDemoFrame(fixtureNode, ast);
   if (!fixture) {
     throw new Error(
       `Fixture "${name}" is not an \`export function\` in ${file}. Preview fixtures must be named exported functions so the Code tab and the markdown export can show exactly that example.`,
     );
   }
-  return imports.length > 0
-    ? `${imports.join("\n")}\n\n${fixture}\n`
-    : `${fixture}\n`;
+  const included = new Set<ts.Statement>();
+  const importedNames = new Set<ts.Node>();
+  const include = (statement: ts.Statement) => {
+    if (included.has(statement)) return;
+    included.add(statement);
+    const visit = (node: ts.Node) => {
+      if (ts.isIdentifier(node)) {
+        for (const declaration of checker.getSymbolAtLocation(node)
+          ?.declarations ?? []) {
+          if (declaration.getSourceFile() !== ast) continue;
+          importedNames.add(declaration);
+          let root: ts.Node = declaration;
+          while (root.parent && root.parent !== ast) root = root.parent;
+          if (ts.isStatement(root) && !ts.isImportDeclaration(root))
+            include(root);
+        }
+      }
+      ts.forEachChild(node, visit);
+    };
+    visit(statement);
+  };
+  include(fixtureNode!);
+  const printer = ts.createPrinter();
+  const imports: string[] = [];
+  for (const statement of ast.statements) {
+    if (!ts.isImportDeclaration(statement)) continue;
+    if (statement.moduleSpecifier.getText(ast).slice(1, -1) === "./wrapper")
+      continue;
+    const clause = statement.importClause;
+    if (!clause) {
+      imports.push(statement.getText(ast));
+      continue;
+    }
+    const name = importedNames.has(clause) ? clause.name : undefined;
+    const bindings = clause.namedBindings;
+    const selected =
+      bindings && ts.isNamedImports(bindings)
+        ? ts.factory.updateNamedImports(
+            bindings,
+            bindings.elements.filter((element) => importedNames.has(element)),
+          )
+        : bindings && importedNames.has(bindings)
+          ? bindings
+          : undefined;
+    const named =
+      selected && (!ts.isNamedImports(selected) || selected.elements.length)
+        ? selected
+        : undefined;
+    if (!name && !named) continue;
+    const declaration = ts.factory.updateImportDeclaration(
+      statement,
+      statement.modifiers,
+      ts.factory.updateImportClause(clause, clause.isTypeOnly, name, named),
+      statement.moduleSpecifier,
+      statement.attributes,
+    );
+    imports.push(printer.printNode(ts.EmitHint.Unspecified, declaration, ast));
+  }
+  const body = ast.statements
+    .filter((statement) => included.has(statement))
+    .map((statement) =>
+      ts.isFunctionDeclaration(statement)
+        ? unwrapDemoFrame(statement, ast)
+        : statement.getText(ast),
+    );
+  return ['"use client";', ...imports, ...body].join("\n\n") + "\n";
 }
 
 /**

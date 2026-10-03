@@ -68,7 +68,7 @@ pnpm registry:build && pnpm check:component $N                     # 7. build an
    `packages/ui/upstream/exception-map.json` is the assignment: its `required` map lists, per
    decision ID, the components whose patch header must name it. In practice the recurring hunks are:
    strip the `ring-3 ring-ring/50` focus glow (FOC-1/FOC-6), strip every focus-variant border
-   colour so no border moves on focus or while open (FOC-14 — bar text entry's `…:border-ring/40`; invalid keeps
+   colour so no border moves on focus or while open (FOC-14 — bar text entry's `…:border-ring/50`; invalid keeps
    `aria-invalid:border-destructive` in every state, with no `not-focus:` guard), delete upstream's `cursor-default` (INT-1), drop
    `disabled:pointer-events-none` (FRM-4), add the theme scope inside the portal (OVL-13), move a
    tinted status surface onto the `-text` ink (A11Y-13), and swap the `cn` import (DOC-2).
@@ -138,7 +138,7 @@ Zero hardcoded visual values — enforced by `tooling/design-lint.mjs`. Full voc
 - **No focus-ring glow, anywhere** — no `ring-3`, no `ring-ring/NN`, no `focus-visible:ring-*`, no
   `shadow-[0_0_0_…]`. **No focus border either (FOC-14)**: no focus- or open-variant border
   colour; every control keeps its resting `border-border`/`border-input`. base.css owns the one cue,
-  an `accent`/50 tint — except text entry: no fill, an eased `border-ring/40` border (MK 2026-09-27).
+  an `accent`/50 tint — except text entry: no fill, an eased `border-ring/50` border (MK 2026-09-27).
   This is the rule that keeps the reset from unwinding on the next pull.
 - Sizes, radii, shadows, z-index, alpha and opacity are **plain Tailwind** now: `h-8`, `size-4`,
   `rounded-xl`, `shadow-md`, `z-50`, `bg-foreground/10`, `opacity-50`. The token families that used

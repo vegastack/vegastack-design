@@ -1,4 +1,4 @@
-// @vegastack template-editor@0.23.114 sha256-0sL7HLZLL00eHI/zW8QxLkFshY0NONDV6lnSJ8RdhT0=
+// @vegastack template-editor@0.23.114 sha256-/nZzCpLC0+QNjkEza+okrImWiVy8EVTBRbeRUXNENM4=
 
 "use client";
 
@@ -783,7 +783,7 @@ function TemplateEditor({
         editor.commands.focus("end");
       }}
       className={cn(
-        "relative w-full min-w-0 cursor-text rounded-lg border border-input bg-transparent px-2.5 py-2 text-base transition-[color,background-color,border-color] duration-150 ease-out has-[[contenteditable=true]:focus]:not-data-invalid:border-ring/40 data-disabled:cursor-not-allowed data-disabled:bg-input/50 data-disabled:opacity-50 data-invalid:border-destructive md:text-sm dark:bg-input/30 dark:data-disabled:bg-input/80 dark:data-invalid:border-destructive/50",
+        "relative w-full min-w-0 cursor-text rounded-lg border border-input bg-transparent px-2.5 py-2 text-base transition-[color,background-color,border-color] duration-150 ease-out has-[[contenteditable=true]:focus]:not-data-invalid:border-ring/50 data-disabled:cursor-not-allowed data-disabled:bg-input/50 data-disabled:opacity-50 data-invalid:border-destructive md:text-sm dark:bg-input/30 dark:data-disabled:bg-input/80 dark:data-invalid:border-destructive/50",
         className,
       )}
     >

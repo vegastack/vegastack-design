@@ -1,4 +1,4 @@
-// @vegastack audio-player@0.23.114 sha256-8jh6rboGVBxskM4qB0iCKpUfoFeKuhZsyfVk+0fq4I0=
+// @vegastack audio-player@0.23.114 sha256-k6yOPywR6Q06o2kQbvvofYtLXsKFAfxFXSc0FJZHrQo=
 
 "use client";
 
@@ -544,22 +544,58 @@ export function AudioPlayer({
   const resolutionRef = React.useRef<Promise<void> | null>(null);
   const pendingPlaysRef = React.useRef<PendingPlay[]>([]);
 
+  const pendingSeekRef = React.useRef<{
+    seconds: number;
+    play: boolean;
+  } | null>(null);
+  const sourceGeneration = React.useRef(0);
+  const invalidatePending = React.useCallback(() => {
+    sourceGeneration.current += 1;
+    resolutionRef.current = null;
+    pendingSeekRef.current = null;
+    for (const waiting of pendingPlaysRef.current.splice(0)) {
+      waiting.reject(new DOMException("Playback cancelled", "AbortError"));
+    }
+  }, []);
+  React.useLayoutEffect(() => {
+    const media = internalMediaRef.current;
+    if (!media) return;
+    const pause = media.pause.bind(media);
+    media.pause = () => {
+      invalidatePending();
+      setResolving(false);
+      pause();
+    };
+    return () => {
+      invalidatePending();
+      delete (media as { pause?: unknown }).pause;
+    };
+  }, [invalidatePending]);
   // DS-77: the player's own load failure (a rejected lazy `src`, a media `error` event).
   const [loadFailed, setLoadFailed] = React.useState(false);
   // A new URL starts clean; a lazy function is often an inline arrow, so only retry clears it.
   const urlSrc = typeof src === "function" ? null : src;
-  React.useEffect(() => setLoadFailed(false), [urlSrc]);
+  React.useEffect(() => {
+    setLoadFailed(false);
+    setResolving(false);
+    return invalidatePending;
+  }, [urlSrc, invalidatePending]);
   const ensureSource = React.useCallback((): Promise<void> => {
     const current = srcRef.current;
     if (typeof current !== "function") return Promise.resolve();
     if (resolutionRef.current) return resolutionRef.current;
     setResolving(true);
+    const generation = sourceGeneration.current;
     const attempt: Promise<void> = new Promise<string>((resolve) =>
       resolve(current()),
     )
       .then(
         (url) => {
-          if (resolutionRef.current === attempt) setResolvedUrl(url);
+          if (
+            resolutionRef.current === attempt &&
+            generation === sourceGeneration.current
+          )
+            setResolvedUrl(url);
         },
         (reason: unknown) => {
           // A failed resolution is forgotten, so the next play tries again.
@@ -570,7 +606,9 @@ export function AudioPlayer({
           throw reason;
         },
       )
-      .finally(() => setResolving(false));
+      .finally(() => {
+        if (generation === sourceGeneration.current) setResolving(false);
+      });
     resolutionRef.current = attempt;
     return attempt;
   }, []);
@@ -588,8 +626,10 @@ export function AudioPlayer({
         writable: true,
         value: () =>
           new Promise<void>((resolve, reject) => {
+            const generation = sourceGeneration.current;
             pendingPlaysRef.current.push({ resolve, reject });
             ensureSource().catch((reason: unknown) => {
+              if (generation !== sourceGeneration.current) return;
               for (const waiting of pendingPlaysRef.current.splice(0)) {
                 waiting.reject(reason);
               }
@@ -648,10 +688,6 @@ export function AudioPlayer({
   const showWaveform = isWaveform && (hasPeaks || !decoded.tooLarge);
 
   // ── Imperative seek ──────────────────────────────────────────────────────
-  const pendingSeekRef = React.useRef<{
-    seconds: number;
-    play: boolean;
-  } | null>(null);
 
   React.useEffect(() => {
     const media = internalMediaRef.current;
@@ -696,6 +732,13 @@ export function AudioPlayer({
   // ── Open / close ─────────────────────────────────────────────────────────
   const [uncontrolledOpen, setUncontrolledOpen] = React.useState(true);
   const isOpen = open ?? uncontrolledOpen;
+  React.useLayoutEffect(() => {
+    if (!isOpen) {
+      invalidatePending();
+      setResolving(false);
+      internalMediaRef.current?.pause();
+    }
+  }, [isOpen, invalidatePending]);
   const openerRef = React.useRef<HTMLElement | null>(null);
 
   // Remember what had focus when the player opened, to hand focus back on close.

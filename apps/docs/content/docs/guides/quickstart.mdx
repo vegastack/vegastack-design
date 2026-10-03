@@ -136,23 +136,28 @@ printf '!.env.example\n' >> .gitignore
 
 `.env.local` stays gitignored either way.
 
-**Proof** (the CLI reads `.env.local` itself, but your _shell_ doesn't — source it
-for this one check):
-
-```bash
-set -a; . ./.env.local; set +a
-curl -s -o /dev/null -w "%{http_code}" \
-  -H "CF-Access-Client-Id: $CF_ACCESS_CLIENT_ID" \
-  -H "CF-Access-Client-Secret: $CF_ACCESS_CLIENT_SECRET" \
-  https://design.vegastack.com/r/registry.json
-# → 200   (a 403 means wrong/missing token values)
-```
+The installed `vegastack-design verify` command reads only the two credential keys from
+`.env` and `.env.local`; shell values take precedence. Do not source the whole file into the shell:
+registry-origin and signer trust overrides must remain operator-controlled.
 
 ## 6. The provider — before any component
 
+Before any copy, verify the signed registry manifest and retain the saved item and printed digest:
+
 ```bash
-pnpm dlx shadcn@latest add @vegastack/provider
+pnpm exec vegastack-design verify provider
 ```
+
+Repeat this preflight for every transitive registry dependency named by the saved item. Then install:
+
+```bash
+pnpm dlx shadcn@4.21.0 add @vegastack/provider
+```
+
+Run each exact `--post-write` command printed by the preflights before using the copies. It checks
+against the independently retained digest and saved bytes. Bare shadcn does not verify VegaStack
+integrity or provenance. Apply this same preflight/install/post-write sequence to the blocks and
+components below; the full procedure is in [Production checklist](/docs/guides/production-checklist).
 
 This copies `components/ui/provider.tsx` (+ its `toast` dependency) into
 your repo. Now **edit** your existing `app/layout.tsx` — keep the `globals.css`
@@ -215,7 +220,7 @@ Three non-negotiables, all silent failures if skipped:
 ## 7. A real page in one command — the app shell block
 
 ```bash
-pnpm dlx shadcn@latest add @vegastack/app-shell-01
+pnpm dlx shadcn@4.21.0 add @vegastack/app-shell-01
 ```
 
 This is a `registry:block`: it copies a complete signed-in page
@@ -237,7 +242,7 @@ themed, all dark-mode-ready.
 ## 8. Add individual components as you build
 
 ```bash
-pnpm dlx shadcn@latest add @vegastack/dialog @vegastack/field @vegastack/table
+pnpm dlx shadcn@4.21.0 add @vegastack/dialog @vegastack/field @vegastack/table
 ```
 
 Each lands in `components/ui/`, brings its own `registryDependencies`
@@ -267,12 +272,14 @@ workspace package, and a gate that scans nothing passes forever. `--fail-on-upda
 exits 1 rather than 0 when it finds zero components, so this misconfiguration is
 loud, but the fix belongs in the script:
 
-````json title="package.json (monorepo)"
+```json title="package.json (monorepo)"
 {
   "check-updates": "vegastack-design check-updates --dir packages/ui/src/components/ui",
   "doctor": "vegastack-design doctor"
 }
-``` Details in [Production checklist](/docs/guides/production-checklist).
+```
+
+Details in [Production checklist](/docs/guides/production-checklist).
 
 ## Complete file inventory after this guide
 
@@ -301,7 +308,7 @@ writing to:
 ```text
 Could not load the workspace config in packages/ui.
 Add components.json to this workspace and configure its path aliases.
-````
+```
 
 Give that package its own `components.json` (same `registries` block) and a tsconfig
 mapping `"@/*": ["./src/*"]`, so `@/components/ui/*` and `@/lib/utils` resolve
