@@ -340,3 +340,38 @@ for (const [label, width, slot] of [
     await expectNoA11yViolations(document.body, ["color-contrast"]);
   });
 }
+
+test("share-01 a scrolled people list does not carry its scroll into Publish", async () => {
+  await page.viewport(1280, 520);
+  const people = Array.from({ length: 40 }, (_, i) => ({
+    id: `p${i}`,
+    person: { name: `Person ${i + 1}` },
+    level: "view",
+  }));
+  await render(
+    <ShareDialog
+      open
+      levels={[{ value: "view", label: "Can view" }]}
+      people={people}
+      linkUrl="https://app.acme.com/tasks/REG-142"
+    />,
+  );
+  const body = await vi.waitUntil(() =>
+    document.querySelector<HTMLElement>('[data-slot="dialog-body"]'),
+  );
+  await vi.waitFor(() =>
+    expect(body.scrollHeight).toBeGreaterThan(body.clientHeight),
+  );
+  body.scrollTo({ top: body.scrollHeight });
+  await vi.waitFor(() => expect(body.scrollTop).toBeGreaterThan(0));
+  await page.getByRole("tab", { name: "Publish" }).click();
+  await vi.waitFor(() => expect(body.scrollTop).toBe(0));
+  const toggleLocator = page.getByRole("switch", {
+    name: "Publish to the web",
+  });
+  await expect.element(toggleLocator).toBeVisible();
+  const toggle = toggleLocator.element().getBoundingClientRect();
+  const frame = body.getBoundingClientRect();
+  expect(toggle.top).toBeGreaterThanOrEqual(frame.top);
+  expect(toggle.bottom).toBeLessThanOrEqual(frame.bottom);
+});

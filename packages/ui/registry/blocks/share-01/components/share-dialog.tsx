@@ -1,4 +1,4 @@
-// @vegastack share-01@0.23.116 sha256-Tatz8ilZXttpnwZTrkClleNJtx2Hb+/q2cjbcOAqbTo=
+// @vegastack share-01@0.23.116 sha256-cF2JSNfYhERqT71PqroJFIPWl1UAaNN23XHXog4wGZI=
 
 "use client";
 
@@ -445,6 +445,12 @@ export function ShareDialog({
   const [confirmStop, setConfirmStop] = React.useState(false);
   const publishLabelId = React.useId();
   const publishTabRef = React.useRef<HTMLButtonElement>(null);
+  const panelsRef = React.useRef<HTMLDivElement>(null);
+  // The two panels share one scrolling body: a new tab starts at its top, so a list scrolled on
+  // Share never leaves Publish's controls above the viewport.
+  React.useLayoutEffect(() => {
+    panelsRef.current?.parentElement?.scrollTo({ top: 0 });
+  }, [tab]);
   const inviteMode = canManage && invitees.length > 0;
 
   const resetInvite = () => {
@@ -954,7 +960,7 @@ export function ShareDialog({
             {/* Both panels stay mounted in ONE grid cell, the inactive one invisible and inert, so
                 the body is always as tall as the taller panel and switching tabs never resizes
                 the dialog or the sheet. */}
-            <div data-slot="share-panels" className="grid">
+            <div ref={panelsRef} data-slot="share-panels" className="grid">
               <TabsContent
                 value="share"
                 keepMounted
