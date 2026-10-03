@@ -1,4 +1,4 @@
-// @vegastack share-01@0.23.116 sha256-1xcdBFsj4z33puGwBZaOmQTZLuelvAD5NeSlG0cLpa8=
+// @vegastack share-01@0.23.116 sha256-Tatz8ilZXttpnwZTrkClleNJtx2Hb+/q2cjbcOAqbTo=
 
 "use client";
 
@@ -892,31 +892,30 @@ export function ShareDialog({
     </div>
   );
 
-  const footer =
-    tab === "share" ? (
-      inviteMode ? (
-        <Button variant="secondary" onClick={resetInvite} disabled={inviting}>
-          {labels.cancel}
-        </Button>
-      ) : linkUrl ? (
-        <div
-          data-slot="share-copy-link"
-          className="flex w-full flex-wrap items-center justify-between gap-2"
-        >
-          <span className="text-xs text-muted-foreground">
-            {labels.copyLinkHint}
-          </span>
-          <CopyButton
-            value={linkUrl}
-            showLabel
-            variant="outline"
-            size="default"
-            copyLabel={labels.copyLink}
-            copiedLabel={labels.copied}
-          />
-        </div>
-      ) : null
-    ) : null;
+  // The Share tab's footer. It keeps its box on the Publish tab (hidden and inert there), so the
+  // dialog does not change height when the tabs switch.
+  const footer = inviteMode ? (
+    <Button variant="secondary" onClick={resetInvite} disabled={inviting}>
+      {labels.cancel}
+    </Button>
+  ) : linkUrl ? (
+    <div
+      data-slot="share-copy-link"
+      className="flex w-full flex-wrap items-center justify-between gap-2"
+    >
+      <span className="text-xs text-muted-foreground">
+        {labels.copyLinkHint}
+      </span>
+      <CopyButton
+        value={linkUrl}
+        showLabel
+        variant="outline"
+        size="default"
+        copyLabel={labels.copyLink}
+        copiedLabel={labels.copied}
+      />
+    </div>
+  ) : null;
 
   return (
     <ResponsiveDialog open={open} onOpenChange={setOpen}>
@@ -952,14 +951,39 @@ export function ShareDialog({
             </TabsList>
           ) : null}
           <ResponsiveDialogBody>
-            <TabsContent value="share">{shareBody}</TabsContent>
-            {publicLinkAvailable ? (
-              <TabsContent value="publish">{publishBody}</TabsContent>
-            ) : null}
+            {/* Both panels stay mounted in ONE grid cell, the inactive one invisible and inert, so
+                the body is always as tall as the taller panel and switching tabs never resizes
+                the dialog or the sheet. */}
+            <div data-slot="share-panels" className="grid">
+              <TabsContent
+                value="share"
+                keepMounted
+                hidden={false}
+                className="col-start-1 row-start-1 data-hidden:invisible"
+              >
+                {shareBody}
+              </TabsContent>
+              {publicLinkAvailable ? (
+                <TabsContent
+                  value="publish"
+                  keepMounted
+                  hidden={false}
+                  className="col-start-1 row-start-1 data-hidden:invisible"
+                >
+                  {publishBody}
+                </TabsContent>
+              ) : null}
+            </div>
           </ResponsiveDialogBody>
         </Tabs>
         {footer ? (
-          <ResponsiveDialogFooter>{footer}</ResponsiveDialogFooter>
+          <ResponsiveDialogFooter
+            data-hidden={tab === "share" ? undefined : ""}
+            inert={tab !== "share"}
+            className="data-hidden:invisible"
+          >
+            {footer}
+          </ResponsiveDialogFooter>
         ) : null}
       </ResponsiveDialogContent>
     </ResponsiveDialog>
