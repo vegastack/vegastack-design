@@ -2,14 +2,14 @@
   "schemaVersion": 1,
   "kind": "vegastack-zero-gap-audit-register",
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "2ceb589109e2e372f35d956559b2423af28d8a417f38f4514a884ccaba701ece",
+  "contractSha256": "ef511f2d6f306fd637e4f0544f8ffb79f3ca1e3504f640f5eb5d92f1822d5f93",
   "expectedCounts": {
-    "totalRegistryItems": 722,
-    "components": 149,
+    "totalRegistryItems": 724,
+    "components": 150,
     "animatedIcons": 467,
     "hooks": 13,
     "blocks": 14,
-    "libs": 11,
+    "libs": 12,
     "chartBlocks": 68
   },
   "records": [
@@ -584,6 +584,17 @@
         "packages/ui/registry/ui/upload-dialog.tsx"
       ],
       "docsSlug": "/docs/components/upload-dialog",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "upload-panel",
+      "inventoryClass": "component",
+      "wave": "Forms/editing",
+      "family": "forms",
+      "sourceFiles": [
+        "packages/ui/registry/ui/upload-panel.tsx"
+      ],
+      "docsSlug": "/docs/components/upload-panel",
       "contractStatus": "reconciled"
     },
     {
@@ -7945,6 +7956,17 @@
       "family": "lib",
       "sourceFiles": [
         "packages/ui/registry/lib/file-kind.ts"
+      ],
+      "docsSlug": "/docs/guides/components",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "upload-progress",
+      "inventoryClass": "lib",
+      "wave": "Libs",
+      "family": "lib",
+      "sourceFiles": [
+        "packages/ui/registry/lib/upload-progress.ts"
       ],
       "docsSlug": "/docs/guides/components",
       "contractStatus": "reconciled"

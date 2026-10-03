@@ -1,7 +1,7 @@
 {
   "_note": "Every name in packages/ui/registry/ui/ that has NO counterpart in vendor/shadcn/<cli>/ui/. verify-parity.mjs fails on a registry name that is neither upstream-backed nor listed here, so a component cannot appear by accident. Dispositions come from docs/plans/2026-09-18-shadcn-reset/extras.md (66 rows, MK 2026-09-18); hooks and internal parts are not components and are recorded here with their reason.",
   "counts": {
-    "total": 81,
+    "total": 82,
     "fromExtras": 46
   },
   "items": {
@@ -585,6 +585,12 @@
       "family": "form",
       "source": "Operator brief 2026-10-03 (Regent spaces UX, implementation-plan.md §5 D2/D5/D7/D9) — approved by MK 2026-10-03 (go-dark mandate)",
       "rationale": "Upstream documents the choice card as a Field composition, not a component. A thin wrapper over upstream field and radio-group; no patch."
+    },
+    "upload-panel": {
+      "disposition": "keep",
+      "family": "forms",
+      "source": "Operator brief 2026-10-04 (Regent uploads, plan.md §5) — approved by MK 2026-10-04 (go-dark mandate)",
+      "rationale": "Upstream ships no upload progress surface. A fixed bottom-end card composing upstream alert-dialog, button and progress with our responsive-dialog, image, file-kind and upload-progress; no patch."
     }
   }
 }

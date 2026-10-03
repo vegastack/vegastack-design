@@ -1,0 +1,186 @@
+---
+title: Upload Panel
+description: The uploads card pinned bottom-end — files and folders in flight, progress, failures and destinations — with a done card and a phone sheet.
+audience: public
+registry: upload-panel
+status: stable
+since: 0.23.120
+a11y: named region, labelled progress rings, milestone announcer
+preview: uploadPanel
+---
+
+## Install
+
+<InstallSteps name="upload-panel" />
+
+## Usage
+
+```tsx
+import { UploadPanel } from "@/components/ui/upload-panel";
+
+// Mount once in the app shell, so uploads survive navigation.
+<UploadPanel
+  items={uploads.items}
+  summary={uploads.summary}
+  collapsed={collapsed}
+  onCollapsedChange={setCollapsed}
+  onCancel={uploads.cancel}
+  onRetry={uploads.retry}
+  onResume={uploads.chooseFileAgain}
+  onOpen={(href) => router.push(href)}
+  onCancelAll={uploads.cancelAll}
+  onRetryFailed={uploads.retryFailed}
+  onDismiss={uploads.clear}
+/>;
+```
+
+The panel is presentational and controlled: the host's upload engine owns the queue, the bytes and
+the retries, and passes `items` (files, and folders with their files) and a `summary` (counts,
+bytes, `timeLeftMs` and the batch `status`). The time left comes from `createRateEstimator` in the
+`upload-progress` lib, which smooths acknowledged bytes and holds the estimate until it moves by
+more than 15%; `formatTimeLeft` turns it into "About 2 minutes left".
+
+```tsx
+import {
+  createRateEstimator,
+  formatTimeLeft,
+  formatBytesProgress,
+} from "@/lib/upload-progress";
+
+const estimator = createRateEstimator();
+estimator.sample(bytesAcked, performance.now());
+const timeLeftMs = estimator.timeLeftMs(
+  total - bytesAcked,
+  bytesAcked / total,
+  performance.now(),
+);
+```
+
+<ComponentPreview
+  name="uploadPanel"
+  file="components/preview/upload-panel.tsx"
+/>
+
+## Scope
+
+| Behaviour                                         | Where it lives                                                         |
+| ------------------------------------------------- | ---------------------------------------------------------------------- |
+| Rows, states, the done card, confirm, phone sheet | `UploadPanel`, `UploadItem`, `UploadGroup`                             |
+| Speed, time left and bytes wording                | `upload-progress` lib                                                  |
+| Kind, icon, tint and label of each file           | `file-kind` lib (`FileTypeIcon`)                                       |
+| Choosing files                                    | [`UploadDialog`](/docs/components/upload-dialog), `Dropzone`           |
+| Uploading, resuming, retrying                     | Host — the engine calls back into its queue                            |
+| Toasts clearing the panel                         | `Toast` reads `--upload-panel-inset`, which the panel publishes itself |
+
+## Anatomy
+
+<Anatomy name="upload-panel" />
+
+## Examples
+
+### Collapsed
+
+The chevron folds the list to the header, with one bar for the whole batch.
+
+<ComponentPreview
+  name="uploadPanelCollapsed"
+  file="components/preview/upload-panel.tsx"
+/>
+
+### Folder
+
+A folder upload is one row with its count and aggregate progress; its chevron expands the files.
+Cancel and Retry on the folder call back with the folder's id.
+
+<ComponentPreview
+  name="uploadPanelFolder"
+  file="components/preview/upload-panel.tsx"
+/>
+
+### Errors
+
+A failure keeps the panel open until the person acts: the reason under the name, Retry on the row
+and Retry failed below the list. An interrupted upload (the page reloaded mid-upload) asks for its
+file again with Choose file, and a cancelled one is muted.
+
+<ComponentPreview
+  name="uploadPanelErrors"
+  file="components/preview/upload-panel.tsx"
+/>
+
+### Done
+
+When everything finishes cleanly the panel shrinks into a done card that calls `onDismiss` after
+`autoDismissMs` (8 s), paused while it is hovered or focused. Its chevron reopens the list.
+
+<ComponentPreview
+  name="uploadPanelDone"
+  file="components/preview/upload-panel.tsx"
+/>
+
+### Phone
+
+Below 768px the panel is a compact bar with the batch's progress; tapping it opens every row in a
+bottom sheet. `compact` asks for the bar at any width.
+
+<ComponentPreview
+  name="uploadPanelPhone"
+  file="components/preview/upload-panel.tsx"
+/>
+
+### File types
+
+`FileTypeIcon` resolves every row's icon and tint from one table: MIME type first, the extension
+when the type is missing or generic.
+
+<ComponentPreview
+  name="fileTypeIconGallery"
+  file="components/preview/upload-panel.tsx"
+/>
+
+## API Reference
+
+<ApiTable
+  path="../../packages/ui/registry/ui/upload-panel.tsx"
+  name="UploadPanelProps"
+/>
+
+### UploadItem
+
+<ApiTable
+  path="../../packages/ui/registry/ui/upload-panel.tsx"
+  name="UploadItemProps"
+/>
+
+### UploadGroup
+
+<ApiTable
+  path="../../packages/ui/registry/ui/upload-panel.tsx"
+  name="UploadGroupProps"
+/>
+
+## Accessibility
+
+- The panel is a region named "Uploads"; the list is a list, and each folder's files a nested list.
+- Each uploading row has a progressbar named by its file, with its percentage.
+- A polite live region announces milestones only — "Uploading 3 items", "3 uploads complete",
+  "1 upload failed" — never each percent.
+- Cancel, Retry and Choose file are buttons named with the file. The cancel button takes the ring's
+  place on hover or focus, and is always shown on a touch screen.
+- Closing while uploads are moving opens an alert dialog with focus on "Keep uploading".
+- The success check and the card's arrival collapse to their end state under reduced motion.
+
+| Key                                 | Action                                    |
+| ----------------------------------- | ----------------------------------------- |
+| <kbd>Tab</kbd>                      | Move through the header, rows and footer. |
+| <kbd>Enter</kbd> / <kbd>Space</kbd> | Collapse, close, cancel, retry or expand. |
+| <kbd>Esc</kbd>                      | In the confirm or the sheet: close it.    |
+
+<StatesTested name="upload-panel" />
+
+## Do / Don't
+
+<DoDont
+  do="Mount one panel in the app shell, fed by one upload engine, so uploads keep going across pages."
+  dont="Mount a panel per page, or report each upload with a toast."
+/>

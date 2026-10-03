@@ -70,7 +70,9 @@
 #         are not arithmetic — `top-0`/`bottom-0`, `origin-top`/`origin-bottom` and the
 #         pointer-bridging `::after` edge — are the root's `anchor` variant, which `Toaster`
 #         derives from `position` along with the swipe direction, so a toast always swipes away
-#         from the edge it entered from.
+#         from the edge it entered from. A bottom-pinned viewport adds `--upload-panel-inset`
+#         (`0px` by default) to its 16px offset, the value `UploadPanel` publishes on the document
+#         root while it is on screen, so the stack rises above the panel instead of covering it.
 #     (b) ANCHORED TOASTS. `ToastPositioner` and `ToastArrow` wrap the two Base UI parts upstream
 #         wraps neither of, so a toast can position against an element via `positionerProps` on
 #         `add()` instead of stacking in the corner. The corner-stack recipe therefore moved OUT
@@ -95,10 +97,10 @@
 #   formatting: prettier reflow plus the `registry-stamp.mjs` provenance header (DOC-1); no
 #               decision of their own.
 diff --git a/toast.tsx b/toast.tsx
-index 325d01b..8e98bfb 100644
+index 325d01b..339bed3 100644
 --- a/toast.tsx
 +++ b/toast.tsx
-@@ -1,60 +1,265 @@
+@@ -1,60 +1,271 @@
 -"use client"
 +"use client";
  
@@ -162,6 +164,9 @@ index 325d01b..8e98bfb 100644
 + * frontmost), `1` pins it to the top. The mobile layout is upstream's — full width inside a 16px
 + * gutter — and the inline corner only applies from `sm` up.
 + *
++ * OVL-15: a bottom stack rises by `--upload-panel-inset`, which `UploadPanel` publishes on the
++ * document root while it is on screen, so a toast never covers the upload panel (`0px` without one).
++ *
 + * OVL-15: `z-60` puts the stack one band above the single `z-50` overlay band, so a toast fired
 + * while a Dialog is open is visible instead of behind its scrim. Nothing else leaves `z-50`.
 + */
@@ -173,9 +178,12 @@ index 325d01b..8e98bfb 100644
 +        "top-start": "top-4 [--toast-dir:1] sm:start-4 sm:end-auto",
 +        "top-center": "top-4 [--toast-dir:1] sm:inset-x-0 sm:mx-auto",
 +        "top-end": "top-4 [--toast-dir:1] sm:end-4 sm:start-auto",
-+        "bottom-start": "bottom-4 [--toast-dir:-1] sm:start-4 sm:end-auto",
-+        "bottom-center": "bottom-4 [--toast-dir:-1] sm:inset-x-0 sm:mx-auto",
-+        "bottom-end": "bottom-4 [--toast-dir:-1] sm:end-4 sm:start-auto",
++        "bottom-start":
++          "bottom-[calc(var(--spacing)*4+var(--upload-panel-inset,0px))] [--toast-dir:-1] sm:start-4 sm:end-auto",
++        "bottom-center":
++          "bottom-[calc(var(--spacing)*4+var(--upload-panel-inset,0px))] [--toast-dir:-1] sm:inset-x-0 sm:mx-auto",
++        "bottom-end":
++          "bottom-[calc(var(--spacing)*4+var(--upload-panel-inset,0px))] [--toast-dir:-1] sm:end-4 sm:start-auto",
 +      },
 +    },
 +    defaultVariants: { position: "bottom-end" },
@@ -401,7 +409,7 @@ index 325d01b..8e98bfb 100644
  }
  
  function ToastContent({ className, ...props }: ToastPrimitive.Content.Props) {
-@@ -62,12 +267,12 @@ function ToastContent({ className, ...props }: ToastPrimitive.Content.Props) {
+@@ -62,12 +273,12 @@ function ToastContent({ className, ...props }: ToastPrimitive.Content.Props) {
      <ToastPrimitive.Content
        data-slot="toast-content"
        className={cn(
@@ -417,7 +425,7 @@ index 325d01b..8e98bfb 100644
  }
  
  function ToastTitle({ className, ...props }: ToastPrimitive.Title.Props) {
-@@ -77,7 +282,7 @@ function ToastTitle({ className, ...props }: ToastPrimitive.Title.Props) {
+@@ -77,7 +288,7 @@ function ToastTitle({ className, ...props }: ToastPrimitive.Title.Props) {
        className={cn("text-sm font-medium", className)}
        {...props}
      />
@@ -426,7 +434,7 @@ index 325d01b..8e98bfb 100644
  }
  
  function ToastDescription({
-@@ -87,10 +292,16 @@ function ToastDescription({
+@@ -87,10 +298,16 @@ function ToastDescription({
    return (
      <ToastPrimitive.Description
        data-slot="toast-description"
@@ -445,7 +453,7 @@ index 325d01b..8e98bfb 100644
  }
  
  function ToastAction({
-@@ -98,14 +309,18 @@ function ToastAction({
+@@ -98,14 +315,18 @@ function ToastAction({
    render = <Button variant="outline" size="sm" />,
    ...props
  }: ToastPrimitive.Action.Props) {
@@ -465,7 +473,7 @@ index 325d01b..8e98bfb 100644
  }
  
  function ToastClose({
-@@ -114,59 +329,55 @@ function ToastClose({
+@@ -114,59 +335,55 @@ function ToastClose({
    render = <Button variant="ghost" size="icon-sm" />,
    ...props
  }: ToastPrimitive.Close.Props) {
@@ -541,7 +549,7 @@ index 325d01b..8e98bfb 100644
    }
  
    return (
-@@ -176,59 +387,156 @@ function ToastIcon({ type }: { type: string | undefined }) {
+@@ -176,59 +393,156 @@ function ToastIcon({ type }: { type: string | undefined }) {
      >
        {icon}
      </span>

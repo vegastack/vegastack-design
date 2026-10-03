@@ -12,17 +12,17 @@
     "evidencePolicy": "Observed fields come from source, registry metadata, docs, and test topology. Unknown/not-applicable values are explicit; no inferred behavior is presented as verified."
   },
   "expectedCounts": {
-    "totalRegistryItems": 722,
-    "components": 149,
+    "totalRegistryItems": 724,
+    "components": 150,
     "animatedIcons": 467,
     "hooks": 13,
     "blocks": 14,
-    "libs": 11,
+    "libs": 12,
     "chartBlocks": 68
   },
   "expectedWaveCounts": {
     "Core controls": 24,
-    "Forms/editing": 33,
+    "Forms/editing": 34,
     "Navigation/layout": 21,
     "Overlays": 18,
     "Data display": 27,
@@ -93,7 +93,8 @@
       "tag-group",
       "template-editor",
       "text-edit",
-      "upload-dialog"
+      "upload-dialog",
+      "upload-panel"
     ],
     "Navigation/layout": [
       "accordion",
@@ -11165,6 +11166,297 @@
             },
             {
               "name": "data-stage",
+              "values": []
+            }
+          ],
+          "cssVariables": []
+        }
+      }
+    },
+    {
+      "name": "upload-panel",
+      "registryType": "registry:ui",
+      "title": "Upload Panel",
+      "summary": "The uploads card pinned bottom-end: a header naming the batch with time left, file and folder rows with progress rings, failures with Retry, interrupted rows with Choose file and destination links, a done card that dismisses itself, a confirm before cancelling, and a bottom sheet on phones. Controlled; the host engine uploads.",
+      "status": "stable",
+      "since": "0.23.120",
+      "family": "forms",
+      "wave": "Forms/editing",
+      "sourceFiles": ["packages/ui/registry/ui/upload-panel.tsx"],
+      "publicSymbols": [
+        {
+          "name": "UploadPanel",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/upload-panel.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "section",
+            "rationale": "Spread onto the panel section."
+          }
+        },
+        {
+          "name": "UploadPanelProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/upload-panel.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "UploadPanelLabels",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/upload-panel.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "UploadItem",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/upload-panel.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "li",
+            "rationale": "Spread onto the row list item."
+          }
+        },
+        {
+          "name": "UploadItemProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/upload-panel.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "UploadGroup",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/upload-panel.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "li",
+            "rationale": "Spread onto the folder list item."
+          }
+        },
+        {
+          "name": "UploadGroupProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/upload-panel.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "UploadFile",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/upload-panel.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "UploadFolder",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/upload-panel.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "UploadEntry",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/upload-panel.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "UploadDestination",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/upload-panel.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "UploadSummary",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/upload-panel.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "UploadSummaryStatus",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/upload-panel.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "UploadItemStatus",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/upload-panel.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "No visual variant axis; the state follows the summary and each row its status."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "One size: a 360px card, a full-width bar on phones."
+      },
+      "states": {
+        "behavior": {
+          "status": "covered",
+          "values": [
+            "uploading",
+            "collapsed",
+            "done-card",
+            "failed",
+            "interrupted",
+            "folder",
+            "confirm-close",
+            "phone-sheet"
+          ],
+          "evidence": "packages/ui/registry/ui/upload-panel.tsx + packages/ui/registry/ui/upload-panel.test.tsx"
+        },
+        "accessibility": {
+          "status": "covered",
+          "values": [
+            "labeled",
+            "semantic-html",
+            "live-region",
+            "progressbar",
+            "browser-accessibility-test"
+          ],
+          "evidence": "packages/ui/registry/ui/upload-panel.test.tsx"
+        },
+        "visual": {
+          "status": "observed",
+          "values": [
+            "uploading",
+            "collapsed",
+            "done",
+            "failed",
+            "folder",
+            "phone"
+          ],
+          "evidence": "packages/ui/registry/ui/upload-panel.tsx"
+        }
+      },
+      "responsive": {
+        "status": "modeled",
+        "risks": ["text-truncation-and-flex-shrink"],
+        "rationale": "Names truncate in the middle and keep their extension; below 768px the card becomes a full-width bar that opens a bottom sheet."
+      },
+      "motion": {
+        "status": "observed",
+        "mechanisms": ["keyed-presence"],
+        "reducedMotion": {
+          "status": "observed",
+          "rationale": "motion-enter-up on the card and motion-pop-in on the done check collapse to their end state under the global reduced-motion reset."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/upload-panel",
+      "registryDependencies": [
+        "@vegastack/alert-dialog",
+        "@vegastack/button",
+        "@vegastack/file-kind",
+        "@vegastack/image",
+        "@vegastack/progress",
+        "@vegastack/responsive-dialog",
+        "@vegastack/upload-progress",
+        "@vegastack/use-announcer",
+        "@vegastack/use-mobile"
+      ],
+      "npmDependencies": [
+        "@vegastack/design@^0.7.104",
+        "@vegastack/design-tokens@^0.7.80",
+        "lucide-react@^1.47.0"
+      ],
+      "testFiles": ["packages/ui/registry/ui/upload-panel.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required"
+      },
+      "previewModule": "upload-panel",
+      "dataAttributes": {
+        "UploadItem": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["upload-done-icon", "upload-item", "upload-item-state"]
+            },
+            {
+              "name": "data-status",
+              "values": []
+            }
+          ],
+          "cssVariables": []
+        },
+        "UploadGroup": {
+          "attributes": [
+            {
+              "name": "data-expanded",
+              "values": []
+            },
+            {
+              "name": "data-slot",
+              "values": [
+                "upload-group",
+                "upload-group-files",
+                "upload-item-state"
+              ]
+            },
+            {
+              "name": "data-status",
+              "values": []
+            }
+          ],
+          "cssVariables": []
+        },
+        "UploadPanel": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": [
+                "upload-panel",
+                "upload-panel-footer",
+                "upload-panel-header",
+                "upload-panel-list",
+                "upload-panel-progress"
+              ]
+            },
+            {
+              "name": "data-state",
+              "values": ["collapsed", "done", "expanded"]
+            },
+            {
+              "name": "data-status",
               "values": []
             }
           ],
@@ -37584,7 +37876,7 @@
       "name": "file-kind",
       "registryType": "registry:lib",
       "title": "File Kind",
-      "summary": "The one answer to \"what is this file and how big is it\" — formatBytes (1024 base, one decimal under 10), fileKindOf (MIME first, extension fallback, text/plain treated as generic) and FileTypeIcon (the muted lucide icon per kind) — shared by Attachment rows, FileViewer, UploadDialog, AvatarPicker and FolderTree.",
+      "summary": "The one answer to \"what is this file and how big is it\" — formatBytes (1024 base, one decimal under 10), fileKindOf (MIME first, extension fallback, text/plain treated as generic; 25 kinds from images and PDFs to CAD, photometric and design files) and FileTypeIcon/FileKindTile (the lucide icon, tint and label per kind) — shared by Attachment rows, FileViewer, UploadPanel, UploadDialog, AvatarPicker and FolderTree.",
       "family": "lib",
       "wave": "Libs",
       "sourceFiles": ["packages/ui/registry/lib/file-kind.ts"],
@@ -37720,6 +38012,115 @@
         "packages/ui/registry/lib/file-kind.test.ts",
         "packages/ui/registry/ui/file-viewer.test.tsx"
       ],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "shared-guide-only",
+        "navigation": "exempt",
+        "preview": "exempt",
+        "vrt": "exempt"
+      }
+    },
+    {
+      "name": "upload-progress",
+      "registryType": "registry:lib",
+      "title": "Upload Progress",
+      "summary": "The arithmetic behind an upload time left: createRateEstimator (an EWMA of acknowledged bytes over 1 s ticks that ignores the first 3 s, reports after 5 s and 2%, and moves only on a 15% change), formatTimeLeft and formatBytesProgress.",
+      "family": "lib",
+      "wave": "Libs",
+      "sourceFiles": ["packages/ui/registry/lib/upload-progress.ts"],
+      "publicSymbols": [
+        {
+          "name": "createRateEstimator",
+          "kind": "function",
+          "source": "packages/ui/registry/lib/upload-progress.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "function symbols do not expose a rendered DOM instance or ref contract."
+          }
+        },
+        {
+          "name": "RateEstimator",
+          "kind": "interface",
+          "source": "packages/ui/registry/lib/upload-progress.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "RateEstimatorOptions",
+          "kind": "interface",
+          "source": "packages/ui/registry/lib/upload-progress.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "formatTimeLeft",
+          "kind": "function",
+          "source": "packages/ui/registry/lib/upload-progress.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "function symbols do not expose a rendered DOM instance or ref contract."
+          }
+        },
+        {
+          "name": "formatBytesProgress",
+          "kind": "function",
+          "source": "packages/ui/registry/lib/upload-progress.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "function symbols do not expose a rendered DOM instance or ref contract."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "A data/recipe module renders nothing and has no variant surface."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "A data/recipe module renders nothing and has no size scale."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned motion mechanism observed."
+        }
+      },
+      "engines": [],
+      "registryDependencies": ["@vegastack/file-kind"],
+      "docsSlug": "/docs/guides/components",
+      "states": {
+        "behavior": {
+          "status": "not-applicable",
+          "values": ["not-applicable"],
+          "evidence": "Pure functions and a closure over samples the caller passes; no clock of its own."
+        },
+        "accessibility": {
+          "status": "not-applicable",
+          "values": ["not-applicable"],
+          "evidence": "Renders nothing."
+        },
+        "visual": {
+          "status": "not-applicable",
+          "values": ["not-applicable"],
+          "evidence": "Renders nothing."
+        }
+      },
+      "responsive": {
+        "status": "not-applicable",
+        "risks": [],
+        "rationale": "No DOM of its own; consumers own layout."
+      },
+      "npmDependencies": [],
+      "testFiles": ["packages/ui/registry/lib/upload-progress.test.ts"],
       "coverage": {
         "source": "required",
         "test": "required",

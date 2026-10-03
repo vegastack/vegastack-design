@@ -451,14 +451,30 @@ test("OVL-13: with no scope in the tree the portal carries only `contents`", asy
 // the `z-60` band in `test/stacking.browser.test.tsx`, the COL-23 inks in
 // `test/contrast.browser.test.tsx`.
 
+/** A bottom stack's edge: 16px, plus the room `UploadPanel` publishes while it is on screen. */
+const BOTTOM_EDGE =
+  "bottom-[calc(var(--spacing)*4+var(--upload-panel-inset,0px))]";
+
 /** The six logical corners, with the growth sign and block edge each one must emit. */
 const POSITIONS = [
   { position: "top-start", dir: "[--toast-dir:1]", edge: "top-4" },
   { position: "top-center", dir: "[--toast-dir:1]", edge: "top-4" },
   { position: "top-end", dir: "[--toast-dir:1]", edge: "top-4" },
-  { position: "bottom-start", dir: "[--toast-dir:-1]", edge: "bottom-4" },
-  { position: "bottom-center", dir: "[--toast-dir:-1]", edge: "bottom-4" },
-  { position: "bottom-end", dir: "[--toast-dir:-1]", edge: "bottom-4" },
+  {
+    position: "bottom-start",
+    dir: "[--toast-dir:-1]",
+    edge: BOTTOM_EDGE,
+  },
+  {
+    position: "bottom-center",
+    dir: "[--toast-dir:-1]",
+    edge: BOTTOM_EDGE,
+  },
+  {
+    position: "bottom-end",
+    dir: "[--toast-dir:-1]",
+    edge: BOTTOM_EDGE,
+  },
 ] as const;
 
 test.for(POSITIONS)(
@@ -486,7 +502,7 @@ test("OVL-15: the default position is bottom-end", async () => {
   manager.add({ title: "Event created" });
   await waitForToast("Event created");
   expect(viewport()!.className).toContain("[--toast-dir:-1]");
-  expect(viewport()!.className).toContain("bottom-4");
+  expect(viewport()!.className).toContain(BOTTOM_EDGE);
   expect(viewport()!.dataset.position).toBe("bottom-end");
 });
 

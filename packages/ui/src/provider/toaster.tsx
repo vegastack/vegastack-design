@@ -52,6 +52,9 @@ type ToastPosition =
  * frontmost), `1` pins it to the top. The mobile layout is upstream's — full width inside a 16px
  * gutter — and the inline corner only applies from `sm` up.
  *
+ * OVL-15: a bottom stack rises by `--upload-panel-inset`, which `UploadPanel` publishes on the
+ * document root while it is on screen, so a toast never covers the upload panel (`0px` without one).
+ *
  * OVL-15: `z-60` puts the stack one band above the single `z-50` overlay band, so a toast fired
  * while a Dialog is open is visible instead of behind its scrim. Nothing else leaves `z-50`.
  */
@@ -63,9 +66,12 @@ const toastViewportVariants = cva(
         "top-start": "top-4 [--toast-dir:1] sm:start-4 sm:end-auto",
         "top-center": "top-4 [--toast-dir:1] sm:inset-x-0 sm:mx-auto",
         "top-end": "top-4 [--toast-dir:1] sm:end-4 sm:start-auto",
-        "bottom-start": "bottom-4 [--toast-dir:-1] sm:start-4 sm:end-auto",
-        "bottom-center": "bottom-4 [--toast-dir:-1] sm:inset-x-0 sm:mx-auto",
-        "bottom-end": "bottom-4 [--toast-dir:-1] sm:end-4 sm:start-auto",
+        "bottom-start":
+          "bottom-[calc(var(--spacing)*4+var(--upload-panel-inset,0px))] [--toast-dir:-1] sm:start-4 sm:end-auto",
+        "bottom-center":
+          "bottom-[calc(var(--spacing)*4+var(--upload-panel-inset,0px))] [--toast-dir:-1] sm:inset-x-0 sm:mx-auto",
+        "bottom-end":
+          "bottom-[calc(var(--spacing)*4+var(--upload-panel-inset,0px))] [--toast-dir:-1] sm:end-4 sm:start-auto",
       },
     },
     defaultVariants: { position: "bottom-end" },
