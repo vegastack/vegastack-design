@@ -1,4 +1,4 @@
-// @vegastack file-kind@0.23.119 sha256-BzKi9OJlREl6ipr62v5bqNoe3+xE86Ffkr5n9m865Tg=
+// @vegastack file-kind@0.23.119 sha256-1k2y8s8tTx8SxkehX9RlmEVK7PZSLK0Z2iEeGBWDfX0=
 
 import * as React from "react";
 import { cn } from "@vegastack/design";
@@ -293,7 +293,7 @@ for (const [kind, spec] of Object.entries(KINDS) as [FileKind, KindSpec][])
 const TYPE_RULES: ReadonlyArray<readonly [RegExp, FileKind]> = [
   [/^application\/pdf$/, "pdf"],
   [
-    /^image\/(vnd\.dwg|vnd\.dxf|x-dwg|x-dxf)$|^model\/|^application\/(acad|sla|step|iges|vnd\.ms-pki\.stl)/,
+    /^image\/(vnd\.dwg|vnd\.dxf|x-dwg|x-dxf)$|^model\/|^application\/(acad|sla|step|iges)/,
     "cad",
   ],
   [
@@ -310,7 +310,7 @@ const TYPE_RULES: ReadonlyArray<readonly [RegExp, FileKind]> = [
   [/^text\/(vcard|x-vcard|directory)$/, "contact"],
   [/^application\/(pgp-encrypted|pgp|x-gpg)/, "encrypted"],
   [
-    /^application\/(x-pem-file|pkcs8|pkcs10|pkix-cert|x-x509-|x-pkcs12|pkcs12|x-pkcs7)/,
+    /^application\/(x-pem-file|pkcs8|pkcs10|pkix-cert|x-x509-|x-pkcs12|pkcs12|x-pkcs7|vnd\.ms-pki\.)/,
     "key",
   ],
   [/zip|x-tar|gzip|compressed|x-rar|x-7z|x-bzip|x-xz/, "archive"],
@@ -343,11 +343,39 @@ const GENERIC_TYPES = new Set([
   "video/mp2t",
 ]);
 
-/** The kind a file name's extension names, or `null`. */
+/** Dotfiles that configure a tool, beyond the ones a config extension already names (`.env`). */
+const CONFIG_DOTFILES = new Set([
+  "gitignore",
+  "gitattributes",
+  "editorconfig",
+  "npmrc",
+  "nvmrc",
+  "yarnrc",
+  "prettierrc",
+  "eslintrc",
+  "babelrc",
+  "dockerignore",
+  "browserslistrc",
+]);
+
+/**
+ * The kind a file name's extension names, or `null`. A dotfile (`.env`, `.env.local`,
+ * `.gitignore`) is read by its name, so a tool's config file is `config` rather than `other`.
+ */
 function kindOfName(name: string | null | undefined): FileKind | null {
-  const dot = name ? name.lastIndexOf(".") : -1;
-  if (!name || dot <= 0 || dot >= name.length - 1) return null;
-  return EXTENSION_KIND.get(name.slice(dot + 1).toLowerCase()) ?? null;
+  if (!name) return null;
+  const base = name.slice(name.lastIndexOf("/") + 1).toLowerCase();
+  const dot = base.lastIndexOf(".");
+  if (dot > 0 && dot < base.length - 1) {
+    const byExtension = EXTENSION_KIND.get(base.slice(dot + 1));
+    if (byExtension) return byExtension;
+  }
+  if (base.startsWith(".") && base.length > 1) {
+    const stem = base.slice(1).split(".")[0]!;
+    if (EXTENSION_KIND.get(stem) === "config" || CONFIG_DOTFILES.has(stem))
+      return "config";
+  }
+  return null;
 }
 
 /**

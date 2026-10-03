@@ -1,4 +1,4 @@
-// @vegastack upload-panel@0.23.119 sha256-+Y/8mKGWADoC02tmCOGvc0Dvh6F8GVY/iS4nNJ6l1ek=
+// @vegastack upload-panel@0.23.119 sha256-uXmMmBc9g8t+lbuzKW300m4QAWydkpQyo84+O7aEROM=
 
 "use client";
 
@@ -267,10 +267,19 @@ interface UploadRowHandlers {
 const UploadLabelsContext =
   React.createContext<UploadPanelLabels>(DEFAULT_LABELS);
 
-const percentOf = (done: number | undefined, total: number) =>
-  total > 0
-    ? Math.min(100, Math.max(0, Math.round(((done ?? 0) / total) * 100)))
-    : 0;
+/**
+ * Whole percent done. Unfinished work stops at 99, so a ring never reads 100% before the upload
+ * (or the batch) is actually finished.
+ */
+const percentOf = (
+  done: number | undefined,
+  total: number,
+  finished = false,
+) => {
+  if (finished) return 100;
+  if (total <= 0) return 0;
+  return Math.min(99, Math.max(0, Math.round(((done ?? 0) / total) * 100)));
+};
 
 /** A disclosure chevron keeps the ghost rest state while open (the variant tints a menu trigger). */
 const DISCLOSURE = "aria-expanded:bg-transparent aria-expanded:hover:bg-muted";
@@ -650,7 +659,7 @@ export function UploadGroup({
     (sum, f) => sum + (f.status === "done" ? f.size : (f.bytesDone ?? 0)),
     0,
   );
-  const percent = percentOf(bytesDone, bytesTotal);
+  const percent = percentOf(bytesDone, bytesTotal, status === "done");
 
   let meta =
     status === "done"
@@ -881,9 +890,17 @@ export function UploadPanel({
   const { announce, Announcer } = useAnnouncer();
   const [root, setRoot] = React.useState<HTMLElement | null>(null);
   const [sheetOpen, setSheetOpen] = React.useState(false);
+  // The sheet exists only in the compact form: leaving it (a resize to desktop) closes it, or the
+  // done card would stay paused by a sheet nobody can see.
+  if (!mobile && sheetOpen) setSheetOpen(false);
   const [confirm, setConfirm] = React.useState<"close" | "cancel-all" | null>(
     null,
   );
+  const closeRef = React.useRef<HTMLButtonElement | null>(null);
+  // Where focus was before it entered the panel, to hand it back when the panel goes.
+  const returnFocusRef = React.useRef<HTMLElement | null>(null);
+  // What the confirm resolved to, read by its `finalFocus`.
+  const outcomeRef = React.useRef<"kept" | "cancelled" | "dismissed">("kept");
   const [hovered, setHovered] = React.useState(false);
   const [focused, setFocused] = React.useState(false);
 
@@ -922,16 +939,16 @@ export function UploadPanel({
     : "";
   const percent = percentOf(summary.bytesDone, summary.bytesTotal);
 
-  // Milestones only, never every tick: the batch starting, finishing, or a new failure.
-  const milestone =
-    summary.failed > 0
-      ? `failed:${summary.failed}`
-      : summary.status === "done"
-        ? "done"
-        : summary.status;
-  const milestoneText = React.useRef(title);
+  // Milestones only, never every tick: the batch starting, a new failure, and its final state.
+  // A failure while others still upload is announced as the failure, not as "Uploading…".
+  const milestone = `${summary.status}:${summary.failed}`;
+  const milestoneSpeech =
+    summary.status === "uploading" && summary.failed > 0
+      ? labels.failed(summary.failed, summary.total)
+      : title;
+  const milestoneText = React.useRef(milestoneSpeech);
   React.useEffect(() => {
-    milestoneText.current = title;
+    milestoneText.current = milestoneSpeech;
   });
   React.useEffect(() => {
     if (visible) announce(milestoneText.current);
@@ -977,15 +994,39 @@ export function UploadPanel({
 
   if (!visible) return <Announcer />;
 
+  /** Focus outside the panel before it goes: where focus came from, else the main region. */
+  const focusOutside = (): HTMLElement | null => {
+    const previous = returnFocusRef.current;
+    if (previous?.isConnected && !root?.contains(previous)) return previous;
+    const main = document.querySelector<HTMLElement>("main, [role='main']");
+    if (main && !main.hasAttribute("tabindex"))
+      main.setAttribute("tabindex", "-1");
+    return main;
+  };
+  const dismiss = () => {
+    if (root?.contains(document.activeElement))
+      focusOutside()?.focus({ preventScroll: true });
+    onDismiss?.();
+  };
   const requestClose = () => {
     if (active) setConfirm("close");
-    else onDismiss?.();
+    else dismiss();
   };
   const confirmCancel = () => {
     const intent = confirm;
+    outcomeRef.current = intent === "close" ? "dismissed" : "cancelled";
     setConfirm(null);
     onCancelAll?.();
     if (intent === "close") onDismiss?.();
+  };
+  // After the confirm: Keep returns to the button that opened it; Cancel all to the panel's close
+  // button (Cancel all itself is gone); a dismissal to where focus was before the panel.
+  const confirmFinalFocus = () => {
+    const outcome = outcomeRef.current;
+    outcomeRef.current = "kept";
+    if (outcome === "dismissed") return focusOutside() ?? true;
+    if (outcome === "cancelled") return closeRef.current ?? true;
+    return true;
   };
 
   const glyph =
@@ -1063,6 +1104,7 @@ export function UploadPanel({
       variant="ghost"
       size="icon-sm"
       aria-label={labels.close}
+      ref={closeRef}
       onClick={requestClose}
     >
       <XIcon />
@@ -1081,7 +1123,19 @@ export function UploadPanel({
         data-status={summary.status}
         onPointerEnter={() => setHovered(true)}
         onPointerLeave={() => setHovered(false)}
-        onFocus={() => setFocused(true)}
+        onFocus={(event) => {
+          setFocused(true);
+          const from = event.relatedTarget as HTMLElement | null;
+          // Coming back from the panel's own confirm or sheet is not "where focus was".
+          if (
+            from &&
+            !event.currentTarget.contains(from) &&
+            !from.closest(
+              '[data-slot="alert-dialog-content"], [data-slot="sheet-content"], [data-slot="dialog-content"]',
+            )
+          )
+            returnFocusRef.current = from;
+        }}
         onBlur={(event) => {
           if (!event.currentTarget.contains(event.relatedTarget as Node | null))
             setFocused(false);
@@ -1210,7 +1264,7 @@ export function UploadPanel({
         open={confirm !== null}
         onOpenChange={(open) => !open && setConfirm(null)}
       >
-        <AlertDialogContent size="sm">
+        <AlertDialogContent size="sm" finalFocus={confirmFinalFocus}>
           <AlertDialogHeader>
             <AlertDialogTitle>
               {labels.confirmTitle(remaining)}

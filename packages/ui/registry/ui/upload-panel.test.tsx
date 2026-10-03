@@ -13,6 +13,13 @@ import {
 
 const MB = 1024 * 1024;
 
+/**
+ * The overlays fade in, so axe's colour-contrast rule reads text at partial opacity; the
+ * dialog and sheet suites skip it for the same reason (`responsive-dialog.test.tsx`), and real
+ * contrast is proven by `test/contrast.browser.test.tsx` on compiled tokens.
+ */
+const OVERLAY_AXE_SKIP = ["color-contrast"];
+
 /** The visible header (the sr-only announcer repeats its title). */
 const header = () =>
   page.elementLocator(
@@ -112,7 +119,7 @@ test("closing while active asks first; confirming cancels and dismisses", async 
   await screen.getByRole("button", { name: "Close uploads" }).click();
   const dialog = screen.getByRole("alertdialog", { name: "Cancel 3 uploads?" });
   await expect.element(dialog).toBeVisible();
-  await expectNoA11yViolations(document.body);
+  await expectNoA11yViolations(document.body, OVERLAY_AXE_SKIP);
   (
     dialog
       .getByRole("button", { name: "Cancel uploads" })
@@ -120,6 +127,47 @@ test("closing while active asks first; confirming cancels and dismisses", async 
   ).click();
   expect(onCancelAll).toHaveBeenCalledOnce();
   expect(onDismiss).toHaveBeenCalledOnce();
+});
+
+test("after Cancel all, focus returns to the panel's close button", async () => {
+  const screen = await render(<Harness onCancelAll={() => {}} />);
+  await screen.getByRole("button", { name: "Cancel all" }).click();
+  const dialog = screen.getByRole("alertdialog", { name: "Cancel 3 uploads?" });
+  await expect.element(dialog).toBeVisible();
+  (
+    dialog
+      .getByRole("button", { name: "Cancel uploads" })
+      .element() as HTMLElement
+  ).click();
+  await expect
+    .element(screen.getByRole("button", { name: "Close uploads" }))
+    .toHaveFocus();
+});
+
+test("unfinished progress stops at 99%", async () => {
+  const screen = await render(
+    <UploadPanel
+      items={[
+        {
+          id: "a",
+          name: "a.pdf",
+          size: 1000,
+          bytesDone: 996,
+          status: "uploading",
+        },
+      ]}
+      summary={{
+        ...activeSummary,
+        total: 1,
+        bytesDone: 996,
+        bytesTotal: 1000,
+      }}
+      collapsed
+    />,
+  );
+  await expect
+    .element(screen.getByRole("progressbar", { name: "Uploading 1 item" }))
+    .toHaveAttribute("aria-valuenow", "99");
 });
 
 test("failures stay with Retry; interrupted rows offer Choose file", async () => {
@@ -247,6 +295,26 @@ test("announces milestones only", async () => {
   await expect.poll(region).toBe("3 uploads complete");
 });
 
+test("a failure mid-batch is announced as a failure, and so is the final state", async () => {
+  const screen = await render(<Harness />);
+  const region = () =>
+    document.querySelector('[data-slot="announcer"]')?.textContent;
+  await expect.poll(region).toBe("Uploading 3 items");
+  await screen.rerender(<Harness summary={{ ...activeSummary, failed: 1 }} />);
+  await expect.poll(region).toBe("1 of 3 uploads failed");
+  const midBatch = document.querySelector('[data-slot="announcer"] > span');
+  await screen.rerender(
+    <Harness
+      summary={{ ...activeSummary, done: 2, failed: 1, status: "failed" }}
+    />,
+  );
+  // The final state is a new announcement (the region re-keys its text), not the stale one.
+  await expect
+    .poll(() => document.querySelector('[data-slot="announcer"] > span'))
+    .not.toBe(midBatch);
+  expect(region()).toBe("1 of 3 uploads failed");
+});
+
 test("on a phone it is a bar that opens the list in a bottom sheet", async () => {
   await page.viewport(390, 844);
   const screen = await render(<Harness />);
@@ -256,5 +324,32 @@ test("on a phone it is a bar that opens the list in a bottom sheet", async () =>
   const sheet = screen.getByRole("dialog", { name: "Uploading 3 items" });
   await expect.element(sheet).toBeVisible();
   await expect.element(sheet.getByText("photo.jpg")).toBeVisible();
-  await expectNoA11yViolations(document.body);
+  await expectNoA11yViolations(document.body, OVERLAY_AXE_SKIP);
+});
+
+test("resizing out of the phone form closes the sheet, so the done card is not held open", async () => {
+  await page.viewport(390, 844);
+  const onDismiss = vi.fn();
+  const done = {
+    items: [
+      { id: "a", name: "a.pdf", size: MB, status: "done" },
+    ] as UploadEntry[],
+    summary: {
+      ...activeSummary,
+      total: 1,
+      done: 1,
+      status: "done",
+    } as UploadSummary,
+  };
+  const screen = await render(
+    <UploadPanel {...done} onDismiss={onDismiss} autoDismissMs={200} />,
+  );
+  await screen.getByRole("button", { name: /1 upload complete/ }).click();
+  await expect.element(screen.getByRole("dialog")).toBeVisible();
+  await page.viewport(1280, 900);
+  await expect
+    .poll(() => document.querySelector('[data-slot="sheet-content"]'))
+    .toBeNull();
+  (document.activeElement as HTMLElement | null)?.blur();
+  await expect.poll(() => onDismiss.mock.calls.length).toBeGreaterThan(0);
 });

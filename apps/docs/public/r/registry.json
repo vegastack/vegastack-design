@@ -1849,7 +1849,7 @@
         "whenToUse": "Any file surface that shows a size, picks an icon for a file, or branches on what kind of file it holds.",
         "whenNotToUse": "Previewing a file (FileViewer) or acquiring one (use-file-drop).",
         "version": "0.23.119",
-        "integrity": "sha256-BzKi9OJlREl6ipr62v5bqNoe3+xE86Ffkr5n9m865Tg="
+        "integrity": "sha256-1k2y8s8tTx8SxkehX9RlmEVK7PZSLK0Z2iEeGBWDfX0="
       }
     },
     {
@@ -1875,7 +1875,7 @@
         "whenToUse": "An upload engine or surface that shows speed, time left, or bytes done of a total.",
         "whenNotToUse": "Formatting a single size (formatBytes in file-kind) or a download progress you do not control.",
         "version": "0.23.119",
-        "integrity": "sha256-6t+RJVeZODcJHkld0qnJItw20Ru0ofWBs31pE1qtUYU="
+        "integrity": "sha256-KLz6MonkTLl3rwelVF8pifv/uthGwdZxHqcYfJ0fxQ8="
       }
     },
     {
@@ -2113,7 +2113,7 @@
         "whenToUse": "Showing every upload in flight across the app — files and folders, progress, time left, failures and where each one lands — from the app shell, so uploads survive navigation.",
         "whenNotToUse": "Choosing files (UploadDialog, Dropzone), an attachment inside a composer (Attachment), or a one-off short save (a toast).",
         "version": "0.23.119",
-        "integrity": "sha256-+Y/8mKGWADoC02tmCOGvc0Dvh6F8GVY/iS4nNJ6l1ek="
+        "integrity": "sha256-uXmMmBc9g8t+lbuzKW300m4QAWydkpQyo84+O7aEROM="
       }
     },
     {

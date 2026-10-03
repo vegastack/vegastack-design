@@ -107,7 +107,17 @@ describe("the kinds table", () => {
     archive: ["a.7z", "a.tgz"],
     code: ["a.ts", "a.swift", "a.kt", "a.php", "a.sql"],
     json: ["a.json", "a.jsonc", "a.json5"],
-    config: ["a.toml", "a.ini", "a.env", "a.conf"],
+    config: [
+      "a.toml",
+      "a.ini",
+      "a.env",
+      "a.conf",
+      ".env",
+      ".env.local",
+      ".gitignore",
+      ".editorconfig",
+      "app/.npmrc",
+    ],
     script: ["a.sh", "a.zsh", "a.ps1", "a.bat"],
     cad: ["a.dwg", "a.dxf", "a.step", "a.stl", "a.skp"],
     photometric: ["a.ies", "a.ldt"],
@@ -119,7 +129,7 @@ describe("the kinds table", () => {
     key: ["a.pem", "a.crt", "a.p12"],
     encrypted: ["a.gpg", "a.pgp"],
     font: ["a.ttf", "a.woff2"],
-    other: ["a.bin", "README"],
+    other: ["a.bin", "README", ".DS_Store"],
   };
   it("resolves every extension in the table, and labels every kind", () => {
     for (const [kind, names] of Object.entries(cases))
@@ -145,6 +155,10 @@ describe("the kinds table", () => {
     expect(fileKindOf("application/x-pem-file", "server.key")).toBe("key");
     expect(fileKindOf("application/x-sh")).toBe("script");
     expect(fileKindOf("font/woff2")).toBe("font");
+    // A certificate trust list, not a 3D model; an STL model is CAD by its own types and name.
+    expect(fileKindOf("application/vnd.ms-pki.stl", "roots.stl")).toBe("key");
+    expect(fileKindOf("model/stl", "bracket.stl")).toBe("cad");
+    expect(fileKindOf("application/octet-stream", "bracket.stl")).toBe("cad");
   });
   it("treats video/mp2t as generic, so a TypeScript file is code", () => {
     expect(fileKindOf("video/mp2t", "index.ts")).toBe("code");

@@ -1,4 +1,4 @@
-// @vegastack upload-progress@0.23.119 sha256-6t+RJVeZODcJHkld0qnJItw20Ru0ofWBs31pE1qtUYU=
+// @vegastack upload-progress@0.23.119 sha256-KLz6MonkTLl3rwelVF8pifv/uthGwdZxHqcYfJ0fxQ8=
 
 /* ---
 `upload-progress` is the arithmetic behind an upload's "About 2 minutes left": a rate estimator
@@ -71,7 +71,7 @@ export interface RateEstimator {
 
 /**
  * `createRateEstimator` — an exponentially weighted moving average of acknowledged bytes per
- * second, over 1 s ticks, that ignores the first 3 s, reports a time left only after 5 s and 2%,
+ * second, over 1 s ticks, that ignores the first 3 s (counting only from the first sample after it), reports a time left only after 5 s and 2%,
  * and moves the time left only on a change above 15%.
  *
  * @example
@@ -89,6 +89,7 @@ export function createRateEstimator({
   holdThreshold = 0.15,
 }: RateEstimatorOptions = {}): RateEstimator {
   let startMs: number | null = null;
+  let warm = false;
   let tickStartMs = 0;
   let tickStartBytes = 0;
   let rate: number | null = null;
@@ -97,7 +98,14 @@ export function createRateEstimator({
   return {
     sample(ackedBytes, nowMs) {
       if (startMs === null) {
-        startMs = tickStartMs = nowMs;
+        startMs = nowMs;
+        return;
+      }
+      if (!warm) {
+        // Warm-up bytes never count: the first sample past it is the baseline.
+        if (nowMs - startMs <= warmupMs) return;
+        warm = true;
+        tickStartMs = nowMs;
         tickStartBytes = ackedBytes;
         return;
       }
@@ -107,7 +115,6 @@ export function createRateEstimator({
         (Math.max(0, ackedBytes - tickStartBytes) * 1000) / elapsed;
       tickStartMs = nowMs;
       tickStartBytes = ackedBytes;
-      if (nowMs - startMs <= warmupMs) return;
       rate = rate === null ? instant : alpha * instant + (1 - alpha) * rate;
     },
     speed: () => rate,
@@ -120,7 +127,8 @@ export function createRateEstimator({
         nowMs - startMs < minElapsedMs ||
         fractionDone <= minFraction
       )
-        return held;
+        // Not enough data (again — a batch that grew drops back under the floor): no estimate.
+        return (held = null);
       const next = (remainingBytes / rate) * 1000;
       if (
         held === null ||
@@ -132,6 +140,7 @@ export function createRateEstimator({
     },
     reset() {
       startMs = null;
+      warm = false;
       rate = null;
       held = null;
     },
@@ -143,8 +152,8 @@ const MINUTE = 60 * SECOND;
 
 /**
  * A time left as a person says it, rounded: "A few seconds left" (under 20 s), "Less than a
- * minute left", "About a minute left" (under 90 s), "About N minutes left" (up to 89), then
- * "About N hours left". An invalid or negative input reads as a few seconds.
+ * minute left", "About a minute left" (under 90 s), "About N minutes left" (under 90 minutes),
+ * then "About N hours left". An invalid or negative input reads as a few seconds.
  *
  * @example
  * formatTimeLeft(125_000); // "About 2 minutes left"
@@ -153,8 +162,9 @@ export function formatTimeLeft(ms: number): string {
   if (!Number.isFinite(ms) || ms < 20 * SECOND) return "A few seconds left";
   if (ms < MINUTE) return "Less than a minute left";
   if (ms < 90 * SECOND) return "About a minute left";
-  const minutes = Math.round(ms / MINUTE);
-  if (minutes < 90) return `About ${minutes} minutes left`;
+  // The unit follows the unrounded duration, so 89.5 minutes reads as minutes, never "1 hours".
+  if (ms < 90 * MINUTE) return `About ${Math.round(ms / MINUTE)} minutes left`;
+  // From 90 minutes up the rounded hours are always 2 or more, so the plural is always right.
   return `About ${Math.round(ms / (60 * MINUTE))} hours left`;
 }
 
