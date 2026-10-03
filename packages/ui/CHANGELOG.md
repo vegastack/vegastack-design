@@ -1,5 +1,14 @@
 # @vegastack/ui
 
+## 0.23.118
+
+### Patch Changes
+
+- [#514](https://github.com/vegastack/vegastack-design/pull/514) [`28b06eb`](https://github.com/vegastack/vegastack-design/commit/28b06eb58adee9368e9c9d1f6d82956cd3eff145) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🐛 Align share-01's Share and Publish tabs with the dialog's content edge. The underline and the label of the first tab now start where the title and the rows below start, in the Dialog (they sat 4px and 10px in) and in the phone sheet (they sat 12px and 6px outside the 16px content inset). The tabs drop the line list's padding and the trigger's inline padding, sit 16px apart, and take the sheet's 16px inset.
+
+- Updated dependencies [[`28b06eb`](https://github.com/vegastack/vegastack-design/commit/28b06eb58adee9368e9c9d1f6d82956cd3eff145)]:
+  - @vegastack/design@0.7.103
+
 ## 0.23.117
 
 ### Patch Changes
