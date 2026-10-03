@@ -1,4 +1,4 @@
-// @vegastack data-grid@0.23.115 sha256-yE7wgXsFCsK/q/YbxpJxkGJ01466f9XMmz5oJsrZepk=
+// @vegastack data-grid@0.23.115 sha256-H/K49dWavo96gNxQjgh9ybJRtLQxP56osIH5XRWRglA=
 
 "use client";
 
@@ -697,6 +697,10 @@ export function DataGrid<T>({
       else if (canVirtualize) {
         pendingFocus.current = key;
         rowVirtualizer.scrollToIndex(clampedRow, { align: "auto" });
+        // A row that never mounts (filtered out, or a no-op scroll) must not steal focus later.
+        window.setTimeout(() => {
+          if (pendingFocus.current === key) pendingFocus.current = null;
+        }, 1000);
       }
     },
     [flatVisibleRows.length, colCount, canVirtualize, rowVirtualizer],

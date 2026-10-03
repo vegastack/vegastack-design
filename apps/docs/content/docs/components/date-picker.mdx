@@ -78,7 +78,8 @@ pickers put that calendar inside a [`Popover`](/docs/components/popover) opened 
 
 - `DatePicker` — single date. An outline `Button` (`data-slot="date-picker-trigger"`) shows the formatted date and opens the calendar in a `Popover` (`data-slot="date-picker-content"`). Pass `calendarProps` for the `DayPicker` knobs `Calendar` forwards — `timeZone`, `locale`, `footer`, `captionLayout`, `startMonth`, `endMonth`, `labels`, `formatters`.
 - `DateRangePicker` — a `{ from, to }` range, same shape, across two months (`data-slot="date-range-picker-trigger"` / `…-content`). It also accepts `calendarProps`; top-level selection props remain owned by the wrapper.
-- `defaultDatePresets()` / `defaultRangePresets()` — ready-made quick-select rails (Today / Tomorrow, Last 7 / 30 days). Pass your own `presets` to override.
+- `defaultDatePresets()` / `defaultRangePresets()` — ready-made quick-select rails (Today / Tomorrow, Last 7 / 30 days). Pass your own `presets` to override, and `{ timeZone: useTimeZone() }` so "Today" is the viewer's day.
+- Today in the grid follows the `TimeZoneProvider` zone: both pickers mark the provider zone's calendar day as today (a `calendarProps.today` or `calendarProps.timeZone` wins). A bare `Calendar` is upstream's and takes `today` or `timeZone` directly.
 
 ### With presets
 
@@ -249,14 +250,14 @@ Ready-made preset rails. Pass your own `presets` to override either.
 <TypeTable
   type={{
     defaultDatePresets: {
-      type: "(now?: Date) => DatePreset[]",
+      type: "(now?: Date, options?: { timeZone?: string }) => DatePreset[]",
       description:
-        "Today / Tomorrow presets for a single DatePicker. Accepts an optional reference date (defaults to now).",
+        "Today / Tomorrow presets for a single DatePicker. Accepts an optional reference date (defaults to now) and the zone whose calendar day is today — pass `useTimeZone()`.",
     },
     defaultRangePresets: {
-      type: "(now?: Date) => DateRangePreset[]",
+      type: "(now?: Date, options?: { timeZone?: string }) => DateRangePreset[]",
       description:
-        "Today / Last 7 days / Last 30 days presets for a DateRangePicker. Accepts an optional reference date (defaults to now).",
+        "Today / Last 7 days / Last 30 days presets for a DateRangePicker. Accepts an optional reference date (defaults to now) and the zone whose calendar day is today.",
     },
   }}
 />

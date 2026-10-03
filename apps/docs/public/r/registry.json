@@ -682,7 +682,7 @@
         "whenToUse": "Cross-column card movement — pipelines, kanban, staged workflows — where the host owns ordering and the move can be refused by a server gate; lanes may be partially loaded (count shows the total) and cards may be links to their records.",
         "whenNotToUse": "Single-list reordering (sortable-list), tabular data (data-list/data-grid), or static column layouts with no movement (plain Cards in a flex row).",
         "version": "0.23.115",
-        "integrity": "sha256-55jBzSErH6YdUQWLKFi2wgBHJZRXmrrP2+Z+WXEm8xM="
+        "integrity": "sha256-clMlsuRslmhqnbBxscOcoenWXakL1sRCRzfk8QZQVTc="
       }
     },
     {
@@ -1399,7 +1399,7 @@
         "whenToUse": "Record tables that need grouping, inline cell editing, multi-key sort, column management, or 10k+ rows via virtualization — the CRM pipeline-table tier.",
         "whenNotToUse": "Simple presentational record lists — DataList is lighter and still the right default; kanban views (Board).",
         "version": "0.23.115",
-        "integrity": "sha256-yE7wgXsFCsK/q/YbxpJxkGJ01466f9XMmz5oJsrZepk="
+        "integrity": "sha256-H/K49dWavo96gNxQjgh9ybJRtLQxP56osIH5XRWRglA="
       }
     },
     {
@@ -1444,7 +1444,7 @@
         "whenToUse": "A list of records as a table, a card grid or board lanes (view) with typed columns, selection, click-to-sort, loading/empty states, keyset paging through loadMore, rows as links, sections, thumbnails and a row-actions column.",
         "whenNotToUse": "Full-parity grids with grouping/editing/virtualization (DataGrid), or a simple static table (Table).",
         "version": "0.23.115",
-        "integrity": "sha256-GfC13U3N2k4BP45gbSVbVm7GBoCjl0D4DSfIFHRCeOA="
+        "integrity": "sha256-qe5k5ATYV5CmC0sIWrEAGoDAaRMhdeNXO+Ygg2+xTNA="
       }
     },
     {
@@ -1652,7 +1652,8 @@
         "@vegastack/date-time",
         "@vegastack/calendar",
         "@vegastack/popover",
-        "@vegastack/button"
+        "@vegastack/button",
+        "@vegastack/relative-time"
       ],
       "files": [
         {
@@ -1665,7 +1666,7 @@
         "whenToUse": "Selecting a single date or a range (with optional Today/Last-7-days presets) from a popover. size=\"sm\" + variant=\"ghost\" is the inline row tier; clearable adds a clear control that returns focus to the trigger.",
         "whenNotToUse": "Free-form/partial dates (masked Input) or inline-only calendars (use Calendar directly).",
         "version": "0.23.115",
-        "integrity": "sha256-fU8SZ5lk7axVeHhGKBpf/avpxxbKF0NiD0iQJUd+X5g="
+        "integrity": "sha256-GxqMGNW4pnMOUcuidr0z5Sf1LzAZReULTehc94/0HrM="
       }
     },
     {
@@ -1747,7 +1748,7 @@
         "whenToUse": "Any date, time, duration, due label or day grouping shown as text — on the server, in route handlers, emails or client code.",
         "whenNotToUse": "API/JSON output — keep ISO strings there.",
         "version": "0.23.115",
-        "integrity": "sha256-JFcUU/Rk3y4fBKEX7s9xafQLg4St+dAJMVJKJDvZp+c="
+        "integrity": "sha256-OcdLYTpd1L3AbJlzx8RJOg+bZODMWTrV6QN4Y7R4Njc="
       }
     },
     {
@@ -16857,7 +16858,7 @@
         "whenToUse": "Any date, time, duration, due label or day grouping shown in UI — pick the function per the Dates & times page's where-to-use table.",
         "whenNotToUse": "API/JSON output — keep ISO strings there.",
         "version": "0.23.115",
-        "integrity": "sha256-voAEoL49PK6HLM6OMCaEduqM4y2jn5P2UxFbmNo+ifQ="
+        "integrity": "sha256-EOW29Lv5qNJzB2Q8Na43WTCYjX8nLvx2EpRBBE+LXpg="
       }
     },
     {
@@ -17478,7 +17479,7 @@
         "whenToUse": "A process a person drives across several screens — signup, checkout, an import wizard, a multi-section record editor — where steps can branch, an advance can be refused, and a committed step must not be walked back into.",
         "whenNotToUse": "Progress the system drives and a person only reads (Stepper alone), free navigation between peer views (Tabs), or one question at a time (Questionnaire).",
         "version": "0.23.115",
-        "integrity": "sha256-llJTrt27PCs6KsO+qscCjY5f9DhCSMQ55lzC5zfbcAs="
+        "integrity": "sha256-uW7Xd5q9YKAfZst6PsgCj1qQC6BEH4gIGf99QMbOMRg="
       }
     },
     {
@@ -17724,7 +17725,8 @@
         "@vegastack/alert",
         "@vegastack/dropzone",
         "@vegastack/empty",
-        "@vegastack/tabs"
+        "@vegastack/tabs",
+        "@vegastack/toast"
       ],
       "files": [
         {
@@ -17742,7 +17744,7 @@
         "whenToUse": "Comments, notes, summaries and documents stored as Markdown (format=\"markdown\") or HTML — with @ mentions, uploads, callouts, toggles, an outline and comment highlights for page editors; in-place editing of a MarkdownView (the read view is the editor until first edited).",
         "whenNotToUse": "Plain single-line input (Input) or collaborative real-time docs (deferred text-edit-collab).",
         "version": "0.23.115",
-        "integrity": "sha256-rWJqQej/IbSQVy5iw3/TGGKtkegr+nwZZebkF2zRKx4="
+        "integrity": "sha256-Y9A21XTGMj8KHTS8P9jy7V4rQC1KukYaaY5GIiGhr24="
       }
     },
     {

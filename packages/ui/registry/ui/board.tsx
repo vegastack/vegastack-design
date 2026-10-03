@@ -1,4 +1,4 @@
-// @vegastack board@0.23.115 sha256-55jBzSErH6YdUQWLKFi2wgBHJZRXmrrP2+Z+WXEm8xM=
+// @vegastack board@0.23.115 sha256-clMlsuRslmhqnbBxscOcoenWXakL1sRCRzfk8QZQVTc=
 
 "use client";
 
@@ -563,6 +563,12 @@ export function Board<T>({
     boardReadOnly || declaredCollapsed(column);
   const canReceive = (column: BoardColumn<T>) =>
     column.droppable !== false && !isReadOnly(column);
+  /**
+   * A move may land in `column` when it receives drops, or when it is the card's own lane:
+   * `droppable: false` means "never a target", not "cards cannot leave or reorder".
+   */
+  const canTarget = (column: BoardColumn<T>, fromContainer: string) =>
+    canReceive(column) || (column.id === fromContainer && !isReadOnly(column));
 
   /** "Open, 14 tasks" — the lane's accessible name, from its total. */
   const laneName = (column: BoardColumn<T>) =>
@@ -633,7 +639,12 @@ export function Board<T>({
 
   const commitMove = (move: DragReorderMove) => {
     const destination = columnsById.get(move.to.container);
-    if (!isMovable(move.id) || !destination || !canReceive(destination)) return;
+    if (
+      !isMovable(move.id) ||
+      !destination ||
+      !canTarget(destination, move.from.container)
+    )
+      return;
     if (
       move.from.container === move.to.container &&
       move.from.index === move.to.index
@@ -695,14 +706,19 @@ export function Board<T>({
   const liftedRef = React.useRef(lifted);
   liftedRef.current = lifted;
   React.useEffect(() => {
+    if (!lifted) return;
+    const target = columnsById.get(lifted.to.container);
     if (
-      lifted &&
-      (!isMovable(lifted.id) ||
-        !columnsById.has(lifted.to.container) ||
-        !canReceive(columnsById.get(lifted.to.container)!))
+      !isMovable(lifted.id) ||
+      !target ||
+      !canTarget(target, lifted.from.container)
     ) {
       setLifted(null);
-      announce("Move cancelled — permissions changed");
+      announce(
+        movePending.current
+          ? "Move cancelled — the previous move is still saving"
+          : "Move cancelled — permissions changed",
+      );
     }
   });
 

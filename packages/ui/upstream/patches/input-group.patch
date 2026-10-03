@@ -26,7 +26,7 @@
 #               three-copy model needs (DOC-1); those hunks carry no decision of their own.
 #   FOC-14 text-entry exception (MK 2026-09-27; supersedes the FOC-14 note above for text
 #     entry): text entry takes NO fill — base.css excludes text inputs and textarea from the
-#     tint — and shows focus as a subtle darker border that eases in: `has-[input:focus,textarea:focus]:not-has-aria-invalid:border-ring/40` on the GROUP (the popup search row and the command input included; an addon button's focus keeps the tint),
+#     tint — and shows focus as a subtle darker border that eases in: `has-[input:focus,textarea:focus]:not-has-aria-invalid:border-ring/50` on the GROUP (the popup search row and the command input included; an addon button's focus keeps the tint),
 #     with `transition-[color,background-color,border-color] duration-150 ease-out`. The
 #     `not-…invalid` guard keeps an invalid field's destructive border in every state.
 #   FRM-16 (MK 2026-09-30): the `inline-start`/`inline-end` addon variants add

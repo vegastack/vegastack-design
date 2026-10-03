@@ -1464,7 +1464,8 @@
         "@vegastack/date-time",
         "@vegastack/calendar",
         "@vegastack/popover",
-        "@vegastack/button"
+        "@vegastack/button",
+        "@vegastack/relative-time"
       ],
       "files": [
         {
@@ -14386,7 +14387,8 @@
         "@vegastack/alert",
         "@vegastack/dropzone",
         "@vegastack/empty",
-        "@vegastack/tabs"
+        "@vegastack/tabs",
+        "@vegastack/toast"
       ],
       "files": [
         {

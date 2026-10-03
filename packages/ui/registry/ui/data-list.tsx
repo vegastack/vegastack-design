@@ -1,4 +1,4 @@
-// @vegastack data-list@0.23.115 sha256-GfC13U3N2k4BP45gbSVbVm7GBoCjl0D4DSfIFHRCeOA=
+// @vegastack data-list@0.23.115 sha256-qe5k5ATYV5CmC0sIWrEAGoDAaRMhdeNXO+Ygg2+xTNA=
 
 "use client";
 
@@ -1991,7 +1991,21 @@ export function DataList<T>({
         className={
           !onBoard && selectable && gridSize !== "lg" ? "ps-9" : undefined
         }
-        role={!getRowHref?.(row) && onRowClick ? "button" : undefined}
+        // A card that wraps its own controls (the row-actions menu) cannot be a `button` — that
+        // nests interactive content (axe `nested-interactive`). It stays a keyboard-reachable,
+        // labelled group that Enter/Space still activates.
+        role={
+          !getRowHref?.(row) && onRowClick
+            ? !onBoard && rowActions
+              ? "group"
+              : "button"
+            : undefined
+        }
+        aria-label={
+          !getRowHref?.(row) && onRowClick && !onBoard && rowActions
+            ? getRowLabel?.(row)
+            : undefined
+        }
         tabIndex={!getRowHref?.(row) && onRowClick ? 0 : undefined}
         onClick={(event) => {
           if (!getRowHref?.(row) && !isFromInteractiveDescendant(event))

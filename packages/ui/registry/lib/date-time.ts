@@ -1,4 +1,4 @@
-// @vegastack date-time@0.23.115 sha256-JFcUU/Rk3y4fBKEX7s9xafQLg4St+dAJMVJKJDvZp+c=
+// @vegastack date-time@0.23.115 sha256-OcdLYTpd1L3AbJlzx8RJOg+bZODMWTrV6QN4Y7R4Njc=
 
 export type DateInput = Date | string | number;
 
@@ -81,6 +81,18 @@ function calendarDay(d: Date, timeZone?: string): [number, number, number] {
   const part = (t: Intl.DateTimeFormatPartTypes) =>
     Number(parts.find((p) => p.type === t)?.value);
   return [part("year"), part("month") - 1, part("day")];
+}
+
+/**
+ * The calendar day `timeZone` is on at `now`, as a LOCAL-midnight `Date` — the date model a
+ * calendar grid uses. "Today" for a viewer whose zone differs from the runtime's.
+ */
+export function zonedToday(
+  now: DateInput = Date.now(),
+  timeZone?: string,
+): Date {
+  const [y, m, d] = calendarDay(toDate(now), timeZone);
+  return new Date(y, m, d);
 }
 
 /** Whole calendar days from `now` to `date` in `timeZone` (0 = today, -1 = yesterday). */

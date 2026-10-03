@@ -9565,6 +9565,15 @@
             "status": "not-applicable",
             "rationale": "re-export symbols do not expose a rendered DOM instance or ref contract."
           }
+        },
+        {
+          "name": "DatePresetOptions",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/date-picker.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
         }
       ],
       "variants": {
@@ -9641,7 +9650,8 @@
         "@vegastack/button",
         "@vegastack/calendar",
         "@vegastack/date-time",
-        "@vegastack/popover"
+        "@vegastack/popover",
+        "@vegastack/relative-time"
       ],
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
@@ -24341,6 +24351,7 @@
         "@vegastack/tabs",
         "@vegastack/text-anchor",
         "@vegastack/text-anchor-doc",
+        "@vegastack/toast",
         "@vegastack/toggle",
         "@vegastack/tooltip",
         "@vegastack/use-file-drop"
@@ -36150,6 +36161,15 @@
           "ref": {
             "status": "not-applicable",
             "rationale": "component-constant symbols do not expose a rendered DOM instance or ref contract."
+          }
+        },
+        {
+          "name": "zonedToday",
+          "kind": "function",
+          "source": "packages/ui/registry/lib/date-time.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "This exported helper is not a rendered component root."
           }
         }
       ],

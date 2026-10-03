@@ -42,11 +42,36 @@ test("request reference clock server-renders relative content without an absolut
   expect(markup).toMatch(/datetime="2026-01-15T10:00:00\.000Z"/i);
 });
 
-test("without a request clock only date content waits for hydration", () => {
+test("without a request clock the server renders a clock-free absolute date, never a placeholder", () => {
   const markup = renderToString(
-    <RelativeTime date={ms(-1000)} title={false} />,
+    <>
+      <RelativeTime date={ms(-1000)} title={false} timeZone="UTC" />
+      <DateTime date={ms(-1000)} title={false} timeZone="UTC" />
+      <DateTime
+        date={ms(-1000)}
+        variant="datetime"
+        title={false}
+        timeZone="UTC"
+      />
+      <DateTime date={ms(-1000)} variant="time" title={false} timeZone="UTC" />
+      <DueLabel date={ms(5 * 86_400_000)} title={false} timeZone="UTC" />
+    </>,
   );
-  expect(markup).toContain(">…</time>");
+  expect(markup).not.toContain("…");
+  expect(markup).toContain(">Jan 15</time>");
+  expect(markup).toContain(">Jan 15 · 11:59 AM</time>");
+  expect(markup).toContain(">11:59 AM</time>");
+  expect(markup).toContain(">Due Jan 20</time>");
+});
+
+test("refresh={false} freezes at mount time, not at an old request reference", async () => {
+  const stale = Date.now() - 3 * 3_600_000;
+  const screen = await render(
+    <TimeZoneProvider timeZone="UTC" referenceNow={stale}>
+      <RelativeTime date={Date.now() - 60_000} refresh={false} title={false} />
+    </TimeZoneProvider>,
+  );
+  await expect.element(screen.getByText("1m ago")).toBeInTheDocument();
 });
 
 test("a controlled `now` server-renders the relative label with no swap", () => {

@@ -133,9 +133,10 @@ document mirrors them without any extra work.
 ### Always one selected
 
 A single-select group can normally be emptied by pressing the pressed item. Pass
-`deselectable={false}` (API-23) for a view switch that must always show a view: that one press is
-ignored — the item stays pressed and `onValueChange` is not called with `[]`. Choosing another item
-still works. It has no effect with `multiple`.
+`deselectable={false}` (API-23) for a toggle set that must always keep one option on (an alignment
+or a text-size choice): that one press is ignored — the item stays pressed and `onValueChange` is
+not called with `[]`. Choosing another item still works. It has no effect with `multiple`. A switch
+between VIEWS (list, board, calendar) is not a toggle group — use `Tabs` or `ViewToggle`.
 
 <ComponentPreview
   name="toggleGroupAlwaysOne"
