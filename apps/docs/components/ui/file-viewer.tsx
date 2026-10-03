@@ -1,4 +1,4 @@
-// @vegastack file-viewer@0.23.119 sha256-yizvAKRKYNN3fquCKyx869rS6NZP2KsrNXpglvDkgjM=
+// @vegastack file-viewer@0.23.119 sha256-QNhAvheO7ehi/fa4xuoVsGYHHZP5t40b3fxJOdGv+bg=
 
 "use client";
 
@@ -228,8 +228,13 @@ function readKindOf(item: FileViewerItem): ReadKind | null {
   )
     return "word";
   const kind = fileKindOf(item.contentType, item.name);
-  if (kind === "code") return "text";
-  if (kind === "text" && extension !== "rtf" && !type.includes("rtf"))
+  if (
+    kind === "code" ||
+    kind === "json" ||
+    kind === "config" ||
+    kind === "script" ||
+    kind === "text"
+  )
     return "text";
   return null;
 }

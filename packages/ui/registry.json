@@ -1618,7 +1618,7 @@
       "name": "file-kind",
       "type": "registry:lib",
       "title": "File Kind",
-      "description": "The one answer to \"what is this file and how big is it\" — formatBytes (1024 base, one decimal under 10), fileKindOf (MIME first, extension fallback) and FileTypeIcon (the muted lucide icon per kind) — shared by Attachment rows, FileViewer, UploadDialog, AvatarPicker and FolderTree.",
+      "description": "The one answer to \"what is this file and how big is it\" — formatBytes (1024 base, one decimal under 10), fileKindOf (MIME first, extension fallback, 25 kinds from images and PDFs to CAD, photometric and design files) and FileTypeIcon/FileKindTile (the lucide icon, tint and label per kind) — shared by Attachment rows, FileViewer, UploadPanel, UploadDialog, AvatarPicker and FolderTree.",
       "categories": ["data"],
       "dependencies": ["lucide-react@^1.47.0", "@vegastack/design@^0.7.104"],
       "registryDependencies": [],
@@ -1632,6 +1632,27 @@
       "meta": {
         "whenToUse": "Any file surface that shows a size, picks an icon for a file, or branches on what kind of file it holds.",
         "whenNotToUse": "Previewing a file (FileViewer) or acquiring one (use-file-drop).",
+        "version": "0.23.119"
+      }
+    },
+    {
+      "name": "upload-progress",
+      "type": "registry:lib",
+      "title": "Upload Progress",
+      "description": "The arithmetic behind an upload time left: createRateEstimator (an EWMA of acknowledged bytes over 1 s ticks that ignores the first 3 s, reports after 5 s and 2%, and moves only on a 15% change), formatTimeLeft (\"About 2 minutes left\") and formatBytesProgress (\"2.1 MB of 3.4 MB\").",
+      "categories": ["data"],
+      "dependencies": [],
+      "registryDependencies": ["@vegastack/file-kind"],
+      "files": [
+        {
+          "path": "packages/ui/registry/lib/upload-progress.ts",
+          "type": "registry:lib",
+          "target": "@lib/upload-progress.ts"
+        }
+      ],
+      "meta": {
+        "whenToUse": "An upload engine or surface that shows speed, time left, or bytes done of a total.",
+        "whenNotToUse": "Formatting a single size (formatBytes in file-kind) or a download progress you do not control.",
         "version": "0.23.119"
       }
     },
@@ -1805,6 +1826,41 @@
       "meta": {
         "whenToUse": "Adding files to a record from a button — drop or browse, review the files, set each one's name or category, then Add and let the page's upload queue carry on.",
         "whenNotToUse": "An always-visible drop surface (Dropzone), a single profile photo (AvatarPicker), or showing upload progress (Attachment tiles on the page).",
+        "version": "0.23.119"
+      }
+    },
+    {
+      "name": "upload-panel",
+      "type": "registry:ui",
+      "title": "Upload Panel",
+      "description": "The uploads card pinned bottom-end: a header naming the batch with time left, file and folder rows with progress rings, failures with Retry, interrupted rows with Choose file and destination links, a done card that dismisses itself, a confirm before cancelling, and a bottom sheet on phones. Controlled; the host engine uploads.",
+      "categories": ["forms"],
+      "dependencies": [
+        "@vegastack/design@^0.7.104",
+        "@vegastack/design-tokens@^0.7.80",
+        "lucide-react@^1.47.0"
+      ],
+      "registryDependencies": [
+        "@vegastack/alert-dialog",
+        "@vegastack/button",
+        "@vegastack/file-kind",
+        "@vegastack/image",
+        "@vegastack/progress",
+        "@vegastack/responsive-dialog",
+        "@vegastack/upload-progress",
+        "@vegastack/use-announcer",
+        "@vegastack/use-mobile"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/upload-panel.tsx",
+          "type": "registry:ui",
+          "target": "@ui/upload-panel.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "Showing every upload in flight across the app — files and folders, progress, time left, failures and where each one lands — from the app shell, so uploads survive navigation.",
+        "whenNotToUse": "Choosing files (UploadDialog, Dropzone), an attachment inside a composer (Attachment), or a one-off short save (a toast).",
         "version": "0.23.119"
       }
     },

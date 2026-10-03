@@ -1,6 +1,7 @@
 import * as React from "react";
 import { describe, expect, it } from "vitest";
 import {
+  FILE_KIND_LABEL,
   FileKindTile,
   fileKindOf,
   FileTypeIcon,
@@ -36,7 +37,7 @@ describe("fileKindOf", () => {
     expect(fileKindOf("video/mp4")).toBe("video");
     expect(fileKindOf("audio/mpeg")).toBe("audio");
     expect(fileKindOf("text/plain")).toBe("text");
-    expect(fileKindOf("text/csv")).toBe("spreadsheet");
+    expect(fileKindOf("text/csv")).toBe("data");
     expect(fileKindOf("application/zip")).toBe("archive");
     expect(
       fileKindOf(
@@ -53,7 +54,7 @@ describe("fileKindOf", () => {
         "application/vnd.openxmlformats-officedocument.presentationml.presentation",
       ),
     ).toBe("presentation");
-    expect(fileKindOf("application/json")).toBe("code");
+    expect(fileKindOf("application/json")).toBe("json");
   });
   it("falls back to the extension when the type is missing or generic", () => {
     expect(fileKindOf("application/octet-stream", "a.xlsx")).toBe(
@@ -71,22 +72,97 @@ describe("fileKindOf", () => {
       expect(fileKindOf("", name)).toBe("audio");
     expect(fileKindOf("video/quicktime", "clip.mov")).toBe("video");
     expect(fileKindOf("audio/x-m4a", "memo.m4a")).toBe("audio");
-    expect(fileKindOf("", "rows.csv")).toBe("spreadsheet");
-    expect(fileKindOf("text/csv", "rows.csv")).toBe("spreadsheet");
+    expect(fileKindOf("", "rows.csv")).toBe("data");
+    expect(fileKindOf("text/csv", "rows.csv")).toBe("data");
     for (const name of ["a.md", "a.mdx", "a.txt", "a.log"])
       expect(fileKindOf("", name)).toBe("text");
     expect(fileKindOf("text/markdown", "a.md")).toBe("text");
-    for (const name of ["a.json", "a.yaml", "a.yml", "a.xml"])
-      expect(fileKindOf("", name)).toBe("code");
-    expect(fileKindOf("application/x-yaml", "a.yaml")).toBe("code");
+    expect(fileKindOf("", "a.json")).toBe("json");
+    for (const name of ["a.yaml", "a.yml"])
+      expect(fileKindOf("", name)).toBe("config");
+    expect(fileKindOf("", "a.xml")).toBe("code");
+    expect(fileKindOf("application/x-yaml", "a.yaml")).toBe("config");
     expect(fileKindOf("text/xml", "a.xml")).toBe("code");
   });
   it("treats text/plain as generic, so the extension decides", () => {
-    expect(fileKindOf("text/plain", "rows.csv")).toBe("spreadsheet");
-    expect(fileKindOf("text/plain; charset=utf-8", "config.json")).toBe("code");
+    expect(fileKindOf("text/plain", "rows.csv")).toBe("data");
+    expect(fileKindOf("text/plain; charset=utf-8", "config.json")).toBe("json");
     expect(fileKindOf("text/plain", "notes.mdx")).toBe("text");
     expect(fileKindOf("text/plain", "README")).toBe("text");
     expect(fileKindOf("text/plain", "server.log")).toBe("text");
+  });
+});
+
+describe("the kinds table", () => {
+  const cases: Record<string, string[]> = {
+    image: ["a.heic", "a.svg", "a.tiff"],
+    pdf: ["a.pdf"],
+    document: ["a.docx", "a.pages", "a.rtf", "a.dotx"],
+    text: ["a.txt", "a.md", "a.log"],
+    spreadsheet: ["a.xlsb", "a.numbers", "a.xltx"],
+    data: ["a.csv", "a.tsv"],
+    presentation: ["a.pptx", "a.ppsx", "a.potx", "a.key", "a.odp"],
+    video: ["a.mov", "a.ogv"],
+    audio: ["a.opus", "a.weba"],
+    archive: ["a.7z", "a.tgz"],
+    code: ["a.ts", "a.swift", "a.kt", "a.php", "a.sql"],
+    json: ["a.json", "a.jsonc", "a.json5"],
+    config: [
+      "a.toml",
+      "a.ini",
+      "a.env",
+      "a.conf",
+      ".env",
+      ".env.local",
+      ".gitignore",
+      ".editorconfig",
+      "app/.npmrc",
+    ],
+    script: ["a.sh", "a.zsh", "a.ps1", "a.bat"],
+    cad: ["a.dwg", "a.dxf", "a.step", "a.stl", "a.skp"],
+    photometric: ["a.ies", "a.ldt"],
+    design: ["a.psd", "a.ai", "a.fig", "a.sketch", "a.afdesign"],
+    ebook: ["a.epub", "a.mobi", "a.azw3"],
+    email: ["a.eml", "a.msg"],
+    calendar: ["a.ics", "a.vcs"],
+    contact: ["a.vcf"],
+    key: ["a.pem", "a.crt", "a.p12"],
+    encrypted: ["a.gpg", "a.pgp"],
+    font: ["a.ttf", "a.woff2"],
+    other: ["a.bin", "README", ".DS_Store"],
+  };
+  it("resolves every extension in the table, and labels every kind", () => {
+    for (const [kind, names] of Object.entries(cases))
+      for (const name of names)
+        expect([name, fileKindOf("", name)]).toEqual([name, kind]);
+    expect(Object.keys(FILE_KIND_LABEL).sort()).toEqual(
+      Object.keys(cases).sort(),
+    );
+  });
+  it("resolves rtf the same way from its extension and its MIME type", () => {
+    expect(fileKindOf("", "memo.rtf")).toBe("document");
+    expect(fileKindOf("application/rtf")).toBe("document");
+    expect(fileKindOf("text/rtf", "memo.rtf")).toBe("document");
+  });
+  it("reads vendor MIME types before their broad family", () => {
+    expect(fileKindOf("image/vnd.dwg")).toBe("cad");
+    expect(fileKindOf("image/vnd.adobe.photoshop")).toBe("design");
+    expect(fileKindOf("application/epub+zip")).toBe("ebook");
+    expect(fileKindOf("application/postscript", "logo.ai")).toBe("design");
+    expect(fileKindOf("text/calendar")).toBe("calendar");
+    expect(fileKindOf("text/vcard")).toBe("contact");
+    expect(fileKindOf("message/rfc822")).toBe("email");
+    expect(fileKindOf("application/x-pem-file", "server.key")).toBe("key");
+    expect(fileKindOf("application/x-sh")).toBe("script");
+    expect(fileKindOf("font/woff2")).toBe("font");
+    // A certificate trust list, not a 3D model; an STL model is CAD by its own types and name.
+    expect(fileKindOf("application/vnd.ms-pki.stl", "roots.stl")).toBe("key");
+    expect(fileKindOf("model/stl", "bracket.stl")).toBe("cad");
+    expect(fileKindOf("application/octet-stream", "bracket.stl")).toBe("cad");
+  });
+  it("treats video/mp2t as generic, so a TypeScript file is code", () => {
+    expect(fileKindOf("video/mp2t", "index.ts")).toBe("code");
+    expect(fileKindOf("video/mp2t", "clip")).toBe("video");
   });
 });
 

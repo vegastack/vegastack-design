@@ -115,6 +115,10 @@ const RUNTIME_VARIABLES = new Set([
   // the measured pill height plus 8px) while it is open, and `ActionBar` and a selecting
   // `DataList` read it with a `0px` fallback to stack above the player.
   "--dock-inset-bottom",
+  // The upload panel inset: `UploadPanel` writes it onto the document root (inline style, the
+  // room the panel takes above the toast stack's own 16px) while it is on screen, and the Toast
+  // viewport's bottom positions read it with a `0px` fallback to rise above the panel.
+  "--upload-panel-inset",
 ]);
 
 // Chart series colours are CONSUMER data: `chart.tsx` writes `--color-<seriesKey>` from the

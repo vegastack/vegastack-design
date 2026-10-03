@@ -1,17 +1,28 @@
-// @vegastack file-kind@0.23.119 sha256-hsZaYCq5827yGW3Dr1p3PHN3tsLc5pLw7MWIOtDtDrM=
+// @vegastack file-kind@0.23.119 sha256-1k2y8s8tTx8SxkehX9RlmEVK7PZSLK0Z2iEeGBWDfX0=
 
 import * as React from "react";
 import { cn } from "@vegastack/design";
 import {
   FileArchiveIcon,
-  FileAudioIcon,
+  FileBoxIcon,
+  FileChartColumnIcon,
+  FileChartLineIcon,
+  FileClockIcon,
   FileCodeIcon,
+  FileCogIcon,
   FileIcon,
   FileImageIcon,
+  FileJsonIcon,
+  FileKeyIcon,
+  FileLockIcon,
+  FileMusicIcon,
+  FilePenIcon,
   FileSpreadsheetIcon,
+  FileTerminalIcon,
   FileTextIcon,
-  FileTypeIcon as FileDocumentIcon,
-  FileVideoIcon,
+  FileTypeIcon as LucideFileTypeIcon,
+  FileUserIcon,
+  FileVideoCameraIcon,
   PresentationIcon,
   type LucideIcon,
   type LucideProps,
@@ -20,26 +31,41 @@ import {
 /* ---
 `file-kind` is the one place a file surface asks "what is this file and how big is it": a byte
 count as a person reads it, the kind of a file from its MIME type (the extension when the type is
-missing or generic), and the icon for that kind. Attachment rows, the FileViewer's file card, the
-UploadDialog, the AvatarPicker and FolderTree all read these, so "1.5 KB" and a spreadsheet's icon
-look the same everywhere.
+missing or generic), and the icon, tint and label for that kind. Attachment rows, the FileViewer's
+file card, the UploadPanel, the UploadDialog, the AvatarPicker and FolderTree all read these, so
+"1.5 KB" and a spreadsheet's icon look the same everywhere.
 
-Deliberately NOT done here: sniffing file contents, localising the units, or any preview logic —
-what a viewer can show is the viewer's business (`FileViewer`'s own kinds).
+One table (`KINDS`) owns every kind's extensions, icon, tint and label; the MIME rules sit beside
+it, most specific first. Deliberately NOT done here: sniffing file contents, localising the units,
+or any preview logic — what a viewer can show is the viewer's business (`FileViewer`'s own kinds).
 --- */
 
 /** What a file is, as far as a file surface needs to know. */
 export type FileKind =
   | "image"
   | "pdf"
+  | "document"
+  | "text"
+  | "spreadsheet"
+  | "data"
+  | "presentation"
   | "video"
   | "audio"
-  | "text"
   | "archive"
-  | "spreadsheet"
-  | "document"
-  | "presentation"
   | "code"
+  | "json"
+  | "config"
+  | "script"
+  | "cad"
+  | "photometric"
+  | "design"
+  | "ebook"
+  | "email"
+  | "calendar"
+  | "contact"
+  | "key"
+  | "encrypted"
+  | "font"
   | "other";
 
 /** Options for {@link formatBytes}. */
@@ -84,71 +110,284 @@ export function formatBytes(
   return `${shown} ${UNITS[unit]}`;
 }
 
-const EXTENSION_KIND: Record<string, FileKind> = {};
-function extensions(kind: FileKind, list: string) {
-  for (const extension of list.split(" ")) EXTENSION_KIND[extension] = kind;
-}
-extensions(
-  "image",
-  "png jpg jpeg gif webp avif svg bmp ico tif tiff heic heif",
-);
-extensions("pdf", "pdf");
-extensions("video", "mp4 m4v mov webm mkv avi wmv mpeg mpg ogv");
-extensions("audio", "mp3 m4a wav ogg oga flac aac opus weba");
-extensions("text", "txt text md markdown mdx rtf log");
-extensions("archive", "zip rar 7z tar gz tgz bz2 xz");
-extensions("spreadsheet", "xls xlsx xlsm ods csv tsv numbers");
-extensions("document", "doc docx odt pages");
-extensions("presentation", "ppt pptx odp key");
-extensions(
-  "code",
-  "json jsonc js mjs cjs ts tsx jsx html htm css xml yaml yml toml ini sql sh py rb go rs java c h cpp",
-);
-
-/** The kind a MIME type names outright, or `null` when it is missing or generic. */
-function kindOfType(type: string): FileKind | null {
-  if (!type || type === "application/octet-stream") return null;
-  if (type.startsWith("image/")) return "image";
-  if (type.startsWith("video/")) return "video";
-  if (type.startsWith("audio/")) return "audio";
-  if (type === "application/pdf") return "pdf";
-  if (/zip|x-tar|gzip|compressed|x-rar|x-7z|x-bzip|x-xz/.test(type))
-    return "archive";
-  if (/spreadsheet|ms-excel|text\/csv|tab-separated/.test(type))
-    return "spreadsheet";
-  if (/presentation|powerpoint/.test(type)) return "presentation";
-  if (/wordprocessing|msword|opendocument\.text|rtf/.test(type))
-    return "document";
-  if (
-    /json|javascript|typescript|ecmascript|xml|html|css|x-sh|x-python|yaml|sql/.test(
-      type,
-    )
-  )
-    return "code";
-  if (type.startsWith("text/")) return "text";
-  return null;
+interface KindSpec {
+  /** Space-separated lower-case extensions. */
+  extensions: string;
+  icon: LucideIcon;
+  /**
+   * The ink when a surface colour-codes kinds: a status `-text` ink for the kinds people scan for
+   * (PDF red, sheet and data green, slides amber, document blue), a categorical chart hue for
+   * media and specialist formats, muted for the rest. Every one clears the 3:1 non-text floor on
+   * the page, a card and `muted`, in both themes (`contrast-check.mjs`).
+   */
+  tint: string;
+  label: string;
 }
 
-/** The kind a file name's extension names, or `null`. */
+/** Every kind, in lookup order: an extension listed twice resolves to the first kind. */
+const KINDS: Record<FileKind, KindSpec> = {
+  image: {
+    extensions: "png jpg jpeg gif webp avif svg bmp ico tif tiff heic heif",
+    icon: FileImageIcon,
+    tint: "text-chart-2",
+    label: "Image",
+  },
+  pdf: {
+    extensions: "pdf",
+    icon: FileTextIcon,
+    tint: "text-destructive-text",
+    label: "PDF",
+  },
+  document: {
+    extensions: "doc docx odt pages rtf dotx",
+    icon: LucideFileTypeIcon,
+    tint: "text-info-text",
+    label: "Document",
+  },
+  text: {
+    extensions: "txt text md markdown mdx log",
+    icon: FileTextIcon,
+    tint: "text-muted-foreground",
+    label: "Text",
+  },
+  spreadsheet: {
+    extensions: "xls xlsx xlsm xlsb ods numbers xltx",
+    icon: FileSpreadsheetIcon,
+    tint: "text-success-text",
+    label: "Spreadsheet",
+  },
+  data: {
+    extensions: "csv tsv",
+    icon: FileChartColumnIcon,
+    tint: "text-success-text",
+    label: "Data",
+  },
+  presentation: {
+    // `key` is Keynote here; a PEM `.key` is only a key when its MIME type says so.
+    extensions: "ppt pptx pps ppsx potx key odp",
+    icon: PresentationIcon,
+    tint: "text-warning-text",
+    label: "Presentation",
+  },
+  video: {
+    extensions: "mp4 m4v mov webm mkv avi wmv mpeg mpg ogv",
+    icon: FileVideoCameraIcon,
+    tint: "text-chart-5",
+    label: "Video",
+  },
+  audio: {
+    extensions: "mp3 m4a wav ogg oga flac aac opus weba",
+    icon: FileMusicIcon,
+    tint: "text-chart-7",
+    label: "Audio",
+  },
+  archive: {
+    extensions: "zip rar 7z tar gz tgz bz2 xz",
+    icon: FileArchiveIcon,
+    tint: "text-muted-foreground",
+    label: "Archive",
+  },
+  code: {
+    extensions:
+      "js mjs cjs ts tsx jsx html htm css xml sql py rb go rs java c h cpp swift kt php",
+    icon: FileCodeIcon,
+    tint: "text-muted-foreground",
+    label: "Code",
+  },
+  json: {
+    extensions: "json jsonc json5",
+    icon: FileJsonIcon,
+    tint: "text-muted-foreground",
+    label: "JSON",
+  },
+  config: {
+    extensions: "yaml yml toml ini env conf",
+    icon: FileCogIcon,
+    tint: "text-muted-foreground",
+    label: "Config",
+  },
+  script: {
+    extensions: "sh bash zsh bat cmd ps1",
+    icon: FileTerminalIcon,
+    tint: "text-muted-foreground",
+    label: "Script",
+  },
+  cad: {
+    extensions: "dwg dxf step stp stl obj fbx 3ds iges igs skp",
+    icon: FileBoxIcon,
+    tint: "text-chart-3",
+    label: "CAD",
+  },
+  photometric: {
+    extensions: "ies ldt",
+    icon: FileChartLineIcon,
+    tint: "text-chart-4",
+    label: "Photometric",
+  },
+  design: {
+    extensions: "psd ai eps indd fig sketch xd afdesign",
+    icon: FilePenIcon,
+    tint: "text-chart-1",
+    label: "Design",
+  },
+  ebook: {
+    extensions: "epub mobi azw3",
+    icon: FileTextIcon,
+    tint: "text-chart-6",
+    label: "eBook",
+  },
+  email: {
+    extensions: "eml msg",
+    icon: FileUserIcon,
+    tint: "text-chart-8",
+    label: "Email",
+  },
+  calendar: {
+    extensions: "ics vcs",
+    icon: FileClockIcon,
+    tint: "text-chart-6",
+    label: "Calendar",
+  },
+  contact: {
+    extensions: "vcf",
+    icon: FileUserIcon,
+    tint: "text-chart-8",
+    label: "Contact",
+  },
+  key: {
+    extensions: "pem crt cer p12 pfx",
+    icon: FileKeyIcon,
+    tint: "text-warning-text",
+    label: "Key",
+  },
+  encrypted: {
+    extensions: "gpg pgp",
+    icon: FileLockIcon,
+    tint: "text-warning-text",
+    label: "Encrypted",
+  },
+  font: {
+    extensions: "ttf otf woff woff2",
+    icon: LucideFileTypeIcon,
+    tint: "text-muted-foreground",
+    label: "Font",
+  },
+  other: {
+    extensions: "",
+    icon: FileIcon,
+    tint: "text-muted-foreground",
+    label: "File",
+  },
+};
+
+const EXTENSION_KIND = new Map<string, FileKind>();
+for (const [kind, spec] of Object.entries(KINDS) as [FileKind, KindSpec][])
+  for (const extension of spec.extensions.split(" "))
+    if (extension && !EXTENSION_KIND.has(extension))
+      EXTENSION_KIND.set(extension, kind);
+
+/**
+ * MIME rules, most specific first: the vendor types that live under a broad family (`image/vnd.dwg`
+ * is CAD, `application/epub+zip` is an eBook, not an archive) come before the family itself.
+ */
+const TYPE_RULES: ReadonlyArray<readonly [RegExp, FileKind]> = [
+  [/^application\/pdf$/, "pdf"],
+  [
+    /^image\/(vnd\.dwg|vnd\.dxf|x-dwg|x-dxf)$|^model\/|^application\/(acad|sla|step|iges)/,
+    "cad",
+  ],
+  [
+    /^image\/vnd\.adobe\.photoshop$|^application\/(postscript|illustrator|x-indesign|vnd\.adobe)|^image\/x-(photoshop|psd)$/,
+    "design",
+  ],
+  [/^application\/(epub\+zip|x-mobipocket-ebook|vnd\.amazon\.ebook)$/, "ebook"],
+  [/^image\//, "image"],
+  [/^video\//, "video"],
+  [/^audio\//, "audio"],
+  [/^font\/|^application\/(font-|x-font-)/, "font"],
+  [/^message\/rfc822$|^application\/vnd\.ms-outlook$/, "email"],
+  [/^text\/(calendar|x-vcalendar)$/, "calendar"],
+  [/^text\/(vcard|x-vcard|directory)$/, "contact"],
+  [/^application\/(pgp-encrypted|pgp|x-gpg)/, "encrypted"],
+  [
+    /^application\/(x-pem-file|pkcs8|pkcs10|pkix-cert|x-x509-|x-pkcs12|pkcs12|x-pkcs7|vnd\.ms-pki\.)/,
+    "key",
+  ],
+  [/zip|x-tar|gzip|compressed|x-rar|x-7z|x-bzip|x-xz/, "archive"],
+  [/^text\/(csv|tab-separated-values)$/, "data"],
+  [/spreadsheet|ms-excel|vnd\.apple\.numbers/, "spreadsheet"],
+  [/presentation|powerpoint|vnd\.apple\.keynote|keynote/, "presentation"],
+  [
+    /wordprocessing|msword|opendocument\.text|rtf|vnd\.apple\.pages/,
+    "document",
+  ],
+  [/json/, "json"],
+  [/yaml|toml/, "config"],
+  [/x-sh$|x-shellscript|x-bat|x-msdos-program|x-powershell/, "script"],
+  [
+    /javascript|typescript|ecmascript|xml|html|css|x-python|sql|x-ruby|x-go|x-rust|x-java|x-c\b|x-c\+\+|x-php|x-swift|x-kotlin/,
+    "code",
+  ],
+  [/^text\//, "text"],
+];
+
+/**
+ * MIME types that say nothing about the file, so the extension decides: missing, the byte-stream
+ * catch-all, `text/plain`, and `video/mp2t`, which every browser hands a TypeScript `.ts`.
+ */
+const GENERIC_TYPES = new Set([
+  "",
+  "application/octet-stream",
+  "binary/octet-stream",
+  "text/plain",
+  "video/mp2t",
+]);
+
+/** Dotfiles that configure a tool, beyond the ones a config extension already names (`.env`). */
+const CONFIG_DOTFILES = new Set([
+  "gitignore",
+  "gitattributes",
+  "editorconfig",
+  "npmrc",
+  "nvmrc",
+  "yarnrc",
+  "prettierrc",
+  "eslintrc",
+  "babelrc",
+  "dockerignore",
+  "browserslistrc",
+]);
+
+/**
+ * The kind a file name's extension names, or `null`. A dotfile (`.env`, `.env.local`,
+ * `.gitignore`) is read by its name, so a tool's config file is `config` rather than `other`.
+ */
 function kindOfName(name: string | null | undefined): FileKind | null {
-  const dot = name ? name.lastIndexOf(".") : -1;
-  if (!name || dot <= 0 || dot >= name.length - 1) return null;
-  const extension = name.slice(dot + 1).toLowerCase();
-  return Object.hasOwn(EXTENSION_KIND, extension)
-    ? EXTENSION_KIND[extension]!
-    : null;
+  if (!name) return null;
+  const base = name.slice(name.lastIndexOf("/") + 1).toLowerCase();
+  const dot = base.lastIndexOf(".");
+  if (dot > 0 && dot < base.length - 1) {
+    const byExtension = EXTENSION_KIND.get(base.slice(dot + 1));
+    if (byExtension) return byExtension;
+  }
+  if (base.startsWith(".") && base.length > 1) {
+    const stem = base.slice(1).split(".")[0]!;
+    if (EXTENSION_KIND.get(stem) === "config" || CONFIG_DOTFILES.has(stem))
+      return "config";
+  }
+  return null;
 }
 
 /**
  * The kind of a file: its MIME type first, its name's extension when the type is missing or
- * generic (`application/octet-stream`), else `"other"`. `text/plain` counts as generic too, so a
- * `notes.json` or `data.csv` a browser labels `text/plain` is still code or a spreadsheet, and
- * only falls back to `"text"` when the extension says nothing.
+ * generic (`application/octet-stream`, `text/plain`, `video/mp2t`), else `"other"`. So a
+ * `notes.json` a browser labels `text/plain` is still JSON, and only falls back to `"text"` (or
+ * `"video"`) when the extension says nothing.
  *
  * @example
  * fileKindOf("image/png"); // "image"
  * fileKindOf("application/octet-stream", "q3.xlsx"); // "spreadsheet"
- * fileKindOf("text/plain", "config.yaml"); // "code"
+ * fileKindOf("text/plain", "config.yaml"); // "config"
  */
 export function fileKindOf(
   contentType: string | null | undefined,
@@ -156,64 +395,27 @@ export function fileKindOf(
 ): FileKind {
   // Drop parameters ("text/plain; charset=utf-8").
   const type = (contentType ?? "").split(";")[0]!.trim().toLowerCase();
-  if (type === "text/plain") return kindOfName(name) ?? "text";
-  return kindOfType(type) ?? kindOfName(name) ?? "other";
+  if (GENERIC_TYPES.has(type)) {
+    const byName = kindOfName(name);
+    if (byName) return byName;
+    if (type === "text/plain") return "text";
+    if (type === "video/mp2t") return "video";
+    return "other";
+  }
+  for (const [pattern, kind] of TYPE_RULES) if (pattern.test(type)) return kind;
+  return kindOfName(name) ?? "other";
 }
 
-/** The lucide icon for each kind. */
-const KIND_ICON: Record<FileKind, LucideIcon> = {
-  image: FileImageIcon,
-  pdf: FileTextIcon,
-  video: FileVideoIcon,
-  audio: FileAudioIcon,
-  text: FileTextIcon,
-  archive: FileArchiveIcon,
-  spreadsheet: FileSpreadsheetIcon,
-  document: FileDocumentIcon,
-  presentation: PresentationIcon,
-  code: FileCodeIcon,
-  other: FileIcon,
-};
-
 /**
- * Each kind's ink when a surface colour-codes file types (`tinted`): the four status inks for
- * the kinds people scan for (PDF red, sheet green, slides amber, document blue), a categorical
- * chart hue for media, and the muted ink for the rest. Every one clears the 3:1 non-text floor
- * on the page, a card and `muted`, in both themes.
- */
-const KIND_TINT: Record<FileKind, string> = {
-  pdf: "text-destructive-text",
-  spreadsheet: "text-success-text",
-  presentation: "text-warning-text",
-  document: "text-info-text",
-  image: "text-chart-2",
-  video: "text-chart-5",
-  audio: "text-chart-7",
-  text: "text-muted-foreground",
-  archive: "text-muted-foreground",
-  code: "text-muted-foreground",
-  other: "text-muted-foreground",
-};
-
-/**
- * What each kind is called on a card or a label ("Spreadsheet", "PDF").
+ * What each kind is called on a card or a label ("Spreadsheet", "PDF"). Its keys are every
+ * `FileKind`, in the table's order.
  *
  * @example
  * FILE_KIND_LABEL[fileKindOf(file.contentType, file.name)]; // "Spreadsheet"
  */
-export const FILE_KIND_LABEL: Record<FileKind, string> = {
-  image: "Image",
-  pdf: "PDF",
-  video: "Video",
-  audio: "Audio",
-  text: "Text",
-  archive: "Archive",
-  spreadsheet: "Spreadsheet",
-  document: "Document",
-  presentation: "Presentation",
-  code: "Code",
-  other: "File",
-};
+export const FILE_KIND_LABEL = Object.fromEntries(
+  Object.entries(KINDS).map(([kind, spec]) => [kind, spec.label]),
+) as Record<FileKind, string>;
 
 /** Props accepted by {@link FileTypeIcon}. */
 export interface FileTypeIconProps extends Omit<LucideProps, "ref" | "name"> {
@@ -263,11 +465,11 @@ export function FileTypeIcon({
     ...props,
     className: cn(
       "shrink-0",
-      tinted ? KIND_TINT[resolved] : "text-muted-foreground",
+      tinted ? KINDS[resolved].tint : "text-muted-foreground",
       className,
     ),
   };
-  return React.createElement(KIND_ICON[resolved], attributes);
+  return React.createElement(KINDS[resolved].icon, attributes);
 }
 
 /** Props accepted by {@link FileKindTile}. */
@@ -334,8 +536,8 @@ export function FileKindTile({
             className: cn(
               "max-w-full truncate text-xs font-medium",
               // The status inks are AA-gated as text; the media hues only as graphics.
-              KIND_TINT[resolved].endsWith("-text")
-                ? KIND_TINT[resolved]
+              KINDS[resolved].tint.endsWith("-text")
+                ? KINDS[resolved].tint
                 : "text-muted-foreground",
             ),
           },
