@@ -408,5 +408,10 @@ for (const [label, width, title, body] of [
       Math.round(left),
     );
     expect(Math.round(content)).toBe(Math.round(left));
+    // Flush with the edge, the list must not clip: a focused tab's outline (2px, offset 1px in
+    // forced colours) would lose its leading side.
+    const list = tab.closest<HTMLElement>('[data-slot="tabs-list"]')!;
+    expect(getComputedStyle(list).overflowX).toBe("visible");
+    expect(getComputedStyle(list).overflowY).toBe("visible");
   });
 }

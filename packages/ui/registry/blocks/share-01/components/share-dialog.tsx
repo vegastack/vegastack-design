@@ -1,4 +1,4 @@
-// @vegastack share-01@0.23.117 sha256-iHDcogmWtB4m1WohZjgwKNpirM6MtmXcvBvCr00YDl4=
+// @vegastack share-01@0.23.117 sha256-CPFF2AkLAexJvaowLL7DubOqWKPoAqvvCIjESLVR4vM=
 
 "use client";
 
@@ -943,9 +943,11 @@ export function ShareDialog({
             // Here the underline and the label start ON the content edge, like the title and the
             // rows below: no list padding, no trigger padding, a 16px gap between the tabs. The
             // phone sheet's content has no padding of its own, so the list takes the 16px inset
-            // its header and body carry.
+            // its header and body carry. Two tabs never scroll, so the list does not clip: a
+            // focused tab's forced-colours outline keeps its leading side (in RTL too).
             <TabsList
               variant="line"
+              overflow="visible"
               className="-mt-1 justify-start gap-4 px-0 in-data-[slot=sheet-content]:mx-4"
             >
               <TabsTrigger value="share" className={LINE_TAB}>
