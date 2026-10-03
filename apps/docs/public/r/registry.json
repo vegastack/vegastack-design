@@ -1444,7 +1444,7 @@
         "whenToUse": "A list of records as a table, a card grid or board lanes (view) with typed columns, selection, click-to-sort, loading/empty states, keyset paging through loadMore, rows as links, sections, thumbnails and a row-actions column.",
         "whenNotToUse": "Full-parity grids with grouping/editing/virtualization (DataGrid), or a simple static table (Table).",
         "version": "0.23.115",
-        "integrity": "sha256-qe5k5ATYV5CmC0sIWrEAGoDAaRMhdeNXO+Ygg2+xTNA="
+        "integrity": "sha256-ArVKGBc8puluYgcMApHGUBetZ6Ol+M5gfBo4TeAOdsk="
       }
     },
     {
@@ -16700,7 +16700,7 @@
         "whenToUse": "A dialog that must also work on a phone: share, members, move, create flows.",
         "whenNotToUse": "A desktop-only modal (Dialog) or a side panel (Sheet).",
         "version": "0.23.115",
-        "integrity": "sha256-RNw1rL/Vur2JIGqHacP8eE+Zzd4gjWmKwicY5NpvkLE="
+        "integrity": "sha256-yXS4HqLx7wLfUJK4GTBNjVDkgE1SLzww7b4d1IJ/jsw="
       }
     },
     {
@@ -16985,7 +16985,7 @@
         "whenToUse": "Any date, time, duration, due label or day grouping shown in UI — pick the function per the Dates & times page's where-to-use table.",
         "whenNotToUse": "API/JSON output — keep ISO strings there.",
         "version": "0.23.115",
-        "integrity": "sha256-EOW29Lv5qNJzB2Q8Na43WTCYjX8nLvx2EpRBBE+LXpg="
+        "integrity": "sha256-57TiQ0SLPtDZV+LvEYhoNYBiKerQfpa5xUcY+Oa3bPo="
       }
     },
     {

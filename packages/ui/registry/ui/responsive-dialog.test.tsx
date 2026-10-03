@@ -2,6 +2,9 @@ import { render } from "vitest-browser-react";
 import { page, userEvent } from "vitest/browser";
 import { afterEach, expect, test, vi } from "vitest";
 import { expectNoA11yViolations } from "../../test/a11y";
+// The real compiled CSS: without it the popup has no `fixed`/`z-50` box, and Base UI's own
+// inert backdrop (an inline-styled fixed layer) covers it — a test-only overlap no user sees.
+import "../../test/stacking.css";
 import { Button } from "./button";
 import {
   ResponsiveDialog,
@@ -81,4 +84,30 @@ test("below 768px it is a bottom sheet with a handle, and Close closes it", asyn
   await expect
     .element(screen.getByRole("dialog", { name: "Members · Product" }))
     .not.toBeInTheDocument();
+});
+
+test("the form is locked while open: crossing 768px keeps it open with its typed text", async () => {
+  await page.viewport(1280, 900);
+  const screen = await render(<Example />);
+  await screen.getByRole("button", { name: "Members" }).click();
+  const field = screen.getByRole("textbox", { name: "Find a member" });
+  await field.fill("Pri");
+  await page.viewport(390, 844);
+  await new Promise((resolve) => setTimeout(resolve, 100));
+  await expect
+    .element(screen.getByRole("dialog", { name: "Members · Product" }))
+    .toBeVisible();
+  await expect.element(field).toHaveValue("Pri");
+  expect(document.querySelector('[data-slot="dialog-content"]')).not.toBeNull();
+  await userEvent.keyboard("{Escape}");
+  await expect
+    .element(screen.getByRole("dialog", { name: "Members · Product" }))
+    .not.toBeInTheDocument();
+  // Closed, it follows the viewport again: the next opening is the phone sheet.
+  await screen.getByRole("button", { name: "Members" }).click();
+  await vi.waitFor(() =>
+    expect(
+      document.querySelector('[data-slot="sheet-content"][data-side="bottom"]'),
+    ).not.toBeNull(),
+  );
 });

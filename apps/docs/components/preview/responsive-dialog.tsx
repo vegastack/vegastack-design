@@ -29,8 +29,8 @@ export function responsiveDialog(): ReactNode {
           <ResponsiveDialogHeader>
             <ResponsiveDialogTitle>Members · Product</ResponsiveDialogTitle>
             <ResponsiveDialogDescription>
-              Resize the window across 768px: the container swaps between a
-              dialog and a bottom sheet.
+              Below 768px this opens as a bottom sheet, from 768px up as a
+              dialog; the form holds while it is open.
             </ResponsiveDialogDescription>
           </ResponsiveDialogHeader>
           <ResponsiveDialogBody>

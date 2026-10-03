@@ -2498,3 +2498,39 @@ test("onDropFilesOnRow: desktop files dropped on a folder row go to that row, no
   await expect.poll(() => onSurface.mock.calls.length).toBe(1);
   expect(onRow).toHaveBeenCalledTimes(1);
 });
+
+test("a clickable grid card holding an interactive column is a labelled group, not a button", async () => {
+  const onRowClick = vi.fn();
+  const screen = await render(
+    <DataList<Row>
+      aria-label="People"
+      view="grid"
+      columns={[
+        { key: "name", header: "Name" },
+        {
+          key: "role",
+          header: "Role",
+          interactive: true,
+          render: (row) => <button type="button">Edit {row.name}</button>,
+        },
+      ]}
+      data={data}
+      getRowId={(r) => r.id}
+      getRowLabel={(r) => r.name}
+      onRowClick={onRowClick}
+    />,
+  );
+  const card = await vi.waitUntil(() =>
+    screen.container.querySelector<HTMLElement>(
+      '[data-slot="data-list-grid-item"] [tabindex="0"]',
+    ),
+  );
+  expect(card.getAttribute("role")).toBe("group");
+  expect(card.getAttribute("aria-label")).toBe("Ada");
+  expect(
+    screen.container.querySelector(
+      '[data-slot="data-list-grid"] [role="button"]',
+    ),
+  ).toBeNull();
+  await expectNoA11yViolations(screen.container);
+});

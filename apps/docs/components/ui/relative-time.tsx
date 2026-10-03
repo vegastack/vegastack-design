@@ -1,4 +1,4 @@
-// @vegastack relative-time@0.23.115 sha256-EOW29Lv5qNJzB2Q8Na43WTCYjX8nLvx2EpRBBE+LXpg=
+// @vegastack relative-time@0.23.115 sha256-57TiQ0SLPtDZV+LvEYhoNYBiKerQfpa5xUcY+Oa3bPo=
 
 "use client";
 
@@ -81,17 +81,29 @@ function clockGranularity(distance: number | undefined): number {
   return 15 * MINUTE;
 }
 
+/** `false` on the server and during hydration, `true` from the first client render after it. */
+function useHydrated(): boolean {
+  return React.useSyncExternalStore(
+    noClockSubscription,
+    () => true,
+    () => false,
+  );
+}
+
 /**
- * Subscribe to the existing shared clock; controlled timestamps may stand the subscription down.
- * `granularity` buckets the snapshot, so a label that can only change once a minute (or a quarter
- * hour) re-renders on that boundary rather than on every ten-second tick.
+ * The instant to format against: `TimeZoneProvider.referenceNow` on the server and during
+ * hydration (so both renders agree), the live clock after it. Controlled timestamps may stand
+ * the subscription down. `granularity` only decides how OFTEN a label re-renders — a label that
+ * can only change once a minute (or a quarter hour) wakes on that boundary rather than on every
+ * ten-second tick — while the label itself is always formatted against the real instant.
  */
 function useDateTimeClock(
   enabled: boolean,
   granularity: number = CLOCK_TICK,
 ): number | undefined {
   const referenceNow = React.useContext(ReferenceClockContext);
-  return React.useSyncExternalStore(
+  const hydrated = useHydrated();
+  React.useSyncExternalStore(
     enabled ? subscribeClock : noClockSubscription,
     () => {
       const now = readClock();
@@ -101,19 +113,22 @@ function useDateTimeClock(
     },
     () => referenceNow,
   );
+  return hydrated ? readClock() : referenceNow;
 }
 
 /**
  * The clock-free form of a timestamp, for a server render with no `referenceNow`: an absolute
  * date (no Today/Yesterday words, no year decision), so crawler and no-JS HTML still carry the
- * date and hydration agrees with the server.
+ * date. With no explicit or provider zone it formats in UTC on BOTH the server and the hydration
+ * render — a runtime's own zone would differ between them (Oct 3 on a UTC server, Oct 2 in Los
+ * Angeles) — and the browser's local zone takes over once hydrated.
  */
 function clockFreeLabel(
   target: Date,
   variant: "date" | "datetime" | "time",
   options: FormatDateOptions & FormatDateTimeOptions,
 ): string {
-  const opts = { ...options, now: target };
+  const opts = { ...options, timeZone: options.timeZone ?? "UTC", now: target };
   if (variant === "time") return formatTimeOfDay(target, opts);
   if (variant === "datetime")
     return formatDateTime(target, { ...opts, relativeDay: false });
@@ -461,13 +476,14 @@ export function RelativeTime({
   React.useEffect(() => {
     if (!isControlled && !refresh) setMountedAt(Date.now());
   }, [isControlled, refresh]);
-  const distance = Number.isNaN(targetMs)
-    ? undefined
-    : Math.abs(
-        targetMs -
-          (referenceNow ??
-            (typeof window === "undefined" ? targetMs : readClock())),
-      );
+  // The cadence follows the LIVE distance once hydrated: a future instant that started hours away
+  // still ticks every ten seconds as it arrives.
+  const hydrated = useHydrated();
+  const base = hydrated ? readClock() : referenceNow;
+  const distance =
+    Number.isNaN(targetMs) || base === undefined
+      ? undefined
+      : Math.abs(targetMs - base);
   const clock =
     useDateTimeClock(
       !isControlled && refresh,

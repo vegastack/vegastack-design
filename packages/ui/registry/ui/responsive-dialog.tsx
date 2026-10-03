@@ -1,4 +1,4 @@
-// @vegastack responsive-dialog@0.23.115 sha256-RNw1rL/Vur2JIGqHacP8eE+Zzd4gjWmKwicY5NpvkLE=
+// @vegastack responsive-dialog@0.23.115 sha256-yXS4HqLx7wLfUJK4GTBNjVDkgE1SLzww7b4d1IJ/jsw=
 
 "use client";
 
@@ -32,7 +32,7 @@ import { useIsMobile } from "@/components/ui/use-mobile";
  * ResponsiveDialog — one overlay API that is a centred `Dialog` from 768px up and a bottom `Sheet`
  * below it: the same header, body and footer, a drag handle, a footer that stays at the bottom and
  * clears the home indicator (safe-area inset). The consumer writes no layout code and no
- * `useIsMobile` branch; crossing the breakpoint swaps the container. Both are Base UI Dialog, so
+ * `useIsMobile` branch. The form follows the viewport while closed and is locked while open. Both are Base UI Dialog, so
  * the focus trap, Escape and focus return are the same in either.
  * ----------------------------------------------------------------------------------------------*/
 
@@ -54,7 +54,9 @@ export type ResponsiveDialogProps = React.ComponentProps<typeof Dialog> & {
 
 /**
  * `ResponsiveDialog` — the root: a `Dialog` on wide screens, a bottom `Sheet` on phones. Takes
- * `Dialog`'s props (`open`, `onOpenChange`, `defaultOpen`, `modal`).
+ * `Dialog`'s props (`open`, `onOpenChange`, `defaultOpen`, `modal`). The form is chosen when it
+ * opens and held until it closes, so resizing across the breakpoint never closes it or resets
+ * what is inside it.
  *
  * @example
  * <ResponsiveDialog open={open} onOpenChange={setOpen}>
@@ -69,12 +71,32 @@ export type ResponsiveDialogProps = React.ComponentProps<typeof Dialog> & {
  */
 export function ResponsiveDialog({
   breakpoint = 768,
+  open: openProp,
+  defaultOpen = false,
+  onOpenChange,
   ...props
 }: ResponsiveDialogProps) {
-  const mobile = useIsMobile(breakpoint);
+  const viewportMobile = useIsMobile(breakpoint);
+  // The open state lives here, not in the swapped root, so it survives a swap.
+  const [openState, setOpenState] = React.useState(defaultOpen);
+  const open = openProp ?? openState;
+  // The form is LOCKED while open: crossing the breakpoint with the dialog up would replace the
+  // Base UI root and popup — closing an uncontrolled dialog and dropping its children's state
+  // (typed text, a scrolled list). The new form applies the next time it opens.
+  const [lockedMobile, setLockedMobile] = React.useState(viewportMobile);
+  if (!open && lockedMobile !== viewportMobile) setLockedMobile(viewportMobile);
+  const mobile = open ? lockedMobile : viewportMobile;
+  const rootProps = {
+    ...props,
+    open,
+    onOpenChange: ((next, details) => {
+      setOpenState(next);
+      onOpenChange?.(next, details);
+    }) as ResponsiveDialogProps["onOpenChange"],
+  };
   return (
     <ResponsiveDialogContext.Provider value={mobile}>
-      {mobile ? <Sheet {...props} /> : <Dialog {...props} />}
+      {mobile ? <Sheet {...rootProps} /> : <Dialog {...rootProps} />}
     </ResponsiveDialogContext.Provider>
   );
 }

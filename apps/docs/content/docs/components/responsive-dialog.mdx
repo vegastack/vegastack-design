@@ -41,8 +41,10 @@ import {
 Write the dialog once. From 768px up it is a `Dialog` of the `size` you pass (`md` for share,
 members and settings dialogs); below that it is a bottom `Sheet`: full width, as tall as its content
 up to 85% of the screen, a drag handle at the top, the same header and body, and a footer that stays
-at the bottom and clears the home indicator. Crossing the breakpoint swaps the container; the
-consumer writes no `useIsMobile` branch and no layout code.
+at the bottom and clears the home indicator. The consumer writes no `useIsMobile` branch and no
+layout code. The form follows the viewport while the dialog is closed and is **locked while it is
+open**: resizing across the breakpoint never closes it or resets what is inside it, and the other
+form applies the next time it opens.
 
 <ComponentPreview
   name="responsiveDialog"
