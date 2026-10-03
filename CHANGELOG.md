@@ -9,6 +9,20 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.23.119] — October 4, 2026
+
+<!-- assembled from 1 changeset: 87d41d9ca3b7 -->
+
+### 🧩 New components
+
+- `AppShellSection` takes `align: "start" | "center"` (default `start`). `center` puts a `measure="prose"` section in the middle of the page, so a settings tab under a full-width header reads like a settings page; `align` is ignored at `full`.
+  [`c48726d`](https://github.com/VegaStack/vegastack-design/commit/c48726d)
+
+### 📦 npm
+
+- **`@vegastack/design`** → **`0.7.104`** (was `0.7.103`).
+- The design-system registry (`@vegastack/ui`) bumps 0.23.118 → 0.23.119.
+
 ## [0.23.118] — October 4, 2026
 
 <!-- assembled from 1 changeset: 56296cb25b35 -->

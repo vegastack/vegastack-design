@@ -1,5 +1,11 @@
 # @vegastack/design
 
+## 0.7.104
+
+### Patch Changes
+
+- [#516](https://github.com/vegastack/vegastack-design/pull/516) [`c48726d`](https://github.com/vegastack/vegastack-design/commit/c48726d9bd195d3af5f5bd59d6529982da763900) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🧩 `AppShellSection` takes `align: "start" | "center"` (default `start`). `center` puts a `measure="prose"` section in the middle of the page, so a settings tab under a full-width header reads like a settings page; `align` is ignored at `full`.
+
 ## 0.7.103
 
 ### Patch Changes
