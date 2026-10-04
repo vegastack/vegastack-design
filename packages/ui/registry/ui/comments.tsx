@@ -1,4 +1,4 @@
-// @vegastack comments@0.23.121 sha256-LP7H+uwrRSCNXIOdePyrAIP8ttxHWsp1AScLKwKTalg=
+// @vegastack comments@0.23.121 sha256-NvjLdq4vRmyeYrhRJwFjoQU8OTKZTFlERMbq4+kTsKM=
 
 "use client";
 
@@ -1478,7 +1478,7 @@ export function CommentThread({
     focusEditor(replyBox.current);
   };
 
-  const item = (comment: CommentData, isRoot: boolean) => (
+  const item = (comment: CommentData, isRoot: boolean, inset = false) => (
     <CommentItem
       key={comment.id}
       comment={comment}
@@ -1499,7 +1499,15 @@ export function CommentThread({
       fileContentType={fileContentType}
       now={now}
       // A reply is a row of the card, over a hairline.
-      className={isRoot ? undefined : "border-t border-border/50"}
+      // Under the first comment the hairline spans the card; between replies it starts at the
+      // text (16px padding + 20px avatar + 8px), Linear style.
+      className={
+        isRoot
+          ? undefined
+          : inset
+            ? "relative border-t-0 before:absolute before:start-11 before:end-0 before:top-0 before:h-px before:bg-border/50"
+            : "border-t border-border/50"
+      }
     />
   );
   const shown = collapsed ? thread.replies.slice(-1) : thread.replies;
@@ -1614,7 +1622,7 @@ export function CommentThread({
             Show less
           </RepliesToggle>
         ) : null}
-        {shown.map((comment) => item(comment, false))}
+        {shown.map((comment, i) => item(comment, false, i > 0))}
       </ul>
       {canReply ? (
         <div
