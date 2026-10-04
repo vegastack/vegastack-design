@@ -1,4 +1,4 @@
-// @vegastack comments@0.23.121 sha256-+02Th6LVnqst4vofuVJhNCxcIjng1QRvAt0+rrpBngs=
+// @vegastack comments@0.23.121 sha256-NvjLdq4vRmyeYrhRJwFjoQU8OTKZTFlERMbq4+kTsKM=
 
 "use client";
 
@@ -115,6 +115,9 @@ function errorMessage(error: unknown, fallback: string): string {
  */
 const TOUCH_TARGET =
   "pointer-coarse:after:absolute pointer-coarse:after:-inset-2 pointer-coarse:after:rounded-full";
+
+/** A comment's avatar (and the reply row's): 20px, as Linear's. */
+const AVATAR = "data-[size=sm]:size-5";
 
 /** The hover actions (add reaction, ⋯): shown on hover or focus inside the comment, while their
  * popup is open, and always on a coarse pointer, where there is no hover. */
@@ -329,13 +332,13 @@ export function CommentItem({
         data-slot="comment-card"
         data-highlighted={highlighted ? "" : undefined}
         // 12px in from the card's sides, 8px above and below (6px for a reply).
-        className="group/comment flex min-w-0 flex-col px-3 py-2 transition-colors in-data-[variant=reply]:py-1.5 in-data-[slot=comment-replies]:py-1.5 data-[highlighted]:bg-accent"
+        className="group/comment flex min-w-0 flex-col px-4 py-3 transition-colors data-[highlighted]:bg-accent"
       >
         <div
           data-slot="comment-header"
           className="flex min-h-6 min-w-0 items-center gap-2"
         >
-          <PersonAvatar person={author} />
+          <PersonAvatar person={author} className={AVATAR} />
           <span className="flex min-w-0 flex-1 items-center gap-x-2">
             <span
               className="min-w-0 truncate text-sm font-medium"
@@ -490,7 +493,7 @@ export function CommentItem({
         {/* 4px under the header; a reply's body lines up with the name (24px avatar + 8px). */}
         <div
           data-slot="comment-body"
-          className="mt-1 flex min-w-0 flex-col gap-1.5 in-data-[variant=reply]:ps-8 in-data-[slot=comment-replies]:ps-8"
+          className="mt-1 flex min-w-0 flex-col gap-1.5 in-data-[variant=reply]:ps-7 in-data-[slot=comment-replies]:ps-7"
         >
           {comment.deleted ? (
             <p className="text-sm text-muted-foreground italic">
@@ -902,7 +905,7 @@ function CommentBox({
         <TextEdit
           {...shared}
           variant="boxed"
-          className="px-3 pt-2 pb-1.5 dark:bg-transparent"
+          className="px-4 pt-3 pb-2 dark:bg-transparent"
           // Two 20px lines at rest; about twelve before it scrolls inside.
           minHeight="2.5rem"
           maxHeight="15rem"
@@ -1153,7 +1156,7 @@ export function CommentComposer({
         label={replyingTo ? "Reply" : "Comment"}
         defaultValue={generation === 0 ? defaultValue : undefined}
         placeholder={
-          placeholder ?? (replyingTo ? "Write a reply…" : "Add a comment…")
+          placeholder ?? (replyingTo ? "Leave a reply…" : "Add a comment…")
         }
         onEscape={replyingTo ? onCancelReply : undefined}
         autoFocus={autoFocus || generation > 0}
@@ -1241,7 +1244,7 @@ function RepliesToggle({
     return (
       <li
         data-slot="comment-thread-more"
-        className="px-3 py-1.5 text-xs text-muted-foreground"
+        className="px-4 py-2 text-xs text-muted-foreground"
       >
         {children}
       </li>
@@ -1260,7 +1263,7 @@ function RepliesToggle({
           setBusy(true);
           void result.catch(() => {}).finally(() => setBusy(false));
         }}
-        className="h-auto w-full justify-start gap-1.5 rounded-none px-3 py-1.5 text-xs font-medium text-muted-foreground hover:text-foreground"
+        className="h-auto w-full justify-start gap-1.5 rounded-none px-4 py-2 text-xs font-medium text-muted-foreground hover:text-foreground"
       >
         {busy ? (
           <Spinner className="size-3.5" />
@@ -1475,7 +1478,7 @@ export function CommentThread({
     focusEditor(replyBox.current);
   };
 
-  const item = (comment: CommentData, isRoot: boolean) => (
+  const item = (comment: CommentData, isRoot: boolean, inset = false) => (
     <CommentItem
       key={comment.id}
       comment={comment}
@@ -1496,7 +1499,15 @@ export function CommentThread({
       fileContentType={fileContentType}
       now={now}
       // A reply is a row of the card, over a hairline.
-      className={isRoot ? undefined : "border-t border-border/50"}
+      // Under the first comment the hairline spans the card; between replies it starts at the
+      // text (16px padding + 20px avatar + 8px), Linear style.
+      className={
+        isRoot
+          ? undefined
+          : inset
+            ? "relative border-t-0 before:absolute before:start-11 before:end-0 before:top-0 before:h-px before:bg-border/50"
+            : "border-t border-border/50"
+      }
     />
   );
   const shown = collapsed ? thread.replies.slice(-1) : thread.replies;
@@ -1523,7 +1534,7 @@ export function CommentThread({
       {hasHeader ? (
         <div
           data-slot="comment-thread-header"
-          className="flex min-w-0 items-start gap-2 px-3 pt-2.5"
+          className="flex min-w-0 items-start gap-2 px-4 pt-3"
         >
           <div className="min-w-0 flex-1">
             {orphaned ? (
@@ -1611,16 +1622,18 @@ export function CommentThread({
             Show less
           </RepliesToggle>
         ) : null}
-        {shown.map((comment) => item(comment, false))}
+        {shown.map((comment, i) => item(comment, false, i > 0))}
       </ul>
       {canReply ? (
         <div
           ref={replyBox}
           data-slot="comment-thread-reply"
-          className="flex min-w-0 flex-col gap-1 border-t border-border/50 px-3 py-2"
+          className="flex min-w-0 flex-col gap-1 border-t border-border/50 px-4 py-3"
         >
           <div className="flex min-w-0 items-start gap-2">
-            {viewer ? <PersonAvatar person={viewer} /> : null}
+            {viewer ? (
+              <PersonAvatar person={viewer} className={cn(AVATAR, "my-0.5")} />
+            ) : null}
             <CommentBox
               key={generation}
               layout="inline"
@@ -1629,7 +1642,7 @@ export function CommentThread({
               defaultValue={
                 generation === 0 ? composer?.defaultValue : undefined
               }
-              placeholder={composer?.placeholder ?? "Write a reply…"}
+              placeholder={composer?.placeholder ?? "Leave a reply…"}
               onValueChange={(value) => {
                 setDraft(value);
                 composer?.onValueChange?.(value);
@@ -1661,7 +1674,7 @@ export function CommentThread({
             />
           </div>
           {error ? (
-            <p role="alert" className="ps-8 text-xs text-destructive">
+            <p role="alert" className="ps-7 text-xs text-destructive">
               {error}
             </p>
           ) : null}
@@ -2080,10 +2093,10 @@ export function CommentListSkeleton() {
       {[0, 1].map((i) => (
         <div
           key={i}
-          className="flex flex-col gap-1 rounded-lg border border-border px-3 py-2"
+          className="flex flex-col gap-1 rounded-lg border border-border px-4 py-3"
         >
           <div className="flex h-6 items-center gap-2">
-            <Skeleton className="size-6 shrink-0 rounded-full" />
+            <Skeleton className="size-5 shrink-0 rounded-full" />
             <Skeleton className="h-3.5 w-28" />
             <Skeleton className="h-3 w-10" />
           </div>
@@ -2093,7 +2106,7 @@ export function CommentListSkeleton() {
           </div>
         </div>
       ))}
-      <div className="flex flex-col rounded-lg border border-border px-3 pt-2 pb-1.5">
+      <div className="flex flex-col rounded-lg border border-border px-4 pt-3 pb-2">
         <Skeleton className="h-3.5 w-32" />
         <div className="flex justify-end gap-1 pt-5">
           <Skeleton className="size-6 rounded-full" />

@@ -51,13 +51,13 @@ With no comments, the composer sits right under the heading — no empty-state l
 
 The look is Linear's, and the spacing is identical on web and mobile. **A thread is one card** — a
 1px `border-border`, `rounded-lg`, the light `bg-muted/30` fill, no padding of its own — whose
-comments are rows 12px in from its sides: the first comment, then "Show N more replies" (a
+comments are rows 16px in from its sides and 12px from top and bottom: the first comment, then "Show N more replies" (a
 full-width muted row with a chevron, `hiddenReplies` + `onShowReplies`; "Show less" with
 `onHideReplies`), then the replies, each over a hairline (`border-border/50`). A row is a header
-— a 24px avatar, 8px to the name, the badge, the relative time and "(edited)" — then, 4px under it,
+— a 20px avatar, 8px to the name, the badge, the relative time and "(edited)" — then, 4px under it,
 the body. The first comment's body runs the row's full width; **a reply's body is indented to the
-name** (32px). At the card's foot, over a hairline, sits **the reply row**: the viewer's avatar
-(`viewer`), a one-line "Write a reply…" box with no border or fill of its own, and attach and a
+name** (28px). At the card's foot, over a hairline, sits **the reply row**: the viewer's avatar
+(`viewer`), a one-line "Leave a reply…" box with no border or fill of its own, and attach and a
 round ↑ Send at its end. It grows with the text, Esc leaves it, and Cmd/Ctrl+Enter sends.
 
 `CommentComposer` — a record's new comment — is a **bordered card**: the text on top (two lines at
@@ -66,7 +66,7 @@ toolbar row whose end holds the optional `attachments` slot, a muted paperclip (
 `onImageUpload`, `onFileUpload` or `onAttachFiles` is set) and the round ↑ Send — a quiet grey disc
 while there is nothing to send. Its border darkens subtly while it holds focus. Cmd/Ctrl+Enter
 sends, and Send's tooltip names the shortcut. On a touch screen every round control gets a 40px
-target. `replyingTo={{ name }}` shows "Replying to name ×" above the box and the "Write a reply…"
+target. `replyingTo={{ name }}` shows "Replying to name ×" above the box and the "Leave a reply…"
 placeholder; × or Esc calls `onCancelReply` and keeps the text. The `files` slot is a draft's
 attached files (pending cards with progress and ×), part of what Send posts. With `onAttachFiles`,
 files pasted or dropped on the box join that tray — while files are dragged over it, a dashed
