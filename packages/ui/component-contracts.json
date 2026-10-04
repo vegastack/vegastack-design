@@ -28139,7 +28139,7 @@
       "name": "comments",
       "registryType": "registry:ui",
       "title": "Comments",
-      "summary": "A record's comments: a list with a count, Load earlier, skeleton and empty states, comments with edit/delete/copy link, emoji reactions and an attachments slot, a composer with mentions and uploads, and CommentThread — a quoted thread with replies and resolve.",
+      "summary": "A record's comments, Linear style: thread cards (first comment, Show N more replies, indented replies over hairlines, a flat reply row with the viewer's avatar), a bordered composer with a toolbar row and file drop, day labels, a list with a count, order toggle, Load earlier, skeleton and empty states, edit/delete/copy link/copy text, emoji reactions and an attachments slot.",
       "status": "stable",
       "since": "0.23.30",
       "family": "display",
@@ -28270,6 +28270,33 @@
           "ref": {
             "status": "not-applicable",
             "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "CommentListHeader",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/comments.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "CommentListHeader takes no ref; it composes other parts."
+          }
+        },
+        {
+          "name": "CommentDayDivider",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/comments.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "CommentDayDivider takes no ref; it composes other parts."
+          }
+        },
+        {
+          "name": "useCommentDayDividers",
+          "kind": "hook",
+          "source": "packages/ui/registry/ui/comments.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "This exported helper is not a rendered component root."
           }
         }
       ],

@@ -39,7 +39,7 @@ test("lists comments with a count, and shows the empty state", async () => {
   ).toBeNull();
 });
 
-test("editing: round ↑ Save is disabled until the text changes, × Cancel leaves", async () => {
+test("editing: the header's ✓ Save is disabled until the text changes, ✕ Cancel leaves", async () => {
   const onEdit = vi.fn();
   const screen = await render(
     <ul>
@@ -137,7 +137,7 @@ test("each comment is a card; ⋯ matches the add-reaction button and opens an i
   // The card is the item (its replies are rows inside it).
   const card = document.querySelector('[data-slot="comment-item"]')!;
   expect(card.className).toContain("border-border");
-  expect(card.className).toContain("rounded-xl");
+  expect(card.className).toContain("rounded-lg");
   expect(card.className).not.toMatch(/(?:hover|focus[\w-]*):border-/);
   const add = document.querySelector('[data-slot="reaction-add"]')!;
   const more = document.querySelector('[data-slot="comment-actions"]')!;
@@ -630,4 +630,118 @@ test("the attach button sits beside Send at the end of the box, not before the t
   expect(
     screen.container.querySelector('[data-slot="comment-box-leading"]'),
   ).toBeNull();
+});
+
+test("a thread folds replies behind Show N more replies, Show less folds them back, and replies are indented rows", async () => {
+  const onShowReplies = vi.fn();
+  const onHideReplies = vi.fn();
+  const thread = {
+    id: "t1",
+    root: rootComment,
+    replies: [reply("c2", "Latest reply")],
+  };
+  const screen = await render(
+    <CommentThread
+      thread={thread}
+      hiddenReplies={3}
+      onShowReplies={onShowReplies}
+      viewer={{ name: "Mo Patel" }}
+      onReply={vi.fn()}
+    />,
+  );
+  await screen.getByRole("button", { name: "Show 3 more replies" }).click();
+  expect(onShowReplies).toHaveBeenCalledOnce();
+  const replyItem = document.querySelector("#comment-c2")!;
+  expect(replyItem.getAttribute("data-variant")).toBe("reply");
+  expect(replyItem.className).toContain("border-t");
+  // The viewer's avatar leads the flat reply row.
+  const row = document.querySelector('[data-slot="comment-thread-reply"]')!;
+  expect(row.querySelector('[data-slot="avatar"]')).not.toBeNull();
+  await expectNoA11yViolations(screen.container);
+  await screen.rerender(
+    <CommentThread
+      thread={thread}
+      onHideReplies={onHideReplies}
+      onReply={vi.fn()}
+    />,
+  );
+  await screen.getByRole("button", { name: "Show less" }).click();
+  expect(onHideReplies).toHaveBeenCalledOnce();
+});
+
+test("Copy text in the ⋯ menu hands the host the comment's Markdown", async () => {
+  const onCopyText = vi.fn();
+  const screen = await render(
+    <ul>
+      <CommentItem
+        onCopyText={onCopyText}
+        comment={{
+          id: "a",
+          author: { name: "Asha Rao" },
+          body: "**Bold** words",
+          createdAt: 0,
+        }}
+        now={0}
+      />
+    </ul>,
+  );
+  await userEvent.click(
+    screen.getByRole("button", { name: "Actions for comment by Asha Rao" }),
+  );
+  await screen.getByRole("menuitem", { name: "Copy text" }).click();
+  expect(onCopyText).toHaveBeenCalledWith("a", "**Bold** words");
+});
+
+test("a deleted comment keeps its author and says it was deleted, with no actions", async () => {
+  const screen = await render(
+    <ul>
+      <CommentItem
+        onDelete={() => {}}
+        onCopyLink={() => {}}
+        comment={{
+          id: "d",
+          author: { name: "Asha Rao" },
+          body: "",
+          createdAt: 0,
+          deleted: true,
+          canDelete: true,
+        }}
+        now={0}
+      />
+    </ul>,
+  );
+  await expect.element(screen.getByText("Asha Rao")).toBeVisible();
+  await expect
+    .element(screen.getByText("This comment was deleted."))
+    .toBeVisible();
+  expect(document.querySelector('[data-slot="comment-actions"]')).toBeNull();
+});
+
+test("newest first puts the composer under the heading, and days are named between comments", async () => {
+  const day = 24 * 60 * 60 * 1000;
+  const now = Date.UTC(2026, 9, 4, 12);
+  const screen = await render(
+    <CommentList
+      now={now}
+      order="newest"
+      onOrderChange={() => {}}
+      comments={[
+        { id: "a", author: asha, body: "Older", createdAt: now - 3 * day },
+        { id: "b", author: asha, body: "Newer", createdAt: now - 60_000 },
+      ]}
+      composer={<CommentComposer onSubmit={() => {}} />}
+    />,
+  );
+  const section = screen.container.querySelector('[data-slot="comment-list"]')!;
+  const composer = section.querySelector('[data-slot="comment-composer"]')!;
+  const list = section.querySelector("ul")!;
+  expect(
+    composer.compareDocumentPosition(list) & Node.DOCUMENT_POSITION_FOLLOWING,
+  ).toBeTruthy();
+  const days = Array.from(
+    section.querySelectorAll('[data-slot="comment-day-divider"]'),
+  ).map((d) => d.textContent);
+  expect(days[0]).toBe("Today");
+  expect(days).toHaveLength(2);
+  await expectNoA11yViolations(screen.container);
 });

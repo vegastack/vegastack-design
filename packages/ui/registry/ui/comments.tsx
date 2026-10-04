@@ -1,13 +1,16 @@
-// @vegastack comments@0.23.120 sha256-3k5XezriYEVzIYADHb3lDuo5WuotTBSA+tACFERQKYk=
+// @vegastack comments@0.23.120 sha256-djlK5NJCZfFgze0OV4HLdXBkNq6qYHdO1ypak/yXn74=
 
 "use client";
 
 import * as React from "react";
-import { DEFAULT_LOCALE } from "@/lib/date-time";
+import { DEFAULT_LOCALE, dayDelta, formatDate } from "@/lib/date-time";
 import {
   ArrowUp,
   ArrowUpDown,
   Check,
+  ChevronDown,
+  ChevronUp,
+  Copy,
   Ellipsis,
   Link,
   Paperclip,
@@ -36,7 +39,11 @@ import {
   type ReactionData,
 } from "@/components/ui/reactions";
 import { PersonBadge } from "@/components/ui/searchable-select";
-import { RelativeTime } from "@/components/ui/relative-time";
+import {
+  RelativeTime,
+  useDateTimeNow,
+  useTimeZone,
+} from "@/components/ui/relative-time";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   TEXT_EDIT_COMPACT_SLASH_COMMANDS,
@@ -50,15 +57,20 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { useMediaQuery } from "@/components/ui/use-media-query";
 
 /* ------------------------------------------------------------------------------------------------
- * Comments — a record's discussion: `CommentList` (heading with a count and an Oldest / Newest
- * first toggle, "Load earlier", skeleton, and with no comments just the composer), `CommentItem` (avatar, name, relative time, "edited", a ⋯ menu with Copy link / Edit
- * / Delete, in-place editing in a compact box, a `#comment-<id>` highlight and a replies slot) and
- * Slack-style reactions under the body (pills, and an add-reaction button in the hover actions),
- * `CommentComposer` (a light, near-transparent box with a round send button; Cmd/Ctrl+Enter sends). The
- * parts hold only transient UI state — the host owns the data and persists through callbacks; a
- * callback that returns a promise drives the saving/posting state and, on rejection, the error.
+ * Comments — a record's discussion, Linear-style. `CommentThread` is one card: the first comment,
+ * "Show N more replies", the replies (indented under the name) as rows split by hairlines, and a
+ * flat reply row at the foot with the viewer's avatar. `CommentItem` is one comment: avatar, name,
+ * relative time, "(edited)", hover actions (add reaction, a ⋯ menu with Reply / Copy link / Copy
+ * text / Edit / Delete), in-place editing with ✕ / ✓ in the header, files and reaction pills under
+ * the body. `CommentComposer` is a bordered card: the text on top and a toolbar row (attach, a
+ * round ↑ send) under it; Cmd/Ctrl+Enter sends and files drop onto it. `CommentList` is the
+ * section: "Comments N", an Oldest / Newest first toggle, day dividers, "Load earlier", and the
+ * composer at the end (at the top while newest first). The parts hold only transient UI state —
+ * the host owns the data and persists through callbacks; a callback that returns a promise drives
+ * the saving/posting state and, on rejection, the error.
  * ----------------------------------------------------------------------------------------------*/
 
 /** One comment, as `CommentList` and `CommentItem` show it. */
@@ -71,9 +83,9 @@ export interface CommentData {
   body: string;
   /** When it was posted. */
   createdAt: Date | string | number;
-  /** When it was last edited; shows "edited" with this time on hover. @default undefined */
+  /** When it was last edited; shows "(edited)" with this time on hover. @default undefined */
   editedAt?: Date | string | number | null;
-  /** Soft-deleted: shown as "Comment deleted" (hide it yourself when it has no replies). @default false */
+  /** Soft-deleted: its author and time stay over "This comment was deleted" (hide it yourself when it has no replies). @default false */
   deleted?: boolean;
   /** The viewer may edit it (the menu shows Edit). @default false */
   canEdit?: boolean;
@@ -83,12 +95,31 @@ export interface CommentData {
   reactions?: ReactionData[];
 }
 
+/** The send/save shortcut as the viewer's keyboard names it (a tooltip renders only on the client). */
+const submitShortcut = () =>
+  typeof navigator !== "undefined" &&
+  /Mac|iP(hone|ad|od)/.test(navigator.platform)
+    ? "⌘↵"
+    : "Ctrl+Enter";
+
 /** A callback that may persist asynchronously; a rejected promise shows its message. */
 type MaybeAsync<T extends unknown[]> = (...args: T) => void | Promise<unknown>;
 
 function errorMessage(error: unknown, fallback: string): string {
   return error instanceof Error && error.message ? error.message : fallback;
 }
+
+/**
+ * A 40px touch target around a 24px control on a coarse pointer, without growing the control (or
+ * the row) itself.
+ */
+const TOUCH_TARGET =
+  "pointer-coarse:after:absolute pointer-coarse:after:-inset-2 pointer-coarse:after:rounded-full";
+
+/** The hover actions (add reaction, ⋯): shown on hover or focus inside the comment, while their
+ * popup is open, and always on a coarse pointer, where there is no hover. */
+const HOVER_ACTION =
+  "opacity-0 transition-opacity duration-150 group-hover/comment:opacity-100 group-focus-within/comment:opacity-100 focus-visible:opacity-100 data-popup-open:opacity-100 pointer-coarse:opacity-100";
 
 /* ------------------------------------------------------------------------------------------------
  * CommentItem
@@ -98,12 +129,25 @@ function errorMessage(error: unknown, fallback: string): string {
 export interface CommentItemProps {
   /** The comment. */
   comment: CommentData;
+  /**
+   * `root` — the body runs the row's full width under the avatar; `reply` — the body is indented
+   * to the name. A comment inside a `comment-replies` list reads as a reply either way.
+   * @default "root"
+   */
+  variant?: "root" | "reply";
   /** Save an edit: called with the comment's id and the new Markdown. @default undefined */
   onEdit?: MaybeAsync<[id: string, body: string]>;
   /** Delete at once (no confirm dialog — the host offers Undo, e.g. in a toast). @default undefined */
   onDelete?: MaybeAsync<[id: string]>;
   /** Copy a link to the comment; the menu shows Copy link when set. @default undefined */
   onCopyLink?: (id: string) => void;
+  /** Copy the comment's Markdown; the menu shows Copy text when set. @default undefined */
+  onCopyText?: (id: string, body: string) => void;
+  /**
+   * Start a reply (focus the thread's reply box); the menu shows Reply on a touch screen, where
+   * the box may be off screen. @default undefined
+   */
+  onReply?: () => void;
   /**
    * Add or remove the viewer's reaction; enables the pills and the add-reaction hover action.
    * May return a promise. @default undefined
@@ -129,7 +173,7 @@ export interface CommentItemProps {
    * edit. @default undefined
    */
   onEditValueChange?: (commentId: string, value: string | null) => void;
-  /** Replies, indented under the comment (one level of `CommentItem`s). @default undefined */
+  /** Replies, under the comment (one level of `CommentItem`s, each split by a hairline). @default undefined */
   replies?: React.ReactNode;
   /** Pin the relative time's clock (docs, tests). @default undefined */
   now?: number;
@@ -150,16 +194,13 @@ export interface CommentItemProps {
   className?: string;
 }
 
-/** The hover actions (add reaction, ⋯): shown on hover or focus inside the comment, while their
- * popup is open, and always on a coarse pointer, where there is no hover. */
-const HOVER_ACTION =
-  "opacity-0 group-hover/comment:opacity-100 group-focus-within/comment:opacity-100 focus-visible:opacity-100 data-popup-open:opacity-100 pointer-coarse:opacity-100";
-
 /**
- * `CommentItem` — one comment: avatar, name and badge, relative time ("edited" after an edit),
- * the Markdown body, and a ⋯ menu (Copy link · Edit · Delete) for what the viewer may do. Edit
- * turns the body into the composer's compact box with a round ↑ Save (disabled while empty or
- * unchanged) and a ghost × Cancel; Cmd/Ctrl+Enter saves and Escape cancels. Delete asks first.
+ * `CommentItem` — one comment: a header row (avatar, name and badge, relative time, "(edited)")
+ * with hover actions at its end (add reaction, and a ⋯ menu — Reply on a touch screen, Copy link,
+ * Copy text, Edit, Delete — for what the viewer may do), then the Markdown body, its files and its
+ * reaction pills. Edit turns the body into a compact box and the header actions into ✕ Cancel and
+ * ✓ Save (disabled while empty or unchanged); Cmd/Ctrl+Enter saves and Escape cancels. Delete is
+ * immediate — the host offers Undo.
  *
  * @example
  * <CommentItem comment={c} onEdit={save} onDelete={remove} onCopyLink={copy}
@@ -167,9 +208,12 @@ const HOVER_ACTION =
  */
 export function CommentItem({
   comment,
+  variant = "root",
   onEdit,
   onDelete,
   onCopyLink,
+  onCopyText,
+  onReply,
   onReactionToggle,
   highlighted = false,
   editing: editingProp,
@@ -216,12 +260,15 @@ export function CommentItem({
     }
   }
   const [error, setError] = React.useState<string | null>(null);
+  // Reply sits in the menu on a touch screen only; with a mouse the reply box is right there.
+  const coarse = useMediaQuery("(pointer: coarse)");
   const { author } = comment;
   const reactions = comment.reactions?.filter((r) => r.count > 0) ?? [];
   const toggleReaction = onReactionToggle
     ? (emoji: string) => onReactionToggle(comment.id, emoji)
     : undefined;
   const canReact = !!toggleReaction && !comment.deleted && !editing;
+  const unchanged = draft.trim() === comment.body.trim();
 
   const save = async (body: string) => {
     if (!onEdit || !canEditThis || !body.trim() || saving) return;
@@ -255,154 +302,203 @@ export function CommentItem({
     }
   };
 
+  const canReply = !!onReply && coarse && !comment.deleted;
   const canCopy = !!onCopyLink && !comment.deleted;
+  const canCopyText = !!onCopyText && !comment.deleted && !!comment.body.trim();
   const canDeleteThis = !!onDelete && !!comment.canDelete && !comment.deleted;
-  const hasMenu = (canCopy || canEditThis || canDeleteThis) && !editing;
+  const hasShare = canReply || canCopy || canCopyText;
+  const hasMenu = (hasShare || canEditThis || canDeleteThis) && !editing;
 
   return (
     <li
       id={`comment-${comment.id}`}
       data-slot="comment-item"
+      data-variant={variant}
       data-deleted={comment.deleted ? "" : undefined}
       className={cn(
-        // The card: the composer's own surface (`bg-muted/30`, a hairline `border-border`,
-        // `rounded-xl`), holding the comment and its replies as rows. A reply is a row of its
-        // parent's card, not a card of its own. The border never changes on hover, focus or edit
-        // (FOC-14); only a `#comment-<id>` highlight tints a row.
-        // Spec (web and mobile): the thread card has a 1px border, a light fill and 4px padding.
-        "flex min-w-0 scroll-mt-24 flex-col overflow-hidden rounded-xl border border-border bg-muted/30 p-1",
-        "in-data-[slot=comment-replies]:overflow-visible in-data-[slot=comment-replies]:rounded-none in-data-[slot=comment-replies]:border-0 in-data-[slot=comment-replies]:bg-transparent in-data-[slot=comment-replies]:p-0",
+        // On its own (a `CommentList`), a comment is a card: a hairline border, the light fill.
+        // Inside a thread or a replies list it is a row of that card, split from the row above by
+        // a hairline (`comment-replies` / `CommentThread`). The border never changes on hover,
+        // focus or edit (FOC-14); only a `#comment-<id>` highlight tints a row.
+        "flex min-w-0 scroll-mt-24 flex-col overflow-hidden rounded-lg border border-border bg-muted/30",
+        "in-data-[slot=comment-replies]:overflow-visible in-data-[slot=comment-replies]:rounded-none in-data-[slot=comment-replies]:border-0 in-data-[slot=comment-replies]:bg-transparent",
         className,
       )}
     >
       <div
         data-slot="comment-card"
         data-highlighted={highlighted ? "" : undefined}
-        // A 24px avatar, 8px to the name; 6px above and below, so two comments sit 12px apart.
-        className="group/comment flex min-w-0 gap-2 rounded-lg px-2 py-1.5 transition-colors data-[highlighted]:bg-accent"
+        // 12px in from the card's sides, 8px above and below (6px for a reply).
+        className="group/comment flex min-w-0 flex-col px-3 py-2 transition-colors in-data-[variant=reply]:py-1.5 in-data-[slot=comment-replies]:py-1.5 data-[highlighted]:bg-accent"
       >
-        {comment.deleted ? (
-          <span aria-hidden className="size-6 shrink-0 rounded-full bg-muted" />
-        ) : (
-          <PersonAvatar person={author} className="data-[size=sm]:size-6" />
-        )}
-        {/* 4px from the name row to the body (or to the files when there is no text). */}
-        <div className="flex min-w-0 flex-1 flex-col gap-1">
-          <div className="flex min-h-6 min-w-0 items-center gap-2">
-            {comment.deleted ? (
-              <span className="text-sm text-muted-foreground italic">
-                Comment deleted
-              </span>
-            ) : (
-              <span className="flex min-w-0 flex-1 items-center gap-x-2">
-                <span
-                  className="min-w-0 truncate text-sm font-medium"
-                  title={author.name}
+        <div
+          data-slot="comment-header"
+          className="flex min-h-6 min-w-0 items-center gap-2"
+        >
+          <PersonAvatar person={author} />
+          <span className="flex min-w-0 flex-1 items-center gap-x-2">
+            <span
+              className="min-w-0 truncate text-sm font-medium"
+              title={author.name}
+            >
+              {author.name}
+            </span>
+            <PersonBadge badge={author.badge} />
+            <span className="flex shrink-0 items-center gap-1 text-xs text-muted-foreground">
+              <RelativeTime date={comment.createdAt} now={now} />
+              {comment.editedAt && !comment.deleted ? (
+                <Tooltip>
+                  <TooltipTrigger
+                    render={
+                      <span
+                        tabIndex={0}
+                        className="relative before:absolute before:inset-x-0 before:-inset-y-1"
+                      />
+                    }
+                    data-slot="comment-edited"
+                  >
+                    (edited)
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    Edited{" "}
+                    {new Date(comment.editedAt).toLocaleString(DEFAULT_LOCALE)}
+                  </TooltipContent>
+                </Tooltip>
+              ) : null}
+            </span>
+          </span>
+          {editing ? (
+            <span
+              data-slot="comment-edit-actions"
+              className="-me-1 flex shrink-0 items-center gap-1"
+            >
+              <Tooltip>
+                <TooltipTrigger
+                  render={
+                    <Button
+                      variant="ghost"
+                      size="icon-xs"
+                      className={cn("text-muted-foreground", TOUCH_TARGET)}
+                      aria-label="Cancel"
+                      onClick={cancel}
+                    />
+                  }
                 >
-                  {author.name}
-                </span>
-                <PersonBadge badge={author.badge} />
-                <span className="flex shrink-0 items-center gap-1.5 text-xs text-muted-foreground">
-                  <RelativeTime date={comment.createdAt} now={now} />
-                  {comment.editedAt ? (
-                    <>
-                      <span aria-hidden>·</span>
-                      <Tooltip>
-                        <TooltipTrigger
-                          render={
-                            <span
-                              tabIndex={0}
-                              className="relative before:absolute before:inset-x-0 before:-inset-y-1"
-                            />
-                          }
-                          data-slot="comment-edited"
-                        >
-                          edited
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          Edited{" "}
-                          {new Date(comment.editedAt).toLocaleString(
-                            DEFAULT_LOCALE,
-                          )}
-                        </TooltipContent>
-                      </Tooltip>
-                    </>
-                  ) : null}
-                </span>
-              </span>
-            )}
-            {hasMenu || canReact ? (
-              <span className="ms-auto flex shrink-0 items-center gap-0.5">
-                {canReact ? (
-                  <ReactionAdd
-                    onSelect={(emoji) => {
-                      if (reactions.some((r) => r.emoji === emoji && r.reacted))
-                        return;
-                      void Promise.resolve(toggleReaction?.(emoji)).catch(
-                        () => {},
-                      );
-                    }}
-                    size="icon-sm"
-                    className={HOVER_ACTION}
-                  />
-                ) : null}
-                {hasMenu ? (
-                  <DropdownMenu>
-                    <DropdownMenuTrigger
-                      render={
-                        <Button
-                          variant="ghost"
-                          size="icon-sm"
-                          data-slot="comment-actions"
-                          aria-label={`Actions for comment by ${author.name}`}
-                          className={HOVER_ACTION}
-                        />
-                      }
-                    >
-                      <Ellipsis aria-hidden />
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent
-                      align="end"
-                      data-slot="comment-actions-content"
-                      className="w-auto min-w-0 whitespace-nowrap"
-                    >
-                      {canCopy ? (
-                        <DropdownMenuItem
-                          onClick={() => onCopyLink?.(comment.id)}
-                        >
-                          <Link aria-hidden />
-                          Copy link
-                        </DropdownMenuItem>
-                      ) : null}
-                      {canEditThis ? (
-                        <DropdownMenuItem onClick={() => setEditing(true)}>
-                          <Pencil aria-hidden />
-                          Edit
-                        </DropdownMenuItem>
-                      ) : null}
-                      {canDeleteThis ? (
-                        <>
-                          {canCopy || canEditThis ? (
-                            <DropdownMenuSeparator />
-                          ) : null}
-                          <DropdownMenuItem
-                            variant="destructive"
-                            onClick={() => void remove()}
-                          >
-                            <Trash2 aria-hidden />
-                            Delete
-                          </DropdownMenuItem>
-                        </>
-                      ) : null}
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                ) : null}
-              </span>
-            ) : null}
-          </div>
-          {comment.deleted ? null : editing ? (
+                  <X aria-hidden />
+                </TooltipTrigger>
+                <TooltipContent>Cancel · Esc</TooltipContent>
+              </Tooltip>
+              <Tooltip>
+                <TooltipTrigger
+                  render={
+                    <Button
+                      size="icon-xs"
+                      className={TOUCH_TARGET}
+                      aria-label="Save"
+                      loading={saving}
+                      disabled={!draft.trim() || unchanged}
+                      onClick={() => void save(draft)}
+                    />
+                  }
+                >
+                  <Check aria-hidden />
+                </TooltipTrigger>
+                <TooltipContent>Save · {submitShortcut()}</TooltipContent>
+              </Tooltip>
+            </span>
+          ) : hasMenu || canReact ? (
+            <span className="-me-1 flex shrink-0 items-center gap-0.5">
+              {canReact ? (
+                <ReactionAdd
+                  onSelect={(emoji) => {
+                    if (reactions.some((r) => r.emoji === emoji && r.reacted))
+                      return;
+                    void Promise.resolve(toggleReaction?.(emoji)).catch(
+                      () => {},
+                    );
+                  }}
+                  size="icon-sm"
+                  className={cn("text-muted-foreground", HOVER_ACTION)}
+                />
+              ) : null}
+              {hasMenu ? (
+                <DropdownMenu>
+                  <DropdownMenuTrigger
+                    render={
+                      <Button
+                        variant="ghost"
+                        size="icon-sm"
+                        data-slot="comment-actions"
+                        aria-label={`Actions for comment by ${author.name}`}
+                        className={cn("text-muted-foreground", HOVER_ACTION)}
+                      />
+                    }
+                  >
+                    <Ellipsis aria-hidden />
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent
+                    align="end"
+                    data-slot="comment-actions-content"
+                    className="w-auto min-w-0 whitespace-nowrap"
+                  >
+                    {canReply ? (
+                      <DropdownMenuItem onClick={onReply}>
+                        <Reply aria-hidden />
+                        Reply
+                      </DropdownMenuItem>
+                    ) : null}
+                    {canCopy ? (
+                      <DropdownMenuItem
+                        onClick={() => onCopyLink?.(comment.id)}
+                      >
+                        <Link aria-hidden />
+                        Copy link
+                      </DropdownMenuItem>
+                    ) : null}
+                    {canCopyText ? (
+                      <DropdownMenuItem
+                        onClick={() => onCopyText?.(comment.id, comment.body)}
+                      >
+                        <Copy aria-hidden />
+                        Copy text
+                      </DropdownMenuItem>
+                    ) : null}
+                    {(canEditThis || canDeleteThis) && hasShare ? (
+                      <DropdownMenuSeparator />
+                    ) : null}
+                    {canEditThis ? (
+                      <DropdownMenuItem onClick={() => setEditing(true)}>
+                        <Pencil aria-hidden />
+                        Edit
+                      </DropdownMenuItem>
+                    ) : null}
+                    {canDeleteThis ? (
+                      <DropdownMenuItem
+                        variant="destructive"
+                        onClick={() => void remove()}
+                      >
+                        <Trash2 aria-hidden />
+                        Delete
+                      </DropdownMenuItem>
+                    ) : null}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              ) : null}
+            </span>
+          ) : null}
+        </div>
+        {/* 4px under the header; a reply's body lines up with the name (24px avatar + 8px). */}
+        <div
+          data-slot="comment-body"
+          className="mt-1 flex min-w-0 flex-col gap-1.5 in-data-[variant=reply]:ps-8 in-data-[slot=comment-replies]:ps-8"
+        >
+          {comment.deleted ? (
+            <p className="text-sm text-muted-foreground italic">
+              This comment was deleted.
+            </p>
+          ) : editing ? (
             <CommentBox
-              bare
+              layout="edit"
               autoFocus
               label="Edit comment"
               defaultValue={editStart}
@@ -413,47 +509,12 @@ export function CommentItem({
               onSubmit={(value) => void save(value)}
               onRevert={cancel}
               busy={saving}
+              invalid={!!error}
               mentions={mentions}
               mentionHref={mentionHref}
               mentionImage={mentionImage}
-              actions={
-                <>
-                  <Tooltip>
-                    <TooltipTrigger
-                      render={
-                        <Button
-                          variant="ghost"
-                          size="icon-xs"
-                          className={cn("rounded-full", TOUCH_TARGET)}
-                          aria-label="Cancel"
-                          onClick={cancel}
-                        />
-                      }
-                    >
-                      <X aria-hidden />
-                    </TooltipTrigger>
-                    <TooltipContent>Cancel</TooltipContent>
-                  </Tooltip>
-                  <Tooltip>
-                    <TooltipTrigger
-                      render={
-                        <SendButton
-                          label="Save"
-                          loading={saving}
-                          disabled={
-                            !draft.trim() ||
-                            draft.trim() === comment.body.trim()
-                          }
-                          onClick={() => void save(draft)}
-                        />
-                      }
-                    />
-                    <TooltipContent>Save</TooltipContent>
-                  </Tooltip>
-                </>
-              }
             />
-          ) : !comment.body.trim() ? null : (
+          ) : comment.body.trim() ? (
             // A posted comment's images open in the `FileViewer`.
             <ImageViewerScope>
               <MarkdownView
@@ -465,21 +526,18 @@ export function CommentItem({
                 {comment.body}
               </MarkdownView>
             </ImageViewerScope>
-          )}
+          ) : null}
           {!comment.deleted && !editing && attachments ? (
-            // 6px under the body (the column's 4px + 2px); 4px under the name row with no body.
-            <div
-              data-slot="comment-attachments"
-              className={cn("min-w-0", comment.body.trim() && "mt-0.5")}
-            >
+            <div data-slot="comment-attachments" className="min-w-0">
               {attachments}
             </div>
           ) : null}
           {!comment.deleted && !editing && reactions.length > 0 ? (
+            // The pills, and an add-reaction button after them.
             <Reactions
               reactions={reactions}
               onToggle={toggleReaction}
-              className="mt-1"
+              showAdd={canReact}
             />
           ) : null}
           {error ? (
@@ -492,7 +550,7 @@ export function CommentItem({
       {replies ? (
         <ul
           data-slot="comment-replies"
-          className="flex flex-col"
+          className="flex flex-col divide-y divide-border/50 border-t border-border/50"
           aria-label="Replies"
         >
           {replies}
@@ -603,9 +661,7 @@ export function CommentMedia({
 }
 
 /* ------------------------------------------------------------------------------------------------
- * CommentBox — the editor box the composer and in-place edit share: `TextEdit`'s `composer`
- * variant, which looks exactly like `Input` at rest and grows line by line to about ten lines
- * before it scrolls inside, the attach and Send controls pinned bottom-right, side by side
+ * CommentBox — the editor box the composer, the reply row and in-place edit share
  * ----------------------------------------------------------------------------------------------*/
 
 /** Focus the editable surface inside `root`, retrying for a few frames while the editor mounts. */
@@ -616,7 +672,18 @@ function focusEditor(root: HTMLElement | null, tries = 10) {
     requestAnimationFrame(() => focusEditor(root, tries - 1));
 }
 
+/** The dragged items carry files (not text or a link). */
+const carriesFiles = (event: React.DragEvent) =>
+  Array.from(event.dataTransfer?.types ?? []).includes("Files");
+
 interface CommentBoxProps {
+  /**
+   * `card` — a record's new comment: a bordered card, the text on top (two lines at rest) and a
+   * toolbar row under it with attach and Send at its end. `inline` — a thread's reply row: no
+   * border or fill, one line, attach and Send at the line's end. `edit` — in-place editing: an
+   * `Input`-like box with no controls (the comment's header holds ✕ and ✓).
+   */
+  layout: "card" | "inline" | "edit";
   defaultValue?: string;
   placeholder?: string;
   label: string;
@@ -629,11 +696,10 @@ interface CommentBoxProps {
   disabled?: boolean;
   invalid?: boolean;
   autoFocus?: boolean;
-  /** Inside a comment card (edit mode): the card already draws the surface and border. */
-  bare?: boolean;
-  /** The host's extra controls, first in the end-of-line group before attach and Send. */
+  /** The host's extra controls, first in the end group before attach and Send. */
   extraActions?: React.ReactNode;
-  actions: React.ReactNode;
+  /** Send (or nothing, for `edit`). */
+  actions?: React.ReactNode;
   mentions?: TextEditProps["mentions"];
   mentionHref?: TextEditProps["mentionHref"];
   mentionImage?: TextEditProps["mentionImage"];
@@ -642,24 +708,12 @@ interface CommentBoxProps {
   onUploadError?: TextEditProps["onUploadError"];
   /** Files picked with the attach button, pasted or dropped go here instead of into the text. */
   onAttachFiles?: (files: File[]) => void;
-  /** Inside the box at its bottom, under the text: the draft's attached files (cards with their upload progress). */
+  /** Inside the box under the text: the draft's attached files (cards with their upload progress). */
   files?: React.ReactNode;
-  /** Two lines tall at rest (a record's new-comment box); replies stay one line. */
-  twoLines?: boolean;
 }
 
-/**
- * A 40px touch target around a 28px round control on a coarse pointer, without growing the
- * control (or the one-line box) itself.
- */
-const TOUCH_TARGET =
-  "pointer-coarse:after:absolute pointer-coarse:after:-inset-1.5 pointer-coarse:after:rounded-full";
-
-/**
- * The box: one line and 32px tall at rest, the text centred; the controls sit inline at its end,
- * pinned to the bottom line as the text grows (to about twelve lines, then it scrolls inside).
- */
 function CommentBox({
+  layout,
   defaultValue,
   placeholder,
   label,
@@ -671,7 +725,6 @@ function CommentBox({
   disabled,
   invalid,
   autoFocus,
-  bare,
   extraActions,
   actions,
   mentions,
@@ -682,7 +735,6 @@ function CommentBox({
   onUploadError,
   onAttachFiles,
   files,
-  twoLines,
 }: CommentBoxProps) {
   const ref = React.useRef<HTMLDivElement>(null);
   const handle = React.useRef<TextEditHandle>(null);
@@ -690,36 +742,149 @@ function CommentBox({
     if (autoFocus) focusEditor(ref.current);
   }, [autoFocus]);
   const canAttach =
-    !!(onImageUpload || onFileUpload || onAttachFiles) && !disabled;
+    layout !== "edit" &&
+    !!(onImageUpload || onFileUpload || onAttachFiles) &&
+    !disabled;
+  const canDrop = canAttach && !!onAttachFiles;
   const fileInput = React.useRef<HTMLInputElement>(null);
+  // Enter/leave fire for every child the drag crosses: count them.
+  const drags = React.useRef(0);
+  const [dragging, setDragging] = React.useState(false);
+
+  const controls =
+    layout === "edit" ? null : (
+      <div
+        data-slot="comment-box-actions"
+        className="flex shrink-0 items-center gap-1"
+      >
+        {extraActions}
+        {canAttach ? (
+          <>
+            <Tooltip>
+              <TooltipTrigger
+                render={
+                  <Button
+                    variant="ghost"
+                    size="icon-xs"
+                    data-slot="comment-attach"
+                    aria-label="Attach files"
+                    className={cn(
+                      "rounded-full text-muted-foreground hover:text-foreground",
+                      TOUCH_TARGET,
+                    )}
+                    // A picker of our own, clicked in the gesture (the lazy editor may not be in
+                    // yet); picked files go to the host's tray, or the editor's upload flow.
+                    onClick={() => fileInput.current?.click()}
+                  />
+                }
+              >
+                <Paperclip aria-hidden />
+              </TooltipTrigger>
+              <TooltipContent>Attach files</TooltipContent>
+            </Tooltip>
+            <input
+              ref={fileInput}
+              type="file"
+              multiple
+              hidden
+              tabIndex={-1}
+              aria-hidden
+              // The editor's rules: images only unless any file may upload.
+              accept={onFileUpload || onAttachFiles ? undefined : "image/*"}
+              onChange={(event) => {
+                const picked = Array.from(event.currentTarget.files ?? []);
+                event.currentTarget.value = "";
+                if (!picked.length) return;
+                if (onAttachFiles) onAttachFiles(picked);
+                else handle.current?.uploadFiles(picked);
+              }}
+            />
+          </>
+        ) : null}
+        {actions}
+      </div>
+    );
+
+  const shared = {
+    handleRef: handle,
+    format: "markdown" as const,
+    slashCommands: TEXT_EDIT_COMPACT_SLASH_COMMANDS,
+    slashHint: false,
+    defaultValue,
+    placeholder,
+    "aria-label": label,
+    onValueChange,
+    onSubmit,
+    onRevert,
+    escapeBehavior: onEscape ? ("blur" as const) : undefined,
+    saving: busy,
+    disabled,
+    dragHandles: false,
+    "aria-invalid": invalid ? true : undefined,
+    mentions,
+    mentionHref,
+    mentionImage,
+    onImageUpload,
+    onFileUpload,
+    onUploadError,
+  };
+
   return (
     <div
       ref={ref}
       data-slot="comment-box"
-      data-bare={bare ? "" : undefined}
+      data-layout={layout}
+      data-dragging={dragging ? "" : undefined}
       aria-invalid={invalid || undefined}
-      className="flex min-w-0 flex-col gap-1.5"
+      className="relative flex min-w-0 flex-1 flex-col"
       // With `onAttachFiles`, pasted or dropped files join the box's attached files (the same
       // tray as the paperclip) instead of going into the text.
       onPasteCapture={
-        onAttachFiles && !disabled
+        canDrop
           ? (event) => {
               const picked = Array.from(event.clipboardData?.files ?? []);
               if (!picked.length) return;
               event.preventDefault();
               event.stopPropagation();
-              onAttachFiles(picked);
+              onAttachFiles?.(picked);
+            }
+          : undefined
+      }
+      onDragEnterCapture={
+        canDrop
+          ? (event) => {
+              if (!carriesFiles(event)) return;
+              drags.current += 1;
+              setDragging(true);
+            }
+          : undefined
+      }
+      onDragOverCapture={
+        canDrop
+          ? (event) => {
+              if (carriesFiles(event)) event.preventDefault();
+            }
+          : undefined
+      }
+      onDragLeaveCapture={
+        canDrop
+          ? (event) => {
+              if (!carriesFiles(event)) return;
+              drags.current = Math.max(0, drags.current - 1);
+              if (drags.current === 0) setDragging(false);
             }
           : undefined
       }
       onDropCapture={
-        onAttachFiles && !disabled
+        canDrop
           ? (event) => {
+              drags.current = 0;
+              setDragging(false);
               const picked = Array.from(event.dataTransfer?.files ?? []);
               if (!picked.length) return;
               event.preventDefault();
               event.stopPropagation();
-              onAttachFiles(picked);
+              onAttachFiles?.(picked);
             }
           : undefined
       }
@@ -732,101 +897,60 @@ function CommentBox({
           : undefined
       }
     >
-      <TextEdit
-        variant="composer"
-        handleRef={handle}
-        className={cn(
-          // Inside a comment card (edit mode) the card draws the surface and border.
-          bare &&
-            "rounded-none border-0 bg-transparent ps-0 pe-0 dark:bg-transparent",
-        )}
-        format="markdown"
-        slashCommands={TEXT_EDIT_COMPACT_SLASH_COMMANDS}
-        slashHint={false}
-        defaultValue={defaultValue}
-        placeholder={placeholder}
-        aria-label={label}
-        onValueChange={onValueChange}
-        onSubmit={onSubmit}
-        onRevert={onRevert}
-        escapeBehavior={onEscape ? "blur" : undefined}
-        saving={busy}
-        disabled={disabled}
-        dragHandles={false}
-        // Two 20px lines and the textbox's 2px top and bottom.
-        minHeight={twoLines ? "2.75rem" : undefined}
-        aria-invalid={invalid ? true : undefined}
-        mentions={mentions}
-        mentionHref={mentionHref}
-        mentionImage={mentionImage}
-        onImageUpload={onImageUpload}
-        onFileUpload={onFileUpload}
-        onUploadError={onUploadError}
-        // Inside the box at its bottom, under the text: the draft's files are part of what Send posts.
-        footer={
-          files ? <div data-slot="comment-box-files">{files}</div> : undefined
-        }
-        // Attach and Send sit together at the end of the line (MK, 03-10-2026): the text starts at
-        // the box's own padding, and both controls stay pinned to the bottom row as it grows.
-        actions={
+      {layout === "card" ? (
+        // The text on top, then the draft's files, then the toolbar row (attach, Send).
+        <TextEdit
+          {...shared}
+          variant="boxed"
+          className="px-3 pt-2 pb-1.5 dark:bg-transparent"
+          // Two 20px lines at rest; about twelve before it scrolls inside.
+          minHeight="2.5rem"
+          maxHeight="15rem"
+        >
+          {files ? (
+            <div data-slot="comment-box-files" className="pt-1.5">
+              {files}
+            </div>
+          ) : null}
           <div
-            data-slot="comment-box-actions"
-            className="flex shrink-0 items-center gap-1"
+            data-slot="comment-box-toolbar"
+            className="flex items-center justify-end pt-1.5"
           >
-            {extraActions}
-            {canAttach ? (
-              <>
-                <Tooltip>
-                  <TooltipTrigger
-                    render={
-                      <Button
-                        variant="ghost"
-                        size="icon-xs"
-                        data-slot="comment-attach"
-                        aria-label="Attach files"
-                        className={cn(
-                          "rounded-full text-muted-foreground hover:text-foreground focus-visible:bg-muted",
-                          TOUCH_TARGET,
-                        )}
-                        // A picker of our own, clicked in the gesture (the lazy editor may not be
-                        // in yet); picked files go to the editor's upload flow at the caret.
-                        onClick={() => fileInput.current?.click()}
-                      />
-                    }
-                  >
-                    <Paperclip aria-hidden />
-                  </TooltipTrigger>
-                  <TooltipContent>Attach files</TooltipContent>
-                </Tooltip>
-                <input
-                  ref={fileInput}
-                  type="file"
-                  multiple
-                  hidden
-                  tabIndex={-1}
-                  aria-hidden
-                  // The editor's rules: images only unless any file may upload.
-                  accept={onFileUpload || onAttachFiles ? undefined : "image/*"}
-                  onChange={(event) => {
-                    const picked = Array.from(event.currentTarget.files ?? []);
-                    event.currentTarget.value = "";
-                    if (!picked.length) return;
-                    if (onAttachFiles) onAttachFiles(picked);
-                    else handle.current?.uploadFiles(picked);
-                  }}
-                />
-              </>
-            ) : null}
-            {actions}
+            {controls}
           </div>
-        }
-      />
+        </TextEdit>
+      ) : (
+        <TextEdit
+          {...shared}
+          variant="composer"
+          className={cn(
+            // The reply row: no border or fill of its own — the thread card draws the surface.
+            layout === "inline" &&
+              "min-h-6 rounded-none border-0 bg-transparent p-0 ps-0 dark:bg-transparent",
+            // In-place editing: the Input box on the page's own surface, over the card's fill.
+            layout === "edit" && "bg-background dark:bg-input/30",
+          )}
+          footer={
+            files ? <div data-slot="comment-box-files">{files}</div> : undefined
+          }
+          actions={controls}
+        />
+      )}
+      {dragging ? (
+        <div
+          aria-hidden
+          data-slot="comment-box-drop"
+          className="pointer-events-none absolute inset-0 z-10 grid place-items-center rounded-lg border-2 border-dashed border-primary bg-primary/5 text-sm font-medium text-primary"
+        >
+          Drop files to attach
+        </div>
+      ) : null}
     </div>
   );
 }
 
 /**
- * The round ↑ send / save button. Disabled (nothing to send) it turns into a quiet grey disc with a
+ * The round ↑ send button. Disabled (nothing to send) it turns into a quiet grey disc with a
  * full-strength muted arrow rather than a half-transparent primary one, so it still reads clearly.
  */
 function SendButton({
@@ -843,21 +967,30 @@ function SendButton({
 } & Omit<React.ComponentProps<typeof Button>, "onClick" | "disabled">) {
   const idle = disabled && !loading;
   return (
-    <Button
-      size="icon-xs"
-      variant={idle ? "secondary" : "default"}
-      aria-label={label}
-      loading={loading}
-      disabled={disabled}
-      onClick={onClick}
-      {...props}
-      className={cn(
-        "rounded-full data-disabled:not-data-loading:opacity-100 data-disabled:not-data-loading:text-muted-foreground",
-        TOUCH_TARGET,
-      )}
-    >
-      <ArrowUp aria-hidden />
-    </Button>
+    <Tooltip>
+      <TooltipTrigger
+        render={
+          <Button
+            size="icon-xs"
+            variant={idle ? "secondary" : "default"}
+            aria-label={label}
+            loading={loading}
+            disabled={disabled}
+            onClick={onClick}
+            {...props}
+            className={cn(
+              "rounded-full data-disabled:not-data-loading:opacity-100 data-disabled:not-data-loading:text-muted-foreground",
+              TOUCH_TARGET,
+            )}
+          />
+        }
+      >
+        <ArrowUp aria-hidden />
+      </TooltipTrigger>
+      <TooltipContent>
+        {label} · {submitShortcut()}
+      </TooltipContent>
+    </Tooltip>
   );
 }
 
@@ -879,8 +1012,9 @@ export interface CommentComposerProps {
   /** Accessible name of the round send button. @default "Send comment" ("Send reply" while `replyingTo`) */
   submitLabel?: string;
   /**
-   * Extra controls on the box's line, before the attach and send buttons. The attach (paperclip)
-   * button itself shows whenever `onImageUpload` or `onFileUpload` is set. @default undefined
+   * Extra controls on the toolbar row, before the attach and send buttons. The attach (paperclip)
+   * button itself shows whenever `onImageUpload`, `onFileUpload` or `onAttachFiles` is set.
+   * @default undefined
    */
   attachments?: React.ReactNode;
   /**
@@ -914,12 +1048,12 @@ export interface CommentComposerProps {
   /** A person mention's avatar URL (see `TextEdit`'s `mentionImage`). @default undefined */
   mentionImage?: TextEditProps["mentionImage"];
   /**
-   * Files picked with the attach button go here instead of into the text (pasted and dropped
-   * images still land inline) — for a comment whose files show as cards under its body. Shows the
-   * attach button on its own. @default undefined
+   * Files picked with the attach button, pasted or dropped onto the box go here instead of into
+   * the text — for a comment whose files show as cards under its body. Shows the attach button on
+   * its own, and "Drop files to attach" while files are dragged over the box. @default undefined
    */
   onAttachFiles?: (files: File[]) => void;
-  /** Inside the box at its bottom, under the text: the draft's attached files, e.g. cards with their upload progress. @default undefined */
+  /** Inside the box under the text: the draft's attached files, e.g. cards with their upload progress. @default undefined */
   files?: React.ReactNode;
   /** The draft carries files (`files`): Send is enabled and posts with no text. @default false */
   hasFiles?: boolean;
@@ -928,9 +1062,10 @@ export interface CommentComposerProps {
 }
 
 /**
- * `CommentComposer` — a light box holding a Markdown editor that grows with its text (to about
- * twelve lines, then scrolls inside), an optional `attachments` slot at the bottom left and a round ↑ send button at the
- * bottom right, disabled while the box is empty; Cmd/Ctrl+Enter sends too.
+ * `CommentComposer` — a bordered card holding a Markdown editor that grows with its text (two
+ * lines at rest, about twelve before it scrolls inside), the draft's files under it, and a toolbar
+ * row with the attach button and a round ↑ send button at its end, disabled while the box is
+ * empty; Cmd/Ctrl+Enter sends too. Files dragged over it show "Drop files to attach".
  *
  * @example
  * <CommentComposer onSubmit={(body) => postComment(taskId, body)} />
@@ -1014,8 +1149,7 @@ export function CommentComposer({
       ) : null}
       <CommentBox
         key={generation}
-        // A record's new comment box reserves two lines; a reply stays one line at rest.
-        twoLines={!replyingTo}
+        layout="card"
         label={replyingTo ? "Reply" : "Comment"}
         defaultValue={generation === 0 ? defaultValue : undefined}
         placeholder={
@@ -1086,6 +1220,59 @@ function editingPropsFor(
   });
 }
 
+/** "3 replies", "1 reply". */
+const replyCount = (n: number) => `${n} ${n === 1 ? "reply" : "replies"}`;
+
+/**
+ * The full-width row between the first comment and its replies: "Show N more replies" (or
+ * "Show less"), muted, with a chevron; a promise from `onClick` shows a spinner until it settles.
+ */
+function RepliesToggle({
+  children,
+  expanded,
+  onClick,
+}: {
+  children: React.ReactNode;
+  expanded?: boolean;
+  onClick?: () => void | Promise<unknown>;
+}) {
+  const [busy, setBusy] = React.useState(false);
+  if (!onClick)
+    return (
+      <li
+        data-slot="comment-thread-more"
+        className="px-3 py-1.5 text-xs text-muted-foreground"
+      >
+        {children}
+      </li>
+    );
+  const Icon = expanded ? ChevronUp : ChevronDown;
+  return (
+    <li data-slot="comment-thread-more">
+      <Button
+        variant="ghost"
+        size="sm"
+        aria-expanded={expanded}
+        disabled={busy}
+        onClick={() => {
+          const result = onClick();
+          if (!(result instanceof Promise)) return;
+          setBusy(true);
+          void result.catch(() => {}).finally(() => setBusy(false));
+        }}
+        className="h-auto w-full justify-start gap-1.5 rounded-none px-3 py-1.5 text-xs font-medium text-muted-foreground hover:text-foreground"
+      >
+        {busy ? (
+          <Spinner className="size-3.5" />
+        ) : (
+          <Icon aria-hidden className="size-3.5" />
+        )}
+        {children}
+      </Button>
+    </li>
+  );
+}
+
 /** One thread, as `CommentThread` shows it: an optional quote, the first comment and its replies. */
 export interface CommentThreadData {
   /** Stable id — the thread's root comment id, or the host's own. */
@@ -1098,7 +1285,7 @@ export interface CommentThreadData {
   orphaned?: boolean;
   /** The first comment. */
   root: CommentData;
-  /** The replies, oldest first. */
+  /** The replies shown, oldest first. */
   replies: CommentData[];
 }
 
@@ -1106,7 +1293,11 @@ export interface CommentThreadData {
 export interface CommentThreadProps {
   /** The thread. */
   thread: CommentThreadData;
-  /** Post a reply; omit to show the thread without a composer. The box clears on success and keeps text on failure. @default undefined */
+  /**
+   * The signed-in person: their avatar leads the reply row. @default undefined
+   */
+  viewer?: Pick<Person, "name" | "email" | "image" | "hue">;
+  /** Post a reply; omit to show the thread without a reply row. The box clears on success and keeps text on failure. @default undefined */
   onReply?: MaybeAsync<[body: string]>;
   /** Resolve the thread; the header shows a ✓ button when set. @default undefined */
   onResolve?: () => void | Promise<unknown>;
@@ -1116,10 +1307,19 @@ export interface CommentThreadProps {
   onQuoteClick?: () => void;
   /** The thread's highlight is the active one: the card lifts. @default false */
   active?: boolean;
-  /** Show the first comment, "N replies" and the last reply only, and no reply box. @default false */
+  /** Show the first comment, "N replies" and the last reply only, and no reply row. @default false */
   collapsed?: boolean;
   /** Called from a collapsed thread's "N replies" (shown as a button when set). @default undefined */
   onExpand?: () => void;
+  /**
+   * Replies not shown (not loaded yet, or folded away): "Show N more replies" sits between the
+   * first comment and the replies. @default 0
+   */
+  hiddenReplies?: number;
+  /** Show the hidden replies (load them); a promise shows a spinner on the row. @default undefined */
+  onShowReplies?: () => void | Promise<unknown>;
+  /** Fold the replies back; shows "Show less" when set and none are hidden. @default undefined */
+  onHideReplies?: () => void;
   /** Save an edit to any comment in the thread. @default undefined */
   onEdit?: CommentItemProps["onEdit"];
   /** Delete a comment. @default undefined */
@@ -1128,6 +1328,8 @@ export interface CommentThreadProps {
   onReactionToggle?: CommentItemProps["onReactionToggle"];
   /** Copy a comment's link. @default undefined */
   onCopyLink?: CommentItemProps["onCopyLink"];
+  /** Copy a comment's Markdown. @default undefined */
+  onCopyText?: CommentItemProps["onCopyText"];
   /**
    * An edit box's text on every change, and `null` when that edit ends (see `CommentItem`).
    * @default undefined
@@ -1147,6 +1349,8 @@ export interface CommentThreadProps {
    * @default undefined
    */
   editDefaultValue?: (commentId: string) => string | undefined;
+  /** The comment to tint (from `#comment-<id>`). @default undefined */
+  highlightedId?: string;
   /** A comment's files, under its body. @default undefined */
   renderAttachments?: (comment: CommentData) => React.ReactNode;
   /** A file chip's content type by href (see `MarkdownView`'s `fileContentType`). @default undefined */
@@ -1188,19 +1392,21 @@ export interface CommentThreadProps {
 }
 
 /**
- * `CommentThread` — one discussion about a piece of text (Google Docs style): the quoted words (or
- * "Original text was removed"), the first comment, its replies and a one-line "Write a reply…" box
- * (Cmd/Ctrl+Enter sends). The header's ✓ resolves it; a resolved thread says
- * who resolved it and when, and offers Reopen. `collapsed` shows the first comment, "N replies"
- * and the last reply.
+ * `CommentThread` — one card (Linear style): the quoted words (or "Original text was removed")
+ * when the thread is about a piece of text, the first comment, "Show N more replies", the replies
+ * — indented to the name, each over a hairline — and a flat reply row at the foot with the
+ * viewer's avatar, a one-line "Write a reply…" box, attach and Send (Cmd/Ctrl+Enter sends). The
+ * header's ✓ resolves it; a resolved thread says who resolved it and when, and offers Reopen.
+ * `collapsed` shows the first comment, "N replies" and the last reply.
  *
  * @example
- * <CommentThread thread={thread} active={thread.id === activeId}
+ * <CommentThread thread={thread} viewer={me} active={thread.id === activeId}
  *   onReply={(body) => reply(thread.id, body)} onResolve={() => resolve(thread.id)}
  *   onQuoteClick={() => editor.current?.pulseAnnotation(thread.id)} />
  */
 export function CommentThread({
   thread,
+  viewer,
   onReply,
   onResolve,
   onReopen,
@@ -1208,14 +1414,19 @@ export function CommentThread({
   active = false,
   collapsed = false,
   onExpand,
+  hiddenReplies = 0,
+  onShowReplies,
+  onHideReplies,
   onEdit,
   onDelete,
   onReactionToggle,
   onCopyLink,
+  onCopyText,
   onEditValueChange,
   editingId,
   onEditingIdChange,
   editDefaultValue,
+  highlightedId,
   renderAttachments,
   fileContentType,
   composer,
@@ -1232,11 +1443,13 @@ export function CommentThread({
   const [pending, setPending] = React.useState(false);
   const posting = pending || !!composer?.posting;
   const [error, setError] = React.useState<string | null>(null);
-  const { resolved, orphaned, quote, root, replies } = thread;
+  const replyBox = React.useRef<HTMLDivElement>(null);
+  const { resolved, orphaned, quote, root } = thread;
+  const canReply = !collapsed && !!onReply && !root.deleted;
 
   const reply = async (body: string) => {
     if (
-      !onReply ||
+      !canReply ||
       composer?.disabled ||
       (!body.trim() && !composer?.hasFiles) ||
       posting
@@ -1245,7 +1458,7 @@ export function CommentThread({
     setPending(true);
     setError(null);
     try {
-      await onReply(body);
+      await onReply?.(body);
       setGeneration((g) => g + 1);
       setDraft("");
       composer?.onValueChange?.("");
@@ -1256,14 +1469,23 @@ export function CommentThread({
     }
   };
 
-  const item = (comment: CommentData) => (
+  const startReply = () => {
+    replyBox.current?.scrollIntoView({ block: "center", behavior: "smooth" });
+    focusEditor(replyBox.current);
+  };
+
+  const item = (comment: CommentData, isRoot: boolean) => (
     <CommentItem
       key={comment.id}
       comment={comment}
+      variant={isRoot ? "root" : "reply"}
+      highlighted={comment.id === highlightedId}
       onEdit={onEdit}
       onDelete={onDelete}
       onReactionToggle={onReactionToggle}
       onCopyLink={onCopyLink}
+      onCopyText={onCopyText}
+      onReply={isRoot && canReply ? startReply : undefined}
       onEditValueChange={onEditValueChange}
       {...editingProps(comment.id)}
       attachments={renderAttachments?.(comment)}
@@ -1272,10 +1494,15 @@ export function CommentThread({
       mentionImage={composer?.mentionImage}
       fileContentType={fileContentType}
       now={now}
+      // A reply is a row of the card, over a hairline.
+      className={isRoot ? undefined : "border-t border-border/50"}
     />
   );
-  const last = replies[replies.length - 1];
-  const replyCount = `${replies.length} ${replies.length === 1 ? "reply" : "replies"}`;
+  const shown = collapsed ? thread.replies.slice(-1) : thread.replies;
+  const folded = collapsed
+    ? Math.max(0, thread.replies.length - 1) + hiddenReplies
+    : hiddenReplies;
+  const hasHeader = orphaned || !!quote || !!resolved || !!onResolve;
 
   return (
     <article
@@ -1285,159 +1512,255 @@ export function CommentThread({
       data-collapsed={collapsed ? "" : undefined}
       aria-label={`Comment by ${root.author.name}`}
       className={cn(
-        // Comments inside a thread sit flat on the thread's card: the root restates the item
-        // card's surface at higher specificity (a descendant rule beats its own classes).
-        // Spec (web and mobile): a 1px border, a light fill, 4px padding; its comments are rows.
-        "flex min-w-0 flex-col gap-1 rounded-xl border border-border bg-muted/30 p-1 text-card-foreground transition-shadow duration-150 data-active:shadow-md",
-        "[&_[data-slot=comment-item]]:overflow-visible [&_[data-slot=comment-item]]:rounded-none [&_[data-slot=comment-item]]:border-0 [&_[data-slot=comment-item]]:bg-transparent [&_[data-slot=comment-item]]:p-0",
+        // One card: a hairline border and the light fill; its comments are rows (a descendant
+        // rule beats the item's own card classes).
+        "flex min-w-0 flex-col overflow-hidden rounded-lg border border-border bg-muted/30 text-card-foreground transition-shadow duration-150 data-active:shadow-md",
+        "[&_[data-slot=comment-item]]:overflow-visible [&_[data-slot=comment-item]]:rounded-none [&_[data-slot=comment-item]]:border-x-0 [&_[data-slot=comment-item]]:border-b-0 [&_[data-slot=comment-item]]:bg-transparent [&_[data-slot=comment-item][data-variant=root]]:border-t-0",
         className,
       )}
     >
-      <div
-        data-slot="comment-thread-header"
-        className="flex min-w-0 items-start gap-2 px-2 pt-1"
-      >
-        <div className="min-w-0 flex-1">
-          {orphaned ? (
-            <p
-              data-slot="comment-thread-quote"
-              data-orphaned=""
-              className="text-sm text-muted-foreground italic"
-            >
-              Original text was removed
-            </p>
-          ) : quote ? (
-            onQuoteClick ? (
-              <Button
-                variant="ghost"
-                onClick={onQuoteClick}
+      {hasHeader ? (
+        <div
+          data-slot="comment-thread-header"
+          className="flex min-w-0 items-start gap-2 px-3 pt-2.5"
+        >
+          <div className="min-w-0 flex-1">
+            {orphaned ? (
+              <p
                 data-slot="comment-thread-quote"
-                className="h-auto w-full min-w-0 justify-start rounded-sm border-s-2 border-border px-2 py-0.5 text-start text-sm font-normal whitespace-normal text-muted-foreground"
+                data-orphaned=""
+                className="text-sm text-muted-foreground italic"
               >
-                <span className="line-clamp-3 min-w-0">{quote}</span>
-              </Button>
-            ) : (
-              <blockquote
-                data-slot="comment-thread-quote"
-                className="border-s-2 border-border ps-2 text-sm text-muted-foreground"
-              >
-                <span className="line-clamp-3">{quote}</span>
-              </blockquote>
-            )
-          ) : null}
-          {resolved ? (
-            <p
-              data-slot="comment-thread-resolved"
-              className="mt-1 flex flex-wrap items-center gap-x-1 text-xs text-muted-foreground"
-            >
-              <Check aria-hidden className="size-3.5" />
-              Resolved by {resolved.by.name}
-              <span aria-hidden>·</span>
-              <RelativeTime date={resolved.at} now={now} />
-            </p>
-          ) : null}
-        </div>
-        {resolved ? (
-          onReopen ? (
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => void Promise.resolve(onReopen()).catch(() => {})}
-            >
-              Reopen
-            </Button>
-          ) : null
-        ) : onResolve ? (
-          <Tooltip>
-            <TooltipTrigger
-              render={
+                Original text was removed
+              </p>
+            ) : quote ? (
+              onQuoteClick ? (
                 <Button
                   variant="ghost"
-                  size="icon-sm"
-                  aria-label="Resolve"
-                  onClick={() =>
-                    void Promise.resolve(onResolve()).catch(() => {})
-                  }
-                />
-              }
-            >
-              <Check aria-hidden />
-            </TooltipTrigger>
-            <TooltipContent>Resolve</TooltipContent>
-          </Tooltip>
-        ) : null}
-      </div>
-      <ul data-slot="comment-thread-comments" className="flex flex-col">
-        {item(root)}
-        {collapsed && replies.length > 0 ? (
-          <>
-            <li data-slot="comment-thread-more" className="px-2">
-              {onExpand ? (
-                <Button
-                  variant="link"
-                  size="sm"
-                  className="relative h-auto p-0 text-xs before:absolute before:inset-x-0 before:-inset-y-1 before:content-['']"
-                  onClick={onExpand}
+                  onClick={onQuoteClick}
+                  data-slot="comment-thread-quote"
+                  className="h-auto w-full min-w-0 justify-start rounded-sm border-0 border-s-2 border-border px-2 py-0.5 text-start text-sm font-normal whitespace-normal text-muted-foreground"
                 >
-                  {replyCount}
+                  <span className="line-clamp-3 min-w-0">{quote}</span>
                 </Button>
               ) : (
-                <span className="text-xs text-muted-foreground">
-                  {replyCount}
-                </span>
-              )}
-            </li>
-            {last ? item(last) : null}
-          </>
-        ) : (
-          replies.map(item)
-        )}
-      </ul>
-      {collapsed || !onReply ? null : (
-        <div data-slot="comment-thread-reply" className="flex flex-col gap-1.5">
-          <CommentBox
-            key={generation}
-            autoFocus={generation > 0}
-            label="Reply"
-            defaultValue={generation === 0 ? composer?.defaultValue : undefined}
-            placeholder={composer?.placeholder ?? "Write a reply…"}
-            onValueChange={(value) => {
-              setDraft(value);
-              composer?.onValueChange?.(value);
-            }}
-            onSubmit={(value) => void reply(value)}
-            busy={posting}
-            disabled={composer?.disabled}
-            invalid={!!error}
-            extraActions={composer?.attachments}
-            mentions={composer?.mentions}
-            mentionHref={composer?.mentionHref}
-            mentionImage={composer?.mentionImage}
-            onImageUpload={composer?.onImageUpload}
-            onFileUpload={composer?.onFileUpload}
-            onUploadError={composer?.onUploadError}
-            onAttachFiles={composer?.onAttachFiles}
-            files={composer?.files}
-            actions={
-              <SendButton
-                label={composer?.submitLabel ?? "Send reply"}
-                loading={posting}
-                disabled={
-                  !!composer?.disabled || (!draft.trim() && !composer?.hasFiles)
+                <blockquote
+                  data-slot="comment-thread-quote"
+                  className="border-s-2 border-border ps-2 text-sm text-muted-foreground"
+                >
+                  <span className="line-clamp-3">{quote}</span>
+                </blockquote>
+              )
+            ) : null}
+            {resolved ? (
+              <p
+                data-slot="comment-thread-resolved"
+                className="mt-1 flex flex-wrap items-center gap-x-1 text-xs text-muted-foreground"
+              >
+                <Check aria-hidden className="size-3.5" />
+                Resolved by {resolved.by.name}
+                <span aria-hidden>·</span>
+                <RelativeTime date={resolved.at} now={now} />
+              </p>
+            ) : null}
+          </div>
+          {resolved ? (
+            onReopen ? (
+              <Button
+                variant="ghost"
+                size="sm"
+                className="-me-1"
+                onClick={() => void Promise.resolve(onReopen()).catch(() => {})}
+              >
+                Reopen
+              </Button>
+            ) : null
+          ) : onResolve ? (
+            <Tooltip>
+              <TooltipTrigger
+                render={
+                  <Button
+                    variant="ghost"
+                    size="icon-sm"
+                    aria-label="Resolve"
+                    className="-me-1 text-muted-foreground"
+                    onClick={() =>
+                      void Promise.resolve(onResolve()).catch(() => {})
+                    }
+                  />
                 }
-                onClick={() => void reply(draft)}
-              />
-            }
-          />
+              >
+                <Check aria-hidden />
+              </TooltipTrigger>
+              <TooltipContent>Resolve</TooltipContent>
+            </Tooltip>
+          ) : null}
+        </div>
+      ) : null}
+      <ul data-slot="comment-thread-comments" className="flex flex-col">
+        {item(root, true)}
+        {folded > 0 ? (
+          <RepliesToggle onClick={collapsed ? onExpand : onShowReplies}>
+            {collapsed
+              ? replyCount(thread.replies.length + hiddenReplies)
+              : `Show ${folded} more ${folded === 1 ? "reply" : "replies"}`}
+          </RepliesToggle>
+        ) : !collapsed && onHideReplies ? (
+          <RepliesToggle expanded onClick={onHideReplies}>
+            Show less
+          </RepliesToggle>
+        ) : null}
+        {shown.map((comment) => item(comment, false))}
+      </ul>
+      {canReply ? (
+        <div
+          ref={replyBox}
+          data-slot="comment-thread-reply"
+          className="flex min-w-0 flex-col gap-1 border-t border-border/50 px-3 py-2"
+        >
+          <div className="flex min-w-0 items-start gap-2">
+            {viewer ? <PersonAvatar person={viewer} /> : null}
+            <CommentBox
+              key={generation}
+              layout="inline"
+              autoFocus={generation > 0}
+              label="Reply"
+              defaultValue={
+                generation === 0 ? composer?.defaultValue : undefined
+              }
+              placeholder={composer?.placeholder ?? "Write a reply…"}
+              onValueChange={(value) => {
+                setDraft(value);
+                composer?.onValueChange?.(value);
+              }}
+              onSubmit={(value) => void reply(value)}
+              busy={posting}
+              disabled={composer?.disabled}
+              invalid={!!error}
+              extraActions={composer?.attachments}
+              mentions={composer?.mentions}
+              mentionHref={composer?.mentionHref}
+              mentionImage={composer?.mentionImage}
+              onImageUpload={composer?.onImageUpload}
+              onFileUpload={composer?.onFileUpload}
+              onUploadError={composer?.onUploadError}
+              onAttachFiles={composer?.onAttachFiles}
+              files={composer?.files}
+              actions={
+                <SendButton
+                  label={composer?.submitLabel ?? "Send reply"}
+                  loading={posting}
+                  disabled={
+                    !!composer?.disabled ||
+                    (!draft.trim() && !composer?.hasFiles)
+                  }
+                  onClick={() => void reply(draft)}
+                />
+              }
+            />
+          </div>
           {error ? (
-            <p role="alert" className="text-xs text-destructive">
+            <p role="alert" className="ps-8 text-xs text-destructive">
               {error}
             </p>
           ) : null}
         </div>
-      )}
+      ) : null}
     </article>
   );
+}
+
+/* ------------------------------------------------------------------------------------------------
+ * CommentDayDivider
+ * ----------------------------------------------------------------------------------------------*/
+
+/** The calendar day an instant falls on, in the viewer's zone, as a comparable key. */
+function dayKey(
+  date: Date | string | number,
+  now: number,
+  timeZone: string | undefined,
+) {
+  return dayDelta(new Date(date), { now, timeZone });
+}
+
+/**
+ * `CommentDayDivider` — a small, centred, muted day label between comments posted on different
+ * days: "Today", "Yesterday", or the date ("Sep 25", "Dec 20, 2025"), in the viewer's zone.
+ *
+ * @example
+ * <CommentDayDivider date={thread.root.createdAt} />
+ */
+export function CommentDayDivider({
+  date,
+  now: nowProp,
+  className,
+}: {
+  /** An instant on the day to name. */
+  date: Date | string | number;
+  /** Pin the clock (docs, tests). @default undefined */
+  now?: number;
+  /** Classes for the divider. @default undefined */
+  className?: string;
+}) {
+  const timeZone = useTimeZone();
+  const clock = useDateTimeNow();
+  const now = nowProp ?? clock;
+  if (now === undefined) return null;
+  const delta = dayKey(date, now, timeZone);
+  const label =
+    delta === 0
+      ? "Today"
+      : delta === -1
+        ? "Yesterday"
+        : formatDate(date, { absolute: true, now, timeZone });
+  return (
+    <p
+      role="separator"
+      aria-label={label}
+      data-slot="comment-day-divider"
+      className={cn(
+        "pt-1 text-center text-xs font-medium text-muted-foreground",
+        className,
+      )}
+    >
+      {label}
+    </p>
+  );
+}
+
+/**
+ * Whether a day divider goes before item `index` — the first item, and each item posted on a
+ * different calendar day from the one before it (in the order shown).
+ */
+function startsDay(
+  dates: readonly (Date | string | number)[],
+  index: number,
+  now: number,
+  timeZone: string | undefined,
+) {
+  if (index === 0) return true;
+  return (
+    dayKey(dates[index]!, now, timeZone) !==
+    dayKey(dates[index - 1]!, now, timeZone)
+  );
+}
+
+/**
+ * The list's day dividers: for each index, whether a `CommentDayDivider` goes before it. Empty
+ * until the clock is known (no hydration mismatch).
+ *
+ * @example
+ * const dividers = useCommentDayDividers(threads.map((t) => t.root.createdAt));
+ */
+export function useCommentDayDividers(
+  dates: readonly (Date | string | number)[],
+  nowProp?: number,
+): boolean[] {
+  const timeZone = useTimeZone();
+  const clock = useDateTimeNow();
+  const now = nowProp ?? clock;
+  if (now === undefined) return dates.map(() => false);
+  return dates.map((_, i) => startsDay(dates, i, now, timeZone));
 }
 
 /* ------------------------------------------------------------------------------------------------
@@ -1475,6 +1798,8 @@ export interface CommentListProps {
   onDelete?: CommentItemProps["onDelete"];
   /** Copy a comment's link. @default undefined */
   onCopyLink?: CommentItemProps["onCopyLink"];
+  /** Copy a comment's Markdown. @default undefined */
+  onCopyText?: CommentItemProps["onCopyText"];
   /** Add or remove the viewer's reaction on a comment. @default undefined */
   onReactionToggle?: CommentItemProps["onReactionToggle"];
   /**
@@ -1507,10 +1832,12 @@ export interface CommentListProps {
   /** A file chip's content type by href (see `MarkdownView`'s `fileContentType`). @default undefined */
   fileContentType?: CommentItemProps["fileContentType"];
   /**
-   * The composer, at the section's end — with no comments, right under the heading.
-   * @default undefined
+   * The composer — at the section's end oldest first, and right under the heading newest first
+   * (where the newest comment is). @default undefined
    */
   composer?: React.ReactNode;
+  /** Name the day between comments posted on different days. @default true */
+  dayDividers?: boolean;
   /** A muted line shown while there are no comments; none by default (the composer is enough). @default undefined */
   emptyText?: string;
   /** Pin the relative times' clock (docs, tests). @default undefined */
@@ -1521,7 +1848,8 @@ export interface CommentListProps {
 
 /**
  * `CommentList` — a record's comments section: "Comments" with a count and an Oldest / Newest
- * first toggle, "Load earlier", the comments, and the composer at the end. A skeleton while
+ * first toggle, "Load earlier", the comments (each a card, with a day label where the day
+ * changes), and the composer — at the end oldest first, at the top newest first. A skeleton while
  * loading; with none, just the composer (or `emptyText` over it).
  *
  * @example
@@ -1543,6 +1871,7 @@ export function CommentList({
   onEdit,
   onDelete,
   onCopyLink,
+  onCopyText,
   onReactionToggle,
   onEditValueChange,
   editingId,
@@ -1554,6 +1883,7 @@ export function CommentList({
   mentionImage,
   fileContentType,
   composer,
+  dayDividers = true,
   emptyText,
   now,
   className,
@@ -1567,6 +1897,10 @@ export function CommentList({
   const total = count ?? comments.length;
   const empty = comments.length === 0;
   const shown = order === "newest" ? [...comments].reverse() : comments;
+  const dividers = useCommentDayDividers(
+    shown.map((c) => c.createdAt),
+    now,
+  );
 
   React.useEffect(() => {
     if (!highlightedId || loading) return;
@@ -1579,44 +1913,29 @@ export function CommentList({
     <Button
       variant="ghost"
       size="sm"
-      className="self-start"
+      className="self-start text-muted-foreground"
       onClick={onLoadEarlier}
-      disabled={loadingEarlier}
+      loading={loadingEarlier}
     >
-      {loadingEarlier ? "Loading…" : "Load earlier"}
+      Load earlier
     </Button>
   ) : null;
+  const composerShown = composer && !loading ? composer : null;
 
   return (
     <section
       data-slot="comment-list"
       aria-labelledby={headingId}
-      className={cn("flex min-w-0 flex-col gap-4", className)}
+      className={cn("flex min-w-0 flex-col gap-3", className)}
     >
-      <div className="flex min-h-8 items-center justify-between gap-2">
-        <h2
-          id={headingId}
-          className="flex items-center gap-2 text-base font-medium"
-        >
-          {title}
-          {!loading && total > 0 ? (
-            <span className="text-muted-foreground tabular-nums">{total}</span>
-          ) : null}
-        </h2>
-        {onOrderChange && !loading && !empty ? (
-          <Button
-            variant="ghost"
-            size="sm"
-            className="text-muted-foreground"
-            onClick={() =>
-              onOrderChange(order === "newest" ? "oldest" : "newest")
-            }
-          >
-            <ArrowUpDown aria-hidden />
-            {order === "newest" ? "Newest first" : "Oldest first"}
-          </Button>
-        ) : null}
-      </div>
+      <CommentListHeader
+        headingId={headingId}
+        title={title}
+        count={loading ? 0 : total}
+        order={onOrderChange && !loading && !empty ? order : undefined}
+        onOrderChange={onOrderChange}
+      />
+      {order === "newest" ? composerShown : null}
       {loading ? (
         <CommentListSkeleton />
       ) : empty ? (
@@ -1632,52 +1951,132 @@ export function CommentList({
         <>
           {order === "oldest" ? loadEarlier : null}
           <ul className="flex flex-col gap-3">
-            {shown.map((comment) => (
-              <CommentItem
-                key={comment.id}
-                comment={comment}
-                highlighted={comment.id === highlightedId}
-                onEdit={onEdit}
-                onDelete={onDelete}
-                onCopyLink={onCopyLink}
-                onReactionToggle={onReactionToggle}
-                onEditValueChange={onEditValueChange}
-                {...editingProps(comment.id)}
-                replies={renderReplies?.(comment)}
-                attachments={renderAttachments?.(comment)}
-                mentionHref={mentionHref}
-                mentionImage={mentionImage}
-                fileContentType={fileContentType}
-                now={now}
-              />
+            {shown.map((comment, i) => (
+              <React.Fragment key={comment.id}>
+                {dayDividers && dividers[i] ? (
+                  <li>
+                    <CommentDayDivider date={comment.createdAt} now={now} />
+                  </li>
+                ) : null}
+                <CommentItem
+                  comment={comment}
+                  highlighted={comment.id === highlightedId}
+                  onEdit={onEdit}
+                  onDelete={onDelete}
+                  onCopyLink={onCopyLink}
+                  onCopyText={onCopyText}
+                  onReactionToggle={onReactionToggle}
+                  onEditValueChange={onEditValueChange}
+                  {...editingProps(comment.id)}
+                  replies={renderReplies?.(comment)}
+                  attachments={renderAttachments?.(comment)}
+                  mentionHref={mentionHref}
+                  mentionImage={mentionImage}
+                  fileContentType={fileContentType}
+                  now={now}
+                />
+              </React.Fragment>
             ))}
           </ul>
           {order === "newest" ? loadEarlier : null}
         </>
       )}
-      {composer && !loading ? composer : null}
+      {order === "oldest" ? composerShown : null}
     </section>
   );
 }
 
-/** `CommentListSkeleton` — three placeholder comments while they load. @example <CommentListSkeleton /> */
+/**
+ * `CommentListHeader` — a comments section's heading row: the title (an `h2`) with its count,
+ * and the Oldest / Newest first toggle when `order` is set — for a host that lays out its own
+ * threads under it.
+ *
+ * @example
+ * <CommentListHeader headingId={id} count={total} order={order} onOrderChange={setOrder} />
+ */
+export function CommentListHeader({
+  headingId,
+  title = "Comments",
+  count = 0,
+  order,
+  onOrderChange,
+}: {
+  /** The `h2`'s id, for the section's `aria-labelledby`. */
+  headingId: string;
+  /** The heading. @default "Comments" */
+  title?: string;
+  /** The total, shown after the heading when above zero. @default 0 */
+  count?: number;
+  /** The order shown; the toggle shows when it and `onOrderChange` are set. @default undefined */
+  order?: CommentOrder;
+  /** Called from the toggle. @default undefined */
+  onOrderChange?: (order: CommentOrder) => void;
+}) {
+  return (
+    <div
+      data-slot="comment-list-header"
+      className="flex min-h-8 items-center justify-between gap-2"
+    >
+      <h2
+        id={headingId}
+        className="flex items-center gap-2 text-base font-medium"
+      >
+        {title}
+        {count > 0 ? (
+          <span className="text-muted-foreground tabular-nums">{count}</span>
+        ) : null}
+      </h2>
+      {order && onOrderChange ? (
+        <Button
+          variant="ghost"
+          size="sm"
+          className="-me-2 text-muted-foreground"
+          onClick={() =>
+            onOrderChange(order === "newest" ? "oldest" : "newest")
+          }
+        >
+          <ArrowUpDown aria-hidden />
+          {order === "newest" ? "Newest first" : "Oldest first"}
+        </Button>
+      ) : null}
+    </div>
+  );
+}
+
+/**
+ * `CommentListSkeleton` — two placeholder thread cards and the composer's card while comments
+ * load, in their real shapes. @example <CommentListSkeleton />
+ */
 export function CommentListSkeleton() {
   return (
     <div
       aria-hidden
       data-slot="comment-list-skeleton"
-      className="flex flex-col gap-5"
+      className="flex flex-col gap-3"
     >
-      {[0, 1, 2].map((i) => (
-        <div key={i} className="flex gap-3">
-          <Skeleton className="size-7 shrink-0 rounded-full" />
-          <div className="flex flex-1 flex-col gap-2">
-            <Skeleton className="h-3.5 w-40" />
+      {[0, 1].map((i) => (
+        <div
+          key={i}
+          className="flex flex-col gap-1 rounded-lg border border-border px-3 py-2"
+        >
+          <div className="flex h-6 items-center gap-2">
+            <Skeleton className="size-6 shrink-0 rounded-full" />
+            <Skeleton className="h-3.5 w-28" />
+            <Skeleton className="h-3 w-10" />
+          </div>
+          <div className="flex flex-col gap-1.5 py-1">
             <Skeleton className="h-3.5 w-full" />
-            <Skeleton className="h-3.5 w-3/4" />
+            <Skeleton className="h-3.5 w-2/3" />
           </div>
         </div>
       ))}
+      <div className="flex flex-col rounded-lg border border-border px-3 pt-2 pb-1.5">
+        <Skeleton className="h-3.5 w-32" />
+        <div className="flex justify-end gap-1 pt-5">
+          <Skeleton className="size-6 rounded-full" />
+          <Skeleton className="size-6 rounded-full" />
+        </div>
+      </div>
     </div>
   );
 }

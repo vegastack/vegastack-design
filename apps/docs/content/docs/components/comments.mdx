@@ -1,6 +1,6 @@
 ---
 title: Comments
-description: A record's comments — a list with a count, an Oldest or Newest first toggle, skeleton and empty states, in-place editing, and a Linear-style composer.
+description: A record's comments, Linear style — thread cards with indented replies and a reply row, a bordered composer, day labels, order toggle, and in-place editing.
 audience: public
 registry: comments
 status: stable
@@ -42,56 +42,65 @@ import {
 
 `CommentList` is a record's discussion: an `h2` "Comments" with the count and, when `onOrderChange`
 is set, an "Oldest first" / "Newest first" toggle; "Load earlier" when older comments exist; the
-comments; and the composer at the end. Pass `comments` oldest first; `order="newest"` reverses
-them. With no comments, the composer sits right under the heading — no empty-state line (pass
-`emptyText` for one).
+comments, with a small centred day label ("Today", "Yesterday", "Sep 25") wherever the day changes
+(`dayDividers`); and the composer — at the end oldest first, and right under the heading newest
+first, where the newest comment is. Pass `comments` oldest first; `order="newest"` reverses them.
+With no comments, the composer sits right under the heading — no empty-state line (pass
+`emptyText` for one). A host that lays out its own threads uses `CommentListHeader`,
+`CommentDayDivider` (or `useCommentDayDividers`) and `CommentListSkeleton` for the same frame.
 
-`CommentComposer` is [`TextEdit`](/docs/components/text-edit)'s `composer` variant, laid out the
-same on web and mobile: at rest exactly an `Input` (32px, its border, radius, type size and focus
-cue) on a light fill. The text starts at the box's own padding, and attach and Send sit together on
-the RIGHT — the optional `attachments` slot, then a muted round paperclip (whenever `onImageUpload`,
-`onFileUpload` or `onAttachFiles` is set), then a round ↑ Send of the same size — centred on the
-single line and 6px in from the box's edge. It grows line
-by line to about ten lines and then scrolls inside, with no jump on focus; the paperclip and Send
-stay pinned to the bottom row. Its placeholder is "Add a comment…"; Send is a quiet grey disc while
-there is nothing to send, and Cmd/Ctrl+Enter also sends. On a touch
-screen both buttons get a 40px target. `replyingTo={{ name }}` shows "Replying to name ×" above the
-box and the "Write a reply…" placeholder; × or Esc calls `onCancelReply` and keeps the text.
-The `files` slot renders inside the box at its bottom, under the text — a draft's attached files (pending cards with progress and ×) are part of what Send posts. With `onAttachFiles`, files pasted or dropped on the box join that tray too, instead of going into the text. With `hasFiles` (the draft carries finished files), Send is enabled and posts
-with no text; `CommentThread`'s `composer` takes it too. No
-avatar sits beside it. Editing a comment uses the same box: a round ↑ Save (disabled while empty or unchanged) and a ghost × Cancel, both with
-tooltips; Cmd/Ctrl+Enter saves and Esc cancels. The parts take data and
-callbacks and keep only transient UI state. A callback that returns a promise drives the saving or
-posting state. If the promise rejects, its message appears under the editor. Bodies are Markdown,
-edited with `TextEdit` (no toolbar; a reduced slash menu; no drag handles) and rendered with
-`MarkdownView`. The editor's bubble menu and link input float in a portal, so the box never clips
-them. Times read in the compact form — "now", "19m ago", "3h ago" — with the exact time on hover.
+The look is Linear's, and the spacing is identical on web and mobile. **A thread is one card** — a
+1px `border-border`, `rounded-lg`, the light `bg-muted/30` fill, no padding of its own — whose
+comments are rows 12px in from its sides: the first comment, then "Show N more replies" (a
+full-width muted row with a chevron, `hiddenReplies` + `onShowReplies`; "Show less" with
+`onHideReplies`), then the replies, each over a hairline (`border-border/50`). A row is a header
+— a 24px avatar, 8px to the name, the badge, the relative time and "(edited)" — then, 4px under it,
+the body. The first comment's body runs the row's full width; **a reply's body is indented to the
+name** (32px). At the card's foot, over a hairline, sits **the reply row**: the viewer's avatar
+(`viewer`), a one-line "Write a reply…" box with no border or fill of its own, and attach and a
+round ↑ Send at its end. It grows with the text, Esc leaves it, and Cmd/Ctrl+Enter sends.
 
-Each comment sits in its own card — a light fill (`bg-muted/30`), a 1px `border-border`,
-`rounded-xl` and 4px padding — and so do a deleted comment's placeholder and a comment being edited
-(the editor sits straight in the card, with no box inside the box). Replies are rows inside their
-comment's card. The spacing, identical on web and mobile: a 24px avatar, 8px to the name; 4px from
-the name row to the body (or to the files when there is no text); 6px from the body to the files;
-12px between comments and between threads. A comment's images show as the images themselves —
-`CommentMedia`, a wrapping row of rounded previews at most 200px tall in their own aspect ratio,
-opening the `FileViewer` (wrap a comment's or a task's files in one `AttachmentPreview` to page
-through them all); a draft's pasted or picked images look the same, dimmed under a spinner while
-they upload. Other files are compact `Attachment` cards. Reaction pills always have a light border,
-with a soft tint when the viewer reacted.
-A long name truncates. The card's border never
-changes on hover or focus. Its hover actions sit at the card's top-right: the add-reaction button
-and the ⋯ button, identical ghost `icon-sm` buttons, shown on hover or focus inside the comment,
-kept while their popup is open, and always shown on touch screens.
+`CommentComposer` — a record's new comment — is a **bordered card**: the text on top (two lines at
+rest, about twelve before it scrolls inside, "Add a comment…"), the draft's files under it, and a
+toolbar row whose end holds the optional `attachments` slot, a muted paperclip (whenever
+`onImageUpload`, `onFileUpload` or `onAttachFiles` is set) and the round ↑ Send — a quiet grey disc
+while there is nothing to send. Its border darkens subtly while it holds focus. Cmd/Ctrl+Enter
+sends, and Send's tooltip names the shortcut. On a touch screen every round control gets a 40px
+target. `replyingTo={{ name }}` shows "Replying to name ×" above the box and the "Write a reply…"
+placeholder; × or Esc calls `onCancelReply` and keeps the text. The `files` slot is a draft's
+attached files (pending cards with progress and ×), part of what Send posts. With `onAttachFiles`,
+files pasted or dropped on the box join that tray — while files are dragged over it, a dashed
+"Drop files to attach" overlay shows. With `hasFiles`, Send is enabled with no text;
+`CommentThread`'s `composer` takes the same options for its reply row.
 
-Each comment is anchored at `#comment-<id>`. Pass that id as `highlightedId` to tint it and scroll
-it into view. The ⋯ menu is sized to its content and shows Copy link (a link icon) when `onCopyLink`
-is set, and Edit (a pencil) or Delete (a destructive trash can) when the comment's `canEdit` or
-`canDelete` allows them. Delete calls `onDelete` at once, with no confirmation dialog: the host
-removes the comment and offers Undo (a toast), which keeps a slip recoverable without a modal.
+Editing a comment turns its body into a compact `Input`-like box and its header actions into a
+ghost ✕ Cancel and a primary ✓ Save (disabled while empty or unchanged), both with tooltips naming
+Esc and Cmd/Ctrl+Enter. The parts take data and callbacks and keep only transient UI state. A
+callback that returns a promise drives the saving or posting state. If the promise rejects, its
+message appears under the editor. Bodies are Markdown, edited with `TextEdit` (no toolbar; a
+reduced slash menu; no drag handles) and rendered with `MarkdownView`. Times read in the compact
+form — "now", "19m ago", "3h ago" — with the exact time on hover.
+
+On its own (a `CommentList`), each comment is its own card, and `renderReplies` nests one level of
+replies as rows inside it. A comment's images show as the images themselves — `CommentMedia`, a
+wrapping row of rounded previews at most 200px tall, opening the `FileViewer` (wrap a comment's or
+a task's files in one `AttachmentPreview` to page through them all); other files are compact
+`Attachment` cards. A long name truncates. The card's border never changes on hover or focus. The
+hover actions sit at the header's end — add reaction and ⋯, identical ghost `icon-sm` buttons,
+shown on hover or focus inside the comment, kept while their popup is open, and always shown on
+touch screens.
+
+Each comment is anchored at `#comment-<id>`. Pass that id as `highlightedId` (on `CommentList` or
+`CommentThread`) to tint it and scroll it into view. The ⋯ menu is sized to its content: Reply (on
+a touch screen, inside a thread, focusing its reply row), Copy link (`onCopyLink`) and Copy text
+(`onCopyText`, the Markdown), then — over a separator — Edit and a destructive Delete when the
+comment's `canEdit` or `canDelete` allows them. Delete calls `onDelete` at once, with no
+confirmation dialog: the host removes the comment and offers Undo (a toast). A soft-deleted
+comment keeps its author and time over "This comment was deleted.", with no actions.
 
 Reactions come from each comment's `reactions` and show as [`Reactions`](/docs/components/reactions)
-pills under the body. With `onReactionToggle`, a pill click toggles and an "Add reaction" button
-joins the hover actions, Slack style.
+pills under the body, with an add-reaction button after them. With `onReactionToggle`, a pill
+click toggles and an "Add reaction" button joins the hover actions too, Slack style.
 
 <ComponentPreview name="comments" file="components/preview/comments.tsx" />
 
@@ -116,9 +125,9 @@ No comments: just the composer.
 
 ### Edited, deleted with replies
 
-A soft-deleted comment with replies stays as "Comment deleted" so the thread keeps its place. Hide
-one with no replies yourself. `replies` (or `renderReplies` on the list) indents one level of
-`CommentItem`s.
+A soft-deleted comment with replies keeps its author and time over "This comment was deleted." so
+the thread keeps its place. Hide one with no replies yourself. `replies` (or `renderReplies` on the
+list) nests one level of `CommentItem`s as rows of the card, their bodies indented to the name.
 
 <ComponentPreview
   name="commentsThread"
@@ -186,11 +195,22 @@ keeps its own editing state, as before.
   file="components/preview/comments.tsx"
 />
 
+### Record threads
+
+A record's discussion as threads (a task's comments): each `CommentThread` without a quote — the
+first comment, "Show N more replies" (here it loads two earlier replies; then "Show less" folds
+them), the replies and the reply row with the viewer's avatar. Hover a comment for its actions.
+
+<ComponentPreview
+  name="commentsTaskThreads"
+  file="components/preview/comments.tsx"
+/>
+
 ### Threads
 
-`CommentThread` is one discussion about a piece of text, the way Google Docs shows it beside the
+`CommentThread` is also one discussion about a piece of text, the way Google Docs shows it beside the
 page: the quoted words (a button when `onQuoteClick` is set, to find the highlight), the first
-comment, its replies, and the one-line "Write a reply…" box
+comment, its replies, and the reply row
 (<kbd>Cmd/Ctrl</kbd>+<kbd>Enter</kbd> sends; the box clears when `onReply` resolves and keeps the
 text when it rejects). ✓ in the header calls `onResolve`. Pass `composer` to give the reply box
 `mentions`, `mentionHref` and uploads, and `renderAttachments` to show each comment's files.
@@ -207,7 +227,7 @@ text when it rejects). ✓ in the header calls `onResolve`. Pass `composer` to g
 A resolved thread says who resolved it and when, and offers Reopen (`onReopen`). An `orphaned`
 thread — its text was deleted — says "Original text was removed" instead of the quote. `collapsed`
 shows the first comment, "N replies" (a button with `onExpand`) and the last reply, with no reply
-box.
+row.
 
 <ComponentPreview
   name="commentsThreadStates"
@@ -264,8 +284,10 @@ comment's files — and its `mentionHref` links the mention chips in the body. P
 - The section is labelled by its heading. The comments are a list, and replies are a nested list
   named "Replies".
 - Each comment's ⋯ trigger is named for its author ("Actions for comment by Asha Rao").
-- The relative time shows the exact time on hover or focus. "edited" does the same with the edit
+- The relative time shows the exact time on hover or focus. "(edited)" does the same with the edit
   time.
+- "Show N more replies" / "Show less" is a button with `aria-expanded`; a day label is a
+  `separator` named for its day.
 - Errors are announced with `role="alert"`.
 - Reaction pills are toggle buttons (`aria-pressed`) named with the emoji and count.
 - A thread is an `article` named for its first comment's author; its ✓ is a button named
@@ -274,13 +296,13 @@ comment's files — and its `mentionHref` links the mention chips in the body. P
 | Key                               | Action                            |
 | --------------------------------- | --------------------------------- |
 | <kbd>Cmd</kbd> + <kbd>Enter</kbd> | Send the comment, or save an edit |
-| <kbd>Esc</kbd>                    | Cancel an edit                    |
+| <kbd>Esc</kbd>                    | Cancel an edit, or leave a reply  |
 
 <StatesTested name="comments" />
 
 ## Do / Don't
 
 <DoDont
-  do="Put the composer at the end of the list, and link notifications to #comment-<id>."
+  do="Put the composer at the end of the list (at the top newest first), and link notifications to #comment-<id>."
   dont="Use comments for system activity (status changes, assignments) — keep those in an activity feed."
 />

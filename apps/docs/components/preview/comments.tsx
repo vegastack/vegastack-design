@@ -94,6 +94,7 @@ function CommentsDemo() {
         hasEarlier
         onLoadEarlier={() => {}}
         onCopyLink={() => {}}
+        onCopyText={() => {}}
         onEdit={async (id, body) => {
           await wait(400);
           setItems((xs) =>
@@ -146,14 +147,14 @@ export function comments(): ReactNode {
 }
 
 /**
- * The composer at rest: a light, near-transparent box with the "Add a comment…" placeholder that
- * grows to about twelve lines before it scrolls inside; the ↑ send button is a quiet grey disc
- * while there is nothing to send, and turns primary once there is.
+ * The composer at rest: a bordered card with the "Add a comment…" placeholder (two lines tall,
+ * growing to about twelve before it scrolls inside) and a toolbar row under it — attach, and the
+ * ↑ send button, a quiet grey disc while there is nothing to send and primary once there is.
  */
 export function commentsComposer(): ReactNode {
   return (
     <Demo className="flex max-w-2xl flex-col items-stretch gap-6">
-      <CommentComposer onSubmit={() => {}} />
+      <CommentComposer onSubmit={() => {}} onAttachFiles={() => {}} />
     </Demo>
   );
 }
@@ -307,6 +308,7 @@ export function commentsThreadCard(): ReactNode {
         className="max-w-80"
         active
         now={NOW}
+        viewer={ME}
         thread={thread}
         onQuoteClick={() => {}}
         onReply={(body) =>
@@ -337,6 +339,133 @@ export function commentsThreadCard(): ReactNode {
   );
 }
 
+const TASK_THREADS: CommentThreadData[] = [
+  {
+    id: "k1",
+    root: {
+      id: "k1-1",
+      author: PRIYA,
+      body: "Can we confirm the luminaire spec for the lobby before Friday? The **driver** needs to be dimmable.",
+      createdAt: NOW - 26 * 3_600_000,
+      reactions: [
+        {
+          emoji: "👀",
+          count: 1,
+          reacted: true,
+          users: [ME_REACTOR],
+        },
+      ],
+    },
+    replies: [
+      {
+        id: "k1-5",
+        author: ARJUN,
+        body: "Confirmed with the vendor — DALI driver is fine.",
+        createdAt: NOW - 3 * 3_600_000,
+        editedAt: NOW - 2 * 3_600_000,
+      },
+      {
+        id: "k1-6",
+        author: ME,
+        body: "Great, I'll update the BOQ.",
+        createdAt: NOW - 5 * 60_000,
+        canEdit: true,
+        canDelete: true,
+      },
+    ],
+  },
+  {
+    id: "k2",
+    root: {
+      id: "k2-1",
+      author: ME,
+      body: "Uploaded the revised drawings. Please review section 3.",
+      createdAt: NOW - 20 * 60_000,
+      canEdit: true,
+      canDelete: true,
+    },
+    replies: [],
+  },
+];
+
+function TaskThreadsDemo() {
+  const [threads, setThreads] = React.useState(TASK_THREADS);
+  const [open, setOpen] = React.useState(false);
+  const earlier: CommentData[] = [
+    {
+      id: "k1-2",
+      author: ARJUN,
+      body: "Checking with the vendor.",
+      createdAt: NOW - 25 * 3_600_000,
+    },
+    {
+      id: "k1-3",
+      author: PRIYA,
+      body: "Thanks — they quoted 0–10 V last time.",
+      createdAt: NOW - 24 * 3_600_000,
+    },
+  ];
+  return (
+    <Demo>
+      <div className="flex flex-col gap-3">
+        {threads.map((thread) => (
+          <CommentThread
+            key={thread.id}
+            now={NOW}
+            viewer={ME}
+            thread={
+              thread.id === "k1" && open
+                ? { ...thread, replies: [...earlier, ...thread.replies] }
+                : thread
+            }
+            hiddenReplies={thread.id === "k1" && !open ? earlier.length : 0}
+            onShowReplies={() => wait(400).then(() => setOpen(true))}
+            onHideReplies={
+              thread.id === "k1" && open ? () => setOpen(false) : undefined
+            }
+            onCopyLink={() => {}}
+            onCopyText={() => {}}
+            onEdit={() => {}}
+            onDelete={() => {}}
+            onReactionToggle={() => {}}
+            onReply={(body) =>
+              setThreads((ts) =>
+                ts.map((t) =>
+                  t.id === thread.id
+                    ? {
+                        ...t,
+                        replies: [
+                          ...t.replies,
+                          {
+                            id: `${t.id}-${t.replies.length + 10}`,
+                            author: ME,
+                            body,
+                            createdAt: NOW,
+                            canEdit: true,
+                            canDelete: true,
+                          },
+                        ],
+                      }
+                    : t,
+                ),
+              )
+            }
+            composer={{ onAttachFiles: () => {} }}
+          />
+        ))}
+      </div>
+    </Demo>
+  );
+}
+
+/**
+ * A record's threads, Linear style: each a card — the first comment, "Show N more replies", the
+ * replies indented to the name over hairlines, and a flat reply row with the viewer's avatar.
+ */
+export function commentsTaskThreads(): ReactNode {
+  return <TaskThreadsDemo />;
+}
+
 /**
  * Restored drafts: a composer and a reply box that open on the text the viewer left
  * (`defaultValue`), and a reply box held busy by the host while an upload runs (`posting`).
@@ -351,12 +480,14 @@ export function commentsDrafts(): ReactNode {
       <div className="grid gap-4 md:grid-cols-2">
         <CommentThread
           now={NOW}
+          viewer={ME}
           thread={{ ...THREAD, replies: [] }}
           onReply={() => wait(600)}
           composer={{ defaultValue: "Checking the cable size first" }}
         />
         <CommentThread
           now={NOW}
+          viewer={ME}
           thread={{ ...THREAD, replies: [] }}
           onReply={() => {}}
           composer={{
