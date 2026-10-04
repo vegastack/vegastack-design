@@ -12,8 +12,8 @@
     "evidencePolicy": "Observed fields come from source, registry metadata, docs, and test topology. Unknown/not-applicable values are explicit; no inferred behavior is presented as verified."
   },
   "expectedCounts": {
-    "totalRegistryItems": 724,
-    "components": 150,
+    "totalRegistryItems": 725,
+    "components": 151,
     "animatedIcons": 467,
     "hooks": 13,
     "blocks": 14,
@@ -25,7 +25,7 @@
     "Forms/editing": 34,
     "Navigation/layout": 21,
     "Overlays": 18,
-    "Data display": 27,
+    "Data display": 28,
     "Content/marketing": 15,
     "Shared internals": 3,
     "AI/chat": 8,
@@ -140,6 +140,7 @@
       "tooltip"
     ],
     "Data display": [
+      "activity-feed",
       "board-card",
       "card",
       "carousel",
@@ -28329,7 +28330,8 @@
             "orphaned",
             "collapsed",
             "attachments",
-            "draft"
+            "draft",
+            "agent"
           ],
           "evidence": "packages/ui/registry/ui/comments.tsx + packages/ui/registry/ui/comments.test.tsx"
         },
@@ -28367,6 +28369,7 @@
         "@vegastack/file-viewer",
         "@vegastack/markdown-view",
         "@vegastack/person-avatar",
+        "@vegastack/person-hover-card",
         "@vegastack/reactions",
         "@vegastack/relative-time",
         "@vegastack/searchable-select",
@@ -28395,6 +28398,10 @@
         "CommentItem": {
           "attributes": [
             {
+              "name": "data-agent",
+              "values": [""]
+            },
+            {
               "name": "data-deleted",
               "values": [""]
             },
@@ -28407,6 +28414,8 @@
               "values": [
                 "comment-actions",
                 "comment-actions-content",
+                "comment-agent",
+                "comment-agent-avatar",
                 "comment-attachments",
                 "comment-body",
                 "comment-card",
@@ -28506,6 +28515,389 @@
             {
               "name": "data-slot",
               "values": ["comment-list-skeleton"]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
+    },
+    {
+      "name": "activity-feed",
+      "registryType": "registry:ui",
+      "title": "Activity Feed",
+      "summary": "A record's history, Linear style: comment threads and activity events (\"Priya changed status from Open to Done · 2h\") in one list, with an All / Comments / Activity filter, an order toggle, collapsible event groups, a New divider, a floating Jump to latest, J/K/X keyboard navigation and a skeleton.",
+      "status": "stable",
+      "since": "0.23.123",
+      "family": "display",
+      "wave": "Data display",
+      "sourceFiles": ["packages/ui/registry/ui/activity-feed.tsx"],
+      "publicSymbols": [
+        {
+          "name": "ActivityFeed",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/activity-feed.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "section",
+            "rationale": "Spread onto the feed section."
+          }
+        },
+        {
+          "name": "ActivityFeedProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/activity-feed.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "ActivityFeedList",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/activity-feed.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "ol",
+            "rationale": "Spread onto the list."
+          }
+        },
+        {
+          "name": "ActivityFeedItem",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/activity-feed.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "li",
+            "rationale": "Spread onto the list item."
+          }
+        },
+        {
+          "name": "ActivityFeedItemProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/activity-feed.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "ActivityEvent",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/activity-feed.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Takes no ref; renders a row div."
+          }
+        },
+        {
+          "name": "ActivityEventProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/activity-feed.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "ActivityValue",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/activity-feed.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "span",
+            "rationale": "Spread onto the value span."
+          }
+        },
+        {
+          "name": "ActivityEventGroup",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/activity-feed.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Takes no ref; renders a group div."
+          }
+        },
+        {
+          "name": "ActivityEventGroupProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/activity-feed.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "ActivityKindIcon",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/activity-feed.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Takes no ref; renders a decorative lucide icon."
+          }
+        },
+        {
+          "name": "ActivityKind",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/activity-feed.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "ActivityUnreadDivider",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/activity-feed.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Holds its own ref for the IntersectionObserver; none is forwarded."
+          }
+        },
+        {
+          "name": "ActivityJumpToLatest",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/activity-feed.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Holds its own sentinel ref; none is forwarded."
+          }
+        },
+        {
+          "name": "useActivityFeedKeyboard",
+          "kind": "hook",
+          "source": "packages/ui/registry/ui/activity-feed.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Returns a ref for the caller to attach to the feed."
+          }
+        },
+        {
+          "name": "ActivityFeedSkeleton",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/activity-feed.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Takes no props or ref."
+          }
+        },
+        {
+          "name": "ActivityFilter",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/activity-feed.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "ActivityOrder",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/activity-feed.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "A composed set; no local axis."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "A composed set; no local axis."
+      },
+      "states": {
+        "behavior": {
+          "status": "covered",
+          "values": [
+            "filter",
+            "order",
+            "pending",
+            "event",
+            "system-actor",
+            "agent-actor",
+            "group-folded",
+            "group-open",
+            "unread",
+            "jump-to-latest",
+            "keyboard-focused",
+            "loading"
+          ],
+          "evidence": "packages/ui/registry/ui/activity-feed.tsx + packages/ui/registry/ui/activity-feed.test.tsx"
+        },
+        "accessibility": {
+          "status": "covered",
+          "values": [
+            "labeled",
+            "semantic-html",
+            "keyboard-navigation",
+            "browser-accessibility-test"
+          ],
+          "evidence": "packages/ui/registry/ui/activity-feed.test.tsx"
+        },
+        "visual": {
+          "status": "observed",
+          "values": ["default", "loading", "focused"],
+          "evidence": "packages/ui/registry/ui/activity-feed.tsx"
+        }
+      },
+      "responsive": {
+        "status": "modeled",
+        "risks": ["responsive-or-container-layout"],
+        "rationale": "Fills its column; event sentences wrap under their icon and the header's filter and toggle stay on one row."
+      },
+      "motion": {
+        "status": "observed",
+        "mechanisms": ["css-transition"],
+        "reducedMotion": {
+          "status": "observed",
+          "rationale": "The jump button's fade and the list's pending dim are short CSS transitions the global reduced-motion reset collapses."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/activity-feed",
+      "registryDependencies": [
+        "@vegastack/button",
+        "@vegastack/person-avatar",
+        "@vegastack/person-hover-card",
+        "@vegastack/relative-time",
+        "@vegastack/select",
+        "@vegastack/skeleton"
+      ],
+      "npmDependencies": [
+        "@vegastack/design@^0.7.107",
+        "@vegastack/design-tokens@^0.7.80",
+        "lucide-react@^1.47.0"
+      ],
+      "testFiles": ["packages/ui/registry/ui/activity-feed.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required"
+      },
+      "previewModule": "activity-feed",
+      "dataAttributes": {
+        "ActivityFeed": {
+          "attributes": [
+            {
+              "name": "data-pending",
+              "values": [""]
+            },
+            {
+              "name": "data-slot",
+              "values": [
+                "activity-feed",
+                "activity-feed-filter",
+                "activity-feed-header",
+                "activity-feed-order"
+              ]
+            }
+          ],
+          "cssVariables": []
+        },
+        "ActivityFeedList": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["activity-feed-list"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "ActivityFeedItem": {
+          "attributes": [
+            {
+              "name": "data-kind",
+              "values": []
+            },
+            {
+              "name": "data-slot",
+              "values": ["activity-feed-item"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "ActivityKindIcon": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["activity-kind-icon"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "ActivityEvent": {
+          "attributes": [
+            {
+              "name": "data-agent",
+              "values": [""]
+            },
+            {
+              "name": "data-slot",
+              "values": [
+                "activity-event",
+                "activity-event-agent",
+                "activity-event-icon"
+              ]
+            }
+          ],
+          "cssVariables": []
+        },
+        "ActivityValue": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["activity-value"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "ActivityEventGroup": {
+          "attributes": [
+            {
+              "name": "data-open",
+              "values": [""]
+            },
+            {
+              "name": "data-slot",
+              "values": ["activity-event-group", "activity-event-group-toggle"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "ActivityUnreadDivider": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["activity-unread-divider"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "ActivityJumpToLatest": {
+          "attributes": [
+            {
+              "name": "data-shown",
+              "values": [""]
+            },
+            {
+              "name": "data-slot",
+              "values": ["activity-feed-end", "activity-jump-floating"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "ActivityFeedSkeleton": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["activity-feed-skeleton"]
             }
           ],
           "cssVariables": []
@@ -29663,6 +30055,15 @@
             {
               "name": "data-slot",
               "values": ["person-card"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "PersonHoverCard": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["person-hover-card-name"]
             }
           ],
           "cssVariables": []

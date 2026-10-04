@@ -1234,6 +1234,15 @@ for (const [name, fixture] of FIXTURES) {
           getComputedStyle(control).display === "inline"
         )
           continue;
+        // A PersonHoverCard name trigger in a sentence ("Priya changed status…") is the same: a
+        // name in a run of text, sized by its line. A <button> computes `inline` to
+        // `inline-block`, so that is the in-sentence value; blockified (a comment header's flex
+        // row) it computes `block` and is measured like any other control.
+        if (
+          control.getAttribute("data-slot") === "person-hover-card-name" &&
+          getComputedStyle(control).display === "inline-block"
+        )
+          continue;
         // An InlineChip (a mention or file link that opens or previews) is a target in a block
         // of text by design: an inline box on the text's baseline, wrapping with its line.
         if (

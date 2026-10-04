@@ -796,3 +796,30 @@ test("a deleted first comment keeps the reply row; a collapsed thread with one r
     .element(collapsed.getByRole("button", { name: "1 reply" }))
     .toBeVisible();
 });
+
+test("an agent's comment carries data-agent and an Agent label; the author's name opens a hover card", async () => {
+  const screen = await render(
+    <ul>
+      <CommentItem
+        comment={{
+          id: "a",
+          author: { name: "Regent AI", email: "agent@regent.ai" },
+          body: "Summarised the thread.",
+          createdAt: Date.now(),
+          agent: true,
+        }}
+      />
+    </ul>,
+  );
+  const item = screen.container.querySelector("[data-slot=comment-item]");
+  expect(item?.hasAttribute("data-agent")).toBe(true);
+  await expect
+    .element(screen.getByText("Agent", { exact: true }))
+    .toBeVisible();
+  expect(
+    screen.container.querySelector("[data-slot=comment-agent-avatar]"),
+  ).not.toBeNull();
+  await screen.getByRole("button", { name: "Regent AI" }).click();
+  await expect.element(screen.getByText("agent@regent.ai")).toBeVisible();
+  await expectNoA11yViolations(screen.container);
+});

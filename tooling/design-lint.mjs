@@ -521,6 +521,14 @@ const RAW_INTERACTIVE_EXEMPTIONS = new Map([
     },
   ],
   [
+    "registry/ui/person-hover-card.tsx",
+    {
+      counts: { button: 1 },
+      rationale:
+        "`trigger=\"name\"`, the person's name as an inline text trigger inside a sentence (a comment's author, an activity's actor) — it must flow and wrap with the surrounding text, and a Button at any size paints its own inline-flex box, height and padding",
+    },
+  ],
+  [
     "registry/ui/native-select.tsx",
     {
       counts: { select: 1 },

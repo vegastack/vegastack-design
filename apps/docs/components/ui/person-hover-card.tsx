@@ -1,4 +1,4 @@
-// @vegastack person-hover-card@0.23.122 sha256-O3NXljNFDSE11x5OWJDEs8vDzi87unrgYNl4pGupe/g=
+// @vegastack person-hover-card@0.23.122 sha256-OwIkHK1ktoTEhunLygNsTZOffAMsG2oB5Eibx2sgtrE=
 
 "use client";
 
@@ -91,8 +91,16 @@ export function PersonCard({
 export interface PersonHoverCardProps {
   /** The person. */
   person: Person;
-  /** The trigger — usually a `PersonAvatar`. It is wrapped in a round ghost button named by the person. */
+  /**
+   * The trigger — a `PersonAvatar` (`trigger="avatar"`) or the person's name (`trigger="name"`).
+   */
   children: React.ReactNode;
+  /**
+   * `avatar` — the children sit in a round ghost button named by the person. `name` — the
+   * children are inline text (a comment's author, an activity's actor) in a plain text button.
+   * @default "avatar"
+   */
+  trigger?: "avatar" | "name";
   /** Classes for the trigger button. @default undefined */
   className?: string;
 }
@@ -106,6 +114,7 @@ export interface PersonHoverCardProps {
 export function PersonHoverCard({
   person,
   children,
+  trigger = "avatar",
   className,
 }: PersonHoverCardProps) {
   const [open, setOpen] = React.useState(false);
@@ -113,16 +122,31 @@ export function PersonHoverCard({
     <HoverCard open={open} onOpenChange={setOpen}>
       <HoverCardTrigger
         render={
-          <Button
-            variant="ghost"
-            size="icon-sm"
-            aria-label={person.name}
-            className={cn(
-              person.kind === "team" ? "rounded-md" : "rounded-full",
-              className,
-            )}
-            onClick={() => setOpen((o) => !o)}
-          />
+          trigger === "name" ? (
+            <button
+              type="button"
+              data-slot="person-hover-card-name"
+              className={cn(
+                // A name in a sentence (a button computes `inline` as `inline-block`): a target in
+                // a block of text, sized by its line (WCAG 2.2 §2.5.8's inline exception). Where
+                // a flex row blockifies it, the host pads it to 24px.
+                "inline min-w-0 cursor-default rounded-sm text-start font-medium text-foreground focus-visible:bg-accent",
+                className,
+              )}
+              onClick={() => setOpen((o) => !o)}
+            />
+          ) : (
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              aria-label={person.name}
+              className={cn(
+                person.kind === "team" ? "rounded-md" : "rounded-full",
+                className,
+              )}
+              onClick={() => setOpen((o) => !o)}
+            />
+          )
         }
       >
         {children}
