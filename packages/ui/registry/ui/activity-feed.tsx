@@ -1,4 +1,4 @@
-// @vegastack activity-feed@0.23.122 sha256-5blRSlIsjavQdBpMtpD8SQuR+XDv/SDcJ+bF9X6EuzM=
+// @vegastack activity-feed@0.23.122 sha256-t1caP2ZFbe8dke7I69dBD4QYsYXaPeVbp+d4ATQjlh8=
 
 "use client";
 
@@ -7,6 +7,7 @@ import {
   Archive,
   ArchiveRestore,
   ArrowDown,
+  ArrowUp,
   ArrowUpDown,
   Calendar,
   CheckCircle2,
@@ -404,6 +405,16 @@ export function ActivityEvent({
         ) : (
           <span className="font-medium text-foreground">System</span>
         )}{" "}
+        {agent ? (
+          <>
+            <span
+              data-slot="activity-event-agent"
+              className="rounded-sm bg-tag-purple-subtle px-1 font-medium text-tag-purple-text"
+            >
+              Agent
+            </span>{" "}
+          </>
+        ) : null}
         {children} <span aria-hidden>·</span>{" "}
         <RelativeTime date={date} now={now} />
       </p>
@@ -519,7 +530,13 @@ export function ActivityUnreadDivider({
     if (!node || typeof IntersectionObserver === "undefined") return;
     const observer = new IntersectionObserver(
       ([entry]) => {
-        if (!entry?.isIntersecting || seen.current) return;
+        // Half of it on screen (an observer's first report may be any sliver of it).
+        if (
+          !entry?.isIntersecting ||
+          entry.intersectionRatio < 0.5 ||
+          seen.current
+        )
+          return;
         seen.current = true;
         callback.current?.();
         observer.disconnect();
@@ -551,6 +568,13 @@ export function ActivityUnreadDivider({
  * ActivityJumpToLatest
  * ----------------------------------------------------------------------------------------------*/
 
+/** Smooth unless the viewer asked for reduced motion (an explicit `behavior` beats the CSS reset). */
+const scrollBehavior = (): ScrollBehavior =>
+  typeof window !== "undefined" &&
+  window.matchMedia?.("(prefers-reduced-motion: reduce)").matches
+    ? "auto"
+    : "smooth";
+
 /** The nearest scrolling ancestor of `node`, or the window. */
 function scrollParent(node: HTMLElement): HTMLElement | Window {
   let el = node.parentElement;
@@ -563,12 +587,13 @@ function scrollParent(node: HTMLElement): HTMLElement | Window {
 }
 
 /**
- * `ActivityJumpToLatest` — put it last in the feed: while the feed's end is off screen, and the
- * viewer isn't scrolling up, a floating "Jump to latest" pill shows at the bottom of the view;
- * it scrolls to the end. Nothing shows while `enabled` is false (a short feed).
+ * `ActivityJumpToLatest` — put it where the latest items are: last in the feed oldest first, first
+ * newest first. While that spot is off screen, and the viewer isn't scrolling back, a floating
+ * pill shows at the bottom of the view (an arrow pointing to it); it scrolls there and takes
+ * keyboard focus with it. Nothing shows while `enabled` is false (a short feed).
  *
  * @example
- * <ActivityJumpToLatest enabled={items.length > 3} />
+ * {order === "oldest" ? <>{list}<ActivityJumpToLatest enabled={n > 3} /></> : <><ActivityJumpToLatest enabled={n > 3} />{list}</>}
  */
 export function ActivityJumpToLatest({
   label = "Jump to latest",
@@ -584,18 +609,27 @@ export function ActivityJumpToLatest({
 }) {
   const sentinel = React.useRef<HTMLDivElement>(null);
   const [offScreen, setOffScreen] = React.useState(false);
-  const [scrollingUp, setScrollingUp] = React.useState(false);
+  // Which way the latest items are from the view: below (oldest first) or above (newest first).
+  const [above, setAbove] = React.useState(false);
+  const aboveRef = React.useRef(false);
+  const [away, setAway] = React.useState(false);
 
   React.useEffect(() => {
     const node = sentinel.current;
     if (!node || !enabled || typeof IntersectionObserver === "undefined")
       return;
     const observer = new IntersectionObserver(
-      ([entry]) => setOffScreen(!!entry && !entry.isIntersecting),
+      ([entry]) => {
+        setOffScreen(!!entry && !entry.isIntersecting);
+        if (!entry) return;
+        aboveRef.current =
+          entry.boundingClientRect.bottom < (entry.rootBounds?.top ?? 0);
+        setAbove(aboveRef.current);
+      },
       { threshold: 0 },
     );
     observer.observe(node);
-    // Hide while the viewer scrolls up (reading back); show again once they pause.
+    // Hide while the viewer scrolls away from the latest (reading back); show once they pause.
     const container = scrollParent(node);
     const top = () =>
       container instanceof Window ? container.scrollY : container.scrollTop;
@@ -608,11 +642,12 @@ export function ActivityJumpToLatest({
         frame = 0;
         const y = top();
         if (Math.abs(y - last) > 15) {
-          setScrollingUp(y < last);
+          // "Away from the latest": up when they are below, down when they are above.
+          setAway(aboveRef.current ? y > last : y < last);
           last = y;
         }
         clearTimeout(pause);
-        pause = setTimeout(() => setScrollingUp(false), 300);
+        pause = setTimeout(() => setAway(false), 300);
       });
     };
     container.addEventListener("scroll", onScroll, { passive: true });
@@ -624,7 +659,7 @@ export function ActivityJumpToLatest({
     };
   }, [enabled]);
 
-  const shown = enabled && offScreen && !scrollingUp;
+  const shown = enabled && offScreen && !away;
   return (
     <>
       <div
@@ -641,12 +676,16 @@ export function ActivityJumpToLatest({
           size="sm"
           tabIndex={shown ? 0 : -1}
           aria-hidden={!shown}
-          onClick={() =>
-            sentinel.current?.scrollIntoView({
-              behavior: "smooth",
-              block: "end",
-            })
-          }
+          onClick={() => {
+            const target = sentinel.current;
+            if (!target) return;
+            target.scrollIntoView({
+              behavior: scrollBehavior(),
+              block: "nearest",
+            });
+            // The pill hides once there: focus goes with the view, never to a hidden button.
+            target.focus({ preventScroll: true });
+          }}
           className={cn(
             "rounded-full shadow-md transition-[opacity,translate] duration-200 ease-out",
             shown
@@ -654,15 +693,18 @@ export function ActivityJumpToLatest({
               : "-translate-y-1/2 opacity-0",
           )}
         >
-          <ArrowDown aria-hidden />
+          {above ? <ArrowUp aria-hidden /> : <ArrowDown aria-hidden />}
           {label}
         </Button>
       </div>
       <div
         ref={sentinel}
-        aria-hidden
+        tabIndex={-1}
+        // Focus lands here after a jump: a named spot, so a screen reader says where it is.
+        role="group"
+        aria-label="Latest activity"
         data-slot="activity-feed-end"
-        className="h-px"
+        className="h-px outline-none"
       />
     </>
   );
@@ -673,6 +715,8 @@ export function ActivityJumpToLatest({
  * ----------------------------------------------------------------------------------------------*/
 
 const ITEM = '[data-slot="activity-feed-item"]';
+/** Mounted feeds listening for J/K, in mount order. */
+const FEEDS: string[] = [];
 
 /** Whether a key press belongs to a text field (never a feed shortcut). */
 function typing(target: EventTarget | null) {
@@ -683,7 +727,9 @@ function typing(target: EventTarget | null) {
       el.tagName === "INPUT" ||
       el.tagName === "TEXTAREA" ||
       el.tagName === "SELECT" ||
-      !!el.closest("[contenteditable=true],[role=dialog],[role=menu]"))
+      !!el.closest(
+        "[contenteditable=true],[role=dialog],[role=menu],[role=listbox],[role=combobox],[role=option]",
+      ))
   );
 }
 
@@ -707,30 +753,43 @@ export function useActivityFeedKeyboard({
 } = {}) {
   const root = React.useRef<HTMLElement>(null);
   const toggle = React.useRef(onToggle);
+  const id = React.useId();
   React.useEffect(() => {
     toggle.current = onToggle;
   });
   React.useEffect(() => {
     if (!enabled) return;
     let current: HTMLElement | null = null;
+    FEEDS.push(id);
     const focus = (next: HTMLElement | null) => {
       current?.removeAttribute("data-focused");
       current = next;
       if (!next) return;
       next.setAttribute("data-focused", "");
-      next.scrollIntoView({ block: "nearest", behavior: "smooth" });
+      next.scrollIntoView({ block: "nearest", behavior: scrollBehavior() });
     };
     const onKeyDown = (event: KeyboardEvent) => {
       if (
+        event.defaultPrevented ||
         event.metaKey ||
         event.ctrlKey ||
         event.altKey ||
         typing(event.target)
       )
         return;
+      // One feed answers: the one focus is in, else the one mounted last.
+      const inside = document.activeElement?.closest(
+        "[data-activity-feed-keys]",
+      );
+      const mine = inside
+        ? inside.getAttribute("data-activity-feed-keys") === id
+        : FEEDS[FEEDS.length - 1] === id;
+      if (!mine) return;
       const items = Array.from(
         root.current?.querySelectorAll<HTMLElement>(ITEM) ?? [],
       );
+      // The selected item left the list (a filter, a delete): nothing is selected.
+      if (current && !items.includes(current)) focus(null);
       if (!items.length) return;
       const at = current ? items.indexOf(current) : -1;
       const key = event.key.toLowerCase();
@@ -748,12 +807,14 @@ export function useActivityFeedKeyboard({
         focus(null);
       }
     };
+    root.current?.setAttribute("data-activity-feed-keys", id);
     document.addEventListener("keydown", onKeyDown);
     return () => {
       document.removeEventListener("keydown", onKeyDown);
+      FEEDS.splice(FEEDS.indexOf(id), 1);
       focus(null);
     };
-  }, [enabled]);
+  }, [enabled, id]);
   return root;
 }
 

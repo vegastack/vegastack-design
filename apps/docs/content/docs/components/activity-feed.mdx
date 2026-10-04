@@ -72,7 +72,11 @@ person hover card, the sentence with its `ActivityValue`s, and the relative time
 
 Put `CommentDayDivider` (from `comments`) between items on different days, and one
 `ActivityUnreadDivider` before the first item the viewer hasn't seen; its `onVisible` fires once,
-when the line is half on screen — mark the record read there.
+when the line is half on screen — mark the record read there. Put `ActivityJumpToLatest` where the
+latest items are — last oldest first, first newest first: while that spot is off screen (and the
+viewer isn't scrolling away from it) a pill floats at the bottom of the view with an arrow
+pointing there; it scrolls there and takes keyboard focus with it. An `agent` event says "Agent"
+after the actor's name.
 
 <ComponentPreview
   name="activityFeed"
@@ -201,8 +205,11 @@ A record with no history yet shows the header and the composer.
 - "N more changes" / "Show less" is a button with `aria-expanded`.
 - The unread line is a `separator` named "New".
 - "Jump to latest" is hidden from assistive technology and out of the tab order while it is not
-  shown.
-- J and K never fire while focus is in a field, a menu or a dialog, or with a modifier held.
+  shown; activating it moves focus to the "Latest activity" spot it scrolled to.
+- J and K never fire while focus is in a field, a menu, a listbox or a dialog, with a modifier
+  held, or when something else already handled the key. With several feeds on a page, the one
+  holding focus answers (else the one mounted last); X ignores an item that has left the list.
+- Scrolling (J/K, Jump to latest) is instant when the viewer prefers reduced motion.
 
 | Key            | Action                                                    |
 | -------------- | --------------------------------------------------------- |

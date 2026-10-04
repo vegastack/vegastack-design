@@ -28840,7 +28840,11 @@
             },
             {
               "name": "data-slot",
-              "values": ["activity-event", "activity-event-icon"]
+              "values": [
+                "activity-event",
+                "activity-event-agent",
+                "activity-event-icon"
+              ]
             }
           ],
           "cssVariables": []

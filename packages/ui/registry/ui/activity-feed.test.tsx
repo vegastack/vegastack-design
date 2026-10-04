@@ -210,3 +210,86 @@ test("a full feed — events, a group, a thread, the New line, jump button — i
     skeleton.container.querySelector("[data-slot=activity-feed-skeleton]"),
   ).not.toBeNull();
 });
+
+test("pending dims the list and marks the section busy; an agent's event says Agent", async () => {
+  const screen = await render(
+    <ActivityFeed pending>
+      <ActivityFeedList>
+        <ActivityFeedItem>
+          <ActivityEvent actor={priya} agent date={NOW - HOUR} now={NOW}>
+            set priority to <ActivityValue>High</ActivityValue>
+          </ActivityEvent>
+        </ActivityFeedItem>
+      </ActivityFeedList>
+    </ActivityFeed>,
+  );
+  const section = screen.container.querySelector(
+    '[data-slot="activity-feed"]',
+  )!;
+  expect(section.getAttribute("aria-busy")).toBe("true");
+  expect(section.hasAttribute("data-pending")).toBe(true);
+  await expect
+    .element(screen.getByText("Agent", { exact: true }))
+    .toBeVisible();
+});
+
+test("Jump to latest shows while the end is off screen, scrolls there and takes focus with it", async () => {
+  const screen = await render(
+    <div style={{ height: 200, overflowY: "auto" }} data-testid="scroller">
+      <ActivityFeed>
+        <ActivityFeedList>
+          {Array.from({ length: 30 }, (_, i) => (
+            <ActivityFeedItem key={i}>
+              <ActivityEvent actor={priya} date={NOW - i * HOUR} now={NOW}>
+                changed something {i}
+              </ActivityEvent>
+            </ActivityFeedItem>
+          ))}
+        </ActivityFeedList>
+        <ActivityJumpToLatest />
+      </ActivityFeed>
+    </div>,
+  );
+  const floating = () =>
+    screen.container.querySelector('[data-slot="activity-jump-floating"]')!;
+  await vi.waitFor(() =>
+    expect(floating().hasAttribute("data-shown")).toBe(true),
+  );
+  await screen.getByRole("button", { name: "Jump to latest" }).click();
+  const end = screen.container.querySelector(
+    '[data-slot="activity-feed-end"]',
+  )!;
+  await vi.waitFor(() => expect(document.activeElement).toBe(end));
+  await vi.waitFor(() =>
+    expect(floating().hasAttribute("data-shown")).toBe(false),
+  );
+});
+
+test("keys already handled elsewhere are left alone, and X never acts on an item that left", async () => {
+  const onToggle = vi.fn();
+  function Feed({ items }: { items: number[] }) {
+    const ref = useActivityFeedKeyboard({ onToggle });
+    return (
+      <ActivityFeed ref={ref as React.RefObject<HTMLElement>}>
+        <ActivityFeedList>
+          {items.map((i) => (
+            <ActivityFeedItem key={i}>item {i}</ActivityFeedItem>
+          ))}
+        </ActivityFeedList>
+      </ActivityFeed>
+    );
+  }
+  const screen = await render(<Feed items={[1, 2]} />);
+  const handled = (event: KeyboardEvent) => event.preventDefault();
+  document.addEventListener("keydown", handled, { capture: true });
+  await userEvent.keyboard("j");
+  expect(screen.container.querySelector("[data-focused]")).toBeNull();
+  document.removeEventListener("keydown", handled, { capture: true });
+  await userEvent.keyboard("j");
+  expect(screen.container.querySelector("[data-focused]")?.textContent).toBe(
+    "item 1",
+  );
+  await screen.rerender(<Feed items={[2]} />);
+  await userEvent.keyboard("x");
+  expect(onToggle).not.toHaveBeenCalled();
+});

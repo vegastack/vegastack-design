@@ -271,6 +271,10 @@ function TaskHistory({
         <ActivityFeedSkeleton />
       ) : (
         <>
+          {/* Jump to latest sits where the latest items are: first, newest first. */}
+          {order === "newest" ? (
+            <ActivityJumpToLatest enabled={sorted.length > 3} />
+          ) : null}
           {order === "newest" ? composer : null}
           <ActivityFeedList>
             <FeedEntries
@@ -279,7 +283,9 @@ function TaskHistory({
             />
           </ActivityFeedList>
           {order === "oldest" ? composer : null}
-          <ActivityJumpToLatest enabled={sorted.length > 3} />
+          {order === "oldest" ? (
+            <ActivityJumpToLatest enabled={sorted.length > 3} />
+          ) : null}
         </>
       )}
     </ActivityFeed>
