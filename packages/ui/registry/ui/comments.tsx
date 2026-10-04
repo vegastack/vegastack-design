@@ -1,4 +1,4 @@
-// @vegastack comments@0.23.120 sha256-djlK5NJCZfFgze0OV4HLdXBkNq6qYHdO1ypak/yXn74=
+// @vegastack comments@0.23.120 sha256-Uwn+7eiVrepFp2Z+FwWCzMenu5VdII0JhJw7YgnqabE=
 
 "use client";
 
@@ -1445,7 +1445,8 @@ export function CommentThread({
   const [error, setError] = React.useState<string | null>(null);
   const replyBox = React.useRef<HTMLDivElement>(null);
   const { resolved, orphaned, quote, root } = thread;
-  const canReply = !collapsed && !!onReply && !root.deleted;
+  // A deleted first comment keeps its thread open for replies (the host's `onReply` decides).
+  const canReply = !collapsed && !!onReply;
 
   const reply = async (body: string) => {
     if (
@@ -1539,7 +1540,7 @@ export function CommentThread({
                   variant="ghost"
                   onClick={onQuoteClick}
                   data-slot="comment-thread-quote"
-                  className="h-auto w-full min-w-0 justify-start rounded-sm border-0 border-s-2 border-border px-2 py-0.5 text-start text-sm font-normal whitespace-normal text-muted-foreground"
+                  className="h-auto w-full min-w-0 justify-start rounded-none rounded-e-sm border-0 border-s-2 border-border px-2 py-0.5 text-start text-sm font-normal whitespace-normal text-muted-foreground"
                 >
                   <span className="line-clamp-3 min-w-0">{quote}</span>
                 </Button>
@@ -1599,7 +1600,7 @@ export function CommentThread({
       ) : null}
       <ul data-slot="comment-thread-comments" className="flex flex-col">
         {item(root, true)}
-        {folded > 0 ? (
+        {folded > 0 || (collapsed && thread.replies.length > 0) ? (
           <RepliesToggle onClick={collapsed ? onExpand : onShowReplies}>
             {collapsed
               ? replyCount(thread.replies.length + hiddenReplies)
@@ -1674,6 +1675,19 @@ export function CommentThread({
  * CommentDayDivider
  * ----------------------------------------------------------------------------------------------*/
 
+/**
+ * The clock and zone day labels are computed in — or `null` while unknown. A calendar day depends
+ * on the zone: without a provider's zone, labels wait for the browser's clock (after hydration),
+ * so the server's render and the first client render agree.
+ */
+function useDayClock(nowProp: number | undefined) {
+  const timeZone = useTimeZone();
+  const clock = useDateTimeNow();
+  if (clock === undefined && timeZone === undefined) return null;
+  const now = nowProp ?? clock;
+  return now === undefined ? null : { now, timeZone };
+}
+
 /** The calendar day an instant falls on, in the viewer's zone, as a comparable key. */
 function dayKey(
   date: Date | string | number,
@@ -1702,10 +1716,9 @@ export function CommentDayDivider({
   /** Classes for the divider. @default undefined */
   className?: string;
 }) {
-  const timeZone = useTimeZone();
-  const clock = useDateTimeNow();
-  const now = nowProp ?? clock;
-  if (now === undefined) return null;
+  const day = useDayClock(nowProp);
+  if (!day) return null;
+  const { now, timeZone } = day;
   const delta = dayKey(date, now, timeZone);
   const label =
     delta === 0
@@ -1756,11 +1769,9 @@ export function useCommentDayDividers(
   dates: readonly (Date | string | number)[],
   nowProp?: number,
 ): boolean[] {
-  const timeZone = useTimeZone();
-  const clock = useDateTimeNow();
-  const now = nowProp ?? clock;
-  if (now === undefined) return dates.map(() => false);
-  return dates.map((_, i) => startsDay(dates, i, now, timeZone));
+  const day = useDayClock(nowProp);
+  if (!day) return dates.map(() => false);
+  return dates.map((_, i) => startsDay(dates, i, day.now, day.timeZone));
 }
 
 /* ------------------------------------------------------------------------------------------------
@@ -1935,53 +1946,65 @@ export function CommentList({
         order={onOrderChange && !loading && !empty ? order : undefined}
         onOrderChange={onOrderChange}
       />
-      {order === "newest" ? composerShown : null}
-      {loading ? (
-        <CommentListSkeleton />
-      ) : empty ? (
-        emptyText ? (
-          <p
-            data-slot="comment-list-empty"
-            className="text-sm text-muted-foreground"
-          >
-            {emptyText}
-          </p>
-        ) : null
-      ) : (
-        <>
-          {order === "oldest" ? loadEarlier : null}
-          <ul className="flex flex-col gap-3">
-            {shown.map((comment, i) => (
-              <React.Fragment key={comment.id}>
-                {dayDividers && dividers[i] ? (
-                  <li>
-                    <CommentDayDivider date={comment.createdAt} now={now} />
-                  </li>
-                ) : null}
-                <CommentItem
-                  comment={comment}
-                  highlighted={comment.id === highlightedId}
-                  onEdit={onEdit}
-                  onDelete={onDelete}
-                  onCopyLink={onCopyLink}
-                  onCopyText={onCopyText}
-                  onReactionToggle={onReactionToggle}
-                  onEditValueChange={onEditValueChange}
-                  {...editingProps(comment.id)}
-                  replies={renderReplies?.(comment)}
-                  attachments={renderAttachments?.(comment)}
-                  mentionHref={mentionHref}
-                  mentionImage={mentionImage}
-                  fileContentType={fileContentType}
-                  now={now}
-                />
-              </React.Fragment>
-            ))}
-          </ul>
-          {order === "newest" ? loadEarlier : null}
-        </>
+      {/* One composer instance, keyed, moves between the end (oldest first) and the top (newest
+          first): React moves it, so its text survives the toggle. */}
+      {(order === "newest" ? ["composer", "list"] : ["list", "composer"]).map(
+        (part) =>
+          part === "composer" ? (
+            <React.Fragment key="composer">{composerShown}</React.Fragment>
+          ) : (
+            <React.Fragment key="list">
+              {loading ? (
+                <CommentListSkeleton />
+              ) : empty ? (
+                emptyText ? (
+                  <p
+                    data-slot="comment-list-empty"
+                    className="text-sm text-muted-foreground"
+                  >
+                    {emptyText}
+                  </p>
+                ) : null
+              ) : (
+                <>
+                  {order === "oldest" ? loadEarlier : null}
+                  <ul className="flex flex-col gap-3">
+                    {shown.map((comment, i) => (
+                      <React.Fragment key={comment.id}>
+                        {dayDividers && dividers[i] ? (
+                          <li>
+                            <CommentDayDivider
+                              date={comment.createdAt}
+                              now={now}
+                            />
+                          </li>
+                        ) : null}
+                        <CommentItem
+                          comment={comment}
+                          highlighted={comment.id === highlightedId}
+                          onEdit={onEdit}
+                          onDelete={onDelete}
+                          onCopyLink={onCopyLink}
+                          onCopyText={onCopyText}
+                          onReactionToggle={onReactionToggle}
+                          onEditValueChange={onEditValueChange}
+                          {...editingProps(comment.id)}
+                          replies={renderReplies?.(comment)}
+                          attachments={renderAttachments?.(comment)}
+                          mentionHref={mentionHref}
+                          mentionImage={mentionImage}
+                          fileContentType={fileContentType}
+                          now={now}
+                        />
+                      </React.Fragment>
+                    ))}
+                  </ul>
+                  {order === "newest" ? loadEarlier : null}
+                </>
+              )}
+            </React.Fragment>
+          ),
       )}
-      {order === "oldest" ? composerShown : null}
     </section>
   );
 }

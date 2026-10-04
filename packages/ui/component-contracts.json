@@ -28373,7 +28373,8 @@
         "@vegastack/skeleton",
         "@vegastack/spinner",
         "@vegastack/text-edit",
-        "@vegastack/tooltip"
+        "@vegastack/tooltip",
+        "@vegastack/use-media-query"
       ],
       "npmDependencies": [
         "@vegastack/design@^0.7.105",
@@ -28407,11 +28408,18 @@
                 "comment-actions",
                 "comment-actions-content",
                 "comment-attachments",
+                "comment-body",
                 "comment-card",
+                "comment-edit-actions",
                 "comment-edited",
+                "comment-header",
                 "comment-item",
                 "comment-replies"
               ]
+            },
+            {
+              "name": "data-variant",
+              "values": []
             }
           ],
           "cssVariables": []
@@ -28458,11 +28466,19 @@
                 "comment-thread",
                 "comment-thread-comments",
                 "comment-thread-header",
-                "comment-thread-more",
                 "comment-thread-quote",
                 "comment-thread-reply",
                 "comment-thread-resolved"
               ]
+            }
+          ],
+          "cssVariables": []
+        },
+        "CommentDayDivider": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["comment-day-divider"]
             }
           ],
           "cssVariables": []
@@ -28472,6 +28488,15 @@
             {
               "name": "data-slot",
               "values": ["comment-list", "comment-list-empty"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "CommentListHeader": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["comment-list-header"]
             }
           ],
           "cssVariables": []

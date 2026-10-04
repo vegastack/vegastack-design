@@ -745,3 +745,54 @@ test("newest first puts the composer under the heading, and days are named betwe
   expect(days).toHaveLength(2);
   await expectNoA11yViolations(screen.container);
 });
+
+test("the composer keeps its text when the order toggles (one instance moves)", async () => {
+  function Toggle() {
+    const [order, setOrder] = React.useState<"oldest" | "newest">("oldest");
+    return (
+      <CommentList
+        order={order}
+        onOrderChange={setOrder}
+        comments={[{ id: "a", author: asha, body: "Hi", createdAt: 0 }]}
+        composer={<CommentComposer onSubmit={() => {}} />}
+      />
+    );
+  }
+  const screen = await render(<Toggle />);
+  const box = screen.getByRole("textbox", { name: "Comment" });
+  await box.click();
+  await userEvent.keyboard("Kept text");
+  await screen.getByRole("button", { name: "Oldest first" }).click();
+  await expect
+    .element(screen.getByRole("button", { name: "Newest first" }))
+    .toBeVisible();
+  await expect
+    .element(screen.getByRole("textbox", { name: "Comment" }))
+    .toHaveTextContent("Kept text");
+});
+
+test("a deleted first comment keeps the reply row; a collapsed thread with one reply keeps its row", async () => {
+  const screen = await render(
+    <CommentThread
+      thread={{
+        id: "t1",
+        root: { ...rootComment, body: "", deleted: true },
+        replies: [reply("c2", "Still here")],
+      }}
+      onReply={vi.fn()}
+    />,
+  );
+  await expect
+    .element(screen.getByRole("textbox", { name: "Reply" }))
+    .toBeVisible();
+  const collapsed = await render(
+    <CommentThread
+      collapsed
+      onExpand={vi.fn()}
+      thread={{ id: "t2", root: rootComment, replies: [reply("c3", "Only")] }}
+    />,
+  );
+  await expect
+    .element(collapsed.getByRole("button", { name: "1 reply" }))
+    .toBeVisible();
+});
