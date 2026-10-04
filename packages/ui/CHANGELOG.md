@@ -1,5 +1,14 @@
 # @vegastack/ui
 
+## 0.23.122
+
+### Patch Changes
+
+- [#523](https://github.com/vegastack/vegastack-design/pull/523) [`71219d1`](https://github.com/vegastack/vegastack-design/commit/71219d1809a365ff048fdabb721e2cf5806d8591) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🔧 Comments match Linear's spacing: rows sit 16px in from the card's sides and 12px from top and bottom, avatars are 20px (a reply's body indents 28px, and the hairline between replies starts at the text), and the reply row is a 44px row — a 20px avatar, "Leave a reply…", attach and Send at its end. The composer card and the skeleton take the same 16px sides.
+
+- Updated dependencies [[`71219d1`](https://github.com/vegastack/vegastack-design/commit/71219d1809a365ff048fdabb721e2cf5806d8591)]:
+  - @vegastack/design@0.7.107
+
 ## 0.23.121
 
 ### Patch Changes

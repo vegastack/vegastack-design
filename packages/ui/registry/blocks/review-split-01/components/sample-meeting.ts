@@ -1,4 +1,4 @@
-// @vegastack review-split-01@0.23.121 sha256-AlsHRRjq4jTkFHgNOlWSclfj83f3rh9YzsJdlNXEiYg=
+// @vegastack review-split-01@0.23.122 sha256-vNHO92k4jMcjPfWflv2vNr+GucNjuP5RiL2vAK2rrBU=
 
 /**
  * Sample data for `review-split-01`: one meeting's summary, action items and transcript. Replace it

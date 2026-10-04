@@ -9,6 +9,20 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.23.122] — October 4, 2026
+
+<!-- assembled from 1 changeset: 6220ac6d1ae5 -->
+
+### 🔧 Changed components
+
+- Comments match Linear's spacing: rows sit 16px in from the card's sides and 12px from top and bottom, avatars are 20px (a reply's body indents 28px, and the hairline between replies starts at the text), and the reply row is a 44px row — a 20px avatar, "Leave a reply…", attach and Send at its end. The composer card and the skeleton take the same 16px sides.
+  [`71219d1`](https://github.com/VegaStack/vegastack-design/commit/71219d1)
+
+### 📦 npm
+
+- **`@vegastack/design`** → **`0.7.107`** (was `0.7.106`).
+- The design-system registry (`@vegastack/ui`) bumps 0.23.121 → 0.23.122.
+
 ## [0.23.121] — October 4, 2026
 
 <!-- assembled from 1 changeset: 2d6d6405caea -->
