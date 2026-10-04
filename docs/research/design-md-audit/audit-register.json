@@ -2,10 +2,10 @@
   "schemaVersion": 1,
   "kind": "vegastack-zero-gap-audit-register",
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "03571dd80dd55ecef5d31c0f59958a068ec19454142f55b345eef5712bfb9da4",
+  "contractSha256": "16983f2af8bf4dc6485e96a861213fa05f682d23cf0327f754196afd2b1136be",
   "expectedCounts": {
-    "totalRegistryItems": 724,
-    "components": 150,
+    "totalRegistryItems": 725,
+    "components": 151,
     "animatedIcons": 467,
     "hooks": 13,
     "blocks": 14,
@@ -1514,6 +1514,17 @@
         "packages/ui/registry/ui/comments.tsx"
       ],
       "docsSlug": "/docs/components/comments",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "activity-feed",
+      "inventoryClass": "component",
+      "wave": "Data display",
+      "family": "display",
+      "sourceFiles": [
+        "packages/ui/registry/ui/activity-feed.tsx"
+      ],
+      "docsSlug": "/docs/components/activity-feed",
       "contractStatus": "reconciled"
     },
     {

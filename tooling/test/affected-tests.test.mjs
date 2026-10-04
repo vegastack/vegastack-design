@@ -70,7 +70,9 @@ describe("affected component closure", () => {
     // bubble's preview renders a CodeBlock, so its fixtures run although bubble does not depend on it.
     // text-edit's preview renders a MarkdownView beside the editor (the Markdown guide's parity demo).
     // dropzone's, message's and sortable-list's previews compose Attachment tiles.
+    // activity-feed's preview composes CommentThread cards and the composer.
     expect(result.previewModules).toEqual([
+      "activity-feed",
       "attachment",
       "bubble",
       "code-block",

@@ -115,6 +115,7 @@ export * from "./choice-card";
 export * from "./record-aside";
 export * from "./record-layout";
 export * from "./comments";
+export * from "./activity-feed";
 export * from "./comment-margin";
 export * from "./version-list";
 export * from "./diff-view";

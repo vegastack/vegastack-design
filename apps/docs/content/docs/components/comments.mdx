@@ -247,6 +247,14 @@ comment's files — and its `mentionHref` links the mention chips in the body. P
   file="components/preview/comments.tsx"
 />
 
+### Agent comments
+
+`agent: true` on a comment marks an agent's words (an AI assistant, an automation): a violet bar at
+the row's start, a bot avatar when the author has no image, and an "Agent" label after the name.
+Every author's name — a person's or an agent's — opens their hover card.
+
+<ComponentPreview name="commentsAgent" file="components/preview/comments.tsx" />
+
 ## API Reference
 
 <ApiTable
@@ -283,6 +291,7 @@ comment's files — and its `mentionHref` links the mention chips in the body. P
 
 - The section is labelled by its heading. The comments are a list, and replies are a nested list
   named "Replies".
+- Each author's name is a button that opens their hover card on hover, focus or tap.
 - Each comment's ⋯ trigger is named for its author ("Actions for comment by Asha Rao").
 - The relative time shows the exact time on hover or focus. "(edited)" does the same with the edit
   time.

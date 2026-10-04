@@ -1,4 +1,4 @@
-// @vegastack comments@0.23.122 sha256-vZsctgrfiXNu890xk7Ihe0qYMHmjhxAiTIbnXlYACd0=
+// @vegastack comments@0.23.122 sha256-tTHi32bGP9KUfZCh6PcGCePJ4WvmvyeroVUzfzdJFPY=
 
 "use client";
 
@@ -6,6 +6,7 @@ import * as React from "react";
 import { DEFAULT_LOCALE, dayDelta, formatDate } from "@/lib/date-time";
 import {
   ArrowUp,
+  Bot,
   ArrowUpDown,
   Check,
   ChevronDown,
@@ -33,6 +34,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { MarkdownView } from "@/components/ui/markdown-view";
 import { PersonAvatar, type Person } from "@/components/ui/person-avatar";
+import { PersonHoverCard } from "@/components/ui/person-hover-card";
 import {
   ReactionAdd,
   Reactions,
@@ -91,6 +93,11 @@ export interface CommentData {
   canEdit?: boolean;
   /** The viewer may delete it (the menu shows Delete). @default false */
   canDelete?: boolean;
+  /**
+   * Written by an agent (an AI assistant, an automation): a violet bar at the row's start, a bot
+   * avatar when it has no image, and an "Agent" label after the name. @default false
+   */
+  agent?: boolean;
   /** Emoji reactions, shown as pills under the body. @default undefined */
   reactions?: ReactionData[];
 }
@@ -318,6 +325,7 @@ export function CommentItem({
       data-slot="comment-item"
       data-variant={variant}
       data-deleted={comment.deleted ? "" : undefined}
+      data-agent={comment.agent ? "" : undefined}
       className={cn(
         // On its own (a `CommentList`), a comment is a card: a hairline border, the light fill.
         // Inside a thread or a replies list it is a row of that card, split from the row above by
@@ -331,21 +339,41 @@ export function CommentItem({
       <div
         data-slot="comment-card"
         data-highlighted={highlighted ? "" : undefined}
-        // 12px in from the card's sides, 8px above and below (6px for a reply).
-        className="group/comment flex min-w-0 flex-col px-4 py-3 transition-colors data-[highlighted]:bg-accent"
+        // 16px in from the card's sides, 12px above and below. An agent's comment has a violet
+        // bar at its start.
+        className="group/comment flex min-w-0 flex-col px-4 py-3 transition-colors data-[highlighted]:bg-accent in-data-agent:relative in-data-agent:before:absolute in-data-agent:before:inset-y-2 in-data-agent:before:start-0 in-data-agent:before:w-0.5 in-data-agent:before:rounded-full in-data-agent:before:bg-tag-purple"
       >
         <div
           data-slot="comment-header"
           className="flex min-h-6 min-w-0 items-center gap-2"
         >
-          <PersonAvatar person={author} className={AVATAR} />
-          <span className="flex min-w-0 flex-1 items-center gap-x-2">
+          {comment.agent && !author.image ? (
             <span
-              className="min-w-0 truncate text-sm font-medium"
-              title={author.name}
+              aria-hidden
+              data-slot="comment-agent-avatar"
+              className="grid size-5 shrink-0 place-items-center rounded-full bg-tag-purple-subtle text-tag-purple-text"
+            >
+              <Bot className="size-3.5" />
+            </span>
+          ) : (
+            <PersonAvatar person={author} className={AVATAR} />
+          )}
+          <span className="flex min-w-0 flex-1 items-center gap-x-2">
+            <PersonHoverCard
+              person={author}
+              trigger="name"
+              className="-my-0.5 truncate py-1 text-sm"
             >
               {author.name}
-            </span>
+            </PersonHoverCard>
+            {comment.agent ? (
+              <span
+                data-slot="comment-agent"
+                className="shrink-0 rounded-sm bg-tag-purple-subtle px-1 text-xs font-medium text-tag-purple-text"
+              >
+                Agent
+              </span>
+            ) : null}
             <PersonBadge badge={author.badge} />
             <span className="flex shrink-0 items-center gap-1 text-xs text-muted-foreground">
               <RelativeTime date={comment.createdAt} now={now} />

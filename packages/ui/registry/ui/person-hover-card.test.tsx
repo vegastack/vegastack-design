@@ -2,7 +2,7 @@ import * as React from "react";
 import { render } from "vitest-browser-react";
 import { expect, test } from "vitest";
 import { expectNoA11yViolations } from "../../test/a11y";
-import { AvatarStack } from "./person-hover-card";
+import { AvatarStack, PersonHoverCard } from "./person-hover-card";
 
 test("stacks people and lists everyone from the stack", async () => {
   const screen = await render(
@@ -68,4 +68,25 @@ test("AvatarStack counts from total, overlaps by 4px and ends its list with a fo
     .element(screen.getByRole("button", { name: "Manage access" }))
     .toBeVisible();
   await expectNoA11yViolations(document.body);
+});
+
+test('trigger="name" renders the name as an inline text button that opens the card', async () => {
+  const screen = await render(
+    <p>
+      <PersonHoverCard
+        person={{ name: "Asha Rao", email: "asha@acme.com" }}
+        trigger="name"
+      >
+        Asha Rao
+      </PersonHoverCard>{" "}
+      commented
+    </p>,
+  );
+  const name = screen.getByRole("button", { name: "Asha Rao" });
+  await expect
+    .element(name)
+    .toHaveAttribute("data-slot", "person-hover-card-name");
+  await name.click();
+  await expect.element(screen.getByText("asha@acme.com")).toBeVisible();
+  await expectNoA11yViolations(screen.container);
 });

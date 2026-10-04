@@ -1,0 +1,221 @@
+---
+title: Activity Feed
+description: A record's history, Linear style — comment threads and change events in one list, with a filter, an order toggle, a New line and J/K navigation.
+audience: public
+registry: activity-feed
+status: stable
+since: 0.23.123
+a11y: labelled section, ordered list, J/K keyboard navigation
+preview: activityFeed
+---
+
+## Install
+
+<InstallSteps name="activity-feed" />
+
+## Usage
+
+```tsx
+import {
+  ActivityEvent,
+  ActivityFeed,
+  ActivityFeedItem,
+  ActivityFeedList,
+  ActivityJumpToLatest,
+  ActivityKindIcon,
+  ActivityUnreadDivider,
+  ActivityValue,
+  useActivityFeedKeyboard,
+} from "@/components/ui/activity-feed";
+import { CommentComposer, CommentThread } from "@/components/ui/comments";
+
+const feedRef = useActivityFeedKeyboard();
+
+<ActivityFeed
+  ref={feedRef}
+  count={threads.length}
+  filter={filter}
+  onFilterChange={setFilter}
+  order={order}
+  onOrderChange={setOrder}
+>
+  <ActivityFeedList>
+    {items.map((item) =>
+      item.type === "event" ? (
+        <ActivityFeedItem key={item.id}>
+          <ActivityEvent
+            actor={item.actor}
+            icon={<ActivityKindIcon kind={item.kind} />}
+            date={item.at}
+          >
+            changed status to <ActivityValue>{item.to}</ActivityValue>
+          </ActivityEvent>
+        </ActivityFeedItem>
+      ) : (
+        <ActivityFeedItem key={item.id} kind="thread">
+          <CommentThread thread={item.thread} viewer={me} onReply={reply} />
+        </ActivityFeedItem>
+      ),
+    )}
+  </ActivityFeedList>
+  <CommentComposer onSubmit={post} />
+  <ActivityJumpToLatest enabled={items.length > 3} />
+</ActivityFeed>;
+```
+
+The parts are presentational and data-agnostic: the host merges its comment threads and its
+change events into one list, applies the filter and the order, and pages them. Events sit 4px
+apart; a thread card or a divider keeps 12px around it. Each event leads with a 20px node in the
+same column as the comments' avatars — an `ActivityKindIcon`, the new value's `StatusIcon` or
+`PriorityIcon`, or the actor's avatar (`icon="avatar"`) — then the actor, whose name opens their
+person hover card, the sentence with its `ActivityValue`s, and the relative time.
+
+Put `CommentDayDivider` (from `comments`) between items on different days, and one
+`ActivityUnreadDivider` before the first item the viewer hasn't seen; its `onVisible` fires once,
+when the line is half on screen — mark the record read there.
+
+<ComponentPreview
+  name="activityFeed"
+  file="components/preview/activity-feed.tsx"
+/>
+
+## Anatomy
+
+<Anatomy name="activity-feed" />
+
+## Examples
+
+### Event kinds
+
+`ActivityKindIcon` draws a 14px muted icon for twenty common kinds; `approved`, `rejected` and
+`requested` keep their status colour.
+
+<ComponentPreview
+  name="activityFeedKinds"
+  file="components/preview/activity-feed.tsx"
+/>
+
+### Status and priority values
+
+A status or priority change leads with the new value's own icon. Pass `label=""` — the sentence
+already names the value.
+
+<ComponentPreview
+  name="activityFeedValues"
+  file="components/preview/activity-feed.tsx"
+/>
+
+### Event groups
+
+`ActivityEventGroup` folds a run of events (one person's quick edits) to the first `visible` with
+"N more changes" under them; "Show less" folds them back. `defaultOpen` starts unfolded.
+
+<ComponentPreview
+  name="activityFeedGroups"
+  file="components/preview/activity-feed.tsx"
+/>
+
+### Agents and the system
+
+`agent` on an event marks an agent's change; `agent: true` on a comment gives it a violet bar, a
+bot avatar and an "Agent" label. An event with `actor={null}` is the system's.
+
+<ComponentPreview
+  name="activityFeedActors"
+  file="components/preview/activity-feed.tsx"
+/>
+
+### Comments only
+
+The filter's Comments option: the host shows the threads alone.
+
+<ComponentPreview
+  name="activityFeedComments"
+  file="components/preview/activity-feed.tsx"
+/>
+
+### Activity only
+
+The filter's Activity option: the events alone.
+
+<ComponentPreview
+  name="activityFeedActivity"
+  file="components/preview/activity-feed.tsx"
+/>
+
+### Loading
+
+`ActivityFeedSkeleton` holds the feed's shape — event rows, a thread card and the composer — while
+it loads. Set `pending` on `ActivityFeed` instead while a new filter or order loads: the old items
+stay, dimmed.
+
+<ComponentPreview
+  name="activityFeedLoading"
+  file="components/preview/activity-feed.tsx"
+/>
+
+### Empty
+
+A record with no history yet shows the header and the composer.
+
+<ComponentPreview
+  name="activityFeedEmpty"
+  file="components/preview/activity-feed.tsx"
+/>
+
+## API Reference
+
+<ApiTable
+  path="../../packages/ui/registry/ui/activity-feed.tsx"
+  name="ActivityFeedProps"
+/>
+
+### ActivityFeedItem
+
+<ApiTable
+  path="../../packages/ui/registry/ui/activity-feed.tsx"
+  name="ActivityFeedItemProps"
+/>
+
+### ActivityEvent
+
+<ApiTable
+  path="../../packages/ui/registry/ui/activity-feed.tsx"
+  name="ActivityEventProps"
+/>
+
+### ActivityEventGroup
+
+<ApiTable
+  path="../../packages/ui/registry/ui/activity-feed.tsx"
+  name="ActivityEventGroupProps"
+/>
+
+## Accessibility
+
+- The feed is a `section` labelled by its heading; the items are an ordered list named "Activity".
+- The filter is a select named "Show"; the order toggle is a button whose label names the order
+  shown.
+- An event is one sentence: the event's icon is decorative, the actor's name is a button that
+  opens their hover card, and the relative time shows the exact time on hover or focus.
+- "N more changes" / "Show less" is a button with `aria-expanded`.
+- The unread line is a `separator` named "New".
+- "Jump to latest" is hidden from assistive technology and out of the tab order while it is not
+  shown.
+- J and K never fire while focus is in a field, a menu or a dialog, or with a modifier held.
+
+| Key            | Action                                                    |
+| -------------- | --------------------------------------------------------- |
+| <kbd>J</kbd>   | Move to the next item (tinted and scrolled into view)     |
+| <kbd>K</kbd>   | Move to the previous item                                 |
+| <kbd>X</kbd>   | Toggle the focused item (`onToggle` — unfold its replies) |
+| <kbd>Esc</kbd> | Clear the focused item                                    |
+
+<StatesTested name="activity-feed" />
+
+## Do / Don't
+
+<DoDont
+  do="Write each event as a short sentence after the actor's name, with the values in ActivityValue."
+  dont="Show every keystroke as its own event — fold a run of quick edits into an ActivityEventGroup."
+/>

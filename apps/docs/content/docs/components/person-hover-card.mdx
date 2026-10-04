@@ -49,6 +49,16 @@ the person.
   file="components/preview/person-hover-card.tsx"
 />
 
+### Name trigger
+
+`trigger="name"` makes the person's name the trigger instead of an avatar — a plain inline text
+button for sentences such as a comment's author or an activity's actor ("Asha Rao assigned…").
+
+<ComponentPreview
+  name="personHoverCardName"
+  file="components/preview/person-hover-card.tsx"
+/>
+
 ### The card
 
 `PersonCard` is the card's body (`layout="card"`) and a compact list row (`layout="row"`).
@@ -147,8 +157,9 @@ with an action such as "Manage access". The avatars overlap by 4px, so two initi
 
 - The stack is one button named `"{label}: {names}"`; it opens the full list, so keyboard and touch
   users reach every person without the hover previews.
-- `PersonHoverCard` on its own is a round button named by the person; its card opens on hover and
-  on keyboard focus, a tap toggles it, and <kbd>Esc</kbd> closes it.
+- `PersonHoverCard` on its own is a round button named by the person (or, with `trigger="name"`,
+  a text button whose name is the visible name); its card opens on hover and on keyboard focus, a
+  tap toggles it, and <kbd>Esc</kbd> closes it.
 
 | Key                                 | Action                                  |
 | ----------------------------------- | --------------------------------------- |

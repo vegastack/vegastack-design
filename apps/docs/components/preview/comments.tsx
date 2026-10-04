@@ -556,3 +556,35 @@ export function commentsMentions(): ReactNode {
     </Demo>
   );
 }
+
+/**
+ * An agent's comment beside a person's: a violet bar at the row's start, a bot avatar (it has no
+ * photo) and an "Agent" label after the name. Every author's name opens their hover card.
+ */
+export function commentsAgent(): ReactNode {
+  return (
+    <Demo>
+      <CommentThread
+        now={NOW}
+        thread={{
+          id: "agent",
+          root: {
+            id: "ag1",
+            author: ARJUN,
+            body: "Can someone summarise where the quote stands?",
+            createdAt: NOW - 40 * 60_000,
+          },
+          replies: [
+            {
+              id: "ag2",
+              author: { name: "Regent AI", email: "Assistant" },
+              agent: true,
+              body: "The **revised quote** went out yesterday (12 units, October delivery). The customer hasn't replied yet.",
+              createdAt: NOW - 38 * 60_000,
+            },
+          ],
+        }}
+      />
+    </Demo>
+  );
+}

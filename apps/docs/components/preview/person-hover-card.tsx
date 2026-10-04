@@ -148,3 +148,21 @@ export function personHoverCardTotal(): ReactNode {
     </Wrapper>
   );
 }
+
+/** `trigger="name"`: the person's name, inline in a sentence, opens their card. */
+export function personHoverCardName(): ReactNode {
+  const person = PEOPLE[0]!;
+  return (
+    <Wrapper>
+      <p className="text-sm text-muted-foreground">
+        <PersonHoverCard person={person} trigger="name">
+          {person.name}
+        </PersonHoverCard>{" "}
+        assigned the task to{" "}
+        <PersonHoverCard person={PEOPLE[2]!} trigger="name">
+          {PEOPLE[2]!.name}
+        </PersonHoverCard>
+      </p>
+    </Wrapper>
+  );
+}
