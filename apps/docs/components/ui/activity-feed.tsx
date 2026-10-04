@@ -1,4 +1,4 @@
-// @vegastack activity-feed@0.23.122 sha256-0L23OEEBjZyr+GPPVb2+c6s/MC2teJ6IPEiR8LZ/lXY=
+// @vegastack activity-feed@0.23.122 sha256-5blRSlIsjavQdBpMtpD8SQuR+XDv/SDcJ+bF9X6EuzM=
 
 "use client";
 
@@ -143,6 +143,7 @@ export function ActivityFeed({
           className="flex items-center gap-2 text-base font-medium"
         >
           {title}
+          {/* A space keeps the name "Activity 3", not "Activity3". */}{" "}
           {count ? (
             <span className="text-muted-foreground tabular-nums">{count}</span>
           ) : null}

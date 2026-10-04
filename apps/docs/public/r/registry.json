@@ -288,7 +288,7 @@
         "whenToUse": "Discussion on a record's page (a task, a meeting): Linear-style thread cards (first comment, replies, a flat reply row) with the composer at the end (at the top newest first).",
         "whenNotToUse": "An activity feed or notifications — use Inbox.",
         "version": "0.23.122",
-        "integrity": "sha256-tTHi32bGP9KUfZCh6PcGCePJ4WvmvyeroVUzfzdJFPY="
+        "integrity": "sha256-6oU8iv9gBeOkqVzBiEGRaSYoigsaUFqs/SN9ApsCHCU="
       }
     },
     {
@@ -323,7 +323,7 @@
         "whenToUse": "A record's history on its page (a task, a deal, a document): what changed, who changed it and when, interleaved with the comment threads.",
         "whenNotToUse": "Comments alone (Comments), a cross-record notification list (Inbox), or a dated milestone list (Timeline).",
         "version": "0.23.122",
-        "integrity": "sha256-0L23OEEBjZyr+GPPVb2+c6s/MC2teJ6IPEiR8LZ/lXY="
+        "integrity": "sha256-5blRSlIsjavQdBpMtpD8SQuR+XDv/SDcJ+bF9X6EuzM="
       }
     },
     {

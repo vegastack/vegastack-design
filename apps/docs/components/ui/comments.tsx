@@ -1,4 +1,4 @@
-// @vegastack comments@0.23.122 sha256-tTHi32bGP9KUfZCh6PcGCePJ4WvmvyeroVUzfzdJFPY=
+// @vegastack comments@0.23.122 sha256-6oU8iv9gBeOkqVzBiEGRaSYoigsaUFqs/SN9ApsCHCU=
 
 "use client";
 
@@ -2085,7 +2085,7 @@ export function CommentListHeader({
         id={headingId}
         className="flex items-center gap-2 text-base font-medium"
       >
-        {title}
+        {title}{" "}
         {count > 0 ? (
           <span className="text-muted-foreground tabular-nums">{count}</span>
         ) : null}
