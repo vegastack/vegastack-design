@@ -1,4 +1,4 @@
-// @vegastack space-avatar@0.23.122 sha256-qQI7glZoAHsH7n9MDD1yzJ0lPnswNNm61gYE00irOgQ=
+// @vegastack space-avatar@0.23.123 sha256-iST+Z8WTWEi/GAQFOkK0fLXmxiBngrC4U/I73IctcDo=
 
 import * as React from "react";
 import { Layers, LockIcon, UserLock } from "lucide-react";
