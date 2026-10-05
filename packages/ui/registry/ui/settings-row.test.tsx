@@ -94,7 +94,8 @@ test("actions stay on the title row beside a long description", async () => {
       <div>body</div>
     </SettingsSection>,
   );
-  // This harness compiles no CSS: pin the recipe. The text column grows from a 16rem basis (so a
+  // This harness compiles no CSS: pin the recipe. With a description the text column grows from a
+  // 16rem basis (so a
   // long description never claims the whole row and pushes the actions under it), and with a
   // description the actions top-align with the title.
   const header = screen.container.querySelector(
@@ -103,7 +104,10 @@ test("actions stay on the title row beside a long description", async () => {
   expect(header).toHaveClass(
     "has-data-[slot=settings-section-description]:items-start",
   );
-  expect(header?.firstElementChild).toHaveClass("flex-[1_1_16rem]", "min-w-0");
+  expect(header?.firstElementChild).toHaveClass(
+    "has-data-[slot=settings-section-description]:flex-[1_1_16rem]",
+    "min-w-0",
+  );
 });
 
 test("titleAs picks the heading level so a page keeps a valid outline", async () => {

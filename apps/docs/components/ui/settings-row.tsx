@@ -1,4 +1,4 @@
-// @vegastack settings-row@0.23.124 sha256-kIEWUEjikh34Cp8d2eCV8q4THQpvQcLobtSWKMUoZDk=
+// @vegastack settings-row@0.23.124 sha256-iyTkuBR+nQ+duTn+4B0oU7ciProaCHTVnJ9jDDNy/q0=
 
 import * as React from "react";
 import { cn } from "@vegastack/design";
@@ -89,7 +89,7 @@ export function SettingsSection({
           data-slot="settings-section-header"
           className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 has-data-[slot=settings-section-description]:items-start"
         >
-          <div className="flex min-w-0 flex-[1_1_16rem] flex-col gap-1">
+          <div className="flex min-w-0 flex-col gap-1 has-data-[slot=settings-section-description]:flex-[1_1_16rem]">
             {title != null && (
               <TitleTag
                 data-slot="settings-section-title"
