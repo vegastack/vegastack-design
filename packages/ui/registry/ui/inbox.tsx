@@ -1,4 +1,4 @@
-// @vegastack inbox@0.23.124 sha256-Q4YZBgfcQqgPPy2xamCpF8uAVVNxBXbSKXLzsCVzRXQ=
+// @vegastack inbox@0.23.124 sha256-mqLA+ajeSPwlmXWo3nXU/htfeLa7SFkHqNjDuqDSWt0=
 
 "use client";
 
@@ -520,8 +520,8 @@ export interface InboxItemProps extends Omit<
   /** The sentence: plain text, or a template with {@link InboxEmphasis} for the actor and record. */
   title: React.ReactNode;
   /**
-   * Unread: a soft full-bleed tint, the title in the foreground colour (read titles are muted) and
-   * an sr-only "Unread".
+   * Unread: a dot in the start gutter, a soft full-bleed tint, the title in the foreground colour
+   * (read titles are muted) and an sr-only "Unread".
    * @default false
    */
   unread?: boolean;
@@ -536,6 +536,13 @@ export interface InboxItemProps extends Omit<
    * @default undefined
    */
   icon?: React.ReactNode;
+  /**
+   * A small glyph on the avatar's or icon tile's corner naming the kind of event (assigned, a
+   * mention, a comment…), so a person's rows still say what happened at a glance. Decorative: the
+   * title carries the meaning.
+   * @default undefined
+   */
+  badge?: React.ReactNode;
   /**
    * Draw the icon in the destructive ink (a failure).
    * @default false
@@ -586,18 +593,20 @@ export interface InboxItemProps extends Omit<
 
 /**
  * One notification row: full-bleed, 16px sides and 12px vertical padding, a 28px avatar or muted
- * icon tile, the title, a muted meta line and optional action chips. Unread rows get a soft tint.
+ * icon tile (with an optional kind `badge` on its corner), the title, a muted meta line and optional
+ * action chips. Unread rows get a dot in the start gutter and a soft tint.
  * A fixed 64px right column holds the time, with Mark read / Mark unread and the ⋯ menu below it,
  * shown on hover or keyboard focus.
  *
  * @example
- * <InboxItem unread avatar={{ name: "Asha Kumar" }} title="Asha assigned you a task" href="/tasks/41" onToggleRead={toggle} />
+ * <InboxItem unread avatar={{ name: "Asha Kumar" }} badge={<UserRoundCheck />} title="Asha assigned you a task" href="/tasks/41" onToggleRead={toggle} />
  */
 export function InboxItem({
   title,
   unread = false,
   avatar,
   icon,
+  badge,
   destructive = false,
   meta,
   time,
@@ -649,7 +658,14 @@ export function InboxItem({
       )}
       {...props}
     >
-      <div className="shrink-0 pt-0.5" aria-hidden>
+      {unread ? (
+        <span
+          data-slot="inbox-item-unread"
+          aria-hidden
+          className="absolute start-1.5 top-7 size-1.5 -translate-y-1/2 rounded-full bg-info"
+        />
+      ) : null}
+      <div className="relative shrink-0 pt-0.5" aria-hidden>
         {avatar ? (
           <PersonAvatar
             person={{ name: avatar.name, image: avatar.src, hue: avatar.hue }}
@@ -664,6 +680,14 @@ export function InboxItem({
             )}
           >
             {icon}
+          </span>
+        ) : null}
+        {badge && (avatar || icon) ? (
+          <span
+            data-slot="inbox-item-badge"
+            className="absolute -end-1 top-4.5 flex size-4 items-center justify-center rounded-full border border-border bg-background text-muted-foreground [&_svg]:size-2.5"
+          >
+            {badge}
           </span>
         ) : null}
       </div>

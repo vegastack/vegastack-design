@@ -1,4 +1,4 @@
-// @vegastack settings-row@0.23.124 sha256-+8Db6WHkEkpbRUmCyZKd+q/GK1l9Ddn+IKzq9lbacV0=
+// @vegastack settings-row@0.23.124 sha256-iyTkuBR+nQ+duTn+4B0oU7ciProaCHTVnJ9jDDNy/q0=
 
 import * as React from "react";
 import { cn } from "@vegastack/design";
@@ -53,6 +53,8 @@ export interface SettingsSectionProps extends Omit<
 /**
  * `SettingsSection` — a titled group of settings. Renders an optional `title`,
  * `description` and right-aligned `actions` above its `children` (typically a `SettingsCard`).
+ * The actions stay on the title row beside a long description (top-aligned to the title), and
+ * wrap under it only when the header is too narrow for both.
  *
  * Pure presentational and server-safe — no hooks, no `'use client'`.
  *
@@ -85,9 +87,9 @@ export function SettingsSection({
       {(title != null || description != null || actions != null) && (
         <div
           data-slot="settings-section-header"
-          className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2"
+          className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 has-data-[slot=settings-section-description]:items-start"
         >
-          <div className="flex min-w-0 flex-col gap-1">
+          <div className="flex min-w-0 flex-col gap-1 has-data-[slot=settings-section-description]:flex-[1_1_16rem]">
             {title != null && (
               <TitleTag
                 data-slot="settings-section-title"

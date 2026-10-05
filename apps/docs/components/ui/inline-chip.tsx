@@ -1,4 +1,4 @@
-// @vegastack inline-chip@0.23.124 sha256-+uUZcmkQFS16svsn6TbkPCIwfZkIgunXIwyrY0k6fzQ=
+// @vegastack inline-chip@0.23.124 sha256-rxMP+ttHhVPygtkzy+YsF9DJxG42aYTVYrCAow46KxU=
 
 "use client";
 
@@ -367,7 +367,7 @@ export function InlineChip({
         size="sm"
         aria-hidden
         data-slot="inline-chip-avatar"
-        className="me-1 inline-flex size-[1.125em] align-middle select-none after:hidden data-[size=sm]:size-[1.125em]"
+        className="me-1 inline-flex size-[1.125em] shrink-0 align-middle whitespace-nowrap select-none after:hidden data-[size=sm]:size-[1.125em]"
       />
     ) : kind === "file" ? (
       <FileTypeIcon

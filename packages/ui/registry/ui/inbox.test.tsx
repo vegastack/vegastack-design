@@ -44,6 +44,39 @@ test("groups are named lists, rows are links, and the read toggle is reachable",
   await expectNoA11yViolations(screen.container, ["color-contrast"]);
 });
 
+test("an unread row shows a dot, a read row none; the badge sits on the avatar, hidden from the name", async () => {
+  const screen = await render(
+    <InboxGroup label="Today">
+      <InboxItem
+        unread
+        avatar={{ name: "Asha Kumar" }}
+        badge={<svg data-testid="kind" />}
+        title="Asha mentioned you"
+        href="/tasks/1"
+      />
+      <InboxItem
+        avatar={{ name: "Raj Patel" }}
+        title="Raj commented"
+        href="/tasks/2"
+      />
+    </InboxGroup>,
+  );
+  const [unread, read] = Array.from(
+    screen.container.querySelectorAll('[data-slot="inbox-item"]'),
+  );
+  const dot = unread!.querySelector('[data-slot="inbox-item-unread"]');
+  expect(dot).not.toBeNull();
+  expect(dot).toHaveAttribute("aria-hidden", "true");
+  expect(read!.querySelector('[data-slot="inbox-item-unread"]')).toBeNull();
+  const badge = unread!.querySelector('[data-slot="inbox-item-badge"]');
+  expect(badge?.querySelector('[data-testid="kind"]')).not.toBeNull();
+  expect(badge?.closest('[aria-hidden="true"]')).not.toBeNull();
+  await expect
+    .element(screen.getByRole("link", { name: "Unread: Asha mentioned you" }))
+    .toBeInTheDocument();
+  await expectNoA11yViolations(screen.container, ["color-contrast"]);
+});
+
 test("the error state offers Try again", async () => {
   const onRetry = vi.fn();
   const screen = await render(<InboxError onRetry={onRetry} />);

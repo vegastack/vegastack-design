@@ -76,7 +76,7 @@ import {
 - `InboxGroup` — a label that sticks within the scroll area, with no divider above or below it
   (16px above, except on the first group; 6px below), over a list it names. `InboxList` is the ungrouped list.
 - `InboxItem` — one row. Title 14px regular — foreground when unread, muted once read — with the actor and
-  record (`InboxEmphasis`) in medium; the tint marks unread. Meta 12px muted (the ramp has no 13px step), time 12px muted;
+  record (`InboxEmphasis`) in medium; a dot in the start gutter and the tint mark unread. An optional `badge` glyph on the avatar's corner names the kind of event. Meta 12px muted (the ramp has no 13px step), time 12px muted;
   16px sides and 12px vertical padding; a 1px divider between rows only, and a tint, reaching both
   edges. The ⋯ menu sizes to its content (224–320px).
 - `InboxEmpty`, `InboxSkeleton`, `InboxError` — the empty, first-load and failed-load states.
@@ -89,7 +89,7 @@ A person event leads with the actor's 28px avatar; a system event leads with its
 28px tile (`destructive` for a failure). Emphasise the actor and the record with `InboxEmphasis` so
 identical events name their record. `actions` adds up to three chips (the first can be `primary`),
 each with `loading` and `done` states. `count` marks a row standing for grouped repeats ("Raj
-assigned you 3 tasks"). Unread rows carry a soft tint and a foreground title; read titles are muted. A fixed right column
+assigned you 3 tasks"). `badge` puts a small glyph on the avatar's corner for the kind of event (assigned, a mention, a comment), so a person's rows still say what happened at a glance. Unread rows carry a dot in the start gutter, a soft tint and a foreground title; read titles are muted. A fixed right column
 keeps the time on top; hover a row, or tab into it, to show Mark read / Mark unread and the ⋯ menu
 below it.
 
@@ -189,7 +189,7 @@ can offer All · Unread 3 · Requests 2 without a second control. `onValueChange
   through `linkRender`), and the chips and hover controls sit above it.
 - The hover controls are always in the tab order and show on `focus-within`; on touch screens they
   are always visible.
-- An unread row carries a soft tint and an sr-only "Unread:" before its title.
+- An unread row carries a dot, a soft tint and an sr-only "Unread:" before its title; the dot and the `badge` are decorative (`aria-hidden`), so the title must say what happened.
 - The header icon buttons are named by their tooltips.
 
 <StatesTested name="inbox" />

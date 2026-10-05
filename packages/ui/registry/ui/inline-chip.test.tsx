@@ -83,6 +83,20 @@ test("the provider resolves a person; focus opens the card with the email", asyn
   await expect.element(screen.getByText("asha@acme.com")).toBeVisible();
 });
 
+test("a person chip's avatar never breaks its initials (a mention in a narrow comment)", async () => {
+  const screen = await render(
+    <InlineChipProvider value={{ person: () => ({ name: "Priya Raman" }) }}>
+      <InlineChip kind="user" targetId="u1" label="Priya Raman" />
+    </InlineChipProvider>,
+  );
+  // This harness compiles no CSS: pin the recipe. `whitespace-nowrap` keeps "PR" on one line
+  // inside an `overflow-wrap: anywhere` comment body; `shrink-0` keeps the circle round.
+  const avatar = screen.container.querySelector(
+    '[data-slot="inline-chip-avatar"]',
+  );
+  expect(avatar).toHaveClass("whitespace-nowrap", "shrink-0");
+});
+
 test("MarkdownView renders mentions of every kind and file links as chips", async () => {
   const screen = await render(
     <MarkdownView

@@ -17870,7 +17870,7 @@
             },
             {
               "name": "data-slot",
-              "values": ["inbox-item"]
+              "values": ["inbox-item", "inbox-item-badge", "inbox-item-unread"]
             },
             {
               "name": "data-unread",

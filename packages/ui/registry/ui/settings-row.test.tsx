@@ -84,6 +84,32 @@ test("section renders its title and description", async () => {
   await expect.element(screen.getByText("body")).toBeInTheDocument();
 });
 
+test("actions stay on the title row beside a long description", async () => {
+  const screen = await render(
+    <SettingsSection
+      title="What you hear about"
+      description="In-app: always. Push goes to the mobile app."
+      actions={<span>saved</span>}
+    >
+      <div>body</div>
+    </SettingsSection>,
+  );
+  // This harness compiles no CSS: pin the recipe. With a description the text column grows from a
+  // 16rem basis (so a
+  // long description never claims the whole row and pushes the actions under it), and with a
+  // description the actions top-align with the title.
+  const header = screen.container.querySelector(
+    '[data-slot="settings-section-header"]',
+  );
+  expect(header).toHaveClass(
+    "has-data-[slot=settings-section-description]:items-start",
+  );
+  expect(header?.firstElementChild).toHaveClass(
+    "has-data-[slot=settings-section-description]:flex-[1_1_16rem]",
+    "min-w-0",
+  );
+});
+
 test("titleAs picks the heading level so a page keeps a valid outline", async () => {
   // A settings page nests sections at different depths; a hard-coded <h3> everywhere
   // breaks heading navigation for a screen-reader user.
