@@ -5,7 +5,9 @@ description: Release VegaStack Design end to end from one explicit ship instruct
 
 # Ship VegaStack Design
 
-One explicit **ship it** from MK authorizes the current reviewed change through completion: commit,
+Operator clarification, 3 October 2026: a go-dark/autonomous mandate covers owned feature commits and pushes, and reviewed develop merges only where develop exists. It never authorizes a main merge, push or fast-forward. Explicit main approval must cover the named change; the generated Version Packages main merge also needs approval unless that operator instruction explicitly includes it. Public publication/deployment must be explicitly included in the release instruction. Never create or bypass a develop branch merely to avoid main approval.
+
+One explicit **ship it** from MK, including the named main merges and outward release, authorizes the current reviewed change through completion: commit,
 push, change PR, exact-SHA squash merge, generated Version Packages PR, its exact-SHA squash merge,
 npm publication, public registry/docs deployment, and production verification. Do not stop for
 another approval between those steps.
@@ -89,14 +91,14 @@ The merged change's `main` push starts the release coordinator. When pending cha
 2. Creates or updates the generated Version Packages PR through the GitHub API.
 3. Leaves GitHub's bot-created `pull_request` run in `action_required`. Find the run for the exact PR
    head and approve it with `gh api --method POST repos/VegaStack/vegastack-design/actions/runs/<id>/approve`.
-   The existing `ship it` authorizes this operator action; do not ask again.
+   Proceed only if the explicit release instruction included this action and the generated Version Packages main merge.
 4. The resulting native `PR quality` run performs full static proof plus the positive release-output
    scope guard in place of the ordinary
    affected-browser and changeset requirements. Runtime behavior was already tested on the source
    PRs; the generated branch may change only release metadata and provenance.
 
 Wait for the Version PR's required check, inspect its generated diff, re-read its head SHA, and
-squash-merge that exact SHA. The original `ship it` already authorizes this boundary.
+squash-merge that exact SHA. This main merge requires explicit operator coverage; do not infer it from go-dark or feature/develop authorization.
 
 The Version PR merge starts the coordinator again with no pending changesets. It builds and verifies
 only the two public npm packages, publishes versions missing from npm with OIDC and

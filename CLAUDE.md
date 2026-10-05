@@ -19,7 +19,4 @@ Claude-specific notes:
 - **Creating a top-level skills directory that did not exist at session start requires a restart**
   before Claude Code watches it. Edits to an existing skill are picked up live.
 
-One rule worth repeating every session: **`/ship` (publish, Version-PR merge, deploy) is always MK's
-decision — prepare, present, and wait for an explicit "yes proceed"; never auto-ship.** Each gate is
-separate; approval for one is not approval for the next. (Canonical statement in AGENTS.md
-§ Review, and releasing.)
+Release authority follows AGENTS.md’s 3 October 2026 clarification: go-dark permits feature work, not main updates. Every main merge/push/fast-forward needs explicit operator approval. Read docs/RELEASING.md for the scope of an expressly authorized release.
