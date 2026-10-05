@@ -2,13 +2,13 @@
   "schemaVersion": 1,
   "kind": "vegastack-zero-gap-audit-register",
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "322088fc61da2583954b8d113141cfa5916ed11f63f2e16f23452e69429daeef",
+  "contractSha256": "9c56c0c9caad3cbf7a2caf68cb41df506e8443f942a27e69be0b3c669a94574b",
   "expectedCounts": {
-    "totalRegistryItems": 725,
+    "totalRegistryItems": 726,
     "components": 151,
     "animatedIcons": 467,
     "hooks": 13,
-    "blocks": 14,
+    "blocks": 15,
     "libs": 12,
     "chartBlocks": 68
   },
@@ -7120,6 +7120,24 @@
         "packages/ui/registry/blocks/status-pages-01/page.tsx"
       ],
       "docsSlug": "/docs/blocks/status-pages-01",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "email-kit",
+      "inventoryClass": "block",
+      "wave": "Block",
+      "family": "starter-block",
+      "sourceFiles": [
+        "packages/ui/registry/blocks/email-kit/action-email.tsx",
+        "packages/ui/registry/blocks/email-kit/digest-email.tsx",
+        "packages/ui/registry/blocks/email-kit/email-layout.tsx",
+        "packages/ui/registry/blocks/email-kit/email-parts.tsx",
+        "packages/ui/registry/blocks/email-kit/email-tokens.ts",
+        "packages/ui/registry/blocks/email-kit/mso.ts",
+        "packages/ui/registry/blocks/email-kit/notification-email.tsx",
+        "packages/ui/registry/blocks/email-kit/render.ts"
+      ],
+      "docsSlug": "/docs/blocks/email-kit",
       "contractStatus": "reconciled"
     },
     {

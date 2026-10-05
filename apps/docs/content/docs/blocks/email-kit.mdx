@@ -1,0 +1,240 @@
+---
+title: email-kit
+description: Server-rendered HTML email — Notification, Digest and Action templates in light and dark, built from the design tokens, with renderEmail for HTML and text.
+audience: public
+registry: email-kit
+preview: emailKitNotification
+---
+
+## What it is
+
+Everything an app needs to send good-looking transactional and notification email from a server:
+`EmailLayout` (the shell), eight parts, three templates and `renderEmail`. It is built on
+[React Email](https://react.email) — tables with `role="presentation"`, a 600px fluid column, the
+system font stack, inline light colours and one small `<style>` block for dark mode and phones.
+Every string comes in through props, so the same three templates cover every email an app sends.
+It is a **block**: you pull it once with `shadcn add`, and then you own it.
+
+The colours are the design tokens converted to hex (email clients read neither CSS variables nor
+OKLCH) in `email-tokens.ts`, which is generated — never edit it by hand. The kit is server-safe: no
+`'use client'`, no hooks.
+
+## Install
+
+```npm
+npx shadcn@latest add @vegastack/email-kit
+```
+
+<RegistryInstallCallout />
+
+This installs eight files into `components/email/` and adds one npm dependency, `react-email`. It
+composes no other registry component — email cannot use the app's CSS.
+
+## Preview
+
+Each preview is the real template rendered by `renderEmail`, shown light and dark.
+
+<ComponentPreview name="emailKitNotification" />
+
+## Rendering and sending
+
+`renderEmail` returns the HTML part and the plain-text part. Hand both to your mail provider; set
+the subject yourself.
+
+```tsx
+import { NotificationEmail } from "@/components/email/notification-email";
+import { renderEmail } from "@/components/email/render";
+
+const { html, text } = await renderEmail(
+  <NotificationEmail
+    brand={{ name: workspace.name, url: workspace.url }}
+    preview={`${actor.name}: ${quote}`}
+    heading={`${actor.name} commented on ${task.title}`}
+    quotes={[{ author: actor.name, time: formatted, body: quote }]}
+    action={{ label: "View comment", href: commentUrl }}
+    footer={{
+      reason: "You're getting this because you follow this task.",
+      links: [
+        { label: "Manage notifications", href: settingsUrl },
+        { label: "Unsubscribe from comment emails", href: unsubscribeUrl },
+      ],
+    }}
+  />,
+);
+await mailer.send({ to, subject: task.title, html, text });
+```
+
+- Call it from a route handler, a server action or a job — it uses `react-dom/server`.
+- The plain-text part skips the preheader, keeps headings in sentence case and writes each link as
+  its text and URL.
+- Each template renders to about 8–11 KB, far under Gmail's 102 KB clip.
+
+## Templates
+
+### NotificationEmail
+
+One event about one record — an assignment, a mention, a comment, a change, a reminder. The heading
+carries the event; quotes, a record card and one button follow. For a batch of events on one
+record, pass a count line as the heading ("3 new comments on Fix login") and the quotes oldest
+first.
+
+<ApiTable
+  path="../../packages/ui/registry/blocks/email-kit/notification-email.tsx"
+  name="NotificationEmailProps"
+/>
+
+### DigestEmail
+
+Many events in one email — the daily digest or due-date reminders: groups of linked rows, an
+optional "more" line, and one button (usually "Open inbox").
+
+<ComponentPreview name="emailKitDigest" />
+
+<ApiTable
+  path="../../packages/ui/registry/blocks/email-kit/digest-email.tsx"
+  name="DigestEmailProps"
+/>
+
+### ActionEmail
+
+A message that asks for one action — an invite, a password reset, an access request. Body
+paragraphs, an optional card, one button, the raw link for clients that block the button, and a
+muted note (expiry, "you can ignore this"). Transactional email usually has no preference links in
+its footer.
+
+<ComponentPreview name="emailKitAction" />
+
+<ApiTable
+  path="../../packages/ui/registry/blocks/email-kit/action-email.tsx"
+  name="ActionEmailProps"
+/>
+
+## Layout and parts
+
+Compose your own template from the same pieces when none of the three fits.
+
+| Export         | What it renders                                                                              |
+| -------------- | -------------------------------------------------------------------------------------------- |
+| `EmailLayout`  | `<html lang>`, the colour-scheme metas, the preheader, the wordmark, the card and the footer |
+| `EmailHeading` | The heading — `h1` (20px) once per email, `h2` (16px) for a section                          |
+| `EmailText`    | A paragraph; `tone="muted"` for secondary copy                                               |
+| `EmailLink`    | An underlined inline link                                                                    |
+| `EmailButton`  | The one call to action — 46px tall, full width on a phone                                    |
+| `EmailCard`    | A record summary: its title (linked) and label/value rows                                    |
+| `EmailQuote`   | A quoted comment with its author and time                                                    |
+| `EmailItems`   | Grouped rows for a digest: **Actor** did something · time                                    |
+| `EmailDivider` | A hairline                                                                                   |
+
+```tsx
+<EmailLayout brand={{ name: "Acme" }} preview="Your export is ready">
+  <EmailHeading>Your export is ready</EmailHeading>
+  <EmailText>The CSV has 1,204 rows.</EmailText>
+  <EmailButton href={downloadUrl}>Download CSV</EmailButton>
+</EmailLayout>
+```
+
+<ApiTable
+  path="../../packages/ui/registry/blocks/email-kit/email-layout.tsx"
+  name="EmailLayoutProps"
+/>
+
+The footer note defaults to "Sent with VegaStack"; pass `note: null` to hide it.
+
+<ApiTable
+  path="../../packages/ui/registry/blocks/email-kit/email-layout.tsx"
+  name="EmailFooter"
+/>
+
+<ApiTable
+  path="../../packages/ui/registry/blocks/email-kit/email-parts.tsx"
+  name="EmailCardProps"
+/>
+
+<ApiTable
+  path="../../packages/ui/registry/blocks/email-kit/email-parts.tsx"
+  name="EmailQuoteProps"
+/>
+
+<ApiTable
+  path="../../packages/ui/registry/blocks/email-kit/email-parts.tsx"
+  name="EmailItem"
+/>
+
+## Dark mode and email clients
+
+- **Light is the default and is inline**, so it survives every client, including the ones that
+  strip `<style>`.
+- **Dark mode** is two small `<style>` blocks: `@media (prefers-color-scheme: dark)` for Apple
+  Mail, iOS Mail and Outlook on Mac, and — in a block of its own, so a client that
+  rejects attribute selectors cannot drop the first — `[data-ogsc]`/`[data-ogsb]` rules for
+  Outlook.com and the new Outlook, which repaint text and fill together. Elements opt in with
+  `vs-*` class hooks.
+- **Classic Outlook** ignores `max-width`, so `renderEmail` wraps the column in a 600px table only
+  Outlook sees (conditional comments React cannot write; the layout leaves two empty markers that
+  `applyMsoGhostTable` replaces). Render with `renderEmail`, or call `applyMsoGhostTable` yourself.
+- **Forced inversion** (Gmail, which ignores `prefers-color-scheme`, and classic Outlook) recolours the email itself. The palette
+  avoids pure white and black, which those clients special-case, and every text colour is AA
+  (4.5:1) on its background in both modes — checked when `email-tokens.ts` is generated.
+- **No images.** The header is a text wordmark from `brand.name`, so nothing is blocked or
+  inverted.
+- **Phones.** Under 600px the gutters tighten and the button goes full width; it is at least 44px
+  tall everywhere.
+- Rounded corners and the dark block are progressive: classic Outlook on Windows shows square
+  corners and the light design.
+
+## Writing notifications
+
+One rule set for every channel. The in-app item is always sent; push and email follow the person's
+preferences.
+
+|                         | In-app                               | Push                                                                       | Email                                                          |
+| ----------------------- | ------------------------------------ | -------------------------------------------------------------------------- | -------------------------------------------------------------- |
+| Shape                   | One sentence                         | Title + body                                                               | Subject, preheader, heading, quote or card, one button, footer |
+| Example                 | **Priya** commented on **Fix login** | Title "Priya" · body "Commented on Fix login: Can we ship this by Friday?" | Subject "Fix login" · heading "Priya commented on Fix login"   |
+| Quotes                  | Cut at a word, 120 characters, "…"   | Cut at a word, 110 characters, "…"                                         | In full                                                        |
+| Times                   | Relative ("2m")                      | Relative                                                                   | Absolute with the zone ("Fri 9 Oct, 10:00 IST")                |
+| Title of a system event | —                                    | The record ("Fix login") — body "Due today at 18:00"                       | Subject "Fix login" · heading "Fix login is due today"         |
+
+- **Who → did what → to what.** Past tense, active voice, sentence case: "Priya assigned you to Fix
+  login", not "You have been assigned a task".
+- **Use the specific verb.** "Priya moved Fix login to In review", never "updated" when you know the
+  field.
+- **No "!", emoji, capitals for emphasis, "please" or "successfully".**
+- **Quotes are plain text**: whitespace collapsed, cut at a word with "…".
+- **Push title** is the person for people-to-you events and the record for system, agent and
+  reminder events; the body is the action, plus the quote.
+- **Email subject** is the record's title, the same for every email about that record so clients
+  thread them. Events with no record ("Priya added you to Design", access requests) use the
+  sentence. The **preheader** carries the sentence or the quote.
+- **One button**, verb first: "View task", "View comment", "Open page", "View meeting", "Review
+  request", "Open space"; a digest's is "Open inbox".
+- **Footer**: why they got it ("You're getting this because you're assigned to this task." /
+  "…you were mentioned." / "…you follow this task." / "…you're a member of Design."), then
+  "Manage notifications", "Unsubscribe from comment emails", and "Sent with VegaStack".
+- **Names are data.** The product is VegaStack and the place is the workspace's name ("Acme") —
+  never a customer name baked into a template.
+
+<DoDont
+  do='Subject "Fix login" · heading "Priya commented on Fix login" · button "View comment".'
+  dont='Subject "New activity!" · heading "You have a new notification" · button "Click here".'
+/>
+
+## Files
+
+| File                               | Registry type        | Target                                    |
+| ---------------------------------- | -------------------- | ----------------------------------------- |
+| `email-kit/email-tokens.ts`        | `registry:component` | `components/email/email-tokens.ts`        |
+| `email-kit/mso.ts`                 | `registry:component` | `components/email/mso.ts`                 |
+| `email-kit/email-layout.tsx`       | `registry:component` | `components/email/email-layout.tsx`       |
+| `email-kit/email-parts.tsx`        | `registry:component` | `components/email/email-parts.tsx`        |
+| `email-kit/notification-email.tsx` | `registry:component` | `components/email/notification-email.tsx` |
+| `email-kit/digest-email.tsx`       | `registry:component` | `components/email/digest-email.tsx`       |
+| `email-kit/action-email.tsx`       | `registry:component` | `components/email/action-email.tsx`       |
+| `email-kit/render.ts`              | `registry:component` | `components/email/render.ts`              |
+
+## Do / Don't
+
+<DoDont
+  do="Pass every string — the heading, the button label, the footer reason — from your notification catalog."
+  dont="Fork a template to change one sentence, or edit email-tokens.ts by hand; regenerate it from the tokens."
+/>

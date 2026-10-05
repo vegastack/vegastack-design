@@ -12,11 +12,11 @@
     "evidencePolicy": "Observed fields come from source, registry metadata, docs, and test topology. Unknown/not-applicable values are explicit; no inferred behavior is presented as verified."
   },
   "expectedCounts": {
-    "totalRegistryItems": 725,
+    "totalRegistryItems": 726,
     "components": 151,
     "animatedIcons": 467,
     "hooks": 13,
-    "blocks": 14,
+    "blocks": 15,
     "libs": 12,
     "chartBlocks": 68
   },
@@ -37085,6 +37085,441 @@
         "vrt": "required"
       },
       "previewModule": "status-pages-01"
+    },
+    {
+      "name": "email-kit",
+      "registryType": "registry:block",
+      "title": "Email Kit",
+      "summary": "Server-rendered HTML email: a layout with a text wordmark, light and dark colours from the design tokens, and the footer; parts (heading, text, button, card, quote, item list); three templates — Notification, Digest and Action — and renderEmail for the HTML and plain-text parts.",
+      "family": "starter-block",
+      "wave": "Block",
+      "sourceFiles": [
+        "packages/ui/registry/blocks/email-kit/action-email.tsx",
+        "packages/ui/registry/blocks/email-kit/digest-email.tsx",
+        "packages/ui/registry/blocks/email-kit/email-layout.tsx",
+        "packages/ui/registry/blocks/email-kit/email-parts.tsx",
+        "packages/ui/registry/blocks/email-kit/email-tokens.ts",
+        "packages/ui/registry/blocks/email-kit/mso.ts",
+        "packages/ui/registry/blocks/email-kit/notification-email.tsx",
+        "packages/ui/registry/blocks/email-kit/render.ts"
+      ],
+      "publicSymbols": [
+        {
+          "name": "ActionEmail",
+          "kind": "component",
+          "source": "packages/ui/registry/blocks/email-kit/action-email.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "An email part renders static HTML through renderEmail; ActionEmail forwards no ref, and nothing in an email can hold one."
+          }
+        },
+        {
+          "name": "ActionEmailProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/blocks/email-kit/action-email.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "applyMsoGhostTable",
+          "kind": "function",
+          "source": "packages/ui/registry/blocks/email-kit/mso.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A pure string transform; it renders nothing and takes no ref."
+          }
+        },
+        {
+          "name": "DigestEmail",
+          "kind": "component",
+          "source": "packages/ui/registry/blocks/email-kit/digest-email.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "An email part renders static HTML through renderEmail; DigestEmail forwards no ref, and nothing in an email can hold one."
+          }
+        },
+        {
+          "name": "DigestEmailProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/blocks/email-kit/digest-email.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "EmailAction",
+          "kind": "interface",
+          "source": "packages/ui/registry/blocks/email-kit/notification-email.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "EmailBrand",
+          "kind": "interface",
+          "source": "packages/ui/registry/blocks/email-kit/email-layout.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "EmailButton",
+          "kind": "component",
+          "source": "packages/ui/registry/blocks/email-kit/email-parts.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "An email part renders static HTML through renderEmail; EmailButton forwards no ref, and nothing in an email can hold one."
+          }
+        },
+        {
+          "name": "EmailButtonProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/blocks/email-kit/email-parts.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "EmailCard",
+          "kind": "component",
+          "source": "packages/ui/registry/blocks/email-kit/email-parts.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "An email part renders static HTML through renderEmail; EmailCard forwards no ref, and nothing in an email can hold one."
+          }
+        },
+        {
+          "name": "EmailCardMeta",
+          "kind": "interface",
+          "source": "packages/ui/registry/blocks/email-kit/email-parts.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "EmailCardProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/blocks/email-kit/email-parts.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "emailColors",
+          "kind": "constant",
+          "source": "packages/ui/registry/blocks/email-kit/email-tokens.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "The generated light and dark palettes, not a component."
+          }
+        },
+        {
+          "name": "emailCss",
+          "kind": "constant",
+          "source": "packages/ui/registry/blocks/email-kit/email-tokens.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "The generated dark-mode and phone-width style block, not a component."
+          }
+        },
+        {
+          "name": "EmailDivider",
+          "kind": "component",
+          "source": "packages/ui/registry/blocks/email-kit/email-parts.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "An email part renders static HTML through renderEmail; EmailDivider forwards no ref, and nothing in an email can hold one."
+          }
+        },
+        {
+          "name": "emailFontFamily",
+          "kind": "constant",
+          "source": "packages/ui/registry/blocks/email-kit/email-tokens.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "The system font stack, not a component."
+          }
+        },
+        {
+          "name": "EmailFooter",
+          "kind": "interface",
+          "source": "packages/ui/registry/blocks/email-kit/email-layout.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "EmailFooterLink",
+          "kind": "interface",
+          "source": "packages/ui/registry/blocks/email-kit/email-layout.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "EmailHeading",
+          "kind": "component",
+          "source": "packages/ui/registry/blocks/email-kit/email-parts.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "An email part renders static HTML through renderEmail; EmailHeading forwards no ref, and nothing in an email can hold one."
+          }
+        },
+        {
+          "name": "EmailHeadingProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/blocks/email-kit/email-parts.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "EmailItem",
+          "kind": "interface",
+          "source": "packages/ui/registry/blocks/email-kit/email-parts.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "EmailItemGroup",
+          "kind": "interface",
+          "source": "packages/ui/registry/blocks/email-kit/email-parts.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "EmailItems",
+          "kind": "component",
+          "source": "packages/ui/registry/blocks/email-kit/email-parts.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "An email part renders static HTML through renderEmail; EmailItems forwards no ref, and nothing in an email can hold one."
+          }
+        },
+        {
+          "name": "EmailItemsProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/blocks/email-kit/email-parts.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "EmailLayout",
+          "kind": "component",
+          "source": "packages/ui/registry/blocks/email-kit/email-layout.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "An email part renders static HTML through renderEmail; EmailLayout forwards no ref, and nothing in an email can hold one."
+          }
+        },
+        {
+          "name": "EmailLayoutProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/blocks/email-kit/email-layout.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "EmailLink",
+          "kind": "component",
+          "source": "packages/ui/registry/blocks/email-kit/email-parts.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "An email part renders static HTML through renderEmail; EmailLink forwards no ref, and nothing in an email can hold one."
+          }
+        },
+        {
+          "name": "EmailLinkProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/blocks/email-kit/email-parts.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "emailOutlookCss",
+          "kind": "constant",
+          "source": "packages/ui/registry/blocks/email-kit/email-tokens.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "The generated Outlook.com dark-mode style block, not a component."
+          }
+        },
+        {
+          "name": "EmailPalette",
+          "kind": "interface",
+          "source": "packages/ui/registry/blocks/email-kit/email-tokens.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "EmailQuote",
+          "kind": "component",
+          "source": "packages/ui/registry/blocks/email-kit/email-parts.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "An email part renders static HTML through renderEmail; EmailQuote forwards no ref, and nothing in an email can hold one."
+          }
+        },
+        {
+          "name": "EmailQuoteProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/blocks/email-kit/email-parts.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "EmailText",
+          "kind": "component",
+          "source": "packages/ui/registry/blocks/email-kit/email-parts.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "An email part renders static HTML through renderEmail; EmailText forwards no ref, and nothing in an email can hold one."
+          }
+        },
+        {
+          "name": "EmailTextProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/blocks/email-kit/email-parts.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "MSO_CLOSE",
+          "kind": "constant",
+          "source": "packages/ui/registry/blocks/email-kit/mso.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "The marker attributes the layout renders after its container, not a component."
+          }
+        },
+        {
+          "name": "MSO_OPEN",
+          "kind": "constant",
+          "source": "packages/ui/registry/blocks/email-kit/mso.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "The marker attributes the layout renders before its container, not a component."
+          }
+        },
+        {
+          "name": "NotificationEmail",
+          "kind": "component",
+          "source": "packages/ui/registry/blocks/email-kit/notification-email.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "An email part renders static HTML through renderEmail; NotificationEmail forwards no ref, and nothing in an email can hold one."
+          }
+        },
+        {
+          "name": "NotificationEmailProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/blocks/email-kit/notification-email.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "RenderedEmail",
+          "kind": "interface",
+          "source": "packages/ui/registry/blocks/email-kit/render.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "renderEmail",
+          "kind": "function",
+          "source": "packages/ui/registry/blocks/email-kit/render.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "An async function that renders an email to HTML and text; it renders nothing into a page and takes no ref."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "A block is a copy-once composition; the only axis is EmailText's muted tone, and light/dark is the recipient's client, not a prop."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "An email is one 600px fluid column that narrows to the phone; there is no size axis."
+      },
+      "states": {
+        "behavior": {
+          "status": "observed",
+          "values": ["default", "dark", "phone-width", "no-footer-note", "rtl"],
+          "evidence": "packages/ui/registry/blocks/email-kit/email-kit.test.tsx — every template rendered to HTML and text, the dark branch forced on, the phone-width button, the hidden footer note and dir/lang."
+        },
+        "accessibility": {
+          "status": "covered",
+          "values": ["semantic-html", "browser-accessibility-test"],
+          "evidence": "packages/ui/registry/blocks/email-kit/email-kit.test.tsx runs axe, colour contrast included, over each rendered email in light and dark."
+        },
+        "visual": {
+          "status": "observed",
+          "values": ["default", "dark"],
+          "evidence": "Rendered in Chromium at 375px and 600px in light and dark during review; colours are contrast-checked by tooling/generate-email-tokens.mjs."
+        }
+      },
+      "responsive": {
+        "status": "modeled",
+        "risks": ["responsive-or-container-layout", "mobile-or-touch-mode"],
+        "rationale": "A 600px fluid table that narrows to any width; under 600px the gutters tighten and the button goes full width (one @media block)."
+      },
+      "motion": {
+        "status": "modeled",
+        "mechanisms": ["none — email has no motion"],
+        "reducedMotion": {
+          "status": "covered",
+          "rationale": "Nothing animates in an email."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/blocks/email-kit",
+      "registryDependencies": [],
+      "npmDependencies": ["react-email@^6.11.0"],
+      "testFiles": ["packages/ui/registry/blocks/email-kit/email-kit.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required"
+      },
+      "previewModule": "email-kit",
+      "dataAttributes": {}
     },
     {
       "name": "share-01",

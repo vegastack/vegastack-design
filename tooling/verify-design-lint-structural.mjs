@@ -644,6 +644,34 @@ export function ToastClose({ render = <Button size="icon-sm" /> }: { render?: un
     fail("design-lint structural positive specimen failed", valid.output);
   }
 
+  // ── the email kit's generated colour module (MK, 2026-10-05) ────────────────────────────────
+  // `email-tokens.ts` is the ONE registry file allowed hex and `!important`: email clients need
+  // sRGB hex, and its dark-mode CSS string must beat inline light colours. The carve-out is by exact
+  // path, so its sibling in the same block — written the same way — must still fail both rules.
+  const emailDir = join(
+    scratch,
+    "email",
+    "packages/ui/registry/blocks/email-kit",
+  );
+  mkdirSync(emailDir, { recursive: true });
+  const emailSpecimen = `export const emailColors = { light: { text: "#0a0a0a" } };
+export const emailCss = "@media (prefers-color-scheme:dark){.vs-text{color:#fafafa !important}}";
+`;
+  writeFileSync(join(emailDir, "email-tokens.ts"), emailSpecimen);
+  writeFileSync(join(emailDir, "email-layout.tsx"), emailSpecimen);
+  const email = run(emailDir);
+  if (
+    email.status === 0 ||
+    email.output.includes("email-tokens.ts") ||
+    !email.output.includes("email-layout.tsx:1 [hex-color]") ||
+    !email.output.includes("email-layout.tsx:2 [important]")
+  ) {
+    fail(
+      "design-lint's email-tokens carve-out is not exactly one file: the generated module must pass and its sibling must fail hex-color and important",
+      email.output,
+    );
+  }
+
   console.log(
     `✓ design-lint structural specimens: ${requiredIds.length} structural + ${vocabularyIds.length} ` +
       `token-vocabulary rules fail closed, all 5 focus-ring-glow forms and all 5 loader-circle ` +
@@ -655,7 +683,8 @@ export function ToastClose({ render = <Button size="icon-sm" /> }: { render?: un
       `covering upstream's motion, radius, shadow, alpha, arbitrary value, type, z-index and ` +
       `hover vocabulary, avatar's ring-2 gap, a border surface, prose that mentions a ring, a "ring" VALUE inside a ` +
       `class builder (a call argument, an element-access key, a cva matcher or default), prose ending in "!", plus all ` +
-      `three spellings of naming an icon Button through its host`,
+      `three spellings of naming an icon Button through its host; the email kit's generated ` +
+      `colour module alone may carry hex and \`!important\``,
   );
 } finally {
   rmSync(scratch, { recursive: true, force: true });

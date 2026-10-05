@@ -179,6 +179,10 @@ export default defineConfig({
       "@atlaskit/pragmatic-drag-and-drop/element/preserve-offset-on-source",
       "@atlaskit/pragmatic-drag-and-drop/element/set-custom-native-drag-preview",
       "react-dom/client",
+      // The email-kit block renders with react-email (react-dom/server's browser build) and its
+      // suite checks the output with doiuse-email: pre-bundled so neither reloads a live page.
+      "react-email",
+      "doiuse-email",
     ],
   },
   test: {

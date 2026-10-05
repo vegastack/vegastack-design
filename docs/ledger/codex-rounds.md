@@ -884,3 +884,17 @@ The newly approved `DateRangeFilter.today` forwarding and `useDateTimeNow()` sha
 ## Regent date rollover / CI native failure — 2026-10-03 — scoped review
 
 Independent review found no blocking runtime or metadata-privacy issue in DateTime/DueLabel's shared-clock integration, the supported Chromium channel selection or bounded native-crash metadata reporting. One low documentation mismatch (“render once”) was corrected. The reviewer retained the explicit requirement for exact-head Linux CI to establish native-crash elimination; raw core memory was not accessed in review. See the completion ledger for focused tests and the evidence boundary.
+
+## Email kit — 2026-10-05 — two rounds, final verdict: addressed
+
+Independent Codex CLI review (gpt-6.1-sol, high, read-only) of the new `email-kit` block, its
+token generator and the `email-tokens.ts` lint carve-out. Round 1 — 2 high, 4 medium, all verified
+and fixed: 18 optional props lacked `@default` (`verify-public-api-docs` red); doiuse-email never
+descends into `@media`, so the compatibility test lifted nothing inside one (rules are now lifted
+first, with a planted `display:grid` that must fail); the Outlook.com overrides relied on an
+unmarked ancestor (the full palette now applies under both `[data-ogsc]` and `[data-ogsb]`, plus
+the marked canvas itself, in its own `<style>`, with a simulated-marker test); classic Outlook
+ignored `max-width` (a 600px conditional ghost table via `applyMsoGhostTable`); quote line breaks
+relied on `white-space` (explicit `<br>`); the docs "Light" frame followed a dark OS preference
+(pinned with `@media not all`). Round 2 confirmed all six and raised one low: Gmail does not honour
+`prefers-color-scheme` — the docs and generator comment no longer claim it.

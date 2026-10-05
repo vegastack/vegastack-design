@@ -156,6 +156,7 @@ export * from "./carousel";
 export * from "./app-shell-01";
 export * from "./board-01";
 export * from "./command-search-01";
+export * from "./email-kit";
 export * from "./list-page-01";
 export * from "./library-01";
 export * from "./login-01";

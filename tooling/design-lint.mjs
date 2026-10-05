@@ -954,8 +954,18 @@ function renderOmitLines(file, src) {
 
 // Browser/PWA metadata intentionally uses the broadly supported hex serialization of generated
 // semantic theme colors; Satori likewise needs concrete paint values at image-render time.
-const HEX_COLOR_FILE_ALLOWLIST =
-  /apps\/docs\/(?:lib\/og\.tsx|app\/(?:layout\.tsx|manifest\.ts))$/;
+//
+// The email kit's colour module is the one REGISTRY file on the list (MK, 2026-10-05): email clients
+// read neither CSS variables nor OKLCH, so `email-tokens.ts` carries the tokens as sRGB hex. It is
+// GENERATED from the DTCG sources by `tooling/generate-email-tokens.mjs` and `design:verify` fails
+// when it drifts, so the hex in it is never authored. The same file is the one registry file allowed
+// a raw `!important`: its dark-mode `<style>` must beat the light colours email clients need inline.
+// Every other file in the kit — and everywhere else — stays under both rules.
+const EMAIL_TOKENS_FILE =
+  /(?:^|\/)registry\/blocks\/email-kit\/email-tokens\.ts$/;
+const HEX_COLOR_FILE_ALLOWLIST = new RegExp(
+  `apps\\/docs\\/(?:lib\\/og\\.tsx|app\\/(?:layout\\.tsx|manifest\\.ts))$|${EMAIL_TOKENS_FILE.source}`,
+);
 /**
  * A hex inside an ATTRIBUTE-SELECTOR VALUE is a colour being TARGETED, not one being authored.
  *
@@ -1129,7 +1139,11 @@ for (const root of ROOTS) {
       const exemption = [...IMPORTANT_MODIFIER_EXEMPTIONS].find(([tail]) =>
         file.replaceAll("\\", "/").endsWith(tail),
       );
-      if (!exemption) {
+      // The email kit's generated colour module holds a CSS STRING, not class strings: its
+      // `!important`s are the dark-mode overrides EMAIL_TOKENS_FILE documents above.
+      if (EMAIL_TOKENS_FILE.test(file)) {
+        // no class-string `!` modifiers to count
+      } else if (!exemption) {
         for (const { line, token } of importantModifiers) {
           console.log(
             `${file}:${line} [important] Tailwind \`!\` modifier "${token}" compiles to !important — ` +
@@ -1210,6 +1224,7 @@ for (const root of ROOTS) {
         return;
       for (const { id, re, msg } of RULES) {
         if (id === "hex-color" && HEX_COLOR_FILE_ALLOWLIST.test(file)) continue;
+        if (id === "important" && EMAIL_TOKENS_FILE.test(file)) continue;
         // `hex-color` reads the line with attribute-selector VALUES masked out — see SELECTOR_HEX.
         const subject =
           id === "hex-color" ? line.replace(SELECTOR_HEX, "[]") : line;
