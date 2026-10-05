@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, type ReactNode } from "react";
-import { FileText, Package, TriangleAlert } from "lucide-react";
+import { FileText, Package, TriangleAlert, UserRoundCheck } from "lucide-react";
 import {
   Inbox,
   InboxEmphasis,
@@ -65,6 +65,7 @@ export function inbox(): ReactNode {
           <InboxItem
             unread={unread("a")}
             avatar={{ name: "Asha Kumar", hue: "orange" }}
+            badge={<UserRoundCheck />}
             title={
               <>
                 <InboxEmphasis>Asha</InboxEmphasis> assigned you{" "}
@@ -107,6 +108,7 @@ export function inbox(): ReactNode {
           <InboxItem
             unread={unread("c")}
             avatar={{ name: "Raj Patel", hue: "cyan" }}
+            badge={<UserRoundCheck />}
             count={3}
             title={
               <>

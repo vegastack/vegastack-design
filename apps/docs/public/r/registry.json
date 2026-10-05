@@ -15923,7 +15923,7 @@
         "whenToUse": "A mention or a file link inside text — an editor, a Markdown body, a comment — that should read as part of the sentence and open or preview its target.",
         "whenNotToUse": "A record's property value or a picker (RecordChip), a removable token in an input (Chip), or a status label (Badge).",
         "version": "0.23.124",
-        "integrity": "sha256-+uUZcmkQFS16svsn6TbkPCIwfZkIgunXIwyrY0k6fzQ="
+        "integrity": "sha256-rxMP+ttHhVPygtkzy+YsF9DJxG42aYTVYrCAow46KxU="
       }
     },
     {
@@ -16397,7 +16397,7 @@
         "whenToUse": "The notifications panel: a feed of person and system events the user reads, acts on and marks read. Put it in a Sheet, Popover or docked panel.",
         "whenNotToUse": "Toasts for transient confirmations, an activity log on a record (Timeline), or a bare unread count (NotificationBell).",
         "version": "0.23.124",
-        "integrity": "sha256-Q4YZBgfcQqgPPy2xamCpF8uAVVNxBXbSKXLzsCVzRXQ="
+        "integrity": "sha256-mqLA+ajeSPwlmXWo3nXU/htfeLa7SFkHqNjDuqDSWt0="
       }
     },
     {
@@ -17329,7 +17329,7 @@
         "whenToUse": "Settings/preferences screens — titled sections, bordered cards, label/description + control rows.",
         "whenNotToUse": "Free-form content surfaces (Card), data tables, or complex multi-field forms.",
         "version": "0.23.124",
-        "integrity": "sha256-+8Db6WHkEkpbRUmCyZKd+q/GK1l9Ddn+IKzq9lbacV0="
+        "integrity": "sha256-kIEWUEjikh34Cp8d2eCV8q4THQpvQcLobtSWKMUoZDk="
       }
     },
     {
