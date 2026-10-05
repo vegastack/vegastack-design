@@ -91,7 +91,7 @@ Use the **ship skill** (`skills/internal/ship/SKILL.md` — auto-discovered by C
 affected PR proof → exact-SHA merge → generated Version Packages PR proof and merge → **npm OIDC
 publish** → automatic public registry/docs deploy → production verification.
 
-One explicit **ship it** authorizes the complete current chain and its bounded corrective loop. Full
+A go-dark mandate permits feature work, not main updates. Main approval and outward-release scope must be explicit; a `ship it` that includes those steps covers the named chain. Full
 reference: [docs/RELEASING.md](docs/RELEASING.md).
 
 ## Verification culture

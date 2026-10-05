@@ -6,12 +6,16 @@ topology. Scripts and workflows win if prose disagrees.
 The GitHub repository is public. The npm packages are public; the component registry remains private
 behind Cloudflare Access at `design.vegastack.com/r/*`.
 
-## One authorization
+## Explicit main and release authorization
 
-One explicit **ship it** authorizes the current reviewed change through commit, push, PR, exact-SHA
+Operator clarification, 3 October 2026: a go-dark/autonomous mandate covers owned feature commits and pushes, and reviewed develop merges only where develop exists. It never authorizes a main merge, push or fast-forward. Explicit main approval must cover the named change; the generated Version Packages main merge also needs approval unless that operator instruction explicitly includes it. Public publication/deployment must be explicitly included in the release instruction. Never create or bypass a develop branch merely to avoid main approval.
+
+The following chain applies only after that explicit authorization.
+
+One explicit **ship it** that includes the named main merges and outward release authorizes the current reviewed change through commit, push, PR, exact-SHA
 squash merge, the generated Version Packages PR and its exact-SHA merge, npm publication, public
 registry/docs deployment, and production verification. The Version PR is a protected review
-boundary, not a second authorization prompt.
+boundary; no repeated prompt is needed only when the operator explicitly included that main merge.
 
 The authorization includes at most three surgical corrective patch iterations. It does not permit
 changes to secrets, Cloudflare Access, authentication policy, workflow permissions, runner trust,
