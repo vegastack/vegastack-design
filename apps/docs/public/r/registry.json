@@ -21127,6 +21127,68 @@
       }
     },
     {
+      "name": "email-kit",
+      "type": "registry:block",
+      "title": "Email Kit",
+      "description": "Server-rendered HTML email: a layout with a text wordmark, light and dark colours from the design tokens, and the footer; parts (heading, text, button, card, quote, item list); three templates — Notification, Digest and Action — and renderEmail for the HTML and plain-text parts.",
+      "categories": [
+        "email",
+        "notifications"
+      ],
+      "dependencies": [
+        "react-email@^6.11.0"
+      ],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "packages/ui/registry/blocks/email-kit/email-tokens.ts",
+          "type": "registry:component",
+          "target": "components/email/email-tokens.ts"
+        },
+        {
+          "path": "packages/ui/registry/blocks/email-kit/mso.ts",
+          "type": "registry:component",
+          "target": "components/email/mso.ts"
+        },
+        {
+          "path": "packages/ui/registry/blocks/email-kit/email-layout.tsx",
+          "type": "registry:component",
+          "target": "components/email/email-layout.tsx"
+        },
+        {
+          "path": "packages/ui/registry/blocks/email-kit/email-parts.tsx",
+          "type": "registry:component",
+          "target": "components/email/email-parts.tsx"
+        },
+        {
+          "path": "packages/ui/registry/blocks/email-kit/notification-email.tsx",
+          "type": "registry:component",
+          "target": "components/email/notification-email.tsx"
+        },
+        {
+          "path": "packages/ui/registry/blocks/email-kit/digest-email.tsx",
+          "type": "registry:component",
+          "target": "components/email/digest-email.tsx"
+        },
+        {
+          "path": "packages/ui/registry/blocks/email-kit/action-email.tsx",
+          "type": "registry:component",
+          "target": "components/email/action-email.tsx"
+        },
+        {
+          "path": "packages/ui/registry/blocks/email-kit/render.ts",
+          "type": "registry:component",
+          "target": "components/email/render.ts"
+        }
+      ],
+      "meta": {
+        "whenToUse": "Transactional and notification email from a server — a comment, an assignment, a daily digest, an invite or a password reset — rendered with renderEmail and sent by your mail provider.",
+        "whenNotToUse": "Marketing newsletters with images and multi-column layouts, or an in-app notification — use the Inbox and Toast components.",
+        "version": "0.23.123",
+        "integrity": "sha256-den4U9PBYEZar2jXxOznCfPkHNAJl/HdznaiTPDBGzk="
+      }
+    },
+    {
       "name": "review-split-01",
       "type": "registry:block",
       "title": "Review Split 01",

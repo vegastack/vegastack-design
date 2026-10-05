@@ -34,7 +34,11 @@ that catch bugs nobody can see in review.
    rather than broken. Batch 6 of the shadcn reset added it for upstream's `chart.tsx`; a file
    allowlist would have switched the rule off for that whole file, so the mask is by position and
    every authored hex in every file is still rejected. Both halves are observed in
-   `verify-design-lint-structural.mjs`.
+   `verify-design-lint-structural.mjs`. **One registry file is on `HEX_COLOR_FILE_ALLOWLIST`**
+   (MK, 2026-10-05): `blocks/email-kit/email-tokens.ts`, because email clients read neither CSS
+   variables nor OKLCH. It is GENERATED from the DTCG tokens by `tooling/generate-email-tokens.mjs`
+   (`--check` runs in `design:verify`), so its hex is never authored; the carve-out is by exact path,
+   and the structural specimen proves a sibling file in the same block still fails.
 2. **`raw-palette`** — a colour-property utility against a raw Tailwind palette (`bg-neutral-900`,
    `text-red-500`, `border-slate-200`). Use a semantic token. Note the shape: the rule requires a
    NUMBERED palette step, so upstream's `bg-black/10` modal scrim and `bg-white` pass, which is
@@ -42,8 +46,9 @@ that catch bugs nobody can see in review.
 3. **`important`** — `!important` anywhere in component source, **and Tailwind's `!` modifier**
    (`p-0!`, legacy `!p-0`, `hover:!mt-2`) in a class string, which compiles to the same thing
    (extended 2026-09-23; the regex had only ever read the literal text `!important`). The literal
-   has zero exceptions; the two sanctioned raw-CSS exceptions apply only to token/app CSS (see
-   below). The modifier has one table, `IMPORTANT_MODIFIER_EXEMPTIONS`, keyed by path tail from
+   has one exception in component source — the same generated `email-tokens.ts`, whose dark-mode
+   CSS string must beat the light colours email clients need inline (MK, 2026-10-05) — and the two
+   sanctioned raw-CSS exceptions apply only to token/app CSS (see below). The modifier has one table, `IMPORTANT_MODIFIER_EXEMPTIONS`, keyed by path tail from
    `/ui/` or `/blocks/` (so the canonical file and its docs copy-in share an entry) with an EXACT
    count per file, failing closed in both directions like the native-control budget: upstream's
    own verbatim uses (tooltip, command, sidebar, menubar, badge, button-group, pagination,

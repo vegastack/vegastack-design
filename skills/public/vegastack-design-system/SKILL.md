@@ -229,6 +229,10 @@ closest one rather than composing the page from nothing:
   state.
 - **`status-pages-01`** — the 404, 403 and error pages.
 - **`login-01`** — a sign-in page.
+- **`email-kit`** — server-rendered HTML email into `components/email/`: `NotificationEmail`,
+  `DigestEmail` and `ActionEmail` (every string a prop), the `EmailLayout` and its parts, and
+  `renderEmail` for the HTML and plain-text parts. Colours come from the tokens as generated hex,
+  light and dark; write the copy to the "Writing notifications" rules on its docs page.
 
 ## Tokens
 
