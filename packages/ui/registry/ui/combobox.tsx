@@ -1,4 +1,4 @@
-// @vegastack combobox@0.23.123 sha256-ancWX/6I4wCHXh5VunwnzMfKEU7xBX35E7MVmIfEvcs=
+// @vegastack combobox@0.23.124 sha256-Jtk+tC9OSPQ5Ome1qczXmurh4pdGSmmKQw5/OdjnT9w=
 
 "use client";
 
