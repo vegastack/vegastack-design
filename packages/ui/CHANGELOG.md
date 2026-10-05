@@ -1,5 +1,14 @@
 # @vegastack/ui
 
+## 0.23.125
+
+### Patch Changes
+
+- [#530](https://github.com/vegastack/vegastack-design/pull/530) [`101ba5e`](https://github.com/vegastack/vegastack-design/commit/101ba5e439851a01c9a1d75c95217b842a622eff) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🔧 Inbox rows say more at a glance: an unread row carries a small dot in its start gutter (beside the tint and the sr-only "Unread:"), and `InboxItem` takes a `badge` — a small glyph on the avatar's corner naming the kind of event (assigned, a mention, a comment), decorative so the title carries the meaning. `SettingsSection` keeps its actions (an autosave status, a button) on the title row beside a long description instead of wrapping them onto a row of their own. A person `InlineChip`'s initials no longer break onto two lines in a narrow, break-anywhere column (a mention in a comment on a phone).
+
+- Updated dependencies [[`101ba5e`](https://github.com/vegastack/vegastack-design/commit/101ba5e439851a01c9a1d75c95217b842a622eff)]:
+  - @vegastack/design@0.7.110
+
 ## 0.23.124
 
 ### Patch Changes
