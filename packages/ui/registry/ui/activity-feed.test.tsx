@@ -317,6 +317,154 @@ test("prepending a cursor page preserves the visible change even when its group 
   ).toBeLessThan(1);
 });
 
+test("scrolling while a cursor request waits preserves the current reading position", async () => {
+  let complete!: () => void;
+  const page = new Promise<void>((resolve) => {
+    complete = resolve;
+  });
+  const started = vi.fn();
+  function Joined() {
+    const [loaded, setLoaded] = React.useState(false);
+    const change = (id: number) => ({
+      id: String(id),
+      actor: priya,
+      date: NOW + id * 1000,
+      now: NOW,
+      children: `Recorded change ${id}`,
+    });
+    const groups = loaded
+      ? [
+          [0, 30, 60, 90],
+          [150, 210],
+        ]
+      : [[90, 150, 210]];
+    return (
+      <div
+        data-testid="joined-scroll"
+        style={{ height: 160, width: 320, overflowY: "auto" }}
+      >
+        <ActivityFeed
+          paginationKey={loaded ? null : "older"}
+          loadMore={{
+            hasMore: !loaded,
+            onLoadMore: async () => {
+              started();
+              await page;
+              setLoaded(true);
+            },
+          }}
+        >
+          <ActivityFeedList>
+            {groups.map((group) => (
+              <ActivityFeedItem key={group[0]}>
+                <ActivityEventGroup events={group.map(change)} />
+              </ActivityFeedItem>
+            ))}
+            {Array.from({ length: 12 }, (_, i) => (
+              <ActivityFeedItem key={`tail-${i}`}>
+                <ActivityEvent actor={priya} date={NOW} now={NOW}>
+                  Later entry {i}
+                </ActivityEvent>
+              </ActivityFeedItem>
+            ))}
+          </ActivityFeedList>
+        </ActivityFeed>
+      </div>
+    );
+  }
+  const screen = await render(<Joined />);
+  const scroller = screen.container.querySelector<HTMLElement>(
+    '[data-testid="joined-scroll"]',
+  )!;
+  scroller.scrollTop = 40;
+  await vi.waitFor(() => expect(started).toHaveBeenCalledOnce());
+  scroller.scrollTop = 65;
+  await new Promise((resolve) => setTimeout(resolve, 50));
+  const top = screen.container
+    .querySelector('[data-activity-id="90"]')!
+    .getBoundingClientRect().top;
+  complete();
+  await vi.waitFor(() =>
+    expect(screen.container.textContent).toContain("Recorded change 0"),
+  );
+  expect(
+    Math.abs(
+      screen.container
+        .querySelector('[data-activity-id="90"]')!
+        .getBoundingClientRect().top - top,
+    ),
+  ).toBeLessThan(1);
+});
+
+test("newest-first cursor regrouping preserves the visible change", async () => {
+  function Joined() {
+    const [loaded, setLoaded] = React.useState(false);
+    const change = (id: number) => ({
+      id: String(id),
+      actor: priya,
+      date: NOW + id * 1000,
+      now: NOW,
+      children: `Recorded change ${id} ${"a long title that wraps across the narrow activity column ".repeat(4)}`,
+    });
+    const groups = loaded
+      ? [
+          [0, 30, 60, 90],
+          [150, 210],
+        ]
+      : [[90, 150, 210]];
+    return (
+      <div
+        data-testid="joined-scroll"
+        style={{ height: 160, width: 320, overflowY: "auto" }}
+      >
+        <ActivityFeed
+          order="newest"
+          paginationKey={loaded ? null : "older"}
+          loadMore={{
+            hasMore: !loaded,
+            onLoadMore: async () => {
+              setLoaded(true);
+            },
+          }}
+        >
+          <ActivityFeedList>
+            {Array.from({ length: 12 }, (_, i) => (
+              <ActivityFeedItem key={`tail-${i}`}>
+                <ActivityEvent actor={priya} date={NOW} now={NOW}>
+                  Later entry {i}
+                </ActivityEvent>
+              </ActivityFeedItem>
+            ))}
+            {[...groups].reverse().map((group) => (
+              <ActivityFeedItem key={group[0]}>
+                <ActivityEventGroup events={group.map(change)} />
+              </ActivityFeedItem>
+            ))}
+          </ActivityFeedList>
+        </ActivityFeed>
+      </div>
+    );
+  }
+  const screen = await render(<Joined />);
+  const scroller = screen.container.querySelector<HTMLElement>(
+    '[data-testid="joined-scroll"]',
+  )!;
+  scroller.scrollTop = scroller.scrollHeight;
+  const top = screen.container
+    .querySelector('[data-activity-id="210"]')!
+    .getBoundingClientRect().top;
+  await vi.waitFor(() =>
+    expect(screen.container.textContent).toContain("Recorded change 0"),
+  );
+  expect(
+    Math.abs(
+      screen.container
+        .querySelector('[data-activity-id="210"]')!
+        .getBoundingClientRect().top - top,
+    ),
+  ).toBeLessThan(1);
+});
+
 test("cursor pages load at the scroll edge and a failed page requires a retry", async () => {
   function Paged() {
     const [cursor, setCursor] = React.useState<string | null>("earlier");

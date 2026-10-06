@@ -129,7 +129,7 @@ The children-based form remains available for explicitly folded rows (`visible` 
 
 Pass `loadMore={{ hasMore, onLoadMore, loading, error }}` and a `paginationKey` containing
 the filter, list generation and next cursor to `ActivityFeed`. The history edge loads automatically when it enters view: above the list
-oldest first, below it newest first. Prepending older items preserves the visible item’s position.
+oldest first, below it newest first. Loading older items preserves the current visible change in both orders, including when you scroll during the request or the page joins an existing group.
 Set `loadMore.error` after a failed read; automatic retries stop and a Retry button appears.
 `loadingMoreLabel` and `retryMoreLabel` override the pagination copy. Keep an unread divider within the same timeline rather than paginating unread items separately.
 
