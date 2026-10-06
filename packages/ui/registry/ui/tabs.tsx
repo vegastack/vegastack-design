@@ -1,4 +1,4 @@
-// @vegastack tabs@0.23.125 sha256-hz3O69beqVJE8TdeQnIt5Y/wEAiR28AGgJnqXZb///Q=
+// @vegastack tabs@0.23.126 sha256-LexOtKEYZFDNuQF8FjjF5HoeFAta4Jd2P/btts6abVs=
 
 "use client";
 

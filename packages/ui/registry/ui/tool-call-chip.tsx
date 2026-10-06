@@ -1,4 +1,4 @@
-// @vegastack tool-call-chip@0.23.125 sha256-Hf2cxaOyWmlHSrcM2BkapVwen7EgVapGz+M9UlDQzdI=
+// @vegastack tool-call-chip@0.23.126 sha256-qZbvmgy+bHOZbImMbDOR+65pFjMW4FDKCp0sMfbRfvY=
 
 "use client";
 
