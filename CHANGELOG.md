@@ -9,6 +9,19 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.23.127] — October 6, 2026
+
+<!-- assembled from 1 changeset: 6eaec07b2cc8 -->
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.23.126 → 0.23.127.
+
+### 🐛 Fixed
+
+- Activity cursor loading preserves the current reading position in both orders, including when older pages regroup visible changes or the reader scrolls during the request.
+  [`812ebf4`](https://github.com/VegaStack/vegastack-design/commit/812ebf4)
+
 ## [0.23.126] — October 6, 2026
 
 <!-- assembled from 1 changeset: 2e32bce00fd5 -->

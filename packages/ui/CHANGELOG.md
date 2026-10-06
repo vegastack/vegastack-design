@@ -1,5 +1,11 @@
 # @vegastack/ui
 
+## 0.23.127
+
+### Patch Changes
+
+- [#534](https://github.com/vegastack/vegastack-design/pull/534) [`812ebf4`](https://github.com/vegastack/vegastack-design/commit/812ebf4a66b9666ea9fb118db281529b94a3efa7) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🐛 Activity cursor loading preserves the current reading position in both orders, including when older pages regroup visible changes or the reader scrolls during the request.
+
 ## 0.23.126
 
 ### Patch Changes
