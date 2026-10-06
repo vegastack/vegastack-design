@@ -837,14 +837,18 @@ test("held clicks on padding, icon and label all reach the latest boundary", asy
   const scroller = screen.container.querySelector<HTMLElement>(
     '[data-testid="press-scroller"]',
   )!;
-  for (const x of [5, 17, 65]) {
+  const clicks = [
+    { x: 5, y: 14 },
+    { x: 17, y: 14 },
+    { x: 65, y: 14 },
+    { x: 5, y: 27 },
+  ];
+  for (const [index, position] of clicks.entries()) {
     scroller.scrollTop = 0;
     const button = screen.getByRole("button", { name: "Jump to latest" });
     await expect.element(button).toBeVisible();
-    await button.click({ position: { x, y: 14 }, delay: 250 });
-    await vi.waitFor(() =>
-      expect(reached.mock.calls.length).toBe([5, 17, 65].indexOf(x) + 1),
-    );
+    await button.click({ position, delay: 250 });
+    await vi.waitFor(() => expect(reached.mock.calls.length).toBe(index + 1));
   }
 });
 
