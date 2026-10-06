@@ -1,4 +1,4 @@
-// @vegastack activity-feed@0.23.126 sha256-Qvp0pOC1TAFcGEKk/LAWW0ygxvRx4zJqw5QbxBo7EwY=
+// @vegastack activity-feed@0.23.126 sha256-w0EXCZNa0Lh4LIV+xvL6N9DSaAf90MhqZMClaS3P8UU=
 
 "use client";
 
@@ -163,6 +163,7 @@ export function ActivityFeed({
     activeRequest !== null && activeRequest.key === paginationKey;
   const [hasScrolled, setHasScrolled] = React.useState(false);
   const running = React.useRef<PageRequest | null>(null);
+  const captureCleanup = React.useRef<(() => void) | undefined>(undefined);
   const anchor = React.useRef<{
     node: HTMLElement;
     top: number;
@@ -194,7 +195,11 @@ export function ActivityFeed({
       setActiveRequest(request);
       running.current = request;
       const section = sectionRef.current;
-      if (order === "oldest" && hasScrolled && section) {
+      captureCleanup.current?.();
+      captureCleanup.current = undefined;
+      let stopCapturing: (() => void) | undefined;
+      anchor.current = null;
+      if (hasScrolled && section) {
         const parent = scrollParent(section);
         const top =
           parent instanceof Window ? 0 : parent.getBoundingClientRect().top;
@@ -206,32 +211,52 @@ export function ActivityFeed({
           const rect = node.getBoundingClientRect();
           return rect.bottom > top && rect.top < bottom;
         };
-        const item = Array.from(
-          section.querySelectorAll<HTMLElement>(
-            '[data-slot="activity-feed-item"]:not([data-kind="divider"])',
-          ),
-        ).find(visible);
-        const node = item
-          ? (Array.from(
-              item.querySelectorAll<HTMLElement>(
-                '[data-slot="activity-change"][data-activity-id]',
-              ),
-            ).find(visible) ?? item)
-          : null;
-        if (node)
-          anchor.current = {
-            node,
-            top: node.getBoundingClientRect().top,
-            key: paginationKey,
-            order,
-            id: node.dataset.activityId,
-          };
+        const capture = () => {
+          anchor.current = null;
+          const item = Array.from(
+            section.querySelectorAll<HTMLElement>(
+              '[data-slot="activity-feed-item"]:not([data-kind="divider"])',
+            ),
+          ).find(visible);
+          const node = item
+            ? (Array.from(
+                item.querySelectorAll<HTMLElement>(
+                  '[data-slot="activity-change"][data-activity-id]',
+                ),
+              ).find(visible) ?? item)
+            : null;
+          if (node)
+            anchor.current = {
+              node,
+              top: node.getBoundingClientRect().top,
+              key: paginationKey,
+              order,
+              id: node.dataset.activityId,
+            };
+        };
+        capture();
+        const trackReadingPosition = () => {
+          if (
+            running.current === request &&
+            captureCleanup.current === stopCapturing
+          )
+            capture();
+        };
+        parent.addEventListener("scroll", trackReadingPosition, {
+          passive: true,
+        });
+        stopCapturing = () =>
+          parent.removeEventListener("scroll", trackReadingPosition);
+        captureCleanup.current = stopCapturing;
       }
       try {
         await onLoadMore();
       } catch {
         if (running.current === request) setFailedPage({ key: paginationKey });
       } finally {
+        stopCapturing?.();
+        if (captureCleanup.current === stopCapturing)
+          captureCleanup.current = undefined;
         if (running.current === request) running.current = null;
         setActiveRequest((current) =>
           current?.token === request.token ? null : current,
@@ -268,6 +293,13 @@ export function ActivityFeed({
     const delta = node.getBoundingClientRect().top - saved.top;
     if (delta) scrollParent(node).scrollBy({ top: delta, behavior: "instant" });
   }, [paginationKey, order]);
+  React.useLayoutEffect(
+    () => () => {
+      captureCleanup.current?.();
+      captureCleanup.current = undefined;
+    },
+    [paginationKey, order],
+  );
   React.useEffect(() => {
     if (!sectionRef.current) return;
     const parent = scrollParent(sectionRef.current);
