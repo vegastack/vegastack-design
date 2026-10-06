@@ -1,4 +1,4 @@
-// @vegastack use-announcer@0.23.128 sha256-D5NrHc4dk8wbGU83SEy+2EWajo9nGmEq4vUaUeuz0hQ=
+// @vegastack use-announcer@0.24.0 sha256-BqNYYQ5e17BX/5UD01AAHM4EufdiwQnx94pnigUt3wA=
 
 "use client";
 

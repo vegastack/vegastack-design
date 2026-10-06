@@ -1,4 +1,4 @@
-// @vegastack picker-search@0.23.128 sha256-fa/RdW4/KqyeQQhw1khf0CH6SE9HTZEBWY/Bv19hf+w=
+// @vegastack picker-search@0.24.0 sha256-ByqqDE1z+X5AkoACT1o26dSg7TkuA79WwrIdUxc+bRk=
 
 /** Searchable catalogue content, shared by icon and emoji panels. */
 export interface PickerSearchEntry {
