@@ -235,7 +235,7 @@
       "toastTypes"
     ],
     "geometryUnswept": {
-      "relativeTimeLive": "Omits `now`, so the component reads the real clock and its refresh timer ticks \u2014 that IS the feature being demonstrated. A self-rescheduling setTimeout re-renders the fixture between the assertion and the measurement (the detach race in docs/ledger/bugs.md, 2026-09-08). Every other relative-time fixture pins `now` and is swept normally, so the component's geometry IS covered; only this one demo's live clock is not."
+      "relativeTimeLive": "Omits `now`, so the component reads the real clock and its refresh timer ticks — that IS the feature being demonstrated. A self-rescheduling setTimeout re-renders the fixture between the assertion and the measurement (the detach race in docs/ledger/bugs.md, 2026-09-08). Every other relative-time fixture pins `now` and is swept normally, so the component's geometry IS covered; only this one demo's live clock is not."
     },
     "crossCuttingTests": [
       {
@@ -364,7 +364,7 @@
       "name": "accordion",
       "registryType": "registry:ui",
       "title": "Accordion",
-      "summary": "A vertically stacked set of interactive headings that each reveal a section of content \u2014 one open at a time, or several.",
+      "summary": "A vertically stacked set of interactive headings that each reveal a section of content — one open at a time, or several.",
       "status": "stable",
       "since": "0.1.0",
       "family": "data-display",
@@ -464,7 +464,7 @@
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
         "lucide-react@^1.47.0",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/accordion.test.tsx"],
@@ -520,7 +520,7 @@
       "name": "action-bar",
       "registryType": "registry:ui",
       "title": "Action Bar",
-      "summary": "Floating contextual bar \u2014 status region + action children, CSS-only enter/exit, raised band. Bulk selection, unsaved changes, and batch progress are recipes over it.",
+      "summary": "Floating contextual bar — status region + action children, CSS-only enter/exit, raised band. Bulk selection, unsaved changes, and batch progress are recipes over it.",
       "status": "stable",
       "since": "0.4.0",
       "family": "feedback",
@@ -649,7 +649,7 @@
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
         "@vegastack/design-tokens@^0.7.80",
-        "@vegastack/design@^0.7.110"
+        "@vegastack/design@^0.7.111"
       ],
       "testFiles": ["packages/ui/registry/ui/action-bar.test.tsx"],
       "coverage": {
@@ -708,7 +708,7 @@
       "name": "alert",
       "registryType": "registry:ui",
       "title": "Alert",
-      "summary": "A status banner \u2014 upstream's two variants plus our three extra status tones (COL-12); buttons inside a status alert hover in the family's own tint and ink, never white.",
+      "summary": "A status banner — upstream's two variants plus our three extra status tones (COL-12); buttons inside a status alert hover in the family's own tint and ink, never white.",
       "status": "stable",
       "since": "0.1.0",
       "family": "feedback",
@@ -812,7 +812,7 @@
       "registryDependencies": [],
       "npmDependencies": [
         "class-variance-authority@^0.7.1",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/alert.test.tsx"],
@@ -868,7 +868,7 @@
       "name": "alert-dialog",
       "registryType": "registry:ui",
       "title": "Alert Dialog",
-      "summary": "A modal that interrupts for a decision \u2014 an optional media slot, two sizes and an action/cancel footer.",
+      "summary": "A modal that interrupts for a decision — an optional media slot, two sizes and an action/cancel footer.",
       "status": "stable",
       "since": "0.1.0",
       "family": "overlay",
@@ -1055,7 +1055,7 @@
       ],
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/alert-dialog.test.tsx"],
@@ -1187,7 +1187,7 @@
       "name": "animated-number",
       "registryType": "registry:ui",
       "title": "Animated Number",
-      "summary": "A number display that tweens from its previous value to a new one on every change \u2014 Intl.NumberFormat-aware (currency/percent/compact), instant under reduced motion, the dashboard stat-card counter.",
+      "summary": "A number display that tweens from its previous value to a new one on every change — Intl.NumberFormat-aware (currency/percent/compact), instant under reduced motion, the dashboard stat-card counter.",
       "status": "stable",
       "since": "0.1.0",
       "family": "data-display",
@@ -1264,7 +1264,7 @@
       "docsSlug": "/docs/components/animated-number",
       "registryDependencies": ["@vegastack/use-media-query"],
       "npmDependencies": [
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/animated-number.test.tsx"],
@@ -1297,7 +1297,7 @@
       "name": "announcement-banner",
       "registryType": "registry:ui",
       "title": "Announcement Banner",
-      "summary": "A dismissible one-line announcement \u2014 the full-width inverse page-top band (in-content notices use Alert variant=strip).",
+      "summary": "A dismissible one-line announcement — the full-width inverse page-top band (in-content notices use Alert variant=strip).",
       "status": "stable",
       "since": "0.3.0",
       "family": "marketing",
@@ -1370,7 +1370,7 @@
       "registryDependencies": ["@vegastack/button"],
       "npmDependencies": [
         "lucide-react@^1.47.0",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/announcement-banner.test.tsx"],
@@ -1407,7 +1407,7 @@
       "name": "app-shell",
       "registryType": "registry:ui",
       "title": "App Shell",
-      "summary": "The shared dashboard layout \u2014 a skip-linked sidebar + header + scrollable main region, composing Sidebar/SidebarTrigger into one reusable, hash-tracked shell.",
+      "summary": "The shared dashboard layout — a skip-linked sidebar + header + scrollable main region, composing Sidebar/SidebarTrigger into one reusable, hash-tracked shell.",
       "status": "stable",
       "since": "0.1.0",
       "family": "layout",
@@ -1631,7 +1631,7 @@
       ],
       "npmDependencies": [
         "class-variance-authority@^0.7.1",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/app-shell.test.tsx"],
@@ -1803,7 +1803,7 @@
       "docsSlug": "/docs/components/aspect-ratio",
       "registryDependencies": [],
       "npmDependencies": [
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/aspect-ratio.test.tsx"],
@@ -1832,7 +1832,7 @@
       "name": "attachment",
       "registryType": "registry:ui",
       "title": "Attachment",
-      "summary": "A file chip / thumbnail card for chat, record-file and upload-queue surfaces \u2014 media slot, name + meta, idle/uploading/processing/error/done states, determinate progress, a muted tile, an actions row, a full-bleed trigger, and a scrolling or grid group.",
+      "summary": "A file chip / thumbnail card for chat, record-file and upload-queue surfaces — media slot, name + meta, idle/uploading/processing/error/done states, determinate progress, a muted tile, an actions row, a full-bleed trigger, and a scrolling or grid group.",
       "status": "stable",
       "since": "0.1.0",
       "family": "communication",
@@ -2050,7 +2050,7 @@
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
         "class-variance-authority@^0.7.1",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/attachment.test.tsx"],
@@ -2158,7 +2158,7 @@
       "name": "audio-player",
       "registryType": "registry:ui",
       "title": "Audio Player",
-      "summary": "A compact custom audio transport with play/pause, skip, seek, a tappable speed control, and keyboard shortcuts \u2014 a single line on a wide player, two lines with an optional transcript control on a narrow, mobile-width player; a floating pill variant and a global AudioPlayerProvider + useGlobalPlayer that keep one recording playing across routes.",
+      "summary": "A compact custom audio transport with play/pause, skip, seek, a tappable speed control, and keyboard shortcuts — a single line on a wide player, two lines with an optional transcript control on a narrow, mobile-width player; a floating pill variant and a global AudioPlayerProvider + useGlobalPlayer that keep one recording playing across routes.",
       "status": "stable",
       "since": "0.5.0",
       "family": "media",
@@ -2407,7 +2407,7 @@
       ],
       "npmDependencies": [
         "lucide-react@^1.47.0",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/audio-player.test.tsx"],
@@ -2621,7 +2621,7 @@
       "registryDependencies": ["@vegastack/input-group", "@vegastack/spinner"],
       "npmDependencies": [
         "lucide-react@^1.47.0",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/auto-save-input.test.tsx"],
@@ -2801,7 +2801,7 @@
       "registryDependencies": [],
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/avatar.test.tsx"],
@@ -2883,7 +2883,7 @@
       "name": "avatar-picker",
       "registryType": "registry:ui",
       "title": "Avatar Picker",
-      "summary": "A person's avatar that opens a dialog to upload, change or remove their photo \u2014 the file is staged in a 128px drop circle and saved only on Update.",
+      "summary": "A person's avatar that opens a dialog to upload, change or remove their photo — the file is staged in a 128px drop circle and saved only on Update.",
       "status": "stable",
       "since": "0.23.44",
       "family": "forms",
@@ -2969,7 +2969,7 @@
         "@vegastack/use-file-drop"
       ],
       "npmDependencies": [
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80",
         "lucide-react@^1.47.0"
       ],
@@ -3012,7 +3012,7 @@
       "name": "badge",
       "registryType": "registry:ui",
       "title": "Badge",
-      "summary": "A compact label or status chip \u2014 upstream's six variants plus our four status tones (COL-12).",
+      "summary": "A compact label or status chip — upstream's six variants plus our four status tones (COL-12).",
       "status": "stable",
       "since": "0.1.0",
       "family": "data-display",
@@ -3110,7 +3110,7 @@
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
         "class-variance-authority@^0.7.1",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/badge.test.tsx"],
@@ -3129,7 +3129,7 @@
       "name": "board",
       "registryType": "registry:ui",
       "title": "Board",
-      "summary": "Kanban lanes \u2014 full-height lanes that scroll their cards inside, sticky headers with a collapse button left of the \u22ef menu, a subtle top-down fade on each lane, + Add after the last card (the empty lane's action when it has none), Nothing here / Drop here empty zones, per-lane skeletons and load-on-scroll paging; live pointer and touch drag (lift, make room, settle, edge auto-scroll), a keyboard pick-up/move/drop model, a per-card \u22ef menu of the card's own actions, optimistic moves with rollback and a toast, and one lane at a time on a phone.",
+      "summary": "Kanban lanes — full-height lanes that scroll their cards inside, sticky headers with a collapse button left of the ⋯ menu, a subtle top-down fade on each lane, + Add after the last card (the empty lane's action when it has none), Nothing here / Drop here empty zones, per-lane skeletons and load-on-scroll paging; live pointer and touch drag (lift, make room, settle, edge auto-scroll), a keyboard pick-up/move/drop model, a per-card ⋯ menu of the card's own actions, optimistic moves with rollback and a toast, and one lane at a time on a phone.",
       "status": "stable",
       "since": "0.4.0",
       "family": "layout",
@@ -3214,7 +3214,7 @@
             "status-announcement",
             "semantic-html"
           ],
-          "evidence": "Roving focus across the ragged card grid (RTL-aware); Space pick-up / arrow move / Space drop / Escape cancel with every step announced through useAnnouncer and focus kept on the card across lane changes; Enter activates, M opens the card menu \u2014 within-lane up/down/top/bottom plus cross-lane targets with visible lock reasons. Each lane is role=region named \"{label}, {countLabel(count)}\" and its cards a role=list; the card activator is a sibling of the content, so a BoardCard's done tick is never nested in it. No focus ring (FOC-13): the card takes the background tint."
+          "evidence": "Roving focus across the ragged card grid (RTL-aware); Space pick-up / arrow move / Space drop / Escape cancel with every step announced through useAnnouncer and focus kept on the card across lane changes; Enter activates, M opens the card menu — within-lane up/down/top/bottom plus cross-lane targets with visible lock reasons. Each lane is role=region named \"{label}, {countLabel(count)}\" and its cards a role=list; the card activator is a sibling of the content, so a BoardCard's done tick is never nested in it. No focus ring (FOC-13): the card takes the background tint."
         },
         "visual": {
           "status": "observed",
@@ -3270,7 +3270,7 @@
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
         "lucide-react@^1.47.0",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/board.test.tsx"],
@@ -3391,7 +3391,7 @@
       "name": "board-card",
       "registryType": "registry:ui",
       "title": "Board Card",
-      "summary": "A work item as a board card \u2014 a round completion tick, a two-line title, a muted context line, and a bottom row with the due chip (destructive when overdue, warning when due today), the priority chip, a source icon and the assignee's avatar.",
+      "summary": "A work item as a board card — a round completion tick, a two-line title, a muted context line, and a bottom row with the due chip (destructive when overdue, warning when due today), the priority chip, a source icon and the assignee's avatar.",
       "status": "stable",
       "since": "0.23.16",
       "family": "data",
@@ -3496,7 +3496,7 @@
         "@vegastack/person-hover-card"
       ],
       "npmDependencies": [
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80",
         "@base-ui/react@^1.6.0"
       ],
@@ -3545,7 +3545,7 @@
       "name": "breadcrumb",
       "registryType": "registry:ui",
       "title": "Breadcrumb",
-      "summary": "A hierarchical navigation trail \u2014 links, separators, the current page, and ellipsis collapse for long paths.",
+      "summary": "A hierarchical navigation trail — links, separators, the current page, and ellipsis collapse for long paths.",
       "status": "stable",
       "since": "0.1.0",
       "family": "navigation",
@@ -3674,7 +3674,7 @@
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
         "lucide-react@^1.47.0",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/breadcrumb.test.tsx"],
@@ -3904,7 +3904,7 @@
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
         "@vegastack/design-tokens@^0.7.80",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "lucide-react@^1.47.0"
       ],
       "testFiles": ["packages/ui/registry/ui/breadcrumb-cascade.test.tsx"],
@@ -4102,7 +4102,7 @@
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
         "class-variance-authority@^0.7.1",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/bubble.test.tsx"],
@@ -4165,7 +4165,7 @@
       "name": "button",
       "registryType": "registry:ui",
       "title": "Button",
-      "summary": "Trigger an action \u2014 upstream's six variants and eight sizes, plus a loading state (API-5).",
+      "summary": "Trigger an action — upstream's six variants and eight sizes, plus a loading state (API-5).",
       "status": "stable",
       "since": "0.1.0",
       "family": "actions",
@@ -4283,7 +4283,7 @@
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
         "class-variance-authority@^0.7.1",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/button.test.tsx"],
@@ -4320,7 +4320,7 @@
       "name": "button-group",
       "registryType": "registry:ui",
       "title": "Button Group",
-      "summary": "Joins buttons, inputs, selects and dropdowns into one connected control group \u2014 horizontal or vertical, with a separator and a text addon.",
+      "summary": "Joins buttons, inputs, selects and dropdowns into one connected control group — horizontal or vertical, with a separator and a text addon.",
       "status": "stable",
       "since": "0.10.0",
       "family": "actions",
@@ -4416,7 +4416,7 @@
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
         "class-variance-authority@^0.7.1",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/button-group.test.tsx"],
@@ -4458,7 +4458,7 @@
       "name": "calendar",
       "registryType": "registry:ui",
       "title": "Calendar",
-      "summary": "A date-field calendar on React DayPicker \u2014 single, multiple and range selection.",
+      "summary": "A date-field calendar on React DayPicker — single, multiple and range selection.",
       "status": "stable",
       "since": "0.10.0",
       "family": "form",
@@ -4562,7 +4562,7 @@
       "npmDependencies": [
         "react-day-picker@^10.0.1",
         "lucide-react@^1.47.0",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/calendar.test.tsx"],
@@ -4742,7 +4742,7 @@
       "registryDependencies": [],
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/card.test.tsx"],
@@ -4824,7 +4824,7 @@
       "name": "carousel",
       "registryType": "registry:ui",
       "title": "Carousel",
-      "summary": "A slide track with previous and next controls \u2014 horizontal or vertical, any slide size or spacing, Embla options, events and plugins.",
+      "summary": "A slide track with previous and next controls — horizontal or vertical, any slide size or spacing, Embla options, events and plugins.",
       "status": "stable",
       "since": "0.10.0",
       "family": "data-display",
@@ -4964,7 +4964,7 @@
       "npmDependencies": [
         "embla-carousel-react@^8.6.0",
         "lucide-react@^1.47.0",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/carousel.test.tsx"],
@@ -5029,7 +5029,7 @@
       "name": "chart",
       "registryType": "registry:ui",
       "title": "Chart",
-      "summary": "A themed Recharts wrapper \u2014 a ChartConfig that maps each series to a colour and a label, a bordered tooltip and legend, and Recharts' own built-in keyboard + screen-reader layer.",
+      "summary": "A themed Recharts wrapper — a ChartConfig that maps each series to a colour and a label, a bordered tooltip and legend, and Recharts' own built-in keyboard + screen-reader layer.",
       "status": "stable",
       "since": "0.1.0",
       "family": "data-display",
@@ -5162,7 +5162,7 @@
       "registryDependencies": [],
       "npmDependencies": [
         "recharts@^3.10.1",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/chart.test.tsx"],
@@ -5281,7 +5281,7 @@
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
         "lucide-react@^1.47.0",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/checkbox.test.tsx"],
@@ -5314,7 +5314,7 @@
       "name": "chip",
       "registryType": "registry:ui",
       "title": "Chip",
-      "summary": "The one labelled pill primitive \u2014 10 decorative hues, two tiers, an optional selection rung, and a real 24x24 remove control. Behind Tag and FilterChip; ComboboxChip is Base UI's own chip, not this primitive.",
+      "summary": "The one labelled pill primitive — 10 decorative hues, two tiers, an optional selection rung, and a real 24x24 remove control. Behind Tag and FilterChip; ComboboxChip is Base UI's own chip, not this primitive.",
       "status": "stable",
       "since": "0.7.0",
       "family": "display",
@@ -5356,7 +5356,7 @@
           "ref": {
             "status": "observed",
             "target": "IconButton",
-            "rationale": "Delegating wrapper \u2014 the ref rides the props spread onto the composed IconButton."
+            "rationale": "Delegating wrapper — the ref rides the props spread onto the composed IconButton."
           }
         },
         {
@@ -5446,7 +5446,7 @@
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
         "lucide-react@^1.47.0",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/chip.test.tsx"],
@@ -5475,7 +5475,7 @@
       "name": "chip-input",
       "registryType": "registry:ui",
       "title": "Chip Input",
-      "summary": "Free-token entry field \u2014 Enter/comma/paste commits chips, Backspace removes, per-chip validation marks invalid entries instead of dropping them. InputGroup field chrome + real Tag chips.",
+      "summary": "Free-token entry field — Enter/comma/paste commits chips, Backspace removes, per-chip validation marks invalid entries instead of dropping them. InputGroup field chrome + real Tag chips.",
       "status": "stable",
       "since": "0.4.0",
       "family": "form",
@@ -5561,7 +5561,7 @@
         "@vegastack/use-announcer"
       ],
       "npmDependencies": [
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/chip-input.test.tsx"],
@@ -5602,7 +5602,7 @@
       "name": "code-block",
       "registryType": "registry:ui",
       "title": "Code Block",
-      "summary": "A code panel with a language header and copy affordance \u2014 the shared code surface for chat transcripts, docs, and examples.",
+      "summary": "A code panel with a language header and copy affordance — the shared code surface for chat transcripts, docs, and examples.",
       "status": "stable",
       "since": "0.3.0",
       "family": "display",
@@ -5779,7 +5779,7 @@
       ],
       "npmDependencies": [
         "@vegastack/design-tokens@^0.7.80",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "hast-util-to-jsx-runtime@^2.3.6",
         "lowlight@^3.3.0"
       ],
@@ -5888,7 +5888,7 @@
         "visual": {
           "status": "not-applicable-or-inherited",
           "values": ["inherited-from-call-site"],
-          "evidence": "Upstream's Collapsible is three unstyled pass-throughs over Base UI \u2014 the component contributes no class of its own, so every visual state belongs to what the call site renders into it. `collapsible.test.tsx` asserts each part renders with exactly the className it was passed."
+          "evidence": "Upstream's Collapsible is three unstyled pass-throughs over Base UI — the component contributes no class of its own, so every visual state belongs to what the call site renders into it. `collapsible.test.tsx` asserts each part renders with exactly the className it was passed."
         }
       },
       "responsive": {
@@ -5955,7 +5955,7 @@
       "name": "color-picker",
       "registryType": "registry:ui",
       "title": "Color Picker",
-      "summary": "A swatch-triggered popover presenting a grid of preset colors \u2014 pick one, fire onValueChange, mark the selection.",
+      "summary": "A swatch-triggered popover presenting a grid of preset colors — pick one, fire onValueChange, mark the selection.",
       "status": "stable",
       "since": "0.1.0",
       "family": "form",
@@ -6067,7 +6067,7 @@
       ],
       "npmDependencies": [
         "lucide-react@^1.47.0",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/color-picker.test.tsx"],
@@ -6104,7 +6104,7 @@
       "name": "combobox",
       "registryType": "registry:ui",
       "title": "Combobox",
-      "summary": "A filterable listbox behind a text input \u2014 grouped items, an announced empty state and a chips mode.",
+      "summary": "A filterable listbox behind a text input — grouped items, an announced empty state and a chips mode.",
       "status": "stable",
       "since": "0.1.0",
       "family": "form",
@@ -6353,7 +6353,7 @@
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
         "lucide-react@^1.47.0",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/combobox.test.tsx"],
@@ -6520,7 +6520,7 @@
       "name": "command",
       "registryType": "registry:ui",
       "title": "Command Menu",
-      "summary": "A searchable command palette \u2014 filtered, grouped items with keyboard navigation, optionally inside a \u2318K dialog.",
+      "summary": "A searchable command palette — filtered, grouped items with keyboard navigation, optionally inside a ⌘K dialog.",
       "status": "stable",
       "since": "0.1.0",
       "family": "navigation",
@@ -6721,7 +6721,7 @@
       "motion": {
         "status": "observed",
         "mechanisms": [
-          "none of its own \u2014 the dialog form inherits Dialog's keyed presence"
+          "none of its own — the dialog form inherits Dialog's keyed presence"
         ],
         "reducedMotion": {
           "status": "covered",
@@ -6747,7 +6747,7 @@
       "npmDependencies": [
         "cmdk@^1.1.1",
         "lucide-react@^1.47.0",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/command.test.tsx"],
@@ -7100,7 +7100,7 @@
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
         "lucide-react@^1.47.0",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/context-menu.test.tsx"],
@@ -7279,7 +7279,7 @@
       "name": "copy-button",
       "registryType": "registry:ui",
       "title": "Copy Button",
-      "summary": "Copy a value to the clipboard with transient check feedback \u2014 a ghost icon button that swaps Copy \u2192 Check and fires onCopied.",
+      "summary": "Copy a value to the clipboard with transient check feedback — a ghost icon button that swaps Copy → Check and fires onCopied.",
       "status": "stable",
       "since": "0.1.0",
       "family": "actions",
@@ -7352,7 +7352,7 @@
       "registryDependencies": ["@vegastack/button", "@vegastack/use-announcer"],
       "npmDependencies": [
         "lucide-react@^1.47.0",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/copy-button.test.tsx"],
@@ -7455,7 +7455,7 @@
         "@vegastack/geo-data"
       ],
       "npmDependencies": [
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/country-select.test.tsx"],
@@ -7484,7 +7484,7 @@
       "name": "data-grid",
       "registryType": "registry:ui",
       "title": "Data Grid",
-      "summary": "The full-parity grid \u2014 TanStack-sorted multi-key sort, column picker with responsive revelation, collapsible grouping, keyboard-continuous load-more, opt-in virtualization, and an APG grid keyboard layer with inline cell editing.",
+      "summary": "The full-parity grid — TanStack-sorted multi-key sort, column picker with responsive revelation, collapsible grouping, keyboard-continuous load-more, opt-in virtualization, and an APG grid keyboard layer with inline cell editing.",
       "status": "stable",
       "since": "0.4.0",
       "family": "data",
@@ -7497,7 +7497,7 @@
           "source": "packages/ui/registry/ui/data-grid.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Generic function component; no stable public ref target is forwarded \u2014 the grid's focus model is the roving-cell API, not a root ref."
+            "rationale": "Generic function component; no stable public ref target is forwarded — the grid's focus model is the roving-cell API, not a root ref."
           }
         },
         {
@@ -7644,7 +7644,7 @@
         "@tanstack/react-table@^9.2.4",
         "@tanstack/react-virtual@^3.14.8",
         "lucide-react@^1.47.0",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/data-grid.test.tsx"],
@@ -7707,7 +7707,7 @@
       "name": "data-list",
       "registryType": "registry:ui",
       "title": "Data List",
-      "summary": "A generic, typed data table \u2014 configurable columns, row selection, sortable columns (indicator, custom compare and first direction, client or manual), a standard rowActions \u22ef column always last, untinted-link rows (no underline), loading, and Empty-based emptyState and noResults states.",
+      "summary": "A generic, typed data table — configurable columns, row selection, sortable columns (indicator, custom compare and first direction, client or manual), a standard rowActions ⋯ column always last, untinted-link rows (no underline), loading, and Empty-based emptyState and noResults states.",
       "status": "stable",
       "since": "0.1.0",
       "family": "data",
@@ -8024,7 +8024,7 @@
       ],
       "npmDependencies": [
         "@vegastack/design-tokens@^0.7.80",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "lucide-react@^1.47.0"
       ],
       "testFiles": ["packages/ui/registry/ui/data-list.test.tsx"],
@@ -8138,7 +8138,7 @@
       "name": "data-list-pager",
       "registryType": "registry:ui",
       "title": "Data List Pager",
-      "summary": "A controlled paging footer for DataList \u2014 a tabular-numeral range summary, a rows-per-page Select, and a windowed Pagination that hides on a single page.",
+      "summary": "A controlled paging footer for DataList — a tabular-numeral range summary, a rows-per-page Select, and a windowed Pagination that hides on a single page.",
       "status": "stable",
       "since": "0.13.0",
       "family": "data",
@@ -8248,7 +8248,7 @@
         "@vegastack/use-announcer"
       ],
       "npmDependencies": [
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/data-list-pager.test.tsx"],
@@ -8298,7 +8298,7 @@
       "name": "load-more",
       "registryType": "registry:ui",
       "title": "Load More",
-      "summary": "The shared Load more footer for keyset lists \u2014 an outline button that keeps its width while loading, an error line with Try again, and an optional end caption.",
+      "summary": "The shared Load more footer for keyset lists — an outline button that keeps its width while loading, an error line with Try again, and an optional end caption.",
       "status": "stable",
       "since": "0.18.0",
       "family": "data",
@@ -8384,7 +8384,7 @@
       "docsSlug": "/docs/components/load-more",
       "registryDependencies": ["@vegastack/button"],
       "npmDependencies": [
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/load-more.test.tsx"],
@@ -8417,7 +8417,7 @@
       "name": "media-card",
       "registryType": "registry:ui",
       "title": "Media Card",
-      "summary": "A record as a card \u2014 an image, the title with its badge beside it, a meta line and a \u22ef menu \u2014 where the whole card is one link.",
+      "summary": "A record as a card — an image, the title with its badge beside it, a meta line and a ⋯ menu — where the whole card is one link.",
       "status": "stable",
       "since": "0.23.10",
       "family": "data",
@@ -8497,7 +8497,7 @@
       "docsSlug": "/docs/components/media-card",
       "registryDependencies": ["@vegastack/thumbnail"],
       "npmDependencies": [
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80",
         "@base-ui/react@^1.6.0"
       ],
@@ -8540,7 +8540,7 @@
       "name": "priority-icon",
       "registryType": "registry:ui",
       "title": "Priority Icon",
-      "summary": "A flag marking priority \u2014 urgent, high, medium, low, none \u2014 each in a semantic color with filled, outline or dashed fill.",
+      "summary": "A flag marking priority — urgent, high, medium, low, none — each in a semantic color with filled, outline or dashed fill.",
       "status": "stable",
       "since": "0.23.11",
       "family": "data-display",
@@ -8632,7 +8632,7 @@
       "npmDependencies": [
         "class-variance-authority@^0.7.1",
         "lucide-react@^1.47.0",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/priority-icon.test.tsx"],
@@ -8744,7 +8744,7 @@
       "docsSlug": "/docs/components/thumbnail",
       "registryDependencies": [],
       "npmDependencies": [
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80",
         "lucide-react@^1.47.0"
       ],
@@ -8865,7 +8865,7 @@
       "docsSlug": "/docs/components/view-toggle",
       "registryDependencies": ["@vegastack/tabs"],
       "npmDependencies": [
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80",
         "lucide-react@^1.47.0"
       ],
@@ -8899,7 +8899,7 @@
       "name": "data-table-parts",
       "registryType": "registry:ui",
       "title": "Data Table Parts",
-      "summary": "The chrome DataList and DataGrid share \u2014 sort header, selection cells, skeleton rows, the empty row, column class rules, and the selection/sort/controlled-state hooks.",
+      "summary": "The chrome DataList and DataGrid share — sort header, selection cells, skeleton rows, the empty row, column class rules, and the selection/sort/controlled-state hooks.",
       "status": "stable",
       "since": "0.7.0",
       "family": "data",
@@ -9408,7 +9408,7 @@
       ],
       "npmDependencies": [
         "lucide-react@^1.47.0",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/data-table-parts.test.tsx"],
@@ -9529,7 +9529,7 @@
       "name": "date-picker",
       "registryType": "registry:ui",
       "title": "Date Picker",
-      "summary": "Pick a single date or a date range from a calendar popover \u2014 token-styled, keyboard-navigable, with optional quick presets.",
+      "summary": "Pick a single date or a date range from a calendar popover — token-styled, keyboard-navigable, with optional quick presets.",
       "status": "stable",
       "since": "0.1.0",
       "family": "form",
@@ -9717,7 +9717,7 @@
         "@base-ui/react@^1.6.0",
         "react-day-picker@^10",
         "lucide-react@^1.47.0",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/date-picker.test.tsx"],
@@ -9779,7 +9779,7 @@
       "name": "dialog",
       "registryType": "registry:ui",
       "title": "Dialog",
-      "summary": "A modal overlay \u2014 backdrop, centred popup, a plain right-aligned footer and an optional close button; opens onto the first field or the popup, never the close \u00d7.",
+      "summary": "A modal overlay — backdrop, centred popup, a plain right-aligned footer and an optional close button; opens onto the first field or the popup, never the close ×.",
       "status": "stable",
       "since": "0.1.0",
       "family": "overlay",
@@ -9957,7 +9957,7 @@
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
         "lucide-react@^1.47.0",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/dialog.test.tsx"],
@@ -10080,7 +10080,7 @@
       "name": "direction",
       "registryType": "registry:ui",
       "title": "Direction",
-      "summary": "Base UI's DirectionProvider and useDirection \u2014 the text-direction context components read.",
+      "summary": "Base UI's DirectionProvider and useDirection — the text-direction context components read.",
       "status": "stable",
       "since": "0.10.0",
       "family": "layout",
@@ -10167,7 +10167,7 @@
       "name": "drawer",
       "registryType": "registry:ui",
       "title": "Drawer",
-      "summary": "A swipeable panel with snap points \u2014 four directions, a swipe handle, nesting and a non-modal mode.",
+      "summary": "A swipeable panel with snap points — four directions, a swipe handle, nesting and a non-modal mode.",
       "status": "stable",
       "since": "0.10.0",
       "family": "overlay",
@@ -10350,7 +10350,7 @@
       "registryDependencies": ["@vegastack/use-modal-inert"],
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/drawer.test.tsx"],
@@ -10486,7 +10486,7 @@
       "name": "dropdown-menu",
       "registryType": "registry:ui",
       "title": "Dropdown Menu",
-      "summary": "An anchored action menu \u2014 items, submenus, checkboxes, radio groups, shortcuts and a destructive variant.",
+      "summary": "An anchored action menu — items, submenus, checkboxes, radio groups, shortcuts and a destructive variant.",
       "status": "stable",
       "since": "0.1.0",
       "family": "overlay",
@@ -10716,7 +10716,7 @@
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
         "lucide-react@^1.47.0",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/dropdown-menu.test.tsx"],
@@ -10901,7 +10901,7 @@
       "name": "dropzone",
       "registryType": "registry:ui",
       "title": "Dropzone",
-      "summary": "File acquisition surface \u2014 drop, click-to-browse, and paste \u2014 as a thin shell over use-file-drop; the surface is the named focusable control over a hidden picker-bridge input; data-dragging/data-drag-invalid styling flags.",
+      "summary": "File acquisition surface — drop, click-to-browse, and paste — as a thin shell over use-file-drop; the surface is the named focusable control over a hidden picker-bridge input; data-dragging/data-drag-invalid styling flags.",
       "status": "stable",
       "since": "0.4.0",
       "family": "form",
@@ -10993,7 +10993,7 @@
       "docsSlug": "/docs/components/dropzone",
       "registryDependencies": ["@vegastack/use-file-drop"],
       "npmDependencies": [
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/dropzone.test.tsx"],
@@ -11142,7 +11142,7 @@
         "@vegastack/use-file-drop"
       ],
       "npmDependencies": [
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80",
         "lucide-react@^1.47.0"
       ],
@@ -11393,7 +11393,7 @@
         "@vegastack/use-mobile"
       ],
       "npmDependencies": [
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80",
         "lucide-react@^1.47.0"
       ],
@@ -11471,7 +11471,7 @@
       "name": "editable-cell",
       "registryType": "registry:ui",
       "title": "Editable Cell",
-      "summary": "Inline-editable value whose edit mode looks like view \u2014 same box, inherited type, no border \u2014 with optimistic saves, a delayed spinner, rollback plus a Retry toast on failure, required, multiline, table-cell and heading variants, and a typed text/select/custom editor registry.",
+      "summary": "Inline-editable value whose edit mode looks like view — same box, inherited type, no border — with optimistic saves, a delayed spinner, rollback plus a Retry toast on failure, required, multiline, table-cell and heading variants, and a typed text/select/custom editor registry.",
       "status": "stable",
       "since": "0.4.0",
       "family": "form",
@@ -11589,7 +11589,7 @@
         "@vegastack/use-overflow"
       ],
       "npmDependencies": [
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/editable-cell.test.tsx"],
@@ -11773,7 +11773,7 @@
       ],
       "npmDependencies": [
         "lucide-react@^1.47.0",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/emoji-picker.test.tsx"],
@@ -11806,7 +11806,7 @@
       "name": "empty",
       "registryType": "registry:ui",
       "title": "Empty",
-      "summary": "A zero-data placeholder \u2014 always an icon (the icon prop, Inbox by default), title, description and a content slot, with a compact sm size for inline empties. The one empty-state markup: DataList's emptyState and noResults (SearchX, \"No matches\", Clear filters) are built on it.",
+      "summary": "A zero-data placeholder — always an icon (the icon prop, Inbox by default), title, description and a content slot, with a compact sm size for inline empties. The one empty-state markup: DataList's emptyState and noResults (SearchX, \"No matches\", Clear filters) are built on it.",
       "status": "stable",
       "since": "0.1.0",
       "family": "data-display",
@@ -11933,7 +11933,7 @@
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
         "@vegastack/design-tokens@^0.7.80",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "class-variance-authority@^0.7.1",
         "lucide-react@^1.47.0"
       ],
@@ -12011,7 +12011,7 @@
       "name": "field",
       "registryType": "registry:ui",
       "title": "Field",
-      "summary": "The form-field scaffold \u2014 label, description, error, legend, separator and choice-card layouts.",
+      "summary": "The form-field scaffold — label, description, error, legend, separator and choice-card layouts.",
       "status": "stable",
       "since": "0.1.0",
       "family": "form",
@@ -12206,7 +12206,7 @@
         "@base-ui/react@^1.6.0",
         "class-variance-authority@^0.7.1",
         "lucide-react@^1.47.0",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": [
@@ -12475,7 +12475,7 @@
       "docsSlug": "/docs/components/field-grid",
       "registryDependencies": [],
       "npmDependencies": [
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/field-grid.test.tsx"],
@@ -12534,7 +12534,7 @@
       "name": "filter-bar",
       "registryType": "registry:ui",
       "title": "Filter Bar",
-      "summary": "The two-row toolbar above a list or table \u2014 search (~320px) left; a Filters (n) toggle, scope Tabs and the view switch right; compact rounded-md filter chips (FilterBarFacet, DateRangeFilter with presets) on a toggled row 12px below that scrolls sideways on a phone.",
+      "summary": "The two-row toolbar above a list or table — search (~320px) left; a Filters (n) toggle, scope Tabs and the view switch right; compact rounded-md filter chips (FilterBarFacet, DateRangeFilter with presets) on a toggled row 12px below that scrolls sideways on a phone.",
       "status": "stable",
       "since": "0.1.0",
       "family": "data",
@@ -12745,7 +12745,7 @@
       ],
       "npmDependencies": [
         "lucide-react@^1.47.0",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/filter-bar.test.tsx"],
@@ -12842,7 +12842,7 @@
       "name": "filter-bar-managed",
       "registryType": "registry:ui",
       "title": "Filter Builder",
-      "summary": "The controlled nested and/or filter builder \u2014 host-injected field grammar (vocabulary + per-type value editors), depth and condition caps, focus-managed removal, and a removable FilterChip summary.",
+      "summary": "The controlled nested and/or filter builder — host-injected field grammar (vocabulary + per-type value editors), depth and condition caps, focus-managed removal, and a removable FilterChip summary.",
       "status": "stable",
       "since": "0.4.0",
       "family": "data",
@@ -13050,7 +13050,7 @@
       ],
       "npmDependencies": [
         "lucide-react@^1.47.0",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/filter-bar-managed.test.tsx"],
@@ -13203,7 +13203,7 @@
       "registryDependencies": [],
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/hover-card.test.tsx"],
@@ -13352,7 +13352,7 @@
       "registryDependencies": [],
       "npmDependencies": [
         "class-variance-authority@^0.7.1",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/image.test.tsx"],
@@ -13395,7 +13395,7 @@
       "name": "file-viewer",
       "registryType": "registry:ui",
       "title": "File Viewer",
-      "summary": "A full-screen dark overlay for stored files \u2014 images with a blur-up, zoom and pan; PDFs rendered page by page with a lazily loaded pdf.js over range requests; video and audio in the system players; the first megabyte of text, CSV (as a table) and Markdown; app-parsed previews through loadPreview; a file card with a thumbnail and Download for everything else \u2014 paged with arrows, side buttons or a swipe.",
+      "summary": "A full-screen dark overlay for stored files — images with a blur-up, zoom and pan; PDFs rendered page by page with a lazily loaded pdf.js over range requests; video and audio in the system players; the first megabyte of text, CSV (as a table) and Markdown; app-parsed previews through loadPreview; a file card with a thumbnail and Download for everything else — paged with arrows, side buttons or a swipe.",
       "status": "stable",
       "since": "0.23.61",
       "family": "media",
@@ -13538,7 +13538,7 @@
             "error",
             "single"
           ],
-          "evidence": "Controlled index opens and closes; data-kind names the stage on screen \u2014 image, pdf, video, audio, text, table (CSV or an app table), markdown, html (an app preview) or the file card; zoom/pan on images and the PDF zoom toolbar; a PDF shows its thumb or a spinner while loading and falls back to the file card on error; text, CSV and Markdown read their first 1 MB and say so when truncated, a table shows at most 500 rows; loadPreview supplies parsed content and null keeps the built-in reading; a failed read is the card; a video or audio stage pauses its player when paged away or closed, and an unplayable video shows the player's Download card; one item hides the count and paging."
+          "evidence": "Controlled index opens and closes; data-kind names the stage on screen — image, pdf, video, audio, text, table (CSV or an app table), markdown, html (an app preview) or the file card; zoom/pan on images and the PDF zoom toolbar; a PDF shows its thumb or a spinner while loading and falls back to the file card on error; text, CSV and Markdown read their first 1 MB and say so when truncated, a table shows at most 500 rows; loadPreview supplies parsed content and null keeps the built-in reading; a failed read is the card; a video or audio stage pauses its player when paged away or closed, and an unplayable video shows the player's Download card; one item hides the count and paging."
         },
         "accessibility": {
           "status": "covered",
@@ -13594,7 +13594,7 @@
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
         "@vegastack/design-tokens@^0.7.80",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "lucide-react@^1.47.0",
         "mammoth@1.13.0",
         "pdfjs-dist@^6.3.289",
@@ -13653,7 +13653,7 @@
       "name": "folder-tree",
       "registryType": "registry:ui",
       "title": "Folder Tree",
-      "summary": "A Notion-style navigation tree for a file library \u2014 sections of folders, pages and files; folders that load their children on first open with loading, error, empty and Show all rows; one tab stop with tree arrow keys and typeahead; a \u22ef menu per row; pointer drag into a folder or section; and a folders-only picker mode for Move dialogs.",
+      "summary": "A Notion-style navigation tree for a file library — sections of folders, pages and files; folders that load their children on first open with loading, error, empty and Show all rows; one tab stop with tree arrow keys and typeahead; a ⋯ menu per row; pointer drag into a folder or section; and a folders-only picker mode for Move dialogs.",
       "status": "stable",
       "since": "0.23.73",
       "family": "navigation",
@@ -13845,7 +13845,7 @@
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
         "@vegastack/design-tokens@^0.7.80",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "lucide-react@^1.47.0"
       ],
       "testFiles": ["packages/ui/registry/ui/folder-tree.test.tsx"],
@@ -13924,7 +13924,7 @@
       "name": "table-of-contents",
       "registryType": "registry:ui",
       "title": "Table of Contents",
-      "summary": "The \u201cOn this page\u201d outline of a long document \u2014 links to its headings with the one the reader has reached marked by a scroll spy; an always-labelled list, a rail of ticks that opens on hover or focus, or a left Sheet from a trigger on narrow screens. Exports useActiveHeading for custom outlines.",
+      "summary": "The “On this page” outline of a long document — links to its headings with the one the reader has reached marked by a scroll spy; an always-labelled list, a rail of ticks that opens on hover or focus, or a left Sheet from a trigger on narrow screens. Exports useActiveHeading for custom outlines.",
       "status": "stable",
       "since": "0.23.74",
       "family": "navigation",
@@ -14075,7 +14075,7 @@
       ],
       "npmDependencies": [
         "lucide-react@^1.47.0",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/table-of-contents.test.tsx"],
@@ -14172,7 +14172,7 @@
       "registryDependencies": [],
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/input.test.tsx"],
@@ -14209,7 +14209,7 @@
       "name": "input-group",
       "registryType": "registry:ui",
       "title": "Input Group",
-      "summary": "An input or textarea with addons \u2014 icons, text, buttons, kbd hints and spinners on one surface.",
+      "summary": "An input or textarea with addons — icons, text, buttons, kbd hints and spinners on one surface.",
       "status": "stable",
       "since": "0.10.0",
       "family": "form",
@@ -14347,7 +14347,7 @@
       ],
       "npmDependencies": [
         "class-variance-authority@^0.7.1",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/input-group.test.tsx"],
@@ -14524,7 +14524,7 @@
       "npmDependencies": [
         "input-otp@^1.5.0",
         "lucide-react@^1.47.0",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/input-otp.test.tsx"],
@@ -14584,7 +14584,7 @@
       "name": "item",
       "registryType": "registry:ui",
       "title": "Item",
-      "summary": "A composable row for list and feed content \u2014 media, title, description, actions \u2014 with a highlighted flash for a just-changed row.",
+      "summary": "A composable row for list and feed content — media, title, description, actions — with a highlighted flash for a just-changed row.",
       "status": "stable",
       "since": "0.1.0",
       "family": "data-display",
@@ -14783,7 +14783,7 @@
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
         "class-variance-authority@^0.7.1",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/item.test.tsx"],
@@ -14972,7 +14972,7 @@
       "docsSlug": "/docs/components/kbd",
       "registryDependencies": [],
       "npmDependencies": [
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/kbd.test.tsx"],
@@ -15072,7 +15072,7 @@
       "docsSlug": "/docs/components/label",
       "registryDependencies": [],
       "npmDependencies": [
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/label.test.tsx"],
@@ -15101,7 +15101,7 @@
       "name": "inline-chip",
       "registryType": "registry:ui",
       "title": "Inline Chip",
-      "summary": "The one inline reference in running text \u2014 a person, page, file, task, meeting, customer or project \u2014 on the text's baseline at its size, tinted by kind; a person previews avatar, name and email on hover, the rest open on click with \u2318-click for a new tab.",
+      "summary": "The one inline reference in running text — a person, page, file, task, meeting, customer or project — on the text's baseline at its size, tinted by kind; a person previews avatar, name and email on hover, the rest open on click with ⌘-click for a new tab.",
       "status": "stable",
       "since": "0.23.102",
       "family": "data-display",
@@ -15303,7 +15303,7 @@
       ],
       "npmDependencies": [
         "@vegastack/design-tokens@^0.7.80",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "lucide-react@^1.47.0"
       ],
       "testFiles": ["packages/ui/registry/ui/inline-chip.test.tsx"],
@@ -15338,7 +15338,7 @@
       "name": "markdown-view",
       "registryType": "registry:ui",
       "title": "Markdown View",
-      "summary": "Render a markdown string to safe, token-styled HTML \u2014 headings (with optional ids), lists, code, blockquotes, links, GFM tables, mention and file chips, callouts and toggles \u2014 XSS-safe, no raw HTML.",
+      "summary": "Render a markdown string to safe, token-styled HTML — headings (with optional ids), lists, code, blockquotes, links, GFM tables, mention and file chips, callouts and toggles — XSS-safe, no raw HTML.",
       "status": "stable",
       "since": "0.1.0",
       "family": "data-display",
@@ -15621,7 +15621,7 @@
       ],
       "npmDependencies": [
         "marked@^17.0.1",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80",
         "lucide-react@^1.47.0"
       ],
@@ -15763,7 +15763,7 @@
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
         "class-variance-authority@^0.7.1",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/marker.test.tsx"],
@@ -15801,7 +15801,7 @@
       "name": "media-player-controls",
       "registryType": "registry:ui",
       "title": "Media Player Controls",
-      "summary": "The shared media transport \u2014 play/pause, skip, seek, elapsed/duration, mute + volume, playback speed, and one keyboard shortcut map (useMediaShortcuts) \u2014 composed by Audio Player and Video Player.",
+      "summary": "The shared media transport — play/pause, skip, seek, elapsed/duration, mute + volume, playback speed, and one keyboard shortcut map (useMediaShortcuts) — composed by Audio Player and Video Player.",
       "status": "stable",
       "since": "0.7.0",
       "family": "media",
@@ -15988,7 +15988,7 @@
       ],
       "npmDependencies": [
         "lucide-react@^1.47.0",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/media-player-controls.test.tsx"],
@@ -16039,7 +16039,7 @@
       "name": "menubar",
       "registryType": "registry:ui",
       "title": "Menubar",
-      "summary": "A persistent horizontal bar of menus \u2014 application-style File / Edit / View navigation.",
+      "summary": "A persistent horizontal bar of menus — application-style File / Edit / View navigation.",
       "status": "stable",
       "since": "0.10.0",
       "family": "navigation",
@@ -16279,7 +16279,7 @@
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
         "lucide-react@^1.47.0",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/menubar.test.tsx"],
@@ -16588,7 +16588,7 @@
       "docsSlug": "/docs/components/message",
       "registryDependencies": [],
       "npmDependencies": [
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/message.test.tsx"],
@@ -16815,7 +16815,7 @@
       "npmDependencies": [
         "@shadcn/react@^0.3.1",
         "lucide-react@^1.47.0",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/message-scroller.test.tsx"],
@@ -17065,7 +17065,7 @@
       ],
       "npmDependencies": [
         "lucide-react@^1.47.0",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/transcript.test.tsx"],
@@ -17125,7 +17125,7 @@
       "name": "native-select",
       "registryType": "registry:ui",
       "title": "Native Select",
-      "summary": "The platform <select>, tokenized \u2014 the OS picker on mobile, with option groups.",
+      "summary": "The platform <select>, tokenized — the OS picker on mobile, with option groups.",
       "status": "stable",
       "since": "0.10.0",
       "family": "form",
@@ -17218,7 +17218,7 @@
       "registryDependencies": [],
       "npmDependencies": [
         "lucide-react@^1.47.0",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/native-select.test.tsx"],
@@ -17273,7 +17273,7 @@
       "name": "navigation-menu",
       "registryType": "registry:ui",
       "title": "Navigation Menu",
-      "summary": "A collection of links for navigating websites \u2014 triggers that open one shared panel, and plain links styled to match.",
+      "summary": "A collection of links for navigating websites — triggers that open one shared panel, and plain links styled to match.",
       "status": "stable",
       "since": "0.3.0",
       "family": "navigation",
@@ -17373,7 +17373,7 @@
       "variants": {
         "status": "not-applicable-or-inherited",
         "dimensions": [],
-        "rationale": "`navigationMenuTriggerStyle` is a CVA with no variant dimension \u2014 one recipe, exported so a plain link can wear it."
+        "rationale": "`navigationMenuTriggerStyle` is a CVA with no variant dimension — one recipe, exported so a plain link can wear it."
       },
       "sizes": {
         "status": "not-applicable-or-inherited",
@@ -17432,7 +17432,7 @@
         "@base-ui/react@^1.6.0",
         "class-variance-authority@^0.7.1",
         "lucide-react@^1.47.0",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/navigation-menu.test.tsx"],
@@ -17806,7 +17806,7 @@
       ],
       "npmDependencies": [
         "lucide-react@^1.47.0",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/inbox.test.tsx"],
@@ -17870,7 +17870,7 @@
       "name": "notification-bell",
       "registryType": "registry:ui",
       "title": "Notification Bell",
-      "summary": "A bell icon button with an unread-count badge overlay, plus the shared NotificationDot unread marker. Presentational \u2014 the app supplies the count.",
+      "summary": "A bell icon button with an unread-count badge overlay, plus the shared NotificationDot unread marker. Presentational — the app supplies the count.",
       "status": "stable",
       "since": "0.1.0",
       "family": "media",
@@ -17975,7 +17975,7 @@
       ],
       "npmDependencies": [
         "lucide-react@^1.47.0",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/notification-bell.test.tsx"],
@@ -18097,7 +18097,7 @@
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
         "lucide-react@^1.47.0",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/number-field.test.tsx"],
@@ -18136,7 +18136,7 @@
       "name": "page-header",
       "registryType": "registry:ui",
       "title": "Page Header",
-      "summary": "The standardized header at the top of a page \u2014 back button, breadcrumb trail, title, description, actions, secondary menu, and a favorite star \u2014 plus SectionHeading for in-page section titles (sm and md sizes, a muted eyebrow variant, trailing actions).",
+      "summary": "The standardized header at the top of a page — back button, breadcrumb trail, title, description, actions, secondary menu, and a favorite star — plus SectionHeading for in-page section titles (sm and md sizes, a muted eyebrow variant, trailing actions).",
       "status": "stable",
       "since": "0.1.0",
       "family": "navigation",
@@ -18248,7 +18248,7 @@
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
         "lucide-react@^1.47.0",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/page-header.test.tsx"],
@@ -18320,7 +18320,7 @@
       "name": "pagination",
       "registryType": "registry:ui",
       "title": "Pagination",
-      "summary": "Page navigation \u2014 previous/next, numbered page links, an ellipsis for long ranges, and the active page.",
+      "summary": "Page navigation — previous/next, numbered page links, an ellipsis for long ranges, and the active page.",
       "status": "stable",
       "since": "0.1.0",
       "family": "navigation",
@@ -18449,7 +18449,7 @@
       "registryDependencies": ["@vegastack/button"],
       "npmDependencies": [
         "lucide-react@^1.47.0",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/pagination.test.tsx"],
@@ -18653,7 +18653,7 @@
       "registryDependencies": [],
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/popover.test.tsx"],
@@ -18836,7 +18836,7 @@
       "registryDependencies": [],
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/progress.test.tsx"],
@@ -18901,7 +18901,7 @@
       "name": "questionnaire",
       "registryType": "registry:ui",
       "title": "Questionnaire",
-      "summary": "A guided one-question-at-a-time form \u2014 choices, freeform answers, skip, shortcuts, validation, resume and conditional items, built on the @shadcn/react questionnaire state machine.",
+      "summary": "A guided one-question-at-a-time form — choices, freeform answers, skip, shortcuts, validation, resume and conditional items, built on the @shadcn/react questionnaire state machine.",
       "status": "stable",
       "since": "0.1.0",
       "family": "communication",
@@ -19139,7 +19139,7 @@
       "npmDependencies": [
         "@shadcn/react@^0.3.1",
         "lucide-react@^1.47.0",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/questionnaire.test.tsx"],
@@ -19490,7 +19490,7 @@
           "viewport-positioning-and-collision",
           "grid-wrapping"
         ],
-        "rationale": "The row is a container query, not a viewport query: two tracks at @xs and up with the label track sized to its content above a floor, stacked below it, so the list reflows to its PANE rather than to the window. Values wrap instead of truncating \u2014 truncation was also clipping the focus ring of links inside them."
+        "rationale": "The row is a container query, not a viewport query: two tracks at @xs and up with the label track sized to its content above a floor, stacked below it, so the list reflows to its PANE rather than to the window. Values wrap instead of truncating — truncation was also clipping the focus ring of links inside them."
       },
       "motion": {
         "status": "not-applicable",
@@ -19504,7 +19504,7 @@
       "docsSlug": "/docs/components/property-list",
       "registryDependencies": [],
       "npmDependencies": [
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/property-list.test.tsx"],
@@ -19586,7 +19586,7 @@
       "name": "provider",
       "registryType": "registry:ui",
       "title": "Provider",
-      "summary": "The single app-root wrapper \u2014 theme (next-themes), Base UI toasts, tooltip delays, and text direction in one mount-once component.",
+      "summary": "The single app-root wrapper — theme (next-themes), Base UI toasts, tooltip delays, and text direction in one mount-once component.",
       "status": "stable",
       "since": "0.2.0",
       "family": "feedback",
@@ -19681,7 +19681,7 @@
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
         "next-themes@0.4.6",
-        "@vegastack/design@^0.7.110"
+        "@vegastack/design@^0.7.111"
       ],
       "testFiles": ["packages/ui/registry/ui/provider.test.tsx"],
       "coverage": {
@@ -19778,7 +19778,7 @@
       "registryDependencies": ["@vegastack/field"],
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/radio-group.test.tsx"],
@@ -19899,7 +19899,7 @@
       ],
       "npmDependencies": [
         "lucide-react@^1.47.0",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/region-select.test.tsx"],
@@ -19932,7 +19932,7 @@
       "name": "relative-time",
       "registryType": "registry:ui",
       "title": "Dates & Times",
-      "summary": "One Intl-based dates & times module \u2014 formatRelative, formatDuration, formatDate, formatDateTime, formatDateRange, formatTimeOfDay, formatDueLabel, groupByDay, time-zone cookie + provider \u2014 and the RelativeTime, DateTime, Duration and DueLabel components with absolute-time tooltips.",
+      "summary": "One Intl-based dates & times module — formatRelative, formatDuration, formatDate, formatDateTime, formatDateRange, formatTimeOfDay, formatDueLabel, groupByDay, time-zone cookie + provider — and the RelativeTime, DateTime, Duration and DueLabel components with absolute-time tooltips.",
       "status": "stable",
       "since": "0.1.0",
       "family": "data-display",
@@ -20105,7 +20105,7 @@
         "@vegastack/truncated-text"
       ],
       "npmDependencies": [
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/relative-time.test.tsx"],
@@ -20173,7 +20173,7 @@
       "name": "resizable",
       "registryType": "registry:ui",
       "title": "Resizable",
-      "summary": "Accessible resizable panel groups and layouts with keyboard support \u2014 horizontal or vertical, nestable, with an optional visible grip.",
+      "summary": "Accessible resizable panel groups and layouts with keyboard support — horizontal or vertical, nestable, with an optional visible grip.",
       "status": "stable",
       "since": "0.1.0",
       "family": "layout",
@@ -20267,7 +20267,7 @@
       "registryDependencies": [],
       "npmDependencies": [
         "react-resizable-panels@^4",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/resizable.test.tsx"],
@@ -20314,7 +20314,7 @@
       "name": "scroll-area",
       "registryType": "registry:ui",
       "title": "Scroll Area",
-      "summary": "Augments native scroll functionality for custom, cross-browser styling \u2014 a viewport, an auto-hiding scrollbar, and a corner.",
+      "summary": "Augments native scroll functionality for custom, cross-browser styling — a viewport, an auto-hiding scrollbar, and a corner.",
       "status": "stable",
       "since": "0.1.0",
       "family": "layout",
@@ -20345,7 +20345,7 @@
       "variants": {
         "status": "not-applicable-or-inherited",
         "dimensions": [],
-        "rationale": "Upstream ships no variant dimension for this component. `ScrollBar`'s `orientation` is Base UI's own Scrollbar prop, defaulted to `vertical` by the wrapper \u2014 not a local variant union."
+        "rationale": "Upstream ships no variant dimension for this component. `ScrollBar`'s `orientation` is Base UI's own Scrollbar prop, defaulted to `vertical` by the wrapper — not a local variant union."
       },
       "sizes": {
         "status": "not-applicable-or-inherited",
@@ -20392,7 +20392,7 @@
       "registryDependencies": [],
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/scroll-area.test.tsx"],
@@ -20558,7 +20558,7 @@
         "mechanisms": [],
         "reducedMotion": {
           "status": "not-applicable",
-          "rationale": "No component-owned motion \u2014 the panel's enter/exit belongs to the shared floating surface."
+          "rationale": "No component-owned motion — the panel's enter/exit belongs to the shared floating surface."
         }
       },
       "engines": [],
@@ -20576,7 +20576,7 @@
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
         "lucide-react@^1.47.0",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/searchable-select.test.tsx"],
@@ -20725,7 +20725,7 @@
       "registryDependencies": ["@vegastack/input-group"],
       "npmDependencies": [
         "lucide-react@^1.47.0",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/search-input.test.tsx"],
@@ -20837,7 +20837,7 @@
       "registryDependencies": ["@vegastack/input-group"],
       "npmDependencies": [
         "lucide-react@^1.47.0",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/password-input.test.tsx"],
@@ -20867,7 +20867,7 @@
       "name": "select",
       "registryType": "registry:ui",
       "title": "Select",
-      "summary": "A dropdown for one value \u2014 trigger, grouped scrollable popup and item-aligned positioning.",
+      "summary": "A dropdown for one value — trigger, grouped scrollable popup and item-aligned positioning.",
       "status": "stable",
       "since": "0.1.0",
       "family": "form",
@@ -21045,7 +21045,7 @@
         "class-variance-authority@^0.7.1",
         "@base-ui/react@^1.6.0",
         "lucide-react@^1.47.0",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/select.test.tsx"],
@@ -21158,7 +21158,7 @@
       "name": "separator",
       "registryType": "registry:ui",
       "title": "Separator",
-      "summary": "A thin rule dividing content \u2014 horizontal or vertical, built on Base UI.",
+      "summary": "A thin rule dividing content — horizontal or vertical, built on Base UI.",
       "status": "stable",
       "since": "0.1.0",
       "family": "layout",
@@ -21224,7 +21224,7 @@
       "registryDependencies": [],
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/separator.test.tsx"],
@@ -21253,7 +21253,7 @@
       "name": "settings-row",
       "registryType": "registry:ui",
       "title": "Settings Row",
-      "summary": "A borders-only settings layout \u2014 titled sections, bordered cards, and label-plus-control rows.",
+      "summary": "A borders-only settings layout — titled sections, bordered cards, and label-plus-control rows.",
       "status": "stable",
       "since": "0.1.0",
       "family": "layout",
@@ -21375,7 +21375,7 @@
       "docsSlug": "/docs/components/settings-row",
       "registryDependencies": ["@vegastack/card"],
       "npmDependencies": [
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/settings-row.test.tsx"],
@@ -21433,7 +21433,7 @@
       "name": "sheet",
       "registryType": "registry:ui",
       "title": "Sheet",
-      "summary": "A panel that slides in from any edge \u2014 Dialog semantics with a side, a header and a footer; opens onto the first field, never the close \u00d7; a left sheet can dock beside the sidebar rail (beside).",
+      "summary": "A panel that slides in from any edge — Dialog semantics with a side, a header and a footer; opens onto the first field, never the close ×; a left sheet can dock beside the sidebar rail (beside).",
       "status": "stable",
       "since": "0.1.0",
       "family": "overlay",
@@ -21606,7 +21606,7 @@
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
         "lucide-react@^1.47.0",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/sheet.test.tsx"],
@@ -21728,7 +21728,7 @@
       "name": "shortcut-overlay",
       "registryType": "registry:ui",
       "title": "Shortcut Overlay",
-      "summary": "The ?-triggered dialog listing keyboard shortcuts, rendered from a declaration registry (keys, label, category, when) \u2014 grouped, filterable, platform-aware via use-platform + Kbd.",
+      "summary": "The ?-triggered dialog listing keyboard shortcuts, rendered from a declaration registry (keys, label, category, when) — grouped, filterable, platform-aware via use-platform + Kbd.",
       "status": "stable",
       "since": "0.4.0",
       "family": "overlay",
@@ -21750,7 +21750,7 @@
           "source": "packages/ui/registry/ui/shortcut-overlay.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Renders a composed Dialog; no stable public ref target is forwarded \u2014 the dialog content is portaled."
+            "rationale": "Renders a composed Dialog; no stable public ref target is forwarded — the dialog content is portaled."
           }
         },
         {
@@ -21820,7 +21820,7 @@
         "@vegastack/use-platform"
       ],
       "npmDependencies": [
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/shortcut-overlay.test.tsx"],
@@ -21920,7 +21920,7 @@
       "docsSlug": "/docs/components/skeleton",
       "registryDependencies": [],
       "npmDependencies": [
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/skeleton.test.tsx"],
@@ -21949,7 +21949,7 @@
       "name": "slider",
       "registryType": "registry:ui",
       "title": "Slider",
-      "summary": "A number or range over a continuous track \u2014 horizontal or vertical, any number of thumbs.",
+      "summary": "A number or range over a continuous track — horizontal or vertical, any number of thumbs.",
       "status": "stable",
       "since": "0.1.0",
       "family": "form",
@@ -22017,7 +22017,7 @@
       "registryDependencies": [],
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/slider.test.tsx"],
@@ -22051,7 +22051,7 @@
       "name": "sortable-list",
       "registryType": "registry:ui",
       "title": "Sortable List",
-      "summary": "Reorderable rows or tiles on ItemGroup/Item via use-drag-reorder \u2014 pointer drag with drop indicators, touch long-press, keyboard move mode, a remove button or a row menu, locked rows, a grid layout with bare tiles for attachments, and server-refusable moves. Controlled; the host owns the order.",
+      "summary": "Reorderable rows or tiles on ItemGroup/Item via use-drag-reorder — pointer drag with drop indicators, touch long-press, keyboard move mode, a remove button or a row menu, locked rows, a grid layout with bare tiles for attachments, and server-refusable moves. Controlled; the host owns the order.",
       "status": "stable",
       "since": "0.4.0",
       "family": "data",
@@ -22116,7 +22116,7 @@
             "bare-tile",
             "columns"
           ],
-          "evidence": "use-drag-reorder drives pointer drags, keyboard move mode, and the async pending/rejected contract; usePointerDrag's touch long-press (250ms, <8px) lifts a row and drops on the edge under the finger; onRemove adds a \u00d7 per unlocked row, getItemActions a \u22ef menu; disabled removes handles, \u00d7 and menus; a locked (per-item disabled) row keeps a handle-sized spacer and shows no \u00d7, while other rows move past it; layout=\"grid\" runs the hook on a horizontal axis with measured row-aware \u2191/\u2193, `columns` fixes the track count and tile=\"bare\" drops the tile frame."
+          "evidence": "use-drag-reorder drives pointer drags, keyboard move mode, and the async pending/rejected contract; usePointerDrag's touch long-press (250ms, <8px) lifts a row and drops on the edge under the finger; onRemove adds a × per unlocked row, getItemActions a ⋯ menu; disabled removes handles, × and menus; a locked (per-item disabled) row keeps a handle-sized spacer and shows no ×, while other rows move past it; layout=\"grid\" runs the hook on a horizontal axis with measured row-aware ↑/↓, `columns` fixes the track count and tile=\"bare\" drops the tile frame."
         },
         "accessibility": {
           "status": "observed",
@@ -22139,7 +22139,7 @@
             "locked",
             "grid"
           ],
-          "evidence": "2px primary drop-indicator hairline on the closest edge (top/bottom in a list, left/right in a grid); lifted rows dim (flat \u2014 no shadow, per doctrine); pending rows shimmer with the sanctioned loader animation, static under reduced motion; locked rows keep a handle-sized spacer; grid tiles overlay the handle and actions on their top corners."
+          "evidence": "2px primary drop-indicator hairline on the closest edge (top/bottom in a list, left/right in a grid); lifted rows dim (flat — no shadow, per doctrine); pending rows shimmer with the sanctioned loader animation, static under reduced motion; locked rows keep a handle-sized spacer; grid tiles overlay the handle and actions on their top corners."
         }
       },
       "responsive": {
@@ -22168,7 +22168,7 @@
       ],
       "npmDependencies": [
         "lucide-react@^1.47.0",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/sortable-list.test.tsx"],
@@ -22303,7 +22303,7 @@
       "registryDependencies": [],
       "npmDependencies": [
         "lucide-react@^1.47.0",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/spinner.test.tsx"],
@@ -22332,7 +22332,7 @@
       "name": "stat",
       "registryType": "registry:ui",
       "title": "Stat",
-      "summary": "A labelled value block \u2014 muted label over a value, honest faint empty state, optional delta line. Two scales.",
+      "summary": "A labelled value block — muted label over a value, honest faint empty state, optional delta line. Two scales.",
       "status": "stable",
       "since": "0.3.0",
       "family": "display",
@@ -22523,7 +22523,7 @@
       "registryDependencies": ["@vegastack/skeleton"],
       "npmDependencies": [
         "class-variance-authority@^0.7.1",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/stat.test.tsx"],
@@ -22609,7 +22609,7 @@
       "name": "status-icon",
       "registryType": "registry:ui",
       "title": "Status Icon",
-      "summary": "A small status indicator icon \u2014 todo, in progress, blocked, done, cancelled \u2014 each mapping to a lucide icon and semantic color.",
+      "summary": "A small status indicator icon — todo, in progress, blocked, done, cancelled — each mapping to a lucide icon and semantic color.",
       "status": "stable",
       "since": "0.1.0",
       "family": "data-display",
@@ -22701,7 +22701,7 @@
       "npmDependencies": [
         "class-variance-authority@^0.7.1",
         "lucide-react@^1.47.0",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/status-icon.test.tsx"],
@@ -22742,7 +22742,7 @@
       "name": "stepper",
       "registryType": "registry:ui",
       "title": "Stepper",
-      "summary": "A bounded linear process as an ordered list \u2014 seven step states on a numbered rail that fills in behind you, aria-current=step, orientation chosen from the step count, and a compact summary below a container width.",
+      "summary": "A bounded linear process as an ordered list — seven step states on a numbered rail that fills in behind you, aria-current=step, orientation chosen from the step count, and a compact summary below a container width.",
       "status": "stable",
       "since": "0.4.0",
       "family": "navigation",
@@ -22832,7 +22832,7 @@
       "sizes": {
         "status": "observed",
         "dimensions": ["default", "sm"],
-        "rationale": "Upstream's size vocabulary \u2014 node and glyph scale; labels stay text-sm."
+        "rationale": "Upstream's size vocabulary — node and glyph scale; labels stay text-sm."
       },
       "states": {
         "behavior": {
@@ -22898,7 +22898,7 @@
       "registryDependencies": ["@vegastack/button", "@vegastack/progress"],
       "npmDependencies": [
         "lucide-react@^1.47.0",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/stepper.test.tsx"],
@@ -22973,7 +22973,7 @@
       "name": "multi-step-form",
       "registryType": "registry:ui",
       "title": "Multi-Step Form",
-      "summary": "A guarded, branching flow around a Stepper \u2014 conditional steps, sync and async advance guards, locking, reachability-derived deep links and resume, and a phone layout chosen from the same predicate. Owns no fields and no validator.",
+      "summary": "A guarded, branching flow around a Stepper — conditional steps, sync and async advance guards, locking, reachability-derived deep links and resume, and a phone layout chosen from the same predicate. Owns no fields and no validator.",
       "status": "stable",
       "since": "0.12.0",
       "family": "navigation",
@@ -23168,7 +23168,7 @@
       "variants": {
         "status": "observed",
         "dimensions": ["navVariant", "layout"],
-        "rationale": "MultiStepFormNav resolves to `stepper`, `section-list` or `drill-in` from one predicate \u2014 whether steps other than the current one are reachable \u2014 rather than from a prop; `layout` is flow | panel, where panel holds the nav and action row and makes the step body the one scrolling region for a dialog, sheet or drawer."
+        "rationale": "MultiStepFormNav resolves to `stepper`, `section-list` or `drill-in` from one predicate — whether steps other than the current one are reachable — rather than from a prop; `layout` is flow | panel, where panel holds the nav and action row and makes the step body the one scrolling region for a dialog, sheet or drawer."
       },
       "sizes": {
         "status": "not-applicable-or-inherited",
@@ -23222,7 +23222,7 @@
           "responsive-or-container-layout",
           "text-truncation-and-flex-shrink"
         ],
-        "rationale": "A phone whose steps are reachable mounts a different tree \u2014 a section list and a drill-in header rather than the rail \u2014 which is the sanctioned use of useIsMobile; a phone whose steps are not reachable keeps the Stepper, which collapses itself through its own container query."
+        "rationale": "A phone whose steps are reachable mounts a different tree — a section list and a drill-in header rather than the rail — which is the sanctioned use of useIsMobile; a phone whose steps are not reachable keeps the Stepper, which collapses itself through its own container query."
       },
       "motion": {
         "status": "observed",
@@ -23244,7 +23244,7 @@
       ],
       "npmDependencies": [
         "lucide-react@^1.47.0",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/multi-step-form.test.tsx"],
@@ -23388,7 +23388,7 @@
       "name": "switch",
       "registryType": "registry:ui",
       "title": "Switch",
-      "summary": "An on/off toggle for instant settings \u2014 two sizes and a 24px invisible hit area (A11Y-2).",
+      "summary": "An on/off toggle for instant settings — two sizes and a 24px invisible hit area (A11Y-2).",
       "status": "stable",
       "since": "0.1.0",
       "family": "form",
@@ -23462,7 +23462,7 @@
       "registryDependencies": [],
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/switch.test.tsx"],
@@ -23495,7 +23495,7 @@
       "name": "table",
       "registryType": "registry:ui",
       "title": "Table",
-      "summary": "A responsive table component \u2014 caption, header, body, footer, row, head and cell parts over semantic table markup.",
+      "summary": "A responsive table component — caption, header, body, footer, row, head and cell parts over semantic table markup.",
       "status": "stable",
       "since": "0.1.0",
       "family": "data-display",
@@ -23654,7 +23654,7 @@
       "docsSlug": "/docs/components/table",
       "registryDependencies": ["@vegastack/use-overflow"],
       "npmDependencies": [
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/table.test.tsx"],
@@ -23759,7 +23759,7 @@
       "name": "tabs",
       "registryType": "registry:ui",
       "title": "Tabs",
-      "summary": "Layered content sections \u2014 default (segmented) or line variants, compact size, optional leading icons and counts, horizontal or vertical, full keyboard navigation. Toolbar switches use default Tabs: scope (My tasks | Team tasks) and views, whose List/Board/Grid switch is ViewToggle (default Tabs with icons). The one component that keeps a focus ring.",
+      "summary": "Layered content sections — default (segmented) or line variants, compact size, optional leading icons and counts, horizontal or vertical, full keyboard navigation. Toolbar switches use default Tabs: scope (My tasks | Team tasks) and views, whose List/Board/Grid switch is ViewToggle (default Tabs with icons). The one component that keeps a focus ring.",
       "status": "stable",
       "since": "0.1.0",
       "family": "navigation",
@@ -23888,7 +23888,7 @@
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
         "class-variance-authority@^0.7.1",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/tabs.test.tsx"],
@@ -24052,7 +24052,7 @@
       "registryDependencies": ["@vegastack/chip"],
       "npmDependencies": [
         "lucide-react@^1.47.0",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/tag-group.test.tsx"],
@@ -24207,7 +24207,7 @@
         "@base-ui/react@^1.6.0",
         "class-variance-authority@^0.7.1",
         "lucide-react@^1.47.0",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/terminal.test.tsx"],
@@ -24360,7 +24360,7 @@
         "@tiptap/starter-kit@^3",
         "@tiptap/suggestion@^3",
         "@vegastack/design-tokens@^0.7.80",
-        "@vegastack/design@^0.7.110"
+        "@vegastack/design@^0.7.111"
       ],
       "testFiles": ["packages/ui/registry/ui/template-editor.test.tsx"],
       "coverage": {
@@ -24396,7 +24396,7 @@
       "name": "text-edit",
       "registryType": "registry:ui",
       "title": "Text Edit",
-      "summary": "A Tiptap-based, markdown-first rich-text editor with no toolbar and no fill \u2014 caret-only as a document, or boxed with a subtle focus border: a slash menu for blocks, a bubble menu for marks and block types, GFM tables with a menu and drag grips, block drag handles, callouts and toggles, @ mentions, image and file uploads, a heading outline, comment highlights, portaled menus, and one onCommit path.",
+      "summary": "A Tiptap-based, markdown-first rich-text editor with no toolbar and no fill — caret-only as a document, or boxed with a subtle focus border: a slash menu for blocks, a bubble menu for marks and block types, GFM tables with a menu and drag grips, block drag handles, callouts and toggles, @ mentions, image and file uploads, a heading outline, comment highlights, portaled menus, and one onCommit path.",
       "status": "stable",
       "since": "0.1.0",
       "family": "rich-text",
@@ -24706,7 +24706,7 @@
         "@tiptap/starter-kit@^3",
         "@tiptap/suggestion@^3",
         "@vegastack/design-tokens@^0.7.80",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "highlight.js@^11.11.1",
         "lowlight@^3.3.0",
         "lucide-react@^1.47.0"
@@ -24849,7 +24849,7 @@
       "registryDependencies": [],
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/textarea.test.tsx"],
@@ -24878,7 +24878,7 @@
       "name": "timeline",
       "registryType": "registry:ui",
       "title": "Timeline",
-      "summary": "Rail geometry for chronological records \u2014 a continuous connector with a node per entry. Rows compose Item parts; separators render through Marker; entries carry content-visibility render skipping.",
+      "summary": "Rail geometry for chronological records — a continuous connector with a node per entry. Rows compose Item parts; separators render through Marker; entries carry content-visibility render skipping.",
       "status": "stable",
       "since": "0.4.0",
       "family": "data-display",
@@ -24987,7 +24987,7 @@
       "docsSlug": "/docs/components/timeline",
       "registryDependencies": ["@vegastack/marker"],
       "npmDependencies": [
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/timeline.test.tsx"],
@@ -25040,7 +25040,7 @@
       "name": "toast",
       "registryType": "registry:ui",
       "title": "Toast",
-      "summary": "Brief, non-blocking notifications \u2014 a stacking Base UI Toast surface with typed icons, actions and promise toasts.",
+      "summary": "Brief, non-blocking notifications — a stacking Base UI Toast surface with typed icons, actions and promise toasts.",
       "status": "stable",
       "since": "0.7.0",
       "family": "feedback",
@@ -25183,7 +25183,7 @@
           "ref": {
             "status": "not-applicable-or-inherited",
             "target": "none",
-            "rationale": "Not a component \u2014 no ref to forward."
+            "rationale": "Not a component — no ref to forward."
           }
         },
         {
@@ -25193,7 +25193,7 @@
           "ref": {
             "status": "not-applicable-or-inherited",
             "target": "none",
-            "rationale": "Not a component \u2014 no ref to forward."
+            "rationale": "Not a component — no ref to forward."
           }
         },
         {
@@ -25203,7 +25203,7 @@
           "ref": {
             "status": "not-applicable-or-inherited",
             "target": "none",
-            "rationale": "Not a component \u2014 no ref to forward."
+            "rationale": "Not a component — no ref to forward."
           }
         },
         {
@@ -25306,7 +25306,7 @@
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
         "lucide-react@^1.47.0",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/toast.test.tsx"],
@@ -25503,7 +25503,7 @@
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
         "class-variance-authority@^0.7.1",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/toggle.test.tsx"],
@@ -25536,7 +25536,7 @@
       "name": "toggle-group",
       "registryType": "registry:ui",
       "title": "Toggle Group",
-      "summary": "Toggle buttons sharing one selection \u2014 single or multiple, horizontal or vertical.",
+      "summary": "Toggle buttons sharing one selection — single or multiple, horizontal or vertical.",
       "status": "stable",
       "since": "0.1.0",
       "family": "actions",
@@ -25610,7 +25610,7 @@
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
         "class-variance-authority@^0.7.1",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/toggle-group.test.tsx"],
@@ -25680,7 +25680,7 @@
       "name": "tool-call-chip",
       "registryType": "registry:ui",
       "title": "Tool Call Chip",
-      "summary": "An agent-activity chip \u2014 tool action label + muted result meta, optionally rendered as a button.",
+      "summary": "An agent-activity chip — tool action label + muted result meta, optionally rendered as a button.",
       "status": "stable",
       "since": "0.3.0",
       "family": "chat",
@@ -25752,7 +25752,7 @@
       "registryDependencies": ["@vegastack/badge"],
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/tool-call-chip.test.tsx"],
@@ -25879,7 +25879,7 @@
       "registryDependencies": [],
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/tooltip.test.tsx"],
@@ -25935,7 +25935,7 @@
       "name": "truncated-text",
       "registryType": "registry:ui",
       "title": "Truncated Text",
-      "summary": "Truncate text to one line or N lines with an ellipsis, revealing the full text in a tooltip only when it overflows \u2014 with per-region control over the tab stop.",
+      "summary": "Truncate text to one line or N lines with an ellipsis, revealing the full text in a tooltip only when it overflows — with per-region control over the tab stop.",
       "status": "stable",
       "since": "0.1.0",
       "family": "data-display",
@@ -26075,7 +26075,7 @@
       "docsSlug": "/docs/components/truncated-text",
       "registryDependencies": ["@vegastack/tooltip", "@vegastack/use-overflow"],
       "npmDependencies": [
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/truncated-text.test.tsx"],
@@ -26126,7 +26126,7 @@
       "name": "video-player",
       "registryType": "registry:ui",
       "title": "Video Player",
-      "summary": "A framed video player with the same grouped custom transport controls as Audio Player \u2014 a poster, no autoplay, a \"can't play\" card with Download, and onSourceExpired to renew an expired signed URL.",
+      "summary": "A framed video player with the same grouped custom transport controls as Audio Player — a poster, no autoplay, a \"can't play\" card with Download, and onSourceExpired to renew an expired signed URL.",
       "status": "stable",
       "since": "0.5.0",
       "family": "media",
@@ -26241,7 +26241,7 @@
       ],
       "npmDependencies": [
         "@vegastack/design-tokens@^0.7.80",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "lucide-react@^1.47.0"
       ],
       "testFiles": ["packages/ui/registry/ui/video-player.test.tsx"],
@@ -26290,7 +26290,7 @@
       "name": "panel-search",
       "registryType": "registry:ui",
       "title": "Panel Search",
-      "summary": "The sticky, box-free search row a filtering popup puts at the top of its panel (decision OVL-11) \u2014 shared by EmojiPicker and ShortcutOverlay.",
+      "summary": "The sticky, box-free search row a filtering popup puts at the top of its panel (decision OVL-11) — shared by EmojiPicker and ShortcutOverlay.",
       "status": "stable",
       "since": "0.10.0",
       "family": "overlay",
@@ -26381,7 +26381,7 @@
       "npmDependencies": [
         "lucide-react@^1.47.0",
         "@base-ui/react@^1.6.0",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/panel-search.test.tsx"],
@@ -26413,7 +26413,7 @@
       "name": "sidebar",
       "registryType": "registry:ui",
       "title": "Sidebar",
-      "summary": "A collapsible app navigation rail \u2014 header/content/footer, labelled groups, menu items with active and open (menu-trigger) states, and an expand/collapse trigger.",
+      "summary": "A collapsible app navigation rail — header/content/footer, labelled groups, menu items with active and open (menu-trigger) states, and an expand/collapse trigger.",
       "status": "stable",
       "since": "0.1.0",
       "family": "navigation",
@@ -26785,7 +26785,7 @@
         "@base-ui/react@^1.6.0",
         "class-variance-authority@^0.7.1",
         "lucide-react@^1.47.0",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/sidebar.test.tsx"],
@@ -27166,7 +27166,7 @@
       "docsSlug": "/docs/components/meta-line",
       "registryDependencies": [],
       "npmDependencies": [
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/meta-line.test.tsx"],
@@ -27377,7 +27377,7 @@
       ],
       "npmDependencies": [
         "lucide-react@^1.47.0",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/record-chip.test.tsx"],
@@ -27461,7 +27461,7 @@
       "name": "record-list",
       "registryType": "registry:ui",
       "title": "Record List",
-      "summary": "A numbered list of the records a change affects \u2014 a muted record-type icon, the name with a new-tab link after it, a badge and a description line \u2014 plus a Show more footer whose next rows keep the numbering. For confirmation dialogs.",
+      "summary": "A numbered list of the records a change affects — a muted record-type icon, the name with a new-tab link after it, a badge and a description line — plus a Show more footer whose next rows keep the numbering. For confirmation dialogs.",
       "status": "stable",
       "since": "0.23.54",
       "family": "data",
@@ -27625,7 +27625,7 @@
       "registryDependencies": ["@vegastack/button", "@vegastack/table"],
       "npmDependencies": [
         "lucide-react@^1.47.0",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/record-list.test.tsx"],
@@ -27780,7 +27780,7 @@
       "registryDependencies": ["@vegastack/spinner"],
       "npmDependencies": [
         "lucide-react@^1.47.0",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/status-line.test.tsx"],
@@ -27813,7 +27813,7 @@
       "name": "record-layout",
       "registryType": "registry:ui",
       "title": "Record Layout",
-      "summary": "A record page's main column beside a sticky right rail of cards, with an \u24d8 Details sheet in its place on small screens.",
+      "summary": "A record page's main column beside a sticky right rail of cards, with an ⓘ Details sheet in its place on small screens.",
       "status": "stable",
       "since": "0.23.15",
       "family": "layout",
@@ -28028,7 +28028,7 @@
         "@vegastack/skeleton"
       ],
       "npmDependencies": [
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80",
         "lucide-react@^1.47.0"
       ],
@@ -28365,7 +28365,7 @@
         "@vegastack/person-hover-card"
       ],
       "npmDependencies": [
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80",
         "lucide-react@^1.47.0"
       ],
@@ -28510,7 +28510,7 @@
       "name": "activity-feed",
       "registryType": "registry:ui",
       "title": "Activity Feed",
-      "summary": "A record's history, Linear style: comment threads and activity events (\"Priya changed status from Open to Done \u00b7 2h\") in one list, with an All / Comments / Activity filter, an order toggle, collapsible event groups, a New divider, a floating Jump to latest, J/K/X keyboard navigation and a skeleton.",
+      "summary": "A record's history, Linear style: comment threads and activity events (\"Priya changed status from Open to Done · 2h\") in one list, with an All / Comments / Activity filter, an order toggle, collapsible event groups, a New divider, a floating Jump to latest, J/K/X keyboard navigation and a skeleton.",
       "status": "stable",
       "since": "0.23.123",
       "family": "display",
@@ -28753,7 +28753,7 @@
         "@vegastack/skeleton"
       ],
       "npmDependencies": [
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80",
         "lucide-react@^1.47.0"
       ],
@@ -28910,7 +28910,7 @@
       "name": "diff-view",
       "registryType": "registry:ui",
       "title": "Diff View",
-      "summary": "What changed between two texts \u2014 changed lines, then the words inside them, removed struck through and added tinted \u2014 with the sanctioned diff engine in its own lazily loaded chunk; line-only above 200 KB.",
+      "summary": "What changed between two texts — changed lines, then the words inside them, removed struck through and added tinted — with the sanctioned diff engine in its own lazily loaded chunk; line-only above 200 KB.",
       "status": "stable",
       "since": "0.23.74",
       "family": "display",
@@ -28993,7 +28993,7 @@
       "registryDependencies": ["@vegastack/button", "@vegastack/skeleton"],
       "npmDependencies": [
         "diff@^8.0.4",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/diff-view.test.tsx"],
@@ -29012,7 +29012,7 @@
       "name": "version-list",
       "registryType": "registry:ui",
       "title": "Version List",
-      "summary": "A document's version history \u2014 time, author, name, kind badges (Current, Restored, Unsaved copy), a Named only switch and Load more \u2014 as a keyboard listbox.",
+      "summary": "A document's version history — time, author, name, kind badges (Current, Restored, Unsaved copy), a Named only switch and Load more — as a keyboard listbox.",
       "status": "stable",
       "since": "0.23.74",
       "family": "display",
@@ -29105,7 +29105,7 @@
         "@vegastack/use-list-nav"
       ],
       "npmDependencies": [
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/version-list.test.tsx"],
@@ -29149,7 +29149,7 @@
       "name": "comment-margin",
       "registryType": "registry:ui",
       "title": "Comment Margin",
-      "summary": "Comment cards laid beside the text they are about \u2014 level with their highlight, stacked without overlap, the active card aligned with its text \u2014 and a CommentPopover anchored to a highlight for narrow screens.",
+      "summary": "Comment cards laid beside the text they are about — level with their highlight, stacked without overlap, the active card aligned with its text — and a CommentPopover anchored to a highlight for narrow screens.",
       "status": "stable",
       "since": "0.23.74",
       "family": "display",
@@ -29256,7 +29256,7 @@
       "registryDependencies": [],
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/comment-margin.test.tsx"],
@@ -29426,7 +29426,7 @@
         "@vegastack/hover-card"
       ],
       "npmDependencies": [
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80",
         "lucide-react@^1.47.0"
       ],
@@ -29465,7 +29465,7 @@
       "name": "record-aside",
       "registryType": "registry:ui",
       "title": "Record Aside",
-      "summary": "The cards of a record page's right rail \u2014 titled sections of inline properties, people, linked records and full-width action rows.",
+      "summary": "The cards of a record page's right rail — titled sections of inline properties, people, linked records and full-width action rows.",
       "status": "stable",
       "since": "0.23.19",
       "family": "data",
@@ -29772,7 +29772,7 @@
         "@vegastack/tooltip"
       ],
       "npmDependencies": [
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80",
         "lucide-react@^1.47.0"
       ],
@@ -29901,7 +29901,7 @@
       "name": "person-hover-card",
       "registryType": "registry:ui",
       "title": "Person Hover Card",
-      "summary": "Stacked avatars with a hover card per person \u2014 a compact card with a 32px avatar, with the name and muted email beside it \u2014 and the rest behind \"+N\".",
+      "summary": "Stacked avatars with a hover card per person — a compact card with a 32px avatar, with the name and muted email beside it — and the rest behind \"+N\".",
       "status": "stable",
       "since": "0.23.19",
       "family": "data",
@@ -30033,7 +30033,7 @@
         "@vegastack/searchable-select"
       ],
       "npmDependencies": [
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80",
         "lucide-react@^1.47.0"
       ],
@@ -30085,7 +30085,7 @@
       "name": "person-avatar",
       "registryType": "registry:ui",
       "title": "Person Avatar",
-      "summary": "A person's avatar \u2014 the photo, else initials on their hue, else initials on the muted fallback \u2014 the one way every people surface draws a person.",
+      "summary": "A person's avatar — the photo, else initials on their hue, else initials on the muted fallback — the one way every people surface draws a person.",
       "status": "stable",
       "since": "0.23.44",
       "family": "data",
@@ -30179,7 +30179,7 @@
       "registryDependencies": ["@vegastack/avatar"],
       "npmDependencies": [
         "@vegastack/design-tokens@^0.7.80",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "lucide-react@^1.47.0"
       ],
       "testFiles": ["packages/ui/registry/ui/person-avatar.test.tsx"],
@@ -30211,7 +30211,7 @@
       "name": "people-input",
       "registryType": "registry:ui",
       "title": "People Input",
-      "summary": "Add people or teams as removable chips, searched as you type \u2014 a Combobox chips field over the host's async search, listing PersonOption rows with person and team avatars.",
+      "summary": "Add people or teams as removable chips, searched as you type — a Combobox chips field over the host's async search, listing PersonOption rows with person and team avatars.",
       "status": "stable",
       "since": "0.23.112",
       "family": "form",
@@ -30311,7 +30311,7 @@
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
         "@vegastack/design-tokens@^0.7.80",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "lucide-react@^1.47.0"
       ],
       "testFiles": ["packages/ui/registry/ui/people-input.test.tsx"],
@@ -30348,7 +30348,7 @@
       "name": "permission-menu",
       "registryType": "registry:ui",
       "title": "Permission Menu",
-      "summary": "An access level on a sharing row \u2014 a ghost trigger reading the level, a menu of levels with one-line descriptions and a check on the current one, an optional destructive Remove access, and a read-only text mode for built-in rows.",
+      "summary": "An access level on a sharing row — a ghost trigger reading the level, a menu of levels with one-line descriptions and a check on the current one, an optional destructive Remove access, and a read-only text mode for built-in rows.",
       "status": "stable",
       "since": "0.23.112",
       "family": "overlay",
@@ -30451,7 +30451,7 @@
       ],
       "npmDependencies": [
         "@vegastack/design-tokens@^0.7.80",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "lucide-react@^1.47.0"
       ],
       "testFiles": ["packages/ui/registry/ui/permission-menu.test.tsx"],
@@ -30508,7 +30508,7 @@
       "name": "responsive-dialog",
       "registryType": "registry:ui",
       "title": "Responsive Dialog",
-      "summary": "One overlay API that is a centred Dialog from 768px up and a bottom Sheet with a drag handle and a safe-area footer below it \u2014 the same header, body and footer in both.",
+      "summary": "One overlay API that is a centred Dialog from 768px up and a bottom Sheet with a drag handle and a safe-area footer below it — the same header, body and footer in both.",
       "status": "stable",
       "since": "0.23.116",
       "family": "overlay",
@@ -30687,7 +30687,7 @@
       ],
       "npmDependencies": [
         "@vegastack/design-tokens@^0.7.80",
-        "@vegastack/design@^0.7.110"
+        "@vegastack/design@^0.7.111"
       ],
       "testFiles": ["packages/ui/registry/ui/responsive-dialog.test.tsx"],
       "coverage": {
@@ -30719,7 +30719,7 @@
       "name": "space-picker",
       "registryType": "registry:ui",
       "title": "Space Picker",
-      "summary": "SpaceChip \u2014 a space as a quiet property chip (tile, name, chevron) \u2014 and SpacePicker, that chip opening a searchable list of spaces with My space first, a check on the current one and disabled rows that say why.",
+      "summary": "SpaceChip — a space as a quiet property chip (tile, name, chevron) — and SpacePicker, that chip opening a searchable list of spaces with My space first, a check on the current one and disabled rows that say why.",
       "status": "stable",
       "since": "0.23.116",
       "family": "form",
@@ -30869,7 +30869,7 @@
       ],
       "npmDependencies": [
         "@vegastack/design-tokens@^0.7.80",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "lucide-react@^1.47.0"
       ],
       "testFiles": ["packages/ui/registry/ui/space-picker.test.tsx"],
@@ -30927,7 +30927,7 @@
       "name": "access-chip",
       "registryType": "registry:ui",
       "title": "Access Chip",
-      "summary": "How far one record reaches as one focusable chip: the space tile and name, a lock and Only invited, My space, or a space the viewer cannot see (someone's My space, a private space) \u2014 with a globe when published and the full sentence in a tooltip. Clicking opens Share.",
+      "summary": "How far one record reaches as one focusable chip: the space tile and name, a lock and Only invited, My space, or a space the viewer cannot see (someone's My space, a private space) — with a globe when published and the full sentence in a tooltip. Clicking opens Share.",
       "status": "stable",
       "since": "0.23.116",
       "family": "overlay",
@@ -31027,7 +31027,7 @@
       ],
       "npmDependencies": [
         "@vegastack/design-tokens@^0.7.80",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "lucide-react@^1.47.0"
       ],
       "testFiles": ["packages/ui/registry/ui/access-chip.test.tsx"],
@@ -31068,7 +31068,7 @@
       "name": "choice-card",
       "registryType": "registry:ui",
       "title": "Choice Card",
-      "summary": "A radio option drawn as a card \u2014 icon, title, description and the radio \u2014 in a group that is two across from @sm and stacked below. A thin wrapper over the Field choice-card pattern.",
+      "summary": "A radio option drawn as a card — icon, title, description and the radio — in a group that is two across from @sm and stacked below. A thin wrapper over the Field choice-card pattern.",
       "status": "stable",
       "since": "0.23.116",
       "family": "form",
@@ -31157,7 +31157,7 @@
       "registryDependencies": ["@vegastack/field", "@vegastack/radio-group"],
       "npmDependencies": [
         "@vegastack/design-tokens@^0.7.80",
-        "@vegastack/design@^0.7.110"
+        "@vegastack/design@^0.7.111"
       ],
       "testFiles": ["packages/ui/registry/ui/choice-card.test.tsx"],
       "coverage": {
@@ -31282,7 +31282,7 @@
         "@vegastack/icon-data"
       ],
       "npmDependencies": [
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/icon-picker.test.tsx"],
@@ -31417,7 +31417,7 @@
       ],
       "npmDependencies": [
         "lucide-react@^1.47.0",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/icon-picker.test.tsx"],
@@ -31560,7 +31560,7 @@
       ],
       "npmDependencies": [
         "lucide-react@^1.47.0",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/icon-picker.test.tsx"],
@@ -31672,7 +31672,7 @@
       ],
       "docsSlug": "/docs/foundations/icons",
       "registryDependencies": [],
-      "npmDependencies": ["motion@^13.2.0", "@vegastack/design@^0.7.110"],
+      "npmDependencies": ["motion@^13.2.0", "@vegastack/design@^0.7.111"],
       "coverage": {
         "source": "required-per-member",
         "test": "all-member-browser-import plus generator invariants",
@@ -34160,7 +34160,7 @@
       "name": "use-animation-replay",
       "registryType": "registry:hook",
       "title": "useAnimationReplay / useShakeOnInvalid",
-      "summary": "Replay a mount-style CSS animation (e.g. motion-shake) on demand via class-toggle, without remounting the element \u2014 preserves focus/caret/selection on form controls. Includes useShakeOnInvalid, the auto-shake-on-invalid-transition convenience built on it.",
+      "summary": "Replay a mount-style CSS animation (e.g. motion-shake) on demand via class-toggle, without remounting the element — preserves focus/caret/selection on form controls. Includes useShakeOnInvalid, the auto-shake-on-invalid-transition convenience built on it.",
       "family": "hook",
       "wave": "Hooks",
       "sourceFiles": ["packages/ui/registry/ui/use-animation-replay.ts"],
@@ -34359,7 +34359,7 @@
       "engines": [],
       "docsSlug": "/docs/guides/components",
       "registryDependencies": [],
-      "npmDependencies": ["@vegastack/design@^0.7.110"],
+      "npmDependencies": ["@vegastack/design@^0.7.111"],
       "testFiles": ["packages/ui/registry/ui/use-modal-inert.test.tsx"],
       "coverage": {
         "source": "required",
@@ -34374,7 +34374,7 @@
       "name": "use-announcer",
       "registryType": "registry:hook",
       "title": "useAnnouncer",
-      "summary": "The one polite live region \u2014 announce(text) plus a stable Announcer component, sequence-keyed so an identical consecutive announcement is still spoken.",
+      "summary": "The one polite live region — announce(text) plus a stable Announcer component, sequence-keyed so an identical consecutive announcement is still spoken.",
       "family": "hook",
       "wave": "Hooks",
       "sourceFiles": ["packages/ui/registry/ui/use-announcer.ts"],
@@ -34450,7 +34450,7 @@
       "engines": [],
       "docsSlug": "/docs/guides/components",
       "registryDependencies": [],
-      "npmDependencies": ["@vegastack/design@^0.7.110"],
+      "npmDependencies": ["@vegastack/design@^0.7.111"],
       "testFiles": ["packages/ui/registry/ui/use-announcer.test.tsx"],
       "coverage": {
         "source": "required",
@@ -34465,7 +34465,7 @@
       "name": "use-async-search",
       "registryType": "registry:hook",
       "title": "useAsyncSearch",
-      "summary": "The server-search state machine for a searched, cursor-paged list \u2014 debounced query, abortable requests with stale responses dropped, cursor paging as a LoadMoreState, and errors that keep the loaded items.",
+      "summary": "The server-search state machine for a searched, cursor-paged list — debounced query, abortable requests with stale responses dropped, cursor paging as a LoadMoreState, and errors that keep the loaded items.",
       "family": "hook",
       "wave": "Hooks",
       "sourceFiles": ["packages/ui/registry/ui/use-async-search.ts"],
@@ -34567,7 +34567,7 @@
       },
       "engines": [],
       "registryDependencies": ["@vegastack/load-more"],
-      "npmDependencies": ["@vegastack/design@^0.7.110"],
+      "npmDependencies": ["@vegastack/design@^0.7.111"],
       "testFiles": ["packages/ui/registry/ui/use-async-search.test.tsx"],
       "coverage": {
         "source": "required",
@@ -34585,7 +34585,7 @@
       "name": "use-inline-edit",
       "registryType": "registry:hook",
       "title": "useInlineEdit",
-      "summary": "The click-to-edit state machine \u2014 draft, commit, cancel, focus restoration and the double-commit guard \u2014 shared by FieldInline and EditableCell, with no opinion about what the editor or the display look like.",
+      "summary": "The click-to-edit state machine — draft, commit, cancel, focus restoration and the double-commit guard — shared by FieldInline and EditableCell, with no opinion about what the editor or the display look like.",
       "family": "hook",
       "wave": "Hooks",
       "sourceFiles": ["packages/ui/registry/ui/use-inline-edit.ts"],
@@ -34678,7 +34678,7 @@
       "name": "use-drag-reorder",
       "registryType": "registry:hook",
       "title": "useDragReorder",
-      "summary": "The system's one drag engine seam \u2014 Pragmatic drag-and-drop pointer/touch mechanics plus the house keyboard move mode, live-region vocabulary, and async pending/rejected drop contract. One API for single lists and cross-container boards.",
+      "summary": "The system's one drag engine seam — Pragmatic drag-and-drop pointer/touch mechanics plus the house keyboard move mode, live-region vocabulary, and async pending/rejected drop contract. One API for single lists and cross-container boards.",
       "family": "hook",
       "wave": "Hooks",
       "sourceFiles": ["packages/ui/registry/ui/use-drag-reorder.ts"],
@@ -34863,12 +34863,12 @@
         "accessibility": {
           "status": "observed",
           "values": ["keyboard", "status-announcement"],
-          "evidence": "Space/Enter toggles move mode, arrows commit steps, Escape/blur end it; with axis horizontal and columns set (a number, or \"auto\" measured from where items wrap), \u2191/\u2193 move one row within the container; sequence-keyed polite live region with overridable lifted/moved/ended/rejected builders; requestMove powers the mandatory menu equivalents."
+          "evidence": "Space/Enter toggles move mode, arrows commit steps, Escape/blur end it; with axis horizontal and columns set (a number, or \"auto\" measured from where items wrap), ↑/↓ move one row within the container; sequence-keyed polite live region with overridable lifted/moved/ended/rejected builders; requestMove powers the mandatory menu equivalents."
         },
         "visual": {
           "status": "not-applicable",
           "values": ["not-applicable"],
-          "evidence": "Pure hooks do not render visual states \u2014 consumers style off data-dragging/data-drop-edge/data-drag-pending."
+          "evidence": "Pure hooks do not render visual states — consumers style off data-dragging/data-drop-edge/data-drag-pending."
         }
       },
       "responsive": {
@@ -34913,7 +34913,7 @@
       "name": "use-file-drop",
       "registryType": "registry:hook",
       "title": "useFileDrop",
-      "summary": "File acquisition (drop, browse, paste) over the sanctioned react-dropzone engine \u2014 typed rejection reasons aligned with Attachment's state prop, announcement payload, window-level missed-drop protection.",
+      "summary": "File acquisition (drop, browse, paste) over the sanctioned react-dropzone engine — typed rejection reasons aligned with Attachment's state prop, announcement payload, window-level missed-drop protection.",
       "family": "hook",
       "wave": "Hooks",
       "sourceFiles": ["packages/ui/registry/ui/use-file-drop.ts"],
@@ -35004,7 +35004,7 @@
         "visual": {
           "status": "not-applicable",
           "values": ["not-applicable"],
-          "evidence": "Pure hooks do not render visual states \u2014 consumers style off data-dragging/data-drag-invalid."
+          "evidence": "Pure hooks do not render visual states — consumers style off data-dragging/data-drag-invalid."
         }
       },
       "responsive": {
@@ -35046,7 +35046,7 @@
       "name": "use-list-nav",
       "registryType": "registry:hook",
       "title": "useListNav",
-      "summary": "Roving-tabindex keyboard navigation for a list or grid of focusable items \u2014 one Tab stop per collection, RTL-aware arrows, Home/End jumps scoped to the collection or the row.",
+      "summary": "Roving-tabindex keyboard navigation for a list or grid of focusable items — one Tab stop per collection, RTL-aware arrows, Home/End jumps scoped to the collection or the row.",
       "family": "hook",
       "wave": "Hooks",
       "sourceFiles": ["packages/ui/registry/ui/use-list-nav.ts"],
@@ -35146,7 +35146,7 @@
       "name": "use-platform",
       "registryType": "registry:hook",
       "title": "usePlatform",
-      "summary": "SSR-safe platform detection \u2014 { os, isTouch } from navigator.userAgentData with a navigator.platform fallback, corrected after hydration with no mismatch warning \u2014 plus formatShortcutKey / formatShortcut for platform key labels, and isEditableTarget, which global shortcuts use to ignore typing in fields.",
+      "summary": "SSR-safe platform detection — { os, isTouch } from navigator.userAgentData with a navigator.platform fallback, corrected after hydration with no mismatch warning — plus formatShortcutKey / formatShortcut for platform key labels, and isEditableTarget, which global shortcuts use to ignore typing in fields.",
       "family": "hook",
       "wave": "Hooks",
       "sourceFiles": ["packages/ui/registry/ui/use-platform.ts"],
@@ -35282,7 +35282,7 @@
       "name": "use-media-query",
       "registryType": "registry:hook",
       "title": "useMediaQuery / usePrefersReducedMotion",
-      "summary": "The system's one matchMedia subscription \u2014 useSyncExternalStore with a declared serverFallback, so SSR renders the branch the caller chose instead of a hard-coded false. usePrefersReducedMotion is the named reduced-motion reader over it.",
+      "summary": "The system's one matchMedia subscription — useSyncExternalStore with a declared serverFallback, so SSR renders the branch the caller chose instead of a hard-coded false. usePrefersReducedMotion is the named reduced-motion reader over it.",
       "family": "hook",
       "wave": "Hooks",
       "sourceFiles": ["packages/ui/registry/ui/use-media-query.ts"],
@@ -35374,7 +35374,7 @@
       "name": "use-mobile",
       "registryType": "registry:hook",
       "title": "useIsMobile",
-      "summary": "SSR-safe viewport-width hook over use-media-query \u2014 reports whether the viewport is below a breakpoint (default 768px), live across resizes, with a caller-declared server fallback.",
+      "summary": "SSR-safe viewport-width hook over use-media-query — reports whether the viewport is below a breakpoint (default 768px), live across resizes, with a caller-declared server fallback.",
       "family": "hook",
       "wave": "Hooks",
       "sourceFiles": ["packages/ui/registry/ui/use-mobile.ts"],
@@ -35456,7 +35456,7 @@
       "name": "use-overflow",
       "registryType": "registry:hook",
       "title": "useOverflow",
-      "summary": "Live overflow measurement \u2014 report whether an element is clipped on the inline axis, the block axis, or either, across resizes and content changes.",
+      "summary": "Live overflow measurement — report whether an element is clipped on the inline axis, the block axis, or either, across resizes and content changes.",
       "family": "hook",
       "wave": "Hooks",
       "sourceFiles": ["packages/ui/registry/ui/use-overflow.ts"],
@@ -35629,7 +35629,7 @@
       "engines": [],
       "docsSlug": "/docs/guides/components",
       "registryDependencies": [],
-      "npmDependencies": ["@vegastack/design@^0.7.110"],
+      "npmDependencies": ["@vegastack/design@^0.7.111"],
       "testFiles": ["packages/ui/registry/ui/use-tabs-swipe.test.tsx"],
       "coverage": {
         "source": "required",
@@ -35646,7 +35646,7 @@
       "name": "app-shell-01",
       "registryType": "registry:block",
       "title": "App Shell 01",
-      "summary": "The application shell reference \u2014 AppShell's landmarks and skip link, a rail with search, inbox count, grouped links and a user menu, and a page of linked stat tiles.",
+      "summary": "The application shell reference — AppShell's landmarks and skip link, a rail with search, inbox count, grouped links and a user menu, and a page of linked stat tiles.",
       "family": "starter-block",
       "wave": "Block",
       "sourceFiles": [
@@ -35753,7 +35753,7 @@
       "name": "board-01",
       "registryType": "registry:block",
       "title": "Board 01",
-      "summary": "A board page \u2014 a PageHeader over a FilterBar and Board, with lanes named by their count, a paged Backlog, cards that link to each task with their own menu, and a No matches state.",
+      "summary": "A board page — a PageHeader over a FilterBar and Board, with lanes named by their count, a paged Backlog, cards that link to each task with their own menu, and a No matches state.",
       "family": "starter-block",
       "wave": "Block",
       "sourceFiles": [
@@ -35851,7 +35851,7 @@
       "name": "issue-detail-01",
       "registryType": "registry:block",
       "title": "Issue Detail 01",
-      "summary": "An issue page (Linear style) \u2014 status circle and a large title that edits in place, a Notion-style description, a separator, then comments; a Properties rail with a Details sheet on small screens.",
+      "summary": "An issue page (Linear style) — status circle and a large title that edits in place, a Notion-style description, a separator, then comments; a Properties rail with a Details sheet on small screens.",
       "family": "starter-block",
       "wave": "Block",
       "sourceFiles": [
@@ -35957,7 +35957,7 @@
       "name": "page-editor-01",
       "registryType": "registry:block",
       "title": "Page Editor 01",
-      "summary": "A document page (Notion style) with comments beside the text \u2014 header with save state and presence, an outline rail, TextEdit with comment highlights, a CommentMargin (or CommentPopover), and a version history sheet with VersionList and DiffView.",
+      "summary": "A document page (Notion style) with comments beside the text — header with save state and presence, an outline rail, TextEdit with comment highlights, a CommentMargin (or CommentPopover), and a version history sheet with VersionList and DiffView.",
       "family": "starter-block",
       "wave": "Block",
       "sourceFiles": [
@@ -36064,7 +36064,7 @@
       "name": "command-search-01",
       "registryType": "registry:block",
       "title": "Command Search 01",
-      "summary": "A search palette \u2014 scope chips, recents, results grouped by type, loading, empty and error states, and \u2318\u21b5 to open in a new tab.",
+      "summary": "A search palette — scope chips, recents, results grouped by type, loading, empty and error states, and ⌘↵ to open in a new tab.",
       "family": "starter-block",
       "wave": "Block",
       "sourceFiles": [
@@ -36211,7 +36211,7 @@
       "npmDependencies": [
         "lucide-react@^1.47.0",
         "@vegastack/design-tokens@^0.7.80",
-        "@vegastack/design@^0.7.110"
+        "@vegastack/design@^0.7.111"
       ],
       "testFiles": [
         "packages/ui/registry/blocks/command-search-01/command-search-01.test.tsx"
@@ -36230,7 +36230,7 @@
       "name": "list-page-01",
       "registryType": "registry:block",
       "title": "List Page 01",
-      "summary": "A list page \u2014 FilterBar search, a Status facet and Mine | Team over the same records as a table or a grid of linked tiles, with Load more and three empty tiers.",
+      "summary": "A list page — FilterBar search, a Status facet and Mine | Team over the same records as a table or a grid of linked tiles, with Load more and three empty tiers.",
       "family": "starter-block",
       "wave": "Block",
       "sourceFiles": [
@@ -36386,7 +36386,7 @@
       "name": "library-01",
       "registryType": "registry:block",
       "title": "Library 01",
-      "summary": "A file library page \u2014 a resizable FolderTree pane beside the open folder's breadcrumb, header, uploads in flight and contents as a list or a grid, with the FileViewer and a Move dialog.",
+      "summary": "A file library page — a resizable FolderTree pane beside the open folder's breadcrumb, header, uploads in flight and contents as a list or a grid, with the FileViewer and a Move dialog.",
       "family": "starter-block",
       "wave": "Block",
       "sourceFiles": [
@@ -36614,7 +36614,7 @@
         "behavior": {
           "status": "observed",
           "values": ["default", "invalid", "loading", "error"],
-          "evidence": "packages/ui/registry/blocks/login-01/login-01.test.tsx \u2014 rest, a FieldError per empty or malformed field with focus on the first, the submit's in-place loading, and the form-level alert after a rejected sign-in."
+          "evidence": "packages/ui/registry/blocks/login-01/login-01.test.tsx — rest, a FieldError per empty or malformed field with focus on the first, the submit's in-place loading, and the form-level alert after a rejected sign-in."
         },
         "accessibility": {
           "status": "covered",
@@ -36658,7 +36658,7 @@
         "@vegastack/password-input"
       ],
       "npmDependencies": [
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80",
         "lucide-react@^1.47.0"
       ],
@@ -36677,7 +36677,7 @@
       "name": "notifications-01",
       "registryType": "registry:block",
       "title": "Notifications 01",
-      "summary": "An Inbox sheet on the Inbox component \u2014 rail row and bell triggers with the unread count, Mark all read and \u22ef, All | Unread chips, day groups of linked rows with avatars, unread tint and action chips, and infinite scroll.",
+      "summary": "An Inbox sheet on the Inbox component — rail row and bell triggers with the unread count, Mark all read and ⋯, All | Unread chips, day groups of linked rows with avatars, unread tint and action chips, and infinite scroll.",
       "family": "starter-block",
       "wave": "Block",
       "sourceFiles": [
@@ -36834,7 +36834,7 @@
       "name": "review-split-01",
       "registryType": "registry:block",
       "title": "Review Split 01",
-      "summary": "A record review page \u2014 summary and action items beside a sticky transcript, with a docked player, turning into tabs when its own container is narrow.",
+      "summary": "A record review page — summary and action items beside a sticky transcript, with a docked player, turning into tabs when its own container is narrow.",
       "family": "starter-block",
       "wave": "Block",
       "sourceFiles": [
@@ -36979,7 +36979,7 @@
         "@vegastack/transcript"
       ],
       "npmDependencies": [
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": [
@@ -36999,7 +36999,7 @@
       "name": "settings-01",
       "registryType": "registry:block",
       "title": "Settings 01",
-      "summary": "A settings page \u2014 PageHeader over grouped SettingsRow sections, an ActionBar save bar that appears once something changed, and a confirmed delete.",
+      "summary": "A settings page — PageHeader over grouped SettingsRow sections, an ActionBar save bar that appears once something changed, and a confirmed delete.",
       "family": "starter-block",
       "wave": "Block",
       "sourceFiles": ["packages/ui/registry/blocks/settings-01/page.tsx"],
@@ -37087,7 +37087,7 @@
       "name": "settings-02",
       "registryType": "registry:block",
       "title": "Settings 02",
-      "summary": "A settings hub \u2014 one titled section per area, each a grid of whole-tile links with one fact apiece.",
+      "summary": "A settings hub — one titled section per area, each a grid of whole-tile links with one fact apiece.",
       "family": "starter-block",
       "wave": "Block",
       "sourceFiles": ["packages/ui/registry/blocks/settings-02/page.tsx"],
@@ -37172,7 +37172,7 @@
       "name": "status-pages-01",
       "registryType": "registry:block",
       "title": "Status Pages 01",
-      "summary": "The 404, 403 and error pages \u2014 an Empty whose title is the page's h1, one way out, and the error's reference to copy.",
+      "summary": "The 404, 403 and error pages — an Empty whose title is the page's h1, one way out, and the error's reference to copy.",
       "family": "starter-block",
       "wave": "Block",
       "sourceFiles": [
@@ -37302,7 +37302,7 @@
       ],
       "npmDependencies": [
         "lucide-react@^1.47.0",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": [
@@ -37322,7 +37322,7 @@
       "name": "email-kit",
       "registryType": "registry:block",
       "title": "Email Kit",
-      "summary": "Server-rendered HTML email: a layout with a text wordmark, light and dark colours from the design tokens, and the footer; parts (heading, text, button, card, quote, item list); three templates \u2014 Notification, Digest and Action \u2014 and renderEmail for the HTML and plain-text parts.",
+      "summary": "Server-rendered HTML email: a layout with a text wordmark, light and dark colours from the design tokens, and the footer; parts (heading, text, button, card, quote, item list); three templates — Notification, Digest and Action — and renderEmail for the HTML and plain-text parts.",
       "family": "starter-block",
       "wave": "Block",
       "sourceFiles": [
@@ -37711,7 +37711,7 @@
         "behavior": {
           "status": "observed",
           "values": ["default", "dark", "phone-width", "no-footer-note", "rtl"],
-          "evidence": "packages/ui/registry/blocks/email-kit/email-kit.test.tsx \u2014 every template rendered to HTML and text, the dark branch forced on, the phone-width button, the hidden footer note and dir/lang."
+          "evidence": "packages/ui/registry/blocks/email-kit/email-kit.test.tsx — every template rendered to HTML and text, the dark branch forced on, the phone-width button, the hidden footer note and dir/lang."
         },
         "accessibility": {
           "status": "covered",
@@ -37731,7 +37731,7 @@
       },
       "motion": {
         "status": "modeled",
-        "mechanisms": ["none \u2014 email has no motion"],
+        "mechanisms": ["none — email has no motion"],
         "reducedMotion": {
           "status": "covered",
           "rationale": "Nothing animates in an email."
@@ -37757,7 +37757,7 @@
       "name": "share-01",
       "registryType": "registry:block",
       "title": "Share 01",
-      "summary": "A Share dialog for one item \u2014 invite people and teams with one access level, people with access and why, general access in the item's space, and a view-only public link; a Dialog on wide screens, a bottom Sheet on phones.",
+      "summary": "A Share dialog for one item — invite people and teams with one access level, people with access and why, general access in the item's space, and a view-only public link; a Dialog on wide screens, a bottom Sheet on phones.",
       "family": "starter-block",
       "wave": "Block",
       "sourceFiles": [
@@ -37993,7 +37993,7 @@
       "name": "code-highlight",
       "registryType": "registry:lib",
       "title": "Code Highlight",
-      "summary": "The one shared lowlight instance (highlight.js common grammars) CodeBlock loads lazily and TextEdit's code block uses \u2014 one module so the grammars stay out of the main bundle.",
+      "summary": "The one shared lowlight instance (highlight.js common grammars) CodeBlock loads lazily and TextEdit's code block uses — one module so the grammars stay out of the main bundle.",
       "family": "lib",
       "wave": "Libs",
       "sourceFiles": ["packages/ui/registry/lib/code-highlight.ts"],
@@ -38027,7 +38027,7 @@
         "accessibility": {
           "status": "not-applicable",
           "values": ["not-applicable"],
-          "evidence": "No DOM \u2014 the components in relative-time own the <time> semantics."
+          "evidence": "No DOM — the components in relative-time own the <time> semantics."
         },
         "visual": {
           "status": "not-applicable",
@@ -38069,7 +38069,7 @@
       "name": "date-time",
       "registryType": "registry:lib",
       "title": "Date Time",
-      "summary": "The one Intl-based dates & times module \u2014 formatRelative, formatDuration, formatDate, formatDateTime, formatDateRange, formatTimeOfDay, formatDueLabel, groupByDay, and the tz cookie + getTimeZone server helper. Plain functions for server and client.",
+      "summary": "The one Intl-based dates & times module — formatRelative, formatDuration, formatDate, formatDateTime, formatDateRange, formatTimeOfDay, formatDueLabel, groupByDay, and the tz cookie + getTimeZone server helper. Plain functions for server and client.",
       "family": "lib",
       "wave": "Libs",
       "sourceFiles": ["packages/ui/registry/lib/date-time.ts"],
@@ -38402,7 +38402,7 @@
         "accessibility": {
           "status": "not-applicable",
           "values": ["not-applicable"],
-          "evidence": "No DOM \u2014 the components in relative-time own the <time> semantics."
+          "evidence": "No DOM — the components in relative-time own the <time> semantics."
         },
         "visual": {
           "status": "not-applicable",
@@ -38430,7 +38430,7 @@
       "name": "geo-data",
       "registryType": "registry:lib",
       "title": "Geo Data",
-      "summary": "The ISO 3166-1 country list and the states/provinces map behind CountrySelect and RegionSelect, plus their two lookups. Pure data \u2014 installed once, shared by both selects.",
+      "summary": "The ISO 3166-1 country list and the states/provinces map behind CountrySelect and RegionSelect, plus their two lookups. Pure data — installed once, shared by both selects.",
       "family": "lib",
       "wave": "Libs",
       "sourceFiles": ["packages/ui/registry/lib/geo-data.ts"],
@@ -38520,7 +38520,7 @@
         "accessibility": {
           "status": "not-applicable",
           "values": ["not-applicable"],
-          "evidence": "No DOM \u2014 the consuming select owns every ARIA contract."
+          "evidence": "No DOM — the consuming select owns every ARIA contract."
         },
         "visual": {
           "status": "not-applicable",
@@ -38638,7 +38638,7 @@
         "accessibility": {
           "status": "not-applicable",
           "values": ["not-applicable"],
-          "evidence": "No DOM \u2014 the picker owns every ARIA contract."
+          "evidence": "No DOM — the picker owns every ARIA contract."
         },
         "visual": {
           "status": "not-applicable",
@@ -38666,7 +38666,7 @@
       "name": "drag-item",
       "registryType": "registry:lib",
       "title": "Drag Item",
-      "summary": "The one visual recipe for a use-drag-reorder item \u2014 drop-edge hairlines on all four edges, the lift dim, and the pending shimmer \u2014 shared by Board and SortableList instead of copied into each.",
+      "summary": "The one visual recipe for a use-drag-reorder item — drop-edge hairlines on all four edges, the lift dim, and the pending shimmer — shared by Board and SortableList instead of copied into each.",
       "family": "lib",
       "wave": "Libs",
       "sourceFiles": ["packages/ui/registry/lib/drag-item.ts"],
@@ -38720,7 +38720,7 @@
         "accessibility": {
           "status": "not-applicable",
           "values": ["not-applicable"],
-          "evidence": "No DOM \u2014 the announcements and roles belong to use-drag-reorder and its consumers."
+          "evidence": "No DOM — the announcements and roles belong to use-drag-reorder and its consumers."
         },
         "visual": {
           "status": "observed",
@@ -38759,7 +38759,7 @@
       "name": "text-anchor",
       "registryType": "registry:lib",
       "title": "Text Anchor",
-      "summary": "Where a comment sits in a text, stored so it survives edits \u2014 TextAnchor (offsets, quote, 80 characters of context each side), anchorFromRange and resolveAnchor (offsets \u2192 context \u2192 unique quote \u2192 orphaned). Pure strings, server-safe.",
+      "summary": "Where a comment sits in a text, stored so it survives edits — TextAnchor (offsets, quote, 80 characters of context each side), anchorFromRange and resolveAnchor (offsets → context → unique quote → orphaned). Pure strings, server-safe.",
       "family": "lib",
       "wave": "Libs",
       "sourceFiles": ["packages/ui/registry/lib/text-anchor.ts"],
@@ -38831,7 +38831,7 @@
         "accessibility": {
           "status": "not-applicable",
           "values": ["not-applicable"],
-          "evidence": "No DOM \u2014 TextEdit's highlights and the comment threads beside them own the semantics."
+          "evidence": "No DOM — TextEdit's highlights and the comment threads beside them own the semantics."
         },
         "visual": {
           "status": "not-applicable",
@@ -38862,7 +38862,7 @@
       "name": "text-anchor-doc",
       "registryType": "registry:lib",
       "title": "Text Anchor Doc",
-      "summary": "The bridge between a ProseMirror document and comment-anchor offsets \u2014 anchorText (blocks joined by a newline, a mention as @label, other leaves as \ufffc), textIndex, and the exact two-way offsetsToRange / rangeToOffsets map.",
+      "summary": "The bridge between a ProseMirror document and comment-anchor offsets — anchorText (blocks joined by a newline, a mention as @label, other leaves as ￼), textIndex, and the exact two-way offsetsToRange / rangeToOffsets map.",
       "family": "lib",
       "wave": "Libs",
       "sourceFiles": ["packages/ui/registry/lib/text-anchor-doc.ts"],
@@ -38966,7 +38966,7 @@
         "accessibility": {
           "status": "not-applicable",
           "values": ["not-applicable"],
-          "evidence": "No DOM \u2014 TextEdit's highlights and the comment threads beside them own the semantics."
+          "evidence": "No DOM — TextEdit's highlights and the comment threads beside them own the semantics."
         },
         "visual": {
           "status": "not-applicable",
@@ -38997,7 +38997,7 @@
       "name": "file-kind",
       "registryType": "registry:lib",
       "title": "File Kind",
-      "summary": "The one answer to \"what is this file and how big is it\" \u2014 formatBytes (1024 base, one decimal under 10), fileKindOf (MIME first, extension fallback, text/plain treated as generic; 25 kinds from images and PDFs to CAD, photometric and design files) and FileTypeIcon/FileKindTile (the lucide icon, tint and label per kind) \u2014 shared by Attachment rows, FileViewer, UploadPanel, UploadDialog, AvatarPicker and FolderTree.",
+      "summary": "The one answer to \"what is this file and how big is it\" — formatBytes (1024 base, one decimal under 10), fileKindOf (MIME first, extension fallback, text/plain treated as generic; 25 kinds from images and PDFs to CAD, photometric and design files) and FileTypeIcon/FileKindTile (the lucide icon, tint and label per kind) — shared by Attachment rows, FileViewer, UploadPanel, UploadDialog, AvatarPicker and FolderTree.",
       "family": "lib",
       "wave": "Libs",
       "sourceFiles": ["packages/ui/registry/lib/file-kind.ts"],
@@ -39128,7 +39128,7 @@
         "risks": [],
         "rationale": "No DOM of its own; consumers own layout."
       },
-      "npmDependencies": ["lucide-react@^1.47.0", "@vegastack/design@^0.7.110"],
+      "npmDependencies": ["lucide-react@^1.47.0", "@vegastack/design@^0.7.111"],
       "testFiles": [
         "packages/ui/registry/lib/file-kind.test.ts",
         "packages/ui/registry/ui/file-viewer.test.tsx"
@@ -39255,7 +39255,7 @@
       "name": "media-probe",
       "registryType": "registry:lib",
       "title": "Media Probe",
-      "summary": "Upload-time reads in the browser, dependency-free \u2014 probeVideo (duration, size and a JPEG poster frame via video + canvas), probeAudio (duration and up to 200 waveform peaks via OfflineAudioContext, skipped over 50 MB) and extractPptxThumbnail (an Office file's docProps/thumbnail.jpeg via a zip central-directory reader and DecompressionStream).",
+      "summary": "Upload-time reads in the browser, dependency-free — probeVideo (duration, size and a JPEG poster frame via video + canvas), probeAudio (duration and up to 200 waveform peaks via OfflineAudioContext, skipped over 50 MB) and extractPptxThumbnail (an Office file's docProps/thumbnail.jpeg via a zip central-directory reader and DecompressionStream).",
       "family": "lib",
       "wave": "Libs",
       "sourceFiles": ["packages/ui/registry/lib/media-probe.ts"],
@@ -39354,7 +39354,7 @@
         "accessibility": {
           "status": "not-applicable",
           "values": ["not-applicable"],
-          "evidence": "No DOM \u2014 the player, grid and FileViewer that show the results own the semantics."
+          "evidence": "No DOM — the player, grid and FileViewer that show the results own the semantics."
         },
         "visual": {
           "status": "not-applicable",
@@ -39382,7 +39382,7 @@
       "name": "page-layout",
       "registryType": "registry:lib",
       "title": "Page Layout",
-      "summary": "The page-width contract \u2014 the prose/default/full vocabulary AppShellPage takes, and definePageWidths, one route \u2192 width map that a page, its loading skeleton and a test all read.",
+      "summary": "The page-width contract — the prose/default/full vocabulary AppShellPage takes, and definePageWidths, one route → width map that a page, its loading skeleton and a test all read.",
       "family": "lib",
       "wave": "Libs",
       "sourceFiles": ["packages/ui/registry/lib/page-layout.ts"],
@@ -39463,12 +39463,12 @@
         "accessibility": {
           "status": "not-applicable",
           "values": ["not-applicable"],
-          "evidence": "No DOM \u2014 AppShellPage renders the page container."
+          "evidence": "No DOM — AppShellPage renders the page container."
         },
         "visual": {
           "status": "not-applicable",
           "values": ["not-applicable"],
-          "evidence": "No DOM \u2014 the widths are AppShellPage's classes."
+          "evidence": "No DOM — the widths are AppShellPage's classes."
         }
       },
       "responsive": {
@@ -39491,7 +39491,7 @@
       "name": "tile-overlay",
       "registryType": "registry:lib",
       "title": "Tile Overlay",
-      "summary": "The one visual recipe for media tiles \u2014 the photo scrim, the blurred-scrim overlay button, the top-left and top-right overlay slots that show on hover or focus, and the responsive at-most-N-per-row tile grid \u2014 shared by Attachment, SortableList and AvatarPicker.",
+      "summary": "The one visual recipe for media tiles — the photo scrim, the blurred-scrim overlay button, the top-left and top-right overlay slots that show on hover or focus, and the responsive at-most-N-per-row tile grid — shared by Attachment, SortableList and AvatarPicker.",
       "family": "lib",
       "wave": "Libs",
       "sourceFiles": ["packages/ui/registry/lib/tile-overlay.ts"],
@@ -39590,7 +39590,7 @@
         "accessibility": {
           "status": "not-applicable",
           "values": ["not-applicable"],
-          "evidence": "No DOM \u2014 names and roles belong to the buttons consumers render into the slots."
+          "evidence": "No DOM — names and roles belong to the buttons consumers render into the slots."
         },
         "visual": {
           "status": "observed",
@@ -39717,7 +39717,7 @@
         "accessibility": {
           "status": "not-applicable",
           "values": ["not-applicable"],
-          "evidence": "No DOM \u2014 the picker owns every ARIA contract."
+          "evidence": "No DOM — the picker owns every ARIA contract."
         },
         "visual": {
           "status": "not-applicable",
@@ -39792,7 +39792,7 @@
         "accessibility": {
           "status": "not-applicable",
           "values": ["not-applicable"],
-          "evidence": "No DOM \u2014 the picker owns every ARIA contract."
+          "evidence": "No DOM — the picker owns every ARIA contract."
         },
         "visual": {
           "status": "not-applicable",
@@ -39876,7 +39876,7 @@
         "accessibility": {
           "status": "not-applicable",
           "values": ["not-applicable"],
-          "evidence": "No DOM \u2014 the picker owns every ARIA contract."
+          "evidence": "No DOM — the picker owns every ARIA contract."
         },
         "visual": {
           "status": "not-applicable",
@@ -39978,7 +39978,7 @@
         "accessibility": {
           "status": "not-applicable",
           "values": ["not-applicable"],
-          "evidence": "No DOM \u2014 the picker owns every ARIA contract."
+          "evidence": "No DOM — the picker owns every ARIA contract."
         },
         "visual": {
           "status": "not-applicable",
@@ -40010,7 +40010,7 @@
       "family": "chart-block",
       "wave": "Block",
       "ported": "new-york-v4",
-      "upstream": "https://ui.shadcn.com/r/styles/new-york-v4/chart-<name>.json \u2014 ported by tooling/upstream/pull.mjs with one import rewrite, recorded in vendor/shadcn/4.21.0/manifest.json under `ported`.",
+      "upstream": "https://ui.shadcn.com/r/styles/new-york-v4/chart-<name>.json — ported by tooling/upstream/pull.mjs with one import rewrite, recorded in vendor/shadcn/4.21.0/manifest.json under `ported`.",
       "publicSymbolShape": ["description", "<PascalName>"],
       "ref": {
         "status": "not-applicable",

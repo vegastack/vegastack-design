@@ -1,5 +1,23 @@
 # @vegastack/ui
 
+## 0.23.128
+
+### Patch Changes
+
+- [#536](https://github.com/vegastack/vegastack-design/pull/536) [`ff3d9fb`](https://github.com/vegastack/vegastack-design/commit/ff3d9fbbe93899a3f053196d890c5eff058d280e) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - ⚠ Choose consistent icon and emoji identities with shared search, recents and a nested hue palette.
+
+  - Add IconPicker, IconGlyph and a 160-icon server-safe catalogue.
+  - Share panel geometry and visual-row navigation with EmojiPicker.
+  - Replace filled swatch checks with persistent cell borders and balanced colour grids.
+  - Remove SpaceAvatar; compose generic glyphs with existing space controls and app-owned presentation adapters.
+
+- [#538](https://github.com/vegastack/vegastack-design/pull/538) [`2753a93`](https://github.com/vegastack/vegastack-design/commit/2753a936e34eab0c53ef59ad119343f65432e602) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🛠 Verify generated picker helper mirrors during version-package releases.
+
+  - Allow only provenance-header changes for the four registered picker helper mirrors; runtime edits remain rejected.
+
+- Updated dependencies [[`ff3d9fb`](https://github.com/vegastack/vegastack-design/commit/ff3d9fbbe93899a3f053196d890c5eff058d280e)]:
+  - @vegastack/design@0.7.111
+
 ## 0.23.127
 
 ### Patch Changes

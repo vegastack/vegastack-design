@@ -9,6 +9,32 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.23.128] — October 6, 2026
+
+<!-- assembled from 2 changesets: 833dc5b5c9f8 -->
+
+### 🛠 CLI & tooling
+
+- Verify generated picker helper mirrors during version-package releases.
+
+  - Allow only provenance-header changes for the four registered picker helper mirrors; runtime edits remain rejected.
+    [`2753a93`](https://github.com/VegaStack/vegastack-design/commit/2753a93)
+
+### 📦 npm
+
+- **`@vegastack/design`** → **`0.7.111`** (was `0.7.110`).
+- The design-system registry (`@vegastack/ui`) bumps 0.23.127 → 0.23.128.
+
+### ⚠️ Breaking
+
+- Choose consistent icon and emoji identities with shared search, recents and a nested hue palette.
+
+  - Add IconPicker, IconGlyph and a 160-icon server-safe catalogue.
+  - Share panel geometry and visual-row navigation with EmojiPicker.
+  - Replace filled swatch checks with persistent cell borders and balanced colour grids.
+  - Remove SpaceAvatar; compose generic glyphs with existing space controls and app-owned presentation adapters.
+    [`ff3d9fb`](https://github.com/VegaStack/vegastack-design/commit/ff3d9fb)
+
 ## [0.23.127] — October 6, 2026
 
 <!-- assembled from 1 changeset: 6eaec07b2cc8 -->
