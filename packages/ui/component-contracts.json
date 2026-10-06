@@ -28644,7 +28644,16 @@
           "source": "packages/ui/registry/ui/activity-feed.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Holds its own sentinel ref; none is forwarded."
+            "rationale": "Observes the explicit host boundary; none is forwarded."
+          }
+        },
+        {
+          "name": "ActivityJumpToLatestProps",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/activity-feed.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -28709,7 +28718,9 @@
             "unread",
             "jump-to-latest",
             "keyboard-focused",
-            "loading"
+            "loading",
+            "explicit-jump-target",
+            "captured-jump-completion"
           ],
           "evidence": "packages/ui/registry/ui/activity-feed.tsx + packages/ui/registry/ui/activity-feed.test.tsx"
         },
@@ -28890,7 +28901,7 @@
             },
             {
               "name": "data-slot",
-              "values": ["activity-feed-end", "activity-jump-floating"]
+              "values": ["activity-jump-floating"]
             }
           ],
           "cssVariables": []

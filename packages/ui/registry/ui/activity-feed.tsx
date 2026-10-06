@@ -1,4 +1,4 @@
-// @vegastack activity-feed@0.23.128 sha256-bzt3eqxU0sQ0eEeeAC+btfNhs5K+X1isWVR0oDtPQeA=
+// @vegastack activity-feed@0.23.128 sha256-qcKRr3ZHtmL5ltEGh1ijSMfLU/bAV0kgOIjZ/egWyYA=
 
 "use client";
 
@@ -878,89 +878,152 @@ function scrollParent(node: HTMLElement): HTMLElement | Window {
   return window;
 }
 
-/**
- * `ActivityJumpToLatest` — put it where the latest items are: last in the feed oldest first, first
- * newest first. While that spot is off screen, and the viewer isn't scrolling back, a floating
- * pill shows at the bottom of the view (an arrow pointing to it); it scrolls there and takes
- * keyboard focus with it. Nothing shows while `enabled` is false (a short feed).
- *
- * @example
- * {order === "oldest" ? <>{list}<ActivityJumpToLatest enabled={n > 3} /></> : <><ActivityJumpToLatest enabled={n > 3} />{list}</>}
- */
-export function ActivityJumpToLatest({
-  label = "Jump to latest",
-  enabled = true,
-  className,
-}: {
+/** Current arrival and direction within the viewport and all ancestor clips. */
+function boundaryGeometry(boundary: HTMLElement) {
+  const rect = boundary.getBoundingClientRect();
+  let top = 0;
+  let bottom = window.innerHeight;
+  let left = 0;
+  let right = window.innerWidth;
+  for (let el = boundary.parentElement; el; el = el.parentElement) {
+    const { overflowX, overflowY } = getComputedStyle(el);
+    if (overflowX === "visible" && overflowY === "visible") continue;
+    const clip = el.getBoundingClientRect();
+    // DOM client dimensions are unscaled CSS units; the rectangles are rendered
+    // coordinates. Convert the client box before intersecting scaled ancestors.
+    const scaleX = el.offsetWidth ? clip.width / el.offsetWidth : 1;
+    const scaleY = el.offsetHeight ? clip.height / el.offsetHeight : 1;
+    const clipTop = clip.top + el.clientTop * scaleY;
+    const clipLeft = clip.left + el.clientLeft * scaleX;
+    if (overflowY !== "visible") {
+      top = Math.max(top, clipTop);
+      bottom = Math.min(bottom, clipTop + el.clientHeight * scaleY);
+    }
+    if (overflowX !== "visible") {
+      left = Math.max(left, clipLeft);
+      right = Math.min(right, clipLeft + el.clientWidth * scaleX);
+    }
+  }
+  return {
+    visible:
+      Math.min(rect.bottom, bottom) > Math.max(rect.top, top) &&
+      Math.min(rect.right, right) > Math.max(rect.left, left),
+    above: rect.bottom <= top,
+  };
+}
+
+/** Props for a floating, data-agnostic latest-content control. */
+export interface ActivityJumpToLatestProps {
+  /** The latest content's focusable boundary, supplied by the host. */
+  target: HTMLElement | null;
+  /** Keep the action available for a new batch already on screen. @default false */
+  forceVisible?: boolean;
   /** The button's label. @default "Jump to latest" */
   label?: string;
-  /** Show the button at all. @default true */
+  /** Enable the control. @default true */
   enabled?: boolean;
+  /** Called at activation; capture the batch here. @default undefined */
+  onJump?: (target: HTMLElement) => void;
+  /** Called once after that same boundary is reached. @default undefined */
+  onReached?: (target: HTMLElement) => void;
+  /** Called when user interaction or a changed boundary cancels a jump. @default undefined */
+  onCancel?: (target: HTMLElement) => void;
   /** Classes for the floating row. @default undefined */
   className?: string;
-}) {
-  const sentinel = React.useRef<HTMLDivElement>(null);
-  const [offScreen, setOffScreen] = React.useState(false);
-  // Which way the latest items are from the view: below (oldest first) or above (newest first).
-  const [above, setAbove] = React.useState(false);
-  const aboveRef = React.useRef(false);
-  const [away, setAway] = React.useState(false);
+}
 
-  React.useEffect(() => {
-    const node = sentinel.current;
-    if (!node || !enabled || typeof IntersectionObserver === "undefined")
-      return;
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        setOffScreen(!!entry && !entry.isIntersecting);
-        if (!entry) return;
-        aboveRef.current =
-          entry.boundingClientRect.bottom < (entry.rootBounds?.top ?? 0);
-        setAbove(aboveRef.current);
-      },
-      { threshold: 0 },
-    );
-    observer.observe(node);
-    // Hide while the viewer scrolls away from the latest (reading back); show once they pause.
-    const container = scrollParent(node);
-    const top = () =>
-      container instanceof Window ? container.scrollY : container.scrollTop;
-    let last = top();
-    let frame = 0;
-    let pause: ReturnType<typeof setTimeout> | undefined;
-    const onScroll = () => {
-      if (frame) return;
-      frame = requestAnimationFrame(() => {
-        frame = 0;
-        const y = top();
-        if (Math.abs(y - last) > 15) {
-          // "Away from the latest": up when they are below, down when they are above.
-          setAway(aboveRef.current ? y > last : y < last);
-          last = y;
-        }
-        clearTimeout(pause);
-        pause = setTimeout(() => setAway(false), 300);
+/**
+ * Floats while the supplied latest boundary is off screen, or a new batch awaits catch-up.
+ * Positioning lives on the wrapper: the Button's pressed translation never displaces the pill.
+ * @example <ActivityJumpToLatest target={latestBoundary} onReached={acknowledgeCapturedBatch} />
+ */
+export function ActivityJumpToLatest({
+  target,
+  forceVisible = false,
+  label = "Jump to latest",
+  enabled = true,
+  onJump,
+  onReached,
+  onCancel,
+  className,
+}: ActivityJumpToLatestProps) {
+  const [visibility, setVisibility] = React.useState<{
+    target: HTMLElement;
+    offScreen: boolean;
+    above: boolean;
+  } | null>(null);
+  const pending = React.useRef<HTMLElement | null>(null);
+  const callbacks = React.useRef({ onReached, onCancel });
+  React.useLayoutEffect(() => {
+    callbacks.current = { onReached, onCancel };
+  }, [onReached, onCancel]);
+  const cancel = React.useCallback(() => {
+    const boundary = pending.current;
+    pending.current = null;
+    if (boundary) callbacks.current.onCancel?.(boundary);
+  }, []);
+  const complete = React.useCallback((boundary: HTMLElement) => {
+    if (pending.current !== boundary || !boundary.isConnected) return;
+    if (!boundaryGeometry(boundary).visible) return;
+    pending.current = null;
+    boundary.focus({ preventScroll: true });
+    callbacks.current.onReached?.(boundary);
+  }, []);
+  React.useLayoutEffect(() => {
+    if (!target || !enabled) return;
+    // A viewport-root observer includes every ancestor's clipping, unlike a
+    // nearest-scroll-root observer, which can report a still-hidden boundary.
+    const observer =
+      typeof IntersectionObserver === "undefined"
+        ? null
+        : new IntersectionObserver(
+            ([entry]) => {
+              if (!entry) return;
+              const geometry = boundaryGeometry(target);
+              setVisibility({
+                target,
+                offScreen: !entry.isIntersecting || !geometry.visible,
+                above: geometry.above,
+              });
+              if (entry.isIntersecting) complete(target);
+            },
+            { root: null, threshold: 0.01 },
+          );
+    observer?.observe(target);
+    // Any subsequent gesture cancels completion, so later unrelated scrolling
+    // cannot acknowledge the batch or steal keyboard focus.
+    const events = ["pointerdown", "touchstart", "wheel", "keydown"] as const;
+    for (const event of events)
+      document.addEventListener(event, cancel, {
+        capture: true,
+        passive: true,
       });
-    };
-    container.addEventListener("scroll", onScroll, { passive: true });
     return () => {
-      observer.disconnect();
-      container.removeEventListener("scroll", onScroll);
-      cancelAnimationFrame(frame);
-      clearTimeout(pause);
+      cancel();
+      observer?.disconnect();
+      for (const event of events)
+        document.removeEventListener(event, cancel, true);
     };
-  }, [enabled]);
-
-  const shown = enabled && offScreen && !away;
+  }, [target, enabled, cancel, complete]);
+  const knownVisibility = visibility?.target === target ? visibility : null;
+  const above = knownVisibility?.above ?? false;
+  const shown =
+    enabled && target !== null && (knownVisibility?.offScreen || forceVisible);
   return (
-    <>
-      <div
-        data-slot="activity-jump-floating"
-        data-shown={shown ? "" : undefined}
-        // Zero-height and sticky: the pill floats over the view's bottom edge without taking room.
+    <div
+      data-slot="activity-jump-floating"
+      data-shown={shown ? "" : undefined}
+      className={cn(
+        "pointer-events-none sticky bottom-4 z-10 flex h-0 justify-center",
+        className,
+      )}
+    >
+      <span
         className={cn(
-          "pointer-events-none sticky bottom-4 z-10 flex h-0 justify-center",
-          className,
+          "inline-flex transition-[opacity,translate] duration-200 ease-out",
+          shown
+            ? "pointer-events-auto -translate-y-full opacity-100"
+            : "-translate-y-1/2 opacity-0",
         )}
       >
         <Button
@@ -968,37 +1031,31 @@ export function ActivityJumpToLatest({
           size="sm"
           tabIndex={shown ? 0 : -1}
           aria-hidden={!shown}
+          className="rounded-full shadow-md"
           onClick={() => {
-            const target = sentinel.current;
-            if (!target) return;
-            target.scrollIntoView({
-              behavior: scrollBehavior(),
-              block: "nearest",
+            if (!target || !shown) return;
+            cancel();
+            pending.current = target;
+            onJump?.(target);
+            // Defer until host callbacks have committed any replacement target.
+            // Never use a previous observer report to decide that arrival occurred.
+            requestAnimationFrame(() => {
+              if (pending.current !== target || !target.isConnected) return;
+              complete(target);
+              if (pending.current === target) {
+                target.scrollIntoView({
+                  behavior: scrollBehavior(),
+                  block: "nearest",
+                });
+              }
             });
-            // The pill hides once there: focus goes with the view, never to a hidden button.
-            target.focus({ preventScroll: true });
           }}
-          className={cn(
-            "rounded-full shadow-md transition-[opacity,translate] duration-200 ease-out",
-            shown
-              ? "pointer-events-auto -translate-y-full opacity-100"
-              : "-translate-y-1/2 opacity-0",
-          )}
         >
           {above ? <ArrowUp aria-hidden /> : <ArrowDown aria-hidden />}
           {label}
         </Button>
-      </div>
-      <div
-        ref={sentinel}
-        tabIndex={-1}
-        // Focus lands here after a jump: a named spot, so a screen reader says where it is.
-        role="group"
-        aria-label="Latest activity"
-        data-slot="activity-feed-end"
-        className="h-px outline-none"
-      />
-    </>
+      </span>
+    </div>
   );
 }
 

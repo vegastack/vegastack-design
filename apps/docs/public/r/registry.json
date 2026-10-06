@@ -323,7 +323,7 @@
         "whenToUse": "A record's history on its page (a task, a deal, a document): what changed, who changed it and when, interleaved with the comment threads.",
         "whenNotToUse": "Comments alone (Comments), a cross-record notification list (Inbox), or a dated milestone list (Timeline).",
         "version": "0.23.128",
-        "integrity": "sha256-bzt3eqxU0sQ0eEeeAC+btfNhs5K+X1isWVR0oDtPQeA="
+        "integrity": "sha256-qcKRr3ZHtmL5ltEGh1ijSMfLU/bAV0kgOIjZ/egWyYA="
       }
     },
     {

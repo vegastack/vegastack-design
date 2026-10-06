@@ -17,6 +17,34 @@ preview: activityFeed
 
 ```tsx
 import {
+  ActivityFeed,
+  ActivityFeedItem,
+  ActivityFeedList,
+} from "@/components/ui/activity-feed";
+
+<ActivityFeed>
+  <ActivityFeedList>
+    <ActivityFeedItem>{event}</ActivityFeedItem>
+  </ActivityFeedList>
+</ActivityFeed>;
+```
+
+## Scope
+
+- Owns the activity list, event presentation, filtering and order controls, and keyboard navigation.
+- The host owns data fetching, merging, paging, filter/order state, and read acknowledgements.
+- Compose with `CommentThread`, `CommentComposer`, and `CommentDayDivider` from `comments`.
+
+## Anatomy
+
+<Anatomy name="activity-feed" />
+
+## Examples
+
+### Comments and events
+
+```tsx
+import {
   ActivityEvent,
   ActivityFeed,
   ActivityFeedItem,
@@ -59,7 +87,7 @@ const feedRef = useActivityFeedKeyboard();
     )}
   </ActivityFeedList>
   <CommentComposer onSubmit={post} />
-  <ActivityJumpToLatest enabled={items.length > 3} />
+  <ActivityJumpToLatest target={latestBoundary} />
 </ActivityFeed>;
 ```
 
@@ -72,22 +100,19 @@ person hover card, the sentence with its `ActivityValue`s, and the relative time
 
 Put `CommentDayDivider` (from `comments`) between items on different days, and one
 `ActivityUnreadDivider` before the first item the viewer hasn't seen; its `onVisible` fires once,
-when the line is half on screen — mark the record read there. Put `ActivityJumpToLatest` where the
-latest items are — last oldest first, first newest first: while that spot is off screen (and the
-viewer isn't scrolling away from it) a pill floats at the bottom of the view with an arrow
-pointing there; it scrolls there and takes keyboard focus with it. An `agent` event says "Agent"
-after the actor's name.
+when the line is half on screen. The host chooses whether observing that line acknowledges anything.
+`ActivityJumpToLatest` takes the host's latest-content boundary. It observes that element in its scrolling
+container, points toward it, and transfers focus after reaching it. `forceVisible` keeps a catch-up action
+available for content already on screen; capture a batch in `onJump` and acknowledge it in `onReached`.
+Replacing the target or interrupting with a gesture cancels an in-progress completion and calls
+`onCancel`, allowing the host to release its jump state. The control contains no read-state or data logic.
+The latest items are last in oldest-first order and first in newest-first order. The arrow points
+toward that boundary. An `agent` event says "Agent" after the actor's name.
 
 <ComponentPreview
   name="activityFeed"
   file="components/preview/activity-feed.tsx"
 />
-
-## Anatomy
-
-<Anatomy name="activity-feed" />
-
-## Examples
 
 ### Event kinds
 
@@ -209,6 +234,13 @@ A record with no history yet shows the header and the composer.
   name="ActivityEventGroupProps"
 />
 
+### ActivityJumpToLatest
+
+<ApiTable
+  path="../../packages/ui/registry/ui/activity-feed.tsx"
+  name="ActivityJumpToLatestProps"
+/>
+
 ## Accessibility
 
 - The feed is a `section` labelled by its heading; the items are an ordered list named "Activity".
@@ -240,4 +272,9 @@ A record with no history yet shows the header and the composer.
 <DoDont
   do="Write each event as a short sentence after the actor's name, with the values in ActivityValue."
   dont="Show every keystroke as its own event — fold a run of quick edits into an ActivityEventGroup."
+/>
+
+<DoDont
+  do="Capture the current batch in onJump, then acknowledge only that batch in onReached."
+  dont="Acknowledge unseen activity when the control is clicked or an unread divider becomes visible."
 />

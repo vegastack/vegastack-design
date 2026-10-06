@@ -699,7 +699,7 @@ test("a full feed — events, a group, a thread, the New line, jump button — i
           />
         </ActivityFeedItem>
       </ActivityFeedList>
-      <ActivityJumpToLatest />
+      <ActivityJumpToLatest target={null} />
     </ActivityFeed>,
   );
   await expect.element(screen.getByText("Looks good.")).toBeVisible();
@@ -732,35 +732,32 @@ test("pending dims the list and marks the section busy; an agent's event says Ag
     .toBeVisible();
 });
 
-test("Jump to latest shows while the end is off screen, scrolls there and takes focus with it", async () => {
-  const screen = await render(
-    <div style={{ height: 200, overflowY: "auto" }} data-testid="scroller">
-      <ActivityFeed>
-        <ActivityFeedList>
-          {Array.from({ length: 30 }, (_, i) => (
-            <ActivityFeedItem key={i}>
-              <ActivityEvent actor={priya} date={NOW - i * HOUR} now={NOW}>
-                changed something {i}
-              </ActivityEvent>
-            </ActivityFeedItem>
-          ))}
-        </ActivityFeedList>
-        <ActivityJumpToLatest />
-      </ActivityFeed>
-    </div>,
-  );
-  const floating = () =>
-    screen.container.querySelector('[data-slot="activity-jump-floating"]')!;
-  await vi.waitFor(() =>
-    expect(floating().hasAttribute("data-shown")).toBe(true),
-  );
+test("Jump to latest reaches the supplied boundary and transfers focus", async () => {
+  const reached = vi.fn();
+  function Fixture() {
+    const [target, setTarget] = React.useState<HTMLDivElement | null>(null);
+    return (
+      <div style={{ height: 200, overflowY: "auto" }}>
+        <ActivityFeed>
+          <div style={{ height: 1000 }}>History</div>
+          <div
+            ref={setTarget}
+            tabIndex={-1}
+            role="group"
+            aria-label="Latest activity"
+          >
+            Latest
+          </div>
+          <ActivityJumpToLatest target={target} onReached={reached} />
+        </ActivityFeed>
+      </div>
+    );
+  }
+  const screen = await render(<Fixture />);
   await screen.getByRole("button", { name: "Jump to latest" }).click();
-  const end = screen.container.querySelector(
-    '[data-slot="activity-feed-end"]',
-  )!;
-  await vi.waitFor(() => expect(document.activeElement).toBe(end));
-  await vi.waitFor(() =>
-    expect(floating().hasAttribute("data-shown")).toBe(false),
+  await vi.waitFor(() => expect(reached).toHaveBeenCalledOnce());
+  expect(document.activeElement?.getAttribute("aria-label")).toBe(
+    "Latest activity",
   );
 });
 
@@ -792,3 +789,262 @@ test("keys already handled elsewhere are left alone, and X never acts on an item
   await userEvent.keyboard("x");
   expect(onToggle).not.toHaveBeenCalled();
 });
+
+test("the floating control targets an explicit boundary and reports completion", async () => {
+  const reached = vi.fn();
+  function Fixture() {
+    const [target, setTarget] = React.useState<HTMLDivElement | null>(null);
+    return (
+      <div style={{ height: 200, overflowY: "auto" }}>
+        <div style={{ height: 800 }}>History</div>
+        <div ref={setTarget} tabIndex={-1} aria-label="Newest content">
+          Latest
+        </div>
+        <ActivityJumpToLatest target={target} onReached={reached} />
+      </div>
+    );
+  }
+  const screen = await render(<Fixture />);
+  const button = screen.getByRole("button", { name: "Jump to latest" });
+  await expect.element(button).toBeVisible();
+  await button.click();
+  await vi.waitFor(() => expect(reached).toHaveBeenCalledOnce());
+  expect(document.activeElement?.getAttribute("aria-label")).toBe(
+    "Newest content",
+  );
+});
+
+test("held clicks on padding, icon and label all reach the latest boundary", async () => {
+  const reached = vi.fn();
+  function Fixture() {
+    const [target, setTarget] = React.useState<HTMLDivElement | null>(null);
+    return (
+      <div
+        data-testid="press-scroller"
+        style={{ height: 200, overflowY: "auto" }}
+      >
+        <ActivityFeed>
+          <div style={{ height: 1000 }}>History</div>
+          <div ref={setTarget} tabIndex={-1}>
+            Latest
+          </div>
+          <ActivityJumpToLatest target={target} onReached={reached} />
+        </ActivityFeed>
+      </div>
+    );
+  }
+  const screen = await render(<Fixture />);
+  const scroller = screen.container.querySelector<HTMLElement>(
+    '[data-testid="press-scroller"]',
+  )!;
+  for (const x of [5, 17, 65]) {
+    scroller.scrollTop = 0;
+    const button = screen.getByRole("button", { name: "Jump to latest" });
+    await expect.element(button).toBeVisible();
+    await button.click({ position: { x, y: 14 }, delay: 250 });
+    await vi.waitFor(() =>
+      expect(reached.mock.calls.length).toBe([5, 17, 65].indexOf(x) + 1),
+    );
+  }
+});
+
+test("a visible activation captures before completion and cancels a replaced target", async () => {
+  const order: string[] = [];
+  const cancelled = vi.fn();
+  function Fixture() {
+    const [target, setTarget] = React.useState<HTMLDivElement | null>(null);
+    const [replaced, setReplaced] = React.useState(false);
+    return (
+      <div>
+        <div
+          key={String(replaced)}
+          ref={setTarget}
+          tabIndex={-1}
+          style={{ height: 24 }}
+        >
+          Latest
+        </div>
+        <ActivityJumpToLatest
+          target={target}
+          forceVisible
+          onJump={() => {
+            order.push("capture");
+            setReplaced(true);
+          }}
+          onReached={() => order.push("reached")}
+          onCancel={cancelled}
+        />
+      </div>
+    );
+  }
+  const screen = await render(<Fixture />);
+  await screen.getByRole("button", { name: "Jump to latest" }).click();
+  await vi.waitFor(() => expect(cancelled).toHaveBeenCalledOnce());
+  expect(order).toEqual(["capture"]);
+  await screen.getByRole("button", { name: "Jump to latest" }).click();
+  await vi.waitFor(() =>
+    expect(order).toEqual(["capture", "capture", "reached"]),
+  );
+});
+
+test("an interrupted jump cannot complete on later independent scrolling", async () => {
+  const reached = vi.fn();
+  const capture = vi.fn();
+  const cancelled = vi.fn();
+  function Fixture() {
+    const [target, setTarget] = React.useState<HTMLDivElement | null>(null);
+    return (
+      <div
+        data-testid="cancel-scroller"
+        style={{ height: 200, overflowY: "auto" }}
+      >
+        <div style={{ height: 800 }}>History</div>
+        <div ref={setTarget} tabIndex={-1}>
+          Latest
+        </div>
+        <ActivityJumpToLatest
+          target={target}
+          forceVisible
+          onJump={capture}
+          onReached={reached}
+          onCancel={cancelled}
+        />
+      </div>
+    );
+  }
+  const screen = await render(<Fixture />);
+  const target =
+    screen.container.querySelector<HTMLElement>('[tabindex="-1"]')!;
+  const scroll = vi
+    .spyOn(target, "scrollIntoView")
+    .mockImplementation(() => {});
+  await screen.getByRole("button", { name: "Jump to latest" }).click();
+  await vi.waitFor(() => expect(scroll).toHaveBeenCalledOnce());
+  expect(capture).toHaveBeenCalledOnce();
+  expect(reached).not.toHaveBeenCalled();
+  document.dispatchEvent(new WheelEvent("wheel"));
+  expect(cancelled).toHaveBeenCalledOnce();
+  screen.container.querySelector<HTMLElement>(
+    '[data-testid="cancel-scroller"]',
+  )!.scrollTop = 1000;
+  await vi.waitFor(() =>
+    expect(target.getBoundingClientRect().top).toBeLessThan(200),
+  );
+  await new Promise((resolve) =>
+    requestAnimationFrame(() => requestAnimationFrame(resolve)),
+  );
+  expect(reached).not.toHaveBeenCalled();
+  scroll.mockRestore();
+});
+
+test.each(["x", "y"] as const)(
+  "a boundary clipped on the %s axis completes only when the same activation becomes visible",
+  async (axis) => {
+    for (const scale of [1, 0.5, 2]) {
+      const capture = vi.fn();
+      const reached = vi.fn();
+      const cancelled = vi.fn();
+      function Fixture() {
+        const [target, setTarget] = React.useState<HTMLDivElement | null>(null);
+        return (
+          <>
+            <div
+              data-testid="outer-clip"
+              style={{
+                transform: `scale(${scale})`,
+                transformOrigin: "top left",
+                width: axis === "x" ? 100 : 300,
+                height: axis === "y" ? 100 : 300,
+                overflowX: axis === "x" ? "clip" : "visible",
+                overflowY: axis === "y" ? "clip" : "visible",
+              }}
+            >
+              <div
+                data-testid="inner-scroller"
+                style={{ width: 300, height: 300, overflow: "auto" }}
+              >
+                <div
+                  ref={setTarget}
+                  data-testid="clipped-boundary"
+                  tabIndex={-1}
+                  style={{
+                    width: 24,
+                    height: 24,
+                    marginLeft: axis === "x" ? 150 : 0,
+                    marginTop: axis === "y" ? 150 : 0,
+                  }}
+                >
+                  Latest
+                </div>
+              </div>
+            </div>
+            <ActivityJumpToLatest
+              target={target}
+              onJump={capture}
+              onReached={reached}
+              onCancel={cancelled}
+            />
+          </>
+        );
+      }
+      const screen = await render(<Fixture />);
+      const outer = screen.container.querySelector<HTMLElement>(
+        '[data-testid="outer-clip"]',
+      )!;
+      const inner = screen.container.querySelector<HTMLElement>(
+        '[data-testid="inner-scroller"]',
+      )!;
+      const target = screen.container.querySelector<HTMLElement>(
+        '[data-testid="clipped-boundary"]',
+      )!;
+      const rect = target.getBoundingClientRect();
+      const innerRect = inner.getBoundingClientRect();
+      expect(rect.top).toBeGreaterThanOrEqual(innerRect.top);
+      expect(rect.bottom).toBeLessThanOrEqual(innerRect.bottom);
+      expect(rect.left).toBeGreaterThanOrEqual(innerRect.left);
+      expect(rect.right).toBeLessThanOrEqual(innerRect.right);
+      expect(rect.bottom).toBeLessThan(window.innerHeight);
+      expect(rect.right).toBeLessThan(window.innerWidth);
+      const hitBoundary = () => {
+        const current = target.getBoundingClientRect();
+        return document.elementFromPoint(
+          current.left + current.width / 2,
+          current.top + current.height / 2,
+        );
+      };
+      expect(hitBoundary()).not.toBe(target);
+      const floating = screen.container.querySelector<HTMLElement>(
+        '[data-slot="activity-jump-floating"]',
+      )!;
+      await vi.waitFor(() =>
+        expect(floating.hasAttribute("data-shown")).toBe(true),
+      );
+      const scroll = vi.spyOn(target, "scrollIntoView");
+      try {
+        await screen.getByRole("button", { name: "Jump to latest" }).click();
+        await new Promise((resolve) =>
+          requestAnimationFrame(() => requestAnimationFrame(resolve)),
+        );
+        expect(capture).toHaveBeenCalledExactlyOnceWith(target);
+        expect(reached).not.toHaveBeenCalled();
+        expect(scroll).toHaveBeenCalledOnce();
+        expect(document.activeElement).not.toBe(target);
+        expect(hitBoundary()).not.toBe(target);
+        outer.style[axis === "x" ? "width" : "height"] = "300px";
+        await vi.waitFor(() =>
+          expect(reached).toHaveBeenCalledExactlyOnceWith(target),
+        );
+        expect(hitBoundary()).toBe(target);
+        expect(document.activeElement).toBe(target);
+        expect(capture).toHaveBeenCalledOnce();
+        expect(cancelled).not.toHaveBeenCalled();
+        await vi.waitFor(() =>
+          expect(floating.hasAttribute("data-shown")).toBe(false),
+        );
+      } finally {
+        scroll.mockRestore();
+        await screen.unmount();
+      }
+    }
+  },
+);
