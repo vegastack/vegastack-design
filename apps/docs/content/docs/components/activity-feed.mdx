@@ -107,7 +107,8 @@ available for content already on screen; capture a batch in `onJump` and acknowl
 Replacing the target or interrupting with a gesture cancels an in-progress completion and calls
 `onCancel`, allowing the host to release its jump state. The control contains no read-state or data logic.
 The latest items are last in oldest-first order and first in newest-first order. The arrow points
-toward that boundary. An `agent` event says "Agent" after the actor's name.
+toward that boundary. Set `direction="up"` for newest-first or `direction="down"` for oldest-first
+when an on-screen batch keeps the action visible. An `agent` event says "Agent" after the actor's name.
 
 <ComponentPreview
   name="activityFeed"
