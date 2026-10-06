@@ -1,4 +1,4 @@
-// @vegastack switch@0.23.128 sha256-kiiOY5u5VqBCEpaUU84G/RmW3WdiBdT0yq8Rrf2tbZ0=
+// @vegastack switch@0.24.0 sha256-JZthntDxutE4wwcytXw84rV8m/uNZBILPhJ/59KAAWU=
 
 "use client";
 

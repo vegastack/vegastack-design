@@ -1,5 +1,17 @@
 # @vegastack/ui
 
+## 0.24.0
+
+### Minor Changes
+
+- [#539](https://github.com/vegastack/vegastack-design/pull/539) [`e8d0004`](https://github.com/vegastack/vegastack-design/commit/e8d00045d503e5a7224b53225b027623189a16f3) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🔧 Jump to latest follows an explicit content boundary and keeps held pointer clicks stable.
+
+  The host can capture a batch at activation and acknowledge it after that same target is reached.
+
+### Patch Changes
+
+- [#541](https://github.com/vegastack/vegastack-design/pull/541) [`11defd8`](https://github.com/vegastack/vegastack-design/commit/11defd86b00b866e49350e3d1a936965627bf736) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🐛 Keep Jump to latest pointing in the selected feed direction when its boundary is already visible.
+
 ## 0.23.128
 
 ### Patch Changes

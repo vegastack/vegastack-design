@@ -9,6 +9,26 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.24.0] — October 6, 2026
+
+<!-- assembled from 2 changesets: 431d43390a91 -->
+
+### 🔧 Changed components
+
+- Jump to latest follows an explicit content boundary and keeps held pointer clicks stable.
+
+  The host can capture a batch at activation and acknowledge it after that same target is reached.
+  [`e8d0004`](https://github.com/VegaStack/vegastack-design/commit/e8d0004)
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.23.128 → 0.24.0.
+
+### 🐛 Fixed
+
+- Keep Jump to latest pointing in the selected feed direction when its boundary is already visible.
+  [`11defd8`](https://github.com/VegaStack/vegastack-design/commit/11defd8)
+
 ## [0.23.128] — October 6, 2026
 
 <!-- assembled from 2 changesets: 833dc5b5c9f8 -->

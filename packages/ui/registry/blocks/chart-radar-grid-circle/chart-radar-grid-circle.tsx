@@ -1,4 +1,4 @@
-// @vegastack chart-radar-grid-circle@0.23.128 sha256-L832gWWPpA+9Ltb9dp1y2rhSHuTDNzm4VG4ov1qqE40=
+// @vegastack chart-radar-grid-circle@0.24.0 sha256-WF8+zue/qSqozBHys013OquUiqlwHKTFOFFYTehDjMQ=
 
 "use client";
 
