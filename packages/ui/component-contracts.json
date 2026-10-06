@@ -28795,6 +28795,7 @@
                 "activity-feed",
                 "activity-feed-filter",
                 "activity-feed-header",
+                "activity-feed-more",
                 "activity-feed-order"
               ]
             }
@@ -28835,6 +28836,10 @@
         "ActivityEvent": {
           "attributes": [
             {
+              "name": "data-activity-id",
+              "values": []
+            },
+            {
               "name": "data-agent",
               "values": [""]
             },
@@ -28861,12 +28866,24 @@
         "ActivityEventGroup": {
           "attributes": [
             {
+              "name": "data-activity-id",
+              "values": []
+            },
+            {
+              "name": "data-layout",
+              "values": ["combined"]
+            },
+            {
               "name": "data-open",
               "values": [""]
             },
             {
               "name": "data-slot",
-              "values": ["activity-event-group", "activity-event-group-toggle"]
+              "values": [
+                "activity-change",
+                "activity-event-group",
+                "activity-event-group-toggle"
+              ]
             }
           ],
           "cssVariables": []

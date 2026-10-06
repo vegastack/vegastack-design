@@ -1,4 +1,4 @@
-// @vegastack activity-feed@0.23.125 sha256-UNaffyY2GT2LbVwHUK9cpXC4nicBtQxVPq4kkUdwErg=
+// @vegastack activity-feed@0.23.125 sha256-H+zgTYcXk1DmU+CN2eW9x/OjANLjwpRWv1itoyIaUfg=
 
 "use client";
 
@@ -27,7 +27,7 @@ import {
   UserMinus,
   UserPlus,
 } from "lucide-react";
-import { cn } from "@vegastack/design";
+import { cn, mergeRefs } from "@vegastack/design";
 import { Button } from "@/components/ui/button";
 import {
   PersonHoverCard,
@@ -97,6 +97,19 @@ export interface ActivityFeedProps extends Omit<
   onOrderChange?: (order: ActivityOrder) => void;
   /** Dim the list while a new filter or order loads (the old items stay). @default false */
   pending?: boolean;
+  /** Cursor pagination, using the collection paging contract. @default undefined */
+  loadMore?: {
+    hasMore: boolean;
+    onLoadMore: () => Promise<void> | void;
+    loading?: boolean;
+    error?: boolean;
+  };
+  /** Filter, list generation and cursor identity; changes re-arm loading. @default undefined */
+  paginationKey?: string | null;
+  /** Progress copy. @default "Loading earlier…" */
+  loadingMoreLabel?: string;
+  /** Retry action copy. @default "Retry loading earlier" */
+  retryMoreLabel?: string;
 }
 
 /**
@@ -118,13 +131,209 @@ export function ActivityFeed({
   order = "oldest",
   onOrderChange,
   pending = false,
+  loadMore,
+  paginationKey,
+  loadingMoreLabel = "Loading earlier…",
+  retryMoreLabel = "Retry loading earlier",
+  ref,
   className,
   children,
   ...props
 }: ActivityFeedProps) {
+  const {
+    hasMore = false,
+    onLoadMore,
+    loading: loadingMore = false,
+    error: loadMoreError = false,
+  } = loadMore ?? {};
   const headingId = React.useId();
+  const sectionRef = React.useRef<HTMLElement | null>(null);
+  const edgeRef = React.useRef<HTMLDivElement | null>(null);
+  const requested = React.useRef<{ key: typeof paginationKey } | null>(null);
+  const [failedPage, setFailedPage] = React.useState<{
+    key: typeof paginationKey;
+  } | null>(null);
+  const automaticError =
+    failedPage !== null && failedPage.key === paginationKey;
+  type PageRequest = { key: typeof paginationKey; token: symbol };
+  const [activeRequest, setActiveRequest] = React.useState<PageRequest | null>(
+    null,
+  );
+  const automaticLoading =
+    activeRequest !== null && activeRequest.key === paginationKey;
+  const [hasScrolled, setHasScrolled] = React.useState(false);
+  const running = React.useRef<PageRequest | null>(null);
+  const anchor = React.useRef<{
+    node: HTMLElement;
+    top: number;
+    key: typeof paginationKey;
+    order: ActivityOrder;
+    id?: string;
+  } | null>(null);
+  const attach = React.useMemo(
+    () => mergeRefs<HTMLElement>(sectionRef, ref),
+    [ref],
+  );
+  const load = React.useCallback(
+    async (retry = false) => {
+      if (
+        !hasMore ||
+        !onLoadMore ||
+        pending ||
+        loadingMore ||
+        (running.current?.key === paginationKey && running.current !== null) ||
+        (!retry &&
+          (loadMoreError ||
+            automaticError ||
+            (requested.current && requested.current.key === paginationKey)))
+      )
+        return;
+      requested.current = { key: paginationKey };
+      setFailedPage(null);
+      const request = { key: paginationKey, token: Symbol() };
+      setActiveRequest(request);
+      running.current = request;
+      const section = sectionRef.current;
+      if (order === "oldest" && hasScrolled && section) {
+        const parent = scrollParent(section);
+        const top =
+          parent instanceof Window ? 0 : parent.getBoundingClientRect().top;
+        const bottom =
+          parent instanceof Window
+            ? parent.innerHeight
+            : parent.getBoundingClientRect().bottom;
+        const visible = (node: HTMLElement) => {
+          const rect = node.getBoundingClientRect();
+          return rect.bottom > top && rect.top < bottom;
+        };
+        const item = Array.from(
+          section.querySelectorAll<HTMLElement>(
+            '[data-slot="activity-feed-item"]:not([data-kind="divider"])',
+          ),
+        ).find(visible);
+        const node = item
+          ? (Array.from(
+              item.querySelectorAll<HTMLElement>(
+                '[data-slot="activity-change"][data-activity-id]',
+              ),
+            ).find(visible) ?? item)
+          : null;
+        if (node)
+          anchor.current = {
+            node,
+            top: node.getBoundingClientRect().top,
+            key: paginationKey,
+            order,
+            id: node.dataset.activityId,
+          };
+      }
+      try {
+        await onLoadMore();
+      } catch {
+        if (running.current === request) setFailedPage({ key: paginationKey });
+      } finally {
+        if (running.current === request) running.current = null;
+        setActiveRequest((current) =>
+          current?.token === request.token ? null : current,
+        );
+      }
+    },
+    [
+      hasMore,
+      onLoadMore,
+      pending,
+      loadingMore,
+      loadMoreError,
+      automaticError,
+      paginationKey,
+      order,
+      hasScrolled,
+    ],
+  );
+  React.useLayoutEffect(() => {
+    const saved = anchor.current;
+    if (!saved || saved.key === paginationKey) return;
+    anchor.current = null;
+    if (saved.order !== order) return;
+    const node = saved.node.isConnected
+      ? saved.node
+      : saved.id
+        ? Array.from(
+            sectionRef.current?.querySelectorAll<HTMLElement>(
+              '[data-slot="activity-change"][data-activity-id]',
+            ) ?? [],
+          ).find((change) => change.dataset.activityId === saved.id)
+        : null;
+    if (!node) return;
+    const delta = node.getBoundingClientRect().top - saved.top;
+    if (delta) scrollParent(node).scrollBy({ top: delta, behavior: "instant" });
+  }, [paginationKey, order]);
+  React.useEffect(() => {
+    if (!sectionRef.current) return;
+    const parent = scrollParent(sectionRef.current);
+    const arm = () => setHasScrolled(true);
+    if (parent instanceof Window ? parent.scrollY > 0 : parent.scrollTop > 0)
+      arm();
+    parent.addEventListener("scroll", arm, { passive: true });
+    return () => parent.removeEventListener("scroll", arm);
+  }, []);
+  React.useEffect(() => {
+    if (
+      !hasMore ||
+      !onLoadMore ||
+      pending ||
+      loadingMore ||
+      automaticLoading ||
+      loadMoreError ||
+      automaticError ||
+      !edgeRef.current
+    )
+      return;
+    // Fill a short page without scrolling the task header away at mount.
+    const parent = scrollParent(edgeRef.current);
+    const scrollable =
+      parent instanceof Window
+        ? document.documentElement.scrollHeight > parent.innerHeight
+        : parent.scrollHeight > parent.clientHeight;
+    if (!hasScrolled && scrollable) return;
+    const observer = new IntersectionObserver(([entry]) => {
+      if (entry?.isIntersecting) void load();
+    });
+    observer.observe(edgeRef.current);
+    return () => observer.disconnect();
+  }, [
+    hasMore,
+    onLoadMore,
+    pending,
+    loadingMore,
+    automaticLoading,
+    loadMoreError,
+    automaticError,
+    hasScrolled,
+    load,
+  ]);
+  const edge =
+    hasMore && onLoadMore ? (
+      <div
+        ref={edgeRef}
+        data-slot="activity-feed-more"
+        aria-busy={loadingMore || automaticLoading || undefined}
+        className="flex min-h-8 items-center justify-center text-xs text-muted-foreground"
+      >
+        {loadingMore || automaticLoading ? (
+          <Button variant="ghost" size="sm" loading disabled>
+            {loadingMoreLabel}
+          </Button>
+        ) : loadMoreError || automaticError ? (
+          <Button variant="ghost" size="sm" onClick={() => void load(true)}>
+            {retryMoreLabel}
+          </Button>
+        ) : null}
+      </div>
+    ) : null;
   return (
     <section
+      ref={attach}
       data-slot="activity-feed"
       data-pending={pending ? "" : undefined}
       aria-labelledby={headingId}
@@ -190,7 +399,9 @@ export function ActivityFeed({
           ) : null}
         </div>
       </div>
+      {order === "oldest" ? edge : null}
       {children}
+      {order === "newest" ? edge : null}
     </section>
   );
 }
@@ -339,6 +550,8 @@ export function ActivityKindIcon({
 
 /** Props for `ActivityEvent`. */
 export interface ActivityEventProps {
+  /** Stable event identity for preserving position across cursor-page joins. @default undefined */
+  id?: string;
   /** Who did it; `null` for the system. */
   actor: Person | null;
   /** The actor is an agent: its name reads as an agent's. @default false */
@@ -369,6 +582,7 @@ export interface ActivityEventProps {
  * </ActivityEvent>
  */
 export function ActivityEvent({
+  id,
   actor,
   agent = false,
   icon,
@@ -380,14 +594,18 @@ export function ActivityEvent({
   return (
     <div
       data-slot="activity-event"
+      data-activity-id={id}
       data-agent={agent ? "" : undefined}
       // 16px in, like a comment card's rows, so the icon sits in the avatars' column.
-      className={cn("flex min-h-6 min-w-0 items-start gap-2 px-4", className)}
+      className={cn(
+        "flex min-h-8 min-w-0 items-start gap-2 break-words px-4",
+        className,
+      )}
     >
       <span
         aria-hidden
         data-slot="activity-event-icon"
-        className="flex h-6 w-5 shrink-0 items-center justify-center"
+        className="flex h-8 w-5 shrink-0 items-center justify-center"
       >
         {icon === "avatar" && actor ? (
           <PersonAvatar person={actor} className="data-[size=sm]:size-4" />
@@ -397,7 +615,7 @@ export function ActivityEvent({
           <span className="size-1.5 rounded-full bg-muted-foreground/50" />
         )}
       </span>
-      <p className="min-w-0 flex-1 py-1 text-xs/4 text-muted-foreground">
+      <p className="min-w-0 flex-1 py-1 text-xs/6 text-muted-foreground">
         {actor ? (
           <PersonHoverCard person={actor} trigger="name">
             {actor.name}
@@ -438,8 +656,10 @@ export function ActivityValue({
 
 /** Props for `ActivityEventGroup`. */
 export interface ActivityEventGroupProps {
-  /** The events (`ActivityEvent`s), in order. */
-  children: React.ReactNode;
+  /** Pre-grouped event props, in chronological order: one actor and time, all changes visible. @default undefined */
+  events?: readonly ActivityEventProps[];
+  /** Event rows, when not using `events`. @default undefined */
+  children?: React.ReactNode;
   /** Events shown while folded. @default 1 */
   visible?: number;
   /** Start unfolded. @default false */
@@ -449,19 +669,59 @@ export interface ActivityEventGroupProps {
 }
 
 /**
- * `ActivityEventGroup` — a run of events (one person's quick edits, say) folded to the first
- * `visible` with "N more changes" under them; "Show less" folds them back.
+ * `ActivityEventGroup` — pre-grouped `events` read as one visible sentence with one actor and
+ * time. The children form supports legacy disclosure with `visible` and `defaultOpen`.
  *
  * @example
  * <ActivityEventGroup>{events.map((e) => <ActivityEvent key={e.id} … />)}</ActivityEventGroup>
  */
 export function ActivityEventGroup({
+  events: combined,
   children,
   visible = 1,
   defaultOpen = false,
   className,
 }: ActivityEventGroupProps) {
   const [open, setOpen] = React.useState(defaultOpen);
+  if (combined) {
+    const first = combined[0];
+    if (!first) return null;
+    const epoch = (date: ActivityEventProps["date"]) =>
+      date instanceof Date ? date.getTime() : new Date(date).getTime();
+    const latest = combined.reduce((last, event) =>
+      epoch(event.date) > epoch(last.date) ? event : last,
+    );
+    return (
+      <div
+        data-slot="activity-event-group"
+        data-layout="combined"
+        className={cn("min-w-0", className)}
+      >
+        <ActivityEvent
+          actor={first.actor}
+          agent={first.agent}
+          icon={
+            combined.length > 1 ? (
+              <ActivityKindIcon kind="edited" />
+            ) : (
+              first.icon
+            )
+          }
+          date={latest.date}
+          now={latest.now ?? first.now}
+        >
+          {combined.map((event, index) => (
+            <React.Fragment key={event.id ?? index}>
+              {index > 0 ? "; " : null}
+              <span data-slot="activity-change" data-activity-id={event.id}>
+                {event.children}
+              </span>
+            </React.Fragment>
+          ))}
+        </ActivityEvent>
+      </div>
+    );
+  }
   const events = React.Children.toArray(children);
   const hidden = events.length - visible;
   const shown = open || hidden <= 0 ? events : events.slice(0, visible);
@@ -825,7 +1085,7 @@ export function useActivityFeedKeyboard({
 /** `ActivityFeedSkeleton` — the feed while it loads: event rows, a thread card and the composer, in their real shapes. @example <ActivityFeedSkeleton /> */
 export function ActivityFeedSkeleton() {
   const event = (width: string) => (
-    <div className="flex h-6 items-center gap-2 px-4">
+    <div className="flex h-8 items-center gap-2 px-4">
       <Skeleton className="size-3.5 shrink-0 rounded-full" />
       <Skeleton className={cn("h-3", width)} />
     </div>

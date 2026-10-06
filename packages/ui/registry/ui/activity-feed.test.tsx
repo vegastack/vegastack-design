@@ -17,6 +17,7 @@ import {
   useActivityFeedKeyboard,
 } from "./activity-feed";
 import { CommentThread } from "./comments";
+import "../../test/geometry.css";
 
 const NOW = Date.parse("2026-10-04T12:00:00Z");
 const HOUR = 3_600_000;
@@ -108,6 +109,62 @@ test("a group folds to one event with 'N more changes' and unfolds to 'Show less
   expect(events()).toBe(1);
 });
 
+test("combined changes stay visible with one actor and latest time, aligned when wrapping", async () => {
+  const screen = await render(
+    <div style={{ width: 320 }}>
+      <ActivityEventGroup
+        events={[
+          {
+            actor: priya,
+            date: NOW - HOUR,
+            now: NOW,
+            children: (
+              <>
+                set priority to <ActivityValue>High</ActivityValue>
+              </>
+            ),
+          },
+          {
+            actor: priya,
+            date: NOW,
+            now: NOW,
+            children: (
+              <>
+                changed status from <ActivityValue>Open</ActivityValue> to{" "}
+                <ActivityValue>Done</ActivityValue>
+              </>
+            ),
+          },
+        ]}
+      />
+    </div>,
+  );
+  await expect.element(screen.getByText("Done", { exact: true })).toBeVisible();
+  const event = screen.container.querySelector('[data-slot="activity-event"]')!;
+  expect(event.textContent).toContain("High; changed status");
+  expect(
+    event.querySelectorAll('[data-slot="person-hover-card-name"]'),
+  ).toHaveLength(1);
+  expect(event.querySelectorAll("time")).toHaveLength(1);
+  expect(event.querySelector("time")?.getAttribute("datetime")).toBe(
+    new Date(NOW).toISOString(),
+  );
+  expect(
+    screen.container.querySelector('[data-slot="activity-event-group-toggle"]'),
+  ).toBeNull();
+  const actor = event
+    .querySelector('[data-slot="person-hover-card-name"]')!
+    .getBoundingClientRect();
+  const icon = event
+    .querySelector('[data-slot="activity-event-icon"] svg')!
+    .getBoundingClientRect();
+  expect(
+    Math.abs(icon.y + icon.height / 2 - actor.y - actor.height / 2),
+  ).toBeLessThan(1);
+  expect(event.scrollWidth).toBeLessThanOrEqual(event.clientWidth);
+  await expectNoA11yViolations(screen.container);
+});
+
 test("the unread divider reports once when it is on screen", async () => {
   const onVisible = vi.fn();
   const screen = await render(<ActivityUnreadDivider onVisible={onVisible} />);
@@ -115,6 +172,213 @@ test("the unread divider reports once when it is on screen", async () => {
     .element(screen.getByRole("separator", { name: "New" }))
     .toBeVisible();
   await vi.waitFor(() => expect(onVisible).toHaveBeenCalledTimes(1));
+});
+
+test("a reset can page its new dataset while an obsolete cursor request is outstanding", async () => {
+  let releaseOld!: () => void;
+  const oldRequest = new Promise<void>((resolve) => {
+    releaseOld = resolve;
+  });
+  function Resettable() {
+    const [dataset, setDataset] = React.useState("A");
+    const [loaded, setLoaded] = React.useState(false);
+    return (
+      <>
+        <button type="button" onClick={() => setDataset("B")}>
+          Switch dataset
+        </button>
+        <div
+          data-testid="reset-scroll"
+          style={{ height: 160, overflowY: "auto" }}
+        >
+          <ActivityFeed
+            order="newest"
+            paginationKey={`${dataset}:${loaded ? "end" : "cursor"}`}
+            loadingMoreLabel="Fetching history…"
+            retryMoreLabel="Try history again"
+            loadMore={{
+              hasMore: !loaded,
+              onLoadMore: async () => {
+                if (dataset === "A") {
+                  await oldRequest;
+                  return;
+                }
+                setLoaded(true);
+              },
+            }}
+          >
+            <ActivityFeedList>
+              {Array.from({ length: 12 }, (_, i) => (
+                <ActivityFeedItem key={i}>
+                  <ActivityEvent actor={priya} date={NOW} now={NOW}>
+                    current {dataset} entry {i}
+                  </ActivityEvent>
+                </ActivityFeedItem>
+              ))}
+              {loaded ? (
+                <ActivityFeedItem>
+                  <ActivityEvent actor={priya} date={NOW} now={NOW}>
+                    older B entry
+                  </ActivityEvent>
+                </ActivityFeedItem>
+              ) : null}
+            </ActivityFeedList>
+          </ActivityFeed>
+        </div>
+      </>
+    );
+  }
+  const screen = await render(<Resettable />);
+  const scroller = screen.container.querySelector<HTMLElement>(
+    '[data-testid="reset-scroll"]',
+  )!;
+  scroller.scrollTop = scroller.scrollHeight;
+  await expect
+    .element(screen.getByRole("button", { name: "Fetching history…" }))
+    .toBeVisible();
+  await screen.getByRole("button", { name: "Switch dataset" }).click();
+  await expect
+    .element(screen.getByText("older B entry", { exact: false }))
+    .toBeInTheDocument();
+  expect(
+    screen.container.querySelector('[data-slot="activity-feed-more"]'),
+  ).toBeNull();
+  releaseOld();
+  await vi.waitFor(() =>
+    expect(screen.container.textContent).toContain("older B entry"),
+  );
+});
+
+test("prepending a cursor page preserves the visible change even when its group joins older edits", async () => {
+  function Joined() {
+    const [loaded, setLoaded] = React.useState(false);
+    const change = (id: number) => ({
+      id: String(id),
+      actor: priya,
+      date: NOW + id * 1000,
+      now: NOW,
+      children: `Recorded change ${id}`,
+    });
+    const groups = loaded
+      ? [
+          [0, 30, 60, 90],
+          [150, 210],
+        ]
+      : [[90, 150, 210]];
+    return (
+      <div
+        data-testid="joined-scroll"
+        style={{ height: 160, width: 320, overflowY: "auto" }}
+      >
+        <ActivityFeed
+          paginationKey={loaded ? null : "older"}
+          loadMore={{
+            hasMore: !loaded,
+            onLoadMore: async () => {
+              setLoaded(true);
+            },
+          }}
+        >
+          <ActivityFeedList>
+            {groups.map((group) => (
+              <ActivityFeedItem key={group[0]}>
+                <ActivityEventGroup events={group.map(change)} />
+              </ActivityFeedItem>
+            ))}
+            {Array.from({ length: 12 }, (_, i) => (
+              <ActivityFeedItem key={`tail-${i}`}>
+                <ActivityEvent actor={priya} date={NOW} now={NOW}>
+                  Later entry {i}
+                </ActivityEvent>
+              </ActivityFeedItem>
+            ))}
+          </ActivityFeedList>
+        </ActivityFeed>
+      </div>
+    );
+  }
+  const screen = await render(<Joined />);
+  const scroller = screen.container.querySelector<HTMLElement>(
+    '[data-testid="joined-scroll"]',
+  )!;
+  scroller.scrollTop = 40;
+  const top = screen.container
+    .querySelector('[data-activity-id="90"]')!
+    .getBoundingClientRect().top;
+  await vi.waitFor(() =>
+    expect(screen.container.textContent).toContain("Recorded change 0"),
+  );
+  expect(
+    Math.abs(
+      screen.container
+        .querySelector('[data-activity-id="90"]')!
+        .getBoundingClientRect().top - top,
+    ),
+  ).toBeLessThan(1);
+});
+
+test("cursor pages load at the scroll edge and a failed page requires a retry", async () => {
+  function Paged() {
+    const [cursor, setCursor] = React.useState<string | null>("earlier");
+    const [attempted, setAttempted] = React.useState(false);
+    const [older, setOlder] = React.useState(false);
+    return (
+      <div
+        data-testid="scroll-history"
+        style={{ height: 160, overflowY: "auto" }}
+      >
+        <ActivityFeed
+          order="newest"
+          paginationKey={cursor}
+          loadMore={{
+            hasMore: cursor !== null,
+            onLoadMore: async () => {
+              if (!attempted) {
+                setAttempted(true);
+                throw new Error("Temporary network failure");
+              }
+              setOlder(true);
+              setCursor(null);
+            },
+          }}
+        >
+          <ActivityFeedList>
+            {Array.from({ length: 12 }, (_, i) => (
+              <ActivityFeedItem key={i}>
+                <ActivityEvent actor={priya} date={NOW} now={NOW}>
+                  recent change {i}
+                </ActivityEvent>
+              </ActivityFeedItem>
+            ))}
+            {older ? (
+              <ActivityFeedItem>
+                <ActivityEvent actor={priya} date={NOW - HOUR} now={NOW}>
+                  earlier change
+                </ActivityEvent>
+              </ActivityFeedItem>
+            ) : null}
+          </ActivityFeedList>
+        </ActivityFeed>
+      </div>
+    );
+  }
+  const screen = await render(<Paged />);
+  expect(screen.container.textContent).not.toContain("earlier change");
+  const scroller = screen.container.querySelector<HTMLElement>(
+    '[data-testid="scroll-history"]',
+  )!;
+  scroller.scrollTop = scroller.scrollHeight;
+  await expect
+    .element(screen.getByRole("button", { name: "Retry loading earlier" }))
+    .toBeVisible();
+  expect(screen.container.textContent).not.toContain("earlier change");
+  await screen.getByRole("button", { name: "Retry loading earlier" }).click();
+  await expect
+    .element(screen.getByText("earlier change", { exact: false }))
+    .toBeInTheDocument();
+  expect(
+    screen.container.querySelector('[data-slot="activity-feed-more"]'),
+  ).toBeNull();
 });
 
 function KeyboardFeed({ onToggle }: { onToggle: (item: HTMLElement) => void }) {
