@@ -67,15 +67,12 @@ test("default palette uses semantic token variables, not raw Tailwind palette va
   }
 });
 
-test("selected swatch uses a semantic-surface check disc", async () => {
+test("selection marks the outer cell without covering the colour", async () => {
   const screen = await render(<ColorPicker value="blue" />);
   await screen.getByRole("button", { name: "Pick a color" }).click();
   const selected = screen.getByRole("button", { name: "Blue" }).element();
-  const check = selected.querySelector('[data-slot="color-picker-check"]');
-  expect(check).not.toBeNull();
-  expect(check?.tagName.toLowerCase()).toBe("span");
-  expect(check?.getAttribute("class")).toContain("bg-background");
-  expect(check?.querySelector("svg")).not.toBeNull();
+  expect(selected.getAttribute("class")).toContain("border-primary");
+  expect(selected.querySelector('[data-slot="color-picker-check"]')).toBeNull();
 });
 
 test("yellow maps to the chart-7 token (the one genuinely-yellow token) and has no duplicate", () => {
@@ -182,7 +179,7 @@ test("forwards ref to the trigger button", async () => {
   expect(ref.current).toBeInstanceOf(HTMLButtonElement);
 });
 
-test("inline hue palette with a None swatch: no popover, None clears, a hue picks", async () => {
+test("inline hue palette with a separate clear action: no popover, None clears, a hue picks", async () => {
   const onValueChange = vi.fn();
   const onClear = vi.fn();
   const screen = await render(
@@ -198,7 +195,9 @@ test("inline hue palette with a None swatch: no popover, None clears, a hue pick
   );
   const group = screen.getByRole("group", { name: "Space colour" });
   await expect.element(group).toBeVisible();
-  expect(group.element().querySelectorAll("button")).toHaveLength(11);
+  expect(group.element().querySelectorAll("button")).toHaveLength(
+    HUE_COLORS.length,
+  );
   await expect
     .element(screen.getByRole("button", { name: "Blue" }))
     .toHaveAttribute("aria-pressed", "true");

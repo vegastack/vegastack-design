@@ -1,0 +1,50 @@
+---
+title: Icon Glyph
+description: Render an outline icon, natural emoji or fallback without entity or avatar semantics.
+audience: public
+registry: icon-glyph
+status: stable
+since: 0.23.127
+a11y: Decorative glyph or labelled image
+preview: iconGlyph
+---
+
+## Install
+
+<InstallSteps name="icon-glyph" />
+
+## Usage
+
+```tsx
+import { IconGlyph } from "@/components/ui/icon-glyph";
+
+<IconGlyph value={{ kind: "icon", name: "briefcase-business" }} hue="blue" />;
+```
+
+<ComponentPreview name="iconGlyph" file="components/preview/icon-glyph.tsx" />
+
+## Examples
+
+### Composition
+
+Use this glyph in existing DS rows and input addons. The host owns fallback, identity, access labels and persistence. It renders no avatar tile, background or lock badge.
+
+## API Reference
+
+<ApiTable
+  path="../../packages/ui/registry/ui/icon-glyph.tsx"
+  name="IconGlyphProps"
+/>
+
+## Accessibility
+
+<StatesTested name="icon-glyph" />
+
+Decorative by default. Supply aria-label to expose a named image. Emoji preserve their natural colours; outline glyphs use semantic hue ink.
+
+## Do / Don't
+
+<DoDont
+  do="Compose the shared identity components through supported props."
+  dont="Add local visual overrides or entity semantics to the generic glyph."
+/>

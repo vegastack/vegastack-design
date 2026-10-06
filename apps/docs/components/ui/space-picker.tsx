@@ -1,4 +1,4 @@
-// @vegastack space-picker@0.23.127 sha256-/DlwdkqYaqwMb2nI4+YU30jFhHnyMLYZob5slpaUM24=
+// @vegastack space-picker@0.23.128 sha256-7NJGIjyvC07Zoep+7dkTkFRm8VFdSa1zNSVgCa7k2Ig=
 
 "use client";
 
@@ -19,15 +19,26 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import {
-  SpaceAvatar,
-  SpaceHintIcon,
-  SpaceIcon,
-  SpaceOption,
-  spaceHintLabel,
-  type Space,
-  type SpaceHint,
-} from "@/components/ui/space-avatar";
+import { Layers, LockIcon, UserLock } from "lucide-react";
+import { IconGlyph } from "@/components/ui/icon-glyph";
+import { ItemContent, ItemTitle, ItemDescription } from "@/components/ui/item";
+import type { AvatarHue } from "@/components/ui/avatar";
+/** A space presentation supplied to existing space controls. */
+export interface Space {
+  /** Name shown beside the glyph. */ name: string;
+  /** Resolved glyph content. */ icon?: React.ReactNode;
+  /** Identity hue. */ hue?: AvatarHue | null;
+  /** Existing access kind. */ access: "open" | "private" | "personal";
+}
+/** Privacy-safe information about an undiscoverable space. */
+export type SpaceHint =
+  { kind: "personal"; ownerName: string } | { kind: "private" };
+/** Describe an undiscoverable space without revealing its identity. */
+export function spaceHintLabel(hint: SpaceHint): string {
+  return hint.kind === "personal"
+    ? `${hint.ownerName}'s My space`
+    : "Private space";
+}
 
 /* ------------------------------------------------------------------------------------------------
  * SpaceChip and SpacePicker — which space a record lives in, and choosing it.
@@ -86,20 +97,26 @@ export function SpaceChip({
   ...props
 }: SpaceChipProps) {
   const tile = space ? (
-    <SpaceAvatar
-      space={space}
-      size={size === "xs" ? "2xs" : "xs"}
-      showLock={false}
+    <IconGlyph
+      fallback={
+        space.access === "personal" ? (
+          <UserLock aria-hidden />
+        ) : (
+          (space.icon ?? Array.from(space.name.trim())[0]?.toUpperCase())
+        )
+      }
+      hue={space.hue}
+      size="xs"
     />
   ) : hint ? (
-    <SpaceHintIcon
-      hint={hint}
+    <IconGlyph
+      fallback={hint.kind === "personal" ? <UserLock /> : <LockIcon />}
       aria-hidden
       data-slot="space-chip-icon"
       className="text-muted-foreground"
     />
   ) : (
-    <SpaceIcon
+    <Layers
       aria-hidden
       data-slot="space-chip-icon"
       className="text-muted-foreground"
@@ -125,6 +142,13 @@ export function SpaceChip({
       >
         {tile}
         {name}
+        {space?.access === "private" ? (
+          <LockIcon
+            role="img"
+            aria-label="Private space"
+            className="size-3 shrink-0 text-muted-foreground"
+          />
+        ) : null}
       </span>
     );
   }
@@ -147,6 +171,13 @@ export function SpaceChip({
     >
       {tile}
       {name}
+      {space?.access === "private" ? (
+        <LockIcon
+          role="img"
+          aria-label="Private space"
+          className="size-3 shrink-0 text-muted-foreground"
+        />
+      ) : null}
       <ChevronDown
         aria-hidden
         data-icon="inline-end"
@@ -161,7 +192,7 @@ export function SpaceChip({
 export interface SpacePickerItem {
   /** The space's id — what `value` and `onValueChange` carry. */
   id: string;
-  /** The space, drawn with `SpaceAvatar`. `access: "personal"` lists it under "My space". */
+  /** The space, drawn with `IconGlyph`. `access: "personal"` lists it under "My space". */
   space: Space;
   /** A muted second line, such as "Private · 8 members". @default undefined */
   secondary?: React.ReactNode;
@@ -244,11 +275,23 @@ export function SpacePicker({
           setOpen(false);
         }}
       >
-        <SpaceOption
-          name={item.space.name}
-          secondary={reason ?? item.secondary}
-          avatar={<SpaceAvatar space={item.space} size="sm" />}
+        <IconGlyph
+          fallback={
+            item.space.access === "personal" ? (
+              <UserLock />
+            ) : (
+              (item.space.icon ??
+              Array.from(item.space.name.trim())[0]?.toUpperCase())
+            )
+          }
+          hue={item.space.hue}
         />
+        <ItemContent>
+          <ItemTitle>{item.space.name}</ItemTitle>
+          {(reason ?? item.secondary) ? (
+            <ItemDescription>{reason ?? item.secondary}</ItemDescription>
+          ) : null}
+        </ItemContent>
       </CommandItem>
     );
   };
@@ -277,7 +320,7 @@ export function SpacePicker({
           <CommandList>
             <CommandEmpty>
               <span className="flex flex-col items-center gap-2 text-muted-foreground">
-                <SpaceIcon aria-hidden className="size-4" />
+                <Layers aria-hidden className="size-4" />
                 No spaces found
               </span>
             </CommandEmpty>

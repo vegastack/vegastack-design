@@ -1,5 +1,16 @@
 # @vegastack/design
 
+## 0.7.111
+
+### Patch Changes
+
+- [#536](https://github.com/vegastack/vegastack-design/pull/536) [`ff3d9fb`](https://github.com/vegastack/vegastack-design/commit/ff3d9fbbe93899a3f053196d890c5eff058d280e) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - ⚠ Choose consistent icon and emoji identities with shared search, recents and a nested hue palette.
+
+  - Add IconPicker, IconGlyph and a 160-icon server-safe catalogue.
+  - Share panel geometry and visual-row navigation with EmojiPicker.
+  - Replace filled swatch checks with persistent cell borders and balanced colour grids.
+  - Remove SpaceAvatar; compose generic glyphs with existing space controls and app-owned presentation adapters.
+
 ## 0.7.110
 
 ### Patch Changes

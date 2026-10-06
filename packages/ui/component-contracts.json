@@ -12,22 +12,22 @@
     "evidencePolicy": "Observed fields come from source, registry metadata, docs, and test topology. Unknown/not-applicable values are explicit; no inferred behavior is presented as verified."
   },
   "expectedCounts": {
-    "totalRegistryItems": 726,
-    "components": 151,
+    "totalRegistryItems": 732,
+    "components": 153,
     "animatedIcons": 467,
     "hooks": 13,
     "blocks": 15,
-    "libs": 12,
+    "libs": 16,
     "chartBlocks": 68
   },
   "expectedWaveCounts": {
     "Core controls": 24,
     "Forms/editing": 34,
     "Navigation/layout": 21,
-    "Overlays": 18,
+    "Overlays": 19,
     "Data display": 28,
     "Content/marketing": 15,
-    "Shared internals": 3,
+    "Shared internals": 4,
     "AI/chat": 8,
     "Hooks": 13,
     "Block": 1,
@@ -137,7 +137,8 @@
       "sheet",
       "shortcut-overlay",
       "toast",
-      "tooltip"
+      "tooltip",
+      "icon-picker"
     ],
     "Data display": [
       "activity-feed",
@@ -161,13 +162,13 @@
       "reactions",
       "record-aside",
       "record-list",
-      "space-avatar",
       "stat",
       "table",
       "thumbnail",
       "timeline",
       "version-list",
-      "view-toggle"
+      "view-toggle",
+      "icon-glyph"
     ],
     "Content/marketing": [
       "alert",
@@ -186,7 +187,12 @@
       "truncated-text",
       "video-player"
     ],
-    "Shared internals": ["data-table-parts", "panel-search", "person-avatar"],
+    "Shared internals": [
+      "data-table-parts",
+      "panel-search",
+      "person-avatar",
+      "picker-panel"
+    ],
     "AI/chat": [
       "marker",
       "message",
@@ -458,7 +464,7 @@
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
         "lucide-react@^1.47.0",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/accordion.test.tsx"],
@@ -643,7 +649,7 @@
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
         "@vegastack/design-tokens@^0.7.80",
-        "@vegastack/design@^0.7.110"
+        "@vegastack/design@^0.7.111"
       ],
       "testFiles": ["packages/ui/registry/ui/action-bar.test.tsx"],
       "coverage": {
@@ -806,7 +812,7 @@
       "registryDependencies": [],
       "npmDependencies": [
         "class-variance-authority@^0.7.1",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/alert.test.tsx"],
@@ -1049,7 +1055,7 @@
       ],
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/alert-dialog.test.tsx"],
@@ -1258,7 +1264,7 @@
       "docsSlug": "/docs/components/animated-number",
       "registryDependencies": ["@vegastack/use-media-query"],
       "npmDependencies": [
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/animated-number.test.tsx"],
@@ -1364,7 +1370,7 @@
       "registryDependencies": ["@vegastack/button"],
       "npmDependencies": [
         "lucide-react@^1.47.0",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/announcement-banner.test.tsx"],
@@ -1625,7 +1631,7 @@
       ],
       "npmDependencies": [
         "class-variance-authority@^0.7.1",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/app-shell.test.tsx"],
@@ -1797,7 +1803,7 @@
       "docsSlug": "/docs/components/aspect-ratio",
       "registryDependencies": [],
       "npmDependencies": [
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/aspect-ratio.test.tsx"],
@@ -2044,7 +2050,7 @@
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
         "class-variance-authority@^0.7.1",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/attachment.test.tsx"],
@@ -2401,7 +2407,7 @@
       ],
       "npmDependencies": [
         "lucide-react@^1.47.0",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/audio-player.test.tsx"],
@@ -2615,7 +2621,7 @@
       "registryDependencies": ["@vegastack/input-group", "@vegastack/spinner"],
       "npmDependencies": [
         "lucide-react@^1.47.0",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/auto-save-input.test.tsx"],
@@ -2795,7 +2801,7 @@
       "registryDependencies": [],
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/avatar.test.tsx"],
@@ -2963,7 +2969,7 @@
         "@vegastack/use-file-drop"
       ],
       "npmDependencies": [
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80",
         "lucide-react@^1.47.0"
       ],
@@ -3104,7 +3110,7 @@
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
         "class-variance-authority@^0.7.1",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/badge.test.tsx"],
@@ -3264,7 +3270,7 @@
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
         "lucide-react@^1.47.0",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/board.test.tsx"],
@@ -3490,7 +3496,7 @@
         "@vegastack/person-hover-card"
       ],
       "npmDependencies": [
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80",
         "@base-ui/react@^1.6.0"
       ],
@@ -3668,7 +3674,7 @@
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
         "lucide-react@^1.47.0",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/breadcrumb.test.tsx"],
@@ -3898,7 +3904,7 @@
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
         "@vegastack/design-tokens@^0.7.80",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "lucide-react@^1.47.0"
       ],
       "testFiles": ["packages/ui/registry/ui/breadcrumb-cascade.test.tsx"],
@@ -4096,7 +4102,7 @@
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
         "class-variance-authority@^0.7.1",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/bubble.test.tsx"],
@@ -4277,7 +4283,7 @@
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
         "class-variance-authority@^0.7.1",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/button.test.tsx"],
@@ -4410,7 +4416,7 @@
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
         "class-variance-authority@^0.7.1",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/button-group.test.tsx"],
@@ -4556,7 +4562,7 @@
       "npmDependencies": [
         "react-day-picker@^10.0.1",
         "lucide-react@^1.47.0",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/calendar.test.tsx"],
@@ -4736,7 +4742,7 @@
       "registryDependencies": [],
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/card.test.tsx"],
@@ -4958,7 +4964,7 @@
       "npmDependencies": [
         "embla-carousel-react@^8.6.0",
         "lucide-react@^1.47.0",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/carousel.test.tsx"],
@@ -5156,7 +5162,7 @@
       "registryDependencies": [],
       "npmDependencies": [
         "recharts@^3.10.1",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/chart.test.tsx"],
@@ -5275,7 +5281,7 @@
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
         "lucide-react@^1.47.0",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/checkbox.test.tsx"],
@@ -5440,7 +5446,7 @@
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
         "lucide-react@^1.47.0",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/chip.test.tsx"],
@@ -5555,7 +5561,7 @@
         "@vegastack/use-announcer"
       ],
       "npmDependencies": [
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/chip-input.test.tsx"],
@@ -5768,12 +5774,12 @@
       "engines": [],
       "docsSlug": "/docs/components/code-block",
       "registryDependencies": [
-        "@vegastack/code-highlight",
-        "@vegastack/copy-button"
+        "@vegastack/copy-button",
+        "@vegastack/code-highlight"
       ],
       "npmDependencies": [
         "@vegastack/design-tokens@^0.7.80",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "hast-util-to-jsx-runtime@^2.3.6",
         "lowlight@^3.3.0"
       ],
@@ -6061,7 +6067,7 @@
       ],
       "npmDependencies": [
         "lucide-react@^1.47.0",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/color-picker.test.tsx"],
@@ -6078,14 +6084,10 @@
         "ColorPicker": {
           "attributes": [
             {
-              "name": "data-none",
-              "values": [""]
-            },
-            {
               "name": "data-slot",
               "values": [
                 "color-picker",
-                "color-picker-check",
+                "color-picker-content",
                 "color-picker-swatch"
               ]
             },
@@ -6351,7 +6353,7 @@
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
         "lucide-react@^1.47.0",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/combobox.test.tsx"],
@@ -6735,8 +6737,8 @@
       "docsSlug": "/docs/components/command",
       "registryDependencies": [
         "@vegastack/dialog",
-        "@vegastack/icon-search",
         "@vegastack/input-group",
+        "@vegastack/icon-search",
         "@vegastack/item",
         "@vegastack/kbd",
         "@vegastack/use-announcer",
@@ -6745,7 +6747,7 @@
       "npmDependencies": [
         "cmdk@^1.1.1",
         "lucide-react@^1.47.0",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/command.test.tsx"],
@@ -7098,7 +7100,7 @@
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
         "lucide-react@^1.47.0",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/context-menu.test.tsx"],
@@ -7350,7 +7352,7 @@
       "registryDependencies": ["@vegastack/button", "@vegastack/use-announcer"],
       "npmDependencies": [
         "lucide-react@^1.47.0",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/copy-button.test.tsx"],
@@ -7453,7 +7455,7 @@
         "@vegastack/geo-data"
       ],
       "npmDependencies": [
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/country-select.test.tsx"],
@@ -7642,7 +7644,7 @@
         "@tanstack/react-table@^9.2.4",
         "@tanstack/react-virtual@^3.14.8",
         "lucide-react@^1.47.0",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/data-grid.test.tsx"],
@@ -8003,26 +8005,26 @@
       "engines": [],
       "docsSlug": "/docs/components/data-list",
       "registryDependencies": [
-        "@vegastack/action-bar",
-        "@vegastack/board",
-        "@vegastack/board-card",
-        "@vegastack/button",
-        "@vegastack/checkbox",
         "@vegastack/data-table-parts",
-        "@vegastack/empty",
-        "@vegastack/filter-bar",
         "@vegastack/load-more",
-        "@vegastack/media-card",
-        "@vegastack/skeleton",
         "@vegastack/table",
-        "@vegastack/thumbnail",
         "@vegastack/truncated-text",
+        "@vegastack/button",
+        "@vegastack/empty",
+        "@vegastack/board",
+        "@vegastack/filter-bar",
+        "@vegastack/media-card",
+        "@vegastack/board-card",
+        "@vegastack/skeleton",
+        "@vegastack/thumbnail",
+        "@vegastack/view-toggle",
         "@vegastack/use-drag-reorder",
-        "@vegastack/view-toggle"
+        "@vegastack/checkbox",
+        "@vegastack/action-bar"
       ],
       "npmDependencies": [
         "@vegastack/design-tokens@^0.7.80",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "lucide-react@^1.47.0"
       ],
       "testFiles": ["packages/ui/registry/ui/data-list.test.tsx"],
@@ -8246,7 +8248,7 @@
         "@vegastack/use-announcer"
       ],
       "npmDependencies": [
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/data-list-pager.test.tsx"],
@@ -8382,7 +8384,7 @@
       "docsSlug": "/docs/components/load-more",
       "registryDependencies": ["@vegastack/button"],
       "npmDependencies": [
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/load-more.test.tsx"],
@@ -8495,7 +8497,7 @@
       "docsSlug": "/docs/components/media-card",
       "registryDependencies": ["@vegastack/thumbnail"],
       "npmDependencies": [
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80",
         "@base-ui/react@^1.6.0"
       ],
@@ -8630,7 +8632,7 @@
       "npmDependencies": [
         "class-variance-authority@^0.7.1",
         "lucide-react@^1.47.0",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/priority-icon.test.tsx"],
@@ -8742,7 +8744,7 @@
       "docsSlug": "/docs/components/thumbnail",
       "registryDependencies": [],
       "npmDependencies": [
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80",
         "lucide-react@^1.47.0"
       ],
@@ -8863,7 +8865,7 @@
       "docsSlug": "/docs/components/view-toggle",
       "registryDependencies": ["@vegastack/tabs"],
       "npmDependencies": [
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80",
         "lucide-react@^1.47.0"
       ],
@@ -9406,7 +9408,7 @@
       ],
       "npmDependencies": [
         "lucide-react@^1.47.0",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/data-table-parts.test.tsx"],
@@ -9705,17 +9707,17 @@
       ],
       "docsSlug": "/docs/components/date-picker",
       "registryDependencies": [
-        "@vegastack/button",
-        "@vegastack/calendar",
         "@vegastack/date-time",
+        "@vegastack/calendar",
         "@vegastack/popover",
+        "@vegastack/button",
         "@vegastack/relative-time"
       ],
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
         "react-day-picker@^10",
         "lucide-react@^1.47.0",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/date-picker.test.tsx"],
@@ -9955,7 +9957,7 @@
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
         "lucide-react@^1.47.0",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/dialog.test.tsx"],
@@ -10348,7 +10350,7 @@
       "registryDependencies": ["@vegastack/use-modal-inert"],
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/drawer.test.tsx"],
@@ -10714,7 +10716,7 @@
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
         "lucide-react@^1.47.0",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/dropdown-menu.test.tsx"],
@@ -10991,7 +10993,7 @@
       "docsSlug": "/docs/components/dropzone",
       "registryDependencies": ["@vegastack/use-file-drop"],
       "npmDependencies": [
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/dropzone.test.tsx"],
@@ -11140,7 +11142,7 @@
         "@vegastack/use-file-drop"
       ],
       "npmDependencies": [
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80",
         "lucide-react@^1.47.0"
       ],
@@ -11391,7 +11393,7 @@
         "@vegastack/use-mobile"
       ],
       "npmDependencies": [
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80",
         "lucide-react@^1.47.0"
       ],
@@ -11587,7 +11589,7 @@
         "@vegastack/use-overflow"
       ],
       "npmDependencies": [
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/editable-cell.test.tsx"],
@@ -11765,15 +11767,13 @@
       "registryDependencies": [
         "@vegastack/button",
         "@vegastack/emoji-data",
-        "@vegastack/empty",
-        "@vegastack/panel-search",
-        "@vegastack/popover",
-        "@vegastack/skeleton",
-        "@vegastack/use-list-nav"
+        "@vegastack/picker-panel",
+        "@vegastack/picker-preferences",
+        "@vegastack/popover"
       ],
       "npmDependencies": [
         "lucide-react@^1.47.0",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/emoji-picker.test.tsx"],
@@ -11790,27 +11790,12 @@
         "EmojiPicker": {
           "attributes": [
             {
-              "name": "data-section",
-              "values": []
-            },
-            {
               "name": "data-size",
               "values": []
             },
             {
               "name": "data-slot",
-              "values": [
-                "emoji-picker",
-                "emoji-picker-categories",
-                "emoji-picker-empty",
-                "emoji-picker-footer",
-                "emoji-picker-grid",
-                "emoji-picker-item",
-                "emoji-picker-quick",
-                "emoji-picker-search",
-                "emoji-picker-skeleton",
-                "emoji-picker-status"
-              ]
+              "values": ["emoji-picker", "emoji-picker-footer"]
             }
           ],
           "cssVariables": []
@@ -11948,7 +11933,7 @@
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
         "@vegastack/design-tokens@^0.7.80",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "class-variance-authority@^0.7.1",
         "lucide-react@^1.47.0"
       ],
@@ -12221,7 +12206,7 @@
         "@base-ui/react@^1.6.0",
         "class-variance-authority@^0.7.1",
         "lucide-react@^1.47.0",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": [
@@ -12490,7 +12475,7 @@
       "docsSlug": "/docs/components/field-grid",
       "registryDependencies": [],
       "npmDependencies": [
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/field-grid.test.tsx"],
@@ -12750,17 +12735,17 @@
       "docsSlug": "/docs/components/filter-bar",
       "registryDependencies": [
         "@vegastack/button",
-        "@vegastack/calendar",
         "@vegastack/chip",
-        "@vegastack/date-time",
         "@vegastack/dropdown-menu",
         "@vegastack/popover",
         "@vegastack/search-input",
-        "@vegastack/searchable-select"
+        "@vegastack/searchable-select",
+        "@vegastack/calendar",
+        "@vegastack/date-time"
       ],
       "npmDependencies": [
         "lucide-react@^1.47.0",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/filter-bar.test.tsx"],
@@ -13065,7 +13050,7 @@
       ],
       "npmDependencies": [
         "lucide-react@^1.47.0",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/filter-bar-managed.test.tsx"],
@@ -13218,7 +13203,7 @@
       "registryDependencies": [],
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/hover-card.test.tsx"],
@@ -13367,7 +13352,7 @@
       "registryDependencies": [],
       "npmDependencies": [
         "class-variance-authority@^0.7.1",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/image.test.tsx"],
@@ -13609,7 +13594,7 @@
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
         "@vegastack/design-tokens@^0.7.80",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "lucide-react@^1.47.0",
         "mammoth@1.13.0",
         "pdfjs-dist@^6.3.289",
@@ -13860,7 +13845,7 @@
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
         "@vegastack/design-tokens@^0.7.80",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "lucide-react@^1.47.0"
       ],
       "testFiles": ["packages/ui/registry/ui/folder-tree.test.tsx"],
@@ -14090,7 +14075,7 @@
       ],
       "npmDependencies": [
         "lucide-react@^1.47.0",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/table-of-contents.test.tsx"],
@@ -14187,7 +14172,7 @@
       "registryDependencies": [],
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/input.test.tsx"],
@@ -14362,7 +14347,7 @@
       ],
       "npmDependencies": [
         "class-variance-authority@^0.7.1",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/input-group.test.tsx"],
@@ -14539,7 +14524,7 @@
       "npmDependencies": [
         "input-otp@^1.5.0",
         "lucide-react@^1.47.0",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/input-otp.test.tsx"],
@@ -14798,7 +14783,7 @@
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
         "class-variance-authority@^0.7.1",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/item.test.tsx"],
@@ -14987,7 +14972,7 @@
       "docsSlug": "/docs/components/kbd",
       "registryDependencies": [],
       "npmDependencies": [
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/kbd.test.tsx"],
@@ -15087,7 +15072,7 @@
       "docsSlug": "/docs/components/label",
       "registryDependencies": [],
       "npmDependencies": [
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/label.test.tsx"],
@@ -15311,14 +15296,14 @@
       "engines": [],
       "docsSlug": "/docs/components/inline-chip",
       "registryDependencies": [
-        "@vegastack/avatar",
         "@vegastack/file-kind",
         "@vegastack/hover-card",
-        "@vegastack/person-avatar"
+        "@vegastack/person-avatar",
+        "@vegastack/avatar"
       ],
       "npmDependencies": [
         "@vegastack/design-tokens@^0.7.80",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "lucide-react@^1.47.0"
       ],
       "testFiles": ["packages/ui/registry/ui/inline-chip.test.tsx"],
@@ -15627,16 +15612,16 @@
       ],
       "docsSlug": "/docs/components/markdown-view",
       "registryDependencies": [
-        "@vegastack/alert",
-        "@vegastack/button",
         "@vegastack/checkbox",
         "@vegastack/code-block",
         "@vegastack/inline-chip",
-        "@vegastack/popover"
+        "@vegastack/button",
+        "@vegastack/popover",
+        "@vegastack/alert"
       ],
       "npmDependencies": [
         "marked@^17.0.1",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80",
         "lucide-react@^1.47.0"
       ],
@@ -15778,7 +15763,7 @@
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
         "class-variance-authority@^0.7.1",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/marker.test.tsx"],
@@ -16003,7 +15988,7 @@
       ],
       "npmDependencies": [
         "lucide-react@^1.47.0",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/media-player-controls.test.tsx"],
@@ -16294,7 +16279,7 @@
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
         "lucide-react@^1.47.0",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/menubar.test.tsx"],
@@ -16603,7 +16588,7 @@
       "docsSlug": "/docs/components/message",
       "registryDependencies": [],
       "npmDependencies": [
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/message.test.tsx"],
@@ -16830,7 +16815,7 @@
       "npmDependencies": [
         "@shadcn/react@^0.3.1",
         "lucide-react@^1.47.0",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/message-scroller.test.tsx"],
@@ -17070,17 +17055,17 @@
         "@vegastack/message-scroller",
         "@vegastack/item",
         "@vegastack/button",
-        "@vegastack/editable-cell",
         "@vegastack/panel-search",
         "@vegastack/use-announcer",
         "@vegastack/skeleton",
         "@vegastack/media-player-controls",
         "@vegastack/use-media-query",
-        "@vegastack/input"
+        "@vegastack/input",
+        "@vegastack/editable-cell"
       ],
       "npmDependencies": [
         "lucide-react@^1.47.0",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/transcript.test.tsx"],
@@ -17233,7 +17218,7 @@
       "registryDependencies": [],
       "npmDependencies": [
         "lucide-react@^1.47.0",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/native-select.test.tsx"],
@@ -17447,7 +17432,7 @@
         "@base-ui/react@^1.6.0",
         "class-variance-authority@^0.7.1",
         "lucide-react@^1.47.0",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/navigation-menu.test.tsx"],
@@ -17821,7 +17806,7 @@
       ],
       "npmDependencies": [
         "lucide-react@^1.47.0",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/inbox.test.tsx"],
@@ -17990,7 +17975,7 @@
       ],
       "npmDependencies": [
         "lucide-react@^1.47.0",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/notification-bell.test.tsx"],
@@ -18112,7 +18097,7 @@
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
         "lucide-react@^1.47.0",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/number-field.test.tsx"],
@@ -18257,13 +18242,13 @@
       "engines": [],
       "docsSlug": "/docs/components/page-header",
       "registryDependencies": [
-        "@vegastack/truncated-text",
-        "@vegastack/button"
+        "@vegastack/button",
+        "@vegastack/truncated-text"
       ],
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
         "lucide-react@^1.47.0",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/page-header.test.tsx"],
@@ -18464,7 +18449,7 @@
       "registryDependencies": ["@vegastack/button"],
       "npmDependencies": [
         "lucide-react@^1.47.0",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/pagination.test.tsx"],
@@ -18668,7 +18653,7 @@
       "registryDependencies": [],
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/popover.test.tsx"],
@@ -18851,7 +18836,7 @@
       "registryDependencies": [],
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/progress.test.tsx"],
@@ -19154,7 +19139,7 @@
       "npmDependencies": [
         "@shadcn/react@^0.3.1",
         "lucide-react@^1.47.0",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/questionnaire.test.tsx"],
@@ -19519,7 +19504,7 @@
       "docsSlug": "/docs/components/property-list",
       "registryDependencies": [],
       "npmDependencies": [
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/property-list.test.tsx"],
@@ -19696,7 +19681,7 @@
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
         "next-themes@0.4.6",
-        "@vegastack/design@^0.7.110"
+        "@vegastack/design@^0.7.111"
       ],
       "testFiles": ["packages/ui/registry/ui/provider.test.tsx"],
       "coverage": {
@@ -19793,7 +19778,7 @@
       "registryDependencies": ["@vegastack/field"],
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/radio-group.test.tsx"],
@@ -19914,7 +19899,7 @@
       ],
       "npmDependencies": [
         "lucide-react@^1.47.0",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/region-select.test.tsx"],
@@ -20120,7 +20105,7 @@
         "@vegastack/truncated-text"
       ],
       "npmDependencies": [
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/relative-time.test.tsx"],
@@ -20282,7 +20267,7 @@
       "registryDependencies": [],
       "npmDependencies": [
         "react-resizable-panels@^4",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/resizable.test.tsx"],
@@ -20407,7 +20392,7 @@
       "registryDependencies": [],
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/scroll-area.test.tsx"],
@@ -20591,7 +20576,7 @@
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
         "lucide-react@^1.47.0",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/searchable-select.test.tsx"],
@@ -20740,7 +20725,7 @@
       "registryDependencies": ["@vegastack/input-group"],
       "npmDependencies": [
         "lucide-react@^1.47.0",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/search-input.test.tsx"],
@@ -20852,7 +20837,7 @@
       "registryDependencies": ["@vegastack/input-group"],
       "npmDependencies": [
         "lucide-react@^1.47.0",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/password-input.test.tsx"],
@@ -21060,7 +21045,7 @@
         "class-variance-authority@^0.7.1",
         "@base-ui/react@^1.6.0",
         "lucide-react@^1.47.0",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/select.test.tsx"],
@@ -21239,7 +21224,7 @@
       "registryDependencies": [],
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/separator.test.tsx"],
@@ -21390,7 +21375,7 @@
       "docsSlug": "/docs/components/settings-row",
       "registryDependencies": ["@vegastack/card"],
       "npmDependencies": [
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/settings-row.test.tsx"],
@@ -21621,7 +21606,7 @@
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
         "lucide-react@^1.47.0",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/sheet.test.tsx"],
@@ -21835,7 +21820,7 @@
         "@vegastack/use-platform"
       ],
       "npmDependencies": [
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/shortcut-overlay.test.tsx"],
@@ -21935,7 +21920,7 @@
       "docsSlug": "/docs/components/skeleton",
       "registryDependencies": [],
       "npmDependencies": [
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/skeleton.test.tsx"],
@@ -22032,7 +22017,7 @@
       "registryDependencies": [],
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/slider.test.tsx"],
@@ -22183,7 +22168,7 @@
       ],
       "npmDependencies": [
         "lucide-react@^1.47.0",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/sortable-list.test.tsx"],
@@ -22318,7 +22303,7 @@
       "registryDependencies": [],
       "npmDependencies": [
         "lucide-react@^1.47.0",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/spinner.test.tsx"],
@@ -22538,7 +22523,7 @@
       "registryDependencies": ["@vegastack/skeleton"],
       "npmDependencies": [
         "class-variance-authority@^0.7.1",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/stat.test.tsx"],
@@ -22716,7 +22701,7 @@
       "npmDependencies": [
         "class-variance-authority@^0.7.1",
         "lucide-react@^1.47.0",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/status-icon.test.tsx"],
@@ -22913,7 +22898,7 @@
       "registryDependencies": ["@vegastack/button", "@vegastack/progress"],
       "npmDependencies": [
         "lucide-react@^1.47.0",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/stepper.test.tsx"],
@@ -23259,7 +23244,7 @@
       ],
       "npmDependencies": [
         "lucide-react@^1.47.0",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/multi-step-form.test.tsx"],
@@ -23477,7 +23462,7 @@
       "registryDependencies": [],
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/switch.test.tsx"],
@@ -23669,7 +23654,7 @@
       "docsSlug": "/docs/components/table",
       "registryDependencies": ["@vegastack/use-overflow"],
       "npmDependencies": [
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/table.test.tsx"],
@@ -23903,7 +23888,7 @@
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
         "class-variance-authority@^0.7.1",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/tabs.test.tsx"],
@@ -24067,7 +24052,7 @@
       "registryDependencies": ["@vegastack/chip"],
       "npmDependencies": [
         "lucide-react@^1.47.0",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/tag-group.test.tsx"],
@@ -24222,7 +24207,7 @@
         "@base-ui/react@^1.6.0",
         "class-variance-authority@^0.7.1",
         "lucide-react@^1.47.0",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/terminal.test.tsx"],
@@ -24375,7 +24360,7 @@
         "@tiptap/starter-kit@^3",
         "@tiptap/suggestion@^3",
         "@vegastack/design-tokens@^0.7.80",
-        "@vegastack/design@^0.7.110"
+        "@vegastack/design@^0.7.111"
       ],
       "testFiles": ["packages/ui/registry/ui/template-editor.test.tsx"],
       "coverage": {
@@ -24681,30 +24666,30 @@
       ],
       "docsSlug": "/docs/components/text-edit",
       "registryDependencies": [
-        "@vegastack/alert",
         "@vegastack/button",
         "@vegastack/checkbox",
         "@vegastack/code-block",
-        "@vegastack/code-highlight",
         "@vegastack/command",
         "@vegastack/copy-button",
         "@vegastack/drag-item",
         "@vegastack/dropdown-menu",
-        "@vegastack/dropzone",
-        "@vegastack/empty",
         "@vegastack/file-kind",
         "@vegastack/file-viewer",
         "@vegastack/inline-chip",
         "@vegastack/input",
         "@vegastack/markdown-view",
         "@vegastack/popover",
-        "@vegastack/tabs",
         "@vegastack/text-anchor",
         "@vegastack/text-anchor-doc",
-        "@vegastack/toast",
         "@vegastack/toggle",
         "@vegastack/tooltip",
-        "@vegastack/use-file-drop"
+        "@vegastack/use-file-drop",
+        "@vegastack/code-highlight",
+        "@vegastack/alert",
+        "@vegastack/dropzone",
+        "@vegastack/empty",
+        "@vegastack/tabs",
+        "@vegastack/toast"
       ],
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
@@ -24721,7 +24706,7 @@
         "@tiptap/starter-kit@^3",
         "@tiptap/suggestion@^3",
         "@vegastack/design-tokens@^0.7.80",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "highlight.js@^11.11.1",
         "lowlight@^3.3.0",
         "lucide-react@^1.47.0"
@@ -24864,7 +24849,7 @@
       "registryDependencies": [],
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/textarea.test.tsx"],
@@ -25002,7 +24987,7 @@
       "docsSlug": "/docs/components/timeline",
       "registryDependencies": ["@vegastack/marker"],
       "npmDependencies": [
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/timeline.test.tsx"],
@@ -25321,7 +25306,7 @@
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
         "lucide-react@^1.47.0",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/toast.test.tsx"],
@@ -25518,7 +25503,7 @@
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
         "class-variance-authority@^0.7.1",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/toggle.test.tsx"],
@@ -25625,7 +25610,7 @@
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
         "class-variance-authority@^0.7.1",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/toggle-group.test.tsx"],
@@ -25767,7 +25752,7 @@
       "registryDependencies": ["@vegastack/badge"],
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/tool-call-chip.test.tsx"],
@@ -25894,7 +25879,7 @@
       "registryDependencies": [],
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/tooltip.test.tsx"],
@@ -26090,7 +26075,7 @@
       "docsSlug": "/docs/components/truncated-text",
       "registryDependencies": ["@vegastack/tooltip", "@vegastack/use-overflow"],
       "npmDependencies": [
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/truncated-text.test.tsx"],
@@ -26256,7 +26241,7 @@
       ],
       "npmDependencies": [
         "@vegastack/design-tokens@^0.7.80",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "lucide-react@^1.47.0"
       ],
       "testFiles": ["packages/ui/registry/ui/video-player.test.tsx"],
@@ -26396,7 +26381,7 @@
       "npmDependencies": [
         "lucide-react@^1.47.0",
         "@base-ui/react@^1.6.0",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/panel-search.test.tsx"],
@@ -26800,7 +26785,7 @@
         "@base-ui/react@^1.6.0",
         "class-variance-authority@^0.7.1",
         "lucide-react@^1.47.0",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/sidebar.test.tsx"],
@@ -27181,7 +27166,7 @@
       "docsSlug": "/docs/components/meta-line",
       "registryDependencies": [],
       "npmDependencies": [
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/meta-line.test.tsx"],
@@ -27392,7 +27377,7 @@
       ],
       "npmDependencies": [
         "lucide-react@^1.47.0",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/record-chip.test.tsx"],
@@ -27640,7 +27625,7 @@
       "registryDependencies": ["@vegastack/button", "@vegastack/table"],
       "npmDependencies": [
         "lucide-react@^1.47.0",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/record-list.test.tsx"],
@@ -27795,7 +27780,7 @@
       "registryDependencies": ["@vegastack/spinner"],
       "npmDependencies": [
         "lucide-react@^1.47.0",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/status-line.test.tsx"],
@@ -28043,7 +28028,7 @@
         "@vegastack/skeleton"
       ],
       "npmDependencies": [
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80",
         "lucide-react@^1.47.0"
       ],
@@ -28362,25 +28347,25 @@
       "engines": [],
       "docsSlug": "/docs/components/comments",
       "registryDependencies": [
-        "@vegastack/attachment",
-        "@vegastack/button",
         "@vegastack/date-time",
+        "@vegastack/button",
         "@vegastack/dropdown-menu",
-        "@vegastack/file-viewer",
         "@vegastack/markdown-view",
         "@vegastack/person-avatar",
-        "@vegastack/person-hover-card",
         "@vegastack/reactions",
         "@vegastack/relative-time",
         "@vegastack/searchable-select",
         "@vegastack/skeleton",
-        "@vegastack/spinner",
         "@vegastack/text-edit",
         "@vegastack/tooltip",
-        "@vegastack/use-media-query"
+        "@vegastack/attachment",
+        "@vegastack/file-viewer",
+        "@vegastack/spinner",
+        "@vegastack/use-media-query",
+        "@vegastack/person-hover-card"
       ],
       "npmDependencies": [
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80",
         "lucide-react@^1.47.0"
       ],
@@ -28779,7 +28764,7 @@
         "@vegastack/skeleton"
       ],
       "npmDependencies": [
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80",
         "lucide-react@^1.47.0"
       ],
@@ -29019,7 +29004,7 @@
       "registryDependencies": ["@vegastack/button", "@vegastack/skeleton"],
       "npmDependencies": [
         "diff@^8.0.4",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/diff-view.test.tsx"],
@@ -29131,7 +29116,7 @@
         "@vegastack/use-list-nav"
       ],
       "npmDependencies": [
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/version-list.test.tsx"],
@@ -29282,7 +29267,7 @@
       "registryDependencies": [],
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": ["packages/ui/registry/ui/comment-margin.test.tsx"],
@@ -29452,7 +29437,7 @@
         "@vegastack/hover-card"
       ],
       "npmDependencies": [
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80",
         "lucide-react@^1.47.0"
       ],
@@ -29798,7 +29783,7 @@
         "@vegastack/tooltip"
       ],
       "npmDependencies": [
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80",
         "lucide-react@^1.47.0"
       ],
@@ -30059,7 +30044,7 @@
         "@vegastack/searchable-select"
       ],
       "npmDependencies": [
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80",
         "lucide-react@^1.47.0"
       ],
@@ -30205,7 +30190,7 @@
       "registryDependencies": ["@vegastack/avatar"],
       "npmDependencies": [
         "@vegastack/design-tokens@^0.7.80",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "lucide-react@^1.47.0"
       ],
       "testFiles": ["packages/ui/registry/ui/person-avatar.test.tsx"],
@@ -30227,201 +30212,6 @@
             {
               "name": "data-slot",
               "values": ["avatar-image"]
-            }
-          ],
-          "cssVariables": []
-        }
-      }
-    },
-    {
-      "name": "space-avatar",
-      "registryType": "registry:ui",
-      "title": "Space Avatar",
-      "summary": "A space's tile — its icon or first initial on its hue, a corner lock when private, the lock itself for a personal space — plus SpaceOption, the space row for pickers and menus.",
-      "status": "stable",
-      "since": "0.23.112",
-      "family": "data",
-      "wave": "Data display",
-      "sourceFiles": ["packages/ui/registry/ui/space-avatar.tsx"],
-      "publicSymbols": [
-        {
-          "name": "SpaceAvatar",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/space-avatar.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "span",
-            "rationale": "Props and ref spread onto the root span."
-          }
-        },
-        {
-          "name": "SpaceAvatarProps",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/space-avatar.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "Space",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/space-avatar.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "SpaceOption",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/space-avatar.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "A presentational row composed into a host's item; it takes no ref."
-          }
-        },
-        {
-          "name": "SpaceOptionProps",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/space-avatar.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "SpaceIcon",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/space-avatar.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "No stable public ref target is forwarded by SpaceIcon in packages/ui/registry/ui/space-avatar.tsx; incidental internal nodes are not part of its API."
-          }
-        },
-        {
-          "name": "SpaceHint",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/space-avatar.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "SpaceHintIcon",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/space-avatar.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "No stable public ref target is forwarded by SpaceHintIcon in packages/ui/registry/ui/space-avatar.tsx; incidental internal nodes are not part of its API."
-          }
-        },
-        {
-          "name": "spaceHintLabel",
-          "kind": "function",
-          "source": "packages/ui/registry/ui/space-avatar.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "This exported helper is not a rendered component root."
-          }
-        }
-      ],
-      "variants": {
-        "status": "observed",
-        "dimensions": [
-          {
-            "name": "access",
-            "values": ["open", "private", "personal"]
-          }
-        ],
-        "rationale": "The space's access picks the corner lock (private) or the lock tile (personal)."
-      },
-      "sizes": {
-        "status": "observed",
-        "dimensions": [
-          {
-            "name": "size",
-            "values": ["xs", "sm", "default", "lg"]
-          }
-        ],
-        "rationale": "20, 24, 32 and 40px tiles; the lock and icon scale with them."
-      },
-      "states": {
-        "behavior": {
-          "status": "covered",
-          "values": ["initial", "icon", "hue", "private", "personal"],
-          "evidence": "packages/ui/registry/ui/space-avatar.tsx + packages/ui/registry/ui/space-avatar.test.tsx"
-        },
-        "accessibility": {
-          "status": "covered",
-          "values": [
-            "decorative",
-            "labelled-image",
-            "browser-accessibility-test"
-          ],
-          "evidence": "packages/ui/registry/ui/space-avatar.test.tsx"
-        },
-        "visual": {
-          "status": "observed",
-          "values": ["default", "hue", "private", "personal"],
-          "evidence": "packages/ui/registry/ui/space-avatar.tsx"
-        }
-      },
-      "responsive": {
-        "status": "not-applicable",
-        "risks": [],
-        "rationale": "A fixed-size tile; its host owns layout."
-      },
-      "motion": {
-        "status": "not-applicable",
-        "mechanisms": [],
-        "reducedMotion": {
-          "status": "not-applicable",
-          "rationale": "No component-owned motion."
-        }
-      },
-      "engines": [],
-      "docsSlug": "/docs/components/space-avatar",
-      "registryDependencies": ["@vegastack/avatar", "@vegastack/badge"],
-      "npmDependencies": [
-        "@vegastack/design-tokens@^0.7.80",
-        "@vegastack/design@^0.7.110",
-        "lucide-react@^1.47.0"
-      ],
-      "testFiles": ["packages/ui/registry/ui/space-avatar.test.tsx"],
-      "coverage": {
-        "source": "required",
-        "test": "required",
-        "docs": "required",
-        "navigation": "required",
-        "preview": "required",
-        "vrt": "required"
-      },
-      "previewModule": "space-avatar",
-      "dataAttributes": {
-        "SpaceAvatar": {
-          "attributes": [
-            {
-              "name": "data-access",
-              "values": []
-            },
-            {
-              "name": "data-size",
-              "values": []
-            },
-            {
-              "name": "data-slot",
-              "values": ["space-avatar", "space-avatar-lock"]
-            }
-          ],
-          "cssVariables": []
-        },
-        "SpaceOption": {
-          "attributes": [
-            {
-              "name": "data-slot",
-              "values": ["space-option", "space-option-badge"]
             }
           ],
           "cssVariables": []
@@ -30532,7 +30322,7 @@
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
         "@vegastack/design-tokens@^0.7.80",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "lucide-react@^1.47.0"
       ],
       "testFiles": ["packages/ui/registry/ui/people-input.test.tsx"],
@@ -30672,7 +30462,7 @@
       ],
       "npmDependencies": [
         "@vegastack/design-tokens@^0.7.80",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "lucide-react@^1.47.0"
       ],
       "testFiles": ["packages/ui/registry/ui/permission-menu.test.tsx"],
@@ -30908,7 +30698,7 @@
       ],
       "npmDependencies": [
         "@vegastack/design-tokens@^0.7.80",
-        "@vegastack/design@^0.7.110"
+        "@vegastack/design@^0.7.111"
       ],
       "testFiles": ["packages/ui/registry/ui/responsive-dialog.test.tsx"],
       "coverage": {
@@ -30991,6 +30781,33 @@
             "status": "not-applicable",
             "rationale": "Type-only exports do not render or accept runtime refs."
           }
+        },
+        {
+          "name": "Space",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/space-picker.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Presentation data or label helper, no rendered root."
+          }
+        },
+        {
+          "name": "SpaceHint",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/space-picker.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Presentation data or label helper, no rendered root."
+          }
+        },
+        {
+          "name": "spaceHintLabel",
+          "kind": "function",
+          "source": "packages/ui/registry/ui/space-picker.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Presentation data or label helper, no rendered root."
+          }
         }
       ],
       "variants": {
@@ -31054,14 +30871,16 @@
       "engines": [],
       "docsSlug": "/docs/components/space-picker",
       "registryDependencies": [
+        "@vegastack/avatar",
         "@vegastack/button",
         "@vegastack/command",
-        "@vegastack/popover",
-        "@vegastack/space-avatar"
+        "@vegastack/icon-glyph",
+        "@vegastack/item",
+        "@vegastack/popover"
       ],
       "npmDependencies": [
         "@vegastack/design-tokens@^0.7.80",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "lucide-react@^1.47.0"
       ],
       "testFiles": ["packages/ui/registry/ui/space-picker.test.tsx"],
@@ -31213,12 +31032,13 @@
       "docsSlug": "/docs/components/access-chip",
       "registryDependencies": [
         "@vegastack/button",
-        "@vegastack/space-avatar",
+        "@vegastack/icon-glyph",
+        "@vegastack/space-picker",
         "@vegastack/tooltip"
       ],
       "npmDependencies": [
         "@vegastack/design-tokens@^0.7.80",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "lucide-react@^1.47.0"
       ],
       "testFiles": ["packages/ui/registry/ui/access-chip.test.tsx"],
@@ -31348,7 +31168,7 @@
       "registryDependencies": ["@vegastack/field", "@vegastack/radio-group"],
       "npmDependencies": [
         "@vegastack/design-tokens@^0.7.80",
-        "@vegastack/design@^0.7.110"
+        "@vegastack/design@^0.7.111"
       ],
       "testFiles": ["packages/ui/registry/ui/choice-card.test.tsx"],
       "coverage": {
@@ -31379,6 +31199,401 @@
             {
               "name": "data-slot",
               "values": ["choice-card", "choice-card-icon"]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
+    },
+    {
+      "name": "icon-glyph",
+      "registryType": "registry:ui",
+      "title": "Icon Glyph",
+      "summary": "A generic identity glyph with no entity, access or avatar semantics.",
+      "status": "stable",
+      "since": "0.23.127",
+      "family": "data-display",
+      "wave": "Data display",
+      "sourceFiles": ["packages/ui/registry/ui/icon-glyph.tsx"],
+      "publicSymbols": [
+        {
+          "name": "IconGlyphProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/icon-glyph.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Data, type or internal presentation export."
+          }
+        },
+        {
+          "name": "IconGlyph",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/icon-glyph.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "span",
+            "rationale": "Props forward the ref to the rendered root."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "No explicit local CVA or string-union variant dimension observed; structure or inherited props define the surface."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "No explicit local size scale observed; sizing is fixed, structural, or inherited."
+      },
+      "states": {
+        "behavior": {
+          "status": "observed",
+          "values": [
+            "default",
+            "active",
+            "disabled",
+            "error",
+            "pressed",
+            "range",
+            "selected",
+            "success"
+          ],
+          "evidence": "Observed from branches, state attributes, and inline source contract."
+        },
+        "accessibility": {
+          "status": "observed",
+          "values": ["disabled", "keyboard", "labeled", "pressed"],
+          "evidence": "Observed from semantic elements, ARIA, keyboard handlers, or focus styling."
+        },
+        "visual": {
+          "status": "observed",
+          "values": ["default", "hover", "error", "success"],
+          "evidence": "Observed from token classes, state selectors, or visual branches."
+        }
+      },
+      "responsive": {
+        "status": "modeled",
+        "risks": ["grid-wrapping"],
+        "rationale": "Source-signaled responsive, overflow, truncation, positioning, mobile, or grid risks."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned motion mechanism observed."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/icon-glyph",
+      "registryDependencies": [
+        "@vegastack/avatar",
+        "@vegastack/icon-components",
+        "@vegastack/icon-data"
+      ],
+      "npmDependencies": [
+        "@vegastack/design@^0.7.111",
+        "@vegastack/design-tokens@^0.7.80"
+      ],
+      "testFiles": ["packages/ui/registry/ui/icon-picker.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required"
+      },
+      "previewModule": "icon-glyph",
+      "dataAttributes": {
+        "IconGlyph": {
+          "attributes": [
+            {
+              "name": "data-icon-tone",
+              "values": [""]
+            },
+            {
+              "name": "data-size",
+              "values": []
+            },
+            {
+              "name": "data-slot",
+              "values": ["icon-glyph"]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
+    },
+    {
+      "name": "picker-panel",
+      "registryType": "registry:ui",
+      "title": "Picker Panel",
+      "summary": "A searchable, selectable item in an internal picker panel.",
+      "status": "stable",
+      "since": "0.23.127",
+      "family": "overlay",
+      "wave": "Shared internals",
+      "sourceFiles": ["packages/ui/registry/ui/picker-panel.tsx"],
+      "publicSymbols": [
+        {
+          "name": "PickerPanelEntry",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/picker-panel.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Data, type or internal presentation export."
+          }
+        },
+        {
+          "name": "PickerPanelProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/picker-panel.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Data, type or internal presentation export."
+          }
+        },
+        {
+          "name": "PickerPanel",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/picker-panel.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Data, type or internal presentation export."
+          }
+        },
+        {
+          "name": "EMOJI_CATEGORY_ICONS",
+          "kind": "constant",
+          "source": "packages/ui/registry/ui/picker-panel.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Category glyph map, no rendered root."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "One row, one field: the exception is a single shape, so there is nothing to vary."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "The row is a fixed h-8 header; `floating-surface`'s `size=\"lg\"` tier went with it in Batch 7a."
+      },
+      "states": {
+        "behavior": {
+          "status": "observed",
+          "values": ["default", "focus", "disabled"],
+          "evidence": "The row tints its own border while focus is inside it (focus-within); the field carries the disabled cursor and opacity."
+        },
+        "accessibility": {
+          "status": "observed",
+          "values": ["labeled", "keyboard", "semantic-html"],
+          "evidence": "A real type=search input the consumer names; the leading glyph is aria-hidden so it never joins the field's accessible name."
+        },
+        "visual": {
+          "status": "observed",
+          "values": ["default", "focus"],
+          "evidence": "The row is a field group whose hairline darkens subtly while its field holds focus, with no fill; the field paints no box and no ring of its own, which is the whole of OVL-11."
+        }
+      },
+      "responsive": {
+        "status": "observed",
+        "risks": ["text-truncation-and-flex-shrink"],
+        "rationale": "The field is min-w-0 inside a flex row, so a long placeholder shrinks rather than pushing the glyph out of the panel."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned motion mechanism observed."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/guides/components",
+      "registryDependencies": [
+        "@vegastack/button",
+        "@vegastack/empty",
+        "@vegastack/field",
+        "@vegastack/panel-search",
+        "@vegastack/picker-search",
+        "@vegastack/skeleton",
+        "@vegastack/use-announcer",
+        "@vegastack/use-list-nav"
+      ],
+      "npmDependencies": [
+        "lucide-react@^1.47.0",
+        "@vegastack/design@^0.7.111",
+        "@vegastack/design-tokens@^0.7.80"
+      ],
+      "testFiles": ["packages/ui/registry/ui/icon-picker.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "shared-guide-only",
+        "navigation": "exempt",
+        "preview": "exempt",
+        "vrt": "exempt"
+      },
+      "dataAttributes": {
+        "PickerPanel": {
+          "attributes": [
+            {
+              "name": "data-section",
+              "values": []
+            },
+            {
+              "name": "data-size",
+              "values": []
+            },
+            {
+              "name": "data-slot",
+              "values": [
+                "picker-panel",
+                "picker-panel-categories",
+                "picker-panel-grid",
+                "picker-panel-item",
+                "picker-panel-quick"
+              ]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
+    },
+    {
+      "name": "icon-picker",
+      "registryType": "registry:ui",
+      "title": "Icon Picker",
+      "summary": "Modes offered by the generic identity picker.",
+      "status": "stable",
+      "since": "0.23.127",
+      "family": "overlay",
+      "wave": "Overlays",
+      "sourceFiles": ["packages/ui/registry/ui/icon-picker.tsx"],
+      "publicSymbols": [
+        {
+          "name": "IconPickerMode",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/icon-picker.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Data, type or internal presentation export."
+          }
+        },
+        {
+          "name": "IconPickerProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/icon-picker.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Data, type or internal presentation export."
+          }
+        },
+        {
+          "name": "IconPicker",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/icon-picker.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "PopoverTrigger",
+            "rationale": "Props forward the ref to the rendered root."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "No explicit local CVA or string-union variant dimension observed; structure or inherited props define the surface."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "No explicit local size scale observed; sizing is fixed, structural, or inherited."
+      },
+      "states": {
+        "behavior": {
+          "status": "observed",
+          "values": [
+            "default",
+            "active",
+            "disabled",
+            "error",
+            "pressed",
+            "range",
+            "selected",
+            "success"
+          ],
+          "evidence": "Observed from branches, state attributes, and inline source contract."
+        },
+        "accessibility": {
+          "status": "observed",
+          "values": ["disabled", "keyboard", "labeled", "pressed"],
+          "evidence": "Observed from semantic elements, ARIA, keyboard handlers, or focus styling."
+        },
+        "visual": {
+          "status": "observed",
+          "values": ["default", "hover", "error", "success"],
+          "evidence": "Observed from token classes, state selectors, or visual branches."
+        }
+      },
+      "responsive": {
+        "status": "modeled",
+        "risks": ["grid-wrapping"],
+        "rationale": "Source-signaled responsive, overflow, truncation, positioning, mobile, or grid risks."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned motion mechanism observed."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/icon-picker",
+      "registryDependencies": [
+        "@vegastack/avatar",
+        "@vegastack/button",
+        "@vegastack/color-picker",
+        "@vegastack/emoji-picker",
+        "@vegastack/icon-data",
+        "@vegastack/icon-glyph",
+        "@vegastack/picker-panel",
+        "@vegastack/picker-preferences",
+        "@vegastack/popover",
+        "@vegastack/tabs"
+      ],
+      "npmDependencies": [
+        "lucide-react@^1.47.0",
+        "@vegastack/design@^0.7.111",
+        "@vegastack/design-tokens@^0.7.80"
+      ],
+      "testFiles": ["packages/ui/registry/ui/icon-picker.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required"
+      },
+      "previewModule": "icon-picker",
+      "dataAttributes": {
+        "IconPicker": {
+          "attributes": [
+            {
+              "name": "data-size",
+              "values": []
+            },
+            {
+              "name": "data-slot",
+              "values": ["icon-picker", "icon-picker-footer"]
             }
           ],
           "cssVariables": []
@@ -31468,7 +31683,7 @@
       ],
       "docsSlug": "/docs/foundations/icons",
       "registryDependencies": [],
-      "npmDependencies": ["motion@^13.2.0", "@vegastack/design@^0.7.110"],
+      "npmDependencies": ["motion@^13.2.0", "@vegastack/design@^0.7.111"],
       "coverage": {
         "source": "required-per-member",
         "test": "all-member-browser-import plus generator invariants",
@@ -34155,7 +34370,7 @@
       "engines": [],
       "docsSlug": "/docs/guides/components",
       "registryDependencies": [],
-      "npmDependencies": ["@vegastack/design@^0.7.110"],
+      "npmDependencies": ["@vegastack/design@^0.7.111"],
       "testFiles": ["packages/ui/registry/ui/use-modal-inert.test.tsx"],
       "coverage": {
         "source": "required",
@@ -34246,7 +34461,7 @@
       "engines": [],
       "docsSlug": "/docs/guides/components",
       "registryDependencies": [],
-      "npmDependencies": ["@vegastack/design@^0.7.110"],
+      "npmDependencies": ["@vegastack/design@^0.7.111"],
       "testFiles": ["packages/ui/registry/ui/use-announcer.test.tsx"],
       "coverage": {
         "source": "required",
@@ -34363,7 +34578,7 @@
       },
       "engines": [],
       "registryDependencies": ["@vegastack/load-more"],
-      "npmDependencies": ["@vegastack/design@^0.7.110"],
+      "npmDependencies": ["@vegastack/design@^0.7.111"],
       "testFiles": ["packages/ui/registry/ui/use-async-search.test.tsx"],
       "coverage": {
         "source": "required",
@@ -35425,7 +35640,7 @@
       "engines": [],
       "docsSlug": "/docs/guides/components",
       "registryDependencies": [],
-      "npmDependencies": ["@vegastack/design@^0.7.110"],
+      "npmDependencies": ["@vegastack/design@^0.7.111"],
       "testFiles": ["packages/ui/registry/ui/use-tabs-swipe.test.tsx"],
       "coverage": {
         "source": "required",
@@ -36007,7 +36222,7 @@
       "npmDependencies": [
         "lucide-react@^1.47.0",
         "@vegastack/design-tokens@^0.7.80",
-        "@vegastack/design@^0.7.110"
+        "@vegastack/design@^0.7.111"
       ],
       "testFiles": [
         "packages/ui/registry/blocks/command-search-01/command-search-01.test.tsx"
@@ -36454,7 +36669,7 @@
         "@vegastack/password-input"
       ],
       "npmDependencies": [
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80",
         "lucide-react@^1.47.0"
       ],
@@ -36775,7 +36990,7 @@
         "@vegastack/transcript"
       ],
       "npmDependencies": [
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": [
@@ -36853,17 +37068,17 @@
       "engines": [],
       "docsSlug": "/docs/blocks/settings-01",
       "registryDependencies": [
-        "@vegastack/alert-dialog",
-        "@vegastack/app-shell",
-        "@vegastack/auto-save-input",
         "@vegastack/button",
         "@vegastack/field",
         "@vegastack/input",
         "@vegastack/native-select",
-        "@vegastack/page-header",
         "@vegastack/settings-row",
         "@vegastack/switch",
-        "@vegastack/textarea"
+        "@vegastack/textarea",
+        "@vegastack/alert-dialog",
+        "@vegastack/app-shell",
+        "@vegastack/page-header",
+        "@vegastack/auto-save-input"
       ],
       "npmDependencies": ["@vegastack/design-tokens@^0.7.80"],
       "testFiles": [
@@ -37098,7 +37313,7 @@
       ],
       "npmDependencies": [
         "lucide-react@^1.47.0",
-        "@vegastack/design@^0.7.110",
+        "@vegastack/design@^0.7.111",
         "@vegastack/design-tokens@^0.7.80"
       ],
       "testFiles": [
@@ -37716,6 +37931,7 @@
         "@vegastack/button",
         "@vegastack/checkbox",
         "@vegastack/copy-button",
+        "@vegastack/icon-glyph",
         "@vegastack/input-group",
         "@vegastack/item",
         "@vegastack/people-input",
@@ -37724,7 +37940,7 @@
         "@vegastack/responsive-dialog",
         "@vegastack/select",
         "@vegastack/skeleton",
-        "@vegastack/space-avatar",
+        "@vegastack/space-picker",
         "@vegastack/switch",
         "@vegastack/tabs",
         "@vegastack/textarea",
@@ -38923,7 +39139,7 @@
         "risks": [],
         "rationale": "No DOM of its own; consumers own layout."
       },
-      "npmDependencies": ["lucide-react@^1.47.0", "@vegastack/design@^0.7.110"],
+      "npmDependencies": ["lucide-react@^1.47.0", "@vegastack/design@^0.7.111"],
       "testFiles": [
         "packages/ui/registry/lib/file-kind.test.ts",
         "packages/ui/registry/ui/file-viewer.test.tsx"
@@ -39417,6 +39633,387 @@
         "preview": "exempt",
         "vrt": "exempt"
       }
+    },
+    {
+      "name": "icon-data",
+      "registryType": "registry:lib",
+      "title": "Icon Data",
+      "summary": "Curated catalogue metadata. Upstream tags pinned to Lucide revision 1fae58d0a9c661a338036838caf3399b5507bab6.",
+      "family": "lib",
+      "wave": "Libs",
+      "sourceFiles": ["packages/ui/registry/lib/icon-data.ts"],
+      "publicSymbols": [
+        {
+          "name": "ICON_CATEGORIES",
+          "kind": "constant",
+          "source": "packages/ui/registry/lib/icon-data.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Data, type or internal presentation export."
+          }
+        },
+        {
+          "name": "IconCategory",
+          "kind": "type",
+          "source": "packages/ui/registry/lib/icon-data.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Data, type or internal presentation export."
+          }
+        },
+        {
+          "name": "ICON_CATALOGUE",
+          "kind": "constant",
+          "source": "packages/ui/registry/lib/icon-data.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Data, type or internal presentation export."
+          }
+        },
+        {
+          "name": "IconName",
+          "kind": "type",
+          "source": "packages/ui/registry/lib/icon-data.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Data, type or internal presentation export."
+          }
+        },
+        {
+          "name": "IconValue",
+          "kind": "type",
+          "source": "packages/ui/registry/lib/icon-data.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Data, type or internal presentation export."
+          }
+        },
+        {
+          "name": "isIconName",
+          "kind": "function",
+          "source": "packages/ui/registry/lib/icon-data.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Data, type or internal presentation export."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "A data/recipe module renders nothing and has no variant surface."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "A data/recipe module renders nothing and has no size scale."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned motion mechanism observed."
+        }
+      },
+      "engines": [],
+      "registryDependencies": [],
+      "docsSlug": "/docs/guides/components",
+      "states": {
+        "behavior": {
+          "status": "not-applicable",
+          "values": ["not-applicable"],
+          "evidence": "Frozen data plus two pure lookups; no state machine."
+        },
+        "accessibility": {
+          "status": "not-applicable",
+          "values": ["not-applicable"],
+          "evidence": "No DOM — the picker owns every ARIA contract."
+        },
+        "visual": {
+          "status": "not-applicable",
+          "values": ["not-applicable"],
+          "evidence": "No DOM and no classes."
+        }
+      },
+      "responsive": {
+        "status": "not-applicable",
+        "risks": [],
+        "rationale": "No DOM of its own; consumers own layout."
+      },
+      "npmDependencies": [],
+      "testFiles": ["packages/ui/registry/lib/icon-data.test.ts"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "shared-guide-only",
+        "navigation": "exempt",
+        "preview": "exempt",
+        "vrt": "exempt"
+      },
+      "since": "0.23.127",
+      "dataAttributes": {}
+    },
+    {
+      "name": "icon-components",
+      "registryType": "registry:lib",
+      "title": "Icon Components",
+      "summary": "Explicit imports preserve a bounded glyph catalogue without loading picker UI.",
+      "family": "lib",
+      "wave": "Libs",
+      "sourceFiles": ["packages/ui/registry/lib/icon-components.ts"],
+      "publicSymbols": [
+        {
+          "name": "ICON_COMPONENTS",
+          "kind": "constant",
+          "source": "packages/ui/registry/lib/icon-components.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Data, type or internal presentation export."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "A data/recipe module renders nothing and has no variant surface."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "A data/recipe module renders nothing and has no size scale."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned motion mechanism observed."
+        }
+      },
+      "engines": [],
+      "registryDependencies": ["@vegastack/icon-data"],
+      "docsSlug": "/docs/guides/components",
+      "states": {
+        "behavior": {
+          "status": "not-applicable",
+          "values": ["not-applicable"],
+          "evidence": "Frozen data plus two pure lookups; no state machine."
+        },
+        "accessibility": {
+          "status": "not-applicable",
+          "values": ["not-applicable"],
+          "evidence": "No DOM — the picker owns every ARIA contract."
+        },
+        "visual": {
+          "status": "not-applicable",
+          "values": ["not-applicable"],
+          "evidence": "No DOM and no classes."
+        }
+      },
+      "responsive": {
+        "status": "not-applicable",
+        "risks": [],
+        "rationale": "No DOM of its own; consumers own layout."
+      },
+      "npmDependencies": ["lucide-react@^1.47.0"],
+      "testFiles": ["packages/ui/registry/lib/icon-data.test.ts"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "shared-guide-only",
+        "navigation": "exempt",
+        "preview": "exempt",
+        "vrt": "exempt"
+      },
+      "since": "0.23.127",
+      "dataAttributes": {}
+    },
+    {
+      "name": "picker-search",
+      "registryType": "registry:lib",
+      "title": "Picker Search",
+      "summary": "Searchable catalogue content, shared by icon and emoji panels.",
+      "family": "lib",
+      "wave": "Libs",
+      "sourceFiles": ["packages/ui/registry/lib/picker-search.ts"],
+      "publicSymbols": [
+        {
+          "name": "PickerSearchEntry",
+          "kind": "interface",
+          "source": "packages/ui/registry/lib/picker-search.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Data, type or internal presentation export."
+          }
+        },
+        {
+          "name": "filterPickerEntries",
+          "kind": "function",
+          "source": "packages/ui/registry/lib/picker-search.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Data, type or internal presentation export."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "A data/recipe module renders nothing and has no variant surface."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "A data/recipe module renders nothing and has no size scale."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned motion mechanism observed."
+        }
+      },
+      "engines": [],
+      "registryDependencies": [],
+      "docsSlug": "/docs/guides/components",
+      "states": {
+        "behavior": {
+          "status": "not-applicable",
+          "values": ["not-applicable"],
+          "evidence": "Frozen data plus two pure lookups; no state machine."
+        },
+        "accessibility": {
+          "status": "not-applicable",
+          "values": ["not-applicable"],
+          "evidence": "No DOM — the picker owns every ARIA contract."
+        },
+        "visual": {
+          "status": "not-applicable",
+          "values": ["not-applicable"],
+          "evidence": "No DOM and no classes."
+        }
+      },
+      "responsive": {
+        "status": "not-applicable",
+        "risks": [],
+        "rationale": "No DOM of its own; consumers own layout."
+      },
+      "npmDependencies": [],
+      "testFiles": ["packages/ui/registry/lib/icon-data.test.ts"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "shared-guide-only",
+        "navigation": "exempt",
+        "preview": "exempt",
+        "vrt": "exempt"
+      },
+      "since": "0.23.127",
+      "dataAttributes": {}
+    },
+    {
+      "name": "picker-preferences",
+      "registryType": "registry:lib",
+      "title": "Picker Preferences",
+      "summary": "Best-effort storage for picker conveniences; never a record's source of truth.",
+      "family": "lib",
+      "wave": "Libs",
+      "sourceFiles": ["packages/ui/registry/lib/picker-preferences.ts"],
+      "publicSymbols": [
+        {
+          "name": "readPickerPreference",
+          "kind": "function",
+          "source": "packages/ui/registry/lib/picker-preferences.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Data, type or internal presentation export."
+          }
+        },
+        {
+          "name": "writePickerPreference",
+          "kind": "function",
+          "source": "packages/ui/registry/lib/picker-preferences.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Data, type or internal presentation export."
+          }
+        },
+        {
+          "name": "readPickerRecents",
+          "kind": "function",
+          "source": "packages/ui/registry/lib/picker-preferences.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Data, type or internal presentation export."
+          }
+        },
+        {
+          "name": "rememberPickerRecent",
+          "kind": "function",
+          "source": "packages/ui/registry/lib/picker-preferences.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Data, type or internal presentation export."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "A data/recipe module renders nothing and has no variant surface."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "A data/recipe module renders nothing and has no size scale."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned motion mechanism observed."
+        }
+      },
+      "engines": [],
+      "registryDependencies": [],
+      "docsSlug": "/docs/guides/components",
+      "states": {
+        "behavior": {
+          "status": "not-applicable",
+          "values": ["not-applicable"],
+          "evidence": "Frozen data plus two pure lookups; no state machine."
+        },
+        "accessibility": {
+          "status": "not-applicable",
+          "values": ["not-applicable"],
+          "evidence": "No DOM — the picker owns every ARIA contract."
+        },
+        "visual": {
+          "status": "not-applicable",
+          "values": ["not-applicable"],
+          "evidence": "No DOM and no classes."
+        }
+      },
+      "responsive": {
+        "status": "not-applicable",
+        "risks": [],
+        "rationale": "No DOM of its own; consumers own layout."
+      },
+      "npmDependencies": [],
+      "testFiles": ["packages/ui/registry/lib/icon-data.test.ts"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "shared-guide-only",
+        "navigation": "exempt",
+        "preview": "exempt",
+        "vrt": "exempt"
+      },
+      "since": "0.23.127",
+      "dataAttributes": {}
     }
   ],
   "chartBlocks": {

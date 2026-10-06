@@ -576,13 +576,13 @@ const expectedWaves = {
   "Core controls": 24,
   "Forms/editing": 34,
   "Navigation/layout": 21,
-  Overlays: 18,
+  Overlays: 19,
   "Data display": 28,
   "Content/marketing": 15,
   "AI/chat": 8,
   // Not a browse group: components other components install, with no page of their own. See
   // `isSharedGuideOnly` below — every member of this wave must carry that whole shape.
-  "Shared internals": 3,
+  "Shared internals": 4,
 };
 // The homepage renames three waves for display. The map is the only hand-maintained coupling
 // between the contract's wave keys and `home-component-catalog.generated.ts`; an unmapped wave is a
@@ -698,6 +698,7 @@ const expectedComponentWaveMembers = {
     "drawer",
     "dropdown-menu",
     "emoji-picker",
+    "icon-picker",
     "file-viewer",
     "hover-card",
     "permission-menu",
@@ -732,7 +733,7 @@ const expectedComponentWaveMembers = {
     "reactions",
     "record-aside",
     "record-list",
-    "space-avatar",
+    "icon-glyph",
     "stat",
     "table",
     "thumbnail",
@@ -756,7 +757,12 @@ const expectedComponentWaveMembers = {
     "truncated-text",
     "video-player",
   ],
-  "Shared internals": ["data-table-parts", "panel-search", "person-avatar"],
+  "Shared internals": [
+    "data-table-parts",
+    "panel-search",
+    "person-avatar",
+    "picker-panel",
+  ],
   "AI/chat": [
     "attachment",
     "bubble",

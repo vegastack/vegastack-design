@@ -13,6 +13,12 @@ import { afterEach, expect, it } from "vitest";
 import { validateReleaseOutput } from "../verify-release-output-scope.mjs";
 
 const scratches = [];
+const pickerMirrors = [
+  "icon-components",
+  "icon-data",
+  "picker-preferences",
+  "picker-search",
+];
 afterEach(() => {
   for (const path of scratches.splice(0))
     rmSync(path, { recursive: true, force: true });
@@ -58,6 +64,11 @@ function fixture() {
       "",
     ].join("\n"),
   );
+  for (const name of pickerMirrors)
+    write(
+      `apps/docs/lib/${name}.ts`,
+      `// @vegastack ${name}@1 sha256-old\n\nexport const value = 1;\n`,
+    );
   git("add", ".");
   git("commit", "-qm", "base");
   return { cwd, write, git, base: String(git("rev-parse", "HEAD")).trim() };
@@ -79,6 +90,11 @@ it("accepts only consumed changesets, versions, headers, numbers and changelogs"
     "before\n<!-- NUMBERS:START -->\nnew\n<!-- NUMBERS:END -->\nafter\n",
   );
   write("CHANGELOG.md", "new\n");
+  for (const name of pickerMirrors)
+    write(
+      `apps/docs/lib/${name}.ts`,
+      `// @vegastack ${name}@2 sha256-new\n\nexport const value = 1;\n`,
+    );
   expect(validateReleaseOutput({ base, cwd })).toEqual([]);
 });
 
@@ -97,11 +113,20 @@ it("rejects runtime, package-policy, rulebook and non-deletion changes", () => {
     "AGENTS.md",
     "changed\n<!-- NUMBERS:START -->\nnew\n<!-- NUMBERS:END -->\nafter\n",
   );
+  for (const name of pickerMirrors)
+    write(
+      `apps/docs/lib/${name}.ts`,
+      `// @vegastack ${name}@2 sha256-new\n\nexport const value = 2;\n`,
+    );
   write("tooling/evil.mjs", "export default true\n");
   write("apps/docs/public/r/evil.json", "{}\n");
   expect(validateReleaseOutput({ base, cwd })).toEqual([
     ".changeset/a.md: release may only delete consumed changesets",
     "AGENTS.md: release changed content outside the generated Numbers block",
+    ...pickerMirrors.map(
+      (name) =>
+        `apps/docs/lib/${name}.ts: release changed content beyond the provenance header`,
+    ),
     "apps/docs/public/r/evil.json: allowed release output must be modified in place, not ?",
     "packages/ui/package.json: release changed package metadata beyond versions/internal ranges",
     "packages/ui/registry/ui/button.tsx: release changed content beyond the provenance header",

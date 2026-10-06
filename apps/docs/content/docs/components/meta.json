@@ -103,7 +103,6 @@
     "property-list",
     "record-aside",
     "person-hover-card",
-    "space-avatar",
     "access-chip",
     "meta-line",
     "record-chip",
@@ -158,6 +157,8 @@
     "tool-call-chip",
     "message-scroller",
     "transcript",
-    "questionnaire"
+    "questionnaire",
+    "icon-picker",
+    "icon-glyph"
   ]
 }

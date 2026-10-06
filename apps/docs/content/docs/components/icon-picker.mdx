@@ -1,0 +1,50 @@
+---
+title: Icon Picker
+description: Choose a curated Lucide icon or emoji with recents, ranked search and a nested hue palette.
+audience: public
+registry: icon-picker
+status: stable
+since: 0.23.127
+a11y: APG dialog (non-modal) picker
+preview: iconPicker
+---
+
+## Install
+
+<InstallSteps name="icon-picker" />
+
+## Usage
+
+```tsx
+import { IconPicker } from "@/components/ui/icon-picker";
+
+<IconPicker onValueChange={setIcon} />;
+```
+
+<ComponentPreview name="iconPicker" file="components/preview/icon-picker.tsx" />
+
+## Examples
+
+### Composition
+
+Use modes={["icon"]} or modes={["emoji"]} for one mode without tabs. Both modes use line tabs. Standard grids have eight columns; compact grids have seven. Recents occupy at most two rows. Use closeOnSelect={false} when editing an identity, and pass onRemove only where removal is supported. Explicit hue, including null, wins over the remembered preference. Give preferenceKey an account/workspace-scoped namespace. Opening never commits a preference. The catalogue has 160 distinct outline icons; labels, pinned upstream tags and reviewed aliases power local ranked search.
+
+## API Reference
+
+<ApiTable
+  path="../../packages/ui/registry/ui/icon-picker.tsx"
+  name="IconPickerProps"
+/>
+
+## Accessibility
+
+<StatesTested name="icon-picker" />
+
+Search is labelled, cells use roving keyboard navigation across visual rows, and result counts use the shared announcer. Escape closes the nested colour panel before the parent. Keyboard focus uses the global DS tint; selection uses a persistent cell border.
+
+## Do / Don't
+
+<DoDont
+  do="Compose the shared identity components through supported props."
+  dont="Add local visual overrides or entity semantics to the generic glyph."
+/>

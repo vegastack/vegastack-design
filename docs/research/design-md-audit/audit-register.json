@@ -2,14 +2,14 @@
   "schemaVersion": 1,
   "kind": "vegastack-zero-gap-audit-register",
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "ce703eeb1aa7e98c867a69ab79851a20708b5bfa1d6ce39f4cf3d608bc66c1db",
+  "contractSha256": "b92a2c4876e42e933d201eb245f70ba7afeff9c8937883c6a9d589bba0765f2c",
   "expectedCounts": {
-    "totalRegistryItems": 726,
-    "components": 151,
+    "totalRegistryItems": 732,
+    "components": 153,
     "animatedIcons": 467,
     "hooks": 13,
     "blocks": 15,
-    "libs": 12,
+    "libs": 16,
     "chartBlocks": 68
   },
   "records": [
@@ -1605,17 +1605,6 @@
       "contractStatus": "reconciled"
     },
     {
-      "name": "space-avatar",
-      "inventoryClass": "component",
-      "wave": "Data display",
-      "family": "data",
-      "sourceFiles": [
-        "packages/ui/registry/ui/space-avatar.tsx"
-      ],
-      "docsSlug": "/docs/components/space-avatar",
-      "contractStatus": "reconciled"
-    },
-    {
       "name": "people-input",
       "inventoryClass": "component",
       "wave": "Forms/editing",
@@ -1679,6 +1668,39 @@
         "packages/ui/registry/ui/choice-card.tsx"
       ],
       "docsSlug": "/docs/components/choice-card",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "icon-glyph",
+      "inventoryClass": "component",
+      "wave": "Data display",
+      "family": "data-display",
+      "sourceFiles": [
+        "packages/ui/registry/ui/icon-glyph.tsx"
+      ],
+      "docsSlug": "/docs/components/icon-glyph",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "picker-panel",
+      "inventoryClass": "component",
+      "wave": "Shared internals",
+      "family": "overlay",
+      "sourceFiles": [
+        "packages/ui/registry/ui/picker-panel.tsx"
+      ],
+      "docsSlug": "/docs/guides/components",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "icon-picker",
+      "inventoryClass": "component",
+      "wave": "Overlays",
+      "family": "overlay",
+      "sourceFiles": [
+        "packages/ui/registry/ui/icon-picker.tsx"
+      ],
+      "docsSlug": "/docs/components/icon-picker",
       "contractStatus": "reconciled"
     },
     {
@@ -8029,6 +8051,50 @@
       "family": "lib",
       "sourceFiles": [
         "packages/ui/registry/lib/tile-overlay.ts"
+      ],
+      "docsSlug": "/docs/guides/components",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "icon-data",
+      "inventoryClass": "lib",
+      "wave": "Libs",
+      "family": "lib",
+      "sourceFiles": [
+        "packages/ui/registry/lib/icon-data.ts"
+      ],
+      "docsSlug": "/docs/guides/components",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "icon-components",
+      "inventoryClass": "lib",
+      "wave": "Libs",
+      "family": "lib",
+      "sourceFiles": [
+        "packages/ui/registry/lib/icon-components.ts"
+      ],
+      "docsSlug": "/docs/guides/components",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "picker-search",
+      "inventoryClass": "lib",
+      "wave": "Libs",
+      "family": "lib",
+      "sourceFiles": [
+        "packages/ui/registry/lib/picker-search.ts"
+      ],
+      "docsSlug": "/docs/guides/components",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "picker-preferences",
+      "inventoryClass": "lib",
+      "wave": "Libs",
+      "family": "lib",
+      "sourceFiles": [
+        "packages/ui/registry/lib/picker-preferences.ts"
       ],
       "docsSlug": "/docs/guides/components",
       "contractStatus": "reconciled"

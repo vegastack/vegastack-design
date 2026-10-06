@@ -211,3 +211,7 @@ its page files. Rationale: a starter composition you've built a real page on
 top of must never be at risk of an upstream overwrite. Its underlying
 _components_ (Card, Chart, Sidebar, …) remain individually tracked like any
 other.
+
+### Shared identity picker internals
+
+`picker-panel` owns search, recent rows, category navigation and cells for `IconPicker` and `EmojiPicker`. `picker-search` and `picker-preferences` provide ranked matching and optional local convenience state. `icon-data` is the 160-entry server-safe catalogue; `icon-components` contains explicit Lucide imports for `IconGlyph`. These dependencies install with their consumers.

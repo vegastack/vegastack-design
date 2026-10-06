@@ -1,9 +1,9 @@
-// @vegastack share-01@0.23.127 sha256-Epg2ZA6S8decUZsLAQqJy1u86A324xZKBRGto0g5klU=
+// @vegastack share-01@0.23.128 sha256-2MTfCS50JLa4bnTAr/v8p1FgGj6YA4pWzWelk4a13IU=
 
 "use client";
 
 import * as React from "react";
-import { GlobeIcon, RotateCcwIcon, UserLock } from "lucide-react";
+import { GlobeIcon, RotateCcwIcon, UserLock, Lock } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -59,12 +59,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
-import {
-  SpaceAvatar,
-  SpaceHintIcon,
-  type Space,
-  type SpaceHint,
-} from "@/components/ui/space-avatar";
+import type { Space, SpaceHint } from "@/components/ui/space-picker";
+import { IconGlyph } from "@/components/ui/icon-glyph";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
@@ -626,8 +622,14 @@ export function ShareDialog({
       : !space
         ? {
             tile: (
-              <SpaceHintIcon
-                hint={generalAccess.spaceHint ?? { kind: "private" }}
+              <IconGlyph
+                fallback={
+                  generalAccess.spaceHint?.kind === "personal" ? (
+                    <UserLock />
+                  ) : (
+                    <Lock />
+                  )
+                }
               />
             ),
             text: labels.hiddenSpace(
@@ -660,7 +662,13 @@ export function ShareDialog({
         </div>
       ) : space ? (
         <div className="flex min-w-0 items-center gap-2">
-          <SpaceAvatar space={space} size="default" />
+          <IconGlyph
+            fallback={
+              space.icon ?? Array.from(space.name.trim())[0]?.toUpperCase()
+            }
+            hue={space.hue}
+            size="default"
+          />
           <div className="flex min-w-0 flex-1 flex-col items-start">
             {canManage ? (
               <Select

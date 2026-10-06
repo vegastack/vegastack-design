@@ -50,6 +50,12 @@ export default defineConfig({
     // Pre-bundle the Base UI subpaths we consume so they share one React copy
     // (otherwise a subpath's optimized chunk can resolve a second React and crash on useId).
     include: [
+      // These editor dependencies must be present before affected pages mount; discovering
+      // them mid-run reloads React/ProseMirror and splits their module identities.
+      "hast-util-to-jsx-runtime",
+      "@tiptap/extension-code-block-lowlight",
+      "@tiptap/pm/model",
+      "lowlight",
       "@base-ui/react/use-render",
       // The two headless `@shadcn/react` subpaths — pre-bundle so each shares the single deduped
       // React copy (otherwise its chunk resolves a 2nd React → useId crash), and so Vite never
