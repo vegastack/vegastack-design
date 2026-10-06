@@ -1,9 +1,9 @@
-// @vegastack color-picker@0.23.127 sha256-nw+spmvpn5roF8I2qpQKYog7pQdSicU6vMnX45906G0=
+// @vegastack color-picker@0.23.127 sha256-UigO1M4a3SfuI7D0NCqRH/sDsOjfy9CsMAYTSVbTX3c=
 
 "use client";
 
 import * as React from "react";
-import { Ban, Check } from "lucide-react";
+import { Ban } from "lucide-react";
 import { cn } from "@vegastack/design";
 import {
   Popover,
@@ -16,7 +16,7 @@ import { useListNav } from "@/components/ui/use-list-nav";
 /* ------------------------------------------------------------------------------------------------
  * ColorPicker — a swatch-triggered popover that presents a grid of preset colors. The trigger shows
  * the current selection; opening it reveals the palette, and picking a swatch fires `onValueChange`
- * and marks the chosen swatch with a check. Built on our `Popover` + `Button`.
+ * and marks the chosen swatch with an outer-cell border. Built on our `Popover` + `Button`.
  *
  * The palette is data: each `ColorOption` carries a `name` (the stable value the picker emits and
  * matches selection against) plus a CSS color `value`. The default palette keeps familiar hue names
@@ -81,7 +81,7 @@ export const DEFAULT_COLORS: readonly ColorOption[] = [
 ] as const;
 
 /**
- * The ten tag hues as a palette — the same `--tag-*` colours `Chip`, `Avatar` and `SpaceAvatar`
+ * The ten tag hues as a palette — the same `--tag-*` colours `Chip`, `Avatar` and `IconGlyph`
  * draw with, so a picked hue is exactly the hue a tile or chip shows. Each `name` is the hue's
  * value (`"blue"`, `"cyan"`, …), ready to store as an `AvatarHue` / `ChipHue`.
  */
@@ -102,7 +102,7 @@ export const HUE_COLORS: readonly ColorOption[] = [
 export interface ColorPickerProps {
   /**
    * The currently selected color, matched against each `ColorOption.name`. When it matches an option,
-   * that swatch shows a check and the trigger renders its color.
+   * that swatch marks its outer cell and the trigger renders its color.
 
    * @default undefined
    */
@@ -120,9 +120,17 @@ export interface ColorPickerProps {
   colors?: readonly ColorOption[];
   /**
    * Number of columns in the swatch grid.
-   * @default 7
+   * @default 6
    */
   columns?: number;
+  /** Custom trigger composed through Base UI. @default undefined */
+  trigger?: React.ReactElement;
+  /** Controlled popup state. @default undefined */
+  open?: boolean;
+  /** Popup state callback. @default undefined */
+  onOpenChange?: (open: boolean) => void;
+  /** Close after picking a swatch. @default false */
+  closeOnSelect?: boolean;
   /**
    * `popover` — a swatch trigger that opens the grid. `inline` — the swatch grid itself, in the
    * page (a settings row), with no trigger.
@@ -130,13 +138,12 @@ export interface ColorPickerProps {
    */
   variant?: "popover" | "inline";
   /**
-   * Adds a first "None" swatch that clears the colour; it is selected while `value` matches no
-   * option. Omit for no None swatch.
+   * Adds a separate clear action, selected while `value` matches no option.
    * @default undefined
    */
   onClear?: () => void;
   /**
-   * The None swatch's accessible name.
+   * The clear action's accessible name.
    * @default "None"
    */
   clearLabel?: string;
@@ -168,8 +175,7 @@ export interface ColorPickerProps {
 /**
  * `ColorPicker` — pick a preset color from a popover grid. The trigger is a `rounded-md` control
  * showing the current selection; opening it reveals the palette, and selecting a swatch fires
- * `onValueChange` (with the color's `name`) and marks that swatch with a primary border plus a
- * semantic-surface check badge.
+ * `onValueChange` (with the color's `name`) and marks that swatch with a persistent outer-cell border.
  *
  * Controlled-only: pass `value` + `onValueChange`. The displayed colors come from `colors` (defaults
  * to {@link DEFAULT_COLORS}).
@@ -192,7 +198,11 @@ export function ColorPicker({
   value,
   onValueChange,
   colors = DEFAULT_COLORS,
-  columns = 7,
+  columns = 6,
+  trigger,
+  open,
+  onOpenChange,
+  closeOnSelect = false,
   variant = "popover",
   onClear,
   clearLabel = "None",
@@ -201,12 +211,20 @@ export function ColorPicker({
   "aria-label": ariaLabel = "Pick a color",
   ref,
 }: ColorPickerProps) {
+  const [internalOpen, setInternalOpen] = React.useState(false);
+  const setOpen = (next: boolean) => {
+    if (open === undefined) setInternalOpen(next);
+    onOpenChange?.(next);
+  };
+  const commit = () => {
+    if (closeOnSelect) setOpen(false);
+  };
   const selected = colors.find((c) => c.name === value);
   const columnCount = Number.isFinite(columns)
     ? Math.max(1, Math.floor(columns))
     : 1;
-  // The None swatch, when there is one, is index 0 and every colour shifts by one.
-  const offset = onClear ? 1 : 0;
+  // Clear is a separate action; arrow navigation spans only the colour grid.
+  const offset = 0;
   const count = colors.length + offset;
 
   // Roving tabindex via the shared `useListNav` hook: exactly one swatch is in the tab order
@@ -243,34 +261,6 @@ export function ColorPicker({
       )}
       style={{ ["--swatch-cols"]: String(columnCount) } as React.CSSProperties}
     >
-      {onClear ? (
-        <Button
-          type="button"
-          variant="ghost"
-          size="icon-sm"
-          disabled={disabled}
-          aria-label={clearLabel}
-          aria-pressed={!selected}
-          title={clearLabel}
-          {...getItemProps(0)}
-          onClick={() => {
-            setActiveIndex(0);
-            onClear();
-          }}
-          className="rounded-full hover:bg-transparent"
-        >
-          <span
-            data-slot="color-picker-swatch"
-            data-none=""
-            className={cn(
-              "flex size-5 items-center justify-center rounded-full border border-border bg-background text-muted-foreground",
-              !selected && "border-primary text-foreground",
-            )}
-          >
-            <Ban className="size-3" aria-hidden />
-          </span>
-        </Button>
-      ) : null}
       {colors.map((color, i) => {
         const index = i + offset;
         const isSelected = color.name === value;
@@ -289,58 +279,74 @@ export function ColorPicker({
             onClick={() => {
               setActiveIndex(index);
               onValueChange?.(color.name);
+              commit();
             }}
-            className="rounded-full hover:bg-transparent"
+            className={cn(isSelected && "border-primary")}
           >
             <span
               data-slot="color-picker-swatch"
               className={cn(
                 "flex size-5 items-center justify-center rounded-full border border-border bg-clip-padding",
                 // Selected swatch reads its state through the primary border (selection = primary ink).
-                isSelected && "border-primary",
               )}
               // Dynamic user color — the sanctioned inline-style exception (see file header).
               style={{ backgroundColor: color.color }}
-            >
-              {isSelected ? (
-                <span
-                  data-slot="color-picker-check"
-                  className="flex size-3.5 items-center justify-center rounded-full bg-background text-foreground"
-                >
-                  <Check className="size-3" aria-hidden />
-                </span>
-              ) : null}
-            </span>
+            ></span>
           </Button>
         );
       })}
     </div>
   );
 
-  if (variant === "inline") return grid;
+  const content = (
+    <div data-slot="color-picker-content" className="flex flex-col gap-2">
+      {grid}
+      {onClear ? (
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
+          disabled={disabled}
+          aria-pressed={!selected}
+          onClick={() => {
+            onClear();
+            commit();
+          }}
+        >
+          <Ban aria-hidden />
+          {clearLabel}
+        </Button>
+      ) : null}
+    </div>
+  );
+  if (variant === "inline") return content;
 
   return (
-    <Popover>
+    <Popover open={open ?? internalOpen} onOpenChange={setOpen}>
       <PopoverTrigger
         ref={ref}
         disabled={disabled}
         render={
-          <Button
-            variant="outline"
-            size="icon-sm"
-            aria-label={ariaLabel}
-            // The trigger is a control, so it keeps Button's own corner; a swatch grid cell is round.
-            className={className}
-          >
-            <span
-              data-slot="color-picker-swatch"
-              // Fill chip echoes the control geometry (`rounded-sm`), not a round dot.
-              className="size-3.5 rounded-sm border border-border bg-clip-padding"
-              // Dynamic user color — the sanctioned inline-style exception (see file header).
-              // Dynamic swatch color, not a design token.
-              style={selected ? { backgroundColor: selected.color } : undefined}
-            />
-          </Button>
+          trigger ?? (
+            <Button
+              variant="outline"
+              size="icon-sm"
+              aria-label={ariaLabel}
+              // The trigger is a control, so it keeps Button's own corner; a swatch grid cell is round.
+              className={className}
+            >
+              <span
+                data-slot="color-picker-swatch"
+                // Fill chip echoes the control geometry (`rounded-sm`), not a round dot.
+                className="size-3.5 rounded-sm border border-border bg-clip-padding"
+                // Dynamic user color — the sanctioned inline-style exception (see file header).
+                // Dynamic swatch color, not a design token.
+                style={
+                  selected ? { backgroundColor: selected.color } : undefined
+                }
+              />
+            </Button>
+          )
         }
       />
       <PopoverContent
@@ -348,7 +354,7 @@ export function ColorPicker({
         align="start"
         className="w-auto p-2"
       >
-        {grid}
+        {content}
       </PopoverContent>
     </Popover>
   );

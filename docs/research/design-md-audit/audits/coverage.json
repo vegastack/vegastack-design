@@ -1,19 +1,19 @@
 {
   "schemaVersion": 1,
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "ed10785769baaa317f4a32eda2d9e5300d807bf0ecade7fdcf815f321aa8132d",
+  "contractSha256": "6853cb8df57889f59bccd2298958f03562426bcf05e2e37f34a79e88728d6c22",
   "inventory": {
-    "expected": 726,
-    "actual": 726,
-    "unique": 726
+    "expected": 732,
+    "actual": 732,
+    "unique": 732
   },
   "classes": {
-    "components": 151,
+    "components": 153,
     "animatedIcons": 467,
     "hooks": 13,
     "blocks": 15,
     "chartBlocks": 68,
-    "libs": 12
+    "libs": 16
   },
   "waves": {
     "Core controls": {
@@ -114,8 +114,8 @@
       ]
     },
     "Overlays": {
-      "expected": 18,
-      "actual": 18,
+      "expected": 19,
+      "actual": 19,
       "members": [
         "access-chip",
         "action-bar",
@@ -127,6 +127,7 @@
         "emoji-picker",
         "file-viewer",
         "hover-card",
+        "icon-picker",
         "permission-menu",
         "popover",
         "provider",
@@ -153,6 +154,7 @@
         "data-list",
         "data-list-pager",
         "diff-view",
+        "icon-glyph",
         "inbox",
         "load-more",
         "media-card",
@@ -162,7 +164,6 @@
         "reactions",
         "record-aside",
         "record-list",
-        "space-avatar",
         "stat",
         "table",
         "thumbnail",
@@ -193,12 +194,13 @@
       ]
     },
     "Shared internals": {
-      "expected": 3,
-      "actual": 3,
+      "expected": 4,
+      "actual": 4,
       "members": [
         "data-table-parts",
         "panel-search",
-        "person-avatar"
+        "person-avatar",
+        "picker-panel"
       ]
     },
     "AI/chat": {
@@ -797,7 +799,7 @@
       ]
     }
   },
-  "componentRoutes": 148,
+  "componentRoutes": 149,
   "blockRoutes": 22,
   "modeledExemptions": 3
 }

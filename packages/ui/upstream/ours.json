@@ -1,7 +1,7 @@
 {
   "_note": "Every name in packages/ui/registry/ui/ that has NO counterpart in vendor/shadcn/<cli>/ui/. verify-parity.mjs fails on a registry name that is neither upstream-backed nor listed here, so a component cannot appear by accident. Dispositions come from docs/plans/2026-09-18-shadcn-reset/extras.md (66 rows, MK 2026-09-18); hooks and internal parts are not components and are recorded here with their reason.",
   "counts": {
-    "total": 83,
+    "total": 112,
     "fromExtras": 46
   },
   "items": {
@@ -544,12 +544,6 @@
       "source": "Operator request 2026-10-01 (Regent: one inline chip for mentions and file links everywhere) — standing approval MK 2026-09-30",
       "rationale": "Upstream ships no inline mention chip. An inline (not inline-flex) box on the text baseline, tinted by kind from the tag hues, composing our hover-card, person-avatar and file-kind; no patch."
     },
-    "space-avatar": {
-      "disposition": "keep",
-      "family": "data",
-      "source": "Operator brief 2026-10-01 (Regent access, spaces and sharing — Phase DS, implementation.md §4) — approved by MK 2026-10-01 (A11: DS patch releases approved)",
-      "rationale": "Upstream ships no space tile. A rounded-square composition of upstream avatar (its AvatarFallback hue, API-32) with a lucide lock, plus SpaceOption, the space twin of PersonOption; no patch."
-    },
     "people-input": {
       "disposition": "keep",
       "family": "form",
@@ -597,6 +591,24 @@
       "family": "display",
       "source": "Operator brief 2026-10-04 (Regent activity timeline) — approved by MK 2026-10-04",
       "rationale": "Upstream ships no record history. A list of events and comment threads composing upstream button, select and skeleton with our person-hover-card, person-avatar and relative-time; no patch."
+    },
+    "icon-glyph": {
+      "disposition": "keep",
+      "family": "display",
+      "source": "Operator-approved icon picker implementation plan, 6 October 2026",
+      "rationale": "Generic identity rendering and shared picker composition; upstream has no equivalent."
+    },
+    "picker-panel": {
+      "disposition": "keep",
+      "family": "overlay",
+      "source": "Operator-approved icon picker implementation plan, 6 October 2026",
+      "rationale": "Generic identity rendering and shared picker composition; upstream has no equivalent."
+    },
+    "icon-picker": {
+      "disposition": "keep",
+      "family": "overlay",
+      "source": "Operator-approved icon picker implementation plan, 6 October 2026",
+      "rationale": "Generic identity rendering and shared picker composition; upstream has no equivalent."
     }
   }
 }

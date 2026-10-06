@@ -2,7 +2,7 @@
 
 import { useState, type CSSProperties, type ReactNode } from "react";
 import { Wrapper } from "./wrapper";
-import { SpaceAvatar } from "@/components/ui/space-avatar";
+import { IconGlyph } from "@/components/ui/icon-glyph";
 import {
   BadgeCheck,
   Bot,
@@ -672,7 +672,7 @@ export function sidebarGroupActionOnHover(): ReactNode {
                   {SPACE_ROWS.map((space) => (
                     <SidebarMenuItem key={space.name}>
                       <SidebarMenuButton>
-                        <SpaceAvatar size="2xs" space={space} />
+                        <IconGlyph fallback={space.name[0]} hue={space.hue} />
                         <span>{space.name}</span>
                       </SidebarMenuButton>
                     </SidebarMenuItem>

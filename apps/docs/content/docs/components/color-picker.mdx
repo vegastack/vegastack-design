@@ -108,9 +108,9 @@ Pass `colors` to render your own curated set — here a 3-color tag palette in a
 
 ### Hue palette, inline
 
-`HUE_COLORS` is the ten tag hues — the exact colours `Chip`, `Avatar` and `SpaceAvatar` draw — so
+`HUE_COLORS` is the ten tag hues — the exact colours `Chip`, `Avatar` and `IconGlyph` draw — so
 the stored value (`"blue"`, `"purple"`…) is a hue those components take. `variant="inline"` renders
-the swatches in the page with no trigger, and `onClear` adds a first "None" swatch, selected while
+the swatches in the page with no trigger, and `onClear` adds a separate clear action, selected while
 `value` matches no hue. Pick `columns` so the row fits its container (six wraps the eleven swatches
 onto two rows at a phone's width).
 
@@ -121,7 +121,7 @@ onto two rows at a phone's width).
 
 ### Columns
 
-`columns` sets the swatch-grid width (default `7`), driving the dynamic `--swatch-cols` grid
+`columns` sets the swatch-grid width (default `6`), driving the dynamic `--swatch-cols` grid
 template. Below: the default 12-color palette at `columns={4}`, `7`, and `14`.
 
 <ComponentPreview
@@ -151,11 +151,10 @@ The shape of each entry in a `colors` palette.
 
 - The trigger is a `Button` with an accessible name (`aria-label`, default `"Pick a color"`); customize it to describe what the color is for (e.g. `"Label color"`).
 - Each preset is a `<button>` labelled by its color name, grouped in a `role="group"` labelled
-  `"Colors"`. The selected swatch carries `aria-pressed="true"` and uses a semantic-surface check
-  badge (`bg-background text-foreground`) so the check stays legible on light or custom swatches.
+  `"Colors"`. The selected swatch carries `aria-pressed="true"` and uses a persistent outer-cell border, leaving the colour fill unobscured.
 - The picker opens on trigger click; focus moves into the grid and is restored to the trigger on close.
 - Dismiss is built in — clicking outside the panel or pressing <kbd>Esc</kbd> closes it.
-- Every control keeps the global 2px `:focus-visible` outline (`outline-ring`, 1px offset) that `base.css` paints — the trigger and the `ghost` swatch buttons alike. Nothing here sets `outline: none`, and no component adds a ring of its own.
+- Every control keeps the global keyboard-focus background tint from `base.css`; no component adds a focus ring or changes its border on focus.
 
 | Key                                                | Action                                                          |
 | -------------------------------------------------- | --------------------------------------------------------------- |

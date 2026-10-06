@@ -71,7 +71,7 @@ test("a hidden space shows its kind, never its name: someone's My space or a pri
   expect(
     priv
       .element()
-      .querySelector('[data-slot="access-chip-icon"]')
+      .querySelector('[data-slot="access-chip-icon"] svg')
       ?.getAttribute("class"),
   ).toContain("lucide-lock");
   await expectNoA11yViolations(screen.container);
