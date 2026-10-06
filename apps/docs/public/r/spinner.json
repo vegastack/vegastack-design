@@ -12,7 +12,7 @@
   "files": [
     {
       "path": "packages/ui/registry/ui/spinner.tsx",
-      "content": "// @vegastack spinner@0.24.0 sha256-7txO/7u9+3Fv7qXaPMEMFULXGKqMXyxRdrRmat4m52c=\n\nimport { cn } from \"@vegastack/design\";\nimport { LoaderIcon } from \"lucide-react\";\n\nfunction Spinner({ className, ...props }: React.ComponentProps<\"svg\">) {\n  return (\n    <LoaderIcon\n      data-slot=\"spinner\"\n      role=\"status\"\n      aria-label=\"Loading\"\n      className={cn(\"size-4 animate-spin\", className)}\n      {...props}\n    />\n  );\n}\n\nexport { Spinner };\n",
+      "content": "// @vegastack spinner@0.24.1 sha256-gQSou/cksZP3qyHwWcvUgKIy1S4a7YFfWQErzALg84I=\n\nimport { cn } from \"@vegastack/design\";\nimport { LoaderIcon } from \"lucide-react\";\n\nfunction Spinner({ className, ...props }: React.ComponentProps<\"svg\">) {\n  return (\n    <LoaderIcon\n      data-slot=\"spinner\"\n      role=\"status\"\n      aria-label=\"Loading\"\n      className={cn(\"size-4 animate-spin\", className)}\n      {...props}\n    />\n  );\n}\n\nexport { Spinner };\n",
       "type": "registry:ui",
       "target": "@ui/spinner.tsx"
     }
@@ -20,8 +20,8 @@
   "meta": {
     "whenToUse": "Signal an indeterminate, in-progress load — inside a button or a loading region.",
     "whenNotToUse": "Showing measurable progress (progress bar) or a skeleton-able layout (skeleton).",
-    "version": "0.24.0",
-    "integrity": "sha256-7txO/7u9+3Fv7qXaPMEMFULXGKqMXyxRdrRmat4m52c="
+    "version": "0.24.1",
+    "integrity": "sha256-gQSou/cksZP3qyHwWcvUgKIy1S4a7YFfWQErzALg84I="
   },
   "categories": [
     "feedback"

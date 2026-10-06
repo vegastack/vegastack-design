@@ -1,5 +1,11 @@
 # @vegastack/ui
 
+## 0.24.1
+
+### Patch Changes
+
+- [#542](https://github.com/vegastack/vegastack-design/pull/542) [`6959fb9`](https://github.com/vegastack/vegastack-design/commit/6959fb953942ea559ef810e7fb5372fa21606184) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🐛 Keep the full floating Jump to latest button inside its scrolling viewport, including bottom padding.
+
 ## 0.24.0
 
 ### Minor Changes

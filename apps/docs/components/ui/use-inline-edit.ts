@@ -1,4 +1,4 @@
-// @vegastack use-inline-edit@0.24.0 sha256-ZNWtSktRpWGeUYc1s4Gmk1gvXOlPuM5GivOUlikV7YY=
+// @vegastack use-inline-edit@0.24.1 sha256-w2Cpw1zCIVpzCICgQX0b/Z1PVzzGMkybvBOMM66C3ls=
 
 "use client";
 
