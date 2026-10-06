@@ -9,6 +9,19 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.24.1] — October 7, 2026
+
+<!-- assembled from 1 changeset: 2a1f671cda7a -->
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.24.0 → 0.24.1.
+
+### 🐛 Fixed
+
+- Keep the full floating Jump to latest button inside its scrolling viewport, including bottom padding.
+  [`6959fb9`](https://github.com/VegaStack/vegastack-design/commit/6959fb9)
+
 ## [0.24.0] — October 6, 2026
 
 <!-- assembled from 2 changesets: 431d43390a91 -->
