@@ -1,5 +1,11 @@
 # @vegastack/ui
 
+## 0.23.126
+
+### Patch Changes
+
+- [#532](https://github.com/vegastack/vegastack-design/pull/532) [`c402dbc`](https://github.com/vegastack/vegastack-design/commit/c402dbc8dc0d03a5bce23e3f07e8d3bc6c31dfd1) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🐛 Activity icons align with their first text line, and pre-grouped changes render as one visible sentence with a single actor and timestamp. Cursor pages can load automatically at the history edge while preserving the reader's position, with an explicit retry after a failed read.
+
 ## 0.23.125
 
 ### Patch Changes

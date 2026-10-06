@@ -9,6 +9,19 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.23.126] — October 6, 2026
+
+<!-- assembled from 1 changeset: 2e32bce00fd5 -->
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.23.125 → 0.23.126.
+
+### 🐛 Fixed
+
+- Activity icons align with their first text line, and pre-grouped changes render as one visible sentence with a single actor and timestamp. Cursor pages can load automatically at the history edge while preserving the reader's position, with an explicit retry after a failed read.
+  [`c402dbc`](https://github.com/VegaStack/vegastack-design/commit/c402dbc)
+
 ## [0.23.125] — October 6, 2026
 
 <!-- assembled from 1 changeset: 3de78c4c8a37 -->
