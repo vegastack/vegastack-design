@@ -258,6 +258,7 @@ function TaskHistory({
   const [filter, setFilter] = React.useState<ActivityFilter>(initialFilter);
   const [order, setOrder] = React.useState<ActivityOrder>("oldest");
   const ref = useActivityFeedKeyboard();
+  const [latest, setLatest] = React.useState<HTMLDivElement | null>(null);
   const source = empty ? [] : ENTRIES;
   const shown = source.filter((entry) =>
     filter === "all"
@@ -282,21 +283,35 @@ function TaskHistory({
         <ActivityFeedSkeleton />
       ) : (
         <>
-          {/* Jump to latest sits where the latest items are: first, newest first. */}
-          {order === "newest" ? (
-            <ActivityJumpToLatest enabled={sorted.length > 3} />
-          ) : null}
           {order === "newest" ? composer : null}
           <ActivityFeedList>
+            {order === "newest" ? (
+              <ActivityFeedItem kind="divider">
+                <div
+                  ref={setLatest}
+                  tabIndex={-1}
+                  className="h-px outline-none"
+                  aria-label="Latest activity"
+                />
+              </ActivityFeedItem>
+            ) : null}
             <FeedEntries
               entries={sorted}
               unreadId={order === "oldest" ? FIRST_UNREAD : undefined}
             />
+            {order === "oldest" ? (
+              <ActivityFeedItem kind="divider">
+                <div
+                  ref={setLatest}
+                  tabIndex={-1}
+                  className="h-px outline-none"
+                  aria-label="Latest activity"
+                />
+              </ActivityFeedItem>
+            ) : null}
           </ActivityFeedList>
           {order === "oldest" ? composer : null}
-          {order === "oldest" ? (
-            <ActivityJumpToLatest enabled={sorted.length > 3} />
-          ) : null}
+          <ActivityJumpToLatest target={latest} />
         </>
       )}
     </ActivityFeed>
