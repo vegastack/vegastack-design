@@ -81,7 +81,7 @@ test("shows an empty state when nothing matches", async () => {
     "zzzznope",
   );
   expect(
-    document.querySelector('[data-slot="emoji-picker-empty"]')?.textContent,
+    document.querySelector('[data-slot="picker-panel-grid"]')?.textContent,
   ).toBe("No emoji found");
   await expect
     .element(screen.getByRole("status"))
@@ -216,16 +216,16 @@ test("RTL flips the horizontal arrow keys across the emoji grid (useListNav corr
     await expect
       .poll(
         () =>
-          document.querySelectorAll('[data-slot="emoji-picker-item"]').length,
+          document.querySelectorAll('[data-slot="picker-panel-item"]').length,
       )
       .toBeGreaterThan(1);
     const first = document.querySelector(
-      '[data-slot="emoji-picker-item"]',
+      '[data-slot="picker-panel-item"]',
     ) as HTMLElement;
     first.focus();
     await userEvent.keyboard("{ArrowLeft}");
     const items = Array.from(
-      document.querySelectorAll('[data-slot="emoji-picker-item"]'),
+      document.querySelectorAll('[data-slot="picker-panel-item"]'),
     );
     // In RTL, ArrowLeft advances (visual leftwards = logical next).
     expect(document.activeElement).toBe(items[1]);
@@ -253,7 +253,7 @@ test("remembers picks in a Recent section at the top", async () => {
   await expect
     .element(screen.getByRole("group", { name: "Recent" }))
     .toBeInTheDocument();
-  const first = document.querySelector('[data-slot="emoji-picker-item"]');
+  const first = document.querySelector('[data-slot="picker-panel-item"]');
   expect(first?.getAttribute("aria-label")).toBe("pizza");
 });
 
@@ -278,7 +278,7 @@ test("the category bar jumps to a section", async () => {
   await expect.element(bar).toBeInTheDocument();
   // Unit tests load no Tailwind CSS: give the grid its scroll box inline.
   const grid = document.querySelector(
-    '[data-slot="emoji-picker-grid"]',
+    '[data-slot="picker-panel-grid"]',
   ) as HTMLElement;
   Object.assign(grid.style, {
     position: "relative",
@@ -290,6 +290,11 @@ test("the category bar jumps to a section", async () => {
 });
 
 test('size="sm" renders the compact panel', async () => {
+  const data = await loadEmojiData();
+  localStorage.setItem(
+    "vegastack:emoji-recents",
+    JSON.stringify(data.EMOJI.Smileys.slice(0, 16).map((entry) => entry.char)),
+  );
   await render(<EmojiPicker onValueChange={() => {}} size="sm" open />);
   await expect
     .poll(() =>
@@ -298,13 +303,17 @@ test('size="sm" renders the compact panel', async () => {
         ?.getAttribute("data-size"),
     )
     .toBe("sm");
+  const recent = document.querySelector('[data-section="Recent"]');
+  expect(
+    recent?.querySelectorAll('[data-slot="picker-panel-item"]'),
+  ).toHaveLength(14);
 });
 
 test("draws no focus ring", async () => {
   await render(<EmojiPicker onValueChange={() => {}} open />);
   await expect
     .poll(
-      () => document.querySelectorAll('[data-slot="emoji-picker-item"]').length,
+      () => document.querySelectorAll('[data-slot="picker-panel-item"]').length,
     )
     .toBeGreaterThan(0);
   const html = document.querySelector('[data-slot="emoji-picker"]')!.outerHTML;

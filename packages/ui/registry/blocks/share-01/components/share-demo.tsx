@@ -1,11 +1,11 @@
-// @vegastack share-01@0.23.127 sha256-Epg2ZA6S8decUZsLAQqJy1u86A324xZKBRGto0g5klU=
+// @vegastack share-01@0.23.127 sha256-zRqnvrdCkErDkLtd/7cQAIbODVvWZcTzdijO4uMLLB4=
 
 "use client";
 
 import * as React from "react";
 import { Button } from "@/components/ui/button";
 import type { PeopleInputOption } from "@/components/ui/people-input";
-import type { SpaceHint } from "@/components/ui/space-avatar";
+import type { SpaceHint } from "@/components/ui/space-picker";
 import {
   ShareDialog,
   type ShareDialogProps,

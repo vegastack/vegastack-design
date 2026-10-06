@@ -1,4 +1,4 @@
-// @vegastack access-chip@0.23.127 sha256-gxEytLPN0+4JLDaWcsFWpvCVE1VevLsvyFC7YiLZVMc=
+// @vegastack access-chip@0.23.127 sha256-eNiboTyRiOO4fheZPCMFi5W7WRxoAaoVjypifSdVzhs=
 
 "use client";
 
@@ -12,12 +12,11 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import {
-  SpaceAvatar,
-  SpaceHintIcon,
   spaceHintLabel,
   type Space,
   type SpaceHint,
-} from "@/components/ui/space-avatar";
+} from "@/components/ui/space-picker";
+import { IconGlyph } from "@/components/ui/icon-glyph";
 
 /* ------------------------------------------------------------------------------------------------
  * AccessChip — how far one record reaches, as ONE control in its header: the space's tile and name
@@ -97,10 +96,16 @@ export function AccessChip({
     : `${who}.`;
   const glyph =
     access.kind === "space" ? (
-      <SpaceAvatar space={access.space} size="2xs" showLock={false} />
+      <IconGlyph
+        fallback={
+          access.space.icon ??
+          Array.from(access.space.name.trim())[0]?.toUpperCase()
+        }
+        hue={access.space.hue}
+      />
     ) : access.kind === "hidden" ? (
-      <SpaceHintIcon
-        hint={access.hint}
+      <IconGlyph
+        fallback={access.hint.kind === "personal" ? <UserLock /> : <LockIcon />}
         aria-hidden
         data-slot="access-chip-icon"
       />

@@ -1234,7 +1234,7 @@
         "whenToUse": "Pick a single color from a small curated set — labels, tags, calendar categories.",
         "whenNotToUse": "Full-spectrum hue/saturation/alpha selection.",
         "version": "0.23.127",
-        "integrity": "sha256-nw+spmvpn5roF8I2qpQKYog7pQdSicU6vMnX45906G0="
+        "integrity": "sha256-UigO1M4a3SfuI7D0NCqRH/sDsOjfy9CsMAYTSVbTX3c="
       }
     },
     {
@@ -2204,11 +2204,9 @@
       "registryDependencies": [
         "@vegastack/button",
         "@vegastack/emoji-data",
-        "@vegastack/empty",
-        "@vegastack/panel-search",
-        "@vegastack/popover",
-        "@vegastack/skeleton",
-        "@vegastack/use-list-nav"
+        "@vegastack/picker-panel",
+        "@vegastack/picker-preferences",
+        "@vegastack/popover"
       ],
       "files": [
         {
@@ -2221,7 +2219,7 @@
         "whenToUse": "Lightweight emoji insertion — reactions, comments, status, icon selection.",
         "whenNotToUse": "A complete Unicode emoji browser — extend the embedded set or use a library.",
         "version": "0.23.127",
-        "integrity": "sha256-33J8QBTnU9q0LHX6yVonJEhRYr1JZ80F6w/CiYdPlr8="
+        "integrity": "sha256-2lD63cnXAZ/BFboq7Dgns+MMLrJnQ2oBZpCHsEYzTEg="
       }
     },
     {
@@ -16674,37 +16672,6 @@
       }
     },
     {
-      "name": "space-avatar",
-      "type": "registry:ui",
-      "title": "Space Avatar",
-      "description": "A space's tile — its icon or first initial on its hue, a corner lock when private, the lock itself for a personal space — plus SpaceOption, the space row for pickers and menus.",
-      "categories": [
-        "data"
-      ],
-      "dependencies": [
-        "lucide-react@^1.47.0",
-        "@vegastack/design@^0.7.110",
-        "@vegastack/design-tokens@^0.7.80"
-      ],
-      "registryDependencies": [
-        "@vegastack/avatar",
-        "@vegastack/badge"
-      ],
-      "files": [
-        {
-          "path": "packages/ui/registry/ui/space-avatar.tsx",
-          "type": "registry:ui",
-          "target": "@ui/space-avatar.tsx"
-        }
-      ],
-      "meta": {
-        "whenToUse": "Any place a space is drawn or listed: the sidebar, a space picker, a Move to… menu, a share dialog's general access row.",
-        "whenNotToUse": "A person or team (PersonAvatar), or a record image (Thumbnail).",
-        "version": "0.23.127",
-        "integrity": "sha256-htpTg3bzdkDXh331bTMp6dwJjyS4kRb59yYGPd84aZY="
-      }
-    },
-    {
       "name": "people-input",
       "type": "registry:ui",
       "title": "People Input",
@@ -16818,10 +16785,12 @@
         "@vegastack/design-tokens@^0.7.80"
       ],
       "registryDependencies": [
+        "@vegastack/avatar",
         "@vegastack/button",
         "@vegastack/command",
-        "@vegastack/popover",
-        "@vegastack/space-avatar"
+        "@vegastack/icon-glyph",
+        "@vegastack/item",
+        "@vegastack/popover"
       ],
       "files": [
         {
@@ -16834,7 +16803,7 @@
         "whenToUse": "Choosing or showing which space a record lives in, in a create dialog title or a property row.",
         "whenNotToUse": "Choosing anything that is not a space (SearchableSelect, Combobox).",
         "version": "0.23.127",
-        "integrity": "sha256-/DlwdkqYaqwMb2nI4+YU30jFhHnyMLYZob5slpaUM24="
+        "integrity": "sha256-M6mZVy22H4TC7hApvrp4kNQtyLSu5QEE9Dgwl3f7PJI="
       }
     },
     {
@@ -16852,7 +16821,8 @@
       ],
       "registryDependencies": [
         "@vegastack/button",
-        "@vegastack/space-avatar",
+        "@vegastack/icon-glyph",
+        "@vegastack/space-picker",
         "@vegastack/tooltip"
       ],
       "files": [
@@ -16866,7 +16836,7 @@
         "whenToUse": "A record header that shows who can open the record and opens Share.",
         "whenNotToUse": "Changing access inline (PermissionMenu) or listing people (AvatarStack).",
         "version": "0.23.127",
-        "integrity": "sha256-gxEytLPN0+4JLDaWcsFWpvCVE1VevLsvyFC7YiLZVMc="
+        "integrity": "sha256-eNiboTyRiOO4fheZPCMFi5W7WRxoAaoVjypifSdVzhs="
       }
     },
     {
@@ -16924,9 +16894,9 @@
       ],
       "meta": {
         "whenToUse": "Any avatar that stands for a person: rows, chips, cards, menus, comments and the user menu.",
-        "whenNotToUse": "An organisation or record image (Thumbnail), a space (SpaceAvatar), or a non-person avatar composition (Avatar).",
+        "whenNotToUse": "An organisation or record image (Thumbnail), a space (IconGlyph), or a non-person avatar composition (Avatar).",
         "version": "0.23.127",
-        "integrity": "sha256-SGU6rBvftZxEIFTT8gT+byCJsxv7YBPxebrnXMJsrL8="
+        "integrity": "sha256-+pylfh4IdQVtFLaxEXR+2ViUfuHSwf2DbXQHY6dBJCo="
       }
     },
     {
@@ -18394,7 +18364,7 @@
         "whenToUse": "Any hand-rolled collection of focusable items that should read as ONE Tab stop with arrow-key movement — swatch grids, emoji grids, card lists, custom pickers.",
         "whenNotToUse": "Base UI-owned collections (Select, Combobox, Menu, Tabs) — their primitives already own roving focus; and single controls that need no internal navigation.",
         "version": "0.23.127",
-        "integrity": "sha256-dlHw7W9SW0S+4xuuNZKvep3AgWHiLBK+tULKyNkF03U="
+        "integrity": "sha256-5fHXZH4tqzScKimg9IoAsIqfZNxqWsvYleFMfv6Fkbw="
       }
     },
     {
@@ -18757,23 +18727,24 @@
         "@vegastack/design-tokens@^0.7.80"
       ],
       "registryDependencies": [
+        "@vegastack/alert-dialog",
         "@vegastack/button",
         "@vegastack/checkbox",
         "@vegastack/copy-button",
+        "@vegastack/icon-glyph",
         "@vegastack/input-group",
+        "@vegastack/item",
         "@vegastack/people-input",
         "@vegastack/permission-menu",
         "@vegastack/person-avatar",
+        "@vegastack/responsive-dialog",
         "@vegastack/select",
         "@vegastack/skeleton",
-        "@vegastack/space-avatar",
-        "@vegastack/textarea",
-        "@vegastack/tooltip",
-        "@vegastack/alert-dialog",
-        "@vegastack/item",
-        "@vegastack/responsive-dialog",
+        "@vegastack/space-picker",
         "@vegastack/switch",
-        "@vegastack/tabs"
+        "@vegastack/tabs",
+        "@vegastack/textarea",
+        "@vegastack/tooltip"
       ],
       "files": [
         {
@@ -18796,7 +18767,7 @@
         "whenToUse": "Share a record, page or meeting with people and teams, set its general access and turn a public link on or off.",
         "whenNotToUse": "Manage a space's or team's members as a page — compose DataList with PeopleInput and PermissionMenu.",
         "version": "0.23.127",
-        "integrity": "sha256-Epg2ZA6S8decUZsLAQqJy1u86A324xZKBRGto0g5klU="
+        "integrity": "sha256-zRqnvrdCkErDkLtd/7cQAIbODVvWZcTzdijO4uMLLB4="
       }
     },
     {
@@ -21435,6 +21406,213 @@
         "whenNotToUse": "Filtering one list in place — use FilterBar's search.",
         "version": "0.23.127",
         "integrity": "sha256-zZ2rIucbLCdiUoIDoMWX4DcVmi0e610m78EMmmyw490="
+      }
+    },
+    {
+      "name": "icon-data",
+      "type": "registry:lib",
+      "title": "Icon Data",
+      "description": "Curated catalogue metadata. Upstream tags pinned to Lucide revision 1fae58d0a9c661a338036838caf3399b5507bab6.",
+      "categories": [
+        "lib"
+      ],
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "packages/ui/registry/lib/icon-data.ts",
+          "type": "registry:lib",
+          "target": "@lib/icon-data.ts"
+        }
+      ],
+      "meta": {
+        "whenToUse": "Reusable identity glyphs and picker content.",
+        "whenNotToUse": "Entity data or permission rules.",
+        "version": "0.23.127",
+        "integrity": "sha256-eui8n3oaBEPyczlgtwxL3ro21NQFdKpV6i9CKbNpOeM="
+      }
+    },
+    {
+      "name": "icon-components",
+      "type": "registry:lib",
+      "title": "Icon Components",
+      "description": "Explicit imports preserve a bounded glyph catalogue without loading picker UI.",
+      "categories": [
+        "lib"
+      ],
+      "dependencies": [
+        "lucide-react@^1.47.0"
+      ],
+      "registryDependencies": [
+        "@vegastack/icon-data"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/registry/lib/icon-components.ts",
+          "type": "registry:lib",
+          "target": "@lib/icon-components.ts"
+        }
+      ],
+      "meta": {
+        "whenToUse": "Reusable identity glyphs and picker content.",
+        "whenNotToUse": "Entity data or permission rules.",
+        "version": "0.23.127",
+        "integrity": "sha256-vJwSdkl7Hdo3L0qC8MVx2dZnI56+wTJHdxrau8EoeXw="
+      }
+    },
+    {
+      "name": "picker-search",
+      "type": "registry:lib",
+      "title": "Picker Search",
+      "description": "Searchable catalogue content, shared by icon and emoji panels.",
+      "categories": [
+        "lib"
+      ],
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "packages/ui/registry/lib/picker-search.ts",
+          "type": "registry:lib",
+          "target": "@lib/picker-search.ts"
+        }
+      ],
+      "meta": {
+        "whenToUse": "Reusable identity glyphs and picker content.",
+        "whenNotToUse": "Entity data or permission rules.",
+        "version": "0.23.127",
+        "integrity": "sha256-2DqPS9M1gFJSL+/UIRTbneVSa3JdXRPNDK8VXsgQ8fU="
+      }
+    },
+    {
+      "name": "picker-preferences",
+      "type": "registry:lib",
+      "title": "Picker Preferences",
+      "description": "Best-effort storage for picker conveniences; never a record's source of truth.",
+      "categories": [
+        "lib"
+      ],
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "packages/ui/registry/lib/picker-preferences.ts",
+          "type": "registry:lib",
+          "target": "@lib/picker-preferences.ts"
+        }
+      ],
+      "meta": {
+        "whenToUse": "Reusable identity glyphs and picker content.",
+        "whenNotToUse": "Entity data or permission rules.",
+        "version": "0.23.127",
+        "integrity": "sha256-q19N/brB5IBkMMinM1AhbQ5XiL50nTkzDPeZ0Bvtewk="
+      }
+    },
+    {
+      "name": "icon-glyph",
+      "type": "registry:ui",
+      "title": "Icon Glyph",
+      "description": "A generic identity glyph with no entity, access or avatar semantics.",
+      "categories": [
+        "form"
+      ],
+      "dependencies": [
+        "@vegastack/design@^0.7.110",
+        "@vegastack/design-tokens@^0.7.80"
+      ],
+      "registryDependencies": [
+        "@vegastack/avatar",
+        "@vegastack/icon-components",
+        "@vegastack/icon-data"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/icon-glyph.tsx",
+          "type": "registry:ui",
+          "target": "@ui/icon-glyph.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "Reusable identity glyphs and picker content.",
+        "whenNotToUse": "Entity data or permission rules.",
+        "version": "0.23.127",
+        "integrity": "sha256-1E3AtJD/wnHwTdTN8cEpxI3lp/ULmvCaTzF6st460OM="
+      }
+    },
+    {
+      "name": "picker-panel",
+      "type": "registry:ui",
+      "title": "Picker Panel",
+      "description": "A searchable, selectable item in an internal picker panel.",
+      "categories": [
+        "form"
+      ],
+      "dependencies": [
+        "lucide-react@^1.47.0",
+        "@vegastack/design@^0.7.110",
+        "@vegastack/design-tokens@^0.7.80"
+      ],
+      "registryDependencies": [
+        "@vegastack/button",
+        "@vegastack/empty",
+        "@vegastack/field",
+        "@vegastack/panel-search",
+        "@vegastack/picker-search",
+        "@vegastack/skeleton",
+        "@vegastack/use-announcer",
+        "@vegastack/use-list-nav"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/picker-panel.tsx",
+          "type": "registry:ui",
+          "target": "@ui/picker-panel.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "Reusable identity glyphs and picker content.",
+        "whenNotToUse": "Entity data or permission rules.",
+        "version": "0.23.127",
+        "integrity": "sha256-ymfhYNP0IZVFd8MEdHXCXu1xdCSq7mTeI3xDuBHgdq0="
+      }
+    },
+    {
+      "name": "icon-picker",
+      "type": "registry:ui",
+      "title": "Icon Picker",
+      "description": "Modes offered by the generic identity picker.",
+      "categories": [
+        "form"
+      ],
+      "dependencies": [
+        "lucide-react@^1.47.0",
+        "@vegastack/design@^0.7.110",
+        "@vegastack/design-tokens@^0.7.80"
+      ],
+      "registryDependencies": [
+        "@vegastack/avatar",
+        "@vegastack/button",
+        "@vegastack/color-picker",
+        "@vegastack/emoji-picker",
+        "@vegastack/icon-data",
+        "@vegastack/icon-glyph",
+        "@vegastack/picker-panel",
+        "@vegastack/picker-preferences",
+        "@vegastack/popover",
+        "@vegastack/tabs"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/icon-picker.tsx",
+          "type": "registry:ui",
+          "target": "@ui/icon-picker.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "Reusable identity glyphs and picker content.",
+        "whenNotToUse": "Entity data or permission rules.",
+        "version": "0.23.127",
+        "integrity": "sha256-ZENn98mDlGHEmJ+jJgxL8puRdD/xog/H18qMLwYW2MU="
       }
     }
   ]

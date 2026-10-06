@@ -195,3 +195,25 @@ test("no a11y violations — roving grid harness", async () => {
   );
   await expectNoA11yViolations(screen.container);
 });
+
+// Category sections can end before the final column; Down must follow the visual row.
+test("vertical navigation follows partially filled visual rows", async () => {
+  function Fixture() {
+    const nav = useListNav({ count: 6, columns: 4, rowLengths: [2, 4] });
+    return (
+      <div onKeyDown={nav.handleKeyDown}>
+        {Array.from({ length: 6 }, (_, index) => (
+          <button key={index} {...nav.getItemProps(index)}>
+            {index}
+          </button>
+        ))}
+      </div>
+    );
+  }
+  const screen = await render(<Fixture />);
+  await screen.getByRole("button", { name: "1", exact: true }).click();
+  await userEvent.keyboard("{ArrowDown}");
+  await expect
+    .element(screen.getByRole("button", { name: "3", exact: true }))
+    .toHaveFocus();
+});

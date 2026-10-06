@@ -106,7 +106,6 @@ export * from "./data-list";
 export * from "./media-card";
 export * from "./thumbnail";
 export * from "./person-hover-card";
-export * from "./space-avatar";
 export * from "./permission-menu";
 export * from "./responsive-dialog";
 export * from "./space-picker";
@@ -172,3 +171,6 @@ export * from "./charts-pie";
 export * from "./charts-radar";
 export * from "./charts-radial";
 export * from "./charts-tooltip";
+
+export * from "./icon-picker";
+export * from "./icon-glyph";

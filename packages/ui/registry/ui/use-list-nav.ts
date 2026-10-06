@@ -1,4 +1,4 @@
-// @vegastack use-list-nav@0.23.127 sha256-dlHw7W9SW0S+4xuuNZKvep3AgWHiLBK+tULKyNkF03U=
+// @vegastack use-list-nav@0.23.127 sha256-5fHXZH4tqzScKimg9IoAsIqfZNxqWsvYleFMfv6Fkbw=
 
 "use client";
 
@@ -26,6 +26,8 @@ Deliberately NOT done here:
 export interface UseListNavOptions {
   /** Number of items currently in the collection. The active index re-clamps when it shrinks. */
   count: number;
+  /** Optional visual row lengths, including partially filled category rows. */
+  rowLengths?: readonly number[];
   /**
    * Items per visual row. `1` is a vertical list (Up/Down move by one);
    * greater values make ArrowUp/ArrowDown move a full row.
@@ -105,6 +107,7 @@ export interface UseListNavReturn {
  */
 export function useListNav({
   count,
+  rowLengths,
   columns = 1,
   homeEndScope = "collection",
   defaultActiveIndex = 0,
@@ -145,8 +148,32 @@ export function useListNav({
       // Read direction live from the container so RTL flips the horizontal
       // arrows without a prop (house precedent: color-picker).
       const isRtl = getComputedStyle(event.currentTarget).direction === "rtl";
-      const rowStart = Math.floor(activeIndex / columnCount) * columnCount;
-      const rowEnd = Math.min(rowStart + columnCount - 1, count - 1);
+      const starts = [0];
+      if (rowLengths)
+        for (const length of rowLengths)
+          starts.push(starts[starts.length - 1]! + length);
+      const row = rowLengths
+        ? Math.max(
+            0,
+            starts.findIndex(
+              (start, i) =>
+                activeIndex >= start && activeIndex < (starts[i + 1] ?? count),
+            ),
+          )
+        : Math.floor(activeIndex / columnCount);
+      const rowStart = rowLengths ? starts[row]! : row * columnCount;
+      const rowEnd = rowLengths
+        ? starts[row + 1]! - 1
+        : Math.min(rowStart + columnCount - 1, count - 1);
+      const vertical = (direction: number) => {
+        if (!rowLengths) return activeIndex + direction * columnCount;
+        const nextRow = row + direction;
+        if (nextRow < 0 || nextRow >= rowLengths.length) return activeIndex;
+        return Math.min(
+          starts[nextRow]! + activeIndex - rowStart,
+          starts[nextRow + 1]! - 1,
+        );
+      };
       switch (event.key) {
         case "ArrowRight":
           event.preventDefault();
@@ -158,11 +185,11 @@ export function useListNav({
           break;
         case "ArrowDown":
           event.preventDefault();
-          focusIndex(activeIndex + columnCount);
+          focusIndex(vertical(1));
           break;
         case "ArrowUp":
           event.preventDefault();
-          focusIndex(activeIndex - columnCount);
+          focusIndex(vertical(-1));
           break;
         case "Home":
           event.preventDefault();
@@ -183,6 +210,7 @@ export function useListNav({
       disabled,
       focusIndex,
       homeEndScope,
+      rowLengths,
       shouldHandle,
     ],
   );
