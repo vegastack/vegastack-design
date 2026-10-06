@@ -1,5 +1,5 @@
 ---
-"@vegastack/ui": minor
+"@vegastack/ui": patch
 "@vegastack/design": patch
 ---
 
