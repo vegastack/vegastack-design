@@ -109,32 +109,43 @@ const ENTRIES: Entry[] = [
     id: "e2",
     at: NOW - DAY - 4 * HOUR,
     node: (
-      <ActivityEventGroup>
-        <ActivityEvent
-          actor={PRIYA}
-          icon={<PriorityIcon priority="high" size="xs" label="" />}
-          date={NOW - DAY - 4 * HOUR}
-          now={NOW}
-        >
-          set priority to <ActivityValue>High</ActivityValue>
-        </ActivityEvent>
-        <ActivityEvent
-          actor={PRIYA}
-          icon={<ActivityKindIcon kind="due" />}
-          date={NOW - DAY - 4 * HOUR}
-          now={NOW}
-        >
-          set the due date to <ActivityValue>Oct 7</ActivityValue>
-        </ActivityEvent>
-        <ActivityEvent
-          actor={PRIYA}
-          icon={<ActivityKindIcon kind="file-added" />}
-          date={NOW - DAY - 4 * HOUR}
-          now={NOW}
-        >
-          attached <ActivityValue>scope-v2.pdf</ActivityValue>
-        </ActivityEvent>
-      </ActivityEventGroup>
+      <ActivityEventGroup
+        events={[
+          {
+            actor: PRIYA,
+            icon: <PriorityIcon priority="high" size="xs" label="" />,
+            date: NOW - DAY - 4 * HOUR,
+            now: NOW,
+            children: (
+              <>
+                set priority to <ActivityValue>High</ActivityValue>
+              </>
+            ),
+          },
+          {
+            actor: PRIYA,
+            icon: <ActivityKindIcon kind="due" />,
+            date: NOW - DAY - 4 * HOUR,
+            now: NOW,
+            children: (
+              <>
+                set the due date to <ActivityValue>Oct 7</ActivityValue>
+              </>
+            ),
+          },
+          {
+            actor: PRIYA,
+            icon: <ActivityKindIcon kind="file-added" />,
+            date: NOW - DAY - 4 * HOUR,
+            now: NOW,
+            children: (
+              <>
+                attached <ActivityValue>scope-v2.pdf</ActivityValue>
+              </>
+            ),
+          },
+        ]}
+      />
     ),
   },
   { type: "thread", id: "t1", at: NOW - DAY - 3 * HOUR, thread: THREAD_SCOPE },
@@ -506,46 +517,53 @@ export function activityFeedValues(): ReactNode {
 
 function groupEvents() {
   return [
-    <ActivityEvent
-      key="a"
-      actor={PRIYA}
-      icon={<ActivityKindIcon kind="renamed" />}
-      date={NOW - 12 * MIN}
-      now={NOW}
-    >
-      renamed the task to <ActivityValue>Migrate billing data</ActivityValue>
-    </ActivityEvent>,
-    <ActivityEvent
-      key="b"
-      actor={PRIYA}
-      icon={<ActivityKindIcon kind="edited" />}
-      date={NOW - 11 * MIN}
-      now={NOW}
-    >
-      edited the description
-    </ActivityEvent>,
-    <ActivityEvent
-      key="c"
-      actor={PRIYA}
-      icon={<ActivityKindIcon kind="linked" />}
-      date={NOW - 10 * MIN}
-      now={NOW}
-    >
-      linked <ActivityValue>INF-212</ActivityValue>
-    </ActivityEvent>,
+    {
+      actor: PRIYA,
+      icon: <ActivityKindIcon kind="renamed" />,
+      date: NOW - 12 * MIN,
+      now: NOW,
+      children: (
+        <>
+          renamed the task to{" "}
+          <ActivityValue>Migrate billing data</ActivityValue>
+        </>
+      ),
+    },
+    {
+      actor: PRIYA,
+      icon: <ActivityKindIcon kind="edited" />,
+      date: NOW - 11 * MIN,
+      now: NOW,
+      children: "edited the description",
+    },
+    {
+      actor: PRIYA,
+      icon: <ActivityKindIcon kind="linked" />,
+      date: NOW - 10 * MIN,
+      now: NOW,
+      children: (
+        <>
+          linked <ActivityValue>INF-212</ActivityValue>
+        </>
+      ),
+    },
   ];
 }
 
-/** A run of quick edits folded to the first, and the same run unfolded. */
+/** Quick edits as one visible sentence; legacy rows can still opt into disclosure. */
 export function activityFeedGroups(): ReactNode {
   return (
     <Demo>
       <ActivityFeedList className="gap-4">
         <ActivityFeedItem>
-          <ActivityEventGroup>{groupEvents()}</ActivityEventGroup>
+          <ActivityEventGroup events={groupEvents()} />
         </ActivityFeedItem>
         <ActivityFeedItem>
-          <ActivityEventGroup defaultOpen>{groupEvents()}</ActivityEventGroup>
+          <ActivityEventGroup defaultOpen>
+            {groupEvents().map((event, index) => (
+              <ActivityEvent key={index} {...event} />
+            ))}
+          </ActivityEventGroup>
         </ActivityFeedItem>
       </ActivityFeedList>
     </Demo>

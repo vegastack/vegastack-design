@@ -111,13 +111,27 @@ already names the value.
 
 ### Event groups
 
-`ActivityEventGroup` folds a run of events (one person's quick edits) to the first `visible` with
-"N more changes" under them; "Show less" folds them back. `defaultOpen` starts unfolded.
+Pass pre-grouped `events` to `ActivityEventGroup` for one compact entry: the actor and latest
+timestamp appear once, every change stays visible in chronological order, and the sentence wraps
+under its text column. There is no expansion control. The host bounds a burst to two minutes,
+keeps actor, comment/reply, calendar-day and unread boundaries, and groups before reversing the
+entry order. Server comment-boundary markers let hidden replies separate edits too.
+Supply each event's stable `id` so its position survives joining a group across cursor pages.
+
+The children-based form remains available for explicitly folded rows (`visible` and `defaultOpen`).
 
 <ComponentPreview
   name="activityFeedGroups"
   file="components/preview/activity-feed.tsx"
 />
+
+### Cursor pagination
+
+Pass `loadMore={{ hasMore, onLoadMore, loading, error }}` and a `paginationKey` containing
+the filter, list generation and next cursor to `ActivityFeed`. The history edge loads automatically when it enters view: above the list
+oldest first, below it newest first. Prepending older items preserves the visible item’s position.
+Set `loadMore.error` after a failed read; automatic retries stop and a Retry button appears.
+`loadingMoreLabel` and `retryMoreLabel` override the pagination copy. Keep an unread divider within the same timeline rather than paginating unread items separately.
 
 ### Agents and the system
 
@@ -202,7 +216,8 @@ A record with no history yet shows the header and the composer.
   shown.
 - An event is one sentence: the event's icon is decorative, the actor's name is a button that
   opens their hover card, and the relative time shows the exact time on hover or focus.
-- "N more changes" / "Show less" is a button with `aria-expanded`.
+- Combined event groups keep every change visible and announce the actor and time once.
+  The children-based disclosure uses a button with `aria-expanded`.
 - The unread line is a `separator` named "New".
 - "Jump to latest" is hidden from assistive technology and out of the tab order while it is not
   shown; activating it moves focus to the "Latest activity" spot it scrolled to.
