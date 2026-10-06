@@ -465,6 +465,93 @@ test("newest-first cursor regrouping preserves the visible change", async () => 
   ).toBeLessThan(1);
 });
 
+test.each([false, true])(
+  "leaving the feed during a request respects re-entry=%s",
+  async (reenter) => {
+    let complete!: () => void;
+    const page = new Promise<void>((resolve) => {
+      complete = resolve;
+    });
+    const started = vi.fn();
+    function Waiting() {
+      const [loaded, setLoaded] = React.useState(false);
+      return (
+        <div
+          data-testid="leave-scroll"
+          style={{ height: 160, width: 320, overflowY: "auto" }}
+        >
+          <ActivityFeed
+            paginationKey={loaded ? null : "older"}
+            loadMore={{
+              hasMore: !loaded,
+              onLoadMore: async () => {
+                started();
+                await page;
+                setLoaded(true);
+              },
+            }}
+          >
+            <ActivityFeedList>
+              {loaded && (
+                <ActivityFeedItem>
+                  <ActivityEvent actor={priya} date={NOW} now={NOW}>
+                    Loaded older change
+                  </ActivityEvent>
+                </ActivityFeedItem>
+              )}
+              {Array.from({ length: 15 }, (_, i) => (
+                <ActivityFeedItem key={i}>
+                  <ActivityEvent
+                    id={`current-${i}`}
+                    actor={priya}
+                    date={NOW}
+                    now={NOW}
+                  >
+                    Current change {i}
+                  </ActivityEvent>
+                </ActivityFeedItem>
+              ))}
+            </ActivityFeedList>
+          </ActivityFeed>
+          {Array.from({ length: 15 }, (_, i) => (
+            <p key={i} data-testid={`outside-${i}`} style={{ height: 64 }}>
+              Outside paragraph {i}
+            </p>
+          ))}
+        </div>
+      );
+    }
+    const screen = await render(<Waiting />);
+    const scroller = screen.container.querySelector<HTMLElement>(
+      '[data-testid="leave-scroll"]',
+    )!;
+    scroller.scrollTop = 40;
+    await vi.waitFor(() => expect(started).toHaveBeenCalledOnce());
+    scroller.scrollTop = scroller.scrollHeight;
+    await new Promise((resolve) => setTimeout(resolve, 50));
+    if (reenter) {
+      scroller.scrollTop = 65;
+      await new Promise((resolve) => setTimeout(resolve, 50));
+    }
+    const selector = reenter
+      ? '[data-activity-id="current-0"]'
+      : '[data-testid="outside-14"]';
+    const top = screen.container
+      .querySelector(selector)!
+      .getBoundingClientRect().top;
+    complete();
+    await vi.waitFor(() =>
+      expect(screen.container.textContent).toContain("Loaded older change"),
+    );
+    expect(
+      Math.abs(
+        screen.container.querySelector(selector)!.getBoundingClientRect().top -
+          top,
+      ),
+    ).toBeLessThan(1);
+  },
+);
+
 test("cursor pages load at the scroll edge and a failed page requires a retry", async () => {
   function Paged() {
     const [cursor, setCursor] = React.useState<string | null>("earlier");

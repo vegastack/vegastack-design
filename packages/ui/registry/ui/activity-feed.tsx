@@ -1,4 +1,4 @@
-// @vegastack activity-feed@0.23.126 sha256-xUZwcLONNJ5xsV73RDiFT/uutQs811lw0eZyszgCQ5A=
+// @vegastack activity-feed@0.23.126 sha256-w0EXCZNa0Lh4LIV+xvL6N9DSaAf90MhqZMClaS3P8UU=
 
 "use client";
 
@@ -212,6 +212,7 @@ export function ActivityFeed({
           return rect.bottom > top && rect.top < bottom;
         };
         const capture = () => {
+          anchor.current = null;
           const item = Array.from(
             section.querySelectorAll<HTMLElement>(
               '[data-slot="activity-feed-item"]:not([data-kind="divider"])',
@@ -237,8 +238,7 @@ export function ActivityFeed({
         const trackReadingPosition = () => {
           if (
             running.current === request &&
-            anchor.current?.key === paginationKey &&
-            anchor.current.order === order
+            captureCleanup.current === stopCapturing
           )
             capture();
         };
