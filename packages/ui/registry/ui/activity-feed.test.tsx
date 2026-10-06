@@ -837,11 +837,15 @@ test("held clicks on padding, icon and label all reach the latest boundary", asy
   const scroller = screen.container.querySelector<HTMLElement>(
     '[data-testid="press-scroller"]',
   )!;
+  const pill = Array.from(
+    screen.container.querySelectorAll<HTMLButtonElement>("button"),
+  ).find((node) => node.textContent?.trim() === "Jump to latest")!;
+  const bottomPadding = pill.getBoundingClientRect().height - 3;
   const clicks = [
     { x: 5, y: 14 },
     { x: 17, y: 14 },
     { x: 65, y: 14 },
-    { x: 5, y: 27 },
+    { x: 65, y: bottomPadding },
   ];
   for (const [index, position] of clicks.entries()) {
     scroller.scrollTop = 0;
