@@ -1,4 +1,4 @@
-// @vegastack activity-feed@0.23.128 sha256-qcKRr3ZHtmL5ltEGh1ijSMfLU/bAV0kgOIjZ/egWyYA=
+// @vegastack activity-feed@0.23.128 sha256-fxeW9xETqcyqP/YHRBdBVyjJW3Y8QJYx0a7VDg5JPqM=
 
 "use client";
 
@@ -918,6 +918,8 @@ export interface ActivityJumpToLatestProps {
   target: HTMLElement | null;
   /** Keep the action available for a new batch already on screen. @default false */
   forceVisible?: boolean;
+  /** The selected feed direction; when omitted, points toward the observed boundary. @default undefined */
+  direction?: "up" | "down";
   /** The button's label. @default "Jump to latest" */
   label?: string;
   /** Enable the control. @default true */
@@ -940,6 +942,7 @@ export interface ActivityJumpToLatestProps {
 export function ActivityJumpToLatest({
   target,
   forceVisible = false,
+  direction,
   label = "Jump to latest",
   enabled = true,
   onJump,
@@ -1051,7 +1054,11 @@ export function ActivityJumpToLatest({
             });
           }}
         >
-          {above ? <ArrowUp aria-hidden /> : <ArrowDown aria-hidden />}
+          {(direction ? direction === "up" : above) ? (
+            <ArrowUp aria-hidden />
+          ) : (
+            <ArrowDown aria-hidden />
+          )}
           {label}
         </Button>
       </span>
