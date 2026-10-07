@@ -31572,7 +31572,8 @@
                 "picker-panel-categories",
                 "picker-panel-grid",
                 "picker-panel-item",
-                "picker-panel-quick"
+                "picker-panel-quick",
+                "picker-panel-section-header"
               ]
             }
           ],
@@ -31702,12 +31703,22 @@
         "IconPicker": {
           "attributes": [
             {
+              "name": "data-checked",
+              "values": []
+            },
+            {
               "name": "data-size",
               "values": []
             },
             {
               "name": "data-slot",
-              "values": ["icon-picker", "icon-picker-footer"]
+              "values": [
+                "icon-picker",
+                "icon-picker-colours",
+                "icon-picker-footer",
+                "icon-picker-swatch",
+                "icon-picker-tabs"
+              ]
             }
           ],
           "cssVariables": []

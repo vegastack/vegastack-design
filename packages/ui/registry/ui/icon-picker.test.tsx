@@ -40,29 +40,75 @@ test("single-mode picker hides tabs and emits a canonical icon", async () => {
   });
   expect(document.querySelector('[role="tab"]')).toBeNull();
 });
-test("nested colour Escape restores its trigger without dismissing the parent", async () => {
+test("footer swatches set the hue inline and Remove sits beside them", async () => {
+  const hue = vi.fn();
+  const removed = vi.fn();
   const screen = await render(
     <Dialog open>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Identity</DialogTitle>
         </DialogHeader>
-        <IconPicker onValueChange={() => {}} closeOnSelect={false} />
+        <IconPicker
+          onValueChange={() => {}}
+          onHueChange={hue}
+          onRemove={removed}
+          closeOnSelect={false}
+        />
       </DialogContent>
     </Dialog>,
   );
   await screen.getByRole("button", { name: "Choose an icon" }).click();
-  await screen.getByRole("button", { name: "Icon colour" }).click();
+  const group = screen.getByRole("radiogroup", { name: "Icon colour" });
+  const radios = group.element().querySelectorAll('[role="radio"]');
+  expect(radios[0]?.getAttribute("aria-label")).toBe("No colour");
+  await group.getByRole("radio", { name: "Blue", exact: true }).click();
+  expect(hue).toHaveBeenLastCalledWith("blue");
   await expect
-    .element(screen.getByRole("button", { name: "Blue", exact: true }))
-    .toBeInTheDocument();
-  await userEvent.keyboard("{Escape}");
+    .element(group.getByRole("radio", { name: "Blue", exact: true }))
+    .toHaveAttribute("aria-checked", "true");
+  await userEvent.keyboard("{ArrowLeft}");
+  await expect
+    .element(group.getByRole("radio", { name: "No colour" }))
+    .toHaveFocus();
+  expect(hue).toHaveBeenLastCalledWith(null);
+  await userEvent.keyboard("{ArrowLeft}");
+  await expect
+    .element(group.getByRole("radio", { name: "Purple" }))
+    .toHaveAttribute("aria-checked", "true");
+  expect(hue).toHaveBeenLastCalledWith("purple");
   await expect
     .element(screen.getByRole("button", { name: "Icon colour" }))
-    .toHaveFocus();
-  await expect.element(screen.getByRole("searchbox")).toBeInTheDocument();
+    .not.toBeInTheDocument();
+  await screen.getByRole("tab", { name: "Emoji" }).click();
+  await expect
+    .element(screen.getByRole("radiogroup", { name: "Icon colour" }))
+    .not.toBeInTheDocument();
+  await screen.getByRole("button", { name: "Remove icon" }).click();
+  expect(removed).toHaveBeenCalled();
 });
-test("explicit Default wins over a remembered hue and opening emits no changes", async () => {
+test("a remembered hue owns the swatch tab stop", async () => {
+  localStorage.setItem("tabstop-test:hue", JSON.stringify("purple"));
+  const screen = await render(
+    <IconPicker preferenceKey="tabstop-test" onValueChange={() => {}} />,
+  );
+  await screen.getByRole("button", { name: "Choose an icon" }).click();
+  const purple = screen.getByRole("radio", { name: "Purple" });
+  await expect.element(purple).toHaveAttribute("aria-checked", "true");
+  await expect.element(purple).toHaveAttribute("tabindex", "0");
+  await expect
+    .element(screen.getByRole("radio", { name: "No colour" }))
+    .toHaveAttribute("tabindex", "-1");
+});
+test("footer is omitted when there is nothing to show", async () => {
+  const screen = await render(
+    <IconPicker modes={["emoji"]} onValueChange={() => {}} />,
+  );
+  await screen.getByRole("button", { name: "Choose an icon" }).click();
+  await expect.element(screen.getByRole("searchbox")).toBeInTheDocument();
+  expect(document.querySelector('[data-slot="icon-picker-footer"]')).toBeNull();
+});
+test("explicit No colour wins over a remembered hue and opening emits no changes", async () => {
   localStorage.setItem("picker-test:hue", JSON.stringify("blue"));
   const changed = vi.fn();
   const screen = await render(
@@ -75,10 +121,9 @@ test("explicit Default wins over a remembered hue and opening emits no changes",
   );
   await screen.getByRole("button", { name: "Choose an icon" }).click();
   expect(changed).not.toHaveBeenCalled();
-  await screen.getByRole("button", { name: "Icon colour" }).click();
   await expect
-    .element(screen.getByRole("button", { name: "Default", exact: true }))
-    .toHaveAttribute("aria-pressed", "true");
+    .element(screen.getByRole("radio", { name: "No colour" }))
+    .toHaveAttribute("aria-checked", "true");
   await expectNoA11yViolations(document.body, ["color-contrast"]);
 });
 

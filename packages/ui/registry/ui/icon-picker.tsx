@@ -1,8 +1,8 @@
-// @vegastack icon-picker@0.24.2 sha256-8LdtHsxUuwTVujYpYAmL+KBffBAm2UMU+Ch0yPa+dW4=
+// @vegastack icon-picker@0.24.2 sha256-KTx1saJmZ16ukdlrebaKIYz2LzjDuwpfDaaVVU++FUM=
 
 "use client";
 import * as React from "react";
-import { Layers } from "lucide-react";
+import { Ban, Layers } from "lucide-react";
 import { cn, FLOATING } from "@vegastack/design";
 import type { IconValue } from "@/lib/icon-data";
 import {
@@ -18,7 +18,7 @@ import {
 } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { ColorPicker, HUE_COLORS } from "@/components/ui/color-picker";
+import { HUE_COLORS } from "@/components/ui/color-picker";
 import type { AvatarHue } from "@/components/ui/avatar";
 import { IconGlyph } from "@/components/ui/icon-glyph";
 import {
@@ -35,7 +35,7 @@ export interface IconPickerProps {
   value?: IconValue | null;
   /** Called after choosing a glyph. */
   onValueChange: (value: IconValue) => void;
-  /** Explicit saved hue. Undefined permits a remembered default; null is explicit Default. @default undefined */
+  /** Explicit saved hue. Undefined permits a remembered default; null is explicit No colour. @default undefined */
   hue?: AvatarHue | null;
   /** Called on explicit hue selection or committing a remembered hue with a new icon. @default undefined */
   onHueChange?: (hue: AvatarHue | null) => void;
@@ -66,7 +66,7 @@ export interface IconPickerProps {
   /** Ref to the trigger. @default undefined */
   ref?: React.Ref<HTMLButtonElement>;
 }
-/** A DS icon/emoji identity picker with a nested preset-colour palette.
+/** A DS icon/emoji identity picker with an inline preset-colour footer.
  * @example <IconPicker value={value} onValueChange={setValue} />
  */
 export function IconPicker({
@@ -110,13 +110,9 @@ export function IconPicker({
   const [preferredHue, setPreferredHue] = React.useState<AvatarHue | null>(
     null,
   );
-  const [colourOpen, setColourOpen] = React.useState(false);
   const effectiveHue = hue === undefined ? preferredHue : hue;
   React.useEffect(() => {
-    if (!isOpen) {
-      setColourOpen(false);
-      return;
-    }
+    if (!isOpen) return;
     setMode(initialMode);
     const stored = readPickerPreference(`${namespace}:hue`);
     setPreferredHue(
@@ -188,21 +184,93 @@ export function IconPicker({
     writePickerPreference(`${namespace}:hue`, next);
     onHueChange?.(next);
   };
-  const colour =
+  const hueOptions: readonly { name: AvatarHue | null; label: string }[] = [
+    { name: null, label: "No colour" },
+    ...HUE_COLORS.map((colour) => ({
+      name: colour.name as AvatarHue,
+      label: colour.label,
+    })),
+  ];
+  const checkedHueIndex = Math.max(
+    0,
+    hueOptions.findIndex((option) => option.name === (effectiveHue ?? null)),
+  );
+  const swatchRefs = React.useRef<(HTMLButtonElement | null)[]>([]);
+  // APG radio group: the checked swatch is the one tab stop, and arrows move AND select, wrapping.
+  const onSwatchKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
+    const rtl = getComputedStyle(event.currentTarget).direction === "rtl";
+    const step =
+      event.key === "ArrowDown" ||
+      event.key === (rtl ? "ArrowLeft" : "ArrowRight")
+        ? 1
+        : event.key === "ArrowUp" ||
+            event.key === (rtl ? "ArrowRight" : "ArrowLeft")
+          ? -1
+          : 0;
+    const count = hueOptions.length;
+    const next =
+      event.key === "Home"
+        ? 0
+        : event.key === "End"
+          ? count - 1
+          : step
+            ? (checkedHueIndex + step + count) % count
+            : -1;
+    if (next < 0) return;
+    event.preventDefault();
+    chooseHue(hueOptions[next]!.name);
+    swatchRefs.current[next]?.focus();
+  };
+  const swatches =
     mode === "icon" ? (
-      <ColorPicker
-        value={effectiveHue ?? undefined}
-        onValueChange={(next) => chooseHue(next as AvatarHue)}
-        colors={HUE_COLORS}
-        columns={5}
-        onClear={() => chooseHue(null)}
-        clearLabel="Default"
-        open={colourOpen && isOpen}
-        onOpenChange={setColourOpen}
-        closeOnSelect
+      <div
+        role="radiogroup"
         aria-label="Icon colour"
-      />
-    ) : undefined;
+        data-slot="icon-picker-colours"
+        onKeyDown={onSwatchKeyDown}
+        className="flex min-w-0 flex-wrap items-center"
+      >
+        {hueOptions.map((option, index) => {
+          const checked = option.name === (effectiveHue ?? null);
+          const swatch = HUE_COLORS.find(
+            (colour) => colour.name === option.name,
+          );
+          return (
+            <Button
+              key={option.name ?? "default"}
+              type="button"
+              variant="ghost"
+              size="icon-xs"
+              role="radio"
+              aria-checked={checked}
+              aria-label={option.label}
+              title={option.label}
+              tabIndex={index === checkedHueIndex ? 0 : -1}
+              ref={(node) => {
+                swatchRefs.current[index] = node;
+              }}
+              onClick={() => chooseHue(option.name)}
+            >
+              {swatch ? (
+                <span
+                  data-slot="icon-picker-swatch"
+                  data-checked={checked || undefined}
+                  className="size-3.5 rounded-full border border-border bg-clip-padding data-checked:ring-2 data-checked:ring-primary data-checked:ring-offset-1 data-checked:ring-offset-popover"
+                  // Preset token colour — the colour picker's sanctioned inline-style exception.
+                  style={{ backgroundColor: swatch.color }}
+                />
+              ) : (
+                <Ban
+                  aria-hidden
+                  data-checked={checked || undefined}
+                  className="size-3.5 rounded-full text-muted-foreground data-checked:text-foreground data-checked:ring-2 data-checked:ring-primary data-checked:ring-offset-1 data-checked:ring-offset-popover"
+                />
+              )}
+            </Button>
+          );
+        })}
+      </div>
+    ) : null;
   const categoryIcons = React.useMemo(
     () =>
       mode === "icon" && catalogue
@@ -248,7 +316,6 @@ export function IconPicker({
       size={size}
       searchPlaceholder={mode === "icon" ? "Search icons…" : "Search emoji…"}
       emptyText={mode === "icon" ? "No icons found" : "No emoji found"}
-      searchAction={colour}
     />
   );
   return (
@@ -279,26 +346,28 @@ export function IconPicker({
         sideOffset={FLOATING.sideOffsetAttached}
         className={cn(
           "max-w-[calc(100vw-var(--spacing)*8)] max-h-(--available-height) overflow-hidden gap-0 p-0",
-          size === "sm" ? "w-64" : "w-80",
+          size === "sm" ? "w-64" : "w-88",
           className,
         )}
       >
         {enabled.length > 1 ? (
           <Tabs
             value={mode}
-            onValueChange={(next) => {
-              setColourOpen(false);
-              setMode(next as IconPickerMode);
-            }}
+            onValueChange={(next) => setMode(next as IconPickerMode)}
             className="min-h-0 gap-0"
           >
-            <TabsList variant="line" className="mx-2">
-              {enabled.map((item) => (
-                <TabsTrigger key={item} value={item}>
-                  {item === "icon" ? "Icons" : "Emoji"}
-                </TabsTrigger>
-              ))}
-            </TabsList>
+            <div
+              data-slot="icon-picker-tabs"
+              className="shrink-0 border-b border-border px-0.5"
+            >
+              <TabsList variant="line">
+                {enabled.map((item) => (
+                  <TabsTrigger key={item} value={item}>
+                    {item === "icon" ? "Icons" : "Emoji"}
+                  </TabsTrigger>
+                ))}
+              </TabsList>
+            </div>
             {enabled.map((item) => (
               <TabsContent
                 key={item}
@@ -312,22 +381,27 @@ export function IconPicker({
         ) : (
           content
         )}
-        {onRemove ? (
+        {swatches || onRemove ? (
           <div
             data-slot="icon-picker-footer"
-            className="shrink-0 border-t border-border p-1"
+            className="flex shrink-0 items-center gap-2 border-t border-border bg-popover p-1.5"
           >
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              onClick={() => {
-                onRemove();
-                setOpen(false);
-              }}
-            >
-              Remove icon
-            </Button>
+            {swatches}
+            {onRemove ? (
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                aria-label="Remove icon"
+                className="ms-auto shrink-0"
+                onClick={() => {
+                  onRemove();
+                  setOpen(false);
+                }}
+              >
+                Remove
+              </Button>
+            ) : null}
           </div>
         ) : null}
       </PopoverContent>
