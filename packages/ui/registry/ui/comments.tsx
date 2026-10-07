@@ -1,4 +1,4 @@
-// @vegastack comments@0.24.3 sha256-PU2hxqZxiYbU8KSXNQausoteIEeo8Fp5hgyR18CnRP8=
+// @vegastack comments@0.24.3 sha256-ydTzMmK/tDs5ioXuP2QbDoEGGNMCIAMBz8hZ7zaWRME=
 
 "use client";
 
@@ -1310,7 +1310,7 @@ export interface CommentThreadData {
   id: string;
   /** The words the thread is about (an inline comment's anchor quote). @default undefined */
   quote?: string | null;
-  /** Set once the thread is resolved: who and when. @default undefined */
+  /** Set once the thread is resolved: who (their `badge`, such as "Inactive", follows the name) and when. @default undefined */
   resolved?: { by: Person; at: Date | string | number } | null;
   /** The quoted text is gone from the document: "Original text was removed" replaces the quote. @default false */
   orphaned?: boolean;
@@ -1599,6 +1599,7 @@ export function CommentThread({
               >
                 <Check aria-hidden className="size-3.5" />
                 Resolved by {resolved.by.name}
+                <PersonBadge badge={resolved.by.badge} />
                 <span aria-hidden>·</span>
                 <RelativeTime date={resolved.at} now={now} />
               </p>
