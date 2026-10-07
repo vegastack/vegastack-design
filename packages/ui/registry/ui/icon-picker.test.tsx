@@ -259,14 +259,15 @@ test("both tabs share one width and eight browse categories; flags stay searchab
   await expect
     .element(screen.getByRole("toolbar", { name: "Categories" }))
     .toBeInTheDocument();
-  const iconWidth = panel().getBoundingClientRect().width;
+  // offsetWidth ignores the open animation's scale transform.
+  const iconWidth = panel().offsetWidth;
   expect(categories()).toBe(8);
   await screen.getByRole("tab", { name: "Emoji" }).click();
   await expect
     .element(screen.getByRole("button", { name: "Smileys" }))
     .toBeInTheDocument();
   expect(categories()).toBe(8);
-  expect(panel().getBoundingClientRect().width).toBe(iconWidth);
+  expect(panel().offsetWidth).toBe(iconWidth);
   expect(document.querySelector('[data-section="Flags"]')).toBeNull();
   await screen.getByRole("searchbox", { name: "Search emoji…" }).fill("flag");
   await expect
