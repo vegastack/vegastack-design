@@ -59,8 +59,10 @@
 #     ungrouped result below it. cmdk highlights the first option after every search, which with
 #     no results would be an action — Enter would run it after a typo — so `Command` vetoes
 #     highlighting an action unless a navigation key (arrows, Home/End, Page keys, Ctrl+N/J/P/K) or
-#     the pointer moved there, by handing cmdk one of two values no row carries until the value
-#     moves on, controlled or not.
+#     the pointer moved there, handing cmdk the first result (or nothing) instead, controlled or
+#     not; and after every search, and whenever results arrive into an empty highlight, a guard
+#     puts the highlight on the first result or nowhere — never on an action, including one the
+#     arrow keys reached before the user typed.
 #   VOI-1: `CommandDialog`'s default title and description become "Command palette" and
 #     "Search for a command…" (sentence case, the ellipsis character), and `Command` takes
 #     `resultsLabel(count)` for the announced result count (default "1 result" / "N results").
@@ -68,7 +70,7 @@
 #   formatting: prettier reflow plus the `registry-stamp.mjs` provenance header (DOC-1); no
 #               decision of their own.
 diff --git a/command.tsx b/command.tsx
-index 5cb64c9..e9d61f6 100644
+index 5cb64c9..a5097f2 100644
 --- a/command.tsx
 +++ b/command.tsx
 @@ -1,8 +1,8 @@
@@ -84,7 +86,7 @@ index 5cb64c9..e9d61f6 100644
  
  import {
    Dialog,
-@@ -10,42 +10,195 @@ import {
+@@ -10,42 +10,256 @@ import {
    DialogDescription,
    DialogHeader,
    DialogTitle,
@@ -123,8 +125,8 @@ index 5cb64c9..e9d61f6 100644
 +  count: 0,
 +  add: () => () => {},
 +});
-+/** Two highlight values no row carries, alternated so every veto re-renders (OVL-20). */
-+const NO_HIGHLIGHT = ["\u0000command-none-a", "\u0000command-none-b"] as const;
++/** A highlight value no row carries (OVL-20). */
++const NO_HIGHLIGHT = "\u0000command-none";
 +/** The keys that move cmdk's highlight. */
 +const NAVIGATION_KEYS = new Set([
 +  "ArrowDown",
@@ -136,6 +138,56 @@ index 5cb64c9..e9d61f6 100644
 +]);
 +/** cmdk's vim bindings (Ctrl+N/J next, Ctrl+P/K previous) — the only Ctrl chords that navigate. */
 +const NAVIGATION_CTRL_KEYS = new Set(["n", "j", "p", "k"]);
++
++/** The first enabled result — an option outside the footer — or null. */
++function firstResult(root: HTMLElement | null): string | null {
++  const rows = root?.querySelectorAll<HTMLElement>(
++    '[cmdk-list-sizer] [cmdk-item]:not([aria-disabled="true"])',
++  );
++  const row = Array.from(rows ?? []).find(
++    (el) => !el.closest('[data-slot="command-actions"]'),
++  );
++  return row?.getAttribute("data-value") ?? null;
++}
++
++/**
++ * OVL-20: after every search (once cmdk has ranked, selected and the footer has moved back to the
++ * end) the highlight is the first result, or nothing — never a footer action, whether cmdk put it
++ * there or it was already there from the arrow keys before the user typed. A highlight cmdk does
++ * not move emits no change, so this reads the search itself rather than the value.
++ */
++function ActionHighlightGuard({
++  rootRef,
++  highlight,
++}: {
++  rootRef: React.RefObject<HTMLDivElement | null>;
++  highlight: (value: string | null) => void;
++}) {
++  const search = useCommandState((state) => state.search);
++  // Results arriving after the search (an async list) are a change too.
++  const count = useCommandState((state) => state.filtered.count);
++  const first = React.useRef(true);
++  const lastSearch = React.useRef(search);
++  React.useEffect(() => {
++    const searched = lastSearch.current !== search;
++    lastSearch.current = search;
++    if (first.current) {
++      first.current = false;
++      if (!search) return;
++    }
++    const root = rootRef.current;
++    const selected = root?.querySelector<HTMLElement>(
++      '[cmdk-item][aria-selected="true"]',
++    );
++    const target = firstResult(root);
++    const current = selected?.getAttribute("data-value") ?? null;
++    // Results arriving on their own only fill an empty highlight; a row the arrow keys reached
++    // (an action included) stays.
++    if (!searched && selected) return;
++    if (current !== target && (selected || target)) highlight(target);
++  }, [search, count, rootRef, highlight]);
++  return null;
++}
 +
 +function useResultCount() {
 +  return useCommandState((state) => state.filtered.count);
@@ -188,27 +240,37 @@ index 5cb64c9..e9d61f6 100644
 +  );
 +  const navigating = React.useRef(false);
 +  const [innerValue, setInnerValue] = React.useState(defaultValue ?? "");
-+  const [veto, setVeto] = React.useState<string | null>(null);
++  // What cmdk is told to highlight while it would otherwise sit on an action: a row's value, or
++  // nothing.
++  const [override, setOverride] = React.useState<string | null>(null);
++  // The value cmdk is handed this render: an override must differ from it to reach cmdk.
++  const effective = React.useRef("");
++  effective.current = override ?? valueProp ?? innerValue;
++  const highlight = React.useCallback(
++    (next: string | null) => {
++      // Nothing to highlight: "" (cmdk then highlights the first row of results that arrive
++      // later), or a value no row carries when "" is already what cmdk was handed — the guard
++      // below re-highlights once results arrive.
++      setOverride(next ?? (effective.current === "" ? NO_HIGHLIGHT : ""));
++      setInnerValue(next ?? "");
++      onValueChange?.(next ?? "");
++    },
++    [onValueChange],
++  );
 +  const handleValueChange = (next: string) => {
 +    const action =
 +      next !== "" &&
 +      rootRef.current?.querySelector(
 +        `[data-slot="command-actions"] [cmdk-item][data-value="${CSS.escape(next)}"]`,
 +      );
-+    if (action && !navigating.current) {
-+      setVeto((current) =>
-+        current === NO_HIGHLIGHT[0] ? NO_HIGHLIGHT[1] : NO_HIGHLIGHT[0],
-+      );
-+      setInnerValue("");
-+      onValueChange?.("");
-+      return;
-+    }
-+    setVeto(null);
++    if (action && !navigating.current)
++      return highlight(firstResult(rootRef.current));
++    setOverride(null);
 +    setInnerValue(next);
 +    onValueChange?.(next);
 +  };
-+  // A caller's controlled value moving on ends a veto.
-+  React.useEffect(() => setVeto(null), [valueProp]);
++  // A caller's controlled value moving on ends an override.
++  React.useEffect(() => setOverride(null), [valueProp]);
 +  const [actions, setActions] = React.useState(0);
 +  const add = React.useCallback(() => {
 +    setActions((n) => n + 1);
@@ -236,7 +298,7 @@ index 5cb64c9..e9d61f6 100644
 +          className,
 +        )}
 +        ref={setRootRef}
-+        value={veto ?? valueProp ?? innerValue}
++        value={override ?? valueProp ?? innerValue}
 +        onValueChange={handleValueChange}
 +        onKeyDownCapture={(event) => {
 +          navigating.current =
@@ -264,6 +326,7 @@ index 5cb64c9..e9d61f6 100644
 +        {...props}
 +      >
 +        {children}
++        <ActionHighlightGuard rootRef={rootRef} highlight={highlight} />
 +        <CommandResultAnnouncer resultsLabel={resultsLabel} />
 +      </CommandPrimitive>
 +    </CommandRegistryContext.Provider>
@@ -302,7 +365,7 @@ index 5cb64c9..e9d61f6 100644
  }) {
    return (
      <Dialog {...props}>
-@@ -55,15 +208,20 @@ function CommandDialog({
+@@ -55,15 +269,20 @@ function CommandDialog({
        </DialogHeader>
        <DialogContent
          className={cn(
@@ -327,7 +390,7 @@ index 5cb64c9..e9d61f6 100644
  }
  
  function CommandInput({
-@@ -76,8 +234,12 @@ function CommandInput({
+@@ -76,8 +295,12 @@ function CommandInput({
          <CommandPrimitive.Input
            data-slot="command-input"
            className={cn(
@@ -342,7 +405,7 @@ index 5cb64c9..e9d61f6 100644
            )}
            {...props}
          />
-@@ -86,36 +248,278 @@ function CommandInput({
+@@ -86,36 +309,278 @@ function CommandInput({
          </InputGroupAddon>
        </InputGroup>
      </div>
@@ -628,7 +691,7 @@ index 5cb64c9..e9d61f6 100644
  }
  
  function CommandGroup({
-@@ -127,11 +531,11 @@ function CommandGroup({
+@@ -127,11 +592,11 @@ function CommandGroup({
        data-slot="command-group"
        className={cn(
          "overflow-hidden p-1 text-foreground **:[[cmdk-group-heading]]:px-2 **:[[cmdk-group-heading]]:py-1.5 **:[[cmdk-group-heading]]:text-xs **:[[cmdk-group-heading]]:font-medium **:[[cmdk-group-heading]]:text-muted-foreground",
@@ -642,7 +705,7 @@ index 5cb64c9..e9d61f6 100644
  }
  
  function CommandSeparator({
-@@ -144,27 +548,44 @@ function CommandSeparator({
+@@ -144,27 +609,44 @@ function CommandSeparator({
        className={cn("-mx-1 h-px bg-border", className)}
        {...props}
      />
@@ -692,7 +755,7 @@ index 5cb64c9..e9d61f6 100644
  }
  
  function CommandShortcut({
-@@ -176,21 +597,26 @@ function CommandShortcut({
+@@ -176,21 +658,26 @@ function CommandShortcut({
        data-slot="command-shortcut"
        className={cn(
          "ms-auto text-xs tracking-widest text-muted-foreground group-data-selected/command-item:text-foreground",

@@ -859,22 +859,96 @@ test("OVL-20: one result with two actions is not empty, at rest and with filteri
   expect(off.container.querySelector('[data-slot="command-empty"]')).toBeNull();
 });
 
-test("OVL-20: ungrouped results stay above the footer after ranking", async () => {
+test("OVL-20: ungrouped results stay above the footer after ranking, and the first is highlighted", async () => {
+  const onPick = vi.fn();
   const screen = await render(
     <Command>
       <CommandInput aria-label="Search members" />
       <CommandList>
         <CommandEmpty>No members found</CommandEmpty>
-        <CommandItem>Arjun Mehta</CommandItem>
-        <CommandItem>Ananya Rao</CommandItem>
+        <CommandItem onSelect={onPick}>Arjun Mehta</CommandItem>
+        <CommandItem onSelect={onPick}>Ananya Rao</CommandItem>
         <CommandActions>
           <CommandItem>Unassign</CommandItem>
         </CommandActions>
       </CommandList>
     </Command>,
   );
-  await screen.getByRole("combobox", { name: "Search members" }).fill("an");
+  const input = screen.getByRole("combobox", { name: "Search members" });
+  await input.click();
+  await userEvent.keyboard("an");
   await expect.poll(() => rows(screen.container).at(-1)).toBe("Unassign");
+  await expect
+    .poll(() => activeRow(screen.container))
+    .toBe(rows(screen.container)[0]);
+  await userEvent.keyboard("{Enter}");
+  expect(onPick).toHaveBeenCalled();
+});
+
+test.each([false, true])(
+  "OVL-20: an action reached with End loses the highlight once the user types (controlled: %s)",
+  async (controlled) => {
+    const onAction = vi.fn();
+    function Picker() {
+      const [value, setValue] = React.useState("");
+      return controlled ? (
+        <PickerWithActions
+          value={value}
+          onValueChange={setValue}
+          onAction={onAction}
+        />
+      ) : (
+        <PickerWithActions onAction={onAction} />
+      );
+    }
+    const screen = await render(<Picker />);
+    const input = screen.getByRole("combobox", { name: "Search members" });
+    await input.click();
+    await userEvent.keyboard("{End}");
+    await expect.poll(() => activeRow(screen.container)).toBe("Unassign");
+    await userEvent.keyboard("zz");
+    await expect.poll(() => activeRow(screen.container)).toBe(null);
+    await userEvent.keyboard("{Enter}");
+    expect(onAction).not.toHaveBeenCalled();
+  },
+);
+
+test("OVL-20: results that arrive after an async search get the highlight, not an action", async () => {
+  function Async() {
+    const [query, setQuery] = React.useState("");
+    const [people, setPeople] = React.useState<string[]>([]);
+    React.useEffect(() => {
+      const id = setTimeout(
+        () => setPeople(query ? ["Ananya Rao", "Arjun Mehta"] : []),
+        150,
+      );
+      return () => clearTimeout(id);
+    }, [query]);
+    return (
+      <Command shouldFilter={false}>
+        <CommandInput
+          aria-label="Search members"
+          value={query}
+          onValueChange={setQuery}
+        />
+        <CommandList>
+          <CommandEmpty>No members found</CommandEmpty>
+          <CommandGroup>
+            {people.map((name) => (
+              <CommandItem key={name}>{name}</CommandItem>
+            ))}
+          </CommandGroup>
+          <CommandActions>
+            <CommandItem>Unassign</CommandItem>
+          </CommandActions>
+        </CommandList>
+      </Command>
+    );
+  }
+  const screen = await render(<Async />);
+  await screen.getByRole("combobox", { name: "Search members" }).click();
+  await userEvent.keyboard("a");
+  await expect.poll(() => activeRow(screen.container)).toBe("Ananya Rao");
 });
 
 test("OVL-20: a controlled picker vetoes the action highlight on consecutive unmatched searches", async () => {

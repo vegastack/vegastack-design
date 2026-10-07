@@ -1,4 +1,4 @@
-// @vegastack command@0.24.3 sha256-8VGCywnqWiK+ATYLBFBD7LAS0C/8k7jmsGUlK4m+j0E=
+// @vegastack command@0.24.3 sha256-gUOczEm2yj4ZtF5ZCgOyypPdc0L8ow3Ua11QM1P5XJQ=
 
 "use client";
 
@@ -42,8 +42,8 @@ const CommandRegistryContext = React.createContext<CommandActionsRegistry>({
   count: 0,
   add: () => () => {},
 });
-/** Two highlight values no row carries, alternated so every veto re-renders (OVL-20). */
-const NO_HIGHLIGHT = ["\u0000command-none-a", "\u0000command-none-b"] as const;
+/** A highlight value no row carries (OVL-20). */
+const NO_HIGHLIGHT = "\u0000command-none";
 /** The keys that move cmdk's highlight. */
 const NAVIGATION_KEYS = new Set([
   "ArrowDown",
@@ -55,6 +55,56 @@ const NAVIGATION_KEYS = new Set([
 ]);
 /** cmdk's vim bindings (Ctrl+N/J next, Ctrl+P/K previous) — the only Ctrl chords that navigate. */
 const NAVIGATION_CTRL_KEYS = new Set(["n", "j", "p", "k"]);
+
+/** The first enabled result — an option outside the footer — or null. */
+function firstResult(root: HTMLElement | null): string | null {
+  const rows = root?.querySelectorAll<HTMLElement>(
+    '[cmdk-list-sizer] [cmdk-item]:not([aria-disabled="true"])',
+  );
+  const row = Array.from(rows ?? []).find(
+    (el) => !el.closest('[data-slot="command-actions"]'),
+  );
+  return row?.getAttribute("data-value") ?? null;
+}
+
+/**
+ * OVL-20: after every search (once cmdk has ranked, selected and the footer has moved back to the
+ * end) the highlight is the first result, or nothing — never a footer action, whether cmdk put it
+ * there or it was already there from the arrow keys before the user typed. A highlight cmdk does
+ * not move emits no change, so this reads the search itself rather than the value.
+ */
+function ActionHighlightGuard({
+  rootRef,
+  highlight,
+}: {
+  rootRef: React.RefObject<HTMLDivElement | null>;
+  highlight: (value: string | null) => void;
+}) {
+  const search = useCommandState((state) => state.search);
+  // Results arriving after the search (an async list) are a change too.
+  const count = useCommandState((state) => state.filtered.count);
+  const first = React.useRef(true);
+  const lastSearch = React.useRef(search);
+  React.useEffect(() => {
+    const searched = lastSearch.current !== search;
+    lastSearch.current = search;
+    if (first.current) {
+      first.current = false;
+      if (!search) return;
+    }
+    const root = rootRef.current;
+    const selected = root?.querySelector<HTMLElement>(
+      '[cmdk-item][aria-selected="true"]',
+    );
+    const target = firstResult(root);
+    const current = selected?.getAttribute("data-value") ?? null;
+    // Results arriving on their own only fill an empty highlight; a row the arrow keys reached
+    // (an action included) stays.
+    if (!searched && selected) return;
+    if (current !== target && (selected || target)) highlight(target);
+  }, [search, count, rootRef, highlight]);
+  return null;
+}
 
 function useResultCount() {
   return useCommandState((state) => state.filtered.count);
@@ -106,27 +156,37 @@ function Command({
   );
   const navigating = React.useRef(false);
   const [innerValue, setInnerValue] = React.useState(defaultValue ?? "");
-  const [veto, setVeto] = React.useState<string | null>(null);
+  // What cmdk is told to highlight while it would otherwise sit on an action: a row's value, or
+  // nothing.
+  const [override, setOverride] = React.useState<string | null>(null);
+  // The value cmdk is handed this render: an override must differ from it to reach cmdk.
+  const effective = React.useRef("");
+  effective.current = override ?? valueProp ?? innerValue;
+  const highlight = React.useCallback(
+    (next: string | null) => {
+      // Nothing to highlight: "" (cmdk then highlights the first row of results that arrive
+      // later), or a value no row carries when "" is already what cmdk was handed — the guard
+      // below re-highlights once results arrive.
+      setOverride(next ?? (effective.current === "" ? NO_HIGHLIGHT : ""));
+      setInnerValue(next ?? "");
+      onValueChange?.(next ?? "");
+    },
+    [onValueChange],
+  );
   const handleValueChange = (next: string) => {
     const action =
       next !== "" &&
       rootRef.current?.querySelector(
         `[data-slot="command-actions"] [cmdk-item][data-value="${CSS.escape(next)}"]`,
       );
-    if (action && !navigating.current) {
-      setVeto((current) =>
-        current === NO_HIGHLIGHT[0] ? NO_HIGHLIGHT[1] : NO_HIGHLIGHT[0],
-      );
-      setInnerValue("");
-      onValueChange?.("");
-      return;
-    }
-    setVeto(null);
+    if (action && !navigating.current)
+      return highlight(firstResult(rootRef.current));
+    setOverride(null);
     setInnerValue(next);
     onValueChange?.(next);
   };
-  // A caller's controlled value moving on ends a veto.
-  React.useEffect(() => setVeto(null), [valueProp]);
+  // A caller's controlled value moving on ends an override.
+  React.useEffect(() => setOverride(null), [valueProp]);
   const [actions, setActions] = React.useState(0);
   const add = React.useCallback(() => {
     setActions((n) => n + 1);
@@ -145,7 +205,7 @@ function Command({
           className,
         )}
         ref={setRootRef}
-        value={veto ?? valueProp ?? innerValue}
+        value={override ?? valueProp ?? innerValue}
         onValueChange={handleValueChange}
         onKeyDownCapture={(event) => {
           navigating.current =
@@ -173,6 +233,7 @@ function Command({
         {...props}
       >
         {children}
+        <ActionHighlightGuard rootRef={rootRef} highlight={highlight} />
         <CommandResultAnnouncer resultsLabel={resultsLabel} />
       </CommandPrimitive>
     </CommandRegistryContext.Provider>
