@@ -1,5 +1,28 @@
 # @vegastack/ui
 
+## 0.24.4
+
+### Patch Changes
+
+- [#549](https://github.com/vegastack/vegastack-design/pull/549) [`00ff4bd`](https://github.com/vegastack/vegastack-design/commit/00ff4bdc3410444b43c66c4c360282bdbddd4264) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🐛 `IconPicker` keeps focus in its own search when its trigger sits in an `InputGroupAddon`, and its footer and tabs line up.
+
+  - Clicks inside the popup no longer bubble (through the portal) to an `InputGroupAddon` around the trigger, which used to move focus to the field's input while you typed a search. Opening by pointer or keyboard now focuses the search field; touch keeps the default.
+  - The footer is one row that never wraps: "No colour" and the ten hues on the left, Remove as a compact trash icon button (`aria-label` "Remove icon", tooltip "Remove") on the right.
+  - The checked swatch shows the selected cell's 1px `primary` border, rounded, instead of a ring.
+  - Both tabs share one width sized to the grid (`w-79`, compact `w-62.5`, with 6px cell gaps), and both browse eight categories: emoji flags leave the category bar and sections but stay searchable (new `PickerPanel` `searchOnly` prop). `EmojiPicker` uses the same grid width.
+
+- [#551](https://github.com/vegastack/vegastack-design/pull/551) [`48956d1`](https://github.com/vegastack/vegastack-design/commit/48956d189a6de1cedb7b4d8347f44e2e629a5130) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🐛 `InputGroupAddon` focuses its input only when the click started inside the addon itself, so choosing an item in a menu (or any portalled popup) opened from the addon no longer pulls focus into the field (INT-14).
+
+- [#553](https://github.com/vegastack/vegastack-design/pull/553) [`ac500f1`](https://github.com/vegastack/vegastack-design/commit/ac500f11c9414dbb3fa1f77d55f5be31e3f3b6b2) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🐛 `ActivityEvent`, `VersionList` and `CommentThread`'s "Resolved by" header show a person's `badge` after their name, like every other place a person is named. An actor, version author or resolver with `badge: "Inactive"` (someone deactivated, or whose invite is pending) now reads "Jamie Rao `Inactive` changed status…" with the small muted outline badge from `PersonBadge`, instead of dropping it. `activity-feed` and `version-list` now depend on `searchable-select` (`comments` already did).
+
+- [#548](https://github.com/vegastack/vegastack-design/pull/548) [`164172b`](https://github.com/vegastack/vegastack-design/commit/164172b3c0f827be5fa0e7b06f269f06cc534c68) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🛠 Searchable pickers get a footer for their static actions, and the editor, space picker and pill calendar get review fixes (Regent new-task review, OVL-20).
+
+  - `CommandActions` (new): the last child of `CommandList`, a sticky footer behind a hairline for a picker's static actions ("Assign to me", "Unassign", "Clear"). Its `CommandItem`s are never filtered and never counted as results, so "No results" still shows with the actions under it; the arrow keys reach them after the last result; the list's scroll padding keeps the active row clear of the footer.
+  - `PanelList` and `PanelActions` (new, in `panel-search`): the scrolling list under a `PanelSearch` row and the matching sticky footer for menus. A row action with both `submenu` and `items` now renders `items` as that footer below the submenu content (they used to sit above the search).
+  - `SpacePicker` rows are one line (tile and name; a disabled reason muted at the end); `SpacePickerItem.secondary` is deprecated and no longer shown. `placement="title"` is an outlined, rounded chip, with no "› New task" after it; `SpaceChip readOnly size="title"` is the same outlined shape without the ▾, and a read-only chip now passes its other props (a tooltip trigger's) to its span.
+  - `TextEdit`: the bubble menu no longer opens over a selection with no text (select all in an empty editor), and it follows its selection when a dialog or panel around the editor scrolls, hiding while the selection is out of view. In a narrow frame (a Dialog's 16px padding) the content takes just enough start padding that the block grip sits clear of the text and the caret.
+  - `RecordChipMenu`: a `Calendar` inside it is transparent, so its square box no longer paints over the popup's rounded border.
+
 ## 0.24.3
 
 ### Patch Changes
