@@ -149,7 +149,7 @@ export function emojiPickerSideAndLabels(): ReactNode {
 export function emojiPickerClassName(): ReactNode {
   return (
     <Wrapper>
-      <EmojiPicker onValueChange={() => {}} align="center" className="w-80" />
+      <EmojiPicker onValueChange={() => {}} align="center" className="w-96" />
     </Wrapper>
   );
 }

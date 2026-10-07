@@ -107,10 +107,11 @@ Use `side` to place the panel relative to the trigger, and `triggerLabel` /
 ### Custom panel class
 
 `className` is forwarded to the popover panel, so you can override its width (or other layout)
-without touching the trigger. Here the default `w-72` panel is widened to `w-80`.
+without touching the trigger. The default panel is sized to its grid (`w-79`, `w-62.5` when
+small, the same widths as `IconPicker`); here it is widened to `w-96`.
 
 ```tsx
-<EmojiPicker className="w-80" onValueChange={insert} />
+<EmojiPicker className="w-96" onValueChange={insert} />
 ```
 
 <ComponentPreview

@@ -1,4 +1,4 @@
-// @vegastack emoji-picker@0.24.3 sha256-V3hZoZ9oGYAgWlP/caqsBxFH1zMis0WgYxbP+0vFga0=
+// @vegastack emoji-picker@0.24.3 sha256-IEnCofCIg9ZaMfkfZSQ9S68DCfLwoHuen8EebtWr5mk=
 
 "use client";
 
@@ -252,7 +252,8 @@ export function EmojiPicker({
         sideOffset={FLOATING.sideOffsetAttached}
         className={cn(
           "max-w-[calc(100vw-var(--spacing)*8)] max-h-(--available-height) overflow-hidden gap-0 p-0",
-          small ? "w-64" : "w-80",
+          // Sized to the shared picker grid, the same width as the IconPicker.
+          small ? "w-62.5" : "w-79",
           className,
         )}
       >
