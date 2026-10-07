@@ -1,4 +1,4 @@
-// @vegastack inline-chip@0.24.4 sha256-/4/mbjx8QT9bbhDDhXTmdAYyp0rhhW9b3qFnyVBr7w8=
+// @vegastack inline-chip@0.24.4 sha256-YazFVe+eM7AjW5deg5/d02qGMhjHJoOyCSzYGJxbHb4=
 
 "use client";
 
@@ -15,6 +15,7 @@ import {
 import { cn } from "@vegastack/design";
 import { FileTypeIcon } from "@/lib/file-kind";
 import { PersonAvatar } from "@/components/ui/person-avatar";
+import { Badge } from "@/components/ui/badge";
 import type { AvatarHue } from "@/components/ui/avatar";
 import {
   HoverCard,
@@ -68,6 +69,12 @@ export interface InlineChipPerson {
    * @default undefined
    */
   hue?: AvatarHue | null;
+  /**
+   * A deactivated member: the name is followed by the small muted outline "Inactive" badge (the
+   * one every person surface shows) and the chip carries `data-inactive`. The label is never
+   * rewritten, so the text a comment anchors to is unchanged. @default false
+   */
+  inactive?: boolean;
 }
 
 /** What a chip opens: passed to `onOpen`. */
@@ -169,7 +176,8 @@ const KIND_TONE: Record<InlineChipKind, string> = {
 };
 
 /**
- * The chip's box: inline, padded 4px each side, the small radius, cloned on a wrap. The ink is a
+ * The chip's box: inline, padded 4px each side, the small radius, cloned on a wrap. It never
+ * spellchecks (a name is not a misspelling) and is atomic text in an editor. The ink is a
  * custom property worn by an inner span, so a prose root's link colour (`[&_a]:text-…`, which
  * out-specifies a class on the `<a>`) never reaches the label; `inlineChipProseClassName` undoes
  * the prose underline. A `before:` hit area lifts the line to a 24px target without moving
@@ -181,6 +189,20 @@ const CHIP =
 /** The leading glyph: 1em, a hair below the baseline's centre like any inline icon, muted. */
 const ICON =
   "me-1 inline-block size-[1em] shrink-0 align-[-0.125em] opacity-70";
+
+/**
+ * The leading avatar, sized and set like the icon so it reads with the text at any size: `1.1em`,
+ * centred where the icon is (`-0.175em` puts its middle on the icon's), inside the chip's own
+ * ground at every font size. An `inline-block` with hidden overflow, so its baseline is its bottom
+ * edge whatever is inside (an inline-flex avatar takes its initials' baseline and drops by half
+ * its height). Its initials scale with it (`55%` of the chip's size, never the avatar's
+ * fixed `text-xs`: no ramp step can follow a chip from a comment to a heading, the same reason the
+ * icon is `1em`), and its photo is pinned to the circle: a prose root's descendant `img` rule (block,
+ * margin, border, radius — the rules for a picture in the text) would otherwise move the photo
+ * out of the chip, so the `[data-slot]` selectors here out-specify it.
+ */
+const AVATAR =
+  "me-1 inline-block size-[1.1em] shrink-0 overflow-hidden align-[-0.175em] whitespace-nowrap select-none after:hidden data-[size=sm]:size-[1.1em] [&_[data-slot=avatar-fallback]]:text-[55%] [&_[data-slot=avatar-fallback]]:leading-none [&_[data-slot=avatar-fallback]]:font-medium [&_[data-slot=avatar-image]]:m-0 [&_[data-slot=avatar-image]]:max-w-none [&_[data-slot=avatar-image]]:rounded-full [&_[data-slot=avatar-image]]:border-0";
 
 /**
  * The rule a prose root needs so a chip that is an `<a>` keeps its own ink and no underline: the
@@ -367,7 +389,7 @@ export function InlineChip({
         size="sm"
         aria-hidden
         data-slot="inline-chip-avatar"
-        className="me-1 inline-flex size-[1.125em] shrink-0 align-middle whitespace-nowrap select-none after:hidden data-[size=sm]:size-[1.125em]"
+        className={AVATAR}
       />
     ) : kind === "file" ? (
       <FileTypeIcon
@@ -384,7 +406,9 @@ export function InlineChip({
     "data-slot": "inline-chip",
     "data-kind": kind,
     "data-restricted": restricted ? "" : undefined,
+    "data-inactive": person?.inactive ? "" : undefined,
     "data-interactive": opens || person ? "" : undefined,
+    spellCheck: false,
     className: cn(CHIP, KIND_TONE[kind], className),
     ...props,
   };
@@ -393,6 +417,16 @@ export function InlineChip({
     <span data-slot="inline-chip-label" className="text-(--inline-chip-ink)">
       {lead}
       {label}
+      {person?.inactive ? (
+        // The person surfaces' "Inactive" badge, at the chip's text baseline and no taller.
+        <Badge
+          variant="outline"
+          data-slot="inline-chip-badge"
+          className="ms-1 h-auto px-1.5 py-px align-baseline leading-none font-normal text-muted-foreground"
+        >
+          Inactive
+        </Badge>
+      ) : null}
     </span>
   );
 

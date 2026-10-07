@@ -300,6 +300,11 @@
         "globalInputGroups": ["tokens", "shared-runtime"]
       },
       {
+        "file": "packages/ui/test/inline-chip-geometry.browser.test.tsx",
+        "owners": ["inline-chip", "markdown-view", "text-edit"],
+        "globalInputGroups": ["tokens", "shared-runtime"]
+      },
+      {
         "file": "packages/ui/test/record-chip-geometry.browser.test.tsx",
         "owners": [
           "priority-icon",
@@ -15297,8 +15302,8 @@
         },
         "visual": {
           "status": "observed",
-          "values": ["default", "hover", "focus", "restricted"],
-          "evidence": "packages/ui/registry/ui/inline-chip.tsx"
+          "values": ["default", "hover", "focus", "restricted", "inactive"],
+          "evidence": "packages/ui/registry/ui/inline-chip.tsx + packages/ui/test/inline-chip-geometry.browser.test.tsx"
         }
       },
       "responsive": {
@@ -15320,7 +15325,8 @@
         "@vegastack/file-kind",
         "@vegastack/hover-card",
         "@vegastack/person-avatar",
-        "@vegastack/avatar"
+        "@vegastack/avatar",
+        "@vegastack/badge"
       ],
       "npmDependencies": [
         "@vegastack/design-tokens@^0.7.80",
@@ -15344,6 +15350,7 @@
               "name": "data-slot",
               "values": [
                 "inline-chip-avatar",
+                "inline-chip-badge",
                 "inline-chip-icon",
                 "inline-chip-label",
                 "inline-chip-person",

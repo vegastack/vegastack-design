@@ -21,3 +21,10 @@ declare module "*?inline" {
   const content: string;
   export default content;
 }
+
+// `?no-inline` is Vite's asset-URL import that never becomes a `data:` URL (which a chip refuses). `inline-chip-geometry.browser.test.tsx` loads a real photo
+// (a docs preview avatar) so a mention chip's `<img>` is measured, not just its initials.
+declare module "*?no-inline" {
+  const url: string;
+  export default url;
+}
