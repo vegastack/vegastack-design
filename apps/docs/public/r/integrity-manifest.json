@@ -2,7 +2,7 @@
   "access-chip": "sha256-vd3G30s4/7cI054O2ySfHGsqv2KA30NkwgLfJ9OB+wY=",
   "accordion": "sha256-3YTMzZhyGqvAJEMdmh7kNnTiZSiNMi4kq32Fb8I6HBQ=",
   "action-bar": "sha256-5feqjtwPAlHgIDv9pixGQLE8+4VTIYMHdVTKR+ujecE=",
-  "activity-feed": "sha256-WMfvxlLeeiYwE3wjcUPLHZBXb3z+pL4sgd9IAYZskwQ=",
+  "activity-feed": "sha256-BtSSJt942IOJqA+j5na8p8yAy9i5oP5aMAb1SnNPU78=",
   "alert": "sha256-Mi0KnfZunRVjErxdrqjdhA4wJdPS04tMnEr6RzpFV9g=",
   "alert-dialog": "sha256-k2xLMiA5+DEIIVz57uBM/3ZuB6xSS1HAUYoH9HJWLRs=",
   "animated-number": "sha256-ZwCpeVjq8TbcUj8qOBGYP4NTwbedzYQupeUowvAzZ1I=",
@@ -108,7 +108,7 @@
   "command": "sha256-+PTyMKA5Xl6sdd8qO85iBl4P9YaLGtNWNAudpKjcidY=",
   "command-search-01": "sha256-qBoAAzzD9GWsWOR7tAkrnorOJzWoHQNhqg+lnqvQ/9U=",
   "comment-margin": "sha256-Xa+OdjGk942uqwF1xn6f7grTWyApvj//laD5yKIkBC0=",
-  "comments": "sha256-PU2hxqZxiYbU8KSXNQausoteIEeo8Fp5hgyR18CnRP8=",
+  "comments": "sha256-ydTzMmK/tDs5ioXuP2QbDoEGGNMCIAMBz8hZ7zaWRME=",
   "context-menu": "sha256-s5YuNYg7Ztx+KRAseLCY0dKIrIDkWLwYgAVkqXBNqmU=",
   "copy-button": "sha256-rDmfBQBhhf3MXCH5I9+alrAXTTxjF1J+VV8Ra1a4HKk=",
   "country-select": "sha256-iDhSzZTHslMWtpQPB6LiX04nywLZX3ZrzyFjJvXt8/0=",
@@ -729,7 +729,7 @@
   "use-overflow": "sha256-cC+M7ySydR4fmlpyI5eFQ653ex8fJkzrGb4WzS0AajY=",
   "use-platform": "sha256-XAjB9U1wSVkQoKUwzBragXTEPGkkbC17CgFMh6iRRdg=",
   "use-tabs-swipe": "sha256-ICUphNxmdTZnLPSDzLoE4ZFWaXuTZ+hTMW1iRG/W6gA=",
-  "version-list": "sha256-HrB5GQfdO5NkiC7xDtDn6SsO95Yjq0Lx7CAIcaiBwRg=",
+  "version-list": "sha256-C0J2Nh+GxkVkyHZZENeNSYa/WfUgFQkHolyrbMqBYPI=",
   "video-player": "sha256-VtXQcoM/QA5Uo5fRM5kxChtc5Llhx/Pnp3jOav4jycE=",
   "view-toggle": "sha256-uARlCnwiAuSsahTUah87w3IYuN72D5moMzojw1nnKv8="
 }

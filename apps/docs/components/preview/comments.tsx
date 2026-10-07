@@ -500,14 +500,14 @@ export function commentsDrafts(): ReactNode {
   );
 }
 
-/** Resolved (who and when, with Reopen), orphaned (its text is gone), and collapsed. */
+/** Resolved (who — with their "Inactive" badge — and when, with Reopen), orphaned (its text is gone), and collapsed. */
 export function commentsThreadStates(): ReactNode {
   return (
     <Demo>
       <div className="grid gap-4 md:grid-cols-3">
         <CommentThread
           now={NOW}
-          thread={{ ...THREAD, resolved: { by: ME, at: NOW - 600_000 } }}
+          thread={{ ...THREAD, resolved: { by: PRIYA, at: NOW - 600_000 } }}
           onReply={() => {}}
           onReopen={() => {}}
         />

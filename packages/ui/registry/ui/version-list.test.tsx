@@ -56,6 +56,24 @@ test("badges: Current, Restored; a named version leads with its name", async () 
   await expectNoA11yViolations(screen.container);
 });
 
+test("an author's badge follows their name", async () => {
+  const screen = await render(
+    <VersionList
+      versions={[
+        {
+          id: "v1",
+          author: { ...asha, badge: "Inactive" },
+          at: "2026-09-29T10:00:00Z",
+          kind: "auto",
+        },
+      ]}
+    />,
+  );
+  const badge = screen.container.querySelector("[data-slot=person-badge]");
+  expect(badge?.textContent).toBe("Inactive");
+  expect(badge?.previousElementSibling?.textContent).toBe("Asha Rao");
+});
+
 test("arrow keys move the selection through the list", async () => {
   const onSelect = vi.fn();
   const screen = await render(

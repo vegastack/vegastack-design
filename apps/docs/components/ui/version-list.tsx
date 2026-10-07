@@ -1,4 +1,4 @@
-// @vegastack version-list@0.24.3 sha256-HrB5GQfdO5NkiC7xDtDn6SsO95Yjq0Lx7CAIcaiBwRg=
+// @vegastack version-list@0.24.3 sha256-C0J2Nh+GxkVkyHZZENeNSYa/WfUgFQkHolyrbMqBYPI=
 
 "use client";
 
@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { PersonAvatar, type Person } from "@/components/ui/person-avatar";
 import { RelativeTime } from "@/components/ui/relative-time";
+import { PersonBadge } from "@/components/ui/searchable-select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Switch } from "@/components/ui/switch";
 import { useListNav } from "@/components/ui/use-list-nav";
@@ -16,7 +17,7 @@ import { useListNav } from "@/components/ui/use-list-nav";
 export interface VersionItem {
   /** Stable id. */
   id: string;
-  /** Who wrote the text this version holds. */
+  /** Who wrote the text this version holds; a `badge` on the person ("Inactive") follows the name. */
   author: Person;
   /** When that text was last saved. */
   at: Date | string | number;
@@ -210,6 +211,7 @@ export function VersionList({
                   <span className="min-w-0 truncate">
                     {version.author.name}
                   </span>
+                  <PersonBadge badge={version.author.badge} />
                   {version.name ? (
                     <>
                       <span aria-hidden>·</span>

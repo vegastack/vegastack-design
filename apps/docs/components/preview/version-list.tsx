@@ -8,7 +8,11 @@ import { VersionList, type VersionItem } from "@/components/ui/version-list";
 const NOW = Date.parse("2026-09-29T10:00:00Z");
 const HOUR = 3_600_000;
 const ASHA = { name: "Asha Rao", hue: "blue" as const };
-const BO = { name: "Bo Lindqvist", hue: "green" as const };
+const BO = {
+  name: "Bo Lindqvist",
+  hue: "green" as const,
+  badge: "Inactive",
+};
 
 const VERSIONS: VersionItem[] = [
   { id: "v6", author: ASHA, at: NOW - 0.2 * HOUR, kind: "auto" },
@@ -31,7 +35,8 @@ const VERSIONS: VersionItem[] = [
 ];
 
 /**
- * A page's history: "Current", a lost save kept as "Unsaved copy", a named version, a restore.
+ * A page's history: "Current", a lost save kept as "Unsaved copy", a named version, a restore, and
+ * an inactive author's badge.
  * ↑/↓ move the selection; "Named only" filters; "Load more" pages on.
  */
 export function versionList(): ReactNode {

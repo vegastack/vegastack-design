@@ -219,6 +219,30 @@ test("a resolved thread shows who resolved it and Reopen calls onReopen", async 
   expect(screen.container.querySelector("[data-resolved]")).not.toBeNull();
 });
 
+test("the resolver's badge follows their name in the resolved header", async () => {
+  const screen = await render(
+    <CommentThread
+      thread={{
+        id: "t1",
+        root: rootComment,
+        replies: [],
+        resolved: {
+          by: { ...asha, badge: "Inactive" },
+          at: "2026-09-29T10:00:00Z",
+        },
+      }}
+      onReply={vi.fn()}
+    />,
+  );
+  const header = screen.container.querySelector<HTMLElement>(
+    "[data-slot=comment-thread-resolved]",
+  )!;
+  expect(header.querySelector("[data-slot=person-badge]")?.textContent).toBe(
+    "Inactive",
+  );
+  expect(header.textContent).toMatch(/Resolved by Asha.*Inactive/);
+});
+
 test("an orphaned thread says the original text was removed", async () => {
   const screen = await render(
     <CommentThread
