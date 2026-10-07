@@ -3,7 +3,7 @@
 <!-- GENERATED — do not hand-edit. Regenerated from the design system's component contract,
      which is the authority for membership and counts. -->
 
-**153 components**, plus 467 animated-icon items, 13 hooks (`use-animation-replay`, `use-announcer`, `use-async-search`, `use-drag-reorder`, `use-file-drop`, `use-inline-edit`, `use-list-nav`, `use-media-query`, `use-mobile`, `use-modal-inert`, `use-overflow`, `use-platform`, `use-tabs-swipe`), 15 starter blocks (`app-shell-01`, `board-01`, `issue-detail-01`, `page-editor-01`, `command-search-01`, `list-page-01`, `library-01`, `login-01`, `notifications-01`, `review-split-01`, `settings-01`, `settings-02`, `status-pages-01`, `email-kit`, `share-01`), 68 chart blocks across 7 families, and 16 data libs (`code-highlight`, `date-time`, `geo-data`, `emoji-data`, `drag-item`, `text-anchor`, `text-anchor-doc`, `file-kind`, `upload-progress`, `media-probe`, `page-layout`, `tile-overlay`, `icon-data`, `icon-components`, `picker-search`, `picker-preferences`) — 732 registry items in total.
+**154 components**, plus 467 animated-icon items, 13 hooks (`use-animation-replay`, `use-announcer`, `use-async-search`, `use-drag-reorder`, `use-file-drop`, `use-inline-edit`, `use-list-nav`, `use-media-query`, `use-mobile`, `use-modal-inert`, `use-overflow`, `use-platform`, `use-tabs-swipe`), 15 starter blocks (`app-shell-01`, `board-01`, `issue-detail-01`, `page-editor-01`, `command-search-01`, `list-page-01`, `library-01`, `login-01`, `notifications-01`, `review-split-01`, `settings-01`, `settings-02`, `status-pages-01`, `email-kit`, `share-01`), 68 chart blocks across 7 families, and 16 data libs (`code-highlight`, `date-time`, `geo-data`, `emoji-data`, `drag-item`, `text-anchor`, `text-anchor-doc`, `file-kind`, `upload-progress`, `media-probe`, `page-layout`, `tile-overlay`, `icon-data`, `icon-components`, `picker-search`, `picker-preferences`) — 733 registry items in total.
 
 Install any of them with `shadcn add @vegastack/<name>`. Animated icons install as
 `@vegastack/icon-<name>`; the bare name is reserved for components, so a component whose name
@@ -119,6 +119,7 @@ starts with `icon-` is a component and never an icon.
 - **`dropdown-menu`** — An anchored action menu — items, submenus, checkboxes, radio groups, shortcuts and a destructive variant.
 - **`hover-card`** — A preview surface that opens on hover or focus, with configurable delays and sides.
 - **`icon-picker`** — Modes offered by the generic identity picker.
+- **`info-hint`** — A small muted info button that opens one sentence of explanation and an optional new-tab link in a popover; keyboard and touch accessible, named by its label.
 - **`panel-search`** — The sticky, box-free search row a filtering popup puts at the top of its panel (decision OVL-11) — shared by EmojiPicker and ShortcutOverlay.
 - **`permission-menu`** — An access level on a sharing row — a ghost trigger reading the level, a menu of levels with one-line descriptions and a check on the current one, an optional destructive Remove access, and a read-only text mode for built-in rows.
 - **`picker-panel`** — A searchable, selectable item in an internal picker panel.

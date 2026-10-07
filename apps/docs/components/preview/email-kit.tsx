@@ -61,6 +61,7 @@ async function renderSample(sample: Sample): Promise<string> {
           },
           footer: {
             reason: "You're getting this because you follow this task.",
+            noteHref: "https://vegastack.com",
             links: [
               preferences,
               {

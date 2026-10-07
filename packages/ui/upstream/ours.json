@@ -1,7 +1,7 @@
 {
   "_note": "Every name in packages/ui/registry/ui/ that has NO counterpart in vendor/shadcn/<cli>/ui/. verify-parity.mjs fails on a registry name that is neither upstream-backed nor listed here, so a component cannot appear by accident. Dispositions come from docs/plans/2026-09-18-shadcn-reset/extras.md (66 rows, MK 2026-09-18); hooks and internal parts are not components and are recorded here with their reason.",
   "counts": {
-    "total": 112,
+    "total": 113,
     "fromExtras": 46
   },
   "items": {
@@ -609,6 +609,12 @@
       "family": "overlay",
       "source": "Operator-approved icon picker implementation plan, 6 October 2026",
       "rationale": "Generic identity rendering and shared picker composition; upstream has no equivalent."
+    },
+    "info-hint": {
+      "disposition": "keep",
+      "family": "overlay",
+      "source": "Operator brief 2026-10-07 (Regent contextual help hints) — approved by MK 2026-10-07",
+      "rationale": "Upstream ships Popover and Tooltip but no info hint. A fixed composition of upstream button and popover with a named icon trigger and an optional new-tab link; no patch."
     }
   }
 }

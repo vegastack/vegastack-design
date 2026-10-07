@@ -13611,6 +13611,31 @@
       }
     },
     {
+      "name": "info-hint",
+      "type": "registry:ui",
+      "title": "Info Hint",
+      "description": "A small muted info button beside a heading or label that opens a popover with one sentence of explanation and an optional link that opens in a new tab.",
+      "categories": ["overlay"],
+      "dependencies": [
+        "lucide-react@^1.47.0",
+        "@vegastack/design@^0.7.111",
+        "@vegastack/design-tokens@^0.7.80"
+      ],
+      "registryDependencies": ["@vegastack/button", "@vegastack/popover"],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/info-hint.tsx",
+          "type": "registry:ui",
+          "target": "@ui/info-hint.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "One sentence that explains a heading, label or setting on demand — on click, tap or keyboard — with an optional link to the full help article.",
+        "whenNotToUse": "Naming an icon-only control (Tooltip), text people must read to complete a task (FieldDescription or inline copy), or rich content and actions (Popover or HoverCard).",
+        "version": "0.24.1"
+      }
+    },
+    {
       "name": "choice-card",
       "type": "registry:ui",
       "title": "Choice Card",

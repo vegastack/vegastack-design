@@ -71,3 +71,33 @@ export function shortcutOverlaySearch(): ReactNode {
     </Wrapper>
   );
 }
+
+export function shortcutOverlayFooter(): ReactNode {
+  const [open, setOpen] = useState(false);
+  return (
+    <Wrapper className="block">
+      <div className="mx-auto flex w-full max-w-sm flex-col items-start gap-2">
+        <Button variant="outline" size="sm" onClick={() => setOpen(true)}>
+          View shortcuts
+        </Button>
+        <ShortcutOverlay
+          shortcuts={SHORTCUTS}
+          open={open}
+          onOpenChange={setOpen}
+          triggerKey={false}
+          footer={
+            <>
+              Press <Kbd>?</Kbd> anywhere to open this list.{" "}
+              <a
+                href="/docs/components/shortcut-overlay"
+                className="text-primary underline-offset-4 hover:underline"
+              >
+                All shortcuts
+              </a>
+            </>
+          }
+        />
+      </div>
+    </Wrapper>
+  );
+}

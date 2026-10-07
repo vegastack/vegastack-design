@@ -1,4 +1,4 @@
-// @vegastack shortcut-overlay@0.24.1 sha256-t1JijMwLOZb1n5ay44YCwX2InzooanwTyhpnqVFyRWo=
+// @vegastack shortcut-overlay@0.24.1 sha256-5kHu2h4iy1p9gpvfRExumNjEEWJpZe06REeIRkmg6FM=
 
 "use client";
 
@@ -104,6 +104,13 @@ export interface ShortcutOverlayProps {
    * @default undefined
    */
   searchable?: boolean;
+  /**
+   * Content rendered below the shortcut list, outside the scroll area — a
+   * hint or a link to the full shortcuts guide.
+
+   * @default undefined
+   */
+  footer?: React.ReactNode;
 }
 
 /**
@@ -120,6 +127,7 @@ export interface ShortcutOverlayProps {
  *   { keys: ["E"], label: "Edit selected record", category: "Editing" },
  * ];
  * <ShortcutOverlay shortcuts={SHORTCUTS} />
+ * <ShortcutOverlay shortcuts={SHORTCUTS} footer={<a href="/help/shortcuts">All shortcuts</a>} />
  */
 export function ShortcutOverlay({
   shortcuts,
@@ -129,6 +137,7 @@ export function ShortcutOverlay({
   shouldHandle,
   title = "Keyboard shortcuts",
   searchable,
+  footer,
 }: ShortcutOverlayProps) {
   // Open state — controlled when `open` is provided, else internal.
   const [internalOpen, setInternalOpen] = React.useState(false);
@@ -262,6 +271,14 @@ export function ShortcutOverlay({
             )}
           </div>
         </ScrollArea>
+        {footer ? (
+          <div
+            data-slot="shortcut-overlay-footer"
+            className="border-t border-border px-6 py-3 text-xs text-muted-foreground"
+          >
+            {footer}
+          </div>
+        ) : null}
       </DialogContent>
     </Dialog>
   );

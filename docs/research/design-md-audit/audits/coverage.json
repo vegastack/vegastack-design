@@ -1,14 +1,14 @@
 {
   "schemaVersion": 1,
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "b92a2c4876e42e933d201eb245f70ba7afeff9c8937883c6a9d589bba0765f2c",
+  "contractSha256": "f167d82f0452ed1b93a31b3930591cf82c3458f6a43fa5dc356017e933896232",
   "inventory": {
-    "expected": 732,
-    "actual": 732,
-    "unique": 732
+    "expected": 733,
+    "actual": 733,
+    "unique": 733
   },
   "classes": {
-    "components": 153,
+    "components": 154,
     "animatedIcons": 467,
     "hooks": 13,
     "blocks": 15,
@@ -114,8 +114,8 @@
       ]
     },
     "Overlays": {
-      "expected": 19,
-      "actual": 19,
+      "expected": 20,
+      "actual": 20,
       "members": [
         "access-chip",
         "action-bar",
@@ -128,6 +128,7 @@
         "file-viewer",
         "hover-card",
         "icon-picker",
+        "info-hint",
         "permission-menu",
         "popover",
         "provider",
@@ -799,7 +800,7 @@
       ]
     }
   },
-  "componentRoutes": 149,
+  "componentRoutes": 150,
   "blockRoutes": 22,
   "modeledExemptions": 3
 }

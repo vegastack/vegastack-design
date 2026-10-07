@@ -16840,6 +16840,37 @@
       }
     },
     {
+      "name": "info-hint",
+      "type": "registry:ui",
+      "title": "Info Hint",
+      "description": "A small muted info button beside a heading or label that opens a popover with one sentence of explanation and an optional link that opens in a new tab.",
+      "categories": [
+        "overlay"
+      ],
+      "dependencies": [
+        "lucide-react@^1.47.0",
+        "@vegastack/design@^0.7.111",
+        "@vegastack/design-tokens@^0.7.80"
+      ],
+      "registryDependencies": [
+        "@vegastack/button",
+        "@vegastack/popover"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/info-hint.tsx",
+          "type": "registry:ui",
+          "target": "@ui/info-hint.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "One sentence that explains a heading, label or setting on demand — on click, tap or keyboard — with an optional link to the full help article.",
+        "whenNotToUse": "Naming an icon-only control (Tooltip), text people must read to complete a task (FieldDescription or inline copy), or rich content and actions (Popover or HoverCard).",
+        "version": "0.24.1",
+        "integrity": "sha256-W6GW0u6Wt04AOzsh4Ycwb6fHDFiaS8ctRZFIPLUZL1s="
+      }
+    },
+    {
       "name": "choice-card",
       "type": "registry:ui",
       "title": "Choice Card",
@@ -17364,7 +17395,7 @@
         "whenToUse": "Any app with keyboard shortcuts — declare each binding once (keys, label, category) and get the ?-dialog for free; the same data can feed tooltips and Command rows.",
         "whenNotToUse": "Inline shortcut hints (Kbd in a Tooltip, CommandShortcut) or executing bindings — the app's key handler owns dispatch.",
         "version": "0.24.1",
-        "integrity": "sha256-t1JijMwLOZb1n5ay44YCwX2InzooanwTyhpnqVFyRWo="
+        "integrity": "sha256-5kHu2h4iy1p9gpvfRExumNjEEWJpZe06REeIRkmg6FM="
       }
     },
     {
@@ -21156,7 +21187,7 @@
         "whenToUse": "Transactional and notification email from a server — a comment, an assignment, a daily digest, an invite or a password reset — rendered with renderEmail and sent by your mail provider.",
         "whenNotToUse": "Marketing newsletters with images and multi-column layouts, or an in-app notification — use the Inbox and Toast components.",
         "version": "0.24.1",
-        "integrity": "sha256-sfKB4P4LH6Tef2NbmAJjGVGq+ywE2GKghjYudNRbRwc="
+        "integrity": "sha256-tzBlhnYDeb71yIrb3Otxfoktvyew+mEnDFouEE1BINw="
       }
     },
     {
