@@ -1,5 +1,15 @@
 # @vegastack/ui
 
+## 0.24.2
+
+### Patch Changes
+
+- [#544](https://github.com/vegastack/vegastack-design/pull/544) [`95d592a`](https://github.com/vegastack/vegastack-design/commit/95d592a2e682cecf8534ce24c62729644b972356) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🔧 Add `InfoHint`, a footer slot on `ShortcutOverlay`, and a linkable email footer note.
+
+  - `InfoHint` is a muted icon-only info button that opens one sentence in a popover, with an optional `href` link that opens in a new tab. `label` names the trigger ("About spaces"). Add it with `shadcn add @vegastack/info-hint`.
+  - `ShortcutOverlay` takes an optional `footer`, rendered below the shortcut list.
+  - The email kit's `EmailLayout` footer takes `noteHref`, which links "VegaStack" in the default "Sent with VegaStack" note, and `note` now accepts inline content.
+
 ## 0.24.1
 
 ### Patch Changes
