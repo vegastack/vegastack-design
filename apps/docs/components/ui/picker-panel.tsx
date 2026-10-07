@@ -1,4 +1,4 @@
-// @vegastack picker-panel@0.24.2 sha256-P02Z5VNQJLbb1f6N/qt6+SwBuMpBEIyfa+EvRMVDNL0=
+// @vegastack picker-panel@0.24.2 sha256-/XnlCq5XQAD+tch55b8hYwH1AtA90NqM54lubVa9b/M=
 
 "use client";
 import * as React from "react";
@@ -75,7 +75,8 @@ export interface PickerPanelProps {
   emptyText: string;
   /** Singular accessible result noun. @default "item" */
   resultLabel?: string;
-  /** Search-row trailing action, such as a colour trigger. @default undefined */
+  /** Search-row trailing action. @default undefined
+   * @deprecated The identity picker moved colour into its footer; kept for compatibility. */
   searchAction?: React.ReactNode;
 }
 /** Search, recents, category navigation and shared cells.
@@ -252,7 +253,10 @@ export function PickerPanel({
               data-section={section.name}
               className="mb-2 last:mb-0"
             >
-              <div className="px-1 py-1 text-xs font-medium text-muted-foreground">
+              <div
+                data-slot="picker-panel-section-header"
+                className="sticky top-0 z-10 bg-popover px-1 py-1 text-xs font-medium text-muted-foreground"
+              >
                 {section.name}
               </div>
               <div

@@ -31572,7 +31572,8 @@
                 "picker-panel-categories",
                 "picker-panel-grid",
                 "picker-panel-item",
-                "picker-panel-quick"
+                "picker-panel-quick",
+                "picker-panel-section-header"
               ]
             }
           ],
@@ -31681,7 +31682,8 @@
         "@vegastack/picker-panel",
         "@vegastack/picker-preferences",
         "@vegastack/popover",
-        "@vegastack/tabs"
+        "@vegastack/tabs",
+        "@vegastack/use-list-nav"
       ],
       "npmDependencies": [
         "lucide-react@^1.47.0",
@@ -31702,12 +31704,22 @@
         "IconPicker": {
           "attributes": [
             {
+              "name": "data-checked",
+              "values": []
+            },
+            {
               "name": "data-size",
               "values": []
             },
             {
               "name": "data-slot",
-              "values": ["icon-picker", "icon-picker-footer"]
+              "values": [
+                "icon-picker",
+                "icon-picker-colours",
+                "icon-picker-footer",
+                "icon-picker-swatch",
+                "icon-picker-tabs"
+              ]
             }
           ],
           "cssVariables": []

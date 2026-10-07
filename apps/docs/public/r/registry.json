@@ -21604,7 +21604,7 @@
         "whenToUse": "Reusable identity glyphs and picker content.",
         "whenNotToUse": "Entity data or permission rules.",
         "version": "0.24.2",
-        "integrity": "sha256-P02Z5VNQJLbb1f6N/qt6+SwBuMpBEIyfa+EvRMVDNL0="
+        "integrity": "sha256-/XnlCq5XQAD+tch55b8hYwH1AtA90NqM54lubVa9b/M="
       }
     },
     {
@@ -21630,7 +21630,8 @@
         "@vegastack/picker-panel",
         "@vegastack/picker-preferences",
         "@vegastack/popover",
-        "@vegastack/tabs"
+        "@vegastack/tabs",
+        "@vegastack/use-list-nav"
       ],
       "files": [
         {
@@ -21643,7 +21644,7 @@
         "whenToUse": "Reusable identity glyphs and picker content.",
         "whenNotToUse": "Entity data or permission rules.",
         "version": "0.24.2",
-        "integrity": "sha256-8LdtHsxUuwTVujYpYAmL+KBffBAm2UMU+Ch0yPa+dW4="
+        "integrity": "sha256-lKyVDIZkT4g1voEMdsp9/d7ZNZTjsHTWEO1N57tPpA8="
       }
     }
   ]
