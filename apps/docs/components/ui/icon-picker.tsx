@@ -1,4 +1,4 @@
-// @vegastack icon-picker@0.24.3 sha256-vZCkbzs6DhSDfTiuUXYtaTJmL4pRVvLHxxg+qpOhxQc=
+// @vegastack icon-picker@0.24.3 sha256-Y97R0KOa365K+zuhUJZj3FAI6uQ8iKjR6G5Dfi1HrUs=
 
 "use client";
 import * as React from "react";
@@ -358,10 +358,11 @@ export function IconPicker({
         data-size={size}
         sideOffset={FLOATING.sideOffsetAttached}
         ref={popupRef}
-        // Search first, so typing filters at once; touch keeps the default so no keyboard pops up.
+        // Search first, so typing filters at once. Touch focuses the popup itself (`true` would pick
+        // the first tabbable — the search in a single-mode picker — and summon the keyboard).
         initialFocus={(type) =>
           type === "touch"
-            ? true
+            ? popupRef.current
             : (popupRef.current?.querySelector<HTMLElement>(
                 '[data-slot="picker-panel"] input[type="search"]',
               ) ?? true)
