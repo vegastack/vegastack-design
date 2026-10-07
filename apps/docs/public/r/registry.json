@@ -2219,7 +2219,7 @@
         "whenToUse": "Lightweight emoji insertion — reactions, comments, status, icon selection.",
         "whenNotToUse": "A complete Unicode emoji browser — extend the embedded set or use a library.",
         "version": "0.24.3",
-        "integrity": "sha256-V3hZoZ9oGYAgWlP/caqsBxFH1zMis0WgYxbP+0vFga0="
+        "integrity": "sha256-IEnCofCIg9ZaMfkfZSQ9S68DCfLwoHuen8EebtWr5mk="
       }
     },
     {
@@ -21604,7 +21604,7 @@
         "whenToUse": "Reusable identity glyphs and picker content.",
         "whenNotToUse": "Entity data or permission rules.",
         "version": "0.24.3",
-        "integrity": "sha256-qKkPulsA5pYSsAhMJXH8A4jRRT+cBU+DfpR1jtAXrpI="
+        "integrity": "sha256-jCtREvudDFaM9DAhO651v64XKtmvRSIP6j7OHNks/yI="
       }
     },
     {
@@ -21630,7 +21630,8 @@
         "@vegastack/picker-panel",
         "@vegastack/picker-preferences",
         "@vegastack/popover",
-        "@vegastack/tabs"
+        "@vegastack/tabs",
+        "@vegastack/tooltip"
       ],
       "files": [
         {
@@ -21643,7 +21644,7 @@
         "whenToUse": "Reusable identity glyphs and picker content.",
         "whenNotToUse": "Entity data or permission rules.",
         "version": "0.24.3",
-        "integrity": "sha256-3gfdpRWTrbsHDxCMFErf0MW44TKKLzeopNHvKPRFlJk="
+        "integrity": "sha256-vZCkbzs6DhSDfTiuUXYtaTJmL4pRVvLHxxg+qpOhxQc="
       }
     }
   ]

@@ -1,4 +1,4 @@
-// @vegastack picker-panel@0.24.3 sha256-qKkPulsA5pYSsAhMJXH8A4jRRT+cBU+DfpR1jtAXrpI=
+// @vegastack picker-panel@0.24.3 sha256-jCtREvudDFaM9DAhO651v64XKtmvRSIP6j7OHNks/yI=
 
 "use client";
 import * as React from "react";
@@ -65,6 +65,8 @@ export interface PickerPanelProps {
   recents?: readonly string[];
   /** Quick insertion keys above search. @default undefined */
   quick?: readonly string[];
+  /** Categories left out of browsing (the sections and the category bar) but still matched by search. @default undefined */
+  searchOnly?: readonly string[];
   /** Optional category glyphs. @default undefined */
   categoryIcons?: Readonly<Record<string, React.ReactNode>>;
   /** Compact or standard grid. @default "default" */
@@ -89,6 +91,7 @@ export function PickerPanel({
   recents = [],
   quick = [],
   categoryIcons,
+  searchOnly,
   size = "default",
   searchPlaceholder,
   emptyText,
@@ -114,12 +117,13 @@ export function PickerPanel({
       .flatMap((key) => (byKey.has(key) ? [byKey.get(key)!] : []));
     if (recent.length) groups.set("Recent", recent);
     for (const entry of entries) {
+      if (searchOnly?.includes(entry.category)) continue;
       const group = groups.get(entry.category) ?? [];
       group.push(entry);
       groups.set(entry.category, group);
     }
     return [...groups].map(([name, items]) => ({ name, entries: items }));
-  }, [entries, query, recents, columns, byKey]);
+  }, [entries, query, recents, columns, byKey, searchOnly]);
   const flat = sections.flatMap((section) => section.entries);
   const rowLengths = sections.flatMap((section) =>
     Array.from(
@@ -234,7 +238,7 @@ export function PickerPanel({
         {!entries ? (
           <div
             aria-hidden
-            className={cn("grid justify-items-center gap-0.5", gridClass)}
+            className={cn("grid justify-items-center gap-1.5", gridClass)}
           >
             {Array.from({ length: columns * 4 }, (_, index) => (
               <Skeleton
@@ -262,7 +266,7 @@ export function PickerPanel({
               <div
                 role="group"
                 aria-label={section.name}
-                className={cn("grid justify-items-center gap-0.5", gridClass)}
+                className={cn("grid justify-items-center gap-1.5", gridClass)}
               >
                 {section.entries.map((entry) => {
                   const index = ++flatIndex;
