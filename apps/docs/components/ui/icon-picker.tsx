@@ -1,8 +1,8 @@
-// @vegastack icon-picker@0.24.3 sha256-3gfdpRWTrbsHDxCMFErf0MW44TKKLzeopNHvKPRFlJk=
+// @vegastack icon-picker@0.24.3 sha256-Y97R0KOa365K+zuhUJZj3FAI6uQ8iKjR6G5Dfi1HrUs=
 
 "use client";
 import * as React from "react";
-import { Ban, Layers } from "lucide-react";
+import { Ban, Layers, Trash2 } from "lucide-react";
 import { cn, FLOATING } from "@vegastack/design";
 import type { IconValue } from "@/lib/icon-data";
 import {
@@ -17,6 +17,11 @@ import {
   PopoverContent,
 } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
+import {
+  Tooltip,
+  TooltipTrigger,
+  TooltipContent,
+} from "@/components/ui/tooltip";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { HUE_COLORS } from "@/components/ui/color-picker";
 import type { AvatarHue } from "@/components/ui/avatar";
@@ -66,6 +71,9 @@ export interface IconPickerProps {
   /** Ref to the trigger. @default undefined */
   ref?: React.Ref<HTMLButtonElement>;
 }
+/** Emoji categories reachable only through search, so both tabs browse eight categories. */
+const SEARCH_ONLY_EMOJI = ["Flags"] as const;
+
 /** A DS icon/emoji identity picker with an inline preset-colour footer.
  * @example <IconPicker value={value} onValueChange={setValue} />
  */
@@ -228,7 +236,8 @@ export function IconPicker({
         aria-label="Icon colour"
         data-slot="icon-picker-colours"
         onKeyDown={onSwatchKeyDown}
-        className="flex min-w-0 flex-wrap items-center"
+        // One row, always: at the default width every swatch fits; the compact size scrolls.
+        className="flex min-w-0 flex-nowrap items-center overflow-x-auto"
       >
         {hueOptions.map((option, index) => {
           const checked = option.name === (effectiveHue ?? null);
@@ -246,6 +255,8 @@ export function IconPicker({
               aria-label={option.label}
               title={option.label}
               tabIndex={index === checkedHueIndex ? 0 : -1}
+              // The selected picker cell's own cue — the button's 1px border in `primary` — not a ring.
+              className="shrink-0 rounded-full aria-checked:border-primary"
               ref={(node) => {
                 swatchRefs.current[index] = node;
               }}
@@ -255,7 +266,7 @@ export function IconPicker({
                 <span
                   data-slot="icon-picker-swatch"
                   data-checked={checked || undefined}
-                  className="size-3.5 rounded-full border border-border bg-clip-padding data-checked:ring-2 data-checked:ring-primary data-checked:ring-offset-1 data-checked:ring-offset-popover"
+                  className="size-3.5 rounded-full border border-border bg-clip-padding"
                   // Preset token colour — the colour picker's sanctioned inline-style exception.
                   style={{ backgroundColor: swatch.color }}
                 />
@@ -263,7 +274,7 @@ export function IconPicker({
                 <Ban
                   aria-hidden
                   data-checked={checked || undefined}
-                  className="size-3.5 rounded-full text-muted-foreground data-checked:text-foreground data-checked:ring-2 data-checked:ring-primary data-checked:ring-offset-1 data-checked:ring-offset-popover"
+                  className="size-3.5 rounded-full text-muted-foreground data-checked:text-foreground"
                 />
               )}
             </Button>
@@ -314,10 +325,12 @@ export function IconPicker({
       onSelect={select}
       recents={showRecents ? recents : []}
       size={size}
+      searchOnly={mode === "emoji" ? SEARCH_ONLY_EMOJI : undefined}
       searchPlaceholder={mode === "icon" ? "Search icons…" : "Search emoji…"}
       emptyText={mode === "icon" ? "No icons found" : "No emoji found"}
     />
   );
+  const popupRef = React.useRef<HTMLDivElement>(null);
   return (
     <Popover open={isOpen} onOpenChange={setOpen}>
       <PopoverTrigger
@@ -344,9 +357,24 @@ export function IconPicker({
         data-slot="icon-picker"
         data-size={size}
         sideOffset={FLOATING.sideOffsetAttached}
+        ref={popupRef}
+        // Search first, so typing filters at once. Touch focuses the popup itself (`true` would pick
+        // the first tabbable — the search in a single-mode picker — and summon the keyboard).
+        initialFocus={(type) =>
+          type === "touch"
+            ? popupRef.current
+            : (popupRef.current?.querySelector<HTMLElement>(
+                '[data-slot="picker-panel"] input[type="search"]',
+              ) ?? true)
+        }
+        // A portal still bubbles React events to the trigger's ancestors: an `InputGroupAddon`
+        // around the trigger would take this click and focus its input. Clicks stay in the popup.
+        onClick={(event) => event.stopPropagation()}
         className={cn(
+          // One width for both tabs, sized to the grid: 8 × 32px cells + 7 × 6px gaps + 16px padding
+          // + the 2px frame (compact: 7 × 28px + 6 × 6px + 18px). The footer's swatch row fits inside.
           "max-w-[calc(100vw-var(--spacing)*8)] max-h-(--available-height) overflow-hidden gap-0 p-0",
-          size === "sm" ? "w-64" : "w-88",
+          size === "sm" ? "w-62.5" : "w-79",
           className,
         )}
       >
@@ -384,23 +412,30 @@ export function IconPicker({
         {swatches || onRemove ? (
           <div
             data-slot="icon-picker-footer"
-            className="flex shrink-0 items-center gap-2 border-t border-border bg-popover p-1.5"
+            className="flex shrink-0 flex-nowrap items-center gap-1 border-t border-border bg-popover p-1.5"
           >
             {swatches}
             {onRemove ? (
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                aria-label="Remove icon"
-                className="ms-auto shrink-0"
-                onClick={() => {
-                  onRemove();
-                  setOpen(false);
-                }}
-              >
-                Remove
-              </Button>
+              <Tooltip>
+                <TooltipTrigger
+                  render={
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon-xs"
+                      aria-label="Remove icon"
+                      className="ms-auto shrink-0"
+                      onClick={() => {
+                        onRemove();
+                        setOpen(false);
+                      }}
+                    />
+                  }
+                >
+                  <Trash2 aria-hidden />
+                </TooltipTrigger>
+                <TooltipContent>Remove</TooltipContent>
+              </Tooltip>
             ) : null}
           </div>
         ) : null}

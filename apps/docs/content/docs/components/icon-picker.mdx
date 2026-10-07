@@ -27,7 +27,7 @@ import { IconPicker } from "@/components/ui/icon-picker";
 
 ### Composition
 
-Use modes={["icon"]} or modes={["emoji"]} for one mode without tabs. Both modes use line tabs. Standard grids have eight columns; compact grids have seven. Recents occupy at most two rows. In icon mode a sticky footer carries the colour swatches — the first, No colour, clears the hue — with Remove on the right when onRemove is passed; the emoji tab shows only Remove, and the footer is omitted when it has nothing to show. Category headers stay pinned while the grid scrolls. Use closeOnSelect={false} when editing an identity, and pass onRemove only where removal is supported. Explicit hue, including null, wins over the remembered preference. Give preferenceKey an account/workspace-scoped namespace. Opening never commits a preference. The catalogue has 160 distinct outline icons; labels, pinned upstream tags and reviewed aliases power local ranked search.
+Use modes={["icon"]} or modes={["emoji"]} for one mode without tabs. Both modes use line tabs. Standard grids have eight columns; compact grids have seven. Recents occupy at most two rows. Both tabs share one popover width, sized to the grid, and both browse eight categories: emoji flags are left out of the category bar and reached through search. In icon mode a sticky footer carries the colour swatches on one row — the first, No colour, clears the hue — with Remove as a compact trash icon button (tooltip "Remove") on the right when onRemove is passed; the emoji tab shows only Remove, and the footer is omitted when it has nothing to show. Opening by pointer or keyboard focuses search, so typing filters at once; touch keeps focus on the popup so no on-screen keyboard appears. Clicks inside the popup never bubble to the trigger's ancestors, so the picker can sit in an InputGroupAddon beside a text field. Category headers stay pinned while the grid scrolls. Use closeOnSelect={false} when editing an identity, and pass onRemove only where removal is supported. Explicit hue, including null, wins over the remembered preference. Give preferenceKey an account/workspace-scoped namespace. Opening never commits a preference. The catalogue has 160 distinct outline icons; labels, pinned upstream tags and reviewed aliases power local ranked search.
 
 ## API Reference
 
@@ -40,7 +40,7 @@ Use modes={["icon"]} or modes={["emoji"]} for one mode without tabs. Both modes 
 
 <StatesTested name="icon-picker" />
 
-Search is labelled, cells use roving keyboard navigation across visual rows, and result counts use the shared announcer. The footer swatches form one "Icon colour" radiogroup with a single tab stop and arrow-key navigation. Keyboard focus uses the global DS tint; selection uses a persistent cell border.
+Search is labelled, cells use roving keyboard navigation across visual rows, and result counts use the shared announcer. The footer swatches form one "Icon colour" radiogroup with a single tab stop and arrow-key navigation. Keyboard focus uses the global DS tint; selection uses a persistent 1px primary border — on a grid cell and, rounded, on the checked swatch.
 
 ## Do / Don't
 
