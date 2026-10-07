@@ -21,15 +21,10 @@ import {
 
 const SPACES: SpacePickerItem[] = [
   { id: "mine", space: { name: "My space", access: "personal" } },
-  {
-    id: "general",
-    space: { name: "General", access: "open", hue: "blue" },
-    secondary: "Everyone in the workspace",
-  },
+  { id: "general", space: { name: "General", access: "open", hue: "blue" } },
   {
     id: "product",
     space: { name: "Product", access: "open", hue: "purple" },
-    secondary: "14 members",
   },
   {
     id: "sales",
@@ -38,7 +33,7 @@ const SPACES: SpacePickerItem[] = [
   },
 ];
 
-/** The create-dialog title: `[▣ General ▾] › New task`, keyboard only works end to end. */
+/** A create dialog led by the outlined space chip, `[▣ General ▾]`; keyboard works end to end. */
 export function spacePicker(): ReactNode {
   const [space, setSpace] = React.useState("general");
   return (
@@ -48,19 +43,14 @@ export function spacePicker(): ReactNode {
           New task
         </DialogTrigger>
         <DialogContent size="md">
-          <DialogHeader>
-            <DialogTitle className="flex min-w-0 items-center gap-1">
-              <SpacePicker
-                placement="title"
-                spaces={SPACES}
-                value={space}
-                onValueChange={setSpace}
-              />
-              <span aria-hidden className="text-muted-foreground">
-                ›
-              </span>
-              <span>New task</span>
-            </DialogTitle>
+          <DialogHeader className="items-start">
+            <DialogTitle className="sr-only">New task</DialogTitle>
+            <SpacePicker
+              placement="title"
+              spaces={SPACES}
+              value={space}
+              onValueChange={setSpace}
+            />
           </DialogHeader>
           <Input aria-label="Task title" placeholder="Task title" />
           <DialogFooter>

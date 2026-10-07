@@ -1,9 +1,13 @@
-// @vegastack command@0.24.3 sha256-jv4X5WeW8dM0ccZ4PKO3qUnMOVaCVgnm/ElMCVawfV4=
+// @vegastack command@0.24.3 sha256-3GkjlpXHtLYcl9stc70K/3s3WKXt0JL9PqWZUexXfFw=
 
 "use client";
 
 import * as React from "react";
-import { Command as CommandPrimitive, useCommandState } from "cmdk";
+import {
+  Command as CommandPrimitive,
+  defaultFilter,
+  useCommandState,
+} from "cmdk";
 import { cn, mergeRefs } from "@vegastack/design";
 
 import {
@@ -32,6 +36,44 @@ import { useAnnouncer } from "@/components/ui/use-announcer";
 const defaultResultsLabel = (count: number) =>
   count === 1 ? "1 result" : `${count} results`;
 
+/**
+ * OVL-20: the footer actions (`CommandActions`) are options, so cmdk counts them — always while
+ * the search is empty or `shouldFilter` is off, never while filtering (our filter scores them 0).
+ * The result count every part reads (the announcer, the empty state, the list's role) leaves them
+ * out, so a footer never hides "No results".
+ */
+const ACTION_KEYWORD = "\u0000command-action";
+/** A highlight value no row carries: with `""`, the two "nothing highlighted" values (OVL-20). */
+const NO_HIGHLIGHT = "\u0000command-none";
+/** The keys that move cmdk's highlight (plus its Ctrl+N/J/P/K bindings, matched on Ctrl). */
+const NAVIGATION_KEYS = new Set([
+  "ArrowDown",
+  "ArrowUp",
+  "Home",
+  "End",
+  "PageDown",
+  "PageUp",
+]);
+type CommandActionsRegistry = {
+  filters: boolean;
+  count: number;
+  add: () => () => void;
+};
+const CommandRegistryContext = React.createContext<CommandActionsRegistry>({
+  filters: true,
+  count: 0,
+  add: () => () => {},
+});
+
+function useResultCount() {
+  const registry = React.useContext(CommandRegistryContext);
+  const count = useCommandState((state) => state.filtered.count);
+  const searching = useCommandState((state) => Boolean(state.search));
+  return searching && registry.filters
+    ? count
+    : Math.max(0, count - registry.count);
+}
+
 function CommandResultAnnouncer({
   resultsLabel,
 }: {
@@ -39,7 +81,7 @@ function CommandResultAnnouncer({
 }) {
   const { announce, Announcer } = useAnnouncer();
   const search = useCommandState((state) => state.search);
-  const count = useCommandState((state) => state.filtered.count);
+  const count = useResultCount();
 
   React.useEffect(() => {
     if (!search) return;
@@ -53,22 +95,85 @@ function Command({
   className,
   children,
   resultsLabel = defaultResultsLabel,
+  filter,
+  shouldFilter,
+  value: valueProp,
+  defaultValue,
+  onValueChange,
+  ref,
+  onKeyDownCapture,
+  onPointerMoveCapture,
   ...props
 }: React.ComponentProps<typeof CommandPrimitive> & {
   resultsLabel?: (count: number) => string;
 }) {
+  // OVL-20: cmdk highlights the first option after every search, so a search that matches nothing
+  // would leave a footer action under the cursor and Enter would run it ("Assign to me" after a
+  // typo). An action is highlighted only by the arrow keys or the pointer; anything else is
+  // vetoed to no highlight (two values no row carries, alternated so the veto always re-renders).
+  const rootRef = React.useRef<HTMLDivElement | null>(null);
+  const setRootRef = React.useMemo(
+    () => mergeRefs<HTMLDivElement>(rootRef, ref),
+    [ref],
+  );
+  const navigating = React.useRef(false);
+  const [innerValue, setInnerValue] = React.useState(defaultValue ?? "");
+  const handleValueChange = (next: string) => {
+    const action =
+      next !== "" &&
+      rootRef.current?.querySelector(
+        `[data-slot="command-actions"] [cmdk-item][data-value="${CSS.escape(next)}"]`,
+      );
+    if (action && !navigating.current) {
+      setInnerValue((current) => (current === "" ? NO_HIGHLIGHT : ""));
+      onValueChange?.("");
+      return;
+    }
+    setInnerValue(next);
+    onValueChange?.(next);
+  };
+  const [actions, setActions] = React.useState(0);
+  const add = React.useCallback(() => {
+    setActions((n) => n + 1);
+    return () => setActions((n) => n - 1);
+  }, []);
+  const registry = React.useMemo<CommandActionsRegistry>(
+    () => ({ filters: shouldFilter !== false, count: actions, add }),
+    [actions, shouldFilter, add],
+  );
   return (
-    <CommandPrimitive
-      data-slot="command"
-      className={cn(
-        "flex min-h-0 size-full flex-col overflow-hidden rounded-xl! bg-popover p-1 text-popover-foreground",
-        className,
-      )}
-      {...props}
-    >
-      {children}
-      <CommandResultAnnouncer resultsLabel={resultsLabel} />
-    </CommandPrimitive>
+    <CommandRegistryContext.Provider value={registry}>
+      <CommandPrimitive
+        data-slot="command"
+        className={cn(
+          "flex min-h-0 size-full flex-col overflow-hidden rounded-xl! bg-popover p-1 text-popover-foreground",
+          className,
+        )}
+        ref={setRootRef}
+        value={valueProp ?? innerValue}
+        onValueChange={handleValueChange}
+        onKeyDownCapture={(event) => {
+          navigating.current = NAVIGATION_KEYS.has(event.key) || event.ctrlKey;
+          onKeyDownCapture?.(event);
+        }}
+        onPointerMoveCapture={(event) => {
+          navigating.current = true;
+          onPointerMoveCapture?.(event);
+        }}
+        shouldFilter={shouldFilter}
+        // OVL-20: a footer action is never a result — it scores 0, so it is not counted or
+        // ranked, and `forceMount` keeps it on screen.
+        filter={(value, search, keywords) =>
+          keywords?.includes(ACTION_KEYWORD)
+            ? 0
+            : (filter ?? defaultFilter)(value, search, keywords)
+        }
+        {...props}
+      >
+        {children}
+        <CommandResultAnnouncer resultsLabel={resultsLabel} />
+      </CommandPrimitive>
+    </CommandRegistryContext.Provider>
   );
 }
 
@@ -179,7 +284,7 @@ function CommandList({
   ref,
   ...props
 }: React.ComponentProps<typeof CommandPrimitive.List>) {
-  const count = useCommandState((state) => state.filtered.count);
+  const count = useResultCount();
   const size = React.useContext(CommandDialogSizeContext) ?? "default";
   const listRef = React.useRef<HTMLDivElement | null>(null);
   const setRef = React.useMemo(
@@ -193,10 +298,16 @@ function CommandList({
   // axe reports as a critical `aria-required-children` violation. No dependency array on purpose:
   // React never re-applies an attribute it believes is unchanged, so every render has to reassert
   // this.
+  // OVL-20: a `CommandActions` footer keeps its options while the search matches nothing, so the
+  // list stays a listbox for as long as it holds ANY option, not only a filtered result.
   React.useLayoutEffect(() => {
     const node = listRef.current;
     if (!node) return;
-    if (count === 0) node.removeAttribute("role");
+    if (
+      count === 0 &&
+      !node.querySelector("[data-slot=command-actions] [cmdk-item]")
+    )
+      node.removeAttribute("role");
     else node.setAttribute("role", "listbox");
   });
 
@@ -206,7 +317,7 @@ function CommandList({
       data-size={size}
       ref={setRef}
       className={cn(
-        "no-scrollbar max-h-72 scroll-py-1 overflow-x-hidden overflow-y-auto outline-none data-[size=lg]:max-h-[min(28rem,60dvh)] data-[size=xl]:max-h-[min(28rem,60dvh)]",
+        "no-scrollbar max-h-72 scroll-pt-1 scroll-pb-[calc(var(--command-actions-height)+var(--spacing))] [--command-actions-height:0px] overflow-x-hidden overflow-y-auto outline-none data-[size=lg]:max-h-[min(28rem,60dvh)] data-[size=xl]:max-h-[min(28rem,60dvh)]",
         className,
       )}
       {...props}
@@ -219,17 +330,26 @@ function CommandEmpty({
   children,
   ...props
 }: React.ComponentProps<typeof CommandPrimitive.Empty>) {
+  // OVL-20: shown when no RESULT matches — footer actions are not results (see useResultCount);
+  // cmdk's own Empty counts them, so with a footer it would never show.
+  const count = useResultCount();
+  const { count: actions } = React.useContext(CommandRegistryContext);
+  if (count > 0) return null;
   return (
-    <CommandPrimitive.Empty
+    <div
       data-slot="command-empty"
+      cmdk-empty=""
+      role="presentation"
       className={cn("py-6 text-center text-sm", className)}
       {...props}
     >
       {/* A11Y-3: cmdk hard-codes `role="presentation"` on the empty slot too, so the polite role
           goes on the message itself. It is only ever rendered while the list above it has had its
           `role="listbox"` removed (A11Y-7), so a status is never nested inside a listbox. */}
-      <span role="status">{children}</span>
-    </CommandPrimitive.Empty>
+      {/* With footer actions the list stays a listbox, and a status may not sit in one: the
+          message is plain text there, and the result announcer (A11Y-3) speaks the empty count. */}
+      <span role={actions > 0 ? undefined : "status"}>{children}</span>
+    </div>
   );
 }
 
@@ -339,6 +459,59 @@ function CommandFooter({
   );
 }
 
+const CommandActionsContext = React.createContext(false);
+
+/**
+ * OVL-20 — the static actions of a searchable list ("Assign to me", "Unassign", "Clear", "No
+ * space"), as a footer at the end of `CommandList`: a hairline above, sticky to the list's bottom
+ * while the results scroll, and never filtered — its `CommandItem`s stay through any search,
+ * including one that matches nothing. They are ordinary options, so the arrow keys reach them after
+ * the last result; give each a leading icon. The list keeps them clear of a scrolled-to row through
+ * its bottom scroll padding, which this part measures.
+ */
+function CommandActions({
+  className,
+  ref,
+  ...props
+}: React.ComponentProps<typeof CommandPrimitive.Group>) {
+  const nodeRef = React.useRef<HTMLDivElement | null>(null);
+  const setRef = React.useMemo(
+    () => mergeRefs<HTMLDivElement>(nodeRef, ref),
+    [ref],
+  );
+  React.useLayoutEffect(() => {
+    const node = nodeRef.current;
+    const list = node?.closest<HTMLElement>("[cmdk-list]");
+    if (!node || !list) return;
+    const measure = () =>
+      list.style.setProperty(
+        "--command-actions-height",
+        `${node.offsetHeight}px`,
+      );
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(node);
+    return () => {
+      observer.disconnect();
+      list.style.removeProperty("--command-actions-height");
+    };
+  }, []);
+  return (
+    <CommandActionsContext.Provider value>
+      <CommandPrimitive.Group
+        data-slot="command-actions"
+        ref={setRef}
+        forceMount
+        className={cn(
+          "sticky bottom-0 z-10 border-t border-border bg-popover p-1 text-foreground",
+          className,
+        )}
+        {...props}
+      />
+    </CommandActionsContext.Provider>
+  );
+}
+
 function CommandGroup({
   className,
   ...props
@@ -371,14 +544,25 @@ function CommandSeparator({
 function CommandItem({
   className,
   children,
+  forceMount,
+  keywords,
   ...props
 }: React.ComponentProps<typeof CommandPrimitive.Item>) {
   // API-19: a two-line row links its `ItemDescription` as the option's description.
   const description = useItemDescriptionId(props["aria-describedby"]);
+  // OVL-20: an action in the footer is never a search result, so the filter never hides it.
+  const inActions = React.useContext(CommandActionsContext);
+  const { add } = React.useContext(CommandRegistryContext);
+  React.useLayoutEffect(
+    () => (inActions ? add() : undefined),
+    [inActions, add],
+  );
 
   return (
     <CommandPrimitive.Item
       data-slot="command-item"
+      forceMount={forceMount ?? (inActions || undefined)}
+      keywords={inActions ? [...(keywords ?? []), ACTION_KEYWORD] : keywords}
       aria-describedby={description.id || undefined}
       className={cn(
         "group/command-item relative flex items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-hidden select-none in-data-[slot=dialog-content]:rounded-lg! data-[disabled=true]:pointer-events-none data-[disabled=true]:opacity-50 data-selected:bg-muted data-selected:text-foreground [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 [&_svg:not([class*='text-']):not([data-icon-tone])]:text-muted-foreground data-selected:**:[svg:not([data-icon-tone])]:text-foreground",
@@ -419,6 +603,7 @@ export {
   CommandEmpty,
   CommandLoading,
   CommandFooter,
+  CommandActions,
   CommandFilters,
   CommandGroup,
   CommandItem,

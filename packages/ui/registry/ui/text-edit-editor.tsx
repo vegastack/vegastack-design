@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.24.3 sha256-WcFiXR0Zw5AnNrpNCOcMiqMVTcR2nI5vC1f3B0IMuCs=
+// @vegastack text-edit@0.24.3 sha256-Hd6oC5QDSH0+j7dKAeQb6pra9Dc+G3Mh+Fr9UB9BURU=
 
 "use client";
 
@@ -16,6 +16,7 @@ import {
   ReactWidgetRenderer,
   ResizableNodeView,
   mergeAttributes,
+  posToDOMRect,
   textblockTypeInputRule,
   type Editor,
   type JSONContent,
@@ -4268,7 +4269,10 @@ const DROP_LINE = cn(
   "pointer-events-none fixed z-50 rounded-full",
   dropIndicatorClasses,
 );
-/** The block grip's width (its 16px icon's own box) and its start offset from the text (+ 4px). */
+/**
+ * The block grip's width (its 16px icon's own box) and its start offset from the text (+ 4px).
+ * `text-edit`'s handle gutter mirrors these three numbers and `HANDLE_FRAME`.
+ */
 const HANDLE_WIDTH = 16;
 const HANDLE_GUTTER = HANDLE_WIDTH + 4;
 /** How far the grip and the drop line stay inside the frame's edge. */
@@ -6169,9 +6173,15 @@ export function TextEditEditor({
   }, [getAnchorForSelection]);
 
   const themeScope = useInternalThemeScope();
-  // Floating UI inside the bubble menus: fixed to the viewport, flipped and shifted into view.
+  // Floating UI inside the bubble menus: fixed to the viewport, flipped and shifted into view —
+  // and hidden while its selection is scrolled out of a clipping ancestor (the reference below
+  // carries the editor as its context element, so that is the editor's own scrollers, not only
+  // the viewport).
   const bubbleOptions = React.useMemo(
-    () => ({ ...FLOATING, placement: "top" as const }),
+    // `padding: -2`: a collapsed caret (a link or media panel opened from the slash menu) is a
+    // zero-width rect, which floating-ui counts as fully clipped the moment it touches a clipping
+    // edge — the start of an empty line. The menu would hide with focus in its field.
+    () => ({ ...FLOATING, placement: "top" as const, hide: { padding: -2 } }),
     [],
   );
   const showBubble = React.useCallback(
@@ -6179,11 +6189,62 @@ export function TextEditEditor({
       panel !== null ||
       ((ed.isEditable || canComment) &&
         from !== to &&
+        // Select all in an empty editor (or a run of empty lines) selects no text: nothing to
+        // format, so no menu.
+        state.doc.textBetween(from, to, "\n", "").trim() !== "" &&
         !(state.selection instanceof NodeSelection) &&
         !(state.selection instanceof CellSelection) &&
         !ed.isActive("codeBlock")),
     [panel, canComment],
   );
+  // The bubble menu's anchor: the selection's live rect, with the editor as its context element so
+  // the `hide` middleware measures it against the editor's clipping ancestors. A cell selection
+  // keeps the plugin's own anchor (null falls back to it).
+  const bubbleReference = React.useCallback(() => {
+    if (!editor || editor.isDestroyed) return null;
+    const { view } = editor;
+    const { selection } = view.state;
+    if (selection instanceof CellSelection) return null;
+    const rect = () => {
+      if (selection instanceof NodeSelection) {
+        const node = view.nodeDOM(selection.from);
+        if (node instanceof HTMLElement) return node.getBoundingClientRect();
+      }
+      return posToDOMRect(view, selection.from, selection.to);
+    };
+    return {
+      getBoundingClientRect: rect,
+      getClientRects: () => [rect()],
+      contextElement: view.dom,
+    };
+  }, [editor]);
+  // The plugin repositions on WINDOW scroll only, so inside a scrolling dialog or panel the menu
+  // stayed put while the text moved under it. Any scroll (captured, so a nested scroller counts)
+  // repositions it, once per frame.
+  const bubbleRef = React.useRef<HTMLDivElement>(null);
+  React.useEffect(() => {
+    if (!editor) return;
+    let frame = 0;
+    const onScroll = () => {
+      // Hidden menus are detached: nothing to move.
+      if (frame || !bubbleRef.current?.isConnected) return;
+      frame = requestAnimationFrame(() => {
+        frame = 0;
+        if (editor.isDestroyed) return;
+        editor.view.dispatch(
+          editor.state.tr.setMeta(menuKeys.bubble, "updatePosition"),
+        );
+      });
+    };
+    document.addEventListener("scroll", onScroll, {
+      capture: true,
+      passive: true,
+    });
+    return () => {
+      cancelAnimationFrame(frame);
+      document.removeEventListener("scroll", onScroll, { capture: true });
+    };
+  }, [editor, menuKeys]);
   // A panel opens from React state (⌘K, the slash menu), not from a selection change, so the
   // bubble menu is told directly; closing one re-evaluates it against the selection.
   React.useEffect(() => {
@@ -6211,10 +6272,12 @@ export function TextEditEditor({
     <>
       {(editable || canComment) && editor ? (
         <BubbleMenu
+          ref={bubbleRef}
           editor={editor}
           pluginKey={menuKeys.bubble}
           appendTo={appendToBody}
           options={bubbleOptions}
+          getReferencedVirtualElement={bubbleReference}
           shouldShow={showBubble}
           className={cn("z-50", themeScope)}
         >

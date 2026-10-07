@@ -1,4 +1,4 @@
-// @vegastack record-chip@0.24.3 sha256-3kQ7CjSGRWEwxnxhvneAsTh/ghddKUIkGJmjL1vzQzw=
+// @vegastack record-chip@0.24.3 sha256-gkLg+kElg/grmCa9VRey0LA/8Yy5eroGufOSZrTdNgM=
 
 import * as React from "react";
 import { ArrowUpRight, ChevronDown } from "lucide-react";
@@ -344,7 +344,10 @@ export type RecordChipMenuProps = React.ComponentProps<
 
 /**
  * `RecordChipMenu` — the popover a RecordChip (or any pill) opens: start-aligned, no inner padding,
- * so a `Command` list or a `Calendar` sits flush.
+ * so a `Command` list or a `Calendar` sits flush. A calendar inside it is transparent: `calendar`
+ * clears its own `bg-background` only inside `popover-content`, and this popup renames that slot,
+ * so without it the calendar's square, opaque box painted over the popup's rounded border at the
+ * corners (the "clipped" border).
  *
  * @example
  * <Popover><PopoverTrigger render={<RecordChip … />} /><RecordChipMenu><Command>…</Command></RecordChipMenu></Popover>
@@ -360,7 +363,11 @@ export function RecordChipMenu({
       data-slot="record-chip-menu"
       data-width={width}
       align={align}
-      className={cn(width === "fit" ? "w-auto p-0" : "w-72 p-0", className)}
+      className={cn(
+        width === "fit" ? "w-auto p-0" : "w-72 p-0",
+        "**:data-[slot=calendar]:bg-transparent",
+        className,
+      )}
       {...props}
     />
   );

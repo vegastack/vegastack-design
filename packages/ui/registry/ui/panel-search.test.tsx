@@ -13,7 +13,12 @@ import { render } from "vitest-browser-react";
 import { page, userEvent } from "vitest/browser";
 import { expect, test } from "vitest";
 import { expectNoA11yViolations } from "../../test/a11y";
-import { PanelSearch, PanelSearchField } from "./panel-search";
+import {
+  PanelActions,
+  PanelList,
+  PanelSearch,
+  PanelSearchField,
+} from "./panel-search";
 
 function Row(props: React.ComponentProps<typeof PanelSearchField>) {
   return (
@@ -103,5 +108,32 @@ test("the field forwards its value and disabled state", async () => {
 
 test("no a11y violations", async () => {
   await render(<Row placeholder="Filter items" />);
+  await expectNoA11yViolations(document.body);
+});
+
+test("PanelList scrolls on its own; PanelActions is a sticky footer group under it", async () => {
+  await render(
+    <div className="w-64 rounded-lg border border-border bg-popover p-1">
+      <PanelSearch>
+        <PanelSearchField aria-label="Filter items" />
+      </PanelSearch>
+      <PanelList>
+        <div>One</div>
+      </PanelList>
+      <PanelActions aria-label="Actions">
+        <button type="button">Clear</button>
+      </PanelActions>
+    </div>,
+  );
+  const list = document.querySelector('[data-slot="panel-list"]')!;
+  expect(list.className).toContain("overflow-y-auto");
+  expect(list.className).toContain("py-1");
+  const actions = page.getByRole("group", { name: "Actions" });
+  await expect.element(actions).toBeInTheDocument();
+  const classes = actions.element().className;
+  expect(classes).toContain("sticky");
+  expect(classes).toContain("bottom-0");
+  expect(classes).toContain("border-t");
+  expect(classes).toContain("bg-popover");
   await expectNoA11yViolations(document.body);
 });

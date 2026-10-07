@@ -25,7 +25,9 @@ import {
   SettingsIcon,
   SmileIcon,
   TrashIcon,
+  UserCheckIcon,
   UserIcon,
+  UserMinusIcon,
   ZoomInIcon,
   ZoomOutIcon,
 } from "lucide-react";
@@ -37,6 +39,7 @@ import {
   CommandEmpty,
   CommandFilters,
   CommandFooter,
+  CommandActions,
   CommandGroup,
   CommandInput,
   CommandItem,
@@ -604,6 +607,62 @@ export function commandFooterHints(): ReactNode {
             <Kbd>Esc</Kbd> to close
           </span>
         </CommandFooter>
+      </Command>
+    </Wrapper>
+  );
+}
+
+/** OVL-20: a person picker whose static actions sit in a sticky footer below the results. */
+export function commandFooterActions(): ReactNode {
+  const people = [
+    "Ananya Rao",
+    "Arjun Mehta",
+    "Farhan Qureshi",
+    "Kavya Nair",
+    "Meera Pillai",
+    "Neha Kapoor",
+    "Rohan Das",
+    "Sana Iqbal",
+    "Vikram Shah",
+  ];
+  const [assignee, setAssignee] = React.useState<string | null>("Kavya Nair");
+  return (
+    <Wrapper>
+      <Command className="max-w-xs rounded-lg border">
+        <CommandInput
+          placeholder="Search members"
+          aria-label="Search members"
+        />
+        <CommandList>
+          <CommandEmpty>No members found</CommandEmpty>
+          <CommandGroup>
+            {people.map((name) => (
+              <CommandItem
+                key={name}
+                data-checked={name === assignee ? "true" : undefined}
+                onSelect={() => setAssignee(name)}
+              >
+                {name}
+              </CommandItem>
+            ))}
+          </CommandGroup>
+          <CommandActions>
+            <CommandItem
+              disabled={assignee === "Ananya Rao"}
+              onSelect={() => setAssignee("Ananya Rao")}
+            >
+              <UserCheckIcon />
+              Assign to me
+            </CommandItem>
+            <CommandItem
+              disabled={assignee === null}
+              onSelect={() => setAssignee(null)}
+            >
+              <UserMinusIcon />
+              Unassign
+            </CommandItem>
+          </CommandActions>
+        </CommandList>
       </Command>
     </Wrapper>
   );

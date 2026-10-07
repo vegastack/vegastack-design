@@ -173,6 +173,24 @@ so it is never announced as an option. Children replace the built-in hints; `hin
   file="components/preview/command.tsx"
 />
 
+### Footer actions
+
+A searchable picker's static actions — _Assign to me_, _Unassign_, _Clear_, _No space_ — are not
+results, so they don't sit among them or above the search. Put them in `CommandActions`, the last
+child of `CommandList`: a footer behind a hairline that stays at the bottom while the results
+scroll. Its `CommandItem`s are never filtered and never counted as results, so a search that matches
+nothing still shows "No members found" with the actions under it, and the announced count leaves
+them out. They are ordinary options: the arrow keys reach them after the last result — and only
+the arrow keys or the pointer highlight one, so pressing Enter after a search that matched nothing
+runs nothing. Give each a
+leading icon, and `disabled` when it would change nothing (_Assign to me_ on your own task). Keep
+results in a `CommandGroup`, whose padding keeps the first row's highlight off the search field.
+
+<ComponentPreview
+  name="commandFooterActions"
+  file="components/preview/command.tsx"
+/>
+
 ## API Reference
 
 <ApiTable path="lib/api-props.ts" name="CommandProps" />
@@ -183,7 +201,8 @@ so it is never announced as an option. Children replace the built-in hints; `hin
 
 <ApiTable path="lib/api-props.ts" name="CommandFooterProps" />
 
-`CommandFilters` accepts everything a `div` accepts. `CommandInput`, `CommandList`, `CommandEmpty`, `CommandGroup`, `CommandItem`, `CommandSeparator` and
+`CommandActions` accepts everything cmdk's `Command.Group` accepts; the `CommandItem`s inside it are
+force-mounted and left out of the filter and the result count. `CommandFilters` accepts everything a `div` accepts. `CommandInput`, `CommandList`, `CommandEmpty`, `CommandGroup`, `CommandItem`, `CommandSeparator` and
 `CommandShortcut` add no props of their own — each accepts everything the cmdk part (or, for
 `CommandShortcut`, a `span`) accepts.
 
@@ -199,6 +218,9 @@ so it is never announced as an option. Children replace the built-in hints; `hin
 - With zero results the list stops being a `listbox` and the empty message carries `role="status"`
   (A11Y-7, A11Y-3), so an empty palette is never a listbox holding a non-option child. Nothing about
   how you compose it changes: `CommandEmpty` still goes inside `CommandList`.
+- `CommandActions` items stay options inside the listbox, so with footer actions and no results
+  the list stays a `listbox`; the empty message is then plain text, and the result announcer speaks
+  the empty count (OVL-20).
 - Rows carry the hand cursor from the one global rule in `base.css` (INT-1); upstream's local
   `cursor-default` is removed.
 - In the dialog form, give `CommandDialog` a `title` and `description` — they are the dialog's
@@ -263,3 +285,10 @@ Upstream's file plus `packages/ui/upstream/patches/command.patch`. Every hunk:
   key hints in `CommandFooter`, and the animated search icon in `CommandLoading`.
 - **VOI-1** — the default title and description are "Command palette" and "Search for a
   command…", and `resultsLabel` overrides the announced result count.
+- **OVL-20** — `CommandActions`, a sticky footer group for a searchable list's static actions:
+  force-mounted, its items scored 0 by `Command`'s filter wrapper (your `filter`, else cmdk's
+  `defaultFilter`, scores the rest) and subtracted from the result count the announcer,
+  `CommandEmpty` and the list's role read. `CommandEmpty` therefore renders its own `cmdk-empty`
+  node on that count, and the list adds the footer's measured height to its bottom scroll padding
+  so the active row is never hidden under it. `Command` owns cmdk's `value` so that the
+  highlight-first after a search never lands on an action (MK, 2026-10-07).

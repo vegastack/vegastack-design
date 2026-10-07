@@ -5,6 +5,8 @@ import { expect, test, vi } from "vitest";
 import { expectNoA11yViolations } from "../../test/a11y";
 import { Board, type BoardColumn, type BoardProps } from "./board";
 import { useTruncationFocusable } from "./truncated-text";
+import { DropdownMenuItem } from "./dropdown-menu";
+import { PanelList, PanelSearch, PanelSearchField } from "./panel-search";
 
 interface Deal {
   id: string;
@@ -250,6 +252,55 @@ test("getItemActions come first in the card menu, submenus included", async () =
   expect(items[1]?.textContent).toContain("Change stage");
   await press(page.getByRole("menuitem", { name: "Open" }));
   expect(open).toHaveBeenCalled();
+});
+
+test("a searched submenu takes its items as a footer below the list", async () => {
+  const mine = vi.fn();
+  await render(
+    <Controlled
+      getItemActions={() => [
+        {
+          label: "Assign",
+          items: [
+            { label: "Assign to me", onSelect: mine },
+            { label: "Unassign", disabled: true, onSelect: () => {} },
+          ],
+          submenu: (
+            <>
+              <PanelSearch>
+                <PanelSearchField aria-label="Search members" />
+              </PanelSearch>
+              <PanelList>
+                <DropdownMenuItem>Ananya Rao</DropdownMenuItem>
+              </PanelList>
+            </>
+          ),
+        },
+      ]}
+    />,
+  );
+  await press(page.getByRole("button", { name: "Actions for Acme" }));
+  await press(page.getByRole("menuitem", { name: "Assign" }));
+  await expect
+    .element(page.getByRole("searchbox", { name: "Search members" }))
+    .toBeInTheDocument();
+  const footer = document.querySelector<HTMLElement>(
+    '[data-slot="panel-actions"]',
+  )!;
+  expect(footer).not.toBeNull();
+  expect(footer.className).toContain("border-t");
+  // Search first, the results, then the static actions.
+  const sub = footer.closest('[data-slot="dropdown-menu-sub-content"]')!;
+  const order = [
+    ...sub.querySelectorAll(
+      '[data-slot="panel-search"],[data-slot="panel-list"],[data-slot="panel-actions"]',
+    ),
+  ].map((el) => el.getAttribute("data-slot"));
+  expect(order).toEqual(["panel-search", "panel-list", "panel-actions"]);
+  expect(footer.textContent).toContain("Assign to me");
+  expect(footer.textContent).toContain("Unassign");
+  await press(page.getByRole("menuitem", { name: "Assign to me" }));
+  expect(mine).toHaveBeenCalled();
 });
 
 test("lanes collapse from their header button to a slim strip and expand again", async () => {

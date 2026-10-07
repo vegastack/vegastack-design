@@ -2514,3 +2514,96 @@ test("unsupported file paste preserves the selected document text", async () => 
   expect(window.getSelection()?.toString()).toBe("Keep this text");
   expect(onCommit).not.toHaveBeenCalled();
 });
+
+// ---- Regent new-task review (2026-10-07): bubble menu and block grip ------------------------
+
+const bubble = () =>
+  document.querySelector<HTMLElement>('[data-slot="text-edit-bubble-menu"]');
+
+test("bubble menu: select all with no text shows no menu; with text it does", async () => {
+  const screen = await markdownEditor();
+  const box = screen.getByRole("textbox", { name: "Notes" });
+  await box.click();
+  await userEvent.keyboard(`{${MOD}>}a{/${MOD}}`);
+  await new Promise((resolve) => setTimeout(resolve, 300));
+  expect(bubble()).toBeNull();
+  await userEvent.keyboard("{Enter}{Enter}");
+  await userEvent.keyboard(`{${MOD}>}a{/${MOD}}`);
+  await new Promise((resolve) => setTimeout(resolve, 300));
+  // Empty lines are still no text.
+  expect(bubble()).toBeNull();
+  await userEvent.keyboard("Hello");
+  await userEvent.keyboard(`{${MOD}>}a{/${MOD}}`);
+  await vi.waitFor(() => expect(bubble()).not.toBeNull(), { timeout: 3000 });
+});
+
+test("bubble menu: follows its selection when an inner scroller scrolls, and hides once it leaves", async () => {
+  const lines = Array.from({ length: 30 }, (_, i) => `Line ${i + 1}`).join(
+    "\n\n",
+  );
+  const screen = await render(
+    <div data-testid="scroller" style={{ height: 200, overflow: "auto" }}>
+      <TextEdit format="markdown" aria-label="Notes" defaultValue={lines} />
+    </div>,
+  );
+  await vi.waitFor(() =>
+    expect(screen.container.querySelector(".ProseMirror")).not.toBeNull(),
+  );
+  await new Promise((resolve) => setTimeout(resolve, 50));
+  const box = screen.getByRole("textbox", { name: "Notes" }).element();
+  const first = box.querySelector("p")!;
+  await userEvent.click(first);
+  selectTail(first, 4);
+  await vi.waitFor(() => expect(bubble()).not.toBeNull(), { timeout: 3000 });
+  const menu = () => bubble()!.parentElement!;
+  await vi.waitFor(() => expect(menu().style.visibility).toBe("visible"));
+  const before = menu().getBoundingClientRect().top;
+  const scroller = screen.getByTestId("scroller").element();
+  scroller.scrollTop = 20;
+  await vi.waitFor(() =>
+    expect(menu().getBoundingClientRect().top).toBeCloseTo(before - 20, 0),
+  );
+  scroller.scrollTop = 600;
+  await vi.waitFor(() => expect(menu().style.visibility).toBe("hidden"));
+  scroller.scrollTop = 0;
+  await vi.waitFor(() => expect(menu().style.visibility).toBe("visible"));
+});
+
+test("the block grip sits clear of the text inside a narrow frame", async () => {
+  const screen = await render(
+    <div data-slot="dialog-content" style={{ padding: 16, width: 480 }}>
+      <TextEdit format="markdown" aria-label="Notes" defaultValue="One" />
+    </div>,
+  );
+  await vi.waitFor(() =>
+    expect(screen.container.querySelector(".ProseMirror")).not.toBeNull(),
+  );
+  const frame = screen.container.querySelector<HTMLElement>(
+    '[data-slot="dialog-content"]',
+  )!;
+  const paragraph = screen.container.querySelector(".ProseMirror p")!;
+  await userEvent.hover(paragraph);
+  const handle = () =>
+    document.querySelector<HTMLElement>('[data-slot="text-edit-block-handle"]');
+  await vi.waitFor(() => expect(handle()).not.toBeNull());
+  // The grip is `position: fixed` at its inline `left` (this lane loads no utility CSS, so read
+  // the coordinates it was given rather than where it happens to render).
+  const gripLeft = parseFloat(handle()!.style.left);
+  const gripRight = gripLeft + parseFloat(handle()!.style.width);
+  const text = paragraph.getBoundingClientRect();
+  // A gap between the grip and the first character (the caret's spot)…
+  expect(text.left - gripRight).toBeGreaterThanOrEqual(4);
+  // The room comes from the content box's start padding, which the shell sets — the read view
+  // the editor replaces carries the same box, so the swap never moves the text.
+  expect(
+    parseFloat(
+      screen.container.querySelector<HTMLElement>(
+        '[data-slot="text-edit-content"]',
+      )!.style.paddingInlineStart,
+    ),
+  ).toBeGreaterThan(0);
+  // …and the grip still inside the frame's edge.
+  expect(gripLeft - frame.getBoundingClientRect().left).toBeGreaterThanOrEqual(
+    6,
+  );
+});

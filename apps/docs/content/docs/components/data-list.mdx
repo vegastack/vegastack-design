@@ -428,10 +428,14 @@ pressing the key while the submenu is open picks it.
 />
 
 For a submenu that is more than a fixed list — _Assign ›_ with a searched, paged member list — pass
-`submenu`: any React content rendered after `items` inside the submenu. Compose it from
-`DropdownMenuItem`s, led by a `PanelSearch` row when it is searchable, and draw each person as a
-[`PersonOption`](/docs/components/searchable-select) — avatar, then name over email, stacked. A
-`submenu` popup is at least 18rem wide so a name and an email never truncate.
+`submenu`: a `PanelSearch` row, then a `PanelList` of `DropdownMenuItem`s (it scrolls on its own, so
+the search stays at the top), each person drawn as a
+[`PersonOption`](/docs/components/searchable-select) — avatar, then name over email, stacked. Next
+to a `submenu`, `items` are the list's static actions — _Assign to me_, _Unassign_ — and render in a
+`PanelActions` footer below the list, behind a hairline, as real menu items: give each an `icon`
+(`UserCheck`, `UserMinus`) and `disabled` when it would change nothing. The arrow keys reach them
+after the last person. A `submenu` popup is at least 18rem wide so a name and an email never
+truncate.
 
 <ComponentPreview
   name="dataListRowActionSearchSubmenu"

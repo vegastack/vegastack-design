@@ -1304,7 +1304,7 @@
         "whenToUse": "A keyboard-first command palette — global ⌘K, action launchers, a filtered list of things to do or go to — including a large palette over server results, with a loading status, two-line results and a footer of key hints.",
         "whenNotToUse": "Picking a form value, and never a multi-select — Command's check mark is visual only (Select, SearchableSelect or Combobox) — or a small static action menu (DropdownMenu).",
         "version": "0.24.3",
-        "integrity": "sha256-jv4X5WeW8dM0ccZ4PKO3qUnMOVaCVgnm/ElMCVawfV4="
+        "integrity": "sha256-3GkjlpXHtLYcl9stc70K/3s3WKXt0JL9PqWZUexXfFw="
       }
     },
     {
@@ -1652,6 +1652,7 @@
         "@vegastack/checkbox",
         "@vegastack/dropdown-menu",
         "@vegastack/empty",
+        "@vegastack/panel-search",
         "@vegastack/skeleton",
         "@vegastack/table",
         "@vegastack/tooltip"
@@ -1667,7 +1668,7 @@
         "whenToUse": "Installed automatically with DataList or DataGrid; import it directly when building a bespoke table that should share their sort header, selection cells and column rules.",
         "whenNotToUse": "A plain presentational table (Table alone), or as a table component in its own right — these are parts, not a renderer.",
         "version": "0.24.3",
-        "integrity": "sha256-7v0EWrjshR05VfXV87y2uDu3Q6DWC4xJSx32AAH0MoE="
+        "integrity": "sha256-DHK+SJfwCUIi/QBo+oxm4k/JewznOdyuW7B4Nslg8Lg="
       }
     },
     {
@@ -2248,7 +2249,7 @@
         "whenToUse": "Installed automatically with EmojiPicker or ShortcutOverlay; import it directly when building another popup that filters its own contents.",
         "whenNotToUse": "A standalone search field on a page — that is Input, or InputGroup with a leading addon. A command palette is Command, which brings its own input.",
         "version": "0.24.3",
-        "integrity": "sha256-ixYeBtCgMNCK1wsQDdDwaqAfhC60aIjAunXjvr6AdQM="
+        "integrity": "sha256-AXzfZIcFjO/FL31kySzxAUeWdHC/RXYTvB2AJHJjGCc="
       }
     },
     {
@@ -16215,7 +16216,7 @@
         "whenToUse": "Linking a record to another one in its header — a meeting's customer or project — with a picker and a jump to the linked record.",
         "whenNotToUse": "A free-form tag (Chip) or a form field with a label (Combobox, Select).",
         "version": "0.24.3",
-        "integrity": "sha256-3kQ7CjSGRWEwxnxhvneAsTh/ghddKUIkGJmjL1vzQzw="
+        "integrity": "sha256-gkLg+kElg/grmCa9VRey0LA/8Yy5eroGufOSZrTdNgM="
       }
     },
     {
@@ -16789,7 +16790,6 @@
         "@vegastack/button",
         "@vegastack/command",
         "@vegastack/icon-glyph",
-        "@vegastack/item",
         "@vegastack/popover"
       ],
       "files": [
@@ -16803,7 +16803,7 @@
         "whenToUse": "Choosing or showing which space a record lives in, in a create dialog title or a property row.",
         "whenNotToUse": "Choosing anything that is not a space (SearchableSelect, Combobox).",
         "version": "0.24.3",
-        "integrity": "sha256-sLFwWdUu1gZkdiYWVoQn2iS/rqupxrBYFrj1/lwq97E="
+        "integrity": "sha256-upEUSYYADWh0CZXy1eJJvjx1OWpRqzXRKzFCzTBTcLY="
       }
     },
     {
@@ -17973,7 +17973,7 @@
         "whenToUse": "Comments, notes, summaries and documents stored as Markdown (format=\"markdown\") or HTML — with @ mentions, uploads, callouts, toggles, an outline and comment highlights for page editors; in-place editing of a MarkdownView (the read view is the editor until first edited).",
         "whenNotToUse": "Plain single-line input (Input) or collaborative real-time docs (deferred text-edit-collab).",
         "version": "0.24.3",
-        "integrity": "sha256-WcFiXR0Zw5AnNrpNCOcMiqMVTcR2nI5vC1f3B0IMuCs="
+        "integrity": "sha256-Hd6oC5QDSH0+j7dKAeQb6pra9Dc+G3Mh+Fr9UB9BURU="
       }
     },
     {

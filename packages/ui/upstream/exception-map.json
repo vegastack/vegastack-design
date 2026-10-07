@@ -233,7 +233,8 @@
     "OVL-18": ["alert-dialog", "dialog", "sheet"],
     "A11Y-23": ["pagination"],
     "API-34": ["combobox"],
-    "OVL-19": ["context-menu", "dropdown-menu"]
+    "OVL-19": ["context-menu", "dropdown-menu"],
+    "OVL-20": ["command"]
   },
   "advisory": {
     "A11Y-2": [

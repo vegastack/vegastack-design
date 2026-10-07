@@ -1,4 +1,4 @@
-// @vegastack space-picker@0.24.3 sha256-sLFwWdUu1gZkdiYWVoQn2iS/rqupxrBYFrj1/lwq97E=
+// @vegastack space-picker@0.24.3 sha256-upEUSYYADWh0CZXy1eJJvjx1OWpRqzXRKzFCzTBTcLY=
 
 "use client";
 
@@ -21,7 +21,6 @@ import {
 } from "@/components/ui/popover";
 import { Layers, LockIcon, UserLock } from "lucide-react";
 import { IconGlyph } from "@/components/ui/icon-glyph";
-import { ItemContent, ItemTitle, ItemDescription } from "@/components/ui/item";
 import type { AvatarHue } from "@/components/ui/avatar";
 /** A space presentation supplied to existing space controls. */
 export interface Space {
@@ -49,9 +48,10 @@ export function spaceHintLabel(hint: SpaceHint): string {
  * "Private space").
  *
  * `SpacePicker` is that chip opening a searchable list of the spaces given: "My space" first, then
- * "Spaces", a check on the current one, and a disabled row that says why ("You can't add here").
- * `placement="title"` sizes the chip for a dialog title — `[▣ General ▾] › New task` — and
- * `placement="field"` for a form or a property row.
+ * "Spaces", one line per space (its tile and name), a check on the current one, and a disabled row
+ * that says why at its end ("You can't add here"). `placement="title"` is the outlined chip a
+ * create dialog's header leads with — `[▣ General ▾]` — and `placement="field"` the quiet chip for
+ * a form or a property row.
  * ----------------------------------------------------------------------------------------------*/
 
 /** Props for `SpaceChip`. */
@@ -70,7 +70,8 @@ export interface SpaceChipProps extends Omit<
   placeholder?: React.ReactNode;
   /**
    * `xs` — 24px, small text and a 16px tile (a card or a dense row). `sm` — 28px, body text and a
-   * 20px tile (a form or a property row). `title` — the dialog title's type size.
+   * 20px tile (a form or a property row). `title` — an outlined, rounded 28px chip for a create
+   * dialog's header (the property pills' shape, so it reads as a control rather than a heading).
    * @default "sm"
    */
   size?: "xs" | "sm" | "title";
@@ -155,8 +156,8 @@ export function SpaceChip({
 
   return (
     <Button
-      variant="ghost"
-      size={size === "xs" ? "xs" : size === "title" ? "default" : "sm"}
+      variant={size === "title" ? "outline" : "ghost"}
+      size={size === "xs" ? "xs" : "sm"}
       type={type}
       data-slot="space-chip"
       data-size={size}
@@ -164,7 +165,7 @@ export function SpaceChip({
       className={cn(
         "max-w-full min-w-0 justify-start gap-1.5 rounded-md px-1.5 font-normal text-foreground has-data-[icon=inline-end]:pe-1",
         size === "sm" && "text-sm",
-        size === "title" && "-ms-1.5 font-heading text-base font-medium",
+        size === "title" && "rounded-full ps-1.5 pe-2 text-sm font-medium",
         className,
       )}
       {...props}
@@ -194,10 +195,13 @@ export interface SpacePickerItem {
   id: string;
   /** The space, drawn with `IconGlyph`. `access: "personal"` lists it under "My space". */
   space: Space;
-  /** A muted second line, such as "Private · 8 members". @default undefined */
+  /**
+   * @deprecated Rows are one line — the tile and the name; this is no longer shown.
+   * @default undefined
+   */
   secondary?: React.ReactNode;
   /**
-   * Shown but not choosable. A string says why, on the row: "You can view, not add, here".
+   * Shown but not choosable. A string says why, muted at the row's end: "You can't add here".
    * @default false
    */
   disabled?: boolean | string;
@@ -212,7 +216,7 @@ export interface SpacePickerProps {
   /** Called with the chosen space's id; the list then closes. @default undefined */
   onValueChange?: (id: string) => void;
   /**
-   * `title` — the chip sized for a dialog title, beside "› New task". `field` — the chip sized
+   * `title` — the outlined chip that leads a create dialog's header. `field` — the quiet chip
    * for a form or property row.
    * @default "field"
    */
@@ -230,15 +234,15 @@ export interface SpacePickerProps {
 }
 
 /**
- * `SpacePicker` — a `SpaceChip` that opens a searchable list of spaces: My space first, then the
- * rest, a check on the current one, and disabled rows that say why. Keyboard: Enter or Space opens
- * it, type to filter, arrows move, Enter picks, Escape closes.
+ * `SpacePicker` — a `SpaceChip` that opens a searchable list of spaces, one line each: My space
+ * first, then the rest, a check on the current one, and disabled rows that say why. Keyboard: Enter
+ * or Space opens it, type to filter, arrows move, Enter picks, Escape closes.
  *
  * @example
- * <DialogTitle className="flex items-center gap-1">
+ * <DialogHeader>
+ *   <DialogTitle className="sr-only">New task</DialogTitle>
  *   <SpacePicker placement="title" spaces={writable} value={spaceId} onValueChange={setSpaceId} />
- *   <span aria-hidden className="text-muted-foreground">›</span> New task
- * </DialogTitle>
+ * </DialogHeader>
  */
 export function SpacePicker({
   spaces,
@@ -286,12 +290,15 @@ export function SpacePicker({
           }
           hue={item.space.hue}
         />
-        <ItemContent>
-          <ItemTitle>{item.space.name}</ItemTitle>
-          {(reason ?? item.secondary) ? (
-            <ItemDescription>{reason ?? item.secondary}</ItemDescription>
-          ) : null}
-        </ItemContent>
+        <span className="min-w-0 flex-1 truncate">{item.space.name}</span>
+        {reason ? (
+          <span
+            title={reason}
+            className="max-w-1/2 shrink-0 truncate text-xs text-muted-foreground"
+          >
+            {reason}
+          </span>
+        ) : null}
       </CommandItem>
     );
   };
