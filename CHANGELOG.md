@@ -9,6 +9,25 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.24.5] — October 8, 2026
+
+<!-- assembled from 1 changeset: 35c940ecd36b -->
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.24.4 → 0.24.5.
+
+### 🐛 Fixed
+
+- Mention chips keep their avatar inside the chip, at every text size, and never spellcheck.
+
+  - The photo no longer drops out of the chip in rendered text and the editor: a prose root's picture rule (block, margin, border) reached the avatar's `<img>`; the chip now pins it to the circle.
+  - Initials scale with the text (`55%` of the chip's size, not a fixed 12px), so "MA" fits its circle in a comment, a paragraph or a heading. The avatar is `1.1em`, an `inline-block` centred on the label, so it no longer drops by half its height when it shows initials.
+  - A chip is `spellcheck="false"`, and in `TextEdit` its node view is also `contenteditable="false"`: no red underline under a name.
+  - A long name still breaks inside a narrow column (the prose root's `wrap-anywhere`), so a chip never overflows it.
+  - New `InlineChipPerson.inactive`: the name is followed by the person surfaces' small muted outline "Inactive" badge, and the chip carries `data-inactive`. The label text is unchanged, so comment anchors keep matching.
+    [`93f7d5d`](https://github.com/VegaStack/vegastack-design/commit/93f7d5d)
+
 ## [0.24.4] — October 8, 2026
 
 <!-- assembled from 4 changesets: 81561b3e550f -->
