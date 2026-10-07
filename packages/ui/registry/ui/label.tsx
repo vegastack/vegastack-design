@@ -1,4 +1,4 @@
-// @vegastack label@0.24.2 sha256-/Y16J9bIyo2Sd5N8M/ClaSY1qPziGWHG1YIeL/5gQTI=
+// @vegastack label@0.24.3 sha256-XQdXu3wUzOCJda/I9UZSCwP5cCicfgS4Z6Z6DvxeoE4=
 
 import * as React from "react";
 import { cn } from "@vegastack/design";
