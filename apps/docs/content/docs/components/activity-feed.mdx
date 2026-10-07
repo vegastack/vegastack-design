@@ -162,7 +162,9 @@ Set `loadMore.error` after a failed read; automatic retries stop and a Retry but
 ### Agents and the system
 
 `agent` on an event marks an agent's change; `agent: true` on a comment gives it a violet bar, a
-bot avatar and an "Agent" label. An event with `actor={null}` is the system's.
+bot avatar and an "Agent" label. An event with `actor={null}` is the system's. An actor's `badge`
+(a string such as "Inactive", for someone deactivated or whose invite is pending) follows their name
+as a small muted outline badge, as everywhere a person is named.
 
 <ComponentPreview
   name="activityFeedActors"

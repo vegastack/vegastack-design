@@ -1,4 +1,4 @@
-// @vegastack activity-feed@0.24.3 sha256-WMfvxlLeeiYwE3wjcUPLHZBXb3z+pL4sgd9IAYZskwQ=
+// @vegastack activity-feed@0.24.3 sha256-BtSSJt942IOJqA+j5na8p8yAy9i5oP5aMAb1SnNPU78=
 
 "use client";
 
@@ -35,6 +35,7 @@ import {
 } from "@/components/ui/person-hover-card";
 import { PersonAvatar } from "@/components/ui/person-avatar";
 import { RelativeTime } from "@/components/ui/relative-time";
+import { PersonBadge } from "@/components/ui/searchable-select";
 import {
   Select,
   SelectContent,
@@ -584,7 +585,7 @@ export function ActivityKindIcon({
 export interface ActivityEventProps {
   /** Stable event identity for preserving position across cursor-page joins. @default undefined */
   id?: string;
-  /** Who did it; `null` for the system. */
+  /** Who did it; `null` for the system. A `badge` on the person ("Inactive") follows the name. */
   actor: Person | null;
   /** The actor is an agent: its name reads as an agent's. @default false */
   agent?: boolean;
@@ -606,7 +607,7 @@ export interface ActivityEventProps {
 /**
  * `ActivityEvent` — one event: the icon (or the actor's avatar) in the comments' 20px avatar
  * column, then "Actor did something · 2h" in muted 12px text. The actor opens a person hover
- * card; the time shows the exact date on hover.
+ * card, and the actor's `badge` ("Inactive") follows the name; the time shows the exact date on hover.
  *
  * @example
  * <ActivityEvent actor={priya} icon={<StatusIcon status="done" size="xs" />} date={at}>
@@ -655,6 +656,11 @@ export function ActivityEvent({
         ) : (
           <span className="font-medium text-foreground">System</span>
         )}{" "}
+        {actor?.badge != null && actor.badge !== false ? (
+          <>
+            <PersonBadge badge={actor.badge} />{" "}
+          </>
+        ) : null}
         {agent ? (
           <>
             <span

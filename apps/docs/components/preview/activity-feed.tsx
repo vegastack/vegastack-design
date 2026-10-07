@@ -45,6 +45,12 @@ const KAVYA = {
   image: "/preview/avatar-2.svg",
 };
 const AGENT = { name: "Regent AI", email: "Assistant" };
+const JAMIE = {
+  name: "Jamie Rao",
+  email: "jamie@acme.com",
+  hue: "green" as const,
+  badge: "Inactive",
+};
 
 function Demo({ children }: { children: ReactNode }) {
   return <Wrapper className="block max-w-2xl">{children}</Wrapper>;
@@ -585,7 +591,7 @@ export function activityFeedGroups(): ReactNode {
   );
 }
 
-/** An agent's event and comment, and a system event (no actor). */
+/** An agent's event and comment, an inactive person's event, and a system event (no actor). */
 export function activityFeedActors(): ReactNode {
   return (
     <Demo>
@@ -603,6 +609,16 @@ export function activityFeedActors(): ReactNode {
         </ActivityFeedItem>
         <ActivityFeedItem kind="thread">
           <CommentThread thread={THREAD_AGENT} now={NOW} />
+        </ActivityFeedItem>
+        <ActivityFeedItem>
+          <ActivityEvent
+            actor={JAMIE}
+            icon={<ActivityKindIcon kind="status" />}
+            date={NOW - 45 * MIN}
+            now={NOW}
+          >
+            changed status to <ActivityValue>In review</ActivityValue>
+          </ActivityEvent>
         </ActivityFeedItem>
         <ActivityFeedItem>
           <ActivityEvent

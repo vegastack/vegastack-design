@@ -88,6 +88,27 @@ test("an event shows its actor, value and time; icon='avatar' draws the actor", 
   ).toBe("Priya Shah");
 });
 
+test("an actor's badge follows their name inside the sentence", async () => {
+  const screen = await render(
+    <ActivityEvent
+      actor={{ ...priya, badge: "Inactive" }}
+      date={NOW - 2 * HOUR}
+      now={NOW}
+    >
+      changed status to <ActivityValue>Done</ActivityValue>
+    </ActivityEvent>,
+  );
+  const event = screen.container.querySelector<HTMLElement>(
+    "[data-slot=activity-event]",
+  )!;
+  const badge = event.querySelector("[data-slot=person-badge]");
+  expect(badge?.textContent).toBe("Inactive");
+  expect(event.textContent).toMatch(
+    /^Priya Shah Inactive changed status to Done/,
+  );
+  await expectNoA11yViolations(screen.container);
+});
+
 test("a group folds to one event with 'N more changes' and unfolds to 'Show less'", async () => {
   const screen = await render(
     <ActivityEventGroup>

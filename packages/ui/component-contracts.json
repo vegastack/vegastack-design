@@ -28838,6 +28838,7 @@
         "@vegastack/person-avatar",
         "@vegastack/person-hover-card",
         "@vegastack/relative-time",
+        "@vegastack/searchable-select",
         "@vegastack/select",
         "@vegastack/skeleton"
       ],
@@ -29189,6 +29190,7 @@
         "@vegastack/button",
         "@vegastack/person-avatar",
         "@vegastack/relative-time",
+        "@vegastack/searchable-select",
         "@vegastack/skeleton",
         "@vegastack/switch",
         "@vegastack/use-list-nav"
