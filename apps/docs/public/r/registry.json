@@ -15773,7 +15773,7 @@
         "whenToUse": "A text control that needs an affordance on the same surface — a search icon, a currency prefix, a reveal button, a character counter.",
         "whenNotToUse": "A control whose affordance belongs outside the field — use a Field description or a ButtonGroup.",
         "version": "0.24.3",
-        "integrity": "sha256-rRKRcxmx+Dsf6UwCFFDdBefsFfMvUU0VGw2carItbMI="
+        "integrity": "sha256-Y1ecJnIk6fkvFDrC8nnyC2f1LBnaQL5FyTGr4JFQ6r8="
       }
     },
     {
