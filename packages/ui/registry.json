@@ -1464,6 +1464,7 @@
         "@vegastack/checkbox",
         "@vegastack/dropdown-menu",
         "@vegastack/empty",
+        "@vegastack/panel-search",
         "@vegastack/skeleton",
         "@vegastack/table",
         "@vegastack/tooltip"
@@ -13564,7 +13565,6 @@
         "@vegastack/button",
         "@vegastack/command",
         "@vegastack/icon-glyph",
-        "@vegastack/item",
         "@vegastack/popover"
       ],
       "files": [

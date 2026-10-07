@@ -1,4 +1,4 @@
-// @vegastack panel-search@0.24.3 sha256-ixYeBtCgMNCK1wsQDdDwaqAfhC60aIjAunXjvr6AdQM=
+// @vegastack panel-search@0.24.3 sha256-AXzfZIcFjO/FL31kySzxAUeWdHC/RXYTvB2AJHJjGCc=
 
 "use client";
 
@@ -94,5 +94,72 @@ export function PanelSearchField({
       )}
       {...props}
     />
+  );
+}
+
+/** Props accepted by `PanelList`. */
+export type PanelListProps = React.ComponentProps<"div">;
+
+/**
+ * `PanelList` — the scrolling list under a `PanelSearch` row in a menu or popup. It scrolls on its
+ * own (capped at 16rem), so the search row above it and the `PanelActions` footer below it stay
+ * put, and its `py-1` keeps the first and last rows' highlight off the hairlines around it.
+ *
+ * @example
+ * <DropdownMenuSubContent>
+ *   <PanelSearch><PanelSearchField aria-label="Search members" /></PanelSearch>
+ *   <PanelList>{members.map((m) => <DropdownMenuItem key={m.id}>{m.name}</DropdownMenuItem>)}</PanelList>
+ * </DropdownMenuSubContent>
+ */
+export function PanelList({ className, ...props }: PanelListProps) {
+  return (
+    <div
+      data-slot="panel-list"
+      className={cn(
+        "max-h-64 min-h-0 overflow-y-auto overscroll-contain py-1",
+        className,
+      )}
+      {...props}
+    />
+  );
+}
+
+/** Props accepted by `PanelActions`. */
+export interface PanelActionsProps extends React.ComponentProps<"div"> {
+  /** The actions — menu items (`DropdownMenuItem`, `CommandItem`), each with a leading icon. */
+  children: React.ReactNode;
+}
+
+/**
+ * `PanelActions` — the footer of a searchable menu or popup: the static actions that are not
+ * results ("Assign to me", "Unassign", "Clear"), below the list behind a hairline. It stays at the
+ * bottom while the list scrolls (sticky, on the popup's own surface), renders whatever the search
+ * matched — including nothing — and its items are ordinary menu items, so the arrow keys reach them
+ * after the last result. Pair it with `PanelSearch` and `PanelList`; inside a cmdk `Command`, use
+ * `CommandActions`, which keeps its items out of the filter.
+ *
+ * @example
+ * <PanelActions>
+ *   <DropdownMenuItem disabled={mine}><UserCheck />Assign to me</DropdownMenuItem>
+ *   <DropdownMenuItem disabled={!assignee}><UserMinus />Unassign</DropdownMenuItem>
+ * </PanelActions>
+ */
+export function PanelActions({
+  className,
+  children,
+  ...props
+}: PanelActionsProps) {
+  return (
+    <div
+      role="group"
+      data-slot="panel-actions"
+      className={cn(
+        "sticky bottom-0 z-10 -mx-1 -mb-1 border-t border-border bg-popover p-1",
+        className,
+      )}
+      {...props}
+    >
+      {children}
+    </div>
   );
 }

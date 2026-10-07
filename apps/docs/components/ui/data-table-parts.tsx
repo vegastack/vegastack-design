@@ -1,4 +1,4 @@
-// @vegastack data-table-parts@0.24.3 sha256-7v0EWrjshR05VfXV87y2uDu3Q6DWC4xJSx32AAH0MoE=
+// @vegastack data-table-parts@0.24.3 sha256-DHK+SJfwCUIi/QBo+oxm4k/JewznOdyuW7B4Nslg8Lg=
 
 "use client";
 
@@ -33,6 +33,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { Empty, EmptyHeader, EmptyTitle } from "@/components/ui/empty";
+import { PanelActions } from "@/components/ui/panel-search";
 import { Skeleton } from "@/components/ui/skeleton";
 import { TableCell, TableHead, TableRow } from "@/components/ui/table";
 
@@ -996,8 +997,10 @@ export interface RowActionItem {
    */
   items?: RowAction[];
   /**
-   * Custom submenu content rendered after `items` (a searched, paged list such as "Assign › people").
-   * Compose it from `DropdownMenuItem`s; a `PanelSearch` row may lead it.
+   * Custom submenu content (a searched, paged list such as "Assign › people"): compose it from a
+   * `PanelSearch` row and a `PanelList` of `DropdownMenuItem`s. Alongside it, `items` are the
+   * list's static actions ("Assign to me", "Unassign") and render in a `PanelActions` footer
+   * below it — give each an `icon`.
    * @default undefined
    */
   submenu?: React.ReactNode;
@@ -1104,11 +1107,26 @@ export function RowActionMenuItems({
                 className={action.submenu ? "min-w-72" : "min-w-48"}
                 onKeyDown={pickShortcut}
               >
-                <RowActionMenuItems
-                  actions={action.items ?? []}
-                  onAction={onAction}
-                />
-                {action.submenu}
+                {action.submenu ? (
+                  <>
+                    {action.submenu}
+                    {action.items?.some(isRowActionItem) ? (
+                      // Beside a searched list, `items` are its static actions ("Assign to
+                      // me", "Unassign"): a footer under the list, not rows above the search.
+                      <PanelActions>
+                        <RowActionMenuItems
+                          actions={action.items}
+                          onAction={onAction}
+                        />
+                      </PanelActions>
+                    ) : null}
+                  </>
+                ) : (
+                  <RowActionMenuItems
+                    actions={action.items ?? []}
+                    onAction={onAction}
+                  />
+                )}
               </DropdownMenuSubContent>
             </DropdownMenuSub>
           ) : (

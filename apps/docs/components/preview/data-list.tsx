@@ -12,6 +12,8 @@ import {
   Search,
   Trash2,
   TriangleAlert,
+  UserCheck,
+  UserMinus,
 } from "lucide-react";
 import {
   DataList,
@@ -33,7 +35,11 @@ import {
 } from "@/components/ui/breadcrumb";
 import { BreadcrumbDropTarget } from "@/components/ui/breadcrumb-cascade";
 import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
-import { PanelSearch, PanelSearchField } from "@/components/ui/panel-search";
+import {
+  PanelList,
+  PanelSearch,
+  PanelSearchField,
+} from "@/components/ui/panel-search";
 import { MediaCard } from "@/components/ui/media-card";
 import { DataListPager } from "@/components/ui/data-list-pager";
 import { Badge } from "@/components/ui/badge";
@@ -1298,20 +1304,27 @@ function AssignSubmenu({ onAssign }: { onAssign: (name: string) => void }) {
           onKeyDown={(e) => e.stopPropagation()}
         />
       </PanelSearch>
-      {matches.length === 0 ? (
-        <DropdownMenuItem disabled>No members</DropdownMenuItem>
-      ) : (
-        matches.map((m) => (
-          <DropdownMenuItem key={m} onClick={() => onAssign(m)}>
-            {m}
-          </DropdownMenuItem>
-        ))
-      )}
+      <PanelList>
+        {matches.length === 0 ? (
+          <p className="px-2 py-1.5 text-sm text-muted-foreground">
+            No members found
+          </p>
+        ) : (
+          matches.map((m) => (
+            <DropdownMenuItem key={m} onClick={() => onAssign(m)}>
+              {m}
+            </DropdownMenuItem>
+          ))
+        )}
+      </PanelList>
     </>
   );
 }
 
-/** A row action whose submenu is custom content — here a searchable member list (`submenu`). */
+/**
+ * A row action whose submenu is custom content — here a searchable member list (`submenu`) — with
+ * its static actions (`items`) in the footer below it.
+ */
 export function dataListRowActionSearchSubmenu(): ReactNode {
   return (
     <Wrapper className="block">
@@ -1322,7 +1335,18 @@ export function dataListRowActionSearchSubmenu(): ReactNode {
         getRowLabel={(p) => p.name}
         rowActions={() => [
           { label: "Open", onSelect: () => {} },
-          { label: "Assign", submenu: <AssignSubmenu onAssign={() => {}} /> },
+          {
+            label: "Assign",
+            items: [
+              {
+                label: "Assign to me",
+                icon: <UserCheck />,
+                onSelect: () => {},
+              },
+              { label: "Unassign", icon: <UserMinus />, onSelect: () => {} },
+            ],
+            submenu: <AssignSubmenu onAssign={() => {}} />,
+          },
           { type: "separator" },
           { label: "Remove", destructive: true, onSelect: () => {} },
         ]}

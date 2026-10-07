@@ -60,13 +60,36 @@ test("SpacePicker lists My space first, checks the current one, explains a disab
   expect(onValueChange).toHaveBeenCalledWith("mine");
 });
 
-test("placement=title sizes the chip for a dialog title", async () => {
+test("placement=title is an outlined, rounded chip", async () => {
   const screen = await render(
     <SpacePicker spaces={SPACES} value="general" placement="title" />,
   );
+  const chip = screen.getByRole("button", { name: "Space: General" });
+  await expect.element(chip).toHaveAttribute("data-size", "title");
+  await expect.element(chip).toHaveAttribute("data-variant", "outline");
+  expect(chip.element().className).toContain("rounded-full");
+});
+
+test("each space is one line: no second line, even when `secondary` is given", async () => {
+  const screen = await render(
+    <SpacePicker
+      spaces={SPACES.map((item) => ({
+        ...item,
+        secondary: "Everyone · 14 members",
+      }))}
+      value="general"
+    />,
+  );
+  await screen.getByRole("button", { name: "Space: General" }).click();
   await expect
-    .element(screen.getByRole("button", { name: "Space: General" }))
-    .toHaveAttribute("data-size", "title");
+    .element(screen.getByText("You can view, not add, here"))
+    .toBeVisible();
+  expect(document.body.textContent).not.toContain("Everyone · 14 members");
+  expect(
+    document.querySelector(
+      '[data-slot="space-picker"] [data-slot="item-description"]',
+    ),
+  ).toBeNull();
 });
 
 test("a read-only chip for a hidden space shows the hint's words and glyph", async () => {
@@ -88,4 +111,28 @@ test("a read-only chip for a hidden space shows the hint's words and glyph", asy
   );
   expect(chips[1]!.textContent).toBe("Private space");
   await expectNoA11yViolations(screen.container);
+});
+
+test("a read-only title chip keeps the outlined shape without a chevron, and takes trigger props", async () => {
+  const onFocus = vi.fn();
+  const screen = await render(
+    <SpaceChip
+      readOnly
+      size="title"
+      space={SPACES[0]!.space}
+      tabIndex={0}
+      aria-describedby="why"
+      onFocus={onFocus}
+    />,
+  );
+  const chip = screen.container.querySelector<HTMLElement>(
+    '[data-slot="space-chip"]',
+  )!;
+  expect(chip.tagName).toBe("SPAN");
+  expect(chip.className).toContain("rounded-full");
+  expect(chip.className).toContain("border");
+  expect(chip.querySelector('[data-slot="space-chip-chevron"]')).toBeNull();
+  expect(chip.getAttribute("aria-describedby")).toBe("why");
+  chip.focus();
+  expect(onFocus).toHaveBeenCalled();
 });

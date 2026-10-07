@@ -138,7 +138,10 @@ Inside, it composes these pieces:
   of the document.
 - **Bubble menu** (`data-slot="text-edit-bubble-menu"`, `role="toolbar"`) — a Turn into button,
   `Toggle` buttons for bold, italic, strikethrough, inline code and link, and Clear formatting;
-  link swaps it for an inline URL input with Open and Remove (`data-slot="text-edit-link"`).
+  link swaps it for an inline URL input with Open and Remove (`data-slot="text-edit-link"`). It
+  opens only over a selection that holds text — select all in an empty editor shows nothing — and it
+  stays on its selection while any scroller around the editor scrolls, hiding while the selection
+  is scrolled out of view.
 - **Block handle** (`data-slot="text-edit-block-handle"`) — a pointer drag handle; the keyboard has
   the same moves.
 - **Table controls** — for the hovered table only: row, column and corner grips
@@ -252,10 +255,12 @@ The ⋮⋮ handle beside the hovered block drags it (or a single list item) to a
 the keyboard. A table's handle is its corner grip (see Tables).
 `dragHandles=false` turns the handle and all the table's hover controls off.
 
-The handle is a narrow grip 3px before the text, so it fits inside the 16px padding of a Dialog,
-Sheet, Popover or Card and never touches the container's edge; the text keeps its column, with no
-indent while the handle is hidden. Where the padding is narrower — a `boxed` editor — the grip is
-held just inside the frame.
+The handle is a 16px grip 4px before the text, never closer than 6px to the edge of its frame (a
+Dialog, Sheet, Popover or Card). Where the frame's padding is too narrow for that — a Dialog's 16px —
+the content takes just enough start padding (measured, so it follows the frame) for the grip to
+sit clear of the text and the caret; the read view the editor replaces carries the same padding, so
+the swap never moves the text. On a page with room the text keeps its column, and a `boxed` editor
+— its own frame — holds the grip just inside its border.
 
 <ComponentPreview
   name="markdownBlockHandles"

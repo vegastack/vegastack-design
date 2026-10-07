@@ -152,7 +152,10 @@ Do not add padding, margins or heights to the segments — the inset belongs to 
 ### Picker menu
 
 `RecordChipMenu` is the popover a pill opens: start-aligned with no inner padding, 288px for a
-searchable `Command` list (`width="list"`) or as wide as a `Calendar` (`width="fit"`).
+searchable `Command` list (`width="list"`) or as wide as a `Calendar` (`width="fit"`). A calendar
+inside it is transparent, so it reads as the popup's own surface and never paints over the rounded
+border. For a picker's static actions (_Unassign_, _Clear_), end the `Command` list with
+`CommandActions` (see [Command](/docs/components/command)).
 
 ## API Reference
 

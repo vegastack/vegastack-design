@@ -48,7 +48,7 @@ starts with `icon-` is a component and never an icon.
 - **`searchable-select`** — The Select-shaped Combobox preset: a full-width trigger, an in-panel search field, a tick on the selected row (matched by key, so async options tick too), a standard person option (name plus muted email, both searched) and an optional clear control. Single or multiple, controlled through value/onValueChange.
 - **`select`** — A dropdown for one value — trigger, grouped scrollable popup and item-aligned positioning.
 - **`slider`** — A number or range over a continuous track — horizontal or vertical, any number of thumbs.
-- **`space-picker`** — SpaceChip — a space as a quiet property chip (tile, name, chevron) — and SpacePicker, that chip opening a searchable list of spaces with My space first, a check on the current one and disabled rows that say why.
+- **`space-picker`** — SpaceChip — a space as a quiet property chip (tile, name, chevron), or an outlined one for a create dialog's header — and SpacePicker, that chip opening a searchable list of spaces, one line each, with My space first, a check on the current one and disabled rows that say why.
 - **`switch`** — An on/off toggle for instant settings — two sizes and a 24px invisible hit area (A11Y-2).
 - **`textarea`** — A styled native textarea that grows with its content; focus darkens its border subtly with an ease and paints no fill.
 
@@ -120,7 +120,7 @@ starts with `icon-` is a component and never an icon.
 - **`hover-card`** — A preview surface that opens on hover or focus, with configurable delays and sides.
 - **`icon-picker`** — Modes offered by the generic identity picker.
 - **`info-hint`** — A small muted info button that opens one sentence of explanation and an optional new-tab link in a popover; keyboard and touch accessible, named by its label.
-- **`panel-search`** — The sticky, box-free search row a filtering popup puts at the top of its panel (decision OVL-11) — shared by EmojiPicker and ShortcutOverlay.
+- **`panel-search`** — The sticky, box-free search row a filtering popup puts at the top of its panel (decision OVL-11) — shared by EmojiPicker and ShortcutOverlay — plus the scrolling PanelList under it and the PanelActions footer for a searchable menu's static actions.
 - **`permission-menu`** — An access level on a sharing row — a ghost trigger reading the level, a menu of levels with one-line descriptions and a check on the current one, an optional destructive Remove access, and a read-only text mode for built-in rows.
 - **`picker-panel`** — A searchable, selectable item in an internal picker panel.
 - **`popover`** — An anchored, dismissible surface for secondary content, with a header, title and description.

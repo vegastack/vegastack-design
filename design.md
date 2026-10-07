@@ -954,7 +954,7 @@ token — that is COL-20 being enforced, not broken.
 
 `MOT-5 · MOT-6 · MOT-7 · MOT-13 · TYP-13 · BRD-1 · LAY-9 · LAY-10 · LAY-11 · LAY-12 · LAY-13 · LAY-14 ·
 LAY-15 · LAY-16 · FRM-9 · FRM-10 · FRM-12 · FRM-13 · OVL-10 · OVL-11 · OVL-13 · OVL-14 · OVL-15 ·
-OVL-16 · OVL-17 · OVL-18 · API-5 · API-9 · API-17 · API-18 · API-19 · API-20 · API-21 · API-22 · API-23 ·
+OVL-16 · OVL-17 · OVL-18 · OVL-20 · API-5 · API-9 · API-17 · API-18 · API-19 · API-20 · API-21 · API-22 · API-23 ·
 API-24 · API-26 · API-27 · API-28 · API-32 · VOI-1`
 
 - **Motion.** The global reduced-motion reset in `base.css` is the one sanctioned `!important`, and a
@@ -999,7 +999,7 @@ API-24 · API-26 · API-27 · API-28 · API-32 · VOI-1`
   search-cancel paint is suppressed, a token-colored 24px clear button owns the action, and generic
   `Input` keeps its single-input DOM and behavior contract. A Select trigger is `w-full` by default
   and takes `variant="ghost"` for an inline row (API-24).
-- **Overlays** (OVL-10, OVL-11, OVL-13…OVL-18) — Toast is the one notification engine;
+- **Overlays** (OVL-10, OVL-11, OVL-13…OVL-18, OVL-20) — Toast is the one notification engine;
   `sonner` is retired (OVL-10), and it keeps one store: the provider passes the module manager and
   `Toaster` reuses a provider above it, so `toast()` and `useToastManager()` feed one queue (OVL-17). Toast adds a logical `position` prop, the anchored
   `ToastPositioner`/`ToastArrow` parts, and a `z-60` viewport band — the one surface above the single
@@ -1008,7 +1008,11 @@ API-24 · API-26 · API-27 · API-28 · API-32 · VOI-1`
   (OVL-14). `DialogContent` takes a `size` prop — `sm`, `default` (upstream's `sm:max-w-sm`), `lg`,
   `xl` — reflected as `data-size`, the axis `AlertDialogContent` already carries; `CommandDialog`
   and a side `SheetContent` take the same scale (OVL-16). Overlay footers are as plain as their headers — no muted band, no top border — with actions right-aligned and secondary actions (Cancel, Back, Keep editing) on `variant="secondary"`; a Sheet's Cancel may take the start edge with `data-slot="sheet-cancel"` (OVL-18). A panel's search is a sticky header row with no nested bordered
-  input, and it has exactly one owner, the `panel-search` shared-internal item (OVL-11). Every portal
+  input, and it has exactly one owner, the `panel-search` shared-internal item (OVL-11). A searchable
+  list's static actions ("Assign to me", "Unassign", "Clear") are a sticky footer of real options
+  below the results, behind a hairline — `CommandActions` in a cmdk list, `PanelActions` under a
+  `PanelList` in a menu — never filtered and never counted as results; give each a leading icon
+  (OVL-20). Every portal
   re-applies the theme scope so a popup opened from inside a scoped subtree paints in that scope
   (OVL-13); `verify-portal-theme-scope` discovers every Base UI portal host and requires its owner to
   attach the scope, so an added, missing or unscoped portal fails.

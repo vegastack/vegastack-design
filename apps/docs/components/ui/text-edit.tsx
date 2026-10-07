@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.24.3 sha256-WcFiXR0Zw5AnNrpNCOcMiqMVTcR2nI5vC1f3B0IMuCs=
+// @vegastack text-edit@0.24.3 sha256-Hd6oC5QDSH0+j7dKAeQb6pra9Dc+G3Mh+Fr9UB9BURU=
 
 "use client";
 
@@ -899,6 +899,48 @@ export interface TextEditProps {
 }
 
 /**
+ * The block grip (the editor's ⋮⋮ handle) sits 20px before the text — its 16px box and a 4px gap —
+ * and at least 6px inside its frame: a Dialog, Sheet, Drawer, Popover or Card (numbers and frames
+ * kept equal to `text-edit-editor`'s `HANDLE_WIDTH`/`HANDLE_GUTTER`/`FRAME_INSET`/`HANDLE_FRAME`).
+ * Where the frame's padding is narrower than 26px (a Dialog's 16px) the grip used to land on the
+ * first characters and the caret, so the content takes just enough start padding to clear it.
+ * Measured here, in the shell, so the read view and the editor share it and the swap never moves
+ * the text. A `boxed` editor is its own frame and keeps its layout.
+ */
+const GRIP_CLEARANCE = 6 + 16 + 4;
+const GRIP_FRAME =
+  '[data-slot="dialog-content"],[data-slot="sheet-content"],[data-slot="drawer-content"],[data-slot="popover-content"],[data-slot="card"]';
+
+function useHandleGutter(
+  rootRef: React.RefObject<HTMLDivElement | null>,
+  enabled: boolean,
+) {
+  const [gutter, setGutter] = React.useState(0);
+  React.useLayoutEffect(() => {
+    const root = rootRef.current;
+    const frame = enabled ? root?.closest<HTMLElement>(GRIP_FRAME) : null;
+    if (!root || !frame) return setGutter(0);
+    const measure = () =>
+      setGutter(
+        Math.max(
+          0,
+          Math.ceil(
+            frame.getBoundingClientRect().left +
+              GRIP_CLEARANCE -
+              root.getBoundingClientRect().left,
+          ),
+        ),
+      );
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(frame);
+    observer.observe(root);
+    return () => observer.disconnect();
+  }, [rootRef, enabled]);
+  return gutter;
+}
+
+/**
  * `TextEdit` — a Tiptap v3 markdown-first rich-text editor, Notion-style: no toolbar, no border, no
  * ring and no fill in any state — the caret is the focus cue. `variant="boxed"` frames it in a
  * bordered field whose border darkens subtly while it holds focus (the comment composer). The
@@ -1117,13 +1159,18 @@ export function TextEdit(props: TextEditProps) {
     }
   }, [ready]);
 
+  const handleGutter = useHandleGutter(
+    rootRef,
+    editable && editorProps.dragHandles !== false && !boxed,
+  );
   const minCss = toCssLength(minHeight);
   const maxCss = toCssLength(maxHeight);
   const contentStyle: React.CSSProperties | undefined =
-    minCss != null || maxCss != null
+    minCss != null || maxCss != null || handleGutter > 0
       ? ({
           ...(minCss != null && { ["--te-min-h"]: minCss }),
           ...(maxCss != null && { ["--te-max-h"]: maxCss }),
+          ...(handleGutter > 0 && { paddingInlineStart: handleGutter }),
         } as React.CSSProperties)
       : undefined;
   const contentClassName = cn(

@@ -18,25 +18,24 @@ preview: spacePicker
 ```tsx
 import { SpacePicker } from "@/components/ui/space-picker";
 
-<DialogTitle className="flex items-center gap-1">
+<DialogHeader>
+  <DialogTitle className="sr-only">New task</DialogTitle>
   <SpacePicker
     placement="title"
     spaces={writableSpaces}
     value={spaceId}
     onValueChange={setSpaceId}
   />
-  <span aria-hidden className="text-muted-foreground">
-    ›
-  </span>
-  <span>New task</span>
-</DialogTitle>;
+</DialogHeader>;
 ```
 
 `SpaceChip` is a space as a quiet property chip: its tile, its name and a ▾, tinted on hover.
-`SpacePicker` is that chip opening a searchable list of the spaces you pass: "My space" first,
-then "Spaces", a check on the current one, and a disabled row that says why it cannot be chosen.
-`placement="title"` sizes the chip for a dialog title — `[▣ General ▾] › New task`; `field` sizes it
-for a form or a property row.
+`SpacePicker` is that chip opening a searchable list of the spaces you pass, one line each — the
+tile and the name: "My space" first, then "Spaces", a check on the current one, and a disabled row
+whose reason sits muted at its end. `placement="title"` is the outlined, rounded chip a create
+dialog's header leads with — `[▣ General ▾]`, no "› New task" after it (the dialog says what it
+creates; keep that as a visually hidden `DialogTitle`); `field` is the quiet chip for a form or a
+property row.
 
 <ComponentPreview
   name="spacePicker"
@@ -47,7 +46,7 @@ for a form or a property row.
 
 - Owns: the chip, the list, search, the groups, the check and disabled reasons.
 - Does not own: which spaces a person may add to, or the default space — pass `spaces` and `value`.
-- Compose with: `IconGlyph` (it draws every tile) and `Dialog` titles.
+- Compose with: `IconGlyph` (it draws every tile) and `Dialog` headers.
 
 ## Anatomy
 
@@ -58,7 +57,9 @@ for a form or a property row.
 ### In a form, and read-only on a card
 
 `readOnly` (often `size="xs"`) shows where a record lives without offering a change: plain text, no
-▾, no tab stop. For a space the viewer cannot see, pass `space={null}` and a `hint` —
+▾, no tab stop. With `size="title"` it keeps the outlined chip's shape without the ▾ — a record page
+shows it above the title when the viewer cannot move the record; pass `tabIndex={0}` and make it a
+`TooltipTrigger` to explain who can open it. For a space the viewer cannot see, pass `space={null}` and a `hint` —
 `{ kind: "personal", ownerName }` reads "Priya's My space" with a person-with-lock, `{ kind:
 "private" }` reads "Private space" with a lock. The hint never names the space itself.
 
@@ -90,10 +91,10 @@ for a form or a property row.
 
 ## Accessibility
 
-- The chip is a button named "Space: General" ("Space: none chosen" while empty), so a title that
-  holds it still reads in order.
+- The chip is a button named "Space: General" ("Space: none chosen" while empty). In a dialog
+  header, keep a visually hidden `DialogTitle` ("New task") as the dialog's name.
 - The list is a filterable listbox; the current space is checked, and a disabled row's reason is
-  its visible second line.
+  visible text at the row's end. `SpacePickerItem.secondary` is deprecated and no longer shown.
 
 | Key                                 | Action                      |
 | ----------------------------------- | --------------------------- |
