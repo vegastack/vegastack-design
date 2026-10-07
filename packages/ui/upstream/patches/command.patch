@@ -70,7 +70,7 @@
 #   formatting: prettier reflow plus the `registry-stamp.mjs` provenance header (DOC-1); no
 #               decision of their own.
 diff --git a/command.tsx b/command.tsx
-index 5cb64c9..a5097f2 100644
+index 5cb64c9..644098a 100644
 --- a/command.tsx
 +++ b/command.tsx
 @@ -1,8 +1,8 @@
@@ -86,7 +86,7 @@ index 5cb64c9..a5097f2 100644
  
  import {
    Dialog,
-@@ -10,42 +10,256 @@ import {
+@@ -10,42 +10,272 @@ import {
    DialogDescription,
    DialogHeader,
    DialogTitle,
@@ -151,8 +151,8 @@ index 5cb64c9..a5097f2 100644
 +}
 +
 +/**
-+ * OVL-20: after every search (once cmdk has ranked, selected and the footer has moved back to the
-+ * end) the highlight is the first result, or nothing — never a footer action, whether cmdk put it
++ * OVL-20, only while the list has footer actions (a palette without them behaves exactly as cmdk):
++ * after every search (once cmdk has ranked, selected and the footer has moved back to the end) the highlight is the first result, or nothing — never a footer action, whether cmdk put it
 + * there or it was already there from the arrow keys before the user typed. A highlight cmdk does
 + * not move emits no change, so this reads the search itself rather than the value.
 + */
@@ -246,12 +246,26 @@ index 5cb64c9..a5097f2 100644
 +  // The value cmdk is handed this render: an override must differ from it to reach cmdk.
 +  const effective = React.useRef("");
 +  effective.current = override ?? valueProp ?? innerValue;
++  const pending = React.useRef<string | null>(null);
++  React.useLayoutEffect(() => {
++    if (override !== NO_HIGHLIGHT || pending.current === null) return;
++    const next = pending.current;
++    pending.current = null;
++    setOverride(next);
++  }, [override]);
 +  const highlight = React.useCallback(
 +    (next: string | null) => {
 +      // Nothing to highlight: "" (cmdk then highlights the first row of results that arrive
 +      // later), or a value no row carries when "" is already what cmdk was handed — the guard
 +      // below re-highlights once results arrive.
-+      setOverride(next ?? (effective.current === "" ? NO_HIGHLIGHT : ""));
++      // A row that is already what cmdk was handed can't reach it again unchanged (cmdk only
++      // re-reads its value prop when the prop changes): hand it nothing for one render, then
++      // the row.
++      if (next !== null && next === effective.current) {
++        pending.current = next;
++        setOverride(NO_HIGHLIGHT);
++      } else
++        setOverride(next ?? (effective.current === "" ? NO_HIGHLIGHT : ""));
 +      setInnerValue(next ?? "");
 +      onValueChange?.(next ?? "");
 +    },
@@ -326,7 +340,9 @@ index 5cb64c9..a5097f2 100644
 +        {...props}
 +      >
 +        {children}
-+        <ActionHighlightGuard rootRef={rootRef} highlight={highlight} />
++        {actions > 0 ? (
++          <ActionHighlightGuard rootRef={rootRef} highlight={highlight} />
++        ) : null}
 +        <CommandResultAnnouncer resultsLabel={resultsLabel} />
 +      </CommandPrimitive>
 +    </CommandRegistryContext.Provider>
@@ -365,7 +381,7 @@ index 5cb64c9..a5097f2 100644
  }) {
    return (
      <Dialog {...props}>
-@@ -55,15 +269,20 @@ function CommandDialog({
+@@ -55,15 +285,20 @@ function CommandDialog({
        </DialogHeader>
        <DialogContent
          className={cn(
@@ -390,7 +406,7 @@ index 5cb64c9..a5097f2 100644
  }
  
  function CommandInput({
-@@ -76,8 +295,12 @@ function CommandInput({
+@@ -76,8 +311,12 @@ function CommandInput({
          <CommandPrimitive.Input
            data-slot="command-input"
            className={cn(
@@ -405,7 +421,7 @@ index 5cb64c9..a5097f2 100644
            )}
            {...props}
          />
-@@ -86,36 +309,278 @@ function CommandInput({
+@@ -86,36 +325,278 @@ function CommandInput({
          </InputGroupAddon>
        </InputGroup>
      </div>
@@ -691,7 +707,7 @@ index 5cb64c9..a5097f2 100644
  }
  
  function CommandGroup({
-@@ -127,11 +592,11 @@ function CommandGroup({
+@@ -127,11 +608,11 @@ function CommandGroup({
        data-slot="command-group"
        className={cn(
          "overflow-hidden p-1 text-foreground **:[[cmdk-group-heading]]:px-2 **:[[cmdk-group-heading]]:py-1.5 **:[[cmdk-group-heading]]:text-xs **:[[cmdk-group-heading]]:font-medium **:[[cmdk-group-heading]]:text-muted-foreground",
@@ -705,7 +721,7 @@ index 5cb64c9..a5097f2 100644
  }
  
  function CommandSeparator({
-@@ -144,27 +609,44 @@ function CommandSeparator({
+@@ -144,27 +625,44 @@ function CommandSeparator({
        className={cn("-mx-1 h-px bg-border", className)}
        {...props}
      />
@@ -755,7 +771,7 @@ index 5cb64c9..a5097f2 100644
  }
  
  function CommandShortcut({
-@@ -176,21 +658,26 @@ function CommandShortcut({
+@@ -176,21 +674,26 @@ function CommandShortcut({
        data-slot="command-shortcut"
        className={cn(
          "ms-auto text-xs tracking-widest text-muted-foreground group-data-selected/command-item:text-foreground",

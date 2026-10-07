@@ -985,3 +985,57 @@ test("OVL-20: a Ctrl chord that is not navigation (paste) does not allow the act
   await userEvent.keyboard("{Enter}");
   expect(onAction).not.toHaveBeenCalled();
 });
+
+test.each([false, true])(
+  "OVL-20: consecutive matching searches over ungrouped results never leave an action highlighted (controlled: %s)",
+  async (controlled) => {
+    const onAction = vi.fn();
+    const onPick = vi.fn();
+    function Picker() {
+      const [value, setValue] = React.useState("");
+      return (
+        <Command {...(controlled ? { value, onValueChange: setValue } : {})}>
+          <CommandInput aria-label="Search members" />
+          <CommandList>
+            <CommandEmpty>No members found</CommandEmpty>
+            <CommandItem onSelect={onPick}>Arjun Mehta</CommandItem>
+            <CommandItem onSelect={onPick}>Ananya Rao</CommandItem>
+            <CommandActions>
+              <CommandItem onSelect={onAction}>Unassign</CommandItem>
+            </CommandActions>
+          </CommandList>
+        </Command>
+      );
+    }
+    const screen = await render(<Picker />);
+    await screen.getByRole("combobox", { name: "Search members" }).click();
+    await userEvent.keyboard("an");
+    await userEvent.keyboard("a");
+    await expect.poll(() => activeRow(screen.container)).toBe("Ananya Rao");
+    await userEvent.keyboard("{Enter}");
+    expect(onAction).not.toHaveBeenCalled();
+    expect(onPick).toHaveBeenCalled();
+  },
+);
+
+test("OVL-20: a palette without actions keeps cmdk's own highlight (a pending default value)", async () => {
+  function Async() {
+    const [items, setItems] = React.useState(["Alpha"]);
+    React.useEffect(() => {
+      const id = setTimeout(() => setItems(["Alpha", "Beta"]), 100);
+      return () => clearTimeout(id);
+    }, []);
+    return (
+      <Command shouldFilter={false} defaultValue="Beta">
+        <CommandInput aria-label="Search" />
+        <CommandList>
+          {items.map((item) => (
+            <CommandItem key={item}>{item}</CommandItem>
+          ))}
+        </CommandList>
+      </Command>
+    );
+  }
+  const screen = await render(<Async />);
+  await expect.poll(() => activeRow(screen.container)).toBe("Beta");
+});

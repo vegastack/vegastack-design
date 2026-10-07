@@ -1,4 +1,4 @@
-// @vegastack command@0.24.3 sha256-gUOczEm2yj4ZtF5ZCgOyypPdc0L8ow3Ua11QM1P5XJQ=
+// @vegastack command@0.24.3 sha256-+PTyMKA5Xl6sdd8qO85iBl4P9YaLGtNWNAudpKjcidY=
 
 "use client";
 
@@ -68,8 +68,8 @@ function firstResult(root: HTMLElement | null): string | null {
 }
 
 /**
- * OVL-20: after every search (once cmdk has ranked, selected and the footer has moved back to the
- * end) the highlight is the first result, or nothing — never a footer action, whether cmdk put it
+ * OVL-20, only while the list has footer actions (a palette without them behaves exactly as cmdk):
+ * after every search (once cmdk has ranked, selected and the footer has moved back to the end) the highlight is the first result, or nothing — never a footer action, whether cmdk put it
  * there or it was already there from the arrow keys before the user typed. A highlight cmdk does
  * not move emits no change, so this reads the search itself rather than the value.
  */
@@ -162,12 +162,26 @@ function Command({
   // The value cmdk is handed this render: an override must differ from it to reach cmdk.
   const effective = React.useRef("");
   effective.current = override ?? valueProp ?? innerValue;
+  const pending = React.useRef<string | null>(null);
+  React.useLayoutEffect(() => {
+    if (override !== NO_HIGHLIGHT || pending.current === null) return;
+    const next = pending.current;
+    pending.current = null;
+    setOverride(next);
+  }, [override]);
   const highlight = React.useCallback(
     (next: string | null) => {
       // Nothing to highlight: "" (cmdk then highlights the first row of results that arrive
       // later), or a value no row carries when "" is already what cmdk was handed — the guard
       // below re-highlights once results arrive.
-      setOverride(next ?? (effective.current === "" ? NO_HIGHLIGHT : ""));
+      // A row that is already what cmdk was handed can't reach it again unchanged (cmdk only
+      // re-reads its value prop when the prop changes): hand it nothing for one render, then
+      // the row.
+      if (next !== null && next === effective.current) {
+        pending.current = next;
+        setOverride(NO_HIGHLIGHT);
+      } else
+        setOverride(next ?? (effective.current === "" ? NO_HIGHLIGHT : ""));
       setInnerValue(next ?? "");
       onValueChange?.(next ?? "");
     },
@@ -233,7 +247,9 @@ function Command({
         {...props}
       >
         {children}
-        <ActionHighlightGuard rootRef={rootRef} highlight={highlight} />
+        {actions > 0 ? (
+          <ActionHighlightGuard rootRef={rootRef} highlight={highlight} />
+        ) : null}
         <CommandResultAnnouncer resultsLabel={resultsLabel} />
       </CommandPrimitive>
     </CommandRegistryContext.Provider>
