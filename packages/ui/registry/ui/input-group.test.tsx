@@ -13,6 +13,12 @@ import {
   InputGroupTextarea,
 } from "./input-group";
 import { Field, FieldDescription, FieldError, FieldLabel } from "./field";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "./dropdown-menu";
 import { Kbd } from "./kbd";
 import { Spinner } from "./spinner";
 
@@ -422,4 +428,30 @@ test("FRM-16: beside a textarea an inline addon is top-aligned, not mid-height",
   const cls = addon.getAttribute("class")!;
   expect(cls).toContain("group-has-[>textarea]/input-group:self-start");
   expect(cls).toContain("group-has-[>textarea]/input-group:pt-2.5");
+});
+
+test("INT-14: a click bubbled from a portalled menu does not focus the input; the addon itself still does", async () => {
+  const screen = await render(
+    <InputGroup>
+      <InputGroupInput aria-label="Query" />
+      <InputGroupAddon align="inline-end">
+        <DropdownMenu>
+          <DropdownMenuTrigger render={<span>Menu</span>} />
+          <DropdownMenuContent>
+            <DropdownMenuItem>First</DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+        <InputGroupText data-testid="plain">Hint</InputGroupText>
+      </InputGroupAddon>
+    </InputGroup>,
+  );
+  const input = screen.getByLabelText("Query").element() as HTMLInputElement;
+  await userEvent.click(screen.getByText("Menu"));
+  const item = screen.getByRole("menuitem", { name: "First" });
+  await expect.element(item).toBeVisible();
+  input.blur();
+  await userEvent.click(item);
+  expect(document.activeElement).not.toBe(input);
+  await userEvent.click(screen.getByTestId("plain"));
+  expect(document.activeElement).toBe(input);
 });

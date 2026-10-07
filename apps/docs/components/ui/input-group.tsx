@@ -1,4 +1,4 @@
-// @vegastack input-group@0.24.3 sha256-rRKRcxmx+Dsf6UwCFFDdBefsFfMvUU0VGw2carItbMI=
+// @vegastack input-group@0.24.3 sha256-Y1ecJnIk6fkvFDrC8nnyC2f1LBnaQL5FyTGr4JFQ6r8=
 
 "use client";
 
@@ -61,6 +61,9 @@ function InputGroupAddon({
         if ((e.target as HTMLElement).closest("button")) {
           return;
         }
+        // INT-14: a click that bubbled (through React) from a portalled popup
+        // opened from this addon did not start inside the addon's own DOM.
+        if (!e.currentTarget.contains(e.target as Node)) return;
         e.currentTarget.parentElement?.querySelector("input")?.focus();
       }}
       {...props}
