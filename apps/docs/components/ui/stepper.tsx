@@ -1,4 +1,4 @@
-// @vegastack stepper@0.24.4 sha256-0NKH8bHMLFekz1YwbNSjGfWiM5y28C9jeE7lnjokkmw=
+// @vegastack stepper@0.24.5 sha256-mZyFxcB+ue56uh6Pc0F5Qaj8M5kjFMAPubWBxrJMkt4=
 
 "use client";
 
