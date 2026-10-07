@@ -15911,7 +15911,8 @@
         "@vegastack/file-kind",
         "@vegastack/hover-card",
         "@vegastack/person-avatar",
-        "@vegastack/avatar"
+        "@vegastack/avatar",
+        "@vegastack/badge"
       ],
       "files": [
         {
@@ -15924,7 +15925,7 @@
         "whenToUse": "A mention or a file link inside text — an editor, a Markdown body, a comment — that should read as part of the sentence and open or preview its target.",
         "whenNotToUse": "A record's property value or a picker (RecordChip), a removable token in an input (Chip), or a status label (Badge).",
         "version": "0.24.4",
-        "integrity": "sha256-/4/mbjx8QT9bbhDDhXTmdAYyp0rhhW9b3qFnyVBr7w8="
+        "integrity": "sha256-YazFVe+eM7AjW5deg5/d02qGMhjHJoOyCSzYGJxbHb4="
       }
     },
     {
@@ -17975,7 +17976,7 @@
         "whenToUse": "Comments, notes, summaries and documents stored as Markdown (format=\"markdown\") or HTML — with @ mentions, uploads, callouts, toggles, an outline and comment highlights for page editors; in-place editing of a MarkdownView (the read view is the editor until first edited).",
         "whenNotToUse": "Plain single-line input (Input) or collaborative real-time docs (deferred text-edit-collab).",
         "version": "0.24.4",
-        "integrity": "sha256-nxKVXq8QcdYaK2IPSV21VbcsvgrON7HI6fUJh4IZTiE="
+        "integrity": "sha256-vu7xKgMZFN22RDQu5FMGX7s3AUVNX1oud7fO/1N2gug="
       }
     },
     {

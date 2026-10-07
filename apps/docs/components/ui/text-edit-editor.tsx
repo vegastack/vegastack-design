@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.24.4 sha256-nxKVXq8QcdYaK2IPSV21VbcsvgrON7HI6fUJh4IZTiE=
+// @vegastack text-edit@0.24.4 sha256-vu7xKgMZFN22RDQu5FMGX7s3AUVNX1oud7fO/1N2gug=
 
 "use client";
 
@@ -2563,7 +2563,13 @@ function mentionView(runtime: EditorRuntime) {
     };
     const hrefFor = runtime.mentionHref.current;
     return (
-      <NodeViewWrapper as="span" className="inline">
+      // An atom: never editable text, never spellchecked.
+      <NodeViewWrapper
+        as="span"
+        className="inline"
+        contentEditable={false}
+        spellCheck={false}
+      >
         <InlineChip
           kind={kind}
           targetId={id}

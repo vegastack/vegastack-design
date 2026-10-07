@@ -65,8 +65,11 @@ line, the tint continuing on each line.
 
 ### Photo and restricted
 
-A person with a known photo shows it in place of the person icon. An id starting with
-`restricted:` (or `restricted`) is a target the reader may not open: muted, never a link.
+A person chip leads with their avatar: the photo, else their initials on their hue (also when the
+photo fails to load). The avatar is `1.1em` and centred on the text, so it stays inside the chip in
+a heading, a table cell or a comment alike. A person marked `inactive` shows the "Inactive" badge after the name and carries
+`data-inactive`. An id starting with `restricted:` (or `restricted`) is a target the reader may not
+open: muted, never a link.
 
 <ComponentPreview
   name="inlineChipStates"

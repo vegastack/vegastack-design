@@ -12786,7 +12786,8 @@
         "@vegastack/file-kind",
         "@vegastack/hover-card",
         "@vegastack/person-avatar",
-        "@vegastack/avatar"
+        "@vegastack/avatar",
+        "@vegastack/badge"
       ],
       "files": [
         {
