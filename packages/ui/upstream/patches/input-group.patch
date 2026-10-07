@@ -1,5 +1,5 @@
 # component: input-group
-# decisions: API-26, DOC-1, DOC-2, FOC-1, FOC-3, FOC-5, FOC-6, FOC-14, FRM-16
+# decisions: API-26, DOC-1, DOC-2, FOC-1, FOC-3, FOC-5, FOC-6, FOC-14, FRM-16, INT-14
 # hunks:
 #   FOC-1, FOC-3, FOC-6: the group's `has-[[data-slot=input-group-control]:focus-visible]:border-ring`
 #     plus `ring-3 ring-ring/50` becomes `has-[[data-slot=input-group-control]:focus]:border-ring/70`
@@ -32,8 +32,11 @@
 #   FRM-16 (MK 2026-09-30): the `inline-start`/`inline-end` addon variants add
 #     `group-has-[>textarea]/input-group:self-start` and `…:pt-2.5`, so beside a textarea the addon
 #     sits top-aligned with the first line (the in-field autosave icon's top-right corner).
+#   INT-14 (MK 2026-10-08): the addon's `onClick` returns before focusing the input unless the click
+#     started inside the addon's own DOM (`e.currentTarget.contains(e.target)`), so a click React bubbles
+#     from a portalled popup opened from the addon (a menu item, a picker) no longer steals focus.
 diff --git a/input-group.tsx b/input-group.tsx
-index 2e3e7cd..cf1df90 100644
+index 2e3e7cd..7c062d5 100644
 --- a/input-group.tsx
 +++ b/input-group.tsx
 @@ -1,25 +1,26 @@
@@ -96,7 +99,7 @@ index 2e3e7cd..cf1df90 100644
  
  function InputGroupAddon({
    className,
-@@ -56,13 +57,13 @@ function InputGroupAddon({
+@@ -56,13 +57,16 @@ function InputGroupAddon({
        className={cn(inputGroupAddonVariants({ align }), className)}
        onClick={(e) => {
          if ((e.target as HTMLElement).closest("button")) {
@@ -104,6 +107,9 @@ index 2e3e7cd..cf1df90 100644
 +          return;
          }
 -        e.currentTarget.parentElement?.querySelector("input")?.focus()
++        // INT-14: a click that bubbled (through React) from a portalled popup
++        // opened from this addon did not start inside the addon's own DOM.
++        if (!e.currentTarget.contains(e.target as Node)) return;
 +        e.currentTarget.parentElement?.querySelector("input")?.focus();
        }}
        {...props}
@@ -113,7 +119,7 @@ index 2e3e7cd..cf1df90 100644
  }
  
  const inputGroupButtonVariants = cva(
-@@ -80,8 +81,8 @@ const inputGroupButtonVariants = cva(
+@@ -80,8 +84,8 @@ const inputGroupButtonVariants = cva(
      defaultVariants: {
        size: "xs",
      },
@@ -124,7 +130,7 @@ index 2e3e7cd..cf1df90 100644
  
  function InputGroupButton({
    className,
-@@ -91,7 +92,7 @@ function InputGroupButton({
+@@ -91,7 +95,7 @@ function InputGroupButton({
    ...props
  }: Omit<React.ComponentProps<typeof Button>, "size" | "type"> &
    VariantProps<typeof inputGroupButtonVariants> & {
@@ -133,7 +139,7 @@ index 2e3e7cd..cf1df90 100644
    }) {
    return (
      <Button
-@@ -101,7 +102,7 @@ function InputGroupButton({
+@@ -101,7 +105,7 @@ function InputGroupButton({
        className={cn(inputGroupButtonVariants({ size }), className)}
        {...props}
      />
@@ -142,7 +148,7 @@ index 2e3e7cd..cf1df90 100644
  }
  
  function InputGroupText({ className, ...props }: React.ComponentProps<"span">) {
-@@ -109,27 +110,27 @@ function InputGroupText({ className, ...props }: React.ComponentProps<"span">) {
+@@ -109,27 +113,27 @@ function InputGroupText({ className, ...props }: React.ComponentProps<"span">) {
      <span
        className={cn(
          "flex items-center gap-2 text-sm text-muted-foreground [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4",
@@ -176,7 +182,7 @@ index 2e3e7cd..cf1df90 100644
  }
  
  function InputGroupTextarea({
-@@ -140,12 +141,12 @@ function InputGroupTextarea({
+@@ -140,12 +144,12 @@ function InputGroupTextarea({
      <Textarea
        data-slot="input-group-control"
        className={cn(
@@ -192,7 +198,7 @@ index 2e3e7cd..cf1df90 100644
  }
  
  export {
-@@ -155,4 +156,4 @@ export {
+@@ -155,4 +159,4 @@ export {
    InputGroupText,
    InputGroupInput,
    InputGroupTextarea,

@@ -775,8 +775,8 @@ All four scripts under `tooling/upstream/` carry a `--self-test` that observes t
 
 ## What we add — the one hundred exceptions
 
-`docs/plans/2026-09-18-shadcn-reset/decisions.md` is the register: 218 rows, 108 resolved as
-**shadcn** (upstream ships unchanged) and 110 as **ours**. `packages/ui/upstream/decisions.json` is
+`docs/plans/2026-09-18-shadcn-reset/decisions.md` is the register: 219 rows, 108 resolved as
+**shadcn** (upstream ships unchanged) and 111 as **ours**. `packages/ui/upstream/decisions.json` is
 its machine copy and the only thing a gate reads; `packages/ui/upstream/exception-map.json` records
 which shared component each exception is assigned to. Re-opening a row is MK's decision. The ninety-eight
 group into six themes.
