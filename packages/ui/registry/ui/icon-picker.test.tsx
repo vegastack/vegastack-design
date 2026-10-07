@@ -71,8 +71,12 @@ test("footer swatches set the hue inline and Remove sits beside them", async () 
   await expect
     .element(group.getByRole("radio", { name: "No colour" }))
     .toHaveFocus();
-  await userEvent.keyboard("{Enter}");
   expect(hue).toHaveBeenLastCalledWith(null);
+  await userEvent.keyboard("{ArrowLeft}");
+  await expect
+    .element(group.getByRole("radio", { name: "Purple" }))
+    .toHaveAttribute("aria-checked", "true");
+  expect(hue).toHaveBeenLastCalledWith("purple");
   await expect
     .element(screen.getByRole("button", { name: "Icon colour" }))
     .not.toBeInTheDocument();
@@ -82,6 +86,19 @@ test("footer swatches set the hue inline and Remove sits beside them", async () 
     .not.toBeInTheDocument();
   await screen.getByRole("button", { name: "Remove icon" }).click();
   expect(removed).toHaveBeenCalled();
+});
+test("a remembered hue owns the swatch tab stop", async () => {
+  localStorage.setItem("tabstop-test:hue", JSON.stringify("purple"));
+  const screen = await render(
+    <IconPicker preferenceKey="tabstop-test" onValueChange={() => {}} />,
+  );
+  await screen.getByRole("button", { name: "Choose an icon" }).click();
+  const purple = screen.getByRole("radio", { name: "Purple" });
+  await expect.element(purple).toHaveAttribute("aria-checked", "true");
+  await expect.element(purple).toHaveAttribute("tabindex", "0");
+  await expect
+    .element(screen.getByRole("radio", { name: "No colour" }))
+    .toHaveAttribute("tabindex", "-1");
 });
 test("footer is omitted when there is nothing to show", async () => {
   const screen = await render(

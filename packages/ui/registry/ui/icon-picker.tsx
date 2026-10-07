@@ -1,4 +1,4 @@
-// @vegastack icon-picker@0.24.2 sha256-lKyVDIZkT4g1voEMdsp9/d7ZNZTjsHTWEO1N57tPpA8=
+// @vegastack icon-picker@0.24.2 sha256-KTx1saJmZ16ukdlrebaKIYz2LzjDuwpfDaaVVU++FUM=
 
 "use client";
 import * as React from "react";
@@ -26,7 +26,6 @@ import {
   EMOJI_CATEGORY_ICONS,
 } from "@/components/ui/picker-panel";
 import { useEmojiData } from "@/components/ui/emoji-picker";
-import { useListNav } from "@/components/ui/use-list-nav";
 
 /** Modes offered by the generic identity picker. */
 export type IconPickerMode = "icon" | "emoji";
@@ -192,22 +191,43 @@ export function IconPicker({
       label: colour.label,
     })),
   ];
-  const selectedHueIndex = Math.max(
+  const checkedHueIndex = Math.max(
     0,
     hueOptions.findIndex((option) => option.name === (effectiveHue ?? null)),
   );
-  const hueNav = useListNav({
-    count: hueOptions.length,
-    columns: hueOptions.length,
-    defaultActiveIndex: selectedHueIndex,
-  });
+  const swatchRefs = React.useRef<(HTMLButtonElement | null)[]>([]);
+  // APG radio group: the checked swatch is the one tab stop, and arrows move AND select, wrapping.
+  const onSwatchKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
+    const rtl = getComputedStyle(event.currentTarget).direction === "rtl";
+    const step =
+      event.key === "ArrowDown" ||
+      event.key === (rtl ? "ArrowLeft" : "ArrowRight")
+        ? 1
+        : event.key === "ArrowUp" ||
+            event.key === (rtl ? "ArrowRight" : "ArrowLeft")
+          ? -1
+          : 0;
+    const count = hueOptions.length;
+    const next =
+      event.key === "Home"
+        ? 0
+        : event.key === "End"
+          ? count - 1
+          : step
+            ? (checkedHueIndex + step + count) % count
+            : -1;
+    if (next < 0) return;
+    event.preventDefault();
+    chooseHue(hueOptions[next]!.name);
+    swatchRefs.current[next]?.focus();
+  };
   const swatches =
     mode === "icon" ? (
       <div
         role="radiogroup"
         aria-label="Icon colour"
         data-slot="icon-picker-colours"
-        onKeyDown={hueNav.handleKeyDown}
+        onKeyDown={onSwatchKeyDown}
         className="flex min-w-0 flex-wrap items-center"
       >
         {hueOptions.map((option, index) => {
@@ -225,12 +245,11 @@ export function IconPicker({
               aria-checked={checked}
               aria-label={option.label}
               title={option.label}
-              className="size-5"
-              {...hueNav.getItemProps(index)}
-              onClick={() => {
-                hueNav.setActiveIndex(index);
-                chooseHue(option.name);
+              tabIndex={index === checkedHueIndex ? 0 : -1}
+              ref={(node) => {
+                swatchRefs.current[index] = node;
               }}
+              onClick={() => chooseHue(option.name)}
             >
               {swatch ? (
                 <span
@@ -327,7 +346,7 @@ export function IconPicker({
         sideOffset={FLOATING.sideOffsetAttached}
         className={cn(
           "max-w-[calc(100vw-var(--spacing)*8)] max-h-(--available-height) overflow-hidden gap-0 p-0",
-          size === "sm" ? "w-64" : "w-80",
+          size === "sm" ? "w-64" : "w-88",
           className,
         )}
       >

@@ -17572,8 +17572,7 @@
         "@vegastack/picker-panel",
         "@vegastack/picker-preferences",
         "@vegastack/popover",
-        "@vegastack/tabs",
-        "@vegastack/use-list-nav"
+        "@vegastack/tabs"
       ],
       "files": [
         {

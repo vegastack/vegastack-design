@@ -21630,8 +21630,7 @@
         "@vegastack/picker-panel",
         "@vegastack/picker-preferences",
         "@vegastack/popover",
-        "@vegastack/tabs",
-        "@vegastack/use-list-nav"
+        "@vegastack/tabs"
       ],
       "files": [
         {
@@ -21644,7 +21643,7 @@
         "whenToUse": "Reusable identity glyphs and picker content.",
         "whenNotToUse": "Entity data or permission rules.",
         "version": "0.24.2",
-        "integrity": "sha256-lKyVDIZkT4g1voEMdsp9/d7ZNZTjsHTWEO1N57tPpA8="
+        "integrity": "sha256-KTx1saJmZ16ukdlrebaKIYz2LzjDuwpfDaaVVU++FUM="
       }
     }
   ]
