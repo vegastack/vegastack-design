@@ -62,6 +62,23 @@ popups cannot drift into two search rows.
   file="components/preview/shortcut-overlay.tsx"
 />
 
+### Footer
+
+`footer` renders below the list, outside the scroll area, under a hairline — a hint or a link to a
+fuller shortcuts guide.
+
+```tsx
+<ShortcutOverlay
+  shortcuts={SHORTCUTS}
+  footer={<a href="/help/shortcuts">All shortcuts</a>}
+/>
+```
+
+<ComponentPreview
+  name="shortcutOverlayFooter"
+  file="components/preview/shortcut-overlay.tsx"
+/>
+
 ## API Reference
 
 <ApiTable

@@ -110,6 +110,7 @@ export * from "./permission-menu";
 export * from "./responsive-dialog";
 export * from "./space-picker";
 export * from "./access-chip";
+export * from "./info-hint";
 export * from "./choice-card";
 export * from "./record-aside";
 export * from "./record-layout";

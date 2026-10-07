@@ -334,3 +334,42 @@ test("the footer note defaults to the VegaStack line, null hides it, and dir rea
   expect(hidden.html).not.toContain('href="undefined"');
   expect(hidden.text.startsWith("Acme")).toBe(true);
 });
+
+test("noteHref links VegaStack in the default note, or the whole of a string note", async () => {
+  const linked = await renderEmail(
+    <ActionEmail
+      brand={brand}
+      preview="Reset your password"
+      heading="Reset your password"
+      action={{ label: "Reset password", href: "https://acme.example/reset" }}
+      footer={{ noteHref: "https://vegastack.com" }}
+    />,
+  );
+  expect(linked.html).toMatch(
+    /Sent with(<!-- -->)? <a[^>]*href="https:\/\/vegastack\.com"[^>]*>VegaStack<\/a>/,
+  );
+
+  const custom = await renderEmail(
+    <ActionEmail
+      brand={brand}
+      preview="Reset your password"
+      heading="Reset your password"
+      action={{ label: "Reset password", href: "https://acme.example/reset" }}
+      footer={{ note: "Sent by Acme", noteHref: "https://acme.example" }}
+    />,
+  );
+  expect(custom.html).toMatch(
+    /<a[^>]*href="https:\/\/acme\.example"[^>]*>Sent by Acme<\/a>/,
+  );
+
+  const plain = await renderEmail(
+    <ActionEmail
+      brand={brand}
+      preview="Reset your password"
+      heading="Reset your password"
+      action={{ label: "Reset password", href: "https://acme.example/reset" }}
+    />,
+  );
+  expect(plain.text).toContain("Sent with VegaStack");
+  expect(plain.html).not.toMatch(/<a[^>]*>VegaStack<\/a>/);
+});

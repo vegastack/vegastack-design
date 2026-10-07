@@ -1,0 +1,111 @@
+---
+title: Info Hint
+description: A small info button that opens one sentence of explanation, with an optional link.
+audience: public
+registry: info-hint
+status: stable
+since: 0.24.2
+a11y: an icon button named by its label that opens a popover
+preview: infoHint
+---
+
+## Install
+
+<InstallSteps name="info-hint" />
+
+## Usage
+
+```tsx
+import { InfoHint } from "@/components/ui/info-hint";
+
+<h2 className="flex items-center gap-1">
+  Spaces
+  <InfoHint label="About spaces" href="https://help.example.com/spaces">
+    A space groups the people and records that work together.
+  </InfoHint>
+</h2>;
+```
+
+`InfoHint` composes a ghost `icon-xs` [`Button`](/docs/components/button) with a muted info icon and
+a [`Popover`](/docs/components/popover). The children are the explanation — one sentence. `href`
+adds a link under it that opens in a new tab; `linkLabel` names it (default "Learn more").
+
+## Scope
+
+| Need                                       | Use                                   |
+| ------------------------------------------ | ------------------------------------- |
+| One sentence explaining a heading or label | `InfoHint`                            |
+| The name of an icon-only control           | [`Tooltip`](/docs/components/tooltip) |
+| Help text a person needs to fill a field   | `FieldDescription`, always visible    |
+| Rich content, forms or several actions     | [`Popover`](/docs/components/popover) |
+
+## Examples
+
+### With a link
+
+`href` renders a link under the sentence. It opens in a new tab, and its accessible name ends with
+"(opens in a new tab)".
+
+<ComponentPreview name="infoHintLink" file="components/preview/info-hint.tsx" />
+
+### Beside a field label
+
+`side` and `align` place the popover; it opens below and start-aligned by default.
+
+<ComponentPreview
+  name="infoHintField"
+  file="components/preview/info-hint.tsx"
+/>
+
+### In a dialog
+
+The hint never takes focus on its own, but `DialogContent` focuses the first focusable element when
+it opens — a hint in the title would be first. Point the dialog's `initialFocus` at the first field.
+
+```tsx
+const nameRef = useRef<HTMLInputElement>(null);
+
+<DialogContent initialFocus={nameRef}>
+  <DialogTitle className="flex items-center gap-1">
+    New space
+    <InfoHint label="About spaces">
+      A space groups the people and records that work together.
+    </InfoHint>
+  </DialogTitle>
+  <Input ref={nameRef} />
+</DialogContent>;
+```
+
+<ComponentPreview
+  name="infoHintDialog"
+  file="components/preview/info-hint.tsx"
+/>
+
+## API Reference
+
+<ApiTable
+  path="../../packages/ui/registry/ui/info-hint.tsx"
+  name="InfoHintProps"
+/>
+
+## Accessibility
+
+- `label` is required and names the trigger; write it as "About &lt;topic&gt;".
+- The trigger is a real button, so it opens on click, tap, <kbd>Enter</kbd> or <kbd>Space</kbd>, and
+  reports `aria-expanded`.
+
+| Key               | Action                                              |
+| ----------------- | --------------------------------------------------- |
+| <kbd>Enter</kbd>  | Opens or closes the popover                         |
+| <kbd>Space</kbd>  | Opens or closes the popover                         |
+| <kbd>Tab</kbd>    | Moves into the popover's link, when there is one    |
+| <kbd>Escape</kbd> | Closes the popover and returns focus to the trigger |
+
+<StatesTested name="info-hint" />
+
+## Do / Don't
+
+<DoDont
+  do="Keep the explanation to one sentence and name the trigger 'About <topic>'; link to the full article for anything longer."
+  dont="Hide information people need to complete a task in a hint, or use it to name an icon-only control — that is a Tooltip."
+/>

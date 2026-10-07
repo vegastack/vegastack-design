@@ -12,8 +12,8 @@
     "evidencePolicy": "Observed fields come from source, registry metadata, docs, and test topology. Unknown/not-applicable values are explicit; no inferred behavior is presented as verified."
   },
   "expectedCounts": {
-    "totalRegistryItems": 732,
-    "components": 153,
+    "totalRegistryItems": 733,
+    "components": 154,
     "animatedIcons": 467,
     "hooks": 13,
     "blocks": 15,
@@ -24,7 +24,7 @@
     "Core controls": 24,
     "Forms/editing": 34,
     "Navigation/layout": 21,
-    "Overlays": 19,
+    "Overlays": 20,
     "Data display": 28,
     "Content/marketing": 15,
     "Shared internals": 4,
@@ -138,7 +138,8 @@
       "shortcut-overlay",
       "toast",
       "tooltip",
-      "icon-picker"
+      "icon-picker",
+      "info-hint"
     ],
     "Data display": [
       "activity-feed",
@@ -21842,6 +21843,7 @@
                 "shortcut-overlay",
                 "shortcut-overlay-category",
                 "shortcut-overlay-empty",
+                "shortcut-overlay-footer",
                 "shortcut-overlay-row"
               ]
             }
@@ -31069,6 +31071,118 @@
                 "access-chip-icon",
                 "access-chip-published"
               ]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
+    },
+    {
+      "name": "info-hint",
+      "registryType": "registry:ui",
+      "title": "Info Hint",
+      "summary": "A small muted info button that opens one sentence of explanation and an optional new-tab link in a popover; keyboard and touch accessible, named by its label.",
+      "status": "stable",
+      "since": "0.24.2",
+      "family": "overlay",
+      "wave": "Overlays",
+      "sourceFiles": ["packages/ui/registry/ui/info-hint.tsx"],
+      "publicSymbols": [
+        {
+          "name": "InfoHint",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/info-hint.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "button",
+            "rationale": "The React 19 ref prop is spread onto the trigger Button."
+          }
+        },
+        {
+          "name": "InfoHintProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/info-hint.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        }
+      ],
+      "variants": {
+        "status": "observed",
+        "dimensions": [
+          {
+            "name": "link",
+            "values": ["none", "href"]
+          }
+        ],
+        "rationale": "The sentence alone, or with a link under it."
+      },
+      "sizes": {
+        "status": "not-applicable",
+        "dimensions": [],
+        "rationale": "A fixed icon-xs trigger."
+      },
+      "states": {
+        "behavior": {
+          "status": "covered",
+          "values": ["closed", "open", "with-link", "dialog-initial-focus"],
+          "evidence": "packages/ui/registry/ui/info-hint.tsx + packages/ui/registry/ui/info-hint.test.tsx"
+        },
+        "accessibility": {
+          "status": "covered",
+          "values": [
+            "labeled",
+            "keyboard",
+            "focus-return",
+            "new-tab-announced",
+            "browser-accessibility-test"
+          ],
+          "evidence": "packages/ui/registry/ui/info-hint.test.tsx"
+        },
+        "visual": {
+          "status": "observed",
+          "values": ["default", "hover", "focus", "open"],
+          "evidence": "packages/ui/registry/ui/info-hint.tsx"
+        }
+      },
+      "responsive": {
+        "status": "not-applicable",
+        "risks": [],
+        "rationale": "A shrink-wrapped control; the popover is positioned by Base UI."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned motion; the popover carries its own transitions."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/info-hint",
+      "registryDependencies": ["@vegastack/button", "@vegastack/popover"],
+      "npmDependencies": [
+        "@vegastack/design-tokens@^0.7.80",
+        "@vegastack/design@^0.7.111",
+        "lucide-react@^1.47.0"
+      ],
+      "testFiles": ["packages/ui/registry/ui/info-hint.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required"
+      },
+      "previewModule": "info-hint",
+      "dataAttributes": {
+        "InfoHint": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["info-hint", "info-hint-content", "info-hint-link"]
             }
           ],
           "cssVariables": []

@@ -138,7 +138,19 @@ Compose your own template from the same pieces when none of the three fits.
   name="EmailLayoutProps"
 />
 
-The footer note defaults to "Sent with VegaStack"; pass `note: null` to hide it.
+The footer note defaults to "Sent with VegaStack"; pass `note: null` to hide it. Pass `noteHref` to
+link it: on the default note only "VegaStack" becomes the link, on a string note the whole line does.
+For anything else, `note` also takes inline content, such as text with a `Link` from `react-email`.
+
+```tsx
+<EmailLayout
+  brand={{ name: "Acme" }}
+  preview="Your export is ready"
+  footer={{ noteHref: "https://vegastack.com" }}
+>
+  …
+</EmailLayout>
+```
 
 <ApiTable
   path="../../packages/ui/registry/blocks/email-kit/email-layout.tsx"

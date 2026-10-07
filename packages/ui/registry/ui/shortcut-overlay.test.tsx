@@ -254,3 +254,37 @@ test.each([
     }
   },
 );
+
+test("footer renders below the shortcut list, and is absent by default", async () => {
+  const screen = await render(
+    <ShortcutOverlay
+      shortcuts={SHORTCUTS}
+      open
+      footer={<a href="/help/shortcuts">All shortcuts</a>}
+    />,
+  );
+  const footer = document.querySelector(
+    '[data-slot="shortcut-overlay-footer"]',
+  );
+  expect(footer).not.toBeNull();
+  const lastRow = Array.from(
+    document.querySelectorAll('[data-slot="shortcut-overlay-row"]'),
+  ).at(-1)!;
+  expect(
+    lastRow.compareDocumentPosition(footer!) & Node.DOCUMENT_POSITION_FOLLOWING,
+  ).toBeTruthy();
+  await expect
+    .element(screen.getByRole("link", { name: "All shortcuts" }))
+    .toBeInTheDocument();
+  await expectNoA11yViolations(document.body);
+});
+
+test("no footer slot without the prop", async () => {
+  await render(<ShortcutOverlay shortcuts={SHORTCUTS} open />);
+  await expect
+    .element(document.querySelector('[role="dialog"]') as HTMLElement)
+    .toBeInTheDocument();
+  expect(
+    document.querySelector('[data-slot="shortcut-overlay-footer"]'),
+  ).toBeNull();
+});

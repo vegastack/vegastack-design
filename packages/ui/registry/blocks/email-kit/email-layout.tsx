@@ -1,4 +1,4 @@
-// @vegastack email-kit@0.24.1 sha256-sfKB4P4LH6Tef2NbmAJjGVGq+ywE2GKghjYudNRbRwc=
+// @vegastack email-kit@0.24.1 sha256-tzBlhnYDeb71yIrb3Otxfoktvyew+mEnDFouEE1BINw=
 
 import type { ReactNode } from "react";
 import {
@@ -44,10 +44,18 @@ export interface EmailFooter {
   /** Preference and unsubscribe links, shown in one row. */
   links?: EmailFooterLink[];
   /**
-   * The closing line. `null` hides it.
+   * The closing line: text, or inline content such as text with a `Link` from `react-email`.
+   * `null` hides it.
    * @default "Sent with VegaStack"
    */
-  note?: string | null;
+  note?: ReactNode | null;
+  /**
+   * Absolute URL that links the note. On the default note only the word "VegaStack" is linked
+   * ("Sent with [VegaStack]"); on a string note the whole line is. Ignored when `note` is an
+   * element (link inside it instead) or `null`.
+   * @default undefined
+   */
+  noteHref?: string;
 }
 
 /** Props for `EmailLayout`. */
@@ -104,7 +112,29 @@ export function EmailLayout({
   footer,
   children,
 }: EmailLayoutProps) {
-  const note = footer?.note === undefined ? "Sent with VegaStack" : footer.note;
+  const isDefaultNote = footer?.note === undefined;
+  const noteText = isDefaultNote ? "Sent with VegaStack" : footer?.note;
+  const noteHref = footer?.noteHref;
+  const footerLinkStyle = {
+    color: c.muted,
+    textDecoration: "underline",
+    textDecorationLine: "underline",
+  };
+  const note =
+    noteHref && isDefaultNote ? (
+      <>
+        Sent with{" "}
+        <Link href={noteHref} className="vs-muted" style={footerLinkStyle}>
+          VegaStack
+        </Link>
+      </>
+    ) : noteHref && typeof noteText === "string" && noteText ? (
+      <Link href={noteHref} className="vs-muted" style={footerLinkStyle}>
+        {noteText}
+      </Link>
+    ) : (
+      noteText
+    );
   const links = footer?.links ?? [];
   const wordmarkStyle = {
     color: c.text,
@@ -207,11 +237,7 @@ export function EmailLayout({
                         <Link
                           href={link.href}
                           className="vs-muted"
-                          style={{
-                            color: c.muted,
-                            textDecoration: "underline",
-                            textDecorationLine: "underline",
-                          }}
+                          style={footerLinkStyle}
                         >
                           {link.label}
                         </Link>

@@ -2,10 +2,10 @@
   "schemaVersion": 1,
   "kind": "vegastack-zero-gap-audit-register",
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "b92a2c4876e42e933d201eb245f70ba7afeff9c8937883c6a9d589bba0765f2c",
+  "contractSha256": "f167d82f0452ed1b93a31b3930591cf82c3458f6a43fa5dc356017e933896232",
   "expectedCounts": {
-    "totalRegistryItems": 732,
-    "components": 153,
+    "totalRegistryItems": 733,
+    "components": 154,
     "animatedIcons": 467,
     "hooks": 13,
     "blocks": 15,
@@ -1657,6 +1657,17 @@
         "packages/ui/registry/ui/access-chip.tsx"
       ],
       "docsSlug": "/docs/components/access-chip",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "info-hint",
+      "inventoryClass": "component",
+      "wave": "Overlays",
+      "family": "overlay",
+      "sourceFiles": [
+        "packages/ui/registry/ui/info-hint.tsx"
+      ],
+      "docsSlug": "/docs/components/info-hint",
       "contractStatus": "reconciled"
     },
     {
