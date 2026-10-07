@@ -9,6 +9,23 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.24.2] — October 7, 2026
+
+<!-- assembled from 1 changeset: b8a972be4e66 -->
+
+### 🔧 Changed components
+
+- Add `InfoHint`, a footer slot on `ShortcutOverlay`, and a linkable email footer note.
+
+  - `InfoHint` is a muted icon-only info button that opens one sentence in a popover, with an optional `href` link that opens in a new tab. `label` names the trigger ("About spaces"). Add it with `shadcn add @vegastack/info-hint`.
+  - `ShortcutOverlay` takes an optional `footer`, rendered below the shortcut list.
+  - The email kit's `EmailLayout` footer takes `noteHref`, which links "VegaStack" in the default "Sent with VegaStack" note, and `note` now accepts inline content.
+    [`95d592a`](https://github.com/VegaStack/vegastack-design/commit/95d592a)
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.24.1 → 0.24.2.
+
 ## [0.24.1] — October 7, 2026
 
 <!-- assembled from 1 changeset: 2a1f671cda7a -->
