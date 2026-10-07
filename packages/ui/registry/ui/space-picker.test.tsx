@@ -112,3 +112,27 @@ test("a read-only chip for a hidden space shows the hint's words and glyph", asy
   expect(chips[1]!.textContent).toBe("Private space");
   await expectNoA11yViolations(screen.container);
 });
+
+test("a read-only title chip keeps the outlined shape without a chevron, and takes trigger props", async () => {
+  const onFocus = vi.fn();
+  const screen = await render(
+    <SpaceChip
+      readOnly
+      size="title"
+      space={SPACES[0]!.space}
+      tabIndex={0}
+      aria-describedby="why"
+      onFocus={onFocus}
+    />,
+  );
+  const chip = screen.container.querySelector<HTMLElement>(
+    '[data-slot="space-chip"]',
+  )!;
+  expect(chip.tagName).toBe("SPAN");
+  expect(chip.className).toContain("rounded-full");
+  expect(chip.className).toContain("border");
+  expect(chip.querySelector('[data-slot="space-chip-chevron"]')).toBeNull();
+  expect(chip.getAttribute("aria-describedby")).toBe("why");
+  chip.focus();
+  expect(onFocus).toHaveBeenCalled();
+});

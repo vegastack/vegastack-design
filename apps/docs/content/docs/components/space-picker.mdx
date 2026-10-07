@@ -57,7 +57,9 @@ property row.
 ### In a form, and read-only on a card
 
 `readOnly` (often `size="xs"`) shows where a record lives without offering a change: plain text, no
-▾, no tab stop. For a space the viewer cannot see, pass `space={null}` and a `hint` —
+▾, no tab stop. With `size="title"` it keeps the outlined chip's shape without the ▾ — a record page
+shows it above the title when the viewer cannot move the record; pass `tabIndex={0}` and make it a
+`TooltipTrigger` to explain who can open it. For a space the viewer cannot see, pass `space={null}` and a `hint` —
 `{ kind: "personal", ownerName }` reads "Priya's My space" with a person-with-lock, `{ kind:
 "private" }` reads "Private space" with a lock. The hint never names the space itself.
 

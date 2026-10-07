@@ -49,20 +49,18 @@
 #   OVL-20 (MK 2026-10-07, Regent new-task review): `CommandActions`, a footer group for a
 #     searchable list's static actions ("Assign to me", "Unassign", "Clear"), placed last inside
 #     `CommandList`: sticky to its bottom with a hairline above, force-mounted, and its
-#     `CommandItem`s force-mounted with a private keyword that `Command`'s filter wrapper scores 0
-#     (the caller's `filter`, else cmdk's `defaultFilter`, scores everything else). The result count
-#     the announcer, `CommandEmpty` and `CommandList`'s A11Y-7 role read leaves those items out —
-#     `Command` counts the registered actions and subtracts them while cmdk counts them (no search,
-#     or `shouldFilter={false}`) — so `CommandEmpty` renders its own `cmdk-empty` node on that count
-#     instead of cmdk's `Command.Empty`, and the list keeps `role="listbox"` while the footer holds
-#     an option. The footer measures itself into `--command-actions-height`, which the list adds to
-#     its bottom scroll padding (`scroll-py-1` splits into `scroll-pt-1` and that), so cmdk's
-#     `scrollIntoView({ block: "nearest" })` never leaves the active row under the footer.
-#     cmdk highlights the first option after every search, which with no results would be an
-#     action — Enter would run it after a typo — so `Command` passes cmdk a `value` it owns and
-#     vetoes highlighting an action unless the arrow keys or the pointer moved there (the veto
-#     alternates between two values no row carries, so it always re-renders); a caller's own
-#     `value`/`onValueChange` still win.
+#     `CommandItem`s force-mounted — cmdk registers no force-mounted item, so they are never
+#     filtered, ranked or counted, and `filtered.count` stays the result count. `CommandEmpty`
+#     renders its own `cmdk-empty` node on that count (no `role="status"` inside the listbox while
+#     actions are present; the announcer speaks the count), and `CommandList` keeps
+#     `role="listbox"` while the footer holds an option. The footer measures itself into
+#     `--command-actions-height`, which the list adds to its bottom scroll padding (`scroll-py-1`
+#     splits into `scroll-pt-1` and that), and re-appends itself after cmdk's ranking moves an
+#     ungrouped result below it. cmdk highlights the first option after every search, which with
+#     no results would be an action — Enter would run it after a typo — so `Command` vetoes
+#     highlighting an action unless a navigation key (arrows, Home/End, Page keys, Ctrl+N/J/P/K) or
+#     the pointer moved there, by handing cmdk one of two values no row carries until the value
+#     moves on, controlled or not.
 #   VOI-1: `CommandDialog`'s default title and description become "Command palette" and
 #     "Search for a command…" (sentence case, the ellipsis character), and `Command` takes
 #     `resultsLabel(count)` for the announced result count (default "1 result" / "N results").
@@ -70,10 +68,10 @@
 #   formatting: prettier reflow plus the `registry-stamp.mjs` provenance header (DOC-1); no
 #               decision of their own.
 diff --git a/command.tsx b/command.tsx
-index 5cb64c9..fe84663 100644
+index 5cb64c9..e9d61f6 100644
 --- a/command.tsx
 +++ b/command.tsx
-@@ -1,8 +1,12 @@
+@@ -1,8 +1,8 @@
 -"use client"
 +"use client";
  
@@ -81,16 +79,12 @@ index 5cb64c9..fe84663 100644
 -import { Command as CommandPrimitive } from "cmdk"
 -import { cn } from "cn"
 +import * as React from "react";
-+import {
-+  Command as CommandPrimitive,
-+  defaultFilter,
-+  useCommandState,
-+} from "cmdk";
++import { Command as CommandPrimitive, useCommandState } from "cmdk";
 +import { cn, mergeRefs } from "@vegastack/design";
  
  import {
    Dialog,
-@@ -10,42 +14,189 @@ import {
+@@ -10,42 +10,195 @@ import {
    DialogDescription,
    DialogHeader,
    DialogTitle,
@@ -98,18 +92,18 @@ index 5cb64c9..fe84663 100644
 +} from "@/components/ui/dialog";
 +import { InputGroup, InputGroupAddon } from "@/components/ui/input-group";
 +import { SearchIcon, CheckIcon } from "lucide-react";
-+import {
+ import {
+-  InputGroup,
+-  InputGroupAddon,
+-} from "@/components/ui/input-group"
+-import { SearchIcon, CheckIcon } from "lucide-react"
 +  SearchIcon as AnimatedSearchIcon,
 +  type SearchIconHandle,
 +} from "@/components/ui/icons/search";
 +import { Kbd, KbdGroup } from "@/components/ui/kbd";
 +import { usePlatform } from "@/components/ui/use-platform";
 +
- import {
--  InputGroup,
--  InputGroupAddon,
--} from "@/components/ui/input-group"
--import { SearchIcon, CheckIcon } from "lucide-react"
++import {
 +  ItemDescriptionContext,
 +  useItemDescriptionId,
 +} from "@/components/ui/item";
@@ -120,15 +114,18 @@ index 5cb64c9..fe84663 100644
 +  count === 1 ? "1 result" : `${count} results`;
 +
 +/**
-+ * OVL-20: the footer actions (`CommandActions`) are options, so cmdk counts them — always while
-+ * the search is empty or `shouldFilter` is off, never while filtering (our filter scores them 0).
-+ * The result count every part reads (the announcer, the empty state, the list's role) leaves them
-+ * out, so a footer never hides "No results".
++ * OVL-20: the footer actions (`CommandActions`) are force-mounted, and cmdk registers no
++ * force-mounted item — so they are never filtered, ranked or counted, and `filtered.count` is the
++ * result count as it stands. The registry only tells `CommandEmpty` that the list holds actions.
 + */
-+const ACTION_KEYWORD = "\u0000command-action";
-+/** A highlight value no row carries: with `""`, the two "nothing highlighted" values (OVL-20). */
-+const NO_HIGHLIGHT = "\u0000command-none";
-+/** The keys that move cmdk's highlight (plus its Ctrl+N/J/P/K bindings, matched on Ctrl). */
++type CommandActionsRegistry = { count: number; add: () => () => void };
++const CommandRegistryContext = React.createContext<CommandActionsRegistry>({
++  count: 0,
++  add: () => () => {},
++});
++/** Two highlight values no row carries, alternated so every veto re-renders (OVL-20). */
++const NO_HIGHLIGHT = ["\u0000command-none-a", "\u0000command-none-b"] as const;
++/** The keys that move cmdk's highlight. */
 +const NAVIGATION_KEYS = new Set([
 +  "ArrowDown",
 +  "ArrowUp",
@@ -137,24 +134,11 @@ index 5cb64c9..fe84663 100644
 +  "PageDown",
 +  "PageUp",
 +]);
-+type CommandActionsRegistry = {
-+  filters: boolean;
-+  count: number;
-+  add: () => () => void;
-+};
-+const CommandRegistryContext = React.createContext<CommandActionsRegistry>({
-+  filters: true,
-+  count: 0,
-+  add: () => () => {},
-+});
++/** cmdk's vim bindings (Ctrl+N/J next, Ctrl+P/K previous) — the only Ctrl chords that navigate. */
++const NAVIGATION_CTRL_KEYS = new Set(["n", "j", "p", "k"]);
 +
 +function useResultCount() {
-+  const registry = React.useContext(CommandRegistryContext);
-+  const count = useCommandState((state) => state.filtered.count);
-+  const searching = useCommandState((state) => Boolean(state.search));
-+  return searching && registry.filters
-+    ? count
-+    : Math.max(0, count - registry.count);
++  return useCommandState((state) => state.filtered.count);
 +}
 +
 +function CommandResultAnnouncer({
@@ -186,6 +170,8 @@ index 5cb64c9..fe84663 100644
 +  ref,
 +  onKeyDownCapture,
 +  onPointerMoveCapture,
++  onInputCapture,
++  onPasteCapture,
    ...props
 -}: React.ComponentProps<typeof CommandPrimitive>) {
 +}: React.ComponentProps<typeof CommandPrimitive> & {
@@ -193,8 +179,8 @@ index 5cb64c9..fe84663 100644
 +}) {
 +  // OVL-20: cmdk highlights the first option after every search, so a search that matches nothing
 +  // would leave a footer action under the cursor and Enter would run it ("Assign to me" after a
-+  // typo). An action is highlighted only by the arrow keys or the pointer; anything else is
-+  // vetoed to no highlight (two values no row carries, alternated so the veto always re-renders).
++  // typo). An action is highlighted only by a navigation key or the pointer; any other attempt is
++  // vetoed: cmdk is handed a value no row carries until the caller's (or our own) value moves on.
 +  const rootRef = React.useRef<HTMLDivElement | null>(null);
 +  const setRootRef = React.useMemo(
 +    () => mergeRefs<HTMLDivElement>(rootRef, ref),
@@ -202,6 +188,7 @@ index 5cb64c9..fe84663 100644
 +  );
 +  const navigating = React.useRef(false);
 +  const [innerValue, setInnerValue] = React.useState(defaultValue ?? "");
++  const [veto, setVeto] = React.useState<string | null>(null);
 +  const handleValueChange = (next: string) => {
 +    const action =
 +      next !== "" &&
@@ -209,21 +196,27 @@ index 5cb64c9..fe84663 100644
 +        `[data-slot="command-actions"] [cmdk-item][data-value="${CSS.escape(next)}"]`,
 +      );
 +    if (action && !navigating.current) {
-+      setInnerValue((current) => (current === "" ? NO_HIGHLIGHT : ""));
++      setVeto((current) =>
++        current === NO_HIGHLIGHT[0] ? NO_HIGHLIGHT[1] : NO_HIGHLIGHT[0],
++      );
++      setInnerValue("");
 +      onValueChange?.("");
 +      return;
 +    }
++    setVeto(null);
 +    setInnerValue(next);
 +    onValueChange?.(next);
 +  };
++  // A caller's controlled value moving on ends a veto.
++  React.useEffect(() => setVeto(null), [valueProp]);
 +  const [actions, setActions] = React.useState(0);
 +  const add = React.useCallback(() => {
 +    setActions((n) => n + 1);
 +    return () => setActions((n) => n - 1);
 +  }, []);
 +  const registry = React.useMemo<CommandActionsRegistry>(
-+    () => ({ filters: shouldFilter !== false, count: actions, add }),
-+    [actions, shouldFilter, add],
++    () => ({ count: actions, add }),
++    [actions, add],
 +  );
    return (
 -    <CommandPrimitive
@@ -243,24 +236,31 @@ index 5cb64c9..fe84663 100644
 +          className,
 +        )}
 +        ref={setRootRef}
-+        value={valueProp ?? innerValue}
++        value={veto ?? valueProp ?? innerValue}
 +        onValueChange={handleValueChange}
 +        onKeyDownCapture={(event) => {
-+          navigating.current = NAVIGATION_KEYS.has(event.key) || event.ctrlKey;
++          navigating.current =
++            NAVIGATION_KEYS.has(event.key) ||
++            (event.ctrlKey &&
++              !event.metaKey &&
++              !event.altKey &&
++              NAVIGATION_CTRL_KEYS.has(event.key.toLowerCase()));
 +          onKeyDownCapture?.(event);
 +        }}
 +        onPointerMoveCapture={(event) => {
 +          navigating.current = true;
 +          onPointerMoveCapture?.(event);
 +        }}
++        onInputCapture={(event) => {
++          navigating.current = false;
++          onInputCapture?.(event);
++        }}
++        onPasteCapture={(event) => {
++          navigating.current = false;
++          onPasteCapture?.(event);
++        }}
 +        shouldFilter={shouldFilter}
-+        // OVL-20: a footer action is never a result — it scores 0, so it is not counted or
-+        // ranked, and `forceMount` keeps it on screen.
-+        filter={(value, search, keywords) =>
-+          keywords?.includes(ACTION_KEYWORD)
-+            ? 0
-+            : (filter ?? defaultFilter)(value, search, keywords)
-+        }
++        filter={filter}
 +        {...props}
 +      >
 +        {children}
@@ -302,7 +302,7 @@ index 5cb64c9..fe84663 100644
  }) {
    return (
      <Dialog {...props}>
-@@ -55,15 +206,20 @@ function CommandDialog({
+@@ -55,15 +208,20 @@ function CommandDialog({
        </DialogHeader>
        <DialogContent
          className={cn(
@@ -327,7 +327,7 @@ index 5cb64c9..fe84663 100644
  }
  
  function CommandInput({
-@@ -76,8 +232,12 @@ function CommandInput({
+@@ -76,8 +234,12 @@ function CommandInput({
          <CommandPrimitive.Input
            data-slot="command-input"
            className={cn(
@@ -342,7 +342,7 @@ index 5cb64c9..fe84663 100644
            )}
            {...props}
          />
-@@ -86,36 +246,268 @@ function CommandInput({
+@@ -86,36 +248,278 @@ function CommandInput({
          </InputGroupAddon>
        </InputGroup>
      </div>
@@ -596,8 +596,18 @@ index 5cb64c9..fe84663 100644
 +    measure();
 +    const observer = new ResizeObserver(measure);
 +    observer.observe(node);
++    // cmdk ranks a search's results by re-appending them, and an ungrouped result lands after
++    // the footer: put the footer back at the end, so it stays last on screen and in arrow order.
++    const parent = node.parentElement;
++    const keepLast = () => {
++      if (parent && parent.lastElementChild !== node) parent.appendChild(node);
++    };
++    const order = new MutationObserver(keepLast);
++    if (parent) order.observe(parent, { childList: true });
++    keepLast();
 +    return () => {
 +      observer.disconnect();
++      order.disconnect();
 +      list.style.removeProperty("--command-actions-height");
 +    };
 +  }, []);
@@ -618,7 +628,7 @@ index 5cb64c9..fe84663 100644
  }
  
  function CommandGroup({
-@@ -127,11 +519,11 @@ function CommandGroup({
+@@ -127,11 +531,11 @@ function CommandGroup({
        data-slot="command-group"
        className={cn(
          "overflow-hidden p-1 text-foreground **:[[cmdk-group-heading]]:px-2 **:[[cmdk-group-heading]]:py-1.5 **:[[cmdk-group-heading]]:text-xs **:[[cmdk-group-heading]]:font-medium **:[[cmdk-group-heading]]:text-muted-foreground",
@@ -632,7 +642,7 @@ index 5cb64c9..fe84663 100644
  }
  
  function CommandSeparator({
-@@ -144,27 +536,44 @@ function CommandSeparator({
+@@ -144,27 +548,44 @@ function CommandSeparator({
        className={cn("-mx-1 h-px bg-border", className)}
        {...props}
      />
@@ -661,7 +671,7 @@ index 5cb64c9..fe84663 100644
      <CommandPrimitive.Item
        data-slot="command-item"
 +      forceMount={forceMount ?? (inActions || undefined)}
-+      keywords={inActions ? [...(keywords ?? []), ACTION_KEYWORD] : keywords}
++      keywords={keywords}
 +      aria-describedby={description.id || undefined}
        className={cn(
 -        "group/command-item relative flex cursor-default items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-hidden select-none in-data-[slot=dialog-content]:rounded-lg! data-[disabled=true]:pointer-events-none data-[disabled=true]:opacity-50 data-selected:bg-muted data-selected:text-foreground [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 data-selected:*:[svg]:text-foreground",
@@ -682,7 +692,7 @@ index 5cb64c9..fe84663 100644
  }
  
  function CommandShortcut({
-@@ -176,21 +585,26 @@ function CommandShortcut({
+@@ -176,21 +597,26 @@ function CommandShortcut({
        data-slot="command-shortcut"
        className={cn(
          "ms-auto text-xs tracking-widest text-muted-foreground group-data-selected/command-item:text-foreground",

@@ -1,13 +1,9 @@
-// @vegastack command@0.24.3 sha256-3GkjlpXHtLYcl9stc70K/3s3WKXt0JL9PqWZUexXfFw=
+// @vegastack command@0.24.3 sha256-8VGCywnqWiK+ATYLBFBD7LAS0C/8k7jmsGUlK4m+j0E=
 
 "use client";
 
 import * as React from "react";
-import {
-  Command as CommandPrimitive,
-  defaultFilter,
-  useCommandState,
-} from "cmdk";
+import { Command as CommandPrimitive, useCommandState } from "cmdk";
 import { cn, mergeRefs } from "@vegastack/design";
 
 import {
@@ -37,15 +33,18 @@ const defaultResultsLabel = (count: number) =>
   count === 1 ? "1 result" : `${count} results`;
 
 /**
- * OVL-20: the footer actions (`CommandActions`) are options, so cmdk counts them — always while
- * the search is empty or `shouldFilter` is off, never while filtering (our filter scores them 0).
- * The result count every part reads (the announcer, the empty state, the list's role) leaves them
- * out, so a footer never hides "No results".
+ * OVL-20: the footer actions (`CommandActions`) are force-mounted, and cmdk registers no
+ * force-mounted item — so they are never filtered, ranked or counted, and `filtered.count` is the
+ * result count as it stands. The registry only tells `CommandEmpty` that the list holds actions.
  */
-const ACTION_KEYWORD = "\u0000command-action";
-/** A highlight value no row carries: with `""`, the two "nothing highlighted" values (OVL-20). */
-const NO_HIGHLIGHT = "\u0000command-none";
-/** The keys that move cmdk's highlight (plus its Ctrl+N/J/P/K bindings, matched on Ctrl). */
+type CommandActionsRegistry = { count: number; add: () => () => void };
+const CommandRegistryContext = React.createContext<CommandActionsRegistry>({
+  count: 0,
+  add: () => () => {},
+});
+/** Two highlight values no row carries, alternated so every veto re-renders (OVL-20). */
+const NO_HIGHLIGHT = ["\u0000command-none-a", "\u0000command-none-b"] as const;
+/** The keys that move cmdk's highlight. */
 const NAVIGATION_KEYS = new Set([
   "ArrowDown",
   "ArrowUp",
@@ -54,24 +53,11 @@ const NAVIGATION_KEYS = new Set([
   "PageDown",
   "PageUp",
 ]);
-type CommandActionsRegistry = {
-  filters: boolean;
-  count: number;
-  add: () => () => void;
-};
-const CommandRegistryContext = React.createContext<CommandActionsRegistry>({
-  filters: true,
-  count: 0,
-  add: () => () => {},
-});
+/** cmdk's vim bindings (Ctrl+N/J next, Ctrl+P/K previous) — the only Ctrl chords that navigate. */
+const NAVIGATION_CTRL_KEYS = new Set(["n", "j", "p", "k"]);
 
 function useResultCount() {
-  const registry = React.useContext(CommandRegistryContext);
-  const count = useCommandState((state) => state.filtered.count);
-  const searching = useCommandState((state) => Boolean(state.search));
-  return searching && registry.filters
-    ? count
-    : Math.max(0, count - registry.count);
+  return useCommandState((state) => state.filtered.count);
 }
 
 function CommandResultAnnouncer({
@@ -103,14 +89,16 @@ function Command({
   ref,
   onKeyDownCapture,
   onPointerMoveCapture,
+  onInputCapture,
+  onPasteCapture,
   ...props
 }: React.ComponentProps<typeof CommandPrimitive> & {
   resultsLabel?: (count: number) => string;
 }) {
   // OVL-20: cmdk highlights the first option after every search, so a search that matches nothing
   // would leave a footer action under the cursor and Enter would run it ("Assign to me" after a
-  // typo). An action is highlighted only by the arrow keys or the pointer; anything else is
-  // vetoed to no highlight (two values no row carries, alternated so the veto always re-renders).
+  // typo). An action is highlighted only by a navigation key or the pointer; any other attempt is
+  // vetoed: cmdk is handed a value no row carries until the caller's (or our own) value moves on.
   const rootRef = React.useRef<HTMLDivElement | null>(null);
   const setRootRef = React.useMemo(
     () => mergeRefs<HTMLDivElement>(rootRef, ref),
@@ -118,6 +106,7 @@ function Command({
   );
   const navigating = React.useRef(false);
   const [innerValue, setInnerValue] = React.useState(defaultValue ?? "");
+  const [veto, setVeto] = React.useState<string | null>(null);
   const handleValueChange = (next: string) => {
     const action =
       next !== "" &&
@@ -125,21 +114,27 @@ function Command({
         `[data-slot="command-actions"] [cmdk-item][data-value="${CSS.escape(next)}"]`,
       );
     if (action && !navigating.current) {
-      setInnerValue((current) => (current === "" ? NO_HIGHLIGHT : ""));
+      setVeto((current) =>
+        current === NO_HIGHLIGHT[0] ? NO_HIGHLIGHT[1] : NO_HIGHLIGHT[0],
+      );
+      setInnerValue("");
       onValueChange?.("");
       return;
     }
+    setVeto(null);
     setInnerValue(next);
     onValueChange?.(next);
   };
+  // A caller's controlled value moving on ends a veto.
+  React.useEffect(() => setVeto(null), [valueProp]);
   const [actions, setActions] = React.useState(0);
   const add = React.useCallback(() => {
     setActions((n) => n + 1);
     return () => setActions((n) => n - 1);
   }, []);
   const registry = React.useMemo<CommandActionsRegistry>(
-    () => ({ filters: shouldFilter !== false, count: actions, add }),
-    [actions, shouldFilter, add],
+    () => ({ count: actions, add }),
+    [actions, add],
   );
   return (
     <CommandRegistryContext.Provider value={registry}>
@@ -150,24 +145,31 @@ function Command({
           className,
         )}
         ref={setRootRef}
-        value={valueProp ?? innerValue}
+        value={veto ?? valueProp ?? innerValue}
         onValueChange={handleValueChange}
         onKeyDownCapture={(event) => {
-          navigating.current = NAVIGATION_KEYS.has(event.key) || event.ctrlKey;
+          navigating.current =
+            NAVIGATION_KEYS.has(event.key) ||
+            (event.ctrlKey &&
+              !event.metaKey &&
+              !event.altKey &&
+              NAVIGATION_CTRL_KEYS.has(event.key.toLowerCase()));
           onKeyDownCapture?.(event);
         }}
         onPointerMoveCapture={(event) => {
           navigating.current = true;
           onPointerMoveCapture?.(event);
         }}
+        onInputCapture={(event) => {
+          navigating.current = false;
+          onInputCapture?.(event);
+        }}
+        onPasteCapture={(event) => {
+          navigating.current = false;
+          onPasteCapture?.(event);
+        }}
         shouldFilter={shouldFilter}
-        // OVL-20: a footer action is never a result — it scores 0, so it is not counted or
-        // ranked, and `forceMount` keeps it on screen.
-        filter={(value, search, keywords) =>
-          keywords?.includes(ACTION_KEYWORD)
-            ? 0
-            : (filter ?? defaultFilter)(value, search, keywords)
-        }
+        filter={filter}
         {...props}
       >
         {children}
@@ -491,8 +493,18 @@ function CommandActions({
     measure();
     const observer = new ResizeObserver(measure);
     observer.observe(node);
+    // cmdk ranks a search's results by re-appending them, and an ungrouped result lands after
+    // the footer: put the footer back at the end, so it stays last on screen and in arrow order.
+    const parent = node.parentElement;
+    const keepLast = () => {
+      if (parent && parent.lastElementChild !== node) parent.appendChild(node);
+    };
+    const order = new MutationObserver(keepLast);
+    if (parent) order.observe(parent, { childList: true });
+    keepLast();
     return () => {
       observer.disconnect();
+      order.disconnect();
       list.style.removeProperty("--command-actions-height");
     };
   }, []);
@@ -562,7 +574,7 @@ function CommandItem({
     <CommandPrimitive.Item
       data-slot="command-item"
       forceMount={forceMount ?? (inActions || undefined)}
-      keywords={inActions ? [...(keywords ?? []), ACTION_KEYWORD] : keywords}
+      keywords={keywords}
       aria-describedby={description.id || undefined}
       className={cn(
         "group/command-item relative flex items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-hidden select-none in-data-[slot=dialog-content]:rounded-lg! data-[disabled=true]:pointer-events-none data-[disabled=true]:opacity-50 data-selected:bg-muted data-selected:text-foreground [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 [&_svg:not([class*='text-']):not([data-icon-tone])]:text-muted-foreground data-selected:**:[svg:not([data-icon-tone])]:text-foreground",

@@ -1304,7 +1304,7 @@
         "whenToUse": "A keyboard-first command palette — global ⌘K, action launchers, a filtered list of things to do or go to — including a large palette over server results, with a loading status, two-line results and a footer of key hints.",
         "whenNotToUse": "Picking a form value, and never a multi-select — Command's check mark is visual only (Select, SearchableSelect or Combobox) — or a small static action menu (DropdownMenu).",
         "version": "0.24.3",
-        "integrity": "sha256-3GkjlpXHtLYcl9stc70K/3s3WKXt0JL9PqWZUexXfFw="
+        "integrity": "sha256-8VGCywnqWiK+ATYLBFBD7LAS0C/8k7jmsGUlK4m+j0E="
       }
     },
     {
@@ -16803,7 +16803,7 @@
         "whenToUse": "Choosing or showing which space a record lives in, in a create dialog title or a property row.",
         "whenNotToUse": "Choosing anything that is not a space (SearchableSelect, Combobox).",
         "version": "0.24.3",
-        "integrity": "sha256-upEUSYYADWh0CZXy1eJJvjx1OWpRqzXRKzFCzTBTcLY="
+        "integrity": "sha256-qW6IMUIBaupR3WQwD6Bg+Hv8+fh0Z8to3KC5MKHLRzk="
       }
     },
     {

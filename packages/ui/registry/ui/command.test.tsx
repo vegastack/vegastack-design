@@ -844,3 +844,70 @@ test("no a11y violations — footer actions, at rest and with no results", async
     .toBeInTheDocument();
   await expectNoA11yViolations(screen.container);
 });
+
+test("OVL-20: one result with two actions is not empty, at rest and with filtering off", async () => {
+  const screen = await render(<PickerWithActions people={["Ananya Rao"]} />);
+  await expect
+    .poll(() => rows(screen.container))
+    .toEqual(["Ananya Rao", "Assign to me", "Unassign"]);
+  expect(
+    screen.container.querySelector('[data-slot="command-empty"]'),
+  ).toBeNull();
+  const off = await render(
+    <PickerWithActions people={["Ananya Rao"]} shouldFilter={false} />,
+  );
+  expect(off.container.querySelector('[data-slot="command-empty"]')).toBeNull();
+});
+
+test("OVL-20: ungrouped results stay above the footer after ranking", async () => {
+  const screen = await render(
+    <Command>
+      <CommandInput aria-label="Search members" />
+      <CommandList>
+        <CommandEmpty>No members found</CommandEmpty>
+        <CommandItem>Arjun Mehta</CommandItem>
+        <CommandItem>Ananya Rao</CommandItem>
+        <CommandActions>
+          <CommandItem>Unassign</CommandItem>
+        </CommandActions>
+      </CommandList>
+    </Command>,
+  );
+  await screen.getByRole("combobox", { name: "Search members" }).fill("an");
+  await expect.poll(() => rows(screen.container).at(-1)).toBe("Unassign");
+});
+
+test("OVL-20: a controlled picker vetoes the action highlight on consecutive unmatched searches", async () => {
+  const onAction = vi.fn();
+  function Controlled() {
+    const [value, setValue] = React.useState("");
+    return (
+      <PickerWithActions
+        value={value}
+        onValueChange={setValue}
+        onAction={onAction}
+      />
+    );
+  }
+  const screen = await render(<Controlled />);
+  const input = screen.getByRole("combobox", { name: "Search members" });
+  await input.click();
+  await userEvent.keyboard("zz");
+  await expect.poll(() => activeRow(screen.container)).toBe(null);
+  await userEvent.keyboard("{Backspace}{Backspace}qq");
+  await expect.poll(() => activeRow(screen.container)).toBe(null);
+  await userEvent.keyboard("{Enter}");
+  expect(onAction).not.toHaveBeenCalled();
+});
+
+test("OVL-20: a Ctrl chord that is not navigation (paste) does not allow the action highlight", async () => {
+  const onAction = vi.fn();
+  const screen = await render(<PickerWithActions onAction={onAction} />);
+  const input = screen.getByRole("combobox", { name: "Search members" });
+  await input.click();
+  await userEvent.keyboard("{Control>}v{/Control}");
+  await userEvent.keyboard("zz");
+  await expect.poll(() => activeRow(screen.container)).toBe(null);
+  await userEvent.keyboard("{Enter}");
+  expect(onAction).not.toHaveBeenCalled();
+});

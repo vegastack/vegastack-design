@@ -1,4 +1,4 @@
-// @vegastack space-picker@0.24.3 sha256-upEUSYYADWh0CZXy1eJJvjx1OWpRqzXRKzFCzTBTcLY=
+// @vegastack space-picker@0.24.3 sha256-qW6IMUIBaupR3WQwD6Bg+Hv8+fh0Z8to3KC5MKHLRzk=
 
 "use client";
 
@@ -75,7 +75,11 @@ export interface SpaceChipProps extends Omit<
    * @default "sm"
    */
   size?: "xs" | "sm" | "title";
-  /** Show where the record lives without offering a change: plain text, no ▾, no tab stop. @default false */
+  /**
+   * Show where the record lives without offering a change: plain text, no ▾, no tab stop (pass
+   * `tabIndex={0}` to make it a tooltip trigger). With `size="title"` it keeps the outlined chip's
+   * shape, without the ▾. @default false
+   */
   readOnly?: boolean;
 }
 
@@ -130,14 +134,24 @@ export function SpaceChip({
   );
 
   if (readOnly) {
+    // The rest of the props (a tooltip trigger's handlers, `tabIndex`, `aria-*`) reach the span,
+    // so a read-only chip can carry a tooltip that explains where the record lives.
+    const { ref, ...spanProps } = props;
+    void type;
     return (
       <span
+        ref={ref as React.Ref<HTMLSpanElement>}
+        {...(spanProps as React.HTMLAttributes<HTMLSpanElement>)}
         data-slot="space-chip"
         data-size={size}
         data-readonly=""
         className={cn(
           "inline-flex max-w-full min-w-0 items-center gap-1.5 text-muted-foreground [&_svg:not([class*='size-'])]:size-3.5",
           size === "xs" ? "text-xs" : "text-sm",
+          // `title`: the outlined chip's shape without its ▾ — the same chip a create dialog's
+          // header leads with, shown where the record cannot be moved.
+          size === "title" &&
+            "h-7 rounded-full border border-border bg-background ps-1.5 pe-2.5 font-medium text-foreground dark:border-input dark:bg-input/30",
           className,
         )}
       >

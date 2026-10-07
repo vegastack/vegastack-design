@@ -202,7 +202,7 @@ results in a `CommandGroup`, whose padding keeps the first row's highlight off t
 <ApiTable path="lib/api-props.ts" name="CommandFooterProps" />
 
 `CommandActions` accepts everything cmdk's `Command.Group` accepts; the `CommandItem`s inside it are
-force-mounted and left out of the filter and the result count. `CommandFilters` accepts everything a `div` accepts. `CommandInput`, `CommandList`, `CommandEmpty`, `CommandGroup`, `CommandItem`, `CommandSeparator` and
+force-mounted, so cmdk leaves them out of the filter, the ranking and the result count. `CommandFilters` accepts everything a `div` accepts. `CommandInput`, `CommandList`, `CommandEmpty`, `CommandGroup`, `CommandItem`, `CommandSeparator` and
 `CommandShortcut` add no props of their own — each accepts everything the cmdk part (or, for
 `CommandShortcut`, a `span`) accepts.
 
@@ -285,10 +285,10 @@ Upstream's file plus `packages/ui/upstream/patches/command.patch`. Every hunk:
   key hints in `CommandFooter`, and the animated search icon in `CommandLoading`.
 - **VOI-1** — the default title and description are "Command palette" and "Search for a
   command…", and `resultsLabel` overrides the announced result count.
-- **OVL-20** — `CommandActions`, a sticky footer group for a searchable list's static actions:
-  force-mounted, its items scored 0 by `Command`'s filter wrapper (your `filter`, else cmdk's
-  `defaultFilter`, scores the rest) and subtracted from the result count the announcer,
-  `CommandEmpty` and the list's role read. `CommandEmpty` therefore renders its own `cmdk-empty`
-  node on that count, and the list adds the footer's measured height to its bottom scroll padding
-  so the active row is never hidden under it. `Command` owns cmdk's `value` so that the
-  highlight-first after a search never lands on an action (MK, 2026-10-07).
+- **OVL-20** — `CommandActions`, a sticky footer group for a searchable list's static actions.
+  Its items are force-mounted, which cmdk never registers, so they are not filtered, ranked or
+  counted; `CommandEmpty` renders its own `cmdk-empty` node on the result count (plain text while
+  actions keep the list a listbox), the list adds the footer's measured height to its bottom scroll
+  padding, and the footer re-appends itself after ranking moves an ungrouped result below it.
+  `Command` vetoes cmdk's highlight-first landing on an action unless a navigation key or the
+  pointer moved there (MK, 2026-10-07).
