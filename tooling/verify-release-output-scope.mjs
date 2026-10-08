@@ -16,6 +16,9 @@ const GENERATED_PATH =
   /^(?:apps\/docs\/public\/r\/|packages\/ui\/(?:component-contracts|registry)\.json$|docs\/ledger\/component-matrix\.md$|docs\/research\/design-md-audit\/(?:audit-register\.json|audits\/coverage\.json)$)/;
 const CHANGELOG_PATH =
   /^(?:CHANGELOG\.md$|apps\/docs\/content\/docs\/changelog\.mdx$|packages\/(?:design|design-tokens|ui)\/CHANGELOG\.md$)/;
+// version-sync stamps a pending component `since` with the version being released (2c).
+const COMPONENT_PAGE_PATH =
+  /^apps\/docs\/content\/docs\/components\/[^/]+\.mdx$/;
 const PACKAGE_PATH = /^packages\/(?:design|design-tokens|ui)\/package\.json$/;
 const LOCKFILE_PATH = /^pnpm-lock\.yaml$/;
 
@@ -169,6 +172,7 @@ export function validateReleaseOutput({ base, cwd = ROOT }) {
       .filter(
         (path) =>
           HEADER_PATH.test(path) ||
+          COMPONENT_PAGE_PATH.test(path) ||
           PACKAGE_PATH.test(path) ||
           LOCKFILE_PATH.test(path) ||
           path === "AGENTS.md",
@@ -188,6 +192,7 @@ export function validateReleaseOutput({ base, cwd = ROOT }) {
       }
       const allowed =
         HEADER_PATH.test(path) ||
+        COMPONENT_PAGE_PATH.test(path) ||
         PACKAGE_PATH.test(path) ||
         LOCKFILE_PATH.test(path) ||
         path === "AGENTS.md" ||
@@ -201,6 +206,19 @@ export function validateReleaseOutput({ base, cwd = ROOT }) {
         errors.push(
           `${path}: allowed release output must be modified in place, not ${status}`,
         );
+        continue;
+      }
+      if (COMPONENT_PAGE_PATH.test(path)) {
+        const before = baseContent.get(path) ?? null;
+        const after = existsSync(resolve(cwd, path))
+          ? readFileSync(resolve(cwd, path), "utf8")
+          : null;
+        const since = (text) =>
+          text.replace(/^since: .*$/m, "since: <version>");
+        if (before === null || after === null || since(before) !== since(after))
+          errors.push(
+            `${path}: release changed content beyond the \`since\` stamp`,
+          );
         continue;
       }
       if (HEADER_PATH.test(path)) {
