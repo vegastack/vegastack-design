@@ -1,5 +1,19 @@
 # @vegastack/ui
 
+## 0.25.0
+
+### Minor Changes
+
+- [#558](https://github.com/vegastack/vegastack-design/pull/558) [`5760011`](https://github.com/vegastack/vegastack-design/commit/576001152d077cf1351b5e018e592469b1f6a829) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🧩 Motion and interaction primitives: `motion-stagger` utility (staggered reveal for content replacing a skeleton), `useViewTransition`/`startViewTransition` (View Transitions with reduced-motion and unsupported fallbacks), `useOptimisticAction` (apply now, Undo toast, commit after the window), `LevelMeter` (live recording input level), `EmptyIllustration` (shared monochrome empty-state set), `EditableCell` `date` editor, and `DataList` `density` with the new `DensityToggle`.
+
+### Patch Changes
+
+- [#556](https://github.com/vegastack/vegastack-design/pull/556) [`59300fb`](https://github.com/vegastack/vegastack-design/commit/59300fb492a7645b9d8b0b1a9bd289c6b5e0bc1e) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🔧 Status alerts (`info`, `success`, `warning`, `destructive`) now tint their border (30%) and background (5%, 10% in dark) instead of keeping the neutral card; an outline button inside one wears the variant colour at rest. Padding is 12×10px, and with an action and no title a single-line description sits centred on the 32px button. The Alert docs gain a Status surfaces matrix.
+
+- Updated dependencies [[`59300fb`](https://github.com/vegastack/vegastack-design/commit/59300fb492a7645b9d8b0b1a9bd289c6b5e0bc1e), [`5760011`](https://github.com/vegastack/vegastack-design/commit/576001152d077cf1351b5e018e592469b1f6a829)]:
+  - @vegastack/design@0.8.0
+  - @vegastack/design-tokens@0.8.0
+
 ## 0.24.5
 
 ### Patch Changes
