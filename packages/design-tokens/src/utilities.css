@@ -768,6 +768,68 @@
   animation: vs-flash var(--duration-slow) var(--motion-ease-standard);
 }
 
+/* ---------------------------------------------------------------------------
+ * motion-stagger — staggered fade+rise for the children of a container
+ * (content replacing a skeleton: rows, cards, a feed).
+ *
+ * Put it on the PARENT; each direct child plays `vs-enter-up` (the same keyframes
+ * and timing as `motion-enter-up`) a step after the one before. The step is a
+ * quarter of `--duration-fast` (~37ms), overridable per call-site with
+ * `[--vs-stagger-step:60ms]`; children past the twelfth share the twelfth's
+ * delay, so a long list never waits more than ~0.4s for its tail. `both` fill
+ * keeps a waiting child hidden until its turn. Remount (a changing `key`) to
+ * replay. Reduced motion: base.css zeroes the delays as well as the durations,
+ * so the content appears at once, in its resting state.
+ * ------------------------------------------------------------------------- */
+@utility motion-stagger {
+  & > * {
+    animation: vs-enter-up var(--duration-fast) var(--motion-ease-standard) both;
+    animation-delay: calc(
+      var(--vs-stagger-step, var(--duration-fast) / 4) * 11
+    );
+  }
+  & > :first-child {
+    animation-delay: 0s;
+  }
+  & > :nth-child(2) {
+    animation-delay: calc(var(--vs-stagger-step, var(--duration-fast) / 4) * 1);
+  }
+  & > :nth-child(3) {
+    animation-delay: calc(var(--vs-stagger-step, var(--duration-fast) / 4) * 2);
+  }
+  & > :nth-child(4) {
+    animation-delay: calc(var(--vs-stagger-step, var(--duration-fast) / 4) * 3);
+  }
+  & > :nth-child(5) {
+    animation-delay: calc(var(--vs-stagger-step, var(--duration-fast) / 4) * 4);
+  }
+  & > :nth-child(6) {
+    animation-delay: calc(var(--vs-stagger-step, var(--duration-fast) / 4) * 5);
+  }
+  & > :nth-child(7) {
+    animation-delay: calc(var(--vs-stagger-step, var(--duration-fast) / 4) * 6);
+  }
+  & > :nth-child(8) {
+    animation-delay: calc(var(--vs-stagger-step, var(--duration-fast) / 4) * 7);
+  }
+  & > :nth-child(9) {
+    animation-delay: calc(var(--vs-stagger-step, var(--duration-fast) / 4) * 8);
+  }
+  & > :nth-child(10) {
+    animation-delay: calc(var(--vs-stagger-step, var(--duration-fast) / 4) * 9);
+  }
+  & > :nth-child(11) {
+    animation-delay: calc(
+      var(--vs-stagger-step, var(--duration-fast) / 4) * 10
+    );
+  }
+  & > :nth-child(12) {
+    animation-delay: calc(
+      var(--vs-stagger-step, var(--duration-fast) / 4) * 11
+    );
+  }
+}
+
 @keyframes vs-indeterminate {
   /* Indeterminate progress (audit M-06, 2026-09-07): a 35%-wide segment sweeps the
    * track and returns. The 0% and 100% stops are IDENTICAL on purpose — the global

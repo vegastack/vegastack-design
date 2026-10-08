@@ -1,6 +1,13 @@
-import type { ReactNode } from "react";
+"use client";
+
+import { useState, type ReactNode } from "react";
 import { Wrapper } from "./wrapper";
 import { Spinner } from "@/components/ui/spinner";
+import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
+import { ViewToggle, type ListView } from "@/components/ui/view-toggle";
+import { useViewTransition } from "@/components/ui/use-view-transition";
+import { useOptimisticAction } from "@/components/ui/use-optimistic-action";
 import { Marker, MarkerContent, MarkerIcon } from "@/components/ui/marker";
 
 /* ----------------------------------------------------------------------------
@@ -203,6 +210,138 @@ export function scrollFadeSize(): ReactNode {
           </div>
         ))}
       </div>
+    </Wrapper>
+  );
+}
+
+/* ----------------------------------------------------------------------------
+ * motion-stagger, view transitions, optimistic Undo
+ * --------------------------------------------------------------------------*/
+
+function StaggerDemo(): ReactNode {
+  const [loaded, setLoaded] = useState(true);
+  const [round, setRound] = useState(0);
+  const reload = () => {
+    setLoaded(false);
+    setTimeout(() => {
+      setLoaded(true);
+      setRound((r) => r + 1);
+    }, 800);
+  };
+  return (
+    <div className="flex w-full max-w-sm flex-col gap-3">
+      <Button
+        variant="outline"
+        size="sm"
+        className="self-start"
+        onClick={reload}
+      >
+        Reload
+      </Button>
+      {loaded ? (
+        <ul key={round} className="motion-stagger flex flex-col gap-2">
+          {[
+            "Design review",
+            "Ship the release",
+            "Write the docs",
+            "Plan Q4",
+            "Retro",
+          ].map((title) => (
+            <li key={title} className="rounded-lg border p-3 text-sm">
+              {title}
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <div className="flex flex-col gap-2">
+          {Array.from({ length: 5 }, (_, i) => (
+            <Skeleton key={i} className="h-11 w-full" />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+export function motionStagger(): ReactNode {
+  return (
+    <Wrapper>
+      <StaggerDemo />
+    </Wrapper>
+  );
+}
+
+function ViewTransitionDemo(): ReactNode {
+  const { start } = useViewTransition();
+  const [view, setView] = useState<ListView>("list");
+  return (
+    <div className="flex w-full max-w-sm flex-col gap-3">
+      <ViewToggle
+        value={view}
+        onValueChange={(next) => void start(() => setView(next))}
+        views={["list", "grid"]}
+      />
+      <div
+        className={
+          view === "grid" ? "grid grid-cols-3 gap-2" : "flex flex-col gap-2"
+        }
+      >
+        {["One", "Two", "Three"].map((label) => (
+          <div
+            key={label}
+            className="rounded-lg border p-3 text-sm"
+            style={{ viewTransitionName: `vt-demo-${label.toLowerCase()}` }}
+          >
+            {label}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+export function viewTransition(): ReactNode {
+  return (
+    <Wrapper>
+      <ViewTransitionDemo />
+    </Wrapper>
+  );
+}
+
+function OptimisticUndoDemo(): ReactNode {
+  const [tasks, setTasks] = useState([
+    "Design review",
+    "Ship the release",
+    "Write the docs",
+  ]);
+  const archive = useOptimisticAction<string>({
+    apply: (task) => setTasks((all) => all.filter((t) => t !== task)),
+    revert: (task) =>
+      setTasks((all) => (all.includes(task) ? all : [...all, task])),
+    commit: () => new Promise((resolve) => setTimeout(resolve, 300)),
+    message: (task) => `Archived “${task}”`,
+  });
+  return (
+    <ul className="flex w-full max-w-sm flex-col gap-2">
+      {tasks.map((task) => (
+        <li
+          key={task}
+          className="flex items-center justify-between rounded-lg border p-2 ps-3 text-sm"
+        >
+          {task}
+          <Button variant="ghost" size="sm" onClick={() => archive.run(task)}>
+            Archive
+          </Button>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+export function optimisticUndo(): ReactNode {
+  return (
+    <Wrapper>
+      <OptimisticUndoDemo />
     </Wrapper>
   );
 }

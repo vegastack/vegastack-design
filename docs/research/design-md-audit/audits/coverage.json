@@ -1,16 +1,16 @@
 {
   "schemaVersion": 1,
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "8e6bde0cf84d3558d7082d27492322ee5fcaebfe6a17993c2a7617a2402f17bc",
+  "contractSha256": "8b52160585d7ea5a5596b9fce754fa02967968c1453f3959d144b4998a235d8b",
   "inventory": {
-    "expected": 733,
-    "actual": 733,
-    "unique": 733
+    "expected": 737,
+    "actual": 737,
+    "unique": 737
   },
   "classes": {
-    "components": 154,
+    "components": 156,
     "animatedIcons": 467,
-    "hooks": 13,
+    "hooks": 15,
     "blocks": 15,
     "chartBlocks": 68,
     "libs": 16
@@ -140,8 +140,8 @@
       ]
     },
     "Data display": {
-      "expected": 28,
-      "actual": 28,
+      "expected": 30,
+      "actual": 30,
       "members": [
         "activity-feed",
         "board-card",
@@ -155,8 +155,10 @@
         "data-list",
         "data-list-pager",
         "diff-view",
+        "empty-illustration",
         "icon-glyph",
         "inbox",
+        "level-meter",
         "load-more",
         "media-card",
         "meta-line",
@@ -219,8 +221,8 @@
       ]
     },
     "Hooks": {
-      "expected": 13,
-      "actual": 13,
+      "expected": 15,
+      "actual": 15,
       "members": [
         "use-animation-replay",
         "use-announcer",
@@ -232,9 +234,11 @@
         "use-media-query",
         "use-mobile",
         "use-modal-inert",
+        "use-optimistic-action",
         "use-overflow",
         "use-platform",
-        "use-tabs-swipe"
+        "use-tabs-swipe",
+        "use-view-transition"
       ]
     },
     "Block": {
@@ -800,7 +804,7 @@
       ]
     }
   },
-  "componentRoutes": 150,
+  "componentRoutes": 152,
   "blockRoutes": 22,
   "modeledExemptions": 3
 }

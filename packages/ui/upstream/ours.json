@@ -5,10 +5,22 @@
     "fromExtras": 46
   },
   "items": {
+    "access-chip": {
+      "disposition": "keep",
+      "family": "overlay",
+      "source": "Operator brief 2026-10-03 (Regent spaces UX, implementation-plan.md §5 D2/D5/D7/D9) — approved by MK 2026-10-03 (go-dark mandate)",
+      "rationale": "Upstream has no access indicator. A recipe over upstream button and tooltip plus our space-avatar; no patch."
+    },
     "action-bar": {
       "disposition": "keep",
       "family": "feedback",
       "source": "extras.md"
+    },
+    "activity-feed": {
+      "disposition": "keep",
+      "family": "display",
+      "source": "Operator brief 2026-10-04 (Regent activity timeline) — approved by MK 2026-10-04",
+      "rationale": "Upstream ships no record history. A list of events and comment threads composing upstream button, select and skeleton with our person-hover-card, person-avatar and relative-time; no patch."
     },
     "animated-number": {
       "disposition": "keep",
@@ -30,10 +42,21 @@
       "family": "media",
       "source": "extras.md"
     },
+    "audio-player-global": {
+      "disposition": "keep",
+      "family": "internal",
+      "source": "internal part of audio-player: the global player's provider, hooks and pill, apart so an app shell loads the player UI only once a recording opens (operator 2026-09-30, Regent research A4); not listed in extras.md"
+    },
     "auto-save-input": {
       "disposition": "keep",
       "family": "form",
       "source": "extras.md"
+    },
+    "avatar-picker": {
+      "disposition": "keep",
+      "family": "forms",
+      "source": "Operator brief 2026-09-27 (Regent member photos) — approved by MK 2026-09-27",
+      "rationale": "Upstream ships no photo picker. A fixed composition of person-avatar, button, spinner and use-file-drop; no patch."
     },
     "board": {
       "disposition": "keep+block",
@@ -46,6 +69,12 @@
       "source": "Operator brief 2026-09-25 (Board redesign) — approved by MK 2026-09-25",
       "rationale": "Upstream ships no work-item card. Board lanes (DataList's board view, the Regent Tasks page) need one shared card with a done tick, due and priority chips and an assignee; it composes our avatar, badge, checkbox and date helpers and carries no patch."
     },
+    "breadcrumb-cascade": {
+      "disposition": "keep",
+      "family": "navigation",
+      "source": "Plan docs/plans/2026-09-30-toc-selection.md (Regent Library mandate phases 5, 7, 8) — standing approval MK 2026-09-30",
+      "rationale": "Upstream ships no sibling menu or drop-target crumb. breadcrumb.tsx is upstream's file plus a patch whose hunks each need a decision marked ours, so these compose its BreadcrumbLink, the DS DropdownMenu and useDragInto instead of patching it."
+    },
     "chip": {
       "disposition": "keep",
       "family": "display",
@@ -56,6 +85,12 @@
       "family": "form",
       "source": "extras.md"
     },
+    "choice-card": {
+      "disposition": "keep",
+      "family": "form",
+      "source": "Operator brief 2026-10-03 (Regent spaces UX, implementation-plan.md §5 D2/D5/D7/D9) — approved by MK 2026-10-03 (go-dark mandate)",
+      "rationale": "Upstream documents the choice card as a Field composition, not a component. A thin wrapper over upstream field and radio-group; no patch."
+    },
     "code-block": {
       "disposition": "keep",
       "family": "display",
@@ -65,6 +100,18 @@
       "disposition": "keep",
       "family": "form",
       "source": "extras.md"
+    },
+    "comment-margin": {
+      "disposition": "keep",
+      "family": "display",
+      "source": "Plan docs/plans/2026-09-29-collaboration.md (Regent Library comments and versions) — approved by MK 2026-09-29",
+      "rationale": "Upstream ships no comment margin. A layout column for comment cards plus a popover built on Base UI's popover primitive (anchored to a virtual rect, which upstream's PopoverContent does not expose); no patch."
+    },
+    "comments": {
+      "disposition": "keep",
+      "family": "display",
+      "source": "Operator brief 2026-09-26 (task page comments) — approved by MK 2026-09-26",
+      "rationale": "Upstream ships no comments set. It is a fixed composition of upstream avatar, alert-dialog, empty, skeleton and the text editor; no patch."
     },
     "copy-button": {
       "disposition": "keep",
@@ -104,6 +151,12 @@
       "source": "extras.md",
       "rationale": "Batch 7b rebuilt it on upstream `calendar`: the grid, the day button, the captions and the nav are imported from `@/components/ui/calendar`, and this module is the Popover/Button composition plus `Intl` formatting and the preset rails. `react-day-picker` survives here as TYPES (`DateRange`, `Matcher`, `DayButton`) plus its two matcher EVALUATORS (`dateMatchModifiers`, `rangeContainsModifiers`), which the preset gate calls so a preset obeys exactly the policy the grid enforces; re-deriving Matcher evaluation is the drift the gate exists to prevent, so that import stayed. The one DOM part here is `PopoverDayButton`, which WRAPS upstream's `CalendarDayButton` (never copies it) to focus with `preventScroll` — see its note and `date-picker.test.tsx`'s below-the-fold regression, which fails without it."
     },
+    "diff-view": {
+      "disposition": "keep",
+      "family": "display",
+      "source": "Plan docs/plans/2026-09-29-collaboration.md (Regent Library comments and versions) — approved by MK 2026-09-29",
+      "rationale": "Upstream ships no diff view. Renders jsdiff's (`diff`, sanctioned by MK 2026-09-29) line and word changes as ins/del text; `diff` is imported by this file alone, dynamically, so it loads in its own chunk. No patch."
+    },
     "dropzone": {
       "disposition": "keep",
       "family": "form",
@@ -119,6 +172,34 @@
       "family": "form",
       "source": "extras.md"
     },
+    "empty-illustration": {
+      "disposition": "keep",
+      "family": "data-display",
+      "source": "Operator brief 2026-10-08 (Regent motion/interaction primitives) — approved by MK 2026-10-08",
+      "rationale": "Upstream ships no illustrations; a decorative inline-SVG set composed into upstream's EmptyMedia, no patch."
+    },
+    "field-grid": {
+      "disposition": "keep",
+      "family": "form",
+      "source": "Regent product form rebuild, approved by MK 2026-09-27",
+      "rationale": "Upstream ships no responsive field grid or inline choice row; a small server-safe composition with no patch."
+    },
+    "file-viewer": {
+      "disposition": "keep",
+      "family": "media",
+      "source": "Operator brief 2026-09-27 (Regent product files viewer) — approved by MK 2026-09-27",
+      "rationale": "Upstream ships no file viewer. A full-screen composition of upstream dialog and button with our image, spinner and use-announcer; the PDF half renders with pdfjs-dist (sanctioned renderer exception, MK 2026-09-27). No patch."
+    },
+    "file-viewer-office": {
+      "disposition": "keep",
+      "family": "internal",
+      "source": "internal part of file-viewer (the lazily loaded SheetJS and mammoth readers); not listed in extras.md. Regent design review — approved by MK 2026-09-30"
+    },
+    "file-viewer-pdf": {
+      "disposition": "keep",
+      "family": "internal",
+      "source": "internal part of file-viewer (the lazily loaded pdf.js stage); not listed in extras.md. Operator brief 2026-09-27 — approved by MK 2026-09-27"
+    },
     "filter-bar": {
       "disposition": "keep",
       "family": "data",
@@ -128,6 +209,24 @@
       "disposition": "keep",
       "family": "data",
       "source": "extras.md"
+    },
+    "folder-tree": {
+      "disposition": "keep",
+      "family": "navigation",
+      "source": "Regent library plan 04 (folders, files and pages) — approved by MK 2026-09-29",
+      "rationale": "Upstream ships no tree. A navigation pattern (nav of nested lists, a link and a disclosure per row, the SidebarMenuSub structure) over use-list-nav, use-drag-reorder's useDragInto and the file-kind icons, with lazy children and a picker mode; no ARIA tree engine and no patch."
+    },
+    "icon-glyph": {
+      "disposition": "keep",
+      "family": "display",
+      "source": "Operator-approved icon picker implementation plan, 6 October 2026",
+      "rationale": "Generic identity rendering and shared picker composition; upstream has no equivalent."
+    },
+    "icon-picker": {
+      "disposition": "keep",
+      "family": "overlay",
+      "source": "Operator-approved icon picker implementation plan, 6 October 2026",
+      "rationale": "Generic identity rendering and shared picker composition; upstream has no equivalent."
     },
     "image": {
       "disposition": "keep",
@@ -139,11 +238,34 @@
       "family": "media",
       "source": "extras.md"
     },
+    "info-hint": {
+      "disposition": "keep",
+      "family": "overlay",
+      "source": "Operator brief 2026-10-07 (Regent contextual help hints) — approved by MK 2026-10-07",
+      "rationale": "Upstream ships Popover and Tooltip but no info hint. A fixed composition of upstream button and popover with a named icon trigger and an optional new-tab link; no patch."
+    },
+    "inline-chip": {
+      "disposition": "keep",
+      "family": "display",
+      "source": "Operator request 2026-10-01 (Regent: one inline chip for mentions and file links everywhere) — standing approval MK 2026-09-30",
+      "rationale": "Upstream ships no inline mention chip. An inline (not inline-flex) box on the text baseline, tinted by kind from the tag hues, composing our hover-card, person-avatar and file-kind; no patch."
+    },
+    "level-meter": {
+      "disposition": "keep",
+      "family": "media",
+      "source": "Operator brief 2026-10-08 (Regent motion/interaction primitives) — approved by MK 2026-10-08",
+      "rationale": "Upstream ships no live audio level meter; a Web Audio composition of plain segments, no patch."
+    },
     "load-more": {
       "disposition": "keep",
       "family": "data",
       "source": "docs/plans/2026-09-24-facelift-lists-filters-forms.md (DS-30, D6) — approved by MK 2026-09-24",
       "rationale": "Upstream ships no load-more footer. DataGrid had a private one and every keyset list (DataList, board lanes, the Regent consumer's lists) needs the same control, so one shared footer replaces the copies. It composes upstream's button unchanged and carries no patch."
+    },
+    "markdown-citation": {
+      "disposition": "keep",
+      "family": "internal",
+      "source": "internal part of markdown-view (the client-side citation marker and its popover, apart so MarkdownView stays server-safe); not listed in extras.md. Operator brief 2026-09-30 (Regent summary citations)"
     },
     "markdown-view": {
       "disposition": "keep",
@@ -198,6 +320,42 @@
       "source": "MK instruction 2026-09-23 — reinstated after the shadcn reset retired it",
       "rationale": "Upstream ships no password field, only an InputGroup recipe; a reveal toggle hand-rolled per consumer drifts in naming, aria-pressed and type=button. A thin InputGroup composition gives it one owner and carries no patch."
     },
+    "people-input": {
+      "disposition": "keep",
+      "family": "form",
+      "source": "Operator brief 2026-10-01 (Regent access, spaces and sharing — Phase DS, implementation.md §4) — approved by MK 2026-10-01 (A11: DS patch releases approved)",
+      "rationale": "Upstream ships no people picker. A fixed composition of upstream combobox's chips parts, person-avatar, searchable-select's PersonOption and use-async-search; no patch."
+    },
+    "permission-menu": {
+      "disposition": "keep",
+      "family": "overlay",
+      "source": "Operator brief 2026-10-01 (Regent access, spaces and sharing — Phase DS, implementation.md §4) — approved by MK 2026-10-01 (A11: DS patch releases approved)",
+      "rationale": "Upstream ships no access-level menu. A recipe over upstream dropdown-menu (radio items with ItemTitle + ItemDescription, API-19) and button, with a read-only text mode; no patch."
+    },
+    "person-avatar": {
+      "disposition": "keep",
+      "family": "data",
+      "source": "internal shared part; not listed in extras.md. Operator brief 2026-09-27 (Regent member photos) — approved by MK 2026-09-27",
+      "rationale": "The one way a person is drawn: upstream avatar with the photo, else initials (its `personInitials` rule) on the person's hue (API-32). It moved out of person-hover-card so searchable-select, record-chip, board-card and inbox can compose it without a dependency cycle."
+    },
+    "person-hover-card": {
+      "disposition": "keep",
+      "family": "data",
+      "source": "Operator brief 2026-09-25 (meeting participants) — approved by MK 2026-09-25",
+      "rationale": "Upstream ships no person preview. A fixed composition of upstream avatar (group), hover-card, popover and button; no patch."
+    },
+    "picker-panel": {
+      "disposition": "keep",
+      "family": "overlay",
+      "source": "Operator-approved icon picker implementation plan, 6 October 2026",
+      "rationale": "Generic identity rendering and shared picker composition; upstream has no equivalent."
+    },
+    "priority-icon": {
+      "disposition": "keep",
+      "family": "data-display",
+      "source": "Regent tasks status/priority, approved by MK 2026-09-25",
+      "rationale": "Upstream ships no priority icon; a StatusIcon sibling with no patch."
+    },
     "property-list": {
       "disposition": "keep",
       "family": "data",
@@ -208,11 +366,35 @@
       "family": "feedback",
       "source": "extras.md"
     },
+    "reactions": {
+      "disposition": "keep",
+      "family": "display",
+      "source": "Operator brief 2026-09-26 (comment reactions) — approved by MK 2026-09-26",
+      "rationale": "Upstream ships no reactions. A fixed composition of upstream button, hover-card and our emoji-picker; no patch."
+    },
+    "record-aside": {
+      "disposition": "keep",
+      "family": "data",
+      "source": "Operator brief 2026-09-25 (record side panel redesign) — approved by MK 2026-09-25",
+      "rationale": "Upstream ships no record rail. A fixed composition of upstream card, item, avatar, button and tooltip; no patch."
+    },
     "record-chip": {
       "disposition": "keep",
       "family": "form",
       "source": "Regent meeting page redesign, approved by MK 2026-09-25",
       "rationale": "Upstream ships no record chip; a small composition with no patch."
+    },
+    "record-layout": {
+      "disposition": "keep",
+      "family": "layout",
+      "source": "Operator brief 2026-09-25 (meeting page right rail) — approved by MK 2026-09-25",
+      "rationale": "Upstream ships no record-page frame. It is a fixed composition of upstream sheet and button with a sticky rail; no patch."
+    },
+    "record-list": {
+      "disposition": "keep",
+      "family": "data",
+      "source": "Operator brief 2026-09-27 (accessory sheet + impact review) — approved by MK 2026-09-27",
+      "rationale": "Upstream ships no affected-records list. Confirmation dialogs (a family or accessory save or delete) need numbered rows that keep counting across Show more, a record-type icon and a new-tab link per record; it composes our Button and carries no patch."
     },
     "region-select": {
       "disposition": "keep",
@@ -223,6 +405,12 @@
       "disposition": "keep",
       "family": "data-display",
       "source": "extras.md"
+    },
+    "responsive-dialog": {
+      "disposition": "keep",
+      "family": "overlay",
+      "source": "Operator brief 2026-10-03 (Regent spaces UX, implementation-plan.md §5 D2/D5/D7/D9) — approved by MK 2026-10-03 (go-dark mandate)",
+      "rationale": "Upstream ships Dialog and Sheet but no switch between them. A recipe over upstream dialog and sheet with use-mobile; no patch."
     },
     "search-input": {
       "disposition": "keep",
@@ -250,16 +438,16 @@
       "family": "data",
       "source": "extras.md"
     },
+    "space-picker": {
+      "disposition": "keep",
+      "family": "form",
+      "source": "Operator brief 2026-10-03 (Regent spaces UX, implementation-plan.md §5 D2/D5/D7/D9) — approved by MK 2026-10-03 (go-dark mandate)",
+      "rationale": "Upstream has no space concept. A recipe over upstream command, popover and button plus our space-avatar; no patch."
+    },
     "stat": {
       "disposition": "keep",
       "family": "display",
       "source": "extras.md"
-    },
-    "priority-icon": {
-      "disposition": "keep",
-      "family": "data-display",
-      "source": "Regent tasks status/priority, approved by MK 2026-09-25",
-      "rationale": "Upstream ships no priority icon; a StatusIcon sibling with no patch."
     },
     "status-icon": {
       "disposition": "keep",
@@ -277,6 +465,12 @@
       "family": "navigation",
       "source": "extras.md"
     },
+    "table-of-contents": {
+      "disposition": "keep",
+      "family": "navigation",
+      "source": "Plan docs/plans/2026-09-30-toc-selection.md (Regent Library mandate phases 5, 7, 8) — standing approval MK 2026-09-30",
+      "rationale": "Upstream ships no table of contents. An outline nav with an activation-line scroll spy, a rail of ticks that opens on hover or focus, and a Sheet for narrow screens, composing our sheet, use-list-nav and use-media-query; no patch."
+    },
     "table-scroll-region": {
       "disposition": "keep",
       "family": "internal",
@@ -286,6 +480,12 @@
       "disposition": "keep",
       "family": "display",
       "source": "extras.md"
+    },
+    "template-editor": {
+      "disposition": "keep",
+      "family": "rich-text",
+      "source": "Regent product family and product forms (marketing text with spec placeholders), approved by MK 2026-09-29",
+      "rationale": "Upstream ships no placeholder or mention editor. A small Tiptap composition on the TextEdit stack (paragraphs, hard breaks, one atomic token node, @tiptap/suggestion for the picker) with the slash menu's surface; it carries no patch."
     },
     "terminal": {
       "disposition": "keep",
@@ -333,6 +533,18 @@
       "disposition": "keep",
       "family": "data-display",
       "source": "extras.md"
+    },
+    "upload-dialog": {
+      "disposition": "keep",
+      "family": "forms",
+      "source": "Operator brief 2026-09-27 (Regent file upload UX) — approved by MK 2026-09-27",
+      "rationale": "Upstream ships no upload modal. Product, family and accessory forms add files from a button: a fixed composition of dialog, dropzone, attachment, empty, field, image and button with a host-rendered details view; no patch."
+    },
+    "upload-panel": {
+      "disposition": "keep",
+      "family": "forms",
+      "source": "Operator brief 2026-10-04 (Regent uploads, plan.md §5) — approved by MK 2026-10-04 (go-dark mandate)",
+      "rationale": "Upstream ships no upload progress surface. A fixed bottom-end card composing upstream alert-dialog, button and progress with our responsive-dialog, image, file-kind and upload-progress; no patch."
     },
     "use-animation-replay": {
       "disposition": "keep",
@@ -384,6 +596,11 @@
       "family": "hook",
       "source": "registry:hook — not a component, so extras.md does not list it"
     },
+    "use-optimistic-action": {
+      "disposition": "keep",
+      "family": "hook",
+      "source": "registry:hook — not a component, so extras.md does not list it"
+    },
     "use-overflow": {
       "disposition": "keep",
       "family": "hook",
@@ -399,6 +616,17 @@
       "family": "hook",
       "source": "registry:hook — not a component, so extras.md does not list it"
     },
+    "use-view-transition": {
+      "disposition": "keep",
+      "family": "hook",
+      "source": "registry:hook — not a component, so extras.md does not list it"
+    },
+    "version-list": {
+      "disposition": "keep",
+      "family": "display",
+      "source": "Plan docs/plans/2026-09-29-collaboration.md (Regent Library comments and versions) — approved by MK 2026-09-29",
+      "rationale": "Upstream ships no version history. A listbox composed of upstream badge, button, switch and skeleton with our person-avatar, relative-time and use-list-nav; no patch."
+    },
     "video-player": {
       "disposition": "keep",
       "family": "media",
@@ -409,212 +637,6 @@
       "family": "data",
       "source": "Operator brief 2026-09-25 (DataList grid/board views) — approved by MK 2026-09-25",
       "rationale": "Upstream ships no view switch. It is a fixed composition of upstream toggle-group, shared by DataList and consumers; no patch."
-    },
-    "record-layout": {
-      "disposition": "keep",
-      "family": "layout",
-      "source": "Operator brief 2026-09-25 (meeting page right rail) — approved by MK 2026-09-25",
-      "rationale": "Upstream ships no record-page frame. It is a fixed composition of upstream sheet and button with a sticky rail; no patch."
-    },
-    "record-aside": {
-      "disposition": "keep",
-      "family": "data",
-      "source": "Operator brief 2026-09-25 (record side panel redesign) — approved by MK 2026-09-25",
-      "rationale": "Upstream ships no record rail. A fixed composition of upstream card, item, avatar, button and tooltip; no patch."
-    },
-    "person-hover-card": {
-      "disposition": "keep",
-      "family": "data",
-      "source": "Operator brief 2026-09-25 (meeting participants) — approved by MK 2026-09-25",
-      "rationale": "Upstream ships no person preview. A fixed composition of upstream avatar (group), hover-card, popover and button; no patch."
-    },
-    "comments": {
-      "disposition": "keep",
-      "family": "display",
-      "source": "Operator brief 2026-09-26 (task page comments) — approved by MK 2026-09-26",
-      "rationale": "Upstream ships no comments set. It is a fixed composition of upstream avatar, alert-dialog, empty, skeleton and the text editor; no patch."
-    },
-    "reactions": {
-      "disposition": "keep",
-      "family": "display",
-      "source": "Operator brief 2026-09-26 (comment reactions) — approved by MK 2026-09-26",
-      "rationale": "Upstream ships no reactions. A fixed composition of upstream button, hover-card and our emoji-picker; no patch."
-    },
-    "person-avatar": {
-      "disposition": "keep",
-      "family": "data",
-      "source": "internal shared part; not listed in extras.md. Operator brief 2026-09-27 (Regent member photos) — approved by MK 2026-09-27",
-      "rationale": "The one way a person is drawn: upstream avatar with the photo, else initials (its `personInitials` rule) on the person's hue (API-32). It moved out of person-hover-card so searchable-select, record-chip, board-card and inbox can compose it without a dependency cycle."
-    },
-    "avatar-picker": {
-      "disposition": "keep",
-      "family": "forms",
-      "source": "Operator brief 2026-09-27 (Regent member photos) — approved by MK 2026-09-27",
-      "rationale": "Upstream ships no photo picker. A fixed composition of person-avatar, button, spinner and use-file-drop; no patch."
-    },
-    "record-list": {
-      "disposition": "keep",
-      "family": "data",
-      "source": "Operator brief 2026-09-27 (accessory sheet + impact review) — approved by MK 2026-09-27",
-      "rationale": "Upstream ships no affected-records list. Confirmation dialogs (a family or accessory save or delete) need numbered rows that keep counting across Show more, a record-type icon and a new-tab link per record; it composes our Button and carries no patch."
-    },
-    "field-grid": {
-      "disposition": "keep",
-      "family": "form",
-      "source": "Regent product form rebuild, approved by MK 2026-09-27",
-      "rationale": "Upstream ships no responsive field grid or inline choice row; a small server-safe composition with no patch."
-    },
-    "file-viewer": {
-      "disposition": "keep",
-      "family": "media",
-      "source": "Operator brief 2026-09-27 (Regent product files viewer) — approved by MK 2026-09-27",
-      "rationale": "Upstream ships no file viewer. A full-screen composition of upstream dialog and button with our image, spinner and use-announcer; the PDF half renders with pdfjs-dist (sanctioned renderer exception, MK 2026-09-27). No patch."
-    },
-    "audio-player-global": {
-      "disposition": "keep",
-      "family": "internal",
-      "source": "internal part of audio-player: the global player's provider, hooks and pill, apart so an app shell loads the player UI only once a recording opens (operator 2026-09-30, Regent research A4); not listed in extras.md"
-    },
-    "file-viewer-pdf": {
-      "disposition": "keep",
-      "family": "internal",
-      "source": "internal part of file-viewer (the lazily loaded pdf.js stage); not listed in extras.md. Operator brief 2026-09-27 — approved by MK 2026-09-27"
-    },
-    "file-viewer-office": {
-      "disposition": "keep",
-      "family": "internal",
-      "source": "internal part of file-viewer (the lazily loaded SheetJS and mammoth readers); not listed in extras.md. Regent design review — approved by MK 2026-09-30"
-    },
-    "markdown-citation": {
-      "disposition": "keep",
-      "family": "internal",
-      "source": "internal part of markdown-view (the client-side citation marker and its popover, apart so MarkdownView stays server-safe); not listed in extras.md. Operator brief 2026-09-30 (Regent summary citations)"
-    },
-    "upload-dialog": {
-      "disposition": "keep",
-      "family": "forms",
-      "source": "Operator brief 2026-09-27 (Regent file upload UX) — approved by MK 2026-09-27",
-      "rationale": "Upstream ships no upload modal. Product, family and accessory forms add files from a button: a fixed composition of dialog, dropzone, attachment, empty, field, image and button with a host-rendered details view; no patch."
-    },
-    "template-editor": {
-      "disposition": "keep",
-      "family": "rich-text",
-      "source": "Regent product family and product forms (marketing text with spec placeholders), approved by MK 2026-09-29",
-      "rationale": "Upstream ships no placeholder or mention editor. A small Tiptap composition on the TextEdit stack (paragraphs, hard breaks, one atomic token node, @tiptap/suggestion for the picker) with the slash menu's surface; it carries no patch."
-    },
-    "folder-tree": {
-      "disposition": "keep",
-      "family": "navigation",
-      "source": "Regent library plan 04 (folders, files and pages) — approved by MK 2026-09-29",
-      "rationale": "Upstream ships no tree. A navigation pattern (nav of nested lists, a link and a disclosure per row, the SidebarMenuSub structure) over use-list-nav, use-drag-reorder's useDragInto and the file-kind icons, with lazy children and a picker mode; no ARIA tree engine and no patch."
-    },
-    "comment-margin": {
-      "disposition": "keep",
-      "family": "display",
-      "source": "Plan docs/plans/2026-09-29-collaboration.md (Regent Library comments and versions) — approved by MK 2026-09-29",
-      "rationale": "Upstream ships no comment margin. A layout column for comment cards plus a popover built on Base UI's popover primitive (anchored to a virtual rect, which upstream's PopoverContent does not expose); no patch."
-    },
-    "version-list": {
-      "disposition": "keep",
-      "family": "display",
-      "source": "Plan docs/plans/2026-09-29-collaboration.md (Regent Library comments and versions) — approved by MK 2026-09-29",
-      "rationale": "Upstream ships no version history. A listbox composed of upstream badge, button, switch and skeleton with our person-avatar, relative-time and use-list-nav; no patch."
-    },
-    "diff-view": {
-      "disposition": "keep",
-      "family": "display",
-      "source": "Plan docs/plans/2026-09-29-collaboration.md (Regent Library comments and versions) — approved by MK 2026-09-29",
-      "rationale": "Upstream ships no diff view. Renders jsdiff's (`diff`, sanctioned by MK 2026-09-29) line and word changes as ins/del text; `diff` is imported by this file alone, dynamically, so it loads in its own chunk. No patch."
-    },
-    "table-of-contents": {
-      "disposition": "keep",
-      "family": "navigation",
-      "source": "Plan docs/plans/2026-09-30-toc-selection.md (Regent Library mandate phases 5, 7, 8) — standing approval MK 2026-09-30",
-      "rationale": "Upstream ships no table of contents. An outline nav with an activation-line scroll spy, a rail of ticks that opens on hover or focus, and a Sheet for narrow screens, composing our sheet, use-list-nav and use-media-query; no patch."
-    },
-    "breadcrumb-cascade": {
-      "disposition": "keep",
-      "family": "navigation",
-      "source": "Plan docs/plans/2026-09-30-toc-selection.md (Regent Library mandate phases 5, 7, 8) — standing approval MK 2026-09-30",
-      "rationale": "Upstream ships no sibling menu or drop-target crumb. breadcrumb.tsx is upstream's file plus a patch whose hunks each need a decision marked ours, so these compose its BreadcrumbLink, the DS DropdownMenu and useDragInto instead of patching it."
-    },
-    "inline-chip": {
-      "disposition": "keep",
-      "family": "display",
-      "source": "Operator request 2026-10-01 (Regent: one inline chip for mentions and file links everywhere) — standing approval MK 2026-09-30",
-      "rationale": "Upstream ships no inline mention chip. An inline (not inline-flex) box on the text baseline, tinted by kind from the tag hues, composing our hover-card, person-avatar and file-kind; no patch."
-    },
-    "people-input": {
-      "disposition": "keep",
-      "family": "form",
-      "source": "Operator brief 2026-10-01 (Regent access, spaces and sharing — Phase DS, implementation.md §4) — approved by MK 2026-10-01 (A11: DS patch releases approved)",
-      "rationale": "Upstream ships no people picker. A fixed composition of upstream combobox's chips parts, person-avatar, searchable-select's PersonOption and use-async-search; no patch."
-    },
-    "permission-menu": {
-      "disposition": "keep",
-      "family": "overlay",
-      "source": "Operator brief 2026-10-01 (Regent access, spaces and sharing — Phase DS, implementation.md §4) — approved by MK 2026-10-01 (A11: DS patch releases approved)",
-      "rationale": "Upstream ships no access-level menu. A recipe over upstream dropdown-menu (radio items with ItemTitle + ItemDescription, API-19) and button, with a read-only text mode; no patch."
-    },
-    "responsive-dialog": {
-      "disposition": "keep",
-      "family": "overlay",
-      "source": "Operator brief 2026-10-03 (Regent spaces UX, implementation-plan.md §5 D2/D5/D7/D9) — approved by MK 2026-10-03 (go-dark mandate)",
-      "rationale": "Upstream ships Dialog and Sheet but no switch between them. A recipe over upstream dialog and sheet with use-mobile; no patch."
-    },
-    "space-picker": {
-      "disposition": "keep",
-      "family": "form",
-      "source": "Operator brief 2026-10-03 (Regent spaces UX, implementation-plan.md §5 D2/D5/D7/D9) — approved by MK 2026-10-03 (go-dark mandate)",
-      "rationale": "Upstream has no space concept. A recipe over upstream command, popover and button plus our space-avatar; no patch."
-    },
-    "access-chip": {
-      "disposition": "keep",
-      "family": "overlay",
-      "source": "Operator brief 2026-10-03 (Regent spaces UX, implementation-plan.md §5 D2/D5/D7/D9) — approved by MK 2026-10-03 (go-dark mandate)",
-      "rationale": "Upstream has no access indicator. A recipe over upstream button and tooltip plus our space-avatar; no patch."
-    },
-    "choice-card": {
-      "disposition": "keep",
-      "family": "form",
-      "source": "Operator brief 2026-10-03 (Regent spaces UX, implementation-plan.md §5 D2/D5/D7/D9) — approved by MK 2026-10-03 (go-dark mandate)",
-      "rationale": "Upstream documents the choice card as a Field composition, not a component. A thin wrapper over upstream field and radio-group; no patch."
-    },
-    "upload-panel": {
-      "disposition": "keep",
-      "family": "forms",
-      "source": "Operator brief 2026-10-04 (Regent uploads, plan.md §5) — approved by MK 2026-10-04 (go-dark mandate)",
-      "rationale": "Upstream ships no upload progress surface. A fixed bottom-end card composing upstream alert-dialog, button and progress with our responsive-dialog, image, file-kind and upload-progress; no patch."
-    },
-    "activity-feed": {
-      "disposition": "keep",
-      "family": "display",
-      "source": "Operator brief 2026-10-04 (Regent activity timeline) — approved by MK 2026-10-04",
-      "rationale": "Upstream ships no record history. A list of events and comment threads composing upstream button, select and skeleton with our person-hover-card, person-avatar and relative-time; no patch."
-    },
-    "icon-glyph": {
-      "disposition": "keep",
-      "family": "display",
-      "source": "Operator-approved icon picker implementation plan, 6 October 2026",
-      "rationale": "Generic identity rendering and shared picker composition; upstream has no equivalent."
-    },
-    "picker-panel": {
-      "disposition": "keep",
-      "family": "overlay",
-      "source": "Operator-approved icon picker implementation plan, 6 October 2026",
-      "rationale": "Generic identity rendering and shared picker composition; upstream has no equivalent."
-    },
-    "icon-picker": {
-      "disposition": "keep",
-      "family": "overlay",
-      "source": "Operator-approved icon picker implementation plan, 6 October 2026",
-      "rationale": "Generic identity rendering and shared picker composition; upstream has no equivalent."
-    },
-    "info-hint": {
-      "disposition": "keep",
-      "family": "overlay",
-      "source": "Operator brief 2026-10-07 (Regent contextual help hints) — approved by MK 2026-10-07",
-      "rationale": "Upstream ships Popover and Tooltip but no info hint. A fixed composition of upstream button and popover with a named icon trigger and an optional new-tab link; no patch."
     }
   }
 }

@@ -1,4 +1,4 @@
-// @vegastack data-list@0.24.5 sha256-mphh+rmGZNHyEkXkIh+aERQtDxxyXmyk79euCwl9dKU=
+// @vegastack data-list@0.24.5 sha256-yXzc/KF0NwlR0sKZYzr+ArSBA2DhvKqKd6I7xzDjLBU=
 
 "use client";
 
@@ -54,7 +54,12 @@ import { MediaCard, RECORD_TITLE_CLASS } from "@/components/ui/media-card";
 import { BoardCard, type BoardCardProps } from "@/components/ui/board-card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Thumbnail } from "@/components/ui/thumbnail";
-import { ViewToggle, type ListView } from "@/components/ui/view-toggle";
+import {
+  DensityToggle,
+  ViewToggle,
+  type Density,
+  type ListView,
+} from "@/components/ui/view-toggle";
 import {
   useDragInto,
   type DragIntoFileEntry,
@@ -78,6 +83,9 @@ export type {
 
 /** How a `DataList` lays its rows out: a table, a card grid, or board lanes. */
 export type DataListView = ListView;
+
+/** A row density `DataList` can show its table in. */
+export type DataListDensity = Density;
 
 /** The active sort — which column and which direction. */
 export interface SortState {
@@ -570,6 +578,19 @@ export interface DataListProps<T> extends Omit<
    * @default "list"
    */
   view?: DataListView;
+  /**
+   * Row density of the list view: `comfortable` (the table's own row height) or `compact`
+   * (tighter rows and a shorter header, for scanning long lists). Grid and board ignore it.
+   * @default "comfortable"
+   */
+  density?: DataListDensity;
+  /**
+   * Called with the density the user picks. Setting it mounts a `DensityToggle` beside the view
+   * toggle (or alone, in the toolbar's `FilterBar` `view` slot). Controlled: store the choice and
+   * pass it back as `density`.
+   * @default undefined
+   */
+  onDensityChange?: (density: DataListDensity) => void;
   /**
    * The initial view when uncontrolled.
    * @default "list"
@@ -1136,6 +1157,8 @@ export function DataList<T>({
   rowActions,
   rowActionsLabel,
   view,
+  density = "comfortable",
+  onDensityChange,
   defaultView = "list",
   onViewChange,
   views = ["grid", "list"],
@@ -1320,9 +1343,23 @@ export function DataList<T>({
     },
     [commitView, storageKeyFor],
   );
-  const viewToggle = onViewChange ? (
+  const listViewToggle = onViewChange ? (
     <ViewToggle value={activeView} onValueChange={changeView} views={views} />
   ) : null;
+  // The density switch only means something in the table, so it leaves with the list view.
+  const densityToggle =
+    onDensityChange && activeView === "list" ? (
+      <DensityToggle value={density} onValueChange={onDensityChange} />
+    ) : null;
+  const viewToggle =
+    listViewToggle && densityToggle ? (
+      <div className="flex items-center gap-2">
+        {densityToggle}
+        {listViewToggle}
+      </div>
+    ) : (
+      (listViewToggle ?? densityToggle)
+    );
 
   const rowIds = React.useMemo(
     () => data.map((row, i) => getRowId(row, i)),
@@ -1844,11 +1881,17 @@ export function DataList<T>({
       <Table
         ref={tableRef}
         data-slot="data-list"
-        className={className}
+        className={cn(
+          // Compact density: 4px cell padding on the block axis and a 32px header row.
+          density === "compact" &&
+            "[&_[data-slot=table-cell]]:py-1 [&_[data-slot=table-head]]:h-8",
+          className,
+        )}
         aria-busy={loading ? true : ariaBusy}
         aria-describedby={tableDescribedBy}
         aria-rowcount={loadMore?.hasMore ? -1 : undefined}
         data-squeezed={squeezed ? "" : undefined}
+        data-density={density}
         {...tableProps}
       >
         <TableHeader>

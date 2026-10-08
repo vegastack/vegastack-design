@@ -2,12 +2,12 @@
   "schemaVersion": 1,
   "kind": "vegastack-zero-gap-audit-register",
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "8e6bde0cf84d3558d7082d27492322ee5fcaebfe6a17993c2a7617a2402f17bc",
+  "contractSha256": "8b52160585d7ea5a5596b9fce754fa02967968c1453f3959d144b4998a235d8b",
   "expectedCounts": {
-    "totalRegistryItems": 733,
-    "components": 154,
+    "totalRegistryItems": 737,
+    "components": 156,
     "animatedIcons": 467,
-    "hooks": 13,
+    "hooks": 15,
     "blocks": 15,
     "libs": 16,
     "chartBlocks": 68
@@ -1712,6 +1712,28 @@
         "packages/ui/registry/ui/icon-picker.tsx"
       ],
       "docsSlug": "/docs/components/icon-picker",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "level-meter",
+      "inventoryClass": "component",
+      "wave": "Data display",
+      "family": "media",
+      "sourceFiles": [
+        "packages/ui/registry/ui/level-meter.tsx"
+      ],
+      "docsSlug": "/docs/components/level-meter",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "empty-illustration",
+      "inventoryClass": "component",
+      "wave": "Data display",
+      "family": "data-display",
+      "sourceFiles": [
+        "packages/ui/registry/ui/empty-illustration.tsx"
+      ],
+      "docsSlug": "/docs/components/empty-illustration",
       "contractStatus": "reconciled"
     },
     {
@@ -6990,6 +7012,28 @@
       "family": "hook",
       "sourceFiles": [
         "packages/ui/registry/ui/use-tabs-swipe.ts"
+      ],
+      "docsSlug": "/docs/guides/components",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "use-view-transition",
+      "inventoryClass": "hook",
+      "wave": "Hooks",
+      "family": "hook",
+      "sourceFiles": [
+        "packages/ui/registry/ui/use-view-transition.ts"
+      ],
+      "docsSlug": "/docs/guides/components",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "use-optimistic-action",
+      "inventoryClass": "hook",
+      "wave": "Hooks",
+      "family": "hook",
+      "sourceFiles": [
+        "packages/ui/registry/ui/use-optimistic-action.ts"
       ],
       "docsSlug": "/docs/guides/components",
       "contractStatus": "reconciled"

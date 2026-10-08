@@ -183,6 +183,24 @@ export function dataList(): ReactNode {
   );
 }
 
+export function dataListDensity(): ReactNode {
+  const [density, setDensity] = React.useState<"comfortable" | "compact">(
+    "compact",
+  );
+  return (
+    <Wrapper className="block">
+      <DataList
+        aria-label="People"
+        columns={columns}
+        data={people}
+        getRowId={(p) => p.id}
+        density={density}
+        onDensityChange={setDensity}
+      />
+    </Wrapper>
+  );
+}
+
 export function dataListFitting(): ReactNode {
   // A 320px pane. Name and Email keep their own columns; Role, Status and
   // Amount no longer fit, so they STACK into the Name cell (`mobile: "merge"`,
