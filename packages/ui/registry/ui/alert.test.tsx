@@ -105,7 +105,8 @@ test("an icon child claims the reserved first column (Basic, A11Y-8)", async () 
 test("destructive tints the whole banner from one ink (Destructive)", async () => {
   const classes = await classesFor("destructive");
   expect(classes).toContain("text-destructive-text");
-  expect(classes).toContain("bg-card");
+  expect(classes).toContain("bg-destructive/5");
+  expect(classes).toContain("border-destructive/30");
 });
 
 test("COL-12: success, warning and info exist beside destructive", async () => {
@@ -178,7 +179,7 @@ test("DOC-2: cn from @vegastack/design merges a caller's className onto the reci
   expect(root.className).toContain("bg-warning/10");
   expect(root.className).toContain("border-warning/40");
   // tailwind-merge aware: the caller's surface replaces the recipe's, never stacks on it.
-  expect(root.className).not.toContain("bg-card");
+  expect(root.className).not.toContain("bg-warning/5");
 });
 
 test("RTL: the root and the action are written in logical properties only (RTL)", async () => {

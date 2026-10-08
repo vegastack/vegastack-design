@@ -294,3 +294,51 @@ export function alertActions(): ReactNode {
     </Wrapper>
   );
 }
+
+const statusMatrix = [
+  { variant: "default", icon: InfoIcon, label: "Default" },
+  { variant: "info", icon: InfoIcon, label: "Info" },
+  { variant: "success", icon: CheckCircle2Icon, label: "Success" },
+  { variant: "warning", icon: TriangleAlertIcon, label: "Warning" },
+  { variant: "destructive", icon: AlertCircleIcon, label: "Destructive" },
+] as const;
+
+/** Ours (LAY-15, COL-12, API-29 amended 2026-10-08): every variant with and without a title and an action. */
+export function alertStatusMatrix(): ReactNode {
+  return (
+    <Wrapper>
+      <div className="grid w-full max-w-xl gap-3">
+        {statusMatrix.map(({ variant, icon: Icon, label }) => (
+          <div key={variant} className="grid gap-2">
+            <Alert variant={variant}>
+              <Icon />
+              <AlertTitle>{label} alert with a title</AlertTitle>
+              <AlertDescription>
+                The description sits under the title, top-aligned with the
+                action.
+              </AlertDescription>
+              <AlertAction>
+                <Button variant="outline">Review</Button>
+              </AlertAction>
+            </Alert>
+            <Alert variant={variant}>
+              <Icon />
+              <AlertDescription>
+                You&apos;re viewing Sales as an admin.
+              </AlertDescription>
+              <AlertAction>
+                <Button variant="outline">Join space</Button>
+              </AlertAction>
+            </Alert>
+            <Alert variant={variant}>
+              <Icon />
+              <AlertDescription>
+                A single line with no title and no action.
+              </AlertDescription>
+            </Alert>
+          </div>
+        ))}
+      </div>
+    </Wrapper>
+  );
+}

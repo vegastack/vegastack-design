@@ -130,6 +130,18 @@ wraps them onto a second line when the alert is too narrow to hold both. There i
 
 <ComponentPreview name="alertActions" file="components/preview/alert.tsx" />
 
+### Status surfaces
+
+Each status variant tints its own border (30%) and background (5%, 10% in dark); `default` keeps
+the neutral border and card. An outline button inside a status alert wears the variant colour at
+rest and the tint on hover. With an action and no title, a single-line description sits centred
+on the action; a title or longer text keeps everything top-aligned.
+
+<ComponentPreview
+  name="alertStatusMatrix"
+  file="components/preview/alert.tsx"
+/>
+
 ## API Reference
 
 ### Alert

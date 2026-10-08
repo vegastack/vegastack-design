@@ -5,6 +5,8 @@
 #     and open state (`bg-<family>/10 text-<family>-text`, the svg too), keyed on Button's
 #     `data-variant`; the neutral `bg-muted text-foreground` hover read white in dark mode on a
 #     destructive alert. `contrast-check.mjs` gates the pair in both themes (MK, 2026-09-25).
+#     Amended (MK, 2026-10-08): an outline button also takes `border-<family>/40 text-<family>-text`
+#     at rest.
 #   LAY-15 (MK, 2026-09-24): the root becomes an `@container/alert` grid whose action gets its own
 #     trailing column (`[1fr_auto]`, `[auto_1fr_auto]` with an icon) from `@md` up, with the title
 #     and description pinned to the text column; `AlertAction` loses `absolute top-2 end-2` for
@@ -12,8 +14,13 @@
 #     `pe-18` reserve goes: an `sm` label over seven characters overlapped the title.
 #     Amended (MK, 2026-09-30): `AlertAction` is a `flex flex-wrap items-center gap-2` row, so two
 #     buttons sit side by side with the button-group gap and wrap when the alert is narrow.
+#     Amended (MK, 2026-10-08): padding is `px-3 py-2.5`; with an action and no `AlertTitle` (from
+#     `@md`) the description takes `min-h-8 content-center` and the icon `translate-y-2`, so a
+#     single line sits centred on the 32px button and longer text stays top-aligned.
 #   COL-12: `success`, `warning` and `info` variants, written in upstream's own `destructive`
-#     shape (one ink on `bg-card`, a dimmed description). The four status families exist in the
+#     shape (one ink, a dimmed description). Amended (MK, 2026-10-08): every status variant
+#     paints `border-<family>/30` over a `bg-<family>/5` tint (`/10` in dark) instead of `bg-card`;
+#     `default` keeps the neutral border and card. The four status families exist in the
 #     token contract; Alert is where they surface as a banner.
 #   A11Y-13: every status variant takes the family's `-text` ink rather than the fill. Upstream's
 #     `text-destructive` on card measures 3.98:1 in light, under the AA floor A11Y-1 enforces.
@@ -28,7 +35,7 @@
 #   formatting: the repository formatter (prettier defaults: semicolons, trailing commas)
 #               reflows the file; those hunks carry no decision of their own.
 diff --git a/alert.tsx b/alert.tsx
-index babd454..9d284f8 100644
+index babd454..6d87f4d 100644
 --- a/alert.tsx
 +++ b/alert.tsx
 @@ -1,36 +1,49 @@
@@ -41,19 +48,19 @@ index babd454..9d284f8 100644
  
  const alertVariants = cva(
 -  "group/alert relative grid w-full gap-0.5 rounded-lg border px-2.5 py-2 text-start text-sm has-data-[slot=alert-action]:relative has-data-[slot=alert-action]:pe-18 has-[>svg]:grid-cols-[auto_1fr] has-[>svg]:gap-x-2 *:[svg]:row-span-2 *:[svg]:translate-y-0.5 *:[svg]:text-current *:[svg:not([class*='size-'])]:size-4",
-+  "group/alert @container/alert relative outline-none grid w-full gap-0.5 rounded-lg border px-2.5 py-2 text-start text-sm has-[>svg]:grid-cols-[auto_1fr] has-[>svg]:gap-x-2 @md/alert:has-data-[slot=alert-action]:grid-cols-[1fr_auto] @md/alert:has-data-[slot=alert-action]:gap-x-3 @md/alert:has-[>svg]:has-data-[slot=alert-action]:grid-cols-[auto_1fr_auto] *:[svg]:row-span-2 *:[svg]:translate-y-0.5 *:[svg]:text-current *:[svg:not([class*='size-'])]:size-4",
++  "group/alert @container/alert relative outline-none grid w-full gap-0.5 rounded-lg border px-3 py-2.5 text-start text-sm has-[>svg]:grid-cols-[auto_1fr] has-[>svg]:gap-x-2 @md/alert:has-data-[slot=alert-action]:grid-cols-[1fr_auto] @md/alert:has-data-[slot=alert-action]:gap-x-3 @md/alert:has-[>svg]:has-data-[slot=alert-action]:grid-cols-[auto_1fr_auto] *:[svg]:row-span-2 *:[svg]:translate-y-0.5 *:[svg]:text-current @md/alert:has-data-[slot=alert-action]:not-has-data-[slot=alert-title]:*:data-[slot=alert-description]:min-h-8 @md/alert:has-data-[slot=alert-action]:not-has-data-[slot=alert-title]:*:data-[slot=alert-description]:content-center @md/alert:has-data-[slot=alert-action]:not-has-data-[slot=alert-title]:*:[svg]:translate-y-2 *:[svg:not([class*='size-'])]:size-4",
    {
      variants: {
        variant: {
          default: "bg-card text-card-foreground",
          destructive:
 -          "bg-card text-destructive *:data-[slot=alert-description]:text-destructive/90 *:[svg]:text-current",
-+          "bg-card text-destructive-text *:data-[slot=alert-description]:text-destructive-text/90 *:[svg]:text-current [&_[data-slot=button]:not([data-variant=default]):hover]:bg-destructive/10 [&_[data-slot=button]:not([data-variant=default]):hover]:text-destructive-text [&_[data-slot=button]:not([data-variant=default]):hover]:**:[svg]:text-destructive-text [&_[data-slot=button]:not([data-variant=default])[aria-expanded=true]]:bg-destructive/10 [&_[data-slot=button]:not([data-variant=default])[aria-expanded=true]]:text-destructive-text",
++          "border-destructive/30 bg-destructive/5 dark:bg-destructive/10 text-destructive-text [&_[data-slot=button][data-variant=outline]]:border-destructive/40 [&_[data-slot=button][data-variant=outline]]:text-destructive-text *:data-[slot=alert-description]:text-destructive-text/90 *:[svg]:text-current [&_[data-slot=button]:not([data-variant=default]):hover]:bg-destructive/10 [&_[data-slot=button]:not([data-variant=default]):hover]:text-destructive-text [&_[data-slot=button]:not([data-variant=default]):hover]:**:[svg]:text-destructive-text [&_[data-slot=button]:not([data-variant=default])[aria-expanded=true]]:bg-destructive/10 [&_[data-slot=button]:not([data-variant=default])[aria-expanded=true]]:text-destructive-text",
 +        success:
-+          "bg-card text-success-text *:data-[slot=alert-description]:text-success-text/90 *:[svg]:text-current [&_[data-slot=button]:not([data-variant=default]):hover]:bg-success/10 [&_[data-slot=button]:not([data-variant=default]):hover]:text-success-text [&_[data-slot=button]:not([data-variant=default]):hover]:**:[svg]:text-success-text [&_[data-slot=button]:not([data-variant=default])[aria-expanded=true]]:bg-success/10 [&_[data-slot=button]:not([data-variant=default])[aria-expanded=true]]:text-success-text",
++          "border-success/30 bg-success/5 dark:bg-success/10 text-success-text [&_[data-slot=button][data-variant=outline]]:border-success/40 [&_[data-slot=button][data-variant=outline]]:text-success-text *:data-[slot=alert-description]:text-success-text/90 *:[svg]:text-current [&_[data-slot=button]:not([data-variant=default]):hover]:bg-success/10 [&_[data-slot=button]:not([data-variant=default]):hover]:text-success-text [&_[data-slot=button]:not([data-variant=default]):hover]:**:[svg]:text-success-text [&_[data-slot=button]:not([data-variant=default])[aria-expanded=true]]:bg-success/10 [&_[data-slot=button]:not([data-variant=default])[aria-expanded=true]]:text-success-text",
 +        warning:
-+          "bg-card text-warning-text *:data-[slot=alert-description]:text-warning-text/90 *:[svg]:text-current [&_[data-slot=button]:not([data-variant=default]):hover]:bg-warning/10 [&_[data-slot=button]:not([data-variant=default]):hover]:text-warning-text [&_[data-slot=button]:not([data-variant=default]):hover]:**:[svg]:text-warning-text [&_[data-slot=button]:not([data-variant=default])[aria-expanded=true]]:bg-warning/10 [&_[data-slot=button]:not([data-variant=default])[aria-expanded=true]]:text-warning-text",
-+        info: "bg-card text-info-text *:data-[slot=alert-description]:text-info-text/90 *:[svg]:text-current [&_[data-slot=button]:not([data-variant=default]):hover]:bg-info/10 [&_[data-slot=button]:not([data-variant=default]):hover]:text-info-text [&_[data-slot=button]:not([data-variant=default]):hover]:**:[svg]:text-info-text [&_[data-slot=button]:not([data-variant=default])[aria-expanded=true]]:bg-info/10 [&_[data-slot=button]:not([data-variant=default])[aria-expanded=true]]:text-info-text",
++          "border-warning/30 bg-warning/5 dark:bg-warning/10 text-warning-text [&_[data-slot=button][data-variant=outline]]:border-warning/40 [&_[data-slot=button][data-variant=outline]]:text-warning-text *:data-[slot=alert-description]:text-warning-text/90 *:[svg]:text-current [&_[data-slot=button]:not([data-variant=default]):hover]:bg-warning/10 [&_[data-slot=button]:not([data-variant=default]):hover]:text-warning-text [&_[data-slot=button]:not([data-variant=default]):hover]:**:[svg]:text-warning-text [&_[data-slot=button]:not([data-variant=default])[aria-expanded=true]]:bg-warning/10 [&_[data-slot=button]:not([data-variant=default])[aria-expanded=true]]:text-warning-text",
++        info: "border-info/30 bg-info/5 dark:bg-info/10 text-info-text [&_[data-slot=button][data-variant=outline]]:border-info/40 [&_[data-slot=button][data-variant=outline]]:text-info-text *:data-[slot=alert-description]:text-info-text/90 *:[svg]:text-current [&_[data-slot=button]:not([data-variant=default]):hover]:bg-info/10 [&_[data-slot=button]:not([data-variant=default]):hover]:text-info-text [&_[data-slot=button]:not([data-variant=default]):hover]:**:[svg]:text-info-text [&_[data-slot=button]:not([data-variant=default])[aria-expanded=true]]:bg-info/10 [&_[data-slot=button]:not([data-variant=default])[aria-expanded=true]]:text-info-text",
        },
      },
      defaultVariants: {
