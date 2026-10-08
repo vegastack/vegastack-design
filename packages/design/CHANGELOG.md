@@ -1,5 +1,14 @@
 # @vegastack/design
 
+## 0.8.0
+
+### Patch Changes
+
+- [#556](https://github.com/vegastack/vegastack-design/pull/556) [`59300fb`](https://github.com/vegastack/vegastack-design/commit/59300fb492a7645b9d8b0b1a9bd289c6b5e0bc1e) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🔧 Status alerts (`info`, `success`, `warning`, `destructive`) now tint their border (30%) and background (5%, 10% in dark) instead of keeping the neutral card; an outline button inside one wears the variant colour at rest. Padding is 12×10px, and with an action and no title a single-line description sits centred on the 32px button. The Alert docs gain a Status surfaces matrix.
+
+- Updated dependencies [[`5760011`](https://github.com/vegastack/vegastack-design/commit/576001152d077cf1351b5e018e592469b1f6a829)]:
+  - @vegastack/design-tokens@0.8.0
+
 ## 0.7.111
 
 ### Patch Changes

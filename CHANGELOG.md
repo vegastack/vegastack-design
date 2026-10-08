@@ -9,6 +9,26 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.25.0] — October 8, 2026
+
+<!-- assembled from 2 changesets: 6383821bec0c -->
+
+### 🧩 New components
+
+- Motion and interaction primitives: `motion-stagger` utility (staggered reveal for content replacing a skeleton), `useViewTransition`/`startViewTransition` (View Transitions with reduced-motion and unsupported fallbacks), `useOptimisticAction` (apply now, Undo toast, commit after the window), `LevelMeter` (live recording input level), `EmptyIllustration` (shared monochrome empty-state set), `EditableCell` `date` editor, and `DataList` `density` with the new `DensityToggle`.
+  [`5760011`](https://github.com/VegaStack/vegastack-design/commit/5760011)
+
+### 🔧 Changed components
+
+- Status alerts (`info`, `success`, `warning`, `destructive`) now tint their border (30%) and background (5%, 10% in dark) instead of keeping the neutral card; an outline button inside one wears the variant colour at rest. Padding is 12×10px, and with an action and no title a single-line description sits centred on the 32px button. The Alert docs gain a Status surfaces matrix.
+  [`59300fb`](https://github.com/VegaStack/vegastack-design/commit/59300fb)
+
+### 📦 npm
+
+- **`@vegastack/design`** → **`0.8.0`** (was `0.7.111`).
+- **`@vegastack/design-tokens`** → **`0.8.0`** (was `0.7.80`).
+- The design-system registry (`@vegastack/ui`) bumps 0.24.5 → 0.25.0.
+
 ## [0.24.5] — October 8, 2026
 
 <!-- assembled from 1 changeset: 35c940ecd36b -->

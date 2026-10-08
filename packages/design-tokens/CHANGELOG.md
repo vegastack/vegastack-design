@@ -1,5 +1,11 @@
 # @vegastack/design-tokens
 
+## 0.8.0
+
+### Minor Changes
+
+- [#558](https://github.com/vegastack/vegastack-design/pull/558) [`5760011`](https://github.com/vegastack/vegastack-design/commit/576001152d077cf1351b5e018e592469b1f6a829) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🧩 Motion and interaction primitives: `motion-stagger` utility (staggered reveal for content replacing a skeleton), `useViewTransition`/`startViewTransition` (View Transitions with reduced-motion and unsupported fallbacks), `useOptimisticAction` (apply now, Undo toast, commit after the window), `LevelMeter` (live recording input level), `EmptyIllustration` (shared monochrome empty-state set), `EditableCell` `date` editor, and `DataList` `density` with the new `DensityToggle`.
+
 ## 0.7.80
 
 ### Patch Changes
