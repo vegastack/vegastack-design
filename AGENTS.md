@@ -19,6 +19,8 @@ Run Regent web's `scripts/check-review-policy.mjs --root <design-worktree>` befo
 
 Operator clarification, 3 October 2026: a go-dark/autonomous mandate covers owned feature commits and pushes, and reviewed develop merges only where develop exists. It never authorizes a main merge, push or fast-forward. Explicit main approval must cover the named change; the generated Version Packages main merge also needs approval unless that operator instruction explicitly includes it. Public publication/deployment must be explicitly included in the release instruction. Never create or bypass a develop branch merely to avoid main approval. This current operator instruction takes precedence over older release prose and skill defaults.
 
+**Operator authorization (8 October 2026):** reviewed PRs (CI green, review per policy) merge into `main` without a per-change ask, and the resulting Version Packages PR may be approved and merged to publish, so consuming apps can pull the release. Trust-boundary changes listed under Escalation still stop for the operator.
+
 ## Truth hierarchy
 
 1. **The source and the scripts that enforce it** — `vendor/shadcn/4.21.0/` (the pinned pristine upstream), `packages/ui/registry/ui/*`, `packages/ui/upstream/patches/*`, `tooling/design-lint.mjs`, `tooling/upstream/*`, the `verify-*`/`sync-*` gates. Prose that disagrees with an enforcing script is a bug in the prose.
