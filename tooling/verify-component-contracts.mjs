@@ -577,7 +577,7 @@ const expectedWaves = {
   "Forms/editing": 34,
   "Navigation/layout": 21,
   Overlays: 20,
-  "Data display": 28,
+  "Data display": 30,
   "Content/marketing": 15,
   "AI/chat": 8,
   // Not a browse group: components other components install, with no page of their own. See
@@ -740,6 +740,8 @@ const expectedComponentWaveMembers = {
     "thumbnail",
     "timeline",
     "view-toggle",
+    "level-meter",
+    "empty-illustration",
   ],
   "Content/marketing": [
     "alert",
@@ -1151,6 +1153,8 @@ sameStrings(
     "use-overflow",
     "use-platform",
     "use-tabs-swipe",
+    "use-view-transition",
+    "use-optimistic-action",
   ],
   "Hooks membership",
 );
@@ -1167,8 +1171,8 @@ assert(
   "Animated icons membership must be sourced from packages/ui/animated-icon-sources.json",
 );
 assert(
-  contracts.expectedWaveCounts?.Hooks === 13,
-  "expectedWaveCounts.Hooks must be 13",
+  contracts.expectedWaveCounts?.Hooks === 15,
+  "expectedWaveCounts.Hooks must be 15",
 );
 assert(
   contracts.expectedWaveCounts?.Block === 1,

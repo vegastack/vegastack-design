@@ -1,9 +1,9 @@
-// @vegastack view-toggle@0.24.5 sha256-NCmr2BNScsAXiUE+t/6VC+t/A6E6S+y3IzaH0TsI280=
+// @vegastack view-toggle@0.24.5 sha256-rN7V9jbvop4k39QXROBtQ2KfDzczloS5DIbXocK6EIM=
 
 "use client";
 
 import * as React from "react";
-import { Columns3, LayoutGrid, List } from "lucide-react";
+import { Columns3, LayoutGrid, List, Rows3, Rows4 } from "lucide-react";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 /** A view a list can switch to. */
@@ -75,6 +75,82 @@ export function ViewToggle<V extends ListView = ListView>({
             <TabsTrigger key={view} value={view} data-view={view}>
               {VIEW_META[view].icon}
               <span className="max-sm:sr-only">{label}</span>
+            </TabsTrigger>
+          );
+        })}
+      </TabsList>
+    </Tabs>
+  );
+}
+
+/** A row density a list or table can show. */
+export type Density = "comfortable" | "compact";
+
+const DENSITY_META: Record<Density, { label: string; icon: React.ReactNode }> =
+  {
+    comfortable: { label: "Comfortable", icon: <Rows3 aria-hidden /> },
+    compact: { label: "Compact", icon: <Rows4 aria-hidden /> },
+  };
+
+/** Props accepted by `DensityToggle`. */
+export interface DensityToggleProps {
+  /** The current density. */
+  value: Density;
+  /** Called with the density the user picks. */
+  onValueChange: (density: Density) => void;
+  /**
+   * Relabel a density.
+   * @default undefined
+   */
+  labels?: Partial<Record<Density, string>>;
+  /**
+   * The group's accessible name.
+   * @default "Density"
+   */
+  "aria-label"?: string;
+  /**
+   * Extra classes for the group.
+   * @default undefined
+   */
+  className?: string;
+}
+
+/**
+ * `DensityToggle` — the Comfortable | Compact row-density switch for a table or list, the same
+ * pill `Tabs` as `ViewToggle` with icon-only triggers (the label is the accessible name and the
+ * tooltip-free `title`). `DataList` mounts it for you when given `onDensityChange`.
+ *
+ * @example
+ * <DensityToggle value={density} onValueChange={setDensity} />
+ */
+export function DensityToggle({
+  value,
+  onValueChange,
+  labels,
+  "aria-label": ariaLabel = "Density",
+  className,
+}: DensityToggleProps) {
+  return (
+    <Tabs
+      data-slot="density-toggle"
+      value={value}
+      onValueChange={(next) => {
+        if (next === "comfortable" || next === "compact") onValueChange(next);
+      }}
+      className={className}
+    >
+      <TabsList aria-label={ariaLabel}>
+        {(Object.keys(DENSITY_META) as Density[]).map((density) => {
+          const label = labels?.[density] ?? DENSITY_META[density].label;
+          return (
+            <TabsTrigger
+              key={density}
+              value={density}
+              data-density={density}
+              title={label}
+            >
+              {DENSITY_META[density].icon}
+              <span className="sr-only">{label}</span>
             </TabsTrigger>
           );
         })}

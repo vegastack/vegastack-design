@@ -1483,7 +1483,7 @@
         "whenToUse": "A list of records as a table, a card grid or board lanes (view) with typed columns, selection, click-to-sort, loading/empty states, keyset paging through loadMore, rows as links, sections, thumbnails and a row-actions column.",
         "whenNotToUse": "Full-parity grids with grouping/editing/virtualization (DataGrid), or a simple static table (Table).",
         "version": "0.24.5",
-        "integrity": "sha256-mphh+rmGZNHyEkXkIh+aERQtDxxyXmyk79euCwl9dKU="
+        "integrity": "sha256-yXzc/KF0NwlR0sKZYzr+ArSBA2DhvKqKd6I7xzDjLBU="
       }
     },
     {
@@ -1633,7 +1633,7 @@
         "whenToUse": "Switching a list page between list, grid and board views — DataList mounts it for you with onViewChange.",
         "whenNotToUse": "A scope switch such as Mine | Team (default Tabs), or a form value (RadioGroup).",
         "version": "0.24.5",
-        "integrity": "sha256-NCmr2BNScsAXiUE+t/6VC+t/A6E6S+y3IzaH0TsI280="
+        "integrity": "sha256-rN7V9jbvop4k39QXROBtQ2KfDzczloS5DIbXocK6EIM="
       }
     },
     {
@@ -2170,6 +2170,7 @@
       ],
       "registryDependencies": [
         "@vegastack/auto-save-input",
+        "@vegastack/date-picker",
         "@vegastack/select",
         "@vegastack/spinner",
         "@vegastack/toast",
@@ -2188,7 +2189,7 @@
         "whenToUse": "Any optimistic inline edit of a single value — grid cells (focusMode=managed), record-page property lists, settings rows — where the write is async and can fail.",
         "whenNotToUse": "Debounced save-as-you-type on a standing form field (AutoSaveInput), or whole forms (Field).",
         "version": "0.24.5",
-        "integrity": "sha256-+dPIotoj6IPumr+Ap8jJ9mf+gGX1sqA0+T0m99TwwlQ="
+        "integrity": "sha256-kcHIveSekHJW15z/OOltLLdTRBW0bFmlAQqy3VzSNK4="
       }
     },
     {
@@ -21648,6 +21649,108 @@
         "whenNotToUse": "Entity data or permission rules.",
         "version": "0.24.5",
         "integrity": "sha256-F9WQ6+eB9Og7V1Dl5UHS1LDV7GbaE8GzPcSAvaAXXaQ="
+      }
+    },
+    {
+      "name": "use-view-transition",
+      "type": "registry:hook",
+      "title": "useViewTransition / startViewTransition",
+      "description": "Run a React state change inside a View Transition — flushSync inside the snapshot, a plain update where the API is missing or the user asked for reduced motion, and an optional skip while one is already running.",
+      "categories": [
+        "hook"
+      ],
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/use-view-transition.ts",
+          "type": "registry:hook",
+          "target": "@ui/use-view-transition.ts"
+        }
+      ],
+      "meta": {
+        "whenToUse": "An in-page state change should cross-fade or morph instead of jumping — switching a view, reordering, opening a detail pane.",
+        "whenNotToUse": "A component's own enter/exit (use Base UI's lifecycle styles or the motion-* utilities), or anything that must animate in every browser.",
+        "version": "0.24.5",
+        "integrity": "sha256-nMbr6xkpuFHVoIY0OF19RCQagjcBXENFCpXsJL/B72Y="
+      }
+    },
+    {
+      "name": "use-optimistic-action",
+      "type": "registry:hook",
+      "title": "useOptimisticAction",
+      "description": "Apply a reversible action at once, offer Undo in a toast, and commit only when the Undo window closes; a failed commit reverts and offers Retry.",
+      "categories": [
+        "hook"
+      ],
+      "dependencies": [],
+      "registryDependencies": [
+        "@vegastack/toast"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/use-optimistic-action.ts",
+          "type": "registry:hook",
+          "target": "@ui/use-optimistic-action.ts"
+        }
+      ],
+      "meta": {
+        "whenToUse": "Reversible actions that should feel instant — archive, delete to trash, move, mark done — with an Undo toast.",
+        "whenNotToUse": "Irreversible or slow-to-confirm actions (ask first with AlertDialog), or edits that save in place (EditableCell has its own optimistic layer).",
+        "version": "0.24.5",
+        "integrity": "sha256-3dcOuDwlZdlhPRjCffNut46l3uEFJSuhb+XDkw5B9Z0="
+      }
+    },
+    {
+      "name": "level-meter",
+      "type": "registry:ui",
+      "title": "Level Meter",
+      "description": "A segmented live input-level meter for a recording — Web Audio RMS from a MediaStream, or a level you drive — with warning and clipping zones.",
+      "categories": [
+        "media"
+      ],
+      "dependencies": [
+        "@vegastack/design@^0.7.111"
+      ],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/level-meter.tsx",
+          "type": "registry:ui",
+          "target": "@ui/level-meter.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "Show that a microphone is being heard while recording or before a call starts.",
+        "whenNotToUse": "Playback progress or a seek bar (AudioPlayer), or a static measurement (Progress or Meter).",
+        "version": "0.24.5",
+        "integrity": "sha256-0K0ACdpbqSYcctbDBXrGviZboY5ZTEJUwlhNzlzHp3g="
+      }
+    },
+    {
+      "name": "empty-illustration",
+      "type": "registry:ui",
+      "title": "Empty Illustration",
+      "description": "The shared set of monochrome line illustrations for empty states, drawn in currentColor so they follow the token colour and both themes.",
+      "categories": [
+        "data-display"
+      ],
+      "dependencies": [
+        "@vegastack/design@^0.7.111"
+      ],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/empty-illustration.tsx",
+          "type": "registry:ui",
+          "target": "@ui/empty-illustration.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "A first-run or zero-state page that deserves more than an icon — an empty inbox, no tasks yet, no files.",
+        "whenNotToUse": "Small inline empties (Empty's default icon), errors, or loading states.",
+        "version": "0.24.5",
+        "integrity": "sha256-Fa94UxSOdvI0IMrMlBFvuMj7UQhvbKTq6lVpNnd6jLk="
       }
     }
   ]

@@ -361,7 +361,7 @@ function importantModifierTokens(lit) {
 // asserts directly) and `progress-indicator`, whose determinate ring went with the component when
 // Batch 7a of the shadcn reset retired it for `progress` + `spinner`. An exemption that can no
 // longer be reached is an exemption that should not exist.
-const SVG_GRAPHIC_ALLOWLIST = /(?:^|\/)(?:empty)\.tsx$/;
+const SVG_GRAPHIC_ALLOWLIST = /(?:^|\/)(?:empty|empty-illustration)\.tsx$/;
 
 /**
  * `icon-button-name`'s host escape hatch (Batch 4 of the shadcn reset, 2026-09-18).

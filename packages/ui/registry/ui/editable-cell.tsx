@@ -1,4 +1,4 @@
-// @vegastack editable-cell@0.24.5 sha256-+dPIotoj6IPumr+Ap8jJ9mf+gGX1sqA0+T0m99TwwlQ=
+// @vegastack editable-cell@0.24.5 sha256-kcHIveSekHJW15z/OOltLLdTRBW0bFmlAQqy3VzSNK4=
 
 "use client";
 
@@ -9,6 +9,7 @@ import { toast } from "@/components/ui/toast";
 import { useAnnouncer } from "@/components/ui/use-announcer";
 import { useInlineEdit } from "@/components/ui/use-inline-edit";
 import { useOverflow } from "@/components/ui/use-overflow";
+import { DatePicker } from "@/components/ui/date-picker";
 import type { AutoSaveStatus } from "@/components/ui/auto-save-input";
 import {
   Select,
@@ -70,7 +71,9 @@ export interface EditableCellEditorProps {
  * `number` edits the same way with a decimal keyboard, shows `1,234 mm` (the value stays a string,
  * formatted with `toLocaleString`, the unit muted after it) and refuses a draft that is not a
  * number or falls outside `min`/`max` — the field stays open, `aria-invalid`, with the draft kept;
- * an empty draft commits `""`. `select` renders a `Select` whose popover is the editor; `custom` is the open
+ * an empty draft commits `""`. `date` renders a ghost `DatePicker` whose calendar is the editor; the
+ * value is an ISO calendar date (`"2026-10-08"`), shown with `Intl.DateTimeFormat`, and clearing it
+ * commits `""`. `select` renders a `Select` whose popover is the editor; `custom` is the open
  * registry — any app editor (date, actor, currency, multi-select) plugs in by
  * rendering its own control against the same commit/cancel contract.
  */
@@ -87,6 +90,17 @@ export type EditableCellEditor =
       /** The step the value is expected in; a draft off the step does not commit. */
       step?: number;
       placeholder?: string;
+    }
+  | {
+      type: "date";
+      /** Shown while no date is set. */
+      placeholder?: string;
+      /** How the date reads at rest. @default { year: "numeric", month: "short", day: "numeric" } */
+      formatOptions?: Intl.DateTimeFormatOptions;
+      /** The locale the date is formatted in. @default the user's */
+      locale?: string;
+      /** Offer a clear control that commits `""`. @default false */
+      clearable?: boolean;
     }
   | {
       type: "select";
@@ -568,6 +582,37 @@ function InlineTextEditor({
   );
 }
 
+/** `"2026-10-08"` → a local-midnight `Date`, or `undefined` for an empty or malformed value. */
+function parseIsoDate(value: string): Date | undefined {
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value);
+  if (!match) return undefined;
+  const date = new Date(
+    Number(match[1]),
+    Number(match[2]) - 1,
+    Number(match[3]),
+  );
+  return Number.isNaN(date.getTime()) ? undefined : date;
+}
+
+/** A `Date` → its local calendar date as `"YYYY-MM-DD"`. */
+function toIsoDate(date: Date): string {
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
+}
+
+function formatIsoDate(
+  value: string,
+  options: Intl.DateTimeFormatOptions = {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+  },
+  locale?: string,
+): string {
+  const date = parseIsoDate(value);
+  return date ? new Intl.DateTimeFormat(locale, options).format(date) : value;
+}
+
 /**
  * `EditableCell` — an inline-editable value with an async save lifecycle.
  * Runs `InlineTextEditor` as the text leaf — edit looks like view: no border, ring or background,
@@ -777,6 +822,27 @@ export function EditableCell({
         </SelectContent>
       </Select>
     );
+  } else if (editor.type === "date" && !readOnly) {
+    // The DatePicker popover IS the editor, like `select`: Enter or Space opens the calendar, the
+    // arrow keys move the day, Enter commits and Escape cancels — all owned by the picker.
+    editorSurface = (
+      <DatePicker
+        size="sm"
+        variant="ghost"
+        value={parseIsoDate(displayValue)}
+        onValueChange={(date) => handleCommit(date ? toIsoDate(date) : "")}
+        placeholder={editor.placeholder}
+        formatOptions={editor.formatOptions}
+        locale={editor.locale}
+        clearable={editor.clearable}
+        disabled={disabled}
+        aria-label={label}
+        renderValue={
+          renderValue ? (date) => renderValue(toIsoDate(date)) : undefined
+        }
+        className="w-fit min-w-0"
+      />
+    );
   } else if (editor.type === "custom" && isEditing) {
     editorSurface = editor.render({
       value: displayValue,
@@ -793,7 +859,9 @@ export function EditableCell({
       editor.type === "select"
         ? (editor.options.find((option) => option.value === displayValue)
             ?.label ?? displayValue)
-        : displayValue;
+        : editor.type === "date"
+          ? formatIsoDate(displayValue, editor.formatOptions, editor.locale)
+          : displayValue;
     editorSurface = (
       <InlineTextEditor
         value={displayText}

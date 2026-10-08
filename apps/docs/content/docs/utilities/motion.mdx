@@ -1,0 +1,70 @@
+---
+title: Motion helpers
+description: Staggered content reveals, View Transitions for in-page state changes, and the optimistic action with an Undo toast.
+audience: public
+preview: motionStagger
+---
+
+## motion-stagger
+
+`motion-stagger` ships with **`@vegastack/design-tokens`**' `utilities.css`, beside `shimmer` and
+`scroll-fade`. Put it on the parent of content that replaces a skeleton: each direct child plays
+`motion-enter-up` a quarter of `--duration-fast` after the one before (children past the twelfth
+share the twelfth's delay). Change the parent's `key` to replay. Override the step with
+`[--vs-stagger-step:60ms]`. Under reduced motion the content appears at once.
+
+```tsx
+{
+  loading ? <Skeletons /> : <ul className="motion-stagger">{rows}</ul>;
+}
+```
+
+<ComponentPreview
+  name="motionStagger"
+  file="components/preview/utilities.tsx"
+/>
+
+## View transitions
+
+`npx shadcn add @vegastack/use-view-transition`. `startViewTransition(update)` runs a React state
+change inside `document.startViewTransition`, flushing it synchronously so the browser snapshots
+the new frame. Where the API is missing, or the user asked for reduced motion, `update` simply
+runs. `useViewTransition()` is the hook form with a `pending` flag. Give elements that should
+morph a shared `view-transition-name`.
+
+```tsx
+const { start } = useViewTransition();
+<ViewToggle
+  value={view}
+  onValueChange={(next) => start(() => setView(next))}
+/>;
+```
+
+In Next.js, route changes are asynchronous: use Next's `experimental.viewTransition` flag with
+React's `<ViewTransition>` for navigations, and this helper for in-page state.
+
+<ComponentPreview
+  name="viewTransition"
+  file="components/preview/utilities.tsx"
+/>
+
+## Optimistic action with Undo
+
+`npx shadcn add @vegastack/use-optimistic-action`. `run(input)` applies the change at once and
+shows a toast with **Undo**; the commit runs only when the window closes (5 s by default). Undo
+reverts and the server is never called. A failed commit reverts and offers Retry. Pending commits
+flush on `pagehide` and unmount. Needs a mounted `Toaster`.
+
+```tsx
+const archive = useOptimisticAction({
+  apply: (task) => remove(task),
+  revert: (task) => restore(task),
+  commit: (task) => api.archive(task.id),
+  message: (task) => `Archived “${task.title}”`,
+});
+```
+
+<ComponentPreview
+  name="optimisticUndo"
+  file="components/preview/utilities.tsx"
+/>

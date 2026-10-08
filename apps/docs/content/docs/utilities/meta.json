@@ -1,4 +1,4 @@
 {
   "title": "Utilities",
-  "pages": ["shimmer", "scroll-fade"]
+  "pages": ["shimmer", "scroll-fade", "motion"]
 }

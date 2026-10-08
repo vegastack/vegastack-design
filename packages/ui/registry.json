@@ -1913,6 +1913,7 @@
       ],
       "registryDependencies": [
         "@vegastack/auto-save-input",
+        "@vegastack/date-picker",
         "@vegastack/select",
         "@vegastack/spinner",
         "@vegastack/toast",
@@ -17588,6 +17589,90 @@
       "meta": {
         "whenToUse": "Reusable identity glyphs and picker content.",
         "whenNotToUse": "Entity data or permission rules.",
+        "version": "0.24.5"
+      }
+    },
+    {
+      "name": "use-view-transition",
+      "type": "registry:hook",
+      "title": "useViewTransition / startViewTransition",
+      "description": "Run a React state change inside a View Transition — flushSync inside the snapshot, a plain update where the API is missing or the user asked for reduced motion, and an optional skip while one is already running.",
+      "categories": ["hook"],
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/use-view-transition.ts",
+          "type": "registry:hook",
+          "target": "@ui/use-view-transition.ts"
+        }
+      ],
+      "meta": {
+        "whenToUse": "An in-page state change should cross-fade or morph instead of jumping — switching a view, reordering, opening a detail pane.",
+        "whenNotToUse": "A component's own enter/exit (use Base UI's lifecycle styles or the motion-* utilities), or anything that must animate in every browser.",
+        "version": "0.24.5"
+      }
+    },
+    {
+      "name": "use-optimistic-action",
+      "type": "registry:hook",
+      "title": "useOptimisticAction",
+      "description": "Apply a reversible action at once, offer Undo in a toast, and commit only when the Undo window closes; a failed commit reverts and offers Retry.",
+      "categories": ["hook"],
+      "dependencies": [],
+      "registryDependencies": ["@vegastack/toast"],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/use-optimistic-action.ts",
+          "type": "registry:hook",
+          "target": "@ui/use-optimistic-action.ts"
+        }
+      ],
+      "meta": {
+        "whenToUse": "Reversible actions that should feel instant — archive, delete to trash, move, mark done — with an Undo toast.",
+        "whenNotToUse": "Irreversible or slow-to-confirm actions (ask first with AlertDialog), or edits that save in place (EditableCell has its own optimistic layer).",
+        "version": "0.24.5"
+      }
+    },
+    {
+      "name": "level-meter",
+      "type": "registry:ui",
+      "title": "Level Meter",
+      "description": "A segmented live input-level meter for a recording — Web Audio RMS from a MediaStream, or a level you drive — with warning and clipping zones.",
+      "categories": ["media"],
+      "dependencies": ["@vegastack/design@^0.7.111"],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/level-meter.tsx",
+          "type": "registry:ui",
+          "target": "@ui/level-meter.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "Show that a microphone is being heard while recording or before a call starts.",
+        "whenNotToUse": "Playback progress or a seek bar (AudioPlayer), or a static measurement (Progress or Meter).",
+        "version": "0.24.5"
+      }
+    },
+    {
+      "name": "empty-illustration",
+      "type": "registry:ui",
+      "title": "Empty Illustration",
+      "description": "The shared set of monochrome line illustrations for empty states, drawn in currentColor so they follow the token colour and both themes.",
+      "categories": ["data-display"],
+      "dependencies": ["@vegastack/design@^0.7.111"],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/empty-illustration.tsx",
+          "type": "registry:ui",
+          "target": "@ui/empty-illustration.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "A first-run or zero-state page that deserves more than an icon — an empty inbox, no tasks yet, no files.",
+        "whenNotToUse": "Small inline empties (Empty's default icon), errors, or loading states.",
         "version": "0.24.5"
       }
     }

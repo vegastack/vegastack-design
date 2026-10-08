@@ -12,10 +12,10 @@
     "evidencePolicy": "Observed fields come from source, registry metadata, docs, and test topology. Unknown/not-applicable values are explicit; no inferred behavior is presented as verified."
   },
   "expectedCounts": {
-    "totalRegistryItems": 733,
-    "components": 154,
+    "totalRegistryItems": 737,
+    "components": 156,
     "animatedIcons": 467,
-    "hooks": 13,
+    "hooks": 15,
     "blocks": 15,
     "libs": 16,
     "chartBlocks": 68
@@ -25,11 +25,11 @@
     "Forms/editing": 34,
     "Navigation/layout": 21,
     "Overlays": 20,
-    "Data display": 28,
+    "Data display": 30,
     "Content/marketing": 15,
     "Shared internals": 4,
     "AI/chat": 8,
-    "Hooks": 13,
+    "Hooks": 15,
     "Block": 1,
     "Animated icons": 467
   },
@@ -169,7 +169,9 @@
       "timeline",
       "version-list",
       "view-toggle",
-      "icon-glyph"
+      "icon-glyph",
+      "level-meter",
+      "empty-illustration"
     ],
     "Content/marketing": [
       "alert",
@@ -217,7 +219,9 @@
       "use-mobile",
       "use-overflow",
       "use-platform",
-      "use-tabs-swipe"
+      "use-tabs-swipe",
+      "use-view-transition",
+      "use-optimistic-action"
     ],
     "Block": ["board-01"],
     "Animated icons": "packages/ui/animated-icon-sources.json"
@@ -7936,6 +7940,15 @@
             "status": "not-applicable",
             "rationale": "Type-only exports do not render or accept runtime refs."
           }
+        },
+        {
+          "name": "DataListDensity",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/data-list.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
         }
       ],
       "variants": {
@@ -8090,6 +8103,10 @@
             {
               "name": "data-collapsed",
               "values": [""]
+            },
+            {
+              "name": "data-density",
+              "values": []
             },
             {
               "name": "data-highlighted",
@@ -8844,6 +8861,33 @@
             "status": "not-applicable",
             "rationale": "Type-only exports do not render or accept runtime refs."
           }
+        },
+        {
+          "name": "Density",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/view-toggle.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "DensityToggle",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/view-toggle.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "ViewToggle takes no ref; it renders a ToggleGroup."
+          }
+        },
+        {
+          "name": "DensityToggleProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/view-toggle.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
         }
       ],
       "variants": {
@@ -8914,6 +8958,19 @@
             {
               "name": "data-view",
               "values": []
+            }
+          ],
+          "cssVariables": []
+        },
+        "DensityToggle": {
+          "attributes": [
+            {
+              "name": "data-density",
+              "values": []
+            },
+            {
+              "name": "data-slot",
+              "values": ["density-toggle"]
             }
           ],
           "cssVariables": []
@@ -11607,6 +11664,7 @@
       "docsSlug": "/docs/components/editable-cell",
       "registryDependencies": [
         "@vegastack/auto-save-input",
+        "@vegastack/date-picker",
         "@vegastack/select",
         "@vegastack/spinner",
         "@vegastack/toast",
@@ -31809,6 +31867,234 @@
           "cssVariables": []
         }
       }
+    },
+    {
+      "name": "level-meter",
+      "registryType": "registry:ui",
+      "title": "Level Meter",
+      "summary": "A segmented live input-level meter for a recording — Web Audio RMS from a MediaStream, or a level you drive — with warning and clipping zones.",
+      "status": "stable",
+      "since": "0.24.6",
+      "family": "media",
+      "wave": "Data display",
+      "sourceFiles": ["packages/ui/registry/ui/level-meter.tsx"],
+      "publicSymbols": [
+        {
+          "name": "LevelMeter",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/level-meter.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "div",
+            "rationale": "Source forwards the ref to this JSX/Base UI render target."
+          }
+        },
+        {
+          "name": "LevelMeterProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/level-meter.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "No explicit local CVA or string-union variant dimension observed; structure or inherited props define the surface."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "No explicit local size scale observed; sizing is fixed, structural, or inherited."
+      },
+      "states": {
+        "behavior": {
+          "status": "observed",
+          "values": ["default", "active", "inactive"],
+          "evidence": "Observed from branches, state attributes, and inline source contract."
+        },
+        "accessibility": {
+          "status": "observed",
+          "values": ["meter", "semantic-html"],
+          "evidence": "Observed from semantic elements and ARIA."
+        },
+        "visual": {
+          "status": "observed",
+          "values": ["default", "ok", "hot", "clip"],
+          "evidence": "Observed from token classes, state selectors, or visual branches."
+        }
+      },
+      "responsive": {
+        "status": "modeled",
+        "risks": ["text-truncation-and-flex-shrink"],
+        "rationale": "Segments flex to fill the width they are given."
+      },
+      "motion": {
+        "status": "modeled",
+        "mechanisms": ["requestAnimationFrame"],
+        "reducedMotion": {
+          "status": "observed-or-documented",
+          "rationale": "The level is information, not decoration, so it keeps updating; there are no transitions."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/level-meter",
+      "registryDependencies": [],
+      "npmDependencies": ["@vegastack/design@^0.7.111"],
+      "testFiles": ["packages/ui/registry/ui/level-meter.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required"
+      },
+      "previewModule": "level-meter",
+      "dataAttributes": {
+        "LevelMeter": {
+          "attributes": [
+            {
+              "name": "data-on",
+              "values": [""]
+            },
+            {
+              "name": "data-slot",
+              "values": ["level-meter", "level-meter-segment"]
+            },
+            {
+              "name": "data-state",
+              "values": ["active", "inactive"]
+            },
+            {
+              "name": "data-zone",
+              "values": []
+            }
+          ],
+          "cssVariables": []
+        }
+      }
+    },
+    {
+      "name": "empty-illustration",
+      "registryType": "registry:ui",
+      "title": "Empty Illustration",
+      "summary": "The shared set of monochrome line illustrations for empty states, drawn in currentColor so they follow the token colour and both themes.",
+      "status": "stable",
+      "since": "0.24.6",
+      "family": "data-display",
+      "wave": "Data display",
+      "sourceFiles": ["packages/ui/registry/ui/empty-illustration.tsx"],
+      "publicSymbols": [
+        {
+          "name": "EmptyIllustration",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/empty-illustration.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "svg",
+            "rationale": "Source forwards the ref to this JSX/Base UI render target."
+          }
+        },
+        {
+          "name": "EmptyIllustrationProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/empty-illustration.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "EmptyIllustrationName",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/empty-illustration.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "EMPTY_ILLUSTRATIONS",
+          "kind": "constant",
+          "source": "packages/ui/registry/ui/empty-illustration.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "This exported helper is not a rendered component root."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "No explicit local CVA or string-union variant dimension observed; structure or inherited props define the surface."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "No explicit local size scale observed; sizing is fixed, structural, or inherited."
+      },
+      "states": {
+        "behavior": {
+          "status": "observed",
+          "values": ["default"],
+          "evidence": "Observed from branches, state attributes, and inline source contract."
+        },
+        "accessibility": {
+          "status": "observed",
+          "values": ["decorative"],
+          "evidence": "Observed from semantic elements and ARIA."
+        },
+        "visual": {
+          "status": "observed",
+          "values": ["default"],
+          "evidence": "Observed from token classes, state selectors, or visual branches."
+        }
+      },
+      "responsive": {
+        "status": "modeled",
+        "risks": ["text-truncation-and-flex-shrink"],
+        "rationale": "Scales by height; width follows the aspect ratio."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "Static drawings."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/empty-illustration",
+      "registryDependencies": [],
+      "npmDependencies": ["@vegastack/design@^0.7.111"],
+      "testFiles": ["packages/ui/registry/ui/empty-illustration.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required"
+      },
+      "previewModule": "empty-illustration",
+      "dataAttributes": {
+        "EmptyIllustration": {
+          "attributes": [
+            {
+              "name": "data-name",
+              "values": []
+            },
+            {
+              "name": "data-slot",
+              "values": ["empty-illustration"]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
     }
   ],
   "animatedIcons": {
@@ -35859,6 +36145,213 @@
         "navigation": "exempt",
         "preview": "exempt",
         "vrt": "exempt"
+      }
+    },
+    {
+      "name": "use-view-transition",
+      "registryType": "registry:hook",
+      "title": "useViewTransition / startViewTransition",
+      "summary": "Run a React state change inside a View Transition — flushSync inside the snapshot, a plain update where the API is missing or the user asked for reduced motion, and an optional skip while one is already running.",
+      "family": "hook",
+      "wave": "Hooks",
+      "sourceFiles": ["packages/ui/registry/ui/use-view-transition.ts"],
+      "publicSymbols": [
+        {
+          "name": "startViewTransition",
+          "kind": "function",
+          "source": "packages/ui/registry/ui/use-view-transition.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "This exported helper is not a rendered component root."
+          }
+        },
+        {
+          "name": "supportsViewTransitions",
+          "kind": "function",
+          "source": "packages/ui/registry/ui/use-view-transition.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "This exported helper is not a rendered component root."
+          }
+        },
+        {
+          "name": "useViewTransition",
+          "kind": "hook",
+          "source": "packages/ui/registry/ui/use-view-transition.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "This exported helper is not a rendered component root."
+          }
+        },
+        {
+          "name": "ViewTransitionOptions",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/use-view-transition.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "UseViewTransitionResult",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/use-view-transition.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "No explicit local CVA or string-union variant dimension observed; structure or inherited props define the surface."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "No explicit local size scale observed; sizing is fixed, structural, or inherited."
+      },
+      "states": {
+        "behavior": {
+          "status": "observed",
+          "values": [
+            "unsupported",
+            "reduced-motion",
+            "transitioning",
+            "skipped"
+          ],
+          "evidence": "Falls back to a direct update when document.startViewTransition is missing, when (prefers-reduced-motion: reduce) matches, or when skipIfRunning meets a running transition; otherwise flushes the update inside the transition callback."
+        },
+        "accessibility": {
+          "status": "not-applicable",
+          "values": ["not-applicable"],
+          "evidence": "Pure hooks do not render an accessibility tree."
+        },
+        "visual": {
+          "status": "not-applicable",
+          "values": ["not-applicable"],
+          "evidence": "Pure hooks do not render visual states."
+        }
+      },
+      "responsive": {
+        "status": "not-applicable",
+        "risks": [],
+        "rationale": "No layout of its own; it sequences a caller's state update."
+      },
+      "motion": {
+        "status": "modeled",
+        "mechanisms": ["View Transitions API"],
+        "reducedMotion": {
+          "status": "observed",
+          "rationale": "Skips the transition entirely under (prefers-reduced-motion: reduce); base.css also neutralises the ::view-transition-* animations."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/guides/components",
+      "registryDependencies": [],
+      "npmDependencies": [],
+      "testFiles": ["packages/ui/registry/ui/use-view-transition.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "shared-guide-only",
+        "navigation": "exempt",
+        "preview": "exempt",
+        "vrt": "exempt",
+        "crossBrowserSmoke": "not-selected-intentional-subset"
+      }
+    },
+    {
+      "name": "use-optimistic-action",
+      "registryType": "registry:hook",
+      "title": "useOptimisticAction",
+      "summary": "Apply a reversible action at once, offer Undo in a toast, and commit only when the Undo window closes; a failed commit reverts and offers Retry.",
+      "family": "hook",
+      "wave": "Hooks",
+      "sourceFiles": ["packages/ui/registry/ui/use-optimistic-action.ts"],
+      "publicSymbols": [
+        {
+          "name": "useOptimisticAction",
+          "kind": "hook",
+          "source": "packages/ui/registry/ui/use-optimistic-action.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "This exported helper is not a rendered component root."
+          }
+        },
+        {
+          "name": "UseOptimisticActionOptions",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/use-optimistic-action.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "UseOptimisticActionResult",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/use-optimistic-action.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "No explicit local CVA or string-union variant dimension observed; structure or inherited props define the surface."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "No explicit local size scale observed; sizing is fixed, structural, or inherited."
+      },
+      "states": {
+        "behavior": {
+          "status": "observed",
+          "values": ["applied", "undone", "committed", "failed"],
+          "evidence": "run applies and schedules commit after undoWindowMs; undo reverts and cancels the commit; a rejected commit reverts and raises an error toast with Retry; pending commits flush on pagehide and unmount."
+        },
+        "accessibility": {
+          "status": "not-applicable",
+          "values": ["not-applicable"],
+          "evidence": "Pure hooks do not render an accessibility tree."
+        },
+        "visual": {
+          "status": "not-applicable",
+          "values": ["not-applicable"],
+          "evidence": "Pure hooks do not render visual states."
+        }
+      },
+      "responsive": {
+        "status": "not-applicable",
+        "risks": [],
+        "rationale": "No layout of its own; it raises toasts."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No motion of its own; the toast owns its motion."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/guides/components",
+      "registryDependencies": ["@vegastack/toast"],
+      "npmDependencies": [],
+      "testFiles": ["packages/ui/registry/ui/use-optimistic-action.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "shared-guide-only",
+        "navigation": "exempt",
+        "preview": "exempt",
+        "vrt": "exempt",
+        "crossBrowserSmoke": "not-selected-intentional-subset"
       }
     }
   ],

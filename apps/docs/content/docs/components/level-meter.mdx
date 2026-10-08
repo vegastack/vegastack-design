@@ -1,0 +1,66 @@
+---
+title: Level Meter
+description: A segmented live input-level meter for a recording — Web Audio RMS from a MediaStream, or a level you drive.
+audience: public
+registry: level-meter
+status: stable
+since: 0.24.6
+a11y: role="meter" with a rounded aria-valuenow
+preview: levelMeter
+---
+
+## Install
+
+<InstallSteps name="level-meter" />
+
+## Usage
+
+```tsx
+import { LevelMeter } from "@/components/ui/level-meter";
+
+const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+<LevelMeter stream={stream} active={!paused} />;
+```
+
+The meter reads the stream through an `AnalyserNode`, maps `floor` dBFS…0 dBFS onto its segments,
+rises at once and falls slowly so a short peak stays readable. It never stops the stream's tracks —
+the recorder owns them. The top two segments are the warning zone and the last one is clipping.
+
+## Examples
+
+### Levels
+
+<ComponentPreview name="levelMeter" file="components/preview/level-meter.tsx" />
+
+### Microphone
+
+<ComponentPreview
+  name="levelMeterMicrophone"
+  file="components/preview/level-meter.tsx"
+/>
+
+For playback, the waveform scrubber is part of [Audio Player](/docs/components/audio-player)
+(`variant="waveform"`, with optional precomputed `peaks`).
+
+## API Reference
+
+<ApiTable
+  path="../../packages/ui/registry/ui/level-meter.tsx"
+  name="LevelMeterProps"
+/>
+
+## Accessibility
+
+- The root is `role="meter"`, named "Input level" by default, with `aria-valuenow` as a whole
+  percentage of lit segments — it changes only when a segment does, not every frame.
+- The segments are `aria-hidden`; colour is never the only signal, the count of lit segments is.
+- The meter keeps moving under reduced motion: it is information, and it has no transitions.
+
+<StatesTested name="level-meter" />
+
+## Do / Don't
+
+<DoDont
+  do="Show it beside the record button while recording, and pass active={false} while paused or muted."
+  dont="Use it as a playback progress bar — that is Audio Player's waveform or seek slider."
+/>

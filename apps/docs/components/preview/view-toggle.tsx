@@ -3,7 +3,12 @@
 import * as React from "react";
 import type { ReactNode } from "react";
 import { Wrapper } from "./wrapper";
-import { ViewToggle, type ListView } from "@/components/ui/view-toggle";
+import {
+  DensityToggle,
+  ViewToggle,
+  type Density,
+  type ListView,
+} from "@/components/ui/view-toggle";
 
 export function viewToggle(): ReactNode {
   const [view, setView] = React.useState<"grid" | "list">("grid");
@@ -23,6 +28,15 @@ export function viewToggleBoard(): ReactNode {
         onValueChange={setView}
         views={["list", "grid", "board"]}
       />
+    </Wrapper>
+  );
+}
+
+export function densityToggle(): ReactNode {
+  const [density, setDensity] = React.useState<Density>("comfortable");
+  return (
+    <Wrapper>
+      <DensityToggle value={density} onValueChange={setDensity} />
     </Wrapper>
   );
 }

@@ -107,6 +107,28 @@ export function editableCellSelect(): ReactNode {
   );
 }
 
+export function editableCellDate(): ReactNode {
+  const [due, setDue] = useState("2026-10-15");
+  return (
+    <Wrapper className="block">
+      <div className="mx-auto flex w-full max-w-sm flex-col gap-1.5">
+        <span className="text-xs font-medium text-muted-foreground">
+          Due date
+        </span>
+        <EditableCell
+          value={due}
+          label="Due date"
+          editor={{ type: "date", clearable: true, placeholder: "No due date" }}
+          onSave={async (next) => {
+            await fakeSave();
+            setDue(next);
+          }}
+        />
+      </div>
+    </Wrapper>
+  );
+}
+
 export function editableCellStates(): ReactNode {
   return (
     <Wrapper className="block">
