@@ -10513,6 +10513,10 @@
         "DrawerContent": {
           "attributes": [
             {
+              "name": "data-flush",
+              "values": [""]
+            },
+            {
               "name": "data-modal",
               "values": []
             },

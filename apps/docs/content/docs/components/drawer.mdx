@@ -95,11 +95,11 @@ content-sized drawer.
 The drawer exposes CSS variables for style-level customisation. Set the sizing variables on
 `DrawerContent`; set the overlay variable on `[data-slot=drawer-overlay]` in your own CSS.
 
-| Variable                       | Default                | Description                                                             |
-| ------------------------------ | ---------------------- | ----------------------------------------------------------------------- |
-| `--drawer-inset`               | `0px`                  | Floats the drawer off the viewport edges.                               |
-| `--drawer-bleed-background`    | `var(--color-popover)` | Fills the gap behind the drawer on swipe overshoot.                     |
-| `--drawer-overlay-min-opacity` | `0`                    | Minimum overlay opacity. Defaults to `0.5` when snap points are active. |
+| Variable                       | Default        | Description                                                                              |
+| ------------------------------ | -------------- | ---------------------------------------------------------------------------------------- |
+| `--drawer-inset`               | `--spacing(2)` | Floats the drawer off the viewport edges. `0px` with `flush`.                            |
+| `--drawer-bleed-background`    | `transparent`  | Fills the gap behind the drawer on swipe overshoot. `var(--color-popover)` with `flush`. |
+| `--drawer-overlay-min-opacity` | `0`            | Minimum overlay opacity. Defaults to `0.5` when snap points are active.                  |
 
 The popup also carries data attributes to target with variants such as `data-[swipe-direction=down]:`
 on `DrawerContent`, or `group-data-[swipe-axis=y]/drawer-popup:` on its descendants.
@@ -114,6 +114,16 @@ on `DrawerContent`, or `group-data-[swipe-axis=y]/drawer-popup:` on its descenda
 | `data-nested-drawer-open` | Present                       | A nested drawer is open on top.       |
 
 <ComponentPreview name="drawerStyling" file="components/preview/drawer.tsx" />
+
+### Inset and flush
+
+A drawer floats inset by default: `--spacing(2)` off every viewport edge, every corner rounded and a
+full border, in all four directions. Pass `flush` on `Drawer` for the edge-to-edge sheet — rounded and
+bordered on its inner edge only. Width and height overrides work the same either way: `w-*` and
+`max-w-*` on `DrawerContent` (or a `data-[swipe-axis=x]:` scoped `--drawer-content-width`), and a
+different inset with `[--drawer-inset:--spacing(4)]`.
+
+<ComponentPreview name="drawerInset" file="components/preview/drawer.tsx" />
 
 ### Position
 
@@ -225,6 +235,10 @@ Upstream's file plus `packages/ui/upstream/patches/drawer.patch`. Every hunk:
   through `useModalInert`. No new context: upstream's own `DrawerContext` already carries `modal`
   into `DrawerContent`, so the hook is gated on the value that is already there — which is why
   `modal={false}` keeps its outside pointer interaction.
+- **OVL-21** — the popup floats inset by default: `[--drawer-inset:--spacing(2)]`, `rounded-xl`, a
+  full `border` and a transparent bleed. `Drawer` takes `flush` (carried on upstream's own
+  `DrawerContext`, marked `data-flush` on the popup), which restores upstream's inner-edge rounding
+  and border with the inset at `0px`.
 - **DOC-2** — `import { cn } from "cn"` becomes `@vegastack/design`; our npm layer owns `cn`.
 - **DOC-1** — prettier reflow plus the `registry-stamp.mjs` provenance header; no decision of its
   own.

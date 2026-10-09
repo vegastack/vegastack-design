@@ -254,6 +254,41 @@ export function drawerStyling(): ReactNode {
   );
 }
 
+const INSET_OPTIONS = [
+  { label: "Inset (default)", flush: false },
+  { label: "Flush", flush: true },
+] as const;
+
+export function drawerInset(): ReactNode {
+  return (
+    <Wrapper className="gap-3">
+      {INSET_OPTIONS.map(({ label, flush }) => (
+        <Drawer key={label} swipeDirection="right" flush={flush}>
+          <DrawerTrigger render={<Button variant="secondary" />}>
+            {label}
+          </DrawerTrigger>
+          <DrawerContent>
+            <DrawerHeader>
+              <DrawerTitle>{label}</DrawerTitle>
+              <DrawerDescription>
+                {flush
+                  ? "Flush rests the panel against the viewport edge, rounded and bordered on its inner edge only."
+                  : "The panel floats off every viewport edge, every corner rounded, with a full border."}
+              </DrawerDescription>
+            </DrawerHeader>
+            <div className="flex-1 p-4">
+              <div className="size-full rounded-lg bg-muted" />
+            </div>
+            <DrawerFooter>
+              <DrawerClose render={<Button />}>Close</DrawerClose>
+            </DrawerFooter>
+          </DrawerContent>
+        </Drawer>
+      ))}
+    </Wrapper>
+  );
+}
+
 const SWIPE_DIRECTIONS = ["up", "right", "down", "left"] as const;
 
 export function drawerPosition(): ReactNode {
