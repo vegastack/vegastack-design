@@ -10,10 +10,14 @@ import {
 type StatusIconPlaygroundKey = "status" | "size";
 
 const STATUS_OPTIONS = [
-  { value: "todo", label: "To do" },
+  { value: "backlog", label: "Backlog" },
+  { value: "todo", label: "Todo" },
   { value: "progress", label: "In progress" },
-  { value: "blocked", label: "Blocked" },
+  { value: "review", label: "In review" },
   { value: "done", label: "Done" },
+  { value: "canceled", label: "Canceled" },
+  { value: "duplicate", label: "Duplicate" },
+  { value: "triage", label: "Triage" },
 ] as const;
 
 const SIZE_OPTIONS = [

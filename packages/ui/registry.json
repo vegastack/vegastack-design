@@ -14298,11 +14298,10 @@
       "name": "status-icon",
       "type": "registry:ui",
       "title": "Status Icon",
-      "description": "A small status indicator icon — todo, in progress, blocked, done, cancelled — each mapping to a lucide icon and semantic color.",
+      "description": "A small workflow status icon in Linear's set — backlog, todo, in progress, in review, done, canceled, duplicate, triage — each a hand-drawn 16-unit glyph in a semantic color.",
       "categories": ["data-display"],
       "dependencies": [
         "class-variance-authority@^0.7.1",
-        "lucide-react@^1.47.0",
         "@vegastack/design@^0.8.1",
         "@vegastack/design-tokens@^0.8.0"
       ],
@@ -14315,7 +14314,7 @@
         }
       ],
       "meta": {
-        "whenToUse": "Indicate the state of a task or item — todo, in progress, blocked, or done — alongside a label.",
+        "whenToUse": "Indicate the workflow state of a task or issue — backlog, todo, in progress, in review, done, canceled, duplicate, triage — alongside a label.",
         "whenNotToUse": "Measurable progress (Progress), generic loading (Spinner), or priority (PriorityIcon).",
         "version": "0.25.4"
       }

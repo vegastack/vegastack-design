@@ -40,11 +40,9 @@ export function statusIcon(): ReactNode {
 export function statusIconStates(): ReactNode {
   return (
     <Wrapper>
-      <StatusIcon status="todo" />
-      <StatusIcon status="progress" />
-      <StatusIcon status="blocked" />
-      <StatusIcon status="done" />
-      <StatusIcon status="cancelled" />
+      {STATUSES.map((s) => (
+        <StatusIcon key={s.value} status={s.value} />
+      ))}
     </Wrapper>
   );
 }
@@ -72,41 +70,28 @@ export function statusIconSizes(): ReactNode {
 export function statusIconWithLabel(): ReactNode {
   return (
     <Wrapper className="flex-col items-start gap-3">
-      <span className="flex items-center gap-2 text-sm text-muted-foreground">
-        <StatusIcon status="todo" label="" />
-        To do
-      </span>
-      <span className="flex items-center gap-2 text-sm text-info-text">
-        <StatusIcon status="progress" label="" />
-        In progress
-      </span>
-      <span className="flex items-center gap-2 text-sm text-warning-text">
-        <StatusIcon status="blocked" label="" />
-        Blocked
-      </span>
-      <span className="flex items-center gap-2 text-sm text-success-text">
-        <StatusIcon status="done" label="" />
-        Done
-      </span>
+      {STATUSES.map((s) => (
+        <span key={s.value} className="flex items-center gap-2 text-sm">
+          <StatusIcon status={s.value} size="sm" label="" />
+          {s.label}
+        </span>
+      ))}
     </Wrapper>
   );
 }
 
 export function statusIconStatusSizeMatrix(): ReactNode {
-  const statuses = [
-    "todo",
-    "progress",
-    "blocked",
-    "done",
-    "cancelled",
-  ] as const;
   const sizes = ["xs", "sm", "md", "lg"] as const;
   return (
     <Wrapper>
       <div className="grid grid-cols-4 gap-6">
-        {statuses.map((status) =>
+        {STATUSES.map((s) =>
           sizes.map((size) => (
-            <StatusIcon key={`${status}-${size}`} status={status} size={size} />
+            <StatusIcon
+              key={`${s.value}-${size}`}
+              status={s.value}
+              size={size}
+            />
           )),
         )}
       </div>
@@ -114,18 +99,29 @@ export function statusIconStatusSizeMatrix(): ReactNode {
   );
 }
 
-type Status = "todo" | "progress" | "blocked" | "done" | "cancelled";
+type Status =
+  | "backlog"
+  | "todo"
+  | "progress"
+  | "review"
+  | "done"
+  | "canceled"
+  | "duplicate"
+  | "triage";
 
 const STATUSES: { value: Status; label: string; key: string }[] = [
-  { value: "todo", label: "To do", key: "O" },
-  { value: "progress", label: "In progress", key: "P" },
-  { value: "blocked", label: "Blocked", key: "B" },
-  { value: "done", label: "Done", key: "D" },
-  { value: "cancelled", label: "Cancelled", key: "C" },
+  { value: "backlog", label: "Backlog", key: "1" },
+  { value: "todo", label: "Todo", key: "2" },
+  { value: "progress", label: "In progress", key: "3" },
+  { value: "review", label: "In review", key: "4" },
+  { value: "done", label: "Done", key: "5" },
+  { value: "canceled", label: "Canceled", key: "6" },
+  { value: "duplicate", label: "Duplicate", key: "7" },
+  { value: "triage", label: "Triage", key: "0" },
 ];
 
 /**
- * Recipe: Status menu — DropdownMenu + StatusIcon + DropdownMenuShortcut. Keys O/P/B/D/C pick a
+ * Recipe: Status menu — DropdownMenu + StatusIcon + DropdownMenuShortcut. Keys 1–7 and 0 pick a
  * status while the menu is open; ⌥/Alt-click on the circle marks it Done without opening the menu.
  */
 export function statusIconMenu(): ReactNode {
@@ -158,7 +154,7 @@ function StatusMenuDemo() {
         <DropdownMenuContent
           className="w-44"
           onKeyDown={(e) => {
-            const hit = STATUSES.find((s) => s.key === e.key.toUpperCase());
+            const hit = STATUSES.find((s) => s.key === e.key);
             if (!hit) return;
             e.preventDefault();
             setStatus(hit.value);

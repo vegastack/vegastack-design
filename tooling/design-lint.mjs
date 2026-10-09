@@ -361,7 +361,9 @@ function importantModifierTokens(lit) {
 // asserts directly) and `progress-indicator`, whose determinate ring went with the component when
 // Batch 7a of the shadcn reset retired it for `progress` + `spinner`. An exemption that can no
 // longer be reached is an exemption that should not exist.
-const SVG_GRAPHIC_ALLOWLIST = /(?:^|\/)empty\.tsx$/;
+// `status-icon` draws Linear's workflow glyphs (partial-fill pies, dashed ring) on a 16-unit grid,
+// which no lucide glyph expresses — operator-approved 09-10-2026 when Regent moved to that set.
+const SVG_GRAPHIC_ALLOWLIST = /(?:^|\/)(?:empty|status-icon)\.tsx$/;
 
 /**
  * `icon-button-name`'s host escape hatch (Batch 4 of the shadcn reset, 2026-09-18).

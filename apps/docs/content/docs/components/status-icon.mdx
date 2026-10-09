@@ -1,6 +1,6 @@
 ---
 title: Status Icon
-description: A small status indicator icon for the canonical task states — todo, in progress, blocked, done, and cancelled.
+description: A small workflow status icon in Linear's set — backlog, todo, in progress, in review, done, canceled, duplicate, and triage.
 audience: public
 registry: status-icon
 status: stable
@@ -25,9 +25,13 @@ import { StatusIcon } from "@/components/ui/status-icon";
 
 ### States
 
-Each `status` maps to a `lucide-react` icon and a semantic color token: `todo` (`Circle`,
-muted), `progress` (`CircleDashed`, info), `blocked` (`CircleSlash`, warning), `done` (filled
-`CircleCheck`, success) and `cancelled` (`CircleX`, muted).
+Each `status` draws its own glyph on a 16-unit grid in a semantic color token: `backlog` (dashed
+ring, muted), `todo` (empty ring, muted), `progress` (ring with a half pie, `tag-yellow-text`),
+`review` (ring with a three-quarter pie, `success-text`), `done` (filled disc with a check,
+`tag-purple-text`), `canceled` (filled disc with a cross, muted), `duplicate` (ring with two
+diagonal strokes, muted) and `triage` (filled disc with a left-right arrow, `tag-orange-text`).
+`blocked` and `cancelled` remain as deprecated aliases: `cancelled` renders `canceled`, and
+`blocked` draws a slashed ring in `warning-text`.
 
 <ComponentPreview
   name="statusIconStates"
@@ -37,7 +41,7 @@ muted), `progress` (`CircleDashed`, info), `blocked` (`CircleSlash`, warning), `
 ### Still and animated progress
 
 `progress` is static by default — lists and boards should not spin dozens of rows at once. Pass
-`animated` to swap in the spinning `Loader` for a single live item.
+`animated` to spin the glyph for a single live item.
 
 <ComponentPreview
   name="statusIconAnimated"
@@ -73,7 +77,7 @@ recommended accessible pattern.
 />
 
 ```tsx
-<span className="flex items-center gap-2 text-info-text">
+<span className="flex items-center gap-2">
   <StatusIcon status="progress" label="" />
   In progress
 </span>
@@ -82,8 +86,8 @@ recommended accessible pattern.
 ### Status menu recipe
 
 There is no picker component: compose `DropdownMenu` + `StatusIcon` + `DropdownMenuShortcut`. The
-trigger is a ghost icon button showing the current status. While the menu is open, **O** / **P** /
-**B** / **D** / **C** pick To do / In progress / Blocked / Done / Cancelled. **⌥/Alt-click** the
+trigger is a ghost icon button showing the current status. While the menu is open, **1**–**7** pick
+Backlog / Todo / In progress / In review / Done / Canceled / Duplicate, and **0** picks Triage. **⌥/Alt-click** the
 circle marks the item Done without opening the menu — pair it with an Undo toast.
 
 <ComponentPreview

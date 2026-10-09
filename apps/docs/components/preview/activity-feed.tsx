@@ -488,11 +488,14 @@ export function activityFeedKinds(): ReactNode {
 }
 
 const STATUSES = [
+  ["backlog", "Backlog"],
   ["todo", "Todo"],
   ["progress", "In progress"],
-  ["blocked", "Blocked"],
+  ["review", "In review"],
   ["done", "Done"],
-  ["cancelled", "Cancelled"],
+  ["canceled", "Canceled"],
+  ["duplicate", "Duplicate"],
+  ["triage", "Triage"],
 ] as const;
 const PRIORITIES = [
   ["urgent", "Urgent"],
