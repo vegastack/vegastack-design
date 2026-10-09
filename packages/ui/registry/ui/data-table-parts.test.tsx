@@ -778,8 +778,8 @@ test("SkeletonRows sizes each bar from its column's budget and alignment", async
   expect(bars[0]!.className).not.toContain("ms-auto");
   expect(bars[1]!.className).toContain("ms-auto");
   // The ⋯ column's placeholder is an icon-sized square at the row's end.
-  const icon = bars[2]!.getBoundingClientRect();
-  expect(icon.width).toBe(icon.height);
+  expect(bars[2]!.className).toMatch(/\bsize-6\b/);
+  expect(bars[2]!.className).not.toMatch(/\bh-4\b/);
   expect(bars[2]!.className).toContain("ms-auto");
 });
 
