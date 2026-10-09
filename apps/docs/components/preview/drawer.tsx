@@ -272,7 +272,7 @@ export function drawerInset(): ReactNode {
               <DrawerTitle>{label}</DrawerTitle>
               <DrawerDescription>
                 {flush
-                  ? "`flush` rests the panel against the viewport edge, rounded and bordered on its inner edge only."
+                  ? "Flush rests the panel against the viewport edge, rounded and bordered on its inner edge only."
                   : "The panel floats off every viewport edge, every corner rounded, with a full border."}
               </DrawerDescription>
             </DrawerHeader>
