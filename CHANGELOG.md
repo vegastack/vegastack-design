@@ -9,6 +9,20 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.25.8] — October 10, 2026
+
+<!-- assembled from 1 changeset: 55e05db3a9f4 -->
+
+### 🔧 Changed components
+
+- **BoardCard** drops its leading gutter: the completion tick or `status` control now sits inline before the title (a wrapped title wraps under itself), and the eyebrow, context, chips, alert and footnote start at the card's own edge instead of being indented to the title.
+  [docs](https://design.vegastack.com/docs/components/board-card) ·
+  [`88ed5f6`](https://github.com/VegaStack/vegastack-design/commit/88ed5f6)
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.25.7 → 0.25.8.
+
 ## [0.25.7] — October 9, 2026
 
 <!-- assembled from 2 changesets: de247d63f68d -->

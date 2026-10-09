@@ -8,7 +8,7 @@
   "files": [
     {
       "path": "packages/ui/registry/lib/picker-search.ts",
-      "content": "// @vegastack picker-search@0.25.7 sha256-P63oPbe40ugL7S9N2uxBUM/l1frqzWA/RPpVKdTU8Xk=\n\n/** Searchable catalogue content, shared by icon and emoji panels. */\nexport interface PickerSearchEntry {\n  /** Human-readable name. */\n  label: string;\n  /** Extra names, tags and spelling aliases. */\n  keywords?: readonly string[];\n}\n/** Normalise a search phrase without destructive stemming. */\nfunction normalisePickerQuery(value: string): string {\n  return value\n    .normalize(\"NFD\")\n    .replace(/[\\u0300-\\u036f]/g, \"\")\n    .toLowerCase()\n    .replace(/[-_]/g, \" \")\n    .replace(/\\s+/g, \" \")\n    .trim();\n}\n/** Stable ranked results: exact labels/aliases, prefixes, then all-token substring matches. */\nexport function filterPickerEntries<T extends PickerSearchEntry>(\n  entries: readonly T[],\n  query: string,\n): T[] {\n  const q = normalisePickerQuery(query);\n  if (!q) return [...entries];\n  const words = q.split(\" \");\n  return entries\n    .map((entry, index) => {\n      const terms = [entry.label, ...(entry.keywords ?? [])].map(\n        normalisePickerQuery,\n      );\n      const matches = words.every((word) =>\n        terms.some((term) => term.includes(word)),\n      );\n      return {\n        entry,\n        index,\n        score: !matches\n          ? -1\n          : terms.includes(q)\n            ? 3\n            : terms.some((term) => term.startsWith(q))\n              ? 2\n              : 1,\n      };\n    })\n    .filter((item) => item.score >= 0)\n    .sort((a, b) => b.score - a.score || a.index - b.index)\n    .map((item) => item.entry);\n}\n",
+      "content": "// @vegastack picker-search@0.25.8 sha256-TZW0erXizO7ovB4E4u8jdOcjyhAFWq5PcyryAnjJ3pw=\n\n/** Searchable catalogue content, shared by icon and emoji panels. */\nexport interface PickerSearchEntry {\n  /** Human-readable name. */\n  label: string;\n  /** Extra names, tags and spelling aliases. */\n  keywords?: readonly string[];\n}\n/** Normalise a search phrase without destructive stemming. */\nfunction normalisePickerQuery(value: string): string {\n  return value\n    .normalize(\"NFD\")\n    .replace(/[\\u0300-\\u036f]/g, \"\")\n    .toLowerCase()\n    .replace(/[-_]/g, \" \")\n    .replace(/\\s+/g, \" \")\n    .trim();\n}\n/** Stable ranked results: exact labels/aliases, prefixes, then all-token substring matches. */\nexport function filterPickerEntries<T extends PickerSearchEntry>(\n  entries: readonly T[],\n  query: string,\n): T[] {\n  const q = normalisePickerQuery(query);\n  if (!q) return [...entries];\n  const words = q.split(\" \");\n  return entries\n    .map((entry, index) => {\n      const terms = [entry.label, ...(entry.keywords ?? [])].map(\n        normalisePickerQuery,\n      );\n      const matches = words.every((word) =>\n        terms.some((term) => term.includes(word)),\n      );\n      return {\n        entry,\n        index,\n        score: !matches\n          ? -1\n          : terms.includes(q)\n            ? 3\n            : terms.some((term) => term.startsWith(q))\n              ? 2\n              : 1,\n      };\n    })\n    .filter((item) => item.score >= 0)\n    .sort((a, b) => b.score - a.score || a.index - b.index)\n    .map((item) => item.entry);\n}\n",
       "type": "registry:lib",
       "target": "@lib/picker-search.ts"
     }
@@ -16,8 +16,8 @@
   "meta": {
     "whenToUse": "Reusable identity glyphs and picker content.",
     "whenNotToUse": "Entity data or permission rules.",
-    "version": "0.25.7",
-    "integrity": "sha256-P63oPbe40ugL7S9N2uxBUM/l1frqzWA/RPpVKdTU8Xk="
+    "version": "0.25.8",
+    "integrity": "sha256-TZW0erXizO7ovB4E4u8jdOcjyhAFWq5PcyryAnjJ3pw="
   },
   "categories": [
     "lib"
