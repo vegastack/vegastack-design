@@ -172,6 +172,20 @@ For anything else, `note` also takes inline content, such as text with a `Link` 
   name="EmailItem"
 />
 
+### EmailMarkdown
+
+Long-form Markdown — meeting notes, a page excerpt — in the same reading styles as the in-app
+notes: the heading scale, lists, task checkboxes, quotes and code, with the kit's dark-mode
+hooks. It never injects HTML: raw HTML and images are dropped, mention links read as their bold
+label, and only http(s) links and in-app paths (resolved against `appUrl`) stay links.
+
+<ComponentPreview name="emailKitMarkdown" />
+
+<ApiTable
+  path="../../packages/ui/registry/blocks/email-kit/email-markdown.tsx"
+  name="EmailMarkdownProps"
+/>
+
 ## Dark mode and email clients
 
 - **Light is the default and is inline**, so it survives every client, including the ones that
@@ -239,6 +253,7 @@ preferences.
 | `email-kit/mso.ts`                 | `registry:component` | `components/email/mso.ts`                 |
 | `email-kit/email-layout.tsx`       | `registry:component` | `components/email/email-layout.tsx`       |
 | `email-kit/email-parts.tsx`        | `registry:component` | `components/email/email-parts.tsx`        |
+| `email-kit/email-markdown.tsx`     | `registry:component` | `components/email/email-markdown.tsx`     |
 | `email-kit/notification-email.tsx` | `registry:component` | `components/email/notification-email.tsx` |
 | `email-kit/digest-email.tsx`       | `registry:component` | `components/email/digest-email.tsx`       |
 | `email-kit/action-email.tsx`       | `registry:component` | `components/email/action-email.tsx`       |
