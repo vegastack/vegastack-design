@@ -1,4 +1,4 @@
-// @vegastack transcript@0.25.3 sha256-zhQmLuvMJiSo4ax8Sai6/G29pVaMnaGan5ryRjFu8Fg=
+// @vegastack transcript@0.25.3 sha256-Wo6j8EJbrm3+mVQ5U53kROVkffF68iJwSPHd5UQWmj4=
 
 "use client";
 
@@ -873,21 +873,72 @@ const TranscriptRow = React.memo(function TranscriptRow({
 
 // ── back to current line ──────────────────────────────────────────────────────────────────────
 
+/** How long "Back to current line" stays after the reader's last scroll before it fades. */
+const BACK_IDLE_MS = 1500;
+/** What counts as the reader moving the list: a real scroll, or the engine's intent signals. */
+const ACTIVITY_EVENTS = [
+  "scroll",
+  "wheel",
+  "touchmove",
+  "pointerdown",
+  "keydown",
+] as const;
+
+/** True while the reader moves the viewport, and for `BACK_IDLE_MS` after. */
+function useViewportActivity(
+  viewportRef: React.RefObject<HTMLDivElement | null>,
+) {
+  const [active, setActive] = React.useState(false);
+  React.useEffect(() => {
+    const viewport = viewportRef.current;
+    if (!viewport) return;
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    const ping = () => {
+      setActive(true);
+      clearTimeout(timer);
+      timer = setTimeout(() => setActive(false), BACK_IDLE_MS);
+    };
+    for (const event of ACTIVITY_EVENTS)
+      viewport.addEventListener(event, ping, { passive: true });
+    return () => {
+      clearTimeout(timer);
+      for (const event of ACTIVITY_EVENTS)
+        viewport.removeEventListener(event, ping);
+    };
+  }, [viewportRef]);
+  return active;
+}
+
 function TranscriptBack() {
   const { activeStore, following, setFollowing, backLabel, viewportRef } =
     useTranscript("TranscriptList");
   const activeId = useActiveId(activeStore);
   const { visibleMessageIds } = useMessageScrollerVisibility();
-  const hidden =
-    following || activeId === null || visibleMessageIds.includes(activeId);
-  if (hidden) return null;
+  const moving = useViewportActivity(viewportRef);
+  const [engaged, setEngaged] = React.useState(false);
+  const away =
+    !following && activeId !== null && !visibleMessageIds.includes(activeId);
+  if (!away) return null;
+  // Only while the reader is moving the list (or reaching for the button); it fades when they settle.
+  const shown = moving || engaged;
   return (
     <Button
       data-slot="transcript-back"
+      data-shown={shown ? "" : undefined}
       variant="secondary"
       size="sm"
-      className="absolute bottom-3 inset-s-1/2 -translate-x-1/2 border-border shadow-md motion-enter-up rtl:translate-x-1/2"
+      tabIndex={shown ? 0 : -1}
+      aria-hidden={!shown}
+      className={cn(
+        "absolute bottom-3 inset-s-1/2 -translate-x-1/2 border-border shadow-md transition-[opacity,translate] duration-200 ease-out rtl:translate-x-1/2",
+        shown ? "opacity-100" : "pointer-events-none translate-y-1 opacity-0",
+      )}
+      onPointerEnter={() => setEngaged(true)}
+      onPointerLeave={() => setEngaged(false)}
+      onFocus={() => setEngaged(true)}
+      onBlur={() => setEngaged(false)}
       onClick={() => {
+        setEngaged(false);
         // Focus moves to the list before this button unmounts, so it never falls to the body.
         viewportRef.current?.focus({ preventScroll: true });
         setFollowing(true);

@@ -190,6 +190,9 @@ the list shows `emptyState` ("No transcript yet" by default).
   announces search positions ("1 of 3", "No matches").
 - A seek button's name, "Play from 0:15", contains its visible time. Time updates never move
   focus.
+- "Back to current line" floats only while the reader moves the list away from the current line and
+  fades about 1.5 seconds after they settle (hovering or focusing holds it); while faded it is hidden
+  from assistive technology and out of the tab order.
 - When "Back to current line" scrolls back, focus moves to the list so it does not fall to the
   page.
 - Speaker chips are a `list` named "Speakers"; each rename button is named `Rename {name}`, and the

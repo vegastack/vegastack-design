@@ -1,4 +1,4 @@
-// @vegastack activity-feed@0.25.3 sha256-pH3Txgg+DTEF31/N9xVJxLK9jJjJxIDi1hZPEPng+9g=
+// @vegastack activity-feed@0.25.3 sha256-rUt0WPJGbLYYnHVcRvKqJAAs1YNyVdEXDe1iqC5D4iY=
 
 "use client";
 
@@ -918,11 +918,47 @@ function boundaryGeometry(boundary: HTMLElement) {
   };
 }
 
+/** How long a floating control stays after the reader's last scroll before it fades. */
+const SCROLL_IDLE_MS = 1500;
+
+/**
+ * True while the reader scrolls anything that holds `node` (or the page), and for
+ * `SCROLL_IDLE_MS` after the last scroll, so a floating control fades once the reader settles.
+ */
+function useScrollActivity(node: HTMLElement | null) {
+  const [active, setActive] = React.useState(false);
+  const timer = React.useRef<ReturnType<typeof setTimeout>>(undefined);
+  const ping = React.useCallback(() => {
+    setActive(true);
+    clearTimeout(timer.current);
+    timer.current = setTimeout(() => setActive(false), SCROLL_IDLE_MS);
+  }, []);
+  React.useEffect(() => () => clearTimeout(timer.current), []);
+  React.useEffect(() => {
+    if (!node) return;
+    const onScroll = (event: Event) => {
+      const source = event.target;
+      if (
+        source !== document &&
+        !(source instanceof Node && source.contains(node))
+      )
+        return;
+      ping();
+    };
+    document.addEventListener("scroll", onScroll, {
+      capture: true,
+      passive: true,
+    });
+    return () => document.removeEventListener("scroll", onScroll, true);
+  }, [node, ping]);
+  return [active, ping] as const;
+}
+
 /** Props for a floating, data-agnostic latest-content control. */
 export interface ActivityJumpToLatestProps {
   /** The latest content's focusable boundary, supplied by the host. */
   target: HTMLElement | null;
-  /** Keep the action available for a new batch already on screen. @default false */
+  /** Keep the action available for a new batch already on screen; turning it on surfaces the control until the reader settles. @default false */
   forceVisible?: boolean;
   /** The selected feed direction; when omitted, points toward the observed boundary. @default undefined */
   direction?: "up" | "down";
@@ -941,7 +977,9 @@ export interface ActivityJumpToLatestProps {
 }
 
 /**
- * Floats while the supplied latest boundary is off screen, or a new batch awaits catch-up.
+ * Floats while the supplied latest boundary is off screen (or a new batch awaits catch-up) and the
+ * reader is scrolling or a new batch just arrived, and fades once they settle; hovering or focusing
+ * it holds it in place.
  * Positioning lives on the wrapper: the Button's pressed translation never displaces the pill.
  * @example <ActivityJumpToLatest target={latestBoundary} onReached={acknowledgeCapturedBatch} />
  */
@@ -1014,10 +1052,19 @@ export function ActivityJumpToLatest({
         document.removeEventListener(event, cancel, true);
     };
   }, [target, enabled, cancel, complete]);
+  const [scrolling, ping] = useScrollActivity(enabled ? target : null);
+  const [engaged, setEngaged] = React.useState(false);
+  // A new batch (forceVisible turning on) surfaces the control like a scroll does, then it settles.
+  React.useEffect(() => {
+    if (forceVisible) ping();
+  }, [forceVisible, ping]);
   const knownVisibility = visibility?.target === target ? visibility : null;
   const above = knownVisibility?.above ?? false;
   const shown =
-    enabled && target !== null && (knownVisibility?.offScreen || forceVisible);
+    enabled &&
+    target !== null &&
+    (knownVisibility?.offScreen || forceVisible) &&
+    (scrolling || engaged);
   return (
     <div
       data-slot="activity-jump-floating"
@@ -1028,6 +1075,10 @@ export function ActivityJumpToLatest({
       )}
     >
       <span
+        onPointerEnter={() => setEngaged(true)}
+        onPointerLeave={() => setEngaged(false)}
+        onFocus={() => setEngaged(true)}
+        onBlur={() => setEngaged(false)}
         className={cn(
           "inline-flex transition-[opacity,translate] duration-200 ease-out",
           shown
@@ -1043,6 +1094,7 @@ export function ActivityJumpToLatest({
           className="rounded-full shadow-md"
           onClick={() => {
             if (!target || !shown) return;
+            setEngaged(false);
             cancel();
             pending.current = target;
             onJump?.(target);

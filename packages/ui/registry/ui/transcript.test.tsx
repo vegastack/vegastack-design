@@ -363,6 +363,8 @@ test("controlled follow={false} never scrolls on time updates", async () => {
   );
   await frames(6);
   expect(viewportOf(screen.container).scrollTop).toBe(0);
+  // The button floats only while the reader moves the list.
+  viewportOf(screen.container).dispatchEvent(new WheelEvent("wheel"));
   await expect
     .element(screen.getByRole("button", { name: "Back to current line" }))
     .toBeInTheDocument();
@@ -395,6 +397,7 @@ test("backLabel renames the back button", async () => {
       backLabel="Jump to now"
     />,
   );
+  viewportOf(screen.container).dispatchEvent(new WheelEvent("wheel"));
   await expect
     .element(screen.getByRole("button", { name: "Jump to now" }))
     .toBeInTheDocument();

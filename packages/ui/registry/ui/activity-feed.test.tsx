@@ -27,6 +27,9 @@ const priya = {
   hue: "blue" as const,
 };
 
+/** A scroll the reader made: the floating jump control only shows while they scroll. */
+const readerScrolls = () => document.dispatchEvent(new Event("scroll"));
+
 test("the header shows the count, the filter and the order toggle, and reports changes", async () => {
   const onFilterChange = vi.fn();
   const onOrderChange = vi.fn();
@@ -775,6 +778,7 @@ test("Jump to latest reaches the supplied boundary and transfers focus", async (
     );
   }
   const screen = await render(<Fixture />);
+  readerScrolls();
   await screen.getByRole("button", { name: "Jump to latest" }).click();
   await vi.waitFor(() => expect(reached).toHaveBeenCalledOnce());
   expect(document.activeElement?.getAttribute("aria-label")).toBe(
@@ -826,6 +830,7 @@ test("the floating control targets an explicit boundary and reports completion",
     );
   }
   const screen = await render(<Fixture />);
+  readerScrolls();
   const button = screen.getByRole("button", { name: "Jump to latest" });
   await expect.element(button).toBeVisible();
   await button.click();
@@ -870,6 +875,7 @@ test("held clicks on padding, icon and label all reach the latest boundary", asy
   ];
   for (const [index, position] of clicks.entries()) {
     scroller.scrollTop = 0;
+    readerScrolls();
     const button = screen.getByRole("button", { name: "Jump to latest" });
     await expect.element(button).toBeVisible();
     await button.click({ position, delay: 250 });
@@ -1045,6 +1051,7 @@ test.each(["x", "y"] as const)(
       const floating = screen.container.querySelector<HTMLElement>(
         '[data-slot="activity-jump-floating"]',
       )!;
+      readerScrolls();
       await vi.waitFor(() =>
         expect(floating.hasAttribute("data-shown")).toBe(true),
       );
@@ -1077,3 +1084,39 @@ test.each(["x", "y"] as const)(
     }
   },
 );
+
+test("Jump to latest shows only while the reader scrolls away, and fades once they settle", async () => {
+  function Fixture() {
+    const [target, setTarget] = React.useState<HTMLDivElement | null>(null);
+    return (
+      <div
+        data-testid="idle-scroller"
+        style={{ height: 200, overflowY: "auto" }}
+      >
+        <div style={{ height: 800 }}>History</div>
+        <div ref={setTarget} tabIndex={-1}>
+          Latest
+        </div>
+        <ActivityJumpToLatest target={target} />
+      </div>
+    );
+  }
+  const screen = await render(<Fixture />);
+  const floating = screen.container.querySelector<HTMLElement>(
+    '[data-slot="activity-jump-floating"]',
+  )!;
+  await new Promise((resolve) =>
+    requestAnimationFrame(() => requestAnimationFrame(resolve)),
+  );
+  expect(floating.hasAttribute("data-shown")).toBe(false);
+  screen.container.querySelector<HTMLElement>(
+    '[data-testid="idle-scroller"]',
+  )!.scrollTop = 100;
+  await vi.waitFor(() =>
+    expect(floating.hasAttribute("data-shown")).toBe(true),
+  );
+  await vi.waitFor(
+    () => expect(floating.hasAttribute("data-shown")).toBe(false),
+    { timeout: 3000 },
+  );
+});
