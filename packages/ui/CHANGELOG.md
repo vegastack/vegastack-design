@@ -1,5 +1,12 @@
 # @vegastack/ui
 
+## 0.25.6
+
+### Patch Changes
+
+- [#572](https://github.com/vegastack/vegastack-design/pull/572) [`c751e87`](https://github.com/vegastack/vegastack-design/commit/c751e870884af3c5a61de3e8f87c57b1c7d2c592) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🔧 **StatusIcon** keeps Linear's shapes but now colours each status with the system's standard semantic tokens instead of Linear's palette: `todo` → `foreground`, `progress` → `warning-text`, `review` → `info-text`, `done` → `success-text` (was purple); `backlog`, `canceled` and `duplicate` stay `muted-foreground`, `triage` stays `tag-orange-text`.
+  [docs](https://design.vegastack.com/docs/components/status-icon)
+
 ## 0.25.5
 
 ### Patch Changes
