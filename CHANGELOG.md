@@ -9,6 +9,24 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.25.2] — October 9, 2026
+
+<!-- assembled from 2 changesets: 25555dde4559 -->
+
+### 🧩 New components
+
+- `email-kit` gains `EmailMarkdown`: long-form Markdown (meeting notes) as email-safe blocks in the in-app notes' reading styles — no injected HTML, safe links only, dark-mode hooks.
+  [`9b22921`](https://github.com/VegaStack/vegastack-design/commit/9b22921)
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.25.1 → 0.25.2.
+
+### 🐛 Fixed
+
+- `InlineEditTrigger` (cell layout) is block-level, so it centres on a table row instead of sitting on the text baseline; the inline date and select editors drop the dark-mode resting border.
+  [`9b22921`](https://github.com/VegaStack/vegastack-design/commit/9b22921)
+
 ## [0.25.1] — October 9, 2026
 
 <!-- assembled from 1 changeset: fd9c9c57876e -->

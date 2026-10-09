@@ -1,4 +1,4 @@
-// @vegastack announcement-banner@0.25.1 sha256-WqheppGwsseXl+Ze8Nb8DhBGn8iAtSKG1vUXAgS/HVU=
+// @vegastack announcement-banner@0.25.2 sha256-3oniVVxVoqQvP4zDnTdZbJBxmT0LxeIdIjlmtzin+Wk=
 
 "use client";
 
