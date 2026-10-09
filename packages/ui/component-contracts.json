@@ -38086,6 +38086,7 @@
         "packages/ui/registry/blocks/email-kit/action-email.tsx",
         "packages/ui/registry/blocks/email-kit/digest-email.tsx",
         "packages/ui/registry/blocks/email-kit/email-layout.tsx",
+        "packages/ui/registry/blocks/email-kit/email-markdown.tsx",
         "packages/ui/registry/blocks/email-kit/email-parts.tsx",
         "packages/ui/registry/blocks/email-kit/email-tokens.ts",
         "packages/ui/registry/blocks/email-kit/mso.ts",
@@ -38346,6 +38347,24 @@
           }
         },
         {
+          "name": "EmailMarkdown",
+          "kind": "component",
+          "source": "packages/ui/registry/blocks/email-kit/email-markdown.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "An email part renders static HTML through renderEmail; EmailMarkdown forwards no ref, and nothing in an email can hold one."
+          }
+        },
+        {
+          "name": "EmailMarkdownProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/blocks/email-kit/email-markdown.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
           "name": "emailOutlookCss",
           "kind": "constant",
           "source": "packages/ui/registry/blocks/email-kit/email-tokens.ts",
@@ -38494,10 +38513,15 @@
           "rationale": "Nothing animates in an email."
         }
       },
-      "engines": [],
+      "engines": [
+        {
+          "package": "marked",
+          "role": "markdown lexer engine"
+        }
+      ],
       "docsSlug": "/docs/blocks/email-kit",
       "registryDependencies": [],
-      "npmDependencies": ["react-email@^6.11.0"],
+      "npmDependencies": ["marked@^17.0.1", "react-email@^6.11.0"],
       "testFiles": ["packages/ui/registry/blocks/email-kit/email-kit.test.tsx"],
       "coverage": {
         "source": "required",

@@ -21144,7 +21144,8 @@
         "notifications"
       ],
       "dependencies": [
-        "react-email@^6.11.0"
+        "react-email@^6.11.0",
+        "marked@^17.0.1"
       ],
       "registryDependencies": [],
       "files": [
@@ -21167,6 +21168,11 @@
           "path": "packages/ui/registry/blocks/email-kit/email-parts.tsx",
           "type": "registry:component",
           "target": "components/email/email-parts.tsx"
+        },
+        {
+          "path": "packages/ui/registry/blocks/email-kit/email-markdown.tsx",
+          "type": "registry:component",
+          "target": "components/email/email-markdown.tsx"
         },
         {
           "path": "packages/ui/registry/blocks/email-kit/notification-email.tsx",
@@ -21193,7 +21199,7 @@
         "whenToUse": "Transactional and notification email from a server — a comment, an assignment, a daily digest, an invite or a password reset — rendered with renderEmail and sent by your mail provider.",
         "whenNotToUse": "Marketing newsletters with images and multi-column layouts, or an in-app notification — use the Inbox and Toast components.",
         "version": "0.25.1",
-        "integrity": "sha256-2V2/MFLcMSKiPCcSAM6MgfslpFDSF8ZjZoaF94+KWFE="
+        "integrity": "sha256-U1pG9YwMMJZ/xKMm1Ryfc5aot0u3tWLeWaRbSbMP658="
       }
     },
     {

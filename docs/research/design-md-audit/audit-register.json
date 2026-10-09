@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "kind": "vegastack-zero-gap-audit-register",
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "5a9e073a349200580cd96a0574cee91838423d6c620903e55460654f1d123702",
+  "contractSha256": "c1c431745f15a8f2c060f5cbc87a34c970fc357579a459355fba80c7258ed025",
   "expectedCounts": {
     "totalRegistryItems": 737,
     "components": 156,
@@ -7208,6 +7208,7 @@
         "packages/ui/registry/blocks/email-kit/action-email.tsx",
         "packages/ui/registry/blocks/email-kit/digest-email.tsx",
         "packages/ui/registry/blocks/email-kit/email-layout.tsx",
+        "packages/ui/registry/blocks/email-kit/email-markdown.tsx",
         "packages/ui/registry/blocks/email-kit/email-parts.tsx",
         "packages/ui/registry/blocks/email-kit/email-tokens.ts",
         "packages/ui/registry/blocks/email-kit/mso.ts",

@@ -17132,7 +17132,7 @@
       "title": "Email Kit",
       "description": "Server-rendered HTML email: a layout with a text wordmark, light and dark colours from the design tokens, and the footer; parts (heading, text, button, card, quote, item list); three templates — Notification, Digest and Action — and renderEmail for the HTML and plain-text parts.",
       "categories": ["email", "notifications"],
-      "dependencies": ["react-email@^6.11.0"],
+      "dependencies": ["react-email@^6.11.0", "marked@^17.0.1"],
       "registryDependencies": [],
       "files": [
         {
@@ -17154,6 +17154,11 @@
           "path": "packages/ui/registry/blocks/email-kit/email-parts.tsx",
           "type": "registry:component",
           "target": "components/email/email-parts.tsx"
+        },
+        {
+          "path": "packages/ui/registry/blocks/email-kit/email-markdown.tsx",
+          "type": "registry:component",
+          "target": "components/email/email-markdown.tsx"
         },
         {
           "path": "packages/ui/registry/blocks/email-kit/notification-email.tsx",

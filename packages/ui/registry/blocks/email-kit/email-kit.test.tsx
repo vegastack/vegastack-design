@@ -5,6 +5,7 @@ import { expectNoA11yViolations } from "../../../test/a11y";
 import { ActionEmail } from "./action-email";
 import { DigestEmail } from "./digest-email";
 import { NotificationEmail } from "./notification-email";
+import { EmailMarkdown } from "./email-markdown";
 import { emailColors } from "./email-tokens";
 import { renderEmail } from "./render";
 
@@ -372,4 +373,30 @@ test("noteHref links VegaStack in the default note, or the whole of a string not
   );
   expect(plain.text).toContain("Sent with VegaStack");
   expect(plain.html).not.toMatch(/<a[^>]*>VegaStack<\/a>/);
+});
+
+test("EmailMarkdown renders notes Markdown as safe email blocks", async () => {
+  const { html } = await renderEmail(
+    <EmailMarkdown
+      appUrl="https://acme.example"
+      markdown={[
+        "## Decisions",
+        "- [x] Ship **v2** & tell [@Priya](mention://user/u1)",
+        "- See [the task](/tasks/42) or [bad](javascript:alert(1))",
+        "",
+        "<script>alert(1)</script>",
+        "",
+        "> Quoted `code`",
+      ].join("\n")}
+    />,
+  );
+  expect(html).toContain("<h3");
+  expect(html).toContain("Decisions");
+  expect(html).toContain("☑ ");
+  expect(html).toContain("&amp; tell");
+  expect(html).toContain('href="https://acme.example/tasks/42"');
+  expect(html).not.toContain("javascript:");
+  expect(html).not.toContain("<script");
+  expect(html).not.toContain("mention://");
+  expect(html).toContain("vs-quote-bar");
 });

@@ -14,7 +14,7 @@ import { createElement, useEffect, useRef, useState } from "react";
 import type { ReactNode } from "react";
 import { Wrapper } from "./wrapper";
 
-type Sample = "notification" | "digest" | "action";
+type Sample = "notification" | "digest" | "action" | "markdown";
 
 const brand = { name: "Acme", url: "https://acme.example" };
 const preferences = {
@@ -28,110 +28,138 @@ async function renderSample(sample: Sample): Promise<string> {
     { NotificationEmail },
     { DigestEmail },
     { ActionEmail },
+    { EmailLayout },
+    { EmailMarkdown },
   ] = await Promise.all([
     import("../../../../packages/ui/registry/blocks/email-kit/render"),
     import("../../../../packages/ui/registry/blocks/email-kit/notification-email"),
     import("../../../../packages/ui/registry/blocks/email-kit/digest-email"),
     import("../../../../packages/ui/registry/blocks/email-kit/action-email"),
+    import("../../../../packages/ui/registry/blocks/email-kit/email-layout"),
+    import("../../../../packages/ui/registry/blocks/email-kit/email-markdown"),
   ]);
   const element =
-    sample === "notification"
-      ? createElement(NotificationEmail, {
+    sample === "markdown"
+      ? createElement(EmailLayout, {
           brand,
-          preview: "Priya: Can we ship this by Friday?",
-          heading: "Priya commented on Fix login",
-          quotes: [
-            {
-              author: "Priya",
-              time: "Fri 9 Oct, 10:00 IST",
-              body: "Can we ship this by Friday? The login fix is the last thing blocking the release.",
-            },
-          ],
-          card: {
-            title: "Fix login",
-            href: "https://acme.example/tasks/42",
-            meta: [
-              { label: "Status", value: "In progress" },
-              { label: "Due", value: "Fri 9 Oct, 18:00 IST" },
-            ],
-          },
-          action: {
-            label: "View comment",
-            href: "https://acme.example/tasks/42#comment-7",
-          },
-          footer: {
-            reason: "You're getting this because you follow this task.",
-            noteHref: "https://vegastack.com",
-            links: [
-              preferences,
-              {
-                label: "Unsubscribe from comment emails",
-                href: "https://acme.example/unsubscribe/comments",
-              },
-            ],
-          },
+          preview: "Notes ready for Weekly sync",
+          children: createElement(EmailMarkdown, {
+            appUrl: brand.url,
+            markdown: [
+              "## Summary",
+              "The team agreed to ship the **login fix** on Friday; [@Priya](mention://user/u1) owns the release.",
+              "",
+              "### Decisions",
+              "1. Freeze the release branch on Thursday.",
+              "2. Move the analytics work to [next sprint](/tasks/42).",
+              "",
+              "- [x] QA sign-off",
+              "- [ ] Release notes",
+              "",
+              "> Ship small, ship often.",
+            ].join("\n"),
+          }),
         })
-      : sample === "digest"
-        ? createElement(DigestEmail, {
+      : sample === "notification"
+        ? createElement(NotificationEmail, {
             brand,
-            preview: "2 comments and 2 tasks due today",
-            heading: "Your day in Acme",
-            body: "4 updates since yesterday",
-            groups: [
+            preview: "Priya: Can we ship this by Friday?",
+            heading: "Priya commented on Fix login",
+            quotes: [
               {
-                title: "Due today",
-                items: [
-                  {
-                    text: "Fix login is due at 18:00 IST",
-                    href: "https://acme.example/tasks/42",
-                  },
-                  {
-                    text: "Write release notes is due at 20:00 IST",
-                    href: "https://acme.example/tasks/43",
-                  },
-                ],
-              },
-              {
-                title: "Fix login",
-                items: [
-                  {
-                    actor: "Priya",
-                    text: "commented: Can we ship this by Friday?",
-                    href: "https://acme.example/tasks/42#comment-7",
-                    time: "10:00 IST",
-                  },
-                  {
-                    actor: "Anand",
-                    text: "changed the status to In review",
-                    href: "https://acme.example/tasks/42",
-                    time: "11:30 IST",
-                  },
-                ],
+                author: "Priya",
+                time: "Fri 9 Oct, 10:00 IST",
+                body: "Can we ship this by Friday? The login fix is the last thing blocking the release.",
               },
             ],
-            more: "And 4 more in your inbox.",
-            action: { label: "Open inbox", href: "https://acme.example/inbox" },
-            footer: {
-              reason: "You're getting this because the daily digest is on.",
-              links: [preferences],
-            },
-          })
-        : createElement(ActionEmail, {
-            brand,
-            preview: "Priya invited you to the Design space in Acme",
-            heading: "Priya invited you to Acme",
-            body: "Join the Design space to see its tasks, pages and meetings.",
             card: {
-              title: "Design",
-              meta: [{ label: "Members", value: "12" }],
+              title: "Fix login",
+              href: "https://acme.example/tasks/42",
+              meta: [
+                { label: "Status", value: "In progress" },
+                { label: "Due", value: "Fri 9 Oct, 18:00 IST" },
+              ],
             },
             action: {
-              label: "Accept invite",
-              href: "https://acme.example/invite/3f9c2a",
+              label: "View comment",
+              href: "https://acme.example/tasks/42#comment-7",
             },
-            linkFallback: "Or paste this link into your browser:",
-            note: "This invite expires in 7 days. If you didn't expect it, you can ignore this email.",
-          });
+            footer: {
+              reason: "You're getting this because you follow this task.",
+              noteHref: "https://vegastack.com",
+              links: [
+                preferences,
+                {
+                  label: "Unsubscribe from comment emails",
+                  href: "https://acme.example/unsubscribe/comments",
+                },
+              ],
+            },
+          })
+        : sample === "digest"
+          ? createElement(DigestEmail, {
+              brand,
+              preview: "2 comments and 2 tasks due today",
+              heading: "Your day in Acme",
+              body: "4 updates since yesterday",
+              groups: [
+                {
+                  title: "Due today",
+                  items: [
+                    {
+                      text: "Fix login is due at 18:00 IST",
+                      href: "https://acme.example/tasks/42",
+                    },
+                    {
+                      text: "Write release notes is due at 20:00 IST",
+                      href: "https://acme.example/tasks/43",
+                    },
+                  ],
+                },
+                {
+                  title: "Fix login",
+                  items: [
+                    {
+                      actor: "Priya",
+                      text: "commented: Can we ship this by Friday?",
+                      href: "https://acme.example/tasks/42#comment-7",
+                      time: "10:00 IST",
+                    },
+                    {
+                      actor: "Anand",
+                      text: "changed the status to In review",
+                      href: "https://acme.example/tasks/42",
+                      time: "11:30 IST",
+                    },
+                  ],
+                },
+              ],
+              more: "And 4 more in your inbox.",
+              action: {
+                label: "Open inbox",
+                href: "https://acme.example/inbox",
+              },
+              footer: {
+                reason: "You're getting this because the daily digest is on.",
+                links: [preferences],
+              },
+            })
+          : createElement(ActionEmail, {
+              brand,
+              preview: "Priya invited you to the Design space in Acme",
+              heading: "Priya invited you to Acme",
+              body: "Join the Design space to see its tasks, pages and meetings.",
+              card: {
+                title: "Design",
+                meta: [{ label: "Members", value: "12" }],
+              },
+              action: {
+                label: "Accept invite",
+                href: "https://acme.example/invite/3f9c2a",
+              },
+              linkFallback: "Or paste this link into your browser:",
+              note: "This invite expires in 7 days. If you didn't expect it, you can ignore this email.",
+            });
   return (await renderEmail(element)).html;
 }
 
@@ -209,6 +237,11 @@ export function emailKitNotification(): ReactNode {
 /** `DigestEmail`: the daily digest — due today, then activity grouped by record. */
 export function emailKitDigest(): ReactNode {
   return <EmailSample sample="digest" label="Digest email" />;
+}
+
+/** `EmailMarkdown`: notes Markdown in the in-app reading styles, inside an `EmailLayout`. */
+export function emailKitMarkdown(): ReactNode {
+  return <EmailSample sample="markdown" label="Markdown email" />;
 }
 
 /** `ActionEmail`: an invite — body, card, button, raw-link fallback and an expiry note. */
