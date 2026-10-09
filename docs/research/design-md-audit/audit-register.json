@@ -2,10 +2,10 @@
   "schemaVersion": 1,
   "kind": "vegastack-zero-gap-audit-register",
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "c1c431745f15a8f2c060f5cbc87a34c970fc357579a459355fba80c7258ed025",
+  "contractSha256": "0b0ff14d466089abfc14875d1874c3bd60013b0953c57423038016c56d5b65e7",
   "expectedCounts": {
-    "totalRegistryItems": 737,
-    "components": 156,
+    "totalRegistryItems": 736,
+    "components": 155,
     "animatedIcons": 467,
     "hooks": 15,
     "blocks": 15,
@@ -1723,17 +1723,6 @@
         "packages/ui/registry/ui/level-meter.tsx"
       ],
       "docsSlug": "/docs/components/level-meter",
-      "contractStatus": "reconciled"
-    },
-    {
-      "name": "empty-illustration",
-      "inventoryClass": "component",
-      "wave": "Data display",
-      "family": "data-display",
-      "sourceFiles": [
-        "packages/ui/registry/ui/empty-illustration.tsx"
-      ],
-      "docsSlug": "/docs/components/empty-illustration",
       "contractStatus": "reconciled"
     },
     {

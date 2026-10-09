@@ -2284,7 +2284,7 @@
         "whenToUse": "When a list, table, or panel has no content — communicate the zero state and offer the next action.",
         "whenNotToUse": "While loading (skeleton/spinner) or for transient post-action feedback (toast).",
         "version": "0.25.3",
-        "integrity": "sha256-9/N/ecv1x5fqgIDiK4frJuK6P9/w9+Y5lIcoT3nO9bc="
+        "integrity": "sha256-Mq0gDqRHczTHH365EM3QbYLWUyeWUtXSYJ3pBXZL2QA="
       }
     },
     {
@@ -21733,32 +21733,6 @@
         "whenNotToUse": "Playback progress or a seek bar (AudioPlayer), or a static measurement (Progress or Meter).",
         "version": "0.25.3",
         "integrity": "sha256-N0sT7C1p/UB294Y/ACq40b4qpxR+e//6OkoGxbioEEM="
-      }
-    },
-    {
-      "name": "empty-illustration",
-      "type": "registry:ui",
-      "title": "Empty Illustration",
-      "description": "The shared set of monochrome line illustrations for empty states, drawn in currentColor so they follow the token colour and both themes.",
-      "categories": [
-        "data-display"
-      ],
-      "dependencies": [
-        "@vegastack/design@^0.8.0"
-      ],
-      "registryDependencies": [],
-      "files": [
-        {
-          "path": "packages/ui/registry/ui/empty-illustration.tsx",
-          "type": "registry:ui",
-          "target": "@ui/empty-illustration.tsx"
-        }
-      ],
-      "meta": {
-        "whenToUse": "A first-run or zero-state page that deserves more than an icon — an empty inbox, no tasks yet, no files.",
-        "whenNotToUse": "Small inline empties (Empty's default icon), errors, or loading states.",
-        "version": "0.25.3",
-        "integrity": "sha256-rkIS17PuGn9EMN0oojQ9qjRLV2JBdN8Zb4jADkVFkaE="
       }
     }
   ]

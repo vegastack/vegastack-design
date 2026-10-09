@@ -43,8 +43,8 @@ import {
 
 **An empty state always shows an icon.** `Empty` takes an `icon` prop and renders it in the icon
 tile; with no `icon` and no composed `EmptyMedia` it falls back to lucide `Inbox`. A composed
-`EmptyMedia` replaces the default. The tile is 40px with a 20px icon, and the tile sizes whatever
-icon you pass, so never put a `size-*` class on it.
+`EmptyMedia` replaces the default. The tile is a 48px bordered muted plate with a 24px icon, and the
+tile sizes whatever icon you pass, so never put a `size-*` class on it.
 
 ```tsx
 <Empty icon={<SearchX />}>
@@ -58,7 +58,7 @@ icon you pass, so never put a `size-*` class on it.
 ```
 
 **Compact.** `size="sm"` is the small inline empty — "No tasks yet" inside a card — with a 16px
-padding, an 8px gap and a 32px tile with a 16px icon. `DataList`'s built-in `noResults` and
+padding, an 8px gap and a 40px tile with a 20px icon. `DataList`'s built-in `noResults` and
 `emptyState` use the default size:
 
 ```tsx
@@ -68,6 +68,8 @@ padding, an 8px gap and a 32px tile with a 16px icon. `DataList`'s built-in `noR
   </EmptyHeader>
 </Empty>
 ```
+
+<ComponentPreview name="emptyCompact" file="components/preview/empty.tsx" />
 
 **When to use which** — in a `DataList`, never hand-roll either:
 
