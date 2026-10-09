@@ -1,4 +1,4 @@
-// @vegastack data-table-parts@0.25.2 sha256-1w7HRQxRLNFXpJqLBpcCLvPML1wnFwXgZP0fgYa+VlI=
+// @vegastack data-table-parts@0.25.2 sha256-f2xQD08tNcCfXtBzTYpwMCxwo0/dxQ+ZmtDr2OICGlU=
 
 "use client";
 
@@ -849,6 +849,31 @@ export interface SkeletonRowsProps {
   slot?: string;
 }
 
+/** The widest placeholder bar, in spacing steps (10rem): a phone's primary column always fits it. */
+const SKELETON_BAR_MAX_STEPS = 40;
+
+/**
+ * A placeholder's shape: a bar about 70% of the column's `minWidth` budget (the width its real
+ * values are sized for, capped at 10rem), so a loading table's columns settle where the loaded
+ * table's do; a narrow icon column (a row's ⋯ menu) gets an icon-sized square. In spacing steps,
+ * never pixels.
+ */
+function skeletonBar(column: DataTableColumnLayout): {
+  className: string;
+  style?: React.CSSProperties;
+} {
+  const budget = column.minWidth ?? DEFAULT_COLUMN_MIN_WIDTH;
+  if (budget <= 48) return { className: "size-6" };
+  const steps = Math.min(
+    SKELETON_BAR_MAX_STEPS,
+    Math.round((budget * 0.7) / 4),
+  );
+  return {
+    className: "h-4 max-w-full",
+    style: { width: `calc(var(--spacing) * ${steps})` },
+  };
+}
+
 /**
  * `SkeletonRows` — the loading state. Rows are `aria-hidden`: the announcement
  * belongs to the table's own busy/live wiring, not to a wall of placeholders.
@@ -875,13 +900,22 @@ export function SkeletonRows({
               <Skeleton className="size-3.5 rounded-sm" />
             </TableCell>
           ) : null}
-          {columns.map((column, columnIndex) => (
-            <TableCell key={column.key} className={columnCellClass(column)}>
-              <Skeleton
-                className={columnIndex === 0 ? "h-4 w-32" : "h-4 w-20"}
-              />
-            </TableCell>
-          ))}
+          {columns.map((column) => {
+            const bar = skeletonBar(column);
+            return (
+              <TableCell key={column.key} className={columnCellClass(column)}>
+                <Skeleton
+                  className={cn(
+                    bar.className,
+                    column.align === "end"
+                      ? "ms-auto"
+                      : column.align === "center" && "mx-auto",
+                  )}
+                  style={bar.style}
+                />
+              </TableCell>
+            );
+          })}
         </TableRow>
       ))}
     </>

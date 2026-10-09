@@ -749,6 +749,40 @@ test("SkeletonRows draws the requested geometry and hides it from AT", async () 
   expect(rows[0]!.querySelectorAll("td")).toHaveLength(4);
 });
 
+test("SkeletonRows sizes each bar from its column's budget and alignment", async () => {
+  const screen = await render(
+    <Table>
+      <TableBody>
+        <SkeletonRows
+          columns={[
+            { key: "name", minWidth: 200 },
+            { key: "count", minWidth: 80, align: "end" },
+            { key: "menu", minWidth: 48, align: "end" },
+            { key: "wide", minWidth: 10000 },
+          ]}
+          rows={1}
+        />
+      </TableBody>
+    </Table>,
+  );
+  const bars = [
+    ...screen.container.querySelectorAll<HTMLElement>('[data-slot="skeleton"]'),
+  ];
+  expect(bars.map((bar) => bar.style.width)).toEqual([
+    "calc(var(--spacing) * 35)",
+    "calc(var(--spacing) * 14)",
+    "",
+    // Capped at 10rem, so an oversized budget never widens a narrow table.
+    "calc(var(--spacing) * 40)",
+  ]);
+  expect(bars[0]!.className).not.toContain("ms-auto");
+  expect(bars[1]!.className).toContain("ms-auto");
+  // The ⋯ column's placeholder is an icon-sized square at the row's end.
+  expect(bars[2]!.className).toMatch(/\bsize-6\b/);
+  expect(bars[2]!.className).not.toMatch(/\bh-4\b/);
+  expect(bars[2]!.className).toContain("ms-auto");
+});
+
 test("SkeletonRows never renders zero rows", async () => {
   const screen = await render(
     <Table>
