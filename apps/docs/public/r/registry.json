@@ -17646,7 +17646,7 @@
         "whenToUse": "Indicate the workflow state of a task or issue — backlog, todo, in progress, in review, done, canceled, duplicate, triage — alongside a label.",
         "whenNotToUse": "Measurable progress (Progress), generic loading (Spinner), or priority (PriorityIcon).",
         "version": "0.25.5",
-        "integrity": "sha256-Zz0xAAByEION2IpCNFf9C+WbxSZaoMzTD4mf7X/GrVo="
+        "integrity": "sha256-B7kqQQi/iQzw6JAcQaVJ+sxyIjSemicd/i45QxlJGdI="
       }
     },
     {

@@ -4,6 +4,32 @@ import { expect, test } from "vitest";
 import { expectNoA11yViolations } from "../../test/a11y";
 import { StatusIcon } from "./status-icon";
 
+test("maps each status to the system's standard semantic text token", async () => {
+  const tokens = [
+    ["backlog", "text-muted-foreground"],
+    ["todo", "text-foreground"],
+    ["progress", "text-warning-text"],
+    ["review", "text-info-text"],
+    ["done", "text-success-text"],
+    ["canceled", "text-muted-foreground"],
+    ["duplicate", "text-muted-foreground"],
+    ["triage", "text-tag-orange-text"],
+    ["cancelled", "text-muted-foreground"],
+    ["blocked", "text-warning-text"],
+  ] as const;
+  const screen = await render(
+    <>
+      {tokens.map(([status]) => (
+        <StatusIcon key={status} status={status} />
+      ))}
+    </>,
+  );
+  for (const [status, token] of tokens) {
+    const icon = screen.container.querySelector(`[data-status="${status}"]`);
+    expect(icon?.classList.contains(token), `${status} → ${token}`).toBe(true);
+  }
+});
+
 test("renders an accessible image with a default label from status", async () => {
   const screen = await render(<StatusIcon status="todo" />);
   const icon = screen.getByRole("img");
