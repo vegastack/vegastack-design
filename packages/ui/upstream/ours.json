@@ -172,12 +172,6 @@
       "family": "form",
       "source": "extras.md"
     },
-    "empty-illustration": {
-      "disposition": "keep",
-      "family": "data-display",
-      "source": "Operator brief 2026-10-08 (Regent motion/interaction primitives) — approved by MK 2026-10-08",
-      "rationale": "Upstream ships no illustrations; a decorative inline-SVG set composed into upstream's EmptyMedia, no patch."
-    },
     "field-grid": {
       "disposition": "keep",
       "family": "form",

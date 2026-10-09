@@ -6,6 +6,7 @@ import {
   BellIcon,
   CloudIcon,
   FolderCodeIcon,
+  ListTodoIcon,
   PlusIcon,
   RefreshCcwIcon,
   SearchIcon,
@@ -299,6 +300,20 @@ export function emptyAsHeading(): ReactNode {
           <Button>Create project</Button>
         </EmptyContent>
       </Empty>
+    </Wrapper>
+  );
+}
+
+export function emptyCompact(): ReactNode {
+  return (
+    <Wrapper>
+      <div className="w-full max-w-xs rounded-xl border bg-card">
+        <Empty size="sm" icon={<ListTodoIcon />}>
+          <EmptyHeader>
+            <EmptyTitle>No tasks yet</EmptyTitle>
+          </EmptyHeader>
+        </Empty>
+      </div>
     </Wrapper>
   );
 }
