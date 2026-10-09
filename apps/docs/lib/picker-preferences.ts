@@ -1,4 +1,4 @@
-// @vegastack picker-preferences@0.25.0 sha256-PQYeUjN1wojf59XLXRLvvqZJGn3zym3ymwy+ISt9eOg=
+// @vegastack picker-preferences@0.25.1 sha256-0a81/pt9y8wLWNi/VCuPX6eW2EA1OlhosuFZkcoC6Mk=
 
 /** Best-effort storage for picker conveniences; never a record's source of truth. */
 const memory = new Map<string, unknown>();

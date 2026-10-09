@@ -9,6 +9,19 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.25.1] — October 9, 2026
+
+<!-- assembled from 1 changeset: fd9c9c57876e -->
+
+### 🧩 New components
+
+- Whole-cell inline editing: `InlineEditTrigger` (in `editable-cell`) makes a list cell's whole value — icon and text — the button that opens an app-owned status, priority or assignee editor, with no border at rest and the properties-panel tint on hover, focus and while open. `EditableCell`'s `date` and `select` editors use the same tint (no hover border, the select trigger is ghost) and fill a `cell` variant. `BoardCard` gains `renderField` to make its assignee, due and priority fields editable the same way. `IconGlyph` without a hue now takes the sidebar nav icon ink instead of full foreground.
+  [`4a2b49b`](https://github.com/VegaStack/vegastack-design/commit/4a2b49b)
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.25.0 → 0.25.1.
+
 ## [0.25.0] — October 8, 2026
 
 <!-- assembled from 2 changesets: 6383821bec0c -->
