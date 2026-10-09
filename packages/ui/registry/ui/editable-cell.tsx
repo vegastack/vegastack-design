@@ -1,4 +1,4 @@
-// @vegastack editable-cell@0.25.0 sha256-euN9b//sSRjTVM+fwTvzh+iUFQ9A+YZV5zc4aXzcwqI=
+// @vegastack editable-cell@0.25.0 sha256-2vHZiOysnjyQ5DSDNOVjNGiD/VAzs9L9ZJLmmOxMQtc=
 
 "use client";
 
@@ -912,7 +912,8 @@ export function EditableCell({
         className={cn(
           INLINE_EDIT_TINT,
           variant === "cell" && !editor.clearable ? "w-full" : "w-fit",
-          "min-w-0",
+          // Shrinks so a slow save's spinner fits beside a full-width trigger.
+          "min-w-0 shrink",
         )}
       />
     );
