@@ -1,5 +1,13 @@
 # @vegastack/ui
 
+## 0.25.2
+
+### Patch Changes
+
+- [#563](https://github.com/vegastack/vegastack-design/pull/563) [`9b22921`](https://github.com/vegastack/vegastack-design/commit/9b22921ce26f524f1e5b0c6f63c73dcd7fcfed5a) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🧩 `email-kit` gains `EmailMarkdown`: long-form Markdown (meeting notes) as email-safe blocks in the in-app notes' reading styles — no injected HTML, safe links only, dark-mode hooks.
+
+- [#563](https://github.com/vegastack/vegastack-design/pull/563) [`9b22921`](https://github.com/vegastack/vegastack-design/commit/9b22921ce26f524f1e5b0c6f63c73dcd7fcfed5a) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🐛 `InlineEditTrigger` (cell layout) is block-level, so it centres on a table row instead of sitting on the text baseline; the inline date and select editors drop the dark-mode resting border.
+
 ## 0.25.1
 
 ### Patch Changes
