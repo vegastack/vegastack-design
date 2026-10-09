@@ -1,4 +1,4 @@
-// @vegastack editable-cell@0.25.1 sha256-62VRI9Ri7q4RP4EMLcpc1c4bPlUStp1HI4omFZS00Pg=
+// @vegastack editable-cell@0.25.1 sha256-utIiMlCtpcvnZteTS3PUp5/GEBWO2mK9sClMKr4o7iQ=
 
 "use client";
 
@@ -63,7 +63,7 @@ Deliberately NOT done here:
  * record's properties all read as the same editable value. Keyboard focus keeps the system ring.
  */
 const INLINE_EDIT_TINT =
-  "border-transparent shadow-none hover:border-transparent hover:bg-muted aria-expanded:border-transparent aria-expanded:bg-muted data-popup-open:bg-muted dark:bg-transparent dark:hover:bg-muted/50";
+  "border-transparent shadow-none hover:border-transparent hover:bg-muted aria-expanded:border-transparent aria-expanded:bg-muted data-popup-open:bg-muted dark:border-transparent dark:bg-transparent dark:hover:bg-muted/50";
 
 /** Props for `InlineEditTrigger`. */
 export interface InlineEditTriggerProps extends Omit<
@@ -111,7 +111,9 @@ export function InlineEditTrigger({
         "min-w-0 justify-start gap-1.5 rounded-md px-1.5 font-normal text-inherit active:not-aria-[haspopup]:translate-y-0 [&>span]:min-w-0 [&>span]:truncate",
         INLINE_EDIT_TINT,
         layout === "cell"
-          ? "-mx-1.5 -my-0.5 w-[calc(100%+0.75rem)] max-w-[calc(100%+0.75rem)] text-sm"
+          ? // Block-level, so a table cell's `vertical-align: middle` centres it on the row
+            // instead of seating it on the text baseline.
+            "-mx-1.5 -my-0.5 flex w-[calc(100%+0.75rem)] max-w-[calc(100%+0.75rem)] text-sm"
           : "max-w-full text-xs",
         className,
       )}
