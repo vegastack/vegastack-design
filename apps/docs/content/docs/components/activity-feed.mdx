@@ -102,7 +102,9 @@ Put `CommentDayDivider` (from `comments`) between items on different days, and o
 `ActivityUnreadDivider` before the first item the viewer hasn't seen; its `onVisible` fires once,
 when the line is half on screen. The host chooses whether observing that line acknowledges anything.
 `ActivityJumpToLatest` takes the host's latest-content boundary. It observes that element in its scrolling
-container, points toward it, and transfers focus after reaching it. `forceVisible` keeps a catch-up action
+container, points toward it, and transfers focus after reaching it. It floats only while that boundary is off
+screen and the reader is scrolling, and fades about 1.5 seconds after they settle; hovering or focusing it holds
+it in place. `forceVisible` keeps a catch-up action
 available for content already on screen; capture a batch in `onJump` and acknowledge it in `onReached`.
 Replacing the target or interrupting with a gesture cancels an in-progress completion and calls
 `onCancel`, allowing the host to release its jump state. The control contains no read-state or data logic.

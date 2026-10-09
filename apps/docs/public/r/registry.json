@@ -324,7 +324,7 @@
         "whenToUse": "A record's history on its page (a task, a deal, a document): what changed, who changed it and when, interleaved with the comment threads.",
         "whenNotToUse": "Comments alone (Comments), a cross-record notification list (Inbox), or a dated milestone list (Timeline).",
         "version": "0.25.3",
-        "integrity": "sha256-pH3Txgg+DTEF31/N9xVJxLK9jJjJxIDi1hZPEPng+9g="
+        "integrity": "sha256-YuABxlsSFu/KSfcN2EzHOqjzJR+1XzsTkTEbEefm/zk="
       }
     },
     {
@@ -16162,7 +16162,7 @@
         "whenToUse": "The text of a recording - a meeting, call or interview - read alongside its player: timestamped speaker lines that follow playback, seek on click, and can be searched.",
         "whenNotToUse": "A live chat or AI thread that pins to the newest message (MessageScroller with Message), or a chronological record of events rather than speech (Timeline).",
         "version": "0.25.3",
-        "integrity": "sha256-zhQmLuvMJiSo4ax8Sai6/G29pVaMnaGan5ryRjFu8Fg="
+        "integrity": "sha256-Wo6j8EJbrm3+mVQ5U53kROVkffF68iJwSPHd5UQWmj4="
       }
     },
     {
@@ -17979,7 +17979,7 @@
         "whenToUse": "Comments, notes, summaries and documents stored as Markdown (format=\"markdown\") or HTML — with @ mentions, uploads, callouts, toggles, an outline and comment highlights for page editors; in-place editing of a MarkdownView (the read view is the editor until first edited).",
         "whenNotToUse": "Plain single-line input (Input) or collaborative real-time docs (deferred text-edit-collab).",
         "version": "0.25.3",
-        "integrity": "sha256-od/fTNifCIeKZAcWonud5uEMWKps33W7yuwd20hkmNU="
+        "integrity": "sha256-4ZFZ6ObU7ON36JFIPxemjUSWbmRfgqHtcHj1KKMUVWI="
       }
     },
     {

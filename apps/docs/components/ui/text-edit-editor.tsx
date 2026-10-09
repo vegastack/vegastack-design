@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.25.3 sha256-od/fTNifCIeKZAcWonud5uEMWKps33W7yuwd20hkmNU=
+// @vegastack text-edit@0.25.3 sha256-4ZFZ6ObU7ON36JFIPxemjUSWbmRfgqHtcHj1KKMUVWI=
 
 "use client";
 
@@ -1815,15 +1815,39 @@ type UploadMeta = { add: UploadWidget } | { remove: string };
 
 const UPLOAD_KEY = new PluginKey<DecorationSet>("textEditUploads");
 
+const SVG_NS = "http://www.w3.org/2000/svg";
+/** lucide `Loader`'s strokes (lucide-react `LoaderIcon`). */
+const LOADER_PATHS = [
+  "M12 2v4",
+  "m16.2 7.8 2.9-2.9",
+  "M18 12h4",
+  "m16.2 16.2 2.9 2.9",
+  "M12 18v4",
+  "m4.9 19.1 2.9-2.9",
+  "M2 12h4",
+  "m4.9 4.9 2.9 2.9",
+];
+
 /** The placeholder an upload shows until it resolves: the image dimmed under a spinner, or the file's name. */
 function uploadPlaceholder(upload: UploadWidget): HTMLElement {
+  // The system's one loader shape (lucide `Loader`, as `Spinner` draws it), built as DOM because
+  // a ProseMirror widget is not a React tree.
   const spinner = (size: string) => {
-    const ring = document.createElement("span");
-    ring.className = cn(
-      "inline-block shrink-0 animate-spin rounded-full border-2 border-muted-foreground border-t-transparent",
-      size,
-    );
-    return ring;
+    const svg = document.createElementNS(SVG_NS, "svg");
+    svg.setAttribute("viewBox", "0 0 24 24");
+    svg.setAttribute("fill", "none");
+    svg.setAttribute("stroke", "currentColor");
+    svg.setAttribute("stroke-width", "2");
+    svg.setAttribute("stroke-linecap", "round");
+    svg.setAttribute("stroke-linejoin", "round");
+    svg.setAttribute("aria-hidden", "true");
+    svg.setAttribute("class", cn("shrink-0 animate-spin", size));
+    for (const d of LOADER_PATHS) {
+      const path = document.createElementNS(SVG_NS, "path");
+      path.setAttribute("d", d);
+      svg.append(path);
+    }
+    return svg;
   };
   const root = document.createElement("span");
   root.contentEditable = "false";
@@ -1839,7 +1863,8 @@ function uploadPlaceholder(upload: UploadWidget): HTMLElement {
     image.alt = "";
     image.className = "block max-h-60 opacity-50";
     const overlay = document.createElement("span");
-    overlay.className = "absolute inset-0 grid place-items-center";
+    overlay.className =
+      "absolute inset-0 grid place-items-center text-foreground";
     overlay.append(spinner("size-5"));
     root.append(image, overlay);
   } else {
