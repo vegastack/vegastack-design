@@ -2,7 +2,10 @@
 
 import { type ReactNode, useState } from "react";
 import { Wrapper } from "./wrapper";
-import { BoardCard } from "@/components/ui/board-card";
+import { BoardCard, BoardCardChip } from "@/components/ui/board-card";
+import { PersonAvatar } from "@/components/ui/person-avatar";
+import { StatusIcon } from "@/components/ui/status-icon";
+import { CalendarDays, Tag } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -153,6 +156,48 @@ export function boardCardEditable(): ReactNode {
             </InlineEditTrigger>
           )
         }
+      />
+    </Wrapper>
+  );
+}
+
+/** The quieter Linear-style card: eyebrow, a status lead, an avatar aside, pill chips, an alert and a footnote. */
+export function boardCardSlots(): ReactNode {
+  return (
+    <Wrapper className="block max-w-xs">
+      <BoardCard
+        eyebrow="↳ Harbour Tower handover"
+        title="Send the revised lighting schedule to the contractor"
+        status={<StatusIcon status="progress" size="sm" />}
+        aside={<PersonAvatar person={{ name: "Priya Shah", hue: "purple" }} />}
+        chips={
+          <>
+            <DropdownMenu>
+              <DropdownMenuTrigger
+                render={<BoardCardChip render={<button type="button" />} />}
+              >
+                <PriorityIcon priority="high" size="sm" label="" />
+                High
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                <DropdownMenuItem>Urgent</DropdownMenuItem>
+                <DropdownMenuItem>High</DropdownMenuItem>
+                <DropdownMenuItem>Medium</DropdownMenuItem>
+                <DropdownMenuItem>Low</DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+            <BoardCardChip>
+              <CalendarDays />
+              Fri
+            </BoardCardChip>
+            <BoardCardChip>
+              <Tag />
+              Electrical
+            </BoardCardChip>
+          </>
+        }
+        alert="Blocked by 2"
+        footnote="Created 9 Oct"
       />
     </Wrapper>
   );

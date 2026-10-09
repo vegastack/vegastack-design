@@ -79,6 +79,15 @@ follows the pointer, without the tilt or the slides.
 
 <ComponentPreview name="boardTasks" file="components/preview/board.tsx" />
 
+### Header add and trailing content
+
+`addPlacement="header"` moves each lane's add button into its header, an icon button beside the
+⋯ menu whose accessible name and tooltip are `addLabel`. A column's `icon` leads its title (the
+status glyph of a status lane), and `trailing` renders after the last lane inside the sideways
+scroller — a list of hidden lanes, an "Add lane" button. Cards sit on a slightly raised surface.
+
+<ComponentPreview name="boardHeaderAdd" file="components/preview/board.tsx" />
+
 ### Full height
 
 `height="fill"` is the default: the board measures where it starts and runs its lanes to the

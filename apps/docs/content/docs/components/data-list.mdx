@@ -633,8 +633,8 @@ the viewport below the list and cards scroll inside each lane (`boardHeight`, de
 Offer it with `views={["list", "board"]}`.
 
 - **Cards.** `boardCard(row)` maps a row to the card's fields — `title`, `context`, `due`,
-  `priority`, `assignee`, `done` / `onDoneChange`, and `status` (your status circle, the same
-  control the list rows use). Without it the title is the first
+  `priority`, `assignee`, `done` / `onDoneChange`, `status` (your status circle, the same
+  control the list rows use), and the quieter slots — `eyebrow`, `aside`, `chips`, `alert`, `footnote`. Without it the title is the first
   column and the context line joins the other columns. `renderCard` replaces the card entirely.
 - **Moves.** `onMove(row, fromSection, toSection, move)` applies a drag or a keyboard move between
   lanes. The card moves at once; return a promise to gate it on the server — a
@@ -643,7 +643,9 @@ Offer it with `views={["list", "board"]}`.
   create form opens with that status filled in. Every lane collapses from the icon button left of its header's ⋯ menu
   (`collapsedSections` / `onCollapsedSectionsChange` control it); a section's `defaultCollapsed`
   starts it as a read-only strip, `droppable: false` and `lockedReason` refuse cards, and
-  `addable: false` hides its add button.
+  `addable: false` hides its add button. `addPlacement="header"` puts the add button in each lane's
+  header beside ⋯ instead. A section's `icon` leads its lane title, its `actions` fill the lane's ⋯
+  menu, and `boardTrailing` renders after the last lane inside the board's scroller.
 - **Per-lane data.** A section's own `loading`, `loadMore` (loaded as the lane's foot scrolls into
   view, with the Load more button as fallback) and `emptyState` give each lane its own first load,
   paging and empty state. An empty lane reads "Nothing here", and "Drop here" while dragging.

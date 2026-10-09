@@ -1,9 +1,10 @@
-// @vegastack board-card@0.25.6 sha256-hpA/im+f8spHQUl/5oELEl6FOI0Og9elxnj1SdlEl54=
+// @vegastack board-card@0.25.6 sha256-cjUh8NI7CS8ZmehlR1E0ku2TEpaNZrWf6ApX3tg4mzo=
 
 "use client";
 
 import * as React from "react";
 import { mergeProps } from "@base-ui/react/merge-props";
+import { useRender } from "@base-ui/react/use-render";
 import { cn } from "@vegastack/design";
 import {
   dayDelta,
@@ -76,6 +77,38 @@ export interface BoardCardProps extends Omit<
 > {
   /** The card's title — wraps to two lines, then truncates. */
   title: React.ReactNode;
+  /**
+   * The title's weight. A card led by a `status` control reads quieter at normal weight.
+   * @default "normal" with `status`, otherwise "medium"
+   */
+  titleWeight?: "normal" | "medium";
+  /**
+   * A small muted line above the title — the parent a sub-item belongs to ("↳ Launch plan").
+   * @default undefined
+   */
+  eyebrow?: React.ReactNode;
+  /**
+   * The top-end slot beside the title — usually the assignee's avatar. On a `Board` it sits
+   * just before the board's ⋯ menu.
+   * @default undefined
+   */
+  aside?: React.ReactNode;
+  /**
+   * The card's bottom row of pills, in place of the default assignee, due and priority row —
+   * usually `BoardCardChip`s.
+   * @default undefined
+   */
+  chips?: React.ReactNode;
+  /**
+   * A muted destructive line under the chips — what holds the card up ("Blocked by 2").
+   * @default undefined
+   */
+  alert?: React.ReactNode;
+  /**
+   * A muted last line — when the card was created or last changed ("Created 9 Oct").
+   * @default undefined
+   */
+  footnote?: React.ReactNode;
   /**
    * One muted line under the title — where the card belongs ("Website redesign · Acme").
    * @default undefined
@@ -236,6 +269,12 @@ function dueVariant(due: DateInput, options?: DateTimeOptions) {
  */
 export function BoardCard({
   title,
+  titleWeight,
+  eyebrow,
+  aside,
+  chips,
+  alert,
+  footnote,
   context,
   done,
   onDoneChange,
@@ -259,8 +298,12 @@ export function BoardCard({
   const hasLead = status != null || hasTick;
   const dueLabel =
     due != null && due !== "" ? formatDueLabel(due, dateOptions) : null;
+  const hasDefaultRow = Boolean(
+    renderField != null || (dueLabel && dueLabel.label) || priority || assignee,
+  );
   const hasFooter =
-    renderField != null || (dueLabel && dueLabel.label) || priority || assignee;
+    chips != null || alert != null || footnote != null || hasDefaultRow;
+  const weight = titleWeight ?? (status != null ? "normal" : "medium");
 
   const dueBadge =
     dueLabel && dueLabel.label ? (
@@ -301,7 +344,7 @@ export function BoardCard({
       className={cn(
         "group/board-card relative flex min-w-0 flex-col gap-2 text-start text-card-foreground",
         surface &&
-          "rounded-lg border border-border bg-card p-3 transition-colors hover:bg-accent/50 has-[[data-slot=board-card-link]:focus-visible]:bg-accent/50",
+          "rounded-lg border border-border bg-card p-3 shadow-xs transition-colors hover:bg-accent/50 has-[[data-slot=board-card-link]:focus-visible]:bg-accent/50",
         className,
       )}
       {...props}
@@ -318,6 +361,8 @@ export function BoardCard({
             className={cn(
               "relative z-10 flex min-h-5 items-center",
               hasFooter && "row-span-2 self-start",
+              // Line the lead up with the title, not the eyebrow above it (a 16px line + 2px gap).
+              eyebrow != null && "mt-4.5",
             )}
           >
             {status != null ? (
@@ -336,10 +381,20 @@ export function BoardCard({
         ) : null}
         <div className="flex min-w-0 items-start gap-2">
           <div className="flex min-w-0 flex-1 flex-col gap-0.5">
+            {eyebrow != null ? (
+              <span
+                data-slot="board-card-eyebrow"
+                className="min-w-0 truncate text-xs text-muted-foreground"
+              >
+                {eyebrow}
+              </span>
+            ) : null}
             <span
               data-slot="board-card-title"
+              data-weight={weight}
               className={cn(
-                "line-clamp-2 text-sm leading-5 font-medium break-words",
+                "line-clamp-2 text-sm leading-5 break-words",
+                weight === "medium" ? "font-medium" : "font-normal",
                 done && "text-muted-foreground",
               )}
             >
@@ -355,6 +410,14 @@ export function BoardCard({
               </span>
             ) : null}
           </div>
+          {aside != null ? (
+            <div
+              data-slot="board-card-aside"
+              className="relative z-10 flex shrink-0 items-center self-start"
+            >
+              {aside}
+            </div>
+          ) : null}
           {actions != null ? (
             <div
               data-slot="board-card-actions"
@@ -365,65 +428,134 @@ export function BoardCard({
           ) : null}
         </div>
         {hasFooter ? (
-          <div
-            data-slot="board-card-footer"
-            className="flex min-w-0 flex-wrap items-center gap-1.5"
-          >
-            {renderField ? (
-              <>
-                {editableField(
-                  renderField,
-                  "assignee",
-                  assignee ? (
-                    <>
-                      <PersonAvatar person={assignee} />
-                      <span className="sr-only">{assignee.name}</span>
-                    </>
-                  ) : (
-                    <UserRound aria-hidden />
-                  ),
-                  !assignee,
+          <div className="flex min-w-0 flex-col gap-1.5">
+            {chips != null ? (
+              <div
+                data-slot="board-card-footer"
+                className="flex min-w-0 flex-wrap items-center gap-1"
+              >
+                {chips}
+              </div>
+            ) : hasDefaultRow ? (
+              <div
+                data-slot="board-card-footer"
+                className="flex min-w-0 flex-wrap items-center gap-1.5"
+              >
+                {renderField ? (
+                  <>
+                    {editableField(
+                      renderField,
+                      "assignee",
+                      assignee ? (
+                        <>
+                          <PersonAvatar person={assignee} />
+                          <span className="sr-only">{assignee.name}</span>
+                        </>
+                      ) : (
+                        <UserRound aria-hidden />
+                      ),
+                      !assignee,
+                    )}
+                    {editableField(
+                      renderField,
+                      "due",
+                      dueBadge ?? <CalendarDays aria-hidden />,
+                      !dueBadge,
+                    )}
+                    {editableField(
+                      renderField,
+                      "priority",
+                      priorityBadge ?? <Flag aria-hidden />,
+                      !priorityBadge,
+                    )}
+                  </>
+                ) : (
+                  <>
+                    {assignee ? (
+                      <HoverCard>
+                        <HoverCardTrigger
+                          render={
+                            <span
+                              data-slot="board-card-assignee"
+                              className="inline-flex rounded-full"
+                            />
+                          }
+                        >
+                          <PersonAvatar person={assignee} />
+                          <span className="sr-only">{assignee.name}</span>
+                        </HoverCardTrigger>
+                        <HoverCardContent align="start" className="w-60 p-2">
+                          <PersonCard person={assignee} />
+                        </HoverCardContent>
+                      </HoverCard>
+                    ) : null}
+                    {dueBadge}
+                    {priorityBadge}
+                  </>
                 )}
-                {editableField(
-                  renderField,
-                  "due",
-                  dueBadge ?? <CalendarDays aria-hidden />,
-                  !dueBadge,
-                )}
-                {editableField(
-                  renderField,
-                  "priority",
-                  priorityBadge ?? <Flag aria-hidden />,
-                  !priorityBadge,
-                )}
-              </>
-            ) : (
-              <>
-                {assignee ? (
-                  <HoverCard>
-                    <HoverCardTrigger
-                      render={
-                        <span
-                          data-slot="board-card-assignee"
-                          className="inline-flex rounded-full"
-                        />
-                      }
-                    >
-                      <PersonAvatar person={assignee} />
-                      <span className="sr-only">{assignee.name}</span>
-                    </HoverCardTrigger>
-                    <HoverCardContent align="start" className="w-60 p-2">
-                      <PersonCard person={assignee} />
-                    </HoverCardContent>
-                  </HoverCard>
-                ) : null}
-                {dueBadge}
-                {priorityBadge}
-              </>
-            )}
+              </div>
+            ) : null}
+            {alert != null ? (
+              <span
+                data-slot="board-card-alert"
+                className="min-w-0 truncate text-xs text-destructive-text"
+              >
+                {alert}
+              </span>
+            ) : null}
+            {footnote != null ? (
+              <span
+                data-slot="board-card-footnote"
+                className="min-w-0 truncate text-xs text-muted-foreground"
+              >
+                {footnote}
+              </span>
+            ) : null}
           </div>
         ) : null}
       </div>
     </div>
   );
+}
+
+/** Props accepted by `BoardCardChip`. */
+export type BoardCardChipProps = useRender.ComponentProps<"span">;
+
+/**
+ * `BoardCardChip` — one small pill in a `BoardCard`'s `chips` row: a thin border, no fill, an
+ * icon and a short label. Render it as the trigger of a host menu (`render={<button />}`, or a
+ * `DropdownMenuTrigger`'s `render`) to make the field editable from the card.
+ *
+ * @example
+ * <BoardCard
+ *   title={task.title}
+ *   chips={
+ *     <>
+ *       <BoardCardChip><Flag />High</BoardCardChip>
+ *       <DropdownMenuTrigger render={<BoardCardChip render={<button type="button" />} />}>
+ *         <Tag />Design
+ *       </DropdownMenuTrigger>
+ *     </>
+ *   }
+ * />
+ */
+export function BoardCardChip({
+  className,
+  render,
+  ...props
+}: BoardCardChipProps) {
+  return useRender({
+    defaultTagName: "span",
+    props: mergeProps<"span">(
+      {
+        className: cn(
+          "relative z-10 inline-flex h-6 max-w-full min-w-0 shrink-0 items-center gap-1 rounded-full border border-border bg-transparent px-2 text-xs whitespace-nowrap text-muted-foreground [&>svg]:pointer-events-none [&>svg]:size-3 [&>svg]:shrink-0",
+          className,
+        ),
+      },
+      props,
+    ),
+    render,
+    state: { slot: "board-card-chip" },
+  });
 }

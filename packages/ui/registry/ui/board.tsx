@@ -1,4 +1,4 @@
-// @vegastack board@0.25.6 sha256-lnAcNbMEGC/f7W/99szfJP4mFVrZwAQljj/6tqagFtI=
+// @vegastack board@0.25.6 sha256-4In35TqMHhGf3Cfn5fVdicIochezcwAUONNlLxClTNk=
 
 "use client";
 
@@ -118,6 +118,11 @@ export interface BoardColumn<T> {
   id: string;
   /** Column heading content. */
   title: React.ReactNode;
+  /**
+   * An icon before the lane's title — the status glyph of a status lane.
+   * @default undefined
+   */
+  icon?: React.ReactNode;
   /**
    * Plain-text lane name — used in the lane's accessible name and every
    * announcement. Required when `title` is not a string (a
@@ -264,6 +269,18 @@ export interface BoardProps<T> {
    * @default "Add card"
    */
   addLabel?: string | ((column: BoardColumn<T>) => string);
+  /**
+   * Where a lane's add button sits: a full-width row after its last card, or an icon button in
+   * the lane header beside the ⋯ menu (`addLabel` becomes its accessible name and tooltip).
+   * @default "footer"
+   */
+  addPlacement?: "footer" | "header";
+  /**
+   * Content after the last lane, inside the sideways scroller — a list of hidden lanes, an
+   * "Add lane" button.
+   * @default undefined
+   */
+  trailing?: React.ReactNode;
   /**
    * Let the user collapse a lane to a slim strip from its header's ⋯ menu.
    * @default true
@@ -443,7 +460,7 @@ function BoardCardSurface({
 
 /** The card chrome, shared by a resting card and the lifted one. */
 const cardClasses =
-  "group/board-card relative flex min-w-0 flex-col rounded-lg border border-border bg-card p-3 text-start text-sm text-card-foreground transition-colors select-none [-webkit-touch-callout:none]";
+  "group/board-card relative flex min-w-0 flex-col rounded-lg border border-border bg-card p-3 shadow-xs text-start text-sm text-card-foreground transition-colors select-none [-webkit-touch-callout:none]";
 
 /** Loads a lane's next batch when its foot scrolls into view. */
 function LaneAutoLoad({
@@ -519,6 +536,8 @@ export function Board<T>({
   onCardActivate,
   onAdd,
   addLabel = "Add card",
+  addPlacement = "footer",
+  trailing,
   collapsible = true,
   collapsedColumns,
   onCollapsedChange,
@@ -1404,26 +1423,48 @@ export function Board<T>({
     const empty = laneIds.length === 0 && gapIndex === -1;
     // The add button rides the scroll content: a full-width row after the last card (and
     // LoadMore), or a content-width action under the default empty state when the lane is empty.
+    const addInHeader = addPlacement === "header";
     const addInEmpty =
+      !addInHeader &&
       empty &&
       !column.loading &&
       !(dragging && receivable) &&
       column.emptyState === undefined;
-    const addButton = showAdd ? (
-      <Button
-        variant="ghost"
-        size="sm"
-        data-slot="board-column-add"
-        onClick={() => onAdd(column.id)}
-        className={cn(
-          "shrink-0 text-muted-foreground",
-          !addInEmpty && "w-full justify-center",
-        )}
-      >
-        <Plus />
-        {addText}
-      </Button>
-    ) : null;
+    const headerAdd =
+      showAdd && addInHeader ? (
+        <Tooltip>
+          <TooltipTrigger
+            render={
+              <Button
+                variant="ghost"
+                size="icon-xs"
+                aria-label={addText}
+                data-slot="board-column-add"
+                onClick={() => onAdd(column.id)}
+              >
+                <Plus />
+              </Button>
+            }
+          />
+          <TooltipContent>{addText}</TooltipContent>
+        </Tooltip>
+      ) : null;
+    const addButton =
+      showAdd && !addInHeader ? (
+        <Button
+          variant="ghost"
+          size="sm"
+          data-slot="board-column-add"
+          onClick={() => onAdd(column.id)}
+          className={cn(
+            "shrink-0 text-muted-foreground",
+            !addInEmpty && "w-full justify-center",
+          )}
+        >
+          <Plus />
+          {addText}
+        </Button>
+      ) : null;
     const gap = (
       <div
         key="__gap"
@@ -1458,6 +1499,14 @@ export function Board<T>({
           data-slot="board-column-header"
           className="flex min-w-0 shrink-0 items-center gap-2 px-3 pt-3 pb-2"
         >
+          {column.icon != null ? (
+            <span
+              data-slot="board-column-icon"
+              className="flex shrink-0 items-center [&>svg]:size-4"
+            >
+              {column.icon}
+            </span>
+          ) : null}
           <span
             data-slot="board-column-title"
             className="min-w-0 truncate text-sm font-medium"
@@ -1490,6 +1539,7 @@ export function Board<T>({
                 <TooltipContent>Collapse lane</TooltipContent>
               </Tooltip>
             ) : null}
+            {headerAdd}
             {hasLaneMenu ? (
               <DropdownMenu>
                 <DropdownMenuTrigger
@@ -1670,6 +1720,17 @@ export function Board<T>({
           )}
         >
           {columns.map(renderLane)}
+          {trailing != null ? (
+            <div
+              data-slot="board-trailing"
+              className={cn(
+                "flex min-w-0 shrink-0 flex-col max-md:snap-start",
+                fill ? "h-full" : "self-start",
+              )}
+            >
+              {trailing}
+            </div>
+          ) : null}
         </div>
         <div
           aria-hidden="true"

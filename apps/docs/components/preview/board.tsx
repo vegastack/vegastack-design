@@ -4,7 +4,11 @@ import { type ReactNode, useState } from "react";
 import { Wrapper } from "./wrapper";
 // Copied INTO apps/docs via `shadcn add @vegastack/board` (dogfoods the registry) → auto-scanned.
 import { Board, type BoardColumn } from "@/components/ui/board";
-import { BoardCard } from "@/components/ui/board-card";
+import { BoardCard, BoardCardChip } from "@/components/ui/board-card";
+import { Button } from "@/components/ui/button";
+import { PersonAvatar } from "@/components/ui/person-avatar";
+import { StatusIcon } from "@/components/ui/status-icon";
+import { CalendarDays, Eye } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
 interface Deal {
@@ -605,6 +609,87 @@ export function boardLockedCard(): ReactNode {
         onCardActivate={() => {}}
         onMove={({ id, to }) =>
           setColumns((prev) => applyMove(prev, id, to.container, to.index))
+        }
+      />
+    </Wrapper>
+  );
+}
+
+type LinearStatus = "todo" | "progress" | "review" | "done";
+const LINEAR_LANES: { id: LinearStatus; title: string }[] = [
+  { id: "todo", title: "Todo" },
+  { id: "progress", title: "In Progress" },
+  { id: "review", title: "In Review" },
+];
+
+/**
+ * A Linear-style status board: a status glyph before each lane title, the "+" in the lane header
+ * beside ⋯, quiet cards with pill chips, and a hidden-lanes list after the last lane (`trailing`).
+ */
+export function boardHeaderAdd(): ReactNode {
+  const [columns, setColumns] = useState<BoardColumn<Task>[]>(() =>
+    LINEAR_LANES.map((lane, index) => ({
+      id: lane.id,
+      title: lane.title,
+      icon: <StatusIcon status={lane.id} size="sm" label="" />,
+      items: (TASKS[index]?.items ?? []).slice(0, 2),
+    })),
+  );
+  return (
+    <Wrapper className="block">
+      <Board<Task>
+        height="26rem"
+        aria-label="Issues"
+        columns={columns}
+        getItemId={(task) => task.id}
+        getItemLabel={(task) => task.title}
+        getColumnActions={() => [
+          { label: "Hide column", onSelect: () => {} },
+          { label: "Sort by priority", onSelect: () => {} },
+        ]}
+        onAdd={() => {}}
+        addLabel="New issue"
+        addPlacement="header"
+        renderCard={(task, column) => (
+          <BoardCard
+            surface={false}
+            title={task.title}
+            eyebrow={task.meeting ? "↳ Harbour Tower handover" : undefined}
+            status={<StatusIcon status={column.id as LinearStatus} size="sm" />}
+            aside={
+              <PersonAvatar
+                person={{ name: OWNERS[task.owner] ?? task.owner }}
+              />
+            }
+            chips={
+              <BoardCardChip>
+                <CalendarDays />
+                {task.due < 0 ? "Overdue" : `In ${task.due}d`}
+              </BoardCardChip>
+            }
+            footnote="Created 9 Oct"
+          />
+        )}
+        onMove={({ id, to }) =>
+          setColumns((prev) => moveTask(prev, id, to.container, to.index))
+        }
+        trailing={
+          <div className="flex w-56 flex-col gap-1 px-1 pt-3">
+            <p className="px-2 pb-1 text-sm text-muted-foreground">
+              Hidden columns
+            </p>
+            {["Backlog", "Done", "Canceled"].map((name) => (
+              <Button
+                key={name}
+                variant="ghost"
+                size="sm"
+                className="justify-start"
+              >
+                <Eye />
+                {name}
+              </Button>
+            ))}
+          </div>
         }
       />
     </Wrapper>

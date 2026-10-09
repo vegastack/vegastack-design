@@ -2534,3 +2534,48 @@ test("a clickable grid card holding an interactive column is a labelled group, n
   ).toBeNull();
   await expectNoA11yViolations(screen.container);
 });
+
+test("board view passes each section's icon and ⋯ actions, a header add button and boardTrailing to the Board", async () => {
+  const onAdd = vi.fn();
+  const onHide = vi.fn();
+  const screen = await render(
+    <DataList
+      data={tasks}
+      columns={taskCols}
+      getRowId={(r) => r.id}
+      view="board"
+      boardHeight="auto"
+      sections={sectionList.map((section) => ({
+        ...section,
+        icon: <svg aria-hidden="true" />,
+        actions: [{ label: "Hide column", onSelect: () => onHide(section.id) }],
+      }))}
+      getRowSection={(r) => r.due}
+      onMove={() => {}}
+      onAddToSection={onAdd}
+      addLabel="Add task"
+      addPlacement="header"
+      boardTrailing={<p>Hidden columns</p>}
+    />,
+  );
+  const headers = screen.container.querySelectorAll(
+    '[data-slot="board-column-header"]',
+  );
+  expect(headers.length).toBe(3);
+  for (const header of headers) {
+    expect(
+      header.querySelector('[data-slot="board-column-icon"]'),
+    ).not.toBeNull();
+    expect(
+      header.querySelector('[data-slot="board-column-menu"]'),
+    ).not.toBeNull();
+    expect(
+      header.querySelector('button[aria-label="Add task"]'),
+    ).not.toBeNull();
+  }
+  (
+    headers[1]!.querySelector('button[aria-label="Add task"]') as HTMLElement
+  ).click();
+  expect(onAdd).toHaveBeenCalledWith("today");
+  await expect.element(screen.getByText("Hidden columns")).toBeInTheDocument();
+});
