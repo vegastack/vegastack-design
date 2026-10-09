@@ -1,4 +1,4 @@
-// @vegastack data-table-parts@0.25.2 sha256-f2oWG8swMI5HTPqx49KnAB5jpGmHMcJuoK6sAHc9tWg=
+// @vegastack data-table-parts@0.25.2 sha256-f2xQD08tNcCfXtBzTYpwMCxwo0/dxQ+ZmtDr2OICGlU=
 
 "use client";
 
@@ -849,15 +849,29 @@ export interface SkeletonRowsProps {
   slot?: string;
 }
 
+/** The widest placeholder bar, in spacing steps (10rem): a phone's primary column always fits it. */
+const SKELETON_BAR_MAX_STEPS = 40;
+
 /**
- * A placeholder bar's width: about 70% of the column's `minWidth` budget (the width its real
- * values are sized for), so a loading table's columns settle where the loaded table's do; a
- * narrow icon column (a row's ⋯ menu) gets an icon-sized square. In spacing steps, never pixels.
+ * A placeholder's shape: a bar about 70% of the column's `minWidth` budget (the width its real
+ * values are sized for, capped at 10rem), so a loading table's columns settle where the loaded
+ * table's do; a narrow icon column (a row's ⋯ menu) gets an icon-sized square. In spacing steps,
+ * never pixels.
  */
-function skeletonBarStyle(column: DataTableColumnLayout): React.CSSProperties {
+function skeletonBar(column: DataTableColumnLayout): {
+  className: string;
+  style?: React.CSSProperties;
+} {
   const budget = column.minWidth ?? DEFAULT_COLUMN_MIN_WIDTH;
-  const steps = budget <= 48 ? 6 : Math.round((budget * 0.7) / 4);
-  return { width: `calc(var(--spacing) * ${steps})` };
+  if (budget <= 48) return { className: "size-6" };
+  const steps = Math.min(
+    SKELETON_BAR_MAX_STEPS,
+    Math.round((budget * 0.7) / 4),
+  );
+  return {
+    className: "h-4 max-w-full",
+    style: { width: `calc(var(--spacing) * ${steps})` },
+  };
 }
 
 /**
@@ -886,19 +900,22 @@ export function SkeletonRows({
               <Skeleton className="size-3.5 rounded-sm" />
             </TableCell>
           ) : null}
-          {columns.map((column) => (
-            <TableCell key={column.key} className={columnCellClass(column)}>
-              <Skeleton
-                className={cn(
-                  "h-4 max-w-full",
-                  column.align === "end"
-                    ? "ms-auto"
-                    : column.align === "center" && "mx-auto",
-                )}
-                style={skeletonBarStyle(column)}
-              />
-            </TableCell>
-          ))}
+          {columns.map((column) => {
+            const bar = skeletonBar(column);
+            return (
+              <TableCell key={column.key} className={columnCellClass(column)}>
+                <Skeleton
+                  className={cn(
+                    bar.className,
+                    column.align === "end"
+                      ? "ms-auto"
+                      : column.align === "center" && "mx-auto",
+                  )}
+                  style={bar.style}
+                />
+              </TableCell>
+            );
+          })}
         </TableRow>
       ))}
     </>
