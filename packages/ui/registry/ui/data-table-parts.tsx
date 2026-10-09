@@ -1,4 +1,4 @@
-// @vegastack data-table-parts@0.25.2 sha256-1w7HRQxRLNFXpJqLBpcCLvPML1wnFwXgZP0fgYa+VlI=
+// @vegastack data-table-parts@0.25.2 sha256-f2oWG8swMI5HTPqx49KnAB5jpGmHMcJuoK6sAHc9tWg=
 
 "use client";
 
@@ -850,6 +850,17 @@ export interface SkeletonRowsProps {
 }
 
 /**
+ * A placeholder bar's width: about 70% of the column's `minWidth` budget (the width its real
+ * values are sized for), so a loading table's columns settle where the loaded table's do; a
+ * narrow icon column (a row's ⋯ menu) gets an icon-sized square. In spacing steps, never pixels.
+ */
+function skeletonBarStyle(column: DataTableColumnLayout): React.CSSProperties {
+  const budget = column.minWidth ?? DEFAULT_COLUMN_MIN_WIDTH;
+  const steps = budget <= 48 ? 6 : Math.round((budget * 0.7) / 4);
+  return { width: `calc(var(--spacing) * ${steps})` };
+}
+
+/**
  * `SkeletonRows` — the loading state. Rows are `aria-hidden`: the announcement
  * belongs to the table's own busy/live wiring, not to a wall of placeholders.
  *
@@ -875,10 +886,16 @@ export function SkeletonRows({
               <Skeleton className="size-3.5 rounded-sm" />
             </TableCell>
           ) : null}
-          {columns.map((column, columnIndex) => (
+          {columns.map((column) => (
             <TableCell key={column.key} className={columnCellClass(column)}>
               <Skeleton
-                className={columnIndex === 0 ? "h-4 w-32" : "h-4 w-20"}
+                className={cn(
+                  "h-4 max-w-full",
+                  column.align === "end"
+                    ? "ms-auto"
+                    : column.align === "center" && "mx-auto",
+                )}
+                style={skeletonBarStyle(column)}
               />
             </TableCell>
           ))}

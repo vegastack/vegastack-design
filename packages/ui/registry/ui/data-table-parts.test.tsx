@@ -749,6 +749,33 @@ test("SkeletonRows draws the requested geometry and hides it from AT", async () 
   expect(rows[0]!.querySelectorAll("td")).toHaveLength(4);
 });
 
+test("SkeletonRows sizes each bar from its column's budget and alignment", async () => {
+  const screen = await render(
+    <Table>
+      <TableBody>
+        <SkeletonRows
+          columns={[
+            { key: "name", minWidth: 200 },
+            { key: "count", minWidth: 80, align: "end" },
+            { key: "menu", minWidth: 48, align: "end" },
+          ]}
+          rows={1}
+        />
+      </TableBody>
+    </Table>,
+  );
+  const bars = [
+    ...screen.container.querySelectorAll<HTMLElement>('[data-slot="skeleton"]'),
+  ];
+  expect(bars.map((bar) => bar.style.width)).toEqual([
+    "calc(var(--spacing) * 35)",
+    "calc(var(--spacing) * 14)",
+    "calc(var(--spacing) * 6)",
+  ]);
+  expect(bars[0]!.className).not.toContain("ms-auto");
+  expect(bars[1]!.className).toContain("ms-auto");
+});
+
 test("SkeletonRows never renders zero rows", async () => {
   const screen = await render(
     <Table>
