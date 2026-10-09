@@ -25,11 +25,12 @@ import { StatusIcon } from "@/components/ui/status-icon";
 
 ### States
 
-Each `status` draws its own glyph on a 16-unit grid in a semantic color token: `backlog` (dashed
-ring, muted), `todo` (empty ring, muted), `progress` (ring with a half pie, `tag-yellow-text`),
-`review` (ring with a three-quarter pie, `success-text`), `done` (filled disc with a check,
-`tag-purple-text`), `canceled` (filled disc with a cross, muted), `duplicate` (ring with two
-diagonal strokes, muted) and `triage` (filled disc with a left-right arrow, `tag-orange-text`).
+Each `status` draws its own Linear-style glyph on a 16-unit grid in one of the system's standard
+semantic color tokens: `backlog` (dashed ring, `muted-foreground`), `todo` (empty ring,
+`foreground`), `progress` (ring with a half pie, `warning-text`), `review` (ring with a
+three-quarter pie, `info-text`), `done` (filled disc with a check, `success-text`), `canceled`
+(filled disc with a cross, `muted-foreground`), `duplicate` (ring with two diagonal strokes,
+`muted-foreground`) and `triage` (filled disc with a left-right arrow, `tag-orange-text`).
 `blocked` and `cancelled` remain as deprecated aliases: `cancelled` renders `canceled`, and
 `blocked` draws a slashed ring in `warning-text`.
 

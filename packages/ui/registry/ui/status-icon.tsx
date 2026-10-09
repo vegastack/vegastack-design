@@ -1,4 +1,4 @@
-// @vegastack status-icon@0.25.5 sha256-Zz0xAAByEION2IpCNFf9C+WbxSZaoMzTD4mf7X/GrVo=
+// @vegastack status-icon@0.25.5 sha256-B7kqQQi/iQzw6JAcQaVJ+sxyIjSemicd/i45QxlJGdI=
 
 import * as React from "react";
 import { cva, type VariantProps } from "class-variance-authority";
@@ -10,11 +10,11 @@ import { cn } from "@vegastack/design";
  *
  * The glyphs follow Linear's workflow status set and are drawn here on a 16-unit grid rather than
  * taken from lucide, which ships no partial-fill pie (operator, 09-10-2026). Colour is conveyed
- * through `currentColor`, so every status maps to a semantic text token: `backlog`, `todo`,
- * `canceled` and `duplicate` → `text-muted-foreground`, `progress` → `text-tag-yellow-text`,
- * `review` → `text-success-text`, `done` → `text-tag-purple-text` (the system's `brand` is green,
- * which would collide with `review`), `triage` → `text-tag-orange-text`. The marks drawn on a filled
- * disc (`done`'s check, `canceled`'s cross, `triage`'s arrow) take `stroke-background`.
+ * through `currentColor`, so every status maps to one of the system's standard semantic text tokens
+ * (operator, 09-10-2026 — Linear's shapes, not its palette): `backlog`, `canceled` and `duplicate` →
+ * `text-muted-foreground`, `todo` → `text-foreground`, `progress` → `text-warning-text`, `review` →
+ * `text-info-text`, `done` → `text-success-text`, `triage` → `text-tag-orange-text`. The marks
+ * drawn on a filled disc (`done`'s check, `canceled`'s cross, `triage`'s arrow) take `stroke-background`.
  *
  * `blocked` and `cancelled` are deprecated aliases kept so the change ships without a break:
  * `cancelled` renders `canceled`; `blocked` keeps its warning ink and a slashed circle.
@@ -23,10 +23,10 @@ export const statusIconVariants = cva("inline-block shrink-0", {
   variants: {
     status: {
       backlog: "text-muted-foreground",
-      todo: "text-muted-foreground",
-      progress: "text-tag-yellow-text",
-      review: "text-success-text",
-      done: "text-tag-purple-text",
+      todo: "text-foreground",
+      progress: "text-warning-text",
+      review: "text-info-text",
+      done: "text-success-text",
       canceled: "text-muted-foreground",
       duplicate: "text-muted-foreground",
       triage: "text-tag-orange-text",
@@ -141,10 +141,10 @@ export interface StatusIconProps
   /**
    * Workflow status to display (Linear's set). Selects both the glyph and its semantic colour:
    * - `backlog` → dashed ring, `text-muted-foreground`
-   * - `todo` → empty ring, `text-muted-foreground`
-   * - `progress` → ring with a half-filled pie, `text-tag-yellow-text`
-   * - `review` → ring with a three-quarter pie, `text-success-text`
-   * - `done` → filled disc with a check, `text-tag-purple-text`
+   * - `todo` → empty ring, `text-foreground`
+   * - `progress` → ring with a half-filled pie, `text-warning-text`
+   * - `review` → ring with a three-quarter pie, `text-info-text`
+   * - `done` → filled disc with a check, `text-success-text`
    * - `canceled` → filled disc with a cross, `text-muted-foreground`
    * - `duplicate` → ring with two diagonal strokes, `text-muted-foreground`
    * - `triage` → filled disc with a left-right arrow, `text-tag-orange-text`
