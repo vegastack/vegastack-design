@@ -1,4 +1,4 @@
-// @vegastack shortcut-overlay@0.25.6 sha256-erP/Q5k8RiXnlsctfOUMspHJrNFIzyi7aZlwWOPzs2s=
+// @vegastack shortcut-overlay@0.25.7 sha256-jkxWnivgvG2NF8lWpVRjOHbxifQIVAfMs4XZuW8gMqw=
 
 "use client";
 

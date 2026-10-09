@@ -1,5 +1,15 @@
 # @vegastack/ui
 
+## 0.25.7
+
+### Patch Changes
+
+- [#575](https://github.com/vegastack/vegastack-design/pull/575) [`28f1696`](https://github.com/vegastack/vegastack-design/commit/28f1696af3cae9bd43acfc6f7a0e2be061b3d91c) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🧩 **BoardCard** gains quieter Linear-style slots — `eyebrow`, `aside`, `chips`, `alert`, `footnote` and `titleWeight` (normal by default beside a `status` control) — and exports `BoardCardChip`, a thin bordered pill with no fill that renders as a menu trigger through `render`. **Board** takes a column `icon`, `addPlacement="header"` (the add button as an icon beside the lane's ⋯) and `trailing` content after the last lane; cards sit on a slightly raised surface. **DataList** passes them through: a section's `icon` and `actions`, `addPlacement` and `boardTrailing`.
+  [docs](https://design.vegastack.com/docs/components/board-card)
+
+- [#574](https://github.com/vegastack/vegastack-design/pull/574) [`679d19b`](https://github.com/vegastack/vegastack-design/commit/679d19b01031bfa250ea5ea4da5402d081356a66) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🔧 **Drawer** floats inset by default (OVL-21): `--spacing(2)` off every viewport edge, every corner rounded and a full border, in all four directions, as shadcn's inset styles ship it. Pass `flush` on `Drawer` for the previous edge-to-edge sheet. Width overrides are unchanged (`w-*`/`max-w-*` on `DrawerContent`), and a different inset is `[--drawer-inset:--spacing(4)]`.
+  [docs](https://design.vegastack.com/docs/components/drawer)
+
 ## 0.25.6
 
 ### Patch Changes
