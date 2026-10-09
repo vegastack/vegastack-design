@@ -1,4 +1,4 @@
-// @vegastack board-card@0.25.7 sha256-xsVyNtoIFxCncbkBq8atFQZnqhutbq8aixsSaZ+O+lE=
+// @vegastack board-card@0.25.7 sha256-HeZ73YXnSdsYyQhAh5+2CLXOT+uE3mSzKhbHxkCw9Ng=
 
 "use client";
 
@@ -26,8 +26,8 @@ import { PersonCard } from "@/components/ui/person-hover-card";
 /* ---
 `BoardCard` is the content of one card on a `Board` lane (a task, a deal, a ticket): a round
 completion tick (or the host's status circle), a two-line title, a muted context line, and a bottom
-row of assignee, due date and priority. The tick or status sits in a fixed leading column; the
-title, the context and the bottom row all share the text column beside it. It is the default card of `DataList`'s board view and is also usable on its
+row of assignee, due date and priority. The tick or status sits inline before the title (a wrapped title wraps under itself, not under the
+tick); the eyebrow, context and bottom row start at the card's own edge, with no leading gutter. It is the default card of `DataList`'s board view and is also usable on its
 own (a card grid, a "my tasks" rail).
 
 On a `Board` the board owns the surface — the border, the hover tint, the focus cue, the drag, the
@@ -128,7 +128,7 @@ export interface BoardCardProps extends Omit<
   /**
    * A status control in place of the tick — the host's Status menu (a `StatusIcon` trigger that
    * opens the status menu on click and marks done on Alt-click), the same control its list rows
-   * use. It takes the leading column; `done` still strikes the title.
+   * use. It sits inline before the title; `done` still strikes the title.
    * @default undefined
    */
   status?: React.ReactNode;
@@ -349,51 +349,44 @@ export function BoardCard({
       )}
       {...props}
     >
-      <div
-        className={cn(
-          "grid min-w-0 items-start gap-x-2 gap-y-2",
-          hasLead ? "grid-cols-[auto_minmax(0,1fr)]" : "grid-cols-1",
-        )}
-      >
-        {hasLead ? (
-          <div
-            data-slot="board-card-lead"
-            className={cn(
-              "relative z-10 flex min-h-5 items-center",
-              hasFooter && "row-span-2 self-start",
-              // Line the lead up with the title, not the eyebrow above it (a 16px line + 2px gap).
-              eyebrow != null && "mt-4.5",
-            )}
-          >
-            {status != null ? (
-              status
-            ) : (
-              <Checkbox
-                shape="circle"
-                data-slot="board-card-done"
-                aria-label={doneLabel}
-                checked={done ?? false}
-                readOnly={onDoneChange === undefined}
-                onCheckedChange={(checked) => onDoneChange?.(checked === true)}
-              />
-            )}
-          </div>
-        ) : null}
-        <div className="flex min-w-0 items-start gap-2">
-          <div className="flex min-w-0 flex-1 flex-col gap-0.5">
-            {eyebrow != null ? (
-              <span
-                data-slot="board-card-eyebrow"
-                className="min-w-0 truncate text-xs text-muted-foreground"
+      <div className="flex min-w-0 items-start gap-2">
+        <div className="flex min-w-0 flex-1 flex-col gap-0.5">
+          {eyebrow != null ? (
+            <span
+              data-slot="board-card-eyebrow"
+              className="min-w-0 truncate text-xs text-muted-foreground"
+            >
+              {eyebrow}
+            </span>
+          ) : null}
+          {/* The tick or status sits inline before the title; a wrapped title wraps under itself. */}
+          <div className="flex min-w-0 items-start gap-2">
+            {hasLead ? (
+              <div
+                data-slot="board-card-lead"
+                className="relative z-10 flex h-5 shrink-0 items-center"
               >
-                {eyebrow}
-              </span>
+                {status != null ? (
+                  status
+                ) : (
+                  <Checkbox
+                    shape="circle"
+                    data-slot="board-card-done"
+                    aria-label={doneLabel}
+                    checked={done ?? false}
+                    readOnly={onDoneChange === undefined}
+                    onCheckedChange={(checked) =>
+                      onDoneChange?.(checked === true)
+                    }
+                  />
+                )}
+              </div>
             ) : null}
             <span
               data-slot="board-card-title"
               data-weight={weight}
               className={cn(
-                "line-clamp-2 text-sm leading-5 break-words",
+                "line-clamp-2 min-w-0 flex-1 text-sm leading-5 break-words",
                 weight === "medium" ? "font-medium" : "font-normal",
                 done && "text-muted-foreground",
               )}
@@ -401,119 +394,119 @@ export function BoardCard({
               {/* The strike sits on an inline box so line-clamp never clips it. */}
               <span className={cn(done && "line-through")}>{titleText}</span>
             </span>
-            {context != null ? (
-              <span
-                data-slot="board-card-context"
-                className="min-w-0 truncate text-xs text-muted-foreground"
-              >
-                {context}
-              </span>
-            ) : null}
           </div>
-          {aside != null ? (
-            <div
-              data-slot="board-card-aside"
-              className="relative z-10 flex shrink-0 items-center self-start"
+          {context != null ? (
+            <span
+              data-slot="board-card-context"
+              className="min-w-0 truncate text-xs text-muted-foreground"
             >
-              {aside}
-            </div>
-          ) : null}
-          {actions != null ? (
-            <div
-              data-slot="board-card-actions"
-              className="relative z-10 -me-1 -mt-1.5 shrink-0 self-start opacity-0 transition-opacity group-hover/board-card:opacity-100 focus-within:opacity-100 has-data-popup-open:opacity-100 pointer-coarse:opacity-100"
-            >
-              {actions}
-            </div>
+              {context}
+            </span>
           ) : null}
         </div>
-        {hasFooter ? (
-          <div className="flex min-w-0 flex-col gap-1.5">
-            {chips != null ? (
-              <div
-                data-slot="board-card-footer"
-                className="flex min-w-0 flex-wrap items-center gap-1"
-              >
-                {chips}
-              </div>
-            ) : hasDefaultRow ? (
-              <div
-                data-slot="board-card-footer"
-                className="flex min-w-0 flex-wrap items-center gap-1.5"
-              >
-                {renderField ? (
-                  <>
-                    {editableField(
-                      renderField,
-                      "assignee",
-                      assignee ? (
-                        <>
-                          <PersonAvatar person={assignee} />
-                          <span className="sr-only">{assignee.name}</span>
-                        </>
-                      ) : (
-                        <UserRound aria-hidden />
-                      ),
-                      !assignee,
-                    )}
-                    {editableField(
-                      renderField,
-                      "due",
-                      dueBadge ?? <CalendarDays aria-hidden />,
-                      !dueBadge,
-                    )}
-                    {editableField(
-                      renderField,
-                      "priority",
-                      priorityBadge ?? <Flag aria-hidden />,
-                      !priorityBadge,
-                    )}
-                  </>
-                ) : (
-                  <>
-                    {assignee ? (
-                      <HoverCard>
-                        <HoverCardTrigger
-                          render={
-                            <span
-                              data-slot="board-card-assignee"
-                              className="inline-flex rounded-full"
-                            />
-                          }
-                        >
-                          <PersonAvatar person={assignee} />
-                          <span className="sr-only">{assignee.name}</span>
-                        </HoverCardTrigger>
-                        <HoverCardContent align="start" className="w-60 p-2">
-                          <PersonCard person={assignee} />
-                        </HoverCardContent>
-                      </HoverCard>
-                    ) : null}
-                    {dueBadge}
-                    {priorityBadge}
-                  </>
-                )}
-              </div>
-            ) : null}
-            {alert != null ? (
-              <span
-                data-slot="board-card-alert"
-                className="min-w-0 truncate text-xs text-destructive-text"
-              >
-                {alert}
-              </span>
-            ) : null}
-            {footnote != null ? (
-              <span
-                data-slot="board-card-footnote"
-                className="min-w-0 truncate text-xs text-muted-foreground"
-              >
-                {footnote}
-              </span>
-            ) : null}
+        {aside != null ? (
+          <div
+            data-slot="board-card-aside"
+            className="relative z-10 flex shrink-0 items-center self-start"
+          >
+            {aside}
+          </div>
+        ) : null}
+        {actions != null ? (
+          <div
+            data-slot="board-card-actions"
+            className="relative z-10 -me-1 -mt-1.5 shrink-0 self-start opacity-0 transition-opacity group-hover/board-card:opacity-100 focus-within:opacity-100 has-data-popup-open:opacity-100 pointer-coarse:opacity-100"
+          >
+            {actions}
           </div>
         ) : null}
       </div>
+      {hasFooter ? (
+        <div className="flex min-w-0 flex-col gap-1.5">
+          {chips != null ? (
+            <div
+              data-slot="board-card-footer"
+              className="flex min-w-0 flex-wrap items-center gap-1"
+            >
+              {chips}
+            </div>
+          ) : hasDefaultRow ? (
+            <div
+              data-slot="board-card-footer"
+              className="flex min-w-0 flex-wrap items-center gap-1.5"
+            >
+              {renderField ? (
+                <>
+                  {editableField(
+                    renderField,
+                    "assignee",
+                    assignee ? (
+                      <>
+                        <PersonAvatar person={assignee} />
+                        <span className="sr-only">{assignee.name}</span>
+                      </>
+                    ) : (
+                      <UserRound aria-hidden />
+                    ),
+                    !assignee,
+                  )}
+                  {editableField(
+                    renderField,
+                    "due",
+                    dueBadge ?? <CalendarDays aria-hidden />,
+                    !dueBadge,
+                  )}
+                  {editableField(
+                    renderField,
+                    "priority",
+                    priorityBadge ?? <Flag aria-hidden />,
+                    !priorityBadge,
+                  )}
+                </>
+              ) : (
+                <>
+                  {assignee ? (
+                    <HoverCard>
+                      <HoverCardTrigger
+                        render={
+                          <span
+                            data-slot="board-card-assignee"
+                            className="inline-flex rounded-full"
+                          />
+                        }
+                      >
+                        <PersonAvatar person={assignee} />
+                        <span className="sr-only">{assignee.name}</span>
+                      </HoverCardTrigger>
+                      <HoverCardContent align="start" className="w-60 p-2">
+                        <PersonCard person={assignee} />
+                      </HoverCardContent>
+                    </HoverCard>
+                  ) : null}
+                  {dueBadge}
+                  {priorityBadge}
+                </>
+              )}
+            </div>
+          ) : null}
+          {alert != null ? (
+            <span
+              data-slot="board-card-alert"
+              className="min-w-0 truncate text-xs text-destructive-text"
+            >
+              {alert}
+            </span>
+          ) : null}
+          {footnote != null ? (
+            <span
+              data-slot="board-card-footnote"
+              className="min-w-0 truncate text-xs text-muted-foreground"
+            >
+              {footnote}
+            </span>
+          ) : null}
+        </div>
+      ) : null}
     </div>
   );
 }

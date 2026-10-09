@@ -202,9 +202,12 @@ test("eyebrow, aside, chips, alert and footnote render in their slots; chips rep
   const slot = (name: string) =>
     screen.container.querySelector<HTMLElement>(`[data-slot="${name}"]`);
   expect(slot("board-card-eyebrow")?.textContent).toBe("↳ Launch plan");
-  expect(slot("board-card-eyebrow")?.nextElementSibling).toBe(
-    slot("board-card-title"),
-  );
+  // The eyebrow sits above the title row, at the card's edge (no leading gutter).
+  expect(
+    slot("board-card-eyebrow")?.nextElementSibling?.contains(
+      slot("board-card-title"),
+    ),
+  ).toBe(true);
   expect(slot("board-card-aside")?.textContent).toBe("PS");
   expect(slot("board-card-priority")).toBeNull();
   const chips = screen.container.querySelectorAll(
