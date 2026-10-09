@@ -347,6 +347,43 @@ test("onAdd shows + Add after each lane's last card with the lane's id", async (
   expect(onAdd).toHaveBeenCalledWith("won");
 });
 
+test('addPlacement="header" puts an icon add button in each lane header', async () => {
+  const onAdd = vi.fn();
+  const screen = await render(
+    <Controlled onAdd={onAdd} addLabel="Add deal" addPlacement="header" />,
+  );
+  const buttons = screen.getByRole("button", { name: "Add deal" }).elements();
+  expect(buttons.length).toBe(3);
+  for (const button of buttons) {
+    expect(button.closest('[data-slot="board-column-header"]')).not.toBeNull();
+    expect(button.textContent).toBe("");
+  }
+  await press(screen.getByRole("button", { name: "Add deal" }).nth(1));
+  expect(onAdd).toHaveBeenCalledWith("won");
+});
+
+test("a lane icon leads its title, and trailing renders after the last lane in the scroller", async () => {
+  const initial = makeColumns().map((column, index) =>
+    index === 0 ? { ...column, icon: <svg aria-hidden="true" /> } : column,
+  );
+  const screen = await render(
+    <Controlled initial={initial} trailing={<p>Hidden columns</p>} />,
+  );
+  const icon = document.querySelector('[data-slot="board-column-icon"]')!;
+  expect(icon.nextElementSibling?.getAttribute("data-slot")).toBe(
+    "board-column-title",
+  );
+  await expect.element(screen.getByText("Hidden columns")).toBeInTheDocument();
+  const trailing = document.querySelector('[data-slot="board-trailing"]')!;
+  expect(trailing.parentElement?.getAttribute("data-slot")).toBe(
+    "board-scroller",
+  );
+  expect(trailing.previousElementSibling?.getAttribute("data-slot")).toBe(
+    "board-column",
+  );
+  await expectNoA11yViolations(screen.container);
+});
+
 test("a loading lane shows skeleton cards and is aria-busy", async () => {
   const columns = makeColumns();
   columns[1] = { ...columns[1]!, items: [], loading: true };

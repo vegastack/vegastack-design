@@ -3369,6 +3369,7 @@
                 "board-column-empty",
                 "board-column-expand-icon",
                 "board-column-header",
+                "board-column-icon",
                 "board-column-menu",
                 "board-column-skeleton",
                 "board-column-title",
@@ -3376,7 +3377,8 @@
                 "board-fade-end",
                 "board-fade-start",
                 "board-lane-tabs",
-                "board-scroller"
+                "board-scroller",
+                "board-trailing"
               ]
             },
             {
@@ -3420,6 +3422,25 @@
         {
           "name": "BoardCardAssignee",
           "kind": "interface",
+          "source": "packages/ui/registry/ui/board-card.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "BoardCardChip",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/board-card.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "element",
+            "rationale": "useRender forwards the ref to the rendered element."
+          }
+        },
+        {
+          "name": "BoardCardChipProps",
+          "kind": "type",
           "source": "packages/ui/registry/ui/board-card.tsx",
           "ref": {
             "status": "not-applicable",
@@ -3544,16 +3565,24 @@
               "name": "data-slot",
               "values": [
                 "board-card-actions",
+                "board-card-alert",
+                "board-card-aside",
                 "board-card-assignee",
                 "board-card-content",
                 "board-card-context",
                 "board-card-done",
                 "board-card-due",
+                "board-card-eyebrow",
                 "board-card-footer",
+                "board-card-footnote",
                 "board-card-lead",
                 "board-card-priority",
                 "board-card-title"
               ]
+            },
+            {
+              "name": "data-weight",
+              "values": []
             }
           ],
           "cssVariables": []

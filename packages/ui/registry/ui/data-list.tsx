@@ -1,4 +1,4 @@
-// @vegastack data-list@0.25.6 sha256-pTKCy/ZHfMqq0W1iidLyz7ZVQMcg5w+Wu/BZzaJS458=
+// @vegastack data-list@0.25.6 sha256-5YiRoCpRl+OoXq6Momxolej9ssbhA1uETPlIWSV0NNs=
 
 "use client";
 
@@ -675,6 +675,18 @@ export interface DataListProps<T> extends Omit<
    */
   addLabel?: string;
   /**
+   * Board view: where each lane's add button sits — after its last card, or an icon button in
+   * the lane header beside the ⋯ menu (`addLabel` is then its accessible name and tooltip).
+   * @default "footer"
+   */
+  addPlacement?: "footer" | "header";
+  /**
+   * Board view: content after the last lane, inside the board's sideways scroller — a list of
+   * hidden lanes, an "Add lane" button.
+   * @default undefined
+   */
+  boardTrailing?: React.ReactNode;
+  /**
    * Board view: the collapsed lanes' section ids, controlled. Without it each section's
    * `defaultCollapsed` seeds the board's own state.
    * @default undefined
@@ -888,6 +900,16 @@ export interface DataListSection {
   id: string;
   /** The section header's text. */
   label: React.ReactNode;
+  /**
+   * Board view: an icon before the lane's title — a status lane's glyph.
+   * @default undefined
+   */
+  icon?: React.ReactNode;
+  /**
+   * Board view: the lane header's ⋯ menu items.
+   * @default undefined
+   */
+  actions?: RowAction[];
   /**
    * The count shown in the header. Defaults to the rows loaded into the section; pass the
    * server's total when more exist than are loaded.
@@ -1171,6 +1193,8 @@ export function DataList<T>({
   boardCard,
   onAddToSection,
   addLabel,
+  addPlacement,
+  boardTrailing,
   collapsedSections,
   onCollapsedSectionsChange,
   boardHeight,
@@ -2242,6 +2266,7 @@ export function DataList<T>({
   const boardLanes: BoardColumn<T>[] = laneSections.map((section) => ({
     id: section.id,
     title: section.label,
+    icon: section.icon,
     label: typeof section.label === "string" ? section.label : undefined,
     items: getRowSection
       ? data.filter((row) => getRowSection(row) === section.id)
@@ -2279,6 +2304,15 @@ export function DataList<T>({
         canMoveItem={canMoveItem}
         onAdd={onAddToSection}
         addLabel={addLabel}
+        addPlacement={addPlacement}
+        trailing={boardTrailing}
+        getColumnActions={
+          laneSections.some((section) => section.actions?.length)
+            ? (column) =>
+                laneSections.find((section) => section.id === column.id)
+                  ?.actions ?? []
+            : undefined
+        }
         collapsedColumns={collapsedSections}
         onCollapsedChange={onCollapsedSectionsChange}
         height={boardHeight}

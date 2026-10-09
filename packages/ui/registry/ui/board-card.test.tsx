@@ -2,7 +2,7 @@ import * as React from "react";
 import { render } from "vitest-browser-react";
 import { expect, test, vi } from "vitest";
 import { expectNoA11yViolations } from "../../test/a11y";
-import { BoardCard } from "./board-card";
+import { BoardCard, BoardCardChip } from "./board-card";
 
 const NOW = new Date("2026-09-25T12:00:00Z");
 const dateOptions = { now: NOW, timeZone: "UTC" };
@@ -180,4 +180,60 @@ test("renderField wraps every footer field, unset ones as a muted icon", async (
     .element(screen.getByRole("button", { name: "Edit priority" }))
     .toBeInTheDocument();
   await expectNoA11yViolations(screen.container);
+});
+
+test("eyebrow, aside, chips, alert and footnote render in their slots; chips replace the default row", async () => {
+  const screen = await render(
+    <BoardCard
+      title="Ship the docs"
+      eyebrow="↳ Launch plan"
+      aside={<span>PS</span>}
+      priority="high"
+      chips={
+        <>
+          <BoardCardChip>Design</BoardCardChip>
+          <BoardCardChip render={<button type="button" />}>High</BoardCardChip>
+        </>
+      }
+      alert="Blocked by 2"
+      footnote="Created 9 Oct"
+    />,
+  );
+  const slot = (name: string) =>
+    screen.container.querySelector<HTMLElement>(`[data-slot="${name}"]`);
+  expect(slot("board-card-eyebrow")?.textContent).toBe("↳ Launch plan");
+  expect(slot("board-card-eyebrow")?.nextElementSibling).toBe(
+    slot("board-card-title"),
+  );
+  expect(slot("board-card-aside")?.textContent).toBe("PS");
+  expect(slot("board-card-priority")).toBeNull();
+  const chips = screen.container.querySelectorAll(
+    '[data-slot="board-card-chip"]',
+  );
+  expect(chips.length).toBe(2);
+  expect(chips[1]!.tagName).toBe("BUTTON");
+  expect(chips[0]!.className).toContain("rounded-full");
+  expect(chips[0]!.className).toContain("border");
+  expect(chips[0]!.className).not.toMatch(/(^|\s)(bg-(muted|accent)|hover:)/);
+  expect(slot("board-card-alert")?.className).toContain(
+    "text-destructive-text",
+  );
+  expect(slot("board-card-footnote")?.textContent).toBe("Created 9 Oct");
+  await expectNoA11yViolations(screen.container);
+});
+
+test("the title is medium by default and normal beside a status control", async () => {
+  const screen = await render(
+    <div>
+      <BoardCard title="Plain" />
+      <BoardCard title="With status" status={<span>S</span>} />
+      <BoardCard title="Forced" status={<span>S</span>} titleWeight="medium" />
+    </div>,
+  );
+  const weights = Array.from(
+    screen.container.querySelectorAll<HTMLElement>(
+      '[data-slot="board-card-title"]',
+    ),
+  ).map((node) => node.dataset.weight);
+  expect(weights).toEqual(["medium", "normal", "medium"]);
 });

@@ -721,7 +721,7 @@
         "whenToUse": "Cross-column card movement — pipelines, kanban, staged workflows — where the host owns ordering and the move can be refused by a server gate; lanes may be partially loaded (count shows the total) and cards may be links to their records.",
         "whenNotToUse": "Single-list reordering (sortable-list), tabular data (data-list/data-grid), or static column layouts with no movement (plain Cards in a flex row).",
         "version": "0.25.6",
-        "integrity": "sha256-lnAcNbMEGC/f7W/99szfJP4mFVrZwAQljj/6tqagFtI="
+        "integrity": "sha256-4In35TqMHhGf3Cfn5fVdicIochezcwAUONNlLxClTNk="
       }
     },
     {
@@ -757,7 +757,7 @@
         "whenToUse": "The content of a Board card (tasks, deals, tickets) — DataList's board view renders one per row — or a standalone work-item card.",
         "whenNotToUse": "A record with an image (MediaCard), a long body (Card), or a table row (DataList).",
         "version": "0.25.6",
-        "integrity": "sha256-hpA/im+f8spHQUl/5oELEl6FOI0Og9elxnj1SdlEl54="
+        "integrity": "sha256-VKL93nXp0frmRhFwoqYx+qlyPyKYWpNG0UIUysAshv0="
       }
     },
     {
@@ -1484,7 +1484,7 @@
         "whenToUse": "A list of records as a table, a card grid or board lanes (view) with typed columns, selection, click-to-sort, loading/empty states, keyset paging through loadMore, rows as links, sections, thumbnails and a row-actions column.",
         "whenNotToUse": "Full-parity grids with grouping/editing/virtualization (DataGrid), or a simple static table (Table).",
         "version": "0.25.6",
-        "integrity": "sha256-pTKCy/ZHfMqq0W1iidLyz7ZVQMcg5w+Wu/BZzaJS458="
+        "integrity": "sha256-5YiRoCpRl+OoXq6Momxolej9ssbhA1uETPlIWSV0NNs="
       }
     },
     {
