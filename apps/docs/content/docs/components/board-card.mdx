@@ -105,6 +105,20 @@ above the card's activator on a `Board`, so a click edits the status without ope
 />
 ```
 
+### Editable fields
+
+`renderField` makes the footer editable in place, like a task's properties panel: it is called for
+the assignee, due and priority fields with each field's face, and the host returns that face
+inside its own editor whose trigger is an
+[`InlineEditTrigger`](/docs/components/editable-cell#whole-cell-triggers) with `layout="chip"`.
+The whole field opens the editor; there is no border until hover. Unset fields are a muted icon
+that appears on hover and keyboard focus. Pass it only for cards the viewer may edit.
+
+<ComponentPreview
+  name="boardCardEditable"
+  file="components/preview/board-card.tsx"
+/>
+
 ### Minimal and linked
 
 Every slot but the title is optional. Standalone, `href` (with your router's `linkRender`) makes

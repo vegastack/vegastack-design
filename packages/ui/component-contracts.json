@@ -3419,15 +3419,6 @@
           }
         },
         {
-          "name": "BoardCardProps",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/board-card.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
           "name": "BoardCardAssignee",
           "kind": "interface",
           "source": "packages/ui/registry/ui/board-card.tsx",
@@ -3437,8 +3428,26 @@
           }
         },
         {
+          "name": "BoardCardField",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/board-card.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
           "name": "BoardCardPriority",
           "kind": "type",
+          "source": "packages/ui/registry/ui/board-card.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "BoardCardProps",
+          "kind": "interface",
           "source": "packages/ui/registry/ui/board-card.tsx",
           "ref": {
             "status": "not-applicable",
@@ -3506,9 +3515,10 @@
         "@vegastack/person-hover-card"
       ],
       "npmDependencies": [
-        "@vegastack/design@^0.8.0",
+        "@base-ui/react@^1.6.0",
         "@vegastack/design-tokens@^0.8.0",
-        "@base-ui/react@^1.6.0"
+        "@vegastack/design@^0.8.0",
+        "lucide-react@^1.47.0"
       ],
       "testFiles": ["packages/ui/registry/ui/board-card.test.tsx"],
       "coverage": {
@@ -11597,6 +11607,25 @@
             "status": "not-applicable",
             "rationale": "Type-only exports do not render or accept runtime refs."
           }
+        },
+        {
+          "name": "InlineEditTrigger",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/editable-cell.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "button",
+            "rationale": "Spread onto the ghost Button it renders."
+          }
+        },
+        {
+          "name": "InlineEditTriggerProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/editable-cell.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
         }
       ],
       "variants": {
@@ -11664,6 +11693,7 @@
       "docsSlug": "/docs/components/editable-cell",
       "registryDependencies": [
         "@vegastack/auto-save-input",
+        "@vegastack/button",
         "@vegastack/date-picker",
         "@vegastack/select",
         "@vegastack/spinner",
@@ -11673,8 +11703,8 @@
         "@vegastack/use-overflow"
       ],
       "npmDependencies": [
-        "@vegastack/design@^0.8.0",
-        "@vegastack/design-tokens@^0.8.0"
+        "@vegastack/design-tokens@^0.8.0",
+        "@vegastack/design@^0.8.0"
       ],
       "testFiles": ["packages/ui/registry/ui/editable-cell.test.tsx"],
       "coverage": {
@@ -11687,6 +11717,19 @@
       },
       "previewModule": "editable-cell",
       "dataAttributes": {
+        "InlineEditTrigger": {
+          "attributes": [
+            {
+              "name": "data-layout",
+              "values": []
+            },
+            {
+              "name": "data-slot",
+              "values": ["inline-edit-trigger"]
+            }
+          ],
+          "cssVariables": []
+        },
         "EditableCell": {
           "attributes": [
             {

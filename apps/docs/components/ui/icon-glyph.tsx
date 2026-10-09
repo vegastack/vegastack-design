@@ -1,4 +1,4 @@
-// @vegastack icon-glyph@0.25.0 sha256-0ouL7jmjorINIPdiCgRyjjYmD53eez6NU9iivUUdPLs=
+// @vegastack icon-glyph@0.25.0 sha256-wBDyHumTaH5A4jqYvTHLsPG5qigdWf4dB3Qw5ONHu34=
 
 import * as React from "react";
 import { cn } from "@vegastack/design";
@@ -28,7 +28,11 @@ const SIZES = {
 export interface IconGlyphProps extends React.ComponentPropsWithRef<"span"> {
   /** Chosen catalogue icon or natural emoji. @default null */
   value?: IconValue | null;
-  /** Hue for outline icons or fallback text; emoji retain their own colours. @default undefined */
+  /**
+   * Hue for outline icons or fallback text; emoji retain their own colours. Without one the glyph
+   * takes the sidebar nav icon ink (`sidebar-foreground` at 70%).
+   * @default undefined
+   */
   hue?: AvatarHue | null;
   /** Glyph scale. @default "xs" */
   size?: keyof typeof SIZES;
@@ -56,9 +60,13 @@ export function IconGlyph({
       aria-hidden={props["aria-label"] ? undefined : true}
       role={props["aria-label"] ? "img" : undefined}
       className={cn(
-        "inline-flex shrink-0 items-center justify-center text-foreground leading-none [&_svg]:shrink-0",
+        "inline-flex shrink-0 items-center justify-center leading-none [&_svg]:shrink-0",
         SIZES[size],
-        value?.kind !== "emoji" && hue && HUES[hue],
+        // No hue: the sidebar nav icon's ink, never full foreground, so an uncoloured space or
+        // record icon sits at the same weight as the navigation icons beside it.
+        value?.kind !== "emoji" && hue
+          ? HUES[hue]
+          : "text-sidebar-foreground/70",
         className,
       )}
       {...props}
