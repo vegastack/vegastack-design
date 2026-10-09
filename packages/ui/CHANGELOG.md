@@ -1,5 +1,18 @@
 # @vegastack/ui
 
+## 0.25.4
+
+### Patch Changes
+
+- [#569](https://github.com/vegastack/vegastack-design/pull/569) [`f1f73fd`](https://github.com/vegastack/vegastack-design/commit/f1f73fd596213c399e5c29f464734698e0b7564e) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🔧 `EmptyMedia variant="icon"` is a larger, bordered muted plate: 48px (`rounded-xl`) with a 24px `text-muted-foreground` icon, and 40px / 20px (`rounded-lg`) in the compact `size="sm"` Empty.
+
+- [#567](https://github.com/vegastack/vegastack-design/pull/567) [`dd0e424`](https://github.com/vegastack/vegastack-design/commit/dd0e424fa8e363c4b3217bb430f034dbd564df12) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🔧 `ActivityJumpToLatest` and the Transcript's "Back to current line" float only while the reader scrolls away from the latest (or current) line and fade once they settle; hovering or focusing holds them. Text Edit's upload placeholder spins the system `Loader` glyph instead of a CSS ring.
+
+- [#569](https://github.com/vegastack/vegastack-design/pull/569) [`f1f73fd`](https://github.com/vegastack/vegastack-design/commit/f1f73fd596213c399e5c29f464734698e0b7564e) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🗑 `EmptyIllustration` is removed: empty states use `Empty` with `EmptyMedia variant="icon"` and a lucide icon only. Replace `<EmptyIllustration name="tasks" />` with `<EmptyMedia variant="icon"><ListTodo /></EmptyMedia>` (or pass the icon to `Empty`'s `icon` prop).
+
+- Updated dependencies [[`f1f73fd`](https://github.com/vegastack/vegastack-design/commit/f1f73fd596213c399e5c29f464734698e0b7564e)]:
+  - @vegastack/design@0.8.1
+
 ## 0.25.3
 
 ### Patch Changes

@@ -9,6 +9,27 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.25.4] — October 9, 2026
+
+<!-- assembled from 3 changesets: 71856e85bbca -->
+
+### 🔧 Changed components
+
+- `EmptyMedia variant="icon"` is a larger, bordered muted plate: 48px (`rounded-xl`) with a 24px `text-muted-foreground` icon, and 40px / 20px (`rounded-lg`) in the compact `size="sm"` Empty.
+  [`f1f73fd`](https://github.com/VegaStack/vegastack-design/commit/f1f73fd)
+- `ActivityJumpToLatest` and the Transcript's "Back to current line" float only while the reader scrolls away from the latest (or current) line and fade once they settle; hovering or focusing holds them. Text Edit's upload placeholder spins the system `Loader` glyph instead of a CSS ring.
+  [`dd0e424`](https://github.com/VegaStack/vegastack-design/commit/dd0e424)
+
+### 🗑 Removed / renamed
+
+- `EmptyIllustration` is removed: empty states use `Empty` with `EmptyMedia variant="icon"` and a lucide icon only. Replace `<EmptyIllustration name="tasks" />` with `<EmptyMedia variant="icon"><ListTodo /></EmptyMedia>` (or pass the icon to `Empty`'s `icon` prop).
+  [`f1f73fd`](https://github.com/VegaStack/vegastack-design/commit/f1f73fd)
+
+### 📦 npm
+
+- **`@vegastack/design`** → **`0.8.1`** (was `0.8.0`).
+- The design-system registry (`@vegastack/ui`) bumps 0.25.3 → 0.25.4.
+
 ## [0.25.3] — October 9, 2026
 
 <!-- assembled from 1 changeset: 818597fd7809 -->
