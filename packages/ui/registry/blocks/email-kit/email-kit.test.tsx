@@ -400,3 +400,25 @@ test("EmailMarkdown renders notes Markdown as safe email blocks", async () => {
   expect(html).not.toContain("mention://");
   expect(html).toContain("vs-quote-bar");
 });
+
+test("EmailMarkdown keeps list starts, loose paragraphs, entities and query links", async () => {
+  const { html } = await renderEmail(
+    <EmailMarkdown
+      appUrl="https://acme.example"
+      markdown={[
+        "3. third",
+        "4. fourth",
+        "",
+        "- first para",
+        "",
+        "  second para",
+        "",
+        "&copy; &#65; [q](https://x.example/?a=1&amp;b=2)",
+      ].join("\n")}
+    />,
+  );
+  expect(html).toContain('start="3"');
+  expect(html).toMatch(/first para<br\/?><br\/?>second para/);
+  expect(html).toContain("© A");
+  expect(html).toContain('href="https://x.example/?a=1&amp;b=2"');
+});

@@ -1,4 +1,4 @@
-// @vegastack email-kit@0.25.1 sha256-U1pG9YwMMJZ/xKMm1Ryfc5aot0u3tWLeWaRbSbMP658=
+// @vegastack email-kit@0.25.1 sha256-XKV00De6RmKdQuPkN00FpElfwEqXnomK1/oGkfQFB/s=
 
 import { Fragment, type CSSProperties, type ReactNode } from "react";
 import { Lexer, type Token, type Tokens } from "marked";
@@ -93,7 +93,7 @@ function inlineToken(token: Token, ctx: Ctx): ReactNode {
             {inline(link.tokens, ctx)}
           </strong>
         );
-      const href = safeHref(link.href, ctx.appUrl);
+      const href = safeHref(decode(link.href), ctx.appUrl);
       return href ? (
         <Link
           href={href}
@@ -121,14 +121,38 @@ function inlineToken(token: Token, ctx: Ctx): ReactNode {
   }
 }
 
-/** marked escapes `&<>"'` in text; React escapes again, so they go back first. */
+/** Named entities the notes can carry; numeric ones decode generally. */
+const NAMED: Record<string, string> = {
+  amp: "&",
+  lt: "<",
+  gt: ">",
+  quot: '"',
+  apos: "'",
+  nbsp: "\u00a0",
+  copy: "©",
+  reg: "®",
+  trade: "™",
+  hellip: "…",
+  mdash: "—",
+  ndash: "–",
+  lsquo: "‘",
+  rsquo: "’",
+  ldquo: "“",
+  rdquo: "”",
+};
+
+/** marked escapes `&<>"'` in text and keeps source entities; React escapes again, so decode first. */
 const decode = (text: string) =>
-  text
-    .replace(/&lt;/g, "<")
-    .replace(/&gt;/g, ">")
-    .replace(/&quot;/g, '"')
-    .replace(/&#39;/g, "'")
-    .replace(/&amp;/g, "&");
+  text.replace(/&(#x[0-9a-f]+|#\d+|[a-z]+);/gi, (match, entity: string) => {
+    if (entity[0] === "#") {
+      const code =
+        entity[1] === "x" || entity[1] === "X"
+          ? parseInt(entity.slice(2), 16)
+          : parseInt(entity.slice(1), 10);
+      return code > 0 && code <= 0x10ffff ? String.fromCodePoint(code) : match;
+    }
+    return NAMED[entity.toLowerCase()] ?? match;
+  });
 
 function block(token: Token, ctx: Ctx, key: number): ReactNode {
   switch (token.type) {
@@ -160,9 +184,13 @@ function block(token: Token, ctx: Ctx, key: number): ReactNode {
     case "list": {
       const list = token as Tokens.List;
       const Tag = list.ordered ? "ol" : "ul";
+      // An ordered list keeps its first number ("3." stays 3).
+      const start =
+        list.ordered && Number(list.start) > 1 ? Number(list.start) : undefined;
       return (
         <Tag
           key={key}
+          start={start}
           style={{ ...body, paddingLeft: "24px", margin: "0 0 12px" }}
         >
           {list.items.map((item, i) => (
@@ -179,6 +207,17 @@ function block(token: Token, ctx: Ctx, key: number): ReactNode {
               {item.tokens.map((child, j) =>
                 child.type === "text" || child.type === "paragraph" ? (
                   <Fragment key={j}>
+                    {/* A loose item's second paragraph starts on its own line. */}
+                    {item.tokens
+                      .slice(0, j)
+                      .some(
+                        (t) => t.type === "text" || t.type === "paragraph",
+                      ) ? (
+                      <>
+                        <br />
+                        <br />
+                      </>
+                    ) : null}
                     {inline((child as Tokens.Text).tokens ?? [child], ctx)}
                   </Fragment>
                 ) : child.type === "checkbox" ? null : (

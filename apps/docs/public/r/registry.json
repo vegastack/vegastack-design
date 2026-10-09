@@ -21199,7 +21199,7 @@
         "whenToUse": "Transactional and notification email from a server — a comment, an assignment, a daily digest, an invite or a password reset — rendered with renderEmail and sent by your mail provider.",
         "whenNotToUse": "Marketing newsletters with images and multi-column layouts, or an in-app notification — use the Inbox and Toast components.",
         "version": "0.25.1",
-        "integrity": "sha256-U1pG9YwMMJZ/xKMm1Ryfc5aot0u3tWLeWaRbSbMP658="
+        "integrity": "sha256-XKV00De6RmKdQuPkN00FpElfwEqXnomK1/oGkfQFB/s="
       }
     },
     {
