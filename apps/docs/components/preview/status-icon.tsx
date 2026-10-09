@@ -117,11 +117,11 @@ const STATUSES: { value: Status; label: string; key: string }[] = [
   { value: "done", label: "Done", key: "5" },
   { value: "canceled", label: "Canceled", key: "6" },
   { value: "duplicate", label: "Duplicate", key: "7" },
-  { value: "triage", label: "Triage", key: "8" },
+  { value: "triage", label: "Triage", key: "0" },
 ];
 
 /**
- * Recipe: Status menu — DropdownMenu + StatusIcon + DropdownMenuShortcut. Keys 1–8 pick a
+ * Recipe: Status menu — DropdownMenu + StatusIcon + DropdownMenuShortcut. Keys 1–7 and 0 pick a
  * status while the menu is open; ⌥/Alt-click on the circle marks it Done without opening the menu.
  */
 export function statusIconMenu(): ReactNode {

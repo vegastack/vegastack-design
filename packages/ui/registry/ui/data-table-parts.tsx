@@ -1,4 +1,4 @@
-// @vegastack data-table-parts@0.25.4 sha256-uH74Ou3xY99SchbwOlj0Xw3nQoLKCwyjMsR/Mld9uV8=
+// @vegastack data-table-parts@0.25.4 sha256-DVm4CkpPVqjUgN6JvpMtTO1EMT3e0+dU2uCg5j/g7TU=
 
 "use client";
 
@@ -1015,7 +1015,7 @@ export interface RowActionItem {
   checked?: boolean;
   /**
    * A one-key shortcut shown at the item's end. Pressing the key while its menu is open picks it
-   * (the Status menu's O/P/B/D/C).
+   * (the Status menu's 1–7 and 0).
    * @default undefined
    */
   shortcut?: string;

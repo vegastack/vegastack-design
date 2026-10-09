@@ -1,4 +1,4 @@
-// @vegastack status-icon@0.25.4 sha256-kxk/R+k84wKpEh1xoTGLOawTcPiRgJxpHjYWezSfH9E=
+// @vegastack status-icon@0.25.4 sha256-PLjSWqRnYKCPTRyhtqxIptBeB/d3EqEv9a5duvk0/cE=
 
 import * as React from "react";
 import { cva, type VariantProps } from "class-variance-authority";
@@ -207,6 +207,7 @@ export function StatusIcon({
   label,
   animated = false,
   ref,
+  children,
   ...props
 }: StatusIconProps) {
   const spinning = status === "progress" && animated;
@@ -239,6 +240,7 @@ export function StatusIcon({
       {...props}
     >
       {STATUS_GLYPH[status]}
+      {children}
     </svg>
   );
 }

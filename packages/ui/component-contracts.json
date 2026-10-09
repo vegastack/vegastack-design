@@ -22779,7 +22779,18 @@
         "dimensions": [
           {
             "name": "status",
-            "values": ["blocked", "cancelled", "done", "progress", "todo"],
+            "values": [
+              "backlog",
+              "blocked",
+              "canceled",
+              "cancelled",
+              "done",
+              "duplicate",
+              "progress",
+              "review",
+              "todo",
+              "triage"
+            ],
             "evidence": "packages/ui/registry/ui/status-icon.tsx: CVA; packages/ui/registry/ui/status-icon.tsx: prop union"
           }
         ]

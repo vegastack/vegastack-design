@@ -1671,7 +1671,7 @@
         "whenToUse": "Installed automatically with DataList or DataGrid; import it directly when building a bespoke table that should share their sort header, selection cells and column rules.",
         "whenNotToUse": "A plain presentational table (Table alone), or as a table component in its own right — these are parts, not a renderer.",
         "version": "0.25.4",
-        "integrity": "sha256-uH74Ou3xY99SchbwOlj0Xw3nQoLKCwyjMsR/Mld9uV8="
+        "integrity": "sha256-DVm4CkpPVqjUgN6JvpMtTO1EMT3e0+dU2uCg5j/g7TU="
       }
     },
     {
@@ -17646,7 +17646,7 @@
         "whenToUse": "Indicate the workflow state of a task or issue — backlog, todo, in progress, in review, done, canceled, duplicate, triage — alongside a label.",
         "whenNotToUse": "Measurable progress (Progress), generic loading (Spinner), or priority (PriorityIcon).",
         "version": "0.25.4",
-        "integrity": "sha256-kxk/R+k84wKpEh1xoTGLOawTcPiRgJxpHjYWezSfH9E="
+        "integrity": "sha256-PLjSWqRnYKCPTRyhtqxIptBeB/d3EqEv9a5duvk0/cE="
       }
     },
     {

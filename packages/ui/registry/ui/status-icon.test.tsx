@@ -89,3 +89,14 @@ test("forwards ref to the underlying svg element", async () => {
   expect(ref.current).toBeInstanceOf(SVGSVGElement);
   expect(ref.current?.dataset.slot).toBe("status-icon");
 });
+
+test("keeps caller children such as a <title> after the glyph", async () => {
+  const screen = await render(
+    <StatusIcon status="done" data-testid="titled">
+      <title>Shipped</title>
+    </StatusIcon>,
+  );
+  expect(
+    screen.getByTestId("titled").element().querySelector("title")?.textContent,
+  ).toBe("Shipped");
+});
