@@ -9,6 +9,20 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.25.6] — October 9, 2026
+
+<!-- assembled from 1 changeset: c307790394d5 -->
+
+### 🔧 Changed components
+
+- **StatusIcon** keeps Linear's shapes but now colours each status with the system's standard semantic tokens instead of Linear's palette: `todo` → `foreground`, `progress` → `warning-text`, `review` → `info-text`, `done` → `success-text` (was purple); `backlog`, `canceled` and `duplicate` stay `muted-foreground`, `triage` stays `tag-orange-text`.
+  [docs](https://design.vegastack.com/docs/components/status-icon) ·
+  [`c751e87`](https://github.com/VegaStack/vegastack-design/commit/c751e87)
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.25.5 → 0.25.6.
+
 ## [0.25.5] — October 9, 2026
 
 <!-- assembled from 1 changeset: 1b25c0deee78 -->
