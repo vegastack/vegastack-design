@@ -150,3 +150,34 @@ test("href makes the title a stretched link with no focus ring", async () => {
   expect(link.element().className).not.toMatch(/ring-/);
   await expectNoA11yViolations(screen.container);
 });
+
+test("renderField wraps every footer field, unset ones as a muted icon", async () => {
+  const seen: string[] = [];
+  const screen = await render(
+    <BoardCard
+      title="Write the launch brief"
+      priority="urgent"
+      dateOptions={dateOptions}
+      renderField={(field, face, empty) => {
+        seen.push(`${field}:${empty ? "empty" : "set"}`);
+        return (
+          <button type="button" aria-label={`Edit ${field}`}>
+            {face}
+          </button>
+        );
+      }}
+    />,
+  );
+  expect(seen).toEqual(["assignee:empty", "due:empty", "priority:set"]);
+  const fields = screen.container.querySelectorAll<HTMLElement>(
+    '[data-slot="board-card-field"]',
+  );
+  expect(fields).toHaveLength(3);
+  expect(fields[0]!.dataset.empty).toBe("");
+  expect(fields[2]!.dataset.empty).toBeUndefined();
+  expect(fields[2]!.textContent).toBe("Urgent");
+  await expect
+    .element(screen.getByRole("button", { name: "Edit priority" }))
+    .toBeInTheDocument();
+  await expectNoA11yViolations(screen.container);
+});

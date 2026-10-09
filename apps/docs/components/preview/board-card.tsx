@@ -4,6 +4,14 @@ import { type ReactNode, useState } from "react";
 import { Wrapper } from "./wrapper";
 import { BoardCard } from "@/components/ui/board-card";
 import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { InlineEditTrigger } from "@/components/ui/editable-cell";
+import { PriorityIcon } from "@/components/ui/priority-icon";
+import {
   RowActionsMenu,
   type RowAction,
 } from "@/components/ui/data-table-parts";
@@ -90,6 +98,61 @@ export function boardCardMinimal(): ReactNode {
         title="A card that opens its record"
         context="Linked with href"
         href="#task"
+      />
+    </Wrapper>
+  );
+}
+
+const CARD_PRIORITIES = ["urgent", "high", "medium", "low"] as const;
+type CardPriority = (typeof CARD_PRIORITIES)[number];
+
+/** Editable footer fields: each whole field opens its editor; unset ones appear on hover. */
+export function boardCardEditable(): ReactNode {
+  const [priority, setPriority] = useState<CardPriority | null>("urgent");
+  return (
+    <Wrapper className="block max-w-xs">
+      <BoardCard
+        title="Confirm the site visit with the client"
+        context="Harbour Tower · Acme Build"
+        due={at(1)}
+        priority={priority}
+        renderField={(field, face, empty) =>
+          field === "priority" ? (
+            <DropdownMenu>
+              <DropdownMenuTrigger
+                render={
+                  <InlineEditTrigger
+                    layout="chip"
+                    aria-label={
+                      empty ? "Set priority" : `Priority: ${priority}`
+                    }
+                  />
+                }
+              >
+                {face}
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start" className="w-40">
+                {CARD_PRIORITIES.map((p) => (
+                  <DropdownMenuItem key={p} onClick={() => setPriority(p)}>
+                    <PriorityIcon priority={p} size="sm" label="" />
+                    {p.charAt(0).toUpperCase() + p.slice(1)}
+                  </DropdownMenuItem>
+                ))}
+                <DropdownMenuItem onClick={() => setPriority(null)}>
+                  <PriorityIcon priority="none" size="sm" label="" />
+                  No priority
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          ) : (
+            <InlineEditTrigger
+              layout="chip"
+              aria-label={field === "due" ? "Change due date" : "Set assignee"}
+            >
+              {face}
+            </InlineEditTrigger>
+          )
+        }
       />
     </Wrapper>
   );

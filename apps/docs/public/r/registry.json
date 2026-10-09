@@ -733,6 +733,7 @@
         "data"
       ],
       "dependencies": [
+        "lucide-react@^1.47.0",
         "@vegastack/design@^0.8.0",
         "@vegastack/design-tokens@^0.8.0",
         "@base-ui/react@^1.6.0"
@@ -756,7 +757,7 @@
         "whenToUse": "The content of a Board card (tasks, deals, tickets) — DataList's board view renders one per row — or a standalone work-item card.",
         "whenNotToUse": "A record with an image (MediaCard), a long body (Card), or a table row (DataList).",
         "version": "0.25.0",
-        "integrity": "sha256-st9TUjbi5ku0BwQn5gTmvXrHh5ZYPqNnjnXob9pQVoQ="
+        "integrity": "sha256-XY7kNQ6ZBfkwJQjZs3lWTqGCGiyd6or+Efk0Hd0MFuA="
       }
     },
     {
@@ -2170,6 +2171,7 @@
       ],
       "registryDependencies": [
         "@vegastack/auto-save-input",
+        "@vegastack/button",
         "@vegastack/date-picker",
         "@vegastack/select",
         "@vegastack/spinner",
@@ -2189,7 +2191,7 @@
         "whenToUse": "Any optimistic inline edit of a single value — grid cells (focusMode=managed), record-page property lists, settings rows — where the write is async and can fail.",
         "whenNotToUse": "Debounced save-as-you-type on a standing form field (AutoSaveInput), or whole forms (Field).",
         "version": "0.25.0",
-        "integrity": "sha256-f17GwL5YVk3PHVurUT+tvxvVrijTytADAfXwfqHEYVA="
+        "integrity": "sha256-2vHZiOysnjyQ5DSDNOVjNGiD/VAzs9L9ZJLmmOxMQtc="
       }
     },
     {
@@ -21571,7 +21573,7 @@
         "whenToUse": "Reusable identity glyphs and picker content.",
         "whenNotToUse": "Entity data or permission rules.",
         "version": "0.25.0",
-        "integrity": "sha256-0ouL7jmjorINIPdiCgRyjjYmD53eez6NU9iivUUdPLs="
+        "integrity": "sha256-wBDyHumTaH5A4jqYvTHLsPG5qigdWf4dB3Qw5ONHu34="
       }
     },
     {

@@ -6,7 +6,7 @@ import { expect, onTestFinished, test, vi } from "vitest";
 // test here is structural and must not see real CSS.
 import geometryCss from "../../test/geometry.css?inline";
 import { expectNoA11yViolations } from "../../test/a11y";
-import { EditableCell } from "./editable-cell";
+import { EditableCell, InlineEditTrigger } from "./editable-cell";
 
 function deferred() {
   let resolve!: () => void;
@@ -670,4 +670,37 @@ test("no a11y violations — renderValue display", async () => {
     />,
   );
   await expectNoA11yViolations(screen.container);
+});
+
+test("InlineEditTrigger: the whole value is one keyboard-reachable button", async () => {
+  const onClick = vi.fn();
+  const screen = await render(
+    <InlineEditTrigger
+      aria-label="Priority: High — change priority"
+      onClick={onClick}
+    >
+      <svg aria-hidden />
+      <span>High</span>
+    </InlineEditTrigger>,
+  );
+  const trigger = screen.getByRole("button", { name: /Priority: High/ });
+  const el = trigger.element() as HTMLButtonElement;
+  expect(el.dataset.slot).toBe("inline-edit-trigger");
+  expect(el.dataset.layout).toBe("cell");
+  expect(el.type).toBe("button");
+  el.focus();
+  await userEvent.keyboard("{Enter}");
+  expect(onClick).toHaveBeenCalledTimes(1);
+  await expectNoA11yViolations(screen.container);
+});
+
+test("InlineEditTrigger: chip layout sizes to its value", async () => {
+  const screen = await render(
+    <InlineEditTrigger layout="chip" aria-label="Set due date">
+      Due
+    </InlineEditTrigger>,
+  );
+  const el = screen.getByRole("button").element() as HTMLElement;
+  expect(el.dataset.layout).toBe("chip");
+  expect(el.className).not.toContain("w-[calc(100%+0.75rem)]");
 });

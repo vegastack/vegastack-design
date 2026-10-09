@@ -61,6 +61,10 @@ area but paints no fill. See [Property List](/docs/components/property-list#inli
 | The grid's roving focus model    | The grid host — `focusMode="managed"` removes this tab stop; `onNavigate` reports Enter and Tab |
 | Date / actor / currency editors  | Apps, via the open `custom` editor contract                                                     |
 
+## Anatomy
+
+<Anatomy name="editable-cell" />
+
 ## Examples
 
 ### Table cell
@@ -159,6 +163,22 @@ line, at the same x, with the same width.
   file="components/preview/editable-cell.tsx"
 />
 
+### Whole-cell triggers
+
+In a list, the WHOLE cell is the click target — a priority's flag and its text, a status, an
+assignee, a date — never just the icon. The `date` and `select` editors already fill a `cell`
+variant cell; an app-owned editor (a status, priority or assignee menu) puts
+`InlineEditTrigger` behind its `DropdownMenuTrigger` or `PopoverTrigger`. Both carry no border at
+rest and the properties-panel tint on hover, keyboard focus and while open, and both open with
+
+<kbd>Enter</kbd> or <kbd>Space</kbd>. Mark the column `interactive`, and render
+a plain value where the viewer may not edit.
+
+<ComponentPreview
+  name="editableCellWholeCell"
+  file="components/preview/editable-cell.tsx"
+/>
+
 ### Select editor
 
 Real inline editors are per-type: a stage field edits with a popover list, not a text box. The
@@ -230,6 +250,13 @@ cell's own tab stop, and the host opens the editor from its keyboard model throu
 <ApiTable
   path="../../packages/ui/registry/ui/editable-cell.tsx"
   name="EditableCellProps"
+/>
+
+### InlineEditTrigger
+
+<ApiTable
+  path="../../packages/ui/registry/ui/editable-cell.tsx"
+  name="InlineEditTriggerProps"
 />
 
 ### Editor contract

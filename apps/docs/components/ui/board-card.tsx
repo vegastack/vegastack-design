@@ -1,4 +1,4 @@
-// @vegastack board-card@0.25.0 sha256-st9TUjbi5ku0BwQn5gTmvXrHh5ZYPqNnjnXob9pQVoQ=
+// @vegastack board-card@0.25.0 sha256-XY7kNQ6ZBfkwJQjZs3lWTqGCGiyd6or+Efk0Hd0MFuA=
 
 "use client";
 
@@ -11,6 +11,7 @@ import {
   type DateInput,
   type DateTimeOptions,
 } from "@/lib/date-time";
+import { CalendarDays, Flag, UserRound } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -131,6 +132,19 @@ export interface BoardCardProps extends Omit<
    */
   assignee?: BoardCardAssignee | null;
   /**
+   * Make the footer fields editable in place. Called once per field — `assignee`, `due`,
+   * `priority` — with the field's face (the avatar or chip, or a quiet icon when unset); return
+   * the face wrapped in the host's editor, its trigger an `InlineEditTrigger layout="chip"`, so the
+   * whole field opens the editor. Unset fields show on hover and keyboard focus only. Omit it, or
+   * return the face as-is, where the viewer may not edit.
+   * @default undefined
+   */
+  renderField?: (
+    field: BoardCardField,
+    face: React.ReactNode,
+    empty: boolean,
+  ) => React.ReactNode;
+  /**
    * The ⋯ slot at the top end — a `RowActionsMenu`. It shows on hover and on focus, and always on
    * a touch screen. On a `Board`, leave it empty: the board's own card menu takes this place.
    * @default undefined
@@ -155,6 +169,9 @@ export interface BoardCardProps extends Omit<
   surface?: boolean;
 }
 
+/** A `BoardCard` footer field `renderField` can make editable. */
+export type BoardCardField = "assignee" | "due" | "priority";
+
 const PRIORITY_VARIANT: Record<
   BoardCardPriority,
   "destructive" | "warning" | "outline"
@@ -164,6 +181,32 @@ const PRIORITY_VARIANT: Record<
   medium: "outline",
   low: "outline",
 };
+
+/**
+ * One editable footer field: the host's editor around the face, lifted above the card's link.
+ * An unset field is a muted icon that shows on card hover, on keyboard focus and while open.
+ */
+function editableField(
+  renderField: NonNullable<BoardCardProps["renderField"]>,
+  field: BoardCardField,
+  face: React.ReactNode,
+  empty: boolean,
+) {
+  return (
+    <span
+      data-slot="board-card-field"
+      data-field={field}
+      data-empty={empty ? "" : undefined}
+      className={cn(
+        "relative z-10 inline-flex min-w-0",
+        empty &&
+          "text-muted-foreground opacity-0 transition-opacity group-hover/board-card:opacity-100 focus-within:opacity-100 has-data-popup-open:opacity-100 has-aria-expanded:opacity-100 pointer-coarse:opacity-100 [&_svg]:size-3.5",
+      )}
+    >
+      {renderField(field, face, empty)}
+    </span>
+  );
+}
 
 /** The due chip's badge variant: destructive when overdue, warning when due today. */
 function dueVariant(due: DateInput, options?: DateTimeOptions) {
@@ -203,6 +246,7 @@ export function BoardCard({
   priority,
   priorityLabel,
   assignee,
+  renderField,
   actions,
   href,
   linkRender,
@@ -215,7 +259,27 @@ export function BoardCard({
   const hasLead = status != null || hasTick;
   const dueLabel =
     due != null && due !== "" ? formatDueLabel(due, dateOptions) : null;
-  const hasFooter = (dueLabel && dueLabel.label) || priority || assignee;
+  const hasFooter =
+    renderField != null || (dueLabel && dueLabel.label) || priority || assignee;
+
+  const dueBadge =
+    dueLabel && dueLabel.label ? (
+      <Badge
+        data-slot="board-card-due"
+        variant={done ? "outline" : dueVariant(due as DateInput, dateOptions)}
+      >
+        {dueLabel.label}
+      </Badge>
+    ) : null;
+  const priorityBadge = priority ? (
+    <Badge
+      data-slot="board-card-priority"
+      data-priority={priority}
+      variant={PRIORITY_VARIANT[priority]}
+    >
+      {priorityLabel ?? priority.charAt(0).toUpperCase() + priority.slice(1)}
+    </Badge>
+  ) : null;
 
   const titleText = href
     ? React.cloneElement(
@@ -305,44 +369,58 @@ export function BoardCard({
             data-slot="board-card-footer"
             className="flex min-w-0 flex-wrap items-center gap-1.5"
           >
-            {assignee ? (
-              <HoverCard>
-                <HoverCardTrigger
-                  render={
-                    <span
-                      data-slot="board-card-assignee"
-                      className="inline-flex rounded-full"
-                    />
-                  }
-                >
-                  <PersonAvatar person={assignee} />
-                  <span className="sr-only">{assignee.name}</span>
-                </HoverCardTrigger>
-                <HoverCardContent align="start" className="w-60 p-2">
-                  <PersonCard person={assignee} />
-                </HoverCardContent>
-              </HoverCard>
-            ) : null}
-            {dueLabel && dueLabel.label ? (
-              <Badge
-                data-slot="board-card-due"
-                variant={
-                  done ? "outline" : dueVariant(due as DateInput, dateOptions)
-                }
-              >
-                {dueLabel.label}
-              </Badge>
-            ) : null}
-            {priority ? (
-              <Badge
-                data-slot="board-card-priority"
-                data-priority={priority}
-                variant={PRIORITY_VARIANT[priority]}
-              >
-                {priorityLabel ??
-                  priority.charAt(0).toUpperCase() + priority.slice(1)}
-              </Badge>
-            ) : null}
+            {renderField ? (
+              <>
+                {editableField(
+                  renderField,
+                  "assignee",
+                  assignee ? (
+                    <>
+                      <PersonAvatar person={assignee} />
+                      <span className="sr-only">{assignee.name}</span>
+                    </>
+                  ) : (
+                    <UserRound aria-hidden />
+                  ),
+                  !assignee,
+                )}
+                {editableField(
+                  renderField,
+                  "due",
+                  dueBadge ?? <CalendarDays aria-hidden />,
+                  !dueBadge,
+                )}
+                {editableField(
+                  renderField,
+                  "priority",
+                  priorityBadge ?? <Flag aria-hidden />,
+                  !priorityBadge,
+                )}
+              </>
+            ) : (
+              <>
+                {assignee ? (
+                  <HoverCard>
+                    <HoverCardTrigger
+                      render={
+                        <span
+                          data-slot="board-card-assignee"
+                          className="inline-flex rounded-full"
+                        />
+                      }
+                    >
+                      <PersonAvatar person={assignee} />
+                      <span className="sr-only">{assignee.name}</span>
+                    </HoverCardTrigger>
+                    <HoverCardContent align="start" className="w-60 p-2">
+                      <PersonCard person={assignee} />
+                    </HoverCardContent>
+                  </HoverCard>
+                ) : null}
+                {dueBadge}
+                {priorityBadge}
+              </>
+            )}
           </div>
         ) : null}
       </div>

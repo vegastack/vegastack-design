@@ -1,9 +1,10 @@
-// @vegastack editable-cell@0.25.0 sha256-f17GwL5YVk3PHVurUT+tvxvVrijTytADAfXwfqHEYVA=
+// @vegastack editable-cell@0.25.0 sha256-2vHZiOysnjyQ5DSDNOVjNGiD/VAzs9L9ZJLmmOxMQtc=
 
 "use client";
 
 import * as React from "react";
 import { cn } from "@vegastack/design";
+import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import { toast } from "@/components/ui/toast";
 import { useAnnouncer } from "@/components/ui/use-announcer";
@@ -55,6 +56,69 @@ Deliberately NOT done here:
   editors beyond these two are app vocabularies (the platform's are status/priority/
   assignee pickers), not design-system chrome.
 --- */
+
+/**
+ * The inline-edit hover: no border at rest, on hover or while open — the quiet tint a property
+ * value shows in a `PropertyList` (a ghost `RecordChip`), so a list cell, a board card field and a
+ * record's properties all read as the same editable value. Keyboard focus keeps the system ring.
+ */
+const INLINE_EDIT_TINT =
+  "border-transparent shadow-none hover:border-transparent hover:bg-muted aria-expanded:border-transparent aria-expanded:bg-muted data-popup-open:bg-muted dark:bg-transparent dark:hover:bg-muted/50";
+
+/** Props for `InlineEditTrigger`. */
+export interface InlineEditTriggerProps extends Omit<
+  React.ComponentProps<typeof Button>,
+  "variant" | "size"
+> {
+  /**
+   * `cell` fills its container — a list cell, where the WHOLE cell (icon and text) opens the
+   * editor, its padding hung outside so the value's text starts where a plain value does. `chip`
+   * sizes to its value — a board card field.
+   * @default "cell"
+   */
+  layout?: "cell" | "chip";
+}
+
+/**
+ * `InlineEditTrigger` — the click target of an app-owned inline editor (a status, priority or
+ * assignee menu, a date popover) inside a `DataList` cell or a `BoardCard` field. The whole value —
+ * icon and text — is one button: no border at rest, the property-panel tint on hover, focus and
+ * while its menu is open. Enter or Space opens the editor. Pass it as the `render` of a
+ * `DropdownMenuTrigger` or `PopoverTrigger`, and mark the column `interactive`. Render it only
+ * where the viewer may edit; a read-only value stays plain text.
+ *
+ * @example
+ * <DropdownMenuTrigger
+ *   render={<InlineEditTrigger aria-label="Priority: High — change priority" />}
+ * >
+ *   <PriorityIcon priority="high" size="sm" label="" /> High
+ * </DropdownMenuTrigger>
+ */
+export function InlineEditTrigger({
+  layout = "cell",
+  className,
+  type = "button",
+  ...props
+}: InlineEditTriggerProps) {
+  return (
+    <Button
+      data-slot="inline-edit-trigger"
+      data-layout={layout}
+      variant="ghost"
+      size="xs"
+      type={type}
+      className={cn(
+        "min-w-0 justify-start gap-1.5 rounded-md px-1.5 font-normal text-inherit active:not-aria-[haspopup]:translate-y-0 [&>span]:min-w-0 [&>span]:truncate",
+        INLINE_EDIT_TINT,
+        layout === "cell"
+          ? "-mx-1.5 -my-0.5 w-[calc(100%+0.75rem)] max-w-[calc(100%+0.75rem)] text-sm"
+          : "max-w-full text-xs",
+        className,
+      )}
+      {...props}
+    />
+  );
+}
 
 /** What a `custom` editor receives while the cell is in edit mode. */
 export interface EditableCellEditorProps {
@@ -800,9 +864,14 @@ export function EditableCell({
       >
         <SelectTrigger
           size="sm"
+          variant="ghost"
           aria-label={label}
           tabIndex={managed ? -1 : undefined}
-          className="w-fit min-w-0"
+          className={cn(
+            INLINE_EDIT_TINT,
+            variant === "cell" ? "w-full" : "w-fit",
+            "min-w-0",
+          )}
         >
           <SelectValue placeholder={editor.placeholder}>
             {renderValue
@@ -840,7 +909,12 @@ export function EditableCell({
         renderValue={
           renderValue ? (date) => renderValue(toIsoDate(date)) : undefined
         }
-        className="w-fit min-w-0"
+        className={cn(
+          INLINE_EDIT_TINT,
+          variant === "cell" && !editor.clearable ? "w-full" : "w-fit",
+          // Shrinks so a slow save's spinner fits beside a full-width trigger.
+          "min-w-0 shrink",
+        )}
       />
     );
   } else if (editor.type === "custom" && isEditing) {

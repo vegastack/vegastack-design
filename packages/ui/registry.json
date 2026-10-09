@@ -655,6 +655,7 @@
       "description": "A work item as a board card — a round completion tick, a two-line title, a muted context line, and a bottom row with the due chip (destructive when overdue, warning when due today), the priority chip, a source icon and the assignee's avatar.",
       "categories": ["data"],
       "dependencies": [
+        "lucide-react@^1.47.0",
         "@vegastack/design@^0.8.0",
         "@vegastack/design-tokens@^0.8.0",
         "@base-ui/react@^1.6.0"
@@ -1913,6 +1914,7 @@
       ],
       "registryDependencies": [
         "@vegastack/auto-save-input",
+        "@vegastack/button",
         "@vegastack/date-picker",
         "@vegastack/select",
         "@vegastack/spinner",

@@ -172,7 +172,11 @@ test("picker fits a short viewport with visible search and removal in both theme
       const glyph = panel.querySelector<HTMLElement>(
         '[data-slot="picker-panel-item"] [data-slot="icon-glyph"]',
       )!;
-      expect(getComputedStyle(glyph).color).toBe(getComputedStyle(panel).color);
+      // An uncoloured glyph takes the sidebar nav icon ink, never full foreground.
+      expect(glyph.className).toContain("text-sidebar-foreground/70");
+      expect(getComputedStyle(glyph).color).not.toBe(
+        getComputedStyle(panel).color,
+      );
       expect(box.top).toBeGreaterThanOrEqual(0);
       expect(box.bottom).toBeLessThanOrEqual(window.innerHeight);
       await expect.element(screen.getByRole("searchbox")).toBeVisible();

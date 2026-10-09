@@ -4,7 +4,14 @@ import { type ReactNode, useCallback, useState } from "react";
 import { Wrapper } from "./wrapper";
 // Copied INTO apps/docs via `shadcn add @vegastack/editable-cell` (dogfoods the registry) → auto-scanned.
 import { Button } from "@/components/ui/button";
-import { EditableCell } from "@/components/ui/editable-cell";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { EditableCell, InlineEditTrigger } from "@/components/ui/editable-cell";
+import { PriorityIcon } from "@/components/ui/priority-icon";
 import {
   PropertyLabel,
   PropertyList,
@@ -497,6 +504,76 @@ export function editableCellInlineEditors(): ReactNode {
           </PropertyRow>
         </PropertyList>
       </div>
+    </Wrapper>
+  );
+}
+
+const PRIORITY_OPTIONS = ["urgent", "high", "medium", "low", "none"] as const;
+type PreviewPriority = (typeof PRIORITY_OPTIONS)[number];
+const priorityName = (p: PreviewPriority) =>
+  p === "none" ? "No priority" : p.charAt(0).toUpperCase() + p.slice(1);
+
+/** One whole-cell priority editor: the flag AND the text open the menu. */
+function PriorityCell({ task }: { task: string }) {
+  const [priority, setPriority] = useState<PreviewPriority>("high");
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger
+        render={
+          <InlineEditTrigger
+            aria-label={`Priority: ${priorityName(priority)} — change priority of ${task}`}
+          />
+        }
+      >
+        <PriorityIcon priority={priority} size="sm" label="" />
+        <span>{priorityName(priority)}</span>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="start" className="w-44">
+        {PRIORITY_OPTIONS.map((p) => (
+          <DropdownMenuItem key={p} onClick={() => setPriority(p)}>
+            <PriorityIcon priority={p} size="sm" label="" />
+            {priorityName(p)}
+          </DropdownMenuItem>
+        ))}
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+}
+
+/**
+ * Whole-cell inline editing in a list: priority (an app menu behind `InlineEditTrigger`) and due
+ * (the `date` editor) both open from anywhere in the cell, with no border until hover.
+ */
+export function editableCellWholeCell(): ReactNode {
+  const [due, setDue] = useState("2026-10-14");
+  return (
+    <Wrapper className="block w-full max-w-lg">
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>Task</TableHead>
+            <TableHead className="w-36">Priority</TableHead>
+            <TableHead className="w-40">Due</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          <TableRow>
+            <TableCell>Send the lighting schedule</TableCell>
+            <TableCell>
+              <PriorityCell task="Send the lighting schedule" />
+            </TableCell>
+            <TableCell>
+              <EditableCell
+                variant="cell"
+                label="Due date"
+                value={due}
+                onSave={(next) => fakeSave().then(() => setDue(next))}
+                editor={{ type: "date", placeholder: "Set due date" }}
+              />
+            </TableCell>
+          </TableRow>
+        </TableBody>
+      </Table>
     </Wrapper>
   );
 }
