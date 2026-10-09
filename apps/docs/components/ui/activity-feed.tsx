@@ -1,4 +1,4 @@
-// @vegastack activity-feed@0.25.3 sha256-YuABxlsSFu/KSfcN2EzHOqjzJR+1XzsTkTEbEefm/zk=
+// @vegastack activity-feed@0.25.3 sha256-rUt0WPJGbLYYnHVcRvKqJAAs1YNyVdEXDe1iqC5D4iY=
 
 "use client";
 
@@ -927,9 +927,15 @@ const SCROLL_IDLE_MS = 1500;
  */
 function useScrollActivity(node: HTMLElement | null) {
   const [active, setActive] = React.useState(false);
+  const timer = React.useRef<ReturnType<typeof setTimeout>>(undefined);
+  const ping = React.useCallback(() => {
+    setActive(true);
+    clearTimeout(timer.current);
+    timer.current = setTimeout(() => setActive(false), SCROLL_IDLE_MS);
+  }, []);
+  React.useEffect(() => () => clearTimeout(timer.current), []);
   React.useEffect(() => {
     if (!node) return;
-    let timer: ReturnType<typeof setTimeout> | undefined;
     const onScroll = (event: Event) => {
       const source = event.target;
       if (
@@ -937,27 +943,22 @@ function useScrollActivity(node: HTMLElement | null) {
         !(source instanceof Node && source.contains(node))
       )
         return;
-      setActive(true);
-      clearTimeout(timer);
-      timer = setTimeout(() => setActive(false), SCROLL_IDLE_MS);
+      ping();
     };
     document.addEventListener("scroll", onScroll, {
       capture: true,
       passive: true,
     });
-    return () => {
-      clearTimeout(timer);
-      document.removeEventListener("scroll", onScroll, true);
-    };
-  }, [node]);
-  return active;
+    return () => document.removeEventListener("scroll", onScroll, true);
+  }, [node, ping]);
+  return [active, ping] as const;
 }
 
 /** Props for a floating, data-agnostic latest-content control. */
 export interface ActivityJumpToLatestProps {
   /** The latest content's focusable boundary, supplied by the host. */
   target: HTMLElement | null;
-  /** Keep the action available for a new batch already on screen. @default false */
+  /** Keep the action available for a new batch already on screen; turning it on surfaces the control until the reader settles. @default false */
   forceVisible?: boolean;
   /** The selected feed direction; when omitted, points toward the observed boundary. @default undefined */
   direction?: "up" | "down";
@@ -976,8 +977,9 @@ export interface ActivityJumpToLatestProps {
 }
 
 /**
- * Floats while the supplied latest boundary is off screen and the reader is scrolling (or a new
- * batch awaits catch-up), and fades once they settle; hovering or focusing it holds it in place.
+ * Floats while the supplied latest boundary is off screen (or a new batch awaits catch-up) and the
+ * reader is scrolling or a new batch just arrived, and fades once they settle; hovering or focusing
+ * it holds it in place.
  * Positioning lives on the wrapper: the Button's pressed translation never displaces the pill.
  * @example <ActivityJumpToLatest target={latestBoundary} onReached={acknowledgeCapturedBatch} />
  */
@@ -1050,14 +1052,19 @@ export function ActivityJumpToLatest({
         document.removeEventListener(event, cancel, true);
     };
   }, [target, enabled, cancel, complete]);
-  const scrolling = useScrollActivity(enabled ? target : null);
+  const [scrolling, ping] = useScrollActivity(enabled ? target : null);
   const [engaged, setEngaged] = React.useState(false);
+  // A new batch (forceVisible turning on) surfaces the control like a scroll does, then it settles.
+  React.useEffect(() => {
+    if (forceVisible) ping();
+  }, [forceVisible, ping]);
   const knownVisibility = visibility?.target === target ? visibility : null;
   const above = knownVisibility?.above ?? false;
   const shown =
     enabled &&
     target !== null &&
-    ((knownVisibility?.offScreen && (scrolling || engaged)) || forceVisible);
+    (knownVisibility?.offScreen || forceVisible) &&
+    (scrolling || engaged);
   return (
     <div
       data-slot="activity-jump-floating"
