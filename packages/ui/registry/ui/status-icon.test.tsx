@@ -9,14 +9,46 @@ test("renders an accessible image with a default label from status", async () =>
   const icon = screen.getByRole("img");
   await expect.element(icon).toBeInTheDocument();
   await expect.element(icon).toHaveAttribute("data-slot", "status-icon");
-  await expect.element(icon).toHaveAttribute("aria-label", "To do");
+  await expect.element(icon).toHaveAttribute("aria-label", "Todo");
 });
 
 test("exposes the status via the data-status attribute", async () => {
-  const screen = await render(<StatusIcon status="blocked" />);
+  const screen = await render(<StatusIcon status="review" />);
   const icon = screen.getByRole("img");
-  await expect.element(icon).toHaveAttribute("data-status", "blocked");
-  await expect.element(icon).toHaveAttribute("aria-label", "Blocked");
+  await expect.element(icon).toHaveAttribute("data-status", "review");
+  await expect.element(icon).toHaveAttribute("aria-label", "In review");
+});
+
+test("names every Linear status and keeps the deprecated aliases", async () => {
+  const cases = [
+    ["backlog", "Backlog"],
+    ["todo", "Todo"],
+    ["progress", "In progress"],
+    ["review", "In review"],
+    ["done", "Done"],
+    ["canceled", "Canceled"],
+    ["duplicate", "Duplicate"],
+    ["triage", "Triage"],
+    ["blocked", "Blocked"],
+    ["cancelled", "Canceled"],
+  ] as const;
+  const screen = await render(
+    <>
+      {cases.map(([status]) => (
+        <StatusIcon key={status} status={status} />
+      ))}
+    </>,
+  );
+  for (const [status, name] of cases) {
+    const icon = screen.container.querySelector(`[data-status="${status}"]`);
+    expect(icon?.getAttribute("aria-label")).toBe(name);
+    expect(icon?.getAttribute("viewBox")).toBe("0 0 16 16");
+    expect(icon?.childElementCount).toBeGreaterThan(0);
+  }
+  // The alias draws exactly the canonical glyph.
+  expect(
+    screen.container.querySelector('[data-status="cancelled"]')?.innerHTML,
+  ).toBe(screen.container.querySelector('[data-status="canceled"]')?.innerHTML);
 });
 
 test("applies the size data attribute", async () => {

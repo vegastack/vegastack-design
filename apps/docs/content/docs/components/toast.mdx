@@ -271,8 +271,7 @@ focus-visible:ring-[3px] focus-visible:ring-ring/50` halo goes; dropping `outlin
   passes AA on its own.
 - **ICO-8** — `ToastIcon`'s loading mark is `LoaderIcon` (lucide `loader`) in place of upstream's
   `Loader2Icon`, which is an alias of `LoaderCircle`. One loader shape across the system:
-  [`Spinner`](/docs/components/spinner), this icon and
-  [`StatusIcon`](/docs/components/status-icon)'s `progress` are the same object spinning.
+  [`Spinner`](/docs/components/spinner) and this icon are the same object spinning.
   `animate-spin` and `aria-hidden` are upstream's.
 - **OVL-17** — one toast store. `ToastProvider` marks its subtree, and a `Toaster` on the module
   `toast` manager renders only its viewport under an existing provider instead of mounting a second

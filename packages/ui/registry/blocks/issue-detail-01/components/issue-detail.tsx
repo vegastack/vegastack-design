@@ -1,4 +1,4 @@
-// @vegastack issue-detail-01@0.25.4 sha256-kPGHmJlfnpyN+tZP3IqnTS8bveR8gnTZvg38lGFen2A=
+// @vegastack issue-detail-01@0.25.4 sha256-S4Jm5x/1jKLaJgpPmAq+Yc5y0irdv3Z/4sW/jacwWzY=
 
 "use client";
 
@@ -98,9 +98,12 @@ function initialComments(now: number): CommentData[] {
 }
 
 const STATUSES = [
+  { value: "backlog", label: "Backlog" },
   { value: "todo", label: "Todo" },
   { value: "progress", label: "In progress" },
+  { value: "review", label: "In review" },
   { value: "done", label: "Done" },
+  { value: "canceled", label: "Canceled" },
 ] as const;
 const PRIORITIES = [
   { value: "urgent", label: "Urgent" },

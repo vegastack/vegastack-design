@@ -110,7 +110,7 @@ export function timelineLinked(): ReactNode {
             </Item>
           </TimelineItem>
           <TimelineItem
-            node={<StatusIcon status="blocked" size="sm" label="" />}
+            node={<StatusIcon status="canceled" size="sm" label="" />}
           >
             <Item size="sm">
               <ItemContent>
@@ -142,7 +142,7 @@ export function timelineGrouped(): ReactNode {
             </Item>
           </TimelineItem>
           <TimelineItem
-            node={<StatusIcon status="blocked" size="sm" label="" />}
+            node={<StatusIcon status="canceled" size="sm" label="" />}
           >
             <Item size="sm">
               <ItemContent>

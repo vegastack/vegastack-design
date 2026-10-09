@@ -22738,7 +22738,7 @@
       "name": "status-icon",
       "registryType": "registry:ui",
       "title": "Status Icon",
-      "summary": "A small status indicator icon — todo, in progress, blocked, done, cancelled — each mapping to a lucide icon and semantic color.",
+      "summary": "A small workflow status icon in Linear's set — backlog, todo, in progress, in review, done, canceled, duplicate, triage — each a hand-drawn 16-unit glyph in a semantic color.",
       "status": "stable",
       "since": "0.1.0",
       "family": "data-display",
@@ -22751,7 +22751,7 @@
           "source": "packages/ui/registry/ui/status-icon.tsx",
           "ref": {
             "status": "observed",
-            "target": "Icon",
+            "target": "svg",
             "rationale": "Source forwards the ref to this JSX/Base UI render target."
           }
         },
@@ -22829,7 +22829,6 @@
       "registryDependencies": [],
       "npmDependencies": [
         "class-variance-authority@^0.7.1",
-        "lucide-react@^1.47.0",
         "@vegastack/design@^0.8.1",
         "@vegastack/design-tokens@^0.8.0"
       ],
