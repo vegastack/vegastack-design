@@ -1,4 +1,4 @@
-// @vegastack board-card@0.25.6 sha256-cjUh8NI7CS8ZmehlR1E0ku2TEpaNZrWf6ApX3tg4mzo=
+// @vegastack board-card@0.25.6 sha256-VKL93nXp0frmRhFwoqYx+qlyPyKYWpNG0UIUysAshv0=
 
 "use client";
 
@@ -549,7 +549,7 @@ export function BoardCardChip({
     props: mergeProps<"span">(
       {
         className: cn(
-          "relative z-10 inline-flex h-6 max-w-full min-w-0 shrink-0 items-center gap-1 rounded-full border border-border bg-transparent px-2 text-xs whitespace-nowrap text-muted-foreground [&>svg]:pointer-events-none [&>svg]:size-3 [&>svg]:shrink-0",
+          "inline-flex h-6 max-w-full min-w-0 shrink-0 items-center gap-1 rounded-full border border-border bg-transparent px-2 text-xs whitespace-nowrap text-muted-foreground [&>svg]:pointer-events-none [&>svg]:size-3 [&>svg]:shrink-0 [a,button]:relative [a,button]:z-10",
           className,
         ),
       },

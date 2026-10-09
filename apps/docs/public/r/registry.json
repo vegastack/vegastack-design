@@ -757,7 +757,7 @@
         "whenToUse": "The content of a Board card (tasks, deals, tickets) — DataList's board view renders one per row — or a standalone work-item card.",
         "whenNotToUse": "A record with an image (MediaCard), a long body (Card), or a table row (DataList).",
         "version": "0.25.6",
-        "integrity": "sha256-cjUh8NI7CS8ZmehlR1E0ku2TEpaNZrWf6ApX3tg4mzo="
+        "integrity": "sha256-VKL93nXp0frmRhFwoqYx+qlyPyKYWpNG0UIUysAshv0="
       }
     },
     {
