@@ -9,6 +9,19 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.25.3] — October 9, 2026
+
+<!-- assembled from 1 changeset: 818597fd7809 -->
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.25.2 → 0.25.3.
+
+### 🐛 Fixed
+
+- `SkeletonRows` (the `DataList` and `DataGrid` loading rows) sizes each placeholder bar from its column's `minWidth` budget and follows the column's alignment, with an icon-sized square for a narrow ⋯ column, so a loading table's columns settle where the loaded table's do instead of jumping when the rows arrive.
+  [`7b3e423`](https://github.com/VegaStack/vegastack-design/commit/7b3e423)
+
 ## [0.25.2] — October 9, 2026
 
 <!-- assembled from 2 changesets: 25555dde4559 -->
