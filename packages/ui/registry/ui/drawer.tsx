@@ -1,4 +1,4 @@
-// @vegastack drawer@0.25.6 sha256-CPAyYgzsyyNVtem51/Bix6M3fgsfX0ImbTJNO+N6JOA=
+// @vegastack drawer@0.25.6 sha256-+7L4L9He9bLlHiIhdA+qlCJ1OAs+sSHPa1IhpVlIVkI=
 
 "use client";
 
@@ -9,6 +9,7 @@ import { useInternalThemeScope } from "@vegastack/design/theme-scope";
 import { useModalInert } from "@/components/ui/use-modal-inert";
 
 type DrawerContextProps = {
+  flush: boolean;
   hasSnapPoints: boolean;
   modal: DrawerPrimitive.Root.Props["modal"];
   showSwipeHandle: boolean;
@@ -28,18 +29,20 @@ function useDrawer() {
 }
 
 function Drawer({
+  flush = false,
   modal = true,
   showSwipeHandle = false,
   snapPoints,
   swipeDirection = "down",
   ...props
 }: DrawerPrimitive.Root.Props & {
+  flush?: boolean;
   showSwipeHandle?: boolean;
 }) {
   const hasSnapPoints = snapPoints != null && snapPoints.length > 0;
   const contextValue = React.useMemo(
-    () => ({ hasSnapPoints, modal, showSwipeHandle, swipeDirection }),
-    [hasSnapPoints, modal, showSwipeHandle, swipeDirection],
+    () => ({ flush, hasSnapPoints, modal, showSwipeHandle, swipeDirection }),
+    [flush, hasSnapPoints, modal, showSwipeHandle, swipeDirection],
   );
 
   return (
@@ -112,7 +115,8 @@ function DrawerContent({
   ref,
   ...props
 }: DrawerPrimitive.Popup.Props) {
-  const { hasSnapPoints, modal, showSwipeHandle, swipeDirection } = useDrawer();
+  const { flush, hasSnapPoints, modal, showSwipeHandle, swipeDirection } =
+    useDrawer();
   const swipeAxis =
     swipeDirection === "down" || swipeDirection === "up" ? "y" : "x";
   const popupRef = useModalInert<HTMLDivElement>({
@@ -135,9 +139,14 @@ function DrawerContent({
           data-slot="drawer-popup"
           data-swipe-axis={swipeAxis}
           data-snap-points={hasSnapPoints ? "" : undefined}
+          data-flush={flush ? "" : undefined}
           className={cn(
             // Base.
-            "group/drawer-popup pointer-events-auto fixed z-50 m-(--drawer-inset,0px) flex h-(--drawer-content-height) max-h-(--drawer-content-max-height,none) min-h-0 w-(--drawer-content-width,auto) transform-[translate3d(var(--translate-x,0px),var(--translate-y,0px),0)_scale(var(--stack-scale))] flex-col bg-popover text-sm text-popover-foreground transition-[transform,height,opacity,filter] duration-450 ease-[cubic-bezier(0.22,1,0.36,1)] will-change-transform outline-none select-none [interpolate-size:allow-keywords] data-[swipe-direction=down]:rounded-t-xl data-[swipe-direction=down]:border-t data-[swipe-direction=left]:rounded-e-xl data-[swipe-direction=left]:border-e data-[swipe-direction=right]:rounded-s-xl data-[swipe-direction=right]:border-s data-[swipe-direction=up]:rounded-b-xl data-[swipe-direction=up]:border-b",
+            "group/drawer-popup pointer-events-auto fixed z-50 m-(--drawer-inset,0px) flex h-(--drawer-content-height) max-h-(--drawer-content-max-height,none) min-h-0 w-(--drawer-content-width,auto) transform-[translate3d(var(--translate-x,0px),var(--translate-y,0px),0)_scale(var(--stack-scale))] flex-col bg-popover text-sm text-popover-foreground transition-[transform,height,opacity,filter] duration-450 ease-[cubic-bezier(0.22,1,0.36,1)] will-change-transform outline-none select-none [interpolate-size:allow-keywords]",
+            // Inset (OVL-21): floats off every viewport edge, fully rounded and bordered; `flush` is upstream's edge-to-edge sheet.
+            flush
+              ? "data-[swipe-direction=down]:rounded-t-xl data-[swipe-direction=down]:border-t data-[swipe-direction=left]:rounded-e-xl data-[swipe-direction=left]:border-e data-[swipe-direction=right]:rounded-s-xl data-[swipe-direction=right]:border-s data-[swipe-direction=up]:rounded-b-xl data-[swipe-direction=up]:border-b"
+              : "rounded-xl border [--drawer-bleed-background:transparent] [--drawer-inset:--spacing(2)]",
             // Nested.
             "data-nested-drawer-open:overflow-hidden data-nested-drawer-open:brightness-95",
             // Bleed.

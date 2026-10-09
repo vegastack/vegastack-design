@@ -235,7 +235,8 @@
     "A11Y-23": ["pagination"],
     "API-34": ["combobox"],
     "OVL-19": ["context-menu", "dropdown-menu"],
-    "OVL-20": ["command"]
+    "OVL-20": ["command"],
+    "OVL-21": ["drawer"]
   },
   "advisory": {
     "A11Y-2": [

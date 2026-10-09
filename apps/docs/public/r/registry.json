@@ -2018,7 +2018,7 @@
         "whenToUse": "A touch-first panel the user drags — a mobile action sheet, a half-height detail panel, a stack of nested steps.",
         "whenNotToUse": "A desktop side panel with no gesture (Sheet), or a centred modal (Dialog).",
         "version": "0.25.6",
-        "integrity": "sha256-CPAyYgzsyyNVtem51/Bix6M3fgsfX0ImbTJNO+N6JOA="
+        "integrity": "sha256-+7L4L9He9bLlHiIhdA+qlCJ1OAs+sSHPa1IhpVlIVkI="
       }
     },
     {

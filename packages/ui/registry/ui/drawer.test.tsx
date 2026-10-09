@@ -477,6 +477,53 @@ test("OVL-13: with no scope in context the host still wraps the portal in displa
   expect(host.contains(popup())).toBe(true);
 });
 
+test.each(DIRECTIONS)(
+  "OVL-21: swipeDirection=%s floats inset by default — every corner rounded, a full border",
+  async (swipeDirection) => {
+    const screen = await render(<Example swipeDirection={swipeDirection} />);
+    await openDrawer(screen);
+    const content = popup() as HTMLElement;
+    const classes = content.className.split(" ");
+    expect(content.hasAttribute("data-flush")).toBe(false);
+    expect(classes).toContain("[--drawer-inset:--spacing(2)]");
+    expect(classes).toContain("rounded-xl");
+    expect(classes).toContain("border");
+    expect(classes).toContain("[--drawer-bleed-background:transparent]");
+    expect(content.className).not.toMatch(
+      /data-\[swipe-direction=\w+\]:(rounded|border)/,
+    );
+  },
+);
+
+test("OVL-21: flush restores upstream's edge-to-edge sheet", async () => {
+  const screen = await render(<Example flush swipeDirection="right" />);
+  await openDrawer(screen);
+  const content = popup() as HTMLElement;
+  const classes = content.className.split(" ");
+  expect(content.hasAttribute("data-flush")).toBe(true);
+  expect(content.className).not.toContain("--drawer-inset:--spacing(2)");
+  expect(classes).not.toContain("rounded-xl");
+  expect(classes).not.toContain("border");
+  expect(classes).toContain("data-[swipe-direction=right]:rounded-s-xl");
+  expect(classes).toContain("data-[swipe-direction=right]:border-s");
+});
+
+test("OVL-21: a consumer width and inset override the defaults, modal or not", async () => {
+  const screen = await render(
+    <Example
+      modal={false}
+      swipeDirection="right"
+      contentProps={{ className: "w-160 [--drawer-inset:--spacing(4)]" }}
+    />,
+  );
+  await openDrawer(screen);
+  const classes = (popup() as HTMLElement).className.split(" ");
+  expect(classes).toContain("w-160");
+  expect(classes).not.toContain("w-(--drawer-content-width,auto)");
+  expect(classes).toContain("[--drawer-inset:--spacing(4)]");
+  expect(classes).not.toContain("[--drawer-inset:--spacing(2)]");
+});
+
 test("FOC-1/FOC-6: nothing rendered carries a focus glow", async () => {
   const screen = await render(<Example showSwipeHandle />);
   await openDrawer(screen);

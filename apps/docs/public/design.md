@@ -775,8 +775,8 @@ All four scripts under `tooling/upstream/` carry a `--self-test` that observes t
 
 ## What we add — the one hundred exceptions
 
-`docs/plans/2026-09-18-shadcn-reset/decisions.md` is the register: 219 rows, 108 resolved as
-**shadcn** (upstream ships unchanged) and 111 as **ours**. `packages/ui/upstream/decisions.json` is
+`docs/plans/2026-09-18-shadcn-reset/decisions.md` is the register: 221 rows, 108 resolved as
+**shadcn** (upstream ships unchanged) and 113 as **ours**. `packages/ui/upstream/decisions.json` is
 its machine copy and the only thing a gate reads; `packages/ui/upstream/exception-map.json` records
 which shared component each exception is assigned to. Re-opening a row is MK's decision. The ninety-eight
 group into six themes.
@@ -954,7 +954,7 @@ token — that is COL-20 being enforced, not broken.
 
 `MOT-5 · MOT-6 · MOT-7 · MOT-13 · TYP-13 · BRD-1 · LAY-9 · LAY-10 · LAY-11 · LAY-12 · LAY-13 · LAY-14 ·
 LAY-15 · LAY-16 · FRM-9 · FRM-10 · FRM-12 · FRM-13 · OVL-10 · OVL-11 · OVL-13 · OVL-14 · OVL-15 ·
-OVL-16 · OVL-17 · OVL-18 · OVL-20 · API-5 · API-9 · API-17 · API-18 · API-19 · API-20 · API-21 · API-22 · API-23 ·
+OVL-16 · OVL-17 · OVL-18 · OVL-20 · OVL-21 · API-5 · API-9 · API-17 · API-18 · API-19 · API-20 · API-21 · API-22 · API-23 ·
 API-24 · API-26 · API-27 · API-28 · API-32 · VOI-1`
 
 - **Motion.** The global reduced-motion reset in `base.css` is the one sanctioned `!important`, and a
@@ -999,7 +999,7 @@ API-24 · API-26 · API-27 · API-28 · API-32 · VOI-1`
   search-cancel paint is suppressed, a token-colored 24px clear button owns the action, and generic
   `Input` keeps its single-input DOM and behavior contract. A Select trigger is `w-full` by default
   and takes `variant="ghost"` for an inline row (API-24).
-- **Overlays** (OVL-10, OVL-11, OVL-13…OVL-18, OVL-20) — Toast is the one notification engine;
+- **Overlays** (OVL-10, OVL-11, OVL-13…OVL-18, OVL-20, OVL-21) — Toast is the one notification engine;
   `sonner` is retired (OVL-10), and it keeps one store: the provider passes the module manager and
   `Toaster` reuses a provider above it, so `toast()` and `useToastManager()` feed one queue (OVL-17). Toast adds a logical `position` prop, the anchored
   `ToastPositioner`/`ToastArrow` parts, and a `z-60` viewport band — the one surface above the single
@@ -1012,7 +1012,8 @@ API-24 · API-26 · API-27 · API-28 · API-32 · VOI-1`
   list's static actions ("Assign to me", "Unassign", "Clear") are a sticky footer of real options
   below the results, behind a hairline — `CommandActions` in a cmdk list, `PanelActions` under a
   `PanelList` in a menu — never filtered and never counted as results; give each a leading icon
-  (OVL-20). Every portal
+  (OVL-20). A drawer floats inset by default — `--spacing(2)` off every viewport edge, every corner
+  rounded, a full border — and `<Drawer flush>` restores upstream's edge-to-edge sheet (OVL-21). Every portal
   re-applies the theme scope so a popup opened from inside a scoped subtree paints in that scope
   (OVL-13); `verify-portal-theme-scope` discovers every Base UI portal host and requires its owner to
   attach the scope, so an added, missing or unscoped portal fails.
