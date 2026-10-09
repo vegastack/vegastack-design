@@ -95,11 +95,11 @@ content-sized drawer.
 The drawer exposes CSS variables for style-level customisation. Set the sizing variables on
 `DrawerContent`; set the overlay variable on `[data-slot=drawer-overlay]` in your own CSS.
 
-| Variable                       | Default                | Description                                                             |
-| ------------------------------ | ---------------------- | ----------------------------------------------------------------------- |
-| `--drawer-inset`               | `--spacing(2)`         | Floats the drawer off the viewport edges. `0px` with `flush`.           |
-| `--drawer-bleed-background`    | `var(--color-popover)` | Fills the gap behind the drawer on swipe overshoot.                     |
-| `--drawer-overlay-min-opacity` | `0`                    | Minimum overlay opacity. Defaults to `0.5` when snap points are active. |
+| Variable                       | Default        | Description                                                                              |
+| ------------------------------ | -------------- | ---------------------------------------------------------------------------------------- |
+| `--drawer-inset`               | `--spacing(2)` | Floats the drawer off the viewport edges. `0px` with `flush`.                            |
+| `--drawer-bleed-background`    | `transparent`  | Fills the gap behind the drawer on swipe overshoot. `var(--color-popover)` with `flush`. |
+| `--drawer-overlay-min-opacity` | `0`            | Minimum overlay opacity. Defaults to `0.5` when snap points are active.                  |
 
 The popup also carries data attributes to target with variants such as `data-[swipe-direction=down]:`
 on `DrawerContent`, or `group-data-[swipe-axis=y]/drawer-popup:` on its descendants.
