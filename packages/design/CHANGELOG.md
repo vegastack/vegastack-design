@@ -1,5 +1,11 @@
 # @vegastack/design
 
+## 0.8.1
+
+### Patch Changes
+
+- [#569](https://github.com/vegastack/vegastack-design/pull/569) [`f1f73fd`](https://github.com/vegastack/vegastack-design/commit/f1f73fd596213c399e5c29f464734698e0b7564e) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🗑 `EmptyIllustration` is removed: empty states use `Empty` with `EmptyMedia variant="icon"` and a lucide icon only. Replace `<EmptyIllustration name="tasks" />` with `<EmptyMedia variant="icon"><ListTodo /></EmptyMedia>` (or pass the icon to `Empty`'s `icon` prop).
+
 ## 0.8.0
 
 ### Patch Changes
