@@ -1,4 +1,4 @@
-// @vegastack app-shell-01@0.25.4 sha256-gjM6hhRUk7iS/urRWQzGM/ugMXWnDRmvudTp9DD3VsY=
+// @vegastack app-shell-01@0.25.5 sha256-kon8MqQPPNYkWdqFj0p9Jumr0JqzhnTPjSLF3QlRbus=
 
 import { Plus } from "lucide-react";
 

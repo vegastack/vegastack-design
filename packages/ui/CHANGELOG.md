@@ -1,5 +1,14 @@
 # @vegastack/ui
 
+## 0.25.5
+
+### Patch Changes
+
+- [#570](https://github.com/vegastack/vegastack-design/pull/570) [`478de35`](https://github.com/vegastack/vegastack-design/commit/478de35aa362f3cfd74df4da86ac66c70b711ad9) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🔧 **StatusIcon** — Linear's workflow status set, drawn as 16-unit glyphs instead of lucide icons: `backlog` (dashed ring), `todo` (ring), `progress` (half pie, yellow), `review` (three-quarter pie, green), `done` (filled check, purple), `canceled` (filled cross, grey), `duplicate` (ring with diagonal strokes, grey) and `triage` (filled left-right arrow, orange). `blocked` and `cancelled` keep working as deprecated aliases; the default `todo` label reads "Todo".
+  [docs](https://design.vegastack.com/docs/components/status-icon)
+- Updated dependencies [[`478de35`](https://github.com/vegastack/vegastack-design/commit/478de35aa362f3cfd74df4da86ac66c70b711ad9)]:
+  - @vegastack/design@0.8.2
+
 ## 0.25.4
 
 ### Patch Changes

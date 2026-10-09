@@ -9,6 +9,21 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.25.5] — October 9, 2026
+
+<!-- assembled from 1 changeset: 1b25c0deee78 -->
+
+### 🔧 Changed components
+
+- **StatusIcon** — Linear's workflow status set, drawn as 16-unit glyphs instead of lucide icons: `backlog` (dashed ring), `todo` (ring), `progress` (half pie, yellow), `review` (three-quarter pie, green), `done` (filled check, purple), `canceled` (filled cross, grey), `duplicate` (ring with diagonal strokes, grey) and `triage` (filled left-right arrow, orange). `blocked` and `cancelled` keep working as deprecated aliases; the default `todo` label reads "Todo".
+  [docs](https://design.vegastack.com/docs/components/status-icon) ·
+  [`478de35`](https://github.com/VegaStack/vegastack-design/commit/478de35)
+
+### 📦 npm
+
+- **`@vegastack/design`** → **`0.8.2`** (was `0.8.1`).
+- The design-system registry (`@vegastack/ui`) bumps 0.25.4 → 0.25.5.
+
 ## [0.25.4] — October 9, 2026
 
 <!-- assembled from 3 changesets: 71856e85bbca -->
