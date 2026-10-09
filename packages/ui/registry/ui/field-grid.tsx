@@ -1,4 +1,4 @@
-// @vegastack field-grid@0.25.7 sha256-q5QG9ynIbivP+Zzz3qAP4omF61i2xPIM+tTUI3rlR1M=
+// @vegastack field-grid@0.25.8 sha256-oRT6tHhUfEBz3eMqoO3afG9EKbdZ1tlGPZPpm6g5XLI=
 
 import * as React from "react";
 import { cn } from "@vegastack/design";

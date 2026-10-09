@@ -1,5 +1,12 @@
 # @vegastack/ui
 
+## 0.25.8
+
+### Patch Changes
+
+- [#578](https://github.com/vegastack/vegastack-design/pull/578) [`88ed5f6`](https://github.com/vegastack/vegastack-design/commit/88ed5f65a5d13dec21892e15c9574a99e0207697) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🔧 **BoardCard** drops its leading gutter: the completion tick or `status` control now sits inline before the title (a wrapped title wraps under itself), and the eyebrow, context, chips, alert and footnote start at the card's own edge instead of being indented to the title.
+  [docs](https://design.vegastack.com/docs/components/board-card)
+
 ## 0.25.7
 
 ### Patch Changes
