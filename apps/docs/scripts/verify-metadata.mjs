@@ -1199,9 +1199,10 @@ assert.ok(
 // still 8 KB short of enough). Doubled, with both measurements written down, so the tripwire still
 // fires long before anything is unfetchable — a corpus that doubles again is a signal, not a
 // rounding error. **The number is MK's**, flagged by both batches rather than decided here.
+// operator decision 2026-10-10: raised to 6 MiB; trimming tracked separately.
 assert.ok(
-  Buffer.byteLength(llmsFull) < 4 * 1024 * 1024,
-  "llms-full.txt exceeds 4 MiB",
+  Buffer.byteLength(llmsFull) < 6 * 1024 * 1024,
+  "llms-full.txt exceeds 6 MiB",
 );
 assert.doesNotMatch(
   llmsIndex,
