@@ -1,4 +1,4 @@
-// @vegastack people-picker@0.25.11 sha256-VDPaD8X3soChvrOF1VhrMTC6l2jL1DKRb8N8TMq7GNw=
+// @vegastack people-picker@0.25.11 sha256-s8FQX/7txMrMjKtiYjyuQ83txXWpf1ITax4zw+Uciig=
 
 "use client";
 
@@ -16,7 +16,6 @@ import {
   CommandList,
 } from "@/components/ui/command";
 import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
-import { LoadMore } from "@/components/ui/load-more";
 import {
   PanelList,
   PanelSearch,
@@ -221,12 +220,15 @@ function usePeopleList(
 /** One person or team row: avatar, name (+ "(you)"), then the email / description / team size. */
 function PeoplePickerRow({
   option,
+  checked = false,
   viewerId,
   youLabel = "(you)",
   teamLabel = defaultTeamLabel,
   inactiveLabel = "Inactive",
 }: {
   option: PeoplePickerOption;
+  /** The row is part of the choice: screen readers hear it (cmdk's aria-selected is the cursor). */
+  checked?: boolean;
 } & Pick<
   PeoplePickerListProps,
   "viewerId" | "youLabel" | "teamLabel" | "inactiveLabel"
@@ -257,19 +259,21 @@ function PeoplePickerRow({
         )
       }
       name={
-        option.id === viewerId && !team ? (
-          <>
-            {option.name}{" "}
-            <span
-              data-slot="people-picker-you"
-              className="text-muted-foreground"
-            >
-              {youLabel}
-            </span>
-          </>
-        ) : (
-          option.name
-        )
+        <>
+          {option.name}
+          {option.id === viewerId && !team ? (
+            <>
+              {" "}
+              <span
+                data-slot="people-picker-you"
+                className="text-muted-foreground"
+              >
+                {youLabel}
+              </span>
+            </>
+          ) : null}
+          {checked ? <span className="sr-only">, selected</span> : null}
+        </>
       }
       email={secondary ?? undefined}
       badge={option.active === false ? inactiveLabel : option.badge}
@@ -278,14 +282,14 @@ function PeoplePickerRow({
 }
 
 /** The loading state: skeleton rows the shape of a person row, never a spinner. */
-function PeoplePickerSkeleton() {
+function PeoplePickerSkeleton({ rows = SKELETON_ROWS }: { rows?: number }) {
   return (
     <div
       aria-hidden
       data-slot="people-picker-skeleton"
       className="flex flex-col"
     >
-      {Array.from({ length: SKELETON_ROWS }, (_, i) => (
+      {Array.from({ length: rows }, (_, i) => (
         <div key={i} className="flex items-center gap-2 px-2 py-1.5">
           <Skeleton className="size-6 shrink-0 rounded-full" />
           <div className="flex min-w-0 flex-1 flex-col gap-1.5">
@@ -298,21 +302,59 @@ function PeoplePickerSkeleton() {
   );
 }
 
-/** Pages on scroll: the next page loads as the list nears its end. */
-function onNearEnd(
-  loadMore: { hasMore: boolean; loading?: boolean; onLoadMore: () => void },
-  error: unknown,
-) {
-  return (event: React.UIEvent<HTMLElement>) => {
-    const el = event.currentTarget;
-    if (
-      loadMore.hasMore &&
-      !loadMore.loading &&
-      !error &&
-      el.scrollHeight - el.scrollTop - el.clientHeight < 48
-    )
-      loadMore.onLoadMore();
+type Paging = { hasMore: boolean; loading?: boolean; onLoadMore: () => void };
+
+/**
+ * Pages on scroll: the next page loads as the list nears its end — and at once while the list
+ * does not fill its box (a page the host's `exclude` emptied), so every page stays reachable.
+ */
+function usePaging(paging: Paging, error: unknown, rows: number) {
+  const ref = React.useRef<HTMLDivElement | null>(null);
+  const near = (el: HTMLElement) =>
+    el.scrollHeight - el.scrollTop - el.clientHeight < 48;
+  const ready = paging.hasMore && !paging.loading && !error;
+  React.useEffect(() => {
+    if (ready && ref.current && near(ref.current)) paging.onLoadMore();
+  }, [ready, rows, paging]);
+  return {
+    ref,
+    onScroll: (event: React.UIEvent<HTMLElement>) => {
+      if (ready && near(event.currentTarget)) paging.onLoadMore();
+    },
   };
+}
+
+/** Under the rows: skeleton rows while the next page loads, or the failure with Try again. */
+function PeoplePickerTail({
+  paging,
+  error,
+  rows,
+}: {
+  paging: Paging;
+  error: React.ReactNode | undefined;
+  rows: number;
+}) {
+  if (error)
+    return (
+      <div
+        role="alert"
+        data-slot="people-picker-error"
+        // Enter and Space on Try again are the button's, never the list's (cmdk picks on Enter).
+        onKeyDown={(event) => event.stopPropagation()}
+        className="flex items-center justify-between gap-2 px-2 py-1.5 text-sm"
+      >
+        <span className="min-w-0 text-destructive-text">{error}</span>
+        <Button
+          type="button"
+          size="xs"
+          variant="outline"
+          onClick={paging.onLoadMore}
+        >
+          Try again
+        </Button>
+      </div>
+    );
+  return paging.loading && rows > 0 ? <PeoplePickerSkeleton rows={2} /> : null;
 }
 
 /** Props for `PeoplePickerContent`. */
@@ -355,6 +397,7 @@ export function PeoplePickerContent({
 }: PeoplePickerContentProps) {
   const { rows, query, onSearchChange, loading, error, loadMore, checked } =
     usePeopleList(list, pinned);
+  const paging = usePaging(loadMore, error, rows.length);
   return (
     <Command
       shouldFilter={false}
@@ -368,19 +411,14 @@ export function PeoplePickerContent({
         onValueChange={onSearchChange}
       />
       <CommandList
-        aria-busy={loading || undefined}
-        onScroll={onNearEnd(loadMore, error)}
+        ref={paging.ref}
+        aria-busy={loading || loadMore.loading || undefined}
+        onScroll={paging.onScroll}
       >
         {loading ? (
           <PeoplePickerSkeleton />
-        ) : (
-          <CommandEmpty>
-            {error ? (
-              <span className="text-destructive-text">{error}</span>
-            ) : (
-              emptyText
-            )}
-          </CommandEmpty>
+        ) : error ? null : (
+          <CommandEmpty>{emptyText}</CommandEmpty>
         )}
         {rows.length > 0 ? (
           <CommandGroup>
@@ -393,16 +431,16 @@ export function PeoplePickerContent({
                 data-checked={checked.has(option.id) ? "true" : undefined}
                 onSelect={() => onSelect(option)}
               >
-                <PeoplePickerRow option={option} {...list} />
+                <PeoplePickerRow
+                  option={option}
+                  checked={checked.has(option.id)}
+                  {...list}
+                />
               </CommandItem>
             ))}
           </CommandGroup>
         ) : null}
-        {rows.length > 0 && (error || loadMore.hasMore) ? (
-          <div className="px-1 py-1">
-            <LoadMore {...loadMore} error={error} />
-          </div>
-        ) : null}
+        <PeoplePickerTail paging={loadMore} error={error} rows={rows.length} />
         {actions.length > 0 ? (
           <CommandActions>
             {actions.map((action) => (
@@ -448,6 +486,7 @@ export function PeoplePickerMenu({
 }: PeoplePickerMenuProps) {
   const { rows, query, onSearchChange, loading, error, loadMore, checked } =
     usePeopleList(list);
+  const paging = usePaging(loadMore, error, rows.length);
   return (
     <>
       <PanelSearch>
@@ -465,8 +504,9 @@ export function PeoplePickerMenu({
       </PanelSearch>
       <PanelList
         data-slot="people-picker-menu"
-        aria-busy={loading || undefined}
-        onScroll={onNearEnd(loadMore, error)}
+        ref={paging.ref}
+        aria-busy={loading || loadMore.loading || undefined}
+        onScroll={paging.onScroll}
       >
         {loading ? <PeoplePickerSkeleton /> : null}
         {rows.map((option) => (
@@ -477,21 +517,19 @@ export function PeoplePickerMenu({
             disabled={checked.has(option.id)}
             onClick={() => onSelect(option)}
           >
-            <PeoplePickerRow option={option} {...list} />
+            <PeoplePickerRow
+              option={option}
+              checked={checked.has(option.id)}
+              {...list}
+            />
           </DropdownMenuItem>
         ))}
-        {!loading && rows.length === 0 ? (
+        {!loading && !error && rows.length === 0 ? (
           <p className="px-2 py-1.5 text-sm text-muted-foreground">
-            {error ? (
-              <span className="text-destructive-text">{error}</span>
-            ) : (
-              emptyText
-            )}
+            {emptyText}
           </p>
         ) : null}
-        {rows.length > 0 && (error || loadMore.hasMore) ? (
-          <LoadMore {...loadMore} error={error} />
-        ) : null}
+        <PeoplePickerTail paging={loadMore} error={error} rows={rows.length} />
       </PanelList>
     </>
   );
@@ -604,8 +642,16 @@ export function PeoplePicker<Multiple extends boolean | undefined = false>({
     : value
       ? [value as PeoplePickerOption]
       : [];
-  // The rows pinned on top are the choice as the popover opened, so a toggle never moves a row.
-  const [pinned, setPinned] = React.useState<PeoplePickerOption[]>([]);
+  // The rows pinned on top are the choice as the popover opened, so a toggle never moves a row —
+  // whoever opens it (the trigger, or a host's controlled `open`).
+  const [pinned, setPinned] = React.useState<PeoplePickerOption[]>(() =>
+    open ? chosen : [],
+  );
+  const [wasOpen, setWasOpen] = React.useState(open);
+  if (open !== wasOpen) {
+    setWasOpen(open);
+    if (open) setPinned(chosen);
+  }
   const text = placeholder ?? (multiple ? "Add people…" : "Select a person");
   const face = chosen.length > 0 ? namesOf(chosen) : text;
 
@@ -624,13 +670,7 @@ export function PeoplePicker<Multiple extends boolean | undefined = false>({
   };
 
   return (
-    <Popover
-      open={open}
-      onOpenChange={(next) => {
-        if (next) setPinned(chosen);
-        setOpen(next);
-      }}
-    >
+    <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger
         disabled={disabled}
         render={

@@ -16697,7 +16697,6 @@
         "@vegastack/button",
         "@vegastack/command",
         "@vegastack/dropdown-menu",
-        "@vegastack/load-more",
         "@vegastack/panel-search",
         "@vegastack/person-avatar",
         "@vegastack/popover",
@@ -16716,7 +16715,7 @@
         "whenToUse": "Choose a person (assignee, owner, manager) or several people and teams (members of a team or space, a share invite), or filter by person — every people picker.",
         "whenNotToUse": "Type free-form tokens such as emails (ChipInput), or pick non-person records (SearchableSelect).",
         "version": "0.25.11",
-        "integrity": "sha256-VDPaD8X3soChvrOF1VhrMTC6l2jL1DKRb8N8TMq7GNw="
+        "integrity": "sha256-s8FQX/7txMrMjKtiYjyuQ83txXWpf1ITax4zw+Uciig="
       }
     },
     {

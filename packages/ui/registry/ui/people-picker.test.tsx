@@ -257,3 +257,21 @@ test("menu: the same rows inside a dropdown submenu", async () => {
   await screen.getByRole("menuitem", { name: /Asha Rao/ }).click();
   expect(onSelect).toHaveBeenCalledWith(DIRECTORY[0]);
 });
+
+test("a failed search shows Try again, which retries without picking a row", async () => {
+  let fail = true;
+  const flaky: PeoplePickerSearch = (query, context) =>
+    fail ? Promise.reject(new Error("down")) : search(query, context);
+  const onChange = vi.fn();
+  const screen = await render(<Single searchFn={flaky} onChange={onChange} />);
+  await screen.getByRole("button", { name: "Owner" }).click();
+  const retry = screen.getByRole("button", { name: "Try again" });
+  await expect.element(retry).toBeVisible();
+  fail = false;
+  (retry.element() as HTMLElement).focus();
+  await userEvent.keyboard("{Enter}");
+  await expect
+    .element(screen.getByRole("option", { name: /Asha Rao/ }))
+    .toBeVisible();
+  expect(onChange).not.toHaveBeenCalled();
+});

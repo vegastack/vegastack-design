@@ -13481,7 +13481,6 @@
         "@vegastack/button",
         "@vegastack/command",
         "@vegastack/dropdown-menu",
-        "@vegastack/load-more",
         "@vegastack/panel-search",
         "@vegastack/person-avatar",
         "@vegastack/popover",
