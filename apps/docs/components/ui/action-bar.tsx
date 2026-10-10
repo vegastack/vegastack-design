@@ -1,4 +1,4 @@
-// @vegastack action-bar@0.25.12 sha256-8Wqv8mqn7EInSO9oKfpzpP5dPaM3fmu0KT5AHiwan7s=
+// @vegastack action-bar@0.25.13 sha256-Rhnpse6aV2cfqT/f0vocVZrLFz+du/Mqm1cjrTVb7SY=
 
 "use client";
 

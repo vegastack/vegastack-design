@@ -9,6 +9,20 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.25.13] — October 11, 2026
+
+<!-- assembled from 1 changeset: 0d606c789004 -->
+
+### 🧩 New components
+
+- **DataList**: `keyboardNavigation` gives a page's main list a row cursor. J or ↓ and K or ↑ move it, Enter opens the cursor row, and Escape clears it. The cursor wears the keyboard-focus cue (the hover wash and the 2px start edge) and follows the mouse. `cursorId` and `onCursorChange` give a host with its own keys the same cue. A row link that gets focus back, for example when a drawer opened from it closes, no longer paints a rounded grey box behind the first cell. **SortableList**: a `header` row above the list, full width, for an add field whose new value goes first, and `flush` rows with no hover wash or side padding, for rows that hold their own bordered input.
+  [docs](https://design.vegastack.com/docs/components/data-list) ·
+  [`c01155a`](https://github.com/VegaStack/vegastack-design/commit/c01155a)
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.25.12 → 0.25.13.
+
 ## [0.25.12] — October 11, 2026
 
 <!-- assembled from 2 changesets: 1433224bd042 -->
