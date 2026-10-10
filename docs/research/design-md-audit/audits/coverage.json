@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "92c56e68647455c38b349dc4ba09aef8023115b9ce925dba375202143a47929b",
+  "contractSha256": "51611172338e7cfcc1706547a466ff8d215f707b6e13ee26957a53e886a1ba54",
   "inventory": {
     "expected": 737,
     "actual": 737,
@@ -70,7 +70,7 @@
         "native-select",
         "number-field",
         "password-input",
-        "people-input",
+        "people-picker",
         "record-chip",
         "region-select",
         "search-input",

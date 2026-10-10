@@ -40,7 +40,7 @@ starts with `icon-` is a component and never an icon.
 - **`native-select`** — The platform <select>, tokenized — the OS picker on mobile, with option groups.
 - **`number-field`** — Locale-aware numeric input on Base UI's NumberField in upstream's InputGroup chrome, with full-height flanking steppers.
 - **`password-input`** — A password field with a show/hide toggle, composed from InputGroup, forwarding native input props and the ref to the inner input.
-- **`people-input`** — Add people or teams as removable chips, searched as you type — a Combobox chips field over the host's async search, listing PersonOption rows with person and team avatars.
+- **`people-picker`** — The one picker for people and teams — a field (single or multiple), a popover body for a host trigger, or a dropdown submenu — with avatar rows, "(you)", team sizes, skeleton loading, footer actions and active people only.
 - **`radio-group`** — Mutually-exclusive options with arrow-key navigation and a 24px invisible hit area (A11Y-2).
 - **`record-chip`** — A pill that shows the record something belongs to and picks another: icon, name and a chevron as a picker trigger, plus an arrow link to the record.
 - **`region-select`** — A searchable picker of states/provinces for a country, with a free-text fallback for countries with no subdivisions. A thin wrapper over SearchableSelect fed by the geo-data item.

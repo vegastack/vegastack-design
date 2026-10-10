@@ -1,4 +1,4 @@
-// @vegastack share-dialog@0.25.13 sha256-HdDgNjZ9yecyqi2ueQAV5mx0d0zO5v6UwjpX/256Qn4=
+// @vegastack share-dialog@0.25.13 sha256-nh1jwuJ7dYSmq3g0tMOBRRTPPhZtblQ0l+W8GuHinzA=
 
 "use client";
 
@@ -33,10 +33,10 @@ import {
   ItemTitle,
 } from "@/components/ui/item";
 import {
-  PeopleInput,
-  type PeopleInputOption,
-  type PeopleInputProps,
-} from "@/components/ui/people-input";
+  PeoplePicker,
+  type PeoplePickerOption,
+  type PeoplePickerSearch,
+} from "@/components/ui/people-picker";
 import {
   PermissionMenu,
   type PermissionMenuOption,
@@ -75,7 +75,7 @@ import {
  * in through props and every change goes out through a callback. A `ResponsiveDialog` (`md`, 512px)
  * on wide screens and a bottom sheet on phones, with two tabs:
  *
- *   Share — an invite row (PeopleInput + the level for the batch + Invite; while chips exist,
+ *   Share — an invite row (PeoplePicker + the level for the batch + Invite; while people are chosen,
  *   Notify and an optional message), People with access (each level a chip menu; built-in rows
  *   locked with the reason in a tooltip), Space access, and a footer "Copy link" for the item's
  *   own (signed-in) link.
@@ -112,7 +112,7 @@ export interface ShareEntry {
 /** What `onInvite` receives. */
 export interface ShareInvite {
   /** The people and teams to add. */
-  invitees: PeopleInputOption[];
+  invitees: PeoplePickerOption[];
   /** The one level given to all of them. */
   level: string;
   /** Notify them. */
@@ -287,14 +287,14 @@ export interface ShareDialogProps {
   canPublish?: boolean;
   /** People with access is still loading; skeleton rows show. @default false */
   loading?: boolean;
-  /** Finds people and teams to invite — `PeopleInput`'s `search`. Omit to hide the invite row. @default undefined */
-  search?: PeopleInputProps["search"];
+  /** Finds people and teams to invite — `PeoplePicker`'s `search`. Omit to hide the invite row. @default undefined */
+  search?: PeoplePickerSearch;
   /**
    * People and teams already chosen to invite — the dialog opens in invite mode. Reactive: when it
    * changes (compared by id), the chips are replaced with it; edits made since the last change stay
    * until then. @default []
    */
-  defaultInvitees?: PeopleInputOption[];
+  defaultInvitees?: PeoplePickerOption[];
   /** The level an invite starts at. @default the last of `levels` */
   defaultInviteLevel?: string;
   /**
@@ -467,7 +467,7 @@ export function ShareDialog({
   }
 
   const [invitees, setInvitees] =
-    React.useState<PeopleInputOption[]>(defaultInvitees);
+    React.useState<PeoplePickerOption[]>(defaultInvitees);
   // Re-sync the chips when `defaultInvitees` changes — by ids, so a fresh array with the same
   // people each render is not a change and never clobbers what the viewer has edited since.
   const defaultInviteesKey = defaultInvitees
@@ -532,7 +532,8 @@ export function ShareDialog({
         className="flex flex-col gap-2 @md/share:flex-row @md/share:items-start"
       >
         <div className="min-w-0 flex-1">
-          <PeopleInput
+          <PeoplePicker
+            multiple
             value={invitees}
             onValueChange={setInvitees}
             search={search}

@@ -7,10 +7,12 @@ import { beforeEach, expect, onTestFinished, test, vi } from "vitest";
 import { page, userEvent } from "vitest/browser";
 import { Flag } from "lucide-react";
 import { expectNoA11yViolations } from "../../test/a11y";
+import type { PeoplePickerOption } from "./people-picker";
 import {
   DateRangeFilter,
   FilterBar,
   FilterBarFacet,
+  FilterBarPeopleFacet,
   FilterChip,
   type FilterBarFilter,
   type FilterBarProps,
@@ -1013,4 +1015,36 @@ test("the custom date range calendar highlights the caller's explicit today", as
         ?.getAttribute("data-day"),
     )
     .toBe("2026-01-12");
+});
+
+test("FilterBarPeopleFacet: the people picker under a facet chip", async () => {
+  const people: PeoplePickerOption[] = [
+    { id: "u1", name: "Asha Rao", email: "asha@acme.com" },
+    { id: "u2", name: "Dev Menon", email: "dev@acme.com" },
+  ];
+  function Harness() {
+    const [value, setValue] = React.useState<typeof people>([]);
+    return (
+      <FilterBarPeopleFacet
+        label="Assignee"
+        multiple
+        value={value}
+        onValueChange={setValue}
+        options={people}
+        viewerId="u2"
+      />
+    );
+  }
+  const screen = await render(<Harness />);
+  const chip = () =>
+    screen.container.querySelector<HTMLElement>(
+      '[data-slot="filter-bar-facet-select-trigger"]',
+    )!;
+  chip().click();
+  await page.getByRole("option", { name: /Dev Menon/ }).click();
+  await page.getByRole("option", { name: /Asha Rao/ }).click();
+  await vi.waitFor(() => expect(chip().textContent).toContain("Assignee: 2"));
+  await userEvent.keyboard("{Escape}");
+  await page.getByRole("button", { name: "Clear Assignee" }).click();
+  await vi.waitFor(() => expect(chip().textContent).toBe("Assignee"));
 });

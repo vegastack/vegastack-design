@@ -1,4 +1,4 @@
-// @vegastack permission-menu@0.25.13 sha256-nHpHO/nIH+SIJcoN/atAWu+hLAC7m9jDPL5ycEBcltA=
+// @vegastack permission-menu@0.25.13 sha256-wlkepjo9tsGrpe8Zx7q0De3+3LuA7Q9+dZ82Aee+CLU=
 
 import * as React from "react";
 import { ChevronDownIcon, LockIcon } from "lucide-react";
@@ -27,7 +27,7 @@ import {
  *
  * Three trigger looks: `ghost` (the original quiet button), `chip` (a 28px property chip for a
  * people row — the tint on hover and a ▾ that says it opens) and `outline` (a bordered 32px control
- * that lines up with `Input`, `PeopleInput` and `Button` in a form row). A built-in row (the
+ * that lines up with `Input`, `PeoplePicker` and `Button` in a form row). A built-in row (the
  * creator, an assignee) is `locked`: a lock and the level, still a tab stop, with a tooltip that
  * says why it cannot change ("Set by role: Creator"). `readOnly` is plain muted text, no menu.
  * ----------------------------------------------------------------------------------------------*/

@@ -1,0 +1,146 @@
+---
+title: People Picker
+description: The one picker for people and teams — single or multiple, with avatar rows, "(you)", team sizes, skeleton loading and footer actions.
+audience: public
+registry: people-picker
+status: stable
+since: 0.23.112
+a11y: popover over a cmdk listbox; the trigger is a named button
+preview: peoplePicker
+---
+
+## Install
+
+<InstallSteps name="people-picker" />
+
+## Usage
+
+```tsx
+import {
+  PeoplePicker,
+  type PeoplePickerOption,
+} from "@/components/ui/people-picker";
+
+const [assignee, setAssignee] = React.useState<PeoplePickerOption | null>(null);
+
+<PeoplePicker
+  value={assignee}
+  onValueChange={setAssignee}
+  search={(query, { cursor, signal }) => searchMembers(query, cursor, signal)}
+  viewerId={me.id}
+/>;
+```
+
+Every surface that chooses people composes this one component, so a row reads the same everywhere:
+the avatar on the left, the name (the viewer's reads "(you)" and is listed first), then the email,
+a `description`, or "Team · N people" in a smaller truncated line. `search` is a
+`useAsyncSearch` loader — debounced, race-safe and paged on scroll (return `nextCursor`); pass
+`options` instead for a fixed list. While the first page loads the list shows skeleton rows, never
+a spinner.
+
+Only active people are listed. An option with `active: false` (deactivated, or invited and not yet
+joined) is left out unless the host passes `includeInactive`, which badges it "Inactive". The
+host's search should leave them out as well — the picker is the second line of that rule.
+
+<ComponentPreview
+  name="peoplePicker"
+  file="components/preview/people-picker.tsx"
+/>
+
+## Scope
+
+- Owns: the trigger, the popover, the search state, the person and team rows, "(you)", the
+  skeleton, paging and the footer actions.
+- Does not own: the directory or who may be chosen — `search` returns only people who can be.
+- Three hosts share the rows: `PeoplePicker` (a field), `PeoplePickerContent` (the popover body for
+  a trigger the host owns, such as a `RecordChip`) and `PeoplePickerMenu` (a `DropdownMenu` submenu,
+  "Assign ›"). `FilterBarPeopleFacet` puts the same body under a filter chip.
+
+## Anatomy
+
+<Anatomy name="people-picker" />
+
+## Examples
+
+### Several people and teams
+
+`multiple`: rows toggle and the popover stays open; the trigger reads the chosen names. The trigger
+is exactly as tall as the `PermissionMenu` and `Button` beside it.
+
+<ComponentPreview
+  name="peoplePickerMultiple"
+  file="components/preview/people-picker.tsx"
+/>
+
+### Sizes
+
+`size` is `sm`, `default` or `lg` — the same heights as `Button` and `Select`.
+
+<ComponentPreview
+  name="peoplePickerSizes"
+  file="components/preview/people-picker.tsx"
+/>
+
+### A host-owned trigger
+
+`PeoplePickerContent` inside a `PopoverContent` (`w-72 p-0`), here with a fixed list and
+`includeInactive`.
+
+<ComponentPreview
+  name="peoplePickerContent"
+  file="components/preview/people-picker.tsx"
+/>
+
+## API Reference
+
+<ApiTable
+  path="../../packages/ui/registry/ui/people-picker.tsx"
+  name="PeoplePickerProps"
+/>
+
+### PeoplePickerListProps
+
+The list props every host shares.
+
+<ApiTable
+  path="../../packages/ui/registry/ui/people-picker.tsx"
+  name="PeoplePickerListProps"
+/>
+
+### PeoplePickerOption
+
+A `Person` (from `person-avatar`) with a stable `id`; `kind: "team"` draws it as a team.
+
+<ApiTable
+  path="../../packages/ui/registry/ui/people-picker.tsx"
+  name="PeoplePickerOption"
+/>
+
+## Accessibility
+
+- The trigger is a button named by its label, `aria-label`, or the choice; the popover holds a
+  search field and a listbox of options.
+- The footer actions are options after the results; a search never highlights them, so Enter never
+  runs "Assign to me" after a typo.
+- The skeleton rows are `aria-hidden`; the list is `aria-busy` while it loads.
+
+| Key                         | Action                                    |
+| --------------------------- | ----------------------------------------- |
+| <kbd>Enter</kbd>            | Open the picker; pick the highlighted row |
+| Type                        | Search                                    |
+| <kbd>↑</kbd> / <kbd>↓</kbd> | Move through results and actions          |
+| <kbd>Esc</kbd>              | Close                                     |
+
+<StatesTested name="people-picker" />
+
+## Do / Don't
+
+<DoDont
+  do="Use PeoplePicker for every person, people-and-teams and person-filter choice."
+  dont="Build a person list from Command, Combobox or SearchableSelect rows of your own."
+/>
+
+<DoDont
+  do="Leave deactivated and invited people out of search; opt in with includeInactive only where a past person must be found."
+  dont="Offer people who cannot be assigned, added or shared with."
+/>

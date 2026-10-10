@@ -2362,13 +2362,14 @@
       ],
       "registryDependencies": [
         "@vegastack/button",
+        "@vegastack/calendar",
         "@vegastack/chip",
+        "@vegastack/date-time",
         "@vegastack/dropdown-menu",
+        "@vegastack/people-picker",
         "@vegastack/popover",
         "@vegastack/search-input",
-        "@vegastack/searchable-select",
-        "@vegastack/calendar",
-        "@vegastack/date-time"
+        "@vegastack/searchable-select"
       ],
       "files": [
         {
@@ -2381,7 +2382,7 @@
         "whenToUse": "Filter toolbars for lists/tables — 'Label: value' chips that edit in place, facets on SearchableSelect, an Add-filter menu and a settled search, at the end or first.",
         "whenNotToUse": "A single search box (Input), value selection (Select), or unrelated row actions.",
         "version": "0.25.13",
-        "integrity": "sha256-hefgb0F14Lq1Z+z1aLx4U2lENEPDlCoCfk3r8FSaEVk="
+        "integrity": "sha256-3IaIlWmN5/zRRbmiH1a5HSVJLBUido7C30ww1ypZC4Y="
       }
     },
     {
@@ -16640,8 +16641,9 @@
         "whenToUse": "Heterogeneous key→value panes (record details, metadata sidebars).",
         "whenNotToUse": "Homogeneous collections (DataList/Table) or form editing (Field).",
         "version": "0.25.13",
-        "integrity": "sha256-bXwQ0vFglPiCP/qanKzB2k+Frpov+AG1hErbocit7f4="
-      }
+        "integrity": "sha256-D7AsKYiL1qMFfNlu2ngHRvGmoMzAkRycZ8Wo5UHEfZQ="
+      },
+      "registryDependencies": []
     },
     {
       "name": "person-hover-card",
@@ -16679,39 +16681,41 @@
       }
     },
     {
-      "name": "people-input",
+      "name": "people-picker",
       "type": "registry:ui",
-      "title": "People Input",
-      "description": "Add people or teams as removable chips, searched as you type — a Combobox chips field over the host's async search, listing PersonOption rows with person and team avatars.",
+      "title": "People Picker",
+      "description": "The one picker for people and teams — a field (single or multiple), a popover body for a host trigger, or a dropdown submenu — with avatar rows, \"(you)\", team sizes, skeleton loading, footer actions and active people only.",
       "categories": [
         "form"
       ],
       "dependencies": [
-        "@base-ui/react@^1.6.0",
         "lucide-react@^1.47.0",
         "@vegastack/design@^0.8.3",
         "@vegastack/design-tokens@^0.8.3"
       ],
       "registryDependencies": [
         "@vegastack/button",
-        "@vegastack/combobox",
+        "@vegastack/command",
+        "@vegastack/dropdown-menu",
+        "@vegastack/panel-search",
         "@vegastack/person-avatar",
+        "@vegastack/popover",
         "@vegastack/searchable-select",
-        "@vegastack/spinner",
+        "@vegastack/skeleton",
         "@vegastack/use-async-search"
       ],
       "files": [
         {
-          "path": "packages/ui/registry/ui/people-input.tsx",
+          "path": "packages/ui/registry/ui/people-picker.tsx",
           "type": "registry:ui",
-          "target": "@ui/people-input.tsx"
+          "target": "@ui/people-picker.tsx"
         }
       ],
       "meta": {
-        "whenToUse": "Invite or add several people and teams at once from a directory search — a share dialog, adding members to a space or team.",
-        "whenNotToUse": "Pick one person (SearchableSelect with itemToAvatar), or type free-form tokens such as emails (ChipInput).",
+        "whenToUse": "Choose a person (assignee, owner, manager) or several people and teams (members of a team or space, a share invite), or filter by person — every people picker.",
+        "whenNotToUse": "Type free-form tokens such as emails (ChipInput), or pick non-person records (SearchableSelect).",
         "version": "0.25.13",
-        "integrity": "sha256-IpgME7R3JBU7Px5rFLWugZTPw6uXae0gZngAA8pG0BI="
+        "integrity": "sha256-/FTcaCC0Z6J0MCKNkZ1msIn3R0vT1sar+yZvLr/H0WU="
       }
     },
     {
@@ -16744,7 +16748,7 @@
         "whenToUse": "Choose or show the access level of one person, team or group on a sharing or membership row.",
         "whenNotToUse": "A form field choosing a value (Select), or a row's general actions (DropdownMenu or RowActionMenu).",
         "version": "0.25.13",
-        "integrity": "sha256-nHpHO/nIH+SIJcoN/atAWu+hLAC7m9jDPL5ycEBcltA="
+        "integrity": "sha256-wlkepjo9tsGrpe8Zx7q0De3+3LuA7Q9+dZ82Aee+CLU="
       }
     },
     {
@@ -18771,7 +18775,7 @@
         "@vegastack/icon-glyph",
         "@vegastack/input-group",
         "@vegastack/item",
-        "@vegastack/people-input",
+        "@vegastack/people-picker",
         "@vegastack/permission-menu",
         "@vegastack/person-avatar",
         "@vegastack/responsive-dialog",
@@ -18792,9 +18796,9 @@
       ],
       "meta": {
         "whenToUse": "Share a record, page or meeting with people and teams, set its space access and publish it to the web — canManage gates access changes and canPublish the Publish tab.",
-        "whenNotToUse": "Manage a space's or team's members as a page — compose DataList with PeopleInput and PermissionMenu.",
+        "whenNotToUse": "Manage a space's or team's members as a page — compose DataList with PeoplePicker and PermissionMenu.",
         "version": "0.25.13",
-        "integrity": "sha256-HdDgNjZ9yecyqi2ueQAV5mx0d0zO5v6UwjpX/256Qn4="
+        "integrity": "sha256-nh1jwuJ7dYSmq3g0tMOBRRTPPhZtblQ0l+W8GuHinzA="
       }
     },
     {
@@ -18812,7 +18816,7 @@
       ],
       "registryDependencies": [
         "@vegastack/button",
-        "@vegastack/people-input",
+        "@vegastack/people-picker",
         "@vegastack/share-dialog",
         "@vegastack/space-picker"
       ],
@@ -18830,9 +18834,9 @@
       ],
       "meta": {
         "whenToUse": "Share a record, page or meeting with people and teams, set its general access and turn a public link on or off.",
-        "whenNotToUse": "Manage a space's or team's members as a page — compose DataList with PeopleInput and PermissionMenu.",
+        "whenNotToUse": "Manage a space's or team's members as a page — compose DataList with PeoplePicker and PermissionMenu.",
         "version": "0.25.13",
-        "integrity": "sha256-93WfuOAdAQPTp4d+AABkF9KRkzeAG/WjvsAO5j7rI8w="
+        "integrity": "sha256-0e2THJBdpNlSS0en0lXeV1Um2VZMHK7fTvQGlEI88a4="
       }
     },
     {

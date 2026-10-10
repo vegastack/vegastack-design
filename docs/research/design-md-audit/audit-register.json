@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "kind": "vegastack-zero-gap-audit-register",
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "92c56e68647455c38b349dc4ba09aef8023115b9ce925dba375202143a47929b",
+  "contractSha256": "51611172338e7cfcc1706547a466ff8d215f707b6e13ee26957a53e886a1ba54",
   "expectedCounts": {
     "totalRegistryItems": 737,
     "components": 156,
@@ -1605,14 +1605,14 @@
       "contractStatus": "reconciled"
     },
     {
-      "name": "people-input",
+      "name": "people-picker",
       "inventoryClass": "component",
       "wave": "Forms/editing",
       "family": "form",
       "sourceFiles": [
-        "packages/ui/registry/ui/people-input.tsx"
+        "packages/ui/registry/ui/people-picker.tsx"
       ],
-      "docsSlug": "/docs/components/people-input",
+      "docsSlug": "/docs/components/people-picker",
       "contractStatus": "reconciled"
     },
     {

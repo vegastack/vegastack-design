@@ -44,7 +44,7 @@ tab stop, for a viewer who can change nothing. Descriptions wrap to two lines in
 - Owns: the trigger, the level list with descriptions and the check, Remove access, the read-only
   text.
 - Does not own: what a level means or saving it — `onValueChange` and `onRemove` are the host's.
-- Compose with: `PersonAvatar` and `PeopleInput` in a share dialog (`share-01`).
+- Compose with: `PersonAvatar` and `PeoplePicker` in a share dialog (`share-01`).
 
 ## Examples
 
@@ -61,7 +61,7 @@ Without descriptions the menu is a plain radio list; `size="default"` takes the 
 
 `variant="chip"` (28px) is the people-row control: body-ink text, the tint on hover and a ▾ that is
 always drawn. `variant="outline"` is a bordered 32px control that lines up with `Input`,
-`PeopleInput` and `Button` in a form row. The default `size` follows the variant (`outline` →
+`PeoplePicker` and `Button` in a form row. The default `size` follows the variant (`outline` →
 `default`, the rest → `sm`). `ghost` stays the quiet original.
 
 <ComponentPreview

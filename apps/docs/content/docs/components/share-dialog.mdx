@@ -39,7 +39,7 @@ import { ShareDialog } from "@/components/ui/share-dialog";
 goes out through a callback, so one dialog serves tasks, meetings and pages. It is a
 [`ResponsiveDialog`](/docs/components/responsive-dialog) — a `md` (512px) Dialog from 768px up and a
 bottom sheet below it — titled "Share", with two line tabs. **Share** holds the invite row
-([`PeopleInput`](/docs/components/people-input) with one
+([`PeoplePicker`](/docs/components/people-picker) with one
 [`PermissionMenu`](/docs/components/permission-menu) level for the batch), People with access and
 Space access, with **Copy link** for the item's own link in the footer. **Publish** holds a
 "Publish to the web" switch, off by default — the only control that calls `onCreatePublicLink`;
@@ -51,12 +51,12 @@ try it on.
 
 ## Scope
 
-| Need                                                 | Use                                                                                 |
-| ---------------------------------------------------- | ----------------------------------------------------------------------------------- |
-| Share one record, page or meeting                    | `ShareDialog`                                                                       |
-| A page of a space's or team's members                | `DataList` with [`PeopleInput`](/docs/components/people-input) and `PermissionMenu` |
-| Show who can open an item, without changing it       | [`AccessChip`](/docs/components/access-chip)                                        |
-| Pick the access level for one person outside a share | [`PermissionMenu`](/docs/components/permission-menu)                                |
+| Need                                                 | Use                                                                                   |
+| ---------------------------------------------------- | ------------------------------------------------------------------------------------- |
+| Share one record, page or meeting                    | `ShareDialog`                                                                         |
+| A page of a space's or team's members                | `DataList` with [`PeoplePicker`](/docs/components/people-picker) and `PermissionMenu` |
+| Show who can open an item, without changing it       | [`AccessChip`](/docs/components/access-chip)                                          |
+| Pick the access level for one person outside a share | [`PermissionMenu`](/docs/components/permission-menu)                                  |
 
 ## Examples
 
