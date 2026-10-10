@@ -1,5 +1,11 @@
 # @vegastack/design-tokens
 
+## 0.8.3
+
+### Patch Changes
+
+- [#590](https://github.com/vegastack/vegastack-design/pull/590) [`c0140d4`](https://github.com/vegastack/vegastack-design/commit/c0140d41356de3ede973800c33ea43ea64ed1bd3) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🔧 Add the `gradient-spark` utility (a subtle purple to blue gradient from the theme-aware tag hues) and `stop-spark-from` / `stop-spark-to` for SVG gradient stops, so a stroked icon such as What's new can carry the same gradient in light and dark.
+
 ## 0.8.0
 
 ### Minor Changes
