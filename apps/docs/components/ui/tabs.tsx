@@ -1,4 +1,4 @@
-// @vegastack tabs@0.25.9 sha256-NSVaBESeXoie/fxy7mhtZsakc81k66U3/o9mDJYwnfs=
+// @vegastack tabs@0.25.9 sha256-SMwTYhw1D45Tc/rhsDL7mNpAh/4i1MBM6QhTg5wiOBY=
 
 "use client";
 
@@ -144,21 +144,33 @@ function TabsContent({
   onBlur,
   ...props
 }: TabsPrimitive.Panel.Props) {
+  // Set by a press and read by the focus it causes (pointerdown → mousedown → focus, one task).
+  const pressed = React.useRef(false);
   return (
     <TabsPrimitive.Panel
       data-slot="tabs-content"
       className={cn("flex-1 text-sm data-pointer-focus:bg-none", className)}
       onPointerDown={(event) => {
-        event.currentTarget.setAttribute("data-pointer-focus", "");
+        pressed.current = true;
+        setTimeout(() => {
+          pressed.current = false;
+        });
+        // Already focused (from the keyboard): a press on it is pointer focus from now on.
+        if (document.activeElement === event.currentTarget)
+          event.currentTarget.setAttribute("data-pointer-focus", "");
         onPointerDown?.(event);
       }}
       onFocus={(event) => {
-        if (event.target !== event.currentTarget)
-          event.currentTarget.removeAttribute("data-pointer-focus");
+        if (event.target === event.currentTarget && pressed.current)
+          event.currentTarget.setAttribute("data-pointer-focus", "");
+        else event.currentTarget.removeAttribute("data-pointer-focus");
         onFocus?.(event);
       }}
       onBlur={(event) => {
-        if (event.target === event.currentTarget)
+        if (
+          event.target === event.currentTarget ||
+          !event.currentTarget.contains(event.relatedTarget as Node | null)
+        )
           event.currentTarget.removeAttribute("data-pointer-focus");
         onBlur?.(event);
       }}

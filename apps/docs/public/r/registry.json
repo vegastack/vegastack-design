@@ -17531,7 +17531,7 @@
         "whenToUse": "User-orderable single lists and tile grids — settings sections, pipeline stages, attribute values with locked built-ins, editable rows with inline actions, ordered product photos and attachments — where the host persists (and may refuse) the order.",
         "whenNotToUse": "Cross-container card movement (board), selectable data tables (DataList — never mix selection with reordering), or read-only lists (ItemGroup).",
         "version": "0.25.9",
-        "integrity": "sha256-nbnhDKQbijGj34+JwuRguUxLxcGyuK9Pdwmgx3m352o="
+        "integrity": "sha256-RUTE0hw3dhOBUMdES7uX4y64RQ/uQbnkq6Vh7vM04yI="
       }
     },
     {
@@ -17804,7 +17804,7 @@
         "whenToUse": "Organize related content into peer sections the user switches between in place; a count after a trigger's label is an aria-hidden tabular number plus an sr-only suffix, so it reads as part of the tab's name. A line list scrolls sideways inside itself when the tabs outnumber the width; orientation=\"vertical\" suits a stable column of settings sections. For tabs that are separate pages, draw a nav of links from tabsListVariants and tabsTriggerVariants with aria-current=\"page\" (route tabs).",
         "whenNotToUse": "Sequential multi-step flows (stepper), single-select form input (radio/select), sections that must be visible at once, or page-level navigation rendered as a tablist — route tabs are links, not tabs.",
         "version": "0.25.9",
-        "integrity": "sha256-NSVaBESeXoie/fxy7mhtZsakc81k66U3/o9mDJYwnfs="
+        "integrity": "sha256-SMwTYhw1D45Tc/rhsDL7mNpAh/4i1MBM6QhTg5wiOBY="
       }
     },
     {

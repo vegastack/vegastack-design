@@ -1,4 +1,4 @@
-// @vegastack sortable-list@0.25.9 sha256-nbnhDKQbijGj34+JwuRguUxLxcGyuK9Pdwmgx3m352o=
+// @vegastack sortable-list@0.25.9 sha256-RUTE0hw3dhOBUMdES7uX4y64RQ/uQbnkq6Vh7vM04yI=
 
 "use client";
 
@@ -197,7 +197,8 @@ export interface SortableListProps<
    * A trailing row under the list (`layout="list"` only) laid on the rows' own grid: its content
    * starts where a row's content starts (after the handle gutter) and ends where it ends (before
    * the × gutter), so an "Add a value" field lines up with the values above it. It is not an item:
-   * it never drags, and it renders when `items` is empty too.
+   * it never drags, and it renders when `items` is empty too. Controls from `renderActions` have
+   * no fixed width, so the footer does not reserve room for them.
    * @default undefined
    */
   footer?: React.ReactNode;
@@ -571,11 +572,18 @@ export function SortableList<T extends SortableListItem = SortableListItem>({
             <span aria-hidden="true" className="size-7 shrink-0" />
           )}
           <div className="flex min-w-0 flex-1 items-center gap-2">{footer}</div>
-          {disabled ? null : onRemove !== undefined ? (
-            <span aria-hidden="true" className="w-6 shrink-0" />
-          ) : getItemActions !== undefined || menuItems !== undefined ? (
-            <span aria-hidden="true" className="w-7 shrink-0" />
-          ) : null}
+          {disabled ||
+          (onRemove === undefined &&
+            getItemActions === undefined &&
+            menuItems === undefined) ? null : (
+            // The rows' `ItemActions` column: × (icon-xs) and ⋯ (icon-sm), `gap-1` between.
+            <span aria-hidden="true" className="flex shrink-0 gap-1">
+              {onRemove !== undefined ? <span className="w-6" /> : null}
+              {getItemActions !== undefined || menuItems !== undefined ? (
+                <span className="w-7" />
+              ) : null}
+            </span>
+          )}
         </div>
       ) : null}
       {describeLocked ? (
