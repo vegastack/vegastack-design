@@ -1,4 +1,4 @@
-// @vegastack board@0.25.9 sha256-VlgShPuNGckMeozqk0oVyLZjt4PfAPimmFE++iM4Llw=
+// @vegastack board@0.25.9 sha256-CK6vCAHvHfLAL2sgn9Ac4zdvtrSPfDHSB5vyQzpOibY=
 
 "use client";
 
@@ -1271,6 +1271,8 @@ export function Board<T>({
         data-lifted={isLifted ? "" : undefined}
         data-drag-pending={pendingIds.has(id) ? "" : undefined}
         data-move-locked={movable ? undefined : ""}
+        // The card's first band leaves room for the ⋯ menu (`BoardCard` reads it).
+        data-board-card-menu={hasMenu ? "" : undefined}
         {...(canDrag ? pointerDrag.getSourceProps(id) : {})}
         className={cn(
           cardClasses,
@@ -1321,7 +1323,6 @@ export function Board<T>({
           data-slot="board-card-body"
           className={cn(
             "pointer-events-none relative min-w-0 [&_a]:pointer-events-auto [&_button]:pointer-events-auto [&_input]:pointer-events-auto [&_[role=checkbox]]:pointer-events-auto",
-            hasMenu && "pe-6",
           )}
         >
           <TruncationFocusProvider focusable={false}>
@@ -1342,7 +1343,7 @@ export function Board<T>({
                   // One card-layer tab stop per board: M (or Tab from the active card) reaches
                   // the menu.
                   tabIndex={rovingTarget === id ? 0 : -1}
-                  className="absolute end-2 top-2 z-10 opacity-0 transition-opacity group-hover/board-card:opacity-100 group-has-[[data-slot=board-card-surface]:focus-visible]/board-card:opacity-100 focus-visible:opacity-100 data-popup-open:opacity-100 pointer-coarse:opacity-100"
+                  className="absolute end-3 top-2.5 z-10 opacity-0 transition-opacity group-hover/board-card:opacity-100 group-has-[[data-slot=board-card-surface]:focus-visible]/board-card:opacity-100 focus-visible:opacity-100 data-popup-open:opacity-100 pointer-coarse:opacity-100"
                 >
                   <EllipsisVertical />
                 </Button>
@@ -1631,12 +1632,19 @@ export function Board<T>({
                   key={key}
                   className="flex flex-col gap-2 rounded-lg border border-border bg-card p-3"
                 >
-                  {/* The card's bands: the eyebrow, the title, a chip, then the footnote
-                      with the assignee at its end. */}
-                  <Skeleton className="h-3 w-1/3" />
-                  <Skeleton className="h-4 w-3/4" />
-                  <Skeleton className="h-5 w-16 rounded-4xl" />
-                  <div className="flex items-center gap-1.5">
+                  {/* The card's bands at their heights: the eyebrow over the status and
+                      title, a chip, then the footnote with the assignee at its end. */}
+                  <div className="flex flex-col gap-0.5">
+                    <div className="flex h-5 items-center pe-7">
+                      <Skeleton className="h-3 w-1/3" />
+                    </div>
+                    <div className="flex h-5 items-center gap-2">
+                      <Skeleton className="size-4 shrink-0 rounded-full" />
+                      <Skeleton className="h-3.5 w-3/4" />
+                    </div>
+                  </div>
+                  <Skeleton className="h-6 w-16 rounded-4xl" />
+                  <div className="flex h-6 items-center gap-1.5">
                     <Skeleton className="h-3 w-20" />
                     <Skeleton className="ms-auto size-6 rounded-full" />
                   </div>
@@ -1779,7 +1787,7 @@ export function Board<T>({
               settling ? "rotate-0" : "motion-safe:rotate-2",
             )}
           >
-            <div className="min-w-0 pe-6">
+            <div className="min-w-0" data-board-card-menu="">
               <TruncationFocusProvider focusable={false}>
                 {renderCard(dragItem.item, dragItem.column)}
               </TruncationFocusProvider>

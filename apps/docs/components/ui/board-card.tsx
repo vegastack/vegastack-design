@@ -1,4 +1,4 @@
-// @vegastack board-card@0.25.9 sha256-mBQ81xjisVEn8HAplWbMXIhYAVu0iXPTPkWoMx+V8u8=
+// @vegastack board-card@0.25.9 sha256-SfnvT13yxfguygT/9dk9A9vyZjLUu4gv3oBPLq22f/Y=
 
 "use client";
 
@@ -26,8 +26,12 @@ import { PersonCard } from "@/components/ui/person-hover-card";
 /* ---
 `BoardCard` is the content of one card on a `Board` lane (a task, a deal, a ticket): a round
 completion tick (or the host's status circle), a two-line title, a muted context line, and a bottom
-row of assignee, due date and priority. The tick or status sits inline before the title (a wrapped title wraps under itself, not under the
-tick); the eyebrow, context and bottom row start at the card's own edge, with no leading gutter. It is the default card of `DataList`'s board view and is also usable on its
+row of assignee, due date and priority. Every band — the eyebrow, the tick or status, the context,
+the chips and the footnote — starts at the card's own edge; the title follows the tick or status and
+a wrapped title hangs under its own first line (two lines, then an ellipsis). Each band keeps its
+height whether or not its neighbours exist, so cards on a lane share one rhythm. On a `Board` only
+the first band leaves room for the board's ⋯ menu; the bands under it, an avatar at the footnote's
+end included, run to the card's end padding. It is the default card of `DataList`'s board view and is also usable on its
 own (a card grid, a "my tasks" rail).
 
 On a `Board` the board owns the surface — the border, the hover tint, the focus cue, the drag, the
@@ -128,7 +132,8 @@ export interface BoardCardProps extends Omit<
   /**
    * A status control in place of the tick — the host's Status menu (a `StatusIcon` trigger that
    * opens the status menu on click and marks done on Alt-click), the same control its list rows
-   * use. It sits inline before the title; `done` still strikes the title.
+   * use. It sits at the card's edge before the title (a wrapped title hangs under its own first
+   * line); `done` still strikes the title.
    * @default undefined
    */
   status?: React.ReactNode;
@@ -351,20 +356,34 @@ export function BoardCard({
     >
       <div className="flex min-w-0 items-start gap-2">
         <div className="flex min-w-0 flex-1 flex-col gap-0.5">
+          {/* On a `Board` the card's first band leaves room for the board's ⋯ menu (on the
+              card's end padding, in line with an avatar below it); the bands under it run to
+              that padding. */}
           {eyebrow != null ? (
             <span
               data-slot="board-card-eyebrow"
-              className="min-w-0 truncate text-xs text-muted-foreground"
+              className="block h-5 min-w-0 truncate text-xs leading-5 text-muted-foreground in-data-board-card-menu:pe-7"
             >
               {eyebrow}
             </span>
           ) : null}
-          {/* The tick or status sits inline before the title; a wrapped title wraps under itself. */}
-          <div className="flex min-w-0 items-start gap-2">
+          {/* The tick or status leads the title; a wrapped title hangs under its own first
+              line, never under the status. */}
+          <div
+            className={cn(
+              "flex min-w-0 items-start gap-2",
+              eyebrow == null && "in-data-board-card-menu:pe-7",
+            )}
+          >
             {hasLead ? (
               <div
                 data-slot="board-card-lead"
-                className="relative z-10 flex h-5 shrink-0 items-center"
+                className={cn(
+                  "relative z-10 flex h-5 shrink-0 items-center",
+                  // A status trigger is an `icon-xs` button: its icon, not its hit area, meets
+                  // the card's edge, and the title keeps the tick's gap from it.
+                  status != null && "-ms-1 -me-1",
+                )}
               >
                 {status != null ? (
                   status
@@ -422,7 +441,7 @@ export function BoardCard({
         ) : null}
       </div>
       {hasFooter ? (
-        <div className="flex min-w-0 flex-col gap-1.5">
+        <div className="flex min-w-0 flex-col gap-2">
           {chips != null ? (
             <div
               data-slot="board-card-footer"
@@ -500,7 +519,7 @@ export function BoardCard({
           {footnote != null ? (
             <span
               data-slot="board-card-footnote"
-              className="min-w-0 truncate text-xs text-muted-foreground"
+              className="block h-6 min-w-0 truncate text-xs leading-6 text-muted-foreground"
             >
               {footnote}
             </span>
