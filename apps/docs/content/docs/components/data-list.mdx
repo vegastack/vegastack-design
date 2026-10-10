@@ -986,6 +986,15 @@ renders, and `RowAction` is one entry of either.
   its actions, and a polite announcement of the count as it changes. While nothing is selected it is
   `inert`, so its controls leave the tab order.
 - Dragging rows is pointer only; the keyboard path for a move is the host's own "Move…" action.
+- `keyboardNavigation` adds a row cursor for a page's main list: <kbd>J</kbd> / <kbd>↓</kbd> and
+  <kbd>K</kbd> / <kbd>↑</kbd> move it, <kbd>Enter</kbd> opens the cursor row
+  through its own link or row button, and <kbd>Esc</kbd> clears it. The cursor
+  wears the keyboard-focus cue (the hover wash and the 2px start edge) and
+  follows the mouse, so the keys carry on from the row under the pointer. The
+  keys stand down in text fields, in an open dialog or menu, and with
+  <kbd>⌘</kbd>/<kbd>Ctrl</kbd>/<kbd>Alt</kbd> held; the arrows act only from the
+  page body or inside the list. A host with its own keys passes `cursorId` and
+  `onCursorChange` for the same cue and mouse tracking.
 
 | Key                                                                        | Action                                                                                                           |
 | -------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
@@ -995,6 +1004,9 @@ renders, and `RowAction` is one entry of either.
 | <kbd>Space</kbd> on a row link                                             | Toggle that row's selection (`selectable`).                                                                      |
 | <kbd>⌘</kbd>/<kbd>Ctrl</kbd>+<kbd>A</kbd>                                  | Select every row, while focus is in the list and not in a text field (`selectable`).                             |
 | <kbd>Esc</kbd>                                                             | Clear the selection (`selectable`).                                                                              |
+| <kbd>J</kbd> / <kbd>↓</kbd>, <kbd>K</kbd> / <kbd>↑</kbd>                   | Move the row cursor down or up (`keyboardNavigation`).                                                           |
+| <kbd>Enter</kbd> with a row cursor                                         | Open the cursor row (`keyboardNavigation`).                                                                      |
+| <kbd>Esc</kbd> with a row cursor                                           | Clear the row cursor (`keyboardNavigation`).                                                                     |
 
 <StatesTested name="data-list" />
 

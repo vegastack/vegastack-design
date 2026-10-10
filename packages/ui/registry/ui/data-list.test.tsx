@@ -2579,3 +2579,81 @@ test("board view passes each section's icon and ⋯ actions, a header add button
   expect(onAdd).toHaveBeenCalledWith("today");
   await expect.element(screen.getByText("Hidden columns")).toBeInTheDocument();
 });
+
+test("keyboardNavigation: J/K and arrows move the cursor, Enter opens, Escape clears", async () => {
+  const onRowClick = vi.fn();
+  const onCursorChange = vi.fn();
+  const screen = await render(
+    <DataList
+      aria-label="People"
+      columns={columns}
+      data={data}
+      getRowId={(r) => r.id}
+      onRowClick={onRowClick}
+      onCursorChange={onCursorChange}
+      keyboardNavigation
+    />,
+  );
+  const row = (id: string) =>
+    document.querySelector(`[data-slot="data-list-row"][data-row-id="${id}"]`)!;
+  await userEvent.keyboard("j");
+  expect(row("a").hasAttribute("data-cursor")).toBe(true);
+  await userEvent.keyboard("{ArrowDown}");
+  expect(row("a").hasAttribute("data-cursor")).toBe(false);
+  expect(row("b").hasAttribute("data-cursor")).toBe(true);
+  await userEvent.keyboard("k");
+  expect(row("a").hasAttribute("data-cursor")).toBe(true);
+  await userEvent.keyboard("{Enter}");
+  expect(onRowClick).toHaveBeenCalledWith(data[0], 0);
+  await userEvent.keyboard("{Escape}");
+  expect(document.querySelector("[data-cursor]")).toBeNull();
+  expect(onCursorChange).toHaveBeenLastCalledWith(null);
+  await expectNoA11yViolations(screen.container);
+});
+
+test("keyboardNavigation: the cursor follows the pointer and ignores keys typed in a field", async () => {
+  const screen = await render(
+    <>
+      <input aria-label="Search" />
+      <DataList
+        aria-label="People"
+        columns={columns}
+        data={data}
+        getRowId={(r) => r.id}
+        keyboardNavigation
+      />
+    </>,
+  );
+  await userEvent.hover(screen.getByText("Cole"));
+  const cole = document.querySelector('[data-row-id="c"]')!;
+  expect(cole.hasAttribute("data-cursor")).toBe(true);
+  await userEvent.keyboard("k");
+  expect(
+    document.querySelector('[data-row-id="b"]')!.hasAttribute("data-cursor"),
+  ).toBe(true);
+  await userEvent.click(screen.getByRole("textbox", { name: "Search" }));
+  await userEvent.keyboard("j");
+  expect(
+    document.querySelector('[data-row-id="b"]')!.hasAttribute("data-cursor"),
+  ).toBe(true);
+});
+
+test("cursorId paints a controlled cursor without keyboardNavigation", async () => {
+  await render(
+    <DataList
+      aria-label="People"
+      columns={columns}
+      data={data}
+      getRowId={(r) => r.id}
+      cursorId="b"
+      onCursorChange={() => {}}
+    />,
+  );
+  expect(
+    document.querySelector('[data-row-id="b"]')!.hasAttribute("data-cursor"),
+  ).toBe(true);
+  await userEvent.keyboard("j");
+  expect(
+    document.querySelector('[data-row-id="b"]')!.hasAttribute("data-cursor"),
+  ).toBe(true);
+});

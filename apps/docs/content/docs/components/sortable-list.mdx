@@ -74,6 +74,10 @@ It sits on the rows' grid: its content starts after the handle gutter and stops 
 gutter, so the field is exactly as wide as the values above it. It never drags, and it renders
 when the list is empty too.
 
+`header` is the same kind of row above the list, full width with no gutters, for an add field
+whose new value is inserted first. `flush` drops the rows' hover wash and the side padding kept
+for it, so rows whose content is its own bordered control (an editable `Input`) run edge to edge.
+
 <ComponentPreview
   name="sortableListRemove"
   file="components/preview/sortable-list.tsx"

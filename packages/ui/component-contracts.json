@@ -22395,6 +22395,7 @@
                 "sortable-list-footer",
                 "sortable-list-handle",
                 "sortable-list-handle-spacer",
+                "sortable-list-header",
                 "sortable-list-item",
                 "sortable-list-remove"
               ]
