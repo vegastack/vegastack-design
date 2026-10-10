@@ -10,7 +10,7 @@
   "files": [
     {
       "path": "packages/ui/registry/ui/direction.tsx",
-      "content": "// @vegastack direction@0.25.14 sha256-iFOKr1ULXoG+0GFdNSjLBy5cnveWB9elU8kHqMhmuAU=\n\n\"use client\";\n\nexport {\n  DirectionProvider,\n  useDirection,\n} from \"@base-ui/react/direction-provider\";\n",
+      "content": "// @vegastack direction@0.25.15 sha256-2pM/r9eTXSZg9ERwbLAjtZHhRnWHrIThsLjeJQ4RyMw=\n\n\"use client\";\n\nexport {\n  DirectionProvider,\n  useDirection,\n} from \"@base-ui/react/direction-provider\";\n",
       "type": "registry:ui",
       "target": "@ui/direction.tsx"
     }
@@ -18,8 +18,8 @@
   "meta": {
     "whenToUse": "Rendering a right-to-left subtree, or reading the active direction inside a component.",
     "whenNotToUse": "Setting the document direction — that is the `dir` attribute on <html>.",
-    "version": "0.25.14",
-    "integrity": "sha256-iFOKr1ULXoG+0GFdNSjLBy5cnveWB9elU8kHqMhmuAU="
+    "version": "0.25.15",
+    "integrity": "sha256-2pM/r9eTXSZg9ERwbLAjtZHhRnWHrIThsLjeJQ4RyMw="
   },
   "categories": [
     "layout"

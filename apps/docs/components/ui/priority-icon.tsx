@@ -1,4 +1,4 @@
-// @vegastack priority-icon@0.25.14 sha256-Hvpb5BfWHkMgsAyuWBwAR4tPOQaxMTF5qXswm9GulbE=
+// @vegastack priority-icon@0.25.15 sha256-mP5jGgTsSEXU3/imj1eOP0lHM8W5hcwzDftzku+Sjfc=
 
 import * as React from "react";
 import { cva, type VariantProps } from "class-variance-authority";
