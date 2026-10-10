@@ -9,6 +9,24 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.25.11] — October 10, 2026
+
+<!-- assembled from 1 changeset: 0a7ac69eea97 -->
+
+### 🧩 New components
+
+- Add `ShareDialog` as an installable component, with `canPublish` and `hints`.
+
+  - `ShareDialog` — the Share dialog from the `share-01` block — is now its own component. Add it with `shadcn add @vegastack/share-dialog` (it installs to `components/ui/share-dialog.tsx`) and keep it current through the integrity flow instead of maintaining a copy. Every prop and type the block's dialog exported is unchanged.
+  - `canPublish` gates the Publish tab's controls (the switch, Reset, Expires and Stop publishing) separately from `canManage`, and follows `canManage` when unset.
+  - `hints` places an optional help node, such as an `InfoHint`, right after the People with access heading, the Space access heading and the Publish label.
+  - The `share-01` block now imports the dialog from `@/components/ui/share-dialog` and lists it as a registry dependency; its demo and page are unchanged.
+    [`461515f`](https://github.com/VegaStack/vegastack-design/commit/461515f)
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.25.10 → 0.25.11.
+
 ## [0.25.10] — October 10, 2026
 
 <!-- assembled from 3 changesets: 4f10f206944a -->

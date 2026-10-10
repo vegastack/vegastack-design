@@ -1,4 +1,4 @@
-// @vegastack comments@0.25.10 sha256-HIt78MMIGo/33P0P0UCKD3xbaybjIeCGBHVeG0F1YTo=
+// @vegastack comments@0.25.11 sha256-TNOMfixkxiGYvdNTusxSpC09OO8qyx5a22YxHlI08r0=
 
 "use client";
 
