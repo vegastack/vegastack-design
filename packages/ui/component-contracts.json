@@ -30685,7 +30685,6 @@
         "@vegastack/use-async-search"
       ],
       "npmDependencies": [
-        "@base-ui/react@^1.6.0",
         "@vegastack/design-tokens@^0.8.3",
         "@vegastack/design@^0.8.3",
         "lucide-react@^1.47.0"
