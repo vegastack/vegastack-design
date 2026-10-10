@@ -1,4 +1,4 @@
-// @vegastack use-inline-edit@0.25.8 sha256-22q6LzGARlmSn2GRto7h2HPimp1sMOfTpNrjKQUKCcU=
+// @vegastack use-inline-edit@0.25.8 sha256-NP6KFoLGmG9pe1wH+pbEXeVd/s0SK1yDdwGhNQkBLtQ=
 
 "use client";
 
@@ -213,7 +213,7 @@ export function useInlineEdit({
       if (disabled) return;
       caretRef.current =
         from && from.detail !== 0
-          ? caretOffsetFromPoint(displayElementRef.current, from, value.length)
+          ? caretOffsetFromPoint(displayElementRef.current, from, value)
           : null;
       startedRef.current = true;
       committedRef.current = false;
@@ -307,13 +307,15 @@ export function useInlineEdit({
 }
 
 /**
- * The text offset a viewport point falls at inside `root`, clamped to `max`; `null` (the end)
- * when the point misses the root's text or the browser has no caret-from-point API.
+ * The offset in `value` a viewport point falls at inside `root`; `null` (the end) when the point
+ * misses the root's text, the browser has no caret-from-point API, or the text before the point
+ * is not a prefix of `value` — a formatted display (`1,234` for `1234`) or a trailing unit, where
+ * a rendered offset would put the caret in the wrong place.
  */
 function caretOffsetFromPoint(
   root: HTMLElement | null,
   { clientX, clientY }: InlineEditStartPoint,
-  max: number,
+  value: string,
 ): number | null {
   if (!root || typeof document === "undefined") return null;
   let node: Node | null = null;
@@ -343,7 +345,8 @@ function caretOffsetFromPoint(
     const range = document.createRange();
     range.selectNodeContents(root);
     range.setEnd(node, offset);
-    return Math.min(range.toString().length, max);
+    const before = range.toString();
+    return value.startsWith(before) ? before.length : null;
   } catch {
     return null;
   }

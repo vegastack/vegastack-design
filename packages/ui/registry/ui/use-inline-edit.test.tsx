@@ -86,6 +86,36 @@ test("a click puts the caret where it landed — never a select-all", async () =
   expect(field2.selectionEnd).toBe(12);
 });
 
+test("a click on a display that is not the raw value (formatted, or past it) puts the caret at the end", async () => {
+  function Formatted() {
+    const edit = useInlineEdit({ value: "1234" });
+    return edit.isEditing ? (
+      <input
+        ref={edit.editRef}
+        aria-label="Editor"
+        value={edit.draft}
+        onChange={(event) => edit.setDraft(event.target.value)}
+        onBlur={edit.commit}
+        onKeyDown={edit.onKeyDown}
+      />
+    ) : (
+      <span ref={edit.displayRef} data-testid="display" onClick={edit.start}>
+        1,234
+      </span>
+    );
+  }
+  const screen = await render(<Formatted />);
+  const display = screen.getByTestId("display");
+  const box = (display.element() as HTMLElement).getBoundingClientRect();
+  await userEvent.click(display, {
+    position: { x: box.width * 0.6, y: box.height / 2 },
+  });
+  const editor = screen.getByRole("textbox", { name: "Editor" });
+  await expect.poll(() => document.activeElement).toBe(editor.element());
+  const field = editor.element() as HTMLInputElement;
+  expect([field.selectionStart, field.selectionEnd]).toEqual([4, 4]);
+});
+
 test("Enter commits the changed draft exactly once", async () => {
   const onCommit = vi.fn();
   const screen = await render(<Host value="Ada" onCommit={onCommit} />);

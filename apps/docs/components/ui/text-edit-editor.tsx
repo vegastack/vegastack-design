@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.25.8 sha256-4fAuDOg+VMlw31vx3dCWAIQvZgUuVivVwhHq1hAEg6E=
+// @vegastack text-edit@0.25.8 sha256-VJPBIfOOwmfPHdBvFviTEvjSkOKE8eOXYm+kwFHLW08=
 
 "use client";
 
@@ -6005,9 +6005,29 @@ export function TextEditEditor({
       if (!ed || ed.isDestroyed || !onLeaveViewNow) return;
       if (ed.view.hasFocus() || isInside(document.activeElement)) return;
       if (!document.hasFocus() || uploadsRef.current.size > 0) return;
+      // Reached from an upload settling too, where no blur ran `leave()`: close the session
+      // (commit is idempotent) before the editor is hidden.
+      commit();
+      baselineRef.current = null;
       onLeaveViewNow(serialize(ed));
     }, 0);
   };
+  // A check skipped while the window was blurred (another tab, a file picker) runs again when it
+  // comes back; with the editor focused again it is a no-op.
+  const leavesView = onLeaveView !== undefined;
+  React.useEffect(() => {
+    if (!leavesView) return;
+    const recheck = () => leaveViewRef.current?.();
+    const onVisibility = () => {
+      if (document.visibilityState === "visible") recheck();
+    };
+    window.addEventListener("focus", recheck);
+    document.addEventListener("visibilitychange", onVisibility);
+    return () => {
+      window.removeEventListener("focus", recheck);
+      document.removeEventListener("visibilitychange", onVisibility);
+    };
+  }, [leavesView]);
   React.useEffect(() => () => clearTimeout(leaveTimerRef.current), []);
 
   React.useEffect(() => {

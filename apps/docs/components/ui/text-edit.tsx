@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.25.8 sha256-4fAuDOg+VMlw31vx3dCWAIQvZgUuVivVwhHq1hAEg6E=
+// @vegastack text-edit@0.25.8 sha256-VJPBIfOOwmfPHdBvFviTEvjSkOKE8eOXYm+kwFHLW08=
 
 "use client";
 
@@ -1067,6 +1067,8 @@ export function TextEdit(props: TextEditProps) {
   };
   const onLeaveView = React.useCallback(
     (doc: string) => {
+      // Only a shown editor hands back; one still waiting behind the read view has nothing to.
+      if (!readyRef.current) return;
       setLeftDoc({ doc, forValue: value });
       setEngaged(false);
     },
@@ -1131,9 +1133,12 @@ export function TextEdit(props: TextEditProps) {
       pulseAnnotation: (id) => editorHandle.current?.pulseAnnotation(id),
       markSaved: () => editorHandle.current?.markSaved(),
       uploadFiles: (files) => {
-        if (editorHandle.current && readyRef.current)
+        // A mounted editor (shown, or waiting behind the read view) starts the uploads now, so a
+        // `flush()` right after awaits them; a hidden one is then swapped in to show them.
+        if (editorHandle.current) {
           editorHandle.current.uploadFiles(files);
-        else {
+          if (!readyRef.current) activate("end");
+        } else {
           pendingFilesRef.current.push(...files);
           activate("end");
         }
@@ -1227,6 +1232,11 @@ export function TextEdit(props: TextEditProps) {
   }, []);
 
   const html = format !== "markdown";
+  // A controlled `value` that moves on retires the left document for good (A → C → A must not
+  // bring it back).
+  React.useEffect(() => {
+    setLeftDoc((left) => (left && left.forValue !== value ? null : left));
+  }, [value]);
   const source =
     leftDoc && leftDoc.forValue === value
       ? leftDoc.doc
