@@ -1,4 +1,4 @@
-// @vegastack sortable-list@0.25.9 sha256-6zh+SP7hwk/vgtKY+p+JfOYiyAakbXNf4e+hWnV3vAo=
+// @vegastack sortable-list@0.25.9 sha256-nbnhDKQbijGj34+JwuRguUxLxcGyuK9Pdwmgx3m352o=
 
 "use client";
 
@@ -54,6 +54,9 @@ moves less than 8px lifts it, `touchmove` is cancelled only while the drag is li
 long-press context menu is suppressed — then drops on the edge it is over; and the keyboard
 lifts from the handle (Space, arrows, Escape), every step announced. A touch pointer turns the
 native drag off until the next mouse or pen press, so the two engines never race.
+
+`footer` is the list's one non-item row — an "Add a value" field — laid on the rows' grid so its
+content starts and ends where theirs do.
 
 Row actions: `onRemove` gives each row a small × ("Remove {label}") in its trailing corner; a
 host that needs more than remove passes `getItemActions` and gets the ⋯ menu instead — the
@@ -191,6 +194,14 @@ export interface SortableListProps<
    */
   disabled?: boolean;
   /**
+   * A trailing row under the list (`layout="list"` only) laid on the rows' own grid: its content
+   * starts where a row's content starts (after the handle gutter) and ends where it ends (before
+   * the × gutter), so an "Add a value" field lines up with the values above it. It is not an item:
+   * it never drags, and it renders when `items` is empty too.
+   * @default undefined
+   */
+  footer?: React.ReactNode;
+  /**
    * Accessible name for the list.
    * @default "Sortable list"
    */
@@ -266,6 +277,7 @@ export function SortableList<T extends SortableListItem = SortableListItem>({
   columns,
   tile = "outline",
   disabled = false,
+  footer,
   "aria-label": ariaLabel = "Sortable list",
   className,
   ref,
@@ -548,6 +560,24 @@ export function SortableList<T extends SortableListItem = SortableListItem>({
           );
         })}
       </ItemGroup>
+      {footer != null && !grid ? (
+        // The row recipe without the row: the same transparent border and padding, a handle-sized
+        // gutter, and a gutter the width of the row's trailing control (× or ⋯) when rows have one.
+        <div
+          data-slot="sortable-list-footer"
+          className="mt-0.5 flex items-center gap-2 border border-transparent px-1 py-1"
+        >
+          {disabled ? null : (
+            <span aria-hidden="true" className="size-7 shrink-0" />
+          )}
+          <div className="flex min-w-0 flex-1 items-center gap-2">{footer}</div>
+          {disabled ? null : onRemove !== undefined ? (
+            <span aria-hidden="true" className="w-6 shrink-0" />
+          ) : getItemActions !== undefined || menuItems !== undefined ? (
+            <span aria-hidden="true" className="w-7 shrink-0" />
+          ) : null}
+        </div>
+      ) : null}
       {describeLocked ? (
         // Referenced by `aria-describedby` on each locked row.
         <span id={reasonId} hidden>

@@ -1,4 +1,4 @@
-// @vegastack number-field@0.25.9 sha256-hLkp/+NoS4Jkqf2JjnOrjUrVdZHvadcIpQKkWrn+dCc=
+// @vegastack number-field@0.25.9 sha256-znOurqOWenQLpGVRBVK/CStyNcOIIPuOJlYeGY5Xao4=
 
 "use client";
 
@@ -133,9 +133,21 @@ export interface NumberFieldProps extends Omit<
  * control is the field's full height and ≥24px wide, square on the inside edge so it meets the
  * group's hairline cleanly, and it carries the negative outline offset the group's `overflow`
  * would otherwise clip (FOC-9).
+ *
+ * One hairline only: upstream's Button draws a 1px transparent border on all four sides, so
+ * colouring it (`border-input`) painted a second box inside the group's own border — a double
+ * edge on the outside and a doubled divider. `border-0` drops the button's box, and each stepper
+ * then draws only its inner divider (`stepperDividerClasses`). The press nudge is off too, so the
+ * divider never jumps a pixel under the pointer.
  */
 const stepperClasses =
-  "h-auto w-7 shrink-0 self-stretch rounded-none p-0 focus-visible:-outline-offset-2 has-[>svg]:p-0";
+  "h-auto w-7 shrink-0 self-stretch rounded-none border-0 p-0 focus-visible:-outline-offset-2 has-[>svg]:p-0 active:not-aria-[haspopup]:translate-y-0";
+
+/** The one divider each stepper draws, on the edge it shares with the input. */
+const stepperDividerClasses = {
+  decrement: "border-e border-e-input",
+  increment: "border-s border-s-input",
+} as const;
 
 /**
  * The addon that HOLDS a stepper, rather than a unit or an icon: it gives up its own padding and
@@ -205,7 +217,7 @@ export function NumberField({
             render={<BaseNumberField.Decrement />}
             data-slot="number-field-decrement"
             aria-label="Decrease"
-            className={cn(stepperClasses, "border-e border-input")}
+            className={cn(stepperClasses, stepperDividerClasses.decrement)}
           >
             <Minus />
           </InputGroupButton>
@@ -259,7 +271,7 @@ export function NumberField({
             render={<BaseNumberField.Increment />}
             data-slot="number-field-increment"
             aria-label="Increase"
-            className={cn(stepperClasses, "border-s border-input")}
+            className={cn(stepperClasses, stepperDividerClasses.increment)}
           >
             <Plus />
           </InputGroupButton>

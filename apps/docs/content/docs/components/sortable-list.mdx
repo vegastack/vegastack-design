@@ -69,6 +69,11 @@ there is no hover. Focus moves to the row that takes the removed row's place. A 
 no ×. Controls a row carries, like this "Required" checkbox from `renderActions`, drag with it:
 the drag image is a copy of the row alone.
 
+`footer` is the list's one row that is not an item — an "Add a value" field and its Add button.
+It sits on the rows' grid: its content starts after the handle gutter and stops before the ×
+gutter, so the field is exactly as wide as the values above it. It never drags, and it renders
+when the list is empty too.
+
 <ComponentPreview
   name="sortableListRemove"
   file="components/preview/sortable-list.tsx"
