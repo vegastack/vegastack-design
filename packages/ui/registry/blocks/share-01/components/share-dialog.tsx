@@ -1,4 +1,4 @@
-// @vegastack share-01@0.25.8 sha256-7OdSub3Is0s10SWHDeDbyRDp0i7/JToVCgE255NOWls=
+// @vegastack share-01@0.25.8 sha256-xPnYtdq2PMsRw95QmAnFBcZYR1dfkMGd3NhRdCxR7TQ=
 
 "use client";
 
@@ -337,6 +337,16 @@ export interface ShareDialogProps {
 
 /** A line tab whose underline and label both start where the dialog's content does. */
 const LINE_TAB = "flex-none border-x-0 px-0";
+
+/**
+ * The inactive panel (and the Share footer on the Publish tab) hides with `visibility`, not
+ * `display`, so its box keeps the dialog's height. `visibility` is animatable, and every control
+ * with upstream's `transition-all` (Button, Switch, Select trigger…) inherits it and would stay
+ * painted for its transition's length: a Switch over the Invite button, or Invite over the
+ * Publish row, for a beat after every tab change. Descendants of a hidden box therefore carry no
+ * transition, so they hide in the same frame; showing is immediate either way.
+ */
+const HIDDEN_BOX = "data-hidden:invisible data-hidden:**:transition-none";
 
 const EXPIRIES: readonly ShareLinkExpiry[] = ["never", "1d", "7d", "30d"];
 
@@ -986,7 +996,7 @@ export function ShareDialog({
                 value="share"
                 keepMounted
                 hidden={false}
-                className="col-start-1 row-start-1 data-hidden:invisible"
+                className={`col-start-1 row-start-1 ${HIDDEN_BOX}`}
               >
                 {shareBody}
               </TabsContent>
@@ -995,7 +1005,7 @@ export function ShareDialog({
                   value="publish"
                   keepMounted
                   hidden={false}
-                  className="col-start-1 row-start-1 data-hidden:invisible"
+                  className={`col-start-1 row-start-1 ${HIDDEN_BOX}`}
                 >
                   {publishBody}
                 </TabsContent>
@@ -1007,7 +1017,7 @@ export function ShareDialog({
           <ResponsiveDialogFooter
             data-hidden={tab === "share" ? undefined : ""}
             inert={tab !== "share"}
-            className="data-hidden:invisible"
+            className={HIDDEN_BOX}
           >
             {footer}
           </ResponsiveDialogFooter>
