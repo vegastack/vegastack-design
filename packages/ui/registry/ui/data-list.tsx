@@ -1,4 +1,4 @@
-// @vegastack data-list@0.25.11 sha256-3a7mGQZNyMj04irmXD7lkhWY4kwEXrIhwPbjRHSuqUw=
+// @vegastack data-list@0.25.11 sha256-zQR37EJGII/U9r6rMeNrmJBAJyn+rFjLT46nDJT3xG4=
 
 "use client";
 
@@ -1064,9 +1064,10 @@ function isFromInteractiveDescendant(
  * The first cell's link: `<a>` or the host's router link, carrying the row's href. Not
  * `useRender`: it lets the render element's own props win, and `rowLinkRender` is one template
  * shared by every row (`<Link href="" />` satisfies a router's required `href`), so the row's
- * href has to win over the template's instead. `focus-visible:bg-none` (and on the injected row
- * button): the row carries the focus cue, so the link's own global tint would paint a second,
- * rounded box behind the first cell when focus returns to it (a drawer closing on that row).
+ * href has to win over the template's instead. No focus tint of its own (nor on the injected row
+ * button) in an unchecked row: the row carries the focus cue, so the global tint painted a second,
+ * rounded box behind the first cell when focus returned to it (a drawer closing on that row). A
+ * checked row keeps it: its wash already matches the focus wash, so the tint is the cue there.
  */
 function RowLink({
   href,
@@ -1081,7 +1082,7 @@ function RowLink({
     href,
     "data-slot": "data-list-row-link",
     className:
-      "-mx-1 -my-0.5 inline-flex max-w-full items-center rounded-sm px-1 py-0.5 text-start text-inherit no-underline hover:no-underline focus-visible:no-underline focus-visible:bg-none",
+      "-mx-1 -my-0.5 inline-flex max-w-full items-center rounded-sm px-1 py-0.5 text-start text-inherit no-underline hover:no-underline focus-visible:no-underline [tr:not([data-selected])_&]:focus-visible:bg-none",
     children,
   };
   if (render) {
@@ -1689,7 +1690,7 @@ export function DataList<T>({
                   type="button"
                   data-slot="data-list-row-action"
                   onClick={() => onRowClick?.(row, index)}
-                  className="-mx-1 -my-0.5 inline-flex max-w-full appearance-none items-center rounded-sm bg-transparent px-1 py-0.5 text-start text-inherit focus-visible:bg-none"
+                  className="-mx-1 -my-0.5 inline-flex max-w-full appearance-none items-center rounded-sm bg-transparent px-1 py-0.5 text-start text-inherit [tr:not([data-selected])_&]:focus-visible:bg-none"
                 >
                   {content}
                 </button>
