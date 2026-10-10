@@ -1,4 +1,4 @@
-// @vegastack people-input@0.25.12 sha256-Gs9+zXqrV1mYlmJYKrTb8zq8PUq4D/W4cABuMY27CPo=
+// @vegastack people-input@0.25.13 sha256-IpgME7R3JBU7Px5rFLWugZTPw6uXae0gZngAA8pG0BI=
 
 "use client";
 
