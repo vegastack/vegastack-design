@@ -1,4 +1,4 @@
-// @vegastack board@0.25.8 sha256-HEYM2rJ94qjT9oEvnyo/V0qzKltarV7M6nqiRWSW/PY=
+// @vegastack board@0.25.8 sha256-dJvuoN3eNTgr31pHBphszuprf8QOuCJmhrkHW5jPCdw=
 
 "use client";
 
@@ -1631,10 +1631,13 @@ export function Board<T>({
                   key={key}
                   className="flex flex-col gap-2 rounded-lg border border-border bg-card p-3"
                 >
+                  {/* The card's bands: the eyebrow, the title, a chip, then the footnote
+                      with the assignee at its end. */}
+                  <Skeleton className="h-3 w-1/3" />
                   <Skeleton className="h-4 w-3/4" />
-                  <Skeleton className="h-3 w-1/2" />
-                  <div className="flex items-center gap-1.5 pt-1">
-                    <Skeleton className="h-5 w-16 rounded-4xl" />
+                  <Skeleton className="h-5 w-16 rounded-4xl" />
+                  <div className="flex items-center gap-1.5">
+                    <Skeleton className="h-3 w-20" />
                     <Skeleton className="ms-auto size-6 rounded-full" />
                   </div>
                 </div>

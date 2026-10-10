@@ -721,7 +721,7 @@
         "whenToUse": "Cross-column card movement — pipelines, kanban, staged workflows — where the host owns ordering and the move can be refused by a server gate; lanes may be partially loaded (count shows the total) and cards may be links to their records.",
         "whenNotToUse": "Single-list reordering (sortable-list), tabular data (data-list/data-grid), or static column layouts with no movement (plain Cards in a flex row).",
         "version": "0.25.8",
-        "integrity": "sha256-HEYM2rJ94qjT9oEvnyo/V0qzKltarV7M6nqiRWSW/PY="
+        "integrity": "sha256-dJvuoN3eNTgr31pHBphszuprf8QOuCJmhrkHW5jPCdw="
       }
     },
     {
@@ -16969,7 +16969,7 @@
         "whenToUse": "A record page's rail cards (and its Details sheet): a Details section of inline properties, people and linked records, then sections of full-width rows for the record's tasks and suggestions.",
         "whenNotToUse": "A full list page (DataList) or a settings form (Field).",
         "version": "0.25.8",
-        "integrity": "sha256-MDVE/dXSbsAaiTQC43wk8c7WjMzCXnQ6y4FnHU9AxTU="
+        "integrity": "sha256-XXDaDtlmjpNsLMLNQChNjgoWT0bhAap0Uw1xq1HrcTM="
       }
     },
     {
