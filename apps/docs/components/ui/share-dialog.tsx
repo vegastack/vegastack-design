@@ -1,4 +1,4 @@
-// @vegastack share-dialog@0.25.14 sha256-orblW7Jtmy2+MVAtf+PmrUt0ELoQx+fQqyiSxGxIIr0=
+// @vegastack share-dialog@0.25.14 sha256-XT4oISZUOt5M5bRdqhrp4ZCwNt2Kv6HAaL/6NAlbdqk=
 
 "use client";
 
@@ -156,6 +156,8 @@ export interface ShareGeneralAccess {
 export interface ShareDialogLabels {
   title: string;
   invitePlaceholder: string;
+  /** The invite picker's search field, which lists people and teams. */
+  inviteSearchPlaceholder: string;
   inviteEmpty: string;
   inviteLevel: (level: string) => string;
   notify: string;
@@ -214,6 +216,7 @@ export interface ShareDialogLabels {
 const defaultLabels: ShareDialogLabels = {
   title: "Share",
   invitePlaceholder: "Add people or teams…",
+  inviteSearchPlaceholder: "Search people or teams",
   inviteEmpty: "No people or teams found",
   inviteLevel: (level) => `Access for new people: ${level}`,
   notify: "Notify people",
@@ -538,6 +541,7 @@ export function ShareDialog({
             onValueChange={setInvitees}
             search={search}
             placeholder={labels.invitePlaceholder}
+            searchPlaceholder={labels.inviteSearchPlaceholder}
             emptyText={labels.inviteEmpty}
             aria-label={labels.invitePlaceholder.replace(/…$/, "")}
             disabled={inviting}

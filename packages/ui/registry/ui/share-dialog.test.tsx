@@ -184,7 +184,9 @@ test("share-dialog defaultInvitees is reactive and keeps edits until it changes"
 
   // A new array with the same people is not a change; the viewer's edit stays.
   await dialog.getByRole("button", { name: "Add people or teams" }).click();
-  await screen.getByRole("combobox", { name: "Search people" }).fill("Lena");
+  await screen
+    .getByRole("combobox", { name: "Search people or teams" })
+    .fill("Lena");
   await screen.getByRole("option", { name: /Lena Ortiz/ }).click();
   await userEvent.keyboard("{Escape}");
   await chip("Lena Ortiz").has();
