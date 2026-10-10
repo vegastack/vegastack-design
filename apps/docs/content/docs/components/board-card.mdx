@@ -42,8 +42,12 @@ import { BoardCard } from "@/components/ui/board-card";
 `BoardCard` is the content of one card on a [`Board`](/docs/components/board) lane: a round
 completion tick (or your status circle, through `status`) inline before a title of up to two lines
 (the title wraps under itself), one muted context line ("project · customer"), and a bottom row with the assignee's avatar first, then the due chip, then the
-priority chip. Only the title row carries the tick: the eyebrow, context and bottom row start at
-the card's own edge, with no leading gutter. [`DataList`](/docs/components/data-list)'s board view renders one per
+priority chip. Only the title row carries the tick: the eyebrow, the tick or status icon itself,
+the context and the bottom row start at the card's own edge, with no leading gutter. Each band keeps
+its height whether or not its neighbours exist (the eyebrow and title line 20px, the chips and
+footnote 24px, 8px apart), so cards on a lane share one rhythm. On a `Board` only the first band
+leaves room for the ⋯ menu; the rows under it run to the end padding, so a footnote avatar sits in
+line with the ⋯. [`DataList`](/docs/components/data-list)'s board view renders one per
 row (its `boardCard` prop maps a row to these fields).
 
 On a `Board`, pass `surface={false}`: the board owns the card's border, hover tint, focus cue,
