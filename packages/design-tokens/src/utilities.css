@@ -1016,3 +1016,26 @@
 .hljs-strong {
   font-weight: 600;
 }
+
+/* ---------------------------------------------------------------------------------------------
+ * Spark gradient: the subtle purple -> blue pair for "new" / AI-flavoured accents (e.g. a
+ * What's new icon). Built from the theme-aware tag hues, so it follows light and dark.
+ *   - gradient-spark         : background-image fill.
+ *   - stop-spark-from / -to  : `stop-color` for the <stop>s of an SVG <linearGradient>, to give a
+ *                              stroked icon the same gradient (stroke="url(#id)").
+ * ------------------------------------------------------------------------------------------- */
+@utility gradient-spark {
+  background-image: linear-gradient(
+    135deg,
+    var(--color-tag-purple),
+    var(--color-tag-blue)
+  );
+}
+
+@utility stop-spark-from {
+  stop-color: var(--color-tag-purple);
+}
+
+@utility stop-spark-to {
+  stop-color: var(--color-tag-blue);
+}
