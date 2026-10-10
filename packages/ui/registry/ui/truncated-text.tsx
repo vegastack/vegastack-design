@@ -1,4 +1,4 @@
-// @vegastack truncated-text@0.25.9 sha256-5Um/DnxbkHgVqs2zl9ihCK2eXcD5ijLG5W/9sz8fs9c=
+// @vegastack truncated-text@0.25.9 sha256-x582alG9leu4bdPwjzEiMdqoyzqVfUrLzjzsWsiCGTc=
 
 "use client";
 
@@ -314,7 +314,9 @@ export function TruncatedText({
           ? "block break-words whitespace-normal"
           : lines > 1
             ? (LINE_CLAMP[lines] ?? "line-clamp-6")
-            : "block truncate",
+            : // Vertical padding centres the line inside the 24px floor (no-op once a line is 24px+),
+              // so the text shares a centre with neighbouring 20px rows such as breadcrumb links.
+              "block truncate py-[max(0px,calc((1.5rem-1lh)/2))]",
         // A pseudo-element cannot extend beyond the `overflow-hidden` required
         // by `truncate`, so the focusable single-line box itself owns the 24px
         // target floor. Multiline clamps naturally exceed this minimum.
