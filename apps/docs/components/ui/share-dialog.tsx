@@ -1,4 +1,4 @@
-// @vegastack share-01@0.25.10 sha256-38bKguY40UhEQ9QtcWRrnjvftTabMmiv255NIeJpIpo=
+// @vegastack share-dialog@0.25.10 sha256-XJrPUlT412BPxFLICtjOqnzt9K3pQnoiFU3j4EWk4qU=
 
 "use client";
 
@@ -274,8 +274,17 @@ export interface ShareDialogProps {
   levels: readonly PermissionMenuOption[];
   /** The rows of "People with access". */
   people: readonly ShareEntry[];
-  /** The viewer may change access: invite, change levels, general access and the public link. @default true */
+  /**
+   * The viewer may change access: invite, change levels and general access — and, unless
+   * `canPublish` says otherwise, the public link. @default true
+   */
   canManage?: boolean;
+  /**
+   * The viewer may publish: turn the public link on, reset it, change its expiry or stop it. A
+   * viewer who cannot sees the link to copy while it is published, and "Not published" otherwise.
+   * @default canManage
+   */
+  canPublish?: boolean;
   /** People with access is still loading; skeleton rows show. @default false */
   loading?: boolean;
   /** Finds people and teams to invite — `PeopleInput`'s `search`. Omit to hide the invite row. @default undefined */
@@ -333,6 +342,16 @@ export interface ShareDialogProps {
   labels?: Partial<ShareDialogLabels>;
   /** The tab the dialog opens on — `publish` when opened from a "Published" indicator. @default "share" */
   defaultTab?: "share" | "publish";
+  /**
+   * Optional help nodes (an info button or a "Learn more" link) placed right after the People
+   * with access heading, the Space access heading and the Publish switch's label.
+   * @default {}
+   */
+  hints?: {
+    people?: React.ReactNode;
+    general?: React.ReactNode;
+    publish?: React.ReactNode;
+  };
 }
 
 /** A line tab whose underline and label both start where the dialog's content does. */
@@ -350,9 +369,22 @@ const HIDDEN_BOX = "data-hidden:invisible data-hidden:**:transition-none";
 
 const EXPIRIES: readonly ShareLinkExpiry[] = ["never", "1d", "7d", "30d"];
 
-function SectionHeading({ children }: { children: React.ReactNode }) {
-  return (
+function SectionHeading({
+  children,
+  hint,
+}: {
+  children: React.ReactNode;
+  hint?: React.ReactNode;
+}) {
+  const heading = (
     <h3 className="text-xs font-medium text-muted-foreground">{children}</h3>
+  );
+  if (!hint) return heading;
+  return (
+    <div className="flex items-center gap-1">
+      {heading}
+      {hint}
+    </div>
   );
 }
 
@@ -393,6 +425,7 @@ export function ShareDialog({
   levels,
   people,
   canManage = true,
+  canPublish = canManage,
   loading = false,
   search,
   defaultInvitees = [],
@@ -415,6 +448,7 @@ export function ShareDialog({
   footerNote,
   labels: labelsProp,
   defaultTab = "share",
+  hints = {},
 }: ShareDialogProps) {
   const labels = { ...defaultLabels, ...labelsProp };
 
@@ -552,7 +586,9 @@ export function ShareDialog({
 
   const peopleSection = (
     <section data-slot="share-people" className="flex flex-col gap-1">
-      <SectionHeading>{labels.peopleHeading}</SectionHeading>
+      <SectionHeading hint={hints.people}>
+        {labels.peopleHeading}
+      </SectionHeading>
       {loading ? (
         <ul aria-busy className="flex flex-col">
           {[0, 1, 2].map((i) => (
@@ -662,7 +698,9 @@ export function ShareDialog({
           : null;
   const generalSection = !generalAccess ? null : (
     <section data-slot="share-general" className="flex flex-col gap-2">
-      <SectionHeading>{labels.generalHeading}</SectionHeading>
+      <SectionHeading hint={hints.general}>
+        {labels.generalHeading}
+      </SectionHeading>
       {statement ? (
         <div className="flex min-w-0 items-center gap-2">
           <IconTile>{statement.tile}</IconTile>
@@ -791,18 +829,21 @@ export function ShareDialog({
           <GlobeIcon />
         </IconTile>
         <div className="flex min-w-0 flex-1 flex-col">
-          <span id={publishLabelId} className="truncate text-sm">
-            {labels.publishHeading}
+          <span className="flex min-w-0 items-center gap-1">
+            <span id={publishLabelId} className="truncate text-sm">
+              {labels.publishHeading}
+            </span>
+            {hints.publish}
           </span>
           <span className="truncate text-xs text-muted-foreground">
             {publicLink
               ? labels.publicHint
-              : canManage
+              : canPublish
                 ? labels.publishHintOff
                 : labels.notPublished}
           </span>
         </div>
-        {canManage ? (
+        {canPublish ? (
           <Switch
             aria-labelledby={publishLabelId}
             checked={publicLink !== null}
@@ -824,7 +865,7 @@ export function ShareDialog({
                 aria-label={labels.publicLinkField}
                 onFocus={(event) => event.currentTarget.select()}
               />
-              {canManage ? (
+              {canPublish ? (
                 <InputGroupAddon align="inline-end">
                   <Tooltip>
                     <TooltipTrigger
@@ -853,7 +894,7 @@ export function ShareDialog({
               copiedLabel={labels.copied}
             />
           </div>
-          {canManage ? (
+          {canPublish ? (
             <div className="flex flex-wrap items-center justify-between gap-2">
               <div className="flex items-center gap-2">
                 <span className="text-sm text-muted-foreground">

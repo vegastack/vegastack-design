@@ -1,7 +1,7 @@
 {
   "_note": "Every name in packages/ui/registry/ui/ that has NO counterpart in vendor/shadcn/<cli>/ui/. verify-parity.mjs fails on a registry name that is neither upstream-backed nor listed here, so a component cannot appear by accident. Dispositions come from docs/plans/2026-09-18-shadcn-reset/extras.md (66 rows, MK 2026-09-18); hooks and internal parts are not components and are recorded here with their reason.",
   "counts": {
-    "total": 113,
+    "total": 114,
     "fromExtras": 46
   },
   "items": {
@@ -631,6 +631,12 @@
       "family": "data",
       "source": "Operator brief 2026-09-25 (DataList grid/board views) — approved by MK 2026-09-25",
       "rationale": "Upstream ships no view switch. It is a fixed composition of upstream toggle-group, shared by DataList and consumers; no patch."
+    },
+    "share-dialog": {
+      "disposition": "keep",
+      "family": "overlay",
+      "source": "Operator brief 2026-10-10 (Regent sharing — promote the share-01 block's ShareDialog to an installable component) — approved by MK 2026-10-10 (DS merges and releases authorized)",
+      "rationale": "Upstream ships no share surface. The share-01 block's dialog, promoted unchanged so apps can install and update it: a fixed composition of upstream responsive-dialog, tabs, item, select, switch, input-group, alert-dialog and tooltip with our people-input, permission-menu, person-avatar, icon-glyph and copy-button; no patch."
     }
   }
 }

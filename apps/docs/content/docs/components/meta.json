@@ -50,6 +50,7 @@
     "sheet",
     "drawer",
     "responsive-dialog",
+    "share-dialog",
     "popover",
     "hover-card",
     "tooltip",

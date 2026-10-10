@@ -1,14 +1,14 @@
 {
   "schemaVersion": 1,
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "5e5d4ca56b2e562ec7659210b28b90b81ef1162f319144fdba2f46e9e9493f10",
+  "contractSha256": "0afae69bb66e0e7c08b7b51e4b8b27d77786d8df04b8da70f4f90ed0104d8e61",
   "inventory": {
-    "expected": 736,
-    "actual": 736,
-    "unique": 736
+    "expected": 737,
+    "actual": 737,
+    "unique": 737
   },
   "classes": {
-    "components": 155,
+    "components": 156,
     "animatedIcons": 467,
     "hooks": 15,
     "blocks": 15,
@@ -114,8 +114,8 @@
       ]
     },
     "Overlays": {
-      "expected": 20,
-      "actual": 20,
+      "expected": 21,
+      "actual": 21,
       "members": [
         "access-chip",
         "action-bar",
@@ -133,6 +133,7 @@
         "popover",
         "provider",
         "responsive-dialog",
+        "share-dialog",
         "sheet",
         "shortcut-overlay",
         "toast",
@@ -803,7 +804,7 @@
       ]
     }
   },
-  "componentRoutes": 151,
+  "componentRoutes": 152,
   "blockRoutes": 22,
   "modeledExemptions": 3
 }

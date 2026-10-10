@@ -15273,11 +15273,11 @@
       }
     },
     {
-      "name": "share-01",
-      "type": "registry:block",
-      "title": "Share 01",
-      "description": "A Share dialog for one item — invite people and teams with one access level, people with access and why, general access in the item's space, and a view-only public link; a Dialog on wide screens, a bottom Sheet on phones.",
-      "categories": ["sharing", "access"],
+      "name": "share-dialog",
+      "type": "registry:ui",
+      "title": "Share Dialog",
+      "description": "Share one item — invite people and teams with one access level, people with access and why, the item's space access, and a view-only public link behind a Publish switch; a Dialog on wide screens, a bottom Sheet on phones.",
+      "categories": ["sharing", "access", "overlay"],
       "dependencies": [
         "lucide-react@^1.47.0",
         "@vegastack/design-tokens@^0.8.0"
@@ -15304,10 +15304,34 @@
       ],
       "files": [
         {
-          "path": "packages/ui/registry/blocks/share-01/components/share-dialog.tsx",
-          "type": "registry:component",
-          "target": "app/share-01/components/share-dialog.tsx"
-        },
+          "path": "packages/ui/registry/ui/share-dialog.tsx",
+          "type": "registry:ui",
+          "target": "@ui/share-dialog.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "Share a record, page or meeting with people and teams, set its space access and publish it to the web — canManage gates access changes and canPublish the Publish tab.",
+        "whenNotToUse": "Manage a space's or team's members as a page — compose DataList with PeopleInput and PermissionMenu.",
+        "version": "0.25.10"
+      }
+    },
+    {
+      "name": "share-01",
+      "type": "registry:block",
+      "title": "Share 01",
+      "description": "A Share dialog for one item — invite people and teams with one access level, people with access and why, general access in the item's space, and a view-only public link; a Dialog on wide screens, a bottom Sheet on phones.",
+      "categories": ["sharing", "access"],
+      "dependencies": [
+        "lucide-react@^1.47.0",
+        "@vegastack/design-tokens@^0.8.0"
+      ],
+      "registryDependencies": [
+        "@vegastack/button",
+        "@vegastack/people-input",
+        "@vegastack/share-dialog",
+        "@vegastack/space-picker"
+      ],
+      "files": [
         {
           "path": "packages/ui/registry/blocks/share-01/components/share-demo.tsx",
           "type": "registry:component",
