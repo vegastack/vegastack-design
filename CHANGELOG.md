@@ -9,6 +9,23 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.25.12] — October 11, 2026
+
+<!-- assembled from 2 changesets: 1433224bd042 -->
+
+### 🔧 Changed components
+
+- Re-publish `@vegastack/design` so its `@vegastack/design-tokens` range follows the token release that adds the `gradient-spark` utilities.
+  [`1005935`](https://github.com/VegaStack/vegastack-design/commit/1005935)
+- Add the `gradient-spark` utility (a subtle purple to blue gradient from the theme-aware tag hues) and `stop-spark-from` / `stop-spark-to` for SVG gradient stops, so a stroked icon such as What's new can carry the same gradient in light and dark.
+  [`c0140d4`](https://github.com/VegaStack/vegastack-design/commit/c0140d4)
+
+### 📦 npm
+
+- **`@vegastack/design`** → **`0.8.3`** (was `0.8.2`).
+- **`@vegastack/design-tokens`** → **`0.8.3`** (was `0.8.0`).
+- The design-system registry (`@vegastack/ui`) bumps 0.25.11 → 0.25.12.
+
 ## [0.25.11] — October 10, 2026
 
 <!-- assembled from 1 changeset: 0a7ac69eea97 -->

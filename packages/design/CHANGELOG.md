@@ -1,5 +1,14 @@
 # @vegastack/design
 
+## 0.8.3
+
+### Patch Changes
+
+- [#593](https://github.com/vegastack/vegastack-design/pull/593) [`1005935`](https://github.com/vegastack/vegastack-design/commit/100593585ae668ccd6eb7f74d5e29351ab8bc55c) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🔧 Re-publish `@vegastack/design` so its `@vegastack/design-tokens` range follows the token release that adds the `gradient-spark` utilities.
+
+- Updated dependencies [[`c0140d4`](https://github.com/vegastack/vegastack-design/commit/c0140d41356de3ede973800c33ea43ea64ed1bd3)]:
+  - @vegastack/design-tokens@0.8.3
+
 ## 0.8.2
 
 ### Patch Changes
