@@ -1,4 +1,4 @@
-// @vegastack editable-cell@0.25.8 sha256-iQuoVVTth2onHxd00md9bj/09FsfeVeT620AMMttF6U=
+// @vegastack editable-cell@0.25.8 sha256-gfIxND2cDiqm+bggJKtqIoLsWERabcBk9UbANj1KhyI=
 
 "use client";
 
@@ -549,7 +549,8 @@ function InlineTextEditor({
               if (fill && textNode && !textNode.contains(event.target as Node))
                 return;
               event.stopPropagation();
-              edit.start();
+              // The click's point puts the caret where it landed in the text.
+              edit.start(event);
             }
           : undefined
       }

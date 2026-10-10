@@ -533,6 +533,17 @@ test("citation turns [[n]] into a named marker; without it, and in code, the tex
   expect(plain.container.textContent).toBe("Ship Friday [[2]]");
 });
 
+test("an escaped marker (the editor's Markdown, `\\[\\[2\\]\\]`) is still a citation", async () => {
+  const screen = await render(
+    <MarkdownView citation={(n) => ({ label: `Source ${n}` })}>
+      {"Ship Friday \\[\\[2\\]\\] now"}
+    </MarkdownView>,
+  );
+  await expect
+    .element(screen.getByRole("button", { name: "Source 2" }))
+    .toBeInTheDocument();
+});
+
 test("video, audio, wrapped code, open toggles and alert callouts", async () => {
   const screen = await render(
     <MarkdownView>

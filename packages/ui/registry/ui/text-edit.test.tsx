@@ -2607,3 +2607,137 @@ test("the block grip sits clear of the text inside a narrow frame", async () => 
     6,
   );
 });
+
+// ---- Citations: the read view stands in whenever the document is not being edited ------------
+
+const cite = (n: number) => ({ label: `Source ${n}` });
+const readView = (screen: Awaited<ReturnType<typeof render>>) =>
+  screen.container.querySelector<HTMLElement>('[data-slot="text-edit-read"]');
+const visibleEditor = (screen: Awaited<ReturnType<typeof render>>) =>
+  screen.container.querySelector<HTMLElement>(
+    '[data-slot="text-edit-content"]:not([hidden]) .ProseMirror',
+  );
+
+test("citations: a loaded editor waits for a click; leaving commits, then the read view returns", async () => {
+  const onCommit = vi.fn();
+  const screen = await render(
+    <>
+      <TextEdit
+        format="markdown"
+        aria-label="Summary"
+        defaultValue="Ship it [[1]]"
+        citation={cite}
+        onCommit={onCommit}
+      />
+      <button type="button">Outside</button>
+    </>,
+  );
+  // Preloaded, the editor mounts hidden — the read view and its citation stay.
+  await vi.waitFor(() =>
+    expect(screen.container.querySelector(".ProseMirror")).not.toBeNull(),
+  );
+  await new Promise((resolve) => setTimeout(resolve, 50));
+  expect(readView(screen)).not.toBeNull();
+  expect(
+    screen.container.querySelector('[data-slot="markdown-citation"]'),
+  ).not.toBeNull();
+  expect(visibleEditor(screen)).toBeNull();
+
+  // A click swaps the editor in with focus, and the markers read as raw text there.
+  await userEvent.click(readView(screen)!.querySelector("p")!);
+  await vi.waitFor(() => expect(visibleEditor(screen)).not.toBeNull());
+  const editor = visibleEditor(screen)!;
+  await vi.waitFor(() => expect(editor).toHaveFocus());
+  expect(editor.textContent).toContain("[[1]]");
+
+  await userEvent.keyboard(`${END} now`);
+  await screen.getByRole("button", { name: "Outside" }).click();
+  await vi.waitFor(() => expect(onCommit).toHaveBeenCalledTimes(1));
+  // The Markdown serializer escapes the brackets; the read view still reads them as a citation.
+  expect(onCommit.mock.calls[0]?.[0]).toMatch(
+    /^Ship it \\?\[\\?\[1\\?\]\\?\] now$/,
+  );
+  // The read view is back, showing the edit with its citation rendered.
+  await vi.waitFor(() => expect(readView(screen)).not.toBeNull());
+  expect(visibleEditor(screen)).toBeNull();
+  expect(readView(screen)!.textContent).toContain("now");
+  expect(
+    screen.container.querySelector('[data-slot="markdown-citation"]'),
+  ).not.toBeNull();
+});
+
+test("citations: focus moving into the editor's link panel keeps the editor", async () => {
+  const screen = await render(
+    <TextEdit
+      format="markdown"
+      aria-label="Summary"
+      defaultValue="Text [[1]]"
+      citation={cite}
+    />,
+  );
+  await vi.waitFor(() =>
+    expect(screen.container.querySelector(".ProseMirror")).not.toBeNull(),
+  );
+  await userEvent.click(readView(screen)!.querySelector("p")!);
+  await vi.waitFor(() => expect(visibleEditor(screen)).toHaveFocus());
+  await userEvent.keyboard(`{${MOD}>}k{/${MOD}}`);
+  const panel = await vi.waitFor(() => {
+    const node = document.querySelector<HTMLElement>(
+      '[data-slot="text-edit-link"]',
+    );
+    expect(node).not.toBeNull();
+    return node!;
+  });
+  await vi.waitFor(() =>
+    expect(panel.contains(document.activeElement)).toBe(true),
+  );
+  await new Promise((resolve) => setTimeout(resolve, 50));
+  expect(visibleEditor(screen)).not.toBeNull();
+  expect(readView(screen)).toBeNull();
+});
+
+test("citations: an upload still in flight keeps the editor until it lands", async () => {
+  let land!: (result: { src: string }) => void;
+  const onImageUpload = vi.fn(
+    () =>
+      new Promise<{ src: string }>((resolve) => {
+        land = resolve;
+      }),
+  );
+  const onCommit = vi.fn();
+  const screen = await render(
+    <>
+      <TextEdit
+        format="markdown"
+        aria-label="Summary"
+        defaultValue="Before [[1]]"
+        citation={cite}
+        onImageUpload={onImageUpload}
+        onCommit={onCommit}
+      />
+      <button type="button">Outside</button>
+    </>,
+  );
+  await vi.waitFor(() =>
+    expect(screen.container.querySelector(".ProseMirror")).not.toBeNull(),
+  );
+  await userEvent.click(readView(screen)!.querySelector("p")!);
+  await vi.waitFor(() => expect(visibleEditor(screen)).toHaveFocus());
+  await userEvent.keyboard(END);
+  pasteFiles(visibleEditor(screen)!, [png()]);
+  await vi.waitFor(() =>
+    expect(screen.container.querySelector("[data-uploading]")).not.toBeNull(),
+  );
+  await screen.getByRole("button", { name: "Outside" }).click();
+  await new Promise((resolve) => setTimeout(resolve, 50));
+  expect(visibleEditor(screen)).not.toBeNull();
+
+  land({ src: "/api/files/f1" });
+  await vi.waitFor(() =>
+    expect(onCommit.mock.lastCall?.[0]).toMatch(/!\[\]\(\/api\/files\/f1\)$/),
+  );
+  await vi.waitFor(() => expect(readView(screen)).not.toBeNull());
+  expect(readView(screen)!.querySelector("img")?.getAttribute("src")).toBe(
+    "/api/files/f1",
+  );
+});

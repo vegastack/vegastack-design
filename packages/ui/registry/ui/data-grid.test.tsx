@@ -354,6 +354,12 @@ test("committing an edit calls onCellCommit(row, key, value)", async () => {
         )?.selectionEnd,
     )
     .toBe(4);
+  // F2 opens with the caret at the end (never a select-all); replace the draft explicitly.
+  const field = document.querySelector<HTMLInputElement>(
+    '[data-slot="data-grid-cell"] input',
+  )!;
+  expect(field.selectionStart).toBe(4);
+  field.select();
   await userEvent.keyboard("Acme Corp{Enter}");
   expect(onCellCommit).toHaveBeenCalledWith(
     expect.objectContaining({ id: "d1" }),

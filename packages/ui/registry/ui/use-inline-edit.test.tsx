@@ -60,6 +60,32 @@ test("clicking the display opens the editor seeded with the value", async () => 
   await expect.element(editor).toHaveValue("Ada");
 });
 
+test("a click puts the caret where it landed — never a select-all", async () => {
+  const screen = await render(<Host value="Ada Lovelace" onCommit={vi.fn()} />);
+  const display = screen.getByTestId("display");
+  const box = (display.element() as HTMLElement).getBoundingClientRect();
+  // Just inside the leading edge: the caret lands before the first letter.
+  await userEvent.click(display, { position: { x: 1, y: box.height / 2 } });
+  const editor = screen.getByRole("textbox", { name: "Editor" });
+  await expect.poll(() => document.activeElement).toBe(editor.element());
+  const field = editor.element() as HTMLInputElement;
+  expect(field.selectionStart).toBe(0);
+  expect(field.selectionEnd).toBe(0);
+  await userEvent.keyboard("{Escape}");
+
+  // Just inside the trailing edge: the caret lands after the last letter.
+  const again = screen.getByTestId("display");
+  const width = (again.element() as HTMLElement).getBoundingClientRect().width;
+  await userEvent.click(again, {
+    position: { x: width - 1, y: box.height / 2 },
+  });
+  const reopened = screen.getByRole("textbox", { name: "Editor" });
+  await expect.poll(() => document.activeElement).toBe(reopened.element());
+  const field2 = reopened.element() as HTMLInputElement;
+  expect(field2.selectionStart).toBe(12);
+  expect(field2.selectionEnd).toBe(12);
+});
+
 test("Enter commits the changed draft exactly once", async () => {
   const onCommit = vi.fn();
   const screen = await render(<Host value="Ada" onCommit={onCommit} />);
@@ -162,6 +188,10 @@ test("a controlled host flipping editing on seeds the draft and re-arms the guar
 
   const editor = screen.getByRole("textbox", { name: "Editor" });
   await expect.element(editor).toHaveValue("Ada");
+  // A host-driven (keyboard) open has no click point: the caret goes to the end.
+  await expect.poll(() => document.activeElement).toBe(editor.element());
+  const field = editor.element() as HTMLInputElement;
+  expect([field.selectionStart, field.selectionEnd]).toEqual([3, 3]);
 
   await editor.fill("Grace");
   await userEvent.keyboard("{Enter}");

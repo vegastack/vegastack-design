@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.25.8 sha256-soQqYHttr23urDAqiAHjiZlaBhbgdLXqOacr54MQKOE=
+// @vegastack text-edit@0.25.8 sha256-4fAuDOg+VMlw31vx3dCWAIQvZgUuVivVwhHq1hAEg6E=
 
 "use client";
 
@@ -5159,6 +5159,13 @@ export interface TextEditEditorProps extends Omit<
   /** Called once the editor's document is in the DOM, so the shell can swap it in. */
   onReady: (editor: Editor) => void;
   /**
+   * Called with the serialized document once the edit session has ended for good — focus left the
+   * editor and every floating part, the window still has focus, and no upload is in flight — so
+   * the shell can swap its read view back in. Runs after the session's commit.
+   * @default undefined
+   */
+  onLeaveView?: (doc: string) => void;
+  /**
    * Filled with the editor's imperative handle; the shell's `handleRef` delegates to it.
    * @default undefined
    */
@@ -5229,6 +5236,7 @@ export function TextEditEditor({
   rootRef,
   hidden = false,
   onReady,
+  onLeaveView,
   editorHandle,
   onOpenImage,
   onOpenFile,
@@ -5373,6 +5381,9 @@ export function TextEditEditor({
   const uploadsRef = React.useRef(
     new Map<string, { controller: AbortController; done: Promise<void> }>(),
   );
+  // Checks whether the edit session is over and hands the shell its read view back (below, once
+  // `isInside` exists); an upload settling after focus left re-runs it.
+  const leaveViewRef = React.useRef<(() => void) | null>(null);
   const pickRef = React.useRef<(() => void) | null>(null);
   const openPanel = React.useCallback((next: Panel | null) => {
     setPanel(next);
@@ -5627,6 +5638,7 @@ export function TextEditEditor({
         .finally(() => {
           if (preview) URL.revokeObjectURL(preview);
           uploadsRef.current.delete(id);
+          if (uploadsRef.current.size === 0) leaveViewRef.current?.();
         });
       uploadsRef.current.set(id, { controller, done });
       return true;
@@ -5972,9 +5984,31 @@ export function TextEditEditor({
         pendingValueRef.current = undefined;
         applyValue(ed, pending);
       }
+      leaveViewRef.current?.();
     },
     [commit, isInside, applyValue, menuKeys],
   );
+
+  // The read view comes back once the session is over for good. Checked a task later, when focus
+  // has settled: not while the editor or one of its floating parts holds focus, not while the
+  // window itself is blurred (a file picker, another app — focus returns to the editor), and not
+  // while an upload is still landing (its settling re-runs this).
+  const onLeaveViewRef = React.useRef(onLeaveView);
+  onLeaveViewRef.current = onLeaveView;
+  const leaveTimerRef = React.useRef<ReturnType<typeof setTimeout>>(undefined);
+  leaveViewRef.current = () => {
+    if (!onLeaveViewRef.current) return;
+    clearTimeout(leaveTimerRef.current);
+    leaveTimerRef.current = setTimeout(() => {
+      const ed = editorRef.current;
+      const onLeaveViewNow = onLeaveViewRef.current;
+      if (!ed || ed.isDestroyed || !onLeaveViewNow) return;
+      if (ed.view.hasFocus() || isInside(document.activeElement)) return;
+      if (!document.hasFocus() || uploadsRef.current.size > 0) return;
+      onLeaveViewNow(serialize(ed));
+    }, 0);
+  };
+  React.useEffect(() => () => clearTimeout(leaveTimerRef.current), []);
 
   React.useEffect(() => {
     if (!editor) return;
