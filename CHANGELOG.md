@@ -9,6 +9,26 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.25.10] — October 10, 2026
+
+<!-- assembled from 3 changesets: 4f10f206944a -->
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.25.9 → 0.25.10.
+
+### 🐛 Fixed
+
+- **NumberField**: the − and + steppers draw one divider each against the input, inside the field's single border. Before, each stepper painted its own full box, doubling the outer edge and the dividers in light and dark. The divider no longer nudges a pixel on press. **Tabs**: a click on a panel's empty space no longer tints the whole panel once a key is pressed (⌘ alone was enough in Chromium, turning a drawer body grey). A panel reached with the keyboard still shows the focus tint. **SortableList**: a new `footer` row, such as an "Add a value" field and its Add button, lines up with the rows' content, between the handle gutter and the × gutter.
+  [docs](https://design.vegastack.com/docs/components/sortable-list) ·
+  [`d4abc18`](https://github.com/VegaStack/vegastack-design/commit/d4abc18)
+- **BoardCard** and **Board**: every band starts at the card's edge. That covers the eyebrow, the status icon (not its hit area), the context, the chips and the footnote. A wrapped title hangs under its own first line beside the status, and stops at two lines with an ellipsis. Bands keep fixed heights: the eyebrow and title line are 20px, and the chips and footnote are 24px with an even 8px gap. A card without chips or without an assignee keeps the same rhythm. On a `Board`, only the first band leaves room for the ⋯ menu (`data-board-card-menu`). The rows under it run to the card's end padding, so a footnote avatar sits flush and in line with the ⋯, which moves onto the end padding. The loading card mirrors these bands.
+  [docs](https://design.vegastack.com/docs/components/board-card) ·
+  [`1681ebe`](https://github.com/VegaStack/vegastack-design/commit/1681ebe)
+- **TruncatedText**: a single line is centred inside its 24px target floor instead of sitting at the top. The current breadcrumb crumb now shares a vertical centre with the links and chevrons without an app-side override.
+  [docs](https://design.vegastack.com/docs/components/truncated-text) ·
+  [`71082c6`](https://github.com/VegaStack/vegastack-design/commit/71082c6)
+
 ## [0.25.9] — October 10, 2026
 
 <!-- assembled from 3 changesets: 7a1b92ff711f -->

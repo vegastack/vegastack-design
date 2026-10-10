@@ -1,4 +1,4 @@
-// @vegastack icon-data@0.25.9 sha256-mdInFHpxok2vFYiUcDBju+1LPEdtJDChpHlxx3YUmbw=
+// @vegastack icon-data@0.25.10 sha256-uAWQASdBMX+f84hvZmZX8K3CuvI7zozWtjEJKZYpCU8=
 
 /** Curated catalogue metadata. Upstream tags pinned to Lucide revision 3b9ea6d08707edc439f25a4c354cb0d6b8bee973. */
 export const ICON_CATEGORIES = [
