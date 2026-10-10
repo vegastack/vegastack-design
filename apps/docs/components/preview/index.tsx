@@ -79,7 +79,7 @@ export * from "./sidebar";
 export * from "./filter-bar";
 export * from "./auto-save-input";
 export * from "./searchable-select";
-export * from "./people-input";
+export * from "./people-picker";
 export * from "./search-input";
 export * from "./password-input";
 export * from "./country-select";

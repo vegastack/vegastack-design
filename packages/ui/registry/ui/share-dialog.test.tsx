@@ -94,7 +94,9 @@ test("share-dialog read-only viewer: no invite row, no menus, the published link
     <ShareDemo defaultOpen readOnly publicLinkOn defaultTab="publish" />,
   );
   const dialog = screen.getByRole("dialog", { name: "Share" });
-  expect(dialog.element().querySelector("[data-people-input]")).toBeNull();
+  expect(
+    dialog.element().querySelector('[data-slot="people-picker"]'),
+  ).toBeNull();
   expect(dialog.element().querySelector("[data-permission-menu]")).toBeNull();
   await expect
     .element(dialog.getByRole("switch", { name: "Publish to the web" }))
@@ -160,38 +162,41 @@ test("share-dialog defaultInvitees is reactive and keeps edits until it changes"
     open: true,
     levels: LEVELS,
     people: [],
-    search: () => Promise.resolve([PRIYA, LENA, OMAR]),
+    search: () => Promise.resolve({ items: [PRIYA, LENA, OMAR] }),
   };
-  const chip = (name: string) =>
-    screen
-      .getByRole("dialog", { name: "Share" })
-      .getByRole("button", { name: `Remove ${name}` });
+  // The picker's trigger reads the chosen names.
+  const chosen = () =>
+    document.querySelector('[data-slot="people-picker"]')?.textContent ?? "";
+  const chip = (name: string) => ({
+    has: () => vi.waitFor(() => expect(chosen()).toContain(name)),
+    gone: () => vi.waitFor(() => expect(chosen()).not.toContain(name)),
+  });
   const screen = await render(<ShareDialog {...props} defaultInvitees={[]} />);
   const dialog = screen.getByRole("dialog", { name: "Share" });
   await expect.element(dialog.getByText("People with access")).toBeVisible();
 
   // The prop changes: the chips follow it and the dialog is in invite mode.
   await screen.rerender(<ShareDialog {...props} defaultInvitees={[PRIYA]} />);
-  await expect.element(chip("Priya Shah")).toBeVisible();
+  await chip("Priya Shah").has();
   await expect
     .element(dialog.getByRole("checkbox", { name: "Notify people" }))
     .toBeVisible();
 
   // A new array with the same people is not a change; the viewer's edit stays.
-  await dialog
-    .getByRole("combobox", { name: "Add people or teams" })
-    .fill("Lena");
+  await dialog.getByRole("button", { name: "Add people or teams" }).click();
+  await screen.getByRole("combobox", { name: "Search people" }).fill("Lena");
   await screen.getByRole("option", { name: /Lena Ortiz/ }).click();
-  await expect.element(chip("Lena Ortiz")).toBeVisible();
+  await userEvent.keyboard("{Escape}");
+  await chip("Lena Ortiz").has();
   await screen.rerender(<ShareDialog {...props} defaultInvitees={[PRIYA]} />);
-  await expect.element(chip("Lena Ortiz")).toBeVisible();
-  await expect.element(chip("Priya Shah")).toBeVisible();
+  await chip("Lena Ortiz").has();
+  await chip("Priya Shah").has();
 
   // A different prop replaces them.
   await screen.rerender(<ShareDialog {...props} defaultInvitees={[OMAR]} />);
-  await expect.element(chip("Omar Haddad")).toBeVisible();
-  await expect.element(chip("Priya Shah")).not.toBeInTheDocument();
-  await expect.element(chip("Lena Ortiz")).not.toBeInTheDocument();
+  await chip("Omar Haddad").has();
+  await chip("Priya Shah").gone();
+  await chip("Lena Ortiz").gone();
 });
 
 test("share-dialog while published: the Share tab says so in one line, and Manage opens Publish", async () => {
@@ -371,7 +376,7 @@ test("share-dialog canPublish gates the Publish controls apart from canManage", 
     defaultTab: "publish" as const,
     levels: LEVELS,
     people: [],
-    search: () => Promise.resolve([PRIYA]),
+    search: () => Promise.resolve({ items: [PRIYA] }),
     publicLink: {
       url: "https://app.acme.com/s/k3J9xQ2",
       expires: "7d" as const,
@@ -389,7 +394,9 @@ test("share-dialog canPublish gates the Publish controls apart from canManage", 
   await expect
     .element(dialog.getByRole("button", { name: "Copy public link" }))
     .toBeVisible();
-  expect(dialog.element().querySelector("[data-people-input]")).not.toBeNull();
+  expect(
+    dialog.element().querySelector('[data-slot="people-picker"]'),
+  ).not.toBeNull();
   await expectNoA11yViolations(document.body, ["color-contrast"]);
 
   // A viewer who may publish but not manage access: the switch, no invite row.
@@ -400,7 +407,9 @@ test("share-dialog canPublish gates the Publish controls apart from canManage", 
   await expect
     .element(dialog.getByRole("button", { name: "Stop publishing" }))
     .toBeVisible();
-  expect(dialog.element().querySelector("[data-people-input]")).toBeNull();
+  expect(
+    dialog.element().querySelector('[data-slot="people-picker"]'),
+  ).toBeNull();
 
   // Unset, it follows canManage.
   await screen.rerender(<ShareDialog {...base} canManage={false} />);

@@ -69,7 +69,7 @@ export function shareDialogCanPublish(): ReactNode {
         levels={LEVELS}
         people={PEOPLE}
         canPublish={false}
-        search={() => Promise.resolve([])}
+        search={() => Promise.resolve({ items: [] })}
         generalAccess={GENERAL}
         publicLink={{ url: "https://app.acme.com/s/k3J9xQ2", expires: "7d" }}
         linkUrl="https://app.acme.com/tasks/REG-142"
@@ -86,7 +86,7 @@ export function shareDialogHints(): ReactNode {
         trigger={<Button variant="outline">Share (with hints)</Button>}
         levels={LEVELS}
         people={PEOPLE}
-        search={() => Promise.resolve([])}
+        search={() => Promise.resolve({ items: [] })}
         generalAccess={GENERAL}
         linkUrl="https://app.acme.com/tasks/REG-142"
         hints={{

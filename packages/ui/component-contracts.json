@@ -81,7 +81,7 @@
       "native-select",
       "number-field",
       "password-input",
-      "people-input",
+      "people-picker",
       "record-chip",
       "region-select",
       "search-input",
@@ -12841,6 +12841,24 @@
             "status": "not-applicable",
             "rationale": "Type-only exports do not render or accept runtime refs."
           }
+        },
+        {
+          "name": "FilterBarPeopleFacet",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/filter-bar.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Renders a composed part and takes no ref."
+          }
+        },
+        {
+          "name": "FilterBarPeopleFacetProps",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/filter-bar.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
         }
       ],
       "variants": {
@@ -12899,13 +12917,14 @@
       "docsSlug": "/docs/components/filter-bar",
       "registryDependencies": [
         "@vegastack/button",
+        "@vegastack/calendar",
         "@vegastack/chip",
+        "@vegastack/date-time",
         "@vegastack/dropdown-menu",
+        "@vegastack/people-picker",
         "@vegastack/popover",
         "@vegastack/search-input",
-        "@vegastack/searchable-select",
-        "@vegastack/calendar",
-        "@vegastack/date-time"
+        "@vegastack/searchable-select"
       ],
       "npmDependencies": [
         "lucide-react@^1.47.0",
@@ -12972,6 +12991,28 @@
                 "filter-bar-facet-clear",
                 "filter-bar-facet-remove",
                 "filter-bar-facet-select"
+              ]
+            },
+            {
+              "name": "data-state",
+              "values": ["set", "unset"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "FilterBarPeopleFacet": {
+          "attributes": [
+            {
+              "name": "data-placeholder",
+              "values": [""]
+            },
+            {
+              "name": "data-slot",
+              "values": [
+                "filter-bar-facet",
+                "filter-bar-facet-clear",
+                "filter-bar-facet-remove",
+                "filter-bar-facet-select-trigger"
               ]
             },
             {
@@ -30456,38 +30497,110 @@
       }
     },
     {
-      "name": "people-input",
+      "name": "people-picker",
       "registryType": "registry:ui",
-      "title": "People Input",
-      "summary": "Add people or teams as removable chips, searched as you type — a Combobox chips field over the host's async search, listing PersonOption rows with person and team avatars.",
+      "title": "People Picker",
+      "summary": "The one picker for people and teams — a field (single or multiple), a popover body for a host trigger, or a dropdown submenu — with avatar rows, \"(you)\", team sizes, skeleton loading, footer actions and active people only.",
       "status": "stable",
       "since": "0.23.112",
       "family": "form",
       "wave": "Forms/editing",
-      "sourceFiles": ["packages/ui/registry/ui/people-input.tsx"],
+      "sourceFiles": ["packages/ui/registry/ui/people-picker.tsx"],
       "publicSymbols": [
         {
-          "name": "PeopleInput",
+          "name": "PeoplePicker",
           "kind": "component",
-          "source": "packages/ui/registry/ui/people-input.tsx",
+          "source": "packages/ui/registry/ui/people-picker.tsx",
           "ref": {
-            "status": "not-applicable",
-            "rationale": "A Combobox composition; the chips field and its input are Base UI's, and it forwards no ref of its own."
+            "status": "forwarded",
+            "rationale": "Forwarded to the trigger Button."
           }
         },
         {
-          "name": "PeopleInputProps",
+          "name": "PeoplePickerContent",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/people-picker.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A composition of Command (or menu items); it forwards no ref of its own."
+          }
+        },
+        {
+          "name": "PeoplePickerMenu",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/people-picker.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A composition of Command (or menu items); it forwards no ref of its own."
+          }
+        },
+        {
+          "name": "PeoplePickerProps",
           "kind": "interface",
-          "source": "packages/ui/registry/ui/people-input.tsx",
+          "source": "packages/ui/registry/ui/people-picker.tsx",
           "ref": {
             "status": "not-applicable",
             "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
-          "name": "PeopleInputOption",
+          "name": "PeoplePickerContentProps",
           "kind": "interface",
-          "source": "packages/ui/registry/ui/people-input.tsx",
+          "source": "packages/ui/registry/ui/people-picker.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "PeoplePickerMenuProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/people-picker.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "PeoplePickerListProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/people-picker.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "PeoplePickerOption",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/people-picker.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "PeoplePickerAction",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/people-picker.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "PeoplePickerSearch",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/people-picker.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "PeoplePickerValue",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/people-picker.tsx",
           "ref": {
             "status": "not-applicable",
             "rationale": "Type-only exports do not render or accept runtime refs."
@@ -30495,65 +30608,81 @@
         }
       ],
       "variants": {
-        "status": "not-applicable-or-inherited",
-        "dimensions": [],
-        "rationale": "One chips field; people and teams differ by data (kind), not by a variant axis."
+        "status": "covered",
+        "dimensions": [
+          {
+            "name": "variant",
+            "values": ["outline", "ghost"]
+          }
+        ],
+        "rationale": "The trigger is an outline field or an inline ghost trigger."
       },
       "sizes": {
-        "status": "not-applicable-or-inherited",
-        "dimensions": [],
-        "rationale": "Combobox chips' own height; the field grows as chips wrap."
+        "status": "covered",
+        "dimensions": [
+          {
+            "name": "size",
+            "values": ["sm", "default", "lg"]
+          }
+        ],
+        "rationale": "The trigger's height equals Button's at each size (h-7, h-8, h-9), so it sits flush beside a Select and a Button."
       },
       "states": {
         "behavior": {
           "status": "covered",
           "values": [
-            "empty",
-            "searching",
+            "loading-skeleton",
             "results",
             "no-results",
             "error",
-            "chips",
-            "remove",
-            "backspace-remove",
-            "disabled",
-            "in-dialog",
-            "in-sheet"
+            "single",
+            "multiple",
+            "you",
+            "team",
+            "inactive-hidden",
+            "include-inactive",
+            "actions",
+            "menu",
+            "leading-options"
           ],
-          "evidence": "packages/ui/registry/ui/people-input.tsx + packages/ui/registry/ui/people-input.test.tsx"
+          "evidence": "packages/ui/registry/ui/people-picker.tsx + packages/ui/registry/ui/people-picker.test.tsx"
         },
         "accessibility": {
           "status": "covered",
           "values": ["labeled", "keyboard", "browser-accessibility-test"],
-          "evidence": "packages/ui/registry/ui/people-input.test.tsx"
+          "evidence": "packages/ui/registry/ui/people-picker.test.tsx"
         },
         "visual": {
           "status": "observed",
-          "values": ["default", "focus", "open", "chips"],
-          "evidence": "packages/ui/registry/ui/people-input.tsx"
+          "values": ["default", "open", "chosen", "multiple", "loading"],
+          "evidence": "packages/ui/registry/ui/people-picker.tsx"
         }
       },
       "responsive": {
         "status": "modeled",
         "risks": ["responsive-or-container-layout"],
-        "rationale": "The chips field is w-full and wraps; the popup is anchored to the field's width and clamped to the viewport."
+        "rationale": "The trigger is w-full and truncates; the popover is at least 18rem and clamped to the viewport."
       },
       "motion": {
         "status": "not-applicable",
         "mechanisms": [],
         "reducedMotion": {
           "status": "not-applicable",
-          "rationale": "No component-owned motion; the popup's transitions are Combobox's."
+          "rationale": "No component-owned motion; the popover's transitions are Popover's."
         }
       },
       "engines": [],
-      "docsSlug": "/docs/components/people-input",
+      "docsSlug": "/docs/components/people-picker",
       "registryDependencies": [
         "@vegastack/button",
-        "@vegastack/combobox",
+        "@vegastack/command",
+        "@vegastack/dropdown-menu",
+        "@vegastack/load-more",
+        "@vegastack/panel-search",
         "@vegastack/person-avatar",
+        "@vegastack/popover",
         "@vegastack/searchable-select",
-        "@vegastack/spinner",
+        "@vegastack/skeleton",
         "@vegastack/use-async-search"
       ],
       "npmDependencies": [
@@ -30562,7 +30691,7 @@
         "@vegastack/design@^0.8.3",
         "lucide-react@^1.47.0"
       ],
-      "testFiles": ["packages/ui/registry/ui/people-input.test.tsx"],
+      "testFiles": ["packages/ui/registry/ui/people-picker.test.tsx"],
       "coverage": {
         "source": "required",
         "test": "required",
@@ -30571,21 +30700,59 @@
         "preview": "required",
         "vrt": "required"
       },
-      "previewModule": "people-input",
+      "previewModule": "people-picker",
       "dataAttributes": {
-        "PeopleInput": {
+        "PeoplePickerContent": {
+          "attributes": [
+            {
+              "name": "data-checked",
+              "values": ["true"]
+            },
+            {
+              "name": "data-kind",
+              "values": ["person"]
+            },
+            {
+              "name": "data-slot",
+              "values": ["people-picker-content", "people-picker-item"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "PeoplePickerMenu": {
           "attributes": [
             {
               "name": "data-kind",
               "values": ["person"]
             },
             {
-              "name": "data-people-input",
+              "name": "data-slot",
+              "values": ["people-picker-item", "people-picker-menu"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "PeoplePicker": {
+          "attributes": [
+            {
+              "name": "data-placeholder",
               "values": [""]
             },
             {
+              "name": "data-size",
+              "values": []
+            },
+            {
               "name": "data-slot",
-              "values": ["people-input-chip-remove"]
+              "values": [
+                "people-picker",
+                "people-picker-avatars",
+                "people-picker-popover"
+              ]
+            },
+            {
+              "name": "data-variant",
+              "values": []
             }
           ],
           "cssVariables": []
@@ -31111,7 +31278,7 @@
         "@vegastack/icon-glyph",
         "@vegastack/input-group",
         "@vegastack/item",
-        "@vegastack/people-input",
+        "@vegastack/people-picker",
         "@vegastack/permission-menu",
         "@vegastack/person-avatar",
         "@vegastack/responsive-dialog",
@@ -38770,7 +38937,7 @@
       "docsSlug": "/docs/blocks/share-01",
       "registryDependencies": [
         "@vegastack/button",
-        "@vegastack/people-input",
+        "@vegastack/people-picker",
         "@vegastack/share-dialog",
         "@vegastack/space-picker"
       ],

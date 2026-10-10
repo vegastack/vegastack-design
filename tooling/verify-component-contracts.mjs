@@ -651,7 +651,7 @@ const expectedComponentWaveMembers = {
     "native-select",
     "number-field",
     "password-input",
-    "people-input",
+    "people-picker",
     "record-chip",
     "region-select",
     "search-input",

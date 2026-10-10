@@ -37,7 +37,7 @@ install it alone with `npx shadcn@latest add @vegastack/share-dialog`; its props
 
 ### Invite mode
 
-The invite row is `PeopleInput`, the level for the whole batch (`PermissionMenu variant="outline"`)
+The invite row is `PeoplePicker`, the level for the whole batch (`PermissionMenu variant="outline"`)
 and **Invite**. Once a chip is chosen the tab shows **Notify people** (on by default) and an
 optional message, with Cancel in the footer. `onInvite` receives
 `{ invitees, level, notify, message }`; the chips clear when it resolves, and stay for a retry when
@@ -112,7 +112,7 @@ level.
 
 - **Tabs**: `Tabs variant="line"` — Share, Publish (a small globe while published). Without
   `publicLinkAvailable` there is no Publish tab and no tab list.
-- **Invite row**: `PeopleInput` with the host's `search`, `PermissionMenu variant="outline"` for
+- **Invite row**: `PeoplePicker` with the host's `search`, `PermissionMenu variant="outline"` for
   the batch, and Invite (`loading` while `onInvite` runs).
 - **Invite mode**: `Checkbox` "Notify people", `Textarea`, footer Cancel.
 - **People with access**: `Item` rows — `PersonAvatar` (people and teams), the name with "(you)", a

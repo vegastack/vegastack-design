@@ -29,7 +29,7 @@ test("share-01 opens an md Dialog with Share and Publish tabs, people and space 
     .element(dialog.getByRole("tab", { name: "Publish" }))
     .toBeVisible();
   await expect
-    .element(dialog.getByRole("combobox", { name: "Add people or teams" }))
+    .element(dialog.getByRole("button", { name: "Add people or teams" }))
     .toBeVisible();
   await expect.element(dialog.getByText("Manager of Priya")).toBeVisible();
   // Built-in rows are locked (still a tab stop, with the reason); a shared row has a menu.

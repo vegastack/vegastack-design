@@ -1,4 +1,4 @@
-// @vegastack filter-bar@0.25.13 sha256-hefgb0F14Lq1Z+z1aLx4U2lENEPDlCoCfk3r8FSaEVk=
+// @vegastack filter-bar@0.25.11 sha256-x7Upm1QblNdTz7a1zq+WtTonvprxdFCA8ztBoiCNwFU=
 
 "use client";
 
@@ -26,6 +26,12 @@ import {
   SearchableSelect,
   type SearchableSelectProps,
 } from "@/components/ui/searchable-select";
+import {
+  PeoplePickerContent,
+  type PeoplePickerListProps,
+  type PeoplePickerOption,
+  type PeoplePickerValue,
+} from "@/components/ui/people-picker";
 import { formatDateRange } from "@/lib/date-time";
 
 /**
@@ -1102,6 +1108,198 @@ export function FilterBarFacet<
           disabled={select.disabled}
           onClick={() => {
             if (!select.disabled) onRemove?.();
+          }}
+        >
+          <X aria-hidden />
+        </Button>
+      ) : null}
+    </span>
+  );
+}
+
+/* ------------------------------------------------------------------------------------------------
+ * FilterBarPeopleFacet
+ * ----------------------------------------------------------------------------------------------*/
+
+/** Props accepted by `FilterBarPeopleFacet`. */
+export interface FilterBarPeopleFacetProps<
+  Multiple extends boolean | undefined = false,
+> extends PeoplePickerListProps {
+  /** The facet's name, in sentence case ("Assignee", "Recorded by"). */
+  label: string;
+  /** Filter by several people. @default false */
+  multiple?: Multiple;
+  /** The chosen person — or people, with `multiple` (controlled). */
+  value: PeoplePickerValue<Multiple>;
+  /** Called with the new choice (`null`, or `[]` with `multiple`, when cleared). */
+  onValueChange: (value: PeoplePickerValue<Multiple>) => void;
+  /** Called when the popover opens or closes — start a remote search on the first open. @default undefined */
+  onOpenChange?: (open: boolean) => void;
+  /** A secondary facet added from "More": clearing it also calls `onRemove`. @default false */
+  removable?: boolean;
+  /** Called when a `removable` facet is removed or cleared. @default undefined */
+  onRemove?: () => void;
+  /** The remove control's accessible name. @default `Remove ${label} filter` */
+  removeLabel?: string;
+  /** The clear control's accessible name. @default `Clear ${label}` */
+  clearLabel?: string;
+  /** The chip's count for several people. @default (n) => String(n) */
+  countLabel?: (n: number) => string;
+  /** Disable the facet. @default false */
+  disabled?: boolean;
+}
+
+/**
+ * `FilterBarPeopleFacet` — a people filter in a `FilterBar`: the facet chip ("Assignee",
+ * "Assignee: Asha Rao", "Assignee: 2") over the one people picker (`PeoplePickerContent`), so a
+ * filter lists people exactly as every other picker does — avatar, name, email, "(you)", only
+ * active people, skeleton rows while loading. `leadingOptions` adds rows such as "Unassigned".
+ *
+ * @example
+ * <FilterBarPeopleFacet label="Assignee" multiple value={assignees} onValueChange={setAssignees} search={searchMembers} />
+ */
+export function FilterBarPeopleFacet<
+  Multiple extends boolean | undefined = false,
+>({
+  label,
+  multiple,
+  value,
+  onValueChange,
+  onOpenChange,
+  removable = false,
+  onRemove,
+  removeLabel = `Remove ${label} filter`,
+  clearLabel = `Clear ${label}`,
+  countLabel,
+  disabled = false,
+  searchPlaceholder = `Search ${label.toLowerCase()}`,
+  ...list
+}: FilterBarPeopleFacetProps<Multiple>) {
+  const chosen: PeoplePickerOption[] = Array.isArray(value)
+    ? value
+    : value
+      ? [value as PeoplePickerOption]
+      : [];
+  const hasValue = chosen.length > 0;
+  const [open, setOpen] = React.useState(false);
+  const [pinned, setPinned] = React.useState<PeoplePickerOption[]>([]);
+  const [trigger, setTrigger] = React.useState<HTMLButtonElement | null>(null);
+
+  const bar = React.useContext(FilterBarContext);
+  const id = React.useId();
+  React.useEffect(() => {
+    bar?.report(id, label, hasValue);
+  }, [bar, id, label, hasValue]);
+  React.useEffect(() => () => bar?.report(id, label, null), [bar, id, label]);
+
+  const text =
+    chosen.length === 0
+      ? label
+      : chosen.length > 1
+        ? `${label}: ${countLabel ? countLabel(chosen.length) : chosen.length}`
+        : `${label}: ${chosen[0]!.name}`;
+  const pick = (option: PeoplePickerOption) => {
+    if (multiple) {
+      const has = chosen.some((o) => o.id === option.id);
+      onValueChange(
+        (has
+          ? chosen.filter((o) => o.id !== option.id)
+          : [...chosen, option]) as PeoplePickerValue<Multiple>,
+      );
+      return;
+    }
+    setOpen(false);
+    onOpenChange?.(false);
+    const same = chosen[0]?.id === option.id;
+    onValueChange((same ? null : option) as PeoplePickerValue<Multiple>);
+  };
+  const clear = () => {
+    trigger?.focus();
+    onValueChange((multiple ? [] : null) as PeoplePickerValue<Multiple>);
+    if (removable) onRemove?.();
+  };
+
+  return (
+    <span
+      data-slot="filter-bar-facet"
+      data-state={hasValue ? "set" : "unset"}
+      title={
+        chosen.length > 1 ? chosen.map((o) => o.name).join(", ") : undefined
+      }
+      className="inline-flex min-w-0 shrink-0 items-center gap-0.5"
+    >
+      <span className="relative inline-flex min-w-0">
+        <Popover
+          open={open}
+          onOpenChange={(next) => {
+            if (next) setPinned(chosen);
+            setOpen(next);
+            onOpenChange?.(next);
+          }}
+        >
+          <PopoverTrigger
+            disabled={disabled}
+            render={
+              <Button
+                ref={setTrigger}
+                variant="outline"
+                size="sm"
+                data-slot="filter-bar-facet-select-trigger"
+                data-placeholder={hasValue ? undefined : ""}
+                className={cn(
+                  "h-7 w-auto max-w-64 justify-start rounded-md border-border ps-2 pe-7 text-sm font-normal hover:border-border aria-expanded:border-border",
+                  hasValue
+                    ? "bg-accent text-foreground hover:bg-accent/80 aria-expanded:bg-accent dark:bg-accent dark:hover:bg-accent/80"
+                    : "bg-transparent text-muted-foreground hover:bg-muted hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground dark:bg-transparent dark:hover:bg-muted",
+                )}
+              />
+            }
+          >
+            <span className="min-w-0 truncate">{text}</span>
+          </PopoverTrigger>
+          <PopoverContent align="start" className="w-72 gap-0 p-0">
+            <PeoplePickerContent
+              {...list}
+              searchPlaceholder={searchPlaceholder}
+              pinned={multiple ? pinned : []}
+              selected={chosen.map((o) => o.id)}
+              onSelect={pick}
+            />
+          </PopoverContent>
+        </Popover>
+        {hasValue ? (
+          <Button
+            variant="ghost"
+            size="icon-xs"
+            aria-label={clearLabel}
+            data-slot="filter-bar-facet-clear"
+            className="absolute inset-y-0 end-0.5 my-auto size-6 rounded-sm text-muted-foreground hover:bg-foreground/10 hover:text-foreground active:not-aria-[haspopup]:translate-y-0"
+            disabled={disabled}
+            onClick={() => {
+              if (!disabled) clear();
+            }}
+          >
+            <X aria-hidden className="size-3.5" />
+          </Button>
+        ) : (
+          <span
+            aria-hidden
+            className="pointer-events-none absolute end-0.5 top-1/2 flex size-6 -translate-y-1/2 items-center justify-center text-muted-foreground"
+          >
+            <ChevronDown className="size-3.5" />
+          </span>
+        )}
+      </span>
+      {removable && !hasValue ? (
+        <Button
+          variant="ghost"
+          size="icon-xs"
+          aria-label={removeLabel}
+          data-slot="filter-bar-facet-remove"
+          className="active:not-aria-[haspopup]:translate-y-0"
+          disabled={disabled}
+          onClick={() => {
+            if (!disabled) onRemove?.();
           }}
         >
           <X aria-hidden />

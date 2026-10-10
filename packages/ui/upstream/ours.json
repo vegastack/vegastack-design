@@ -314,11 +314,11 @@
       "source": "MK instruction 2026-09-23 — reinstated after the shadcn reset retired it",
       "rationale": "Upstream ships no password field, only an InputGroup recipe; a reveal toggle hand-rolled per consumer drifts in naming, aria-pressed and type=button. A thin InputGroup composition gives it one owner and carries no patch."
     },
-    "people-input": {
+    "people-picker": {
       "disposition": "keep",
       "family": "form",
-      "source": "Operator brief 2026-10-01 (Regent access, spaces and sharing — Phase DS, implementation.md §4) — approved by MK 2026-10-01 (A11: DS patch releases approved)",
-      "rationale": "Upstream ships no people picker. A fixed composition of upstream combobox's chips parts, person-avatar, searchable-select's PersonOption and use-async-search; no patch."
+      "source": "Operator brief 2026-10-01 (Regent access, spaces and sharing — Phase DS, implementation.md §4) — approved by MK 2026-10-01 (A11: DS patch releases approved); replaced by people-picker on the operator's 11 October 2026 brief (one picker for people and teams)",
+      "rationale": "Upstream ships no people picker. A fixed composition of upstream command and popover, dropdown-menu items, panel-search, person-avatar, searchable-select's PersonOption, skeleton, load-more and use-async-search; no patch."
     },
     "permission-menu": {
       "disposition": "keep",

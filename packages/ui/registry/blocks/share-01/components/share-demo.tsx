@@ -1,10 +1,10 @@
-// @vegastack share-01@0.25.13 sha256-93WfuOAdAQPTp4d+AABkF9KRkzeAG/WjvsAO5j7rI8w=
+// @vegastack share-01@0.25.11 sha256-c9IIUZAtt6VZsWXMIn6IzZaKeho/13Dlsc6TPfxqeUU=
 
 "use client";
 
 import * as React from "react";
 import { Button } from "@/components/ui/button";
-import type { PeopleInputOption } from "@/components/ui/people-input";
+import type { PeoplePickerOption } from "@/components/ui/people-picker";
 import type { SpaceHint } from "@/components/ui/space-picker";
 import {
   ShareDialog,
@@ -66,7 +66,7 @@ const PEOPLE: ShareEntry[] = [
   },
 ];
 
-const DIRECTORY: PeopleInputOption[] = [
+const DIRECTORY: PeoplePickerOption[] = [
   { id: "u5", name: "Lena Ortiz", email: "lena@acme.com", hue: "pink" },
   { id: "u6", name: "Omar Haddad", email: "omar@acme.com", hue: "red" },
   { id: "u7", name: "Yuki Tan", email: "yuki@acme.com", hue: "lime" },
@@ -86,15 +86,17 @@ const GENERAL: ShareGeneralAccess = {
   level: "edit",
 };
 
-function searchDirectory(query: string): Promise<PeopleInputOption[]> {
+function searchDirectory(
+  query: string,
+): Promise<{ items: PeoplePickerOption[] }> {
   const q = query.trim().toLowerCase();
-  return Promise.resolve(
-    DIRECTORY.filter(
+  return Promise.resolve({
+    items: DIRECTORY.filter(
       (option) =>
         option.name.toLowerCase().includes(q) ||
         (option.email ?? "").toLowerCase().includes(q),
     ),
-  );
+  });
 }
 
 /** Props for `ShareDemo`. */
@@ -104,7 +106,7 @@ export interface ShareDemoProps {
   /** Show the dialog as a viewer who cannot change access. @default false */
   readOnly?: boolean;
   /** Start with these people chosen to invite (invite mode). @default undefined */
-  invitees?: PeopleInputOption[];
+  invitees?: PeoplePickerOption[];
   /** General access's level as text; the mode stays a select. @default false */
   generalLevelReadOnly?: boolean;
   /** Start open. @default false */
