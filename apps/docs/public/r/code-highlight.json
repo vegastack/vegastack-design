@@ -10,16 +10,16 @@
   "files": [
     {
       "path": "packages/ui/registry/lib/code-highlight.ts",
-      "content": "// @vegastack code-highlight@0.25.8 sha256-y8Icmil83Uo4ua/6fIv43KN/0QOQmwebSp1c1FgimnU=\n\nimport { common, createLowlight } from \"lowlight\";\n\n/**\n * The one lowlight instance (highlight.js `common` grammars) `CodeBlock` and `TextEdit`'s code\n * block share. Its own module so the grammars load only where code is highlighted: `CodeBlock`\n * imports it dynamically after mount, and the editor chunk statically — one instance either way.\n */\nexport const codeLowlight = createLowlight(common);\n",
+      "content": "// @vegastack code-highlight@0.25.9 sha256-H6maJw17sT82I4ewLJ0bEYRasr0iTmvZ/LiJS/1Ich0=\n\nimport { common, createLowlight } from \"lowlight\";\n\n/**\n * The one lowlight instance (highlight.js `common` grammars) `CodeBlock` and `TextEdit`'s code\n * block share. Its own module so the grammars load only where code is highlighted: `CodeBlock`\n * imports it dynamically after mount, and the editor chunk statically — one instance either way.\n */\nexport const codeLowlight = createLowlight(common);\n",
       "type": "registry:lib",
       "target": "@lib/code-highlight.ts"
     }
   ],
   "meta": {
-    "version": "0.25.8",
+    "version": "0.25.9",
     "whenToUse": "Highlighting code with the design system's shared grammars.",
     "whenNotToUse": "Rendering code — use CodeBlock.",
-    "integrity": "sha256-y8Icmil83Uo4ua/6fIv43KN/0QOQmwebSp1c1FgimnU="
+    "integrity": "sha256-H6maJw17sT82I4ewLJ0bEYRasr0iTmvZ/LiJS/1Ich0="
   },
   "categories": [
     "data"
