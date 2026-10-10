@@ -1,4 +1,4 @@
-// @vegastack markdown-view@0.25.8 sha256-UR7elnxyPiSc4TvkCk8aEXULweBaFIwLCNMph2XDF04=
+// @vegastack markdown-view@0.25.8 sha256-jW8TeRUAp2HQIYAfHInyU2Kng0pPd65eI1QnLlhvN8I=
 
 import * as React from "react";
 import { Lexer, type Token, type Tokens } from "marked";
@@ -584,7 +584,16 @@ const CITATION_OPAQUE = new Set(["code", "pre", "a", "mention"]);
  */
 function withCitations(nodes: DocNode[]): DocNode[] {
   const out: DocNode[] = [];
+  // Run adjacent text together first: the editor's Markdown escapes the brackets (`\[\[1\]\]`),
+  // and each escape lexes as a text run of its own, so the marker would never match whole.
+  const runs: DocNode[] = [];
   for (const node of nodes) {
+    const last = runs[runs.length - 1];
+    if (typeof node === "string" && typeof last === "string")
+      runs[runs.length - 1] = last + node;
+    else runs.push(node);
+  }
+  for (const node of runs) {
     if (typeof node !== "string") {
       if (!CITATION_OPAQUE.has(node.tag))
         node.children = withCitations(node.children);

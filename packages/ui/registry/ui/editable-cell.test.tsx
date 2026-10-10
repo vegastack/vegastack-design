@@ -18,6 +18,19 @@ function deferred() {
   return { promise, resolve, reject };
 }
 
+/** Wait for the opened text field, replace its draft, and commit with Enter. */
+async function replaceDraft(text: string) {
+  const query = () =>
+    document.querySelector<HTMLInputElement>(
+      '[data-slot="editable-cell"] input',
+    );
+  await expect
+    .poll(() => query() !== null && document.activeElement === query())
+    .toBe(true);
+  query()!.select();
+  await userEvent.keyboard(`${text}{Enter}`);
+}
+
 test("displays the value; clicking opens the text editor; Enter commits", async () => {
   const onCommit = vi.fn();
   const screen = await render(
@@ -26,12 +39,12 @@ test("displays the value; clicking opens the text editor; Enter commits", async 
   await screen.getByRole("button", { name: "Edit Account name" }).click();
   const input = screen.getByRole("textbox", { name: "Account name" });
   await expect.element(input).toBeInTheDocument();
-  // The text leaf focus-and-selects the whole value on open — wait for it so
-  // typing replaces rather than appends.
-  await expect
-    .poll(() => (input.element() as HTMLInputElement).selectionEnd)
-    .toBe(4);
-  await userEvent.keyboard("Globex{Enter}");
+  // Opening never selects the whole value: the caret is collapsed (at the click).
+  await expect.poll(() => document.activeElement).toBe(input.element());
+  const field = input.element() as HTMLInputElement;
+  expect(field.selectionStart).toBe(field.selectionEnd);
+  await input.fill("Globex");
+  await userEvent.keyboard("{Enter}");
   expect(onCommit).toHaveBeenCalledWith("Globex");
 });
 
@@ -70,17 +83,7 @@ test("a promise-returning commit shows the optimistic value + saving, then saved
     />,
   );
   await screen.getByRole("button", { name: "Edit Account name" }).click();
-  await expect
-    .poll(
-      () =>
-        (
-          document.querySelector(
-            '[data-slot="editable-cell"] input',
-          ) as HTMLInputElement
-        )?.selectionEnd,
-    )
-    .toBe(4);
-  await userEvent.keyboard("Globex{Enter}");
+  await replaceDraft("Globex");
   const root = document.querySelector('[data-slot="editable-cell"]')!;
   // Optimistic: the display shows the committed draft while saving.
   await expect
@@ -101,17 +104,7 @@ test("a rejected commit reverts the display to `value` and announces it", async 
     />,
   );
   await screen.getByRole("button", { name: "Edit Account name" }).click();
-  await expect
-    .poll(
-      () =>
-        (
-          document.querySelector(
-            '[data-slot="editable-cell"] input',
-          ) as HTMLInputElement
-        )?.selectionEnd,
-    )
-    .toBe(4);
-  await userEvent.keyboard("Globex{Enter}");
+  await replaceDraft("Globex");
   d.reject(new Error("version_conflict"));
   const root = document.querySelector('[data-slot="editable-cell"]')!;
   await expect.poll(() => root.getAttribute("data-status")).toBe("error");
@@ -540,26 +533,16 @@ test("committing back to the persisted value DURING a slow save supersedes it (n
       onCommit={() => promises[call++]}
     />,
   );
-  const openAndType = async (text: string, selectionEnd: number) => {
+  const openAndType = async (text: string) => {
     await screen.getByRole("button", { name: "Edit Account name" }).click();
-    await expect
-      .poll(
-        () =>
-          (
-            document.querySelector(
-              '[data-slot="editable-cell"] input',
-            ) as HTMLInputElement
-          )?.selectionEnd,
-      )
-      .toBe(selectionEnd);
-    await userEvent.keyboard(`${text}{Enter}`);
+    await replaceDraft(text);
   };
-  await openAndType("Globex", 4);
+  await openAndType("Globex");
   const root = document.querySelector('[data-slot="editable-cell"]')!;
   expect(root.getAttribute("data-status")).toBe("saving");
   // While saving, edit again and type the ORIGINAL persisted value back —
   // a real edit (it differs from the optimistic display) that must supersede.
-  await openAndType("Acme", 6);
+  await openAndType("Acme");
   await expect
     .element(screen.getByRole("button", { name: "Edit Account name" }))
     .toHaveTextContent("Acme");

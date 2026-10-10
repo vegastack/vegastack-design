@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.25.8 sha256-soQqYHttr23urDAqiAHjiZlaBhbgdLXqOacr54MQKOE=
+// @vegastack text-edit@0.25.8 sha256-VJPBIfOOwmfPHdBvFviTEvjSkOKE8eOXYm+kwFHLW08=
 
 "use client";
 
@@ -777,9 +777,11 @@ export interface TextEditProps {
    */
   mentionImage?: (id: string) => string | null | undefined;
   /**
-   * `MarkdownView`'s `citation`, for the read view shown before the editor activates: a `[[n]]`
-   * marker renders as a superscript citation, and clicking it is the citation's, never an edit.
-   * In the editor the markers stay plain `[[n]]` text.
+   * `MarkdownView`'s `citation`, for the read view: a `[[n]]` marker renders as a superscript
+   * citation, and clicking it is the citation's, never an edit. In the editor the markers stay
+   * plain `[[n]]` text, so with `citation` set the read view stands in whenever the document is not
+   * being edited: the editor swaps in on a click or focus and the read view returns once focus
+   * leaves the editor and its menus and panels (after the blur commit, never mid-upload).
    * @default undefined
    */
   citation?: (n: number) => MarkdownCitation | null | undefined;
@@ -1025,10 +1027,28 @@ export function TextEdit(props: TextEditProps) {
   );
   const invalid = ariaInvalidAttribute !== undefined;
 
-  // `active`: the editor is mounting (hidden, behind the read view). `ready`: it is in the DOM and
-  // has replaced the read view. Once active it stays — the read view never comes back.
+  // `active`: the editor is mounted (hidden behind the read view until it is shown). `loaded`: its
+  // document is in the DOM. `engaged`: the reader asked to edit.
+  //
+  // `readFirst`: the read view renders something the editor cannot — citations, which the editor
+  // shows as their raw `[[…]]` markers — so it stands in whenever the document is not being
+  // edited. A preloaded editor waits behind it for intent instead of swapping in on mount, and
+  // when an edit session ends for good (focus left the editor and its floating parts, no upload in
+  // flight) the read view comes back, the editor staying mounted for the next click. Any other
+  // document swaps the editor in as soon as it is loaded, and it stays.
+  const readFirst = !eager && props.citation !== undefined;
   const [active, setActive] = React.useState(false);
-  const [ready, setReady] = React.useState(false);
+  const [loaded, setLoaded] = React.useState(false);
+  const [engaged, setEngaged] = React.useState(false);
+  const ready = loaded && (engaged || !readFirst);
+  const readyRef = React.useRef(ready);
+  readyRef.current = ready;
+  // The editor's document as the session left it, for the read view until the host's `value`
+  // moves on (`forValue` is the `value` it was left against; an uncontrolled field keeps it).
+  const [leftDoc, setLeftDoc] = React.useState<{
+    doc: string;
+    forValue: string | undefined;
+  } | null>(null);
   const editorRef = React.useRef<Editor | null>(null);
   const intentRef = React.useRef<Intent | null>(null);
   const typedRef = React.useRef("");
@@ -1043,7 +1063,17 @@ export function TextEdit(props: TextEditProps) {
     if (!editable) return;
     intentRef.current ??= intent;
     setActive(true);
+    setEngaged(true);
   };
+  const onLeaveView = React.useCallback(
+    (doc: string) => {
+      // Only a shown editor hands back; one still waiting behind the read view has nothing to.
+      if (!readyRef.current) return;
+      setLeftDoc({ doc, forValue: value });
+      setEngaged(false);
+    },
+    [value],
+  );
   // A press outside the read view (the box's padding, the blank content area) is cancelled so the
   // caret lands by intent — but focus still has to go somewhere that keeps keystrokes: the read
   // view, whose typed text is replayed into the editor once it is in.
@@ -1073,7 +1103,7 @@ export function TextEdit(props: TextEditProps) {
   }, [editable]);
   const onReady = React.useCallback((editor: Editor) => {
     editorRef.current = editor;
-    setReady(true);
+    setLoaded(true);
   }, []);
 
   // The public handle delegates to the editor once it is in; before that, the read view answers.
@@ -1085,7 +1115,8 @@ export function TextEdit(props: TextEditProps) {
     handleRef,
     () => ({
       scrollToHeading: (id) => {
-        if (editorHandle.current) editorHandle.current.scrollToHeading(id);
+        if (editorHandle.current && readyRef.current)
+          editorHandle.current.scrollToHeading(id);
         else
           rootRef.current
             ?.querySelector<HTMLElement>(`[id="${CSS.escape(id)}"]`)
@@ -1093,7 +1124,8 @@ export function TextEdit(props: TextEditProps) {
       },
       flush: () => editorHandle.current?.flush() ?? Promise.resolve(),
       focus: () => {
-        if (editorHandle.current) editorHandle.current.focus();
+        if (editorHandle.current && readyRef.current)
+          editorHandle.current.focus();
         else activate("end");
       },
       getAnchorForSelection: () =>
@@ -1101,14 +1133,19 @@ export function TextEdit(props: TextEditProps) {
       pulseAnnotation: (id) => editorHandle.current?.pulseAnnotation(id),
       markSaved: () => editorHandle.current?.markSaved(),
       uploadFiles: (files) => {
-        if (editorHandle.current) editorHandle.current.uploadFiles(files);
-        else {
+        // A mounted editor (shown, or waiting behind the read view) starts the uploads now, so a
+        // `flush()` right after awaits them; a hidden one is then swapped in to show them.
+        if (editorHandle.current) {
+          editorHandle.current.uploadFiles(files);
+          if (!readyRef.current) activate("end");
+        } else {
           pendingFilesRef.current.push(...files);
           activate("end");
         }
       },
       pickFiles: () => {
-        if (editorHandle.current) editorHandle.current.pickFiles();
+        if (editorHandle.current && readyRef.current)
+          editorHandle.current.pickFiles();
         else {
           pendingPickRef.current = true;
           activate("end");
@@ -1195,7 +1232,15 @@ export function TextEdit(props: TextEditProps) {
   }, []);
 
   const html = format !== "markdown";
-  const source = value ?? defaultValue;
+  // A controlled `value` that moves on retires the left document for good (A → C → A must not
+  // bring it back).
+  React.useEffect(() => {
+    setLeftDoc((left) => (left && left.forValue !== value ? null : left));
+  }, [value]);
+  const source =
+    leftDoc && leftDoc.forValue === value
+      ? leftDoc.doc
+      : (value ?? defaultValue);
   const empty = isEmptyDocument(source, html);
   const resolvedLabelledBy = field["aria-labelledby"] ?? ariaLabelledBy;
   const resolvedDescribedBy = field["aria-describedby"] ?? ariaDescribedBy;
@@ -1222,6 +1267,10 @@ export function TextEdit(props: TextEditProps) {
     translate: "no" as const,
     onMouseDown: (event: React.MouseEvent) => {
       if (event.button !== 0 || isCitation(event.target)) return;
+      // The editor is already mounted behind the read view, so the swap happens inside this
+      // press: keep the browser from focusing (and then losing) the read view it removes — the
+      // swap places the caret at this point itself.
+      if (loaded && !ready) event.preventDefault();
       activate({
         x: event.clientX,
         y: event.clientY,
@@ -1362,6 +1411,7 @@ export function TextEdit(props: TextEditProps) {
             rootRef={rootRef}
             hidden={!ready}
             onReady={onReady}
+            onLeaveView={readFirst ? onLeaveView : undefined}
             editorHandle={editorHandle}
             onOpenImage={imageViewer.open}
             onOpenFile={(href: string, name: string) =>

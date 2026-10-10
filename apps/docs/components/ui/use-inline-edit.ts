@@ -1,4 +1,4 @@
-// @vegastack use-inline-edit@0.25.8 sha256-0ezcC5j2TAvkuE1DsxvDPp5+Rl+VUDs4rAtAGj1vh00=
+// @vegastack use-inline-edit@0.25.8 sha256-NP6KFoLGmG9pe1wH+pbEXeVd/s0SK1yDdwGhNQkBLtQ=
 
 "use client";
 
@@ -19,6 +19,9 @@ What it owns, and why each piece is not optional:
 - the double-commit guard. Enter sets editing=false, which unmounts the input, which makes
   the browser fire `blur`, which would commit a second time. One boolean ref, checked and
   set before any callback runs;
+- caret placement: a pointer click opens the editor with the caret where the click landed in
+  the text; a keyboard open (Enter/F2, or a controlled host) puts it at the end. Never select-all
+  — a click on a title means "edit here", and a select-all turns the next keystroke into a wipe;
 - focus restoration, but ONLY when the keyboard closed the edit. A commit that came from a
   blur means the user has already clicked somewhere else; stealing focus back is a trap.
 
@@ -81,6 +84,14 @@ export interface UseInlineEditOptions {
   multiline?: boolean;
 }
 
+/** The opening pointer position — a `MouseEvent`/`PointerEvent` (React or DOM) satisfies it. */
+export interface InlineEditStartPoint {
+  clientX: number;
+  clientY: number;
+  /** Click count; `0` marks a keyboard-synthesised click, which places the caret at the end. */
+  detail?: number;
+}
+
 /** What {@link useInlineEdit} returns. */
 export interface UseInlineEditResult {
   /** Whether the field is currently editing (resolved across controlled/uncontrolled). */
@@ -89,8 +100,12 @@ export interface UseInlineEditResult {
   draft: string;
   /** Update the draft from the editor's change handler. */
   setDraft: (value: string) => void;
-  /** Enter edit mode. No-ops while `disabled`. */
-  start: () => void;
+  /**
+   * Enter edit mode. No-ops while `disabled`. Pass the opening pointer event (anything with
+   * `clientX`/`clientY`) and the caret lands where it hit the display's text; call it bare, or
+   * with a keyboard-synthesised click (`detail === 0`), and the caret goes to the end.
+   */
+  start: (from?: InlineEditStartPoint) => void;
   /** Commit the draft and leave edit mode. Safe to call twice — the second call no-ops. */
   commit: () => void;
   /** Leave edit mode, reverting the draft. */
@@ -98,8 +113,8 @@ export interface UseInlineEditResult {
   /** Set edit mode directly — for an editor whose own open state IS the edit (a Select popup). */
   setEditing: (editing: boolean) => void;
   /**
-   * Attach to the edit-mode input. Focuses and selects the whole value when the edit opens, so
-   * typing replaces rather than appends.
+   * Attach to the edit-mode input. Focuses it when the edit opens, with the caret at the click
+   * position (see `start`) or at the end — never selecting the whole value.
    */
   editRef: React.RefCallback<HTMLInputElement | HTMLTextAreaElement>;
   /**
@@ -162,6 +177,8 @@ export function useInlineEdit({
   const committedRef = React.useRef(false);
   // Set only when the KEYBOARD closed the edit. A commit from blur must not steal focus back.
   const restoreFocusRef = React.useRef(false);
+  // The caret offset `start()` measured from the opening click; null = the end of the value.
+  const caretRef = React.useRef<number | null>(null);
 
   const setEditing = React.useCallback(
     (next: boolean) => {
@@ -179,20 +196,32 @@ export function useInlineEdit({
   // A CONTROLLED host flipping `editing` on must seed the draft and re-arm the guard exactly as
   // `start()` does — the drift that made the two hand-rolled copies behave differently in a grid.
   const previousEditing = React.useRef(isEditing);
+  // Set by `start()` so the effect below keeps the caret it measured; a host-driven open has none.
+  const startedRef = React.useRef(false);
   React.useEffect(() => {
     if (isEditing && !previousEditing.current) {
       committedRef.current = false;
+      if (!startedRef.current) caretRef.current = null;
+      startedRef.current = false;
       setDraft(value);
     }
     previousEditing.current = isEditing;
   }, [isEditing, value]);
 
-  const start = React.useCallback(() => {
-    if (disabled) return;
-    committedRef.current = false;
-    setDraft(value);
-    setEditing(true);
-  }, [disabled, value, setEditing]);
+  const start = React.useCallback(
+    (from?: InlineEditStartPoint) => {
+      if (disabled) return;
+      caretRef.current =
+        from && from.detail !== 0
+          ? caretOffsetFromPoint(displayElementRef.current, from, value)
+          : null;
+      startedRef.current = true;
+      committedRef.current = false;
+      setDraft(value);
+      setEditing(true);
+    },
+    [disabled, value, setEditing],
+  );
 
   const commit = React.useCallback(() => {
     if (committedRef.current) return;
@@ -217,8 +246,16 @@ export function useInlineEdit({
 
   React.useEffect(() => {
     if (isEditing && inputRef.current) {
-      inputRef.current.focus();
-      inputRef.current.select();
+      const input = inputRef.current;
+      input.focus();
+      const end = input.value.length;
+      const at = Math.min(caretRef.current ?? end, end);
+      caretRef.current = null;
+      try {
+        input.setSelectionRange(at, at);
+      } catch {
+        // An input type without a text selection (number, email) keeps the browser's caret.
+      }
     } else if (!isEditing && restoreFocusRef.current) {
       restoreFocusRef.current = false;
       displayElementRef.current?.focus();
@@ -267,4 +304,50 @@ export function useInlineEdit({
     displayRef,
     onKeyDown,
   };
+}
+
+/**
+ * The offset in `value` a viewport point falls at inside `root`; `null` (the end) when the point
+ * misses the root's text, the browser has no caret-from-point API, or the text before the point
+ * is not a prefix of `value` — a formatted display (`1,234` for `1234`) or a trailing unit, where
+ * a rendered offset would put the caret in the wrong place.
+ */
+function caretOffsetFromPoint(
+  root: HTMLElement | null,
+  { clientX, clientY }: InlineEditStartPoint,
+  value: string,
+): number | null {
+  if (!root || typeof document === "undefined") return null;
+  let node: Node | null = null;
+  let offset = 0;
+  const doc = document as Document & {
+    caretPositionFromPoint?: (
+      x: number,
+      y: number,
+    ) => { offsetNode: Node; offset: number } | null;
+    caretRangeFromPoint?: (x: number, y: number) => Range | null;
+  };
+  if (typeof doc.caretPositionFromPoint === "function") {
+    const position = doc.caretPositionFromPoint(clientX, clientY);
+    if (position) {
+      node = position.offsetNode;
+      offset = position.offset;
+    }
+  } else if (typeof doc.caretRangeFromPoint === "function") {
+    const range = doc.caretRangeFromPoint(clientX, clientY);
+    if (range) {
+      node = range.startContainer;
+      offset = range.startOffset;
+    }
+  }
+  if (!node || !root.contains(node)) return null;
+  try {
+    const range = document.createRange();
+    range.selectNodeContents(root);
+    range.setEnd(node, offset);
+    const before = range.toString();
+    return value.startsWith(before) ? before.length : null;
+  } catch {
+    return null;
+  }
 }

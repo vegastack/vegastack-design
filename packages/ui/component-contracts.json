@@ -35073,6 +35073,15 @@
           }
         },
         {
+          "name": "InlineEditStartPoint",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/use-inline-edit.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
           "name": "UseInlineEditOptions",
           "kind": "interface",
           "source": "packages/ui/registry/ui/use-inline-edit.ts",
@@ -35110,7 +35119,7 @@
         "accessibility": {
           "status": "observed",
           "values": ["focus-management"],
-          "evidence": "Focus moves into the editor and selects the value when the edit opens, and returns to the display element only when the KEYBOARD closed it."
+          "evidence": "Focus moves into the editor when the edit opens — caret at the click position, or at the end for a keyboard open, never select-all — and returns to the display element only when the KEYBOARD closed it."
         },
         "visual": {
           "status": "not-applicable",
