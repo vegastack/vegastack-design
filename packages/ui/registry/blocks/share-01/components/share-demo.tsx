@@ -1,4 +1,4 @@
-// @vegastack share-01@0.25.10 sha256-38bKguY40UhEQ9QtcWRrnjvftTabMmiv255NIeJpIpo=
+// @vegastack share-01@0.25.10 sha256-raxNZEWj/gpGdb4z9mxEwdkUb6ZMWMHqdZDVLNI7K40=
 
 "use client";
 
@@ -12,7 +12,7 @@ import {
   type ShareEntry,
   type ShareGeneralAccess,
   type SharePublicLink,
-} from "./share-dialog";
+} from "@/components/ui/share-dialog";
 
 /* Sample state only — swap each array and callback for the app's own data and actions. */
 

@@ -12,8 +12,8 @@
     "evidencePolicy": "Observed fields come from source, registry metadata, docs, and test topology. Unknown/not-applicable values are explicit; no inferred behavior is presented as verified."
   },
   "expectedCounts": {
-    "totalRegistryItems": 736,
-    "components": 155,
+    "totalRegistryItems": 737,
+    "components": 156,
     "animatedIcons": 467,
     "hooks": 15,
     "blocks": 15,
@@ -24,7 +24,7 @@
     "Core controls": 24,
     "Forms/editing": 34,
     "Navigation/layout": 21,
-    "Overlays": 20,
+    "Overlays": 21,
     "Data display": 29,
     "Content/marketing": 15,
     "Shared internals": 4,
@@ -135,6 +135,7 @@
       "provider",
       "responsive-dialog",
       "sheet",
+      "share-dialog",
       "shortcut-overlay",
       "toast",
       "tooltip",
@@ -30962,6 +30963,212 @@
       }
     },
     {
+      "name": "share-dialog",
+      "registryType": "registry:ui",
+      "title": "Share Dialog",
+      "summary": "Share one item — invite people and teams with one access level, people with access and why, the item's space access, and a view-only public link behind a Publish switch; a Dialog on wide screens, a bottom Sheet on phones.",
+      "status": "stable",
+      "since": "0.25.11",
+      "family": "overlay",
+      "wave": "Overlays",
+      "sourceFiles": ["packages/ui/registry/ui/share-dialog.tsx"],
+      "publicSymbols": [
+        {
+          "name": "ShareDialog",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/share-dialog.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A ResponsiveDialog composition; the popup, its tabs and controls are the composed components', and it forwards no ref of its own."
+          }
+        },
+        {
+          "name": "ShareDialogLabels",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/share-dialog.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "ShareDialogProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/share-dialog.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "ShareEntry",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/share-dialog.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "ShareGeneralAccess",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/share-dialog.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "ShareInvite",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/share-dialog.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "ShareLinkExpiry",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/share-dialog.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "SharePublicLink",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/share-dialog.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "One share surface; what it shows follows its data and the viewer's permissions (canManage, canPublish), not a variant axis."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "ResponsiveDialog's md size (512px) on wide screens and a bottom sheet on phones; the body keeps one height across tabs."
+      },
+      "states": {
+        "behavior": {
+          "status": "covered",
+          "values": [
+            "default",
+            "invite",
+            "publish",
+            "public-link-on",
+            "stop-publishing-confirm",
+            "read-only",
+            "can-publish",
+            "hints",
+            "my-space",
+            "hidden-space",
+            "general-level-read-only",
+            "loading",
+            "sheet"
+          ],
+          "evidence": "packages/ui/registry/ui/share-dialog.tsx + packages/ui/registry/ui/share-dialog.test.tsx"
+        },
+        "accessibility": {
+          "status": "covered",
+          "values": ["labeled", "keyboard", "browser-accessibility-test"],
+          "evidence": "packages/ui/registry/ui/share-dialog.test.tsx"
+        },
+        "visual": {
+          "status": "observed",
+          "values": ["default", "hover", "focus", "open"],
+          "evidence": "packages/ui/registry/ui/share-dialog.tsx"
+        }
+      },
+      "responsive": {
+        "status": "modeled",
+        "risks": ["responsive-or-container-layout", "mobile-or-touch-mode"],
+        "rationale": "A Dialog from the 768px mobile breakpoint up and a bottom Sheet below it (useIsMobile), the same sections in both; both tab panels share one grid cell so switching tabs never resizes it."
+      },
+      "motion": {
+        "status": "modeled",
+        "mechanisms": ["the composed components' own transitions"],
+        "reducedMotion": {
+          "status": "covered",
+          "rationale": "The global reduced-motion reset in base.css neutralises every transition the composition inherits (MOT-5); the dialog adds none of its own."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/share-dialog",
+      "registryDependencies": [
+        "@vegastack/alert-dialog",
+        "@vegastack/button",
+        "@vegastack/checkbox",
+        "@vegastack/copy-button",
+        "@vegastack/icon-glyph",
+        "@vegastack/input-group",
+        "@vegastack/item",
+        "@vegastack/people-input",
+        "@vegastack/permission-menu",
+        "@vegastack/person-avatar",
+        "@vegastack/responsive-dialog",
+        "@vegastack/select",
+        "@vegastack/skeleton",
+        "@vegastack/space-picker",
+        "@vegastack/switch",
+        "@vegastack/tabs",
+        "@vegastack/textarea",
+        "@vegastack/tooltip"
+      ],
+      "npmDependencies": [
+        "@vegastack/design-tokens@^0.8.0",
+        "lucide-react@^1.47.0"
+      ],
+      "testFiles": ["packages/ui/registry/ui/share-dialog.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required"
+      },
+      "previewModule": "share-dialog",
+      "dataAttributes": {
+        "ShareDialog": {
+          "attributes": [
+            {
+              "name": "data-hidden",
+              "values": [""]
+            },
+            {
+              "name": "data-share-dialog",
+              "values": [""]
+            },
+            {
+              "name": "data-slot",
+              "values": [
+                "share-copy-link",
+                "share-dialog-body",
+                "share-general",
+                "share-invite",
+                "share-invite-row",
+                "share-panels",
+                "share-people",
+                "share-person",
+                "share-public-link",
+                "share-published-dot",
+                "share-published-notice"
+              ]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
+    },
+    {
       "name": "space-picker",
       "registryType": "registry:ui",
       "title": "Space Picker",
@@ -38480,7 +38687,6 @@
       "wave": "Block",
       "sourceFiles": [
         "packages/ui/registry/blocks/share-01/components/share-demo.tsx",
-        "packages/ui/registry/blocks/share-01/components/share-dialog.tsx",
         "packages/ui/registry/blocks/share-01/page.tsx"
       ],
       "publicSymbols": [
@@ -38506,78 +38712,6 @@
           "name": "ShareDemoProps",
           "kind": "interface",
           "source": "packages/ui/registry/blocks/share-01/components/share-demo.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "ShareDialog",
-          "kind": "component",
-          "source": "packages/ui/registry/blocks/share-01/components/share-dialog.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "A block part is a composition, not an API: ShareDialog forwards no ref of its own, and its internals are not part of any published surface."
-          }
-        },
-        {
-          "name": "ShareDialogLabels",
-          "kind": "interface",
-          "source": "packages/ui/registry/blocks/share-01/components/share-dialog.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "ShareDialogProps",
-          "kind": "interface",
-          "source": "packages/ui/registry/blocks/share-01/components/share-dialog.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "ShareEntry",
-          "kind": "interface",
-          "source": "packages/ui/registry/blocks/share-01/components/share-dialog.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "ShareGeneralAccess",
-          "kind": "interface",
-          "source": "packages/ui/registry/blocks/share-01/components/share-dialog.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "ShareInvite",
-          "kind": "interface",
-          "source": "packages/ui/registry/blocks/share-01/components/share-dialog.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "ShareLinkExpiry",
-          "kind": "interface",
-          "source": "packages/ui/registry/blocks/share-01/components/share-dialog.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "SharePublicLink",
-          "kind": "interface",
-          "source": "packages/ui/registry/blocks/share-01/components/share-dialog.tsx",
           "ref": {
             "status": "not-applicable",
             "rationale": "Type-only exports do not render or accept runtime refs."
@@ -38610,7 +38744,7 @@
         "accessibility": {
           "status": "covered",
           "values": ["semantic-html", "browser-accessibility-test"],
-          "evidence": "packages/ui/registry/blocks/share-01/components/share-dialog.tsx + packages/ui/registry/blocks/share-01/share-01.test.tsx"
+          "evidence": "packages/ui/registry/blocks/share-01/page.tsx + packages/ui/registry/blocks/share-01/share-01.test.tsx"
         },
         "visual": {
           "status": "observed",
@@ -38634,24 +38768,10 @@
       "engines": [],
       "docsSlug": "/docs/blocks/share-01",
       "registryDependencies": [
-        "@vegastack/alert-dialog",
         "@vegastack/button",
-        "@vegastack/checkbox",
-        "@vegastack/copy-button",
-        "@vegastack/icon-glyph",
-        "@vegastack/input-group",
-        "@vegastack/item",
         "@vegastack/people-input",
-        "@vegastack/permission-menu",
-        "@vegastack/person-avatar",
-        "@vegastack/responsive-dialog",
-        "@vegastack/select",
-        "@vegastack/skeleton",
-        "@vegastack/space-picker",
-        "@vegastack/switch",
-        "@vegastack/tabs",
-        "@vegastack/textarea",
-        "@vegastack/tooltip"
+        "@vegastack/share-dialog",
+        "@vegastack/space-picker"
       ],
       "npmDependencies": [
         "lucide-react@^1.47.0",

@@ -2,10 +2,10 @@
   "schemaVersion": 1,
   "kind": "vegastack-zero-gap-audit-register",
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "5e5d4ca56b2e562ec7659210b28b90b81ef1162f319144fdba2f46e9e9493f10",
+  "contractSha256": "0afae69bb66e0e7c08b7b51e4b8b27d77786d8df04b8da70f4f90ed0104d8e61",
   "expectedCounts": {
-    "totalRegistryItems": 736,
-    "components": 155,
+    "totalRegistryItems": 737,
+    "components": 156,
     "animatedIcons": 467,
     "hooks": 15,
     "blocks": 15,
@@ -1635,6 +1635,17 @@
         "packages/ui/registry/ui/responsive-dialog.tsx"
       ],
       "docsSlug": "/docs/components/responsive-dialog",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "share-dialog",
+      "inventoryClass": "component",
+      "wave": "Overlays",
+      "family": "overlay",
+      "sourceFiles": [
+        "packages/ui/registry/ui/share-dialog.tsx"
+      ],
+      "docsSlug": "/docs/components/share-dialog",
       "contractStatus": "reconciled"
     },
     {
@@ -7214,7 +7225,6 @@
       "family": "starter-block",
       "sourceFiles": [
         "packages/ui/registry/blocks/share-01/components/share-demo.tsx",
-        "packages/ui/registry/blocks/share-01/components/share-dialog.tsx",
         "packages/ui/registry/blocks/share-01/page.tsx"
       ],
       "docsSlug": "/docs/blocks/share-01",

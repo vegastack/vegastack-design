@@ -1,0 +1,117 @@
+---
+title: Share Dialog
+description: Share one item with people and teams, set who in its space can open it, and publish it to the web from its own tab.
+audience: public
+registry: share-dialog
+status: stable
+since: 0.25.11
+a11y: APG dialog (modal) with tabs; confirmed stop
+preview: shareDialog
+---
+
+## Install
+
+<InstallSteps name="share-dialog" />
+
+## Usage
+
+```tsx
+import { ShareDialog } from "@/components/ui/share-dialog";
+
+<ShareDialog
+  trigger={<Button variant="outline">Share</Button>}
+  levels={LEVELS}
+  people={entries}
+  search={searchDirectory}
+  onInvite={invite}
+  onLevelChange={setLevel}
+  onRemove={removeAccess}
+  generalAccess={general}
+  onGeneralAccessChange={setGeneral}
+  publicLink={publicLink}
+  onCreatePublicLink={publish}
+  onStopPublicLink={unpublish}
+  linkUrl={itemUrl}
+/>;
+```
+
+`ShareDialog` is data-agnostic: every row, level and link comes in through props and every change
+goes out through a callback, so one dialog serves tasks, meetings and pages. It is a
+[`ResponsiveDialog`](/docs/components/responsive-dialog) — a `md` (512px) Dialog from 768px up and a
+bottom sheet below it — titled "Share", with two line tabs. **Share** holds the invite row
+([`PeopleInput`](/docs/components/people-input) with one
+[`PermissionMenu`](/docs/components/permission-menu) level for the batch), People with access and
+Space access, with **Copy link** for the item's own link in the footer. **Publish** holds a
+"Publish to the web" switch, off by default — the only control that calls `onCreatePublicLink`;
+copying never publishes. Both panels share one grid cell, so switching tabs never resizes the
+dialog. Every string is in `labels`.
+
+The [`share-01`](/docs/blocks/share-01) block is this dialog wired to sample state, with a page to
+try it on.
+
+## Scope
+
+| Need                                                 | Use                                                                                 |
+| ---------------------------------------------------- | ----------------------------------------------------------------------------------- |
+| Share one record, page or meeting                    | `ShareDialog`                                                                       |
+| A page of a space's or team's members                | `DataList` with [`PeopleInput`](/docs/components/people-input) and `PermissionMenu` |
+| Show who can open an item, without changing it       | [`AccessChip`](/docs/components/access-chip)                                        |
+| Pick the access level for one person outside a share | [`PermissionMenu`](/docs/components/permission-menu)                                |
+
+## Examples
+
+### Permissions
+
+`canManage` gates inviting, changing levels and space access. `canPublish` gates the Publish tab's
+controls — the switch, Reset, Expires and Stop publishing — and follows `canManage` when unset. A
+viewer who cannot publish sees the public link to copy while it is on, and "Not published"
+otherwise.
+
+<ComponentPreview
+  name="shareDialogCanPublish"
+  file="components/preview/share-dialog.tsx"
+/>
+
+### Hints
+
+`hints` places a help node — usually an [`InfoHint`](/docs/components/info-hint) — right after the
+People with access heading (`people`), the Space access heading (`general`) and the Publish switch's
+label (`publish`). The switch keeps its accessible name from the label alone.
+
+<ComponentPreview
+  name="shareDialogHints"
+  file="components/preview/share-dialog.tsx"
+/>
+
+## API Reference
+
+<ApiTable
+  path="../../packages/ui/registry/ui/share-dialog.tsx"
+  name="ShareDialogProps"
+/>
+
+## Accessibility
+
+- The dialog is named by its "Share" title; the tabs are a `tablist` and only the active panel is
+  in the tab order.
+- Every level menu is named for its row ("Anand Iyer's access: Can view"); a built-in row is locked,
+  still a tab stop, with its reason in a tooltip.
+- Turning publishing off, by the switch or Stop publishing, asks for confirmation in an
+  `AlertDialog` first.
+
+| Key                                          | Action                                      |
+| -------------------------------------------- | ------------------------------------------- |
+| <kbd>Tab</kbd>                               | Moves through the active tab's controls     |
+| <kbd>ArrowLeft</kbd> / <kbd>ArrowRight</kbd> | Moves between the Share and Publish tabs    |
+| <kbd>Enter</kbd>                             | Chooses a person in the invite search       |
+| <kbd>Space</kbd>                             | Toggles Publish to the web or Notify people |
+| <kbd>Escape</kbd>                            | Closes the open menu, then the dialog       |
+
+<StatesTested name="share-dialog" />
+
+## Do / Don't
+
+<DoDont
+  do="Compute each row's reason and readOnly on the server from how the person has access, and pass canPublish from the same rules."
+  dont="Let the dialog decide access — it only shows the rows and reports changes."
+/>

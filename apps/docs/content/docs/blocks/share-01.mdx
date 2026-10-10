@@ -15,7 +15,8 @@ below it — titled "Share", with two line tabs: **Share** and **Publish**. Clos
 Escape; there is no Done button. Both tab panels stay mounted in one grid cell (the inactive one invisible and inert) and the
 footer keeps its box on either tab, so switching tabs never changes the dialog's or the sheet's
 height. It is a **block**: you pull it once with `shadcn add`,
-and then you own it. `ShareDemo` wires it to sample state.
+and then you own it. `ShareDemo` wires the [`share-dialog`](/docs/components/share-dialog)
+component to sample state.
 
 ## Install
 
@@ -25,10 +26,10 @@ npx shadcn@latest add @vegastack/share-01
 
 <RegistryInstallCallout />
 
-This installs the block's own files plus the components it composes: `alert-dialog`, `button`,
-`checkbox`, `copy-button`, `input-group`, `item`, `people-input`, `permission-menu`,
-`person-avatar`, `responsive-dialog`, `select`, `skeleton`, `space-avatar`, `switch`, `tabs`,
-`textarea`, `tooltip`.
+This installs the block's demo and page plus [`share-dialog`](/docs/components/share-dialog), the
+dialog itself, which installs the components it composes. To use the dialog in your own screens,
+install it alone with `npx shadcn@latest add @vegastack/share-dialog`; its props, permissions
+(`canManage`, `canPublish`) and `hints` are documented there.
 
 ## Preview
 
@@ -133,11 +134,13 @@ level.
 
 ## Files
 
-| File                                   | Registry type        | Target                                     |
-| -------------------------------------- | -------------------- | ------------------------------------------ |
-| `share-01/components/share-dialog.tsx` | `registry:component` | `app/share-01/components/share-dialog.tsx` |
-| `share-01/components/share-demo.tsx`   | `registry:component` | `app/share-01/components/share-demo.tsx`   |
-| `share-01/page.tsx`                    | `registry:page`      | `app/share-01/page.tsx`                    |
+| File                                 | Registry type        | Target                                   |
+| ------------------------------------ | -------------------- | ---------------------------------------- |
+| `share-01/components/share-demo.tsx` | `registry:component` | `app/share-01/components/share-demo.tsx` |
+| `share-01/page.tsx`                  | `registry:page`      | `app/share-01/page.tsx`                  |
+
+`ShareDialog` itself is the `share-dialog` component (`@ui/share-dialog.tsx`), a registry dependency
+of this block.
 
 ## Do / Don't
 
