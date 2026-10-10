@@ -1,4 +1,4 @@
-// @vegastack record-aside@0.25.8 sha256-MDVE/dXSbsAaiTQC43wk8c7WjMzCXnQ6y4FnHU9AxTU=
+// @vegastack record-aside@0.25.8 sha256-XXDaDtlmjpNsLMLNQChNjgoWT0bhAap0Uw1xq1HrcTM=
 
 "use client";
 
@@ -400,9 +400,11 @@ export function ActionListSkeleton({ rows = 3 }: ActionListSkeletonProps) {
       {Array.from({ length: rows }, (_, i) => (
         <ActionListItem key={i} className="hover:bg-transparent">
           <Skeleton className="size-4 rounded-full" />
-          <ItemContent className="gap-1.5">
-            <Skeleton className="h-3.5 w-40" />
-            <Skeleton className="h-3 w-24" />
+          {/* Each bar sits in its text line's height (a 20px title, a 16px meta line), so the
+              two keep the row's height and a gap between them. */}
+          <ItemContent>
+            <Skeleton className="my-0.75 h-3.5 w-40" />
+            <Skeleton className="my-0.5 h-3 w-24" />
           </ItemContent>
         </ActionListItem>
       ))}
