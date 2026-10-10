@@ -1,4 +1,4 @@
-// @vegastack tabs@0.25.9 sha256-K6wKTut29K3X2AAQwVGqubNK5DDAX7OL86vnoLEEbl0=
+// @vegastack tabs@0.25.9 sha256-SMwTYhw1D45Tc/rhsDL7mNpAh/4i1MBM6QhTg5wiOBY=
 
 "use client";
 
@@ -128,11 +128,52 @@ function TabsTrigger({ className, ...props }: TabsPrimitive.Tab.Props) {
   );
 }
 
-function TabsContent({ className, ...props }: TabsPrimitive.Panel.Props) {
+/**
+ * FOC-1: the panel is a tab stop (Base UI's `tabindex="0"`, for the APG reason), so it takes the
+ * focus tint when the keyboard lands on it. A pointer press on the panel's own empty space also
+ * focuses it, and in Chromium the next key press — ⌘ or Shift alone is enough — flips that focus
+ * to `:focus-visible`, which tinted the WHOLE panel (a drawer body turning grey after a ⌘-click).
+ * A pointer-focused panel is marked `data-pointer-focus` and takes no tint; the mark clears when
+ * focus moves into the panel's content or leaves the panel, so the next keyboard arrival tints it
+ * again.
+ */
+function TabsContent({
+  className,
+  onPointerDown,
+  onFocus,
+  onBlur,
+  ...props
+}: TabsPrimitive.Panel.Props) {
+  // Set by a press and read by the focus it causes (pointerdown → mousedown → focus, one task).
+  const pressed = React.useRef(false);
   return (
     <TabsPrimitive.Panel
       data-slot="tabs-content"
-      className={cn("flex-1 text-sm", className)}
+      className={cn("flex-1 text-sm data-pointer-focus:bg-none", className)}
+      onPointerDown={(event) => {
+        pressed.current = true;
+        setTimeout(() => {
+          pressed.current = false;
+        });
+        // Already focused (from the keyboard): a press on it is pointer focus from now on.
+        if (document.activeElement === event.currentTarget)
+          event.currentTarget.setAttribute("data-pointer-focus", "");
+        onPointerDown?.(event);
+      }}
+      onFocus={(event) => {
+        if (event.target === event.currentTarget && pressed.current)
+          event.currentTarget.setAttribute("data-pointer-focus", "");
+        else event.currentTarget.removeAttribute("data-pointer-focus");
+        onFocus?.(event);
+      }}
+      onBlur={(event) => {
+        if (
+          event.target === event.currentTarget ||
+          !event.currentTarget.contains(event.relatedTarget as Node | null)
+        )
+          event.currentTarget.removeAttribute("data-pointer-focus");
+        onBlur?.(event);
+      }}
       {...props}
     />
   );

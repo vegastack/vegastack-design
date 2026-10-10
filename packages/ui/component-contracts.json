@@ -22391,6 +22391,7 @@
               "values": [
                 "sortable-list",
                 "sortable-list-actions",
+                "sortable-list-footer",
                 "sortable-list-handle",
                 "sortable-list-handle-spacer",
                 "sortable-list-item",
