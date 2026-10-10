@@ -1,5 +1,12 @@
 # @vegastack/ui
 
+## 0.25.15
+
+### Patch Changes
+
+- [#597](https://github.com/vegastack/vegastack-design/pull/597) [`4397871`](https://github.com/vegastack/vegastack-design/commit/4397871dd3b5a9de3268f95de183d0c2931453e4) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🐛 **ShareDialog**: the invite picker's search field reads "Search people or teams", since it lists both. A new `inviteSearchPlaceholder` label sets it.
+  [docs](https://design.vegastack.com/docs/components/share-dialog)
+
 ## 0.25.14
 
 ### Patch Changes

@@ -9,6 +9,20 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.25.15] — October 11, 2026
+
+<!-- assembled from 1 changeset: d14d3de77f91 -->
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.25.14 → 0.25.15.
+
+### 🐛 Fixed
+
+- **ShareDialog**: the invite picker's search field reads "Search people or teams", since it lists both. A new `inviteSearchPlaceholder` label sets it.
+  [docs](https://design.vegastack.com/docs/components/share-dialog) ·
+  [`4397871`](https://github.com/VegaStack/vegastack-design/commit/4397871)
+
 ## [0.25.14] — October 11, 2026
 
 <!-- assembled from 1 changeset: 1c3508fab852 -->
