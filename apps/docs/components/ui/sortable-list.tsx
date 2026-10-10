@@ -1,4 +1,4 @@
-// @vegastack sortable-list@0.25.11 sha256-gsurHfAZyi8RPBAqcubgYC7ift5ftjR7usi1uzyiyVQ=
+// @vegastack sortable-list@0.25.11 sha256-sOKUyh9qmZXiBFB3PP0BLdEA2UW5Tevlpt0MnpU7S+4=
 
 "use client";
 
@@ -56,7 +56,9 @@ lifts from the handle (Space, arrows, Escape), every step announced. A touch poi
 native drag off until the next mouse or pen press, so the two engines never race.
 
 `footer` is the list's one non-item row — an "Add a value" field — laid on the rows' grid so its
-content starts and ends where theirs do.
+content starts and ends where theirs do. `header` is the same kind of row above the list, full
+width with no gutters, for an add field whose new item lands first. `flush` drops the rows' hover
+wash and the side padding kept for it, for rows whose content is its own bordered control.
 
 Row actions: `onRemove` gives each row a small × ("Remove {label}") in its trailing corner; a
 host that needs more than remove passes `getItemActions` and gets the ⋯ menu instead — the
@@ -203,6 +205,21 @@ export interface SortableListProps<
    */
   footer?: React.ReactNode;
   /**
+   * A leading row above the list (`layout="list"` only), full width: no handle or × gutters, so
+   * an "Add a value" field and its Add button span the rows' whole width. Put the add field here
+   * when a new item is inserted first. It is not an item: it never drags, and it renders when
+   * `items` is empty too.
+   * @default undefined
+   */
+  header?: React.ReactNode;
+  /**
+   * List rows without the hover wash and the side padding reserved for it, so a row's content
+   * (an editable `Input`) runs the list's full width between the handle and the ×. For rows
+   * whose content is its own bordered control; plain-text rows keep the wash.
+   * @default false
+   */
+  flush?: boolean;
+  /**
    * Accessible name for the list.
    * @default "Sortable list"
    */
@@ -279,6 +296,8 @@ export function SortableList<T extends SortableListItem = SortableListItem>({
   tile = "outline",
   disabled = false,
   footer,
+  header,
+  flush = false,
   "aria-label": ariaLabel = "Sortable list",
   className,
   ref,
@@ -393,6 +412,14 @@ export function SortableList<T extends SortableListItem = SortableListItem>({
       data-layout={layout}
       className={className}
     >
+      {header != null && !grid ? (
+        <div
+          data-slot="sortable-list-header"
+          className="mb-0.5 flex min-w-0 items-center gap-2 py-1"
+        >
+          {header}
+        </div>
+      ) : null}
       <ItemGroup
         aria-label={ariaLabel}
         ref={setGroupRef}
@@ -461,8 +488,11 @@ export function SortableList<T extends SortableListItem = SortableListItem>({
                         ? "border-0 p-0 [&>[data-slot=item-content]>[data-slot=attachment]]:w-full [&>[data-slot=item-content]>[data-slot=attachment]]:min-w-0 [&>[data-slot=item-content]>[data-slot=attachment]]:flex-nowrap"
                         : "p-1",
                     )
-                  : // DataList's row: compact padding, a subtle wash on hover.
-                    "flex-nowrap gap-2 px-1 py-1 hover:bg-muted/50",
+                  : flush
+                    ? // Flush: the content runs edge to edge; no wash, no padding kept for one.
+                      "flex-nowrap gap-2 px-0 py-1"
+                    : // DataList's row: compact padding, a subtle wash on hover.
+                      "flex-nowrap gap-2 px-1 py-1 hover:bg-muted/50",
               )}
             >
               {disabled ? null : locked ? (
@@ -566,7 +596,10 @@ export function SortableList<T extends SortableListItem = SortableListItem>({
         // gutter, and a gutter the width of the row's trailing control (× or ⋯) when rows have one.
         <div
           data-slot="sortable-list-footer"
-          className="mt-0.5 flex items-center gap-2 border border-transparent px-1 py-1"
+          className={cn(
+            "mt-0.5 flex items-center gap-2 border border-transparent py-1",
+            flush ? "px-0" : "px-1",
+          )}
         >
           {disabled ? null : (
             <span aria-hidden="true" className="size-7 shrink-0" />

@@ -1,4 +1,4 @@
-// @vegastack data-list@0.25.11 sha256-8HnEbFe8jWFBEvxtVqUgxfjZB4AmE9QlA22O7p99WUA=
+// @vegastack data-list@0.25.11 sha256-3a7mGQZNyMj04irmXD7lkhWY4kwEXrIhwPbjRHSuqUw=
 
 "use client";
 
@@ -571,6 +571,30 @@ export interface DataListProps<T> extends Omit<
    */
   highlightedIds?: ReadonlySet<string>;
   /**
+   * Keyboard row navigation for a page's main list. J or ↓ moves the row cursor down, K or ↑
+   * moves it up, Enter opens the cursor row (its row link, or `onRowClick`), and Escape clears
+   * it. The cursor is the keyboard-focus cue, the hover wash plus the 2px start edge, and it
+   * follows the mouse, so the keys carry on from the row under the pointer. The keys fire from
+   * anywhere on the page except a text field, an open dialog or menu, or with ⌘/Ctrl/Alt held.
+   * ↑/↓ act only from the page body or inside the list, so other widgets keep their arrows. When
+   * several mounted lists turn it on, the one mounted last owns the keys. List view only.
+   * @default false
+   */
+  keyboardNavigation?: boolean;
+  /**
+   * The cursor row's id, controlled: for a host that runs its own keys (or none) and still wants
+   * the DataList's cursor cue and its mouse tracking. `null` shows no cursor. Pair it with
+   * `onCursorChange`. Omit it to let the list keep its own.
+   * @default undefined
+   */
+  cursorId?: string | null;
+  /**
+   * Called when the cursor moves, by a key or by the pointer moving onto a row, with that row's
+   * id (`null` when Escape clears it). Setting it alone turns the mouse tracking on.
+   * @default undefined
+   */
+  onCursorChange?: (id: string | null) => void;
+  /**
    * The layout: `"list"` (the table), `"grid"` (a card per row, groups as headings over a
    * responsive grid) or `"board"` (sections as `Board` lanes). Items, groups, sort, filters,
    * paging, loading, empty and no-results states are the same in each. Controlled with
@@ -970,6 +994,36 @@ const EMPTY_GROUP_STATE: GroupState = {};
 const FOCUS_ROW_CLASS =
   "has-[:focus-visible]:bg-muted/50 [&:has(:focus-visible)>:first-child]:bg-[linear-gradient(var(--color-foreground),var(--color-foreground))] [&:has(:focus-visible)>:first-child]:bg-no-repeat [&:has(:focus-visible)>:first-child]:bg-size-[2px_100%] [&:has(:focus-visible)>:first-child]:bg-left rtl:[&:has(:focus-visible)>:first-child]:bg-right";
 
+/**
+ * The keyboard cursor's row (`keyboardNavigation` / `cursorId`): the same cue as keyboard focus,
+ * the hover wash plus the 2px start edge. `data-cursor` is painted on the row imperatively, so a
+ * cursor move (one per row the pointer crosses) re-renders nothing.
+ */
+const CURSOR_ROW_CLASS =
+  "data-cursor:bg-muted/50 [&[data-cursor]>:first-child]:bg-[linear-gradient(var(--color-foreground),var(--color-foreground))] [&[data-cursor]>:first-child]:bg-no-repeat [&[data-cursor]>:first-child]:bg-size-[2px_100%] [&[data-cursor]>:first-child]:bg-left rtl:[&[data-cursor]>:first-child]:bg-right";
+
+/** Lists with `keyboardNavigation` on, in mount order: only the last one answers the keys. */
+const keyboardLists: object[] = [];
+
+/** A key press that belongs to a field, a popup or a chord, never to the list's cursor. */
+function keyBelongsElsewhere(event: KeyboardEvent): boolean {
+  if (event.defaultPrevented || event.metaKey || event.ctrlKey || event.altKey)
+    return true;
+  const target = event.target instanceof HTMLElement ? event.target : null;
+  if (
+    target &&
+    (target.isContentEditable ||
+      target.closest(
+        'input, textarea, select, [contenteditable="true"], [role="dialog"], [role="alertdialog"], [role="menu"], [role="listbox"]',
+      ))
+  )
+    return true;
+  // An open dialog or drawer owns the keyboard even when focus has fallen to the body.
+  return (
+    document.querySelector('[role="dialog"], [role="alertdialog"]') !== null
+  );
+}
+
 /** A merged value with nothing to show: nothing, an empty string, or the "—" placeholder. */
 function isEmptyMergedValue(node: React.ReactNode): boolean {
   return (
@@ -1010,7 +1064,9 @@ function isFromInteractiveDescendant(
  * The first cell's link: `<a>` or the host's router link, carrying the row's href. Not
  * `useRender`: it lets the render element's own props win, and `rowLinkRender` is one template
  * shared by every row (`<Link href="" />` satisfies a router's required `href`), so the row's
- * href has to win over the template's instead.
+ * href has to win over the template's instead. `focus-visible:bg-none` (and on the injected row
+ * button): the row carries the focus cue, so the link's own global tint would paint a second,
+ * rounded box behind the first cell when focus returns to it (a drawer closing on that row).
  */
 function RowLink({
   href,
@@ -1025,7 +1081,7 @@ function RowLink({
     href,
     "data-slot": "data-list-row-link",
     className:
-      "-mx-1 -my-0.5 inline-flex max-w-full items-center rounded-sm px-1 py-0.5 text-start text-inherit no-underline hover:no-underline focus-visible:no-underline",
+      "-mx-1 -my-0.5 inline-flex max-w-full items-center rounded-sm px-1 py-0.5 text-start text-inherit no-underline hover:no-underline focus-visible:no-underline focus-visible:bg-none",
     children,
   };
   if (render) {
@@ -1176,6 +1232,9 @@ export function DataList<T>({
   sortMode = "manual",
   noResults,
   highlightedIds,
+  keyboardNavigation = false,
+  cursorId,
+  onCursorChange,
   rowActions,
   rowActionsLabel,
   view,
@@ -1558,6 +1617,7 @@ export function DataList<T>({
           // takes the hover wash — the strongest fill muted text keeps AA on — and its first cell
           // paints a 2px `foreground` edge as a background layer, the part that clears 3:1.
           FOCUS_ROW_CLASS,
+          tracksCursor && CURSOR_ROW_CLASS,
           // Drag into: the carried rows dim, and a target washes in the primary tint (in the
           // destructive tint when it refuses the drop) — `FolderTree`'s own drop vocabulary.
           drag &&
@@ -1629,7 +1689,7 @@ export function DataList<T>({
                   type="button"
                   data-slot="data-list-row-action"
                   onClick={() => onRowClick?.(row, index)}
-                  className="-mx-1 -my-0.5 inline-flex max-w-full appearance-none items-center rounded-sm bg-transparent px-1 py-0.5 text-start text-inherit"
+                  className="-mx-1 -my-0.5 inline-flex max-w-full appearance-none items-center rounded-sm bg-transparent px-1 py-0.5 text-start text-inherit focus-visible:bg-none"
                 >
                   {content}
                 </button>
@@ -1763,6 +1823,145 @@ export function DataList<T>({
         : group.indexes.map((index) => rowIds[index]!),
     );
   }, [sectionGroups, rowIds, activeView, groups]);
+
+  // ---- the keyboard cursor (`keyboardNavigation`, `cursorId`) -------------------------------
+  // Kept in a ref and painted as `data-cursor` straight onto the row, so following the mouse
+  // re-renders nothing; a controlled `cursorId` is painted the same way after each render.
+  const tracksCursor =
+    activeView === "list" &&
+    (keyboardNavigation ||
+      cursorId !== undefined ||
+      onCursorChange !== undefined);
+  const cursorRef = React.useRef<string | null>(null);
+  const rowElement = React.useCallback(
+    (id: string) =>
+      rootRef.current?.querySelector<HTMLElement>(
+        `[data-slot="data-list-row"][data-row-id="${CSS.escape(id)}"]`,
+      ) ?? null,
+    [],
+  );
+  const paintCursor = React.useCallback(
+    (id: string | null) => {
+      const root = rootRef.current;
+      if (!root) return;
+      for (const el of root.querySelectorAll("[data-cursor]"))
+        if (el.getAttribute("data-row-id") !== id)
+          el.removeAttribute("data-cursor");
+      if (id) rowElement(id)?.setAttribute("data-cursor", "");
+    },
+    [rowElement],
+  );
+  const moveCursor = React.useCallback(
+    (id: string | null) => {
+      if (cursorRef.current === id) return;
+      cursorRef.current = id;
+      paintCursor(id);
+      onCursorChange?.(id);
+    },
+    [paintCursor, onCursorChange],
+  );
+  // Every render: take a controlled value, drop a cursor whose row left, repaint remounted rows.
+  React.useLayoutEffect(() => {
+    if (cursorId !== undefined) cursorRef.current = cursorId;
+    if (cursorRef.current !== null && !rowIds.includes(cursorRef.current))
+      cursorRef.current = null;
+    paintCursor(tracksCursor ? cursorRef.current : null);
+  });
+  const followPointer = (event: React.PointerEvent<HTMLDivElement>) => {
+    if (event.pointerType === "touch") return;
+    const row = (event.target as HTMLElement).closest<HTMLElement>(
+      '[data-slot="data-list-row"]',
+    );
+    const id = row?.getAttribute("data-row-id");
+    if (id && rootRef.current?.contains(row!)) moveCursor(id);
+  };
+  // The cursor row's activation: its link (so the router and `target` apply), its injected
+  // row button, `onRowClick`, or a plain navigation to its href.
+  const activateRow = React.useCallback(
+    (id: string) => {
+      const el = rowElement(id);
+      const control = el?.querySelector<HTMLElement>(
+        '[data-slot="data-list-row-link"], [data-slot="data-list-row-action"]',
+      );
+      if (control) {
+        control.click();
+        return;
+      }
+      const index = rowIds.indexOf(id);
+      const row = data[index];
+      if (row === undefined) return;
+      if (onRowClick) onRowClick(row, index);
+      else {
+        const href = getRowHref?.(row);
+        if (href !== undefined) window.location.assign(href);
+      }
+    },
+    [rowElement, rowIds, data, onRowClick, getRowHref],
+  );
+  const keyState = React.useRef({ displayOrder, moveCursor, activateRow });
+  React.useLayoutEffect(() => {
+    keyState.current = { displayOrder, moveCursor, activateRow };
+  });
+  const keysOn = keyboardNavigation && activeView === "list";
+  React.useEffect(() => {
+    if (!keysOn) return;
+    const token = {};
+    keyboardLists.push(token);
+    const onKey = (event: KeyboardEvent) => {
+      if (keyboardLists[keyboardLists.length - 1] !== token) return;
+      if (event.shiftKey || keyBelongsElsewhere(event)) return;
+      const root = rootRef.current;
+      const {
+        displayOrder: order,
+        moveCursor: move,
+        activateRow: activate,
+      } = keyState.current;
+      if (!root || order.length === 0) return;
+      const target = event.target instanceof HTMLElement ? event.target : null;
+      const fromPage =
+        !target || target === document.body || root.contains(target);
+      const cursor = cursorRef.current;
+      const at = cursor === null ? -1 : order.indexOf(cursor);
+      const key = event.key.length === 1 ? event.key.toLowerCase() : event.key;
+      const down = key === "j" || key === "ArrowDown";
+      const up = key === "k" || key === "ArrowUp";
+      if (down || up) {
+        // Arrows stay with whatever widget has focus (tabs, a toolbar); J/K work from anywhere.
+        if (key.startsWith("Arrow") && !fromPage) return;
+        event.preventDefault();
+        const next =
+          at < 0
+            ? down
+              ? 0
+              : order.length - 1
+            : Math.min(order.length - 1, Math.max(0, at + (down ? 1 : -1)));
+        const id = order[next]!;
+        move(id);
+        rowElement(id)?.scrollIntoView({ block: "nearest" });
+        return;
+      }
+      if (at < 0) return;
+      if (key === "Enter") {
+        // Enter on a focused control keeps its own meaning.
+        if (
+          target &&
+          target !== document.body &&
+          target.closest('a, button, [role="button"], [role="tab"], summary')
+        )
+          return;
+        event.preventDefault();
+        activate(order[at]!);
+      } else if (key === "Escape") {
+        move(null);
+      }
+    };
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("keydown", onKey);
+      keyboardLists.splice(keyboardLists.indexOf(token), 1);
+    };
+  }, [keysOn, rowElement]);
+
   // The last row toggled one at a time: a shift-toggle selects (or clears) everything from it.
   const anchorId = React.useRef<string | null>(null);
   // Whether Shift was down on the gesture that is toggling a checkbox. Base UI toggles through
@@ -2388,6 +2587,7 @@ export function DataList<T>({
       data-view={activeView}
       data-selecting={selectable && selectionCount > 0 ? "" : undefined}
       onKeyDown={selectable ? handleSelectionKeys : undefined}
+      onPointerMove={tracksCursor ? followPointer : undefined}
       className="@container/data-list flex w-full min-w-0 flex-col gap-3"
     >
       {toolbarWithToggle != null ? (

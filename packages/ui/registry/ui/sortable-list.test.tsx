@@ -597,3 +597,32 @@ test("no a11y violations — grid and locked", async () => {
     .toBeInTheDocument();
   await expectNoA11yViolations(document.body);
 });
+
+test("header renders a full-width row above the items; flush drops the row wash and padding", async () => {
+  await render(
+    <SortableList
+      aria-label="Values"
+      items={[{ id: "a", label: "Alpha" }]}
+      renderItem={(item) => <span>{item.label}</span>}
+      onReorder={() => {}}
+      onRemove={() => {}}
+      header={<span>Add field</span>}
+      flush
+    />,
+  );
+  const header = document.querySelector<HTMLElement>(
+    '[data-slot="sortable-list-header"]',
+  )!;
+  const group = document.querySelector(
+    '[data-slot="sortable-list"] > [aria-label="Values"]',
+  );
+  expect(header.textContent).toBe("Add field");
+  expect(header.nextElementSibling).toBe(group);
+  // No gutters: nothing but the content in the header row.
+  expect(header.children).toHaveLength(1);
+  const row = document.querySelector<HTMLElement>(
+    '[data-slot="sortable-list-item"]',
+  )!;
+  expect(row.className).not.toContain("hover:bg-muted/50");
+  expect(row.className).toContain("px-0");
+});

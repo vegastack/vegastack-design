@@ -1484,7 +1484,7 @@
         "whenToUse": "A list of records as a table, a card grid or board lanes (view) with typed columns, selection, click-to-sort, loading/empty states, keyset paging through loadMore, rows as links, sections, thumbnails and a row-actions column.",
         "whenNotToUse": "Full-parity grids with grouping/editing/virtualization (DataGrid), or a simple static table (Table).",
         "version": "0.25.11",
-        "integrity": "sha256-8HnEbFe8jWFBEvxtVqUgxfjZB4AmE9QlA22O7p99WUA="
+        "integrity": "sha256-3a7mGQZNyMj04irmXD7lkhWY4kwEXrIhwPbjRHSuqUw="
       }
     },
     {
@@ -17531,7 +17531,7 @@
         "whenToUse": "User-orderable single lists and tile grids — settings sections, pipeline stages, attribute values with locked built-ins, editable rows with inline actions, ordered product photos and attachments — where the host persists (and may refuse) the order.",
         "whenNotToUse": "Cross-container card movement (board), selectable data tables (DataList — never mix selection with reordering), or read-only lists (ItemGroup).",
         "version": "0.25.11",
-        "integrity": "sha256-gsurHfAZyi8RPBAqcubgYC7ift5ftjR7usi1uzyiyVQ="
+        "integrity": "sha256-sOKUyh9qmZXiBFB3PP0BLdEA2UW5Tevlpt0MnpU7S+4="
       }
     },
     {
