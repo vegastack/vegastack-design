@@ -1,5 +1,18 @@
 # @vegastack/ui
 
+## 0.25.9
+
+### Patch Changes
+
+- [#582](https://github.com/vegastack/vegastack-design/pull/582) [`96ce883`](https://github.com/vegastack/vegastack-design/commit/96ce883fa683a2a90c4f78bb55d22ec1a95f8bfb) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🐛 **Board** and **ActionListSkeleton** — a loading lane's skeleton cards follow the card's bands (the eyebrow, the title, a chip, then the footnote with the assignee at its end) instead of a chip row with the avatar. `ActionListSkeleton`'s title and meta bars no longer touch: each sits in its text line's height, so a loading row keeps the loaded row's height with a gap between the bars.
+  [docs](https://design.vegastack.com/docs/components/board)
+
+- [#580](https://github.com/vegastack/vegastack-design/pull/580) [`d32e54e`](https://github.com/vegastack/vegastack-design/commit/d32e54eba552d87c75929b4b162930c2bd31d6ea) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🐛 **EditableCell**, **useInlineEdit**, **TextEdit** and **MarkdownView** — clicking a value to edit it puts the caret where you clicked (a keyboard open puts it at the end) instead of selecting the whole value; `useInlineEdit`'s `start` takes the opening pointer event for this. A `TextEdit` with `citation` shows its read view whenever it is not being edited: a preloaded editor waits for a click instead of swapping in on mount, and the read view comes back once focus leaves the editor and its menus and panels (after the blur commit, never while an upload is in flight), so `[[n]]` markers read as citations again. `MarkdownView` also recognises a marker the editor's Markdown escaped (`\[\[n\]\]`).
+  [docs](https://design.vegastack.com/docs/components/text-edit)
+
+- [#583](https://github.com/vegastack/vegastack-design/pull/583) [`dcee40f`](https://github.com/vegastack/vegastack-design/commit/dcee40fa9c66c99ff8b7eee9ab8fd0251c4a7f52) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🐛 **Share dialog** (`share-01`) — switching between Share and Publish no longer leaves the other tab's controls painted for a beat (the Publish switch over the Invite button, or Invite and Copy link over the Publish row). The hidden panel and the hidden footer hide with `visibility`, which upstream's `transition-all` on Button, Switch and Select animated; descendants of a hidden box now carry no transition, so they hide in the same frame.
+  [docs](https://design.vegastack.com/docs/blocks/share-01)
+
 ## 0.25.8
 
 ### Patch Changes

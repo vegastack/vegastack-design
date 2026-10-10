@@ -1,4 +1,4 @@
-// @vegastack chart-radar-default@0.25.8 sha256-ue5qewaqDgmiwr6rcekThRi3VmzgX4uu8AI92ILT5zU=
+// @vegastack chart-radar-default@0.25.9 sha256-Q46i9haK1Y3KKGNr99I1cW5cOprx49ShTrSTYS0T9bc=
 
 "use client";
 

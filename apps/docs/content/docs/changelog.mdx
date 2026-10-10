@@ -10,6 +10,24 @@ npm package versions are listed per entry. This page is generated from the repo'
 
 {/* CHANGELOG:START — generated from /CHANGELOG.md by tooling/sync-changelog.mjs. DO NOT EDIT. */}
 
+## [0.25.9] — October 10, 2026
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.25.8 → 0.25.9.
+
+### 🐛 Fixed
+
+- **Board** and **ActionListSkeleton** — a loading lane's skeleton cards follow the card's bands (the eyebrow, the title, a chip, then the footnote with the assignee at its end) instead of a chip row with the avatar. `ActionListSkeleton`'s title and meta bars no longer touch: each sits in its text line's height, so a loading row keeps the loaded row's height with a gap between the bars.
+  [docs](/docs/components/board) ·
+  [`96ce883`](https://github.com/VegaStack/vegastack-design/commit/96ce883)
+- **EditableCell**, **useInlineEdit**, **TextEdit** and **MarkdownView** — clicking a value to edit it puts the caret where you clicked (a keyboard open puts it at the end) instead of selecting the whole value; `useInlineEdit`'s `start` takes the opening pointer event for this. A `TextEdit` with `citation` shows its read view whenever it is not being edited: a preloaded editor waits for a click instead of swapping in on mount, and the read view comes back once focus leaves the editor and its menus and panels (after the blur commit, never while an upload is in flight), so `[[n]]` markers read as citations again. `MarkdownView` also recognises a marker the editor's Markdown escaped (`\[\[n\]\]`).
+  [docs](/docs/components/text-edit) ·
+  [`d32e54e`](https://github.com/VegaStack/vegastack-design/commit/d32e54e)
+- **Share dialog** (`share-01`) — switching between Share and Publish no longer leaves the other tab's controls painted for a beat (the Publish switch over the Invite button, or Invite and Copy link over the Publish row). The hidden panel and the hidden footer hide with `visibility`, which upstream's `transition-all` on Button, Switch and Select animated; descendants of a hidden box now carry no transition, so they hide in the same frame.
+  [docs](/docs/blocks/share-01) ·
+  [`dcee40f`](https://github.com/VegaStack/vegastack-design/commit/dcee40f)
+
 ## [0.25.8] — October 10, 2026
 
 ### 🔧 Changed components
