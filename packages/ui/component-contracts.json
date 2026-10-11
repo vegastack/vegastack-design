@@ -27541,7 +27541,7 @@
         "behavior": {
           "status": "observed",
           "values": ["changed", "added", "removed", "empty"],
-          "evidence": "Both sides render a change; only after an addition; only before a removal; neither renders nothing. null, undefined, false and an empty string count as absent."
+          "evidence": "Both sides render a change; only after an addition; only before a removal; neither renders nothing. null, undefined, booleans and an empty string count as absent."
         },
         "accessibility": {
           "status": "observed",

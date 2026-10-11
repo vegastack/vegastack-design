@@ -86,6 +86,14 @@ test("an empty string or false counts as absent; zero does not", async () => {
   expect(b!.textContent).toBe("removed 0");
 });
 
+test("true counts as absent too — React renders it as nothing", async () => {
+  const screen = await render(<ValueChange before={true} after="New" />);
+  const root = slot(screen.container, "value-change")!;
+  expect(root.dataset.change).toBe("added");
+  expect(slot(root, "value-change-before")).toBeNull();
+  expect(root.textContent).toBe("added New");
+});
+
 test("neither side renders nothing", async () => {
   const screen = await render(<ValueChange before={null} after={undefined} />);
   expect(slot(screen.container, "value-change")).toBeNull();

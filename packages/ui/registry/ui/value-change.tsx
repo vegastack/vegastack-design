@@ -1,4 +1,4 @@
-// @vegastack value-change@0.25.18 sha256-HG+5FNxwNWZ+gp8dikgvi5NyRwFO63OpjWof7w2i0/o=
+// @vegastack value-change@0.25.18 sha256-N46WdhysrFkcdgB8bWt3XlOevOJWW3Kp/nwfmDRY+sA=
 
 import * as React from "react";
 import { ArrowRight } from "lucide-react";
@@ -16,7 +16,7 @@ Three judgments, each pinned by a test:
 - the arrow is decoration (`aria-hidden`) and the sentence is spoken instead — "changed
   from A to B", "added B", "removed A" — through sr-only connectives around the visible
   values, so a value is never rendered twice;
-- an absent side (`null`, `undefined`, `false`, `""`) is not drawn at all. A one-sided
+- an absent side (`null`, `undefined`, a boolean, `""`) is not drawn at all. A one-sided
   change is an addition or a removal, not a change to or from an empty box.
 --- */
 
@@ -42,8 +42,12 @@ export interface ValueChangeProps extends Omit<
 }
 
 function present(value: React.ReactNode): boolean {
+  // React renders booleans as nothing, so `true` is as absent as `false`.
   return (
-    value !== null && value !== undefined && value !== false && value !== ""
+    value !== null &&
+    value !== undefined &&
+    typeof value !== "boolean" &&
+    value !== ""
   );
 }
 

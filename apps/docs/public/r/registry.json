@@ -16220,7 +16220,7 @@
         "whenToUse": "One field's old and new value in an activity feed, audit log, impact review or version note.",
         "whenNotToUse": "Comparing whole texts or documents (DiffView), or a number's trend (Stat).",
         "version": "0.25.18",
-        "integrity": "sha256-HG+5FNxwNWZ+gp8dikgvi5NyRwFO63OpjWof7w2i0/o="
+        "integrity": "sha256-N46WdhysrFkcdgB8bWt3XlOevOJWW3Kp/nwfmDRY+sA="
       }
     },
     {
@@ -17713,7 +17713,7 @@
         "whenToUse": "Any bounded linear process — onboarding, wizards, checkout, import flows — where progress, a failed or skipped step, and a step being checked must all be communicated.",
         "whenNotToUse": "Free navigation between peer views (Tabs), or the reason a flow cannot advance — that belongs beside the control it blocks, not in the rail.",
         "version": "0.25.18",
-        "integrity": "sha256-2HV+n9mEfz5Hm+NYC99tcjafnQpGTAob0lErk6gqs4g="
+        "integrity": "sha256-XCrEBJvbZ06JRs8Vs0p972qp/1WLuqly4jOKpfZ0fX8="
       }
     },
     {

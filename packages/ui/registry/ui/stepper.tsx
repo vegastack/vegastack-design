@@ -1,4 +1,4 @@
-// @vegastack stepper@0.25.18 sha256-2HV+n9mEfz5Hm+NYC99tcjafnQpGTAob0lErk6gqs4g=
+// @vegastack stepper@0.25.18 sha256-XCrEBJvbZ06JRs8Vs0p972qp/1WLuqly4jOKpfZ0fX8=
 
 "use client";
 
@@ -484,17 +484,26 @@ export function Stepper({
   // on mount too, since a flow opened at step 5 of 6 would otherwise show steps 1–3. Only
   // the list's own scroll position moves (never the page), and only when the step is
   // actually clipped. A delta, not an absolute offset, so it is correct in RTL as well.
+  // Layout changes re-run the check: a resize, or the rail going from collapsed
+  // (`display: none`, zero size) to laid out, can leave the current step off-screen with
+  // no change to the current id.
   React.useEffect(() => {
     const list = listRef.current;
-    const box =
-      currentId === undefined ? undefined : boxRefs.current.get(currentId);
-    if (isVertical || !list || !box) return;
-    if (list.scrollWidth <= list.clientWidth) return;
-    const outer = list.getBoundingClientRect();
-    const inner = box.getBoundingClientRect();
-    if (inner.left >= outer.left && inner.right <= outer.right) return;
-    list.scrollLeft +=
-      inner.left - outer.left - (outer.width - inner.width) / 2;
+    if (isVertical || !list || currentId === undefined) return;
+    const reveal = () => {
+      const box = boxRefs.current.get(currentId);
+      if (!box || list.scrollWidth <= list.clientWidth) return;
+      const outer = list.getBoundingClientRect();
+      const inner = box.getBoundingClientRect();
+      if (inner.left >= outer.left && inner.right <= outer.right) return;
+      list.scrollLeft +=
+        inner.left - outer.left - (outer.width - inner.width) / 2;
+    };
+    reveal();
+    if (typeof ResizeObserver === "undefined") return;
+    const observer = new ResizeObserver(reveal);
+    observer.observe(list);
+    return () => observer.disconnect();
   }, [currentId, isVertical]);
 
   // Focus follows the process: when the CURRENT step changes (a live transition, never the
