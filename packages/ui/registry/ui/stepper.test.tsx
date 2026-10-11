@@ -1,6 +1,7 @@
 import * as React from "react";
 import { render } from "vitest-browser-react";
 import { expect, test, vi } from "vitest";
+import { userEvent } from "vitest/browser";
 import { expectNoA11yViolations } from "../../test/a11y";
 import {
   Stepper,
@@ -607,4 +608,113 @@ test("StepperNode is the same node the rail renders", async () => {
   expect(slot(standalone.container, "stepper-node")!.className).toBe(
     slot(step(inRail.container, "Failed"), "stepper-node")!.className,
   );
+});
+
+/* ------------------------------------------------------- one target per step */
+
+const NAV_STEPS: StepperStep[] = [
+  { id: "basics", label: "Basics", state: "complete" },
+  { id: "specs", label: "Specs", state: "current" },
+  { id: "review", label: "Review", state: "upcoming" },
+];
+
+test("a navigable step is ONE target holding both its node and its label", async () => {
+  const onStepSelect = vi.fn();
+  const screen = await render(
+    <Stepper
+      aria-label="Family"
+      collapse={false}
+      navigable
+      onStepSelect={onStepSelect}
+      steps={NAV_STEPS}
+    />,
+  );
+  const li = step(screen.container, "Basics");
+  const trigger = slot(li, "stepper-trigger")!;
+  expect(trigger.tagName).toBe("BUTTON");
+  expect(trigger.contains(slot(li, "stepper-node"))).toBe(true);
+  expect(trigger.contains(slot(li, "stepper-label"))).toBe(true);
+  // The line between steps is never part of the target.
+  expect(trigger.contains(slot(li, "stepper-connector"))).toBe(false);
+  // The button is named by its label and state, not by the node's glyph.
+  await expect
+    .element(screen.getByRole("button", { name: /Basics/ }))
+    .toBeInTheDocument();
+
+  // Clicking the circle selects the step, exactly like clicking the text.
+  await userEvent.click(slot(li, "stepper-node")!);
+  expect(onStepSelect).toHaveBeenCalledExactlyOnceWith("basics");
+});
+
+test("a navigable step is reachable and operable from the keyboard", async () => {
+  const onStepSelect = vi.fn();
+  const screen = await render(
+    <Stepper
+      aria-label="Family"
+      collapse={false}
+      navigable
+      onStepSelect={onStepSelect}
+      steps={NAV_STEPS}
+    />,
+  );
+  await userEvent.tab();
+  expect(document.activeElement).toBe(
+    slot(step(screen.container, "Basics"), "stepper-trigger"),
+  );
+  await userEvent.keyboard("{Enter}");
+  expect(onStepSelect).toHaveBeenCalledExactlyOnceWith("basics");
+  // The current step is marked, and is not a second tab stop.
+  const specs = step(screen.container, "Specs");
+  expect(specs.getAttribute("aria-current")).toBe("step");
+  expect(slot(specs, "stepper-item")!.tabIndex).toBe(-1);
+  await expectNoA11yViolations(screen.container);
+});
+
+test("states read apart: solid current, muted-primary complete, outlined upcoming", async () => {
+  const screen = await render(
+    <Stepper aria-label="Family" collapse={false} steps={NAV_STEPS} />,
+  );
+  const node = (label: string) =>
+    slot(step(screen.container, label), "stepper-node")!.className;
+  expect(node("Specs")).toContain("bg-primary");
+  expect(node("Specs")).toContain("text-primary-foreground");
+  expect(node("Basics")).toContain("bg-primary/10");
+  expect(node("Basics")).toContain("text-primary");
+  expect(node("Review")).toContain("border-border");
+  expect(node("Review")).toContain("bg-background");
+
+  // The current label is the strong one; the others keep the regular weight.
+  const labelText = (label: string) =>
+    step(screen.container, label).querySelector<HTMLElement>(
+      "[data-slot='stepper-label'] span span",
+    )!;
+  expect(labelText("Specs").className).toContain("font-medium");
+  expect(labelText("Basics").className).not.toContain("font-medium");
+
+  // A passed connector takes the complete step's colour.
+  const [afterBasics, afterSpecs] = slots(
+    screen.container,
+    "stepper-connector",
+  );
+  expect(afterBasics!.className).toContain("bg-primary/40");
+  expect(afterSpecs!.className).toContain("bg-border");
+});
+
+test("a navigable node draws the same glyph as a static one", async () => {
+  // Button sizes and inks every svg it holds; the node's glyph must opt out of both.
+  const screen = await render(
+    <Stepper
+      aria-label="Family"
+      collapse={false}
+      navigable
+      onStepSelect={() => {}}
+      steps={NAV_STEPS}
+    />,
+  );
+  const glyph = slot(
+    step(screen.container, "Basics"),
+    "stepper-node",
+  )!.querySelector("svg")!;
+  expect(glyph.hasAttribute("data-icon-tone")).toBe(true);
+  expect(glyph.getAttribute("class")).toContain("size-3.5");
 });

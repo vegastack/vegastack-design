@@ -13042,6 +13042,31 @@
       }
     },
     {
+      "name": "value-change",
+      "type": "registry:ui",
+      "title": "Value Change",
+      "description": "An inline before → after diff of one value: the old value struck in a del, a muted arrow, the new value in an ins, with a spoken \"changed from A to B\".",
+      "categories": ["display"],
+      "dependencies": [
+        "lucide-react@^1.47.0",
+        "@vegastack/design@^0.8.3",
+        "@vegastack/design-tokens@^0.8.3"
+      ],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/value-change.tsx",
+          "type": "registry:ui",
+          "target": "@ui/value-change.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "One field's old and new value in an activity feed, audit log, impact review or version note.",
+        "whenNotToUse": "Comparing whole texts or documents (DiffView), or a number's trend (Stat).",
+        "version": "0.25.18"
+      }
+    },
+    {
       "name": "record-chip",
       "type": "registry:ui",
       "title": "Record Chip",
