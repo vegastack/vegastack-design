@@ -1,4 +1,4 @@
-// @vegastack record-list@0.25.16 sha256-q+mKve5/4oN6LJDYyqPVLMEflLHyz87aWy50hse/4LU=
+// @vegastack record-list@0.25.16 sha256-bSJcmpWzwcSXS0fSmnZlbMonrKrRT8EuYVVb+2o17xU=
 
 import * as React from "react";
 import { ExternalLink } from "lucide-react";
@@ -194,11 +194,11 @@ export interface RecordListMoreProps extends React.ComponentPropsWithRef<"div"> 
   /** How many records are not shown yet. Nothing renders at zero. */
   remaining: number;
   /**
-   * Load the next batch — called as the list's end scrolls into view. Without it the footer only
-   * says how many more there are.
+   * Load the next batch — called as the list's end scrolls into view; return a promise so the
+   * next request waits for it. Without it the footer only says how many more there are.
    * @default undefined
    */
-  onShowMore?: () => void;
+  onShowMore?: () => void | Promise<unknown>;
   /**
    * A batch is loading: skeleton rows hold its place.
    * @default false

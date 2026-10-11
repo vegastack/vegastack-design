@@ -151,7 +151,23 @@ test("a returned promise releases the guard when it settles, even for an empty p
     />,
   );
   await expect.poll(() => calls).toBeGreaterThanOrEqual(2);
-  screen.unmount();
+  await screen.unmount();
+});
+
+test("a host that answers without rows is asked a few times, then left alone", async () => {
+  let calls = 0;
+  await render(
+    <LoadMore
+      hasMore
+      onLoadMore={() => {
+        calls += 1;
+        return Promise.resolve();
+      }}
+    />,
+  );
+  await expect.poll(() => calls).toBe(5);
+  await new Promise((resolve) => setTimeout(resolve, 150));
+  expect(calls).toBe(5);
 });
 
 test("in a scroll container it waits until the end nears the edge", async () => {

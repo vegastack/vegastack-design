@@ -1,4 +1,4 @@
-// @vegastack load-more@0.25.16 sha256-QNja/vvXhnO2nvob8iFkIsjfVB3vleKJiZIaevzNtlA=
+// @vegastack load-more@0.25.16 sha256-eiSCKElkasaM54hO1ElD4v5JszcDXz69IqFR/xgqojo=
 
 "use client";
 
@@ -100,6 +100,9 @@ export interface LoadMoreProps extends LoadMoreState {
   ref?: React.Ref<HTMLDivElement>;
 }
 
+/** Requests in a row that brought no rows before the tail stops asking on its own. */
+const MAX_STALLS = 5;
+
 /** The nearest ancestor that scrolls vertically, or `null` for the viewport. */
 function scrollRoot(node: HTMLElement): HTMLElement | null {
   for (let el = node.parentElement; el; el = el.parentElement) {
@@ -165,6 +168,8 @@ export function LoadMore({
   const [sentinel, setSentinel] = React.useState<HTMLDivElement | null>(null);
   // A promise from `onLoadMore` is the exact answer: the guard holds until it settles.
   const settling = React.useRef(false);
+  const stalls = React.useRef(0);
+  const stalledAt = React.useRef(0);
   const [settled, setSettled] = React.useState(0);
   const lookedAtSettle = React.useRef(0);
 
@@ -179,6 +184,7 @@ export function LoadMore({
 
   const request = React.useCallback(() => {
     if (!latest.current.armed || pending.current) return;
+    if (stalls.current >= MAX_STALLS) return;
     pending.current = true;
     loadingSinceRequest.current = false;
     requestedAt.current = sentinelRef.current
@@ -246,6 +252,28 @@ export function LoadMore({
     }
     if (armed && !wasArmed.current) look = true;
     wasArmed.current = armed;
+    if (failed) stalls.current = 0;
+    if (look && requestedAt.current != null && sentinel) {
+      // A request that brought no rows (the sentinel never moved) counts as a stall; after a few
+      // in a row the tail stops asking on its own, so a host that answers without progress can
+      // never spin. New rows, or a retry after an error, start the count again.
+      const at = position(sentinel);
+      const moved = Math.abs(at - requestedAt.current) >= 1;
+      requestedAt.current = null;
+      stalls.current = moved ? 0 : stalls.current + 1;
+      if (stalls.current >= MAX_STALLS) {
+        stalledAt.current = at;
+        look = false;
+      }
+    } else if (
+      stalls.current >= MAX_STALLS &&
+      sentinel &&
+      Math.abs(position(sentinel) - stalledAt.current) >= 1
+    ) {
+      // Rows arrived some other way: the tail is live again.
+      stalls.current = 0;
+      look = true;
+    }
     const observer = observerRef.current;
     if (look && observer && sentinel) {
       // Re-observing reports the sentinel's current intersection.

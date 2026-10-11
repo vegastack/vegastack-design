@@ -1548,7 +1548,7 @@
         "whenToUse": "The footer of a keyset (cursor) list — DataList's or DataGrid's loadMore, a board lane, a feed: load the next batch, retry a failed one, optionally say the list has ended.",
         "whenNotToUse": "Numbered pages with a known total (DataListPager); loading on scroll with no button.",
         "version": "0.25.16",
-        "integrity": "sha256-QNja/vvXhnO2nvob8iFkIsjfVB3vleKJiZIaevzNtlA="
+        "integrity": "sha256-eiSCKElkasaM54hO1ElD4v5JszcDXz69IqFR/xgqojo="
       }
     },
     {
@@ -16258,7 +16258,7 @@
         "whenToUse": "The records a change will touch, listed in a confirmation dialog (the products a save affects, the products a delete leaves), each with a link to open it in a new tab.",
         "whenNotToUse": "Navigable or selectable lists (Item, DataList), pickers (Combobox), or a single linked record (RecordChip).",
         "version": "0.25.16",
-        "integrity": "sha256-q+mKve5/4oN6LJDYyqPVLMEflLHyz87aWy50hse/4LU="
+        "integrity": "sha256-bSJcmpWzwcSXS0fSmnZlbMonrKrRT8EuYVVb+2o17xU="
       }
     },
     {
