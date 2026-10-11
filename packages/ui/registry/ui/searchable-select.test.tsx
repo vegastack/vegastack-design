@@ -404,6 +404,15 @@ test("loadMore pages inside the panel on scroll, with skeleton options and no bu
   await expectNoA11yViolations(document.body);
 });
 
+test("a page the host filtered empty keeps paging (DS-38)", async () => {
+  const onLoadMore = vi.fn();
+  const screen = await render(
+    <Picker remote items={[]} loadMore={{ hasMore: true, onLoadMore }} />,
+  );
+  await screen.getByRole("combobox").click();
+  await expect.poll(() => onLoadMore.mock.calls.length).toBe(1);
+});
+
 test("leading items come first and are never filtered out (DS-38)", async () => {
   const me = { id: "me", name: "Me" };
   const screen = await render(<Picker leadingItems={[me]} />);

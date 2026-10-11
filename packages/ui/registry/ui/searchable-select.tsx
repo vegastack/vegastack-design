@@ -1,4 +1,4 @@
-// @vegastack searchable-select@0.25.16 sha256-1eAjwcvuGYPquGIeHdaxTjgGFthyp3xeuaI+8hN+1io=
+// @vegastack searchable-select@0.25.16 sha256-eiyg34I8a6wqZARDryK/kfrtzOHPnBbgCyf8Z4l92RY=
 
 "use client";
 
@@ -735,17 +735,23 @@ export function SearchableSelect<
             </ComboboxCollection>
             {/* Infinite paging: a sentinel after the last option, inside the scrolling list, loads
                 the next page as it nears the panel's edge, with skeleton options while it does. */}
-            {loadMore && items.length > 0 && !showFooter ? (
+            {/* With no rows (a page the host filtered empty) the tail still pages on, under the
+                panel's own loading skeleton, so every match stays reachable. */}
+            {loadMore &&
+            (items.length > 0 || loadMore.hasMore) &&
+            !showFooter ? (
               <LoadMore
                 hasMore={loadMore.hasMore}
                 loading={loadMore.loading}
                 onLoadMore={loadMore.onLoadMore}
                 rootMargin="0px 0px 96px 0px"
                 skeleton={
-                  <OptionSkeletons
-                    count={2}
-                    twoLine={Boolean(itemToSecondaryLabel)}
-                  />
+                  items.length > 0 ? (
+                    <OptionSkeletons
+                      count={2}
+                      twoLine={Boolean(itemToSecondaryLabel)}
+                    />
+                  ) : null
                 }
               />
             ) : null}
