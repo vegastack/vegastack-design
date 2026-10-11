@@ -1,4 +1,4 @@
-// @vegastack searchable-select@0.25.20 sha256-wW8bnJdbo8dZNIAwSSkKskAqRR1w0Aqjk03mRkSj8rc=
+// @vegastack searchable-select@0.25.20 sha256-UfqUoQEZKilwtktnBvcS8WVRr8r86NzbZObZRfVzGUQ=
 
 "use client";
 
@@ -219,6 +219,12 @@ export interface SearchableSelectProps<
    * @default 'Select an option'
    */
   placeholder?: string;
+  /**
+   * Show the in-panel search field. Set `false` for a short list that needs no filtering; the
+   * panel is then just the options.
+   * @default true
+   */
+  searchable?: boolean;
   /** Placeholder text for the in-panel search field.
    * @default 'Search…'
    */
@@ -427,6 +433,7 @@ export function SearchableSelect<
   renderItem,
   renderValue,
   placeholder = "Select an option",
+  searchable = true,
   searchPlaceholder = "Search…",
   searchLabel = "Search",
   emptyMessage = "No results found.",
@@ -705,16 +712,18 @@ export function SearchableSelect<
             contentClassName,
           )}
         >
-          <ComboboxInput
-            showTrigger={false}
-            aria-label={searchLabel}
-            // Inside a `Field`, Base UI hands the Field label's id to the combobox input as
-            // `aria-labelledby`, which outranks `aria-label`: the search box answered to the
-            // trigger's name ("Assignee"). The trigger is the control the Field names; an
-            // explicit `undefined` wins Base UI's prop merge (API-26's recipe on the toggle).
-            aria-labelledby={undefined}
-            placeholder={searchPlaceholder}
-          />
+          {searchable ? (
+            <ComboboxInput
+              showTrigger={false}
+              aria-label={searchLabel}
+              // Inside a `Field`, Base UI hands the Field label's id to the combobox input as
+              // `aria-labelledby`, which outranks `aria-label`: the search box answered to the
+              // trigger's name ("Assignee"). The trigger is the control the Field names; an
+              // explicit `undefined` wins Base UI's prop merge (API-26's recipe on the toggle).
+              aria-labelledby={undefined}
+              placeholder={searchPlaceholder}
+            />
+          ) : null}
           {/* The polite status region (API-27): mounted for the panel's life, only its text
               changes, and a sibling of the list (never inside the listbox). Screen-reader only: the
               skeleton rows below are the visible loading state. */}

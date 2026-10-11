@@ -1,4 +1,4 @@
-// @vegastack filter-bar@0.25.20 sha256-Kx+IbZAUSIJxnNHksacc/0SxPfdsSmADBRIqWbm2wzo=
+// @vegastack filter-bar@0.25.20 sha256-8KK69mSmEszvFpBudLhjgzIfIrcWO6rHV4EXuXTFIOI=
 
 "use client";
 
@@ -902,7 +902,16 @@ export interface FilterBarFacetOwnProps<Item> {
    * @default undefined
    */
   anyLabel?: string;
+  /**
+   * Show the search box in the panel. Unset, it shows only when the list is worth searching: more
+   * than 7 options, or a `remote` (server-searched) list. Pass `true` or `false` to override.
+   * @default undefined
+   */
+  searchable?: boolean;
 }
+
+/** Options at or below this count show no search box on a `FilterBarFacet` (unless `searchable` says otherwise). */
+const FACET_SEARCH_THRESHOLD = 7;
 
 /** Props accepted by `FilterBarFacet`: `SearchableSelect`'s, minus the trigger face it owns. */
 export type FilterBarFacetProps<
@@ -961,6 +970,7 @@ export function FilterBarFacet<
   countLabel,
   clearable: _clearable,
   clearLabel = `Clear ${label}`,
+  searchable,
   searchPlaceholder = `Search ${label.toLowerCase()}`,
   searchLabel = `Search ${label.toLowerCase()}`,
   emptyMessage = "No matches",
@@ -1047,6 +1057,13 @@ export function FilterBarFacet<
           size="sm"
           countLabel={countLabel}
           placeholder={label}
+          searchable={
+            searchable ??
+            (Boolean(select.remote) ||
+              Boolean(select.loadMore) ||
+              select.items.length + (select.leadingItems?.length ?? 0) >
+                FACET_SEARCH_THRESHOLD)
+          }
           searchPlaceholder={searchPlaceholder}
           searchLabel={searchLabel}
           emptyMessage={emptyMessage}
