@@ -1,4 +1,4 @@
-// @vegastack use-async-search@0.25.16 sha256-qlzkNACnxXHRN/45SXv9/V6W5qa6i9Bt9OjJFY590So=
+// @vegastack use-async-search@0.25.16 sha256-i64HgXqAwyBj7uq3/36T2PsL7s4t7qrj2rFDTlubBrg=
 
 "use client";
 
@@ -19,7 +19,9 @@ hand-rolled copy gets wrong:
   dropped even when the loader ignores the signal, so a slow "a" can never
   overwrite a fast "ab".
 - **Paging.** `loadMore` is a `LoadMoreState`: the next page is fetched with
-  the cursor the last page returned and appended.
+  the cursor the last page returned and appended. `loadMore.loading` is true
+  only while a next page is in flight, so a list's skeleton tail never shows
+  for a new query.
 - **Failure.** Items already loaded stay; `error` is set; `loadMore.onLoadMore`
   retries the request that failed, and `reload()` starts over.
 
@@ -144,6 +146,8 @@ export function useAsyncSearch<T>(
   const [items, setItems] = React.useState<T[]>([]);
   const [nextCursor, setNextCursor] = React.useState<string | null>(null);
   const [loading, setLoading] = React.useState(false);
+  // The request in flight is a next page (a cursor), not a first page for a query.
+  const [pageLoading, setPageLoading] = React.useState(false);
   const [error, setError] = React.useState<React.ReactNode | undefined>();
 
   // The latest loader and message mapper, so an inline arrow never restarts anything.
@@ -175,6 +179,7 @@ export function useAsyncSearch<T>(
     const isCurrent = () =>
       sequence === sequenceRef.current && !controller.signal.aborted;
     setLoading(true);
+    setPageLoading(request.cursor != null);
     setError(undefined);
     failedRef.current = null;
     let pending: Promise<AsyncSearchPage<T>>;
@@ -194,12 +199,14 @@ export function useAsyncSearch<T>(
         );
         setNextCursor(page.nextCursor ?? null);
         setLoading(false);
+        setPageLoading(false);
       },
       (thrown: unknown) => {
         if (!isCurrent()) return;
         failedRef.current = request;
         setError(errorMessageRef.current(thrown));
         setLoading(false);
+        setPageLoading(false);
       },
     );
   }, []);
@@ -218,6 +225,9 @@ export function useAsyncSearch<T>(
       // fill the list with stale results while the new query waits out its debounce.
       controllerRef.current?.abort();
       sequenceRef.current++;
+      setPageLoading(false);
+      // The cursor belongs to the previous query: no next page until the new first page lands.
+      setNextCursor(null);
       timerRef.current = setTimeout(() => {
         timerRef.current = null;
         run({ query: next, cursor: null });
@@ -267,10 +277,11 @@ export function useAsyncSearch<T>(
     () => ({
       hasMore: nextCursor != null || error != null,
       onLoadMore,
-      loading,
+      // Only a next page: a new query's first page replaces the list rather than extending it.
+      loading: pageLoading,
       error,
     }),
-    [nextCursor, onLoadMore, loading, error],
+    [nextCursor, onLoadMore, pageLoading, error],
   );
 
   return {

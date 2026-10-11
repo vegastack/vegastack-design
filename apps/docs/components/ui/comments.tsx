@@ -1,4 +1,4 @@
-// @vegastack comments@0.25.16 sha256-LT/t3TnJ8gREuRlokaBqdymHsOZLqrV5Z/uYQfCUkk4=
+// @vegastack comments@0.25.16 sha256-dh73nPSd+UcjJML73GSTFr9zROKmR6G4Fow2hgYmWiA=
 
 "use client";
 
@@ -23,6 +23,7 @@ import {
 import { cn } from "@vegastack/design";
 import { Button } from "@/components/ui/button";
 import { Attachment } from "@/components/ui/attachment";
+import { LoadMore } from "@/components/ui/load-more";
 import type { FileViewerItem } from "@/components/ui/file-viewer";
 import { Spinner } from "@/components/ui/spinner";
 import {
@@ -69,7 +70,7 @@ import { useMediaQuery } from "@/components/ui/use-media-query";
  * text / Edit / Delete), in-place editing with ✕ / ✓ in the header, files and reaction pills under
  * the body. `CommentComposer` is a bordered card: the text on top and a toolbar row (attach, a
  * round ↑ send) under it; Cmd/Ctrl+Enter sends and files drop onto it. `CommentList` is the
- * section: "Comments N", an Oldest / Newest first toggle, day dividers, "Load earlier", and the
+ * section: "Comments N", an Oldest / Newest first toggle, day dividers, older pages on scroll, and the
  * composer at the end (at the top while newest first). The parts hold only transient UI state —
  * the host owns the data and persists through callbacks; a callback that returns a promise drives
  * the saving/posting state and, on rejection, the error.
@@ -1837,7 +1838,7 @@ export interface CommentListProps {
   onOrderChange?: (order: CommentOrder) => void;
   /** Show the skeleton instead of the list. @default false */
   loading?: boolean;
-  /** Older comments exist: show "Load earlier" before them. @default false */
+  /** Older comments exist: they load as their edge scrolls into view. @default false */
   hasEarlier?: boolean;
   /** Load the older page. @default undefined */
   onLoadEarlier?: () => void;
@@ -1901,7 +1902,7 @@ export interface CommentListProps {
 
 /**
  * `CommentList` — a record's comments section: "Comments" with a count and an Oldest / Newest
- * first toggle, "Load earlier", the comments (each a card, with a day label where the day
+ * first toggle, older pages on scroll, the comments (each a card, with a day label where the day
  * changes), and the composer — at the end oldest first, at the top newest first. A skeleton while
  * loading; with none, just the composer (or `emptyText` over it).
  *
@@ -1962,17 +1963,17 @@ export function CommentList({
       ?.scrollIntoView({ block: "center" });
   }, [highlightedId, loading]);
 
-  const loadEarlier = hasEarlier ? (
-    <Button
-      variant="ghost"
-      size="sm"
-      className="self-start text-muted-foreground"
-      onClick={onLoadEarlier}
-      loading={loadingEarlier}
-    >
-      Load earlier
-    </Button>
-  ) : null;
+  // Older comments load as their edge scrolls into view, with a skeleton card while they do.
+  const loadEarlier =
+    hasEarlier && onLoadEarlier ? (
+      <LoadMore
+        hasMore
+        loading={loadingEarlier}
+        onLoadMore={onLoadEarlier}
+        rootMargin="160px 0px"
+        skeleton={<Skeleton className="h-16 w-full rounded-lg" />}
+      />
+    ) : null;
   const composerShown = composer && !loading ? composer : null;
 
   return (

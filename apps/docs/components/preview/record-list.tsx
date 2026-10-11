@@ -62,9 +62,10 @@ export function recordList(): ReactNode {
   );
 }
 
-/** "Show more" appends to the same list, so the numbers continue: 1–10, then 11–20. */
+/** Scrolling to the end appends to the same list, so the numbers continue: 1–10, then 11–20. */
 export function recordListShowMore(): ReactNode {
   const [shown, setShown] = useState(10);
+  const [loading, setLoading] = useState(false);
   return (
     <Wrapper className="block">
       <div className="mx-auto flex max-h-96 w-full max-w-md flex-col gap-2 overflow-y-auto">
@@ -80,7 +81,14 @@ export function recordListShowMore(): ReactNode {
         </RecordList>
         <RecordListMore
           remaining={PRODUCTS.length - shown}
-          onShowMore={() => setShown((n) => n + 10)}
+          loading={loading}
+          onShowMore={() => {
+            setLoading(true);
+            setTimeout(() => {
+              setShown((n) => n + 10);
+              setLoading(false);
+            }, 600);
+          }}
         />
       </div>
     </Wrapper>

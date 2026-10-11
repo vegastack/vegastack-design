@@ -1,4 +1,4 @@
-// @vegastack activity-feed@0.25.16 sha256-/4Pt/GC/J7vQeuLzA8w2J6CQzIKZdvZH/a5gpCG0zlA=
+// @vegastack activity-feed@0.25.16 sha256-iuMl94txT+Ciwu4Qx8NK4v5jselPVbuE1gOhjdDL1hA=
 
 "use client";
 
@@ -354,9 +354,19 @@ export function ActivityFeed({
         className="flex min-h-8 items-center justify-center text-xs text-muted-foreground"
       >
         {loadingMore || automaticLoading ? (
-          <Button variant="ghost" size="sm" loading disabled>
-            {loadingMoreLabel}
-          </Button>
+          // Skeleton event rows in the feed's own shape; the label is for screen readers only.
+          <div
+            data-slot="activity-feed-more-skeleton"
+            className="flex w-full flex-col gap-3 py-1"
+          >
+            <span className="sr-only">{loadingMoreLabel}</span>
+            {["w-48", "w-36", "w-56"].map((width) => (
+              <div key={width} aria-hidden className="flex items-center gap-2">
+                <Skeleton className="size-3.5 shrink-0 rounded-full" />
+                <Skeleton className={cn("h-3", width)} />
+              </div>
+            ))}
+          </div>
         ) : loadMoreError || automaticError ? (
           <Button variant="ghost" size="sm" onClick={() => void load(true)}>
             {retryMoreLabel}

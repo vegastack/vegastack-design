@@ -1,11 +1,11 @@
-// @vegastack version-list@0.25.16 sha256-l9fKxqLg82+3QHdU6TNgh8WjjajzrnboGXBzVp8XOuY=
+// @vegastack version-list@0.25.16 sha256-vaOS+6WaGV6mLC3lA3e2hmUQdZWrwsEaj8tC82PZL+w=
 
 "use client";
 
 import * as React from "react";
 import { cn } from "@vegastack/design";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { LoadMore } from "@/components/ui/load-more";
 import { PersonAvatar, type Person } from "@/components/ui/person-avatar";
 import { RelativeTime } from "@/components/ui/relative-time";
 import { PersonBadge } from "@/components/ui/searchable-select";
@@ -46,7 +46,7 @@ export interface VersionListProps {
   namedOnly?: boolean;
   /** Called from the header's "Named only" switch; the switch shows when set. @default undefined */
   onNamedOnlyChange?: (namedOnly: boolean) => void;
-  /** More versions exist: a "Load more" footer (keyset lists have no totals). @default undefined */
+  /** More versions exist: the next page loads as the list's end scrolls into view (keyset lists have no totals). @default undefined */
   loadMore?: { hasMore: boolean; onLoadMore: () => void; loading?: boolean };
   /** Show the skeleton instead of the list. @default false */
   loading?: boolean;
@@ -67,7 +67,7 @@ const KIND_BADGE: Partial<Record<VersionItem["kind"], string>> = {
  * `VersionList` — a document's version history: each row the time it was saved, who wrote it, its
  * name when it has one, and a badge for a restore ("Restored"), a lost save ("Unsaved copy") and
  * the document's current text ("Current"). A listbox with one tab stop: ↑/↓, Home and End move
- * the selection. A "Named only" switch in the header, and "Load more" at the end.
+ * the selection. A "Named only" switch in the header, and the next page loads on scroll.
  *
  * @example
  * <VersionList versions={versions} selectedId={selected} onSelect={setSelected}
@@ -235,17 +235,21 @@ export function VersionList({
           })}
         </div>
       )}
-      {!loading && loadMore?.hasMore ? (
-        <Button
-          variant="ghost"
-          size="sm"
-          className="self-start"
-          onClick={loadMore.onLoadMore}
-          loading={loadMore.loading}
-          disabled={loadMore.loading}
-        >
-          {loadMore.loading ? "Loading…" : "Load more"}
-        </Button>
+      {!loading && versions.length > 0 && loadMore ? (
+        <LoadMore
+          {...loadMore}
+          rootMargin="0px 0px 160px 0px"
+          skeleton={
+            <div className="flex flex-col gap-0.5">
+              {[0, 1].map((i) => (
+                <div key={i} className="flex flex-col gap-1.5 px-2 py-1.5">
+                  <Skeleton className="h-3.5 w-40" />
+                  <Skeleton className="h-3 w-24" />
+                </div>
+              ))}
+            </div>
+          }
+        />
       ) : null}
     </section>
   );

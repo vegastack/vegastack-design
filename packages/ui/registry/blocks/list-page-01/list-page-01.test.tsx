@@ -1,6 +1,6 @@
 /**
  * `list-page-01.test.tsx` — the block's browser contract: one `h1`; the grid and the list show the
- * same records and the view switch never empties; Load more appends; each empty tier shows its
+ * same records and the view switch never empties; scrolling to the end appends; each empty tier shows its
  * copy; axe-clean in each view and tier. Compiled contrast is in `test/contrast.browser.test.tsx`.
  */
 
@@ -42,10 +42,15 @@ test("grid and list show the same records, and the view switch never empties", a
   await expectNoA11yViolations(document.body, ["color-contrast"]);
 });
 
-test("Load more appends the next page", async () => {
-  const screen = await render(<ListPage01 />);
-  await screen.getByRole("button", { name: "Load more" }).click();
-  await expect.poll(() => document.querySelectorAll("tbody a").length).toBe(16);
+test("scrolling to the end appends the next page", async () => {
+  await render(<ListPage01 />);
+  document
+    .querySelector('[data-slot="load-more-sentinel"]')
+    ?.scrollIntoView({ block: "end" });
+  await expect
+    .poll(() => document.querySelectorAll("tbody a").length)
+    .toBeGreaterThanOrEqual(16);
+  expect(document.querySelector('[data-slot="load-more"] button')).toBeNull();
 });
 
 test("each empty tier shows its copy", async () => {

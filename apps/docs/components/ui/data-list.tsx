@@ -1,4 +1,4 @@
-// @vegastack data-list@0.25.16 sha256-TRO1UjjhiBvN7dWmmdU0L3cvhWfwb/KjAEn1vrfNZZo=
+// @vegastack data-list@0.25.16 sha256-rwg5irVNV6xiaJDK1hk/7kvqNlM0RZ5F6qLAh9Pv8LE=
 
 "use client";
 
@@ -296,7 +296,7 @@ export interface DataListProps<T> extends Omit<
    * `ActionBarButton`), and "Clear selection". On a narrow screen the actions scroll sideways
    * instead of overflowing. `clear` empties the selection — call it after a bulk action. While
    * the bar is open the list ends with a spacer of the bar's height and gap plus
-   * `--dock-inset-bottom` (a `GlobalAudioPlayer` under it), so the last row and a Load more stay
+   * `--dock-inset-bottom` (a `GlobalAudioPlayer` under it), so the last row and the next page's skeleton stay
    * reachable.
    * @default undefined
    */
@@ -487,11 +487,12 @@ export interface DataListProps<T> extends Omit<
    */
   footer?: React.ReactNode;
   /**
-   * Keyset paging: renders the shared `LoadMore` footer below the table (above
-   * `footer`). The table reports `aria-rowcount="-1"` while `hasMore`, because
-   * the total is unknown. `loading` here is a next-batch fetch — the loaded
-   * rows stay; the list-level `loading` prop is the first-load skeleton.
-   * `endLabel` is shown once `hasMore` is false (nothing by default).
+   * Keyset paging, loaded on scroll: the shared `LoadMore` tail below the table (above
+   * `footer`) requests the next cursor page as the list nears its scroll container's edge, and
+   * the table appends skeleton rows while `loading`. The table reports `aria-rowcount="-1"` while
+   * `hasMore`, because the total is unknown. `loading` here is a next-batch fetch — the loaded
+   * rows stay; the list-level `loading` prop is the first-load skeleton. A failed page shows its
+   * `error` with Try again. `endLabel` is shown once `hasMore` is false (nothing by default).
    * @default undefined
    */
   loadMore?: DataListLoadMoreProps;
@@ -946,7 +947,7 @@ export interface DataListSection {
    */
   loading?: boolean;
   /**
-   * Board view: this lane's own keyset paging, a `LoadMore` at the lane's foot.
+   * Board view: this lane's own keyset paging, loaded as the lane's foot scrolls into view.
    * @default undefined
    */
   loadMore?: DataListLoadMoreProps;
@@ -2198,6 +2199,20 @@ export function DataList<T>({
             {data.map((row, index) => renderRow(row, index))}
           </TableBody>
         )}
+        {/* The next page loading: skeleton rows the height of real ones, appended in place. */}
+        {!loading &&
+        data.length > 0 &&
+        loadMore?.hasMore &&
+        loadMore.loading ? (
+          <TableBody data-slot="data-list-more">
+            <SkeletonRows
+              columns={visibleColumns}
+              rows={3}
+              selectable={selectable}
+              slot="data-list-skeleton-row"
+            />
+          </TableBody>
+        ) : null}
       </Table>
       {statusLines}
     </TruncationFocusProvider>
@@ -2599,11 +2614,17 @@ export function DataList<T>({
         : activeView === "board"
           ? renderBoard()
           : table}
-      {loadMore ? <LoadMore {...loadMore} /> : null}
+      {loadMore ? (
+        <LoadMore
+          {...loadMore}
+          // The table appends its own skeleton rows; the grid and board take the default bars.
+          {...(activeView === "list" ? { skeleton: null } : {})}
+        />
+      ) : null}
       {footer != null ? <div data-slot="data-list-footer">{footer}</div> : null}
       {selectionBar && selectionCount > 0 ? (
         // Room for the selection bar and whatever docks under it (`--dock-inset-bottom`), so the
-        // last row and a Load more stay reachable above them.
+        // last row and the loading tail stay reachable above them.
         <div
           aria-hidden
           data-slot="data-list-selection-spacer"

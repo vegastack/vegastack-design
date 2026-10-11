@@ -86,7 +86,7 @@ test("arrow keys move the selection through the list", async () => {
   expect(onSelect).toHaveBeenLastCalledWith("v1");
 });
 
-test("Load more, the empty state and the skeleton", async () => {
+test("paging on scroll, the empty state and the skeleton", async () => {
   const onLoadMore = vi.fn();
   const screen = await render(
     <VersionList
@@ -94,8 +94,10 @@ test("Load more, the empty state and the skeleton", async () => {
       loadMore={{ hasMore: true, onLoadMore }}
     />,
   );
-  await userEvent.click(screen.getByRole("button", { name: "Load more" }));
-  expect(onLoadMore).toHaveBeenCalled();
+  await expect.poll(() => onLoadMore.mock.calls.length).toBe(1);
+  expect(
+    screen.container.querySelector('[data-slot="load-more"] button'),
+  ).toBeNull();
   const empty = await render(<VersionList versions={[]} />);
   await expect.element(empty.getByText("No versions yet")).toBeVisible();
   const loading = await render(<VersionList versions={[]} loading />);

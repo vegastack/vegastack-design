@@ -98,13 +98,13 @@ starts with `icon-` is a component and never an icon.
 - **`data-table-parts`** — The chrome DataList and DataGrid share — sort header, selection cells, skeleton rows, the empty row, column class rules, and the selection/sort/controlled-state hooks.
 - **`filter-bar`** — The two-row toolbar above a list or table — search (~320px) left; a Filters (n) toggle, scope Tabs and the view switch right; compact rounded-md filter chips (FilterBarFacet, DateRangeFilter with presets) on a toggled row 12px below that scrolls sideways on a phone.
 - **`filter-bar-managed`** — The controlled nested and/or filter builder — host-injected field grammar (vocabulary + per-type value editors), depth and condition caps, focus-managed removal, and a removable FilterChip summary.
-- **`load-more`** — The shared Load more footer for keyset lists — an outline button that keeps its width while loading, an error line with Try again, and an optional end caption.
+- **`load-more`** — The shared infinite-loading tail for keyset lists — a sentinel that fetches the next cursor page as the list nears its scroll edge, skeleton rows while it loads, an error line with Try again, and an optional end caption.
 - **`media-card`** — A record as a card — an image, the title with its badge beside it, a meta line and a ⋯ menu — where the whole card is one link.
 - **`person-avatar`** — A person's avatar — the photo, else initials on their hue, else initials on the muted fallback — the one way every people surface draws a person.
 - **`person-hover-card`** — Stacked avatars with a hover card per person — a compact card with a 32px avatar, with the name and muted email beside it — and the rest behind "+N".
 - **`property-list`** — Record-facts rows: an icon+label column beside a value column, as an accessible definition list.
 - **`record-aside`** — The cards of a record page's right rail — titled sections of inline properties, people, linked records and full-width action rows.
-- **`record-list`** — A numbered list of the records a change affects — a muted record-type icon, the name with a new-tab link after it, a badge and a description line — plus a Show more footer whose next rows keep the numbering. For confirmation dialogs.
+- **`record-list`** — A numbered list of the records a change affects — a muted record-type icon, the name with a new-tab link after it, a badge and a description line — plus a footer that loads the next rows on scroll and keeps the numbering. For confirmation dialogs.
 - **`sortable-list`** — Reorderable rows or tiles on ItemGroup/Item via use-drag-reorder — pointer drag with drop indicators, touch long-press, keyboard move mode, a remove button or a row menu, locked rows, a grid layout with bare tiles for attachments, and server-refusable moves. Controlled; the host owns the order.
 - **`thumbnail`** — A small rounded, cover-fit image, 32 or 48px, with a fallback for records that have no image.
 - **`view-toggle`** — The Grid | List | Board icon switch for a list page, labels hidden on a phone.

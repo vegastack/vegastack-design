@@ -1,11 +1,11 @@
 ---
 title: Load More
-description: The shared Load more footer for keyset lists — load the next batch, retry a failed one, and optionally say the list has ended.
+description: The infinite-loading tail for keyset lists — loads the next cursor page on scroll, with skeleton rows, a retry on failure and an optional end caption.
 audience: public
 registry: load-more
 status: stable
 since: 0.18.0
-a11y: named button, busy state, alert on failure, focus kept
+a11y: decorative tail, alert on failure, focus untouched
 preview: loadMore
 ---
 
@@ -26,14 +26,20 @@ import { LoadMore } from "@/components/ui/load-more";
 />;
 ```
 
-`LoadMore` is the footer of a **keyset** list — one fetched by cursor, with no total and no page
-numbers. It says only what the reader can do next: load the next batch, or retry the batch that
-failed. It is controlled and owns no data: the host holds `hasMore`, `loading` and `error`, and
-`onLoadMore` fetches the next batch (a retry is the same call).
+`LoadMore` is the tail of a **keyset** list — one fetched by cursor, with no total and no page
+numbers. Nothing asks the reader to page: a sentinel at the end of the list is observed against its
+nearest scrolling ancestor (the page when there is none) and calls `onLoadMore` as it comes within
+`rootMargin` of the edge. While the page loads, skeleton rows hold the space the new rows will take.
+A list shorter than its box keeps loading until it fills it or the cursor runs out.
 
-`DataList` and `DataGrid` render it for you through their `loadMore` prop, and `LoadMoreState` — the
-four paging fields on their own — is the shape those props, board lanes and `useAsyncSearch` pass
-around. Reach for the component directly only for a list that is not a `DataList` or `DataGrid`.
+It is controlled and owns no data: the host holds `hasMore`, `loading` and `error`, and
+`onLoadMore` fetches the next batch (a retry is the same call). It requests **one page at a time**:
+after a call it waits for the host — for `loading` to rise and fall when the host reports it, or for
+the new rows to land when it reports neither — before it can fire again. Pass `loading`, or return a promise from `onLoadMore`.
+
+`DataList`, `DataGrid`, board lanes, `SearchableSelect` and `VersionList` render it for you through
+their `loadMore` prop, and `LoadMoreState` — the four paging fields on their own — is the shape those
+props and `useAsyncSearch` pass around. Reach for the component directly only for another list.
 
 <ComponentPreview name="loadMore" file="components/preview/load-more.tsx" />
 
@@ -41,11 +47,11 @@ around. Reach for the component directly only for a list that is not a `DataList
 
 ### States
 
-- **Idle** — an outline button, _Load more_.
-- **Loading** — the same button with a spinner. It keeps its width and its name, reports
-  `aria-busy`, and ignores further presses.
+- **Idle** — a 1px sentinel; nothing visible.
+- **Loading** — skeleton rows (three 36px bars by default) where the next rows will land. Nothing
+  else fires until the host answers.
 - **Error** — the message above a _Try again_ button, which calls `onLoadMore` again. Rows already
-  loaded stay where they are.
+  loaded stay, and loading pauses: a broken endpoint is never retried on scroll.
 - **Done** — nothing, unless the host passes `endLabel`: a list that simply stops needs no caption.
 
 <ComponentPreview
@@ -53,15 +59,19 @@ around. Reach for the component directly only for a list that is not a `DataList
   file="components/preview/load-more.tsx"
 />
 
-### Labels
+### Skeleton rows
 
-`label` and `retryLabel` rename the two buttons, for a more specific verb or another language.
+Pass `skeleton` with rows the height of the list's own, so nothing jumps when they are replaced.
+A table that appends skeleton rows to its own body passes `skeleton={null}` and keeps only the
+sentinel — `DataList` and `DataGrid` do.
 
 ```tsx
 <LoadMore
   hasMore={hasMore}
+  loading={loading}
   onLoadMore={fetchNextPage}
-  label="Show more meetings"
+  skeleton={<MeetingRowSkeleton count={2} />}
+  rootMargin="0px 0px 160px 0px"
   retryLabel="Retry"
   endLabel="That's every meeting"
 />
@@ -79,25 +89,25 @@ a data hook passes through as one value.
 
 ## Accessibility
 
-- The control is a real button named by its visible label. While loading it stays focusable and
-  reports `aria-busy="true"`; the label keeps its box at opacity 0, so the name survives.
-- The button swaps its label and busy state in place rather than remounting, so keyboard focus stays
-  on it while the new rows are appended above.
-- A failed fetch renders its message as `role="alert"`: it appears because of something the reader
-  just did.
+- The tail is decoration (`aria-hidden`): the new rows arrive in the list itself, and the host's
+  status region or the list's `aria-busy` is what a screen reader hears.
+- Nothing takes or moves focus, and appending below the reader never moves the scroll position, so
+  a keyboard reader's row cursor stays where it was. Arrowing toward the end scrolls the sentinel
+  into view, which loads the next page; `DataGrid` also loads it on <kbd>↓</kbd> past the last row.
+- A failed fetch renders its message as `role="alert"`, with a real _Try again_ button.
 - `DataList` and `DataGrid` set `aria-rowcount="-1"` on the table while `hasMore` is true, because
   the total is unknown.
 
-| Key                                 | Action                                         |
-| ----------------------------------- | ---------------------------------------------- |
-| <kbd>Tab</kbd>                      | Move to the button.                            |
-| <kbd>Enter</kbd> / <kbd>Space</kbd> | Load the next batch, or retry after a failure. |
+| Key                                 | Action                          |
+| ----------------------------------- | ------------------------------- |
+| <kbd>Tab</kbd>                      | Move to _Try again_ (on error). |
+| <kbd>Enter</kbd> / <kbd>Space</kbd> | Retry the failed page.          |
 
 <StatesTested name="load-more" />
 
 ## Do / Don't
 
 <DoDont
-  do="Keep the rows already loaded when a batch fails, and let Try again fetch the same batch."
-  dont="Show a total or page numbers on a keyset list — use DataListPager when the total is known."
+  do="Pass skeleton rows the height of the list's own, and keep the rows already loaded when a batch fails."
+  dont="Add a Load more button or a spinner under the list — the next page loads on scroll."
 />

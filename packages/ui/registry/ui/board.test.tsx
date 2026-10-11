@@ -407,15 +407,24 @@ test("emptyState replaces the dashed zone at rest", async () => {
   await expect.element(screen.getByTestId("custom-empty")).toBeInTheDocument();
 });
 
-test("a lane's loadMore auto-loads when its foot scrolls into view, with the button as fallback", async () => {
+test("a lane's loadMore auto-loads when its foot scrolls into view, with skeleton cards and no button", async () => {
   const onLoadMore = vi.fn();
   const columns = makeColumns();
   columns[0] = { ...columns[0]!, loadMore: { hasMore: true, onLoadMore } };
   const screen = await render(<Controlled initial={columns} />);
-  await expect.poll(() => onLoadMore.mock.calls.length).toBeGreaterThan(0);
-  await expect
-    .element(screen.getByRole("button", { name: "Load more" }))
-    .toBeInTheDocument();
+  await expect.poll(() => onLoadMore.mock.calls.length).toBe(1);
+  expect(
+    screen.container.querySelector('[data-slot="load-more"] button'),
+  ).toBeNull();
+  const loading = makeColumns();
+  loading[0] = {
+    ...loading[0]!,
+    loadMore: { hasMore: true, loading: true, onLoadMore },
+  };
+  const next = await render(<Controlled initial={loading} />);
+  expect(
+    next.container.querySelector('[data-slot="board-column-skeleton"]'),
+  ).not.toBeNull();
 });
 
 test("getItemHref makes each card activator a real link", async () => {

@@ -1,4 +1,4 @@
-// @vegastack board@0.25.16 sha256-ADaUQJaRci+kHt0sjZdFZu67aVqomkbaTL8svgdzX6k=
+// @vegastack board@0.25.16 sha256-b5ULzB5PqvEB1hM9YOoP9MCceVhceXe3/2OpCLcPfRQ=
 
 "use client";
 
@@ -184,9 +184,8 @@ export interface BoardColumn<T> {
    */
   collapsed?: boolean;
   /**
-   * Keyset paging for this lane. The lane loads its next batch as its foot scrolls into view,
-   * and the shared `LoadMore` button stays at the foot as the fallback and the retry after an
-   * error.
+   * Keyset paging for this lane. The lane loads its next batch as its foot scrolls into view and
+   * shows skeleton cards while it loads; a failed batch shows its error with Try again.
    * @default undefined
    */
   loadMore?: Omit<LoadMoreProps, "className" | "ref">;
@@ -462,46 +461,6 @@ function BoardCardSurface({
 const cardClasses =
   "group/board-card relative flex min-w-0 flex-col rounded-lg border border-border bg-card p-3 shadow-xs text-start text-sm text-card-foreground transition-colors select-none [-webkit-touch-callout:none]";
 
-/** Loads a lane's next batch when its foot scrolls into view. */
-function LaneAutoLoad({
-  loadMore,
-  root,
-}: {
-  loadMore: Omit<LoadMoreProps, "className" | "ref">;
-  root: HTMLElement | null;
-}) {
-  const sentinel = React.useRef<HTMLDivElement>(null);
-  const latest = React.useRef(loadMore);
-  latest.current = loadMore;
-  React.useEffect(() => {
-    const node = sentinel.current;
-    if (!node || !root || typeof IntersectionObserver === "undefined") return;
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const state = latest.current;
-        if (
-          entries.some((entry) => entry.isIntersecting) &&
-          state.hasMore &&
-          !state.loading &&
-          !state.error
-        )
-          state.onLoadMore();
-      },
-      { root, rootMargin: "0px 0px 160px 0px" },
-    );
-    observer.observe(node);
-    return () => observer.disconnect();
-  }, [root, loadMore.hasMore, loadMore.loading, loadMore.error]);
-  return (
-    <div
-      ref={sentinel}
-      aria-hidden="true"
-      data-slot="board-column-sentinel"
-      className="h-px shrink-0"
-    />
-  );
-}
-
 /**
  * `Board` — kanban lanes: full-height lanes whose cards scroll inside them, sticky lane headers
  * with a collapse menu, "+ Add" after each lane's last card, empty lanes as a design-system `Empty` ("Nothing here") and a "Drop here" zone while dragging,
@@ -757,9 +716,6 @@ export function Board<T>({
   const overlayRef = React.useRef<HTMLDivElement>(null);
   const scrollerRef = React.useRef<HTMLDivElement>(null);
   const laneBodies = React.useRef(new Map<string, HTMLElement>());
-  const [laneBodyNodes, setLaneBodyNodes] = React.useState<
-    Record<string, HTMLElement | null>
-  >({});
   const edgeDwell = React.useRef<{ side: -1 | 1; since: number } | null>(null);
   const [settling, setSettling] = React.useState(false);
 
@@ -1224,9 +1180,6 @@ export function Board<T>({
   const laneBodyRef = (id: string) => (node: HTMLElement | null) => {
     if (node) laneBodies.current.set(id, node);
     else laneBodies.current.delete(id);
-    setLaneBodyNodes((prev) =>
-      prev[id] === node ? prev : { ...prev, [id]: node },
-    );
   };
   const laneBodyRefs = React.useRef(
     new Map<string, (node: HTMLElement | null) => void>(),
@@ -1621,7 +1574,10 @@ export function Board<T>({
               {cards}
             </div>
           )}
-          {column.loading ? (
+          {column.loading ||
+          (column.loadMore?.hasMore &&
+            column.loadMore.loading &&
+            !column.loadMore.error) ? (
             <div
               aria-hidden="true"
               data-slot="board-column-skeleton"
@@ -1653,15 +1609,8 @@ export function Board<T>({
             </div>
           ) : null}
           {column.loadMore ? (
-            <>
-              {column.loadMore.hasMore ? (
-                <LaneAutoLoad
-                  loadMore={column.loadMore}
-                  root={laneBodyNodes[column.id] ?? null}
-                />
-              ) : null}
-              <LoadMore {...column.loadMore} className="pt-1" />
-            </>
+            // The lane draws the next page's skeleton cards above; this is the sentinel and retry.
+            <LoadMore {...column.loadMore} skeleton={null} className="pt-1" />
           ) : null}
           {addInEmpty ? null : addButton}
         </div>

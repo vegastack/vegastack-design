@@ -1,10 +1,12 @@
-// @vegastack record-list@0.25.16 sha256-DL0O+2xbEAOaYkj6HhUBSVFUQbZ3gs9CHMOD3fDb4R0=
+// @vegastack record-list@0.25.16 sha256-bSJcmpWzwcSXS0fSmnZlbMonrKrRT8EuYVVb+2o17xU=
 
 import * as React from "react";
 import { ExternalLink } from "lucide-react";
 import { cn } from "@vegastack/design";
 
-import { Button, buttonVariants } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
+import { LoadMore } from "@/components/ui/load-more";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Table,
   TableBody,
@@ -18,8 +20,8 @@ import {
 `RecordList` is the "these records are affected" list a confirmation dialog shows before a
 change lands: the products a family save gives new issues, the products an accessory delete
 leaves. It is an ordered list, so every row is numbered — 1., 2., … — and the numbers
-continue when the host appends the next batch behind `RecordListMore`'s "Show more", because
-the rows stay one `<ol>`.
+continue when the host appends the next batch — `RecordListMore` loads it as the list's end
+scrolls into view — because the rows stay one `<ol>`.
 
 A row is a leading muted record-type icon, the record's name, an optional badge and an
 optional one-line description. With `href`, a small ↗ link sits right after the name on the
@@ -192,25 +194,28 @@ export interface RecordListMoreProps extends React.ComponentPropsWithRef<"div"> 
   /** How many records are not shown yet. Nothing renders at zero. */
   remaining: number;
   /**
-   * Load the next batch. Without it the footer only says how many more there are.
+   * Load the next batch — called as the list's end scrolls into view; return a promise so the
+   * next request waits for it. Without it the footer only says how many more there are.
    * @default undefined
    */
-  onShowMore?: () => void;
+  onShowMore?: () => void | Promise<unknown>;
   /**
-   * A batch is loading: the button shows its spinner.
+   * A batch is loading: skeleton rows hold its place.
    * @default false
    */
   loading?: boolean;
   /**
-   * The button's label.
-   * @default "Show more"
+   * Formerly the "Show more" button's label. The next batch loads on scroll now.
+   * @deprecated No button renders; the prop is ignored.
+   * @default undefined
    */
   label?: string;
 }
 
 /**
- * `RecordListMore` — "and 14 more · Show more" after a `RecordList`. The host
- * appends the next rows to the same list, so their numbers continue.
+ * `RecordListMore` — "and 14 more" after a `RecordList`, loading the next batch as it scrolls
+ * into view (skeleton rows while it loads). The host appends the rows to the same list, so their
+ * numbers continue.
  *
  * @example
  * <RecordListMore remaining={14} onShowMore={loadMore} loading={loading} />
@@ -219,7 +224,7 @@ export function RecordListMore({
   remaining,
   onShowMore,
   loading = false,
-  label = "Show more",
+  label: _label,
   className,
   ...props
 }: RecordListMoreProps) {
@@ -228,22 +233,27 @@ export function RecordListMore({
     <div
       data-slot="record-list-more"
       className={cn(
-        "flex items-center gap-2 text-sm text-muted-foreground tabular-nums",
+        "flex flex-col gap-2 text-sm text-muted-foreground tabular-nums",
         className,
       )}
       {...props}
     >
-      <span>{`and ${remaining.toLocaleString("en")} more`}</span>
       {onShowMore ? (
-        <Button
-          size="sm"
-          variant="ghost"
+        <LoadMore
+          hasMore
           loading={loading}
-          onClick={onShowMore}
-        >
-          {label}
-        </Button>
+          onLoadMore={onShowMore}
+          rootMargin="0px 0px 120px 0px"
+          skeleton={
+            <div className="flex flex-col gap-2">
+              {[0, 1].map((i) => (
+                <Skeleton key={i} className="h-8 w-full" />
+              ))}
+            </div>
+          }
+        />
       ) : null}
+      <span>{`and ${remaining.toLocaleString("en")} more`}</span>
     </div>
   );
 }

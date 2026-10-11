@@ -1,4 +1,4 @@
-// @vegastack data-grid@0.25.16 sha256-MtJQJDpBzRU1O4mZR73Dlc1qouyQsDLqgL0SO+KcaDk=
+// @vegastack data-grid@0.25.16 sha256-dQg2uYT3QU+AyS9wypq/wHPa+NHA/bZM8dtOB1f/v8Y=
 
 "use client";
 
@@ -309,9 +309,11 @@ export interface DataGridProps<T> {
    */
   onSelectionChange?: (selectedIds: Set<string>) => void;
   /**
-   * Keyset paging: the shared `LoadMore` footer below the grid, plus a
-   * keyboard-continuous trigger when ArrowDown moves past the last row.
-   * `endLabel` is shown once `hasMore` is false (nothing by default).
+   * Keyset paging, loaded on scroll: the shared `LoadMore` tail at the end of the grid's scroll
+   * viewport requests the next cursor page as it nears the edge, the grid appends skeleton rows
+   * while `loading`, and ArrowDown past the last row requests it from the keyboard. A failed page
+   * shows its `error` with Try again; `endLabel` is shown once `hasMore` is false (nothing by
+   * default).
    * @default undefined
    */
   loadMore?: DataGridLoadMoreProps;
@@ -684,6 +686,17 @@ export function DataGrid<T>({
   React.useEffect(() => {
     loadMoreFired.current = false;
   }, [dataLength, loadMore?.loading]);
+  // The one way the grid asks for the next page — the scroll sentinel and ArrowDown past the last
+  // row share it, so a page is requested ONCE: the guard resets when rows arrive or `loading`
+  // moves, so a host that omits `loading` cannot be hammered either.
+  const requestMore = (): boolean => {
+    if (!loadMore?.hasMore || loadMore.loading || loadMoreFired.current)
+      return false;
+    loadMoreFired.current = true;
+    loadMore.onLoadMore();
+    announce("Loading more rows…");
+    return true;
+  };
 
   const focusCell = React.useCallback(
     (row: number, col: number) => {
@@ -723,20 +736,8 @@ export function DataGrid<T>({
     switch (event.key) {
       case "ArrowDown": {
         event.preventDefault();
-        if (
-          row === flatVisibleRows.length - 1 &&
-          loadMore?.hasMore &&
-          !loadMore.loading &&
-          !loadMoreFired.current
-        ) {
-          // Keyboard-continuous load-more: walking past the last row fetches
-          // ONCE per page — the guard resets when rows arrive, so a host
-          // that omits `loading` cannot be hammered by repeated presses.
-          loadMoreFired.current = true;
-          loadMore.onLoadMore();
-          announce("Loading more rows…");
-          return;
-        }
+        // Keyboard-continuous load-more: walking past the last row fetches the next page.
+        if (row === flatVisibleRows.length - 1 && requestMore()) return;
         focusCell(row + 1, col);
         break;
       }
@@ -1240,11 +1241,37 @@ export function DataGrid<T>({
                 );
               })
             )}
+            {/* The next page loading: skeleton rows the height of real ones, appended in place. */}
+            {!loading &&
+            flatVisibleRows.length > 0 &&
+            loadMore?.hasMore &&
+            loadMore.loading ? (
+              <TableBody data-slot="data-grid-more">
+                <SkeletonRows
+                  columns={visibleColumns}
+                  rows={3}
+                  selectable={selectable}
+                  slot="data-grid-skeleton-row"
+                />
+              </TableBody>
+            ) : null}
           </Table>
         </TruncationFocusProvider>
+        {/* Inside the scroll viewport, so a `maxHeight` grid loads as its own body scrolls. */}
+        {loadMore ? (
+          <LoadMore
+            {...loadMore}
+            onLoadMore={() => {
+              // A retry after an error bypasses the guard; the sentinel goes through it.
+              if (loadMore.error != null && loadMore.error !== false)
+                loadMore.onLoadMore();
+              else requestMore();
+            }}
+            skeleton={null}
+          />
+        ) : null}
       </div>
 
-      {loadMore ? <LoadMore {...loadMore} /> : null}
       {footer != null ? <div data-slot="data-grid-footer">{footer}</div> : null}
       <Announcer />
     </div>
