@@ -1,4 +1,4 @@
-// @vegastack record-aside@0.25.17 sha256-pxSz+Z7Zpplx1yGlTWzwKjOFu9Swnr90RGaITbG/CG4=
+// @vegastack record-aside@0.25.18 sha256-PVyHl87sKlemtklPLsMZu2O8ult4EvuydvPaIPY62fA=
 
 "use client";
 

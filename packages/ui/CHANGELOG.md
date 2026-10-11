@@ -1,5 +1,12 @@
 # @vegastack/ui
 
+## 0.25.18
+
+### Patch Changes
+
+- [#603](https://github.com/vegastack/vegastack-design/pull/603) [`5523f81`](https://github.com/vegastack/vegastack-design/commit/5523f817714791c48f5c51b2b1159fecdc04545a) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🧩 **SortableList**: `align="start"` keeps the handle, the × and the ⋯ on a row's first line instead of its middle, for tall rows such as a card whose title line sits over an expandable body.
+  [docs](https://design.vegastack.com/docs/components/sortable-list)
+
 ## 0.25.17
 
 ### Patch Changes

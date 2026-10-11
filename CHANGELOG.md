@@ -9,6 +9,20 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.25.18] — October 11, 2026
+
+<!-- assembled from 1 changeset: 3475663ad842 -->
+
+### 🧩 New components
+
+- **SortableList**: `align="start"` keeps the handle, the × and the ⋯ on a row's first line instead of its middle, for tall rows such as a card whose title line sits over an expandable body.
+  [docs](https://design.vegastack.com/docs/components/sortable-list) ·
+  [`5523f81`](https://github.com/VegaStack/vegastack-design/commit/5523f81)
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.25.17 → 0.25.18.
+
 ## [0.25.17] — October 11, 2026
 
 <!-- assembled from 1 changeset: 86af10dc40ea -->
