@@ -119,6 +119,10 @@ const RUNTIME_VARIABLES = new Set([
   // room the panel takes above the toast stack's own 16px) while it is on screen, and the Toast
   // viewport's bottom positions read it with a `0px` fallback to rise above the panel.
   "--upload-panel-inset",
+  // The app-set toaster offset: an application writes it onto `:root` while a sticky footer is
+  // mounted, and the Toast viewport's bottom positions read it with a `0px` fallback to rise
+  // above the footer. It is the consumer's to declare, not a theme token.
+  "--toaster-offset-bottom",
 ]);
 
 // Chart series colours are CONSUMER data: `chart.tsx` writes `--color-<seriesKey>` from the

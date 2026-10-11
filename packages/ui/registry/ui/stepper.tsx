@@ -1,4 +1,4 @@
-// @vegastack stepper@0.25.19 sha256-eVdhS3OnWRBVnwXSx8UomYknQ3DN5QkwWZ2Pkl9gjq4=
+// @vegastack stepper@0.25.19 sha256-+9rICr7DOiQQNjufyu22e0WLh0r887m5NZ2FstMl0AI=
 
 "use client";
 
@@ -732,7 +732,9 @@ export function Stepper({
                   data-slot="stepper-item"
                   // Focus target when the step becomes current — not a tab stop.
                   tabIndex={isCurrent ? -1 : undefined}
-                  className={boxLayout}
+                  // The same 1px transparent border the trigger Button carries, so the node
+                  // and label do not shift when a step becomes (or stops being) current.
+                  className={cn(boxLayout, "border border-transparent")}
                 >
                   {content}
                 </span>

@@ -1,6 +1,8 @@
 # component: toast
 # decisions: A11Y-3, A11Y-4, A11Y-8, A11Y-9, COL-12, COL-23, DOC-1, DOC-2, FOC-1, FOC-6, ICO-8, OVL-13, OVL-15, OVL-17
 # hunks:
+#   OVL-15: the bottom viewport positions also rise by `--toaster-offset-bottom` (default `0px`),
+#     the app-set offset that lifts the stack above a sticky footer.
 #   FOC-1, FOC-6: the toast root's `outline-none focus-visible:border-ring
 #     focus-visible:ring-[3px] focus-visible:ring-ring/50` halo goes; dropping `outline-none` lets
 #     the single 2px `:focus-visible` outline `base.css` owns through.
@@ -97,10 +99,10 @@
 #   formatting: prettier reflow plus the `registry-stamp.mjs` provenance header (DOC-1); no
 #               decision of their own.
 diff --git a/toast.tsx b/toast.tsx
-index 325d01b..339bed3 100644
+index 325d01b..3a24cab 100644
 --- a/toast.tsx
 +++ b/toast.tsx
-@@ -1,60 +1,271 @@
+@@ -1,60 +1,273 @@
 -"use client"
 +"use client";
  
@@ -166,6 +168,8 @@ index 325d01b..339bed3 100644
 + *
 + * OVL-15: a bottom stack rises by `--upload-panel-inset`, which `UploadPanel` publishes on the
 + * document root while it is on screen, so a toast never covers the upload panel (`0px` without one).
++ * It also rises by `--toaster-offset-bottom` (default `0px`): an app with a sticky footer sets it
++ * on `:root` (e.g. `--toaster-offset-bottom: 4.5rem`) while the footer is mounted.
 + *
 + * OVL-15: `z-60` puts the stack one band above the single `z-50` overlay band, so a toast fired
 + * while a Dialog is open is visible instead of behind its scrim. Nothing else leaves `z-50`.
@@ -179,11 +183,11 @@ index 325d01b..339bed3 100644
 +        "top-center": "top-4 [--toast-dir:1] sm:inset-x-0 sm:mx-auto",
 +        "top-end": "top-4 [--toast-dir:1] sm:end-4 sm:start-auto",
 +        "bottom-start":
-+          "bottom-[calc(var(--spacing)*4+var(--upload-panel-inset,0px))] [--toast-dir:-1] sm:start-4 sm:end-auto",
++          "bottom-[calc(var(--spacing)*4+var(--upload-panel-inset,0px)+var(--toaster-offset-bottom,0px))] [--toast-dir:-1] sm:start-4 sm:end-auto",
 +        "bottom-center":
-+          "bottom-[calc(var(--spacing)*4+var(--upload-panel-inset,0px))] [--toast-dir:-1] sm:inset-x-0 sm:mx-auto",
++          "bottom-[calc(var(--spacing)*4+var(--upload-panel-inset,0px)+var(--toaster-offset-bottom,0px))] [--toast-dir:-1] sm:inset-x-0 sm:mx-auto",
 +        "bottom-end":
-+          "bottom-[calc(var(--spacing)*4+var(--upload-panel-inset,0px))] [--toast-dir:-1] sm:end-4 sm:start-auto",
++          "bottom-[calc(var(--spacing)*4+var(--upload-panel-inset,0px)+var(--toaster-offset-bottom,0px))] [--toast-dir:-1] sm:end-4 sm:start-auto",
 +      },
 +    },
 +    defaultVariants: { position: "bottom-end" },
@@ -409,7 +413,7 @@ index 325d01b..339bed3 100644
  }
  
  function ToastContent({ className, ...props }: ToastPrimitive.Content.Props) {
-@@ -62,12 +273,12 @@ function ToastContent({ className, ...props }: ToastPrimitive.Content.Props) {
+@@ -62,12 +275,12 @@ function ToastContent({ className, ...props }: ToastPrimitive.Content.Props) {
      <ToastPrimitive.Content
        data-slot="toast-content"
        className={cn(
@@ -425,7 +429,7 @@ index 325d01b..339bed3 100644
  }
  
  function ToastTitle({ className, ...props }: ToastPrimitive.Title.Props) {
-@@ -77,7 +288,7 @@ function ToastTitle({ className, ...props }: ToastPrimitive.Title.Props) {
+@@ -77,7 +290,7 @@ function ToastTitle({ className, ...props }: ToastPrimitive.Title.Props) {
        className={cn("text-sm font-medium", className)}
        {...props}
      />
@@ -434,7 +438,7 @@ index 325d01b..339bed3 100644
  }
  
  function ToastDescription({
-@@ -87,10 +298,16 @@ function ToastDescription({
+@@ -87,10 +300,16 @@ function ToastDescription({
    return (
      <ToastPrimitive.Description
        data-slot="toast-description"
@@ -453,7 +457,7 @@ index 325d01b..339bed3 100644
  }
  
  function ToastAction({
-@@ -98,14 +315,18 @@ function ToastAction({
+@@ -98,14 +317,18 @@ function ToastAction({
    render = <Button variant="outline" size="sm" />,
    ...props
  }: ToastPrimitive.Action.Props) {
@@ -473,7 +477,7 @@ index 325d01b..339bed3 100644
  }
  
  function ToastClose({
-@@ -114,59 +335,55 @@ function ToastClose({
+@@ -114,59 +337,55 @@ function ToastClose({
    render = <Button variant="ghost" size="icon-sm" />,
    ...props
  }: ToastPrimitive.Close.Props) {
@@ -549,7 +553,7 @@ index 325d01b..339bed3 100644
    }
  
    return (
-@@ -176,59 +393,156 @@ function ToastIcon({ type }: { type: string | undefined }) {
+@@ -176,59 +395,156 @@ function ToastIcon({ type }: { type: string | undefined }) {
      >
        {icon}
      </span>
