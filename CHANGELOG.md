@@ -9,6 +9,20 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.25.20] — October 12, 2026
+
+<!-- assembled from 1 changeset: f9728b619f1a -->
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.25.19 → 0.25.20.
+
+### 🐛 Fixed
+
+- **Stepper, Toast, Toggle**: the current step now carries the same 1px transparent border as the clickable steps, so the node and label no longer shift by a pixel when the step changes. A bottom `Toaster` stack also rises by `--toaster-offset-bottom` (default `0px`) — set it on `:root` while a sticky footer is mounted so toasts stop covering it. A pressed `Toggle` and `ToggleGroupItem` name their `foreground` ink instead of inheriting it, so a selected chip stays at AA contrast on the `muted` fill.
+  [docs](https://design.vegastack.com/docs/components/stepper) ·
+  [`5fb69c2`](https://github.com/VegaStack/vegastack-design/commit/5fb69c2)
+
 ## [0.25.19] — October 11, 2026
 
 <!-- assembled from 2 changesets: 210d9cff4989 -->
