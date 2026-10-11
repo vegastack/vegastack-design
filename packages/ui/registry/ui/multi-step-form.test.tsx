@@ -26,7 +26,8 @@ function slots(root: ParentNode, name: string): HTMLElement[] {
 function railLabels(root: ParentNode): string[] {
   return slots(root, "stepper-step").map(
     (el) =>
-      el.querySelector("[data-slot='stepper-label'] span")?.textContent ?? "",
+      el.querySelector("[data-slot='stepper-label'] span span")?.textContent ??
+      "",
   );
 }
 

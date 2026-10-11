@@ -16196,6 +16196,34 @@
       }
     },
     {
+      "name": "value-change",
+      "type": "registry:ui",
+      "title": "Value Change",
+      "description": "An inline before → after diff of one value: the old value struck in a del, a muted arrow, the new value in an ins, with a spoken \"changed from A to B\".",
+      "categories": [
+        "display"
+      ],
+      "dependencies": [
+        "lucide-react@^1.47.0",
+        "@vegastack/design@^0.8.3",
+        "@vegastack/design-tokens@^0.8.3"
+      ],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/value-change.tsx",
+          "type": "registry:ui",
+          "target": "@ui/value-change.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "One field's old and new value in an activity feed, audit log, impact review or version note.",
+        "whenNotToUse": "Comparing whole texts or documents (DiffView), or a number's trend (Stat).",
+        "version": "0.25.18",
+        "integrity": "sha256-HG+5FNxwNWZ+gp8dikgvi5NyRwFO63OpjWof7w2i0/o="
+      }
+    },
+    {
       "name": "record-chip",
       "type": "registry:ui",
       "title": "Record Chip",
@@ -17685,7 +17713,7 @@
         "whenToUse": "Any bounded linear process — onboarding, wizards, checkout, import flows — where progress, a failed or skipped step, and a step being checked must all be communicated.",
         "whenNotToUse": "Free navigation between peer views (Tabs), or the reason a flow cannot advance — that belongs beside the control it blocks, not in the rail.",
         "version": "0.25.18",
-        "integrity": "sha256-zNQWzjx9j16fQNtzk/yGShsfKKMTBHSNiutgswUVusY="
+        "integrity": "sha256-2HV+n9mEfz5Hm+NYC99tcjafnQpGTAob0lErk6gqs4g="
       }
     },
     {

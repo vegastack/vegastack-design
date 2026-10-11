@@ -577,7 +577,7 @@ const expectedWaves = {
   "Forms/editing": 34,
   "Navigation/layout": 21,
   Overlays: 21,
-  "Data display": 29,
+  "Data display": 30,
   "Content/marketing": 15,
   "AI/chat": 8,
   // Not a browse group: components other components install, with no page of their own. See
@@ -730,6 +730,7 @@ const expectedComponentWaveMembers = {
     "load-more",
     "media-card",
     "meta-line",
+    "value-change",
     "person-hover-card",
     "property-list",
     "reactions",

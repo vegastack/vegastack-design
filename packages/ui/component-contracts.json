@@ -12,8 +12,8 @@
     "evidencePolicy": "Observed fields come from source, registry metadata, docs, and test topology. Unknown/not-applicable values are explicit; no inferred behavior is presented as verified."
   },
   "expectedCounts": {
-    "totalRegistryItems": 737,
-    "components": 156,
+    "totalRegistryItems": 738,
+    "components": 157,
     "animatedIcons": 467,
     "hooks": 15,
     "blocks": 15,
@@ -25,7 +25,7 @@
     "Forms/editing": 34,
     "Navigation/layout": 21,
     "Overlays": 21,
-    "Data display": 29,
+    "Data display": 30,
     "Content/marketing": 15,
     "Shared internals": 4,
     "AI/chat": 8,
@@ -159,6 +159,7 @@
       "load-more",
       "media-card",
       "meta-line",
+      "value-change",
       "person-hover-card",
       "property-list",
       "reactions",
@@ -23075,7 +23076,7 @@
             "navigable",
             "collapsed"
           ],
-          "evidence": "Per-step state prop drives node, label ink and connector fill; navigable turns complete, skipped and error steps into Buttons; focus moves to the new current label on change (never mount), falling through to the summary when the rail is not laid out; a container query swaps the rail for a Progress summary."
+          "evidence": "Per-step state prop drives node, label ink and weight, and connector fill; navigable turns complete, skipped and error steps into one Button wrapping node and label; focus moves to the new current step on change (never mount), falling through to the summary when the rail is not laid out; an overflowing horizontal rail scrolls the current step into view; a container query swaps the rail for a Progress summary."
         },
         "accessibility": {
           "status": "observed",
@@ -23085,7 +23086,7 @@
             "semantic-html",
             "focus-management"
           ],
-          "evidence": "Labelled ol/li with aria-current=step on the current or loading step (never role=tab); state carried by glyph plus sr-only text; the compact summary is a named progressbar; navigable steps are Buttons clearing the 24px touch floor."
+          "evidence": "Labelled ol/li with aria-current=step on the current or loading step (never role=tab); state carried by glyph plus sr-only text; the compact summary is a named progressbar; a navigable step is one Button holding node and label, clearing the 24px touch floor, with the decorative connector outside it."
         },
         "visual": {
           "status": "observed",
@@ -23100,7 +23101,7 @@
             "disabled",
             "hover"
           ],
-          "evidence": "Numbered node filled with primary for complete/current, warning and destructive fills for the two coloured states with their -text ink on the label (A11Y-13), dashed ring for skipped; connectors take bg-primary behind the flow and bg-border ahead of it."
+          "evidence": "Numbered node: solid primary plus a font-medium label for current, a check on a primary/10 tint for complete, an outline with a muted label for upcoming, warning and destructive fills for the two coloured states with their -text ink on the label (A11Y-13), dashed ring for skipped; connectors take the complete tone (bg-primary/40) behind the flow and bg-border ahead of it."
         }
       },
       "responsive": {
@@ -23141,6 +23142,10 @@
         "StepperNode": {
           "attributes": [
             {
+              "name": "data-icon-tone",
+              "values": [""]
+            },
+            {
               "name": "data-slot",
               "values": ["stepper-node"]
             }
@@ -23177,9 +23182,9 @@
                 "stepper-content",
                 "stepper-count",
                 "stepper-description",
+                "stepper-item",
                 "stepper-label",
                 "stepper-list",
-                "stepper-node-rail",
                 "stepper-optional",
                 "stepper-step",
                 "stepper-summary",
@@ -27476,6 +27481,125 @@
             {
               "name": "data-slot",
               "values": ["meta-line-item"]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
+    },
+    {
+      "name": "value-change",
+      "registryType": "registry:ui",
+      "title": "Value Change",
+      "summary": "An inline before → after diff of one value: the old value struck in a del, a muted arrow, the new value in an ins, with a spoken \"changed from A to B\".",
+      "status": "stable",
+      "since": "0.25.19",
+      "family": "display",
+      "wave": "Data display",
+      "sourceFiles": ["packages/ui/registry/ui/value-change.tsx"],
+      "publicSymbols": [
+        {
+          "name": "ValueChange",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/value-change.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "span",
+            "rationale": "Source forwards the ref to this JSX/Base UI render target."
+          }
+        },
+        {
+          "name": "ValueChangeKind",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/value-change.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "ValueChangeProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/value-change.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "No local variant scale; the change kind is derived from which sides are present."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "Inherits the surrounding text size; the arrow is fixed at 14px."
+      },
+      "states": {
+        "behavior": {
+          "status": "observed",
+          "values": ["changed", "added", "removed", "empty"],
+          "evidence": "Both sides render a change; only after an addition; only before a removal; neither renders nothing. null, undefined, false and an empty string count as absent."
+        },
+        "accessibility": {
+          "status": "observed",
+          "values": ["semantic-html", "labeled"],
+          "evidence": "Real del/ins elements; the arrow is aria-hidden and sr-only connectives make the spoken sentence \"changed from A to B\", \"added B\" or \"removed A\"."
+        },
+        "visual": {
+          "status": "observed",
+          "values": ["changed", "added", "removed"],
+          "evidence": "Before in text-destructive-text with line-through, after in text-success-text with no underline, arrow in text-muted-foreground."
+        }
+      },
+      "responsive": {
+        "status": "observed",
+        "risks": ["text-truncation-and-flex-shrink"],
+        "rationale": "An inline-flex row that wraps: a long value breaks onto its own line rather than widening its container."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned motion mechanism observed."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/value-change",
+      "registryDependencies": [],
+      "npmDependencies": [
+        "lucide-react@^1.47.0",
+        "@vegastack/design@^0.8.3",
+        "@vegastack/design-tokens@^0.8.3"
+      ],
+      "testFiles": ["packages/ui/registry/ui/value-change.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required"
+      },
+      "previewModule": "value-change",
+      "dataAttributes": {
+        "ValueChange": {
+          "attributes": [
+            {
+              "name": "data-change",
+              "values": []
+            },
+            {
+              "name": "data-slot",
+              "values": [
+                "value-change",
+                "value-change-after",
+                "value-change-arrow",
+                "value-change-before"
+              ]
             }
           ],
           "cssVariables": []

@@ -1,4 +1,4 @@
-// @vegastack stepper@0.25.18 sha256-zNQWzjx9j16fQNtzk/yGShsfKKMTBHSNiutgswUVusY=
+// @vegastack stepper@0.25.18 sha256-2HV+n9mEfz5Hm+NYC99tcjafnQpGTAob0lErk6gqs4g=
 
 "use client";
 
@@ -45,6 +45,15 @@ approved by MK). Four things changed, and the fourth is a removal:
    belongs to the control it blocks: the host renders it beside its own Next button (an
    `Alert` for a failed check, a quiet line for a gate not yet satisfied), and the rail
    carries the STATE only. `multi-step-form` owns that composition.
+
+Tidied 2026-10-11 (MK): the whole step — node and label — is ONE target. A navigable step
+is a single Button wrapping both, so the circle is as clickable as the text and the hover
+wash covers the pair; the connector sits outside it, positioned against the step, so the
+target never swallows the line. `complete` moved from the solid fill to a muted primary
+(a check on a `primary`/10 tint, and its connector in the same `primary`/40) so the solid
+fill now means "you are here" and nothing else, and the current label takes `font-medium`
+— with its bold width reserved, so the rail still never shifts. A horizontal rail that
+overflows its container scrolls its current step into view.
 
 Deliberately NOT done here:
 - No Back/Next buttons and no step bodies. Most uses need none — an order tracker, a
@@ -118,9 +127,9 @@ export interface StepperStep {
 /**
  * Node variants — the numbered circle at the head of each step.
  *
- * `complete` and `current` share the neutral fill deliberately: what separates them is the
- * glyph (check versus ordinal), the label's weight, and the rail behind them. Colour is
- * reserved for `warning` and `error` so that it means "this needs you", not "this exists".
+ * `current` alone takes the solid primary fill — "you are here". `complete` is the same hue
+ * muted (a check on a `primary`/10 tint), `upcoming` an outline. Status colour is reserved
+ * for `warning` and `error` so that it means "this needs you", not "this exists".
  */
 export const stepperNodeVariants = cva(
   // `group/stepper-node` is the class output's own hook: a squeezed DataList keeps any element
@@ -129,7 +138,7 @@ export const stepperNodeVariants = cva(
   {
     variants: {
       state: {
-        complete: "bg-primary text-primary-foreground",
+        complete: "border-primary/40 bg-primary/10 text-primary",
         current: "bg-primary text-primary-foreground",
         loading: "border-border bg-background text-muted-foreground",
         warning: "bg-warning text-warning-foreground",
@@ -148,9 +157,8 @@ export const stepperNodeVariants = cva(
 );
 
 /** Label ink per state. The two coloured states take the family's `-text` ink (A11Y-13). */
-// One weight for every state: a label that changes weight (or element padding) as it becomes
-// current makes the whole rail shift sideways on every move. State is carried by the ink and the
-// node's glyph instead.
+// The current step's label also takes `font-medium`; its bold width is reserved by an invisible
+// twin (see `stepper-label`), so a label that becomes current never moves the rail.
 const LABEL_CLASS: Record<StepperStepState, string> = {
   complete: "text-foreground",
   current: "text-foreground",
@@ -162,12 +170,30 @@ const LABEL_CLASS: Record<StepperStepState, string> = {
 };
 
 /**
- * The box every step label sits in, clickable or not. Identical padding and radius in both
- * cases, so a step that becomes (or stops being) revisitable never moves; the node rail
- * carries the same inline padding so node and text stay aligned.
+ * The box that holds a step's node AND its label, clickable or not. Identical padding and
+ * radius in both cases, so a step that becomes (or stops being) revisitable never moves. The
+ * connector offsets below are measured from this padding (`px-2 py-1`) and the node size.
  */
-const LABEL_BOX_CLASS =
-  "flex h-auto min-h-6 min-w-0 flex-col items-start justify-center gap-0 rounded-md px-2 py-1 text-start";
+const STEP_BOX_CLASS =
+  "relative flex h-auto min-h-6 max-w-full min-w-0 justify-start gap-2 rounded-md px-2 py-1 text-start";
+
+/**
+ * Connector geometry per orientation and node size. Horizontal: centred on the node row
+ * (`py-1` + half the node − 1px), starting one gap after the node and running to the step's
+ * end, where the next step's own `px-2` leaves the same gap before its node. Vertical: centred
+ * under the node, from one gap below it to the step's bottom. Static strings so Tailwind sees
+ * them.
+ */
+const CONNECTOR_CLASS = {
+  horizontal: {
+    default: "absolute end-0 top-4.25 start-11 h-0.5",
+    sm: "absolute end-0 top-3.25 start-9 h-0.5",
+  },
+  vertical: {
+    default: "absolute bottom-0 top-9 start-5.25 w-0.5",
+    sm: "absolute bottom-0 top-7 start-4.25 w-0.5",
+  },
+} as const;
 
 /** Sr-only state text, so state is never carried by colour or glyph alone. */
 const STATE_TEXT: Record<StepperStepState, string> = {
@@ -285,9 +311,15 @@ export function StepperNode({
       {...props}
     >
       {Glyph ? (
+        // An explicit size and `data-icon-tone` stand the glyph down from a host Button's own
+        // svg size and ink, so a node inside a navigable step draws exactly as it does outside.
         <Glyph
           aria-hidden
-          className={cn(state === "loading" && "animate-spin")}
+          data-icon-tone=""
+          className={cn(
+            size === "sm" ? "size-3" : "size-3.5",
+            state === "loading" && "animate-spin",
+          )}
         />
       ) : (
         index
@@ -443,25 +475,43 @@ export function Stepper({
         ]
       : null;
 
-  const labelRefs = React.useRef(new Map<string, HTMLElement>());
+  const currentId = current?.id;
+  const boxRefs = React.useRef(new Map<string, HTMLElement>());
   const summaryRef = React.useRef<HTMLDivElement | null>(null);
+  const listRef = React.useRef<HTMLOListElement | null>(null);
+
+  // A horizontal rail wider than its container scrolls; keep the current step in view —
+  // on mount too, since a flow opened at step 5 of 6 would otherwise show steps 1–3. Only
+  // the list's own scroll position moves (never the page), and only when the step is
+  // actually clipped. A delta, not an absolute offset, so it is correct in RTL as well.
+  React.useEffect(() => {
+    const list = listRef.current;
+    const box =
+      currentId === undefined ? undefined : boxRefs.current.get(currentId);
+    if (isVertical || !list || !box) return;
+    if (list.scrollWidth <= list.clientWidth) return;
+    const outer = list.getBoundingClientRect();
+    const inner = box.getBoundingClientRect();
+    if (inner.left >= outer.left && inner.right <= outer.right) return;
+    list.scrollLeft +=
+      inner.left - outer.left - (outer.width - inner.width) / 2;
+  }, [currentId, isVertical]);
 
   // Focus follows the process: when the CURRENT step changes (a live transition, never the
-  // initial render), move focus to the new step's label so keyboard and screen-reader users
+  // initial render), move focus to the new step (its node and label) so keyboard and screen-reader users
   // land on "where am I now" — not on the first form field and not at the top of the page.
   // Below the collapse width the rail is `display: none`, so the summary is the target.
-  const previousCurrentId = React.useRef<string | undefined>(current?.id);
+  const previousCurrentId = React.useRef<string | undefined>(currentId);
   React.useEffect(() => {
-    const currentId = current?.id;
     if (
       previousCurrentId.current !== undefined &&
       currentId !== undefined &&
       previousCurrentId.current !== currentId
     ) {
-      focusFirstVisible([labelRefs.current.get(currentId), summaryRef.current]);
+      focusFirstVisible([boxRefs.current.get(currentId), summaryRef.current]);
     }
     previousCurrentId.current = currentId;
-  }, [current?.id]);
+  }, [currentId]);
 
   const countText =
     currentIndex === -1
@@ -516,13 +566,14 @@ export function Stepper({
       ) : null}
 
       <ol
+        ref={listRef}
         data-slot="stepper-list"
         aria-label={ariaLabel}
         className={cn(
           "w-full list-none",
           collapseAt ? collapseAt.rail : "flex",
           // A horizontal rail wider than its container scrolls sideways rather than crushing
-          // its labels: every step keeps a readable minimum width.
+          // its labels or widening the page: every step keeps a readable minimum width.
           isVertical
             ? "flex-col"
             : // `relative`: the sr-only state text is absolutely positioned, and it must take
@@ -533,6 +584,7 @@ export function Stepper({
         {steps.map((step, index) => {
           const isCurrent = isCurrentStep(step);
           const isLast = index === steps.length - 1;
+          const passed = connectorPassed(step.state);
           // Completed, skipped AND error steps are revisitable in navigable mode — a failed
           // step is exactly the one the user needs to get back to.
           const selectable =
@@ -543,39 +595,80 @@ export function Stepper({
               step.state === "error") &&
             !step.disabled;
 
-          const label = (
-            <span
-              data-slot="stepper-label"
-              className={cn(
-                "flex min-w-0 items-center gap-1.5",
-                // `sm` scales the label with the node. Scaling only the node produced two
-                // sizes that read as one — the label is most of what a rail is.
-                size === "sm" ? "text-xs" : "text-sm",
-                !isVertical && !isInline && "w-full",
-                LABEL_CLASS[step.state],
-              )}
-            >
-              <span className="truncate">{step.label}</span>
-              {step.optional ? (
+          const setBox = (node: HTMLElement | null) => {
+            if (node) boxRefs.current.set(step.id, node);
+            else boxRefs.current.delete(step.id);
+          };
+
+          const content = (
+            <>
+              <StepperNode state={step.state} index={index + 1} size={size} />
+              <span
+                data-slot="stepper-content"
+                className={cn(
+                  "flex min-w-0 flex-col",
+                  !isVertical && !isInline ? "max-w-full" : "justify-center",
+                  // Side by side, the text column is as tall as the node so a one-line label
+                  // centres on it, and a description runs on below.
+                  (isVertical || isInline) &&
+                    (size === "sm" ? "min-h-5" : "min-h-7"),
+                )}
+              >
                 <span
-                  data-slot="stepper-optional"
-                  className="shrink-0 text-xs font-normal text-muted-foreground"
+                  data-slot="stepper-label"
+                  className={cn(
+                    "flex min-w-0 items-center gap-1.5",
+                    // `sm` scales the label with the node. Scaling only the node produced two
+                    // sizes that read as one — the label is most of what a rail is.
+                    size === "sm" ? "text-xs" : "text-sm",
+                    LABEL_CLASS[step.state],
+                  )}
                 >
-                  Optional
+                  {/* The invisible twin reserves the bold width, so the label that becomes
+                      current changes weight without moving anything beside it. */}
+                  <span className="flex min-w-0 flex-col">
+                    <span
+                      className={cn("truncate", isCurrent && "font-medium")}
+                    >
+                      {step.label}
+                    </span>
+                    <span
+                      aria-hidden
+                      className="invisible h-0 truncate font-medium"
+                    >
+                      {step.label}
+                    </span>
+                  </span>
+                  {step.optional ? (
+                    <span
+                      data-slot="stepper-optional"
+                      className="shrink-0 text-xs font-normal text-muted-foreground"
+                    >
+                      Optional
+                    </span>
+                  ) : null}
+                  <span className="sr-only">{STATE_TEXT[step.state]}</span>
                 </span>
-              ) : null}
-              <span className="sr-only">{STATE_TEXT[step.state]}</span>
-            </span>
+                {step.description ? (
+                  <span
+                    data-slot="stepper-description"
+                    className="flex min-w-0 text-xs font-normal text-muted-foreground"
+                  >
+                    <span className="truncate">{step.description}</span>
+                  </span>
+                ) : null}
+              </span>
+            </>
           );
 
-          const description = step.description ? (
-            <span
-              data-slot="stepper-description"
-              className="flex min-w-0 text-xs text-muted-foreground"
-            >
-              <span className="truncate">{step.description}</span>
-            </span>
-          ) : null;
+          const boxLayout = cn(
+            STEP_BOX_CLASS,
+            isVertical || isInline
+              ? "flex-row items-start"
+              : "flex-col items-start gap-1.5",
+            isInline && "shrink",
+            step.disabled && "opacity-50",
+          );
 
           return (
             <li
@@ -585,101 +678,68 @@ export function Stepper({
               data-disabled={step.disabled ? "" : undefined}
               aria-current={isCurrent ? "step" : undefined}
               className={cn(
-                "flex min-w-0",
-                isVertical && "flex-row gap-3",
+                "relative flex min-w-0",
+                isVertical && "flex-col pb-4 last:pb-0",
                 !isVertical && !isLast && "flex-1",
-                !isVertical &&
-                  !isInline &&
-                  "min-w-28 flex-col items-start gap-1.5 last:flex-none",
-                isInline && "flex-row items-center gap-2 last:flex-none",
+                !isVertical && !isInline && "min-w-28 flex-col items-start",
+                isInline && "flex-row items-center gap-2",
               )}
             >
-              {/* Node + connector rail. Under `inline` the wrapper is `display: contents`,
-                  so node and connector become direct children of the row and `order-*` can
-                  put the label between them — one DOM, two layouts. */}
-              <span
-                data-slot="stepper-node-rail"
-                className={cn(
-                  "flex shrink-0 items-center",
-                  isVertical && "flex-col gap-1 self-stretch",
-                  // `px-2` lines the node up with the label text, which sits inside the
-                  // label box's own `px-2`.
-                  !isVertical && !isInline && "w-full flex-row gap-2 px-2",
-                  isInline && "contents",
-                )}
-              >
-                <StepperNode
-                  state={step.state}
-                  index={index + 1}
-                  size={size}
+              {/* Painted BEFORE the step box: the box is positioned too, so where its hover
+                  wash meets the line the wash sits on top. Under `inline` the connector is a
+                  flex sibling that runs on from the box instead. */}
+              {!isLast && !isInline ? (
+                <span
+                  aria-hidden
+                  data-slot="stepper-connector"
+                  data-passed={passed ? "" : undefined}
                   className={cn(
-                    isInline && "order-1",
-                    step.disabled && "opacity-50",
+                    "rounded-full transition-colors",
+                    passed ? "bg-primary/40" : "bg-border",
+                    CONNECTOR_CLASS[resolvedOrientation][size],
                   )}
                 />
-                {!isLast ? (
-                  <span
-                    aria-hidden
-                    data-slot="stepper-connector"
-                    data-passed={connectorPassed(step.state) ? "" : undefined}
-                    className={cn(
-                      "flex-1 rounded-full transition-colors",
-                      connectorPassed(step.state) ? "bg-primary" : "bg-border",
-                      isVertical ? "mx-auto min-h-4 w-0.5" : "h-0.5 min-w-4",
-                      isInline && "order-3",
-                    )}
-                  />
-                ) : null}
-              </span>
+              ) : null}
 
-              <span
-                data-slot="stepper-content"
-                className={cn(
-                  "flex min-w-0 flex-col",
-                  !isVertical && !isInline && "w-full pe-2",
-                  isInline && "order-2",
-                )}
-              >
-                {selectable ? (
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    ref={(node: HTMLElement | null) => {
-                      if (node) labelRefs.current.set(step.id, node);
-                      else labelRefs.current.delete(step.id);
-                    }}
-                    data-slot="stepper-trigger"
-                    onClick={() => onStepSelect?.(step.id)}
-                    // No press motion (Button's `translate-y-px`): a step label is navigation,
-                    // not a push button, and the rail must never move.
-                    className={cn(
-                      LABEL_BOX_CLASS,
-                      "font-normal whitespace-normal active:not-aria-[haspopup]:translate-y-0",
-                      !isInline && "w-full",
-                    )}
-                  >
-                    {label}
-                    {description}
-                  </Button>
-                ) : (
-                  <span
-                    ref={(node) => {
-                      if (node) labelRefs.current.set(step.id, node);
-                      else labelRefs.current.delete(step.id);
-                    }}
-                    // Focus target when the step becomes current — not a tab stop.
-                    tabIndex={isCurrent ? -1 : undefined}
-                    className={cn(
-                      LABEL_BOX_CLASS,
-                      !isInline && "w-full",
-                      step.disabled && "opacity-50",
-                    )}
-                  >
-                    {label}
-                    {description}
-                  </span>
-                )}
-              </span>
+              {selectable ? (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  ref={setBox}
+                  data-slot="stepper-trigger"
+                  onClick={() => onStepSelect?.(step.id)}
+                  // One target for node and label. No press motion (Button's `translate-y-px`):
+                  // a step is navigation, not a push button, and the rail must never move.
+                  className={cn(
+                    boxLayout,
+                    "font-normal whitespace-normal active:not-aria-[haspopup]:translate-y-0",
+                  )}
+                >
+                  {content}
+                </Button>
+              ) : (
+                <span
+                  ref={setBox}
+                  data-slot="stepper-item"
+                  // Focus target when the step becomes current — not a tab stop.
+                  tabIndex={isCurrent ? -1 : undefined}
+                  className={boxLayout}
+                >
+                  {content}
+                </span>
+              )}
+
+              {!isLast && isInline ? (
+                <span
+                  aria-hidden
+                  data-slot="stepper-connector"
+                  data-passed={passed ? "" : undefined}
+                  className={cn(
+                    "h-0.5 min-w-4 flex-1 rounded-full transition-colors",
+                    passed ? "bg-primary/40" : "bg-border",
+                  )}
+                />
+              ) : null}
             </li>
           );
         })}

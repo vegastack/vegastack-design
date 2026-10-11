@@ -1,0 +1,84 @@
+---
+title: Value Change
+description: An inline before → after diff of one value — the old value struck through, a muted arrow, the new value — for activity feeds, audit logs and impact reviews.
+audience: public
+registry: value-change
+status: stable
+since: 0.25.19
+a11y: del/ins semantics, spoken "changed from A to B"
+preview: valueChange
+---
+
+## Install
+
+<InstallSteps name="value-change" />
+
+## Usage
+
+```tsx
+import { ValueChange } from "@/components/ui/value-change";
+
+<ValueChange before="Draft" after="Published" />;
+<ValueChange before={null} after="Asha Kumar" />; // added
+<ValueChange before="25 Oct" after={null} />; // removed
+```
+
+## Examples
+
+### Changed
+
+Both sides present: the old value in a `<del>`, struck through in the destructive ink, a
+muted arrow, and the new value in an `<ins>` in the success ink with no underline. It sits
+inline in a sentence and inherits the surrounding text size.
+
+<ComponentPreview
+  name="valueChange"
+  file="components/preview/value-change.tsx"
+/>
+
+### Added and removed
+
+Only `after` is an addition and only `before` a removal — the absent side and the arrow are
+not drawn. `null`, `undefined`, `false` and an empty string count as absent; `0` does not.
+With neither side it renders nothing.
+
+<ComponentPreview
+  name="valueChangeKinds"
+  file="components/preview/value-change.tsx"
+/>
+
+### Narrow container
+
+The row wraps: a long value breaks onto its own line rather than widening its container.
+
+<ComponentPreview
+  name="valueChangeNarrow"
+  file="components/preview/value-change.tsx"
+/>
+
+## API Reference
+
+<ApiTable
+  path="../../packages/ui/registry/ui/value-change.tsx"
+  name="ValueChangeProps"
+/>
+
+## Accessibility
+
+- The values are real `<del>` and `<ins>` elements, so the edit survives copy, reader mode
+  and assistive tech that announces insertions and deletions.
+- The arrow is `aria-hidden`; visually hidden connectives make the spoken sentence
+  "changed from Draft to Published", "added Asha Kumar" or "removed 25 Oct". Each value is
+  rendered once.
+- Colour is never the only cue: the removed value is also struck through, and the sentence
+  says which side is which.
+- The component is server-safe — no client boundary.
+
+<StatesTested name="value-change" />
+
+## Do / Don't
+
+<DoDont
+  do="Use ValueChange for one field's old and new value in an activity item, audit log or impact review."
+  dont="Use it to compare whole texts — that is DiffView — or to show a number's trend, which is Stat."
+/>

@@ -77,9 +77,11 @@ by hand.
 ### Every state
 
 Seven states, and the two that are coloured are coloured because something needs
-the user. `complete` and `current` stay on the neutral ink — progress is not
-success, and a rail of green leaves nothing louder for the step that has
-actually failed. `loading` is the state an async advance gate occupies while it
+the user. `current` alone takes the solid primary fill and a medium-weight label;
+`complete` is the same hue muted — a check on a light primary tint, with the
+connector behind it in the same tone — and `upcoming` is an outline with a muted
+label. Progress is not success: a rail of green leaves nothing louder for the
+step that has actually failed. `loading` is the state an async advance gate occupies while it
 runs, and `skipped` records a step passed over rather than one that failed.
 
 <ComponentPreview name="stepperStates" file="components/preview/stepper.tsx" />
@@ -124,7 +126,8 @@ order are identical to the default.
 `orientation="auto"` (the default) switches to vertical at `verticalFrom` steps,
 because a rail long enough to crush its own labels reads better down the page.
 In `navigable` mode, completed, skipped **and error** steps become real buttons
-for revisiting — a failed step is exactly the one the user needs to get back to;
+for revisiting — the whole step, node and label together, is one target, so the
+circle is as clickable as the text — a failed step is exactly the one the user needs to get back to;
 current, upcoming, and disabled steps never do.
 
 <ComponentPreview
@@ -135,10 +138,11 @@ current, upcoming, and disabled steps never do.
 ### A rail wider than its container
 
 Every step keeps a readable minimum width, so six steps in a narrow container scroll sideways
-instead of crushing their labels (pass `collapse={false}` to keep the rail at every width).
-Revisitable and current steps share one label box — same padding, same weight — so the rail
-never shifts as the current step moves; state is carried by the ink and the node's glyph, and a
-revisitable step shows only the standard hover fill, with no press motion.
+instead of crushing their labels (pass `collapse={false}` to keep the rail at every width), and
+the list scrolls the current step into view — on first render too — without moving the page.
+Revisitable and current steps share one step box — same padding — and the current label's bold
+width is reserved, so the rail never shifts as the current step moves. A revisitable step shows
+only the standard hover fill across its node and label, with no press motion.
 
 <ComponentPreview name="stepperScroll" file="components/preview/stepper.tsx" />
 
@@ -160,12 +164,13 @@ revisitable step shows only the standard hover fill, with no press motion.
 - Step state is carried by the node's glyph **and** visually hidden text
   ("Completed", "Checking", "Needs review", "Needs attention", "Skipped"),
   never colour alone.
-- When the current step changes, focus moves to the new step's label — not the
+- When the current step changes, focus moves to the new step — not the
   first form field, and never on initial mount. Below the collapse width the
   rail is not laid out, so focus lands on the summary instead.
 - The compact summary is a real `progressbar`, named by the current step.
-- Navigable steps are `Button`s, so they clear the 24px touch floor and take the
-  system's single focus outline.
+- A navigable step is one `Button` wrapping its node and label, named by the
+  label and its state, so it clears the 24px touch floor and takes the system's
+  single focus outline. The connector is decorative and never part of the target.
 
 | Key                                 | Action                                                          |
 | ----------------------------------- | --------------------------------------------------------------- |

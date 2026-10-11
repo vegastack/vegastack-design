@@ -693,7 +693,7 @@
   "status-icon": "sha256-Wznj7rokeamrvqAROhsFM+al/yN5+H+7+GytZAPFNTE=",
   "status-line": "sha256-dHSEWKcka6t7IElI3BQytM0SLzqngLqMNgHI2jJYhrk=",
   "status-pages-01": "sha256-8lNopphVNfOsO/1xnHE7DVyiu6x4AmLIjdrpd8L+R/M=",
-  "stepper": "sha256-zNQWzjx9j16fQNtzk/yGShsfKKMTBHSNiutgswUVusY=",
+  "stepper": "sha256-2HV+n9mEfz5Hm+NYC99tcjafnQpGTAob0lErk6gqs4g=",
   "switch": "sha256-2UAsn5+7vJPw9yMtcIW0ruRBUVFHGlKYtWgavGOwAN0=",
   "table": "sha256-GqMluHC0MMDjeu3agalsCrYUkGT1p6Yp+H+U7dHOyFI=",
   "table-of-contents": "sha256-uOgHzqmt+z0VUHElhNdlDEJb+s1VXpVyCsEiKlQF6cU=",
@@ -733,6 +733,7 @@
   "use-platform": "sha256-1w+HPmKiuG628iNs2SSe3CiOEM4QubZazYhm36BSdzE=",
   "use-tabs-swipe": "sha256-KeL1vHfBhUHsi86B/uyZpgo51+W3ztbkZPrZE6PirYA=",
   "use-view-transition": "sha256-EozXgWOqvQ1YIlHELQwUGNRaKi/kMQwoBslLUvZUVJw=",
+  "value-change": "sha256-HG+5FNxwNWZ+gp8dikgvi5NyRwFO63OpjWof7w2i0/o=",
   "version-list": "sha256-QMllRsgP9nMa6u38FYKdhdnLDFOGnSyMejsa74t10Jg=",
   "video-player": "sha256-M1IR/0A+bIkfByLe0uIuRwi+35cDPh4Whhqkq4Fu6Vo=",
   "view-toggle": "sha256-iPSllZIJaJX7aLhM9IPF+rbWb9KqhcPjh5mR6IkbTjQ="
