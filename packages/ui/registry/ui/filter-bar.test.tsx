@@ -790,6 +790,35 @@ test.each([
     .toHaveTextContent(text);
 });
 
+test("a facet hides its search box for 7 or fewer options unless `searchable` says otherwise", async () => {
+  const many = Array.from({ length: 8 }, (_, i) => ({
+    id: `s${i}`,
+    name: `Status ${i}`,
+  }));
+  const props = {
+    label: "Status",
+    value: null,
+    onValueChange: () => {},
+    itemToKey: (s: Status) => s.id,
+    itemToStringLabel: (s: Status) => s.name,
+  };
+  const few = await render(
+    <FilterBarFacet<Status> {...props} items={STATUSES} />,
+  );
+  await few.getByRole("combobox", { name: "Status" }).click();
+  expect(document.querySelector('[aria-label="Search status"]')).toBeNull();
+  await few.unmount();
+  const forced = await render(
+    <FilterBarFacet<Status> {...props} items={STATUSES} searchable />,
+  );
+  await forced.getByRole("combobox", { name: "Status" }).click();
+  expect(document.querySelector('[aria-label="Search status"]')).not.toBeNull();
+  await forced.unmount();
+  const long = await render(<FilterBarFacet<Status> {...props} items={many} />);
+  await long.getByRole("combobox", { name: "Status" }).click();
+  expect(document.querySelector('[aria-label="Search status"]')).not.toBeNull();
+});
+
 test("a facet toggles values, pins the selected ones and can be removed (DS-35)", async () => {
   const onRemove = vi.fn();
   function Host() {

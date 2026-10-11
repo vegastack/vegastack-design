@@ -176,8 +176,10 @@ always first.
 it is a quiet borderless trigger that reads just its label: _Status ▾_. Set, it becomes a filled
 pill — _Status: Open_, _Status: Open, In progress_, then _Status (3)_ from three values — with a ×
 named "Clear Status" that clears it. Use short, sentence-case labels ("Status", "Due date"); never
-"Any", "All statuses" or "Select status". Its search box reads "Search status" and an empty result
-reads "No matches" unless you pass `searchPlaceholder`, `searchLabel` or `emptyMessage`.
+"Any", "All statuses" or "Select status". The search box appears only when the list is worth
+searching (more than 7 options, or a `remote` list); pass `searchable` to force it on or off. It
+reads "Search status" and an empty result reads "No matches" unless you pass `searchPlaceholder`,
+`searchLabel` or `emptyMessage`.
 
 It takes SearchableSelect's item props — `multiple`, `remote` with `useAsyncSearch` for a
 server-searched facet, `leadingItems`, `itemToDescription` — plus `pinSelected` (the chosen options
