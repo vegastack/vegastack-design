@@ -1,4 +1,4 @@
-// @vegastack people-picker@0.25.16 sha256-R86ZFsCQsWOzCxgCtRqUKRL79eF4oBTVaugLP7qItPc=
+// @vegastack people-picker@0.25.17 sha256-wFL0Zy0LZIkMbvNQBl6jxXHryMqDBDMCk/Ee6OYGbhc=
 
 "use client";
 

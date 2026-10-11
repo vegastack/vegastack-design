@@ -1,4 +1,4 @@
-// @vegastack truncated-text@0.25.16 sha256-850fcASvIJMcjwlyDQcXVOdSb4HGYnPoYu343NrWXLY=
+// @vegastack truncated-text@0.25.17 sha256-y/Gmb9t81FJ6r+KnB+X6jpe8LAVywbRxYnUbRouPLjg=
 
 "use client";
 
