@@ -1,5 +1,15 @@
 # @vegastack/ui
 
+## 0.25.19
+
+### Patch Changes
+
+- [#605](https://github.com/vegastack/vegastack-design/pull/605) [`0a40ba0`](https://github.com/vegastack/vegastack-design/commit/0a40ba02601d051639f7339da3fb8fe862fe9576) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🧩 **ValueChange**: new inline before → after diff of one value — the old value struck through in a `<del>` (destructive ink), a muted arrow, the new value in an `<ins>` (success ink, no underline). Only `after` renders an addition, only `before` a removal; screen readers hear "changed from A to B", "added B" or "removed A". Server-safe.
+  [docs](https://design.vegastack.com/docs/components/value-change)
+
+- [#605](https://github.com/vegastack/vegastack-design/pull/605) [`0a40ba0`](https://github.com/vegastack/vegastack-design/commit/0a40ba02601d051639f7339da3fb8fe862fe9576) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🔧 **Stepper**: a navigable step is now one target — node and label together — so the circle is as clickable as the text and the hover fill covers both. Clearer states: the current step alone is the solid primary circle with a medium-weight label (its bold width reserved, so nothing shifts), a completed step is a check on a muted primary tint with its connector in the same tone, upcoming stays an outline. An overflowing horizontal rail scrolls the current step into view. The non-interactive step box is `data-slot="stepper-item"`; the `stepper-node-rail` wrapper is gone. No prop changes; `MultiStepForm` picks this up as is.
+  [docs](https://design.vegastack.com/docs/components/stepper)
+
 ## 0.25.18
 
 ### Patch Changes
