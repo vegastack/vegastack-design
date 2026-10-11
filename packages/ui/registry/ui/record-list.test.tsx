@@ -39,8 +39,9 @@ test("renders a numbered list with icon, title, new-tab link and more footer", a
     screen.container.querySelectorAll('[data-slot="record-list-link"]'),
   ).toHaveLength(1);
   await expect.element(screen.getByText("and 12 more")).toBeVisible();
-  await screen.getByRole("button", { name: "Show more" }).click();
-  expect(onShowMore).toHaveBeenCalledOnce();
+  // No button: the footer is in view, so the next batch is asked for once.
+  expect(screen.container.querySelector("button")).toBeNull();
+  await expect.poll(() => onShowMore.mock.calls.length).toBe(1);
   await expectNoA11yViolations(screen.container);
 });
 

@@ -260,22 +260,23 @@
         "lucide-react@^1.47.0"
       ],
       "registryDependencies": [
-        "@vegastack/date-time",
+        "@vegastack/attachment",
         "@vegastack/button",
+        "@vegastack/date-time",
         "@vegastack/dropdown-menu",
+        "@vegastack/file-viewer",
+        "@vegastack/load-more",
         "@vegastack/markdown-view",
         "@vegastack/person-avatar",
+        "@vegastack/person-hover-card",
         "@vegastack/reactions",
         "@vegastack/relative-time",
         "@vegastack/searchable-select",
         "@vegastack/skeleton",
+        "@vegastack/spinner",
         "@vegastack/text-edit",
         "@vegastack/tooltip",
-        "@vegastack/attachment",
-        "@vegastack/file-viewer",
-        "@vegastack/spinner",
-        "@vegastack/use-media-query",
-        "@vegastack/person-hover-card"
+        "@vegastack/use-media-query"
       ],
       "files": [
         {
@@ -288,7 +289,7 @@
         "whenToUse": "Discussion on a record's page (a task, a meeting): Linear-style thread cards (first comment, replies, a flat reply row) with the composer at the end (at the top newest first).",
         "whenNotToUse": "An activity feed or notifications — use Inbox.",
         "version": "0.25.16",
-        "integrity": "sha256-LT/t3TnJ8gREuRlokaBqdymHsOZLqrV5Z/uYQfCUkk4="
+        "integrity": "sha256-dh73nPSd+UcjJML73GSTFr9zROKmR6G4Fow2hgYmWiA="
       }
     },
     {
@@ -1547,7 +1548,7 @@
         "whenToUse": "The footer of a keyset (cursor) list — DataList's or DataGrid's loadMore, a board lane, a feed: load the next batch, retry a failed one, optionally say the list has ended.",
         "whenNotToUse": "Numbered pages with a known total (DataListPager); loading on scroll with no button.",
         "version": "0.25.16",
-        "integrity": "sha256-xU/xDEN59+1p0IqpXCfsEqURUD+dOQKY8rF0xjISndE="
+        "integrity": "sha256-QNja/vvXhnO2nvob8iFkIsjfVB3vleKJiZIaevzNtlA="
       }
     },
     {
@@ -16242,6 +16243,8 @@
       ],
       "registryDependencies": [
         "@vegastack/button",
+        "@vegastack/load-more",
+        "@vegastack/skeleton",
         "@vegastack/table"
       ],
       "files": [
@@ -16255,7 +16258,7 @@
         "whenToUse": "The records a change will touch, listed in a confirmation dialog (the products a save affects, the products a delete leaves), each with a link to open it in a new tab.",
         "whenNotToUse": "Navigable or selectable lists (Item, DataList), pickers (Combobox), or a single linked record (RecordChip).",
         "version": "0.25.16",
-        "integrity": "sha256-DL0O+2xbEAOaYkj6HhUBSVFUQbZ3gs9CHMOD3fDb4R0="
+        "integrity": "sha256-q+mKve5/4oN6LJDYyqPVLMEflLHyz87aWy50hse/4LU="
       }
     },
     {
@@ -17192,7 +17195,7 @@
         "whenToUse": "A Select-shaped searchable picker: one or several values, option descriptions and disabled reasons, and server search with paging (remote + useAsyncSearch).",
         "whenNotToUse": "A short fixed option set (Select), free text with suggestions (Combobox directly), or multi-select (Combobox with chips).",
         "version": "0.25.16",
-        "integrity": "sha256-eiyg34I8a6wqZARDryK/kfrtzOHPnBbgCyf8Z4l92RY="
+        "integrity": "sha256-WaUdQ9IjUDlwn/cI9zcF/lyQ8tf6Pr41K2kkbX2PLL0="
       }
     },
     {

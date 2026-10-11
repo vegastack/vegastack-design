@@ -138,6 +138,22 @@ test("an unrelated re-render while a page is in flight never asks twice", async 
   expect(onLoadMore).toHaveBeenCalledOnce();
 });
 
+test("a returned promise releases the guard when it settles, even for an empty page", async () => {
+  let calls = 0;
+  const screen = await render(
+    <LoadMore
+      hasMore
+      onLoadMore={() => {
+        calls += 1;
+        // A page the host filtered empty: nothing moves, the promise is the only answer.
+        return new Promise((resolve) => setTimeout(resolve, 20));
+      }}
+    />,
+  );
+  await expect.poll(() => calls).toBeGreaterThanOrEqual(2);
+  screen.unmount();
+});
+
 test("in a scroll container it waits until the end nears the edge", async () => {
   const onLoadMore = vi.fn();
   const screen = await render(

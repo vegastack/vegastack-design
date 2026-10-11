@@ -1,4 +1,4 @@
-// @vegastack searchable-select@0.25.16 sha256-eiyg34I8a6wqZARDryK/kfrtzOHPnBbgCyf8Z4l92RY=
+// @vegastack searchable-select@0.25.16 sha256-WaUdQ9IjUDlwn/cI9zcF/lyQ8tf6Pr41K2kkbX2PLL0=
 
 "use client";
 
@@ -567,8 +567,10 @@ export function SearchableSelect<
     );
   };
   // A failed search or a failed page: the message and Try again under the list, and no paging.
-  const failure = error ?? loadMore?.error ?? undefined;
-  const showFooter = failure != null && failure !== false;
+  const failure = [error, loadMore?.error].find(
+    (e) => e != null && e !== false,
+  );
+  const showFooter = failure !== undefined;
   // DS-22: the trigger is named by its label. Inside a `Field`, Base UI's Combobox gives the
   // trigger `aria-labelledby` (and the description ids and `aria-invalid`), and a `<label for>`
   // names it natively; an `aria-label` would override either, so only a trigger with neither

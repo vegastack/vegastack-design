@@ -1,6 +1,6 @@
 ---
 title: Record List
-description: A numbered list of the records a change affects, with a Show more footer, group headings and a "what differs" table for conflicts.
+description: A numbered list of the records a change affects, with a footer that loads more on scroll, group headings and a "what differs" table for conflicts.
 audience: public
 registry: record-list
 status: stable
@@ -62,11 +62,12 @@ a touch screen.
 
 <ComponentPreview name="recordList" file="components/preview/record-list.tsx" />
 
-### Show more
+### Loading more
 
-`RecordListMore` says how many records are not shown and offers "Show more". The host appends the
-next batch to the same `RecordList`, so the numbers continue — 11., 12., … — instead of starting
-again.
+`RecordListMore` says how many records are not shown and, with `onShowMore`, loads the next batch
+as the list's end scrolls into view, with skeleton rows while it loads — there is no button. The
+host appends the batch to the same `RecordList`, so the numbers continue — 11., 12., … — instead
+of starting again.
 
 <ComponentPreview
   name="recordListShowMore"

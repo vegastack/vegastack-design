@@ -230,22 +230,23 @@
         "lucide-react@^1.47.0"
       ],
       "registryDependencies": [
-        "@vegastack/date-time",
+        "@vegastack/attachment",
         "@vegastack/button",
+        "@vegastack/date-time",
         "@vegastack/dropdown-menu",
+        "@vegastack/file-viewer",
+        "@vegastack/load-more",
         "@vegastack/markdown-view",
         "@vegastack/person-avatar",
+        "@vegastack/person-hover-card",
         "@vegastack/reactions",
         "@vegastack/relative-time",
         "@vegastack/searchable-select",
         "@vegastack/skeleton",
+        "@vegastack/spinner",
         "@vegastack/text-edit",
         "@vegastack/tooltip",
-        "@vegastack/attachment",
-        "@vegastack/file-viewer",
-        "@vegastack/spinner",
-        "@vegastack/use-media-query",
-        "@vegastack/person-hover-card"
+        "@vegastack/use-media-query"
       ],
       "files": [
         {
@@ -13081,7 +13082,12 @@
         "@vegastack/design@^0.8.3",
         "@vegastack/design-tokens@^0.8.3"
       ],
-      "registryDependencies": ["@vegastack/button", "@vegastack/table"],
+      "registryDependencies": [
+        "@vegastack/button",
+        "@vegastack/load-more",
+        "@vegastack/skeleton",
+        "@vegastack/table"
+      ],
       "files": [
         {
           "path": "packages/ui/registry/ui/record-list.tsx",

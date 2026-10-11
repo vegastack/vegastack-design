@@ -27743,7 +27743,7 @@
       "name": "record-list",
       "registryType": "registry:ui",
       "title": "Record List",
-      "summary": "A numbered list of the records a change affects — a muted record-type icon, the name with a new-tab link after it, a badge and a description line — plus a Show more footer whose next rows keep the numbering. For confirmation dialogs.",
+      "summary": "A numbered list of the records a change affects — a muted record-type icon, the name with a new-tab link after it, a badge and a description line — plus a footer that loads the next rows on scroll and keeps the numbering. For confirmation dialogs.",
       "status": "stable",
       "since": "0.23.54",
       "family": "data",
@@ -27904,7 +27904,12 @@
       },
       "engines": [],
       "docsSlug": "/docs/components/record-list",
-      "registryDependencies": ["@vegastack/button", "@vegastack/table"],
+      "registryDependencies": [
+        "@vegastack/button",
+        "@vegastack/load-more",
+        "@vegastack/skeleton",
+        "@vegastack/table"
+      ],
       "npmDependencies": [
         "lucide-react@^1.47.0",
         "@vegastack/design@^0.8.3",
@@ -28629,22 +28634,23 @@
       "engines": [],
       "docsSlug": "/docs/components/comments",
       "registryDependencies": [
-        "@vegastack/date-time",
+        "@vegastack/attachment",
         "@vegastack/button",
+        "@vegastack/date-time",
         "@vegastack/dropdown-menu",
+        "@vegastack/file-viewer",
+        "@vegastack/load-more",
         "@vegastack/markdown-view",
         "@vegastack/person-avatar",
+        "@vegastack/person-hover-card",
         "@vegastack/reactions",
         "@vegastack/relative-time",
         "@vegastack/searchable-select",
         "@vegastack/skeleton",
+        "@vegastack/spinner",
         "@vegastack/text-edit",
         "@vegastack/tooltip",
-        "@vegastack/attachment",
-        "@vegastack/file-viewer",
-        "@vegastack/spinner",
-        "@vegastack/use-media-query",
-        "@vegastack/person-hover-card"
+        "@vegastack/use-media-query"
       ],
       "npmDependencies": [
         "@vegastack/design@^0.8.3",

@@ -41,7 +41,7 @@ import {
 ```
 
 `CommentList` is a record's discussion: an `h2` "Comments" with the count and, when `onOrderChange`
-is set, an "Oldest first" / "Newest first" toggle; "Load earlier" when older comments exist; the
+is set, an "Oldest first" / "Newest first" toggle; older comments loading as their edge scrolls into view (`hasEarlier`, `onLoadEarlier`) when they exist; the
 comments, with a small centred day label ("Today", "Yesterday", "Sep 25") wherever the day changes
 (`dayDividers`); and the composer — at the end oldest first, and right under the heading newest
 first, where the newest comment is. Pass `comments` oldest first; `order="newest"` reverses them.

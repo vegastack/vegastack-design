@@ -1,4 +1,4 @@
-// @vegastack load-more@0.25.16 sha256-xU/xDEN59+1p0IqpXCfsEqURUD+dOQKY8rF0xjISndE=
+// @vegastack load-more@0.25.16 sha256-QNja/vvXhnO2nvob8iFkIsjfVB3vleKJiZIaevzNtlA=
 
 "use client";
 
@@ -24,9 +24,10 @@ return it as one value.
   when there is none), `rootMargin` ahead of the edge, so the next page is
   usually on screen before the reader reaches it. A list shorter than its box
   keeps loading until it fills it or the cursor runs out.
-- One request per page: after `onLoadMore` the tail waits for the host — for
-  `loading` to rise and fall again when the host reports it, or for the rows
-  to land (the sentinel moves) when it does not — before it can fire again.
+- One request per page: after `onLoadMore` the tail waits for the host — the
+  promise it returned to settle, or `loading` to rise and fall, or, for a host
+  that reports neither, the rows to land (the sentinel moves) — before it can
+  fire again. Pass `loading` or return a promise; the last is a heuristic.
 - No button and no spinner while paging. The one control is the "Try again"
   a failed page shows, because retrying a failure automatically on scroll
   would hammer a broken endpoint; rows already loaded stay.
@@ -38,8 +39,11 @@ return it as one value.
 export interface LoadMoreState {
   /** More rows exist beyond the ones already loaded (the host has a next cursor). */
   hasMore: boolean;
-  /** Fetch the next batch. Also the retry after an `error`. */
-  onLoadMore: () => void;
+  /**
+   * Fetch the next batch. Also the retry after an `error`. Returning a promise lets the tail
+   * release its one-request guard exactly when the page settles.
+   */
+  onLoadMore: () => void | Promise<unknown>;
   /**
    * The next page is in flight: skeleton rows show at the end of the list and no further request
    * fires.
@@ -148,8 +152,8 @@ export function LoadMore({
     latest.current = { armed, onLoadMore };
   });
   // The duplicate-fetch guard: set when a page is requested, cleared once the host has answered —
-  // `loading` rising and falling when the host reports it, else the sentinel moving (rows were
-  // appended above it). An unrelated re-render answers nothing, so it never asks twice.
+  // the promise `onLoadMore` returned settling, else `loading` rising and falling, else (a host
+  // that reports neither) the sentinel moving because rows were appended above it.
   const pending = React.useRef(false);
   const hostReportsLoading = React.useRef(false);
   const loadingSinceRequest = React.useRef(false);
@@ -159,6 +163,10 @@ export function LoadMore({
   const rootRef = React.useRef<HTMLElement | null>(null);
   const sentinelRef = React.useRef<HTMLDivElement | null>(null);
   const [sentinel, setSentinel] = React.useState<HTMLDivElement | null>(null);
+  // A promise from `onLoadMore` is the exact answer: the guard holds until it settles.
+  const settling = React.useRef(false);
+  const [settled, setSettled] = React.useState(0);
+  const lookedAtSettle = React.useRef(0);
 
   /** The sentinel's offset in its scroll root's content — unchanged by scrolling, moved by rows. */
   const position = React.useCallback((el: HTMLElement) => {
@@ -176,7 +184,16 @@ export function LoadMore({
     requestedAt.current = sentinelRef.current
       ? position(sentinelRef.current)
       : null;
-    latest.current.onLoadMore();
+    const result = latest.current.onLoadMore();
+    if (result && typeof result.then === "function") {
+      settling.current = true;
+      const settle = () => {
+        settling.current = false;
+        pending.current = false;
+        setSettled((n) => n + 1);
+      };
+      result.then(settle, settle);
+    }
   }, [position]);
 
   React.useEffect(() => {
@@ -210,7 +227,9 @@ export function LoadMore({
     }
     let look = false;
     if (failed) pending.current = false;
-    else if (pending.current) {
+    else if (settling.current) {
+      // Waiting on the host's promise; `settled` re-renders and looks again when it lands.
+    } else if (pending.current) {
       const answered = hostReportsLoading.current
         ? loadingSinceRequest.current
         : sentinel != null &&
@@ -220,6 +239,10 @@ export function LoadMore({
         pending.current = false;
         look = true;
       }
+    }
+    if (settled !== lookedAtSettle.current) {
+      lookedAtSettle.current = settled;
+      look = true;
     }
     if (armed && !wasArmed.current) look = true;
     wasArmed.current = armed;
