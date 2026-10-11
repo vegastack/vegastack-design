@@ -1,4 +1,4 @@
-// @vegastack toast@0.25.19 sha256-w6Garv/05Ls8cBRz20wqOGRjM8f9M8Fx9pbhEFqY7Vo=
+// @vegastack toast@0.25.19 sha256-6ihNfsPM+3Bg9XM8UpMIgT8mdgbtVUws2X828q9TrSc=
 
 "use client";
 
@@ -56,6 +56,8 @@ type ToastPosition =
  *
  * OVL-15: a bottom stack rises by `--upload-panel-inset`, which `UploadPanel` publishes on the
  * document root while it is on screen, so a toast never covers the upload panel (`0px` without one).
+ * It also rises by `--toaster-offset-bottom` (default `0px`): an app with a sticky footer sets it
+ * on `:root` (e.g. `--toaster-offset-bottom: 4.5rem`) while the footer is mounted.
  *
  * OVL-15: `z-60` puts the stack one band above the single `z-50` overlay band, so a toast fired
  * while a Dialog is open is visible instead of behind its scrim. Nothing else leaves `z-50`.
@@ -69,11 +71,11 @@ const toastViewportVariants = cva(
         "top-center": "top-4 [--toast-dir:1] sm:inset-x-0 sm:mx-auto",
         "top-end": "top-4 [--toast-dir:1] sm:end-4 sm:start-auto",
         "bottom-start":
-          "bottom-[calc(var(--spacing)*4+var(--upload-panel-inset,0px))] [--toast-dir:-1] sm:start-4 sm:end-auto",
+          "bottom-[calc(var(--spacing)*4+var(--upload-panel-inset,0px)+var(--toaster-offset-bottom,0px))] [--toast-dir:-1] sm:start-4 sm:end-auto",
         "bottom-center":
-          "bottom-[calc(var(--spacing)*4+var(--upload-panel-inset,0px))] [--toast-dir:-1] sm:inset-x-0 sm:mx-auto",
+          "bottom-[calc(var(--spacing)*4+var(--upload-panel-inset,0px)+var(--toaster-offset-bottom,0px))] [--toast-dir:-1] sm:inset-x-0 sm:mx-auto",
         "bottom-end":
-          "bottom-[calc(var(--spacing)*4+var(--upload-panel-inset,0px))] [--toast-dir:-1] sm:end-4 sm:start-auto",
+          "bottom-[calc(var(--spacing)*4+var(--upload-panel-inset,0px)+var(--toaster-offset-bottom,0px))] [--toast-dir:-1] sm:end-4 sm:start-auto",
       },
     },
     defaultVariants: { position: "bottom-end" },

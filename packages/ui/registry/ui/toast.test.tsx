@@ -453,7 +453,7 @@ test("OVL-13: with no scope in the tree the portal carries only `contents`", asy
 
 /** A bottom stack's edge: 16px, plus the room `UploadPanel` publishes while it is on screen. */
 const BOTTOM_EDGE =
-  "bottom-[calc(var(--spacing)*4+var(--upload-panel-inset,0px))]";
+  "bottom-[calc(var(--spacing)*4+var(--upload-panel-inset,0px)+var(--toaster-offset-bottom,0px))]";
 
 /** The six logical corners, with the growth sign and block edge each one must emit. */
 const POSITIONS = [

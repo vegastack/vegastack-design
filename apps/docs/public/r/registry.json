@@ -17713,7 +17713,7 @@
         "whenToUse": "Any bounded linear process — onboarding, wizards, checkout, import flows — where progress, a failed or skipped step, and a step being checked must all be communicated.",
         "whenNotToUse": "Free navigation between peer views (Tabs), or the reason a flow cannot advance — that belongs beside the control it blocks, not in the rail.",
         "version": "0.25.19",
-        "integrity": "sha256-eVdhS3OnWRBVnwXSx8UomYknQ3DN5QkwWZ2Pkl9gjq4="
+        "integrity": "sha256-+9rICr7DOiQQNjufyu22e0WLh0r887m5NZ2FstMl0AI="
       }
     },
     {
@@ -18102,7 +18102,7 @@
         "whenToUse": "Brief confirmations of an action — 'Saved', 'Copied', 'Invitation sent' — and the loading → success/error arc of an async one.",
         "whenNotToUse": "Errors the user must resolve, destructive confirmations, or essential info — use inline copy or a Dialog.",
         "version": "0.25.19",
-        "integrity": "sha256-w6Garv/05Ls8cBRz20wqOGRjM8f9M8Fx9pbhEFqY7Vo="
+        "integrity": "sha256-6ihNfsPM+3Bg9XM8UpMIgT8mdgbtVUws2X828q9TrSc="
       }
     },
     {
@@ -18133,7 +18133,7 @@
         "whenToUse": "A binary on/off control that persists — bold/italic, mute, pin.",
         "whenNotToUse": "One-shot action (Button) or mutually-exclusive options (ToggleGroup/RadioGroup).",
         "version": "0.25.19",
-        "integrity": "sha256-1qzrnh4p+lZbcGmqrLgyDASNiewHJ/LjfUZi+BGvX3k="
+        "integrity": "sha256-eXqO7o3hCpEKAUVZyZPqZYQi5livmYgBscHpJ2e7uQ8="
       }
     },
     {
