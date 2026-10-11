@@ -626,3 +626,35 @@ test("header renders a full-width row above the items; flush drops the row wash 
   expect(row.className).not.toContain("hover:bg-muted/50");
   expect(row.className).toContain("px-0");
 });
+
+test('align="start" keeps the handle and × on the first line of a tall row', async () => {
+  await render(
+    <SortableList
+      aria-label="Specs"
+      items={[{ id: "a", label: "Alpha" }]}
+      renderItem={(item) => (
+        <div>
+          <span>{item.label}</span>
+          <p>Body line one</p>
+          <p>Body line two</p>
+        </div>
+      )}
+      onReorder={() => {}}
+      onRemove={() => {}}
+      align="start"
+    />,
+  );
+  const row = document.querySelector<HTMLElement>(
+    '[data-slot="sortable-list-item"]',
+  )!;
+  const handle = row.querySelector<HTMLElement>(
+    '[data-slot="sortable-list-handle"]',
+  )!;
+  const remove = row.querySelector<HTMLElement>(
+    '[data-slot="sortable-list-remove"]',
+  )!;
+  // The row pins its handle and actions to the top; the 24px × takes the 28px handle's height.
+  expect(row.className).toContain("items-start");
+  expect(handle).not.toBeNull();
+  expect(remove.className).toContain("my-0.5");
+});

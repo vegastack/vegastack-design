@@ -1,4 +1,4 @@
-// @vegastack sortable-list@0.25.17 sha256-ikL4TE/8zbVpsSOHKsD+4wh+9hzqLCwjxavjUKat4b8=
+// @vegastack sortable-list@0.25.17 sha256-gIucvRVfksaJOJTwcRJz3Az0zT9uXV9y6R9FpnKnUCA=
 
 "use client";
 
@@ -59,6 +59,8 @@ native drag off until the next mouse or pen press, so the two engines never race
 content starts and ends where theirs do. `header` is the same kind of row above the list, full
 width with no gutters, for an add field whose new item lands first. `flush` drops the rows' hover
 wash and the side padding kept for it, for rows whose content is its own bordered control.
+`align="start"` pins the handle and the row's actions to the row's first line instead of its
+middle, for tall rows — a card with a title line and an expandable body.
 
 Row actions: `onRemove` gives each row a small × ("Remove {label}") in its trailing corner; a
 host that needs more than remove passes `getItemActions` and gets the ⋯ menu instead — the
@@ -220,6 +222,13 @@ export interface SortableListProps<
    */
   flush?: boolean;
   /**
+   * Where the handle and the row's actions sit on a list row: `center` on its middle, `start` on
+   * its first line, for rows taller than one line (a title row over an expandable body). The ×
+   * keeps its centre on the handle's.
+   * @default "center"
+   */
+  align?: "center" | "start";
+  /**
    * Accessible name for the list.
    * @default "Sortable list"
    */
@@ -298,6 +307,7 @@ export function SortableList<T extends SortableListItem = SortableListItem>({
   footer,
   header,
   flush = false,
+  align = "center",
   "aria-label": ariaLabel = "Sortable list",
   className,
   ref,
@@ -488,11 +498,15 @@ export function SortableList<T extends SortableListItem = SortableListItem>({
                         ? "border-0 p-0 [&>[data-slot=item-content]>[data-slot=attachment]]:w-full [&>[data-slot=item-content]>[data-slot=attachment]]:min-w-0 [&>[data-slot=item-content]>[data-slot=attachment]]:flex-nowrap"
                         : "p-1",
                     )
-                  : flush
-                    ? // Flush: the content runs edge to edge; no wash, no padding kept for one.
-                      "flex-nowrap gap-2 px-0 py-1"
-                    : // DataList's row: compact padding, a subtle wash on hover.
-                      "flex-nowrap gap-2 px-1 py-1 hover:bg-muted/50",
+                  : cn(
+                      flush
+                        ? // Flush: the content runs edge to edge; no wash, no padding kept for one.
+                          "flex-nowrap gap-2 px-0 py-1"
+                        : // DataList's row: compact padding, a subtle wash on hover.
+                          "flex-nowrap gap-2 px-1 py-1 hover:bg-muted/50",
+                      // Start: the handle and actions keep to the first line of a tall row.
+                      align === "start" && "items-start",
+                    ),
               )}
             >
               {disabled ? null : locked ? (
@@ -552,6 +566,8 @@ export function SortableList<T extends SortableListItem = SortableListItem>({
                         grid
                           ? tileOverlayButtonClasses
                           : "opacity-0 group-focus-within/item:opacity-100 group-hover/item:opacity-100 focus-visible:opacity-100 pointer-coarse:opacity-100",
+                        // On the first line, the 24px × takes the 28px handle's height, so it centres on it beside a ⋯ too.
+                        !grid && align === "start" && "my-0.5",
                       )}
                     >
                       <X />
