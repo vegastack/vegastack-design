@@ -10,6 +10,18 @@ npm package versions are listed per entry. This page is generated from the repo'
 
 {/* CHANGELOG:START — generated from /CHANGELOG.md by tooling/sync-changelog.mjs. DO NOT EDIT. */}
 
+## [0.25.16] — October 11, 2026
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.25.15 → 0.25.16.
+
+### 🐛 Fixed
+
+- **ShareDialog**: Space access's mode is a quiet pill like `RecordChip`'s ghost form — no border, a tint and a ▾ on hover. `generalAccess.level` is optional: leave it out when members open the item with their own space role, and no level shows. While everyone in a named space can open the item, the footer reads "Members of Sales and people with access can open it" (new `copyLinkHintSpace` label) instead of "Only people with access can open it".
+  [docs](/docs/components/share-dialog) ·
+  [`474c6aa`](https://github.com/VegaStack/vegastack-design/commit/474c6aa)
+
 ## [0.25.15] — October 11, 2026
 
 ### 📦 npm

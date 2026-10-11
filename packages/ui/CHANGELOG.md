@@ -1,5 +1,12 @@
 # @vegastack/ui
 
+## 0.25.16
+
+### Patch Changes
+
+- [#599](https://github.com/vegastack/vegastack-design/pull/599) [`474c6aa`](https://github.com/vegastack/vegastack-design/commit/474c6aaf9d71045b79ecb2624e4842ff1df74fb7) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🐛 **ShareDialog**: Space access's mode is a quiet pill like `RecordChip`'s ghost form — no border, a tint and a ▾ on hover. `generalAccess.level` is optional: leave it out when members open the item with their own space role, and no level shows. While everyone in a named space can open the item, the footer reads "Members of Sales and people with access can open it" (new `copyLinkHintSpace` label) instead of "Only people with access can open it".
+  [docs](https://design.vegastack.com/docs/components/share-dialog)
+
 ## 0.25.15
 
 ### Patch Changes

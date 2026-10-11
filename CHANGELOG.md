@@ -9,6 +9,20 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.25.16] — October 11, 2026
+
+<!-- assembled from 1 changeset: 6a1b00502368 -->
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.25.15 → 0.25.16.
+
+### 🐛 Fixed
+
+- **ShareDialog**: Space access's mode is a quiet pill like `RecordChip`'s ghost form — no border, a tint and a ▾ on hover. `generalAccess.level` is optional: leave it out when members open the item with their own space role, and no level shows. While everyone in a named space can open the item, the footer reads "Members of Sales and people with access can open it" (new `copyLinkHintSpace` label) instead of "Only people with access can open it".
+  [docs](https://design.vegastack.com/docs/components/share-dialog) ·
+  [`474c6aa`](https://github.com/VegaStack/vegastack-design/commit/474c6aa)
+
 ## [0.25.15] — October 11, 2026
 
 <!-- assembled from 1 changeset: d14d3de77f91 -->
