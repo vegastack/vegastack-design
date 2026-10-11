@@ -1,5 +1,12 @@
 # @vegastack/ui
 
+## 0.25.21
+
+### Patch Changes
+
+- [#609](https://github.com/vegastack/vegastack-design/pull/609) [`2f97a7a`](https://github.com/vegastack/vegastack-design/commit/2f97a7a5f6ad843e4b845fd08f692fa499ea2b1a) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🔧 **FilterBarFacet, SearchableSelect**: a `FilterBarFacet` with 7 or fewer options no longer shows a search box (server-searched `remote` lists always do). The new `searchable` prop overrides it on both components; `SearchableSelect` still defaults to showing search, so nothing changes unless you opt in.
+  [docs](https://design.vegastack.com/docs/components/filter-bar)
+
 ## 0.25.20
 
 ### Patch Changes

@@ -9,6 +9,20 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.25.21] — October 12, 2026
+
+<!-- assembled from 1 changeset: 19367afb0e7f -->
+
+### 🔧 Changed components
+
+- **FilterBarFacet, SearchableSelect**: a `FilterBarFacet` with 7 or fewer options no longer shows a search box (server-searched `remote` lists always do). The new `searchable` prop overrides it on both components; `SearchableSelect` still defaults to showing search, so nothing changes unless you opt in.
+  [docs](https://design.vegastack.com/docs/components/filter-bar) ·
+  [`2f97a7a`](https://github.com/VegaStack/vegastack-design/commit/2f97a7a)
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.25.20 → 0.25.21.
+
 ## [0.25.20] — October 12, 2026
 
 <!-- assembled from 1 changeset: f9728b619f1a -->
