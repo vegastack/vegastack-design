@@ -67,6 +67,12 @@ controls — the switch, Reset, Expires and Stop publishing — and follows `can
 viewer who cannot publish sees the public link to copy while it is on, and "Not published"
 otherwise.
 
+Space access's mode is a quiet pill — no border, a tint and a ▾ on hover, like a
+[`RecordChip`](/docs/components/record-chip)'s ghost form. Leave `generalAccess.level` out when a
+space's members open the item with their own role there: no level shows beside the mode. While
+everyone in a named space can open the item, the footer says so ("Members of Sales and people with
+access can open it", `copyLinkHintSpace`).
+
 <ComponentPreview
   name="shareDialogCanPublish"
   file="components/preview/share-dialog.tsx"

@@ -1,4 +1,4 @@
-// @vegastack share-dialog@0.25.15 sha256-vyiDbxnC4dfp+wUjxyCCDSsW8h4eHrWbciqhSSCmhLU=
+// @vegastack share-dialog@0.25.15 sha256-Kn32rtQ74zJv86nWc1q2qy7sdyVKSCvCWVbDtqi/JU0=
 
 "use client";
 
@@ -148,8 +148,11 @@ export interface ShareGeneralAccess {
   spaceHint?: SpaceHint | null;
   /** `space` — everyone in the space; `invited` — only people invited. */
   mode: "space" | "invited";
-  /** The space members' level while `mode` is `space` — one of `generalLevels`. */
-  level: string;
+  /**
+   * The space members' level while `mode` is `space` — one of `generalLevels`. Omit it when
+   * members open the item with their own role in the space: no level shows beside the mode.
+   */
+  level?: string;
 }
 
 /** Every string the dialog renders. */
@@ -187,6 +190,8 @@ export interface ShareDialogLabels {
   invite: string;
   /** The hint beside the footer's Copy link. */
   copyLinkHint: string;
+  /** The footer hint while everyone in a named space can open it. */
+  copyLinkHintSpace: (space: string) => string;
   /** A personal space's row: "My space". */
   mySpace: string;
   /** A personal space's row hint. */
@@ -245,6 +250,8 @@ const defaultLabels: ShareDialogLabels = {
   publishTab: "Publish",
   invite: "Invite",
   copyLinkHint: "Only people with access can open it",
+  copyLinkHintSpace: (space) =>
+    `Members of ${space} and people with access can open it`,
   mySpace: "My space",
   mySpaceHint: "Only you and the people above",
   hiddenSpace: (hint) =>
@@ -318,7 +325,8 @@ export interface ShareDialogProps {
   /** Changes General access. @default undefined */
   onGeneralAccessChange?: (next: {
     mode: "space" | "invited";
-    level: string;
+    /** Absent when `generalAccess.level` is (members use their own role). */
+    level?: string;
   }) => void;
   /** Offer the public link row at all. @default true */
   publicLinkAvailable?: boolean;
@@ -737,11 +745,14 @@ export function ShareDialog({
                   })
                 }
               >
+                {/* The quiet property-pill form (RecordChip's ghost): no border, a tint and a
+                    ▾ fading in on hover, focus and while open; the text stays where the hint's
+                    starts. */}
                 <SelectTrigger
                   variant="ghost"
                   size="sm"
                   aria-label={labels.generalHeading}
-                  className="-ms-2.5 w-auto max-w-full text-sm"
+                  className="-ms-1.5 w-auto max-w-full gap-2 border-0 py-0 ps-1.5 pe-1.5 text-sm hover:bg-muted aria-expanded:bg-muted focus-visible:bg-muted data-[size=sm]:h-6 data-[size=sm]:rounded-md dark:hover:bg-muted/50 dark:aria-expanded:bg-muted/50 [&>svg]:-ms-1 [&>svg]:size-3.5 [&>svg]:opacity-0 [&>svg]:transition-opacity hover:[&>svg]:opacity-100 focus-visible:[&>svg]:opacity-100 aria-expanded:[&>svg]:opacity-100"
                 >
                   <SelectValue />
                 </SelectTrigger>
@@ -763,7 +774,7 @@ export function ShareDialog({
               {labels.generalHint(generalAccess.mode, space.name)}
             </span>
           </div>
-          {generalAccess.mode === "space" ? (
+          {generalAccess.mode === "space" && generalAccess.level != null ? (
             <PermissionMenu
               variant="chip"
               value={generalAccess.level}
@@ -977,7 +988,11 @@ export function ShareDialog({
       className="flex w-full flex-wrap items-center justify-between gap-2"
     >
       <span className="text-xs text-muted-foreground">
-        {labels.copyLinkHint}
+        {generalAccess?.mode === "space" &&
+        generalAccess.space &&
+        generalAccess.space.access !== "personal"
+          ? labels.copyLinkHintSpace(generalAccess.space.name)
+          : labels.copyLinkHint}
       </span>
       <CopyButton
         value={linkUrl}
