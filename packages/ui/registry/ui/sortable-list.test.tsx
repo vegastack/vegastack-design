@@ -653,8 +653,8 @@ test('align="start" keeps the handle and × on the first line of a tall row', as
   const remove = row.querySelector<HTMLElement>(
     '[data-slot="sortable-list-remove"]',
   )!;
-  // The row pins its handle and actions to the top; the 24px × drops 2px to centre on the 28px handle.
+  // The row pins its handle and actions to the top; the 24px × takes the 28px handle's height.
   expect(row.className).toContain("items-start");
   expect(handle).not.toBeNull();
-  expect(remove.className).toContain("mt-0.5");
+  expect(remove.className).toContain("my-0.5");
 });

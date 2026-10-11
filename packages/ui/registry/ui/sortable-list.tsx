@@ -1,4 +1,4 @@
-// @vegastack sortable-list@0.25.17 sha256-5xEINKh4CoYcbPNFn/KJHQOXr9pqELhcZJY/XmEZTDc=
+// @vegastack sortable-list@0.25.17 sha256-gIucvRVfksaJOJTwcRJz3Az0zT9uXV9y6R9FpnKnUCA=
 
 "use client";
 
@@ -566,8 +566,8 @@ export function SortableList<T extends SortableListItem = SortableListItem>({
                         grid
                           ? tileOverlayButtonClasses
                           : "opacity-0 group-focus-within/item:opacity-100 group-hover/item:opacity-100 focus-visible:opacity-100 pointer-coarse:opacity-100",
-                        // On the first line, the 24px × centres on the 28px handle.
-                        !grid && align === "start" && "mt-0.5",
+                        // On the first line, the 24px × takes the 28px handle's height, so it centres on it beside a ⋯ too.
+                        !grid && align === "start" && "my-0.5",
                       )}
                     >
                       <X />
