@@ -10,6 +10,24 @@ npm package versions are listed per entry. This page is generated from the repo'
 
 {/* CHANGELOG:START — generated from /CHANGELOG.md by tooling/sync-changelog.mjs. DO NOT EDIT. */}
 
+## [0.25.19] — October 11, 2026
+
+### 🧩 New components
+
+- **ValueChange**: new inline before → after diff of one value — the old value struck through in a `<del>` (destructive ink), a muted arrow, the new value in an `<ins>` (success ink, no underline). Only `after` renders an addition, only `before` a removal; screen readers hear "changed from A to B", "added B" or "removed A". Server-safe.
+  [docs](/docs/components/value-change) ·
+  [`0a40ba0`](https://github.com/VegaStack/vegastack-design/commit/0a40ba0)
+
+### 🔧 Changed components
+
+- **Stepper**: a navigable step is now one target — node and label together — so the circle is as clickable as the text and the hover fill covers both. Clearer states: the current step alone is the solid primary circle with a medium-weight label (its bold width reserved, so nothing shifts), a completed step is a check on a muted primary tint with its connector in the same tone, upcoming stays an outline. An overflowing horizontal rail scrolls the current step into view. The non-interactive step box is `data-slot="stepper-item"`; the `stepper-node-rail` wrapper is gone. No prop changes; `MultiStepForm` picks this up as is.
+  [docs](/docs/components/stepper) ·
+  [`0a40ba0`](https://github.com/VegaStack/vegastack-design/commit/0a40ba0)
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.25.18 → 0.25.19.
+
 ## [0.25.18] — October 11, 2026
 
 ### 🧩 New components
