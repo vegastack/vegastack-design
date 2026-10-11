@@ -107,11 +107,14 @@ restores grid navigation; a rejected commit reverts and announces.
 
 ### Keyboard-continuous load-more
 
-<kbd>↓</kbd> past the last row fetches the next page — paging never breaks the
-keyboard flow. The footer below the grid is the shared
-[`LoadMore`](/docs/components/load-more): an outline _Load more_ button, _Try
-again_ after a failed fetch (`loadMore.error`), and nothing once `hasMore` is
-false unless you pass `loadMore.endLabel`.
+The next page loads as the grid's end nears the edge of its scroll viewport, and
+
+<kbd>↓</kbd> past the last row fetches it too — paging never breaks the keyboard
+flow, and the two share one guard, so a page is requested once. While it loads,
+skeleton rows the height of real ones are appended to the body. The tail is the
+shared [`LoadMore`](/docs/components/load-more): no button, _Try again_ after a
+failed fetch (`loadMore.error`), and nothing once `hasMore` is false unless you
+pass `loadMore.endLabel`.
 
 <ComponentPreview
   name="dataGridLoadMore"
@@ -190,14 +193,14 @@ font.
 - The scroll viewport is keyboard-reachable exactly when it scrolls, and the
   roving cell's focus outline is pulled inside so the viewport cannot clip it.
 
-| Key                                              | Action                                     |
-| ------------------------------------------------ | ------------------------------------------ |
-| <kbd>↑</kbd><kbd>↓</kbd><kbd>←</kbd><kbd>→</kbd> | Move the active cell.                      |
-| <kbd>Home</kbd> / <kbd>End</kbd>                 | First / last cell in the row.              |
-| <kbd>Ctrl</kbd>+<kbd>Home</kbd>/<kbd>End</kbd>   | First / last cell of the grid.             |
-| <kbd>Enter</kbd> / <kbd>F2</kbd>                 | Edit the focused cell (suspends grid nav). |
-| <kbd>Escape</kbd>                                | Close the editor, restore grid focus.      |
-| <kbd>↓</kbd> on the last row                     | Load more (when `loadMore.hasMore`).       |
+| Key                                              | Action                                        |
+| ------------------------------------------------ | --------------------------------------------- |
+| <kbd>↑</kbd><kbd>↓</kbd><kbd>←</kbd><kbd>→</kbd> | Move the active cell.                         |
+| <kbd>Home</kbd> / <kbd>End</kbd>                 | First / last cell in the row.                 |
+| <kbd>Ctrl</kbd>+<kbd>Home</kbd>/<kbd>End</kbd>   | First / last cell of the grid.                |
+| <kbd>Enter</kbd> / <kbd>F2</kbd>                 | Edit the focused cell (suspends grid nav).    |
+| <kbd>Escape</kbd>                                | Close the editor, restore grid focus.         |
+| <kbd>↓</kbd> on the last row                     | Load the next page (when `loadMore.hasMore`). |
 
 The states the verification lanes exercise for this item (generated from `component-contracts.json`):
 

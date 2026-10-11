@@ -145,8 +145,9 @@ an alias.
 locally. `onSearchChange` reports the typed query, `loading` shows skeleton rows while there
 are none yet (two lines with `itemToSecondaryLabel`) and a small spinner while rows already shown
 stay, announcing "Searching…" through the panel's status region, `error` shows in the panel with a
-_Try again_ button (`onRetry`, or `loadMore.onLoadMore`), and `loadMore` adds the shared Load more
-footer under the rows. `useAsyncSearch` returns exactly these props — spread its result.
+_Try again_ button (`onRetry`, or `loadMore.onLoadMore`), and `loadMore` pages on scroll: a
+sentinel after the last option loads the next page as the reader scrolls or arrows toward it,
+with skeleton options while it loads — no button. `useAsyncSearch` returns exactly these props — spread its result.
 `leadingItems` are listed first and never filtered out ("Me", "Unassigned"). A `value` that is not
 in the current page still shows its label.
 

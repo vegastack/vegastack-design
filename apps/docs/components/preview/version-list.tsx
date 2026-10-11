@@ -37,7 +37,7 @@ const VERSIONS: VersionItem[] = [
 /**
  * A page's history: "Current", a lost save kept as "Unsaved copy", a named version, a restore, and
  * an inactive author's badge.
- * ↑/↓ move the selection; "Named only" filters; "Load more" pages on.
+ * ↑/↓ move the selection; "Named only" filters; the next page loads on scroll.
  */
 export function versionList(): ReactNode {
   const [selected, setSelected] = React.useState("v6");

@@ -257,9 +257,13 @@ test("a reset can page its new dataset while an obsolete cursor request is outst
     '[data-testid="reset-scroll"]',
   )!;
   scroller.scrollTop = scroller.scrollHeight;
+  // Loading earlier entries shows skeleton rows (the label is screen-reader text), no button.
   await expect
-    .element(screen.getByRole("button", { name: "Fetching history…" }))
-    .toBeVisible();
+    .element(screen.getByText("Fetching history…"))
+    .toBeInTheDocument();
+  expect(
+    screen.container.querySelector('[data-slot="activity-feed-more-skeleton"]'),
+  ).not.toBeNull();
   await screen.getByRole("button", { name: "Switch dataset" }).click();
   await expect
     .element(screen.getByText("older B entry", { exact: false }))

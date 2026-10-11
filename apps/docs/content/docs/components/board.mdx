@@ -69,7 +69,7 @@ The full board: `BoardCard` content, a full-width "+ Add task" right after each 
 (`onAdd` receives the lane's id, so the host's create form opens with that status filled in),
 per-card actions with a submenu, and an empty lane ("In review") that reads "Nothing here" with
 a content-width "+ Add task" as its action at rest, and "Drop here" while a card is dragged. The add button
-scrolls with the cards, after `LoadMore` when the lane pages.
+scrolls with the cards, after the loading tail when the lane pages.
 
 Drag a card: it lifts with a shadow and a slight tilt, the cards around it slide to make room, and
 it settles into its slot. Near a lane's top or bottom edge the lane scrolls; near the board's
@@ -180,8 +180,9 @@ it. Enter follows the link; Space still picks the card up.
 ### Paged lanes and card actions
 
 A lane with more cards than it has loaded takes `loadMore`: the next batch loads as the lane's
-foot scrolls into view, and the shared [`LoadMore`](/docs/components/load-more) button stays as the
-fallback and the retry after an error. `getItemActions(item)` lists the card's own actions in
+foot scrolls into view, with skeleton cards while it loads, through the shared
+[`LoadMore`](/docs/components/load-more) tail — no button; a failed batch shows its error with _Try
+again_. `getItemActions(item)` lists the card's own actions in
 its ⋯ menu (a card with none shows no ⋯); an action with `items` opens a submenu. The menu has no
 Move items — moves are the drag and the keyboard (Space, the arrows, Space).
 

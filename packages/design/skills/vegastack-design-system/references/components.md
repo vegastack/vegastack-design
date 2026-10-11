@@ -98,7 +98,7 @@ starts with `icon-` is a component and never an icon.
 - **`data-table-parts`** — The chrome DataList and DataGrid share — sort header, selection cells, skeleton rows, the empty row, column class rules, and the selection/sort/controlled-state hooks.
 - **`filter-bar`** — The two-row toolbar above a list or table — search (~320px) left; a Filters (n) toggle, scope Tabs and the view switch right; compact rounded-md filter chips (FilterBarFacet, DateRangeFilter with presets) on a toggled row 12px below that scrolls sideways on a phone.
 - **`filter-bar-managed`** — The controlled nested and/or filter builder — host-injected field grammar (vocabulary + per-type value editors), depth and condition caps, focus-managed removal, and a removable FilterChip summary.
-- **`load-more`** — The shared Load more footer for keyset lists — an outline button that keeps its width while loading, an error line with Try again, and an optional end caption.
+- **`load-more`** — The shared infinite-loading tail for keyset lists — a sentinel that fetches the next cursor page as the list nears its scroll edge, skeleton rows while it loads, an error line with Try again, and an optional end caption.
 - **`media-card`** — A record as a card — an image, the title with its badge beside it, a meta line and a ⋯ menu — where the whole card is one link.
 - **`person-avatar`** — A person's avatar — the photo, else initials on their hue, else initials on the muted fallback — the one way every people surface draws a person.
 - **`person-hover-card`** — Stacked avatars with a hover card per person — a compact card with a 32px avatar, with the name and muted email beside it — and the rest behind "+N".

@@ -1587,7 +1587,7 @@ test("a callback ref still receives the table, and the loading skeleton follows 
   expect(skeletonRow.querySelectorAll("td")).toHaveLength(2);
 });
 
-test("loadMore renders the shared LoadMore footer above the footer slot (DS-31)", async () => {
+test("loadMore renders the shared LoadMore tail above the footer slot and loads on scroll (DS-31)", async () => {
   const onLoadMore = vi.fn();
   const screen = await render(
     <DataList
@@ -1608,8 +1608,11 @@ test("loadMore renders the shared LoadMore footer above the footer slot (DS-31)"
     loadMore!.compareDocumentPosition(footer!) &
       Node.DOCUMENT_POSITION_FOLLOWING,
   ).toBeTruthy();
-  await screen.getByRole("button", { name: "Load more" }).click();
-  expect(onLoadMore).toHaveBeenCalledOnce();
+  // No button: the sentinel is in view, so the next page is requested once.
+  expect(
+    screen.container.querySelector("[data-slot=load-more] button"),
+  ).toBeNull();
+  await expect.poll(() => onLoadMore.mock.calls.length).toBe(1);
   await expectNoA11yViolations(screen.container);
 });
 
@@ -1651,11 +1654,16 @@ test("loadMore loading, error and done states (DS-31)", async () => {
       loadMore={{ hasMore: true, loading: true, onLoadMore }}
     />,
   );
-  await expect
-    .element(screen.getByRole("button", { name: "Load more" }))
-    .toHaveAttribute("aria-busy", "true");
-  // A next-page fetch keeps the loaded rows; it is not the skeleton state.
+  // A next-page fetch keeps the loaded rows and appends skeleton rows to the table body.
   await expect.element(screen.getByText("Ada")).toBeInTheDocument();
+  expect(
+    screen.container.querySelectorAll(
+      '[data-slot="data-list-more"] [data-slot="data-list-skeleton-row"]',
+    ),
+  ).toHaveLength(3);
+  expect(
+    screen.container.querySelector("[data-slot=load-more] button"),
+  ).toBeNull();
   await expectNoA11yViolations(screen.container);
 
   await screen.rerender(

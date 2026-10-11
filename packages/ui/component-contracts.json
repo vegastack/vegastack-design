@@ -7758,6 +7758,7 @@
                 "data-grid-head",
                 "data-grid-hidden-hint",
                 "data-grid-merged",
+                "data-grid-more",
                 "data-grid-row",
                 "data-grid-scroll",
                 "data-grid-section",
@@ -8190,6 +8191,7 @@
                 "data-list-head",
                 "data-list-hidden-hint",
                 "data-list-merged",
+                "data-list-more",
                 "data-list-root",
                 "data-list-row",
                 "data-list-row-action",
@@ -8383,7 +8385,7 @@
       "name": "load-more",
       "registryType": "registry:ui",
       "title": "Load More",
-      "summary": "The shared Load more footer for keyset lists — an outline button that keeps its width while loading, an error line with Try again, and an optional end caption.",
+      "summary": "The shared infinite-loading tail for keyset lists — a sentinel that fetches the next cursor page as the list nears its scroll edge, skeleton rows while it loads, an error line with Try again, and an optional end caption.",
       "status": "stable",
       "since": "0.18.0",
       "family": "data",
@@ -8427,7 +8429,7 @@
       "sizes": {
         "status": "not-applicable-or-inherited",
         "dimensions": [],
-        "rationale": "It uses Button's sm tier; no local size scale."
+        "rationale": "The retry uses Button's sm tier; no local size scale."
       },
       "states": {
         "behavior": {
@@ -8438,36 +8440,35 @@
         "accessibility": {
           "status": "covered",
           "values": [
-            "labeled",
-            "busy",
+            "decorative-tail",
             "alert",
-            "focus-retained",
+            "named-retry",
             "browser-accessibility-test"
           ],
           "evidence": "packages/ui/registry/ui/load-more.tsx + packages/ui/registry/ui/load-more.test.tsx"
         },
         "visual": {
           "status": "observed",
-          "values": ["default", "hover", "focus-visible", "loading", "error"],
-          "evidence": "Button's outline variant and loading contract (label kept at opacity 0) plus the destructive -text ink on the error line."
+          "values": ["default", "loading", "error"],
+          "evidence": "Skeleton rows (or the host's own) while loading, the outline Try again button and the destructive -text ink on the error line."
         }
       },
       "responsive": {
         "status": "modeled",
         "risks": ["responsive-or-container-layout"],
-        "rationale": "A centred column: the error line wraps and centres, the button never grows past its label. The footer's containment at 320px is asserted in test/geometry.browser.test.tsx."
+        "rationale": "Idle it is a 1px full-width sentinel; loading it is full-width skeleton rows; a failure is a centred column whose error line wraps and whose retry button never grows past its label."
       },
       "motion": {
         "status": "not-applicable",
         "mechanisms": [],
         "reducedMotion": {
           "status": "not-applicable",
-          "rationale": "No component-owned motion mechanism; Button's spinner is its own."
+          "rationale": "No component-owned motion mechanism; the skeleton pulse is Skeleton's own, stopped by the global reduced-motion rule."
         }
       },
       "engines": [],
       "docsSlug": "/docs/components/load-more",
-      "registryDependencies": ["@vegastack/button"],
+      "registryDependencies": ["@vegastack/button", "@vegastack/skeleton"],
       "npmDependencies": [
         "@vegastack/design@^0.8.3",
         "@vegastack/design-tokens@^0.8.3"
@@ -8487,7 +8488,12 @@
           "attributes": [
             {
               "name": "data-slot",
-              "values": ["load-more", "load-more-error"]
+              "values": [
+                "load-more",
+                "load-more-error",
+                "load-more-sentinel",
+                "load-more-skeleton"
+              ]
             },
             {
               "name": "data-state",
@@ -29069,6 +29075,7 @@
                 "activity-feed-filter",
                 "activity-feed-header",
                 "activity-feed-more",
+                "activity-feed-more-skeleton",
                 "activity-feed-order"
               ]
             }
@@ -29385,7 +29392,7 @@
       "docsSlug": "/docs/components/version-list",
       "registryDependencies": [
         "@vegastack/badge",
-        "@vegastack/button",
+        "@vegastack/load-more",
         "@vegastack/person-avatar",
         "@vegastack/relative-time",
         "@vegastack/searchable-select",

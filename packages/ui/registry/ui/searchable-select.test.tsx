@@ -384,14 +384,24 @@ test("an error shows in the panel and Try again retries (DS-38)", async () => {
   expect(onRetry).toHaveBeenCalledOnce();
 });
 
-test("loadMore renders the shared footer in the panel (DS-38)", async () => {
+test("loadMore pages inside the panel on scroll, with skeleton options and no button (DS-38)", async () => {
   const onLoadMore = vi.fn();
   const screen = await render(
     <Picker remote loadMore={{ hasMore: true, onLoadMore }} />,
   );
   await screen.getByRole("combobox").click();
-  await screen.getByRole("button", { name: "Load more" }).click();
-  expect(onLoadMore).toHaveBeenCalledOnce();
+  // The short list leaves the sentinel in view: the next page is requested once.
+  await expect.poll(() => onLoadMore.mock.calls.length).toBe(1);
+  const sentinel = document.querySelector('[data-slot="load-more-sentinel"]');
+  expect(sentinel?.closest('[role="listbox"]')).not.toBeNull();
+  expect(document.querySelector('[data-slot="load-more"] button')).toBeNull();
+  await screen.rerender(
+    <Picker remote loadMore={{ hasMore: true, loading: true, onLoadMore }} />,
+  );
+  await expect
+    .poll(() => document.querySelector('[data-slot="load-more-skeleton"]'))
+    .not.toBeNull();
+  await expectNoA11yViolations(document.body);
 });
 
 test("leading items come first and are never filtered out (DS-38)", async () => {

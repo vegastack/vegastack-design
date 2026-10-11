@@ -368,7 +368,7 @@ test("committing an edit calls onCellCommit(row, key, value)", async () => {
   );
 });
 
-test("ArrowDown past the last row triggers keyboard-continuous load-more", async () => {
+test("ArrowDown past the last row and the scroll sentinel request a page once", async () => {
   const onLoadMore = vi.fn();
   await render(
     <DataGrid
@@ -384,9 +384,10 @@ test("ArrowDown past the last row triggers keyboard-continuous load-more", async
   ) as HTMLElement;
   firstCell.focus();
   await userEvent.keyboard("{ArrowDown}{ArrowDown}{ArrowDown}");
+  // The scroll sentinel and the keyboard share one guard: one request for the page.
   expect(onLoadMore).toHaveBeenCalledTimes(1);
   const live = document.querySelector('[role="status"]')!;
-  expect(live.textContent).toContain("Loading more rows…");
+  await expect.poll(() => live.textContent).toContain("Loading more rows…");
 });
 
 test("virtualize windows the rows inside the fixed-height viewport", async () => {
@@ -1000,7 +1001,7 @@ test("the roving cell's focus ring is pulled inside the scroll viewport", async 
   expect(cell.className).toContain("focus-visible:-outline-offset-2");
 });
 
-test("the load-more footer is the shared LoadMore (DS-30)", async () => {
+test("the load-more tail is the shared LoadMore and loads on scroll (DS-30)", async () => {
   const onLoadMore = vi.fn();
   const screen = await render(
     <DataGrid
@@ -1013,8 +1014,10 @@ test("the load-more footer is the shared LoadMore (DS-30)", async () => {
   );
   const footer = screen.container.querySelector('[data-slot="load-more"]');
   expect(footer).not.toBeNull();
-  await screen.getByRole("button", { name: "Load more" }).click();
-  expect(onLoadMore).toHaveBeenCalledOnce();
+  // Inside the grid's scroll viewport, after the table.
+  expect(footer!.closest('[data-slot="data-grid-scroll"]')).not.toBeNull();
+  expect(footer!.querySelector("button")).toBeNull();
+  await expect.poll(() => onLoadMore.mock.calls.length).toBe(1);
   expect(
     screen.container.querySelector("table")?.getAttribute("aria-rowcount"),
   ).toBe("-1");
@@ -1028,11 +1031,8 @@ test("the load-more footer is the shared LoadMore (DS-30)", async () => {
       loadMore={{ hasMore: false, onLoadMore }}
     />,
   );
-  // No end caption was asked for; the footer only holds the focus the button had, and says why.
-  expect(
-    screen.container.querySelector('[data-slot="load-more"]')?.textContent,
-  ).toBe("End of list");
-  expect(screen.container.textContent).not.toContain("All rows loaded");
+  // No end caption was asked for: the list simply stops.
+  expect(screen.container.querySelector('[data-slot="load-more"]')).toBeNull();
 
   await screen.rerender(
     <DataGrid

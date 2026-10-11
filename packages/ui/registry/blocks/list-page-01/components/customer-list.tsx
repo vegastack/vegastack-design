@@ -1,4 +1,4 @@
-// @vegastack list-page-01@0.25.16 sha256-z59Oiu9PEpk7jv10XnbUdwoufNb3kNGC4Uklr1ZB4mM=
+// @vegastack list-page-01@0.25.16 sha256-b7vbg+vEe+yqykpGaqnM3uh3SfRfjrCj57lk2YfpR8U=
 
 "use client";
 
@@ -97,7 +97,7 @@ const customerHref = (customer: Customer) => `/customers/${customer.id}`;
  * the Grid | List `ViewToggle` at the end of its first row, and the Status and Industry facets on
  * the filter row the toggle shows.
  * Both views show the same records grouped by industry — a table, or a grid of `MediaCard` links —
- * paged with Load more. Three empty tiers: nothing yet, no matches (with "Clear filters"), and a
+ * loaded on scroll. Three empty tiers: nothing yet, no matches (with "Clear filters"), and a
  * failed load (with "Try again").
  *
  * @example

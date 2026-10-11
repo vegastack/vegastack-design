@@ -125,7 +125,7 @@ anything is selected: the count (`selectionLabel`), your actions — compose `Ac
 "Clear selection" button. Your render gets the selected ids and a `clear()` to call after a bulk
 action. On a phone the bar is capped at the screen width and its actions scroll sideways inside it.
 While the bar is open the list ends with a spacer of the bar's height, its gap and
-`--dock-inset-bottom` (a global audio player under it), so the last row and a Load more stay
+`--dock-inset-bottom` (a global audio player under it), so the last row and the loading tail stay
 reachable above both.
 
 <ComponentPreview
@@ -359,12 +359,14 @@ header row above it.
   file="components/preview/data-list.tsx"
 />
 
-### Load more (keyset)
+### Infinite loading (keyset)
 
-A list fetched by cursor has no total and no page numbers. Pass `loadMore` and `DataList` renders
-the shared [`LoadMore`](/docs/components/load-more) footer below the table (above `footer`): an
-outline _Load more_ button, a busy state that keeps the loaded rows, an error line with _Try again_,
-and — only when you pass `endLabel` — a caption once `hasMore` is false. While `hasMore` is true
+A list fetched by cursor has no total and no page numbers. Pass `loadMore` and `DataList` loads the
+next cursor page as the list nears its scroll container's edge, through the shared
+[`LoadMore`](/docs/components/load-more) tail below the table (above `footer`): skeleton rows the
+height of real ones are appended to the table while the page loads, a failed page shows an error
+line with _Try again_, and — only when you pass `endLabel` — a caption once `hasMore` is false.
+There is no button. While `hasMore` is true
 the table reports `aria-rowcount="-1"`, because the total is unknown.
 
 `loadMore.loading` is a next-batch fetch; the list-level `loading` prop is the first-load skeleton.
@@ -647,7 +649,7 @@ Offer it with `views={["list", "board"]}`.
   header beside ⋯ instead. A section's `icon` leads its lane title, its `actions` fill the lane's ⋯
   menu, and `boardTrailing` renders after the last lane inside the board's scroller.
 - **Per-lane data.** A section's own `loading`, `loadMore` (loaded as the lane's foot scrolls into
-  view, with the Load more button as fallback) and `emptyState` give each lane its own first load,
+  view, with skeleton cards while it loads) and `emptyState` give each lane its own first load,
   paging and empty state. An empty lane reads "Nothing here", and "Drop here" while dragging.
 
 <ComponentPreview
@@ -802,7 +804,7 @@ already-paged rows:
 | ---------------------------------------------------- | -------------------------------------------------------------------------------------------------------- | ---------------------------- |
 | Search / filtering                                   | Host owns the query + filtered `data`                                                                    | `toolbar` slot               |
 | Pagination / page-size                               | Host owns paging + the current page; [`DataListPager`](/docs/components/data-list-pager) is the control  | `footer` slot                |
-| Keyset load-more                                     | Host owns the cursor and the fetch; [`LoadMore`](/docs/components/load-more) is the control              | `loadMore` prop              |
+| Keyset infinite loading                              | Host owns the cursor and the fetch; [`LoadMore`](/docs/components/load-more) loads on scroll             | `loadMore` prop              |
 | Row activation (navigate / open)                     | Host's handler                                                                                           | `onRowClick`                 |
 | Drag-and-drop reordering                             | The persisted order stays app-coupled; the mechanism is [`SortableList`](/docs/components/sortable-list) | compose it beside this table |
 | Board / Kanban layout, grouping & collapsible groups | [`Board`](/docs/components/board) for Kanban; [`DataGrid`](/docs/components/data-grid) for grouping      | shipped                      |

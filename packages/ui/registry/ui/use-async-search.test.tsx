@@ -202,7 +202,8 @@ test("loading is true while a request is in flight", async () => {
   const { out, element } = mount(load);
   await render(element);
   await expect.poll(() => out.current.loading).toBe(true);
-  expect(out.current.loadMore.loading).toBe(true);
+  // A first page is not a next page: the list's loading tail stays down.
+  expect(out.current.loadMore.loading).toBe(false);
   gate.resolve({ items: ["a"] });
   await expect.poll(() => out.current.loading).toBe(false);
 });

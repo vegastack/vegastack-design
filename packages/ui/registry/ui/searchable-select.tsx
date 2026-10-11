@@ -1,4 +1,4 @@
-// @vegastack searchable-select@0.25.16 sha256-hHV9HT5/FX10cCPRyav+lY+DpXCj/HcxJTA4eC6b7uw=
+// @vegastack searchable-select@0.25.16 sha256-lWR7AN8Vrq90NbwURo0fHF4bMcN5yvGF4PCYH+Qjf0w=
 
 "use client";
 
@@ -151,7 +151,8 @@ export interface SearchableSelectProps<
    */
   onRetry?: () => void;
   /**
-   * Keyset paging inside the panel: the shared Load more footer under the rows.
+   * Keyset paging inside the panel: the next page loads as the reader scrolls (or arrows) toward
+   * the last option, with skeleton options while it loads. `loading` here is the next-page fetch.
    * @default undefined
    */
   loadMore?: LoadMoreState;
@@ -331,6 +332,34 @@ export interface SearchableSelectProps<
    * @default undefined
    */
   rootRef?: React.Ref<HTMLDivElement>;
+}
+
+/** Skeleton rows the height of real options: one line, or two with a secondary label. */
+function OptionSkeletons({
+  count,
+  twoLine,
+}: {
+  count: number;
+  twoLine: boolean;
+}) {
+  return (
+    <>
+      {Array.from({ length: count }, (_, i) => (
+        <div
+          key={i}
+          className={cn(
+            "flex flex-col justify-center gap-1.5 px-1.5",
+            twoLine ? "h-11" : "h-7",
+          )}
+        >
+          <Skeleton className={cn("h-3.5", i % 2 === 0 ? "w-3/5" : "w-2/5")} />
+          {twoLine ? (
+            <Skeleton className={cn("h-3", i % 2 === 0 ? "w-2/5" : "w-1/2")} />
+          ) : null}
+        </div>
+      ))}
+    </>
+  );
 }
 
 /**
@@ -537,7 +566,7 @@ export function SearchableSelect<
       </ComboboxItem>
     );
   };
-  const showFooter = error != null || (loadMore?.hasMore ?? false);
+  const showFooter = error != null;
   // DS-22: the trigger is named by its label. Inside a `Field`, Base UI's Combobox gives the
   // trigger `aria-labelledby` (and the description ids and `aria-invalid`), and a `<label for>`
   // names it natively; an `aria-label` would override either, so only a trigger with neither
@@ -690,16 +719,34 @@ export function SearchableSelect<
           </ComboboxStatus>
           {loading ? null : <ComboboxEmpty>{emptyMessage}</ComboboxEmpty>}
           <ComboboxList className="p-1">
-            {grouped
-              ? (group: { value: string; items: Item[] }) => (
-                  <ComboboxGroup key={group.value} items={group.items}>
-                    <ComboboxLabel>{group.value}</ComboboxLabel>
-                    <ComboboxCollection>
-                      {(item: Item) => renderOption(item)}
-                    </ComboboxCollection>
-                  </ComboboxGroup>
-                )
-              : (item: Item) => renderOption(item)}
+            <ComboboxCollection>
+              {grouped
+                ? (group: { value: string; items: Item[] }) => (
+                    <ComboboxGroup key={group.value} items={group.items}>
+                      <ComboboxLabel>{group.value}</ComboboxLabel>
+                      <ComboboxCollection>
+                        {(item: Item) => renderOption(item)}
+                      </ComboboxCollection>
+                    </ComboboxGroup>
+                  )
+                : (item: Item) => renderOption(item)}
+            </ComboboxCollection>
+            {/* Infinite paging: a sentinel after the last option, inside the scrolling list, loads
+                the next page as it nears the panel's edge, with skeleton options while it does. */}
+            {loadMore && items.length > 0 && error == null ? (
+              <LoadMore
+                hasMore={loadMore.hasMore}
+                loading={loadMore.loading}
+                onLoadMore={loadMore.onLoadMore}
+                rootMargin="0px 0px 96px 0px"
+                skeleton={
+                  <OptionSkeletons
+                    count={2}
+                    twoLine={Boolean(itemToSecondaryLabel)}
+                  />
+                }
+              />
+            ) : null}
           </ComboboxList>
           {/* Loading with no rows yet (first open, or a new query that cleared them): skeleton
               rows the height of real options (two lines with `itemToSecondaryLabel`), under any
@@ -715,27 +762,13 @@ export function SearchableSelect<
                 !leadingItems?.length && "pt-1",
               )}
             >
-              {[0, 1, 2, 3, 4].map((i) => (
-                <div
-                  key={i}
-                  className={cn(
-                    "flex flex-col justify-center gap-1.5 px-1.5",
-                    itemToSecondaryLabel ? "h-11" : "h-7",
-                  )}
-                >
-                  <Skeleton
-                    className={cn("h-3.5", i % 2 === 0 ? "w-3/5" : "w-2/5")}
-                  />
-                  {itemToSecondaryLabel ? (
-                    <Skeleton
-                      className={cn("h-3", i % 2 === 0 ? "w-2/5" : "w-1/2")}
-                    />
-                  ) : null}
-                </div>
-              ))}
+              <OptionSkeletons
+                count={5}
+                twoLine={Boolean(itemToSecondaryLabel)}
+              />
             </div>
           ) : null}
-          {loading && items.length > 0 ? (
+          {loading && items.length > 0 && !loadMore?.loading ? (
             <Spinner
               aria-hidden
               data-slot={`${slot}-searching`}
@@ -745,7 +778,6 @@ export function SearchableSelect<
           {showFooter ? (
             <LoadMore
               hasMore
-              loading={loadMore?.loading}
               error={error}
               retryLabel={retryLabel}
               onLoadMore={loadMore?.onLoadMore ?? onRetry ?? (() => {})}

@@ -330,7 +330,7 @@
       ],
       "registryDependencies": [
         "@vegastack/badge",
-        "@vegastack/button",
+        "@vegastack/load-more",
         "@vegastack/person-avatar",
         "@vegastack/relative-time",
         "@vegastack/searchable-select",
@@ -1362,7 +1362,7 @@
         "@vegastack/design@^0.8.3",
         "@vegastack/design-tokens@^0.8.3"
       ],
-      "registryDependencies": ["@vegastack/button"],
+      "registryDependencies": ["@vegastack/button", "@vegastack/skeleton"],
       "files": [
         {
           "path": "packages/ui/registry/ui/load-more.tsx",
