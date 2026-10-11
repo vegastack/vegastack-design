@@ -1,4 +1,4 @@
-// @vegastack share-dialog@0.25.15 sha256-Kn32rtQ74zJv86nWc1q2qy7sdyVKSCvCWVbDtqi/JU0=
+// @vegastack share-dialog@0.25.15 sha256-+fpnpPp0klDqa/rdSLljLM5UbBj8TCzFYzV+W/9HqlM=
 
 "use client";
 
@@ -325,8 +325,8 @@ export interface ShareDialogProps {
   /** Changes General access. @default undefined */
   onGeneralAccessChange?: (next: {
     mode: "space" | "invited";
-    /** Absent when `generalAccess.level` is (members use their own role). */
-    level?: string;
+    /** The space's level — `""` while `generalAccess.level` is omitted (members use their own role). */
+    level: string;
   }) => void;
   /** Offer the public link row at all. @default true */
   publicLinkAvailable?: boolean;
@@ -741,7 +741,7 @@ export function ShareDialog({
                 onValueChange={(mode) =>
                   onGeneralAccessChange?.({
                     mode: mode as "space" | "invited",
-                    level: generalAccess.level,
+                    level: generalAccess.level ?? "",
                   })
                 }
               >
