@@ -156,6 +156,36 @@ test("share-dialog generalLevelReadOnly: the level is text, the mode stays a sel
   await expectNoA11yViolations(document.body, ["color-contrast"]);
 });
 
+test("share-dialog without a space level: no level beside the mode, the footer names the space", async () => {
+  await page.viewport(1280, 900);
+  const screen = await render(
+    <ShareDialog
+      open
+      levels={LEVELS}
+      people={[]}
+      linkUrl="https://app.acme.com/library/42"
+      generalAccess={{
+        space: { name: "Sales", access: "private" },
+        mode: "space",
+      }}
+    />,
+  );
+  const dialog = screen.getByRole("dialog", { name: "Share" });
+  await expect
+    .element(dialog.getByRole("combobox", { name: "Space access" }))
+    .toBeEnabled();
+  expect(
+    document.querySelector(
+      '[data-slot="share-general"] [data-slot="permission-menu"]',
+    ),
+  ).toBeNull();
+  await expect
+    .element(
+      dialog.getByText("Members of Sales and people with access can open it"),
+    )
+    .toBeVisible();
+});
+
 test("share-dialog defaultInvitees is reactive and keeps edits until it changes", async () => {
   await page.viewport(1280, 900);
   const props = {
