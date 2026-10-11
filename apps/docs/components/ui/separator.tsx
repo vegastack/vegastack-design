@@ -1,4 +1,4 @@
-// @vegastack separator@0.25.19 sha256-ZOdu5NQQRIirAQMVD0M+6wgIWu4okIAucpaEjQQ2Ha0=
+// @vegastack separator@0.25.20 sha256-Z1Bh7TdveFVfD5aeog8v6KRfqu3gkYGyz55jlZdAzkg=
 
 "use client";
 
