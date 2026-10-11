@@ -115,6 +115,29 @@ test("a host that omits loading is still asked once per render it answers", asyn
   expect(onLoadMore).toHaveBeenCalledTimes(2);
 });
 
+test("a first load that finishes with the sentinel in view loads the next page", async () => {
+  const onLoadMore = vi.fn();
+  const screen = await render(
+    <LoadMore hasMore loading onLoadMore={onLoadMore} />,
+  );
+  await new Promise((resolve) => setTimeout(resolve, 50));
+  expect(onLoadMore).not.toHaveBeenCalled();
+  await screen.rerender(<LoadMore hasMore onLoadMore={onLoadMore} />);
+  await expect.poll(() => onLoadMore.mock.calls.length).toBe(1);
+});
+
+test("an unrelated re-render while a page is in flight never asks twice", async () => {
+  const onLoadMore = vi.fn();
+  const screen = await render(<LoadMore hasMore onLoadMore={onLoadMore} />);
+  await expect.poll(() => onLoadMore.mock.calls.length).toBe(1);
+  await screen.rerender(
+    <LoadMore hasMore onLoadMore={onLoadMore} className="mt-1" />,
+  );
+  await screen.rerender(<LoadMore hasMore onLoadMore={() => onLoadMore()} />);
+  await new Promise((resolve) => setTimeout(resolve, 100));
+  expect(onLoadMore).toHaveBeenCalledOnce();
+});
+
 test("in a scroll container it waits until the end nears the edge", async () => {
   const onLoadMore = vi.fn();
   const screen = await render(

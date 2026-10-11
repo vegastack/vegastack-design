@@ -35,7 +35,7 @@ A list shorter than its box keeps loading until it fills it or the cursor runs o
 It is controlled and owns no data: the host holds `hasMore`, `loading` and `error`, and
 `onLoadMore` fetches the next batch (a retry is the same call). It requests **one page at a time**:
 after a call it waits for the host — for `loading` to rise and fall when the host reports it, or for
-the next render when it does not — before it can fire again.
+the new rows to land when it does not — before it can fire again. Pass `loading`.
 
 `DataList`, `DataGrid`, board lanes, `SearchableSelect` and `VersionList` render it for you through
 their `loadMore` prop, and `LoadMoreState` — the four paging fields on their own — is the shape those

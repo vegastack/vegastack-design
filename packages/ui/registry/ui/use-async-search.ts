@@ -1,4 +1,4 @@
-// @vegastack use-async-search@0.25.16 sha256-wZyoptBSbWGz+Ydxp2tKvRqtGYzmG/Gm7QskuTO7API=
+// @vegastack use-async-search@0.25.16 sha256-i64HgXqAwyBj7uq3/36T2PsL7s4t7qrj2rFDTlubBrg=
 
 "use client";
 
@@ -226,6 +226,8 @@ export function useAsyncSearch<T>(
       controllerRef.current?.abort();
       sequenceRef.current++;
       setPageLoading(false);
+      // The cursor belongs to the previous query: no next page until the new first page lands.
+      setNextCursor(null);
       timerRef.current = setTimeout(() => {
         timerRef.current = null;
         run({ query: next, cursor: null });

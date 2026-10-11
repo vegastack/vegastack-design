@@ -1,4 +1,4 @@
-// @vegastack searchable-select@0.25.16 sha256-lWR7AN8Vrq90NbwURo0fHF4bMcN5yvGF4PCYH+Qjf0w=
+// @vegastack searchable-select@0.25.16 sha256-1eAjwcvuGYPquGIeHdaxTjgGFthyp3xeuaI+8hN+1io=
 
 "use client";
 
@@ -566,7 +566,9 @@ export function SearchableSelect<
       </ComboboxItem>
     );
   };
-  const showFooter = error != null;
+  // A failed search or a failed page: the message and Try again under the list, and no paging.
+  const failure = error ?? loadMore?.error ?? undefined;
+  const showFooter = failure != null && failure !== false;
   // DS-22: the trigger is named by its label. Inside a `Field`, Base UI's Combobox gives the
   // trigger `aria-labelledby` (and the description ids and `aria-invalid`), and a `<label for>`
   // names it natively; an `aria-label` would override either, so only a trigger with neither
@@ -733,7 +735,7 @@ export function SearchableSelect<
             </ComboboxCollection>
             {/* Infinite paging: a sentinel after the last option, inside the scrolling list, loads
                 the next page as it nears the panel's edge, with skeleton options while it does. */}
-            {loadMore && items.length > 0 && error == null ? (
+            {loadMore && items.length > 0 && !showFooter ? (
               <LoadMore
                 hasMore={loadMore.hasMore}
                 loading={loadMore.loading}
@@ -778,7 +780,7 @@ export function SearchableSelect<
           {showFooter ? (
             <LoadMore
               hasMore
-              error={error}
+              error={failure}
               retryLabel={retryLabel}
               onLoadMore={loadMore?.onLoadMore ?? onRetry ?? (() => {})}
               className="border-t border-border p-1.5"

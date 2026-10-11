@@ -1547,7 +1547,7 @@
         "whenToUse": "The footer of a keyset (cursor) list — DataList's or DataGrid's loadMore, a board lane, a feed: load the next batch, retry a failed one, optionally say the list has ended.",
         "whenNotToUse": "Numbered pages with a known total (DataListPager); loading on scroll with no button.",
         "version": "0.25.16",
-        "integrity": "sha256-/K7G9GKFtuX66Ys8oGrieXWpFO/3eSNyWz17cke0N1Y="
+        "integrity": "sha256-xU/xDEN59+1p0IqpXCfsEqURUD+dOQKY8rF0xjISndE="
       }
     },
     {
@@ -17192,7 +17192,7 @@
         "whenToUse": "A Select-shaped searchable picker: one or several values, option descriptions and disabled reasons, and server search with paging (remote + useAsyncSearch).",
         "whenNotToUse": "A short fixed option set (Select), free text with suggestions (Combobox directly), or multi-select (Combobox with chips).",
         "version": "0.25.16",
-        "integrity": "sha256-lWR7AN8Vrq90NbwURo0fHF4bMcN5yvGF4PCYH+Qjf0w="
+        "integrity": "sha256-1eAjwcvuGYPquGIeHdaxTjgGFthyp3xeuaI+8hN+1io="
       }
     },
     {
@@ -18300,7 +18300,7 @@
         "whenToUse": "Server-side search over a list that pages by cursor: a remote SearchableSelect, a searched facet, a picker dialog, a searched DataList — debounce, races, paging and retry in one hook.",
         "whenNotToUse": "Filtering items already in memory (pass them to the component and let it filter); a one-shot fetch with no query (use your data library directly).",
         "version": "0.25.16",
-        "integrity": "sha256-wZyoptBSbWGz+Ydxp2tKvRqtGYzmG/Gm7QskuTO7API="
+        "integrity": "sha256-i64HgXqAwyBj7uq3/36T2PsL7s4t7qrj2rFDTlubBrg="
       }
     },
     {

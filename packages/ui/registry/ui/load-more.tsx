@@ -1,4 +1,4 @@
-// @vegastack load-more@0.25.16 sha256-/K7G9GKFtuX66Ys8oGrieXWpFO/3eSNyWz17cke0N1Y=
+// @vegastack load-more@0.25.16 sha256-xU/xDEN59+1p0IqpXCfsEqURUD+dOQKY8rF0xjISndE=
 
 "use client";
 
@@ -25,8 +25,8 @@ return it as one value.
   usually on screen before the reader reaches it. A list shorter than its box
   keeps loading until it fills it or the cursor runs out.
 - One request per page: after `onLoadMore` the tail waits for the host — for
-  `loading` to rise and fall again when the host reports it, or for the next
-  render when it does not — before it can fire again.
+  `loading` to rise and fall again when the host reports it, or for the rows
+  to land (the sentinel moves) when it does not — before it can fire again.
 - No button and no spinner while paging. The one control is the "Try again"
   a failed page shows, because retrying a failure automatically on scroll
   would hammer a broken endpoint; rows already loaded stay.
@@ -147,27 +147,48 @@ export function LoadMore({
   React.useLayoutEffect(() => {
     latest.current = { armed, onLoadMore };
   });
-  // The duplicate-fetch guard: set when a page is requested, cleared once the host has answered.
+  // The duplicate-fetch guard: set when a page is requested, cleared once the host has answered —
+  // `loading` rising and falling when the host reports it, else the sentinel moving (rows were
+  // appended above it). An unrelated re-render answers nothing, so it never asks twice.
   const pending = React.useRef(false);
   const hostReportsLoading = React.useRef(false);
   const loadingSinceRequest = React.useRef(false);
+  const requestedAt = React.useRef<number | null>(null);
+  const wasArmed = React.useRef(armed);
   const observerRef = React.useRef<IntersectionObserver | null>(null);
+  const rootRef = React.useRef<HTMLElement | null>(null);
+  const sentinelRef = React.useRef<HTMLDivElement | null>(null);
   const [sentinel, setSentinel] = React.useState<HTMLDivElement | null>(null);
+
+  /** The sentinel's offset in its scroll root's content — unchanged by scrolling, moved by rows. */
+  const position = React.useCallback((el: HTMLElement) => {
+    const top = el.getBoundingClientRect().top;
+    const root = rootRef.current;
+    return root
+      ? top - root.getBoundingClientRect().top + root.scrollTop
+      : top + window.scrollY;
+  }, []);
 
   const request = React.useCallback(() => {
     if (!latest.current.armed || pending.current) return;
     pending.current = true;
     loadingSinceRequest.current = false;
+    requestedAt.current = sentinelRef.current
+      ? position(sentinelRef.current)
+      : null;
     latest.current.onLoadMore();
-  }, []);
+  }, [position]);
 
   React.useEffect(() => {
+    sentinelRef.current = sentinel;
     if (!sentinel || typeof IntersectionObserver === "undefined") return;
+    const root = scrollRoot(sentinel);
+    rootRef.current = root;
     const observer = new IntersectionObserver(
       (entries) => {
         if (entries.some((entry) => entry.isIntersecting)) request();
       },
-      { root: scrollRoot(sentinel), rootMargin },
+      { root, rootMargin },
     );
     observer.observe(sentinel);
     observerRef.current = observer;
@@ -177,20 +198,34 @@ export function LoadMore({
     };
   }, [sentinel, rootMargin, request]);
 
-  // After every render: once the host has answered the last request, release the guard and look
-  // again — a page that left the sentinel in view (a short page, a tall box) loads the next one.
+  // After every render: release the guard once the host has answered, and look again whenever the
+  // tail re-arms (a page landed, a retry cleared the error, a first load finished) — IO reports
+  // only changes, so a sentinel still in view after a short page would otherwise sit there.
   React.useEffect(() => {
     if (loading) {
       hostReportsLoading.current = true;
       loadingSinceRequest.current = true;
+      wasArmed.current = false;
       return;
     }
-    if (!pending.current) return;
-    if (hostReportsLoading.current && !loadingSinceRequest.current) return;
-    pending.current = false;
+    let look = false;
+    if (failed) pending.current = false;
+    else if (pending.current) {
+      const answered = hostReportsLoading.current
+        ? loadingSinceRequest.current
+        : sentinel != null &&
+          requestedAt.current != null &&
+          Math.abs(position(sentinel) - requestedAt.current) >= 1;
+      if (answered) {
+        pending.current = false;
+        look = true;
+      }
+    }
+    if (armed && !wasArmed.current) look = true;
+    wasArmed.current = armed;
     const observer = observerRef.current;
-    if (observer && sentinel) {
-      // Re-observing reports the sentinel's current intersection, which IO alone would not.
+    if (look && observer && sentinel) {
+      // Re-observing reports the sentinel's current intersection.
       observer.unobserve(sentinel);
       observer.observe(sentinel);
     }
