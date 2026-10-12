@@ -1,5 +1,12 @@
 # @vegastack/ui
 
+## 0.25.23
+
+### Patch Changes
+
+- [#613](https://github.com/vegastack/vegastack-design/pull/613) [`f5091de`](https://github.com/vegastack/vegastack-design/commit/f5091de1d953cc71899df8aede498cbaafe40e90) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 📚 **File Card**: fix the docs page, whose prose braces broke the static export.
+  [docs](https://design.vegastack.com/docs/components/file-card)
+
 ## 0.25.22
 
 ### Patch Changes

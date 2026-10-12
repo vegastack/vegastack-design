@@ -1,4 +1,4 @@
-// @vegastack multi-step-form@0.25.22 sha256-fhzQF3RcZet78rW7HlPU+x9Bi7su5kqqbxV3pjFekoc=
+// @vegastack multi-step-form@0.25.23 sha256-AmNta6pzSbRVmgjKGxNRZrFZp16RBXwjxxf9DvhAJ8k=
 
 "use client";
 

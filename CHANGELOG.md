@@ -9,6 +9,20 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.25.23] — October 12, 2026
+
+<!-- assembled from 1 changeset: d64754b19c66 -->
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.25.22 → 0.25.23.
+
+### 📚 Docs
+
+- **File Card**: fix the docs page, whose prose braces broke the static export.
+  [docs](https://design.vegastack.com/docs/components/file-card) ·
+  [`f5091de`](https://github.com/VegaStack/vegastack-design/commit/f5091de)
+
 ## [0.25.22] — October 12, 2026
 
 <!-- assembled from 2 changesets: 5e9358eafa99 -->

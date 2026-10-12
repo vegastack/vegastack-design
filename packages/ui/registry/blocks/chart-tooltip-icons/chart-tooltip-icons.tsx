@@ -1,4 +1,4 @@
-// @vegastack chart-tooltip-icons@0.25.22 sha256-Khj3HmcWIH+A7JFHxDDqPIoHqSiGmCUlw6l2kRfwmvs=
+// @vegastack chart-tooltip-icons@0.25.23 sha256-6FB+FklTmMQcn6xd2ydz7F5QLXgv0GpLYW9o4nw9/9s=
 
 "use client";
 
