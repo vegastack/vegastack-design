@@ -109,8 +109,31 @@ afterEach(() => {
 test("renders the first step's body and only that one", async () => {
   const screen = await render(<Wizard />);
   expect(screen.container.textContent).toContain("Account body");
+  // A step that was never visited is not mounted at all.
   expect(screen.container.textContent).not.toContain("Billing body");
   expect(slots(screen.container, "multi-step-form-step")).toHaveLength(1);
+});
+
+test("a visited step stays mounted and hidden, and animates only on a move", async () => {
+  const screen = await render(<Wizard />);
+  const first = slot(screen.container, "multi-step-form-step")!;
+  // No entrance motion on the first paint.
+  expect(first.className).not.toContain("motion-enter-up");
+  await userEvent.click(next(screen.container));
+  // The same node survives the move, hidden, with its subtree intact.
+  expect(first.isConnected).toBe(true);
+  expect(first.hidden).toBe(true);
+  expect(first.textContent).toContain("Account body");
+  const second = slots(screen.container, "multi-step-form-step").find(
+    (el) => !el.hidden,
+  )!;
+  expect(second.dataset.step).toBe("billing");
+  expect(second.className).toContain("motion-enter-up");
+  await userEvent.click(back(screen.container));
+  expect(first.isConnected).toBe(true);
+  expect(first.hidden).toBe(false);
+  expect(first.className).toContain("motion-enter-up");
+  expect(second.hidden).toBe(true);
 });
 
 test("Continue advances, and the rail records what was passed", async () => {
@@ -204,7 +227,9 @@ test("a branch closing under the current step rewinds rather than stranding it",
   await userEvent.click(screen.getByText("switch to individual"));
   // The step it was standing on no longer exists; it lands on the furthest step the flow
   // still admits instead of rendering nothing.
-  expect(slots(screen.container, "multi-step-form-step")).toHaveLength(1);
+  expect(
+    slots(screen.container, "multi-step-form-step").filter((el) => !el.hidden),
+  ).toHaveLength(1);
   expect(railLabels(screen.container)).toEqual(["Account", "Review"]);
 });
 
@@ -1118,8 +1143,11 @@ test("removing the controlled current step cannot reopen a sealed predecessor", 
       onStepChange={change}
     />,
   );
-  expect(screen.container.textContent).toContain("Review body");
-  expect(screen.container.textContent).not.toContain("Account body");
+  const shown = slots(screen.container, "multi-step-form-step").find(
+    (el) => !el.hidden,
+  );
+  expect(shown?.textContent).toContain("Review body");
+  expect(shown?.textContent).not.toContain("Account body");
   expect(change).toHaveBeenLastCalledWith("review", { replace: true });
 });
 
