@@ -9,6 +9,20 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.25.24] — October 12, 2026
+
+<!-- assembled from 1 changeset: d75c40a0985f -->
+
+### 🔧 Changed components
+
+- **Attachment**: `AttachmentGroup layout="cards"` (so `FileCard` and `UploadCard`) now wear the same surface as `MediaCard` — card background, border, radius, `p-2 pe-3` padding and the subtle hover — instead of a bare transparent row; `MediaCard` exports `RECORD_CARD_SURFACE_CLASS`, the one surface both share. Other layouts are unchanged.
+  [docs](https://design.vegastack.com/docs/components/attachment) ·
+  [`eff079d`](https://github.com/VegaStack/vegastack-design/commit/eff079d)
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.25.23 → 0.25.24.
+
 ## [0.25.23] — October 12, 2026
 
 <!-- assembled from 1 changeset: d64754b19c66 -->

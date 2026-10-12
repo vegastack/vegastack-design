@@ -1,4 +1,4 @@
-// @vegastack record-list@0.25.23 sha256-8JE2J0riecEWlWDe/OlOmDeUXhGvaSp855ilXFBBUNI=
+// @vegastack record-list@0.25.24 sha256-s+TbjwR+uXQY0Aallb1oJs5ZDPm5vZ5AMPDuSuPcDTo=
 
 import * as React from "react";
 import { ExternalLink } from "lucide-react";

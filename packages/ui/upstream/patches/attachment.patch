@@ -74,10 +74,10 @@
 #               reflows the file, and `registry-stamp.mjs` writes the provenance header the
 #               three-copy model needs (DOC-1); those hunks carry no decision of their own.
 diff --git a/attachment.tsx b/attachment.tsx
-index f8ca4a8..b78671a 100644
+index f8ca4a8..3c7c751 100644
 --- a/attachment.tsx
 +++ b/attachment.tsx
-@@ -1,13 +1,131 @@
+@@ -1,13 +1,135 @@
 -import * as React from "react"
 -import { mergeProps } from "@base-ui/react/merge-props"
 -import { useRender } from "@base-ui/react/use-render"
@@ -95,6 +95,7 @@ index f8ca4a8..b78671a 100644
 +
 +import { Button } from "@/components/ui/button";
 +import type { FileViewerItem } from "@/components/ui/file-viewer";
++import { RECORD_CARD_SURFACE_CLASS } from "@/components/ui/media-card";
 +import { ProgressIndicator, ProgressTrack } from "@/components/ui/progress";
 +import {
 +  tileColumnClasses,
@@ -120,6 +121,9 @@ index f8ca4a8..b78671a 100644
 +type PreviewEntry = () => { file: FileViewerItem; node: HTMLElement | null };
 +
 +/** The nearest preview scope: the tiles that register with it page through one viewer. */
++// `AttachmentGroup layout="cards"` tells its tiles to wear the record-card surface.
++const AttachmentCardsContext = React.createContext(false);
++
 +const AttachmentPreviewContext = React.createContext<{
 +  enabled: boolean;
 +  register: (key: string, entry: PreviewEntry) => () => void;
@@ -216,7 +220,7 @@ index f8ca4a8..b78671a 100644
    {
      variants: {
        size: {
-@@ -15,52 +133,143 @@ const attachmentVariants = cva(
+@@ -15,52 +137,150 @@ const attachmentVariants = cva(
            "gap-2 text-sm has-data-[slot=attachment-content]:px-2.5 has-data-[slot=attachment-content]:py-2 has-data-[slot=attachment-media]:p-2",
          sm: "gap-2.5 text-xs has-data-[slot=attachment-content]:px-2 has-data-[slot=attachment-content]:py-1.5 has-data-[slot=attachment-media]:p-1.5",
          xs: "gap-1.5 rounded-lg text-xs has-data-[slot=attachment-content]:px-1.5 has-data-[slot=attachment-content]:py-1 has-data-[slot=attachment-media]:p-1",
@@ -238,7 +242,8 @@ index f8ca4a8..b78671a 100644
 +    ],
 +  },
 +);
-+
+ 
+-function Attachment({
 +type AttachmentProps = React.ComponentProps<"div"> &
 +  VariantProps<typeof attachmentVariants> & {
 +    state?: "idle" | "uploading" | "processing" | "error" | "done";
@@ -278,8 +283,7 @@ index f8ca4a8..b78671a 100644
 +    <AttachmentTile {...props} />
 +  );
 +}
- 
--function Attachment({
++
 +function AttachmentTile({
    className,
    state = "done",
@@ -299,6 +303,7 @@ index f8ca4a8..b78671a 100644
 -  return (
 +}: AttachmentProps) {
 +  const scope = React.useContext(AttachmentPreviewContext);
++  const cards = React.useContext(AttachmentCardsContext);
 +  const node = React.useRef<HTMLDivElement | null>(null);
 +  const setRef = React.useMemo(() => mergeRefs(node, ref), [ref]);
 +  const key = React.useId();
@@ -332,6 +337,12 @@ index f8ca4a8..b78671a 100644
 +      className={cn(
 +        attachmentVariants({ size, orientation }),
 +        tileGroupClass,
++        // The same surface as `MediaCard`: radius, border, background, hover and `p-2 pe-3` padding.
++        cards &&
++          cn(
++            RECORD_CARD_SURFACE_CLASS,
++            "has-data-[slot=attachment-media]:pe-3",
++          ),
 +        "data-muted:[&_[data-slot=attachment-media]]:opacity-50",
 +        className,
 +      )}
@@ -375,7 +386,7 @@ index f8ca4a8..b78671a 100644
  
  function AttachmentMedia({
    className,
-@@ -74,7 +283,7 @@ function AttachmentMedia({
+@@ -74,7 +294,7 @@ function AttachmentMedia({
        className={cn(attachmentMediaVariants({ variant }), className)}
        {...props}
      />
@@ -384,7 +395,7 @@ index f8ca4a8..b78671a 100644
  }
  
  function AttachmentContent({
-@@ -86,27 +295,33 @@ function AttachmentContent({
+@@ -86,27 +306,33 @@ function AttachmentContent({
        data-slot="attachment-content"
        className={cn(
          "max-w-full min-w-0 flex-1 leading-tight group-data-[orientation=vertical]/attachment:px-1",
@@ -423,7 +434,7 @@ index f8ca4a8..b78671a 100644
  }
  
  function AttachmentDescription({
-@@ -117,29 +332,87 @@ function AttachmentDescription({
+@@ -117,29 +343,87 @@ function AttachmentDescription({
      <span
        data-slot="attachment-description"
        className={cn(
@@ -518,7 +529,7 @@ index f8ca4a8..b78671a 100644
  }
  
  function AttachmentAction({
-@@ -148,15 +421,20 @@ function AttachmentAction({
+@@ -148,15 +432,20 @@ function AttachmentAction({
    size = "icon-xs",
    ...props
  }: React.ComponentProps<typeof Button>) {
@@ -541,7 +552,7 @@ index f8ca4a8..b78671a 100644
  }
  
  function AttachmentTrigger({
-@@ -170,38 +448,104 @@ function AttachmentTrigger({
+@@ -170,38 +459,106 @@ function AttachmentTrigger({
      props: mergeProps<"button">(
        {
          type: render ? type : (type ?? "button"),
@@ -565,6 +576,15 @@ index f8ca4a8..b78671a 100644
  
 -function AttachmentGroup({ className, ...props }: React.ComponentProps<"div">) {
 -  return (
+-    <div
+-      data-slot="attachment-group"
+-      className={cn(
+-        "flex min-w-0 scroll-fade-x snap-x snap-mandatory scroll-px-1 scrollbar-none gap-3 overflow-x-auto overscroll-x-contain py-1 *:data-[slot=attachment]:flex-none *:data-[slot=attachment]:snap-start",
+-        className
+-      )}
+-      {...props}
+-    />
+-  )
 +function AttachmentGroup({
 +  className,
 +  layout = "scroll",
@@ -603,35 +623,34 @@ index f8ca4a8..b78671a 100644
 +      ? undefined
 +      : (columns ?? (layout === "tiles" ? 4 : undefined));
 +  const group = (
-     <div
-       data-slot="attachment-group"
-+      data-layout={layout}
-+      data-columns={count}
-       className={cn(
--        "flex min-w-0 scroll-fade-x snap-x snap-mandatory scroll-px-1 scrollbar-none gap-3 overflow-x-auto overscroll-x-contain py-1 *:data-[slot=attachment]:flex-none *:data-[slot=attachment]:snap-start",
--        className
-+        count ? tileColumnClasses[count] : undefined,
-+        layout === "list"
-+          ? "flex min-w-0 flex-col gap-0.5 py-1 *:data-[slot=attachment]:w-full *:data-[slot=attachment]:min-w-0 *:data-[slot=attachment]:flex-nowrap *:data-[slot=attachment]:rounded-lg *:data-[slot=attachment]:not-data-[state=error]:border-transparent *:data-[slot=attachment]:bg-transparent **:data-[slot=attachment-media]:w-8 **:data-[slot=attachment-media]:rounded-md [&_[data-slot=attachment-content]_[data-slot=attachment-progress]]:mt-1.5"
-+          : layout === "cards"
-+            ? "grid min-w-0 grid-cols-[repeat(auto-fill,minmax(min(100%,max(--spacing(64),calc((100%_-_var(--spacing)*4)/3))),1fr))] gap-x-2 gap-y-0.5 py-1 *:data-[slot=attachment]:w-full *:data-[slot=attachment]:min-w-0 *:data-[slot=attachment]:flex-nowrap *:data-[slot=attachment]:rounded-lg *:data-[slot=attachment]:not-data-[state=error]:border-transparent *:data-[slot=attachment]:bg-transparent **:data-[slot=attachment-media]:w-12 [&_[data-slot=attachment-content]_[data-slot=attachment-progress]]:mt-1.5"
-+            : layout === "grid"
-+              ? "grid min-w-0 grid-cols-[repeat(auto-fill,minmax(min(100%,max(--spacing(72),calc((100%_-_var(--spacing)*6)/3))),1fr))] gap-3 py-1 *:data-[slot=attachment]:w-full *:data-[slot=attachment]:min-w-0 *:data-[slot=attachment]:data-[orientation=vertical]:flex-nowrap **:data-[slot=attachment-media]:aspect-video [&_[data-slot=attachment-media]_img]:aspect-video"
-+              : layout === "tiles"
-+                ? cn(
-+                    tileGridClasses,
-+                    "min-w-0 py-1 *:data-[slot=attachment]:w-full *:data-[slot=attachment]:min-w-0 *:data-[slot=attachment]:data-[orientation=vertical]:flex-nowrap",
-+                  )
-+                : cn(
-+                    "flex min-w-0 scroll-fade-x snap-x snap-mandatory scroll-px-1 scrollbar-none gap-3 overflow-x-auto overscroll-x-contain py-1 *:data-[slot=attachment]:flex-none *:data-[slot=attachment]:snap-start",
-+                    // Sized to the row: `columns` tiles fit, the rest scroll.
-+                    count && tileScrollRowClasses,
-+                  ),
-+        className,
-       )}
-       {...props}
-     />
--  )
++    <AttachmentCardsContext.Provider value={layout === "cards"}>
++      <div
++        data-slot="attachment-group"
++        data-layout={layout}
++        data-columns={count}
++        className={cn(
++          count ? tileColumnClasses[count] : undefined,
++          layout === "list"
++            ? "flex min-w-0 flex-col gap-0.5 py-1 *:data-[slot=attachment]:w-full *:data-[slot=attachment]:min-w-0 *:data-[slot=attachment]:flex-nowrap *:data-[slot=attachment]:rounded-lg *:data-[slot=attachment]:not-data-[state=error]:border-transparent *:data-[slot=attachment]:bg-transparent **:data-[slot=attachment-media]:w-8 **:data-[slot=attachment-media]:rounded-md [&_[data-slot=attachment-content]_[data-slot=attachment-progress]]:mt-1.5"
++            : layout === "cards"
++              ? "grid min-w-0 grid-cols-[repeat(auto-fill,minmax(min(100%,max(--spacing(64),calc((100%_-_var(--spacing)*4)/3))),1fr))] gap-2 py-1 *:data-[slot=attachment]:w-full *:data-[slot=attachment]:min-w-0 *:data-[slot=attachment]:flex-nowrap **:data-[slot=attachment-media]:w-12 [&_[data-slot=attachment-content]_[data-slot=attachment-progress]]:mt-1.5"
++              : layout === "grid"
++                ? "grid min-w-0 grid-cols-[repeat(auto-fill,minmax(min(100%,max(--spacing(72),calc((100%_-_var(--spacing)*6)/3))),1fr))] gap-3 py-1 *:data-[slot=attachment]:w-full *:data-[slot=attachment]:min-w-0 *:data-[slot=attachment]:data-[orientation=vertical]:flex-nowrap **:data-[slot=attachment-media]:aspect-video [&_[data-slot=attachment-media]_img]:aspect-video"
++                : layout === "tiles"
++                  ? cn(
++                      tileGridClasses,
++                      "min-w-0 py-1 *:data-[slot=attachment]:w-full *:data-[slot=attachment]:min-w-0 *:data-[slot=attachment]:data-[orientation=vertical]:flex-nowrap",
++                    )
++                  : cn(
++                      "flex min-w-0 scroll-fade-x snap-x snap-mandatory scroll-px-1 scrollbar-none gap-3 overflow-x-auto overscroll-x-contain py-1 *:data-[slot=attachment]:flex-none *:data-[slot=attachment]:snap-start",
++                      // Sized to the row: `columns` tiles fit, the rest scroll.
++                      count && tileScrollRowClasses,
++                    ),
++          className,
++        )}
++        {...props}
++      />
++    </AttachmentCardsContext.Provider>
 +  );
 +  // The group is a preview scope of its own unless one encloses it; `preview={false}` switches it off.
 +  if (preview === false)

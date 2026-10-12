@@ -2056,6 +2056,7 @@
       "registryDependencies": [
         "@vegastack/button",
         "@vegastack/file-viewer",
+        "@vegastack/media-card",
         "@vegastack/progress",
         "@vegastack/tile-overlay"
       ],
@@ -8534,6 +8535,15 @@
           "ref": {
             "status": "not-applicable",
             "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "RECORD_CARD_SURFACE_CLASS",
+          "kind": "constant",
+          "source": "packages/ui/registry/ui/media-card.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A class string for the record-card surface shared with the attachment cards layout, not a component."
           }
         },
         {
