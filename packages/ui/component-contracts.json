@@ -12,8 +12,8 @@
     "evidencePolicy": "Observed fields come from source, registry metadata, docs, and test topology. Unknown/not-applicable values are explicit; no inferred behavior is presented as verified."
   },
   "expectedCounts": {
-    "totalRegistryItems": 738,
-    "components": 157,
+    "totalRegistryItems": 739,
+    "components": 158,
     "animatedIcons": 467,
     "hooks": 15,
     "blocks": 15,
@@ -25,7 +25,7 @@
     "Forms/editing": 34,
     "Navigation/layout": 21,
     "Overlays": 21,
-    "Data display": 30,
+    "Data display": 31,
     "Content/marketing": 15,
     "Shared internals": 4,
     "AI/chat": 8,
@@ -155,6 +155,7 @@
       "data-list",
       "data-list-pager",
       "diff-view",
+      "file-card",
       "inbox",
       "load-more",
       "media-card",
@@ -1985,7 +1986,7 @@
           },
           {
             "name": "group layout",
-            "values": ["grid", "list", "scroll", "tiles"],
+            "values": ["cards", "grid", "list", "scroll", "tiles"],
             "evidence": "packages/ui/registry/ui/attachment.tsx: prop union"
           }
         ]
@@ -27605,6 +27606,167 @@
           "cssVariables": []
         }
       }
+    },
+    {
+      "name": "file-card",
+      "registryType": "registry:ui",
+      "title": "File Card",
+      "summary": "One file as a card row: thumbnail or type icon, name, description lines and a ⋯ actions menu — opening the file viewer, or the whole card a link (download, navigate); with UploadCard for a file uploading into the same list.",
+      "status": "stable",
+      "since": "0.25.22",
+      "family": "media",
+      "wave": "Data display",
+      "sourceFiles": ["packages/ui/registry/ui/file-card.tsx"],
+      "publicSymbols": [
+        {
+          "name": "FileCard",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/file-card.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A composition that renders an Attachment tile; it has no single host element to target and takes no ref."
+          }
+        },
+        {
+          "name": "FileCardLabels",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/file-card.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "FileCardProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/file-card.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "FileCardThumb",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/file-card.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "UploadCard",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/file-card.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A composition that renders an Attachment tile; it has no single host element to target and takes no ref."
+          }
+        },
+        {
+          "name": "UploadCardLabels",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/file-card.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "UploadCardProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/file-card.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "No local variants; the look is Attachment's, and the layout is the enclosing AttachmentGroup's."
+      },
+      "sizes": {
+        "status": "observed",
+        "dimensions": [
+          {
+            "name": "size",
+            "values": ["default", "sm", "xs", "lg"],
+            "evidence": "Passed through to Attachment's size."
+          }
+        ]
+      },
+      "states": {
+        "behavior": {
+          "status": "observed",
+          "values": [
+            "default",
+            "muted",
+            "uploading",
+            "processing",
+            "error",
+            "open",
+            "link",
+            "disabled"
+          ],
+          "evidence": "A file opens the viewer, an href makes the whole card a link, muted dims the media; UploadCard shows progress, preparing, finishing or its error with Retry."
+        },
+        "accessibility": {
+          "status": "observed",
+          "values": [
+            "labeled",
+            "semantic-html",
+            "status-announcement",
+            "focus-visible"
+          ],
+          "evidence": "listitem role; the open button and the link are named for the file and what they do; the ⋯ menu is named Actions for {name}; upload progress is a named progressbar with a spoken percent."
+        },
+        "visual": {
+          "status": "observed",
+          "values": ["default", "muted", "error"],
+          "evidence": "Attachment's tokens: the media dims when muted, the error card takes the destructive tint."
+        }
+      },
+      "responsive": {
+        "status": "observed",
+        "risks": ["text-truncation-and-flex-shrink"],
+        "rationale": "The name and description lines truncate inside the card; the column count belongs to the enclosing AttachmentGroup."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned motion mechanism observed."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/file-card",
+      "registryDependencies": [
+        "@vegastack/attachment",
+        "@vegastack/data-table-parts",
+        "@vegastack/dropdown-menu",
+        "@vegastack/file-kind",
+        "@vegastack/file-viewer",
+        "@vegastack/image"
+      ],
+      "npmDependencies": [
+        "lucide-react@^1.47.0",
+        "@vegastack/design@^0.8.3",
+        "@vegastack/design-tokens@^0.8.3"
+      ],
+      "testFiles": ["packages/ui/registry/ui/file-card.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required"
+      },
+      "previewModule": "file-card",
+      "dataAttributes": {}
     },
     {
       "name": "record-chip",

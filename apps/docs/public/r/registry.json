@@ -513,7 +513,7 @@
         "whenToUse": "File and media tiles on any surface: chat attachments, record files, upload queues — a chip or thumbnail with name, size, lifecycle state, determinate upload progress (AttachmentProgress), a muted tile for a file no longer in use, and remove or download actions; AttachmentGroup lays them out as a scrolling row or a grid.",
         "whenNotToUse": "Acquiring files (drop, browse, paste) - that is Dropzone; Attachment renders the files after acquisition.",
         "version": "0.25.21",
-        "integrity": "sha256-Ha4aHKQfUqXKrXyGXCxdxPYqKr8Aag7CNDTEwP2clqM="
+        "integrity": "sha256-aovYZ4yU/Dt8pyacjVkMj28gSQW1T00X6N/So2500mY="
       }
     },
     {
@@ -16221,6 +16221,41 @@
         "whenNotToUse": "Comparing whole texts or documents (DiffView), or a number's trend (Stat).",
         "version": "0.25.21",
         "integrity": "sha256-cy5xbc38S8KnuxCJKPuShKhn/UF5yHmGCd2zJegzbOY="
+      }
+    },
+    {
+      "name": "file-card",
+      "type": "registry:ui",
+      "title": "File Card",
+      "description": "One file as a card row: thumbnail or type icon, name, description lines and a ⋯ actions menu. A file opens the viewer, an href makes the whole card a link (a download, or a page elsewhere); UploadCard is the same row for a file uploading, with progress, Retry and Cancel.",
+      "categories": [
+        "media"
+      ],
+      "dependencies": [
+        "lucide-react@^1.47.0",
+        "@vegastack/design@^0.8.3",
+        "@vegastack/design-tokens@^0.8.3"
+      ],
+      "registryDependencies": [
+        "@vegastack/attachment",
+        "@vegastack/data-table-parts",
+        "@vegastack/dropdown-menu",
+        "@vegastack/file-kind",
+        "@vegastack/file-viewer",
+        "@vegastack/image"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/file-card.tsx",
+          "type": "registry:ui",
+          "target": "@ui/file-card.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "A record's or task's files as a list or grid of cards (put them in AttachmentGroup layout=\"cards\" or list): a thumbnail or type icon, name, size and who/when, a ⋯ menu, opening the viewer or linking to a download or page; UploadCard for the files still uploading.",
+        "whenNotToUse": "A square tile grid or a scrolling strip (compose Attachment with orientation=\"vertical\"), or a single inline chip in chat.",
+        "version": "0.25.21",
+        "integrity": "sha256-NSHwOaduie87DEdVFklWQEYX1o9jtqqk0WHnV32YRaI="
       }
     },
     {

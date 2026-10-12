@@ -1,0 +1,145 @@
+---
+title: File Card
+description: One file as a card row — thumbnail or icon, name, details and a ⋯ menu — that opens the viewer or links to a download or page; UploadCard is its uploading twin.
+audience: public
+registry: file-card
+status: stable
+since: 0.25.22
+a11y: listitem card, one named open button or link, named ⋯ menu
+preview: fileCard
+---
+
+## Install
+
+<InstallSteps name="file-card" />
+
+## Usage
+
+```tsx
+import { AttachmentGroup } from "@/components/ui/attachment";
+import { FileCard, UploadCard } from "@/components/ui/file-card";
+
+<AttachmentGroup layout="cards" role="list" aria-label="Files">
+  <FileCard
+    name="spec-sheet.pdf"
+    contentType="application/pdf"
+    descriptions={["64 KB", "Asha Rao · today"]}
+    file={file}
+    actions={[{ label: "Remove", destructive: true, onSelect: remove }]}
+  />
+  <UploadCard
+    name="install-guide.pdf"
+    type="application/pdf"
+    progress={64}
+    error={null}
+    onCancel={cancel}
+    onRetry={retry}
+  />
+</AttachmentGroup>;
+```
+
+`FileCard` is the one tile every file list shares — a task's attachments, a product's files, images and
+accessories. It composes [`Attachment`](/docs/components/attachment) and adds no layout of its own:
+put cards in an `AttachmentGroup` with `role="list"` (each card is a `listitem`), choosing
+`layout="cards"` for a responsive grid, or `layout="list"` for full-width rows.
+
+<ComponentPreview name="fileCard" file="components/preview/file-card.tsx" />
+
+## Anatomy
+
+<Anatomy name="file-card" />
+
+## Examples
+
+### Open in the viewer
+
+Give a card its `file` (a [`FileViewerItem`](/docs/components/file-viewer)) and the whole card becomes one
+`Open {name}` button. It opens the viewer, paging through the group's cards; `onOpen` replaces the
+built-in viewer with your own handler.
+
+### Link to a download or a page
+
+`href` makes the whole card one link, for a file that opens elsewhere: a file the viewer cannot show
+downloads, an accessory navigates to its page. `download` downloads in place and names the link
+"Download {name}"; `target="_blank"` opens a new tab (with `rel="noopener"`) and names it "Open {name}
+in a new tab". The ⋯ menu stays above the link, clickable on its own. When `file` is set `href` is
+ignored.
+
+<ComponentPreview
+  name="fileCardLinks"
+  file="components/preview/file-card.tsx"
+/>
+
+### Thumbnail, icon, preview
+
+`thumb` shows the stored image in the media box, with its `blur` underneath until it loads; without one
+the box shows the file's type icon. `preview` is the picked image's local object URL: it shows while
+there is no thumbnail yet and sits under the thumbnail until it loads, so the card never flashes blank.
+`icon` replaces both — a lock, a page's emoji.
+
+### Muted
+
+`muted` dims the media of a file the record no longer uses. Say why in `descriptions`, so the state is
+never carried by opacity alone.
+
+<ComponentPreview
+  name="fileCardMuted"
+  file="components/preview/file-card.tsx"
+/>
+
+### Actions
+
+`actions` is a `RowAction[]` — the same shape a table row's menu takes — drawn as a ⋯ menu named
+"Actions for {name}". `extra` puts your own controls before it (a "Go to comment" link, a remove
+button).
+
+### Wording
+
+The built-in names and text — "Actions for {name}", "Download {name}", "Retry {name}", "Finishing
+upload" — are overridable through the `labels` prop of `FileCard` and of `UploadCard`, for another
+language or house style.
+
+### Uploading
+
+`UploadCard` lays out like a `FileCard`, so a list swaps one for the other as a file finishes. It shows
+a determinate bar (`progress`), "preparing" while `progress` is `null`, "Finishing upload" once the
+bytes are up (`finishing`), and on `error` the reason with Retry. Cancel is always there; `cancellable={false}`
+disables it.
+
+<ComponentPreview name="uploadCard" file="components/preview/file-card.tsx" />
+
+## API Reference
+
+### FileCard
+
+<ApiTable
+  path="../../packages/ui/registry/ui/file-card.tsx"
+  name="FileCardProps"
+/>
+
+### UploadCard
+
+<ApiTable
+  path="../../packages/ui/registry/ui/file-card.tsx"
+  name="UploadCardProps"
+/>
+
+## Accessibility
+
+- Each card is a `listitem`: give the `AttachmentGroup` `role="list"` and an `aria-label`.
+- The open button and the link are named for the file and for what activating them does — "Open
+  {name}", "Download {name}", "Open {name} in a new tab" — and the whole card is the target.
+- The ⋯ menu button is named "Actions for {name}"; it and any `extra` control sit above the open button
+  or link, so each stays separately focusable and clickable.
+- `UploadCard`'s bar is a named progress bar ("Uploading {name}", "Preparing {name}") that announces its
+  percentage; a failure's reason is text, never colour alone.
+- Focus is the global outline from `base.css`, on the open button or link, following the card's corner.
+
+<StatesTested name="file-card" />
+
+## Do / Don't
+
+<DoDont
+  do="Give a card either a file (opens the viewer) or an href (a download or page) and put cards in an AttachmentGroup with role=list."
+  dont="Build a second file tile beside it for one more list — pass thumb, icon, descriptions and actions instead."
+/>

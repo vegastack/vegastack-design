@@ -266,6 +266,19 @@ offers Retry as an action. `columns` does not apply.
   file="components/preview/attachment.tsx"
 />
 
+### Cards
+
+`layout="cards"` is the list row in a responsive grid: three columns on a wide container, two on a
+tablet, one on a phone — each column at least 16rem, so the count follows the group's own width, not the
+viewport's. Each card is a list row — transparent at rest, a subtle hover fill, the whole card the open
+button — with a 48px thumbnail in place of the list's 32px, the name, description lines and trailing
+actions. It is the layout [`FileCard`](/docs/components/file-card) is made for. `columns` does not apply.
+
+<ComponentPreview
+  name="attachmentCards"
+  file="components/preview/attachment.tsx"
+/>
+
 ## Playground
 
 Step through the lifecycle states, sizes, orientations and media treatments, then copy the
@@ -395,14 +408,14 @@ Upstream's file plus `packages/ui/upstream/patches/attachment.patch`. Every hunk
   server component rendering it throws on import. The boundary goes at the lowest interactive leaf,
   and this file is it.
 - **API-28** — Attachment's scope widens from chat to file and media tiles on any surface.
-  `AttachmentGroup` takes `layout="scroll" | "grid" | "tiles"` (upstream's row stays the default), a new
+  `AttachmentGroup` takes `layout="scroll" | "grid" | "tiles" | "list" | "cards"` (upstream's row stays the default), a new
   `AttachmentProgress` part composes `Progress`'s track and indicator and announces
   `aria-valuetext="{n}%"`, `Attachment` takes `muted` (`data-muted`, media at `opacity-50`), and
   image media styles a nested `<img>` with `[&_img]` in place of `*:[img]`, so the system `Image`
   and its fallback fill the slot. The tile overhaul (28-09-2026) adds `columns` (at most N tiles a
   row, container-responsive, and a sized `scroll` row), the `side="start" | "end"` overlay slots with
   the blurred scrim on a vertical tile, `file` / `preview` / `onOpen` and `AttachmentPreview` for the
-  whole-tile open into `FileViewer`, and the full name as `AttachmentTitle`'s `title`.
+  whole-tile open into `FileViewer`, and the full name as `AttachmentTitle`'s `title`. `layout="list"` (29-09-2026) stacks dense full-width rows, and `layout="cards"` (12-10-2026) lays the same rows out in a responsive grid with a 48px media box.
 - **DOC-2** — `import { cn } from "cn"` becomes `@vegastack/design`; our npm layer owns `cn`.
 - **DOC-1** — prettier reflow plus the `registry-stamp.mjs` provenance header the three-copy model
   needs; no decision of its own.

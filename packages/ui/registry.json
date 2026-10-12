@@ -13067,6 +13067,38 @@
       }
     },
     {
+      "name": "file-card",
+      "type": "registry:ui",
+      "title": "File Card",
+      "description": "One file as a card row: thumbnail or type icon, name, description lines and a ⋯ actions menu. A file opens the viewer, an href makes the whole card a link (a download, or a page elsewhere); UploadCard is the same row for a file uploading, with progress, Retry and Cancel.",
+      "categories": ["media"],
+      "dependencies": [
+        "lucide-react@^1.47.0",
+        "@vegastack/design@^0.8.3",
+        "@vegastack/design-tokens@^0.8.3"
+      ],
+      "registryDependencies": [
+        "@vegastack/attachment",
+        "@vegastack/data-table-parts",
+        "@vegastack/dropdown-menu",
+        "@vegastack/file-kind",
+        "@vegastack/file-viewer",
+        "@vegastack/image"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/file-card.tsx",
+          "type": "registry:ui",
+          "target": "@ui/file-card.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "A record's or task's files as a list or grid of cards (put them in AttachmentGroup layout=\"cards\" or list): a thumbnail or type icon, name, size and who/when, a ⋯ menu, opening the viewer or linking to a download or page; UploadCard for the files still uploading.",
+        "whenNotToUse": "A square tile grid or a scrolling strip (compose Attachment with orientation=\"vertical\"), or a single inline chip in chat.",
+        "version": "0.25.21"
+      }
+    },
+    {
       "name": "record-chip",
       "type": "registry:ui",
       "title": "Record Chip",

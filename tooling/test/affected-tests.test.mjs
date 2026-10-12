@@ -45,6 +45,8 @@ describe("affected component closure", () => {
       "attachment",
       "code-block",
       "comments",
+      // file-card composes Attachment and opens a FileViewer (2026-10-12).
+      "file-card",
       "file-viewer",
       "issue-detail-01",
       "library-01",
@@ -62,6 +64,7 @@ describe("affected component closure", () => {
       "packages/ui/registry/ui/attachment.test.tsx",
       "packages/ui/registry/ui/code-block.test.tsx",
       "packages/ui/registry/ui/comments.test.tsx",
+      "packages/ui/registry/ui/file-card.test.tsx",
       "packages/ui/registry/ui/file-viewer.test.tsx",
       "packages/ui/registry/ui/markdown-view.test.tsx",
       "packages/ui/registry/ui/text-edit.test.tsx",
@@ -78,6 +81,7 @@ describe("affected component closure", () => {
       "code-block",
       "comments",
       "dropzone",
+      "file-card",
       "file-viewer",
       // inline-chip's preview renders mentions through a MarkdownView.
       "inline-chip",
@@ -109,6 +113,8 @@ describe("affected component closure", () => {
       "comments",
       "copy-button",
       // FileViewer's Markdown previews reach CodeBlock through MarkdownView (2026-09-30).
+      // file-card composes Attachment and opens a FileViewer (2026-10-12).
+      "file-card",
       "file-viewer",
       "issue-detail-01",
       "library-01",
@@ -149,6 +155,8 @@ describe("affected component closure", () => {
       "attachment",
       "code-block",
       "comments",
+      // file-card composes Attachment and opens a FileViewer (2026-10-12).
+      "file-card",
       "file-viewer",
       "issue-detail-01",
       "library-01",
