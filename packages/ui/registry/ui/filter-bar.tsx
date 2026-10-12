@@ -1,4 +1,4 @@
-// @vegastack filter-bar@0.25.21 sha256-m+MsErh1BlaYmab3QTbzdthQ6hX/p3s/guyCLIQQorE=
+// @vegastack filter-bar@0.25.22 sha256-Iy7PKuUhYtRzx7MlV2DHVEu6qDMtVROA4I8kQUPBrnI=
 
 "use client";
 

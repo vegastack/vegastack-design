@@ -10,6 +10,25 @@ npm package versions are listed per entry. This page is generated from the repo'
 
 {/* CHANGELOG:START — generated from /CHANGELOG.md by tooling/sync-changelog.mjs. DO NOT EDIT. */}
 
+## [0.25.22] — October 12, 2026
+
+### 🧩 New components
+
+- **FileCard** and **UploadCard**: new — one file as a card (thumbnail or type icon, name, description lines, a ⋯ actions menu) that opens the file viewer, or with `href` (+ `download`, `target`) makes the whole card a link to a download or a page; `UploadCard` is the same row for a file uploading, with progress, Retry and Cancel. Install with `@vegastack/file-card`.
+  [docs](/docs/components/file-card) ·
+  [`5e37f27`](https://github.com/VegaStack/vegastack-design/commit/5e37f27)
+
+### 🔧 Changed components
+
+- **Attachment**: `AttachmentGroup` takes `layout="cards"` — the list row in a responsive grid (three columns on a wide container, two on a tablet, one on a phone) with a 48px thumbnail, name, description lines and trailing actions. Existing layouts are unchanged.
+  [docs](/docs/components/attachment) ·
+  [`5e37f27`](https://github.com/VegaStack/vegastack-design/commit/5e37f27)
+
+### 📦 npm
+
+- **`@vegastack/design`** → **`0.8.4`** (was `0.8.3`).
+- The design-system registry (`@vegastack/ui`) bumps 0.25.21 → 0.25.22.
+
 ## [0.25.21] — October 12, 2026
 
 ### 🔧 Changed components
