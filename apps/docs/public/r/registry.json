@@ -499,6 +499,7 @@
       "registryDependencies": [
         "@vegastack/button",
         "@vegastack/file-viewer",
+        "@vegastack/media-card",
         "@vegastack/progress",
         "@vegastack/tile-overlay"
       ],
@@ -513,7 +514,7 @@
         "whenToUse": "File and media tiles on any surface: chat attachments, record files, upload queues — a chip or thumbnail with name, size, lifecycle state, determinate upload progress (AttachmentProgress), a muted tile for a file no longer in use, and remove or download actions; AttachmentGroup lays them out as a scrolling row or a grid.",
         "whenNotToUse": "Acquiring files (drop, browse, paste) - that is Dropzone; Attachment renders the files after acquisition.",
         "version": "0.25.23",
-        "integrity": "sha256-mlQMOmPCfcDfLIFeiKmA9gac68HJpEVJ2mfBdA4K288="
+        "integrity": "sha256-FMLWrTEtXPqxKJYO8LcfNC8h5pDWviFloKn/JMzG4d8="
       }
     },
     {
@@ -1578,7 +1579,7 @@
         "whenToUse": "A card per record in a grid (DataList view=\"grid\" renders one per row), or card content on a board.",
         "whenNotToUse": "A record with a long body or its own controls (Card), or a row in a table (DataList).",
         "version": "0.25.23",
-        "integrity": "sha256-KNZHHMgyPRiZMBUu+p9DLdYSX0a7cbbuLmw3q6EYav0="
+        "integrity": "sha256-QLR4kDjSvfleaqBcZDiVSwnfS3lHrJzOVqZCLLZdYi0="
       }
     },
     {

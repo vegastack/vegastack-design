@@ -445,6 +445,7 @@
       "registryDependencies": [
         "@vegastack/button",
         "@vegastack/file-viewer",
+        "@vegastack/media-card",
         "@vegastack/progress",
         "@vegastack/tile-overlay"
       ],

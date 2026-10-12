@@ -55,6 +55,7 @@ import {
 } from "./attachment";
 import type { FileViewerItem } from "./file-viewer";
 import { Image } from "./image";
+import { MediaCard } from "./media-card";
 import { Spinner } from "./spinner";
 
 const STATES = ["idle", "uploading", "processing", "error", "done"] as const;
@@ -1361,18 +1362,29 @@ test.each([
   },
 );
 
-test("API-28: a card is a list row — no fill or border at rest, one open button over the whole card", async () => {
+test("API-28: a card wears the MediaCard surface — same fill, border and radius — with one open button over the whole card", async () => {
   const screen = await render(
-    <AttachmentGroup layout="cards">
-      <CardRow name="one.zip" />
-      <CardRow name="two.zip" />
-    </AttachmentGroup>,
+    <>
+      <AttachmentGroup layout="cards">
+        <CardRow name="one.zip" />
+        <CardRow name="two.zip" />
+      </AttachmentGroup>
+      <MediaCard title="record" />
+    </>,
   );
   const [first] = slots(screen.container, "attachment");
   const style = getComputedStyle(first!);
-  expect(style.backgroundColor).toBe("rgba(0, 0, 0, 0)");
-  expect(style.borderTopColor).toBe("rgba(0, 0, 0, 0)");
-  expect(Number.parseFloat(style.borderTopLeftRadius)).toBeGreaterThan(0);
+  const record = getComputedStyle(
+    screen.container.querySelector("[data-slot=media-card]")!,
+  );
+  for (const key of [
+    "backgroundColor",
+    "borderTopColor",
+    "borderTopWidth",
+    "borderTopLeftRadius",
+  ] as const)
+    expect(style[key]).toBe(record[key]);
+  expect(Number.parseFloat(style.borderTopWidth)).toBeGreaterThan(0);
   // The whole card is the open button: a click on its name lands on the trigger.
   const name = screen.getByText("two.zip").element().getBoundingClientRect();
   expect(

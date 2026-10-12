@@ -270,8 +270,9 @@ offers Retry as an action. `columns` does not apply.
 
 `layout="cards"` is the list row in a responsive grid: three columns on a wide container, two on a
 tablet, one on a phone — each column at least 16rem, so the count follows the group's own width, not the
-viewport's. Each card is a list row — transparent at rest, a subtle hover fill, the whole card the open
-button — with a 48px thumbnail in place of the list's 32px, the name, description lines and trailing
+viewport's. Each card wears the same surface as [`MediaCard`](/docs/components/media-card) (`RECORD_CARD_SURFACE_CLASS`: card
+background, border, `rounded-lg`, `p-2 pe-3` padding, a subtle hover fill), the whole card the open
+button, with a 48px thumbnail in place of the list's 32px, the name, description lines and trailing
 actions. It is the layout [`FileCard`](/docs/components/file-card) is made for. `columns` does not apply.
 
 <ComponentPreview
