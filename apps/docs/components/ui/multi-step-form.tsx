@@ -1,4 +1,4 @@
-// @vegastack multi-step-form@0.25.23 sha256-sjmRupCAdIfW8vqmwK4U/x/CKNVCPJj4tkz/6gx5ilc=
+// @vegastack multi-step-form@0.25.23 sha256-KGdiQjN0IKikEQsgQEpUUAdRTiWQ0qf/wlQ/StkPs+c=
 
 "use client";
 
@@ -590,16 +590,10 @@ export function MultiStepForm({
   // Entrance motion belongs to a move, never to the first paint. Derived during render (the
   // sanctioned "adjust state on a prop change" pattern) so the class lands in the same commit
   // that reveals the step, instead of one frame after it.
-  const [openedOn] = React.useState(() => current?.id);
+  const [openedOn, setOpenedOn] = React.useState(current?.id);
   const [hasMoved, setHasMoved] = React.useState(false);
-  if (
-    !hasMoved &&
-    current &&
-    openedOn !== undefined &&
-    current.id !== openedOn
-  ) {
-    setHasMoved(true);
-  }
+  if (openedOn === undefined && current) setOpenedOn(current.id);
+  else if (!hasMoved && current && current.id !== openedOn) setHasMoved(true);
 
   const isFirst = currentIndex === 0;
   const isLast = currentIndex === visible.length - 1;
