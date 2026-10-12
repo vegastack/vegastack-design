@@ -17784,7 +17784,7 @@
         "whenToUse": "A process a person drives across several screens — signup, checkout, an import wizard, a multi-section record editor — where steps can branch, an advance can be refused, and a committed step must not be walked back into.",
         "whenNotToUse": "Progress the system drives and a person only reads (Stepper alone), free navigation between peer views (Tabs), or one question at a time (Questionnaire).",
         "version": "0.25.23",
-        "integrity": "sha256-AmNta6pzSbRVmgjKGxNRZrFZp16RBXwjxxf9DvhAJ8k="
+        "integrity": "sha256-sjmRupCAdIfW8vqmwK4U/x/CKNVCPJj4tkz/6gx5ilc="
       }
     },
     {

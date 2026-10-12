@@ -17,6 +17,8 @@ preview: multiStepForm
 
 Opt-in URL synchronization pushes intentional step changes and replaces only corrections. Persisted flows retain sealed steps by stable IDs, including across remounts.
 
+A `MultiStepFormStep` mounts the first time its step is current and then stays mounted, hidden, while another step is current: going back keeps typed answers and loaded data, and a move never re-runs the body's effects. Steps never visited are not mounted. The entrance animation plays only when the flow moves, never on the first paint.
+
 ```tsx
 import {
   MultiStepForm,

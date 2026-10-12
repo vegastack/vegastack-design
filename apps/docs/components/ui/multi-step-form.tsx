@@ -1,4 +1,4 @@
-// @vegastack multi-step-form@0.25.23 sha256-AmNta6pzSbRVmgjKGxNRZrFZp16RBXwjxxf9DvhAJ8k=
+// @vegastack multi-step-form@0.25.23 sha256-sjmRupCAdIfW8vqmwK4U/x/CKNVCPJj4tkz/6gx5ilc=
 
 "use client";
 
@@ -237,6 +237,8 @@ interface MultiStepFormContextValue {
   refusalId: string;
   stepperSteps: StepperStep[];
   navigable: boolean;
+  /** True once the flow has left the step it opened on: only then do step bodies animate in. */
+  hasMoved: boolean;
   sealedIndex: number;
   reachable: (index: number) => boolean;
   canGoBack: boolean;
@@ -585,6 +587,20 @@ export function MultiStepForm({
   })();
   const current = visible[currentIndex];
 
+  // Entrance motion belongs to a move, never to the first paint. Derived during render (the
+  // sanctioned "adjust state on a prop change" pattern) so the class lands in the same commit
+  // that reveals the step, instead of one frame after it.
+  const [openedOn] = React.useState(() => current?.id);
+  const [hasMoved, setHasMoved] = React.useState(false);
+  if (
+    !hasMoved &&
+    current &&
+    openedOn !== undefined &&
+    current.id !== openedOn
+  ) {
+    setHasMoved(true);
+  }
+
   const isFirst = currentIndex === 0;
   const isLast = currentIndex === visible.length - 1;
 
@@ -927,6 +943,7 @@ export function MultiStepForm({
     refusalId,
     stepperSteps,
     navigable: resolvedNavigable,
+    hasMoved,
     sealedIndex,
     reachable,
     canGoBack,
@@ -1189,8 +1206,11 @@ export interface MultiStepFormStepProps extends React.ComponentPropsWithRef<"div
 }
 
 /**
- * `MultiStepFormStep` — one step's body. It renders only while its step is current, so the
- * flow mounts exactly one at a time and a mount-triggered entrance replays on every move.
+ * `MultiStepFormStep` — one step's body. It mounts the first time its step becomes current and
+ * then STAYS mounted, hidden while another step is current, so going back keeps what the user
+ * typed, the scroll position and any data the step loaded, and a move never re-runs the body's
+ * effects. Steps never visited are not mounted at all. The entrance animation plays only when
+ * the flow moves — never on the first paint — and replays each time the step is revealed.
  * The content is entirely yours: a `Field` form, a review table, an upload surface, nothing
  * at all.
  *
@@ -1208,19 +1228,28 @@ export function MultiStepFormStep({
   ref,
   ...props
 }: MultiStepFormStepProps) {
-  const { current, overview, layout } =
+  const { current, overview, layout, hasMoved } =
     useMultiStepFormContext("MultiStepFormStep");
-  if (overview || current?.id !== id) return null;
+  const active = !overview && current?.id === id;
+  // Derived during render, so the first reveal mounts the body in the same commit.
+  const [visited, setVisited] = React.useState(false);
+  if (active && !visited) setVisited(true);
+  if (!active && !visited) return null;
   return (
     <div
       ref={ref}
+      hidden={!active}
       data-slot="multi-step-form-step"
       data-step={id}
+      data-active={active ? "" : undefined}
       className={cn(
-        "motion-enter-up flex min-w-0 flex-col gap-4",
+        hasMoved && "motion-enter-up",
+        "flex min-w-0 flex-col gap-4",
         // In a panel the body is the ONE scrolling region — `min-h-0` is what lets a flex
         // child shrink below its content instead of pushing the action row off the frame.
         layout === "panel" && "min-h-0 flex-1 overflow-y-auto",
+        // `hidden` last so it wins over the flex display above.
+        !active && "hidden",
         className,
       )}
       {...props}
