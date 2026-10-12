@@ -1,4 +1,4 @@
-// @vegastack use-animation-replay@0.25.23 sha256-4a70fB8v/abSVOIGhCm16JQgbuy7ezV3hF/Tzh3nUTM=
+// @vegastack use-animation-replay@0.25.24 sha256-IZKfIKVsxS+1i2X6Ul6tGq9UelWsbwMBbI8nphQsGxY=
 
 "use client";
 
