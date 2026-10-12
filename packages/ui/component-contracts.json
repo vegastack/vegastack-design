@@ -23541,6 +23541,10 @@
         "MultiStepFormStep": {
           "attributes": [
             {
+              "name": "data-active",
+              "values": [""]
+            },
+            {
               "name": "data-slot",
               "values": ["multi-step-form-step"]
             },
