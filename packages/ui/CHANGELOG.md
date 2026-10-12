@@ -1,5 +1,12 @@
 # @vegastack/ui
 
+## 0.25.24
+
+### Patch Changes
+
+- [#615](https://github.com/vegastack/vegastack-design/pull/615) [`eff079d`](https://github.com/vegastack/vegastack-design/commit/eff079dd1d97c54a02cfbcfeae7a8e5e49ad7d41) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🔧 **Attachment**: `AttachmentGroup layout="cards"` (so `FileCard` and `UploadCard`) now wear the same surface as `MediaCard` — card background, border, radius, `p-2 pe-3` padding and the subtle hover — instead of a bare transparent row; `MediaCard` exports `RECORD_CARD_SURFACE_CLASS`, the one surface both share. Other layouts are unchanged.
+  [docs](https://design.vegastack.com/docs/components/attachment)
+
 ## 0.25.23
 
 ### Patch Changes
