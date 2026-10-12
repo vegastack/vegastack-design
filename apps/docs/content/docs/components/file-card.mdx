@@ -1,11 +1,11 @@
 ---
 title: File Card
-description: One file as a card row — thumbnail or icon, name, details and a ⋯ menu — that opens the viewer or links to a download or page; UploadCard is its uploading twin.
+description: One file as a card row (thumbnail or icon, name, details, actions) that opens the viewer or links to a download or page; UploadCard is its twin for uploads.
 audience: public
 registry: file-card
 status: stable
 since: 0.25.22
-a11y: listitem card, one named open button or link, named ⋯ menu
+a11y: one named open button or link, named actions menu
 preview: fileCard
 ---
 
@@ -61,8 +61,7 @@ built-in viewer with your own handler.
 
 `href` makes the whole card one link, for a file that opens elsewhere: a file the viewer cannot show
 downloads, an accessory navigates to its page. `download` downloads in place and names the link
-"Download {name}"; `target="_blank"` opens a new tab (with `rel="noopener"`) and names it "Open {name}
-in a new tab". The ⋯ menu stays above the link, clickable on its own. When `file` is set `href` is
+`Download {name}`; `target="_blank"` opens a new tab (with `rel="noopener"`) and names it `Open {name} in a new tab`. The ⋯ menu stays above the link, clickable on its own. When `file` is set `href` is
 ignored.
 
 <ComponentPreview
@@ -90,12 +89,12 @@ never carried by opacity alone.
 ### Actions
 
 `actions` is a `RowAction[]` — the same shape a table row's menu takes — drawn as a ⋯ menu named
-"Actions for {name}". `extra` puts your own controls before it (a "Go to comment" link, a remove
+`Actions for {name}`. `extra` puts your own controls before it (a "Go to comment" link, a remove
 button).
 
 ### Wording
 
-The built-in names and text — "Actions for {name}", "Download {name}", "Retry {name}", "Finishing
+The built-in names and text — `Actions for {name}`, `Download {name}`, `Retry {name}`, "Finishing
 upload" — are overridable through the `labels` prop of `FileCard` and of `UploadCard`, for another
 language or house style.
 
@@ -127,11 +126,10 @@ disables it.
 ## Accessibility
 
 - Each card is a `listitem`: give the `AttachmentGroup` `role="list"` and an `aria-label`.
-- The open button and the link are named for the file and for what activating them does — "Open
-  {name}", "Download {name}", "Open {name} in a new tab" — and the whole card is the target.
-- The ⋯ menu button is named "Actions for {name}"; it and any `extra` control sit above the open button
+- The open button and the link are named for the file and for what activating them does — `Open {name}`, `Download {name}`, `Open {name} in a new tab` — and the whole card is the target.
+- The ⋯ menu button is named `Actions for {name}`; it and any `extra` control sit above the open button
   or link, so each stays separately focusable and clickable.
-- `UploadCard`'s bar is a named progress bar ("Uploading {name}", "Preparing {name}") that announces its
+- `UploadCard`'s bar is a named progress bar (`Uploading {name}`, `Preparing {name}`) that announces its
   percentage; a failure's reason is text, never colour alone.
 - Focus is the global outline from `base.css`, on the open button or link, following the card's corner.
 
