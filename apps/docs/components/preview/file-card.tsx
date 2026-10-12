@@ -27,11 +27,12 @@ const SPEC: FileViewerItem = {
   downloadHref: "/preview/spec-sheet.pdf",
 };
 
-const MENU = [
+/** A Download link to the file's own URL, a divider and Remove. */
+const menuFor = (href: string) => [
   {
     label: "Download",
     icon: <DownloadIcon aria-hidden />,
-    render: <a href="/preview/spec-sheet.pdf" download />,
+    render: <a href={href} download />,
   },
   { type: "separator" as const },
   {
@@ -41,6 +42,8 @@ const MENU = [
     onSelect: () => {},
   },
 ];
+
+const REMOVE = menuFor("").slice(2);
 
 /** Cards in a `cards` group: the viewer opens on click, paging through the files. */
 export function fileCard(): ReactNode {
@@ -54,20 +57,20 @@ export function fileCard(): ReactNode {
             thumb={LANDSCAPE.thumb}
             descriptions={["820 KB", "Asha Rao · 2 days ago"]}
             file={LANDSCAPE}
-            actions={MENU}
+            actions={menuFor(LANDSCAPE.downloadHref)}
           />
           <FileCard
             name={SPEC.name}
             contentType={SPEC.contentType}
             descriptions={["64 KB", "Asha Rao · today"]}
             file={SPEC}
-            actions={MENU}
+            actions={menuFor(SPEC.downloadHref)}
           />
           <FileCard
             name="beam-30deg-with-a-long-photometry-file-name.ies"
             contentType="application/octet-stream"
             descriptions={["4 KB", "Ravi Nair · last week"]}
-            actions={MENU}
+            actions={menuFor("/preview/spec-sheet.pdf")}
           />
         </AttachmentGroup>
       </div>
@@ -94,7 +97,7 @@ export function fileCardLinks(): ReactNode {
             descriptions={["Accessory · opens in a new tab"]}
             href="https://design.vegastack.com"
             target="_blank"
-            actions={MENU.slice(2)}
+            actions={REMOVE}
           />
         </AttachmentGroup>
       </div>
@@ -113,7 +116,7 @@ export function fileCardMuted(): ReactNode {
             contentType="application/pdf"
             descriptions={["Replaced by spec-sheet.pdf"]}
             muted
-            actions={MENU.slice(2)}
+            actions={REMOVE}
           />
         </AttachmentGroup>
       </div>

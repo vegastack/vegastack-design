@@ -27628,6 +27628,15 @@
           }
         },
         {
+          "name": "FileCardLabels",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/file-card.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
           "name": "FileCardProps",
           "kind": "interface",
           "source": "packages/ui/registry/ui/file-card.tsx",
@@ -27652,6 +27661,15 @@
           "ref": {
             "status": "not-applicable",
             "rationale": "A composition that renders an Attachment tile; it has no single host element to target and takes no ref."
+          }
+        },
+        {
+          "name": "UploadCardLabels",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/file-card.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {

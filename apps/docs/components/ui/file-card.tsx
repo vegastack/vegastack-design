@@ -1,4 +1,4 @@
-// @vegastack file-card@0.25.21 sha256-TyYLUOkGoQJ8q0KsxvAobPFf/6MM3uIZKZSErzDTEV8=
+// @vegastack file-card@0.25.21 sha256-NSHwOaduie87DEdVFklWQEYX1o9jtqqk0WHnV32YRaI=
 
 import * as React from "react";
 import { MoreHorizontal, RefreshCwIcon, XIcon } from "lucide-react";
@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/attachment";
 import {
   RowActionMenuItems,
+  pickShortcut,
   type RowAction,
 } from "@/components/ui/data-table-parts";
 import {
@@ -116,6 +117,24 @@ export interface FileCardProps {
    * @default "default"
    */
   size?: React.ComponentProps<typeof Attachment>["size"];
+  /**
+   * Override the built-in link and menu names (for another language or wording). Each is given
+   * the file name.
+   * @default undefined
+   */
+  labels?: FileCardLabels;
+}
+
+/** The names `FileCard` gives its link and menu; override them through `labels`. */
+export interface FileCardLabels {
+  /** The ⋯ menu button. Default: "Actions for {name}". */
+  actions?: (name: string) => string;
+  /** The `download` link. Default: "Download {name}". */
+  download?: (name: string) => string;
+  /** The `target="_blank"` link. Default: "Open {name} in a new tab". */
+  openInNewTab?: (name: string) => string;
+  /** The plain `href` link. Default: "Open {name}". */
+  open?: (name: string) => string;
 }
 
 /**
@@ -152,6 +171,7 @@ export function FileCard({
   extra,
   preview,
   size,
+  labels,
 }: FileCardProps) {
   const src = thumb?.src ?? preview;
   const link = href !== undefined && file === undefined;
@@ -203,10 +223,11 @@ export function FileCard({
               rel={target === "_blank" ? "noopener" : undefined}
               aria-label={
                 download
-                  ? `Download ${name}`
+                  ? (labels?.download?.(name) ?? `Download ${name}`)
                   : target === "_blank"
-                    ? `Open ${name} in a new tab`
-                    : `Open ${name}`
+                    ? (labels?.openInNewTab?.(name) ??
+                      `Open ${name} in a new tab`)
+                    : (labels?.open?.(name) ?? `Open ${name}`)
               }
             />
           }
@@ -218,11 +239,17 @@ export function FileCard({
           {actions.length > 0 ? (
             <DropdownMenu>
               <DropdownMenuTrigger
-                render={<AttachmentAction aria-label={`Actions for ${name}`} />}
+                render={
+                  <AttachmentAction
+                    aria-label={
+                      labels?.actions?.(name) ?? `Actions for ${name}`
+                    }
+                  />
+                }
               >
                 <MoreHorizontal />
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
+              <DropdownMenuContent align="end" onKeyDown={pickShortcut}>
                 <RowActionMenuItems actions={actions} />
               </DropdownMenuContent>
             </DropdownMenu>
@@ -268,6 +295,25 @@ export interface UploadCardProps {
   onCancel: () => void;
   /** Retry after an error. */
   onRetry: () => void;
+  /**
+   * Override the built-in text and names (for another language or wording).
+   * @default undefined
+   */
+  labels?: UploadCardLabels;
+}
+
+/** The text and names `UploadCard` shows; override them through `labels`. */
+export interface UploadCardLabels {
+  /** The line shown once the bytes are up. Default: "Finishing upload". */
+  finishing?: string;
+  /** The progress bar while uploading. Default: "Uploading {name}". */
+  uploading?: (name: string) => string;
+  /** The progress bar while preparing. Default: "Preparing {name}". */
+  preparing?: (name: string) => string;
+  /** The Retry button. Default: "Retry {name}". */
+  retry?: (name: string) => string;
+  /** The Cancel button. Default: "Cancel {name}". */
+  cancel?: (name: string) => string;
 }
 
 /**
@@ -295,6 +341,7 @@ export function UploadCard({
   size,
   finishing = false,
   cancellable = true,
+  labels,
 }: UploadCardProps) {
   const state = error
     ? "error"
@@ -319,12 +366,16 @@ export function UploadCard({
         {error ? (
           <AttachmentDescription>{error}</AttachmentDescription>
         ) : finishing ? (
-          <AttachmentDescription>Finishing upload</AttachmentDescription>
+          <AttachmentDescription>
+            {labels?.finishing ?? "Finishing upload"}
+          </AttachmentDescription>
         ) : (
           <AttachmentProgress
             value={progress}
             aria-label={
-              state === "processing" ? `Preparing ${name}` : `Uploading ${name}`
+              state === "processing"
+                ? (labels?.preparing?.(name) ?? `Preparing ${name}`)
+                : (labels?.uploading?.(name) ?? `Uploading ${name}`)
             }
           />
         )}
@@ -332,13 +383,16 @@ export function UploadCard({
       {/* Retry and Cancel are two 24px targets: a gap keeps each one's centred square its own. */}
       <AttachmentActions className="gap-1">
         {error ? (
-          <AttachmentAction aria-label={`Retry ${name}`} onClick={onRetry}>
+          <AttachmentAction
+            aria-label={labels?.retry?.(name) ?? `Retry ${name}`}
+            onClick={onRetry}
+          >
             <RefreshCwIcon />
           </AttachmentAction>
         ) : null}
         <AttachmentAction
           disabled={finishing || !cancellable}
-          aria-label={`Cancel ${name}`}
+          aria-label={labels?.cancel?.(name) ?? `Cancel ${name}`}
           onClick={onCancel}
         >
           <XIcon />

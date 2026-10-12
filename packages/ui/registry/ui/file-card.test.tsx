@@ -343,3 +343,74 @@ test("UploadCard shows the picked image while uploading, and the type icon on er
   expect(uploading!.dataset.variant).toBe("image");
   expect(failed!.dataset.variant).toBe("icon");
 });
+
+test("labels override the built-in names and text", async () => {
+  const screen = await render(
+    <List>
+      <FileCard
+        name="a.zip"
+        href="/a.zip"
+        download
+        actions={[{ label: "Remove", onSelect: () => {} }]}
+        labels={{
+          download: (n) => `Télécharger ${n}`,
+          actions: (n) => `Actions pour ${n}`,
+        }}
+      />
+      <UploadCard
+        name="b.zip"
+        type="application/zip"
+        progress={null}
+        error="bad"
+        onCancel={() => {}}
+        onRetry={() => {}}
+        labels={{
+          retry: (n) => `Réessayer ${n}`,
+          cancel: (n) => `Annuler ${n}`,
+        }}
+      />
+      <UploadCard
+        name="c.zip"
+        type="application/zip"
+        progress={100}
+        error={null}
+        finishing
+        onCancel={() => {}}
+        onRetry={() => {}}
+        labels={{ finishing: "Terminé" }}
+      />
+    </List>,
+  );
+  await expect
+    .element(screen.getByRole("link", { name: "Télécharger a.zip" }))
+    .toBeVisible();
+  await expect
+    .element(screen.getByRole("button", { name: "Actions pour a.zip" }))
+    .toBeVisible();
+  await expect
+    .element(screen.getByRole("button", { name: "Réessayer b.zip" }))
+    .toBeVisible();
+  await expect
+    .element(screen.getByRole("button", { name: "Annuler b.zip" }))
+    .toBeVisible();
+  await expect.element(screen.getByText("Terminé")).toBeVisible();
+});
+
+test("a menu action's shortcut key picks it", async () => {
+  const onSelect = vi.fn();
+  const screen = await render(
+    <List>
+      <FileCard
+        name="a.zip"
+        actions={[{ label: "Remove", shortcut: "R", onSelect }]}
+      />
+    </List>,
+  );
+  screen.getByRole("button", { name: "Actions for a.zip" }).element().focus();
+  await userEvent.keyboard("{Enter}");
+  await expect
+    .element(screen.getByRole("menuitem", { name: /Remove/ }))
+    .toBeVisible();
+  await userEvent.keyboard("r");
+  expect(onSelect).toHaveBeenCalledTimes(1);
+});

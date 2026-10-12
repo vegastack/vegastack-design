@@ -16255,7 +16255,7 @@
         "whenToUse": "A record's or task's files as a list or grid of cards (put them in AttachmentGroup layout=\"cards\" or list): a thumbnail or type icon, name, size and who/when, a ⋯ menu, opening the viewer or linking to a download or page; UploadCard for the files still uploading.",
         "whenNotToUse": "A square tile grid or a scrolling strip (compose Attachment with orientation=\"vertical\"), or a single inline chip in chat.",
         "version": "0.25.21",
-        "integrity": "sha256-TyYLUOkGoQJ8q0KsxvAobPFf/6MM3uIZKZSErzDTEV8="
+        "integrity": "sha256-NSHwOaduie87DEdVFklWQEYX1o9jtqqk0WHnV32YRaI="
       }
     },
     {
