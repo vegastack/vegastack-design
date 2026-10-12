@@ -10,6 +10,18 @@ npm package versions are listed per entry. This page is generated from the repo'
 
 {/* CHANGELOG:START — generated from /CHANGELOG.md by tooling/sync-changelog.mjs. DO NOT EDIT. */}
 
+## [0.25.25] — October 12, 2026
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.25.24 → 0.25.25.
+
+### 🐛 Fixed
+
+- **Multi-step form**: a step body now stays mounted (hidden) after its first visit, so a move no longer replaces the node, resets its state or re-runs its effects. The entrance animation plays only on a move, never on first paint.
+  [docs](/docs/components/multi-step-form) ·
+  [`15325c6`](https://github.com/VegaStack/vegastack-design/commit/15325c6)
+
 ## [0.25.24] — October 12, 2026
 
 ### 🔧 Changed components

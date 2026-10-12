@@ -1,5 +1,12 @@
 # @vegastack/ui
 
+## 0.25.25
+
+### Patch Changes
+
+- [#616](https://github.com/vegastack/vegastack-design/pull/616) [`15325c6`](https://github.com/vegastack/vegastack-design/commit/15325c60e4ec6e2aaef27f7b01a0fd7727827bcb) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🐛 **Multi-step form**: a step body now stays mounted (hidden) after its first visit, so a move no longer replaces the node, resets its state or re-runs its effects. The entrance animation plays only on a move, never on first paint.
+  [docs](https://design.vegastack.com/docs/components/multi-step-form)
+
 ## 0.25.24
 
 ### Patch Changes
