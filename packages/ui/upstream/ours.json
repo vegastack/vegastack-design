@@ -1,7 +1,7 @@
 {
   "_note": "Every name in packages/ui/registry/ui/ that has NO counterpart in vendor/shadcn/<cli>/ui/. verify-parity.mjs fails on a registry name that is neither upstream-backed nor listed here, so a component cannot appear by accident. Dispositions come from docs/plans/2026-09-18-shadcn-reset/extras.md (66 rows, MK 2026-09-18); hooks and internal parts are not components and are recorded here with their reason.",
   "counts": {
-    "total": 115,
+    "total": 116,
     "fromExtras": 46
   },
   "items": {
@@ -643,6 +643,12 @@
       "family": "display",
       "source": "Regent impact reviews and activity, requested by MK 2026-10-11",
       "rationale": "Upstream ships no inline value diff; a small server-safe composition with no patch."
+    },
+    "file-card": {
+      "disposition": "keep",
+      "family": "media",
+      "source": "Operator brief 2026-10-12 (Regent product view — one file tile for the Tasks attachment panel and product Files, Images and Accessories), requested by MK 2026-10-12",
+      "rationale": "Upstream ships no file card. A fixed composition of our attachment, data-table-parts, dropdown-menu, file-viewer, image and file-kind parts: the Regent app's FileCard and UploadCard promoted so every file list shares one tile; no patch."
     }
   }
 }

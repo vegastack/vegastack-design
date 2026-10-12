@@ -108,6 +108,7 @@
     "access-chip",
     "meta-line",
     "value-change",
+    "file-card",
     "record-chip",
     "record-list",
     "item",

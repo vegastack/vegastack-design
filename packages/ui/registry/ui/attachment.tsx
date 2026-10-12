@@ -1,4 +1,4 @@
-// @vegastack attachment@0.25.21 sha256-Ha4aHKQfUqXKrXyGXCxdxPYqKr8Aag7CNDTEwP2clqM=
+// @vegastack attachment@0.25.21 sha256-aovYZ4yU/Dt8pyacjVkMj28gSQW1T00X6N/So2500mY=
 
 "use client";
 
@@ -478,10 +478,11 @@ function AttachmentGroup({
    * as the container narrows: three on a tablet, two on a phone; `list` — dense full-width rows
    * (a 32px icon or thumbnail, the name, a description line, trailing actions) for a folder's
    * files or an upload queue. In a row, put `AttachmentProgress` inside `AttachmentContent`, under
-   * the title.
+   * the title; `cards` — the same rows in a responsive grid (three columns on a wide container,
+   * two on a tablet, one on a phone) with a 48px thumbnail, for a record's files.
    * @default "scroll"
    */
-  layout?: "scroll" | "grid" | "tiles" | "list";
+  layout?: "scroll" | "grid" | "tiles" | "list" | "cards";
   /**
    * The most tiles a row shows. `tiles`: the grid's column count on a wide container (default
    * 4). `scroll`: sizes each tile so this many fit the row and the rest scroll (without it, tiles
@@ -498,7 +499,7 @@ function AttachmentGroup({
 }) {
   const outer = React.useContext(AttachmentPreviewContext);
   const count =
-    layout === "list"
+    layout === "list" || layout === "cards"
       ? undefined
       : (columns ?? (layout === "tiles" ? 4 : undefined));
   const group = (
@@ -510,18 +511,20 @@ function AttachmentGroup({
         count ? tileColumnClasses[count] : undefined,
         layout === "list"
           ? "flex min-w-0 flex-col gap-0.5 py-1 *:data-[slot=attachment]:w-full *:data-[slot=attachment]:min-w-0 *:data-[slot=attachment]:flex-nowrap *:data-[slot=attachment]:rounded-lg *:data-[slot=attachment]:not-data-[state=error]:border-transparent *:data-[slot=attachment]:bg-transparent **:data-[slot=attachment-media]:w-8 **:data-[slot=attachment-media]:rounded-md [&_[data-slot=attachment-content]_[data-slot=attachment-progress]]:mt-1.5"
-          : layout === "grid"
-            ? "grid min-w-0 grid-cols-[repeat(auto-fill,minmax(min(100%,max(--spacing(72),calc((100%_-_var(--spacing)*6)/3))),1fr))] gap-3 py-1 *:data-[slot=attachment]:w-full *:data-[slot=attachment]:min-w-0 *:data-[slot=attachment]:data-[orientation=vertical]:flex-nowrap **:data-[slot=attachment-media]:aspect-video [&_[data-slot=attachment-media]_img]:aspect-video"
-            : layout === "tiles"
-              ? cn(
-                  tileGridClasses,
-                  "min-w-0 py-1 *:data-[slot=attachment]:w-full *:data-[slot=attachment]:min-w-0 *:data-[slot=attachment]:data-[orientation=vertical]:flex-nowrap",
-                )
-              : cn(
-                  "flex min-w-0 scroll-fade-x snap-x snap-mandatory scroll-px-1 scrollbar-none gap-3 overflow-x-auto overscroll-x-contain py-1 *:data-[slot=attachment]:flex-none *:data-[slot=attachment]:snap-start",
-                  // Sized to the row: `columns` tiles fit, the rest scroll.
-                  count && tileScrollRowClasses,
-                ),
+          : layout === "cards"
+            ? "grid min-w-0 grid-cols-[repeat(auto-fill,minmax(min(100%,max(--spacing(64),calc((100%_-_var(--spacing)*4)/3))),1fr))] gap-x-2 gap-y-0.5 py-1 *:data-[slot=attachment]:w-full *:data-[slot=attachment]:min-w-0 *:data-[slot=attachment]:flex-nowrap *:data-[slot=attachment]:rounded-lg *:data-[slot=attachment]:not-data-[state=error]:border-transparent *:data-[slot=attachment]:bg-transparent **:data-[slot=attachment-media]:w-12 [&_[data-slot=attachment-content]_[data-slot=attachment-progress]]:mt-1.5"
+            : layout === "grid"
+              ? "grid min-w-0 grid-cols-[repeat(auto-fill,minmax(min(100%,max(--spacing(72),calc((100%_-_var(--spacing)*6)/3))),1fr))] gap-3 py-1 *:data-[slot=attachment]:w-full *:data-[slot=attachment]:min-w-0 *:data-[slot=attachment]:data-[orientation=vertical]:flex-nowrap **:data-[slot=attachment-media]:aspect-video [&_[data-slot=attachment-media]_img]:aspect-video"
+              : layout === "tiles"
+                ? cn(
+                    tileGridClasses,
+                    "min-w-0 py-1 *:data-[slot=attachment]:w-full *:data-[slot=attachment]:min-w-0 *:data-[slot=attachment]:data-[orientation=vertical]:flex-nowrap",
+                  )
+                : cn(
+                    "flex min-w-0 scroll-fade-x snap-x snap-mandatory scroll-px-1 scrollbar-none gap-3 overflow-x-auto overscroll-x-contain py-1 *:data-[slot=attachment]:flex-none *:data-[slot=attachment]:snap-start",
+                    // Sized to the row: `columns` tiles fit, the rest scroll.
+                    count && tileScrollRowClasses,
+                  ),
         className,
       )}
       {...props}

@@ -138,6 +138,7 @@ export * from "./message-scroller";
 export * from "./transcript";
 export * from "./meta-line";
 export * from "./value-change";
+export * from "./file-card";
 export * from "./field-grid";
 export * from "./record-chip";
 export * from "./record-list";

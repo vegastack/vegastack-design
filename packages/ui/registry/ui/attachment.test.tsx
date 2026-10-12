@@ -1306,3 +1306,78 @@ test("API-28: a list row click opens the viewer over the group", async () => {
     )
     .toContain("2 of 2");
 });
+
+function CardRow({ name }: { name: string }) {
+  return (
+    <Attachment file={fileOf(name)} role="listitem">
+      <AttachmentMedia>
+        <FileTextIcon />
+      </AttachmentMedia>
+      <AttachmentContent>
+        <AttachmentTitle>{name}</AttachmentTitle>
+        <AttachmentDescription>2 KB · Asha · 2 min ago</AttachmentDescription>
+      </AttachmentContent>
+      <AttachmentActions>
+        <AttachmentAction aria-label={`Remove ${name}`}>
+          <XIcon />
+        </AttachmentAction>
+      </AttachmentActions>
+    </Attachment>
+  );
+}
+
+test.each([
+  [1200, 3],
+  [600, 2],
+  [320, 1],
+])(
+  'API-28: layout="cards" is a grid of list rows with a 48px media box — %ipx wide, %i columns',
+  async (width, columns) => {
+    const screen = await render(
+      <div style={{ width: `${width}px` }}>
+        <AttachmentGroup layout="cards" role="list" aria-label="Files">
+          {["a", "b", "c", "d", "e", "f"].map((n) => (
+            <CardRow key={n} name={`${n}.zip`} />
+          ))}
+        </AttachmentGroup>
+      </div>,
+    );
+    const group = slot(screen.container, "attachment-group")!;
+    expect(group.getAttribute("data-layout")).toBe("cards");
+    // No `columns` cap applies to cards.
+    expect(group.getAttribute("data-columns")).toBeNull();
+    const tiles = slots(screen.container, "attachment");
+    const tops = new Set(
+      tiles.map((tile) => Math.round(tile.getBoundingClientRect().top)),
+    );
+    expect(tops.size).toBe(Math.ceil(tiles.length / columns));
+    expect(group.scrollWidth).toBeLessThanOrEqual(group.clientWidth);
+    expect(
+      Math.round(
+        slot(tiles[0]!, "attachment-media")!.getBoundingClientRect().width,
+      ),
+    ).toBe(48);
+    await expectNoA11yViolations(screen.container);
+  },
+);
+
+test("API-28: a card is a list row — no fill or border at rest, one open button over the whole card", async () => {
+  const screen = await render(
+    <AttachmentGroup layout="cards">
+      <CardRow name="one.zip" />
+      <CardRow name="two.zip" />
+    </AttachmentGroup>,
+  );
+  const [first] = slots(screen.container, "attachment");
+  const style = getComputedStyle(first!);
+  expect(style.backgroundColor).toBe("rgba(0, 0, 0, 0)");
+  expect(style.borderTopColor).toBe("rgba(0, 0, 0, 0)");
+  expect(Number.parseFloat(style.borderTopLeftRadius)).toBeGreaterThan(0);
+  // The whole card is the open button: a click on its name lands on the trigger.
+  const name = screen.getByText("two.zip").element().getBoundingClientRect();
+  expect(
+    document.elementFromPoint(name.left + 4, name.top + name.height / 2),
+  ).toBe(screen.getByRole("button", { name: "Open two.zip" }).element());
+  await screen.getByRole("button", { name: "Open two.zip" }).click();
+  await expect.element(screen.getByRole("dialog")).toBeVisible();
+});

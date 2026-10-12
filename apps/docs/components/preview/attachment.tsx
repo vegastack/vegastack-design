@@ -904,3 +904,42 @@ export function attachmentList(): ReactNode {
     </Wrapper>
   );
 }
+
+/**
+ * Ours (API-28): `layout="cards"` — the list row in a responsive grid (three columns on a wide
+ * container, two on a tablet, one on a phone) with a 48px thumbnail. Each card opens the viewer.
+ */
+export function attachmentCards(): ReactNode {
+  return (
+    <Wrapper>
+      <div className="w-full">
+        <AttachmentGroup layout="cards" role="list" aria-label="Record files">
+          {FILES.map((file) => {
+            const Icon = file.icon;
+            return (
+              <Attachment key={file.id} file={file} role="listitem">
+                <AttachmentMedia variant={Icon ? "icon" : "image"}>
+                  {Icon ? <Icon /> : <img src={file.src ?? ""} alt="" />}
+                </AttachmentMedia>
+                <AttachmentContent>
+                  <AttachmentTitle>{file.name}</AttachmentTitle>
+                  <AttachmentDescription>
+                    {file.meta} · Asha Rao · 2 days ago
+                  </AttachmentDescription>
+                </AttachmentContent>
+                <AttachmentActions>
+                  <AttachmentAction
+                    aria-label={`Download ${file.name}`}
+                    render={<a href={file.downloadHref} download />}
+                  >
+                    <DownloadIcon />
+                  </AttachmentAction>
+                </AttachmentActions>
+              </Attachment>
+            );
+          })}
+        </AttachmentGroup>
+      </div>
+    </Wrapper>
+  );
+}
