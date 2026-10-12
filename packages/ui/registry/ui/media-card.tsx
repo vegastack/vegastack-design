@@ -1,4 +1,4 @@
-// @vegastack media-card@0.25.23 sha256-KNZHHMgyPRiZMBUu+p9DLdYSX0a7cbbuLmw3q6EYav0=
+// @vegastack media-card@0.25.23 sha256-QLR4kDjSvfleaqBcZDiVSwnfS3lHrJzOVqZCLLZdYi0=
 
 "use client";
 
@@ -100,6 +100,14 @@ export interface MediaCardProps extends Omit<
  * column (the list view), so a record's name reads the same in both.
  */
 export const RECORD_TITLE_CLASS = "font-medium";
+
+/**
+ * The surface of a record card — radius, border, background and the subtle hover — shared by
+ * `MediaCard` and `AttachmentGroup layout="cards"` (`FileCard`), so every record tile in a grid
+ * matches. A card with media pads `p-2 pe-3`.
+ */
+export const RECORD_CARD_SURFACE_CLASS =
+  "rounded-lg border border-border bg-card transition-colors hover:bg-accent/50";
 
 function CardLink({
   href,
@@ -230,7 +238,10 @@ export function MediaCard({
       className={cn(
         "group/media-card relative flex min-w-0 text-card-foreground",
         surface &&
-          "rounded-lg border border-border bg-card transition-colors hover:bg-accent/50 has-[[data-slot=media-card-link]:focus-visible]:bg-accent/50",
+          cn(
+            RECORD_CARD_SURFACE_CLASS,
+            "has-[[data-slot=media-card-link]:focus-visible]:bg-accent/50",
+          ),
         lg ? "flex-col overflow-hidden" : "items-center gap-3",
         surface && !lg && (hasMedia ? "p-2 pe-3" : "px-3 py-2.5"),
         className,
