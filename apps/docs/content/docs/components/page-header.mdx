@@ -160,7 +160,8 @@ disclosure on devices that can't hover (see `TruncatedText`):
 
 `titleLines` sets how many lines the title may take before it clips — `2` clamps to two lines —
 and `"none"` lets it wrap freely with no truncation, for record pages whose name is the content.
-An unbroken token still breaks rather than pushing the page sideways.
+An unbroken token — a 170-character file name, a pasted URL — breaks anywhere rather than pushing
+the page sideways, and inside a clamp it breaks too, so the ellipsis still lands.
 
 <ComponentPreview
   name="pageHeaderWrappingTitle"

@@ -28,6 +28,8 @@ import { Toggle, toggleVariants } from "../registry/ui/toggle";
 import { ToggleGroup, ToggleGroupItem } from "../registry/ui/toggle-group";
 import { DirectionProvider } from "../registry/ui/direction";
 import { ToolCallChip } from "../registry/ui/tool-call-chip";
+import { BreadcrumbTrail } from "../registry/ui/breadcrumb-cascade";
+import { PageHeader } from "../registry/ui/page-header";
 import { DataGrid, type DataGridColumn } from "../registry/ui/data-grid";
 import { DataList, type DataListColumn } from "../registry/ui/data-list";
 import { DataListPager } from "../registry/ui/data-list-pager";
@@ -1674,8 +1676,17 @@ const SQUEEZE_CASES: [string, () => React.ReactElement][] = [
   ],
 ];
 
+/**
+ * Widths each case is held at. A header never breaks inside a word (the squeeze once broke
+ * "Products" into "Prod" / "ucts"), so four always-visible columns need their header words —
+ * 245px — and are held from 320px, the narrowest phone, up.
+ */
+const SQUEEZE_CASE_WIDTHS: Record<string, number[]> = {
+  "four always-visible columns": [320],
+};
+
 for (const [label, element] of SQUEEZE_CASES)
-  for (const width of [240, 320])
+  for (const width of SQUEEZE_CASE_WIDTHS[label] ?? [240, 320])
     test(`DataList at ${width}px squeezes a custom render instead of scrolling — ${label}`, async () => {
       const screen = await render(
         <div style={{ width: `${width}px` }}>{element()}</div>,
@@ -1771,8 +1782,16 @@ function controlSpills(root: ParentNode): string[] {
   return problems;
 }
 
+/**
+ * A Button beside two other visible columns needs 288px of header words and kept controls once a
+ * header never breaks inside a word, so it is held from 320px, the narrowest phone, up.
+ */
+const SQUEEZE_CONTROL_WIDTHS: Record<string, number[]> = {
+  "a Button beside two other visible columns": [320, 700],
+};
+
 for (const [label, columns, clickable] of SQUEEZE_CONTROL_CASES)
-  for (const width of [240, 320, 700])
+  for (const width of SQUEEZE_CONTROL_WIDTHS[label] ?? [240, 320, 700])
     for (const dir of ["ltr", "rtl"] as const)
       test(`DataList at ${width}px squeezes text around a control, never the control — ${label}, ${dir}`, async () => {
         if (dir === "rtl") document.documentElement.setAttribute("dir", "rtl");
@@ -1789,14 +1808,18 @@ for (const [label, columns, clickable] of SQUEEZE_CONTROL_CASES)
             </div>,
           );
           await settle();
-          // The long nowrap email outgrows its budget even at 700px: the squeeze is live.
-          await expect
-            .poll(() =>
-              screen.container
-                .querySelector('[data-slot="data-list"]')
-                ?.hasAttribute("data-squeezed"),
-            )
-            .toBe(true);
+          // Merged into the fill cell (or the fill cell itself), the long nowrap email forces the
+          // squeeze at phone widths. At 700px a mergeable email is a FIT column that holds it on
+          // one line, so nothing needs squeezing there.
+          const squeezable = width < 700 || columns[1]?.mobile === "visible";
+          if (squeezable)
+            await expect
+              .poll(() =>
+                screen.container
+                  .querySelector('[data-slot="data-list"]')
+                  ?.hasAttribute("data-squeezed"),
+              )
+              .toBe(true);
           // Both hold at once: the controls keep their label inside their box, and the table
           // still does not scroll — the rows grow taller instead.
           await expect
@@ -1813,7 +1836,8 @@ for (const [label, columns, clickable] of SQUEEZE_CONTROL_CASES)
           const email = screen.container.querySelector<HTMLElement>(
             '[data-slot="data-list"] tbody span.whitespace-nowrap',
           )!;
-          expect(getComputedStyle(email).overflowWrap).toBe("anywhere");
+          if (squeezable)
+            expect(getComputedStyle(email).overflowWrap).toBe("anywhere");
         } finally {
           document.documentElement.removeAttribute("dir");
         }
@@ -2691,6 +2715,193 @@ for (const [name, rowSlot] of Object.entries(HYDRATION_FIXTURES)) {
     }
   });
 }
+
+/**
+ * Fill and fit (Regent, 14-10-2026). One unbroken 170-character product name squeezed EVERY cell
+ * and header, so the headers read "Prod" / "ucts", "Un" / "it", "famil" / "y". The primary column
+ * is the fill column now — it takes the leftover width, wraps anywhere and clamps at two lines —
+ * and every other column is content-sized on one line, its header too, at phone, tablet and
+ * desktop widths, without a horizontal scroll.
+ */
+const FILL_NAME = "X".repeat(170);
+interface FillRow {
+  id: string;
+  name: string;
+  unit: string;
+  family: string;
+  updated: string;
+}
+const FILL_ROWS: FillRow[] = [
+  {
+    id: "a",
+    name: FILL_NAME,
+    unit: "Pieces",
+    family: "Downlights",
+    updated: "2 days ago",
+  },
+  {
+    id: "b",
+    name: "Short name",
+    unit: "Metres",
+    family: "Track",
+    updated: "5 minutes ago",
+  },
+];
+for (const width of [375, 768, 1280])
+  test(`DataList at ${width}px: one unbroken value never breaks a header or a fit cell`, async () => {
+    const screen = await render(
+      <div style={{ width: `${width}px` }}>
+        <DataList
+          aria-label="Products"
+          columns={[
+            { key: "name", header: "Products", sortable: true },
+            { key: "unit", header: "Unit", sortable: true, minWidth: 64 },
+            { key: "family", header: "Product family", minWidth: 96 },
+            { key: "updated", header: "Last updated", minWidth: 96 },
+          ]}
+          data={FILL_ROWS}
+          getRowId={(row) => row.id}
+        />
+      </div>,
+    );
+    await settle();
+    await expectDataSurfacesContained(`fill @${width}`, screen.container, "");
+    const table = screen.container.querySelector<HTMLElement>(
+      '[data-slot="data-list"]',
+    )!;
+    // No column ever strains: fit cells and headers keep their one line.
+    expect(table.hasAttribute("data-strained")).toBe(false);
+    // The most lines any one text node in the element spans.
+    const lineCount = (element: Element) => {
+      let most = 0;
+      const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT);
+      for (let node = walker.nextNode(); node; node = walker.nextNode()) {
+        if (!node.textContent?.trim()) continue;
+        const range = document.createRange();
+        range.selectNodeContents(node);
+        most = Math.max(
+          most,
+          new Set(
+            Array.from(range.getClientRects()).map((rect) =>
+              Math.round(rect.top),
+            ),
+          ).size,
+        );
+      }
+      return most;
+    };
+    for (const head of table.querySelectorAll("thead th"))
+      expect(lineCount(head), `header "${head.textContent}"`).toBe(1);
+    for (const row of table.querySelectorAll("tbody tr")) {
+      const [fill, ...fit] = Array.from(row.querySelectorAll("td"));
+      for (const cell of fit)
+        expect(lineCount(cell), `cell "${cell.textContent}"`).toBe(1);
+      // The fill value clamps at two lines; the rest is in its tooltip.
+      const clamp = fill!.querySelector<HTMLElement>(
+        '[data-slot="truncated-text"]',
+      )!;
+      expect(clamp.getBoundingClientRect().height).toBeLessThanOrEqual(
+        2 * parseFloat(getComputedStyle(clamp).lineHeight) + 1,
+      );
+    }
+    // The fill column takes the room the fit columns leave.
+    const [fillHead, ...fitHeads] = Array.from(
+      table.querySelectorAll<HTMLElement>("thead th"),
+    );
+    for (const head of fitHeads)
+      expect(fillHead!.offsetWidth).toBeGreaterThan(head.offsetWidth);
+  });
+
+/**
+ * Many under-budgeted fit columns: the merge rung takes as many columns as the measured deficit
+ * needs in one step, so 60 of them never take 60 synchronous updates (React stops at 50).
+ */
+test("DataList merges many under-budgeted columns in one step, without an update loop", async () => {
+  const errors = vi.spyOn(console, "error").mockImplementation(() => {});
+  try {
+    const columns: DataListColumn<Record<string, string>>[] = [
+      { key: "name", header: "Name" },
+      ...Array.from({ length: 60 }, (_, index) => ({
+        key: `c${index}`,
+        header: `C${index}`,
+        minWidth: 4,
+      })),
+    ];
+    const row: Record<string, string> = { id: "a", name: "Row" };
+    for (let index = 0; index < 60; index++) row[`c${index}`] = "wide value";
+    const screen = await render(
+      <div style={{ width: "375px" }}>
+        <DataList
+          aria-label="Many"
+          columns={columns}
+          data={[row]}
+          getRowId={(r) => r.id!}
+        />
+      </div>,
+    );
+    await settle();
+    await expectDataSurfacesContained("many columns", screen.container, "");
+    expect(
+      errors.mock.calls.some((call) =>
+        String(call[0]).includes("Maximum update depth"),
+      ),
+    ).toBe(false);
+  } finally {
+    errors.mockRestore();
+  }
+});
+
+/**
+ * The current breadcrumb step shortens with an ellipsis and keeps its full name in a tooltip,
+ * however long and unbroken, and never pushes the header sideways.
+ */
+test("BreadcrumbTrail truncates a long unbroken current step inside a 375px header", async () => {
+  const screen = await render(
+    <div style={{ width: "375px", display: "flex" }}>
+      <BreadcrumbTrail
+        className="min-w-0 flex-1"
+        steps={[
+          { label: "Products", href: "#" },
+          { label: "Downlights", href: "#" },
+          { label: FILL_NAME },
+        ]}
+      />
+    </div>,
+  );
+  await settle();
+  const nav = screen.container.querySelector<HTMLElement>(
+    '[data-slot="breadcrumb-trail"]',
+  )!;
+  expect(nav.scrollWidth).toBeLessThanOrEqual(nav.clientWidth + 1);
+  expect(nav.getBoundingClientRect().right).toBeLessThanOrEqual(
+    screen.container.firstElementChild!.getBoundingClientRect().right + 1,
+  );
+  const current = nav.querySelector<HTMLElement>(
+    '[data-current] [data-slot="truncated-text"]',
+  )!;
+  expect(current.scrollWidth).toBeGreaterThan(current.clientWidth);
+  expect(getComputedStyle(current).textOverflow).toBe("ellipsis");
+});
+
+/** A long unbroken page title wraps inside its header rather than widening the page. */
+test("PageHeader wraps a long unbroken title inside a 375px page", async () => {
+  const screen = await render(
+    <div style={{ width: "375px" }}>
+      <PageHeader title={FILL_NAME} titleLines="none" />
+    </div>,
+  );
+  await settle();
+  const header = screen.container.querySelector<HTMLElement>(
+    '[data-slot="page-header"]',
+  )!;
+  const title = header.querySelector<HTMLElement>(
+    '[data-slot="page-header-title"]',
+  )!;
+  expect(header.scrollWidth).toBeLessThanOrEqual(header.clientWidth + 1);
+  expect(title.getBoundingClientRect().right).toBeLessThanOrEqual(
+    header.getBoundingClientRect().right + 1,
+  );
+});
 
 test("DataList squeezes only when revelation alone cannot fit the table", async () => {
   // A first column whose own one-line value is wider than the whole container: revelation has

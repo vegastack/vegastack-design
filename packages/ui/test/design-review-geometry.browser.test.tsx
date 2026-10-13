@@ -19,8 +19,15 @@ const STEPS = [
 
 const trail = () =>
   document.querySelector<HTMLElement>('[data-slot="breadcrumb-trail"]')!;
-const current = () =>
-  trail().querySelector<HTMLElement>('[data-slot="breadcrumb-page"]')!;
+// The current step's text: the `TruncatedText` inside the page clips (and carries the tooltip).
+const current = () => {
+  const page = trail().querySelector<HTMLElement>(
+    '[data-slot="breadcrumb-page"]',
+  )!;
+  return (
+    page.querySelector<HTMLElement>('[data-slot="truncated-text"]') ?? page
+  );
+};
 const truncated = (el: HTMLElement) => el.scrollWidth > el.clientWidth + 1;
 
 test("BreadcrumbTrail shows every step when it fits", async () => {

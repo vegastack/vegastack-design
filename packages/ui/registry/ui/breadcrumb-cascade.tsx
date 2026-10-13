@@ -1,4 +1,4 @@
-// @vegastack breadcrumb-cascade@0.25.27 sha256-1QlY4oHU/tl+Jin0EyoESXTd7xq6WhdKHyvzUbeRWRQ=
+// @vegastack breadcrumb-cascade@0.25.27 sha256-ATpJkrS8kYXQwiC2GFkGFOhS09/pt9akNWfRNX5mLgQ=
 
 "use client";
 
@@ -16,6 +16,7 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { Button } from "@/components/ui/button";
+import { TruncatedText } from "@/components/ui/truncated-text";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -322,7 +323,8 @@ export interface BreadcrumbTrailProps extends Omit<
 /**
  * `BreadcrumbTrail` — a breadcrumb that stays on one line. When the steps do not fit, the middle
  * steps fold into a "…" menu first (the oldest first, keeping the root and the current page's
- * parent), and only when nothing is left to fold does the current step shorten with an ellipsis.
+ * parent), and only when nothing is left to fold does the current step shorten with an ellipsis —
+ * its full name in a tooltip on hover and focus, so a long record name never overflows the header.
  * Each step is measured at its natural width, so the trail folds exactly as much as it must.
  *
  * @example
@@ -392,7 +394,13 @@ export function BreadcrumbTrail({
     if (index === last) {
       const current = renderCurrent?.(step, index);
       if (current !== undefined) return current;
-      return <BreadcrumbPage className="truncate">{step.label}</BreadcrumbPage>;
+      // The current step is the one that shortens. `TruncatedText` puts the full name in a
+      // tooltip on hover and keyboard focus (a tap-toggle on touch) once it is clipped.
+      return (
+        <BreadcrumbPage className="block min-w-0">
+          <TruncatedText>{step.label}</TruncatedText>
+        </BreadcrumbPage>
+      );
     }
     const custom = renderStep?.(step, index);
     if (custom !== undefined) return custom;

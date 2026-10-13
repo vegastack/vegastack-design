@@ -809,7 +809,8 @@
         "@vegastack/breadcrumb",
         "@vegastack/button",
         "@vegastack/dropdown-menu",
-        "@vegastack/use-drag-reorder"
+        "@vegastack/use-drag-reorder",
+        "@vegastack/truncated-text"
       ],
       "files": [
         {
@@ -822,7 +823,7 @@
         "whenToUse": "A file browser's trail: drop rows onto a parent folder's crumb, or jump to a sibling folder from a segment's menu.",
         "whenNotToUse": "A plain location trail (Breadcrumb alone), or primary navigation.",
         "version": "0.25.27",
-        "integrity": "sha256-1QlY4oHU/tl+Jin0EyoESXTd7xq6WhdKHyvzUbeRWRQ="
+        "integrity": "sha256-ATpJkrS8kYXQwiC2GFkGFOhS09/pt9akNWfRNX5mLgQ="
       }
     },
     {
@@ -1441,7 +1442,7 @@
         "whenToUse": "Record tables that need grouping, inline cell editing, multi-key sort, column management, or 10k+ rows via virtualization — the CRM pipeline-table tier.",
         "whenNotToUse": "Simple presentational record lists — DataList is lighter and still the right default; kanban views (Board).",
         "version": "0.25.27",
-        "integrity": "sha256-DNBKt1B+p6MOAp8LNFSSKimoLpRwg7wHQXM1PLxbG1A="
+        "integrity": "sha256-UksylUxt9nCH9cRSRh/XSc8L9oIPvkCGlX+VNjklabg="
       }
     },
     {
@@ -1486,7 +1487,7 @@
         "whenToUse": "A list of records as a table, a card grid or board lanes (view) with typed columns, selection, click-to-sort, loading/empty states, keyset paging through loadMore, rows as links, sections, thumbnails and a row-actions column.",
         "whenNotToUse": "Full-parity grids with grouping/editing/virtualization (DataGrid), or a simple static table (Table).",
         "version": "0.25.27",
-        "integrity": "sha256-WK5+RHL/DQG7F+tdMEyKUVQxmWSUCxa9ejxU9XAwGJs="
+        "integrity": "sha256-xowRXpVLN1o/rkXX6OPK15iJi7kDJBHzk10UUCTXZRs="
       }
     },
     {
@@ -1674,7 +1675,7 @@
         "whenToUse": "Installed automatically with DataList or DataGrid; import it directly when building a bespoke table that should share their sort header, selection cells and column rules.",
         "whenNotToUse": "A plain presentational table (Table alone), or as a table component in its own right — these are parts, not a renderer.",
         "version": "0.25.27",
-        "integrity": "sha256-FI3mpv/qSlpmnAK7yCSVBbJN5ZFABnKAUu8f7n9aiLw="
+        "integrity": "sha256-VdopgBxGry3kd8JPjF93o3bsawOyTnVbyHK3MLLWjkE="
       }
     },
     {
@@ -2349,7 +2350,7 @@
         "whenToUse": "Wrap any form control to give it a label, description and error message: inside a Field the control gets its label, aria-describedby ids and aria-invalid from Base UI Field with no ids to wire.",
         "whenNotToUse": "A bare control with its own label already wired — Field is for the label+message+a11y scaffold.",
         "version": "0.25.27",
-        "integrity": "sha256-34rfSd8r6MjJLOsMUIIbtwB+8TvvnqrBeyPEio74dCg="
+        "integrity": "sha256-R8m5Cu9C0G7SZSmqAD98kKHyiSEEJJD053AgbAKszTE="
       }
     },
     {
@@ -16595,7 +16596,7 @@
         "whenToUse": "The header band at the top of a page — title plus back/breadcrumb nav (backRender for a framework link), actions, favorite, and a meta row that can hold badges and inline pickers.",
         "whenNotToUse": "App-shell chrome (top nav/sidebar) or a section heading inside a page.",
         "version": "0.25.27",
-        "integrity": "sha256-i4TJobPB5yjFebBI3E+2bd3HoM768B1ZUMNbU/O4ZhQ="
+        "integrity": "sha256-kmUXKAdVa7zITaKsqnsanWOYF/CSI7TnGPlSEVT3OpI="
       }
     },
     {

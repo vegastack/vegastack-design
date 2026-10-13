@@ -692,7 +692,7 @@ column never survives a wide earlier one.
 | `mobile`    | When the column no longer fits                                                                           |
 | ----------- | -------------------------------------------------------------------------------------------------------- |
 | `"merge"`   | **Default.** Stacks under the primary (first) column's value, with its header as a screen-reader prefix. |
-| `"visible"` | Never hides — the column is essential; if the columns still do not fit, the table is squeezed (below).   |
+| `"visible"` | Never hides — the column is essential; if the columns still do not fit, the table is strained (below).   |
 | `"hidden"`  | Drops the column; "N columns hidden" appears under the table, and the table is described by that line.   |
 
 ```tsx
@@ -734,13 +734,25 @@ line.
   file="components/preview/data-list.tsx"
 />
 
-If a value is still wider than its column once revelation has run — a long unbroken email, a
-one-line mono identifier in the first column, several `"visible"` columns — the table is
-**squeezed** (`data-squeezed` on the `<table>`): every cell and sort label may then break anywhere
-instead of scrolling. The check runs before paint and is re-taken only when the width, the columns
-or the data change.
+**Fill and fit.** The primary (first) column is the **fill** column: it takes the width the
+others leave, its text wraps — anywhere, so one long unbroken name never widens the table — and a
+plain value (no `render`, or a `render` that returns a string) clamps at two lines with an
+ellipsis, the full value in its tooltip — or, when the first cell is the row's own link or button,
+in its `title`, so no second control nests inside the row's. Every other column is a **fit** column: sized to its
+content and kept on one line, and every header stays on one line too. A short value or label
+never breaks.
 
-The squeeze reaches inside a custom `render` too: the text in a cell wraps, whatever it says for
+If the table still overflows once revelation has run — a long unbroken value inside a custom
+`render` of the first column, a one-line mono identifier there — it is **squeezed**
+(`data-squeezed` on the `<table>`): the fill cell may then break anywhere instead of scrolling. Fit
+cells and headers are never squeezed. If it **still** overflows, or the fit columns leave the fill
+column narrower than its own `minWidth`, one more column merges into the primary cell, from the
+right, until it fits. Only when nothing is left to merge — the primary and `"visible"` columns —
+and it still overflows is it **strained** (`data-strained`): the fit cells release as well, and a
+header wraps between its words, never inside one. The checks run before paint and are re-taken
+only when the width, the columns or the data change.
+
+The squeeze reaches inside a custom `render` too: the text in the fill cell wraps, whatever it says for
 itself, so a `truncate` span or a `whitespace-nowrap` row breaks across lines instead of ellipsing
 (an auto-layout table cannot truncate, so the ellipsis was never available there). Parts that are
 text grow taller to hold a wrapped label: a `Badge` (and `badgeVariants()` on your own element, and
@@ -762,7 +774,9 @@ These keep the one-line posture they give themselves (every VegaStack control se
 `role="button"` element has no fixed box, so it simply wraps with its cell. The text around a kept
 part breaks instead, and the row grows taller. An icon cannot shrink either.
 
-**A kept part wider than the container is the one thing the squeeze cannot fit.** Controls are never
+**A kept part or a header word wider than the container is what nothing can fit.** A header never
+breaks inside a word, so keep header words short enough to sit side by side in the narrowest
+container you support. Controls are never
 wrapped, so keep the controls and fixed-size parts of every always-shown column small enough to fit,
 side by side on one line, in the narrowest container you support; an outline `Button` whose label
 alone is wider than the table leaves it nothing to squeeze, and the table scrolls sideways. Put
@@ -897,10 +911,10 @@ render functions keep working unchanged.
 
 ### Wrapping, numbers and the mono face
 
-`DataList` cells wrap by default: a long value breaks inside its own column instead of forcing the
-whole table to scroll. Upstream's `TableCell` is `whitespace-nowrap`, so `DataList` spells
-`whitespace-normal` out per cell rather than relying on an inherited default. Two column shapes are
-unreadable when broken, so they opt back out automatically:
+The first column wraps; every other column stays on one line, sized to its content (see Fill and
+fit, above). Upstream's `TableCell` is `whitespace-nowrap`, so `DataList` spells the posture out per
+cell rather than relying on an inherited default. In the first column two shapes are unreadable
+when broken, so they stay on one line there too, until the table is squeezed:
 
 - `align: "end"` — the numeric convention. Give a number column `className: "tabular-nums"` too,
   so its digits line up in the regular font.
@@ -909,15 +923,16 @@ unreadable when broken, so they opt back out automatically:
   only: the header is a label and stays in the sans face. A count, a date or an amount is a number,
   not an identifier — use `align: "end"` with `tabular-nums` instead.
 
-`nowrap` overrides the inference in either direction: `nowrap: true` pins a prose column, and
-`nowrap: false` lets an end-aligned column wrap.
+`nowrap` overrides the default in either direction: `nowrap: true` pins the first column to one
+line, and `nowrap: false` lets another column wrap between words (never inside one), sharing the
+leftover width with the first column instead of being sized to its content.
 
 ```tsx
 const columns: DataListColumn<Invoice>[] = [
+  { key: "subject", header: "Subject" }, // the fill column: wraps, clamps at two lines
   { key: "ref", header: "Ref", mono: true }, // an identifier: one line, mono
-  { key: "subject", header: "Subject" }, // wraps
   { key: "amount", header: "Amount", align: "end", className: "tabular-nums" }, // a number: one line
-  { key: "note", header: "Note", align: "end", nowrap: false }, // end-aligned but wrapping
+  { key: "note", header: "Note", nowrap: false }, // a fit column that wraps between words
 ];
 ```
 

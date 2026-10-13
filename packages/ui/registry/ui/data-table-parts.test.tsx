@@ -12,6 +12,7 @@ import {
   cycleSort,
   DEFAULT_COLUMN_MIN_WIDTH,
   EmptyRow,
+  headerCellClass,
   isNowrapColumn,
   revealColumns,
   SELECTION_COLUMN_WIDTH,
@@ -187,15 +188,16 @@ test("alignClass maps the three alignments and defaults to start", () => {
   expect(alignClass("end")).toBe("text-end");
 });
 
-test("cells WRAP by default; figures and mono values opt in to nowrap (D18)", () => {
-  expect(isNowrapColumn({ key: "name" })).toBe(false);
-  expect(isNowrapColumn({ key: "amount", align: "end" })).toBe(true);
-  expect(isNowrapColumn({ key: "id", mono: true })).toBe(true);
+test("fit columns stay on one line; the fill column wraps unless it is a figure or a code", () => {
+  // A FIT column (every column but the primary) is content-sized and never wraps by default.
+  expect(isNowrapColumn({ key: "role" })).toBe(true);
+  // The FILL column (the primary) wraps, except the two shapes unreadable when broken.
+  expect(isNowrapColumn({ key: "name" }, true)).toBe(false);
+  expect(isNowrapColumn({ key: "amount", align: "end" }, true)).toBe(true);
+  expect(isNowrapColumn({ key: "id", mono: true }, true)).toBe(true);
   // An explicit value always wins over the inference, in BOTH directions.
-  expect(isNowrapColumn({ key: "note", nowrap: true })).toBe(true);
-  expect(isNowrapColumn({ key: "amount", align: "end", nowrap: false })).toBe(
-    false,
-  );
+  expect(isNowrapColumn({ key: "note", nowrap: false })).toBe(false);
+  expect(isNowrapColumn({ key: "note", nowrap: true }, true)).toBe(true);
 });
 
 /**
@@ -216,12 +218,14 @@ const SQUEEZE_KEEP =
   "[class~='group/navigation-menu-trigger'],[class~='group/tabs-list'],[class~='group/stepper-node']," +
   "[data-slot=avatar],[data-slot=kbd])";
 
-test("columnCellClass carries alignment, wrap posture and the mono face", () => {
+test("columnCellClass carries alignment, the fill/fit posture and the mono face", () => {
   // The wrap posture is spelled out in BOTH directions since Batch 5 of the shadcn reset: upstream's
   // `TableCell` is `whitespace-nowrap` by default (LAY-6 resolves as **shadcn**), so a wrapping
   // column has to say `whitespace-normal` or `cn`'s merge leaves upstream's class standing.
-  expect(columnCellClass({ key: "name" })).toBe(
-    "text-start whitespace-normal in-data-squeezed:whitespace-normal in-data-squeezed:wrap-anywhere " +
+  // The FILL cell takes the leftover width, wraps anywhere, and is the only cell the squeeze
+  // releases.
+  expect(columnCellClass({ key: "name" }, { fill: true })).toBe(
+    "text-start whitespace-normal wrap-anywhere in-data-squeezed:whitespace-normal in-data-squeezed:wrap-anywhere " +
       `in-data-squeezed:**:not-[${SQUEEZE_KEEP},${SQUEEZE_KEEP}_*]:whitespace-normal ` +
       `in-data-squeezed:**:not-[${SQUEEZE_KEEP},${SQUEEZE_KEEP}_*]:wrap-anywhere ` +
       // Fixed-size content that states no posture of its own is put back on one line: the cell's
@@ -233,6 +237,22 @@ test("columnCellClass carries alignment, wrap posture and the mono face", () => 
       "in-data-squeezed:**:[&[class~='group/button'][class~='hover:underline']]:min-h-6 " +
       "last:has-[[role=checkbox],[role=switch],[role=radio]]:pe-3",
   );
+  // A FIT cell is content-sized and on one line, and the squeeze never reaches it: releasing
+  // every cell broke short values mid-word the moment one long value overflowed.
+  const fit = columnCellClass({ key: "role" });
+  expect(fit.startsWith("text-start w-0 whitespace-nowrap ")).toBe(true);
+  expect(fit).toContain("in-data-strained:w-auto");
+  expect(fit).not.toContain("in-data-squeezed");
+  // Only the last rung (`data-strained`: nothing left to merge, still overflowing) releases it,
+  // with the squeeze's own keep list.
+  expect(fit).toContain(
+    `in-data-strained:**:not-[${SQUEEZE_KEEP},${SQUEEZE_KEEP}_*]:wrap-anywhere`,
+  );
+  // A fit column that opts out wraps between words only, and shares the leftover width.
+  const prose = columnCellClass({ key: "note", nowrap: false });
+  expect(prose).toContain("whitespace-normal");
+  expect(prose).not.toMatch(/(^|\s)wrap-anywhere/);
+  expect(prose).not.toMatch(/(^|\s)w-0/);
   expect(columnCellClass({ key: "amount", align: "end" })).toContain(
     "whitespace-nowrap",
   );
@@ -240,6 +260,19 @@ test("columnCellClass carries alignment, wrap posture and the mono face", () => 
   expect(mono).toContain("font-mono");
   expect(mono).toContain("tabular-nums");
   expect(mono).toContain("whitespace-nowrap");
+});
+
+test("a header never breaks: one line, no squeeze release, fill or fit", () => {
+  for (const fill of [true, false]) {
+    const head = headerCellClass({ key: "products" }, { fill });
+    expect(head).toContain("whitespace-nowrap");
+    expect(head).not.toContain("wrap-anywhere");
+    expect(head).not.toContain("in-data-squeezed");
+    // On the last rung it may wrap between words, still never inside one.
+    expect(head).toContain("in-data-strained:whitespace-normal");
+  }
+  expect(headerCellClass({ key: "unit" })).toContain("w-0");
+  expect(headerCellClass({ key: "name" }, { fill: true })).not.toContain("w-0");
 });
 
 test("mergedValueClass wraps whatever the column's own posture, in the column's own face", () => {
@@ -292,7 +325,7 @@ test("the squeeze keeps every exported variant helper with a fixed box, by its c
   // size (`h-N`, `size-N`, under any variant). A consumer can put that output on any element — the
   // docs prescribe `<a className={buttonVariants()}>` — so the squeeze must recognise the output
   // itself, not a slot or a role that element may not carry (review round 4).
-  const kept = columnCellClass({ key: "x" });
+  const kept = columnCellClass({ key: "x" }, { fill: true });
   const census: string[] = [];
   const missing: string[] = [];
   for (const [file, source] of Object.entries(REGISTRY_SOURCES)) {

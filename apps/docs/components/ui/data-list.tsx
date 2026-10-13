@@ -1,4 +1,4 @@
-// @vegastack data-list@0.25.27 sha256-WK5+RHL/DQG7F+tdMEyKUVQxmWSUCxa9ejxU9XAwGJs=
+// @vegastack data-list@0.25.27 sha256-xowRXpVLN1o/rkXX6OPK15iJi7kDJBHzk10UUCTXZRs=
 
 "use client";
 
@@ -24,6 +24,7 @@ import {
 } from "@/components/ui/empty";
 import {
   columnCellClass,
+  DEFAULT_COLUMN_MIN_WIDTH,
   EmptyRow,
   mergedValueClass,
   offscreenSortSummary,
@@ -47,7 +48,10 @@ import {
   type RowActionItem,
   type RowActionSeparator,
 } from "@/components/ui/data-table-parts";
-import { TruncationFocusProvider } from "@/components/ui/truncated-text";
+import {
+  TruncatedText,
+  TruncationFocusProvider,
+} from "@/components/ui/truncated-text";
 import { Board, type BoardColumn } from "@/components/ui/board";
 import { FilterBar } from "@/components/ui/filter-bar";
 import { MediaCard, RECORD_TITLE_CLASS } from "@/components/ui/media-card";
@@ -1111,14 +1115,21 @@ function RowLink({
  * `DataGrid`: once the measured container is too narrow, overflow columns stack
  * into the primary (first) column's cell, `mobile: "hidden"` columns drop and
  * are counted in a visible hint the table is described by, and
- * `mobile: "visible"` columns never hide. If a value is still wider than its
- * column's budget once that has run (a long unbroken email, a one-line mono
- * id, several `visible` columns), the table is squeezed (`data-squeezed`):
- * every cell, and the text a custom `render` puts in it, may then break
- * anywhere rather than scroll — a `truncate` span wraps, a Badge grows taller.
- * Controls and fixed-size content (a Button or any native control, an Avatar, a
- * Kbd, an icon) are left whole, so they keep their label inside their box and
- * the row grows taller instead. A
+ * `mobile: "visible"` columns never hide. **Fill and fit:** the primary (first)
+ * column is the FILL column — it takes the width the others leave, its text
+ * wraps anywhere, and a plain value clamps at two lines with the full value in
+ * its tooltip. Every other column is a FIT column, sized to its content and kept
+ * on one line, and a header never breaks. If the table still overflows once
+ * revelation has run (a long unbroken value inside a custom render, a one-line
+ * mono id), it is squeezed (`data-squeezed`): the fill cell, and the text a
+ * custom `render` puts in it, may then break anywhere — a `truncate` span wraps,
+ * a Badge grows taller. Controls and fixed-size content (a Button or any native
+ * control, an Avatar, a Kbd, an icon) are left whole. If it STILL overflows, or
+ * the fill column is left narrower than its own `minWidth`, one more column
+ * merges into the primary cell, until it fits. Only when nothing is left to
+ * merge (the primary and `mobile: "visible"` columns) and it still overflows is
+ * it strained (`data-strained`): the fit cells release as well, and a header
+ * wraps between its words — never inside one. A
  * merged value always wraps, whatever the primary column's own posture, so a
  * `mono` or end-aligned first column cannot pin the stack to one line. When the active sort's column is merged or
  * hidden, a "Sorted by …" line under the table (which describes it) keeps the
@@ -1305,44 +1316,102 @@ export function DataList<T>({
     () => mergeRefs(measureContainer, ref),
     [measureContainer, ref],
   );
+  // The last rungs. Revelation budgets columns by `minWidth`, but a value can still be wider
+  // than its budget — a long unbroken name, a one-line mono identifier in the first column, a
+  // fit column whose one-line values outgrow theirs. Measured in a layout effect, so each lands
+  // before paint:
+  //  1. SQUEEZE — the table overflows its container: the FILL (primary) cell, and the text a
+  //     custom render puts in it, releases its one-line posture and may break anywhere. Fit
+  //     cells and headers never do — they would break short labels mid-word.
+  //  2. MERGE — it still overflows, or the fill column is left narrower than its own budget:
+  //     one more column merges into the primary cell (`extraOverflow`), repeated until it fits
+  //     or only the primary and `visible` columns are left.
+  //  3. STRAIN — still overflowing with nothing left to merge (several `visible` columns of
+  //     unbreakable content): the fit cells release too, and headers wrap between words.
+  // The verdict is keyed to the layout inputs by identity and only ever advances for one key —
+  // never re-measured back down — so it cannot oscillate at a boundary width.
+  // Section state: declared here because the fit verdict is keyed on it — collapsing the section
+  // that held the wide value must let the table re-fit with fewer merges.
+  const [groups, commitGroups] = useControlledState<GroupState>(
+    groupState,
+    defaultGroupState ?? EMPTY_GROUP_STATE,
+    onGroupStateChange,
+  );
+  const fitKey = React.useMemo(
+    () => ({}),
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- the identity IS the signal
+    [containerWidth, allColumns, rawData, loading, selectable, groups],
+  );
+  const [fitState, setFitState] = React.useState<{
+    key: object;
+    squeezed: boolean;
+    extra: number;
+    strained: boolean;
+  } | null>(null);
+  const fit =
+    fitState?.key === fitKey
+      ? fitState
+      : { key: fitKey, squeezed: false, extra: 0, strained: false };
+  const { squeezed, strained } = fit;
   const { visibleColumns, mergedColumns, hiddenColumns } = React.useMemo(
     () =>
       revealColumns(
         allColumns,
         containerWidth,
         selectable ? SELECTION_COLUMN_WIDTH : 0,
+        fit.extra,
       ),
-    [allColumns, containerWidth, selectable],
+    [allColumns, containerWidth, selectable, fit.extra],
   );
-  // The last rung. Revelation budgets columns by `minWidth`, but a value can
-  // still be wider than its budget — a long unbroken email, a one-line mono
-  // identifier in the first column. If the table overflows its container once
-  // revelation has run, the table is SQUEEZED: every cell (and sort label)
-  // releases its one-line posture and may break anywhere, which an auto-layout
-  // table can always fit. Measured in a layout effect, so it lands before
-  // paint. The verdict is keyed to the layout inputs by identity and re-taken
-  // only when one of them changes — never by re-measuring its own result — so
-  // it cannot oscillate at a boundary width.
-  const layoutKey = React.useMemo(
-    () => ({}),
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- the identity IS the signal
-    [
-      containerWidth,
-      visibleColumns,
-      mergedColumns,
-      rawData,
-      loading,
-      selectable,
-    ],
-  );
-  const [squeezedFor, setSqueezedFor] = React.useState<object | null>(null);
-  const squeezed = squeezedFor === layoutKey;
   React.useLayoutEffect(() => {
-    if (squeezed || containerWidth == null) return;
-    const container = tableNode.current?.parentElement;
-    if (container && container.scrollWidth > container.clientWidth + 1)
-      setSqueezedFor(layoutKey);
-  }, [layoutKey, squeezed, containerWidth]);
+    if (containerWidth == null) return;
+    const table = tableNode.current;
+    const container = table?.parentElement;
+    if (!table || !container) return;
+    const overflowing = container.scrollWidth > container.clientWidth + 1;
+    // The fill column's header cell: after the selection head when there is one.
+    const fillHead = table.tHead?.rows[0]?.cells[selectable ? 1 : 0];
+    const fillBudget = Math.min(
+      allColumns[0]?.minWidth ?? DEFAULT_COLUMN_MIN_WIDTH,
+      containerWidth - (selectable ? SELECTION_COLUMN_WIDTH : 0),
+    );
+    // Starved: the table already spans its container and the fit columns still leave the fill
+    // column less than its budget. A table narrower than its container is never starved — its
+    // fill value is simply short.
+    const starved =
+      fillHead != null &&
+      visibleColumns.length > 1 &&
+      table.getBoundingClientRect().width + 1 >= container.clientWidth &&
+      fillHead.getBoundingClientRect().width + 1 < fillBudget;
+    if (!overflowing && !starved) return;
+    if (overflowing && !fit.squeezed) {
+      setFitState({ ...fit, squeezed: true });
+      return;
+    }
+    // Merge as many columns as the measured deficit needs in ONE step, from the right — one per
+    // render would take a synchronous update per column and could hit React's nested-update limit.
+    const heads = Array.from(table.tHead?.rows[0]?.cells ?? []).slice(
+      selectable ? 1 : 0,
+    );
+    const deficit = Math.max(
+      container.scrollWidth - container.clientWidth,
+      starved && fillHead
+        ? fillBudget - fillHead.getBoundingClientRect().width
+        : 0,
+    );
+    let take = 0;
+    let freed = 0;
+    for (let index = visibleColumns.length - 1; index > 0; index--) {
+      if (visibleColumns[index]!.mobile === "visible") continue;
+      take++;
+      freed += heads[index]?.getBoundingClientRect().width ?? 0;
+      if (freed >= deficit) break;
+    }
+    if (take > 0) setFitState({ ...fit, extra: fit.extra + take });
+    // 3. STRAIN — nothing is left to merge and it still overflows: the fit cells release too.
+    else if (overflowing && !fit.strained)
+      setFitState({ ...fit, strained: true });
+  });
 
   // Sort state — controlled when `sort` is provided (even as null), else internal.
   const [activeSort, commitSort] = useControlledState<SortState | null>(
@@ -1645,7 +1714,26 @@ export function DataList<T>({
           />
         )}
         {visibleColumns.map((col, colIdx) => {
-          const value = renderCell(col, row, index, id, isSelected);
+          const raw = renderCell(col, row, index, id, isSelected);
+          // The fill (primary) cell clamps a plain value at two lines. The full value is the
+          // clipped text's tooltip (and its tap-toggle on touch) — except inside the row's own
+          // link or button, where a second control would nest and a tap would also open the row:
+          // there the clamp carries a `title`, and the record the row opens shows it whole. A
+          // custom render owns its own.
+          const plain =
+            colIdx === 0 &&
+            (typeof raw === "string" || typeof raw === "number");
+          const value = !plain ? (
+            raw
+          ) : linkFirstCell || injectRowButton ? (
+            <span className="line-clamp-2" title={String(raw)}>
+              {raw}
+            </span>
+          ) : (
+            <TruncatedText lines={2} className="min-h-0">
+              {raw}
+            </TruncatedText>
+          );
           const content = col.thumbnail ? (
             <span
               data-slot="data-list-thumbnail-cell"
@@ -1674,7 +1762,7 @@ export function DataList<T>({
             <TableCell
               key={col.key}
               className={cn(
-                columnCellClass(col),
+                columnCellClass(col, { fill: colIdx === 0 }),
                 // The first column is the record's title: the grid card's title weight, so a
                 // name reads the same in the list and the grid (`RECORD_TITLE_CLASS`).
                 colIdx === 0 && RECORD_TITLE_CLASS,
@@ -1775,11 +1863,6 @@ export function DataList<T>({
 
   // Sections: one <tbody> per non-empty section, in the order the host lists them; rows whose
   // section is not listed follow in a headerless body so nothing silently disappears.
-  const [groups, commitGroups] = useControlledState<GroupState>(
-    groupState,
-    defaultGroupState ?? EMPTY_GROUP_STATE,
-    onGroupStateChange,
-  );
   const sectionGroups = React.useMemo(() => {
     if (!sections || !getRowSection) return null;
     const byId = new Map<string, number[]>();
@@ -2116,6 +2199,7 @@ export function DataList<T>({
         aria-describedby={tableDescribedBy}
         aria-rowcount={loadMore?.hasMore ? -1 : undefined}
         data-squeezed={squeezed ? "" : undefined}
+        data-strained={strained ? "" : undefined}
         data-density={density}
         {...tableProps}
       >
@@ -2129,11 +2213,12 @@ export function DataList<T>({
                 disabled={loading || rowIds.length === 0}
               />
             )}
-            {visibleColumns.map((col) => (
+            {visibleColumns.map((col, colIdx) => (
               <SortableHead
                 key={col.key}
                 data-slot="data-list-head"
                 column={col}
+                fill={colIdx === 0}
                 direction={
                   activeSort?.key === col.key ? activeSort.direction : null
                 }

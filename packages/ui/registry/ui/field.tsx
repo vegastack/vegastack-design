@@ -1,8 +1,15 @@
-// @vegastack field@0.25.27 sha256-34rfSd8r6MjJLOsMUIIbtwB+8TvvnqrBeyPEio74dCg=
+// @vegastack field@0.25.27 sha256-R8m5Cu9C0G7SZSmqAD98kKHyiSEEJJD053AgbAKszTE=
 
 "use client";
 
-import { createContext, useContext, useMemo, useState } from "react";
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { cva, type VariantProps } from "class-variance-authority";
 import { Field as FieldPrimitive } from "@base-ui/react/field";
 import { cn } from "@vegastack/design";
@@ -201,6 +208,127 @@ function FieldAction({ className, ...props }: React.ComponentProps<"div">) {
   );
 }
 
+/** Props accepted by `FieldCounter`. */
+interface FieldCounterProps extends Omit<
+  React.ComponentProps<"span">,
+  "children"
+> {
+  /** The field's current value; its length is counted the way `maxLength` counts it. */
+  value: string;
+  /** The limit — the same number as the control's own `maxLength`. */
+  maxLength: number;
+  /**
+   * The share of `maxLength` at which the counter appears, from 0 to 1. Below it nothing shows.
+   * @default 0.8
+   */
+  threshold?: number;
+}
+
+type FieldCounterBand = "below" | "near" | "limit";
+
+function counterBand(
+  length: number,
+  maxLength: number,
+  threshold: number,
+): FieldCounterBand {
+  if (length >= maxLength) return "limit";
+  return length >= maxLength * threshold ? "near" : "below";
+}
+
+/**
+ * The character counter of a text field. It sits at the end of the label row (`FieldHeader`), so
+ * it takes no room under the control, and shows only once the value nears the limit (`92/100`,
+ * from `threshold` of `maxLength`), in the destructive ink at the limit. Inside a `Field` it is a
+ * field description, so the control's `aria-describedby` names it while it shows. Screen readers
+ * hear it only when it crosses a threshold — "8 characters left", then "Character limit
+ * reached" — never on every keystroke.
+ *
+ * @example
+ * <Field>
+ *   <FieldHeader>
+ *     <FieldLabel htmlFor="bio">Bio</FieldLabel>
+ *     <FieldCounter value={bio} maxLength={160} />
+ *   </FieldHeader>
+ *   <Textarea id="bio" maxLength={160} value={bio} onChange={(e) => setBio(e.target.value)} />
+ * </Field>
+ */
+function FieldCounter({
+  value,
+  maxLength,
+  threshold = 0.8,
+  className,
+  ...props
+}: FieldCounterProps) {
+  const inField = useContext(FieldScope) !== false;
+  const length = value.length;
+  const band = counterBand(length, maxLength, threshold);
+  const remaining = Math.max(0, maxLength - length);
+  // The polite message changes only when the band does, so a screen reader hears the counter at
+  // its thresholds and never per keystroke. The first render announces nothing.
+  const [message, setMessage] = useState("");
+  const previous = useRef(band);
+  useEffect(() => {
+    if (previous.current === band) return;
+    previous.current = band;
+    setMessage(
+      band === "limit"
+        ? "Character limit reached"
+        : band === "near"
+          ? `${remaining} ${remaining === 1 ? "character" : "characters"} left`
+          : "",
+    );
+    // `remaining` is read at the crossing only.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [band]);
+  const counter =
+    band === "below" ? null : (
+      <>
+        <span aria-hidden="true">
+          {length}/{maxLength}
+        </span>
+        <span className="sr-only">
+          {length} of {maxLength} characters
+        </span>
+      </>
+    );
+  const shared = {
+    "data-slot": "field-counter",
+    "data-state": band,
+    className: cn(
+      "ms-auto shrink-0 text-xs font-normal text-muted-foreground tabular-nums data-[state=limit]:text-destructive-text",
+      className,
+    ),
+  };
+  return (
+    <>
+      {counter == null ? null : inField ? (
+        <FieldPrimitive.Description
+          render={<span />}
+          {...shared}
+          // Base UI types the part as its default `<p>`; it renders the `<span>` above.
+          {...(props as React.ComponentProps<
+            typeof FieldPrimitive.Description
+          >)}
+        >
+          {counter}
+        </FieldPrimitive.Description>
+      ) : (
+        <span {...shared} {...props}>
+          {counter}
+        </span>
+      )}
+      <span
+        data-slot="field-counter-status"
+        role="status"
+        aria-live="polite"
+        className="sr-only"
+      >
+        {message}
+      </span>
+    </>
+  );
+}
+
 function FieldTitle({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
@@ -338,5 +466,7 @@ export {
   FieldTitle,
   FieldHeader,
   FieldAction,
+  FieldCounter,
   useFieldScope,
 };
+export type { FieldCounterProps };

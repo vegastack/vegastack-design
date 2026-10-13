@@ -23,25 +23,34 @@
 #     exposes the enclosing Field's identity, which `RadioGroup` reads. `FieldTitle`
 #     takes its own `data-slot="field-title"`, so the Base UI label is the one `field-label`
 #     in a Field (plan Task 1, audit D1 B13).
-#   additions: `FieldDescription variant="footnote"` (#270) and the `FieldHeader` / `FieldAction`
-#     label row (a label with a trailing field-level action on its baseline) are additive parts
-#     upstream does not ship; they change no upstream class or behaviour.
+#   additions: `FieldDescription variant="footnote"` (#270), the `FieldHeader` / `FieldAction`
+#     label row (a label with a trailing field-level action on its baseline) and `FieldCounter`
+#     (a character counter at the end of that row, shown near `maxLength`, a field description
+#     inside a Field, announced politely only at its thresholds) are additive parts upstream
+#     does not ship; they change no upstream class or behaviour.
 #   cn: `import { cn } from "cn"` becomes `@vegastack/design` — our npm layer owns `cn` (DOC-2).
 #   formatting: the repository formatter (prettier defaults: semicolons, trailing commas)
 #               reflows the file, and `registry-stamp.mjs` writes the provenance header the
 #               three-copy model needs (DOC-1); those hunks carry no decision of their own.
 diff --git a/field.tsx b/field.tsx
-index 8bb6199..030a70a 100644
+index 8bb6199..d22b742 100644
 --- a/field.tsx
 +++ b/field.tsx
-@@ -1,11 +1,39 @@
+@@ -1,11 +1,46 @@
 -"use client"
 +"use client";
  
 -import { useMemo } from "react"
 -import { cva, type VariantProps } from "class-variance-authority"
 -import { cn } from "cn"
-+import { createContext, useContext, useMemo, useState } from "react";
++import {
++  createContext,
++  useContext,
++  useEffect,
++  useMemo,
++  useRef,
++  useState,
++} from "react";
 +import { cva, type VariantProps } from "class-variance-authority";
 +import { Field as FieldPrimitive } from "@base-ui/react/field";
 +import { cn } from "@vegastack/design";
@@ -80,7 +89,7 @@ index 8bb6199..030a70a 100644
  
  function FieldSet({ className, ...props }: React.ComponentProps<"fieldset">) {
    return (
-@@ -13,11 +41,11 @@ function FieldSet({ className, ...props }: React.ComponentProps<"fieldset">) {
+@@ -13,11 +48,11 @@ function FieldSet({ className, ...props }: React.ComponentProps<"fieldset">) {
        data-slot="field-set"
        className={cn(
          "flex flex-col gap-4 has-[>[data-slot=checkbox-group]]:gap-3 has-[>[data-slot=radio-group]]:gap-3",
@@ -94,7 +103,7 @@ index 8bb6199..030a70a 100644
  }
  
  function FieldLegend({
-@@ -31,11 +59,11 @@ function FieldLegend({
+@@ -31,11 +66,11 @@ function FieldLegend({
        data-variant={variant}
        className={cn(
          "mb-1.5 font-medium data-[variant=label]:text-sm data-[variant=legend]:text-base",
@@ -108,7 +117,7 @@ index 8bb6199..030a70a 100644
  }
  
  function FieldGroup({ className, ...props }: React.ComponentProps<"div">) {
-@@ -44,15 +72,15 @@ function FieldGroup({ className, ...props }: React.ComponentProps<"div">) {
+@@ -44,15 +79,15 @@ function FieldGroup({ className, ...props }: React.ComponentProps<"div">) {
        data-slot="field-group"
        className={cn(
          "group/field-group @container/field-group flex w-full flex-col gap-5 data-[slot=checkbox-group]:gap-3 *:data-[slot=field-group]:gap-4",
@@ -127,7 +136,7 @@ index 8bb6199..030a70a 100644
    {
      variants: {
        orientation: {
-@@ -66,23 +94,34 @@ const fieldVariants = cva(
+@@ -66,23 +101,34 @@ const fieldVariants = cva(
      defaultVariants: {
        orientation: "vertical",
      },
@@ -168,7 +177,7 @@ index 8bb6199..030a70a 100644
  }
  
  function FieldContent({ className, ...props }: React.ComponentProps<"div">) {
-@@ -91,56 +130,111 @@ function FieldContent({ className, ...props }: React.ComponentProps<"div">) {
+@@ -91,56 +137,232 @@ function FieldContent({ className, ...props }: React.ComponentProps<"div">) {
        data-slot="field-content"
        className={cn(
          "group/field-content flex flex-1 flex-col gap-0.5 leading-snug",
@@ -196,9 +205,10 @@ index 8bb6199..030a70a 100644
          "has-[>[data-slot=field]]:w-full has-[>[data-slot=field]]:flex-col",
 -        className
 +        className,
-+      )}
-+      {...props}
-+    />
+       )}
+       {...props}
+     />
+-  )
 +  );
 +}
 +
@@ -240,10 +250,130 @@ index 8bb6199..030a70a 100644
 +      className={cn(
 +        "-my-1 ms-auto flex shrink-0 items-center gap-2",
 +        className,
-       )}
-       {...props}
-     />
--  )
++      )}
++      {...props}
++    />
++  );
++}
++
++/** Props accepted by `FieldCounter`. */
++interface FieldCounterProps extends Omit<
++  React.ComponentProps<"span">,
++  "children"
++> {
++  /** The field's current value; its length is counted the way `maxLength` counts it. */
++  value: string;
++  /** The limit — the same number as the control's own `maxLength`. */
++  maxLength: number;
++  /**
++   * The share of `maxLength` at which the counter appears, from 0 to 1. Below it nothing shows.
++   * @default 0.8
++   */
++  threshold?: number;
++}
++
++type FieldCounterBand = "below" | "near" | "limit";
++
++function counterBand(
++  length: number,
++  maxLength: number,
++  threshold: number,
++): FieldCounterBand {
++  if (length >= maxLength) return "limit";
++  return length >= maxLength * threshold ? "near" : "below";
++}
++
++/**
++ * The character counter of a text field. It sits at the end of the label row (`FieldHeader`), so
++ * it takes no room under the control, and shows only once the value nears the limit (`92/100`,
++ * from `threshold` of `maxLength`), in the destructive ink at the limit. Inside a `Field` it is a
++ * field description, so the control's `aria-describedby` names it while it shows. Screen readers
++ * hear it only when it crosses a threshold — "8 characters left", then "Character limit
++ * reached" — never on every keystroke.
++ *
++ * @example
++ * <Field>
++ *   <FieldHeader>
++ *     <FieldLabel htmlFor="bio">Bio</FieldLabel>
++ *     <FieldCounter value={bio} maxLength={160} />
++ *   </FieldHeader>
++ *   <Textarea id="bio" maxLength={160} value={bio} onChange={(e) => setBio(e.target.value)} />
++ * </Field>
++ */
++function FieldCounter({
++  value,
++  maxLength,
++  threshold = 0.8,
++  className,
++  ...props
++}: FieldCounterProps) {
++  const inField = useContext(FieldScope) !== false;
++  const length = value.length;
++  const band = counterBand(length, maxLength, threshold);
++  const remaining = Math.max(0, maxLength - length);
++  // The polite message changes only when the band does, so a screen reader hears the counter at
++  // its thresholds and never per keystroke. The first render announces nothing.
++  const [message, setMessage] = useState("");
++  const previous = useRef(band);
++  useEffect(() => {
++    if (previous.current === band) return;
++    previous.current = band;
++    setMessage(
++      band === "limit"
++        ? "Character limit reached"
++        : band === "near"
++          ? `${remaining} ${remaining === 1 ? "character" : "characters"} left`
++          : "",
++    );
++    // `remaining` is read at the crossing only.
++    // eslint-disable-next-line react-hooks/exhaustive-deps
++  }, [band]);
++  const counter =
++    band === "below" ? null : (
++      <>
++        <span aria-hidden="true">
++          {length}/{maxLength}
++        </span>
++        <span className="sr-only">
++          {length} of {maxLength} characters
++        </span>
++      </>
++    );
++  const shared = {
++    "data-slot": "field-counter",
++    "data-state": band,
++    className: cn(
++      "ms-auto shrink-0 text-xs font-normal text-muted-foreground tabular-nums data-[state=limit]:text-destructive-text",
++      className,
++    ),
++  };
++  return (
++    <>
++      {counter == null ? null : inField ? (
++        <FieldPrimitive.Description
++          render={<span />}
++          {...shared}
++          // Base UI types the part as its default `<p>`; it renders the `<span>` above.
++          {...(props as React.ComponentProps<
++            typeof FieldPrimitive.Description
++          >)}
++        >
++          {counter}
++        </FieldPrimitive.Description>
++      ) : (
++        <span {...shared} {...props}>
++          {counter}
++        </span>
++      )}
++      <span
++        data-slot="field-counter-status"
++        role="status"
++        aria-live="polite"
++        className="sr-only"
++      >
++        {message}
++      </span>
++    </>
 +  );
  }
  
@@ -293,7 +423,7 @@ index 8bb6199..030a70a 100644
  }
  
  function FieldSeparator({
-@@ -148,7 +242,7 @@ function FieldSeparator({
+@@ -148,7 +370,7 @@ function FieldSeparator({
    className,
    ...props
  }: React.ComponentProps<"div"> & {
@@ -302,7 +432,7 @@ index 8bb6199..030a70a 100644
  }) {
    return (
      <div
-@@ -156,7 +250,7 @@ function FieldSeparator({
+@@ -156,7 +378,7 @@ function FieldSeparator({
        data-content={!!children}
        className={cn(
          "relative -my-2 h-5 text-sm group-data-[variant=outline]/field-group:-mb-2",
@@ -311,7 +441,7 @@ index 8bb6199..030a70a 100644
        )}
        {...props}
      >
-@@ -170,7 +264,7 @@ function FieldSeparator({
+@@ -170,7 +392,7 @@ function FieldSeparator({
          </span>
        )}
      </div>
@@ -320,7 +450,7 @@ index 8bb6199..030a70a 100644
  }
  
  function FieldError({
-@@ -179,49 +273,54 @@ function FieldError({
+@@ -179,49 +401,54 @@ function FieldError({
    errors,
    ...props
  }: React.ComponentProps<"div"> & {
@@ -389,12 +519,14 @@ index 8bb6199..030a70a 100644
  }
  
  export {
-@@ -235,4 +334,7 @@ export {
+@@ -235,4 +462,9 @@ export {
    FieldSet,
    FieldContent,
    FieldTitle,
 -}
 +  FieldHeader,
 +  FieldAction,
++  FieldCounter,
 +  useFieldScope,
 +};
++export type { FieldCounterProps };

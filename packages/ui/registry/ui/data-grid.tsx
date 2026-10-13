@@ -1,4 +1,4 @@
-// @vegastack data-grid@0.25.27 sha256-DNBKt1B+p6MOAp8LNFSSKimoLpRwg7wHQXM1PLxbG1A=
+// @vegastack data-grid@0.25.27 sha256-UksylUxt9nCH9cRSRh/XSc8L9oIPvkCGlX+VNjklabg=
 
 "use client";
 
@@ -902,7 +902,7 @@ export function DataGrid<T>({
               // clips its overflow — an outward focus outline would be cut off,
               // so it is pulled inside (SP-03).
               className={cn(
-                columnCellClass(column),
+                columnCellClass(column, { fill: isPrimary }),
                 "focus-visible:-outline-offset-2",
               )}
             >
@@ -987,7 +987,7 @@ export function DataGrid<T>({
           disabled={loading || visibleIds.length === 0}
         />
       ) : null}
-      {visibleColumns.map((column) => {
+      {visibleColumns.map((column, columnIndex) => {
         const entryIndex = activeSort.findIndex(
           (entry) => entry.key === column.key,
         );
@@ -999,6 +999,7 @@ export function DataGrid<T>({
             aria-colindex={ariaColIndexByKey.get(column.key)}
             data-slot="data-grid-head"
             column={column}
+            fill={columnIndex === 0}
             direction={entry?.direction ?? null}
             order={entry && activeSort.length > 1 ? entryIndex + 1 : undefined}
             onSort={(event) => handleSort(column.key, event.shiftKey)}
