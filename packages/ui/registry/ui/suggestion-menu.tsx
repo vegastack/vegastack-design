@@ -1,4 +1,4 @@
-// @vegastack suggestion-menu@0.25.26 sha256-9CNLM1TwLxwLmAtUR1rV8/MqAhVXepQehyVvMOHU0dg=
+// @vegastack suggestion-menu@0.25.26 sha256-32wHurqRliDmBRI7YgSW1LaPOxVEY4uNT0iiOtctvdg=
 
 "use client";
 
@@ -89,16 +89,16 @@ export interface SuggestionMenuProps extends Omit<
   /** A click on a row picks it. */
   onSelect: (index: number) => void;
   /**
-   * Shown instead of the rows (a search in flight, an error). With no rows and no status, the
-   * menu shows `emptyMessage`.
+   * Shown instead of the rows (a search in flight, an error), and announced politely. With no
+   * rows and no status, the menu shows (and announces) `emptyMessage`.
    * @default undefined
    */
-  status?: React.ReactNode;
+  status?: string;
   /**
    * What an empty list says.
    * @default "No results"
    */
-  emptyMessage?: React.ReactNode;
+  emptyMessage?: string;
   /**
    * A search is running: the rows on show are about to change (`aria-busy` on the listbox).
    * @default false
@@ -267,12 +267,13 @@ export function SuggestionMenu({
 
   const showRows = options.length > 0 && status == null;
   const message = showRows ? null : (status ?? emptyMessage);
+  const open = anchor !== null;
 
   // The message is announced through a region mounted (empty) with the menu, outside the busy
   // listbox — a status that mounts already filled, or changes under `aria-busy`, may go unspoken.
   React.useEffect(() => {
-    if (typeof message === "string" && message) announce(message);
-  }, [message, announce]);
+    if (open && message) announce(message);
+  }, [open, message, announce]);
 
   React.useLayoutEffect(() => {
     if (localRef.current && anchor) place(localRef.current, anchor);
