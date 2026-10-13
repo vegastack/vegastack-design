@@ -369,3 +369,59 @@ export function searchableSelectPeople(): ReactNode {
     </Wrapper>
   );
 }
+
+interface Product {
+  id: string;
+  name: string;
+}
+
+/** Product names as people enter them: long, and differing only at the end. */
+const PRODUCTS: Product[] = [
+  {
+    id: "pearl-nd",
+    name: "Alpha Trimless 73 Standard 8 W Ra>80 3000K 36° White Pearl black Non-dimmable",
+  },
+  {
+    id: "pearl-dali",
+    name: "Alpha Trimless 73 Standard 8 W Ra>80 3000K 36° White Pearl black DALI dimmable",
+  },
+  { id: "sku", name: "ALPHA-TRIMLESS-73-STD-8W-RA80-3000K-36D-WPB-ND-REV2" },
+];
+
+/**
+ * API-35: `wrap` shows the whole value. The first trigger keeps the default single line and cuts the
+ * name off; the second grows a line at a time, and its options wrap in the list too.
+ */
+export function searchableSelectWrap(): ReactNode {
+  const [cut, setCut] = React.useState<Product | null>(PRODUCTS[0]!);
+  const [whole, setWhole] = React.useState<Product | null>(PRODUCTS[0]!);
+  return (
+    <Wrapper className="flex-col items-stretch gap-6">
+      <Field className="w-full max-w-72">
+        <FieldLabel>Made from (default)</FieldLabel>
+        <SearchableSelect<Product>
+          items={PRODUCTS}
+          value={cut}
+          onValueChange={setCut}
+          itemToKey={(p) => p.id}
+          itemToStringLabel={(p) => p.name}
+          searchLabel="Search products"
+          placeholder="Choose a product"
+        />
+      </Field>
+      <Field className="w-full max-w-72">
+        <FieldLabel>Made from (wrap)</FieldLabel>
+        <SearchableSelect<Product>
+          items={PRODUCTS}
+          value={whole}
+          onValueChange={setWhole}
+          itemToKey={(p) => p.id}
+          itemToStringLabel={(p) => p.name}
+          searchLabel="Search products"
+          placeholder="Choose a product"
+          wrap
+        />
+      </Field>
+    </Wrapper>
+  );
+}

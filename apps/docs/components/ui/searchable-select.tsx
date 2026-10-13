@@ -1,4 +1,4 @@
-// @vegastack searchable-select@0.25.25 sha256-YHJptNtr/S0oV57WSX3Lg6L65QIxCqrnXN51/Qrs1vo=
+// @vegastack searchable-select@0.25.25 sha256-sO8a78b7vjzSOC4kAGcCC9rFZpa/ewuxv9ZZKFsL0rw=
 
 "use client";
 
@@ -280,6 +280,15 @@ export interface SearchableSelectProps<
    * @default 'outline'
    */
   variant?: "outline" | "ghost";
+  /**
+   * Show the whole selected value: the trigger grows a line at a time from its fixed height
+   * instead of cutting the value off, and a long option wraps in the list rather than running out
+   * of the panel. For a long user-entered name — a product, a task, a customer — in a dialog,
+   * sheet or popover. A long unbroken word breaks anywhere. The person contract's one-line name
+   * and email are unchanged.
+   * @default false
+   */
+  wrap?: boolean;
   /** Additional classes merged onto the popup panel — e.g. `min-w-64` when an inline trigger is
    * narrower than its options.
    * @default undefined
@@ -445,6 +454,7 @@ export function SearchableSelect<
   required = false,
   size = "default",
   variant = "outline",
+  wrap = false,
   contentClassName,
   open,
   onOpenChange,
@@ -561,6 +571,7 @@ export function SearchableSelect<
         value={item}
         data-slot={itemSlot}
         disabled={reason !== undefined}
+        className={wrap ? "wrap-anywhere" : undefined}
       >
         {description !== undefined ? (
           <ItemContent>
@@ -603,6 +614,8 @@ export function SearchableSelect<
           : placeholder);
   const showClear = clearable && hasValue;
   const ghost = variant === "ghost";
+  // One truncated line, or with `wrap` the whole value (LAY-11: `min-w-0` either way).
+  const valueClass = wrap ? "min-w-0" : "min-w-0 truncate";
 
   return (
     <div
@@ -610,6 +623,7 @@ export function SearchableSelect<
       data-slot={slot}
       data-size={size}
       data-variant={variant}
+      data-wrap={wrap ? "" : undefined}
       className={cn(
         "relative min-w-0",
         ghost ? "w-fit" : "w-full",
@@ -660,6 +674,13 @@ export function SearchableSelect<
                 size === "sm" && "text-sm",
                 ghost &&
                   "border-transparent bg-transparent shadow-none hover:border-input dark:bg-transparent",
+                // `wrap`: the trigger's fixed height becomes its minimum, and the value runs onto
+                // as many lines as it needs; one line still measures the fixed height.
+                wrap &&
+                  cn(
+                    "h-auto text-start whitespace-normal wrap-anywhere",
+                    size === "sm" ? "min-h-7 py-0.5" : "min-h-8 py-1",
+                  ),
                 className,
               )}
               data-slot={`${slot}-trigger`}
@@ -675,13 +696,11 @@ export function SearchableSelect<
                   : [];
               if (renderTriggerValue)
                 return (
-                  <span className="min-w-0 truncate">
-                    {renderTriggerValue(list)}
-                  </span>
+                  <span className={valueClass}>{renderTriggerValue(list)}</span>
                 );
               if (list.length === 0)
                 return (
-                  <span className="min-w-0 truncate text-muted-foreground">
+                  <span className={cn(valueClass, "text-muted-foreground")}>
                     {placeholder}
                   </span>
                 );
@@ -695,7 +714,7 @@ export function SearchableSelect<
                       className="data-[size=sm]:size-5"
                     />
                   ) : null}
-                  <span className="min-w-0 truncate">
+                  <span className={valueClass}>
                     {isMultiple ? valueText(list) : face(list[0]!)}
                   </span>
                 </>

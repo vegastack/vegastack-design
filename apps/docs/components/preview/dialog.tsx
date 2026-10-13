@@ -1,6 +1,6 @@
 "use client";
 
-import type { ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import { Wrapper } from "./wrapper";
 // Copied INTO apps/docs via `shadcn add @vegastack/dialog` (dogfoods the registry) → auto-scanned.
 import { Button } from "@/components/ui/button";
@@ -18,6 +18,7 @@ import {
 import { DirectionProvider } from "@/components/ui/direction";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import { SearchableSelect } from "@/components/ui/searchable-select";
 
 /**
  * Every fixture stays CLOSED at rest: the trigger is the component's real entry point, and the
@@ -332,6 +333,55 @@ export function dialogScrollingBody(): ReactNode {
           </DialogBody>
           <DialogFooter showCloseButton closeLabel="Cancel">
             <Button type="submit">Save changes</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </Wrapper>
+  );
+}
+
+/** A product name as people enter it: long, and differing only at the end. */
+const LONG_NAME =
+  "Alpha Trimless 73 Standard 8 W Ra>80 3000K 36° White Pearl black Non-dimmable";
+
+/**
+ * LAY-17 and TYP-19: a long name in a dialog. The title wraps on snug lines, the picked name wraps
+ * in a `SearchableSelect wrap` field that stays inside the popup, and a file name with no spaces
+ * breaks inside the description instead of running past the edge.
+ */
+export function dialogLongNames(): ReactNode {
+  const [product, setProduct] = useState<string | null>(LONG_NAME);
+  return (
+    <Wrapper>
+      <Dialog>
+        <DialogTrigger render={<Button variant="outline" />}>
+          Create variant
+        </DialogTrigger>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Create a variant of {LONG_NAME}</DialogTitle>
+            <DialogDescription>
+              Copies the specs and the datasheet
+              ALPHA-TRIMLESS-73-STD-8W-RA80-3000K-36D-WPB-ND-REV2-DATASHEET.pdf.
+            </DialogDescription>
+          </DialogHeader>
+          <Field>
+            <FieldLabel>Made from</FieldLabel>
+            <SearchableSelect<string>
+              items={[LONG_NAME]}
+              value={product}
+              onValueChange={setProduct}
+              itemToKey={(name) => name}
+              itemToStringLabel={(name) => name}
+              searchLabel="Search products"
+              wrap
+            />
+          </Field>
+          <DialogFooter>
+            <DialogClose render={<Button variant="secondary" />}>
+              Cancel
+            </DialogClose>
+            <Button>Continue</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

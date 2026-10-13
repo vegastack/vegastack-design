@@ -1,5 +1,5 @@
 # component: dialog
-# decisions: A11Y-9, API-21, BRD-1, DOC-1, DOC-2, FOC-13, OVL-13, OVL-16, OVL-18, VOI-1
+# decisions: A11Y-9, API-21, BRD-1, DOC-1, DOC-2, FOC-13, OVL-13, OVL-16, OVL-18, VOI-1, LAY-17, TYP-19
 # hunks:
 #   FOC-13: `DialogContent` passes `initialFocus` (overridable), which picks the first field or
 #     control in the content and never the close ×, else the popup itself, so opening a dialog does
@@ -33,12 +33,20 @@
 #     `rounded-b-xl border-t bg-muted/50 p-4` band; it sits in the popup's own `p-4` with no divider.
 #     The stack below `sm` and `sm:justify-end` stay upstream's. The `showCloseButton` close is
 #     `variant="secondary"`, not `outline`: secondary actions in overlays are secondary.
+#   LAY-17 (MK 2026-10-13, Regent long-names review): `DialogContent` takes `grid-cols-1` (one
+#     `minmax(0, 1fr)` column) in place of the grid's implicit `auto` column, so a no-wrap child —
+#     a select trigger showing a long name — can no longer widen the column past the popup and push
+#     the field and the footer out of it; and `wrap-break-word`, so a long unbroken word breaks
+#     inside the popup. `break-word` moves no intrinsic width. A `DialogBody` popup is a flex column
+#     (API-21), where the grid column does not apply and nothing changes.
+#   TYP-19 (MK 2026-10-13): `DialogTitle` is `leading-snug` instead of `leading-none`, so the
+#     lines of a title that wraps (one carrying a long name) do not collide.
 #   cn: `import { cn } from "cn"` becomes `@vegastack/design` — our npm layer owns `cn` (DOC-2).
 #   formatting: the repository formatter (prettier defaults: semicolons, trailing commas)
 #               reflows the file, and `registry-stamp.mjs` writes the provenance header the
 #               three-copy model needs (DOC-1); those hunks carry no decision of their own.
 diff --git a/dialog.tsx b/dialog.tsx
-index 0b42f3f..f8b53a8 100644
+index 0b42f3f..f4091be 100644
 --- a/dialog.tsx
 +++ b/dialog.tsx
 @@ -1,26 +1,41 @@
@@ -158,7 +166,7 @@ index 0b42f3f..f8b53a8 100644
          className={cn(
 -          "fixed top-1/2 start-1/2 z-50 grid w-full max-w-[calc(100%-2rem)] -translate-x-1/2 rtl:translate-x-1/2 -translate-y-1/2 gap-4 rounded-xl bg-popover p-4 text-sm text-popover-foreground ring-1 ring-foreground/10 duration-100 outline-none sm:max-w-sm data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95",
 -          className
-+          "fixed top-1/2 start-1/2 z-50 grid w-full max-w-[calc(100%-2rem)] -translate-x-1/2 rtl:translate-x-1/2 -translate-y-1/2 gap-4 rounded-xl bg-popover p-4 text-sm text-popover-foreground border border-border duration-100 outline-none sm:max-w-sm data-[size=sm]:sm:max-w-xs data-[size=md]:sm:max-w-lg data-[size=lg]:sm:max-w-2xl data-[size=xl]:sm:max-w-5xl has-data-[slot=dialog-body]:flex has-data-[slot=dialog-body]:max-h-[calc(100%-2rem)] has-data-[slot=dialog-body]:flex-col data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95",
++          "fixed top-1/2 start-1/2 z-50 grid w-full max-w-[calc(100%-2rem)] grid-cols-1 -translate-x-1/2 rtl:translate-x-1/2 -translate-y-1/2 gap-4 rounded-xl bg-popover p-4 text-sm wrap-break-word text-popover-foreground border border-border duration-100 outline-none sm:max-w-sm data-[size=sm]:sm:max-w-xs data-[size=md]:sm:max-w-lg data-[size=lg]:sm:max-w-2xl data-[size=xl]:sm:max-w-5xl has-data-[slot=dialog-body]:flex has-data-[slot=dialog-body]:max-h-[calc(100%-2rem)] has-data-[slot=dialog-body]:flex-col data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95",
 +          className,
          )}
          {...props}
@@ -241,11 +249,13 @@ index 0b42f3f..f8b53a8 100644
  }
  
  function DialogTitle({ className, ...props }: DialogPrimitive.Title.Props) {
-@@ -123,11 +182,11 @@ function DialogTitle({ className, ...props }: DialogPrimitive.Title.Props) {
+@@ -122,12 +181,12 @@ function DialogTitle({ className, ...props }: DialogPrimitive.Title.Props) {
+     <DialogPrimitive.Title
        data-slot="dialog-title"
        className={cn(
-         "font-heading text-base leading-none font-medium",
+-        "font-heading text-base leading-none font-medium",
 -        className
++        "font-heading text-base leading-snug font-medium",
 +        className,
        )}
        {...props}

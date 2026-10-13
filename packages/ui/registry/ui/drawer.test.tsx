@@ -508,6 +508,14 @@ test("OVL-21: flush restores upstream's edge-to-edge sheet", async () => {
   expect(classes).toContain("data-[swipe-direction=right]:border-s");
 });
 
+test("LAY-17: the drawer breaks a long unbroken word inside itself", async () => {
+  const screen = await render(<Example swipeDirection="right" />);
+  await openDrawer(screen);
+  expect((popup() as HTMLElement).className.split(" ")).toContain(
+    "wrap-break-word",
+  );
+});
+
 test("OVL-21: a consumer width and inset override the defaults, modal or not", async () => {
   const screen = await render(
     <Example

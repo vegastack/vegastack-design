@@ -20776,7 +20776,7 @@
       "responsive": {
         "status": "modeled",
         "risks": ["text-truncation-and-flex-shrink", "anchored-popup-width"],
-        "rationale": "The trigger is w-full with a truncating value span; the panel is sized to --anchor-width, so both follow the parent at 320px."
+        "rationale": "The trigger is w-full with a truncating value span (with `wrap`, a value that wraps and a trigger that grows from its fixed height); the panel is sized to --anchor-width, so both follow the parent at 320px."
       },
       "motion": {
         "status": "not-applicable",
@@ -20832,6 +20832,10 @@
             {
               "name": "data-variant",
               "values": []
+            },
+            {
+              "name": "data-wrap",
+              "values": [""]
             }
           ],
           "cssVariables": []
@@ -21315,6 +21319,10 @@
             {
               "name": "data-variant",
               "values": []
+            },
+            {
+              "name": "data-wrap",
+              "values": [""]
             }
           ],
           "cssVariables": []
@@ -21328,6 +21336,10 @@
             {
               "name": "data-slot",
               "values": ["select-content"]
+            },
+            {
+              "name": "data-wrap",
+              "values": [""]
             }
           ],
           "cssVariables": []

@@ -532,3 +532,45 @@ export function selectTwoLineOptions(): ReactNode {
     </Wrapper>
   );
 }
+
+const longProducts = [
+  {
+    label:
+      "Alpha Trimless 73 Standard 8 W Ra>80 3000K 36° White Pearl black Non-dimmable",
+    value: "pearl-nd",
+  },
+  {
+    label:
+      "Alpha Trimless 73 Standard 8 W Ra>80 3000K 36° White Pearl black DALI dimmable",
+    value: "pearl-dali",
+  },
+  { label: "Beta Track 12 W", value: "beta" },
+];
+
+/**
+ * API-35: `wrap` on `SelectTrigger` shows the whole value, growing a line at a time from the
+ * trigger's fixed height; `wrap` on `SelectContent` lets each option wrap in the trigger-wide popup.
+ */
+export function selectWrap(): ReactNode {
+  return (
+    <Wrapper>
+      <Field className="w-full max-w-72">
+        <FieldLabel>Made from</FieldLabel>
+        <Select items={longProducts} defaultValue="pearl-nd">
+          <SelectTrigger wrap>
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent wrap>
+            <SelectGroup>
+              {longProducts.map((item) => (
+                <SelectItem key={item.value} value={item.value}>
+                  {item.label}
+                </SelectItem>
+              ))}
+            </SelectGroup>
+          </SelectContent>
+        </Select>
+      </Field>
+    </Wrapper>
+  );
+}

@@ -331,6 +331,15 @@ test("FOC-1/FOC-6: nothing the sheet renders carries a focus glow", async () => 
   expect(offenders).toEqual([]);
 });
 
+test("LAY-17: the panel breaks a long unbroken word inside itself", async () => {
+  const screen = await render(<Subject />);
+  await screen.getByRole("button", { name: "Open sheet" }).click();
+  await expect.element(screen.getByRole("dialog")).toBeInTheDocument();
+  expect(bySlot("sheet-content")!.className.split(" ")).toContain(
+    "wrap-break-word",
+  );
+});
+
 test("Escape closes the panel (Usage)", async () => {
   const screen = await render(<Subject />);
   await screen.getByRole("button", { name: "Open sheet" }).click();

@@ -396,6 +396,25 @@ test("BRD-1: the dialog surface draws a real border, not a ring outline", async 
   expectBorderNotRing(bySlot("dialog-content")!);
 });
 
+test("LAY-17: the popup lays out on one minmax(0, 1fr) column and breaks long words", async () => {
+  const screen = await render(<Subject />);
+  await screen.getByRole("button", { name: "Open dialog" }).click();
+  await expect.element(screen.getByRole("dialog")).toBeInTheDocument();
+  const classes = bySlot("dialog-content")!.className.split(" ");
+  // `grid-cols-1` is `repeat(1, minmax(0, 1fr))`: a no-wrap child can no longer widen the column.
+  expect(classes).toContain("grid-cols-1");
+  expect(classes).toContain("wrap-break-word");
+});
+
+test("TYP-19: the title takes a snug line height, not upstream's leading-none", async () => {
+  const screen = await render(<Subject />);
+  await screen.getByRole("button", { name: "Open dialog" }).click();
+  await expect.element(screen.getByRole("dialog")).toBeInTheDocument();
+  const classes = bySlot("dialog-title")!.className.split(" ");
+  expect(classes).toContain("leading-snug");
+  expect(classes).not.toContain("leading-none");
+});
+
 test("OVL-16: size defaults to default and keeps upstream's unconditional sm cap", async () => {
   const screen = await render(<Subject />);
   await screen.getByRole("button", { name: "Open dialog" }).click();

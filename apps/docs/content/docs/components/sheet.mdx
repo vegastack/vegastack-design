@@ -236,6 +236,8 @@ Upstream's file plus `packages/ui/upstream/patches/sheet.patch`. Every hunk:
 justify-end`) at every width, not upstream's full-width `flex-col` stack; a direct child with
   `data-slot="sheet-cancel"` takes `me-auto` to sit at the start edge. MK, 2026-09-25.
 - **VOI-1** — the corner close's built-in string is the overridable `closeLabel`, default "Close".
+- **LAY-17** — `SheetContent` sets `wrap-break-word`, so a long unbroken word breaks inside the panel
+  rather than running past its edge. MK, 2026-10-13.
 - **DOC-2** — `import { cn } from "cn"` becomes `@vegastack/design`; our npm layer owns `cn`.
 - **DOC-1** — prettier reflow plus the `registry-stamp.mjs` provenance header; no decision of their
   own.

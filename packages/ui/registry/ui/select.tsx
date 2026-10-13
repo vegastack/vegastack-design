@@ -1,4 +1,4 @@
-// @vegastack select@0.25.25 sha256-vkglbo6z9fCh9AhoQ6NE2Vfk6B8UTf31bVRyav82ivw=
+// @vegastack select@0.25.25 sha256-RbtEYmjrAGVyhzC4hEgJDOHAl8QKIxwCSzVqZqCQVJ8=
 
 "use client";
 
@@ -28,8 +28,14 @@ const selectTriggerVariants = cva(
         ghost:
           "w-fit border-transparent hover:border-input dark:bg-transparent dark:hover:bg-input/50",
       },
+      // API-35: `wrap` shows the whole value — the trigger grows a line at a time from its fixed
+      // height, and a long unbroken word breaks rather than overflow.
+      wrap: {
+        true: "py-1 text-start whitespace-normal wrap-anywhere data-[size=default]:h-auto data-[size=default]:min-h-8 data-[size=sm]:h-auto data-[size=sm]:min-h-7 data-[size=sm]:py-0.5",
+        false: "",
+      },
     },
-    defaultVariants: { variant: "outline" },
+    defaultVariants: { variant: "outline", wrap: false },
   },
 );
 
@@ -57,19 +63,22 @@ function SelectTrigger({
   className,
   size = "default",
   variant = "outline",
+  wrap = false,
   children,
   ...props
 }: SelectPrimitive.Trigger.Props & {
   size?: "sm" | "default";
   variant?: "outline" | "ghost";
+  wrap?: boolean;
 }) {
   return (
     <SelectPrimitive.Trigger
       data-slot="select-trigger"
       data-size={size}
       data-variant={variant}
+      data-wrap={wrap ? "" : undefined}
       className={cn(
-        selectTriggerVariants({ variant }),
+        selectTriggerVariants({ variant, wrap }),
         // API-24: upstream's ButtonGroup sizes an unsized trigger to its content
         // (`[&>[data-slot=select-trigger]:not([class*='w-'])]:w-fit`), which a `w-full` default
         // would defeat — so an outline trigger with no width of its own, as a group's direct child,
@@ -99,12 +108,13 @@ function SelectContent({
   align = "center",
   alignOffset = 0,
   alignItemWithTrigger = true,
+  wrap = false,
   ...props
 }: SelectPrimitive.Popup.Props &
   Pick<
     SelectPrimitive.Positioner.Props,
     "align" | "alignOffset" | "side" | "sideOffset" | "alignItemWithTrigger"
-  >) {
+  > & { wrap?: boolean }) {
   const themeScope = useInternalThemeScope();
 
   return (
@@ -120,8 +130,9 @@ function SelectContent({
         <SelectPrimitive.Popup
           data-slot="select-content"
           data-align-trigger={alignItemWithTrigger}
+          data-wrap={wrap ? "" : undefined}
           className={cn(
-            "relative isolate z-50 max-h-(--available-height) w-(--anchor-width) min-w-36 origin-(--transform-origin) overflow-x-hidden overflow-y-auto rounded-lg bg-popover text-popover-foreground shadow-md border border-border duration-100 data-[align-trigger=true]:animate-none data-[side=bottom]:slide-in-from-top-2 data-[side=inline-end]:slide-in-from-start-2 data-[side=inline-start]:slide-in-from-end-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95",
+            "group/select-content relative isolate z-50 max-h-(--available-height) w-(--anchor-width) min-w-36 origin-(--transform-origin) overflow-x-hidden overflow-y-auto rounded-lg bg-popover text-popover-foreground shadow-md border border-border duration-100 data-[align-trigger=true]:animate-none data-[side=bottom]:slide-in-from-top-2 data-[side=inline-end]:slide-in-from-start-2 data-[side=inline-start]:slide-in-from-end-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95",
             className,
           )}
           {...props}
@@ -165,7 +176,7 @@ function SelectItem({
         )}
         {...props}
       >
-        <SelectPrimitive.ItemText className="flex flex-1 shrink-0 gap-2 whitespace-nowrap">
+        <SelectPrimitive.ItemText className="flex flex-1 shrink-0 gap-2 whitespace-nowrap group-data-wrap/select-content:shrink group-data-wrap/select-content:whitespace-normal group-data-wrap/select-content:wrap-anywhere">
           {children}
         </SelectPrimitive.ItemText>
         <SelectPrimitive.ItemIndicator

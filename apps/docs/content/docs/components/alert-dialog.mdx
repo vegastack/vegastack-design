@@ -200,6 +200,9 @@ Upstream's file plus `packages/ui/upstream/patches/alert-dialog.patch`. Every hu
 p-4` band, so it is as plain as the header; the actions stay right-aligned from `sm` (two equal
   columns at `size="sm"`). `AlertDialogCancel` defaults to `variant="secondary"`, not `outline`.
   MK, 2026-09-25.
+- **LAY-17** — `AlertDialogContent` takes `grid-cols-1` (one `minmax(0, 1fr)` column) in place of
+  the grid's implicit `auto` column, so a no-wrap child cannot widen the popup, and `wrap-break-word`,
+  so a long unbroken word — a file name in "Delete …?" — breaks inside it. MK, 2026-10-13.
 - **DOC-2** — `import { cn } from "cn"` becomes `@vegastack/design`; our npm layer owns `cn`.
 - **DOC-1** — prettier reflow plus the `registry-stamp.mjs` provenance header; no decision of their
   own.

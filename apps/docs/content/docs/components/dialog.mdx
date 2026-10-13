@@ -149,6 +149,19 @@ body scrolls. A dialog without a `DialogBody` keeps upstream's growing grid.
   file="components/preview/dialog.tsx"
 />
 
+### Long names
+
+A dialog that carries a user-entered name — a product, a task, a file — keeps every part inside the
+popup. `DialogContent` lays out on one `minmax(0, 1fr)` column, so a control that does not wrap (a
+select showing a long value) cannot widen the popup past its cap, and the popup breaks a long word
+with no spaces rather than letting it run past the edge. A title that wraps sits on snug lines. To
+show a picked name whole instead of cutting it off, give the picker `wrap`
+([Searchable Select](/docs/components/searchable-select#long-values), [Select](/docs/components/select#long-values)).
+A flex row that must shrink below its longest word — a title beside a hint icon — still needs
+`min-w-0` on the shrinking child.
+
+<ComponentPreview name="dialogLongNames" file="components/preview/dialog.tsx" />
+
 ## Playground
 
 Retune the content's max-width cap and either close button, then copy the generated JSX. The dialog
@@ -229,6 +242,11 @@ Upstream's file plus `packages/ui/upstream/patches/dialog.patch`. Every hunk:
   becomes a flex column capped at `max-h-[calc(100%-2rem)]`, and a dialog without one is
   untouched. `closeLabel` renames the corner close control and the footer's opt-in close.
 - **VOI-1** — both built-in close strings are the overridable `closeLabel`, default "Close".
+- **LAY-17** — `DialogContent` takes `grid-cols-1` (one `minmax(0, 1fr)` column) in place of the
+  grid's implicit `auto` column, so a no-wrap child cannot widen the popup, and `wrap-break-word`, so
+  a long unbroken word breaks inside it. MK, 2026-10-13.
+- **TYP-19** — `DialogTitle` is `leading-snug`, not `leading-none`, so a wrapped title's lines do
+  not collide. MK, 2026-10-13.
 - **DOC-2** — `import { cn } from "cn"` becomes `@vegastack/design`; our npm layer owns `cn`.
 - **DOC-1** — the repository formatter reflows the file and `registry-stamp.mjs` writes the
   provenance header the three-copy model needs; those hunks carry no decision of their own.

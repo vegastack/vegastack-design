@@ -579,3 +579,76 @@ test("no a11y violations — person options, open", async () => {
   await screen.getByRole("combobox").click();
   await expectNoA11yViolations(document.body);
 });
+
+const LONG: Project = {
+  id: "pearl",
+  name: "Alpha Trimless 73 Standard 8 W Ra>80 3000K 36° White Pearl black Non-dimmable",
+};
+
+test("wrap is off by default: the value is one truncated line on a fixed-height trigger", async () => {
+  const screen = await render(<Picker value={LONG} />);
+  const trigger = screen.getByRole("combobox").element();
+  expect(
+    trigger
+      .closest('[data-slot="searchable-select"]')!
+      .hasAttribute("data-wrap"),
+  ).toBe(false);
+  expect(trigger.className.split(" ")).toContain("h-8");
+  const value = screen.getByText(LONG.name).element();
+  expect(value.className.split(" ")).toContain("truncate");
+});
+
+test("wrap: the trigger grows from its fixed height and shows the whole value", async () => {
+  const screen = await render(
+    <>
+      <Picker value={LONG} wrap aria-label="Default" />
+      <Picker value={LONG} wrap size="sm" aria-label="Small" />
+    </>,
+  );
+  const trigger = screen.getByRole("combobox", { name: "Default" }).element();
+  expect(
+    trigger
+      .closest('[data-slot="searchable-select"]')!
+      .getAttribute("data-wrap"),
+  ).toBe("");
+  const classes = trigger.className.split(" ");
+  for (const token of [
+    "h-auto",
+    "min-h-8",
+    "py-1",
+    "text-start",
+    "whitespace-normal",
+    "wrap-anywhere",
+  ])
+    expect(classes).toContain(token);
+  expect(classes).not.toContain("h-8");
+  expect(classes).not.toContain("whitespace-nowrap");
+  const small = screen
+    .getByRole("combobox", { name: "Small" })
+    .element()
+    .className.split(" ");
+  expect(small).toContain("min-h-7");
+  expect(small).toContain("py-0.5");
+  expect(small).not.toContain("h-7");
+  for (const value of screen.getByText(LONG.name).elements())
+    expect(value.className.split(" ")).not.toContain("truncate");
+});
+
+test("wrap: a long option wraps in the list", async () => {
+  const screen = await render(
+    <Picker items={[...PROJECTS, LONG]} value={null} wrap />,
+  );
+  await screen.getByRole("combobox").click();
+  const option = screen.getByRole("option", { name: LONG.name }).element();
+  expect(option.className.split(" ")).toContain("wrap-anywhere");
+  const short = screen.getByRole("option", { name: "Atlas" }).element();
+  expect(short.className.split(" ")).toContain("wrap-anywhere");
+});
+
+test("no a11y violations — wrap, open", async () => {
+  const screen = await render(
+    <Picker items={[...PROJECTS, LONG]} value={LONG} wrap />,
+  );
+  await screen.getByRole("combobox").click();
+  await expectNoA11yViolations(document.body);
+});

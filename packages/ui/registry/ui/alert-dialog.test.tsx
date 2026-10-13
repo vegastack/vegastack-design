@@ -353,6 +353,15 @@ test("BRD-1: the alert dialog surface draws a real border, not a ring outline", 
   expectBorderNotRing(bySlot("alert-dialog-content")!);
 });
 
+test("LAY-17: the popup lays out on one minmax(0, 1fr) column and breaks long words", async () => {
+  const screen = await render(<Subject />);
+  await screen.getByRole("button", { name: "Show dialog" }).click();
+  await expect.element(screen.getByRole("alertdialog")).toBeInTheDocument();
+  const classes = bySlot("alert-dialog-content")!.className.split(" ");
+  expect(classes).toContain("grid-cols-1");
+  expect(classes).toContain("wrap-break-word");
+});
+
 test("no a11y violations — closed", async () => {
   const screen = await render(<Subject />);
   await expectNoA11yViolations(screen.container);

@@ -81,10 +81,19 @@ import {
   Dialog,
   DialogBody,
   DialogContent,
+  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
 } from "../registry/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "../registry/ui/alert-dialog";
+import { Field, FieldLabel } from "../registry/ui/field";
 import contracts from "../component-contracts.json";
 import {
   dynamicMountCount,
@@ -4185,4 +4194,212 @@ test("inline-trigger-row: Select, SearchableSelect and DatePicker sm share one h
     );
     expect(clear.contains(hit)).toBe(true);
   }
+});
+
+/** A product name as people enter it: long, and differing only at the end. */
+const LONG_NAME =
+  "Alpha Trimless 73 Standard 8 W Ra>80 3000K 36° White Pearl black Non-dimmable";
+/** A file name with no break opportunity at all. */
+const LONG_WORD =
+  "ALPHA-TRIMLESS-73-STD-8W-RA80-3000K-36D-WPB-ND-REV2-DATASHEET.pdf";
+
+/** A dialog holding a long-named `SearchableSelect` and a footer, as Regent's Create variant does. */
+function LongNameDialog({ wrap }: { wrap?: boolean }) {
+  return (
+    <Dialog defaultOpen>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Create a variant of {LONG_NAME}</DialogTitle>
+          <DialogDescription>Copies {LONG_WORD}</DialogDescription>
+        </DialogHeader>
+        {/* In a Field, as forms compose it: the Field is the grid item, and its min-content
+            width is the trigger's whole no-wrap value. */}
+        <Field>
+          <FieldLabel>Made from</FieldLabel>
+          <SearchableSelect<string>
+            items={[LONG_NAME]}
+            value={LONG_NAME}
+            onValueChange={() => {}}
+            itemToKey={(name) => name}
+            itemToStringLabel={(name) => name}
+            searchLabel="Search products"
+            wrap={wrap}
+          />
+        </Field>
+        <DialogFooter>
+          <Button>Continue</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+/**
+ * `long-names` (LAY-17, TYP-19, API-35): a no-wrap control showing a long name stays inside the
+ * dialog — the popup's one `minmax(0, 1fr)` column cannot be widened past the cap — a long
+ * unbroken word breaks inside the popup, a wrapped title sits on snug lines, and `wrap` shows the
+ * whole value on a trigger that still measures its fixed height on one line.
+ */
+test("long-names: overlays keep a long name inside, and wrap shows it whole", async () => {
+  for (const wrap of [false, true]) {
+    const screen = await render(<LongNameDialog wrap={wrap} />);
+    await settle();
+    const popup = document.querySelector<HTMLElement>(
+      '[data-slot="dialog-content"]',
+    )!;
+    const frame = popup.getBoundingClientRect();
+    // 320px viewport less upstream's 1rem gutter each side.
+    expect(Math.round(frame.width), `wrap=${wrap}: popup width`).toBe(288);
+    const trigger = document.querySelector<HTMLElement>(
+      '[data-slot="searchable-select-trigger"]',
+    )!;
+    expect(
+      within(trigger.getBoundingClientRect(), frame),
+      `wrap=${wrap}: the field stays inside the popup`,
+    ).toBe(true);
+    const action = screen.getByRole("button", { name: "Continue" }).element();
+    expect(
+      within(action.getBoundingClientRect(), frame),
+      `wrap=${wrap}: the footer stays inside the popup`,
+    ).toBe(true);
+    const description = document.querySelector<HTMLElement>(
+      '[data-slot="dialog-description"]',
+    )!;
+    expect(
+      description.scrollWidth <= description.clientWidth + 1,
+      `wrap=${wrap}: a long unbroken word breaks inside the popup`,
+    ).toBe(true);
+    const title = document.querySelector<HTMLElement>(
+      '[data-slot="dialog-title"]',
+    )!;
+    expect(getComputedStyle(title).lineHeight).toBe("22px");
+    expect(title.getBoundingClientRect().height).toBeGreaterThan(22);
+    const value = trigger.querySelector<HTMLElement>("span")!;
+    if (wrap) {
+      expect(trigger.getBoundingClientRect().height).toBeGreaterThan(32);
+      expect(
+        value.scrollWidth <= value.clientWidth + 1,
+        "wrap: the whole value shows, nothing cut",
+      ).toBe(true);
+    } else {
+      expect(trigger.getBoundingClientRect().height).toBe(32);
+    }
+    await screen.unmount();
+  }
+
+  const alert = await render(
+    <AlertDialog defaultOpen>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Delete {LONG_WORD}?</AlertDialogTitle>
+          <AlertDialogDescription>
+            {LONG_WORD} moves to Trash.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+      </AlertDialogContent>
+    </AlertDialog>,
+  );
+  await settle();
+  const alertPopup = document.querySelector<HTMLElement>(
+    '[data-slot="alert-dialog-content"]',
+  )!;
+  for (const slot of ["alert-dialog-title", "alert-dialog-description"]) {
+    const part = document.querySelector<HTMLElement>(`[data-slot="${slot}"]`)!;
+    expect(
+      within(part.getBoundingClientRect(), alertPopup.getBoundingClientRect()),
+      `${slot} stays inside the alert dialog`,
+    ).toBe(true);
+    expect(part.scrollWidth <= part.clientWidth + 1, slot).toBe(true);
+  }
+  await alert.unmount();
+});
+
+test("long-names: a wrap trigger measures its fixed height on one line and grows past it", async () => {
+  const products = [
+    { label: LONG_NAME, value: "long" },
+    { label: "Beta", value: "short" },
+  ];
+  const screen = await render(
+    <div className="flex w-72 flex-col gap-2">
+      {(["default", "sm"] as const).map((size) =>
+        (["short", "long"] as const).map((pick) => (
+          <React.Fragment key={`${size}-${pick}`}>
+            <Select items={products} defaultValue={pick}>
+              <SelectTrigger
+                wrap
+                size={size}
+                data-testid={`select-${size}-${pick}`}
+                aria-label={`Select ${size} ${pick}`}
+              >
+                <SelectValue />
+              </SelectTrigger>
+            </Select>
+            <SearchableSelect<string>
+              items={[LONG_NAME, "Beta"]}
+              value={pick === "long" ? LONG_NAME : "Beta"}
+              onValueChange={() => {}}
+              itemToKey={(name) => name}
+              itemToStringLabel={(name) => name}
+              searchLabel="Search products"
+              aria-label={`Searchable ${size} ${pick}`}
+              size={size}
+              wrap
+              data-slot={`searchable-${size}-${pick}`}
+            />
+          </React.Fragment>
+        )),
+      )}
+    </div>,
+  );
+  await settle();
+  const fixed = { default: 32, sm: 28 };
+  for (const size of ["default", "sm"] as const) {
+    for (const pick of ["short", "long"] as const) {
+      const select = screen.container
+        .querySelector<HTMLElement>(`[data-testid="select-${size}-${pick}"]`)!
+        .getBoundingClientRect().height;
+      const searchable = screen.container
+        .querySelector<HTMLElement>(
+          `[data-slot="searchable-${size}-${pick}-trigger"]`,
+        )!
+        .getBoundingClientRect().height;
+      if (pick === "short") {
+        expect(select, `Select ${size}, one line`).toBe(fixed[size]);
+        expect(searchable, `SearchableSelect ${size}, one line`).toBe(
+          fixed[size],
+        );
+      } else {
+        expect(select, `Select ${size}, wrapped`).toBeGreaterThan(fixed[size]);
+        expect(searchable, `SearchableSelect ${size}, wrapped`).toBeGreaterThan(
+          fixed[size],
+        );
+      }
+    }
+  }
+
+  // The options wrap in the trigger-wide popup instead of being clipped by its overflow-x.
+  const list = await render(
+    <div className="w-72">
+      <Select items={products} defaultValue="short" defaultOpen>
+        <SelectTrigger wrap aria-label="Open select">
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent wrap>
+          {products.map((item) => (
+            <SelectItem key={item.value} value={item.value}>
+              {item.label}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+    </div>,
+  );
+  await settle();
+  const popup = document.querySelector<HTMLElement>(
+    '[data-slot="select-content"]',
+  )!;
+  expect(popup.scrollWidth <= popup.clientWidth + 1).toBe(true);
+  const option = list.getByRole("option", { name: LONG_NAME }).element();
+  expect(option.getBoundingClientRect().height).toBeGreaterThan(32);
+  await list.unmount();
 });
