@@ -1,4 +1,4 @@
-// @vegastack command-search-01@0.25.25 sha256-JdgIo6MMW8jooxNaTPAtE6OfKYbZy9h5ox2+XCXgIsc=
+// @vegastack command-search-01@0.25.26 sha256-OdbSTqIKOXzdkScrg4VheBmujsUVuFaAPR9QLzhC5tY=
 
 /**
  * A stand-in for the host's search API: an in-memory index, a short delay, and the abort signal

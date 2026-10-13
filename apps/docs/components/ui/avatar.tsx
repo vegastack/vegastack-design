@@ -1,4 +1,4 @@
-// @vegastack avatar@0.25.25 sha256-3jCOCLYYrzXzCT1NtESszmXdsuaKeDcFaOVjXvwDZ9c=
+// @vegastack avatar@0.25.26 sha256-F0fq0wKCpe5GQ3RI3AAAIPyEG9vXLbDQABGNYPeVfMo=
 
 "use client";
 
