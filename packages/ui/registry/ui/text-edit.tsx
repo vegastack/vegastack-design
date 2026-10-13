@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.25.30 sha256-8LIZM1tmfUhu5mQ2QdgrPFl/sQfAvz/OhLt0bfEULNU=
+// @vegastack text-edit@0.25.30 sha256-aRxSQk/H883txjeUdC1RRWX6aBE/3twJjcuNtsw9L/4=
 
 "use client";
 
@@ -149,14 +149,16 @@ export interface TextEditOutlineItem {
 }
 
 /**
- * Where a highlight sits in a collaborative document: Yjs relative positions of its first and last
- * character (`Y.encodeRelativePosition` bytes). They follow every edit — anyone's — exactly.
+ * Where a highlight sits in a collaborative document: Yjs relative positions of its two boundaries
+ * (`Y.encodeRelativePosition` bytes), each bound to the quoted character beside it. They follow
+ * every edit — anyone's — exactly; once the whole quote is deleted they meet, and the highlight is
+ * orphaned.
  */
 export interface TextEditYAnchor {
-  /** The first quoted character. */
+  /** Before the first quoted character, bound to it (text typed before the quote stays outside). */
   start: Uint8Array;
-  /** The last quoted character (inclusive), so text typed right after the quote stays outside it. */
-  last: Uint8Array;
+  /** After the last quoted character, bound to it (text typed after the quote stays outside). */
+  end: Uint8Array;
 }
 
 /**
@@ -191,8 +193,11 @@ export interface TextEditAnnotationLayout {
   id: string;
   /** The highlight's top edge, in px from the TextEdit root's top; null when orphaned. */
   top: number | null;
-  /** The highlight's current anchor (persist it when it moved); null when orphaned. */
-  anchor: TextAnchor | null;
+  /**
+   * The highlight's current anchor (persist it when it moved); null when orphaned. In a
+   * collaborative editor it keeps its `y` relative positions, which follow every edit unchanged.
+   */
+  anchor: TextEditAnchor | null;
 }
 
 /** The imperative handle `handleRef` receives. */
@@ -255,8 +260,16 @@ export interface TextEditCollaboration {
     on: (event: "synced", listener: () => void) => unknown;
     off: (event: "synced", listener: () => void) => unknown;
   };
-  /** This viewer, shown to the others. */
+  /** This viewer, as this client announces itself (the server stamps the identity peers trust). */
   user: TextEditCollaborationUser;
+  /**
+   * Who a collaborator is, by their awareness client id — from an authority no client can write
+   * (the collaboration server's authenticated identity for that connection). A caret's name, hue
+   * and agent badge come only from here: the `user` fields a client writes into awareness are
+   * never shown, so no one can draw a caret as someone else. Without it, or for an unknown client,
+   * a caret is a plain grey bar with no name.
+   */
+  peer?: (clientId: number) => TextEditCollaborationUser | null | undefined;
   /** The document's Markdown, shown read-only until the editor is in (a server-rendered read copy). @default "" */
   readCopy?: string;
 }

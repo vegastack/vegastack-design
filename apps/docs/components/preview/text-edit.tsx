@@ -939,17 +939,18 @@ function useSharedPair():
       on: () => undefined,
       off: () => undefined,
     });
+    const asha = { id: "u1", name: "Asha Rao", hue: "green" as const };
+    const ben = { id: "u2", name: "Ben Ito", hue: "orange" as const };
+    // Who each connection is — in an app, the collaboration server's authenticated identity.
+    const peer = (clientId: number) =>
+      clientId === docs[0].clientID
+        ? asha
+        : clientId === docs[1].clientID
+          ? ben
+          : null;
     setPair([
-      {
-        document: docs[0],
-        provider: provider(0),
-        user: { id: "u1", name: "Asha Rao", hue: "green" },
-      },
-      {
-        document: docs[1],
-        provider: provider(1),
-        user: { id: "u2", name: "Ben Ito", hue: "orange" },
-      },
+      { document: docs[0], provider: provider(0), user: asha, peer },
+      { document: docs[1], provider: provider(1), user: ben, peer },
     ]);
     return () => {
       off.forEach((stop) => stop());

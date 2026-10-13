@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.25.30 sha256-8LIZM1tmfUhu5mQ2QdgrPFl/sQfAvz/OhLt0bfEULNU=
+// @vegastack text-edit@0.25.30 sha256-aRxSQk/H883txjeUdC1RRWX6aBE/3twJjcuNtsw9L/4=
 
 "use client";
 
@@ -39,6 +39,7 @@ import {
   absolutePositionToRelativePosition,
   relativePositionToAbsolutePosition,
   ySyncPluginKey,
+  yCursorPlugin,
 } from "@tiptap/y-tiptap";
 import * as Y from "yjs";
 import { Fragment, type Node as PMNode } from "@tiptap/pm/model";
@@ -48,6 +49,7 @@ import {
   PluginKey,
   TextSelection,
   type EditorState,
+  type Transaction,
 } from "@tiptap/pm/state";
 import {
   CellSelection,
@@ -1126,7 +1128,7 @@ function slashExtension(runtime: SlashRuntime) {
           // opens this viewer's menu.
           allowSpaces: true,
           findSuggestionMatch: phraseMatch({ maxWords: 3, maxChars: 24 }),
-          shouldShow: ({ transaction }) => !isChangeOrigin(transaction),
+          shouldShow: localQuery(SLASH_KEY),
           allow: () =>
             runtime.allowed.current.length > 0 && !editor.isActive("codeBlock"),
           items: ({ query, editor: ed }) =>
@@ -1355,7 +1357,7 @@ interface AnnotationOptions {
 /** A highlight's Yjs relative positions: its first and its last character. */
 interface YRefs {
   start: Y.RelativePosition;
-  last: Y.RelativePosition;
+  end: Y.RelativePosition;
 }
 
 interface AnnotationPluginState {
@@ -1556,6 +1558,25 @@ function annotationAt(
   return found;
 }
 
+/**
+ * A suggestion menu (slash or mention) opens on this person's typing only — a collaborator's `/`
+ * or `@` never opens it here — but a menu already open stays open, and follows, through a
+ * collaborator's edit elsewhere. `editor.state` is still the state before the transaction.
+ */
+function localQuery(key: PluginKey) {
+  return ({
+    transaction,
+    editor,
+  }: {
+    transaction: Transaction;
+    editor: Editor;
+  }) =>
+    !isChangeOrigin(transaction) ||
+    Boolean(
+      (key.getState(editor.state) as { active?: boolean } | undefined)?.active,
+    );
+}
+
 /** The Yjs binding of a collaborative editor's state; null in a single-writer one. */
 function yBinding(state: EditorState) {
   const sync = ySyncPluginKey.getState(state) as
@@ -1580,25 +1601,46 @@ function resolveY(state: EditorState, refs: YRefs) {
     refs.start,
     y.mapping as never,
   );
-  const last = relativePositionToAbsolutePosition(
+  const to = relativePositionToAbsolutePosition(
     y.doc,
     y.type,
-    refs.last,
+    refs.end,
     y.mapping as never,
   );
-  if (from === null || last === null) return null;
-  return from <= last ? { from, to: last + 1 } : null;
+  if (from === null || to === null) return null;
+  // Collapsed: the quote is gone — orphaned, never a highlight of whatever follows.
+  return from < to ? { from, to } : null;
+}
+
+/**
+ * A Yjs relative position for document position `pos`, bound to the character after it
+ * (`assoc` ≥ 0) or before it (`assoc` < 0). The binding's own conversion always binds left.
+ */
+function relativeAt(
+  y: NonNullable<ReturnType<typeof yBinding>>,
+  pos: number,
+  assoc: number,
+): Y.RelativePosition {
+  const left = absolutePositionToRelativePosition(
+    pos,
+    y.type,
+    y.mapping as never,
+  );
+  if (assoc < 0) return left;
+  const at = Y.createAbsolutePositionFromRelativePosition(left, y.doc);
+  return at && at.type instanceof Y.XmlText
+    ? Y.createRelativePositionFromTypeIndex(at.type, at.index, assoc)
+    : left;
 }
 
 /** The relative positions of `from`…`to` (exclusive), as `TextEditYAnchor` bytes. */
 function yAnchorOf(state: EditorState, from: number, to: number) {
   const y = yBinding(state);
   if (!y || to <= from) return undefined;
-  const at = (pos: number) =>
-    Y.encodeRelativePosition(
-      absolutePositionToRelativePosition(pos, y.type, y.mapping as never),
-    );
-  return { start: at(from), last: at(to - 1) };
+  return {
+    start: Y.encodeRelativePosition(relativeAt(y, from, 0)),
+    end: Y.encodeRelativePosition(relativeAt(y, to, -1)),
+  };
 }
 
 /** An anchor's identity for "unchanged since last time": its text fields and its `y` bytes. */
@@ -1606,7 +1648,7 @@ function annotationKey(anchor: TextEditAnchor): string {
   const { y, ...text } = anchor;
   return JSON.stringify([
     text,
-    y ? [Array.from(y.start), Array.from(y.last)] : null,
+    y ? [Array.from(y.start), Array.from(y.end)] : null,
   ]);
 }
 
@@ -1719,7 +1761,7 @@ function annotationsExtension(runtime: {
                   const refs = anchor.y
                     ? ((keys.get(id) === key ? y.get(id) : undefined) ?? {
                         start: Y.decodeRelativePosition(anchor.y.start),
-                        last: Y.decodeRelativePosition(anchor.y.last),
+                        end: Y.decodeRelativePosition(anchor.y.end),
                       })
                     : undefined;
                   if (refs) nextY.set(id, refs);
@@ -1893,18 +1935,26 @@ const Uploads = Extension.create({
         key: UPLOAD_KEY,
         state: {
           init: () => DecorationSet.empty,
-          apply(tr, set) {
-            let next = set.map(tr.mapping, tr.doc);
+          apply(tr, set, _old, state) {
+            // A collaborator's change replaces whole blocks, so a placeholder inside one can't be
+            // mapped through it: in a shared document each placeholder is placed again from its
+            // Yjs relative position — gone only when its whole block was deleted.
+            const y =
+              tr.docChanged && isChangeOrigin(tr) ? yBinding(state) : null;
+            let next = y
+              ? placeUploads(set, tr, y)
+              : set.map(tr.mapping, tr.doc);
             const meta = tr.getMeta(UPLOAD_KEY) as UploadMeta | undefined;
-            if (meta && "add" in meta)
+            if (meta && "add" in meta) {
+              const binding = yBinding(state);
               next = next.add(tr.doc, [
-                PMDecoration.widget(
+                uploadWidget(
+                  meta.add,
                   meta.add.pos,
-                  () => uploadPlaceholder(meta.add),
-                  { id: meta.add.id, key: meta.add.id, side: -1 },
+                  binding ? relativeAt(binding, meta.add.pos, -1) : undefined,
                 ),
               ]);
-            else if (meta && "remove" in meta)
+            } else if (meta && "remove" in meta)
               next = next.remove(
                 next.find(
                   undefined,
@@ -1922,6 +1972,54 @@ const Uploads = Extension.create({
     ];
   },
 });
+
+/** An upload's placeholder widget at `pos`; `ref` is its Yjs relative position when shared. */
+function uploadWidget(
+  upload: UploadWidget,
+  pos: number,
+  ref: Y.RelativePosition | undefined,
+) {
+  return PMDecoration.widget(pos, () => uploadPlaceholder(upload), {
+    id: upload.id,
+    key: upload.id,
+    side: -1,
+    upload,
+    ref,
+  });
+}
+
+/** Upload placeholders placed again after a collaborator's change, from their relative positions. */
+function placeUploads(
+  set: DecorationSet,
+  tr: Transaction,
+  y: NonNullable<ReturnType<typeof yBinding>>,
+): DecorationSet {
+  const mapped = set.map(tr.mapping, tr.doc);
+  const placed = set.find().flatMap((decoration) => {
+    const spec = decoration.spec as {
+      id: string;
+      upload: UploadWidget;
+      ref?: Y.RelativePosition;
+    };
+    if (!spec.ref)
+      return mapped.find(undefined, undefined, (each) => each.id === spec.id);
+    const pos = relativePositionToAbsolutePosition(
+      y.doc,
+      y.type,
+      spec.ref,
+      y.mapping as never,
+    );
+    if (pos === null) return [];
+    return [
+      uploadWidget(
+        spec.upload,
+        Math.min(Math.max(pos, 0), tr.doc.content.size),
+        spec.ref,
+      ),
+    ];
+  });
+  return DecorationSet.create(tr.doc, placed);
+}
 
 /** Where an upload's placeholder sits now, or null once it is gone (its text was deleted). */
 function uploadPos(state: EditorState, id: string): number | null {
@@ -2495,12 +2593,15 @@ function mentionView(runtime: EditorRuntime) {
       runtime.labels.get,
       runtime.labels.get,
     );
+    // In a shared document a record's label is always this reader's — a title that reached the
+    // document anyway (an old copy, a peer's client) is never shown.
+    const own = isRecordMentionKind(kind)
+      ? (runtime.mentionLabel.current?.(kind, id) ?? "")
+      : "";
     const label =
-      stored ||
-      (isRecordMentionKind(kind)
-        ? (runtime.mentionLabel.current?.(kind, id) ?? "")
-        : "") ||
-      "…";
+      (runtime.collaborative && isRecordMentionKind(kind)
+        ? own
+        : stored || own) || "…";
     const hrefFor = runtime.mentionHref.current;
     return (
       // An atom: never editable text, never spellchecked.
@@ -2560,7 +2661,7 @@ function mentionBehaviour(runtime: EditorRuntime) {
           // opens this viewer's menu.
           allowSpaces: true,
           findSuggestionMatch: phraseMatch({ maxWords: 4, maxChars: 40 }),
-          shouldShow: ({ transaction }) => !isChangeOrigin(transaction),
+          shouldShow: localQuery(MENTION_KEY),
           allow: () =>
             runtime.mention.enabled() && !editor.isActive("codeBlock"),
           items: () => [],
@@ -2625,7 +2726,56 @@ function mentionBehaviour(runtime: EditorRuntime) {
             };
           },
         }),
+        recordLabelsStripped(runtime),
       ];
+    },
+  });
+}
+
+/**
+ * A shared document never stores a record mention's title (a page or task the reader may not be
+ * allowed to see): whatever inserts one here — the menu, a paste, `setContent`, an import — the
+ * label is cleared before it syncs, and each reader's chip resolves its own (`mentionLabel`).
+ * Only this person's own changes are scanned, and only where they changed the document.
+ */
+function recordLabelsStripped(runtime: EditorRuntime) {
+  return new Plugin({
+    appendTransaction(transactions, _old, state) {
+      if (!runtime.collaborative) return null;
+      const ranges: [number, number][] = [];
+      transactions.forEach((tr, t) => {
+        if (!tr.docChanged || isChangeOrigin(tr)) return;
+        tr.mapping.maps.forEach((map, i) => {
+          const rest = tr.mapping.slice(i + 1);
+          map.forEach((_from, _to, start, end) => {
+            let from = rest.map(start, -1);
+            let to = rest.map(end, 1);
+            for (const later of transactions.slice(t + 1)) {
+              from = later.mapping.map(from, -1);
+              to = later.mapping.map(to, 1);
+            }
+            ranges.push([from, to]);
+          });
+        });
+      });
+      let out: Transaction | null = null;
+      const size = state.doc.content.size;
+      for (const [from, to] of ranges)
+        state.doc.nodesBetween(
+          Math.max(0, from),
+          Math.min(size, to),
+          (node, pos) => {
+            if (
+              node.type.name === "mention" &&
+              node.attrs.label &&
+              isRecordMentionKind(node.attrs.kind as MentionKind)
+            ) {
+              out ??= state.tr;
+              out.setNodeMarkup(pos, undefined, { ...node.attrs, label: "" });
+            }
+          },
+        );
+      return out;
     },
   });
 }
@@ -2983,10 +3133,17 @@ const COLLABORATOR_HUE: Record<
   },
 };
 
-/** A collaborator's hue as drawn: an agent always purple, an unknown hue blue. */
-function collaboratorHue(user: Record<string, unknown>) {
-  const hue =
-    user.kind === "agent" ? "purple" : (user.hue as AvatarHue | undefined);
+/** An unidentified collaborator's caret: neutral, with no name. */
+const UNKNOWN_COLLABORATOR = {
+  caret: "border-muted-foreground",
+  label: "bg-muted text-muted-foreground",
+  selection: "bg-muted-foreground/15",
+};
+
+/** A collaborator's hue as drawn: an agent always purple, an unknown hue blue; nobody, neutral. */
+function collaboratorHue(user: TextEditCollaborationUser | null) {
+  if (!user) return UNKNOWN_COLLABORATOR;
+  const hue = user.kind === "agent" ? "purple" : user.hue;
   return COLLABORATOR_HUE[hue && hue in COLLABORATOR_HUE ? hue : "blue"];
 }
 
@@ -2997,13 +3154,13 @@ const CARET_LABEL_MS = 2000;
  * A collaborator's caret: a 2px bar with their name above it, shown while they type or move and
  * for 2s after (and on hover). Built anew for every move, so each move shows the name again.
  */
-function collaboratorCaret(user: Record<string, unknown>): HTMLElement {
+function collaboratorCaret(
+  user: TextEditCollaborationUser | null,
+): HTMLElement {
   const hue = collaboratorHue(user);
   const caret = document.createElement("span");
   caret.setAttribute("data-slot", "text-edit-caret");
   // A presence cue: a collaborator's name is not part of the text a screen reader reads.
-  caret.setAttribute("aria-hidden", "true");
-  // A presence cue: the names are not part of the text a screen reader reads.
   caret.setAttribute("aria-hidden", "true");
   caret.className = cn(
     "group/caret relative -mx-px border-x pointer-events-auto",
@@ -3016,10 +3173,37 @@ function collaboratorCaret(user: Record<string, unknown>): HTMLElement {
     "pointer-events-none absolute start-[-1px] bottom-full z-10 rounded-sm px-1 py-px font-sans text-xs leading-none font-medium whitespace-nowrap select-none opacity-0 transition-opacity duration-150 group-hover/caret:opacity-100 data-active:opacity-100",
     hue.label,
   );
-  label.textContent = String(user.name ?? "");
+  if (!user) return caret;
+  label.textContent = user.name;
   caret.append(label);
   setTimeout(() => label.removeAttribute("data-active"), CARET_LABEL_MS);
   return caret;
+}
+
+/**
+ * Carets whose identity comes from `peer` (the server's word, by awareness client id), never from
+ * the fields a client writes into awareness — the upstream caret draws those as given.
+ */
+function trustedCarets(peer: TextEditCollaboration["peer"]) {
+  const identity = (clientId: number) => peer?.(clientId) ?? null;
+  return CollaborationCaret.extend({
+    addProseMirrorPlugins() {
+      const upstream = CollaborationCaret.config.addProseMirrorPlugins as
+        ((this: unknown) => Plugin[]) | undefined;
+      // The awareness listener (this viewer's own state, the users list) stays upstream's.
+      const [listener] = upstream?.call(this) ?? [];
+      return [
+        ...(listener ? [listener] : []),
+        yCursorPlugin(this.options.provider.awareness, {
+          cursorBuilder: (_claimed: unknown, clientId: number) =>
+            collaboratorCaret(identity(clientId)),
+          selectionBuilder: (_claimed: unknown, clientId: number) => ({
+            class: collaboratorHue(identity(clientId)).selection,
+          }),
+        }),
+      ];
+    },
+  });
 }
 
 /** The extensions a shared document adds: the Yjs binding and the collaborators' carets. */
@@ -3030,7 +3214,7 @@ function collaborationExtensions(collaboration: TextEditCollaboration) {
       document: collaboration.document,
       field: collaboration.field ?? "default",
     }),
-    CollaborationCaret.configure({
+    trustedCarets(collaboration.peer).configure({
       provider: collaboration.provider,
       user: {
         id: user.id,
@@ -3038,10 +3222,6 @@ function collaborationExtensions(collaboration: TextEditCollaboration) {
         hue: user.kind === "agent" ? "purple" : user.hue,
         kind: user.kind ?? "person",
       },
-      render: collaboratorCaret,
-      selectionRender: (other: Record<string, unknown>) => ({
-        class: collaboratorHue(other).selection,
-      }),
     }),
   ];
 }
@@ -5885,13 +6065,24 @@ export function TextEditEditor({
           top = null;
         }
         const offsets = rangeToOffsets(doc, range.from, range.to);
-        return {
-          id,
-          top,
-          anchor: anchorFromRange(anchorText(doc), offsets.start, offsets.end),
-        };
+        const anchor: TextEditAnchor = anchorFromRange(
+          anchorText(doc),
+          offsets.start,
+          offsets.end,
+        );
+        // A shared highlight's relative positions travel with it: persisting the moved anchor
+        // must not drop them (they are what keep it exact through collaborators' edits).
+        const refs = state.y.get(id);
+        if (refs)
+          anchor.y = {
+            start: Y.encodeRelativePosition(refs.start),
+            end: Y.encodeRelativePosition(refs.end),
+          };
+        return { id, top, anchor };
       });
-      const key = JSON.stringify(items);
+      const key = JSON.stringify(items, (_key, value: unknown) =>
+        value instanceof Uint8Array ? Array.from(value) : value,
+      );
       if (key === last) return;
       last = key;
       callbacks.current.onAnnotationsLayout?.(items);

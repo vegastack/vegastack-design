@@ -1,4 +1,4 @@
-// @vegastack text-edit-schema@0.25.30 sha256-wr32PGR3+IO95qFrUogG7iuY9TzB7w7Snli5ZIb/2E0=
+// @vegastack text-edit-schema@0.25.30 sha256-01qCd6OHOiVk41anJNkVwEXEyXohZkE+9W4aNZI86Gw=
 
 import {
   Extension,
@@ -1386,7 +1386,7 @@ export function textEditExtensions(
     fileChipAttribute(options.fileLinkPrefix ?? (() => "")),
     // Stable block ids: the attribute is always in the schema; only a collaborative editor assigns
     // ids as blocks appear (a server assigns them when it converts Markdown: `markdownToDoc`).
-    UniqueID.configure({
+    BlockIds.configure({
       attributeName: "blockId",
       types: [...BLOCK_ID_TYPES],
       generateID: blockId,
@@ -1401,6 +1401,31 @@ export function textEditExtensions(
     ...(options.plugins ?? []),
   ];
 }
+
+/**
+ * Stable block ids (`blockId`): a block created here gets one as it is made. A document's initial
+ * ids are never assigned by a client — `markdownToDoc` and the collaboration server own them —
+ * so a reader (read-only) never edits a shared document, and two viewers never race to give one
+ * block different ids. Upstream assigns the whole document's missing ids on create or on the
+ * first sync; both are switched off, and only this person's own edits are given ids.
+ */
+const BlockIds = UniqueID.extend({
+  onCreate() {},
+  addProseMirrorPlugins() {
+    const upstream = UniqueID.config.addProseMirrorPlugins as
+      | ((
+          this: unknown,
+        ) => ReturnType<
+          NonNullable<typeof UniqueID.config.addProseMirrorPlugins>
+        >)
+      | undefined;
+    const plugins = upstream?.call(this) ?? [];
+    (
+      this.storage as { needsInitialIdGeneration?: boolean }
+    ).needsInitialIdGeneration = false;
+    return plugins;
+  },
+});
 
 let cachedSchema: Schema | undefined;
 

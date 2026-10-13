@@ -383,11 +383,14 @@ edit never loses the mention.
 
 ### Collaboration
 
-`collaboration={{ document, provider, user }}` edits a shared Yjs document live with others. The
-app owns the connection (Hocuspocus, or any provider with an `awareness`); the design system types
-it structurally and never imports one. Each collaborator's caret and selection draw in their tag hue
-with their name above the caret for two seconds after they move (an agent always in purple), and
-⌘Z undoes only this viewer's own changes. The document is the truth: `value`, `onValueChange`,
+`collaboration={{ document, provider, user, peer }}` edits a shared Yjs document live with others.
+The app owns the connection (Hocuspocus, or any provider with an `awareness`); the design system
+types it structurally and never imports one. Each collaborator's caret and selection draw in their
+tag hue with their name above the caret for two seconds after they move (an agent always in
+purple), and ⌘Z undoes only this viewer's own changes. Who a caret belongs to comes only from
+`peer(clientId)` — the collaboration server's authenticated identity for that connection — never
+from the name a client writes into awareness, so nobody can draw a caret as someone else; without
+`peer` a caret is a plain grey bar. The document is the truth: `value`, `onValueChange`,
 `onCommit`, `onRevert`, `autosave` and `markSaved` are ignored, nothing is serialized per keystroke,
 and Escape blurs. The editor mounts at once — `readOnly` too, so a viewer watches the text and carets
 move (`readCopy` shows the stored Markdown until the editor is in).
@@ -395,8 +398,11 @@ move (`readCopy` shows the stored Markdown until the editor is in).
 Two choices keep one person's view from becoming everyone's edit: a toggle's chevron opens and
 closes it for this viewer only ("Open by default", in the toggle's ⋯ menu, sets it for everyone),
 and a page, task or file mention is stored without its title — each reader's chip asks
-`mentionLabel(kind, id)`, so nobody sees a title they may not open. A comment highlight made here
-carries `anchor.y`, Yjs positions that keep it on its words whoever edits around it.
+`mentionLabel(kind, id)`, so nobody sees a title they may not open (a pasted or imported mention
+loses its title too). A comment highlight made here carries `anchor.y`, Yjs positions bound to its
+first and last characters: it keeps its words whoever edits around or inside it, is orphaned once
+they are all deleted, and `onAnnotationsLayout` hands it back with `y` intact. Block ids are the
+server's: the editor gives one only to a block made here, never to a document it opens.
 
 <ComponentPreview
   name="textEditCollaboration"
@@ -406,7 +412,12 @@ carries `anchor.y`, Yjs positions that keep it on its words whoever edits around
 ```tsx
 <TextEdit
   format="markdown"
-  collaboration={{ document: ydoc, provider, user: { id, name, hue: "green" } }}
+  collaboration={{
+    document: ydoc,
+    provider,
+    user: { id, name, hue: "green" },
+    peer: (clientId) => members.byConnection(clientId),
+  }}
   mentionLabel={(kind, id) => labels.get(`${kind}:${id}`)}
   readOnly={!canEdit}
   aria-label="Page"
