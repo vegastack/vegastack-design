@@ -1,3 +1,4 @@
+import { fileURLToPath } from "node:url";
 import { defineConfig } from "vitest/config";
 
 /**
@@ -14,6 +15,15 @@ import { defineConfig } from "vitest/config";
  * browser-mode and the two cannot share a pool.
  */
 export default defineConfig({
+  // `vegastack-markdown.test.mjs` runs the registry's Markdown libs in Node (no DOM); they import
+  // each other as `@/lib/<name>`, the alias a consuming app maps.
+  resolve: {
+    alias: {
+      "@/lib": fileURLToPath(
+        new URL("./packages/ui/registry/lib", import.meta.url),
+      ),
+    },
+  },
   test: {
     name: "tooling",
     environment: "node",

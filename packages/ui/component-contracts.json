@@ -12,12 +12,12 @@
     "evidencePolicy": "Observed fields come from source, registry metadata, docs, and test topology. Unknown/not-applicable values are explicit; no inferred behavior is presented as verified."
   },
   "expectedCounts": {
-    "totalRegistryItems": 741,
+    "totalRegistryItems": 744,
     "components": 160,
     "animatedIcons": 467,
     "hooks": 15,
     "blocks": 15,
-    "libs": 16,
+    "libs": 19,
     "chartBlocks": 68
   },
   "expectedWaveCounts": {
@@ -5757,24 +5757,6 @@
           "ref": {
             "status": "not-applicable",
             "rationale": "A constant export does not render or accept a runtime ref."
-          }
-        },
-        {
-          "name": "codeFenceInfo",
-          "kind": "function",
-          "source": "packages/ui/registry/ui/code-block.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "A pure function; it renders nothing and takes no ref."
-          }
-        },
-        {
-          "name": "parseCodeFenceInfo",
-          "kind": "function",
-          "source": "packages/ui/registry/ui/code-block.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "A pure function; it renders nothing and takes no ref."
           }
         },
         {
@@ -15655,51 +15637,6 @@
           }
         },
         {
-          "name": "MentionKind",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/markdown-view.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "CalloutTone",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/markdown-view.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "parseMentionLink",
-          "kind": "function",
-          "source": "packages/ui/registry/ui/markdown-view.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "A pure function; it renders nothing and takes no ref."
-          }
-        },
-        {
-          "name": "mentionMarkdown",
-          "kind": "function",
-          "source": "packages/ui/registry/ui/markdown-view.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "A pure function; it renders nothing and takes no ref."
-          }
-        },
-        {
-          "name": "headingIds",
-          "kind": "function",
-          "source": "packages/ui/registry/ui/markdown-view.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "A pure function; it renders nothing and takes no ref."
-          }
-        },
-        {
           "name": "markdownExtrasClassName",
           "kind": "constant",
           "source": "packages/ui/registry/ui/markdown-view.tsx",
@@ -15745,34 +15682,7 @@
           }
         },
         {
-          "name": "parseImageAlt",
-          "kind": "function",
-          "source": "packages/ui/registry/ui/markdown-view.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "A pure function; it renders nothing and takes no ref."
-          }
-        },
-        {
-          "name": "imageMarkdown",
-          "kind": "function",
-          "source": "packages/ui/registry/ui/markdown-view.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "A pure function; it renders nothing and takes no ref."
-          }
-        },
-        {
           "name": "CALLOUT_STYLE",
-          "kind": "constant",
-          "source": "packages/ui/registry/ui/markdown-view.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "A constant export does not render or accept a runtime ref."
-          }
-        },
-        {
-          "name": "CALLOUT_TONES",
           "kind": "constant",
           "source": "packages/ui/registry/ui/markdown-view.tsx",
           "ref": {
@@ -15800,15 +15710,6 @@
         },
         {
           "name": "MEDIA_AUDIO_CLASS",
-          "kind": "constant",
-          "source": "packages/ui/registry/ui/markdown-view.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "A constant export does not render or accept a runtime ref."
-          }
-        },
-        {
-          "name": "MEDIA_BLOCK",
           "kind": "constant",
           "source": "packages/ui/registry/ui/markdown-view.tsx",
           "ref": {
@@ -15881,12 +15782,13 @@
       ],
       "docsSlug": "/docs/components/markdown-view",
       "registryDependencies": [
+        "@vegastack/alert",
+        "@vegastack/button",
         "@vegastack/checkbox",
         "@vegastack/code-block",
         "@vegastack/inline-chip",
-        "@vegastack/button",
         "@vegastack/popover",
-        "@vegastack/alert"
+        "@vegastack/text-edit-grammar"
       ],
       "npmDependencies": [
         "marked@^17.0.1",
@@ -24993,50 +24895,43 @@
       ],
       "docsSlug": "/docs/components/text-edit",
       "registryDependencies": [
+        "@vegastack/alert",
         "@vegastack/button",
         "@vegastack/checkbox",
         "@vegastack/code-block",
+        "@vegastack/code-highlight",
         "@vegastack/command",
         "@vegastack/copy-button",
         "@vegastack/drag-item",
         "@vegastack/dropdown-menu",
+        "@vegastack/dropzone",
+        "@vegastack/empty",
         "@vegastack/file-kind",
         "@vegastack/file-viewer",
         "@vegastack/inline-chip",
         "@vegastack/input",
         "@vegastack/markdown-view",
         "@vegastack/popover",
+        "@vegastack/suggestion-menu",
+        "@vegastack/tabs",
         "@vegastack/text-anchor",
         "@vegastack/text-anchor-doc",
+        "@vegastack/text-edit-grammar",
+        "@vegastack/text-edit-markdown",
+        "@vegastack/text-edit-schema",
+        "@vegastack/toast",
         "@vegastack/toggle",
         "@vegastack/tooltip",
-        "@vegastack/use-file-drop",
-        "@vegastack/code-highlight",
-        "@vegastack/alert",
-        "@vegastack/dropzone",
-        "@vegastack/empty",
-        "@vegastack/tabs",
-        "@vegastack/toast",
-        "@vegastack/suggestion-menu"
+        "@vegastack/use-file-drop"
       ],
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
-        "@tiptap/extension-code-block-lowlight@^3",
-        "@tiptap/extension-code-block@^3",
-        "@tiptap/extension-image@^3",
-        "@tiptap/extension-list@^3",
-        "@tiptap/extension-paragraph@^3",
-        "@tiptap/extension-table@^3",
         "@tiptap/extensions@^3",
-        "@tiptap/markdown@^3",
         "@tiptap/pm@^3",
         "@tiptap/react@^3",
-        "@tiptap/starter-kit@^3",
         "@tiptap/suggestion@^3",
         "@vegastack/design-tokens@^0.8.3",
         "@vegastack/design@^0.8.6",
-        "highlight.js@^11.11.1",
-        "lowlight@^3.3.0",
         "lucide-react@^1.47.0"
       ],
       "testFiles": ["packages/ui/registry/ui/text-edit.test.tsx"],
@@ -40808,6 +40703,629 @@
       "npmDependencies": ["@tiptap/pm@^3"],
       "testFiles": [
         "packages/ui/registry/lib/text-anchor-doc.test.ts",
+        "packages/ui/registry/ui/text-edit.test.tsx"
+      ],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "shared-guide-only",
+        "navigation": "exempt",
+        "preview": "exempt",
+        "vrt": "exempt"
+      }
+    },
+    {
+      "name": "text-edit-grammar",
+      "registryType": "registry:lib",
+      "title": "Text Edit Grammar",
+      "summary": "VegaStack Markdown v1 beyond CommonMark + GFM, as plain strings — mention links (parse, write, SQL twin), callout markers, toggles, media blocks, image widths, fence info and heading ids. No dependencies; server-safe.",
+      "family": "lib",
+      "wave": "Libs",
+      "sourceFiles": ["packages/ui/registry/lib/text-edit-grammar.ts"],
+      "publicSymbols": [
+        {
+          "name": "VEGASTACK_MARKDOWN_VERSION",
+          "kind": "constant",
+          "source": "packages/ui/registry/lib/text-edit-grammar.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A constant; it renders nothing and takes no ref."
+          }
+        },
+        {
+          "name": "MENTION_KINDS",
+          "kind": "constant",
+          "source": "packages/ui/registry/lib/text-edit-grammar.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A constant; it renders nothing and takes no ref."
+          }
+        },
+        {
+          "name": "MentionKind",
+          "kind": "type",
+          "source": "packages/ui/registry/lib/text-edit-grammar.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "isRecordMentionKind",
+          "kind": "function",
+          "source": "packages/ui/registry/lib/text-edit-grammar.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A pure function; it renders nothing and takes no ref."
+          }
+        },
+        {
+          "name": "RESTRICTED_MENTION_PREFIX",
+          "kind": "constant",
+          "source": "packages/ui/registry/lib/text-edit-grammar.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A constant; it renders nothing and takes no ref."
+          }
+        },
+        {
+          "name": "MENTION_LINK_SOURCE",
+          "kind": "constant",
+          "source": "packages/ui/registry/lib/text-edit-grammar.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A constant; it renders nothing and takes no ref."
+          }
+        },
+        {
+          "name": "MENTION_LINK",
+          "kind": "constant",
+          "source": "packages/ui/registry/lib/text-edit-grammar.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A constant; it renders nothing and takes no ref."
+          }
+        },
+        {
+          "name": "MENTION_LINK_SQL",
+          "kind": "constant",
+          "source": "packages/ui/registry/lib/text-edit-grammar.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A constant; it renders nothing and takes no ref."
+          }
+        },
+        {
+          "name": "escapeMentionLabel",
+          "kind": "function",
+          "source": "packages/ui/registry/lib/text-edit-grammar.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A pure function; it renders nothing and takes no ref."
+          }
+        },
+        {
+          "name": "parseMentionLink",
+          "kind": "function",
+          "source": "packages/ui/registry/lib/text-edit-grammar.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A pure function; it renders nothing and takes no ref."
+          }
+        },
+        {
+          "name": "mentionMarkdown",
+          "kind": "function",
+          "source": "packages/ui/registry/lib/text-edit-grammar.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A pure function; it renders nothing and takes no ref."
+          }
+        },
+        {
+          "name": "CalloutTone",
+          "kind": "type",
+          "source": "packages/ui/registry/lib/text-edit-grammar.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "CALLOUT_TONES",
+          "kind": "constant",
+          "source": "packages/ui/registry/lib/text-edit-grammar.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A constant; it renders nothing and takes no ref."
+          }
+        },
+        {
+          "name": "CALLOUT_MARKER",
+          "kind": "constant",
+          "source": "packages/ui/registry/lib/text-edit-grammar.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A constant; it renders nothing and takes no ref."
+          }
+        },
+        {
+          "name": "CALLOUT_BLOCK",
+          "kind": "constant",
+          "source": "packages/ui/registry/lib/text-edit-grammar.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A constant; it renders nothing and takes no ref."
+          }
+        },
+        {
+          "name": "TOGGLE_OPEN",
+          "kind": "constant",
+          "source": "packages/ui/registry/lib/text-edit-grammar.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A constant; it renders nothing and takes no ref."
+          }
+        },
+        {
+          "name": "TOGGLE_CLOSE",
+          "kind": "constant",
+          "source": "packages/ui/registry/lib/text-edit-grammar.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A constant; it renders nothing and takes no ref."
+          }
+        },
+        {
+          "name": "MEDIA_BLOCK",
+          "kind": "constant",
+          "source": "packages/ui/registry/lib/text-edit-grammar.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A constant; it renders nothing and takes no ref."
+          }
+        },
+        {
+          "name": "mediaMarkdown",
+          "kind": "function",
+          "source": "packages/ui/registry/lib/text-edit-grammar.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A pure function; it renders nothing and takes no ref."
+          }
+        },
+        {
+          "name": "headingIds",
+          "kind": "function",
+          "source": "packages/ui/registry/lib/text-edit-grammar.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A pure function; it renders nothing and takes no ref."
+          }
+        },
+        {
+          "name": "parseImageAlt",
+          "kind": "function",
+          "source": "packages/ui/registry/lib/text-edit-grammar.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A pure function; it renders nothing and takes no ref."
+          }
+        },
+        {
+          "name": "markdownDestination",
+          "kind": "function",
+          "source": "packages/ui/registry/lib/text-edit-grammar.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A pure function; it renders nothing and takes no ref."
+          }
+        },
+        {
+          "name": "imageMarkdown",
+          "kind": "function",
+          "source": "packages/ui/registry/lib/text-edit-grammar.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A pure function; it renders nothing and takes no ref."
+          }
+        },
+        {
+          "name": "parseCodeFenceInfo",
+          "kind": "function",
+          "source": "packages/ui/registry/lib/text-edit-grammar.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A pure function; it renders nothing and takes no ref."
+          }
+        },
+        {
+          "name": "codeFenceInfo",
+          "kind": "function",
+          "source": "packages/ui/registry/lib/text-edit-grammar.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A pure function; it renders nothing and takes no ref."
+          }
+        },
+        {
+          "name": "markdownTitle",
+          "kind": "function",
+          "source": "packages/ui/registry/lib/text-edit-grammar.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A pure function; it renders nothing and takes no ref."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "A pure module renders nothing and has no variant surface."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "A pure module renders nothing and has no size scale."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned motion mechanism observed."
+        }
+      },
+      "engines": [],
+      "registryDependencies": [],
+      "docsSlug": "/docs/guides/components",
+      "states": {
+        "behavior": {
+          "status": "not-applicable",
+          "values": ["not-applicable"],
+          "evidence": "Pure functions and regular expressions; no state."
+        },
+        "accessibility": {
+          "status": "not-applicable",
+          "values": ["not-applicable"],
+          "evidence": "No DOM — TextEdit and MarkdownView own the semantics of what they render."
+        },
+        "visual": {
+          "status": "not-applicable",
+          "values": ["not-applicable"],
+          "evidence": "Returns documents, strings and extensions; renders nothing."
+        }
+      },
+      "responsive": {
+        "status": "not-applicable",
+        "risks": [],
+        "rationale": "No DOM of its own; consumers own layout."
+      },
+      "npmDependencies": [],
+      "testFiles": [
+        "packages/ui/registry/lib/text-edit-grammar.test.ts",
+        "packages/ui/registry/ui/markdown-view.test.tsx"
+      ],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "shared-guide-only",
+        "navigation": "exempt",
+        "preview": "exempt",
+        "vrt": "exempt"
+      }
+    },
+    {
+      "name": "text-edit-schema",
+      "registryType": "registry:lib",
+      "title": "Text Edit Schema",
+      "summary": "TextEdit’s document schema as plain Tiptap extensions — every node, mark and attribute with its VegaStack Markdown rules, stable block ids (`blockId`) that Markdown never carries. No React, no DOM: the editor adds node views, a server builds the identical schema.",
+      "family": "lib",
+      "wave": "Libs",
+      "sourceFiles": ["packages/ui/registry/lib/text-edit-schema.ts"],
+      "publicSymbols": [
+        {
+          "name": "TextEditNodeView",
+          "kind": "type",
+          "source": "packages/ui/registry/lib/text-edit-schema.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "TextEditSchemaOptions",
+          "kind": "interface",
+          "source": "packages/ui/registry/lib/text-edit-schema.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "BLOCK_ID_TYPES",
+          "kind": "constant",
+          "source": "packages/ui/registry/lib/text-edit-schema.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A constant; it renders nothing and takes no ref."
+          }
+        },
+        {
+          "name": "blockId",
+          "kind": "function",
+          "source": "packages/ui/registry/lib/text-edit-schema.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A pure function; it renders nothing and takes no ref."
+          }
+        },
+        {
+          "name": "textEditExtensions",
+          "kind": "function",
+          "source": "packages/ui/registry/lib/text-edit-schema.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A pure function; it renders nothing and takes no ref."
+          }
+        },
+        {
+          "name": "textEditSchema",
+          "kind": "function",
+          "source": "packages/ui/registry/lib/text-edit-schema.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A pure function; it renders nothing and takes no ref."
+          }
+        },
+        {
+          "name": "trimInline",
+          "kind": "function",
+          "source": "packages/ui/registry/lib/text-edit-schema.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A pure function; it renders nothing and takes no ref."
+          }
+        },
+        {
+          "name": "isTailOf",
+          "kind": "function",
+          "source": "packages/ui/registry/lib/text-edit-schema.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A pure function; it renders nothing and takes no ref."
+          }
+        },
+        {
+          "name": "TASK_MARKER",
+          "kind": "constant",
+          "source": "packages/ui/registry/lib/text-edit-schema.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A string constant; it renders nothing and takes no ref."
+          }
+        },
+        {
+          "name": "resetParseCaches",
+          "kind": "function",
+          "source": "packages/ui/registry/lib/text-edit-schema.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A pure function; it renders nothing and takes no ref."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "A pure module renders nothing and has no variant surface."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "A pure module renders nothing and has no size scale."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned motion mechanism observed."
+        }
+      },
+      "engines": [
+        {
+          "package": "tiptap",
+          "role": "document schema (nodes, marks, Markdown rules)"
+        }
+      ],
+      "registryDependencies": ["@vegastack/text-edit-grammar"],
+      "docsSlug": "/docs/guides/components",
+      "states": {
+        "behavior": {
+          "status": "not-applicable",
+          "values": ["not-applicable"],
+          "evidence": "Builds extension lists and one cached schema; no state machine."
+        },
+        "accessibility": {
+          "status": "not-applicable",
+          "values": ["not-applicable"],
+          "evidence": "No DOM — TextEdit and MarkdownView own the semantics of what they render."
+        },
+        "visual": {
+          "status": "not-applicable",
+          "values": ["not-applicable"],
+          "evidence": "Returns documents, strings and extensions; renders nothing."
+        }
+      },
+      "responsive": {
+        "status": "not-applicable",
+        "risks": [],
+        "rationale": "No DOM of its own; consumers own layout."
+      },
+      "npmDependencies": [
+        "@tiptap/core@^3.31.4",
+        "@tiptap/pm@^3.31.4",
+        "@tiptap/starter-kit@^3.31.4",
+        "@tiptap/extension-code-block@^3.31.4",
+        "@tiptap/extension-code-block-lowlight@^3.31.4",
+        "@tiptap/extension-hard-break@^3.31.4",
+        "@tiptap/extension-image@^3.31.4",
+        "@tiptap/extension-link@^3.31.4",
+        "@tiptap/extension-list@^3.31.4",
+        "@tiptap/extension-paragraph@^3.31.4",
+        "@tiptap/extension-table@^3.31.4",
+        "@tiptap/extension-unique-id@^3.31.4"
+      ],
+      "testFiles": [
+        "packages/ui/registry/lib/text-edit-markdown.test.ts",
+        "packages/ui/registry/ui/text-edit.test.tsx"
+      ],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "shared-guide-only",
+        "navigation": "exempt",
+        "preview": "exempt",
+        "vrt": "exempt"
+      }
+    },
+    {
+      "name": "text-edit-markdown",
+      "registryType": "registry:lib",
+      "title": "Text Edit Markdown",
+      "summary": "VegaStack Markdown v1 in and out of a TextEdit document, identical in a browser and on a server — markdownToDoc, docToMarkdown, normalizeMarkdown, docToText, an isolated marked instance, minimal escaping, raw HTML as text, and the editor’s VegaStackMarkdown extension.",
+      "family": "lib",
+      "wave": "Libs",
+      "sourceFiles": ["packages/ui/registry/lib/text-edit-markdown.ts"],
+      "publicSymbols": [
+        {
+          "name": "createMarkdownManager",
+          "kind": "function",
+          "source": "packages/ui/registry/lib/text-edit-markdown.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A pure function; it renders nothing and takes no ref."
+          }
+        },
+        {
+          "name": "MarkdownToDocOptions",
+          "kind": "interface",
+          "source": "packages/ui/registry/lib/text-edit-markdown.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "markdownToDoc",
+          "kind": "function",
+          "source": "packages/ui/registry/lib/text-edit-markdown.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A pure function; it renders nothing and takes no ref."
+          }
+        },
+        {
+          "name": "docToMarkdown",
+          "kind": "function",
+          "source": "packages/ui/registry/lib/text-edit-markdown.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A pure function; it renders nothing and takes no ref."
+          }
+        },
+        {
+          "name": "normalizeMarkdown",
+          "kind": "function",
+          "source": "packages/ui/registry/lib/text-edit-markdown.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A pure function; it renders nothing and takes no ref."
+          }
+        },
+        {
+          "name": "docToText",
+          "kind": "function",
+          "source": "packages/ui/registry/lib/text-edit-markdown.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A pure function; it renders nothing and takes no ref."
+          }
+        },
+        {
+          "name": "VegaStackMarkdown",
+          "kind": "constant",
+          "source": "packages/ui/registry/lib/text-edit-markdown.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A constant; it renders nothing and takes no ref."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "A pure module renders nothing and has no variant surface."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "A pure module renders nothing and has no size scale."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned motion mechanism observed."
+        }
+      },
+      "engines": [
+        {
+          "package": "tiptap",
+          "role": "Markdown manager"
+        },
+        {
+          "package": "marked",
+          "role": "markdown lexer engine (a private instance)"
+        }
+      ],
+      "registryDependencies": [
+        "@vegastack/text-anchor-doc",
+        "@vegastack/text-edit-schema"
+      ],
+      "docsSlug": "/docs/guides/components",
+      "states": {
+        "behavior": {
+          "status": "not-applicable",
+          "values": ["not-applicable"],
+          "evidence": "Pure conversion over immutable documents; one shared manager per process."
+        },
+        "accessibility": {
+          "status": "not-applicable",
+          "values": ["not-applicable"],
+          "evidence": "No DOM — TextEdit and MarkdownView own the semantics of what they render."
+        },
+        "visual": {
+          "status": "not-applicable",
+          "values": ["not-applicable"],
+          "evidence": "Returns documents, strings and extensions; renders nothing."
+        }
+      },
+      "responsive": {
+        "status": "not-applicable",
+        "risks": [],
+        "rationale": "No DOM of its own; consumers own layout."
+      },
+      "npmDependencies": [
+        "@tiptap/core@^3.31.4",
+        "@tiptap/markdown@^3.31.4",
+        "@tiptap/pm@^3.31.4",
+        "marked@^17.0.1"
+      ],
+      "testFiles": [
+        "packages/ui/registry/lib/text-edit-markdown.test.ts",
         "packages/ui/registry/ui/text-edit.test.tsx"
       ],
       "coverage": {

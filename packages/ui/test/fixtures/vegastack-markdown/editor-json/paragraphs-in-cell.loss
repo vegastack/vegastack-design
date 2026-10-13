@@ -1,0 +1,1 @@
+Paragraphs in a table cell join with <br> into one paragraph: a GFM cell holds one line (the document keeps them).

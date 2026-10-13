@@ -1,0 +1,32 @@
+{
+  "type": "doc",
+  "content": [
+    {
+      "type": "image",
+      "attrs": {
+        "src": "/a.png",
+        "alt": "hello|123",
+        "title": null,
+        "width": null
+      }
+    },
+    {
+      "type": "image",
+      "attrs": {
+        "src": "/b.png",
+        "alt": "size|9",
+        "title": null,
+        "width": 240
+      }
+    },
+    {
+      "type": "image",
+      "attrs": {
+        "src": "/c.png",
+        "alt": "end\\",
+        "title": null,
+        "width": 64
+      }
+    }
+  ]
+}

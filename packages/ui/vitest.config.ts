@@ -127,6 +127,15 @@ export default defineConfig({
       "@tiptap/pm/view",
       "@tiptap/react/menus",
       "@tiptap/suggestion",
+      // The shared document schema's own entry points, and the Yjs binding the round-trip corpus
+      // (and TextEdit's collaboration mode) runs through. Pre-bundled with the rest so one
+      // prosemirror-model serves them all; discovered mid-run, y-tiptap got a second copy.
+      "@tiptap/core",
+      "@tiptap/extension-hard-break",
+      "@tiptap/extension-link",
+      "@tiptap/extension-unique-id",
+      "@tiptap/y-tiptap",
+      "yjs",
       // Base UI entry points registry sources import that no list above named: each was discovered
       // mid-run on a cold cache and reloaded the page (text-edit: 40/45 failed cold).
       "@base-ui/react",

@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.25.29 sha256-dd3AQl6ZbP9PP+TFqiJmBZn3jWyX+YFgzWYduIa5njA=
+// @vegastack text-edit@0.25.29 sha256-CxxvHiQm+7a08RxWNHqN4gV2s0qFQcNz2pv8w1CTRYY=
 
 "use client";
 
@@ -20,17 +20,11 @@ import {
   textblockTypeInputRule,
   type Editor,
   type JSONContent,
+  type NodeViewRenderer,
   type Range,
   type ReactNodeViewProps,
 } from "@tiptap/react";
 import { BubbleMenu } from "@tiptap/react/menus";
-import StarterKit from "@tiptap/starter-kit";
-import { Markdown } from "@tiptap/markdown";
-import { CodeBlockLowlight } from "@tiptap/extension-code-block-lowlight";
-import { Image } from "@tiptap/extension-image";
-import { Paragraph } from "@tiptap/extension-paragraph";
-import { TaskItem, TaskList } from "@tiptap/extension-list";
-import { TableKit } from "@tiptap/extension-table";
 import { Placeholder } from "@tiptap/extensions";
 import {
   Suggestion,
@@ -125,8 +119,6 @@ import {
   CODE_LANGUAGES,
   codeBlockActionsClassName,
   codeBlockControlClassName,
-  codeFenceInfo,
-  parseCodeFenceInfo,
   codeBlockControlsPadClassName,
   codeBlockPreClassName,
   codeBlockSurfaceClassName,
@@ -181,21 +173,20 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { toast } from "@/components/ui/toast";
 import {
   CALLOUT_STYLE,
-  CALLOUT_TONES,
   MEDIA_AUDIO_CLASS,
-  MEDIA_BLOCK,
   MEDIA_VIDEO_CLASS,
   calloutClassName,
   calloutContentClassName,
-  headingIds,
-  imageMarkdown,
   markdownExtrasClassName,
-  mentionMarkdown,
-  parseImageAlt,
-  parseMentionLink,
+} from "@/components/ui/markdown-view";
+import {
+  CALLOUT_TONES,
+  headingIds,
   type CalloutTone,
   type MentionKind,
-} from "@/components/ui/markdown-view";
+} from "@/lib/text-edit-grammar";
+import { textEditExtensions } from "@/lib/text-edit-schema";
+import { VegaStackMarkdown } from "@/lib/text-edit-markdown";
 import { useFileDrop } from "@/components/ui/use-file-drop";
 import { FileTypeIcon } from "@/lib/file-kind";
 import {
@@ -695,81 +686,6 @@ function CodeBlockView({
   );
 }
 
-const TaskItemWithView = TaskItem.extend({
-  addNodeView() {
-    return ReactNodeViewRenderer(TaskItemView, {
-      as: "li",
-      attrs: ({ node }) => ({
-        "data-type": "taskItem",
-        "data-checked": String(Boolean(node.attrs.checked)),
-      }),
-    });
-  },
-});
-
-/**
- * Code blocks: lowlight highlighting (the shared `codeLowlight`), Tab / Shift-Tab indent inside
- * the block, triple Enter or ArrowDown at the end leaves it, and ```` ```lang ```` (or `~~~lang`)
- * plus a space starts one — any fence language, `c++` and `objective-c` included.
- */
-const CodeBlockWithView = CodeBlockLowlight.extend({
-  addAttributes() {
-    return {
-      ...this.parent?.(),
-      // Long lines wrap instead of scrolling: saved as ```` ```ts wrap ```` (default: no wrap).
-      wrap: {
-        default: false,
-        parseHTML: (element) => element.hasAttribute("data-wrap"),
-        renderHTML: (attrs) => (attrs.wrap ? { "data-wrap": "" } : {}),
-      },
-    };
-  },
-  parseMarkdown: (token, helpers) => {
-    if (
-      token.raw?.startsWith("```") === false &&
-      token.raw?.startsWith("~~~") === false &&
-      token.codeBlockStyle !== "indented"
-    )
-      return [];
-    const { language, wrap } = parseCodeFenceInfo(token.lang as string);
-    return helpers.createNode(
-      "codeBlock",
-      { language: language ?? null, wrap },
-      token.text ? [helpers.createTextNode(token.text)] : [],
-    );
-  },
-  renderMarkdown: (node, helpers) => {
-    const info = codeFenceInfo(
-      node.attrs?.language as string | null,
-      Boolean(node.attrs?.wrap),
-    );
-    const body = node.content ? helpers.renderChildren(node.content) : "";
-    // A fence longer than any backtick run inside the code, so the block cannot close early.
-    const longest = Math.max(
-      2,
-      ...[...body.matchAll(/`+/g)].map((match) => match[0].length),
-    );
-    const fence = "`".repeat(longest + 1);
-    return `${fence}${info}\n${body}\n${fence}`;
-  },
-  addNodeView() {
-    return ReactNodeViewRenderer(CodeBlockView);
-  },
-  addInputRules() {
-    return [/^```([\w+#.-]+)?[\s\n]$/, /^~~~([\w+#.-]+)?[\s\n]$/].map((find) =>
-      textblockTypeInputRule({
-        find,
-        type: this.type,
-        getAttributes: (match) => ({ language: match[1] ?? null }),
-      }),
-    );
-  },
-}).configure({
-  lowlight: codeLowlight,
-  enableTabIndentation: true,
-  tabSize: 2,
-});
-
 /* ------------------------------------------------------------------------------------------------
  * Block and table moves — structural edits the drag handle, the table grips and the shortcuts share
  * ----------------------------------------------------------------------------------------------*/
@@ -1188,71 +1104,6 @@ const Shortcuts = Extension.create({
 });
 
 /**
- * Images are blocks — one image per block, on its own line in markdown (`![alt|w](src)`). GFM
- * puts an image inside a paragraph (mid-sentence or alone), so loading lifts each one out: the
- * paragraph splits around it, its text stays paragraphs, the image becomes a block between them.
- */
-const ParagraphLiftingImages = Paragraph.extend({
-  parseMarkdown: (token, helpers) => {
-    const tokens = (token.tokens ?? []) as { type: string; raw?: string }[];
-    // No image: a plain paragraph, as Tiptap's own parser makes it (a lone `&nbsp;` is an empty
-    // paragraph). Written out, not delegated: `Paragraph.config.parseMarkdown`'s `this` type
-    // differs between Tiptap releases.
-    if (!tokens.some((each) => each.type === "image")) {
-      const content = helpers.parseInline(tokens as never);
-      const only = content.length === 1 ? content[0] : null;
-      if (
-        only?.type === "text" &&
-        (only.text === "\u00A0" || only.text === "&nbsp;")
-      )
-        return helpers.createNode("paragraph", undefined, []);
-      return helpers.createNode("paragraph", undefined, content);
-    }
-    const out: JSONContent[] = [];
-    let run: typeof tokens = [];
-    // The space next to a lifted image belonged to the sentence it sat in, not to the paragraph.
-    const trim = (
-      each: { type: string; raw?: string; text?: string },
-      end: boolean,
-    ) =>
-      each.type === "text"
-        ? {
-            ...each,
-            raw: end ? each.raw?.trimEnd() : each.raw?.trimStart(),
-            text: end ? each.text?.trimEnd() : each.text?.trimStart(),
-          }
-        : each;
-    const flush = () => {
-      if (run.length) {
-        run[0] = trim(run[0]!, false);
-        run[run.length - 1] = trim(run[run.length - 1]!, true);
-      }
-      // A run of only whitespace or line breaks between images leaves no paragraph behind.
-      const text = run.map((each) => each.raw ?? "").join("");
-      if (text.trim())
-        out.push(
-          helpers.createNode(
-            "paragraph",
-            undefined,
-            helpers.parseInline(run as never),
-          ),
-        );
-      run = [];
-    };
-    for (const each of tokens) {
-      if (each.type !== "image") {
-        run.push(each);
-        continue;
-      }
-      flush();
-      out.push(...helpers.parseInline([each] as never));
-    }
-    flush();
-    return out;
-  },
-});
-
-/**
  * Where a block (an image, a video, an audio clip) lands for a caret at `pos`: in place of an empty
  * paragraph, else right after the caret's block — never splitting the text it sits in.
  */
@@ -1286,9 +1137,8 @@ function FileChipIcon({ name }: { name: string }) {
 }
 
 /**
- * A link whose href starts with `fileLinkPrefix` is a file (`[report.pdf](/api/files/…)`): the
- * link carries `data-slot="file-chip"` and an icon widget sits at its start. The Markdown is an
- * ordinary link.
+ * A file link's icon: a widget at the start of each link whose href starts with `fileLinkPrefix`
+ * (the link itself carries `data-slot="file-chip"`, from the schema's `fileChip` attribute).
  */
 function fileChips(runtime: EditorRuntime) {
   const isFile = (href: unknown) =>
@@ -1297,21 +1147,6 @@ function fileChips(runtime: EditorRuntime) {
     href.startsWith(runtime.fileLinkPrefix.current);
   return Extension.create({
     name: "textEditFileChips",
-    addGlobalAttributes() {
-      return [
-        {
-          types: ["link"],
-          attributes: {
-            fileChip: {
-              default: null,
-              parseHTML: () => null,
-              renderHTML: (attrs) =>
-                isFile(attrs.href) ? { "data-slot": "file-chip" } : {},
-            },
-          },
-        },
-      ];
-    },
     addDecorations() {
       return {
         create: ({ editor, state }) => {
@@ -2083,225 +1918,184 @@ function guideLayer(editor: Editor): HTMLElement | null {
   return editor.view.dom.closest<HTMLElement>("[data-slot=text-edit-content]");
 }
 
-function readWidth(element: HTMLElement): number | null {
-  const width = Number.parseInt(
-    element.getAttribute("width") ?? element.style.width ?? "",
-    10,
-  );
-  return width > 0 ? width : null;
-}
-
-function imageNode(runtime: ImageRuntime) {
-  return Image.extend({
-    addAttributes() {
-      return {
-        ...this.parent?.(),
-        width: {
-          default: null,
-          parseHTML: readWidth,
-          renderHTML: (attributes) =>
-            attributes.width ? { width: attributes.width } : {},
-        },
-        // The width alone sizes an image; its height follows the aspect ratio.
-        height: { default: null, rendered: false },
+/** An image block's node view: the resizable image, its snap guides, and the hover toolbar slot. */
+function imageView(runtime: ImageRuntime): NodeViewRenderer {
+  return ({ node, getPos, editor }) => {
+    const image = document.createElement("img");
+    image.draggable = false;
+    // The prose recipe's image margin would pad the frame above and below.
+    image.style.margin = "0";
+    const sync = (next: PMNode) => {
+      const { src, alt, title, width } = next.attrs as {
+        src: string | null;
+        alt: string | null;
+        title: string | null;
+        width: number | null;
       };
-    },
-    parseMarkdown: (token, helpers) => {
-      const { alt, width } = parseImageAlt(token.text ?? "");
-      return helpers.createNode("image", {
-        src: token.href,
-        title: token.title ?? null,
-        alt,
-        width: width ?? null,
+      if (src) {
+        if (image.getAttribute("src") !== src) image.src = src;
+      } else image.removeAttribute("src");
+      image.alt = alt ?? "";
+      if (title) image.title = title;
+      else image.removeAttribute("title");
+      image.style.width = width ? `${width}px` : "";
+      image.style.height = "";
+    };
+    sync(node);
+
+    // Snap guides, drawn in the content box while a handle is dragged.
+    let guides: HTMLElement[] = [];
+    let available = Number.POSITIVE_INFINITY;
+    const clearGuides = () => {
+      for (const guide of guides) guide.remove();
+      guides = [];
+    };
+    const startGuides = () => {
+      clearGuides();
+      const layer = guideLayer(editor);
+      const content = editor.view.dom.getBoundingClientRect();
+      const left = image.getBoundingClientRect().left;
+      const style = getComputedStyle(editor.view.dom);
+      available = Math.max(
+        IMAGE_MIN_WIDTH,
+        content.right - Number.parseFloat(style.paddingRight || "0") - left,
+      );
+      view.maxSize = { width: available };
+      if (!layer) return;
+      const origin = layer.getBoundingClientRect().left - layer.scrollLeft;
+      guides = IMAGE_GUIDES.map((fraction) => {
+        const guide = document.createElement("div");
+        guide.className = IMAGE_GUIDE;
+        guide.dataset.slot = "text-edit-image-guide";
+        guide.style.left = `${left - origin + fraction * available}px`;
+        layer.append(guide);
+        return guide;
       });
-    },
-    renderMarkdown: (node) =>
-      imageMarkdown({
-        src: node.attrs?.src ?? "",
-        alt: node.attrs?.alt,
-        title: node.attrs?.title,
-        width: node.attrs?.width,
-      }),
-    addNodeView() {
-      return ({ node, getPos, editor }) => {
-        const image = document.createElement("img");
-        image.draggable = false;
-        // The prose recipe's image margin would pad the frame above and below.
-        image.style.margin = "0";
-        const sync = (next: PMNode) => {
-          const { src, alt, title, width } = next.attrs as {
-            src: string | null;
-            alt: string | null;
-            title: string | null;
-            width: number | null;
-          };
-          if (src) {
-            if (image.getAttribute("src") !== src) image.src = src;
-          } else image.removeAttribute("src");
-          image.alt = alt ?? "";
-          if (title) image.title = title;
-          else image.removeAttribute("title");
-          image.style.width = width ? `${width}px` : "";
-          image.style.height = "";
-        };
-        sync(node);
+    };
 
-        // Snap guides, drawn in the content box while a handle is dragged.
-        let guides: HTMLElement[] = [];
-        let available = Number.POSITIVE_INFINITY;
-        const clearGuides = () => {
-          for (const guide of guides) guide.remove();
-          guides = [];
-        };
-        const startGuides = () => {
-          clearGuides();
-          const layer = guideLayer(editor);
-          const content = editor.view.dom.getBoundingClientRect();
-          const left = image.getBoundingClientRect().left;
-          const style = getComputedStyle(editor.view.dom);
-          available = Math.max(
-            IMAGE_MIN_WIDTH,
-            content.right - Number.parseFloat(style.paddingRight || "0") - left,
-          );
-          view.maxSize = { width: available };
-          if (!layer) return;
-          const origin = layer.getBoundingClientRect().left - layer.scrollLeft;
-          guides = IMAGE_GUIDES.map((fraction) => {
-            const guide = document.createElement("div");
-            guide.className = IMAGE_GUIDE;
-            guide.dataset.slot = "text-edit-image-guide";
-            guide.style.left = `${left - origin + fraction * available}px`;
-            layer.append(guide);
-            return guide;
-          });
-        };
+    const sizeLabel = document.createElement("span");
+    sizeLabel.className = IMAGE_SIZE_LABEL;
+    sizeLabel.dataset.slot = "text-edit-image-size";
 
-        const sizeLabel = document.createElement("span");
-        sizeLabel.className = IMAGE_SIZE_LABEL;
-        sizeLabel.dataset.slot = "text-edit-image-size";
-
-        const view = new ResizableNodeView({
-          element: image,
-          editor,
-          node,
-          getPos,
-          onResize: (width) => {
-            let next = width;
-            let snapped = -1;
-            IMAGE_GUIDES.forEach((fraction, index) => {
-              const target = Math.round(fraction * available);
-              if (Math.abs(width - target) <= IMAGE_SNAP) {
-                next = target;
-                snapped = index;
-              }
-            });
-            image.style.width = `${next}px`;
-            image.style.height = "";
-            guides.forEach((guide, index) =>
-              guide.toggleAttribute("data-active", index === snapped),
-            );
-            sizeLabel.textContent =
-              snapped === -1
-                ? `${Math.round(next)} px`
-                : `${Math.round(next)} px · ${IMAGE_GUIDES[snapped]! * 100}%`;
-          },
-          onCommit: (width) => {
-            clearGuides();
-            image.style.height = "";
-            const pos = getPos();
-            if (pos === undefined) return;
-            const next = Math.round(width);
-            if (next === view.node.attrs.width) return;
-            editor
-              .chain()
-              .setNodeSelection(pos)
-              .updateAttributes("image", { width: next, height: null })
-              .run();
-          },
-          onUpdate: (next) => {
-            if (next.type !== node.type) return false;
-            sync(next);
-            return true;
-          },
-          options: {
-            directions: ["left", "right"],
-            min: { width: IMAGE_MIN_WIDTH },
-            preserveAspectRatio: true,
-            className: {
-              container: IMAGE_CONTAINER,
-              wrapper: IMAGE_WRAPPER,
-              handle: IMAGE_HANDLE,
-            },
-          },
-        });
-        view.dom.dataset.slot = "text-edit-image-node";
-
-        // Tiptap ends a resize on `mouseup` only: end a touch drag the same way. The guides and
-        // the maximum width are measured as a drag starts.
-        const wrapper = view.wrapper as HTMLElement;
-        const onStart = (event: Event) => {
-          if (!(event.target as Element).closest?.("[data-resize-handle]"))
-            return;
-          startGuides();
-          if (event.type === "touchstart") {
-            const end = () => document.dispatchEvent(new MouseEvent("mouseup"));
-            document.addEventListener("touchend", end, { once: true });
-            document.addEventListener("touchcancel", end, { once: true });
+    const view = new ResizableNodeView({
+      element: image,
+      editor,
+      node,
+      getPos,
+      onResize: (width) => {
+        let next = width;
+        let snapped = -1;
+        IMAGE_GUIDES.forEach((fraction, index) => {
+          const target = Math.round(fraction * available);
+          if (Math.abs(width - target) <= IMAGE_SNAP) {
+            next = target;
+            snapped = index;
           }
-        };
-        wrapper.addEventListener("mousedown", onStart, true);
-        wrapper.addEventListener("touchstart", onStart, true);
-
-        const host = document.createElement("span");
-        host.className = IMAGE_MENU_SLOT;
-        host.contentEditable = "false";
-        host.dataset.slot = "text-edit-image-menu";
-        wrapper.append(sizeLabel, host);
-        const remove = runtime.slots.add({ host, image, getPos });
-        // An image narrower than its toolbar shows none (a double-click still opens it).
-        const narrow =
-          typeof ResizeObserver === "undefined"
-            ? null
-            : new ResizeObserver(() =>
-                host.toggleAttribute("data-narrow", image.clientWidth < 160),
-              );
-        narrow?.observe(image);
-
-        // A click selects the image (Notion): the ring, the handles and the toolbar follow.
-        wrapper.addEventListener("click", (event) => {
-          const target = event.target as Element;
-          if (
-            !editor.isEditable ||
-            target.closest?.(
-              "[data-resize-handle],[data-slot=text-edit-image-menu]",
-            )
-          )
-            return;
-          const pos = getPos();
-          if (typeof pos === "number") editor.commands.setNodeSelection(pos);
         });
+        image.style.width = `${next}px`;
+        image.style.height = "";
+        guides.forEach((guide, index) =>
+          guide.toggleAttribute("data-active", index === snapped),
+        );
+        sizeLabel.textContent =
+          snapped === -1
+            ? `${Math.round(next)} px`
+            : `${Math.round(next)} px · ${IMAGE_GUIDES[snapped]! * 100}%`;
+      },
+      onCommit: (width) => {
+        clearGuides();
+        image.style.height = "";
+        const pos = getPos();
+        if (pos === undefined) return;
+        const next = Math.round(width);
+        if (next === view.node.attrs.width) return;
+        editor
+          .chain()
+          .setNodeSelection(pos)
+          .updateAttributes("image", { width: next, height: null })
+          .run();
+      },
+      onUpdate: (next) => {
+        if (next.type !== node.type) return false;
+        sync(next);
+        return true;
+      },
+      options: {
+        directions: ["left", "right"],
+        min: { width: IMAGE_MIN_WIDTH },
+        preserveAspectRatio: true,
+        className: {
+          container: IMAGE_CONTAINER,
+          wrapper: IMAGE_WRAPPER,
+          handle: IMAGE_HANDLE,
+        },
+      },
+    });
+    view.dom.dataset.slot = "text-edit-image-node";
 
-        image.addEventListener("dblclick", (event) => {
-          event.preventDefault();
-          runtime.open.current?.(image);
-        });
+    // Tiptap ends a resize on `mouseup` only: end a touch drag the same way. The guides and
+    // the maximum width are measured as a drag starts.
+    const wrapper = view.wrapper as HTMLElement;
+    const onStart = (event: Event) => {
+      if (!(event.target as Element).closest?.("[data-resize-handle]")) return;
+      startGuides();
+      if (event.type === "touchstart") {
+        const end = () => document.dispatchEvent(new MouseEvent("mouseup"));
+        document.addEventListener("touchend", end, { once: true });
+        document.addEventListener("touchcancel", end, { once: true });
+      }
+    };
+    wrapper.addEventListener("mousedown", onStart, true);
+    wrapper.addEventListener("touchstart", onStart, true);
 
-        const destroy = view.destroy.bind(view);
-        return Object.assign(view, {
-          // The menu and its popup are React's: ProseMirror leaves their events alone.
-          stopEvent: (event: Event) => host.contains(event.target as Node),
-          ignoreMutation: (mutation: { type: string }) =>
-            mutation.type !== "selection",
-          destroy: () => {
-            clearGuides();
-            narrow?.disconnect();
-            remove();
-            destroy();
-          },
-        });
-      };
-    },
-  });
+    const host = document.createElement("span");
+    host.className = IMAGE_MENU_SLOT;
+    host.contentEditable = "false";
+    host.dataset.slot = "text-edit-image-menu";
+    wrapper.append(sizeLabel, host);
+    const remove = runtime.slots.add({ host, image, getPos });
+    // An image narrower than its toolbar shows none (a double-click still opens it).
+    const narrow =
+      typeof ResizeObserver === "undefined"
+        ? null
+        : new ResizeObserver(() =>
+            host.toggleAttribute("data-narrow", image.clientWidth < 160),
+          );
+    narrow?.observe(image);
+
+    // A click selects the image (Notion): the ring, the handles and the toolbar follow.
+    wrapper.addEventListener("click", (event) => {
+      const target = event.target as Element;
+      if (
+        !editor.isEditable ||
+        target.closest?.(
+          "[data-resize-handle],[data-slot=text-edit-image-menu]",
+        )
+      )
+        return;
+      const pos = getPos();
+      if (typeof pos === "number") editor.commands.setNodeSelection(pos);
+    });
+
+    image.addEventListener("dblclick", (event) => {
+      event.preventDefault();
+      runtime.open.current?.(image);
+    });
+
+    const destroy = view.destroy.bind(view);
+    return Object.assign(view, {
+      // The menu and its popup are React's: ProseMirror leaves their events alone.
+      stopEvent: (event: Event) => host.contains(event.target as Node),
+      ignoreMutation: (mutation: { type: string }) =>
+        mutation.type !== "selection",
+      destroy: () => {
+        clearGuides();
+        narrow?.disconnect();
+        remove();
+        destroy();
+      },
+    });
+  };
 }
 
 /**
@@ -2517,86 +2311,10 @@ function mentionView(runtime: EditorRuntime) {
   };
 }
 
-/**
- * `@` mention — an inline atom `{ kind, id, label }`. Markdown: `[@<label>](mention://<kind>/<id>)`,
- * read by a tokenizer that runs before marked's own link rule, so it never becomes a link.
- */
-function mentionNode(runtime: EditorRuntime) {
-  return TiptapNode.create({
-    name: "mention",
-    group: "inline",
-    inline: true,
-    atom: true,
-    selectable: false,
-    draggable: false,
-    addAttributes() {
-      return {
-        kind: {
-          default: "user",
-          parseHTML: (element) => element.getAttribute("data-kind"),
-          renderHTML: (attrs) => ({ "data-kind": attrs.kind }),
-        },
-        id: {
-          default: "",
-          parseHTML: (element) => element.getAttribute("data-id"),
-          renderHTML: (attrs) => ({ "data-id": attrs.id }),
-        },
-        label: {
-          default: "",
-          parseHTML: (element) => element.getAttribute("data-label"),
-          renderHTML: (attrs) => ({ "data-label": attrs.label }),
-        },
-      };
-    },
-    parseHTML() {
-      return [{ tag: "span[data-type=mention]" }];
-    },
-    renderHTML({ node, HTMLAttributes }) {
-      return [
-        "span",
-        mergeAttributes({ "data-type": "mention" }, HTMLAttributes),
-        `@${node.attrs.label}`,
-      ];
-    },
-    renderText: ({ node }) => `@${node.attrs.label}`,
-    // The anchor text (`anchorText`) and a heading's outline text read a mention as `@label`.
-    extendNodeSchema(extension) {
-      return extension.name === "mention"
-        ? { leafText: (node: PMNode) => `@${node.attrs.label}` }
-        : {};
-    },
-    markdownTokenName: "mention",
-    markdownTokenizer: {
-      name: "mention",
-      level: "inline",
-      start: (src: string) => src.indexOf("[@"),
-      tokenize: (src: string) => {
-        const mention = parseMentionLink(src);
-        if (!mention) return undefined;
-        return {
-          type: "mention",
-          raw: mention.raw,
-          kind: mention.kind,
-          id: mention.id,
-          label: mention.label,
-        };
-      },
-    },
-    parseMarkdown: (token, helpers) =>
-      helpers.createNode("mention", {
-        kind: token.kind,
-        id: token.id,
-        label: token.label,
-      }),
-    renderMarkdown: (node) =>
-      mentionMarkdown(
-        node.attrs?.kind ?? "user",
-        node.attrs?.id ?? "",
-        node.attrs?.label ?? "",
-      ),
-    addNodeView() {
-      return ReactNodeViewRenderer(mentionView(runtime), { as: "span" });
-    },
+/** The `@` mention's editing behaviour: a chip deletes whole, and `@` opens the mention menu. */
+function mentionBehaviour(runtime: EditorRuntime) {
+  return Extension.create({
+    name: "textEditMention",
     addKeyboardShortcuts() {
       // A chip goes whole: the caret beside it deletes the atom, never half its label.
       const removeBeside = (before: boolean) => () => {
@@ -2757,90 +2475,6 @@ function CalloutView({ node, editor, updateAttributes }: ReactNodeViewProps) {
   );
 }
 
-/** `> [!NOTE]` … — the callout's quote lines, from the start of `src`. */
-const CALLOUT_BLOCK =
-  /^> \[!(NOTE|TIP|IMPORTANT|WARNING|CAUTION)\][ \t]*(?:\n|$)((?:>[^\n]*(?:\n|$))*)/i;
-
-/** Callout — GitHub's alert syntax (`> [!NOTE]`, `[!TIP]`, `[!IMPORTANT]`, `[!WARNING]`, `[!CAUTION]`) around its blocks. */
-const Callout = TiptapNode.create({
-  name: "callout",
-  group: "block",
-  content: "block+",
-  defining: true,
-  addAttributes() {
-    return {
-      tone: {
-        default: "note",
-        parseHTML: (element) => element.getAttribute("data-tone") ?? "note",
-        renderHTML: (attrs) => ({ "data-tone": attrs.tone }),
-      },
-    };
-  },
-  parseHTML() {
-    return [
-      {
-        tag: "div[data-slot=callout]",
-        contentElement: "[data-slot=callout-content]",
-      },
-    ];
-  },
-  renderHTML({ HTMLAttributes }) {
-    return [
-      "div",
-      mergeAttributes({ "data-slot": "callout", role: "note" }, HTMLAttributes),
-      ["div", { "data-slot": "callout-content" }, 0],
-    ];
-  },
-  markdownTokenName: "callout",
-  markdownTokenizer: {
-    name: "callout",
-    level: "block",
-    start: (src: string) => {
-      const match = /^> \[!(?:NOTE|TIP|IMPORTANT|WARNING|CAUTION)\]/im.exec(
-        src,
-      );
-      return match ? match.index : -1;
-    },
-    tokenize: (src: string, _tokens, lexer) => {
-      const match = CALLOUT_BLOCK.exec(src);
-      if (!match) return undefined;
-      const body = (match[2] ?? "")
-        .replace(/\n$/, "")
-        .split("\n")
-        .map((line) => line.replace(/^> ?/, ""))
-        .join("\n");
-      return {
-        type: "callout",
-        raw: match[0],
-        tone: match[1]!.toLowerCase(),
-        tokens: body.trim() ? lexer.blockTokens(body) : [],
-      };
-    },
-  },
-  parseMarkdown: (token, helpers) => {
-    const children = helpers.parseChildren(token.tokens ?? []);
-    return helpers.createNode(
-      "callout",
-      { tone: token.tone },
-      children.length ? children : [helpers.createNode("paragraph")],
-    );
-  },
-  renderMarkdown: (node, helpers) => {
-    const lines = [`> [!${String(node.attrs?.tone ?? "note").toUpperCase()}]`];
-    (node.content ?? []).forEach((child: JSONContent, index: number) => {
-      if (index > 0) lines.push(">");
-      const text =
-        helpers.renderChild?.(child, index) ?? helpers.renderChildren([child]);
-      for (const line of text.split("\n"))
-        lines.push(line.trim() === "" ? ">" : `> ${line}`);
-    });
-    return lines.join("\n");
-  },
-  addNodeView() {
-    return ReactNodeViewRenderer(CalloutView);
-  },
-});
-
 /**
  * A toggle's node view, Notion-style: a real chevron button in the gutter (hover wash, pointer,
  * a 24px target that works on touch) that opens and closes the toggle; closed, only the title
@@ -2892,103 +2526,9 @@ function ToggleView({ node, editor, getPos }: ReactNodeViewProps) {
   );
 }
 
-/**
- * Toggle — `<details><summary>Title</summary>` + blank line + its blocks + blank line +
- * `</details>`. `MarkdownView` renders it as a native disclosure, collapsed.
- */
-const ToggleNode = TiptapNode.create({
-  name: "toggle",
-  group: "block",
-  content: "toggleSummary block+",
-  defining: true,
-  addAttributes() {
-    return {
-      // Open or closed; saved as `<details open>` so the reader sees what the author left.
-      open: {
-        default: true,
-        parseHTML: (element) =>
-          element.hasAttribute("open") || element.hasAttribute("data-open"),
-        renderHTML: (attrs) => (attrs.open ? { open: "" } : {}),
-      },
-    };
-  },
-  parseHTML() {
-    return [{ tag: "details" }, { tag: "div[data-slot=toggle]" }];
-  },
-  renderHTML({ HTMLAttributes }) {
-    return ["details", HTMLAttributes, 0];
-  },
-  markdownTokenName: "toggle",
-  markdownTokenizer: {
-    name: "toggle",
-    level: "block",
-    start: (src: string) => {
-      const match = /^<details(?: open)?>/m.exec(src);
-      return match ? match.index : -1;
-    },
-    tokenize: (src: string, _tokens, lexer) => {
-      const open =
-        /^<details( open)?>[ \t]*<summary>([^\n]*?)<\/summary>[ \t]*(?:\n|$)/.exec(
-          src,
-        );
-      if (!open) return undefined;
-      // The matching `</details>` line, nested toggles counted.
-      let depth = 1;
-      let at = open[0].length;
-      let bodyEnd = -1;
-      let end = -1;
-      while (at < src.length) {
-        const next = src.indexOf("\n", at);
-        const lineEnd = next === -1 ? src.length : next;
-        const line = src.slice(at, lineEnd);
-        if (/^<details(?: open)?>/.test(line)) depth++;
-        else if (/^<\/details>[ \t]*$/.test(line) && --depth === 0) {
-          bodyEnd = at;
-          end = next === -1 ? lineEnd : lineEnd + 1;
-          break;
-        }
-        at = lineEnd + 1;
-      }
-      if (end === -1) return undefined;
-      const body = src.slice(open[0].length, bodyEnd).trim();
-      return {
-        type: "toggle",
-        raw: src.slice(0, end),
-        open: Boolean(open[1]),
-        summary: lexer.inlineTokens(open[2]!),
-        tokens: body ? lexer.blockTokens(body) : [],
-      };
-    },
-  },
-  parseMarkdown: (token, helpers) => {
-    const body = helpers.parseChildren(token.tokens ?? []);
-    return helpers.createNode("toggle", { open: Boolean(token.open) }, [
-      helpers.createNode(
-        "toggleSummary",
-        undefined,
-        helpers.parseInline(token.summary ?? []),
-      ),
-      ...(body.length ? body : [helpers.createNode("paragraph")]),
-    ]);
-  },
-  renderMarkdown: (node, helpers) => {
-    const [summary, ...body] = (node.content ?? []) as JSONContent[];
-    const title = summary?.content?.length
-      ? helpers.renderChildren(summary.content)
-      : "";
-    const blocks = body
-      .map(
-        (child, index) =>
-          helpers.renderChild?.(child, index + 1) ??
-          helpers.renderChildren([child]),
-      )
-      .join("\n\n");
-    const tag = node.attrs?.open ? "<details open>" : "<details>";
-    return `${tag}<summary>${title}</summary>\n\n${blocks}\n\n</details>`;
-  },
-  addNodeView() {
-    return ReactNodeViewRenderer(ToggleView);
-  },
+/** A toggle's editing keys: Enter in the summary goes to the body (a summary is one line). */
+const ToggleKeys = Extension.create({
+  name: "textEditToggleKeys",
   addKeyboardShortcuts() {
     // Enter in the summary goes to the body: a summary is one line.
     const intoBody = () => {
@@ -3005,23 +2545,6 @@ const ToggleNode = TiptapNode.create({
       return true;
     };
     return { Enter: intoBody, "Shift-Enter": intoBody };
-  },
-});
-
-/** A toggle's title line. */
-const ToggleSummary = TiptapNode.create({
-  name: "toggleSummary",
-  content: "inline*",
-  defining: true,
-  parseHTML() {
-    return [{ tag: "summary" }, { tag: "div[data-slot=toggle-summary]" }];
-  },
-  renderHTML({ HTMLAttributes }) {
-    return [
-      "div",
-      mergeAttributes({ "data-slot": "toggle-summary" }, HTMLAttributes),
-      0,
-    ];
   },
 });
 
@@ -3078,69 +2601,6 @@ function MediaView({ node, selected }: ReactNodeViewProps) {
   );
 }
 
-/**
- * Video and audio blocks — `<video src="…"></video>` / `<audio src="…"></audio>` on a line of their
- * own, the HTML GitHub renders too. `MarkdownView` renders the same native player.
- */
-function mediaNode(name: "video" | "audio") {
-  return TiptapNode.create({
-    name,
-    group: "block",
-    atom: true,
-    draggable: true,
-    selectable: true,
-    addAttributes() {
-      return {
-        src: {
-          default: null,
-          parseHTML: (element) => element.getAttribute("src"),
-        },
-      };
-    },
-    parseHTML() {
-      return [{ tag: `${name}[src]` }];
-    },
-    renderHTML({ HTMLAttributes }) {
-      return [
-        name,
-        mergeAttributes({ controls: "", preload: "metadata" }, HTMLAttributes),
-      ];
-    },
-    markdownTokenName: name,
-    markdownTokenizer: {
-      name,
-      level: "block",
-      start: (src: string) => {
-        const match = new RegExp(`^<${name}\\b`, "m").exec(src);
-        return match ? match.index : -1;
-      },
-      tokenize: (src: string) => {
-        const line = /^[^\n]*(?:\n|$)/.exec(src)![0];
-        const match = MEDIA_BLOCK.exec(line.replace(/\n$/, ""));
-        if (!match || match[1] !== name) return undefined;
-        return { type: name, raw: line, src: match[2] };
-      },
-    },
-    parseMarkdown: (token, helpers) =>
-      helpers.createNode(name, { src: token.src ?? null }),
-    renderMarkdown: (node) => {
-      const src = String(node.attrs?.src ?? "").replace(/"/g, "%22");
-      return `<${name} src="${src}"></${name}>`;
-    },
-    addNodeView() {
-      return ReactNodeViewRenderer(MediaView);
-    },
-  });
-}
-
-const VideoNode = mediaNode("video");
-const AudioNode = mediaNode("audio");
-
-const LINK_ATTRIBUTES = {
-  rel: "noopener noreferrer",
-  target: "_blank",
-} as const;
-
 function buildExtensions(
   placeholder: React.RefObject<string | undefined>,
   runtime: SlashRuntime,
@@ -3148,58 +2608,49 @@ function buildExtensions(
   annotationRuntime: Parameters<typeof annotationsExtension>[0],
   imageRuntime: ImageRuntime,
 ) {
-  return [
-    StarterKit.configure({
-      codeBlock: false,
-      paragraph: false,
-      underline: false,
-      // A trailing empty paragraph would add a line edit mode has and view mode does not.
-      trailingNode: false,
-      // Dragging an image (or any block) shows the block handle's drop line: 2px, info blue.
-      dropcursor: { color: false, width: 2, class: "rounded-full bg-info" },
-      link: {
-        openOnClick: false,
-        autolink: true,
-        // Pasting a URL over a selection links the selection.
-        linkOnPaste: true,
-        defaultProtocol: "https",
-        HTMLAttributes: LINK_ATTRIBUTES,
-      },
-    }),
-    ParagraphLiftingImages,
-    CodeBlockWithView,
-    TaskList,
-    TaskItemWithView.configure({ nested: true }),
-    // GFM tables: a header row, then body rows. The wrapper is the table's own scroll box.
-    // Columns resize by dragging their border (a session-only width in markdown, which has no
-    // column widths; kept as `colwidth` in HTML).
-    TableKit.configure({
-      table: { resizable: true, renderWrapper: true, cellMinWidth: 100 },
-    }),
-    // Inline, like GFM's `![]()` inside a paragraph, so an image sits where view mode puts it.
-    imageNode(imageRuntime).configure({ inline: false }),
-    Placeholder.configure({
-      // Nested nodes too, so an empty toggle title or body gets its own hint.
-      includeChildren: true,
-      placeholder: ({ node }) =>
-        node.type.name === "toggleSummary"
-          ? "Toggle"
-          : (placeholder.current ?? ""),
-    }),
-    Markdown,
-    Shortcuts,
-    slashExtension(runtime),
-    mentionNode(editorRuntime),
-    Callout,
-    ToggleNode,
-    ToggleSummary,
-    VideoNode,
-    AudioNode,
-    fileChips(editorRuntime),
-    HeadingIds,
-    annotationsExtension(annotationRuntime),
-    Uploads,
-  ];
+  // The schema and its Markdown rules are the shared `text-edit-schema`; the editor adds its node
+  // views and behaviour only, so a server reads and writes exactly the documents it edits.
+  return textEditExtensions({
+    lowlight: codeLowlight,
+    fileLinkPrefix: () => editorRuntime.fileLinkPrefix.current,
+    nodeViews: {
+      taskItem: () =>
+        ReactNodeViewRenderer(TaskItemView, {
+          as: "li",
+          attrs: ({ node }) => ({
+            "data-type": "taskItem",
+            "data-checked": String(Boolean(node.attrs.checked)),
+          }),
+        }),
+      codeBlock: () => ReactNodeViewRenderer(CodeBlockView),
+      image: () => imageView(imageRuntime),
+      mention: () =>
+        ReactNodeViewRenderer(mentionView(editorRuntime), { as: "span" }),
+      callout: () => ReactNodeViewRenderer(CalloutView),
+      toggle: () => ReactNodeViewRenderer(ToggleView),
+      video: () => ReactNodeViewRenderer(MediaView),
+      audio: () => ReactNodeViewRenderer(MediaView),
+    },
+    plugins: [
+      Placeholder.configure({
+        // Nested nodes too, so an empty toggle title or body gets its own hint.
+        includeChildren: true,
+        placeholder: ({ node }) =>
+          node.type.name === "toggleSummary"
+            ? "Toggle"
+            : (placeholder.current ?? ""),
+      }),
+      VegaStackMarkdown,
+      Shortcuts,
+      slashExtension(runtime),
+      mentionBehaviour(editorRuntime),
+      ToggleKeys,
+      fileChips(editorRuntime),
+      HeadingIds,
+      annotationsExtension(annotationRuntime),
+      Uploads,
+    ],
+  });
 }
 
 /** Whether pasted plain text reads as markdown worth parsing rather than inserting verbatim. */
@@ -3316,35 +2767,6 @@ function FloatingLayer({ children }: { children: React.ReactNode }) {
 
 /** Floating parts keep this far from the viewport's edges. */
 const VIEWPORT_GAP = 8;
-
-/**
- * Tidy serialized markdown. Tiptap writes an empty paragraph (a blank line typed with Enter) as
- * `&nbsp;` between extra blank lines; markdown has no empty paragraph, so they collapse: `&nbsp;`
- * lines go, and runs of blank lines become one. Fenced code is left exactly as typed. The result
- * parses back to itself, so the round trip is stable.
- */
-function cleanMarkdown(md: string): string {
-  const out: string[] = [];
-  let fence: string | null = null;
-  for (const line of md.split("\n")) {
-    const marker = /^\s*(`{3,}|~{3,})/.exec(line)?.[1];
-    if (fence) {
-      out.push(line);
-      if (marker && marker[0] === fence[0] && marker.length >= fence.length)
-        fence = null;
-      continue;
-    }
-    if (marker) {
-      fence = marker;
-      out.push(line);
-      continue;
-    }
-    const blank = line.trim() === "" || line.trim() === "&nbsp;";
-    if (blank && (out.length === 0 || out[out.length - 1] === "")) continue;
-    out.push(blank ? "" : line);
-  }
-  return out.join("\n").trim();
-}
 
 /* ------------------------------------------------------------------------------------------------
  * Bubble menu
@@ -5030,7 +4452,7 @@ export function TextEditEditor({
   // Fixed at creation: the parser is chosen once.
   const [markdown] = React.useState(format === "markdown");
   const serialize = React.useCallback(
-    (ed: Editor) => (markdown ? cleanMarkdown(ed.getMarkdown()) : ed.getHTML()),
+    (ed: Editor) => (markdown ? ed.getMarkdown() : ed.getHTML()),
     [markdown],
   );
 

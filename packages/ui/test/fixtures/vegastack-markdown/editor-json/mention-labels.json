@@ -1,0 +1,30 @@
+{
+  "type": "doc",
+  "content": [
+    {
+      "type": "paragraph",
+      "content": [
+        {
+          "type": "mention",
+          "attrs": {
+            "kind": "user",
+            "id": "u1",
+            "label": "Asha [R]"
+          }
+        },
+        {
+          "type": "text",
+          "text": " and "
+        },
+        {
+          "type": "mention",
+          "attrs": {
+            "kind": "page",
+            "id": "p1",
+            "label": ""
+          }
+        }
+      ]
+    }
+  ]
+}

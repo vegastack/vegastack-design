@@ -3,13 +3,12 @@ import { render } from "vitest-browser-react";
 import { beforeAll, expect, test } from "vitest";
 import { expectNoA11yViolations } from "../../test/a11y";
 import { proseClassName } from "@vegastack/design";
+import { MarkdownView, markdownExtrasClassName } from "./markdown-view";
 import {
-  MarkdownView,
   headingIds,
-  markdownExtrasClassName,
   mentionMarkdown,
   parseMentionLink,
-} from "./markdown-view";
+} from "../lib/text-edit-grammar";
 import { preloadTextEdit, TextEdit } from "./text-edit";
 
 // TextEdit renders a light read view and loads its editor on intent; these tests exercise the
@@ -219,12 +218,14 @@ test("renders GFM tables, strikethrough, and task lists", async () => {
   expect(tick!.className).toContain("inline-flex");
 });
 
-test("a table cell's <br>, <br/> and <br /> are line breaks; elsewhere raw HTML stays text", async () => {
+test("<br>, <br/> and <br /> are line breaks — in a cell, a heading or a sentence; other raw HTML stays text", async () => {
   const md = [
     "| Head<br>line | B |",
     "| - | - |",
     "| one<br>two | three<br/>four |",
     "| five<br />six | <b>bold</b> |",
+    "",
+    "## One<br>two",
     "",
     "Outside<br>a cell",
   ].join("\n");
@@ -240,13 +241,16 @@ test("a table cell's <br>, <br/> and <br /> are line breaks; elsewhere raw HTML 
     expect(cells[index]!.querySelectorAll("br")).toHaveLength(1);
     expect(cells[index]!.textContent).toBe(text);
   }
-  // Only `<br>` is let through in a cell: any other tag is still its text.
+  // Only `<br>` is let through: any other tag is still its text.
   expect(cells[5]!.querySelector("b")).toBeNull();
   expect(cells[5]!.textContent).toBe("<b>bold</b>");
-  // Outside a table, `<br>` is still shown as the text it is.
+  // A heading's line break is `<br>` (an ATX heading is one line), and so is one in a sentence.
+  const heading = container.querySelector("h2")!;
+  expect(heading.querySelectorAll("br")).toHaveLength(1);
+  expect(heading.textContent).toBe("Onetwo");
   const paragraph = container.querySelector("p")!;
-  expect(paragraph.querySelector("br")).toBeNull();
-  expect(paragraph.textContent).toBe("Outside<br>a cell");
+  expect(paragraph.querySelectorAll("br")).toHaveLength(1);
+  expect(paragraph.textContent).toBe("Outsidea cell");
 });
 
 test("accepts markdown via the content prop", async () => {

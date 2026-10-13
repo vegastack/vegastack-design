@@ -40,3 +40,7 @@ vendor/shadcn/
 # Patch files are unified diffs. Prettier has no dialect for them, and reflowing one would make it
 # stop applying.
 packages/ui/upstream/patches/
+
+# The VegaStack Markdown round-trip corpus: every byte of a fixture is the case under test (blank
+# lines, trailing spaces, CRLF, a BOM). Formatting one would change what it tests.
+packages/ui/test/fixtures/vegastack-markdown/
