@@ -2835,7 +2835,7 @@ test("DataList merges many under-budgeted columns in one step, without an update
           aria-label="Many"
           columns={columns}
           data={[row]}
-          getRowId={(r) => r.id}
+          getRowId={(r) => r.id!}
         />
       </div>,
     );
