@@ -71,6 +71,28 @@ test("each manager has its own marked: building one leaves the global instance u
   expect(marked.defaults.extensions).toBe(before);
 });
 
+test("the editor reads Markdown exactly as markdownToDoc does: initial content, a paste, setContent", () => {
+  // A BOM, CR line endings and a NUL: one normalization for every path.
+  const source =
+    "\uFEFF# Heading\r\n\r\n- # In a list\r\n- ![x](/x.png)\u0000\r\n";
+  const expected = docToMarkdown(markdownToDoc(source));
+  const editor = new Editor({
+    extensions: textEditExtensions({ plugins: [VegaStackMarkdown] }),
+    content: source,
+    contentType: "markdown",
+  });
+  try {
+    expect(editor.getMarkdown()).toBe(expected);
+    editor.commands.setContent(source, { contentType: "markdown" });
+    expect(editor.getMarkdown()).toBe(expected);
+    editor.commands.setContent("");
+    editor.commands.insertContent(source, { contentType: "markdown" });
+    expect(editor.getMarkdown()).toBe(expected);
+  } finally {
+    editor.destroy();
+  }
+});
+
 test("the editor's Markdown is docToMarkdown, byte for byte", () => {
   const source =
     "# Plan\n\nsnake_case & R&D\\\nnext line\n\n| A |\n| --- |\n| a<br>b |";

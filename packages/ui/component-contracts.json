@@ -41068,6 +41068,24 @@
             "status": "not-applicable",
             "rationale": "A pure function; it renders nothing and takes no ref."
           }
+        },
+        {
+          "name": "trimInline",
+          "kind": "function",
+          "source": "packages/ui/registry/lib/text-edit-schema.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A pure function; it renders nothing and takes no ref."
+          }
+        },
+        {
+          "name": "isTailOf",
+          "kind": "function",
+          "source": "packages/ui/registry/lib/text-edit-schema.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A pure function; it renders nothing and takes no ref."
+          }
         }
       ],
       "variants": {

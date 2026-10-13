@@ -271,7 +271,11 @@ The rules a writer can rely on:
 - **What Markdown cannot hold** is kept by the document, not by the Markdown: empty paragraphs,
   table column widths, several blocks in one table cell (written on one line, joined by `<br>`;
   a list as `•` lines, code as code spans), block ids.
-- **Linear parsing.** A megabyte parses in well under a second; every `TextEdit` and every server
-  call uses its own `marked` instance.
+- **Every valid CommonMark document parses.** An image written inside a sentence becomes a block
+  beside its text; a list item that starts with a heading, code or an image keeps it on its marker
+  line; a task checkbox in an ordered list (`1. [ ] one`) is kept as its text.
+- **Linear parsing.** A megabyte parses in well under a second — adversarial input included (long
+  runs of unmatched `*`, `~`, `[`, unclosed toggles) — and every `TextEdit` and every server call
+  uses its own `marked` instance.
 
 A round-trip corpus guards all of it, in Node and in Chromium, against the same expected output.

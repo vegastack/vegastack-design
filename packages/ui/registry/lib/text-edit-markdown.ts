@@ -1,4 +1,4 @@
-// @vegastack text-edit-markdown@0.25.29 sha256-4gFIHz9QmsdnqeEzErd0P/e6UznwBwxlh1DV50J7xMY=
+// @vegastack text-edit-markdown@0.25.29 sha256-3px6wbk7dyrFEfS8FBc+2VMhEFS3OYyArBp/PWF8Tf8=
 
 import type { AnyExtension, JSONContent } from "@tiptap/core";
 import { Markdown, MarkdownManager } from "@tiptap/markdown";
@@ -9,7 +9,9 @@ import {
   BLOCK_ID_TYPES,
   blockId,
   textEditExtensions,
+  isTailOf,
   textEditSchema,
+  trimInline,
 } from "@/lib/text-edit-schema";
 
 /**
@@ -29,6 +31,60 @@ import {
  * - **canonical output** — no `&nbsp;` lines, one blank line between blocks, deterministic.
  */
 
+/** How far an emphasis or strikethrough span may reach for its closer. */
+const SPAN_WINDOW = 16_384;
+/** How long a link or image (its text and destination) may be. */
+const LINK_WINDOW = 65_536;
+
+/** Per paragraph: the last place each delimiter could close (it follows a non-space). */
+let closers: { masked: string; last: Record<string, number> } | null = null;
+
+/**
+ * Whether the `*`, `_` or `~` opening `src` has any delimiter run of its kind after it that could
+ * close it — a closing run never follows a space. Computed once per paragraph (marked hands every call the
+ * same masked paragraph), so a paragraph of unmatched delimiters costs one pass, not one per
+ * delimiter. Anything else is let through to marked.
+ */
+function closerAhead(src: string, masked: string): boolean {
+  const char = src[0];
+  if (char !== "*" && char !== "_" && char !== "~") return true;
+  if (closers?.masked !== masked) {
+    const last: Record<string, number> = { "*": -1, _: -1, "~": -1 };
+    for (let i = 1; i < masked.length; i++) {
+      const each = masked[i]!;
+      // A run of the delimiter can close only when the character before the RUN is not a space.
+      if (!(each in last) || masked[i - 1] === each) continue;
+      if (!/\s/.test(masked[i - 1]!)) last[each] = i;
+    }
+    closers = { masked, last };
+  }
+  return closers.last[char]! > masked.length - src.length;
+}
+
+/** Per paragraph: where its last `)` is, counted from its end. */
+let parens: { source: string; lastFromEnd: number } | null = null;
+
+/**
+ * Whether an inline link could close in `src`: a `)` must follow. marked hands the link reader the
+ * rest of the paragraph at every `[`; a paragraph of `[a](` without a `)` would be read to its end
+ * each time. The last `)` is found once per paragraph. (A false "no" could only leave a link as its
+ * text, never drop text; the sampled tail check makes it practically impossible.)
+ */
+function parenAhead(src: string): boolean {
+  if (!parens || !isTailOf(parens.source, src)) {
+    const last = src.lastIndexOf(")");
+    parens = { source: src, lastFromEnd: last === -1 ? -1 : src.length - last };
+  }
+  return parens.lastFromEnd > 0 && parens.lastFromEnd <= src.length;
+}
+
+/** `src` and its masked twin (aligned at their ends, as marked keeps them) cut to the window. */
+function windowed(src: string, masked: string): [string, string] {
+  if (src.length <= SPAN_WINDOW) return [src, masked];
+  const start = masked.length - src.length;
+  return [src.slice(0, SPAN_WINDOW), masked.slice(start, start + SPAN_WINDOW)];
+}
+
 /** A `<br>` tag in any spelling: a line break. */
 const BREAK_TAG = /^<br\s*\/?>$/i;
 
@@ -40,6 +96,31 @@ const BREAK_TAG = /^<br\s*\/?>$/i;
 function createMarked(): typeof marked {
   const instance = new Marked({ gfm: true });
   const tokenizer: TokenizerObject = {
+    // marked looks for the closer of every `*`, `_` and `~` delimiter across the rest of the
+    // paragraph — quadratic on a long paragraph of unmatched ones. Emphasis and strikethrough are
+    // looked for within a window (far longer than any real span); past it the delimiter is text.
+    emStrong(src, maskedSrc, prevChar) {
+      if (!closerAhead(src, maskedSrc)) return undefined;
+      return Tokenizer.prototype.emStrong.call(
+        this,
+        ...windowed(src, maskedSrc),
+        prevChar,
+      );
+    },
+    del(src, maskedSrc, prevChar) {
+      if (!closerAhead(src, maskedSrc)) return undefined;
+      return Tokenizer.prototype.del.call(
+        this,
+        ...windowed(src, maskedSrc),
+        prevChar,
+      );
+    },
+    link(src) {
+      if (src[0] === "[" || src[0] === "!") {
+        if (!parenAhead(src)) return undefined;
+      }
+      return Tokenizer.prototype.link.call(this, src.slice(0, LINK_WINDOW));
+    },
     tag(src) {
       const tag = Tokenizer.prototype.tag.call(this, src);
       if (!tag) return undefined;
@@ -202,7 +283,103 @@ export function createMarkdownManager(
   const internals = created as unknown as ManagerInternals;
   internals.encodeTextForMarkdown = encodeText;
   internals.parseHTMLToken = htmlAsText;
+  // Every parse — the editor's initial content, a paste, `setContent`, a server's `markdownToDoc`
+  // — reads the same normalized source and returns a document the schema accepts.
+  const parse = created.parse.bind(created);
+  created.parse = (markdown: string) =>
+    normalizeParsed(parse(normalizeSource(markdown)));
   return created;
+}
+
+/** Markdown as every parse reads it: no BOM, `\n` line endings, no NUL (Postgres rejects it). */
+function normalizeSource(markdown: string): string {
+  return markdown
+    .replace(/^\uFEFF/, "")
+    .replace(/\r\n?/g, "\n")
+    .replace(/\u0000/g, "");
+}
+
+/** Textblocks an image can land in when Markdown has it inline (`- ![x](/x)`, `# A ![x](/x)`). */
+const TEXTBLOCKS = new Set(["paragraph", "heading", "toggleSummary"]);
+/** Nodes whose children are blocks. */
+const BLOCK_CONTAINERS = new Set([
+  "doc",
+  "blockquote",
+  "callout",
+  "toggle",
+  "listItem",
+  "taskItem",
+  "tableCell",
+  "tableHeader",
+]);
+/** Containers whose first child must be a paragraph (`paragraph block*`). */
+const ITEMS = new Set(["listItem", "taskItem"]);
+
+/** A textblock holding an image, split around it: text runs stay the textblock, images are blocks. */
+function liftImages(block: JSONContent): JSONContent[] {
+  const out: JSONContent[] = [];
+  if (block.type === "toggleSummary") {
+    // The summary keeps its text; its images follow it as the toggle's first blocks.
+    const content = (block.content ?? []).filter((n) => n.type !== "image");
+    out.push({ ...block, content: trimInline(content) });
+    out.push(...(block.content ?? []).filter((n) => n.type === "image"));
+    return out;
+  }
+  let run: JSONContent[] = [];
+  const flush = () => {
+    const trimmed = trimInline(run);
+    if (trimmed.length) out.push({ ...block, content: trimmed });
+    run = [];
+  };
+  for (const child of block.content ?? []) {
+    if (child.type !== "image") run.push(child);
+    else {
+      flush();
+      out.push(child);
+    }
+  }
+  flush();
+  return out;
+}
+
+/**
+ * A parse as the schema accepts it, whatever valid CommonMark came in: an image Markdown placed
+ * inline becomes a block beside its text, and a list item that starts with a heading, a code
+ * block or an image gets the empty first paragraph a list item needs (`- # Heading`).
+ */
+function normalizeParsed(node: JSONContent): JSONContent {
+  if (!node.content) return node;
+  const content: JSONContent[] = [];
+  // Inline content parsed where a block belongs (a task checkbox in an ordered list's item):
+  // it opens the next paragraph, or becomes one.
+  let loose: JSONContent[] = [];
+  const isBlockContainer = BLOCK_CONTAINERS.has(node.type ?? "");
+  for (const raw of node.content) {
+    if (isBlockContainer && raw.type === "text") {
+      loose.push(raw);
+      continue;
+    }
+    let child = raw;
+    if (loose.length) {
+      child =
+        raw.type === "paragraph"
+          ? { ...raw, content: [...loose, ...(raw.content ?? [])] }
+          : raw;
+      if (child === raw) content.push({ type: "paragraph", content: loose });
+      loose = [];
+    }
+    if (
+      child.type &&
+      TEXTBLOCKS.has(child.type) &&
+      child.content?.some((each) => each.type === "image")
+    )
+      content.push(...liftImages(child));
+    else content.push(normalizeParsed(child));
+  }
+  if (loose.length) content.push({ type: "paragraph", content: loose });
+  if (node.type && ITEMS.has(node.type) && content[0]?.type !== "paragraph")
+    content.unshift({ type: "paragraph" });
+  return { ...node, content };
 }
 
 let sharedManager: MarkdownManager | undefined;
@@ -274,11 +451,7 @@ export function markdownToDoc(
   markdown: string,
   options: MarkdownToDocOptions = {},
 ): PMNode {
-  const source = markdown
-    .replace(/^\uFEFF/, "")
-    .replace(/\r\n?/g, "\n")
-    .replace(/\u0000/g, "");
-  const json = manager().parse(source);
+  const json = manager().parse(markdown);
   const content = json.content?.length ? json.content : [{ type: "paragraph" }];
   const doc = textEditSchema().nodeFromJSON(
     assignBlockIds({ type: "doc", content }, options.blockId ?? blockId),

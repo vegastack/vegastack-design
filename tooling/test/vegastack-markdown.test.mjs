@@ -7,11 +7,18 @@
  */
 import { describe, expect, test } from "vitest";
 import {
+  ADVERSARIAL,
   checkCase,
   corpusCases,
   largeMarkdown,
   parseTime,
+  repeatTo,
 } from "../../packages/ui/test/vegastack-markdown-corpus.ts";
+import {
+  docToMarkdown,
+  markdownToDoc,
+} from "../../packages/ui/registry/lib/text-edit-markdown.ts";
+import { textEditSchema } from "../../packages/ui/registry/lib/text-edit-schema.ts";
 
 describe("VegaStack Markdown round trip (Node, no DOM)", () => {
   test("runs without a DOM", () => {
@@ -30,4 +37,22 @@ describe("VegaStack Markdown round trip (Node, no DOM)", () => {
     expect(large).toBeLessThan(1_500);
     expect(large / small).toBeLessThan(15);
   }, 60_000);
+
+  for (const [name, unit] of Object.entries(ADVERSARIAL))
+    test(`parsing is linear on adversarial input: ${name}`, () => {
+      const small = parseTime(repeatTo(unit, 30_000));
+      const large = parseTime(repeatTo(unit, 300_000));
+      expect(large).toBeLessThan(1_500);
+      expect(large / small).toBeLessThan(15);
+    }, 60_000);
+
+  test("a code block of 300 KB of backticks serializes and reads back", () => {
+    const code = "` ".repeat(150_000);
+    const doc = textEditSchema().nodeFromJSON({
+      type: "doc",
+      content: [{ type: "codeBlock", content: [{ type: "text", text: code }] }],
+    });
+    const back = markdownToDoc(docToMarkdown(doc));
+    expect(back.firstChild?.textContent).toBe(code);
+  });
 });

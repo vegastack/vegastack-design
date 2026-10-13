@@ -1,4 +1,4 @@
-// @vegastack text-edit-schema@0.25.29 sha256-bAgWYdbPPiWX71L+B/kgtVcbVI3q2QhenhMNqFunIuw=
+// @vegastack text-edit-schema@0.25.29 sha256-QIwpBikCo/RyfESrjKrw3qPOIaR1ihDQvF/FnmpPsII=
 
 import {
   Extension,
@@ -21,7 +21,12 @@ import { CodeBlockLowlight } from "@tiptap/extension-code-block-lowlight";
 import { HardBreak } from "@tiptap/extension-hard-break";
 import { Image } from "@tiptap/extension-image";
 import { Link } from "@tiptap/extension-link";
-import { OrderedList, TaskItem, TaskList } from "@tiptap/extension-list";
+import {
+  ListItem,
+  OrderedList,
+  TaskItem,
+  TaskList,
+} from "@tiptap/extension-list";
 import { Paragraph } from "@tiptap/extension-paragraph";
 import { Table, TableKit } from "@tiptap/extension-table";
 import { UniqueID } from "@tiptap/extension-unique-id";
@@ -130,22 +135,41 @@ function lineStart(marker: RegExp) {
     marker.flags.replace("g", ""),
   );
   return (src: string) => {
-    const stop = src.indexOf("\n\n");
-    const match = find.exec(stop === -1 ? src : src.slice(0, stop + 1));
+    const match = find.exec(firstParagraph(src));
     return match ? match.index + 1 : -1;
   };
 }
 
-/** A tokenizer `start` limited to the paragraph `src` begins with (see `lineStart`). */
-function paragraphStart(find: (src: string) => number) {
-  return (src: string) => {
-    const stop = src.indexOf("\n\n");
-    return find(stop === -1 ? src : src.slice(0, stop + 1));
-  };
+/** A blank line — empty, or only spaces and tabs (CommonMark). */
+const BLANK_LINE = /\n[ \t]*\n/;
+
+/** `src` up to its first blank line: all a paragraph (or a table) can span. */
+function firstParagraph(src: string): string {
+  const blank = BLANK_LINE.exec(src);
+  return blank ? src.slice(0, blank.index + 1) : src;
 }
 
-/** How deep the serializer is inside table cells, where a line break must stay on the row. */
-let cellDepth = 0;
+/** A tokenizer `start` limited to the paragraph `src` begins with (see `lineStart`). */
+function paragraphStart(find: (src: string) => number) {
+  return (src: string) => find(firstParagraph(src));
+}
+
+/** The longest run of `char` in `text` — counted, never spread into `Math.max` (huge code blocks). */
+function longestRun(text: string, char: string): number {
+  let longest = 0;
+  let run = 0;
+  for (let i = 0; i < text.length; i++) {
+    run = text[i] === char ? run + 1 : 0;
+    if (run > longest) longest = run;
+  }
+  return longest;
+}
+
+/**
+ * How deep the serializer is inside a place a line cannot end — a table cell, a toggle's summary —
+ * where a hard break is written `<br>`.
+ */
+let singleLineDepth = 0;
 
 /** Plain inline text of a JSON node: what a cell keeps of a block a cell line cannot hold. */
 function inlineOf(node: JSONContent, h: MarkdownRendererHelpers): string {
@@ -195,11 +219,7 @@ function cellLines(
         .split("\n")
         .filter((line) => line.trim() !== "")
         .map((line) => {
-          const longest = Math.max(
-            0,
-            ...[...line.matchAll(/`+/g)].map((match) => match[0].length),
-          );
-          const fence = "`".repeat(longest + 1);
+          const fence = "`".repeat(longestRun(line, "`") + 1);
           const pad = line.startsWith("`") || line.endsWith("`") ? " " : "";
           return `${prefix}${fence}${pad}${line}${pad}${fence}`;
         });
@@ -225,14 +245,16 @@ function cellLines(
 function renderTable(node: JSONContent, h: MarkdownRendererHelpers): string {
   const rows = ((node.content ?? []) as JSONContent[]).map((row) =>
     ((row.content ?? []) as JSONContent[]).map((cell) => {
-      cellDepth++;
+      singleLineDepth++;
       try {
         const lines = ((cell.content ?? []) as JSONContent[]).flatMap((block) =>
           cellLines(block, h),
         );
+        // A cell is one line: a line break left in its text becomes `<br>` (as the parser reads
+        // it); every other space is content — a code span's, a mention label's — and stays.
         const text = lines
           .join("<br>")
-          .replace(/\s+/g, " ")
+          .replace(/[ \t]*\r?\n[ \t]*/g, "<br>")
           .replace(/^(?:\s*<br>)+|(?:<br>\s*)+$/g, "")
           .trim()
           // A `|` is the cell edge: escape every one not already escaped.
@@ -243,7 +265,7 @@ function renderTable(node: JSONContent, h: MarkdownRendererHelpers): string {
           align: (cell.attrs?.align as string | null | undefined) ?? null,
         };
       } finally {
-        cellDepth--;
+        singleLineDepth--;
       }
     }),
   );
@@ -279,45 +301,26 @@ function renderTable(node: JSONContent, h: MarkdownRendererHelpers): string {
 }
 
 /**
- * A cell holds blocks, but a GFM cell is inline Markdown: an image in it parses inside the cell's
- * paragraph, where a block cannot sit. Lift each image out between the paragraph's text runs.
+ * A cell's paragraphs without the `<br>`s at their edges (each breaks to nothing — left by an empty
+ * line, never typed), and never an empty cell. Images a cell's inline Markdown holds are lifted
+ * out by the parse's normalization (`text-edit-markdown`), like everywhere else.
  */
-function liftCellBlocks(cell: JSONContent): JSONContent {
-  const out: JSONContent[] = [];
-  for (const block of (cell.content ?? []) as JSONContent[]) {
-    if (block.type !== "paragraph") {
-      out.push(block);
-      continue;
-    }
-    // A `<br>` at a cell's edge breaks to nothing: it is left by an empty line, never typed.
-    if (!block.content?.some((n) => n.type === "image")) {
-      const trimmed = trimRun(block.content ?? []);
-      out.push(
-        trimmed.length ? { ...block, content: trimmed } : { type: "paragraph" },
-      );
-      continue;
-    }
-    let run: JSONContent[] = [];
-    const flush = () => {
-      const trimmed = trimRun(run);
-      if (trimmed.length) out.push({ type: "paragraph", content: trimmed });
-      run = [];
-    };
-    for (const child of block.content) {
-      if (child.type !== "image") {
-        run.push(child);
-        continue;
-      }
-      flush();
-      out.push(child);
-    }
-    flush();
-  }
+function trimCell(cell: JSONContent): JSONContent {
+  const out = ((cell.content ?? []) as JSONContent[]).map((block) => {
+    if (block.type !== "paragraph" || !block.content) return block;
+    const trimmed = trimInline(block.content);
+    return trimmed.length
+      ? { ...block, content: trimmed }
+      : { type: "paragraph" };
+  });
   return { ...cell, content: out.length ? out : [{ type: "paragraph" }] };
 }
 
-/** A run of inline nodes without the whitespace and breaks a lifted block leaves at its edges. */
-function trimRun(run: JSONContent[]): JSONContent[] {
+/**
+ * A run of inline nodes without the whitespace and line breaks at its edges — what is left of a
+ * paragraph around a block lifted out of it, or of a table cell's line.
+ */
+export function trimInline(run: JSONContent[]): JSONContent[] {
   const nodes = run.map((node) => ({ ...node }));
   while (nodes[0]?.type === "hardBreak") nodes.shift();
   while (nodes[nodes.length - 1]?.type === "hardBreak") nodes.pop();
@@ -354,7 +357,7 @@ const LINK_ATTRIBUTES = {
 /** A hard break: `\` + newline, or `<br>` where a line cannot end (a heading, a table cell). */
 const HardBreakMd = HardBreak.extend({
   renderMarkdown: (_node, _h, ctx) =>
-    cellDepth > 0 || ctx.parentType === "heading" ? "<br>" : "\\\n",
+    singleLineDepth > 0 || ctx.parentType === "heading" ? "<br>" : "\\\n",
 });
 
 /** Links: `&amp;` in a destination is `&`, and a destination with a space is written `<…>`. */
@@ -373,8 +376,68 @@ const LinkMd = Link.extend({
   },
 });
 
+/**
+ * A GFM task checkbox where the document has no task list (`1. [ ] one` — an ordered list): kept as
+ * its text, `[ ] ` or `[x] `, instead of dropped with its state.
+ */
+const CheckboxText = Extension.create({
+  name: "textEditCheckboxText",
+  markdownTokenName: "checkbox",
+  parseMarkdown: (token, helpers) =>
+    helpers.createTextNode(String(token.raw ?? "")),
+});
+
+/**
+ * A list item whose first line is empty but that goes on with a block (`- # Heading`, `- ```js`,
+ * `- ![x](/x)` — the parse gives such an item the empty paragraph its schema needs) is written with
+ * that block on the marker line, so it reads back as the same item.
+ */
+const ListItemMd = ListItem.extend({
+  renderMarkdown: (node, h, ctx) => {
+    const upstream = ListItem.config.renderMarkdown as (
+      node: JSONContent,
+      h: MarkdownRendererHelpers,
+      ctx: unknown,
+    ) => string;
+    const [first, second] = (node.content ?? []) as JSONContent[];
+    const output = upstream(node, h, ctx);
+    const emptyLead =
+      first?.type === "paragraph" &&
+      !first.content?.length &&
+      second !== undefined &&
+      second.type !== "paragraph";
+    if (!emptyLead) return output;
+    // `- ` + newline + the block indented → `- ` + the block (its later lines stay indented).
+    const lead = /^([^\n]*)\n([ \t]+)/.exec(output);
+    return lead ? `${lead[1]}${output.slice(lead[0].length)}` : output;
+  },
+});
+
 /** Ordered lists are CommonMark's: marked's own list tokenizer reads them, never Tiptap's. */
 const OrderedListMd = OrderedList.extend({
+  // A tight item's text is inline Markdown: read it as a paragraph, never as raw text (Tiptap's
+  // ordered-list reader keeps a marked `text` token's raw source — `**bold**` stayed asterisks).
+  parseMarkdown: (token, helpers) => {
+    const upstream = OrderedList.config.parseMarkdown as (
+      token: MarkdownToken,
+      helpers: MarkdownParseHelpers,
+    ) => JSONContent | JSONContent[];
+    const items = (token.items ?? []) as MarkdownToken[];
+    return upstream(
+      {
+        ...token,
+        items: items.map((item) => ({
+          ...item,
+          tokens: ((item.tokens ?? []) as MarkdownToken[]).map((each) =>
+            each.type === "text" && each.tokens
+              ? { ...each, type: "paragraph" }
+              : each,
+          ),
+        })),
+      },
+      helpers,
+    );
+  },
   markdownTokenizer: {
     name: "orderedList",
     level: "block",
@@ -447,7 +510,7 @@ const ParagraphMd = Paragraph.extend({
         : "";
     // A hard break that ends the paragraph has no line to break to.
     const text = h.renderChildren(content).replace(/(?:\\\n)+$/, "");
-    if (cellDepth > 0) return text;
+    if (singleLineDepth > 0) return text;
     return text.split("\n").map(escapeLineStart).join("\n");
   },
 });
@@ -492,11 +555,7 @@ const codeBlockMarkdown = {
     );
     const body = node.content ? helpers.renderChildren(node.content) : "";
     // A fence longer than any backtick run inside the code, so the block cannot close early.
-    const longest = Math.max(
-      2,
-      ...[...body.matchAll(/`+/g)].map((match) => match[0].length),
-    );
-    const fence = "`".repeat(longest + 1);
+    const fence = "`".repeat(Math.max(2, longestRun(body, "`")) + 1);
     return `${fence}${info}\n${body}\n${fence}`;
   },
 };
@@ -563,7 +622,7 @@ const TableMd = Table.extend({
       ...table,
       content: (table.content ?? []).map((row) => ({
         ...row,
-        content: (row.content ?? []).map(liftCellBlocks),
+        content: (row.content ?? []).map(trimCell),
       })),
     };
   },
@@ -571,7 +630,21 @@ const TableMd = Table.extend({
   markdownTokenizer: (() => {
     const upstream = Table.config.markdownTokenizer!;
     const start = upstream.start as (src: string) => number;
-    return { ...upstream, start: paragraphStart(start) };
+    const delimiter = /^[ \t|:]*-[ \t|:-]*$/;
+    return {
+      ...upstream,
+      start: paragraphStart(start),
+      // Only a header line and a delimiter row start a table — checked on two lines, then the
+      // table is read from its own paragraph (a table ends at a blank line), never the whole rest.
+      tokenize: (src, tokens, lexer) => {
+        const first = src.indexOf("\n");
+        if (first === -1) return undefined;
+        const second = src.indexOf("\n", first + 1);
+        const row = src.slice(first + 1, second === -1 ? src.length : second);
+        if (!row.includes("|") || !delimiter.test(row)) return undefined;
+        return upstream.tokenize(firstParagraph(src), tokens, lexer);
+      },
+    };
   })(),
 });
 
@@ -673,7 +746,12 @@ function mentionNode(view: (() => NodeViewRenderer) | undefined) {
     markdownTokenizer: {
       name: "mention",
       level: "inline",
-      start: (src: string) => src.indexOf("[@"),
+      // marked already stops text at every `[`, so this only needs to find a nearby one: a
+      // bounded look, never a scan of the rest of the paragraph per text run.
+      start: (src: string) => {
+        const at = src.slice(0, 256).indexOf("[@");
+        return at;
+      },
       tokenize: (src: string) => {
         const mention = parseMentionLink(src);
         if (!mention) return undefined;
@@ -783,6 +861,99 @@ function calloutNode(view: (() => NodeViewRenderer) | undefined) {
   });
 }
 
+/** The lines toggle matching reads: openings, closings, and code fences (whose lines are code). */
+const TOGGLE_LINES =
+  /^(?:<details(?: open)?>|<\/details>[ \t]*$| {0,3}(`{3,}|~{3,}))/gm;
+
+/** Each toggle opening's close in one source: `bodyEnd` (the close line's start) and `end`. */
+type ToggleCloses = Map<number, { bodyEnd: number; end: number }>;
+
+/**
+ * Pair every toggle opening in `source` with its closing line in ONE pass — nesting counted, and
+ * `<details>` or `</details>` inside fenced code ignored (it is code). A tokenizer asks for the
+ * close of the toggle its `src` starts with, and `src` is a suffix of the source being lexed: the
+ * pairs of the last few sources are kept, so a document with many toggles (or many unclosed ones)
+ * is scanned once, not once per toggle.
+ */
+function toggleCloses(source: string): ToggleCloses {
+  const closes: ToggleCloses = new Map();
+  const open: number[] = [];
+  let fence: string | null = null;
+  const lines = new RegExp(TOGGLE_LINES.source, "gm");
+  for (let match = lines.exec(source); match; match = lines.exec(source)) {
+    const lineEnd = source.indexOf("\n", match.index);
+    const end = lineEnd === -1 ? source.length : lineEnd;
+    const marker = match[1];
+    if (fence) {
+      // A closing fence: the same character, at least as long, nothing else on the line.
+      if (
+        marker &&
+        marker[0] === fence[0] &&
+        marker.length >= fence.length &&
+        source.slice(match.index, end).trim() === marker
+      )
+        fence = null;
+      continue;
+    }
+    // A backtick fence's info string holds no backtick (CommonMark): "```a`b" is text.
+    if (marker) {
+      if (
+        marker[0] !== "`" ||
+        !source
+          .slice(match.index, end)
+          .trim()
+          .slice(marker.length)
+          .includes("`")
+      )
+        fence = marker;
+    } else if (match[0].startsWith("</")) {
+      const from = open.pop();
+      if (from !== undefined)
+        closes.set(from, {
+          bodyEnd: match.index,
+          end: lineEnd === -1 ? end : end + 1,
+        });
+    } else open.push(match.index);
+  }
+  return closes;
+}
+
+const TOGGLE_CACHE: { source: string; closes: ToggleCloses }[] = [];
+
+/**
+ * Whether `src` is the tail of `source` — sampled at its start, middle and end, so the check costs
+ * the same however long the document is. Tokenizers use it to reuse a per-document pass across the
+ * suffixes marked hands them. A false match could only regroup text differently (a toggle's text,
+ * a link's), never drop any: what a tokenizer consumes is always sliced from `src` itself.
+ */
+export function isTailOf(source: string, src: string): boolean {
+  const offset = source.length - src.length;
+  if (offset < 0) return false;
+  const sample = 64;
+  const same = (at: number) =>
+    source.startsWith(src.slice(at, at + sample), offset + at);
+  return (
+    same(0) &&
+    same(Math.max(0, (src.length >> 1) - (sample >> 1))) &&
+    same(Math.max(0, src.length - sample))
+  );
+}
+
+/** The close of the toggle opening at the start of `src`, or null when it never closes. */
+function toggleClose(src: string): { bodyEnd: number; end: number } | null {
+  let entry = TOGGLE_CACHE.find((each) => isTailOf(each.source, src));
+  if (!entry) {
+    entry = { source: src, closes: toggleCloses(src) };
+    TOGGLE_CACHE.unshift(entry);
+    TOGGLE_CACHE.length = Math.min(TOGGLE_CACHE.length, 8);
+  }
+  const offset = entry.source.length - src.length;
+  const close = entry.closes.get(offset);
+  return close
+    ? { bodyEnd: close.bodyEnd - offset, end: close.end - offset }
+    : null;
+}
+
 /**
  * Toggle — `<details><summary>Title</summary>` + blank line + its blocks + blank line +
  * `</details>`. `open` is the author's default (`<details open>`); `MarkdownView` renders a native
@@ -821,24 +992,9 @@ function toggleNode(view: (() => NodeViewRenderer) | undefined) {
             src,
           );
         if (!open) return undefined;
-        // The matching `</details>` line, nested toggles counted.
-        let depth = 1;
-        let at = open[0].length;
-        let bodyEnd = -1;
-        let end = -1;
-        while (at < src.length) {
-          const next = src.indexOf("\n", at);
-          const lineEnd = next === -1 ? src.length : next;
-          const line = src.slice(at, lineEnd);
-          if (/^<details(?: open)?>/.test(line)) depth++;
-          else if (/^<\/details>[ \t]*$/.test(line) && --depth === 0) {
-            bodyEnd = at;
-            end = next === -1 ? lineEnd : lineEnd + 1;
-            break;
-          }
-          at = lineEnd + 1;
-        }
-        if (end === -1) return undefined;
+        const close = toggleClose(src);
+        if (!close) return undefined;
+        const { bodyEnd, end } = close;
         const body = src.slice(open[0].length, bodyEnd).trim();
         return {
           type: "toggle",
@@ -862,9 +1018,16 @@ function toggleNode(view: (() => NodeViewRenderer) | undefined) {
     },
     renderMarkdown: (node, helpers) => {
       const [summary, ...body] = (node.content ?? []) as JSONContent[];
-      const title = summary?.content?.length
-        ? helpers.renderChildren(summary.content)
-        : "";
+      // The summary is one line: a hard break in it is `<br>`.
+      singleLineDepth++;
+      let title: string;
+      try {
+        title = summary?.content?.length
+          ? helpers.renderChildren(summary.content)
+          : "";
+      } finally {
+        singleLineDepth--;
+      }
       const blocks = body
         .map(
           (child, index) =>
@@ -1001,6 +1164,7 @@ export function textEditExtensions(
       underline: false,
       hardBreak: false,
       link: false,
+      listItem: false,
       orderedList: false,
       // A trailing empty paragraph would add a line edit mode has and view mode does not.
       trailingNode: false,
@@ -1017,7 +1181,9 @@ export function textEditExtensions(
       defaultProtocol: "https",
       HTMLAttributes: LINK_ATTRIBUTES,
     }),
+    ListItemMd,
     OrderedListMd,
+    CheckboxText,
     ParagraphMd,
     codeBlockNode(options.lowlight, view.codeBlock),
     TaskListMd,

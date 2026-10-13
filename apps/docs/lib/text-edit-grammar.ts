@@ -1,4 +1,4 @@
-// @vegastack text-edit-grammar@0.25.29 sha256-OTRy6lNsZP/8+U/05Pqh44warh71bYuzcarqX2L+NdM=
+// @vegastack text-edit-grammar@0.25.29 sha256-3I7QsFneOJKsfv0eU7QPMy8JBSQZ1btsQ8Z3An/9lgw=
 
 /**
  * text-edit-grammar — the constructs VegaStack Markdown v1 carries beyond CommonMark + GFM, as
@@ -184,14 +184,20 @@ export function parseImageAlt(text: string): { alt: string; width?: number } {
 
 /**
  * A link or image destination as Markdown: `<…>` when it holds a space, a parenthesis or a `<`/`>`,
- * so it parses back whole.
+ * so it parses back whole, and an entity-shaped `&` written `&amp;`, so it decodes back to itself.
  *
  * @example
  * markdownDestination("/files/a b.png"); // "</files/a b.png>"
  */
 export function markdownDestination(href: string): string {
-  if (!/[\s()<>]/.test(href)) return href;
-  return `<${href.replace(/[<>\n]/g, (ch) => encodeURIComponent(ch))}>`;
+  // An `&` that reads as a character reference is written `&amp;`: the parser decodes once, so
+  // `?a=&amp;` stays `?a=&amp;` through every save.
+  const safe = href.replace(
+    /&(?=#\d{1,7};|#[xX][\da-fA-F]{1,6};|[a-zA-Z][a-zA-Z\d]{1,31};)/g,
+    "&amp;",
+  );
+  if (!/[\s()<>]/.test(safe)) return safe;
+  return `<${safe.replace(/[<>\n]/g, (ch) => encodeURIComponent(ch))}>`;
 }
 
 /**

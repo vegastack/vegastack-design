@@ -245,6 +245,31 @@ export function largeMarkdown(size: number): string {
   return out;
 }
 
+/**
+ * Inputs built to defeat a tokenizer's bounds — each must parse in linear time too: paragraphs split
+ * by whitespace-only lines, unclosed toggles, table-like rows without a delimiter, task lines,
+ * backtick and emphasis runs, callouts, media lines and nested quotes.
+ */
+export const ADVERSARIAL: Record<string, string> = {
+  "blank lines with spaces": "paragraph\n \n",
+  "unclosed toggles": "<details><summary>x</summary>\n\nbody\n\n",
+  "toggle closers only": "</details>\n\ntext\n\n",
+  "pipes without a delimiter": "a | b | c\n",
+  "task lines": "- [ ] task\n",
+  "backtick runs": "``` `` ` text ",
+  "emphasis runs": "*a _b **c __d ",
+  "strikethrough runs": "~a ~~b ",
+  "link openers": "[a](",
+  callouts: "> [!NOTE]\n> x\n",
+  "media lines": '<video src="/v.mp4"></video>\n',
+  "nested quotes": "> > > quote\n",
+};
+
+/** `unit` repeated to `size` characters. */
+export function repeatTo(unit: string, size: number): string {
+  return unit.repeat(Math.ceil(size / unit.length)).slice(0, size);
+}
+
 /** Milliseconds to parse `markdown`, best of `runs`. */
 export function parseTime(markdown: string, runs = 3): number {
   let best = Infinity;
