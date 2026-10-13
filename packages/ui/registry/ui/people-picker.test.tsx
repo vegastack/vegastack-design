@@ -166,6 +166,45 @@ test("multiple: rows toggle, the popover stays open, the trigger reads the names
   await userEvent.keyboard("{Escape}");
 });
 
+test("a chosen agent reads with its owner in the trigger's text and name, single and multiple", async () => {
+  const claude: PeoplePickerOption = {
+    id: "a1",
+    name: "Claude Code",
+    kind: "agent",
+    via: "Manoj",
+  };
+  const screen = await render(
+    <div className="flex flex-col gap-2">
+      <PeoplePicker
+        value={claude}
+        onValueChange={() => {}}
+        options={[claude]}
+      />
+      <PeoplePicker
+        multiple
+        value={[claude, DIRECTORY[0]!]}
+        onValueChange={() => {}}
+        options={[claude]}
+      />
+    </div>,
+  );
+  // The trigger's text (beside the avatars) and its accessible name both carry the owner.
+  await hasText(
+    screen.getByRole("button", {
+      name: "Claude Code (via Manoj)",
+      exact: true,
+    }),
+    "Claude Code (via Manoj)",
+  );
+  await hasText(
+    screen.getByRole("button", {
+      name: "Claude Code (via Manoj), Asha Rao",
+      exact: true,
+    }),
+    "Claude Code (via Manoj), Asha Rao",
+  );
+});
+
 test("includeInactive lists inactive people with a badge", async () => {
   const screen = await render(<Multiple includeInactive />);
   await screen.getByRole("button", { name: "Add people" }).click();
@@ -298,7 +337,7 @@ test("menu: agents under a heading; a disabled agent shows why and can't be pick
   await screen.getByRole("menuitem", { name: "Delegate" }).click();
   await expect.element(screen.getByText("Your agents")).toBeVisible();
   const claude = screen.getByRole("menuitem", {
-    name: /Claude Code, agent of Manoj/,
+    name: /Claude Code via Manoj, agent/,
   });
   await expect.element(claude).toBeVisible();
   expect(

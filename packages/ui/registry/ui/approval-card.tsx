@@ -1,4 +1,4 @@
-// @vegastack approval-card@0.25.28 sha256-iGdbHbwaIvO58gcM9GJWq+jpH5yS2Aar93stxVGWQ88=
+// @vegastack approval-card@0.25.28 sha256-3QP9TMmOzkObW0CS6pYpBL4Eq9pbx3IHbS8laFiKgNg=
 
 "use client";
 
@@ -201,13 +201,14 @@ export function ApprovalCard({
   const result = outcome(open ? "pending" : status, actor);
 
   // Announce the outcome when it changes while the card is on screen — never on first paint.
-  const spoken = typeof statusLine === "string" ? statusLine : result.text;
+  // What is announced is what the line renders — a `statusLine` node included.
+  const line = React.useRef<HTMLSpanElement | null>(null);
   const previous = React.useRef(status);
   React.useEffect(() => {
     if (previous.current === status) return;
     previous.current = status;
-    if (!open) announce(spoken);
-  }, [status, open, spoken, announce]);
+    if (!open) announce(line.current?.textContent?.trim() || result.text);
+  }, [status, open, result.text, announce]);
 
   const decide = async (
     which: "approve" | "decline",
@@ -370,7 +371,9 @@ export function ApprovalCard({
             className="flex min-w-0 items-center gap-1.5"
           >
             {result.icon}
-            <span className="min-w-0">{statusLine ?? result.text}</span>
+            <span ref={line} className="min-w-0">
+              {statusLine ?? result.text}
+            </span>
           </p>
         )}
       </div>

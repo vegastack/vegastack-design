@@ -800,7 +800,7 @@ test("an agent actor reads its owner and the Agent label; the agent kinds draw i
   ).toBe("Agent");
   await expect
     .element(
-      screen.getByRole("button", { name: "Claude Code, agent of Manoj" }),
+      screen.getByRole("button", { name: "Claude Code via Manoj, agent" }),
     )
     .toBeVisible();
   const icons = screen.container.querySelectorAll<SVGElement>(

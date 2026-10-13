@@ -854,7 +854,7 @@ test("an agent's comment carries data-agent, a bot, its owner and an Agent label
     screen.container.querySelector("[data-slot=person-name-via]")?.textContent,
   ).toBe(" via Manoj");
   await screen
-    .getByRole("button", { name: "Claude Code, agent of Manoj" })
+    .getByRole("button", { name: "Claude Code via Manoj, agent" })
     .click();
   await expect.element(screen.getByText("claude.ai")).toBeVisible();
   await expectNoA11yViolations(screen.container);

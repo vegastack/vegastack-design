@@ -99,7 +99,7 @@ test("PersonName: an agent reads its name, via its owner, and the Agent label; a
   expect(label.textContent).toBe("Agent");
   expect(label.className).toContain("text-tag-purple-text");
   expect(agent!.querySelector(".sr-only")!.textContent).toBe(
-    "Claude Code, agent of Manoj",
+    "Claude Code via Manoj, agent",
   );
   expect(person!.textContent).toBe("Asha Rao");
   expect(person!.dataset.kind).toBeUndefined();
@@ -114,7 +114,7 @@ test("PersonName: agentLabel={false} drops the label but keeps the spoken agent"
     screen.container.querySelector('[data-slot="person-agent-label"]'),
   ).toBeNull();
   expect(screen.container.querySelector(".sr-only")!.textContent).toBe(
-    "Claude Code, agent of Manoj",
+    "Claude Code via Manoj, agent",
   );
 });
 
@@ -122,7 +122,7 @@ test("personDisplayName and personAccessibleName", () => {
   expect(personDisplayName(claude)).toBe("Claude Code (via Manoj)");
   expect(personDisplayName({ name: "Codex", kind: "agent" })).toBe("Codex");
   expect(personDisplayName({ name: "Asha Rao", via: "x" })).toBe("Asha Rao");
-  expect(personAccessibleName(claude)).toBe("Claude Code, agent of Manoj");
+  expect(personAccessibleName(claude)).toBe("Claude Code via Manoj, agent");
   expect(personAccessibleName({ name: "Codex", kind: "agent" })).toBe(
     "Codex, agent",
   );

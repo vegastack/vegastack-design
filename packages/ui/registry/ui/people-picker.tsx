@@ -1,4 +1,4 @@
-// @vegastack people-picker@0.25.28 sha256-z2nnSClUOZQwepLu0zic3Iv19kiPmheDyM9QnSfebhU=
+// @vegastack people-picker@0.25.28 sha256-KkW5USx9cEz+xjylC8Rm9r7tESmUJTnXqlCa9ClpKm8=
 
 "use client";
 
@@ -28,6 +28,7 @@ import {
 import {
   PersonAvatar,
   PersonName,
+  personDisplayName,
   type Person,
 } from "@/components/ui/person-avatar";
 import {
@@ -617,12 +618,9 @@ export interface PeoplePickerProps<
   ref?: React.Ref<HTMLButtonElement>;
 }
 
-/** "Asha Rao", "Asha Rao, Dev Menon", "Asha Rao, Dev Menon +2". */
+/** "Asha Rao", "Asha Rao, Dev Menon", "Asha Rao, Dev Menon +2"; an agent "Claude Code (via Manoj)". */
 function namesOf(list: readonly PeoplePickerOption[]): string {
-  const shown = list
-    .slice(0, 2)
-    .map((o) => o.name)
-    .join(", ");
+  const shown = list.slice(0, 2).map(personDisplayName).join(", ");
   return list.length > 2 ? `${shown} +${list.length - 2}` : shown;
 }
 

@@ -42,7 +42,7 @@ test("pending: the agent, the action, the records, the reason, the expiry, and A
     <ApprovalCard {...base} onApprove={onApprove} onDecline={onDecline} />,
   );
   const card = screen.getByRole("region", {
-    name: "Claude Code, agent of Manoj wants to move 2 tasks to Trash",
+    name: "Claude Code via Manoj, agent wants to move 2 tasks to Trash",
   });
   await expect.element(card).toHaveAttribute("data-status", "pending");
   expect(
@@ -142,7 +142,11 @@ test("a decision made while the card is open is announced", async () => {
     <ApprovalCard
       {...base}
       status="approved"
-      statusLine="Approved by you · just now"
+      statusLine={
+        <>
+          Approved by <strong>you</strong> · just now
+        </>
+      }
       onApprove={vi.fn()}
     />,
   );

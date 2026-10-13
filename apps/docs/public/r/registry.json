@@ -16813,7 +16813,7 @@
         "whenToUse": "Choose a person (assignee, owner, manager) or several people and teams (members of a team or space, a share invite), or filter by person — every people picker.",
         "whenNotToUse": "Type free-form tokens such as emails (ChipInput), or pick non-person records (SearchableSelect).",
         "version": "0.25.28",
-        "integrity": "sha256-z2nnSClUOZQwepLu0zic3Iv19kiPmheDyM9QnSfebhU="
+        "integrity": "sha256-KkW5USx9cEz+xjylC8Rm9r7tESmUJTnXqlCa9ClpKm8="
       }
     },
     {
@@ -17035,7 +17035,7 @@
         "whenToUse": "Any avatar that stands for a person: rows, chips, cards, menus, comments and the user menu.",
         "whenNotToUse": "An organisation or record image (Thumbnail), a space (IconGlyph), or a non-person avatar composition (Avatar).",
         "version": "0.25.28",
-        "integrity": "sha256-9JKN1uyMuQcM7W+nxZmHtXskTP1TF3h3UjMFZg79YYI="
+        "integrity": "sha256-ZmQL9csz4GvcqkEKQ/VS9bix/QU2A90WFySfMmfn8Cw="
       }
     },
     {
@@ -21898,7 +21898,7 @@
         "whenToUse": "Approve or decline an action an agent may not take on its own (move to Trash, share, publish) — on the record, in the inbox detail, or a sheet.",
         "whenNotToUse": "A person asking for access (InboxItem actions), or confirming the viewer`s own destructive action (AlertDialog).",
         "version": "0.25.28",
-        "integrity": "sha256-iGdbHbwaIvO58gcM9GJWq+jpH5yS2Aar93stxVGWQ88="
+        "integrity": "sha256-3QP9TMmOzkObW0CS6pYpBL4Eq9pbx3IHbS8laFiKgNg="
       }
     }
   ]

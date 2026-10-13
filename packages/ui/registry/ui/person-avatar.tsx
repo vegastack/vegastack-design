@@ -1,4 +1,4 @@
-// @vegastack person-avatar@0.25.28 sha256-9JKN1uyMuQcM7W+nxZmHtXskTP1TF3h3UjMFZg79YYI=
+// @vegastack person-avatar@0.25.28 sha256-ZmQL9csz4GvcqkEKQ/VS9bix/QU2A90WFySfMmfn8Cw=
 
 "use client";
 
@@ -87,18 +87,19 @@ export function personDisplayName(
 }
 
 /**
- * `personAccessibleName` — what a screen reader hears for a person: an agent is "Claude Code,
- * agent of Manoj" (or "Claude Code, agent"), so "agent" is never carried by colour alone.
+ * `personAccessibleName` — what a screen reader hears for a person: an agent is "Claude Code via
+ * Manoj, agent" (or "Claude Code, agent") — the visible name first, so speech input matches it
+ * (WCAG 2.5.3), and "agent" is never carried by colour alone.
  *
  * @example
- * personAccessibleName({ name: "Claude Code", kind: "agent", via: "Manoj" }); // "Claude Code, agent of Manoj"
+ * personAccessibleName({ name: "Claude Code", kind: "agent", via: "Manoj" }); // "Claude Code via Manoj, agent"
  */
 export function personAccessibleName(
   person: Pick<Person, "name" | "kind" | "via">,
 ): string {
   if (person.kind !== "agent") return person.name;
   return person.via
-    ? `${person.name}, agent of ${person.via}`
+    ? `${person.name} via ${person.via}, agent`
     : `${person.name}, agent`;
 }
 
@@ -253,7 +254,7 @@ export interface PersonNameProps extends Omit<
 /**
  * `PersonName` — a person's name as every surface writes it. A person or a team is their name; an
  * agent is its name, a muted "via Manoj" and the small purple "Agent" label, and a screen reader
- * hears "Claude Code, agent of Manoj". Inline, so it sits in a sentence, a hover-card trigger or a
+ * hears "Claude Code via Manoj, agent". Inline, so it sits in a sentence, a hover-card trigger or a
  * truncating row.
  *
  * @example <PersonName person={{ name: "Claude Code", kind: "agent", via: "Manoj" }} />
