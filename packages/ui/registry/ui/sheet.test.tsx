@@ -340,6 +340,26 @@ test("LAY-17: the panel breaks a long unbroken word inside itself", async () => 
   );
 });
 
+test("LAY-17: a header with no action keeps clear of the corner × while it is rendered", async () => {
+  const screen = await render(<Subject />);
+  await screen.getByRole("button", { name: "Open sheet" }).click();
+  await expect.element(screen.getByRole("dialog")).toBeInTheDocument();
+  expect(bySlot("sheet-content")!.className.split(" ")).toContain(
+    "**:data-[slot=sheet-header]:not-has-data-[slot=sheet-action]:pe-12",
+  );
+});
+
+test("LAY-17: with showCloseButton={false} the sheet header reserves nothing", async () => {
+  const bare = await render(
+    <Subject contentProps={{ showCloseButton: false }} />,
+  );
+  await bare.getByRole("button", { name: "Open sheet" }).click();
+  await expect.element(bare.getByRole("dialog")).toBeInTheDocument();
+  expect(bySlot("sheet-content")!.className).not.toContain(
+    "data-[slot=sheet-header]",
+  );
+});
+
 test("Escape closes the panel (Usage)", async () => {
   const screen = await render(<Subject />);
   await screen.getByRole("button", { name: "Open sheet" }).click();

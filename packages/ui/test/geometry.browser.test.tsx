@@ -4274,6 +4274,19 @@ test("long-names: overlays keep a long name inside, and wrap shows it whole", as
     )!;
     expect(getComputedStyle(title).lineHeight).toBe("22px");
     expect(title.getBoundingClientRect().height).toBeGreaterThan(22);
+    // The header keeps clear of the corner ×: the wrapped title ends before it.
+    const close = document
+      .querySelector<HTMLElement>('[data-slot="dialog-close"]')!
+      .getBoundingClientRect();
+    const range = document.createRange();
+    range.selectNodeContents(title);
+    const textRight = Math.max(
+      ...[...range.getClientRects()].map((line) => line.right),
+    );
+    expect(
+      textRight <= close.left,
+      `wrap=${wrap}: the title ends before the close × (${textRight} > ${close.left})`,
+    ).toBe(true);
     const value = trigger.querySelector<HTMLElement>("span")!;
     if (wrap) {
       expect(trigger.getBoundingClientRect().height).toBeGreaterThan(32);
@@ -4312,6 +4325,35 @@ test("long-names: overlays keep a long name inside, and wrap shows it whole", as
     expect(part.scrollWidth <= part.clientWidth + 1, slot).toBe(true);
   }
   await alert.unmount();
+
+  // A sheet header with no SheetAction keeps clear of its corner × the same way.
+  const sheet = await render(
+    <Sheet defaultOpen>
+      <SheetContent>
+        <SheetHeader>
+          {/* One unbroken word fills each line to the header's edge. */}
+          <SheetTitle>{LONG_WORD}</SheetTitle>
+        </SheetHeader>
+      </SheetContent>
+    </Sheet>,
+  );
+  await settle();
+  const sheetTitle = document.querySelector<HTMLElement>(
+    '[data-slot="sheet-title"]',
+  )!;
+  const sheetClose = document
+    .querySelector<HTMLElement>('[data-slot="sheet-close"]')!
+    .getBoundingClientRect();
+  const sheetRange = document.createRange();
+  sheetRange.selectNodeContents(sheetTitle);
+  const sheetRight = Math.max(
+    ...[...sheetRange.getClientRects()].map((line) => line.right),
+  );
+  expect(
+    sheetRight <= sheetClose.left,
+    `the sheet title ends before the close × (${sheetRight} > ${sheetClose.left})`,
+  ).toBe(true);
+  await sheet.unmount();
 });
 
 test("long-names: a wrap trigger measures its fixed height on one line and grows past it", async () => {

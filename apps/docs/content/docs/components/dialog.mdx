@@ -154,7 +154,8 @@ body scrolls. A dialog without a `DialogBody` keeps upstream's growing grid.
 A dialog that carries a user-entered name — a product, a task, a file — keeps every part inside the
 popup. `DialogContent` lays out on one `minmax(0, 1fr)` column, so a control that does not wrap (a
 select showing a long value) cannot widen the popup past its cap, and the popup breaks a long word
-with no spaces rather than letting it run past the edge. A title that wraps sits on snug lines. To
+with no spaces rather than letting it run past the edge. A title that wraps sits on snug lines, and
+while the corner close × shows, `DialogHeader` keeps clear of it, so the title wraps before the ×. To
 show a picked name whole instead of cutting it off, give the picker `wrap`
 ([Searchable Select](/docs/components/searchable-select#long-values), [Select](/docs/components/select#long-values)).
 A flex row that must shrink below its longest word — a title beside a hint icon — still needs
@@ -244,7 +245,8 @@ Upstream's file plus `packages/ui/upstream/patches/dialog.patch`. Every hunk:
 - **VOI-1** — both built-in close strings are the overridable `closeLabel`, default "Close".
 - **LAY-17** — `DialogContent` takes `grid-cols-1` (one `minmax(0, 1fr)` column) in place of the
   grid's implicit `auto` column, so a no-wrap child cannot widen the popup, and `wrap-break-word`, so
-  a long unbroken word breaks inside it. MK, 2026-10-13.
+  a long unbroken word breaks inside it. While the corner × renders, the popup gives `DialogHeader`
+  `pe-7`, so a long title wraps before the × instead of running under it. MK, 2026-10-13.
 - **TYP-19** — `DialogTitle` is `leading-snug`, not `leading-none`, so a wrapped title's lines do
   not collide. MK, 2026-10-13.
 - **DOC-2** — `import { cn } from "cn"` becomes `@vegastack/design`; our npm layer owns `cn`.

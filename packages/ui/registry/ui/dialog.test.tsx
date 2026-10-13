@@ -415,6 +415,26 @@ test("TYP-19: the title takes a snug line height, not upstream's leading-none", 
   expect(classes).not.toContain("leading-none");
 });
 
+test("LAY-17: the header keeps clear of the corner × while it is rendered", async () => {
+  const screen = await render(<Subject />);
+  await screen.getByRole("button", { name: "Open dialog" }).click();
+  await expect.element(screen.getByRole("dialog")).toBeInTheDocument();
+  expect(bySlot("dialog-content")!.className.split(" ")).toContain(
+    "**:data-[slot=dialog-header]:pe-7",
+  );
+});
+
+test("LAY-17: with showCloseButton={false} the dialog header reserves nothing", async () => {
+  const bare = await render(
+    <Subject contentProps={{ showCloseButton: false }} />,
+  );
+  await bare.getByRole("button", { name: "Open dialog" }).click();
+  await expect.element(bare.getByRole("dialog")).toBeInTheDocument();
+  expect(bySlot("dialog-content")!.className).not.toContain(
+    "data-[slot=dialog-header]:pe-7",
+  );
+});
+
 test("OVL-16: size defaults to default and keeps upstream's unconditional sm cap", async () => {
   const screen = await render(<Subject />);
   await screen.getByRole("button", { name: "Open dialog" }).click();

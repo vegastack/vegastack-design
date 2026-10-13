@@ -38,7 +38,9 @@
 #     a select trigger showing a long name — can no longer widen the column past the popup and push
 #     the field and the footer out of it; and `wrap-break-word`, so a long unbroken word breaks
 #     inside the popup. `break-word` moves no intrinsic width. A `DialogBody` popup is a flex column
-#     (API-21), where the grid column does not apply and nothing changes.
+#     (API-21), where the grid column does not apply and nothing changes. While the corner × is
+#     rendered (`showCloseButton`), the popup gives its `DialogHeader` `pe-7`, so a long title
+#     wraps 8px before the × instead of running under it; with no × the header is untouched.
 #   TYP-19 (MK 2026-10-13): `DialogTitle` is `leading-snug` instead of `leading-none`, so the
 #     lines of a title that wraps (one carrying a long name) do not collide.
 #   cn: `import { cn } from "cn"` becomes `@vegastack/design` — our npm layer owns `cn` (DOC-2).
@@ -46,7 +48,7 @@
 #               reflows the file, and `registry-stamp.mjs` writes the provenance header the
 #               three-copy model needs (DOC-1); those hunks carry no decision of their own.
 diff --git a/dialog.tsx b/dialog.tsx
-index 0b42f3f..f4091be 100644
+index 0b42f3f..8b82607 100644
 --- a/dialog.tsx
 +++ b/dialog.tsx
 @@ -1,26 +1,41 @@
@@ -103,7 +105,7 @@ index 0b42f3f..f4091be 100644
  }
  
  function DialogOverlay({
-@@ -32,29 +47,62 @@ function DialogOverlay({
+@@ -32,29 +47,65 @@ function DialogOverlay({
        data-slot="dialog-overlay"
        className={cn(
          "fixed inset-0 isolate z-50 bg-black/10 duration-100 supports-backdrop-filter:backdrop-blur-xs data-open:animate-in data-open:fade-in-0 data-closed:animate-out data-closed:fade-out-0",
@@ -167,11 +169,14 @@ index 0b42f3f..f4091be 100644
 -          "fixed top-1/2 start-1/2 z-50 grid w-full max-w-[calc(100%-2rem)] -translate-x-1/2 rtl:translate-x-1/2 -translate-y-1/2 gap-4 rounded-xl bg-popover p-4 text-sm text-popover-foreground ring-1 ring-foreground/10 duration-100 outline-none sm:max-w-sm data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95",
 -          className
 +          "fixed top-1/2 start-1/2 z-50 grid w-full max-w-[calc(100%-2rem)] grid-cols-1 -translate-x-1/2 rtl:translate-x-1/2 -translate-y-1/2 gap-4 rounded-xl bg-popover p-4 text-sm wrap-break-word text-popover-foreground border border-border duration-100 outline-none sm:max-w-sm data-[size=sm]:sm:max-w-xs data-[size=md]:sm:max-w-lg data-[size=lg]:sm:max-w-2xl data-[size=xl]:sm:max-w-5xl has-data-[slot=dialog-body]:flex has-data-[slot=dialog-body]:max-h-[calc(100%-2rem)] has-data-[slot=dialog-body]:flex-col data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95",
++          // LAY-17: the corner × sits over the header's end; the header keeps clear of it, so a long
++          // title wraps before the × instead of running under it.
++          showCloseButton && "**:data-[slot=dialog-header]:pe-7",
 +          className,
          )}
          {...props}
        >
-@@ -65,19 +113,18 @@ function DialogContent({
+@@ -65,19 +116,18 @@ function DialogContent({
              render={
                <Button
                  variant="ghost"
@@ -195,7 +200,7 @@ index 0b42f3f..f4091be 100644
  }
  
  function DialogHeader({ className, ...props }: React.ComponentProps<"div">) {
-@@ -87,34 +134,46 @@ function DialogHeader({ className, ...props }: React.ComponentProps<"div">) {
+@@ -87,34 +137,46 @@ function DialogHeader({ className, ...props }: React.ComponentProps<"div">) {
        className={cn("flex flex-col gap-2", className)}
        {...props}
      />
@@ -249,7 +254,7 @@ index 0b42f3f..f4091be 100644
  }
  
  function DialogTitle({ className, ...props }: DialogPrimitive.Title.Props) {
-@@ -122,12 +181,12 @@ function DialogTitle({ className, ...props }: DialogPrimitive.Title.Props) {
+@@ -122,12 +184,12 @@ function DialogTitle({ className, ...props }: DialogPrimitive.Title.Props) {
      <DialogPrimitive.Title
        data-slot="dialog-title"
        className={cn(
@@ -265,7 +270,7 @@ index 0b42f3f..f4091be 100644
  }
  
  function DialogDescription({
-@@ -139,15 +198,16 @@ function DialogDescription({
+@@ -139,15 +201,16 @@ function DialogDescription({
        data-slot="dialog-description"
        className={cn(
          "text-sm text-muted-foreground *:[a]:underline *:[a]:underline-offset-3 *:[a]:hover:text-foreground",
@@ -284,7 +289,7 @@ index 0b42f3f..f4091be 100644
    DialogClose,
    DialogContent,
    DialogDescription,
-@@ -157,4 +217,4 @@ export {
+@@ -157,4 +220,4 @@ export {
    DialogPortal,
    DialogTitle,
    DialogTrigger,
