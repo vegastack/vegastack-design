@@ -9,6 +9,21 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.25.27] — October 13, 2026
+
+<!-- assembled from 1 changeset: 6a2c1ad0a43b -->
+
+### 🔧 Changed components
+
+- **TemplateEditor** and **TextEdit**: the `@` / `{{` placeholder picker and the slash and mention menus are now one shared `SuggestionMenu` (`@vegastack/suggestion-menu`, installed with either editor). Rows look exactly like `ComboboxItem`'s — the `accent` highlight on hover and arrows (visible in dark mode), the same padding, radius, gap, icon sizing and muted trailing text — with group headings, a `status` for empty, loading and error, a flip above the caret, and the textbox's `aria-activedescendant` on the active row. Escape in TemplateEditor's picker no longer reaches a host (a dialog stays open). TemplateEditor adds `singleLine` (Enter inserts nothing, pasted line breaks become spaces) and `replacements` (`[{ from: "*", to: "×" }]`, applied as you type) for formulas.
+  [docs](https://design.vegastack.com/docs/components/template-editor) ·
+  [`f5f16fe`](https://github.com/VegaStack/vegastack-design/commit/f5f16fe)
+
+### 📦 npm
+
+- **`@vegastack/design`** → **`0.8.5`** (was `0.8.4`).
+- The design-system registry (`@vegastack/ui`) bumps 0.25.26 → 0.25.27.
+
 ## [0.25.26] — October 13, 2026
 
 <!-- assembled from 2 changesets: 6b6c78fa5493 -->
