@@ -41095,6 +41095,15 @@
             "status": "not-applicable",
             "rationale": "A pure function; it renders nothing and takes no ref."
           }
+        },
+        {
+          "name": "resetParseCaches",
+          "kind": "function",
+          "source": "packages/ui/registry/lib/text-edit-schema.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A pure function; it renders nothing and takes no ref."
+          }
         }
       ],
       "variants": {

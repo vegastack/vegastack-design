@@ -1930,7 +1930,7 @@
         "version": "0.25.28",
         "whenToUse": "Building a TextEdit document anywhere — a collaboration server, an import, an API — with exactly the editor’s nodes and attributes.",
         "whenNotToUse": "Rendering a document to read — use MarkdownView.",
-        "integrity": "sha256-q0UpXy8jWhpelBFM9ngO9zHAFhl4PqZd8foTds6qRaw="
+        "integrity": "sha256-eHva4Juvzu+lBhbSeHNCSTMyajfbU8G7LYYNl/2pOBg="
       }
     },
     {
@@ -1962,7 +1962,7 @@
         "version": "0.25.28",
         "whenToUse": "Converting between Markdown and a TextEdit document on a server — import, export, search text, a collaboration server’s read copy.",
         "whenNotToUse": "Rendering Markdown to read — use MarkdownView.",
-        "integrity": "sha256-oYD4JwuQXqlx/04GxshObKZszbYDxRnV1gNPc4gNWas="
+        "integrity": "sha256-KKoEC3Qn8VMiBvPhbZWk9PlgmJvghJmF6co9N0coP/4="
       }
     },
     {

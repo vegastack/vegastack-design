@@ -1,4 +1,4 @@
-// @vegastack text-edit-markdown@0.25.29 sha256-oYD4JwuQXqlx/04GxshObKZszbYDxRnV1gNPc4gNWas=
+// @vegastack text-edit-markdown@0.25.29 sha256-KKoEC3Qn8VMiBvPhbZWk9PlgmJvghJmF6co9N0coP/4=
 
 import type { AnyExtension, JSONContent } from "@tiptap/core";
 import { Markdown, MarkdownManager } from "@tiptap/markdown";
@@ -10,6 +10,7 @@ import {
   blockId,
   textEditExtensions,
   isTailOf,
+  resetParseCaches,
   textEditSchema,
   trimInline,
 } from "@/lib/text-edit-schema";
@@ -128,6 +129,10 @@ function createMarked(): typeof marked {
       return { type: "text", raw: tag.raw, text: tag.raw } as never;
     },
     html(src) {
+      // A line holding only a `<br>` breaks nothing — it is space, not the start of an HTML block
+      // that would swallow the Markdown under it as text (`<br>` then `# h` stays a heading).
+      const lone = /^ {0,3}<br\s*\/?>[ \t]*(?:\n|$)/i.exec(src);
+      if (lone) return { type: "space", raw: lone[0] } as never;
       const block = Tokenizer.prototype.html.call(this, src);
       if (!block) return undefined;
       const text = block.raw.replace(/\s+$/, "");
@@ -231,6 +236,26 @@ function indexIn(siblings: JSONContent[], node: JSONContent): number {
   return index.get(node) ?? -1;
 }
 
+/**
+ * Stands in for a code span's edge spaces while the span is written: Tiptap's writer moves a mark's
+ * edge whitespace outside it (right for `**bold **`, wrong for code, whose spaces are content).
+ * Written back as spaces once the document is serialized.
+ */
+const CODE_SPACE = "\uE01A";
+
+/**
+ * A code span's text with its edge spaces held: CommonMark strips one space from each side of a
+ * span that has spaces at both ends, so such a span gets one more on each side.
+ */
+function codeSpanText(text: string): string {
+  if (!/^ | $/.test(text)) return text;
+  // All spaces: CommonMark keeps such a span whole.
+  if (text.trim() === "") return CODE_SPACE.repeat(text.length);
+  const both = text.startsWith(" ") && text.endsWith(" ");
+  const held = text.replace(/^ +| +$/g, (run) => CODE_SPACE.repeat(run.length));
+  return both ? `${CODE_SPACE}${held}${CODE_SPACE}` : held;
+}
+
 /** Text in a document as VegaStack Markdown: escaped only where Markdown would read syntax. */
 function encodeText(
   text: string,
@@ -240,7 +265,8 @@ function encodeText(
   const marks = (node.marks ?? []).map((mark) =>
     typeof mark === "string" ? mark : mark.type,
   );
-  if (parent?.type === "codeBlock" || marks.includes("code")) return text;
+  if (parent?.type === "codeBlock") return text;
+  if (marks.includes("code")) return codeSpanText(text);
   let out = escapeText(text);
   // Inside link text a `]` would end the link.
   if (marks.includes("link")) out = out.replace(/\]/g, "\\]");
@@ -298,8 +324,16 @@ export function createMarkdownManager(
   // Every parse — the editor's initial content, a paste, `setContent`, a server's `markdownToDoc`
   // — reads the same normalized source and returns a document the schema accepts.
   const parse = created.parse.bind(created);
-  created.parse = (markdown: string) =>
-    normalizeParsed(parse(normalizeSource(markdown)));
+  created.parse = (markdown: string) => {
+    // Every per-document index serves only the parse that built it.
+    resetParseCaches();
+    closers = null;
+    parens = null;
+    return normalizeParsed(parse(normalizeSource(markdown)));
+  };
+  const write = created.serialize.bind(created);
+  created.serialize = (doc: JSONContent) =>
+    write(doc).replaceAll(CODE_SPACE, " ");
   return created;
 }
 
@@ -327,6 +361,23 @@ const BLOCK_CONTAINERS = new Set([
 /** Containers whose first child must be a paragraph (`paragraph block*`). */
 const ITEMS = new Set(["listItem", "taskItem"]);
 
+/**
+ * An image Markdown placed inline, as a block. An image is a block and carries no marks, so a link
+ * around it (`[![a](/x)](/y)`) follows it as a paragraph linking its alt text — the URL is never
+ * dropped.
+ */
+function imageBlock(image: JSONContent): JSONContent[] {
+  const link = image.marks?.find((mark) => mark.type === "link");
+  const { marks: _marks, ...block } = image;
+  if (!link) return [block];
+  const href = String(link.attrs?.href ?? "");
+  const text = String(image.attrs?.alt || href);
+  return [
+    block,
+    { type: "paragraph", content: [{ type: "text", text, marks: [link] }] },
+  ];
+}
+
 /** A textblock holding an image, split around it: text runs stay the textblock, images are blocks. */
 function liftImages(block: JSONContent): JSONContent[] {
   const out: JSONContent[] = [];
@@ -334,7 +385,8 @@ function liftImages(block: JSONContent): JSONContent[] {
     // The summary keeps its text; its images follow it as the toggle's first blocks.
     const content = (block.content ?? []).filter((n) => n.type !== "image");
     out.push({ ...block, content: trimInline(content) });
-    out.push(...(block.content ?? []).filter((n) => n.type === "image"));
+    for (const image of block.content ?? [])
+      if (image.type === "image") out.push(...imageBlock(image));
     return out;
   }
   let run: JSONContent[] = [];
@@ -347,7 +399,7 @@ function liftImages(block: JSONContent): JSONContent[] {
     if (child.type !== "image") run.push(child);
     else {
       flush();
-      out.push(child);
+      out.push(...imageBlock(child));
     }
   }
   flush();
@@ -398,35 +450,44 @@ let sharedManager: MarkdownManager | undefined;
 const manager = () => (sharedManager ??= createMarkdownManager());
 
 /**
- * Tidy serialized Markdown: an empty paragraph (`&nbsp;`) leaves no line, runs of blank lines
- * become one, fenced code is left exactly as written. The result parses back to itself.
+ * Serialized Markdown, tidied: its ends trimmed — and an empty task item's marker keeps the space
+ * after it (`- [x] `), or it reads as text. Nothing inside is rewritten: empty paragraphs are
+ * dropped from the document before it is written (`withoutEmptyParagraphs`), so a code block's
+ * blank lines are never mistaken for the gaps they leave.
  */
 function canonical(md: string): string {
-  const out: string[] = [];
-  let fence: string | null = null;
-  for (const line of md.split("\n")) {
-    const marker = /^\s*(`{3,}|~{3,})/.exec(line)?.[1];
-    if (fence) {
-      out.push(line);
-      if (marker && marker[0] === fence[0] && marker.length >= fence.length)
-        fence = null;
-      continue;
-    }
-    if (marker) {
-      fence = marker;
-      out.push(line);
-      continue;
-    }
-    const blank = line.trim() === "" || line.trim() === "&nbsp;";
-    if (blank && (out.length === 0 || out[out.length - 1] === "")) continue;
-    out.push(blank ? "" : line);
-  }
-  return out.join("\n").trim();
+  const tidy = md.replace(/^\n+/, "").trimEnd();
+  return /(?:^|\n)[ \t>]*(?:[-+*]|\d{1,9}[.)]) \[[ xX]\]$/.test(tidy)
+    ? `${tidy} `
+    : tidy;
+}
+
+/** Containers whose first child is their item's text line, kept even when empty. */
+const LEADING_PARAGRAPH = new Set(["listItem", "taskItem"]);
+
+/**
+ * `node` without its empty paragraphs (Markdown has none) — except the one a list item needs for its
+ * text line, and the last child a container would otherwise lose.
+ */
+function withoutEmptyParagraphs(node: JSONContent): JSONContent {
+  if (!node.content) return node;
+  const content = node.content
+    .map(withoutEmptyParagraphs)
+    .filter(
+      (child, index) =>
+        child.type !== "paragraph" ||
+        (child.content?.length ?? 0) > 0 ||
+        (index === 0 && LEADING_PARAGRAPH.has(node.type ?? "")),
+    );
+  return {
+    ...node,
+    content: content.length ? content : node.content.slice(0, 1),
+  };
 }
 
 /** Serialize a document with `serializer`, then tidy it to VegaStack Markdown. */
 function serialize(serializer: MarkdownManager, doc: JSONContent): string {
-  return canonical(serializer.serialize(doc));
+  return canonical(serializer.serialize(withoutEmptyParagraphs(doc)));
 }
 
 /** Give every id-carrying block without an id one. */

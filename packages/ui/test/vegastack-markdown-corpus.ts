@@ -203,7 +203,8 @@ export function checkCase(each: CorpusCase): string[] {
     problems.push(
       `structure changed\n  before ${JSON.stringify(doc.toJSON())}\n  after  ${JSON.stringify(back.toJSON())}`,
     );
-  if (same && each.loss)
+  // A loss that drops words happens at the first parse: the round trip after it is exact.
+  if (same && each.loss && each.loss.words.size === 0)
     problems.push(
       "declares a loss (.loss) but round-trips exactly: delete the .loss file",
     );

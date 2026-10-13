@@ -1,4 +1,4 @@
-// @vegastack text-edit-schema@0.25.29 sha256-q0UpXy8jWhpelBFM9ngO9zHAFhl4PqZd8foTds6qRaw=
+// @vegastack text-edit-schema@0.25.29 sha256-eHva4Juvzu+lBhbSeHNCSTMyajfbU8G7LYYNl/2pOBg=
 
 import {
   Extension,
@@ -175,6 +175,15 @@ function lineIndex(src: string): { index: LineIndex; offset: number } {
     markers: new Map(),
   }));
   return { index, offset: index.source.length - src.length };
+}
+
+/**
+ * Forget the per-document indexes: called as each parse starts (`text-edit-markdown`), so a cache
+ * only ever serves the parse that built it.
+ */
+export function resetParseCaches(): void {
+  LINE_INDEXES.length = 0;
+  TOGGLE_CACHE.length = 0;
 }
 
 /** Sources shorter than this are indexed per call (cheap), and never evict a document's index. */
@@ -390,7 +399,7 @@ function renderTable(node: JSONContent, h: MarkdownRendererHelpers): string {
   const body = (hasHeader ? rows.slice(1) : rows).map((row) =>
     line(Array.from({ length: columns }, (_, index) => row[index]?.text ?? "")),
   );
-  return ["", line(header), `| ${rule.join(" | ")} |`, ...body, ""].join("\n");
+  return [line(header), `| ${rule.join(" | ")} |`, ...body].join("\n");
 }
 
 /**
@@ -419,10 +428,13 @@ export function trimInline(run: JSONContent[]): JSONContent[] {
   while (start < end && run[start]!.type === "hardBreak") start++;
   while (end > start && run[end - 1]!.type === "hardBreak") end--;
   const nodes = run.slice(start, end).map((node) => ({ ...node }));
+  // A code span's spaces are content: only plain text is trimmed.
+  const plain = (node: JSONContent | undefined) =>
+    node?.type === "text" && !node.marks?.some((mark) => mark.type === "code");
   const first = nodes[0];
-  if (first?.type === "text") first.text = first.text?.trimStart();
+  if (plain(first)) first!.text = first!.text?.trimStart();
   const last = nodes[nodes.length - 1];
-  if (last?.type === "text") last.text = last.text?.trimEnd();
+  if (plain(last)) last!.text = last!.text?.trimEnd();
   return nodes.filter((node) => node.type !== "text" || node.text);
 }
 
@@ -457,11 +469,21 @@ const HardBreakMd = HardBreak.extend({
 
 /** Links: `&amp;` in a destination is `&`, and a destination with a space is written `<…>`. */
 const LinkMd = Link.extend({
-  parseMarkdown: (token, helpers) =>
-    helpers.applyMark("link", helpers.parseInline(token.tokens || []), {
+  parseMarkdown: (token, helpers) => {
+    const attrs = {
       href: decodeHtmlEntities(String(token.href ?? "")),
       title: token.title || null,
-    }),
+    };
+    const content = helpers.parseInline(token.tokens || []);
+    if (!content.some((node) => node.type === "image"))
+      return helpers.applyMark("link", content, attrs);
+    // A linked image: the link is put on the image too (Tiptap's mark helper skips non-text
+    // nodes), so lifting the image out as a block keeps the URL (`text-edit-markdown`).
+    return content.map((node) => ({
+      ...node,
+      marks: [...(node.marks ?? []), { type: "link", attrs }],
+    }));
+  },
   renderMarkdown: (node, h) => {
     const href = markdownDestination(String(node.attrs?.href ?? ""));
     const title = node.attrs?.title
@@ -598,11 +620,8 @@ const ParagraphMd = Paragraph.extend({
   },
   renderMarkdown: (node, h, ctx) => {
     const content = (node.content ?? []) as JSONContent[];
-    if (content.length === 0)
-      return ctx.previousNode?.type === "paragraph" &&
-        !ctx.previousNode.content?.length
-        ? "&nbsp;"
-        : "";
+    // An empty paragraph has no Markdown (the serializer drops those it can).
+    if (content.length === 0) return "";
     // A hard break that ends the paragraph has no line to break to.
     const text = h.renderChildren(content).replace(/(?:\\\n)+$/, "");
     if (singleLineDepth > 0) return text;
@@ -686,6 +705,10 @@ function codeBlockNode(
 }
 
 /** A task list: its tokenizer checks the first line before scanning the rest (linear parsing). */
+const TASK_LINE = /^\s*[-+*]\s+\[[ xX]\](?:\s|$)/;
+/** A task item whose marker ends its line (`- [x]`, its trailing space trimmed away by an editor). */
+const BARE_TASK = /^(\s*[-+*]\s+\[[ xX]\])$/gm;
+
 const TaskListMd = TaskList.extend({
   markdownTokenizer: (() => {
     const upstream = TaskList.config.markdownTokenizer!;
@@ -694,8 +717,32 @@ const TaskListMd = TaskList.extend({
       tokenize: (src, tokens, lexer) => {
         const end = src.indexOf("\n");
         const first = end === -1 ? src : src.slice(0, end);
-        if (!/^\s*[-+*]\s+\[[ xX]\]\s+/.test(first)) return undefined;
-        return upstream.tokenize(src, tokens, lexer);
+        if (!TASK_LINE.test(first)) return undefined;
+        // Within this list's paragraph, give a bare marker its space (Tiptap's reader needs one),
+        // then hand back the ORIGINAL lines the list consumed.
+        const region = firstParagraph(src);
+        const padded = region.replace(BARE_TASK, "$1 ");
+        if (padded === region) return upstream.tokenize(src, tokens, lexer);
+        const result = upstream.tokenize(
+          padded + src.slice(region.length),
+          tokens,
+          lexer,
+        );
+        if (!result?.raw) return result;
+        // Padding adds no line: the original raw is the same lines of `src`.
+        // (Tiptap's raw ends with a newline even at the end of the source.)
+        const breaks = (result.raw.match(/\n/g) ?? []).length;
+        let cut = 0;
+        for (let line = 0; line < breaks && cut < src.length; line++) {
+          const next = src.indexOf("\n", cut);
+          cut = next === -1 ? src.length : next + 1;
+        }
+        const next = src.indexOf("\n", cut);
+        const raw = result.raw.endsWith("\n")
+          ? src.slice(0, cut)
+          : src.slice(0, next === -1 ? src.length : next);
+        if (!raw) return undefined;
+        return { ...result, raw };
       },
     };
   })(),
@@ -1040,9 +1087,13 @@ function toggleClose(src: string): { bodyEnd: number; end: number } | null {
   }));
   const offset = entry.source.length - src.length;
   const close = entry.closes.get(offset);
-  return close
-    ? { bodyEnd: close.bodyEnd - offset, end: close.end - offset }
-    : null;
+  if (!close) return null;
+  const found = { bodyEnd: close.bodyEnd - offset, end: close.end - offset };
+  // What the toggle drops is its closing line: it must BE `</details>` here, in `src` itself —
+  // never trust a cached offset with text.
+  return /^<\/details>[ \t]*\n?$/.test(src.slice(found.bodyEnd, found.end))
+    ? found
+    : (toggleCloses(src).get(0) ?? null);
 }
 
 /**

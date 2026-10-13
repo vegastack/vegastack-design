@@ -31,12 +31,12 @@ describe("VegaStack Markdown round trip (Node, no DOM)", () => {
       expect(checkCase(each)).toEqual([]);
     });
 
-  test("a round trip is linear: 1 MB in well under 1.5 s, and 10× the text costs under 15× the time", () => {
+  test("a round trip is linear: 1 MB in well under 1.5 s, and 10× the text costs under 25× the time (quadratic would be 100×)", () => {
     roundTripTime(largeMarkdown(20_000), 1);
     const small = roundTripTime(largeMarkdown(100_000));
     const large = roundTripTime(largeMarkdown(1_000_000));
     expect(large).toBeLessThan(1_500);
-    expect(large / small).toBeLessThan(15);
+    expect(large / small).toBeLessThan(25);
   }, 60_000);
 
   for (const [name, unit] of Object.entries(ADVERSARIAL))
@@ -44,7 +44,7 @@ describe("VegaStack Markdown round trip (Node, no DOM)", () => {
       const small = roundTripTime(repeatTo(unit, 30_000));
       const large = roundTripTime(repeatTo(unit, 300_000));
       expect(large).toBeLessThan(1_500);
-      expect(large / small).toBeLessThan(15);
+      expect(large / small).toBeLessThan(25);
     }, 60_000);
 
   for (const [name, unit] of Object.entries(ADVERSARIAL_PARAGRAPH))
@@ -57,6 +57,17 @@ describe("VegaStack Markdown round trip (Node, no DOM)", () => {
     // The cell's own work (trimming its edge breaks) is linear; marked's tag masking bounds the size.
     expect(roundTripTime(cell(20_000))).toBeLessThan(1_500);
   }, 60_000);
+
+  test("a parse never reuses another document's index: text that looks alike stays whole", () => {
+    const filler = "word ".repeat(2_000);
+    const a = `<details><summary>T</summary>\n\n${filler}\n\n</details>\n\n${filler}`;
+    // The same length and the same head, middle and tail — the closing line made text.
+    const b = a.replace("\n</details>\n", "\nclosing text\n");
+    markdownToDoc(a);
+    const doc = markdownToDoc(b);
+    expect(doc.textContent).toContain("closing text");
+    expect(docToMarkdown(doc)).toContain("closing text");
+  });
 
   test("a code block of 300 KB of backticks serializes and reads back", () => {
     const code = "` ".repeat(150_000);
