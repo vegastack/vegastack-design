@@ -140,6 +140,17 @@ on the option's `aria-describedby` and a screen reader hears it as the option's 
   file="components/preview/select.tsx"
 />
 
+### Long values
+
+A trigger is one line and cuts a long value off. When the value is a long user-entered name — a
+product, a task — give `SelectTrigger` the `wrap` prop: its fixed height becomes a minimum (one line
+still measures `h-8`, or `h-7` at `size="sm"`) and the value runs onto as many lines as it needs. `wrap`
+on `SelectContent` lets each option wrap too, instead of being cut at the popup's edge, which is as
+wide as the trigger. A long word with no spaces breaks anywhere. Both write `data-wrap` (API-35).
+Keep short picklists and inline triggers on one line.
+
+<ComponentPreview name="selectWrap" file="components/preview/select.tsx" />
+
 ### States
 
 The trigger's rest, invalid and disabled chrome, closed.
@@ -216,4 +227,8 @@ focus-visible:ring-3 focus-visible:ring-ring/50` is removed outright, `outline-n
 - **API-26** — NO HUNK for the wiring: Base UI's `Select` reads the `Field` context itself, so
   inside a `Field` the trigger takes its label, the rendered description and error ids, and
   `aria-invalid`.
+- **API-35** — `SelectTrigger` takes `wrap` (reflected as `data-wrap`): the fixed height becomes a
+  `min-h-*` and the value wraps (`whitespace-normal wrap-anywhere`). `SelectContent` takes `wrap`
+  too, and under it `SelectItem`'s text drops `whitespace-nowrap` and `shrink-0`
+  ([Long values](#long-values)). MK, 2026-10-13.
 - **DOC-2** — `cn` is imported from `@vegastack/design`.

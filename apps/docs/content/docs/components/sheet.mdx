@@ -141,7 +141,8 @@ phone scrolls inside `SheetBody` rather than running past the screen, and the fo
 
 `SheetAction` seats one control at the end of `SheetHeader`, beside the title and description, and
 reserves the corner close button's width so the two never meet. `closeLabel` on `SheetContent`
-renames that close button — here "Close invoice" instead of the default "Close".
+renames that close button — here "Close invoice" instead of the default "Close". Without an action the
+header keeps clear of the close button itself, so a long title wraps before the × (LAY-17).
 
 <ComponentPreview
   name="sheetHeaderAction"
@@ -236,6 +237,12 @@ Upstream's file plus `packages/ui/upstream/patches/sheet.patch`. Every hunk:
 justify-end`) at every width, not upstream's full-width `flex-col` stack; a direct child with
   `data-slot="sheet-cancel"` takes `me-auto` to sit at the start edge. MK, 2026-09-25.
 - **VOI-1** — the corner close's built-in string is the overridable `closeLabel`, default "Close".
+- **LAY-17** — `SheetContent` sets `wrap-break-word`, so a long unbroken word breaks inside the panel
+  rather than running past its edge. While the corner × renders, a `SheetHeader` with no
+  `SheetAction` takes `pe-12`, so a long title wraps before the × instead of running under it. With
+  a `SheetAction` the header's text track is `minmax(0, 1fr)`, so a long title wraps instead of
+  pushing the action off the panel.
+  MK, 2026-10-13.
 - **DOC-2** — `import { cn } from "cn"` becomes `@vegastack/design`; our npm layer owns `cn`.
 - **DOC-1** — prettier reflow plus the `registry-stamp.mjs` provenance header; no decision of their
   own.

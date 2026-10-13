@@ -120,7 +120,7 @@
         "whenToUse": "A decision that must be made before anything else continues — deleting, discarding, signing out.",
         "whenNotToUse": "Anything dismissible by clicking away, or a form — use a Dialog.",
         "version": "0.25.25",
-        "integrity": "sha256-W1g0yyE0Ji/HWjpNNo3R4l4cAJblRFEdyk8WVIfpkZE="
+        "integrity": "sha256-wzdwP/nFJAucfW9NDeLTK9lPBxbdZ8vxBD/i8BIIQ/M="
       }
     },
     {
@@ -1742,7 +1742,7 @@
         "whenToUse": "Modal interactions requiring full attention — confirmations, focused forms, destructive-action prompts. size sm/default/lg/xl steps the width; put long content in DialogBody so the header and footer stay in view.",
         "whenNotToUse": "Non-blocking feedback (Toast), inline contextual content (Popover/Tooltip), or a swipeable bottom panel (Drawer).",
         "version": "0.25.25",
-        "integrity": "sha256-sCwT5te0XlpYsy0lvZ0KVCbH2rWAdcYsctoxb2KY+K0="
+        "integrity": "sha256-wAQK2VYM9I8fIjXhCNHs9xEadkaJEyG1eJO4CfFEyCo="
       }
     },
     {
@@ -2021,7 +2021,7 @@
         "whenToUse": "A touch-first panel the user drags — a mobile action sheet, a half-height detail panel, a stack of nested steps.",
         "whenNotToUse": "A desktop side panel with no gesture (Sheet), or a centred modal (Dialog).",
         "version": "0.25.25",
-        "integrity": "sha256-cxwv4TTF8h5KxGvCS2xF4sJdBz2XhEtDYADlMeV/4JM="
+        "integrity": "sha256-bwIn9YYbsb7KEYndlL6R+5nb45W/bB+xM4Qo0xN+p8w="
       }
     },
     {
@@ -16624,7 +16624,7 @@
         "whenToUse": "Rich, interactive content anchored to a control — a small form, a picker, a details card.",
         "whenNotToUse": "A short label (Tooltip), a list of actions (DropdownMenu), or anything that must block the page (Dialog).",
         "version": "0.25.25",
-        "integrity": "sha256-usQvXVS2OuiwXvMAuzkGS0fotpJHDtsGM7BaSORzQMs="
+        "integrity": "sha256-cx12v8ZXv3PmZ/LoX3KxBUNIrrwHx2BRD9yNb00Yg9c="
       }
     },
     {
@@ -17259,7 +17259,7 @@
         "whenToUse": "A Select-shaped searchable picker: one or several values, option descriptions and disabled reasons, and server search with paging (remote + useAsyncSearch).",
         "whenNotToUse": "A short fixed option set (Select), free text with suggestions (Combobox directly), or multi-select (Combobox with chips).",
         "version": "0.25.25",
-        "integrity": "sha256-YHJptNtr/S0oV57WSX3Lg6L65QIxCqrnXN51/Qrs1vo="
+        "integrity": "sha256-sO8a78b7vjzSOC4kAGcCC9rFZpa/ewuxv9ZZKFsL0rw="
       }
     },
     {
@@ -17351,7 +17351,7 @@
         "whenToUse": "Choosing from a short fixed, known set — statuses, sort orders, units — including grouped options; pass multiple for a multi-value select. The default trigger fills its parent; use variant=\"ghost\" (with size=\"sm\") for an inline trigger in table rows, list items and toolbars. A two-line option composes ItemTitle + ItemDescription, and the description is the option's accessible description.",
         "whenNotToUse": "Boolean on/off (Switch), few inline options (radios), a list long enough to need a search field (SearchableSelect), or free-text/async search (Combobox).",
         "version": "0.25.25",
-        "integrity": "sha256-vkglbo6z9fCh9AhoQ6NE2Vfk6B8UTf31bVRyav82ivw="
+        "integrity": "sha256-RbtEYmjrAGVyhzC4hEgJDOHAl8QKIxwCSzVqZqCQVJ8="
       }
     },
     {
@@ -17440,7 +17440,7 @@
         "whenToUse": "Secondary content beside the page — filters, details, a settings panel, a long record form — that should not take the centre of the screen. Side sheets take size sm/default/lg/xl (Dialog's width scale); put long content in SheetBody so the footer stays on screen.",
         "whenNotToUse": "A decision (AlertDialog), a centred form (Dialog), or a touch-first panel with snap points (Drawer).",
         "version": "0.25.25",
-        "integrity": "sha256-E1McjEifM9R9shuatJ+zhqzok62uKTqNrL3TnRLMQ9Y="
+        "integrity": "sha256-+SmcbkEUmIUVQQHSkeNMjyPA7yrW6of4uDSd37CoIbU="
       }
     },
     {

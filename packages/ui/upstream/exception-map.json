@@ -236,7 +236,10 @@
     "API-34": ["combobox"],
     "OVL-19": ["context-menu", "dropdown-menu"],
     "OVL-20": ["command"],
-    "OVL-21": ["drawer"]
+    "OVL-21": ["drawer"],
+    "LAY-17": ["alert-dialog", "dialog", "drawer", "popover", "sheet"],
+    "TYP-19": ["dialog"],
+    "API-35": ["select"]
   },
   "advisory": {
     "A11Y-2": [

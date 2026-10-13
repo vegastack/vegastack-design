@@ -520,3 +520,76 @@ test("API-19: a two-line option exposes its description (Two-line options)", asy
   expect(oneLine.hasAttribute("aria-describedby")).toBe(false);
   await expectNoA11yViolations(document.body);
 });
+
+/* API-35 — `wrap` shows a long value whole: on the trigger, and on the options in the popup */
+
+test("API-35: wrap is off by default — one fixed-height, no-wrap trigger and no-wrap options", async () => {
+  const screen = await render(<Fruit />);
+  const trigger = screen.getByRole("combobox", { name: "Fruit" }).element();
+  expect(trigger.hasAttribute("data-wrap")).toBe(false);
+  const classes = trigger.className.split(" ");
+  expect(classes).toContain("whitespace-nowrap");
+  expect(classes).toContain("data-[size=default]:h-8");
+  await userEvent.click(trigger);
+  const popup = document.querySelector('[data-slot="select-content"]')!;
+  expect(popup.hasAttribute("data-wrap")).toBe(false);
+});
+
+test("API-35: SelectTrigger wrap grows from its fixed height and wraps the value", async () => {
+  const screen = await render(
+    <>
+      <Fruit triggerProps={{ wrap: true }} />
+      <Fruit
+        triggerProps={{ wrap: true, size: "sm", "aria-label": "Small fruit" }}
+      />
+    </>,
+  );
+  const trigger = screen.getByRole("combobox", { name: "Fruit" }).element();
+  expect(trigger.getAttribute("data-wrap")).toBe("");
+  const classes = trigger.className.split(" ");
+  for (const token of [
+    "whitespace-normal",
+    "wrap-anywhere",
+    "text-start",
+    "py-1",
+    "data-[size=default]:h-auto",
+    "data-[size=default]:min-h-8",
+  ])
+    expect(classes).toContain(token);
+  // The merge drops what `wrap` replaces, so nothing fights it in the cascade.
+  for (const token of ["whitespace-nowrap", "data-[size=default]:h-8", "py-2"])
+    expect(classes).not.toContain(token);
+  const small = screen
+    .getByRole("combobox", { name: "Small fruit" })
+    .element()
+    .className.split(" ");
+  expect(small).toContain("data-[size=sm]:min-h-7");
+  expect(small).toContain("data-[size=sm]:py-0.5");
+  expect(small).not.toContain("data-[size=sm]:h-7");
+});
+
+test("API-35: SelectContent wrap lets each option's text wrap", async () => {
+  const screen = await render(<Fruit contentProps={{ wrap: true }} />);
+  await userEvent.click(screen.getByRole("combobox", { name: "Fruit" }));
+  const popup = document.querySelector<HTMLElement>(
+    '[data-slot="select-content"]',
+  )!;
+  expect(popup.getAttribute("data-wrap")).toBe("");
+  expect(popup.className.split(" ")).toContain("group/select-content");
+  const option = screen.getByRole("option", { name: "Apple" }).element();
+  const text = [...option.querySelectorAll<HTMLElement>("*")].find((el) =>
+    el.className.includes("group-data-wrap/select-content:whitespace-normal"),
+  );
+  expect(text, "the option text carries the wrap override").toBeDefined();
+  expect(text!.className).toContain(
+    "group-data-wrap/select-content:wrap-anywhere",
+  );
+});
+
+test("no a11y violations — wrap, open", async () => {
+  const screen = await render(
+    <Fruit triggerProps={{ wrap: true }} contentProps={{ wrap: true }} />,
+  );
+  await userEvent.click(screen.getByRole("combobox", { name: "Fruit" }));
+  await expectNoA11yViolations(document.body);
+});

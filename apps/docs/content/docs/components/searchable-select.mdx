@@ -127,6 +127,19 @@ trigger.
   file="components/preview/searchable-select.tsx"
 />
 
+### Long values
+
+The trigger is one line and cuts a long value off. For a long user-entered name — a product, a task,
+a customer — in a dialog, sheet or popover, pass `wrap`: the trigger's fixed height becomes a minimum
+(one line still measures the same) and the picked name runs onto as many lines as it needs, and a
+long option wraps in the list instead of running out of the panel. A long word with no spaces breaks
+anywhere. The wrapper writes `data-wrap`. The person contract's name and email stay on one line.
+
+<ComponentPreview
+  name="searchableSelectWrap"
+  file="components/preview/searchable-select.tsx"
+/>
+
 ### Rich rows
 
 `renderItem` draws a row (it defaults to `itemToStringLabel`); `renderValue` draws the trigger face

@@ -237,6 +237,14 @@ test("BRD-1: the popover surface draws a real border, not a ring outline", async
   expectBorderNotRing(popup() as HTMLElement);
 });
 
+test("LAY-17: the popover breaks a long unbroken word inside itself", async () => {
+  const screen = await render(<Example />);
+  await userEvent.click(screen.getByRole("button", { name: "Open Popover" }));
+  expect((popup() as HTMLElement).className.split(" ")).toContain(
+    "wrap-break-word",
+  );
+});
+
 test("no a11y violations — closed", async () => {
   const screen = await render(<Example />);
   await expectNoA11yViolations(screen.container);

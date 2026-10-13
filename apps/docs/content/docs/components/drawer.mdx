@@ -239,6 +239,8 @@ Upstream's file plus `packages/ui/upstream/patches/drawer.patch`. Every hunk:
   full `border` and a transparent bleed. `Drawer` takes `flush` (carried on upstream's own
   `DrawerContext`, marked `data-flush` on the popup), which restores upstream's inner-edge rounding
   and border with the inset at `0px`.
+- **LAY-17** — the popup sets `wrap-break-word`, so a long unbroken word breaks inside the drawer
+  rather than running past its edge. MK, 2026-10-13.
 - **DOC-2** — `import { cn } from "cn"` becomes `@vegastack/design`; our npm layer owns `cn`.
 - **DOC-1** — prettier reflow plus the `registry-stamp.mjs` provenance header; no decision of its
   own.

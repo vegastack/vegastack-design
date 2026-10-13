@@ -331,6 +331,35 @@ test("FOC-1/FOC-6: nothing the sheet renders carries a focus glow", async () => 
   expect(offenders).toEqual([]);
 });
 
+test("LAY-17: the panel breaks a long unbroken word inside itself", async () => {
+  const screen = await render(<Subject />);
+  await screen.getByRole("button", { name: "Open sheet" }).click();
+  await expect.element(screen.getByRole("dialog")).toBeInTheDocument();
+  expect(bySlot("sheet-content")!.className.split(" ")).toContain(
+    "wrap-break-word",
+  );
+});
+
+test("LAY-17: a header with no action keeps clear of the corner × while it is rendered", async () => {
+  const screen = await render(<Subject />);
+  await screen.getByRole("button", { name: "Open sheet" }).click();
+  await expect.element(screen.getByRole("dialog")).toBeInTheDocument();
+  expect(bySlot("sheet-content")!.className.split(" ")).toContain(
+    "**:data-[slot=sheet-header]:not-has-data-[slot=sheet-action]:pe-12",
+  );
+});
+
+test("LAY-17: with showCloseButton={false} the sheet header reserves nothing", async () => {
+  const bare = await render(
+    <Subject contentProps={{ showCloseButton: false }} />,
+  );
+  await bare.getByRole("button", { name: "Open sheet" }).click();
+  await expect.element(bare.getByRole("dialog")).toBeInTheDocument();
+  expect(bySlot("sheet-content")!.className).not.toContain(
+    "data-[slot=sheet-header]",
+  );
+});
+
 test("Escape closes the panel (Usage)", async () => {
   const screen = await render(<Subject />);
   await screen.getByRole("button", { name: "Open sheet" }).click();
@@ -493,7 +522,7 @@ test("API-21: SheetAction is an end seat in the header that clears the close but
     expect(tokens).toContain(token);
   }
   expect(bySlot("sheet-header")!.className).toContain(
-    "has-data-[slot=sheet-action]:grid-cols-[1fr_auto]",
+    "has-data-[slot=sheet-action]:grid-cols-[minmax(0,1fr)_auto]",
   );
   await expect
     .element(screen.getByRole("button", { name: "Duplicate" }))
