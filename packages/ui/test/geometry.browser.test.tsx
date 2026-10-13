@@ -2813,6 +2813,45 @@ for (const width of [375, 768, 1280])
   });
 
 /**
+ * Many under-budgeted fit columns: the merge rung takes as many columns as the measured deficit
+ * needs in one step, so 60 of them never take 60 synchronous updates (React stops at 50).
+ */
+test("DataList merges many under-budgeted columns in one step, without an update loop", async () => {
+  const errors = vi.spyOn(console, "error").mockImplementation(() => {});
+  try {
+    const columns: DataListColumn<Record<string, string>>[] = [
+      { key: "name", header: "Name" },
+      ...Array.from({ length: 60 }, (_, index) => ({
+        key: `c${index}`,
+        header: `C${index}`,
+        minWidth: 4,
+      })),
+    ];
+    const row: Record<string, string> = { id: "a", name: "Row" };
+    for (let index = 0; index < 60; index++) row[`c${index}`] = "wide value";
+    const screen = await render(
+      <div style={{ width: "375px" }}>
+        <DataList
+          aria-label="Many"
+          columns={columns}
+          data={[row]}
+          getRowId={(r) => r.id}
+        />
+      </div>,
+    );
+    await settle();
+    await expectDataSurfacesContained("many columns", screen.container, "");
+    expect(
+      errors.mock.calls.some((call) =>
+        String(call[0]).includes("Maximum update depth"),
+      ),
+    ).toBe(false);
+  } finally {
+    errors.mockRestore();
+  }
+});
+
+/**
  * The current breadcrumb step shortens with an ellipsis and keeps its full name in a tooltip,
  * however long and unbroken, and never pushes the header sideways.
  */

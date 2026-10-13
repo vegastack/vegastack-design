@@ -1,4 +1,4 @@
-// @vegastack data-list@0.25.27 sha256-spWd5kr+IsCMuHZLqf5W5VqRp1ZeEDrZXUqyQ8iw4ew=
+// @vegastack data-list@0.25.27 sha256-xowRXpVLN1o/rkXX6OPK15iJi7kDJBHzk10UUCTXZRs=
 
 "use client";
 
@@ -1330,10 +1330,17 @@ export function DataList<T>({
   //     unbreakable content): the fit cells release too, and headers wrap between words.
   // The verdict is keyed to the layout inputs by identity and only ever advances for one key —
   // never re-measured back down — so it cannot oscillate at a boundary width.
+  // Section state: declared here because the fit verdict is keyed on it — collapsing the section
+  // that held the wide value must let the table re-fit with fewer merges.
+  const [groups, commitGroups] = useControlledState<GroupState>(
+    groupState,
+    defaultGroupState ?? EMPTY_GROUP_STATE,
+    onGroupStateChange,
+  );
   const fitKey = React.useMemo(
     () => ({}),
     // eslint-disable-next-line react-hooks/exhaustive-deps -- the identity IS the signal
-    [containerWidth, allColumns, rawData, loading, selectable],
+    [containerWidth, allColumns, rawData, loading, selectable, groups],
   );
   const [fitState, setFitState] = React.useState<{
     key: object;
@@ -1381,10 +1388,26 @@ export function DataList<T>({
       setFitState({ ...fit, squeezed: true });
       return;
     }
-    const canMerge = visibleColumns.some(
-      (column, index) => index > 0 && column.mobile !== "visible",
+    // Merge as many columns as the measured deficit needs in ONE step, from the right — one per
+    // render would take a synchronous update per column and could hit React's nested-update limit.
+    const heads = Array.from(table.tHead?.rows[0]?.cells ?? []).slice(
+      selectable ? 1 : 0,
     );
-    if (canMerge) setFitState({ ...fit, extra: fit.extra + 1 });
+    const deficit = Math.max(
+      container.scrollWidth - container.clientWidth,
+      starved && fillHead
+        ? fillBudget - fillHead.getBoundingClientRect().width
+        : 0,
+    );
+    let take = 0;
+    let freed = 0;
+    for (let index = visibleColumns.length - 1; index > 0; index--) {
+      if (visibleColumns[index]!.mobile === "visible") continue;
+      take++;
+      freed += heads[index]?.getBoundingClientRect().width ?? 0;
+      if (freed >= deficit) break;
+    }
+    if (take > 0) setFitState({ ...fit, extra: fit.extra + take });
     // 3. STRAIN — nothing is left to merge and it still overflows: the fit cells release too.
     else if (overflowing && !fit.strained)
       setFitState({ ...fit, strained: true });
@@ -1692,17 +1715,25 @@ export function DataList<T>({
         )}
         {visibleColumns.map((col, colIdx) => {
           const raw = renderCell(col, row, index, id, isSelected);
-          // The fill (primary) cell clamps a plain value at two lines; the full value is the
-          // clipped text's tooltip (and its tap-toggle on touch). A custom render owns its own.
-          const value =
+          // The fill (primary) cell clamps a plain value at two lines. The full value is the
+          // clipped text's tooltip (and its tap-toggle on touch) — except inside the row's own
+          // link or button, where a second control would nest and a tap would also open the row:
+          // there the clamp carries a `title`, and the record the row opens shows it whole. A
+          // custom render owns its own.
+          const plain =
             colIdx === 0 &&
-            (typeof raw === "string" || typeof raw === "number") ? (
-              <TruncatedText lines={2} className="min-h-0">
-                {raw}
-              </TruncatedText>
-            ) : (
-              raw
-            );
+            (typeof raw === "string" || typeof raw === "number");
+          const value = !plain ? (
+            raw
+          ) : linkFirstCell || injectRowButton ? (
+            <span className="line-clamp-2" title={String(raw)}>
+              {raw}
+            </span>
+          ) : (
+            <TruncatedText lines={2} className="min-h-0">
+              {raw}
+            </TruncatedText>
+          );
           const content = col.thumbnail ? (
             <span
               data-slot="data-list-thumbnail-cell"
@@ -1832,11 +1863,6 @@ export function DataList<T>({
 
   // Sections: one <tbody> per non-empty section, in the order the host lists them; rows whose
   // section is not listed follow in a headerless body so nothing silently disappears.
-  const [groups, commitGroups] = useControlledState<GroupState>(
-    groupState,
-    defaultGroupState ?? EMPTY_GROUP_STATE,
-    onGroupStateChange,
-  );
   const sectionGroups = React.useMemo(() => {
     if (!sections || !getRowSection) return null;
     const byId = new Map<string, number[]>();

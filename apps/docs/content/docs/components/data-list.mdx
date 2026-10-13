@@ -737,7 +737,8 @@ line.
 **Fill and fit.** The primary (first) column is the **fill** column: it takes the width the
 others leave, its text wraps — anywhere, so one long unbroken name never widens the table — and a
 plain value (no `render`, or a `render` that returns a string) clamps at two lines with an
-ellipsis, the full value in its tooltip. Every other column is a **fit** column: sized to its
+ellipsis, the full value in its tooltip — or, when the first cell is the row's own link or button,
+in its `title`, so no second control nests inside the row's. Every other column is a **fit** column: sized to its
 content and kept on one line, and every header stays on one line too. A short value or label
 never breaks.
 
@@ -773,7 +774,9 @@ These keep the one-line posture they give themselves (every VegaStack control se
 `role="button"` element has no fixed box, so it simply wraps with its cell. The text around a kept
 part breaks instead, and the row grows taller. An icon cannot shrink either.
 
-**A kept part wider than the container is the one thing the squeeze cannot fit.** Controls are never
+**A kept part or a header word wider than the container is what nothing can fit.** A header never
+breaks inside a word, so keep header words short enough to sit side by side in the narrowest
+container you support. Controls are never
 wrapped, so keep the controls and fixed-size parts of every always-shown column small enough to fit,
 side by side on one line, in the narrowest container you support; an outline `Button` whose label
 alone is wider than the table leaves it nothing to squeeze, and the table scrolls sideways. Put
