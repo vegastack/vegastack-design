@@ -1996,6 +1996,30 @@
       }
     },
     {
+      "name": "suggestion-menu",
+      "type": "registry:ui",
+      "title": "Suggestion Menu",
+      "description": "The caret-anchored list an editor opens while you type a trigger (@, /, {{) — shared by TextEdit's slash and mention menus and TemplateEditor's placeholder picker, with rows that read exactly like ComboboxItem's.",
+      "categories": ["overlay"],
+      "dependencies": [
+        "@vegastack/design@^0.8.4",
+        "@vegastack/design-tokens@^0.8.3"
+      ],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/suggestion-menu.tsx",
+          "type": "registry:ui",
+          "target": "@ui/suggestion-menu.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "Installed automatically with TextEdit or TemplateEditor; import it directly when another editor that keeps focus needs a caret-anchored list of suggestions.",
+        "whenNotToUse": "A list that takes focus or hangs off a trigger element — that is Combobox, Command or DropdownMenu.",
+        "version": "0.25.26"
+      }
+    },
+    {
       "name": "empty",
       "type": "registry:ui",
       "title": "Empty",
@@ -14600,7 +14624,7 @@
         "@vegastack/design@^0.8.4",
         "@vegastack/design-tokens@^0.8.3"
       ],
-      "registryDependencies": [],
+      "registryDependencies": ["@vegastack/suggestion-menu"],
       "files": [
         {
           "path": "packages/ui/registry/ui/template-editor.tsx",
@@ -14664,7 +14688,8 @@
         "@vegastack/dropzone",
         "@vegastack/empty",
         "@vegastack/tabs",
-        "@vegastack/toast"
+        "@vegastack/toast",
+        "@vegastack/suggestion-menu"
       ],
       "files": [
         {

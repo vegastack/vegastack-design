@@ -33,6 +33,15 @@ their own because there is nothing to choose: you get them by adding the compone
   [`ShortcutOverlay`](/docs/components/shortcut-overlay). A bordered field inside a bordered popup
   nests two borders, so the ROW draws the one hairline and tints it on focus while the field paints
   no box at all. It arrives with either popup, and installing both installs it once.
+- **`@vegastack/suggestion-menu`** — the caret-anchored list an editor opens while you type a
+  trigger: [`TextEdit`](/docs/components/text-edit)'s slash and mention menus and
+  [`TemplateEditor`](/docs/components/template-editor)'s `@` / `{{` picker. Its rows read exactly
+  like `ComboboxItem`'s (the `accent` highlight, an optional icon, muted trailing text or a keyboard
+  hint), with optional group headings and a `status` for empty, loading and error. It portals to
+  `<body>`, flips above the caret when below is short, and never takes focus: the editor keeps
+  the caret, owns the keys through `suggestionMenuKeyDown`, and points `aria-activedescendant` at
+  `suggestionMenuOptionId(listId, index)`. The pointer moves the same active row by MOVING over
+  it, so a keyboard scroll under a resting pointer never steals it. It arrives with either editor.
 - **`@vegastack/person-avatar`** — `PersonAvatar` and the `Person` shape: the one way a person is
   drawn — their photo, else their initials (its `personInitials` rule) on their own `hue`, else on
   the muted fallback. [`PersonHoverCard`](/docs/components/person-hover-card),

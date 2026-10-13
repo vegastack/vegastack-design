@@ -582,7 +582,7 @@ const expectedWaves = {
   "AI/chat": 8,
   // Not a browse group: components other components install, with no page of their own. See
   // `isSharedGuideOnly` below — every member of this wave must carry that whole shape.
-  "Shared internals": 4,
+  "Shared internals": 5,
 };
 // The homepage renames three waves for display. The map is the only hand-maintained coupling
 // between the contract's wave keys and `home-component-catalog.generated.ts`; an unmapped wave is a
@@ -767,6 +767,7 @@ const expectedComponentWaveMembers = {
     "panel-search",
     "person-avatar",
     "picker-panel",
+    "suggestion-menu",
   ],
   "AI/chat": [
     "attachment",

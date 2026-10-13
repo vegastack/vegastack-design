@@ -308,6 +308,12 @@
       "family": "overlay",
       "source": "internal shared part; not listed in extras.md. It is decision OVL-11's implementation — the sticky, box-free search row a filtering popup puts at the top of its panel. Batch 7a retired `floating-surface`, which used to own it, leaving `emoji-picker` and `shortcut-overlay` with two byte-identical private copies; Batch 7c gave it one owner again, off the components nav like `data-table-parts`. Upstream has no counterpart: its `CommandInput` is an `InputGroup` box inside the panel, which is the box-in-box OVL-11 exists to reject."
     },
+    "suggestion-menu": {
+      "disposition": "keep",
+      "family": "overlay",
+      "source": "Regent web issue #423 (operator brief, 13 October 2026): one shared suggestion menu for TextEdit's slash and mention menus and TemplateEditor's placeholder picker, which carried three drifting private copies.",
+      "rationale": "Upstream ships no caret-anchored suggestion list: its Combobox and Command move focus into their own input and anchor to an element, while an editor must keep focus and the caret and anchor to a caret rect. The rows reuse ComboboxItem's class string (minus the check-indicator gutter), so it adds no new look; internal shared part, off the components nav like panel-search."
+    },
     "password-input": {
       "disposition": "keep",
       "family": "form",

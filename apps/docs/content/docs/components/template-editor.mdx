@@ -41,7 +41,7 @@ The string round-trips exactly: rendering a value and changing nothing never cal
 
 ## Scope
 
-- **Plain paragraphs only.** No Markdown, bold, lists, links, toolbar or slash menu — reach for
+- **Plain paragraphs only** — or one line, with `singleLine`. No Markdown, bold, lists, links, toolbar or slash menu — reach for
   `TextEdit` when the text needs formatting.
 - **Placeholders are atomic.** A chip shows the token's `label`, deletes with one Backspace, and is
   stored by `id`, so renaming a spec relabels every chip without touching the value.
@@ -59,6 +59,24 @@ string.
 
 <ComponentPreview
   name="templateEditor"
+  file="components/preview/template-editor.tsx"
+/>
+
+### Single-line formula
+
+`singleLine` makes it one line, sized like `Input`: <kbd>Enter</kbd> and <kbd>Shift</kbd>
+
+<kbd>Enter</kbd> insert nothing, pasted line breaks become spaces, and a `value`
+holding line breaks loads with spaces instead (long text still wraps on screen).
+`replacements` rewrite characters as you type — here `*` becomes `×` and `/`
+becomes `÷`, so the formula reads `Power × Efficacy`; <kbd>Backspace</kbd> right
+after a replacement undoes it. The value keeps the replaced characters and the `
+{{ id }}` tokens (`{{ power }} × {{ efficacy }}`), and `invalidTokenIds` marks a
+spec the formula cannot use. Narrow the picker by passing only the tokens that
+fit; `hint` shows each one's unit.
+
+<ComponentPreview
+  name="templateEditorFormula"
   file="components/preview/template-editor.tsx"
 />
 
@@ -105,13 +123,24 @@ and makes it read-only, like a disabled `Textarea`.
   name="TemplateEditorToken"
 />
 
+### TemplateEditorReplacement
+
+<ApiTable
+  path="../../packages/ui/registry/ui/template-editor.tsx"
+  name="TemplateEditorReplacement"
+/>
+
 ## Accessibility
 
-- The editable surface is a `role="textbox"` with `aria-multiline="true"`, named by `aria-label`,
+- The editable surface is a `role="textbox"` with `aria-multiline="true"` (`"false"` with
+  `singleLine`), named by `aria-label`,
   `aria-labelledby` or an enclosing `Field`'s label; a `Field`'s description, error and invalid
   state reach it too.
-- The picker is a `listbox` of `option`s. Focus stays in the textbox, which points at the listbox
-  with `aria-controls` and at the highlighted option with `aria-activedescendant` while it is open.
+- The picker is the shared `SuggestionMenu` (also TextEdit's slash and mention menus): a `listbox`
+  of `option`s that look exactly like `ComboboxItem` rows, with the token's `hint` as muted trailing
+  text. Focus stays in the textbox, which points at the listbox with `aria-controls` and at the
+  highlighted option with `aria-activedescendant` while it is open; moving the pointer over a row
+  highlights it too. With no match the list is a `status` reading “No results”.
 - The focus cue is text entry's: the box's border darkens subtly over 150ms and nothing fills
   (`data-focus-cue="border"`); an invalid box keeps its destructive border. Forced-colours mode
   restores a system outline.
@@ -121,10 +150,10 @@ and makes it read-only, like a disabled `Textarea`.
 | <kbd>@</kbd> or <kbd>{"{{"}</kbd>     | Open the placeholder list                               |
 | <kbd>↑</kbd> <kbd>↓</kbd>             | Move through the list                                   |
 | <kbd>Enter</kbd> / <kbd>Tab</kbd>     | Insert the highlighted placeholder (with the list open) |
-| <kbd>Esc</kbd>                        | Close the list, keeping what was typed                  |
+| <kbd>Esc</kbd>                        | Close the list, keeping what was typed (a dialog stays) |
 | <kbd>Backspace</kbd> / <kbd>Del</kbd> | Delete the chip before / after the caret as one unit    |
-| <kbd>Enter</kbd>                      | New paragraph (with the list closed)                    |
-| <kbd>Shift</kbd> <kbd>Enter</kbd>     | Line break inside the paragraph                         |
+| <kbd>Enter</kbd>                      | New paragraph (list closed; not with `singleLine`)      |
+| <kbd>Shift</kbd> <kbd>Enter</kbd>     | Line break in the paragraph (not with `singleLine`)     |
 
 <StatesTested name="template-editor" />
 

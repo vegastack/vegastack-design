@@ -15,7 +15,9 @@ const TOKENS: TemplateEditorToken[] = [
 ];
 
 const menu = () =>
-  document.querySelector('[role="listbox"][data-slot="template-editor-menu"]');
+  document.querySelector<HTMLElement>(
+    '[data-slot="suggestion-menu"][data-menu="template-editor"]',
+  );
 const chips = (root: Element) => [
   ...root.querySelectorAll('[data-slot="template-editor-token"]'),
 ];
@@ -29,6 +31,8 @@ function Controlled({
   onChange?: (value: string) => void;
   invalidTokenIds?: string[];
   disabled?: boolean;
+  singleLine?: boolean;
+  replacements?: { from: string; to: string }[];
 }) {
   const [value, setValue] = React.useState(initial);
   return (
@@ -128,4 +132,115 @@ test("takes its label from a Field and dims when disabled", async () => {
       ?.hasAttribute("data-disabled"),
   ).toBe(true);
   await expectNoA11yViolations(screen.container, ["color-contrast"]);
+});
+
+test("the picker is the shared SuggestionMenu: the active row is the textbox's aria-activedescendant", async () => {
+  const screen = await render(<Controlled initial="" />);
+  const box = screen.getByRole("textbox", { name: "Description" });
+  await box.click();
+  await userEvent.keyboard("@");
+  await vi.waitFor(() => expect(menu()?.getAttribute("role")).toBe("listbox"));
+  const active = () =>
+    menu()!.querySelector<HTMLElement>('[role="option"][data-highlighted]')!;
+  expect(box.element().getAttribute("aria-activedescendant")).toBe(active().id);
+  expect(active().textContent).toContain("Power");
+  // The unit is the row's muted trailing description.
+  expect(
+    active().querySelector('[data-slot="suggestion-menu-description"]')
+      ?.textContent,
+  ).toBe("W");
+  await userEvent.keyboard("{ArrowDown}");
+  await vi.waitFor(() => expect(active().textContent).toContain("Efficacy"));
+  await vi.waitFor(() =>
+    expect(box.element().getAttribute("aria-activedescendant")).toBe(
+      active().id,
+    ),
+  );
+  await expectNoA11yViolations(document.body, ["color-contrast"]);
+});
+
+test("Escape closes the picker without reaching the host (a dialog stays open)", async () => {
+  const onHostKey = vi.fn();
+  const screen = await render(
+    <div onKeyDown={(event) => event.key === "Escape" && onHostKey()}>
+      <Controlled initial="" />
+    </div>,
+  );
+  await screen.getByRole("textbox", { name: "Description" }).click();
+  await userEvent.keyboard("@");
+  await vi.waitFor(() => expect(menu()).not.toBeNull());
+  await userEvent.keyboard("{Escape}");
+  await vi.waitFor(() => expect(menu()).toBeNull());
+  expect(onHostKey).not.toHaveBeenCalled();
+});
+
+test("replacements rewrite characters as you type; onChange stores the replaced text with {{id}} tokens", async () => {
+  const onChange = vi.fn();
+  const screen = await render(
+    <Controlled
+      initial="{{power}}"
+      onChange={onChange}
+      replacements={[
+        { from: "*", to: "×" },
+        { from: "/", to: "÷" },
+      ]}
+    />,
+  );
+  const box = screen.getByRole("textbox", { name: "Description" });
+  await box.click();
+  await userEvent.keyboard("{End} * 2 / 3");
+  await vi.waitFor(() =>
+    expect(onChange.mock.calls.at(-1)?.[0]).toBe("{{power}} × 2 ÷ 3"),
+  );
+});
+
+function paste(target: Element, text: string) {
+  const data = new DataTransfer();
+  data.setData("text/plain", text);
+  target.dispatchEvent(
+    new ClipboardEvent("paste", {
+      clipboardData: data,
+      bubbles: true,
+      cancelable: true,
+    }),
+  );
+}
+
+test("singleLine: one paragraph, Enter inserts nothing, pasted line breaks become spaces, the picker still takes Enter", async () => {
+  const onChange = vi.fn();
+  const screen = await render(
+    <Controlled
+      initial={"Rated\n\n{{power}}"}
+      onChange={onChange}
+      singleLine
+    />,
+  );
+  const box = screen.getByRole("textbox", { name: "Description" });
+  await vi.waitFor(() => expect(chips(box.element())).toHaveLength(1));
+  expect(box.element().querySelectorAll("p")).toHaveLength(1);
+  expect(box.element().getAttribute("aria-multiline")).toBe("false");
+  expect(
+    screen.container
+      .querySelector('[data-slot="template-editor"]')
+      ?.hasAttribute("data-single-line"),
+  ).toBe(true);
+
+  await box.click();
+  await userEvent.keyboard("{End}{Enter}{Shift>}{Enter}{/Shift}x");
+  await vi.waitFor(() =>
+    expect(onChange.mock.calls.at(-1)?.[0]).toBe("Rated {{power}}x"),
+  );
+  paste(box.element(), " a\nb\n\nc");
+  await vi.waitFor(() =>
+    expect(onChange.mock.calls.at(-1)?.[0]).toBe("Rated {{power}}x a b c"),
+  );
+  await userEvent.keyboard(" @");
+  await vi.waitFor(() => expect(menu()).not.toBeNull());
+  await userEvent.keyboard("{Enter}");
+  await vi.waitFor(() =>
+    expect(onChange.mock.calls.at(-1)?.[0]).toBe(
+      "Rated {{power}}x a b c {{power}} ",
+    ),
+  );
+  expect(box.element().querySelectorAll("p")).toHaveLength(1);
 });

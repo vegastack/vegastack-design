@@ -2261,6 +2261,33 @@
       }
     },
     {
+      "name": "suggestion-menu",
+      "type": "registry:ui",
+      "title": "Suggestion Menu",
+      "description": "The caret-anchored list an editor opens while you type a trigger (@, /, {{) — shared by TextEdit's slash and mention menus and TemplateEditor's placeholder picker, with rows that read exactly like ComboboxItem's.",
+      "categories": [
+        "overlay"
+      ],
+      "dependencies": [
+        "@vegastack/design@^0.8.4",
+        "@vegastack/design-tokens@^0.8.3"
+      ],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/suggestion-menu.tsx",
+          "type": "registry:ui",
+          "target": "@ui/suggestion-menu.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "Installed automatically with TextEdit or TemplateEditor; import it directly when another editor that keeps focus needs a caret-anchored list of suggestions.",
+        "whenNotToUse": "A list that takes focus or hangs off a trigger element — that is Combobox, Command or DropdownMenu.",
+        "version": "0.25.26",
+        "integrity": "sha256-5SIwxA/Uja5Yqrtw24TFdVBOoiA/69lpUxBXg/PWmdU="
+      }
+    },
+    {
       "name": "empty",
       "type": "registry:ui",
       "title": "Empty",
@@ -17965,7 +17992,9 @@
         "@vegastack/design@^0.8.4",
         "@vegastack/design-tokens@^0.8.3"
       ],
-      "registryDependencies": [],
+      "registryDependencies": [
+        "@vegastack/suggestion-menu"
+      ],
       "files": [
         {
           "path": "packages/ui/registry/ui/template-editor.tsx",
@@ -17977,7 +18006,7 @@
         "whenToUse": "Marketing or description text built from spec placeholders (\"Recessed @Power downlight with @Efficacy…\"), stored as {{id}} tokens a renderer fills in.",
         "whenNotToUse": "Formatted rich text (TextEdit), plain text with no placeholders (Textarea), or a single-line value (Input).",
         "version": "0.25.26",
-        "integrity": "sha256-73K62BxHoDkhtlW+rAgjG2eZOa+XtxYvYQGHpW1Q56I="
+        "integrity": "sha256-EkX41fjifYIDoSKY9bR83++xg9HY2X0WF5IsdmWW2e0="
       }
     },
     {
@@ -18032,7 +18061,8 @@
         "@vegastack/dropzone",
         "@vegastack/empty",
         "@vegastack/tabs",
-        "@vegastack/toast"
+        "@vegastack/toast",
+        "@vegastack/suggestion-menu"
       ],
       "files": [
         {
@@ -18050,7 +18080,7 @@
         "whenToUse": "Comments, notes, summaries and documents stored as Markdown (format=\"markdown\") or HTML — with @ mentions, uploads, callouts, toggles, an outline and comment highlights for page editors; in-place editing of a MarkdownView (the read view is the editor until first edited).",
         "whenNotToUse": "Plain single-line input (Input) or collaborative real-time docs (deferred text-edit-collab).",
         "version": "0.25.26",
-        "integrity": "sha256-8OH0BKn85FM7x6yQJnzRPtc8G/ig50IkFCVzX1ZwaHo="
+        "integrity": "sha256-xnfniULrCPIrQpUDK0yiJ6+WJUEImMeCfcVOIiGueUI="
       }
     },
     {
