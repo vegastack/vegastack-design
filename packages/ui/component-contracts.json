@@ -41097,6 +41097,15 @@
           }
         },
         {
+          "name": "TASK_MARKER",
+          "kind": "constant",
+          "source": "packages/ui/registry/lib/text-edit-schema.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A string constant; it renders nothing and takes no ref."
+          }
+        },
+        {
           "name": "resetParseCaches",
           "kind": "function",
           "source": "packages/ui/registry/lib/text-edit-schema.ts",

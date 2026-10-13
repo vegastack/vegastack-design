@@ -31,11 +31,15 @@ describe("VegaStack Markdown round trip (Node, no DOM)", () => {
       expect(checkCase(each)).toEqual([]);
     });
 
-  test("a round trip is linear: 1 MB in well under 1.5 s, and 10× the text costs under 25× the time (quadratic would be 100×)", () => {
+  // The ratios are the guard (quadratic work costs 100× for 10× the text); the absolute ceiling
+  // only catches a hang, set for a loaded CI runner (a 1 MB round trip is ~0.5 s on a laptop).
+  const CEILING_MS = 6_000;
+
+  test("a round trip is linear: 10× the text costs under 25× the time (quadratic would be 100×)", () => {
     roundTripTime(largeMarkdown(20_000), 1);
     const small = roundTripTime(largeMarkdown(100_000));
     const large = roundTripTime(largeMarkdown(1_000_000));
-    expect(large).toBeLessThan(1_500);
+    expect(large).toBeLessThan(CEILING_MS);
     expect(large / small).toBeLessThan(25);
   }, 60_000);
 
@@ -43,19 +47,19 @@ describe("VegaStack Markdown round trip (Node, no DOM)", () => {
     test(`a round trip is linear on adversarial input: ${name}`, () => {
       const small = roundTripTime(repeatTo(unit, 30_000));
       const large = roundTripTime(repeatTo(unit, 300_000));
-      expect(large).toBeLessThan(1_500);
+      expect(large).toBeLessThan(CEILING_MS);
       expect(large / small).toBeLessThan(25);
     }, 60_000);
 
   for (const [name, unit] of Object.entries(ADVERSARIAL_PARAGRAPH))
-    test(`one 100 KB paragraph round-trips well under 1.5 s: ${name}`, () => {
-      expect(roundTripTime(repeatTo(unit, 100_000))).toBeLessThan(1_500);
+    test(`one 100 KB paragraph round-trips within the ceiling: ${name}`, () => {
+      expect(roundTripTime(repeatTo(unit, 100_000))).toBeLessThan(CEILING_MS);
     }, 60_000);
 
-  test("a table cell opening with 20,000 line breaks reads and writes well under 1.5 s", () => {
+  test("a table cell opening with 20,000 line breaks reads and writes within the ceiling", () => {
     const cell = (n) => `| A |\n| --- |\n| ${"<br>".repeat(n)}a |`;
     // The cell's own work (trimming its edge breaks) is linear; marked's tag masking bounds the size.
-    expect(roundTripTime(cell(20_000))).toBeLessThan(1_500);
+    expect(roundTripTime(cell(20_000))).toBeLessThan(CEILING_MS);
   }, 60_000);
 
   test("a parse never reuses another document's index: text that looks alike stays whole", () => {

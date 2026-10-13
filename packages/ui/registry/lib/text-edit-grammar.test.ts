@@ -71,10 +71,15 @@ test("image alt widths, destinations and media lines", () => {
   expect(
     imageMarkdown({ src: "/a b.png", alt: "x [y]", title: 'say "hi"' }),
   ).toBe('![x \\[y\\]](</a b.png> "say \\"hi\\"")');
-  // Alt text that merely ends like a width keeps it as text, both ways.
+  // Alt text that merely ends like a width keeps it as text, both ways — its pipe a character
+  // reference, so a table cell (which reads `\|` as `|`) cannot turn it into a width.
   expect(imageMarkdown({ src: "/a.png", alt: "hello|123" })).toBe(
-    "![hello\\|123](/a.png)",
+    "![hello&#x7C;123](/a.png)",
   );
+  expect(imageMarkdown({ src: "/a.png", alt: "a &amp; b" })).toBe(
+    "![a &amp;amp; b](/a.png)",
+  );
+  expect(parseImageAlt("hello&#x7C;123")).toEqual({ alt: "hello&#x7C;123" });
   expect(parseImageAlt("hello\\|123")).toEqual({ alt: "hello|123" });
   expect(parseImageAlt("end\\\\|64")).toEqual({ alt: "end\\", width: 64 });
   expect(markdownDestination("https://a.b/c")).toBe("https://a.b/c");

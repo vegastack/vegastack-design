@@ -1,4 +1,4 @@
-// @vegastack text-edit-schema@0.25.29 sha256-eHva4Juvzu+lBhbSeHNCSTMyajfbU8G7LYYNl/2pOBg=
+// @vegastack text-edit-schema@0.25.29 sha256-zAD6LRdv+NUz6sz/hl00KDSXG/bu2qbWn1HvdYpCDSM=
 
 import {
   Extension,
@@ -475,6 +475,18 @@ const LinkMd = Link.extend({
       title: token.title || null,
     };
     const content = helpers.parseInline(token.tokens || []);
+    // A link around a mention is a link inside a link — CommonMark makes the outer one text. Keep
+    // it as its text, the destination included, rather than drop the URL.
+    if (content.some((node) => node.type === "mention")) {
+      const title = attrs.title
+        ? ` "${markdownTitle(String(attrs.title))}"`
+        : "";
+      return [
+        helpers.createTextNode("["),
+        ...content,
+        helpers.createTextNode(`](${markdownDestination(attrs.href)}${title})`),
+      ];
+    }
     if (!content.some((node) => node.type === "image"))
       return helpers.applyMark("link", content, attrs);
     // A linked image: the link is put on the image too (Tiptap's mark helper skips non-text
@@ -494,6 +506,12 @@ const LinkMd = Link.extend({
 });
 
 /**
+ * The node a GFM task checkbox parses to: never in a document — the parse's normalization makes
+ * its list item a task item, or (in an ordered list, or anywhere else) writes it back as its text.
+ */
+export const TASK_MARKER = "textEditTaskMarker";
+
+/**
  * A GFM task checkbox where the document has no task list (`1. [ ] one` — an ordered list): kept as
  * its text, `[ ] ` or `[x] `, instead of dropped with its state.
  */
@@ -501,7 +519,29 @@ const CheckboxText = Extension.create({
   name: "textEditCheckboxText",
   markdownTokenName: "checkbox",
   parseMarkdown: (token, helpers) =>
-    helpers.createTextNode(String(token.raw ?? "")),
+    helpers.createNode(TASK_MARKER, {
+      checked: Boolean(token.checked ?? /x/i.test(String(token.raw ?? ""))),
+    }),
+});
+
+/**
+ * A block-level `text` token — marked's form of a paragraph inside a list item, a callout or a
+ * toggle nested in one — read as a paragraph of inline Markdown (Tiptap's fallback kept its raw
+ * source: `**hello**` stayed asterisks, and each save escaped them again).
+ */
+const BlockText = Extension.create({
+  name: "textEditBlockText",
+  // Ahead of Tiptap's text node, which reads the same token name as plain text.
+  priority: 1001,
+  markdownTokenName: "text",
+  parseMarkdown: (token, helpers) =>
+    token.tokens
+      ? helpers.createNode(
+          "paragraph",
+          undefined,
+          helpers.parseInline(token.tokens as MarkdownToken[]),
+        )
+      : [],
 });
 
 /**
@@ -578,7 +618,8 @@ const ParagraphMd = Paragraph.extend({
       const only = content.length === 1 ? content[0] : null;
       if (
         only?.type === "text" &&
-        (only.text === " " || only.text === "&nbsp;")
+        !only.marks?.length &&
+        (only.text === "\u00A0" || only.text === "&nbsp;")
       )
         return helpers.createNode("paragraph", undefined, []);
       return helpers.createNode("paragraph", undefined, content);
@@ -704,48 +745,20 @@ function codeBlockNode(
     : CodeBlock.extend(config as never).configure(options);
 }
 
-/** A task list: its tokenizer checks the first line before scanning the rest (linear parsing). */
-const TASK_LINE = /^\s*[-+*]\s+\[[ xX]\](?:\s|$)/;
-/** A task item whose marker ends its line (`- [x]`, its trailing space trimmed away by an editor). */
-const BARE_TASK = /^(\s*[-+*]\s+\[[ xX]\])$/gm;
-
+/**
+ * Task lists are read by marked's own CommonMark list tokenizer (lazy continuation lines, nesting,
+ * hard breaks — all as any list), never Tiptap's: its checkbox tokens become task markers that
+ * the parse's normalization turns into task items (`text-edit-markdown`). The token name is moved
+ * off `taskList` so Tiptap's mixed-list splitter never re-lexes items with its own rules.
+ */
 const TaskListMd = TaskList.extend({
-  markdownTokenizer: (() => {
-    const upstream = TaskList.config.markdownTokenizer!;
-    return {
-      ...upstream,
-      tokenize: (src, tokens, lexer) => {
-        const end = src.indexOf("\n");
-        const first = end === -1 ? src : src.slice(0, end);
-        if (!TASK_LINE.test(first)) return undefined;
-        // Within this list's paragraph, give a bare marker its space (Tiptap's reader needs one),
-        // then hand back the ORIGINAL lines the list consumed.
-        const region = firstParagraph(src);
-        const padded = region.replace(BARE_TASK, "$1 ");
-        if (padded === region) return upstream.tokenize(src, tokens, lexer);
-        const result = upstream.tokenize(
-          padded + src.slice(region.length),
-          tokens,
-          lexer,
-        );
-        if (!result?.raw) return result;
-        // Padding adds no line: the original raw is the same lines of `src`.
-        // (Tiptap's raw ends with a newline even at the end of the source.)
-        const breaks = (result.raw.match(/\n/g) ?? []).length;
-        let cut = 0;
-        for (let line = 0; line < breaks && cut < src.length; line++) {
-          const next = src.indexOf("\n", cut);
-          cut = next === -1 ? src.length : next + 1;
-        }
-        const next = src.indexOf("\n", cut);
-        const raw = result.raw.endsWith("\n")
-          ? src.slice(0, cut)
-          : src.slice(0, next === -1 ? src.length : next);
-        if (!raw) return undefined;
-        return { ...result, raw };
-      },
-    };
-  })(),
+  markdownTokenName: "textEditTaskList",
+  markdownTokenizer: {
+    name: "textEditTaskList",
+    level: "block",
+    start: () => -1,
+    tokenize: () => undefined,
+  },
 });
 
 /**
@@ -812,7 +825,9 @@ function imageNode(view: (() => NodeViewRenderer) | undefined) {
       };
     },
     parseMarkdown: (token, helpers) => {
-      const { alt, width } = parseImageAlt(String(token.text ?? ""));
+      const read = parseImageAlt(String(token.text ?? ""));
+      const alt = decodeHtmlEntities(read.alt);
+      const width = read.width;
       return helpers.createNode("image", {
         src: decodeHtmlEntities(String(token.href ?? "")),
         title: token.title ?? null,
@@ -1001,10 +1016,6 @@ function calloutNode(view: (() => NodeViewRenderer) | undefined) {
   });
 }
 
-/** The lines toggle matching reads: openings, closings, and code fences (whose lines are code). */
-const TOGGLE_LINES =
-  /^(?:<details(?: open)?>|<\/details>[ \t]*$| {0,3}(`{3,}|~{3,}))/gm;
-
 /** Each toggle opening's close in one source: `bodyEnd` (the close line's start) and `end`. */
 type ToggleCloses = Map<number, { bodyEnd: number; end: number }>;
 
@@ -1018,45 +1029,63 @@ type ToggleCloses = Map<number, { bodyEnd: number; end: number }>;
 function toggleCloses(source: string): ToggleCloses {
   const closes: ToggleCloses = new Map();
   const open: number[] = [];
-  let fence: string | null = null;
-  const lines = new RegExp(TOGGLE_LINES.source, "gm");
-  for (let match = lines.exec(source); match; match = lines.exec(source)) {
-    const lineEnd = source.indexOf("\n", match.index);
-    const end = lineEnd === -1 ? source.length : lineEnd;
-    const marker = match[1];
+  // An open code fence: its character and length, and — for one opened on a list item's line —
+  // the item's content column (a line indented less ends the item, and the fence with it).
+  let fence: { char: string; length: number; column: number } | null = null;
+  for (let start = 0; start <= source.length;) {
+    const newline = source.indexOf("\n", start);
+    const end = newline === -1 ? source.length : newline;
+    const line = source.slice(start, end);
+    const next = newline === -1 ? source.length + 1 : newline + 1;
+    const indent = /^ */.exec(line)![0].length;
+    if (
+      fence &&
+      fence.column > 0 &&
+      line.trim() !== "" &&
+      indent < fence.column
+    )
+      fence = null;
     if (fence) {
       // A closing fence: the same character, at least as long, nothing else on the line.
+      const close = /^ *(`{3,}|~{3,})[ \t]*$/.exec(line);
       if (
-        marker &&
-        marker[0] === fence[0] &&
-        marker.length >= fence.length &&
-        source.slice(match.index, end).trim() === marker
+        close &&
+        close[1]![0] === fence.char &&
+        close[1]!.length >= fence.length &&
+        indent - fence.column <= 3
       )
         fence = null;
+      start = next;
       continue;
     }
+    const opener = FENCE_OPEN.exec(line);
     // A backtick fence's info string holds no backtick (CommonMark): "```a`b" is text.
-    if (marker) {
-      if (
-        marker[0] !== "`" ||
-        !source
-          .slice(match.index, end)
-          .trim()
-          .slice(marker.length)
-          .includes("`")
-      )
-        fence = marker;
-    } else if (match[0].startsWith("</")) {
+    if (opener && (opener[3]![0] !== "`" || !opener[4]!.includes("`"))) {
+      fence = {
+        char: opener[3]![0]!,
+        length: opener[3]!.length,
+        column: opener[2] ? opener[1]!.length + opener[2].length : 0,
+      };
+    } else if (/^<details(?: open)?>/.test(line)) open.push(start);
+    else if (/^<\/details>[ \t]*$/.test(line)) {
       const from = open.pop();
       if (from !== undefined)
         closes.set(from, {
-          bodyEnd: match.index,
-          end: lineEnd === -1 ? end : end + 1,
+          bodyEnd: start,
+          end: Math.min(next, source.length),
         });
-    } else open.push(match.index);
+    }
+    start = next;
   }
   return closes;
 }
+
+/**
+ * A code fence's opening line: up to three spaces, any list markers (`- `, `1. `) the fence sits
+ * after, the fence, and its info string.
+ */
+const FENCE_OPEN =
+  /^( {0,3})((?:(?:[-+*]|\d{1,9}[.)])[ \t]+)*)(`{3,}|~{3,})(.*)$/;
 
 const TOGGLE_CACHE: { source: string; closes: ToggleCloses }[] = [];
 
@@ -1330,6 +1359,7 @@ export function textEditExtensions(
     ListItemMd,
     OrderedListMd,
     CheckboxText,
+    BlockText,
     ParagraphMd,
     codeBlockNode(options.lowlight, view.codeBlock),
     TaskListMd,

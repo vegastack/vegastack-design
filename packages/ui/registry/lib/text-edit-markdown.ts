@@ -1,4 +1,4 @@
-// @vegastack text-edit-markdown@0.25.29 sha256-KKoEC3Qn8VMiBvPhbZWk9PlgmJvghJmF6co9N0coP/4=
+// @vegastack text-edit-markdown@0.25.29 sha256-mkE1BnN7FXvCsezkRErMMmp8KAXsaPgBmZQq9JhBYyw=
 
 import type { AnyExtension, JSONContent } from "@tiptap/core";
 import { Markdown, MarkdownManager } from "@tiptap/markdown";
@@ -7,6 +7,7 @@ import { Marked, Tokenizer, type TokenizerObject, type marked } from "marked";
 import { anchorText } from "@/lib/text-anchor-doc";
 import {
   BLOCK_ID_TYPES,
+  TASK_MARKER,
   blockId,
   textEditExtensions,
   isTailOf,
@@ -115,6 +116,26 @@ function createMarked(): typeof marked {
         ...windowed(src, maskedSrc),
         prevChar,
       );
+    },
+    list(src) {
+      const list = Tokenizer.prototype.list.call(this, src);
+      if (!list) return undefined;
+      // An empty task item (`- [ ]`, `- [x]` — nothing after the box) is still a task: GFM wants
+      // text after the box, but an editor writes empty ones and a person types them.
+      for (const item of list.items) {
+        const first = item.tokens[0];
+        const box = /^\[([ xX])\]$/.exec(String(first?.raw ?? "").trim());
+        if (item.task || !box) continue;
+        if (first?.type !== "text" && first?.type !== "paragraph") continue;
+        item.task = true;
+        item.checked = box[1] !== " ";
+        item.tokens[0] = {
+          type: "checkbox",
+          raw: `[${box[1]}] `,
+          checked: item.checked,
+        } as never;
+      }
+      return list;
     },
     link(src) {
       if (src[0] === "[" || src[0] === "!") {
@@ -241,7 +262,17 @@ function indexIn(siblings: JSONContent[], node: JSONContent): number {
  * edge whitespace outside it (right for `**bold **`, wrong for code, whose spaces are content).
  * Written back as spaces once the document is serialized.
  */
-const CODE_SPACE = "\uE01A";
+let CODE_SPACE = "\uE000";
+
+/** A private-use character the document does not hold — the code-space stand-in for one write. */
+function unusedPrivateUse(doc: JSONContent): string {
+  const text = JSON.stringify(doc);
+  for (let code = 0xe000; code <= 0xf8ff; code++) {
+    const char = String.fromCharCode(code);
+    if (!text.includes(char)) return char;
+  }
+  return "\uE000";
+}
 
 /**
  * A code span's text with its edge spaces held: CommonMark strips one space from each side of a
@@ -332,8 +363,10 @@ export function createMarkdownManager(
     return normalizeParsed(parse(normalizeSource(markdown)));
   };
   const write = created.serialize.bind(created);
-  created.serialize = (doc: JSONContent) =>
-    write(doc).replaceAll(CODE_SPACE, " ");
+  created.serialize = (doc: JSONContent) => {
+    CODE_SPACE = unusedPrivateUse(doc);
+    return write(doc).replaceAll(CODE_SPACE, " ");
+  };
   return created;
 }
 
@@ -406,6 +439,103 @@ function liftImages(block: JSONContent): JSONContent[] {
   return out;
 }
 
+/** A list item's task marker (`[x] `), taken out of the item: its checked state, or null. */
+function takeMarker(
+  item: JSONContent,
+): { checked: boolean; item: JSONContent } | null {
+  const content = item.content ?? [];
+  const [first] = content;
+  if (first?.type === TASK_MARKER)
+    return {
+      checked: Boolean(first.attrs?.checked),
+      item: { ...item, content: content.slice(1) },
+    };
+  const inline = first?.type === "paragraph" ? first.content?.[0] : undefined;
+  if (inline?.type !== TASK_MARKER) return null;
+  return {
+    checked: Boolean(inline.attrs?.checked),
+    item: {
+      ...item,
+      content: [
+        { ...first!, content: first!.content!.slice(1) },
+        ...content.slice(1),
+      ],
+    },
+  };
+}
+
+/** A task marker as the text it was (`[x] `), where no task list can hold it. */
+function markerText(marker: JSONContent): JSONContent {
+  return { type: "text", text: marker.attrs?.checked ? "[x] " : "[ ] " };
+}
+
+/**
+ * A bullet list whose items carry task markers becomes task lists (runs of task items and of
+ * plain items split apart, as GFM renders them); an ordered list keeps the marker as its text.
+ */
+function normalizeList(list: JSONContent): JSONContent {
+  const items = (list.content ?? []).map((item) => {
+    const taken = takeMarker(item);
+    return {
+      task: list.type === "bulletList" ? taken : null,
+      item:
+        taken && list.type !== "bulletList"
+          ? textMarker(item, taken.checked)
+          : (taken?.item ?? item),
+    };
+  });
+  const normalized = (item: JSONContent, task: boolean | null): JSONContent => {
+    const inner = normalizeParsed(
+      task === null
+        ? item
+        : {
+            ...item,
+            type: "taskItem",
+            attrs: { ...item.attrs, checked: task },
+          },
+    );
+    return inner;
+  };
+  if (!items.some((each) => each.task)) {
+    return {
+      ...list,
+      content: items.map((each) => normalized(each.item, null)),
+    };
+  }
+  // One list per run: a task run is a task list, a plain run stays a bullet list.
+  const runs: JSONContent[] = [];
+  for (const each of items) {
+    const type = each.task ? "taskList" : "bulletList";
+    const last = runs[runs.length - 1];
+    const child = normalized(each.item, each.task ? each.task.checked : null);
+    if (last?.type === type) last.content!.push(child);
+    else runs.push({ type, content: [child] });
+  }
+  return runs.length === 1 ? runs[0]! : { type: LIST_RUNS, content: runs };
+}
+
+/** An item whose marker is kept as text (an ordered list's `1. [ ] one`). */
+function textMarker(item: JSONContent, checked: boolean): JSONContent {
+  const content = takeMarker(item)!.item.content ?? [];
+  const marker = markerText({ attrs: { checked } });
+  const [first, ...rest] = content;
+  return first?.type === "paragraph"
+    ? {
+        ...item,
+        content: [
+          { ...first, content: [marker, ...(first.content ?? [])] },
+          ...rest,
+        ],
+      }
+    : {
+        ...item,
+        content: [{ type: "paragraph", content: [marker] }, ...content],
+      };
+}
+
+/** Several lists one bullet list became (task runs and plain runs), spliced into the parent. */
+const LIST_RUNS = "textEditListRuns";
+
 /**
  * A parse as the schema accepts it, whatever valid CommonMark came in: an image Markdown placed
  * inline becomes a block beside its text, and a list item that starts with a heading, a code
@@ -413,6 +543,8 @@ function liftImages(block: JSONContent): JSONContent[] {
  */
 function normalizeParsed(node: JSONContent): JSONContent {
   if (!node.content) return node;
+  if (node.type === "bulletList" || node.type === "orderedList")
+    return normalizeList(node);
   const content: JSONContent[] = [];
   // Inline content parsed where a block belongs (a task checkbox in an ordered list's item):
   // it opens the next paragraph, or becomes one.
@@ -438,7 +570,18 @@ function normalizeParsed(node: JSONContent): JSONContent {
       child.content?.some((each) => each.type === "image")
     )
       content.push(...liftImages(child));
-    else content.push(normalizeParsed(child));
+    else if (child.type === TASK_MARKER)
+      // A checkbox outside a list item: its text.
+      content.push(
+        isBlockContainer
+          ? { type: "paragraph", content: [markerText(child)] }
+          : markerText(child),
+      );
+    else {
+      const done = normalizeParsed(child);
+      if (done.type === LIST_RUNS) content.push(...(done.content ?? []));
+      else content.push(done);
+    }
   }
   if (loose.length) content.push({ type: "paragraph", content: loose });
   if (node.type && ITEMS.has(node.type) && content[0]?.type !== "paragraph")

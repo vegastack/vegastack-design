@@ -1,4 +1,4 @@
-// @vegastack text-edit-grammar@0.25.29 sha256-ECssv/bL6wwTA0Ups8nOpeChgME/qlFgs6wcD7juGG4=
+// @vegastack text-edit-grammar@0.25.29 sha256-YNdoxPln/68ZotJG8B/K1hoUODx6VCfMhhd7JTc3sXI=
 
 /**
  * text-edit-grammar — the constructs VegaStack Markdown v1 carries beyond CommonMark + GFM, as
@@ -171,8 +171,8 @@ export function headingIds(texts: readonly string[]): string[] {
 /**
  * Read an image's Markdown alt text for a width: `![Diagram|320](src)` is a 320px-wide image whose
  * alt is "Diagram" (Obsidian's convention, so other renderers still show the image). Takes the alt
- * as written — `\\`, `\[`, `\]` and `\|` are escapes — so an escaped `\|320` is alt text, not a
- * width.
+ * as written — `\\`, `\[`, `\]` and `\|` are escapes, so an escaped `\|320` (or `&#x7C;320`) is
+ * alt text, not a width. Character references stay as written: decode them after.
  *
  * @example
  * parseImageAlt("Diagram|320"); // { alt: "Diagram", width: 320 }
@@ -236,9 +236,14 @@ export function imageMarkdown({
   title?: string | null;
   width?: number | null;
 }): string {
-  let text = escapeMentionLabel(alt ?? "");
-  // Alt text that ends like a width (`hello|123`) keeps its `|` as text.
-  if (/\|\d{1,5}$/.test(text)) text = text.replace(/\|(\d{1,5})$/, "\\|$1");
+  // `&` that reads as an entity is written `&amp;`, and a `|` the alt merely ends with (`hello|123`,
+  // no width) `&#x7C;` — an entity, not a backslash, so a table's own `\|` unescaping (an image in
+  // a cell) never turns it into a width.
+  let text = escapeMentionLabel(alt ?? "").replace(
+    /&(?=#\d{1,7};|#[xX][\da-fA-F]{1,6};|[a-zA-Z][a-zA-Z\d]{1,31};)/g,
+    "&amp;",
+  );
+  if (/\|\d{1,5}$/.test(text)) text = text.replace(/\|(\d{1,5})$/, "&#x7C;$1");
   if (width) text += `|${Math.round(width)}`;
   const target = markdownDestination(src);
   return title

@@ -1,4 +1,4 @@
-// @vegastack markdown-view@0.25.29 sha256-SPXvTi5tW48vJiUKhAS0oRQgqYsHZ7uQl3uJn3QYXGo=
+// @vegastack markdown-view@0.25.29 sha256-m/AUHltIGkWdo7uRYloRknpWnjkMhmVnxRLmN8vDafI=
 
 import * as React from "react";
 import { Lexer, type Token, type Tokens } from "marked";
@@ -274,15 +274,21 @@ function inline(tokens: Token[] | undefined): DocNode[] {
         );
         break;
       }
-      case "image":
+      case "image": {
+        // The width rides in the alt as written (`![Diagram|320](…)`, an escaped `\|` or `&#x7C;`
+        // staying text): read it before entities are decoded.
+        const sized = parseImageAlt(t.text);
         out.push(
           el("img", {
             src: decode(t.href),
-            alt: decode(t.text),
+            alt: decode(sized.alt),
+            "data-alt-read": "",
+            ...(sized.width ? { width: String(sized.width) } : {}),
             ...(t.title ? { title: t.title } : {}),
           }),
         );
         break;
+      }
       // Raw HTML is shown as the text it is, never parsed (react-markdown's behaviour without
       // `rehype-raw`) — except `<br>`, a line break (a table cell's or a heading's).
       case "html":
@@ -900,7 +906,10 @@ function renderNode(
     case "img": {
       const src = safeUrl(attrs.src ?? "");
       // A width set by resizing in `TextEdit`: `![alt|320](src)` in markdown, `width` in HTML.
-      const sized = parseImageAlt(attrs.alt ?? "");
+      const sized =
+        attrs["data-alt-read"] !== undefined
+          ? { alt: attrs.alt ?? "", width: undefined }
+          : parseImageAlt(attrs.alt ?? "");
       const alt = sized.alt;
       if (!imageSourceAllowed(src, ctx.images)) {
         return (
