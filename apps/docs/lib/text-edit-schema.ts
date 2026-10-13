@@ -1,4 +1,4 @@
-// @vegastack text-edit-schema@0.25.30 sha256-guBn/2WKUMjiwfTguEu4AyvKcNGGEuDlug6OlFr22Cs=
+// @vegastack text-edit-schema@0.25.30 sha256-wr32PGR3+IO95qFrUogG7iuY9TzB7w7Snli5ZIb/2E0=
 
 import {
   Extension,
@@ -15,6 +15,7 @@ import {
   type NodeViewRenderer,
 } from "@tiptap/core";
 import type { Schema } from "@tiptap/pm/model";
+import type { Transaction } from "@tiptap/pm/state";
 import StarterKit from "@tiptap/starter-kit";
 import { CodeBlock } from "@tiptap/extension-code-block";
 import { CodeBlockLowlight } from "@tiptap/extension-code-block-lowlight";
@@ -83,8 +84,12 @@ export interface TextEditSchemaOptions {
   fileLinkPrefix?: () => string;
   /** A lowlight instance: code blocks highlight with it. Omit on a server. */
   lowlight?: object;
-  /** A collaborative editor: Tiptap's own undo history is off (the collaboration undo replaces it). */
-  collaboration?: boolean;
+  /**
+   * A collaborative editor. Tiptap's own undo history is off (the collaboration undo replaces it),
+   * and new blocks get ids as they appear — in this viewer's own transactions only (`isRemote`
+   * tells a collaborator's change apart), so two viewers never race on one block.
+   */
+  collaboration?: { isRemote: (transaction: Transaction) => boolean };
 }
 
 /**
@@ -1386,6 +1391,12 @@ export function textEditExtensions(
       types: [...BLOCK_ID_TYPES],
       generateID: blockId,
       updateDocument: Boolean(options.collaboration),
+      ...(options.collaboration
+        ? {
+            filterTransaction: (transaction: Transaction) =>
+              !options.collaboration!.isRemote(transaction),
+          }
+        : {}),
     }),
     ...(options.plugins ?? []),
   ];

@@ -1,6 +1,12 @@
 "use client";
 
-import { useRef, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
+import * as Y from "yjs";
+import {
+  Awareness,
+  applyAwarenessUpdate,
+  encodeAwarenessUpdate,
+} from "y-protocols/awareness";
 import dynamic from "next/dynamic";
 import { ArrowUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -14,6 +20,7 @@ import {
 } from "@/components/ui/field";
 import type {
   MentionOption,
+  TextEditCollaboration,
   TextEditAnnotation,
   TextEditAnnotationLayout,
   TextEditHandle,
@@ -891,6 +898,95 @@ export function textEditAnnotationCounts(): ReactNode {
           Close thread
         </Button>
       </div>
+    </Wrapper>
+  );
+}
+
+/** Two documents kept in step in memory, carets included — what a collaboration server does. */
+function useSharedPair():
+  [TextEditCollaboration, TextEditCollaboration] | null {
+  const [pair, setPair] = useState<
+    [TextEditCollaboration, TextEditCollaboration] | null
+  >(null);
+  useEffect(() => {
+    const docs = [new Y.Doc(), new Y.Doc()] as const;
+    const awareness = docs.map((doc) => new Awareness(doc));
+    const off: (() => void)[] = [];
+    docs.forEach((doc, side) => {
+      const other = docs[1 - side]!;
+      const relayDoc = (update: Uint8Array, origin: unknown) => {
+        if (origin !== "peer") Y.applyUpdate(other, update, "peer");
+      };
+      doc.on("update", relayDoc);
+      off.push(() => doc.off("update", relayDoc));
+      const relayAwareness = (
+        change: Record<"added" | "updated" | "removed", number[]>,
+        origin: unknown,
+      ) => {
+        if (origin === "peer") return;
+        const ids = [...change.added, ...change.updated, ...change.removed];
+        applyAwarenessUpdate(
+          awareness[1 - side]!,
+          encodeAwarenessUpdate(awareness[side]!, ids),
+          "peer",
+        );
+      };
+      awareness[side]!.on("update", relayAwareness);
+      off.push(() => awareness[side]!.off("update", relayAwareness));
+    });
+    const provider = (side: 0 | 1) => ({
+      awareness: awareness[side]!,
+      on: () => undefined,
+      off: () => undefined,
+    });
+    setPair([
+      {
+        document: docs[0],
+        provider: provider(0),
+        user: { id: "u1", name: "Asha Rao", hue: "green" },
+      },
+      {
+        document: docs[1],
+        provider: provider(1),
+        user: { id: "u2", name: "Ben Ito", hue: "orange" },
+      },
+    ]);
+    return () => {
+      off.forEach((stop) => stop());
+      awareness.forEach((each) => each.destroy());
+      docs.forEach((doc) => doc.destroy());
+    };
+  }, []);
+  return pair;
+}
+
+/**
+ * Collaboration — two editors on one shared Yjs document, kept in step in memory as a server
+ * would. Type in either: the text and a named caret appear in the other; ⌘Z undoes only that
+ * editor's own typing.
+ */
+export function textEditCollaboration(): ReactNode {
+  const pair = useSharedPair();
+  return (
+    <Wrapper className="flex-col items-stretch gap-4">
+      {pair ? (
+        <>
+          <TextEdit
+            format="markdown"
+            variant="boxed"
+            collaboration={pair[0]}
+            placeholder="Asha types here…"
+            aria-label="Asha's editor"
+          />
+          <TextEdit
+            format="markdown"
+            variant="boxed"
+            collaboration={pair[1]}
+            placeholder="…and Ben sees it here"
+            aria-label="Ben's editor"
+          />
+        </>
+      ) : null}
     </Wrapper>
   );
 }

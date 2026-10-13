@@ -1724,7 +1724,8 @@
       ],
       "registryDependencies": [
         "@vegastack/text-edit-schema",
-        "@vegastack/text-anchor-doc"
+        "@vegastack/text-anchor-doc",
+        "@vegastack/text-edit-grammar"
       ],
       "files": [
         {
@@ -14738,7 +14739,12 @@
         "@tiptap/suggestion@^3",
         "lucide-react@^1.47.0",
         "@vegastack/design@^0.8.7",
-        "@vegastack/design-tokens@^0.8.3"
+        "@vegastack/design-tokens@^0.8.3",
+        "@tiptap/extension-collaboration@^3.31.4",
+        "@tiptap/extension-collaboration-caret@^3.31.4",
+        "@tiptap/y-tiptap@^3.0.9",
+        "yjs@^13.6.33",
+        "y-protocols@^1.0.7"
       ],
       "registryDependencies": [
         "@vegastack/button",
@@ -14768,7 +14774,8 @@
         "@vegastack/suggestion-menu",
         "@vegastack/text-edit-grammar",
         "@vegastack/text-edit-schema",
-        "@vegastack/text-edit-markdown"
+        "@vegastack/text-edit-markdown",
+        "@vegastack/avatar"
       ],
       "files": [
         {

@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.25.30 sha256-cSJLXhuYH2Jgvx9Y27KjXL0nJ2OVyGdk/TkCVZHcocU=
+// @vegastack text-edit@0.25.30 sha256-8LIZM1tmfUhu5mQ2QdgrPFl/sQfAvz/OhLt0bfEULNU=
 
 "use client";
 
@@ -13,7 +13,10 @@ import {
 } from "@/components/ui/markdown-view";
 import type { MentionKind } from "@/lib/text-edit-grammar";
 import type { FileViewerItem } from "@/components/ui/file-viewer";
+import type { AvatarHue } from "@/components/ui/avatar";
 import type { TextAnchor } from "@/lib/text-anchor";
+import type { Doc as YDoc } from "yjs";
+import type { Awareness } from "y-protocols/awareness";
 
 export type { MentionKind } from "@/lib/text-edit-grammar";
 export type { TextAnchor } from "@/lib/text-anchor";
@@ -145,12 +148,35 @@ export interface TextEditOutlineItem {
   text: string;
 }
 
+/**
+ * Where a highlight sits in a collaborative document: Yjs relative positions of its first and last
+ * character (`Y.encodeRelativePosition` bytes). They follow every edit — anyone's — exactly.
+ */
+export interface TextEditYAnchor {
+  /** The first quoted character. */
+  start: Uint8Array;
+  /** The last quoted character (inclusive), so text typed right after the quote stays outside it. */
+  last: Uint8Array;
+}
+
+/**
+ * A highlight's anchor: offsets, quote and context (`TextAnchor`), and — in a collaborative
+ * editor — `y`, the relative positions that resolve it before the quote fallback is needed.
+ */
+export type TextEditAnchor = TextAnchor & {
+  /** Yjs relative positions; set by a collaborative editor. @default undefined */
+  y?: TextEditYAnchor;
+};
+
 /** A comment's highlight: its id and where it sits in the text. */
 export interface TextEditAnnotation {
   /** The comment (thread) id — the highlight's `data-annotation`. */
   id: string;
-  /** Where it sits, as stored (`anchorFromRange` / `onAnnotationsLayout`). */
-  anchor: TextAnchor;
+  /**
+   * Where it sits, as stored (`anchorFromRange` / `onAnnotationsLayout`). With `y` in a
+   * collaborative editor, the relative positions place it; without, the quote does.
+   */
+  anchor: TextEditAnchor;
   /**
    * How many comments the thread holds — the number on its count pill (`annotationCounts`) and in
    * its accessible name. Absent (or below 1) counts as 1.
@@ -177,8 +203,8 @@ export interface TextEditHandle {
   flush: () => Promise<void>;
   /** Move focus into the editor. */
   focus: () => void;
-  /** The anchor of the current selection, or null when nothing is selected. */
-  getAnchorForSelection: () => TextAnchor | null;
+  /** The anchor of the current selection (with `y` in a collaborative editor), or null when nothing is selected. */
+  getAnchorForSelection: () => TextEditAnchor | null;
   /** Pulse an annotation's highlight for 3 seconds and scroll it into view. */
   pulseAnnotation: (id: string) => void;
   /**
@@ -197,6 +223,42 @@ export interface TextEditHandle {
    * at the caret through `uploadFiles`. Mounts the editor first when it is not in yet.
    */
   pickFiles: () => void;
+  /** How many uploads are still landing: a host shows "Uploading…" and guards leaving while any are. */
+  pendingUploads: () => number;
+}
+
+/** Who this viewer is to collaborators: their caret, selection and name label wear it. */
+export interface TextEditCollaborationUser {
+  /** The member's (or agent's) id. */
+  id: string;
+  /** The name on their caret's label ("Asha Rao", "Claude (via Manoj)"). */
+  name: string;
+  /** Their colour — a tag hue, never a colour string. An agent always draws purple. */
+  hue: AvatarHue;
+  /** A person or a member's agent. @default "person" */
+  kind?: "person" | "agent";
+}
+
+/**
+ * A shared document. The editor binds to `document`'s XML fragment (`field`) and shows each
+ * collaborator's caret from `provider.awareness`; the app owns the provider (Hocuspocus or any
+ * other) — it is typed structurally, so the design system never imports one.
+ */
+export interface TextEditCollaboration {
+  /** The shared Yjs document. Never seeded by the editor: a server seeds it once. */
+  document: YDoc;
+  /** The XML fragment the document lives in. @default "default" */
+  field?: string;
+  /** The connection: its `awareness` carries carets and names; "synced" fires once it has the document. */
+  provider: {
+    awareness: Awareness;
+    on: (event: "synced", listener: () => void) => unknown;
+    off: (event: "synced", listener: () => void) => unknown;
+  };
+  /** This viewer, shown to the others. */
+  user: TextEditCollaborationUser;
+  /** The document's Markdown, shown read-only until the editor is in (a server-rendered read copy). @default "" */
+  readCopy?: string;
 }
 
 /* ------------------------------------------------------------------------------------------------
@@ -646,10 +708,10 @@ export interface TextEditProps {
   /**
    * What Escape does. `"revert"` restores the document as focus found it (or as the last
    * `markSaved()` left it), blurs and calls `onRevert` — right for a field edited then confirmed.
-   * `"blur"` keeps the text, commits it and blurs — right for a document that saves as you type,
-   * where reverting would erase text already saved. Defaults to `"blur"` whenever `autosave` is
-   * set, `"revert"` otherwise.
-   * @default autosave ? "blur" : "revert"
+   * `"blur"` keeps the text, commits it and blurs — right for a document, where reverting would
+   * erase text already saved. Defaults to `"blur"` for a `document` (and whenever `autosave` is
+   * set); a `collaboration` editor always blurs.
+   * @default variant === "document" || autosave ? "blur" : "revert"
    */
   escapeBehavior?: "revert" | "blur";
   /**
@@ -777,6 +839,14 @@ export interface TextEditProps {
    */
   mentionImage?: (id: string) => string | null | undefined;
   /**
+   * A record mention's label for this reader, by kind and id. A collaborative document stores a
+   * page's, task's or file's mention without its title (one reader may see a title another may
+   * not), so each chip asks here; people and agents keep their stored name. A chip it cannot
+   * label reads `@…`. Chips re-render when this function changes.
+   * @default undefined
+   */
+  mentionLabel?: (kind: MentionKind, id: string) => string | null | undefined;
+  /**
    * `MarkdownView`'s `citation`, for the read view: a `[[n]]` marker renders as a superscript
    * citation, and clicking it is the citation's, never an edit. In the editor the markers stay
    * plain `[[n]]` text, so with `citation` set the read view stands in whenever the document is not
@@ -869,7 +939,7 @@ export interface TextEditProps {
    * with the selection's anchor.
    * @default undefined
    */
-  onCreateAnnotation?: (anchor: TextAnchor) => void;
+  onCreateAnnotation?: (anchor: TextEditAnchor) => void;
   /**
    * Each annotation's highlight top (px from this root's top; null when orphaned) and its current
    * anchor — for laying comments beside the text and persisting moved anchors. Called once per
@@ -898,6 +968,22 @@ export interface TextEditProps {
    * @default (count) => count === 1 ? "1 comment" : `${count} comments`
    */
   annotationCountLabel?: (count: number) => string;
+  /**
+   * Called with the number of uploads still landing, each time it changes — so a host can show
+   * "Uploading…" and guard leaving (a document saved while an image uploads is not saved yet).
+   * @default undefined
+   */
+  onPendingUploadsChange?: (count: number) => void;
+  /**
+   * Edit a shared Yjs document live with others. The document is the truth: `value`,
+   * `defaultValue`, `onValueChange`, `onCommit`, `onRevert`, `autosave` and `markSaved` are
+   * ignored, Escape blurs, and undo (⌘Z) undoes only this viewer's own changes. Each
+   * collaborator's caret and selection show in their hue. The editor mounts at once — read-only
+   * too (`readOnly`), so a viewer sees text and carets move. A toggle's open state is each
+   * viewer's own, and a record mention is stored without its title (`mentionLabel`).
+   * @default undefined
+   */
+  collaboration?: TextEditCollaboration;
 }
 
 /**
@@ -1012,11 +1098,14 @@ export function TextEdit(props: TextEditProps) {
       : editorBaseClassName;
   // Highlights and an outline need the document model, so they mount the editor at once.
   const composer = variant === "composer";
-  // A composer is an input: its editor mounts at once, never waiting for a click.
+  // A composer is an input: its editor mounts at once, never waiting for a click. A shared
+  // document mounts at once too — read-only included — so its text and carets move live.
+  const collaborative = props.collaboration !== undefined;
   const eager =
     props.annotations !== undefined ||
     props.onOutlineChange !== undefined ||
-    composer;
+    composer ||
+    collaborative;
   const boxed = variant === "boxed" || composer;
   const [field, setField] = React.useState<FieldAria>({});
   const disabled = disabledProp || field.disabled === true;
@@ -1151,6 +1240,9 @@ export function TextEdit(props: TextEditProps) {
           activate("end");
         }
       },
+      pendingUploads: () =>
+        (editorHandle.current?.pendingUploads() ?? 0) +
+        pendingFilesRef.current.length,
     }),
     // `activate` reads only refs and stable setters.
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -1237,8 +1329,9 @@ export function TextEdit(props: TextEditProps) {
   React.useEffect(() => {
     setLeftDoc((left) => (left && left.forValue !== value ? null : left));
   }, [value]);
-  const source =
-    leftDoc && leftDoc.forValue === value
+  const source = props.collaboration
+    ? (props.collaboration.readCopy ?? "")
+    : leftDoc && leftDoc.forValue === value
       ? leftDoc.doc
       : (value ?? defaultValue);
   const empty = isEmptyDocument(source, html);
@@ -1247,12 +1340,14 @@ export function TextEdit(props: TextEditProps) {
   // The read view stands in for ProseMirror's root: the same classes, role and ARIA, and — while
   // editable — `contenteditable`, so a click shows the caret and opens the keyboard at once and the
   // `boxed` focus cue (`:has([contenteditable=true]:focus)`) applies before the editor is there.
+  // A read-only document is a document, not a field (B8): no textbox role to announce.
+  const entry = editable || disabled;
   const surface = {
     className: surfaceClassName,
     "data-slot": "text-edit-read",
     "data-focus-cue": boxed ? "border" : "caret",
-    role: "textbox",
-    "aria-multiline": true,
+    role: entry ? "textbox" : "document",
+    "aria-multiline": entry || undefined,
     id: resolvedId,
     "aria-label": ariaLabel,
     "aria-labelledby": resolvedLabelledBy,
@@ -1261,7 +1356,6 @@ export function TextEdit(props: TextEditProps) {
       ariaInvalidAttribute as React.AriaAttributes["aria-invalid"],
     "aria-busy": saving || undefined,
     "aria-disabled": disabled || undefined,
-    "aria-readonly": (!disabled && !editable) || undefined,
     contentEditable: editable,
     suppressContentEditableWarning: true,
     translate: "no" as const,

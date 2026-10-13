@@ -99,6 +99,12 @@ importers:
       '@tiptap/extension-code-block-lowlight':
         specifier: ^3.31.4
         version: 3.31.4(@tiptap/core@3.31.4(@tiptap/pm@3.31.4))(@tiptap/extension-code-block@3.31.4(@tiptap/core@3.31.4(@tiptap/pm@3.31.4))(@tiptap/pm@3.31.4))(@tiptap/pm@3.31.4)(highlight.js@11.12.0)(lowlight@3.3.0)
+      '@tiptap/extension-collaboration':
+        specifier: ^3.31.4
+        version: 3.31.4(@tiptap/core@3.31.4(@tiptap/pm@3.31.4))(@tiptap/pm@3.31.4)(@tiptap/y-tiptap@3.0.9(prosemirror-model@1.25.11)(prosemirror-state@1.4.4)(prosemirror-view@1.42.3)(y-protocols@1.0.7(yjs@13.6.33))(yjs@13.6.33))(yjs@13.6.33)
+      '@tiptap/extension-collaboration-caret':
+        specifier: ^3.31.4
+        version: 3.31.4(@tiptap/core@3.31.4(@tiptap/pm@3.31.4))(@tiptap/pm@3.31.4)(@tiptap/y-tiptap@3.0.9(prosemirror-model@1.25.11)(prosemirror-state@1.4.4)(prosemirror-view@1.42.3)(y-protocols@1.0.7(yjs@13.6.33))(yjs@13.6.33))
       '@tiptap/extension-hard-break':
         specifier: ^3.31.4
         version: 3.31.4(@tiptap/core@3.31.4(@tiptap/pm@3.31.4))
@@ -138,6 +144,9 @@ importers:
       '@tiptap/suggestion':
         specifier: ^3.31.4
         version: 3.31.4(@floating-ui/dom@1.8.0)(@tiptap/core@3.31.4(@tiptap/pm@3.31.4))(@tiptap/pm@3.31.4)
+      '@tiptap/y-tiptap':
+        specifier: ^3.0.9
+        version: 3.0.9(prosemirror-model@1.25.11)(prosemirror-state@1.4.4)(prosemirror-view@1.42.3)(y-protocols@1.0.7(yjs@13.6.33))(yjs@13.6.33)
       '@vegastack/design':
         specifier: workspace:*
         version: link:../../packages/design
@@ -246,6 +255,12 @@ importers:
       xlsx:
         specifier: https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz
         version: https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz
+      y-protocols:
+        specifier: ^1.0.7
+        version: 1.0.7(yjs@13.6.33)
+      yjs:
+        specifier: ^13.6.33
+        version: 13.6.33
       zod:
         specifier: ^4.5.4
         version: 4.5.4
@@ -415,6 +430,12 @@ importers:
       '@tiptap/extension-code-block-lowlight':
         specifier: ^3.31.4
         version: 3.31.4(@tiptap/core@3.31.4(@tiptap/pm@3.31.4))(@tiptap/extension-code-block@3.31.4(@tiptap/core@3.31.4(@tiptap/pm@3.31.4))(@tiptap/pm@3.31.4))(@tiptap/pm@3.31.4)(highlight.js@11.12.0)(lowlight@3.3.0)
+      '@tiptap/extension-collaboration':
+        specifier: ^3.31.4
+        version: 3.31.4(@tiptap/core@3.31.4(@tiptap/pm@3.31.4))(@tiptap/pm@3.31.4)(@tiptap/y-tiptap@3.0.9(prosemirror-model@1.25.11)(prosemirror-state@1.4.4)(prosemirror-view@1.42.3)(y-protocols@1.0.7(yjs@13.6.33))(yjs@13.6.33))(yjs@13.6.33)
+      '@tiptap/extension-collaboration-caret':
+        specifier: ^3.31.4
+        version: 3.31.4(@tiptap/core@3.31.4(@tiptap/pm@3.31.4))(@tiptap/pm@3.31.4)(@tiptap/y-tiptap@3.0.9(prosemirror-model@1.25.11)(prosemirror-state@1.4.4)(prosemirror-view@1.42.3)(y-protocols@1.0.7(yjs@13.6.33))(yjs@13.6.33))
       '@tiptap/extension-hard-break':
         specifier: ^3.31.4
         version: 3.31.4(@tiptap/core@3.31.4(@tiptap/pm@3.31.4))
@@ -454,6 +475,9 @@ importers:
       '@tiptap/suggestion':
         specifier: ^3.31.4
         version: 3.31.4(@floating-ui/dom@1.8.0)(@tiptap/core@3.31.4(@tiptap/pm@3.31.4))(@tiptap/pm@3.31.4)
+      '@tiptap/y-tiptap':
+        specifier: ^3.0.9
+        version: 3.0.9(prosemirror-model@1.25.11)(prosemirror-state@1.4.4)(prosemirror-view@1.42.3)(y-protocols@1.0.7(yjs@13.6.33))(yjs@13.6.33)
       '@vegastack/design':
         specifier: workspace:*
         version: link:../design
@@ -517,6 +541,12 @@ importers:
       xlsx:
         specifier: https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz
         version: https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz
+      y-protocols:
+        specifier: ^1.0.7
+        version: 1.0.7(yjs@13.6.33)
+      yjs:
+        specifier: ^13.6.33
+        version: 13.6.33
     devDependencies:
       '@hookform/resolvers':
         specifier: ^5.9.1
@@ -533,9 +563,6 @@ importers:
       '@testing-library/user-event':
         specifier: 14.6.7
         version: 14.6.7(@testing-library/dom@10.4.1)
-      '@tiptap/y-tiptap':
-        specifier: ^3.0.9
-        version: 3.0.9(prosemirror-model@1.25.11)(prosemirror-state@1.4.4)(prosemirror-view@1.42.3)(y-protocols@1.0.7(yjs@13.6.33))(yjs@13.6.33)
       '@types/node':
         specifier: ^25.9.5
         version: 25.9.5
@@ -587,12 +614,6 @@ importers:
       vitest-browser-react:
         specifier: 2.3.0
         version: 2.3.0(@types/react-dom@19.2.7(@types/react@19.2.18))(@types/react@19.2.18)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)(vitest@5.0.0)
-      y-protocols:
-        specifier: ^1.0.7
-        version: 1.0.7(yjs@13.6.33)
-      yjs:
-        specifier: ^13.6.33
-        version: 13.6.33
       zod:
         specifier: ^4.5.4
         version: 4.5.4
@@ -3048,6 +3069,21 @@ packages:
     resolution: {integrity: sha512-pzi8GNDs5J1DEoO1HNYiJ5WZpgOZzlc/2VIa77mMpEuD4hZxuK0BQzlF/O6Ps/O5P1lGJT4xS0Yowpzb9mD9RA==}
     peerDependencies:
       '@tiptap/core': 3.31.4
+
+  '@tiptap/extension-collaboration-caret@3.31.4':
+    resolution: {integrity: sha512-1dHvh2VDxRcNehsfPGpahP9RmFcoJIecoSuhOUjDfCP0QPxuGql14mYbflYYm1arj7Z6SZLNt/2tL5Zh0fpyqQ==}
+    peerDependencies:
+      '@tiptap/core': 3.31.4
+      '@tiptap/pm': 3.31.4
+      '@tiptap/y-tiptap': ^3.0.7
+
+  '@tiptap/extension-collaboration@3.31.4':
+    resolution: {integrity: sha512-vIGuBU2oV1jIr0zGPdWc1qFo4NrzObktC06s8Z0zYCb59hm3lfnYzw0w4R2i/BYjjoKRgpiDVYweGAQHuLT7Vw==}
+    peerDependencies:
+      '@tiptap/core': 3.31.4
+      '@tiptap/pm': 3.31.4
+      '@tiptap/y-tiptap': ^3.0.7
+      yjs: ^13
 
   '@tiptap/extension-document@3.31.4':
     resolution: {integrity: sha512-vT20u62RWR+BLIyNJ54e24MPUY4zm8VF7tcgJnxQXi7BgVJWcNMtMWWDIkPJ4JNXwfoIznKh3jzYsaYmbCJgQQ==}
@@ -9862,6 +9898,19 @@ snapshots:
   '@tiptap/extension-code@3.31.4(@tiptap/core@3.31.4(@tiptap/pm@3.31.4))':
     dependencies:
       '@tiptap/core': 3.31.4(@tiptap/pm@3.31.4)
+
+  '@tiptap/extension-collaboration-caret@3.31.4(@tiptap/core@3.31.4(@tiptap/pm@3.31.4))(@tiptap/pm@3.31.4)(@tiptap/y-tiptap@3.0.9(prosemirror-model@1.25.11)(prosemirror-state@1.4.4)(prosemirror-view@1.42.3)(y-protocols@1.0.7(yjs@13.6.33))(yjs@13.6.33))':
+    dependencies:
+      '@tiptap/core': 3.31.4(@tiptap/pm@3.31.4)
+      '@tiptap/pm': 3.31.4
+      '@tiptap/y-tiptap': 3.0.9(prosemirror-model@1.25.11)(prosemirror-state@1.4.4)(prosemirror-view@1.42.3)(y-protocols@1.0.7(yjs@13.6.33))(yjs@13.6.33)
+
+  '@tiptap/extension-collaboration@3.31.4(@tiptap/core@3.31.4(@tiptap/pm@3.31.4))(@tiptap/pm@3.31.4)(@tiptap/y-tiptap@3.0.9(prosemirror-model@1.25.11)(prosemirror-state@1.4.4)(prosemirror-view@1.42.3)(y-protocols@1.0.7(yjs@13.6.33))(yjs@13.6.33))(yjs@13.6.33)':
+    dependencies:
+      '@tiptap/core': 3.31.4(@tiptap/pm@3.31.4)
+      '@tiptap/pm': 3.31.4
+      '@tiptap/y-tiptap': 3.0.9(prosemirror-model@1.25.11)(prosemirror-state@1.4.4)(prosemirror-view@1.42.3)(y-protocols@1.0.7(yjs@13.6.33))(yjs@13.6.33)
+      yjs: 13.6.33
 
   '@tiptap/extension-document@3.31.4(@tiptap/core@3.31.4(@tiptap/pm@3.31.4))':
     dependencies:

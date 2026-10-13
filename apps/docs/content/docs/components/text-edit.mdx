@@ -324,8 +324,8 @@ under the text (a draft's file cards). `CommentComposer` and replies are built o
 ### Editing patterns
 
 An empty editor with a faint placeholder ("Add a description…"; focused, it reads "Type / for commands"), a `readOnly`
-editor (`aria-readonly`) for rendering stored content, and a `disabled` one (dimmed,
-`aria-disabled`).
+editor for rendering stored content — a document (`role="document"`), not a field — and a `disabled`
+one (dimmed, `aria-disabled`).
 
 <ComponentPreview
   name="textEditStates"
@@ -349,8 +349,10 @@ editor is created.
 
 ### Mentions
 
-`mentions={{ kinds, search }}` turns on `@`: typed after a space or at the start of a line it opens
-a menu grouped People · Pages · Files · Tasks (only the `kinds` given, at most five each). `search`
+`mentions={{ kinds, search }}` turns on `@`: typed after a space, an opening bracket or at the start
+of a line it opens a menu grouped People · Pages · Files · Tasks · … · Your agents (only the `kinds`
+given, at most five each). The query may hold spaces — `@Asha Rao` searches the whole name — and two
+spaces in a row, or a phrase that matches no one past a space, close the menu. `search`
 runs 150ms after the last keystroke with an `AbortSignal` that aborts when the query changes; the
 menu shows "Searching…", "No matches" or "Couldn't search". <kbd>↑</kbd> <kbd>↓</kbd> move,
 
@@ -379,6 +381,38 @@ edit never loses the mention.
 />
 ```
 
+### Collaboration
+
+`collaboration={{ document, provider, user }}` edits a shared Yjs document live with others. The
+app owns the connection (Hocuspocus, or any provider with an `awareness`); the design system types
+it structurally and never imports one. Each collaborator's caret and selection draw in their tag hue
+with their name above the caret for two seconds after they move (an agent always in purple), and
+⌘Z undoes only this viewer's own changes. The document is the truth: `value`, `onValueChange`,
+`onCommit`, `onRevert`, `autosave` and `markSaved` are ignored, nothing is serialized per keystroke,
+and Escape blurs. The editor mounts at once — `readOnly` too, so a viewer watches the text and carets
+move (`readCopy` shows the stored Markdown until the editor is in).
+
+Two choices keep one person's view from becoming everyone's edit: a toggle's chevron opens and
+closes it for this viewer only ("Open by default", in the toggle's ⋯ menu, sets it for everyone),
+and a page, task or file mention is stored without its title — each reader's chip asks
+`mentionLabel(kind, id)`, so nobody sees a title they may not open. A comment highlight made here
+carries `anchor.y`, Yjs positions that keep it on its words whoever edits around it.
+
+<ComponentPreview
+  name="textEditCollaboration"
+  file="components/preview/text-edit.tsx"
+/>
+
+```tsx
+<TextEdit
+  format="markdown"
+  collaboration={{ document: ydoc, provider, user: { id, name, hue: "green" } }}
+  mentionLabel={(kind, id) => labels.get(`${kind}:${id}`)}
+  readOnly={!canEdit}
+  aria-label="Page"
+/>
+```
+
 ### Uploads
 
 `onImageUpload(file, { signal })` takes images pasted, dropped, or picked in the image panel's
@@ -389,7 +423,9 @@ both fire, even when focus has already left. A rejection removes the placeholder
 (dropped, pasted, or the Upload tab of the slash menu's File, Video or Audio) and inserts
 `[name](href)` — or a video or audio block for a playable video or audio type; a link whose href starts
 with `fileLinkPrefix` (default `/api/files/`) shows as a file chip. Without `onFileUpload`, other
-files are ignored.
+files are ignored. While anything is still landing, `handleRef.current.pendingUploads()` counts it
+and `onPendingUploadsChange(count)` reports each change — show "Uploading…" and guard leaving the
+page until it is 0.
 
 <ComponentPreview
   name="textEditUploads"
@@ -613,30 +649,33 @@ fires it with the current value. It's presentational only: the **host** decides 
   <kbd>↑</kbd> / <kbd>↓</kbd> does the same from the keyboard.
 - An invalid control (`aria-invalid`) sets `data-invalid` on the root for downstream styling; pair
   it with visible error text through `aria-describedby`.
-- `readOnly` marks the surface read-only.
+- `readOnly` renders a document, not a field: the surface is `role="document"` with no
+  `aria-multiline` or `aria-readonly`, so nothing announces a text box that cannot be typed in.
+- In `collaboration` mode a collaborator's caret and name are presence cues, hidden from assistive
+  tech (`aria-hidden`); a toggle's chevron keeps `aria-expanded` for this viewer's own state.
 
-| Key                                                   | Action                                                                                                                                           |
-| ----------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
-| <kbd>Cmd/Ctrl</kbd> + <kbd>B</kbd>                    | Toggle **bold**.                                                                                                                                 |
-| <kbd>Cmd/Ctrl</kbd> + <kbd>I</kbd>                    | Toggle _italic_.                                                                                                                                 |
-| <kbd>Cmd/Ctrl</kbd> + <kbd>E</kbd>                    | Toggle inline code.                                                                                                                              |
-| <kbd>Cmd/Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>X</kbd> | Toggle strikethrough.                                                                                                                            |
-| <kbd>Cmd/Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>7</kbd> | Numbered list (<kbd>8</kbd> bullet, <kbd>9</kbd> checklist).                                                                                     |
-| <kbd>Cmd/Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>↑</kbd> | Move the block up (<kbd>↓</kbd> down).                                                                                                           |
-| <kbd>Cmd/Ctrl</kbd> + <kbd>Z</kbd>                    | Undo.                                                                                                                                            |
-| <kbd>Cmd/Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>Z</kbd> | Redo.                                                                                                                                            |
-| <kbd>Enter</kbd>                                      | New paragraph (or new list item inside a list).                                                                                                  |
-| <kbd>Cmd/Ctrl</kbd> + <kbd>Enter</kbd>                | Fire `onSubmit` with the current value (when set); otherwise commit and blur. Plain <kbd>Enter</kbd> still inserts a newline.                    |
-| <kbd>Esc</kbd>                                        | With `escapeBehavior="revert"`: revert to the value focus found, blur, fire `onRevert`. With `"blur"` (the `autosave` default): commit and blur. |
-| <kbd>Cmd/Ctrl</kbd> + <kbd>K</kbd>                    | Open the inline link input (add, edit or remove the link); the key stops here, so a page's own ⌘K palette does not open too.                     |
-| <kbd>@</kbd>                                          | Open the mention menu (with `mentions`).                                                                                                         |
-| <kbd>Tab</kbd>                                        | Indent a list item, or move to the next table cell (the last cell adds a row); elsewhere, move focus out of the editor.                          |
-| <kbd>Shift</kbd> + <kbd>Tab</kbd>                     | Outdent a list item, or move to the previous table cell.                                                                                         |
-| <kbd>Shift</kbd> + <kbd>F10</kbd>                     | In a table, open the row, column or table menu for the selection.                                                                                |
-| <kbd>/</kbd>                                          | Open the slash menu.                                                                                                                             |
-| <kbd>Alt</kbd> + <kbd>Enter</kbd>                     | With the caret in (or at either end of) a comment highlight, open its thread (`onAnnotationClick`); elsewhere, unchanged.                        |
-| <kbd>Tab</kbd> (read-only)                            | Move to the next comment highlight (with `onAnnotationClick`); each highlight is one tab stop.                                                   |
-| <kbd>Enter</kbd> / <kbd>Space</kbd> (read-only)       | On a focused comment highlight, open its thread (`onAnnotationClick`).                                                                           |
+| Key                                                   | Action                                                                                                                                                                                                                                     |
+| ----------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| <kbd>Cmd/Ctrl</kbd> + <kbd>B</kbd>                    | Toggle **bold**.                                                                                                                                                                                                                           |
+| <kbd>Cmd/Ctrl</kbd> + <kbd>I</kbd>                    | Toggle _italic_.                                                                                                                                                                                                                           |
+| <kbd>Cmd/Ctrl</kbd> + <kbd>E</kbd>                    | Toggle inline code.                                                                                                                                                                                                                        |
+| <kbd>Cmd/Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>X</kbd> | Toggle strikethrough.                                                                                                                                                                                                                      |
+| <kbd>Cmd/Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>7</kbd> | Numbered list (<kbd>8</kbd> bullet, <kbd>9</kbd> checklist).                                                                                                                                                                               |
+| <kbd>Cmd/Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>↑</kbd> | Move the block up (<kbd>↓</kbd> down).                                                                                                                                                                                                     |
+| <kbd>Cmd/Ctrl</kbd> + <kbd>Z</kbd>                    | Undo.                                                                                                                                                                                                                                      |
+| <kbd>Cmd/Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>Z</kbd> | Redo.                                                                                                                                                                                                                                      |
+| <kbd>Enter</kbd>                                      | New paragraph (or new list item inside a list).                                                                                                                                                                                            |
+| <kbd>Cmd/Ctrl</kbd> + <kbd>Enter</kbd>                | Fire `onSubmit` with the current value (when set); otherwise commit and blur. Plain <kbd>Enter</kbd> still inserts a newline.                                                                                                              |
+| <kbd>Esc</kbd>                                        | With `"blur"` (the default for a `document`, with `autosave` and always in `collaboration`): commit and blur. With `escapeBehavior="revert"` (the `boxed` and `composer` default): revert to the value focus found, blur, fire `onRevert`. |
+| <kbd>Cmd/Ctrl</kbd> + <kbd>K</kbd>                    | Open the inline link input (add, edit or remove the link); the key stops here, so a page's own ⌘K palette does not open too.                                                                                                               |
+| <kbd>@</kbd>                                          | Open the mention menu (with `mentions`).                                                                                                                                                                                                   |
+| <kbd>Tab</kbd>                                        | Indent a list item, or move to the next table cell (the last cell adds a row); elsewhere, move focus out of the editor.                                                                                                                    |
+| <kbd>Shift</kbd> + <kbd>Tab</kbd>                     | Outdent a list item, or move to the previous table cell.                                                                                                                                                                                   |
+| <kbd>Shift</kbd> + <kbd>F10</kbd>                     | In a table, open the row, column or table menu for the selection.                                                                                                                                                                          |
+| <kbd>/</kbd>                                          | Open the slash menu.                                                                                                                                                                                                                       |
+| <kbd>Alt</kbd> + <kbd>Enter</kbd>                     | With the caret in (or at either end of) a comment highlight, open its thread (`onAnnotationClick`); elsewhere, unchanged.                                                                                                                  |
+| <kbd>Tab</kbd> (read-only)                            | Move to the next comment highlight (with `onAnnotationClick`); each highlight is one tab stop.                                                                                                                                             |
+| <kbd>Enter</kbd> / <kbd>Space</kbd> (read-only)       | On a focused comment highlight, open its thread (`onAnnotationClick`).                                                                                                                                                                     |
 
 <StatesTested name="text-edit" />
 
@@ -644,5 +683,5 @@ fires it with the current value. It's presentational only: the **host** decides 
 
 <DoDont
   do="Use TextEdit for short-to-medium rich text — comments, descriptions, release notes — and drive it with controlled value/onValueChange HTML."
-  dont="Use it for plain single-line input (use Input) or for collaborative real-time docs (use the deferred text-edit-collab)."
+  dont="Use it for plain single-line input (use Input), or pass value/onValueChange to an editor in collaboration mode — the shared document is the truth there."
 />

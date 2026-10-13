@@ -1,9 +1,10 @@
-// @vegastack inline-chip@0.25.30 sha256-SNHT0VT0XxwEG7P1PZIpxqJr9AmFtS+0LaE3shdcIZM=
+// @vegastack inline-chip@0.25.30 sha256-97/bvjOu146Tm++MSGqmxMYE0LhCe0rtuPkr8ubaah8=
 
 "use client";
 
 import * as React from "react";
 import {
+  Bot,
   Building2,
   CalendarDays,
   CircleCheck,
@@ -36,7 +37,14 @@ import {
 
 /** What an inline chip points at. */
 export type InlineChipKind =
-  "user" | "page" | "file" | "task" | "meeting" | "customer" | "project";
+  | "user"
+  | "page"
+  | "file"
+  | "task"
+  | "meeting"
+  | "customer"
+  | "project"
+  | "agent";
 
 /** Every inline chip kind, in menu order. */
 export const INLINE_CHIP_KINDS: readonly InlineChipKind[] = [
@@ -47,6 +55,7 @@ export const INLINE_CHIP_KINDS: readonly InlineChipKind[] = [
   "meeting",
   "customer",
   "project",
+  "agent",
 ];
 
 /** A person behind a `user` chip: the hover card's avatar, name and email. */
@@ -145,6 +154,7 @@ const KIND_ICON: Record<InlineChipKind, LucideIcon> = {
   meeting: CalendarDays,
   customer: Building2,
   project: FolderKanban,
+  agent: Bot,
 };
 
 /** The hover card's kind word, and the chip's accessible description. */
@@ -156,11 +166,13 @@ export const INLINE_CHIP_KIND_LABEL: Record<InlineChipKind, string> = {
   meeting: "Meeting",
   customer: "Customer",
   project: "Project",
+  agent: "Agent",
 };
 
 /**
  * Each kind's soft ground and ink, from the tag hues: people blue, tasks green, meetings orange,
- * customers purple, projects cyan; pages and files on the neutral muted ground. A restricted chip
+ * customers purple, projects cyan, agents purple (the agent hue everywhere — `PersonAvatar`'s bot);
+ * pages and files on the neutral muted ground. A restricted chip
  * is muted whatever its kind.
  */
 const KIND_TONE: Record<InlineChipKind, string> = {
@@ -173,6 +185,8 @@ const KIND_TONE: Record<InlineChipKind, string> = {
   customer:
     "bg-tag-purple-subtle [--inline-chip-ink:var(--color-tag-purple-text)]",
   project: "bg-tag-cyan-subtle [--inline-chip-ink:var(--color-tag-cyan-text)]",
+  agent:
+    "bg-tag-purple-subtle [--inline-chip-ink:var(--color-tag-purple-text)]",
 };
 
 /**

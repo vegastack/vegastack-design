@@ -2571,6 +2571,15 @@
             "target": "span",
             "rationale": "Source forwards the ref to this JSX/Base UI render target."
           }
+        },
+        {
+          "name": "AutoSaveIndicatorStatus",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/auto-save-input.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
         }
       ],
       "variants": {
@@ -24816,6 +24825,42 @@
             "status": "not-applicable",
             "rationale": "Type-only exports do not render or accept runtime refs."
           }
+        },
+        {
+          "name": "TextEditCollaboration",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/text-edit.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "TextEditCollaborationUser",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/text-edit.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "TextEditAnchor",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/text-edit.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "TextEditYAnchor",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/text-edit.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
         }
       ],
       "variants": {
@@ -24896,6 +24941,7 @@
       "docsSlug": "/docs/components/text-edit",
       "registryDependencies": [
         "@vegastack/alert",
+        "@vegastack/avatar",
         "@vegastack/button",
         "@vegastack/checkbox",
         "@vegastack/code-block",
@@ -24926,13 +24972,18 @@
       ],
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
+        "@tiptap/extension-collaboration-caret@^3.31.4",
+        "@tiptap/extension-collaboration@^3.31.4",
         "@tiptap/extensions@^3",
         "@tiptap/pm@^3",
         "@tiptap/react@^3",
         "@tiptap/suggestion@^3",
+        "@tiptap/y-tiptap@^3.0.9",
         "@vegastack/design-tokens@^0.8.3",
         "@vegastack/design@^0.8.7",
-        "lucide-react@^1.47.0"
+        "lucide-react@^1.47.0",
+        "y-protocols@^1.0.7",
+        "yjs@^13.6.33"
       ],
       "testFiles": ["packages/ui/registry/ui/text-edit.test.tsx"],
       "coverage": {
@@ -41261,6 +41312,15 @@
             "status": "not-applicable",
             "rationale": "A constant; it renders nothing and takes no ref."
           }
+        },
+        {
+          "name": "DocToMarkdownOptions",
+          "kind": "interface",
+          "source": "packages/ui/registry/lib/text-edit-markdown.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
         }
       ],
       "variants": {
@@ -41293,6 +41353,7 @@
       ],
       "registryDependencies": [
         "@vegastack/text-anchor-doc",
+        "@vegastack/text-edit-grammar",
         "@vegastack/text-edit-schema"
       ],
       "docsSlug": "/docs/guides/components",
