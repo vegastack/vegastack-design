@@ -1,4 +1,4 @@
-// @vegastack email-kit@0.25.28 sha256-rDMr/wGNEsn1oa3zAt44EqcBp+/RutARVH5+P9GZ6aY=
+// @vegastack email-kit@0.25.29 sha256-/+7UUy9p9Ukpcy77eOzJZVbXKmrXkPF37BoCVOmiPSk=
 
 import { Fragment, type CSSProperties, type ReactNode } from "react";
 import { Lexer, type Token, type Tokens } from "marked";

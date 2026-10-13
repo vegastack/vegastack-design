@@ -1,4 +1,4 @@
-// @vegastack chip@0.25.28 sha256-pyjPSUYwH9WmMeGHPMvjnoB3DNgAqdF3lEMR6Rda4Pg=
+// @vegastack chip@0.25.29 sha256-k9s/QPUhXG/GeYybguy0btTBs7HczpVvkxUfhyzIHsQ=
 
 "use client";
 
