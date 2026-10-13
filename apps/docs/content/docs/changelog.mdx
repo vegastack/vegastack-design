@@ -10,6 +10,25 @@ npm package versions are listed per entry. This page is generated from the repo'
 
 {/* CHANGELOG:START — generated from /CHANGELOG.md by tooling/sync-changelog.mjs. DO NOT EDIT. */}
 
+## [0.25.30] — October 14, 2026
+
+### 🧩 New components
+
+- **TextEdit**: its document lives in three server-safe registry libs, so a server reads and writes exactly what the editor does. `text-edit-grammar` holds VegaStack Markdown's constructs as plain strings (`parseMentionLink`, `mentionMarkdown`, `MENTION_LINK_SQL`, `headingIds`, `parseImageAlt`, `imageMarkdown`, `parseCodeFenceInfo` — moved here from `MarkdownView` and `CodeBlock`); `text-edit-schema` every node, mark and attribute with its Markdown rules (`textEditExtensions()`, `textEditSchema()`), with a stable `blockId` on every heading, paragraph, list item, toggle, callout, table and code block that Markdown never carries; `text-edit-markdown` the conversion (`markdownToDoc`, `docToMarkdown`, `normalizeMarkdown`, `docToText`) and the editor's `VegaStackMarkdown` extension. Each `TextEdit` parses with its own `marked`, and a megabyte of Markdown parses in well under a second (it took over twenty). A round-trip corpus checks every construct in Node and in Chromium against the same output. Tiptap moves to 3.31.4.
+  [docs](/docs/guides/markdown) ·
+  [`46e19d5`](https://github.com/VegaStack/vegastack-design/commit/46e19d5)
+
+### 📦 npm
+
+- **`@vegastack/design`** → **`0.8.7`** (was `0.8.6`).
+- The design-system registry (`@vegastack/ui`) bumps 0.25.29 → 0.25.30.
+
+### ⚠️ Breaking
+
+- **TextEdit** Markdown output changes once for existing documents (derived copies are rewritten on their next save): text is escaped only where Markdown would read it as syntax (`snake_case`, `R&D` and `a * b` stay as typed; `1. ` at the start of a paragraph is `1\. `); a hard break is `\` and a newline, or `<br>` in a heading or a table cell; a table cell's leading and trailing `<br>` are dropped; a link with a space in its address is written `<…>`. Parsing no longer loses text: an indented code fence is a code block, `Hi. there` is a sentence, a less-indented ordered item stays, `&amp;` in a link is `&`, and raw HTML is text in the browser as it is on a server. `MarkdownView` reads `<br>` as a line break everywhere, not only in a table cell.
+  [docs](/docs/guides/markdown) ·
+  [`46e19d5`](https://github.com/VegaStack/vegastack-design/commit/46e19d5)
+
 ## [0.25.29] — October 14, 2026
 
 ### 🧩 New components
