@@ -591,7 +591,9 @@ test("no a11y violations — Markdown, editable", async () => {
 // ---- One behaviour everywhere: commit, revert, autosave, slash-menu keys ----------------------
 
 const slashMenu = () =>
-  document.querySelector('[role="listbox"][data-slot="text-edit-slash-menu"]');
+  document.querySelector<HTMLElement>(
+    '[data-slot="suggestion-menu"][data-menu="text-edit-slash"]',
+  );
 
 async function markdownEditor(
   props: Partial<React.ComponentProps<typeof TextEdit>> = {},
@@ -931,7 +933,7 @@ test("slash menu offers every block, and Table inserts a GFM table", async () =>
   await userEvent.keyboard("/");
   await vi.waitFor(() => expect(slashMenu()).not.toBeNull());
   const labels = [
-    ...slashMenu()!.querySelectorAll('[data-slot="text-edit-slash-item"]'),
+    ...slashMenu()!.querySelectorAll('[data-slot="suggestion-menu-option"]'),
   ].map((item) => item.textContent);
   for (const label of [
     "Text",
@@ -949,6 +951,38 @@ test("slash menu offers every block, and Table inserts a GFM table", async () =>
   await vi.waitFor(() =>
     expect(lastValue(onValueChange)).toContain("| --- | --- | --- |"),
   );
+});
+
+test("slash menu is the shared SuggestionMenu: arrows move the textbox's aria-activedescendant", async () => {
+  const screen = await markdownEditor();
+  const box = screen.getByRole("textbox", { name: "Notes" });
+  await box.click();
+  await userEvent.keyboard("/");
+  await vi.waitFor(() =>
+    expect(slashMenu()?.getAttribute("role")).toBe("listbox"),
+  );
+  const active = () =>
+    slashMenu()!.querySelector<HTMLElement>(
+      '[role="option"][data-highlighted]',
+    )!;
+  await vi.waitFor(() => {
+    expect(box.element().getAttribute("aria-controls")).toBe(slashMenu()!.id);
+    expect(box.element().getAttribute("aria-activedescendant")).toBe(
+      active().id,
+    );
+  });
+  const first = active().id;
+  await userEvent.keyboard("{ArrowDown}");
+  await vi.waitFor(() => expect(active().id).not.toBe(first));
+  await vi.waitFor(() =>
+    expect(box.element().getAttribute("aria-activedescendant")).toBe(
+      active().id,
+    ),
+  );
+  await userEvent.keyboard("{Escape}");
+  await vi.waitFor(() => expect(slashMenu()).toBeNull());
+  expect(box.element().hasAttribute("aria-activedescendant")).toBe(false);
+  expect(box.element().hasAttribute("aria-controls")).toBe(false);
 });
 
 test("slash menu Image, Video and Audio insert from a link", async () => {
@@ -1479,7 +1513,7 @@ test("the slash hint shows only while focused and empty", async () => {
 
 const mentionMenu = () =>
   document.querySelector(
-    '[role="listbox"][data-slot="text-edit-mention-menu"]',
+    '[data-slot="suggestion-menu"][data-menu="text-edit-mention"]',
   );
 
 /** Put the caret at `offset` in the first text node under `block`, through the DOM. */
@@ -2281,7 +2315,7 @@ test("inside a table cell the slash menu and Turn into offer no block commands",
   await userEvent.keyboard(`{End} /`);
   await vi.waitFor(() => expect(slashMenu()).not.toBeNull());
   const labels = [
-    ...slashMenu()!.querySelectorAll('[data-slot="text-edit-slash-item"]'),
+    ...slashMenu()!.querySelectorAll('[data-slot="suggestion-menu-option"]'),
   ].map((item) => item.textContent ?? "");
   for (const label of ["Text", "Image", "Link"])
     expect(labels.some((text) => text.startsWith(label))).toBe(true);

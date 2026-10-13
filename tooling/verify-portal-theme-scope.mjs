@@ -76,20 +76,20 @@ const EXPECTED_HOSTS = new Map([
   // read `useInternalThemeScope()` and attach it to the Positioner INSIDE the portal.
   ["packages/ui/registry/ui/select.tsx", ["SelectPrimitive.Portal"]],
   ["packages/ui/registry/ui/combobox.tsx", ["ComboboxPrimitive.Portal"]],
-  // TextEdit's slash menu follows the caret, not an anchor element, and must keep focus (and the
-  // caret) in the editor — no Base UI popup fits, so it is a raw `createPortal` to `<body>` of a
-  // `position: fixed` listbox. `SlashMenu` receives `useInternalThemeScope()` and attaches it to
-  // the listbox itself, the element rendered inside the portal. The second is each image's ⋯ menu
+  // TextEdit's own floating parts (the drag handle, table grips and "+" bars, drop line) follow
+  // the document, not an anchor element — `FloatingLayer` is a raw `createPortal` to `<body>` inside
+  // a `contents` wrapper carrying `useInternalThemeScope()`. The second is each image's ⋯ menu
   // trigger, portaled into its node view's slot INSIDE the editor (never `<body>`), so it stays in
   // the theme subtree; its menu popup is a scoped `DropdownMenuContent`.
   [
     "packages/ui/registry/ui/text-edit-editor.tsx",
     ["createPortal", "createPortal"],
   ],
-  // TemplateEditor's placeholder picker is the same shape as TextEdit's slash menu: a caret-anchored
-  // `position: fixed` listbox that must keep focus in the editor, portaled to `<body>` inside a
-  // `contents` wrapper carrying `useInternalThemeScope()`.
-  ["packages/ui/registry/ui/template-editor.tsx", ["createPortal"]],
+  // The caret-anchored suggestion list behind TextEdit's slash and mention menus and
+  // TemplateEditor's placeholder picker (Regent #423 gave the three one owner): it must keep focus
+  // and the caret in the editor, so no Base UI popup fits — a `position: fixed` listbox portaled to
+  // `<body>` inside a `contents` wrapper carrying `useInternalThemeScope()`.
+  ["packages/ui/registry/ui/suggestion-menu.tsx", ["createPortal"]],
 ]);
 
 function walk(dir, out = []) {

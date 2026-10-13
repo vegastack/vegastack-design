@@ -60,6 +60,47 @@ export function templateEditor(): ReactNode {
   );
 }
 
+const FORMULA_TOKENS: TemplateEditorToken[] = [
+  { id: "power", label: "Power", hint: "W" },
+  { id: "efficacy", label: "Efficacy", hint: "lm/W" },
+  { id: "lumens", label: "Luminous flux", hint: "lm" },
+  { id: "ip", label: "IP rating", hint: "Text" },
+];
+
+/**
+ * A one-line formula: `singleLine`, `*` → × and `/` → ÷ as you type, numeric specs only in the
+ * picker (with their units), and a non-numeric spec marked invalid.
+ */
+export function templateEditorFormula(): ReactNode {
+  const [value, setValue] = useState("{{power}} × {{efficacy}} ÷ {{ip}}");
+  return (
+    <Wrapper className="flex-col items-stretch">
+      <Field>
+        <FieldLabel>Luminous flux formula</FieldLabel>
+        <TemplateEditor
+          singleLine
+          replacements={[
+            { from: "*", to: "×" },
+            { from: "/", to: "÷" },
+          ]}
+          value={value}
+          onChange={setValue}
+          tokens={FORMULA_TOKENS}
+          invalidTokenIds={["ip"]}
+          placeholder="Type @ to insert a spec"
+        />
+        <FieldDescription>
+          Type * for × and / for ÷. IP rating is not a number, so it can't be
+          used here.
+        </FieldDescription>
+      </Field>
+      <pre className="min-w-0 overflow-x-auto rounded-md bg-muted p-3 font-mono text-xs break-all whitespace-pre-wrap">
+        {value}
+      </pre>
+    </Wrapper>
+  );
+}
+
 /** Empty, with the placeholder showing. */
 export function templateEditorEmpty(): ReactNode {
   const [value, setValue] = useState("");

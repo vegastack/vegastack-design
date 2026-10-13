@@ -2,10 +2,10 @@
   "schemaVersion": 1,
   "kind": "vegastack-zero-gap-audit-register",
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "9694e959cdb58b06167d587e4546d626cabb39e47daee65910be0ce303714ad4",
+  "contractSha256": "66d44fbe16d3fcdef455e22dc3ec1fc247df37f8582fc874763b06629d07d3a6",
   "expectedCounts": {
-    "totalRegistryItems": 739,
-    "components": 158,
+    "totalRegistryItems": 740,
+    "components": 159,
     "animatedIcons": 467,
     "hooks": 15,
     "blocks": 15,
@@ -1435,6 +1435,17 @@
       "family": "overlay",
       "sourceFiles": [
         "packages/ui/registry/ui/panel-search.tsx"
+      ],
+      "docsSlug": "/docs/guides/components",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "suggestion-menu",
+      "inventoryClass": "component",
+      "wave": "Shared internals",
+      "family": "overlay",
+      "sourceFiles": [
+        "packages/ui/registry/ui/suggestion-menu.tsx"
       ],
       "docsSlug": "/docs/guides/components",
       "contractStatus": "reconciled"

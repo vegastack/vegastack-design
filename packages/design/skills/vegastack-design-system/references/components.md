@@ -3,7 +3,7 @@
 <!-- GENERATED — do not hand-edit. Regenerated from the design system's component contract,
      which is the authority for membership and counts. -->
 
-**158 components**, plus 467 animated-icon items, 15 hooks (`use-animation-replay`, `use-announcer`, `use-async-search`, `use-drag-reorder`, `use-file-drop`, `use-inline-edit`, `use-list-nav`, `use-media-query`, `use-mobile`, `use-modal-inert`, `use-optimistic-action`, `use-overflow`, `use-platform`, `use-tabs-swipe`, `use-view-transition`), 15 starter blocks (`app-shell-01`, `board-01`, `issue-detail-01`, `page-editor-01`, `command-search-01`, `list-page-01`, `library-01`, `login-01`, `notifications-01`, `review-split-01`, `settings-01`, `settings-02`, `status-pages-01`, `email-kit`, `share-01`), 68 chart blocks across 7 families, and 16 data libs (`code-highlight`, `date-time`, `geo-data`, `emoji-data`, `drag-item`, `text-anchor`, `text-anchor-doc`, `file-kind`, `upload-progress`, `media-probe`, `page-layout`, `tile-overlay`, `icon-data`, `icon-components`, `picker-search`, `picker-preferences`) — 739 registry items in total.
+**159 components**, plus 467 animated-icon items, 15 hooks (`use-animation-replay`, `use-announcer`, `use-async-search`, `use-drag-reorder`, `use-file-drop`, `use-inline-edit`, `use-list-nav`, `use-media-query`, `use-mobile`, `use-modal-inert`, `use-optimistic-action`, `use-overflow`, `use-platform`, `use-tabs-swipe`, `use-view-transition`), 15 starter blocks (`app-shell-01`, `board-01`, `issue-detail-01`, `page-editor-01`, `command-search-01`, `list-page-01`, `library-01`, `login-01`, `notifications-01`, `review-split-01`, `settings-01`, `settings-02`, `status-pages-01`, `email-kit`, `share-01`), 68 chart blocks across 7 families, and 16 data libs (`code-highlight`, `date-time`, `geo-data`, `emoji-data`, `drag-item`, `text-anchor`, `text-anchor-doc`, `file-kind`, `upload-progress`, `media-probe`, `page-layout`, `tile-overlay`, `icon-data`, `icon-components`, `picker-search`, `picker-preferences`) — 740 registry items in total.
 
 Install any of them with `shadcn add @vegastack/<name>`. Animated icons install as
 `@vegastack/icon-<name>`; the bare name is reserved for components, so a component whose name
@@ -129,6 +129,7 @@ starts with `icon-` is a component and never an icon.
 - **`share-dialog`** — Share one item — invite people and teams with one access level, people with access and why, the item's space access, and a view-only public link behind a Publish switch; a Dialog on wide screens, a bottom Sheet on phones.
 - **`sheet`** — A panel that slides in from any edge — Dialog semantics with a side, a header and a footer; opens onto the first field, never the close ×; a left sheet can dock beside the sidebar rail (beside).
 - **`shortcut-overlay`** — The ?-triggered dialog listing keyboard shortcuts, rendered from a declaration registry (keys, label, category, when) — grouped, filterable, platform-aware via use-platform + Kbd.
+- **`suggestion-menu`** — The caret-anchored list an editor opens while you type a trigger (@, /, {{) — shared by TextEdit's slash and mention menus and TemplateEditor's placeholder picker — with rows that read exactly like ComboboxItem's, optional group headings, a status for empty, loading and error, a viewport flip, and one active index the editor's arrow keys and the pointer move.
 - **`tooltip`** — A floating label on hover or focus, portaled inside the theme scope (OVL-13).
 
 ## Navigation
@@ -184,7 +185,7 @@ starts with `icon-` is a component and never an icon.
 
 ## Rich text
 
-- **`template-editor`** — A plain-paragraph editor for text with placeholders: typing @ or {{ opens a searchable list of tokens, the one picked becomes an atomic inline chip, and the value is plain text with {{id}} tokens.
+- **`template-editor`** — A plain-paragraph editor for text with placeholders: typing @ or {{ opens a searchable list of tokens, the one picked becomes an atomic inline chip, and the value is plain text with {{id}} tokens; optional single-line mode and as-you-type replacements for formulas.
 - **`text-edit`** — A Tiptap-based, markdown-first rich-text editor with no toolbar and no fill — caret-only as a document, or boxed with a subtle focus border: a slash menu for blocks, a bubble menu for marks and block types, GFM tables with a menu and drag grips, block drag handles, callouts and toggles, @ mentions, image and file uploads, a heading outline, comment highlights, portaled menus, and one onCommit path.
 
 ## Chat

@@ -1,9 +1,8 @@
-// @vegastack template-editor@0.25.26 sha256-73K62BxHoDkhtlW+rAgjG2eZOa+XtxYvYQGHpW1Q56I=
+// @vegastack template-editor@0.25.26 sha256-RW3dJMhd+xLP1RLN2ZQULDrmRZu/jDh65zBmST8jK0U=
 
 "use client";
 
 import * as React from "react";
-import { createPortal } from "react-dom";
 import {
   EditorContent,
   Extension,
@@ -26,10 +25,14 @@ import {
   type ResolvedPos,
   type Schema,
 } from "@tiptap/pm/model";
-import { PluginKey } from "@tiptap/pm/state";
+import { Plugin, PluginKey } from "@tiptap/pm/state";
 import { Field as FieldPrimitive } from "@base-ui/react/field";
 import { cn, mergeRefs } from "@vegastack/design";
-import { useInternalThemeScope } from "@vegastack/design/theme-scope";
+import {
+  SuggestionMenu,
+  suggestionMenuKeyDown,
+  suggestionMenuOptionId,
+} from "@/components/ui/suggestion-menu";
 
 /* ------------------------------------------------------------------------------------------------
  * Types
@@ -51,6 +54,20 @@ export interface TemplateEditorToken {
    * @default undefined
    */
   hint?: string;
+}
+
+/**
+ * One text replacement `TemplateEditor` applies as you type: the moment the text before the caret
+ * ends with `from`, those characters become `to` (Backspace right after undoes it).
+ *
+ * @example
+ * const times: TemplateEditorReplacement = { from: "*", to: "×" };
+ */
+export interface TemplateEditorReplacement {
+  /** The characters typed — one or more. */
+  from: string;
+  /** What they become. */
+  to: string;
 }
 
 /**
@@ -84,6 +101,20 @@ export interface TemplateEditorProps {
    * @default undefined
    */
   invalidTokenIds?: readonly string[];
+  /**
+   * Text replacements applied as you type, e.g. `[{ from: "*", to: "×" }, { from: "/", to: "÷" }]`
+   * so a formula reads `Power × Efficacy`. Typing only — pasted text and `value` are kept as they
+   * are — and the value stores the replaced text.
+   * @default undefined
+   */
+  replacements?: readonly TemplateEditorReplacement[];
+  /**
+   * One line, like `Input`: Enter and Shift+Enter insert nothing, pasted line breaks become spaces,
+   * and a `value` holding line breaks loads with spaces in their place. Long text still wraps on
+   * screen. Read when the editor mounts; remount (a new `key`) to change it.
+   * @default false
+   */
+  singleLine?: boolean;
   /**
    * The editable surface's id (an enclosing `Field` supplies one).
    * @default undefined
@@ -142,11 +173,18 @@ function lineContent(line: string): JSONContent[] {
   return out;
 }
 
+/** A single-line editor's text: every run of line breaks (and the space around it) is one space. */
+function oneLine(value: string) {
+  return value.replace(/\s*[\r\n]+\s*/g, " ");
+}
+
 /**
  * The template string as a document: one paragraph per `\n\n`-separated block, a hard break per
- * `\n` inside one, a token node per `{{id}}`. `serialize(parseTemplate(v)) === v` for every string.
+ * `\n` inside one, a token node per `{{id}}`. `serialize(parseTemplate(v)) === v` for every string
+ * (every string with no line break, in single-line mode).
  */
-function parseTemplate(value: string): JSONContent {
+function parseTemplate(raw: string, singleLine = false): JSONContent {
+  const value = singleLine ? oneLine(raw) : raw;
   return {
     type: "doc",
     content: value.split(PARAGRAPH_SEPARATOR).map((block) => {
@@ -187,6 +225,8 @@ interface TokenLookup {
 }
 
 interface TemplateRuntime {
+  singleLine: boolean;
+  replacements: () => readonly TemplateEditorReplacement[];
   lookup: (id: string) => TokenLookup;
   /** Repaints every mounted chip; set when a chip mounts, called when tokens change. */
   painters: Set<() => void>;
@@ -385,25 +425,13 @@ function pickerSuggestion(
         onKeyDown: ({ event }) => {
           const state = runtime.get();
           if (!state) return false;
-          if (event.key === "Escape") {
-            exitSuggestion(editor.view, pluginKey);
-            return true;
-          }
-          const count = state.items.length;
-          if (!count) return false;
-          if (event.key === "ArrowDown" || event.key === "ArrowUp") {
-            const step = event.key === "ArrowDown" ? 1 : -1;
-            runtime.set({
-              ...state,
-              index: (state.index + step + count) % count,
-            });
-            return true;
-          }
-          if (event.key === "Enter" || event.key === "Tab") {
-            state.command(state.items[state.index]!);
-            return true;
-          }
-          return false;
+          return suggestionMenuKeyDown(event, {
+            count: state.items.length,
+            activeIndex: state.index,
+            onActiveIndexChange: (index) => runtime.set({ ...state, index }),
+            onSelect: (index) => state.command(state.items[index]!),
+            onClose: () => exitSuggestion(editor.view, pluginKey),
+          });
         },
       };
     },
@@ -422,112 +450,91 @@ function pickerExtension(runtime: TemplateRuntime) {
   });
 }
 
-/** Plain text pasted in reads `{{id}}` as chips and blank lines as paragraphs. */
-function parseClipboardText(text: string, schema: Schema): Slice {
+/**
+ * Plain text pasted in reads `{{id}}` as chips and blank lines as paragraphs (single-line: line
+ * breaks as spaces).
+ */
+function parseClipboardText(
+  text: string,
+  schema: Schema,
+  singleLine: boolean,
+): Slice {
   return Slice.maxOpen(
-    schema.nodeFromJSON(parseTemplate(text.replace(/\r\n?/g, "\n"))).content,
+    schema.nodeFromJSON(parseTemplate(text.replace(/\r\n?/g, "\n"), singleLine))
+      .content,
   );
 }
 
 /* ------------------------------------------------------------------------------------------------
- * Menu — the slash menu's surface and rows (TextEdit), portaled to <body>
+ * Typing rules: replacements and single-line
  * ----------------------------------------------------------------------------------------------*/
 
-const MENU_SURFACE =
-  "z-50 rounded-lg border border-border bg-popover p-1 text-popover-foreground shadow-md";
-const MENU_WIDTH = 256;
-const MENU_HEIGHT = 288;
-const VIEWPORT_GAP = 8;
-
-function TokenMenu({
-  state,
-  listId,
-  optionId,
-  onHover,
-}: {
-  state: MenuState;
-  listId: string;
-  optionId: (index: number) => string;
-  onHover: (index: number) => void;
-}) {
-  const themeScope = useInternalThemeScope();
-  const listRef = React.useRef<HTMLDivElement | null>(null);
-  React.useEffect(() => {
-    listRef.current
-      ?.querySelector("[data-selected]")
-      ?.scrollIntoView({ block: "nearest" });
-  }, [state.index]);
-  if (!state.rect || typeof document === "undefined") return null;
-  // Below the caret unless it would not fit and above has more room; slid to stay on screen.
-  const below = state.rect.bottom + 4;
-  const roomBelow = window.innerHeight - below - VIEWPORT_GAP;
-  const roomAbove = state.rect.top - 4 - VIEWPORT_GAP;
-  const flip = roomBelow < MENU_HEIGHT && roomAbove > roomBelow;
-  const left = Math.max(
-    VIEWPORT_GAP,
-    Math.min(state.rect.left, window.innerWidth - MENU_WIDTH - VIEWPORT_GAP),
-  );
-  const style: React.CSSProperties = {
-    position: "fixed",
-    left,
-    maxHeight: Math.max(
-      120,
-      Math.min(MENU_HEIGHT, flip ? roomAbove : roomBelow),
-    ),
-    ...(flip
-      ? { bottom: window.innerHeight - state.rect.top + 4 }
-      : { top: below }),
-  };
-  return createPortal(
-    <div
-      data-slot="template-editor-layer"
-      className={cn("contents", themeScope)}
-    >
-      <div
-        ref={listRef}
-        id={listId}
-        data-slot="template-editor-menu"
-        data-side={flip ? "top" : "bottom"}
-        role="listbox"
-        aria-label="Insert placeholder"
-        style={style}
-        // Keep focus (and the caret) in the editor.
-        onMouseDown={(event) => event.preventDefault()}
-        className={cn(MENU_SURFACE, "w-64 overflow-y-auto")}
-      >
-        {state.items.length === 0 ? (
-          <div className="px-2 py-1.5 text-sm text-muted-foreground">
-            No results
-          </div>
-        ) : (
-          state.items.map((token, index) => {
-            const selected = index === state.index;
-            return (
-              <div
-                key={token.id}
-                id={optionId(index)}
-                role="option"
-                aria-selected={selected}
-                data-selected={selected ? "" : undefined}
-                data-slot="template-editor-option"
-                onMouseEnter={() => onHover(index)}
-                onClick={() => state.command(token)}
-                className="flex items-center gap-2 rounded-sm px-2 py-1.5 text-sm select-none data-selected:bg-muted"
-              >
-                <span className="min-w-0 flex-1 truncate">{token.label}</span>
-                {token.hint ? (
-                  <span className="shrink-0 text-xs text-muted-foreground">
-                    {token.hint}
-                  </span>
-                ) : null}
-              </div>
+/** `replacements`, as one input rule reading the latest list (the extensions are built once). */
+function replacementsExtension(runtime: TemplateRuntime) {
+  return Extension.create({
+    name: "templateEditorReplacements",
+    addInputRules() {
+      return [
+        new InputRule({
+          find: (text) => {
+            for (const { from, to } of runtime.replacements()) {
+              if (from && text.endsWith(from))
+                return {
+                  index: text.length - from.length,
+                  text: from,
+                  data: { to },
+                };
+            }
+            return null;
+          },
+          handler: ({ state, range, match }) => {
+            const to = String(match.data?.to ?? "");
+            state.tr.insertText(
+              runtime.singleLine ? oneLine(to) : to,
+              range.from,
+              range.to,
             );
-          })
-        )}
-      </div>
-    </div>,
-    document.body,
-  );
+          },
+        }),
+      ];
+    },
+  });
+}
+
+/**
+ * Single-line mode: Enter, Shift+Enter and Mod+Enter insert nothing (the picker still takes Enter
+ * while it lists something), and whatever still lands as a second paragraph — a drop, rich paste —
+ * is joined back onto the first with a space.
+ */
+function singleLineExtension(runtime: TemplateRuntime) {
+  return Extension.create({
+    name: "templateEditorSingleLine",
+    addKeyboardShortcuts() {
+      const swallow = () => !runtime.get()?.items.length;
+      return { Enter: swallow, "Shift-Enter": swallow, "Mod-Enter": swallow };
+    },
+    addProseMirrorPlugins() {
+      return [
+        new Plugin({
+          key: new PluginKey("templateEditorSingleLine"),
+          appendTransaction: (transactions, _previous, state) => {
+            if (!transactions.some((tr) => tr.docChanged)) return null;
+            if (state.doc.childCount < 2) return null;
+            const tr = state.tr;
+            const boundaries: number[] = [];
+            state.doc.forEach((_child, offset, index) => {
+              if (index > 0) boundaries.push(offset);
+            });
+            for (const boundary of boundaries.reverse()) {
+              tr.join(boundary);
+              tr.insertText(" ", boundary - 1);
+            }
+            return tr;
+          },
+        }),
+      ];
+    },
+  });
 }
 
 /* ------------------------------------------------------------------------------------------------
@@ -578,15 +585,17 @@ function isAriaInvalid(value: React.AriaAttributes["aria-invalid"]) {
  * ----------------------------------------------------------------------------------------------*/
 
 const SURFACE_CLASS =
-  "min-h-12 w-full outline-hidden [&_p+p]:mt-2 [&_p.is-editor-empty:first-child]:before:pointer-events-none [&_p.is-editor-empty:first-child]:before:float-start [&_p.is-editor-empty:first-child]:before:h-0 [&_p.is-editor-empty:first-child]:before:text-muted-foreground [&_p.is-editor-empty:first-child]:before:content-[attr(data-placeholder)]";
+  "w-full outline-hidden [&_p+p]:mt-2 [&_p.is-editor-empty:first-child]:before:pointer-events-none [&_p.is-editor-empty:first-child]:before:float-start [&_p.is-editor-empty:first-child]:before:h-0 [&_p.is-editor-empty:first-child]:before:text-muted-foreground [&_p.is-editor-empty:first-child]:before:content-[attr(data-placeholder)]";
 
 /**
  * `TemplateEditor` — a plain-paragraph editor for text with spec placeholders ("Recessed @Power
  * downlight with @Efficacy…"). Typing `@` or `{{` opens a searchable list of `tokens`; the one
  * picked becomes an inline chip that deletes as a unit and is stored as `{{id}}`. No marks, lists
- * or toolbar: Enter starts a paragraph (stored as `\n\n`), Shift+Enter a line break (`\n`). An id
- * `tokens` does not know still renders, as its raw id in the destructive style, so nothing is lost.
- * Sized and bordered like `Textarea`, with the text-entry focus cue (a subtle darker border).
+ * or toolbar: Enter starts a paragraph (stored as `\n\n`), Shift+Enter a line break (`\n`) —
+ * or, with `singleLine`, neither, sized like `Input`. `replacements` rewrite characters as you
+ * type (`*` → `×` for a formula). An id `tokens` does not know still renders, as its raw id in the
+ * destructive style, so nothing is lost. Sized and bordered like `Textarea`, with the text-entry
+ * focus cue (a subtle darker border).
  *
  * @example
  * <TemplateEditor
@@ -596,6 +605,18 @@ const SURFACE_CLASS =
  *   tokens={[{ id: "power", label: "Power", hint: "W" }]}
  *   placeholder="Type @ to insert a spec"
  * />
+ *
+ * @example
+ * // A one-line formula: `*` and `/` read as × and ÷; the value stays `{{power}} × {{efficacy}}`.
+ * <TemplateEditor
+ *   aria-label="Formula"
+ *   singleLine
+ *   replacements={[{ from: "*", to: "×" }, { from: "/", to: "÷" }]}
+ *   value={formula}
+ *   onChange={setFormula}
+ *   tokens={specs}
+ *   invalidTokenIds={nonNumericIds}
+ * />
  */
 function TemplateEditor({
   value,
@@ -604,6 +625,8 @@ function TemplateEditor({
   placeholder,
   disabled: disabledProp = false,
   invalidTokenIds,
+  replacements,
+  singleLine: singleLineProp = false,
   id,
   "aria-label": ariaLabel,
   "aria-labelledby": ariaLabelledBy,
@@ -618,6 +641,8 @@ function TemplateEditor({
   const rootRef = React.useRef<HTMLDivElement | null>(null);
   const setRootRef = React.useMemo(() => mergeRefs(rootRef, ref), [ref]);
   const listId = React.useId();
+  // Read once: it shapes the schema and the keymap, which are built when the editor mounts.
+  const [singleLine] = React.useState(singleLineProp);
 
   const onChangeRef = React.useRef(onChange);
   onChangeRef.current = onChange;
@@ -627,6 +652,8 @@ function TemplateEditor({
   invalidRef.current = invalidTokenIds;
   const placeholderRef = React.useRef(placeholder);
   placeholderRef.current = placeholder;
+  const replacementsRef = React.useRef(replacements);
+  replacementsRef.current = replacements;
   // The last string this editor emitted or was given: `onChange` fires only on a real change.
   const valueRef = React.useRef(value);
 
@@ -634,6 +661,8 @@ function TemplateEditor({
   const menuRef = React.useRef<MenuState | null>(null);
   const runtime = React.useMemo<TemplateRuntime>(
     () => ({
+      singleLine,
+      replacements: () => replacementsRef.current ?? [],
       lookup: (tokenId) => {
         const match = tokensRef.current.find((item) => item.id === tokenId);
         return {
@@ -650,7 +679,7 @@ function TemplateEditor({
         setMenuState(next);
       },
     }),
-    [],
+    [singleLine],
   );
 
   const extensions = React.useMemo(
@@ -673,25 +702,24 @@ function TemplateEditor({
         strike: false,
         underline: false,
         trailingNode: false,
+        ...(runtime.singleLine ? { hardBreak: false as const } : {}),
       }),
       Placeholder.configure({
         placeholder: () => placeholderRef.current ?? "",
       }),
       tokenNode(runtime),
       pickerExtension(runtime),
+      replacementsExtension(runtime),
+      ...(runtime.singleLine ? [singleLineExtension(runtime)] : []),
     ],
     [runtime],
   );
 
   // The surface's ARIA, read by ProseMirror's `attributes` on every view update.
-  const optionId = React.useCallback(
-    (index: number) => `${listId}-option-${index}`,
-    [listId],
-  );
   const attributes: Record<string, string> = {
-    class: SURFACE_CLASS,
+    class: cn(SURFACE_CLASS, !singleLine && "min-h-12"),
     role: "textbox",
-    "aria-multiline": "true",
+    "aria-multiline": singleLine ? "false" : "true",
     "data-focus-cue": "border",
     "data-slot": "template-editor-content",
     translate: "no",
@@ -710,7 +738,12 @@ function TemplateEditor({
           "aria-autocomplete": "list",
           "aria-controls": listId,
           ...(menu.items.length
-            ? { "aria-activedescendant": optionId(menu.index) }
+            ? {
+                "aria-activedescendant": suggestionMenuOptionId(
+                  listId,
+                  menu.index,
+                ),
+              }
             : {}),
         }
       : {}),
@@ -723,11 +756,13 @@ function TemplateEditor({
     () => ({
       attributes: () => attributesRef.current,
       clipboardTextParser: (text: string, $context: ResolvedPos) =>
-        parseClipboardText(text, $context.doc.type.schema),
+        parseClipboardText(text, $context.doc.type.schema, singleLine),
     }),
-    [],
+    [singleLine],
   );
-  const [initialContent] = React.useState(() => parseTemplate(value));
+  const [initialContent] = React.useState(() =>
+    parseTemplate(value, singleLine),
+  );
 
   const editor = useEditor({
     extensions,
@@ -749,8 +784,10 @@ function TemplateEditor({
     if (value === valueRef.current) return;
     valueRef.current = value;
     if (serializeTemplate(editor.state.doc) === value) return;
-    editor.commands.setContent(parseTemplate(value), { emitUpdate: false });
-  }, [editor, value]);
+    editor.commands.setContent(parseTemplate(value, singleLine), {
+      emitUpdate: false,
+    });
+  }, [editor, value, singleLine]);
 
   React.useEffect(() => {
     if (!editor || editor.isDestroyed) return;
@@ -776,6 +813,7 @@ function TemplateEditor({
       data-slot="template-editor"
       data-disabled={disabled ? "" : undefined}
       data-invalid={invalid ? "" : undefined}
+      data-single-line={singleLine ? "" : undefined}
       // A click on the box's own padding focuses the end of the text, as a textarea's would.
       onMouseDown={(event) => {
         if (disabled || !editor || event.target !== event.currentTarget) return;
@@ -783,7 +821,7 @@ function TemplateEditor({
         editor.commands.focus("end");
       }}
       className={cn(
-        "relative w-full min-w-0 cursor-text rounded-lg border border-input bg-transparent px-2.5 py-2 text-base transition-[color,background-color,border-color] duration-150 ease-out has-[[contenteditable=true]:focus]:not-data-invalid:border-ring/50 data-disabled:cursor-not-allowed data-disabled:bg-input/50 data-disabled:opacity-50 data-invalid:border-destructive md:text-sm dark:bg-input/30 dark:data-disabled:bg-input/80 dark:data-invalid:border-destructive/50",
+        "relative w-full min-w-0 cursor-text rounded-lg border border-input bg-transparent px-2.5 py-2 text-base transition-[color,background-color,border-color] duration-150 ease-out has-[[contenteditable=true]:focus]:not-data-invalid:border-ring/50 data-disabled:cursor-not-allowed data-disabled:bg-input/50 data-disabled:opacity-50 data-invalid:border-destructive data-single-line:min-h-8 data-single-line:py-1 md:text-sm dark:bg-input/30 dark:data-disabled:bg-input/80 dark:data-invalid:border-destructive/50",
         className,
       )}
     >
@@ -798,11 +836,19 @@ function TemplateEditor({
       />
       <EditorContent editor={editor} />
       {menu && !disabled ? (
-        <TokenMenu
-          state={menu}
-          listId={listId}
-          optionId={optionId}
-          onHover={(index) => runtime.set({ ...menu, index })}
+        <SuggestionMenu
+          id={listId}
+          aria-label="Insert placeholder"
+          data-menu="template-editor"
+          anchor={menu.rect}
+          options={menu.items.map((token) => ({
+            key: token.id,
+            label: token.label,
+            description: token.hint,
+          }))}
+          activeIndex={menu.index}
+          onActiveIndexChange={(index) => runtime.set({ ...menu, index })}
+          onSelect={(index) => menu.command(menu.items[index]!)}
         />
       ) : null}
     </div>

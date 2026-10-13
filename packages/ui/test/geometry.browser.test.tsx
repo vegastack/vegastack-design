@@ -339,6 +339,7 @@ const DYNAMIC_DOM: Record<string, string> = {
   markdownBlockHandles: ".ProseMirror[contenteditable]",
   // TemplateEditor is `next/dynamic`-wrapped for the same reason (Tiptap), and renders no read view.
   templateEditor: ".ProseMirror[contenteditable]",
+  templateEditorFormula: ".ProseMirror[contenteditable]",
   templateEditorEmpty: ".ProseMirror[contenteditable]",
   templateEditorInvalidTokens: ".ProseMirror[contenteditable]",
   templateEditorStates: ".ProseMirror[contenteditable]",

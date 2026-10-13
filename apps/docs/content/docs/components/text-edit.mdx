@@ -121,8 +121,9 @@ Inside, it composes these pieces:
   // data-slot="text-edit-bubble-menu" — role="toolbar", over a selection
   //   (or text-edit-link / text-edit-image / text-edit-turn-into while a panel is open)
   <BubbleMenu />
-  // data-slot="text-edit-slash-menu" — role="listbox", while typing after /
-  <SlashMenu />
+  // data-slot="suggestion-menu" data-menu="text-edit-slash" — role="listbox", while typing after /
+  // (data-menu="text-edit-mention" while typing after @)
+  <SuggestionMenu />
   // data-slot="text-edit-block-handle" — pointer-only drag handle beside the hovered block
   <BlockHandle />
   // over the hovered table: data-slot="text-edit-table-grip" (data-axis row | col | table) —
@@ -149,8 +150,12 @@ Inside, it composes these pieces:
   that opens a `DropdownMenu` and drags to reorder (the corner moves the whole table, where every
   block's handle sits), and the "+" bars (`data-slot="text-edit-table-add"`) that add a row or a
   column at the end.
-- **Slash menu** (`data-slot="text-edit-slash-menu"`, `role="listbox"`) — the block menu, in the
-  Command item style with muted icons. Focus stays in the editor; the caret never moves.
+- **Slash and mention menus** (`data-slot="suggestion-menu"`, `data-menu="text-edit-slash"` or
+  `"text-edit-mention"`, `role="listbox"`) — the shared `SuggestionMenu` that `TemplateEditor`'s
+  picker also opens: rows exactly like `ComboboxItem`'s (the `accent` highlight, muted icons,
+  muted trailing text), group headings in the mention menu, keyboard hints in the slash menu. It
+  sits under the caret, flips above when below is short, and never takes focus — the caret never
+  moves.
 - **Read view** (`data-slot="text-edit-read"`, `role="textbox"`) — the saved document as
   `MarkdownView` in the editor surface's classes, until the editor loads; see Light first paint.
 - **Editor surface** (`role="textbox"`, `aria-multiline`) — the Tiptap/ProseMirror contenteditable.
@@ -572,14 +577,18 @@ fires it with the current value. It's presentational only: the **host** decides 
   (or associate a visible label) so the region is announced.
 - Use `aria-invalid` and `aria-describedby` to connect validation state and helper/error text to the
   contenteditable textbox.
-- The slash menu is a `listbox` of `option`s with `aria-selected`; focus stays in the textbox and
-  <kbd>↑</kbd> <kbd>↓</kbd>, <kbd>Enter</kbd> and <kbd>Esc</kbd> drive it.
+- The slash menu is a `listbox` of `option`s with `aria-selected`; focus stays in the textbox,
+  which points at it with `aria-controls` and at the active option with `aria-activedescendant`,
+  and <kbd>↑</kbd> <kbd>↓</kbd>, <kbd>Enter</kbd> and <kbd>Esc</kbd> drive it. Moving the pointer
+  over a row makes it the active one too. With no matches the menu is a `status` (“No results”),
+  not an empty listbox.
 - The bubble menu is a Base UI `Toolbar` labelled “Selection formatting”: one tab stop, arrow keys
   between its `Toggle`s, each with an `aria-label` and `aria-pressed`. With `onCreateAnnotation`
   it leads with a **Comment** button; read-only, the toolbar (“Selection actions”) holds only that.
 - The mention menu is a `listbox` labelled “Mention” whose `group`s are named by their headings
-  (People, Pages, Files, Tasks); focus stays in the textbox, as with the slash menu. A chip reads
-  as its name.
+  (People, Pages, Files, Tasks); focus stays in the textbox, as with the slash menu, with the same
+  `aria-activedescendant` wiring. While a search runs, or when it fails or finds nothing, the menu
+  is a `status` (“Searching…”, “Couldn't search”, “No matches”). A chip reads as its name.
 - An upload placeholder is a `role="status"` named “Uploading” and the file’s name.
 - A callout is a `role="note"` named by its tone; while editable its icon is a menu button,
   “Callout type: Note”, that picks the tone.

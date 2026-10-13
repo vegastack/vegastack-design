@@ -1,14 +1,14 @@
 {
   "schemaVersion": 1,
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "9694e959cdb58b06167d587e4546d626cabb39e47daee65910be0ce303714ad4",
+  "contractSha256": "66d44fbe16d3fcdef455e22dc3ec1fc247df37f8582fc874763b06629d07d3a6",
   "inventory": {
-    "expected": 739,
-    "actual": 739,
-    "unique": 739
+    "expected": 740,
+    "actual": 740,
+    "unique": 740
   },
   "classes": {
-    "components": 158,
+    "components": 159,
     "animatedIcons": 467,
     "hooks": 15,
     "blocks": 15,
@@ -199,13 +199,14 @@
       ]
     },
     "Shared internals": {
-      "expected": 4,
-      "actual": 4,
+      "expected": 5,
+      "actual": 5,
       "members": [
         "data-table-parts",
         "panel-search",
         "person-avatar",
-        "picker-panel"
+        "picker-panel",
+        "suggestion-menu"
       ]
     },
     "AI/chat": {

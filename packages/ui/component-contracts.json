@@ -12,8 +12,8 @@
     "evidencePolicy": "Observed fields come from source, registry metadata, docs, and test topology. Unknown/not-applicable values are explicit; no inferred behavior is presented as verified."
   },
   "expectedCounts": {
-    "totalRegistryItems": 739,
-    "components": 158,
+    "totalRegistryItems": 740,
+    "components": 159,
     "animatedIcons": 467,
     "hooks": 15,
     "blocks": 15,
@@ -27,7 +27,7 @@
     "Overlays": 21,
     "Data display": 31,
     "Content/marketing": 15,
-    "Shared internals": 4,
+    "Shared internals": 5,
     "AI/chat": 8,
     "Hooks": 15,
     "Block": 1,
@@ -196,7 +196,8 @@
       "data-table-parts",
       "panel-search",
       "person-avatar",
-      "picker-panel"
+      "picker-panel",
+      "suggestion-menu"
     ],
     "AI/chat": [
       "marker",
@@ -24514,13 +24515,22 @@
       "name": "template-editor",
       "registryType": "registry:ui",
       "title": "Template Editor",
-      "summary": "A plain-paragraph editor for text with placeholders: typing @ or {{ opens a searchable list of tokens, the one picked becomes an atomic inline chip, and the value is plain text with {{id}} tokens.",
+      "summary": "A plain-paragraph editor for text with placeholders: typing @ or {{ opens a searchable list of tokens, the one picked becomes an atomic inline chip, and the value is plain text with {{id}} tokens; optional single-line mode and as-you-type replacements for formulas.",
       "status": "stable",
       "since": "0.23.72",
       "family": "rich-text",
       "wave": "Forms/editing",
       "sourceFiles": ["packages/ui/registry/ui/template-editor.tsx"],
       "publicSymbols": [
+        {
+          "name": "TemplateEditorReplacement",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/template-editor.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
         {
           "name": "TemplateEditorToken",
           "kind": "interface",
@@ -24563,7 +24573,15 @@
       "states": {
         "behavior": {
           "status": "observed",
-          "values": ["default", "empty", "disabled", "invalid", "menu-open"],
+          "values": [
+            "default",
+            "empty",
+            "disabled",
+            "invalid",
+            "menu-open",
+            "single-line",
+            "replacements"
+          ],
           "evidence": "Observed from the component's prop branches and the picker state."
         },
         "accessibility": {
@@ -24609,7 +24627,7 @@
         }
       ],
       "docsSlug": "/docs/components/template-editor",
-      "registryDependencies": [],
+      "registryDependencies": ["@vegastack/suggestion-menu"],
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
         "@tiptap/extensions@^3",
@@ -24639,6 +24657,14 @@
             },
             {
               "name": "data-invalid",
+              "values": [""]
+            },
+            {
+              "name": "data-menu",
+              "values": ["template-editor"]
+            },
+            {
+              "name": "data-single-line",
               "values": [""]
             },
             {
@@ -24947,7 +24973,8 @@
         "@vegastack/dropzone",
         "@vegastack/empty",
         "@vegastack/tabs",
-        "@vegastack/toast"
+        "@vegastack/toast",
+        "@vegastack/suggestion-menu"
       ],
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
@@ -25026,6 +25053,10 @@
         },
         "TextEditEditor": {
           "attributes": [
+            {
+              "name": "data-menu",
+              "values": ["text-edit-mention", "text-edit-slash"]
+            },
             {
               "name": "data-slot",
               "values": ["text-edit-content"]
@@ -26717,6 +26748,181 @@
             {
               "name": "data-slot",
               "values": ["panel-actions"]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
+    },
+    {
+      "name": "suggestion-menu",
+      "registryType": "registry:ui",
+      "title": "Suggestion Menu",
+      "summary": "The caret-anchored list an editor opens while you type a trigger (@, /, {{) — shared by TextEdit's slash and mention menus and TemplateEditor's placeholder picker — with rows that read exactly like ComboboxItem's, optional group headings, a status for empty, loading and error, a viewport flip, and one active index the editor's arrow keys and the pointer move.",
+      "status": "stable",
+      "since": "0.25.27",
+      "family": "overlay",
+      "wave": "Shared internals",
+      "sourceFiles": ["packages/ui/registry/ui/suggestion-menu.tsx"],
+      "publicSymbols": [
+        {
+          "name": "SuggestionMenu",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/suggestion-menu.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "element",
+            "rationale": "Props, ref included, spread onto the listbox div inside the portal."
+          }
+        },
+        {
+          "name": "SuggestionMenuProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/suggestion-menu.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "SuggestionMenuOption",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/suggestion-menu.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "SuggestionMenuKeyTarget",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/suggestion-menu.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "suggestionMenuKeyDown",
+          "kind": "function",
+          "source": "packages/ui/registry/ui/suggestion-menu.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A pure function; it renders nothing and takes no ref."
+          }
+        },
+        {
+          "name": "suggestionMenuOptionId",
+          "kind": "function",
+          "source": "packages/ui/registry/ui/suggestion-menu.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A pure function; it renders nothing and takes no ref."
+          }
+        },
+        {
+          "name": "SUGGESTION_MENU_ROW",
+          "kind": "constant",
+          "source": "packages/ui/registry/ui/suggestion-menu.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A constant; it renders nothing and takes no ref."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "One look: ComboboxItem's rows on the combobox popup's surface; the width is the host's className."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "ComboboxItem's row height and ComboboxList's 18rem cap; no local size scale."
+      },
+      "states": {
+        "behavior": {
+          "status": "covered",
+          "values": [
+            "default",
+            "active",
+            "grouped",
+            "empty",
+            "loading",
+            "error",
+            "flipped"
+          ],
+          "evidence": "packages/ui/registry/ui/suggestion-menu.test.tsx"
+        },
+        "accessibility": {
+          "status": "covered",
+          "values": [
+            "labeled",
+            "keyboard",
+            "activedescendant",
+            "status",
+            "browser-accessibility-test"
+          ],
+          "evidence": "packages/ui/registry/ui/suggestion-menu.test.tsx"
+        },
+        "visual": {
+          "status": "observed",
+          "values": ["default", "highlighted", "grouped", "status"],
+          "evidence": "The active row carries data-highlighted and ComboboxItem's accent highlight; suggestion-menu.test.tsx holds the row class to ComboboxItem's."
+        }
+      },
+      "responsive": {
+        "status": "modeled",
+        "risks": [
+          "viewport-positioning-and-collision",
+          "text-truncation-and-flex-shrink"
+        ],
+        "rationale": "Below the caret, flipped above when below is short, slid to stay inside the viewport; labels and descriptions truncate."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned motion mechanism observed."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/guides/components",
+      "registryDependencies": ["@vegastack/use-announcer"],
+      "npmDependencies": [
+        "@vegastack/design@^0.8.4",
+        "@vegastack/design-tokens@^0.8.3"
+      ],
+      "testFiles": ["packages/ui/registry/ui/suggestion-menu.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "shared-guide-only",
+        "navigation": "exempt",
+        "preview": "exempt",
+        "vrt": "exempt"
+      },
+      "dataAttributes": {
+        "SuggestionMenu": {
+          "attributes": [
+            {
+              "name": "data-highlighted",
+              "values": [""]
+            },
+            {
+              "name": "data-slot",
+              "values": [
+                "suggestion-menu",
+                "suggestion-menu-description",
+                "suggestion-menu-group",
+                "suggestion-menu-group-label",
+                "suggestion-menu-label",
+                "suggestion-menu-layer",
+                "suggestion-menu-option",
+                "suggestion-menu-shortcut",
+                "suggestion-menu-status"
+              ]
             }
           ],
           "cssVariables": []

@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.25.26 sha256-8OH0BKn85FM7x6yQJnzRPtc8G/ig50IkFCVzX1ZwaHo=
+// @vegastack text-edit@0.25.26 sha256-xnfniULrCPIrQpUDK0yiJ6+WJUEImMeCfcVOIiGueUI=
 
 "use client";
 
@@ -171,6 +171,12 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { InlineChip } from "@/components/ui/inline-chip";
+import {
+  SuggestionMenu,
+  suggestionMenuKeyDown,
+  suggestionMenuOptionId,
+  type SuggestionMenuOption,
+} from "@/components/ui/suggestion-menu";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { toast } from "@/components/ui/toast";
 import {
@@ -1151,27 +1157,15 @@ function slashExtension(runtime: SlashRuntime) {
               onKeyDown: ({ event }) => {
                 const state = runtime.get();
                 if (!state) return false;
-                const count = state.items.length;
-                if (event.key === "Escape") {
-                  // Escape only closes the menu: a host's Escape (e.g. cancel a reply) must not see it.
-                  event.stopPropagation();
-                  exitSuggestion(editor.view, SLASH_KEY);
-                  return true;
-                }
-                if (!count) return false;
-                if (event.key === "ArrowDown" || event.key === "ArrowUp") {
-                  const step = event.key === "ArrowDown" ? 1 : -1;
-                  runtime.set({
-                    ...state,
-                    index: (state.index + step + count) % count,
-                  });
-                  return true;
-                }
-                if (event.key === "Enter" || event.key === "Tab") {
-                  state.command(state.items[state.index]!);
-                  return true;
-                }
-                return false;
+                // Escape only closes the menu: a host's Escape (e.g. cancel a reply) never sees it.
+                return suggestionMenuKeyDown(event, {
+                  count: state.items.length,
+                  activeIndex: state.index,
+                  onActiveIndexChange: (index) =>
+                    runtime.set({ ...state, index }),
+                  onSelect: (index) => state.command(state.items[index]!),
+                  onClose: () => exitSuggestion(editor.view, SLASH_KEY),
+                });
               },
             };
           },
@@ -1967,135 +1961,47 @@ function groupResults(
   );
 }
 
-const MENTION_MENU_WIDTH = 288;
+const MENTION_GROUP_LABEL = Object.fromEntries(
+  MENTION_GROUPS.map((group) => [group.kind, group.label]),
+) as Record<MentionKind, string>;
 
-function MentionMenu({
-  state,
-  onHover,
-}: {
-  state: MentionMenuState;
-  onHover: (index: number) => void;
-}) {
-  const listRef = React.useRef<HTMLDivElement | null>(null);
-  const baseId = React.useId();
-  React.useEffect(() => {
-    listRef.current
-      ?.querySelector("[data-selected]")
-      ?.scrollIntoView({ block: "nearest" });
-  }, [state.index]);
-  if (!state.rect || typeof window === "undefined") return null;
-  const below = state.rect.bottom + 4;
-  const roomBelow = window.innerHeight - below - VIEWPORT_GAP;
-  const roomAbove = state.rect.top - 4 - VIEWPORT_GAP;
-  const flip = roomBelow < SLASH_MENU_HEIGHT && roomAbove > roomBelow;
-  const left = Math.max(
-    VIEWPORT_GAP,
-    Math.min(
-      state.rect.left,
-      window.innerWidth - MENTION_MENU_WIDTH - VIEWPORT_GAP,
-    ),
-  );
-  const style: React.CSSProperties = {
-    position: "fixed",
-    left,
-    maxHeight: Math.max(
-      120,
-      Math.min(SLASH_MENU_HEIGHT, flip ? roomAbove : roomBelow),
-    ),
-    ...(flip
-      ? { bottom: window.innerHeight - state.rect.top + 4 }
-      : { top: below }),
-  };
-  const options = flatOptions(state.results);
-  const message = state.error
-    ? "Couldn't search"
-    : state.results === null
-      ? "Searching…"
-      : options.length === 0
-        ? state.loading
-          ? "Searching…"
-          : "No matches"
-        : null;
-  let index = -1;
-  return (
-    <div
-      ref={listRef}
-      data-slot="text-edit-mention-menu"
-      data-side={flip ? "top" : "bottom"}
-      role="listbox"
-      aria-label="Mention"
-      aria-busy={state.loading || undefined}
-      style={style}
-      onMouseDown={(event) => event.preventDefault()}
-      className={cn(MENU_SURFACE, "w-72 overflow-y-auto")}
-    >
-      {message ? (
-        <div
-          data-slot="text-edit-mention-status"
-          className="px-2 py-1.5 text-sm text-muted-foreground"
-        >
-          {message}
-        </div>
-      ) : (
-        MENTION_GROUPS.map((group) => {
-          const items = options.filter((option) => option.kind === group.kind);
-          if (items.length === 0) return null;
-          const labelId = `${baseId}-${group.kind}`;
-          return (
-            <div key={group.kind} role="group" aria-labelledby={labelId}>
-              <div
-                id={labelId}
-                className="px-2 pt-1.5 pb-1 text-xs font-medium text-muted-foreground"
-              >
-                {group.label}
-              </div>
-              {items.map((option) => {
-                index += 1;
-                const at = index;
-                const selected = at === state.index;
-                const Icon = MENTION_ICON[option.kind];
-                return (
-                  <div
-                    key={`${option.kind}:${option.id}`}
-                    role="option"
-                    aria-selected={selected}
-                    data-selected={selected ? "true" : undefined}
-                    data-slot="text-edit-mention-item"
-                    onMouseEnter={() => onHover(at)}
-                    onClick={() => state.command(option)}
-                    className={cn(
-                      MENU_ITEM,
-                      "[&_[data-tinted]_svg]:size-3.5 [&_[data-tinted]_svg]:text-info-text",
-                    )}
-                  >
-                    <span
-                      aria-hidden
-                      data-slot="text-edit-mention-icon"
-                      data-tinted={option.icon ? undefined : ""}
-                      className="flex size-5 shrink-0 items-center justify-center overflow-hidden rounded-sm data-tinted:bg-info/10"
-                    >
-                      {option.icon ?? <Icon />}
-                    </span>
-                    <span className="min-w-0 flex-1 truncate">
-                      {option.label}
-                    </span>
-                    {option.description ? (
-                      <span className="max-w-[45%] truncate text-xs text-muted-foreground">
-                        {option.description}
-                      </span>
-                    ) : null}
-                  </div>
-                );
-              })}
-            </div>
-          );
-        })
-      )}
-    </div>
-  );
+/** What the mention menu says instead of rows: a search in flight, or a failed one. */
+function mentionStatus(state: MentionMenuState): string | undefined {
+  if (state.error) return "Couldn't search";
+  if (state.results === null) return "Searching…";
+  if (state.results.length === 0 && state.loading) return "Searching…";
+  return undefined;
 }
 
-const MENTION_ICON: Record<MentionKind, React.ComponentType> = {
+/** The mention menu's rows: grouped by kind, each with its kind's tinted icon or its own. */
+function mentionOptions(state: MentionMenuState): SuggestionMenuOption[] {
+  return flatOptions(state.results).map((option) => {
+    const Icon = MENTION_ICON[option.kind];
+    return {
+      key: `${option.kind}:${option.id}`,
+      label: option.label,
+      description: option.description,
+      group: MENTION_GROUP_LABEL[option.kind],
+      icon: (
+        <span
+          aria-hidden
+          data-slot="text-edit-mention-icon"
+          data-tinted={option.icon ? undefined : ""}
+          className="flex size-5 shrink-0 items-center justify-center overflow-hidden rounded-sm data-tinted:bg-info/10"
+        >
+          {option.icon ?? (
+            <Icon data-icon-tone="" className="size-3.5 text-info-text" />
+          )}
+        </span>
+      ),
+    };
+  });
+}
+
+const MENTION_ICON: Record<
+  MentionKind,
+  React.ComponentType<React.ComponentProps<"svg">>
+> = {
   user: UserRound,
   page: FileText,
   file: FileIcon,
@@ -2761,30 +2667,18 @@ function mentionNode(runtime: EditorRuntime) {
               onKeyDown: ({ event }) => {
                 const state = runtime.mention.get();
                 if (!state) return false;
-                if (event.key === "Escape") {
-                  // Escape only closes the menu: a host's Escape (e.g. cancel a reply) must not see it.
-                  event.stopPropagation();
-                  exitSuggestion(editor.view, MENTION_KEY);
-                  return true;
-                }
                 const options = flatOptions(state.results);
-                const count = options.length;
-                if (event.key === "ArrowDown" || event.key === "ArrowUp") {
-                  if (!count) return true;
-                  const step = event.key === "ArrowDown" ? 1 : -1;
-                  runtime.mention.set({
-                    ...state,
-                    index: (state.index + step + count) % count,
-                  });
-                  return true;
-                }
-                if (event.key === "Enter" || event.key === "Tab") {
-                  const picked = options[state.index];
-                  if (!picked) return event.key === "Enter";
-                  state.command(picked);
-                  return true;
-                }
-                return false;
+                // While a search is in flight the menu holds ↑ ↓ and Enter: the caret stays put
+                // and Enter never breaks the line.
+                return suggestionMenuKeyDown(event, {
+                  count: options.length,
+                  activeIndex: state.index,
+                  onActiveIndexChange: (index) =>
+                    runtime.mention.set({ ...state, index }),
+                  onSelect: (index) => state.command(options[index]!),
+                  onClose: () => exitSuggestion(editor.view, MENTION_KEY),
+                  holdWhenEmpty: true,
+                });
               },
             };
           },
@@ -3396,27 +3290,17 @@ function normalizeHref(raw: string) {
  * Styling
  * ----------------------------------------------------------------------------------------------*/
 
-/**
- * A menu item in the editor's own listbox menus (slash, mention): `DropdownMenuItem`'s exact
- * vocabulary — radius, padding, gap, the `accent` highlight and icon colours — keyed to the
- * active index (`data-selected`) instead of DOM focus, since focus stays in the editor.
- */
-const MENU_ITEM =
-  "group/menu-item relative flex cursor-pointer items-center gap-1.5 rounded-md px-1.5 py-1 text-sm outline-hidden select-none data-selected:bg-accent data-selected:text-accent-foreground [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 [&_svg:not([class*='text-'])]:text-muted-foreground data-selected:[&_svg:not([class*='text-'])]:text-accent-foreground";
-/** `DropdownMenuShortcut`'s look, following the item's highlight. */
-const MENU_SHORTCUT =
-  "ms-auto text-xs tracking-widest text-muted-foreground group-data-selected/menu-item:text-accent-foreground";
-
 const MENU_SURFACE =
   "z-50 rounded-lg border border-border bg-popover p-1 text-popover-foreground shadow-md";
 
 /** Every floating part of the editor — focus moving into one of them stays in the edit session. */
 const FLOATING_SLOTS =
-  "[data-slot=text-edit-bubble-menu],[data-slot=text-edit-link],[data-slot=text-edit-image],[data-slot=text-edit-media],[data-slot=text-edit-turn-into],[data-slot=text-edit-slash-menu],[data-slot=text-edit-mention-menu],[data-slot=text-edit-table-grip],[data-slot=text-edit-table-add],[data-text-edit-menu]";
+  "[data-slot=text-edit-bubble-menu],[data-slot=text-edit-link],[data-slot=text-edit-image],[data-slot=text-edit-media],[data-slot=text-edit-turn-into],[data-slot=suggestion-menu],[data-slot=text-edit-table-grip],[data-slot=text-edit-table-add],[data-text-edit-menu]";
 
 /**
- * The one portal every floating part renders through (slash menu, drag handle, table grips and
- * "+" bars, drop line): `<body>`, so no overflow container clips it, with the theme scope restored on a
+ * The one portal the editor's own floating parts render through (drag handle, table grips and
+ * "+" bars, drop line; the slash and mention menus are `SuggestionMenu`, which portals itself):
+ * `<body>`, so no overflow container clips it, with the theme scope restored on a
  * `display: contents` wrapper.
  */
 function FloatingLayer({ children }: { children: React.ReactNode }) {
@@ -3430,108 +3314,8 @@ function FloatingLayer({ children }: { children: React.ReactNode }) {
   );
 }
 
-/* ------------------------------------------------------------------------------------------------
- * Slash menu
- * ----------------------------------------------------------------------------------------------*/
-
-const SLASH_MENU_WIDTH = 240;
-const SLASH_MENU_HEIGHT = 320;
+/** Floating parts keep this far from the viewport's edges. */
 const VIEWPORT_GAP = 8;
-
-function SlashMenu({
-  state,
-  onHover,
-}: {
-  state: SlashState;
-  onHover: (index: number) => void;
-}) {
-  const listRef = React.useRef<HTMLDivElement | null>(null);
-  // The active item scrolls into view inside the list only — never the page (no `scrollIntoView`).
-  React.useEffect(() => {
-    const list = listRef.current;
-    const item = list?.querySelector<HTMLElement>("[data-selected]");
-    if (!list || !item) return;
-    const top = item.offsetTop;
-    const bottom = top + item.offsetHeight;
-    if (top < list.scrollTop) list.scrollTop = top - 4;
-    else if (bottom > list.scrollTop + list.clientHeight)
-      list.scrollTop = bottom - list.clientHeight + 4;
-  }, [state.index]);
-  if (!state.rect || typeof window === "undefined") return null;
-  // Floating-UI's flip + shift, by hand: below the caret unless it would not fit and above has
-  // more room, and slid horizontally so it never leaves the viewport.
-  const below = state.rect.bottom + 4;
-  const roomBelow = window.innerHeight - below - VIEWPORT_GAP;
-  const roomAbove = state.rect.top - 4 - VIEWPORT_GAP;
-  const flip = roomBelow < SLASH_MENU_HEIGHT && roomAbove > roomBelow;
-  const left = Math.max(
-    VIEWPORT_GAP,
-    Math.min(
-      state.rect.left,
-      window.innerWidth - SLASH_MENU_WIDTH - VIEWPORT_GAP,
-    ),
-  );
-  const style: React.CSSProperties = {
-    position: "fixed",
-    left,
-    maxHeight: Math.max(
-      120,
-      Math.min(SLASH_MENU_HEIGHT, flip ? roomAbove : roomBelow),
-    ),
-    ...(flip
-      ? { bottom: window.innerHeight - state.rect.top + 4 }
-      : { top: below }),
-  };
-  return (
-    <div
-      ref={listRef}
-      data-slot="text-edit-slash-menu"
-      data-side={flip ? "top" : "bottom"}
-      role="listbox"
-      aria-label="Insert block"
-      style={style}
-      // Keep focus (and the caret) in the editor.
-      onMouseDown={(event) => event.preventDefault()}
-      className={cn(
-        MENU_SURFACE,
-        "relative w-60 overflow-y-auto overscroll-contain",
-      )}
-    >
-      {state.items.length === 0 ? (
-        <div className="px-2 py-1.5 text-sm text-muted-foreground">
-          No results
-        </div>
-      ) : (
-        state.items.map((spec, index) => {
-          const Icon = spec.icon;
-          const selected = index === state.index;
-          return (
-            <div
-              key={spec.id}
-              role="option"
-              aria-selected={selected}
-              data-selected={selected ? "true" : undefined}
-              data-slot="text-edit-slash-item"
-              // Mouse movement (not enter: a keyboard scroll slides items under a still pointer)
-              // moves the one active index the arrow keys also move.
-              onMouseMove={() => {
-                if (!selected) onHover(index);
-              }}
-              onClick={() => state.command(spec)}
-              className={MENU_ITEM}
-            >
-              <Icon />
-              <span className="flex-1">{spec.label}</span>
-              {spec.hint ? (
-                <span className={MENU_SHORTCUT}>{spec.hint}</span>
-              ) : null}
-            </div>
-          );
-        })
-      )}
-    </div>
-  );
-}
 
 /**
  * Tidy serialized markdown. Tiptap writes an empty paragraph (a blank line typed with Enter) as
@@ -5449,6 +5233,29 @@ export function TextEditEditor({
     "aria-invalid": ariaInvalidAttribute,
   } = aria;
   const hasSlash = allowedSlash.length > 0;
+  const slashListId = React.useId();
+  const mentionListId = React.useId();
+  // The open menu the surface points at (`aria-controls`, `aria-activedescendant`); focus stays
+  // in the editor, so the active row is announced through the textbox.
+  const openMenu =
+    !editable || disabled
+      ? null
+      : slash
+        ? { id: slashListId, count: slash.items.length, index: slash.index }
+        : mentionMenu
+          ? {
+              id: mentionListId,
+              count: mentionStatus(mentionMenu)
+                ? 0
+                : flatOptions(mentionMenu.results).length,
+              index: mentionMenu.index,
+            }
+          : null;
+  const menuControls = openMenu?.id;
+  const menuActive =
+    openMenu && openMenu.count > 0
+      ? suggestionMenuOptionId(openMenu.id, openMenu.index)
+      : undefined;
   const editorAttributes = React.useMemo(
     () => ({
       class: cn(
@@ -5471,8 +5278,14 @@ export function TextEditEditor({
       ...(saving ? { "aria-busy": "true" } : {}),
       ...(disabled ? { "aria-disabled": "true" } : {}),
       ...(!disabled && !editable ? { "aria-readonly": "true" } : {}),
+      ...(menuControls
+        ? { "aria-autocomplete": "list", "aria-controls": menuControls }
+        : {}),
+      ...(menuActive ? { "aria-activedescendant": menuActive } : {}),
     }),
     [
+      menuControls,
+      menuActive,
       boxed,
       saving,
       disabled,
@@ -6378,24 +6191,47 @@ export function TextEditEditor({
         </BubbleMenu>
       ) : null}
       {slash && editable ? (
-        <FloatingLayer>
-          <SlashMenu
-            state={slash}
-            onHover={(index) => {
-              const next = { ...slash, index };
-              slashStateRef.current = next;
-              setSlashState(next);
-            }}
-          />
-        </FloatingLayer>
+        <SuggestionMenu
+          id={slashListId}
+          aria-label="Insert block"
+          data-menu="text-edit-slash"
+          className="w-60"
+          anchor={slash.rect}
+          options={slash.items.map((spec) => {
+            const Icon = spec.icon;
+            return {
+              key: spec.id,
+              label: spec.label,
+              icon: <Icon />,
+              shortcut: spec.hint,
+            };
+          })}
+          activeIndex={slash.index}
+          onActiveIndexChange={(index) => {
+            const next = { ...slash, index };
+            slashStateRef.current = next;
+            setSlashState(next);
+          }}
+          onSelect={(index) => slash.command(slash.items[index]!)}
+        />
       ) : null}
       {mentionMenu && editable ? (
-        <FloatingLayer>
-          <MentionMenu
-            state={mentionMenu}
-            onHover={(index) => setMention({ ...mentionMenu, index })}
-          />
-        </FloatingLayer>
+        <SuggestionMenu
+          id={mentionListId}
+          aria-label="Mention"
+          data-menu="text-edit-mention"
+          className="w-72"
+          anchor={mentionMenu.rect}
+          options={mentionOptions(mentionMenu)}
+          status={mentionStatus(mentionMenu)}
+          emptyMessage="No matches"
+          loading={mentionMenu.loading}
+          activeIndex={mentionMenu.index}
+          onActiveIndexChange={(index) => setMention({ ...mentionMenu, index })}
+          onSelect={(index) =>
+            mentionMenu.command(flatOptions(mentionMenu.results)[index]!)
+          }
+        />
       ) : null}
       {dragHandles && editable && editor ? (
         <>
