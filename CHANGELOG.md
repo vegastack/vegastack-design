@@ -9,6 +9,27 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.25.28] — October 14, 2026
+
+<!-- assembled from 2 changesets: f6f40f31e55e -->
+
+### 🧩 New components
+
+- **Field**: `FieldCounter` — a character counter for `Input` and `Textarea` at the end of the label row (`FieldHeader`), so it takes no room under the control. `<FieldCounter value={bio} maxLength={100} threshold={0.8} />` shows `92/100` (12px, muted, tabular) only from `threshold` of `maxLength` (default 0.8), in the destructive ink at the limit. Inside a `Field` it describes the control (`aria-describedby`) while it shows, and a polite status speaks only at its thresholds ("8 characters left", "Character limit reached"), never per keystroke.
+  [docs](https://design.vegastack.com/docs/components/field) ·
+  [`e142894`](https://github.com/VegaStack/vegastack-design/commit/e142894)
+
+### 🔧 Changed components
+
+- **DataList** and **DataGrid**: fill and fit columns. The first column takes the width the others leave, wraps anywhere and (DataList) clamps a plain value at two lines with the full value in its tooltip; every other column is sized to its content on one line, and headers never break inside a word. One long unbroken value no longer squeezes every cell and header ("Prod" / "ucts"): the squeeze releases only the first column, then DataList merges another column, and only when nothing is left to merge does it strain (`data-strained`) the rest. `columnCellClass`, `headerCellClass` and `SortableHead` take a `fill` role, `isNowrapColumn` defaults non-first columns to one line (`nowrap: false` lets one wrap between words), and `revealColumns` takes `extraOverflow`. **BreadcrumbTrail**'s current step truncates with its full name in a tooltip on hover and focus; **PageHeader**'s title breaks an unbroken token anywhere, clamped or not.
+  [docs](https://design.vegastack.com/docs/components/data-list) ·
+  [`e142894`](https://github.com/VegaStack/vegastack-design/commit/e142894)
+
+### 📦 npm
+
+- **`@vegastack/design`** → **`0.8.6`** (was `0.8.5`).
+- The design-system registry (`@vegastack/ui`) bumps 0.25.27 → 0.25.28.
+
 ## [0.25.27] — October 13, 2026
 
 <!-- assembled from 1 changeset: 6a2c1ad0a43b -->
