@@ -44,7 +44,7 @@ const KAVYA = {
   email: "kavya@acme.com",
   image: "/preview/avatar-2.svg",
 };
-const AGENT = { name: "Regent AI", email: "Assistant" };
+const AGENT = { name: "Claude Code", kind: "agent" as const, via: "Priya" };
 const JAMIE = {
   name: "Jamie Rao",
   email: "jamie@acme.com",
@@ -87,7 +87,6 @@ const THREAD_AGENT: CommentThreadData = {
   root: {
     id: "c3",
     author: AGENT,
-    agent: true,
     body: "Summary so far: scope split into two phases, due date moved to **Oct 9**, Kavya owns phase one.",
     createdAt: NOW - 50 * MIN,
   },
@@ -193,7 +192,6 @@ const ENTRIES: Entry[] = [
     node: (
       <ActivityEvent
         actor={AGENT}
-        agent
         icon={<ActivityKindIcon kind="due" />}
         date={NOW - HOUR}
         now={NOW}
@@ -595,6 +593,56 @@ export function activityFeedGroups(): ReactNode {
 }
 
 /** An agent's event and comment, an inactive person's event, and a system event (no actor). */
+/**
+ * A task handed to an agent: the member delegates, the agent's run reports in its status tones,
+ * and its server-written steps follow — every line names the agent and whom it works for.
+ */
+export function activityFeedAgent(): ReactNode {
+  const run: [ActivityKind, ReactNode, number][] = [
+    [
+      "delegated",
+      <>
+        delegated this to <ActivityValue>Claude Code (via Priya)</ActivityValue>
+      </>,
+      40,
+    ],
+    ["agent-queued", "picked this up", 38],
+    ["agent-working", "started working", 37],
+    ["agent-step", "read the task and 3 linked pages", 36],
+    ["agent-step", "updated the description", 34],
+    ["agent-needs-you", "needs Priya", 30],
+    ["agent-done", "finished", 12],
+    ["agent-failed", "stopped: hit a problem", 6],
+    [
+      "undelegated",
+      <>
+        removed <ActivityValue>Claude Code (via Priya)</ActivityValue>
+      </>,
+      2,
+    ],
+  ];
+  return (
+    <Demo>
+      <ActivityFeedList>
+        {run.map(([kind, text, minutes], i) => (
+          <ActivityFeedItem key={i}>
+            <ActivityEvent
+              actor={
+                kind === "delegated" || kind === "undelegated" ? PRIYA : AGENT
+              }
+              icon={<ActivityKindIcon kind={kind} />}
+              date={NOW - minutes * MIN}
+              now={NOW}
+            >
+              {text}
+            </ActivityEvent>
+          </ActivityFeedItem>
+        ))}
+      </ActivityFeedList>
+    </Demo>
+  );
+}
+
 export function activityFeedActors(): ReactNode {
   return (
     <Demo>
@@ -602,7 +650,6 @@ export function activityFeedActors(): ReactNode {
         <ActivityFeedItem>
           <ActivityEvent
             actor={AGENT}
-            agent
             icon="avatar"
             date={NOW - 2 * HOUR}
             now={NOW}

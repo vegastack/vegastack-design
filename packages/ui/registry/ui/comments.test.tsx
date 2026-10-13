@@ -821,29 +821,115 @@ test("a deleted first comment keeps the reply row; a collapsed thread with one r
     .toBeVisible();
 });
 
-test("an agent's comment carries data-agent and an Agent label; the author's name opens a hover card", async () => {
+test("an agent's comment carries data-agent, a bot, its owner and an Agent label; the name opens a hover card", async () => {
   const screen = await render(
     <ul>
       <CommentItem
         comment={{
           id: "a",
-          author: { name: "Regent AI", email: "agent@regent.ai" },
+          author: {
+            name: "Claude Code",
+            email: "claude.ai",
+            kind: "agent",
+            via: "Manoj",
+          },
           body: "Summarised the thread.",
           createdAt: Date.now(),
-          agent: true,
         }}
       />
     </ul>,
   );
   const item = screen.container.querySelector("[data-slot=comment-item]");
   expect(item?.hasAttribute("data-agent")).toBe(true);
+  expect(item?.querySelector("[data-slot=comment-card]")?.className).toContain(
+    "before:bg-tag-purple",
+  );
   await expect
     .element(screen.getByText("Agent", { exact: true }))
     .toBeVisible();
   expect(
-    screen.container.querySelector("[data-slot=comment-agent-avatar]"),
+    screen.container.querySelector("[data-slot=avatar][data-kind=agent]"),
   ).not.toBeNull();
-  await screen.getByRole("button", { name: "Regent AI" }).click();
-  await expect.element(screen.getByText("agent@regent.ai")).toBeVisible();
+  expect(
+    screen.container.querySelector("[data-slot=person-name-via]")?.textContent,
+  ).toBe(" via Manoj");
+  await screen
+    .getByRole("button", { name: "Claude Code via Manoj, agent" })
+    .click();
+  await expect.element(screen.getByText("claude.ai")).toBeVisible();
   await expectNoA11yViolations(screen.container);
+});
+
+test("the deprecated agent flag still reads as an agent", async () => {
+  const screen = await render(
+    <ul>
+      <CommentItem
+        comment={{
+          id: "a",
+          author: { name: "Regent AI" },
+          body: "Done.",
+          createdAt: Date.now(),
+          agent: true,
+        }}
+      />
+    </ul>,
+  );
+  expect(
+    screen.container.querySelector("[data-slot=comment-item][data-agent]"),
+  ).not.toBeNull();
+  expect(
+    screen.container.querySelector("[data-slot=avatar][data-kind=agent]"),
+  ).not.toBeNull();
+});
+
+test("a question has an amber bar, Needs your reply, and choices that answer it", async () => {
+  let resolve!: () => void;
+  const onChoose = vi.fn(() => new Promise<void>((done) => (resolve = done)));
+  const question = {
+    id: "q",
+    author: { name: "Claude Code", kind: "agent" as const, via: "Manoj" },
+    body: "Which rate should I use?",
+    createdAt: Date.now(),
+    tone: "question" as const,
+    choices: [
+      { id: "month", label: "Month-end rate" },
+      { id: "invoice", label: "Invoice-date rate" },
+    ],
+  };
+  const screen = await render(
+    <ul>
+      <CommentItem comment={question} onChoose={onChoose} />
+    </ul>,
+  );
+  const item = screen.container.querySelector<HTMLElement>(
+    "[data-slot=comment-item]",
+  )!;
+  expect(item.dataset.tone).toBe("question");
+  expect(item.querySelector("[data-slot=comment-card]")!.className).toContain(
+    "before:bg-warning",
+  );
+  await expect.element(screen.getByText("Needs your reply")).toBeVisible();
+  await expectNoA11yViolations(screen.container);
+  await screen.getByRole("button", { name: "Invoice-date rate" }).click();
+  expect(onChoose).toHaveBeenCalledWith("q", question.choices[1]);
+  await expect
+    .element(screen.getByRole("button", { name: "Invoice-date rate" }))
+    .toHaveAttribute("aria-busy", "true");
+  await expect
+    .element(screen.getByRole("button", { name: "Month-end rate" }))
+    .toBeDisabled();
+  resolve();
+  await expect
+    .element(screen.getByRole("button", { name: "Month-end rate" }))
+    .toBeEnabled();
+
+  // Without onChoose (a viewer who may not answer), the choices are hidden.
+  const viewer = await render(
+    <ul>
+      <CommentItem comment={{ ...question, id: "q2" }} />
+    </ul>,
+  );
+  expect(
+    viewer.container.querySelector("[data-slot=comment-choices]"),
+  ).toBeNull();
 });

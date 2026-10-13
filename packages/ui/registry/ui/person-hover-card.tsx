@@ -1,4 +1,4 @@
-// @vegastack person-hover-card@0.25.28 sha256-zFC1xWhDL/29T6Ny7kRVFWxgjwVelgfODsqovY82jic=
+// @vegastack person-hover-card@0.25.28 sha256-pQTe0zOFlMj0hxDCumnG0gMtF/DjgexgRJ8akZ0pfpk=
 
 "use client";
 
@@ -8,6 +8,8 @@ import { AvatarGroup, AvatarGroupCount } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
   PersonAvatar as BasePersonAvatar,
+  PersonName,
+  personAccessibleName,
   type Person as BasePerson,
 } from "@/components/ui/person-avatar";
 import { PersonBadge } from "@/components/ui/searchable-select";
@@ -27,7 +29,8 @@ import {
  * 32px avatar (`PersonAvatar`: the photo, else initials on the person's hue) with the name and a muted email stacked beside it. AvatarStack stacks up to `max` of them (the Avatar
  * group recipe) with the rest behind a "+N" that opens the same rows in a list. A person without
  * an account (a free-text participant) shows initials and just the name. A team (`kind: "team"`)
- * stacks and lists the same way, drawn as its rounded-square team tile.
+ * stacks and lists the same way, drawn as its rounded-square team tile; an agent
+ * (`kind: "agent"`) as its purple bot, named "Claude Code via Manoj" with the "Agent" label.
  * ----------------------------------------------------------------------------------------------*/
 
 /** A person — re-exported from `person-avatar`, their home, for existing imports. */
@@ -72,9 +75,10 @@ export function PersonCard({
       />
       <div className="flex min-w-0 flex-col">
         <span className="flex min-w-0 flex-wrap items-center gap-x-1.5">
-          <span className="text-sm font-medium wrap-anywhere">
-            {person.name}
-          </span>
+          <PersonName
+            person={person}
+            className="text-sm font-medium wrap-anywhere"
+          />
           <PersonBadge badge={person.badge} />
         </span>
         {person.email ? (
@@ -139,7 +143,7 @@ export function PersonHoverCard({
             <Button
               variant="ghost"
               size="icon-sm"
-              aria-label={person.name}
+              aria-label={personAccessibleName(person)}
               className={cn(
                 person.kind === "team" ? "rounded-md" : "rounded-full",
                 className,
@@ -211,7 +215,7 @@ export function AvatarStack({
           <Button
             variant="ghost"
             data-slot="avatar-stack"
-            aria-label={`${label}: ${people.map((p) => p.name).join(", ")}${
+            aria-label={`${label}: ${people.map(personAccessibleName).join(", ")}${
               count > people.length ? ` and ${count - people.length} more` : ""
             }`}
             className={cn(

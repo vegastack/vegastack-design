@@ -1,4 +1,4 @@
-// @vegastack comments@0.25.28 sha256-vlTOZ7Umld9dJf8k/w9KH6nvfzEUICnaVlwJvW3hlaw=
+// @vegastack comments@0.25.28 sha256-CclfoSh0ExDcBDq0/wUZzLK5w7VBtZfBFOj/3YRETmo=
 
 "use client";
 
@@ -6,7 +6,6 @@ import * as React from "react";
 import { DEFAULT_LOCALE, dayDelta, formatDate } from "@/lib/date-time";
 import {
   ArrowUp,
-  Bot,
   ArrowUpDown,
   Check,
   ChevronDown,
@@ -34,7 +33,12 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { MarkdownView } from "@/components/ui/markdown-view";
-import { PersonAvatar, type Person } from "@/components/ui/person-avatar";
+import {
+  PersonAgentLabel,
+  PersonAvatar,
+  PersonName,
+  type Person,
+} from "@/components/ui/person-avatar";
 import { PersonHoverCard } from "@/components/ui/person-hover-card";
 import {
   ReactionAdd,
@@ -95,12 +99,31 @@ export interface CommentData {
   /** The viewer may delete it (the menu shows Delete). @default false */
   canDelete?: boolean;
   /**
-   * Written by an agent (an AI assistant, an automation): a violet bar at the row's start, a bot
-   * avatar when it has no image, and an "Agent" label after the name. @default false
+   * @deprecated Give the author `kind: "agent"` (and `via`) instead; kept for one release. Written by
+   * an agent: read as if `author.kind` were `"agent"`. @default false
    */
   agent?: boolean;
+  /**
+   * `question` — an agent's question waiting on the viewer: an amber bar at the row's start and a
+   * "Needs your reply" label after the name, with the `choices` under the body. Set it back to
+   * `default` once answered. @default "default"
+   */
+  tone?: "default" | "question";
+  /**
+   * A question's suggested answers, as buttons under the body; picking one calls the item's
+   * `onChoose`. Shown only while `tone` is `question` and `onChoose` is set. @default undefined
+   */
+  choices?: readonly CommentChoice[];
   /** Emoji reactions, shown as pills under the body. @default undefined */
   reactions?: ReactionData[];
+}
+
+/** A suggested answer to an agent's question (`CommentData.choices`). */
+export interface CommentChoice {
+  /** Stable id, passed to `onChoose`. */
+  id: string;
+  /** The button's text — and, usually, the reply it posts. */
+  label: string;
 }
 
 /** The send/save shortcut as the viewer's keyboard names it (a tooltip renders only on the client). */
@@ -164,6 +187,12 @@ export interface CommentItemProps {
    * May return a promise. @default undefined
    */
   onReactionToggle?: MaybeAsync<[id: string, emoji: string]>;
+  /**
+   * Answer a question (`tone: "question"`) with one of its `choices` — e.g. post it as the reply.
+   * Pass it only to whoever may answer (the agent's owner); without it the choices are hidden. A
+   * promise keeps the picked button busy, and a rejection shows its message. @default undefined
+   */
+  onChoose?: MaybeAsync<[id: string, choice: CommentChoice]>;
   /** Tint the comment — it was opened from its `#comment-<id>` link. @default false */
   highlighted?: boolean;
   /** Start in editing mode (controlled when `onEditingChange` is set). @default undefined */
@@ -226,6 +255,7 @@ export function CommentItem({
   onCopyText,
   onReply,
   onReactionToggle,
+  onChoose,
   highlighted = false,
   editing: editingProp,
   onEditingChange,
@@ -273,7 +303,13 @@ export function CommentItem({
   const [error, setError] = React.useState<string | null>(null);
   // Reply sits in the menu on a touch screen only; with a mouse the reply box is right there.
   const coarse = useMediaQuery("(pointer: coarse)");
-  const { author } = comment;
+  // An agent is its author's `kind`; the `agent` flag is the deprecated spelling of the same.
+  const agent = comment.agent === true || comment.author.kind === "agent";
+  const author: Person = agent
+    ? { ...comment.author, kind: "agent" }
+    : comment.author;
+  const question = comment.tone === "question";
+  const [choosing, setChoosing] = React.useState<string | null>(null);
   const reactions = comment.reactions?.filter((r) => r.count > 0) ?? [];
   const toggleReaction = onReactionToggle
     ? (emoji: string) => onReactionToggle(comment.id, emoji)
@@ -313,6 +349,25 @@ export function CommentItem({
     }
   };
 
+  const choose = async (choice: CommentChoice) => {
+    if (!onChoose || choosing) return;
+    setChoosing(choice.id);
+    setError(null);
+    try {
+      await onChoose(comment.id, choice);
+    } catch (e) {
+      setError(errorMessage(e, "Couldn't send your answer."));
+    } finally {
+      setChoosing(null);
+    }
+  };
+  const showChoices =
+    question &&
+    !!onChoose &&
+    !!comment.choices?.length &&
+    !comment.deleted &&
+    !editing;
+
   const canReply = !!onReply && coarse && !comment.deleted;
   const canCopy = !!onCopyLink && !comment.deleted;
   const canCopyText = !!onCopyText && !comment.deleted && !!comment.body.trim();
@@ -326,7 +381,8 @@ export function CommentItem({
       data-slot="comment-item"
       data-variant={variant}
       data-deleted={comment.deleted ? "" : undefined}
-      data-agent={comment.agent ? "" : undefined}
+      data-agent={agent ? "" : undefined}
+      data-tone={question ? "question" : undefined}
       className={cn(
         // On its own (a `CommentList`), a comment is a card: a hairline border, the light fill.
         // Inside a thread or a replies list it is a row of that card, split from the row above by
@@ -341,38 +397,34 @@ export function CommentItem({
         data-slot="comment-card"
         data-highlighted={highlighted ? "" : undefined}
         // 16px in from the card's sides, 12px above and below. An agent's comment has a violet
-        // bar at its start.
-        className="group/comment flex min-w-0 flex-col px-4 py-3 transition-colors data-[highlighted]:bg-accent in-data-agent:relative in-data-agent:before:absolute in-data-agent:before:inset-y-2 in-data-agent:before:start-0 in-data-agent:before:w-0.5 in-data-agent:before:rounded-full in-data-agent:before:bg-tag-purple"
+        // bar at its start, a question an amber one — on this row only, never on its replies.
+        className={cn(
+          "group/comment flex min-w-0 flex-col px-4 py-3 transition-colors data-[highlighted]:bg-accent",
+          (agent || question) &&
+            "relative before:absolute before:inset-y-2 before:start-0 before:w-0.5 before:rounded-full",
+          question ? "before:bg-warning" : agent && "before:bg-tag-purple",
+        )}
       >
         <div
           data-slot="comment-header"
           className="flex min-h-6 min-w-0 items-center gap-2"
         >
-          {comment.agent && !author.image ? (
-            <span
-              aria-hidden
-              data-slot="comment-agent-avatar"
-              className="grid size-5 shrink-0 place-items-center rounded-full bg-tag-purple-subtle text-tag-purple-text"
-            >
-              <Bot className="size-3.5" />
-            </span>
-          ) : (
-            <PersonAvatar person={author} className={AVATAR} />
-          )}
+          <PersonAvatar person={author} className={AVATAR} />
           <span className="flex min-w-0 flex-1 items-center gap-x-2">
             <PersonHoverCard
               person={author}
               trigger="name"
               className="-my-0.5 truncate py-1 text-sm"
             >
-              {author.name}
+              <PersonName person={author} agentLabel={false} />
             </PersonHoverCard>
-            {comment.agent ? (
+            {agent ? <PersonAgentLabel /> : null}
+            {question ? (
               <span
-                data-slot="comment-agent"
-                className="shrink-0 rounded-sm bg-tag-purple-subtle px-1 text-xs font-medium text-tag-purple-text"
+                data-slot="comment-question"
+                className="shrink-0 rounded-sm bg-warning/10 px-1 text-xs font-medium whitespace-nowrap text-warning-text"
               >
-                Agent
+                Needs your reply
               </span>
             ) : null}
             <PersonBadge badge={author.badge} />
@@ -558,6 +610,27 @@ export function CommentItem({
                 {comment.body}
               </MarkdownView>
             </ImageViewerScope>
+          ) : null}
+          {showChoices ? (
+            <div
+              role="group"
+              aria-label="Suggested answers"
+              data-slot="comment-choices"
+              className="flex flex-wrap gap-1.5 pt-0.5"
+            >
+              {comment.choices!.map((choice) => (
+                <Button
+                  key={choice.id}
+                  variant="outline"
+                  size="sm"
+                  loading={choosing === choice.id}
+                  disabled={choosing !== null && choosing !== choice.id}
+                  onClick={() => void choose(choice)}
+                >
+                  {choice.label}
+                </Button>
+              ))}
+            </div>
           ) : null}
           {!comment.deleted && !editing && attachments ? (
             <div data-slot="comment-attachments" className="min-w-0">
@@ -1362,6 +1435,8 @@ export interface CommentThreadProps {
   onCopyLink?: CommentItemProps["onCopyLink"];
   /** Copy a comment's Markdown. @default undefined */
   onCopyText?: CommentItemProps["onCopyText"];
+  /** Answer an agent's question with one of its choices (see `CommentItem`). @default undefined */
+  onChoose?: CommentItemProps["onChoose"];
   /**
    * An edit box's text on every change, and `null` when that edit ends (see `CommentItem`).
    * @default undefined
@@ -1454,6 +1529,7 @@ export function CommentThread({
   onReactionToggle,
   onCopyLink,
   onCopyText,
+  onChoose,
   onEditValueChange,
   editingId,
   onEditingIdChange,
@@ -1518,6 +1594,7 @@ export function CommentThread({
       onReactionToggle={onReactionToggle}
       onCopyLink={onCopyLink}
       onCopyText={onCopyText}
+      onChoose={onChoose}
       onReply={isRoot && canReply ? startReply : undefined}
       onEditValueChange={onEditValueChange}
       {...editingProps(comment.id)}
@@ -1854,6 +1931,8 @@ export interface CommentListProps {
   onCopyLink?: CommentItemProps["onCopyLink"];
   /** Copy a comment's Markdown. @default undefined */
   onCopyText?: CommentItemProps["onCopyText"];
+  /** Answer an agent's question with one of its choices (see `CommentItem`). @default undefined */
+  onChoose?: CommentItemProps["onChoose"];
   /** Add or remove the viewer's reaction on a comment. @default undefined */
   onReactionToggle?: CommentItemProps["onReactionToggle"];
   /**
@@ -1926,6 +2005,7 @@ export function CommentList({
   onDelete,
   onCopyLink,
   onCopyText,
+  onChoose,
   onReactionToggle,
   onEditValueChange,
   editingId,
@@ -2029,6 +2109,7 @@ export function CommentList({
                           onDelete={onDelete}
                           onCopyLink={onCopyLink}
                           onCopyText={onCopyText}
+                          onChoose={onChoose}
                           onReactionToggle={onReactionToggle}
                           onEditValueChange={onEditValueChange}
                           {...editingProps(comment.id)}

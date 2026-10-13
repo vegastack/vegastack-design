@@ -166,6 +166,45 @@ test("multiple: rows toggle, the popover stays open, the trigger reads the names
   await userEvent.keyboard("{Escape}");
 });
 
+test("a chosen agent reads with its owner in the trigger's text and name, single and multiple", async () => {
+  const claude: PeoplePickerOption = {
+    id: "a1",
+    name: "Claude Code",
+    kind: "agent",
+    via: "Manoj",
+  };
+  const screen = await render(
+    <div className="flex flex-col gap-2">
+      <PeoplePicker
+        value={claude}
+        onValueChange={() => {}}
+        options={[claude]}
+      />
+      <PeoplePicker
+        multiple
+        value={[claude, DIRECTORY[0]!]}
+        onValueChange={() => {}}
+        options={[claude]}
+      />
+    </div>,
+  );
+  // The trigger's text (beside the avatars) and its accessible name both carry the owner.
+  await hasText(
+    screen.getByRole("button", {
+      name: "Claude Code (via Manoj)",
+      exact: true,
+    }),
+    "Claude Code (via Manoj)",
+  );
+  await hasText(
+    screen.getByRole("button", {
+      name: "Claude Code (via Manoj), Asha Rao",
+      exact: true,
+    }),
+    "Claude Code (via Manoj), Asha Rao",
+  );
+});
+
 test("includeInactive lists inactive people with a badge", async () => {
   const screen = await render(<Multiple includeInactive />);
   await screen.getByRole("button", { name: "Add people" }).click();
@@ -256,6 +295,62 @@ test("menu: the same rows inside a dropdown submenu", async () => {
   await screen.getByRole("menuitem", { name: "Assign" }).click();
   await screen.getByRole("menuitem", { name: /Asha Rao/ }).click();
   expect(onSelect).toHaveBeenCalledWith(DIRECTORY[0]);
+});
+
+test("menu: agents under a heading; a disabled agent shows why and can't be picked", async () => {
+  const onSelect = vi.fn();
+  const agents: PeoplePickerOption[] = [
+    {
+      id: "a1",
+      name: "Claude Code",
+      kind: "agent",
+      via: "Manoj",
+      description: "claude.ai · Read & write",
+    },
+    {
+      id: "a2",
+      name: "Nightly digest",
+      kind: "agent",
+      via: "Manoj",
+      disabledReason: "Read only — can't be delegated",
+    },
+  ];
+  const screen = await render(
+    <DropdownMenu>
+      <DropdownMenuTrigger render={<Button>Actions</Button>} />
+      <DropdownMenuContent>
+        <DropdownMenuSub>
+          <DropdownMenuSubTrigger>Delegate</DropdownMenuSubTrigger>
+          <DropdownMenuSubContent className="min-w-72">
+            <PeoplePickerMenu
+              options={agents}
+              heading="Your agents"
+              searchPlaceholder="Search agents"
+              onSelect={onSelect}
+            />
+          </DropdownMenuSubContent>
+        </DropdownMenuSub>
+      </DropdownMenuContent>
+    </DropdownMenu>,
+  );
+  await screen.getByRole("button", { name: "Actions" }).click();
+  await screen.getByRole("menuitem", { name: "Delegate" }).click();
+  await expect.element(screen.getByText("Your agents")).toBeVisible();
+  const claude = screen.getByRole("menuitem", {
+    name: /Claude Code via Manoj, agent/,
+  });
+  await expect.element(claude).toBeVisible();
+  expect(
+    claude.element().querySelector("[data-slot=avatar][data-kind=agent]"),
+  ).not.toBeNull();
+  const digest = screen.getByRole("menuitem", { name: /Nightly digest/ });
+  await expect.element(digest).toHaveAttribute("aria-disabled", "true");
+  await expect
+    .element(screen.getByText("Read only — can't be delegated"))
+    .toBeVisible();
+  await claude.click();
+  expect(onSelect).toHaveBeenCalledWith(agents[0]);
+  expect(onSelect).toHaveBeenCalledTimes(1);
 });
 
 test("a failed search shows Try again, which retries without picking a row", async () => {

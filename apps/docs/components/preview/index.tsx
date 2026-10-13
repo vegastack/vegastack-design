@@ -37,6 +37,7 @@ export * from "./stat";
 export * from "./property-list";
 export * from "./code-block";
 export * from "./tool-call-chip";
+export * from "./approval-card";
 export * from "./navigation-menu";
 export * from "./announcement-banner";
 export * from "./accordion";

@@ -289,7 +289,7 @@
         "whenToUse": "Discussion on a record's page (a task, a meeting): Linear-style thread cards (first comment, replies, a flat reply row) with the composer at the end (at the top newest first).",
         "whenNotToUse": "An activity feed or notifications — use Inbox.",
         "version": "0.25.28",
-        "integrity": "sha256-vlTOZ7Umld9dJf8k/w9KH6nvfzEUICnaVlwJvW3hlaw="
+        "integrity": "sha256-CclfoSh0ExDcBDq0/wUZzLK5w7VBtZfBFOj/3YRETmo="
       }
     },
     {
@@ -325,7 +325,7 @@
         "whenToUse": "A record's history on its page (a task, a deal, a document): what changed, who changed it and when, interleaved with the comment threads.",
         "whenNotToUse": "Comments alone (Comments), a cross-record notification list (Inbox), or a dated milestone list (Timeline).",
         "version": "0.25.28",
-        "integrity": "sha256-JGXNITeh5C8ORBw8uveRi9eg4zK0lzszz8Q1Cw+/yW4="
+        "integrity": "sha256-WGD43eOHie8yEmLR9a9Auq4lhJk3ArmWcq5X6TvbTLc="
       }
     },
     {
@@ -16775,7 +16775,7 @@
         "whenToUse": "Show the people on a record (participants, watchers, a team) as stacked avatars, each previewing the person on hover, focus or tap.",
         "whenNotToUse": "A picker of people (SearchableSelect) or a full member list (DataList).",
         "version": "0.25.28",
-        "integrity": "sha256-zFC1xWhDL/29T6Ny7kRVFWxgjwVelgfODsqovY82jic="
+        "integrity": "sha256-pQTe0zOFlMj0hxDCumnG0gMtF/DjgexgRJ8akZ0pfpk="
       }
     },
     {
@@ -16813,7 +16813,7 @@
         "whenToUse": "Choose a person (assignee, owner, manager) or several people and teams (members of a team or space, a share invite), or filter by person — every people picker.",
         "whenNotToUse": "Type free-form tokens such as emails (ChipInput), or pick non-person records (SearchableSelect).",
         "version": "0.25.28",
-        "integrity": "sha256-RCmdUSSdGf+r0GtO7Y+BameBTDH9nirtV1DRzC605hQ="
+        "integrity": "sha256-KkW5USx9cEz+xjylC8Rm9r7tESmUJTnXqlCa9ClpKm8="
       }
     },
     {
@@ -17035,7 +17035,7 @@
         "whenToUse": "Any avatar that stands for a person: rows, chips, cards, menus, comments and the user menu.",
         "whenNotToUse": "An organisation or record image (Thumbnail), a space (IconGlyph), or a non-person avatar composition (Avatar).",
         "version": "0.25.28",
-        "integrity": "sha256-Y9fNdaSq/0NY7snEBpRu+lTI2d6kWbgl9QZNVaXzUiY="
+        "integrity": "sha256-ZmQL9csz4GvcqkEKQ/VS9bix/QU2A90WFySfMmfn8Cw="
       }
     },
     {
@@ -21866,6 +21866,39 @@
         "whenNotToUse": "Playback progress or a seek bar (AudioPlayer), or a static measurement (Progress or Meter).",
         "version": "0.25.28",
         "integrity": "sha256-zccJRsShYfkozDTK3VO30F25xTLdagJO47BDbcYOOe0="
+      }
+    },
+    {
+      "name": "approval-card",
+      "type": "registry:ui",
+      "title": "Approval Card",
+      "description": "An agent asks its owner to approve a risky action: who asks, the action in words, the records it touches, its reason, a reassurance, the expiry, and one Approve / Decline for the whole request — then the outcome.",
+      "categories": [
+        "chat"
+      ],
+      "dependencies": [
+        "lucide-react@^1.47.0",
+        "@vegastack/design@^0.8.6",
+        "@vegastack/design-tokens@^0.8.3"
+      ],
+      "registryDependencies": [
+        "@vegastack/button",
+        "@vegastack/person-avatar",
+        "@vegastack/relative-time",
+        "@vegastack/use-announcer"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/approval-card.tsx",
+          "type": "registry:ui",
+          "target": "@ui/approval-card.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "Approve or decline an action an agent may not take on its own (move to Trash, share, publish) — on the record, in the inbox detail, or a sheet.",
+        "whenNotToUse": "A person asking for access (InboxItem actions), or confirming the viewer`s own destructive action (AlertDialog).",
+        "version": "0.25.28",
+        "integrity": "sha256-3QP9TMmOzkObW0CS6pYpBL4Eq9pbx3IHbS8laFiKgNg="
       }
     }
   ]

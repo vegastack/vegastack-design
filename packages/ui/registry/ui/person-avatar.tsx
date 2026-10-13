@@ -1,9 +1,9 @@
-// @vegastack person-avatar@0.25.28 sha256-Y9fNdaSq/0NY7snEBpRu+lTI2d6kWbgl9QZNVaXzUiY=
+// @vegastack person-avatar@0.25.28 sha256-ZmQL9csz4GvcqkEKQ/VS9bix/QU2A90WFySfMmfn8Cw=
 
 "use client";
 
 import * as React from "react";
-import { UsersRound } from "lucide-react";
+import { Bot, UsersRound } from "lucide-react";
 import { cn } from "@vegastack/design";
 import { Avatar, AvatarFallback, type AvatarHue } from "@/components/ui/avatar";
 
@@ -15,6 +15,9 @@ import { Avatar, AvatarFallback, type AvatarHue } from "@/components/ui/avatar";
  * rule in `personInitials`, exported here for anything else that shows a person's initials.
  * A team (`kind: "team"`) is drawn as a rounded-square tile with the team icon on its hue — never
  * initials — so a team reads as a group wherever people and teams are listed together.
+ * An agent (`kind: "agent"`) — an AI assistant working for a member — is a bot on the purple tag
+ * hue, and `PersonName` writes its name as "Claude Code via Manoj" with the purple "Agent" label,
+ * so an agent reads the same in every avatar, stack, picker, feed and comment.
  * ----------------------------------------------------------------------------------------------*/
 
 /** The first `n` characters of a string, by code point, so an emoji or accent is never split. */
@@ -55,8 +58,49 @@ export interface Person {
   hue?: AvatarHue | null;
   /** A status after the name, such as "Inactive" — a string is a small muted outline badge. @default undefined */
   badge?: React.ReactNode;
-  /** A person, or a team of people — a team is a rounded-square tile with the team icon on its hue. @default "person" */
-  kind?: "person" | "team";
+  /**
+   * A person, a team of people (a rounded-square tile with the team icon on its hue), or an agent
+   * working for a member (a bot on the purple tag hue, named with `via` and an "Agent" label).
+   * @default "person"
+   */
+  kind?: PersonKind;
+  /** An agent's owner — the member it works for: "Claude Code" `via` "Manoj". @default undefined */
+  via?: string | null;
+}
+
+/** What a `Person` is: a person, a team of people, or an agent working for a member. */
+export type PersonKind = "person" | "team" | "agent";
+
+/**
+ * `personDisplayName` — a person's name as plain text: an agent reads "Claude Code (via Manoj)",
+ * anyone else their name. For a toast, a title or a menu label; in a row, use `PersonName`.
+ *
+ * @example
+ * personDisplayName({ name: "Claude Code", kind: "agent", via: "Manoj" }); // "Claude Code (via Manoj)"
+ */
+export function personDisplayName(
+  person: Pick<Person, "name" | "kind" | "via">,
+): string {
+  return person.kind === "agent" && person.via
+    ? `${person.name} (via ${person.via})`
+    : person.name;
+}
+
+/**
+ * `personAccessibleName` — what a screen reader hears for a person: an agent is "Claude Code via
+ * Manoj, agent" (or "Claude Code, agent") — the visible name first, so speech input matches it
+ * (WCAG 2.5.3), and "agent" is never carried by colour alone.
+ *
+ * @example
+ * personAccessibleName({ name: "Claude Code", kind: "agent", via: "Manoj" }); // "Claude Code via Manoj, agent"
+ */
+export function personAccessibleName(
+  person: Pick<Person, "name" | "kind" | "via">,
+): string {
+  if (person.kind !== "agent") return person.name;
+  return person.via
+    ? `${person.name} via ${person.via}, agent`
+    : `${person.name}, agent`;
 }
 
 /** Props for `PersonAvatar`. */
@@ -68,8 +112,8 @@ export interface PersonAvatarProps extends Omit<
   person: Pick<Person, "name" | "email" | "image" | "hue" | "kind">;
   /** Avatar size. @default "sm" */
   size?: "sm" | "default" | "lg";
-  /** Draw a person or a team; overrides `person.kind`. @default person.kind ?? "person" */
-  kind?: "person" | "team";
+  /** Draw a person, a team or an agent; overrides `person.kind`. @default person.kind ?? "person" */
+  kind?: PersonKind;
 }
 
 /**
@@ -82,10 +126,12 @@ export interface PersonAvatarProps extends Omit<
  * initials.) The initials stay underneath until the photo has loaded, and come back if it fails.
  *
  * A team (`kind="team"`, or `person.kind`) is a rounded-square tile with the `UsersRound` icon on
- * its hue, and no photo or initials.
+ * its hue, and no photo or initials. An agent (`kind="agent"`) is the `Bot` icon on the purple tag
+ * hue whatever its `hue` — under its photo, when it has one.
  *
  * @example <PersonAvatar person={{ name: "Asha Rao", hue: "blue" }} />
  * @example <PersonAvatar person={{ name: "Sales", kind: "team", hue: "green" }} />
+ * @example <PersonAvatar person={{ name: "Claude Code", kind: "agent" }} />
  */
 export function PersonAvatar({
   person,
@@ -94,7 +140,9 @@ export function PersonAvatar({
   className,
   ...props
 }: PersonAvatarProps) {
-  const team = (kind ?? person.kind) === "team";
+  const resolvedKind = kind ?? person.kind ?? "person";
+  const team = resolvedKind === "team";
+  const agent = resolvedKind === "agent";
   const src = team ? undefined : person.image || undefined;
   // Keyed by `src`, so a new photo starts over: a failure or a load of the old one never sticks.
   const [loaded, setLoaded] = React.useState<string | null>(null);
@@ -132,8 +180,20 @@ export function PersonAvatar({
   }
 
   return (
-    <Avatar size={size} className={className} {...props}>
-      {imageLoaded ? null : (
+    <Avatar
+      size={size}
+      data-kind={agent ? "agent" : undefined}
+      className={className}
+      {...props}
+    >
+      {imageLoaded ? null : agent ? (
+        <AvatarFallback hue="purple">
+          <Bot
+            aria-hidden
+            className="size-4 group-data-[size=lg]/avatar:size-5 group-data-[size=sm]/avatar:size-3.5"
+          />
+        </AvatarFallback>
+      ) : (
         <AvatarFallback hue={person.hue ?? undefined}>
           {personInitials(person.name, person.email)}
         </AvatarFallback>
@@ -152,5 +212,92 @@ export function PersonAvatar({
         />
       ) : null}
     </Avatar>
+  );
+}
+
+/**
+ * `PersonAgentLabel` — the small purple "Agent" label after an agent's name. `PersonName` draws it;
+ * use it alone where the name sits in a truncating trigger and the label must stay whole.
+ *
+ * @example <PersonHoverCard person={agent} trigger="name"><PersonName person={agent} agentLabel={false} /></PersonHoverCard> <PersonAgentLabel />
+ */
+export function PersonAgentLabel({
+  className,
+  children = "Agent",
+  ...props
+}: React.ComponentPropsWithRef<"span">) {
+  return (
+    <span
+      data-slot="person-agent-label"
+      className={cn(
+        "shrink-0 rounded-sm bg-tag-purple-subtle px-1 text-xs font-medium whitespace-nowrap text-tag-purple-text",
+        className,
+      )}
+      {...props}
+    >
+      {children}
+    </span>
+  );
+}
+
+/** Props for `PersonName`. */
+export interface PersonNameProps extends Omit<
+  React.ComponentPropsWithRef<"span">,
+  "children"
+> {
+  /** The person; an agent (`kind: "agent"`) reads with its `via` and the "Agent" label. */
+  person: Pick<Person, "name" | "kind" | "via">;
+  /** Show an agent's purple "Agent" label after its name. @default true */
+  agentLabel?: boolean;
+}
+
+/**
+ * `PersonName` — a person's name as every surface writes it. A person or a team is their name; an
+ * agent is its name, a muted "via Manoj" and the small purple "Agent" label, and a screen reader
+ * hears "Claude Code via Manoj, agent". Inline, so it sits in a sentence, a hover-card trigger or a
+ * truncating row.
+ *
+ * @example <PersonName person={{ name: "Claude Code", kind: "agent", via: "Manoj" }} />
+ */
+export function PersonName({
+  person,
+  agentLabel = true,
+  className,
+  ...props
+}: PersonNameProps) {
+  if (person.kind !== "agent") {
+    return (
+      <span data-slot="person-name" className={className} {...props}>
+        {person.name}
+      </span>
+    );
+  }
+  return (
+    <span
+      data-slot="person-name"
+      data-kind="agent"
+      className={className}
+      {...props}
+    >
+      <span aria-hidden>
+        {person.name}
+        {person.via ? (
+          <span
+            data-slot="person-name-via"
+            className="font-normal text-muted-foreground"
+          >
+            {" "}
+            via {person.via}
+          </span>
+        ) : null}
+        {agentLabel ? (
+          <>
+            {" "}
+            <PersonAgentLabel />
+          </>
+        ) : null}
+      </span>
+      <span className="sr-only">{personAccessibleName(person)}</span>
+    </span>
   );
 }

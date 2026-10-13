@@ -760,6 +760,59 @@ test("pending dims the list and marks the section busy; an agent's event says Ag
     .toBeVisible();
 });
 
+test("an agent actor reads its owner and the Agent label; the agent kinds draw in their status tones", async () => {
+  const claude = { name: "Claude Code", kind: "agent" as const, via: "Manoj" };
+  const screen = await render(
+    <ActivityFeedList>
+      <ActivityFeedItem>
+        <ActivityEvent
+          actor={priya}
+          icon={<ActivityKindIcon kind="delegated" />}
+          date={NOW - HOUR}
+          now={NOW}
+        >
+          delegated this to{" "}
+          <ActivityValue>Claude Code (via Manoj)</ActivityValue>
+        </ActivityEvent>
+      </ActivityFeedItem>
+      <ActivityFeedItem>
+        <ActivityEvent
+          actor={claude}
+          icon={<ActivityKindIcon kind="agent-needs-you" />}
+          date={NOW - 60_000}
+          now={NOW}
+        >
+          needs Manoj
+        </ActivityEvent>
+      </ActivityFeedItem>
+    </ActivityFeedList>,
+  );
+  const events = screen.container.querySelectorAll<HTMLElement>(
+    "[data-slot=activity-event]",
+  );
+  expect(events[0]!.hasAttribute("data-agent")).toBe(false);
+  expect(events[1]!.hasAttribute("data-agent")).toBe(true);
+  expect(
+    events[1]!.querySelector("[data-slot=person-name-via]")?.textContent,
+  ).toBe(" via Manoj");
+  expect(
+    events[1]!.querySelector("[data-slot=person-agent-label]")?.textContent,
+  ).toBe("Agent");
+  await expect
+    .element(
+      screen.getByRole("button", { name: "Claude Code via Manoj, agent" }),
+    )
+    .toBeVisible();
+  const icons = screen.container.querySelectorAll<SVGElement>(
+    "[data-slot=activity-kind-icon]",
+  );
+  expect(icons[0]!.classList).toContain("lucide-bot");
+  expect(icons[0]!.classList).toContain("text-tag-purple-text");
+  expect(icons[1]!.classList).toContain("lucide-circle-alert");
+  expect(icons[1]!.classList).toContain("text-warning");
+  await expectNoA11yViolations(screen.container);
+});
+
 test("Jump to latest reaches the supplied boundary and transfers focus", async () => {
   const reached = vi.fn();
   function Fixture() {

@@ -2,10 +2,10 @@
   "schemaVersion": 1,
   "kind": "vegastack-zero-gap-audit-register",
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "426b1429262c7007410b9eab685d80c1fd4accf81d67e74cd32cd5016ece3799",
+  "contractSha256": "cb26076ff528485c5827679eeda309911513410dfb2f870df5bedfa9d9997af8",
   "expectedCounts": {
-    "totalRegistryItems": 740,
-    "components": 159,
+    "totalRegistryItems": 741,
+    "components": 160,
     "animatedIcons": 467,
     "hooks": 15,
     "blocks": 15,
@@ -1767,6 +1767,17 @@
         "packages/ui/registry/ui/level-meter.tsx"
       ],
       "docsSlug": "/docs/components/level-meter",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "approval-card",
+      "inventoryClass": "component",
+      "wave": "AI/chat",
+      "family": "chat",
+      "sourceFiles": [
+        "packages/ui/registry/ui/approval-card.tsx"
+      ],
+      "docsSlug": "/docs/components/approval-card",
       "contractStatus": "reconciled"
     },
     {

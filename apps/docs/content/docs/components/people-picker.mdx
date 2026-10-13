@@ -91,6 +91,18 @@ is exactly as tall as the `PermissionMenu` and `Button` beside it.
   file="components/preview/people-picker.tsx"
 />
 
+### Agents
+
+An option with `kind: "agent"` and `via` reads "Claude Code via Manoj" with the purple bot and the
+"Agent" label, so the same picker delegates work to a member's agents. `heading` labels the rows
+("Your agents"); an option with `disabledReason` stays listed, disabled, with the reason as its
+second line.
+
+<ComponentPreview
+  name="peoplePickerAgents"
+  file="components/preview/people-picker.tsx"
+/>
+
 ## API Reference
 
 <ApiTable

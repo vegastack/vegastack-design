@@ -37,6 +37,12 @@
       "family": "layout",
       "source": "extras.md"
     },
+    "approval-card": {
+      "disposition": "keep",
+      "family": "chat",
+      "source": "Regent Phase 1b Connections plan (.vegastack/plans/pages-connections/11-phase1b-connections.md §9, DS-C) — operator go-dark mandate 14-10-2026 under the standing DS authorization (AGENTS.md, 8 October 2026)",
+      "rationale": "Upstream ships no approval request. A fixed composition of person-avatar, button, relative-time and use-announcer: an agent asks its owner to approve a risky action (all or nothing), with the records it touches, its reason, the expiry and the outcome; it carries no patch."
+    },
     "audio-player": {
       "disposition": "keep",
       "family": "media",
