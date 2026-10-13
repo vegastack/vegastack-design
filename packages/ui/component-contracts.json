@@ -26889,7 +26889,7 @@
       },
       "engines": [],
       "docsSlug": "/docs/guides/components",
-      "registryDependencies": [],
+      "registryDependencies": ["@vegastack/use-announcer"],
       "npmDependencies": [
         "@vegastack/design@^0.8.4",
         "@vegastack/design-tokens@^0.8.3"

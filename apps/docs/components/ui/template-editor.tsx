@@ -1,4 +1,4 @@
-// @vegastack template-editor@0.25.26 sha256-EkX41fjifYIDoSKY9bR83++xg9HY2X0WF5IsdmWW2e0=
+// @vegastack template-editor@0.25.26 sha256-RW3dJMhd+xLP1RLN2ZQULDrmRZu/jDh65zBmST8jK0U=
 
 "use client";
 
@@ -175,7 +175,7 @@ function lineContent(line: string): JSONContent[] {
 
 /** A single-line editor's text: every run of line breaks (and the space around it) is one space. */
 function oneLine(value: string) {
-  return value.replace(/\s*\n\s*/g, " ");
+  return value.replace(/\s*[\r\n]+\s*/g, " ");
 }
 
 /**
@@ -488,8 +488,9 @@ function replacementsExtension(runtime: TemplateRuntime) {
             return null;
           },
           handler: ({ state, range, match }) => {
+            const to = String(match.data?.to ?? "");
             state.tr.insertText(
-              String(match.data?.to ?? ""),
+              runtime.singleLine ? oneLine(to) : to,
               range.from,
               range.to,
             );

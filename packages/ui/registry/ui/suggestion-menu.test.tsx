@@ -153,7 +153,7 @@ test("pointer movement moves the active row; a click picks it; mousedown keeps f
   expect(document.activeElement).toBe(editor);
 });
 
-test("no rows: a status instead of an empty listbox — status, empty message, busy", async () => {
+test("no rows: a message instead of an empty listbox, announced politely; busy only over rows", async () => {
   const screen = await render(<Menu options={[]} />);
   const list = () =>
     document.querySelector<HTMLElement>('[data-slot="suggestion-menu"]')!;
@@ -161,14 +161,25 @@ test("no rows: a status instead of an empty listbox — status, empty message, b
     document.querySelector<HTMLElement>(
       '[data-slot="suggestion-menu-status"]',
     )!;
+  // The message is spoken through a polite region mounted with the menu, outside the surface.
+  const region = () =>
+    document.querySelector<HTMLElement>(
+      '[data-slot="suggestion-menu-layer"] > [role="status"]',
+    )!;
   expect(list().getAttribute("role")).toBeNull();
-  expect(status().getAttribute("role")).toBe("status");
+  expect(status().getAttribute("role")).toBeNull();
   expect(status().textContent).toBe("No results");
+  await vi.waitFor(() => expect(region().textContent).toBe("No results"));
   await expectNoA11yViolations(document.body);
 
   await screen.rerender(<Menu options={OPTIONS} status="Searching…" loading />);
   expect(rows()).toHaveLength(0);
   expect(status().textContent).toBe("Searching…");
+  await vi.waitFor(() => expect(region().textContent).toBe("Searching…"));
+  expect(list().hasAttribute("aria-busy")).toBe(false);
+
+  // Rows on show while the next search runs: the listbox is busy.
+  await screen.rerender(<Menu options={OPTIONS} loading />);
   expect(list().getAttribute("aria-busy")).toBe("true");
 
   await screen.rerender(<Menu options={[]} emptyMessage="No matches" />);

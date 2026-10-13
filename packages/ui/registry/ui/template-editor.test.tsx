@@ -174,6 +174,22 @@ test("Escape closes the picker without reaching the host (a dialog stays open)",
   expect(onHostKey).not.toHaveBeenCalled();
 });
 
+test("singleLine: carriage returns load as spaces, and a replacement can never insert a line break", async () => {
+  const onChange = vi.fn();
+  const screen = await render(
+    <Controlled
+      initial={"a\rb"}
+      onChange={onChange}
+      singleLine
+      replacements={[{ from: ";", to: "\n" }]}
+    />,
+  );
+  const box = screen.getByRole("textbox", { name: "Description" });
+  await box.click();
+  await userEvent.keyboard("{End};c");
+  await vi.waitFor(() => expect(onChange.mock.calls.at(-1)?.[0]).toBe("a b c"));
+});
+
 test("replacements rewrite characters as you type; onChange stores the replaced text with {{id}} tokens", async () => {
   const onChange = vi.fn();
   const screen = await render(

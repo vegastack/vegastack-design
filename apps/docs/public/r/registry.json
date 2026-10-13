@@ -2272,7 +2272,9 @@
         "@vegastack/design@^0.8.4",
         "@vegastack/design-tokens@^0.8.3"
       ],
-      "registryDependencies": [],
+      "registryDependencies": [
+        "@vegastack/use-announcer"
+      ],
       "files": [
         {
           "path": "packages/ui/registry/ui/suggestion-menu.tsx",
@@ -2284,7 +2286,7 @@
         "whenToUse": "Installed automatically with TextEdit or TemplateEditor; import it directly when another editor that keeps focus needs a caret-anchored list of suggestions.",
         "whenNotToUse": "A list that takes focus or hangs off a trigger element — that is Combobox, Command or DropdownMenu.",
         "version": "0.25.26",
-        "integrity": "sha256-5SIwxA/Uja5Yqrtw24TFdVBOoiA/69lpUxBXg/PWmdU="
+        "integrity": "sha256-9CNLM1TwLxwLmAtUR1rV8/MqAhVXepQehyVvMOHU0dg="
       }
     },
     {
@@ -18006,7 +18008,7 @@
         "whenToUse": "Marketing or description text built from spec placeholders (\"Recessed @Power downlight with @Efficacy…\"), stored as {{id}} tokens a renderer fills in.",
         "whenNotToUse": "Formatted rich text (TextEdit), plain text with no placeholders (Textarea), or a single-line value (Input).",
         "version": "0.25.26",
-        "integrity": "sha256-EkX41fjifYIDoSKY9bR83++xg9HY2X0WF5IsdmWW2e0="
+        "integrity": "sha256-RW3dJMhd+xLP1RLN2ZQULDrmRZu/jDh65zBmST8jK0U="
       }
     },
     {

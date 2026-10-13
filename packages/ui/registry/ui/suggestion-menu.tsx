@@ -1,4 +1,4 @@
-// @vegastack suggestion-menu@0.25.26 sha256-5SIwxA/Uja5Yqrtw24TFdVBOoiA/69lpUxBXg/PWmdU=
+// @vegastack suggestion-menu@0.25.26 sha256-9CNLM1TwLxwLmAtUR1rV8/MqAhVXepQehyVvMOHU0dg=
 
 "use client";
 
@@ -6,6 +6,7 @@ import * as React from "react";
 import { createPortal } from "react-dom";
 import { cn, mergeRefs } from "@vegastack/design";
 import { useInternalThemeScope } from "@vegastack/design/theme-scope";
+import { useAnnouncer } from "@/components/ui/use-announcer";
 
 /* ------------------------------------------------------------------------------------------------
  * SuggestionMenu — the caret-anchored list an editor opens while you type a trigger (`@`, `/`,
@@ -99,7 +100,7 @@ export interface SuggestionMenuProps extends Omit<
    */
   emptyMessage?: React.ReactNode;
   /**
-   * A search is running (`aria-busy`).
+   * A search is running: the rows on show are about to change (`aria-busy` on the listbox).
    * @default false
    */
   loading?: boolean;
@@ -112,6 +113,9 @@ const SURFACE =
 /**
  * `ComboboxItem`'s row, verbatim apart from `pe-8` → `pe-1.5`: a suggestion row has no check
  * indicator to leave room for. Keyed to `data-highlighted`, as Base UI keys `ComboboxItem`.
+ *
+ * @example
+ * <div role="option" data-highlighted="" className={SUGGESTION_MENU_ROW}>Power</div>
  */
 export const SUGGESTION_MENU_ROW =
   "relative flex w-full items-center gap-2 rounded-md py-1 pe-1.5 ps-1.5 text-sm outline-hidden select-none data-highlighted:bg-accent data-highlighted:text-accent-foreground not-data-[variant=destructive]:data-highlighted:**:[&:not([data-icon-tone],[data-icon-tone]_*)]:text-accent-foreground data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 [&_svg:not([class*='text-']):not([data-icon-tone])]:text-muted-foreground data-highlighted:**:[svg:not([data-icon-tone])]:text-accent-foreground";
@@ -139,7 +143,12 @@ export function suggestionMenuOptionId(listId: string, index: number) {
   return `${listId}-option-${index}`;
 }
 
-/** What `suggestionMenuKeyDown` drives. */
+/**
+ * What `suggestionMenuKeyDown` drives.
+ *
+ * @example
+ * const target: SuggestionMenuKeyTarget = { count, activeIndex, onActiveIndexChange, onSelect, onClose };
+ */
 export interface SuggestionMenuKeyTarget {
   /** How many rows the menu shows. */
   count: number;
@@ -222,7 +231,7 @@ function place(node: HTMLElement, anchor: DOMRect) {
  * is on click. Rows look exactly like `ComboboxItem`'s; the active row (`activeIndex`) follows the
  * editor's arrow keys and the pointer's movement — movement, not enter, so a keyboard scroll that
  * slides rows under a resting pointer never steals it. With no rows it shows `status` or
- * `emptyMessage` as a status, not an empty listbox.
+ * `emptyMessage` in place of an empty listbox, and announces a text message politely.
  *
  * @example
  * <SuggestionMenu
@@ -252,11 +261,18 @@ export function SuggestionMenu({
   ...props
 }: SuggestionMenuProps) {
   const themeScope = useInternalThemeScope();
+  const { announce, Announcer } = useAnnouncer();
   const localRef = React.useRef<HTMLDivElement | null>(null);
   const setRef = React.useMemo(() => mergeRefs(localRef, ref), [ref]);
 
   const showRows = options.length > 0 && status == null;
   const message = showRows ? null : (status ?? emptyMessage);
+
+  // The message is announced through a region mounted (empty) with the menu, outside the busy
+  // listbox — a status that mounts already filled, or changes under `aria-busy`, may go unspoken.
+  React.useEffect(() => {
+    if (typeof message === "string" && message) announce(message);
+  }, [message, announce]);
 
   React.useLayoutEffect(() => {
     if (localRef.current && anchor) place(localRef.current, anchor);
@@ -339,7 +355,7 @@ export function SuggestionMenu({
         // A list with no options is not a listbox (A11Y-7): the message is a status instead.
         role={showRows ? "listbox" : undefined}
         aria-label={showRows ? ariaLabel : undefined}
-        aria-busy={loading || undefined}
+        aria-busy={(showRows && loading) || undefined}
         style={{ position: "fixed", ...style }}
         // Keep focus (and the caret) in the editor.
         onMouseDown={(event) => event.preventDefault()}
@@ -376,15 +392,12 @@ export function SuggestionMenu({
             );
           })
         ) : (
-          <div
-            role="status"
-            data-slot="suggestion-menu-status"
-            className={STATUS}
-          >
+          <div data-slot="suggestion-menu-status" className={STATUS}>
             {message}
           </div>
         )}
       </div>
+      <Announcer />
     </div>,
     document.body,
   );

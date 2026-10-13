@@ -2005,7 +2005,7 @@
         "@vegastack/design@^0.8.4",
         "@vegastack/design-tokens@^0.8.3"
       ],
-      "registryDependencies": [],
+      "registryDependencies": ["@vegastack/use-announcer"],
       "files": [
         {
           "path": "packages/ui/registry/ui/suggestion-menu.tsx",
