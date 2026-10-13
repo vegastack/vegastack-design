@@ -1,4 +1,4 @@
-// @vegastack text-edit-schema@0.25.29 sha256-J0pjQSGRigEg0JeMRNp3Ny6chgaKQQYqQvnZDKsRegI=
+// @vegastack text-edit-schema@0.25.29 sha256-q0UpXy8jWhpelBFM9ngO9zHAFhl4PqZd8foTds6qRaw=
 
 import {
   Extension,
@@ -765,9 +765,7 @@ function imageNode(view: (() => NodeViewRenderer) | undefined) {
       };
     },
     parseMarkdown: (token, helpers) => {
-      const { alt, width } = parseImageAlt(
-        String(token.text ?? "").replace(/\\([\\[\]])/g, "$1"),
-      );
+      const { alt, width } = parseImageAlt(String(token.text ?? ""));
       return helpers.createNode("image", {
         src: decodeHtmlEntities(String(token.href ?? "")),
         title: token.title ?? null,

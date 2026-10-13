@@ -1,4 +1,4 @@
-// @vegastack text-edit-grammar@0.25.29 sha256-NEvzio9GzzaxKRQ0oSp8Qw6XSxvVqNFIzSs0yXQnzK8=
+// @vegastack text-edit-grammar@0.25.29 sha256-ECssv/bL6wwTA0Ups8nOpeChgME/qlFgs6wcD7juGG4=
 
 /**
  * text-edit-grammar — the constructs VegaStack Markdown v1 carries beyond CommonMark + GFM, as
@@ -169,17 +169,26 @@ export function headingIds(texts: readonly string[]): string[] {
 }
 
 /**
- * Read an image's alt text for a width: `![Diagram|320](src)` is a 320px-wide image whose alt is
- * "Diagram" (Obsidian's convention, so other renderers still show the image).
+ * Read an image's Markdown alt text for a width: `![Diagram|320](src)` is a 320px-wide image whose
+ * alt is "Diagram" (Obsidian's convention, so other renderers still show the image). Takes the alt
+ * as written — `\\`, `\[`, `\]` and `\|` are escapes — so an escaped `\|320` is alt text, not a
+ * width.
  *
  * @example
  * parseImageAlt("Diagram|320"); // { alt: "Diagram", width: 320 }
+ * parseImageAlt("Size \\|320"); // { alt: "Size |320" }
  */
 export function parseImageAlt(text: string): { alt: string; width?: number } {
+  const unescape = (value: string) => value.replace(/\\([\\[\]|])/g, "$1");
   const match = /^(.*)\|(\d{1,5})$/s.exec(text);
-  if (!match) return { alt: text };
-  const width = Number(match[2]);
-  return width > 0 ? { alt: match[1]!, width } : { alt: match[1]! };
+  if (match) {
+    // The `|` is the width's only when an even number of backslashes stands before it.
+    const slashes = /\\*$/.exec(match[1]!)![0].length;
+    const width = Number(match[2]);
+    if (slashes % 2 === 0 && width > 0)
+      return { alt: unescape(match[1]!), width };
+  }
+  return { alt: unescape(text) };
 }
 
 /**
@@ -227,9 +236,10 @@ export function imageMarkdown({
   title?: string | null;
   width?: number | null;
 }): string {
-  const text = escapeMentionLabel(
-    `${alt ?? ""}${width ? `|${Math.round(width)}` : ""}`,
-  );
+  let text = escapeMentionLabel(alt ?? "");
+  // Alt text that ends like a width (`hello|123`) keeps its `|` as text.
+  if (/\|\d{1,5}$/.test(text)) text = text.replace(/\|(\d{1,5})$/, "\\|$1");
+  if (width) text += `|${Math.round(width)}`;
   const target = markdownDestination(src);
   return title
     ? `![${text}](${target} "${markdownTitle(title)}")`

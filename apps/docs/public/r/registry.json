@@ -1891,7 +1891,7 @@
         "version": "0.25.28",
         "whenToUse": "Reading or writing the Markdown constructs TextEdit stores — mentions, callouts, toggles, media, image widths — on a server or in a light renderer.",
         "whenNotToUse": "Parsing a whole document — use text-edit-markdown.",
-        "integrity": "sha256-NEvzio9GzzaxKRQ0oSp8Qw6XSxvVqNFIzSs0yXQnzK8="
+        "integrity": "sha256-ECssv/bL6wwTA0Ups8nOpeChgME/qlFgs6wcD7juGG4="
       }
     },
     {
@@ -1930,7 +1930,7 @@
         "version": "0.25.28",
         "whenToUse": "Building a TextEdit document anywhere — a collaboration server, an import, an API — with exactly the editor’s nodes and attributes.",
         "whenNotToUse": "Rendering a document to read — use MarkdownView.",
-        "integrity": "sha256-J0pjQSGRigEg0JeMRNp3Ny6chgaKQQYqQvnZDKsRegI="
+        "integrity": "sha256-q0UpXy8jWhpelBFM9ngO9zHAFhl4PqZd8foTds6qRaw="
       }
     },
     {
