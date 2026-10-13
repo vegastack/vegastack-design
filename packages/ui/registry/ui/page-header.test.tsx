@@ -372,7 +372,8 @@ test('DS-02: titleLines="none" renders the title with no truncation wrapper', as
   expect(
     title.element().querySelector('[data-slot="truncated-text"]'),
   ).toBeNull();
-  expect(title.element().className).toContain("wrap-break-word");
+  // An unbroken token breaks anywhere rather than push the page sideways.
+  expect(title.element().className).toContain("wrap-anywhere");
 });
 
 test("DS-02: meta is a div row that can hold interactive controls", async () => {

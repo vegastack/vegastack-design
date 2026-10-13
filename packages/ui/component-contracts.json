@@ -3956,7 +3956,8 @@
         "@vegastack/breadcrumb",
         "@vegastack/button",
         "@vegastack/dropdown-menu",
-        "@vegastack/use-drag-reorder"
+        "@vegastack/use-drag-reorder",
+        "@vegastack/truncated-text"
       ],
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
@@ -8217,6 +8218,10 @@
               "values": [""]
             },
             {
+              "name": "data-strained",
+              "values": [""]
+            },
+            {
               "name": "data-view",
               "values": []
             }
@@ -9070,6 +9075,15 @@
         },
         {
           "name": "DataTableColumnLayout",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/data-table-parts.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "DataTableColumnRole",
           "kind": "interface",
           "source": "packages/ui/registry/ui/data-table-parts.tsx",
           "ref": {
@@ -12322,6 +12336,25 @@
           }
         },
         {
+          "name": "FieldCounter",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/field.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "span",
+            "rationale": "The ref reaches the visible counter span while it shows; below the threshold nothing renders."
+          }
+        },
+        {
+          "name": "FieldCounterProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/field.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
           "name": "useFieldScope",
           "kind": "hook",
           "source": "packages/ui/registry/ui/field.tsx",
@@ -12486,6 +12519,15 @@
             {
               "name": "data-slot",
               "values": ["field-action"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "FieldCounter": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["field-counter-status"]
             }
           ],
           "cssVariables": []

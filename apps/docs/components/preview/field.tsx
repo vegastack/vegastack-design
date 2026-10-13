@@ -10,6 +10,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import {
   Field,
   FieldContent,
+  FieldCounter,
   FieldDescription,
   FieldAction,
   FieldError,
@@ -583,6 +584,47 @@ export function fieldHeaderAction(): ReactNode {
           <Textarea
             id="header-action-bio"
             placeholder="A few words about you"
+          />
+        </Field>
+      </FieldGroup>
+    </Wrapper>
+  );
+}
+
+/**
+ * The character counter: at the end of the label row, shown from 80% of `maxLength` (the textarea
+ * starts there), destructive at the limit.
+ */
+export function fieldCharacterCounter(): ReactNode {
+  const [title, setTitle] = React.useState("Quarterly review");
+  const [bio, setBio] = React.useState(
+    "Product designer working on data-heavy tools. Previously led the design system team.",
+  );
+  return (
+    <Wrapper className="items-stretch">
+      <FieldGroup className="mx-auto w-full max-w-sm">
+        <Field>
+          <FieldHeader>
+            <FieldLabel htmlFor="counter-title">Title</FieldLabel>
+            <FieldCounter value={title} maxLength={40} />
+          </FieldHeader>
+          <Input
+            id="counter-title"
+            maxLength={40}
+            value={title}
+            onChange={(event) => setTitle(event.target.value)}
+          />
+        </Field>
+        <Field>
+          <FieldHeader>
+            <FieldLabel htmlFor="counter-bio">Bio</FieldLabel>
+            <FieldCounter value={bio} maxLength={100} />
+          </FieldHeader>
+          <Textarea
+            id="counter-bio"
+            maxLength={100}
+            value={bio}
+            onChange={(event) => setBio(event.target.value)}
           />
         </Field>
       </FieldGroup>

@@ -7,6 +7,7 @@ import {
   Field,
   FieldAction,
   FieldContent,
+  FieldCounter,
   FieldDescription,
   FieldError,
   FieldGroup,
@@ -603,4 +604,92 @@ test("FieldHeader holds the label and a trailing FieldAction, and the label stil
     .element(screen.getByRole("button", { name: "Add more" }))
     .toBeInTheDocument();
   await expectNoA11yViolations(screen.container);
+});
+
+function CounterField({
+  initial = "",
+  multiline = false,
+  threshold,
+}: {
+  initial?: string;
+  multiline?: boolean;
+  threshold?: number;
+}) {
+  const [value, setValue] = React.useState(initial);
+  const Control = multiline ? Textarea : Input;
+  return (
+    <Field>
+      <FieldHeader>
+        <FieldLabel htmlFor="bio">Bio</FieldLabel>
+        <FieldCounter value={value} maxLength={10} threshold={threshold} />
+      </FieldHeader>
+      <Control
+        id="bio"
+        maxLength={10}
+        value={value}
+        onChange={(
+          event: React.ChangeEvent<HTMLInputElement & HTMLTextAreaElement>,
+        ) => setValue(event.target.value)}
+      />
+    </Field>
+  );
+}
+
+const counter = (root: ParentNode) =>
+  root.querySelector<HTMLElement>('[data-slot="field-counter"]');
+const counterStatus = (root: ParentNode) =>
+  root.querySelector<HTMLElement>('[data-slot="field-counter-status"]')!;
+
+for (const multiline of [false, true])
+  test(`FieldCounter appears near the limit in the label row and describes the ${multiline ? "Textarea" : "Input"} (Character counter)`, async () => {
+    const screen = await render(<CounterField multiline={multiline} />);
+    const control = screen.getByLabelText("Bio");
+    // Below 80% of the limit it shows nothing, and describes nothing.
+    await userEvent.type(control, "1234567");
+    expect(counter(screen.container)).toBeNull();
+    // At 80% it shows "8/10", on the label row, and the control is described by it.
+    await userEvent.type(control, "8");
+    const shown = counter(screen.container)!;
+    expect(shown.textContent).toContain("8/10");
+    expect(shown.parentElement?.dataset.slot).toBe("field-header");
+    expect(shown.className).toContain("tabular-nums");
+    expect(shown.className).toContain("text-xs");
+    expect(control.element().getAttribute("aria-describedby")).toContain(
+      shown.id,
+    );
+    expect(shown.dataset.state).toBe("near");
+    // At the limit it takes the destructive ink.
+    await userEvent.type(control, "90");
+    expect(counter(screen.container)!.dataset.state).toBe("limit");
+    expect(counter(screen.container)!.className).toContain(
+      "data-[state=limit]:text-destructive-text",
+    );
+    await expectNoA11yViolations(screen.container);
+  });
+
+test("FieldCounter announces only when it crosses a threshold, never per keystroke", async () => {
+  const screen = await render(<CounterField initial="12345" />);
+  const control = screen.getByLabelText("Bio");
+  const status = counterStatus(screen.container);
+  expect(status.getAttribute("aria-live")).toBe("polite");
+  expect(status.textContent).toBe("");
+  await userEvent.type(control, "678");
+  expect(status.textContent).toBe("2 characters left");
+  // Another keystroke inside the same band changes the visible count, not the announcement.
+  await userEvent.type(control, "9");
+  expect(counter(screen.container)!.textContent).toContain("9/10");
+  expect(status.textContent).toBe("2 characters left");
+  await userEvent.type(control, "0");
+  expect(status.textContent).toBe("Character limit reached");
+  await userEvent.type(
+    control,
+    "{Backspace}{Backspace}{Backspace}{Backspace}{Backspace}",
+  );
+  expect(counter(screen.container)).toBeNull();
+  expect(status.textContent).toBe("");
+});
+
+test("FieldCounter takes a custom threshold", async () => {
+  const screen = await render(<CounterField initial="12345" threshold={0.5} />);
+  expect(counter(screen.container)!.textContent).toContain("5/10");
 });

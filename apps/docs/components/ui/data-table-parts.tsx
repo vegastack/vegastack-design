@@ -1,4 +1,4 @@
-// @vegastack data-table-parts@0.25.27 sha256-FI3mpv/qSlpmnAK7yCSVBbJN5ZFABnKAUu8f7n9aiLw=
+// @vegastack data-table-parts@0.25.27 sha256-VdopgBxGry3kd8JPjF93o3bsawOyTnVbyHK3MLLWjkE=
 
 "use client";
 
@@ -84,11 +84,14 @@ export interface DataTableColumnLayout {
    */
   mono?: boolean;
   /**
-   * Keep this column's cells on one line instead of wrapping. Cells wrap by
-   * default (D18) — scrolling is reserved for tables that are genuinely wide,
-   * not forced by one long value. Figures and mono values are the exception and
-   * opt IN automatically.
-   * @default true for `align="end"` and `mono` columns, false otherwise
+   * Keep this column's cells on one line instead of wrapping. The primary
+   * (first) column is the FILL column: it takes the width the others leave and
+   * its text wraps (anywhere, so one unbroken value never widens the table).
+   * Every other column is a FIT column: sized to its content and kept on one
+   * line, so a short value or label never breaks. `false` on a fit column lets
+   * it wrap between words instead (never inside one); `true` on the primary
+   * column keeps a code or figure on one line until the table is squeezed.
+   * @default true, except for the primary column, which wraps unless it is `align="end"` or `mono`
    */
   nowrap?: boolean;
   /**
@@ -121,23 +124,44 @@ export function alignClass(align: DataTableColumnLayout["align"]): string {
 }
 
 /**
- * Whether a column's cells stay on one line. A column that says nothing inherits
- * the wrapping default, EXCEPT the two shapes that are unreadable when broken:
- * end-aligned figures and mono values.
+ * Whether a column's cells stay on one line. A FIT column (every column but the
+ * primary) says nothing and stays on one line. The FILL column (the primary)
+ * wraps, EXCEPT in the two shapes that are unreadable when broken: end-aligned
+ * figures and mono values. An explicit `nowrap` wins either way.
  */
-export function isNowrapColumn(column: DataTableColumnLayout): boolean {
-  return column.nowrap ?? (column.align === "end" || column.mono === true);
+export function isNowrapColumn(
+  column: DataTableColumnLayout,
+  fill = false,
+): boolean {
+  return (
+    column.nowrap ?? (!fill || column.align === "end" || column.mono === true)
+  );
+}
+
+/** Which of the two column roles a cell plays (`columnCellClass`, `headerCellClass`). */
+export interface DataTableColumnRole {
+  /**
+   * The FILL column — the primary (first) column, which takes the width the
+   * fit columns leave. Every other column is a FIT column.
+   * @default false
+   */
+  fill?: boolean;
 }
 
 /**
- * What a cell (and a sort header's label) becomes inside a `data-squeezed`
- * table — the attribute a renderer sets on its `<table>` when, AFTER
- * revelation, the table still overflows its container (the last rung of
- * "never forces a horizontal scroll"). Only `DataList` sets it; `DataGrid`'s
- * container is allowed to scroll. Squeezed, a cell is
- * wrapping and breakable anywhere, because the alternative is overflowing.
- * `wrap-anywhere` is the value that lowers min-content width, which is what an
- * auto-layout table sizes each column from.
+ * What the FILL cell becomes inside a `data-squeezed` table — the attribute a
+ * renderer sets on its `<table>` when, AFTER revelation, the table still
+ * overflows its container (the last rung of "never forces a horizontal
+ * scroll"). Only `DataList` sets it; `DataGrid`'s container is allowed to
+ * scroll. Squeezed, the fill cell is wrapping and breakable anywhere, because
+ * the alternative is overflowing. `wrap-anywhere` is the value that lowers
+ * min-content width, which is what an auto-layout table sizes each column from.
+ *
+ * Only the fill (primary) cell is released. Fit cells and every header keep
+ * their one-line posture: releasing them broke short labels mid-word ("Prod" /
+ * "ucts", "Un" / "it") the moment ONE long value overflowed. If the table still
+ * overflows with the fill cell released, the renderer merges another column
+ * instead (`revealColumns`' `extraOverflow`).
  *
  * The release reaches every DESCENDANT too (`**:`), because a cell's own
  * `whitespace` does not reach inside a custom render: a `truncate` span, a
@@ -203,18 +227,65 @@ const SQUEEZE_CLASS =
   "in-data-squeezed:**:[&[class~='group/button'][class~='hover:underline']]:min-h-6";
 
 /**
- * The full class contract for one column's cells — alignment, the wrap posture,
- * and the mono numeral face. Used for header, body and skeleton cells alike.
+ * The LAST rung, for fit cells only: `data-strained`, which a renderer sets once the fill cell is
+ * released, nothing is left to merge (every remaining column is the primary or
+ * `mobile: "visible"`) and the table STILL overflows. Only then does a fit cell give up its one
+ * line, with exactly the squeeze's release (the same keep list, so a control still never wraps).
+ * It is reached by configuration, never by one long value: several `visible` columns of
+ * unbreakable content in a phone-width container. A header still never breaks inside a word.
+ * The list is the squeeze's, spelled out again, because Tailwind can only see a literal class.
  */
-export function columnCellClass(column: DataTableColumnLayout): string {
+const STRAIN_CLASS =
+  "in-data-strained:whitespace-normal in-data-strained:wrap-anywhere " +
+  "in-data-strained:**:not-[:is(button:not([data-slot=data-list-row-action],[data-slot=data-table-sort],[class~='hover:underline']),input,select,textarea,[role=button]:not([data-slot=editable-cell-display],[class~='hover:underline']),[role=checkbox],[role=combobox],[role=radio],[role=slider],[role=spinbutton],[role=switch],[role=tab],[class~='group/button']:not([data-slot=data-list-row-action],[data-slot=data-table-sort],[class~='hover:underline']),[class~='group/toggle'],[class~='group/navigation-menu-trigger'],[class~='group/tabs-list'],[class~='group/stepper-node'],[data-slot=avatar],[data-slot=kbd]),:is(button:not([data-slot=data-list-row-action],[data-slot=data-table-sort],[class~='hover:underline']),input,select,textarea,[role=button]:not([data-slot=editable-cell-display],[class~='hover:underline']),[role=checkbox],[role=combobox],[role=radio],[role=slider],[role=spinbutton],[role=switch],[role=tab],[class~='group/button']:not([data-slot=data-list-row-action],[data-slot=data-table-sort],[class~='hover:underline']),[class~='group/toggle'],[class~='group/navigation-menu-trigger'],[class~='group/tabs-list'],[class~='group/stepper-node'],[data-slot=avatar],[data-slot=kbd])_*]:whitespace-normal " +
+  "in-data-strained:**:not-[:is(button:not([data-slot=data-list-row-action],[data-slot=data-table-sort],[class~='hover:underline']),input,select,textarea,[role=button]:not([data-slot=editable-cell-display],[class~='hover:underline']),[role=checkbox],[role=combobox],[role=radio],[role=slider],[role=spinbutton],[role=switch],[role=tab],[class~='group/button']:not([data-slot=data-list-row-action],[data-slot=data-table-sort],[class~='hover:underline']),[class~='group/toggle'],[class~='group/navigation-menu-trigger'],[class~='group/tabs-list'],[class~='group/stepper-node'],[data-slot=avatar],[data-slot=kbd]),:is(button:not([data-slot=data-list-row-action],[data-slot=data-table-sort],[class~='hover:underline']),input,select,textarea,[role=button]:not([data-slot=editable-cell-display],[class~='hover:underline']),[role=checkbox],[role=combobox],[role=radio],[role=slider],[role=spinbutton],[role=switch],[role=tab],[class~='group/button']:not([data-slot=data-list-row-action],[data-slot=data-table-sort],[class~='hover:underline']),[class~='group/toggle'],[class~='group/navigation-menu-trigger'],[class~='group/tabs-list'],[class~='group/stepper-node'],[data-slot=avatar],[data-slot=kbd])_*]:wrap-anywhere " +
+  "in-data-strained:**:[&:is([data-slot=avatar],[data-slot=kbd],[class~='group/stepper-node'])]:whitespace-nowrap " +
+  "in-data-strained:**:[&:is([data-slot=avatar],[data-slot=kbd],[class~='group/stepper-node'])]:shrink-0 " +
+  "in-data-strained:**:[&[class~='group/badge']]:h-auto " +
+  "in-data-strained:**:[&[class~='group/button'][class~='hover:underline']]:h-auto " +
+  "in-data-strained:**:[&[class~='group/button'][class~='hover:underline']]:min-h-6";
+
+/**
+ * The full class contract for one column's cells — alignment, the fill/fit
+ * posture, and the mono numeral face. Used for body and skeleton cells alike.
+ *
+ * - The FILL column (`fill: true`, the primary) carries no width, so an
+ *   auto-layout table hands it every pixel the fit columns leave. It wraps
+ *   anywhere, so one unbroken value lowers its min-content instead of widening
+ *   the table, and only it is released by the squeeze.
+ * - A FIT column is content-sized: `w-0` (the "width: 1%" technique — a
+ *   specified width below the content resolves to the content's min-content)
+ *   plus `whitespace-nowrap`, so its min-content IS its one-line width. A fit
+ *   column that opts out (`nowrap: false`) wraps between words only and shares
+ *   the leftover width instead.
+ *
+ * @example
+ * <TableCell className={columnCellClass(column, { fill: index === 0 })} />
+ */
+export function columnCellClass(
+  column: DataTableColumnLayout,
+  { fill = false }: DataTableColumnRole = {},
+): string {
+  const nowrap = isNowrapColumn(column, fill);
   return cn(
     alignClass(column.align),
     // Both directions are spelled out, not just the nowrap one. Batch 5 of the shadcn reset put
     // `Table` back on upstream's file, whose `TableCell` is `whitespace-nowrap` by default
     // (LAY-6 resolves as **shadcn**), so a column that wants to wrap has to say so or `cn`'s
     // merge leaves upstream's class standing.
-    isNowrapColumn(column) ? "whitespace-nowrap" : "whitespace-normal",
-    SQUEEZE_CLASS,
+    fill
+      ? cn(
+          nowrap ? "whitespace-nowrap" : "whitespace-normal wrap-anywhere",
+          SQUEEZE_CLASS,
+        )
+      : cn(
+          // Strained, a fit column gives up its content-sizing too: released text at `w-0` would
+          // collapse to one character per line instead of sharing the width.
+          nowrap
+            ? "w-0 whitespace-nowrap in-data-strained:w-auto"
+            : "whitespace-normal",
+          STRAIN_CLASS,
+        ),
     // Upstream's `TableCell` drops the end padding of a cell holding a checkbox (`pe-0`), and a
     // Checkbox, Switch or Radio reaches 12px past its box for its 24px pointer target
     // (`after:-inset-x-3`). In the LAST cell of a row that pseudo-element poked past the table and
@@ -303,6 +374,12 @@ export interface ColumnRevelation<C extends DataTableColumnLayout> {
  * a declared one (LAY-9): every column is shown, because a table that has not
  * been measured has no evidence that anything overflows.
  *
+ * `extraOverflow` is the measured rung on top of the budget: a renderer whose
+ * table still overflows once its fill cell is released (or whose fill column is
+ * left narrower than its budget) asks for that many MORE columns to overflow.
+ * They are taken right-to-left from the hideable shown columns, so the no-holes
+ * rule holds; the primary and `visible` columns are never taken.
+ *
  * @example
  * const { visibleColumns, mergedColumns, hiddenColumns } = revealColumns(
  *   columns,
@@ -314,6 +391,7 @@ export function revealColumns<C extends DataTableColumnLayout>(
   columns: readonly C[],
   containerWidth: number | null,
   reservedWidth = 0,
+  extraOverflow = 0,
 ): ColumnRevelation<C> {
   if (containerWidth == null)
     return {
@@ -346,6 +424,26 @@ export function revealColumns<C extends DataTableColumnLayout>(
       exhausted = true;
       overflow.push(column);
     }
+  }
+  // The measured rung: the last `extraOverflow` hideable shown columns overflow too.
+  const taken = new Set<C>();
+  for (
+    let index = shown.length - 1;
+    index > 0 && taken.size < extraOverflow;
+    index--
+  ) {
+    const column = shown[index]!;
+    if (column !== columns[0] && column.mobile !== "visible") taken.add(column);
+  }
+  if (taken.size > 0) {
+    const kept = shown.filter((column) => !taken.has(column));
+    const spilled = columns.filter(
+      (column) => taken.has(column) || overflow.includes(column),
+    );
+    shown.length = 0;
+    shown.push(...kept);
+    overflow.length = 0;
+    overflow.push(...spilled);
   }
   return {
     visibleColumns: shown,
@@ -518,9 +616,9 @@ export function SortHeaderButton({
         // An end column reserves the glyph's room at the START: 5px + the 14px glyph + a 4px
         // gap, and a one-digit multi-sort ordinal (2px gap + ~7px) when there is one.
         leading && (order != null ? "ps-8" : "ps-5.75"),
-        // In a squeezed table the label may wrap like the cells do.
-        "in-data-squeezed:h-auto in-data-squeezed:min-h-7 in-data-squeezed:text-start",
-        SQUEEZE_CLASS,
+        // A header label never breaks inside a word: the squeeze releases the fill cell only, and
+        // the last rung (`data-strained`) lets a label wrap between its words.
+        "in-data-strained:h-auto in-data-strained:min-h-7 in-data-strained:text-start in-data-strained:whitespace-normal",
         className,
       )}
     >
@@ -632,20 +730,33 @@ export interface SortableHeadProps extends Omit<
    * @default undefined
    */
   onSort?: (event: React.MouseEvent<HTMLButtonElement>) => void;
+  /**
+   * This header heads the FILL column (the primary), which takes the leftover width; every
+   * other header is content-sized with its fit column.
+   * @default false
+   */
+  fill?: boolean;
 }
 
 /**
- * The class contract for one column's HEADER cell (DS-01): the same alignment, wrap posture and
- * squeeze behaviour as its body cells, but always in the sans face — a header is a label, not a
- * value. A `mono` column's header keeps `tabular-nums` only, so a numeric header's digits (a year,
- * a unit count) still align with the column.
+ * The class contract for one column's HEADER cell (DS-01): the same alignment and fill/fit width
+ * as its body cells, but always on ONE line — a header never breaks, inside a word or between
+ * words, and the squeeze never reaches it (it once read "Prod" / "ucts") — and always in the sans
+ * face: a header is a label, not a value. A `mono` column's header keeps `tabular-nums` only, so
+ * a numeric header's digits (a year, a unit count) still align with the column.
  *
  * @example
- * <TableHead className={headerCellClass(column)}>{column.header}</TableHead>
+ * <TableHead className={headerCellClass(column, { fill: index === 0 })}>{column.header}</TableHead>
  */
-export function headerCellClass(column: DataTableColumnLayout): string {
+export function headerCellClass(
+  column: DataTableColumnLayout,
+  { fill = false }: DataTableColumnRole = {},
+): string {
   return cn(
-    columnCellClass({ ...column, mono: false }),
+    alignClass(column.align),
+    !fill && isNowrapColumn(column) && "w-0 in-data-strained:w-auto",
+    // On the last rung a header may wrap BETWEEN words, never inside one.
+    "whitespace-nowrap in-data-strained:whitespace-normal",
     column.mono && "tabular-nums",
   );
 }
@@ -667,6 +778,7 @@ export function SortableHead({
   direction = null,
   order,
   onSort,
+  fill = false,
   className,
   ...props
 }: SortableHeadProps) {
@@ -685,7 +797,7 @@ export function SortableHead({
           : undefined
       }
       className={cn(
-        headerCellClass(column),
+        headerCellClass(column, { fill }),
         // The sort control carries the cell's inline padding so its box stays
         // inside the cell: 2px here + the button's 1px border and 5px padding
         // put the label 8px in — on its values' edge, like a plain header.
@@ -900,10 +1012,13 @@ export function SkeletonRows({
               <Skeleton className="size-3.5 rounded-sm" />
             </TableCell>
           ) : null}
-          {columns.map((column) => {
+          {columns.map((column, index) => {
             const bar = skeletonBar(column);
             return (
-              <TableCell key={column.key} className={columnCellClass(column)}>
+              <TableCell
+                key={column.key}
+                className={columnCellClass(column, { fill: index === 0 })}
+              >
                 <Skeleton
                   className={cn(
                     bar.className,

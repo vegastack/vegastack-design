@@ -1,4 +1,4 @@
-// @vegastack page-header@0.25.27 sha256-i4TJobPB5yjFebBI3E+2bd3HoM768B1ZUMNbU/O4ZhQ=
+// @vegastack page-header@0.25.27 sha256-kmUXKAdVa7zITaKsqnsanWOYF/CSI7TnGPlSEVT3OpI=
 
 "use client";
 
@@ -320,9 +320,10 @@ export function PageHeader({
               data-slot="page-header-title"
               data-title-lines={titleLines}
               className={cn(
-                "min-w-0 font-heading text-2xl font-semibold text-foreground",
-                // A wrapping title still never pushes the page sideways: an unbroken token breaks.
-                titleLines === "none" && "wrap-break-word",
+                // A title never pushes the page sideways: an unbroken token breaks anywhere, both
+                // when it wraps freely and inside a multi-line clamp (where a token wider than
+                // the line was clipped with no ellipsis).
+                "min-w-0 font-heading text-2xl font-semibold wrap-anywhere text-foreground",
               )}
             >
               {titleLines === "none" ? (
@@ -336,7 +337,7 @@ export function PageHeader({
           {description ? (
             <p
               data-slot="page-header-description"
-              className="text-sm text-muted-foreground"
+              className="text-sm wrap-break-word text-muted-foreground"
             >
               {description}
             </p>

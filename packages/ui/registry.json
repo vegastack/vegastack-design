@@ -725,7 +725,8 @@
         "@vegastack/breadcrumb",
         "@vegastack/button",
         "@vegastack/dropdown-menu",
-        "@vegastack/use-drag-reorder"
+        "@vegastack/use-drag-reorder",
+        "@vegastack/truncated-text"
       ],
       "files": [
         {

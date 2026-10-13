@@ -85,7 +85,12 @@ import type {
   ComboboxStatus,
 } from "@/components/ui/combobox";
 import type { DirectionProvider } from "@/components/ui/direction";
-import type { Field, FieldError, FieldLegend } from "@/components/ui/field";
+import type {
+  Field,
+  FieldCounter,
+  FieldError,
+  FieldLegend,
+} from "@/components/ui/field";
 import type { Input } from "@/components/ui/input";
 import type {
   InputGroupAddon,
@@ -312,6 +317,7 @@ export type DirectionProviderProps = React.ComponentProps<
 export type FieldProps = React.ComponentProps<typeof Field>;
 export type FieldLegendProps = React.ComponentProps<typeof FieldLegend>;
 export type FieldErrorProps = React.ComponentProps<typeof FieldError>;
+export type FieldCounterProps = React.ComponentProps<typeof FieldCounter>;
 
 export type InputProps = React.ComponentProps<typeof Input>;
 

@@ -197,6 +197,37 @@ the control's own actions stay inside the control.
   file="components/preview/field.tsx"
 />
 
+### Character counter
+
+`FieldCounter` counts a text field's characters against its `maxLength`. It sits at the end of the
+label row (`FieldHeader`), on the label's line, so it takes no room under the control, and it
+stays hidden until the value nears the limit — from 80% of `maxLength` by default, or the share
+`threshold` names — then reads `92/100` in small muted figures, and turns destructive at the
+limit. Pass the same `maxLength` to the control so the browser enforces it. Inside a `Field` the
+counter is a field description, so the `Input` or `Textarea` is described by it while it shows;
+a screen reader hears it only when it crosses a threshold ("8 characters left", "Character limit
+reached"), never on every keystroke.
+
+```tsx
+<Field>
+  <FieldHeader>
+    <FieldLabel htmlFor="bio">Bio</FieldLabel>
+    <FieldCounter value={bio} maxLength={100} />
+  </FieldHeader>
+  <Textarea
+    id="bio"
+    maxLength={100}
+    value={bio}
+    onChange={(event) => setBio(event.target.value)}
+  />
+</Field>
+```
+
+<ComponentPreview
+  name="fieldCharacterCounter"
+  file="components/preview/field.tsx"
+/>
+
 ### Automatic wiring
 
 Inside a `Field`, the control needs no ids and no `aria-*` props. `Field` renders Base UI's Field
@@ -235,6 +266,8 @@ Try every orientation with a description, an error message and the disabled stat
 
 <ApiTable path="lib/api-props.ts" name="FieldErrorProps" />
 
+<ApiTable path="lib/api-props.ts" name="FieldCounterProps" />
+
 `FieldSet`, `FieldGroup`, `FieldContent`, `FieldLabel`, `FieldTitle`, `FieldDescription` and
 `FieldSeparator` add no props of their own — each accepts everything the underlying element accepts.
 
@@ -250,6 +283,9 @@ Try every orientation with a description, an error message and the disabled stat
   the page (A11Y-13).
 - The choice card carries no focus ring: the control inside it wears the global 2px outline
   instead (FOC-12), so focus is always on the thing that actually takes it.
+- `FieldCounter` is a field description while it shows, so the control's `aria-describedby`
+  names it, and its polite status line speaks only when it crosses a threshold — near the limit
+  and at it — never per keystroke. At the limit its ink is the `destructive` family's `-text` role.
 - Use `FieldSeparator` sparingly — each one is a section boundary a screen reader has to cross.
 
 <ComponentPreview

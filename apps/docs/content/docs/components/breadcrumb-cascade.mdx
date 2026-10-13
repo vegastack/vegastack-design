@@ -85,7 +85,9 @@ selection.
 
 `BreadcrumbTrail` renders the whole breadcrumb from `steps` and keeps it on one line. When the
 steps do not fit, the middle ones fold into a "…" menu first — the oldest first, keeping the root
-and the current page's parent — and only then does the current step shorten with an ellipsis. Pass
+and the current page's parent — and only then does the current step shorten with an ellipsis,
+its full name in a tooltip on hover and keyboard focus (a tap toggles it on touch), so even a long
+unbroken record name never overflows the header. Pass
 `linkRender` for a router link, and `renderStep` to render an earlier step yourself (a
 `BreadcrumbDropTarget`).
 
