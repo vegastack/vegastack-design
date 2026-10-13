@@ -1,14 +1,14 @@
 {
   "schemaVersion": 1,
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "426b1429262c7007410b9eab685d80c1fd4accf81d67e74cd32cd5016ece3799",
+  "contractSha256": "cb26076ff528485c5827679eeda309911513410dfb2f870df5bedfa9d9997af8",
   "inventory": {
-    "expected": 740,
-    "actual": 740,
-    "unique": 740
+    "expected": 741,
+    "actual": 741,
+    "unique": 741
   },
   "classes": {
-    "components": 159,
+    "components": 160,
     "animatedIcons": 467,
     "hooks": 15,
     "blocks": 15,
@@ -210,9 +210,10 @@
       ]
     },
     "AI/chat": {
-      "expected": 8,
-      "actual": 8,
+      "expected": 9,
+      "actual": 9,
       "members": [
+        "approval-card",
         "attachment",
         "bubble",
         "marker",
@@ -807,7 +808,7 @@
       ]
     }
   },
-  "componentRoutes": 154,
+  "componentRoutes": 155,
   "blockRoutes": 22,
   "modeledExemptions": 3
 }

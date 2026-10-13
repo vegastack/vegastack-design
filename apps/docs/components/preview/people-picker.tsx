@@ -174,3 +174,38 @@ export function peoplePickerContent(): ReactNode {
     </Wrapper>
   );
 }
+
+const AGENTS: PeoplePickerOption[] = [
+  {
+    id: "a1",
+    name: "Claude Code",
+    kind: "agent",
+    via: "Manoj",
+    description: "claude.ai · Read & write",
+  },
+  {
+    id: "a2",
+    name: "Nightly digest",
+    kind: "agent",
+    via: "Manoj",
+    disabledReason: "Read only — can't be delegated",
+  },
+];
+
+/** A member's agents under a heading: an agent the task can't go to says why and can't be picked. */
+export function peoplePickerAgents(): ReactNode {
+  const [chosen, setChosen] = React.useState<string[]>(["a1"]);
+  return (
+    <Wrapper>
+      <div className="w-72 rounded-lg border border-border bg-popover">
+        <PeoplePickerContent
+          options={AGENTS}
+          heading="Your agents"
+          searchPlaceholder="Search agents"
+          selected={chosen}
+          onSelect={(o) => setChosen([o.id])}
+        />
+      </div>
+    </Wrapper>
+  );
+}

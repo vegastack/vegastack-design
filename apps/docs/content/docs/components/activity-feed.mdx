@@ -119,8 +119,8 @@ when an on-screen batch keeps the action visible. An `agent` event says "Agent" 
 
 ### Event kinds
 
-`ActivityKindIcon` draws a 14px muted icon for twenty common kinds; `approved`, `rejected` and
-`requested` keep their status colour.
+`ActivityKindIcon` draws a 14px muted icon for twenty-eight common kinds; `approved`, `rejected`,
+`requested` and the agent-run kinds keep their status colour.
 
 <ComponentPreview
   name="activityFeedKinds"
@@ -163,13 +163,27 @@ While a page loads, skeleton event rows hold its place. Set `loadMore.error` aft
 
 ### Agents and the system
 
-`agent` on an event marks an agent's change; `agent: true` on a comment gives it a violet bar, a
-bot avatar and an "Agent" label. An event with `actor={null}` is the system's. An actor's `badge`
+An actor (or comment author) with `kind: "agent"` and `via` — "Claude Code" working for Priya — is
+drawn as the purple bot and named "Claude Code via Priya" with the "Agent" label; a comment gets a
+violet bar. (The `agent` boolean on an event or a comment is the deprecated spelling of the same
+and goes away next release.) An event with `actor={null}` is the system's. An actor's `badge`
 (a string such as "Inactive", for someone deactivated or whose invite is pending) follows their name
 as a small muted outline badge, as everywhere a person is named.
 
 <ComponentPreview
   name="activityFeedActors"
+  file="components/preview/activity-feed.tsx"
+/>
+
+### Agent runs
+
+`delegated` and `undelegated` mark a member handing a record to their agent and taking it back;
+`agent-queued`, `agent-working`, `agent-needs-you`, `agent-done` and `agent-failed` are the agent's
+run in its status tones (working is a static play mark — a history line never spins); `agent-step` is
+one server-written step of the run.
+
+<ComponentPreview
+  name="activityFeedAgent"
   file="components/preview/activity-feed.tsx"
 />
 

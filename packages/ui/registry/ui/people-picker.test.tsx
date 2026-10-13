@@ -258,6 +258,62 @@ test("menu: the same rows inside a dropdown submenu", async () => {
   expect(onSelect).toHaveBeenCalledWith(DIRECTORY[0]);
 });
 
+test("menu: agents under a heading; a disabled agent shows why and can't be picked", async () => {
+  const onSelect = vi.fn();
+  const agents: PeoplePickerOption[] = [
+    {
+      id: "a1",
+      name: "Claude Code",
+      kind: "agent",
+      via: "Manoj",
+      description: "claude.ai · Read & write",
+    },
+    {
+      id: "a2",
+      name: "Nightly digest",
+      kind: "agent",
+      via: "Manoj",
+      disabledReason: "Read only — can't be delegated",
+    },
+  ];
+  const screen = await render(
+    <DropdownMenu>
+      <DropdownMenuTrigger render={<Button>Actions</Button>} />
+      <DropdownMenuContent>
+        <DropdownMenuSub>
+          <DropdownMenuSubTrigger>Delegate</DropdownMenuSubTrigger>
+          <DropdownMenuSubContent className="min-w-72">
+            <PeoplePickerMenu
+              options={agents}
+              heading="Your agents"
+              searchPlaceholder="Search agents"
+              onSelect={onSelect}
+            />
+          </DropdownMenuSubContent>
+        </DropdownMenuSub>
+      </DropdownMenuContent>
+    </DropdownMenu>,
+  );
+  await screen.getByRole("button", { name: "Actions" }).click();
+  await screen.getByRole("menuitem", { name: "Delegate" }).click();
+  await expect.element(screen.getByText("Your agents")).toBeVisible();
+  const claude = screen.getByRole("menuitem", {
+    name: /Claude Code, agent of Manoj/,
+  });
+  await expect.element(claude).toBeVisible();
+  expect(
+    claude.element().querySelector("[data-slot=avatar][data-kind=agent]"),
+  ).not.toBeNull();
+  const digest = screen.getByRole("menuitem", { name: /Nightly digest/ });
+  await expect.element(digest).toHaveAttribute("aria-disabled", "true");
+  await expect
+    .element(screen.getByText("Read only — can't be delegated"))
+    .toBeVisible();
+  await claude.click();
+  expect(onSelect).toHaveBeenCalledWith(agents[0]);
+  expect(onSelect).toHaveBeenCalledTimes(1);
+});
+
 test("a failed search shows Try again, which retries without picking a row", async () => {
   let fail = true;
   const flaky: PeoplePickerSearch = (query, context) =>

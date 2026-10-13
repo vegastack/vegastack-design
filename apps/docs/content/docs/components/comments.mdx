@@ -250,9 +250,14 @@ comment's files — and its `mentionHref` links the mention chips in the body. P
 
 ### Agent comments
 
-`agent: true` on a comment marks an agent's words (an AI assistant, an automation): a violet bar at
-the row's start, a bot avatar when the author has no image, and an "Agent" label after the name.
-Every author's name — a person's or an agent's — opens their hover card.
+An author with `kind: "agent"` (and `via`, the member it works for) marks an agent's words: a
+violet bar at the row's start, the purple bot, "Claude Code via Arjun" and an "Agent" label. The
+`agent: true` flag is the deprecated spelling of the same and goes away next release.
+
+A question waiting on the viewer is `tone: "question"`: an amber bar and a "Needs your reply" label,
+with its `choices` as buttons under the body when you pass `onChoose` (only to whoever may answer).
+A promise keeps the picked button busy. Set `tone` back to `default` once it is answered. Every
+author's name — a person's or an agent's — opens their hover card.
 
 <ComponentPreview name="commentsAgent" file="components/preview/comments.tsx" />
 

@@ -558,14 +558,18 @@ export function commentsMentions(): ReactNode {
 }
 
 /**
- * An agent's comment beside a person's: a violet bar at the row's start, a bot avatar (it has no
- * photo) and an "Agent" label after the name. Every author's name opens their hover card.
+ * An agent's comment beside a person's: a violet bar at the row's start, the purple bot, "Claude
+ * Code via Arjun" and an "Agent" label. Its question to Arjun has an amber bar, "Needs your reply"
+ * and suggested answers. Every author's name opens their hover card.
  */
+const CLAUDE = { name: "Claude Code", kind: "agent" as const, via: "Arjun" };
+
 export function commentsAgent(): ReactNode {
   return (
     <Demo>
       <CommentThread
         now={NOW}
+        onChoose={() => new Promise((done) => setTimeout(done, 600))}
         thread={{
           id: "agent",
           root: {
@@ -577,10 +581,20 @@ export function commentsAgent(): ReactNode {
           replies: [
             {
               id: "ag2",
-              author: { name: "Regent AI", email: "Assistant" },
-              agent: true,
+              author: CLAUDE,
               body: "The **revised quote** went out yesterday (12 units, October delivery). The customer hasn't replied yet.",
               createdAt: NOW - 38 * 60_000,
+            },
+            {
+              id: "ag3",
+              author: CLAUDE,
+              tone: "question",
+              choices: [
+                { id: "chase", label: "Chase today" },
+                { id: "wait", label: "Wait until Friday" },
+              ],
+              body: "Should I chase the customer today, or wait until Friday?",
+              createdAt: NOW - 37 * 60_000,
             },
           ],
         }}

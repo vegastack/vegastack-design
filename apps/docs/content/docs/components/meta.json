@@ -160,6 +160,7 @@
     "bubble",
     "attachment",
     "tool-call-chip",
+    "approval-card",
     "message-scroller",
     "transcript",
     "questionnaire",

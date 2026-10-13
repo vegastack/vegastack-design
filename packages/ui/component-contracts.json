@@ -12,8 +12,8 @@
     "evidencePolicy": "Observed fields come from source, registry metadata, docs, and test topology. Unknown/not-applicable values are explicit; no inferred behavior is presented as verified."
   },
   "expectedCounts": {
-    "totalRegistryItems": 740,
-    "components": 159,
+    "totalRegistryItems": 741,
+    "components": 160,
     "animatedIcons": 467,
     "hooks": 15,
     "blocks": 15,
@@ -28,7 +28,7 @@
     "Data display": 31,
     "Content/marketing": 15,
     "Shared internals": 5,
-    "AI/chat": 8,
+    "AI/chat": 9,
     "Hooks": 15,
     "Block": 1,
     "Animated icons": 467
@@ -207,7 +207,8 @@
       "attachment",
       "tool-call-chip",
       "questionnaire",
-      "transcript"
+      "transcript",
+      "approval-card"
     ],
     "Hooks": [
       "use-animation-replay",
@@ -29131,6 +29132,15 @@
             "status": "not-applicable",
             "rationale": "This exported helper is not a rendered component root."
           }
+        },
+        {
+          "name": "CommentChoice",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/comments.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
         }
       ],
       "variants": {
@@ -29247,17 +29257,21 @@
               "values": [
                 "comment-actions",
                 "comment-actions-content",
-                "comment-agent",
-                "comment-agent-avatar",
                 "comment-attachments",
                 "comment-body",
                 "comment-card",
+                "comment-choices",
                 "comment-edit-actions",
                 "comment-edited",
                 "comment-header",
                 "comment-item",
+                "comment-question",
                 "comment-replies"
               ]
+            },
+            {
+              "name": "data-tone",
+              "values": ["question"]
             },
             {
               "name": "data-variant",
@@ -29691,11 +29705,7 @@
             },
             {
               "name": "data-slot",
-              "values": [
-                "activity-event",
-                "activity-event-agent",
-                "activity-event-icon"
-              ]
+              "values": ["activity-event", "activity-event-icon"]
             }
           ],
           "cssVariables": []
@@ -30989,6 +30999,62 @@
             "status": "not-applicable",
             "rationale": "A pure function; it renders nothing and takes no ref."
           }
+        },
+        {
+          "name": "PersonName",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/person-avatar.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "span",
+            "rationale": "Props, including ref, spread onto the span root."
+          }
+        },
+        {
+          "name": "PersonAgentLabel",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/person-avatar.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "span",
+            "rationale": "Props, including ref, spread onto the span root."
+          }
+        },
+        {
+          "name": "PersonNameProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/person-avatar.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "PersonKind",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/person-avatar.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "personDisplayName",
+          "kind": "function",
+          "source": "packages/ui/registry/ui/person-avatar.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A plain function; it renders nothing."
+          }
+        },
+        {
+          "name": "personAccessibleName",
+          "kind": "function",
+          "source": "packages/ui/registry/ui/person-avatar.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A plain function; it renders nothing."
+          }
         }
       ],
       "variants": {
@@ -31058,11 +31124,33 @@
           "attributes": [
             {
               "name": "data-kind",
-              "values": ["team"]
+              "values": ["agent", "team"]
             },
             {
               "name": "data-slot",
               "values": ["avatar-image"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "PersonAgentLabel": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["person-agent-label"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "PersonName": {
+          "attributes": [
+            {
+              "name": "data-kind",
+              "values": ["agent"]
+            },
+            {
+              "name": "data-slot",
+              "values": ["person-name", "person-name-via"]
             }
           ],
           "cssVariables": []
@@ -33006,6 +33094,167 @@
             },
             {
               "name": "data-zone",
+              "values": []
+            }
+          ],
+          "cssVariables": []
+        }
+      }
+    },
+    {
+      "name": "approval-card",
+      "registryType": "registry:ui",
+      "title": "Approval Card",
+      "summary": "An agent asks its owner to approve a risky action: who asks, the action in words, the records it touches, its reason, a reassurance, the expiry, and one Approve / Decline for the whole request — then the outcome.",
+      "status": "stable",
+      "since": "0.25.28",
+      "family": "chat",
+      "wave": "AI/chat",
+      "sourceFiles": ["packages/ui/registry/ui/approval-card.tsx"],
+      "publicSymbols": [
+        {
+          "name": "ApprovalCard",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/approval-card.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "section",
+            "rationale": "Props, including ref, spread onto the section root."
+          }
+        },
+        {
+          "name": "ApprovalCardProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/approval-card.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "ApprovalCardItem",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/approval-card.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "ApprovalCardStatus",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/approval-card.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "One look; the request status is a data attribute, not a variant."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "Fills its container; the footer stacks under a 24rem container."
+      },
+      "states": {
+        "behavior": {
+          "status": "covered",
+          "values": [
+            "pending",
+            "approving",
+            "approved",
+            "declined",
+            "expired",
+            "cancelled",
+            "already",
+            "cannot-decide",
+            "busy",
+            "error"
+          ],
+          "evidence": "packages/ui/registry/ui/approval-card.tsx + packages/ui/registry/ui/approval-card.test.tsx"
+        },
+        "accessibility": {
+          "status": "covered",
+          "values": [
+            "labeled-region",
+            "described-buttons",
+            "announced-outcome",
+            "browser-accessibility-test"
+          ],
+          "evidence": "packages/ui/registry/ui/approval-card.test.tsx"
+        },
+        "visual": {
+          "status": "observed",
+          "values": ["pending", "decided", "narrow"],
+          "evidence": "packages/ui/registry/ui/approval-card.tsx"
+        }
+      },
+      "responsive": {
+        "status": "modeled",
+        "risks": [
+          "responsive-or-container-layout",
+          "text-truncation-and-flex-shrink"
+        ],
+        "rationale": "A container query stacks the buttons full width (Approve on top) under 24rem; record titles truncate."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned motion; the busy spinner is Button`s."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/approval-card",
+      "registryDependencies": [
+        "@vegastack/button",
+        "@vegastack/person-avatar",
+        "@vegastack/relative-time",
+        "@vegastack/use-announcer"
+      ],
+      "npmDependencies": [
+        "@vegastack/design-tokens@^0.8.3",
+        "@vegastack/design@^0.8.6",
+        "lucide-react@^1.47.0"
+      ],
+      "testFiles": ["packages/ui/registry/ui/approval-card.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required"
+      },
+      "previewModule": "approval-card",
+      "dataAttributes": {
+        "ApprovalCard": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": [
+                "approval-card",
+                "approval-card-actions",
+                "approval-card-footer",
+                "approval-card-header",
+                "approval-card-item",
+                "approval-card-items",
+                "approval-card-meta",
+                "approval-card-more",
+                "approval-card-reason",
+                "approval-card-reassurance",
+                "approval-card-status",
+                "approval-card-title",
+                "approval-card-verb"
+              ]
+            },
+            {
+              "name": "data-status",
               "values": []
             }
           ],

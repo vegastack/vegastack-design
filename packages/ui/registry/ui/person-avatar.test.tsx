@@ -3,7 +3,13 @@ import { render } from "vitest-browser-react";
 import { expect, test } from "vitest";
 import { expectNoA11yViolations } from "../../test/a11y";
 import "../../test/contrast.css";
-import { PersonAvatar, personInitials } from "./person-avatar";
+import {
+  PersonAvatar,
+  PersonName,
+  personAccessibleName,
+  personDisplayName,
+  personInitials,
+} from "./person-avatar";
 
 const fallback = (c: HTMLElement) =>
   c.querySelector<HTMLElement>('[data-slot="avatar-fallback"]')!;
@@ -53,4 +59,72 @@ test("a team is a rounded-square tile with the team icon on its hue, never initi
   expect(tile.querySelector("svg.lucide-users-round")).not.toBeNull();
   expect(fallback(tiles[1]!).dataset.hue).toBeUndefined();
   await expectNoA11yViolations(screen.container);
+});
+
+const claude = { name: "Claude Code", kind: "agent" as const, via: "Manoj" };
+
+test("an agent is a bot on the purple tag hue, whatever its own hue", async () => {
+  const screen = await render(
+    <PersonAvatar person={{ ...claude, hue: "blue" }} />,
+  );
+  const avatar = screen.container.querySelector<HTMLElement>(
+    '[data-slot="avatar"]',
+  )!;
+  expect(avatar.dataset.kind).toBe("agent");
+  expect(fallback(screen.container).dataset.hue).toBe("purple");
+  expect(fallback(screen.container).textContent).toBe("");
+  expect(
+    fallback(screen.container).querySelector("svg.lucide-bot"),
+  ).not.toBeNull();
+  await expectNoA11yViolations(screen.container);
+});
+
+test("PersonName: an agent reads its name, via its owner, and the Agent label; a person just the name", async () => {
+  const screen = await render(
+    <p>
+      <PersonName person={claude} /> and{" "}
+      <PersonName person={{ name: "Asha Rao" }} />
+    </p>,
+  );
+  const [agent, person] = screen.container.querySelectorAll<HTMLElement>(
+    '[data-slot="person-name"]',
+  );
+  expect(agent!.dataset.kind).toBe("agent");
+  expect(
+    agent!.querySelector('[data-slot="person-name-via"]')!.textContent,
+  ).toBe(" via Manoj");
+  const label = agent!.querySelector<HTMLElement>(
+    '[data-slot="person-agent-label"]',
+  )!;
+  expect(label.textContent).toBe("Agent");
+  expect(label.className).toContain("text-tag-purple-text");
+  expect(agent!.querySelector(".sr-only")!.textContent).toBe(
+    "Claude Code, agent of Manoj",
+  );
+  expect(person!.textContent).toBe("Asha Rao");
+  expect(person!.dataset.kind).toBeUndefined();
+  await expectNoA11yViolations(screen.container);
+});
+
+test("PersonName: agentLabel={false} drops the label but keeps the spoken agent", async () => {
+  const screen = await render(
+    <PersonName person={claude} agentLabel={false} />,
+  );
+  expect(
+    screen.container.querySelector('[data-slot="person-agent-label"]'),
+  ).toBeNull();
+  expect(screen.container.querySelector(".sr-only")!.textContent).toBe(
+    "Claude Code, agent of Manoj",
+  );
+});
+
+test("personDisplayName and personAccessibleName", () => {
+  expect(personDisplayName(claude)).toBe("Claude Code (via Manoj)");
+  expect(personDisplayName({ name: "Codex", kind: "agent" })).toBe("Codex");
+  expect(personDisplayName({ name: "Asha Rao", via: "x" })).toBe("Asha Rao");
+  expect(personAccessibleName(claude)).toBe("Claude Code, agent of Manoj");
+  expect(personAccessibleName({ name: "Codex", kind: "agent" })).toBe(
+    "Codex, agent",
+  );
+  expect(personAccessibleName({ name: "Asha Rao" })).toBe("Asha Rao");
 });

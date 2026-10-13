@@ -1,0 +1,109 @@
+---
+title: Approval Card
+description: An agent asks its owner to approve a risky action — who asks, what, on which records, why, until when — with one Approve / Decline for the whole request.
+audience: public
+registry: approval-card
+status: stable
+since: 0.25.28
+a11y: labelled region, described buttons, announced outcome
+preview: approvalCard
+---
+
+## Install
+
+<InstallSteps name="approval-card" />
+
+## Usage
+
+```tsx
+import { ApprovalCard } from "@/components/ui/approval-card";
+
+<ApprovalCard
+  actor={{ name: "Claude Code", kind: "agent", via: "Manoj" }}
+  verb={
+    <>
+      wants to <strong>move 2 tasks to Trash</strong>
+    </>
+  }
+  items={tasks.map((t) => ({
+    id: t.id,
+    title: t.title,
+    href: t.href,
+    meta: t.space,
+  }))}
+  reason="These duplicate #10 and #11."
+  reassurance="You can restore them from Trash for 30 days."
+  requestedAt={request.createdAt}
+  expiresAt={request.expiresAt}
+  status={request.status}
+  onApprove={() => approve(request.id)}
+  onDecline={() => decline(request.id)}
+/>;
+```
+
+The host owns the request: it passes `status` back after a decision, and an `onApprove` or
+`onDecline` that returns a promise keeps its button busy (a rejection shows its message under the
+card). The actor is a `Person` with `kind: "agent"`, so it reads exactly as the agent does in
+comments, activity and pickers: the purple bot, "Claude Code via Manoj" and the "Agent" label.
+
+## Scope
+
+One decision covers the whole request — all or nothing. List the first few records in `items`
+and count the rest in `moreCount` ("and 3 more"). Put it above a record's description, in an inbox
+detail sheet, or in a dialog; it fills its container.
+
+## Examples
+
+<ComponentPreview
+  name="approvalCard"
+  file="components/preview/approval-card.tsx"
+/>
+
+### Outcomes
+
+`approved`, `declined`, `expired`, `cancelled` and `already` (answered on another device) replace
+the buttons with a line; `statusLine` swaps in your own words ("Approved by you · just now"). A
+viewer who `canDecide={false}` sees whose approval it waits for.
+
+<ComponentPreview
+  name="approvalCardStates"
+  file="components/preview/approval-card.tsx"
+/>
+
+### Narrow
+
+Under a 24rem container the buttons stack full width, Approve on top, and the times move under
+them.
+
+<ComponentPreview
+  name="approvalCardNarrow"
+  file="components/preview/approval-card.tsx"
+/>
+
+## API Reference
+
+<ApiTable
+  path="../../packages/ui/registry/ui/approval-card.tsx"
+  name="ApprovalCardProps"
+/>
+
+## Accessibility
+
+- The card is a region named by its title: "Claude Code, agent of Manoj wants to move 2 tasks to
+  Trash". Approve and Decline are described by the same title.
+- A decision made while the card is on screen is announced politely; the first paint is not.
+- Status is never colour alone: each outcome is a sentence with its icon.
+
+| Key                                 | Action                                     |
+| ----------------------------------- | ------------------------------------------ |
+| <kbd>Tab</kbd>                      | Move through the record links and buttons. |
+| <kbd>Enter</kbd> / <kbd>Space</kbd> | Approve or decline.                        |
+
+<StatesTested name="approval-card" />
+
+## Do / Don't
+
+<DoDont
+  do="Say the action in plain words with its effective scope, and add a reassurance only when it is true."
+  dont="Ask per record, or use it for the viewer's own destructive action — that is an AlertDialog."
+/>

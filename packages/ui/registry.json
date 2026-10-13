@@ -17778,6 +17778,36 @@
         "whenNotToUse": "Playback progress or a seek bar (AudioPlayer), or a static measurement (Progress or Meter).",
         "version": "0.25.28"
       }
+    },
+    {
+      "name": "approval-card",
+      "type": "registry:ui",
+      "title": "Approval Card",
+      "description": "An agent asks its owner to approve a risky action: who asks, the action in words, the records it touches, its reason, a reassurance, the expiry, and one Approve / Decline for the whole request — then the outcome.",
+      "categories": ["chat"],
+      "dependencies": [
+        "lucide-react@^1.47.0",
+        "@vegastack/design@^0.8.6",
+        "@vegastack/design-tokens@^0.8.3"
+      ],
+      "registryDependencies": [
+        "@vegastack/button",
+        "@vegastack/person-avatar",
+        "@vegastack/relative-time",
+        "@vegastack/use-announcer"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/approval-card.tsx",
+          "type": "registry:ui",
+          "target": "@ui/approval-card.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "Approve or decline an action an agent may not take on its own (move to Trash, share, publish) — on the record, in the inbox detail, or a sheet.",
+        "whenNotToUse": "A person asking for access (InboxItem actions), or confirming the viewer`s own destructive action (AlertDialog).",
+        "version": "0.25.28"
+      }
     }
   ]
 }

@@ -1,4 +1,4 @@
-// @vegastack people-picker@0.25.28 sha256-RCmdUSSdGf+r0GtO7Y+BameBTDH9nirtV1DRzC605hQ=
+// @vegastack people-picker@0.25.28 sha256-z2nnSClUOZQwepLu0zic3Iv19kiPmheDyM9QnSfebhU=
 
 "use client";
 
@@ -15,13 +15,21 @@ import {
   CommandItem,
   CommandList,
 } from "@/components/ui/command";
-import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
+import {
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+} from "@/components/ui/dropdown-menu";
 import {
   PanelList,
   PanelSearch,
   PanelSearchField,
 } from "@/components/ui/panel-search";
-import { PersonAvatar, type Person } from "@/components/ui/person-avatar";
+import {
+  PersonAvatar,
+  PersonName,
+  type Person,
+} from "@/components/ui/person-avatar";
 import {
   Popover,
   PopoverContent,
@@ -39,7 +47,9 @@ import {
  * assignee, an owner, a manager, a filter) or several people and teams (members of a team or a
  * space, a share invite) composes it, so a row reads the same everywhere: the avatar on the left,
  * the name (with "(you)" for the viewer), then the email, a description or "Team · N people" in a
- * smaller truncated line. Three hosts share the rows, the search and the loading skeleton:
+ * smaller truncated line. An agent (`kind: "agent"`) reads "Claude Code via Manoj" with its purple
+ * bot and "Agent" label, so the same picker delegates to a member's agents; an option it may not
+ * take shows why (`disabledReason`) and can't be picked. Three hosts share the rows, the search and the loading skeleton:
  *
  * - `PeoplePicker` — a field: its own trigger (one height per size, the same as `Button` and
  *   `Select`, so it sits flush beside them) over a popover, single or `multiple`.
@@ -74,6 +84,12 @@ export interface PeoplePickerOption extends Person {
    * @default undefined
    */
   icon?: React.ReactNode;
+  /**
+   * Why this option can't be picked ("Read only — can't be delegated"): it is listed, disabled,
+   * with the reason as its second line.
+   * @default undefined
+   */
+  disabledReason?: string | null;
 }
 
 /** A static footer action under the results — "Assign to me", "Unassign". */
@@ -124,6 +140,8 @@ export interface PeoplePickerListProps {
   searchPlaceholder?: string;
   /** Shown when nothing matches. @default "No people found" */
   emptyText?: string;
+  /** A label over the rows ("Your agents"). @default undefined */
+  heading?: string;
   /** The viewer's marker after their name. @default "(you)" */
   youLabel?: string;
   /** A team's second line. @default (n) => `Team · ${n} ${n === 1 ? "person" : "people"}` */
@@ -235,14 +253,15 @@ function PeoplePickerRow({
 >) {
   const team = option.kind === "team";
   const secondary =
-    option.description ??
-    (team
-      ? option.memberCount != null
-        ? teamLabel(option.memberCount)
-        : null
-      : option.email && option.email !== option.name
-        ? option.email
-        : null);
+    option.disabledReason ||
+    (option.description ??
+      (team
+        ? option.memberCount != null
+          ? teamLabel(option.memberCount)
+          : null
+        : option.email && option.email !== option.name
+          ? option.email
+          : null));
   return (
     <PersonOption
       avatar={
@@ -260,7 +279,7 @@ function PeoplePickerRow({
       }
       name={
         <>
-          {option.name}
+          <PersonName person={option} />
           {option.id === viewerId && !team ? (
             <>
               {" "}
@@ -393,6 +412,7 @@ export function PeoplePickerContent({
   actions = [],
   searchPlaceholder = "Search people",
   emptyText = "No people found",
+  heading,
   ...list
 }: PeoplePickerContentProps) {
   const { rows, query, onSearchChange, loading, error, loadMore, checked } =
@@ -421,7 +441,7 @@ export function PeoplePickerContent({
           <CommandEmpty>{emptyText}</CommandEmpty>
         )}
         {rows.length > 0 ? (
-          <CommandGroup>
+          <CommandGroup heading={heading}>
             {rows.map((option) => (
               <CommandItem
                 key={option.id}
@@ -429,6 +449,7 @@ export function PeoplePickerContent({
                 data-slot="people-picker-item"
                 data-kind={option.kind ?? "person"}
                 data-checked={checked.has(option.id) ? "true" : undefined}
+                disabled={!!option.disabledReason}
                 onSelect={() => onSelect(option)}
               >
                 <PeoplePickerRow
@@ -482,11 +503,27 @@ export function PeoplePickerMenu({
   onSelect,
   searchPlaceholder = "Search people",
   emptyText = "No people found",
+  heading,
   ...list
 }: PeoplePickerMenuProps) {
   const { rows, query, onSearchChange, loading, error, loadMore, checked } =
     usePeopleList(list);
   const paging = usePaging(loadMore, error, rows.length);
+  const items = rows.map((option) => (
+    <DropdownMenuItem
+      key={option.id}
+      data-slot="people-picker-item"
+      data-kind={option.kind ?? "person"}
+      disabled={checked.has(option.id) || !!option.disabledReason}
+      onClick={() => onSelect(option)}
+    >
+      <PeoplePickerRow
+        option={option}
+        checked={checked.has(option.id)}
+        {...list}
+      />
+    </DropdownMenuItem>
+  ));
   return (
     <>
       <PanelSearch>
@@ -509,21 +546,14 @@ export function PeoplePickerMenu({
         onScroll={paging.onScroll}
       >
         {loading ? <PeoplePickerSkeleton /> : null}
-        {rows.map((option) => (
-          <DropdownMenuItem
-            key={option.id}
-            data-slot="people-picker-item"
-            data-kind={option.kind ?? "person"}
-            disabled={checked.has(option.id)}
-            onClick={() => onSelect(option)}
-          >
-            <PeoplePickerRow
-              option={option}
-              checked={checked.has(option.id)}
-              {...list}
-            />
-          </DropdownMenuItem>
-        ))}
+        {heading && rows.length > 0 ? (
+          <DropdownMenuGroup>
+            <DropdownMenuLabel>{heading}</DropdownMenuLabel>
+            {items}
+          </DropdownMenuGroup>
+        ) : (
+          items
+        )}
         {!loading && !error && rows.length === 0 ? (
           <p className="px-2 py-1.5 text-sm text-muted-foreground">
             {emptyText}

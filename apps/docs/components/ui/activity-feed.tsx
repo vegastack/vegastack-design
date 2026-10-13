@@ -1,4 +1,4 @@
-// @vegastack activity-feed@0.25.28 sha256-JGXNITeh5C8ORBw8uveRi9eg4zK0lzszz8Q1Cw+/yW4=
+// @vegastack activity-feed@0.25.28 sha256-WGD43eOHie8yEmLR9a9Auq4lhJk3ArmWcq5X6TvbTLc=
 
 "use client";
 
@@ -9,14 +9,19 @@ import {
   ArrowDown,
   ArrowUp,
   ArrowUpDown,
+  Bot,
+  BotOff,
   Calendar,
   CheckCircle2,
   ChevronDown,
   ChevronUp,
+  CircleAlert,
   CircleCheck,
+  CirclePlay,
   CirclePlus,
   CircleX,
   Clock,
+  CornerDownRight,
   Flag,
   FolderInput,
   Link2,
@@ -33,7 +38,11 @@ import {
   PersonHoverCard,
   type Person,
 } from "@/components/ui/person-hover-card";
-import { PersonAvatar } from "@/components/ui/person-avatar";
+import {
+  PersonAgentLabel,
+  PersonAvatar,
+  PersonName,
+} from "@/components/ui/person-avatar";
 import { RelativeTime } from "@/components/ui/relative-time";
 import { PersonBadge } from "@/components/ui/searchable-select";
 import {
@@ -505,7 +514,12 @@ export function ActivityFeedItem({
  * ActivityEvent
  * ----------------------------------------------------------------------------------------------*/
 
-/** Common event kinds `ActivityKindIcon` draws. */
+/**
+ * Common event kinds `ActivityKindIcon` draws. The agent kinds: `delegated` / `undelegated` (a
+ * member hands a record to their agent, or takes it back), the agent's own run — `agent-queued`,
+ * `agent-working`, `agent-needs-you`, `agent-done`, `agent-failed` — and `agent-step`, one
+ * server-written step of a run ("Updated the description").
+ */
 export type ActivityKind =
   | "created"
   | "edited"
@@ -526,7 +540,15 @@ export type ActivityKind =
   | "deleted"
   | "approved"
   | "rejected"
-  | "requested";
+  | "requested"
+  | "delegated"
+  | "undelegated"
+  | "agent-queued"
+  | "agent-working"
+  | "agent-needs-you"
+  | "agent-done"
+  | "agent-failed"
+  | "agent-step";
 
 const KIND_ICONS: Record<
   ActivityKind,
@@ -552,13 +574,27 @@ const KIND_ICONS: Record<
   approved: CircleCheck,
   rejected: CircleX,
   requested: Clock,
+  delegated: Bot,
+  undelegated: BotOff,
+  "agent-queued": Clock,
+  // Started, not spinning: a history line never stops loading.
+  "agent-working": CirclePlay,
+  "agent-needs-you": CircleAlert,
+  "agent-done": CircleCheck,
+  "agent-failed": CircleX,
+  "agent-step": CornerDownRight,
 };
 
-/** Semantic kinds keep their colour; the rest are muted. */
+/** Semantic kinds keep their colour (an agent run's in its status tone); the rest are muted. */
 const KIND_TONES: Partial<Record<ActivityKind, string>> = {
   approved: "text-success",
   rejected: "text-destructive",
   requested: "text-warning",
+  delegated: "text-tag-purple-text",
+  "agent-working": "text-info",
+  "agent-needs-you": "text-warning",
+  "agent-done": "text-success",
+  "agent-failed": "text-destructive",
 };
 
 /**
@@ -597,7 +633,10 @@ export interface ActivityEventProps {
   id?: string;
   /** Who did it; `null` for the system. A `badge` on the person ("Inactive") follows the name. */
   actor: Person | null;
-  /** The actor is an agent: its name reads as an agent's. @default false */
+  /**
+   * @deprecated Give the actor `kind: "agent"` (and `via`) instead; kept for one release. The
+   * actor is an agent: read as if `actor.kind` were `"agent"`. @default false
+   */
   agent?: boolean;
   /**
    * The 20px node before the text — an `ActivityKindIcon`, a `StatusIcon`, a `PriorityIcon`.
@@ -627,13 +666,17 @@ export interface ActivityEventProps {
 export function ActivityEvent({
   id,
   actor,
-  agent = false,
+  agent: agentFlag = false,
   icon,
   children,
   date,
   now,
   className,
 }: ActivityEventProps) {
+  // An agent is its actor's `kind`; the `agent` flag is the deprecated spelling of the same.
+  const agent = agentFlag || actor?.kind === "agent";
+  const who: Person | null =
+    agent && actor ? { ...actor, kind: "agent" } : actor;
   return (
     <div
       data-slot="activity-event"
@@ -650,8 +693,8 @@ export function ActivityEvent({
         data-slot="activity-event-icon"
         className="flex h-8 w-5 shrink-0 items-center justify-center"
       >
-        {icon === "avatar" && actor ? (
-          <PersonAvatar person={actor} className="data-[size=sm]:size-4" />
+        {icon === "avatar" && who ? (
+          <PersonAvatar person={who} className="data-[size=sm]:size-4" />
         ) : icon && icon !== "avatar" ? (
           icon
         ) : (
@@ -659,9 +702,9 @@ export function ActivityEvent({
         )}
       </span>
       <p className="min-w-0 flex-1 py-1 text-xs/6 text-muted-foreground">
-        {actor ? (
-          <PersonHoverCard person={actor} trigger="name">
-            {actor.name}
+        {who ? (
+          <PersonHoverCard person={who} trigger="name">
+            <PersonName person={who} agentLabel={false} />
           </PersonHoverCard>
         ) : (
           <span className="font-medium text-foreground">System</span>
@@ -673,12 +716,7 @@ export function ActivityEvent({
         ) : null}
         {agent ? (
           <>
-            <span
-              data-slot="activity-event-agent"
-              className="rounded-sm bg-tag-purple-subtle px-1 font-medium text-tag-purple-text"
-            >
-              Agent
-            </span>{" "}
+            <PersonAgentLabel />{" "}
           </>
         ) : null}
         {children} <span aria-hidden>·</span>{" "}
