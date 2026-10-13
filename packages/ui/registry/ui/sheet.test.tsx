@@ -522,7 +522,7 @@ test("API-21: SheetAction is an end seat in the header that clears the close but
     expect(tokens).toContain(token);
   }
   expect(bySlot("sheet-header")!.className).toContain(
-    "has-data-[slot=sheet-action]:grid-cols-[1fr_auto]",
+    "has-data-[slot=sheet-action]:grid-cols-[minmax(0,1fr)_auto]",
   );
   await expect
     .element(screen.getByRole("button", { name: "Duplicate" }))

@@ -239,7 +239,9 @@ justify-end`) at every width, not upstream's full-width `flex-col` stack; a dire
 - **VOI-1** — the corner close's built-in string is the overridable `closeLabel`, default "Close".
 - **LAY-17** — `SheetContent` sets `wrap-break-word`, so a long unbroken word breaks inside the panel
   rather than running past its edge. While the corner × renders, a `SheetHeader` with no
-  `SheetAction` takes `pe-12`, so a long title wraps before the × instead of running under it.
+  `SheetAction` takes `pe-12`, so a long title wraps before the × instead of running under it. With
+  a `SheetAction` the header's text track is `minmax(0, 1fr)`, so a long title wraps instead of
+  pushing the action off the panel.
   MK, 2026-10-13.
 - **DOC-2** — `import { cn } from "cn"` becomes `@vegastack/design`; our npm layer owns `cn`.
 - **DOC-1** — prettier reflow plus the `registry-stamp.mjs` provenance header; no decision of their

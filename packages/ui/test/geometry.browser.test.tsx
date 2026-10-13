@@ -91,8 +91,24 @@ import {
   AlertDialogContent,
   AlertDialogDescription,
   AlertDialogHeader,
+  AlertDialogMedia,
   AlertDialogTitle,
 } from "../registry/ui/alert-dialog";
+import {
+  Drawer,
+  DrawerContent,
+  DrawerDescription,
+  DrawerHeader,
+  DrawerTitle,
+} from "../registry/ui/drawer";
+import {
+  Popover,
+  PopoverContent,
+  PopoverDescription,
+  PopoverHeader,
+  PopoverTitle,
+  PopoverTrigger,
+} from "../registry/ui/popover";
 import { Field, FieldLabel } from "../registry/ui/field";
 import contracts from "../component-contracts.json";
 import {
@@ -4444,4 +4460,271 @@ test("long-names: a wrap trigger measures its fixed height on one line and grows
   const option = list.getByRole("option", { name: LONG_NAME }).element();
   expect(option.getBoundingClientRect().height).toBeGreaterThan(32);
   await list.unmount();
+});
+
+/**
+ * A word with no break opportunity at all — no hyphen, no space, no punctuation — so nothing but
+ * `overflow-wrap` (and a track that can shrink below its min-content) keeps it inside.
+ */
+const UNBROKEN = "Alphatrimless".repeat(16);
+
+/** `part` lies inside `frame` and its own box does not overflow sideways. */
+function expectInside(part: Element | null, frame: Element, label: string) {
+  expect(part, `${label}: rendered`).not.toBeNull();
+  const box = part!.getBoundingClientRect();
+  expect(
+    within(box, frame.getBoundingClientRect()),
+    `${label}: inside (${Math.round(box.left)}–${Math.round(box.right)} in ` +
+      `${Math.round(frame.getBoundingClientRect().left)}–${Math.round(frame.getBoundingClientRect().right)})`,
+  ).toBe(true);
+  expect(
+    part!.scrollWidth <= part!.clientWidth + 1,
+    `${label}: no sideways overflow (${part!.scrollWidth} > ${part!.clientWidth})`,
+  ).toBe(true);
+}
+
+const $ = (slot: string) =>
+  document.querySelector<HTMLElement>(`[data-slot="${slot}"]`);
+
+/**
+ * `long-names` with a genuinely unbroken word, in every overlay and picker LAY-17 and API-35
+ * cover: the dialog's header, title and description; the alert dialog with and without media,
+ * below and above `sm` (the media layout changes there); a sheet header with an action, LTR and
+ * RTL, whose action stays on the panel and off the corner ×; the drawer; the popover; and the
+ * `wrap` select and searchable-select triggers and options.
+ */
+test("long-names: a genuinely unbroken word stays inside every overlay", async () => {
+  const dialog = await render(
+    <Dialog defaultOpen>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>{UNBROKEN}</DialogTitle>
+          <DialogDescription>{UNBROKEN}</DialogDescription>
+        </DialogHeader>
+      </DialogContent>
+    </Dialog>,
+  );
+  await settle();
+  const dialogPopup = $("dialog-content")!;
+  for (const slot of ["dialog-header", "dialog-title", "dialog-description"])
+    expectInside($(slot), dialogPopup, slot);
+  expect(
+    $("dialog-title")!.getBoundingClientRect().right <=
+      $("dialog-close")!.getBoundingClientRect().left,
+    "the dialog title clears the corner ×",
+  ).toBe(true);
+  await dialog.unmount();
+
+  try {
+    for (const [width, height] of [
+      [320, 812],
+      [1280, 800],
+    ] as const) {
+      await page.viewport(width, height);
+      for (const media of [false, true]) {
+        const alert = await render(
+          <AlertDialog defaultOpen>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                {media ? <AlertDialogMedia>!</AlertDialogMedia> : null}
+                <AlertDialogTitle>{UNBROKEN}</AlertDialogTitle>
+                <AlertDialogDescription>{UNBROKEN}</AlertDialogDescription>
+              </AlertDialogHeader>
+            </AlertDialogContent>
+          </AlertDialog>,
+        );
+        await settle();
+        const popup = $("alert-dialog-content")!;
+        for (const slot of [
+          "alert-dialog-header",
+          "alert-dialog-title",
+          "alert-dialog-description",
+        ])
+          expectInside($(slot), popup, `${slot} @${width} media=${media}`);
+        await alert.unmount();
+      }
+
+      for (const dir of ["ltr", "rtl"] as const) {
+        const sheet = await render(
+          <DirectionProvider direction={dir}>
+            <Sheet defaultOpen>
+              <SheetContent dir={dir}>
+                <SheetHeader>
+                  <SheetTitle>{UNBROKEN}</SheetTitle>
+                  <SheetAction>
+                    <Button size="sm">Duplicate</Button>
+                  </SheetAction>
+                </SheetHeader>
+              </SheetContent>
+            </Sheet>
+          </DirectionProvider>,
+        );
+        await settle();
+        const panel = $("sheet-content")!;
+        const label = `sheet @${width} ${dir}`;
+        expectInside($("sheet-title"), panel, `${label} title`);
+        expectInside($("sheet-action"), panel, `${label} action`);
+        const action = $("sheet-action")!.getBoundingClientRect();
+        const close = $("sheet-close")!.getBoundingClientRect();
+        expect(
+          dir === "ltr"
+            ? action.right <= close.left
+            : action.left >= close.right,
+          `${label}: the action stays off the corner ×`,
+        ).toBe(true);
+        const title = $("sheet-title")!.getBoundingClientRect();
+        expect(
+          dir === "ltr"
+            ? title.right <= action.left
+            : title.left >= action.right,
+          `${label}: the title stays off the action`,
+        ).toBe(true);
+        await sheet.unmount();
+      }
+    }
+  } finally {
+    await page.viewport(320, 812);
+  }
+
+  const drawer = await render(
+    <Drawer defaultOpen>
+      <DrawerContent>
+        <DrawerHeader>
+          <DrawerTitle>{UNBROKEN}</DrawerTitle>
+          <DrawerDescription>{UNBROKEN}</DrawerDescription>
+        </DrawerHeader>
+      </DrawerContent>
+    </Drawer>,
+  );
+  await settle();
+  const drawerPopup = $("drawer-popup")!;
+  for (const slot of ["drawer-header", "drawer-title", "drawer-description"])
+    expectInside($(slot), drawerPopup, slot);
+  await drawer.unmount();
+
+  const popover = await render(
+    <Popover defaultOpen>
+      <PopoverTrigger>Open</PopoverTrigger>
+      <PopoverContent>
+        <PopoverHeader>
+          <PopoverTitle>{UNBROKEN}</PopoverTitle>
+          <PopoverDescription>{UNBROKEN}</PopoverDescription>
+        </PopoverHeader>
+      </PopoverContent>
+    </Popover>,
+  );
+  await settle();
+  const popoverPopup = $("popover-content")!;
+  for (const slot of ["popover-header", "popover-title", "popover-description"])
+    expectInside($(slot), popoverPopup, slot);
+  await popover.unmount();
+
+  const items = [
+    { label: UNBROKEN, value: "unbroken" },
+    { label: "Beta", value: "beta" },
+  ];
+  const pickers = await render(
+    <div data-testid="column" className="flex w-72 flex-col gap-2">
+      <Select items={items} defaultValue="unbroken">
+        <SelectTrigger aria-label="Plain select">
+          <SelectValue />
+        </SelectTrigger>
+      </Select>
+      <Select items={items} defaultValue="unbroken">
+        <SelectTrigger wrap aria-label="Wrap select" data-testid="wrap-select">
+          <SelectValue />
+        </SelectTrigger>
+      </Select>
+      <SearchableSelect<string>
+        items={[UNBROKEN, "Beta"]}
+        value={UNBROKEN}
+        onValueChange={() => {}}
+        itemToKey={(name) => name}
+        itemToStringLabel={(name) => name}
+        searchLabel="Search products"
+        aria-label="Plain searchable"
+        data-slot="plain-searchable"
+      />
+      <SearchableSelect<string>
+        items={[UNBROKEN, "Beta"]}
+        value={UNBROKEN}
+        onValueChange={() => {}}
+        itemToKey={(name) => name}
+        itemToStringLabel={(name) => name}
+        searchLabel="Search products"
+        aria-label="Wrap searchable"
+        data-slot="wrap-searchable"
+        wrap
+      />
+    </div>,
+  );
+  await settle();
+  const column = pickers.getByTestId("column").element();
+  // A plain trigger cuts the value inside its own box; a `wrap` trigger shows all of it.
+  for (const label of ["Plain select", "Plain searchable"])
+    expect(
+      within(
+        pickers
+          .getByRole("combobox", { name: label })
+          .element()
+          .getBoundingClientRect(),
+        column.getBoundingClientRect(),
+      ),
+      `${label}: inside its column`,
+    ).toBe(true);
+  for (const label of ["Wrap select", "Wrap searchable"]) {
+    const trigger = pickers.getByRole("combobox", { name: label }).element();
+    expectInside(trigger, column, label);
+    expect(trigger.getBoundingClientRect().height, label).toBeGreaterThan(32);
+  }
+  await pickers.unmount();
+
+  const selectList = await render(
+    <div className="w-72">
+      <Select items={items} defaultValue="beta" defaultOpen>
+        <SelectTrigger wrap aria-label="Open select">
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent wrap>
+          {items.map((item) => (
+            <SelectItem key={item.value} value={item.value}>
+              {item.label}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+    </div>,
+  );
+  await settle();
+  const selectPopup = $("select-content")!;
+  expectInside(
+    selectList.getByRole("option", { name: UNBROKEN }).element(),
+    selectPopup,
+    "select option",
+  );
+  await selectList.unmount();
+
+  const searchableList = await render(
+    <div className="w-72">
+      <SearchableSelect<string>
+        items={[UNBROKEN, "Beta"]}
+        value={null}
+        onValueChange={() => {}}
+        itemToKey={(name) => name}
+        itemToStringLabel={(name) => name}
+        searchLabel="Search products"
+        aria-label="Open searchable"
+        open
+        wrap
+      />
+    </div>,
+  );
+  await settle();
+  const searchablePopup = $("combobox-content")!;
+  expectInside(
+    searchableList.getByRole("option", { name: UNBROKEN }).element(),
+    searchablePopup,
+    "searchable-select option",
+  );
+  await searchableList.unmount();
 });

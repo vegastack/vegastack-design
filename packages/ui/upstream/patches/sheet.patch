@@ -33,12 +33,14 @@
 #   LAY-17 (MK 2026-10-13, Regent long-names review): `SheetContent` sets `wrap-break-word`, so
 #     a long unbroken word breaks inside the panel rather than running past its edge. While the
 #     corner × is rendered (`showCloseButton`), a `SheetHeader` with no `SheetAction` (which
-#     clears the × already, API-21) takes `pe-12`, so a long title wraps 8px before the ×.
+#     clears the × already, API-21) takes `pe-12`, so a long title wraps 8px before the ×. With a
+#     `SheetAction`, the header's text track is `minmax(0,1fr)` (upstream's API-21 grid was
+#     `1fr auto`), so an unbroken title wraps instead of pushing the action off the panel.
 #   cn: `import { cn } from "cn"` becomes `@vegastack/design` — our npm layer owns `cn` (DOC-2).
 #   formatting: prettier reflow plus the `registry-stamp.mjs` provenance header (DOC-1); no
 #               decision of their own.
 diff --git a/sheet.tsx b/sheet.tsx
-index 1972cc1..787947b 100644
+index 1972cc1..9d4655e 100644
 --- a/sheet.tsx
 +++ b/sheet.tsx
 @@ -1,26 +1,41 @@
@@ -223,7 +225,7 @@ index 1972cc1..787947b 100644
        data-slot="sheet-header"
 -      className={cn("flex flex-col gap-0.5 p-4", className)}
 +      className={cn(
-+        "flex flex-col gap-0.5 p-4 has-data-[slot=sheet-action]:grid has-data-[slot=sheet-action]:grid-cols-[1fr_auto] has-data-[slot=sheet-action]:gap-x-4",
++        "flex flex-col gap-0.5 p-4 has-data-[slot=sheet-action]:grid has-data-[slot=sheet-action]:grid-cols-[minmax(0,1fr)_auto] has-data-[slot=sheet-action]:gap-x-4",
 +        className,
 +      )}
 +      {...props}

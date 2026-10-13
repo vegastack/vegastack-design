@@ -1,4 +1,4 @@
-// @vegastack sheet@0.25.25 sha256-T/1+R4MaugPhFKrlB6ZEjaVCvnkJUxSiJefogAeseqU=
+// @vegastack sheet@0.25.25 sha256-+SmcbkEUmIUVQQHSkeNMjyPA7yrW6of4uDSd37CoIbU=
 
 "use client";
 
@@ -160,7 +160,7 @@ function SheetHeader({ className, ...props }: React.ComponentProps<"div">) {
     <div
       data-slot="sheet-header"
       className={cn(
-        "flex flex-col gap-0.5 p-4 has-data-[slot=sheet-action]:grid has-data-[slot=sheet-action]:grid-cols-[1fr_auto] has-data-[slot=sheet-action]:gap-x-4",
+        "flex flex-col gap-0.5 p-4 has-data-[slot=sheet-action]:grid has-data-[slot=sheet-action]:grid-cols-[minmax(0,1fr)_auto] has-data-[slot=sheet-action]:gap-x-4",
         className,
       )}
       {...props}

@@ -1,4 +1,4 @@
-// @vegastack alert-dialog@0.25.25 sha256-585EGEE5zaWMWhdsIkQZ+jEfmFSGNacMKkV1gnHkOyQ=
+// @vegastack alert-dialog@0.25.25 sha256-wzdwP/nFJAucfW9NDeLTK9lPBxbdZ8vxBD/i8BIIQ/M=
 
 "use client";
 
@@ -84,7 +84,7 @@ function AlertDialogHeader({
     <div
       data-slot="alert-dialog-header"
       className={cn(
-        "grid grid-rows-[auto_1fr] place-items-center gap-1.5 text-center has-data-[slot=alert-dialog-media]:grid-rows-[auto_auto_1fr] has-data-[slot=alert-dialog-media]:gap-x-4 sm:group-data-[size=default]/alert-dialog-content:place-items-start sm:group-data-[size=default]/alert-dialog-content:text-start sm:group-data-[size=default]/alert-dialog-content:has-data-[slot=alert-dialog-media]:grid-rows-[auto_1fr]",
+        "grid grid-cols-[minmax(0,1fr)] grid-rows-[auto_1fr] place-items-center gap-1.5 text-center wrap-anywhere has-data-[slot=alert-dialog-media]:grid-rows-[auto_auto_1fr] has-data-[slot=alert-dialog-media]:gap-x-4 sm:group-data-[size=default]/alert-dialog-content:place-items-start sm:group-data-[size=default]/alert-dialog-content:text-start sm:group-data-[size=default]/alert-dialog-content:has-data-[slot=alert-dialog-media]:grid-rows-[auto_1fr] sm:group-data-[size=default]/alert-dialog-content:has-data-[slot=alert-dialog-media]:grid-cols-[auto_minmax(0,1fr)]",
         className,
       )}
       {...props}

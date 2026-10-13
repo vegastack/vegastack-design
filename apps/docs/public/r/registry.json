@@ -120,7 +120,7 @@
         "whenToUse": "A decision that must be made before anything else continues — deleting, discarding, signing out.",
         "whenNotToUse": "Anything dismissible by clicking away, or a form — use a Dialog.",
         "version": "0.25.25",
-        "integrity": "sha256-585EGEE5zaWMWhdsIkQZ+jEfmFSGNacMKkV1gnHkOyQ="
+        "integrity": "sha256-wzdwP/nFJAucfW9NDeLTK9lPBxbdZ8vxBD/i8BIIQ/M="
       }
     },
     {
@@ -17440,7 +17440,7 @@
         "whenToUse": "Secondary content beside the page — filters, details, a settings panel, a long record form — that should not take the centre of the screen. Side sheets take size sm/default/lg/xl (Dialog's width scale); put long content in SheetBody so the footer stays on screen.",
         "whenNotToUse": "A decision (AlertDialog), a centred form (Dialog), or a touch-first panel with snap points (Drawer).",
         "version": "0.25.25",
-        "integrity": "sha256-T/1+R4MaugPhFKrlB6ZEjaVCvnkJUxSiJefogAeseqU="
+        "integrity": "sha256-+SmcbkEUmIUVQQHSkeNMjyPA7yrW6of4uDSd37CoIbU="
       }
     },
     {
