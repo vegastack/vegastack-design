@@ -1181,7 +1181,7 @@
         "whenToUse": "Fenced/source code that deserves a labelled, copyable panel.",
         "whenNotToUse": "Inline code (a mono chip) or terminal output theatre (Terminal).",
         "version": "0.25.29",
-        "integrity": "sha256-mhk7DUJO+np4t9ZIvVI80kIvPqPqJv53LIDOM2cNuIw="
+        "integrity": "sha256-kHn4aDjZr8Pf3Jg5QaRVCRgzq1FCHZmcqOqZ3cp8R/0="
       }
     },
     {
@@ -1868,6 +1868,101 @@
         "whenNotToUse": "Server code with no ProseMirror document — use text-anchor on the flat text.",
         "version": "0.25.29",
         "integrity": "sha256-K27F8l24QTtyaBWufXYPQX55B19vep4Ags4WWj8lNdM="
+      }
+    },
+    {
+      "name": "text-edit-grammar",
+      "type": "registry:lib",
+      "title": "Text Edit Grammar",
+      "description": "VegaStack Markdown v1 beyond CommonMark + GFM, as plain strings — mention links (parse, write, SQL twin), callout markers, toggles, media blocks, image widths, fence info and heading ids. No dependencies; server-safe.",
+      "categories": [
+        "data"
+      ],
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "packages/ui/registry/lib/text-edit-grammar.ts",
+          "type": "registry:lib",
+          "target": "@lib/text-edit-grammar.ts"
+        }
+      ],
+      "meta": {
+        "version": "0.25.28",
+        "whenToUse": "Reading or writing the Markdown constructs TextEdit stores — mentions, callouts, toggles, media, image widths — on a server or in a light renderer.",
+        "whenNotToUse": "Parsing a whole document — use text-edit-markdown.",
+        "integrity": "sha256-OTRy6lNsZP/8+U/05Pqh44warh71bYuzcarqX2L+NdM="
+      }
+    },
+    {
+      "name": "text-edit-schema",
+      "type": "registry:lib",
+      "title": "Text Edit Schema",
+      "description": "TextEdit’s document schema as plain Tiptap extensions — every node, mark and attribute with its VegaStack Markdown rules, stable block ids (`blockId`) that Markdown never carries. No React, no DOM: the editor adds node views, a server builds the identical schema.",
+      "categories": [
+        "data"
+      ],
+      "dependencies": [
+        "@tiptap/core@^3.31.4",
+        "@tiptap/pm@^3.31.4",
+        "@tiptap/starter-kit@^3.31.4",
+        "@tiptap/extension-code-block@^3.31.4",
+        "@tiptap/extension-code-block-lowlight@^3.31.4",
+        "@tiptap/extension-hard-break@^3.31.4",
+        "@tiptap/extension-image@^3.31.4",
+        "@tiptap/extension-link@^3.31.4",
+        "@tiptap/extension-list@^3.31.4",
+        "@tiptap/extension-paragraph@^3.31.4",
+        "@tiptap/extension-table@^3.31.4",
+        "@tiptap/extension-unique-id@^3.31.4"
+      ],
+      "registryDependencies": [
+        "@vegastack/text-edit-grammar"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/registry/lib/text-edit-schema.ts",
+          "type": "registry:lib",
+          "target": "@lib/text-edit-schema.ts"
+        }
+      ],
+      "meta": {
+        "version": "0.25.28",
+        "whenToUse": "Building a TextEdit document anywhere — a collaboration server, an import, an API — with exactly the editor’s nodes and attributes.",
+        "whenNotToUse": "Rendering a document to read — use MarkdownView.",
+        "integrity": "sha256-bAgWYdbPPiWX71L+B/kgtVcbVI3q2QhenhMNqFunIuw="
+      }
+    },
+    {
+      "name": "text-edit-markdown",
+      "type": "registry:lib",
+      "title": "Text Edit Markdown",
+      "description": "VegaStack Markdown v1 in and out of a TextEdit document, identical in a browser and on a server — markdownToDoc, docToMarkdown, normalizeMarkdown, docToText, an isolated marked instance, minimal escaping, raw HTML as text, and the editor’s VegaStackMarkdown extension.",
+      "categories": [
+        "data"
+      ],
+      "dependencies": [
+        "@tiptap/core@^3.31.4",
+        "@tiptap/markdown@^3.31.4",
+        "@tiptap/pm@^3.31.4",
+        "marked@^17.0.1"
+      ],
+      "registryDependencies": [
+        "@vegastack/text-edit-schema",
+        "@vegastack/text-anchor-doc"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/registry/lib/text-edit-markdown.ts",
+          "type": "registry:lib",
+          "target": "@lib/text-edit-markdown.ts"
+        }
+      ],
+      "meta": {
+        "version": "0.25.28",
+        "whenToUse": "Converting between Markdown and a TextEdit document on a server — import, export, search text, a collaboration server’s read copy.",
+        "whenNotToUse": "Rendering Markdown to read — use MarkdownView.",
+        "integrity": "sha256-4gFIHz9QmsdnqeEzErd0P/e6UznwBwxlh1DV50J7xMY="
       }
     },
     {
@@ -15985,7 +16080,8 @@
         "@vegastack/inline-chip",
         "@vegastack/button",
         "@vegastack/popover",
-        "@vegastack/alert"
+        "@vegastack/alert",
+        "@vegastack/text-edit-grammar"
       ],
       "files": [
         {
@@ -16003,7 +16099,7 @@
         "whenToUse": "Display user/system-authored markdown — descriptions, comments, activity — as safe token-styled prose.",
         "whenNotToUse": "Editing markdown (use an editor), or when the source needs embedded raw HTML.",
         "version": "0.25.29",
-        "integrity": "sha256-BkEE+HI5E+tOjOk09cad0Y1rIGCaqt7VAsioCg+d0uY="
+        "integrity": "sha256-SPXvTi5tW48vJiUKhAS0oRQgqYsHZ7uQl3uJn3QYXGo="
       }
     },
     {
@@ -18023,17 +18119,7 @@
       "dependencies": [
         "@base-ui/react@^1.6.0",
         "@tiptap/react@^3",
-        "@tiptap/starter-kit@^3",
-        "@tiptap/markdown@^3",
         "@tiptap/pm@^3",
-        "@tiptap/extension-code-block@^3",
-        "@tiptap/extension-code-block-lowlight@^3",
-        "lowlight@^3.3.0",
-        "highlight.js@^11.11.1",
-        "@tiptap/extension-image@^3",
-        "@tiptap/extension-list@^3",
-        "@tiptap/extension-paragraph@^3",
-        "@tiptap/extension-table@^3",
         "@tiptap/extensions@^3",
         "@tiptap/suggestion@^3",
         "lucide-react@^1.47.0",
@@ -18065,7 +18151,10 @@
         "@vegastack/empty",
         "@vegastack/tabs",
         "@vegastack/toast",
-        "@vegastack/suggestion-menu"
+        "@vegastack/suggestion-menu",
+        "@vegastack/text-edit-grammar",
+        "@vegastack/text-edit-schema",
+        "@vegastack/text-edit-markdown"
       ],
       "files": [
         {
@@ -18083,7 +18172,7 @@
         "whenToUse": "Comments, notes, summaries and documents stored as Markdown (format=\"markdown\") or HTML — with @ mentions, uploads, callouts, toggles, an outline and comment highlights for page editors; in-place editing of a MarkdownView (the read view is the editor until first edited).",
         "whenNotToUse": "Plain single-line input (Input) or collaborative real-time docs (deferred text-edit-collab).",
         "version": "0.25.29",
-        "integrity": "sha256-dd3AQl6ZbP9PP+TFqiJmBZn3jWyX+YFgzWYduIa5njA="
+        "integrity": "sha256-CxxvHiQm+7a08RxWNHqN4gV2s0qFQcNz2pv8w1CTRYY="
       }
     },
     {

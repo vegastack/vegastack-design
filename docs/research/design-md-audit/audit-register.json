@@ -2,14 +2,14 @@
   "schemaVersion": 1,
   "kind": "vegastack-zero-gap-audit-register",
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "cb26076ff528485c5827679eeda309911513410dfb2f870df5bedfa9d9997af8",
+  "contractSha256": "58beef7446509b91fe403902aecc8586e133141777206d03400bd75aa08d3d6e",
   "expectedCounts": {
-    "totalRegistryItems": 741,
+    "totalRegistryItems": 744,
     "components": 160,
     "animatedIcons": 467,
     "hooks": 15,
     "blocks": 15,
-    "libs": 16,
+    "libs": 19,
     "chartBlocks": 68
   },
   "records": [
@@ -8095,6 +8095,39 @@
       "family": "lib",
       "sourceFiles": [
         "packages/ui/registry/lib/text-anchor-doc.ts"
+      ],
+      "docsSlug": "/docs/guides/components",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "text-edit-grammar",
+      "inventoryClass": "lib",
+      "wave": "Libs",
+      "family": "lib",
+      "sourceFiles": [
+        "packages/ui/registry/lib/text-edit-grammar.ts"
+      ],
+      "docsSlug": "/docs/guides/components",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "text-edit-schema",
+      "inventoryClass": "lib",
+      "wave": "Libs",
+      "family": "lib",
+      "sourceFiles": [
+        "packages/ui/registry/lib/text-edit-schema.ts"
+      ],
+      "docsSlug": "/docs/guides/components",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "text-edit-markdown",
+      "inventoryClass": "lib",
+      "wave": "Libs",
+      "family": "lib",
+      "sourceFiles": [
+        "packages/ui/registry/lib/text-edit-markdown.ts"
       ],
       "docsSlug": "/docs/guides/components",
       "contractStatus": "reconciled"

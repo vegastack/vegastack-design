@@ -1,0 +1,25 @@
+{
+  "type": "doc",
+  "content": [
+    {
+      "type": "toggle",
+      "attrs": {
+        "open": false
+      },
+      "content": [
+        {
+          "type": "toggleSummary"
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "b"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "type": "doc",
+  "content": [
+    {
+      "type": "paragraph",
+      "content": [
+        {
+          "type": "text",
+          "text": "[@x](mention://user/u1) typed literally"
+        }
+      ]
+    }
+  ]
+}

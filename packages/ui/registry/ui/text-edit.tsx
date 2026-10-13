@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.25.29 sha256-dd3AQl6ZbP9PP+TFqiJmBZn3jWyX+YFgzWYduIa5njA=
+// @vegastack text-edit@0.25.29 sha256-CxxvHiQm+7a08RxWNHqN4gV2s0qFQcNz2pv8w1CTRYY=
 
 "use client";
 
@@ -10,12 +10,12 @@ import {
   MarkdownView,
   proseDocumentHeadingsClassName,
   type MarkdownCitation,
-  type MentionKind,
 } from "@/components/ui/markdown-view";
+import type { MentionKind } from "@/lib/text-edit-grammar";
 import type { FileViewerItem } from "@/components/ui/file-viewer";
 import type { TextAnchor } from "@/lib/text-anchor";
 
-export type { MentionKind } from "@/components/ui/markdown-view";
+export type { MentionKind } from "@/lib/text-edit-grammar";
 export type { TextAnchor } from "@/lib/text-anchor";
 
 /* ------------------------------------------------------------------------------------------------

@@ -1,0 +1,4 @@
+> [!NOTE]
+> outer
+>
+> > inner quote
