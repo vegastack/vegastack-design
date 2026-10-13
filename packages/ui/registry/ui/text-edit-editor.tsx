@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.25.30 sha256-aRxSQk/H883txjeUdC1RRWX6aBE/3twJjcuNtsw9L/4=
+// @vegastack text-edit@0.25.30 sha256-YCxJblG8DieSdsF0WXeKm6eepT6F/qX/BPptbFf3wnY=
 
 "use client";
 
@@ -1591,25 +1591,49 @@ function yBinding(state: EditorState) {
     : null;
 }
 
-/** A highlight's range from its relative positions; null when either is gone. */
-function resolveY(state: EditorState, refs: YRefs) {
+/**
+ * A highlight's range from its relative positions: null when orphaned (its quote deleted), and
+ * undefined only while the editor has no Yjs binding yet (nothing to resolve against).
+ */
+function resolveY(
+  state: EditorState,
+  refs: YRefs,
+): { from: number; to: number } | null | undefined {
   const y = yBinding(state);
-  if (!y) return null;
-  const from = relativePositionToAbsolutePosition(
-    y.doc,
-    y.type,
-    refs.start,
-    y.mapping as never,
-  );
-  const to = relativePositionToAbsolutePosition(
-    y.doc,
-    y.type,
-    refs.end,
-    y.mapping as never,
-  );
+  if (!y) return undefined;
+  const from = resolveRelative(y, refs.start);
+  const to = resolveRelative(y, refs.end);
   if (from === null || to === null) return null;
   // Collapsed: the quote is gone — orphaned, never a highlight of whatever follows.
   return from < to ? { from, to } : null;
+}
+
+/**
+ * A Yjs relative position as a document position; null when it no longer resolves. The binding
+ * reads a position bound to the document's very first character as a misresolved one (its guard
+ * against block reorders) — a quote that starts the document is valid, so a position whose text
+ * still exists is resolved again through its text type instead.
+ */
+function resolveRelative(
+  y: NonNullable<ReturnType<typeof yBinding>>,
+  rel: Y.RelativePosition,
+): number | null {
+  const pos = relativePositionToAbsolutePosition(
+    y.doc,
+    y.type,
+    rel,
+    y.mapping as never,
+  );
+  if (pos !== null) return pos;
+  const at = Y.createAbsolutePositionFromRelativePosition(rel, y.doc);
+  if (!at || !(at.type instanceof Y.XmlText) || at.type._item?.deleted)
+    return null;
+  return relativePositionToAbsolutePosition(
+    y.doc,
+    y.type,
+    Y.createRelativePositionFromTypeIndex(at.type, at.index, -1),
+    y.mapping as never,
+  );
 }
 
 /**
@@ -1650,6 +1674,16 @@ function annotationKey(anchor: TextEditAnchor): string {
     text,
     y ? [Array.from(y.start), Array.from(y.end)] : null,
   ]);
+}
+
+/** A highlight's range: from its Y anchor when it has one (null once orphaned), else its quote. */
+function resolveAnchorY(
+  state: EditorState,
+  anchor: TextEditAnchor,
+  refs: YRefs | undefined,
+) {
+  const placed = refs ? resolveY(state, refs) : undefined;
+  return placed === undefined ? resolveInDoc(state.doc, anchor) : placed;
 }
 
 /** Resolve an anchor in `doc`: offsets → context → unique quote, then into document positions. */
@@ -1734,7 +1768,7 @@ function annotationsExtension(runtime: {
                 for (const [id, range] of previous.ranges) {
                   const refs = y.get(id);
                   if (remote && refs) {
-                    ranges.set(id, resolveY(newState, refs));
+                    ranges.set(id, resolveY(newState, refs) ?? null);
                     continue;
                   }
                   if (!range) {
@@ -1769,8 +1803,10 @@ function annotationsExtension(runtime: {
                     id,
                     keys.get(id) === key && ranges.has(id)
                       ? ranges.get(id)!
-                      : ((refs ? resolveY(newState, refs) : null) ??
-                          resolveInDoc(newState.doc, anchor)),
+                      : // A Y anchor is the truth: when it no longer resolves the highlight is
+                        // orphaned — its quote is never looked for elsewhere (another occurrence).
+                        // The quote is read only for an anchor without one, or before the binding.
+                        resolveAnchorY(newState, anchor, refs),
                   );
                 }
                 ranges = nextRanges;
@@ -1938,7 +1974,7 @@ const Uploads = Extension.create({
           apply(tr, set, _old, state) {
             // A collaborator's change replaces whole blocks, so a placeholder inside one can't be
             // mapped through it: in a shared document each placeholder is placed again from its
-            // Yjs relative position — gone only when its whole block was deleted.
+            // Yjs relative position, never dropped.
             const y =
               tr.docChanged && isChangeOrigin(tr) ? yBinding(state) : null;
             let next = y
@@ -1968,6 +2004,25 @@ const Uploads = Extension.create({
         props: {
           decorations: (state) => UPLOAD_KEY.getState(state),
         },
+        // In a shared document each placeholder's relative position is taken again after every
+        // change, once Yjs holds it (the binding syncs in its own view update): a local edit that
+        // rebuilds the block (a paragraph turned heading) would otherwise leave it pointing into
+        // deleted text, and a collaborator's next change would lose the placeholder.
+        view: () => ({
+          update: (view, previous) => {
+            if (previous.doc === view.state.doc) return;
+            queueMicrotask(() => {
+              if (view.isDestroyed) return;
+              const y = yBinding(view.state);
+              if (!y) return;
+              for (const placeholder of UPLOAD_KEY.getState(
+                view.state,
+              )?.find() ?? [])
+                (placeholder.spec as { ref?: Y.RelativePosition }).ref =
+                  relativeAt(y, placeholder.from, -1);
+            });
+          },
+        }),
       }),
     ];
   },
@@ -2001,15 +2056,17 @@ function placeUploads(
       upload: UploadWidget;
       ref?: Y.RelativePosition;
     };
-    if (!spec.ref)
-      return mapped.find(undefined, undefined, (each) => each.id === spec.id);
-    const pos = relativePositionToAbsolutePosition(
-      y.doc,
-      y.type,
-      spec.ref,
-      y.mapping as never,
+    const kept = mapped.find(
+      undefined,
+      undefined,
+      (each) => each.id === spec.id,
     );
-    if (pos === null) return [];
+    if (!spec.ref) return kept;
+    // A pending upload is never dropped by a collaborator's change: where its position no longer
+    // resolves (its block was replaced or deleted), it stays where the change mapped it, or where
+    // it was — the file still lands, near the place it was put.
+    const pos =
+      resolveRelative(y, spec.ref) ?? kept[0]?.from ?? decoration.from;
     return [
       uploadWidget(
         spec.upload,

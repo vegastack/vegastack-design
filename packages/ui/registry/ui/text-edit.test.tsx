@@ -9,6 +9,7 @@ import {
   preloadTextEdit,
   TextEdit,
   type MentionOption,
+  type TextEditAnchor,
   type TextEditHandle,
 } from "./text-edit";
 import { anchorFromRange } from "../lib/text-anchor";
@@ -3377,4 +3378,127 @@ test("collaboration: a collaborator's edit leaves an open slash menu open", asyn
   );
   expect(slashMenu()).not.toBeNull();
   expect(slashMenu()!.textContent).toMatch(/Heading/);
+});
+
+/** Select `from`–`to` of an editor's first paragraph text and read its anchor from `handleRef`. */
+async function anchorOf(
+  box: Element,
+  handleRef: React.RefObject<TextEditHandle | null>,
+  from: number,
+  to: number,
+  quote: string,
+) {
+  const text = box.querySelector("p")!.firstChild!;
+  const range = document.createRange();
+  range.setStart(text, from);
+  range.setEnd(text, to);
+  window.getSelection()!.removeAllRanges();
+  window.getSelection()!.addRange(range);
+  return vi.waitFor(() => {
+    const found = handleRef.current!.getAnchorForSelection();
+    expect(found?.quote).toBe(quote);
+    return found!;
+  });
+}
+
+/** A read-only third viewer of `doc` drawing one highlight (`c1`) from `anchor`. */
+async function highlightViewer(doc: Y.Doc, anchor: TextEditAnchor) {
+  const viewer = await render(
+    <TextEdit
+      format="markdown"
+      aria-label="C"
+      readOnly
+      collaboration={{
+        document: doc,
+        provider: {
+          awareness: new Awareness(doc),
+          on: () => undefined,
+          off: () => undefined,
+        },
+        user: { id: "u3", name: "Cal", hue: "blue" },
+      }}
+      annotations={[{ id: "c1", anchor }]}
+    />,
+  );
+  return {
+    text: () => viewer.container.querySelector(".ProseMirror")?.textContent,
+    highlight: () =>
+      viewer.container.querySelector('[data-annotation="c1"]')?.textContent,
+  };
+}
+
+test("collaboration: a highlight on the document's first word survives a collaborator's edit", async () => {
+  const handleRef = React.createRef<TextEditHandle>();
+  const { screen, shared } = await twoEditors("beta gamma", {
+    a: { handleRef },
+  });
+  const a = screen.getByRole("textbox", { name: "A" });
+  await a.click();
+  const anchor = await anchorOf(a.element(), handleRef, 0, 4, "beta");
+  const viewer = await highlightViewer(shared.b, anchor);
+  await vi.waitFor(() => expect(viewer.highlight()).toBe("beta"));
+  sharedParagraph(shared.a).insert(10, " delta");
+  await vi.waitFor(() => expect(viewer.text()).toBe("beta gamma delta"));
+  await vi.waitFor(() => expect(viewer.highlight()).toBe("beta"));
+});
+
+test("collaboration: a reopened highlight whose quote was deleted stays orphaned — never moved to another occurrence", async () => {
+  const handleRef = React.createRef<TextEditHandle>();
+  const { screen, shared } = await twoEditors("one beta two beta", {
+    a: { handleRef },
+  });
+  const a = screen.getByRole("textbox", { name: "A" });
+  await a.click();
+  const anchor = await anchorOf(a.element(), handleRef, 4, 8, "beta");
+  sharedParagraph(shared.a).delete(4, 4);
+  const viewer = await highlightViewer(shared.b, anchor);
+  await vi.waitFor(() => expect(viewer.text()).toBe("one  two beta"));
+  await vi.waitFor(() => expect(viewer.highlight()).toBeUndefined());
+});
+
+test("collaboration: an upload survives its paragraph turned heading here, then a collaborator's edit", async () => {
+  let land!: (result: { src: string }) => void;
+  const onImageUpload = vi.fn(
+    () =>
+      new Promise<{ src: string }>((resolve) => {
+        land = resolve;
+      }),
+  );
+  const { screen, shared } = await twoEditors("intro\n\nalpha beta", {
+    a: { onImageUpload },
+  });
+  const a = screen.getByRole("textbox", { name: "A" });
+  await a.click();
+  await userEvent.keyboard(END);
+  pasteFiles(a.element(), [png()]);
+  await vi.waitFor(() =>
+    expect(a.element().querySelector("[data-uploading]")).not.toBeNull(),
+  );
+  // This person turns the paragraph into a heading: Yjs rebuilds the block.
+  await userEvent.keyboard(MAC ? "{Meta>}{ArrowLeft}{/Meta}# " : "{Home}# ");
+  await vi.waitFor(() =>
+    expect(a.element().querySelector("h1")).not.toBeNull(),
+  );
+  await new Promise((resolve) => setTimeout(resolve, 0));
+  (
+    (shared.b.getXmlFragment("default").get(1) as Y.XmlElement).get(
+      0,
+    ) as Y.XmlText
+  ).insert(0, "new ");
+  await vi.waitFor(() =>
+    expect(visibleText(a.element())).toContain("new alpha beta"),
+  );
+  // Still where it was put: at the end of the heading's text, not pushed out of the block.
+  expect(a.element().querySelector("h1 [data-uploading]")).not.toBeNull();
+  land({ src: "/api/files/f1" });
+  await vi.waitFor(() => {
+    let image = false;
+    yXmlFragmentToProseMirrorRootNode(
+      shared.b.getXmlFragment("default"),
+      textEditSchema(),
+    ).descendants((node) => {
+      if (node.type.name === "image") image = true;
+    });
+    expect(image).toBe(true);
+  });
 });
