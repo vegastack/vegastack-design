@@ -263,6 +263,18 @@ export const ADVERSARIAL: Record<string, string> = {
   callouts: "> [!NOTE]\n> x\n",
   "media lines": '<video src="/v.mp4"></video>\n',
   "nested quotes": "> > > quote\n",
+  "headings between lines": "p\n# h\n",
+};
+
+/**
+ * ONE paragraph of code spans and tags. marked (17.0.6) masks each code span, link and tag of a
+ * paragraph by rebuilding the paragraph's string, so a single paragraph of tens of thousands of
+ * them costs quadratic time inside marked itself — a known upstream limit that only a fork of its
+ * inline lexer would lift. Bounded here at 100 KB paragraphs, far past any real one.
+ */
+export const ADVERSARIAL_PARAGRAPH: Record<string, string> = {
+  "marks and code spans": "a **b** _c_ `d` ",
+  "inline tags": "x <kbd>k</kbd> ",
 };
 
 /** `unit` repeated to `size` characters. */
@@ -270,12 +282,12 @@ export function repeatTo(unit: string, size: number): string {
   return unit.repeat(Math.ceil(size / unit.length)).slice(0, size);
 }
 
-/** Milliseconds to parse `markdown`, best of `runs`. */
-export function parseTime(markdown: string, runs = 3): number {
+/** Milliseconds to parse `markdown` and write it back, best of `runs`. */
+export function roundTripTime(markdown: string, runs = 3): number {
   let best = Infinity;
   for (let i = 0; i < runs; i++) {
     const start = performance.now();
-    markdownToDoc(markdown);
+    docToMarkdown(markdownToDoc(markdown));
     best = Math.min(best, performance.now() - start);
   }
   return best;

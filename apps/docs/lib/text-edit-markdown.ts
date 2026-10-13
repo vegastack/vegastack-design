@@ -1,4 +1,4 @@
-// @vegastack text-edit-markdown@0.25.29 sha256-3px6wbk7dyrFEfS8FBc+2VMhEFS3OYyArBp/PWF8Tf8=
+// @vegastack text-edit-markdown@0.25.29 sha256-oYD4JwuQXqlx/04GxshObKZszbYDxRnV1gNPc4gNWas=
 
 import type { AnyExtension, JSONContent } from "@tiptap/core";
 import { Markdown, MarkdownManager } from "@tiptap/markdown";
@@ -219,6 +219,18 @@ interface ManagerInternals {
   }): JSONContent | null;
 }
 
+/** Each child's index in its parent's content, built once per parent (not an `indexOf` per text). */
+const INDEXES = new WeakMap<JSONContent[], Map<JSONContent, number>>();
+
+function indexIn(siblings: JSONContent[], node: JSONContent): number {
+  let index = INDEXES.get(siblings);
+  if (!index) {
+    index = new Map(siblings.map((child, at) => [child, at]));
+    INDEXES.set(siblings, index);
+  }
+  return index.get(node) ?? -1;
+}
+
 /** Text in a document as VegaStack Markdown: escaped only where Markdown would read syntax. */
 function encodeText(
   text: string,
@@ -233,7 +245,7 @@ function encodeText(
   // Inside link text a `]` would end the link.
   if (marks.includes("link")) out = out.replace(/\]/g, "\\]");
   const siblings = parent?.content ?? [];
-  const index = siblings.indexOf(node);
+  const index = indexIn(siblings, node);
   const next = index >= 0 ? siblings[index + 1] : undefined;
   // `!` then a link opening reads as an image.
   if (

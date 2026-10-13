@@ -1,4 +1,4 @@
-// @vegastack text-edit-grammar@0.25.29 sha256-3I7QsFneOJKsfv0eU7QPMy8JBSQZ1btsQ8Z3An/9lgw=
+// @vegastack text-edit-grammar@0.25.29 sha256-NEvzio9GzzaxKRQ0oSp8Qw6XSxvVqNFIzSs0yXQnzK8=
 
 /**
  * text-edit-grammar — the constructs VegaStack Markdown v1 carries beyond CommonMark + GFM, as
@@ -192,12 +192,21 @@ export function parseImageAlt(text: string): { alt: string; width?: number } {
 export function markdownDestination(href: string): string {
   // An `&` that reads as a character reference is written `&amp;`: the parser decodes once, so
   // `?a=&amp;` stays `?a=&amp;` through every save.
-  const safe = href.replace(
-    /&(?=#\d{1,7};|#[xX][\da-fA-F]{1,6};|[a-zA-Z][a-zA-Z\d]{1,31};)/g,
-    "&amp;",
-  );
+  const safe = href
+    // A backslash before punctuation (or at the end) is an escape to the parser: doubled, it reads
+    // back as itself (`/a\_b` stays `/a\_b`).
+    .replace(/\\(?=[!-/:-@[-`{-~]|$)/g, "\\\\")
+    .replace(
+      /&(?=#\d{1,7};|#[xX][\da-fA-F]{1,6};|[a-zA-Z][a-zA-Z\d]{1,31};)/g,
+      "&amp;",
+    );
   if (!/[\s()<>]/.test(safe)) return safe;
   return `<${safe.replace(/[<>\n]/g, (ch) => encodeURIComponent(ch))}>`;
+}
+
+/** A link or image title inside `"…"`: its quotes and its escaping backslashes escaped. */
+export function markdownTitle(title: string): string {
+  return title.replace(/\\(?=[!-/:-@[-`{-~]|$)/g, "\\\\").replace(/"/g, '\\"');
 }
 
 /**
@@ -223,7 +232,7 @@ export function imageMarkdown({
   );
   const target = markdownDestination(src);
   return title
-    ? `![${text}](${target} "${title.replace(/"/g, '\\"')}")`
+    ? `![${text}](${target} "${markdownTitle(title)}")`
     : `![${text}](${target})`;
 }
 

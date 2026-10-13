@@ -1,4 +1,4 @@
-// @vegastack text-edit-schema@0.25.29 sha256-QIwpBikCo/RyfESrjKrw3qPOIaR1ihDQvF/FnmpPsII=
+// @vegastack text-edit-schema@0.25.29 sha256-J0pjQSGRigEg0JeMRNp3Ny6chgaKQQYqQvnZDKsRegI=
 
 import {
   Extension,
@@ -36,6 +36,7 @@ import {
   codeFenceInfo,
   imageMarkdown,
   markdownDestination,
+  markdownTitle,
   mediaMarkdown,
   mentionMarkdown,
   parseCodeFenceInfo,
@@ -130,18 +131,104 @@ export function blockId(): string {
  * scanning further, once per paragraph, is what made parsing quadratic.
  */
 function lineStart(marker: RegExp) {
+  const key = `${marker.source}/${marker.flags}`;
   const find = new RegExp(
     `\n(?=${marker.source})`,
-    marker.flags.replace("g", ""),
+    `${marker.flags.replace("g", "")}g`,
   );
   return (src: string) => {
-    const match = find.exec(firstParagraph(src));
-    return match ? match.index + 1 : -1;
+    const { index, offset } = lineIndex(src);
+    let starts = index.markers.get(key);
+    if (!starts) {
+      starts = positions(index.source, find).map((at) => at + 1);
+      index.markers.set(key, starts);
+    }
+    const next = starts[firstAtOrAfter(starts, offset)];
+    if (next === undefined) return -1;
+    const blank = index.blanks[firstAtOrAfter(index.blanks, offset)];
+    return blank === undefined || next <= blank ? next - offset : -1;
   };
 }
 
-/** A blank line — empty, or only spaces and tabs (CommonMark). */
+/** A blank line — empty, or only spaces and tabs (CommonMark): the `\n` that opens one. */
 const BLANK_LINE = /\n[ \t]*\n/;
+const BLANK_LINE_STARTS = /\n(?=[ \t]*\n)/g;
+
+/**
+ * Where the blank lines and each marker's lines are in a document, found once: marked asks every
+ * block extension, once per paragraph, where it could interrupt that paragraph — handing it the
+ * whole rest of the document. Answering from one pass over the document (a binary search per
+ * question) keeps parsing linear however the paragraphs are separated.
+ */
+interface LineIndex {
+  source: string;
+  blanks: number[];
+  markers: Map<string, number[]>;
+}
+
+const LINE_INDEXES: LineIndex[] = [];
+
+function lineIndex(src: string): { index: LineIndex; offset: number } {
+  const index = cached(LINE_INDEXES, src, () => ({
+    source: src,
+    blanks: positions(src, BLANK_LINE_STARTS),
+    markers: new Map(),
+  }));
+  return { index, offset: index.source.length - src.length };
+}
+
+/** Sources shorter than this are indexed per call (cheap), and never evict a document's index. */
+const CACHE_FROM = 4096;
+
+/**
+ * The cached per-document entry `src` is a tail of, else a new one — kept most recently used
+ * first, so the document being lexed stays while its nested parts (list items, callout bodies)
+ * come and go. A short source is answered from a fresh entry and not cached.
+ */
+function cached<T extends { source: string }>(
+  cache: T[],
+  src: string,
+  create: () => T,
+): T {
+  const at = cache.findIndex((each) => isTailOf(each.source, src));
+  if (at !== -1) {
+    const entry = cache[at]!;
+    if (at > 0) {
+      cache.splice(at, 1);
+      cache.unshift(entry);
+    }
+    return entry;
+  }
+  const entry = create();
+  if (src.length >= CACHE_FROM) {
+    cache.unshift(entry);
+    cache.length = Math.min(cache.length, 8);
+  }
+  return entry;
+}
+
+/** Every index `pattern` (global) matches at in `text`. */
+function positions(text: string, pattern: RegExp): number[] {
+  const found: number[] = [];
+  const each = new RegExp(pattern.source, pattern.flags);
+  for (let match = each.exec(text); match; match = each.exec(text)) {
+    found.push(match.index);
+    if (match[0] === "") each.lastIndex++;
+  }
+  return found;
+}
+
+/** The first index of sorted `values` holding a value at or after `value` (its length if none). */
+function firstAtOrAfter(values: readonly number[], value: number): number {
+  let low = 0;
+  let high = values.length;
+  while (low < high) {
+    const mid = (low + high) >> 1;
+    if (values[mid]! < value) low = mid + 1;
+    else high = mid;
+  }
+  return low;
+}
 
 /** `src` up to its first blank line: all a paragraph (or a table) can span. */
 function firstParagraph(src: string): string {
@@ -149,9 +236,12 @@ function firstParagraph(src: string): string {
   return blank ? src.slice(0, blank.index + 1) : src;
 }
 
-/** A tokenizer `start` limited to the paragraph `src` begins with (see `lineStart`). */
-function paragraphStart(find: (src: string) => number) {
-  return (src: string) => find(firstParagraph(src));
+/** `src`'s first two lines: all a table's `start` reads (its header and delimiter rows). */
+function firstTwoLines(src: string): string {
+  const first = src.indexOf("\n");
+  if (first === -1) return src;
+  const second = src.indexOf("\n", first + 1);
+  return second === -1 ? src : src.slice(0, second + 1);
 }
 
 /** The longest run of `char` in `text` — counted, never spread into `Math.max` (huge code blocks). */
@@ -272,7 +362,10 @@ function renderTable(node: JSONContent, h: MarkdownRendererHelpers): string {
   const columns = rows.reduce((max, row) => Math.max(max, row.length), 0);
   if (columns === 0) return "";
   const widths = Array.from({ length: columns }, (_, index) =>
-    Math.max(3, ...rows.map((row) => row[index]?.text.length ?? 0)),
+    rows.reduce(
+      (width, row) => Math.max(width, row[index]?.text.length ?? 0),
+      3,
+    ),
   );
   const aligns = Array.from(
     { length: columns },
@@ -321,9 +414,11 @@ function trimCell(cell: JSONContent): JSONContent {
  * paragraph around a block lifted out of it, or of a table cell's line.
  */
 export function trimInline(run: JSONContent[]): JSONContent[] {
-  const nodes = run.map((node) => ({ ...node }));
-  while (nodes[0]?.type === "hardBreak") nodes.shift();
-  while (nodes[nodes.length - 1]?.type === "hardBreak") nodes.pop();
+  let start = 0;
+  let end = run.length;
+  while (start < end && run[start]!.type === "hardBreak") start++;
+  while (end > start && run[end - 1]!.type === "hardBreak") end--;
+  const nodes = run.slice(start, end).map((node) => ({ ...node }));
   const first = nodes[0];
   if (first?.type === "text") first.text = first.text?.trimStart();
   const last = nodes[nodes.length - 1];
@@ -370,7 +465,7 @@ const LinkMd = Link.extend({
   renderMarkdown: (node, h) => {
     const href = markdownDestination(String(node.attrs?.href ?? ""));
     const title = node.attrs?.title
-      ? ` "${String(node.attrs.title).replace(/"/g, '\\"')}"`
+      ? ` "${markdownTitle(String(node.attrs.title))}"`
       : "";
     return `[${h.renderChildren(node)}](${href}${title})`;
   },
@@ -633,7 +728,7 @@ const TableMd = Table.extend({
     const delimiter = /^[ \t|:]*-[ \t|:-]*$/;
     return {
       ...upstream,
-      start: paragraphStart(start),
+      start: (src: string) => start(firstTwoLines(src)),
       // Only a header line and a delimiter row start a table — checked on two lines, then the
       // table is read from its own paragraph (a table ends at a blank line), never the whole rest.
       tokenize: (src, tokens, lexer) => {
@@ -941,12 +1036,10 @@ export function isTailOf(source: string, src: string): boolean {
 
 /** The close of the toggle opening at the start of `src`, or null when it never closes. */
 function toggleClose(src: string): { bodyEnd: number; end: number } | null {
-  let entry = TOGGLE_CACHE.find((each) => isTailOf(each.source, src));
-  if (!entry) {
-    entry = { source: src, closes: toggleCloses(src) };
-    TOGGLE_CACHE.unshift(entry);
-    TOGGLE_CACHE.length = Math.min(TOGGLE_CACHE.length, 8);
-  }
+  const entry = cached(TOGGLE_CACHE, src, () => ({
+    source: src,
+    closes: toggleCloses(src),
+  }));
   const offset = entry.source.length - src.length;
   const close = entry.closes.get(offset);
   return close
@@ -995,7 +1088,11 @@ function toggleNode(view: (() => NodeViewRenderer) | undefined) {
         const close = toggleClose(src);
         if (!close) return undefined;
         const { bodyEnd, end } = close;
-        const body = src.slice(open[0].length, bodyEnd).trim();
+        // Only the blank lines around the body go: its first line may be indented code.
+        const body = src
+          .slice(open[0].length, bodyEnd)
+          .replace(/^\s*\n/, "")
+          .replace(/\n\s*$/, "");
         return {
           type: "toggle",
           raw: src.slice(0, end),
