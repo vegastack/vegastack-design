@@ -3489,7 +3489,9 @@ test("collaboration: an upload survives its paragraph turned heading here, then 
     expect(visibleText(a.element())).toContain("new alpha beta"),
   );
   // Still where it was put: at the end of the heading's text, not pushed out of the block.
-  expect(a.element().querySelector("h1 [data-uploading]")).not.toBeNull();
+  await vi.waitFor(() =>
+    expect(a.element().querySelector("h1 [data-uploading]")).not.toBeNull(),
+  );
   land({ src: "/api/files/f1" });
   await vi.waitFor(() => {
     let image = false;
