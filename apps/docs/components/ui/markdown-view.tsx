@@ -1,4 +1,4 @@
-// @vegastack markdown-view@0.25.29 sha256-BkEE+HI5E+tOjOk09cad0Y1rIGCaqt7VAsioCg+d0uY=
+// @vegastack markdown-view@0.25.29 sha256-m/AUHltIGkWdo7uRYloRknpWnjkMhmVnxRLmN8vDafI=
 
 import * as React from "react";
 import { Lexer, type Token, type Tokens } from "marked";
@@ -16,12 +16,20 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Checkbox } from "@/components/ui/checkbox";
 // `CodeBlock` owns the fenced-code surface (header + copy + sunken mono panel); shadcn rewrites
 // this alias on `add`, and vitest/tsconfig map `@/components/ui/*` → `registry/ui/*`.
-import { CodeBlock, parseCodeFenceInfo } from "@/components/ui/code-block";
+import { CodeBlock } from "@/components/ui/code-block";
+import { InlineChip, type InlineChipProps } from "@/components/ui/inline-chip";
 import {
-  InlineChip,
-  type InlineChipKind,
-  type InlineChipProps,
-} from "@/components/ui/inline-chip";
+  CALLOUT_MARKER,
+  MEDIA_BLOCK,
+  TOGGLE_CLOSE,
+  TOGGLE_OPEN,
+  headingIds,
+  parseCodeFenceInfo,
+  parseImageAlt,
+  parseMentionLink,
+  type CalloutTone,
+  type MentionKind,
+} from "@/lib/text-edit-grammar";
 // The one client leaf: a citation marker's popover. Imported only when `citation` answers.
 import {
   MarkdownCitationMarker,
@@ -111,21 +119,6 @@ function decode(text: string): string {
  * Mentions, file links, callouts, toggles — the constructs TextEdit's Markdown carries beyond GFM
  * ----------------------------------------------------------------------------------------------*/
 
-/** What a mention points at. */
-export type MentionKind = InlineChipKind;
-
-/** The tones a callout takes — GitHub's alert set (`> [!NOTE]`, `[!TIP]`, `[!IMPORTANT]`, …). */
-export type CalloutTone = "note" | "tip" | "important" | "warning" | "caution";
-
-/** Every callout tone, in GitHub's order. */
-export const CALLOUT_TONES: readonly CalloutTone[] = [
-  "note",
-  "tip",
-  "important",
-  "warning",
-  "caution",
-];
-
 /**
  * A callout is an `Alert`: the tone picks the alert variant (note → info, tip → success,
  * important → default, warning → warning, caution → destructive), the icon and the label.
@@ -187,50 +180,6 @@ export const calloutContentClassName =
 export const calloutClassName =
   "my-2 grid-cols-[auto_1fr] gap-x-2 *:[svg]:row-span-1";
 
-/**
- * `[@<label>](mention://<kind>/<id>)` at the start of a string. The label escapes `\`, `[` and `]`
- * with a backslash; the id has no whitespace or parentheses.
- */
-const MENTION_LINK =
-  /^\[@((?:[^\\[\]\n]|\\[^\n])*)\]\(mention:\/\/(user|page|file|task|meeting|customer|project)\/([^\s()]+)\)/;
-
-/**
- * Read a mention link — `[@<label>](mention://<kind>/<id>)` — at the start of `source`, the shape
- * `TextEdit` writes for an `@` mention. `null` when `source` does not start with one.
- *
- * @example
- * parseMentionLink("[@Asha Rao](mention://user/u1) said…");
- * // { raw: "[@Asha Rao](mention://user/u1)", kind: "user", id: "u1", label: "Asha Rao" }
- */
-export function parseMentionLink(
-  source: string,
-): { raw: string; kind: MentionKind; id: string; label: string } | null {
-  const match = MENTION_LINK.exec(source);
-  if (!match) return null;
-  return {
-    raw: match[0],
-    kind: match[2] as MentionKind,
-    id: match[3]!,
-    label: match[1]!.replace(/\\([^\n])/g, "$1"),
-  };
-}
-
-/**
- * The Markdown for a mention, exactly as `TextEdit` writes it: the label on one line with `\`, `[`
- * and `]` escaped.
- *
- * @example
- * mentionMarkdown("page", "p1", "Q3 [draft]"); // "[@Q3 \\[draft\\]](mention://page/p1)"
- */
-export function mentionMarkdown(
-  kind: MentionKind,
-  id: string,
-  label: string,
-): string {
-  const text = label.replace(/\s*\n\s*/g, " ").replace(/[\\[\]]/g, "\\$&");
-  return `[@${text}](mention://${kind}/${id})`;
-}
-
 /** Props accepted by `MentionChip`. */
 export interface MentionChipProps extends Omit<InlineChipProps, "targetId"> {
   /** The target's id. An id starting with `restricted:` renders a muted chip that is never a link. */
@@ -265,63 +214,25 @@ export const markdownExtrasClassName = cn(
   "[&_[data-slot=toggle-icon]]:size-5 [&_[data-slot=toggle-icon]]:shrink-0 [&_[data-slot=toggle-icon]]:rounded-sm [&_[data-slot=toggle-icon]]:p-1 [&_[data-slot=toggle-icon]]:fill-current [&_[data-slot=toggle-icon]]:text-muted-foreground [&_[data-slot=toggle-icon]]:transition-transform [&_[data-slot=toggle-icon]]:duration-150 [&_summary:hover_[data-slot=toggle-icon]]:bg-muted [&_summary:hover_[data-slot=toggle-icon]]:text-foreground [&_details[open]>summary>[data-slot=toggle-icon]]:rotate-90 rtl:[&_[data-slot=toggle-icon]]:-scale-x-100",
 );
 
-/** `> [!NOTE]` / `[!TIP]` / `[!IMPORTANT]` / `[!WARNING]` / `[!CAUTION]` — a callout's first line. */
 /** A video block: full width up to its natural size, rounded like an image. */
 export const MEDIA_VIDEO_CLASS =
   "my-2 block aspect-video h-auto w-full max-w-full rounded-lg border border-border bg-muted";
 /** An audio block: the native player, full width. */
 export const MEDIA_AUDIO_CLASS = "my-2 block w-full max-w-full";
 
-const CALLOUT_MARKER =
-  /^\[!(NOTE|TIP|IMPORTANT|WARNING|CAUTION)\][ \t]*(?:\n|$)/i;
-
-/** `<details><summary>Title</summary>` — the opening line of a toggle. */
-const TOGGLE_OPEN =
-  /^<details( open)?>[ \t]*<summary>([^\n]*?)<\/summary>[ \t]*$/;
-
-/**
- * `<video src="…"></video>` / `<audio src="…"></audio>` on a line of its own — TextEdit's video and
- * audio blocks. Only the `src` is read; any other attribute is ignored.
- */
-export const MEDIA_BLOCK =
-  /^<(video|audio)\b[^>\n]*?\ssrc="([^"\n]+)"[^>\n]*>[ \t]*<\/\1>[ \t]*$/;
-const TOGGLE_CLOSE = /^<\/details>[ \t]*$/;
-
-/**
- * Stable ids for a document's headings, in order: the heading's words, lower-cased and joined with
- * hyphens, then `-1`, `-2`… for a repeat — so identical text always gets the same id.
- *
- * @example
- * headingIds(["Setup", "Wiring plan", "Setup"]); // ["setup", "wiring-plan", "setup-1"]
- */
-export function headingIds(texts: readonly string[]): string[] {
-  const seen = new Map<string, number>();
-  return texts.map((text) => {
-    const base =
-      text
-        .toLowerCase()
-        .trim()
-        .replace(/[^\p{L}\p{N}\s-]/gu, "")
-        .replace(/\s+/g, "-") || "heading";
-    const count = seen.get(base) ?? 0;
-    seen.set(base, count + 1);
-    return count === 0 ? base : `${base}-${count}`;
-  });
-}
-
 /* --- markdown → tree --------------------------------------------------------------------------*/
 
-/** A `<br>` tag, in any of its spellings: the one raw HTML a table cell renders (its line break). */
-const CELL_BREAK = /^<br\s*\/?>$/i;
+/** A `<br>` tag, in any of its spellings: the one raw HTML VegaStack Markdown reads (a line break). */
+const BREAK_TAG = /^<br\s*\/?>$/i;
 
 /** `cell`: inside a table cell, where `<br>` is GFM's only way to break a line. */
-function inline(tokens: Token[] | undefined, cell = false): DocNode[] {
+function inline(tokens: Token[] | undefined): DocNode[] {
   const out: DocNode[] = [];
   for (const token of tokens ?? []) {
     const t = token as Tokens.Generic;
     switch (t.type) {
       case "text":
-        if (t.tokens?.length) out.push(...inline(t.tokens, cell));
+        if (t.tokens?.length) out.push(...inline(t.tokens));
         else out.push(decode(t.text));
         break;
       case "escape":
@@ -330,7 +241,7 @@ function inline(tokens: Token[] | undefined, cell = false): DocNode[] {
       case "strong":
       case "em":
       case "del":
-        out.push(el(t.type, {}, inline(t.tokens, cell)));
+        out.push(el(t.type, {}, inline(t.tokens)));
         break;
       case "codespan":
         out.push(el("code", {}, [t.text]));
@@ -358,29 +269,35 @@ function inline(tokens: Token[] | undefined, cell = false): DocNode[] {
           el(
             "a",
             { href: decode(t.href), ...(t.title ? { title: t.title } : {}) },
-            inline(t.tokens, cell),
+            inline(t.tokens),
           ),
         );
         break;
       }
-      case "image":
+      case "image": {
+        // The width rides in the alt as written (`![Diagram|320](…)`, an escaped `\|` or `&#x7C;`
+        // staying text): read it before entities are decoded.
+        const sized = parseImageAlt(t.text);
         out.push(
           el("img", {
             src: decode(t.href),
-            alt: decode(t.text),
+            alt: decode(sized.alt),
+            "data-alt-read": "",
+            ...(sized.width ? { width: String(sized.width) } : {}),
             ...(t.title ? { title: t.title } : {}),
           }),
         );
         break;
+      }
       // Raw HTML is shown as the text it is, never parsed (react-markdown's behaviour without
-      // `rehype-raw`) — except a table cell's `<br>`, its line break.
+      // `rehype-raw`) — except `<br>`, a line break (a table cell's or a heading's).
       case "html":
-        out.push(cell && CELL_BREAK.test(t.text.trim()) ? el("br") : t.text);
+        out.push(BREAK_TAG.test(t.text.trim()) ? el("br") : t.text);
         break;
       case "checkbox":
         break;
       default:
-        if (t.tokens) out.push(...inline(t.tokens, cell));
+        if (t.tokens) out.push(...inline(t.tokens));
         else if (typeof t.text === "string") out.push(decode(t.text));
     }
   }
@@ -521,7 +438,7 @@ function blocks(tokens: Token[]): DocNode[] {
             "tr",
             {},
             table.header.map((cell) =>
-              el("th", cellAttrs(cell.align), inline(cell.tokens, true)),
+              el("th", cellAttrs(cell.align), inline(cell.tokens)),
             ),
           ),
         ]);
@@ -530,7 +447,7 @@ function blocks(tokens: Token[]): DocNode[] {
             "tr",
             {},
             row.map((cell) =>
-              el("td", cellAttrs(cell.align), inline(cell.tokens, true)),
+              el("td", cellAttrs(cell.align), inline(cell.tokens)),
             ),
           ),
         );
@@ -989,7 +906,10 @@ function renderNode(
     case "img": {
       const src = safeUrl(attrs.src ?? "");
       // A width set by resizing in `TextEdit`: `![alt|320](src)` in markdown, `width` in HTML.
-      const sized = parseImageAlt(attrs.alt ?? "");
+      const sized =
+        attrs["data-alt-read"] !== undefined
+          ? { alt: attrs.alt ?? "", width: undefined }
+          : parseImageAlt(attrs.alt ?? "");
       const alt = sized.alt;
       if (!imageSourceAllowed(src, ctx.images)) {
         return (
@@ -1272,44 +1192,6 @@ export interface MarkdownViewProps extends React.ComponentPropsWithRef<"div"> {
    * @default undefined
    */
   citation?: (n: number) => MarkdownCitation | null | undefined;
-}
-
-/**
- * `parseImageAlt` — split an image's markdown alt text into the text and the width `TextEdit`
- * stores after a resize: `![Diagram|320](src)` is alt "Diagram", width 320 (the Obsidian
- * convention, so other renderers still show the image).
- *
- * @example
- * parseImageAlt("Diagram|320"); // { alt: "Diagram", width: 320 }
- */
-export function parseImageAlt(text: string): { alt: string; width?: number } {
-  const match = /^(.*)\|(\d{1,5})$/s.exec(text);
-  if (!match) return { alt: text };
-  const width = Number(match[2]);
-  return width > 0 ? { alt: match[1]!, width } : { alt: match[1]! };
-}
-
-/**
- * `imageMarkdown` — an image as markdown, its width (when set) kept in the alt text as
- * `parseImageAlt` reads it.
- *
- * @example
- * imageMarkdown({ src: "/a.png", alt: "Diagram", width: 320 }); // "![Diagram|320](/a.png)"
- */
-export function imageMarkdown({
-  src,
-  alt,
-  title,
-  width,
-}: {
-  src: string;
-  alt?: string | null;
-  title?: string | null;
-  width?: number | null;
-}): string {
-  // As Tiptap's own image serializer, plus the width.
-  const text = `${alt ?? ""}${width ? `|${Math.round(width)}` : ""}`;
-  return title ? `![${text}](${src} "${title}")` : `![${text}](${src})`;
 }
 
 /**

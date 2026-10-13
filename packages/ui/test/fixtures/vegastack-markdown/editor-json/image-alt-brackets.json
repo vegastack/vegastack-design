@@ -1,0 +1,14 @@
+{
+  "type": "doc",
+  "content": [
+    {
+      "type": "image",
+      "attrs": {
+        "src": "/a.png",
+        "alt": "a [b] c",
+        "title": null,
+        "width": null
+      }
+    }
+  ]
+}

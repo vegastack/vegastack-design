@@ -237,3 +237,45 @@ dropped) before it is parsed.
 | `` `text` ``       | Inline code       |
 
 Every rule works in every editor: `slashCommands` limits the menu, never the schema.
+
+## VegaStack Markdown on a server
+
+What `TextEdit` stores is **VegaStack Markdown v1**: CommonMark with GFM tables, task lists,
+strikethrough and autolinks, plus mentions (`[@Asha Rao](mention://user/u1)`), callouts
+(`> [!NOTE]`), toggles (`<details><summary>…</summary>`), `<video>`/`<audio>` lines, image widths
+(`![Diagram|320](/a.png)`), `lang wrap` fence info and `<br>` line breaks. Three registry libs hold
+it, with no React and no DOM, so a server reads and writes exactly what the editor does:
+
+| Lib                  | What it holds                                                                                                 |
+| -------------------- | ------------------------------------------------------------------------------------------------------------- |
+| `text-edit-grammar`  | The constructs above as strings and regular expressions: `parseMentionLink`, `mentionMarkdown`, `headingIds`. |
+| `text-edit-schema`   | Every node, mark and attribute with its Markdown rules: `textEditExtensions()`, `textEditSchema()`.           |
+| `text-edit-markdown` | `markdownToDoc`, `docToMarkdown`, `normalizeMarkdown`, `docToText`, and the editor's `VegaStackMarkdown`.     |
+
+```ts
+import { docToMarkdown, markdownToDoc } from "@/lib/text-edit-markdown";
+
+const doc = markdownToDoc(body); // a checked document, the same on a server and in a browser
+const stored = docToMarkdown(doc); // canonical: what the editor would write
+```
+
+The rules a writer can rely on:
+
+- **The same everywhere.** Raw HTML is text in a browser and on a server alike (Tiptap's own
+  manager parses it with the DOM when one exists); `<br>` is the one tag read, as a line break.
+- **Canonical output.** `-` bullets, `1.` lists from their real start, fences one backtick longer
+  than any run inside, a hard break as `\` and a newline (`<br>` in a heading or a table cell), one
+  blank line between blocks. `docToMarkdown(markdownToDoc(md))` is a fixed point.
+- **Minimal escaping.** Text is escaped only where Markdown would read it as syntax: `snake_case`,
+  `R&D`, `a * b` and `C:\Users` stay as typed; `1. ` at the start of a paragraph becomes `1\. `.
+- **What Markdown cannot hold** is kept by the document, not by the Markdown: empty paragraphs,
+  table column widths, several blocks in one table cell (written on one line, joined by `<br>`;
+  a list as `•` lines, code as code spans), block ids.
+- **Every valid CommonMark document parses.** An image written inside a sentence becomes a block
+  beside its text; a list item that starts with a heading, code or an image keeps it on its marker
+  line; a task checkbox in an ordered list (`1. [ ] one`) is kept as its text.
+- **Linear parsing.** A megabyte parses in well under a second — adversarial input included (long
+  runs of unmatched `*`, `~`, `[`, unclosed toggles) — and every `TextEdit` and every server call
+  uses its own `marked` instance.
+
+A round-trip corpus guards all of it, in Node and in Chromium, against the same expected output.

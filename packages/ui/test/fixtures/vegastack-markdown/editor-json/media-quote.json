@@ -1,0 +1,11 @@
+{
+  "type": "doc",
+  "content": [
+    {
+      "type": "video",
+      "attrs": {
+        "src": "/v\"1.mp4"
+      }
+    }
+  ]
+}

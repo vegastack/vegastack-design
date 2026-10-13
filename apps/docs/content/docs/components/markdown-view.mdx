@@ -54,7 +54,7 @@ remote images send no referrer:
 
 An image's width set by resizing it in `TextEdit` travels in its alt text — `![Diagram|320](src)`
 renders 320px wide (never wider than the text column) with the alt "Diagram"; `parseImageAlt` and
-`imageMarkdown` read and write that form. To open images in the `FileViewer` on a click, wrap the
+`imageMarkdown` (from `@/lib/text-edit-grammar`) read and write that form. To open images in the `FileViewer` on a click, wrap the
 view in `TextEdit`'s `ImageViewerScope`.
 
 ## Anatomy
@@ -167,10 +167,11 @@ The constructs `TextEdit`'s Markdown carries beyond GFM render here too, still s
 - **Callouts** — GitHub's alert syntax, `> [!NOTE]`, `> [!TIP]` and `> [!WARNING]`, renders as a
   `role="note"` box in the tone's ink.
 - **Toggles** — `<details><summary>Title</summary>`, a blank line, the body, a blank line and
-  `</details>` render as a native disclosure, collapsed. Any other raw HTML still renders as text.
+  `</details>` render as a native disclosure, collapsed. `<br>` is a line break (in a table cell, a
+  heading or a sentence); any other raw HTML still renders as text.
 - **Heading ids** — `headingIds` gives every heading the id `TextEdit`'s `onOutlineChange`
   reports (its words, hyphenated; `-1`, `-2`… for a repeat), so an outline links into either.
-  `headingIds(texts)` is exported for servers building the same ids.
+  `headingIds(texts)` (from `@/lib/text-edit-grammar`) builds the same ids on a server.
 
 <ComponentPreview
   name="markdownViewLibrary"
@@ -187,7 +188,8 @@ The constructs `TextEdit`'s Markdown carries beyond GFM render here too, still s
 ```
 
 `parseMentionLink(source)` reads a mention at the start of a string and `mentionMarkdown(kind, id,
-label)` writes one exactly as `TextEdit` does (the label escapes `\`, `[` and `]`).
+label)` writes one exactly as `TextEdit` does (the label escapes `\`, `[` and `]`). Both come from
+`@/lib/text-edit-grammar`, which `MarkdownView` installs with it.
 
 ### Citations
 

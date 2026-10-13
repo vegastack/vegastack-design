@@ -1,4 +1,4 @@
-// @vegastack code-block@0.25.29 sha256-mhk7DUJO+np4t9ZIvVI80kIvPqPqJv53LIDOM2cNuIw=
+// @vegastack code-block@0.25.29 sha256-kHn4aDjZr8Pf3Jg5QaRVCRgzq1FCHZmcqOqZ3cp8R/0=
 
 "use client";
 
@@ -184,32 +184,6 @@ export const codeBlockControlClassName = "absolute top-1.5 z-10";
 /** The top-right icon row: wrap and copy. */
 export const codeBlockActionsClassName =
   "absolute end-1.5 top-1.5 z-10 flex items-center gap-0.5";
-
-/**
- * A fence info string split into its language and the `wrap` flag TextEdit writes after it
- * (```` ```ts wrap ````; plain text that wraps is ```` ```text wrap ````).
- *
- * @example
- * parseCodeFenceInfo("ts wrap"); // { language: "ts", wrap: true }
- */
-export function parseCodeFenceInfo(info?: string | null): {
-  language: string | undefined;
-  wrap: boolean;
-} {
-  const words = (info ?? "").trim().split(/\s+/).filter(Boolean);
-  const wrap = words.slice(1).includes("wrap");
-  return { language: words[0] || undefined, wrap };
-}
-
-/** The fence info string for a language and wrap flag — the inverse of `parseCodeFenceInfo`. */
-export function codeFenceInfo(
-  language: string | null | undefined,
-  wrap: boolean,
-) {
-  const lang = (language ?? "").trim();
-  if (!wrap) return lang;
-  return `${lang || "text"} wrap`;
-}
 
 /** Props accepted by `CodeBlock`. */
 export interface CodeBlockProps extends React.ComponentPropsWithRef<"figure"> {
