@@ -15997,11 +15997,7 @@
           "attributes": [
             {
               "name": "data-slot",
-              "values": [
-                "markdown-find-bar",
-                "markdown-find-count",
-                "markdown-view-marker"
-              ]
+              "values": ["markdown-find-bar", "markdown-find-count"]
             }
           ],
           "cssVariables": []
@@ -16023,6 +16019,10 @@
             },
             {
               "name": "data-type-scale",
+              "values": []
+            },
+            {
+              "name": "data-view-id",
               "values": []
             }
           ],
