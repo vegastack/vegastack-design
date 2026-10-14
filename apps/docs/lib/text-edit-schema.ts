@@ -1,4 +1,4 @@
-// @vegastack text-edit-schema@0.25.35 sha256-qpAzelqfXJ2Qh/Yr5ypOPRYesho1FuiQPOWGu03RngA=
+// @vegastack text-edit-schema@0.25.35 sha256-97z5ahH4Ndko3uTZi4iKcX5FxnFOhNB6OaODbFWZuqM=
 
 import {
   Extension,
@@ -659,6 +659,9 @@ const ParagraphMd = Paragraph.extend({
       if (run.length) {
         run[0] = trim(run[0]!, false);
         run[run.length - 1] = trim(run[run.length - 1]!, true);
+        // The space between a link (or any other span) and the image beside it trims to nothing:
+        // no empty text node (`[docs](/d) ![shot](/s.png)` threw).
+        run = run.filter((each) => each.type !== "text" || each.text);
       }
       // A run of only whitespace or line breaks between images leaves no paragraph behind.
       const text = run.map((each) => each.raw ?? "").join("");
