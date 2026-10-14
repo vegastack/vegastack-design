@@ -9,6 +9,21 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.25.33] — October 14, 2026
+
+<!-- assembled from 1 changeset: d2ac5e31997d -->
+
+### 📦 npm
+
+- **`@vegastack/design`** → **`0.8.10`** (was `0.8.9`).
+- The design-system registry (`@vegastack/ui`) bumps 0.25.32 → 0.25.33.
+
+### 🐛 Fixed
+
+- **TextEdit**: in `collaboration`, two people typing at the same spot no longer get one side's characters reversed (`12345678` landing as `87654321`). After a collaborator's change the caret now stays exactly where Yjs puts it whenever its text still exists, instead of the binding re-placing it by its old offset in a paragraph whose text changed.
+  [docs](https://design.vegastack.com/docs/components/text-edit) ·
+  [`85d4bea`](https://github.com/VegaStack/vegastack-design/commit/85d4bea)
+
 ## [0.25.32] — October 14, 2026
 
 <!-- assembled from 1 changeset: 59cbf137ba08 -->
