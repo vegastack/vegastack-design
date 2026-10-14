@@ -1,5 +1,11 @@
 # @vegastack/design
 
+## 0.8.14
+
+### Patch Changes
+
+- [#648](https://github.com/vegastack/vegastack-design/pull/648) [`9d1edc8`](https://github.com/vegastack/vegastack-design/commit/9d1edc888053e9cc82f660bb5b53e31dacb550bd) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 📚 The shipped `vegastack-design-system` skill's component roster lists `AgentEditBanner`.
+
 ## 0.8.13
 
 ### Patch Changes
