@@ -34491,7 +34491,7 @@
           "responsive-or-container-layout",
           "text-truncation-and-flex-shrink"
         ],
-        "rationale": "A container query puts the buttons on their own row under 42rem, and shortens Undo's label under 28rem; the text wraps beside the dismiss."
+        "rationale": "A container query puts the buttons on their own row under 42rem, and shortens Undo's label under 24rem; the text wraps beside the dismiss."
       },
       "motion": {
         "status": "not-applicable",

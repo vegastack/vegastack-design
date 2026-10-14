@@ -1,4 +1,4 @@
-// @vegastack agent-edit-banner@0.25.39 sha256-pZwQ+qdk9fatO5pRTRBR/F36GHp+2qlptZMk32EvmqE=
+// @vegastack agent-edit-banner@0.25.39 sha256-CYs3DvGr4I50R+Mm6ZIo/luRbVyTFbmpNZYBCV3DrHU=
 
 "use client";
 
@@ -56,7 +56,7 @@ export interface AgentEditBannerLabels {
   viewChangesName: (agent: string) => string;
   /** The Undo button. */
   undo: string;
-  /** The Undo button in a narrow banner (under a 28rem container). */
+  /** The Undo button in a narrow banner (under a 24rem container). */
   undoShort: string;
   /** Undo's accessible name: "Undo Claude (via Manoj)'s changes". */
   undoName: (agent: string) => string;
@@ -321,8 +321,8 @@ export function AgentEditBanner({
               loading={undoing}
               onClick={onUndo}
             >
-              <span className="@md/alert:hidden">{labels.undoShort}</span>
-              <span className="hidden @md/alert:inline">{labels.undo}</span>
+              <span className="@sm/alert:hidden">{labels.undoShort}</span>
+              <span className="hidden @sm/alert:inline">{labels.undo}</span>
             </Button>
           ) : null}
           {showOpenVersions ? (
