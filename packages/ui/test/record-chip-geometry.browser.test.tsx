@@ -248,8 +248,14 @@ test("ghost-chip-align: a ghost chip's text starts where plain values do, and ev
   };
   const before = offset();
   const rowBefore = row("assignee").getBoundingClientRect().height;
-  await userEvent.hover(trigger);
-  await expect.poll(() => getComputedStyle(chevron).opacity).toBe("1");
+  // Hover again on each poll: on a loaded runner the first pointer move can land before the
+  // chip has laid out, leaving the pointer just outside it.
+  await expect
+    .poll(async () => {
+      await userEvent.hover(trigger);
+      return getComputedStyle(chevron).opacity;
+    })
+    .toBe("1");
   expect(offset()).toEqual(before);
   expect(row("assignee").getBoundingClientRect().height).toBe(rowBefore);
   expect(getComputedStyle(trigger).backgroundColor).not.toBe(
