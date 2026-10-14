@@ -1,4 +1,4 @@
-// @vegastack bubble@0.25.35 sha256-wi51dFwyEBryOtS9bksjgEY6jqOMHgMznUIRUzzTayg=
+// @vegastack bubble@0.25.36 sha256-6zUPZ1IQJ7V9gXx0/6g91z38QDJieiCTaTfzagmh7MQ=
 
 "use client";
 

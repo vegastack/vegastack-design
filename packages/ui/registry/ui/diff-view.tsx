@@ -1,4 +1,4 @@
-// @vegastack diff-view@0.25.35 sha256-3LgPU2r/3Pq8hyBK0WgVPlJTmvY4Ngghgj77fYWtef0=
+// @vegastack diff-view@0.25.36 sha256-CmAnBzOSDA58/ut1tConD0E2cltw6sjTpzDTWiS7m/E=
 
 "use client";
 

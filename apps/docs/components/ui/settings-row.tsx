@@ -1,4 +1,4 @@
-// @vegastack settings-row@0.25.35 sha256-t/zi3+JLyGBB3bg8cNp2kGqqJ15Fdm4afbk0EmIfeZs=
+// @vegastack settings-row@0.25.36 sha256-OxUEam0eyiC7QfX9Byq/bOsKGobwVK8Ohj5DmCQ5TYE=
 
 import * as React from "react";
 import { cn } from "@vegastack/design";

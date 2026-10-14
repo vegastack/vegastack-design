@@ -9,6 +9,30 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.25.36] — October 14, 2026
+
+<!-- assembled from 3 changesets: efd788d5a841 -->
+
+### 🔧 Changed components
+
+- **VersionList**: `author` may be `null` — a version the system kept with no person behind it (a page's text from before live editing) names no one: no avatar or placeholder person, the time alone.
+  [docs](https://design.vegastack.com/docs/components/version-list) ·
+  [`de023eb`](https://github.com/VegaStack/vegastack-design/commit/de023eb)
+
+### 📦 npm
+
+- **`@vegastack/design`** → **`0.8.13`** (was `0.8.12`).
+- The design-system registry (`@vegastack/ui`) bumps 0.25.35 → 0.25.36.
+
+### 🐛 Fixed
+
+- **text-edit-markdown** / **TextEdit**: a link (or any other span) followed by an image on the same line — `See [docs](/d) ![shot](/s.png)` — no longer fails to parse ("Empty text nodes are not allowed"); the image is lifted to its own block as anywhere else. Corpus case `regressions/link-then-image`.
+  [docs](https://design.vegastack.com/docs/guides/markdown) ·
+  [`61d4d55`](https://github.com/VegaStack/vegastack-design/commit/61d4d55)
+- **VersionList**: a system-kept row's time (no author before it) starts its line capitalized — "Today, 11:59 AM".
+  [docs](https://design.vegastack.com/docs/components/version-list) ·
+  [`dfd4214`](https://github.com/VegaStack/vegastack-design/commit/dfd4214)
+
 ## [0.25.35] — October 14, 2026
 
 <!-- assembled from 4 changesets: 635e925f1701 -->
