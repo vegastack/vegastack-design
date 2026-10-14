@@ -1,4 +1,4 @@
-// @vegastack textarea@0.25.36 sha256-Jm60sqnDwAUYhD0B2r3tNWdjIB7Ys8lAjLwFjwK2iL4=
+// @vegastack textarea@0.25.37 sha256-94OI3e+Y2oupY128moXIhJc4Vxah93zJutQpjO0Mu7w=
 
 "use client";
 
