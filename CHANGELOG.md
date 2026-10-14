@@ -9,6 +9,26 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.25.42] — October 14, 2026
+
+<!-- assembled from 1 changeset: 11011c623151 -->
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.25.41 → 0.25.42.
+
+### 🐛 Fixed
+
+- **TextEdit**:
+
+  - **Find:** ⌘F with words selected now searches for them and typing replaces the term. It used to append to it, and a whole selected block was taken as the term.
+  - **Heading links:** the `#` copy link follows its heading when the text above it changes, instead of staying where the heading was.
+  - **MermaidBlock:** printing from dark mode prints the light diagram (drawn while the page is idle), not dark shapes on white paper.
+  - **`slashActions`:** `onSelect` also gets `insertContent(json)` to put a block at the caret.
+  - **Block views:** a new Diagram (or any block view) holding its starter opens in Code, as documented, instead of Preview.
+    [docs](https://design.vegastack.com/docs/components/text-edit) ·
+    [`09a3866`](https://github.com/VegaStack/vegastack-design/commit/09a3866)
+
 ## [0.25.41] — October 14, 2026
 
 <!-- assembled from 1 changeset: 446a7aec75bf -->
