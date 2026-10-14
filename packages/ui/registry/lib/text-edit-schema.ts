@@ -36,6 +36,8 @@ import { UniqueID } from "@tiptap/extension-unique-id";
 import {
   CALLOUT_BLOCK,
   MEDIA_BLOCK,
+  readTasksDirective,
+  tasksDirectiveMarkdown,
   codeFenceInfo,
   imageMarkdown,
   markdownDestination,
@@ -76,7 +78,8 @@ export type TextEditNodeView =
   | "toggle"
   | "video"
   | "audio"
-  | "embed";
+  | "embed"
+  | "taskQuery";
 
 /** What `textEditExtensions` takes. Every option is client-only: none changes the schema. */
 export interface TextEditSchemaOptions {
@@ -102,8 +105,10 @@ export interface TextEditSchemaOptions {
 }
 
 /**
- * The blocks that carry a stable `blockId` (`data-block-id` in HTML; never in Markdown): heading
- * links, per-viewer toggle state, anchors and section keys all point at it.
+ * The blocks that carry a stable `blockId` (`data-block-id` in HTML): heading links, per-viewer
+ * toggle state, anchors and section keys all point at it. Markdown never carries one — except a
+ * live task list's (`taskQuery`), whose `:::tasks{id="…"}` is its `blockId`: its snapshots and
+ * the host's records of it are keyed by that id.
  */
 export const BLOCK_ID_TYPES = [
   "heading",
@@ -115,6 +120,7 @@ export const BLOCK_ID_TYPES = [
   "table",
   "codeBlock",
   "embed",
+  "taskQuery",
 ] as const;
 
 const BASE32 = "abcdefghijklmnopqrstuvwxyz234567";
@@ -464,6 +470,8 @@ function escapeLineStart(line: string): string {
   if (/^[ \t]/.test(line))
     return `${line[0] === "\t" ? "&#9;" : "&#32;"}${line.slice(1)}`;
   if (/^#{1,6}(?:[ \t]|$)/.test(line)) return `\\${line}`;
+  // A live task list's opening line (`:::tasks{…}`).
+  if (line.startsWith(":::tasks{")) return `\\${line}`;
   if (
     /^(?:>|<[a-zA-Z/!?]|=+[ \t]*$|[-+](?:[ \t]|$)|(?:-[ \t]*){3,}$)/.test(line)
   )
@@ -1421,6 +1429,99 @@ function embedNode(view: (() => NodeViewRenderer) | undefined) {
   });
 }
 
+/** A `taskQuery` node's `query` attribute: an object of strings (anything else reads as none). */
+function queryAttr(value: unknown): Record<string, string> {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return {};
+  const out: Record<string, string> = {};
+  for (const [key, each] of Object.entries(value))
+    if (each !== null && each !== undefined) out[key] = String(each);
+  return out;
+}
+
+/**
+ * A live task list — an atom block `{ blockId, query, snapshot }`: `query` is its filter (the
+ * directive's attributes other than `id`, unknown keys kept), `snapshot` the rows last stored
+ * (`- [ ] [@Title](mention://task/<id>) — <status>` lines). Markdown: `:::tasks{id="…" …}`, the
+ * rows, `:::` (`readTasksDirective`) — the one block whose `blockId` is written. The host draws it
+ * live (`TextEdit`'s `renderTaskQuery`); without one, and in `MarkdownView`, the snapshot shows as
+ * a quiet read-only list.
+ */
+function taskQueryNode(view: (() => NodeViewRenderer) | undefined) {
+  return Node.create({
+    name: "taskQuery",
+    group: "block",
+    atom: true,
+    draggable: true,
+    selectable: true,
+    addAttributes() {
+      return {
+        query: {
+          default: {},
+          parseHTML: (element) => {
+            try {
+              return queryAttr(
+                JSON.parse(element.getAttribute("data-query") ?? "{}"),
+              );
+            } catch {
+              return {};
+            }
+          },
+          renderHTML: (attrs) => ({
+            "data-query": JSON.stringify(queryAttr(attrs.query)),
+          }),
+        },
+        snapshot: {
+          default: "",
+          parseHTML: (element) => element.getAttribute("data-snapshot") ?? "",
+          renderHTML: (attrs) => ({
+            "data-snapshot": String(attrs.snapshot ?? ""),
+          }),
+        },
+      };
+    },
+    parseHTML() {
+      return [{ tag: "div[data-type=task-query]" }];
+    },
+    renderHTML({ HTMLAttributes }) {
+      return [
+        "div",
+        mergeAttributes({ "data-type": "task-query" }, HTMLAttributes),
+      ];
+    },
+    renderText: ({ node }) => String(node.attrs.snapshot ?? ""),
+    markdownTokenName: "taskQuery",
+    markdownTokenizer: {
+      name: "taskQuery",
+      level: "block",
+      start: lineStart(/:::tasks\{/),
+      tokenize: (src: string) => {
+        const block = readTasksDirective(src);
+        if (!block) return undefined;
+        return {
+          type: "taskQuery",
+          raw: block.raw,
+          blockId: block.id,
+          query: block.query,
+          snapshot: block.snapshot,
+        };
+      },
+    },
+    parseMarkdown: (token, helpers) =>
+      helpers.createNode("taskQuery", {
+        ...(token.blockId ? { blockId: token.blockId } : {}),
+        query: token.query ?? {},
+        snapshot: token.snapshot ?? "",
+      }),
+    renderMarkdown: (node) =>
+      tasksDirectiveMarkdown({
+        id: node.attrs?.blockId,
+        query: queryAttr(node.attrs?.query),
+        snapshot: node.attrs?.snapshot,
+      }),
+    ...(view ? { addNodeView: view } : {}),
+  });
+}
+
 /**
  * A link whose href starts with the file prefix is a file (`[report.pdf](/api/files/…)`): it
  * renders with `data-slot="file-chip"`. The Markdown is an ordinary link.
@@ -1517,6 +1618,7 @@ export function textEditExtensions(
     mediaNode("video", view.video),
     mediaNode("audio", view.audio),
     embedNode(view.embed),
+    taskQueryNode(view.taskQuery),
     fileChipAttribute(options.fileLinkPrefix ?? (() => "")),
     // Stable block ids: the attribute is always in the schema; only a collaborative editor assigns
     // ids as blocks appear (a server assigns them when it converts Markdown: `markdownToDoc`).

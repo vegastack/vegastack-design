@@ -4312,3 +4312,91 @@ test("collaboration: toggleState keeps a viewer's folded toggles (read on load, 
   );
   expect(viewerToggle()).not.toHaveAttribute("data-open");
 });
+
+const TASK_ROWS =
+  "- [ ] [@Order glass](mention://task/t1) — To do\n- [x] [@Fix scaffolding](mention://task/t2) — Done";
+const TASK_LIST = `:::tasks{id="lb_9f2c" v="1" status="open" x-new="kept"}\n${TASK_ROWS}\n:::`;
+
+test("taskQuery: renderTaskQuery draws the live list; it is an atom and its Markdown round-trips byte for byte", async () => {
+  const draw = vi.fn(() => <p>Live list</p>);
+  const onValueChange = vi.fn();
+  const screen = await markdownEditor({
+    defaultValue: `Intro\n\n${TASK_LIST}`,
+    renderTaskQuery: draw,
+    onValueChange,
+  });
+  await expect.element(screen.getByText("Live list")).toBeInTheDocument();
+  expect(draw).toHaveBeenLastCalledWith({
+    blockId: "lb_9f2c",
+    query: { v: "1", status: "open", "x-new": "kept" },
+    snapshot: TASK_ROWS,
+    editable: true,
+  });
+  const view = screen.container.querySelector(
+    '[data-slot="text-edit-task-query"]',
+  );
+  expect(view).toHaveAttribute("contenteditable", "false");
+  expect(view).toHaveAttribute("data-drag-handle", "");
+  const spec = textEditSchema().nodes.taskQuery!.spec;
+  expect([spec.atom, spec.selectable, spec.draggable]).toEqual([
+    true,
+    true,
+    true,
+  ]);
+  const box = screen.getByRole("textbox", { name: "Notes" });
+  const editor = editorOf(box.element());
+  editor.commands.setTextSelection(6);
+  editor.commands.insertContent("!");
+  await vi.waitFor(() =>
+    expect(lastValue(onValueChange)).toBe(`Intro!\n\n${TASK_LIST}`),
+  );
+});
+
+test("taskQuery: without renderTaskQuery the snapshot shows as a quiet list; the read view draws it too", async () => {
+  const screen = await markdownEditor({ defaultValue: TASK_LIST });
+  const card = screen.container.querySelector(
+    '[data-slot="text-edit-task-query"] [data-slot="markdown-task-list"]',
+  );
+  expect(card?.textContent).toContain("Task list");
+  expect(card?.textContent).toContain("Order glass");
+  expect(card?.textContent).toContain("Done");
+  const draw = vi.fn(() => <p>Live read</p>);
+  const read = await render(
+    <TextEdit
+      format="markdown"
+      aria-label="Read"
+      readOnly
+      defaultValue={TASK_LIST}
+      renderTaskQuery={draw}
+    />,
+  );
+  await expect.element(read.getByText("Live read")).toBeInTheDocument();
+  expect(draw).toHaveBeenCalledWith(
+    expect.objectContaining({ blockId: "lb_9f2c", editable: false }),
+  );
+});
+
+test("taskQuery: a JSON insert without a blockId lands; Markdown writes it without an id", async () => {
+  const onValueChange = vi.fn();
+  const screen = await markdownEditor({ defaultValue: "Intro", onValueChange });
+  const box = screen.getByRole("textbox", { name: "Notes" });
+  const editor = editorOf(box.element()) as unknown as {
+    commands: {
+      setTextSelection: (at: number) => boolean;
+      insertContent: (content: unknown) => boolean;
+    };
+  };
+  editor.commands.setTextSelection(6);
+  editor.commands.insertContent({
+    type: "taskQuery",
+    attrs: { query: { v: "1", status: "open" }, snapshot: "" },
+  });
+  await vi.waitFor(() =>
+    expect(lastValue(onValueChange)).toBe(
+      'Intro\n\n:::tasks{v="1" status="open"}\n:::',
+    ),
+  );
+  await expect
+    .element(screen.getByText("No matching tasks"))
+    .toBeInTheDocument();
+});

@@ -696,6 +696,47 @@ pasted images are kept as they are.
 />
 ```
 
+### Live task lists
+
+A live task list is a `taskQuery` block, an atom `{ blockId, query, snapshot }`. It is selectable
+and draggable like an image, and nothing inside it is edited. Its Markdown is a container
+directive:
+
+```md
+:::tasks{id="lb_9f2c" v="1" space="page" assignee="me" status="open" sort="due" limit="25"}
+
+- [ ] [@Order glass for block B](mention://task/0192…) — To do
+      :::
+```
+
+`blockId` is the directive's `id`. It is the one block id Markdown carries, because the host keys
+the list's records by it. `query` holds every other attribute as written, unknown keys included.
+`snapshot` holds the rows last stored. The block round-trips byte for byte. Lines that do not make
+a whole block stay text and a list, and a paragraph that starts with `:::tasks{` is written
+`\:::tasks{`, so it never turns into one. MarkdownView § Live task lists has the full grammar.
+
+`renderTaskQuery({ blockId, query, snapshot, editable })` draws the list with your own component,
+which fetches this reader's rows. It runs in the editor (`editable` follows the editor) and in the
+read view before it (`editable: false`). Without it, or where it returns `null`, the snapshot shows
+as `MarkdownTaskList`'s quiet card. Insert a list from your own slash item with
+`{ type: "taskQuery", attrs: { query, snapshot } }`. A collaborative editor gives it a `blockId`.
+
+```tsx
+<TextEdit
+  format="markdown"
+  value={body}
+  onValueChange={setBody}
+  renderTaskQuery={({ blockId, query, editable }) => (
+    <LiveTaskList
+      pageId={pageId}
+      blockId={blockId}
+      query={query}
+      editable={editable}
+    />
+  )}
+/>
+```
+
 ### Outline
 
 `onOutlineChange` receives the headings (`#`–`####`) with stable ids — the heading's words,

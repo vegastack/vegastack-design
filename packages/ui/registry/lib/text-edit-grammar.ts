@@ -11,7 +11,8 @@
  * strikethrough and autolinks; plus `[@label](mention://<kind>/<id>)` mentions, GitHub's
  * `> [!NOTE]` callouts, `<details><summary>…</summary>` toggles, `<video>`/`<audio>` blocks on a
  * line of their own, `![alt|320](src)` image widths, `lang wrap` fence info and `<br>` line breaks
- * (in a table cell or a heading). Any other raw HTML is literal text.
+ * (in a table cell or a heading), and `:::tasks{…}` … `:::` live task lists (a container directive
+ * whose rows are task mention lines). Any other raw HTML is literal text.
  */
 
 /** The VegaStack Markdown version this grammar and `@/lib/text-edit-markdown` read and write. */
@@ -281,4 +282,181 @@ export function codeFenceInfo(
   const lang = (language ?? "").trim();
   if (!wrap) return lang;
   return `${lang || "text"} wrap`;
+}
+
+/* --- directives: live task lists ---------------------------------------------------------------*/
+
+/** A directive attribute's key: `[a-z][a-z0-9-]*`. */
+export const DIRECTIVE_KEY = /^[a-z][a-z0-9-]*$/;
+
+/** One `key="value"` pair (sticky): `\"` and `\\` are its escapes. */
+const DIRECTIVE_PAIR = /[ \t]*([a-z][a-z0-9-]*)="((?:[^"\\\n]|\\[^\n])*)"/y;
+
+/**
+ * Read a container directive's attributes — the text between `{` and `}`: space-separated
+ * `key="value"` pairs, keys `[a-z][a-z0-9-]*`, values double-quoted with `\"` and `\\` escapes (any
+ * other backslash is itself). Unknown keys are kept, in order. `null` when the text is not a list
+ * of such pairs or names a key twice — the line is then text, never a directive.
+ *
+ * @example
+ * parseDirectiveAttrs('id="lb_1" status="open"'); // { id: "lb_1", status: "open" }
+ */
+export function parseDirectiveAttrs(
+  source: string,
+): Record<string, string> | null {
+  const out: Record<string, string> = {};
+  const seen = new Set<string>();
+  let at = 0;
+  while (at < source.length) {
+    if (/^[ \t]*$/.test(source.slice(at))) break;
+    DIRECTIVE_PAIR.lastIndex = at;
+    const pair = DIRECTIVE_PAIR.exec(source);
+    if (!pair) return null;
+    // Each pair after the first follows a space.
+    if (at > 0 && !/^[ \t]/.test(source.slice(at))) return null;
+    const key = pair[1]!;
+    if (seen.has(key)) return null;
+    seen.add(key);
+    out[key] = pair[2]!.replace(/\\(["\\])/g, "$1");
+    at = DIRECTIVE_PAIR.lastIndex;
+  }
+  return out;
+}
+
+/** A directive attribute's value as written: `\` and `"` escaped, on one line. */
+function directiveValue(value: string): string {
+  return value.replace(/\n/g, " ").replace(/["\\]/g, "\\$&");
+}
+
+/** `:::tasks{…}` — a live task list's opening line, at column 0; its attributes are group 1. */
+export const TASKS_DIRECTIVE_OPEN = /^:::tasks\{([^\n]*)\}[ \t]*(?:\n|$)/;
+
+/** `:::` — the line that closes a container directive. */
+export const DIRECTIVE_CLOSE = /^:::[ \t]*(?:\n|$)/;
+
+/** A live task list's row: `- [ ] ` or `- [x] ` and its text. */
+const TASK_ROW = /^- \[[ xX]\] [^\n]*\S[^\n]*$/;
+
+/** A live task list read from Markdown (`readTasksDirective`). */
+export interface TasksDirective {
+  /** Everything the block spans: its opening line, rows and closing line (and that line's newline). */
+  raw: string;
+  /** The `id` attribute — the block's `blockId`. `null` when the directive has none. */
+  id: string | null;
+  /** Every other attribute, in order, unknown keys included. */
+  query: Record<string, string>;
+  /** The rows between the opening and closing lines, as written; `""` for none. */
+  snapshot: string;
+}
+
+/**
+ * Read a live task list at the start of `source` — `:::tasks{<attrs>}`, its rows, `:::`:
+ *
+ * ```md
+ * :::tasks{id="lb_9f2c" v="1" status="open"}
+ * - [ ] [@Order glass](mention://task/t1) — To do
+ * :::
+ * ```
+ *
+ * Each row is a task item line (`- [ ] …`, `- [x] …`). `null` when `source` does not start with one
+ * — no closing line, a line that is not a row, attributes that do not parse — so the lines stay
+ * text and a list, as a renderer without directives shows them. Reads only the block's own lines.
+ *
+ * @example
+ * readTasksDirective(':::tasks{id="a" v="1"}\n:::');
+ * // { raw: ':::tasks{id="a" v="1"}\n:::', id: "a", query: { v: "1" }, snapshot: "" }
+ */
+export function readTasksDirective(source: string): TasksDirective | null {
+  const open = TASKS_DIRECTIVE_OPEN.exec(source);
+  if (!open) return null;
+  const attrs = parseDirectiveAttrs(open[1]!);
+  if (!attrs) return null;
+  const rows: string[] = [];
+  for (let at = open[0].length; at <= source.length;) {
+    const newline = source.indexOf("\n", at);
+    const end = newline === -1 ? source.length : newline;
+    const line = source.slice(at, end);
+    if (DIRECTIVE_CLOSE.test(line)) {
+      const { id = null, ...query } = attrs;
+      return {
+        raw: source.slice(0, Math.min(end + 1, source.length)),
+        id,
+        query,
+        snapshot: rows.join("\n"),
+      };
+    }
+    if (!TASK_ROW.test(line) || newline === -1) return null;
+    rows.push(line);
+    at = newline + 1;
+  }
+  return null;
+}
+
+/**
+ * A live task list as Markdown — the opening line (`id` first, then `query` in its order), the
+ * snapshot's rows, `:::`. A snapshot line that is not a row is left out, so the block always reads
+ * back as one.
+ *
+ * @example
+ * tasksDirectiveMarkdown({ id: "a", query: { v: "1" }, snapshot: "" }); // ':::tasks{id="a" v="1"}\n:::'
+ */
+export function tasksDirectiveMarkdown({
+  id,
+  query,
+  snapshot,
+}: {
+  id?: string | null;
+  query?: Record<string, unknown> | null;
+  snapshot?: string | null;
+}): string {
+  const pairs: string[] = [];
+  if (id) pairs.push(`id="${directiveValue(String(id))}"`);
+  for (const [key, value] of Object.entries(query ?? {}))
+    if (key !== "id" && DIRECTIVE_KEY.test(key) && value != null)
+      pairs.push(`${key}="${directiveValue(String(value))}"`);
+  const rows = (snapshot ?? "")
+    .split("\n")
+    .filter((line) => TASK_ROW.test(line));
+  return [`:::tasks{${pairs.join(" ")}}`, ...rows, ":::"].join("\n");
+}
+
+/** One row of a live task list's snapshot (`parseTaskListRows`). */
+export interface TaskListRow {
+  /** The row's box: `[x]`. */
+  checked: boolean;
+  /** The task's id when the row is a task mention (`restricted:…` included), else `null`. */
+  id: string | null;
+  /** The mention's label, or the row's text when it is not a mention. */
+  label: string;
+  /** The status label after ` — `; `""` when the row has none. */
+  status: string;
+}
+
+/**
+ * A snapshot's rows — `- [x] [@Fix scaffolding](mention://task/t2) — Done` — as data, for a
+ * renderer. A row that is not a task mention keeps its text as `label`.
+ *
+ * @example
+ * parseTaskListRows("- [ ] [@Order glass](mention://task/t1) — To do");
+ * // [{ checked: false, id: "t1", label: "Order glass", status: "To do" }]
+ */
+export function parseTaskListRows(snapshot: string): TaskListRow[] {
+  const rows: TaskListRow[] = [];
+  for (const line of snapshot.split("\n")) {
+    const box = /^- \[([ xX])\] (.*)$/.exec(line);
+    if (!box || !box[2]!.trim()) continue;
+    const checked = box[1] !== " ";
+    const rest = box[2]!;
+    const mention = parseMentionLink(rest);
+    if (mention?.kind === "task") {
+      const status = /^ — (.*)$/.exec(rest.slice(mention.raw.length));
+      rows.push({
+        checked,
+        id: mention.id,
+        label: mention.label,
+        status: status ? status[1]!.trim() : "",
+      });
+    } else rows.push({ checked, id: null, label: rest.trim(), status: "" });
+  }
+  return rows;
 }

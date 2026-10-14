@@ -1,0 +1,15 @@
+{
+  "type": "doc",
+  "content": [
+    { "type": "paragraph", "content": [{ "type": "text", "text": "Mine:" }] },
+    { "type": "paragraph", "content": [{ "type": "text", "text": ":::tasks{id=\"x\"} typed as text" }] },
+    {
+      "type": "taskQuery",
+      "attrs": {
+        "blockId": "b3",
+        "query": { "v": "1", "space": "page", "assignee": "me", "status": "open", "sort": "due", "limit": "10" },
+        "snapshot": "- [ ] [@Order hinges](mention://task/t151) — To do\n- [ ] [@Site survey](mention://task/t148) — In progress"
+      }
+    }
+  ]
+}

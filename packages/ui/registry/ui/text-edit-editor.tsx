@@ -225,6 +225,7 @@ import { toast } from "@/components/ui/toast";
 import {
   CALLOUT_STYLE,
   MarkdownEmbed,
+  MarkdownTaskList,
   MEDIA_AUDIO_CLASS,
   MEDIA_VIDEO_CLASS,
   annotationActiveClassName,
@@ -234,6 +235,7 @@ import {
   calloutClassName,
   calloutContentClassName,
   markdownExtrasClassName,
+  type TaskQueryRenderProps,
 } from "@/components/ui/markdown-view";
 import {
   CALLOUT_TONES,
@@ -3601,6 +3603,41 @@ function EmbedView({ node, selected, editor }: ReactNodeViewProps) {
   );
 }
 
+/* --- live task lists ---------------------------------------------------------------------------*/
+
+/** Each editor's `renderTaskQuery` (the host's live task list), read by its `taskQuery` node views. */
+const EDITOR_TASK_QUERY = new WeakMap<
+  Editor,
+  ((props: TaskQueryRenderProps) => React.ReactNode) | undefined
+>();
+
+/**
+ * A live task list's node view: an atom, selectable and draggable as a block, nothing editable
+ * inside. The host draws it (`renderTaskQuery`); without one — or where it draws nothing — the
+ * stored snapshot shows as `MarkdownView`'s quiet list.
+ */
+function TaskQueryView({ node, selected, editor }: ReactNodeViewProps) {
+  const snapshot = String(node.attrs.snapshot ?? "");
+  const query = node.attrs.query as Record<string, string> | null;
+  const drawn = EDITOR_TASK_QUERY.get(editor)?.({
+    blockId: String(node.attrs.blockId ?? ""),
+    query: query && typeof query === "object" ? { ...query } : {},
+    snapshot,
+    editable: editor.isEditable,
+  });
+  return (
+    <NodeViewWrapper
+      data-slot="text-edit-task-query"
+      data-drag-handle=""
+      contentEditable={false}
+      data-selected={selected ? "true" : undefined}
+      className="my-2 rounded-lg data-selected:outline-2 data-selected:outline-info"
+    >
+      {drawn ?? <MarkdownTaskList snapshot={snapshot} className="my-0" />}
+    </NodeViewWrapper>
+  );
+}
+
 /** The embed a pasted lone URL makes, when the caret sits in an empty paragraph that can hold one. */
 function embedForPaste(editor: Editor, text: string): PMNode | null {
   const { state } = editor;
@@ -4112,6 +4149,8 @@ function buildExtensions(
       video: () => ReactNodeViewRenderer(MediaView, { attrs: changeAttrsOf }),
       audio: () => ReactNodeViewRenderer(MediaView, { attrs: changeAttrsOf }),
       embed: () => ReactNodeViewRenderer(EmbedView, { attrs: changeAttrsOf }),
+      taskQuery: () =>
+        ReactNodeViewRenderer(TaskQueryView, { attrs: changeAttrsOf }),
     },
     plugins: [
       Placeholder.configure({
@@ -7278,6 +7317,7 @@ export function TextEditEditor({
   fileLinkPrefix = "/api/files/",
   inlineImageTypes = INLINE_IMAGE_TYPES,
   embeds,
+  renderTaskQuery,
   onOutlineChange,
   annotations,
   activeAnnotationId = null,
@@ -8320,6 +8360,7 @@ export function TextEditEditor({
 
   editorRef.current = editor;
   if (editor) EDITOR_EMBEDS.set(editor, embeds);
+  if (editor) EDITOR_TASK_QUERY.set(editor, renderTaskQuery);
   // Its node views and commands read the host's block views from here, during their own render.
   if (editor) blockViewsByEditor.set(editor, blockViews ?? {});
 
