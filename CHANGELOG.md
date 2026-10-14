@@ -9,6 +9,19 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.25.40] — October 14, 2026
+
+<!-- assembled from 1 changeset: 79f05a0c7631 -->
+
+### 🔧 Changed components
+
+- `AgentEditBanner` shows the full "Undo this agent's changes" from a 24rem banner (was 28rem), so a banner in a desktop page column reads the long label; a phone-width banner keeps "Undo changes".
+  [`0c31e06`](https://github.com/VegaStack/vegastack-design/commit/0c31e06)
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.25.39 → 0.25.40.
+
 ## [0.25.39] — October 14, 2026
 
 <!-- assembled from 3 changesets: 57b4bb8dcb0b -->
