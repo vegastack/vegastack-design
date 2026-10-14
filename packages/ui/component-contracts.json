@@ -12,8 +12,8 @@
     "evidencePolicy": "Observed fields come from source, registry metadata, docs, and test topology. Unknown/not-applicable values are explicit; no inferred behavior is presented as verified."
   },
   "expectedCounts": {
-    "totalRegistryItems": 745,
-    "components": 161,
+    "totalRegistryItems": 746,
+    "components": 162,
     "animatedIcons": 467,
     "hooks": 15,
     "blocks": 15,
@@ -28,7 +28,7 @@
     "Data display": 31,
     "Content/marketing": 15,
     "Shared internals": 5,
-    "AI/chat": 9,
+    "AI/chat": 10,
     "Hooks": 15,
     "Block": 1,
     "Animated icons": 467
@@ -209,7 +209,8 @@
       "tool-call-chip",
       "questionnaire",
       "transcript",
-      "approval-card"
+      "approval-card",
+      "agent-edit-banner"
     ],
     "Hooks": [
       "use-animation-replay",
@@ -33746,6 +33747,191 @@
                 "approval-card-status",
                 "approval-card-title",
                 "approval-card-verb"
+              ]
+            },
+            {
+              "name": "data-status",
+              "values": []
+            }
+          ],
+          "cssVariables": []
+        }
+      }
+    },
+    {
+      "name": "agent-edit-banner",
+      "registryType": "registry:ui",
+      "title": "Agent Edit Banner",
+      "summary": "The strip under a document's header after an agent changed it: the agent's purple bot, \"Edited by Claude (via Manoj) · 3 changes · 2m ago\", View changes, Undo and a dismiss — with the undoing, refused, created and read-only states and the other agents behind +N.",
+      "status": "stable",
+      "since": "0.25.38",
+      "family": "chat",
+      "wave": "AI/chat",
+      "sourceFiles": ["packages/ui/registry/ui/agent-edit-banner.tsx"],
+      "publicSymbols": [
+        {
+          "name": "AgentEditBanner",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/agent-edit-banner.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "div",
+            "rationale": "Props, including ref, spread onto the Alert root div."
+          }
+        },
+        {
+          "name": "AgentEditBannerProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/agent-edit-banner.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "AgentEditBannerAgent",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/agent-edit-banner.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "AgentEditBannerStatus",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/agent-edit-banner.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "AgentEditBannerKind",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/agent-edit-banner.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "AgentEditBannerLabels",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/agent-edit-banner.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "AgentEditBannerMoreAgent",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/agent-edit-banner.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "One look (Alert's default); the undo status and the kind are data attributes, not variants."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "Fills its container; the buttons take their own row under a 42rem container."
+      },
+      "states": {
+        "behavior": {
+          "status": "covered",
+          "values": [
+            "edited",
+            "undoing",
+            "refused",
+            "too-old",
+            "read-only",
+            "created",
+            "more-agents",
+            "labels"
+          ],
+          "evidence": "packages/ui/registry/ui/agent-edit-banner.tsx + packages/ui/registry/ui/agent-edit-banner.test.tsx"
+        },
+        "accessibility": {
+          "status": "covered",
+          "values": [
+            "polite-live-region",
+            "named-buttons",
+            "decorative-avatar",
+            "silent-relative-time",
+            "browser-accessibility-test"
+          ],
+          "evidence": "packages/ui/registry/ui/agent-edit-banner.test.tsx"
+        },
+        "visual": {
+          "status": "observed",
+          "values": ["edited", "states", "stacked", "narrow"],
+          "evidence": "packages/ui/registry/ui/agent-edit-banner.tsx"
+        }
+      },
+      "responsive": {
+        "status": "modeled",
+        "risks": [
+          "responsive-or-container-layout",
+          "text-truncation-and-flex-shrink"
+        ],
+        "rationale": "A container query puts the buttons on their own row under 42rem, and shortens Undo's label under 28rem; the text wraps beside the dismiss."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned motion; the busy spinner is Button`s and the popover's transition is Popover`s."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/agent-edit-banner",
+      "registryDependencies": [
+        "@vegastack/alert",
+        "@vegastack/button",
+        "@vegastack/person-avatar",
+        "@vegastack/popover",
+        "@vegastack/relative-time"
+      ],
+      "npmDependencies": [
+        "@vegastack/design-tokens@^0.8.12",
+        "@vegastack/design@^0.8.13",
+        "lucide-react@^1.47.0"
+      ],
+      "testFiles": ["packages/ui/registry/ui/agent-edit-banner.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required"
+      },
+      "previewModule": "agent-edit-banner",
+      "dataAttributes": {
+        "AgentEditBanner": {
+          "attributes": [
+            {
+              "name": "data-kind",
+              "values": []
+            },
+            {
+              "name": "data-slot",
+              "values": [
+                "agent-edit-banner",
+                "agent-edit-banner-actions",
+                "agent-edit-banner-body",
+                "agent-edit-banner-dismiss",
+                "agent-edit-banner-reason",
+                "agent-edit-banner-summary"
               ]
             },
             {

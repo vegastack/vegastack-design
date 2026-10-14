@@ -1,4 +1,4 @@
-// @vegastack version-list@0.25.37 sha256-13P4dpAaaLXvSVkZTQQjHC1yqCEw3FRP/lDGm4YJ9pY=
+// @vegastack version-list@0.25.37 sha256-iIoxIPZrgl7mnAqa+1Z0XrYKwZENv0D40Uy9sOg53lk=
 
 "use client";
 
@@ -6,7 +6,12 @@ import * as React from "react";
 import { cn } from "@vegastack/design";
 import { Badge } from "@/components/ui/badge";
 import { LoadMore } from "@/components/ui/load-more";
-import { PersonAvatar, type Person } from "@/components/ui/person-avatar";
+import {
+  PersonAgentLabel,
+  PersonAvatar,
+  PersonName,
+  type Person,
+} from "@/components/ui/person-avatar";
 import { RelativeTime } from "@/components/ui/relative-time";
 import { PersonBadge } from "@/components/ui/searchable-select";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -49,13 +54,18 @@ export interface VersionItem {
   id: string;
   /**
    * Who wrote the text this version holds; a `badge` on the person ("Inactive") follows the name.
+   * An agent (`kind: "agent"`, `via` its owner) reads as everywhere else: the purple bot, "Claude
+   * via Manoj" and the "Agent" label.
    * `null` for a version the system kept with no person behind it (a page's text from before it
    * moved to live editing): the row names no one — never a placeholder person.
    */
   author: Person | null;
   /** When that text was last saved. */
   at: Date | string | number;
-  /** A name the author gave it; named versions lead with it. @default undefined */
+  /**
+   * A name the author gave it, or a title the host writes ("Before Claude (via Manoj)'s edits");
+   * the row leads with it. @default undefined
+   */
   name?: string | null;
   /** How it came to be (`VersionKind`): its badge (`VERSION_KIND_LABELS`). */
   kind: VersionKind;
@@ -254,8 +264,16 @@ export function VersionList({
                           className="size-4"
                         />
                         <span className="min-w-0 truncate">
-                          {version.author.name}
+                          <PersonName
+                            person={version.author}
+                            agentLabel={false}
+                          />
                         </span>
+                        {version.author.kind === "agent" ? (
+                          // Outside the truncation, so the label stays whole; the name already
+                          // says "agent" to a screen reader.
+                          <PersonAgentLabel aria-hidden />
+                        ) : null}
                         <PersonBadge badge={version.author.badge} />
                       </>
                     ) : null}

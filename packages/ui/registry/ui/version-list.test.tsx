@@ -105,6 +105,50 @@ test("an author's badge follows their name", async () => {
   expect(badge?.previousElementSibling?.textContent).toBe("Asha Rao");
 });
 
+test("an agent's row: the purple bot, its name with via and the Agent label, a free title and a summary", async () => {
+  const screen = await render(
+    <VersionList
+      now={Date.parse("2026-09-29T12:00:00Z")}
+      versions={[
+        {
+          id: "g",
+          author: { name: "Claude", kind: "agent", via: "Manoj" },
+          at: "2026-09-29T10:00:00Z",
+          kind: "agent_checkpoint",
+          name: "Before Claude (via Manoj)'s edits",
+          summary: "Claude edited 3 blocks",
+        },
+        {
+          id: "u",
+          author: asha,
+          at: "2026-09-29T11:00:00Z",
+          kind: "restore",
+          name: "Before undoing Claude (via Manoj)'s changes",
+        },
+      ]}
+    />,
+  );
+  const [agentRow, personRow] = screen.container.querySelectorAll<HTMLElement>(
+    "[data-slot=version-list-item]",
+  );
+  expect(
+    agentRow!.querySelector("[data-slot=avatar][data-kind=agent]"),
+  ).not.toBeNull();
+  expect(agentRow!.textContent).toContain("Before Claude (via Manoj)'s edits");
+  expect(
+    agentRow!.querySelector("[data-slot=person-name-via]")?.textContent,
+  ).toBe(" via Manoj");
+  expect(
+    agentRow!.querySelector("[data-slot=person-agent-label]")?.textContent,
+  ).toBe("Agent");
+  expect(agentRow!.textContent).toContain("Claude edited 3 blocks");
+  // A named row shows no kind badge: the title says it.
+  expect(agentRow!.querySelector("[data-slot=badge]")).toBeNull();
+  // A person's row is unchanged: no agent label.
+  expect(personRow!.querySelector("[data-slot=person-agent-label]")).toBeNull();
+  await expectNoA11yViolations(screen.container);
+});
+
 test("arrow keys move the selection through the list", async () => {
   const onSelect = vi.fn();
   const screen = await render(
