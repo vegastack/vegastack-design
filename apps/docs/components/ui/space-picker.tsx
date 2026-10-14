@@ -1,4 +1,4 @@
-// @vegastack space-picker@0.25.40 sha256-5UVWXFsG8eLIrYcVci5qSI5MNrrTK2x7jwRiaojdp2g=
+// @vegastack space-picker@0.25.41 sha256-DNn8zhG6GkoccxZMlELZSCGQklJ49+QdSm7fBXxoEsM=
 
 "use client";
 

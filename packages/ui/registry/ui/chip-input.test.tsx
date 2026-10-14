@@ -322,6 +322,51 @@ test("DS-21: max blocks adding and announces the reason, keeping the draft", asy
   expect((input.element() as HTMLInputElement).value).toBe("gamma");
 });
 
+test("a refusal also shows under the field until the next keystroke", async () => {
+  const screen = await render(
+    <ChipInput aria-label="Tags" max={1} defaultValue={["alpha"]} />,
+  );
+  const input = screen.getByRole("textbox", { name: "Tags" });
+  await input.fill("alpha");
+  await userEvent.keyboard("{Enter}");
+  const notice = () =>
+    document.querySelector('[data-slot="chip-input-notice"]')?.textContent;
+  await expect.poll(notice).toBe("1 duplicate skipped");
+  await input.fill("beta");
+  expect(notice()).toBeUndefined();
+  await userEvent.keyboard("{Enter}");
+  await expect.poll(notice).toBe("Up to 1 entries");
+});
+
+test("className places the field in a row; the refusal line wraps under it at its width", async () => {
+  const screen = await render(
+    <div style={{ display: "flex", width: 400 }}>
+      <span style={{ width: 100, flexShrink: 0 }} />
+      <ChipInput
+        aria-label="Tags"
+        className="flex-1"
+        max={1}
+        defaultValue={["a"]}
+      />
+    </div>,
+  );
+  const box = () =>
+    (
+      document.querySelector('[data-slot="chip-input"]') as HTMLElement
+    ).getBoundingClientRect();
+  expect(Math.round(box().width)).toBe(300);
+  await screen.getByRole("textbox", { name: "Tags" }).fill("b");
+  await userEvent.keyboard("{Enter}");
+  await expect
+    .poll(() => document.querySelector('[data-slot="chip-input-notice"]'))
+    .toBeTruthy();
+  const line = (
+    document.querySelector('[data-slot="chip-input-notice"]') as HTMLElement
+  ).getBoundingClientRect();
+  expect(Math.round(line.width)).toBe(300);
+  expect(line.top).toBeGreaterThanOrEqual(box().bottom);
+});
+
 test("DS-21: maxLabel sets the announced copy", async () => {
   const screen = await render(
     <ChipInput

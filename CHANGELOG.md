@@ -9,6 +9,20 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.25.41] — October 14, 2026
+
+<!-- assembled from 1 changeset: 446a7aec75bf -->
+
+### 🔧 Changed components
+
+- **ChipInput**: a refused entry (a duplicate, or one past `max`) and an invalid entry now also show as one short line under the field, cleared by the next keystroke, so a sighted user sees why the typed text stayed put. The polite announcement is unchanged. The field now renders inside a `data-slot="chip-input-root"` column that takes `className`, so layout classes (`flex-1`, `col-span-*`, a min width) keep placing it; `ref` and the `data-invalid`/`data-disabled` state stay on the box (`data-slot="chip-input"`).
+  [docs](https://design.vegastack.com/docs/components/chip-input) ·
+  [`9798291`](https://github.com/VegaStack/vegastack-design/commit/9798291)
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.25.40 → 0.25.41.
+
 ## [0.25.40] — October 14, 2026
 
 <!-- assembled from 1 changeset: 79f05a0c7631 -->
