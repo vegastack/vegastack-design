@@ -1,4 +1,4 @@
-// @vegastack file-card@0.25.41 sha256-T37AvgtnXmi9QfltOcP+V9QAVS6ORrvwAcFgtCI7n+k=
+// @vegastack file-card@0.25.42 sha256-EnYn9d6DyRB4pg2rY3Oq3KVVHjclci0ZahqICK+G82Q=
 
 import * as React from "react";
 import { MoreHorizontal, RefreshCwIcon, XIcon } from "lucide-react";

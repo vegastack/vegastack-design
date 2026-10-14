@@ -304,7 +304,7 @@ the swap never moves the text. On a page with room the text keeps its column, an
   characters, reading minutes at 230 words a minute, and the selection's words. The counts are
   reported when idle after a change, never per keystroke.
 - **Host slash items** (`slashActions`): your own `/` menu rows after the built-in ones, matched by
-  label and `keywords`. `onSelect` gets `insertMention`, the same chip the `@` menu inserts. A
+  label and `keywords`. `onSelect` gets `insertMention`, the same chip the `@` menu inserts, and `insertContent(json)` for a block. A
   `disabled` item shows its `disabledReason` and cannot be chosen.
 
 <ComponentPreview
@@ -702,11 +702,10 @@ A live task list is a `taskQuery` block, an atom `{ blockId, query, snapshot }`.
 and draggable like an image, and nothing inside it is edited. Its Markdown is a container
 directive:
 
-```md
+```text
 :::tasks{id="lb_9f2c" v="1" space="page" assignee="me" status="open" sort="due" limit="25"}
-
 - [ ] [@Order glass for block B](mention://task/0192…) — To do
-      :::
+:::
 ```
 
 `blockId` is the directive's `id`. It is the one block id Markdown carries, because the host keys

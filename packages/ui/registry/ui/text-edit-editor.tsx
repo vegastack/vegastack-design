@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.25.41 sha256-CnIn2nX4K7H5LDSL+6e+7IqhRY4eyRZam3+zN4AjxzQ=
+// @vegastack text-edit@0.25.42 sha256-RbA5KLoJ94UY0C7ChaUv6DF+kBonWVVZJFOWKC0bjoc=
 
 "use client";
 
@@ -607,6 +607,13 @@ function hostSlashSpec(action: TextEditSlashAction): SlashSpec {
           ed.chain()
             .focus()
             .insertContent(mentionChip(yBinding(ed.state) !== null, mention))
+            .run();
+        },
+        insertContent: (content) => {
+          if (ed.isDestroyed) return;
+          ed.chain()
+            .focus()
+            .insertContent(content as JSONContent | JSONContent[])
             .run();
         },
       });
@@ -6094,7 +6101,9 @@ function FindBar({
       editor.commands.setSearchTerm(initialTerm);
     }
     findRef.current?.focus();
-    findRef.current?.select();
+    // Selected once the new term is in the field (the next frame), so typing replaces it.
+    const frame = requestAnimationFrame(() => findRef.current?.select());
+    return () => cancelAnimationFrame(frame);
     // Only on each open: the term is the field's own after that.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [focusKey]);
@@ -6363,6 +6372,11 @@ function HeadingLink({
       );
     };
     const onScroll = () => redraw();
+    // The text above moved (an embed, a collaborator's edit): the button follows its heading.
+    const onChange = ({ transaction }: { transaction: Transaction }) => {
+      if (transaction.docChanged) redraw();
+    };
+    editor.on("transaction", onChange);
     dom.addEventListener("mousemove", onMove);
     dom.addEventListener("mouseleave", hover.hideSoon);
     editor.on("selectionUpdate", onSelection);
@@ -6379,6 +6393,7 @@ function HeadingLink({
       editor.off("focus", onSelection);
       editor.off("blur", onSelection);
       window.removeEventListener("scroll", onScroll, { capture: true });
+      editor.off("transaction", onChange);
     };
   }, [editor, hover.show, hover.hideSoon]);
 
@@ -7697,9 +7712,14 @@ export function TextEditEditor({
   openFindRef.current = () => {
     const ed = editorRef.current;
     if (!ed || ed.isDestroyed || !findReplace) return;
-    const { from, to, empty } = ed.state.selection;
+    const { selection } = ed.state;
+    const { from, to, empty, $from, $to } = selection;
     if (!findOpenRef.current) findCaretRef.current = from;
-    const text = empty ? "" : ed.state.doc.textBetween(from, to, " ", " ");
+    // Only selected words in one block are a term: a selected block (the block menu's) is not.
+    const text =
+      empty || !(selection instanceof TextSelection) || !$from.sameParent($to)
+        ? ""
+        : ed.state.doc.textBetween(from, to, " ", " ");
     setFind((previous) => ({
       key: (previous?.key ?? 0) + 1,
       term: text && text.length <= 100 && !text.includes("\n") ? text : null,

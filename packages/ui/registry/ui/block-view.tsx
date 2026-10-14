@@ -1,4 +1,4 @@
-// @vegastack block-view@0.25.41 sha256-XEFydT+hWVx2VMrGp+kHBwBBR6Q2gBvl9JFxaniaFBo=
+// @vegastack block-view@0.25.42 sha256-vjgXWWfcW1wqZiNfySur7UuSXgiXqO+DyxEOQmgGIJE=
 
 "use client";
 
@@ -126,7 +126,8 @@ export function initialBlockViewMode(
 ): BlockViewMode {
   if (
     editable &&
-    (!source.trim() || (view.starter != null && source === view.starter))
+    (!source.trim() ||
+      (view.starter != null && source.trim() === view.starter.trim()))
   )
     return "code";
   return view.defaultView === "source" ? "code" : "preview";

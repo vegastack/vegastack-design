@@ -215,18 +215,17 @@ the Content-Security-Policy `frame-src` list.
 A live task list is a container directive: `:::tasks{…}` at the start of a line, its rows, and
 `:::` alone on a line.
 
-```md
+```text
 :::tasks{id="lb_9f2c" v="1" space="page" assignee="me" status="open" sort="due" limit="25" as-of="2026-10-14T09:00:00Z"}
-
 - [ ] [@Order glass for block B](mention://task/0192…) — To do
 - [x] [@Fix scaffolding](mention://task/0193…) — Done
-      :::
+:::
 ```
 
 The attributes are `key="value"` pairs separated by spaces. Keys are `[a-z][a-z0-9-]*`, values
 are double-quoted, and `\"` and `\\` are the escapes. `id` is the block's id. The rest are the
 list's filter, and unknown keys are kept as written. Each row is a task item whose first inline is
-a task mention, then `—` and the status label. `MarkdownView` renders the rows as a quiet,
+a task mention, then an em dash between spaces and the status label. `MarkdownView` renders the rows as a quiet,
 read-only card (`MarkdownTaskList`): the muted heading "Task list", then each row's done box, task
 chip and status label. A list with no rows shows "No matching tasks". The card is the snapshot
 stored with the page, so a public view never gets live data.

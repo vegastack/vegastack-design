@@ -30947,6 +30947,7 @@
               "name": "data-slot",
               "values": [
                 "mermaid-block",
+                "mermaid-block-print",
                 "mermaid-block-skeleton",
                 "mermaid-block-source",
                 "mermaid-block-status",
