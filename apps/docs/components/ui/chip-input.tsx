@@ -1,4 +1,4 @@
-// @vegastack chip-input@0.25.39 sha256-ZidFIN9h7f8eo4TTTj5LxVjsQ73uFT2oE6NulnZXiVk=
+// @vegastack chip-input@0.25.39 sha256-LoV9ifCWgPXP2aIei/dO+gVypvhdpFBvddVRwI/pZsY=
 
 "use client";
 
@@ -125,12 +125,14 @@ export interface ChipInputProps {
    * @default false
    */
   disabled?: boolean;
-  /** Extra classes for the field group root.
+  /** Extra classes for the root column (`data-slot="chip-input-root"`) that holds the box and
+   * its refusal line — where layout classes (`flex-1`, `col-span-*`, a min width) belong.
    * @default undefined
    */
   className?: string;
   /**
-   * Ref forwarded to the group root `<div>` (`data-slot="chip-input"`).
+   * Ref forwarded to the field box `<div>` (`data-slot="chip-input"`), which carries the
+   * `data-invalid` and `data-disabled` state.
 
    * @default undefined
    */
@@ -313,15 +315,20 @@ export function ChipInput({
 
   return (
     // The column that puts the refusal line UNDER the box wherever the field sits (a Field,
-    // a row's actions). `className` and `ref` stay on the box, as documented.
-    <div data-slot="chip-input-root" className="flex min-w-0 flex-col gap-1.5">
+    // a row's actions). `className` lands here, so layout classes (`flex-1`, `col-span-*`,
+    // `self-*`, a min width) still place the field in the consumer's layout; `ref` and every
+    // state attribute stay on the box.
+    <div
+      data-slot="chip-input-root"
+      className={cn("flex min-w-0 flex-col gap-1.5", className)}
+    >
       <InputGroup
         ref={ref}
         data-slot="chip-input"
         data-field-group=""
         data-invalid={hasInvalidChip ? "" : undefined}
         data-disabled={disabled ? "" : undefined}
-        className={cn(chipFieldLayout, className)}
+        className={chipFieldLayout}
       >
         {chips.map((chip, index) => {
           const invalid = isInvalidChip(chip);

@@ -338,6 +338,35 @@ test("a refusal also shows under the field until the next keystroke", async () =
   await expect.poll(notice).toBe("Up to 1 entries");
 });
 
+test("className places the field in a row; the refusal line wraps under it at its width", async () => {
+  const screen = await render(
+    <div style={{ display: "flex", width: 400 }}>
+      <span style={{ width: 100, flexShrink: 0 }} />
+      <ChipInput
+        aria-label="Tags"
+        className="flex-1"
+        max={1}
+        defaultValue={["a"]}
+      />
+    </div>,
+  );
+  const box = () =>
+    (
+      document.querySelector('[data-slot="chip-input"]') as HTMLElement
+    ).getBoundingClientRect();
+  expect(Math.round(box().width)).toBe(300);
+  await screen.getByRole("textbox", { name: "Tags" }).fill("b");
+  await userEvent.keyboard("{Enter}");
+  await expect
+    .poll(() => document.querySelector('[data-slot="chip-input-notice"]'))
+    .toBeTruthy();
+  const line = (
+    document.querySelector('[data-slot="chip-input-notice"]') as HTMLElement
+  ).getBoundingClientRect();
+  expect(Math.round(line.width)).toBe(300);
+  expect(line.top).toBeGreaterThanOrEqual(box().bottom);
+});
+
 test("DS-21: maxLabel sets the announced copy", async () => {
   const screen = await render(
     <ChipInput
