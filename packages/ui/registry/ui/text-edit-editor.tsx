@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.25.40 sha256-BhSTdxBRsmJxcFJKWvj6R6Rpbl2Ev7WoH85pL4Ov43c=
+// @vegastack text-edit@0.25.40 sha256-ElgSXNnFqdPQei3hFiHRU11c4IR/zLauqEIdlmTQjXc=
 
 "use client";
 
@@ -6326,6 +6326,11 @@ function HeadingLink({
       );
     };
     const onScroll = () => redraw();
+    // The text above moved (an embed, a collaborator's edit): the button follows its heading.
+    const onChange = ({ transaction }: { transaction: Transaction }) => {
+      if (transaction.docChanged) redraw();
+    };
+    editor.on("transaction", onChange);
     dom.addEventListener("mousemove", onMove);
     dom.addEventListener("mouseleave", hover.hideSoon);
     editor.on("selectionUpdate", onSelection);
@@ -6342,6 +6347,7 @@ function HeadingLink({
       editor.off("focus", onSelection);
       editor.off("blur", onSelection);
       window.removeEventListener("scroll", onScroll, { capture: true });
+      editor.off("transaction", onChange);
     };
   }, [editor, hover.show, hover.hideSoon]);
 
