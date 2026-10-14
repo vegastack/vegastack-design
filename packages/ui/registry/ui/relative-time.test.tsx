@@ -12,7 +12,12 @@ import {
   TimeZoneProvider,
   useDateTimeNow,
 } from "./relative-time";
-import { formatDuration, formatLongDate, hourOfDay } from "../lib/date-time";
+import {
+  formatDuration,
+  formatLongDate,
+  formatRelative,
+  hourOfDay,
+} from "../lib/date-time";
 
 /**
  * The open tooltip popup, by slot.
@@ -801,4 +806,24 @@ test("after hydration a stale request reference neither sets the cadence nor the
     container.remove();
     vi.useRealTimers();
   }
+});
+
+test("formatRelative counts the past in whole units and rounds the future", () => {
+  const now = Date.UTC(2026, 9, 14, 12);
+  const day = 86_400_000;
+  // A deadline set 7 days out, read a minute later: "in 7 days", not "in 6 days".
+  expect(formatRelative(now + 7 * day - 60_000, { now, style: "long" })).toBe(
+    "in 7 days",
+  );
+  expect(formatRelative(now + 7 * day - 60_000, { now })).toBe("in 7d");
+  expect(
+    formatRelative(now + 6 * day + 2 * 3_600_000, { now, style: "long" }),
+  ).toBe("in 6 days");
+  // The past still counts completed units.
+  expect(formatRelative(now - 7 * day + 60_000, { now, style: "long" })).toBe(
+    "6 days ago",
+  );
+  expect(formatRelative(now - 7 * day + 60_000, { now, style: "suffix" })).toBe(
+    "6d ago",
+  );
 });
