@@ -1,4 +1,4 @@
-// @vegastack mermaid-block@0.25.40 sha256-BUChTaH8movc3Pv12VMko2S5/KGkiVBHWIzxwRbrvK4=
+// @vegastack mermaid-block@0.25.40 sha256-qE14abgtgj8j9eK1XCx8Zzg0jHLa65DwuACDYNdCxtA=
 
 "use client";
 
@@ -629,11 +629,18 @@ export function MermaidBlock({
       writeHeight(sourceHash, box.offsetHeight);
   }, [svg, error, sourceHash]);
 
-  // Theme flips and print are instant: the other scheme is drawn while the page is idle.
+  // Theme flips and print are instant: the other scheme is drawn while the page is idle. In dark
+  // mode the light drawing is kept for paper (printing forces the light palette).
+  const [printSvg, setPrintSvg] = React.useState<string | null>(null);
   React.useEffect(() => {
+    // A changed diagram is never printed from its old drawing.
+    setPrintSvg(null);
     if (!svg || error || pending) return;
     const other: MermaidTheme = theme === "dark" ? "light" : "dark";
-    const run = () => void renderMermaid(source, { theme: other });
+    const run = () =>
+      void renderMermaid(source, { theme: other }).then((result) =>
+        setPrintSvg(other === "light" && "svg" in result ? result.svg : null),
+      );
     if (typeof window.requestIdleCallback === "function") {
       const handle = window.requestIdleCallback(run, { timeout: 4000 });
       return () => window.cancelIdleCallback(handle);
@@ -682,11 +689,22 @@ export function MermaidBlock({
           className={cn(
             "mx-auto w-max max-w-none p-4 transition-opacity duration-150 [&_svg]:block [&_svg]:h-auto [&_svg]:max-w-none print:max-w-full print:[&_svg]:max-w-full",
             error && "opacity-40",
+            theme === "dark" && printSvg && !error && "print:hidden",
           )}
           // Mermaid's own output, sanitised by its DOMPurify pass (`securityLevel: "strict"`).
           dangerouslySetInnerHTML={{ __html: svg }}
         />
-      ) : failed ? (
+      ) : null}
+      {svg && theme === "dark" && printSvg && !error ? (
+        <div
+          aria-hidden
+          data-slot="mermaid-block-print"
+          className="mx-auto hidden w-max max-w-full p-4 print:block [&_svg]:block [&_svg]:h-auto [&_svg]:max-w-full"
+          // The light drawing, for paper: Mermaid's own sanitised output, as above.
+          dangerouslySetInnerHTML={{ __html: printSvg }}
+        />
+      ) : null}
+      {svg ? null : failed ? (
         <pre
           data-slot="mermaid-block-source"
           className="m-0 overflow-x-auto px-4 pt-3 pb-1 font-mono text-xs text-muted-foreground"

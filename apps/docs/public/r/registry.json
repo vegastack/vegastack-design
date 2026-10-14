@@ -519,7 +519,7 @@
         "whenToUse": "Diagrams written as ```mermaid fences — in a TextEdit or MarkdownView (blockViews={{ mermaid: mermaidBlockView }}) or on their own (MermaidBlock, renderMermaid).",
         "whenNotToUse": "Charts of data (Chart), or an image someone uploaded (FileViewer).",
         "version": "0.25.40",
-        "integrity": "sha256-BUChTaH8movc3Pv12VMko2S5/KGkiVBHWIzxwRbrvK4="
+        "integrity": "sha256-qE14abgtgj8j9eK1XCx8Zzg0jHLa65DwuACDYNdCxtA="
       }
     },
     {
