@@ -19,7 +19,11 @@ import {
   docToMarkdown,
   markdownToDoc,
 } from "../../packages/ui/registry/lib/text-edit-markdown.ts";
-import { textEditSchema } from "../../packages/ui/registry/lib/text-edit-schema.ts";
+import {
+  textEditDiffSchema,
+  textEditSchema,
+  ychangeType,
+} from "../../packages/ui/registry/lib/text-edit-schema.ts";
 
 describe("VegaStack Markdown round trip (Node, no DOM)", () => {
   test("runs without a DOM", () => {
@@ -61,6 +65,52 @@ describe("VegaStack Markdown round trip (Node, no DOM)", () => {
     // The cell's own work (trimming its edge breaks) is linear; marked's tag masking bounds the size.
     expect(roundTripTime(cell(20_000))).toBeLessThan(CEILING_MS);
   }, 60_000);
+
+  test("a version diff's schema reads a Yjs snapshot diff's markings; a live document's never does", () => {
+    const json = {
+      type: "doc",
+      content: [
+        {
+          type: "paragraph",
+          content: [
+            { type: "text", text: "kept " },
+            {
+              type: "text",
+              text: "new",
+              marks: [
+                { type: "bold" },
+                { type: "ychange", attrs: { type: "added", user: null } },
+              ],
+            },
+            {
+              type: "text",
+              text: "old",
+              marks: [{ type: "ychange", attrs: { type: "removed" } }],
+            },
+          ],
+        },
+        {
+          type: "heading",
+          attrs: { level: 2, ychange: { type: "removed", user: "u1" } },
+          content: [{ type: "text", text: "Gone" }],
+        },
+      ],
+    };
+    const doc = textEditDiffSchema().nodeFromJSON(json);
+    doc.check();
+    expect(ychangeType(doc.child(1).attrs.ychange)).toBe("removed");
+    expect(
+      doc
+        .child(0)
+        .child(1)
+        .marks.map((mark) => mark.type.name),
+    ).toEqual(["bold", "ychange"]);
+    // The live schema has no `ychange`: a diff never reaches a document.
+    expect(() => textEditSchema().nodeFromJSON(json)).toThrow(/ychange/);
+    expect(textEditSchema().nodes.heading.spec.attrs?.ychange).toBeUndefined();
+    expect(ychangeType("added")).toBe("added");
+    expect(ychangeType({ type: "nope" })).toBeNull();
+  });
 
   test("a parse never reuses another document's index: text that looks alike stays whole", () => {
     const filler = "word ".repeat(2_000);

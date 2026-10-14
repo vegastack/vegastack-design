@@ -2,7 +2,11 @@ import { render } from "vitest-browser-react";
 import { userEvent } from "vitest/browser";
 import { expect, test, vi } from "vitest";
 import { expectNoA11yViolations } from "../../test/a11y";
-import { VersionList, type VersionItem } from "./version-list";
+import {
+  VERSION_KIND_LABELS,
+  VersionList,
+  type VersionItem,
+} from "./version-list";
 
 const asha = { name: "Asha Rao" };
 const versions: VersionItem[] = [
@@ -17,23 +21,15 @@ const versions: VersionItem[] = [
   { id: "v1", author: asha, at: "2026-09-27T10:00:00Z", kind: "restore" },
 ];
 
-test('"Named only" toggles onNamedOnlyChange and a conflict item shows "Unsaved copy"', async () => {
+test('"Named only" toggles onNamedOnlyChange', async () => {
   const onNamedOnlyChange = vi.fn();
   const screen = await render(
     <VersionList
-      versions={[
-        {
-          id: "v1",
-          author: asha,
-          at: "2026-09-29T10:00:00Z",
-          kind: "conflict",
-        },
-      ]}
+      versions={versions}
       namedOnly={false}
       onNamedOnlyChange={onNamedOnlyChange}
     />,
   );
-  await expect.element(screen.getByText("Unsaved copy")).toBeVisible();
   // The unstyled harness gives the switch no size, so click it through the DOM.
   (
     screen.getByRole("switch", { name: "Named only" }).element() as HTMLElement
@@ -41,18 +37,53 @@ test('"Named only" toggles onNamedOnlyChange and a conflict item shows "Unsaved 
   expect(onNamedOnlyChange).toHaveBeenCalledWith(true);
 });
 
-test("badges: Current, Restored; a named version leads with its name", async () => {
+test("badges: Current, each kind's label, a row's own label; a name replaces the kind's badge but never Approved", async () => {
+  const at = "2026-09-29T10:00:00Z";
+  const rows: VersionItem[] = [
+    { id: "a", author: asha, at, kind: "auto" },
+    { id: "s", author: asha, at, kind: "safety" },
+    { id: "r", author: asha, at, kind: "restore" },
+    {
+      id: "rn",
+      author: asha,
+      at,
+      kind: "restore",
+      name: "Before restoring 26 Sep",
+    },
+    { id: "i", author: asha, at, kind: "import", name: "Before live editing" },
+    { id: "g", author: asha, at, kind: "agent_checkpoint" },
+    {
+      id: "gl",
+      author: asha,
+      at,
+      kind: "agent_checkpoint",
+      label: "Before Claude's edits",
+    },
+    { id: "n", author: asha, at, kind: "named", name: "Before review" },
+    { id: "p", author: asha, at, kind: "approved", name: "Signed off" },
+  ];
   const screen = await render(
-    <VersionList versions={versions} currentId="v3" selectedId="v3" />,
+    <VersionList versions={rows} currentId="a" selectedId="a" />,
   );
   await expect.element(screen.getByText("Before review")).toBeVisible();
-  const rows = [
-    ...screen.container.querySelectorAll<HTMLElement>('[role="option"]'),
-  ];
-  expect(rows[0]!.textContent).toContain("Current");
-  expect(rows[1]!.textContent).toContain("Before review");
-  expect(rows[2]!.textContent).toContain("Restored");
-  expect(rows[0]).toHaveAttribute("aria-selected", "true");
+  const badges = (id: string) =>
+    [
+      ...screen.container.querySelectorAll(
+        `[role="option"]:nth-child(${rows.findIndex((row) => row.id === id) + 1}) [data-slot="badge"]`,
+      ),
+    ].map((badge) => badge.textContent);
+  expect(badges("a")).toEqual(["Current"]);
+  expect(badges("s")).toEqual([VERSION_KIND_LABELS.safety]);
+  expect(badges("r")).toEqual(["Before a restore"]);
+  expect(badges("rn")).toEqual([]);
+  expect(badges("i")).toEqual([]);
+  expect(badges("g")).toEqual(["Before an agent's edits"]);
+  expect(badges("gl")).toEqual(["Before Claude's edits"]);
+  expect(badges("n")).toEqual([]);
+  expect(badges("p")).toEqual(["Approved"]);
+  expect(
+    screen.container.querySelector('[data-kind="approved"]')?.textContent,
+  ).toContain("Signed off");
   await expectNoA11yViolations(screen.container);
 });
 

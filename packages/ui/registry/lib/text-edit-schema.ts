@@ -1,7 +1,8 @@
-// @vegastack text-edit-schema@0.25.34 sha256-1a1Reoe2pIovuOCPKiENySi0KQh1DVpfWuow3LSGjSY=
+// @vegastack text-edit-schema@0.25.34 sha256-ZKJ+w67Q02eD8G/Wy0N3f5ykDsR3ZLEj2Ox0l3hGhuY=
 
 import {
   Extension,
+  Mark,
   Node,
   decodeHtmlEntities,
   getSchema,
@@ -1449,4 +1450,112 @@ let cachedSchema: Schema | undefined;
 export function textEditSchema(): Schema {
   cachedSchema ??= getSchema(textEditExtensions());
   return cachedSchema;
+}
+
+/** What a version diff marks: text and blocks the newer version `added` or `removed`. */
+export type TextEditChange = "added" | "removed";
+
+/**
+ * The change a `ychange` value records — y-prosemirror's `{ type, user }` object (what a Yjs
+ * snapshot diff writes) or the bare word; null for unchanged.
+ */
+export function ychangeType(value: unknown): TextEditChange | null {
+  const type =
+    typeof value === "string"
+      ? value
+      : value && typeof value === "object"
+        ? (value as { type?: unknown }).type
+        : null;
+  return type === "added" || type === "removed" ? type : null;
+}
+
+/**
+ * A version diff's markings, never part of a live document: a `ychange` mark on changed text
+ * (`<ins>`/`<del>`, `data-ychange`) and a `ychange` attribute on every other node (a whole block
+ * or atom added or removed: `data-ychange` on its element). The shape is y-prosemirror's — the
+ * one a Yjs snapshot diff (two version states in a `gc: false` history doc) produces — so a
+ * server walker's ProseMirror JSON renders as is. Not in `textEditSchema()`: build a diff's
+ * schema with `textEditDiffSchema()`, or add it to `textEditExtensions({ plugins })`.
+ *
+ * @example
+ * const doc = textEditDiffSchema().nodeFromJSON(diffJson);
+ */
+export const TextEditDiff = Extension.create({
+  name: "textEditDiff",
+  addExtensions() {
+    return [
+      Mark.create({
+        name: "ychange",
+        // Changed text keeps its other marks (bold, a link): the change is one more layer.
+        excludes: "",
+        inclusive: false,
+        addAttributes() {
+          return {
+            user: { default: null, rendered: false },
+            type: { default: null, rendered: false },
+            color: { default: null, rendered: false },
+          };
+        },
+        parseHTML() {
+          return [
+            { tag: "ins[data-ychange]", attrs: { type: "added" } },
+            { tag: "del[data-ychange]", attrs: { type: "removed" } },
+          ];
+        },
+        renderHTML({ mark }) {
+          const type = ychangeType(mark.attrs.type);
+          return [
+            type === "removed" ? "del" : "ins",
+            { "data-ychange": type ?? "added" },
+            0,
+          ];
+        },
+        // A diff is read, never saved: its Markdown is the newer text's, changes unmarked.
+        renderMarkdown: (node, h) => h.renderChildren(node),
+      }),
+    ];
+  },
+  addGlobalAttributes() {
+    const types = this.extensions
+      .filter(
+        (extension) =>
+          extension.type === "node" &&
+          extension.name !== "text" &&
+          extension.name !== "doc",
+      )
+      .map((extension) => extension.name);
+    return [
+      {
+        types,
+        attributes: {
+          ychange: {
+            default: null,
+            keepOnSplit: false,
+            parseHTML: (element: HTMLElement) =>
+              ychangeType(element.getAttribute("data-ychange")),
+            renderHTML: (attributes: Record<string, unknown>) => {
+              const type = ychangeType(attributes.ychange);
+              return type ? { "data-ychange": type } : {};
+            },
+          },
+        },
+      },
+    ];
+  },
+});
+
+let cachedDiffSchema: Schema | undefined;
+
+/**
+ * The schema of a version diff: `textEditSchema()` plus `TextEditDiff`'s `ychange` mark and
+ * attribute. A server walker checks its ProseMirror JSON against it before sending it.
+ *
+ * @example
+ * textEditDiffSchema().nodeFromJSON(json).check();
+ */
+export function textEditDiffSchema(): Schema {
+  cachedDiffSchema ??= getSchema(
+    textEditExtensions({ plugins: [TextEditDiff] }),
+  );
+  return cachedDiffSchema;
 }

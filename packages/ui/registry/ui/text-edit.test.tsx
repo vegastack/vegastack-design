@@ -3557,3 +3557,105 @@ for (const [block, markdown] of [
     expect(text.replace(/[^a-h]/g, "")).toBe("abcdefgh");
     expect(text.replace(/[^1-8]/g, "")).toBe("12345678");
   });
+
+/* --- version diff -----------------------------------------------------------------------------*/
+
+const diffDoc = (word: string) => ({
+  type: "doc",
+  content: [
+    {
+      type: "paragraph",
+      content: [
+        { type: "text", text: "Kept " },
+        {
+          type: "text",
+          text: word,
+          marks: [{ type: "ychange", attrs: { type: "added", user: null } }],
+        },
+        {
+          type: "text",
+          text: " old",
+          marks: [{ type: "ychange", attrs: { type: "removed", user: null } }],
+        },
+      ],
+    },
+    {
+      type: "heading",
+      attrs: { level: 2, ychange: { type: "removed", user: null } },
+      content: [{ type: "text", text: "Gone heading" }],
+    },
+    {
+      type: "bulletList",
+      attrs: { ychange: { type: "added", user: null } },
+      content: [
+        {
+          type: "listItem",
+          attrs: { ychange: { type: "added", user: null } },
+          content: [
+            {
+              type: "paragraph",
+              attrs: { ychange: { type: "added", user: null } },
+              content: [{ type: "text", text: "New item" }],
+            },
+          ],
+        },
+      ],
+    },
+  ],
+});
+
+test("diff: a version diff shows read-only, its added and removed text and blocks marked, under its baseline", async () => {
+  const sheet = document.createElement("style");
+  sheet.textContent = geometryCss;
+  document.head.append(sheet);
+  onTestFinished(() => sheet.remove());
+  const screen = await render(
+    <TextEdit
+      aria-label="Changes"
+      diff={{ doc: diffDoc("new"), baseline: "the previous version" }}
+    />,
+  );
+  const view = screen.getByRole("document", { name: "Changes" });
+  await vi.waitFor(() =>
+    expect(
+      view.element().querySelector("ins[data-ychange=added]")?.textContent,
+    ).toBe("new"),
+  );
+  const root = screen.container;
+  expect(root.querySelector("del[data-ychange=removed]")?.textContent).toBe(
+    " old",
+  );
+  expect(root.querySelector("h2")?.getAttribute("data-ychange")).toBe(
+    "removed",
+  );
+  expect(root.querySelector("ul")?.getAttribute("data-ychange")).toBe("added");
+  // Read-only: nothing to type into, whatever `readOnly` says.
+  expect(root.querySelector('[contenteditable="true"]')).toBeNull();
+  expect(
+    root.querySelector('[data-slot="text-edit-diff-legend"]')?.textContent,
+  ).toContain("Compared with the previous version");
+  // Each change is announced: a visually hidden "Added:"/"Removed:" before it.
+  const before = (element: Element | null) =>
+    getComputedStyle(element!, "::before").content;
+  expect(before(root.querySelector("ins[data-ychange]"))).toContain("Added:");
+  expect(before(root.querySelector("h2"))).toContain("Removed:");
+  // A changed block is tinted once: the list, not again for its item and paragraph.
+  expect(before(root.querySelector("ul li"))).toBe("none");
+  await expectNoA11yViolations(root);
+
+  // Another pair of versions replaces the document.
+  await screen.rerender(
+    <TextEdit
+      aria-label="Changes"
+      diff={{ doc: diffDoc("fresh"), baseline: "the current text" }}
+    />,
+  );
+  await vi.waitFor(() =>
+    expect(root.querySelector("ins[data-ychange=added]")?.textContent).toBe(
+      "fresh",
+    ),
+  );
+  expect(
+    root.querySelector('[data-slot="text-edit-diff-legend"]')?.textContent,
+  ).toContain("Compared with the current text");
+});

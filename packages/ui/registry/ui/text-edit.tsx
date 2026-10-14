@@ -1,9 +1,9 @@
-// @vegastack text-edit@0.25.34 sha256-dF5urPC2h4QdExjJsgiK0521haStTzuDcBoadxHn7AI=
+// @vegastack text-edit@0.25.34 sha256-nzWIu0Y8Ttpm5rl8vZureZBEXqZQWdxnYAvhwqQsxTk=
 
 "use client";
 
 import * as React from "react";
-import type { Editor } from "@tiptap/react";
+import type { Editor, JSONContent } from "@tiptap/react";
 import { Field as FieldPrimitive } from "@base-ui/react/field";
 import { cn, mergeRefs, proseClassName } from "@vegastack/design";
 import {
@@ -249,6 +249,21 @@ export interface TextEditCollaborationUser {
  * collaborator's caret from `provider.awareness`; the app owns the provider (Hocuspocus or any
  * other) — it is typed structurally, so the design system never imports one.
  */
+/**
+ * A version diff to show: the newer version's text with what changed marked — `ychange` marks on
+ * changed text and a `ychange` attribute on whole blocks added or removed (`textEditDiffSchema()`,
+ * the shape a Yjs snapshot diff of two version states produces).
+ */
+export interface TextEditDiffView {
+  /** The diff, as a ProseMirror document. */
+  doc: JSONContent;
+  /**
+   * What it is compared with, named above it after "Compared with" ("the previous
+   * version", "the current text", a version's name). @default undefined
+   */
+  baseline?: React.ReactNode;
+}
+
 export interface TextEditCollaboration {
   /** The shared Yjs document. Never seeded by the editor: a server seeds it once. */
   document: YDoc;
@@ -304,6 +319,41 @@ const editorBaseClassName = cn(
   // An empty toggle title or body shows its hint (the Placeholder extension's `is-empty`).
   "[&_[data-slot=toggle-content]>[data-node-view-content-react]>.is-empty]:before:pointer-events-none [&_[data-slot=toggle-content]>[data-node-view-content-react]>.is-empty]:before:float-start [&_[data-slot=toggle-content]>[data-node-view-content-react]>.is-empty]:before:h-0 [&_[data-slot=toggle-content]>[data-node-view-content-react]>.is-empty]:before:text-muted-foreground/60 [&_[data-slot=toggle-content]>[data-node-view-content-react]>[data-slot=toggle-summary].is-empty]:before:content-[attr(data-placeholder)] [&_[data-slot=toggle-content]>[data-node-view-content-react]>p.is-empty]:before:content-['Empty_toggle._Type_or_press_/_for_commands']",
 );
+
+/*
+ * A version diff (`diff`): the same inks as `DiffView` — added text on the success tint, removed
+ * text struck through on the destructive tint, as `ins`/`del` — and a whole block added or removed
+ * (`data-ychange` on its element) tinted once, not again for each block inside it. Each change
+ * starts with a visually hidden "Added:"/"Removed:" so a screen reader hears it.
+ */
+const diffClassName = cn(
+  "[&_ins[data-ychange]]:rounded-xs [&_ins[data-ychange]]:bg-success/10 [&_ins[data-ychange]]:text-success-text [&_ins[data-ychange]]:no-underline dark:[&_ins[data-ychange]]:bg-success/20",
+  "[&_del[data-ychange]]:rounded-xs [&_del[data-ychange]]:bg-destructive/10 [&_del[data-ychange]]:text-destructive-text [&_del[data-ychange]]:line-through dark:[&_del[data-ychange]]:bg-destructive/20",
+  "[&_:not(ins)[data-ychange=added]:not(:is([data-ychange]_*))]:rounded-sm [&_:not(ins)[data-ychange=added]:not(:is([data-ychange]_*))]:bg-success/10 [&_:not(ins)[data-ychange=added]:not(:is([data-ychange]_*))]:text-success-text dark:[&_:not(ins)[data-ychange=added]:not(:is([data-ychange]_*))]:bg-success/20",
+  "[&_:not(del)[data-ychange=removed]:not(:is([data-ychange]_*))]:rounded-sm [&_:not(del)[data-ychange=removed]:not(:is([data-ychange]_*))]:bg-destructive/10 [&_:not(del)[data-ychange=removed]:not(:is([data-ychange]_*))]:text-destructive-text [&_:not(del)[data-ychange=removed]:not(:is([data-ychange]_*))]:line-through dark:[&_:not(del)[data-ychange=removed]:not(:is([data-ychange]_*))]:bg-destructive/20",
+  "[&_[data-ychange=added]:not(:is([data-ychange]_*))]:before:sr-only [&_[data-ychange=added]:not(:is([data-ychange]_*))]:before:content-['Added:_']",
+  "[&_[data-ychange=removed]:not(:is([data-ychange]_*))]:before:sr-only [&_[data-ychange=removed]:not(:is([data-ychange]_*))]:before:content-['Removed:_']",
+);
+
+/** A diff's legend: what it is compared with, and the two inks. */
+function DiffLegend({ baseline }: { baseline?: React.ReactNode }) {
+  return (
+    <p
+      data-slot="text-edit-diff-legend"
+      className="mb-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground"
+    >
+      {baseline !== undefined && baseline !== null ? (
+        <span className="min-w-0 wrap-anywhere">Compared with {baseline}</span>
+      ) : null}
+      <ins className="rounded-xs bg-success/10 px-1 text-success-text no-underline dark:bg-success/20">
+        Added
+      </ins>
+      <del className="rounded-xs bg-destructive/10 px-1 text-destructive-text line-through dark:bg-destructive/20">
+        Removed
+      </del>
+    </p>
+  );
+}
 
 /*
  * `variant="composer"` — `Input`'s box (32px: a 1px border, 3px of padding and a 24px row; 14px
@@ -997,6 +1047,14 @@ export interface TextEditProps {
    * @default undefined
    */
   collaboration?: TextEditCollaboration;
+  /**
+   * Show a version diff, read-only: added text and blocks in the success ink, removed ones struck
+   * through in the destructive ink (`ins`/`del`, each announced "Added"/"Removed"), with a legend
+   * naming its `baseline`. The document is `diff.doc` — `value`, `defaultValue` and every editing
+   * prop are ignored. Fixed at mount: a TextEdit is a diff view or an editor, never both; a new
+   * `diff.doc` replaces the shown one. @default undefined
+   */
+  diff?: TextEditDiffView;
 }
 
 /**
@@ -1105,24 +1163,28 @@ export function TextEdit(props: TextEditProps) {
     handleRef,
     ...editorProps
   } = props;
-  const surfaceClassName =
-    headingScale === "document"
-      ? cn(editorBaseClassName, proseDocumentHeadingsClassName)
-      : editorBaseClassName;
+  const surfaceClassName = cn(
+    editorBaseClassName,
+    headingScale === "document" && proseDocumentHeadingsClassName,
+    props.diff !== undefined && diffClassName,
+  );
   // Highlights and an outline need the document model, so they mount the editor at once.
   const composer = variant === "composer";
   // A composer is an input: its editor mounts at once, never waiting for a click. A shared
   // document mounts at once too — read-only included — so its text and carets move live.
   const collaborative = props.collaboration !== undefined;
+  // A version diff needs its document model (its markings are not Markdown): at once, read-only.
+  const diffing = props.diff !== undefined;
   const eager =
     props.annotations !== undefined ||
     props.onOutlineChange !== undefined ||
     composer ||
-    collaborative;
+    collaborative ||
+    diffing;
   const boxed = variant === "boxed" || composer;
   const [field, setField] = React.useState<FieldAria>({});
   const disabled = disabledProp || field.disabled === true;
-  const editable = !readOnly && !disabled;
+  const editable = !readOnly && !disabled && !diffing;
   const resolvedId = field.id ?? id;
   const ariaInvalidAttribute = toAriaInvalidAttribute(
     field["aria-invalid"] ?? ariaInvalid,
@@ -1342,11 +1404,13 @@ export function TextEdit(props: TextEditProps) {
   React.useEffect(() => {
     setLeftDoc((left) => (left && left.forValue !== value ? null : left));
   }, [value]);
-  const source = props.collaboration
-    ? (props.collaboration.readCopy ?? "")
-    : leftDoc && leftDoc.forValue === value
-      ? leftDoc.doc
-      : (value ?? defaultValue);
+  const source = props.diff
+    ? ""
+    : props.collaboration
+      ? (props.collaboration.readCopy ?? "")
+      : leftDoc && leftDoc.forValue === value
+        ? leftDoc.doc
+        : (value ?? defaultValue);
   const empty = isEmptyDocument(source, html);
   const resolvedLabelledBy = field["aria-labelledby"] ?? ariaLabelledBy;
   const resolvedDescribedBy = field["aria-describedby"] ?? ariaDescribedBy;
@@ -1452,6 +1516,7 @@ export function TextEdit(props: TextEditProps) {
           <FieldControlBridge control={control} onResolve={setField} />
         )}
       />
+      {props.diff ? <DiffLegend baseline={props.diff.baseline} /> : null}
       {!ready ? (
         <div
           data-slot="text-edit-content"
@@ -1501,7 +1566,7 @@ export function TextEdit(props: TextEditProps) {
             placeholder={placeholder}
             slashCommands={slashCommands}
             saving={saving}
-            readOnly={readOnly}
+            readOnly={readOnly || diffing}
             disabled={disabled}
             aria-label={ariaLabel}
             aria={{

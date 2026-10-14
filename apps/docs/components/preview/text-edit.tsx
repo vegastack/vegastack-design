@@ -991,3 +991,125 @@ export function textEditCollaboration(): ReactNode {
     </Wrapper>
   );
 }
+
+/** A diff's text run: plain, or marked added/removed (a `ychange` mark). */
+function run(text: string, change?: "added" | "removed", bold = false) {
+  const marks = [
+    ...(bold ? [{ type: "bold" }] : []),
+    ...(change
+      ? [{ type: "ychange", attrs: { type: change, user: null } }]
+      : []),
+  ];
+  return marks.length ? { type: "text", text, marks } : { type: "text", text };
+}
+
+/** A whole block a diff marks added or removed (its `ychange` attribute). */
+const changed = (change: "added" | "removed") => ({
+  ychange: { type: change, user: null },
+});
+
+const DIFF_VS_PREVIOUS = {
+  type: "doc",
+  content: [
+    {
+      type: "heading",
+      attrs: { level: 2 },
+      content: [run("Site inspection")],
+    },
+    {
+      type: "paragraph",
+      content: [
+        run("The crew arrives at "),
+        run("8:00", "removed"),
+        run("7:30", "added"),
+        run(" and checks the "),
+        run("wiring and the", "added", true),
+        run(" breaker panel first."),
+      ],
+    },
+    {
+      type: "paragraph",
+      attrs: changed("removed"),
+      content: [run("Parking is on the street.")],
+    },
+    {
+      type: "bulletList",
+      attrs: changed("added"),
+      content: [
+        {
+          type: "listItem",
+          attrs: changed("added"),
+          content: [
+            {
+              type: "paragraph",
+              attrs: changed("added"),
+              content: [run("Bring the ladder")],
+            },
+          ],
+        },
+      ],
+    },
+  ],
+};
+
+const DIFF_VS_CURRENT = {
+  type: "doc",
+  content: [
+    {
+      type: "heading",
+      attrs: { level: 2 },
+      content: [run("Site inspection")],
+    },
+    {
+      type: "paragraph",
+      content: [
+        run(
+          "The crew arrives at 7:30 and checks the wiring and the breaker panel",
+        ),
+        run(" and the meter", "added"),
+        run(" first."),
+      ],
+    },
+  ],
+};
+
+/**
+ * Version diff — the formatted changes between two versions: added text and blocks on the success
+ * tint, removed ones struck through, under "Compared with" the baseline. Switch the baseline to
+ * compare the same version with the current text.
+ */
+export function textEditVersionDiff(): ReactNode {
+  const [baseline, setBaseline] = useState<"previous" | "current">("previous");
+  return (
+    <Wrapper className="flex-col items-stretch gap-3">
+      <div className="flex gap-2">
+        <Button
+          size="sm"
+          variant={baseline === "previous" ? "secondary" : "ghost"}
+          aria-pressed={baseline === "previous"}
+          onClick={() => setBaseline("previous")}
+        >
+          vs previous
+        </Button>
+        <Button
+          size="sm"
+          variant={baseline === "current" ? "secondary" : "ghost"}
+          aria-pressed={baseline === "current"}
+          onClick={() => setBaseline("current")}
+        >
+          vs current
+        </Button>
+      </div>
+      <TextEdit
+        aria-label="Changes in this version"
+        diff={{
+          doc: baseline === "previous" ? DIFF_VS_PREVIOUS : DIFF_VS_CURRENT,
+          baseline:
+            baseline === "previous"
+              ? "the previous version"
+              : "the current text",
+        }}
+      />
+    </Wrapper>
+  );
+}

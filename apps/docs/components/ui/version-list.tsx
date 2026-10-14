@@ -1,4 +1,4 @@
-// @vegastack version-list@0.25.34 sha256-3dGTuLu+CgzHb5pN2lTdFTF/4/rrsfcPP/dfhXh3Ht4=
+// @vegastack version-list@0.25.34 sha256-OyfdxdyWFBnjukGykqdNVIM+vd0yUIlHB4qCua6TVdE=
 
 "use client";
 
@@ -13,6 +13,36 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Switch } from "@/components/ui/switch";
 import { useListNav } from "@/components/ui/use-list-nav";
 
+/**
+ * How a version came to be. `auto` — a checkpoint while people edit; `safety` — the text just
+ * before a large deletion; `restore` — the text just before a restore (what Undo returns to);
+ * `import` — the text before an import or replace (and a page's original text when it moved to
+ * live editing); `agent_checkpoint` — the text before an agent's first edit; `named` — a version
+ * someone named; `approved` — a signed-off copy.
+ */
+export type VersionKind =
+  | "auto"
+  | "safety"
+  | "restore"
+  | "import"
+  | "agent_checkpoint"
+  | "named"
+  | "approved";
+
+/**
+ * Each kind's badge. `auto` and `named` have none (a checkpoint shows its time, a named version
+ * leads with its name). A row's own `label` replaces it ("Before Claude's edits").
+ */
+export const VERSION_KIND_LABELS: Record<VersionKind, string | null> = {
+  auto: null,
+  safety: "Before a large deletion",
+  restore: "Before a restore",
+  import: "Before an import",
+  agent_checkpoint: "Before an agent's edits",
+  named: null,
+  approved: "Approved",
+};
+
 /** One saved state of a document, as `VersionList` shows it. */
 export interface VersionItem {
   /** Stable id. */
@@ -23,11 +53,14 @@ export interface VersionItem {
   at: Date | string | number;
   /** A name the author gave it; named versions lead with it. @default undefined */
   name?: string | null;
+  /** How it came to be (`VersionKind`): its badge (`VERSION_KIND_LABELS`). */
+  kind: VersionKind;
   /**
-   * How it came to be: `auto` (an editing session), `named`, `restore` (a restore of an older
-   * version — "Restored") or `conflict` (a save that lost a race, kept — "Unsaved copy").
+   * The badge, in place of the kind's — the agent's name in "Before Claude's edits". A row with a
+   * `name` shows no kind badge (the name says it: "Before live editing", "Before restoring
+   * 12 Oct"), except an approved copy, which always says so. @default undefined
    */
-  kind: "auto" | "named" | "restore" | "conflict";
+  label?: string;
   /** A muted second line — "12 words added". @default undefined */
   summary?: string;
 }
@@ -58,15 +91,17 @@ export interface VersionListProps {
   className?: string;
 }
 
-const KIND_BADGE: Partial<Record<VersionItem["kind"], string>> = {
-  restore: "Restored",
-  conflict: "Unsaved copy",
-};
+/** A row's badge: its own `label`, else its kind's — unless its name already says it. */
+function badgeOf(version: VersionItem): string | null {
+  if (version.label) return version.label;
+  if (version.name && version.kind !== "approved") return null;
+  return VERSION_KIND_LABELS[version.kind];
+}
 
 /**
  * `VersionList` — a document's version history: each row the time it was saved, who wrote it, its
- * name when it has one, and a badge for a restore ("Restored"), a lost save ("Unsaved copy") and
- * the document's current text ("Current"). A listbox with one tab stop: ↑/↓, Home and End move
+ * name when it has one, a badge for how it came to be ("Before a large deletion", "Before an
+ * agent's edits", "Approved" — `VersionKind`) and one for the document's current text ("Current"). A listbox with one tab stop: ↑/↓, Home and End move
  * the selection. A "Named only" switch in the header, and the next page loads on scroll.
  *
  * @example
@@ -157,7 +192,7 @@ export function VersionList({
         >
           {versions.map((version, index) => {
             const selected = version.id === selectedId;
-            const badge = KIND_BADGE[version.kind];
+            const badge = badgeOf(version);
             const item = nav.getItemProps(index);
             return (
               <div
@@ -199,7 +234,7 @@ export function VersionList({
                   {badge ? (
                     <Badge
                       variant={
-                        version.kind === "conflict" ? "warning" : "outline"
+                        version.kind === "approved" ? "success" : "outline"
                       }
                     >
                       {badge}

@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.25.34 sha256-dF5urPC2h4QdExjJsgiK0521haStTzuDcBoadxHn7AI=
+// @vegastack text-edit@0.25.34 sha256-nzWIu0Y8Ttpm5rl8vZureZBEXqZQWdxnYAvhwqQsxTk=
 
 "use client";
 
@@ -199,7 +199,7 @@ import {
   type CalloutTone,
   type MentionKind,
 } from "@/lib/text-edit-grammar";
-import { textEditExtensions } from "@/lib/text-edit-schema";
+import { TextEditDiff, textEditExtensions } from "@/lib/text-edit-schema";
 import { VegaStackMarkdown } from "@/lib/text-edit-markdown";
 import { useFileDrop } from "@/components/ui/use-file-drop";
 import { FileTypeIcon } from "@/lib/file-kind";
@@ -3378,6 +3378,7 @@ function buildExtensions(
   imageRuntime: ImageRuntime,
   toggleRuntime: ToggleRuntime,
   collaboration: TextEditCollaboration | null,
+  diff = false,
 ) {
   // The schema and its Markdown rules are the shared `text-edit-schema`; the editor adds its node
   // views and behaviour only, so a server reads and writes exactly the documents it edits.
@@ -3422,6 +3423,8 @@ function buildExtensions(
       annotationsExtension(annotationRuntime),
       Uploads,
       ...(collaboration ? collaborationExtensions(collaboration) : []),
+      // A version diff's `ychange` mark and attribute: only ever in a diff view's schema.
+      ...(diff ? [TextEditDiff] : []),
     ],
   });
 }
@@ -5210,6 +5213,7 @@ export function TextEditEditor({
   annotationCountLabel = defaultAnnotationCountLabel,
   onPendingUploadsChange,
   collaboration,
+  diff,
   aria,
   surfaceClassName,
   hintClassName,
@@ -5228,6 +5232,9 @@ export function TextEditEditor({
   // A shared document, fixed at creation: the Yjs document is the truth, so nothing here commits,
   // reverts or applies a value — and Escape only blurs (A2).
   const [collab] = React.useState(() => collaboration ?? null);
+  // A version diff, fixed at creation (its schema has the `ychange` markings); its document
+  // follows the prop.
+  const [diffing] = React.useState(() => diff !== undefined);
   const escapeBehavior = collab
     ? "blur"
     : (escapeBehaviorProp ??
@@ -5455,6 +5462,7 @@ export function TextEditEditor({
       { slots: imageSlots, open: openImageRef },
       toggleRuntime,
       collab,
+      diffing,
     ),
   );
 
@@ -5742,10 +5750,12 @@ export function TextEditEditor({
     // document duplicates its text when it meets the server's).
     ...(collab
       ? {}
-      : {
-          content: value ?? defaultValue,
-          ...(markdown ? { contentType: "markdown" as const } : {}),
-        }),
+      : diff
+        ? { content: diff.doc }
+        : {
+            content: value ?? defaultValue,
+            ...(markdown ? { contentType: "markdown" as const } : {}),
+          }),
     editable,
     immediatelyRender: false,
     editorProps: {
@@ -5892,6 +5902,13 @@ export function TextEditEditor({
       callbacks.current.onValueChange?.(serialize(ed));
     },
   });
+
+  // A diff view follows its document: another pair of versions replaces it (never an edit).
+  const diffDoc = diff?.doc;
+  React.useEffect(() => {
+    if (!editor || editor.isDestroyed || !diffing || !diffDoc) return;
+    editor.commands.setContent(diffDoc, { emitUpdate: false });
+  }, [editor, diffing, diffDoc]);
 
   editorRef.current = editor;
 
