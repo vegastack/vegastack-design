@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.25.41 sha256-uztHKq37sn2D/OTJ6DiCU9ptKZsPcf6nJM8kgC2h980=
+// @vegastack text-edit@0.25.42 sha256-sgKz2w7y1YvaVoLz3fohDC9kpaNNQvkLxtDqKq7Q7P0=
 
 "use client";
 
@@ -169,6 +169,11 @@ export interface TextEditSlashActionContext {
    * shared document a record's title is not stored (each reader's chip resolves it).
    */
   insertMention: (mention: { kind: string; id: string; label: string }) => void;
+  /**
+   * Insert content at the caret (ProseMirror JSON, a node or a list of nodes) — a block such as a
+   * live task list. An empty paragraph the caret sits in is replaced.
+   */
+  insertContent: (content: JSONContent | readonly JSONContent[]) => void;
 }
 
 /** A host-defined `/` menu item (`slashActions`). */
