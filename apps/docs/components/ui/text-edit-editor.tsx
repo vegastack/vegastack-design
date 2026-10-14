@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.25.37 sha256-kaq0mr5bCYLv9+1UP/f8U1lHQcNwDUMy8tcAcDgRwBw=
+// @vegastack text-edit@0.25.37 sha256-8W+PbA7Gq7xorOMp7PsSG19aUCaIGWuttnJlIFwdSyc=
 
 "use client";
 
@@ -42,7 +42,7 @@ import {
   yCursorPlugin,
 } from "@tiptap/y-tiptap";
 import * as Y from "yjs";
-import { Fragment, type Node as PMNode } from "@tiptap/pm/model";
+import { Fragment, Slice, type Node as PMNode } from "@tiptap/pm/model";
 import {
   NodeSelection,
   Plugin,
@@ -186,6 +186,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { toast } from "@/components/ui/toast";
 import {
   CALLOUT_STYLE,
+  MarkdownEmbed,
   MEDIA_AUDIO_CLASS,
   MEDIA_VIDEO_CLASS,
   annotationActiveClassName,
@@ -203,7 +204,12 @@ import {
   type CalloutTone,
   type MentionKind,
 } from "@/lib/text-edit-grammar";
-import { textEditExtensions, ychangeType } from "@/lib/text-edit-schema";
+import {
+  EMBED_CONTAINERS,
+  textEditExtensions,
+  ychangeType,
+} from "@/lib/text-edit-schema";
+import { matchEmbed, type EmbedProviders } from "@/lib/embed-providers";
 import { VegaStackMarkdown } from "@/lib/text-edit-markdown";
 import { useFileDrop } from "@/components/ui/use-file-drop";
 import { FileTypeIcon } from "@/lib/file-kind";
@@ -393,7 +399,7 @@ const SLASH: Record<TextEditSlashCommand, SlashSpec> = {
   video: {
     id: "video",
     label: "Video",
-    keywords: "movie clip mp4 webm recording",
+    keywords: "movie clip mp4 webm recording youtube loom embed",
     icon: Film,
     run: (ed, range, open) => {
       ed.chain().focus().deleteRange(range).run();
@@ -3147,6 +3153,257 @@ function MediaView({ node, selected }: ReactNodeViewProps) {
   );
 }
 
+/* --- embeds and external images ----------------------------------------------------------------*/
+
+/**
+ * A YouTube or Loom embed's node view: `MarkdownEmbed`'s facade (nothing loads from the provider
+ * until Play), selectable and draggable as a block.
+ */
+/**
+ * Each editor's `embeds` (the providers it shows as players), read by its embed node views, its
+ * paste and its video panel. An editor without them shows embeds as links.
+ */
+const EDITOR_EMBEDS = new WeakMap<Editor, EmbedProviders | undefined>();
+
+/** Whether `editor` shows `provider`'s videos as players. */
+function embedsOn(editor: Editor, provider: string): boolean {
+  return Boolean(
+    (EDITOR_EMBEDS.get(editor) as Record<string, unknown> | undefined)?.[
+      provider
+    ],
+  );
+}
+
+function EmbedView({ node, selected, editor }: ReactNodeViewProps) {
+  return (
+    <NodeViewWrapper
+      data-slot="text-edit-embed"
+      data-drag-handle=""
+      contentEditable={false}
+      data-selected={selected ? "true" : undefined}
+      className="my-2 rounded-lg data-selected:[&_[data-slot=markdown-embed-frame]]:outline-2 data-selected:[&_[data-slot=markdown-embed-frame]]:outline-info"
+    >
+      <MarkdownEmbed
+        url={String(node.attrs.url ?? "")}
+        providers={EDITOR_EMBEDS.get(editor)}
+        className="my-0"
+      />
+    </NodeViewWrapper>
+  );
+}
+
+/** The embed a pasted lone URL makes, when the caret sits in an empty paragraph that can hold one. */
+function embedForPaste(editor: Editor, text: string): PMNode | null {
+  const { state } = editor;
+  const url = text.trim();
+  const match = /\s/.test(url) ? null : matchEmbed(url);
+  if (match && !embedsOn(editor, match.provider)) return null;
+  const type = state.schema.nodes.embed;
+  const { $from, empty } = state.selection;
+  if (!match || !type || !empty || $from.depth < 1) return null;
+  if ($from.parent.type.name !== "paragraph" || $from.parent.content.size)
+    return null;
+  if (!EMBED_CONTAINERS.has($from.node(-1).type.name)) return null;
+  return type.create({ provider: match.provider, url });
+}
+
+/**
+ * Put `embed` where the caret's empty paragraph is, the caret after it (a new paragraph when it is
+ * the last block), and toast "Embedded" with an Undo that turns it back into a link.
+ */
+function pasteEmbed(editor: Editor, embed: PMNode) {
+  const { state } = editor;
+  const { $from } = state.selection;
+  const from = $from.before();
+  const tr = state.tr.replaceWith(from, $from.after(), embed);
+  const after = from + embed.nodeSize;
+  if (tr.doc.resolve(after).nodeAfter === null)
+    tr.insert(after, state.schema.nodes.paragraph!.create());
+  tr.setSelection(TextSelection.near(tr.doc.resolve(after + 1)));
+  editor.view.dispatch(tr.scrollIntoView());
+  const url = String(embed.attrs.url);
+  toast.add({
+    title: "Embedded",
+    actionProps: {
+      children: "Undo",
+      onClick: () => unembed(editor, url, from),
+    },
+  });
+}
+
+/** The embed of `url` nearest `near`, back to a paragraph linking its URL. */
+function unembed(editor: Editor, url: string, near: number) {
+  if (editor.isDestroyed) return;
+  let found: { pos: number; node: PMNode } | null = null;
+  editor.state.doc.descendants((node, pos) => {
+    if (node.type.name === "embed" && node.attrs.url === url) {
+      if (!found || Math.abs(pos - near) < Math.abs(found.pos - near))
+        found = { pos, node };
+      return false;
+    }
+    return true;
+  });
+  if (!found) return;
+  const { pos, node } = found as { pos: number; node: PMNode };
+  const { schema } = editor.state;
+  const link = schema.text(url, [schema.marks.link!.create({ href: url })]);
+  editor.view.dispatch(
+    editor.state.tr.replaceWith(
+      pos,
+      pos + node.nodeSize,
+      schema.nodes.paragraph!.create(null, link),
+    ),
+  );
+}
+
+/** Whether `url` is a video file to play natively: one of this site's, or a video file's link. */
+function isVideoFileUrl(url: string): boolean {
+  if (/^\/(?!\/)/.test(url) || /^blob:/i.test(url)) return true;
+  try {
+    return /\.(?:mp4|m4v|webm|ogv|ogg|mov)$/i.test(new URL(url).pathname);
+  } catch {
+    return false;
+  }
+}
+
+/** An image pasted or dropped from elsewhere, taken out of the slice to be imported. */
+interface ExternalImage {
+  src: string;
+  alt: string | null;
+  /** A pasted `data:` image, as a file for `onImageUpload`. */
+  file?: File;
+}
+
+/** How many images one paste or drop imports; the rest land as links. */
+const EXTERNAL_IMAGE_LIMIT = 20;
+/** How many imports run at once. */
+const EXTERNAL_IMAGE_CONCURRENCY = 3;
+const EXTERNAL_IMAGE_FAILED =
+  "Couldn't import that image. A link was added instead.";
+
+/** Whether an image `src` is another site's (not this origin's, not a `blob:` or relative URL). */
+function isExternalImage(src: string): boolean {
+  if (typeof window === "undefined" || /^blob:/i.test(src)) return false;
+  try {
+    const url = new URL(src, window.location.href);
+    return (
+      (url.protocol === "https:" || url.protocol === "http:") &&
+      url.origin !== window.location.origin
+    );
+  } catch {
+    return false;
+  }
+}
+
+/** A `data:image/…;base64,` URL as a file, or null. */
+function dataImageFile(src: string, index: number): File | null {
+  const match =
+    /^data:(image\/(?:png|jpeg|gif|webp|avif));base64,([A-Za-z0-9+/=\s]+)$/i.exec(
+      src,
+    );
+  if (!match) return null;
+  try {
+    const binary = atob(match[2]!.replace(/\s+/g, ""));
+    const bytes = new Uint8Array(binary.length);
+    for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+    const type = match[1]!.toLowerCase();
+    const extension = type.split("/")[1]!.replace("jpeg", "jpg");
+    return new File([bytes], `pasted-image-${index + 1}.${extension}`, {
+      type,
+    });
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Pasted HTML's `data:` images as `blob:` URLs the paste can carry (the image node refuses `data:`),
+ * each one's file remembered in `files` for `onImageUpload`.
+ */
+function dataImagesToBlobs(html: string, files: Map<string, File>): string {
+  return html.replace(
+    /(<img\b[^>]*?\bsrc\s*=\s*)(["'])(data:image\/[^"']+)\2/gi,
+    (whole, start: string, quote: string, src: string) => {
+      const file = dataImageFile(src, files.size);
+      if (!file) return whole;
+      const url = URL.createObjectURL(file);
+      files.set(url, file);
+      return `${start}${quote}${url}${quote}`;
+    },
+  );
+}
+
+/**
+ * `fragment` without the images `take` claims (collected into `out`); a node left without the
+ * content it needs (a cell that held only an image) is filled.
+ */
+function withoutImages(
+  fragment: Fragment,
+  take: (image: PMNode) => boolean,
+  out: PMNode[],
+): Fragment {
+  const kept: PMNode[] = [];
+  fragment.forEach((child) => {
+    if (child.type.name === "image" && take(child)) {
+      out.push(child);
+      return;
+    }
+    if (!child.childCount) {
+      kept.push(child);
+      return;
+    }
+    const content = withoutImages(child.content, take, out);
+    if (content === child.content) kept.push(child);
+    else if (child.type.validContent(content)) kept.push(child.copy(content));
+    else {
+      const filled = child.type.createAndFill(
+        child.attrs,
+        content,
+        child.marks,
+      );
+      if (filled) kept.push(filled);
+    }
+  });
+  return kept.length === fragment.childCount &&
+    kept.every((node, index) => node === fragment.child(index))
+    ? fragment
+    : Fragment.from(kept);
+}
+
+/** `slice` without its external (and pasted `data:`) images, which are returned to import. */
+function takeExternalImages(
+  slice: Slice,
+  files: ReadonlyMap<string, File>,
+): { slice: Slice; images: ExternalImage[] } {
+  const taken: PMNode[] = [];
+  const content = withoutImages(
+    slice.content,
+    (image) => {
+      const src = String(image.attrs.src ?? "");
+      return files.has(src) || isExternalImage(src);
+    },
+    taken,
+  );
+  if (!taken.length) return { slice, images: [] };
+  const open = Slice.maxOpen(content);
+  return {
+    slice: new Slice(
+      content,
+      Math.min(slice.openStart, open.openStart),
+      Math.min(slice.openEnd, open.openEnd),
+    ),
+    images: taken.map((image) => {
+      const src = String(image.attrs.src ?? "");
+      const file = files.get(src);
+      return {
+        src,
+        alt: (image.attrs.alt as string | null) ?? null,
+        ...(file ? { file } : {}),
+      };
+    }),
+  };
+}
+
 /**
  * A collaborator's colours, by hue — literal classes, so Tailwind sees every one; only the hue key
  * travels over awareness, never a colour string. The caret is a 2px bar in the solid tag colour,
@@ -3441,6 +3698,7 @@ function buildExtensions(
         }),
       video: () => ReactNodeViewRenderer(MediaView, { attrs: changeAttrsOf }),
       audio: () => ReactNodeViewRenderer(MediaView, { attrs: changeAttrsOf }),
+      embed: () => ReactNodeViewRenderer(EmbedView, { attrs: changeAttrsOf }),
     },
     plugins: [
       Placeholder.configure({
@@ -3892,6 +4150,12 @@ function MediaPanel({
     onUpload ? "upload" : "link",
   );
   const [src, setSrc] = React.useState("");
+  // The video panel's link: a YouTube or Loom link embeds; a video file link plays natively.
+  const [error, setError] = React.useState<string | null>(null);
+  const errorId = React.useId();
+  // With `embeds`, the video panel's link also takes the providers' links.
+  const embedding =
+    kind === "video" && Object.keys(EDITOR_EMBEDS.get(editor) ?? {}).length > 0;
   const rootRef = useFocusOnShow<HTMLDivElement>((root) =>
     root.querySelector<HTMLElement>(
       "[data-slot=dropzone], input:not([type=file])",
@@ -3902,8 +4166,15 @@ function MediaPanel({
     const url = src.trim();
     if (!url) return;
     const safe = /^(https?:|\/)/i.test(url) ? url : `https://${url}`;
-    const content: JSONContent =
-      kind === "file"
+    const match = kind === "video" ? matchEmbed(safe) : null;
+    const embed = match && embedsOn(editor, match.provider) ? match : null;
+    if (kind === "video" && embedding && !embed && !isVideoFileUrl(safe)) {
+      setError("Paste a YouTube or Loom link");
+      return;
+    }
+    const content: JSONContent = embed
+      ? { type: "embed", attrs: { provider: embed.provider, url: safe } }
+      : kind === "file"
         ? {
             type: "text",
             text: decodeURIComponent(
@@ -3928,18 +4199,36 @@ function MediaPanel({
     onClose();
   };
   const link = (
-    <form onSubmit={insert} className="flex items-center gap-1">
-      <Input
-        aria-label={`${copy.label[0]!.toUpperCase()}${copy.label.slice(1)} URL`}
-        placeholder={copy.url}
-        value={src}
-        onChange={(event) => setSrc(event.target.value)}
-        size="sm"
-        className="min-w-0 flex-1"
-      />
-      <Button type="submit" size="sm" disabled={!src.trim()}>
-        Insert
-      </Button>
+    <form onSubmit={insert} className="flex flex-col gap-1">
+      <div className="flex items-center gap-1">
+        <Input
+          aria-label={`${copy.label[0]!.toUpperCase()}${copy.label.slice(1)} URL`}
+          placeholder={
+            embedding ? "Paste a YouTube, Loom or video link" : copy.url
+          }
+          value={src}
+          onChange={(event) => {
+            setSrc(event.target.value);
+            setError(null);
+          }}
+          aria-invalid={error ? true : undefined}
+          aria-describedby={error ? errorId : undefined}
+          size="sm"
+          className="min-w-0 flex-1"
+        />
+        <Button type="submit" size="sm" disabled={!src.trim()}>
+          Insert
+        </Button>
+      </div>
+      {error ? (
+        <p
+          id={errorId}
+          role="alert"
+          className="px-1 text-xs text-destructive-text"
+        >
+          {error}
+        </p>
+      ) : null}
     </form>
   );
   return (
@@ -5235,8 +5524,10 @@ export function TextEditEditor({
   onImageUpload,
   onFileUpload,
   onUploadError,
+  onExternalImage,
   fileLinkPrefix = "/api/files/",
   inlineImageTypes = INLINE_IMAGE_TYPES,
+  embeds,
   onOutlineChange,
   annotations,
   activeAnnotationId = null,
@@ -5295,6 +5586,7 @@ export function TextEditEditor({
     onImageUpload,
     onFileUpload,
     onUploadError,
+    onExternalImage,
     onOutlineChange,
     onAnnotationClick,
     onAnnotationHover,
@@ -5312,6 +5604,7 @@ export function TextEditEditor({
       onImageUpload,
       onFileUpload,
       onUploadError,
+      onExternalImage,
       onOutlineChange,
       onAnnotationClick,
       onAnnotationHover,
@@ -5328,6 +5621,7 @@ export function TextEditEditor({
     onImageUpload,
     onFileUpload,
     onUploadError,
+    onExternalImage,
     onOutlineChange,
     onAnnotationClick,
     onAnnotationHover,
@@ -5749,6 +6043,136 @@ export function TextEditEditor({
     };
   }, []);
 
+  /** Pasted `data:` images as files, by the `blob:` URL the paste carries each under. */
+  const pastedFilesRef = React.useRef(new Map<string, File>());
+  /** Images taken out of the paste or drop being handled: placed once it has landed. */
+  const externalRef = React.useRef<ExternalImage[] | null>(null);
+  const importQueue = React.useRef({
+    active: 0,
+    waiting: [] as (() => void)[],
+  });
+
+  /** Import an image from another site at `pos`: a placeholder now, the image or a link once done. */
+  const startExternalImage = React.useCallback(
+    (image: ExternalImage, pos: number, failed: () => void) => {
+      const ed = editorRef.current;
+      const importImage = callbacks.current.onExternalImage;
+      if (!ed || ed.isDestroyed || !importImage) return;
+      const id = `upload-${Math.random().toString(36).slice(2)}`;
+      const controller = new AbortController();
+      const name =
+        decodeURIComponent(
+          image.src.split(/[?#]/)[0]!.split("/").filter(Boolean).pop() ?? "",
+        ) || "image";
+      ed.view.dispatch(
+        ed.state.tr.setMeta(UPLOAD_KEY, {
+          add: { id, pos, name, preview: null },
+        } satisfies UploadMeta),
+      );
+      const land = (content: JSONContent) => {
+        const current = editorRef.current;
+        if (!current || current.isDestroyed) return;
+        const at = uploadPos(current.state, id);
+        current.view.dispatch(
+          current.state.tr.setMeta(UPLOAD_KEY, {
+            remove: id,
+          } satisfies UploadMeta),
+        );
+        if (at === null) return;
+        current
+          .chain()
+          .insertContentAt(blockInsertRange(current.state, at), content)
+          .run();
+        commitNow();
+      };
+      const run = () =>
+        controller.signal.aborted
+          ? Promise.resolve()
+          : importImage(image.src, { signal: controller.signal }).then(
+              (result) =>
+                land({
+                  type: "image",
+                  attrs: { src: result.src, alt: result.alt ?? image.alt },
+                }),
+              () => {
+                if (controller.signal.aborted) return;
+                land({
+                  type: "paragraph",
+                  content: [
+                    {
+                      type: "text",
+                      text: image.src,
+                      marks: [{ type: "link", attrs: { href: image.src } }],
+                    },
+                  ],
+                });
+                failed();
+              },
+            );
+      // At most three imports at a time; the rest wait their turn.
+      const queue = importQueue.current;
+      const done = new Promise<void>((resolve) => {
+        const go = () => {
+          queue.active++;
+          void run().finally(() => {
+            queue.active--;
+            queue.waiting.shift()?.();
+            resolve();
+          });
+        };
+        if (queue.active < EXTERNAL_IMAGE_CONCURRENCY) go();
+        else queue.waiting.push(go);
+      }).finally(() => {
+        uploadsRef.current.delete(id);
+        callbacks.current.onPendingUploadsChange?.(uploadsRef.current.size);
+        if (uploadsRef.current.size === 0) leaveViewRef.current?.();
+      });
+      uploadsRef.current.set(id, { controller, done });
+      callbacks.current.onPendingUploadsChange?.(uploadsRef.current.size);
+    },
+    [commitNow],
+  );
+
+  /**
+   * Place the images the paste or drop that just landed left out: each imports where the pasted
+   * content ends (a `data:` image uploads as a file); past the limit, they land as links.
+   */
+  const placeExternalImages = React.useCallback(() => {
+    const images = externalRef.current;
+    externalRef.current = null;
+    const ed = editorRef.current;
+    if (!images?.length || !ed || ed.isDestroyed) return;
+    const at = ed.state.selection.to;
+    let warned = false;
+    const failed = () => {
+      if (warned) return;
+      warned = true;
+      toast.add({ title: EXTERNAL_IMAGE_FAILED });
+    };
+    const links: JSONContent[] = [];
+    images.forEach((image, index) => {
+      if (image.file) {
+        if (index < EXTERNAL_IMAGE_LIMIT) startUpload(image.file, at, "image");
+        pastedFilesRef.current.delete(image.src);
+        URL.revokeObjectURL(image.src);
+      } else if (index < EXTERNAL_IMAGE_LIMIT)
+        startExternalImage(image, at, failed);
+      else
+        links.push({
+          type: "paragraph",
+          content: [
+            {
+              type: "text",
+              text: image.src,
+              marks: [{ type: "link", attrs: { href: image.src } }],
+            },
+          ],
+        });
+    });
+    if (links.length)
+      ed.chain().insertContentAt(blockInsertRange(ed.state, at), links).run();
+  }, [startExternalImage, startUpload]);
+
   /** Set by Mod-Shift-V: the next paste is plain text. */
   const plainPasteRef = React.useRef(false);
 
@@ -5855,7 +6279,29 @@ export function TextEditEditor({
         }
         return false;
       },
-      transformPastedHTML: sanitizePastedHTML,
+      transformPastedHTML: (html) => {
+        // With `onExternalImage`, a pasted `data:` image is kept, as a file to upload.
+        for (const url of pastedFilesRef.current.keys())
+          URL.revokeObjectURL(url);
+        pastedFilesRef.current.clear();
+        const { onExternalImage: importing, onImageUpload: uploading } =
+          callbacks.current;
+        return sanitizePastedHTML(
+          importing && uploading
+            ? dataImagesToBlobs(html, pastedFilesRef.current)
+            : html,
+        );
+      },
+      // With `onExternalImage`, another site's images (and pasted `data:` ones) never enter the
+      // document as they are: they leave the slice and import once the paste or drop has landed.
+      transformPasted: (slice, view) => {
+        if (!callbacks.current.onExternalImage || view.dragging) return slice;
+        const taken = takeExternalImages(slice, pastedFilesRef.current);
+        if (!taken.images.length) return slice;
+        externalRef.current = taken.images;
+        queueMicrotask(placeExternalImages);
+        return taken.slice;
+      },
       // Markdown pasted as plain text is parsed, not inserted verbatim. A bare URL is left to the
       // link extension, which turns it into a link over the selection. Pasted files (a
       // screenshot) upload, when the host takes uploads.
@@ -5864,6 +6310,13 @@ export function TextEditEditor({
       // Inside a code block everything stays literal; Mod-Shift-V pastes as plain text.
       handlePaste: (view, event) => {
         const ed = editorRef.current;
+        // Images taken out of the slice import only when the slice itself is pasted (`passOn`).
+        const external = externalRef.current;
+        externalRef.current = null;
+        const passOn = () => {
+          externalRef.current = external;
+          return false;
+        };
         const files = Array.from(event.clipboardData?.files ?? []);
         const text = event.clipboardData?.getData("text/plain");
         const plain = plainPasteRef.current;
@@ -5890,7 +6343,13 @@ export function TextEditEditor({
           if (from !== to) view.dispatch(view.state.tr.deleteSelection());
           if (uploadFiles(files, view.state.selection.from)) return true;
         }
-        if (!ed || !text || ed.isActive("codeBlock")) return false;
+        if (!ed || !text || ed.isActive("codeBlock")) return passOn();
+        // A lone YouTube or Loom link pasted into an empty paragraph becomes an embed.
+        const embed = plain ? null : embedForPaste(ed, text);
+        if (embed) {
+          pasteEmbed(ed, embed);
+          return true;
+        }
         const insertLiteral = () => {
           ed.commands.insertContent(
             text.split(/\r?\n/).map((line) => ({
@@ -5911,7 +6370,7 @@ export function TextEditEditor({
         if (plain) return insertLiteral();
         const html = event.clipboardData?.getData("text/html");
         const wrapper = html ? codeWrapperKind(html) : null;
-        if (html && !wrapper) return false;
+        if (html && !wrapper) return passOn();
         const fence = singleFence(text);
         if (fence) return insertCode(fence.code, fence.language);
         if (wrapper) {
@@ -5933,6 +6392,7 @@ export function TextEditEditor({
           view.state.selection.from;
         if (!uploadFiles(files, pos)) return false;
         event.preventDefault();
+        externalRef.current = null;
         return true;
       },
     },
@@ -5952,6 +6412,7 @@ export function TextEditEditor({
   }, [editor, diffing, diffDoc]);
 
   editorRef.current = editor;
+  if (editor) EDITOR_EMBEDS.set(editor, embeds);
 
   // The document the host passed in is the committed one until something changes it.
   React.useEffect(() => {

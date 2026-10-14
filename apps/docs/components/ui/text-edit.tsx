@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.25.37 sha256-kaq0mr5bCYLv9+1UP/f8U1lHQcNwDUMy8tcAcDgRwBw=
+// @vegastack text-edit@0.25.37 sha256-8W+PbA7Gq7xorOMp7PsSG19aUCaIGWuttnJlIFwdSyc=
 
 "use client";
 
@@ -17,6 +17,7 @@ import {
   type MarkdownCitation,
 } from "@/components/ui/markdown-view";
 import type { MentionKind } from "@/lib/text-edit-grammar";
+import type { EmbedProviders } from "@/lib/embed-providers";
 import type { FileViewerItem } from "@/components/ui/file-viewer";
 import type { AvatarHue } from "@/components/ui/avatar";
 import type { TextAnchor } from "@/lib/text-anchor";
@@ -966,6 +967,28 @@ export interface TextEditProps {
    */
   onUploadError?: (file: File, error: unknown) => void;
   /**
+   * The video providers shown as players: `EMBED_PROVIDERS` from `@/lib/embed-providers`, or a
+   * subset. Opt-in — without it an `embed` block shows as a link to its URL, a pasted video link
+   * stays a link, and the video panel takes only video files; allow `EMBED_FRAME_ORIGINS` in the
+   * page's `frame-src` before passing it.
+   * @default undefined
+   */
+  embeds?: EmbedProviders;
+  /**
+   * Import an image pasted or dropped from another site: resolve with where your storage keeps a
+   * copy (`src`). Each such image (one whose `src` is not this origin's or a `blob:`) is taken out
+   * of the paste, shows an upload placeholder in its place, and lands as the stored image — or, when
+   * the promise rejects, as a link to the original with the toast "Couldn't import that image. A
+   * link was added instead." A pasted `data:` image uploads as a file through `onImageUpload`.
+   * Up to 20 images a paste (the rest land as links), 3 at a time. Without it, pasted images are
+   * kept as they are.
+   * @default undefined
+   */
+  onExternalImage?: (
+    url: string,
+    options: { signal: AbortSignal },
+  ) => Promise<{ src: string; alt?: string }>;
+  /**
    * A link whose href starts with this renders as a file chip, here and in `MarkdownView`.
    * @default "/api/files/"
    */
@@ -1576,6 +1599,7 @@ export function TextEdit(props: TextEditProps) {
               mentionImage={props.mentionImage}
               citation={props.citation}
               fileLinkPrefix={props.fileLinkPrefix}
+              embeds={props.embeds}
               fileContentType={props.fileContentType}
               typeScale={typeScale}
               onOutlineChange={props.onOutlineChange}

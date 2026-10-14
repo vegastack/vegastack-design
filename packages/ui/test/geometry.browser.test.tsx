@@ -337,6 +337,7 @@ const DYNAMIC_DOM: Record<string, string> = {
   textEditImages: ".ProseMirror[contenteditable]",
   textEditCallouts: ".ProseMirror[contenteditable]",
   textEditBlocks: ".ProseMirror[contenteditable]",
+  textEditEmbeds: ".ProseMirror[contenteditable]",
   textEditComposer: "[data-slot=text-edit]",
   textEditOutline: ".ProseMirror[contenteditable]",
   textEditAnnotations: ".ProseMirror[contenteditable]",

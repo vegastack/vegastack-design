@@ -191,6 +191,25 @@ The constructs `TextEdit`'s Markdown carries beyond GFM render here too, still s
 label)` writes one exactly as `TextEdit` does (the label escapes `\`, `[` and `]`). Both come from
 `@/lib/text-edit-grammar`, which `MarkdownView` installs with it.
 
+### Embeds
+
+A YouTube or Loom link alone on its line (a bare URL, `<url>` or `[url](url)`, in the document, a
+quote, a callout or a toggle) renders, with `embeds={EMBED_PROVIDERS}` (opt-in; without it such a
+line is a plain link), as `TextEdit`'s embed facade, `MarkdownEmbed`: a 16:9 card
+with the provider's glyph, "YouTube video" or "Loom video", and **Play**. The markup is
+server-rendered and nothing loads from the provider until Play, which swaps in a lazy, sandboxed
+player frame whose `src` is rebuilt from the video id — never the URL as written. Printed, it is the
+URL. A link in a sentence, in a list item, or to any other host stays a link. `TextEdit`'s HTML for
+an embed (`div[data-type="embed"]` around its link) renders the same way. The allowlist and the
+`frame-src` origins come from `@/lib/embed-providers`, which `MarkdownView` installs with it:
+`matchEmbed(url)` returns `{ provider, id, start?, src }` or `null`, and `EMBED_FRAME_ORIGINS` is
+the Content-Security-Policy `frame-src` list.
+
+<ComponentPreview
+  name="markdownViewEmbeds"
+  file="components/preview/markdown-view.tsx"
+/>
+
 ### Document type scale
 
 `typeScale="document"` is a page read as a document (TYP-20): 14/24 text — 16/26 on a coarse

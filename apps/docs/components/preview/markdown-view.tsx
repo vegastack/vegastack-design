@@ -3,6 +3,7 @@
 import * as React from "react";
 import type { ReactNode } from "react";
 import { Wrapper } from "./wrapper";
+import { EMBED_PROVIDERS } from "@/lib/embed-providers";
 import { Input } from "@/components/ui/input";
 // Copied INTO apps/docs via `shadcn add @vegastack/markdown-view` (dogfoods the registry) → auto-scanned.
 import {
@@ -199,6 +200,26 @@ Ask [@Asha Rao](mention://user/u1) before changing [@Breaker sizing](mention://p
 
 ## Kitchen circuit
 `;
+
+/**
+ * Embeds — a YouTube or Loom link alone on its line renders as a facade: the provider's glyph, its
+ * name and Play. Nothing loads from the provider until Play; printed, it is the URL.
+ */
+export function markdownViewEmbeds(): ReactNode {
+  return (
+    <Wrapper className="flex-col items-stretch">
+      <MarkdownView embeds={EMBED_PROVIDERS}>
+        {[
+          "The walkthrough:",
+          "",
+          "https://youtu.be/aqz-KE-bpKQ",
+          "",
+          "A link in a sentence stays a link: https://youtu.be/aqz-KE-bpKQ.",
+        ].join("\n")}
+      </MarkdownView>
+    </Wrapper>
+  );
+}
 
 /**
  * TextEdit's Markdown constructs, rendered: mention chips (a page links through `mentionHref`, a
