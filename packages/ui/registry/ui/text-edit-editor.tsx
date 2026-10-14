@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.25.37 sha256-kTMQtqDAhcuQLahFHh74N6vzjiwrSI2DFz+iJp0Ih8E=
+// @vegastack text-edit@0.25.37 sha256-yDhpKAKhH+Kg4DsneY+a6sQJniGiKgxm9pkdhcoIWFw=
 
 "use client";
 
@@ -3195,7 +3195,7 @@ function toggleView(runtime: ToggleRuntime) {
         data-open={open ? "" : undefined}
         // The body hides when closed. Tiptap's React content box nests the blocks one level down
         // (`[data-node-view-content-react]`), so the rules reach the summary's siblings, not children.
-        className="group/toggle relative my-2 ps-6 [&_[data-slot=toggle-summary]]:min-h-6 [&_[data-slot=toggle-summary]]:py-0.5 [&_[data-slot=toggle-summary]]:font-medium [&:not([data-open])_[data-slot=toggle-summary]~*]:hidden"
+        className="group/toggle relative my-2 ps-6 [&_[data-slot=toggle-summary]]:min-h-6 [&_[data-slot=toggle-summary]]:py-0.5 [&_[data-slot=toggle-summary]]:font-medium [&:not([data-open])_[data-slot=toggle-summary]~*]:hidden print:[&:not([data-open])_[data-slot=toggle-summary]~*]:block print:[&_[data-slot=toggle-chevron]]:hidden print:[&_[data-slot=toggle-options]]:hidden"
       >
         <Button
           type="button"
