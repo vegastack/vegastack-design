@@ -423,7 +423,7 @@
         "whenToUse": "A page's version history beside a DiffView, in a sheet.",
         "whenNotToUse": "An activity feed (Timeline) or a list of records (DataList).",
         "version": "0.25.35",
-        "integrity": "sha256-dUgEO+YP33S9OSMgVKEz6e/D/YmjdyvlLwZ/3bpkI1o="
+        "integrity": "sha256-f/df310mlcVxKKUl2ZnMOC1EjSZg7xMS/edAAeH+Yc8="
       }
     },
     {

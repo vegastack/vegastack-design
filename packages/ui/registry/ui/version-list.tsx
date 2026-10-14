@@ -1,4 +1,4 @@
-// @vegastack version-list@0.25.35 sha256-dUgEO+YP33S9OSMgVKEz6e/D/YmjdyvlLwZ/3bpkI1o=
+// @vegastack version-list@0.25.35 sha256-f/df310mlcVxKKUl2ZnMOC1EjSZg7xMS/edAAeH+Yc8=
 
 "use client";
 
@@ -266,6 +266,8 @@ export function VersionList({
                           date={version.at}
                           mode="day"
                           withTime
+                          // Alone on its line (no author before it): it starts the line.
+                          capitalize={!version.author}
                           now={now}
                           className="shrink-0 tabular-nums"
                         />
