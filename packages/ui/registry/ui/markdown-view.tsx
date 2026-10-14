@@ -1,4 +1,4 @@
-// @vegastack markdown-view@0.25.38 sha256-UTC1SDx3owyr8yguF5YJ5uKZOO3qI+Q5XShY0qO5YxY=
+// @vegastack markdown-view@0.25.38 sha256-XeSCQU06cpUk/BX4d6dFffqwGXSUjceVTyQYjZdEdh4=
 
 import * as React from "react";
 import { Lexer, type Token, type Tokens } from "marked";
@@ -31,6 +31,7 @@ import {
   type MentionKind,
 } from "@/lib/text-edit-grammar";
 import { resolveAnchor } from "@/lib/text-anchor";
+import { matchEmbed, type EmbedProviders } from "@/lib/embed-providers";
 // The client leaves: a citation marker's popover, and the behaviour after render (table scroll
 // cue, outline, find, print, highlight layout, heading links). Each renders only when asked for.
 import {
@@ -38,6 +39,7 @@ import {
   type MarkdownCitation,
 } from "@/components/ui/markdown-citation";
 import {
+  MarkdownEmbed,
   MarkdownBlockView,
   MarkdownHeadingLink,
   MarkdownTableScroll,
@@ -48,6 +50,7 @@ import {
 } from "@/components/ui/markdown-view-client";
 
 export type { MarkdownCitation } from "@/components/ui/markdown-citation";
+export { MarkdownEmbed } from "@/components/ui/markdown-view-client";
 import type { BlockViews } from "@/components/ui/block-view";
 export type {
   BlockView,
@@ -57,6 +60,7 @@ export type {
   BlockViews,
 } from "@/components/ui/block-view";
 export type {
+  MarkdownEmbedProps,
   MarkdownAnnotationLayout,
   MarkdownOutlineItem,
 } from "@/components/ui/markdown-view-client";
@@ -328,7 +332,11 @@ function inline(tokens: Token[] | undefined): DocNode[] {
 }
 
 function listItem(item: Tokens.ListItem): El {
-  const body = blocks(item.tokens.filter((t) => t.type !== "checkbox"));
+  // A list item's lone video link stays a link, as in `TextEdit` (an embed is a block of its own).
+  const body = blocks(
+    item.tokens.filter((t) => t.type !== "checkbox"),
+    false,
+  );
   if (!item.task) return el("li", {}, body);
   return el(
     "li",
@@ -358,7 +366,22 @@ function toggleClose(tokens: Token[], start: number): number {
   return -1;
 }
 
-function blocks(tokens: Token[]): DocNode[] {
+/**
+ * A paragraph that is only a link to its own URL (a bare URL, `<url>`, `[url](url)`; no title) on
+ * an allowlisted video host: an embed — the rule `TextEdit`'s Markdown parse applies.
+ */
+function embedOf(paragraph: Tokens.Generic): El | null {
+  const parts = (paragraph.tokens ?? []) as Tokens.Generic[];
+  const link = parts.length === 1 ? parts[0]! : null;
+  if (link?.type !== "link" || link.title) return null;
+  const href = decode(String(link.href ?? ""));
+  const text = inline(link.tokens);
+  if (text.length !== 1 || text[0] !== href || !matchEmbed(href)) return null;
+  return el("embed", { url: href });
+}
+
+/** `embeds`: a lone video link here is an embed (the document, a quote, a callout, a toggle). */
+function blocks(tokens: Token[], embeds = true): DocNode[] {
   const out: DocNode[] = [];
   for (let index = 0; index < tokens.length; index++) {
     const t = tokens[index] as Tokens.Generic;
@@ -374,6 +397,11 @@ function blocks(tokens: Token[]): DocNode[] {
         const media = MEDIA_BLOCK.exec(String(t.raw ?? "").trim());
         if (media) {
           out.push(el(media[1]!, { src: decode(media[2]!) }));
+          break;
+        }
+        const embed = embeds ? embedOf(t) : null;
+        if (embed) {
+          out.push(embed);
           break;
         }
         // Images are blocks (as in TextEdit): each one gets a paragraph of its own, the text
@@ -719,7 +747,7 @@ function anchorTextOf(holder: El): { text: string; pieces: TextPiece[] } {
       if (child.tag === "pre") {
         block();
         text += textOf(child).replace(/\n$/, "");
-      } else if (["hr", "video", "audio"].includes(child.tag)) {
+      } else if (["hr", "video", "audio", "embed"].includes(child.tag)) {
         block();
         text += LEAF_TEXT;
       } else if (TEXT_BLOCKS.has(child.tag)) {
@@ -962,7 +990,26 @@ function fromHtml(source: string): DocNode[] {
     if (!VOID_TAGS.has(tag)) stack.push(node);
   }
   text(source.slice(cursor));
-  return root.children;
+  return withEmbeds(root.children);
+}
+
+/**
+ * `TextEdit`'s HTML for a video embed — a link inside `div[data-type=embed]` — as the tree's embed
+ * node, when its link is an allowlisted video URL; any other such `div` keeps its link.
+ */
+function withEmbeds(nodes: DocNode[]): DocNode[] {
+  return nodes.map((node) => {
+    if (typeof node === "string") return node;
+    if (node.tag === "div" && node.attrs["data-type"] === "embed") {
+      const link = node.children.find(
+        (child): child is El => typeof child !== "string" && child.tag === "a",
+      );
+      const url = link?.attrs.href ?? "";
+      if (matchEmbed(url)) return el("embed", { url });
+    }
+    node.children = withEmbeds(node.children);
+    return node;
+  });
 }
 
 /* ------------------------------------------------------------------------------------------------
@@ -1067,6 +1114,7 @@ interface RenderContext {
   mentionHref?: (kind: MentionKind, id: string) => string | null;
   mentionImage?: (id: string) => string | null | undefined;
   fileLinkPrefix: string;
+  embeds?: EmbedProviders;
   fileContentType?: (href: string) => string | null | undefined;
   citation?: (n: number) => MarkdownCitation | null | undefined;
   /** Fenced languages drawn by a block view (```mermaid → a diagram). */
@@ -1536,6 +1584,10 @@ function renderNode(
           {children()}
         </summary>
       );
+    case "embed":
+      return (
+        <MarkdownEmbed key={key} url={attrs.url ?? ""} providers={ctx.embeds} />
+      );
     case "video":
     case "audio": {
       const src = safeUrl(attrs.src ?? "");
@@ -1801,6 +1853,13 @@ export interface MarkdownViewProps extends React.ComponentPropsWithRef<"div"> {
    */
   fileLinkPrefix?: string;
   /**
+   * The video providers whose links alone on a line render as a player facade (`MarkdownEmbed`):
+   * `EMBED_PROVIDERS` from `@/lib/embed-providers`, or a subset. Opt-in — without it such a line is
+   * a plain link, so nothing is framed until the page allows `EMBED_FRAME_ORIGINS` in `frame-src`.
+   * @default undefined
+   */
+  embeds?: EmbedProviders;
+  /**
    * A file chip's content type, by its href, when the host knows it (a comment's own files): the
    * chip's icon then follows the type, not only the name's extension.
    * @default undefined
@@ -1887,6 +1946,7 @@ export function MarkdownView({
   mentionHref,
   mentionImage,
   fileLinkPrefix = "/api/files/",
+  embeds,
   fileContentType,
   citation,
   blockViews,
@@ -1993,6 +2053,7 @@ export function MarkdownView({
         mentionHref,
         mentionImage,
         fileLinkPrefix,
+        embeds,
         fileContentType,
         citation,
         blockViews,

@@ -2,14 +2,14 @@
   "schemaVersion": 1,
   "kind": "vegastack-zero-gap-audit-register",
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "de3a407f98f537886f8f3e7965250ddc566feffe8be1ef21c9fcf01599aff121",
+  "contractSha256": "bac52f75c153e2785b38ca2d0fdf521e4b33ef2842c9b4a99a985df475811bcc",
   "expectedCounts": {
-    "totalRegistryItems": 748,
+    "totalRegistryItems": 749,
     "components": 164,
     "animatedIcons": 467,
     "hooks": 15,
     "blocks": 15,
-    "libs": 19,
+    "libs": 20,
     "chartBlocks": 68
   },
   "records": [
@@ -8152,6 +8152,17 @@
       "family": "lib",
       "sourceFiles": [
         "packages/ui/registry/lib/text-edit-grammar.ts"
+      ],
+      "docsSlug": "/docs/guides/components",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "embed-providers",
+      "inventoryClass": "lib",
+      "wave": "Libs",
+      "family": "lib",
+      "sourceFiles": [
+        "packages/ui/registry/lib/embed-providers.ts"
       ],
       "docsSlug": "/docs/guides/components",
       "contractStatus": "reconciled"

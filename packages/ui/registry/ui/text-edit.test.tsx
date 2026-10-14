@@ -14,6 +14,7 @@ import {
 } from "./text-edit";
 import { anchorFromRange } from "../lib/text-anchor";
 import { markdownToDoc } from "../lib/text-edit-markdown";
+import { EMBED_PROVIDERS } from "../lib/embed-providers";
 import * as Y from "yjs";
 import {
   Awareness,
@@ -3874,6 +3875,226 @@ test("on a coarse pointer the selection bubble opens below the selection", async
   );
 });
 
+// ---- Embeds (YouTube, Loom) and external images (B.2) ------------------------------------------
+
+const YOUTUBE = "https://youtu.be/dQw4w9WgXcQ?si=tracking";
+
+function pasteData(target: Element, data: Record<string, string>) {
+  const transfer = new DataTransfer();
+  for (const [type, value] of Object.entries(data))
+    transfer.setData(type, value);
+  target.dispatchEvent(
+    new ClipboardEvent("paste", {
+      clipboardData: transfer,
+      bubbles: true,
+      cancelable: true,
+    }),
+  );
+}
+
+test("embeds: a lone YouTube link pasted into an empty paragraph is a facade; Undo makes it a link", async () => {
+  const { toast } = await import("./toast");
+  const add = vi.spyOn(toast, "add");
+  onTestFinished(() => add.mockRestore());
+  const onValueChange = vi.fn();
+  const screen = await markdownEditor({
+    defaultValue: "Intro",
+    embeds: EMBED_PROVIDERS,
+    onValueChange,
+  });
+  const box = screen.getByRole("textbox", { name: "Notes" });
+  await box.click();
+  await userEvent.keyboard(`${END}{Enter}`);
+  pasteData(box.element(), { "text/plain": YOUTUBE });
+  // The URL as written is the Markdown; the facade loads nothing from YouTube until Play.
+  await vi.waitFor(() =>
+    expect(lastValue(onValueChange)).toBe(`Intro\n\n${YOUTUBE}`),
+  );
+  const play = screen.getByRole("button", { name: "Play YouTube video" });
+  await expect.element(play).toBeInTheDocument();
+  expect(box.element().querySelector("iframe")).toBeNull();
+  const notice = add.mock.calls.at(-1)?.[0] as {
+    title: string;
+    actionProps: { children: string; onClick: () => void };
+  };
+  expect(notice.title).toBe("Embedded");
+  expect(notice.actionProps.children).toBe("Undo");
+  notice.actionProps.onClick();
+  await vi.waitFor(() =>
+    expect(lastValue(onValueChange)).toBe(`Intro\n\n[${YOUTUBE}](${YOUTUBE})`),
+  );
+  // Pasted beside text, the same link stays a link.
+  await userEvent.keyboard(`${END}{Enter}See `);
+  pasteData(box.element(), {
+    "text/plain": "https://www.loom.com/share/0281766fa2d04bb788eaf19e65135184",
+  });
+  await vi.waitFor(() => expect(lastValue(onValueChange)).toContain("See "));
+  expect(
+    box.element().querySelector('[data-slot="markdown-embed"]'),
+  ).toBeNull();
+});
+
+test("embeds: Play builds the player from the video id, sandboxed, with its own referrer policy", async () => {
+  const screen = await render(
+    <TextEdit
+      format="markdown"
+      aria-label="Notes"
+      defaultValue={
+        "https://www.youtube.com/watch?v=dQw4w9WgXcQ&t=1m2s&utm_source=x"
+      }
+      embeds={EMBED_PROVIDERS}
+      readOnly
+    />,
+  );
+  const play = screen.getByRole("button", { name: "Play YouTube video" });
+  await play.click();
+  const frame = screen.container.querySelector("iframe")!;
+  expect(frame.getAttribute("src")).toBe(
+    "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ?start=62",
+  );
+  expect(frame.getAttribute("title")).toBe("YouTube video");
+  expect(frame.getAttribute("loading")).toBe("lazy");
+  expect(frame.getAttribute("referrerpolicy")).toBe(
+    "strict-origin-when-cross-origin",
+  );
+  expect(frame.getAttribute("sandbox")).toBe(
+    "allow-scripts allow-same-origin allow-popups allow-presentation",
+  );
+  expect(frame.getAttribute("allow")).toBe(
+    "fullscreen; picture-in-picture; encrypted-media",
+  );
+});
+
+test("embeds: the Video slash item embeds a YouTube or Loom link, and refuses a page link", async () => {
+  const onValueChange = vi.fn();
+  const screen = await markdownEditor({
+    embeds: EMBED_PROVIDERS,
+    onValueChange,
+  });
+  await screen.getByRole("textbox", { name: "Notes" }).click();
+  await userEvent.keyboard("/youtube{Enter}");
+  await vi.waitFor(() =>
+    expect(document.querySelector('[aria-label="Video URL"]')).not.toBeNull(),
+  );
+  await userEvent.keyboard("https://example.com/page{Enter}");
+  await vi.waitFor(() =>
+    expect(
+      document.querySelector('[data-slot="text-edit-media"] [role="alert"]')
+        ?.textContent,
+    ).toBe("Paste a YouTube or Loom link"),
+  );
+  await userEvent.clear(
+    document.querySelector<HTMLInputElement>('[aria-label="Video URL"]')!,
+  );
+  await userEvent.keyboard(
+    "https://www.loom.com/share/0281766fa2d04bb788eaf19e65135184{Enter}",
+  );
+  await vi.waitFor(() =>
+    expect(lastValue(onValueChange)).toBe(
+      "https://www.loom.com/share/0281766fa2d04bb788eaf19e65135184",
+    ),
+  );
+  await expect
+    .element(screen.getByRole("button", { name: "Play Loom video" }))
+    .toBeInTheDocument();
+});
+
+test("external images: another site's image imports through onExternalImage; a failed one lands as a link", async () => {
+  const { toast } = await import("./toast");
+  const add = vi.spyOn(toast, "add");
+  onTestFinished(() => add.mockRestore());
+  const resolvers = new Map<string, (value: { src: string }) => void>();
+  const onExternalImage = vi.fn(
+    (url: string) =>
+      new Promise<{ src: string }>((resolve, reject) => {
+        if (url.includes("dog")) reject(new Error("blocked"));
+        else resolvers.set(url, resolve);
+      }),
+  );
+  const onValueChange = vi.fn();
+  const screen = await markdownEditor({
+    defaultValue: "Intro",
+    onExternalImage,
+    onValueChange,
+  });
+  const box = screen.getByRole("textbox", { name: "Notes" });
+  await box.click();
+  await userEvent.keyboard(`${END}{Enter}`);
+  pasteData(box.element(), {
+    "text/html":
+      '<p>Look</p><img src="https://cdn.example.com/cat.png" alt="Cat"><img src="https://cdn.example.com/dog.png" alt="Dog">',
+    "text/plain": "Look",
+  });
+  await vi.waitFor(() =>
+    expect(onExternalImage).toHaveBeenCalledWith(
+      "https://cdn.example.com/cat.png",
+      { signal: expect.any(AbortSignal) },
+    ),
+  );
+  // The other site's address never enters the document as an image.
+  expect(box.element().querySelector('img[src^="https://cdn"]')).toBeNull();
+  await vi.waitFor(() =>
+    expect(lastValue(onValueChange)).toContain(
+      "[https://cdn.example.com/dog.png](https://cdn.example.com/dog.png)",
+    ),
+  );
+  expect(add).toHaveBeenCalledWith({
+    title: "Couldn't import that image. A link was added instead.",
+  });
+  expect(
+    box.element().querySelector('[data-slot="text-edit-upload"]'),
+  ).not.toBeNull();
+  resolvers.get("https://cdn.example.com/cat.png")!({ src: "/api/files/cat" });
+  await vi.waitFor(() =>
+    expect(lastValue(onValueChange)).toContain("![Cat](/api/files/cat)"),
+  );
+  expect(lastValue(onValueChange)).not.toContain("cat.png");
+  expect(
+    box.element().querySelector('[data-slot="text-edit-upload"]'),
+  ).toBeNull();
+});
+
+test("external images: without onExternalImage a pasted image is kept as it is", async () => {
+  const onValueChange = vi.fn();
+  const screen = await markdownEditor({ onValueChange });
+  const box = screen.getByRole("textbox", { name: "Notes" });
+  await box.click();
+  pasteData(box.element(), {
+    "text/html": '<img src="https://cdn.example.com/cat.png" alt="Cat">',
+    "text/plain": "",
+  });
+  await vi.waitFor(() =>
+    expect(lastValue(onValueChange)).toBe(
+      "![Cat](https://cdn.example.com/cat.png)",
+    ),
+  );
+});
+
+test("embeds: without the embeds prop an embed is a link and a pasted video link stays a link", async () => {
+  const onValueChange = vi.fn();
+  const screen = await markdownEditor({
+    defaultValue: YOUTUBE,
+    onValueChange,
+  });
+  const box = screen.getByRole("textbox", { name: "Notes" });
+  await vi.waitFor(() =>
+    expect(
+      box.element().querySelector('[data-slot="markdown-embed-link"] a'),
+    ).not.toBeNull(),
+  );
+  expect(box.element().querySelector("button")).toBeNull();
+  await box.click();
+  await userEvent.keyboard(`${END}{Enter}`);
+  pasteData(box.element(), {
+    "text/plain": "https://www.loom.com/share/0281766fa2d04bb788eaf19e65135184",
+  });
+  await vi.waitFor(() =>
+    expect(lastValue(onValueChange)).toBe(
+      `${YOUTUBE}\n\n[https://www.loom.com/share/0281766fa2d04bb788eaf19e65135184](https://www.loom.com/share/0281766fa2d04bb788eaf19e65135184)`,
+    ),
+  );
+});
+
 /* --- B.2: host slash items, emoji, find & replace, block menu, stats --------------------------- */
 
 const suggestionMenu = (name: string) =>
@@ -4014,6 +4235,9 @@ test("find & replace: ⌘F opens the bar, Enter steps the matches, Replace all i
   await vi.waitFor(() =>
     expect(document.querySelector('[data-slot="text-edit-find"]')).toBeNull(),
   );
+  // Esc gives the caret back to the editor: undo only once it is there.
+  const editor = screen.getByRole("textbox", { name: "Notes" }).element();
+  await vi.waitFor(() => expect(document.activeElement).toBe(editor));
   // One undo step brings both back.
   await userEvent.keyboard(`{${MOD}>}z{/${MOD}}`);
   await vi.waitFor(() =>

@@ -1,4 +1,4 @@
-// @vegastack text-edit-schema@0.25.38 sha256-Fkpz51Zpee9QH1VDhjFHqQ5z5iKKR3GCU7gPuLHW60A=
+// @vegastack text-edit-schema@0.25.38 sha256-1Hcwkx5sLaSrGQ0vyYhsXD7nPDFd68ZS62Mfrl32VMA=
 
 import {
   Extension,
@@ -46,6 +46,7 @@ import {
   parseImageAlt,
   parseMentionLink,
 } from "@/lib/text-edit-grammar";
+import { matchEmbed, type EmbedProviderId } from "@/lib/embed-providers";
 
 /**
  * text-edit-schema — `TextEdit`'s document schema as plain Tiptap extensions: every node, mark and
@@ -74,7 +75,8 @@ export type TextEditNodeView =
   | "callout"
   | "toggle"
   | "video"
-  | "audio";
+  | "audio"
+  | "embed";
 
 /** What `textEditExtensions` takes. Every option is client-only: none changes the schema. */
 export interface TextEditSchemaOptions {
@@ -112,6 +114,7 @@ export const BLOCK_ID_TYPES = [
   "callout",
   "table",
   "codeBlock",
+  "embed",
 ] as const;
 
 const BASE32 = "abcdefghijklmnopqrstuvwxyz234567";
@@ -347,6 +350,8 @@ function cellLines(
     case "video":
     case "audio":
       return [`${prefix}${String(node.attrs?.src ?? "")}`];
+    case "embed":
+      return [`${prefix}${String(node.attrs?.url ?? "")}`];
     default:
       return children.flatMap((child) => cellLines(child, h, prefix));
   }
@@ -1312,6 +1317,111 @@ function mediaNode(
 }
 
 /**
+ * A URL written alone on its line reads back as a link to itself (a GFM autolink): plain, or — when
+ * its last character would be read as trailing punctuation, or it holds one GFM would not keep —
+ * between `<` and `>`. Either way the parse gets the same `href`, and the same text.
+ */
+function autolinkMarkdown(url: string): string {
+  return /^https:\/\/[^\s<>()[\]{}|\\^`"'*~;]*[A-Za-z0-9/=-]$/.test(url)
+    ? url
+    : `<${url}>`;
+}
+
+/**
+ * Where a lone video URL is a block of its own — an embed: the document, a quote, a callout, a
+ * toggle. In a list item or a table cell it stays a link (a line of an item, a cell's text).
+ */
+export const EMBED_CONTAINERS: ReadonlySet<string> = new Set([
+  "doc",
+  "blockquote",
+  "callout",
+  "toggle",
+]);
+
+/**
+ * The embed a lone link is, when it is one: a paragraph holding only a link whose text is its own
+ * URL (a bare URL, `<url>` or `[url](url)`, with no title) to an allowlisted video host
+ * (`embed-providers`). Any other lone URL stays a link.
+ */
+export function embedOfParagraph(
+  paragraph: JSONContent,
+): { type: "embed"; attrs: { provider: EmbedProviderId; url: string } } | null {
+  const [only, ...rest] = paragraph.content ?? [];
+  if (paragraph.type !== "paragraph" || !only || rest.length) return null;
+  if (only.type !== "text" || only.marks?.length !== 1) return null;
+  const link = only.marks[0]!;
+  const href = link.attrs?.href;
+  if (link.type !== "link" || link.attrs?.title || href !== only.text)
+    return null;
+  const match = matchEmbed(String(href));
+  return match
+    ? { type: "embed", attrs: { provider: match.provider, url: String(href) } }
+    : null;
+}
+
+/**
+ * A YouTube or Loom video — an atom block `{ provider, url }`, `url` as written (the player's
+ * address is always rebuilt from the id `embed-providers` reads out of it, never taken from `url`).
+ * Its Markdown is the URL alone on its line, which any other reader shows as a link; the parse
+ * makes such a line an embed again (`text-edit-markdown`). In HTML it is a link inside a
+ * `div[data-type=embed]`, so a reader without the facade still has the address.
+ */
+function embedNode(view: (() => NodeViewRenderer) | undefined) {
+  return Node.create({
+    name: "embed",
+    group: "block",
+    atom: true,
+    draggable: true,
+    selectable: true,
+    addAttributes() {
+      return {
+        provider: {
+          default: null,
+          parseHTML: (element) => element.getAttribute("data-provider"),
+          renderHTML: (attrs) =>
+            attrs.provider ? { "data-provider": attrs.provider } : {},
+        },
+        url: {
+          default: null,
+          parseHTML: (element) =>
+            element.getAttribute("data-url") ??
+            element.querySelector("a")?.getAttribute("href") ??
+            null,
+          renderHTML: (attrs) => (attrs.url ? { "data-url": attrs.url } : {}),
+        },
+      };
+    },
+    parseHTML() {
+      return [
+        {
+          tag: "div[data-type=embed]",
+          // Only an allowlisted URL is an embed; anything else is read as its contents (a link).
+          getAttrs: (element) => {
+            const url =
+              element.getAttribute("data-url") ??
+              element.querySelector("a")?.getAttribute("href") ??
+              "";
+            const match = matchEmbed(url);
+            return match ? { provider: match.provider, url } : false;
+          },
+        },
+      ];
+    },
+    renderHTML({ node, HTMLAttributes }) {
+      const url = String(node.attrs.url ?? "");
+      return [
+        "div",
+        mergeAttributes({ "data-type": "embed" }, HTMLAttributes),
+        ["a", { href: url, ...LINK_ATTRIBUTES }, url],
+      ];
+    },
+    renderText: ({ node }) => String(node.attrs.url ?? ""),
+    renderMarkdown: (node) => autolinkMarkdown(String(node.attrs?.url ?? "")),
+    ...(view ? { addNodeView: view } : {}),
+  });
+}
+
+/**
  * A link whose href starts with the file prefix is a file (`[report.pdf](/api/files/…)`): it
  * renders with `data-slot="file-chip"`. The Markdown is an ordinary link.
  */
@@ -1406,6 +1516,7 @@ export function textEditExtensions(
     ToggleSummary,
     mediaNode("video", view.video),
     mediaNode("audio", view.audio),
+    embedNode(view.embed),
     fileChipAttribute(options.fileLinkPrefix ?? (() => "")),
     // Stable block ids: the attribute is always in the schema; only a collaborative editor assigns
     // ids as blocks appear (a server assigns them when it converts Markdown: `markdownToDoc`).

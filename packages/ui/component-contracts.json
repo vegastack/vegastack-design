@@ -12,12 +12,12 @@
     "evidencePolicy": "Observed fields come from source, registry metadata, docs, and test topology. Unknown/not-applicable values are explicit; no inferred behavior is presented as verified."
   },
   "expectedCounts": {
-    "totalRegistryItems": 748,
+    "totalRegistryItems": 749,
     "components": 164,
     "animatedIcons": 467,
     "hooks": 15,
     "blocks": 15,
-    "libs": 19,
+    "libs": 20,
     "chartBlocks": 68
   },
   "expectedWaveCounts": {
@@ -15952,6 +15952,25 @@
             "status": "not-applicable",
             "rationale": "Type-only exports do not render or accept runtime refs."
           }
+        },
+        {
+          "name": "MarkdownEmbed",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/markdown-view-client.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "element",
+            "rationale": "The ref reaches the embed's root div through its props."
+          }
+        },
+        {
+          "name": "MarkdownEmbedProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/markdown-view-client.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
         }
       ],
       "variants": {
@@ -16016,16 +16035,17 @@
       "docsSlug": "/docs/components/markdown-view",
       "registryDependencies": [
         "@vegastack/alert",
+        "@vegastack/block-view",
         "@vegastack/button",
         "@vegastack/checkbox",
         "@vegastack/code-block",
         "@vegastack/copy-button",
+        "@vegastack/embed-providers",
         "@vegastack/inline-chip",
         "@vegastack/popover",
         "@vegastack/text-anchor",
         "@vegastack/text-edit-grammar",
-        "@vegastack/use-announcer",
-        "@vegastack/block-view"
+        "@vegastack/use-announcer"
       ],
       "npmDependencies": [
         "marked@^17.0.1",
@@ -16080,6 +16100,40 @@
             {
               "name": "data-slot",
               "values": ["markdown-heading-link"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "MarkdownEmbed": {
+          "attributes": [
+            {
+              "name": "data-anchor-block",
+              "values": [""]
+            },
+            {
+              "name": "data-anchor-text",
+              "values": []
+            },
+            {
+              "name": "data-icon",
+              "values": ["inline-start"]
+            },
+            {
+              "name": "data-playing",
+              "values": [""]
+            },
+            {
+              "name": "data-provider",
+              "values": []
+            },
+            {
+              "name": "data-slot",
+              "values": [
+                "markdown-embed",
+                "markdown-embed-frame",
+                "markdown-embed-link",
+                "markdown-embed-url"
+              ]
             }
           ],
           "cssVariables": []
@@ -25276,6 +25330,7 @@
       "registryDependencies": [
         "@vegastack/alert",
         "@vegastack/avatar",
+        "@vegastack/block-view",
         "@vegastack/button",
         "@vegastack/checkbox",
         "@vegastack/code-block",
@@ -25285,6 +25340,7 @@
         "@vegastack/drag-item",
         "@vegastack/dropdown-menu",
         "@vegastack/dropzone",
+        "@vegastack/embed-providers",
         "@vegastack/emoji-data",
         "@vegastack/empty",
         "@vegastack/file-kind",
@@ -25306,8 +25362,7 @@
         "@vegastack/toggle",
         "@vegastack/tooltip",
         "@vegastack/use-announcer",
-        "@vegastack/use-file-drop",
-        "@vegastack/block-view"
+        "@vegastack/use-file-drop"
       ],
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
@@ -42356,6 +42411,169 @@
       }
     },
     {
+      "name": "embed-providers",
+      "registryType": "registry:lib",
+      "title": "Embed Providers",
+      "summary": "The video hosts a document may embed — YouTube (played from youtube-nocookie.com) and Loom: matchEmbed reads a URL's provider, video id and YouTube start time; each provider's src rebuilds the player URL from the id alone; EMBED_FRAME_ORIGINS is the frame-src allowlist and EMBED_FRAME_ATTRIBUTES the player frame's sandbox, allow and referrer policy. No dependencies; server-safe.",
+      "family": "lib",
+      "wave": "Libs",
+      "sourceFiles": ["packages/ui/registry/lib/embed-providers.ts"],
+      "publicSymbols": [
+        {
+          "name": "EmbedProviderId",
+          "kind": "type",
+          "source": "packages/ui/registry/lib/embed-providers.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "EmbedSrcOptions",
+          "kind": "interface",
+          "source": "packages/ui/registry/lib/embed-providers.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "EmbedProvider",
+          "kind": "interface",
+          "source": "packages/ui/registry/lib/embed-providers.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "EmbedProviders",
+          "kind": "type",
+          "source": "packages/ui/registry/lib/embed-providers.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "EmbedMatch",
+          "kind": "interface",
+          "source": "packages/ui/registry/lib/embed-providers.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "parseYouTubeTime",
+          "kind": "function",
+          "source": "packages/ui/registry/lib/embed-providers.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A pure function; it renders nothing and takes no ref."
+          }
+        },
+        {
+          "name": "EMBED_PROVIDERS",
+          "kind": "constant",
+          "source": "packages/ui/registry/lib/embed-providers.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A constant; it renders nothing and takes no ref."
+          }
+        },
+        {
+          "name": "EMBED_PROVIDER_IDS",
+          "kind": "constant",
+          "source": "packages/ui/registry/lib/embed-providers.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A constant; it renders nothing and takes no ref."
+          }
+        },
+        {
+          "name": "EMBED_FRAME_ORIGINS",
+          "kind": "constant",
+          "source": "packages/ui/registry/lib/embed-providers.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A constant; it renders nothing and takes no ref."
+          }
+        },
+        {
+          "name": "EMBED_FRAME_ATTRIBUTES",
+          "kind": "constant",
+          "source": "packages/ui/registry/lib/embed-providers.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A constant; it renders nothing and takes no ref."
+          }
+        },
+        {
+          "name": "matchEmbed",
+          "kind": "function",
+          "source": "packages/ui/registry/lib/embed-providers.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A pure function; it renders nothing and takes no ref."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "A pure module renders nothing and has no variant surface."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "A pure module renders nothing and has no size scale."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned motion mechanism observed."
+        }
+      },
+      "engines": [],
+      "registryDependencies": [],
+      "docsSlug": "/docs/guides/components",
+      "states": {
+        "behavior": {
+          "status": "not-applicable",
+          "values": ["not-applicable"],
+          "evidence": "Pure functions over a URL; no state."
+        },
+        "accessibility": {
+          "status": "not-applicable",
+          "values": ["not-applicable"],
+          "evidence": "No DOM — TextEdit and MarkdownView own the semantics of what they render."
+        },
+        "visual": {
+          "status": "not-applicable",
+          "values": ["not-applicable"],
+          "evidence": "Returns ids, URLs and attribute values; renders nothing."
+        }
+      },
+      "responsive": {
+        "status": "not-applicable",
+        "risks": [],
+        "rationale": "No DOM of its own; consumers own layout."
+      },
+      "npmDependencies": [],
+      "testFiles": ["packages/ui/registry/lib/embed-providers.test.ts"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "shared-guide-only",
+        "navigation": "exempt",
+        "preview": "exempt",
+        "vrt": "exempt"
+      }
+    },
+    {
       "name": "text-edit-schema",
       "registryType": "registry:lib",
       "title": "Text Edit Schema",
@@ -42489,6 +42707,24 @@
             "status": "not-applicable",
             "rationale": "A pure function; it renders nothing and takes no ref."
           }
+        },
+        {
+          "name": "EMBED_CONTAINERS",
+          "kind": "constant",
+          "source": "packages/ui/registry/lib/text-edit-schema.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A constant; it renders nothing and takes no ref."
+          }
+        },
+        {
+          "name": "embedOfParagraph",
+          "kind": "function",
+          "source": "packages/ui/registry/lib/text-edit-schema.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A pure function; it renders nothing and takes no ref."
+          }
         }
       ],
       "variants": {
@@ -42515,7 +42751,10 @@
           "role": "document schema (nodes, marks, Markdown rules)"
         }
       ],
-      "registryDependencies": ["@vegastack/text-edit-grammar"],
+      "registryDependencies": [
+        "@vegastack/embed-providers",
+        "@vegastack/text-edit-grammar"
+      ],
       "docsSlug": "/docs/guides/components",
       "states": {
         "behavior": {

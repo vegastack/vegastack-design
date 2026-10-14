@@ -639,6 +639,63 @@ import { mermaidBlockView } from "@/components/ui/mermaid-block";
 />;
 ```
 
+### Embeds and external images
+
+A YouTube or Loom link alone on its line is an `embed` block — an atom `{ provider, url }`
+(`provider` is `"youtube"` or `"loom"`) with a stable `blockId`, selectable and draggable like an
+image. Its Markdown is the URL as written, alone on its line, so every other reader shows a link;
+the parse makes a paragraph that holds only such a link (a bare URL, `<url>`, or `[url](url)` with
+no title) an embed again — in the document, a quote, a callout or a toggle. A lone link to any other
+host, a link with other text, and one in a list item or a table cell stay links. In HTML it is a
+link inside `div[data-type="embed"]`.
+
+Players are opt-in: pass `embeds={EMBED_PROVIDERS}` (from `@/lib/embed-providers`, or a subset
+such as `{ youtube: EMBED_PROVIDERS.youtube }`) once the page's Content-Security-Policy allows
+`EMBED_FRAME_ORIGINS` in `frame-src`. Without it an `embed` block shows as a link to its URL, a
+pasted video link stays a link, and the video panel's Link tab takes only video files — the
+document and its Markdown are the same either way.
+
+With `embeds`, the block draws a facade: a 16:9 card with the provider's glyph, "YouTube video" or "Loom video",
+and **Play** (`aria-label="Play YouTube video"`). Nothing is requested from the provider until
+Play; then a lazy, sandboxed player frame takes the card's place — its `src` is rebuilt from the
+video id (`https://www.youtube-nocookie.com/embed/<id>`, a YouTube `t=` carried as `?start=`;
+`https://www.loom.com/embed/<id>`), never taken from the URL, and it carries its own
+`referrerpolicy="strict-origin-when-cross-origin"`, so it plays on a `no-referrer` page. Printed,
+it is the URL. Allow `EMBED_FRAME_ORIGINS` (from `@/lib/embed-providers`) in your
+Content-Security-Policy's `frame-src`.
+
+- **Paste** a lone YouTube or Loom link into an empty paragraph and it embeds, with an "Embedded"
+  toast whose **Undo** turns it back into a link. Pasted beside text, or with
+  <kbd>Cmd/Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>V</kbd>, it stays a link.
+- **Video** in the slash menu (it also answers to "youtube", "loom" and "embed") opens the video
+  panel: its **Link** tab embeds a YouTube or Loom link, plays a video file's link natively, and
+  says "Paste a YouTube or Loom link" for anything else.
+
+`onExternalImage(url, { signal })` imports images pasted or dropped from another site. Each image
+whose `src` is not this origin's (and not a `blob:`) is taken out of the paste before it reaches
+the document, shows an upload placeholder, and lands as `{ src, alt }` from your promise — or, when
+it rejects, as a link to the original, with the toast "Couldn't import that image. A link was added
+instead." A pasted `data:` image (Word, Google Docs) uploads as a file through `onImageUpload`. One
+paste imports up to 20 images, three at a time; the rest land as links. Without `onExternalImage`,
+pasted images are kept as they are.
+
+<ComponentPreview
+  name="textEditEmbeds"
+  file="components/preview/text-edit.tsx"
+/>
+
+```tsx
+<TextEdit
+  format="markdown"
+  value={body}
+  onValueChange={setBody}
+  embeds={EMBED_PROVIDERS}
+  onImageUpload={uploadImage}
+  // Your server fetches the image (SSRF-safe), stores it, and returns its URL.
+  onExternalImage={(url, { signal }) => rehostImage(url, { signal })}
+/>
+```
+
 ### Outline
 
 `onOutlineChange` receives the headings (`#`–`####`) with stable ids — the heading's words,

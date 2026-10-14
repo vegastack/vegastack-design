@@ -1,10 +1,18 @@
-// @vegastack markdown-view@0.25.38 sha256-UTC1SDx3owyr8yguF5YJ5uKZOO3qI+Q5XShY0qO5YxY=
+// @vegastack markdown-view@0.25.38 sha256-XeSCQU06cpUk/BX4d6dFffqwGXSUjceVTyQYjZdEdh4=
 
 "use client";
 
 import * as React from "react";
 import { createPortal } from "react-dom";
-import { ChevronDown, ChevronUp, MessageSquarePlus, X } from "lucide-react";
+import {
+  ChevronDown,
+  ChevronUp,
+  MessageSquarePlus,
+  Play,
+  SquarePlay,
+  Video,
+  X,
+} from "lucide-react";
 import { cn, mergeRefs } from "@vegastack/design";
 import { useInternalThemeScope } from "@vegastack/design/theme-scope";
 import { Button } from "@/components/ui/button";
@@ -15,6 +23,12 @@ import {
   resolveAnchor,
   type TextAnchor,
 } from "@/lib/text-anchor";
+import {
+  EMBED_FRAME_ATTRIBUTES,
+  EMBED_PROVIDERS,
+  matchEmbed,
+  type EmbedProviders,
+} from "@/lib/embed-providers";
 
 /* ------------------------------------------------------------------------------------------------
  * The client leaves of `MarkdownView` — everything it does that needs the DOM after render: the
@@ -1125,6 +1139,117 @@ export function MarkdownHeadingLink({
       copiedLabel="Link copied"
       className="ms-1 align-middle font-sans text-muted-foreground opacity-0 transition-opacity group-hover/heading:opacity-100 focus-visible:opacity-100 pointer-coarse:opacity-100 print:hidden"
     />
+  );
+}
+
+/** Props accepted by `MarkdownEmbed`. */
+export interface MarkdownEmbedProps extends Omit<
+  React.ComponentPropsWithRef<"div">,
+  "children"
+> {
+  /** The video's URL as written — a YouTube or Loom link (`embed-providers`). */
+  url: string;
+  /**
+   * The providers shown as players: `EMBED_PROVIDERS`, or a subset. A video whose provider is not
+   * here — or every video, without it — renders as a plain link, so nothing is framed until the
+   * host allows the providers' origins (`EMBED_FRAME_ORIGINS`) in its `frame-src`.
+   * @default undefined
+   */
+  providers?: EmbedProviders;
+}
+
+/**
+ * `MarkdownEmbed` — a YouTube or Loom video as a facade: a 16:9 card with the provider's glyph,
+ * its name and a Play button. Nothing loads from the provider until Play; then a lazy, sandboxed
+ * player frame takes the card's place, its `src` rebuilt from the video id (never the URL as
+ * written). Printed, it is the URL. A URL that is not an allowlisted video, or whose provider is
+ * not in `providers`, renders as a link.
+ *
+ * @example
+ * <MarkdownEmbed url="https://youtu.be/dQw4w9WgXcQ" providers={EMBED_PROVIDERS} />
+ */
+export function MarkdownEmbed({
+  url,
+  providers,
+  className,
+  ...props
+}: MarkdownEmbedProps) {
+  const match = React.useMemo(() => matchEmbed(url), [url]);
+  const [playing, setPlaying] = React.useState(false);
+  if (!match || !providers?.[match.provider])
+    return (
+      <p
+        data-slot="markdown-embed-link"
+        // Its anchor text is one leaf, as the embed it stands for.
+        data-anchor-block=""
+        data-anchor-text={LEAF_TEXT}
+        className={className}
+        {...props}
+      >
+        <a
+          href={/^https:\/\//i.test(url) ? url : undefined}
+          target="_blank"
+          rel="noreferrer noopener"
+        >
+          {url}
+        </a>
+      </p>
+    );
+  const provider = EMBED_PROVIDERS[match.provider];
+  const Glyph = match.provider === "youtube" ? SquarePlay : Video;
+  return (
+    <div
+      data-slot="markdown-embed"
+      data-provider={match.provider}
+      data-playing={playing ? "" : undefined}
+      // Its anchor text is one leaf (as in `TextEdit`'s document), never the URL it prints.
+      data-anchor-block=""
+      data-anchor-text={LEAF_TEXT}
+      className={cn("my-2 max-w-full", className)}
+      {...props}
+    >
+      <div
+        data-slot="markdown-embed-frame"
+        className="relative aspect-video w-full overflow-hidden rounded-lg border border-border bg-muted print:hidden"
+      >
+        {playing ? (
+          <iframe
+            src={match.src}
+            title={provider.label}
+            loading={EMBED_FRAME_ATTRIBUTES.loading}
+            referrerPolicy={EMBED_FRAME_ATTRIBUTES.referrerPolicy}
+            allow={EMBED_FRAME_ATTRIBUTES.allow}
+            sandbox={EMBED_FRAME_ATTRIBUTES.sandbox}
+            allowFullScreen
+            className="absolute inset-0 size-full border-0"
+          />
+        ) : (
+          <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 p-4 text-center">
+            <span className="flex min-w-0 max-w-full items-center gap-2 text-muted-foreground">
+              <Glyph aria-hidden className="size-5 shrink-0" />
+              <span className="truncate text-sm font-medium text-foreground">
+                {provider.label}
+              </span>
+            </span>
+            <Button
+              type="button"
+              aria-label={`Play ${provider.label}`}
+              onClick={() => setPlaying(true)}
+            >
+              <Play aria-hidden data-icon="inline-start" />
+              Play
+            </Button>
+          </div>
+        )}
+      </div>
+      {/* Printed, the video is its address (text: a link would print it twice). */}
+      <span
+        data-slot="markdown-embed-url"
+        className="hidden wrap-anywhere print:inline"
+      >
+        {url}
+      </span>
+    </div>
   );
 }
 

@@ -28,6 +28,7 @@ import type {
   TextEditStats,
 } from "@/components/ui/text-edit";
 import { Wrapper } from "./wrapper";
+import { EMBED_PROVIDERS } from "@/lib/embed-providers";
 
 // TextEdit pulls in Tiptap; keep it out of the all-preview barrel's initial module graph.
 const TextEdit = dynamic(
@@ -710,6 +711,45 @@ export function textEditBlocks(): ReactNode {
         value={markdown}
         onValueChange={setMarkdown}
         aria-label="Notes with blocks"
+      />
+      <pre className="min-w-0 overflow-x-auto rounded-md bg-muted p-3 font-mono text-xs break-all whitespace-pre-wrap">
+        {markdown}
+      </pre>
+    </Wrapper>
+  );
+}
+
+/**
+ * Embeds — a YouTube or Loom link alone on its line is a facade card: nothing loads from the
+ * provider until Play. Paste a link into an empty line, or type / and pick Video. An image pasted
+ * from another site goes through `onExternalImage` (this demo answers with the original after a
+ * second; an app returns its own stored copy).
+ */
+export function textEditEmbeds(): ReactNode {
+  const [markdown, setMarkdown] = useState(
+    [
+      "The walkthrough, and Monday's recording:",
+      "",
+      "https://www.youtube.com/watch?v=aqz-KE-bpKQ&t=30s",
+      "",
+      "https://www.loom.com/share/0281766fa2d04bb788eaf19e65135184",
+      "",
+      "Paste a YouTube or Loom link into an empty line, or type / and pick Video.",
+    ].join("\n"),
+  );
+  return (
+    <Wrapper className="flex-col items-stretch">
+      <TextEdit
+        format="markdown"
+        value={markdown}
+        onValueChange={setMarkdown}
+        embeds={EMBED_PROVIDERS}
+        onExternalImage={(url) =>
+          new Promise((resolve) =>
+            setTimeout(() => resolve({ src: url }), 1000),
+          )
+        }
+        aria-label="Notes with embeds"
       />
       <pre className="min-w-0 overflow-x-auto rounded-md bg-muted p-3 font-mono text-xs break-all whitespace-pre-wrap">
         {markdown}

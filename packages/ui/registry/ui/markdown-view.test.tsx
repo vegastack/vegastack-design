@@ -11,6 +11,7 @@ import {
   parseMentionLink,
 } from "../lib/text-edit-grammar";
 import { preloadTextEdit, TextEdit } from "./text-edit";
+import { EMBED_PROVIDERS } from "../lib/embed-providers";
 
 // TextEdit renders a light read view and loads its editor on intent; these tests exercise the
 // editor itself, so load it up front — every TextEdit then swaps it in right after mounting.
@@ -1154,4 +1155,93 @@ test("onCreateAnnotation: on a coarse pointer the button opens below the selecti
   selectBetween(view, "words", "select");
   await vi.waitFor(() => expect(commentButton()).not.toBeNull());
   expect(selectionMenu()!.dataset.side).toBe("bottom");
+});
+
+// ---- Embeds (YouTube, Loom) --------------------------------------------------------------------
+
+test("embeds: a lone YouTube or Loom link is a facade that loads nothing until Play; other links stay links", async () => {
+  const youtube = "https://youtu.be/dQw4w9WgXcQ?t=42&si=x";
+  const loom = "https://www.loom.com/share/0281766fa2d04bb788eaf19e65135184";
+  const screen = await render(
+    <MarkdownView embeds={EMBED_PROVIDERS}>
+      {[
+        youtube,
+        loom,
+        "https://example.com/video",
+        `- ${youtube}`,
+        `Watch ${youtube} now.`,
+      ].join("\n\n")}
+    </MarkdownView>,
+  );
+  const embeds = screen.container.querySelectorAll(
+    '[data-slot="markdown-embed"]',
+  );
+  expect([...embeds].map((each) => each.getAttribute("data-provider"))).toEqual(
+    ["youtube", "loom"],
+  );
+  expect(screen.container.querySelector("iframe")).toBeNull();
+  // A page link, a list item's link and a link in a sentence stay links.
+  expect(screen.container.querySelectorAll('a[href^="https://"]').length).toBe(
+    3,
+  );
+  // Printed, the facade is its URL.
+  expect(
+    embeds[0]!.querySelector('[data-slot="markdown-embed-url"]')?.textContent,
+  ).toBe(youtube);
+  await expectNoA11yViolations(screen.container);
+  await screen.getByRole("button", { name: "Play YouTube video" }).click();
+  const frame = screen.container.querySelector("iframe")!;
+  expect(frame.getAttribute("src")).toBe(
+    "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ?start=42",
+  );
+  expect(frame.getAttribute("referrerpolicy")).toBe(
+    "strict-origin-when-cross-origin",
+  );
+});
+
+test("embeds: TextEdit's HTML for an embed renders the facade; a look-alike host stays a link", async () => {
+  const screen = await render(
+    <MarkdownView format="html" embeds={EMBED_PROVIDERS}>
+      {[
+        '<div data-type="embed" data-provider="loom"><a href="https://www.loom.com/share/0281766fa2d04bb788eaf19e65135184">https://www.loom.com/share/0281766fa2d04bb788eaf19e65135184</a></div>',
+        '<div data-type="embed" data-provider="youtube"><a href="https://youtube.com.evil.com/watch?v=dQw4w9WgXcQ">evil</a></div>',
+      ].join("")}
+    </MarkdownView>,
+  );
+  await expect
+    .element(screen.getByRole("button", { name: "Play Loom video" }))
+    .toBeInTheDocument();
+  expect(
+    screen.container.querySelectorAll('[data-slot="markdown-embed"]').length,
+  ).toBe(1);
+  expect(
+    screen.container.querySelector(
+      'a[href="https://youtube.com.evil.com/watch?v=dQw4w9WgXcQ"]',
+    ),
+  ).not.toBeNull();
+});
+
+test("embeds: without the embeds prop, or for a provider left out, a video line is a plain link", async () => {
+  const screen = await render(
+    <MarkdownView embeds={{ loom: EMBED_PROVIDERS.loom }}>
+      {
+        "https://youtu.be/dQw4w9WgXcQ\n\nhttps://www.loom.com/share/0281766fa2d04bb788eaf19e65135184"
+      }
+    </MarkdownView>,
+  );
+  expect(
+    screen.container
+      .querySelector('[data-slot="markdown-embed-link"] a')
+      ?.getAttribute("href"),
+  ).toBe("https://youtu.be/dQw4w9WgXcQ");
+  expect(
+    screen.container.querySelectorAll('[data-slot="markdown-embed"]').length,
+  ).toBe(1);
+  const plain = await render(
+    <MarkdownView>{"https://youtu.be/dQw4w9WgXcQ"}</MarkdownView>,
+  );
+  expect(
+    plain.container.querySelector('[data-slot="markdown-embed"]'),
+  ).toBeNull();
+  expect(plain.container.querySelector("button")).toBeNull();
 });

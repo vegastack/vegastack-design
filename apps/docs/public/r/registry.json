@@ -1994,6 +1994,30 @@
       }
     },
     {
+      "name": "embed-providers",
+      "type": "registry:lib",
+      "title": "Embed Providers",
+      "description": "The video hosts a document may embed — YouTube and Loom: matchEmbed reads a URL's provider and video id (YouTube's start time too), each provider rebuilds its player src from the id alone, and EMBED_FRAME_ORIGINS is the frame-src allowlist. Pure, server-safe.",
+      "categories": [
+        "data"
+      ],
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "packages/ui/registry/lib/embed-providers.ts",
+          "type": "registry:lib",
+          "target": "@lib/embed-providers.ts"
+        }
+      ],
+      "meta": {
+        "version": "0.25.37",
+        "whenToUse": "Deciding whether a URL is an embeddable video (YouTube, Loom) and building its player src — in TextEdit, MarkdownView, a server import, or a Content-Security-Policy's frame-src.",
+        "whenNotToUse": "Any other host: the allowlist is the security boundary; add a provider here, never a raw URL as a frame src.",
+        "integrity": "sha256-O77qw+lDt8TyJbYqB6PEF+80GbAtJsjaijni0vvx3GU="
+      }
+    },
+    {
       "name": "text-edit-schema",
       "type": "registry:lib",
       "title": "Text Edit Schema",
@@ -2017,7 +2041,8 @@
         "@tiptap/extension-unique-id@^3.31.4"
       ],
       "registryDependencies": [
-        "@vegastack/text-edit-grammar"
+        "@vegastack/text-edit-grammar",
+        "@vegastack/embed-providers"
       ],
       "files": [
         {
@@ -2030,7 +2055,7 @@
         "version": "0.25.38",
         "whenToUse": "Building a TextEdit document anywhere — a collaboration server, an import, an API — with exactly the editor’s nodes and attributes.",
         "whenNotToUse": "Rendering a document to read — use MarkdownView.",
-        "integrity": "sha256-Fkpz51Zpee9QH1VDhjFHqQ5z5iKKR3GCU7gPuLHW60A="
+        "integrity": "sha256-1Hcwkx5sLaSrGQ0vyYhsXD7nPDFd68ZS62Mfrl32VMA="
       }
     },
     {
@@ -2063,7 +2088,7 @@
         "version": "0.25.38",
         "whenToUse": "Converting between Markdown and a TextEdit document on a server — import, export, search text, a collaboration server’s read copy.",
         "whenNotToUse": "Rendering Markdown to read — use MarkdownView.",
-        "integrity": "sha256-B76wetZncQLfdgozMNmVfmrc5uNq93Vo2MZJoVM1iV8="
+        "integrity": "sha256-wJNX4O344WgdihDTzIaK0J0g66/bt9b+4yTdRw+fSWw="
       }
     },
     {
@@ -16186,6 +16211,7 @@
         "@vegastack/copy-button",
         "@vegastack/use-announcer",
         "@vegastack/text-anchor",
+        "@vegastack/embed-providers",
         "@vegastack/block-view"
       ],
       "files": [
@@ -16209,7 +16235,7 @@
         "whenToUse": "Display user/system-authored markdown — descriptions, comments, activity — as safe token-styled prose.",
         "whenNotToUse": "Editing markdown (use an editor), or when the source needs embedded raw HTML.",
         "version": "0.25.38",
-        "integrity": "sha256-UTC1SDx3owyr8yguF5YJ5uKZOO3qI+Q5XShY0qO5YxY="
+        "integrity": "sha256-XeSCQU06cpUk/BX4d6dFffqwGXSUjceVTyQYjZdEdh4="
       }
     },
     {
@@ -18272,6 +18298,7 @@
         "@vegastack/text-edit-schema",
         "@vegastack/text-edit-markdown",
         "@vegastack/avatar",
+        "@vegastack/embed-providers",
         "@vegastack/sheet",
         "@vegastack/separator",
         "@vegastack/use-announcer",
@@ -18294,7 +18321,7 @@
         "whenToUse": "Comments, notes, summaries and documents stored as Markdown (format=\"markdown\") or HTML — with @ mentions, uploads, callouts, toggles, an outline and comment highlights for page editors; in-place editing of a MarkdownView (the read view is the editor until first edited).",
         "whenNotToUse": "Plain single-line input (Input) or collaborative real-time docs (deferred text-edit-collab).",
         "version": "0.25.38",
-        "integrity": "sha256-uabZ8AVeJnoinedo+5ZIXR2ecVtfwDlm9l2Xk8X7u4Q="
+        "integrity": "sha256-PX+YNVkY4Vex7xtoC0xrij3zy2a3m9e+wlEXsKib+4w="
       }
     },
     {

@@ -1763,6 +1763,27 @@
       }
     },
     {
+      "name": "embed-providers",
+      "type": "registry:lib",
+      "title": "Embed Providers",
+      "description": "The video hosts a document may embed — YouTube and Loom: matchEmbed reads a URL's provider and video id (YouTube's start time too), each provider rebuilds its player src from the id alone, and EMBED_FRAME_ORIGINS is the frame-src allowlist. Pure, server-safe.",
+      "categories": ["data"],
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "packages/ui/registry/lib/embed-providers.ts",
+          "type": "registry:lib",
+          "target": "@lib/embed-providers.ts"
+        }
+      ],
+      "meta": {
+        "version": "0.25.37",
+        "whenToUse": "Deciding whether a URL is an embeddable video (YouTube, Loom) and building its player src — in TextEdit, MarkdownView, a server import, or a Content-Security-Policy's frame-src.",
+        "whenNotToUse": "Any other host: the allowlist is the security boundary; add a provider here, never a raw URL as a frame src."
+      }
+    },
+    {
       "name": "text-edit-schema",
       "type": "registry:lib",
       "title": "Text Edit Schema",
@@ -1783,7 +1804,10 @@
         "@tiptap/extension-table@^3.31.4",
         "@tiptap/extension-unique-id@^3.31.4"
       ],
-      "registryDependencies": ["@vegastack/text-edit-grammar"],
+      "registryDependencies": [
+        "@vegastack/text-edit-grammar",
+        "@vegastack/embed-providers"
+      ],
       "files": [
         {
           "path": "packages/ui/registry/lib/text-edit-schema.ts",
@@ -13028,6 +13052,7 @@
         "@vegastack/copy-button",
         "@vegastack/use-announcer",
         "@vegastack/text-anchor",
+        "@vegastack/embed-providers",
         "@vegastack/block-view"
       ],
       "files": [
@@ -14873,6 +14898,7 @@
         "@vegastack/text-edit-schema",
         "@vegastack/text-edit-markdown",
         "@vegastack/avatar",
+        "@vegastack/embed-providers",
         "@vegastack/sheet",
         "@vegastack/separator",
         "@vegastack/use-announcer",

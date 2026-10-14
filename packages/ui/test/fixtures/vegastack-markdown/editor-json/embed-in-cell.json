@@ -1,0 +1,22 @@
+{
+  "type": "doc",
+  "content": [
+    {
+      "type": "table",
+      "content": [
+        {
+          "type": "tableRow",
+          "content": [
+            { "type": "tableHeader", "content": [{ "type": "paragraph", "content": [{ "type": "text", "text": "Demo" }] }] }
+          ]
+        },
+        {
+          "type": "tableRow",
+          "content": [
+            { "type": "tableCell", "content": [{ "type": "embed", "attrs": { "provider": "loom", "url": "https://www.loom.com/share/0281766fa2d04bb788eaf19e65135184" } }] }
+          ]
+        }
+      ]
+    }
+  ]
+}

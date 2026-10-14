@@ -1,0 +1,13 @@
+{
+  "type": "doc",
+  "content": [
+    {
+      "type": "embed",
+      "attrs": { "provider": "youtube", "url": "https://youtu.be/dQw4w9W_cQ_" }
+    },
+    {
+      "type": "embed",
+      "attrs": { "provider": "youtube", "url": "https://www.youtube.com/watch?v=dQw4w9WgXcQ&x=(a)" }
+    }
+  ]
+}

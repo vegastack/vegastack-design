@@ -1,4 +1,4 @@
-// @vegastack text-edit-markdown@0.25.38 sha256-B76wetZncQLfdgozMNmVfmrc5uNq93Vo2MZJoVM1iV8=
+// @vegastack text-edit-markdown@0.25.38 sha256-wJNX4O344WgdihDTzIaK0J0g66/bt9b+4yTdRw+fSWw=
 
 import type { AnyExtension, JSONContent } from "@tiptap/core";
 import { Markdown, MarkdownManager } from "@tiptap/markdown";
@@ -8,8 +8,10 @@ import { anchorText } from "@/lib/text-anchor-doc";
 import type { MentionKind } from "@/lib/text-edit-grammar";
 import {
   BLOCK_ID_TYPES,
+  EMBED_CONTAINERS,
   TASK_MARKER,
   blockId,
+  embedOfParagraph,
   textEditExtensions,
   isTailOf,
   resetParseCaches,
@@ -578,6 +580,12 @@ function normalizeParsed(node: JSONContent): JSONContent {
           ? { type: "paragraph", content: [markerText(child)] }
           : markerText(child),
       );
+    else if (
+      child.type === "paragraph" &&
+      EMBED_CONTAINERS.has(node.type ?? "") &&
+      embedOfParagraph(child)
+    )
+      content.push(embedOfParagraph(child)!);
     else {
       const done = normalizeParsed(child);
       if (done.type === LIST_RUNS) content.push(...(done.content ?? []));
