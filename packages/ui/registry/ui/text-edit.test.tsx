@@ -4332,3 +4332,31 @@ test("find: ⌘F with words selected searches for them, and typing replaces the 
   await userEvent.keyboard("beta");
   await expect.element(field).toHaveValue("beta");
 });
+
+test("slashActions: insertContent puts a block at the caret", async () => {
+  const onValueChange = vi.fn();
+  const screen = await markdownEditor({
+    onValueChange,
+    slashActions: [
+      {
+        id: "quote",
+        label: "Saved quote",
+        icon: <span />,
+        onSelect: ({ insertContent }) =>
+          insertContent({
+            type: "blockquote",
+            content: [
+              { type: "paragraph", content: [{ type: "text", text: "Hi" }] },
+            ],
+          }),
+      },
+    ],
+  });
+  await screen.getByRole("textbox", { name: "Notes" }).click();
+  await userEvent.keyboard("/saved");
+  await vi.waitFor(() =>
+    expect(suggestionMenu("slash")?.textContent).toContain("Saved quote"),
+  );
+  await userEvent.keyboard("{Enter}");
+  await vi.waitFor(() => expect(lastValue(onValueChange)).toBe("> Hi"));
+});

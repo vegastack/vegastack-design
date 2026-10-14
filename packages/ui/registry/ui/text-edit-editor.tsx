@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.25.41 sha256-1FFPehhH/LP2OOsDs3/Ldahi7jtSBqUrS26Nsrix5wM=
+// @vegastack text-edit@0.25.41 sha256-wN7i6nr6XVvmHLrMZ+76wWob7WacbdQS9LMfHG9JcII=
 
 "use client";
 
@@ -605,6 +605,13 @@ function hostSlashSpec(action: TextEditSlashAction): SlashSpec {
           ed.chain()
             .focus()
             .insertContent(mentionChip(yBinding(ed.state) !== null, mention))
+            .run();
+        },
+        insertContent: (content) => {
+          if (ed.isDestroyed) return;
+          ed.chain()
+            .focus()
+            .insertContent(content as JSONContent | JSONContent[])
             .run();
         },
       });
