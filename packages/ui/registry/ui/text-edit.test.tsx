@@ -4235,6 +4235,9 @@ test("find & replace: ⌘F opens the bar, Enter steps the matches, Replace all i
   await vi.waitFor(() =>
     expect(document.querySelector('[data-slot="text-edit-find"]')).toBeNull(),
   );
+  // Esc gives the caret back to the editor: undo only once it is there.
+  const editor = screen.getByRole("textbox", { name: "Notes" }).element();
+  await vi.waitFor(() => expect(document.activeElement).toBe(editor));
   // One undo step brings both back.
   await userEvent.keyboard(`{${MOD}>}z{/${MOD}}`);
   await vi.waitFor(() =>
