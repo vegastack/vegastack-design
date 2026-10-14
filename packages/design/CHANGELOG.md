@@ -1,5 +1,20 @@
 # @vegastack/design
 
+## 0.8.12
+
+### Patch Changes
+
+- [#640](https://github.com/vegastack/vegastack-design/pull/640) [`8ab9e76`](https://github.com/vegastack/vegastack-design/commit/8ab9e76c2015621da45e720cc88094126690414f) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - ⚠️ **MarkdownView** / **TextEdit**: `headingScale` is replaced by `typeScale` — `"compact" | "document"`, no alias — and `proseDocumentHeadingsClassName` is gone. `typeScale="document"` is now the whole document type scale (TYP-20, MK 2026-10-14), not just bigger headings: 14/24 text (16/26 on a coarse pointer or a narrow window, so reading and editing match and iOS never zooms), 12px between paragraphs, `#` 24 · `##` 20 · `###` 16 (18 over 16px text), inline code in the body's ink, and print rules; `@vegastack/design` exports it as `proseDocument` and `proseDocumentClassName`. Rename `headingScale="document"` to `typeScale="document"`; headings are smaller than the old document scale (24/20/16, was 30/24/20). **TextEdit**: `onOutlineChange` no longer mounts the editor — the read view reports the outline from the Markdown until the editor is in.
+  [docs](https://design.vegastack.com/docs/components/markdown-view)
+
+- [#638](https://github.com/vegastack/vegastack-design/pull/638) [`cb419b5`](https://github.com/vegastack/vegastack-design/commit/cb419b5df16ef895006cc9f3bdb5dd6365a32eca) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🔧 **TextEdit** `diff={{ doc, baseline }}`: a version diff, formatted and read-only — added text and blocks underlined on the success tint, removed ones struck through (`ins`/`del`, announced "Added:"/"Removed:"; changed images outlined), under `Compared with {baseline}`. `text-edit-schema` adds `TextEditDiff` (the `ychange` mark and block attribute a Yjs snapshot diff produces, never in a live document — whose schema now refuses it), `textEditDiffSchema()` (`textEditExtensions({ diff: true })`, code blocks take the change mark) and `ychangeType()`. A diff view never fires `onValueChange`/`onCommit` and ignores `value`.
+  [docs](https://design.vegastack.com/docs/components/text-edit#version-diff)
+
+- [#638](https://github.com/vegastack/vegastack-design/pull/638) [`cb419b5`](https://github.com/vegastack/vegastack-design/commit/cb419b5df16ef895006cc9f3bdb5dd6365a32eca) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - ⚠️ **VersionList** kinds are now `auto · safety · restore · import · agent_checkpoint · named · approved`, each with its badge (`VERSION_KIND_LABELS`: "Before a large deletion", "Before a restore", "Before an import", "Before an agent's edits", "Approved"); a row's own `label` replaces it ("Before Claude's edits") and a named row shows none, except Approved. `conflict` ("Unsaved copy") is removed, and `restore` now means the text just before a restore (it was "Restored").
+  [docs](https://design.vegastack.com/docs/components/version-list)
+- Updated dependencies [[`8ab9e76`](https://github.com/vegastack/vegastack-design/commit/8ab9e76c2015621da45e720cc88094126690414f)]:
+  - @vegastack/design-tokens@0.8.12
+
 ## 0.8.11
 
 ### Patch Changes

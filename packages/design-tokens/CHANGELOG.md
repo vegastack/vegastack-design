@@ -1,5 +1,12 @@
 # @vegastack/design-tokens
 
+## 0.8.12
+
+### Patch Changes
+
+- [#640](https://github.com/vegastack/vegastack-design/pull/640) [`8ab9e76`](https://github.com/vegastack/vegastack-design/commit/8ab9e76c2015621da45e720cc88094126690414f) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🧩 **DocumentLayout** (new): a page read as a document — `DocumentLayoutHeader`, `DocumentLayoutBody` at a 47ch reading measure (about 67 characters a line), `DocumentLayoutFoot`, a `DocumentLayoutContents` rail or list and a `DocumentLayoutMargin` for comments — on one grid with four tiers by its own width (36 · 52 · 64rem), `measure="wide"` up to 60rem, `DocumentLayoutSkeleton` on the same grid and line pitch, and `useDocumentLayoutTier` reading the tier from the CSS; it prints as one column on a named page with paper margins. **MarkdownView** gains a read mode that needs no editor: `annotations` (comment highlights resolved from their quote, with `activeAnnotationId`, `onAnnotationClick`, `annotationCounts` and `onAnnotationsLayout`), `onOutlineChange`, `headingAnchors` (slug and block id) with `headingLinkHref` copy links, per-reader `toggleState`, and `findQuery` (CSS Custom Highlight API, a match bar, `onFindClose`); a table wider than the text fades at its scrolling edge and is a named, focusable region while it scrolls (the editor's tables fade too). **BreadcrumbTrail**: `compact` / `compact="auto"` — `‹` and the parent's name, a menu of the whole path. **ShareDialog**: `publishExposure`, `onPublishRequest` and a "Who can see this" `audience` section. **Button**: a 44×44 hit area on a coarse pointer at every size, nothing moving (A11Y-24). **Sheet**: a bottom sheet clears the home indicator (LAY-10). **Tokens**: printing from dark mode prints the light palette.
+  [docs](https://design.vegastack.com/docs/components/document-layout)
+
 ## 0.8.3
 
 ### Patch Changes
