@@ -2,10 +2,10 @@
   "schemaVersion": 1,
   "kind": "vegastack-zero-gap-audit-register",
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "169ca42cc80a6b41815833d36a19aaef140ac7a002632da1bb6def6b220919b2",
+  "contractSha256": "7ce63a44b4dd1da4b284cf087ef74dd7b3b45d57f5200cfc505c701b1f092528",
   "expectedCounts": {
-    "totalRegistryItems": 745,
-    "components": 161,
+    "totalRegistryItems": 746,
+    "components": 162,
     "animatedIcons": 467,
     "hooks": 15,
     "blocks": 15,
@@ -1791,6 +1791,17 @@
         "packages/ui/registry/ui/approval-card.tsx"
       ],
       "docsSlug": "/docs/components/approval-card",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "agent-edit-banner",
+      "inventoryClass": "component",
+      "wave": "AI/chat",
+      "family": "chat",
+      "sourceFiles": [
+        "packages/ui/registry/ui/agent-edit-banner.tsx"
+      ],
+      "docsSlug": "/docs/components/agent-edit-banner",
       "contractStatus": "reconciled"
     },
     {
