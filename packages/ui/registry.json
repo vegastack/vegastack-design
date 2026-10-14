@@ -17932,6 +17932,37 @@
         "whenNotToUse": "A person asking for access (InboxItem actions), or confirming the viewer`s own destructive action (AlertDialog).",
         "version": "0.25.37"
       }
+    },
+    {
+      "name": "agent-edit-banner",
+      "type": "registry:ui",
+      "title": "Agent Edit Banner",
+      "description": "The strip under a document's header after an agent changed it: the agent's purple bot, \"Edited by Claude (via Manoj) · 3 changes · 2m ago\", View changes, Undo and a dismiss — with the undoing, refused, created and read-only states and the other agents behind +N.",
+      "categories": ["chat"],
+      "dependencies": [
+        "lucide-react@^1.47.0",
+        "@vegastack/design@^0.8.13",
+        "@vegastack/design-tokens@^0.8.12"
+      ],
+      "registryDependencies": [
+        "@vegastack/alert",
+        "@vegastack/button",
+        "@vegastack/person-avatar",
+        "@vegastack/popover",
+        "@vegastack/relative-time"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/agent-edit-banner.tsx",
+          "type": "registry:ui",
+          "target": "@ui/agent-edit-banner.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "Pinned under a page's header after an agent edited or created it, so people can see the change and undo it.",
+        "whenNotToUse": "An agent asking before it acts (ApprovalCard), a transient result after the viewer's own action (Toast), or a page-wide notice (AnnouncementBanner).",
+        "version": "0.25.37"
+      }
     }
   ]
 }
