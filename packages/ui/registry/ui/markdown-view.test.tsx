@@ -813,3 +813,112 @@ test("onAnnotationsLayout reports where each highlight sits, null for one that d
   expect(items[0].top).toBeGreaterThan(0);
   expect(items[1].top).toBeNull();
 });
+
+test("overlapping highlights: one tab stop per thread, none under aria-hidden, a click opens only its own thread", async () => {
+  const opened: string[] = [];
+  const screen = await render(
+    <MarkdownView
+      annotations={[
+        { id: "outer", anchor: anchorOf("the annual price before") },
+        { id: "inner", anchor: anchorOf("annual price") },
+        // Exactly the inner thread's words, listed later: it owns the segment, so the inner
+        // thread's pill becomes the inner thread's tab stop.
+        { id: "twin", anchor: anchorOf("annual price"), count: 2 },
+      ]}
+      onAnnotationClick={(id) => opened.push(id)}
+    >
+      {"Check the annual price before renewal."}
+    </MarkdownView>,
+  );
+  const root = screen.container;
+  // No highlight is nested in another.
+  expect(
+    root.querySelector(
+      "[data-slot=text-edit-annotation] [data-slot=text-edit-annotation]",
+    ),
+  ).toBeNull();
+  // Nothing focusable sits under aria-hidden.
+  expect(
+    root.querySelector(
+      "[aria-hidden=true] [tabindex], [aria-hidden=true][tabindex]",
+    ),
+  ).toBeNull();
+  const stops = [...root.querySelectorAll<HTMLElement>("[tabindex='0']")];
+  expect(stops.map((el) => el.getAttribute("aria-label"))).toEqual([
+    "Comment on “the annual price before”",
+    "2 comments on “annual price”",
+    "Comment on “annual price”",
+  ]);
+  const inner = root.querySelector<HTMLElement>(
+    "[data-annotation-focus][data-annotation=inner], [data-annotation-focus][data-annotation=twin]",
+  )!;
+  inner.click();
+  expect(opened).toHaveLength(1);
+  stops[2]!.focus();
+  await userEvent.keyboard("{Enter}");
+  expect(opened.at(-1)).toBe("inner");
+  await expectNoA11yViolations(root);
+});
+
+test("find: Enter on a bar button does what the button says; new text with the same query is searched again", async () => {
+  function View({ text }: { text: string }) {
+    return <MarkdownView findQuery="seat">{text}</MarkdownView>;
+  }
+  const screen = await render(
+    <View text={"One seat.\n\nTwo seats.\n\nThree seats."} />,
+  );
+  const bar = screen.getByRole("search", { name: "Find in page" });
+  const count = () =>
+    bar.element().querySelector("[data-slot=markdown-find-count]")?.textContent;
+  await vi.waitFor(() => expect(count()).toBe("1 of 3"));
+  await bar.getByRole("button", { name: "Next match" }).click();
+  await vi.waitFor(() => expect(count()).toBe("2 of 3"));
+  (
+    bar.getByRole("button", { name: "Previous match" }).element() as HTMLElement
+  ).focus();
+  await userEvent.keyboard("{Enter}");
+  await vi.waitFor(() => expect(count()).toBe("1 of 3"));
+  await screen.rerender(<View text={"One seat only."} />);
+  await vi.waitFor(() => expect(count()).toBe("1 of 1"));
+});
+
+test("find: each view keeps its own matches — closing one leaves the other's highlighted", async () => {
+  const registry = (
+    CSS as unknown as { highlights?: Map<string, { size: number }> }
+  ).highlights;
+  function Two({ second }: { second: boolean }) {
+    return (
+      <>
+        <MarkdownView findQuery="seat">{"A seat and a seat."}</MarkdownView>
+        <MarkdownView findQuery={second ? "seat" : undefined}>
+          {"One seat."}
+        </MarkdownView>
+      </>
+    );
+  }
+  const screen = await render(<Two second />);
+  if (!registry) return;
+  await vi.waitFor(() => expect(registry.get("vs-find")?.size).toBe(3));
+  await screen.rerender(<Two second={false} />);
+  await vi.waitFor(() => expect(registry.get("vs-find")?.size).toBe(2));
+});
+
+test("find folds case without misplacing matches when folding changes length", async () => {
+  const screen = await render(
+    <MarkdownView findQuery="x">{"İx and X"}</MarkdownView>,
+  );
+  const registry = (
+    CSS as unknown as {
+      highlights?: Map<string, Set<Range> & { size: number }>;
+    }
+  ).highlights;
+  const count = () =>
+    screen.container.ownerDocument.querySelector(
+      "[data-slot=markdown-find-count]",
+    )?.textContent;
+  await vi.waitFor(() => expect(count()).toBe("1 of 2"));
+  if (registry)
+    expect(
+      [...registry.get("vs-find")!].map((range) => range.toString()),
+    ).toEqual(["x", "X"]);
+});

@@ -1,4 +1,4 @@
-// @vegastack markdown-view@0.25.34 sha256-XK/NXL0W0iVBTPhu2NKppnLLjWmD9tXSmn+AULI/iCM=
+// @vegastack markdown-view@0.25.34 sha256-pOwAa5b9OiZeVXCeR7lnxK/UUIUpXtpQ875M4m0SRFA=
 
 import * as React from "react";
 import { Lexer, type Token, type Tokens } from "marked";
@@ -752,7 +752,7 @@ function annotate(
 
   // Each piece's replacement: its text cut at every highlight boundary inside it.
   const replaced = new Map<El, Map<number, DocNode[]>>();
-  const firstSeen = new Set<string>();
+  const focused = new Set<string>();
   const lastNode = new Map<string, El>();
   const drawn: string[] = [];
   for (const piece of pieces) {
@@ -772,23 +772,33 @@ function annotate(
     for (let at = 0; at < points.length - 1; at++) {
       const from = points[at]!;
       const to = points[at + 1]!;
-      let segment: DocNode =
+      const text: DocNode =
         typeof node === "string"
           ? node.slice(from - piece.start, to - piece.start)
           : node;
       const over = covering.filter((r) => r.start < to && r.end > from);
-      // Innermost last: the earliest-starting highlight is the outermost span.
-      for (const r of [...over].reverse()) {
-        const wrapped = el("annotation", { id: r.id }, [segment]);
-        if (!firstSeen.has(r.id)) {
-          firstSeen.add(r.id);
-          drawn.push(r.id);
-          wrapped.attrs.focus = "";
-        }
-        lastNode.set(r.id, wrapped);
-        segment = wrapped;
+      if (!over.length) {
+        out.push(text);
+        continue;
       }
-      out.push(segment);
+      // ONE span per segment, never nested: where highlights overlap, the segment belongs to the
+      // innermost (latest-starting) one, and lists every thread it is part of.
+      const owner = over.reduce((a, b) => (b.start >= a.start ? b : a));
+      const wrapped = el(
+        "annotation",
+        { id: owner.id, ids: over.map((r) => r.id).join(" ") },
+        [text],
+      );
+      for (const r of over) {
+        if (!drawn.includes(r.id)) drawn.push(r.id);
+        lastNode.set(r.id, wrapped);
+      }
+      // A thread's one tab stop: the first segment it owns.
+      if (!focused.has(owner.id)) {
+        focused.add(owner.id);
+        wrapped.attrs.focus = "";
+      }
+      out.push(wrapped);
     }
     const parentMap = replaced.get(piece.parent) ?? new Map();
     parentMap.set(piece.index, out);
@@ -798,7 +808,15 @@ function annotate(
     parent.children = parent.children.flatMap(
       (child, index) => map.get(index) ?? [child],
     );
-  for (const node of lastNode.values()) node.attrs.last = "";
+  // Each thread's count pill follows its last segment. A thread that owns no segment (another
+  // covers exactly its words) has no highlight tab stop, so its pill is its keyboard path.
+  for (const [id, node] of lastNode) {
+    node.attrs.last = node.attrs.last ? `${node.attrs.last} ${id}` : id;
+    if (!focused.has(id))
+      node.attrs.pillFocus = node.attrs.pillFocus
+        ? `${node.attrs.pillFocus} ${id}`
+        : id;
+  }
   tree.splice(0, tree.length, ...holder.children);
   return drawn;
 }
@@ -1104,69 +1122,120 @@ function renderNode(
   switch (tag) {
     case "annotation": {
       const id = attrs.id ?? "";
-      const active = ctx.activeAnnotationId === id;
-      const count = Math.max(1, ctx.annotationCounts.get(id) ?? 1);
+      const ids = (attrs.ids ?? id).split(" ");
+      const active =
+        ctx.activeAnnotationId != null && ids.includes(ctx.activeAnnotationId);
       const open = ctx.onAnnotationClick;
       const focus = open !== undefined && attrs.focus !== undefined;
+      const label = (thread: string) =>
+        ctx.annotationLabel(
+          ctx.annotationQuotes.get(thread) ?? "",
+          Math.max(1, ctx.annotationCounts.get(thread) ?? 1),
+        );
+      // A click opens this segment's own thread and goes no further (no outer handler, no second
+      // thread).
+      const activate = (event: React.SyntheticEvent) => {
+        event.stopPropagation();
+        open?.(id);
+      };
       const span = (
         <span
           key={key}
           data-slot="text-edit-annotation"
           data-annotation={id}
+          data-annotations={ids.length > 1 ? ids.join(" ") : undefined}
           data-active={active ? "" : undefined}
           data-annotation-focus={focus ? "" : undefined}
           className={cn(
             annotationHighlightClassName,
             active && annotationActiveClassName,
           )}
-          // In view mode the first segment is the one tab stop, a button named for the whole
-          // quote; the others are hidden from assistive technology, which heard them in that name.
+          // In view mode the first segment a thread owns is its one tab stop, a button named for
+          // the whole quote; its other segments are hidden from assistive technology, which heard
+          // them in that name. Segments never nest, so nothing focusable sits under aria-hidden.
           {...(open
             ? focus
               ? {
                   role: "button",
                   tabIndex: 0,
-                  "aria-label": ctx.annotationLabel(
-                    ctx.annotationQuotes.get(id) ?? "",
-                    count,
-                  ),
-                  onClick: () => open(id),
+                  "aria-label": label(id),
+                  onClick: activate,
                   onKeyDown: (event: React.KeyboardEvent) => {
                     if (event.key !== "Enter" && event.key !== " ") return;
                     event.preventDefault();
-                    open(id);
+                    activate(event);
                   },
                 }
-              : { "aria-hidden": true, onClick: () => open(id) }
+              : { "aria-hidden": true, onClick: activate }
             : {})}
         >
           {children()}
         </span>
       );
-      if (attrs.last === undefined || ctx.showCounts === "never") return span;
+      const pillFocus = new Set((attrs.pillFocus ?? "").split(" "));
+      const pills = (attrs.last ?? "")
+        .split(" ")
+        .filter(Boolean)
+        // A thread with no tab stop of its own always shows its pill: it is the keyboard path.
+        .filter(
+          (thread) =>
+            ctx.showCounts !== "never" || (open && pillFocus.has(thread)),
+        )
+        .map((thread) => {
+          const count = Math.max(1, ctx.annotationCounts.get(thread) ?? 1);
+          const tabStop = open !== undefined && pillFocus.has(thread);
+          return (
+            <span
+              key={`pill:${thread}`}
+              data-slot="text-edit-annotation-count"
+              data-annotation-count={thread}
+              data-active={ctx.activeAnnotationId === thread ? "" : undefined}
+              className={cn(
+                annotationCountClassName,
+                annotationCountVisibilityClassName[
+                  tabStop || ctx.showCounts === "never"
+                    ? "always"
+                    : ctx.showCounts
+                ],
+              )}
+              {...(open
+                ? {
+                    role: "button",
+                    // Not a tab stop when the highlight is one: the highlight is the keyboard path.
+                    tabIndex: tabStop ? 0 : -1,
+                    ...(tabStop ? { "aria-label": label(thread) } : {}),
+                    onClick: (event: React.MouseEvent) => {
+                      event.stopPropagation();
+                      open(thread);
+                    },
+                    ...(tabStop
+                      ? {
+                          onKeyDown: (event: React.KeyboardEvent) => {
+                            if (event.key !== "Enter" && event.key !== " ")
+                              return;
+                            event.preventDefault();
+                            event.stopPropagation();
+                            open(thread);
+                          },
+                        }
+                      : {}),
+                  }
+                : {})}
+            >
+              <span aria-hidden="true">{count > 99 ? "99+" : count}</span>
+              {tabStop ? null : (
+                <span className="sr-only">
+                  {ctx.annotationCountLabel(count)}
+                </span>
+              )}
+            </span>
+          );
+        });
+      if (!pills.length) return span;
       return (
         <React.Fragment key={key}>
           {span}
-          <span
-            data-slot="text-edit-annotation-count"
-            data-annotation-count={id}
-            data-active={active ? "" : undefined}
-            className={cn(
-              annotationCountClassName,
-              annotationCountVisibilityClassName[ctx.showCounts],
-            )}
-            // Not a tab stop: the highlight is the keyboard path.
-            {...(open
-              ? {
-                  role: "button",
-                  tabIndex: -1,
-                  onClick: () => open(id),
-                }
-              : {})}
-          >
-            <span aria-hidden="true">{count > 99 ? "99+" : count}</span>
-            <span className="sr-only">{ctx.annotationCountLabel(count)}</span>
-          </span>
+          {pills}
         </React.Fragment>
       );
     }
@@ -1483,7 +1552,9 @@ function renderNode(
  * its address after its text. `DocumentLayout` prints the page around it as one column.
  */
 export const documentPrintClassName = cn(
-  "print:[&_[data-slot=code-block-pre]]:overflow-visible print:[&_[data-slot=code-block-pre]]:whitespace-pre-wrap print:[&_pre]:whitespace-pre-wrap print:[&_[data-slot=code-block-actions]]:hidden",
+  // Code wraps on paper: `CodeBlock`'s panel carries its own print rule (its white-space is an inline
+  // style that a class here could not beat); its copy and wrap controls drop out.
+  "print:[&_pre:not([data-slot=code-block-pre])]:whitespace-pre-wrap print:[&_[data-slot=code-block-actions]]:hidden",
   "print:[&_[data-slot=text-edit-annotation]]:bg-transparent print:[&_[data-slot=text-edit-annotation]]:no-underline print:[&_[data-slot=text-edit-annotation-count]]:hidden",
   "print:[&_[data-slot=markdown-table]]:overflow-visible print:[&_.tableWrapper]:overflow-visible print:[&_table]:break-inside-auto print:[&_tr]:break-inside-avoid print:[&_thead]:table-header-group",
   "print:[&_a[href^=http]]:after:content-['_('_attr(href)_')'] print:[&_a[href^=http]]:after:text-muted-foreground print:[&_a[href^=http]]:after:wrap-anywhere",
@@ -1861,6 +1932,7 @@ export function MarkdownView({
         onAnnotationsLayout={onAnnotationsLayout}
         annotationIds={annotations?.map((annotation) => annotation.id)}
         findQuery={findQuery}
+        content={source}
         onFindClose={onFindClose}
         findLabels={findLabels}
         printToggles={details.length > 0}

@@ -295,7 +295,7 @@ test("the editor swaps in for the read view at the document scale without moving
   expect(getComputedStyle(editor.querySelector("p")!).lineHeight).toBe("24px");
 });
 
-test("A11Y-24: on a coarse pointer every Button size answers a tap 44px tall and wide, and a gap-1 row has no dead seam", async () => {
+test("A11Y-24: on a coarse pointer every Button size answers a tap 44px tall and wide, and neighbours' areas never overlap", async () => {
   await page.viewport(1024, 1400);
   await cdp().send("Emulation.setTouchEmulationEnabled", {
     enabled: true,
@@ -313,14 +313,17 @@ test("A11Y-24: on a coarse pointer every Button size answers a tap 44px tall and
   ] as const;
   const screen = await render(
     <div className="flex flex-col items-start gap-16 p-16">
+      {/* Each alone (no interactive neighbour beside it), so it expands on every side. */}
       {sizes.map((size) => (
-        <Button key={size} size={size} variant="outline" aria-label={size}>
-          {size.startsWith("icon") ? "+" : "OK"}
-        </Button>
+        <div key={size}>
+          <Button size={size} variant="outline" aria-label={size}>
+            {size.startsWith("icon") ? "+" : "OK"}
+          </Button>
+        </div>
       ))}
-      <div data-testid="row" className="flex gap-1">
+      <div data-testid="row" className="flex gap-0.5">
         {["a", "b", "c"].map((name) => (
-          <Button key={name} size="icon-sm" variant="ghost" aria-label={name}>
+          <Button key={name} size="icon-xs" variant="ghost" aria-label={name}>
             +
           </Button>
         ))}
@@ -348,25 +351,51 @@ test("A11Y-24: on a coarse pointer every Button size answers a tap 44px tall and
       ).toBe(true);
     }
   }
-  // A gap-1 row of 28px buttons: every point from the first's start to the last's end lands on a
-  // button — no seam between them taps nothing — and each centre lands on its own.
+  // A dense row — the find bar's 24px buttons 2px apart: the hit areas never overlap. Every point
+  // of each button's own box lands on that button (a neighbour's area never steals it), and each
+  // is still 44px tall.
   const row = screen.getByTestId("row").element().getBoundingClientRect();
   const buttons = ["a", "b", "c"].map(
     (name) => screen.getByRole("button", { name }).element() as HTMLElement,
   );
-  for (let x = row.left + 1; x < row.right - 1; x += 2) {
-    const hit = document.elementFromPoint(x, row.top + row.height / 2);
-    expect(
-      buttons.some((button) => hit === button || button.contains(hit)),
-      `seam at ${x - row.left}`,
-    ).toBe(true);
-  }
+  const owner = (x: number, y: number) =>
+    buttons.find((button) => {
+      const hit = document.elementFromPoint(x, y);
+      return hit === button || button.contains(hit);
+    }) ?? null;
   for (const button of buttons) {
     const box = button.getBoundingClientRect();
-    const hit = document.elementFromPoint(
-      box.left + box.width / 2,
-      box.top + box.height / 2,
-    );
-    expect(hit === button || button.contains(hit)).toBe(true);
+    const cy = box.top + box.height / 2;
+    for (let x = Math.ceil(box.left) + 0.5; x < box.right; x += 1)
+      expect(owner(x, cy), `${button.ariaLabel} at ${x - box.left}`).toBe(
+        button,
+      );
+    const cx = box.left + box.width / 2;
+    expect(owner(cx, cy - 21.5)).toBe(button);
+    expect(owner(cx, cy + 21.5)).toBe(button);
+  }
+  expect(row.width).toBeGreaterThan(0);
+});
+
+test("print: a code block wraps its long lines on paper", async () => {
+  await page.viewport(1440, 900);
+  await render(
+    <div style={{ width: 400 }}>
+      <MarkdownView typeScale="document">
+        {"```ts\nconst line = '" + "x".repeat(200) + "';\n```"}
+      </MarkdownView>
+    </div>,
+  );
+  const pre = document.querySelector<HTMLElement>(
+    "[data-slot=code-block-pre]",
+  )!;
+  expect(getComputedStyle(pre).whiteSpace).toBe("pre");
+  await cdp().send("Emulation.setEmulatedMedia", { media: "print" });
+  try {
+    expect(getComputedStyle(pre).whiteSpace).toBe("pre-wrap");
+    expect(getComputedStyle(pre).overflowWrap).toBe("anywhere");
+    expect(pre.scrollWidth).toBeLessThanOrEqual(pre.clientWidth + 1);
+  } finally {
+    await cdp().send("Emulation.setEmulatedMedia", { media: "" });
   }
 });

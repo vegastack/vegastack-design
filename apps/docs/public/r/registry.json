@@ -917,7 +917,7 @@
         "whenToUse": "Any clickable action — submit, confirm, destructive, etc.",
         "whenNotToUse": "Navigation to a URL — style the link with buttonVariants(): <Link href className={buttonVariants({ variant, size })}>.",
         "version": "0.25.34",
-        "integrity": "sha256-jmsy+bjYXM+SvpN4WW0toGs13sshCyTgSfBoPNbYTkA="
+        "integrity": "sha256-7gwKaPDKi3wNHJnTozyFGh0Ib1zbT0wu5tiQNFdmrPo="
       }
     },
     {
@@ -1215,7 +1215,7 @@
         "whenToUse": "Fenced/source code that deserves a labelled, copyable panel.",
         "whenNotToUse": "Inline code (a mono chip) or terminal output theatre (Terminal).",
         "version": "0.25.34",
-        "integrity": "sha256-uEY5C/Ysm7DCNeF/kgNOYvlSvPK22cV9wgRDy1XcAgg="
+        "integrity": "sha256-34VZhAKXlKnh3uqo9sW9zatMeDA1OJMjdFZLvwPg96U="
       }
     },
     {
@@ -16143,7 +16143,7 @@
         "whenToUse": "Display user/system-authored markdown — descriptions, comments, activity — as safe token-styled prose.",
         "whenNotToUse": "Editing markdown (use an editor), or when the source needs embedded raw HTML.",
         "version": "0.25.34",
-        "integrity": "sha256-XK/NXL0W0iVBTPhu2NKppnLLjWmD9tXSmn+AULI/iCM="
+        "integrity": "sha256-pOwAa5b9OiZeVXCeR7lnxK/UUIUpXtpQ875M4m0SRFA="
       }
     },
     {

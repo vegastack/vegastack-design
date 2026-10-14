@@ -265,6 +265,10 @@ test("A11Y-24: on a coarse pointer every size grows a 44px invisible hit area (c
     const button = screen.getByRole("button", { name: size }).element();
     expect(button.className, size).toContain(inset);
     expect(button.className, size).toContain("pointer-coarse:after:absolute");
+    // Never into an interactive neighbour: flush on a side with a sibling control.
+    expect(button.className, size).toContain(
+      "pointer-coarse:[:is(button,a[href],input,select,textarea,[role=button])+&]:after:start-0",
+    );
     expect(button.className, size).toContain("relative");
   }
 });

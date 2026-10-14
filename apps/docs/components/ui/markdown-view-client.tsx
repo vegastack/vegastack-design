@@ -1,4 +1,4 @@
-// @vegastack markdown-view@0.25.34 sha256-XK/NXL0W0iVBTPhu2NKppnLLjWmD9tXSmn+AULI/iCM=
+// @vegastack markdown-view@0.25.34 sha256-pOwAa5b9OiZeVXCeR7lnxK/UUIUpXtpQ875M4m0SRFA=
 
 "use client";
 
@@ -137,6 +137,30 @@ export interface MarkdownAnnotationLayout {
 const FIND_HIGHLIGHT = "vs-find";
 const FIND_CURRENT = "vs-find-current";
 
+/**
+ * Each view's own matches. The highlight registry is the document's, and the stylesheet names a
+ * highlight statically, so every view's ranges are kept here by view and the two named highlights
+ * are rebuilt from all of them: one view setting or clearing its find never touches another's.
+ */
+const findByView = new Map<string, { all: Range[]; current: Range | null }>();
+function paintFind() {
+  const registry = highlights();
+  const Highlight = HighlightClass();
+  if (!registry || !Highlight) return;
+  const all = [...findByView.values()].flatMap((view) => view.all);
+  const current = [...findByView.values()].flatMap((view) =>
+    view.current ? [view.current] : [],
+  );
+  if (all.length) registry.set(FIND_HIGHLIGHT, new Highlight(...all));
+  else registry.delete(FIND_HIGHLIGHT);
+  if (current.length) {
+    const highlight = new Highlight(...current) as { priority?: number };
+    // Above the every-match highlight where they overlap.
+    highlight.priority = 1;
+    registry.set(FIND_CURRENT, highlight);
+  } else registry.delete(FIND_CURRENT);
+}
+
 /** Every case-insensitive match of `query` in the view's text, as DOM ranges. */
 function findRanges(root: HTMLElement, query: string): Range[] {
   const needle = query.trim().toLocaleLowerCase();
@@ -157,16 +181,27 @@ function findRanges(root: HTMLElement, query: string): Range[] {
     starts.push(text.length);
     text += (node as Text).data;
   }
-  const haystack = text.toLocaleLowerCase();
-  const at = (offset: number): [Text, number] => {
+  // Case-fold code point by code point and keep where each folded unit came from: folding can
+  // change a string's length (`İ` folds to two units), so folded offsets are not text offsets.
+  let haystack = "";
+  const origin: number[] = [];
+  let offset = 0;
+  for (const char of text) {
+    const folded = char.toLocaleLowerCase();
+    for (let unit = 0; unit < folded.length; unit++) origin.push(offset);
+    haystack += folded;
+    offset += char.length;
+  }
+  origin.push(text.length);
+  const at = (position: number): [Text, number] => {
     let low = 0;
     let high = nodes.length - 1;
     while (low < high) {
       const mid = (low + high + 1) >> 1;
-      if (starts[mid]! <= offset) low = mid;
+      if (starts[mid]! <= position) low = mid;
       else high = mid - 1;
     }
-    return [nodes[low]!, offset - starts[low]!];
+    return [nodes[low]!, position - starts[low]!];
   };
   const ranges: Range[] = [];
   for (
@@ -174,11 +209,16 @@ function findRanges(root: HTMLElement, query: string): Range[] {
     index !== -1 && ranges.length < 1000;
     index = haystack.indexOf(needle, index + needle.length)
   ) {
+    const start = origin[index]!;
+    // The text offset just past the match: where the next folded unit came from, or — when the
+    // match ends inside one character's folding — past that whole character.
+    let end = origin[index + needle.length]!;
+    if (end <= start) end = start + (text.codePointAt(start)! > 0xffff ? 2 : 1);
+    const [startNode, startOffset] = at(start);
+    const [endNode, endOffset] = at(end - 1);
     const range = document.createRange();
-    const [startNode, startOffset] = at(index);
-    const [endNode, endOffset] = at(index + needle.length - 1);
     range.setStart(startNode, startOffset);
-    range.setEnd(endNode, endOffset + 1);
+    range.setEnd(endNode, Math.min(endOffset + 1, endNode.length));
     ranges.push(range);
   }
   return ranges;
@@ -216,6 +256,8 @@ export interface MarkdownViewEffectsProps {
   annotationIds?: readonly string[];
   /** Highlights every match and shows the match bar. @default undefined */
   findQuery?: string;
+  /** The view's source text: when it changes, the matches are found again. @default undefined */
+  content?: string;
   /** The match bar's close button. Without it the bar has none. @default undefined */
   onFindClose?: () => void;
   /** Open every toggle while the page prints, and restore them after. @default false */
@@ -260,11 +302,12 @@ export function MarkdownViewEffects({
   onAnnotationsLayout,
   annotationIds,
   findQuery,
+  content,
   onFindClose,
   printToggles = false,
   findLabels,
 }: MarkdownViewEffectsProps) {
-  // Mounted: the portal (find bar, live region) renders from the first client effect on.
+  // Mounted: the find bar renders from the first client effect on (its matches are the client's).
   const [mounted, setMounted] = React.useState(false);
   React.useEffect(() => setMounted(true), []);
   const root = () =>
@@ -371,28 +414,24 @@ export function MarkdownViewEffects({
     const found = findRanges(view, query);
     setMatches(found);
     setCurrent(0);
-    const registry = highlights();
-    const Highlight = HighlightClass();
-    if (registry && Highlight)
-      registry.set(FIND_HIGHLIGHT, new Highlight(...found));
+    findByView.set(viewId, { all: found, current: null });
+    paintFind();
     announce(found.length ? labels.position(1, found.length) : labels.none);
     return () => {
-      registry?.delete(FIND_HIGHLIGHT);
-      registry?.delete(FIND_CURRENT);
+      findByView.delete(viewId);
+      paintFind();
     };
-    // Labels are strings the host passes per render; the query and view are the inputs.
-  }, [query, mounted]);
+    // Labels are strings the host passes per render; the query, the view and its text are the
+    // inputs — new text means new matches (old ranges would point into replaced nodes).
+  }, [query, mounted, content, viewId]);
   React.useEffect(() => {
     const range = matches[current];
     if (!range) return;
     openAncestors(range.startContainer);
-    const registry = highlights();
-    const Highlight = HighlightClass();
-    if (registry && Highlight) {
-      const highlight = new Highlight(range) as { priority?: number };
-      // Above the every-match highlight where they overlap.
-      highlight.priority = 1;
-      registry.set(FIND_CURRENT, highlight);
+    const own = findByView.get(viewId);
+    if (own) {
+      own.current = range;
+      paintFind();
     }
     const target = range.startContainer.parentElement;
     target?.scrollIntoView({ block: "center", behavior: "smooth" });
@@ -416,13 +455,11 @@ export function MarkdownViewEffects({
           role="search"
           aria-label={labels.label}
           className="fixed end-4 bottom-[calc(var(--spacing)*4+env(safe-area-inset-bottom))] z-50 flex h-8 items-center gap-0.5 rounded-lg border border-border bg-popover ps-2.5 pe-0.5 font-sans text-sm text-popover-foreground shadow-md print:hidden"
+          // Escape closes; Enter and Space stay the buttons' own (activate the focused one).
           onKeyDown={(event) => {
             if (event.key === "Escape" && onFindClose) {
               event.preventDefault();
               onFindClose();
-            } else if (event.key === "Enter") {
-              event.preventDefault();
-              step(event.shiftKey ? -1 : 1);
             }
           }}
         >

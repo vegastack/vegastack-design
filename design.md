@@ -858,8 +858,8 @@ FRM-4 · FRM-15`
   which a 320px-only sweep cannot see.
 - **A11Y-24** (MK, 2026-10-14) — on a touch pointer every `Button` size answers a tap 44×44: a
   `pointer-coarse:` `::after` hit area, inset per size from the padding box, so nothing moves
-  visually. Where buttons sit closer than that, DOM order takes the overlap; the geometry lane
-  probes a `gap-1` row for a seam that taps nothing.
+  visually. It never grows into an interactive neighbour — beside a sibling control that side stays
+  flush — so a dense row never overlaps; the geometry lane probes every pixel of a 2px-gap row.
 - **A11Y-3 / A11Y-4** — live regions are polite `status` by default; `alert` only for destructive or
   warning content rendered after mount; page chrome present at load gets no live role at all.
   `useAnnouncer` is the one implementation: one region per component, mounted empty from first paint,

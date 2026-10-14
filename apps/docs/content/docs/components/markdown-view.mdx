@@ -341,8 +341,10 @@ With `onAnnotationClick`, a comment highlight is one tab stop — a button named
 and count ("3 comments on “annual price”") — that opens on <kbd>Enter</kbd> or <kbd>Space</kbd>;
 the rest of a highlight split by formatting is hidden from assistive technology, which heard it in
 that name. A count pill's number is `aria-hidden`; its name is the sentence ("3 comments"). The
-find bar is a `search` landmark ("Find in page"): <kbd>Enter</kbd> and <kbd>Shift</kbd>+<kbd>Enter</kbd>
-step through the matches, <kbd>Esc</kbd> closes it, and "2 of 12" is announced politely. A heading's
+find bar is a `search` landmark ("Find in page") docked at the window's bottom end: its Previous and
+Next buttons step through the matches, <kbd>Esc</kbd> closes it, and "2 of 12" is announced
+politely. Overlapping highlights never nest: each thread has exactly one tab stop (where another
+thread covers exactly its words, its count pill is that stop). A heading's
 copy-link button is named "Copy link to “Pricing”". A table that scrolls is a focusable region
 named "Table, scrolls sideways", so the arrow keys scroll it.
 

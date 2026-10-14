@@ -25,12 +25,13 @@
 #   A11Y-24 (MK, 2026-10-14): on a coarse pointer every size grows an invisible `::after` hit area
 #     to 44×44 (`pointer-coarse:after:absolute` plus a per-size `after:-inset-*` from the padding
 #     box inside the 1px border: 11px on xs/icon-xs, 9px on sm/icon-sm, 7px on default/icon, 5px on
-#     lg/icon-lg); nothing moves.
+#     lg/icon-lg); nothing moves. Beside a sibling control (button, link, field, role=button) that
+#     side stays flush (`after:start-0` / `after:end-0`), so neighbouring areas never overlap.
 #   cn: `import { cn } from "cn"` becomes `@vegastack/design` — our npm layer owns `cn` (DOC-2).
 #   formatting: the repository formatter (prettier defaults: semicolons, trailing commas)
 #               reflows the file; those hunks carry no decision of their own.
 diff --git a/button.tsx b/button.tsx
-index 1efb940..a77dbbd 100644
+index 1efb940..c0c82d9 100644
 --- a/button.tsx
 +++ b/button.tsx
 @@ -1,57 +1,93 @@
@@ -45,7 +46,7 @@ index 1efb940..a77dbbd 100644
  
  const buttonVariants = cva(
 -  "group/button inline-flex shrink-0 items-center justify-center rounded-lg border border-transparent bg-clip-padding text-sm font-medium whitespace-nowrap transition-all outline-none select-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 active:not-aria-[haspopup]:translate-y-px disabled:pointer-events-none disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
-+  "group/button relative inline-flex shrink-0 items-center justify-center rounded-lg border border-transparent bg-clip-padding text-sm font-medium whitespace-nowrap transition-all select-none pointer-coarse:after:absolute pointer-coarse:after:content-[''] active:not-aria-[haspopup]:translate-y-px aria-invalid:border-destructive data-disabled:not-data-loading:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
++  "group/button relative inline-flex shrink-0 items-center justify-center rounded-lg border border-transparent bg-clip-padding text-sm font-medium whitespace-nowrap transition-all select-none pointer-coarse:after:absolute pointer-coarse:after:content-[''] pointer-coarse:[:is(button,a[href],input,select,textarea,[role=button])+&]:after:start-0 pointer-coarse:[&:has(+:is(button,a[href],input,select,textarea,[role=button]))]:after:end-0 active:not-aria-[haspopup]:translate-y-px aria-invalid:border-destructive data-disabled:not-data-loading:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
    {
      variants: {
        variant: {
