@@ -1,4 +1,4 @@
-// @vegastack toast@0.25.41 sha256-bwhLjG/3TGDqm3oBtSucLHaazcfGmnShMZdOpYIbu7I=
+// @vegastack toast@0.25.42 sha256-MY52J+5oYrsDwFcZU5NKmRL2XZAaYj8F0ET8+DxlfHo=
 
 "use client";
 
