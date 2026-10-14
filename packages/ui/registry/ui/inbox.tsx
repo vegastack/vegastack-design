@@ -1,4 +1,4 @@
-// @vegastack inbox@0.25.34 sha256-9MtQLIs5qIBlZLaxXFxQt7e1CdmU2m/KivgrPE+Spu0=
+// @vegastack inbox@0.25.35 sha256-v9gs1uY25JFmBXwi6FzhEA2qRdKzZaANCi7kHMUp/Kw=
 
 "use client";
 
