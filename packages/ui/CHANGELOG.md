@@ -1,5 +1,11 @@
 # @vegastack/ui
 
+## 0.25.40
+
+### Patch Changes
+
+- [#653](https://github.com/vegastack/vegastack-design/pull/653) [`0c31e06`](https://github.com/vegastack/vegastack-design/commit/0c31e06eabce032461b8c89f48af35dfc1c5c497) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🔧 `AgentEditBanner` shows the full "Undo this agent's changes" from a 24rem banner (was 28rem), so a banner in a desktop page column reads the long label; a phone-width banner keeps "Undo changes".
+
 ## 0.25.39
 
 ### Patch Changes
