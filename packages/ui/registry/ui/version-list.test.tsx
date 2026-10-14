@@ -160,6 +160,8 @@ test("a version the system kept names no one: no avatar, no placeholder person",
   ).toBeNull();
   // The named row still says when; the unnamed one is its time alone.
   expect(named!.querySelectorAll("time").length).toBe(1);
+  // Alone on its line, the time starts it: capitalized.
+  expect(named!.querySelectorAll("time")[0]!.textContent).toMatch(/^[A-Z0-9]/u);
   expect(plain!.querySelectorAll("time").length).toBe(1);
   await expectNoA11yViolations(screen.container);
 });
