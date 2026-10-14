@@ -9,6 +9,21 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.25.32] — October 14, 2026
+
+<!-- assembled from 1 changeset: 59cbf137ba08 -->
+
+### 📦 npm
+
+- **`@vegastack/design`** → **`0.8.9`** (was `0.8.8`).
+- The design-system registry (`@vegastack/ui`) bumps 0.25.31 → 0.25.32.
+
+### 🐛 Fixed
+
+- **text-edit-markdown** / **TextEdit**: inline code inside a link, bold, italic or strikethrough (``[`code`](/x)``, ``**`code`**``) no longer throws on parse — the code mark now combines with other marks. Link titles are kept for inline and reference-style links (`[text][ref]` + `[ref]: url "Title"`), written back as inline links with their title; corpus cases for both.
+  [docs](https://design.vegastack.com/docs/guides/markdown) ·
+  [`4b0d50d`](https://github.com/VegaStack/vegastack-design/commit/4b0d50d)
+
 ## [0.25.31] — October 14, 2026
 
 <!-- assembled from 2 changesets: b36aa396c9fa -->

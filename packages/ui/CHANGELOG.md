@@ -1,5 +1,14 @@
 # @vegastack/ui
 
+## 0.25.32
+
+### Patch Changes
+
+- [#632](https://github.com/vegastack/vegastack-design/pull/632) [`4b0d50d`](https://github.com/vegastack/vegastack-design/commit/4b0d50da4304c30bda72abd5f2389813f7c594d3) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🐛 **text-edit-markdown** / **TextEdit**: inline code inside a link, bold, italic or strikethrough (``[`code`](/x)``, ``**`code`**``) no longer throws on parse — the code mark now combines with other marks. Link titles are kept for inline and reference-style links (`[text][ref]` + `[ref]: url "Title"`), written back as inline links with their title; corpus cases for both.
+  [docs](https://design.vegastack.com/docs/guides/markdown)
+- Updated dependencies [[`4b0d50d`](https://github.com/vegastack/vegastack-design/commit/4b0d50da4304c30bda72abd5f2389813f7c594d3)]:
+  - @vegastack/design@0.8.9
+
 ## 0.25.31
 
 ### Patch Changes
