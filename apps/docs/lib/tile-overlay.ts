@@ -1,4 +1,4 @@
-// @vegastack tile-overlay@0.25.35 sha256-oDl5Abigxw6LHAbMl5JlCesyMMAH1FzK9+qu8ivcfPw=
+// @vegastack tile-overlay@0.25.36 sha256-r6bl6F3YUMLVCHfZ0avN5Pi0c5ErpU7Q+KVMlZu4P8A=
 
 /**
  * tile-overlay — the ONE visual recipe for media tiles and the chrome that floats over them:

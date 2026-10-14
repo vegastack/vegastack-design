@@ -1,4 +1,4 @@
-// @vegastack comment-margin@0.25.35 sha256-ja1ABjLiAd5r6G/yHc2CPhfjgGcdWJynWEkbSEYIo3Q=
+// @vegastack comment-margin@0.25.36 sha256-DIaRtMtDG9CNRlWleFuE9kpu9nEmdmfDsLF4+OGCB50=
 
 "use client";
 

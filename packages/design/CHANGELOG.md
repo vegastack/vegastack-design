@@ -1,5 +1,18 @@
 # @vegastack/design
 
+## 0.8.13
+
+### Patch Changes
+
+- [#641](https://github.com/vegastack/vegastack-design/pull/641) [`61d4d55`](https://github.com/vegastack/vegastack-design/commit/61d4d55a0f7a8fafbdf387a9f10e8fd646a6160f) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🐛 **text-edit-markdown** / **TextEdit**: a link (or any other span) followed by an image on the same line — `See [docs](/d) ![shot](/s.png)` — no longer fails to parse ("Empty text nodes are not allowed"); the image is lifted to its own block as anywhere else. Corpus case `regressions/link-then-image`.
+  [docs](https://design.vegastack.com/docs/guides/markdown)
+
+- [#643](https://github.com/vegastack/vegastack-design/pull/643) [`de023eb`](https://github.com/vegastack/vegastack-design/commit/de023eb0ff3f30117dd47bea9ba73927e50063ff) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🔧 **VersionList**: `author` may be `null` — a version the system kept with no person behind it (a page's text from before live editing) names no one: no avatar or placeholder person, the time alone.
+  [docs](https://design.vegastack.com/docs/components/version-list)
+
+- [#645](https://github.com/vegastack/vegastack-design/pull/645) [`dfd4214`](https://github.com/vegastack/vegastack-design/commit/dfd42149d70052fd9e57b16359019e0fbcc08118) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🐛 **VersionList**: a system-kept row's time (no author before it) starts its line capitalized — "Today, 11:59 AM".
+  [docs](https://design.vegastack.com/docs/components/version-list)
+
 ## 0.8.12
 
 ### Patch Changes
