@@ -25067,6 +25067,51 @@
             "status": "not-applicable",
             "rationale": "Type-only exports do not render or accept runtime refs."
           }
+        },
+        {
+          "name": "TextEditHeadingAnchor",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/text-edit.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "TextEditSlashAction",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/text-edit.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "TextEditSlashActionContext",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/text-edit.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "TextEditStats",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/text-edit.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "TextEditToggleState",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/text-edit.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
         }
       ],
       "variants": {
@@ -25157,6 +25202,7 @@
         "@vegastack/drag-item",
         "@vegastack/dropdown-menu",
         "@vegastack/dropzone",
+        "@vegastack/emoji-data",
         "@vegastack/empty",
         "@vegastack/file-kind",
         "@vegastack/file-viewer",
@@ -25164,6 +25210,8 @@
         "@vegastack/input",
         "@vegastack/markdown-view",
         "@vegastack/popover",
+        "@vegastack/separator",
+        "@vegastack/sheet",
         "@vegastack/suggestion-menu",
         "@vegastack/tabs",
         "@vegastack/text-anchor",
@@ -25174,12 +25222,14 @@
         "@vegastack/toast",
         "@vegastack/toggle",
         "@vegastack/tooltip",
+        "@vegastack/use-announcer",
         "@vegastack/use-file-drop"
       ],
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
         "@tiptap/extension-collaboration-caret@^3.31.4",
         "@tiptap/extension-collaboration@^3.31.4",
+        "@tiptap/extension-find-and-replace@^3.31.4",
         "@tiptap/extensions@^3",
         "@tiptap/pm@^3",
         "@tiptap/react@^3",
@@ -25250,7 +25300,11 @@
           "attributes": [
             {
               "name": "data-menu",
-              "values": ["text-edit-mention", "text-edit-slash"]
+              "values": [
+                "text-edit-emoji",
+                "text-edit-mention",
+                "text-edit-slash"
+              ]
             },
             {
               "name": "data-slot",
@@ -27101,6 +27155,10 @@
       "dataAttributes": {
         "SuggestionMenu": {
           "attributes": [
+            {
+              "name": "data-disabled",
+              "values": [""]
+            },
             {
               "name": "data-highlighted",
               "values": [""]

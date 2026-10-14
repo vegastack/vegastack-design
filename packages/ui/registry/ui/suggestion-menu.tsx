@@ -1,4 +1,4 @@
-// @vegastack suggestion-menu@0.25.38 sha256-PGpGxYicNTQJ2qElfELbSCN9f/X29Tu85ViuQFWwKAA=
+// @vegastack suggestion-menu@0.25.38 sha256-CsAIav7aoej6wD7nmdBecDfdfQanDOjczpb8xX5E66M=
 
 "use client";
 
@@ -61,6 +61,12 @@ export interface SuggestionMenuOption {
    * @default undefined
    */
   group?: string;
+  /**
+   * Shown but not choosable: muted, `aria-disabled`, and a click or <kbd>Enter</kbd> does nothing
+   * (say why in `description`).
+   * @default false
+   */
+  disabled?: boolean;
 }
 
 /**
@@ -330,13 +336,20 @@ export function SuggestionMenu({
         id={suggestionMenuOptionId(id, index)}
         role="option"
         aria-selected={active}
+        aria-disabled={option.disabled || undefined}
         data-slot="suggestion-menu-option"
         data-highlighted={active ? "" : undefined}
+        data-disabled={option.disabled ? "" : undefined}
         onMouseMove={() => {
           if (!active) onActiveIndexChange(index);
         }}
-        onClick={() => onSelect(index)}
-        className={SUGGESTION_MENU_ROW}
+        onClick={() => {
+          if (!option.disabled) onSelect(index);
+        }}
+        className={cn(
+          SUGGESTION_MENU_ROW,
+          option.disabled && "cursor-not-allowed opacity-50",
+        )}
       >
         {option.icon}
         <span

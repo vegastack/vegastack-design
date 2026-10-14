@@ -2418,7 +2418,7 @@
         "whenToUse": "Installed automatically with TextEdit or TemplateEditor; import it directly when another editor that keeps focus needs a caret-anchored list of suggestions.",
         "whenNotToUse": "A list that takes focus or hangs off a trigger element — that is Combobox, Command or DropdownMenu.",
         "version": "0.25.38",
-        "integrity": "sha256-PGpGxYicNTQJ2qElfELbSCN9f/X29Tu85ViuQFWwKAA="
+        "integrity": "sha256-CsAIav7aoej6wD7nmdBecDfdfQanDOjczpb8xX5E66M="
       }
     },
     {
@@ -18171,6 +18171,7 @@
         "@vegastack/design-tokens@^0.8.12",
         "@tiptap/extension-collaboration@^3.31.4",
         "@tiptap/extension-collaboration-caret@^3.31.4",
+        "@tiptap/extension-find-and-replace@^3.31.4",
         "@tiptap/y-tiptap@^3.0.9",
         "yjs@^13.6.33",
         "y-protocols@^1.0.7"
@@ -18204,7 +18205,11 @@
         "@vegastack/text-edit-grammar",
         "@vegastack/text-edit-schema",
         "@vegastack/text-edit-markdown",
-        "@vegastack/avatar"
+        "@vegastack/avatar",
+        "@vegastack/sheet",
+        "@vegastack/separator",
+        "@vegastack/use-announcer",
+        "@vegastack/emoji-data"
       ],
       "files": [
         {
@@ -18222,7 +18227,7 @@
         "whenToUse": "Comments, notes, summaries and documents stored as Markdown (format=\"markdown\") or HTML — with @ mentions, uploads, callouts, toggles, an outline and comment highlights for page editors; in-place editing of a MarkdownView (the read view is the editor until first edited).",
         "whenNotToUse": "Plain single-line input (Input) or collaborative real-time docs (deferred text-edit-collab).",
         "version": "0.25.38",
-        "integrity": "sha256-gTsjJ5ycWVV2YLbOXJoAK+8b4fzzPHy4M2dS1ohjXTk="
+        "integrity": "sha256-/F5Md98fT4H9v0mLsQsLmEX1Ys1rIXESCollTV+1FH8="
       }
     },
     {
