@@ -322,6 +322,22 @@ test("DS-21: max blocks adding and announces the reason, keeping the draft", asy
   expect((input.element() as HTMLInputElement).value).toBe("gamma");
 });
 
+test("a refusal also shows under the field until the next keystroke", async () => {
+  const screen = await render(
+    <ChipInput aria-label="Tags" max={1} defaultValue={["alpha"]} />,
+  );
+  const input = screen.getByRole("textbox", { name: "Tags" });
+  await input.fill("alpha");
+  await userEvent.keyboard("{Enter}");
+  const notice = () =>
+    document.querySelector('[data-slot="chip-input-notice"]')?.textContent;
+  await expect.poll(notice).toBe("1 duplicate skipped");
+  await input.fill("beta");
+  expect(notice()).toBeUndefined();
+  await userEvent.keyboard("{Enter}");
+  await expect.poll(notice).toBe("Up to 1 entries");
+});
+
 test("DS-21: maxLabel sets the announced copy", async () => {
   const screen = await render(
     <ChipInput
