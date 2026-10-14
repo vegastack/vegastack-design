@@ -1,14 +1,14 @@
 {
   "schemaVersion": 1,
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "4f93c1c76222fba062d10dc25f709b58e784a2fc7fe62d4c0299ebc2488d9581",
+  "contractSha256": "d901aa24511b66edd7f13713fa87d4b82f721d53a536b51d506156310527231d",
   "inventory": {
-    "expected": 744,
-    "actual": 744,
-    "unique": 744
+    "expected": 745,
+    "actual": 745,
+    "unique": 745
   },
   "classes": {
-    "components": 160,
+    "components": 161,
     "animatedIcons": 467,
     "hooks": 15,
     "blocks": 15,
@@ -87,8 +87,8 @@
       ]
     },
     "Navigation/layout": {
-      "expected": 21,
-      "actual": 21,
+      "expected": 22,
+      "actual": 22,
       "members": [
         "accordion",
         "app-shell",
@@ -99,6 +99,7 @@
         "collapsible",
         "command",
         "direction",
+        "document-layout",
         "folder-tree",
         "menubar",
         "multi-step-form",
@@ -808,7 +809,7 @@
       ]
     }
   },
-  "componentRoutes": 155,
+  "componentRoutes": 156,
   "blockRoutes": 22,
   "modeledExemptions": 3
 }

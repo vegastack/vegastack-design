@@ -84,6 +84,7 @@
     "resizable",
     "app-shell",
     "record-layout",
+    "document-layout",
     "comments",
     "activity-feed",
     "comment-margin",

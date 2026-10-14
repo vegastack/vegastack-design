@@ -16,6 +16,7 @@ import {
 import {
   BreadcrumbDropTarget,
   BreadcrumbSiblings,
+  BreadcrumbTrail,
   type BreadcrumbSibling,
 } from "@/components/ui/breadcrumb-cascade";
 import { DataList, type DataListColumn } from "@/components/ui/data-list";
@@ -180,6 +181,30 @@ export function breadcrumbCascadeDropTarget(): ReactNode {
       <p className="text-xs text-muted-foreground" role="status">
         {log}
       </p>
+    </Wrapper>
+  );
+}
+
+const PATH = [
+  { label: "Product", href: "#product" },
+  { label: "Specs", href: "#specs" },
+  { label: "Pricing", href: "#pricing" },
+  { label: "Pricing v2" },
+];
+
+/**
+ * The compact trail for a narrow header: `‹` and the parent's name, a menu of the whole path. The
+ * second trail is `compact="auto"` in a 40rem-wide frame — full above it, compact below.
+ */
+export function breadcrumbTrailCompact(): ReactNode {
+  return (
+    <Wrapper className="flex-col items-stretch">
+      <div className="flex h-14 items-center rounded-lg border border-border px-4 sm:w-80">
+        <BreadcrumbTrail compact steps={PATH} />
+      </div>
+      <div className="flex h-14 items-center rounded-lg border border-border px-4">
+        <BreadcrumbTrail compact="auto" steps={PATH} />
+      </div>
     </Wrapper>
   );
 }

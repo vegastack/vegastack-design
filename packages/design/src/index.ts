@@ -6,6 +6,10 @@ import { twMerge as tailwindMerge } from "tailwind-merge";
 // importing `cn` would crash on import. `import type` is erased at build, so `mergeRefs`
 // can be typed against React's ref shapes without pulling React into the module graph.
 import type * as React from "react";
+import {
+  proseClassName as baseProse,
+  proseDocument as documentProse,
+} from "./prose";
 
 // Plain `twMerge`. Before the shadcn reset this was `extendTailwindMerge`, teaching tailwind-merge
 // that the deleted role tokens (the h1-h4 tier, the label tier, the code tier, the mono label and
@@ -110,7 +114,27 @@ export const FLOATING = {
  * `TextEdit`'s editor surface so both render identical computed styles (audit B4-09). See
  * `./prose.ts` for why it is expressed as descendant variants rather than per-element classes.
  */
-export { prose, proseClassName, type ProseElement } from "./prose";
+export {
+  prose,
+  proseClassName,
+  proseDocument,
+  type ProseElement,
+  type ProseDocumentElement,
+} from "./prose";
+
+/**
+ * The document type scale as one class string: the base `prose` recipe with the `proseDocument`
+ * overlay merged over it (TYP-20) — what `MarkdownView` and `TextEdit` wear with
+ * `typeScale="document"`. Merged once here, through `cn`, so every `[&_h1]:text-lg` of the base
+ * recipe yields to its document value and nothing pays for a `tailwind-merge` pass per render.
+ *
+ * @example
+ * <article className={proseDocumentClassName}>…</article>
+ */
+export const proseDocumentClassName: string = cn(
+  baseProse,
+  Object.values(documentProse).join(" "),
+);
 
 /**
  * Fan one DOM node out to several refs — a forwarded `ref` prop plus one or more internal

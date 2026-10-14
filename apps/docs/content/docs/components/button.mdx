@@ -166,4 +166,8 @@ Upstream's file plus `packages/ui/upstream/patches/button.patch`. Every hunk:
 - **API-5, A11Y-12** — the `loading` prop, the out-of-flow spinner and the `opacity-0` label.
 - **A11Y-13** — the `destructive` variant's tint takes `text-destructive-text`; upstream's
   `text-destructive` on its own `/10` measures 3.98:1 in light, under the AA floor A11Y-1 enforces.
+- **A11Y-24** — on a coarse pointer every size grows an invisible `::after` hit area to 44×44
+  (a per-size inset from the padding box: 11px on `xs`/`icon-xs`, 9px on `sm`/`icon-sm`, 7px on
+  `default`/`icon`, 5px on `lg`/`icon-lg`); nothing moves visually. Where buttons sit closer than
+  that, the later one in the DOM takes the overlap. MK, 2026-10-14.
 - **DOC-2** — `cn` is imported from `@vegastack/design`.

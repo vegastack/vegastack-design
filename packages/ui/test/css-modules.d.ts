@@ -28,3 +28,11 @@ declare module "*?no-inline" {
   const url: string;
   export default url;
 }
+
+// `?url` is Vite's asset-URL import. `document-geometry.browser.test.tsx` loads the real Geist face
+// (from the docs app's `geist` package), because the document measure is set in `ch` of Geist and
+// the lane would otherwise measure a fallback font.
+declare module "*?url" {
+  const url: string;
+  export default url;
+}

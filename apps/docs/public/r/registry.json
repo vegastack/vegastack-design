@@ -215,6 +215,40 @@
       }
     },
     {
+      "name": "document-layout",
+      "type": "registry:ui",
+      "title": "Document Layout",
+      "description": "A page read as a document — the title area, the text at a reading measure, what follows it, a contents column and a comment margin — on one grid with four tiers by its own width, plus its skeleton and a tier hook.",
+      "categories": [
+        "layout"
+      ],
+      "dependencies": [
+        "@vegastack/design@^0.8.11",
+        "@vegastack/design-tokens@^0.8.3"
+      ],
+      "registryDependencies": [
+        "@vegastack/skeleton"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/document-layout.tsx",
+          "type": "registry:ui",
+          "target": "@ui/document-layout.tsx"
+        },
+        {
+          "path": "packages/ui/registry/ui/use-document-layout-tier.ts",
+          "type": "registry:ui",
+          "target": "@ui/use-document-layout-tier.ts"
+        }
+      ],
+      "meta": {
+        "whenToUse": "A page people read and write as a document (a wiki page, a spec, a public page, a version's full view): the text at a calm measure with a contents list and a comment margin when there is room, and its loading skeleton on the same grid.",
+        "whenNotToUse": "A record page with a rail of property cards (RecordLayout), a form or settings page (AppShellPage size=\"prose\"), or a list.",
+        "version": "0.25.34",
+        "integrity": "sha256-HNyzkbq/1YsHXSGUQl0VhHSIZ9+hUfob2TQA8frK4ks="
+      }
+    },
+    {
       "name": "record-layout",
       "type": "registry:ui",
       "title": "Record Layout",
@@ -823,7 +857,7 @@
         "whenToUse": "A file browser's trail: drop rows onto a parent folder's crumb, or jump to a sibling folder from a segment's menu.",
         "whenNotToUse": "A plain location trail (Breadcrumb alone), or primary navigation.",
         "version": "0.25.34",
-        "integrity": "sha256-1yHZ+71EwD/RyGNnxP7y7XnAq8e95dyBxaNDMI1qmJo="
+        "integrity": "sha256-QKT9Q6r4Gjovi9KUgUqbr2qOOWqudYiezGUqKlme8aw="
       }
     },
     {
@@ -883,7 +917,7 @@
         "whenToUse": "Any clickable action — submit, confirm, destructive, etc.",
         "whenNotToUse": "Navigation to a URL — style the link with buttonVariants(): <Link href className={buttonVariants({ variant, size })}>.",
         "version": "0.25.34",
-        "integrity": "sha256-s+3D1TKmsBkU+0KCaC+GmGtjlhtZjvIkv/bN1pCPaQE="
+        "integrity": "sha256-jmsy+bjYXM+SvpN4WW0toGs13sshCyTgSfBoPNbYTkA="
       }
     },
     {
@@ -16066,7 +16100,7 @@
       "name": "markdown-view",
       "type": "registry:ui",
       "title": "Markdown View",
-      "description": "Render a markdown string to safe, token-styled HTML — headings (with optional ids), lists, code, blockquotes, links, GFM tables, mention and file chips, callouts and toggles — XSS-safe, no raw HTML.",
+      "description": "Render a markdown string to safe, token-styled HTML — headings (with optional ids and copy links), lists, code, blockquotes, links, GFM tables that fade at a scrolling edge, mention and file chips, callouts and toggles — XSS-safe, no raw HTML; at the document type scale it is a page's read view with comment highlights, an outline, per-reader toggles and find.",
       "categories": [
         "data-display"
       ],
@@ -16083,7 +16117,10 @@
         "@vegastack/button",
         "@vegastack/popover",
         "@vegastack/alert",
-        "@vegastack/text-edit-grammar"
+        "@vegastack/text-edit-grammar",
+        "@vegastack/copy-button",
+        "@vegastack/use-announcer",
+        "@vegastack/text-anchor"
       ],
       "files": [
         {
@@ -16095,13 +16132,18 @@
           "path": "packages/ui/registry/ui/markdown-citation.tsx",
           "type": "registry:ui",
           "target": "@ui/markdown-citation.tsx"
+        },
+        {
+          "path": "packages/ui/registry/ui/markdown-view-client.tsx",
+          "type": "registry:ui",
+          "target": "@ui/markdown-view-client.tsx"
         }
       ],
       "meta": {
         "whenToUse": "Display user/system-authored markdown — descriptions, comments, activity — as safe token-styled prose.",
         "whenNotToUse": "Editing markdown (use an editor), or when the source needs embedded raw HTML.",
         "version": "0.25.34",
-        "integrity": "sha256-1yj+/dBAp/8vmnXROmwb71OHzZAsI/RyzDA4ntie3A8="
+        "integrity": "sha256-DB/4xf9EYJcwYd1Dlg0oREze4nC2Cy8rdTr7Mwl25iY="
       }
     },
     {
@@ -17568,7 +17610,7 @@
         "whenToUse": "Secondary content beside the page — filters, details, a settings panel, a long record form — that should not take the centre of the screen. Side sheets take size sm/default/lg/xl (Dialog's width scale); put long content in SheetBody so the footer stays on screen.",
         "whenNotToUse": "A decision (AlertDialog), a centred form (Dialog), or a touch-first panel with snap points (Drawer).",
         "version": "0.25.34",
-        "integrity": "sha256-o0LSPbpp+5EYX89wBgdFDDoJVkVYBT6m6pPQraqO1ng="
+        "integrity": "sha256-xx5arm03OrnvCRYjnmXP8/OY5SOj3HWStQPa5iLMY8I="
       }
     },
     {
@@ -18180,7 +18222,7 @@
         "whenToUse": "Comments, notes, summaries and documents stored as Markdown (format=\"markdown\") or HTML — with @ mentions, uploads, callouts, toggles, an outline and comment highlights for page editors; in-place editing of a MarkdownView (the read view is the editor until first edited).",
         "whenNotToUse": "Plain single-line input (Input) or collaborative real-time docs (deferred text-edit-collab).",
         "version": "0.25.34",
-        "integrity": "sha256-dF5urPC2h4QdExjJsgiK0521haStTzuDcBoadxHn7AI="
+        "integrity": "sha256-ChgYvzXNKgATxmdJFwwHyxpCP7ULuX/SJvz7AU13AKQ="
       }
     },
     {
@@ -18969,6 +19011,7 @@
         "@vegastack/alert-dialog",
         "@vegastack/button",
         "@vegastack/checkbox",
+        "@vegastack/collapsible",
         "@vegastack/copy-button",
         "@vegastack/icon-glyph",
         "@vegastack/input-group",
@@ -18996,7 +19039,7 @@
         "whenToUse": "Share a record, page or meeting with people and teams, set its space access and publish it to the web — canManage gates access changes and canPublish the Publish tab.",
         "whenNotToUse": "Manage a space's or team's members as a page — compose DataList with PeoplePicker and PermissionMenu.",
         "version": "0.25.34",
-        "integrity": "sha256-4DnCaDER/poRStZnv57NWanA4J62+o3f38KGmBsX500="
+        "integrity": "sha256-l4LNlRMncP8LjqMfhViAJptZJoX6xgv50fHxGBM8qFU="
       }
     },
     {

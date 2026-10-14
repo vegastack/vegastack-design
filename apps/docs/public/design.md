@@ -775,8 +775,8 @@ All four scripts under `tooling/upstream/` carry a `--self-test` that observes t
 
 ## What we add — the one hundred exceptions
 
-`docs/plans/2026-09-18-shadcn-reset/decisions.md` is the register: 224 rows, 108 resolved as
-**shadcn** (upstream ships unchanged) and 116 as **ours**. `packages/ui/upstream/decisions.json` is
+`docs/plans/2026-09-18-shadcn-reset/decisions.md` is the register: 226 rows, 108 resolved as
+**shadcn** (upstream ships unchanged) and 118 as **ours**. `packages/ui/upstream/decisions.json` is
 its machine copy and the only thing a gate reads; `packages/ui/upstream/exception-map.json` records
 which shared component each exception is assigned to. Re-opening a row is MK's decision. The ninety-eight
 group into six themes.
@@ -847,8 +847,8 @@ and **no mandatory pressed step** (INT-4 is shadcn). A hover with no `active:` r
 ### 3. Accessibility beyond upstream
 
 `A11Y-1 · A11Y-2 · A11Y-3 · A11Y-4 · A11Y-5 · A11Y-6 · A11Y-7 · A11Y-8 · A11Y-9 · A11Y-11 ·
-A11Y-12 · A11Y-13 · A11Y-16 · A11Y-17 · A11Y-18 · A11Y-19 · A11Y-20 · A11Y-22 · A11Y-23 · FRM-4 ·
-FRM-15`
+A11Y-12 · A11Y-13 · A11Y-16 · A11Y-17 · A11Y-18 · A11Y-19 · A11Y-20 · A11Y-22 · A11Y-23 · A11Y-24 ·
+FRM-4 · FRM-15`
 
 - **A11Y-1** — WCAG 2.2 AA for every gated foreground/background pair in both themes, as a
   fail-closed gate (`tooling/contrast-check.mjs`, with its own `--self-test`).
@@ -856,6 +856,10 @@ FRM-15`
   `elementFromPoint` probe rather than `getComputedStyle`. Measured per case, at every width:
   upstream grows `SidebarMenuAction` with `after:-inset-2` and then switches it off again at `md`,
   which a 320px-only sweep cannot see.
+- **A11Y-24** (MK, 2026-10-14) — on a touch pointer every `Button` size answers a tap 44×44: a
+  `pointer-coarse:` `::after` hit area, inset per size from the padding box, so nothing moves
+  visually. Where buttons sit closer than that, DOM order takes the overlap; the geometry lane
+  probes a `gap-1` row for a seam that taps nothing.
 - **A11Y-3 / A11Y-4** — live regions are polite `status` by default; `alert` only for destructive or
   warning content rendered after mount; page chrome present at load gets no live role at all.
   `useAnnouncer` is the one implementation: one region per component, mounted empty from first paint,
@@ -952,7 +956,7 @@ token — that is COL-20 being enforced, not broken.
 
 ### 5. Our own recipes and behaviours
 
-`MOT-5 · MOT-6 · MOT-7 · MOT-13 · TYP-13 · BRD-1 · LAY-9 · LAY-10 · LAY-11 · LAY-12 · LAY-13 · LAY-14 ·
+`MOT-5 · MOT-6 · MOT-7 · MOT-13 · TYP-13 · TYP-20 · BRD-1 · LAY-9 · LAY-10 · LAY-11 · LAY-12 · LAY-13 · LAY-14 ·
 LAY-15 · LAY-16 · FRM-9 · FRM-10 · FRM-12 · FRM-13 · OVL-10 · OVL-11 · OVL-13 · OVL-14 · OVL-15 ·
 OVL-16 · OVL-17 · OVL-18 · OVL-20 · OVL-21 · API-5 · API-9 · API-17 · API-18 · API-19 · API-20 · API-21 · API-22 · API-23 ·
 API-24 · API-26 · API-27 · API-28 · API-32 · VOI-1`
@@ -967,6 +971,12 @@ API-24 · API-26 · API-27 · API-28 · API-32 · VOI-1`
   variants, with no `@tailwindcss/typography`. `MarkdownView` and `TextEdit` both wear it, so rendered
   rich text is identical in both. Because it is descendant-expressed, an element-level class on a
   child **loses** to it; restyle by composing the recipe, never by classing the rendered element.
+- **Document type scale** (TYP-20, MK 2026-10-14) — a page read as a document wears the
+  `proseDocument` overlay (`typeScale="document"` on `MarkdownView` and `TextEdit`): 14/24 text,
+  16/26 on a coarse pointer or a narrow window (where INT-13 already makes editing 16px, so reading
+  and editing never jump), 12px between paragraphs, `#` 24 · `##` 20 · `###` 16, inline code in the
+  body's ink, at `DocumentLayout`'s 47ch measure — about 67 characters a line. Compact prose stays
+  the app's own 14px scale everywhere else.
 - **Surfaces** (BRD-1) — cards and floating surfaces draw a real 1px `border border-border`, never
   upstream's `ring-1 ring-foreground/10` box-shadow outline; the floating sidebar draws
   `border border-sidebar-border` (MK, 23-09-2026). Avatar's `ring-2 ring-background` is a stacking

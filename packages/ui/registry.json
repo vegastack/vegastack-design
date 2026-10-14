@@ -190,6 +190,35 @@
       }
     },
     {
+      "name": "document-layout",
+      "type": "registry:ui",
+      "title": "Document Layout",
+      "description": "A page read as a document — the title area, the text at a reading measure, what follows it, a contents column and a comment margin — on one grid with four tiers by its own width, plus its skeleton and a tier hook.",
+      "categories": ["layout"],
+      "dependencies": [
+        "@vegastack/design@^0.8.11",
+        "@vegastack/design-tokens@^0.8.3"
+      ],
+      "registryDependencies": ["@vegastack/skeleton"],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/document-layout.tsx",
+          "type": "registry:ui",
+          "target": "@ui/document-layout.tsx"
+        },
+        {
+          "path": "packages/ui/registry/ui/use-document-layout-tier.ts",
+          "type": "registry:ui",
+          "target": "@ui/use-document-layout-tier.ts"
+        }
+      ],
+      "meta": {
+        "whenToUse": "A page people read and write as a document (a wiki page, a spec, a public page, a version's full view): the text at a calm measure with a contents list and a comment margin when there is room, and its loading skeleton on the same grid.",
+        "whenNotToUse": "A record page with a rail of property cards (RecordLayout), a form or settings page (AppShellPage size=\"prose\"), or a list.",
+        "version": "0.25.34"
+      }
+    },
+    {
       "name": "record-layout",
       "type": "registry:ui",
       "title": "Record Layout",
@@ -12923,7 +12952,7 @@
       "name": "markdown-view",
       "type": "registry:ui",
       "title": "Markdown View",
-      "description": "Render a markdown string to safe, token-styled HTML — headings (with optional ids), lists, code, blockquotes, links, GFM tables, mention and file chips, callouts and toggles — XSS-safe, no raw HTML.",
+      "description": "Render a markdown string to safe, token-styled HTML — headings (with optional ids and copy links), lists, code, blockquotes, links, GFM tables that fade at a scrolling edge, mention and file chips, callouts and toggles — XSS-safe, no raw HTML; at the document type scale it is a page's read view with comment highlights, an outline, per-reader toggles and find.",
       "categories": ["data-display"],
       "dependencies": [
         "marked@^17.0.1",
@@ -12938,7 +12967,10 @@
         "@vegastack/button",
         "@vegastack/popover",
         "@vegastack/alert",
-        "@vegastack/text-edit-grammar"
+        "@vegastack/text-edit-grammar",
+        "@vegastack/copy-button",
+        "@vegastack/use-announcer",
+        "@vegastack/text-anchor"
       ],
       "files": [
         {
@@ -12950,6 +12982,11 @@
           "path": "packages/ui/registry/ui/markdown-citation.tsx",
           "type": "registry:ui",
           "target": "@ui/markdown-citation.tsx"
+        },
+        {
+          "path": "packages/ui/registry/ui/markdown-view-client.tsx",
+          "type": "registry:ui",
+          "target": "@ui/markdown-view-client.tsx"
         }
       ],
       "meta": {
@@ -15466,6 +15503,7 @@
         "@vegastack/alert-dialog",
         "@vegastack/button",
         "@vegastack/checkbox",
+        "@vegastack/collapsible",
         "@vegastack/copy-button",
         "@vegastack/icon-glyph",
         "@vegastack/input-group",

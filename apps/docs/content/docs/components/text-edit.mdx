@@ -321,6 +321,20 @@ under the text (a draft's file cards). `CommentComposer` and replies are built o
   file="components/preview/text-edit.tsx"
 />
 
+### Document type scale
+
+`typeScale="document"` sets a page's text the way it is read (TYP-20): 14/24 on a fine pointer,
+16/26 on a coarse pointer or a narrow window, 12px between paragraphs, `#` 24 · `##` 20 · `###` 16
+with more room above a heading than below, and inline code in the body's ink. The read view and the
+editor wear the same metrics — on a touch screen the editor is 16px anyway (no iOS zoom) — so the
+swap from reading into editing moves nothing. Place it in a
+[`DocumentLayout`](/docs/components/document-layout) for the reading measure. `MarkdownView` takes
+the same `typeScale`.
+
+```tsx
+<TextEdit format="markdown" typeScale="document" defaultValue={page.body} />
+```
+
 ### Editing patterns
 
 An empty editor with a faint placeholder ("Add a description…"; focused, it reads "Type / for commands"), a `readOnly`
@@ -506,7 +520,8 @@ player.
 
 `onOutlineChange` receives the headings (`#`–`####`) with stable ids — the heading's words,
 hyphenated, `-1`, `-2`… for a repeat — after load and 150ms after each change; the same ids are on
-the heading elements (and on `MarkdownView`'s with `headingIds`). `handleRef` gives an imperative
+the heading elements (and on `MarkdownView`'s with `headingIds`). It does not load the editor: the
+read view reports the outline from the Markdown until the editor is in. `handleRef` gives an imperative
 handle: `scrollToHeading(id)`, `flush()` (commit now, and wait for uploads in flight — before
 creating a comment or navigating), `focus()`, `getAnchorForSelection()`, `pulseAnnotation(id)` and
 `markSaved()` (the host saved the current document: it becomes the baseline Escape reverts to).

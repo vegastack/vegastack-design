@@ -89,6 +89,21 @@ label (`publish`). The switch keeps its accessible name from the label alone.
   file="components/preview/share-dialog.tsx"
 />
 
+### What the link exposes, and who can see it
+
+`publishExposure` replaces the Publish switch's one-line hint with the host's own sentence about
+what the link exposes — "Anyone with the link can view this page and 12 pages inside, without
+signing in." — and wraps rather than truncates. `onPublishRequest` is asked before the switch turns
+publishing on: confirm what it will expose in an `AlertDialog` ("Publish 13 pages?") and resolve
+`false` to leave it off. `audience` adds a "Who can see this" section at the end of the Share tab,
+closed at first; its heading takes `audienceCount` once known, and `onAudienceOpenChange` tells the
+host when to load its rows.
+
+<ComponentPreview
+  name="shareDialogExposure"
+  file="components/preview/share-dialog.tsx"
+/>
+
 ## API Reference
 
 <ApiTable
@@ -103,7 +118,8 @@ label (`publish`). The switch keeps its accessible name from the label alone.
 - Every level menu is named for its row ("Anand Iyer's access: Can view"); a built-in row is locked,
   still a tab stop, with its reason in a tooltip.
 - Turning publishing off, by the switch or Stop publishing, asks for confirmation in an
-  `AlertDialog` first.
+  `AlertDialog` first; turning it on asks `onPublishRequest` when the host passes one.
+- "Who can see this" is a disclosure button (`aria-expanded`) whose name carries the head count.
 
 | Key                                          | Action                                      |
 | -------------------------------------------- | ------------------------------------------- |

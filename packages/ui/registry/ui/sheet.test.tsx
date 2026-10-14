@@ -571,3 +571,22 @@ test("no a11y violations — open with an action, a body and a footer", async ()
   await expect.element(screen.getByRole("dialog")).toBeInTheDocument();
   await expectNoA11yViolations(document.body);
 });
+
+test("LAY-10: a bottom sheet pads its panel by the bottom safe-area inset", async () => {
+  const screen = await render(
+    <Sheet>
+      <SheetTrigger>Open bottom</SheetTrigger>
+      <SheetContent side="bottom">
+        <SheetHeader>
+          <SheetTitle>Comments</SheetTitle>
+          <SheetDescription>On this page.</SheetDescription>
+        </SheetHeader>
+      </SheetContent>
+    </Sheet>,
+  );
+  await screen.getByRole("button", { name: "Open bottom" }).click();
+  await expect.element(screen.getByRole("dialog")).toBeInTheDocument();
+  expect(bySlot("sheet-content")!.className).toContain(
+    "data-[side=bottom]:pb-[env(safe-area-inset-bottom)]",
+  );
+});

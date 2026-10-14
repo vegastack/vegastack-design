@@ -243,6 +243,8 @@ justify-end`) at every width, not upstream's full-width `flex-col` stack; a dire
   a `SheetAction` the header's text track is `minmax(0, 1fr)`, so a long title wraps instead of
   pushing the action off the panel.
   MK, 2026-10-13.
+- **LAY-10** — a bottom sheet pads its panel by `env(safe-area-inset-bottom)`, so its footer and
+  last row clear a phone's home indicator (zero where there is none).
 - **DOC-2** — `import { cn } from "cn"` becomes `@vegastack/design`; our npm layer owns `cn`.
 - **DOC-1** — prettier reflow plus the `registry-stamp.mjs` provenance header; no decision of their
   own.

@@ -1,14 +1,19 @@
-// @vegastack text-edit@0.25.34 sha256-dF5urPC2h4QdExjJsgiK0521haStTzuDcBoadxHn7AI=
+// @vegastack text-edit@0.25.34 sha256-ChgYvzXNKgATxmdJFwwHyxpCP7ULuX/SJvz7AU13AKQ=
 
 "use client";
 
 import * as React from "react";
 import type { Editor } from "@tiptap/react";
 import { Field as FieldPrimitive } from "@base-ui/react/field";
-import { cn, mergeRefs, proseClassName } from "@vegastack/design";
+import {
+  cn,
+  mergeRefs,
+  proseClassName,
+  proseDocument,
+} from "@vegastack/design";
 import {
   MarkdownView,
-  proseDocumentHeadingsClassName,
+  documentPrintClassName,
   type MarkdownCitation,
 } from "@/components/ui/markdown-view";
 import type { MentionKind } from "@/lib/text-edit-grammar";
@@ -292,6 +297,10 @@ const editorBaseClassName = cn(
   "tiptap min-h-6 min-w-0 max-w-full outline-none",
   "[&_p.is-editor-empty:first-child]:before:pointer-events-none [&_p.is-editor-empty:first-child]:before:float-start [&_p.is-editor-empty:first-child]:before:h-0 [&_p.is-editor-empty:first-child]:before:text-muted-foreground/60 [&_p.is-editor-empty:first-child]:before:content-[attr(data-placeholder)]",
   "[&_.tableWrapper]:my-2 [&_.tableWrapper]:w-full [&_.tableWrapper]:max-w-full [&_.tableWrapper]:overflow-x-auto [&_.selectedCell]:bg-accent",
+  // A wide table fades at an edge with more beyond it (24px), like `MarkdownView`'s. CSS only —
+  // scroll-driven, so nothing writes to the editable DOM ProseMirror watches; a browser without
+  // scroll timelines shows no fade rather than a wrong one.
+  "supports-[animation-timeline:scroll()]:[&_.tableWrapper]:scroll-fade-x [&_.tableWrapper]:[--scroll-fade-size:--spacing(6)] [&_.tableWrapper]:[--scroll-fade-reveal:--spacing(6)]",
   // Fixed layout: columns keep their width (equal, or as resized) while you type, and text wraps
   // inside its cell instead of pushing the other columns right.
   "[&_table]:table-fixed",
@@ -303,6 +312,17 @@ const editorBaseClassName = cn(
   "[&_.ProseMirror-selectednode:not([data-slot=text-edit-image-node])]:rounded-sm [&_.ProseMirror-selectednode:not([data-slot=text-edit-image-node])]:bg-accent",
   // An empty toggle title or body shows its hint (the Placeholder extension's `is-empty`).
   "[&_[data-slot=toggle-content]>[data-node-view-content-react]>.is-empty]:before:pointer-events-none [&_[data-slot=toggle-content]>[data-node-view-content-react]>.is-empty]:before:float-start [&_[data-slot=toggle-content]>[data-node-view-content-react]>.is-empty]:before:h-0 [&_[data-slot=toggle-content]>[data-node-view-content-react]>.is-empty]:before:text-muted-foreground/60 [&_[data-slot=toggle-content]>[data-node-view-content-react]>[data-slot=toggle-summary].is-empty]:before:content-[attr(data-placeholder)] [&_[data-slot=toggle-content]>[data-node-view-content-react]>p.is-empty]:before:content-['Empty_toggle._Type_or_press_/_for_commands']",
+);
+
+/**
+ * The editor surface at the document type scale (TYP-20): the `proseDocument` overlay merged over
+ * the editor's own rules, then the print rules — the same metrics `MarkdownView` reads at with
+ * `typeScale="document"`, so the swap from the read view into the editor moves nothing.
+ */
+const documentSurfaceClassName = cn(
+  editorBaseClassName,
+  Object.values(proseDocument).join(" "),
+  documentPrintClassName,
 );
 
 /*
@@ -814,11 +834,12 @@ export interface TextEditProps {
    */
   footer?: React.ReactNode;
   /**
-   * The heading sizes, as `MarkdownView`'s `headingScale`: `compact` (the app's scale) or
-   * `document` (a page's: `#` `text-3xl`, `##` `text-2xl`, `###` `text-xl`).
+   * The type scale, as `MarkdownView`'s `typeScale`: `compact` (the app's own) or `document` (a
+   * page's, TYP-20: 14/24 text, 16/26 on a coarse pointer or a narrow window, `#` 24 · `##` 20 ·
+   * `###` 16, 12px between paragraphs). The read view and the editor wear the same metrics.
    * @default "compact"
    */
-  headingScale?: "compact" | "document";
+  typeScale?: "compact" | "document";
   /**
    * Rendered inside the box, after the document — a composer's actions row. Meant for
    * `variant="boxed"`.
@@ -910,7 +931,8 @@ export interface TextEditProps {
   inlineImageTypes?: readonly string[];
   /**
    * The document's headings (`#`–`####`) with stable ids, after load and 150ms after each change —
-   * an outline rail. Setting it mounts the editor at once.
+   * an outline rail. The read view reports them from the Markdown before the editor is in, so
+   * setting it never loads the editor on its own.
    * @default undefined
    */
   onOutlineChange?: (headings: TextEditOutlineItem[]) => void;
@@ -1095,7 +1117,7 @@ export function TextEdit(props: TextEditProps) {
     "aria-invalid": ariaInvalid,
     "aria-describedby": ariaDescribedBy,
     variant = "document",
-    headingScale = "compact",
+    typeScale = "compact",
     leading,
     actions,
     footer,
@@ -1106,19 +1128,14 @@ export function TextEdit(props: TextEditProps) {
     ...editorProps
   } = props;
   const surfaceClassName =
-    headingScale === "document"
-      ? cn(editorBaseClassName, proseDocumentHeadingsClassName)
-      : editorBaseClassName;
-  // Highlights and an outline need the document model, so they mount the editor at once.
+    typeScale === "document" ? documentSurfaceClassName : editorBaseClassName;
+  // Highlights need the document model, so they mount the editor at once. An outline does not:
+  // the read view reports it from the Markdown, and the editor takes over once it is in.
   const composer = variant === "composer";
   // A composer is an input: its editor mounts at once, never waiting for a click. A shared
   // document mounts at once too — read-only included — so its text and carets move live.
   const collaborative = props.collaboration !== undefined;
-  const eager =
-    props.annotations !== undefined ||
-    props.onOutlineChange !== undefined ||
-    composer ||
-    collaborative;
+  const eager = props.annotations !== undefined || composer || collaborative;
   const boxed = variant === "boxed" || composer;
   const [field, setField] = React.useState<FieldAria>({});
   const disabled = disabledProp || field.disabled === true;
@@ -1484,7 +1501,8 @@ export function TextEdit(props: TextEditProps) {
               citation={props.citation}
               fileLinkPrefix={props.fileLinkPrefix}
               fileContentType={props.fileContentType}
-              headingIds={props.onOutlineChange !== undefined}
+              typeScale={typeScale}
+              onOutlineChange={props.onOutlineChange}
             >
               {source}
             </MarkdownView>

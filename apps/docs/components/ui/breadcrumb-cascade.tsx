@@ -1,11 +1,11 @@
-// @vegastack breadcrumb-cascade@0.25.34 sha256-1yHZ+71EwD/RyGNnxP7y7XnAq8e95dyBxaNDMI1qmJo=
+// @vegastack breadcrumb-cascade@0.25.34 sha256-QKT9Q6r4Gjovi9KUgUqbr2qOOWqudYiezGUqKlme8aw=
 
 "use client";
 
 import * as React from "react";
 import { useRender } from "@base-ui/react/use-render";
 import { cn, mergeRefs } from "@vegastack/design";
-import { Check, ChevronDown } from "lucide-react";
+import { Check, ChevronDown, ChevronLeft } from "lucide-react";
 import {
   Breadcrumb,
   BreadcrumbEllipsis,
@@ -272,6 +272,9 @@ export function BreadcrumbSiblings({
   );
 }
 
+/** The compact menu's indent per level of the path (12px a level, capped). */
+const PATH_INDENT = ["ps-2", "ps-5", "ps-8", "ps-11", "ps-14", "ps-17"];
+
 /** One step of a `BreadcrumbTrail`. */
 export interface BreadcrumbTrailStep {
   /** A stable key (defaults to the index). */
@@ -318,6 +321,21 @@ export interface BreadcrumbTrailProps extends Omit<
    * @default "Show path"
    */
   collapsedLabel?: string;
+  /**
+   * The compact trail for a narrow header: `‹` and the parent step's name, a button that opens a
+   * menu of the whole path (the current step marked). `true` always; `"auto"` while the trail's
+   * container is narrower than 40rem — a phone's header, a split view. The menu's entries are
+   * plain links (`linkRender`); `renderStep`, `renderCurrent` and drop targets belong to the full
+   * trail.
+   * @default false
+   */
+  compact?: boolean | "auto";
+  /**
+   * The compact trigger's accessible name, from the parent step's name (it starts with it, so a
+   * voice user can say what they see).
+   * @default (parent) => `${parent}, show path`
+   */
+  compactLabel?: (parent: string) => string;
 }
 
 /**
@@ -344,6 +362,8 @@ export function BreadcrumbTrail({
   renderStep,
   renderCurrent,
   collapsedLabel = "Show path",
+  compact = false,
+  compactLabel = (parent) => `${parent}, show path`,
   className,
   ref,
   ...props
@@ -352,6 +372,8 @@ export function BreadcrumbTrail({
   // Foldable: every step after the root and before the parent.
   const foldable = Math.max(0, last - 2);
   const [folded, setFolded] = React.useState(0);
+  const [narrow, setNarrow] = React.useState(false);
+  const compactNow = compact === true || (compact === "auto" && narrow);
   const navRef = React.useRef<HTMLElement | null>(null);
   const measureRef = React.useRef<HTMLOListElement | null>(null);
   const mergedRef = React.useMemo(() => mergeRefs(navRef, ref), [ref]);
@@ -362,6 +384,14 @@ export function BreadcrumbTrail({
     if (!nav || !measure) return;
     const fit = () => {
       const width = nav.clientWidth;
+      // "auto": the container decides, not the trail — compact, the trail is narrower than the
+      // room it has, and measuring itself would keep it compact for good.
+      if (compact === "auto") {
+        const room = nav.parentElement?.clientWidth ?? width;
+        const rem =
+          parseFloat(getComputedStyle(document.documentElement).fontSize) || 16;
+        setNarrow(room < 40 * rem);
+      }
       const gap = parseFloat(getComputedStyle(measure).columnGap) || 0;
       const widthOf = (selector: string) =>
         measure.querySelector(selector)?.getBoundingClientRect().width ?? 0;
@@ -387,8 +417,10 @@ export function BreadcrumbTrail({
     const observer = new ResizeObserver(fit);
     observer.observe(nav);
     observer.observe(measure);
+    if (compact === "auto" && nav.parentElement)
+      observer.observe(nav.parentElement);
     return () => observer.disconnect();
-  }, [foldable, steps]);
+  }, [foldable, steps, compact]);
 
   const content = (step: BreadcrumbTrailStep, index: number) => {
     if (index === last) {
@@ -412,77 +444,142 @@ export function BreadcrumbTrail({
     );
   };
   const hidden = steps.slice(1, 1 + folded);
+  const parent = last > 0 ? steps[last - 1]! : null;
 
   return (
     <Breadcrumb
       ref={mergedRef}
       data-slot="breadcrumb-trail"
-      data-folded={folded || undefined}
+      data-folded={(!compactNow && folded) || undefined}
+      data-compact={compactNow ? "" : undefined}
       className={cn("relative min-w-0", className)}
       {...props}
     >
       <BreadcrumbList className="flex-nowrap">
-        {steps.map((step, index) => {
-          if (index > 0 && index <= folded) {
-            if (index !== 1) return null;
-            return (
-              <React.Fragment key="folded">
-                <BreadcrumbSeparator />
-                <BreadcrumbItem data-slot="breadcrumb-trail-folded">
-                  <DropdownMenu>
-                    <DropdownMenuTrigger
-                      render={
-                        <Button
-                          variant="ghost"
-                          size="icon-xs"
-                          aria-label={collapsedLabel}
-                        />
-                      }
-                    >
-                      <BreadcrumbEllipsis />
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="start">
-                      <DropdownMenuGroup>
-                        {hidden.map((item, offset) => (
-                          <DropdownMenuItem
-                            key={item.key ?? offset + 1}
-                            disabled={item.href === undefined}
-                            render={
-                              item.href !== undefined
-                                ? React.cloneElement(linkRender ?? <a />, {
-                                    href: item.href,
-                                  })
-                                : undefined
-                            }
-                          >
-                            {item.label}
-                          </DropdownMenuItem>
-                        ))}
-                      </DropdownMenuGroup>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </BreadcrumbItem>
-              </React.Fragment>
-            );
-          }
-          return (
-            <React.Fragment key={step.key ?? index}>
-              {index > 0 ? <BreadcrumbSeparator /> : null}
-              <BreadcrumbItem
-                {...step.itemProps}
-                data-current={index === last ? "" : undefined}
-                // Earlier steps keep their width; only the current step shortens.
-                className={cn(
-                  step.itemProps?.className,
-                  "whitespace-nowrap",
-                  index === last ? "min-w-0" : "shrink-0",
-                )}
-              >
-                {content(step, index)}
-              </BreadcrumbItem>
-            </React.Fragment>
-          );
-        })}
+        {compactNow ? (
+          <BreadcrumbItem
+            data-slot="breadcrumb-trail-compact"
+            className="min-w-0"
+          >
+            {parent ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger
+                  render={
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      aria-label={compactLabel(parent.label)}
+                      // The chevron sits where the trail's first character would: the button's
+                      // padding hangs outside the column.
+                      className="-ms-1.5 max-w-full min-w-0 gap-0.5 ps-0.5 pe-1.5 text-sm font-normal text-muted-foreground hover:text-foreground aria-expanded:text-foreground"
+                    />
+                  }
+                >
+                  <ChevronLeft aria-hidden className="rtl:-scale-x-100" />
+                  <span className="min-w-0 truncate">{parent.label}</span>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent
+                  align="start"
+                  data-slot="breadcrumb-trail-compact-menu"
+                  className="max-w-[min(20rem,var(--available-width))]"
+                >
+                  <DropdownMenuGroup>
+                    {steps.map((step, index) => (
+                      <DropdownMenuItem
+                        key={step.key ?? index}
+                        aria-current={index === last ? "page" : undefined}
+                        disabled={index !== last && step.href === undefined}
+                        render={
+                          index !== last && step.href !== undefined
+                            ? React.cloneElement(linkRender ?? <a />, {
+                                href: step.href,
+                              })
+                            : undefined
+                        }
+                        // Each level steps in, so the menu reads as the path it is.
+                        className={
+                          PATH_INDENT[Math.min(index, PATH_INDENT.length - 1)]
+                        }
+                      >
+                        <span className="min-w-0 flex-1 truncate">
+                          {step.label}
+                        </span>
+                        {index === last ? <Check aria-hidden="true" /> : null}
+                      </DropdownMenuItem>
+                    ))}
+                  </DropdownMenuGroup>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <BreadcrumbPage className="block min-w-0">
+                <TruncatedText>{steps[0]?.label ?? ""}</TruncatedText>
+              </BreadcrumbPage>
+            )}
+          </BreadcrumbItem>
+        ) : null}
+        {compactNow
+          ? null
+          : steps.map((step, index) => {
+              if (index > 0 && index <= folded) {
+                if (index !== 1) return null;
+                return (
+                  <React.Fragment key="folded">
+                    <BreadcrumbSeparator />
+                    <BreadcrumbItem data-slot="breadcrumb-trail-folded">
+                      <DropdownMenu>
+                        <DropdownMenuTrigger
+                          render={
+                            <Button
+                              variant="ghost"
+                              size="icon-xs"
+                              aria-label={collapsedLabel}
+                            />
+                          }
+                        >
+                          <BreadcrumbEllipsis />
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="start">
+                          <DropdownMenuGroup>
+                            {hidden.map((item, offset) => (
+                              <DropdownMenuItem
+                                key={item.key ?? offset + 1}
+                                disabled={item.href === undefined}
+                                render={
+                                  item.href !== undefined
+                                    ? React.cloneElement(linkRender ?? <a />, {
+                                        href: item.href,
+                                      })
+                                    : undefined
+                                }
+                              >
+                                {item.label}
+                              </DropdownMenuItem>
+                            ))}
+                          </DropdownMenuGroup>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </BreadcrumbItem>
+                  </React.Fragment>
+                );
+              }
+              return (
+                <React.Fragment key={step.key ?? index}>
+                  {index > 0 ? <BreadcrumbSeparator /> : null}
+                  <BreadcrumbItem
+                    {...step.itemProps}
+                    data-current={index === last ? "" : undefined}
+                    // Earlier steps keep their width; only the current step shortens.
+                    className={cn(
+                      step.itemProps?.className,
+                      "whitespace-nowrap",
+                      index === last ? "min-w-0" : "shrink-0",
+                    )}
+                  >
+                    {content(step, index)}
+                  </BreadcrumbItem>
+                </React.Fragment>
+              );
+            })}
       </BreadcrumbList>
       {/* Every step at its natural width, measured and never seen. */}
       {/* A zero-size clip, so the measuring row never widens the page. */}

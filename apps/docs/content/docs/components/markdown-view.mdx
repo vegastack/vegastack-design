@@ -191,6 +191,61 @@ The constructs `TextEdit`'s Markdown carries beyond GFM render here too, still s
 label)` writes one exactly as `TextEdit` does (the label escapes `\`, `[` and `]`). Both come from
 `@/lib/text-edit-grammar`, which `MarkdownView` installs with it.
 
+### Document type scale
+
+`typeScale="document"` is a page read as a document (TYP-20): 14/24 text — 16/26 on a coarse
+pointer or a narrow window, where editing is 16px too — 12px between paragraphs, `#` 24 · `##` 20
+· `###` 16 with more room above a heading than below, inline code in the body's ink, and print
+rules: code wraps, tables print in full, highlights and controls drop out, external links print
+their address. `TextEdit` takes the same `typeScale`, so a page reads and edits at identical
+metrics. Place it in a [`DocumentLayout`](/docs/components/document-layout) for the 47ch reading
+measure. A table that is wider than the text scrolls in its own box, fading at the edge with more
+beyond it; while it scrolls the box is a named, focusable region.
+
+<ComponentPreview
+  name="markdownViewDocument"
+  file="components/preview/markdown-view.tsx"
+/>
+
+### Read mode
+
+A reader needs no editor. `annotations` draw comment highlights over the words each one quotes —
+resolved from the quote and its context, the way `TextEdit` re-anchors, and never drawn when the
+words are gone or appear twice with nothing to tell them apart — with `activeAnnotationId`,
+`onAnnotationClick`, count pills (`annotationCounts`) and `onAnnotationsLayout` (each highlight's
+top, for a comment margin). `onOutlineChange` reports the headings for a contents list.
+`headingAnchors` gives headings their server slug and block id (`data-anchor-id`), and
+`headingLinkHref` adds a copy-link button after each. `toggleState` keeps each reader's own open
+toggles. `findQuery` highlights every match with the CSS Custom Highlight API — the DOM is never
+changed — opens any toggle around the current one, and shows a match bar with previous, next and
+`onFindClose`.
+
+<ComponentPreview
+  name="markdownViewReadMode"
+  file="components/preview/markdown-view.tsx"
+/>
+
+```tsx
+<MarkdownView
+  typeScale="document"
+  annotations={threads.map((t) => ({
+    id: t.id,
+    anchor: t.anchor,
+    count: t.count,
+  }))}
+  activeAnnotationId={openThread}
+  onAnnotationClick={openThreadById}
+  onOutlineChange={setOutline}
+  headingAnchors={page.anchors}
+  headingLinkHref={(a) => `#${a.slug}~${a.id}`}
+  toggleState={toggles}
+  findQuery={query}
+  onFindClose={() => setQuery("")}
+>
+  {page.markdown}
+</MarkdownView>
+```
+
 ### Citations
 
 A summary cites its sources with `[[n]]` markers (n = 1–999). With `citation`, each marker whose
@@ -237,6 +292,21 @@ client component, so pass `citation` from one.
   name="MentionChipProps"
 />
 
+<ApiTable
+  path="../../packages/ui/registry/ui/markdown-view.tsx"
+  name="MarkdownAnnotation"
+/>
+
+<ApiTable
+  path="../../packages/ui/registry/ui/markdown-view.tsx"
+  name="MarkdownHeadingAnchor"
+/>
+
+<ApiTable
+  path="../../packages/ui/registry/ui/markdown-view.tsx"
+  name="MarkdownToggleState"
+/>
+
 ## Accessibility
 
 - Markdown maps to **semantic HTML** — `# ` → `<h1>`, `- ` → `<ul><li>`, `> ` →
@@ -266,6 +336,15 @@ client component, so pass `citation` from one.
 
 A citation marker is a button named by its `label` ("Source 3"); keyboard focus opens its source
 without moving focus, and <kbd>Enter</kbd> selects it.
+
+With `onAnnotationClick`, a comment highlight is one tab stop — a button named for its whole quote
+and count ("3 comments on “annual price”") — that opens on <kbd>Enter</kbd> or <kbd>Space</kbd>;
+the rest of a highlight split by formatting is hidden from assistive technology, which heard it in
+that name. A count pill's number is `aria-hidden`; its name is the sentence ("3 comments"). The
+find bar is a `search` landmark ("Find in page"): <kbd>Enter</kbd> and <kbd>Shift</kbd>+<kbd>Enter</kbd>
+step through the matches, <kbd>Esc</kbd> closes it, and "2 of 12" is announced politely. A heading's
+copy-link button is named "Copy link to “Pricing”". A table that scrolls is a focusable region
+named "Table, scrolls sideways", so the arrow keys scroll it.
 
 <StatesTested name="markdown-view" />
 

@@ -1,4 +1,4 @@
-// @vegastack markdown-view@0.25.34 sha256-1yj+/dBAp/8vmnXROmwb71OHzZAsI/RyzDA4ntie3A8=
+// @vegastack markdown-view@0.25.34 sha256-DB/4xf9EYJcwYd1Dlg0oREze4nC2Cy8rdTr7Mwl25iY=
 
 import * as React from "react";
 import { Lexer, type Token, type Tokens } from "marked";
@@ -11,7 +11,7 @@ import {
   TriangleAlert,
   type LucideIcon,
 } from "lucide-react";
-import { cn, proseClassName } from "@vegastack/design";
+import { cn, proseClassName, proseDocumentClassName } from "@vegastack/design";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Checkbox } from "@/components/ui/checkbox";
 // `CodeBlock` owns the fenced-code surface (header + copy + sunken mono panel); shadcn rewrites
@@ -30,13 +30,27 @@ import {
   type CalloutTone,
   type MentionKind,
 } from "@/lib/text-edit-grammar";
-// The one client leaf: a citation marker's popover. Imported only when `citation` answers.
+import { resolveAnchor } from "@/lib/text-anchor";
+// The client leaves: a citation marker's popover, and the behaviour after render (table scroll
+// cue, outline, find, print, highlight layout, heading links). Each renders only when asked for.
 import {
   MarkdownCitationMarker,
   type MarkdownCitation,
 } from "@/components/ui/markdown-citation";
+import {
+  MarkdownHeadingLink,
+  MarkdownTableScroll,
+  MarkdownViewEffects,
+  type MarkdownAnnotationLayout,
+  type MarkdownOutlineItem,
+  type MarkdownViewEffectsProps,
+} from "@/components/ui/markdown-view-client";
 
 export type { MarkdownCitation } from "@/components/ui/markdown-citation";
+export type {
+  MarkdownAnnotationLayout,
+  MarkdownOutlineItem,
+} from "@/components/ui/markdown-view-client";
 
 /* ------------------------------------------------------------------------------------------------
  * The document tree
@@ -542,6 +556,253 @@ function withCitations(nodes: DocNode[]): DocNode[] {
   return out;
 }
 
+/* --- comment highlights ------------------------------------------------------------------------*/
+
+/**
+ * A comment's highlight: its id, the words it quotes with their context (a `TextEdit` anchor is
+ * one — `TextEditAnnotation` passes as is), and how many comments its thread holds.
+ */
+export interface MarkdownAnnotation {
+  /** The comment (thread) id — the highlight's `data-annotation`. */
+  id: string;
+  /**
+   * Where it sits: the quoted words and up to 80 characters of context on each side; `start` /
+   * `end` are offsets into the text when the host has them (they are checked against the quote).
+   */
+  anchor: {
+    quote: string;
+    prefix?: string;
+    suffix?: string;
+    start?: number;
+    end?: number;
+  };
+  /** The thread's comment count — its pill's number and its accessible name. @default 1 */
+  count?: number;
+}
+
+/** The highlight over a comment's words: a dashed warning underline, a wash on hover. */
+export const annotationHighlightClassName =
+  "cursor-pointer rounded-xs underline decoration-warning-text/60 decoration-dashed underline-offset-4 transition-colors duration-150 hover:bg-warning/15";
+/** The active highlight (its thread is open): filled, the underline solid. */
+export const annotationActiveClassName = "bg-warning/25 decoration-solid";
+/**
+ * The count pill after a highlight: a 16px warning-tinted pill (the highlight's own hue) with a
+ * 24px invisible hit area. `annotationCountVisibilityClassName.auto` shows it only on a coarse
+ * pointer or below the `lg` breakpoint, where a comment margin has no room — CSS alone.
+ */
+export const annotationCountClassName =
+  "relative ms-0.5 h-4 min-w-4 select-none items-center justify-center rounded-full bg-warning/10 px-1 align-middle font-sans text-xs leading-none font-medium text-warning-text tabular-nums transition-colors duration-150 before:absolute before:-inset-1 before:content-[''] hover:bg-warning/20 data-active:bg-warning/30";
+/** Where a count pill shows: `auto` on a coarse pointer or below `lg`, `always` everywhere. */
+export const annotationCountVisibilityClassName = {
+  auto: "hidden pointer-coarse:inline-flex max-lg:inline-flex",
+  always: "inline-flex",
+} as const;
+
+/** The text an image, a line break, a rule or a media block reads as in the anchor text. */
+const LEAF_TEXT = "￼";
+
+/** Inline elements of the tree: text runs inside a block. */
+const INLINE_TAGS = new Set([
+  "strong",
+  "em",
+  "del",
+  "s",
+  "u",
+  "code",
+  "a",
+  "mention",
+  "citation",
+  "br",
+  "img",
+  "sup",
+  "sub",
+  "mark",
+  "span",
+  "label",
+  "input",
+]);
+/** Blocks whose children are text — the editor's textblocks (a cell holds a paragraph there). */
+const TEXT_BLOCKS = new Set([
+  "p",
+  "h1",
+  "h2",
+  "h3",
+  "h4",
+  "h5",
+  "h6",
+  "summary",
+  "th",
+  "td",
+]);
+
+/** A run of the anchor text that came from one string (or one mention) of the tree. */
+interface TextPiece {
+  parent: El;
+  index: number;
+  start: number;
+  end: number;
+  /** A mention: highlighted whole or not at all. */
+  atom: boolean;
+}
+
+/**
+ * The tree's text the way `TextEdit` builds a comment anchor's (`anchorText`): blocks joined by
+ * `"\n"`, a mention as `@label`, an image, a line break, a rule or a media block as `"￼"`. Every
+ * string (and mention) it came from is recorded, so a range in it maps back onto the tree.
+ */
+function anchorTextOf(holder: El): { text: string; pieces: TextPiece[] } {
+  let text = "";
+  let first = true;
+  const pieces: TextPiece[] = [];
+  const block = () => {
+    if (first) first = false;
+    else text += "\n";
+  };
+  const inline = (parent: El, index: number) => {
+    const node = parent.children[index]!;
+    if (typeof node === "string") {
+      // A soft line break inside a paragraph renders, and is quoted, as a space.
+      pieces.push({
+        parent,
+        index,
+        start: text.length,
+        end: text.length + node.length,
+        atom: false,
+      });
+      text += node.replace(/\n/g, " ");
+      return;
+    }
+    if (node.tag === "mention") {
+      const label = `@${node.attrs.label ?? ""}`;
+      pieces.push({
+        parent,
+        index,
+        start: text.length,
+        end: text.length + label.length,
+        atom: true,
+      });
+      text += label;
+      return;
+    }
+    if (node.tag === "img" || node.tag === "br") {
+      text += LEAF_TEXT;
+      return;
+    }
+    // A citation marker and the inside of inline code count, but are never cut into.
+    if (node.tag === "citation") {
+      text += textOf(node);
+      return;
+    }
+    node.children.forEach((_, at) => inline(node, at));
+  };
+  const blocks = (parent: El) => {
+    let run = false;
+    parent.children.forEach((child, index) => {
+      if (typeof child === "string" || INLINE_TAGS.has(child.tag)) {
+        // Whitespace between blocks (HTML source) is not text.
+        if (!run && typeof child === "string" && !child.trim()) return;
+        if (!run) block();
+        run = true;
+        inline(parent, index);
+        return;
+      }
+      run = false;
+      if (child.tag === "pre") {
+        block();
+        text += textOf(child).replace(/\n$/, "");
+      } else if (["hr", "video", "audio"].includes(child.tag)) {
+        block();
+        text += LEAF_TEXT;
+      } else if (TEXT_BLOCKS.has(child.tag)) {
+        block();
+        child.children.forEach((_, at) => inline(child, at));
+      } else blocks(child);
+    });
+  };
+  blocks(holder);
+  return { text, pieces };
+}
+
+/**
+ * Wrap the words each annotation quotes in `annotation` nodes, in place. An anchor that resolves
+ * to no text, or to two places equally well, draws nothing — never a wrong highlight. Overlapping
+ * highlights nest. Each annotation's first segment is marked `focus` (the one tab stop) and its
+ * last `last` (the count pill follows it). Returns the ids that drew, in document order.
+ */
+function annotate(
+  tree: DocNode[],
+  annotations: readonly MarkdownAnnotation[],
+): string[] {
+  const holder = el("root", {}, tree);
+  const { text, pieces } = anchorTextOf(holder);
+  const ranges: { id: string; start: number; end: number }[] = [];
+  for (const annotation of annotations) {
+    const { quote, prefix = "", suffix = "", start, end } = annotation.anchor;
+    const range = resolveAnchor(text, {
+      quote,
+      prefix,
+      suffix,
+      start: start ?? -1,
+      end: end ?? -1,
+    });
+    if (range && range.end > range.start)
+      ranges.push({ id: annotation.id, ...range });
+  }
+  if (!ranges.length) return [];
+
+  // Each piece's replacement: its text cut at every highlight boundary inside it.
+  const replaced = new Map<El, Map<number, DocNode[]>>();
+  const firstSeen = new Set<string>();
+  const lastNode = new Map<string, El>();
+  const drawn: string[] = [];
+  for (const piece of pieces) {
+    const covering = ranges.filter(
+      (r) => r.start < piece.end && r.end > piece.start,
+    );
+    if (!covering.length) continue;
+    const node = piece.parent.children[piece.index]!;
+    const cuts = new Set([piece.start, piece.end]);
+    if (!piece.atom)
+      for (const r of covering) {
+        if (r.start > piece.start) cuts.add(r.start);
+        if (r.end < piece.end) cuts.add(r.end);
+      }
+    const points = [...cuts].sort((a, b) => a - b);
+    const out: DocNode[] = [];
+    for (let at = 0; at < points.length - 1; at++) {
+      const from = points[at]!;
+      const to = points[at + 1]!;
+      let segment: DocNode =
+        typeof node === "string"
+          ? node.slice(from - piece.start, to - piece.start)
+          : node;
+      const over = covering.filter((r) => r.start < to && r.end > from);
+      // Innermost last: the earliest-starting highlight is the outermost span.
+      for (const r of [...over].reverse()) {
+        const wrapped = el("annotation", { id: r.id }, [segment]);
+        if (!firstSeen.has(r.id)) {
+          firstSeen.add(r.id);
+          drawn.push(r.id);
+          wrapped.attrs.focus = "";
+        }
+        lastNode.set(r.id, wrapped);
+        segment = wrapped;
+      }
+      out.push(segment);
+    }
+    const parentMap = replaced.get(piece.parent) ?? new Map();
+    parentMap.set(piece.index, out);
+    replaced.set(piece.parent, parentMap);
+  }
+  for (const [parent, map] of replaced)
+    parent.children = parent.children.flatMap(
+      (child, index) => map.get(index) ?? [child],
+    );
+  for (const node of lastNode.values()) node.attrs.last = "";
+  tree.splice(0, tree.length, ...holder.children);
+  return drawn;
+}
+
 function fromMarkdown(source: string): DocNode[] {
   return blocks(Lexer.lex(source, { gfm: true }));
 }
@@ -765,6 +1026,17 @@ function imageSourceAllowed(src: string, allowed: ReadonlySet<string>) {
 interface RenderContext {
   images: ReadonlySet<string>;
   headingOffset: number;
+  annotationCounts: Map<string, number>;
+  activeAnnotationId?: string | null;
+  onAnnotationClick?: (id: string) => void;
+  showCounts: "never" | "auto" | "always";
+  annotationLabel: (quote: string, count: number) => string;
+  annotationCountLabel: (count: number) => string;
+  /** The words each drawn annotation quotes, for its accessible name. */
+  annotationQuotes: Map<string, string>;
+  headingLinkHref?: (anchor: MarkdownHeadingAnchor) => string | null;
+  toggleState?: MarkdownToggleState;
+  tableLabel?: string;
   mentionHref?: (kind: MentionKind, id: string) => string | null;
   mentionImage?: (id: string) => string | null | undefined;
   fileLinkPrefix: string;
@@ -809,10 +1081,95 @@ function renderNode(
       6,
       Math.max(1, Number(heading[1]) + ctx.headingOffset),
     );
-    return React.createElement(`h${level}`, { key, id: attrs.id }, children());
+    const anchorId = attrs["data-anchor-id"];
+    const href =
+      attrs.id && ctx.headingLinkHref
+        ? ctx.headingLinkHref({ id: anchorId, slug: attrs.id })
+        : null;
+    return React.createElement(
+      `h${level}`,
+      {
+        key,
+        id: attrs.id,
+        "data-anchor-id": anchorId,
+        className: href ? "group/heading" : undefined,
+      },
+      children(),
+      href ? (
+        <MarkdownHeadingLink href={href} heading={headingText(node)} />
+      ) : null,
+    );
   }
 
   switch (tag) {
+    case "annotation": {
+      const id = attrs.id ?? "";
+      const active = ctx.activeAnnotationId === id;
+      const count = Math.max(1, ctx.annotationCounts.get(id) ?? 1);
+      const open = ctx.onAnnotationClick;
+      const focus = open !== undefined && attrs.focus !== undefined;
+      const span = (
+        <span
+          key={key}
+          data-slot="text-edit-annotation"
+          data-annotation={id}
+          data-active={active ? "" : undefined}
+          data-annotation-focus={focus ? "" : undefined}
+          className={cn(
+            annotationHighlightClassName,
+            active && annotationActiveClassName,
+          )}
+          // In view mode the first segment is the one tab stop, a button named for the whole
+          // quote; the others are hidden from assistive technology, which heard them in that name.
+          {...(open
+            ? focus
+              ? {
+                  role: "button",
+                  tabIndex: 0,
+                  "aria-label": ctx.annotationLabel(
+                    ctx.annotationQuotes.get(id) ?? "",
+                    count,
+                  ),
+                  onClick: () => open(id),
+                  onKeyDown: (event: React.KeyboardEvent) => {
+                    if (event.key !== "Enter" && event.key !== " ") return;
+                    event.preventDefault();
+                    open(id);
+                  },
+                }
+              : { "aria-hidden": true, onClick: () => open(id) }
+            : {})}
+        >
+          {children()}
+        </span>
+      );
+      if (attrs.last === undefined || ctx.showCounts === "never") return span;
+      return (
+        <React.Fragment key={key}>
+          {span}
+          <span
+            data-slot="text-edit-annotation-count"
+            data-annotation-count={id}
+            data-active={active ? "" : undefined}
+            className={cn(
+              annotationCountClassName,
+              annotationCountVisibilityClassName[ctx.showCounts],
+            )}
+            // Not a tab stop: the highlight is the keyboard path.
+            {...(open
+              ? {
+                  role: "button",
+                  tabIndex: -1,
+                  onClick: () => open(id),
+                }
+              : {})}
+          >
+            <span aria-hidden="true">{count > 99 ? "99+" : count}</span>
+            <span className="sr-only">{ctx.annotationCountLabel(count)}</span>
+          </span>
+        </React.Fragment>
+      );
+    }
     case "citation": {
       const n = Number(attrs.n);
       const source = ctx.citation?.(n);
@@ -961,11 +1318,11 @@ function renderNode(
     }
     case "table":
       // A wide table scrolls inside its own box rather than widening the page (the 320px reflow
-      // contract).
+      // contract); the box fades at an edge with more beyond it and is a named region meanwhile.
       return (
-        <div key={key} className="my-2 w-full overflow-x-auto">
+        <MarkdownTableScroll key={key} label={ctx.tableLabel}>
           <table>{children()}</table>
-        </div>
+        </MarkdownTableScroll>
       );
     case "ul":
       return attrs["data-type"] === "taskList" ? (
@@ -1042,12 +1399,34 @@ function renderNode(
     }
     case "code":
       return <code key={key}>{children()}</code>;
-    case "details":
+    case "details": {
+      const fallback = attrs.open !== undefined;
+      const state = ctx.toggleState;
+      if (!state)
+        return (
+          <details key={key} open={fallback || undefined}>
+            {children()}
+          </details>
+        );
+      // Each reader's own open state, by the toggle's id (its block id, in document order).
+      const id =
+        state.ids?.[Number(attrs["data-toggle"])] ??
+        `toggle-${attrs["data-toggle"]}`;
+      const open = state.isOpen(id, fallback);
       return (
-        <details key={key} open={attrs.open !== undefined || undefined}>
+        <details
+          key={key}
+          data-toggle-id={id}
+          open={open || undefined}
+          onToggle={(event) => {
+            const next = (event.currentTarget as HTMLDetailsElement).open;
+            if (next !== state.isOpen(id, fallback)) state.onToggle(id, next);
+          }}
+        >
           {children()}
         </details>
       );
+    }
     case "summary":
       // A real chevron (the native marker is hidden): right when closed, down when open.
       return (
@@ -1098,15 +1477,36 @@ function renderNode(
 }
 
 /**
- * The `document` heading scale, laid over the shared prose recipe (`headingScale="document"` on
- * `MarkdownView` and `TextEdit`): a page's headings are clearly bigger than its body, with more
- * room above than below, the way a document reads (Notion: 1.875 / 1.5 / 1.25em).
- *
- * @example
- * <div className={cn(proseClassName, proseDocumentHeadingsClassName)} />
+ * What a document prints with (`typeScale="document"`, on `MarkdownView` and `TextEdit` alike):
+ * code wraps instead of clipping, a table box lets its table run its full width, comment
+ * highlights and their pills and every on-screen control drop out, and an external link prints
+ * its address after its text. `DocumentLayout` prints the page around it as one column.
  */
-export const proseDocumentHeadingsClassName =
-  "[&_h1]:mt-8 [&_h1]:mb-3 [&_h1]:text-3xl [&_h2]:mt-8 [&_h2]:mb-2 [&_h2]:text-2xl [&_h3]:mt-6 [&_h3]:mb-1 [&_h3]:text-xl [&_h4]:mt-5 [&_h4]:mb-1 [&_h4]:text-base [&_h4]:font-semibold";
+export const documentPrintClassName = cn(
+  "print:[&_[data-slot=code-block-pre]]:overflow-visible print:[&_[data-slot=code-block-pre]]:whitespace-pre-wrap print:[&_pre]:whitespace-pre-wrap print:[&_[data-slot=code-block-actions]]:hidden",
+  "print:[&_[data-slot=text-edit-annotation]]:bg-transparent print:[&_[data-slot=text-edit-annotation]]:no-underline print:[&_[data-slot=text-edit-annotation-count]]:hidden",
+  "print:[&_[data-slot=markdown-table]]:overflow-visible print:[&_.tableWrapper]:overflow-visible print:[&_table]:break-inside-auto print:[&_tr]:break-inside-avoid print:[&_thead]:table-header-group",
+  "print:[&_a[href^=http]]:after:content-['_('_attr(href)_')'] print:[&_a[href^=http]]:after:text-muted-foreground print:[&_a[href^=http]]:after:wrap-anywhere",
+  "print:[&_[data-slot=callout]]:break-inside-avoid print:[&_img]:break-inside-avoid print:[&_h1]:break-after-avoid print:[&_h2]:break-after-avoid print:[&_h3]:break-after-avoid",
+);
+
+/** A heading's block id and slug — one entry of `MarkdownView`'s `headingAnchors`. */
+export interface MarkdownHeadingAnchor {
+  /** The heading's block id (`blockId`), stable across edits. Absent when the host has none. */
+  id?: string;
+  /** The heading's slug: its words, hyphenated, `-1`, `-2`… for a repeat (`headingIds`). */
+  slug: string;
+}
+
+/** Each reader's own open or closed toggles (`MarkdownView`'s `toggleState`). */
+export interface MarkdownToggleState {
+  /** Whether the toggle with this id is open for this reader; `fallback` is the document's own state. */
+  isOpen: (id: string, fallback: boolean) => boolean;
+  /** The reader opened or closed a toggle. */
+  onToggle: (id: string, open: boolean) => void;
+  /** The toggles' ids (their block ids), in document order. Without it, `toggle-0`, `toggle-1`… */
+  ids?: readonly string[];
+}
 
 /** Props accepted by `MarkdownView`. */
 export interface MarkdownViewProps extends React.ComponentPropsWithRef<"div"> {
@@ -1155,12 +1555,104 @@ export interface MarkdownViewProps extends React.ComponentPropsWithRef<"div"> {
    */
   headingIds?: boolean;
   /**
-   * The heading sizes. `compact` is the app's type scale (a `#` stops at `text-lg`), right for a
-   * comment, a message or a card. `document` is a page's scale — `#` `text-3xl`, `##` `text-2xl`,
-   * `###` `text-xl`, with more room above a heading than below — for a page read as a document.
+   * The type scale. `compact` is the app's own (14px text, a `#` stops at `text-lg`), right for a
+   * comment, a message or a card. `document` is a page read as a document (TYP-20): 14/24 text
+   * (16/26 on a coarse pointer or a narrow window, where editing is 16px too), 12px between
+   * paragraphs, `#` 24 · `##` 20 · `###` 16 with more room above a heading than below, inline code
+   * in the body's ink, and print rules (`documentPrintClassName`). `TextEdit`'s `typeScale` is the
+   * same overlay, so a page reads and edits at identical metrics.
    * @default "compact"
    */
-  headingScale?: "compact" | "document";
+  typeScale?: "compact" | "document";
+  /**
+   * Comment highlights over the words each one quotes (resolved through its quote and context,
+   * the way `TextEdit` re-anchors). One that matches no text, or two places equally well, draws
+   * nothing. Rendered as spans at render time, never by touching the DOM after.
+   * @default undefined
+   */
+  annotations?: readonly MarkdownAnnotation[];
+  /**
+   * The annotation shown as active: its highlight fills.
+   * @default null
+   */
+  activeAnnotationId?: string | null;
+  /**
+   * Called with an annotation's id to open its thread: a click on its highlight or its count pill,
+   * or Enter / Space on its highlight, which is then a tab stop (a button named by
+   * `annotationLabel`). Without it, highlights are neither tab stops nor buttons.
+   * @default undefined
+   */
+  onAnnotationClick?: (id: string) => void;
+  /**
+   * A count pill after each highlight: `auto` only on a coarse pointer or below the `lg` width
+   * (where a comment margin has no room), `always` everywhere, `never` none.
+   * @default "never"
+   */
+  annotationCounts?: "never" | "auto" | "always";
+  /**
+   * A highlight's accessible name, from its quoted words and count.
+   * @default (quote, count) => count > 1 ? `${count} comments on “${quote}”` : `Comment on “${quote}”`
+   */
+  annotationLabel?: (quote: string, count: number) => string;
+  /**
+   * The count pill's accessible name (the visible number is `aria-hidden`).
+   * @default (count) => count === 1 ? "1 comment" : `${count} comments`
+   */
+  annotationCountLabel?: (count: number) => string;
+  /**
+   * Each highlight's top edge (px from this view's top; null when it drew nothing), after render
+   * and whenever the view resizes — for laying comments in a margin beside the text.
+   * @default undefined
+   */
+  onAnnotationsLayout?: (items: MarkdownAnnotationLayout[]) => void;
+  /**
+   * The headings `#`–`####` with their ids, after render and whenever they change — an outline
+   * rail, computed from the Markdown with no editor. Turns `headingIds` on.
+   * @default undefined
+   */
+  onOutlineChange?: (headings: MarkdownOutlineItem[]) => void;
+  /**
+   * The headings' slugs and block ids, in document order (a server-derived list). A heading whose
+   * slug matches its entry takes the slug as its `id` and the block id as `data-anchor-id`, so a
+   * `#slug~blockId` link keeps working after the heading moves. Turns `headingIds` on.
+   * @default undefined
+   */
+  headingAnchors?: readonly MarkdownHeadingAnchor[];
+  /**
+   * Where a heading's link points (a path or an absolute URL). Set, each heading with an id gets a
+   * copy-link button, shown on hover and focus and always on a coarse pointer. Return `null` for
+   * none.
+   * @default undefined
+   */
+  headingLinkHref?: (anchor: MarkdownHeadingAnchor) => string | null;
+  /**
+   * Each reader's own open or closed toggles: `isOpen` decides, `onToggle` hears every change.
+   * Without it, a toggle opens as the document says and is forgotten on reload.
+   * @default undefined
+   */
+  toggleState?: MarkdownToggleState;
+  /**
+   * Find in the rendered text: every match is highlighted (the CSS Custom Highlight API, so the
+   * DOM is never changed), the first scrolls into view (any toggle around it opens), and a match
+   * bar shows "1 of 12" with previous and next. Where the API is missing, it only scrolls.
+   * @default undefined
+   */
+  findQuery?: string;
+  /**
+   * The match bar's close button (and Escape inside the bar).
+   * @default undefined
+   */
+  onFindClose?: () => void;
+  /**
+   * The match bar's strings.
+   * @default undefined
+   */
+  findLabels?: MarkdownViewEffectsProps["findLabels"];
+  /**
+   * A table box's accessible name while its table scrolls sideways.
+   * @default "Table, scrolls sideways"
+   */
+  tableLabel?: string;
   /**
    * Where a mention chip links, by kind and id (`[@Q3 plan](mention://page/p1)`). Return `null`
    * for no link. People are never links, and neither is a `restricted:` id.
@@ -1233,7 +1725,22 @@ export function MarkdownView({
   allowedImageOrigins = [],
   headingOffset = 0,
   headingIds: withHeadingIds = false,
-  headingScale = "compact",
+  typeScale = "compact",
+  annotations,
+  activeAnnotationId = null,
+  onAnnotationClick,
+  annotationCounts = "never",
+  annotationLabel = defaultAnnotationLabel,
+  annotationCountLabel = defaultAnnotationCountLabel,
+  onAnnotationsLayout,
+  onOutlineChange,
+  headingAnchors,
+  headingLinkHref,
+  toggleState,
+  findQuery,
+  onFindClose,
+  findLabels,
+  tableLabel,
   mentionHref,
   mentionImage,
   fileLinkPrefix = "/api/files/",
@@ -1248,35 +1755,99 @@ export function MarkdownView({
 
   const parsed = format === "html" ? fromHtml(source) : fromMarkdown(source);
   const tree = citation && format !== "html" ? withCitations(parsed) : parsed;
-  if (withHeadingIds) {
-    const headings: El[] = [];
-    const walk = (nodes: DocNode[]) => {
-      for (const node of nodes) {
-        if (typeof node === "string") continue;
-        if (/^h[1-6]$/.test(node.tag)) headings.push(node);
-        else walk(node.children);
+
+  // Headings: ids (their words, or the host's slugs and block ids) and the outline.
+  const headings: El[] = [];
+  const details: El[] = [];
+  const walk = (nodes: DocNode[]) => {
+    for (const node of nodes) {
+      if (typeof node === "string") continue;
+      if (/^h[1-6]$/.test(node.tag)) headings.push(node);
+      else {
+        if (node.tag === "details") details.push(node);
+        walk(node.children);
       }
-    };
-    walk(tree);
-    headingIds(headings.map(headingText)).forEach((id, index) => {
-      headings[index]!.attrs.id = id;
+    }
+  };
+  walk(tree);
+  details.forEach((node, index) => {
+    node.attrs["data-toggle"] = String(index);
+  });
+  const outline: MarkdownOutlineItem[] = [];
+  if (withHeadingIds || headingAnchors || onOutlineChange) {
+    const texts = headings.map(headingText);
+    headingIds(texts).forEach((id, index) => {
+      const node = headings[index]!;
+      const anchor = headingAnchors?.[index];
+      // The host's entry holds only while it is still this heading (same slug at the same place).
+      node.attrs.id = id;
+      if (anchor && anchor.slug === id && anchor.id)
+        node.attrs["data-anchor-id"] = anchor.id;
+      const level = Number(node.tag[1]);
+      if (level <= 4)
+        outline.push({
+          id,
+          level: level as MarkdownOutlineItem["level"],
+          text: texts[index]!,
+          ...(node.attrs["data-anchor-id"]
+            ? { anchorId: node.attrs["data-anchor-id"] }
+            : {}),
+        });
     });
   }
+
+  // Comment highlights, cut into the tree's text before it renders.
+  if (annotations?.length) annotate(tree, annotations);
+  const annotationQuotes = new Map<string, string>();
+  for (const annotation of annotations ?? [])
+    annotationQuotes.set(
+      annotation.id,
+      annotation.anchor.quote.replace(/\s+/g, " ").trim(),
+    );
+
+  const effects =
+    onOutlineChange !== undefined ||
+    onAnnotationsLayout !== undefined ||
+    Boolean(findQuery?.trim()) ||
+    details.length > 0;
 
   return (
     <div
       data-slot="markdown-view"
+      data-type-scale={typeScale}
       className={cn(
-        proseClassName,
-        markdownExtrasClassName,
-        headingScale === "document" && proseDocumentHeadingsClassName,
+        typeScale === "document" ? documentProse : compactProse,
         className,
       )}
       {...props}
     >
+      {effects ? (
+        <MarkdownViewEffects
+          outline={onOutlineChange ? outline : undefined}
+          onOutlineChange={onOutlineChange}
+          onAnnotationsLayout={onAnnotationsLayout}
+          annotationIds={annotations?.map((annotation) => annotation.id)}
+          findQuery={findQuery}
+          onFindClose={onFindClose}
+          findLabels={findLabels}
+          printToggles={details.length > 0}
+        />
+      ) : null}
       {render(tree, {
         images: normalizeAllowedImageOrigins(allowedImageOrigins),
         headingOffset: Math.trunc(headingOffset),
+        annotationCounts: new Map(
+          (annotations ?? []).map((a) => [a.id, a.count ?? 1]),
+        ),
+        activeAnnotationId,
+        onAnnotationClick,
+        showCounts: annotationCounts,
+        annotationLabel,
+        annotationCountLabel,
+        annotationQuotes,
+        headingLinkHref,
+        toggleState,
+        tableLabel,
         mentionHref,
         mentionImage,
         fileLinkPrefix,
@@ -1286,3 +1857,22 @@ export function MarkdownView({
     </div>
   );
 }
+
+/**
+ * The document type scale merged over the prose recipe with the chips' rules restated after it:
+ * `markdownExtrasClassName` carries `[&_details]:my-2`, which the document overlay's `my-4` must
+ * beat, so the overlay is merged last.
+ */
+const documentProse = cn(
+  proseDocumentClassName,
+  markdownExtrasClassName,
+  proseDocumentClassName,
+  documentPrintClassName,
+);
+/** The app's own scale: the prose recipe and the chips' rules. */
+const compactProse = cn(proseClassName, markdownExtrasClassName);
+
+const defaultAnnotationLabel = (quote: string, count: number) =>
+  count > 1 ? `${count} comments on “${quote}”` : `Comment on “${quote}”`;
+const defaultAnnotationCountLabel = (count: number) =>
+  count === 1 ? "1 comment" : `${count} comments`;

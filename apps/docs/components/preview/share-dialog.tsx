@@ -7,6 +7,7 @@
  * block source), which wires the dialog to sample state; the rest compose `ShareDialog` directly.
  */
 
+import * as React from "react";
 import type { ReactNode } from "react";
 import { ShareDemo } from "../../../../packages/ui/registry/blocks/share-01/components/share-demo";
 import { Button } from "@/components/ui/button";
@@ -108,6 +109,49 @@ export function shareDialogHints(): ReactNode {
             </InfoHint>
           ),
         }}
+      />
+    </Wrapper>
+  );
+}
+
+/**
+ * `publishExposure` says what the public link exposes, `onPublishRequest` confirms before it turns
+ * on, and `audience` adds "Who can see this" at the end of the Share tab.
+ */
+export function shareDialogExposure(): ReactNode {
+  const [link, setLink] = React.useState<{
+    url: string;
+    expires: "never";
+  } | null>(null);
+  return (
+    <Wrapper>
+      <ShareDialog
+        trigger={<Button variant="outline">Share a page with sub-pages</Button>}
+        levels={LEVELS}
+        people={PEOPLE}
+        generalAccess={GENERAL}
+        linkUrl="https://app.acme.com/library/pricing-v2"
+        publicLink={link}
+        publishExposure="Anyone with the link can view this page and 12 pages inside, without signing in."
+        onPublishRequest={() =>
+          window.confirm(
+            "Publish 13 pages? Anyone with the link can view “Pricing v2” and the 12 pages inside it.",
+          )
+        }
+        onCreatePublicLink={() =>
+          setLink({ url: "https://app.acme.com/s/k3J9xQ2", expires: "never" })
+        }
+        onStopPublicLink={() => setLink(null)}
+        audienceCount={31}
+        audience={
+          <ul className="flex flex-col gap-2 text-sm">
+            <li>Everyone in Sales · 28</li>
+            <li>Invited · 3 people</li>
+            <li className="text-muted-foreground">
+              Workspace admins can view private spaces they aren&apos;t in
+            </li>
+          </ul>
+        }
       />
     </Wrapper>
   );

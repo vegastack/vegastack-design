@@ -12,8 +12,8 @@
     "evidencePolicy": "Observed fields come from source, registry metadata, docs, and test topology. Unknown/not-applicable values are explicit; no inferred behavior is presented as verified."
   },
   "expectedCounts": {
-    "totalRegistryItems": 744,
-    "components": 160,
+    "totalRegistryItems": 745,
+    "components": 161,
     "animatedIcons": 467,
     "hooks": 15,
     "blocks": 15,
@@ -23,7 +23,7 @@
   "expectedWaveCounts": {
     "Core controls": 24,
     "Forms/editing": 34,
-    "Navigation/layout": 21,
+    "Navigation/layout": 22,
     "Overlays": 21,
     "Data display": 31,
     "Content/marketing": 15,
@@ -117,7 +117,8 @@
       "record-layout",
       "folder-tree",
       "breadcrumb-cascade",
-      "table-of-contents"
+      "table-of-contents",
+      "document-layout"
     ],
     "Overlays": [
       "access-chip",
@@ -370,6 +371,11 @@
         "file": "packages/ui/test/toast-manager-binding.browser.test.tsx",
         "owners": ["toast", "provider"],
         "globalInputGroups": ["shared-runtime"]
+      },
+      {
+        "file": "packages/ui/test/document-geometry.browser.test.tsx",
+        "owners": ["document-layout", "markdown-view", "text-edit", "button"],
+        "globalInputGroups": ["tokens", "shared-runtime"]
       }
     ]
   },
@@ -4016,6 +4022,10 @@
         "BreadcrumbTrail": {
           "attributes": [
             {
+              "name": "data-compact",
+              "values": [""]
+            },
+            {
               "name": "data-current",
               "values": [""]
             },
@@ -4037,7 +4047,12 @@
             },
             {
               "name": "data-slot",
-              "values": ["breadcrumb-trail", "breadcrumb-trail-folded"]
+              "values": [
+                "breadcrumb-trail",
+                "breadcrumb-trail-compact",
+                "breadcrumb-trail-compact-menu",
+                "breadcrumb-trail-folded"
+              ]
             }
           ],
           "cssVariables": []
@@ -15598,13 +15613,14 @@
       "name": "markdown-view",
       "registryType": "registry:ui",
       "title": "Markdown View",
-      "summary": "Render a markdown string to safe, token-styled HTML — headings (with optional ids), lists, code, blockquotes, links, GFM tables, mention and file chips, callouts and toggles — XSS-safe, no raw HTML.",
+      "summary": "Render a markdown string to safe, token-styled HTML — headings (with optional ids and copy links), lists, code, blockquotes, links, GFM tables that fade at a scrolling edge, mention and file chips, callouts and toggles — XSS-safe; at the document type scale, a page's read view with comment highlights, an outline, per-reader toggles and find.",
       "status": "stable",
       "since": "0.1.0",
       "family": "data-display",
       "wave": "Content/marketing",
       "sourceFiles": [
         "packages/ui/registry/ui/markdown-citation.tsx",
+        "packages/ui/registry/ui/markdown-view-client.tsx",
         "packages/ui/registry/ui/markdown-view.tsx"
       ],
       "publicSymbols": [
@@ -15647,15 +15663,6 @@
         },
         {
           "name": "markdownExtrasClassName",
-          "kind": "constant",
-          "source": "packages/ui/registry/ui/markdown-view.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "A constant; it renders nothing and takes no ref."
-          }
-        },
-        {
-          "name": "proseDocumentHeadingsClassName",
           "kind": "constant",
           "source": "packages/ui/registry/ui/markdown-view.tsx",
           "ref": {
@@ -15734,6 +15741,151 @@
             "status": "not-applicable",
             "rationale": "A constant export does not render or accept a runtime ref."
           }
+        },
+        {
+          "name": "annotationActiveClassName",
+          "kind": "constant",
+          "source": "packages/ui/registry/ui/markdown-view.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A constant export does not render or accept a runtime ref."
+          }
+        },
+        {
+          "name": "annotationCountClassName",
+          "kind": "constant",
+          "source": "packages/ui/registry/ui/markdown-view.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A constant export does not render or accept a runtime ref."
+          }
+        },
+        {
+          "name": "annotationCountVisibilityClassName",
+          "kind": "constant",
+          "source": "packages/ui/registry/ui/markdown-view.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A constant export does not render or accept a runtime ref."
+          }
+        },
+        {
+          "name": "annotationHighlightClassName",
+          "kind": "constant",
+          "source": "packages/ui/registry/ui/markdown-view.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A constant export does not render or accept a runtime ref."
+          }
+        },
+        {
+          "name": "documentPrintClassName",
+          "kind": "constant",
+          "source": "packages/ui/registry/ui/markdown-view.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A constant export does not render or accept a runtime ref."
+          }
+        },
+        {
+          "name": "MarkdownAnnotation",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/markdown-view.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "MarkdownHeadingAnchor",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/markdown-view.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "MarkdownToggleState",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/markdown-view.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "MarkdownAnnotationLayout",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/markdown-view-client.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "MarkdownOutlineItem",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/markdown-view-client.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "MarkdownHeadingLink",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/markdown-view-client.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "MarkdownHeadingLink renders a CopyButton inside a heading; it takes no ref."
+          }
+        },
+        {
+          "name": "MarkdownHeadingLinkProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/markdown-view-client.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "MarkdownTableScroll",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/markdown-view-client.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "div",
+            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/markdown-view-client.tsx."
+          }
+        },
+        {
+          "name": "MarkdownTableScrollProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/markdown-view-client.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "MarkdownViewEffects",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/markdown-view-client.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "MarkdownViewEffects renders a hidden marker and the find bar inside MarkdownView; it takes no ref."
+          }
+        },
+        {
+          "name": "MarkdownViewEffectsProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/markdown-view-client.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
         }
       ],
       "variants": {
@@ -15795,9 +15947,12 @@
         "@vegastack/button",
         "@vegastack/checkbox",
         "@vegastack/code-block",
+        "@vegastack/copy-button",
         "@vegastack/inline-chip",
         "@vegastack/popover",
-        "@vegastack/text-edit-grammar"
+        "@vegastack/text-anchor",
+        "@vegastack/text-edit-grammar",
+        "@vegastack/use-announcer"
       ],
       "npmDependencies": [
         "marked@^17.0.1",
@@ -15829,11 +15984,46 @@
           ],
           "cssVariables": []
         },
+        "MarkdownTableScroll": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["markdown-table"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "MarkdownViewEffects": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": [
+                "markdown-find-bar",
+                "markdown-find-count",
+                "markdown-view-marker"
+              ]
+            }
+          ],
+          "cssVariables": []
+        },
+        "MarkdownHeadingLink": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["markdown-heading-link"]
+            }
+          ],
+          "cssVariables": []
+        },
         "MarkdownView": {
           "attributes": [
             {
               "name": "data-slot",
               "values": ["markdown-view"]
+            },
+            {
+              "name": "data-type-scale",
+              "values": []
             }
           ],
           "cssVariables": []
@@ -28916,6 +29106,328 @@
       }
     },
     {
+      "name": "document-layout",
+      "registryType": "registry:ui",
+      "title": "Document Layout",
+      "summary": "A page read as a document — the title area, the text at a reading measure, what follows it, a contents column and a comment margin — on one grid with four tiers by its own width, plus its skeleton and a tier hook.",
+      "status": "stable",
+      "since": "0.25.35",
+      "family": "layout",
+      "wave": "Navigation/layout",
+      "sourceFiles": [
+        "packages/ui/registry/ui/document-layout.tsx",
+        "packages/ui/registry/ui/use-document-layout-tier.ts"
+      ],
+      "publicSymbols": [
+        {
+          "name": "DocumentLayout",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/document-layout.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "div",
+            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/document-layout.tsx."
+          }
+        },
+        {
+          "name": "DocumentLayoutHeader",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/document-layout.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "div",
+            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/document-layout.tsx."
+          }
+        },
+        {
+          "name": "DocumentLayoutBody",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/document-layout.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "div",
+            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/document-layout.tsx."
+          }
+        },
+        {
+          "name": "DocumentLayoutFoot",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/document-layout.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "div",
+            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/document-layout.tsx."
+          }
+        },
+        {
+          "name": "DocumentLayoutContents",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/document-layout.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "aside",
+            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/document-layout.tsx."
+          }
+        },
+        {
+          "name": "DocumentLayoutContentsRail",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/document-layout.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "div",
+            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/document-layout.tsx."
+          }
+        },
+        {
+          "name": "DocumentLayoutContentsList",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/document-layout.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "div",
+            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/document-layout.tsx."
+          }
+        },
+        {
+          "name": "DocumentLayoutMargin",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/document-layout.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "aside",
+            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/document-layout.tsx."
+          }
+        },
+        {
+          "name": "DocumentLayoutSkeleton",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/document-layout.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "div",
+            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/document-layout.tsx."
+          }
+        },
+        {
+          "name": "DocumentLayoutProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/document-layout.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "DocumentLayoutSkeletonProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/document-layout.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "DocumentLayoutPartProps",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/document-layout.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "DocumentLayoutAsideProps",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/document-layout.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "DocumentLayoutTier",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/document-layout.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "useDocumentLayoutTier",
+          "kind": "hook",
+          "source": "packages/ui/registry/ui/use-document-layout-tier.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A hook; returns the tier, takes no ref."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "A layout frame; margin, contents and measure are layout flags, not a visual axis."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "A layout frame; no local axis."
+      },
+      "states": {
+        "behavior": {
+          "status": "covered",
+          "values": [
+            "tier-s",
+            "tier-m",
+            "tier-l",
+            "tier-xl",
+            "wide",
+            "loading"
+          ],
+          "evidence": "packages/ui/registry/ui/document-layout.tsx + packages/ui/test/document-geometry.browser.test.tsx"
+        },
+        "accessibility": {
+          "status": "covered",
+          "values": ["labeled", "browser-accessibility-test"],
+          "evidence": "packages/ui/registry/ui/document-layout.test.tsx"
+        },
+        "visual": {
+          "status": "observed",
+          "values": ["default", "loading"],
+          "evidence": "packages/ui/registry/ui/document-layout.tsx"
+        }
+      },
+      "responsive": {
+        "status": "modeled",
+        "risks": ["responsive-or-container-layout"],
+        "rationale": "Four tiers by the layout's own width (container queries at 36, 52 and 64rem); a column with no room is display:none."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned motion mechanism."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/document-layout",
+      "registryDependencies": ["@vegastack/skeleton"],
+      "npmDependencies": [
+        "@vegastack/design@^0.8.11",
+        "@vegastack/design-tokens@^0.8.3"
+      ],
+      "testFiles": ["packages/ui/registry/ui/document-layout.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required"
+      },
+      "previewModule": "document-layout",
+      "dataAttributes": {
+        "DocumentLayout": {
+          "attributes": [
+            {
+              "name": "data-contents",
+              "values": [""]
+            },
+            {
+              "name": "data-margin",
+              "values": [""]
+            },
+            {
+              "name": "data-measure",
+              "values": []
+            },
+            {
+              "name": "data-slot",
+              "values": ["document-layout", "document-layout-grid"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "DocumentLayoutHeader": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["document-layout-header"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "DocumentLayoutBody": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["document-layout-body"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "DocumentLayoutFoot": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["document-layout-foot"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "DocumentLayoutContents": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["document-layout-contents"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "DocumentLayoutContentsRail": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["document-layout-contents-rail"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "DocumentLayoutContentsList": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["document-layout-contents-list"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "DocumentLayoutMargin": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["document-layout-margin"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "DocumentLayoutSkeleton": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": [
+                "document-layout-skeleton",
+                "document-layout-skeleton-line"
+              ]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
+    },
+    {
       "name": "comments",
       "registryType": "registry:ui",
       "title": "Comments",
@@ -31879,6 +32391,7 @@
         "@vegastack/alert-dialog",
         "@vegastack/button",
         "@vegastack/checkbox",
+        "@vegastack/collapsible",
         "@vegastack/copy-button",
         "@vegastack/icon-glyph",
         "@vegastack/input-group",
@@ -31923,6 +32436,8 @@
             {
               "name": "data-slot",
               "values": [
+                "share-audience",
+                "share-audience-content",
                 "share-copy-link",
                 "share-dialog-body",
                 "share-general",
@@ -31932,6 +32447,7 @@
                 "share-people",
                 "share-person",
                 "share-public-link",
+                "share-publish-exposure",
                 "share-published-dot",
                 "share-published-notice"
               ]

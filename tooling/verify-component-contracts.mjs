@@ -575,7 +575,7 @@ assert(
 const expectedWaves = {
   "Core controls": 24,
   "Forms/editing": 34,
-  "Navigation/layout": 21,
+  "Navigation/layout": 22,
   Overlays: 21,
   "Data display": 31,
   "Content/marketing": 15,
@@ -676,6 +676,7 @@ const expectedComponentWaveMembers = {
     "collapsible",
     "command",
     "direction",
+    "document-layout",
     "folder-tree",
     "menubar",
     "multi-step-form",

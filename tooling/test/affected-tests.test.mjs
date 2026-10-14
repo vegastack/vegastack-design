@@ -80,6 +80,8 @@ describe("affected component closure", () => {
       "bubble",
       "code-block",
       "comments",
+      // document-layout's preview reads its page through a MarkdownView at the document scale.
+      "document-layout",
       "dropzone",
       "file-card",
       "file-viewer",
