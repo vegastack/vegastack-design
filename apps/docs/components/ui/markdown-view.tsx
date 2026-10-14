@@ -1,7 +1,7 @@
-// @vegastack markdown-view@0.25.42 sha256-WIoqfN/fRBTwkRfi/D+yD4gXnyo5BuspHaNn4PH9yQw=
+// @vegastack markdown-view@0.25.42 sha256-bF9/v2HqfvIsvw4KLI36Z7s8ngsQ5VOGNHPEROkZMNs=
 
 import * as React from "react";
-import { Lexer, type Token, type Tokens } from "marked";
+import { Lexer, type MarkedOptions, type Token, type Tokens } from "marked";
 import {
   Info,
   Play,
@@ -27,6 +27,8 @@ import {
   parseCodeFenceInfo,
   parseImageAlt,
   parseMentionLink,
+  parseTaskListRows,
+  readTasksDirective,
   type CalloutTone,
   type MentionKind,
 } from "@/lib/text-edit-grammar";
@@ -247,6 +249,115 @@ export const MEDIA_VIDEO_CLASS =
 /** An audio block: the native player, full width. */
 export const MEDIA_AUDIO_CLASS = "my-2 block w-full max-w-full";
 
+/** What a host's `renderTaskQuery` draws a live task list from (`TextEdit`, `MarkdownView`). */
+export interface TaskQueryRenderProps {
+  /** The list's block id — the directive's `id`, which the host keys the list by. */
+  blockId: string;
+  /** Its filter: the directive's other attributes (`v`, `space`, `assignee`, `status`, …), as written. */
+  query: Record<string, string>;
+  /** The rows last stored: `- [ ] [@Title](mention://task/<id>) — <status>` lines (`parseTaskListRows`). */
+  snapshot: string;
+  /** Whether the reader can change the list's filter: an editable editor. */
+  editable: boolean;
+}
+
+/** A `tasks` element's `query` attribute (JSON) as its strings. */
+function queryOf(json: string | undefined): Record<string, string> {
+  try {
+    const value: unknown = JSON.parse(json ?? "{}");
+    if (!value || typeof value !== "object" || Array.isArray(value)) return {};
+    return Object.fromEntries(
+      Object.entries(value).map(([key, each]) => [key, String(each)]),
+    );
+  } catch {
+    return {};
+  }
+}
+
+/** Props accepted by `MarkdownTaskList`. */
+export interface MarkdownTaskListProps extends Omit<
+  React.ComponentPropsWithRef<"div">,
+  "children"
+> {
+  /** The list's rows as stored: `- [x] [@Title](mention://task/<id>) — <status>` lines. */
+  snapshot: string;
+  /**
+   * A task chip's link, as `MarkdownView`'s prop of the same name; without it the nearest
+   * `InlineChipProvider` links it.
+   * @default undefined
+   */
+  mentionHref?: (kind: MentionKind, id: string) => string | null;
+}
+
+/**
+ * `MarkdownTaskList` — a live task list's stored snapshot as a quiet, read-only card: the muted
+ * heading "Task list", then each row's done box, task chip and status label, or "No matching
+ * tasks". Server-safe. `MarkdownView` renders `:::tasks` with it, and `TextEdit` shows it where
+ * the host draws no live list (`renderTaskQuery`).
+ *
+ * @example
+ * <MarkdownTaskList snapshot={"- [ ] [@Order glass](mention://task/t1) — To do"} />
+ */
+export function MarkdownTaskList({
+  snapshot,
+  mentionHref,
+  className,
+  ...props
+}: MarkdownTaskListProps) {
+  const rows = parseTaskListRows(snapshot);
+  return (
+    <div
+      data-slot="markdown-task-list"
+      role="group"
+      aria-label="Task list"
+      className={cn(
+        "my-2 rounded-lg border border-border px-3 py-2 text-sm",
+        className,
+      )}
+      {...props}
+    >
+      <div aria-hidden className="text-xs font-medium text-muted-foreground">
+        Task list
+      </div>
+      {rows.length ? (
+        <div role="list" className="mt-1.5 flex flex-col gap-1.5">
+          {rows.map((row, index) => (
+            <div
+              key={index}
+              role="listitem"
+              data-slot="markdown-task-list-row"
+              data-checked={row.checked}
+              className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-0.5"
+            >
+              <Checkbox
+                checked={row.checked}
+                aria-label={row.checked ? "Done" : "Not done"}
+                disabled
+                className="pointer-events-none inline-flex disabled:opacity-100"
+              />
+              {row.id ? (
+                <InlineChip
+                  kind="task"
+                  targetId={row.id}
+                  label={row.label}
+                  href={mentionHref ? mentionHref("task", row.id) : undefined}
+                />
+              ) : (
+                <span className="min-w-0">{row.label}</span>
+              )}
+              {row.status ? (
+                <span className="text-muted-foreground">{row.status}</span>
+              ) : null}
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div className="mt-1 text-muted-foreground">No matching tasks</div>
+      )}
+    </div>
+  );
+}
+
 /* --- markdown → tree --------------------------------------------------------------------------*/
 
 /** A `<br>` tag, in any of its spellings: the one raw HTML VegaStack Markdown reads (a line break). */
@@ -380,6 +491,48 @@ function embedOf(paragraph: Tokens.Generic): El | null {
   return el("embed", { url: href });
 }
 
+/**
+ * A live task list (`:::tasks{…}` … `:::`, `readTasksDirective`) as one block token. Lines that do
+ * not make one stay text and a list.
+ */
+const TASKS_TOKEN = "markdownTasks";
+
+/**
+ * How the view lexes Markdown: GFM, plus live task lists. A list can start where a paragraph's line
+ * opens with `:::tasks{` (looked for within the paragraph only).
+ */
+const LEX_OPTIONS: MarkedOptions = {
+  gfm: true,
+  extensions: {
+    renderers: {},
+    childTokens: {},
+    block: [
+      (src: string) => {
+        const block = readTasksDirective(src);
+        return block
+          ? ({
+              type: TASKS_TOKEN,
+              raw: block.raw,
+              id: block.id ?? "",
+              query: block.query,
+              snapshot: block.snapshot,
+            } as Tokens.Generic)
+          : undefined;
+      },
+    ],
+    startBlock: [
+      (src: string) => {
+        const blank = src.indexOf("\n\n");
+        const at = src.indexOf("\n:::tasks{");
+        return at !== -1 && (blank === -1 || at <= blank) ? at + 1 : undefined;
+      },
+    ],
+  },
+};
+
+/** `source` as block tokens: GFM and live task lists. */
+const lex = (source: string) => Lexer.lex(source, LEX_OPTIONS);
+
 /** `embeds`: a lone video link here is an embed (the document, a quote, a callout, a toggle). */
 function blocks(tokens: Token[], embeds = true): DocNode[] {
   const out: DocNode[] = [];
@@ -459,7 +612,7 @@ function blocks(tokens: Token[], embeds = true): DocNode[] {
             el(
               "callout",
               { tone: marker[1]!.toLowerCase() },
-              blocks(Lexer.lex(t.text.slice(marker[0].length), { gfm: true })),
+              blocks(lex(t.text.slice(marker[0].length))),
             ),
           );
           break;
@@ -469,6 +622,15 @@ function blocks(tokens: Token[], embeds = true): DocNode[] {
       }
       case "hr":
         out.push(el("hr"));
+        break;
+      case TASKS_TOKEN:
+        out.push(
+          el("tasks", {
+            id: String(t.id ?? ""),
+            query: JSON.stringify(t.query ?? {}),
+            snapshot: String(t.snapshot ?? ""),
+          }),
+        );
         break;
       case "list": {
         const list = t as Tokens.List;
@@ -747,7 +909,9 @@ function anchorTextOf(holder: El): { text: string; pieces: TextPiece[] } {
       if (child.tag === "pre") {
         block();
         text += textOf(child).replace(/\n$/, "");
-      } else if (["hr", "video", "audio", "embed"].includes(child.tag)) {
+      } else if (
+        ["hr", "video", "audio", "embed", "tasks"].includes(child.tag)
+      ) {
         block();
         text += LEAF_TEXT;
       } else if (TEXT_BLOCKS.has(child.tag)) {
@@ -859,7 +1023,7 @@ function annotate(
 }
 
 function fromMarkdown(source: string): DocNode[] {
-  return blocks(Lexer.lex(source, { gfm: true }));
+  return blocks(lex(source));
 }
 
 /* --- HTML → tree ------------------------------------------------------------------------------*/
@@ -940,6 +1104,9 @@ const HTML_ATTRS = new Set([
   "checked",
   "data-type",
   "data-checked",
+  "data-snapshot",
+  "data-query",
+  "data-block-id",
   "width",
 ]);
 
@@ -1000,6 +1167,13 @@ function fromHtml(source: string): DocNode[] {
 function withEmbeds(nodes: DocNode[]): DocNode[] {
   return nodes.map((node) => {
     if (typeof node === "string") return node;
+    // `TextEdit`'s HTML for a live task list: its snapshot rows, read like the Markdown directive.
+    if (node.tag === "div" && node.attrs["data-type"] === "task-query")
+      return el("tasks", {
+        id: node.attrs["data-block-id"] ?? "",
+        query: node.attrs["data-query"] ?? "{}",
+        snapshot: node.attrs["data-snapshot"] ?? "",
+      });
     if (node.tag === "div" && node.attrs["data-type"] === "embed") {
       const link = node.children.find(
         (child): child is El => typeof child !== "string" && child.tag === "a",
@@ -1119,6 +1293,8 @@ interface RenderContext {
   citation?: (n: number) => MarkdownCitation | null | undefined;
   /** Fenced languages drawn by a block view (```mermaid → a diagram). */
   blockViews?: BlockViews;
+  /** Draws a live task list in place of its stored snapshot. */
+  renderTaskQuery?: (props: TaskQueryRenderProps) => React.ReactNode;
   /**
    * Mark what the anchor text reads differently from the DOM (`data-anchor-text`): a mention or
    * file chip, a blocked image or media block — set while selections can be commented on.
@@ -1588,6 +1764,27 @@ function renderNode(
       return (
         <MarkdownEmbed key={key} url={attrs.url ?? ""} providers={ctx.embeds} />
       );
+    case "tasks": {
+      const snapshot = attrs.snapshot ?? "";
+      const drawn = ctx.renderTaskQuery?.({
+        blockId: attrs.id ?? "",
+        query: queryOf(attrs.query),
+        snapshot,
+        editable: false,
+      });
+      return (
+        <React.Fragment key={key}>
+          {drawn ?? (
+            <MarkdownTaskList
+              snapshot={snapshot}
+              mentionHref={ctx.mentionHref}
+              data-anchor-text={ctx.anchorAttrs ? LEAF_TEXT : undefined}
+              data-anchor-block={ctx.anchorAttrs ? "" : undefined}
+            />
+          )}
+        </React.Fragment>
+      );
+    }
     case "video":
     case "audio": {
       const src = safeUrl(attrs.src ?? "");
@@ -1860,6 +2057,15 @@ export interface MarkdownViewProps extends React.ComponentPropsWithRef<"div"> {
    */
   embeds?: EmbedProviders;
   /**
+   * Draws a live task list (`:::tasks{…}` … `:::`) — a host component that fetches the list for
+   * this reader — in place of its stored snapshot. Called with `editable: false`. Without it (and
+   * where it returns `null`/`undefined`) the snapshot shows as a quiet list (`MarkdownTaskList`):
+   * a public view never gets live data. The function runs during render; pass it from a client
+   * component, or build the view on the server.
+   * @default undefined
+   */
+  renderTaskQuery?: (props: TaskQueryRenderProps) => React.ReactNode;
+  /**
    * A file chip's content type, by its href, when the host knows it (a comment's own files): the
    * chip's icon then follows the type, not only the name's extension.
    * @default undefined
@@ -1950,6 +2156,7 @@ export function MarkdownView({
   fileContentType,
   citation,
   blockViews,
+  renderTaskQuery,
   className,
   ...props
 }: MarkdownViewProps) {
@@ -2057,6 +2264,7 @@ export function MarkdownView({
         fileContentType,
         citation,
         blockViews,
+        renderTaskQuery,
         anchorAttrs: onCreateAnnotation !== undefined,
       })}
     </div>

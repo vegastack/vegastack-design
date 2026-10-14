@@ -1,4 +1,4 @@
-// @vegastack text-edit-grammar@0.25.42 sha256-bo9LD9Bhyt9Aj1hoKKvmFoDz+ytkNuBdmuXNqS4xRqs=
+// @vegastack text-edit-grammar@0.25.42 sha256-ZxvM9YYZkBVjg5YIYMaiZMzYJSjIdTm4OljM+SJ5Mv0=
 
 /**
  * text-edit-grammar — the constructs VegaStack Markdown v1 carries beyond CommonMark + GFM, as
@@ -287,7 +287,7 @@ export function codeFenceInfo(
 /* --- directives: live task lists ---------------------------------------------------------------*/
 
 /** A directive attribute's key: `[a-z][a-z0-9-]*`. */
-export const DIRECTIVE_KEY = /^[a-z][a-z0-9-]*$/;
+const DIRECTIVE_KEY = /^[a-z][a-z0-9-]*$/;
 
 /** One `key="value"` pair (sticky): `\"` and `\\` are its escapes. */
 const DIRECTIVE_PAIR = /[ \t]*([a-z][a-z0-9-]*)="((?:[^"\\\n]|\\[^\n])*)"/y;
@@ -329,10 +329,10 @@ function directiveValue(value: string): string {
 }
 
 /** `:::tasks{…}` — a live task list's opening line, at column 0; its attributes are group 1. */
-export const TASKS_DIRECTIVE_OPEN = /^:::tasks\{([^\n]*)\}[ \t]*(?:\n|$)/;
+const TASKS_DIRECTIVE_OPEN = /^:::tasks\{([^\n]*)\}[ \t]*(?:\n|$)/;
 
 /** `:::` — the line that closes a container directive. */
-export const DIRECTIVE_CLOSE = /^:::[ \t]*(?:\n|$)/;
+const DIRECTIVE_CLOSE = /^:::[ \t]*(?:\n|$)/;
 
 /** A live task list's row: `- [ ] ` or `- [x] ` and its text. */
 const TASK_ROW = /^- \[[ xX]\] [^\n]*\S[^\n]*$/;

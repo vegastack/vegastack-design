@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.25.42 sha256-RbA5KLoJ94UY0C7ChaUv6DF+kBonWVVZJFOWKC0bjoc=
+// @vegastack text-edit@0.25.42 sha256-hKAuhwyAvYBDbEl0Bpn6tWT9lW16w9Pnm41Yos4Gvb4=
 
 "use client";
 
@@ -16,6 +16,7 @@ import {
   documentPrintClassName,
   type BlockViews,
   type MarkdownCitation,
+  type TaskQueryRenderProps,
 } from "@/components/ui/markdown-view";
 import type { MentionKind } from "@/lib/text-edit-grammar";
 import type { EmbedProviders } from "@/lib/embed-providers";
@@ -1068,6 +1069,18 @@ export interface TextEditProps {
    */
   embeds?: EmbedProviders;
   /**
+   * Draws a live task list — a `taskQuery` block, `:::tasks{…}` in Markdown — with the host's own
+   * component (it fetches this reader's rows), in the editor and in the read view before it.
+   * `blockId` is the list's id (the directive's `id`), `query` its filter (every other attribute,
+   * as written), `snapshot` the rows last stored, `editable` whether this reader may change the
+   * filter. The block is an atom: selectable and draggable, nothing inside is edited by the editor.
+   * Without it, or where it returns `null`/`undefined`, the snapshot shows as a quiet read-only list
+   * (`MarkdownTaskList`). Insert one with `{ type: "taskQuery", attrs: { query, snapshot } }`; a
+   * collaborative editor gives it a `blockId`.
+   * @default undefined
+   */
+  renderTaskQuery?: (props: TaskQueryRenderProps) => React.ReactNode;
+  /**
    * Import an image pasted or dropped from another site: resolve with where your storage keeps a
    * copy (`src`). Each such image (one whose `src` is not this origin's or a `blob:`) is taken out
    * of the paste, shows an upload placeholder in its place, and lands as the stored image — or, when
@@ -1766,6 +1779,7 @@ export function TextEdit(props: TextEditProps) {
               citation={props.citation}
               fileLinkPrefix={props.fileLinkPrefix}
               embeds={props.embeds}
+              renderTaskQuery={props.renderTaskQuery}
               fileContentType={props.fileContentType}
               blockViews={props.blockViews}
               typeScale={typeScale}
