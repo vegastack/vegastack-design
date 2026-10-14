@@ -317,6 +317,12 @@ test("narrow, the text wraps and the buttons take their own row; wide, one row",
   expect(wActions.left).toBeGreaterThanOrEqual(wSummary.right);
   expect(wDismiss.left).toBeGreaterThanOrEqual(wActions.right);
   expect(undoLabel(wide!)).toBe("Undo this agent's changes");
+
+  // A desktop page column (about 27rem) already reads the full label; 24rem is the switch.
+  const column = await render(<div style={{ width: 436 }}>{banner}</div>);
+  expect(
+    undoLabel(column.container.querySelector("[data-slot=agent-edit-banner]")!),
+  ).toBe("Undo this agent's changes");
 });
 
 test("ref reaches the banner's root", async () => {

@@ -22171,7 +22171,7 @@
         "whenToUse": "Pinned under a page's header after an agent edited or created it, so people can see the change and undo it.",
         "whenNotToUse": "An agent asking before it acts (ApprovalCard), a transient result after the viewer's own action (Toast), or a page-wide notice (AnnouncementBanner).",
         "version": "0.25.39",
-        "integrity": "sha256-pZwQ+qdk9fatO5pRTRBR/F36GHp+2qlptZMk32EvmqE="
+        "integrity": "sha256-CYs3DvGr4I50R+Mm6ZIo/luRbVyTFbmpNZYBCV3DrHU="
       }
     }
   ]
