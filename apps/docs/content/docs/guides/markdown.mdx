@@ -273,7 +273,10 @@ The rules a writer can rely on:
   a list as `•` lines, code as code spans), block ids.
 - **Every valid CommonMark document parses.** An image written inside a sentence becomes a block
   beside its text; a list item that starts with a heading, code or an image keeps it on its marker
-  line; a task checkbox in an ordered list (`1. [ ] one`) is kept as its text.
+  line; a task checkbox in an ordered list (`1. [ ] one`) is kept as its text. A reference link
+  (`[text][ref]` and its `[ref]: url "Title"` definition) is written as an inline link, its title
+  kept; a definition nothing uses is dropped. Inline code can sit inside a link, bold, italic or
+  strikethrough (``[`code`](/x)``).
 - **Linear parsing.** A megabyte parses in well under a second — adversarial input included (long
   runs of unmatched `*`, `~`, `[`, unclosed toggles) — and every `TextEdit` and every server call
   uses its own `marked` instance.

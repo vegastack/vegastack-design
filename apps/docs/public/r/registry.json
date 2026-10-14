@@ -1906,6 +1906,7 @@
         "@tiptap/core@^3.31.4",
         "@tiptap/pm@^3.31.4",
         "@tiptap/starter-kit@^3.31.4",
+        "@tiptap/extension-code@^3.31.4",
         "@tiptap/extension-code-block@^3.31.4",
         "@tiptap/extension-code-block-lowlight@^3.31.4",
         "@tiptap/extension-hard-break@^3.31.4",
@@ -1930,7 +1931,7 @@
         "version": "0.25.31",
         "whenToUse": "Building a TextEdit document anywhere — a collaboration server, an import, an API — with exactly the editor’s nodes and attributes.",
         "whenNotToUse": "Rendering a document to read — use MarkdownView.",
-        "integrity": "sha256-sPzoEih4TAJrgSn9Sv1JA65HlF8wbLiaMDmd/9mot8w="
+        "integrity": "sha256-0nC1gG3bI1xIDsIRaHF5do6syJbYNP7vFy/OJ1MkdMg="
       }
     },
     {
